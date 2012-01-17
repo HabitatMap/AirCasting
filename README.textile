@@ -10,7 +10,7 @@ If you'd like to contribute just use the usual github process - fork, make chang
 
 h2. Contact
 
-You can contact the authors by email at "info@aircasting.org":mailto:info@aircasting.org.
+You can contact the authors by email at "info@habitatmap.org":mailto:info@habitatmap.org.
 
 h2. License
 
