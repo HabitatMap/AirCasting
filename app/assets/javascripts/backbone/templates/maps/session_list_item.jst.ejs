@@ -1,0 +1,5 @@
+<input type="checkbox" id="session-<%= session.get('id') %>" <%= selected ? 'checked="checked"' : '' %>>
+<dl>
+  <dt><label for="session-<%= session.get('id') %>"><%= session.get('title') || 'unnamed' %></label></dt>
+  <dd><label for="session-<%= session.get('id') %>"><%= session.get('username') ? session.get('username') + ', ' : '' %><%= timeframe %></label></dd>
+</dl>

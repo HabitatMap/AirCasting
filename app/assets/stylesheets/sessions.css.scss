@@ -1,0 +1,56 @@
+// Place all the styles related to the Sessions controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+$sessions-list-height:300px;
+
+.sessions-container {
+  height: $sessions-list-height;
+  border: 2px solid #888;
+  overflow: auto;
+
+  ul {
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+
+  li {
+    padding:5px 10px;
+    clear:both;
+    overflow: hidden;
+
+    &:nth-child(2n) {
+      background:#eee;
+    }
+
+    input[type="checkbox"], input {
+      float:left;
+      margin:3px 0 0;
+    }
+
+    dl {
+      float:left;
+      margin:0 0 0 10px;
+    }
+
+    dt, dd {
+      color:#000;
+      font-weight:normal;
+    }
+
+    dt {
+      font-size:14px;
+    }
+
+    dd {
+      font-size:11px;
+      margin:0;
+    }
+
+    label {
+      display: block;
+      cursor: pointer;
+    }
+  }
+}

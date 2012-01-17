@@ -1,0 +1,26 @@
+#left-hud
+  #logo
+    = image_tag "air-casting-logo.png", :alt => "Air Casting"
+
+  #nav
+    %ul
+      %li{:class => request.path == '/' ? 'active' : ''}
+        = link_to 'Home', '/'
+      %li{:class => request.path.start_with?(about_path) ? 'active' : ''}
+        = link_to 'About', about_path
+      %li{:class => request.path.start_with?(map_path) || request.path.start_with?('/s/') ? 'active' : ''}
+        = link_to 'Maps', map_path
+      %li
+        = link_to 'Blog', 'http://www.takingspace.org/', :target => '_blank'
+      %li{:class => request.path.start_with?(donate_path) ? 'active' : ''}
+        = link_to 'Donate', donate_path
+
+  -# #account
+  -#   #account-status
+  -#     - if user_signed_in?
+  -#       = link_to 'Log Out', '#', :id => 'sign-out-link'
+  -#       = '(' + current_user.email + ')'
+  -#     - else
+  -#       = link_to 'Sign In', '#', :id => 'sign-in-link'
+  -#   - unless user_signed_in?
+  -#     = render :partial => 'shared/login_form'

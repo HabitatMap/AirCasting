@@ -1,0 +1,17 @@
+h1. AirCasting - Share your Air!
+
+h2. About
+
+This is the android app for the AirCasting project - the project aims to build a platform for gathering, visualization and sharing of environmental data. To learn more about the platform visit "aircasting.org":http://aircasting.org.
+
+h2. Contribute
+
+If you'd like to contribute just use the usual github process - fork, make changes, issue a pull request.
+
+h2. Contact
+
+You can contact the authors by email at "info@aircasting.org":mailto:info@aircasting.org.
+
+h2. License
+
+The project is licensed under the GNU Affero GPLv3. For more information see COPYING and visit "http://www.gnu.org/licenses/agpl.html":http://www.gnu.org/licenses/agpl.html.

@@ -1,0 +1,20 @@
+common: &defaults
+  host: localhost:3000
+  mailer_from: noreply@localhost
+  attachment_secret: "some long and random string"
+
+test:
+  <<: *defaults
+
+development:
+  <<: *defaults
+
+staging:
+  <<: *defaults
+  host: aircasting.llpdemo.com
+  mailer_from: "Aircasting <noreply@aircasting.llpdemo.com>"
+
+production:
+  <<: *defaults
+  host: aircasting.org
+  mailer_from: "Aircasting <noreply@aircasting.org>"

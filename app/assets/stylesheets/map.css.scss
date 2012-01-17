@@ -1,0 +1,357 @@
+// Place all the styles related to the map controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+@import "mixins";
+
+$right-hud-width: 320px;
+
+body#map {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+#mapview {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+#ajax-loader {
+  position: absolute;
+  bottom: 60px;
+  left: 60px;
+  height: 30px;
+  width: 30px;
+  z-index: 2;
+}
+
+.buttons {
+  float:right;
+  list-style:none;
+  margin:0;
+  padding:0;
+
+  li {
+    display:inline;
+  }
+}
+
+.textfield {
+  input {
+    width:98%;
+  }
+}
+
+
+
+.slider {
+  clear:both;
+  padding:10px 0 0;
+
+  input {
+    float:left;
+    line-height:13px;
+    height:16px;
+    width:40px;
+    
+    &:last-child {
+      float:right;
+    }
+  }
+
+  .ui-slider {
+    float:left;
+    margin:0 15px;
+  }
+}
+
+.full-slider {
+  .ui-slider {
+    margin-left:10px;
+  }
+}
+
+.legend {
+  margin:0;
+  padding:20px 0 0;
+  clear:both;
+  font-size:12px;
+  font-weight:normal;
+  color:#000;
+  height:40px;
+
+  li {
+    display:block;
+    float:left;
+    position:relative;
+    height:20px;
+
+    .start {
+      position:absolute;
+      top: -20px;
+      left:-10px;
+    }
+
+    .end {
+      position:absolute;
+      bottom: -20px;
+      right: -10px;
+    }
+  }
+
+  .low {
+    background: rgb(45,166,65);
+    width:60%;
+
+    .start {
+      left:0;
+      bottom:-20px;
+      top:auto;
+    }
+  }
+
+  .mid {
+    background: rgb(249,220,46);
+    width:10%;
+  }
+
+  .midhigh {
+    background: rgb(245,127,34);
+    width:10%;
+
+    .start {
+      bottom:-20px;
+      top:auto;
+    }
+  }
+
+  .high {
+    background: rgb(244,0,28);
+    width:20%;
+
+    .end {
+      right:0;
+    }
+  }
+}
+
+.note-window {
+  width: $right-hud-width;
+
+  .header {
+    background: rgb(133, 133, 133);
+    color: white;
+    padding: 2px 5px;
+    margin-right: 15px;
+    overflow: auto;
+
+    .date {
+      display: block;
+      float: left;
+    }
+
+    .right {
+      display: block;
+      float: right;
+
+      .number {
+        float: left;
+        margin-right: 5px;
+      }
+
+      .next-note, .prev-note {
+        display: block;
+        height: 19px;
+        width: 24px;
+        float: left;
+      }
+
+      .next-note {
+        background-image: url("next_note.png")
+      }
+
+      .prev-note {
+        background-image: url("prev_note.png")
+      }
+   }
+ }
+
+ .content {
+    margin: 10px 16px 0 0;
+
+    .photo {
+      overflow: hidden;
+      float: left;
+      margin: 0px 10px 10px 0px;
+
+      img {
+        max-width: 100px;
+        max-height: 100px;
+         border: 1px solid #ccc;
+      }
+    }
+
+    a.lightbox {
+      display: block;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+#right-hud {
+  position: absolute;
+  top: 10px;
+  right: 5px;
+  width: $right-hud-width;
+  z-index: 10;
+  font-weight:bold;
+
+  #crowd-map-tab section > div, #sessions-tab section > div {
+    @include clearfix;
+    margin:10px 0;
+  }
+
+  #crowd-map-tab section > div, #sessions-tab section > div {
+    &.nomargin {
+      margin:0 0 0 0;
+    }
+  }
+
+  label {
+    float:left;
+  }
+
+  .ui-slider {
+    width: $right-hud-width - 150px;
+    position:relative;
+    top:5px;
+  }
+
+  .full-slider .ui-slider {
+    width: $right-hud-width - 70px;
+  }
+
+  .textfield input, .legend {
+    width: $right-hud-width - 30px;
+  }
+
+  .panel {
+    position:relative;
+
+    .panel-arrow {
+        position:absolute;
+        right:0px;
+        top:0px;
+        width:22px;
+        height:22px;
+        background: url("arrow-close.png") no-repeat right center;
+        &.collapsed {
+          background: url("arrow-open.png") no-repeat right center;
+        }
+      }
+   }
+
+  #hud-tabs {
+    padding:0;
+    margin:0;
+    overflow:hidden;
+
+    li {
+      display:inline;
+      float:left;
+
+      color: white;
+      background:#858585;
+      background:rgb(133,133,133);
+
+      padding:5px 10px;
+      border:2px solid #858585;
+      border-bottom:none;
+      margin-right:10px;
+
+      &.active {
+        background: rgb(255, 255, 255);
+
+        a {
+          color:#858585;
+        }
+      }
+    }
+
+    a {
+      color:#fff;
+      text-decoration: none;
+    }
+  }
+
+  #hud-content {
+    background:#fff;
+    background:rgb(255,255,255);
+    border:2px solid #858585;
+    padding:10px;
+    margin-top:-2px;
+
+    p {
+      margin:5px 0 10px 0;
+      font-weight: normal;
+      label {
+        display:block;
+        margin:5px 0 0;
+        float:none;
+      }
+      input[type="checkbox"] {
+        width:auto;
+        float: left;
+        margin-right:5px;
+      }
+      select#distance {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #999999;
+        color: #858585;
+        padding: 4px 3px 3px;
+        outline:0;
+      }
+    }
+
+    h3 {
+      margin:0 0 5px 0;
+    }
+
+    h4 {
+      margin:0 0 5px 0;
+      border-bottom: 1px dashed #ccc;
+      background: url("arrow-down.png") no-repeat right center;
+      padding:5px 0;
+      cursor: pointer;
+      &.expanded {
+        background: url("arrow-up.png") no-repeat right center;
+      }
+    }
+    section {
+       &.collapsible {
+        display:none;
+       }
+    }
+  }
+}
+
+div.no-ie {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #FCE94F;
+  opacity: 0.8;
+  text-align: center;
+  padding: 5px;
+  margin: 0;
+  z-index: 1000000;
+  color: black;
+  font-weight: bold;
+}

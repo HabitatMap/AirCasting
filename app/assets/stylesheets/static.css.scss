@@ -1,0 +1,76 @@
+// Place all the styles related to the Home controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+@import 'global';
+
+#home {
+  background:#f2f2f2;
+
+  #left-hud {
+    position:fixed;
+  }
+}
+
+#content {
+  margin-left:270px;
+  _width:640px; // for old IE set width to 640px
+  max-width:640px;
+  background:#fff;
+  padding:15px 30px;
+
+  -webkit-box-shadow: 0 0 15px rgba(0,0,0,.15);
+  -moz-box-shadow: 0 0 15px rgba(0,0,0,.15);
+  -ms-box-shadow: 0 0 15px rgba(0,0,0,.15);
+  -o-box-shadow: 0 0 15px rgba(0,0,0,.15);
+  box-shadow: 0 0 15px rgba(0,0,0,.15);
+}
+
+.button {
+  @include button;
+}
+
+.inline-image {
+  float: left;
+  margin-right: 5px;
+}
+
+.feature {
+  float: left;
+  width: 32%;
+  font-weight: bold;
+  margin-right: 10px;
+  text-align:center;
+
+  img {
+    margin-bottom: 10px;
+  }
+
+  &.last, &:last-child, &:nth-child(3n) {
+    margin-right:0;
+  }
+}
+
+.features {
+  overflow: hidden;
+}
+
+.desc {
+  overflow: hidden;
+}
+
+p.download {
+  text-align: center;
+}
+
+.download-link {
+  font-weight: bold;
+}
+
+.paypal_button {
+  text-align: center;
+}
+
+.address {
+  text-align: center;
+}

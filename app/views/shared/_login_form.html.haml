@@ -1,0 +1,26 @@
+
+#sign-in{:style => "display: none"}
+  = form_for(User.new, :url => session_path(:user), :remote => true, :format => :json, :html => { :id => 'sign-in-form' }) do |f|
+    %div
+      = f.label :login
+      = f.text_field :login
+
+    %br
+
+    %div
+      = f.label :password
+      = f.password_field :password
+
+    %br
+
+    %div
+      = f.check_box :remember_me, :checked => true
+      = f.label :remember_me
+
+    %br
+
+    %div
+      = f.submit "Sign in"
+      = link_to 'Cancel', '#', :id => 'cancel-sign-in-link'
+
+    %span.errors

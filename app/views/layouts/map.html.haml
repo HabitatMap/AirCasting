@@ -1,0 +1,25 @@
+!!! 5
+%html
+  %head
+    %title AirCasting
+    = stylesheet_link_tag    "application"
+    = javascript_include_tag "http://maps.googleapis.com/maps/api/js?sensor=true"
+    = javascript_include_tag "application"
+    = favicon_link_tag "favicon.png"
+    = csrf_meta_tags
+    = render :partial => 'shared/analytics'
+
+  %body(id="map")
+    = render :partial => 'shared/left_hud'
+    #right-hud
+    #mapview
+    #ajax-loader
+
+    = yield
+
+:javascript
+  window.marker1_path = '#{image_path "marker1.png"}';
+  window.marker2_path = '#{image_path "marker2.png"}';
+  window.marker3_path = '#{image_path "marker3.png"}';
+  window.marker4_path = '#{image_path "marker4.png"}';
+  window.marker_note_path = '#{image_path "marker_note.png"}';
