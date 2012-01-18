@@ -128,11 +128,12 @@ initializePanel = ->
     return false
   )
 
-initializeDatePickers = ->
+initializePickers = ->
   datepickerOptions = {
     dateFormat: "mm/dd"
   }
   $( -> $('.month-day').datepicker(datepickerOptions))
+  $( -> $('.timepicker').timepicker())
 
 initializeSpinner = ->
   spinnerTarget = document.getElementById('ajax-loader')
@@ -159,7 +160,7 @@ initialize = ->
   initializeSignInForm()
   initializeAccordion()
   initializePanel()
-  initializeDatePickers()
+  initializePickers()
   AC.util.spinner.initialize()
 
 $(document).ready(initialize)

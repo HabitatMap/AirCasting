@@ -106,7 +106,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
         @updateYearLabels()
     )
 
-    @timeFromLabel.keyup (event) =>
+    @timeFromLabel.bind "change keyup", (event) =>
       value = @timeFromLabel.val()
       value = AC.util.parseMinutesHours(value)
       if value && value >= @minTime && value <= @maxTime && value <= @timeTo
@@ -115,7 +115,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       else
         @timeFromLabel.addClass("error")
         
-    @timeToLabel.keyup (event) =>
+    @timeToLabel.bind "change keyup", (event) =>
       value = @timeToLabel.val()
       value = AC.util.parseMinutesHours(value)
       if value && value >= @minTime && value <= @maxTime && value >= @timeFrom
@@ -124,7 +124,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       else
         @timeToLabel.addClass("error")
     
-    @dayToLabel.change (event) =>
+    @dayToLabel.bind "change keyup", (event) =>
       value = @dayToLabel.val()
       date = Date.parse(value)
       dayOfYear = @dayOfYear(date)
@@ -134,7 +134,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       else
         @dayToLabel.addClass("error")
 
-    @dayFromLabel.change (event) =>
+    @dayFromLabel.bind "change keyup", (event) =>
       value = @dayFromLabel.val()
       date = Date.parse(value)
       dayOfYear = @dayOfYear(date)
