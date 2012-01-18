@@ -124,22 +124,22 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       else
         @timeToLabel.addClass("error")
     
-    @dayToLabel.keyup (event) =>
+    @dayToLabel.change (event) =>
       value = @dayToLabel.val()
       date = Date.parse(value)
       dayOfYear = @dayOfYear(date)
-      if dayOfYear >= @minDay && dayOfYear <= @maxDay && value >= @dayFrom
+      if dayOfYear >= @minDay && dayOfYear <= @maxDay && dayOfYear >= @dayFrom
         @setDayTo(dayOfYear)
         @dayToLabel.removeClass("error")
       else
         @dayToLabel.addClass("error")
 
-    @dayFromLabel.keyup (event) =>
+    @dayFromLabel.change (event) =>
       value = @dayFromLabel.val()
       date = Date.parse(value)
       dayOfYear = @dayOfYear(date)
-      if dayOfYear >= @minDay && dayOfYear <= @maxDay && value <= @dayTo
-        @setDayTo(dayOfYear)
+      if dayOfYear >= @minDay && dayOfYear <= @maxDay && dayOfYear <= @dayTo
+        @setDayFrom(dayOfYear)
         @dayFromLabel.removeClass("error")
       else
         @dayFromLabel.addClass("error")
