@@ -85,9 +85,9 @@ window.AirCasting.util =
       }
 
   parseMinutesHours: (value) ->
-    [hours, minutes] = (parseInt(x) for x in value.split(":"))
-    if !isNaN(minutes) && !isNaN(hours)
-      minutes + 60 * hours
+    date = Date.parse(value)
+    if date
+      date.getMinutes() + 60 * date.getHours()
 
   
   spinner: {
