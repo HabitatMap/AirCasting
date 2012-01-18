@@ -60,12 +60,12 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
   getHandles: ->
     @timeSlider = @$('#time-slider')
-    @timeFromLabel = @$('#time-from-label')
-    @timeToLabel = @$('#time-to-label')
+    @timeFromLabel = @$('.time-from-label')
+    @timeToLabel = @$('.time-to-label')
 
     @daySlider = @$('#day-slider')
-    @dayFromLabel = @$('#day-from-label')
-    @dayToLabel = @$('#day-to-label')
+    @dayFromLabel = @$('.day-from-label')
+    @dayToLabel = @$('.day-to-label')
 
     @yearSlider = @$('#year-slider')
     @yearFromLabel = @$('#year-from-label')
