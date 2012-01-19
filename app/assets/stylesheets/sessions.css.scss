@@ -4,6 +4,16 @@
 
 $sessions-list-height:300px;
 
+section.sessions {
+  width: 220px;
+  background: none repeat scroll 0% 0% rgb(255, 255, 255);
+  position: fixed;
+  padding: 10px;
+  border: 2px solid rgb(133, 133, 133);
+  top: 240px;
+  left: 10px;
+}
+
 .sessions-container {
   height: $sessions-list-height;
   border: 2px solid #888;

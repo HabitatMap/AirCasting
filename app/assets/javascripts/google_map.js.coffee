@@ -45,16 +45,9 @@ class AirCasting.GoogleMap
           google.maps.MapTypeId.TERRAIN
           google.maps.MapTypeId.HYBRID
         ]
-      panControl: true
-      panControlOptions:
-        position: google.maps.ControlPosition.LEFT_CENTER
-      zoomControl: true
-      zoomControlOptions:
-        position: google.maps.ControlPosition.LEFT_CENTER
-      scaleControl: false
-      streetViewControl: true
-      streetViewControlOptions:
-        position: google.maps.ControlPosition.LEFT_CENTER
+      zoomControl: false
+      panControl: false
+      streetViewControl: false
 
     @map = new google.maps.Map(document.getElementById(@mapElementId), options)
     @adjustViewport(north, east, south, west)
