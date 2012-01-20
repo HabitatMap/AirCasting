@@ -30,8 +30,11 @@ body#map {
 
 #zoom-slider {
   position: absolute;
-  top: 70px;
-  left: 320px;
+  bottom: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
   height: 10px;
   width: 100px;
   z-index: 2;
