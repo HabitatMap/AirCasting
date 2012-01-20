@@ -23,7 +23,7 @@ class AutocompleteController < ApplicationController
     q = params[:q]
 
     if q.present?
-      sql_query = ActiveRecord::Base.send(:sanitize_sql_array, [FINDER_SQL, "#{q}%", params[:limit]])
+      sql_query = ActiveRecord::Base.send(:sanitize_sql_array, [FINDER_SQL, "#{q}%", params[:limit].to_i])
       tag_names = ActiveRecord::Base.connection.execute(sql_query).to_a.flatten
 
       render :text => tag_names.join("\n")
