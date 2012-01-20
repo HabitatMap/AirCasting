@@ -74,7 +74,12 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     distance = @$('#distance').val()
     viewport = if @$("#limit-to-viewport").attr("checked") then AC.util.viewport(@googleMap)
     @sessions.setUrlParams(@timeFrom, @timeTo, @dayFrom, @dayTo, @includeSessionId, tags, usernames, location, distance, viewport)
-    @sessions.fetch()
+
+    AC.util.spinner.startTask()
+    @sessions.fetch(
+      success: AC.util.spinner.stopTask()
+      error: AC.util.spinner.stopTask()
+    )
 
   clear: ->
     @sessionListView.clear()
