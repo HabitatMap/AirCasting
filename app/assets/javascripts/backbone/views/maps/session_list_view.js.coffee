@@ -152,6 +152,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @drawMeasurement(session, element)
     for note in @downloadedData[id].notes || []
       @drawNote(session, note)
+    @adjustViewport()
 
     AC.util.spinner.stopTask()
 
