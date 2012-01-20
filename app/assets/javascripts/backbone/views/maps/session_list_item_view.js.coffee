@@ -35,5 +35,9 @@ class AirCasting.Views.Maps.SessionListItemView extends Backbone.View
     return this
 
   onChange: ->
+    if @$(":checkbox:checked").size() > 0
+      $(@el).addClass("selected")
+    else
+      $(@el).removeClass("selected")
     @parent.onChildSelected(this, @$(':checkbox:checked').size() > 0)
 
