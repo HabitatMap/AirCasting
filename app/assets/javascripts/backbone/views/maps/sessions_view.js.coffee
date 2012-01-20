@@ -29,7 +29,12 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
   initialize: (options) ->
     super options
     @sessions = new AirCasting.Collections.SessionsCollection()
+    @sessions.bind("reset", @pulseSessions)
     @includeSessionId = options.includeSessionId || ''
+
+  pulseSessions: ->
+    $("section.sessions").css({opacity: 1})
+    $("section.sessions").pulse({opacity: 0.65}, 350, 2)
 
   render: ->
     super()
