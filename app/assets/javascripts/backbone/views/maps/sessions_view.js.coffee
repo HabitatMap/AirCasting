@@ -36,7 +36,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     @includeSessionId = options.includeSessionId || ''
 
   resizeSessions: ->
-    height = window.innerHeight - 380
+    height = Math.max(window.innerHeight - 380, 100)
     $(".sessions-container").css({height: height})
 
   pulseSessions: ->
