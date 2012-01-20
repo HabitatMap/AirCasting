@@ -30,7 +30,14 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     super options
     @sessions = new AirCasting.Collections.SessionsCollection()
     @sessions.bind("reset", @pulseSessions)
+
+    $(window).resize(@resizeSessions)
+
     @includeSessionId = options.includeSessionId || ''
+
+  resizeSessions: ->
+    height = window.innerHeight - 380
+    $(".sessions-container").css({height: height})
 
   pulseSessions: ->
     $("section.sessions").css({opacity: 1})
@@ -38,6 +45,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
   render: ->
     super()
+    @resizeSessions()
     @sessionListView = new AirCasting.Views.Maps.SessionListView(
       el: $('#session-list'),
       collection: @sessions,
