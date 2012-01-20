@@ -92,6 +92,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   reset: ->
     @$(':checkbox').attr('checked', null)
+    @$(':checkbox').trigger('change')
     @selectedSessions = {}
     @clear()
     @draw()
