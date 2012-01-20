@@ -28,6 +28,15 @@ body#map {
   z-index: 2;
 }
 
+#zoom-slider {
+  position: absolute;
+  top: 70px;
+  left: 320px;
+  height: 10px;
+  width: 100px;
+  z-index: 2;
+}
+
 .buttons {
   float:right;
   list-style:none;

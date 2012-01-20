@@ -53,6 +53,8 @@ class AirCasting.GoogleMap
     @adjustViewport(north, east, south, west)
     google.maps.event.addListener @map, "zoom_changed", @adjustMapType.bind(this)
     google.maps.event.addListener @map, "idle", @saveViewport.bind(this)
+    google.maps.event.addListener @map, "zoom_changed", @updateZoomSlider.bind(this)
+    @initializeZoomSlider()
 
   adjustViewport: (north, east, south, west) ->
     if east and west and north and south
@@ -81,6 +83,18 @@ class AirCasting.GoogleMap
     $.cookie('vp_lat', lat, expires: 365)
     $.cookie('vp_lng', lng, expires: 365)
 
+  initializeZoomSlider: ->
+    @zoomSlider = $("#zoom-slider")
+    @zoomSlider.slider(
+      min: 0
+      max: 21
+      slide: (event, ui) =>
+        @map.setZoom(ui.value)
+    )
+    @updateZoomSlider()
+
+  updateZoomSlider: ->
+    @zoomSlider.slider("value", @map.getZoom())
 
 initializeSignInForm = ->
   $('#sign-in-link').click ->
@@ -147,7 +161,6 @@ initializeSpinner = ->
   $.ajaxSetup
     beforeSend: -> spinner.spin(spinnerTarget)
     complete: -> spinner.stop()
-
 
 initialize = ->
   initializeSignInForm()
