@@ -1,21 +1,48 @@
 <h4>Heat Legend Units</h4>
 
 <section class="collapsible">
-  <div>
-    <ul class="legend">
-      <li class="low">
-        <span class="start">20dB</span>
-      </li>
-      <li class="mid">
-        <span class="start">60dB</span>
-      </li>
-      <li class="midhigh">
-        <span class="start">70dB</span>
-      </li>
-      <li class="high">
-        <span class="start">80dB</span>
-        <span class="end">100dB</span>
-      </li>
-    </ul>
+<div class="slider">
+  <input type="text" id="too-loud-input"></input>
+  <p>values greater than this will not be displayed</p>
+</div>
+<div class="slider">
+  <input type="text" id="very-loud-input"></input>
+  <div id="very-loud-slider"></div>
+</div>
+<div class="slider">
+  <input type="text" id="loud-input"></input>
+  <div id="loud-slider"></div>
+</div>
+<div class="slider">
+  <input type="text" id="average-input"></input>
+  <div id="average-slider"></div>
+</div>
+<div class="slider">
+  <input type="text" id="quiet-input"></input>
+  <div id="quiet-slider"></div>
+</div>
+<div class="slider">
+  <input type="text" id="indistinct-input"></input>
+  <p>values less than this will not be displayed</p>
+</div>
+</section>
+
+<section>
+<div>
+  <ul class="legend">
+    <li class="low">
+    <span class="start">20dB</span>
+    </li>
+    <li class="mid">
+    <span class="start">60dB</span>
+    </li>
+    <li class="midhigh">
+    <span class="start">70dB</span>
+    </li>
+    <li class="high">
+    <span class="start">80dB</span>
+    <span class="end">100dB</span>
+    </li>
+  </ul>
 </div>
 </section>

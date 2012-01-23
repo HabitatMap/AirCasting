@@ -75,7 +75,15 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @yearFromLabel = @$('#year-from-label')
     @yearToLabel = @$('#year-to-label')
 
+    @veryLoudSlider = @$('#very-loud-slider')
+    @loudSlider = @$('#loud-slider')
+    @averageSlider = @$('#average-slider')
+    @quietSlider = @$('#quiet-slider')
+
   initSliders: ->
+    for slider in [@veryLoudSlider, @loudSlider, @averageSlider, @quietSlider]
+      slider.slider()
+
     @timeSlider.slider(
       range: true
       min: @minTime
@@ -118,7 +126,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
         @timeFromLabel.removeClass("error")
       else
         @timeFromLabel.addClass("error")
-        
+
     @timeToLabel.bind "change keyup", (event) =>
       value = @timeToLabel.val()
       value = AC.util.parseMinutesHours(value)
@@ -127,7 +135,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
         @timeToLabel.removeClass("error")
       else
         @timeToLabel.addClass("error")
-    
+
     @dayToLabel.bind "change keyup", (event) =>
       value = @dayToLabel.val()
       date = Date.parse(value)
