@@ -20,6 +20,8 @@
 AirCasting.Views.Maps ||= {}
 
 class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
+  heatLegend: JST["backbone/templates/maps/heat_legend"]()
+
   events:
     'click .submit': 'refilter'
     'click #reset-time': 'resetTime'
@@ -44,6 +46,8 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
   render: ->
     $(@el).html @template()
+    @$(".accordion").append @heatLegend
+
     @getHandles()
     @initSliders()
     @resetSliders()
