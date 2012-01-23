@@ -28,6 +28,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     'click #reset-tags': 'resetTags'
     'click #reset-usernames': 'resetUsernames'
     'click #reset-location': 'resetLocation'
+    'click #reset-heat-legend': 'resetHeatLegend'
 
   initialize: (options) ->
     @googleMap = options.googleMap
@@ -89,7 +90,17 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       quiet: @$('#quiet-input')
     }
 
-  updateHeatLegend: (fixed, value) ->
+  resetHeatLegend: ->
+    for key, input of @heatLegendInputs
+      input.val(@initialLegendValue(key))
+    for key, slider of @heatLegendSliders
+      slider.slider {
+        min: @initialLegendValue("quiet")
+        max: @initialLegendValue("tooLoud")
+        value: @initialLegendValue(key)
+      }
+
+  updateLegendValues: (fixed, value) ->
     @heatLegendInputs[fixed].val value
 
     level = @nextLegendLevel[fixed]
@@ -148,7 +159,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
           max: @initialLegendValue("tooLoud")
           value: @initialLegendValue(key)
           slide: (event, ui) =>
-            @updateHeatLegend(key, ui.value)
+            @updateLegendValues(key, ui.value)
         )
 
     for key, input of @heatLegendInputs
@@ -156,7 +167,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       do(input, key) =>
         input.change =>
           value = parseInt(input.val(), 10) || @initialLegendValue(key)
-          @updateHeatLegend(key, value)
+          @updateLegendValues(key, value)
 
     @timeSlider.slider(
       range: true
