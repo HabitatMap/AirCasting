@@ -32,9 +32,6 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
   initialize: (options) ->
     @googleMap = options.googleMap
 
-    @indistinct = 20
-    @tooLoud = 100
-
     @minTime = @timeFrom = 0
     @maxTime = @timeTo = 24 * 60 - 1
     @minDay  = @dayFrom = 1
@@ -82,10 +79,10 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       veryLoud: @$('#very-loud-slider')
       loud: @$('#loud-slider')
       average: @$('#average-slider')
-      quiet: @$('#quiet-slider')
     }
 
     @heatLegendInputs = {
+      tooLoud: @$('#too-loud-input')
       veryLoud: @$('#very-loud-input')
       loud: @$('#loud-input')
       average: @$('#average-input')
@@ -93,19 +90,31 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     }
 
   updateHeatLegend: (fixed, value) ->
-    console.log(fixed, value, @heatLegendInputs[fixed])
     @heatLegendInputs[fixed].val value
 
+  initialValue: (key) ->
+    {
+      tooLoud: 100
+      veryLoud: 80
+      loud: 70
+      average: 60
+      quiet: 20
+    }[key]
+
   initSliders: ->
-    for own key, slider of @heatLegendSliders
+    for key, slider of @heatLegendSliders
       do (key) =>
         slider.slider(
-          min: @indistinct
-          max: @tooLoud
-          value: 60
+          min: @initialValue("quiet")
+          max: @initialValue("tooLoud")
+          value: @initialValue(key)
           slide: (event, ui) =>
             @updateHeatLegend(key, ui.value)
         )
+
+    for key, input of @heatLegendInputs
+      do(key) =>
+        input.val @initialValue(key)
 
     @timeSlider.slider(
       range: true
