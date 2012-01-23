@@ -92,7 +92,46 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
   updateHeatLegend: (fixed, value) ->
     @heatLegendInputs[fixed].val value
 
-  initialValue: (key) ->
+    level = @nextLegendLevel[fixed]
+    while level
+      previous = @previousLegendLevel[level]
+      previousVal = parseInt(@heatLegendInputs[previous].val(), 10) || @initialLegendValue(previous)
+      nextVal = parseInt(@heatLegendInputs[level].val(), 10) || @initialLegendValue(level)
+      if nextVal <= previousVal
+        @heatLegendInputs[level].val(previousVal + 1)
+      level = @nextLegendLevel[level]
+
+    level = @previousLegendLevel[fixed]
+    while level
+      next = @nextLegendLevel[level]
+      nextVal = parseInt(@heatLegendInputs[next].val(), 10) || @initialLegendValue(next)
+      previousVal  = parseInt(@heatLegendInputs[level].val(), 10) || @initialLegendValue(level)
+      if nextVal <= previousVal
+        @heatLegendInputs[level].val(nextVal - 1)
+      level = @previousLegendLevel[level]
+
+    for key, slider of @heatLegendSliders
+      slider.slider {
+        value: parseInt(@heatLegendInputs[key].val(), 10) || @initialLegendValue(key)
+        min: parseInt(@heatLegendInputs["quiet"].val(), 10) || @initialLegendValue("quiet")
+        max: parseInt(@heatLegendInputs["tooLoud"].val(), 10) || @initialLegendValue("tooLoud")
+      }
+
+  nextLegendLevel: {
+    veryLoud: "tooLoud"
+    loud: "veryLoud"
+    average: "loud"
+    quiet: "average"
+  }
+
+  previousLegendLevel: {
+    tooLoud: "veryLoud"
+    veryLoud: "loud"
+    loud: "average"
+    average: "quiet"
+  }
+
+  initialLegendValue: (key) ->
     {
       tooLoud: 100
       veryLoud: 80
@@ -105,16 +144,19 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     for key, slider of @heatLegendSliders
       do (key) =>
         slider.slider(
-          min: @initialValue("quiet")
-          max: @initialValue("tooLoud")
-          value: @initialValue(key)
+          min: @initialLegendValue("quiet")
+          max: @initialLegendValue("tooLoud")
+          value: @initialLegendValue(key)
           slide: (event, ui) =>
             @updateHeatLegend(key, ui.value)
         )
 
     for key, input of @heatLegendInputs
-      do(key) =>
-        input.val @initialValue(key)
+      input.val @initialLegendValue(key)
+      do(input, key) =>
+        input.change =>
+          value = parseInt(input.val(), 10) || @initialLegendValue(key)
+          @updateHeatLegend(key, value)
 
     @timeSlider.slider(
       range: true
