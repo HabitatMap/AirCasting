@@ -18,7 +18,7 @@
 # You can contact the authors by email at <info@habitatmap.org>
 ###
 window.AirCasting.G =
-  db_levels: [60, 70, 80]
+  db_levels: [20, 60, 70, 80, 100]
 
 window.AirCasting.util =
   colors: [
@@ -31,14 +31,20 @@ window.AirCasting.util =
   dbToColor: (value) ->
     result =
       if value < AC.G.db_levels[0]
-        @colors[0]
+        null
       else if value < AC.G.db_levels[1]
-        @colors[1]
+        @colors[0]
       else if value < AC.G.db_levels[2]
+        @colors[1]
+      else if value < AC.G.db_levels[3]
         @colors[2]
-      else
+      else if value < AC.G.db_levels[4]
         @colors[3]
-    "rgb(" + parseInt(result[0]) + "," + parseInt(result[1]) + "," + parseInt(result[2]) + ")"
+      else
+        null
+
+    if result
+      "rgb(" + parseInt(result[0]) + "," + parseInt(result[1]) + "," + parseInt(result[2]) + ")"
 
   dbToIcon: (calibration, offset_60_db, value) ->
     value = @calibrateValue(calibration, offset_60_db, value)
@@ -89,7 +95,6 @@ window.AirCasting.util =
     if date
       date.getMinutes() + 60 * date.getHours()
 
-  
   spinner: {
     initialize: ->
       @spinnerTarget = document.getElementById('ajax-loader')

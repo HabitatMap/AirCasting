@@ -91,7 +91,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       low: @$('#low-input')
     }
 
-  resetHeatLegend: ->
+  initializeHeatLegend: ->
     for key, input of @heatLegendInputs
       input.val(@initialLegendValue[key])
     for key, slider of @heatLegendSliders
@@ -101,9 +101,14 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
         value: @initialLegendValue[key]
       }
 
+  resetHeatLegend: ->
+    @initializeHeatLegend()
+    @saveHeatLegend()
+
   saveHeatLegend: ->
     for key in ["low", "midLow", "mid", "midHigh", "high"]
       @[key] = @currentLegendValue(key)
+    AC.G.db_levels = [@low, @midLow, @mid, @midHigh, @high]
 
     @$(".low").css(width: (@midLow - @low) / (@high - @low) * 100 + "%")
     @$(".mid").css(width: (@mid - @midLow) / (@high - @low) * 100 + "%")
@@ -115,6 +120,8 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @$(".midhigh .start").html(@mid + " dB")
     @$(".high .start").html(@midHigh + " dB")
     @$(".high .end").html(@high + " dB")
+
+    @heatLegendUpdated()
 
   currentLegendValue: (key) ->
     parseInt(@heatLegendInputs[key].val(), 10) || @initialLegendValue[key]
@@ -162,15 +169,15 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
   }
 
   initialLegendValue: {
-    high: 100
-    midHigh: 80
-    mid: 70
-    midLow: 60
-    low: 20
+    high: AC.G.db_levels[4]
+    midHigh: AC.G.db_levels[3]
+    mid: AC.G.db_levels[2]
+    midLow: AC.G.db_levels[1]
+    low: AC.G.db_levels[0]
   }
 
   initSliders: ->
-    @resetHeatLegend()
+    @initializeHeatLegend()
 
     for key, slider of @heatLegendSliders
       do (key) =>
@@ -308,6 +315,9 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
   clear: ->
     throw 'clear() not implemented'
+
+  heatLegendUpdated: ->
+    throw 'heatLegendUpdated() not implemented'
 
   setTimeFrom: (value) ->
     @timeFrom = value

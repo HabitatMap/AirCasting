@@ -81,6 +81,8 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       error: AC.util.spinner.stopTask()
     )
 
+  heatLegendUpdated: ->
+
   clear: ->
     @sessionListView.clear()
 

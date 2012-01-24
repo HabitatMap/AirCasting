@@ -57,6 +57,9 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @clear()
     google.maps.event.removeListener @idleListener if @idleListener
 
+  heatLegendUpdated: ->
+    @fetch()
+
   resetSliders: ->
     super()
     @resetResolution true
@@ -90,7 +93,8 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
         tags: tags
         usernames: usernames
       (data, status, jqXHR) =>
-        @draw(data)
+        @data = data
+        @draw()
         AC.util.spinner.stopTask()
 
   clear: ->
@@ -98,10 +102,10 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
       rectangle.setMap null
     @rectangles.length = 0
 
-  draw: (data) ->
+  draw: ->
     @clear()
 
-    for element in data
+    for element in @data
       rectOptions =
         strokeWeight: 0
         fillColor: AC.util.dbToColor(element.value)
