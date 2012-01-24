@@ -53,7 +53,6 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @refilter()
     @idleListener = google.maps.event.addListener @googleMap.map, "idle", @refilter.bind(this)
     @initializeHeatLegend()
-    @saveHeatLegend()
 
   deactivate: ->
     @clear()

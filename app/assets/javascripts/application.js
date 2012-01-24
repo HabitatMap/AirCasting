@@ -31,6 +31,7 @@
 //= require backbone
 //= require backbone_rails_sync
 //= require backbone_datalink
+//= require vendor/jquery.cookie
 //= require globals
 //= require backbone/air_casting
 //= require google_map

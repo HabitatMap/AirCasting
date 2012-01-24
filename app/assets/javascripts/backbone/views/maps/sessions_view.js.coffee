@@ -57,7 +57,6 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
   activate: (options) ->
     @initializeHeatLegend()
-    @saveHeatLegend()
     @draw(options?.selectedSessionId)
 
   deactivate: ->

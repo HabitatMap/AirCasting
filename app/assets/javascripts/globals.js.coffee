@@ -18,8 +18,24 @@
 # You can contact the authors by email at <info@habitatmap.org>
 ###
 window.AirCasting.G =
-  db_levels: [20, 60, 70, 80, 100]
   default_db_levels: [20, 60, 70, 80, 100]
+  db_levels: []
+
+  initialize: ->
+    for i in [0..4]
+      value = $.cookie("db_levels_" + i)
+      value = parseInt(value)
+      @db_levels[i] = value || @default_db_levels[i]
+
+  resetDBLevels: ->
+    @saveDBLevels(@default_db_levels)
+
+  saveDBLevels: (levels) ->
+    @db_levels = levels
+    for i in [0..4]
+      $.cookie("db_levels_" + i, levels[i], expires: 365)
+
+window.AirCasting.G.initialize()
 
 window.AirCasting.util =
   colors: [
