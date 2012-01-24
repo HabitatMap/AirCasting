@@ -34,6 +34,7 @@ class Session < ActiveRecord::Base
   after_create :set_session_timeframe
 
   delegate :username, :to => :user
+  delegate :size, :to => :measurements
 
   acts_as_taggable
 
@@ -142,9 +143,10 @@ class Session < ActiveRecord::Base
   end
 
   def as_json(opts=nil)
-    only = opts[:only]
-    methods = opts[:methods] || [:measurements, :notes, :calibration]
-    super(:only => only, :methods => methods)
+    opts ||= {}
+
+    methods = opts[:methods] || [:measurements, :notes, :calibration, :size]
+    super(opts.merge(:methods => methods))
   end
 
   def sync(session_data)

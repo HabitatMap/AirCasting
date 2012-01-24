@@ -37,6 +37,18 @@ describe Session do
     it { should allow_mass_assignment_of :os_version }
   end
 
+  describe "#as_json" do
+    let(:m1) { Factory(:measurement) }
+    let(:m2) { Factory(:measurement) }
+    let(:session) { Factory(:session, :measurements => [m1, m2]) }
+
+    subject { session.as_json }
+
+    it "should include session size" do
+      subject.symbolize_keys[:size].should == session.measurements.size
+    end
+  end
+
   describe '.create' do
     let(:session) { Factory.build(:session) }
 
