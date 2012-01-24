@@ -106,19 +106,21 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @clear()
 
     for element in @data
-      rectOptions =
-        strokeWeight: 0
-        fillColor: AC.util.dbToColor(element.value)
-        fillOpacity: 0.35
-        map: @googleMap.map
-        bounds: new google.maps.LatLngBounds(
-          new google.maps.LatLng(element.south, element.west),
-          new google.maps.LatLng(element.north, element.east)
-        )
+      fillColor = AC.util.dbToColor(element.value)
+      if fillColor
+        rectOptions =
+          strokeWeight: 0
+          fillColor: AC.util.dbToColor(element.value)
+          fillOpacity: 0.35
+          map: @googleMap.map
+          bounds: new google.maps.LatLngBounds(
+            new google.maps.LatLng(element.south, element.west),
+            new google.maps.LatLng(element.north, element.east)
+          )
 
-      rectangle = new google.maps.Rectangle()
-      rectangle.setOptions rectOptions
-      @rectangles.push rectangle
+        rectangle = new google.maps.Rectangle()
+        rectangle.setOptions rectOptions
+        @rectangles.push rectangle
 
   setResolution: (value) ->
     @gridResolution = value
