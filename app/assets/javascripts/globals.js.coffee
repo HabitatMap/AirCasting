@@ -51,13 +51,17 @@ window.AirCasting.util =
 
     result =
       if value < AC.G.db_levels[0]
-        window.marker1_path
+        null
       else if value < AC.G.db_levels[1]
-        window.marker2_path
+        window.marker1_path
       else if value < AC.G.db_levels[2]
+        window.marker2_path
+      else if value < AC.G.db_levels[3]
         window.marker3_path
-      else
+      else if value < AC.G.db_levels[4]
         window.marker4_path
+      else
+        null
 
   calibrateValue: (calibration, offset_60_db, value) ->
     (value + (calibration - 60 + offset_60_db)) / (calibration - 60 + offset_60_db) * (calibration - 60) + 60

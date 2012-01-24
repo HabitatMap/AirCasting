@@ -157,18 +157,21 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     AC.util.spinner.stopTask()
 
   drawMeasurement: (session, element) ->
-    markerOptions =
-      map: @googleMap.map
-      position: new google.maps.LatLng(element.latitude, element.longitude)
-      title: '' + parseInt(AC.util.calibrateValue(session.get('calibration'), session.get('offset_60_db'), element.value)) + ' dB'
-      icon: AC.util.dbToIcon(session.get('calibration'), session.get('offset_60_db'), element.value)
-      flat: true
-      zIndex: 1
+    icon = AC.util.dbToIcon(session.get('calibration'), session.get('offset_60_db'), element.value)
 
-    marker = new google.maps.Marker()
-    marker.setOptions markerOptions
-    marker.sessionId = session.get('id')
-    @markers.push marker
+    if icon
+      markerOptions =
+        map: @googleMap.map
+        position: new google.maps.LatLng(element.latitude, element.longitude)
+        title: '' + parseInt(AC.util.calibrateValue(session.get('calibration'), session.get('offset_60_db'), element.value)) + ' dB'
+        icon: icon
+        flat: true
+        zIndex: 1
+
+      marker = new google.maps.Marker()
+      marker.setOptions markerOptions
+      marker.sessionId = session.get('id')
+      @markers.push marker
 
   drawNote: (session, note) ->
     markerOptions =
