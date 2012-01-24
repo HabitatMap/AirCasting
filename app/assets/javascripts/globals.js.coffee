@@ -94,6 +94,9 @@ window.AirCasting.util =
         north: bounds.getNorthEast().lat()
       }
 
+  mapReady: (map) ->
+    map.map.getBounds()
+
   parseMinutesHours: (value) ->
     date = Date.parse(value)
     if date

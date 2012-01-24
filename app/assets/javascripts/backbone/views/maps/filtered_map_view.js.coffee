@@ -93,12 +93,12 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
   initializeHeatLegend: ->
     for key, input of @heatLegendInputs
-      input.val(@initialLegendValue[key])
+      input.val(@initialLegendValue(key))
     for key, slider of @heatLegendSliders
       slider.slider {
-        min: @initialLegendValue["low"]
-        max: @initialLegendValue["high"]
-        value: @initialLegendValue[key]
+        min: @initialLegendValue("low")
+        max: @initialLegendValue("high")
+        value: @initialLegendValue(key)
       }
 
   resetHeatLegend: ->
@@ -124,7 +124,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @heatLegendUpdated()
 
   currentLegendValue: (key) ->
-    parseInt(@heatLegendInputs[key].val(), 10) || @initialLegendValue[key]
+    parseInt(@heatLegendInputs[key].val(), 10) || @initialLegendValue(key)
 
   updateLegendValues: (fixed, value) ->
     @heatLegendInputs[fixed].val value
@@ -168,13 +168,13 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     midLow: "low"
   }
 
-  initialLegendValue: {
+  initialLegendValue: (key) -> {
     high: AC.G.db_levels[4]
     midHigh: AC.G.db_levels[3]
     mid: AC.G.db_levels[2]
     midLow: AC.G.db_levels[1]
     low: AC.G.db_levels[0]
-  }
+  }[key]
 
   initSliders: ->
     @initializeHeatLegend()
