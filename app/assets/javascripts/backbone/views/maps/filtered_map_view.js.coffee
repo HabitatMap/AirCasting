@@ -104,37 +104,36 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
   resetHeatLegend: ->
     AC.G.resetDBLevels()
+
     @initializeHeatLegend()
     @heatLegendUpdated()
 
   updateLegendDisplay: ->
-    for key in ["low", "midLow", "mid", "midHigh", "high"]
-      @[key] = @currentLegendValue(key)
+    [low, midLow, mid, midHigh, high] = AC.G.db_levels
 
-    @$(".low").css(width: (@midLow - @low) / (@high - @low) * 100 + "%")
-    @$(".mid").css(width: (@mid - @midLow) / (@high - @low) * 100 + "%")
-    @$(".midhigh").css(width: (@midHigh - @mid) / (@high - @low) * 100 + "%")
-    @$(".high").css(width: (@high - @midHigh) / (@high - @low) * 100 + "%")
+    @$(".low").css(width: (midLow - low) / (high - low) * 100 + "%")
+    @$(".mid").css(width: (mid - midLow) / (high - low) * 100 + "%")
+    @$(".midhigh").css(width: (midHigh - mid) / (high - low) * 100 + "%")
+    @$(".high").css(width: (high - midHigh) / (high - low) * 100 + "%")
 
-    @$(".low .start").html(@low + " dB")
-    @$(".mid .start").html(@midLow + " dB")
-    @$(".midhigh .start").html(@mid + " dB")
-    @$(".high .start").html(@midHigh + " dB")
-    @$(".high .end").html(@high + " dB")
+    @$(".low .start").html(low + " dB")
+    @$(".mid .start").html(midLow + " dB")
+    @$(".midhigh .start").html(mid + " dB")
+    @$(".high .start").html(midHigh + " dB")
+    @$(".high .end").html(high + " dB")
 
   saveHeatLegend: ->
+    AC.G.saveDBLevels(@currentLegendValues())
+
     @updateLegendDisplay()
-
-    AC.G.saveDBLevels([@low, @midLow, @mid, @midHigh, @high])
-
     @heatLegendUpdated()
+
+  currentLegendValues: ->
+    @currentLegendValue(key) for key in ["low", "midLow", "mid", "midHigh", "high"]
 
   currentLegendValue: (key) ->
     value = parseInt(@heatLegendInputs[key].val(), 10)
-    if value || value == 0
-      value
-    else
-      @initialLegendValue(key)
+    if value? then value else @initialLegendValue(key)
 
   updateLegendValues: (fixed, value) ->
     @heatLegendInputs[fixed].val value
