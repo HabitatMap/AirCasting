@@ -90,16 +90,16 @@ window.AirCasting.util =
     time
 
   normalizeTimeSpan: (from, to) ->
-    MINUTES_IN_DAY = 1440
+    normalize = (value) ->
+      MINUTES_IN_DAY = 1440
+      if value < 0
+        MINUTES_IN_DAY + value
+      else
+        value % MINUTES_IN_DAY
 
-    from = from + new Date().getTimezoneOffset()
-    if from < 0
-      from = MINUTES_IN_DAY + from
-
-    to = to + new Date().getTimezoneOffset()
-    if to < 0
-      to = MINUTES_IN_DAY + to
-    [from, to]
+    from += new Date().getTimezoneOffset()
+    to += new Date().getTimezoneOffset()
+    [normalize(from), normalize(to)]
 
   viewport: (map) ->
     bounds = map.map.getBounds()
