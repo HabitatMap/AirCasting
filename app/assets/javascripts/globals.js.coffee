@@ -19,6 +19,7 @@
 ###
 window.AirCasting.G =
   db_levels: [20, 60, 70, 80, 100]
+  default_db_levels: [20, 60, 70, 80, 100]
 
 window.AirCasting.util =
   colors: [

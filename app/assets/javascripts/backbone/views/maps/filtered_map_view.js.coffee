@@ -169,11 +169,11 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
   }
 
   initialLegendValue: (key) -> {
-    high: AC.G.db_levels[4]
-    midHigh: AC.G.db_levels[3]
-    mid: AC.G.db_levels[2]
-    midLow: AC.G.db_levels[1]
-    low: AC.G.db_levels[0]
+    high: AC.G.default_db_levels[4]
+    midHigh: AC.G.default_db_levels[3]
+    mid: AC.G.default_db_levels[2]
+    midLow: AC.G.default_db_levels[1]
+    low: AC.G.default_db_levels[0]
   }[key]
 
   initSliders: ->
