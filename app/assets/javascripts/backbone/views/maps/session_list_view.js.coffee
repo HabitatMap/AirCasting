@@ -141,8 +141,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   draw: ->
     @adjustViewport()
-    for id, session of @selectedSessions when session
-      @drawSession(session)
+    for id, session of @selectedSessions when session and @downloadedData[id]
+      @drawSession(id)
 
   drawSession: (id) ->
     AC.util.spinner.startTask()

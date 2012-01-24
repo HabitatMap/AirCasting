@@ -84,6 +84,9 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     )
 
   heatLegendUpdated: ->
+    if @sessionListView
+      @sessionListView.clear()
+      @sessionListView.draw()
 
   clear: ->
     @sessionListView.clear()
