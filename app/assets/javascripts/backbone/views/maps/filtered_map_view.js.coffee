@@ -130,7 +130,11 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @heatLegendUpdated()
 
   currentLegendValue: (key) ->
-    parseInt(@heatLegendInputs[key].val(), 10) || @initialLegendValue(key)
+    value = parseInt(@heatLegendInputs[key].val(), 10)
+    if value || value == 0
+      value
+    else
+      @initialLegendValue(key)
 
   updateLegendValues: (fixed, value) ->
     @heatLegendInputs[fixed].val value
