@@ -36,8 +36,17 @@ body#map {
   left: 0;
   right: 0;
   height: 10px;
-  width: 100px;
+  width: 150px;
   z-index: 2;
+  background: url("zoom.png") no-repeat center center;
+  border:none;
+  
+  a.ui-slider-handle {
+    background: url("handle.png") no-repeat center center;
+    border:none;
+    margin-top:5px;
+    outline:none;
+  }
 }
 
 .buttons {
@@ -45,7 +54,7 @@ body#map {
   list-style:none;
   margin:0;
   padding:0;
-
+  
   li {
     display:inline;
   }
@@ -62,7 +71,7 @@ body#map {
 .slider {
   clear:both;
   padding:10px 0 0;
-
+  
   input {
     float:left;
     line-height:13px;
@@ -73,7 +82,7 @@ body#map {
       float:right;
     }
   }
-
+  
   .ui-slider {
     float:left;
     margin:0 15px;
@@ -94,56 +103,56 @@ body#map {
   font-weight:normal;
   color:#000;
   height:40px;
-
+  
   li {
     display:block;
     float:left;
     position:relative;
     height:20px;
-
+    
     .start {
       position:absolute;
       top: -20px;
       left:-10px;
     }
-
+    
     .end {
       position:absolute;
       bottom: -20px;
       right: -10px;
     }
   }
-
+  
   .low {
     background: rgb(45,166,65);
     width:60%;
-
+    
     .start {
       left:0;
       bottom:-20px;
       top:auto;
     }
   }
-
+  
   .mid {
     background: rgb(249,220,46);
     width:10%;
   }
-
+  
   .midhigh {
     background: rgb(245,127,34);
     width:10%;
-
+    
     .start {
       bottom:-20px;
       top:auto;
     }
   }
-
+  
   .high {
     background: rgb(244,0,28);
     width:20%;
-
+    
     .end {
       right:0;
     }
@@ -152,64 +161,64 @@ body#map {
 
 .note-window {
   width: $right-hud-width;
-
+  
   .header {
     background: rgb(133, 133, 133);
     color: white;
     padding: 2px 5px;
     margin-right: 15px;
     overflow: auto;
-
+    
     .date {
       display: block;
       float: left;
     }
-
+    
     .right {
       display: block;
       float: right;
-
+      
       .number {
         float: left;
         margin-right: 5px;
       }
-
+      
       .next-note, .prev-note {
         display: block;
         height: 19px;
         width: 24px;
         float: left;
       }
-
+      
       .next-note {
         background-image: url("next_note.png")
       }
-
+      
       .prev-note {
         background-image: url("prev_note.png")
       }
-   }
- }
-
- .content {
+    }
+  }
+  
+  .content {
     margin: 10px 16px 0 0;
-
+    
     .photo {
       overflow: hidden;
       float: left;
       margin: 0px 10px 10px 0px;
-
+      
       img {
         max-width: 100px;
         max-height: 100px;
-         border: 1px solid #ccc;
+        border: 1px solid #ccc;
       }
     }
-
+    
     a.lightbox {
       display: block;
     }
-
+    
     p {
       margin: 0;
     }
@@ -223,92 +232,92 @@ body#map {
   width: $right-hud-width;
   z-index: 10;
   font-weight:bold;
-
+  
   #crowd-map-tab section > div, #sessions-tab section > div {
     @include clearfix;
     margin:10px 0;
   }
-
+  
   #crowd-map-tab section > div, #sessions-tab section > div {
     &.nomargin {
       margin:0 0 0 0;
     }
   }
-
+  
   label {
     float:left;
   }
-
+  
   .ui-slider {
     width: $right-hud-width - 150px;
     position:relative;
     top:5px;
   }
-
+  
   .full-slider .ui-slider {
     width: $right-hud-width - 70px;
   }
-
+  
   .textfield input, .legend {
     width: $right-hud-width - 30px;
   }
-
+  
   .panel {
     position:relative;
-
+    
     .panel-arrow {
-        position:absolute;
-        right:0px;
-        top:0px;
-        width:22px;
-        height:22px;
-        background: url("arrow-close.png") no-repeat right center;
-        &.collapsed {
-          background: url("arrow-open.png") no-repeat right center;
-        }
+      position:absolute;
+      right:0px;
+      top:0px;
+      width:22px;
+      height:22px;
+      background: url("arrow-close.png") no-repeat right center;
+      &.collapsed {
+        background: url("arrow-open.png") no-repeat right center;
       }
-   }
-
+    }
+  }
+  
   #hud-tabs {
     padding:0;
     margin:0;
     overflow:hidden;
-
+    
     li {
       display:inline;
       float:left;
-
+      
       color: white;
       background:#858585;
       background:rgb(133,133,133);
-
+      
       padding:5px 10px;
       border:2px solid #858585;
       border-bottom:none;
       margin-right:10px;
-
+      
       &.active {
         background: rgb(255, 255, 255);
-
+        
         a {
           color:#858585;
         }
       }
     }
-
+    
     a {
       color:#fff;
       text-decoration: none;
     }
   }
-
+  
   #hud-content {
     background:#fff;
     background:rgb(255,255,255);
     border:2px solid #858585;
     padding:10px;
     margin-top:-2px;
-
+    
     p {
       margin:5px 0 10px 0;
       font-weight: normal;
@@ -330,11 +339,11 @@ body#map {
         outline:0;
       }
     }
-
+    
     h3 {
       margin:0 0 5px 0;
     }
-
+    
     h4 {
       margin:0 0 5px 0;
       border-bottom: 1px dashed #ccc;
@@ -346,9 +355,9 @@ body#map {
       }
     }
     section {
-       &.collapsible {
+      &.collapsible {
         display:none;
-       }
+      }
     }
   }
 }
