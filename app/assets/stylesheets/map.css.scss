@@ -72,14 +72,32 @@ body#map {
   clear:both;
   padding:10px 0 0;
   
-  input {
+  input.narrow {
     float:left;
     line-height:13px;
     height:16px;
-    width:40px;
+    width:40px !important;
+    padding:2px;
+    color:#858585;
     
     &:last-child {
       float:right;
+    }
+    
+    &.high {
+      border:2px solid #F4001C;
+    }
+    &.mid-high {
+      border:2px solid #F57F22;
+    }
+    &.mid {
+      border:2px solid #F9DC2E;
+    }
+    &.mid-low {
+      border:2px solid #2DA641;
+    }
+    &.low {
+      border:2px solid #ccc;
     }
   }
   
@@ -120,6 +138,10 @@ body#map {
       position:absolute;
       bottom: -20px;
       right: -10px;
+    }
+    span {
+      white-space:nowrap;
+      color:#858585;
     }
   }
   
@@ -249,7 +271,7 @@ body#map {
   }
   
   .ui-slider {
-    width: $right-hud-width - 150px;
+    width: $right-hud-width - 110px;
     position:relative;
     top:5px;
   }
@@ -383,4 +405,11 @@ div.no-ie {
 
 .ui-datepicker-calendar thead {
   display:none;
+}
+
+#right-hud #hud-content p.small-text {
+  font-size:12px;
+  float:left;
+  margin-left:10px;
+  margin-top:2px;
 }
