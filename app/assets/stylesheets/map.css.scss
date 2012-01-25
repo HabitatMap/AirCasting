@@ -271,9 +271,13 @@ body#map {
   }
   
   .ui-slider {
-    width: $right-hud-width - 110px;
+    width: $right-hud-width - 154px;
     position:relative;
     top:5px;
+  }
+
+  .wide-slider .ui-slider {
+    width: $right-hud-width - 110px;
   }
   
   .full-slider .ui-slider {
