@@ -24,6 +24,7 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
 
   events: _({
     'click #reset-resolution': 'resetResolution'
+    'click #show-location': 'showLocation'
   }).extend(AirCasting.Views.Maps.FilteredMapView.prototype.events)
 
   initialize: (options) ->
@@ -32,11 +33,13 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @minResolution = 10
     @maxResolution = 50
     @defaultResolution = @gridResolution = 25
+    @geocoder = new google.maps.Geocoder()
 
   getHandles: ->
     super()
     @resolutionSlider = @$('#resolution-slider')
     @resolutionLabel = @$('#resolution-label')
+    @locationInput = @$("#show-location-input")
 
   initSliders: ->
     super()
@@ -57,6 +60,15 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
   deactivate: ->
     @clear()
     google.maps.event.removeListener @idleListener if @idleListener
+
+  showLocation: ->
+    AC.util.spinner.startTask()
+
+    address = @locationInput.val()
+    @geocoder.geocode { address: address }, (results, status) =>
+      if (status == google.maps.GeocoderStatus.OK)
+        @googleMap.map.fitBounds(results[0].geometry.viewport)
+      AC.util.spinner.stopTask()
 
   heatLegendUpdated: ->
     if AC.util.mapReady(@googleMap)
