@@ -20,5 +20,6 @@ class MapsController < ApplicationController
   layout 'map'
 
   def show
+    @crowd_state = params[:crowd_state] || "{}"
   end
 end

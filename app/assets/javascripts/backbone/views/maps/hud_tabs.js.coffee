@@ -21,10 +21,12 @@ AC.Views.Maps ||= {}
 
 class AC.Views.Maps.HudTabs extends Backbone.View
   template: JST["backbone/templates/maps/hud_tabs"]
+  permalinkTemplate: JST["backbone/templates/maps/permalink"]
 
   events:
     'click #crowd-map-tab-header': 'activateCrowdMap'
     'click #sessions-tab-header' : 'activateSessions'
+    'click #permalink': 'showPermalink'
 
   initialize: (options) ->
     @googleMap = options.googleMap
@@ -49,6 +51,10 @@ class AC.Views.Maps.HudTabs extends Backbone.View
       @activateCrowdMap()
 
     this
+
+  showPermalink: ->
+    content = @permalinkTemplate()
+    AC.util.showDialog("Permalink", content)
 
   activateCrowdMap: ->
     return false if @currentView == @crowdMapView

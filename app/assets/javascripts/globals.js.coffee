@@ -124,6 +124,11 @@ window.AirCasting.util =
     $('body').append(box)
     $('.notice').delay(3000).slideUp()
 
+  showDialog: (title, content) ->
+    $('<div></div>')
+      .html(content)
+      .dialog(title: title)
+
   spinner: {
     initialize: ->
       @spinnerTarget = document.getElementById('ajax-loader')
