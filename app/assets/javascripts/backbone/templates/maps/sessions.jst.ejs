@@ -14,6 +14,72 @@
 </section>
 
 <div class="accordion">
+
+  <h4>Location</h4>
+  <section class="collapsible">
+
+    <div class="textfield">
+      <p>
+        <label for="location">Address, Intersection, or Zip</label>
+        <input type="text" id="location">
+      </p>
+
+      <p>
+        <label for="distance">Within</label>
+        <select id="distance">
+          <option value="1">1 Mile radius</option>
+          <option value="5">5 Mile radius</option>
+          <option value="10" selected>10 Mile radius</option>
+          <option value="20">20 Mile radius</option>
+        </select>
+      </p>
+
+      <p>
+        <input type="checkbox" id="limit-to-viewport" value="1">
+        <label for="limit-to-viewport">Limit my search to the current map view</label>
+      </p>
+    </div>
+
+    <div>
+      <ul class="buttons">
+        <li><button id="reset-location">reset</button></li>
+        <li><button class="submit">submit</button></li>
+      </ul>
+    </div>
+
+  </section>
+
+  <h4>Profile names</h4>
+
+  <section class="collapsible">
+
+    <div class="textfield">
+      <input type="text" id="usernames">
+    </div>
+
+    <div>
+      <ul class="buttons">
+        <li><button id="reset-usernames">reset</button></li>
+        <li><button class="submit">submit</button></li>
+      </ul>
+    </div>
+
+  </section>
+
+  <h4>Tags</h4>
+  <section class="collapsible">
+
+    <div class="textfield">
+      <input type="text" id="tags">
+    </div>
+    <div>
+      <ul class="buttons">
+        <li><button id="reset-tags">reset</button></li>
+        <li><button class="submit">submit</button></li>
+      </ul>
+    </div>
+  </section>
+
 <h4>Time Range</h4>
 <section class="collapsible">
   <div>
@@ -52,68 +118,4 @@
   </div>
 </section>
 
-<h4>Tags</h4>
-<section class="collapsible">
-
-  <div class="textfield">
-    <input type="text" id="tags">
-  </div>
-  <div>
-    <ul class="buttons">
-      <li><button id="reset-tags">reset</button></li>
-      <li><button class="submit">submit</button></li>
-    </ul>
-  </div>
-</section>
-
-<h4>Profile names</h4>
-
-<section class="collapsible">
-
-  <div class="textfield">
-    <input type="text" id="usernames">
-  </div>
-
-  <div>
-    <ul class="buttons">
-      <li><button id="reset-usernames">reset</button></li>
-      <li><button class="submit">submit</button></li>
-    </ul>
-  </div>
-
-</section>
-
-<h4>Location</h4>
-<section class="collapsible">
-
-  <div class="textfield">
-    <p>
-      <label for="location">Address, Intersection, or Zip</label>
-      <input type="text" id="location">
-    </p>
-
-    <p>
-      <label for="distance">Within</label>
-      <select id="distance">
-        <option value="1">1 Mile radius</option>
-        <option value="5">5 Mile radius</option>
-        <option value="10" selected>10 Mile radius</option>
-        <option value="20">20 Mile radius</option>
-      </select>
-    </p>
-
-    <p>
-      <input type="checkbox" id="limit-to-viewport" value="1">
-      <label for="limit-to-viewport">Limit my search to the current map view</label>
-    </p>
-  </div>
-
-  <div>
-    <ul class="buttons">
-      <li><button id="reset-location">reset</button></li>
-      <li><button class="submit">submit</button></li>
-    </ul>
-  </div>
-
-</section>
   </div>
