@@ -55,7 +55,10 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   onChildSelected: (childView, selected) ->
     sessionId = childView.model.get('id')
 
-    if selected
+    if selected && @sumOfSelected() > 5000
+      @tooManySessions()
+      childView.unselect()
+    else if selected
       @selectedSessions[sessionId] = childView.model
       if @downloadedData[sessionId]
         @drawSession(sessionId)
@@ -65,6 +68,10 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       delete @selectedSessions[sessionId]
       @hideSession(sessionId)
     @updateToggleAll()
+
+  sumOfSelected: ->
+    sessions = (session for key, session of @selectedSessions)
+    @sumOfSizes(sessions)
 
   hideSession: (sessionId) ->
     for marker in @markers when marker.sessionId == sessionId

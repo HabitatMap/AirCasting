@@ -41,3 +41,6 @@ class AirCasting.Views.Maps.SessionListItemView extends Backbone.View
       $(@el).removeClass("selected")
     @parent.onChildSelected(this, @$(':checkbox:checked').size() > 0)
 
+  unselect: ->
+    $(@el).removeClass("selected")
+    $(@el).children(":checkbox").attr("checked", false)
