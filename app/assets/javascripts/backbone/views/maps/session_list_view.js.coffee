@@ -102,11 +102,25 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   toggleAll: ->
     if @noneSelected()
-      @$(':checkbox').attr('checked', true)
-      @$(':checkbox').trigger('change')
+      @selectAll()
     else
       @reset()
     @updateToggleAll()
+
+  selectAll: ->
+    size = @sumOfSizes(@collection)
+    if size > 5000
+      @tooManySessions()
+    else
+      @$(':checkbox').attr('checked', true)
+      @$(':checkbox').trigger('change')
+
+  tooManySessions: ->
+    AC.util.notice("You are trying to select too many sessions")
+
+  sumOfSizes: (sessions) ->
+    sum = (acc, session) -> acc + session.size()
+    sessions.reduce(sum, 0)
 
   updateToggleAll: ->
     if @noneSelected()

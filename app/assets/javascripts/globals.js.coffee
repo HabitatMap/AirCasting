@@ -119,6 +119,11 @@ window.AirCasting.util =
     if date
       date.getMinutes() + 60 * date.getHours()
 
+  notice: (text) ->
+    box = "<div class=\"notice\">#{text}</div>"
+    $('body').append(box)
+    $('.notice').delay(3000).slideUp()
+
   spinner: {
     initialize: ->
       @spinnerTarget = document.getElementById('ajax-loader')

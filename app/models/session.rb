@@ -118,7 +118,7 @@ class Session < ActiveRecord::Base
   def self.filtered_json(data)
     filter(data).as_json(
       :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time],
-      :methods => [:username]
+      :methods => [:username, :size]
     )
   end
 

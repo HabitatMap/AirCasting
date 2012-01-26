@@ -19,7 +19,10 @@
 ###
 class AirCasting.Models.Session extends Backbone.Model
   # paramRoot: 'session'
-  
+
+  size: ->
+    parseInt @get('size')
+
   startTime: ->
     AC.util.parseTime @get('start_time')
 
