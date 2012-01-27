@@ -1,21 +1,3 @@
-# AirCasting - Share your Air!
-# Copyright (C) 2011-2012 HabitatMap, Inc.
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-# 
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
-# You can contact the authors by email at <info@habitatmap.org>
-
 # encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
@@ -29,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120102160736) do
+ActiveRecord::Schema.define(:version => 20120127120519) do
 
   create_table "measurements", :force => true do |t|
     t.float    "value"
@@ -75,6 +57,7 @@ ActiveRecord::Schema.define(:version => 20120102160736) do
     t.integer  "offset_60_db"
     t.datetime "start_time"
     t.datetime "end_time"
+    t.integer  "measurements_count"
   end
 
   add_index "sessions", ["end_time"], :name => "index_sessions_on_end_time"

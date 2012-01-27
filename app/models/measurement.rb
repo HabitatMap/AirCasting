@@ -21,7 +21,7 @@ class Measurement < ActiveRecord::Base
 
   Y_SIZES = (1..300).map { |i| 1.2 ** i * 0.000001 }
 
-  belongs_to :session, :inverse_of => :measurements
+  belongs_to :session, :inverse_of => :measurements, :counter_cache => true
 
   validates :session, :value, :longitude, :latitude, :time, :presence => true
 

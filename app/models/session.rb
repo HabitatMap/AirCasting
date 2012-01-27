@@ -34,7 +34,6 @@ class Session < ActiveRecord::Base
   after_create :set_session_timeframe
 
   delegate :username, :to => :user
-  delegate :size, :to => :measurements
 
   acts_as_taggable
 
@@ -116,10 +115,11 @@ class Session < ActiveRecord::Base
   end
 
   def self.filtered_json(data)
-    filter(data).as_json(
-      :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time],
-      :methods => [:username, :size]
-    )
+    includes(:user).
+      filter(data).as_json(
+        :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time],
+        :methods => [:username, :size]
+      )
   end
 
   def to_param
