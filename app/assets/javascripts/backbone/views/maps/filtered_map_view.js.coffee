@@ -34,12 +34,19 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
   initialize: (options) ->
     @googleMap = options.googleMap
 
-    @minTime = @timeFrom = 0
-    @maxTime = @timeTo = 24 * 60 - 1
-    @minDay  = @dayFrom = 1
-    @maxDay  = @dayTo = 365
-    @minYear = @yearFrom = 2011
-    @maxYear = @yearTo = 2012
+    @minTime = 0
+    @maxTime = 24 * 60 - 1
+    @minDay = 1
+    @maxDay = 365
+    @minYear = 2011
+    @maxYear = 2012
+
+    @timeFrom = options.mapState?.timeFrom || @minTime
+    @timeTo = options.mapState?.timeTo || @maxTime
+    @dayFrom = options.mapState?.dayFrom || @minDay
+    @dayTo = options.mapState?.dayTo || @maxDay
+    @yearFrom = options.mapState?.yearFrom || @minYear
+    @yearTo = options.mapState?.yearTo || @maxYear
 
     @initListeners()
 
@@ -52,11 +59,23 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
     @getHandles()
     @initSliders()
-    @resetSliders()
     @initTagAutocomplete()
     @initUsernameAutocomplete()
 
     return this
+
+  permalinkData: ->
+    {
+      usernames: @usernames()
+      tags: @tags()
+      timeFrom: @timeFrom
+      timeTo: @timeTo
+      dayFrom: @dayFrom
+      dayTo: @dayTo
+      yearFrom: @yearFrom
+      yearTo: @yearTo
+      viewport: AC.util.viewport(@googleMap)
+    }
 
   initTagAutocomplete: ->
     @$('#tags').autocomplete('/autocomplete/tags', multiple: true, delay: 100)
@@ -206,7 +225,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       min: @minTime
       max: @maxTime
       step: 10
-      values: [@minTime, @maxTime]
+      values: [@timeFrom, @timeTo]
       slide: (event, ui) =>
         @timeFrom = ui.values[0]
         @timeTo   = ui.values[1]
@@ -217,7 +236,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       range: true
       min: @minDay
       max: @maxDay
-      values: [@minDay, @maxDay]
+      values: [@dayFrom, @dayTo]
       slide: (event, ui) =>
         @dayFrom = ui.values[0]
         @dayTo   = ui.values[1]
@@ -228,12 +247,13 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       range: true
       min: @minYear
       max: @maxYear
-      values: [@minYear, @maxYear]
+      values: [@yearFrom, @yearTo]
       slide: (event, ui) =>
         @yearFrom = ui.values[0]
         @yearTo   = ui.values[1]
         @updateYearLabels()
     )
+    @updateLabels()
 
     @timeFromLabel.bind "change keyup", (event) =>
       value = @timeFromLabel.val()
@@ -272,10 +292,6 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
         @dayFromLabel.removeClass("error")
       else
         @dayFromLabel.addClass("error")
-
-  resetSliders: ->
-    @resetTime true
-    @resetTags true
 
   updateTimeLabels: ->
     @timeFromLabel.val @formatTimeLabel(@timeFrom)
@@ -352,6 +368,11 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @yearTo = value
     @yearSlider.slider 'values', 1, [value]
 
+  updateLabels: ->
+    @updateTimeLabels()
+    @updateDayLabels()
+    @updateYearLabels()
+
   resetTime: (skipRefilter) ->
     @setTimeFrom @minTime
     @setTimeTo @maxTime
@@ -361,10 +382,8 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
     @setYearFrom @minYear
     @setYearTo @maxYear
-
-    @updateTimeLabels()
-    @updateDayLabels()
-    @updateYearLabels()
+    
+    @updateLabels()
 
     @refilter() unless skipRefilter is true
 

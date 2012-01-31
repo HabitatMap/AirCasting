@@ -39,7 +39,10 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     super()
     @resolutionSlider = @$('#resolution-slider')
     @resolutionLabel = @$('#resolution-label')
-    @locationInput = @$("#show-location-input")
+
+  location: -> @$("#show-location-input").val()
+  usernames: -> @$("#usernames").val()
+  tags: -> @$("#tags").val()
 
   initSliders: ->
     super()
@@ -61,15 +64,10 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @clear()
     google.maps.event.removeListener @idleListener if @idleListener
 
-  permalinkData: ->
-    {
-      location: @locationInput.val()
-    }
-
   showLocation: ->
     AC.util.spinner.startTask()
 
-    address = @locationInput.val()
+    address = @location()
     @geocoder.geocode { address: address }, (results, status) =>
       if (status == google.maps.GeocoderStatus.OK)
         @googleMap.map.fitBounds(results[0].geometry.viewport)
@@ -90,8 +88,6 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     AC.util.spinner.startTask()
 
     viewport = AC.util.viewport(@googleMap)
-    tags = @$('#tags').val()
-    usernames = @$('#usernames').val()
 
     [timeFrom, timeTo] = AC.util.normalizeTimeSpan(@timeFrom, @timeTo)
 
@@ -109,8 +105,8 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
         year_to: @yearTo
         grid_size_x: parseInt(@gridResolution) * ($(window).width() / $(window).height())
         grid_size_y: @gridResolution
-        tags: tags
-        usernames: usernames
+        tags: @tags()
+        usernames: @usernames()
       (data, status, jqXHR) =>
         @data = data
         @draw()

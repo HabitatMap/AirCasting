@@ -30,7 +30,7 @@ class AC.Views.Maps.HudTabs extends Backbone.View
 
   initialize: (options) ->
     @googleMap = options.googleMap
-    console.log options.mapState
+    @mapState = options.mapState || {}
 
   render: ->
     $(@el).html @template()
@@ -38,12 +38,14 @@ class AC.Views.Maps.HudTabs extends Backbone.View
     @crowdMapView = new AC.Views.Maps.CrowdMapView(
       el: $('#crowd-map-tab')
       googleMap: @googleMap
+      mapState: @mapState
     ).render()
 
     @sessionsView = new AC.Views.Maps.SessionsView(
       el: $('#sessions-tab')
       googleMap: @googleMap
       includeSessionId: @options.sessionId
+      mapState: @mapState
     ).render()
 
     if @options.sessionId?
