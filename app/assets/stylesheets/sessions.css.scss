@@ -3,20 +3,36 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 $sessions-list-height:300px;
+$sessions-list-width:220px;
 
 section.sessions {
-  width: 220px;
+  width: $sessions-list-width;
   background: none repeat scroll 0% 0% rgb(255, 255, 255);
   position: fixed;
-  padding: 10px;
+  padding: 0px;
   border: 2px solid rgb(133, 133, 133);
-  top: 220px;
+  top: 255px;
   left: 10px;
+  
+  #sessions-top {
+      position:absolute;
+      top:-40px;
+      left:-2px;
+      width:$sessions-list-width + 4px;
+      
+      .name {
+            background: #fff;
+            border: 2px solid #858585;
+            font-weight:bold;
+            padding:6px 16px 1px;
+            float: left;
+            border-bottom: none;
+            }
+      }
 }
 
 .sessions-container {
   height: $sessions-list-height;
-  border: 2px solid #888;
   overflow: auto;
 
   ul {
@@ -30,7 +46,7 @@ section.sessions {
     clear:both;
     overflow: hidden;
 
-    &:nth-child(2n) {
+    &:nth-child(2n+1) {
       background:#eee;
     }
 
