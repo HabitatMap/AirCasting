@@ -19,19 +19,19 @@
 require 'spec_helper'
 
 shared_examples_for "session creation" do
-  let(:session) { mock_model(Session, :save => success, :notes => [note]) }
+  let(:session) { mock_model(Session, :notes => [note]) }
   let(:note) { Factory(:note, :photo => photo, :number => 10) }
   let(:photo) { File.new(Rails.root + "spec" + "fixtures" + "test.jpg") }
   let(:photos) { :some_files }
 
   context "when session creation fails" do
-    let(:success) { false }
+    let(:create_result) { nil }
 
     it { should respond_with(:bad_request) }
   end
 
   context "when session creation succeeds" do
-    let(:success) { true }
+    let(:create_result) { session }
 
     it { should respond_with(:ok) }
 
@@ -65,7 +65,7 @@ describe Api::MeasurementSessionsController do
   describe "POST 'create'" do
     context "when the session is sent without compression" do
       before do
-        Session.should_receive(:build_from_json).with("session", "some_files", user).and_return(session)
+        Session.should_receive(:create_from_json).with("session", "some_files", user).and_return(create_result)
         post :create, :format => :json, :session => :session, :compression => false, :photos => photos
       end
 
@@ -76,7 +76,7 @@ describe Api::MeasurementSessionsController do
       before do
         Base64.should_receive(:decode64).with("zipped_and_encoded").and_return(:zipped)
         AirCasting::GZip.should_receive(:inflate).with(:zipped).and_return(:unzipped)
-        Session.should_receive(:build_from_json).with(:unzipped, "some_files", user).and_return(session)
+        Session.should_receive(:create_from_json).with(:unzipped, "some_files", user).and_return(create_result)
 
         post :create, :format => :json, :session => :zipped_and_encoded, :compression => true, :photos => photos
       end

@@ -60,8 +60,27 @@ class Session < ActiveRecord::Base
     )
 
     session
-
   rescue JSON::ParserError
+    nil
+  end
+
+  def self.create_from_json(json, photos, user)
+    session = build_from_json(json, photos, user)
+
+    transaction do
+      measurements, session.measurements = session.measurements, []
+      session.save!
+
+      measurements.each { |m| m.session = session }
+      result = Measurement.import(measurements)
+
+      if result.failed_instances.empty?
+        session
+      else
+        raise "Failed to save measurements"
+      end
+    end
+  rescue
     nil
   end
 

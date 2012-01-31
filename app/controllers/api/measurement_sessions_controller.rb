@@ -40,9 +40,9 @@ module Api
       end
       photos = params[:photos] || []
 
-      session = Session.build_from_json(unzipped, photos, current_user)
+      session = Session.create_from_json(unzipped, photos, current_user)
 
-      if session && session.save
+      if session
         render :json => session_json(session), :status => :ok
       else
         render :nothing => true, :status => :bad_request
