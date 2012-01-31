@@ -1,5 +1,4 @@
 :javascript
   $(function() {
-    var crowdState = JSON.parse("#{@crowd_state}");
-    window.page = new AirCasting.Views.Maps.MapPageView({ crowdState: crowdState });
+    window.page = new AirCasting.Views.Maps.MapPageView({ mapState: #{@map_state} });
   });

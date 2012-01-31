@@ -61,6 +61,11 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @clear()
     google.maps.event.removeListener @idleListener if @idleListener
 
+  permalinkData: ->
+    {
+      location: @locationInput.val()
+    }
+
   showLocation: ->
     AC.util.spinner.startTask()
 

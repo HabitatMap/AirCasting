@@ -30,6 +30,7 @@ class AC.Views.Maps.HudTabs extends Backbone.View
 
   initialize: (options) ->
     @googleMap = options.googleMap
+    console.log options.mapState
 
   render: ->
     $(@el).html @template()
@@ -53,8 +54,9 @@ class AC.Views.Maps.HudTabs extends Backbone.View
     this
 
   showPermalink: ->
-    data = escape JSON.stringify(some: "data")
-    link = window.location.origin + "/map?data=#{data}"
+    data = @currentView.permalinkData()
+    query = escape JSON.stringify(data)
+    link = window.location.origin + "/map?map_state=#{query}"
     content = @permalinkTemplate(link: link)
     AC.util.showDialog("Permalink", content)
 

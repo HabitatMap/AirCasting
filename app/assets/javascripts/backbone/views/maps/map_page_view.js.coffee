@@ -23,7 +23,7 @@ class AirCasting.Views.Maps.MapPageView extends Backbone.View
   initialize: (options) ->
     @checkForIE()
     @googleMap = new AirCasting.GoogleMap()
-    @hud = new AirCasting.Views.Maps.HudTabs(el: $('#right-hud'), googleMap: @googleMap, sessionId: options?.sessionId)
+    @hud = new AirCasting.Views.Maps.HudTabs(el: $('#right-hud'), googleMap: @googleMap, sessionId: options?.sessionId, mapState: options?.mapState)
     @hud.render()
 
   checkForIE: ->

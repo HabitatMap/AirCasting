@@ -17,13 +17,19 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class NotFound < StandardError; end
+class NotAcceptable < StandardError; end
 
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
-  rescue_from NotFound do |exception|
-    respond_to do |format|
-      format.any  { render :text => "404 Not Found", :status => :not_found }
+  [
+    [NotFound, "404 Not Found", :not_found],
+    [NotAcceptable, "406 Not Acceptable", :not_acceptable]
+  ].each do |clazz, text, status|
+    rescue_from clazz do |exception|
+      respond_to do |format|
+        format.any { render :text => text, :status => status }
+      end
     end
   end
 end

@@ -20,6 +20,7 @@ class MapsController < ApplicationController
   layout 'map'
 
   def show
-    @crowd_state = params[:crowd_state] || "{}"
+    @map_state = params[:map_state] || "{}"
+    ActiveSupport::JSON.decode(@map_state) rescue raise NotAcceptable
   end
 end
