@@ -34,6 +34,7 @@ class Session < ActiveRecord::Base
   after_create :set_session_timeframe
 
   delegate :username, :to => :user
+  delegate :size, :to => :measurements
 
   acts_as_taggable
 
