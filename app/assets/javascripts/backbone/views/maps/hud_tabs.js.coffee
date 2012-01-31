@@ -53,7 +53,9 @@ class AC.Views.Maps.HudTabs extends Backbone.View
     this
 
   showPermalink: ->
-    content = @permalinkTemplate()
+    data = escape JSON.stringify(some: "data")
+    link = window.location.origin + "/map?data=#{data}"
+    content = @permalinkTemplate(link: link)
     AC.util.showDialog("Permalink", content)
 
   activateCrowdMap: ->
