@@ -50,12 +50,18 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
     @initListeners()
 
+  usernames: -> @$("#usernames").val()
+  tags: -> @$("#tags").val()
+
   initListeners: ->
     google.maps.event.addListenerOnce @googleMap.map, "bounds_changed", @onMapLoaded.bind(this)
 
   render: ->
     $(@el).html @template()
     @$(".accordion").append @heatLegend
+
+    @$("#usernames").val(@options.mapState?.usernames)
+    @$("#tags").val(@options.mapState?.tags)
 
     @getHandles()
     @initSliders()
@@ -382,7 +388,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
     @setYearFrom @minYear
     @setYearTo @maxYear
-    
+
     @updateLabels()
 
     @refilter() unless skipRefilter is true

@@ -41,8 +41,6 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @resolutionLabel = @$('#resolution-label')
 
   location: -> @$("#show-location-input").val()
-  usernames: -> @$("#usernames").val()
-  tags: -> @$("#tags").val()
 
   initSliders: ->
     super()
