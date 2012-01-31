@@ -34,6 +34,11 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
   initialize: (options) ->
     @googleMap = options.googleMap
 
+    if map = options.mapState?.map
+      latLng = new google.maps.LatLng(map.lat, map.lng)
+      @googleMap.map.setCenter(latLng)
+      @googleMap.map.setZoom(map.zoom)
+
     @minTime = 0
     @maxTime = 24 * 60 - 1
     @minDay = 1
@@ -80,7 +85,10 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       dayTo: @dayTo
       yearFrom: @yearFrom
       yearTo: @yearTo
-      viewport: AC.util.viewport(@googleMap)
+      map:
+        lat: @googleMap.map.getCenter().lat()
+        lng: @googleMap.map.getCenter().lng()
+        zoom: @googleMap.map.getZoom()
     }
 
   initTagAutocomplete: ->
