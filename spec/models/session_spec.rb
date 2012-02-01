@@ -45,7 +45,7 @@ describe Session do
     subject { session.as_json }
 
     it "should include session size" do
-      subject.symbolize_keys[:size].should == session.measurements.size
+      subject.symbolize_keys[:size].should == session.reload.measurements.size
     end
   end
 
@@ -63,17 +63,17 @@ describe Session do
     let!(:measurement) { Factory(:measurement, :session => session) }
 
     it "should destroy measurements" do
-      session.destroy
+      session.reload.destroy
 
       Measurement.exists?(measurement.id).should be_false
     end
   end
 
-  describe '.build_from_json' do
+  describe '.create_from_json' do
     let(:user) { stub_model(User) }
     let(:photos) { ["photo", nil] }
 
-    subject { Session.build_from_json(session_json, photos, user) }
+    subject { Session.create_from_json(session_json, photos, user) }
 
     context 'for invalid json' do
       let(:session_json) { 'some garbage' }
@@ -83,15 +83,14 @@ describe Session do
 
     context 'for valid json' do
       let(:uuid) { 'lolz' }
-      let(:ms) { 'emza' }
       let(:notes) { [{}, {}] }
 
-      let(:session_json) { { :uuid => uuid, :measurements => ms, :notes => notes, :tag_list => 'foo' }.to_json }
-      let!(:session) { stub_model(Session) }
+      let(:session_json) { { :uuid => uuid, :notes => notes, :tag_list => 'foo' }.to_json }
+      let!(:session) { stub_model(Session, :save! => true) }
 
       before do
         Session.should_receive(:new).with(
-          { 'uuid' => uuid, :measurements_attributes => ms, :tag_list => 'bar',
+          { :uuid => uuid, :tag_list => 'bar',
             :notes_attributes => [{:photo => "photo"}, {:photo => nil}] },
             {}
         ).and_return(session)

@@ -45,9 +45,9 @@ class Session < ActiveRecord::Base
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
 
   def self.build_from_json(json, photos, user)
-    json[:tag_list] = normalize_tags(json.delete('tag_list'))
+    json[:tag_list] = normalize_tags(json.delete(:tag_list))
 
-    notes_attributes = json.delete("notes")
+    notes_attributes = json.delete(:notes)
 
     session = user.sessions.new(
       json.merge(
