@@ -27,7 +27,6 @@ class Session < ActiveRecord::Base
   validates :url_token, :uuid, :uniqueness => true
   validates_inclusion_of :offset_60_db, :in => -5..5
 
-  accepts_nested_attributes_for :measurements
   accepts_nested_attributes_for :notes
 
   before_validation :set_url_token, :unless => :url_token
@@ -46,15 +45,12 @@ class Session < ActiveRecord::Base
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
 
   def self.build_from_json(json, photos, user)
-    session_data = JSON.parse(json)
-    session_data[:tag_list] = normalize_tags(session_data.delete('tag_list'))
+    json[:tag_list] = normalize_tags(json.delete('tag_list'))
 
-    measurements_attributes = session_data.delete("measurements")
-    notes_attributes = session_data.delete("notes")
+    notes_attributes = json.delete("notes")
 
     session = user.sessions.new(
-      session_data.merge(
-        :measurements_attributes => measurements_attributes || [],
+      json.merge(
         :notes_attributes => prepare_notes(notes_attributes, photos)
       )
     )
@@ -65,14 +61,20 @@ class Session < ActiveRecord::Base
   end
 
   def self.create_from_json(json, photos, user)
+    json = JSON.parse(json).symbolize_keys!
+
+    measurements_attributes = json.delete(:measurements) || []
+    measurements = measurements_attributes.map { |attr| Measurement.new(attr) }
+
     session = build_from_json(json, photos, user)
 
     transaction do
-      measurements, session.measurements = session.measurements, []
       session.save!
 
       measurements.each { |m| m.session = session }
       result = Measurement.import(measurements)
+      # Import is too dumb to set the counts
+      update_counters(session.id, :measurements_count => measurements.size)
 
       if result.failed_instances.empty?
         session
@@ -80,7 +82,8 @@ class Session < ActiveRecord::Base
         raise "Failed to save measurements"
       end
     end
-  rescue
+  rescue Exception => e
+    p e
     nil
   end
 
