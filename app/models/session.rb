@@ -30,7 +30,7 @@ class Session < ActiveRecord::Base
   accepts_nested_attributes_for :notes
 
   before_validation :set_url_token, :unless => :url_token
-  after_create :set_session_timeframe
+  after_create :set_timeframe
 
   delegate :username, :to => :user
   delegate :size, :to => :measurements
@@ -75,6 +75,9 @@ class Session < ActiveRecord::Base
       result = Measurement.import(measurements)
       # Import is too dumb to set the counts
       update_counters(session.id, :measurements_count => measurements.size)
+
+      session.reload.set_timeframe
+      session.save!
 
       if result.failed_instances.empty?
         session
@@ -198,6 +201,12 @@ class Session < ActiveRecord::Base
     end
   end
 
+  def set_timeframe
+    start_time = measurements.select('MIN(time) AS val').to_a.first.val
+    end_time = measurements.select('MAX(time) AS val').to_a.first.val
+    update_attributes({ :start_time => start_time, :end_time => end_time }, :as => :timeframe)
+  end
+
   private
 
   def set_url_token
@@ -208,11 +217,5 @@ class Session < ActiveRecord::Base
     end
 
     self.url_token = token
-  end
-
-  def set_session_timeframe
-    start_time = measurements.select('MIN(time) AS val').to_a.first.val
-    end_time = measurements.select('MAX(time) AS val').to_a.first.val
-    update_attributes({ :start_time => start_time, :end_time => end_time }, :as => :timeframe)
   end
 end
