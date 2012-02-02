@@ -30,6 +30,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     super options
     @sessions = new AirCasting.Collections.SessionsCollection()
     @sessions.bind("reset", @pulseSessions)
+    @sessions.bind("reset", -> AC.util.spinner.stopTask())
 
     $(window).resize(@resizeSessions)
 
@@ -77,10 +78,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     @sessions.setUrlParams(@timeFrom, @timeTo, @dayFrom, @dayTo, @includeSessionId, tags, usernames, location, distance, viewport)
 
     AC.util.spinner.startTask()
-    @sessions.fetch(
-      success: AC.util.spinner.stopTask()
-      error: AC.util.spinner.stopTask()
-    )
+    @sessions.fetch()
 
   heatLegendUpdated: ->
     if @sessionListView
