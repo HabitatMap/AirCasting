@@ -50,9 +50,6 @@ class AirCasting.Collections.SessionsCollection extends Backbone.Collection
     @distance = distance
     @viewport = viewport
 
-  comparator: (session) ->
-    - session.startTime().valueOf()
-
   fetch: ->
     [timeFrom, timeTo] = AC.util.normalizeTimeSpan(@timeFrom, @timeTo)
     @url = "/api/sessions.json?" +
