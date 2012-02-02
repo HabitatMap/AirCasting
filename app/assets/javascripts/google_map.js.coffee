@@ -86,12 +86,20 @@ class AirCasting.GoogleMap
   initializeZoomSlider: ->
     @zoomSlider = $("#zoom-slider")
     @zoomSlider.slider(
-      min: 0
+      min: @minZoom
       max: 21
       slide: (event, ui) =>
         @map.setZoom(ui.value)
     )
     @updateZoomSlider()
+
+    $("#zoom-in").click =>
+      @map.setZoom(@map.getZoom() + 1)
+      @updateZoomSlider()
+
+    $("#zoom-out").click =>
+      @map.setZoom(@map.getZoom() - 1)
+      @updateZoomSlider()
 
   updateZoomSlider: ->
     @zoomSlider.slider("value", @map.getZoom())
