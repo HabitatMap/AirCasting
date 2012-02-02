@@ -28,7 +28,7 @@ FactoryGirl.define do
     calibration 99
     offset_60_db 0
     contribute true
-    measurements_attributes { [Factory.attributes_for(:measurement, :session => nil)] }
+    measurements { [Factory.build(:measurement, :session => nil)] }
     notes_attributes { [Factory.attributes_for(:note, :session => nil)] }
   end
 end

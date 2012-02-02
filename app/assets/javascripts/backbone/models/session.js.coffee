@@ -71,3 +71,4 @@ class AirCasting.Collections.SessionsCollection extends Backbone.Collection
         "q[north]=#{@viewport.north}"
 
     super()
+

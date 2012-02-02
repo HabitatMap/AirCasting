@@ -27,74 +27,22 @@ class Session < ActiveRecord::Base
   validates :url_token, :uuid, :uniqueness => true
   validates_inclusion_of :offset_60_db, :in => -5..5
 
-  accepts_nested_attributes_for :measurements
   accepts_nested_attributes_for :notes
 
   before_validation :set_url_token, :unless => :url_token
-  after_create :set_session_timeframe
+  after_create :set_timeframe!
 
   delegate :username, :to => :user
   delegate :size, :to => :measurements
 
   acts_as_taggable
 
-  attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list, :measurements_attributes, :contribute, :notes_attributes, :data_type, :instrument, :phone_model, :os_version
+  attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list, :contribute, :notes_attributes, :data_type, :instrument, :phone_model, :os_version, :user
   attr_accessible :title, :description, :tag_list, :as => :sync
   attr_accessible :start_time, :end_time, :as => :timeframe
 
   prepare_range(:time_range, "(EXTRACT(HOUR FROM start_time) * 60 + EXTRACT(MINUTE FROM start_time))")
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
-
-  def self.build_from_json(json, photos, user)
-    session_data = JSON.parse(json)
-    session_data[:tag_list] = normalize_tags(session_data.delete('tag_list'))
-
-    measurements_attributes = session_data.delete("measurements")
-    notes_attributes = session_data.delete("notes")
-
-    session = user.sessions.new(
-      session_data.merge(
-        :measurements_attributes => measurements_attributes || [],
-        :notes_attributes => prepare_notes(notes_attributes, photos)
-      )
-    )
-
-    session
-  rescue JSON::ParserError
-    nil
-  end
-
-  def self.create_from_json(json, photos, user)
-    session = build_from_json(json, photos, user)
-
-    transaction do
-      measurements, session.measurements = session.measurements, []
-      session.save!
-
-      measurements.each { |m| m.session = session }
-      result = Measurement.import(measurements)
-
-      if result.failed_instances.empty?
-        session
-      else
-        raise "Failed to save measurements"
-      end
-    end
-  rescue
-    nil
-  end
-
-  def self.prepare_notes(notes_attributes, photos)
-    notes_attributes ||= []
-
-    notes_attributes.zip(photos).map do |attrs, photo|
-      attrs.merge(:photo => photo)
-    end
-  end
-
-  def self.normalize_tags(tags)
-    tags.to_s.split(/[\s,]/).reject(&:blank?).join(',')
-  end
 
   def self.filter(data={})
    sessions = order("start_time DESC").
@@ -171,7 +119,7 @@ class Session < ActiveRecord::Base
 
   def sync(session_data)
     tag_list = session_data[:tag_list] || ""
-    session_data = session_data.merge(:tag_list => Session.normalize_tags(tag_list))
+    session_data = session_data.merge(:tag_list => SessionBuilder.normalize_tags(tag_list))
 
     transaction do
       update_attributes(session_data, :as => :sync)
@@ -195,6 +143,12 @@ class Session < ActiveRecord::Base
     end
   end
 
+  def set_timeframe!
+    start_time = measurements.select('MIN(time) AS val').to_a.first.val
+    end_time = measurements.select('MAX(time) AS val').to_a.first.val
+    update_attributes({ :start_time => start_time, :end_time => end_time }, :as => :timeframe)
+  end
+
   private
 
   def set_url_token
@@ -205,11 +159,5 @@ class Session < ActiveRecord::Base
     end
 
     self.url_token = token
-  end
-
-  def set_session_timeframe
-    start_time = measurements.select('MIN(time) AS val').to_a.first.val
-    end_time = measurements.select('MAX(time) AS val').to_a.first.val
-    update_attributes({ :start_time => start_time, :end_time => end_time }, :as => :timeframe)
   end
 end
