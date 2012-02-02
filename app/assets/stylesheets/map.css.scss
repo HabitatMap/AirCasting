@@ -35,31 +35,37 @@ body#map {
   margin-right: auto;
   left: 0;
   right: 0;
-  height: 10px;
-  width: 150px;
+  height: 20px;
   z-index: 2;
-
+  width: 182px;
+  background: url("zoom-center.png") repeat-x center center;
+  
   .content {
     position: relative;
-
+    
     #zoom-in, #zoom-out {
-      background: url("zoom-in.png") no-repeat center center;
       width: 16px;
       height: 16px;
+      top: 2px;
       position: absolute;
-      top: 3px;
-      left: 0;
     }
-
-    #zoom-out {
-      background: url("zoom-out.png") no-repeat center center;
+    
+    #zoom-in {
+      background: url("zoom-in.png") no-repeat center center;
       right: 0;
     }
-
+    
+    #zoom-out {
+      background: url("zoom-out.png") no-repeat center center;
+      left: 0;
+    }
+    
     #zoom-slider {
-      background: url("zoom-center.png") repeat-x center center;
       border:none;
-
+      width: 140px;
+      left: 21px;
+      background: transparent;
+      
       a.ui-slider-handle {
         background: url("handle.png") no-repeat center center;
         border:none;
@@ -67,7 +73,7 @@ body#map {
         outline:none;
       }
     }
-
+    
   }
 }
 
@@ -297,7 +303,7 @@ body#map {
     position:relative;
     top:5px;
   }
-
+  
   .wide-slider .ui-slider {
     width: $right-hud-width - 110px;
   }
@@ -324,7 +330,7 @@ body#map {
         background: url("arrow-open.png") no-repeat right center;
       }
     }
-
+    
     #permalink {
       position: absolute;
       top: 0px;
