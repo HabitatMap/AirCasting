@@ -22,7 +22,7 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :recoverable, :rememberable,
          :trackable, :validatable, :token_authenticatable
 
-  has_many :sessions
+  has_many :sessions, :inverse_of => :user
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :username, :login, :password, :password_confirmation, :remember_me, :send_emails

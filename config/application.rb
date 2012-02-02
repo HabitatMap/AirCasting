@@ -31,6 +31,7 @@ require_relative '../lib/app_config'
 require_relative '../lib/aircasting/auth_failure_app'
 require_relative '../lib/aircasting/gzip'
 require_relative '../lib/aircasting/filter_range'
+require_relative '../lib/session_builder'
 
 module AirCasting
   class Application < Rails::Application

@@ -63,9 +63,16 @@ describe Api::MeasurementSessionsController do
   end
 
   describe "POST 'create'" do
+    let(:builder) { stub }
+
+    before do
+      ActiveSupport::JSON.should_receive(:decode).with("session").and_return(:session => :data)
+      SessionBuilder.should_receive(:new).with({ :session => :data }, "some_files", user).and_return(builder)
+      builder.should_receive(:build).and_return(create_result)
+    end
+
     context "when the session is sent without compression" do
       before do
-        Session.should_receive(:create_from_json).with("session", "some_files", user).and_return(create_result)
         post :create, :format => :json, :session => :session, :compression => false, :photos => photos
       end
 
@@ -75,8 +82,7 @@ describe Api::MeasurementSessionsController do
     context "when the session is sent compressed" do
       before do
         Base64.should_receive(:decode64).with("zipped_and_encoded").and_return(:zipped)
-        AirCasting::GZip.should_receive(:inflate).with(:zipped).and_return(:unzipped)
-        Session.should_receive(:create_from_json).with(:unzipped, "some_files", user).and_return(create_result)
+        AirCasting::GZip.should_receive(:inflate).with(:zipped).and_return("session")
 
         post :create, :format => :json, :session => :zipped_and_encoded, :compression => true, :photos => photos
       end

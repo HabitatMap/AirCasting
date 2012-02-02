@@ -69,45 +69,6 @@ describe Session do
     end
   end
 
-  describe '.create_from_json' do
-    let(:user) { stub_model(User) }
-    let(:photos) { ["photo", nil] }
-
-    subject { Session.create_from_json(session_json, photos, user) }
-
-    context 'for invalid json' do
-      let(:session_json) { 'some garbage' }
-
-      it { should be(nil) }
-    end
-
-    context 'for valid json' do
-      let(:uuid) { 'lolz' }
-      let(:notes) { [{}, {}] }
-
-      let(:session_json) { { :uuid => uuid, :notes => notes, :tag_list => 'foo' }.to_json }
-      let!(:session) { stub_model(Session, :save! => true) }
-
-      before do
-        Session.should_receive(:new).with(
-          { :uuid => uuid, :tag_list => 'bar',
-            :notes_attributes => [{:photo => "photo"}, {:photo => nil}] },
-            {}
-        ).and_return(session)
-
-        Session.should_receive(:normalize_tags).with('foo').and_return('bar')
-      end
-
-      it { should be(session) }
-    end
-  end
-
-  describe '.normalize_tags' do
-    it 'should replace spaces and commas with commas as tag delimiters' do
-      Session.normalize_tags('jola misio, foo').should == 'jola,misio,foo'
-    end
-  end
-
   describe '.filter' do
     before { Session.destroy_all }
 
