@@ -28,7 +28,7 @@ body#map {
   z-index: 2;
 }
 
-#zoom-slider {
+#zoom-box {
   position: absolute;
   bottom: 20px;
   margin-left: auto;
@@ -38,14 +38,36 @@ body#map {
   height: 10px;
   width: 150px;
   z-index: 2;
-  background: url("zoom.png") no-repeat center center;
-  border:none;
-  
-  a.ui-slider-handle {
-    background: url("handle.png") no-repeat center center;
-    border:none;
-    margin-top:5px;
-    outline:none;
+
+  .content {
+    position: relative;
+
+    #zoom-in, #zoom-out {
+      background: url("zoom-in.png") no-repeat center center;
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      top: 3px;
+      left: 0;
+    }
+
+    #zoom-out {
+      background: url("zoom-out.png") no-repeat center center;
+      right: 0;
+    }
+
+    #zoom-slider {
+      background: url("zoom-center.png") repeat-x center center;
+      border:none;
+
+      a.ui-slider-handle {
+        background: url("handle.png") no-repeat center center;
+        border:none;
+        margin-top:5px;
+        outline:none;
+      }
+    }
+
   }
 }
 
