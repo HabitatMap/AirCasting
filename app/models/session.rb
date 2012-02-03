@@ -85,7 +85,7 @@ class Session < ActiveRecord::Base
   def self.filtered_json(data)
     includes(:user).
       filter(data).as_json(
-        :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time],
+        :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time, :timezone_offset],
         :methods => [:username, :size]
       )
   end
@@ -146,7 +146,8 @@ class Session < ActiveRecord::Base
   def set_timeframe!
     start_time = measurements.select('MIN(time) AS val').to_a.first.val
     end_time = measurements.select('MAX(time) AS val').to_a.first.val
-    timezone = measurements.first.timezone_offset unless measurements.empty?
+
+    timezone = measurements.first.timezone_offset unless measurements.reload.empty?
 
     update_attributes({ :start_time => start_time, :end_time => end_time, :timezone_offset => timezone }, :as => :timeframe)
   end

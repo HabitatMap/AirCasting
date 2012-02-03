@@ -83,10 +83,12 @@ window.AirCasting.util =
   calibrateValue: (calibration, offset_60_db, value) ->
     (value + (calibration - 60 + offset_60_db)) / (calibration - 60 + offset_60_db) * (calibration - 60) + 60
 
-  parseTime: (timeStr) ->
+  parseTime: (timeStr, timezoneOffset) ->
     time = Date.parse timeStr
     if timeStr.match(/(Z|00:00|0000)$/)
       time.addHours time.getTimezoneOffset() / -60
+    if timezoneOffset
+      time.addHours timezoneOffset / -60
     time
 
   normalizeTimeSpan: (from, to) ->
