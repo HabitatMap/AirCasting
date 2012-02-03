@@ -18,8 +18,8 @@ describe SessionBuilder do
     before { Session.should_receive(:transaction).and_yield }
 
     it "should build all the parts" do
-      subject.should_receive(:build_session).and_return(session)
-      subject.should_receive(:build_measurements)
+      subject.should_receive(:build_session!).and_return(session)
+      subject.should_receive(:build_measurements!).with(session)
 
       subject.build!.should == session
     end

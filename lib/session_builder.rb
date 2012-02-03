@@ -7,8 +7,8 @@ class SessionBuilder
 
   def build!
     Session.transaction do
-      session = build_session
-      build_measurements(session)
+      session = build_session!
+      build_measurements!(session)
 
       session
     end

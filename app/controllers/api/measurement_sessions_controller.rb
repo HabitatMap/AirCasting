@@ -41,7 +41,7 @@ module Api
       photos = params[:photos] || []
 
       data = ActiveSupport::JSON.decode(unzipped).symbolize_keys
-      session = SessionBuilder.new(data, photos, current_user).build
+      session = SessionBuilder.new(data, photos, current_user).build!
 
       if session
         render :json => session_json(session), :status => :ok
