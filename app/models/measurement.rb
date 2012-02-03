@@ -35,6 +35,8 @@ class Measurement < ActiveRecord::Base
 
   geocoded_by :address # field doesn't exist, call used for .near scope inclusion only
 
+  before_validation :set_timezone_offset
+
   def self.averages(data)
     if data[:west] < data[:east]
       grid_x = (data[:east] - data[:west]) / data[:grid_size_x]
@@ -89,6 +91,12 @@ class Measurement < ActiveRecord::Base
         south: measurement.middle_y.to_f * grid_y - grid_y / 2,
         north: measurement.middle_y.to_f * grid_y + grid_y / 2
       }
+    end
+  end
+
+  def set_timezone_offset
+    if time_before_type_cast
+      self.timezone_offset = time_before_type_cast.to_datetime.zone.to_i * 60
     end
   end
 end

@@ -24,6 +24,15 @@ describe Measurement do
   it { should validate_presence_of :latitude }
   it { should validate_presence_of :time }
 
+  describe ".create" do
+    it "should save timezone info" do
+      attributes = Factory.attributes_for(:measurement).merge(:time => "10/11/12 10:11:12 +0600")
+      measurement = Measurement.create(attributes)
+
+      measurement.timezone_offset.should == 360
+    end
+  end
+
   describe ".averages" do
     before { Measurement.destroy_all }
     let(:data) { {south: 10.0, north: 10.1, west: -9.0, east: 0.0, grid_size_x: 2, grid_size_y: 10} }
