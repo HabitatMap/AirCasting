@@ -27,7 +27,10 @@ class SessionBuilder
   def build_measurements!(session)
     measurement_data = @session_data[:measurements] || []
     measurements = measurement_data.map { |datum| Measurement.new(datum) }
-    measurements.each { |m| m.session = session }
+    measurements.each do |m|
+      m.set_timezone_offset
+      m.session = session
+    end
 
     result = Measurement.import(measurements)
 

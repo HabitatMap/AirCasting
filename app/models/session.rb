@@ -39,7 +39,7 @@ class Session < ActiveRecord::Base
 
   attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list, :contribute, :notes_attributes, :data_type, :instrument, :phone_model, :os_version, :user
   attr_accessible :title, :description, :tag_list, :as => :sync
-  attr_accessible :start_time, :end_time, :as => :timeframe
+  attr_accessible :start_time, :end_time, :timezone_offset, :as => :timeframe
 
   prepare_range(:time_range, "(EXTRACT(HOUR FROM start_time) * 60 + EXTRACT(MINUTE FROM start_time))")
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
@@ -146,7 +146,9 @@ class Session < ActiveRecord::Base
   def set_timeframe!
     start_time = measurements.select('MIN(time) AS val').to_a.first.val
     end_time = measurements.select('MAX(time) AS val').to_a.first.val
-    update_attributes({ :start_time => start_time, :end_time => end_time }, :as => :timeframe)
+    timezone = measurements.first.timezone_offset unless measurements.empty?
+
+    update_attributes({ :start_time => start_time, :end_time => end_time, :timezone_offset => timezone }, :as => :timeframe)
   end
 
   private

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120203134331) do
+ActiveRecord::Schema.define(:version => 20120203140548) do
 
   create_table "measurements", :force => true do |t|
     t.float    "value"
@@ -59,6 +59,7 @@ ActiveRecord::Schema.define(:version => 20120203134331) do
     t.datetime "start_time"
     t.datetime "end_time"
     t.integer  "measurements_count"
+    t.integer  "timezone_offset"
   end
 
   add_index "sessions", ["end_time"], :name => "index_sessions_on_end_time"

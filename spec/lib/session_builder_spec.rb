@@ -49,6 +49,7 @@ describe SessionBuilder do
     before do
       Measurement.should_receive(:new).with(:measurement_data).and_return(measurement)
       measurement.should_receive(:session=).with(session)
+      measurement.should_receive(:set_timezone_offset)
       Measurement.should_receive(:import).with(any_args) do |measurements|
         measurements.should include measurement
         import_result
