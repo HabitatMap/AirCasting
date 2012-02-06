@@ -28,6 +28,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
   initialize: (options) ->
     super options
+
     @sessions = new AirCasting.Collections.SessionsCollection()
     @sessions.bind("reset", @pulseSessions)
     @sessions.bind("reset", -> AC.util.spinner.stopTask())
@@ -35,6 +36,16 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     $(window).resize(@resizeSessions)
 
     @includeSessionId = options.includeSessionId || ''
+
+  permalinkData: ->
+    result = super()
+    result.sessions = {
+      location:
+        text: @$("#location").val()
+        distance: @$("#distance").val()
+        limitToViewport:  @$("#limit-to-viewport").attr("checked")
+    }
+    result
 
   resizeSessions: ->
     height = Math.max(window.innerHeight - 320, 100)
@@ -46,6 +57,12 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
   render: ->
     super()
+
+    data = @options.mapState.sessions
+    @$("#location").val(data?.location.text)
+    @$("#distance").val(data?.location.distance || 10)
+    @$("#limit-to-viewport").attr("checked", data?.location.checked)
+
     @resizeSessions()
     @sessionListView = new AirCasting.Views.Maps.SessionListView(
       el: $('#session-list'),
