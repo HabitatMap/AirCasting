@@ -20,6 +20,7 @@ class Measurement < ActiveRecord::Base
   include AirCasting::FilterRange
 
   Y_SIZES = (1..300).map { |i| 1.2 ** i * 0.000001 }
+  SECONDS_IN_MINUTE = 60
 
   belongs_to :session, :inverse_of => :measurements, :counter_cache => true
 
@@ -96,7 +97,7 @@ class Measurement < ActiveRecord::Base
 
   def set_timezone_offset
     if time_before_type_cast
-      self.timezone_offset = time_before_type_cast.to_datetime.zone.to_i * 60
+      self.timezone_offset = time_before_type_cast.to_datetime.utc_offset / SECONDS_IN_MINUTE
     end
   end
 end
