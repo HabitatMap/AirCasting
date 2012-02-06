@@ -76,6 +76,9 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     return this
 
   permalinkData: ->
+    heatLegend = {}
+    heatLegend[key] = @currentLegendValue(key) for key in ["low", "midLow", "mid", "midHigh", "high"]
+
     {
       usernames: @usernames()
       tags: @tags()
@@ -89,6 +92,8 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
         lat: @googleMap.map.getCenter().lat()
         lng: @googleMap.map.getCenter().lng()
         zoom: @googleMap.map.getZoom()
+      heatLegend:
+        heatLegend
     }
 
   initTagAutocomplete: ->
@@ -124,16 +129,20 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       low: @$('#low-input')
     }
 
-  initializeHeatLegend: ->
+  initializeHeatLegend: (first) ->
     for key, input of @heatLegendInputs
-      input.val(@initialLegendValue(key))
-    for key, slider of @heatLegendSliders
-      slider.slider {
+      value = @initialLegendValue(key)
+      if first
+        value = @options.mapState.heatLegend?[key] || value
+
+      input.val(value)
+      @heatLegendSliders[key]?.slider {
         min: @initialLegendValue("low")
         max: @initialLegendValue("high")
-        value: @initialLegendValue(key)
+        value: value
       }
-    @updateLegendDisplay()
+
+    @saveHeatLegend()
 
   resetHeatLegend: ->
     AC.G.resetDBLevels()
@@ -219,7 +228,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
   }[key]
 
   initSliders: ->
-    @initializeHeatLegend()
+    @initializeHeatLegend(true)
 
     for key, slider of @heatLegendSliders
       do (key) =>
