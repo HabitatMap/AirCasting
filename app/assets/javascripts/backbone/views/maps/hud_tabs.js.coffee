@@ -26,7 +26,6 @@ class AC.Views.Maps.HudTabs extends Backbone.View
   events:
     'click #crowd-map-tab-header': 'activateCrowdMap'
     'click #sessions-tab-header' : 'activateSessions'
-    'click #permalink': 'showPermalink'
 
   initialize: (options) ->
     @googleMap = options.googleMap

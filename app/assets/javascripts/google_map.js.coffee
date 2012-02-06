@@ -136,6 +136,11 @@ initializeAccordion = ->
     return false
   ).next().hide()
 
+initializePermalink = ->
+  $('#permalink').live('click', ->
+    $('.permalink').toggle()
+  )
+
 initializePanel = ->
   $('.panel-arrow').live('click', ->
     $(this).toggleClass('collapsed')
@@ -175,6 +180,7 @@ initialize = ->
   initializeAccordion()
   initializePanel()
   initializePickers()
+  initializePermalink()
   AC.util.spinner.initialize()
 
 $(document).ready(initialize)
