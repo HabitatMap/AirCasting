@@ -32,7 +32,8 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @rectangles = []
     @minResolution = 10
     @maxResolution = 50
-    @defaultResolution = @gridResolution = 25
+    @defaultResolution = 25
+    @gridResolution = options.mapState.crowdMap?.resolution || @defaultResolution
     @geocoder = new google.maps.Geocoder()
 
   getHandles: ->
@@ -42,16 +43,25 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
 
   location: -> @$("#show-location-input").val()
 
+  permalinkData: ->
+    result = super()
+    result.crowdMap = {
+      resolution: @gridResolution
+    }
+    result
+
+
   initSliders: ->
     super()
     @resolutionSlider.slider(
       min: @minResolution
       max: @maxResolution
-      value: @defaultResolution
+      value: @gridResolution
       slide: (event, ui) =>
         @gridResolution = ui.value
         @updateResolutionLabel()
     )
+    @updateResolutionLabel()
 
   activate: ->
     @refilter()
