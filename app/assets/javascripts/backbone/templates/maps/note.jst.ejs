@@ -1,6 +1,6 @@
 <div class="note-window">
   <div class="header">
-    <span class="date"><%= AC.util.parseTime(note.date, timezoneOffset).toString("MM/dd/yy HH:mm") %></span>
+    <span class="date"><%= AC.util.parseTime(note.date).toString("MM/dd/yy HH:mm") %></span>
     <div class="right">
       <span class="number"><%= noteNumber + 1 %>/<%= notesLength %></span>
       <a href="#" class="prev-note" title="View previous note"></a>

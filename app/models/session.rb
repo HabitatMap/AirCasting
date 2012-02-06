@@ -19,6 +19,8 @@
 class Session < ActiveRecord::Base
   include AirCasting::FilterRange
 
+  MINUTES_IN_DAY = 60 * 24
+
   belongs_to :user
   has_many :measurements, :inverse_of => :session, :dependent => :destroy
   has_many :notes, :inverse_of => :session, :dependent => :destroy

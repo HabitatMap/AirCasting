@@ -24,10 +24,10 @@ class AirCasting.Models.Session extends Backbone.Model
     parseInt @get('size')
 
   startTime: ->
-    AC.util.parseTime @get('start_time'), @get('timezone_offset')
+    AC.util.parseTime @get('start_time')
 
   endTime: ->
-    AC.util.parseTime @get('end_time'), @get('timezone_offset')
+    AC.util.parseTime @get('end_time')
 
   timeframe: ->
     if @startTime()?
@@ -51,9 +51,8 @@ class AirCasting.Collections.SessionsCollection extends Backbone.Collection
     @viewport = viewport
 
   fetch: ->
-    [timeFrom, timeTo] = AC.util.normalizeTimeSpan(@timeFrom, @timeTo)
     @url = "/api/sessions.json?" +
-      "q[time_from]=#{timeFrom}&q[time_to]=#{timeTo}&" +
+      "q[time_from]=#{@timeFrom}&q[time_to]=#{@timeTo}&" +
       "q[day_from]=#{@dayFrom}&q[day_to]=#{@dayTo}&" +
       "q[tags]=#{@tags}&" +
       "q[usernames]=#{@usernames}&" +
