@@ -58,7 +58,7 @@ class AC.Views.Maps.HudTabs extends Backbone.View
   showPermalink: ->
     data = @currentView.permalinkData()
     query = escape JSON.stringify(data)
-    link = window.location.origin + "/map?map_state=#{query}"
+    link = window.location.protocol + "//" + window.location.host +  "/map?map_state=#{query}"
     content = @permalinkTemplate(link: link)
     AC.util.showDialog("Permalink", content)
 
