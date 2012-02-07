@@ -47,7 +47,10 @@ class AirCasting.GoogleMap
         ]
       zoomControl: false
       panControl: false
-      streetViewControl: false
+      streetViewControl: true
+      streetViewControlOptions: {
+        position: google.maps.ControlPosition.LEFT_BOTTOM
+      }
 
     @map = new google.maps.Map(document.getElementById(@mapElementId), options)
     @adjustViewport(north, east, south, west)
