@@ -68,6 +68,9 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @$("#usernames").val(@options.mapState?.usernames)
     @$("#tags").val(@options.mapState?.tags)
 
+    if @options.mapState.map
+      @googleMap.map.setMapTypeId(@options.mapState.map.type)
+
     @getHandles()
     @initSliders()
     @initTagAutocomplete()
@@ -92,6 +95,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
         lat: @googleMap.map.getCenter().lat()
         lng: @googleMap.map.getCenter().lng()
         zoom: @googleMap.map.getZoom()
+        type: @googleMap.map.getMapTypeId()
       heatLegend:
         heatLegend
     }
