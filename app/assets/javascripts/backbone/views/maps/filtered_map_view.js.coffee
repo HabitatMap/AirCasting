@@ -61,6 +61,10 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
   initListeners: ->
     google.maps.event.addListenerOnce @googleMap.map, "bounds_changed", @onMapLoaded.bind(this)
 
+  showSection: (name) ->
+    @$("h4.#{name}").addClass("expanded")
+    @$("section.#{name}").show()
+
   render: ->
     $(@el).html @template()
     @$(".accordion").append @heatLegend
@@ -68,8 +72,10 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @$("#usernames").val(@options.mapState?.usernames)
     @$("#tags").val(@options.mapState?.tags)
 
-    if @options.mapState.map
-      @googleMap.map.setMapTypeId(@options.mapState.map.type)
+    @showSection("tags") if @tags()
+    @showSection("time") if @timeFiltersAdjusted()
+
+    @googleMap.map.setMapTypeId(@options.mapState.map.type) if @options.mapState.map
 
     @getHandles()
     @initSliders()
@@ -77,6 +83,14 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @initUsernameAutocomplete()
 
     return this
+
+  timeFiltersAdjusted: ->
+    @timeFrom != @minTime ||
+      @timeTo != @maxTime ||
+      @dayFrom != @minDay ||
+      @dayTo != @maxDay ||
+      @yearFrom != @minYear ||
+      @yearTo != @maxYear
 
   permalinkData: ->
     heatLegend = {}

@@ -129,10 +129,13 @@ initializeSignInForm = ->
         window.location = window.location
     false
 
+toggleAccordion = (selector) ->
+  selector.toggleClass('expanded')
+  selector.next().toggle()
+
 initializeAccordion = ->
   $('.accordion h4').live('click', ->
-    $(this).toggleClass('expanded')
-    $(this).next().toggle()
+    toggleAccordion($(this))
     return false
   ).next().hide()
 
