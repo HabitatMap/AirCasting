@@ -208,18 +208,17 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     @notes.push({note: note, marker: marker})
     noteNumber = @notes.length - 1
-    google.maps.event.addListener(marker, 'click', => @displayNote(session, noteNumber))
+    google.maps.event.addListener(marker, 'click', => @displayNote(noteNumber))
 
     @markers.push marker
 
-  displayNote: (session, noteNumber) ->
+  displayNote: (noteNumber) ->
     note = @notes[noteNumber].note
     marker = @notes[noteNumber].marker
-    timezone = session.get('timezone_offset')
 
     @currentNote = noteNumber
     content = JST["backbone/templates/maps/note"]
-    rendered = content({note: note, timezoneOffset: timezone, noteNumber: noteNumber, notesLength: @notes.length})
+    rendered = content({note: note, noteNumber: noteNumber, notesLength: @notes.length})
     @infoWindow.setContent(rendered)
 
     @infoWindow.open(@googleMap.map, marker)
