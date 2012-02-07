@@ -20,6 +20,8 @@
 AirCasting.Views.Maps ||= {}
 
 class AirCasting.Views.Maps.SessionListView extends Backbone.View
+  MAX_POINTS = 30000
+
   initialize: (options) ->
     super(options)
     @googleMap = options.googleMap
@@ -55,7 +57,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   onChildSelected: (childView, selected) ->
     sessionId = childView.model.get('id')
 
-    if selected && @sumOfSelected() > 5000
+    if selected && @sumOfSelected() > MAX_POINTS
       @tooManySessions()
       childView.unselect()
     else if selected
@@ -116,7 +118,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   selectAll: ->
     size = @sumOfSizes(@collection)
-    if size > 5000
+    if size > MAX_POINTS
       @tooManySessions()
     else
       @$(':checkbox').attr('checked', true)
