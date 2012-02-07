@@ -44,12 +44,10 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
   location: -> @$("#show-location-input").val()
 
   permalinkData: ->
-    result = super()
-    result.crowdMap = {
-      resolution: @gridResolution
+    _(super()).extend {
+      crowdMap:
+        resolution: @gridResolution
     }
-    result
-
 
   initSliders: ->
     super()

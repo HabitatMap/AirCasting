@@ -44,14 +44,13 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       @refilter()
 
   permalinkData: ->
-    result = super()
-    result.sessions = {
-      location:
-        text: @$("#location").val()
-        distance: @$("#distance").val()
-        limitToViewport:  @$("#limit-to-viewport").attr("checked")
+    _(super()).extend {
+      sessions:
+        location:
+          text: @$("#location").val()
+          distance: @$("#distance").val()
+          limitToViewport:  @$("#limit-to-viewport").attr("checked")
     }
-    result
 
   resizeSessions: ->
     height = Math.max(window.innerHeight - 320, 100)
