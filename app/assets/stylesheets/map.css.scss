@@ -293,6 +293,10 @@ body#map {
       margin:0 0 0 0;
     }
   }
+
+  #crowd-map-tab section.resolution .slider {
+    height: 25px;
+  }
   
   label {
     float:left;
@@ -309,7 +313,7 @@ body#map {
   }
   
   .full-slider .ui-slider {
-    width: $right-hud-width - 70px;
+    width: $right-hud-width - 80px;
   }
   
   .textfield input, .legend {
