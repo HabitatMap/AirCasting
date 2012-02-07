@@ -136,11 +136,6 @@ initializeAccordion = ->
     return false
   ).next().hide()
 
-initializePermalink = ->
-  $('#permalink').live('click', ->
-    $('.permalink').toggle()
-  )
-
 initializePanel = ->
   $('.panel-arrow').live('click', ->
     $(this).toggleClass('collapsed')
@@ -169,7 +164,7 @@ initializeSpinner = ->
     shadow: true
   }
 
-  spinner = new Spinner(spinnerOpts);
+  spinner = new Spinner(spinnerOpts)
 
   $.ajaxSetup
     beforeSend: -> spinner.spin(spinnerTarget)
@@ -180,7 +175,6 @@ initialize = ->
   initializeAccordion()
   initializePanel()
   initializePickers()
-  initializePermalink()
   AC.util.spinner.initialize()
 
 $(document).ready(initialize)

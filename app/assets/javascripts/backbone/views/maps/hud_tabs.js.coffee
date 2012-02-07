@@ -26,6 +26,8 @@ class AC.Views.Maps.HudTabs extends Backbone.View
   events:
     'click #crowd-map-tab-header': 'activateCrowdMap'
     'click #sessions-tab-header' : 'activateSessions'
+    'click #permalink' : 'showPermalink'
+    'click .permalink .close' : 'closePermalink'
 
   initialize: (options) ->
     @googleMap = options.googleMap
@@ -60,8 +62,13 @@ class AC.Views.Maps.HudTabs extends Backbone.View
 
     query = escape JSON.stringify(data)
     link = window.location.protocol + "//" + window.location.host +  "/map?map_state=#{query}"
-    content = @permalinkTemplate(link: link)
-    AC.util.showDialog("Permalink", content)
+
+    @$(".permalink").toggle()
+    @$("#copy-permalink").val(link)
+    @$("#copy-permalink").select()
+
+  closePermalink: ->
+    @$(".permalink").hide()
 
   activateCrowdMap: ->
     return false if @currentView == @crowdMapView
