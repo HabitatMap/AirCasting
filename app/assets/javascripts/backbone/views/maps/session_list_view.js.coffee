@@ -171,15 +171,17 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     AC.util.spinner.startTask()
 
     session = @selectedSessions[id]
-    for element in @downloadedData[id].measurements || []
-      @drawMeasurement(session, element)
+    measurements = @downloadedData[id].measurements || []
+    for index in [0...measurements.length]
+      element = measurements[index]
+      @drawMeasurement(session, element, index)
     for note in @downloadedData[id].notes || []
       @drawNote(session, note)
     @adjustViewport()
 
     AC.util.spinner.stopTask()
 
-  drawMeasurement: (session, element) ->
+  drawMeasurement: (session, element, index) ->
     icon = AC.util.dbToIcon(session.get('calibration'), session.get('offset_60_db'), element.value)
 
     if icon
@@ -189,7 +191,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
         title: '' + parseInt(AC.util.calibrateValue(session.get('calibration'), session.get('offset_60_db'), element.value)) + ' dB'
         icon: icon
         flat: true
-        zIndex: 1
+        zIndex: index
 
       marker = new google.maps.Marker()
       marker.setOptions markerOptions
@@ -202,7 +204,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       position: new google.maps.LatLng(note.latitude, note.longitude)
       title: note.text
       icon: window.marker_note_path
-      zIndex: 2
+      zIndex: 100000
 
     marker = new google.maps.Marker
     marker.setOptions(markerOptions)
