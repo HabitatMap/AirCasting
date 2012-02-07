@@ -36,6 +36,13 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @gridResolution = options.mapState.crowdMap?.resolution || @defaultResolution
     @geocoder = new google.maps.Geocoder()
 
+  render: ->
+    super()
+
+    @showSection("resolution") if @gridResolution != @defaultResolution
+
+    return this
+
   getHandles: ->
     super()
     @resolutionSlider = @$('#resolution-slider')
