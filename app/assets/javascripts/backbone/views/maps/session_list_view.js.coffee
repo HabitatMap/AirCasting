@@ -81,10 +81,11 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     oldNotes = @notes
     @notes = []
-    for note in oldNotes when note.sessionId == sessionId
-      note.setMap(null)
-    for note in oldNotes when note.sessionId != sessionId
-      @notes.push(note)
+    for note in oldNotes
+      if note.note.session_id == sessionId
+        note.marker.setMap(null)
+      else
+        @notes.push(note)
 
   fetchData: (sessionId, callback) ->
     AC.util.spinner.startTask()
@@ -164,7 +165,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   draw: ->
     @adjustViewport()
-    for id, session of @selectedSessions when session and @downloadedData[id]
+    for id, session of @selectedSessions when session and @ownloadedData[id]
       @drawSession(id)
 
   drawSession: (id) ->
