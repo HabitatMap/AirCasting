@@ -50,6 +50,8 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
           text: @$("#location").val()
           distance: @$("#distance").val()
           limitToViewport:  @$("#limit-to-viewport").attr("checked")
+        selectedIds:
+          parseInt(id) for id, session of @sessionListView.selectedSessions
     }
 
   resizeSessions: ->
@@ -73,6 +75,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       el: $('#session-list'),
       collection: @sessions,
       googleMap: @googleMap
+      selectedIds: @options.mapState.sessions?.selectedIds || []
     ).render()
     @fetch()
 

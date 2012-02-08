@@ -45,12 +45,19 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     $(@el).empty()
 
     @collection.each (session) =>
+      id = session.get("id")
+      if id in @options.selectedIds
+        @selectedSessions[id] = session
+        @fetchData(id)
+
       itemView = new AirCasting.Views.Maps.SessionListItemView(
         model: session,
         parent: this,
-        selected: @selectedSessions[session.get('id')]?
+        selected: @selectedSessions[id]?
       )
       $(@el).append itemView.render().el
+
+    @options.selectedIds = _.filter(@options.selectedIds, (x) => !@selectedSessions[x])
 
     this
 
@@ -64,6 +71,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @selectedSessions[sessionId] = childView.model
       if @downloadedData[sessionId]
         @drawSession(sessionId)
+        @adjustViewport()
       else
         @fetchData(sessionId)
     else
@@ -91,6 +99,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     AC.util.spinner.startTask()
 
     $.getJSON "/api/sessions/#{sessionId}", (data) =>
+      callback(data) if callback
       @downloadedData[sessionId] = data
       if @selectedSessions[sessionId]
         @drawSession(sessionId)
@@ -178,7 +187,6 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @drawMeasurement(session, element, index)
     for note in @downloadedData[id].notes || []
       @drawNote(session, note)
-    @adjustViewport()
 
     AC.util.spinner.stopTask()
 
