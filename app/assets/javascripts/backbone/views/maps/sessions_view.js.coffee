@@ -38,9 +38,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
     @includeSessionId = options.includeSessionId || ''
 
-    google.maps.event.addListener(@googleMap.map, "idle", => @refilterViewport())
-
-  limitToViewport: ->  !!@$("#limit-to-viewport").attr("checked")
+  limitToViewport: ->  @$("#limit-to-viewport").is(":checked")
 
   refilterViewport: -> @refilter() if @limitToViewport()
 
@@ -77,7 +75,8 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     data = @options.mapState.sessions
     @$("#location").val(data?.location.text)
     @$("#distance").val(data?.location.distance || 10)
-    @$("#limit-to-viewport").attr("checked", data?.location.limitToViewport)
+    @$("#limit-to-viewport").attr("checked", !!data?.location.limitToViewport)
+    @updateLocationDisabled()
 
     @resizeSessions()
     @sessionListView = new AirCasting.Views.Maps.SessionListView(
