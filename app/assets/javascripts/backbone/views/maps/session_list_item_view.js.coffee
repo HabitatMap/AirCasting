@@ -32,13 +32,17 @@ class AirCasting.Views.Maps.SessionListItemView extends Backbone.View
 
   render: ->
     $(@el).html @template(session: @model, selected: @options.selected, timeframe: @model.timeframe())
+    @lightUp() if @options.selected
     return this
 
+  lightUp: ->
+    $(@el).addClass("selected")
+
+  lightDown: ->
+    $(@el).removeClass("selected")
+
   onChange: ->
-    if @$(":checkbox:checked").size() > 0
-      $(@el).addClass("selected")
-    else
-      $(@el).removeClass("selected")
+    if @$(":checkbox:checked").size() > 0 then @lightUp() else @lightDown()
     @parent.onChildSelected(this, @$(':checkbox:checked').size() > 0)
 
   unselect: ->
