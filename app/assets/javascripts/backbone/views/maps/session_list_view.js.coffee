@@ -81,8 +81,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @drawSession(sessionId)
       @adjustViewport()
     else
-      @fetchData(sessionId)
-
+      @fetchData(sessionId, => @adjustViewport())
 
   sumOfSelected: ->
     sessions = (session for key, session of @selectedSessions)
@@ -106,8 +105,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     AC.util.spinner.startTask()
 
     $.getJSON "/api/sessions/#{sessionId}", (data) =>
-      callback(data) if callback
       @downloadedData[sessionId] = data
+      callback(data) if callback
+
       if @selectedSessions[sessionId]
         @drawSession(sessionId)
 
