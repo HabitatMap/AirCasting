@@ -49,7 +49,7 @@ class AirCasting.GoogleMap
       panControl: false
       streetViewControl: true
       streetViewControlOptions: {
-        position: google.maps.ControlPosition.LEFT_BOTTOM
+        position: google.maps.ControlPosition.TOP_CENTER
       }
 
     @map = new google.maps.Map(document.getElementById(@mapElementId), options)

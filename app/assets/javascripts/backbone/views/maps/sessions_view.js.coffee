@@ -64,7 +64,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     @$("#distance").attr("disabled", @limitToViewport())
 
   resizeSessions: ->
-    height = Math.max(window.innerHeight - 340, 100)
+    height = Math.max(window.innerHeight - 300, 100)
     $(".sessions-container").css({height: height})
 
   pulseSessions: ->
