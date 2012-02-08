@@ -57,6 +57,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       )
       $(@el).append itemView.render().el
 
+    @updateToggleAll()
     @options.selectedIds = _.filter(@options.selectedIds, (x) => !@selectedSessions[x])
 
     this
