@@ -24,6 +24,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
   events: _({
     'click #toggle-all-sessions': 'toggleAllSessions'
+    'click #limit-to-viewport': 'toggleLocationDisabled'
   }).extend(AirCasting.Views.Maps.FilteredMapView.prototype.events)
 
   initialize: (options) ->
@@ -39,20 +40,24 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
     google.maps.event.addListener(@googleMap.map, "idle", => @refilterViewport())
 
-  refilterViewport: ->
-    if @$("#limit-to-viewport").attr("checked")
-      @refilter()
+  limitToViewport: ->  !!@$("#limit-to-viewport").attr("checked")
+
+  refilterViewport: -> @refilter() if @limitToViewport()
 
   permalinkData: ->
     _(super()).extend {
       sessions:
         location:
-          text: @$("#location").val()
-          distance: @$("#distance").val()
-          limitToViewport:  @$("#limit-to-viewport").attr("checked")
+          text: @$("#location").val() unless @limitToViewport()
+          distance: @$("#distance").val() unless @limitToViewport()
+          limitToViewport: @limitToViewport()
         selectedIds:
           parseInt(id) for id, session of @sessionListView.selectedSessions
     }
+
+  toggleLocationDisabled: ->
+    @$("#location").attr("disabled", @limitToViewport())
+    @$("#distance").attr("disabled", @limitToViewport())
 
   resizeSessions: ->
     height = Math.max(window.innerHeight - 340, 100)
