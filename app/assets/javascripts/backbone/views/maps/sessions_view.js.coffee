@@ -24,7 +24,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
   events: _({
     'click #toggle-all-sessions': 'toggleAllSessions'
-    'click #limit-to-viewport': 'toggleLocationDisabled'
+    'click #limit-to-viewport': 'updateLocationDisabled'
   }).extend(AirCasting.Views.Maps.FilteredMapView.prototype.events)
 
   initialize: (options) ->
@@ -55,7 +55,11 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
           parseInt(id) for id, session of @sessionListView.selectedSessions
     }
 
-  toggleLocationDisabled: ->
+  resetLocation: ->
+    super()
+    @updateLocationDisabled()
+
+  updateLocationDisabled: ->
     @$("#location").attr("disabled", @limitToViewport())
     @$("#distance").attr("disabled", @limitToViewport())
 
@@ -102,9 +106,9 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
   fetch: ->
     tags = @$('#tags').val()
     usernames = @$('#usernames').val()
-    location = @$('#location').val()
-    distance = @$('#distance').val()
-    viewport = if @$("#limit-to-viewport").attr("checked") then AC.util.viewport(@googleMap)
+    location = if @limitToViewport() then "" else @$('#location').val()
+    distance = if @limitToViewport() then 0  else @$('#distance').val()
+    viewport = AC.util.viewport(@googleMap) if @limitToViewport()
     @sessions.setUrlParams(@timeFrom, @timeTo, @dayFrom, @dayTo, @includeSessionId, tags, usernames, location, distance, viewport)
 
     AC.util.spinner.startTask()
