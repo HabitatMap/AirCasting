@@ -165,7 +165,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   draw: ->
     @adjustViewport()
-    for id, session of @selectedSessions when session and @ownloadedData[id]
+    for id, session of @selectedSessions when session and @downloadedData[id]
       @drawSession(id)
 
   drawSession: (id) ->
