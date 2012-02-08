@@ -38,6 +38,8 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
     @includeSessionId = options.includeSessionId || ''
 
+    google.maps.event.addListenerOnce @googleMap.map, "idle", => @refilterViewport()
+
   limitToViewport: ->  @$("#limit-to-viewport").is(":checked")
 
   refilterViewport: -> @refilter() if @limitToViewport()
