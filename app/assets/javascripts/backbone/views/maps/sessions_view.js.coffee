@@ -128,6 +128,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       @sessionListView.fetchData(selectedSessionId, (data) =>
         @sessionListView.selectSessionByToken(data)
         @sessionListView.render()
+        @sessionListView.adjustViewport()
         $(@sessionListView.el).parent().scrollTop(
           $(@sessionListView.el).find(':checked').parents('li').position().top -
             $(@sessionListView.el).position().top
