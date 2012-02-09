@@ -35,21 +35,22 @@ class AC.Views.Maps.HudTabs extends Backbone.View
 
   render: ->
     $(@el).html @template()
+    activeTab = @options.mapState?.activeTab
 
     @crowdMapView = new AC.Views.Maps.CrowdMapView(
       el: $('#crowd-map-tab')
       googleMap: @googleMap
-      mapState: if @options.mapState.activeTab == "crowdMap" then @mapState else {}
+      mapState: if activeTab == "crowdMap" then @mapState else {}
     ).render()
 
     @sessionsView = new AC.Views.Maps.SessionsView(
       el: $('#sessions-tab')
       googleMap: @googleMap
       includeSessionId: @options.sessionId
-      mapState: if @options.mapState.activeTab == "sessions" then @mapState else {}
+      mapState: if activeTab == "sessions" then @mapState else {}
     ).render()
 
-    if @options.sessionId? || @options.mapState.activeTab == "sessions"
+    if @options.sessionId? || activeTab
       @activateSessions(selectedSessionId: @options.sessionId)
     else
       @activateCrowdMap()
