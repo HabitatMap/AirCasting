@@ -17,6 +17,8 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class Measurement < ActiveRecord::Base
+  self.skip_time_zone_conversion_for_attributes = [:time]
+
   include AirCasting::FilterRange
 
   Y_SIZES = (1..300).map { |i| 1.2 ** i * 0.000001 }
