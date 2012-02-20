@@ -33,6 +33,9 @@ class AC.Views.Maps.HudTabs extends Backbone.View
     @googleMap = options.googleMap
     @mapState = options.mapState || {}
 
+    google.maps.event.addListener(@googleMap.map, "center_changed", => @closePermalink())
+    google.maps.event.addListener(@googleMap.map, "zoom_changed", => @closePermalink())
+
   render: ->
     $(@el).html @template()
     activeTab = @options.mapState?.activeTab
@@ -66,13 +69,13 @@ class AC.Views.Maps.HudTabs extends Backbone.View
     link = window.location.protocol + "//" + window.location.host +  "/map?map_state=#{query}"
 
     @$(".permalink").toggle()
-    @$("#permalink").toggleClass("active")
+    @$("#permalink").addClass("active")
     @$("#copy-permalink").val(link)
     @$("#copy-permalink").select()
 
   closePermalink: ->
     @$(".permalink").hide()
-    @$("#permalink").toggleClass("active")
+    @$("#permalink").removeClass("active")
 
   activateCrowdMap: ->
     return false if @currentView == @crowdMapView
