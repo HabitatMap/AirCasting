@@ -142,12 +142,13 @@ initializeAccordion = ->
     return false
   ).next().hide()
 
+toggleHud = (selector) ->
+  $('.panel-arrow').toggleClass('collapsed')
+  $('.panel-contents').animate({ opacity: 'toggle' }, 350)
+  return false
+
 initializePanel = ->
-  $('.panel-arrow').live('click', ->
-    $(this).toggleClass('collapsed')
-    $(this).next().animate({opacity:'toggle'},350)
-    return false
-  )
+  $('.panel-arrow').live('click', -> toggleHud())
 
 initializePickers = ->
   datepickerOptions = {
