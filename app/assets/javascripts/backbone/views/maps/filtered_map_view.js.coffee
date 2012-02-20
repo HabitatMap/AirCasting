@@ -33,6 +33,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
   initialize: (options) ->
     @googleMap = options.googleMap
+    @parent = options.parent
 
     if map = options.mapState?.map
       latLng = new google.maps.LatLng(map.lat, map.lng)
@@ -374,6 +375,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
   refilter: ->
     return unless @mapLoaded
+    @parent.closePermalink()
     @fetch()
 
   fetch: ->
