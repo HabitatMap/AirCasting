@@ -54,10 +54,24 @@ class AirCasting.GoogleMap
 
     @map = new google.maps.Map(document.getElementById(@mapElementId), options)
     @adjustViewport(north, east, south, west)
+
+    @initializeZoomSlider()
+    @initializeMapType()
+    @initializeStreetView()
+
+  initializeMapType: ->
     google.maps.event.addListener @map, "zoom_changed", @adjustMapType.bind(this)
     google.maps.event.addListener @map, "idle", @saveViewport.bind(this)
     google.maps.event.addListener @map, "zoom_changed", @updateZoomSlider.bind(this)
-    @initializeZoomSlider()
+
+  initializeStreetView: ->
+    google.maps.event.addListener @map.getStreetView(), "visible_changed", => @toggleHud()
+
+  toggleHud: ->
+    if @map.getStreetView().getVisible()
+      $('#hud').animate({ opacity: 0 }, 350)
+    else
+      $('#hud').animate({ opacity: 1 }, 350)
 
   adjustViewport: (north, east, south, west) ->
     if east and west and north and south
@@ -142,7 +156,7 @@ initializeAccordion = ->
     return false
   ).next().hide()
 
-toggleHud = (selector) ->
+toggleHud = ->
   $('.panel-arrow').toggleClass('collapsed')
   $('.panel-contents').animate({ opacity: 'toggle' }, 350)
   return false

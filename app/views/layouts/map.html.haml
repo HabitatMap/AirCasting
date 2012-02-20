@@ -10,15 +10,16 @@
     = render :partial => 'shared/analytics'
 
   %body(id="map")
-    = render :partial => 'shared/left_hud'
-    #right-hud
     #mapview
-    #ajax-loader
-    #zoom-box
-      .content
-        #zoom-out
-        #zoom-slider.slider
-        #zoom-in
+    #hud
+      = render :partial => 'shared/left_hud'
+      #right-hud
+      #ajax-loader
+      #zoom-box
+        .content
+          #zoom-out
+          #zoom-slider.slider
+          #zoom-in
 
     = yield
 
