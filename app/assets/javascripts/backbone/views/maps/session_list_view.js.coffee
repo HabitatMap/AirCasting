@@ -182,7 +182,6 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @googleMap.adjustViewport(north, east, south, west)
 
   draw: ->
-    @adjustViewport()
     for id, session of @selectedSessions when session and @downloadedData[id]
       @drawSession(id)
 
