@@ -101,6 +101,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       else
         @notes.push(note)
 
+    @adjustViewport()
+
   fetchData: (sessionId, callback) ->
     AC.util.spinner.startTask()
 
