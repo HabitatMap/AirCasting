@@ -71,7 +71,7 @@ class AC.Views.Maps.HudTabs extends Backbone.View
     link = window.location.protocol + "//" + window.location.host +  "/map?map_state=#{query}"
 
     @$(".permalink").toggle()
-    @$("#permalink").addClass("active")
+    @$("#permalink").toggleClass("active")
     @$("#copy-permalink").val(link)
     @$("#copy-permalink").select()
 
