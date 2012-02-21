@@ -33,8 +33,8 @@ class AC.Views.Maps.HudTabs extends Backbone.View
     @googleMap = options.googleMap
     @mapState = options.mapState || {}
 
-    google.maps.event.addListener(@googleMap.map, "center_changed", => @closePermalink())
-    google.maps.event.addListener(@googleMap.map, "zoom_changed", => @closePermalink())
+    for event in ["center_changed", "zoom_changed", "maptypeid_changed"]
+      google.maps.event.addListener(@googleMap.map, event, => @closePermalink())
 
   render: ->
     $(@el).html @template()
