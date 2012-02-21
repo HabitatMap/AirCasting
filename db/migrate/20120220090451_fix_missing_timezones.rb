@@ -11,20 +11,20 @@ class FixMissingTimezones < ActiveRecord::Migration
           seconds = timezone_offset * SECONDS_IN_MINUTE
 
           session.measurements.each do |measurement|
-            time = measurement.time - seconds if measurement.time
+            time = measurement.time + seconds if measurement.time
 
             measurement.update_column(:time, time)
             measurement.update_column(:timezone_offset, timezone_offset)
           end
 
           session.notes.each do |note|
-            date = note.date - seconds if note.date
+            date = note.date + seconds if note.date
 
             note.update_column(:date, date)
           end
 
-          start_time = session.start_time - seconds if session.start_time
-          end_time = session.end_time - seconds if session.end_time
+          start_time = session.start_time + seconds if session.start_time
+          end_time = session.end_time + seconds if session.end_time
 
           session.update_column(:start_time, start_time)
           session.update_column(:end_time, end_time)
