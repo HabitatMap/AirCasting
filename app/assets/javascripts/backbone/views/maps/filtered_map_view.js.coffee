@@ -188,6 +188,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
     @updateLegendDisplay()
     @heatLegendUpdated()
+    @parent.closePermalink()
 
   currentLegendValues: ->
     @currentLegendValue(key) for key in ["low", "midLow", "mid", "midHigh", "high"]
