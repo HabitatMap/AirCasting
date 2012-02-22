@@ -24,7 +24,7 @@ module AirCasting
       def prepare_range(name, field)
         scope name, lambda { |low, high|
           if low && high
-            if low < high
+            if low <= high
               where("#{field} >= ?", low).
                 where("#{field} <= ?", high)
             else
