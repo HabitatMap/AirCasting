@@ -43,7 +43,6 @@ class Session < ActiveRecord::Base
   attr_accessible :title, :description, :tag_list, :as => :sync
   attr_accessible :start_time, :end_time, :timezone_offset, :as => :timeframe
 
-  prepare_range(:time_range, "(EXTRACT(HOUR FROM start_time) * 60 + EXTRACT(MINUTE FROM start_time))")
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
 
   def self.filter(data={})
@@ -71,7 +70,7 @@ class Session < ActiveRecord::Base
       session_ids = Measurement.
         latitude_range(data[:south], data[:north]).
         longitude_range(data[:west], data[:east]).
-        select("session_id").map(&:session_id)
+        select("DISTINCT session_id").map(&:session_id)
 
       sessions = sessions.where(:id => session_ids)
     end
@@ -79,7 +78,7 @@ class Session < ActiveRecord::Base
     if data[:time_from] && data[:time_to]
       session_ids = Measurement.
         time_range(data[:time_from], data[:time_to]).
-        select(:session_id).map(&:session_id)
+        select('DISTINCT session_id').map(&:session_id)
 
       sessions = sessions.where(:id => session_ids)
     end
