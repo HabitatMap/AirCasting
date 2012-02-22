@@ -49,7 +49,6 @@ class Session < ActiveRecord::Base
   def self.filter(data={})
    sessions = order("sessions.created_at DESC").
       where(:contribute => true).
-      time_range(data[:time_from], data[:time_to]).
       day_range(data[:day_from], data[:day_to]).
       joins(:user)
 
@@ -72,8 +71,16 @@ class Session < ActiveRecord::Base
       session_ids = Measurement.
         latitude_range(data[:south], data[:north]).
         longitude_range(data[:west], data[:east]).
-        select("session_id").
-        map(&:session_id)
+        select("session_id").map(&:session_id)
+
+      sessions = sessions.where(:id => session_ids)
+    end
+
+    if data[:time_from] && data[:time_to]
+      session_ids = Measurement.
+        time_range(data[:time_from], data[:time_to]).
+        select(:session_id).map(&:session_id)
+
       sessions = sessions.where(:id => session_ids)
     end
 

@@ -86,6 +86,17 @@ describe Session do
 
       Session.filter(:west => 5, :east => 15, :south => 15, :north => 25).all.should == [session1]
     end
+
+    it "should include sessions with any points inside the time period" do
+      time = Time.now
+      from = time.hour * 60 + time.min
+      to = (time.hour + 2) * 60 + time.min
+      session = Factory(:session, :measurements => [])
+      m1 = Factory(:measurement, :time => time - 1.hour, :session => session)
+      m2 = Factory(:measurement, :time => time + 1.hour, :session => session)
+
+      Session.filter(:time_from => from, :time_to => to).all.should == [session]
+    end
   end
 
   describe '.filtered_json' do
