@@ -28,7 +28,7 @@ class AirCasting.Views.Maps.MapPageView extends Backbone.View
 
   checkForIE: ->
     if $.browser.msie and !$.cookie('no-ie-closed')
-      box = '<div class="no-ie">This site is not optimized for Internet Explorer browsers. Enter at your own risk. <a href="#">Close</a></div>'
+      box = '<div class="no-ie">This site is not optimized for Internet Explorer browsers. The site works best with Firefox or Chrome. <a href="#">Close</a></div>'
       $('body').append(box)
       $('.no-ie a').click (e) =>
         $('.no-ie').slideUp()
