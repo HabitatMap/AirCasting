@@ -30,6 +30,7 @@ describe "RegionView", ->
   describe "render", ->
     it "it should fetch the proper region", ->
       spyOn(@view.region, "setUrlParams")
+      spyOn(@view.region, "fetch")
 
       @view.render()
 
@@ -37,9 +38,11 @@ describe "RegionView", ->
 
     it "should render it's template", ->
       spyOn(@view, "template").andReturn("Some html")
+      spyOn(@view.region, "fetch").andCallFake (option) =>
+        option.success("Model after response", "Some response")
 
       @view.render()
 
-      expect(@view.template).toHaveBeenCalledWith(region: @view.region)
+      expect(@view.template).toHaveBeenCalledWith(region: "Model after response")
       expect($("#test").html()).toEqual("Some html")
 

@@ -162,7 +162,7 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @infoWindow.setPosition(position)
 
     google.maps.event.addListenerOnce(@infoWindow, "domready", =>
-      @regionView = new AirCasting.Views.Maps.RegionView(el: $("#region-info")))
+      @regionView = new AirCasting.Views.Maps.RegionView(el: $("#region-info"), region: region).render())
 
     @infoWindow.open(@googleMap.map)
 

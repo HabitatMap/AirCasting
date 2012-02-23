@@ -29,4 +29,8 @@ class AirCasting.Views.Maps.RegionView extends Backbone.View
 
   render: ->
     @region.setUrlParams(@regionData)
-    $(@el).html @template(region: @region)
+    @region.fetch {
+      success: (region, response) => $(@el).html @template(region: region)
+    }
+
+    this
