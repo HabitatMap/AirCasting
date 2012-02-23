@@ -28,6 +28,12 @@ body#map {
   z-index: 2;
 }
 
+#region-info {
+  height: 150px;
+  width: 250px;
+  font-size: 12px;
+}
+
 #zoom-box {
   position: absolute;
   bottom: 20px;

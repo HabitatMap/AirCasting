@@ -158,7 +158,7 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     lng = (region.east + region.west) / 2
     position = new google.maps.LatLng(lat, lng)
 
-    @infoWindow.setContent('<div id="region-info"></div>')
+    @infoWindow.setContent('<div id="region-info">Working...</div>')
     @infoWindow.setPosition(position)
 
     google.maps.event.addListenerOnce(@infoWindow, "domready", =>
