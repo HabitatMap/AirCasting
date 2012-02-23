@@ -4,3 +4,4 @@ rvm:
 before_script:
   - "cp config/database.yml.travis config/database.yml"
   - "mysql -e 'create database aircasting_test;'"
+  - "rake db:test:prepare"
