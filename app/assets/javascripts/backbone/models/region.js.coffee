@@ -21,4 +21,7 @@ AirCasting ||= {}
 AirCasting.Models ||= {}
 
 class AirCasting.Models.Region extends Backbone.Model
-  asdf: "asdf"
+  setUrlParams: (params) -> @params = params
+
+  url: -> "/api/regions?" + ("#{key}=#{@params[key]}" for key in ["east", "west", "south", "north"]).join("&")
+

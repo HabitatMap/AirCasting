@@ -17,16 +17,29 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 ###
-AirCasting.Views.Maps ||= {}
 
-class AirCasting.Views.Maps.RegionView extends Backbone.View
-  template: JST["backbone/templates/maps/region"]
+describe "RegionView", ->
+  beforeEach ->
+    $("<div id='test'></div>").appendTo('body')
+    @data = "Some data"
+    @view = new AirCasting.Views.Maps.RegionView(el: $("#test"), region: @data)
 
-  initialize: (options) ->
-    super options
-    @regionData = options.region
-    @region = new AirCasting.Models.Region()
+  afterEach ->
+    $("#test").remove()
 
-  render: ->
-    @region.setUrlParams(@regionData)
-    $(@el).html @template(region: @region)
+  describe "render", ->
+    it "it should fetch the proper region", ->
+      spyOn(@view.region, "setUrlParams")
+
+      @view.render()
+
+      expect(@view.region.setUrlParams).toHaveBeenCalledWith(@data)
+
+    it "should render it's template", ->
+      spyOn(@view, "template").andReturn("Some html")
+
+      @view.render()
+
+      expect(@view.template).toHaveBeenCalledWith(region: @view.region)
+      expect($("#test").html()).toEqual("Some html")
+
