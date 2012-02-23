@@ -21,6 +21,8 @@ class Measurement < ActiveRecord::Base
 
   include AirCasting::FilterRange
 
+  CALIBRATE = "(value + (calibration - 60 + offset_60_db)) / (calibration - 60 + offset_60_db) * (calibration - 60) + 60"
+
   Y_SIZES = (1..300).map { |i| 1.2 ** i * 0.000001 }
   SECONDS_IN_MINUTE = 60
 
@@ -51,12 +53,10 @@ class Measurement < ActiveRecord::Base
     grid_y = (data[:north] - data[:south]) / data[:grid_size_y]
     grid_y = Y_SIZES.find { |x| x > grid_y }
 
-    calibrate = "(value + (calibration - 60 + offset_60_db)) / (calibration - 60 + offset_60_db) * (calibration - 60) + 60"
-
     measurements =
       joins(:session).
       select(
-        "avg(#{calibrate}) AS avg, " +
+        "avg(#{CALIBRATE}) AS avg, " +
           "round(CAST(longitude AS DECIMAL(36, 12)) / CAST(#{grid_x} AS DECIMAL(36,12)), 0) AS middle_x, " +
           "round(CAST(latitude AS DECIMAL(36, 12)) / CAST(#{grid_y} AS DECIMAL(36,12)), 0) AS middle_y "
       ).
