@@ -26,6 +26,7 @@ AirCasting::Application.routes.draw do
   namespace :api do
     resources :measurement_sessions, :path => 'sessions'
     resources :averages
+    resource :region
     resource  :user do
       resources :sessions, :controller => "user_sessions" do
         collection do

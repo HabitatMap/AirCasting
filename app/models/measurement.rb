@@ -25,6 +25,7 @@ class Measurement < ActiveRecord::Base
   SECONDS_IN_MINUTE = 60
 
   belongs_to :session, :inverse_of => :measurements, :counter_cache => true
+  has_one :user, :through => :session
 
   validates :session, :value, :longitude, :latitude, :time, :presence => true
 
