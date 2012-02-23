@@ -5,3 +5,5 @@ before_script:
   - "cp config/database.yml.travis config/database.yml"
   - "mysql -e 'create database aircasting_test;'"
   - "RAILS_ENV=test rake db:migrate"
+script:
+  - "rake && RAILS_ENV=test rake jasmine:ci"
