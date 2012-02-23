@@ -9,4 +9,4 @@ describe "Region", ->
       east: 30
       west: 40
     )
-    expect(@region.url()).toEqual("/api/regions?east=30&west=40&south=20&north=10")
+    expect(@region.url()).toEqual("/api/region?east=30&west=40&south=20&north=10")
