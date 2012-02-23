@@ -1,3 +1,5 @@
+!https://secure.travis-ci.org/LunarLogicPolska/AirCasting.png!:http://travis-ci.org/LunarLogicPolska/AirCasting
+
 h1. AirCasting - Share your Air!
 
 h2. About
