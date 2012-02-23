@@ -1,3 +1,13 @@
+GIT
+  remote: https://github.com/pivotal/jasmine-gem.git
+  revision: 3ee46246c88a725919642e561af5783070ac4739
+  specs:
+    jasmine (1.2.0.rc2)
+      jasmine-core (>= 1.2.0.rc1)
+      rack (>= 1.1)
+      rspec (>= 1.3.1)
+      selenium-webdriver (>= 0.1.3)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -44,6 +54,8 @@ GEM
       net-sftp (>= 2.0.0)
       net-ssh (>= 2.0.14)
       net-ssh-gateway (>= 1.1.0)
+    childprocess (0.3.1)
+      ffi (~> 1.0.6)
     cocaine (0.2.1)
     coffee-rails (3.1.1)
       coffee-script (>= 2.2.0)
@@ -75,6 +87,9 @@ GEM
     guard-bundler (0.1.3)
       bundler (>= 1.0.0)
       guard (>= 0.2.2)
+    guard-coffeescript (0.5.4)
+      coffee-script (>= 2.2.0)
+      guard (>= 0.8.3)
     guard-rspec (0.5.4)
       guard (>= 0.8.4)
     guard-spork (0.3.1)
@@ -84,10 +99,12 @@ GEM
     highline (1.6.2)
     hike (1.2.1)
     i18n (0.6.0)
+    jasmine-core (1.2.0.rc1)
     jquery-rails (1.0.16)
       railties (~> 3.0)
       thor (~> 0.14)
     json (1.6.1)
+    json_pure (1.6.5)
     libnotify (0.5.9)
     libv8 (3.3.10.2)
     mail (2.3.0)
@@ -157,6 +174,7 @@ GEM
       activesupport (~> 3.0)
       railties (~> 3.0)
       rspec (~> 2.7.0)
+    rubyzip (0.9.6.1)
     sass (3.1.10)
     sass-rails (3.1.4)
       actionpack (~> 3.1.0)
@@ -164,6 +182,11 @@ GEM
       sass (>= 3.1.4)
       sprockets (~> 2.0.0)
       tilt (~> 1.3.2)
+    selenium-webdriver (2.13.0)
+      childprocess (>= 0.2.1)
+      ffi (~> 1.0.9)
+      json_pure
+      rubyzip
     shoulda-matchers (1.0.0)
     spork (0.9.0.rc9)
     sprockets (2.0.3)
@@ -202,9 +225,11 @@ DEPENDENCIES
   geocoder
   guard
   guard-bundler
+  guard-coffeescript
   guard-rspec
   guard-spork
   haml
+  jasmine!
   jquery-rails
   libnotify
   mysql2

@@ -54,4 +54,7 @@ AirCasting::Application.configure do
 
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
+
+  # Make jasmine specs available through the asset pipeline
+  config.assets.paths << Rails.root.join("spec/javascripts")
 end

@@ -40,7 +40,9 @@ group :test, :development do
   gem 'guard-rspec', :require => false
   gem 'guard-spork', :require => false
   gem 'guard-bundler'
+  gem 'guard-coffeescript'
   gem 'spork', '~> 0.9.0.rc9', :require => false
   gem 'libnotify', :require => false
   gem 'rb-inotify', :require => false
+  gem 'jasmine', :git => "https://github.com/pivotal/jasmine-gem.git"
 end
