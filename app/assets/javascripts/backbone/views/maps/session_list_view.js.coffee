@@ -159,10 +159,11 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       $("#toggle-all-sessions").text("none")
 
   clear: ->
-    for marker in @markers
-      marker.setMap null
+    marker.setMap(null) for marker in @markers
+    line.setMap(null) for id, line of @lines
     @markers.length = 0
-    @notes.length = []
+    @lines.length = 0
+    @notes.length = 0
 
   adjustViewport: ->
     north = undefined
