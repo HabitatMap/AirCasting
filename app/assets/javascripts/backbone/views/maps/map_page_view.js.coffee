@@ -26,6 +26,8 @@ class AirCasting.Views.Maps.MapPageView extends Backbone.View
     @hud = new AirCasting.Views.Maps.HudTabs(el: $('#right-hud'), googleMap: @googleMap, sessionId: options?.sessionId, mapState: options?.mapState)
     @hud.render()
 
+    google.maps.event.addListenerOnce(@googleMap.map, "idle", => $("#mapview").css(position: "fixed"))
+
   checkForIE: ->
     if $.browser.msie and !$.cookie('no-ie-closed')
       box = '<div class="no-ie">This site is not optimized for Internet Explorer browsers. The site works best with Firefox or Chrome. <a href="#">Close</a></div>'

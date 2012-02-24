@@ -19,8 +19,12 @@ body#map {
   z-index: 1;
 }
 
+#left-hud {
+  position: fixed !important;
+}
+
 #ajax-loader {
-  position: absolute;
+  position: fixed;
   top: 70px;
   left: 320px;
   height: 30px;
@@ -35,7 +39,7 @@ body#map {
 }
 
 #zoom-box {
-  position: absolute;
+  position: fixed;
   bottom: 20px;
   margin-left: auto;
   margin-right: auto;
