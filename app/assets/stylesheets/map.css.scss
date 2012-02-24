@@ -29,9 +29,29 @@ body#map {
 }
 
 #region-info {
-  height: 150px;
+  height: 60px;
   width: 250px;
+  oveflow: hidden;
   font-size: 12px;
+  dl {
+    overflow: auto;
+    margin:0;
+    dt {
+      float: left;
+      clear: left;
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    dd {
+      float: left;
+      margin-left: 0;
+      max-width: 120px;
+      max-height: 18px;
+      text-overflow: ellipsis; 
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
 }
 
 #zoom-box {
