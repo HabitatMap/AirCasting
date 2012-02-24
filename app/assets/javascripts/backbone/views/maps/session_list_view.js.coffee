@@ -208,7 +208,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     lineOptions =
       map: @googleMap.map
       path: points
-      strokeColor: "#0000FF"
+      strokeColor: "#007bf2"
       geodesic: true
 
     line = new google.maps.Polyline(lineOptions)
