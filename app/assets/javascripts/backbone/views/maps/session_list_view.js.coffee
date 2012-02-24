@@ -30,6 +30,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @downloadedData = {}
     @markers = []
     @notes = []
+    @lines = []
     @fetchingData = 0
 
     @infoWindow = new google.maps.InfoWindow()
@@ -90,6 +91,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   hideSession: (sessionId) ->
     delete @selectedSessions[sessionId]
 
+    @lines[sessionId].setMap(null)
     for marker in @markers when marker.sessionId == sessionId
       marker.setMap(null)
 
@@ -190,6 +192,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     session = @selectedSessions[id]
     measurements = @downloadedData[id].measurements || []
+    @drawTrace(id, measurements)
+
     for index in [0...measurements.length]
       element = measurements[index]
       @drawMeasurement(session, element, index)
@@ -197,6 +201,18 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @drawNote(session, note)
 
     AC.util.spinner.stopTask()
+
+  drawTrace: (sessionId, measurements) ->
+    points = (new google.maps.LatLng(m.latitude, m.longitude) for m in measurements)
+
+    lineOptions =
+      map: @googleMap.map
+      path: points
+      strokeColor: "#0000FF"
+      geodesic: true
+
+    line = new google.maps.Polyline(lineOptions)
+    @lines[sessionId] = line
 
   drawMeasurement: (session, element, index) ->
     icon = AC.util.dbToIcon(session.get('calibration'), session.get('offset_60_db'), element.value)
@@ -221,7 +237,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       position: new google.maps.LatLng(note.latitude, note.longitude)
       title: note.text
       icon: window.marker_note_path
-      zIndex: 100000
+      zIndex: 200000
 
     marker = new google.maps.Marker
     marker.setOptions(markerOptions)
