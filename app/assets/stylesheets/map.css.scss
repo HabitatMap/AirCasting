@@ -33,7 +33,7 @@ body#map {
 }
 
 #region-info {
-  height: 60px;
+  height: 74px;
   width: 250px;
   oveflow: hidden;
   font-size: 12px;
@@ -49,11 +49,10 @@ body#map {
     dd {
       float: left;
       margin-left: 0;
-      max-width: 120px;
-      max-height: 18px;
+      max-width: 130px;
+      max-height: 36px;
       text-overflow: ellipsis; 
       overflow: hidden;
-      white-space: nowrap;
     }
   }
 }
