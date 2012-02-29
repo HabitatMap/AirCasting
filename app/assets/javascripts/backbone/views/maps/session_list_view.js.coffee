@@ -91,7 +91,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   hideSession: (sessionId) ->
     delete @selectedSessions[sessionId]
 
-    @lines[sessionId].setMap(null)
+    @lines[sessionId]?.setMap(null)
     for marker in @markers when marker.sessionId == sessionId
       marker.setMap(null)
 
