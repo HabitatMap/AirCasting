@@ -33,26 +33,23 @@ body#map {
 }
 
 #region-info {
-  height: 74px;
+  height: 94px;
   width: 250px;
   oveflow: hidden;
   font-size: 12px;
-  dl {
-    overflow: auto;
+  ul {
+    padding: 0;
     margin:0;
-    dt {
-      float: left;
-      clear: left;
-      font-weight: bold;
-      margin-right: 5px;
-    }
-    dd {
-      float: left;
-      margin-left: 0;
-      max-width: 130px;
-      max-height: 36px;
-      text-overflow: ellipsis; 
+    list-style:none;
+    max-height: 94px;
+    overflow: hidden;
+    li {
+      max-height:54px;
       overflow: hidden;
+      max-width: 230px;
+      span {
+        font-weight:bold;
+      }
     }
   }
 }
