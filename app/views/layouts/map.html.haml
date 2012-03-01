@@ -8,6 +8,7 @@
     = favicon_link_tag "favicon.png"
     = csrf_meta_tags
     = render :partial => 'shared/analytics'
+    %meta{:property => "og:image", :content => "#{request.protocol}#{request.host_with_port}#{image_path("air-casting-logo-fb.png")}"}
 
   %body(id="map")
     #mapview
