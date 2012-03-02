@@ -20,20 +20,21 @@
 
 describe "CrowdMapView", ->
   beforeEach ->
-    spyOn(google.maps.event, "addListener").andCallFake (map, event, listener) =>
-      @map = map
-      @event = event
-      @listener = listener
     @googleMap = new jasmine.Spy("MapWrapper")
     @googleMap.map = new jasmine.Spy("Map")
-    @view = new AirCasting.Views.Maps.CrowdMapView(googleMap: @googleMap, mapState: {})
+    @options = { googleMap: @googleMap, mapState: {} }
+    @view = new AirCasting.Views.Maps.CrowdMapView(@options)
 
-  it "should hide the info window on zoom change", ->
-    expect(@map).toEqual(@googleMap.map)
-    expect(@event).toEqual("zoom_changed")
-    spyOn(@view, "hideRegionInfo")
-    @listener()
-    expect(@view.hideRegionInfo).toHaveBeenCalled()
+  describe "#initialize", ->
+    it "should hide the info window on zoom change", ->
+      spyOn(@view, "hideRegionInfo")
+      spyOn(google.maps.event, "addListener").andCallFake (map, event, listener) =>
+        expect(map).toEqual(@googleMap.map)
+        listener() if event == "zoom_changed"
+
+      @view.initialize(@options)
+
+      expect(@view.hideRegionInfo).toHaveBeenCalled()
 
   describe "#hideRegionInfo", ->
     it "should hide the region info bubble", ->
