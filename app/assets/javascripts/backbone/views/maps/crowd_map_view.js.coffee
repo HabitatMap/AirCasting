@@ -35,7 +35,9 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @defaultResolution = 25
     @gridResolution = options.mapState.crowdMap?.resolution || @defaultResolution
     @geocoder = new google.maps.Geocoder()
+
     @infoWindow = new google.maps.InfoWindow()
+    google.maps.event.addListener(@googleMap.map, "zoom_changed", => @hideRegionInfo())
 
   render: ->
     super()
@@ -151,9 +153,9 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
         rectangle.setOptions rectOptions
         @rectangles.push rectangle
 
-        do (element) => google.maps.event.addListener(rectangle, 'click', => @showInfo(element))
+        do (element) => google.maps.event.addListener(rectangle, 'click', => @showRegionInfo(element))
 
-  showInfo: (region) =>
+  showRegionInfo: (region) ->
     lat = (region.south + region.north) / 2
     lng = (region.east + region.west) / 2
     position = new google.maps.LatLng(lat, lng)
@@ -165,6 +167,9 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
       @regionView = new AirCasting.Views.Maps.RegionView(el: $("#region-info"), region: region).render())
 
     @infoWindow.open(@googleMap.map)
+
+  hideRegionInfo: ->
+    @infoWindow.close()
 
   setResolution: (value) ->
     @gridResolution = value
