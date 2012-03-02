@@ -10,7 +10,18 @@ describe RegionInfo do
   subject { RegionInfo.new(:south => 5, :north => 15, :west => 15, :east => 25) }
 
   its(:average) { should == Measurement.joins(:session).where(:id => [m1.id, m2.id]).average(Measurement::CALIBRATE) }
+  its(:number_of_samples) { should == 2 }
   its(:top_contributors) { should include m1.session.user.username }
   its(:top_contributors) { should_not include m3.session.user.username }
   its(:number_of_contributors) { should == 2 }
+
+  describe "#as_json" do
+    let(:data) { { :average => 1, :number_of_samples => 2, :number_of_contributors => 3, :top_contributors => "joe" } }
+
+    before { subject.stub!(data) }
+
+    it "should include the relevant data" do
+      subject.as_json.should == data
+    end
+  end
 end

@@ -25,11 +25,16 @@ class RegionInfo
       count
   end
 
+  def number_of_samples
+    @measurements.size
+  end
+
   def as_json(options=nil)
     {
       :average => average,
       :top_contributors => top_contributors,
-      :number_of_contributors => number_of_contributors
+      :number_of_contributors => number_of_contributors,
+      :number_of_samples => number_of_samples
     }
   end
 end

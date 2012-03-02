@@ -1,5 +1,6 @@
 <ul>
   <li><span>Average reading: </span><%= Math.round(region.get("average")) %> dB</li>
-  <li><span>Contributors: </span><%= region.get("number_of_contributors") %></li>
+  <li><span># of samples: </span><%= region.get("number_of_samples") %></li>
+  <li><span># of contributors: </span><%= region.get("number_of_contributors") %></li>
   <li><span>Top contributors: </span><%= region.get("top_contributors").join(", ") %></li>
 </ul>
