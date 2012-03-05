@@ -45,10 +45,43 @@ section.sessions {
   bottom: 60px;
   left: 400px;
 
-  #graph {
+  #graph, #graph-background {
+    position: absolute;
     height: 100%;
     width: 100%;
-    margin: 0px;
+    margin: 0;
+    top: 0;
+    left: 0;
+  }
+
+  #graph {
+    z-index: 1;
+  }
+
+  #graph-background {
+    z-index: 0;
+
+    div {
+      margin: 0;
+      width: 100%;
+      height: 25%;
+    }
+
+    .low {
+      background: #65C68A;
+    }
+
+    .mid {
+      background: #FEE665;
+    }
+
+    .midhigh {
+      background: #FEB065;
+    }
+
+    .high {
+      background: #FE6465;
+    }
   }
 }
 

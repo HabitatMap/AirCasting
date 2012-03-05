@@ -172,10 +172,10 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
   updateLegendDisplay: ->
     [low, midLow, mid, midHigh, high] = AC.G.db_levels
 
-    @$(".low").css(width: (midLow - low) / (high - low) * 100 + "%")
-    @$(".mid").css(width: (mid - midLow) / (high - low) * 100 + "%")
-    @$(".midhigh").css(width: (midHigh - mid) / (high - low) * 100 + "%")
-    @$(".high").css(width: (high - midHigh) / (high - low) * 100 + "%")
+    @$(".legend .low").css(width: (midLow - low) / (high - low) * 100 + "%")
+    @$(".legend .mid").css(width: (mid - midLow) / (high - low) * 100 + "%")
+    @$(".legend .midhigh").css(width: (midHigh - mid) / (high - low) * 100 + "%")
+    @$(".legend .high").css(width: (high - midHigh) / (high - low) * 100 + "%")
 
     @$(".low .start").html(low + " dB")
     @$(".mid .start").html(midLow + " dB")

@@ -288,6 +288,10 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       interactive: true
     crosshair:
       mode: "x"
+      color: "white"
+    colors: ["white"]
+    series:
+      shadowSize: 0
 
   drawNote: (session, note) ->
     markerOptions =
