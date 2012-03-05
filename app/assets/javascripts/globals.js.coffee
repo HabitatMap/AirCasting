@@ -1,20 +1,20 @@
 ###
 # AirCasting - Share your Air!
 # Copyright (C) 2011-2012 HabitatMap, Inc.
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # You can contact the authors by email at <info@habitatmap.org>
 ###
 window.AirCasting.G =
@@ -79,6 +79,10 @@ window.AirCasting.util =
         window.marker4_path
       else
         null
+
+  dbRangePercentages: ->
+    range = _.last(AC.G.db_levels) - _.first(AC.G.db_levels)
+    _.map([0..3], (i) => Math.round((AC.G.db_levels[i+1] - AC.G.db_levels[i]) / range * 100))
 
   calibrateValue: (calibration, offset_60_db, value) ->
     (value + (calibration - 60 + offset_60_db)) / (calibration - 60 + offset_60_db) * (calibration - 60) + 60

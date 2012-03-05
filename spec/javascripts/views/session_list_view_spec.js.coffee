@@ -39,11 +39,22 @@ describe "SessionListView", ->
 
   describe "drawGraph", ->
     beforeEach ->
-      $("<div id='graph'></div>").appendTo("body")
+      $("<div id='test'>
+           <div id='graph'>
+           </div>
+           <div id='graph-background'>
+             <div class='low'></div>
+             <div class='mid'></div>
+             <div class='midhigh'></div>
+             <div class='high'></div>
+           </div>
+         </div>"
+      ).appendTo("body")
+      $("#graph").css(width: 100, height: 100)
       @graphOptions = { some: "options" }
 
     afterEach ->
-      $("#graph").remove()
+      $("#test").remove()
 
     it "should create the graph", ->
       spyOn($, "plot")
@@ -54,6 +65,17 @@ describe "SessionListView", ->
       expectedData = ([m.time.getTime(), AC.util.calibrateValue(100, 10, m.value)] for m in @measurements)
       expect($.plot).toHaveBeenCalledWith("#graph", [{data: expectedData}], @graphOptions)
       expect(@view.graphOptions).toHaveBeenCalledWith(@measurements)
+
+    it "should setup the background", ->
+      $("#graph-background").css(height: 100)
+      spyOn(AC.util, "dbRangePercentages").andReturn([10, 20, 30, 40])
+
+      @view.drawGraph(@session, @measurements)
+
+      expect($(".low").height()).toEqual(10)
+      expect($(".mid").height()).toEqual(20)
+      expect($(".midhigh").height()).toEqual(30)
+      expect($(".high").height()).toEqual(40)
 
   describe "graphOptions", ->
     beforeEach ->
