@@ -1,20 +1,20 @@
 ###
 # AirCasting - Share your Air!
 # Copyright (C) 2011-2012 HabitatMap, Inc.
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # You can contact the authors by email at <info@habitatmap.org>
 ###
 AirCasting.Views.Maps ||= {}
@@ -233,12 +233,33 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       marker.sessionId = session.get('id')
       @markers.push marker
 
-  drawGraph: (measurements)->
+  drawGraph: (measurements) ->
     data = ([AC.util.parseTime(m.time).getTime(), m.value] for m in measurements)
     $.plot("#graph", [{data: data}], @graphOptions(measurements))
+    $("#graph").unbind("plothover")
+    $("#graph").bind("plothover", (event, pos, item) =>
+      if item == null then @hideHighlight() else @highlightLocation(measurements, data, pos.x))
+
+  highlightLocation: (measurements, data, time) ->
+    index = _.sortedIndex(data, [time, null], (d) -> _.first(d))
+    measurement = measurements[index]
+
+    latlng = new google.maps.LatLng(measurement.latitude, measurement.longitude)
+    if @location
+      @location.setPosition(latlng)
+    else
+      @location = new google.maps.Marker(
+        position: latlng
+        zIndex: 300000
+      )
+      @location.setMap(@googleMap.map)
+
+  hideHighlight: ->
+    if @location
+      @location.setMap(null)
+      delete @location
 
   graphOptions: (measurements) ->
-    THIRTY_SECONDS = 30 * 1000
     first = AC.util.parseTime(_.first(measurements).time).getTime()
     last = AC.util.parseTime(_.last(measurements).time).getTime()
 
@@ -253,6 +274,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       panRange: false
     grid:
       show: false
+      hoverable: true
+      mouseActiveRadius: Infinity
+      autoHighlight: false
     zoom:
       interactive: true
     pan:
