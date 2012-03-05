@@ -13,13 +13,13 @@ section.sessions {
   border: 2px solid rgb(133, 133, 133);
   top: 255px;
   left: 10px;
-  
+
   #sessions-top {
       position:absolute;
       top:-40px;
       left:-2px;
       width:$sessions-list-width + 4px;
-      
+
       .name {
             background: #fff;
             border: 2px solid #858585;
@@ -32,6 +32,23 @@ section.sessions {
 
   label.narrow {
     width: 170px;
+  }
+}
+
+#right-hud section.graph {
+  width: 30%;
+  height: 200px;
+  background: none repeat scroll 0% 0% rgb(255, 255, 255);
+  position: fixed;
+  padding: 0px;
+  border: 2px solid rgb(133, 133, 133);
+  bottom: 60px;
+  left: 400px;
+
+  #graph {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
   }
 }
 

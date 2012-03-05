@@ -3,6 +3,8 @@ window.google = {
     InfoWindow: ->
       close: ->
     Geocoder: ->
+    LatLng: ->
+    Polyline: ->
 
     event: {
       addListener: ->

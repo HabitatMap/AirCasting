@@ -39,7 +39,6 @@ class AC.Views.Maps.HudTabs extends Backbone.View
   render: ->
     $(@el).html @template()
     activeTab = @options.mapState?.activeTab
-    console.log activeTab
 
     @crowdMapView = new AC.Views.Maps.CrowdMapView(
       el: $('#crowd-map-tab')
