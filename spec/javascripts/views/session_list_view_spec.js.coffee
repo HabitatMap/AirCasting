@@ -23,7 +23,7 @@ describe "SessionListView", ->
     @collection = new Backbone.Collection()
     @googleMap = {}
     @view = new AirCasting.Views.Maps.SessionListView({ collection: @collection, googleMap: @googleMap })
-    @measurements = [{time: new Date(), value: 10}, {time: new Date(), value: 20}]
+    @measurements = [{time: new Date(1000), value: 10}, {time: new Date(2000), value: 20}]
     @view.downloadedData = { 1: { measurements: @measurements } }
 
   describe "drawSession", ->
@@ -54,13 +54,20 @@ describe "SessionListView", ->
       expect(@view.graphOptions).toHaveBeenCalledWith(@measurements)
 
   describe "graphOptions", ->
-    beforeEach ->
-      @expected = [
+    it "should set xaxis panRange", ->
+      options = @view.graphOptions(@measurements)
+
+      expected = [
         _.first(@measurements).time.getTime(),
         _.last(@measurements).time.getTime()
       ]
-      @options = @view.graphOptions(@measurements)
 
-    it "should set xaxis panRange", ->
-      expect(@options.xaxis.panRange).toEqual(@expected)
+      expect(options.xaxis.panRange).toEqual(expected)
+
+    it "should set xaxis zoomRange", ->
+      options = @view.graphOptions(@measurements)
+
+      expected = _.last(@measurements).time.getTime() - _.first(@measurements).time.getTime()
+
+      expect(options.xaxis.zoomRange).toEqual([null, expected])
 

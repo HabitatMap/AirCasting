@@ -238,13 +238,15 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     $.plot("#graph", [{data: data}], @graphOptions(measurements))
 
   graphOptions: (measurements) ->
+    THIRTY_SECONDS = 30 * 1000
+    first = AC.util.parseTime(_.first(measurements).time).getTime()
+    last = AC.util.parseTime(_.last(measurements).time).getTime()
+
     xaxis:
       show: false
       mode: "time"
-      panRange: [
-        AC.util.parseTime(_.first(measurements).time).getTime(),
-        AC.util.parseTime(_.last(measurements).time).getTime()
-      ]
+      panRange: [first, last]
+      zoomRange: [null, last - first]
     yaxis:
       show: false
       zoomRange: false
