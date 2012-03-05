@@ -38,12 +38,29 @@ describe "SessionListView", ->
   describe "drawGraph", ->
     beforeEach ->
       $("<div id='graph'></div>").appendTo("body")
+      @graphOptions = { some: "options" }
 
     afterEach ->
       $("#graph").remove()
 
     it "should create the graph", ->
       spyOn($, "plot")
+      spyOn(@view, "graphOptions").andCallFake => @graphOptions
+
       @view.drawGraph(@measurements)
-      @expectedData = ([m.time.getTime(), m.value] for m in @measurements)
-      expect($.plot).toHaveBeenCalledWith("#graph", [{data: @expectedData}], @view.graphOptions)
+
+      expectedData = ([m.time.getTime(), m.value] for m in @measurements)
+      expect($.plot).toHaveBeenCalledWith("#graph", [{data: expectedData}], @graphOptions)
+      expect(@view.graphOptions).toHaveBeenCalledWith(@measurements)
+
+  describe "graphOptions", ->
+    beforeEach ->
+      @expected = [
+        _.first(@measurements).time.getTime(),
+        _.last(@measurements).time.getTime()
+      ]
+      @options = @view.graphOptions(@measurements)
+
+    it "should set xaxis panRange", ->
+      expect(@options.xaxis.panRange).toEqual(@expected)
+

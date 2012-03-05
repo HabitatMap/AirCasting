@@ -22,13 +22,6 @@ AirCasting.Views.Maps ||= {}
 class AirCasting.Views.Maps.SessionListView extends Backbone.View
   MAX_POINTS = 30000
 
-  graphOptions:
-    xaxis:
-      show: false
-      mode: "time"
-    yaxis:
-      show: false
-
   initialize: (options) ->
     super(options)
     @googleMap = options.googleMap
@@ -242,7 +235,28 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   drawGraph: (measurements)->
     data = ([AC.util.parseTime(m.time).getTime(), m.value] for m in measurements)
-    $.plot("#graph", [{data: data}], @graphOptions)
+    $.plot("#graph", [{data: data}], @graphOptions(measurements))
+
+  graphOptions: (measurements) ->
+    range = [
+      AC.util.parseTime(_.first(measurements).time).getTime(),
+      AC.util.parseTime(_.last(measurements).time).getTime()
+    ]
+
+    xaxis:
+      show: false
+      mode: "time"
+      panRange: range
+    yaxis:
+      show: false
+      zoomRange: false
+      panRange: false
+    grid:
+      show: false
+    zoom:
+      interactive: true
+    pan:
+      interactive: true
 
   drawNote: (session, note) ->
     markerOptions =
