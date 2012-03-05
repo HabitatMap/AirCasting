@@ -194,7 +194,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     session = @selectedSessions[id]
     measurements = @downloadedData[id].measurements || []
     @drawTrace(id, measurements)
-    @drawGraph(measurements)
+    @drawGraph(session, measurements)
 
     for index in [0...measurements.length]
       element = measurements[index]
@@ -233,9 +233,12 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       marker.sessionId = session.get('id')
       @markers.push marker
 
-  drawGraph: (measurements) ->
-    data = ([AC.util.parseTime(m.time).getTime(), m.value] for m in measurements)
+  drawGraph: (session, measurements) ->
+    calibrate = (value) -> AC.util.calibrateValue(session.get('calibration'), session.get('offset_60_db'), value)
+    data = ([AC.util.parseTime(m.time).getTime(), calibrate(m.value)] for m in measurements)
+
     $.plot("#graph", [{data: data}], @graphOptions(measurements))
+
     $("#graph").unbind("plothover")
     $("#graph").bind("plothover", (event, pos, item) =>
       if item == null then @hideHighlight() else @highlightLocation(measurements, data, pos.x))
@@ -272,6 +275,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       show: false
       zoomRange: false
       panRange: false
+      min: _.first(AC.G.db_levels)
+      max: _.last(AC.G.db_levels)
     grid:
       show: false
       hoverable: true

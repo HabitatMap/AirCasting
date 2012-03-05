@@ -23,8 +23,10 @@ describe "SessionListView", ->
     @collection = new Backbone.Collection()
     @googleMap = {}
     @view = new AirCasting.Views.Maps.SessionListView({ collection: @collection, googleMap: @googleMap })
+    @session = { get: (key) -> { calibration: 100, offset_60_db: 10 }[key] }
     @measurements = [{time: new Date(1000), value: 10}, {time: new Date(2000), value: 20}]
     @view.downloadedData = { 1: { measurements: @measurements } }
+    @view.selectedSessions = { 1: @session }
 
   describe "drawSession", ->
     beforeEach ->
@@ -33,7 +35,7 @@ describe "SessionListView", ->
     it "should draw the graph", ->
       spyOn(@view, "drawGraph")
       @view.drawSession(1)
-      expect(@view.drawGraph).toHaveBeenCalledWith(@measurements)
+      expect(@view.drawGraph).toHaveBeenCalledWith(@session, @measurements)
 
   describe "drawGraph", ->
     beforeEach ->
@@ -47,27 +49,32 @@ describe "SessionListView", ->
       spyOn($, "plot")
       spyOn(@view, "graphOptions").andCallFake => @graphOptions
 
-      @view.drawGraph(@measurements)
+      @view.drawGraph(@session, @measurements)
 
-      expectedData = ([m.time.getTime(), m.value] for m in @measurements)
+      expectedData = ([m.time.getTime(), AC.util.calibrateValue(100, 10, m.value)] for m in @measurements)
       expect($.plot).toHaveBeenCalledWith("#graph", [{data: expectedData}], @graphOptions)
       expect(@view.graphOptions).toHaveBeenCalledWith(@measurements)
 
   describe "graphOptions", ->
-    it "should set xaxis panRange", ->
-      options = @view.graphOptions(@measurements)
+    beforeEach ->
+      @options = @view.graphOptions(@measurements)
 
+    it "should set xaxis panRange", ->
       expected = [
         _.first(@measurements).time.getTime(),
         _.last(@measurements).time.getTime()
       ]
 
-      expect(options.xaxis.panRange).toEqual(expected)
+      expect(@options.xaxis.panRange).toEqual(expected)
 
     it "should set xaxis zoomRange", ->
-      options = @view.graphOptions(@measurements)
-
       expected = _.last(@measurements).time.getTime() - _.first(@measurements).time.getTime()
 
-      expect(options.xaxis.zoomRange).toEqual([null, expected])
+      expect(@options.xaxis.zoomRange).toEqual([null, expected])
+
+    it "should set yaxis min", ->
+      expect(@options.yaxis.min).toEqual(_.first(AC.G.db_levels))
+
+    it "should set yaxis max", ->
+      expect(@options.yaxis.max).toEqual(_.last(AC.G.db_levels))
 
