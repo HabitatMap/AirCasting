@@ -35,4 +35,5 @@
 //= require globals
 //= require backbone/air_casting
 //= require google_map
+//= require vendor/jquery.flot
 //= require_tree .

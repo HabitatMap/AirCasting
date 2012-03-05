@@ -238,15 +238,13 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     $.plot("#graph", [{data: data}], @graphOptions(measurements))
 
   graphOptions: (measurements) ->
-    range = [
-      AC.util.parseTime(_.first(measurements).time).getTime(),
-      AC.util.parseTime(_.last(measurements).time).getTime()
-    ]
-
     xaxis:
       show: false
       mode: "time"
-      panRange: range
+      panRange: [
+        AC.util.parseTime(_.first(measurements).time).getTime(),
+        AC.util.parseTime(_.last(measurements).time).getTime()
+      ]
     yaxis:
       show: false
       zoomRange: false
@@ -257,6 +255,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       interactive: true
     pan:
       interactive: true
+    crosshair:
+      mode: "x"
 
   drawNote: (session, note) ->
     markerOptions =
