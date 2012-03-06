@@ -72,7 +72,7 @@ describe "SessionListView", ->
 
       @view.drawGraph(@session, @measurements)
 
-      expect($(".low").height()).toEqual(10)
+      expect($(".low").height()).toEqual(100)
       expect($(".mid").height()).toEqual(20)
       expect($(".midhigh").height()).toEqual(30)
       expect($(".high").height()).toEqual(40)
