@@ -251,7 +251,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   drawGraphBackground: ->
     [low, mid, midHigh, high] = AC.util.dbRangePercentages()
 
-    $("#graph-background .low").css(height: low + "%")
+    $("#graph-background .low").css(height: "100%")
     $("#graph-background .mid").css(height: mid + "%")
     $("#graph-background .midhigh").css(height: midHigh + "%")
     $("#graph-background .high").css(height: high + "%")
