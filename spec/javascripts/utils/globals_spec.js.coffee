@@ -25,5 +25,5 @@ describe "AC.util", ->
       expect(AC.util.dbRangePercentages()).toEqual([10, 20, 60, 10])
 
     it "should round", ->
-      AC.G.db_levels = [0, 25, 50, 75, 103]
-      expect(AC.util.dbRangePercentages()).toEqual([24, 24, 24, 27])
+      AC.G.db_levels = [20, 60, 70, 80, 100]
+      expect(AC.util.dbRangePercentages()).toEqual([50, 13, 13, 24])

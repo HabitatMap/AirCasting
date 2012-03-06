@@ -82,7 +82,9 @@ window.AirCasting.util =
 
   dbRangePercentages: ->
     range = _.last(AC.G.db_levels) - _.first(AC.G.db_levels)
-    _.map([0..3], (i) => Math.round((AC.G.db_levels[i+1] - AC.G.db_levels[i]) / range * 100))
+    ranges = _.map([0..2], (i) => Math.round((AC.G.db_levels[i+1] - AC.G.db_levels[i]) / range * 100))
+    ranges.push 100 - _.reduce(ranges, (sum, x) -> sum + x)
+    ranges
 
   calibrateValue: (calibration, offset_60_db, value) ->
     (value + (calibration - 60 + offset_60_db)) / (calibration - 60 + offset_60_db) * (calibration - 60) + 60
