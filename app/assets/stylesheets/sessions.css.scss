@@ -37,13 +37,13 @@ section.sessions {
 
 #right-hud section.graph {
   width: 30%;
-  height: 200px;
+  height: 140px;
   background: none repeat scroll 0% 0% rgb(255, 255, 255);
   position: fixed;
   padding: 0px;
   border: 2px solid rgb(133, 133, 133);
-  bottom: 60px;
-  left: 400px;
+  bottom: 41px;
+  left: $sessions-list-width + 20px;
 
   #graph, #graph-background {
     position: absolute;

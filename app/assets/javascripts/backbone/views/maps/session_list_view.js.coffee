@@ -42,6 +42,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       $(".next-note").click( => @nextNote())
     )
 
+    $(window).resize(@resizeGraph)
+    @resizeGraph()
+
   render: ->
     $(@el).empty()
 
@@ -302,6 +305,10 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     colors: ["white"]
     series:
       shadowSize: 0
+
+  resizeGraph: ->
+    width = window.innerWidth - 608
+    $("section.graph").css(width: width)
 
   drawNote: (session, note) ->
     markerOptions =
