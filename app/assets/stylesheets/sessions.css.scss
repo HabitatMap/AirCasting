@@ -4,7 +4,6 @@
 
 $sessions-list-height: 300px;
 $sessions-list-width: 238px;
-$graph-header-width: 145px;
 
 section.sessions {
   width: $sessions-list-width;
@@ -82,15 +81,13 @@ section.sessions {
       font-weight:bold;
       padding:4px 16px 1px;
       float: left;
-      width: $graph-header-width - 32px;
     }
 
     #graph-arrow {
-      position: absolute;
-      top: 0px;
-      left: $graph-header-width + 10px;
+      float: right;
       width: 22px;
       height: 22px;
+      margin-left: 10px;
       background: url("arrow-close.png") no-repeat right center;
       &.collapsed {
         background: url("arrow-open.png") no-repeat right center;
