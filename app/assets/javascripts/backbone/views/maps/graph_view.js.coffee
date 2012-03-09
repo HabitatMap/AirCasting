@@ -42,13 +42,24 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     calibrate = (value) -> AC.util.calibrateValue(session.get('calibration'), session.get('offset_60_db'), value)
     data = ([AC.util.parseTime(m.time).getTime(), calibrate(m.value)] for m in measurements)
 
-    $.plot("#graph", [{data: data}], @graphOptions(measurements))
+    plot = $.plot("#graph", [{data: data}], @graphOptions(measurements))
     @$("#graph-label-top").html(_.last(AC.G.db_levels) + " dB")
     @$("#graph-label-bottom").html(_.first(AC.G.db_levels) + " dB")
 
-    $("#graph").unbind("plothover")
-    $("#graph").bind("plothover", (event, pos, item) =>
+    @$("#graph").unbind("plothover")
+    @$("#graph").unbind("plotzoom")
+    @$("#graph").unbind("plotpan")
+    @$("#graph").bind("plothover", (event, pos, item) =>
       if item == null then @hideHighlight() else @highlightLocation(measurements, data, pos.x))
+    @$("#graph").bind("plotzoom", (event, plot) => @updateLabels(plot))
+    @$("#graph").bind("plotpan", (event, plot) => @updateLabels(plot))
+    @updateLabels(plot)
+
+  updateLabels: (plot) ->
+    left = _.first(plot.getData()).xaxis.min
+    right = _.first(plot.getData()).xaxis.max
+    @$("#graph-label-left").html(new Date(left).toString("HH:mm:ss"))
+    @$("#graph-label-right").html(new Date(right).toString("HH:mm:ss"))
 
   drawGraphBackground: ->
     [low, mid, midHigh, high] = AC.util.dbRangePercentages()

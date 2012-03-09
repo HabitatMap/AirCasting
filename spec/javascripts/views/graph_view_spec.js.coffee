@@ -24,6 +24,8 @@ describe "GraphView", ->
          <div id='graph-box'>
            <div id='graph-label-top'></div>
            <div id='graph-label-bottom'></div>
+           <div id='graph-label-left'></div>
+           <div id='graph-label-right'></div>
            <div id='graph'>
            </div>
            <div id='graph-background'>
@@ -47,6 +49,7 @@ describe "GraphView", ->
       selectedSessions: { 2: @session }
     }
     @view = new AirCasting.Views.Maps.GraphView({ el: $("#test"), collection: @collection, googleMap: @googleMap, parent: @parent})
+    @plot = { getData: -> [{ xaxis: { min: 10, max: 20 } }] }
 
   describe "drawGraph", ->
     beforeEach ->
@@ -56,14 +59,16 @@ describe "GraphView", ->
       $("#test").remove()
 
     it "should create the graph", ->
-      spyOn($, "plot")
+      spyOn($, "plot").andReturn(@plot)
       spyOn(@view, "graphOptions").andCallFake => @graphOptions
+      spyOn(@view, "updateLabels")
 
       @view.drawGraph()
 
       expectedData = ([m.time.getTime(), AC.util.calibrateValue(100, 10, m.value)] for m in @measurements)
       expect($.plot).toHaveBeenCalledWith("#graph", [{data: expectedData}], @graphOptions)
       expect(@view.graphOptions).toHaveBeenCalledWith(@measurements)
+      expect(@view.updateLabels).toHaveBeenCalledWith(@plot)
 
     it "should setup the background", ->
       $("#graph-background").css(height: 100)
@@ -89,6 +94,15 @@ describe "GraphView", ->
       AC.G.db_levels = [10, 20, 30, 40, 50]
       @view.drawGraph()
       expect($("#graph-label-bottom").html()).toEqual("10 dB")
+
+  describe "updateLabels", ->
+    it "should update the left label", ->
+      @view.updateLabels(@plot)
+      expect($("#graph-label-left").html()).toEqual(new Date(10).toString("HH:mm:ss"))
+
+    it "should update the right label", ->
+      @view.updateLabels(@plot)
+      expect($("#graph-label-right").html()).toEqual(new Date(20).toString("HH:mm:ss"))
 
   describe "graphOptions", ->
     beforeEach ->
