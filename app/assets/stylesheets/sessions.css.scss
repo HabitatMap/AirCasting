@@ -87,10 +87,10 @@ section.sessions {
       float: right;
       width: 22px;
       height: 22px;
-      margin-left: 10px;
-      background: url("arrow-close.png") no-repeat right center;
+      margin-left: 4px;
+      background: url("arrow-close-down.png") no-repeat right center;
       &.collapsed {
-        background: url("arrow-open.png") no-repeat right center;
+        background: url("arrow-open-up.png") no-repeat right center;
       }
     }
   }
