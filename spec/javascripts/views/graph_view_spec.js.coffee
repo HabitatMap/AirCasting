@@ -18,24 +18,15 @@
 # You can contact the authors by email at <info@habitatmap.org>
 ###
 
-describe "SessionListView", ->
+describe "GraphView", ->
   beforeEach ->
     @collection = new Backbone.Collection()
     @googleMap = {}
-    @view = new AirCasting.Views.Maps.SessionListView({ collection: @collection, googleMap: @googleMap })
+    @view = new AirCasting.Views.Maps.GraphView({ collection: @collection, googleMap: @googleMap })
     @session = { get: (key) -> { calibration: 100, offset_60_db: 10 }[key] }
     @measurements = [{time: new Date(1000), value: 10}, {time: new Date(2000), value: 20}]
     @view.downloadedData = { 1: { measurements: @measurements } }
     @view.selectedSessions = { 1: @session }
-
-  describe "drawSession", ->
-    beforeEach ->
-      @view.drawMeasurement = ->
-
-    it "should draw the graph", ->
-      spyOn(@view, "drawGraph")
-      @view.drawSession(1)
-      expect(@view.drawGraph).toHaveBeenCalledWith(@session, @measurements)
 
   describe "drawGraph", ->
     beforeEach ->

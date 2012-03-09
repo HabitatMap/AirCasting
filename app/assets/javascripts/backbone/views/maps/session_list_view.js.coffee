@@ -42,8 +42,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       $(".next-note").click( => @nextNote())
     )
 
-    $(window).resize(@resizeGraph)
-    @resizeGraph()
+    @graphView = new AirCasting.Views.Maps.GraphView(el: $("#graph"), googleMap: @googleMap)
 
   render: ->
     $(@el).empty()
@@ -197,7 +196,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     session = @selectedSessions[id]
     measurements = @downloadedData[id].measurements || []
     @drawTrace(id, measurements)
-    @drawGraph(session, measurements)
+    @graphView.drawGraph(session, measurements)
 
     for index in [0...measurements.length]
       element = measurements[index]
@@ -235,80 +234,6 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       marker.setOptions markerOptions
       marker.sessionId = session.get('id')
       @markers.push marker
-
-  drawGraph: (session, measurements) ->
-    @drawGraphBackground()
-
-    calibrate = (value) -> AC.util.calibrateValue(session.get('calibration'), session.get('offset_60_db'), value)
-    data = ([AC.util.parseTime(m.time).getTime(), calibrate(m.value)] for m in measurements)
-
-    $.plot("#graph", [{data: data}], @graphOptions(measurements))
-
-    $("#graph").unbind("plothover")
-    $("#graph").bind("plothover", (event, pos, item) =>
-      if item == null then @hideHighlight() else @highlightLocation(measurements, data, pos.x))
-
-  drawGraphBackground: ->
-    [low, mid, midHigh, high] = AC.util.dbRangePercentages()
-
-    $("#graph-background .low").css(height: "100%")
-    $("#graph-background .mid").css(height: mid + "%")
-    $("#graph-background .midhigh").css(height: midHigh + "%")
-    $("#graph-background .high").css(height: high + "%")
-
-  highlightLocation: (measurements, data, time) ->
-    index = _.sortedIndex(data, [time, null], (d) -> _.first(d))
-    measurement = measurements[index]
-
-    latlng = new google.maps.LatLng(measurement.latitude, measurement.longitude)
-    if @location
-      @location.setPosition(latlng)
-    else
-      @location = new google.maps.Marker(
-        position: latlng
-        zIndex: 300000
-      )
-      @location.setMap(@googleMap.map)
-
-  hideHighlight: ->
-    if @location
-      @location.setMap(null)
-      delete @location
-
-  graphOptions: (measurements) ->
-    first = AC.util.parseTime(_.first(measurements).time).getTime()
-    last = AC.util.parseTime(_.last(measurements).time).getTime()
-
-    xaxis:
-      show: false
-      mode: "time"
-      panRange: [first, last]
-      zoomRange: [null, last - first]
-    yaxis:
-      show: false
-      zoomRange: false
-      panRange: false
-      min: _.first(AC.G.db_levels)
-      max: _.last(AC.G.db_levels)
-    grid:
-      show: false
-      hoverable: true
-      mouseActiveRadius: Infinity
-      autoHighlight: false
-    zoom:
-      interactive: true
-    pan:
-      interactive: true
-    crosshair:
-      mode: "x"
-      color: "white"
-    colors: ["white"]
-    series:
-      shadowSize: 0
-
-  resizeGraph: ->
-    width = window.innerWidth - 608
-    $("section.graph").css(width: width)
 
   drawNote: (session, note) ->
     markerOptions =
