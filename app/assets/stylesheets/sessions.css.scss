@@ -51,6 +51,22 @@ section.sessions {
     position: relative;
     left: -2px;
     top: -2px;
+
+    #graph-label-bottom, #graph-label-top {
+      color: white;
+      position: absolute;
+      z-index: 3;
+      left: 0;
+      margin-left: 5px
+    }
+
+    #graph-label-top {
+      top: 0;
+    }
+
+    #graph-label-bottom {
+      bottom: 0;
+    }
   }
 
   #graph-top {

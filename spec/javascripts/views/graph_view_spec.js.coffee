@@ -22,6 +22,8 @@ describe "GraphView", ->
   beforeEach ->
     $("<div id='test'>
          <div id='graph-box'>
+           <div id='graph-label-top'></div>
+           <div id='graph-label-bottom'></div>
            <div id='graph'>
            </div>
            <div id='graph-background'>
@@ -77,6 +79,16 @@ describe "GraphView", ->
     it "should enable the graph", ->
       @view.drawGraph()
       expect(@view.graphAvailable).toBeTruthy()
+
+    it "should setup the top label", ->
+      AC.G.db_levels = [10, 20, 30, 40, 50]
+      @view.drawGraph()
+      expect($("#graph-label-top").html()).toEqual("50 dB")
+
+    it "should setup the bottom label", ->
+      AC.G.db_levels = [10, 20, 30, 40, 50]
+      @view.drawGraph()
+      expect($("#graph-label-bottom").html()).toEqual("10 dB")
 
   describe "graphOptions", ->
     beforeEach ->

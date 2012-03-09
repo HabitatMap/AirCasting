@@ -43,6 +43,8 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     data = ([AC.util.parseTime(m.time).getTime(), calibrate(m.value)] for m in measurements)
 
     $.plot("#graph", [{data: data}], @graphOptions(measurements))
+    @$("#graph-label-top").html(_.last(AC.G.db_levels) + " dB")
+    @$("#graph-label-bottom").html(_.first(AC.G.db_levels) + " dB")
 
     $("#graph").unbind("plothover")
     $("#graph").bind("plothover", (event, pos, item) =>
