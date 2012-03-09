@@ -77,6 +77,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     else
       @hideSession(sessionId)
 
+    if @numberOfSelected != 1
+      @graphView.disableGraph()
+
     @updateToggleAll()
 
   fetchAndDraw: (sessionId) ->
@@ -201,9 +204,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @drawTrace(id, measurements)
 
     if @numberOfSelected() == 1
-      @graphView.drawGraph(session, measurements)
-    else
-      @graphView.disableGraph()
+      @graphView.drawGraph()
 
     for index in [0...measurements.length]
       element = measurements[index]
