@@ -42,7 +42,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       $(".next-note").click( => @nextNote())
     )
 
-    @graphView = new AirCasting.Views.Maps.GraphView(el: $("#graph"), googleMap: @googleMap)
+    @graphView = new AirCasting.Views.Maps.GraphView(el: $("section.graph"), googleMap: @googleMap)
 
   render: ->
     $(@el).empty()

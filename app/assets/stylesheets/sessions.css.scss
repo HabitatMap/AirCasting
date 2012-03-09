@@ -37,28 +37,34 @@ section.sessions {
 }
 
 #right-hud section.graph {
-  width: 30%;
-  height: 140px;
-  background: none repeat scroll 0% 0% rgb(255, 255, 255);
   position: fixed;
   padding: 0px;
-  border: 2px solid rgb(133, 133, 133);
   bottom: 41px;
   left: $sessions-list-width + 20px;
+
+  #graph-box {
+    margin: 0;
+    height: 140px;
+    width: 100%;
+    background: none repeat scroll 0% 0% rgb(255, 255, 255);
+    border: 2px solid rgb(133, 133, 133);
+    position: relative;
+    left: -2px;
+    top: -2px;
+  }
 
   #graph-top {
     top: -40px;
     left: -2px;
     position: absolute;
-    width: 100%;
+    overflow: visible;
 
     #graph-header {
       background: #fff;
       border: 2px solid #858585;
       font-weight:bold;
-      padding:6px 16px 1px;
+      padding:4px 16px 1px;
       float: left;
-      border-bottom: none;
       width: $graph-header-width - 32px;
     }
 

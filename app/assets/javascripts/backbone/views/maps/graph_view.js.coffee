@@ -20,6 +20,9 @@
 AirCasting.Views.Maps ||= {}
 
 class AirCasting.Views.Maps.GraphView extends Backbone.View
+  events:
+    'click #graph-arrow': 'toggleGraph'
+
   initialize: (options) ->
     super(options)
     @googleMap = options.googleMap
@@ -100,3 +103,6 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
   resizeGraph: ->
     width = window.innerWidth - 608
     $("section.graph").css(width: width)
+
+  toggleGraph: ->
+    @$("#graph-box").toggle()
