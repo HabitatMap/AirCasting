@@ -18,22 +18,35 @@
 # You can contact the authors by email at <info@habitatmap.org>
 ###
 
-describe "GraphView", ->
+describe "SessionListView", ->
   beforeEach ->
     @collection = new Backbone.Collection()
     @googleMap = {}
     @view = new AirCasting.Views.Maps.SessionListView({ collection: @collection, googleMap: @googleMap })
-    @session = "session"
+    @session = { get: (key) -> {}[key] }
     @measurements = "measurements"
     @view.downloadedData = { 1: { measurements: @measurements } }
     @view.selectedSessions = { 1: @session }
-    @view.graphView = { drawGraph: -> }
+    @view.graphView =
+      drawGraph: ->
+      disableGraph: ->
 
   describe "drawSession", ->
     beforeEach ->
+      spyOn(@view.graphView, "disableGraph")
       @view.drawMeasurement = ->
 
-    it "should draw the graph", ->
-      spyOn(@view.graphView, "drawGraph")
+    it "should not disable the view if one session is selected", ->
+      @view.selectedSessions = { 1: @session }
       @view.drawSession(1)
-      expect(@view.graphView.drawGraph).toHaveBeenCalledWith(@session, @measurements)
+      expect(@view.graphView.disableGraph).not.toHaveBeenCalled()
+
+    it "should disable the graph if many sessions are selected", ->
+      @view.selectedSessions = { 1: @session, 2: @session }
+      @view.drawSession(1)
+      expect(@view.graphView.disableGraph).toHaveBeenCalled()
+
+    it "should disable the graph if no sessions are selected", ->
+      @view.selectedSessions = { }
+      @view.drawSession(1)
+      expect(@view.graphView.disableGraph).toHaveBeenCalled()

@@ -26,11 +26,17 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
   initialize: (options) ->
     super(options)
     @googleMap = options.googleMap
+    @parent = options.parent
 
     $(window).resize(@resizeGraph)
     @resizeGraph()
+    @disableGraph()
 
-  drawGraph: (session, measurements) ->
+  drawGraph: ->
+    [id, session] = _.first([id, session] for id, session of @parent.selectedSessions)
+    measurements = @parent.downloadedData[id].measurements
+
+    @graphAvailable = true
     @drawGraphBackground()
 
     calibrate = (value) -> AC.util.calibrateValue(session.get('calibration'), session.get('offset_60_db'), value)
@@ -105,4 +111,11 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     $("section.graph").css(width: width)
 
   toggleGraph: ->
-    @$("#graph-box").toggle()
+    if @parent.numberOfSelected() == 1
+      @$("#graph-box").toggle()
+      @drawGraph()
+    else
+      AC.util.notice("Select one session to view the graph")
+
+  disableGraph: ->
+    @$("#graph-box").hide()

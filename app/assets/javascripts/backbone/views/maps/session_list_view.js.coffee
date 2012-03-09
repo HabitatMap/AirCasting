@@ -42,7 +42,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       $(".next-note").click( => @nextNote())
     )
 
-    @graphView = new AirCasting.Views.Maps.GraphView(el: $("section.graph"), googleMap: @googleMap)
+    @graphView = new AirCasting.Views.Maps.GraphView(el: $("section.graph"), googleMap: @googleMap, parent: this)
 
   render: ->
     $(@el).empty()
@@ -89,6 +89,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   sumOfSelected: ->
     sessions = (session for key, session of @selectedSessions)
     @sumOfSizes(sessions)
+
+  numberOfSelected: ->
+    Object.keys(@selectedSessions).length
 
   hideSession: (sessionId) ->
     delete @selectedSessions[sessionId]
@@ -196,7 +199,11 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     session = @selectedSessions[id]
     measurements = @downloadedData[id].measurements || []
     @drawTrace(id, measurements)
-    @graphView.drawGraph(session, measurements)
+
+    if @numberOfSelected() == 1
+      @graphView.drawGraph(session, measurements)
+    else
+      @graphView.disableGraph()
 
     for index in [0...measurements.length]
       element = measurements[index]
