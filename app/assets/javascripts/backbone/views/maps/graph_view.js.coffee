@@ -127,6 +127,7 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     if @parent.numberOfSelected() == 1
       @$("#graph-box").toggle()
       @$("#graph-arrow").toggleClass("collapsed")
+      @$("#graph-header").toggleClass("collapsed")
       @drawGraph()
     else
       AC.util.notice("Select one session to view the graph")
@@ -134,3 +135,4 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
   disableGraph: ->
     @$("#graph-box").hide()
     @$("#graph-arrow").addClass("collapsed")
+    @$("#graph-header").addClass("collapsed")
