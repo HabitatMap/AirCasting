@@ -80,6 +80,7 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
       @location = new google.maps.Marker(
         position: latlng
         zIndex: 300000
+        icon: window.location_marker_path
       )
       @location.setMap(@googleMap.map)
 
