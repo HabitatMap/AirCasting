@@ -22,3 +22,7 @@ public/system
 nbproject/*
 
 .DS_Store
+
+.generators
+.rakeTasks
+AirCasting.iml
