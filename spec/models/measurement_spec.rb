@@ -53,10 +53,9 @@ describe Measurement do
       let!(:m2) { Factory.create(:measurement, latitude: 10.005, longitude: -3, value: -5) }
       let!(:m3) { Factory.create(:measurement, latitude: 10.015, longitude: -8, value: -10) }
       let!(:m4) { Factory.create(:measurement, latitude: 10.005, longitude: 20, value: 100) }
-      let(:calibration) { m1.calibration }
-
+ 
       it "should average data in grid elements" do
-        expected_value1 = ((-10 + -5) / 2.0 + calibration)
+        expected_value1 = (m1.value + m2.value) / 2.0
 
         node1 = subject.find { |x| (x[:value] - expected_value1).abs < 0.001 }
         node1.should_not be_nil
@@ -68,7 +67,7 @@ describe Measurement do
         node1[:west].should be_within(0.0001).of(-6.75)
         node1[:east].should be_within(0.0001).of(-2.25)
 
-        expected_value2 = (-10 + calibration)
+        expected_value2 = m3.value
 
         node2 = subject.find { |x| (x[:value] - expected_value2).abs < 0.001 }
         node2.should_not be_nil

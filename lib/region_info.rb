@@ -7,7 +7,7 @@ class RegionInfo
 
   def average
     @measurements.joins(:session).
-      average(Measurement::CALIBRATE)
+      average(:value)
   end
 
   def top_contributors

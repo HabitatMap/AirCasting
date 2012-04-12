@@ -9,7 +9,7 @@ describe RegionInfo do
 
   subject { RegionInfo.new(:south => 5, :north => 15, :west => 15, :east => 25) }
 
-  its(:average) { should == Measurement.joins(:session).where(:id => [m1.id, m2.id]).average(Measurement::CALIBRATE) }
+  its(:average) { should == Measurement.joins(:session).where(:id => [m1.id, m2.id]).average(:value) }
   its(:number_of_samples) { should == 2 }
   its(:top_contributors) { should include m1.session.user.username }
   its(:top_contributors) { should_not include m3.session.user.username }
