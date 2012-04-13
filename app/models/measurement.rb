@@ -25,7 +25,7 @@ class Measurement < ActiveRecord::Base
   SECONDS_IN_MINUTE = 60
 
   # belongs_to :session, :through => :stream, :inverse_of => :measurements, :counter_cache => true
-  belongs_to :stream, :inverse_of =>:measurements
+  belongs_to :stream, :inverse_of =>:measurements, :counter_cache => true
   has_one :session, :through => :stream
   has_one :user, :through => :session
 

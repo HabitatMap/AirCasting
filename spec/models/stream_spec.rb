@@ -19,11 +19,10 @@
 require 'spec_helper'
 
 describe Stream do
+	let(:stream) { Factory(:stream) }
+	let!(:measurement) { Factory(:measurement, :stream => stream) }
 
   describe "#destroy" do
-    let(:stream) { Factory(:stream) }
-    let!(:measurement) { Factory(:measurement, :stream => stream) }
-
     it "should destroy measurements" do
       stream.reload.destroy
 
@@ -32,8 +31,10 @@ describe Stream do
   end
 
   describe "as_json" do
+		subject { stream.as_json(:methods => [:measurements]) }
+
   	it "should include stream size" do
-  		pending
+			subject[:size].should == stream.reload.measurements.size
     end
 	end
 end

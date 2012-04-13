@@ -36,7 +36,6 @@ class Session < ActiveRecord::Base
   after_create :set_timeframe!
 
   delegate :username, :to => :user
-  delegate :size, :to => :measurements
 
   acts_as_taggable
 
@@ -95,7 +94,7 @@ class Session < ActiveRecord::Base
     includes(:user).
       filter(data).as_json(
         :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time, :timezone_offset],
-        :methods => [:username, :size]
+        :methods => [:username]
       )
   end
 
@@ -122,7 +121,7 @@ class Session < ActiveRecord::Base
   def as_json(opts=nil)
     opts ||= {}
 
-    methods = opts[:methods] || [:notes, :calibration, :size]
+    methods = opts[:methods] || [:notes, :calibration]
     with_measurements = opts[:methods].delete(:measurements)
     
     res = super(opts.merge(:methods => methods))
