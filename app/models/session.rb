@@ -24,6 +24,7 @@ class Session < ActiveRecord::Base
   belongs_to :user
   has_many :measurements, :inverse_of => :session, :dependent => :destroy
   has_many :notes, :inverse_of => :session, :dependent => :destroy
+  has_many :streams, :inverse_of => :session, :dependent => :destroy
 
   validates :user, :uuid, :url_token, :calibration, :offset_60_db, :presence => true
   validates :url_token, :uuid, :uniqueness => true

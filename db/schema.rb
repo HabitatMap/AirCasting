@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120412130802) do
+ActiveRecord::Schema.define(:version => 20120412141653) do
 
   create_table "measurements", :force => true do |t|
     t.float    "value"
@@ -67,6 +67,20 @@ ActiveRecord::Schema.define(:version => 20120412130802) do
   add_index "sessions", ["url_token"], :name => "index_sessions_on_url_token"
   add_index "sessions", ["user_id"], :name => "index_sessions_on_user_id"
   add_index "sessions", ["uuid"], :name => "index_sessions_on_uuid"
+
+  create_table "streams", :force => true do |t|
+    t.string  "sensor_name"
+    t.string  "unit_name"
+    t.string  "measurement_type"
+    t.string  "measurement_short_type"
+    t.string  "unit_symbol"
+    t.integer "threshold_very_low"
+    t.integer "threshold_low"
+    t.integer "threshold_medium"
+    t.integer "threshold_high"
+    t.integer "threshold_very_high"
+    t.integer "session_id"
+  end
 
   create_table "taggings", :force => true do |t|
     t.integer  "tag_id"
