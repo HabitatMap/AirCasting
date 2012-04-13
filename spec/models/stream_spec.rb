@@ -16,18 +16,24 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-# Read about factories at http://github.com/thoughtbot/factory_girl
+require 'spec_helper'
 
-FactoryGirl.define do
-  factory :session do
-    user
-    sequence(:uuid) { |n| "uuid-#{n}" }
-    title { "Another session" }
-    description { "Very nice session" }
-    tag_list { "boring quiet" }
-    calibration 99
-    offset_60_db 0
-    contribute true
-    notes_attributes { [Factory.attributes_for(:note, :session => nil)] }
+describe Stream do
+
+  describe "#destroy" do
+    let(:stream) { Factory(:stream) }
+    let!(:measurement) { Factory(:measurement, :stream => stream) }
+
+    it "should destroy measurements" do
+      stream.reload.destroy
+
+      Measurement.exists?(measurement.id).should be_false
+    end
   end
+
+  describe "as_json" do
+  	it "should include stream size" do
+  		pending
+    end
+	end
 end

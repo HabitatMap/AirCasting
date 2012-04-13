@@ -24,12 +24,12 @@ class Measurement < ActiveRecord::Base
   Y_SIZES = (1..300).map { |i| 1.2 ** i * 0.000001 }
   SECONDS_IN_MINUTE = 60
 
-  belongs_to :session, :inverse_of => :measurements, :counter_cache => true
+  # belongs_to :session, :through => :stream, :inverse_of => :measurements, :counter_cache => true
+  belongs_to :stream, :inverse_of =>:measurements
+  has_one :session, :through => :stream
   has_one :user, :through => :session
 
-  validates :session, :value, :longitude, :latitude, :time, :presence => true
-
-  delegate :calibration, :to => :session
+  validates :stream, :value, :longitude, :latitude, :time, :presence => true
 
   prepare_range(:longitude_range, :longitude)
   prepare_range(:latitude_range, :latitude)

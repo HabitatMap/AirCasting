@@ -22,7 +22,7 @@ class Session < ActiveRecord::Base
   MINUTES_IN_DAY = 60 * 24
 
   belongs_to :user
-  has_many :measurements, :inverse_of => :session, :dependent => :destroy
+  has_many :measurements, :through => :streams, :inverse_of => :session, :dependent => :destroy
   has_many :notes, :inverse_of => :session, :dependent => :destroy
   has_many :streams, :inverse_of => :session, :dependent => :destroy
 
@@ -68,7 +68,7 @@ class Session < ActiveRecord::Base
     end
 
     if data[:east] && data[:west] && data[:north] && data[:south]
-      session_ids = Measurement.
+      session_ids = Measurement.joins(:session).
         latitude_range(data[:south], data[:north]).
         longitude_range(data[:west], data[:east]).
         select("DISTINCT session_id").map(&:session_id)
@@ -77,7 +77,7 @@ class Session < ActiveRecord::Base
     end
 
     if data[:time_from] && data[:time_to]
-      session_ids = Measurement.
+      session_ids = Measurement.joins(:session).
         time_range(data[:time_from], data[:time_to]).
         select('DISTINCT session_id').map(&:session_id)
 
@@ -122,8 +122,14 @@ class Session < ActiveRecord::Base
   def as_json(opts=nil)
     opts ||= {}
 
-    methods = opts[:methods] || [:measurements, :notes, :calibration, :size]
-    super(opts.merge(:methods => methods))
+    methods = opts[:methods] || [:notes, :calibration, :size]
+    with_measurements = opts[:methods].delete(:measurements)
+    
+    res = super(opts.merge(:methods => methods))
+    if with_measurements
+      res.merge!(:streams => streams.map { |stream| stream.as_json(:methods => [:measurements]) })
+    end
+    res
   end
 
   def sync(session_data)

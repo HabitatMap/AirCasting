@@ -16,18 +16,19 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-# Read about factories at http://github.com/thoughtbot/factory_girl
+module Aircasting
+	module ModelHelpers
 
-FactoryGirl.define do
-  factory :session do
-    user
-    sequence(:uuid) { |n| "uuid-#{n}" }
-    title { "Another session" }
-    description { "Very nice session" }
-    tag_list { "boring quiet" }
-    calibration 99
-    offset_60_db 0
-    contribute true
-    notes_attributes { [Factory.attributes_for(:note, :session => nil)] }
-  end
+		def self.included(base)
+			base.class_eval do
+				def session_with_measurement(data)
+					measurement = Factory(:measurement, data)
+					stream = Factory(:stream, :measurements => [measurement])
+					Factory(:session, :streams => [stream])
+				end
+
+			end
+		end
+
+	end
 end

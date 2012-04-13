@@ -40,12 +40,18 @@ describe Session do
   describe "#as_json" do
     let(:m1) { Factory(:measurement) }
     let(:m2) { Factory(:measurement) }
-    let(:session) { Factory(:session, :measurements => [m1, m2]) }
+    let(:stream) { Factory(:stream, :measurements => [m1, m2]) }
+    let(:session) { Factory(:session, :streams => [stream]) }
 
-    subject { session.as_json }
+    subject { session.as_json(:methods => [:measurements]) }
 
-    it "should include session size" do
-      subject.symbolize_keys[:size].should == session.reload.measurements.size
+    it "should tell streams to include measurements" do
+      subject.symbolize_keys[:streams].first.should ==
+        stream.as_json(:methods => [:measurements])
+    end
+
+    it "should not provide own list of measurements" do
+      subject.symbolize_keys[:measurements].should be_nil
     end
   end
 
@@ -59,13 +65,13 @@ describe Session do
   end
 
   describe "#destroy" do
-    let(:session) { Factory(:session) }
-    let!(:measurement) { Factory(:measurement, :session => session) }
+    let(:stream) { Factory(:stream) }
+    let(:session) { Factory(:session, :streams => [stream]) }
 
-    it "should destroy measurements" do
+    it "should destroy streams" do
       session.reload.destroy
 
-      Measurement.exists?(measurement.id).should be_false
+      Stream.exists?(stream.id).should be_false
     end
   end
 
@@ -80,9 +86,9 @@ describe Session do
     end
 
     it "should exclude sessions outside the area if given" do
-      session1 = Factory(:session, :measurements => [Factory(:measurement, :longitude => 10, :latitude => 20)])
-      session2 = Factory(:session, :measurements => [Factory(:measurement, :longitude => 20, :latitude => 20)])
-      session3 = Factory(:session, :measurements => [Factory(:measurement, :longitude => 10, :latitude => 30)])
+      session1 = session_with_measurement(:longitude => 10, :latitude => 20)
+      session2 = session_with_measurement(:longitude => 20, :latitude => 20)
+      session3 = session_with_measurement(:longitude => 10, :latitude => 30)
 
       Session.filter(:west => 5, :east => 15, :south => 15, :north => 25).all.should == [session1]
     end
@@ -91,9 +97,10 @@ describe Session do
       time = Time.now
       from = time.hour * 60 + time.min
       to = (time.hour + 2) * 60 + time.min
-      session = Factory(:session, :measurements => [])
-      m1 = Factory(:measurement, :time => time - 1.hour, :session => session)
-      m2 = Factory(:measurement, :time => time + 1.hour, :session => session)
+      stream = Factory(:stream)
+      session = Factory(:session, :streams => [stream])
+      m1 = Factory(:measurement, :time => time - 1.hour, :stream => stream)
+      m2 = Factory(:measurement, :time => time + 1.hour, :stream => stream)
 
       Session.filter(:time_from => from, :time_to => to).all.should == [session]
     end

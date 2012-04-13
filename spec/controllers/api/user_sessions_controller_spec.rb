@@ -42,16 +42,17 @@ describe Api::UserSessionsController do
   end
 
   describe "#show" do
-    let(:measurement) { Factory(:measurement) }
+    let(:stream) { Factory(:stream) }
 
     before { get :show, :id => session.id, :format => :json }
 
     context "getting own session" do
-      let(:session) { Factory(:session, :user => user, :measurements => [measurement], :tag_list => "hello world") }
+      let(:session) { Factory(:session, :user => user, :streams => [stream], :tag_list => "hello world") }
 
       it { should respond_with(:ok) }
+
       it "should return the session" do
-        json_response.should include jsonized(session.reload, :methods => [:measurements])
+        json_response.should include jsonized(session.reload, :methods => [:streams])
       end
 
       it "should return a location for the session" do
@@ -78,7 +79,7 @@ describe Api::UserSessionsController do
     end
 
     context "getting other user's session" do
-      let(:session) { Factory(:session, :measurements => [measurement]) }
+      let(:session) { Factory(:session) }
 
       it { should respond_with(:not_found) }
     end

@@ -31,7 +31,7 @@ class Api::UserSessionsController < Api::BaseController
   def show
     session = current_user.sessions.find_by_id(params[:id]) or raise NotFound
 
-    respond_with session.as_json(:methods => [:measurements]).
+    respond_with session.as_json(:methods => [:streams]).
       merge(:location => short_session_url(session)).
       merge(:tag_list => session.tag_list.join(" ")).
       merge(:notes => prepare_notes(session.notes))

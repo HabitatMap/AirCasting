@@ -57,5 +57,7 @@ Spork.each_run do
 
     config.include Devise::TestHelpers, :type => :controller
     config.include Aircasting::ControllerHelpers, :type => :controller
+
+    config.include Aircasting::ModelHelpers, :type => :model
   end
 end

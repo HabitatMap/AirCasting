@@ -11,15 +11,15 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120412141653) do
+ActiveRecord::Schema.define(:version => 20120413092523) do
 
   create_table "measurements", :force => true do |t|
     t.float    "value"
     t.decimal  "latitude",        :precision => 12, :scale => 9
     t.decimal  "longitude",       :precision => 12, :scale => 9
     t.datetime "time"
-    t.integer  "session_id"
     t.integer  "timezone_offset"
+    t.integer  "stream_id"
   end
 
   add_index "measurements", ["latitude"], :name => "index_measurements_on_latitude"

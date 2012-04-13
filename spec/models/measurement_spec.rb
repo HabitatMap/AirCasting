@@ -47,7 +47,10 @@ describe Measurement do
 
     context "when there is some data inside the grid" do
       let(:private_session) { Factory.create(:session, contribute: false) }
-      let!(:private_measurement) { Factory.create(:measurement, latitude: 10.015, longitude: -8, value: -100, session: private_session) }
+      let(:private_stream) { Factory.create(:stream, session: private_session)} 
+      let!(:private_measurement) do 
+        Factory.create(:measurement, latitude: 10.015, longitude: -8, value: -100, stream: private_stream)
+      end
 
       let!(:m1) { Factory.create(:measurement, latitude: 10.005, longitude: -4, value: -10) }
       let!(:m2) { Factory.create(:measurement, latitude: 10.005, longitude: -3, value: -5) }
