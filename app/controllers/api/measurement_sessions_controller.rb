@@ -40,7 +40,7 @@ module Api
       end
       photos = params[:photos] || []
 
-      data = ActiveSupport::JSON.decode(unzipped).symbolize_keys
+      data = deep_symbolize ActiveSupport::JSON.decode(unzipped)
       session = SessionBuilder.new(data, photos, current_user).build!
 
       if session

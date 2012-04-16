@@ -17,7 +17,6 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class Api::UserSessionsController < Api::BaseController
-  include AirCasting::DeepSymbolize
 
   before_filter :authenticate_user!
 

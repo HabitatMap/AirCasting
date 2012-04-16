@@ -8,9 +8,6 @@ class SessionBuilder
   def build!
     Session.transaction do
       session = build_session!
-      build_measurements!(session)
-
-      session
     end
   end
 
@@ -18,25 +15,17 @@ class SessionBuilder
     data = @session_data.clone
     data[:notes_attributes] = SessionBuilder.prepare_notes(data.delete(:notes), @photos)
     data[:tag_list] = SessionBuilder.normalize_tags(data[:tag_list])
-    data.delete(:measurements)
     data[:user] = @user
+    stream_data = data.delete(:streams)
 
-    Session.new(data).tap(&:save!)
-  end
+    session = Session.create!(data)
 
-  def build_measurements!(session)
-    measurement_data = @session_data[:measurements] || []
-    measurements = measurement_data.map { |datum| Measurement.new(datum) }
-    measurements.each do |m|
-      m.set_timezone_offset
-      m.session = session
+    stream_data.each do |a_stream|
+      a_stream.merge!(:session => session)
+      Stream.build!(a_stream)
     end
 
-    result = Measurement.import(measurements)
-
-    raise "Failed to import measurements" unless result.failed_instances.empty?
-
-    Session.update_counters(session.id, :measurements_count => measurements.size)
+    session
   end
 
   def self.prepare_notes(note_data, photos)

@@ -22,6 +22,38 @@ describe Stream do
 	let(:stream) { Factory(:stream) }
 	let!(:measurement) { Factory(:measurement, :stream => stream) }
 
+  describe "#build_measurements!" do
+    let(:measurement_data) { stub("measurement data") }
+
+    before do
+      Measurement.should_receive(:new).with(measurement_data).and_return(measurement)
+      measurement.should_receive(:stream=).with(any_args) { |x| x.id == stream.id }
+      measurement.should_receive(:set_timezone_offset)
+      Measurement.should_receive(:import).with(any_args) do |measurements|
+        measurements.should include measurement
+        import_result
+      end
+    end
+
+    context "the measurements are valid" do
+      let(:import_result) { stub(:failed_instances => []) }
+
+      it "should import the measurements" do
+        Stream.should_receive(:update_counters).with(stream.id, :measurements_count => 1)
+
+        stream.build_measurements!([measurement_data])
+      end
+    end
+
+    context "the measurements are invalid" do
+      let(:import_result) { stub(:failed_instances => [1,2,3]) }
+
+      it "should cause an error" do
+        lambda { stream.build_measurements!([measurement_data]) }.should raise_error
+      end
+    end
+  end
+
   describe "#destroy" do
     it "should destroy measurements" do
       stream.reload.destroy
@@ -30,11 +62,11 @@ describe Stream do
     end
   end
 
-  describe "as_json" do
-		subject { stream.as_json(:methods => [:measurements]) }
+  describe ".as_json" do
+    subject { stream.as_json(:methods => [:measurements]) }
 
-  	it "should include stream size" do
-			subject[:size].should == stream.reload.measurements.size
-    end
-	end
+    it "should include stream size" do
+     subject[:size].should == stream.reload.measurements.size
+   end
+ end
 end

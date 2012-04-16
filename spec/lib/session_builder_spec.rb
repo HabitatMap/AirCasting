@@ -1,17 +1,34 @@
+# AirCasting - Share your Air!
+# Copyright (C) 2011-2012 HabitatMap, Inc.
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# 
+# You can contact the authors by email at <info@habitatmap.org>
+
 require './lib/session_builder'
 
 describe SessionBuilder do
-  let(:session_data) { { :some => :data, :notes => :note_data, :tag_list => :denormalized_tags, :measurements => [:measurement_data] } }
+  let(:session_data) { { :some => :data, :notes => :note_data, :tag_list => :denormalized_tags, :streams => [{:some => :data}] } }
   let(:session) { stub("session", :id => :session_id) }
-  let(:measurement) { stub("measurement") }
   let(:user) { stub("user") }
   let(:photos) { stub("photos") }
 
   subject { SessionBuilder.new(session_data, photos, user) }
 
   before do
+    ::Stream = stub("Stream") unless Module.const_defined?(:Stream)
     ::Session = stub("Session") unless Module.const_defined?(:Session)
-    ::Measurement = stub("Measurement") unless Module.const_defined?(:Measurement)
   end
 
   describe "#build!" do
@@ -19,7 +36,6 @@ describe SessionBuilder do
 
     it "should build all the parts" do
       subject.should_receive(:build_session!).and_return(session)
-      subject.should_receive(:build_measurements!).with(session)
 
       subject.build!.should == session
     end
@@ -29,10 +45,10 @@ describe SessionBuilder do
     it "should process the data" do
       SessionBuilder.should_receive(:prepare_notes).with(:note_data, photos).and_return(:prepared_notes)
       SessionBuilder.should_receive(:normalize_tags).with(:denormalized_tags).and_return(:normalized_tags)
-      Session.should_receive(:new).with(:some => :data, :notes_attributes => :prepared_notes,
+      Session.should_receive(:create!).with(:some => :data, :notes_attributes => :prepared_notes,
                                         :tag_list => :normalized_tags, :user => user).
                                         and_return(session)
-      session.should_receive(:save!)
+      Stream.should_receive(:build!).with(:some => :data, :session => session)
 
       subject.build_session!.should == session
     end
@@ -42,36 +58,6 @@ describe SessionBuilder do
     it "should match the photos" do
       SessionBuilder.prepare_notes([{:note => :one}, {:note => :two}], [:photo1, :photo2]).
         should == [{:note => :one, :photo => :photo1}, {:note => :two, :photo => :photo2}]
-    end
-  end
-
-  describe "#build_measurements!" do
-    before do
-      Measurement.should_receive(:new).with(:measurement_data).and_return(measurement)
-      measurement.should_receive(:session=).with(session)
-      measurement.should_receive(:set_timezone_offset)
-      Measurement.should_receive(:import).with(any_args) do |measurements|
-        measurements.should include measurement
-        import_result
-      end
-    end
-
-    context "the measurements are valid" do
-      let(:import_result) { stub(:failed_instances => []) }
-
-      it "should import the measurements" do
-        Session.should_receive(:update_counters).with(:session_id, :measurements_count => 1)
-
-        subject.build_measurements!(session)
-      end
-    end
-
-    context "the measurements are invalid" do
-      let(:import_result) { stub(:failed_instances => [1,2,3]) }
-
-      it "should cause an error" do
-        lambda { subject.build_measurements!(session) }.should raise_error
-      end
     end
   end
 

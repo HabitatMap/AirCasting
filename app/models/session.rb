@@ -30,7 +30,7 @@ class Session < ActiveRecord::Base
   validates :url_token, :uuid, :uniqueness => true
   validates_inclusion_of :offset_60_db, :in => -5..5
 
-  accepts_nested_attributes_for :notes
+  accepts_nested_attributes_for :notes, :streams
 
   before_validation :set_url_token, :unless => :url_token
 
