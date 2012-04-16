@@ -16,34 +16,17 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class Api::UserSessionsController < Api::BaseController
-  include AirCasting::DeepSymbolize
-
-  before_filter :authenticate_user!
-
-  respond_to :json
-
-  def sync
-    data = JSON.parse(params[:data])
-    data = deep_symbolize(data)
-
-    respond_with(current_user.sync(data), :location => nil)
-  end
-
-  def show
-    session = current_user.sessions.find_by_id(params[:id]) or raise NotFound
-
-    respond_with session.as_json(:methods => [:streams]).
-      merge(:location => short_session_url(session)).
-      merge(:tag_list => session.tag_list.join(" ")).
-      merge(:notes => prepare_notes(session.notes))
-  end
-
-  private
-
-  def prepare_notes(notes)
-    notes.map do |note|
-      note.as_json.merge(:photo_location => photo_location(note))
-    end
+module AirCasting
+  module DeepSymbolize
+  	def deep_symbolize(obj)
+  			if obj.respond_to?(:symbolize_keys)
+  				data = obj.symbolize_keys.map { |k, v| [k, deep_symbolize(v)]}
+  				Hash[data]
+  			elsif obj.respond_to?(:map)
+  				obj.map { |x| deep_symbolize(x) }
+  			else
+  				obj
+  			end
+  	end
   end
 end
