@@ -37,7 +37,6 @@ class SessionBuilder
     raise "Failed to import measurements" unless result.failed_instances.empty?
 
     Session.update_counters(session.id, :measurements_count => measurements.size)
-    session.set_timeframe!
   end
 
   def self.prepare_notes(note_data, photos)

@@ -33,7 +33,6 @@ class Session < ActiveRecord::Base
   accepts_nested_attributes_for :notes
 
   before_validation :set_url_token, :unless => :url_token
-  after_create :set_timeframe!
 
   delegate :username, :to => :user
 
@@ -155,15 +154,6 @@ class Session < ActiveRecord::Base
         self.notes = session_data[:notes].map { |n| Note.new(n) }
       end
     end
-  end
-
-  def set_timeframe!
-    start_time = measurements.select('MIN(time) AS val').to_a.first.val
-    end_time = measurements.select('MAX(time) AS val').to_a.first.val
-
-    timezone = measurements.first.timezone_offset unless measurements.reload.empty?
-
-    update_attributes({ :start_time => start_time, :end_time => end_time, :timezone_offset => timezone }, :as => :timeframe)
   end
 
   private

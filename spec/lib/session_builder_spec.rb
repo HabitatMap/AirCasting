@@ -61,7 +61,6 @@ describe SessionBuilder do
 
       it "should import the measurements" do
         Session.should_receive(:update_counters).with(:session_id, :measurements_count => 1)
-        session.should_receive(:set_timeframe!)
 
         subject.build_measurements!(session)
       end
