@@ -56,6 +56,12 @@ class Stream < ActiveRecord::Base
 		Stream.update_counters(self.id, { :measurements_count => measurements.size })
 	end
 
+	def self.sensors 
+		select("sensor_name, measurement_type, count(*) as session_count").
+			group(:sensor_name, :measurement_type).
+			map { |stream| stream.attributes.symbolize_keys }
+	end
+
 	def as_json(opts=nil)
 		opts ||= {}
 

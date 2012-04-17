@@ -70,6 +70,24 @@ describe Stream do
     end
   end
 
+  describe "#sensors" do
+    before { Stream.destroy_all }
+    let!(:stream1) { Factory(:stream, :sensor_name => "s1", :measurement_type => "m1") }
+    let!(:stream2) { Factory(:stream, :sensor_name => "s2", :measurement_type => "m2") }
+    let!(:stream3) { Factory(:stream, :sensor_name => "s1", :measurement_type => "m1") }
+
+    subject { Stream.sensors }
+
+    it "should return all sensors" do
+      subject.should include({ :sensor_name => "s1", :measurement_type => "m1", :session_count => 2 })
+      subject.should include({ :sensor_name => "s2", :measurement_type => "m2", :session_count => 1 })
+    end
+
+    it "should return unique sensors" do 
+      subject.size.should == 2
+    end
+  end
+
   describe "#destroy" do
     it "should destroy measurements" do
       stream.reload.destroy
@@ -85,4 +103,5 @@ describe Stream do
      subject[:size].should == stream.reload.measurements.size
    end
  end
+
 end
