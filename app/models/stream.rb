@@ -23,6 +23,17 @@ class Stream < ActiveRecord::Base
 
 	delegate :size, :to => :measurements
 
+	validates :sensor_name,
+     :unit_name,
+     :measurement_type,
+     :measurement_short_type,
+     :unit_symbol,
+     :threshold_very_low,
+     :threshold_low,
+     :threshold_medium,
+     :threshold_high,
+     :threshold_very_high, :presence => true
+
 	def self.build!(data = {})
 		measurements = data.delete(:measurements)
 		Stream.transaction do

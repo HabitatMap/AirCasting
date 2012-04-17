@@ -20,7 +20,7 @@ class SessionBuilder
 
     session = Session.create!(data)
 
-    stream_data.each do |a_stream|
+    stream_data.values.each do |a_stream|
       a_stream.merge!(:session => session)
       Stream.build!(a_stream)
     end

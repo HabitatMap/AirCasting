@@ -19,8 +19,24 @@
 require 'spec_helper'
 
 describe Stream do
-	let(:stream) { Factory(:stream) }
-	let!(:measurement) { Factory(:measurement, :stream => stream) }
+
+  describe "validations" do
+    [:sensor_name,
+     :unit_name,
+     :measurement_type,
+     :measurement_short_type,
+     :unit_symbol,
+     :threshold_very_low,
+     :threshold_low,
+     :threshold_medium,
+     :threshold_high,
+     :threshold_very_high].each do |field|
+      it { should validate_presence_of field }
+    end
+  end
+
+  let(:stream) { Factory(:stream) }
+  let!(:measurement) { Factory(:measurement, :stream => stream) }
 
   describe "#build_measurements!" do
     let(:measurement_data) { stub("measurement data") }

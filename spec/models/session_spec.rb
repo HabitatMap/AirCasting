@@ -20,7 +20,7 @@ require 'spec_helper'
 
 describe Session do
   describe 'validations' do
-    before { Factory(:session) }
+    before { Factory.create(:session) }
 
     it { should validate_presence_of :uuid }
     it { should validate_uniqueness_of :uuid }
