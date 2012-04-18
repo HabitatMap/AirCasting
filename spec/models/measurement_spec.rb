@@ -35,7 +35,10 @@ describe Measurement do
 
   describe ".averages" do
     before { Measurement.destroy_all }
-    let(:data) { {south: 10.0, north: 10.1, west: -9.0, east: 0.0, grid_size_x: 2, grid_size_y: 10} }
+    let(:type) { FactoryGirl.attributes_for(:stream)[:measurement_type] }
+    let(:name) { FactoryGirl.attributes_for(:stream)[:sensor_name] }
+    let(:data) { {south: 10.0, north: 10.1, west: -9.0, east: 0.0, grid_size_x: 2, grid_size_y: 10,
+      measurement_type: type, sensor_name: name } }
 
     subject { Measurement.averages(data) }
 
@@ -87,8 +90,25 @@ describe Measurement do
       end
     end
 
+    context "when there are many sensor streams" do
+      let(:stream_a) { FactoryGirl.create(:stream)} 
+      let(:stream_b) { FactoryGirl.create(:stream, :measurement_type => "some other type")} 
+      let(:stream_c) { FactoryGirl.create(:stream, :sensor_name => "some other name")} 
+      let!(:measurement_a) { FactoryGirl.create(:measurement, latitude: 10.005, longitude: -4, value: 0, stream: stream_a) }
+      let!(:measurement_b) { FactoryGirl.create(:measurement, latitude: 10.005, longitude: -4, value: 5, stream: stream_b) }
+      let!(:measurement_c) { FactoryGirl.create(:measurement, latitude: 10.005, longitude: -4, value: 10, stream: stream_c) }
+
+      let(:data) { { south: 10.0, north: 10.1, west: -9.0, east: 0.0, grid_size_x: 2, grid_size_y: 10,
+        measurement_type: stream_a.measurement_type, :sensor_name => stream_a.sensor_name } }
+
+      it "should choose stream with correct measurement type" do
+        subject.first[:value].should == 0
+      end
+    end
+
     context "when the grid includes meridian 180" do
-      let(:data) { { south: 10.0, north: 10.1, east: -170.0, west: 170.0, grid_size_x: 2, grid_size_y: 2 } }
+      let(:data) { { south: 10.0, north: 10.1, east: -170.0, west: 170.0, grid_size_x: 2, grid_size_y: 2,
+        measurement_type: type, sensor_name: name } }
 
       let!(:measurement) { FactoryGirl.create(:measurement, latitude: 10.05, longitude: 180) }
 

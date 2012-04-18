@@ -21,10 +21,12 @@ AirCasting.Views.Maps ||= {}
 
 class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredMapView
   template: JST["backbone/templates/maps/crowd_map"]
+  sensor_item: JST["backbone/templates/maps/sensor_item"]
 
   events: _({
     'click #reset-resolution': 'resetResolution'
     'click #show-location': 'showLocation'
+    'change #sensor': 'selectSensor'
   }).extend(AirCasting.Views.Maps.FilteredMapView.prototype.events)
 
   initialize: (options) ->
@@ -36,6 +38,9 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @gridResolution = options.mapState.crowdMap?.resolution || @defaultResolution
     @geocoder = new google.maps.Geocoder()
 
+    @sensors = new AirCasting.Collections.SensorCollection()
+    @sensors.bind("reset", => @populateSensors())
+
     @infoWindow = new google.maps.InfoWindow()
     google.maps.event.addListener(@googleMap.map, "zoom_changed", => @hideRegionInfo())
 
@@ -44,7 +49,21 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
 
     @showSection("resolution") if @gridResolution != @defaultResolution
 
+    @sensors.fetch()
+
     return this
+
+  selectSensor: (evt) ->
+    cid = $(@el).find("#sensor :selected").attr("value")
+    @selectedSensor = @sensors.getByCid cid 
+    @fetch()
+    
+  populateSensors: ->
+    @selectedSensor = @sensors.max((sensor) -> sensor.get("session_count"))
+    @sensors.each (sensor) =>
+      rendered = @sensor_item(sensor: sensor, selected: @selectedSensor == sensor)
+      $(@el).find("#sensor").append(rendered)
+    @fetch()
 
   getHandles: ->
     super()
@@ -101,9 +120,11 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @resolutionLabel.text '' + @gridResolution
 
   fetch: ->
-    AC.util.spinner.startTask()
-
     viewport = AC.util.viewport(@googleMap)
+    if(!(viewport && @selectedSensor))
+      return
+
+    AC.util.spinner.startTask()
 
     [timeFrom, timeTo] = AC.util.normalizeTimeSpan(@timeFrom, @timeTo)
 
@@ -123,6 +144,8 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
         grid_size_y: @gridResolution
         tags: @tags()
         usernames: @usernames()
+        sensor_name: @selectedSensor.get("sensor_name")
+        measurement_type: @selectedSensor.get("measurement_type")
       (data, status, jqXHR) =>
         @data = data
         @draw()

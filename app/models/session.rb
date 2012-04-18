@@ -22,7 +22,7 @@ class Session < ActiveRecord::Base
   MINUTES_IN_DAY = 60 * 24
 
   belongs_to :user
-  has_many :measurements, :through => :streams, :inverse_of => :session, :dependent => :destroy
+  has_many :measurements, :through => :streams, :inverse_of => :session
   has_many :notes, :inverse_of => :session, :dependent => :destroy
   has_many :streams, :inverse_of => :session, :dependent => :destroy
 
