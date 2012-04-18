@@ -6,7 +6,6 @@ rvm 1.9.2@aircasting
 gem list | grep bundler || gem install bundler
 
 bundle install
-bundle update
 
 export DISPLAY=:92
 
