@@ -19,7 +19,7 @@
 require 'spec_helper'
 
 describe User do
-  let(:user) { Factory.create(:user) }
+  let(:user) { FactoryGirl.create(:user) }
   subject { user }
 
   it { should validate_uniqueness_of(:username).case_insensitive }
@@ -31,13 +31,13 @@ describe User do
   end
 
   describe "#sync" do
-    let(:session) { Factory.create(:session, :user => user) }
-    let(:session2) { Factory.create(:session, :user => user, :notes => [note1, note2]) }
-    let!(:session3) { Factory.create(:session, :user => user) }
-    let(:session4) { Factory.create(:session, :user => user, :notes => [note3]) }
-    let(:note1) { Factory.create(:note, :number => 1, :text => "Old text") }
-    let(:note2) { Factory.create(:note, :number => 2, :text => "Old text") }
-    let(:note3) { Factory.create(:note, :number => nil, :text => "Old text") }
+    let(:session) { FactoryGirl.create(:session, :user => user) }
+    let(:session2) { FactoryGirl.create(:session, :user => user, :notes => [note1, note2]) }
+    let!(:session3) { FactoryGirl.create(:session, :user => user) }
+    let(:session4) { FactoryGirl.create(:session, :user => user, :notes => [note3]) }
+    let(:note1) { FactoryGirl.create(:note, :number => 1, :text => "Old text") }
+    let(:note2) { FactoryGirl.create(:note, :number => 2, :text => "Old text") }
+    let(:note3) { FactoryGirl.create(:note, :number => nil, :text => "Old text") }
 
     let(:data) do
       [

@@ -3,9 +3,9 @@ require 'spec_helper'
 describe RegionInfo do
   before { Measurement.destroy_all }
 
-  let!(:m1) { Factory(:measurement, :latitude => 10, :longitude => 20, :value => 10) }
-  let!(:m2) { Factory(:measurement, :latitude => 10, :longitude => 20, :value => 20) }
-  let!(:m3) { Factory(:measurement, :latitude => 20, :longitude => 20, :value => 30) }
+  let!(:m1) { FactoryGirl.create(:measurement, :latitude => 10, :longitude => 20, :value => 10) }
+  let!(:m2) { FactoryGirl.create(:measurement, :latitude => 10, :longitude => 20, :value => 20) }
+  let!(:m3) { FactoryGirl.create(:measurement, :latitude => 20, :longitude => 20, :value => 30) }
 
   subject { RegionInfo.new(:south => 5, :north => 15, :west => 15, :east => 25) }
 

@@ -35,8 +35,8 @@ describe Stream do
     end
   end
 
-  let(:stream) { Factory(:stream) }
-  let!(:measurement) { Factory(:measurement, :stream => stream) }
+  let(:stream) { FactoryGirl.create(:stream) }
+  let!(:measurement) { FactoryGirl.create(:measurement, :stream => stream) }
 
   describe "#build_measurements!" do
     let(:measurement_data) { stub("measurement data") }
@@ -72,9 +72,9 @@ describe Stream do
 
   describe "#sensors" do
     before { Stream.destroy_all }
-    let!(:stream1) { Factory(:stream, :sensor_name => "s1", :measurement_type => "m1") }
-    let!(:stream2) { Factory(:stream, :sensor_name => "s2", :measurement_type => "m2") }
-    let!(:stream3) { Factory(:stream, :sensor_name => "s1", :measurement_type => "m1") }
+    let!(:stream1) { FactoryGirl.create(:stream, :sensor_name => "s1", :measurement_type => "m1") }
+    let!(:stream2) { FactoryGirl.create(:stream, :sensor_name => "s2", :measurement_type => "m2") }
+    let!(:stream3) { FactoryGirl.create(:stream, :sensor_name => "s1", :measurement_type => "m1") }
 
     subject { Stream.sensors }
 
@@ -103,5 +103,4 @@ describe Stream do
      subject[:size].should == stream.reload.measurements.size
    end
  end
-
 end

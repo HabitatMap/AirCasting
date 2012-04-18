@@ -20,7 +20,7 @@ require 'spec_helper'
 
 describe Session do
   describe 'validations' do
-    before { Factory.create(:session) }
+    before { FactoryGirl.create(:session) }
 
     it { should validate_presence_of :uuid }
     it { should validate_uniqueness_of :uuid }
@@ -38,10 +38,10 @@ describe Session do
   end
 
   describe "#as_json" do
-    let(:m1) { Factory(:measurement) }
-    let(:m2) { Factory(:measurement) }
-    let(:stream) { Factory(:stream, :measurements => [m1, m2]) }
-    let(:session) { Factory(:session, :streams => [stream]) }
+    let(:m1) { FactoryGirl.create(:measurement) }
+    let(:m2) { FactoryGirl.create(:measurement) }
+    let(:stream) { FactoryGirl.create(:stream, :measurements => [m1, m2]) }
+    let(:session) { FactoryGirl.create(:session, :streams => [stream]) }
 
     subject { session.as_json(:methods => [:measurements]) }
 
@@ -56,7 +56,7 @@ describe Session do
   end
 
   describe '.create' do
-    let(:session) { Factory.build(:session) }
+    let(:session) { FactoryGirl.build(:session) }
 
     it 'should call set_url_token' do
       session.should_receive(:set_url_token)
@@ -65,8 +65,8 @@ describe Session do
   end
 
   describe "#destroy" do
-    let(:stream) { Factory(:stream) }
-    let(:session) { Factory(:session, :streams => [stream]) }
+    let(:stream) { FactoryGirl.create(:stream) }
+    let(:session) { FactoryGirl.create(:session, :streams => [stream]) }
 
     it "should destroy streams" do
       session.reload.destroy
@@ -79,8 +79,8 @@ describe Session do
     before { Session.destroy_all }
 
     it 'should exclude not contributed sessions' do
-      session1 = Factory(:session, :contribute => true)
-      session2 = Factory(:session, :contribute => false)
+      session1 = FactoryGirl.create(:session, :contribute => true)
+      session2 = FactoryGirl.create(:session, :contribute => false)
 
       Session.filter.all.should == [session1]
     end
@@ -97,10 +97,10 @@ describe Session do
       time = Time.now
       from = time.hour * 60 + time.min
       to = (time.hour + 2) * 60 + time.min
-      stream = Factory(:stream)
-      session = Factory(:session, :streams => [stream])
-      m1 = Factory(:measurement, :time => time - 1.hour, :stream => stream)
-      m2 = Factory(:measurement, :time => time + 1.hour, :stream => stream)
+      stream = FactoryGirl.create(:stream)
+      session = FactoryGirl.create(:session, :streams => [stream])
+      m1 = FactoryGirl.create(:measurement, :time => time - 1.hour, :stream => stream)
+      m2 = FactoryGirl.create(:measurement, :time => time + 1.hour, :stream => stream)
 
       Session.filter(:time_from => from, :time_to => to).all.should == [session]
     end
@@ -142,8 +142,8 @@ describe Session do
   end
 
   describe "#sync" do
-    let(:session) { Factory(:session) }
-    let!(:note) { Factory(:note, :session => session) }
+    let(:session) { FactoryGirl.create(:session) }
+    let!(:note) { FactoryGirl.create(:note, :session => session) }
     let(:data) { { :tag_list => "some tag or other", :notes => [] } }
 
     before { session.reload.sync(data) }

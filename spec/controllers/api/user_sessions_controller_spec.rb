@@ -19,7 +19,7 @@
 require 'spec_helper'
 
 describe Api::UserSessionsController do
-  let(:user) { Factory(:user) }
+  let(:user) { FactoryGirl.create(:user) }
 
   before { sign_in(user) }
   before { controller.stub(:current_user) { user } }
@@ -42,12 +42,12 @@ describe Api::UserSessionsController do
   end
 
   describe "#show" do
-    let(:stream) { Factory(:stream) }
+    let(:stream) { FactoryGirl.create(:stream) }
 
     before { get :show, :id => session.id, :format => :json }
 
     context "getting own session" do
-      let(:session) { Factory(:session, :user => user, :streams => [stream], :tag_list => "hello world") }
+      let(:session) { FactoryGirl.create(:session, :user => user, :streams => [stream], :tag_list => "hello world") }
 
       it { should respond_with(:ok) }
 
@@ -69,8 +69,8 @@ describe Api::UserSessionsController do
     end
 
     context "session has notes with photos" do
-      let(:note) { Factory.create(:note, :photo => File.new(Rails.root + "spec" + "fixtures" + "test.jpg")) }
-      let(:session) { Factory.create(:session, :user => user, :notes => [note]) }
+      let(:note) { FactoryGirl.create(:note, :photo => File.new(Rails.root + "spec" + "fixtures" + "test.jpg")) }
+      let(:session) { FactoryGirl.create(:session, :user => user, :notes => [note]) }
 
       it "should provide paths to note photos" do
         expected = "http://test.host:80" + note.photo.url(:medium)
@@ -79,7 +79,7 @@ describe Api::UserSessionsController do
     end
 
     context "getting other user's session" do
-      let(:session) { Factory(:session) }
+      let(:session) { FactoryGirl.create(:session) }
 
       it { should respond_with(:not_found) }
     end

@@ -20,7 +20,7 @@ require 'spec_helper'
 
 shared_examples_for "session creation" do
   let(:session) { mock_model(Session, :notes => [note]) }
-  let(:note) { Factory(:note, :photo => photo, :number => 10) }
+  let(:note) { FactoryGirl.create(:note, :photo => photo, :number => 10) }
   let(:photo) { File.new(Rails.root + "spec" + "fixtures" + "test.jpg") }
   let(:photos) { :some_files }
 
@@ -47,7 +47,7 @@ shared_examples_for "session creation" do
 end
 
 describe Api::MeasurementSessionsController do
-  let(:user) { Factory(:user) }
+  let(:user) { FactoryGirl.create(:user) }
 
   before { sign_in user }
 
@@ -92,7 +92,7 @@ describe Api::MeasurementSessionsController do
   end
 
   describe "GET 'show'" do
-    let(:session) { Factory(:session) }
+    let(:session) { FactoryGirl.create(:session) }
 
     before do
       get :show, :id => session.id, :format => :json

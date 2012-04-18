@@ -26,7 +26,7 @@ describe Measurement do
 
   describe ".create" do
     it "should save timezone info" do
-      attributes = Factory.attributes_for(:measurement).merge(:time => "10/11/12 10:11:12 +0600")
+      attributes = FactoryGirl.attributes_for(:measurement).merge(:time => "10/11/12 10:11:12 +0600")
       measurement = Measurement.create(attributes)
 
       measurement.timezone_offset.should == 360
@@ -40,22 +40,22 @@ describe Measurement do
     subject { Measurement.averages(data) }
 
     context "when there is no data inside the grid" do
-      before { Factory.create(:measurement, latitude: 20, longitude: -5) }
+      before { FactoryGirl.create(:measurement, latitude: 20, longitude: -5) }
 
       it { should == [] }
     end
 
     context "when there is some data inside the grid" do
-      let(:private_session) { Factory.create(:session, contribute: false) }
-      let(:private_stream) { Factory.create(:stream, session: private_session)} 
+      let(:private_session) { FactoryGirl.create(:session, contribute: false) }
+      let(:private_stream) { FactoryGirl.create(:stream, session: private_session)} 
       let!(:private_measurement) do 
-        Factory.create(:measurement, latitude: 10.015, longitude: -8, value: -100, stream: private_stream)
+        FactoryGirl.create(:measurement, latitude: 10.015, longitude: -8, value: -100, stream: private_stream)
       end
 
-      let!(:m1) { Factory.create(:measurement, latitude: 10.005, longitude: -4, value: -10) }
-      let!(:m2) { Factory.create(:measurement, latitude: 10.005, longitude: -3, value: -5) }
-      let!(:m3) { Factory.create(:measurement, latitude: 10.015, longitude: -8, value: -10) }
-      let!(:m4) { Factory.create(:measurement, latitude: 10.005, longitude: 20, value: 100) }
+      let!(:m1) { FactoryGirl.create(:measurement, latitude: 10.005, longitude: -4, value: -10) }
+      let!(:m2) { FactoryGirl.create(:measurement, latitude: 10.005, longitude: -3, value: -5) }
+      let!(:m3) { FactoryGirl.create(:measurement, latitude: 10.015, longitude: -8, value: -10) }
+      let!(:m4) { FactoryGirl.create(:measurement, latitude: 10.005, longitude: 20, value: 100) }
  
       it "should average data in grid elements" do
         expected_value1 = (m1.value + m2.value) / 2.0
@@ -90,7 +90,7 @@ describe Measurement do
     context "when the grid includes meridian 180" do
       let(:data) { { south: 10.0, north: 10.1, east: -170.0, west: 170.0, grid_size_x: 2, grid_size_y: 2 } }
 
-      let!(:measurement) { Factory(:measurement, latitude: 10.05, longitude: 180) }
+      let!(:measurement) { FactoryGirl.create(:measurement, latitude: 10.05, longitude: 180) }
 
       it "should still work" do
         subject.should_not be_empty

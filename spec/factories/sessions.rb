@@ -28,6 +28,6 @@ FactoryGirl.define do
     calibration 99
     offset_60_db 0
     contribute true
-    notes_attributes { [Factory.attributes_for(:note, :session => nil)] }
+    notes_attributes { [FactoryGirl.attributes_for(:note, :session => nil)] }
   end
 end
