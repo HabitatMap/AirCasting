@@ -22,6 +22,8 @@ AirCasting.Views.Maps ||= {}
 class AirCasting.Views.Maps.SessionListView extends Backbone.View
   MAX_POINTS = 30000
 
+  stream_option: JST["backbone/templates/maps/sensor_item"]
+
   initialize: (options) ->
     super(options)
     @googleMap = options.googleMap
@@ -66,7 +68,10 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     this
 
   onChildSelected: (childView, selected) ->
-    sessionId = childView.model.get('id')
+    session = childView.model
+    sessionId = session.get('id')
+
+    @selectStream(session)
 
     if selected && @sumOfSelected() > MAX_POINTS
       @tooManySessions()
@@ -81,6 +86,16 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @graphView.disableGraph()
 
     @updateToggleAll()
+
+  selectStream: (session) ->
+    content = $('<div><p>Select sensor stream to display</p><select id="sensors"></select></div>')
+
+    for stream in session.get("streams")
+      sensor = new AirCasting.Models.Sensor(measurement_type: stream.measurement_type, sensor_name: stream.sensor_name)
+      rendered = @stream_option(sensor: sensor, selected: false)
+      content.find("#sensors").append(rendered)
+
+    $(content).dialog(modal: true, title: "Select sensor")
 
   fetchAndDraw: (sessionId) ->
     if @downloadedData[sessionId]
@@ -180,7 +195,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     west = undefined
 
     for id, session of @selectedSessions when session and @downloadedData[id]
-      for m in @downloadedData[id].measurements
+      measurements = _(@downloadedData[id].streams).map((x) -> x.measurements)
+      measurements = _(measurements).flatten()
+      for m in measurements
         lat = parseFloat(m.latitude)
         lng = parseFloat(m.longitude)
 
@@ -196,21 +213,24 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     for id, session of @selectedSessions when session and @downloadedData[id]
       @drawSession(id)
 
+  currentStream: (id) ->
+    @downloadedData[id].streams[0].measurements || []
+
   drawSession: (id) ->
     AC.util.spinner.startTask()
 
     session = @selectedSessions[id]
-    measurements = @downloadedData[id].measurements || []
+    measurements = @currentStream(id) || []
     @drawTrace(id, measurements)
-
-    if @numberOfSelected() == 1
-      @graphView.drawGraph()
 
     for index in [0...measurements.length]
       element = measurements[index]
       @drawMeasurement(session, element, index)
     for note in @downloadedData[id].notes || []
       @drawNote(session, note)
+
+    if @numberOfSelected() == 1
+      @graphView.drawGraph()
 
     AC.util.spinner.stopTask()
 
@@ -226,17 +246,17 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     line = new google.maps.Polyline(lineOptions)
     @lines[sessionId] = line
 
-  drawMeasurement: (session, element, index) ->
-    icon = AC.util.dbToIcon(session.get('calibration'), session.get('offset_60_db'), element.value)
+  drawMeasurement: (session, element, zIndex) ->
+    icon = AC.util.dbToIcon(element.value)
 
     if icon
       markerOptions =
         map: @googleMap.map
         position: new google.maps.LatLng(element.latitude, element.longitude)
-        title: '' + parseInt(AC.util.calibrateValue(session.get('calibration'), session.get('offset_60_db'), element.value)) + ' dB'
+        title: '' + parseInt(element.value) + ' dB'
         icon: icon
         flat: true
-        zIndex: index
+        zIndex: zIndex
 
       marker = new google.maps.Marker()
       marker.setOptions markerOptions
