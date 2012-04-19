@@ -5,7 +5,6 @@
   <label class="narrow" for="session-<%= session.get('id') %>">
     <%= session.get('username') ? session.get('username') + ', ' : '' %>
     <%= timeframe %>
-    <%= console.log(session.get("streams")) %>
     <%= ", " + _(session.get("streams")).sort().map(function(stream) { return stream.measurement_short_type }).join("/") %>
   </label>
   </dd>

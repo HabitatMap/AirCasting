@@ -63,9 +63,7 @@ window.AirCasting.util =
     if result
       "rgb(" + parseInt(result[0]) + "," + parseInt(result[1]) + "," + parseInt(result[2]) + ")"
 
-  dbToIcon: (calibration, offset_60_db, value) ->
-    value = @calibrateValue(calibration, offset_60_db, value)
-
+  dbToIcon: (value) ->
     result =
       if value < AC.G.db_levels[0]
         null
@@ -85,9 +83,6 @@ window.AirCasting.util =
     ranges = _.map([0..2], (i) => Math.round((AC.G.db_levels[i+1] - AC.G.db_levels[i]) / range * 100))
     ranges.push 100 - _.reduce(ranges, (sum, x) -> sum + x)
     ranges
-
-  calibrateValue: (calibration, offset_60_db, value) ->
-    (value + (calibration - 60 + offset_60_db)) / (calibration - 60 + offset_60_db) * (calibration - 60) + 60
 
   parseTime: (timeStr) -> Date.parse timeStr
 
@@ -125,11 +120,6 @@ window.AirCasting.util =
     box = "<div class=\"notice\">#{text}</div>"
     $('body').append(box)
     $('.notice').delay(3000).slideUp()
-
-  showDialog: (title, content) ->
-    $('<div></div>')
-      .html(content)
-      .dialog(title: title)
 
   spinner: {
     initialize: ->

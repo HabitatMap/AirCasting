@@ -65,7 +65,7 @@ describe "GraphView", ->
 
       @view.drawGraph()
 
-      expectedData = ([m.time.getTime(), AC.util.calibrateValue(100, 10, m.value)] for m in @measurements)
+      expectedData = ([m.time.getTime(), m.value] for m in @measurements)
       expect($.plot).toHaveBeenCalledWith("#graph", [{data: expectedData}], @graphOptions)
       expect(@view.graphOptions).toHaveBeenCalledWith(@measurements)
       expect(@view.updateLabels).toHaveBeenCalledWith(@plot)

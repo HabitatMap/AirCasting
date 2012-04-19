@@ -39,8 +39,7 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     @graphAvailable = true
     @drawGraphBackground()
 
-    calibrate = (value) -> AC.util.calibrateValue(session.get('calibration'), session.get('offset_60_db'), value)
-    data = ([AC.util.parseTime(m.time).getTime(), calibrate(m.value)] for m in measurements)
+    data = ([AC.util.parseTime(m.time).getTime(), m.value] for m in measurements)
 
     plot = $.plot("#graph", [{data: data}], @graphOptions(measurements))
     @$("#graph-label-top").html(_.last(AC.G.db_levels) + " dB")

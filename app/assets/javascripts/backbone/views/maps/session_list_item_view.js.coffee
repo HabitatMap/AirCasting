@@ -31,7 +31,6 @@ class AirCasting.Views.Maps.SessionListItemView extends Backbone.View
     @parent = options.parent
 
   render: ->
-    console.log @model
     $(@el).html @template(session: @model, selected: @options.selected, timeframe: @model.timeframe())
     @lightUp() if @options.selected
     return this
