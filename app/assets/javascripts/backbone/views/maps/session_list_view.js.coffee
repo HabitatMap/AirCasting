@@ -71,14 +71,14 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     session = childView.model
     sessionId = session.get('id')
 
-    @selectStream(session)
+    if selected
+      @selectSensor(childView, session)
 
     if selected && @sumOfSelected() > MAX_POINTS
       @tooManySessions()
       childView.unselect()
     else if selected
       @selectedSessions[sessionId] = childView.model
-      @fetchAndDraw(sessionId)
     else
       @hideSession(sessionId)
 
@@ -87,15 +87,36 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     @updateToggleAll()
 
-  selectStream: (session) ->
+  sensor: (stream) ->
+    new AirCasting.Models.Sensor(measurement_type: stream.measurement_type, sensor_name: stream.sensor_name)
+
+  selectSensor: (session) ->
+    streams = session.get("streams")
+    if streams.length == 1
+      @selectedSensor = @sensor(_.first(streams))
+    else
+      @displaySensorDialog(session)
+
+  displaySensorDialog: (session) ->
     content = $('<div><p>Select sensor stream to display</p><select id="sensors"></select></div>')
 
-    for stream in session.get("streams")
-      sensor = new AirCasting.Models.Sensor(measurement_type: stream.measurement_type, sensor_name: stream.sensor_name)
+    sensors = new AirCasting.Collections.SensorCollection()
+    sensors.add(@sensor(stream)) for stream in session.get('streams')
+
+    sensors.each (sensor) =>
       rendered = @stream_option(sensor: sensor, selected: false)
       content.find("#sensors").append(rendered)
 
-    $(content).dialog(modal: true, title: "Select sensor")
+    dialog = $(content).dialog(modal: true, title: "Select sensor", close: => @hideSession(session.get('id')))
+    dialog.dialog("option", "buttons", {
+      "OK": =>
+        cid = dialog.find(":selected").attr("value")
+        @selectedSensor = sensors.getByCid(cid)
+
+        dialog.dialog("destroy")
+
+        @fetchAndDraw(session.get('id'))
+    })
 
   fetchAndDraw: (sessionId) ->
     if @downloadedData[sessionId]
@@ -214,7 +235,12 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @drawSession(id)
 
   currentStream: (id) ->
-    @downloadedData[id].streams[0].measurements || []
+    streams = @downloadedData[id].streams
+    stream = _(streams).find (stream) =>
+      stream.measurement_type == @selectedSensor.get("measurement_type") &&
+        stream.sensor_name == @selectedSensor.get("sensor_name")
+
+    stream.measurements
 
   drawSession: (id) ->
     AC.util.spinner.startTask()
