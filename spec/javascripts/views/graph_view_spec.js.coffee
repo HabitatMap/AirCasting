@@ -44,10 +44,7 @@ describe "GraphView", ->
     @googleMap = {}
     @session = { get: (key) -> { calibration: 100, offset_60_db: 10 }[key] }
     @measurements = [{time: new Date(1000), value: 10}, {time: new Date(2000), value: 20}]
-    @parent = {
-      downloadedData: { 1: { measurements: [] }, 2: { measurements: @measurements } }
-      selectedSessions: { 2: @session }
-    }
+    @parent = { currentStream: => @measurements }
     @view = new AirCasting.Views.Maps.GraphView({ el: $("#test"), collection: @collection, googleMap: @googleMap, parent: @parent})
     @plot = { getData: -> [{ xaxis: { min: 10, max: 20 } }] }
 

@@ -77,6 +77,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     if selected
       @selectSensor(session)
 
+    if @numberOfSelected != 1
+      @graphView.disableGraph()
+
     if selected && @sumOfSelected() > MAX_POINTS
       @tooManySessions()
       childView.unselect()
@@ -84,9 +87,6 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @selectedSessions[sessionId] = childView.model
     else
       @hideSession(sessionId)
-
-    if @numberOfSelected != 1
-      @graphView.disableGraph()
 
     @updateToggleAll()
 
@@ -241,6 +241,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @drawSession(id)
 
   currentStream: (id) ->
+    id ||= _.first(Object.keys(@selectedSessions))
+
     streams = @downloadedData[id].streams
     stream = _(streams).find (stream) =>
       stream.measurement_type == @selectedSensor.get("measurement_type") &&

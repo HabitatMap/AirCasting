@@ -33,8 +33,7 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     @disableGraph()
 
   drawGraph: ->
-    [id, session] = _.first([id, session] for id, session of @parent.selectedSessions)
-    measurements = @parent.downloadedData[id].measurements
+    measurements = @parent.currentStream()
 
     @graphAvailable = true
     @drawGraphBackground()
