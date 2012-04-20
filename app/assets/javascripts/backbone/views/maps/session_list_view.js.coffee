@@ -49,6 +49,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   render: ->
     $(@el).empty()
 
+    @itemViews = {}
+
     @collection.each (session) =>
       id = session.get("id")
       if id in @options.selectedIds
@@ -60,6 +62,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
         parent: this,
         selected: @selectedSessions[id]?
       )
+      @itemViews[id] = itemView
       $(@el).append itemView.render().el
 
     @updateToggleAll()
@@ -72,7 +75,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     sessionId = session.get('id')
 
     if selected
-      @selectSensor(childView, session)
+      @selectSensor(session)
 
     if selected && @sumOfSelected() > MAX_POINTS
       @tooManySessions()
@@ -107,7 +110,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       rendered = @stream_option(sensor: sensor, selected: false)
       content.find("#sensors").append(rendered)
 
-    dialog = $(content).dialog(modal: true, title: "Select sensor", close: => @hideSession(session.get('id')))
+    dialog = $(content).dialog(modal: true, title: "Select sensor", close: => @unselectSession(session.get('id')))
     dialog.dialog("option", "buttons", {
       "OK": =>
         cid = dialog.find(":selected").attr("value")
@@ -117,6 +120,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
         @fetchAndDraw(session.get('id'))
     })
+
+  unselectSession: (sessionId) ->
+    @itemViews[sessionId].unselect()
 
   fetchAndDraw: (sessionId) ->
     if @downloadedData[sessionId]
