@@ -244,17 +244,15 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     id ||= _.first(Object.keys(@selectedSessions))
 
     streams = @downloadedData[id].streams
-    stream = _(streams).find (stream) =>
+    _(streams).find (stream) =>
       stream.measurement_type == @selectedSensor.get("measurement_type") &&
         stream.sensor_name == @selectedSensor.get("sensor_name")
-
-    stream.measurements
 
   drawSession: (id) ->
     AC.util.spinner.startTask()
 
     session = @selectedSessions[id]
-    measurements = @currentStream(id) || []
+    measurements = @currentStream(id)?.measurements || []
     @drawTrace(id, measurements)
 
     for index in [0...measurements.length]

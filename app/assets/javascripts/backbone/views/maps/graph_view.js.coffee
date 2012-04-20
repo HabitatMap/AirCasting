@@ -33,7 +33,8 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     @disableGraph()
 
   drawGraph: ->
-    measurements = @parent.currentStream()
+    stream = @parent.currentStream()
+    measurements = stream.measurements
 
     @graphAvailable = true
     @drawGraphBackground()
@@ -41,8 +42,8 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     data = ([AC.util.parseTime(m.time).getTime(), m.value] for m in measurements)
 
     plot = $.plot("#graph", [{data: data}], @graphOptions(measurements))
-    @$("#graph-label-top").html(_.last(AC.G.db_levels) + " dB")
-    @$("#graph-label-bottom").html(_.first(AC.G.db_levels) + " dB")
+    @$("#graph-label-top").html(_.last(AC.G.db_levels) + " " + stream.unit_symbol)
+    @$("#graph-label-bottom").html(_.first(AC.G.db_levels) + " " + stream.unit_symbol)
 
     @$("#graph").unbind("plothover")
     @$("#graph").unbind("plotzoom")

@@ -44,7 +44,7 @@ describe "GraphView", ->
     @googleMap = {}
     @session = { get: (key) -> { calibration: 100, offset_60_db: 10 }[key] }
     @measurements = [{time: new Date(1000), value: 10}, {time: new Date(2000), value: 20}]
-    @parent = { currentStream: => @measurements }
+    @parent = { currentStream: => {measurements: @measurements, unit_symbol: "%"} }
     @view = new AirCasting.Views.Maps.GraphView({ el: $("#test"), collection: @collection, googleMap: @googleMap, parent: @parent})
     @plot = { getData: -> [{ xaxis: { min: 10, max: 20 } }] }
 
@@ -85,12 +85,12 @@ describe "GraphView", ->
     it "should setup the top label", ->
       AC.G.db_levels = [10, 20, 30, 40, 50]
       @view.drawGraph()
-      expect($("#graph-label-top").html()).toEqual("50 dB")
+      expect($("#graph-label-top").html()).toEqual("50 %")
 
     it "should setup the bottom label", ->
       AC.G.db_levels = [10, 20, 30, 40, 50]
       @view.drawGraph()
-      expect($("#graph-label-bottom").html()).toEqual("10 dB")
+      expect($("#graph-label-bottom").html()).toEqual("10 %")
 
   describe "updateLabels", ->
     it "should update the left label", ->
