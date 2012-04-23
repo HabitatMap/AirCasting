@@ -34,11 +34,23 @@ class AirCasting.Models.Session extends Backbone.Model
       @startTime().toString('MM/dd/yy, HH:mm') + ' - ' + @endTime().toString('HH:mm')
     else
       ''
+  containsSensor: (sensor) =>
+    names = _(@get("streams")).map(
+      (stream) -> (
+        sensorName = sensor.get("sensor_name")
+        measurementType = sensor.get("measurement_type")
+        if(sensorName == "All" and measurementType == "All")
+          return true
+        else
+          ( (sensorName == stream.sensor_name) and (measurementType ==stream.measurement_type)) )
+      )
+      
+    _(names).include(true)
 
 class AirCasting.Collections.SessionsCollection extends Backbone.Collection
   model: AirCasting.Models.Session
 
-  setUrlParams: (timeFrom, timeTo, dayFrom, dayTo, includeSessionId, tags, usernames, location, distance, viewport) ->
+  setUrlParams: (timeFrom, timeTo, dayFrom, dayTo, includeSessionId, tags, usernames, location, distance, viewport, sensor_name, measurement_type) ->
     @timeFrom = timeFrom
     @timeTo = timeTo
     @dayFrom = dayFrom
@@ -49,6 +61,15 @@ class AirCasting.Collections.SessionsCollection extends Backbone.Collection
     @location = location
     @distance = distance
     @viewport = viewport
+    @sensor_name = sensor_name
+    @measurement_type = measurement_type
+
+  filterBySensor: (sensor) =>
+    filtered = @filter( (session) -> session.containsSensor(sensor) )
+    result = new AirCasting.Collections.SessionsCollection()
+    _(filtered).each( (session) -> result.add(session))
+    result
+
 
   fetch: ->
     @url = "/api/sessions.json?" +
@@ -59,6 +80,10 @@ class AirCasting.Collections.SessionsCollection extends Backbone.Collection
       "q[include_session_id]=#{@includeSessionId}&" +
       "q[location]=#{@location}&" +
       "q[distance]=#{@distance}"
+
+    if @measurement_type
+      @url += "q[sensor_name]=#{@sensor_name}" +
+      "q[measurement_type]=#{@measurement_type}"
 
     if @viewport
       @url += "&q[east]=#{@viewport.east}&" +

@@ -34,6 +34,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @notes = []
     @lines = []
     @fetchingData = 0
+    @selectedSensor = options.selectedSensor
 
     @infoWindow = new google.maps.InfoWindow()
     google.maps.event.addListener(@infoWindow, "domready", =>
@@ -51,7 +52,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     @itemViews = {}
 
-    @collection.each (session) =>
+    filtered = @collection.filterBySensor(@selectedSensor)
+    filtered.each (session) =>
       id = session.get("id")
       if id in @options.selectedIds
         @selectedSessions[id] = session

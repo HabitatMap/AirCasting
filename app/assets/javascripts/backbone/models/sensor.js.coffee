@@ -20,6 +20,10 @@
 class AirCasting.Models.Sensor extends Backbone.Model
   # paramRoot: 'session'
 
+  matches: (sensor) =>
+    types = @get("measurement_type") == sensor.get("measurement_type")
+    names = @get("sensor_name") == sensor.get("sensor_name")
+    types and names
 
 class AirCasting.Collections.SensorCollection extends Backbone.Collection
   model: AirCasting.Models.Sensor
@@ -28,3 +32,4 @@ class AirCasting.Collections.SensorCollection extends Backbone.Collection
 
   comparator: (sensor) -> 
   	[sensor.get("measurement_type"), sensor.get("sensor_name")]
+

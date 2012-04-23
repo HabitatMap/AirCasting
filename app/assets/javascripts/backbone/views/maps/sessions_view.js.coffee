@@ -21,10 +21,12 @@ AirCasting.Views.Maps ||= {}
 
 class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredMapView
   template: JST["backbone/templates/maps/sessions"]
+  sensor_template: JST["backbone/templates/maps/sensor_item"]
 
   events: _({
     'click #toggle-all-sessions': 'toggleAllSessions'
     'click #limit-to-viewport': 'updateLocationDisabled'
+    'change #sensor': 'selectSensor'
   }).extend(AirCasting.Views.Maps.FilteredMapView.prototype.events)
 
   initialize: (options) ->
@@ -36,6 +38,12 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
     $(window).resize(@resizeSessions)
 
+    @all_sensor = new AirCasting.Models.Sensor(sensor_name: "All", measurement_type: "All")
+    @selectedSensor = @all_sensor
+
+    @sensors = new AirCasting.Collections.SensorCollection()
+    @sensors.bind("reset", => @populateSensors())
+
     @includeSessionId = options.includeSessionId || ''
 
     google.maps.event.addListenerOnce @googleMap.map, "idle", => @refilterViewport()
@@ -43,6 +51,23 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
   limitToViewport: ->  @$("#limit-to-viewport").is(":checked")
 
   refilterViewport: -> @refilter() if @limitToViewport()
+
+  populateSensors: ->
+    sensorSelector = $(@el).find("#sensor")
+    
+    rendered = @sensor_template(sensor: @all_sensor, selected: @selectedSensor.matches(@all_sensor))
+    sensorSelector.append(rendered)
+    @sensors.each (sensor) =>
+      rendered = @sensor_template(sensor: sensor, selected: @selectedSensor.matches(sensor))
+      sensorSelector.append(rendered)
+
+  selectSensor: (evt) ->
+    cid = $(@el).find("#sensor :selected").attr("value")
+    if(@all_sensor.cid == cid)
+      @selectedSensor = @all_sensor
+    else
+      @selectedSensor = @sensors.getByCid cid
+    @render()
 
   permalinkData: ->
     _(super()).extend {
@@ -84,6 +109,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     @sessionListView = new AirCasting.Views.Maps.SessionListView(
       el: $('#session-list'),
       collection: @sessions,
+      selectedSensor: @selectedSensor,
       googleMap: @googleMap
       selectedIds: @options.mapState.sessions?.selectedIds || []
     ).render()
@@ -110,10 +136,12 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     location = if @limitToViewport() then "" else @$('#location').val()
     distance = if @limitToViewport() then 0  else @$('#distance').val()
     viewport = AC.util.viewport(@googleMap) if @limitToViewport()
+
     @sessions.setUrlParams(@timeFrom, @timeTo, @dayFrom, @dayTo, @includeSessionId, tags, usernames, location, distance, viewport)
 
     AC.util.spinner.startTask()
     @sessions.fetch()
+    @sensors.fetch()
 
   heatLegendUpdated: ->
     if @sessionListView
