@@ -85,7 +85,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     if selected && @sumOfSelected() > MAX_POINTS
       @undoSelection(childView, "You are trying to select too many sessions")
-    else if selected && @numberOfSelected() > 0 && @selectedSensor == @parent.all_sensor
+    else if selected && @numberOfSelected() > 0 && @selectedSensor == @parent.allSensor
       @undoSelection(childView, "Filter by sensor to view many sessions at once")
     else if selected
       @selectedSessions[sessionId] = childView.model
@@ -103,8 +103,12 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   selectSensor: (session) ->
     streams = session.get("streams")
-    if streams.length == 1
+    if @selectedSensor != @parent.allSensor
+      @viewSensor = @selectedSensor
+      @fetchAndDraw(session.get('id'))
+    else if streams.length == 1
       @viewSensor = @sensor(_.first(streams))
+      @fetchAndDraw(session.get('id'))
     else
       @displaySensorDialog(session)
 
