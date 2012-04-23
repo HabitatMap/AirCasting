@@ -35,8 +35,7 @@ class Api::UserSessionsController < Api::BaseController
     respond_with session.as_json(:methods => [:streams]).
       merge(:location => short_session_url(session)).
       merge(:tag_list => session.tag_list.join(" ")).
-      merge(:notes => prepare_notes(session.notes)).
-      
+      merge(:notes => prepare_notes(session.notes))
   end
 
   private
