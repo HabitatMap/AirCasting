@@ -11,12 +11,7 @@ export DISPLAY=:92
 
 script/xvfb start
 
-export RAILS_ENV=test 
+export RAILS_ENV=test
 
 rake db:migrate
-rspec
-rake jasmine:ci
-
-script/xvfb stop
-
-echo "Done."
+rspec && rake jasmine:ci && script/xvfb stop
