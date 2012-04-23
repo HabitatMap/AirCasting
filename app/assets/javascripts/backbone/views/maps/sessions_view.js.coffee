@@ -113,6 +113,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       selectedSensor: @selectedSensor,
       googleMap: @googleMap
       selectedIds: @options.mapState.sessions?.selectedIds || []
+      parent: this
     ).render()
     @fetch()
     @populateSensors()

@@ -35,6 +35,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @lines = []
     @fetchingData = 0
     @selectedSensor = options.selectedSensor
+    @parent = options.parent
 
     @infoWindow = new google.maps.InfoWindow()
     google.maps.event.addListener(@infoWindow, "domready", =>
@@ -83,8 +84,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @graphView.disableGraph()
 
     if selected && @sumOfSelected() > MAX_POINTS
-      @tooManySessions()
-      childView.unselect()
+      @undoSelection(childView, "You are trying to select too many sessions")
+    else if selected && @numberOfSelected() > 0 && @selectedSensor == @parent.all_sensor
+      @undoSelection(childView, "Filter by sensor to view many sessions at once")
     else if selected
       @selectedSessions[sessionId] = childView.model
     else
@@ -92,13 +94,17 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     @updateToggleAll()
 
+  undoSelection: (childView, reason) ->
+    childView.unselect()
+    AC.util.notice(reason)
+
   sensor: (stream) ->
     new AirCasting.Models.Sensor(measurement_type: stream.measurement_type, sensor_name: stream.sensor_name)
 
   selectSensor: (session) ->
     streams = session.get("streams")
     if streams.length == 1
-      @selectedSensor = @sensor(_.first(streams))
+      @viewSensor = @sensor(_.first(streams))
     else
       @displaySensorDialog(session)
 
@@ -116,7 +122,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     dialog.dialog("option", "buttons", {
       "OK": =>
         cid = dialog.find(":selected").attr("value")
-        @selectedSensor = sensors.getByCid(cid)
+        @viewSensor = sensors.getByCid(cid)
 
         dialog.dialog("destroy")
 
@@ -197,9 +203,6 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @$(':checkbox').attr('checked', true)
       @$(':checkbox').trigger('change')
 
-  tooManySessions: ->
-    AC.util.notice("You are trying to select too many sessions")
-
   sumOfSizes: (sessions) ->
     sum = (acc, session) -> acc + session.size()
     sessions.reduce(sum, 0)
@@ -247,8 +250,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     streams = @downloadedData[id].streams
     _(streams).find (stream) =>
-      stream.measurement_type == @selectedSensor.get("measurement_type") &&
-        stream.sensor_name == @selectedSensor.get("sensor_name")
+      stream.measurement_type == @viewSensor.get("measurement_type") &&
+        stream.sensor_name == @viewSensor.get("sensor_name")
 
   drawSession: (id) ->
     AC.util.spinner.startTask()
