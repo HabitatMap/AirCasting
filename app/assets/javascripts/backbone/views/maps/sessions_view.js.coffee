@@ -38,10 +38,11 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
     $(window).resize(@resizeSessions)
 
-    @all_sensor = new AirCasting.Models.Sensor(sensor_name: "All", measurement_type: "All")
-    @selectedSensor = @all_sensor
+    @allSensor = new AirCasting.Models.Sensor(sensor_name: "All", measurement_type: "All")
+    @selectedSensor = @allSensor
 
     @sensors = new AirCasting.Collections.SensorCollection()
+    @sensors.fetch()
     @sensors.bind("reset", => @populateSensors())
 
     @includeSessionId = options.includeSessionId || ''
@@ -55,7 +56,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
   populateSensors: ->
     sensorSelector = $(@el).find("#sensor")
     
-    rendered = @sensor_template(sensor: @all_sensor, selected: @selectedSensor.matches(@all_sensor))
+    rendered = @sensor_template(sensor: @allSensor, selected: @selectedSensor.matches(@allSensor))
     sensorSelector.append(rendered)
     @sensors.each (sensor) =>
       rendered = @sensor_template(sensor: sensor, selected: @selectedSensor.matches(sensor))
@@ -63,8 +64,8 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
   selectSensor: (evt) ->
     cid = $(@el).find("#sensor :selected").attr("value")
-    if(@all_sensor.cid == cid)
-      @selectedSensor = @all_sensor
+    if(@allSensor.cid == cid)
+      @selectedSensor = @allSensor
     else
       @selectedSensor = @sensors.getByCid cid
     @render()
@@ -114,6 +115,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       selectedIds: @options.mapState.sessions?.selectedIds || []
     ).render()
     @fetch()
+    @populateSensors()
 
     this
 
@@ -131,6 +133,9 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     @sessionListView.toggleAll()
 
   fetch: ->
+    if(@sessions.size() < 1)
+      @sessions.fetch()
+
     tags = @$('#tags').val()
     usernames = @$('#usernames').val()
     location = if @limitToViewport() then "" else @$('#location').val()
@@ -141,7 +146,6 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
     AC.util.spinner.startTask()
     @sessions.fetch()
-    @sensors.fetch()
 
   heatLegendUpdated: ->
     if @sessionListView
