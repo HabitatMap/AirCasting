@@ -288,7 +288,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @lines[sessionId] = line
 
   drawMeasurement: (session, element, zIndex) ->
-    icon = AC.util.dbToIcon(element.value)
+    icon = AC.util.dbToIcon(@viewSensor, element.value)
 
     if icon
       markerOptions =

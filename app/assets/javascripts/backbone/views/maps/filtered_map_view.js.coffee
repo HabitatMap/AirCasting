@@ -162,6 +162,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       }
 
     @saveHeatLegend()
+    @updateLegendDisplay()
 
   resetHeatLegend: ->
     AC.G.resetDBLevels()
@@ -170,7 +171,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @heatLegendUpdated()
 
   updateLegendDisplay: ->
-    [low, mid, midHigh, high] = AC.util.dbRangePercentages()
+    [low, mid, midHigh, high] = AC.util.dbRangePercentages(@selectedSensor)
 
     @$(".legend .low").css(width: low + "%")
     @$(".legend .mid").css(width: mid + "%")
@@ -185,7 +186,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @$(".high .end").html(high + " dB")
 
   saveHeatLegend: ->
-    AC.G.saveDBLevels(@currentLegendValues())
+    AC.G.saveThresholds(@selectedSensor, @currentLegendValues())
 
     @updateLegendDisplay()
     @heatLegendUpdated()
@@ -240,17 +241,18 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     midLow: "low"
   }
 
-  initialLegendValue: (key) -> {
-    high: AC.G.db_levels[4]
-    midHigh: AC.G.db_levels[3]
-    mid: AC.G.db_levels[2]
-    midLow: AC.G.db_levels[1]
-    low: AC.G.db_levels[0]
-  }[key]
+  initialLegendValue: (key) -> 
+    levels = AC.G.getThresholds(@selectedSensor)
+
+    {
+      high: levels[4]
+      midHigh: levels[3]
+      mid: levels[2]
+      midLow: levels[1]
+      low: levels[0]
+    }[key]
 
   initSliders: ->
-    @initializeHeatLegend(true)
-
     for key, slider of @heatLegendSliders
       do (key) =>
         slider.slider(

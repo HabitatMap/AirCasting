@@ -79,8 +79,9 @@ describe Stream do
     subject { Stream.sensors }
 
     it "should return all sensors" do
-      subject.should include({ :sensor_name => "s1", :measurement_type => "m1", :session_count => 2 })
-      subject.should include({ :sensor_name => "s2", :measurement_type => "m2", :session_count => 1 })
+      thresholds = FactoryGirl.attributes_for(:stream).select { |k,v| k =~ /^threshold/ }
+      subject.should include({ :sensor_name => "s1", :measurement_type => "m1", :session_count => 2 }.merge(thresholds))
+      subject.should include({ :sensor_name => "s2", :measurement_type => "m2", :session_count => 1 }.merge(thresholds))
     end
 
     it "should return unique sensors" do 

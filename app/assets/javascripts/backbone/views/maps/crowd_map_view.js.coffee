@@ -1,20 +1,20 @@
 ###
 # AirCasting - Share your Air!
 # Copyright (C) 2011-2012 HabitatMap, Inc.
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # You can contact the authors by email at <info@habitatmap.org>
 ###
 AirCasting.Views.Maps ||= {}
@@ -55,11 +55,14 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
 
   selectSensor: (evt) ->
     cid = $(@el).find("#sensor :selected").attr("value")
-    @selectedSensor = @sensors.getByCid cid 
+    @selectedSensor = @sensors.getByCid cid
+    @initializeHeatLegend(false)
     @fetch()
-    
+
   populateSensors: ->
     @selectedSensor = @sensors.max((sensor) -> sensor.get("session_count"))
+    @initializeHeatLegend(true)
+
     @sensors.each (sensor) =>
       rendered = @sensor_item(sensor: sensor, selected: @selectedSensor == sensor)
       $(@el).find("#sensor").append(rendered)
@@ -160,11 +163,11 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @clear()
 
     for element in @data
-      fillColor = AC.util.dbToColor(element.value)
+      fillColor = AC.util.dbToColor(@selectedSensor, element.value)
       if fillColor
         rectOptions =
           strokeWeight: 0
-          fillColor: AC.util.dbToColor(element.value)
+          fillColor: AC.util.dbToColor(@selectedSensor, element.value)
           fillOpacity: 0.35
           map: @googleMap.map
           bounds: new google.maps.LatLngBounds(

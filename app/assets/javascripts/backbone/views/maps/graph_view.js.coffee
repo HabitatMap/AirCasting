@@ -42,8 +42,9 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     data = ([AC.util.parseTime(m.time).getTime(), m.value] for m in measurements)
 
     plot = $.plot("#graph", [{data: data}], @graphOptions(measurements))
-    @$("#graph-label-top").html(_.last(AC.G.db_levels) + " " + stream.unit_symbol)
-    @$("#graph-label-bottom").html(_.first(AC.G.db_levels) + " " + stream.unit_symbol)
+    levels = AC.G.getThresholds(@parent.viewSensor)
+    @$("#graph-label-top").html(_.last(levels) + " " + stream.unit_symbol)
+    @$("#graph-label-bottom").html(_.first(levels) + " " + stream.unit_symbol)
 
     @$("#graph").unbind("plothover")
     @$("#graph").unbind("plotzoom")
@@ -61,7 +62,7 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     @$("#graph-label-right").html(new Date(right).toString("HH:mm:ss"))
 
   drawGraphBackground: ->
-    [low, mid, midHigh, high] = AC.util.dbRangePercentages()
+    [low, mid, midHigh, high] = AC.util.dbRangePercentages(@parent.viewSensor)
 
     $("#graph-background .low").css(height: "100%")
     $("#graph-background .mid").css(height: mid + "%")

@@ -21,6 +21,24 @@ window.AirCasting.G =
   default_db_levels: [20, 60, 70, 80, 100]
   db_levels: []
 
+  names: ["threshold_very_low", "threshold_low", "threshold_medium", "threshold_high", "threshold_very_high"]
+
+  levelKey: (sensor, name) ->
+    [sensor.get("measurement_type"), sensor.get("sensor_name"), name].join("-")
+
+  getThresholds: (sensor) ->
+    @names.map (name) =>
+      value = $.cookie(@levelKey(sensor, name))
+      parseInt(value) || sensor.get(name)
+
+  saveThresholds: (sensor, thresholds) ->
+    for i in [0..4]
+      $.cookie(@levelKey(sensor, @names[i]), thresholds[i], expires: 365)
+
+  resetThresholds: (sensor) ->
+    values = @names.map (name) -> sensor.get(name)
+    @saveThresholds(sensor, values)
+
   initialize: ->
     for i in [0..4]
       value = $.cookie("db_levels_" + i)
@@ -45,17 +63,18 @@ window.AirCasting.util =
     [0xFF, 0x00, 0x00]
   ]
 
-  dbToColor: (value) ->
+  dbToColor: (sensor, value) ->
+    levels = AC.G.getThresholds(sensor)
     result =
-      if value < AC.G.db_levels[0]
+      if value < levels[0]
         null
-      else if value < AC.G.db_levels[1]
+      else if value < levels[1]
         @colors[0]
-      else if value < AC.G.db_levels[2]
+      else if value < levels[2]
         @colors[1]
-      else if value < AC.G.db_levels[3]
+      else if value < levels[3]
         @colors[2]
-      else if value < AC.G.db_levels[4]
+      else if value < levels[4]
         @colors[3]
       else
         null
@@ -63,24 +82,26 @@ window.AirCasting.util =
     if result
       "rgb(" + parseInt(result[0]) + "," + parseInt(result[1]) + "," + parseInt(result[2]) + ")"
 
-  dbToIcon: (value) ->
+  dbToIcon: (sensor, value) ->
+    levels = AC.G.getThresholds(sensor)
     result =
-      if value < AC.G.db_levels[0]
+      if value < levels[0]
         null
-      else if value < AC.G.db_levels[1]
+      else if value < levels[1]
         window.marker1_path
-      else if value < AC.G.db_levels[2]
+      else if value < levels[2]
         window.marker2_path
-      else if value < AC.G.db_levels[3]
+      else if value < levels[3]
         window.marker3_path
-      else if value < AC.G.db_levels[4]
+      else if value < levels[4]
         window.marker4_path
       else
         null
 
-  dbRangePercentages: ->
-    range = _.last(AC.G.db_levels) - _.first(AC.G.db_levels)
-    ranges = _.map([0..2], (i) => Math.round((AC.G.db_levels[i+1] - AC.G.db_levels[i]) / range * 100))
+  dbRangePercentages: (sensor) ->
+    levels = AC.G.getThresholds(sensor)
+    range = _.last(levels) - _.first(levels)
+    ranges = _.map([0..2], (i) => Math.round((levels[i+1] - levels[i]) / range * 100))
     ranges.push 100 - _.reduce(ranges, (sum, x) -> sum + x)
     ranges
 

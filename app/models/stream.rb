@@ -57,7 +57,8 @@ class Stream < ActiveRecord::Base
 	end
 
 	def self.sensors
-		select("sensor_name, measurement_type, count(*) as session_count").
+		select("sensor_name, measurement_type, threshold_very_low, threshold_low,
+           threshold_medium, threshold_high, threshold_very_high, count(*) as session_count").
 			group(:sensor_name, :measurement_type).
 			map { |stream| stream.attributes.symbolize_keys }
 	end
