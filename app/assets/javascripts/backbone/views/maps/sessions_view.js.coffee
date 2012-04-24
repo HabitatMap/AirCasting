@@ -55,6 +55,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
   populateSensors: ->
     sensorSelector = $(@el).find("#sensor")
+    sensorSelector.children().remove()
     
     rendered = @sensor_template(sensor: @allSensor, selected: @selectedSensor.matches(@allSensor))
     sensorSelector.append(rendered)
