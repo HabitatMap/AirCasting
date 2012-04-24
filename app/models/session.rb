@@ -38,13 +38,15 @@ class Session < ActiveRecord::Base
 
   acts_as_taggable
 
-  attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list, :contribute, :notes_attributes, :data_type, :instrument, :phone_model, :os_version, :user
+  attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list, 
+                  :contribute, :notes_attributes, :data_type, :instrument, :phone_model, 
+                  :os_version, :user, :start_time, :end_time
   attr_accessible :title, :description, :tag_list, :as => :sync
-  attr_accessible :start_time, :end_time, :timezone_offset, :as => :timeframe
 
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
 
   def self.filter(data={})
+    p data
    sessions = order("sessions.created_at DESC").
       where(:contribute => true).
       day_range(data[:day_from], data[:day_to]).
@@ -86,10 +88,12 @@ class Session < ActiveRecord::Base
       sessions = (sessions + [Session.find(id)]).uniq
     end
 
+    p sessions
     sessions
   end
 
   def self.filtered_json(data)
+    p data
     includes(:user).
       filter(data).as_json(
         :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time, :timezone_offset],
