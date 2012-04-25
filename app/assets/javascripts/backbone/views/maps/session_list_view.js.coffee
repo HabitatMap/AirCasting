@@ -184,8 +184,10 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
       AC.util.spinner.stopTask()
 
-  selectSessionByToken: (data) ->
-    @selectedSessions[data.id] = new AirCasting.Models.Session(data)
+  selectSessionByToken: (sessionData) ->
+    session = new AirCasting.Models.Session(sessionData)
+    @selectedSessions[sessionData.id] = session
+    @selectSensor(session)
 
   reset: ->
     @$(':checkbox').attr('checked', null)

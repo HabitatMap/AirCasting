@@ -46,8 +46,7 @@ class Session < ActiveRecord::Base
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
 
   def self.filter(data={})
-    p data
-   sessions = order("sessions.created_at DESC").
+    sessions = order("sessions.created_at DESC").
       where(:contribute => true).
       day_range(data[:day_from], data[:day_to]).
       joins(:user)
@@ -88,12 +87,10 @@ class Session < ActiveRecord::Base
       sessions = (sessions + [Session.find(id)]).uniq
     end
 
-    p sessions
     sessions
   end
 
   def self.filtered_json(data)
-    p data
     includes(:user).
       filter(data).as_json(
         :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time, :timezone_offset],
