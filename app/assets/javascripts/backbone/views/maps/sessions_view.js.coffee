@@ -71,6 +71,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       @selectedSensor = @sensors.getByCid cid
 
     @render()
+    @heatLegendSensor = @selectedSensor
     @initializeHeatLegend(false)
 
   permalinkData: ->

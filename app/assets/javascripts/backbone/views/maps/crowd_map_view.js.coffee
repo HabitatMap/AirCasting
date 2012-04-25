@@ -56,11 +56,16 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
   selectSensor: (evt) ->
     cid = $(@el).find("#sensor :selected").attr("value")
     @selectedSensor = @sensors.getByCid cid
+
+    @heatLegendSensor = @selectedSensor
     @initializeHeatLegend(false)
+
     @fetch()
 
   populateSensors: ->
     @selectedSensor = @sensors.max((sensor) -> sensor.get("session_count"))
+
+    @heatLegendSensor = @selectedSensor
     @initializeHeatLegend(true)
 
     @sensors.each (sensor) =>

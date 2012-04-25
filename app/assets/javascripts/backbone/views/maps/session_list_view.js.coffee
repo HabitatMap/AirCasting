@@ -100,14 +100,19 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   sensor: (stream) ->
     new AirCasting.Models.Sensor(measurement_type: stream.measurement_type, sensor_name: stream.sensor_name)
+  
+  useSensor: (sensor) ->
+    @viewSensor = sensor
+    @parent.heatLegendSensor = sensor
+    @parent.initializeHeatLegend()
 
   selectSensor: (session) ->
     streams = session.get("streams")
     if @selectedSensor != @parent.allSensor
-      @viewSensor = @selectedSensor
+      @useSensor(@selectedSensor)
       @fetchAndDraw(session.get('id'))
     else if streams.length == 1
-      @viewSensor = @sensor(_.first(streams))
+      @useSensor(@sensor(_.first(streams)))
       @fetchAndDraw(session.get('id'))
     else
       @displaySensorDialog(session)
@@ -126,7 +131,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     dialog.dialog("option", "buttons", {
       "OK": =>
         cid = dialog.find(":selected").attr("value")
-        @viewSensor = sensors.getByCid(cid)
+        @useSensor(sensors.getByCid(cid))
 
         dialog.dialog("destroy")
 
