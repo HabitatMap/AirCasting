@@ -165,7 +165,7 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @updateLegendDisplay()
 
   resetHeatLegend: ->
-    AC.G.resetDBLevels()
+    AC.G.resetThresholds(@selectedSensor)
 
     @initializeHeatLegend()
     @heatLegendUpdated()

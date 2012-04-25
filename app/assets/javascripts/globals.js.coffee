@@ -18,9 +18,6 @@
 # You can contact the authors by email at <info@habitatmap.org>
 ###
 window.AirCasting.G =
-  default_db_levels: [20, 60, 70, 80, 100]
-  db_levels: []
-
   names: ["threshold_very_low", "threshold_low", "threshold_medium", "threshold_high", "threshold_very_high"]
 
   levelKey: (sensor, name) ->
@@ -38,22 +35,6 @@ window.AirCasting.G =
   resetThresholds: (sensor) ->
     values = @names.map (name) -> sensor.get(name)
     @saveThresholds(sensor, values)
-
-  initialize: ->
-    for i in [0..4]
-      value = $.cookie("db_levels_" + i)
-      value = parseInt(value)
-      @db_levels[i] = value || @default_db_levels[i]
-
-  resetDBLevels: ->
-    @saveDBLevels(@default_db_levels)
-
-  saveDBLevels: (levels) ->
-    @db_levels = levels
-    for i in [0..4]
-      $.cookie("db_levels_" + i, levels[i], expires: 365)
-
-window.AirCasting.G.initialize()
 
 window.AirCasting.util =
   colors: [

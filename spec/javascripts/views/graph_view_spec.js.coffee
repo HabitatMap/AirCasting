@@ -123,10 +123,10 @@ describe "GraphView", ->
       expect(@options.xaxis.zoomRange).toEqual([null, expected])
 
     it "should set yaxis min", ->
-      expect(@options.yaxis.min).toEqual(_.first(AC.G.db_levels))
+      expect(@options.yaxis.min).toEqual(_.first(AC.G.getThresholds(@parent.viewSensor)))
 
     it "should set yaxis max", ->
-      expect(@options.yaxis.max).toEqual(_.last(AC.G.db_levels))
+      expect(@options.yaxis.max).toEqual(_.last(AC.G.getThresholds(@parent.viewSensor)))
 
   describe "graph toggling", ->
     it "should not allow expanding the graph if many sessions are selected", ->

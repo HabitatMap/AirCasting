@@ -102,8 +102,8 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
       show: false
       zoomRange: false
       panRange: false
-      min: _.first(AC.G.db_levels)
-      max: _.last(AC.G.db_levels)
+      min: _.first(AC.G.getThresholds(@parent.viewSensor))
+      max: _.last(AC.G.getThresholds(@parent.viewSensor))
     grid:
       show: false
       hoverable: true
