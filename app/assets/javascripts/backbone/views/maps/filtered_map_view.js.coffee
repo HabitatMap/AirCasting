@@ -178,12 +178,12 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @$(".legend .midhigh").css(width: midHigh + "%")
     @$(".legend .high").css(width: high + "%")
 
-    [low, midLow, mid, midHigh, high] = AC.G.db_levels
-    @$(".low .start").html(low + " dB")
-    @$(".mid .start").html(midLow + " dB")
-    @$(".midhigh .start").html(mid + " dB")
-    @$(".high .start").html(midHigh + " dB")
-    @$(".high .end").html(high + " dB")
+    [low, midLow, mid, midHigh, high] = AC.G.getThresholds(@selectedSensor)
+    @$(".low .start").html(low + @selectedSensor.get("unit_symbol"))
+    @$(".mid .start").html(midLow + @selectedSensor.get("unit_symbol"))
+    @$(".midhigh .start").html(mid + @selectedSensor.get("unit_symbol"))
+    @$(".high .start").html(midHigh + @selectedSensor.get("unit_symbol"))
+    @$(".high .end").html(high + @selectedSensor.get("unit_symbol"))
 
   saveHeatLegend: ->
     AC.G.saveThresholds(@selectedSensor, @currentLegendValues())

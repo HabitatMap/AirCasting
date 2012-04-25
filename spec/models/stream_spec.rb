@@ -72,16 +72,16 @@ describe Stream do
 
   describe "#sensors" do
     before { Stream.destroy_all }
-    let!(:stream1) { FactoryGirl.create(:stream, :sensor_name => "s1", :measurement_type => "m1") }
-    let!(:stream2) { FactoryGirl.create(:stream, :sensor_name => "s2", :measurement_type => "m2") }
-    let!(:stream3) { FactoryGirl.create(:stream, :sensor_name => "s1", :measurement_type => "m1") }
+    let!(:stream1) { FactoryGirl.create(:stream, :unit_symbol => "%", :sensor_name => "s1", :measurement_type => "m1") }
+    let!(:stream2) { FactoryGirl.create(:stream, :unit_symbol => "%", :sensor_name => "s2", :measurement_type => "m2") }
+    let!(:stream3) { FactoryGirl.create(:stream, :unit_symbol => "%", :sensor_name => "s1", :measurement_type => "m1") }
 
     subject { Stream.sensors }
 
     it "should return all sensors" do
       thresholds = FactoryGirl.attributes_for(:stream).select { |k,v| k =~ /^threshold/ }
-      subject.should include({ :sensor_name => "s1", :measurement_type => "m1", :session_count => 2 }.merge(thresholds))
-      subject.should include({ :sensor_name => "s2", :measurement_type => "m2", :session_count => 1 }.merge(thresholds))
+      subject.should include({ :unit_symbol => "%", :sensor_name => "s1", :measurement_type => "m1", :session_count => 2 }.merge(thresholds))
+      subject.should include({ :unit_symbol => "%", :sensor_name => "s2", :measurement_type => "m2", :session_count => 1 }.merge(thresholds))
     end
 
     it "should return unique sensors" do 
