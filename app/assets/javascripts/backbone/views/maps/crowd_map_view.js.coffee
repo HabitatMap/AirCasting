@@ -21,7 +21,7 @@ AirCasting.Views.Maps ||= {}
 
 class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredMapView
   template: JST["backbone/templates/maps/crowd_map"]
-  sensor_item: JST["backbone/templates/maps/sensor_item"]
+  sensorItem: JST["backbone/templates/maps/sensor_item"]
 
   events: _({
     'click #reset-resolution': 'resetResolution'
@@ -35,7 +35,11 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @minResolution = 10
     @maxResolution = 50
     @defaultResolution = 25
+
     @gridResolution = options.mapState.crowdMap?.resolution || @defaultResolution
+    if options.mapState.crowdMap?
+      @selectedSensor = new AirCasting.Models.Sensor(options.mapState.crowdMap.selectedSensor)
+
     @geocoder = new google.maps.Geocoder()
 
     @sensors = new AirCasting.Collections.SensorCollection()
@@ -63,13 +67,13 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @fetch()
 
   populateSensors: ->
-    @selectedSensor = @sensors.max((sensor) -> sensor.get("session_count"))
+    @selectedSensor ||= @sensors.max((sensor) -> sensor.get("session_count"))
 
     @heatLegendSensor = @selectedSensor
     @initializeHeatLegend(true)
 
     @sensors.each (sensor) =>
-      rendered = @sensor_item(sensor: sensor, selected: @selectedSensor == sensor)
+      rendered = @sensorItem(sensor: sensor, selected: _(@selectedSensor.attributes).isEqual(sensor.attributes))
       $(@el).find("#sensor").append(rendered)
     @fetch()
 
@@ -84,6 +88,7 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     _(super()).extend {
       crowdMap:
         resolution: @gridResolution
+        selectedSensor: @selectedSensor
     }
 
   initSliders: ->
