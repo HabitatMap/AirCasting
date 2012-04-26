@@ -46,7 +46,7 @@ class Session < ActiveRecord::Base
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
 
   def self.filter(data={})
-    sessions = order("sessions.created_at DESC").
+      sessions = order("sessions.created_at DESC").
       where(:contribute => true).
       day_range(data[:day_from], data[:day_to]).
       joins(:user)

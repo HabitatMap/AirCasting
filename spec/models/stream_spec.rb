@@ -22,6 +22,7 @@ describe Stream do
 
   describe "validations" do
     [:sensor_name,
+     :sensor_package_name,
      :unit_name,
      :measurement_type,
      :measurement_short_type,

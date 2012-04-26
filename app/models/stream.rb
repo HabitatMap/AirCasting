@@ -24,6 +24,7 @@ class Stream < ActiveRecord::Base
 	delegate :size, :to => :measurements
 
 	validates :sensor_name,
+     :sensor_package_name,
      :unit_name,
      :measurement_type,
      :measurement_short_type,

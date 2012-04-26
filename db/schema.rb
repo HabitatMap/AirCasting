@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120420162702) do
+ActiveRecord::Schema.define(:version => 20120426093113) do
 
   create_table "measurements", :force => true do |t|
     t.float    "value"
@@ -81,6 +81,7 @@ ActiveRecord::Schema.define(:version => 20120420162702) do
     t.integer "threshold_very_high"
     t.integer "session_id"
     t.integer "measurements_count"
+    t.text    "sensor_package_name"
   end
 
   create_table "taggings", :force => true do |t|

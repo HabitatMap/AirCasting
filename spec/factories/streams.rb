@@ -21,6 +21,7 @@
 FactoryGirl.define do
   factory :stream do
 		sensor_name "LHC"
+    sensor_package_name "CERN"
     unit_name "number"
     measurement_type "hadrons"
     measurement_short_type "hd"
