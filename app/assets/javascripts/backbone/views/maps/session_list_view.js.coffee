@@ -77,7 +77,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     session = childView.model
     sessionId = session.get('id')
 
-    if selected
+    if selected && @numberOfSelected() == 0
       @selectSensor(session)
 
     if @numberOfSelected != 1
