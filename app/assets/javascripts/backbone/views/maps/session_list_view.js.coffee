@@ -301,7 +301,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       markerOptions =
         map: @googleMap.map
         position: new google.maps.LatLng(element.latitude, element.longitude)
-        title: '' + parseInt(element.value) + ' dB'
+        title: '' + parseInt(element.value) + ' ' + @currentStream().unit_symbol
         icon: icon
         flat: true
         zIndex: zIndex
