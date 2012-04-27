@@ -4,8 +4,8 @@
   <dd>
   <label class="narrow" for="session-<%= session.get('id') %>">
     <%= session.get('username') ? session.get('username') + ', ' : '' %>
-    <%= timeframe %>
-    <%= ", " + _(session.get("streams")).sort().map(function(stream) { return stream.measurement_short_type }).join("/") %>
+    <%= timeframe + ", " %>
+    <%= AC.util.sortedShortTypes(session) %>
   </label>
   </dd>
 </dl>

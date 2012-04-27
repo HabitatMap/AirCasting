@@ -152,3 +152,8 @@ window.AirCasting.util =
         @activeTasks = 0
         @spinner.stop()
   }
+
+  sortedShortTypes: (session) ->
+    streams = session.get("streams")
+    types = _(streams).map (stream) -> stream.measurement_short_type
+    _(types).sortBy((type) -> type.toLowerCase()).join("/")
