@@ -10,6 +10,12 @@ class RegionInfo
       average(:value)
   end
 
+  def averages
+    @measurements.joins(:session).
+      group(:sensor_name).
+      average(:value)
+  end
+
   def top_contributors
     @measurements.joins(:user).
       group(:user_id).
@@ -32,6 +38,7 @@ class RegionInfo
   def as_json(options=nil)
     {
       :average => average,
+      :averages => averages,
       :top_contributors => top_contributors,
       :number_of_contributors => number_of_contributors,
       :number_of_samples => number_of_samples

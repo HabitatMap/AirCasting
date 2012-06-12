@@ -26,11 +26,12 @@ class AirCasting.Views.Maps.RegionView extends Backbone.View
     super options
     @regionData = options.region
     @region = new AirCasting.Models.Region()
+    @sensor = options.sensor
 
   render: ->
     @region.setUrlParams(@regionData)
     @region.fetch {
-      success: (region, response) => $(@el).html @template(region: region)
+      success: (region, sensor, response) => $(@el).html @template(region: region, sensor: @sensor)
     }
 
     this
