@@ -128,6 +128,15 @@ class Session < ActiveRecord::Base
     if with_measurements
       res.merge!(:streams => streams.map { |stream| stream.as_json(:methods => [:measurements]) })
     end
+
+    map_of_streams = {}
+    localStreams = res.delete(:streams)
+    localStreams.each do |stream|
+      map_of_streams[stream.sensor_name] = stream
+    end
+
+    res.merge!(:streams => map_of_streams)
+
     res
   end
 
