@@ -39,17 +39,17 @@ class Session < ActiveRecord::Base
   acts_as_taggable
 
   attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list, 
-                  :contribute, :notes_attributes, :data_type, :instrument, :phone_model, 
-                  :os_version, :user, :start_time, :end_time
+  :contribute, :notes_attributes, :data_type, :instrument, :phone_model, 
+  :os_version, :user, :start_time, :end_time
   attr_accessible :title, :description, :tag_list, :as => :sync
 
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
 
   def self.filter(data={})
-      sessions = order("sessions.created_at DESC").
-      where(:contribute => true).
-      day_range(data[:day_from], data[:day_to]).
-      joins(:user)
+    sessions = order("sessions.created_at DESC").
+    where(:contribute => true).
+    day_range(data[:day_from], data[:day_to]).
+    joins(:user)
 
     tags = data[:tags].to_s.split(/[\s,]/)
     if tags.present?
@@ -68,17 +68,17 @@ class Session < ActiveRecord::Base
 
     if data[:east] && data[:west] && data[:north] && data[:south]
       session_ids = Measurement.joins(:session).
-        latitude_range(data[:south], data[:north]).
-        longitude_range(data[:west], data[:east]).
-        select("DISTINCT session_id").map(&:session_id)
+      latitude_range(data[:south], data[:north]).
+      longitude_range(data[:west], data[:east]).
+      select("DISTINCT session_id").map(&:session_id)
 
       sessions = sessions.where(:id => session_ids)
     end
 
     if data[:time_from] && data[:time_to]
       session_ids = Measurement.joins(:session).
-        time_range(data[:time_from], data[:time_to]).
-        select('DISTINCT session_id').map(&:session_id)
+      time_range(data[:time_from], data[:time_to]).
+      select('DISTINCT session_id').map(&:session_id)
 
       sessions = sessions.where(:id => session_ids)
     end
@@ -92,9 +92,9 @@ class Session < ActiveRecord::Base
 
   def self.filtered_json(data)
     includes(:user).
-      filter(data).as_json(
-        :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time, :timezone_offset],
-        :methods => [:username, :streams]
+    filter(data).as_json(
+      :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time, :timezone_offset],
+      :methods => [:username, :streams]
       )
   end
 
@@ -123,16 +123,16 @@ class Session < ActiveRecord::Base
 
     methods = opts[:methods] || [:notes, :calibration]
     with_measurements = opts[:methods].delete(:measurements)
-    
+
     res = super(opts.merge(:methods => methods))
-    if with_measurements
-      res.merge!(:streams => streams.map { |stream| stream.as_json(:methods => [:measurements]) })
-    end
 
     map_of_streams = {}
-    localStreams = res.delete(:streams)
-    localStreams.each do |stream|
-      map_of_streams[stream.sensor_name] = stream
+    streams.each do |stream|
+      if with_measurements
+        map_of_streams[stream.sensor_name] = stream.as_json(:methods => [:measurements])
+      else
+        map_of_streams[stream.sensor_name] = stream.as_json
+      end
     end
 
     res.merge!(:streams => map_of_streams)
@@ -157,8 +157,8 @@ class Session < ActiveRecord::Base
           notes.destroy_all
         else
           notes.
-            where("number NOT IN (?)", session_data[:notes].map { |n| n[:number] }).
-            destroy_all
+          where("number NOT IN (?)", session_data[:notes].map { |n| n[:number] }).
+          destroy_all
         end
       else
         self.notes = session_data[:notes].map { |n| Note.new(n) }

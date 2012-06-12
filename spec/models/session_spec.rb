@@ -46,8 +46,9 @@ describe Session do
     subject { session.as_json(:methods => [:measurements]) }
 
     it "should tell streams to include measurements" do
-      subject.symbolize_keys[:streams].first.should ==
-        stream.as_json(:methods => [:measurements])
+      a = subject.symbolize_keys[:streams].first
+      b = stream.as_json(:methods => [:measurements])
+      a[1].should == b
     end
 
     it "should not provide own list of measurements" do
