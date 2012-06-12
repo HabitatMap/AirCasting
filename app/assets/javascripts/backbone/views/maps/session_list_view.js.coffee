@@ -121,7 +121,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     content = $('<div><p>Select sensor stream to display</p><select id="sensors"></select></div>')
 
     sensors = new AirCasting.Collections.SensorCollection()
-    sensors.add(@sensor(stream)) for stream in session.get('streams')
+    sensors.add(@sensor(stream)) for stream in session.getStreams()
 
     sensors.each (sensor) =>
       rendered = @stream_option(sensor: sensor, selected: false)

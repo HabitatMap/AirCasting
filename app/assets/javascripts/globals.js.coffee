@@ -154,6 +154,6 @@ window.AirCasting.util =
   }
 
   sortedShortTypes: (session) ->
-    streams = session.get("streams")
+    streams = session.getStreams()
     types = _(streams).map (stream) -> stream.measurement_short_type
     _(types).sortBy((type) -> type.toLowerCase()).join("/")
