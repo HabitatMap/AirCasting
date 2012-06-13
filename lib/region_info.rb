@@ -25,14 +25,31 @@ class RegionInfo
       map(&:username)
   end
 
+  def top_contributors_per_sensor
+ #TODO
+  end
+
   def number_of_contributors
     @measurements.joins(:user).
       select("DISTINCT user_id").
       count
   end
 
+  def number_of_contributors_per_sensor
+    @measurements.joins(:user).
+      select("DISTINCT user_id").
+      group(:sensor_name).
+      count
+  end
+
   def number_of_samples
     @measurements.size
+  end
+
+  def number_of_samples_per_sensor
+    @measurements.joins(:stream).
+      group(:sensor_name).
+      count
   end
 
   def as_json(options=nil)
