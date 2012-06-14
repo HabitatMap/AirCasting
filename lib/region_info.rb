@@ -26,7 +26,22 @@ class RegionInfo
   end
 
   def top_contributors_per_sensor
- #TODO
+    sensors = Stream.all.map(&:sensor_name).uniq
+
+    results = {}
+
+    sensors.each do |sensor|
+      results[sensor] = @measurements.joins(:user).
+        joins(:stream).
+        where(:'streams.sensor_name' => sensor).
+        group(:user_id).
+        order("count(*) DESC").
+        limit(10).
+        select(:username).
+        map(&:username)
+    end
+
+    results
   end
 
   def number_of_contributors
@@ -57,6 +72,7 @@ class RegionInfo
       :average => average,
       :averages => averages,
       :top_contributors => top_contributors,
+      :top_contributors_per_sensor => top_contributors_per_sensor,
       :number_of_contributors => number_of_contributors,
       :number_of_samples => number_of_samples,
       :number_of_contributors_per_sensor => number_of_contributors_per_sensor,
