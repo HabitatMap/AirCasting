@@ -45,11 +45,11 @@ class AirCasting.Models.Session extends Backbone.Model
   containsSensor: (sensor) =>
     names = _(@getStreams()).map(
       (stream) -> (
-      sensorName = sensor.get("sensor_name")
-      measurementType = sensor.get("measurement_type")
-      if(sensorName == "All" and measurementType == "All")
+        sensorName = sensor.get("sensor_name")
+        measurementType = sensor.get("measurement_type")
+        if(sensorName == "All" and measurementType == "All")
           return true
-      else
+        else
           ( (sensorName == stream.sensor_name) and (measurementType ==stream.measurement_type)) )
       )
 
