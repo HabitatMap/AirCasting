@@ -58,7 +58,9 @@ class RegionInfo
       :averages => averages,
       :top_contributors => top_contributors,
       :number_of_contributors => number_of_contributors,
-      :number_of_samples => number_of_samples
+      :number_of_samples => number_of_samples,
+      :number_of_contributors_per_sensor => number_of_contributors_per_sensor,
+      :number_of_samples_per_sensor => number_of_samples_per_sensor
     }
   end
 end
