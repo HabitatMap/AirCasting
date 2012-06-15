@@ -9,14 +9,18 @@ describe RegionInfo do
 
   subject { RegionInfo.new(:south => 5, :north => 15, :west => 15, :east => 25) }
 
-  its(:average) { should == Measurement.joins(:session).where(:id => [m1.id, m2.id]).average(:value) }
+  its(:average) { should == Measurement.joins(:session).where(:id => relevant_measurements.map(&:id)).average(:value) }
   its(:number_of_samples) { should == 2 }
   its(:top_contributors) { should include m1.session.user.username }
   its(:top_contributors) { should_not include m3.session.user.username }
   its(:number_of_contributors) { should == 2 }
 
+  let(:relevant_measurements) {[m1, m2]}
+
   describe "#as_json" do
-    let(:data) { { :average => 1, :number_of_samples => 2, :number_of_contributors => 3, :top_contributors => "joe" } }
+    let(:data) { { :average => 1, :averages => {"LHC"=>20}, :number_of_samples => 2, :number_of_contributors => 3, 
+    :top_contributors => "joe", :number_of_contributors_per_sensor => 2, :number_of_samples_per_sensor => 2, 
+    :top_contributors_per_sensor => relevant_measurements.map{|m| m.user.login } } }
 
     before { subject.stub!(data) }
 
