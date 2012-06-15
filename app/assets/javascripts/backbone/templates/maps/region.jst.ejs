@@ -1,5 +1,5 @@
 <ul>
-  <li><span>Readings for: </span><%= sensor.get("measurement_type") %></li>
+  <li><span>Readings for: </span><%= sensor.get("measurement_type") +' - '+ sensor.get("sensor_name") %></li>
   <li><span>Average reading: </span><%= Math.round(region.get("averages")[sensor.get("sensor_name")]) %> <%=  sensor.get("unit_symbol")%></li>
   <li><span># of samples: </span><%= region.get("number_of_samples_per_sensor")[sensor.get("sensor_name")] %></li>
   <li><span># of contributors: </span><%= region.get("number_of_contributors_per_sensor")[sensor.get("sensor_name")] %></li>
