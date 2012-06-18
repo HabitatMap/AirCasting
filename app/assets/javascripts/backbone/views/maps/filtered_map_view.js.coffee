@@ -171,18 +171,22 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     @heatLegendUpdated()
 
   updateLegendDisplay: ->
-    [low, mid, midHigh, high] = AC.util.dbRangePercentages(@heatLegendSensor)
-    @$(".legend .low").css(width: low + "%")
-    @$(".legend .mid").css(width: mid + "%")
-    @$(".legend .midhigh").css(width: midHigh + "%")
-    @$(".legend .high").css(width: high + "%")
+    if @heatLegendSensor.get("sensor_name") == "All"
+      @$("section#heat-legend").removeClass("display");
+    else
+      @$("section#heat-legend").addClass("display");
+      [low, mid, midHigh, high] = AC.util.dbRangePercentages(@heatLegendSensor)
+      @$(".legend .low").css(width: low + "%")
+      @$(".legend .mid").css(width: mid + "%")
+      @$(".legend .midhigh").css(width: midHigh + "%")
+      @$(".legend .high").css(width: high + "%")
 
-    [low, midLow, mid, midHigh, high] = AC.G.getThresholds(@heatLegendSensor)
-    @$(".low .start").html(low + @heatLegendSensor.get("unit_symbol"))
-    @$(".mid .start").html(midLow + @heatLegendSensor.get("unit_symbol"))
-    @$(".midhigh .start").html(mid + @heatLegendSensor.get("unit_symbol"))
-    @$(".high .start").html(midHigh + @heatLegendSensor.get("unit_symbol"))
-    @$(".high .end").html(high + @heatLegendSensor.get("unit_symbol"))
+      [low, midLow, mid, midHigh, high] = AC.G.getThresholds(@heatLegendSensor)
+      @$(".low .start").html(low + @heatLegendSensor.get("unit_symbol"))
+      @$(".mid .start").html(midLow + @heatLegendSensor.get("unit_symbol"))
+      @$(".midhigh .start").html(mid + @heatLegendSensor.get("unit_symbol"))
+      @$(".high .start").html(midHigh + @heatLegendSensor.get("unit_symbol"))
+      @$(".high .end").html(high + @heatLegendSensor.get("unit_symbol"))
 
   saveHeatLegend: ->
     AC.G.saveThresholds(@heatLegendSensor, @currentLegendValues())
