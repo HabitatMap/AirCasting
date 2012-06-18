@@ -172,7 +172,6 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
 
   updateLegendDisplay: ->
     [low, mid, midHigh, high] = AC.util.dbRangePercentages(@heatLegendSensor)
-
     @$(".legend .low").css(width: low + "%")
     @$(".legend .mid").css(width: mid + "%")
     @$(".legend .midhigh").css(width: midHigh + "%")

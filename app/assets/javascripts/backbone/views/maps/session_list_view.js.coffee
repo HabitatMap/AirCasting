@@ -99,8 +99,14 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     AC.util.notice(reason)
 
   sensor: (stream) ->
-    new AirCasting.Models.Sensor(measurement_type: stream.measurement_type, sensor_name: stream.sensor_name)
-  
+    sensor = new AirCasting.Models.Sensor(measurement_type: stream.measurement_type, sensor_name: stream.sensor_name)
+    attrs = {}
+    _(window.AirCasting.G.names).each (name) ->
+      attrs[name] = stream[name]
+    sensor.set attrs
+    sensor.set unit_symbol: stream.unit_symbol
+    sensor
+
   useSensor: (sensor) ->
     @viewSensor = sensor
     @parent.heatLegendSensor = sensor
