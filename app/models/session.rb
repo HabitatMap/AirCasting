@@ -147,6 +147,15 @@ class Session < ActiveRecord::Base
     transaction do
       update_attributes(session_data, :as => :sync)
 
+      session_data[:streams] || [].each do |key, stream_data|
+        if stream_data[:deleted]
+          session = Session.find_by_uuid(session_data[:uuid])
+          session.streams.where( "sensor_package_name = ? AND sensor_name = ?",
+                                 stream_data[:sensor_package_name],
+                                 stream_data[:sensor_name] ).each(&:destroy)
+        end
+      end
+
       if session_data[:notes].all? { |n| n.include? :number } && notes.all? { |n| n.number }
         session_data[:notes].each do |note_data|
           note = notes.find_by_number(note_data[:number])

@@ -71,5 +71,5 @@ class Stream < ActiveRecord::Base
 		methods += [:size]
 
 		super(opts.merge(:methods => methods))
-	end
+  end
 end
