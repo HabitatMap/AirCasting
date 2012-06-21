@@ -26,3 +26,4 @@ nbproject/*
 .generators
 .rakeTasks
 AirCasting.iml
+.rvmrc
