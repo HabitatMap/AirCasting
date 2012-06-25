@@ -37,12 +37,11 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @defaultResolution = 25
 
     @gridResolution = options.mapState.crowdMap?.resolution || @defaultResolution
+    @sensors = new AirCasting.Collections.SensorCollection()
     if options.mapState.crowdMap?
-      @selectedSensor = new AirCasting.Models.Sensor(options.mapState.crowdMap.selectedSensor)
-
+      @selectedSensorFromParams = options.mapState.crowdMap.selectedSensor
     @geocoder = new google.maps.Geocoder()
 
-    @sensors = new AirCasting.Collections.SensorCollection()
     @sensors.bind("reset", => @populateSensors())
 
     @infoWindow = new google.maps.InfoWindow()
@@ -67,8 +66,10 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @fetch()
 
   populateSensors: ->
+    selectedSensors = @sensors.where(@selectedSensorFromParams)
+    if selectedSensors.length > 0
+      @selectedSensor ||= selectedSensors[0]
     @selectedSensor ||= @sensors.max((sensor) -> sensor.get("session_count"))
-
     @heatLegendSensor = @selectedSensor
     @initializeHeatLegend(true)
 
@@ -88,7 +89,7 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     _(super()).extend {
       crowdMap:
         resolution: @gridResolution
-        selectedSensor: @selectedSensor
+        selectedSensor: @selectedSensor.toParams()
     }
 
   initSliders: ->
@@ -106,7 +107,6 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
   activate: ->
     @refilter()
     @idleListener = google.maps.event.addListener @googleMap.map, "idle", @refilter.bind(this)
-    @initializeHeatLegend()
 
   deactivate: ->
     @clear()

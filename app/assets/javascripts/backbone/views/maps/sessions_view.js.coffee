@@ -39,10 +39,13 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     $(window).resize(@resizeSessions)
 
     @allSensor = new AirCasting.Models.Sensor(sensor_name: "All", measurement_type: "All")
-    @selectedSensor = @allSensor
+    if options.mapState.sessions?
+      @selectedSensorFromParams = options.mapState.sessions.selectedSensor
 
     @sensors = new AirCasting.Collections.SensorCollection()
+
     @sensors.fetch()
+
     @sensors.bind("reset", => @populateSensors())
 
     @includeSessionId = options.includeSessionId || ''
@@ -56,6 +59,11 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
   populateSensors: ->
     sensorSelector = $(@el).find("#sensor")
     sensorSelector.children().remove()
+
+    selectedSensors = @sensors.where(@selectedSensorFromParams)
+    if selectedSensors.length > 0
+      @selectedSensor = selectedSensors[0]
+    @selectedSensor ||= @allSensor 
 
     rendered = @sensor_template(sensor: @allSensor, selected: @selectedSensor.matches(@allSensor))
     sensorSelector.append(rendered)
@@ -77,6 +85,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
   permalinkData: ->
     _(super()).extend {
       sessions:
+        selectedSensor: @selectedSensor.toParams()
         location:
           text: @$("#location").val() unless @limitToViewport()
           distance: @$("#distance").val() unless @limitToViewport()
@@ -137,15 +146,11 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     @sessionListView.toggleAll()
 
   fetch: ->
-    if(@sessions.size() < 1)
-      @sessions.fetch()
-
     tags = @$('#tags').val()
     usernames = @$('#usernames').val()
     location = if @limitToViewport() then "" else @$('#location').val()
     distance = if @limitToViewport() then 0  else @$('#distance').val()
     viewport = AC.util.viewport(@googleMap) if @limitToViewport()
-
     @sessions.setUrlParams(@timeFrom, @timeTo, @dayFrom, @dayTo, @includeSessionId, tags, usernames, location, distance, viewport)
 
     AC.util.spinner.startTask()
