@@ -40,12 +40,12 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
     @allSensor = new AirCasting.Models.Sensor(sensor_name: "All", measurement_type: "All")
     if options.mapState.sessions?
-      @selectedSensorFromParams = options.mapState.sessions.selectedSensor
-
+      @selectedSensor = new AirCasting.Models.Sensor(options.mapState.sessions.selectedSensor)
+    
+    @selectedSensor ||= @allSensor
     @sensors = new AirCasting.Collections.SensorCollection()
 
     @sensors.fetch()
-
     @sensors.bind("reset", => @populateSensors())
 
     @includeSessionId = options.includeSessionId || ''
@@ -60,9 +60,6 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     sensorSelector = $(@el).find("#sensor")
     sensorSelector.children().remove()
 
-    selectedSensors = @sensors.where(@selectedSensorFromParams)
-    if selectedSensors.length > 0
-      @selectedSensor = selectedSensors[0]
     @selectedSensor ||= @allSensor 
 
     rendered = @sensor_template(sensor: @allSensor, selected: @selectedSensor.matches(@allSensor))

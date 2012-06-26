@@ -25,14 +25,14 @@ class AirCasting.Models.Sensor extends Backbone.Model
     names = @get("sensor_name") == sensor.get("sensor_name")
     types and names
   toParams: () =>
-    {measurement_type: @get("measurement_type"), sensor_name: @get("sensor_name")}
+    this.toJSON()
 
 class AirCasting.Collections.SensorCollection extends Backbone.Collection
   model: AirCasting.Models.Sensor
 
   url: -> "/api/sensors"
 
-  parametrizedSensors: () =>
+  toParams: () =>
     @models.map (sensor) -> sensor.toParams()
 
   comparator: (sensor) -> 

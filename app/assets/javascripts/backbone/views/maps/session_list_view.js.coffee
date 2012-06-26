@@ -34,7 +34,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @notes = []
     @lines = []
     @fetchingData = 0
-    @selectedSensor = options.selectedSensor
+    @selectedSensor = options.selectedSensor || new AirCasting.Models.Sensor(sensor_name: "All", measurement_type: "All")
     @parent = options.parent
 
     @infoWindow = new google.maps.InfoWindow()
