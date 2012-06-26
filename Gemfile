@@ -35,6 +35,7 @@ gem 'capistrano'
 
 group :test, :development do
   gem 'rspec-rails', '~> 2.6'
+  gem 'capybara'
   gem 'factory_girl_rails'
   gem 'shoulda-matchers'
   gem 'awesome_print', :require => 'ap'
