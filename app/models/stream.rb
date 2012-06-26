@@ -35,6 +35,8 @@ class Stream < ActiveRecord::Base
      :threshold_high,
      :threshold_very_high, :presence => true
 
+  attr_accessor :deleted
+
 	def self.build!(data = {})
 		measurements = data.delete(:measurements)
 		Stream.transaction do
