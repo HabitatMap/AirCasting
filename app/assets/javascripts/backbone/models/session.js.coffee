@@ -45,6 +45,8 @@ class AirCasting.Models.Session extends Backbone.Model
   containsSensor: (sensor) =>
     names = _(@getStreams()).map(
       (stream) -> (
+        if(!sensor)
+          return false
         sensorName = sensor.get("sensor_name")
         measurementType = sensor.get("measurement_type")
         if(sensorName == "All" and measurementType == "All")
@@ -58,7 +60,7 @@ class AirCasting.Models.Session extends Backbone.Model
 class AirCasting.Collections.SessionsCollection extends Backbone.Collection
   model: AirCasting.Models.Session
 
-  setUrlParams: (timeFrom, timeTo, dayFrom, dayTo, includeSessionId, tags, usernames, location, distance, viewport, sensor_name, measurement_type) ->
+  setUrlParams: (timeFrom, timeTo, dayFrom, dayTo, includeSessionId, tags, usernames, location, distance, viewport, sensor_name, measurement_type, sensor_name, measurement_type) ->
     @timeFrom = timeFrom
     @timeTo = timeTo
     @dayFrom = dayFrom

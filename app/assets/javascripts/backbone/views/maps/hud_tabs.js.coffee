@@ -65,7 +65,6 @@ class AC.Views.Maps.HudTabs extends Backbone.View
   showPermalink: ->
     data = @currentView.permalinkData()
     data.activeTab = if @currentView == @crowdMapView then "crowdMap" else "sessions"
-
     query = escape JSON.stringify(data)
     link = window.location.protocol + "//" + window.location.host +  "/map?map_state=#{query}"
 
