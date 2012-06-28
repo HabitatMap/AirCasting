@@ -125,7 +125,7 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     $("section.graph").css(width: width)
 
   toggleGraph: ->
-    if @parent.numberOfSelected() == 1
+    if @parent.numberOfSelectedSessions() == 1
       @$("#graph-box").toggle()
       @$("#graph-arrow").toggleClass("collapsed")
       @$("#graph-header").toggleClass("collapsed")

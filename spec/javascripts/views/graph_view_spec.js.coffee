@@ -130,7 +130,7 @@ describe "GraphView", ->
 
   describe "graph toggling", ->
     it "should not allow expanding the graph if many sessions are selected", ->
-      @parent.numberOfSelected = -> 2
+      @parent.numberOfSelectedSessions = -> 2
 
       @view.toggleGraph()
 
@@ -138,7 +138,7 @@ describe "GraphView", ->
 
     it "should display a message if it is not available", ->
       spyOn(AC.util, "notice")
-      @parent.numberOfSelected = -> 2
+      @parent.numberOfSelectedSessions = -> 2
 
       @view.toggleGraph()
 
@@ -146,7 +146,7 @@ describe "GraphView", ->
 
     it "should draw the graph if it is available", ->
       spyOn(@view, "drawGraph")
-      @parent.numberOfSelected = -> 1
+      @parent.numberOfSelectedSessions = -> 1
 
       @view.toggleGraph()
 

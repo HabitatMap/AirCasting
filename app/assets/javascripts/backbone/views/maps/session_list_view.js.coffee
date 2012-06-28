@@ -83,15 +83,17 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     session = childView.model
     sessionId = session.get('id')
 
-    if selected && @numberOfSelected() == 0
-      @selectSensor(session)
-
-    if @numberOfSelected != 1
+    if @numberOfSelectedSessions() != 1
       @graphView.disableGraph()
 
-    if selected && @sumOfSelected() > MAX_POINTS
+    if selected && @numberOfSelectedSessions() == 0
+      @selectSensor(session)
+      @selectedSessions[sessionId] = childView.model
+      if !@downloadedData[sessionId]
+        @fetchData(sessionId, @sensorFiltered() != @parent.allSensor)
+    else if selected && @sumOfSelected() > MAX_POINTS
       @undoSelection(childView, "You are trying to select too many sessions")
-    else if selected && @numberOfSelected() > 0 && @sensorFiltered() == @parent.allSensor
+    else if selected && @numberOfSelectedSessions() > 0 && @sensorFiltered() == @parent.allSensor
       @undoSelection(childView, "Filter by sensor to view many sessions at once")
     else if selected
       @selectedSessions[sessionId] = childView.model
@@ -165,7 +167,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     sessions = (session for key, session of @selectedSessions)
     @sumOfSizes(sessions)
 
-  numberOfSelected: ->
+  numberOfSelectedSessions: ->
     Object.keys(@selectedSessions).length
 
   hideSessions: () ->
@@ -173,11 +175,15 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   hideSession: (sessionId) ->
     delete @selectedSessions[sessionId]
-
-    for line in @lines when line.sessionId == sessionId 
+    sessionLines = _(@lines).select (line) -> line.sessionId.toString() == sessionId.toString()
+    sessionMarkers = _(@markers).select (marker) -> marker.sessionId.toString() == sessionId.toString()
+    for line in sessionLines 
       line.setMap(null)
-    for marker in @markers when marker.sessionId == sessionId
+    for marker in sessionMarkers
       marker.setMap(null)
+
+    @lines = _(@lines).without(sessionLines)
+    @markers = _(@markers).without(sessionMarkers)
 
     oldNotes = @notes
     @notes = []
@@ -197,7 +203,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
       if @selectedSessions[sessionId] && withDraw
         @drawSession(sessionId)
-
+        @adjustViewport()
       AC.util.spinner.stopTask()
 
   selectSessionByToken: (sessionData) ->
@@ -292,7 +298,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     for note in @downloadedData[id].notes || []
       @drawNote(session, note)
 
-    if @numberOfSelected() == 1
+    if @numberOfSelectedSessions() == 1
       @graphView.drawGraph()
 
     AC.util.spinner.stopTask()
