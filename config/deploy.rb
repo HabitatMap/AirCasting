@@ -20,6 +20,8 @@ require "rvm/capistrano"
 require 'capistrano/ext/multistage'
 require 'bundler/capistrano'
 
+set :application, "aircasting"
+
 set :rvm_ruby_string, '1.9.2-p290'
 set :rvm_type,   :system
 set :rvm_path,              "/usr/local/rvm"
@@ -32,7 +34,6 @@ set :bundle_flags,    "--deployment --quiet"
 set :bundle_without,  [:development, :test]
 set :bundle_cmd, "LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' bundle"
 
-set :application, "aircasting"
 
 set :repository,  "git@github.com:LunarLogicPolska/AirCasting.git"
 set :scm, "git"
