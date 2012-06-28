@@ -154,6 +154,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     })
 
   unselectSession: (sessionId) ->
+    delete @selectedSessions[sessionId]
     @itemViews[sessionId].unselect()
 
   fetchAndDraw: (sessionId) ->
