@@ -1,13 +1,11 @@
-set :host, ""
-set :branch, ENV["REV"] || ENV["REF"] || ENV["BRANCH"] || ENV["TAG"] || "master"
-set :rails_env, "staging"
-
-set :application, "aircasting"
-set :user, "rubydev"
 set :deploy_to, "/var/www/aircasting"
 set :keep_releases, 3
 
 server "", :app, :web, :db, :primary => true
+set :host, ""
+
+set :branch, ENV["REV"] || ENV["REF"] || ENV["BRANCH"] || ENV["TAG"] || "master"
+set :rails_env, "staging"
 
 namespace :deploy do
   task :start do ; end

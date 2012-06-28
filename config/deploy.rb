@@ -17,10 +17,9 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 require "rvm/capistrano"
-require 'capistrano/ext/multistage'
 require 'bundler/capistrano'
+require 'capistrano/ext/multistage'
 
-set :application, "aircasting"
 
 set :rvm_ruby_string, '1.9.2-p290'
 set :rvm_type,   :system
@@ -28,22 +27,23 @@ set :rvm_path,              "/usr/local/rvm"
 set :rvm_bin_path,      "#{rvm_path}/bin"
 set :rvm_lib_path,      "#{rvm_path}/lib"
 
-set :bundle_gemfile,  "Gemfile"
-set :bundle_dir,      File.join(fetch(:shared_path), 'bundle')
-set :bundle_flags,    "--deployment --quiet"
-set :bundle_without,  [:development, :test]
-set :bundle_cmd, "LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' bundle"
 
-
+set :deploy_to, "/var/www/aircasting"
+set :application, "aircasting"
 set :repository,  "git@github.com:LunarLogicPolska/AirCasting.git"
-set :scm, "git"
+set :scm, :git
 
 set :deploy_via, :remote_cache
 set :copy_exclude, [ '.git' ]
 set :use_sudo, false
 
 set :stages, %w(staging production)
-set :default_stage, 'staging'
+
+set :bundle_gemfile,  "Gemfile"
+set :bundle_dir,      File.join(fetch(:shared_path), 'bundle')
+set :bundle_flags,    "--deployment --quiet"
+set :bundle_without,  [:development, :test]
+set :bundle_cmd, "LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' bundle"
 
 namespace :deploy do
   desc "Symlink shared files/directories"
