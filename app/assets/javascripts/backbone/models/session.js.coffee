@@ -30,8 +30,13 @@ class AirCasting.Models.Session extends Backbone.Model
     AC.util.parseTime @get('end_time')
 
   timeframe: ->
-    if @startTime()?
-      @startTime().toString('MM/dd/yy, HH:mm') + ' - ' + @endTime().toString('HH:mm')
+    timeOfStart = @startTime()
+    timeOfEnd = @endTime()
+    if timeOfStart && timeOfEnd
+      if timeOfEnd < timeOfStart
+        timeOfStart = @endTime()
+        timeOfEnd = @startTime()
+      timeOfStart.toString('MM/dd/yy, HH:mm') + ' - ' + timeOfEnd.toString('HH:mm')
     else
       ''
 
