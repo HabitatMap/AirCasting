@@ -34,7 +34,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @notes = []
     @lines = []
     @fetchingData = 0
-    @selectedSensor = options.selectedSensor || new AirCasting.Models.Sensor(sensor_name: "All", measurement_type: "All")
+    @selectedSensor = options.selectedSensor
     @parent = options.parent
 
     @infoWindow = new google.maps.InfoWindow()
@@ -48,17 +48,23 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     @graphView = new AirCasting.Views.Maps.GraphView(el: $("section.graph"), googleMap: @googleMap, parent: this)
 
+  sensorFiltered: ->
+    @selectedSensor || @parent.allSensor
+
+  sensorUsed: ->
+    @viewSensor || @selectedSensor
+
   render: ->
     $(@el).empty()
 
     @itemViews = {}
 
-    filtered = @collection.filterBySensor(@selectedSensor)
+    filtered = @collection.filterBySensor(@sensorFiltered())
     filtered.each (session) =>
       id = session.get("id")
       if id in @options.selectedIds
         @selectedSessions[id] = session
-        @fetchData(id)
+        @fetchData(id, true)
 
       itemView = new AirCasting.Views.Maps.SessionListItemView(
         model: session,
@@ -85,10 +91,11 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     if selected && @sumOfSelected() > MAX_POINTS
       @undoSelection(childView, "You are trying to select too many sessions")
-    else if selected && @numberOfSelected() > 0 && @selectedSensor == @parent.allSensor
+    else if selected && @numberOfSelected() > 0 && @sensorFiltered() == @parent.allSensor
       @undoSelection(childView, "Filter by sensor to view many sessions at once")
     else if selected
       @selectedSessions[sessionId] = childView.model
+      @fetchAndDraw(sessionId)
     else
       @hideSession(sessionId)
 
@@ -114,8 +121,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   selectSensor: (session) ->
     streams = session.get("streams")
-    if @selectedSensor != @parent.allSensor
-      @useSensor(@selectedSensor)
+    if @sensorFiltered() != @parent.allSensor
+      @useSensor(@sensorFiltered())
       @fetchAndDraw(session.get('id'))
     else if streams.length == 1
       @useSensor(@sensor(_.first(streams)))
@@ -152,7 +159,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @drawSession(sessionId)
       @adjustViewport()
     else
-      @fetchData(sessionId, => @adjustViewport())
+      @fetchData(sessionId, @sensorFiltered() != @parent.allSensor, => @adjustViewport())
 
   sumOfSelected: ->
     sessions = (session for key, session of @selectedSessions)
@@ -161,10 +168,14 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   numberOfSelected: ->
     Object.keys(@selectedSessions).length
 
+  hideSessions: () ->
+    @hideSession(session) for session in @selectedSessions
+
   hideSession: (sessionId) ->
     delete @selectedSessions[sessionId]
 
-    @lines[sessionId]?.setMap(null)
+    for line in @lines when line.sessionId == sessionId 
+      line.setMap(null)
     for marker in @markers when marker.sessionId == sessionId
       marker.setMap(null)
 
@@ -178,14 +189,13 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     @adjustViewport()
 
-  fetchData: (sessionId, callback) ->
+  fetchData: (sessionId, withDraw, callback) ->
     AC.util.spinner.startTask()
-
     $.getJSON "/api/sessions/#{sessionId}", (data) =>
       @downloadedData[sessionId] = data
       callback(data) if callback
 
-      if @selectedSessions[sessionId]
+      if @selectedSessions[sessionId] && withDraw
         @drawSession(sessionId)
 
       AC.util.spinner.stopTask()
@@ -196,8 +206,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @selectSensor(session)
 
   reset: ->
-    @$(':checkbox').attr('checked', null)
-    @$(':checkbox').trigger('change')
+    @$(':checkbox').attr('checked', null).trigger('change')
     @selectedSessions = {}
     @clear()
     @draw()
@@ -232,7 +241,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   clear: ->
     marker.setMap(null) for marker in @markers
-    line.setMap(null) for id, line of @lines
+    line.setMap(null) for line in @lines
     @markers.length = 0
     @lines.length = 0
     @notes.length = 0
@@ -267,8 +276,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     streams = @downloadedData[id].streams
     _(streams).find (stream) =>
-      stream.measurement_type == @viewSensor.get("measurement_type") &&
-        stream.sensor_name == @viewSensor.get("sensor_name")
+      stream.measurement_type == @sensorUsed().get("measurement_type") &&
+        stream.sensor_name == @sensorUsed().get("sensor_name")
 
   drawSession: (id) ->
     AC.util.spinner.startTask()
@@ -298,10 +307,11 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       geodesic: true
 
     line = new google.maps.Polyline(lineOptions)
-    @lines[sessionId] = line
+    line.sessionId = sessionId
+    @lines.push(line)
 
   drawMeasurement: (session, element, zIndex) ->
-    icon = AC.util.dbToIcon(@viewSensor, element.value)
+    icon = AC.util.dbToIcon(@sensorUsed(), element.value)
 
     if icon
       markerOptions =

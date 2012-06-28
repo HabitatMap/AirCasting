@@ -44,7 +44,7 @@ describe "GraphView", ->
     @googleMap = {}
     @session = { get: (key) -> { calibration: 100, offset_60_db: 10 }[key] }
     @measurements = [{time: new Date(1000), value: 10}, {time: new Date(2000), value: 20}]
-    @parent = { currentStream: (=> {measurements: @measurements, unit_symbol: "%"}), viewSensor: "some sensor"}
+    @parent = { currentStream: (=> {measurements: @measurements, unit_symbol: "%"}), sensorUsed: -> "some sensor"}
     @view = new AirCasting.Views.Maps.GraphView({ el: $("#test"), collection: @collection, googleMap: @googleMap, parent: @parent})
     @plot = { getData: -> [{ xaxis: { min: 10, max: 20 } }] }
     spyOn(AC.G, "getThresholds").andReturn([10, 20, 30, 40, 50])
@@ -74,7 +74,7 @@ describe "GraphView", ->
 
       @view.drawGraph()
 
-      expect(AC.util.dbRangePercentages).toHaveBeenCalledWith(@parent.viewSensor)
+      expect(AC.util.dbRangePercentages).toHaveBeenCalledWith(@parent.sensorUsed())
       expect($(".low").height()).toEqual(100)
       expect($(".mid").height()).toEqual(20)
       expect($(".midhigh").height()).toEqual(30)
@@ -87,13 +87,13 @@ describe "GraphView", ->
     it "should setup the top label", ->
       @view.drawGraph()
 
-      expect(AC.G.getThresholds).toHaveBeenCalledWith(@parent.viewSensor)
+      expect(AC.G.getThresholds).toHaveBeenCalledWith(@parent.sensorUsed())
       expect($("#graph-label-top").html()).toEqual("50 %")
 
     it "should setup the bottom label", ->
       @view.drawGraph()
 
-      expect(AC.G.getThresholds).toHaveBeenCalledWith(@parent.viewSensor)
+      expect(AC.G.getThresholds).toHaveBeenCalledWith(@parent.sensorUsed())
       expect($("#graph-label-bottom").html()).toEqual("10 %")
 
   describe "updateLabels", ->

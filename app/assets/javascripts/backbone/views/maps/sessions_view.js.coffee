@@ -69,12 +69,12 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       sensorSelector.append(rendered)
 
   selectSensor: (evt) ->
+    @sessionListView.reset()
     cid = $(@el).find("#sensor :selected").attr("value")
     if(@allSensor.cid == cid)
       @selectedSensor = @allSensor
     else
       @selectedSensor = @sensors.getByCid cid
-
     @render()
     @heatLegendSensor = @selectedSensor
     @initializeHeatLegend(false)
@@ -163,7 +163,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
   draw: (selectedSessionId) ->
     if selectedSessionId
-      @sessionListView.fetchData(selectedSessionId, (data) =>
+      @sessionListView.fetchData(selectedSessionId, true, (data) =>
         @sessionListView.selectSessionByToken(data)
         @sessionListView.render()
         @sessionListView.adjustViewport()
