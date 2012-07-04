@@ -52,7 +52,7 @@ describe Api::UserSessionsController do
       it { should respond_with(:ok) }
 
       it "should return the session" do
-        json_response.should include jsonized(session.reload, :methods => [:streams])
+        json_response.should include jsonized(session.reload, :methods => [:streams, :measurements])
       end
 
       it "should return a location for the session" do

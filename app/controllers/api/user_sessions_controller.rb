@@ -26,13 +26,15 @@ class Api::UserSessionsController < Api::BaseController
     data = JSON.parse(params[:data])
     data = deep_symbolize(data)
 
-    respond_with(current_user.sync(data), :location => nil)
+    response = current_user.sync(data)
+    print response.as_json
+    respond_with(response, :location => nil)
   end
 
   def show
     session = current_user.sessions.find_by_id(params[:id]) or raise NotFound
 
-    respond_with session.as_json(:methods => [:streams]).
+    respond_with session.as_json(:methods => [:streams, :measurements]).
       merge(:location => short_session_url(session)).
       merge(:tag_list => session.tag_list.join(" ")).
       merge(:notes => prepare_notes(session.notes))
