@@ -85,25 +85,27 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   onChildSelected: (childView, selected) ->
     session = childView.model
     sessionId = session.get('id')
-    console.log(@numberOfSelectedSessions(), selected)
-    if (@numberOfSelectedSessions() != 1) || (@numberOfSelectedSessions() == 0 && !selected)
-      @graphView.disableGraph()
-
-    if selected && @numberOfSelectedSessions() == 0
-      @selectSensor(session)
-      @selectedSessions[sessionId] = childView.model
-      if !@downloadedData[sessionId]
-        @fetchData(sessionId, @sensorFiltered() != @parent.allSensor)
-    else if selected && @sumOfSelected() > MAX_POINTS
-      @undoSelection(childView, "You are trying to select too many sessions")
-    else if selected && @numberOfSelectedSessions() > 0 && @sensorFiltered() == @parent.allSensor
-      @undoSelection(childView, "Filter by sensor to view many sessions at once")
-    else if selected
-      @selectedSessions[sessionId] = childView.model
-      @fetchAndDraw(sessionId)
+    if selected
+      if @numberOfSelectedSessions() != 1
+        @graphView.disableGraph()
+      if @numberOfSelectedSessions() == 0
+        @selectSensor(session)
+        @selectedSessions[sessionId] = childView.model
+        if !@downloadedData[sessionId]
+          @fetchData(sessionId, @sensorFiltered() != @parent.allSensor)
+      else if @sumOfSelected() > MAX_POINTS
+        @undoSelection(childView, "You are trying to select too many sessions")
+      else if @numberOfSelectedSessions() > 0 && @sensorFiltered() == @parent.allSensor
+        @undoSelection(childView, "Filter by sensor to view many sessions at once")
+      else
+        @selectedSessions[sessionId] = childView.model
+        @fetchAndDraw(sessionId)
     else
+      if @numberOfSelectedSessions() == 1
+        @graphView.disableGraph()
+        @parent.heatLegendSensor = @sensorFiltered()
+        @parent.updateLegendDisplay()
       @hideSession(sessionId)
-
     @updateToggleAll()
 
   undoSelection: (childView, reason) ->
