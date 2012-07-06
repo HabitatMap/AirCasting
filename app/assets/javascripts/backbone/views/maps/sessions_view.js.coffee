@@ -82,6 +82,9 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     else
       AC.G.thresholdsToArray(@heatLegendSensor)
 
+  isAllSensor: () ->
+    @selectedSensor.cid == @allSensor.cid
+
   selectSensor: (evt) ->
     @sessionListView.reset()
     cid = $(@el).find("#sensor :selected").attr("value")
@@ -101,7 +104,7 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     _(super()).extend {
       sessions:
         selectedSensor: @sessionListView.sensorUsed().toParams()
-        usedAllSensor: @selectedSensor.cid == @allSensor.cid
+        usedAllSensor: @isAllSensor()
         location:
           text: @$("#location").val() unless @limitToViewport()
           distance: @$("#distance").val() unless @limitToViewport()

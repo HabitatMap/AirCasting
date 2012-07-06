@@ -229,6 +229,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
   toggleAll: ->
     if @noneSelected()
+      if @parent.isAllSensor()
+        AC.util.notice("You have to select sensor to select all sessions")
+        return
       @selectAll()
     else
       @reset()
