@@ -66,7 +66,6 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     @filteredCollection = @collection.filterBySensor(@sensorFiltered())
     @filteredCollection.each (session) =>
-      console.log(session)
       id = session.get("id")
       if id in @options.selectedIds
         @selectedSessions[id] = session

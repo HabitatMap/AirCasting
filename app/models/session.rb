@@ -99,7 +99,7 @@ class Session < ActiveRecord::Base
   end
 
   def no_of_measurements
-    measurements.count
+    measurements_count || 0 #measurements.count
   end
 
   def to_param
