@@ -63,7 +63,7 @@ class AirCasting.Models.Session extends Backbone.Model
 class AirCasting.Collections.SessionsCollection extends Backbone.Collection
   model: AirCasting.Models.Session
 
-  setUrlParams: (timeFrom, timeTo, dayFrom, dayTo, includeSessionId, tags, usernames, location, distance, viewport, sensor_name, measurement_type, sensor_name, measurement_type) ->
+  setUrlParams: (timeFrom, timeTo, dayFrom, dayTo, includeSessionId, tags, usernames, location, distance, viewport, sensor_name, measurement_type) ->
     @timeFrom = timeFrom
     @timeTo = timeTo
     @dayFrom = dayFrom
@@ -95,8 +95,8 @@ class AirCasting.Collections.SessionsCollection extends Backbone.Collection
       "q[distance]=#{@distance}"
 
     if @measurement_type
-      @url += "q[sensor_name]=#{@sensor_name}" +
-      "q[measurement_type]=#{@measurement_type}"
+      @url += "&q[sensor_name]=#{@sensor_name}" +
+      "&q[measurement_type]=#{@measurement_type}"
 
     if @viewport
       @url += "&q[east]=#{@viewport.east}&" +

@@ -31,7 +31,6 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
   initialize: (options) ->
     super options
-
     @sessions = new AirCasting.Collections.SessionsCollection()
     @sessions.bind("reset", @pulseSessions)
     @sessions.bind("reset", -> AC.util.spinner.stopTask())
@@ -40,7 +39,12 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
 
     @allSensor = new AirCasting.Models.Sensor(sensor_name: "All", measurement_type: "All")
     if options.mapState.sessions?
-      @selectedSensor = new AirCasting.Models.Sensor(options.mapState.sessions.selectedSensor)
+      sensorFromParams = new AirCasting.Models.Sensor(options.mapState.sessions.selectedSensor)
+      if options.mapState.sessions.usedAllSensor
+        @selectedSensor = @allSensor
+        @sensorFromParams = sensorFromParams
+      else
+        @selectedSensor = @sensorFromParams = sensorFromParams
     
     @selectedSensor ||= @allSensor
     @sensors = new AirCasting.Collections.SensorCollection()
@@ -89,10 +93,15 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
     @heatLegendSensor = @selectedSensor
     @initializeHeatLegend(false)
 
+  setHeatLegendSensor: (sensor) ->
+    @heatLegendSensor = sensor
+    @updateLegendDisplay()
+
   permalinkData: ->
     _(super()).extend {
       sessions:
-        selectedSensor: @selectedSensor.toParams()
+        selectedSensor: @sessionListView.sensorUsed().toParams()
+        usedAllSensor: @selectedSensor.cid == @allSensor.cid
         location:
           text: @$("#location").val() unless @limitToViewport()
           distance: @$("#distance").val() unless @limitToViewport()
@@ -131,10 +140,13 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       el: $('#session-list'),
       collection: @sessions,
       selectedSensor: @selectedSensor,
+      viewSensor: @sensorFromParams,
       googleMap: @googleMap
       selectedIds: @options.mapState.sessions?.selectedIds || []
       parent: this
     ).render()
+    if @sensorFromParams
+      @updateLegendDisplay()
     @fetch()
     @populateSensors()
 

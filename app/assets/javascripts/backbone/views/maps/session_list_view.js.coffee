@@ -35,8 +35,10 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @lines = []
     @fetchingData = 0
     @selectedSensor = options.selectedSensor
+    @viewSensor = options.viewSensor
     @parent = options.parent
-
+    if @viewSensor
+      @parent.heatLegendSensor = @viewSensor
     @infoWindow = new google.maps.InfoWindow()
     google.maps.event.addListener(@infoWindow, "domready", =>
       $(".lightbox").lightBox()
@@ -103,8 +105,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     else
       if @numberOfSelectedSessions() == 1
         @graphView.disableGraph()
-        @parent.heatLegendSensor = @sensorFiltered()
-        @parent.updateLegendDisplay()
+        @parent.setHeatLegendSensor(@sensorFiltered())
       @hideSession(sessionId)
     @updateToggleAll()
 
