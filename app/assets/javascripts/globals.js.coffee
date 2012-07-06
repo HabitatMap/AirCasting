@@ -24,9 +24,16 @@ window.AirCasting.G =
     [sensor.get("measurement_type"), sensor.get("sensor_name"), name].join("-")
 
   getThresholds: (sensor) ->
+    if !$.cookie(@levelKey(sensor, _(@names).last()))
+      return
     @names.map (name) =>
       value = $.cookie(@levelKey(sensor, name))
       parseInt(value) || sensor.get(name)
+
+  thresholdsToArray: (obj) ->
+    @names.map (name) =>
+      value = obj[name] || obj.get(name)
+      parseInt(value) 
 
   saveThresholds: (sensor, thresholds) ->
     for i in [0..4]
@@ -44,8 +51,7 @@ window.AirCasting.util =
     [0xFF, 0x00, 0x00]
   ]
 
-  dbToColor: (sensor, value) ->
-    levels = AC.G.getThresholds(sensor)
+  dbToColor: (levels, value) ->
     result =
       if value < levels[0]
         null
@@ -63,8 +69,7 @@ window.AirCasting.util =
     if result
       "rgb(" + parseInt(result[0]) + "," + parseInt(result[1]) + "," + parseInt(result[2]) + ")"
 
-  dbToIcon: (sensor, value) ->
-    levels = AC.G.getThresholds(sensor)
+  dbToIcon: (levels, value) ->
     result =
       if value < levels[0]
         null
@@ -79,8 +84,7 @@ window.AirCasting.util =
       else
         null
 
-  dbRangePercentages: (sensor) ->
-    levels = AC.G.getThresholds(sensor)
+  dbRangePercentages: (levels) ->
     range = _.last(levels) - _.first(levels)
     ranges = _.map([0..2], (i) => Math.round((levels[i+1] - levels[i]) / range * 100))
     ranges.push 100 - _.reduce(ranges, (sum, x) -> sum + x)

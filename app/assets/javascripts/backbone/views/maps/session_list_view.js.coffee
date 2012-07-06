@@ -54,6 +54,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   sensorUsed: ->
     @viewSensor || @selectedSensor
 
+  getThresholds: -> 
+    @parent.getThresholds()
+
   render: ->
     $(@el).empty()
 
@@ -318,7 +321,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @lines.push(line)
 
   drawMeasurement: (session, element, zIndex) ->
-    icon = AC.util.dbToIcon(@sensorUsed(), element.value)
+    icon = AC.util.dbToIcon(@getThresholds(), element.value)
 
     if icon
       markerOptions =

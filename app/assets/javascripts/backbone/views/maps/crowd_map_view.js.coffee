@@ -22,6 +22,7 @@ AirCasting.Views.Maps ||= {}
 class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredMapView
   template: JST["backbone/templates/maps/crowd_map"]
   sensorItem: JST["backbone/templates/maps/sensor_item"]
+  thresholds: {}
 
   events: _({
     'click #reset-resolution': 'resetResolution'
@@ -49,20 +50,31 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
 
   render: ->
     super()
-
     @showSection("resolution") if @gridResolution != @defaultResolution
-
     @sensors.fetch()
-
     return this
+  getThresholds: ->
+    standardThresholds = AC.G.getThresholds(@heatLegendSensor)
+    if standardThresholds
+      return standardThresholds
+    if @thresholds[@heatLegendSensor.get("sensor_name")]
+      return @thresholds[@heatLegendSensor.get("sensor_name")]
+    result = $.ajax({
+        type: 'GET',
+        url: "/api/thresholds/" + @heatLegendSensor.get("sensor_name"),
+        dataType: 'json',
+        async: false
+    }).responseText;
+    parsedResult = _($.parseJSON(result)).map (value) => parseInt(value)
+    @thresholds[@heatLegendSensor.get("sensor_name")] = parsedResult
+
 
   selectSensor: (evt) ->
     cid = $(@el).find("#sensor :selected").attr("value")
     @selectedSensor = @sensors.getByCid cid
     @hideRegionInfo()
     @heatLegendSensor = @selectedSensor
-    @initializeHeatLegend(false)
-
+    @initializeHeatLegend()
     @fetch()
 
   populateSensors: ->
@@ -170,11 +182,11 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
     @clear()
 
     for element in @data
-      fillColor = AC.util.dbToColor(@selectedSensor, element.value)
+      fillColor = AC.util.dbToColor(@getThresholds(), element.value)
       if fillColor
         rectOptions =
           strokeWeight: 0
-          fillColor: AC.util.dbToColor(@selectedSensor, element.value)
+          fillColor: AC.util.dbToColor(@getThresholds(), element.value)
           fillOpacity: 0.35
           map: @googleMap.map
           bounds: new google.maps.LatLngBounds(

@@ -147,13 +147,11 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       midLow: @$('#mid-low-input')
       low: @$('#low-input')
     }
-
-  initializeHeatLegend: (first) ->
+  initializeHeatLegend: (useFirst) ->
     for key, input of @heatLegendInputs
       value = @initialLegendValue(key)
-      if first
+      if useFirst
         value = @options.mapState.heatLegend?[key] || value
-
       input.val(value)
       @heatLegendSliders[key]?.slider {
         min: @initialLegendValue("low")
@@ -161,7 +159,6 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
         value: value
       }
 
-    @saveHeatLegend()
     @updateLegendDisplay()
 
   resetHeatLegend: ->
@@ -175,18 +172,20 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
       @$("section#heat-legend").removeClass("display");
     else
       @$("section#heat-legend").addClass("display");
-      [low, mid, midHigh, high] = AC.util.dbRangePercentages(@heatLegendSensor)
+      [low, mid, midHigh, high] = AC.util.dbRangePercentages(@getThresholds())
       @$(".legend .low").css(width: low + "%")
       @$(".legend .mid").css(width: mid + "%")
       @$(".legend .midhigh").css(width: midHigh + "%")
       @$(".legend .high").css(width: high + "%")
-
-      [low, midLow, mid, midHigh, high] = AC.G.getThresholds(@heatLegendSensor)
+      [low, midLow, mid, midHigh, high] = @getThresholds()
       @$(".low .start").html(low + @heatLegendSensor.get("unit_symbol"))
       @$(".mid .start").html(midLow + @heatLegendSensor.get("unit_symbol"))
       @$(".midhigh .start").html(mid + @heatLegendSensor.get("unit_symbol"))
       @$(".high .start").html(midHigh + @heatLegendSensor.get("unit_symbol"))
       @$(".high .end").html(high + @heatLegendSensor.get("unit_symbol"))
+
+  getThresholds: ->
+    throw 'getThresholds() must be in implemented in children classes'
 
   saveHeatLegend: ->
     AC.G.saveThresholds(@heatLegendSensor, @currentLegendValues())
@@ -244,9 +243,8 @@ class AirCasting.Views.Maps.FilteredMapView extends Backbone.View
     midLow: "low"
   }
 
-  initialLegendValue: (key) -> 
-    levels = AC.G.getThresholds(@heatLegendSensor)
-
+  initialLegendValue: (key) ->
+    levels = @getThresholds()
     {
       high: levels[4]
       midHigh: levels[3]

@@ -68,6 +68,16 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       rendered = @sensor_template(sensor: sensor, selected: @selectedSensor.matches(sensor))
       sensorSelector.append(rendered)
 
+  getThresholds: ->
+    standardThresholds = AC.G.getThresholds(@heatLegendSensor)
+    if standardThresholds
+      return standardThresholds
+    sessions = _(@sessionListView.selectedSessions).values()
+    if sessions.length > 0
+      AC.G.thresholdsToArray(sessions[0].get("streams")[@heatLegendSensor.get("sensor_name")])
+    else
+      AC.G.thresholdsToArray(@heatLegendSensor)
+
   selectSensor: (evt) ->
     @sessionListView.reset()
     cid = $(@el).find("#sensor :selected").attr("value")

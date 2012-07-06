@@ -66,6 +66,13 @@ class Stream < ActiveRecord::Base
 			map { |stream| stream.attributes.symbolize_keys }
 	end
 
+  def self.thresholds(sensor_name)
+    select("CONCAT_WS('-', threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high) as thresholds, COUNT(*) as thresholds_count").
+    where(:sensor_name => sensor_name).
+    order("thresholds_count DESC").
+    group(:thresholds).first.thresholds.split("-")
+  end
+
 	def as_json(opts=nil)
 		opts ||= {}
 

@@ -31,7 +31,7 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     $(window).resize(@resizeGraph)
     @resizeGraph()
     @disableGraph()
-
+    
   drawGraph: ->
     stream = @parent.currentStream()
     measurements = stream.measurements
@@ -42,7 +42,7 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     data = ([AC.util.parseTime(m.time).getTime(), m.value] for m in measurements)
 
     plot = $.plot("#graph", [{data: data}], @graphOptions(measurements))
-    levels = AC.G.getThresholds(@parent.sensorUsed())
+    levels = @getThresholds()
     @$("#graph-label-top").html(_.last(levels) + " " + stream.unit_symbol)
     @$("#graph-label-bottom").html(_.first(levels) + " " + stream.unit_symbol)
 
@@ -55,6 +55,9 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     @$("#graph").bind("plotpan", (event, plot) => @updateLabels(plot))
     @updateLabels(plot)
 
+  getThresholds: ->
+    @parent.getThresholds()
+
   updateLabels: (plot) ->
     left = _.first(plot.getData()).xaxis.min
     right = _.first(plot.getData()).xaxis.max
@@ -62,7 +65,7 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
     @$("#graph-label-right").html(new Date(right).toString("HH:mm:ss"))
 
   drawGraphBackground: ->
-    [low, mid, midHigh, high] = AC.util.dbRangePercentages(@parent.sensorUsed())
+    [low, mid, midHigh, high] = AC.util.dbRangePercentages(@getThresholds())
 
     $("#graph-background .low").css(height: "100%")
     $("#graph-background .mid").css(height: mid + "%")
@@ -102,8 +105,8 @@ class AirCasting.Views.Maps.GraphView extends Backbone.View
       show: false
       zoomRange: false
       panRange: false
-      min: _.first(AC.G.getThresholds(@parent.sensorUsed()))
-      max: _.last(AC.G.getThresholds(@parent.sensorUsed()))
+      min: _.first(@getThresholds())
+      max: _.last(@getThresholds())
     grid:
       show: false
       hoverable: true
