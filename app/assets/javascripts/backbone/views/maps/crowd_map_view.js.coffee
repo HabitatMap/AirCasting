@@ -170,7 +170,8 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
         measurement_type: @selectedSensor.get("measurement_type")
       (data, status, jqXHR) =>
         @data = data
-        @draw()
+        if @parent.currentView == @parent.crowdMapView
+          @draw()
         AC.util.spinner.stopTask()
 
   clear: ->
@@ -180,7 +181,6 @@ class AirCasting.Views.Maps.CrowdMapView extends AirCasting.Views.Maps.FilteredM
 
   draw: ->
     @clear()
-
     for element in @data
       fillColor = AC.util.dbToColor(@getThresholds(), element.value)
       if fillColor
