@@ -20,7 +20,7 @@
 
 describe "AC.G", ->
   beforeEach ->
-    @sensor = new AirCasting.Models.Sensor(
+    sensor = @sensor = new AirCasting.Models.Sensor(
       measurement_type: "hadrons"
       sensor_name: "LHC"
       threshold_very_low: 1
@@ -31,8 +31,8 @@ describe "AC.G", ->
     )
     AC.G.resetThresholds(@sensor)
   describe "getThreshold", ->
-    it "should return values from the sensor by default", ->
-      expect(AC.G.getThresholds(@sensor)).toEqual([1,2,3,4,5])
+    it "should no return values by default", -> 
+      expect(AC.G.getThresholds(@sensor)).toEqual(undefined)
 
   describe "saveThresholds", ->
     it "should override the defaults", ->
@@ -42,14 +42,12 @@ describe "AC.G", ->
     it "should override the defaults per sensor", ->
       AC.G.saveThresholds(@sensor, [2,3,4,5,6])
       @sensor.set("sensor_name", "LHC2")
-      expect(AC.G.getThresholds(@sensor)).toEqual([1,2,3,4,5])
+      expect(AC.G.getThresholds(@sensor)).toEqual(undefined)
 
 describe "AC.util", ->
   describe "dbRangePercentages", ->
     it "should return ranges as percentages", ->
-      spyOn(AC.G, "getThresholds").andReturn([20, 40, 80, 200, 220])
-      expect(AC.util.dbRangePercentages()).toEqual([10, 20, 60, 10])
+      expect(AC.util.dbRangePercentages([20, 40, 80, 200, 220])).toEqual([10, 20, 60, 10])
 
     it "should round", ->
-      spyOn(AC.G, "getThresholds").andReturn([20, 60, 70, 80, 100])
-      expect(AC.util.dbRangePercentages()).toEqual([50, 13, 13, 24])
+      expect(AC.util.dbRangePercentages([20, 60, 70, 80, 100])).toEqual([50, 13, 13, 24])

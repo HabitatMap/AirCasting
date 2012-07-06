@@ -47,7 +47,7 @@ describe "GraphView", ->
     @parent = { currentStream: (=> {measurements: @measurements, unit_symbol: "%"}), sensorUsed: -> "some sensor"}
     @view = new AirCasting.Views.Maps.GraphView({ el: $("#test"), collection: @collection, googleMap: @googleMap, parent: @parent})
     @plot = { getData: -> [{ xaxis: { min: 10, max: 20 } }] }
-    spyOn(AC.G, "getThresholds").andReturn([10, 20, 30, 40, 50])
+    spyOn(@view, "getThresholds").andReturn([10, 20, 30, 40, 50])
 
   describe "drawGraph", ->
     beforeEach ->
@@ -74,7 +74,6 @@ describe "GraphView", ->
 
       @view.drawGraph()
 
-      expect(AC.util.dbRangePercentages).toHaveBeenCalledWith(@parent.sensorUsed())
       expect($(".low").height()).toEqual(100)
       expect($(".mid").height()).toEqual(20)
       expect($(".midhigh").height()).toEqual(30)
@@ -87,13 +86,11 @@ describe "GraphView", ->
     it "should setup the top label", ->
       @view.drawGraph()
 
-      expect(AC.G.getThresholds).toHaveBeenCalledWith(@parent.sensorUsed())
       expect($("#graph-label-top").html()).toEqual("50 %")
 
     it "should setup the bottom label", ->
       @view.drawGraph()
 
-      expect(AC.G.getThresholds).toHaveBeenCalledWith(@parent.sensorUsed())
       expect($("#graph-label-bottom").html()).toEqual("10 %")
 
   describe "updateLabels", ->
@@ -123,10 +120,10 @@ describe "GraphView", ->
       expect(@options.xaxis.zoomRange).toEqual([null, expected])
 
     it "should set yaxis min", ->
-      expect(@options.yaxis.min).toEqual(_.first(AC.G.getThresholds(@parent.viewSensor)))
+      expect(@options.yaxis.min).toEqual(_.first(@view.getThresholds()))
 
     it "should set yaxis max", ->
-      expect(@options.yaxis.max).toEqual(_.last(AC.G.getThresholds(@parent.viewSensor)))
+      expect(@options.yaxis.max).toEqual(_.last(@view.getThresholds()))
 
   describe "graph toggling", ->
     it "should not allow expanding the graph if many sessions are selected", ->

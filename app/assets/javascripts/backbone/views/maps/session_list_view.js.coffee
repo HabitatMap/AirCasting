@@ -85,8 +85,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
   onChildSelected: (childView, selected) ->
     session = childView.model
     sessionId = session.get('id')
-
-    if @numberOfSelectedSessions() != 1
+    console.log(@numberOfSelectedSessions(), selected)
+    if (@numberOfSelectedSessions() != 1) || (@numberOfSelectedSessions() == 0 && !selected)
       @graphView.disableGraph()
 
     if selected && @numberOfSelectedSessions() == 0

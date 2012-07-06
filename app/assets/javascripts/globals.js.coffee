@@ -23,11 +23,14 @@ window.AirCasting.G =
   levelKey: (sensor, name) ->
     [sensor.get("measurement_type"), sensor.get("sensor_name"), name].join("-")
 
+  getFromCookie: (name) ->
+    $.cookie(name)
+
   getThresholds: (sensor) ->
-    if !$.cookie(@levelKey(sensor, _(@names).last()))
+    if !@getFromCookie(@levelKey(sensor, _(@names).last()))
       return
     @names.map (name) =>
-      value = $.cookie(@levelKey(sensor, name))
+      value = @getFromCookie(@levelKey(sensor, name))
       parseInt(value) || sensor.get(name)
 
   thresholdsToArray: (obj) ->
@@ -40,7 +43,7 @@ window.AirCasting.G =
       $.cookie(@levelKey(sensor, @names[i]), thresholds[i], expires: 365)
 
   resetThresholds: (sensor) ->
-    values = @names.map (name) -> sensor.get(name)
+    values = @names.map (name) -> undefined
     @saveThresholds(sensor, values)
 
 window.AirCasting.util =
