@@ -1,19 +1,19 @@
 # AirCasting - Share your Air!
 # Copyright (C) 2011-2012 HabitatMap, Inc.
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # You can contact the authors by email at <info@habitatmap.org>
 
 class Session < ActiveRecord::Base
@@ -38,8 +38,8 @@ class Session < ActiveRecord::Base
 
   acts_as_taggable
 
-  attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list, 
-  :contribute, :notes_attributes, :data_type, :instrument, :phone_model, 
+  attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list,
+  :contribute, :notes_attributes, :data_type, :instrument, :phone_model,
   :os_version, :user, :start_time, :end_time
   attr_accessible :title, :description, :tag_list, :as => :sync
 
@@ -94,8 +94,12 @@ class Session < ActiveRecord::Base
     includes(:user).
     filter(data).as_json(
       :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time, :timezone_offset],
-      :methods => [:username, :streams]
+      :methods => [:username, :streams, :no_of_measurements]
       )
+  end
+
+  def no_of_measurements
+    measurements.count
   end
 
   def to_param

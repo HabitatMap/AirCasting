@@ -64,8 +64,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
     @itemViews = {}
 
-    filtered = @collection.filterBySensor(@sensorFiltered())
-    filtered.each (session) =>
+    @filteredCollection = @collection.filterBySensor(@sensorFiltered())
+    @filteredCollection.each (session) =>
+      console.log(session)
       id = session.get("id")
       if id in @options.selectedIds
         @selectedSessions[id] = session
@@ -238,15 +239,15 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     @updateToggleAll()
 
   selectAll: ->
-    size = @sumOfSizes(@collection)
-    if size > MAX_POINTS
-      @tooManySessions()
+    sumOfSizes = @sumOfSizes(@filteredCollection)
+    if sumOfSizes > MAX_POINTS
+      AC.util.notice("You are trying to select too many sessions")
     else
       @$(':checkbox').attr('checked', true)
       @$(':checkbox').trigger('change')
 
   sumOfSizes: (sessions) ->
-    sum = (acc, session) -> acc + session.size()
+    sum = (acc, session) -> acc + session.get("no_of_measurements")
     sessions.reduce(sum, 0)
 
   updateToggleAll: ->
