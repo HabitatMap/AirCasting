@@ -156,19 +156,19 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
         dialog.dialog("destroy")
 
-        @fetchAndDraw(session.get('id'))
+        @fetchAndDraw(session.get('id'), true)
     })
 
   unselectSession: (sessionId) ->
     delete @selectedSessions[sessionId]
     @itemViews[sessionId].unselect()
 
-  fetchAndDraw: (sessionId) ->
+  fetchAndDraw: (sessionId, forceReDraw) ->
     if @downloadedData[sessionId]
       @drawSession(sessionId)
       @adjustViewport()
     else
-      @fetchData(sessionId, @sensorFiltered() != @parent.allSensor, => @adjustViewport())
+      @fetchData(sessionId, forceReDraw || (@sensorFiltered() != @parent.allSensor), => @adjustViewport())
 
   sumOfSelected: ->
     sessions = (session for key, session of @selectedSessions)
