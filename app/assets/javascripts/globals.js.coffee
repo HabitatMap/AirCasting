@@ -33,9 +33,14 @@ window.AirCasting.G =
       value = @getFromCookie(@levelKey(sensor, name))
       parseInt(value) || sensor.get(name)
 
-  thresholdsToArray: (obj) ->
+  thresholdsObjToArray: (obj) ->
     @names.map (name) =>
-      value = obj[name] || obj.get(name)
+      value = obj[name] 
+      parseInt(value)
+
+  thresholdsModelToArray: (obj) ->
+    @names.map (name) =>
+      value = obj.get(name)
       parseInt(value) 
 
   saveThresholds: (sensor, thresholds) ->

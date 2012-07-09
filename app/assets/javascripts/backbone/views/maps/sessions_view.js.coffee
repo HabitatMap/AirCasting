@@ -78,9 +78,9 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
       return standardThresholds
     sessions = _(@sessionListView.selectedSessions).values()
     if sessions.length > 0
-      AC.G.thresholdsToArray(sessions[0].get("streams")[@heatLegendSensor.get("sensor_name")])
+      AC.G.thresholdsObjToArray(sessions[0].get("streams")[@heatLegendSensor.get("sensor_name")])
     else
-      AC.G.thresholdsToArray(@heatLegendSensor)
+      AC.G.thresholdsModelToArray(@heatLegendSensor)
 
   isAllSensor: () ->
     @selectedSensor.cid == @allSensor.cid
