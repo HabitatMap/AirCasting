@@ -23,13 +23,7 @@ require 'capistrano/ext/multistage'
 
 set :rvm_ruby_string, '1.9.2-p290'
 set :rvm_type,   :system
-set :rvm_path,              "/usr/local/rvm"
-set :rvm_bin_path,      "#{rvm_path}/bin"
-set :rvm_lib_path,      "#{rvm_path}/lib"
 
-
-set :deploy_to, "/var/www/aircasting"
-set :application, "aircasting"
 set :repository,  "git@github.com:LunarLogicPolska/AirCasting.git"
 set :scm, :git
 
@@ -40,7 +34,6 @@ set :use_sudo, false
 set :stages, %w(staging production)
 
 set :bundle_gemfile,  "Gemfile"
-set :bundle_dir,      File.join(fetch(:shared_path), 'bundle')
 set :bundle_flags,    "--deployment --quiet"
 set :bundle_without,  [:development, :test]
 set :bundle_cmd, "LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' bundle"
@@ -65,6 +58,6 @@ namespace :deploy do
 end
 
 after 'deploy:update_code', 'deploy:symlink_shared'
-after 'deploy:update_code', 'deploy:package_assets'
-after 'deploy:update_code', 'deploy:build_missing_paperclip_styles'
+#after 'deploy:update_code', 'deploy:package_assets'
+#after 'deploy:update_code', 'deploy:build_missing_paperclip_styles'
 after 'deploy:update', 'deploy:cleanup'

@@ -1,11 +1,17 @@
-set :deploy_to, "/var/www/aircasting"
-set :keep_releases, 3
+set :rvm_path,     "/usr/local/rvm"
+set :rvm_bin_path,      "#{rvm_path}/bin"
+set :rvm_lib_path,      "#{rvm_path}/lib"
 
-server "", :app, :web, :db, :primary => true
+set :deploy_to, "/var/www/aircasting"
+set :rails_env, "staging"
 set :host, ""
 
+server "", :app, :web, :db, :primary => true
 set :branch, ENV["REV"] || ENV["REF"] || ENV["BRANCH"] || ENV["TAG"] || "master"
-set :rails_env, "staging"
+set :keep_releases, 3
+
+set :application, "aircasting"
+set :bundle_dir,    File.join(fetch(:shared_path), 'bundle')
 
 namespace :deploy do
   task :start do ; end
