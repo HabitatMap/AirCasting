@@ -3,7 +3,7 @@ class MigrateMesasurementsToStreams < ActiveRecord::Migration
   def up
   	change_table :measurements do |t|
   		t.references :stream
-  	end
+    end rescue nil
 
   	Session.find_each do |session|
   		stream = Stream.create(
@@ -12,7 +12,7 @@ class MigrateMesasurementsToStreams < ActiveRecord::Migration
        :measurement_type => "Sound Level",
        :measurement_short_type => "dB",
        :unit_symbol => "dB",
-       :threshold_very_low => 20, 
+       :threshold_very_low => 20,
        :threshold_low => 60,
        :threshold_medium => 70,
        :threshold_high => 80,
