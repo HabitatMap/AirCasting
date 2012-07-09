@@ -55,6 +55,11 @@ namespace :deploy do
   task :build_missing_paperclip_styles do
     run "cd #{release_path}; RAILS_ENV=#{rails_env} bundle exec rake paperclip:refresh:missing_styles"
   end
+
+  desc "reset counters"
+  task :reset_counters do
+    run "cd #{release_path}; RAILS_ENV=#{rails_env} bundle exec rake sessions:reset_counters"
+  end
 end
 
 after 'deploy:update_code', 'deploy:symlink_shared'

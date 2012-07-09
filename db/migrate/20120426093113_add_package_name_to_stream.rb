@@ -4,11 +4,11 @@ class AddPackageNameToStream < ActiveRecord::Migration
       t.references :stream
     end rescue nil
 
-    add_column :streams, :sensor_package_name, :text
-    add_column :streams, :measurements_count, :integer
+    add_column :streams, :sensor_package_name, :text rescue nil
+    add_column :streams, :measurements_count, :integer rescue nil
 
     Session.find_each do |session|
-      stream = Stream.create(
+      stream = Stream.new(
         :sensor_name => "Phone Microphone",
         :unit_name => "decibels",
         :measurement_type => "Sound Level",
@@ -20,8 +20,9 @@ class AddPackageNameToStream < ActiveRecord::Migration
         :threshold_high => 80,
         :threshold_very_high => 100,
         :session => session,
+        :sensor_package_name => "Builtin"
       )
-
+      stream.save!
       execute "UPDATE measurements SET stream_id = #{stream.id} WHERE session_id = #{session.id}"
     end
 
