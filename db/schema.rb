@@ -80,8 +80,8 @@ ActiveRecord::Schema.define(:version => 20120426093113) do
     t.integer "threshold_high"
     t.integer "threshold_very_high"
     t.integer "session_id"
-    t.integer "measurements_count"
     t.text    "sensor_package_name"
+    t.integer "measurements_count"
   end
 
   create_table "taggings", :force => true do |t|
