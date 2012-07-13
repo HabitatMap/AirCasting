@@ -11,6 +11,10 @@ section.sessions {
   top: 255px;
   left: 10px;
 
+  .sensor-bold {
+    font-weight: bold;
+  }
+
   #sessions-top {
     position:absolute;
     top:-40px;

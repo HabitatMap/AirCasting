@@ -152,11 +152,15 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
     dialog.dialog("option", "buttons", {
       "OK": =>
         cid = dialog.find(":selected").attr("value")
-        @useSensor(sensors.getByCid(cid))
 
+        sensor = sensors.getByCid(cid)
+        @useSensor(sensor)
         dialog.dialog("destroy")
-
         @fetchAndDraw(session.get('id'), true)
+
+        @trigger 'sensor-selected',
+          sessionId: session.get('id')
+          sensorShortName: sensor.get('unit_symbol').toLowerCase()
     })
 
   unselectSession: (sessionId) ->
