@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120426093113) do
+ActiveRecord::Schema.define(:version => 20120716095423) do
 
   create_table "measurements", :force => true do |t|
     t.float    "value"
@@ -80,9 +80,12 @@ ActiveRecord::Schema.define(:version => 20120426093113) do
     t.integer "threshold_high"
     t.integer "threshold_very_high"
     t.integer "session_id"
-    t.text    "sensor_package_name"
     t.integer "measurements_count"
+    t.text    "sensor_package_name"
   end
+
+  add_index "streams", ["sensor_name", "measurement_type"], :name => "index_streams_on_sensor_name_and_measurement_type"
+  add_index "streams", ["session_id"], :name => "index_streams_on_session_id"
 
   create_table "taggings", :force => true do |t|
     t.integer  "tag_id"
