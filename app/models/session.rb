@@ -17,6 +17,7 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class Session < ActiveRecord::Base
+  self.skip_time_zone_conversion_for_attributes = [:local_start_time, :local_end_time]
   include AirCasting::FilterRange
 
   MINUTES_IN_DAY = 60 * 24

@@ -19,6 +19,7 @@
 require 'spec_helper'
 
 describe Session do
+  let(:time_in_us) { Time.now.utc.in_time_zone("Eastern Time (US & Canada)") }
   describe 'validations' do
     before { FactoryGirl.create(:session) }
 
@@ -157,4 +158,41 @@ describe Session do
       Note.exists?(note.id).should be_false
     end
   end
+
+  describe "#start_time" do
+    it "keeps time info in UTC" do
+      session = Session.new
+      time_in_utc = time_in_us.utc
+
+      session.start_time = time_in_us
+      session.start_time.to_s.should == time_in_utc.to_s
+    end
+  end
+
+  describe "#end_time" do
+    it "keeps time info in UTC" do
+      session = Session.new
+      time_in_utc = time_in_us.utc
+
+      session.end_time = time_in_us
+      session.end_time.to_s.should == time_in_utc.to_s
+    end
+  end
+
+  describe "#local_start_time" do
+    it "keeps local time info" do
+      session = Session.new
+      session.local_start_time = time_in_us
+      session.local_start_time.to_s.should == time_in_us.to_s
+    end
+  end
+
+  describe "#local_end_time" do
+    it "keeps local time info" do
+      session = Session.new
+      session.local_end_time = time_in_us
+      session.local_end_time.to_s.should == time_in_us.to_s
+    end
+  end
+
 end
