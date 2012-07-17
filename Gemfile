@@ -9,6 +9,7 @@ gem 'devise', '~> 2.0.4'
 gem 'paperclip', '~> 2.0'
 gem 'activerecord-import', '~> 0.2.9'
 gem 'coffee-script-source', '1.1.2'
+gem 'newrelic_rpm'
 
 # Gems used only for assets and not required
 # in production environments by default.
