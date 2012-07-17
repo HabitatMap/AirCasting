@@ -18,6 +18,7 @@ class SessionBuilder
     data[:user] = @user
     stream_data = data.delete(:streams)
 
+    data = build_local_start_and_end_time(data)
     session = Session.create!(data)
 
     stream_data.values.each do |a_stream|
@@ -26,6 +27,12 @@ class SessionBuilder
     end
 
     session
+  end
+
+  def build_local_start_and_end_time(session_data)
+    session_data[:local_start_time] = DateTime.iso8601 session_data[:start_time]
+    session_data[:local_end_time] = DateTime.iso8601 session_data[:end_time]
+    session_data
   end
 
   def self.prepare_notes(note_data, photos)
@@ -37,4 +44,5 @@ class SessionBuilder
   def self.normalize_tags(tags)
     tags.to_s.split(/[\s,]/).reject(&:empty?).join(',')
   end
+
 end
