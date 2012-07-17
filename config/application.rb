@@ -1,19 +1,19 @@
 # AirCasting - Share your Air!
 # Copyright (C) 2011-2012 HabitatMap, Inc.
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # You can contact the authors by email at <info@habitatmap.org>
 
 require File.expand_path('../boot', __FILE__)
@@ -34,6 +34,7 @@ require_relative '../lib/aircasting/filter_range'
 require_relative '../lib/session_builder'
 require_relative '../lib/region_info'
 require_relative '../lib/aircasting/deep_symbolize'
+require_relative '../lib/aircasting/time_to_local_in_utc'
 
 module AirCasting
   class Application < Rails::Application
@@ -42,7 +43,7 @@ module AirCasting
     # -- all .rb files in that directory are automatically loaded.
 
     # Custom directories with classes and modules you want to be autoloadable.
-    # config.autoload_paths += %W(#{config.root}/lib/aircasting)
+   # config.autoload_paths += %W(#{config.root}/lib/aircasting)
 
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named.

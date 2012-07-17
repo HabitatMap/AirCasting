@@ -84,8 +84,8 @@ ActiveRecord::Schema.define(:version => 20120717081019) do
     t.integer "threshold_high"
     t.integer "threshold_very_high"
     t.integer "session_id"
-    t.text    "sensor_package_name"
     t.integer "measurements_count"
+    t.text    "sensor_package_name"
   end
 
   add_index "streams", ["sensor_name", "measurement_type"], :name => "index_streams_on_sensor_name_and_measurement_type"

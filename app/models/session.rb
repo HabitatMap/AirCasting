@@ -41,7 +41,7 @@ class Session < ActiveRecord::Base
 
   attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list,
   :contribute, :notes_attributes, :data_type, :instrument, :phone_model,
-  :os_version, :user, :start_time, :end_time
+  :os_version, :user, :start_time, :end_time, :local_start_time, :local_end_time
   attr_accessible :title, :description, :tag_list, :as => :sync
 
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
@@ -178,6 +178,20 @@ class Session < ActiveRecord::Base
         self.notes = session_data[:notes].map { |n| Note.new(n) }
       end
     end
+  end
+
+  def local_end_time=(time)
+    if time.respond_to?(:strftime)
+      time = TimeToLocalInUTC.convert(time)
+    end
+    super(time)
+  end
+
+  def local_start_time=(time)
+    if time.respond_to?(:strftime)
+      time = TimeToLocalInUTC.convert(time)
+    end
+    super(time)
   end
 
   private
