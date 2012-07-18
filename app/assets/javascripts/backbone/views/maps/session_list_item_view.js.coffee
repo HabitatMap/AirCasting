@@ -48,6 +48,7 @@ class AirCasting.Views.Maps.SessionListItemView extends Backbone.View
   onChange: ->
     if @$(":checkbox:checked").size() > 0
       @lightUp()
+      @boldSensorShortNameIfAnySensorSelected()
     else 
       @lightDown()
       @unBoldFromSensorsList()
@@ -59,9 +60,12 @@ class AirCasting.Views.Maps.SessionListItemView extends Backbone.View
     $(@el).children(":checkbox").attr("checked", false)
 
   findAndBoldSensorShortName: (options) =>
-    # clear bolds on all spans
-
     if @model.id == options.sessionId
-      @$el.find(".#{options.sensorShortName}").addClass('sensor-bold')
+      @boldSensorShortName(options.sensorShortName)
 
-      console.log 'yey'
+  boldSensorShortNameIfAnySensorSelected: ->
+    if sensorShortName = @parent.selectedSensor.get('unit_symbol')
+      @boldSensorShortName(sensorShortName.toLowerCase())
+
+  boldSensorShortName: (sensorShortName) ->
+    @$el.find(".#{sensorShortName}").addClass('sensor-bold')
