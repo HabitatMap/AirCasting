@@ -27,3 +27,4 @@ nbproject/*
 AirCasting.iml
 .rvmrc
 config/deploy/*.rb
+config/newrelic.yml
