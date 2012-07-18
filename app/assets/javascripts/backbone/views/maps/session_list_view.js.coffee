@@ -160,7 +160,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
 
         @trigger 'sensor-selected',
           sessionId: session.get('id')
-          sensorShortName: sensor.get('unit_symbol').toLowerCase()
+          sensorName: sensor.get('sensor_name').toLowerCase().stripInnerWhiteSpaces()
     })
 
   unselectSession: (sessionId) ->

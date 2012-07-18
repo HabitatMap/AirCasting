@@ -169,8 +169,8 @@ window.AirCasting.util =
     streams = session.getStreams()
     types = _(streams).map (stream) ->
       measurement_short_type: stream.measurement_short_type
-      unit_symbol: stream.unit_symbol
+      sensor_name: stream.sensor_name.toLowerCase().stripInnerWhiteSpaces()
 
     _(types).
       sortBy((type) -> type.measurement_short_type.toLowerCase() ).
-      map( (type) -> "<span class='#{type.unit_symbol.toLowerCase()}'>#{type.measurement_short_type.toLowerCase()}</span>" ).join('<span>/</span>')
+      map( (type) -> "<span class='#{type.sensor_name}'>#{type.measurement_short_type.toLowerCase()}</span>" ).join('<span>/</span>')

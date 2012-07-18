@@ -61,11 +61,11 @@ class AirCasting.Views.Maps.SessionListItemView extends Backbone.View
 
   findAndBoldSensorShortName: (options) =>
     if @model.id == options.sessionId
-      @boldSensorShortName(options.sensorShortName)
+      @boldSensorShortName(options.sensorName)
 
   boldSensorShortNameIfAnySensorSelected: ->
-    if sensorShortName = @parent.selectedSensor.get('unit_symbol')
-      @boldSensorShortName(sensorShortName.toLowerCase())
+    if sensor_name = @parent.selectedSensor.get('sensor_name')
+      @boldSensorShortName(sensor_name.toLowerCase().stripInnerWhiteSpaces())
 
-  boldSensorShortName: (sensorShortName) ->
-    @$el.find(".#{sensorShortName}").addClass('sensor-bold')
+  boldSensorShortName: (cssClass) ->
+    @$el.find(".#{cssClass}").addClass('sensor-bold')
