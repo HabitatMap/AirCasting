@@ -167,7 +167,10 @@ window.AirCasting.util =
 
   sortedShortTypes: (session) ->
     streams = session.getStreams()
-    types = _(streams).map (stream) -> stream.measurement_short_type
+    types = _(streams).map (stream) ->
+      measurement_short_type: stream.measurement_short_type
+      unit_symbol: stream.unit_symbol
+
     _(types).
-      sortBy((type) -> type.toLowerCase() ).
-      map( (type) -> "<span class='#{type.toLowerCase()}'>#{type.toLowerCase()}</span>" ).join('<span>/</span>')
+      sortBy((type) -> type.measurement_short_type.toLowerCase() ).
+      map( (type) -> "<span class='#{type.unit_symbol.toLowerCase()}'>#{type.measurement_short_type.toLowerCase()}</span>" ).join('<span>/</span>')
