@@ -76,7 +76,7 @@ class Session < ActiveRecord::Base
       sessions = sessions.where(:id => session_ids)
     end
 
-    if data[:time_from] && data[:time_to]
+    if data[:time_from] && data[:time_to] && !whole_day?(data[:time_from], data[:time_to])
       session_ids = Measurement.joins(:session).
       time_range(data[:time_from], data[:time_to]).
       select('DISTINCT session_id').map(&:session_id)
@@ -91,12 +91,18 @@ class Session < ActiveRecord::Base
     sessions
   end
 
+  # time is in minutes from 00:00 to 23:59
+  def self.whole_day?(time_from, time_to)
+    time_from == 0 && time_to == 1439
+  end
+
   def self.filtered_json(data)
     includes(:user).
-    filter(data).includes(:streams).as_json(
-      :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time, :timezone_offset],
-      :methods => [:username, :streams, :no_of_measurements]
-      )
+      includes(:streams).
+      filter(data).as_json(
+        :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time, :timezone_offset],
+        :methods => [:username, :streams, :no_of_measurements]
+    )
   end
 
   def no_of_measurements

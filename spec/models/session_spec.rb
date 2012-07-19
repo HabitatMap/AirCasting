@@ -107,6 +107,15 @@ describe Session do
 
       Session.filter(:time_from => from, :time_to => to).all.should == [session]
     end
+
+    it "should not filter by time period if time range is a whole day" do
+      from = 0
+      to = 1439 # 23:59
+
+      Measurement.should_not_receive(:time_range).with(from, to).and_return(stub.as_null_object)
+
+      Session.filter(:time_from => from, :time_to => to).all
+    end
   end
 
   describe '.filtered_json' do
