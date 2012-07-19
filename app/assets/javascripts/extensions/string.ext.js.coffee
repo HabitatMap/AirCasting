@@ -1,2 +1,2 @@
 String::stripInnerWhiteSpaces = ->
-  this.replace(/\s/,"")
+  this.replace(/\s+/g,"")
