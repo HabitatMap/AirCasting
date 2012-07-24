@@ -54,3 +54,7 @@ group :test, :development do
   gem 'rb-inotify', :require => false
   gem 'jasmine', :git => "https://github.com/pivotal/jasmine-gem.git"
 end
+
+group :production do
+  gem 'unicorn'
+end
