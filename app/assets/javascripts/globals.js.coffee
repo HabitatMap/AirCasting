@@ -173,4 +173,4 @@ window.AirCasting.util =
 
     _(types).
       sortBy((type) -> type.measurement_short_type.toLowerCase() ).
-      map( (type) -> "<span class='#{type.sensor_name}'>#{type.measurement_short_type.toLowerCase()}</span>" ).join('<span>/</span>')
+      map( (type) -> "<span class='#{type.sensor_name}'>#{type.measurement_short_type}</span>" ).join('<span>/</span>')
