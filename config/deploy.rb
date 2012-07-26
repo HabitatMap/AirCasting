@@ -38,6 +38,14 @@ set :bundle_flags,    "--deployment --quiet"
 set :bundle_without,  [:development, :test]
 set :bundle_cmd, "LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' bundle"
 
+namespace :rake do
+  # run like: cap staging rake:invoke task=a_certain_task
+  desc "Run a task on a remote server."
+  task :invoke, :roles => :db do
+    run("cd #{deploy_to}/current; bundle exec rake #{ENV['task']} RAILS_ENV=#{rails_env}")
+  end
+end
+
 namespace :deploy do
   desc "Symlink shared files/directories"
   task :symlink_shared do
