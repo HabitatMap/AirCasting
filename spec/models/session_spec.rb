@@ -44,6 +44,33 @@ describe Session do
     it { should allow_mass_assignment_of :os_version }
   end
 
+  describe '#local_time_range' do
+    it "should include sessions with local_start_time or local_end_time inside time range" do
+      time = Time.now
+
+      from = time.hour * 60 + time.min
+      to = (time.hour + 1) * 60 + time.min
+
+      session = FactoryGirl.create(
+        :session,
+        :local_start_time => time - 1.minute,
+        :local_end_time => time + 1.minute
+      )
+      session1 = FactoryGirl.create(
+        :session,
+        :local_start_time => time - 2.minute,
+        :local_end_time => time - 1.minute
+      )
+      session2 = FactoryGirl.create(
+        :session,
+        :local_start_time => time + 61.minute,
+        :local_end_time => time + 71.minute
+      )
+
+      Session.local_time_range_by_minutes(from, to).all.should == [session]
+    end
+  end
+
   describe "#as_json" do
     let(:m1) { FactoryGirl.create(:measurement) }
     let(:m2) { FactoryGirl.create(:measurement) }
@@ -105,13 +132,11 @@ describe Session do
       time = Time.now
       from = time.hour * 60 + time.min
       to = (time.hour + 2) * 60 + time.min
-      stream = FactoryGirl.create(:stream)
-      session = FactoryGirl.create(:session, :streams => [stream])
-      m1 = FactoryGirl.create(:measurement, :time => time - 1.hour, :stream => stream)
-      m2 = FactoryGirl.create(:measurement, :time => time + 1.hour, :stream => stream)
+      session = FactoryGirl.create(:session, :local_start_time => time, :local_end_time => time + 1.minute)
 
       Session.filter(:time_from => from, :time_to => to).all.should == [session]
     end
+
 
     it "should not filter by time period if time range is a whole day" do
       from = 0

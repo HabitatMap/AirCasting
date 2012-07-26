@@ -46,6 +46,20 @@ class Session < ActiveRecord::Base
   :os_version, :user, :start_time, :end_time, :local_start_time, :local_end_time
   attr_accessible :title, :description, :tag_list, :as => :sync
 
+  scope :local_time_range_by_minutes, lambda { |start_minutes, end_minutes|
+    field_in_minutes = lambda { |field|
+      "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{field}))"
+    }
+
+    where "
+      (#{field_in_minutes.call('local_start_time')} BETWEEN :start_minutes AND :end_minutes)
+      OR
+      (#{field_in_minutes.call('local_end_time')} BETWEEN :start_minutes AND :end_minutes)
+      OR
+      (:start_minutes BETWEEN #{field_in_minutes.call('local_start_time')} AND #{field_in_minutes.call('local_end_time')})
+    ", :start_minutes => start_minutes, :end_minutes => end_minutes
+  }
+
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
 
   def self.filter(data={})
@@ -79,11 +93,8 @@ class Session < ActiveRecord::Base
     end
 
     if data[:time_from] && data[:time_to] && !whole_day?(data[:time_from], data[:time_to])
-      session_ids = Measurement.joins(:session).
-      time_range(data[:time_from], data[:time_to]).
-      select('DISTINCT session_id').map(&:session_id)
-
-      sessions = sessions.where(:id => session_ids)
+      sessions = sessions.
+        local_time_range_by_minutes(data[:time_from], data[:time_to])
     end
 
     if (id = data[:include_session_id]).present?
