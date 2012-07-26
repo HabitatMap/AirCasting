@@ -100,7 +100,7 @@ class Session < ActiveRecord::Base
     includes(:user).
       includes(:streams).
       filter(data).as_json(
-        :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time, :end_time, :timezone_offset],
+        :only => [:id, :created_at, :title, :calibration, :offset_60_db, :local_start_time, :local_end_time, :timezone_offset],
         :methods => [:username, :streams, :no_of_measurements]
     )
   end

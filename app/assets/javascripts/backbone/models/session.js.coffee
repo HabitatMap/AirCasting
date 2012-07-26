@@ -24,10 +24,10 @@ class AirCasting.Models.Session extends Backbone.Model
     parseInt @get('size')
 
   startTime: ->
-    AC.util.parseTime @get('start_time')
+    AC.util.parseTime @get('local_start_time')
 
   endTime: ->
-    AC.util.parseTime @get('end_time')
+    AC.util.parseTime @get('local_end_time')
 
   timeframe: ->
     timeOfStart = @startTime()
