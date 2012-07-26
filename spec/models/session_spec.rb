@@ -29,6 +29,11 @@ describe Session do
     it { should validate_uniqueness_of :url_token }
     it { should validate_presence_of :calibration }
     it { should validate_presence_of :offset_60_db }
+    it { should validate_presence_of :start_time }
+    it { should validate_presence_of :end_time }
+    it { should validate_presence_of :local_start_time }
+    it { should validate_presence_of :local_end_time }
+
     it { should ensure_inclusion_of(:offset_60_db).in_range(-5..5) }
   end
 

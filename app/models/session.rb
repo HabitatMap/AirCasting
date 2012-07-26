@@ -28,6 +28,8 @@ class Session < ActiveRecord::Base
   has_many :streams, :inverse_of => :session, :dependent => :destroy
 
   validates :user, :uuid, :url_token, :calibration, :offset_60_db, :presence => true
+  validates :start_time, :end_time, :presence => true
+  validates :local_start_time, :local_end_time, :presence => true
   validates :url_token, :uuid, :uniqueness => true
   validates_inclusion_of :offset_60_db, :in => -5..5
 
