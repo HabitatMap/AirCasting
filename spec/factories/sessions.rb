@@ -31,7 +31,7 @@ FactoryGirl.define do
     notes_attributes { [FactoryGirl.attributes_for(:note, :session => nil)] }
     start_time {Time.now}
     end_time {Time.now + 1.minute}
-    local_start_time {Time.now}
-    local_end_time {Time.now + 1.minute}
+    start_time_local {Time.now}
+    end_time_local {Time.now + 1.minute}
   end
 end

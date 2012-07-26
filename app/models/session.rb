@@ -17,7 +17,7 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class Session < ActiveRecord::Base
-  self.skip_time_zone_conversion_for_attributes = [:local_start_time, :local_end_time]
+  self.skip_time_zone_conversion_for_attributes = [:start_time_local, :end_time_local]
   include AirCasting::FilterRange
 
   MINUTES_IN_DAY = 60 * 24
@@ -29,7 +29,7 @@ class Session < ActiveRecord::Base
 
   validates :user, :uuid, :url_token, :calibration, :offset_60_db, :presence => true
   validates :start_time, :end_time, :presence => true
-  validates :local_start_time, :local_end_time, :presence => true
+  validates :start_time_local, :end_time_local, :presence => true
   validates :url_token, :uuid, :uniqueness => true
   validates_inclusion_of :offset_60_db, :in => -5..5
 
@@ -43,7 +43,7 @@ class Session < ActiveRecord::Base
 
   attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list,
   :contribute, :notes_attributes, :data_type, :instrument, :phone_model,
-  :os_version, :user, :start_time, :end_time, :local_start_time, :local_end_time
+  :os_version, :user, :start_time, :end_time, :start_time_local, :end_time_local
   attr_accessible :title, :description, :tag_list, :as => :sync
 
   scope :local_time_range_by_minutes, lambda { |start_minutes, end_minutes|
@@ -52,11 +52,11 @@ class Session < ActiveRecord::Base
     }
 
     where "
-      (#{field_in_minutes.call('local_start_time')} BETWEEN :start_minutes AND :end_minutes)
+      (#{field_in_minutes.call('start_time_local')} BETWEEN :start_minutes AND :end_minutes)
       OR
-      (#{field_in_minutes.call('local_end_time')} BETWEEN :start_minutes AND :end_minutes)
+      (#{field_in_minutes.call('end_time_local')} BETWEEN :start_minutes AND :end_minutes)
       OR
-      (:start_minutes BETWEEN #{field_in_minutes.call('local_start_time')} AND #{field_in_minutes.call('local_end_time')})
+      (:start_minutes BETWEEN #{field_in_minutes.call('start_time_local')} AND #{field_in_minutes.call('end_time_local')})
     ", :start_minutes => start_minutes, :end_minutes => end_minutes
   }
 
@@ -113,7 +113,7 @@ class Session < ActiveRecord::Base
     includes(:user).
       includes(:streams).
       filter(data).as_json(
-        :only => [:id, :created_at, :title, :calibration, :offset_60_db, :local_start_time, :local_end_time, :timezone_offset],
+        :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time_local, :end_time_local, :timezone_offset],
         :methods => [:username, :streams, :no_of_measurements]
     )
   end
@@ -199,14 +199,14 @@ class Session < ActiveRecord::Base
     end
   end
 
-  def local_end_time=(time)
+  def end_time_local=(time)
     if time.respond_to?(:strftime)
       time = TimeToLocalInUTC.convert(time)
     end
     super(time)
   end
 
-  def local_start_time=(time)
+  def start_time_local=(time)
     if time.respond_to?(:strftime)
       time = TimeToLocalInUTC.convert(time)
     end

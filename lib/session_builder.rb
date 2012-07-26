@@ -30,8 +30,8 @@ class SessionBuilder
   end
 
   def build_local_start_and_end_time(session_data)
-    session_data[:local_start_time] = DateTime.iso8601 session_data[:start_time]
-    session_data[:local_end_time] = DateTime.iso8601 session_data[:end_time]
+    session_data[:start_time_local] = DateTime.iso8601 session_data[:start_time]
+    session_data[:end_time_local] = DateTime.iso8601 session_data[:end_time]
     session_data
   end
 

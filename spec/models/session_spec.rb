@@ -31,8 +31,8 @@ describe Session do
     it { should validate_presence_of :offset_60_db }
     it { should validate_presence_of :start_time }
     it { should validate_presence_of :end_time }
-    it { should validate_presence_of :local_start_time }
-    it { should validate_presence_of :local_end_time }
+    it { should validate_presence_of :start_time_local }
+    it { should validate_presence_of :end_time_local }
 
     it { should ensure_inclusion_of(:offset_60_db).in_range(-5..5) }
   end
@@ -45,7 +45,7 @@ describe Session do
   end
 
   describe '#local_time_range' do
-    it "should include sessions with local_start_time or local_end_time inside time range" do
+    it "should include sessions with start_time_local or end_time_local inside time range" do
       time = Time.now
 
       from = time.hour * 60 + time.min
@@ -53,18 +53,18 @@ describe Session do
 
       session = FactoryGirl.create(
         :session,
-        :local_start_time => time - 1.minute,
-        :local_end_time => time + 1.minute
+        :start_time_local => time - 1.minute,
+        :end_time_local => time + 1.minute
       )
       session1 = FactoryGirl.create(
         :session,
-        :local_start_time => time - 2.minute,
-        :local_end_time => time - 1.minute
+        :start_time_local => time - 2.minute,
+        :end_time_local => time - 1.minute
       )
       session2 = FactoryGirl.create(
         :session,
-        :local_start_time => time + 61.minute,
-        :local_end_time => time + 71.minute
+        :start_time_local => time + 61.minute,
+        :end_time_local => time + 71.minute
       )
 
       Session.local_time_range_by_minutes(from, to).all.should == [session]
@@ -132,7 +132,7 @@ describe Session do
       time = Time.now
       from = time.hour * 60 + time.min
       to = (time.hour + 2) * 60 + time.min
-      session = FactoryGirl.create(:session, :local_start_time => time, :local_end_time => time + 1.minute)
+      session = FactoryGirl.create(:session, :start_time_local => time, :end_time_local => time + 1.minute)
 
       Session.filter(:time_from => from, :time_to => to).all.should == [session]
     end
@@ -219,25 +219,25 @@ describe Session do
     end
   end
 
-  describe "#local_start_time" do
+  describe "#start_time_local" do
     it "keeps local time info" do
       session = FactoryGirl.build(:session)
-      session.local_start_time = time_in_us
+      session.start_time_local = time_in_us
 
       session.save
       session.reload
-      session.local_start_time.strftime('%FT%T').should == time_in_us.strftime('%FT%T')
+      session.start_time_local.strftime('%FT%T').should == time_in_us.strftime('%FT%T')
 
     end
   end
 
-  describe "#local_end_time" do
+  describe "#end_time_local" do
     it "keeps local time info" do
       session = FactoryGirl.build(:session)
-      session.local_end_time = time_in_us
+      session.end_time_local = time_in_us
       session.save
       session.reload
-      session.local_end_time.strftime('%FT%T').should == time_in_us.strftime('%FT%T')
+      session.end_time_local.strftime('%FT%T').should == time_in_us.strftime('%FT%T')
     end
   end
 

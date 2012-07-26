@@ -92,8 +92,8 @@ describe SessionBuilder do
     it 'adds timezone offset to start_time and end_time and saves it as a local time' do
       data = subject.build_local_start_and_end_time(session_data)
 
-      data[:local_start_time].should == start_time
-      data[:local_end_time].should == end_time
+      data[:start_time_local].should == start_time
+      data[:end_time_local].should == end_time
       data[:some].should == :data
       data[:notes].should == :note_data
     end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120717081019) do
+ActiveRecord::Schema.define(:version => 20120726143638) do
 
   create_table "measurements", :force => true do |t|
     t.float    "value"
@@ -58,16 +58,16 @@ ActiveRecord::Schema.define(:version => 20120717081019) do
     t.integer  "offset_60_db"
     t.datetime "start_time"
     t.datetime "end_time"
-    t.integer  "measurements_count"
     t.integer  "timezone_offset"
-    t.datetime "local_start_time"
-    t.datetime "local_end_time"
+    t.datetime "start_time_local"
+    t.datetime "end_time_local"
+    t.integer  "measurements_count"
   end
 
   add_index "sessions", ["end_time"], :name => "index_sessions_on_end_time"
-  add_index "sessions", ["local_end_time"], :name => "index_sessions_on_local_end_time"
-  add_index "sessions", ["local_start_time"], :name => "index_sessions_on_local_start_time"
+  add_index "sessions", ["end_time_local"], :name => "index_sessions_on_local_end_time"
   add_index "sessions", ["start_time"], :name => "index_sessions_on_start_time"
+  add_index "sessions", ["start_time_local"], :name => "index_sessions_on_local_start_time"
   add_index "sessions", ["url_token"], :name => "index_sessions_on_url_token"
   add_index "sessions", ["user_id"], :name => "index_sessions_on_user_id"
   add_index "sessions", ["uuid"], :name => "index_sessions_on_uuid"
