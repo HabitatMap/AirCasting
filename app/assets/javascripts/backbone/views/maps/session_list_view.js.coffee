@@ -241,6 +241,9 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @reset()
     @updateToggleAll()
 
+  clearSelectedSessions: ->
+    @reset()
+
   selectAll: ->
     sumOfSizes = @sumOfSizes(@filteredCollection)
     if sumOfSizes > MAX_POINTS

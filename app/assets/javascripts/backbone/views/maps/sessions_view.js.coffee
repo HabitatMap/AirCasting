@@ -167,6 +167,9 @@ class AirCasting.Views.Maps.SessionsView extends AirCasting.Views.Maps.FilteredM
   toggleAllSessions: (skipRefilter) ->
     @sessionListView.toggleAll()
 
+  clearSelectedSessions: ->
+    @sessionListView.clearSelectedSessions()
+
   fetch: ->
     tags = @$('#tags').val()
     usernames = @$('#usernames').val()

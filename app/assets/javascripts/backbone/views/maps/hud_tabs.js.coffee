@@ -88,6 +88,7 @@ class AC.Views.Maps.HudTabs extends Backbone.View
     return false if @currentView == @sessionsView
 
     @currentView = @sessionsView
+    @sessionsView.clearSelectedSessions()
     @updateUi(options)
     return false
 
