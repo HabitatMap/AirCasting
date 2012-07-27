@@ -58,10 +58,10 @@ ActiveRecord::Schema.define(:version => 20120726143638) do
     t.integer  "offset_60_db"
     t.datetime "start_time"
     t.datetime "end_time"
+    t.integer  "measurements_count"
     t.integer  "timezone_offset"
     t.datetime "start_time_local"
     t.datetime "end_time_local"
-    t.integer  "measurements_count"
   end
 
   add_index "sessions", ["end_time"], :name => "index_sessions_on_end_time"
@@ -84,8 +84,8 @@ ActiveRecord::Schema.define(:version => 20120726143638) do
     t.integer "threshold_high"
     t.integer "threshold_very_high"
     t.integer "session_id"
-    t.integer "measurements_count"
     t.text    "sensor_package_name"
+    t.integer "measurements_count"
   end
 
   add_index "streams", ["sensor_name", "measurement_type"], :name => "index_streams_on_sensor_name_and_measurement_type"

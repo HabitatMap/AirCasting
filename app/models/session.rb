@@ -79,8 +79,8 @@ class Session < ActiveRecord::Base
     end
 
     if (location = data[:location]).present?
-      session_ids = Measurement.near(location, data[:distance]).select('session_id').map(&:session_id)
-      sessions = sessions.where(:id => session_ids)
+      streams_ids = Measurement.near(location, data[:distance]).select('stream_id').map(&:stream_id)
+      sessions = sessions.joins(:streams).where("streams.id IN (?)", streams_ids)
     end
 
     if data[:east] && data[:west] && data[:north] && data[:south]

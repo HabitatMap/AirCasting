@@ -128,6 +128,15 @@ describe Session do
       Session.filter(:west => 5, :east => 15, :south => 15, :north => 25).all.should == [session1]
     end
 
+    it "calls Measurement.near when location is set" do
+      query = {:location => "Krakow", :distance => 10}
+      measurements = mock("measurements")
+      measurements.should_receive(:select).with('stream_id').and_return(stub(:map => []))
+      Measurement.should_receive(:near).with(query[:location], query[:distance]).and_return(measurements)
+
+      Session.filter(:location => "Krakow", :distance => 10).all
+    end
+
     it "should include sessions with any points inside the time period" do
       time = Time.now
       from = time.hour * 60 + time.min
