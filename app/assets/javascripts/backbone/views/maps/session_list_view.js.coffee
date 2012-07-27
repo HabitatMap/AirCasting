@@ -91,8 +91,8 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       if @numberOfSelectedSessions() != 1
         @graphView.disableGraph()
       if @numberOfSelectedSessions() == 0
-        @selectSensor(session)
         @selectedSessions[sessionId] = childView.model
+        @selectSensor(session)
         if !@downloadedData[sessionId]
           @fetchData(sessionId, @sensorFiltered() != @parent.allSensor)
       else if @sumOfSelected() > MAX_POINTS
