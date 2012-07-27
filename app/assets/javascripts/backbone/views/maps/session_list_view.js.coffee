@@ -139,7 +139,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       @displaySensorDialog(session)
 
   displaySensorDialog: (session) ->
-    content = $('<div><p>Select a Parameter - Sensor</p><select id="sensors"></select></div>')
+    content = $('<div><p>Select sensor stream to display</p><select id="sensors"></select></div>')
 
     sensors = new AirCasting.Collections.SensorCollection()
     sensors.add(@sensor(stream)) for stream in session.getStreams()
@@ -148,7 +148,7 @@ class AirCasting.Views.Maps.SessionListView extends Backbone.View
       rendered = @stream_option(sensor: sensor, selected: false)
       content.find("#sensors").append(rendered)
 
-    dialog = $(content).dialog(modal: true, title: "Select sensor", close: => @unselectSession(session.get('id')))
+    dialog = $(content).dialog(modal: true, title: "Select a Parameter - Sensor", close: => @unselectSession(session.get('id')))
     dialog.dialog("option", "buttons", {
       "OK": =>
         cid = dialog.find(":selected").attr("value")
