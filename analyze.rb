@@ -27,10 +27,10 @@ end
 
 `bundle install`
 `mkdir -p analyzing`
-#`find app lib  -name \\*.rb | xargs bundle exec flog > analyzing/tortured_code.md`
+`find app lib  -name \\*.rb | xargs bundle exec flog > analyzing/tortured_code.md`
 `bundle exec rails_best_practices -g`
 `bundle exec rails_best_practices -f html .`
 `mv -f rails_best_practices_output.html analyzing/ `
-#`bundle exec flay lib/**/*.rb app/**/*.rb > analyzing/duplicates.md`
+`bundle exec flay lib/**/*.rb app/**/*.rb > analyzing/duplicates.md`
 `bundle exec churn >  analyzing/often_modified.md`
 

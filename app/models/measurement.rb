@@ -59,8 +59,8 @@ class Measurement < ActiveRecord::Base
           "round(CAST(longitude AS DECIMAL(36, 12)) / CAST(#{grid_x} AS DECIMAL(36,12)), 0) AS middle_x, " +
           "round(CAST(latitude AS DECIMAL(36, 12)) / CAST(#{grid_y} AS DECIMAL(36,12)), 0) AS middle_y "
       ).
-        where(sessions: { contribute: true }).
-        where(streams:  { measurement_type: data[:measurement_type], sensor_name: data[:sensor_name] }).
+        where(:sessions => { :contribute => true }).
+        where(:streams =>  { :measurement_type => data[:measurement_type], :sensor_name => data[:sensor_name] }).
         group("middle_x").
         group("middle_y").
         longitude_range(data[:west], data[:east]).
@@ -89,11 +89,11 @@ class Measurement < ActiveRecord::Base
 
     measurements.map do |measurement|
       {
-        value: measurement.avg.to_f,
-        west: measurement.middle_x.to_f * grid_x - grid_x / 2,
-        east: measurement.middle_x.to_f * grid_x + grid_x / 2,
-        south: measurement.middle_y.to_f * grid_y - grid_y / 2,
-        north: measurement.middle_y.to_f * grid_y + grid_y / 2
+        :value => measurement.avg.to_f,
+        :west  =>  measurement.middle_x.to_f * grid_x - grid_x / 2,
+        :east  =>  measurement.middle_x.to_f * grid_x + grid_x / 2,
+        :south  =>  measurement.middle_y.to_f * grid_y - grid_y / 2,
+        :north  =>  measurement.middle_y.to_f * grid_y + grid_y / 2
       }
     end
   end
