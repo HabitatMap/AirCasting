@@ -29,3 +29,6 @@ AirCasting.iml
 .rvmrc
 config/deploy/*.rb
 config/newrelic.yml
+
+analyzing/
+config/rails_best_practices.yml

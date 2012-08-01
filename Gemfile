@@ -58,3 +58,10 @@ end
 group :production do
   gem 'unicorn'
 end
+
+group :development do
+  gem('flog', :require => nil)
+  gem('rails_best_practices', :require => nil)
+  gem('churn', :require => nil)
+  gem('flay', :require => nil)
+end
