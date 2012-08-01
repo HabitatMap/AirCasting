@@ -127,19 +127,19 @@ class Session < ActiveRecord::Base
   end
 
   def west
-    measurements.select('MIN(longitude) AS val').to_a.first.val.to_f
+    direction("MIN", "longitude")
   end
 
   def east
-    measurements.select('MAX(longitude) AS val').to_a.first.val.to_f
+    direction("MAX", "longitude")
   end
 
   def north
-    measurements.select('MAX(latitude) AS val').to_a.first.val.to_f
+    direction("MAX", "latitude")
   end
 
   def south
-    measurements.select('MIN(latitude) AS val').to_a.first.val.to_f
+    direction("MIN", "latitude")
   end
 
   def as_json(opts=nil)
@@ -200,20 +200,25 @@ class Session < ActiveRecord::Base
   end
 
   def end_time_local=(time)
-    if time.respond_to?(:strftime)
-      time = TimeToLocalInUTC.convert(time)
-    end
-    super(time)
+    super(convert_time(time))
   end
 
   def start_time_local=(time)
-    if time.respond_to?(:strftime)
-      time = TimeToLocalInUTC.convert(time)
-    end
-    super(time)
+    super(convert_time(time))
   end
 
   private
+
+  def convert_time(time)
+    if time.respond_to?(:strftime)
+      time = TimeToLocalInUTC.convert(time)
+    end
+    time
+  end
+
+  def direction(min_or_max, longitude_or_latitude)
+    measurements.select("#{min_or_max}(#{longitude_or_latitude}) AS val").to_a.first.val.to_f
+  end
 
   def set_url_token
     tg = TokenGenerator.new

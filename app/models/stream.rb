@@ -17,13 +17,13 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class Stream < ActiveRecord::Base
-	belongs_to :session
+  belongs_to :session
 
-	has_many :measurements, :dependent => :destroy
+  has_many :measurements, :dependent => :destroy
 
-	delegate :size, :to => :measurements
+  delegate :size, :to => :measurements
 
-	validates :sensor_name,
+  validates :sensor_name,
      :sensor_package_name,
      :unit_name,
      :measurement_type,
@@ -37,34 +37,34 @@ class Stream < ActiveRecord::Base
 
   attr_accessor :deleted
 
-	def self.build!(data = {})
-		measurements = data.delete(:measurements)
-		Stream.transaction do
-			result = create!(data)
-			result.build_measurements!(measurements)
-			result
-		end
-	end
+  def self.build!(data = {})
+    measurements = data.delete(:measurements)
+    Stream.transaction do
+      result = create!(data)
+      result.build_measurements!(measurements)
+      result
+    end
+  end
 
-	def build_measurements!(data = [])
-		measurements = data.map do |measurement_data|
-			m = Measurement.new(measurement_data)
-			m.stream = self
-			m.set_timezone_offset
-			m
-		end
+  def build_measurements!(data = [])
+    measurements = data.map do |measurement_data|
+      m = Measurement.new(measurement_data)
+      m.stream = self
+      m.set_timezone_offset
+      m
+    end
 
-		result = Measurement.import measurements
-		raise "Measurement import failed!" unless result.failed_instances.empty?
-		Stream.update_counters(self.id, { :measurements_count => measurements.size })
-	end
+    result = Measurement.import measurements
+    raise "Measurement import failed!" unless result.failed_instances.empty?
+    Stream.update_counters(self.id, { :measurements_count => measurements.size })
+  end
 
-	def self.sensors
-		select("sensor_name, measurement_type, threshold_very_low, threshold_low, unit_symbol,
+  def self.sensors
+    select("sensor_name, measurement_type, threshold_very_low, threshold_low, unit_symbol,
            threshold_medium, threshold_high, threshold_very_high, count(*) as session_count").
-			group(:sensor_name, :measurement_type).
-			map { |stream| stream.attributes.symbolize_keys }
-	end
+      group(:sensor_name, :measurement_type).
+      map { |stream| stream.attributes.symbolize_keys }
+  end
 
   def self.thresholds(sensor_name)
     select("CONCAT_WS('-', threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high) as thresholds, COUNT(*) as thresholds_count").
@@ -73,12 +73,12 @@ class Stream < ActiveRecord::Base
     group(:thresholds).first.thresholds.split("-")
   end
 
-	def as_json(opts=nil)
-		opts ||= {}
+  def as_json(opts=nil)
+    opts ||= {}
 
-		methods = opts[:methods] || []
-		methods += [:size]
+    methods = opts[:methods] || []
+    methods += [:size]
 
-		super(opts.merge(:methods => methods))
+    super(opts.merge(:methods => methods))
   end
 end
