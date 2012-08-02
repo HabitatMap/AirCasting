@@ -1,0 +1,32 @@
+<div class="panel">
+  <a id="permalink"></a>
+  <a class="panel-arrow"></a>
+  <div class="panel-contents">
+    <ul id="hud-tabs">
+      <li id="crowd-map-tab-header"><a href="#">CrowdMap</a></li>
+      <li id="sessions-tab-header"><a href="#">Sessions</a></li>
+    </ul>
+
+    <div id="hud-content">
+      <div class="permalink">
+        <div class="close"></div>
+        <div class="textfield">
+          <p>
+          <label for="copy-permalink">Copy the link to share your current map view.</label>
+          <input type="text" id="copy-permalink">
+          </p>
+        </div>
+      </div>
+      <div id="crowd-map-tab">
+        <div ng-view></div>
+      </div>
+    </div>
+  </div>
+</div>
+<section aircasting-expandable_section aircasting:expandable_section >
+<p>
+  <select ng-model="selectedSensor">
+    <option ng-repeat="sensor in sensors">{{sensor.name}}</option>
+  </select>
+</p>
+</section>

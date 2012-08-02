@@ -1,0 +1,150 @@
+<section class="sessions">
+<div id="sessions-top">
+  <div class="name"><span>Sessions</span></div>
+  <ul class="buttons">
+    <li><button id="toggle-all-sessions">all</button></li>
+  </ul>
+</div>
+<div class="nomargin">
+  <div class="sessions-container">
+    <ul id="session-list"></ul>
+  </div>
+</div>
+</section>
+
+<section class="graph">
+<div id="graph-top">
+  <div id="graph-header">Sessions Graph</div>
+  <a id="graph-arrow"></a>
+</div>
+<div id="graph-box">
+  <span id="graph-label-top"></span>
+  <span id="graph-label-bottom"></span>
+  <div id="graph">
+  </div>
+  <div id="graph-background">
+    <div class="high"></div>
+    <div class="midhigh"></div>
+    <div class="mid"></div>
+    <div class="low"></div>
+  </div>
+  <div id="graph-bottom">
+    <div id="graph-label-left">Left</div>
+    <div id="graph-label-right">right</div>
+  </div>
+</div>
+</section>
+
+<div class="accordion">
+<h4 class="expanded">Parameter - Sensor</h4>
+<section class="collapsible">
+    <p>
+    <select id="sensor">
+    </select>
+    </p>
+</section>
+
+  <h4 class="expanded">Location</h4>
+  <section class="collapsible">
+
+  <div class="textfield">
+    <p>
+    <label for="location">Address, Intersection, or Zip</label>
+    <input type="text" id="location">
+    </p>
+
+    <p>
+    <label for="distance">Within</label>
+    <select id="distance">
+      <option value="1">1 Mile radius</option>
+      <option value="5">5 Mile radius</option>
+      <option value="10" selected>10 Mile radius</option>
+      <option value="20">20 Mile radius</option>
+    </select>
+    </p>
+
+    <p>
+    <input type="checkbox" id="limit-to-viewport" value="1">
+    <label for="limit-to-viewport">Limit my search to the current map view</label>
+    </p>
+  </div>
+
+  <div>
+    <ul class="buttons">
+      <li><button id="reset-location">reset</button></li>
+      <li><button class="submit">submit</button></li>
+    </ul>
+  </div>
+
+  </section>
+
+  <h4 class="expanded">Profile names</h4>
+
+  <section class="collapsible">
+
+  <div class="textfield">
+    <input type="text" id="usernames">
+  </div>
+
+  <div>
+    <ul class="buttons">
+      <li><button id="reset-usernames">reset</button></li>
+      <li><button class="submit">submit</button></li>
+    </ul>
+  </div>
+
+  </section>
+
+  <h4 class="tags">Tags</h4>
+  <section class="tags collapsible hidden">
+
+  <div class="textfield">
+    <input type="text" id="tags">
+  </div>
+  <div>
+    <ul class="buttons">
+      <li><button id="reset-tags">reset</button></li>
+      <li><button class="submit">submit</button></li>
+    </ul>
+  </div>
+  </section>
+
+  <h4 class="time">Time Range</h4>
+  <section class="time collapsible hidden">
+  <div>
+    <label>Hours:Minutes</label>
+    <div class="slider">
+      <input class="narrow time-from-label timepicker" type="text" id="time-from-label-sessions"></input>
+      <div id="time-slider"></div>
+      <input class="narrow time-to-label timepicker" type="text" id="time-to-label-sessions"></input>
+    </div>
+  </div>
+
+  <div>
+    <label>Month/Day</label>
+    <div class="slider">
+      <input class="narrow day-from-label month-day" type="text" id="day-from-label-sessions"></input>
+      <div id="day-slider"></div>
+      <input class="narrow day-to-label month-day" type="text" id="day-to-label-sessions"></input>
+    </div>
+  </div>
+
+  <!--
+  <div>
+    <label>Year</label>
+    <div class="slider">
+      <input type="text" id="year-from-label"></input>
+      <div id="year-slider"></div>
+      <input type="text" id="year-to-label"></input>
+    </div>
+  </div>
+  -->
+  <div>
+    <ul class="buttons">
+      <li><button id="reset-time">reset</button></li>
+      <li><button class="submit">submit</button></li>
+    </ul>
+  </div>
+  </section>
+
+</div>

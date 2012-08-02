@@ -1,0 +1,96 @@
+<div class="accordion">
+  <h4 ng-click="toggle('sensor')" ng-class="expandables['sensor']">Parameter - Sensor</h4>
+  <section class="collapsible" ng-show="expandables['sensor']" >
+    <p>
+      <select ng-model="selectedSensor">
+        <option ng-repeat="sensor in sensors">{{sensor.name}}</option>
+      </select>
+    </p>
+  </section>
+
+
+  <h4 ng-click="toggle('location')" ng-class="expandables['location']">Location</h4>
+  <section class="collapsible" ng-show="expandables['location']">
+    <div class="textfield">
+      <p>
+        <label>Address, Intersection, or Zip
+          <input type="text" ng-model="local.location">
+        </label>
+      </p>
+    </div>
+    <div>
+      <ul class="buttons">
+        <li><button ng-click="update()">show</li>
+      </ul>
+    </div>
+  </section>
+
+  <h4 ng-click="toggle('usernames')" ng-class="expandables['usernames']">Profile names</h4>
+  <section class="collapsible" ng-show="expandables['usernames']">
+    <div class="textfield">
+      <input type="text" ng-model="local.usernames">
+    </div>
+    <div>
+      <ul class="buttons">
+        <li><button ng-click="reset('usernames')">reset</button></li>
+        <li><button ng-click="update()">submit</button></li>
+      </ul>
+    </div>
+  </section>
+
+  <h4 ng-click="toggle('tags')" ng-class="expandables['tags']">Tags</h4>
+  <section class="collapsible" ng-show="expandables['tags']">
+    <div class="textfield">
+      <input type="text" ng-model="local.tags">
+    </div>
+    <div>
+      <ul class="buttons">
+        <li><button ng-click="reset('tags')">reset</button></li>
+        <li><button ng-click="update()">submit</button></li>
+      </ul>
+    </div>
+  </section>
+
+  <h4 ng-click="toggle('time')" ng-class="expandables['time']" >Time Range</h4>
+  <section class="collapsible" ng-show="expandables['time']">
+    <div>
+      <label>Hours:Minutes</label>
+      <div class="slider">
+        <input timepicker class="narrow" type="text" ng-model="timeFrom"></input>
+        <div slider slider-max="maxTime" slider-min="minTime" slider-value="[timeFrom, timeTo].join(',')" slider-range="true" slider-callback="onTimeSlide"></div>
+        <input timepicker class="narrow" type="text" ng-model="timeTo"></input>
+      </div>
+    </div>
+    <div>
+      <label>Month/Day</label>
+      <div class="slider">
+        <input monthday class="narrow" type="text" ng-model="dayFrom"></input>
+        <div slider slider-max="maxDay" slider-min="minDay" slider-value="[dayFrom, dayTo].join(',')" slider-range="true" slider-callback="onMonthDaySlide"></div>
+        <input monthday class="narrow" type="text" ng-model="dayTo"></input>
+      </div>
+    </div>
+    <div>
+      <ul class="buttons">
+        <li><button ng-click="reset('time')">reset</button></li>
+        <li><button ng-click="submit('time')">submit</button></li>
+      </ul>
+    </div>
+  </section>
+
+  <h4 ng-click="toggle('resolution')" ng-class="expandables['resolution']">CrowdMap Resolution</h4>
+  <section class="collapsible" ng-show="expandables['resolution']">
+    <div>
+      <div class="slider full-slider">
+        <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="gridResolution" slider-callback="onResolutionSlide" ></div>
+        <span>{{gridResolution}}</span>
+      </div>
+    </div>
+
+    <div>
+      <ul class="buttons">
+        <li><button ng-click="reset('resolution')">reset</button></li>
+        <li><button ng-click="submit('resolution')">submit</button></li>
+      </ul>
+    </div>
+  </section>
+</div>
