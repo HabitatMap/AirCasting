@@ -2,8 +2,7 @@
   <h4 ng-click="toggle('sensor')" ng-class="expandables['sensor']">Parameter - Sensor</h4>
   <section class="collapsible" ng-show="expandables['sensor']" >
     <p>
-      <select ng-model="selectedSensor">
-        <option ng-repeat="sensor in sensors">{{sensor.name}}</option>
+      <select ng-model="selectedSensor" ng-options="sensor.id as sensor.label for sensor in sensors">
       </select>
     </p>
   </section>
@@ -14,7 +13,7 @@
     <div class="textfield">
       <p>
         <label>Address, Intersection, or Zip
-          <input type="text" ng-model="local.location">
+          <input type="text" ng-model="data.location">
         </label>
       </p>
     </div>
@@ -28,7 +27,7 @@
   <h4 ng-click="toggle('usernames')" ng-class="expandables['usernames']">Profile names</h4>
   <section class="collapsible" ng-show="expandables['usernames']">
     <div class="textfield">
-      <input type="text" ng-model="local.usernames">
+      <input type="text" ng-model="data.usernames">
     </div>
     <div>
       <ul class="buttons">
@@ -41,7 +40,7 @@
   <h4 ng-click="toggle('tags')" ng-class="expandables['tags']">Tags</h4>
   <section class="collapsible" ng-show="expandables['tags']">
     <div class="textfield">
-      <input type="text" ng-model="local.tags">
+      <input type="text" ng-model="data.tags">
     </div>
     <div>
       <ul class="buttons">
@@ -56,23 +55,23 @@
     <div>
       <label>Hours:Minutes</label>
       <div class="slider">
-        <input timepicker class="narrow" type="text" ng-model="timeFrom"></input>
-        <div slider slider-max="maxTime" slider-min="minTime" slider-value="[timeFrom, timeTo].join(',')" slider-range="true" slider-callback="onTimeSlide"></div>
-        <input timepicker class="narrow" type="text" ng-model="timeTo"></input>
+        <input timepicker class="narrow" type="text" ng-model="data.time.timeFrom"></input>
+        <div slider slider-max="maxTime" slider-min="minTime" slider-value="[data.time.timeFrom, data.time.timeTo].join(',')" slider-range="true" slider-callback="onTimeSlide"></div>
+        <input timepicker class="narrow" type="text" ng-model="data.time.timeTo"></input>
       </div>
     </div>
     <div>
       <label>Month/Day</label>
       <div class="slider">
-        <input monthday class="narrow" type="text" ng-model="dayFrom"></input>
-        <div slider slider-max="maxDay" slider-min="minDay" slider-value="[dayFrom, dayTo].join(',')" slider-range="true" slider-callback="onMonthDaySlide"></div>
-        <input monthday class="narrow" type="text" ng-model="dayTo"></input>
+        <input monthday class="narrow" type="text" ng-model="data.time.dayFrom"></input>
+        <div slider slider-max="maxDay" slider-min="minDay" slider-value="[data.time.dayFrom, data.time.dayTo].join(',')" slider-range="true" slider-callback="onMonthDaySlide"></div>
+        <input monthday class="narrow" type="text" ng-model="data.time.dayTo"></input>
       </div>
     </div>
     <div>
       <ul class="buttons">
         <li><button ng-click="reset('time')">reset</button></li>
-        <li><button ng-click="submit('time')">submit</button></li>
+        <li><button ng-click="update()">submit</button></li>
       </ul>
     </div>
   </section>
@@ -81,7 +80,7 @@
   <section class="collapsible" ng-show="expandables['resolution']">
     <div>
       <div class="slider full-slider">
-        <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="gridResolution" slider-callback="onResolutionSlide" ></div>
+        <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="data.gridResolution" slider-callback="onResolutionSlide" ></div>
         <span>{{gridResolution}}</span>
       </div>
     </div>
@@ -89,7 +88,7 @@
     <div>
       <ul class="buttons">
         <li><button ng-click="reset('resolution')">reset</button></li>
-        <li><button ng-click="submit('resolution')">submit</button></li>
+        <li><button ng-click="update()">submit</button></li>
       </ul>
     </div>
   </section>
