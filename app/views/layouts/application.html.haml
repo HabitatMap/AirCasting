@@ -2,8 +2,7 @@
 %html
   %head
     %title AirCasting
-    = stylesheet_link_tag    "application"
-    = javascript_include_tag "application"
+    = stylesheet_link_tag  "application"
     = favicon_link_tag "favicon.png"
     = csrf_meta_tags
     = render :partial => 'shared/analytics'
@@ -13,3 +12,4 @@
     = render :partial => 'shared/left_hud'
     #content
       = yield
+

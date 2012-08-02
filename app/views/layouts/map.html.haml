@@ -1,5 +1,5 @@
 !!! 5
-%html
+%html(ng-app="aircasting")
   %head
     %title AirCasting
     = stylesheet_link_tag    "application"
@@ -15,14 +15,13 @@
     #hud
       = render :partial => 'shared/left_hud'
       #right-hud
+        = yield
       #ajax-loader
       #zoom-box
         .content
           #zoom-out
           #zoom-slider.slider
           #zoom-in
-
-    = yield
 
 :javascript
   window.marker1_path = '#{image_path "marker1.png"}';

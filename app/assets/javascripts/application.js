@@ -17,24 +17,17 @@
 
   You can contact the authors by email at <info@habitatmap.org>
 */
-// This is a manifest file that'll be compiled into including all the files listed below.
-// Add new JavaScript/Coffee code in separate files in this directory and they'll automatically
-// be included in the compiled file accessible from http://example.com/assets/application.js
-// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
-// the compiled file.
-//
-//= require vendor/es5-shim.min
-//= require namespace
-//= require jquery
-//= require jquery_ujs
-//= require underscore
-//= require_tree ./extensions
-//= require backbone
-//= require backbone_rails_sync
-//= require backbone_datalink
-//= require vendor/jquery.cookie
-//= require globals
-//= require backbone/air_casting
-//= require google_map
-//= require vendor/jquery.flot
-//= require_tree .
+
+//= require libs/jquery
+//= require libs/moment
+//= require libs/jquery_ui
+//= require libs/jquery.ui.timepicker
+//= require libs/angular
+//= require libs/angular-cookies
+//= require libs/underscore
+//= require libs/underscore.string.min
+//= require code/aircasting
+//= require_tree ./code/services
+//= require_tree ./code/inputs
+//= require_tree ./code/directives
+//= require_tree ./code/controllers
