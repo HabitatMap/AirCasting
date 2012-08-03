@@ -414,7 +414,6 @@ body#map {
     background:#fff;
     background:rgb(255,255,255);
     border:2px solid #858585;
-    padding:10px;
     margin-top:-2px;
 
     select {
@@ -444,16 +443,18 @@ body#map {
     }
     
     h4 {
-      margin:0 0 5px 0;
+      margin:0 10px 5px 10px;
       border-bottom: 1px dashed #ccc;
       background: url("arrow-down.png") no-repeat right center;
-      padding:5px 0;
+      padding:5px 0px;
       cursor: pointer;
       &.expanded {
         background: url("arrow-up.png") no-repeat right center;
       }
     }
     section {
+      margin-right: 10px;
+      margin-left: 10px;
       &.hidden {
         display:none;
       }
@@ -505,14 +506,14 @@ div.no-ie, div.notice {
   padding: 12px 10px;
   position: absolute;
   top: 31px;
-  width: 300px;
-  display: none;
+  width: 299px;
   
   label {
     font-weight:normal;
   }
   
   .close {
+    cursor: pointer;
     background: url("close.png") no-repeat center center;
     width: 22px;
     height: 22px;

@@ -6,6 +6,7 @@ function CrowdMapCtrl($scope, $routeParams, $http) {
   $scope.maxTime = 24 * 60 - 1;
   $scope.minDay = 1;
   $scope.maxDay = 365;
+  $scope.permalinkVisible = false;
 
   $scope.master = {
     time: {

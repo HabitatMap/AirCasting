@@ -1,6 +1,6 @@
-<div class="accordion">
+<div id="crowd-map-tab">
   <h4 ng-click="toggle('sensor')" ng-class="expandables['sensor']">Parameter - Sensor</h4>
-  <section class="collapsible" ng-show="expandables['sensor']" >
+  <section ng-show="expandables['sensor']" >
     <p>
       <select ng-model="selectedSensor" ng-options="sensor.id as sensor.label for sensor in sensors">
       </select>
@@ -9,7 +9,7 @@
 
 
   <h4 ng-click="toggle('location')" ng-class="expandables['location']">Location</h4>
-  <section class="collapsible" ng-show="expandables['location']">
+  <section ng-show="expandables['location']">
     <div class="textfield">
       <p>
         <label>Address, Intersection, or Zip
@@ -25,7 +25,7 @@
   </section>
 
   <h4 ng-click="toggle('usernames')" ng-class="expandables['usernames']">Profile names</h4>
-  <section class="collapsible" ng-show="expandables['usernames']">
+  <section ng-show="expandables['usernames']">
     <div class="textfield">
       <input type="text" ng-model="data.usernames">
     </div>
@@ -38,7 +38,7 @@
   </section>
 
   <h4 ng-click="toggle('tags')" ng-class="expandables['tags']">Tags</h4>
-  <section class="collapsible" ng-show="expandables['tags']">
+  <section ng-show="expandables['tags']">
     <div class="textfield">
       <input type="text" ng-model="data.tags">
     </div>
@@ -51,7 +51,7 @@
   </section>
 
   <h4 ng-click="toggle('time')" ng-class="expandables['time']" >Time Range</h4>
-  <section class="collapsible" ng-show="expandables['time']">
+  <section ng-show="expandables['time']">
     <div>
       <label>Hours:Minutes</label>
       <div class="slider">
@@ -77,7 +77,7 @@
   </section>
 
   <h4 ng-click="toggle('resolution')" ng-class="expandables['resolution']">CrowdMap Resolution</h4>
-  <section class="collapsible" ng-show="expandables['resolution']">
+  <section ng-show="expandables['resolution']">
     <div>
       <div class="slider full-slider">
         <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="data.gridResolution" slider-callback="onResolutionSlide" ></div>
