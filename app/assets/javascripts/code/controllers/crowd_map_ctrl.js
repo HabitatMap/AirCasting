@@ -1,6 +1,7 @@
 function CrowdMapCtrl($scope, $routeParams, $http) {
   $scope.sensors = [];
   $scope.expandables = {};
+  $scope.heatPercentage = {};
   $scope.minResolution = 10;
   $scope.maxResolution = 50;
   $scope.minTime = 0;
@@ -15,8 +16,7 @@ function CrowdMapCtrl($scope, $routeParams, $http) {
       dayFrom : $scope.minDay,
       dayTo : $scope.maxDay
     },
-    heat: {
-    },
+    heat: {},
     gridResolution : 25
   };
 
@@ -32,8 +32,8 @@ function CrowdMapCtrl($scope, $routeParams, $http) {
     $scope.expandables[name] = $scope.expandables[name] ? undefined : "expanded";
   }
 
-  $scope.update = function(formData) {
-    $scope.master = angular.copy(formData);
+  $scope.update = function() {
+    $scope.master = angular.copy($scope.data);
   };
 
   $scope.reset = function(name) {
@@ -56,14 +56,17 @@ function CrowdMapCtrl($scope, $routeParams, $http) {
   }
   $scope.onHeatChangeLow = function(event, ui) {
     $scope.data.heat.low = ui.value;
+    $scope.data.heat = angular.copy($scope.data.heat); //todo: change watcher instead of this line
     $scope.$digest();
   }
   $scope.onHeatChangeHigh = function(event, ui) {
     $scope.data.heat.high = ui.value;
+    $scope.data.heat = angular.copy($scope.data.heat);
     $scope.$digest();
   }
-   $scope.onHeatChangeMid = function(event, ui) {
+  $scope.onHeatChangeMid = function(event, ui) {
     $scope.data.heat.mid = ui.value;
+    $scope.data.heat = angular.copy($scope.data.heat);
     $scope.$digest();
   }
   $scope.onSensorsFetch = function(data, status, headers, config) {
@@ -75,7 +78,7 @@ function CrowdMapCtrl($scope, $routeParams, $http) {
     if(!$scope.selectedSensor){
       $scope.selectedSensor = _($scope.sensors).sortBy(function(sensor){
         return -1 * sensor.session_count;
-      })[0].id;
+      })[0];
     }
   }
 
@@ -91,15 +94,31 @@ function CrowdMapCtrl($scope, $routeParams, $http) {
     return {highest: parsedHeat[4], high: parsedHeat[3], mid: parsedHeat[2], low: parsedHeat[1], lowest: parsedHeat[0]};
   }
 
-  $scope.setDefaults();
-  $http.get('/api/sensors').success($scope.onSensorsFetch);
-
   $scope.$watch("selectedSensor", function(newValue, oldValue) {
     if(!newValue){
       return;
     }
-    $http.get('/api/thresholds/' + _(newValue.split("-")).last()).success($scope.onThresholdsFetch);
+    $http.get('/api/thresholds/' + newValue.sensor_name).success($scope.onThresholdsFetch);
   })
 
+  $scope.$watch("data.heat", function(newValue, oldValue) {
+    if(!newValue){
+      return;
+    }
+    var value = newValue;
+    var scale =  value.highest - value.lowest;
+    var percentageHeat = {
+     highest: Math.round(((value.highest - value.high) / scale) * 100),
+     high :  Math.round(((value.high - value.mid) / scale) * 100),
+     mid : Math.round(((value.mid - value.low) / scale) * 100)
+    };
+    percentageHeat.low =  (100 - percentageHeat.highest - percentageHeat.high - percentageHeat.mid);
+    _(["highest", "high", "mid", "low"]).each(function(heat){
+      $scope.heatPercentage[heat] = {width: percentageHeat[heat] + "%"};
+    })
+  })
+
+  $scope.setDefaults();
+  $http.get('/api/sensors').success($scope.onSensorsFetch);
 }
 CrowdMapCtrl.$inject = ['$scope', '$routeParams', '$http'];

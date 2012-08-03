@@ -28,3 +28,24 @@
     </ul>
   </div>
 </section>
+
+<section>
+<div>
+  <ul class="legend">
+    <li class="low" ng-style="$parent.heatPercentage.low">
+      <span class="start">{{$parent.data.heat.lowest}}{{$parent.selectedSensor.unit_symbol}}</span>
+    </li>
+    <li class="mid" ng-style="$parent.heatPercentage.mid">
+      <span class="start">{{$parent.data.heat.low}}{{$parent.selectedSensor.unit_symbol}}</span>
+    </li>
+    <li class="high" ng-style="$parent.heatPercentage.high">
+      <span class="start">{{$parent.data.heat.mid}}{{$parent.selectedSensor.unit_symbol}}</span>
+    </li>
+    <li class="highest" ng-style="$parent.heatPercentage.highest">
+      <span class="start">{{$parent.data.heat.high}}{{$parent.selectedSensor.unit_symbol}}</span>
+      <span class="end">{{$parent.data.heat.higest}}{{$parent.selectedSensor.unit_symbol}}</span>
+    </li>
+  </ul>
+  </div>
+</section>
+

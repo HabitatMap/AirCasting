@@ -6,7 +6,6 @@ angular.module("aircasting").directive('monthday', function(){
         return moment('01/01').add("days", modelValue - 1).format('MM/DD');
       });
       ctrl.$parsers.unshift(function(viewValue) {
-        console.log(ctrl,viewValue)
         return Date.parse(viewValue);
       });
       $(element).datepicker({dateFormat: 'mm/dd'});

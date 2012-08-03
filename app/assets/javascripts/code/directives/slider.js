@@ -16,7 +16,6 @@ angular.module("aircasting").directive('slider', function (){
         if(!newValue) {
           return;
         }
-        console.log(newValue, "min")
         $(element).slider("option", "min", newValue);
       });
       scope.$watch(attrs.sliderMax, function(newValue, oldValue) {
