@@ -1,0 +1,30 @@
+<h4 ng-click="$parent.toggle('heat')" ng-class="$parent.expandables['heat']">Heat Legend Units</h4>
+<section ng-show="$parent.expandables['heat']">
+  <div class="slider">
+    <input type="number" ng-model="$parent.data.heat.highest" class="highest narrow"></input>
+    <p class="small-text">values greater than this won't be displayed</p>
+  </div>
+  <div class="slider wide-slider">
+    <input type="number" ng-model="$parent.data.heat.high" class="high narrow"></input>
+    <div slider slider-max="$parent.data.heat.highest - 1" slider-min="$parent.data.heat.mid + 1" slider-value="$parent.data.heat.high" slider-callback="$parent.onHeatChangeHigh"></div>
+  </div>
+  <div class="slider wide-slider">
+    <input type="number" ng-model="data.heat.mid" class="mid narrow"></input>
+    <div slider slider-max="$parent.data.heat.high - 1" slider-min="$parent.data.heat.low + 1" slider-value="$parent.data.heat.mid" slider-callback="$parent.onHeatChangeMid"></div>
+  </div>
+  <div class="slider wide-slider">
+    <input type="number" ng-model="data.heat.low" class="low narrow"></input>
+    <div slider slider-max="$parent.data.heat.mid - 1" slider-min="$parent.data.heat.lowest + 1" slider-value="$parent.data.heat.low" slider-callback="$parent.onHeatChangeLow"></div>
+  </div>
+  <div class="slider">
+    <input type="number" ng-model="$parent.data.heat.lowest" class="lowest narrow"></input>
+    <p class="small-text">values less than this won't be displayed</p>
+  </div>
+
+  <div>
+    <ul class="buttons">
+      <li><button ng-click="$parent.reset('heat')">reset</button></li>
+      <li><button ng-click="$parent.update()">submit</button></li>
+    </ul>
+  </div>
+</section>

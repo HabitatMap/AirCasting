@@ -139,19 +139,19 @@ body#map {
       float:right;
     }
     
-    &.high {
+    &.highest {
       border:2px solid #F4001C;
     }
-    &.mid-high {
+    &.high {
       border:2px solid #F57F22;
     }
     &.mid {
       border:2px solid #F9DC2E;
     }
-    &.mid-low {
+    &.low {
       border:2px solid #2DA641;
     }
-    &.low {
+    &.lowest {
       border:2px solid #ccc;
     }
   }
@@ -200,7 +200,7 @@ body#map {
     }
   }
   
-  .low {
+  .lowest {
     background: rgb(45,166,65);
     width:60%;
     
@@ -216,7 +216,7 @@ body#map {
     width:10%;
   }
   
-  .midhigh {
+  .high {
     background: rgb(245,127,34);
     width:10%;
     
@@ -226,7 +226,7 @@ body#map {
     }
   }
   
-  .high {
+  .highest {
     background: rgb(244,0,28);
     width:20%;
     

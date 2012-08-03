@@ -81,7 +81,7 @@
     <div>
       <div class="slider full-slider">
         <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="data.gridResolution" slider-callback="onResolutionSlide" ></div>
-        <span>{{gridResolution}}</span>
+        <span>{{data.gridResolution}}</span>
       </div>
     </div>
 
@@ -92,4 +92,5 @@
       </ul>
     </div>
   </section>
+  <div ng-include src="'/partials/heat_legend.html'"></div>
 </div>

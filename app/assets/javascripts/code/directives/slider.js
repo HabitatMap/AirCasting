@@ -3,15 +3,28 @@ angular.module("aircasting").directive('slider', function (){
     link: function(scope, element, attrs, controller) {
       var opts = {
         range: attrs.sliderRange,
-        min: scope[attrs.sliderMin],
-        max: scope[attrs.sliderMax],
+        min: scope[attrs.sliderMin] || 0,
+        max: scope[attrs.sliderMax] || 0,
         step: _.str.toNumber(attrs.sliderStep) || 1,
-        slide: scope[attrs.sliderCallback]
+        slide: attrs.sliderCallback &&  scope.$eval(attrs.sliderCallback)
       }
       if(opts.range) {
         opts.values = [opts.min, opts.max];
       }
       $(element).slider(opts);
+      scope.$watch(attrs.sliderMin, function(newValue, oldValue) {
+        if(!newValue) {
+          return;
+        }
+        console.log(newValue, "min")
+        $(element).slider("option", "min", newValue);
+      });
+      scope.$watch(attrs.sliderMax, function(newValue, oldValue) {
+        if(!newValue) {
+          return;
+        }
+        $(element).slider("option", "max", newValue);
+      });
       scope.$watch(attrs.sliderValue, function(newValue, oldValue) {
         if(!newValue) {
           return;
