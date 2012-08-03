@@ -11,7 +11,7 @@
     = render :partial => 'shared/fb_logo'
 
   %body(id="map")
-    #mapview
+    #mapview(googlemap)
     #hud
       = render :partial => 'shared/left_hud'
       #right-hud
@@ -30,3 +30,5 @@
   window.marker4_path = '#{image_path "marker4.png"}';
   window.marker_note_path = '#{image_path "marker_note.png"}';
   window.location_marker_path = '#{image_path "location_marker.png"}';
+
+

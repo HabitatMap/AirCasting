@@ -1,4 +1,4 @@
-window.aircasting = angular.module('aircasting', [], function($routeProvider, $locationProvider){
+angular.module('aircasting', ['ngCookies'], function($routeProvider, $locationProvider){
   $routeProvider.when('/map_crowd',
                       {templateUrl: 'partials/crowd_map.html', controller: CrowdMapCtrl});
   $routeProvider.when('/map_sessions',
