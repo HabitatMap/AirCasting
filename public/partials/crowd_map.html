@@ -2,11 +2,10 @@
   <h4 ng-click="toggle('sensor')" ng-class="expandables['sensor']">Parameter - Sensor</h4>
   <section ng-show="expandables['sensor']" >
     <p>
-      <select ng-model="selectedSensor" ng-options="sensor as sensor.label for sensor in sensors">
+      <select ng-model="params.data.sensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in sensors">
       </select>
     </p>
   </section>
-
 
   <h4 ng-click="toggle('location')" ng-class="expandables['location']">Location</h4>
   <section ng-show="expandables['location']">

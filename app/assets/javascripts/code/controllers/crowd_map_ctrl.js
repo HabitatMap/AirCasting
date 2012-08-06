@@ -33,11 +33,11 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
   });
 
   //
-  $scope.$watch("selectedSensor", function(newValue, oldValue) {
-    if(!newValue){
+  $scope.$watch("params.data.sensorId", function(newValue, oldValue) {
+    if(!newValue || _($scope.sensors).size() == 0){
       return;
     }
-    $http.get('/api/thresholds/' + newValue.sensor_name).success($scope.onThresholdsFetch);
+    $http.get('/api/thresholds/' + $scope.sensors[newValue].sensor_name).success($scope.onThresholdsFetch);
     //$scope.getAverages();
   })
 
@@ -102,15 +102,17 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
     $scope.$digest();
   }
   $scope.onSensorsFetch = function(data, status, headers, config) {
+    var sensors = {}
     _(data).each(function(sensor){
       sensor.id = sensor.measurement_type + "-" + sensor.sensor_name;
       sensor.label = sensor.measurement_type + " - " + sensor.sensor_name;
+      sensors[sensor.id] = sensor;
     });
-    $scope.sensors = data
-    if(!$scope.selectedSensor){
-      $scope.selectedSensor = _($scope.sensors).sortBy(function(sensor){
-        return -1 * sensor.session_count;
-      })[0];
+    $scope.sensors = sensors;
+    if(!$scope.params.data.sensorId){
+      $scope.params.data.sensorId = _($scope.sensors).chain().keys().sortBy(function(sensorId){
+        return -1 * $scope.sensors[sensorId].session_count;
+      }).first().value();
     }
   }
   $scope.onThresholdsFetch = function(data, status, headers, config) {
@@ -136,8 +138,8 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
       grid_size_y:  paramsData.gridResolution,
       tags:  paramsData.tags,
       usernames:  paramsData.usernames,
-      sensor_name:  $scope.selectedSensor.sensor_name,
-      measurement_type:  $scope.selectedSensor.measurement_type
+      sensor_name:  $scope.sensors[paramsData.sensorId].sensor_name,
+      measurement_type:  $scope.sensors[paramsData.sensorId].measurement_type
     }
     $http.get('/api/averages', data).success($scope.onAveragesFetch);
   }
