@@ -1,7 +1,6 @@
-function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils) {
-  $scope.params = paramsManager.get();
-
+function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $window, googleMapManager) {
   $scope.setDefaults = function() {
+    $scope.params = paramsManager.get();
     $scope.sensors = [];
     $scope.expandables = {};
     $scope.data = {};
@@ -17,20 +16,20 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils) {
       $scope.toggle(name);
     })
     paramsManager.update({
-      time: {
+      time:  _($scope.params.data.time).isEmpty() ? {
         timeFrom : $scope.minTime,
         timeTo : $scope.maxTime,
         dayFrom : $scope.minDay,
         dayTo : $scope.maxDay
-      },
-      heat:  heat.parse([0,1,2,3,4]),
-      gridResolution : 25,
+      } : $scope.params.data.time,
+      heat:  $scope.params.data.heat || heat.parse([0,1,2,3,4]),
+      gridResolution : $scope.params.data.gridResolution || 25,
     });
   };
 
   //update form base on params
-  $scope.$watch("params", function(newValue) {
-    _.extend($scope.data, newValue.data);
+  $scope.$watch("params.data", function(newValue) {
+    _.extend($scope.data, newValue);
   });
 
   //
@@ -39,6 +38,7 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils) {
       return;
     }
     $http.get('/api/thresholds/' + newValue.sensor_name).success($scope.onThresholdsFetch);
+    //$scope.getAverages();
   })
 
   $scope.$watch("data.heat", function(newValue, oldValue) {
@@ -63,7 +63,9 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils) {
   };
 
   $scope.update = function(name) {
-    paramsManager.update($scope.data[name]);
+    var obj = {}
+    obj[name] = $scope.data[name];
+    paramsManager.update(obj);
   };
 
   $scope.reset = function(name) {
@@ -114,8 +116,32 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils) {
   $scope.onThresholdsFetch = function(data, status, headers, config) {
     paramsManager.update({heat: heat.parse(data)})
   }
-
+  $scope.onAveragesFetch = function(data, status, headers, config) {
+  }
+  $scope.getAverages = function(){
+    var viewport = googleMapManager.viewport();
+    var paramsData = $scope.params.data;
+    var data = {
+      west: viewport.west,
+      east: viewport.east,
+      south: viewport.south,
+      north: viewport.north,
+      time_from: paramsData.time.timeFrom,
+      time_to:  paramsData.time.timeTo,
+      day_from:  paramsData.time.dayFrom,
+      day_to:  paramsData.time.dayTo,
+      year_from: 2011,
+      year_to: 2020,
+      grid_size_x: _.str.toNumber(paramsData.gridResolution) * ($($window).width() / $($window).height()),
+      grid_size_y:  paramsData.gridResolution,
+      tags:  paramsData.tags,
+      usernames:  paramsData.usernames,
+      sensor_name:  $scope.selectedSensor.sensor_name,
+      measurement_type:  $scope.selectedSensor.measurement_type
+    }
+    $http.get('/api/averages', data).success($scope.onAveragesFetch);
+  }
   $scope.setDefaults();
   $http.get('/api/sensors').success($scope.onSensorsFetch);
 }
-CrowdMapCtrl.$inject = ['$scope', '$routeParams', '$http', 'params', 'heat', 'utils'];
+CrowdMapCtrl.$inject = ['$scope', '$routeParams', '$http', 'params', 'heat', 'utils', '$window', 'googleMapManager'];

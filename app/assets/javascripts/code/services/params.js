@@ -1,7 +1,9 @@
 angular.module("aircasting").factory('params', ['$location', '$rootScope', function($location, $rootScope) {
   var self = this;
-  self.params = {data: {}};
   var scope = $rootScope.$new();
+  //set init params
+  self.params = {data :angular.fromJson($location.search().data || '{}')};
+  //add watch
   scope.$location = $location;
   scope.$watch("$location.search()", function(searchData) {
     var searchResult = angular.fromJson(searchData.data || '{}');

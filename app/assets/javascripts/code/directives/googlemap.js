@@ -1,4 +1,4 @@
-angular.module("aircasting").directive('googlemap', function($cookies){
+angular.module("aircasting").directive('googlemap', function(googleMapManager, $cookies){
   return {
     link: function(scope, element, attrs, controller) {
       var lat = $cookies.vp_lat || 38.693861956002024;
@@ -28,7 +28,7 @@ angular.module("aircasting").directive('googlemap', function($cookies){
           position: google.maps.ControlPosition.TOP_CENTER
         }
       };
-      var map = new google.maps.Map(element[0], options);
+      googleMapManager.init(element[0], options);
     }
   };
 });
