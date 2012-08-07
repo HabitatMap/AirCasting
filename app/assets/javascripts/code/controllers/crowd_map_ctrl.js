@@ -129,7 +129,7 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
     paramsManager.update({heat: heat.parse(data)});
   };
   $scope.onAveragesFetch = function(data, status, headers, config) {
-    googleMapManager.drawRectangles(data, $scope.params.data.heat, $scope.onRectangleClick);
+    googleMapManager.drawRectangles(data, _($scope.params.data.heat).values().sort(), $scope.onRectangleClick);
   };
   $scope.onRectangleClick = function() {
   };
