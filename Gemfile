@@ -40,6 +40,7 @@ end
 
 group :test, :development do
   gem 'rspec-rails', '~> 2.10.0'
+  gem 'jslint_on_rails'
   gem 'capybara'
   gem 'factory_girl_rails'
   gem 'shoulda-matchers'

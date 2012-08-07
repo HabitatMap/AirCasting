@@ -12,16 +12,16 @@
 
   %body(id="map")
     #mapview(googlemap)
-    #hud
+    #hud(ng-controller="HudCtrl" ng-hide="googleMapManager.streetViewVisible()")
       = render :partial => 'shared/left_hud'
       #right-hud
         = yield
       #ajax-loader
       #zoom-box
         .content
-          #zoom-out
-          #zoom-slider.slider
-          #zoom-in
+          #zoom-out(ng-click = "zoomStep(-1)")
+          #zoom-slider(slider=true slider-min=3 slider-max=21 slider-callback="onZoom" slider-value="googleMapManager.getZoom()")
+          #zoom-in(ng-click="zoomStep(1)")
 
 :javascript
   window.marker1_path = '#{image_path "marker1.png"}';

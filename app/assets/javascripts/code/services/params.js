@@ -11,7 +11,7 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', funct
       return;
     }
     self.params.data = searchResult;
-  })
+  });
   return {
     get: function() {
       return self.params;

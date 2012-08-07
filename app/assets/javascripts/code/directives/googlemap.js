@@ -1,13 +1,13 @@
-angular.module("aircasting").directive('googlemap', function(googleMapManager, $cookies){
+angular.module("aircasting").directive('googlemap', function(googleMapManager){
   return {
     link: function(scope, element, attrs, controller) {
-      var lat = $cookies.vp_lat || 38.693861956002024;
-      var lng = $cookies.vp_lng || -87.5;
+      var lat = googleMapManager.getMapCookie("vp_lat") || 38.693861956002024;
+      var lng = googleMapManager.getMapCookie("vp_lng") || -87.5;
       var latlng = new google.maps.LatLng(lat, lng);
-      var zoom = $cookies.vp_zoom || 5;
+      var zoom = googleMapManager.getMapCookie("vp_zoom") || 5;
       var minZoom = 3;
       var options = {
-        zoom: parseInt(zoom),
+        zoom: parseInt(zoom, 10),
         minZoom: minZoom,
         center: latlng,
         mapTypeId: google.maps.MapTypeId.TERRAIN,

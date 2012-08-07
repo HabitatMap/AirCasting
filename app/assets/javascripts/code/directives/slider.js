@@ -7,7 +7,7 @@ angular.module("aircasting").directive('slider', function (){
         max: scope[attrs.sliderMax] || 0,
         step: _.str.toNumber(attrs.sliderStep) || 1,
         slide: attrs.sliderCallback &&  scope.$eval(attrs.sliderCallback)
-      }
+      };
       if(opts.range) {
         opts.values = [opts.min, opts.max];
       }

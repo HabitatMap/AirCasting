@@ -14,7 +14,7 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
     $scope.permalinkVisible = false;
     _.each(['sensor', 'location', 'usernames'], function(name) {
       $scope.toggle(name);
-    })
+    });
     paramsManager.update({
       time:  _($scope.params.data.time).isEmpty() ? {
         timeFrom : $scope.minTime,
@@ -23,7 +23,7 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
         dayTo : $scope.maxDay
       } : $scope.params.data.time,
       heat:  $scope.params.data.heat || heat.parse([0,1,2,3,4]),
-      gridResolution : $scope.params.data.gridResolution || 25,
+      gridResolution : $scope.params.data.gridResolution || 25
     });
   };
 
@@ -31,15 +31,25 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
   $scope.$watch("params.data", function(newValue) {
     _.extend($scope.data, newValue);
   });
-
+  $scope.$watch("params.data", function(newValue) {
+    if(!newValue.sensorId || !newValue.time || !newValue.heat) {
+      return;
+    }
+    $scope.getAverages();
+  });
+  $scope.$watch("!!params.data.sensorId && sensors.length !=0 ", function(newValue) {
+    if(!newValue) {
+      return;
+    }
+    $scope.getAverages();
+  });
   //
   $scope.$watch("params.data.sensorId", function(newValue, oldValue) {
-    if(!newValue || _($scope.sensors).size() == 0){
+    if(!newValue || _($scope.sensors).size() === 0){
       return;
     }
     $http.get('/api/thresholds/' + $scope.sensors[newValue].sensor_name).success($scope.onThresholdsFetch);
-    //$scope.getAverages();
-  })
+  });
 
   $scope.$watch("data.heat", function(newValue, oldValue) {
     if(!newValue){
@@ -55,15 +65,15 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
     percentageHeat.low =  (100 - percentageHeat.highest - percentageHeat.high - percentageHeat.mid);
     _(["highest", "high", "mid", "low"]).each(function(heat){
       $scope.heatPercentage[heat] = {width: percentageHeat[heat] + "%"};
-    })
-  })
+    });
+  });
 
   $scope.toggle = function(name) {
     $scope.expandables[name] = $scope.expandables[name] ? undefined : "expanded";
   };
 
   $scope.update = function(name) {
-    var obj = {}
+    var obj = {};
     obj[name] = $scope.data[name];
     paramsManager.update(obj);
   };
@@ -75,34 +85,34 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
   $scope.onResolutionSlide = function(event, ui) {
     $scope.data.gridResolution = ui.value;
     $scope.$digest();
-  }
+  };
   $scope.onMonthDaySlide = function(event, ui) {
     $scope.data.time.dayFrom = _.min(ui.values);
     $scope.data.time.dayTo = _.max(ui.values);
     $scope.$digest();
-  }
+  };
   $scope.onTimeSlide = function(event, ui) {
     $scope.data.time.timeFrom = _.min(ui.values);
     $scope.data.time.timeTo = _.max(ui.values);
     $scope.$digest();
-  }
+  };
   $scope.onHeatChangeLow = function(event, ui) {
     $scope.data.heat.low = ui.value;
     $scope.data.heat = angular.copy($scope.data.heat); //todo: change watcher instead of this line
     $scope.$digest();
-  }
+  };
   $scope.onHeatChangeHigh = function(event, ui) {
     $scope.data.heat.high = ui.value;
     $scope.data.heat = angular.copy($scope.data.heat);
     $scope.$digest();
-  }
+  };
   $scope.onHeatChangeMid = function(event, ui) {
     $scope.data.heat.mid = ui.value;
     $scope.data.heat = angular.copy($scope.data.heat);
     $scope.$digest();
-  }
+  };
   $scope.onSensorsFetch = function(data, status, headers, config) {
-    var sensors = {}
+    var sensors = {};
     _(data).each(function(sensor){
       sensor.id = sensor.measurement_type + "-" + sensor.sensor_name;
       sensor.label = sensor.measurement_type + " - " + sensor.sensor_name;
@@ -114,16 +124,19 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
         return -1 * $scope.sensors[sensorId].session_count;
       }).first().value();
     }
-  }
+  };
   $scope.onThresholdsFetch = function(data, status, headers, config) {
-    paramsManager.update({heat: heat.parse(data)})
-  }
+    paramsManager.update({heat: heat.parse(data)});
+  };
   $scope.onAveragesFetch = function(data, status, headers, config) {
-  }
+    googleMapManager.drawRectangles(data, $scope.params.data.heat, $scope.onRectangleClick);
+  };
+  $scope.onRectangleClick = function() {
+  };
   $scope.getAverages = function(){
     var viewport = googleMapManager.viewport();
     var paramsData = $scope.params.data;
-    var data = {
+    var reqData = {
       west: viewport.west,
       east: viewport.east,
       south: viewport.south,
@@ -140,9 +153,9 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
       usernames:  paramsData.usernames,
       sensor_name:  $scope.sensors[paramsData.sensorId].sensor_name,
       measurement_type:  $scope.sensors[paramsData.sensorId].measurement_type
-    }
-    $http.get('/api/averages', data).success($scope.onAveragesFetch);
-  }
+    };
+    $http.get('/api/averages', {params : {q: reqData}}).success($scope.onAveragesFetch);
+  };
   $scope.setDefaults();
   $http.get('/api/sensors').success($scope.onSensorsFetch);
 }
