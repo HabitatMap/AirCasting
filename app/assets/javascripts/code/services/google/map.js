@@ -35,7 +35,7 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
       var self = this;
       geocoder.get(address, function(results, status) {
         if(status == google.maps.GeocoderStatus.OK) {
-          self.map.fitBounds(results[0].geometry.viewport);
+          self.mapObj.fitBounds(results[0].geometry.viewport);
         }
       });
     },
