@@ -1,20 +1,22 @@
-angular.module("aircasting").factory("googleMapManager", ["$cookies", "$rootScope", "googleMapRectangles", "geocoder",
-                                     function($cookies, $rootScope, googleMapRectangles, geocoder){
-  var GoogleMapTool = function() {
-  };
-  GoogleMapTool.prototype = {
+angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles", "geocoder",
+                                     function($cookies, $rootScope, rectangles, geocoder){
+  var Map = function() {};
+  Map.prototype = {
     init: function(element, options) {
-      this.googleMap = new google.maps.Map(element, options);
+      this.mapObj = new google.maps.Map(element, options);
       this.listen("idle", this.saveViewport);
-      this.listen("visible_changed", function(){$rootScope.$digest();}, this.googleMap.getStreetView());
+      this.listen("visible_changed", function(){$rootScope.$digest();}, this.mapObj.getStreetView());
       this.listen("zoom_changed", _(this.appendMapType).bind(this));
-      googleMapRectangles.init(this.googleMap);
+      rectangles.init(this.mapObj);
+    },
+    get: function(){
+      return this.mapObj;
     },
     getMapCookie: function(name) {
       return $cookies[name];
     },
     viewport: function(){
-      var bounds = this.googleMap.getBounds();
+      var bounds = this.mapObj.getBounds();
       if(bounds) {
         return {
           west: bounds.getSouthWest().lng(),
@@ -33,14 +35,14 @@ angular.module("aircasting").factory("googleMapManager", ["$cookies", "$rootScop
       var self = this;
       geocoder.get(address, function(results, status) {
         if(status == google.maps.GeocoderStatus.OK) {
-          self.googleMap.fitBounds(results[0].geometry.viewport);
+          self.map.fitBounds(results[0].geometry.viewport);
         }
       });
     },
     saveViewport: function(){
       var zoom = this.getZoom();
-      var lat = this.googleMap.getCenter().lat();
-      var lng = this.googleMap.getCenter().lng();
+      var lat = this.mapObj.getCenter().lat();
+      var lng = this.mapObj.getCenter().lng();
 
       $cookies.vp_zoom = zoom;
       $cookies.vp_lat = lat;
@@ -53,40 +55,41 @@ angular.module("aircasting").factory("googleMapManager", ["$cookies", "$rootScop
       var northeast = new google.maps.LatLng(north, east);
       var southwest = new google.maps.LatLng(south, west);
       var bounds = new google.maps.LatLngBounds(southwest, northeast);
-      this.googleMap.fitBounds(bounds);
+      this.mapObj.fitBounds(bounds);
     },
     appendMapType: function() {
       // if zoom is too high for terrain map, switch to hybrid map (but remember last used type)
       var zoom = this.getZoom();
-      if(zoom >= 15 && this.googleMap.getMapTypeId() == google.maps.MapTypeId.TERRAIN) {
-        this.googleMap.setMapTypeId(google.maps.MapTypeId.HYBRID);
+      if(zoom >= 15 && this.mapObj.getMapTypeId() == google.maps.MapTypeId.TERRAIN) {
+        this.mapObj.setMapTypeId(google.maps.MapTypeId.HYBRID);
         this.previousMapTypeId = google.maps.MapTypeId.TERRAIN;
       } else if(zoom < 15 && this.previousMapTypeId){
         //if zoom is low enough for terrain map, switch to it if it was used before zooming in
-        this.googleMap.setMapTypeId(this.previousMapTypeId);
+        this.mapObj.setMapTypeId(this.previousMapTypeId);
         this.previousMapTypeId = null;
       }
     },
-    listen: function(name, callback, map) {
-      google.maps.event.addListener(map || this.googleMap, name, _(callback).bind(this));
+    listen: function(name, callback, diffmap) {
+      google.maps.event.addListener(diffmap || this.mapObj, name, _(callback).bind(this));
     },
     setZoom: function(zoom) {
-      return this.googleMap.setZoom(zoom);
+      return this.mapObj.setZoom(zoom);
     },
     getZoom: function(zoom) {
-      return this.googleMap.getZoom();
+      return this.mapObj.getZoom();
     },
     streetViewVisible: function(zoom) {
-      return this.googleMap.getStreetView().getVisible();
+      return this.mapObj.getStreetView().getVisible();
     },
     drawRectangles: function(data, thresholds, clickCallback){
-      googleMapRectangles.draw(data, thresholds);
-      _(googleMapRectangles.rectangles).each(function(rectangle){
-        google.maps.event.addListener(rectangle, 'click',  clickCallback);
+      var self = this;
+      rectangles.draw(data, thresholds);
+      _(rectangles.get()).each(function(rectangle){
+        self.listen('click',  clickCallback, rectangle);
       });
     }
   };
 
-  return new GoogleMapTool();
+  return new Map();
 }]);
 

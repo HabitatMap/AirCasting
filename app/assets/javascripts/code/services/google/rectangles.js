@@ -1,9 +1,9 @@
-angular.module("aircasting").factory("googleMapRectangles",  function(){
-  var GoogleMapRectTool = function() {
+angular.module("google").factory("rectangles",  function(){
+  var Rectangles = function() {
     this.rectangles = [];
     this.colors = [null, "#2DA641", "#F9DC2E", "#F57F22", "#F4001C"];
   };
-  GoogleMapRectTool.prototype = {
+  Rectangles.prototype = {
     init: function(googleMap){
       this.googleMap = googleMap;
     },
@@ -51,6 +51,6 @@ angular.module("aircasting").factory("googleMapRectangles",  function(){
     }
   };
 
-  return new GoogleMapRectTool();
+  return new Rectangles();
 });
 

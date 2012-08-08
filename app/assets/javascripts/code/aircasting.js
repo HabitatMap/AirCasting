@@ -1,4 +1,5 @@
-angular.module('aircasting', ['ngCookies'], function($routeProvider, $locationProvider){
+angular.module('google', []);
+angular.module('aircasting', ['ngCookies', "google"], function($routeProvider, $locationProvider){
   $routeProvider.when('/map_crowd',
                       {templateUrl: 'partials/crowd_map.html', controller: CrowdMapCtrl, reloadOnSearch: false});
   $routeProvider.when('/map_sessions',

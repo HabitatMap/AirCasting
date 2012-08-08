@@ -12,7 +12,7 @@
 
   %body(id="map")
     #mapview(googlemap)
-    #hud(ng-controller="HudCtrl" ng-hide="googleMapManager.streetViewVisible()")
+    #hud(ng-controller="HudCtrl" ng-hide="map.streetViewVisible()")
       = render :partial => 'shared/left_hud'
       #right-hud
         = yield
@@ -20,7 +20,7 @@
       #zoom-box
         .content
           #zoom-out(ng-click = "zoomStep(-1)")
-          #zoom-slider(slider=true slider-min=3 slider-max=21 slider-callback="onZoom" slider-value="googleMapManager.getZoom()")
+          #zoom-slider(slider=true slider-min=3 slider-max=21 slider-callback="onZoom" slider-value="map.getZoom()")
           #zoom-in(ng-click="zoomStep(1)")
 
 :javascript

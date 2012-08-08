@@ -1,4 +1,4 @@
-function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $window, googleMapManager) {
+function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $window, map) {
   $scope.setDefaults = function() {
     $scope.params = paramsManager.get();
     $scope.sensors = [];
@@ -33,7 +33,7 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
     $scope.getAverages();
   });
   $scope.$watch("params.data.location", function(newValue) {
-    $scope.googleMapManager.goToAddress(newValue);
+    map.goToAddress(newValue);
   });
 
   $scope.$watch("!!params.data.sensorId && sensors.length !=0 ", function(newValue) {
@@ -125,7 +125,7 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
     paramsManager.update({heat: heat.parse(data)});
   };
   $scope.onAveragesFetch = function(data, status, headers, config) {
-    googleMapManager.drawRectangles(data, _($scope.params.data.heat).values().sort(), $scope.onRectangleClick);
+    map.drawRectangles(data, _($scope.params.data.heat).values().sort(), $scope.onRectangleClick);
   };
   $scope.onRectangleClick = function() {
   };
@@ -134,7 +134,7 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
     if(!paramsData.sensorId || !paramsData.time || !paramsData.heat || $scope.sensors.length === 0) {
       return;
     }
-    var viewport = googleMapManager.viewport();
+    var viewport = map.viewport();
     var reqData = {
       west: viewport.west,
       east: viewport.east,
@@ -158,4 +158,4 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
   $scope.setDefaults();
   $http.get('/api/sensors').success($scope.onSensorsFetch);
 }
-CrowdMapCtrl.$inject = ['$scope', '$routeParams', '$http', 'params', 'heat', 'utils', '$window', 'googleMapManager'];
+CrowdMapCtrl.$inject = ['$scope', '$routeParams', '$http', 'params', 'heat', 'utils', '$window', 'map'];
