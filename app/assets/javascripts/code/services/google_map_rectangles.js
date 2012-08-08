@@ -7,6 +7,9 @@ angular.module("aircasting").factory("googleMapRectangles",  function(){
     init: function(googleMap){
       this.googleMap = googleMap;
     },
+    get: function() {
+      return this.rectangles;
+    },
     draw: function(rectangles, thresholds){
       var rectOptions, rectangle, color;
       var self = this;

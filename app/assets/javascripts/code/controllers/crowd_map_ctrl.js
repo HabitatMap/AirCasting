@@ -30,17 +30,13 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
   //update form base on params
   $scope.$watch("params.data", function(newValue) {
     _.extend($scope.data, newValue);
-  });
-  $scope.$watch("params.data", function(newValue) {
-    if(!newValue.sensorId || !newValue.time || !newValue.heat) {
-      return;
-    }
     $scope.getAverages();
   });
+  $scope.$watch("params.data.location", function(newValue) {
+    $scope.googleMapManager.goToAddress(newValue);
+  });
+
   $scope.$watch("!!params.data.sensorId && sensors.length !=0 ", function(newValue) {
-    if(!newValue) {
-      return;
-    }
     $scope.getAverages();
   });
   //
@@ -134,8 +130,11 @@ function CrowdMapCtrl($scope, $routeParams, $http, paramsManager, heat, utils, $
   $scope.onRectangleClick = function() {
   };
   $scope.getAverages = function(){
-    var viewport = googleMapManager.viewport();
     var paramsData = $scope.params.data;
+    if(!paramsData.sensorId || !paramsData.time || !paramsData.heat || $scope.sensors.length === 0) {
+      return;
+    }
+    var viewport = googleMapManager.viewport();
     var reqData = {
       west: viewport.west,
       east: viewport.east,

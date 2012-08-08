@@ -1,5 +1,5 @@
-angular.module("aircasting").factory("googleMapManager", ["$cookies", "$rootScope", "googleMapRectangles",
-                                     function($cookies, $rootScope, googleMapRectangles){
+angular.module("aircasting").factory("googleMapManager", ["$cookies", "$rootScope", "googleMapRectangles", "geocoder",
+                                     function($cookies, $rootScope, googleMapRectangles, geocoder){
   var GoogleMapTool = function() {
   };
   GoogleMapTool.prototype = {
@@ -25,6 +25,17 @@ angular.module("aircasting").factory("googleMapManager", ["$cookies", "$rootScop
       } else {
         return {};
       }
+    },
+    goToAddress: function(address) {
+      if(!address){
+        return;
+      }
+      var self = this;
+      geocoder.get(address, function(results, status) {
+        if(status == google.maps.GeocoderStatus.OK) {
+          self.googleMap.fitBounds(results[0].geometry.viewport);
+        }
+      });
     },
     saveViewport: function(){
       var zoom = this.getZoom();
