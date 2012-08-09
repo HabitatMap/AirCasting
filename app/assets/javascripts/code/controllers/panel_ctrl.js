@@ -1,4 +1,4 @@
-function PanelCtrl($scope, $routeParams, $location) {
+function PanelCtrl($scope,  $location) {
   $scope.permalinkVisible = false;
   $scope.panelVisible = true;
   $scope.selectedTab = undefined;
@@ -13,11 +13,11 @@ function PanelCtrl($scope, $routeParams, $location) {
   };
 
   $scope.goToSessionsMap = function() {
-    $location.path("/map_sessions");
+    $location.url("/map_sessions");
   };
 
   $scope.goToCrowdMap = function() {
-    $location.path("/map_crowd");
+    $location.url("/map_crowd");
   };
 
   $scope.$watch('$location.path()', function(newValue) {
@@ -28,4 +28,4 @@ function PanelCtrl($scope, $routeParams, $location) {
     return $scope.selectedTab == name ? "active" : "" ;
   };
 }
-PanelCtrl.$inject = ['$scope', '$routeParams', '$location'];
+PanelCtrl.$inject = ['$scope', '$location'];

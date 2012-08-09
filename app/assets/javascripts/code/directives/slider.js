@@ -6,7 +6,7 @@ angular.module("aircasting").directive('slider', function (){
         min: scope[attrs.sliderMin] || 0,
         max: scope[attrs.sliderMax] || 0,
         step: _.str.toNumber(attrs.sliderStep) || 1,
-        slide: attrs.sliderCallback &&  scope.$eval(attrs.sliderCallback)
+        slide: attrs.sliderCallback && scope.$eval(attrs.sliderCallback)
       };
       if(opts.range) {
         opts.values = [opts.min, opts.max];
@@ -17,13 +17,13 @@ angular.module("aircasting").directive('slider', function (){
           return;
         }
         $(element).slider("option", "min", newValue);
-      });
+      }, true);
       scope.$watch(attrs.sliderMax, function(newValue, oldValue) {
         if(!newValue) {
           return;
         }
         $(element).slider("option", "max", newValue);
-      });
+      }, true);
       scope.$watch(attrs.sliderValue, function(newValue, oldValue) {
         if(!newValue) {
           return;
@@ -42,7 +42,7 @@ angular.module("aircasting").directive('slider', function (){
         }else {
           $(element).slider("value", newValue);
         }
-      });
+      }, true);
     }
   };
 });
