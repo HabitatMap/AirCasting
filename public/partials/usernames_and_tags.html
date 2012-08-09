@@ -1,0 +1,27 @@
+<div ng-controller="UsernamesAndTagsFiltersCtrl">
+  <h4 ng-click="expandables.toggle('usernames')" ng-class="expandables.css('usernames')">Profile names</h4>
+  <section ng-show="expandables.visible('usernames')">
+    <div class="textfield">
+      <input type="text" ng-model="storage.data.usernames">
+    </div>
+    <div>
+      <ul class="buttons">
+        <li><button ng-click="storage.reset('usernames')">reset</button></li>
+        <li><button ng-click="storage.update('usernames')">submit</button></li>
+      </ul>
+    </div>
+  </section>
+
+  <h4 ng-click="expandables.toggle('tags')" ng-class="expandables.css('tags')">Tags</h4>
+  <section ng-show="expandables.visible('tags')">
+    <div class="textfield">
+      <input type="text" ng-model="storage.data.tags">
+    </div>
+    <div>
+      <ul class="buttons">
+        <li><button ng-click="storage.reset('tags')">reset</button></li>
+        <li><button ng-click="storage.update('tags')">submit</button></li>
+      </ul>
+    </div>
+  </section>
+</div>

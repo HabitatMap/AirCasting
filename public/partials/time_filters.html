@@ -1,0 +1,27 @@
+<div ng-controller="TimeFiltersCtrl">
+  <h4 ng-click="expandables.toggle('time')" ng-class="expandables.css('time')" >Time Range</h4>
+  <section ng-show="expandables.visible('time')">
+    <div>
+      <label>Hours:Minutes</label>
+      <div class="slider">
+        <input timepicker class="narrow" type="text" ng-model="storage.data.time.timeFrom"></input>
+        <div slider slider-max="maxTime" slider-min="minTime" slider-value="[storage.data.time.timeFrom, storage.data.time.timeTo].join(',')" slider-range="true" slider-callback="storageEvents.onTimeSlide"></div>
+        <input timepicker class="narrow" type="text" ng-model="storage.data.time.timeTo"></input>
+      </div>
+    </div>
+    <div>
+      <label>Month/Day</label>
+      <div class="slider">
+        <input monthday class="narrow" type="text" ng-model="storage.data.time.dayFrom"></input>
+        <div slider slider-max="maxDay" slider-min="minDay" slider-value="[storage.data.time.dayFrom, storage.data.time.dayTo].join(',')" slider-range="true" slider-callback="storageEvents.onMonthDaySlide"></div>
+        <input monthday class="narrow" type="text" ng-model="storage.data.time.dayTo"></input>
+      </div>
+    </div>
+    <div>
+      <ul class="buttons">
+        <li><button ng-click="storage.reset('time')">reset</button></li>
+        <li><button ng-click="storage.update('time')">submit</button></li>
+      </ul>
+    </div>
+  </section>
+</div>
