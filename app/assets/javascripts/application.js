@@ -21,7 +21,6 @@
 //= require libs/jquery
 //= require libs/moment
 //= require libs/jquery_ui
-//= require libs/jquery.ui.timepicker
 //= require libs/angular
 //= require libs/angular-cookies
 //= require libs/underscore

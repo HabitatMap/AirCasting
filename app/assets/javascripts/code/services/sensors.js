@@ -2,19 +2,24 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
   var Sensors = function() {
     $http.get('/api/sensors').success(_(this.onSensorsFetch).bind(this));
     this.sensors = {};
+    this.shouldInitSelected = false;
   };
   Sensors.prototype = {
     onSensorsFetch : function(data, status, headers, config) {
-      var self = this;
       var sensors = {};
       _(data).each(function(sensor){
         sensor.id = sensor.measurement_type + "-" + sensor.sensor_name;
         sensor.label = sensor.measurement_type + " - " + sensor.sensor_name;
         sensors[sensor.id] = sensor;
       });
-      self.sensors = sensors;
-      if(!params.getData().sensorId){
-        params.update({sensorId: _(self.sensors).chain().keys().sortBy(function(sensorId){
+      this.sensors = sensors;
+      this.initSelected();
+    },
+    initSelected: function() {
+      var self = this;
+      //this is called only for injectors who verified flag - like crowd map
+      if(this.shouldInitSelected && !this.isEmpty() && !params.get('data').sensorId){
+        params.update('data', {sensorId: _(self.sensors).chain().keys().sortBy(function(sensorId){
           return -1 * self.sensors[sensorId].session_count;
         }).first().value()});
       }
@@ -26,13 +31,22 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       return _(this.sensors).size() === 0;
     },
     selected: function() {
-      return this.sensors[params.getData().sensorId];
+      return this.sensors[params.get('data').sensorId];
     },
     selectedId: function() {
-      if(!this.sensors[params.getData().sensorId]){
+      if(!this.selected()){
         return;
       }
-      return this.sensors[params.getData().sensorId].id;
+      return this.selected().id;
+    },
+    tmpSelected: function() {
+      return this.sensors[params.get('data').tmpSensorId];
+    },
+    tmpSelectedId: function() {
+      if(!this.temporarySelected()){
+        return;
+      }
+      return this.temporarySelected().id;
     }
   };
   return new Sensors();

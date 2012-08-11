@@ -3,29 +3,40 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', funct
     var self = this;
     var scope = $rootScope.$new();
     //set init params
-    self.paramsData = {data :angular.fromJson($location.search().data || '{}')};
+    self.paramsData = angular.fromJson($location.search()) || {};
+      console.log("paramsData", this.paramsData)
     //add watch
     scope.$location = $location;
     scope.$watch("$location.search()", function(searchData) {
-      var searchResult = angular.fromJson(searchData.data || '{}');
-      if(angular.equals(self.paramsData.data, searchResult)){
+      _(searchData || {}).each(function(value, key){
+        searchData[key] = angular.fromJson(value);
+      });
+      if(angular.equals(self.paramsData, searchData)){
         return;
       }
-      self.paramsData.data = searchResult;
+      self.paramsData = searchResult;
     });
   };
   ParamsService.prototype = {
-    get: function() {
-      return this.paramsData;
+    get: function(name){
+      return this.paramsData[name] || {};
     },
-    getData: function(){
-      return  this.paramsData.data;
-    },
-    update: function(newParams) {
-      $location.search({data: angular.toJson(_(this.paramsData.data).chain().clone().extend(newParams).value())});
-    },
-    replace: function(newParams) {
-      $location.search({data: angular.toJson(newParams)});
+    update: function(name, newParams) {
+      var self = this;
+      var obj = {};
+      obj[name] = newParams;
+      var newData = {};
+      if(!this.paramsData[name]) {
+        this.paramsData[name] = {};
+      }
+      _(this.paramsData).each(function(value, key){
+        newData[key] = _(value).chain().clone().extend(obj[key] || {}).value();
+      });
+      _(newData).each(function(value, key){
+        self.paramsData[key] = value;
+        newData[key] =  angular.toJson(value);
+      });
+      $location.search(newData);
     }
   };
   return new ParamsService();

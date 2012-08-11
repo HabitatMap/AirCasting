@@ -6,6 +6,9 @@ angular.module("aircasting").factory('expandables', function() {
     toggle: function(name) {
       this.sections[name] = this.sections[name] ? undefined : "expanded";
     },
+    show: function(name) {
+      this.sections[name] = "expanded";
+    },
     css: function(name) {
       return this.sections[name];
     },

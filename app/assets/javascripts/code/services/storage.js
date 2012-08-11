@@ -5,7 +5,7 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope',  functi
     var scope = $rootScope.$new();
     //TODO change to emitter and broadcasters
     scope.params = params;
-    scope.$watch("params.getData()", function(newValue, oldValue) {
+    scope.$watch("params.get('data')", function(newValue, oldValue) {
       self.extend(newValue);
     }, true);
   };
@@ -25,10 +25,10 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope',  functi
     update: function(name) {
       var obj = {};
       obj[name] = this.get(name);
-      params.update(obj);
+      params.update('data', obj);
     },
     reset: function(name) {
-      this.set(name, angular.copy(params.getData()[name]));
+      this.set(name, angular.copy(params.get('data')[name]));
     }
   };
   return new Storage();

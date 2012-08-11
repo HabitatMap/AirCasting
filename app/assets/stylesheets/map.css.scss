@@ -310,12 +310,12 @@ body#map {
   z-index: 10;
   font-weight:bold;
   
-  #crowd-map-tab section > div, #sessions-tab section > div {
+  #crowd-map-tab section > div, #sessions-map-tab section > div {
     @include clearfix;
     margin:10px 0;
   }
   
-  #crowd-map-tab section > div, #sessions-tab section > div {
+  #crowd-map-tab section > div, #sessions-map-tab section > div {
     &.nomargin {
       margin:0 0 0 0;
     }

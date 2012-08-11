@@ -24,3 +24,6 @@
 //= require ./jquery_ui/jquery.ui.position
 //= require ./jquery_ui/jquery.ui.slider
 //= require ./jquery_ui/jquery.ui.datepicker
+//= require ./jquery_ui/jquery.ui.autocomplete
+//= require ./jquery_ui/jquery.ui.dialog
+//= require ./jquery_ui/jquery.ui.timepicker

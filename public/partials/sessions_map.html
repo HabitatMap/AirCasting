@@ -1,18 +1,34 @@
-<section class="sessions">
-<div id="sessions-top">
-  <div class="name"><span>Sessions</span></div>
-  <ul class="buttons">
-    <li><button id="toggle-all-sessions">all</button></li>
-  </ul>
-</div>
-<div class="nomargin">
-  <div class="sessions-container">
-    <ul id="session-list"></ul>
+<section class="sessions" ng-controller="SessionsListCtrl">
+  <div id="sessions-top">
+    <div class="name"><span>Sessions</span></div>
+    <ul class="buttons">
+      <li><button ng-click="toggleAll()">all</button></li>
+    </ul>
   </div>
-</div>
+  <div class="nomargin">
+    <div class="sessions-container">
+      <ul>
+        <li ng:repeat="session in list">
+          <input type="checkbox" ng-model="params.get('sessionsIds')[session.id]" value="1">
+          <dl>
+            <dt><label class="narrow">{{session.title || 'unnamed' }}</label></dt>
+            <dd>
+              <label class="narrow">
+                {{session.username}},
+                {{session.timeframe}}
+                <span ng-class="shortType.type" ng-repeat="shortType in session.shortTypes">
+                  {{shortType.name}}<span ng-hide="$index==session.shortTypes.length-1">/</span>
+                </span>
+              </label>
+            </dd>
+          </dl>
+        </li>
+      </ul>
+    </div>
+  </div>
 </section>
 
-<section class="graph">
+<section class="graph" ng-controller="SessionsGraphCtrl">
 <div id="graph-top">
   <div id="graph-header">Sessions Graph</div>
   <a id="graph-arrow"></a>
@@ -39,9 +55,10 @@
   <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
   <section ng-show="expandables.visible('sensor')" >
   <p>
-    <select ng-model="params.getData().sensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in sensors.get()">
-      </select>
-    </p>
+    <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in sensors.get()">
+      <option value="">All</option>
+    </select>
+  </p>
   </section>
 
   <h4 ng-click="expandables.toggle('location')" ng-class="expandables.css('location')">Location</h4>
@@ -74,74 +91,9 @@
     </div>
   </section>
 
-  <h4 ng-click="expandables.toggle('usernames')" ng-class="expandables.css('usernames')">Profile names</h4>
-  <section ng-show="expandables.visible('usernames')">
-    <div class="textfield">
-      <input type="text" ng-model="storage.data.usernames">
-    </div>
-    <div>
-      <ul class="buttons">
-        <li><button ng-click="storage.reset('usernames')">reset</button></li>
-        <li><button ng-click="storage.update('usernames')">submit</button></li>
-      </ul>
-    </div>
-  </section>
+  <div ng-include src="'/partials/usernames_and_tags.html'"></div>
+  <div ng-include src="'/partials/time_filters.html'"></div>
 
-  <h4 ng-click="expandables.toggle('tags')" ng-class="expandables.css('tags')">Tags</h4>
-  <section ng-show="expandables.visible('tags')">
-    <div class="textfield">
-      <input type="text" ng-model="storage.data.tags">
-    </div>
-    <div>
-      <ul class="buttons">
-        <li><button ng-click="storage.reset('tags')">reset</button></li>
-        <li><button ng-click="storage.update('tags')">submit</button></li>
-      </ul>
-    </div>
-  </section>
-
-  <h4 ng-click="expandables.toggle('time')" ng-class="expandables.css('time')" >Time Range</h4>
-  <section ng-show="expandables.visible('time')">
-    <div>
-      <label>Hours:Minutes</label>
-      <div class="slider">
-        <input timepicker class="narrow" type="text" ng-model="storage.data.time.timeFrom"></input>
-        <div slider slider-max="maxTime" slider-min="minTime" slider-value="[storage.data.time.timeFrom, storage.data.time.timeTo].join(',')" slider-range="true" slider-callback="storageEvents.onTimeSlide"></div>
-        <input timepicker class="narrow" type="text" ng-model="storage.data.time.timeTo"></input>
-      </div>
-    </div>
-    <div>
-      <label>Month/Day</label>
-      <div class="slider">
-        <input monthday class="narrow" type="text" ng-model="storage.data.time.dayFrom"></input>
-        <div slider slider-max="maxDay" slider-min="minDay" slider-value="[storage.data.time.dayFrom, storage.data.time.dayTo].join(',')" slider-range="true" slider-callback="storageEvents.onMonthDaySlide"></div>
-        <input monthday class="narrow" type="text" ng-model="storage.data.time.dayTo"></input>
-      </div>
-    </div>
-    <div>
-      <ul class="buttons">
-        <li><button ng-click="storage.reset('time')">reset</button></li>
-        <li><button ng-click="storage.update('time')">submit</button></li>
-      </ul>
-    </div>
-  </section>
-
-  <h4 ng-click="expandables.toggle('gridResolution')" ng-class="expandables.css('gridResolution')">CrowdMap Resolution</h4>
-  <section ng-show="expandables.visible('gridResolution')">
-    <div>
-      <div class="slider full-slider">
-        <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="storage.data.gridResolution" slider-callback="storageEvents.onResolutionSlide" ></div>
-        <span>{{storage.data.gridResolution}}</span>
-      </div>
-    </div>
-
-    <div>
-      <ul class="buttons">
-        <li><button ng-click="storage.reset('gridResolution')">reset</button></li>
-        <li><button ng-click="storage.update('gridResolution')">submit</button></li>
-      </ul>
-    </div>
-  </section>
   <div ng-include src="'/partials/heat_legend.html'"></div>
 </div>
 

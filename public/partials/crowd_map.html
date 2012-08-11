@@ -2,7 +2,7 @@
   <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
   <section ng-show="expandables.visible('sensor')" >
   <p>
-    <select ng-model="params.getData().sensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in sensors.get()">
+    <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in sensors.get()">
       </select>
     </p>
   </section>
@@ -12,7 +12,7 @@
     <div class="textfield">
       <p>
         <label>Address, Intersection, or Zip
-          <input type="text" ng-model="storage.data.location">
+          <input type="text" ng-model="storage.data.location.address">
         </label>
       </p>
     </div>
