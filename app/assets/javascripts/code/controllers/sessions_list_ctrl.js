@@ -19,6 +19,10 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
     return dialog;
   };
 
+  $scope.isAbleToChange = function(session) {
+    return session.$selected || sensors.selected() || (params.get('sessionsIds').length === 0);
+  };
+
   $scope.$watch("params.get('data')", function() {
     sessions.fetch($scope.onSessionsFetch);
   }, true);

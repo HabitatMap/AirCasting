@@ -16,7 +16,6 @@ angular.module("aircasting").directive('collection', function (){
         } else {
           collection.splice(_(collection).indexOf(id), 1);
         }
-        console.log(collection)
         return viewValue;
       });
 
