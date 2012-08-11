@@ -5,7 +5,7 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
     $scope.sensors = sensors;
     $scope.sessions = sessions;
     $scope.list = [];
-    $scope.params.update('sessionsIds',{});
+    params.update('sessionsIds', params.get('sessionsIds', []), []);
   };
 
   $scope.openSensorDialog = function() {
@@ -24,7 +24,7 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
   }, true);
 
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
-
+    $scope.params.update('sessionsIds', newIds);
   }, true);
 
   $scope.onSessionsFetch = function(data, status, headers, config) {

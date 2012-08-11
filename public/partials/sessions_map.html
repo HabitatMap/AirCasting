@@ -9,7 +9,7 @@
     <div class="sessions-container">
       <ul>
         <li ng:repeat="session in list">
-          <input type="checkbox" ng-model="params.get('sessionsIds')[session.id]" value="1">
+          <input type="checkbox" collection="params.get('sessionsIds')" collection-id="session.id" ng-model="session.$selected">
           <dl>
             <dt><label class="narrow">{{session.title || 'unnamed' }}</label></dt>
             <dd>
