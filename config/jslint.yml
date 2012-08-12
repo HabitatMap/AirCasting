@@ -8,12 +8,10 @@
 
 paths:
   - app/assets/javascripts/code/**/*.js
-  - spec/javascripts/unit/services/*.js
-  - spec/javascripts/unit/controllers/*.js
-  - spec/javascripts/unit/directives/*.js
+  - spec/javascripts/unit/**/*.js
 
 exclude_paths:
-  
+  - spec/javascripts/unit/vendor/**/*.js
 
 # ------------ jslint options ------------
 # see http://www.jslint.com/lint.html#options for more detailed explanations
