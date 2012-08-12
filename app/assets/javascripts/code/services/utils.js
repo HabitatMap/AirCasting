@@ -2,19 +2,21 @@ angular.module("aircasting").factory('utils', function() {
   var Utils = function() {
   };
   Utils.prototype = {
+    // supports simple merging for object , primitives and arrays (no functions, dates etc)
     merge : function(source, obj2) {
       var self = this;
       var obj1 = angular.copy(source);
       _(obj2).each(function(value, key){
-        var bothAreObjects = angular.isObject(obj1[key]) && angular.isObject(value);
+        var bothAreObjects = angular.isObject(obj1[key]) && angular.isObject(value) &&
+                             !angular.isArray(obj1[key]) && !angular.isArray(value);
         if(_(obj1).has(key) && bothAreObjects){
-          self.merge(obj1[key], value);
+          obj1[key] = self.merge(obj1[key], value);
         } else {
           obj1[key] = angular.copy(value);
         }
-      })
+      });
       return obj1;
-    },
+    }
   };
   return new Utils();
 });

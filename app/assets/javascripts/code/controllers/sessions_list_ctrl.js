@@ -15,10 +15,9 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
       .onClose(function(){
         if(!sensors.tmpSelected()){
           $scope.params.update({sessionsIds: []});
-          console.log(params.get("sessionsIds"))
           var selectedSession = _($scope.list).detect(function(session){
             return session.$selected;
-          })
+          });
           if(selectedSession){
             selectedSession.$selected = false;
           }

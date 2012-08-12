@@ -1,4 +1,5 @@
-angular.module("aircasting").factory('params', ['$location', '$rootScope', 'utils', function($location, $rootScope, utils) {
+angular.module("aircasting").factory('params', ['$location', '$rootScope', 'utils',
+                                     function($location, $rootScope, utils) {
   var Params = function() {
     var self = this;
     var scope = $rootScope.$new();

@@ -1,12 +1,13 @@
 describe('params', function() {
-  var $location, params;
+  var $location, params, $rootScope;
 
   beforeEach(module('aircasting'));
 
   beforeEach(
     inject(function($injector) {
       params = $injector.get('params');
-      $location = $injector.get('params');
+      $location = $injector.get('$location');
+      $rootScope = $injector.get('$rootScope');
     })
   );
 
@@ -25,13 +26,19 @@ describe('params', function() {
 
   describe('update', function() {
     it('should update params and set proper location search', function() {
-    });
-    it('should clear params and location search', function() {
+      params.paramsData = {data: { myData: "1"}, myData: "1"};
+      params.update({data: { somethingNew: []}});
+      expect(params.get("data")).toEqual({ myData: "1", somethingNew: []});
+      expect(params.get("myData")).toEqual("1");
+      expect($location.search()).toEqual({ data : '{"myData":"1","somethingNew":[]}', myData : '"1"' });
     });
   });
 
   describe('location url', function() {
     it('should change paramsData when location url changes', function() {
+      $location.search({ data : '{"myData":"1","somethingNew":[]}', myData : '"1"' });
+      $rootScope.$digest();
+      expect(params.paramsData).toEqual({data: { myData: "1", somethingNew: []}, myData: "1"});
     });
   });
 

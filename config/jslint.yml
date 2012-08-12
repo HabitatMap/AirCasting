@@ -8,6 +8,9 @@
 
 paths:
   - app/assets/javascripts/code/**/*.js
+  - spec/javascripts/unit/services/*.js
+  - spec/javascripts/unit/controllers/*.js
+  - spec/javascripts/unit/directives/*.js
 
 exclude_paths:
   
