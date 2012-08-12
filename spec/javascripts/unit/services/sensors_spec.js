@@ -5,9 +5,9 @@ describe('sensors', function() {
   beforeEach(
     inject(function($injector) {
       $httpBackend = $injector.get('$httpBackend');
-      sensors = $injector.get('sensors');
-      params = $injector.get('params');
       $httpBackend.when('GET', '/api/sensors').respond(MockData.sensors, {});
+      params = $injector.get('params');
+      sensors = $injector.get('sensors');
     })
   );
 
@@ -22,7 +22,7 @@ describe('sensors', function() {
       expect(sensors.get()).toEqual(sensors.sensors);
     });
     it('should not be empty', function() {
-      expect(sensors.length).toEqual(5);
+      expect(_(sensors.get()).size()).toEqual(6);
     });
 
     describe('and required sensor choosing', function() {
@@ -31,7 +31,7 @@ describe('sensors', function() {
         sensors.initSelected();
       });
       it('should have sensor with highest session_coount selected in params', function() {
-        expect(params.get("data").sensorId).toEqual("");
+        expect(params.get("data").sensorId).toEqual("Sound Level-Phone Microphone");
       });
       it('should have selected sensor', function() {
         expect(sensors.selected().id).toEqual(params.get("data").sensorId);

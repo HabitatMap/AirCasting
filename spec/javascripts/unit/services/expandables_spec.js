@@ -11,18 +11,18 @@ describe('expandables', function() {
 
   it('should show section', function() {
     expandables.show("time");
-    expect(expandables.visible("time").toBeTruthy());
+    expect(expandables.visible("time")).toBeTruthy();
   });
 
   it('should toggle section', function() {
-    expect(expandables.visible("location").toBeTruthy());
+    expect(expandables.visible("location")).toBeTruthy();
     expandables.toggle("location");
-    expect(expandables.visible("location").toBeFalsy());
+    expect(expandables.visible("location")).toBeFalsy();
   });
 
   it('should get expanded class for visible', function() {
     expandables.show("time");
-    expect(expandables.css("time").toEqual("expanded"));
+    expect(expandables.css("time")).toEqual("expanded");
   });
 });
 
