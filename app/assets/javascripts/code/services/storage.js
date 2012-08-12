@@ -25,7 +25,7 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope',  functi
     update: function(name) {
       var obj = {};
       obj[name] = this.get(name);
-      params.update('data', obj);
+      params.update({data: obj});
     },
     reset: function(name) {
       this.set(name, angular.copy(params.get('data')[name]));

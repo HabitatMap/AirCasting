@@ -1,19 +1,37 @@
-function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions) {
+function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions, dialog) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
     $scope.sensors = sensors;
     $scope.sessions = sessions;
     $scope.list = [];
-    params.update('sessionsIds', params.get('sessionsIds', []), []);
+    params.update({sessionsIds: params.get('sessionsIds', [])});
   };
 
   $scope.openSensorDialog = function() {
-    var dialog = this.createDialog();
-    dialog.title('test title')
-      .templete("/partials/tmp_sensor_selection_dialog.html")
-      .controller(TmpSensorDialogCtrl)
-      .opts({ width: 240, height: 'auto', resizable: false, modal:true, position: ["center", 100] })
+    var dialogObj = dialog();
+    dialogObj.title('Select a Parameter - Sensor')
+      .template("/partials/tmp_sensor_selection_dialog.html")
+      .onClose(function(){
+        if(!sensors.tmpSelected()){
+          $scope.params.update({sessionsIds: []});
+          console.log(params.get("sessionsIds"))
+          var selectedSession = _($scope.list).detect(function(session){
+            return session.$selected;
+          })
+          if(selectedSession){
+            selectedSession.$selected = false;
+          }
+        }
+        $scope.$digest();
+      })
+      .opts({ width: 340, height: 'auto', resizable: false, modal:true, position: ["center", 100],
+      buttons: {
+        "OK": function() {
+          $scope.sensors.proceedWithTmp();
+          dialogObj.close();
+        }
+      }})
       .open();
 
     return dialog;
@@ -28,7 +46,10 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
   }, true);
 
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
-    $scope.params.update('sessionsIds', newIds);
+    if(newIds.length === 1 && !sensors.selected()) {
+      $scope.openSensorDialog();
+    }
+    $scope.params.update({sessionsIds: newIds});
   }, true);
 
   $scope.onSessionsFetch = function(data, status, headers, config) {
@@ -49,4 +70,4 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
   $scope.setDefaults();
 
 }
-SessionsListCtrl.$inject = ['$scope', '$http', 'params', 'map', 'sensors', 'storage', 'sessions'];
+SessionsListCtrl.$inject = ['$scope', '$http', 'params', 'map', 'sensors', 'storage', 'sessions', 'dialog'];

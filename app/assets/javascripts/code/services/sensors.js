@@ -2,6 +2,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
   var Sensors = function() {
     $http.get('/api/sensors').success(_(this.onSensorsFetch).bind(this));
     this.sensors = {};
+    this.tmpSensorId = undefined;
     this.shouldInitSelected = false;
   };
   Sensors.prototype = {
@@ -19,9 +20,11 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       var self = this;
       //this is called only for injectors who verified flag - like crowd map
       if(this.shouldInitSelected && !this.isEmpty() && !params.get('data').sensorId){
-        params.update('data', {sensorId: _(self.sensors).chain().keys().sortBy(function(sensorId){
-          return -1 * self.sensors[sensorId].session_count;
-        }).first().value()});
+        params.update({data: {
+          sensorId: _(self.sensors).chain().keys().sortBy(function(sensorId){
+            return -1 * self.sensors[sensorId].session_count;
+          }).first().value()
+        }});
       }
     },
     get : function() {
@@ -40,13 +43,16 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       return this.selected().id;
     },
     tmpSelected: function() {
-      return this.sensors[params.get('data').tmpSensorId];
+      return this.sensors[params.paramsData.tmpSensorId];
     },
     tmpSelectedId: function() {
-      if(!this.temporarySelected()){
+      if(!this.tmpSelected()){
         return;
       }
-      return this.temporarySelected().id;
+      return this.tmpSelected().id;
+    },
+    proceedWithTmp: function() {
+      params.update({tmpSensorId: this.tmpSensorId});
     }
   };
   return new Sensors();

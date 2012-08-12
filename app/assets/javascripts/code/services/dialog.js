@@ -2,7 +2,7 @@ angular.module("aircasting").factory('dialog', ['openDialog',
                                      function(openDialog) {
 
   var Dialog = function() {
-    this.dialogOpen = dialogOpen;
+    this.openDialog = openDialog;
     //for now we support only on dialog, in future we need to implement id functionality
     this.id = "id";
     this.onCloseCallbacks = [];
@@ -22,11 +22,6 @@ angular.module("aircasting").factory('dialog', ['openDialog',
 
     template: function(url) {
       this.props.url = url;
-      return this;
-    },
-
-    controller: function(controller) {
-      this.props.controller = controller;
       return this;
     },
 

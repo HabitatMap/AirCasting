@@ -12,17 +12,16 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     _.each(['sensor', 'location', 'usernames'], function(name) {
       $scope.expandables.show(name);
     });
-    $scope.params.update('data',{
+    $scope.params.update({data: {
       location: {},
       heat:  $scope.params.get('data').heat || heat.parse([0,1,2,3,4]),
       gridResolution : $scope.params.get('data').gridResolution || 25
-    });
+    }});
 
     $scope.sensors.shouldInitSelected = true;
     $scope.sensors.initSelected();
   };
 
-  //update form base on params
   $scope.$watch("params.get('data')", function(newValue, oldValue) {
     $scope.getAverages();
   }, true);
@@ -35,12 +34,12 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     if(!newValue){
       return;
     }
-    $scope.params.update('data',{sensorId: newValue});
+    $scope.params.update({data: {sensorId: newValue}});
     $http.get('/api/thresholds/' + sensors.selected().sensor_name).success($scope.onThresholdsFetch);
   });
 
   $scope.onThresholdsFetch = function(data, status, headers, config) {
-    $scope.params.update('data',{heat: heat.parse(data)});
+    $scope.params.update({data: {heat: heat.parse(data)}});
   };
   $scope.onAveragesFetch = function(data, status, headers, config) {
     map.drawRectangles(data, _($scope.params.get('data').heat).values().sort(), $scope.onRectangleClick);

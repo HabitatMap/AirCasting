@@ -9,14 +9,14 @@ function TimeFiltersCtrl($scope, params, expandables, storage, storageEvents) {
   $scope.minDay = 1;
   $scope.maxDay = 365;
 
-  $scope.params.update('data', {
-    time:  _($scope.params.get('data').time).isEmpty() ? {
+  $scope.params.update({data: {
+    time:  _(params.get('data').time).isEmpty() ? {
       timeFrom : $scope.minTime,
       timeTo : $scope.maxTime,
       dayFrom : $scope.minDay,
       dayTo : $scope.maxDay
-    } : $scope.params.get('data').time
-  });
+    } : params.get('data').time
+  }});
 
 }
 TimeFiltersCtrl.$inject = ['$scope', 'params',  'expandables', 'storage', 'storageEvents'];

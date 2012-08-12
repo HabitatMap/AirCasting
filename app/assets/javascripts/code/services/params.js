@@ -1,4 +1,4 @@
-angular.module("aircasting").factory('params', ['$location', '$rootScope', function($location, $rootScope) {
+angular.module("aircasting").factory('params', ['$location', '$rootScope', 'utils', function($location, $rootScope, utils) {
   var ParamsService = function() {
     var self = this;
     var scope = $rootScope.$new();
@@ -19,20 +19,11 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', funct
     get: function(name, defaultValue){
       return this.paramsData[name] || defaultValue || {};
     },
-    update: function(name, newParams, defaultValue) {
-      var defaultValue = defaultValue || {};
+    update: function(newParams) {
       var self = this;
-      var obj = {};
-      obj[name] = newParams;
-      var newData = {};
-      if(!this.paramsData[name]) {
-        this.paramsData[name] = defaultValue;
-      }
-      _(this.paramsData).each(function(value, key){
-        newData[key] =  _(angular.copy(value)).extend(obj[key] || defaultValue);
-      });
+      var newData = utils.merge(this.paramsData || {}, newParams);
+      this.paramsData = angular.copy(newData);
       _(newData).each(function(value, key){
-        self.paramsData[key] = value;
         newData[key] =  angular.toJson(value);
       });
       $location.search(newData);
