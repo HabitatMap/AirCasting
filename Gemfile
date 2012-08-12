@@ -53,7 +53,7 @@ group :test, :development do
   gem 'spork', '~> 0.9.0.rc9', :require => false
   gem 'libnotify', :require => false
   gem 'rb-inotify', :require => false
-  gem 'jasmine', :git => "https://github.com/pivotal/jasmine-gem.git"
+  gem 'jasmine-rails'
 end
 
 group :production do

@@ -1,5 +1,5 @@
 angular.module("aircasting").factory('params', ['$location', '$rootScope', 'utils', function($location, $rootScope, utils) {
-  var ParamsService = function() {
+  var Params = function() {
     var self = this;
     var scope = $rootScope.$new();
     //set init params
@@ -15,7 +15,7 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
       self.paramsData = searchData;
     });
   };
-  ParamsService.prototype = {
+  Params.prototype = {
     get: function(name, defaultValue){
       return this.paramsData[name] || defaultValue || {};
     },
@@ -29,6 +29,6 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
       $location.search(newData);
     }
   };
-  return new ParamsService();
+  return new Params();
 }]);
 

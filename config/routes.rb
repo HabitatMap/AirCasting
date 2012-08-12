@@ -16,7 +16,9 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
+
 AirCasting::Application.routes.draw do
+  mount JasmineRails::Engine => "/specs" if Rails.env.production? || Rails.env.development?
   devise_for :users, :controllers => { :sessions => 'sessions', :passwords => 'passwords' }
 
   resource :map
