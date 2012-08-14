@@ -1,13 +1,13 @@
 <section ng-controller="SessionsGraphCtrl">
-  <div id="graph-top">
-    <div id="graph-header">Sessions Graph</div>
-    <a id="graph-arrow" ng:click="toggle()"></a>
+  <div id="graph-top" ng-class="css()">
+    <div id="graph-header" ng-class="css()" >Sessions Graph</div>
+    <a id="graph-arrow" ng-class="css()" ng:click="toggle()"></a>
   </div>
   <div id="graph-box" ng:show="expanded">
-    <span id="graph-label-top"></span>
-    <span id="graph-label-bottom"></span>
+    <span id="graph-label-top">{{params.get('data').heat.highest}} {{sensors.anySelected().unit_symbol}}</span>
+    <span id="graph-label-bottom">{{params.get('data').heat.lowest}} {{sensors.anySelected().unit_symbol}}</span>
     <div id="graph" plot></div>
-    <div id="graph-background">
+    <div id="graph-background" heatbackground="heat.get()">
       <div class="highest"></div>
       <div class="high"></div>
       <div class="mid"></div>

@@ -2,9 +2,9 @@
 
 $sessions-list-height: 300px;
 $sessions-list-width: 238px;
-$sessions-list-bottom: 30px;
+$sessions-list-bottom: 40px;
 $graph-zindex: 10;
-
+$graph-height: 140px;
 #hud #sessions {
   width: $sessions-list-width;
   position: absolute;
@@ -97,13 +97,12 @@ $graph-zindex: 10;
   width: auto;
   left: $sessions-list-width + 20px;
   #graph-box {
+    bottom: 4px;
     margin: 0;
-    height: 140px;
+    min-width: 600px;
+    height: $graph-height;
     background: none repeat scroll 0% 0% rgb(255, 255, 255);
-    border: 2px solid rgb(133, 133, 133);
-    position: relative;
-    left: -2px;
-    top: -2px;
+    position: absolute;
     overflow: visible;
 
     #graph-label-bottom, #graph-label-top {
@@ -119,14 +118,21 @@ $graph-zindex: 10;
     }
 
     #graph-label-bottom {
-      bottom: 0;
+      bottom: -4px;
     }
   }
 
   #graph-top {
-    width: 180px;
+    width: 170px;
+    position: absolute;
+    bottom: $graph-height + 2;
     overflow: visible;
-    margin: 0 0 20px 0;
+    margin: 0;
+    &.collapsed {
+      bottom: 0;
+      top: auto;
+    }
+    
     #graph-header {
       background: #fff;
       border: 2px solid #858585;
@@ -156,11 +162,11 @@ $graph-zindex: 10;
   }
 
   #graph-bottom {
+    position: absolute;
     bottom: 0;
-    position: relative;
     overflow: visible;
-    height: 0;
-    margin: 0;
+    height: 20px;
+    width: 100%;
 
     #graph-label-left, #graph-label-right {
       background: #fff;
@@ -169,7 +175,8 @@ $graph-zindex: 10;
       font-weight:bold;
       padding:4px 16px 1px;
       position: absolute;
-      top: 0;
+      top: 24px;
+      z-index: $graph-zindex + 1;
     }
 
     #graph-label-left {
@@ -177,7 +184,7 @@ $graph-zindex: 10;
     }
 
     #graph-label-right {
-      right: 0;
+      right: -4px;
     }
   }
 
@@ -189,6 +196,7 @@ $graph-zindex: 10;
     margin: 0;
     top: 0;
     left: 0;
+    border: 2px solid rgb(133, 133, 133);
   }
 
   #graph {

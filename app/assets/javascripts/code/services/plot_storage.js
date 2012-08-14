@@ -45,9 +45,9 @@ angular.module("aircasting").factory('plotStorage', ['params', '$rootScope', 'se
       var options = this.plot.getOptions();
       options.xaxis.panRange = [first, last];
       options.xaxis.zoomRange = [null, last - first];
-      options.yaxis.min = _.first(heat.get(params.get('data').heat));
-      options.yaxis.max = _.last(heat.get(params.get('data').heat));
-      this.plot.setData([{label: "Data", data: correctedData}]);
+      options.yaxis.min = _.first(heat.toList(params.get('data').heat));
+      options.yaxis.max = _.last(heat.toList(params.get('data').heat));
+      this.plot.setData([{data: correctedData}]);
       this.plot.setupGrid();
       this.plot.draw();
     }

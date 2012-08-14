@@ -1,11 +1,16 @@
-function SessionsGraphCtrl($scope, map, params, plotStorage, flash) {
+function SessionsGraphCtrl($scope, map, params, plotStorage, flash, heat, sensors) {
   $scope.plotStorage = plotStorage;
   $scope.expanded = false;
   $scope.params = params;
+  $scope.heat = heat;
+  $scope.sensors = sensors;
+
+  $scope.css = function() {
+    return $scope.expanded ? "" : "collapsed";
+  };
 
   $scope.toggle = function(){
     var sessionsSize = _(params.get('sessionsIds')).size();
-    console.log(sessionsSize);
     if(sessionsSize === 0) {
       flash.set("Please select one session to view the graph");
       return;
@@ -21,5 +26,5 @@ function SessionsGraphCtrl($scope, map, params, plotStorage, flash) {
   };
 
 }
-SessionsGraphCtrl.$inject = ['$scope', 'map', 'params', 'plotStorage', 'flash'];
+SessionsGraphCtrl.$inject = ['$scope', 'map', 'params', 'plotStorage', 'flash', 'heat', 'sensors'];
 
