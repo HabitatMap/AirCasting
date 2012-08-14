@@ -54,6 +54,7 @@ spec_files:
   - unit/vendor/*.js
   - unit/spec_helper.js
   - unit/services/*_spec.js
+  - unit/controllers/*_spec.js
 # src_dir
 #
 # Source directory path. Your src_files must be returned relative to this path. Will use root if left blank.

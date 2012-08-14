@@ -1,0 +1,21 @@
+<section ng-controller="SessionsGraphCtrl">
+  <div id="graph-top">
+    <div id="graph-header">Sessions Graph</div>
+    <a id="graph-arrow" ng:click="toggle()"></a>
+  </div>
+  <div id="graph-box" ng:show="expanded">
+    <span id="graph-label-top"></span>
+    <span id="graph-label-bottom"></span>
+    <div id="graph" plot></div>
+    <div id="graph-background">
+      <div class="highest"></div>
+      <div class="high"></div>
+      <div class="mid"></div>
+      <div class="low"></div>
+    </div>
+    <div id="graph-bottom">
+      <div id="graph-label-left">{{formattedEdge('min')}}</div>
+      <div id="graph-label-right">{{formattedEdge('max')}}</div>
+    </div>
+  </div>
+</section>

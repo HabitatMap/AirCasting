@@ -1,9 +1,9 @@
-angular.module("google").factory('geocoder', function() {
-  var geocoder = new google.maps.Geocoder();
+angular.module("google").factory('geocoder', ["googleCore", function(googleCore) {
+  var geocoder = googleCore.geocoder();
   return {
     get: function(address, callback){
       geocoder.geocode({address: address}, callback);
     }
   };
-});
+}]);
 

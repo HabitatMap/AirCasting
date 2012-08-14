@@ -1,46 +1,51 @@
-<div id="crowd-map-tab">
-  <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
-  <section ng-show="expandables.visible('sensor')" >
-  <p>
-    <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in sensors.get()">
-      </select>
-    </p>
-  </section>
+<div id="left-hud" ng-include src="'/partials/left_hud.html'"></div>
 
-  <h4 ng-click="expandables.toggle('location')" ng-class="expandables.css('location')">Location</h4>
-  <section ng-show="expandables.visible('location')">
-    <div class="textfield">
+<div id="right-hud">
+  <div id="panel" ng-include src="'/partials/panel.html'"></div>
+  <div id="crowd-map-tab" class="tab-content">
+    <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
+    <section ng-show="expandables.visible('sensor')" >
       <p>
-        <label>Address, Intersection, or Zip
-          <input type="text" ng-model="storage.data.location.address">
-        </label>
+        <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in sensors.get()">
+        </select>
       </p>
-    </div>
-    <div>
-      <ul class="buttons">
-        <li><button ng-click="storage.update('location')">show</li>
-      </ul>
-    </div>
-  </section>
+    </section>
 
-  <div ng-include src="'/partials/usernames_and_tags.html'"></div>
-  <div ng-include src="'/partials/time_filters.html'"></div>
-
-  <h4 ng-click="expandables.toggle('gridResolution')" ng-class="expandables.css('gridResolution')">CrowdMap Resolution</h4>
-  <section ng-show="expandables.visible('gridResolution')">
-    <div>
-      <div class="slider full-slider">
-        <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="storage.data.gridResolution" slider-callback="storageEvents.onResolutionSlide" ></div>
-        <span>{{storage.data.gridResolution}}</span>
+    <h4 ng-click="expandables.toggle('location')" ng-class="expandables.css('location')">Location</h4>
+    <section ng-show="expandables.visible('location')">
+      <div class="textfield">
+        <p>
+          <label>Address, Intersection, or Zip
+            <input type="text" ng-model="storage.data.location.address">
+          </label>
+        </p>
       </div>
-    </div>
+      <div>
+        <ul class="buttons">
+          <li><button ng-click="storage.update('location')">show</li>
+        </ul>
+      </div>
+    </section>
 
-    <div>
-      <ul class="buttons">
-        <li><button ng-click="storage.reset('gridResolution')">reset</button></li>
-        <li><button ng-click="storage.update('gridResolution')">submit</button></li>
-      </ul>
-    </div>
-  </section>
-  <div ng-include src="'/partials/heat_legend.html'"></div>
+    <div class="section-divider" ng-include src="'/partials/usernames_and_tags.html'"></div>
+    <div class="section-divider" ng-include src="'/partials/time_filters.html'"></div>
+
+    <h4 ng-click="expandables.toggle('gridResolution')" ng-class="expandables.css('gridResolution')">CrowdMap Resolution</h4>
+    <section ng-show="expandables.visible('gridResolution')">
+      <div>
+        <div class="slider full-slider">
+          <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="storage.data.gridResolution" slider-callback="storageEvents.onResolutionSlide" ></div>
+          <span>{{storage.data.gridResolution}}</span>
+        </div>
+      </div>
+
+      <div>
+        <ul class="buttons">
+          <li><button ng-click="storage.reset('gridResolution')">reset</button></li>
+          <li><button ng-click="storage.update('gridResolution')">submit</button></li>
+        </ul>
+      </div>
+    </section>
+    <div ng-include src="'/partials/heat_legend.html'"></div>
+  </div>
 </div>

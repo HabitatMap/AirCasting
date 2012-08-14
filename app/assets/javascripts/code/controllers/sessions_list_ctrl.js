@@ -4,18 +4,18 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
     $scope.storage = storage;
     $scope.sensors = sensors;
     $scope.sessions = sessions;
-    $scope.list = [];
     params.update({sessionsIds: params.get('sessionsIds', [])});
   };
 
   $scope.openSensorDialog = function() {
+    $scope.params.update({tmpSensorId: ""});
     var dialogObj = dialog();
     dialogObj.title('Select a Parameter - Sensor')
       .template("/partials/tmp_sensor_selection_dialog.html")
       .onClose(function(){
         if(!sensors.tmpSelected()){
           $scope.params.update({sessionsIds: []});
-          var selectedSession = _($scope.list).detect(function(session){
+          var selectedSession = _($scope.sessions.get()).detect(function(session){
             return session.$selected;
           });
           if(selectedSession){
@@ -40,31 +40,17 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
     return session.$selected || sensors.selected() || (params.get('sessionsIds').length === 0);
   };
 
+  //used to fetch all the sessions
   $scope.$watch("params.get('data')", function() {
-    sessions.fetch($scope.onSessionsFetch);
+    sessions.fetch();
   }, true);
 
+  //used for open tmp sensor dialogs
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
     if(newIds.length === 1 && !sensors.selected()) {
       $scope.openSensorDialog();
     }
-    $scope.params.update({sessionsIds: newIds});
   }, true);
-
-  $scope.onSessionsFetch = function(data, status, headers, config) {
-    _(data).each(function(session){
-      if(session.start_time_local && session.end_time_local) {
-        session.timeframe = moment(session.start_time_local).format('MM/DD/YYYY, HH:mm') +
-            '-' +  moment(session.end_time_local).format('HH:mm');
-      }
-      session.shortTypes = _(session.streams).chain().map(function(stream){
-        return {name: stream.measurement_short_type, type: stream.sensor_name};
-      }).sortBy(function(shortType) {
-        return shortType.name.toLowerCase();
-      }).value();
-    });
-    $scope.list = data;
-  };
 
   $scope.setDefaults();
 

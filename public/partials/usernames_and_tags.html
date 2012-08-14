@@ -12,7 +12,7 @@
     </div>
   </section>
 
-  <h4 ng-click="expandables.toggle('tags')" ng-class="expandables.css('tags')">Tags</h4>
+  <h4 class="section-divider" ng-click="expandables.toggle('tags')" ng-class="expandables.css('tags')">Tags</h4>
   <section ng-show="expandables.visible('tags')">
     <div class="textfield">
       <input type="text" autocomplete="/autocomplete/tags" ng-model="storage.data.tags">

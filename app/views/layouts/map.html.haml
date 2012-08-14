@@ -13,9 +13,7 @@
   %body(id="map")
     #mapview(googlemap)
     #hud(ng-controller="HudCtrl" ng-hide="map.streetViewVisible()")
-      = render :partial => 'shared/left_hud'
-      #right-hud
-        = yield
+      = yield
       #ajax-loader
       #zoom-box
         .content

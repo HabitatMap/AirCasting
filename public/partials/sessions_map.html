@@ -1,99 +1,52 @@
-<section class="sessions" ng-controller="SessionsListCtrl">
-  <div id="sessions-top">
-    <div class="name"><span>Sessions</span></div>
-    <ul class="buttons">
-      <li><button ng-click="toggleAll()">all</button></li>
-    </ul>
-  </div>
-  <div class="nomargin">
-    <div class="sessions-container">
-      <ul>
-        <li ng:repeat="session in list">
-          <input type="checkbox" collection="params.get('sessionsIds')" collection-id="session.id" ng-model="session.$selected" ng-disabled="!isAbleToChange(session)">
-          <dl>
-            <dt><label class="narrow">{{session.title || 'unnamed' }}</label></dt>
-            <dd>
-              <label class="narrow">
-                {{session.username}},
-                {{session.timeframe}}
-                <span ng-class="shortType.type" ng-repeat="shortType in session.shortTypes">
-                  {{shortType.name}}<span ng-hide="$index==session.shortTypes.length-1">/</span>
-                </span>
-              </label>
-            </dd>
-          </dl>
-        </li>
-      </ul>
-    </div>
-  </div>
-</section>
+<div id="left-hud" ng-include src="'/partials/left_hud.html'"></div>
+<div id="sessions" ng-include src="'/partials/sessions_list.html'"></div>
+<div id="sessions-graph" ng-include src="'/partials/graph.html'"></div>
 
-<section class="graph" ng-controller="SessionsGraphCtrl">
-<div id="graph-top">
-  <div id="graph-header">Sessions Graph</div>
-  <a id="graph-arrow"></a>
+
+<div id="right-hud">
+  <div id="panel" ng-include src="'/partials/panel.html'"></div>
+  <div id="sessions-map-tab" class="tab-content">
+    <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
+    <section ng-show="expandables.visible('sensor')" >
+    <p>
+      <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in sensors.get()">
+        <option value="">All</option>
+      </select>
+    </p>
+    </section>
+
+    <h4 ng-click="expandables.toggle('location')" ng-class="expandables.css('location')">Location</h4>
+    <section ng-show="expandables.visible('location')">
+      <div class="textfield">
+        <p>
+          <label>Address, Intersection, or Zip
+            <input type="text" ng-model="storage.data.location.address">
+          </label>
+        </p>
+        <p>
+          <label>Within</label>
+          <select ng-model="storage.data.location.distance">
+            <option value="1">1 Mile radius</option>
+            <option value="5">5 Miles radius</option>
+            <option value="10">10 Miles radius</option>
+            <option value="20">20 Miles radius</option>
+          </select>
+        </p>
+
+        <p>
+          <input type="checkbox" ng-model="storage.data.location.limitToViewport" >
+          <label>Limit my search to the current map view</label>
+        </p>
+      </div>
+      <div>
+        <ul class="buttons">
+          <li><button ng-click="storage.update('location')">show</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider" ng-include src="'/partials/usernames_and_tags.html'"></div>
+    <div class="section-divider" ng-include src="'/partials/time_filters.html'"></div>
+    <div class="section-divider" ng-include src="'/partials/heat_legend.html'"></div>
+  </div>
 </div>
-<div id="graph-box">
-  <span id="graph-label-top"></span>
-  <span id="graph-label-bottom"></span>
-  <div id="graph">
-  </div>
-  <div id="graph-background">
-    <div class="high"></div>
-    <div class="midhigh"></div>
-    <div class="mid"></div>
-    <div class="low"></div>
-  </div>
-  <div id="graph-bottom">
-    <div id="graph-label-left">Left</div>
-    <div id="graph-label-right">right</div>
-  </div>
-</div>
-</section>
-
-<div id="sessions-map-tab">
-  <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
-  <section ng-show="expandables.visible('sensor')" >
-  <p>
-    <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in sensors.get()">
-      <option value="">All</option>
-    </select>
-  </p>
-  </section>
-
-  <h4 ng-click="expandables.toggle('location')" ng-class="expandables.css('location')">Location</h4>
-  <section ng-show="expandables.visible('location')">
-    <div class="textfield">
-      <p>
-        <label>Address, Intersection, or Zip
-          <input type="text" ng-model="storage.data.location.address">
-        </label>
-      </p>
-      <p>
-        <label>Within</label>
-        <select ng-model="storage.data.location.distance">
-          <option value="1">1 Mile radius</option>
-          <option value="5">5 Miles radius</option>
-          <option value="10">10 Miles radius</option>
-          <option value="20">20 Miles radius</option>
-        </select>
-      </p>
-
-      <p>
-        <input type="checkbox" ng-model="storage.data.location.limitToViewport" >
-        <label>Limit my search to the current map view</label>
-      </p>
-    </div>
-    <div>
-      <ul class="buttons">
-        <li><button ng-click="storage.update('location')">show</li>
-      </ul>
-    </div>
-  </section>
-
-  <div ng-include src="'/partials/usernames_and_tags.html'"></div>
-  <div ng-include src="'/partials/time_filters.html'"></div>
-
-  <div ng-include src="'/partials/heat_legend.html'"></div>
-</div>
-
