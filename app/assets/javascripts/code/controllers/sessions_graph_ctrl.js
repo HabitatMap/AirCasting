@@ -6,7 +6,7 @@ function SessionsGraphCtrl($scope, map, params, plotStorage, flash) {
   $scope.toggle = function(){
     var sessionsSize = _(params.get('sessionsIds')).size();
     console.log(sessionsSize);
-    if(sessionsSize == 0) {
+    if(sessionsSize === 0) {
       flash.set("Please select one session to view the graph");
       return;
     } else if(sessionsSize > 1) {

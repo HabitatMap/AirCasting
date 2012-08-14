@@ -1,6 +1,6 @@
 angular.module("aircasting").factory('heat', function() {
   var Heat = function() {
-  }
+  };
 
   Heat.prototype = {
     parse: function(heat) {
@@ -19,7 +19,7 @@ angular.module("aircasting").factory('heat', function() {
       var names = ["highest", "high", "mid", "low", "lowest"];
       return _(names).map(function(name){
         return  heat[name];
-      })
+      });
     }
   };
 
