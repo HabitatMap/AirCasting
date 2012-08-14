@@ -11,6 +11,7 @@
     = render :partial => 'shared/fb_logo'
 
   %body(id="map")
+    .notice(ng-controller="FlashCtrl" ng-show="flash.message" ng-click="clear()") {{flash.message}}
     #mapview(googlemap)
     #hud(ng-controller="HudCtrl" ng-hide="map.streetViewVisible()")
       = yield
