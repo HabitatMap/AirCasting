@@ -1,4 +1,4 @@
-function SessionsGraphCtrl($scope, map, params, plotStorage, flash, heat, sensors) {
+function SessionsGraphCtrl($scope, map, params, plotStorage, flash, heat, sensors, sessions) {
   $scope.plotStorage = plotStorage;
   $scope.expanded = false;
   $scope.params = params;
@@ -24,7 +24,27 @@ function SessionsGraphCtrl($scope, map, params, plotStorage, flash, heat, sensor
     var data = plotStorage.getEdge(edge);
     return data ? moment(data).format("HH:mm:ss") : "";
   };
+  $scope.onPlotHover = function(event, pos, item){
+    if(item === null){
+      $scope.hideHighlight();
+    } else {
+      $scope.showHighlight(pos.x);
+    }
+  };
+  $scope.showHighlight = function(time){
+    var index = _(sessions.selectedMeasurementsToTime()).sortedIndex([time, null], function(d) {
+      return _.first(d);
+    });
+    var measurement = sessions.selectedMeasurements()[index];
+    $scope.highlight = map.setMarker(measurement, $scope.highlight);
+  };
+
+  $scope.hideHighlight = function(){
+    map.removeMarker($scope.highlight);
+    delete $scope.highlight;
+  };
 
 }
-SessionsGraphCtrl.$inject = ['$scope', 'map', 'params', 'plotStorage', 'flash', 'heat', 'sensors'];
+SessionsGraphCtrl.$inject = ['$scope', 'map', 'params', 'plotStorage', 'flash', 'heat', 'sensors', 'sessions'];
+
 

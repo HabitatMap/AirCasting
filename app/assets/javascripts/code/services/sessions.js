@@ -41,6 +41,7 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
       }
       $http.get('/api/sessions.json', {params : {q: reqData}}).success(_(this.onSessionsFetch).bind(this));
     },
+
     onSessionsFetch: function(data, status, headers, config) {
       _(data).each(function(session){
         if(session.start_time_local && session.end_time_local) {
@@ -54,7 +55,6 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
         }).value();
       });
       this.sessions = data;
-      //this.scope.$digest();
     },
 
     find: function(id) {
@@ -71,6 +71,24 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
       }
       $http.get('/api/sessions/' +  id).success(function(data, status, headers, config){
         self.onSingleSessionFetch(session, data);
+      });
+    },
+
+    selected: function(){
+      return this.find(_(params.get('sessionsIds')).first());
+    },
+
+    selectedMeasurements: function(){
+      return this.selected().details.streams[sensors.anySelected().sensor_name].measurements;
+    },
+
+    withStream: function(){
+      return !!this.selected().details.streams[sensors.anySelected().sensor_name];
+    },
+
+    selectedMeasurementsToTime: function(){
+      return  _(this.selectedMeasurements()).map(function(measurement){
+        return [moment(measurement.time).valueOf(), measurement.value];
       });
     },
 

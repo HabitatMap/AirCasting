@@ -6,7 +6,7 @@
   <div id="graph-box" ng:show="expanded">
     <span id="graph-label-top">{{params.get('data').heat.highest}} {{sensors.anySelected().unit_symbol}}</span>
     <span id="graph-label-bottom">{{params.get('data').heat.lowest}} {{sensors.anySelected().unit_symbol}}</span>
-    <div id="graph" plot></div>
+    <div id="graph" plot plot-onhover="onPlotHover"></div>
     <div id="graph-background" heatbackground="heat.get()">
       <div class="highest"></div>
       <div class="high"></div>

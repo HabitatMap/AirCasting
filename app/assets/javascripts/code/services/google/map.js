@@ -1,5 +1,5 @@
-angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles", "geocoder",
-                                     function($cookies, $rootScope, rectangles, geocoder){
+angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles", "geocoder", '$location',
+                                     function($cookies, $rootScope, rectangles, geocoder, $location){
   var Map = function() {};
   Map.prototype = {
     init: function(element, options) {
@@ -87,6 +87,27 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
       _(rectangles.get()).each(function(rectangle){
         self.listen('click',  clickCallback, rectangle);
       });
+    },
+    setMarker: function(latLngObj, marker) {
+      var latlng = new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
+      var newMarker;
+      if(marker){
+        newMarker = marker.setPosition(latlng);
+      } else {
+        newMarker = new google.maps.Marker({
+          position: latlng,
+          zIndex: 300000,
+          icon: "/assets/location_marker.png"
+        });
+        marker.setMap(this.get());
+      }
+      return newMarker;
+    },
+    removeMarker: function(marker) {
+      if(!marker){
+        return;
+      }
+      marker.setMap(null);
     }
   };
 

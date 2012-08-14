@@ -11,7 +11,7 @@ angular.module("aircasting").factory('plotStorage', ['params', '$rootScope', 'se
     };
     this.scope.$watch("shouldRedraw()", function(ready) {
       if(ready) {
-        self.redraw(sessions.find(_(params.get('sessionsIds')).first()).details);
+        self.redraw();
       }
     }, true);
   };
@@ -32,14 +32,11 @@ angular.module("aircasting").factory('plotStorage', ['params', '$rootScope', 'se
     set : function(plot){
       this.plot = plot;
     },
-    redraw: function(data) {
-      var stream = data.streams[sensors.anySelected().sensor_name];
-      if(!stream) {
+    redraw: function() {
+      if(!sessions.withStream()) {
         return;
       }
-      var correctedData = _(stream.measurements).map(function(measurement){
-        return [moment(measurement.time).valueOf(), measurement.value];
-      });
+      var correctedData = sessions.selectedMeasurementsToTime();
       var first = _(correctedData).first()[0];
       var last = _(correctedData).last()[0];
       var options = this.plot.getOptions();
