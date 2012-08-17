@@ -48,12 +48,12 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
       $cookies.vp_lat = lat;
       $cookies.vp_lng = lng;
     },
-    appendViewport: function(north, east, south, west) {
-      if(!(north && east && south && west)) {
+    appendViewport: function(obj) {
+      if(!(obj.north && obj.east && obj.south && obj.west)) {
         return;
       }
-      var northeast = new google.maps.LatLng(north, east);
-      var southwest = new google.maps.LatLng(south, west);
+      var northeast = new google.maps.LatLng(obj.north, obj.east);
+      var southwest = new google.maps.LatLng(obj.south, obj.west);
       var bounds = new google.maps.LatLngBounds(southwest, northeast);
       this.mapObj.fitBounds(bounds);
     },
@@ -88,18 +88,21 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
         self.listen('click',  clickCallback, rectangle);
       });
     },
-    setMarker: function(latLngObj, marker) {
+    drawMarker: function(latLngObj, optionInput, existingMarker){
       var latlng = new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
       var newMarker;
-      if(marker){
-        newMarker = marker.setPosition(latlng);
+      if(existingMarker){
+        newMarker = existingMarker.setPosition(latlng);
       } else {
-        newMarker = new google.maps.Marker({
+        var options = {
           position: latlng,
           zIndex: 300000,
-          icon: "/assets/location_marker.png"
-        });
-        marker.setMap(this.get());
+          icon: "/assets/location_marker.png",
+          flat: true
+        };
+        _(options).extend(optionInput || {});
+        newMarker = new google.maps.Marker(options);
+        newMarker.setMap(this.get());
       }
       return newMarker;
     },
@@ -109,6 +112,7 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
       }
       marker.setMap(null);
     }
+
   };
 
   return new Map();

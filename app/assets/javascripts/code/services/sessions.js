@@ -13,6 +13,9 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
     get: function(){
       return this.sessions;
     },
+    noOfSelectedSessions : function() {
+      return this.allSelected().length;
+    },
     fetch: function() {
       var viewport = map.viewport();
       var data = params.get('data');
@@ -66,7 +69,7 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
     fetchSingle: function(id) {
       var self = this;
       var session = this.find(id);
-      if(angular.isDefined(session.details)){
+      if(session.loaded){
         return;
       }
       $http.get('/api/sessions/' +  id).success(function(data, status, headers, config){
@@ -74,27 +77,59 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
       });
     },
 
-    selected: function(){
-      return this.find(_(params.get('sessionsIds')).first());
+    allSelected: function(){
+      var self = this;
+      return _(params.get('sessionsIds')).chain().map(function(id){
+        return self.find(id);
+      }).compact().value();
     },
 
-    selectedMeasurements: function(){
-      return this.selected().details.streams[sensors.anySelected().sensor_name].measurements;
+    measurementsForSensor: function(session, sensor_name){
+      return session.details.streams[sensor_name].measurements;
     },
 
-    withStream: function(){
-      return !!this.selected().details.streams[sensors.anySelected().sensor_name];
+    measurements: function(session, sensor_name){
+      return session.details.streams[sensors.anySelected().sensor_name].measurements;
     },
 
-    selectedMeasurementsToTime: function(){
-      return  _(this.selectedMeasurements()).map(function(measurement){
-        return [moment(measurement.time).valueOf(), measurement.value];
-      });
+    allMeasurements: function(sensor_name){
+      var self = this;
+      return _(this.allSelected()).chain().map(function(session){
+        return self.measurements(session, sensor_name);
+      }).flatten().value();
     },
 
     onSingleSessionFetch: function(session, data) {
       session.details = data;
-    }
+      session.loaded = true;
+      if(sensors.anySelected()){
+        this.draw(session);
+      }
+    },
+
+    draw: function(session) {
+      var measurments = this.measurements(session);
+      var suffix = ' ' + sensors.anySelected().unit_symbol;
+      _(measurments).each(function(measurment, idx){
+        map.drawMarker(measurment, {title: parseInt(measurment.value, 10).toString() + suffix, zIndex: idx} );
+      });
+      map.appendViewport(this.getBounds());
+      session.drawed = true;
+    },
+    getBounds: function() {
+       var north,  east, south, west, lat, lng;
+       var self = this;
+       console.log(sensors.anySelected().sensor_name, this.allMeasurements(sensors.anySelected().sensor_name));
+       _(this.allMeasurements(sensors.anySelected().sensor_name)).each(function(m){
+         lat = parseFloat(m.latitude);
+         lng = parseFloat(m.longitude);
+         if(!north || lat > north){ north = lat; }
+         if(!east || lng > east){  east = lng ; }
+         if(!south || lat < south){  south = lat; }
+         if(!west || lng < west){  west = lng ; }
+       });
+       return {north: north, east: east, south : south, west: west};
+     }
   };
   return new Sessions();
 }]);

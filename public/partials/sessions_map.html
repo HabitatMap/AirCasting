@@ -47,6 +47,6 @@
 
     <div class="section-divider" ng-include src="'/partials/usernames_and_tags.html'"></div>
     <div class="section-divider" ng-include src="'/partials/time_filters.html'"></div>
-    <div class="section-divider" ng-include src="'/partials/heat_legend.html'"></div>
+    <div ng:show="sensors.selected()" class="section-divider" ng-include src="'/partials/heat_legend.html'"></div>
   </div>
 </div>

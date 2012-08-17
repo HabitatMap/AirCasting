@@ -33,6 +33,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
     isEmpty: function() {
       return _(this.sensors).size() === 0;
     },
+    //selected in dropdown
     selected: function() {
       return this.sensors[params.get('data').sensorId];
     },
@@ -42,6 +43,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       }
       return this.selected().id;
     },
+    //used when "all" sensors are choosen
     tmpSelected: function() {
       return this.sensors[params.paramsData.tmpSensorId];
     },
@@ -51,6 +53,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       }
       return this.tmpSelected().id;
     },
+    //pick tmp when "all option is selected
     anySelected: function() {
       return this.selected() || this.tmpSelected();
     },
@@ -63,6 +66,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
     proceedWithTmp: function() {
       params.update({tmpSensorId: this.tmpSensorId});
     }
+
   };
   return new Sensors();
 }]);

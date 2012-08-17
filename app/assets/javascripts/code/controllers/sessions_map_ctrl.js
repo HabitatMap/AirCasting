@@ -12,9 +12,22 @@ function SessionsMapCtrl($scope, $http, params, heat, $window, map, sensors, exp
 
     $scope.params.update({data: {
       location: {distance: "5"},
-      heat:  $scope.params.get('data').heat || heat.parse([0,1,2,3,4])
+      heat:  heat.getValues() || heat.parse([0,1,2,3,4])
     }});
   };
+
+  $scope.$watch("params.get('data').location", function(newValue) {
+    map.goToAddress(newValue.address);
+  }, true);
+
+
+  $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
+    if(!newValue){
+      return;
+    }
+    var data = heat.toSensoredList(sensors.selected());
+    $scope.params.update({data: {heat: heat.parse(data) }});
+  });
 
   $scope.setDefaults();
 

@@ -33,17 +33,17 @@
   <div>
     <ul class="legend">
         <li class="low" ng-style="heat.heatPercentage.low">
-          <span class="start">{{params.get('heat').lowest}}{{sensors.selected().unit_symbol}}</span>
+          <span class="start">{{heat.getValue('lowest')}}{{sensors.selected().unit_symbol}}</span>
         </li>
         <li class="mid" ng-style="heat.heatPercentage.mid">
-          <span class="start">{{params.get('heat').low}}{{sensors.selected().unit_symbol}}</span>
+          <span class="start">{{heat.getValue('low')}}{{sensors.selected().unit_symbol}}</span>
         </li>
         <li class="high" ng-style="heat.heatPercentage.high">
-          <span class="start">{{params.get('heat').mid}}{{sensors.selected().unit_symbol}}</span>
+          <span class="start">{{heat.getValue('mid')}}{{sensors.selected().unit_symbol}}</span>
         </li>
         <li class="highest" ng-style="heat.heatPercentage.highest">
-          <span class="start">{{params.get('heat').high}}{{sensors.selected().unit_symbol}}</span>
-          <span class="end">{{params.get('heat').higest}}{{sensors.selected().unit_symbol}}</span>
+          <span class="start">{{heat.getValue('high')}}{{sensors.selected().unit_symbol}}</span>
+          <span class="end">{{heat.getValue('higest')}}{{sensors.selected().unit_symbol}}</span>
         </li>
       </ul>
     </div>

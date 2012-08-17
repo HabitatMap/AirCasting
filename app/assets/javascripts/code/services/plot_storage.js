@@ -1,18 +1,13 @@
-angular.module("aircasting").factory('plotStorage', ['params', '$rootScope', 'sessions', 'sensors','heat',
-                                     function(params, $rootScope, sessions, sensors, heat) {
+angular.module("aircasting").factory('plotStorage', ['$rootScope', 'singleSession', 'sensors','heat',
+                                     function($rootScope, singleSession, sensors, heat) {
   var PlotStorage = function() {
     var self = this;
     this.scope = $rootScope.$new();
-    this.scope.params = params;
     this.scope.shouldRedraw = function() {
-      return _(params.get('sessionsIds')).size() == 1 &&
-        !!sensors.anySelected() &&
-          !!sessions.find(_(params.get('sessionsIds')).first()).details;
+      return singleSession.isSingle() && !!sensors.anySelected() && !!singleSession.get().loaded;
     };
     this.scope.$watch("shouldRedraw()", function(ready) {
-      if(ready) {
-        self.redraw();
-      }
+      if(ready){self.redraw();}
     }, true);
   };
   PlotStorage.prototype = {
@@ -33,17 +28,17 @@ angular.module("aircasting").factory('plotStorage', ['params', '$rootScope', 'se
       this.plot = plot;
     },
     redraw: function() {
-      if(!sessions.withStream()) {
+      if(!singleSession.withSelectedSensor()) {
         return;
       }
-      var correctedData = sessions.selectedMeasurementsToTime();
+      var correctedData = singleSession.measurementsToTime();
       var first = _(correctedData).first()[0];
       var last = _(correctedData).last()[0];
       var options = this.plot.getOptions();
       options.xaxis.panRange = [first, last];
       options.xaxis.zoomRange = [null, last - first];
-      options.yaxis.min = _.first(heat.toList(params.get('data').heat));
-      options.yaxis.max = _.last(heat.toList(params.get('data').heat));
+      options.yaxis.min = _.first(heat.toList());
+      options.yaxis.max = _.last(heat.toList());
       this.plot.setData([{data: correctedData}]);
       this.plot.setupGrid();
       this.plot.draw();

@@ -1,4 +1,4 @@
-function HeatCtrl($scope, sensors, storage, storageEvents, heat) {
+function HeatCtrl($scope, sensors, storage, storageEvents, heat ) {
   $scope.storage = storage;
   $scope.storageEvents = storageEvents;
   $scope.sensors = sensors;

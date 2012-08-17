@@ -1,7 +1,6 @@
-function SessionsGraphCtrl($scope, map, params, plotStorage, flash, heat, sensors, sessions) {
+function SessionsGraphCtrl($scope, map, plotStorage, flash, heat, sensors, singleSession) {
   $scope.plotStorage = plotStorage;
   $scope.expanded = false;
-  $scope.params = params;
   $scope.heat = heat;
   $scope.sensors = sensors;
 
@@ -10,7 +9,7 @@ function SessionsGraphCtrl($scope, map, params, plotStorage, flash, heat, sensor
   };
 
   $scope.toggle = function(){
-    var sessionsSize = _(params.get('sessionsIds')).size();
+    var sessionsSize = singleSession.noOfSelectedSessions();
     if(sessionsSize === 0) {
       flash.set("Please select one session to view the graph");
       return;
@@ -32,11 +31,11 @@ function SessionsGraphCtrl($scope, map, params, plotStorage, flash, heat, sensor
     }
   };
   $scope.showHighlight = function(time){
-    var index = _(sessions.selectedMeasurementsToTime()).sortedIndex([time, null], function(d) {
+    var index = _(singleSession.measurementsToTime()).sortedIndex([time, null], function(d) {
       return _.first(d);
     });
-    var measurement = sessions.selectedMeasurements()[index];
-    $scope.highlight = map.setMarker(measurement, $scope.highlight);
+    var measurement = singleSession.measurements()[index];
+    $scope.highlight = map.drawMarker(measurement, null, $scope.highlight);
   };
 
   $scope.hideHighlight = function(){
@@ -45,6 +44,6 @@ function SessionsGraphCtrl($scope, map, params, plotStorage, flash, heat, sensor
   };
 
 }
-SessionsGraphCtrl.$inject = ['$scope', 'map', 'params', 'plotStorage', 'flash', 'heat', 'sensors', 'sessions'];
+SessionsGraphCtrl.$inject = ['$scope', 'map',  'plotStorage', 'flash', 'heat', 'sensors', 'singleSession'];
 
 

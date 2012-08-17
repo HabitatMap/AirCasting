@@ -37,7 +37,7 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
   };
 
   $scope.isAbleToChange = function(session) {
-    return session.$selected || sensors.selected() || (params.get('sessionsIds').length === 0);
+    return session.$selected || sensors.selected() || (sessions.noOfSelectedSessions() === 0);
   };
 
   //used to fetch all the sessions

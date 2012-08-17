@@ -1,6 +1,9 @@
 angular.module("aircasting").factory('heat', ["$rootScope", "params", function($rootScope, params) {
   var Heat = function() {
     var self = this;
+    this.namesBySensor = ["very_low", "low", "medium", "high", "very_high"];
+    this.namesByApp = ["highest", "high", "mid", "low", "lowest"];
+
     this.heatPercentage = {};
     this.scope = $rootScope.$new();
     this.scope.params = params;
@@ -26,6 +29,12 @@ angular.module("aircasting").factory('heat', ["$rootScope", "params", function($
     get: function() {
       return this.heatPercentage;
     },
+    getValue: function(name) {
+      return this.getValues()[name];
+    },
+    getValues: function() {
+      return params.get('data').heat;
+    },
     parse: function(heat) {
       var parsedHeat = _(heat).map(function(item){
         return _.str.toNumber(item);
@@ -38,10 +47,16 @@ angular.module("aircasting").factory('heat', ["$rootScope", "params", function($
         lowest: parsedHeat[0]
       };
     },
-    toList: function(objectWithHeats) {
-      var names = ["highest", "high", "mid", "low", "lowest"];
-      return _(names).map(function(name){
-        return objectWithHeats[name];
+    toList: function() {
+      var self = this;
+      return _(this.namesByApp).map(function(name){
+        return self.getValue(name);
+      });
+    },
+    toSensoredList: function(sensor) {
+      var self = this;
+      return _(this.namesBySensor).map(function(name){
+        return _.str.toNumber(sensor["threshold_" + name]);
       });
     }
   };
