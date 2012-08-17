@@ -12,6 +12,17 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
     get: function() {
       return _(sessions.allSelected()).first();
     },
+    availSensors: function() {
+      if(!this.get()){
+        return [];
+      }
+      var ids = _(this.get().streams).map(function(sensor){
+        return sensor.measurement_type + "-" + sensor.sensor_name;
+      });
+      return _(sensors.get()).select(function(sensor){
+        return _(ids).include(sensor.id);
+      });
+    },
     withSelectedSensor: function(){
       return !!this.get().details.streams[sensors.anySelected().sensor_name];
     },

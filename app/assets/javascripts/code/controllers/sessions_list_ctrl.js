@@ -4,7 +4,6 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
     $scope.storage = storage;
     $scope.sensors = sensors;
     $scope.sessions = sessions;
-    params.update({sessionsIds: params.get('sessionsIds', [])});
   };
 
   $scope.openSensorDialog = function() {
@@ -41,7 +40,12 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
   };
 
   //used to fetch all the sessions
-  $scope.$watch("params.get('data')", function() {
+  $scope.$watch("sensors.selectedId()", function() {
+    sessions.fetch();
+  }, true);
+
+  //used to fetch all the sessions
+  $scope.$watch("params.get('data').time", function() {
     sessions.fetch();
   }, true);
 
@@ -52,7 +56,22 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
     }
   }, true);
 
-  $scope.setDefaults();
+  //used to fetch all the sessions
+  $scope.$watch("params.get('tmpSensorId')", function(newValue) {
+    if(!newValue){
+      return;
+    }
+    sessions.redraw();
+  }, true);
 
+  //used to fetch all the sessions
+  $scope.$watch("params.get('data').heat", function(newValue) {
+    if(!newValue){
+      return;
+    }
+    sessions.redraw();
+  }, true);
+
+  $scope.setDefaults();
 }
 SessionsListCtrl.$inject = ['$scope', '$http', 'params', 'map', 'sensors', 'storage', 'sessions', 'dialog'];

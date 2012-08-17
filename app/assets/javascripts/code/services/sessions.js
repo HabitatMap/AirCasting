@@ -1,12 +1,13 @@
-angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sensors', '$rootScope',
-                                     function(params, $http, map, sensors, $rootScope) {
+angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sensors', '$rootScope', 'heat',
+                                     function(params, $http, map, sensors, $rootScope, heat) {
   var Sessions = function() {
     this.sessions = [];
     var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
     this.scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
-      _(newIds).chain().difference(oldIds).each(_(self.fetchSingle).bind(self));
+      _(newIds).chain().difference(oldIds).each(_(self.selectSession).bind(self));
+      _(oldIds).chain().difference(newIds).each(_(self.deselectSession).bind(self));
     }, true);
   };
   Sessions.prototype = {
@@ -42,6 +43,7 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
           measurement_type:  sensors.selected().measurement_type
         });
       }
+      this.sessions = [];
       $http.get('/api/sessions.json', {params : {q: reqData}}).success(_(this.onSessionsFetch).bind(this));
     },
 
@@ -66,10 +68,32 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
       });
     },
 
-    fetchSingle: function(id) {
+    redraw: function() {
+      var self = this;
+      _(this.allSelected()).each(function(session){
+        self.draw(session);
+      });
+    },
+
+    deselectSession: function(id) {
       var self = this;
       var session = this.find(id);
+      if(!session || !session.loaded){
+        return;
+      }
+      this.undoDraw(session);
+    },
+
+    selectSession: function(id) {
+      var self = this;
+      var session = this.find(id);
+      if(!session){
+        return;
+      }
       if(session.loaded){
+        if(!session.drawed) {
+          this.draw(session);
+        }
         return;
       }
       $http.get('/api/sessions/' +  id).success(function(data, status, headers, config){
@@ -108,18 +132,37 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
     },
 
     draw: function(session) {
+      if(!session || !session.loaded){
+        return;
+      }
+      this.undoDraw(session);
       var measurments = this.measurements(session);
       var suffix = ' ' + sensors.anySelected().unit_symbol;
+      session.markers = [];
       _(measurments).each(function(measurment, idx){
-        map.drawMarker(measurment, {title: parseInt(measurment.value, 10).toString() + suffix, zIndex: idx} );
+        var value = _.str.toNumber(measurment.value);
+        var level = heat.getLevel(value);
+        if(level){
+          session.markers.push(map.drawMarker(measurment, {
+            title: parseInt(measurment.value, 10).toString() + suffix,
+            zIndex: idx,
+            icon: "/assets/marker"+ level + ".png"
+          }));
+        }
       });
       map.appendViewport(this.getBounds());
       session.drawed = true;
     },
+
+    undoDraw: function(session) {
+      _(session.markers || []).each(function(marker){
+        map.removeMarker(marker);
+      });
+    },
+
     getBounds: function() {
        var north,  east, south, west, lat, lng;
        var self = this;
-       console.log(sensors.anySelected().sensor_name, this.allMeasurements(sensors.anySelected().sensor_name));
        _(this.allMeasurements(sensors.anySelected().sensor_name)).each(function(m){
          lat = parseFloat(m.latitude);
          lng = parseFloat(m.longitude);

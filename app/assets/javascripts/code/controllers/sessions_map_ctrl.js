@@ -20,12 +20,15 @@ function SessionsMapCtrl($scope, $http, params, heat, $window, map, sensors, exp
     map.goToAddress(newValue.address);
   }, true);
 
-
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
+    $scope.params.update({sessionsIds: [] });
+  });
+
+  $scope.$watch("sensors.anySelectedId()", function(newValue, oldValue) {
     if(!newValue){
       return;
     }
-    var data = heat.toSensoredList(sensors.selected());
+    var data = heat.toSensoredList(sensors.anySelected());
     $scope.params.update({data: {heat: heat.parse(data) }});
   });
 

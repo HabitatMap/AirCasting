@@ -58,6 +58,21 @@ angular.module("aircasting").factory('heat', ["$rootScope", "params", function($
       return _(this.namesBySensor).map(function(name){
         return _.str.toNumber(sensor["threshold_" + name]);
       });
+    },
+    getLevel: function(value){
+      if (value < this.getValue("lowest")) {
+        return null;
+      } else if (value < this.getValue("low")) {
+        return 1;
+      } else if (value < this.getValue("medium")) {
+        return 2;
+      } else if (value < this.getValue("high")) {
+        return 3;
+      } else if (value < this.getValue("highest")) {
+        return 4;
+      } else {
+        return null;
+      }
     }
   };
 

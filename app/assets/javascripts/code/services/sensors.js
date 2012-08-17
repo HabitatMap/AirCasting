@@ -58,10 +58,10 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       return this.selected() || this.tmpSelected();
     },
     anySelectedId: function() {
-      if(!anySelected()){
+      if(!this.anySelected()){
         return;
       }
-      return anySelected().id;
+      return this.anySelected().id;
     },
     proceedWithTmp: function() {
       params.update({tmpSensorId: this.tmpSensorId});
