@@ -4,6 +4,7 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
     $scope.storage = storage;
     $scope.sensors = sensors;
     $scope.sessions = sessions;
+
   };
 
   $scope.openSensorDialog = function() {

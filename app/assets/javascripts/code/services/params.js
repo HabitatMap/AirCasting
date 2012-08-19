@@ -4,19 +4,20 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
     var self = this;
     var scope = $rootScope.$new();
     //set init params
-    self.paramsData = angular.fromJson($location.search()) || {};
+    this.init($location.search());
     scope.$location = $location;
-    scope.$watch("$location.search()", function(searchData) {
+    scope.$watch("$location.search()", _(this.init).bind(this));
+  };
+  Params.prototype = {
+    init: function(searchData) {
       _(searchData || {}).each(function(value, key){
         searchData[key] = angular.fromJson(value);
       });
-      if(angular.equals(self.paramsData, searchData)){
+      if(angular.equals(this.paramsData, searchData)){
         return;
       }
-      self.paramsData = searchData;
-    });
-  };
-  Params.prototype = {
+      this.paramsData = searchData || {};
+    },
     get: function(name, defaultValue){
       return this.paramsData[name] || defaultValue || {};
     },

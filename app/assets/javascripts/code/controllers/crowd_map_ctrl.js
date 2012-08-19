@@ -13,7 +13,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
       $scope.expandables.show(name);
     });
     $scope.params.update({data: {
-      location: {},
+      location: $scope.params.get('data').location || {},
       heat:  $scope.params.get('data').heat || heat.parse([0,1,2,3,4]),
       gridResolution : $scope.params.get('data').gridResolution || 25
     }});

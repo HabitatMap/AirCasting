@@ -10,8 +10,9 @@ function SessionsMapCtrl($scope, $http, params, heat, $window, map, sensors, exp
       $scope.expandables.show(name);
     });
 
+    var locationParams = $scope.params.get('data').location || {};
     $scope.params.update({data: {
-      location: {distance: "5"},
+      location: {distance: locationParams.distance || "5", limit: locationParams.limit || false},
       heat:  heat.getValues() || heat.parse([0,1,2,3,4])
     }});
   };
