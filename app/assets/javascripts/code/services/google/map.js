@@ -106,13 +106,42 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
       }
       return newMarker;
     },
+
     removeMarker: function(marker) {
       if(!marker){
         return;
       }
       marker.setMap(null);
-    }
+    },
 
+    drawLine: function(data){
+      var points = _(data).map(function(latLngObj){
+        return new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
+      });
+      console.log("points.size", points.length)
+      var lineOptions = {
+        map: this.get(),
+        path: points,
+        strokeColor: "#007bf2",
+        geodesic: false
+      };
+
+      var line = new google.maps.Polyline(lineOptions);
+      return line;
+    },
+
+    drawNote: function(note){
+      var marker = this.drawMarker(note, {
+        title: note.text,
+        icon: "/assets/marker_note.png",
+        zIndex: 200000
+      });
+
+      google.maps.event.addListener(marker, 'click', function(){
+        console.log("display Note");
+      })
+      return marker;
+    }
   };
 
   return new Map();

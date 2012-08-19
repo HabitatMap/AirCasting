@@ -136,10 +136,11 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
         return;
       }
       this.undoDraw(session);
-      var measurments = this.measurements(session);
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       session.markers = [];
-      _(measurments).each(function(measurment, idx){
+      session.lines = [];
+      var points = [];
+      _(this.measurements(session)).each(function(measurment, idx){
         var value = _.str.toNumber(measurment.value);
         var level = heat.getLevel(value);
         if(level){
@@ -148,8 +149,14 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
             zIndex: idx,
             icon: "/assets/marker"+ level + ".png"
           }));
+          points.push(measurment);
         }
       });
+      _(session.details.notes || []).each(function(note){
+        map.drawNote(note);
+      });
+      session.lines.push(map.drawLine(points));
+
       map.appendViewport(this.getBounds());
       session.drawed = true;
     },
@@ -157,6 +164,9 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
     undoDraw: function(session) {
       _(session.markers || []).each(function(marker){
         map.removeMarker(marker);
+      });
+      _(session.lines || []).each(function(line){
+        map.removeMarker(line);
       });
     },
 
