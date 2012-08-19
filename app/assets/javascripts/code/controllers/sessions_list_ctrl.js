@@ -45,7 +45,7 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
   }, true);
 
   //used to fetch all the sessions
-  $scope.$watch("params.get('data').time", function() {
+  $scope.$watch("params.getWithout('data', 'heat')", function() {
     sessions.fetch();
   }, true);
 

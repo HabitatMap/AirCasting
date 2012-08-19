@@ -39,6 +39,8 @@ angular.module("aircasting").directive('autocomplete', function (){
           // add placeholder to get the comma-and-space at the end
           terms.push( "" );
           this.value = terms.join( ", " );
+          scope.$eval(attrs.ngModel + "=" + angular.toJson(this.value));
+          scope.$digest();
           return false;
         }
       });

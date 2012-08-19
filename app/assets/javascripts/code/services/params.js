@@ -20,6 +20,9 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
     get: function(name, defaultValue){
       return this.paramsData[name] || defaultValue || {};
     },
+    getWithout: function(name, exception){
+      return _(this.get(name)).without(exception);
+    },
     update: function(newParams) {
       var self = this;
       var newData = utils.merge(this.paramsData || {}, newParams);

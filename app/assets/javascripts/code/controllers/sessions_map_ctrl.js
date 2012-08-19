@@ -16,10 +16,6 @@ function SessionsMapCtrl($scope, $http, params, heat, $window, map, sensors, exp
     }});
   };
 
-  $scope.$watch("params.get('data').location", function(newValue) {
-    map.goToAddress(newValue.address);
-  }, true);
-
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
     $scope.params.update({sessionsIds: [] });
   });

@@ -37,12 +37,19 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
         tags:  data.tags,
         usernames:  data.usernames
       };
+      if(!location.limit && location.address) {
+        _(reqData).extend({
+          sensor_name:  location.address,
+          measurement_type:  location.distance
+        });
+      }
       if(sensors.selected()){
         _(reqData).extend({
           sensor_name:  sensors.selected().sensor_name,
           measurement_type:  sensors.selected().measurement_type
         });
       }
+      this.undoDraw(this.allSelected());
       this.sessions = [];
       $http.get('/api/sessions.json', {params : {q: reqData}}).success(_(this.onSessionsFetch).bind(this));
     },
@@ -63,7 +70,7 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
     },
 
     find: function(id) {
-      return _(this.sessions).detect(function(session){
+      return _(this.sessions || []).detect(function(session){
         return session.id === id;
       });
     },
@@ -71,6 +78,7 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
     redraw: function() {
       var self = this;
       _(this.allSelected()).each(function(session){
+        self.undoDraw(session);
         self.draw(session);
       });
     },
@@ -153,7 +161,7 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
         }
       });
       _(session.details.notes || []).each(function(note){
-        map.drawNote(note);
+        session.markers.push(map.drawNote(note));
       });
       session.lines.push(map.drawLine(points));
 

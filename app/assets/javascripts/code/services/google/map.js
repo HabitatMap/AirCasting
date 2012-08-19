@@ -118,7 +118,6 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
       var points = _(data).map(function(latLngObj){
         return new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
       });
-      console.log("points.size", points.length)
       var lineOptions = {
         map: this.get(),
         path: points,
@@ -139,7 +138,7 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
 
       google.maps.event.addListener(marker, 'click', function(){
         console.log("display Note");
-      })
+      });
       return marker;
     }
   };
