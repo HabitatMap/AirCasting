@@ -135,13 +135,13 @@ body#map {
 
 .slider {
   clear:both;
-  padding:10px 0 0;
+  padding: 2px 0 0;
   
   input.narrow {
     float:left;
     line-height:13px;
     height:16px;
-    width:40px !important;
+    width:58px !important;
     padding:2px;
     color:#858585;
     text-align: center;
@@ -395,7 +395,7 @@ body#map {
   }
   .section-divider {
     @include clearfix;
-  }  
+  }
   #crowd-map-tab section.resolution .slider {
     height: 25px;
   }
@@ -405,7 +405,7 @@ body#map {
   }
   
   .ui-slider {
-    width: $right-hud-width - 154px;
+    width: $right-hud-width - 194px;
     position:relative;
     top:5px;
   }

@@ -9,8 +9,8 @@
         <input timepicker class="narrow" type="text" ng-model="storage.data.time.timeTo"></input>
       </div>
     </div>
-    <div>
-      <label>Month/Day</label>
+    <div class="section-divider">
+      <label>Month/Day/Year</label>
       <div class="slider">
         <input monthday class="narrow" type="text" ng-model="storage.data.time.dayFrom"></input>
         <div slider slider-max="maxDay" slider-min="minDay" slider-value="[storage.data.time.dayFrom, storage.data.time.dayTo].join(',')" slider-range="true" slider-callback="storageEvents.onMonthDaySlide"></div>

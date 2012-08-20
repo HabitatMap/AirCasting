@@ -6,9 +6,8 @@ function TimeFiltersCtrl($scope, params, expandables, storage, storageEvents) {
 
   $scope.minTime = 0;
   $scope.maxTime = 24 * 60 - 1;
-  $scope.minDay = 1;
-  $scope.maxDay = 365;
-
+  $scope.minDay = 0; //0 days from 1,1,2011
+  $scope.maxDay = moment.duration(moment(new Date()) - moment(new Date(2011, 0, 1))).asDays();
   $scope.params.update({data: {
     time:  _(params.get('data').time).isEmpty() ? {
       timeFrom : $scope.minTime,
