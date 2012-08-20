@@ -43,7 +43,7 @@ body#map {
   z-index: 2;
 }
 
-#region-info {
+.infoWindow {
   height: 94px;
   width: 250px;
   oveflow: hidden;
@@ -411,7 +411,7 @@ body#map {
   }
   
   .wide-slider .ui-slider {
-    width: $right-hud-width - 110px;
+    width: $right-hud-width - 125px;
   }
   
   .full-slider .ui-slider {

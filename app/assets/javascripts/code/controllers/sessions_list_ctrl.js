@@ -40,15 +40,19 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
     return session.$selected || sensors.selected() || (sessions.noOfSelectedSessions() === 0);
   };
 
+  $scope.sessionFetchCondition = function() {
+    return {id:  $scope.sensors.selectedId(), heat: $scope.params.getWithout('data', 'heat')};
+  };
+
+  $scope.sessionRedrawCondition = function() {
+    return {heat:  $scope.params.get('data').heat, id: $scope.params.get('tmpSensorId')};
+  };
+
   //used to fetch all the sessions
-  $scope.$watch("sensors.selectedId()", function() {
+  $scope.$watch("sessionFetchCondition()", function() {
     sessions.fetch();
   }, true);
 
-  //used to fetch all the sessions
-  $scope.$watch("params.getWithout('data', 'heat')", function() {
-    sessions.fetch();
-  }, true);
 
   //used for open tmp sensor dialogs
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
@@ -57,17 +61,10 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
     }
   }, true);
 
-  //used to fetch all the sessions
-  $scope.$watch("params.get('tmpSensorId')", function(newValue) {
-    if(!newValue){
-      return;
-    }
-    sessions.redraw();
-  }, true);
 
   //used to fetch all the sessions
-  $scope.$watch("params.get('data').heat", function(newValue) {
-    if(!newValue){
+  $scope.$watch("sessionRedrawCondition()", function(newValue) {
+    if(!newValue.id && !newValue.heat){
       return;
     }
     sessions.redraw();

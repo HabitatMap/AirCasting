@@ -1,0 +1,11 @@
+<div ng-controller="InfoWindowCtrl" >
+  <ul ng-hide="infoWindohw.hidden">
+    <li><span>Readings for: </span>{{sensors.selected().id}}</li>
+    <li><span>Average reading: </span>{{Math.round(infoWindow.data.averages[sensors.selected().sensor_name])}}
+      {{sensors.selected().unit_symbol }}</li>
+    <li><span># of samples: </span>{{infoWindow.data.number_of_samples_per_sensor[sensors.selected().sensor_name] }}</li>
+    <li><span># of contributors: </span>{{infoWindow.data.number_of_contributors_per_sensor[sensors.selected().sensor_name] }}</li>
+    <li><span>Top contributors: </span>{{infoWindow.data.top_contributors_per_sensor[sensors.selected().sensor_name] }}</li>
+    {{infoWindow.data.averages}}
+  </ul>
+</div>

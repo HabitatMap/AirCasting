@@ -10,6 +10,11 @@ angular.module("google").factory("rectangles",  function(){
     get: function() {
       return this.rectangles;
     },
+    position: function(region){
+      var lat = (region.south + region.north) / 2;
+      var lng = (region.east + region.west) / 2;
+      return new google.maps.LatLng(lat, lng);
+    },
     draw: function(rectangles, thresholds){
       var rectOptions, rectangle, color;
       var self = this;
@@ -28,6 +33,7 @@ angular.module("google").factory("rectangles",  function(){
             )
           };
           rectangle = new google.maps.Rectangle(rectOptions);
+          rectangle.data = data;
           self.rectangles.push(rectangle);
         }
       });

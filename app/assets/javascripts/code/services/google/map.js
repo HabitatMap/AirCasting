@@ -85,7 +85,9 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
       var self = this;
       rectangles.draw(data, thresholds);
       _(rectangles.get()).each(function(rectangle){
-        self.listen('click',  clickCallback, rectangle);
+        self.listen('click', function(){
+          clickCallback(rectangle.data);
+        }, rectangle);
       });
     },
     drawMarker: function(latLngObj, optionInput, existingMarker){

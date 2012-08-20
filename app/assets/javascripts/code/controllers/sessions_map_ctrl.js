@@ -5,7 +5,8 @@ function SessionsMapCtrl($scope, $http, params, heat, $window, map, sensors, exp
     $scope.storageEvents = storageEvents;
     $scope.sensors = sensors;
     $scope.expandables = expandables;
-
+    $scope.sensorInitializedForSessions = false;
+    $scope.sensorInitializedForHeat = false;
     _.each(['sensor', 'location', 'usernames'], function(name) {
       $scope.expandables.show(name);
     });
@@ -18,16 +19,27 @@ function SessionsMapCtrl($scope, $http, params, heat, $window, map, sensors, exp
   };
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    $scope.params.update({sessionsIds: [] });
-  });
-
-  $scope.$watch("sensors.anySelectedId()", function(newValue, oldValue) {
-    if(!newValue){
+    if(newValue == oldValue){
       return;
     }
-    var data = heat.toSensoredList(sensors.anySelected());
-    $scope.params.update({data: {heat: heat.parse(data) }});
-  });
+    if($scope.sensorInitializedForSessions){
+      $scope.params.update({sessionsIds: [] });
+    } else {
+      $scope.sensorInitializedForHeat = true;
+    }
+  }, true);
+
+  $scope.$watch("sensors.anySelectedId()", function(newValue, oldValue) {
+    if(!newValue || (newValue == oldValue)){
+      return;
+    }
+    if($scope.sensorInitializedForHeat){
+      var data = heat.toSensoredList(sensors.anySelected());
+      $scope.params.update({data: {heat: heat.parse(data) }});
+    } else {
+      $scope.sensorInitializedForHeat = true;
+    }
+  }, true);
 
   $scope.setDefaults();
 

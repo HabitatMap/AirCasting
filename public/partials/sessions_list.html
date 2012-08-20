@@ -8,7 +8,7 @@
   <div id="sessions-bottom">
     <ul>
       <li ng:repeat="session in sessions.get()">
-        <input type="checkbox" collection="params.get('sessionsIds')" collection-id="session.id" ng-model="session.$selected" ng-disabled="!isAbleToChange(session)">
+        <input type="checkbox" collection="sessionsIds" collection-id="session.id" ng-model="session.$selected" ng-disabled="!isAbleToChange(session)">
         <dl>
           <dt><label class="narrow">{{session.title || 'unnamed' }}</label></dt>
           <dd>
