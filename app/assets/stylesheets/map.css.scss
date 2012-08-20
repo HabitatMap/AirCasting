@@ -18,7 +18,7 @@ body#map {
 #mapview {
   height: 100%;
   width: 100%;
-  position: absolute;
+  position: fixed !important;
   z-index: 1;
 }
 
