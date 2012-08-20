@@ -32,8 +32,6 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
         time_to:  data.time.timeTo,
         day_from:  data.time.dayFrom,
         day_to:  data.time.dayTo,
-        year_from: 2011,
-        year_to: 2020,
         tags:  data.tags,
         usernames:  data.usernames
       };

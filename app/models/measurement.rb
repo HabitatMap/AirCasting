@@ -34,7 +34,7 @@ class Measurement < ActiveRecord::Base
   prepare_range(:longitude_range, :longitude)
   prepare_range(:latitude_range, :latitude)
   prepare_range(:time_range, "(EXTRACT(HOUR FROM time) * 60 + EXTRACT(MINUTE FROM time))")
-  prepare_range(:day_range, "(DAYOFYEAR(time))")
+  prepare_range(:day_range, "(DATEDIFF(time, '2011-01-01'))")
   prepare_range(:year_range, :time)
 
   geocoded_by :address # field doesn't exist, call used for .near scope inclusion only
@@ -68,9 +68,9 @@ class Measurement < ActiveRecord::Base
         time_range(data[:time_from], data[:time_to]).
         day_range(data[:day_from], data[:day_to])
 
-    if data[:year_to] && data[:year_from]
-      year_range(Date.new(data[:year_from]), Date.new(data[:year_to]))
-    end
+    #if data[:year_to] && data[:year_from]
+    #  year_range(Date.new(data[:year_from]), Date.new(data[:year_to]))
+    #end
 
     tags = data[:tags].to_s.split(/[\s,]/)
     if tags.present?

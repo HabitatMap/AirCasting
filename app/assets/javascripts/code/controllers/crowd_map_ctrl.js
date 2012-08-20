@@ -63,8 +63,6 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
       time_to:  data.time.timeTo,
       day_from:  data.time.dayFrom,
       day_to:  data.time.dayTo,
-      year_from: 2011,
-      year_to: 2020,
       grid_size_x: _.str.toNumber(data.gridResolution) * ($($window).width() / $($window).height()),
       grid_size_y:  data.gridResolution,
       tags:  data.tags,
