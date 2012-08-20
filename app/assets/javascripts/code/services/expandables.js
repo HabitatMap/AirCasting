@@ -1,5 +1,6 @@
 angular.module("aircasting").factory('expandables', function() {
   var Expandables = function() {
+    this.allHidden = false;
     this.sections = {};
   };
   Expandables.prototype = {

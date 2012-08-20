@@ -2,7 +2,7 @@
 
 <div id="right-hud">
   <div id="panel" ng-include src="'/partials/panel.html'"></div>
-  <div id="crowd-map-tab" class="tab-content">
+  <div id="crowd-map-tab" class="tab-content"  ng-hide="expandables.allHidden">
     <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
     <section ng-show="expandables.visible('sensor')" >
       <p>

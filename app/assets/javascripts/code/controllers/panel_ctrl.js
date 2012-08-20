@@ -1,15 +1,15 @@
-function PanelCtrl($scope,  $location) {
+function PanelCtrl($scope,  $location, expandables) {
   $scope.permalinkVisible = false;
-  $scope.panelVisible = true;
   $scope.selectedTab = undefined;
   $scope.$location = $location;
+  $scope.expandables = expandables;
 
   $scope.togglePermalink = function() {
     $scope.permalinkVisible = !$scope.permalinkVisible;
   };
 
   $scope.togglePanel = function() {
-    $scope.panelVisible = !$scope.panelVisible;
+    $scope.expandables.allHidden = !$scope.expandables.allHidden;
   };
 
   $scope.goToSessionsMap = function() {
@@ -28,4 +28,4 @@ function PanelCtrl($scope,  $location) {
     return $scope.selectedTab == name ? "active" : "" ;
   };
 }
-PanelCtrl.$inject = ['$scope', '$location'];
+PanelCtrl.$inject = ['$scope', '$location', 'expandables'];
