@@ -1,15 +1,18 @@
 angular.module("aircasting").factory('sessions',
-                                     ['params', '$http', 'map','sensors', '$rootScope', 'heat', 'spinner',
-                                     function(params, $http, map, sensors, $rootScope, heat, spinner) {
+       ['params', '$http', 'map','sensors', '$rootScope', 'heat', 'spinner', 'functionBlocker',
+        function(params, $http, map, sensors, $rootScope, heat, spinner, functionBlocker) {
   var Sessions = function() {
     this.sessions = [];
     var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
+    functionBlocker.block("sessions", !!params.get("tmpSensorId"));
     this.scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
+      functionBlocker.use("sessions", function(){
+        params.update({tmpSensorId: ""});
+      });
       _(newIds).chain().difference(oldIds).each(_(self.selectSession).bind(self));
       _(oldIds).chain().difference(newIds).each(_(self.deselectSession).bind(self));
-      params.update({tmpSensorId: ""});
     }, true);
   };
   Sessions.prototype = {
@@ -22,6 +25,7 @@ angular.module("aircasting").factory('sessions',
     fetch: function() {
       var viewport = map.viewport();
       var data = params.get('data');
+      var self = this;
       if(!data.time) {
         return;
       }
@@ -49,7 +53,9 @@ angular.module("aircasting").factory('sessions',
           measurement_type:  sensors.selected().measurement_type
         });
       }
-      this.undoDraw(this.allSelected());
+      _(this.allSelected()).each(function(session){
+        self.undoDraw(session);
+      });
       this.sessions = [];
       spinner.show();
       $http.get('/api/sessions.json', {params : {q: reqData}}).success(_(this.onSessionsFetch).bind(this));
@@ -158,6 +164,7 @@ angular.module("aircasting").factory('sessions',
       this.undoDraw(session);
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       session.markers = [];
+      session.notes = [];
       session.lines = [];
       var points = [];
       _(this.measurements(session)).each(function(measurment, idx){
@@ -173,7 +180,7 @@ angular.module("aircasting").factory('sessions',
         }
       });
       _(session.details.notes || []).each(function(note){
-        session.markers.push(map.drawNote(note));
+        session.notes.push(map.drawNote(note));
       });
       session.lines.push(map.drawLine(points));
 
@@ -187,6 +194,9 @@ angular.module("aircasting").factory('sessions',
       });
       _(session.lines || []).each(function(line){
         map.removeMarker(line);
+      });
+      _(session.notes || []).each(function(note){
+        map.removeMarker(note);
       });
     },
 

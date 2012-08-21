@@ -38,7 +38,7 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
       this.defaults = utils.merge(this.defaults, newData);
     },
     updateFromDefaults: function() {
-      var notUsedDefaults = {}
+      var notUsedDefaults = {};
       _(this.defaults).each(function(value, key){
         if(!params.get("data")[key]){
           notUsedDefaults[key] = value;

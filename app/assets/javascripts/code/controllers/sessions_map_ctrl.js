@@ -1,45 +1,52 @@
-function SessionsMapCtrl($scope, params, heat, $window, map, sensors, expandables, storage, storageEvents, singleSession) {
+function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage,
+                         storageEvents, singleSession, functionBlocker) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
     $scope.storageEvents = storageEvents;
     $scope.sensors = sensors;
     $scope.expandables = expandables;
-    $scope.sensorInitializedForSessions = false;
-    $scope.sensorInitializedForHeat = false;
+    $scope.singleSession = singleSession;
+
+    functionBlocker.block("selectedId", !!params.get('data').selectedId);
+    functionBlocker.block("sessionHeat", !!params.get('tmpSessionId') && !_(params.get('sessionsIds')).isEmpty());
+
     _.each(['sensor', 'location', 'usernames'], function(name) {
       $scope.expandables.show(name);
     });
 
-    var locationParams = $scope.params.get('data').location || {};
-    $scope.params.update({data: {
-      location: {distance: locationParams.distance || "5", limit: locationParams.limit || false},
-      heat:  heat.getValues() || heat.parse([0,1,2,3,4])
-    }});
+    storage.updateDefaults({
+      location: {distance: "5", limit: false},
+      gridResolution : 25
+    });
+
+    storage.updateFromDefaults();
   };
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
     if(newValue == oldValue){
       return;
     }
-    if($scope.sensorInitializedForSessions){
-      var data = heat.toSensoredList(sensors.anySelected());
-      $scope.params.update({sessionsIds: [], data: {heat: heat.parse(data) }});
-    } else {
-      $scope.sensorInitializedForHeat = true;
-    }
+    functionBlocker.use("selectedId", function(){
+      params.update({sessionsIds: []});
+    });
   }, true);
 
-  $scope.$watch("sensors.tmpSelectedId()", function(newValue, oldValue) {
-    if(!newValue){
-      return;
+  $scope.heatUpdateCondition = function() {
+    return {sensorId:  sensors.anySelectedId(), sessionId: singleSession.id()};
+  };
+  $scope.$watch("heatUpdateCondition()", function(newValue, oldValue) {
+    if(newValue.sensorId && newValue.sessionId){
+      functionBlocker.use("sessionHeat", function(){
+        singleSession.updateHeat();
+      });
     }
-    var data = heat.toSensoredList(singleSession.get().streams[sensors.tmpSelected().sensor_name]);
-    $scope.params.update({data: {heat: heat.parse(data)}});
-  }, true);
+   }, true);
+
 
   $scope.setDefaults();
 
 }
 SessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
-  '$window', 'map', 'sensors', 'expandables', 'storage', 'storageEvents', 'singleSession'];
+   'map', 'sensors', 'expandables', 'storage',
+  'storageEvents', 'singleSession', 'functionBlocker'];

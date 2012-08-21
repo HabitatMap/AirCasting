@@ -1,5 +1,5 @@
-angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensors',
-                                     function(sessions, map, sensors) {
+angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensors', 'storage', 'heat',
+                                     function(sessions, map, sensors, storage, heat) {
   var SingleSession = function() {
   };
   SingleSession.prototype = {
@@ -11,6 +11,10 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
     },
     get: function() {
       return _(sessions.allSelected()).first();
+    },
+    id: function() {
+      var el = this.get();
+      return el && el.id;
     },
     availSensors: function() {
       if(!this.get()){
@@ -33,6 +37,11 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
       return  _(this.measurements()).map(function(measurement){
         return [moment(measurement.time).valueOf(), measurement.value];
       });
+    },
+    updateHeat: function() {
+      var data = heat.toSensoredList(this.get().streams[sensors.anySelected().sensor_name]);
+      storage.updateDefaults({heat: heat.parse(data)});
+      storage.reset("heat");
     }
   };
   return new SingleSession();

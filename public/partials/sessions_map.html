@@ -47,6 +47,8 @@
 
     <div class="section-divider" ng-include src="'/partials/usernames_and_tags.html'"></div>
     <div class="section-divider" ng-include src="'/partials/time_filters.html'"></div>
-    <div ng:show="sensors.anySelected()" class="section-divider" ng-include src="'/partials/heat_legend.html'"></div>
+    <div ng-switch on="!!singleSession.get() && !!sensors.anySelected()">
+      <div ng-switch-when="true" class="section-divider" ng-include src="'/partials/heat_legend.html'"></div>
+    </div>
   </div>
 </div>

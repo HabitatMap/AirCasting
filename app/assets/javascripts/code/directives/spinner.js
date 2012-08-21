@@ -12,7 +12,7 @@ angular.module("aircasting").directive('spinner', function (){
         shadow: true
       };
       var target = document.getElementById(attrs.id);
-      var spinnerInst = new Spinner(spinnerOpts)
+      var spinnerInst = new Spinner(spinnerOpts);
       scope.$watch("spinner.visible()", function(newValue, oldValue){
         if(newValue){
           spinnerInst.spin(target);

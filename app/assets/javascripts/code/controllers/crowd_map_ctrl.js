@@ -47,7 +47,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     storage.updateDefaults({heat:  heat.parse(data)});
     functionBlocker.use("heat", function(){
       params.update({data: {heat: heat.parse(data)}});
-    })
+    });
     spinner.hide();
   };
 
@@ -58,7 +58,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
 
   $scope.getAverages = function(){
     var data = params.get('data');
-    if(!sensors.selected() || !data.time || !data.heat || !data.gridResolution || sensors.isEmpty()) {
+    if(!sensors.selected() || !data.time || !data.heat || !data.gridResolution) {
       return;
     }
     var viewport = map.viewport();

@@ -1,10 +1,10 @@
-function SessionsListCtrl($scope, params, map, sensors, storage, sessions, dialog) {
+function SessionsListCtrl($scope, params, map, sensors, storage, sessions, dialog, functionBlocker) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
     $scope.sensors = sensors;
     $scope.sessions = sessions;
-
+    functionBlocker.block("sessionDialog", !!$scope.params.get("tmpSensorId"));
   };
 
   $scope.openSensorDialog = function() {
@@ -36,33 +36,22 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, dialo
     return dialog;
   };
 
-  $scope.isAbleToChange = function(session) {
-    return session.$selected || sensors.selected() || (sessions.noOfSelectedSessions() === 0);
+  $scope.isSessionDisabled = function(session) {
+    return !sensors.selected() && sessions.noOfSelectedSessions() > 0 &&
+      !_(params.get("sessionsIds")).include(session.id);
   };
 
   $scope.sessionFetchCondition = function() {
-    return {id:  $scope.sensors.selectedId(), params: $scope.params.getWithout('data', 'heat')};
+    return {id:  sensors.selectedId(), params: params.getWithout('data', 'heat')};
   };
-
-  $scope.sessionRedrawCondition = function() {
-    return {id: $scope.params.get('tmpSensorId'), heat:  $scope.params.get('data').heat };
-  };
-
-  //used to fetch all the sessions
   $scope.$watch("sessionFetchCondition()", function(newValue, oldValue) {
     sessions.fetch();
   }, true);
 
 
-  //used for open tmp sensor dialogs
-  $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
-    if(newIds.length === 1 && !sensors.selected()) {
-      $scope.openSensorDialog();
-    }
-  }, true);
-
-
-  //used to fetch all the sessions
+  $scope.sessionRedrawCondition = function() {
+    return {id: params.get('tmpSensorId'), heat:  params.get('data').heat };
+  };
   $scope.$watch("sessionRedrawCondition()", function(newValue) {
     if(!newValue.id && !newValue.heat){
       return;
@@ -70,6 +59,18 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, dialo
     sessions.redraw();
   }, true);
 
+
+  $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
+    functionBlocker.use("sessionDialog", function(){
+      if(newIds.length === 1 && !sensors.selected()) {
+        $scope.openSensorDialog();
+      }
+    });
+  }, true);
+
+
+  //used to fetch all the sessions
+
   $scope.setDefaults();
 }
-SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage', 'sessions', 'dialog'];
+SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage', 'sessions', 'dialog', 'functionBlocker'];
