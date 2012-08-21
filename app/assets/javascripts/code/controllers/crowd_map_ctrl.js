@@ -52,6 +52,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
   };
 
   $scope.$watch("params.get('data')", function(newValue, oldValue) {
+    infoWindow.hide();
     $scope.getAverages();
   }, true);
 

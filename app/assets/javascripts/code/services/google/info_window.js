@@ -22,8 +22,10 @@ angular.module("google").factory("infoWindow",  ["map", "$http","spinner",
       this.hidden = false;
     },
     hide: function() {
-      this.popup.close();
-      this.hidden = true;
+      if(!this.hidden){
+        this.popup.close();
+        this.hidden = true;
+      }
     }
   };
 
