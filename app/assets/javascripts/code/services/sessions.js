@@ -1,5 +1,6 @@
-angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sensors', '$rootScope', 'heat',
-                                     function(params, $http, map, sensors, $rootScope, heat) {
+angular.module("aircasting").factory('sessions',
+                                     ['params', '$http', 'map','sensors', '$rootScope', 'heat', 'spinner',
+                                     function(params, $http, map, sensors, $rootScope, heat, spinner) {
   var Sessions = function() {
     this.sessions = [];
     var self = this;
@@ -49,6 +50,7 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
       }
       this.undoDraw(this.allSelected());
       this.sessions = [];
+      spinner.show();
       $http.get('/api/sessions.json', {params : {q: reqData}}).success(_(this.onSessionsFetch).bind(this));
     },
 
@@ -65,6 +67,7 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
         }).value();
       });
       this.sessions = data;
+      spinner.hide();
     },
 
     find: function(id) {
@@ -102,6 +105,7 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
         }
         return;
       }
+      spinner.show();
       $http.get('/api/sessions/' +  id).success(function(data, status, headers, config){
         self.onSingleSessionFetch(session, data);
       });
@@ -135,6 +139,7 @@ angular.module("aircasting").factory('sessions', ['params', '$http', 'map','sens
       if(sensors.anySelected()){
         this.draw(session);
       }
+      spinner.hide();
     },
 
     draw: function(session) {

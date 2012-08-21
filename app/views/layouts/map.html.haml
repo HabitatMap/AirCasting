@@ -15,7 +15,7 @@
     #mapview(googlemap)
     #hud(ng-controller="HudCtrl" ng-hide="map.streetViewVisible()")
       = yield
-      #ajax-loader
+      #ajax-loader(spinner)
       #zoom-box
         .content
           #zoom-out(ng-click = "zoomStep(-1)")

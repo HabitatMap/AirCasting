@@ -22,7 +22,9 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
       return this.paramsData[name] || defaultValue || {};
     },
     getWithout: function(name, exception){
-      return _(this.get(name)).without(exception);
+      var result = angular.copy(this.get(name));
+      delete result[exception];
+      return result;
     },
     update: function(newParams) {
       var self = this;

@@ -25,11 +25,11 @@
 //= require libs/angular-cookies
 //= require libs/underscore
 //= require libs/underscore.string.min
+//= require libs/spin
 //= require libs/flot/jquery.flot.js
 //= require libs/flot/jquery.flot.crosshair.js
 //= require libs/flot/jquery.flot.resize.js
 //= require code/aircasting
 //= require_tree ./code/services
-//= require_tree ./code/inputs
 //= require_tree ./code/directives
 //= require_tree ./code/controllers

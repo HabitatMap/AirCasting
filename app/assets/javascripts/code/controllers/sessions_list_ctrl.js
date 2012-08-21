@@ -1,4 +1,4 @@
-function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions, dialog) {
+function SessionsListCtrl($scope, params, map, sensors, storage, sessions, dialog) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
@@ -41,15 +41,18 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
   };
 
   $scope.sessionFetchCondition = function() {
-    return {id:  $scope.sensors.selectedId(), heat: $scope.params.getWithout('data', 'heat')};
+    return {id:  $scope.sensors.selectedId(), params: $scope.params.getWithout('data', 'heat')};
   };
 
   $scope.sessionRedrawCondition = function() {
-    return {heat:  $scope.params.get('data').heat, id: $scope.params.get('tmpSensorId')};
+    return {id: $scope.params.get('tmpSensorId'), heat:  $scope.params.get('data').heat };
   };
 
   //used to fetch all the sessions
-  $scope.$watch("sessionFetchCondition()", function() {
+  $scope.$watch("sessionFetchCondition()", function(newValue, oldValue) {
+    //if(angular.equals(newValue, oldValue)){
+    //  return;
+    //}
     sessions.fetch();
   }, true);
 
@@ -72,4 +75,4 @@ function SessionsListCtrl($scope, $http, params, map, sensors, storage, sessions
 
   $scope.setDefaults();
 }
-SessionsListCtrl.$inject = ['$scope', '$http', 'params', 'map', 'sensors', 'storage', 'sessions', 'dialog'];
+SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage', 'sessions', 'dialog'];
