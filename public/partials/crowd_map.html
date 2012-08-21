@@ -45,8 +45,10 @@
           <li><button ng-click="storage.update('gridResolution')">submit</button></li>
         </ul>
       </div>
-    </section>
-    <div ng-include src="'/partials/heat_legend.html'"></div>
+      </section>
+      <div ng-switch on="!!sensors.selected()">
+        <div ng-switch-when="true" ng-include src="'/partials/heat_legend.html'"></div>
+      </div>
   </div>
 </div>
 <div id="infoWindow" class="infoWindow" ng-include="'/partials/info_window.html'"></div>

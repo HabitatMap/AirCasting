@@ -1,10 +1,11 @@
-angular.module("aircasting").factory('storage', ['params', '$rootScope',  function(params, $rootScope) {
+angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils',  function(params, $rootScope, utils) {
   var Storage = function() {
     this.data = {};
     self = this;
     var scope = $rootScope.$new();
     //TODO change to emitter and broadcasters
     scope.params = params;
+    this.defaults = {};
     scope.$watch("params.get('data')", function(newValue, oldValue) {
       self.extend(newValue);
     }, true);
@@ -28,9 +29,25 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope',  functi
       params.update({data: obj});
     },
     reset: function(name) {
-      this.set(name, angular.copy(params.get('data')[name]));
+      if(this.defaults[name]){
+        this.data[name] = angular.copy(this.defaults[name]);
+        this.update(name);
+      }
+    },
+    updateDefaults :  function(newData) {
+      this.defaults = utils.merge(this.defaults, newData);
+    },
+    updateFromDefaults: function() {
+      var notUsedDefaults = {}
+      _(this.defaults).each(function(value, key){
+        if(!params.get("data")[key]){
+          notUsedDefaults[key] = value;
+        }
+      });
+      params.update({data: notUsedDefaults});
     }
   };
   return new Storage();
 }]);
+
 

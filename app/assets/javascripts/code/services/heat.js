@@ -30,7 +30,7 @@ angular.module("aircasting").factory('heat', ["$rootScope", "params", function($
       return this.heatPercentage;
     },
     getValue: function(name) {
-      return this.getValues()[name];
+      return (this.getValues() || {})[name];
     },
     getValues: function() {
       return params.get('data').heat;

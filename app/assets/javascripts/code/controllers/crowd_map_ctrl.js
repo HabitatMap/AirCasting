@@ -1,5 +1,5 @@
 function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expandables,
-                      storage, storageEvents, infoWindow, rectangles, spinner) {
+                      storage, storageEvents, infoWindow, rectangles, spinner, functionBlocker) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
@@ -11,21 +11,21 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     $scope.maxResolution = 50;
 
     _.each(['sensor', 'location', 'usernames'], function(name) {
-      $scope.expandables.show(name);
+      expandables.show(name);
     });
-    $scope.params.update({data: {
-      location: $scope.params.get('data').location || {},
-      heat:  $scope.params.get('data').heat || heat.parse([0,1,2,3,4]),
-      gridResolution : $scope.params.get('data').gridResolution || 25
-    }});
 
-    $scope.sensors.shouldInitSelected = true;
-    $scope.sensors.initSelected();
+    storage.updateDefaults({
+      location: {},
+      gridResolution : 25
+    });
+
+    storage.updateFromDefaults();
+
+    sensors.shouldInitSelected = true;
+    sensors.initSelected();
+
+    functionBlocker.block("heat", !_(params.get('data').heat).isEmpty());
   };
-
-  $scope.$watch("params.get('data')", function(newValue, oldValue) {
-    $scope.getAverages();
-  }, true);
 
   $scope.$watch("params.get('data').location.address", function(newValue) {
     map.goToAddress(newValue);
@@ -35,26 +35,25 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     if(!newValue){
       return;
     }
-    $scope.params.update({data: {sensorId: newValue}});
+    params.update({data: {sensorId: newValue}});
     spinner.show();
     $http.get('/api/thresholds/' + sensors.selected().sensor_name).success($scope.onThresholdsFetch);
   });
 
   $scope.onThresholdsFetch = function(data, status, headers, config) {
-    $scope.params.update({data: {heat: heat.parse(data)}});
-    spinner.hide();
-  };
-  $scope.onAveragesFetch = function(data, status, headers, config) {
-    map.drawRectangles(data, _($scope.params.get('data').heat).values().sort(), $scope.onRectangleClick);
+    storage.updateDefaults({heat:  heat.parse(data)});
+    functionBlocker.use("heat", function(){
+      params.update({data: {heat: heat.parse(data)}});
+    })
     spinner.hide();
   };
 
-  $scope.onRectangleClick = function(rectangleData) {
-    infoWindow.show("/api/region", rectangleData, rectangles.position(rectangleData));
-  };
+  $scope.$watch("params.get('data')", function(newValue, oldValue) {
+    $scope.getAverages();
+  }, true);
 
   $scope.getAverages = function(){
-    var data = $scope.params.get('data');
+    var data = params.get('data');
     if(!sensors.selected() || !data.time || !data.heat || !data.gridResolution || sensors.isEmpty()) {
       return;
     }
@@ -78,8 +77,18 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     spinner.show();
     $http.get('/api/averages', {params : {q: reqData}}).success($scope.onAveragesFetch);
   };
+
+  $scope.onAveragesFetch = function(data, status, headers, config) {
+    map.drawRectangles(data, _(params.get('data').heat).values().sort(), $scope.onRectangleClick);
+    spinner.hide();
+  };
+
+  $scope.onRectangleClick = function(rectangleData) {
+    infoWindow.show("/api/region", rectangleData, rectangles.position(rectangleData));
+  };
+
   $scope.setDefaults();
 }
 CrowdMapCtrl.$inject = ['$scope', '$http', 'params', 'heat',
   '$window', 'map', 'sensors', 'expandables', 'storage',
-  'storageEvents', 'infoWindow', 'rectangles', 'spinner'];
+  'storageEvents', 'infoWindow', 'rectangles', 'spinner', 'functionBlocker'];

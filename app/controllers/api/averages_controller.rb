@@ -22,7 +22,6 @@ module Api
     INT_Q_ATTRS = [
       :time_from, :time_to,
       :day_from, :day_to,
-      :year_from, :year_to,
       :grid_size_x, :grid_size_y
     ]
 

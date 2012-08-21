@@ -4,5 +4,5 @@ angular.module('aircasting', ['ngCookies', "google"], function($routeProvider, $
                       {templateUrl: 'partials/crowd_map.html', controller: CrowdMapCtrl, reloadOnSearch: false});
   $routeProvider.when('/map_sessions',
                       {templateUrl: 'partials/sessions_map.html', controller: SessionsMapCtrl, reloadOnSearch: false});
-  $routeProvider.otherwise({redirectTo: '/map_sessions'});
+  $routeProvider.otherwise({redirectTo: '/map_crowd'});
 });

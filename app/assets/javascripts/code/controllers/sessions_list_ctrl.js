@@ -50,9 +50,6 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, dialo
 
   //used to fetch all the sessions
   $scope.$watch("sessionFetchCondition()", function(newValue, oldValue) {
-    //if(angular.equals(newValue, oldValue)){
-    //  return;
-    //}
     sessions.fetch();
   }, true);
 

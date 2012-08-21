@@ -9,6 +9,7 @@ angular.module("aircasting").factory('sessions',
     this.scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
       _(newIds).chain().difference(oldIds).each(_(self.selectSession).bind(self));
       _(oldIds).chain().difference(newIds).each(_(self.deselectSession).bind(self));
+      params.update({tmpSensorId: ""});
     }, true);
   };
   Sessions.prototype = {
@@ -68,6 +69,7 @@ angular.module("aircasting").factory('sessions',
       });
       this.sessions = data;
       spinner.hide();
+      this.reSelectAllSessions();
     },
 
     find: function(id) {
@@ -108,6 +110,13 @@ angular.module("aircasting").factory('sessions',
       spinner.show();
       $http.get('/api/sessions/' +  id).success(function(data, status, headers, config){
         self.onSingleSessionFetch(session, data);
+      });
+    },
+
+    reSelectAllSessions: function(){
+      var self = this;
+      _(params.get('sessionsIds')).each(function(id){
+        self.selectSession(id);
       });
     },
 
