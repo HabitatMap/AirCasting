@@ -24,6 +24,9 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     sensors.shouldInitSelected = true;
     sensors.initSelected();
 
+    //refresh averages whenever you move on map
+    map.listen("idle", $scope.getAverages);
+
     functionBlocker.block("heat", !_(params.get('data').heat).isEmpty());
   };
 
