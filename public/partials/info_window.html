@@ -1,5 +1,5 @@
 <div ng-controller="InfoWindowCtrl" >
-  <ul ng-hide="infoWindohw.hidden">
+  <ul ng-show="infoWindow.visible()">
     <li><span>Readings for: </span>{{sensors.selected().id}}</li>
     <li><span>Average reading: </span>{{Math.round(infoWindow.data.averages[sensors.selected().sensor_name])}}
       {{sensors.selected().unit_symbol }}</li>
@@ -8,4 +8,5 @@
     <li><span>Top contributors: </span>{{infoWindow.data.top_contributors_per_sensor[sensors.selected().sensor_name] }}</li>
     {{infoWindow.data.averages}}
   </ul>
+  <span ng-hide="infoWindow.visible()">working .. </span>
 </div>

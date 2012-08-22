@@ -1,7 +1,7 @@
-angular.module("google").factory("infoWindow",  ["map", "$http","spinner",
-                                 function(map, $http, spinner){
+angular.module("google").factory("infoWindow",  ["map", "$http",
+                                 function(map, $http){
   var InfoWindow = function() {
-    this.hidden = true;
+    this.hidden = 0;
     this.popup = new google.maps.InfoWindow();
     this.popup.setContent( $("#infoWindow")[0]);
   };
@@ -10,22 +10,20 @@ angular.module("google").factory("infoWindow",  ["map", "$http","spinner",
       return this.popup;
     },
     show: function(url, data, position){
-      this.hidden = true;
-      spinner.show();
+      this.hidden = this.hidden + 1;
       $http.get(url, {params : data}).success(_(this.onShowData).bind(this));
       this.popup.setPosition(position);
       this.popup.open(map.get());
     },
     onShowData: function(data, status, headers, config){
-      spinner.hide();
       this.data = data;
-      this.hidden = false;
+      this.hidden = this.hidden - 1;
+    },
+    visible: function(){
+      return this.hidden == 0;
     },
     hide: function() {
-      if(!this.hidden){
-        this.popup.close();
-        this.hidden = true;
-      }
+      this.popup.close();
     }
   };
 
