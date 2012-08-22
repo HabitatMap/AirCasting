@@ -1,18 +1,14 @@
 angular.module("aircasting").factory('sessions',
        ['params', '$http', 'map','sensors', '$rootScope',
-         'heat', 'spinner', 'functionBlocker', 'utils',
+         'heat', 'spinner',  'utils',
         function(params, $http, map, sensors, $rootScope,
-                 heat, spinner, functionBlocker, utils) {
+                 heat, spinner, utils) {
   var Sessions = function() {
     this.sessions = [];
     var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
-    functionBlocker.block("sessions", !!params.get("tmpSensorId"));
     this.scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
-      functionBlocker.use("sessions", function(){
-        params.update({tmpSensorId: ""});
-      });
       _(newIds).chain().difference(oldIds).each(_(self.selectSession).bind(self));
       _(oldIds).chain().difference(newIds).each(_(self.deselectSession).bind(self));
     }, true);
@@ -32,12 +28,8 @@ angular.module("aircasting").factory('sessions',
         return;
       }
       var reqData = {
-        west: viewport.west,
-        east: viewport.east,
-        south: viewport.south,
-        north: viewport.north,
-        time_from: utils.normalizeTime(data.time.timeFrom),
-        time_to:  utils.normalizeTime(data.time.timeTo),
+        time_from: data.time.timeFrom - utils.timeOffset,
+        time_to:  data.time.timeTo - utils.timeOffset,
         day_from:  data.time.dayFrom,
         day_to:  data.time.dayTo,
         year_from:  data.time.yearFrom,
@@ -45,6 +37,15 @@ angular.module("aircasting").factory('sessions',
         tags:  data.tags,
         usernames:  data.usernames
       };
+      if(location.limit){
+        _(reqData).extend({
+          west: viewport.west,
+          east: viewport.east,
+          south: viewport.south,
+          north: viewport.north
+        });
+      }
+
       if(!location.limit && location.address) {
         _(reqData).extend({
           sensor_name:  location.address,
@@ -128,6 +129,10 @@ angular.module("aircasting").factory('sessions',
       _(params.get('sessionsIds')).each(function(id){
         self.selectSession(id);
       });
+    },
+
+    isSelected: function(session) {
+      return _(this.allSelected()).include(session);
     },
 
     allSelected: function(){

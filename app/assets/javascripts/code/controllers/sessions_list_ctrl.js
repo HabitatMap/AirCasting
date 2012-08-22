@@ -1,9 +1,13 @@
-function SessionsListCtrl($scope, params, map, sensors, storage, sessions, dialog, functionBlocker) {
+function SessionsListCtrl($scope, params, map, sensors, storage, sessions,
+                          dialog, functionBlocker, singleSession) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
     $scope.sensors = sensors;
     $scope.sessions = sessions;
+    if(_(params.get("sessionsIds", [])).isEmpty()){
+      params.update({sessionsIds: []});
+    }
     functionBlocker.block("sessionDialog", !!$scope.params.get("tmpSensorId"));
   };
 
@@ -26,7 +30,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, dialo
       })
       .opts({ width: 340, height: 'auto', resizable: false, modal:true, position: ["center", 100],
       buttons: {
-        "OK": function() {
+        "submit": function() {
           $scope.sensors.proceedWithTmp();
           dialogObj.close();
         }
@@ -59,18 +63,36 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, dialo
     sessions.redraw();
   }, true);
 
-
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
     functionBlocker.use("sessionDialog", function(){
       if(newIds.length === 1 && !sensors.selected()) {
-        $scope.openSensorDialog();
+        var usableSensors = singleSession.availSensors();
+        if(usableSensors.length > 1) {
+          $scope.openSensorDialog();
+        } else {
+          params.update({tmpSensorId: _(usableSensors).first().id});
+        }
+      } else {
+        params.update({tmpSensorId: ""});
       }
     });
   }, true);
 
 
+  $scope.toggleSession = function(sessionId) {
+    var session = sessions.find(sessionId);
+    if(sessions.isSelected(session)) {
+      params.update({sessionsIds: _(params.get("sessionsIds", [])).without(sessionId)});
+      session.$selected = false;
+    } else {
+      params.update({sessionsIds: params.get("sessionsIds", []).concat([sessionId])});
+      session.$selected = true;
+    }
+  }
+
   //used to fetch all the sessions
 
   $scope.setDefaults();
 }
-SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage', 'sessions', 'dialog', 'functionBlocker'];
+SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
+  'sessions', 'dialog', 'functionBlocker', 'singleSession'];

@@ -16,7 +16,8 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
     });
 
     storage.updateDefaults({
-      location: {distance: "5", limit: false},
+      sensorId: "",
+      location: {distance: "10", limit: false},
       gridResolution : 25
     });
 
