@@ -40,7 +40,8 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions,
     return dialog;
   };
 
-  $scope.isSessionDisabled = function(session) {
+  $scope.isSessionDisabled = function(sessionId) {
+    var session = sessions.find(sessionId);
     return !sensors.selected() && sessions.noOfSelectedSessions() > 0 &&
       !_(params.get("sessionsIds")).include(session.id);
   };
@@ -80,6 +81,9 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions,
 
 
   $scope.toggleSession = function(sessionId) {
+    if(this.isSessionDisabled(sessionId)){
+      return;
+    }
     var session = sessions.find(sessionId);
     if(sessions.isSelected(session)) {
       params.update({sessionsIds: _(params.get("sessionsIds", [])).without(sessionId)});
