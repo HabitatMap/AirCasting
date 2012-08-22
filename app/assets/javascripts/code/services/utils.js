@@ -1,5 +1,6 @@
 angular.module("aircasting").factory('utils', function() {
   var Utils = function() {
+    this.timeOffset = (new Date()).getTimezoneOffset();
   };
   Utils.prototype = {
     // supports simple merging for object , primitives and arrays (no functions, dates etc)
@@ -16,6 +17,14 @@ angular.module("aircasting").factory('utils', function() {
         }
       });
       return obj1;
+    },
+    normalizeTime: function(time) {
+      var minutes = 1440;
+      if(time < 0){
+        return minutes + time;
+      } else {
+        return time % minutes;
+      }
     }
   };
   return new Utils();

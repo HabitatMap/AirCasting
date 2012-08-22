@@ -1,5 +1,5 @@
 function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expandables,
-                      storage, storageEvents, infoWindow, rectangles, spinner, functionBlocker) {
+                      storage, storageEvents, infoWindow, rectangles, spinner, functionBlocker, utils) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
@@ -67,8 +67,8 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
       east: viewport.east,
       south: viewport.south,
       north: viewport.north,
-      time_from: data.time.timeFrom,
-      time_to:  data.time.timeTo,
+      time_from: utils.normalizeTime(data.time.timeFrom),
+      time_to:  utils.normalizeTime(data.time.timeTo),
       day_from:  data.time.dayFrom,
       day_to:  data.time.dayTo,
       year_from: data.time.yearFrom,
@@ -97,4 +97,4 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
 }
 CrowdMapCtrl.$inject = ['$scope', '$http', 'params', 'heat',
   '$window', 'map', 'sensors', 'expandables', 'storage',
-  'storageEvents', 'infoWindow', 'rectangles', 'spinner', 'functionBlocker'];
+  'storageEvents', 'infoWindow', 'rectangles', 'spinner', 'functionBlocker', 'utils'];

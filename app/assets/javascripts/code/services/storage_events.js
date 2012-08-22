@@ -1,4 +1,5 @@
-angular.module("aircasting").factory('storageEvents', ['storage', '$rootScope',  function(storage, $rootScope) {
+angular.module("aircasting").factory('storageEvents', ['storage', '$rootScope', 'utils',
+                                     function(storage, $rootScope, utils) {
   return {
     onResolutionSlide : function(event, ui) {
       storage.set("gridResolution", ui.value);
@@ -15,8 +16,8 @@ angular.module("aircasting").factory('storageEvents', ['storage', '$rootScope', 
       $rootScope.$digest();
     },
     onTimeSlide : function(event, ui) {
-      storage.setInHash("time", "timeFrom", _.min(ui.values));
-      storage.setInHash("time", "timeTo", _.max(ui.values));
+      storage.setInHash("time", "timeFrom", _.min(ui.values) + utils.timeOffset);
+      storage.setInHash("time", "timeTo", _.max(ui.values) + utils.timeOffset);
       $rootScope.$digest();
     },
     onHeatChangeLow : function(event, ui) {

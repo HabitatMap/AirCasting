@@ -5,7 +5,7 @@
       <label>Hours:Minutes</label>
       <div class="slider">
         <input timepicker class="narrow" type="text" ng-model="storage.data.time.timeFrom"></input>
-        <div slider slider-max="maxTime" slider-min="minTime" slider-value="[storage.data.time.timeFrom, storage.data.time.timeTo].join(',')" slider-range="true" slider-callback="storageEvents.onTimeSlide"></div>
+        <div slider slider-max="maxTime" slider-min="minTime" slider-value="[storage.data.time.timeFrom - utils.timeOffset, storage.data.time.timeTo - utils.timeOffset].join(',')" slider-range="true" slider-callback="storageEvents.onTimeSlide"></div>
         <input timepicker class="narrow" type="text" ng-model="storage.data.time.timeTo"></input>
       </div>
     </div>
