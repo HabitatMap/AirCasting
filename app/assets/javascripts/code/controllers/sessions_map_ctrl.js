@@ -8,7 +8,7 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
     $scope.expandables = expandables;
     $scope.singleSession = singleSession;
 
-    functionBlocker.block("selectedId", !!params.get('data').selectedId);
+    functionBlocker.block("selectedId", !!params.get('data').sensorId);
     functionBlocker.block("sessionHeat", !!params.get('tmpSessionId') && !_(params.get('sessionsIds')).isEmpty());
 
     _.each(['sensor', 'location', 'usernames'], function(name) {
