@@ -38,6 +38,8 @@ angular.module("aircasting").factory('sessions',
         time_to:  data.time.timeTo,
         day_from:  data.time.dayFrom,
         day_to:  data.time.dayTo,
+        year_from:  data.time.yearFrom,
+        year_to:  data.time.yearTo,
         tags:  data.tags,
         usernames:  data.usernames
       };

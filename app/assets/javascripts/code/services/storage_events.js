@@ -9,6 +9,11 @@ angular.module("aircasting").factory('storageEvents', ['storage', '$rootScope', 
       storage.setInHash("time", "dayTo", _.max(ui.values));
       $rootScope.$digest();
     },
+    onYearSlide : function(event, ui) {
+      storage.setInHash("time", "yearFrom", _.min(ui.values));
+      storage.setInHash("time", "yearTo", _.max(ui.values));
+      $rootScope.$digest();
+    },
     onTimeSlide : function(event, ui) {
       storage.setInHash("time", "timeFrom", _.min(ui.values));
       storage.setInHash("time", "timeTo", _.max(ui.values));
