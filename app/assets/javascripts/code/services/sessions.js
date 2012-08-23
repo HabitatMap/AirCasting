@@ -58,9 +58,8 @@ angular.module("aircasting").factory('sessions',
           measurement_type:  sensors.selected().measurement_type
         });
       }
-      _(this.allSelected()).each(function(session){
-        self.undoDraw(session);
-      });
+
+      this.clear();
       this.sessions = [];
       spinner.show();
       $http.get('/api/sessions.json', {params : {q: reqData}}).success(_(this.onSessionsFetch).bind(this));
@@ -91,16 +90,18 @@ angular.module("aircasting").factory('sessions',
 
     redraw: function() {
       var self = this;
-      _(this.allSelected()).each(function(session){
-        self.undoDraw(session);
-        self.draw(session);
-      });
+      this.clear();
+      _(this.allSelected()).each(_(this.draw).bind(this));
+    },
+
+    clear: function() {
+      _(this.sessions).each(_(this.undoDraw).bind(this));
     },
 
     deselectSession: function(id) {
       var self = this;
       var session = this.find(id);
-      if(!session || !session.loaded){
+      if(!session || !session.drawed){
         return;
       }
       this.undoDraw(session);
