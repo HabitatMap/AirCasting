@@ -16,7 +16,9 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
 
     storage.updateDefaults({
       location: {},
-      gridResolution : 25
+      gridResolution : 25,
+      tags: "",
+      usernames: ""
     });
 
     storage.updateFromDefaults();

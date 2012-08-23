@@ -29,7 +29,7 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
       params.update({data: obj});
     },
     reset: function(name) {
-      if(this.defaults[name]){
+      if(_(this.defaults).has(name)){
         this.data[name] = angular.copy(this.defaults[name]);
         this.update(name);
       }
