@@ -5,23 +5,25 @@
       <li><button ng-click="toggleAll()">all</button></li>
     </ul>
   </div>
-  <div id="sessions-bottom">
-    <ul>
-      <li ng:repeat="session in sessions.get()">
-        <input type="checkbox" collection="sessionsIds" collection-id="session.id" ng-model="session.$selected" ng-disabled="isSessionDisabled(session.id)">
-        <dl  ng:click="toggleSession(session.id)">
-          <dt><label class="narrow">{{session.title || 'unnamed' }}</label></dt>
-          <dd>
-            <label class="narrow">
-              {{session.username}},
-              {{session.timeframe}}
-              <span ng-class="shortType.type" ng-repeat="shortType in session.shortTypes">
-                {{shortType.name}}<span ng-hide="$index==session.shortTypes.length-1">/</span>
-              </span>
-            </label>
-          </dd>
-        </dl>
-      </li>
-    </ul>
+  <div class="nomargin">
+    <div id="sessions-bottom" ng-style="{height: $window.innerHeight - 300}">
+      <ul>
+        <li ng:repeat="session in sessions.get()">
+          <input type="checkbox" collection="sessionsIds" collection-id="session.id" ng-model="session.$selected" ng-disabled="isSessionDisabled(session.id)">
+          <dl  ng:click="toggleSession(session.id)">
+            <dt><label class="narrow">{{session.title || 'unnamed' }}</label></dt>
+            <dd>
+              <label class="narrow">
+                {{session.username}},
+                {{session.timeframe}}
+                <span ng-class="shortType.type" ng-repeat="shortType in session.shortTypes">
+                  {{shortType.name}}<span ng-hide="$index==session.shortTypes.length-1">/</span>
+                </span>
+              </label>
+            </dd>
+          </dl>
+        </li>
+      </ul>
+    </div>
   </div>
 </section>

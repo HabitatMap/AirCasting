@@ -1,10 +1,8 @@
-<div id="left-hud" ng-include src="'/partials/left_hud.html'"></div>
-<div ng-hide="expandables.allHidden" id="sessions" ng-include src="'/partials/sessions_list.html'"></div>
-<div ng-hide="expandables.allHidden" id="sessions-graph" ng-include src="'/partials/graph.html'"></div>
+<div id="sessions-tab">
+  <div ng-hide="expandables.allHidden" id="sessions" ng-include src="'/partials/sessions_list.html'"></div>
+  <div ng-style="{width: $window.innerWidth - 608}" ng-hide="expandables.allHidden" id="sessions-graph" ng-include src="'/partials/graph.html'"></div>
 
 
-<div id="right-hud">
-  <div id="panel" ng-include src="'/partials/panel.html'"></div>
   <div id="sessions-map-tab" class="tab-content" ng-hide="expandables.allHidden">
     <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
     <section ng-show="expandables.visible('sensor')" >

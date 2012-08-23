@@ -1,1 +1,25 @@
-<div id="hud_view" ng-view></div>
+<div ng-controller="PanelCtrl">
+  <a id="permalink" ng-click="togglePermalink()"></a>
+  <a class="panel-arrow" ng-click="togglePanel()"></a>
+  <div ng-hide="expandables.allHidden">
+    <ul id="hud-tabs">
+      <li ng-class="tabClass('map_crowd')"><a ng-click="goToCrowdMap()">CrowdMap</a></li>
+      <li ng-class="tabClass('map_sessions')"><a ng-click="goToSessionsMap()">Sessions</a></li>
+    </ul>
+
+    <div class="permalink" ng:show="permalinkVisible">
+      <div class="close" ng-click="togglePermalink()"></div>
+      <div class="textfield">
+        <p>
+          <label for="copy-permalink">Copy the link to share your current map view.</label>
+          <input type="text" id="copy-permalink" readonly="readonly" value="{{$location.absUrl()}}">
+        </p>
+      </div>
+    </div>
+    <div id="hud_view" ng-view></div>
+  </div>
+</div>
+
+
+
+

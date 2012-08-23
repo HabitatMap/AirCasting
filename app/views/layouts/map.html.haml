@@ -14,15 +14,17 @@
     .notice(ng-controller="FlashCtrl" ng-show="flash.message" ng-click="clear()") {{flash.message}}
     #mapview(googlemap)
     #hud(ng-controller="HudCtrl" ng-hide="map.streetViewVisible()")
-      = yield
+      #left-hud(ng-include="" src="'/partials/left_hud.html'")
+      #right-hud
+        = yield
       #ajax-loader(spinner)
       #zoom-box
         .content
-          #zoom-out(ng-click = "zoomStep(-1)")
+          #zoom-out(ng-click="zoomStep(-1)")
           #zoom-slider(slider=true slider-min=3 slider-max=21 slider-callback="onZoom" slider-value="map.getZoom()")
           #zoom-in(ng-click="zoomStep(1)")
 
 :javascript
   window.marker_note_path = '#{image_path "marker_note.png"}';
 
-
+#right-hud

@@ -21,18 +21,17 @@ body#map {
   position: fixed !important;
   z-index: 1;
 }
-
+#left-hud {
+    position: fixed !important;
+}
 #hud{
 }
 #hud_view {
-  z-index: 2;
+  background: none repeat scroll 0 0 #FFFFFF;
+  border: 2px solid #858585;
+  margin-top: -2px;
+  padding: 10px;
 }
-#map #left-hud {
-  position: absolute;
-  top: 10px;
-  left: 5px;
-}
-
 #ajax-loader {
   position: fixed;
   top: 70px;
@@ -51,7 +50,7 @@ body#map {
     padding: 0;
     margin:0;
     list-style:none;
-    max-height: 94px;
+    max-height: 114px;
     overflow: hidden;
     li {
       max-height:54px;
@@ -140,7 +139,7 @@ body#map {
     float:left;
     line-height:13px;
     height:16px;
-    width:58px !important;
+    width:42px !important;
     padding:2px;
     color:#858585;
     text-align: center;
@@ -311,9 +310,19 @@ body#map {
     }
   }
 }
-#hud #right-hud #panel {
-  width: $right-hud-width;
+#hud #right-hud {
+  font-weight: bold;
+  position: absolute;
+  right: 5px;
+  top: 10px;
+  width: 320px;
+  z-index: 10;
+}
 
+#right-hud #panel {
+  width: $right-hud-width;
+}
+#right-hud {
   .panel-arrow {
     position:absolute;
     right:0px;
@@ -338,39 +347,38 @@ body#map {
       height:31px;
     }
   }
+}
+#hud  #hud-tabs {
+  padding:0;
+  margin:0;
+  overflow:hidden;
 
-  #hud-tabs {
-    padding:0;
-    margin:0;
-    overflow:hidden;
-    
-    li {
-      display:inline;
-      float:left;
-      
-      color: white;
-      background:#858585;
-      background:rgb(133,133,133);
-      
-      padding:5px 10px;
-      border:2px solid #858585;
-      border-bottom:none;
-      margin-right:10px;
-      
-      &.active {
-        background: rgb(255, 255, 255);
-        
-        a {
-          color:#858585;
-          outline: none;
-        }
+  li {
+    display:inline;
+    float:left;
+
+    color: white;
+    background:#858585;
+    background:rgb(133,133,133);
+
+    padding:5px 10px;
+    border:2px solid #858585;
+    border-bottom:none;
+    margin-right:10px;
+
+    &.active {
+      background: rgb(255, 255, 255);
+
+      a {
+        color:#858585;
+        outline: none;
       }
     }
-    
-    a {
-      color:#fff;
-      text-decoration: none;
-    }
+  }
+
+  a {
+    color:#fff;
+    text-decoration: none;
   }
 }
 #hud #right-hud {
@@ -380,12 +388,8 @@ body#map {
   width: $right-hud-width;
   z-index: 10;
 }
-#hud #right-hud .tab-content {
-  font-weight:bold;
-  background:#fff;
-  border:2px solid #858585;
-
-  #crowd-map-tab section > div, #sessions-map-tab section > div {
+#hud #right-hud {
+  #crowd-map-tab section > div, #sessions-tab section > div {
     @include clearfix;
     margin:10px 0;
     &.nomargin {
@@ -404,13 +408,13 @@ body#map {
   }
   
   .ui-slider {
-    width: $right-hud-width - 194px;
+    width: $right-hud-width - 164px;
     position:relative;
     top:5px;
   }
   
   .wide-slider .ui-slider {
-    width: $right-hud-width - 125px;
+    width: $right-hud-width - 120px;
   }
   
   .full-slider .ui-slider {
@@ -448,7 +452,7 @@ body#map {
   }
 
   h4 {
-    margin:0 10px 5px 10px;
+    margin:0 0 5px 0;
     border-bottom: 1px dashed #ccc;
     background: url("arrow-down.png") no-repeat right center;
     padding:5px 0px;
@@ -458,8 +462,6 @@ body#map {
     }
   }
   section {
-    margin-right: 10px;
-    margin-left: 10px;
     &.hidden {
       display:none;
     }
@@ -493,7 +495,7 @@ div.no-ie, div.notice {
   width: 100%;
 }
 
-#right-hud #hud-content p.small-text {
+#hud #right-hud p.small-text {
   font-size:12px;
   float:left;
   margin-left:10px;

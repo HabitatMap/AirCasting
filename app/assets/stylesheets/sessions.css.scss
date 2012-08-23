@@ -2,22 +2,27 @@
 
 $sessions-list-height: 300px;
 $sessions-list-width: 238px;
-$sessions-list-bottom: 40px;
+$sessions-list-bottom: 30px;
 $graph-zindex: 10;
 $graph-height: 140px;
+
 #hud #sessions {
+  background: none repeat scroll 0 0 #FFFFFF;
+  border: 2px solid #858585;
+  left: 10px;
+  padding: 0;
+  position: fixed;
+  top: 255px;
   width: $sessions-list-width;
-  position: absolute;
-  padding: 0px;
-  bottom: $sessions-list-bottom;
-  left: 5px;
-  z-index: 10;
 
   .sensor-bold {
     font-weight: bold;
   }
 
   #sessions-top {
+    left: -2px;
+    position: absolute;
+    top: -40px;
     width:$sessions-list-width + 4px;
 
     .name {
@@ -33,13 +38,10 @@ $graph-height: 140px;
   label.narrow {
     width: 170px;
   }
-  
+
   #sessions-bottom {
-    border: 2px solid rgb(133, 133, 133);
-    background: none repeat scroll 0% 0% rgb(255, 255, 255);
-    @include clearfix;
-    height: $sessions-list-height;
     overflow: auto;
+    height: 300px;
 
     ul {
       list-style:none;
@@ -92,25 +94,28 @@ $graph-height: 140px;
   }
 }
 #hud #sessions-graph {
-  position: absolute;
+  padding: 0;
+  position: fixed;
   bottom: $sessions-list-bottom;
   width: auto;
   left: $sessions-list-width + 20px;
   #graph-box {
-    bottom: 4px;
+    background: none repeat scroll 0 0 #FFFFFF;
+    border: 2px solid #858585;
+    height: 140px;
+    left: -2px;
     margin: 0;
-    min-width: 600px;
-    height: $graph-height;
-    background: none repeat scroll 0% 0% rgb(255, 255, 255);
-    position: absolute;
-    overflow: visible;
+    overflow: visible !important;
+    position: relative;
+    top: -2px;
+    width: 100%;
 
     #graph-label-bottom, #graph-label-top {
       color: white;
-      position: absolute;
-      z-index: $graph-zindex + 1;
       left: 0;
-      margin-left: 5px
+      margin-left: 5px;
+      position: absolute;
+      z-index: 11;
     }
 
     #graph-label-top {
@@ -118,28 +123,27 @@ $graph-height: 140px;
     }
 
     #graph-label-bottom {
-      bottom: -4px;
+      bottom: 0px
     }
   }
 
   #graph-top {
-    width: 170px;
-    position: absolute;
-    bottom: $graph-height + 2;
+    left: -2px;
     overflow: visible;
-    margin: 0;
+    position: absolute;
+    top: -38px;
+
     &.collapsed {
       bottom: 0;
       top: auto;
     }
-    
     #graph-header {
-      background: #fff;
+      background: none repeat scroll 0 0 #FFFFFF;
       border: 2px solid #858585;
-      position: relative;
-      font-weight:bold;
-      padding:4px 16px 1px;
       float: left;
+      font-weight: bold;
+      padding: 4px 16px 1px;
+      position: relative;
       z-index: $graph-zindex + 10;
 
       &.collapsed {
@@ -148,8 +152,6 @@ $graph-height: 140px;
     }
 
     #graph-arrow {
-      position: relative;
-      z-index: $graph-zindex + 1000;
       float: right;
       width: 22px;
       height: 22px;
@@ -162,21 +164,23 @@ $graph-height: 140px;
   }
 
   #graph-bottom {
-    position: absolute;
     bottom: 0;
-    overflow: visible;
-    height: 20px;
-    width: 100%;
+    height: 0;
+    left: -2px;
+    margin: 0;
+    overflow: visible !important;
+    position: absolute;
+    right: -2px;
 
     #graph-label-left, #graph-label-right {
-      background: #fff;
-      border: 2px solid #858585;
-      border-top: none;
-      font-weight:bold;
-      padding:4px 16px 1px;
+      background: none repeat scroll 0 0 #FFFFFF;
+      border-style: none solid solid;
+      border-width: medium 2px 2px;
+      font-weight: bold;
+      padding: 4px 16px 1px;
       position: absolute;
-      top: 24px;
-      z-index: $graph-zindex + 1;
+      top: 0;
+      z-index: $graph-zindex + 10;
     }
 
     #graph-label-left {
@@ -184,19 +188,18 @@ $graph-height: 140px;
     }
 
     #graph-label-right {
-      right: -4px;
+      right: 0;
     }
   }
 
   #graph, #graph-background {
-    position: absolute;
-    overflow: hidden;
     height: 100%;
-    width: 100%;
-    margin: 0;
-    top: 0;
     left: 0;
-    border: 2px solid rgb(133, 133, 133);
+    margin: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 100%;
   }
 
   #graph {
