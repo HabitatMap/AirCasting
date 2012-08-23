@@ -85,7 +85,9 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
   };
 
   $scope.onAveragesFetch = function(data, status, headers, config) {
-    map.drawRectangles(data, _(params.get('data').heat).values().sort(), $scope.onRectangleClick);
+    map.drawRectangles(data,
+                       _(params.get('data').heat).chain().values().sortBy(function(i){return i;}).value(),
+                       $scope.onRectangleClick);
     spinner.hide();
   };
 

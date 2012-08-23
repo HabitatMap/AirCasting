@@ -16,7 +16,7 @@ angular.module("google").factory("infoWindow",  ["map", "$http", "$compile", "$r
     onShowData: function(data, status, headers, config){
       this.data = data;
       var element = $("<div class=\"infoWindow\" ng-include src=\"'/partials/info_window.html'\"></div>");
-      $compile(element[0])($rootScope)
+      $compile(element[0])($rootScope);
       this.popup.setContent(element[0]);
     },
     hide: function() {
