@@ -76,7 +76,7 @@ class Measurement < ActiveRecord::Base
     if tags.present?
       sessions_ids = Session.select("sessions.id").tagged_with(tags).map(&:id)
       if sessions_ids.present?
-        measurements = measurements.where("session_id IN (#{sessions_ids.join(',')})")
+        measurements = measurements.where("streams.session_id IN (?)", sessions_ids)
       else
         measurements = []
       end
