@@ -94,7 +94,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions,
       params.update({sessionsIds: params.get("sessionsIds", []).concat([sessionId])});
       session.$selected = true;
     }
-  }
+  };
 
   //used to fetch all the sessions
 
