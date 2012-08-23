@@ -31,10 +31,10 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
       return !!this.get().details.streams[sensors.anySelected().sensor_name];
     },
     measurements: function(){
-      return  _(sessions.measurementsForSensor(this.get(), sensors.anySelected().sensor_name));
+      return  sessions.measurementsForSensor(this.get(), sensors.anySelected().sensor_name);
     },
     measurementsToTime: function(){
-      return  _(this.measurements()).map(function(measurement){
+      return _(this.measurements()).map(function(measurement){
         return [moment(measurement.time).valueOf(), measurement.value];
       });
     },
