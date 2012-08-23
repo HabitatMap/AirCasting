@@ -13,11 +13,15 @@ function PanelCtrl($scope,  $location, expandables) {
   };
 
   $scope.goToSessionsMap = function() {
-    $location.url("/map_sessions");
+    if($location.path() != "/map_sessions") {
+      $location.url("/map_sessions");
+    }
   };
 
   $scope.goToCrowdMap = function() {
-    $location.url("/map_crowd");
+    if($location.path() != "/map_crowd") {
+      $location.url("/map_crowd");
+    }
   };
 
   $scope.$watch('$location.path()', function(newValue) {

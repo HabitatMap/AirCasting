@@ -35,10 +35,14 @@ function SessionsGraphCtrl($scope, map, plotStorage, flash, heat, sensors, singl
       return _.first(d);
     });
     var measurement = singleSession.measurements()[index];
+    $scope.hideHighlight();
     $scope.highlight = map.drawMarker(measurement, null, $scope.highlight);
   };
 
   $scope.hideHighlight = function(){
+    if(!$scope.highlight){
+      return;
+    }
     map.removeMarker($scope.highlight);
     delete $scope.highlight;
   };
