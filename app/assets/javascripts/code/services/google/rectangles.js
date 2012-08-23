@@ -43,8 +43,8 @@ angular.module("google").factory("rectangles",  function(){
       if(levels.length === 0 ) {
         return;
       }
-      var level = _(levels).detect(function(level){
-        return value < level;
+      var level = _(levels).detect(function(l){
+        return value < l;
       }) || _(levels).last();
 
       return this.colors[_(levels).indexOf(level)];
