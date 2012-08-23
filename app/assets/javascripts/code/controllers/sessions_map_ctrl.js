@@ -1,5 +1,6 @@
 function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage,
-                         storageEvents, singleSession, functionBlocker, $window) {
+                         storageEvents, singleSession, functionBlocker, $window, $location,
+                         rectangles, infoWindow) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
@@ -8,8 +9,12 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
     $scope.expandables = expandables;
     $scope.singleSession = singleSession;
     $scope.$window = $window;
+
     functionBlocker.block("selectedId", !!params.get('data').sensorId);
     functionBlocker.block("sessionHeat", !!params.get('tmpSessionId') && !_(params.get('sessionsIds')).isEmpty());
+
+    rectangles.clear();
+    infoWindow.hide();
     $($window).resize(function() {
       $scope.$digest();
     });
@@ -52,4 +57,5 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
 }
 SessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
    'map', 'sensors', 'expandables', 'storage',
-  'storageEvents', 'singleSession', 'functionBlocker', '$window'];
+  'storageEvents', 'singleSession', 'functionBlocker', '$window', "$location",
+  "rectangles", "infoWindow"];

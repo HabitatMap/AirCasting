@@ -1,4 +1,4 @@
-function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expandables,
+function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expandables, $location,
                       storage, storageEvents, infoWindow, rectangles, spinner, functionBlocker, utils) {
   $scope.setDefaults = function() {
     $scope.params = params;
@@ -85,9 +85,11 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
   };
 
   $scope.onAveragesFetch = function(data, status, headers, config) {
-    map.drawRectangles(data,
+    if($location.path() == "/map_crowd"){
+       map.drawRectangles(data,
                        _(params.get('data').heat).chain().values().sortBy(function(i){return i;}).value(),
                        $scope.onRectangleClick);
+    }
     spinner.hide();
   };
 
@@ -99,5 +101,5 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
   $scope.setDefaults();
 }
 CrowdMapCtrl.$inject = ['$scope', '$http', 'params', 'heat',
-  '$window', 'map', 'sensors', 'expandables', 'storage',
+  '$window', 'map', 'sensors', 'expandables', '$location', 'storage',
   'storageEvents', 'infoWindow', 'rectangles', 'spinner', 'functionBlocker', 'utils'];
