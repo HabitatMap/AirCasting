@@ -20,7 +20,6 @@ require "rvm/capistrano"
 require 'bundler/capistrano'
 require 'capistrano/ext/multistage'
 
-
 set :rvm_ruby_string, '1.9.2-p290'
 set :rvm_type,   :system
 
@@ -56,7 +55,7 @@ namespace :deploy do
 
   desc "Package assets"
   task :package_assets do
-    run "cd #{release_path}; RAILS_ENV=#{rails_env} bundle exec rake assets:precompile --trace"
+    run "cd #{release_path}; RAILS_ENV=#{rails_env} RAILS_GROUPS=assets bundle exec rake assets:precompile --trace"
   end
 
   desc "build missing paperclip styles"
@@ -71,6 +70,6 @@ task :reset_counters do
 end
 
 after 'deploy:update_code', 'deploy:symlink_shared'
-after 'deploy:update_code', 'deploy:package_assets'
-after 'deploy:update_code', 'deploy:build_missing_paperclip_styles'
+after 'deploy:symlink_shared', 'deploy:package_assets'
+after 'deploy:symlink_shared', 'deploy:build_missing_paperclip_styles'
 after 'deploy:update', 'deploy:cleanup'
