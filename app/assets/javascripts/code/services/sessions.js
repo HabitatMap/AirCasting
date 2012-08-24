@@ -37,6 +37,7 @@ angular.module("aircasting").factory('sessions',
         tags:  data.tags,
         usernames:  data.usernames
       };
+      var location = data.location;
       if(location.limit){
         _(reqData).extend({
           west: viewport.west,

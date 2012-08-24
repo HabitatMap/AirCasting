@@ -97,7 +97,6 @@ class Session < ActiveRecord::Base
       latitude_range(data[:south], data[:north]).
       longitude_range(data[:west], data[:east]).
       select("DISTINCT session_id").map(&:session_id)
-
       sessions = sessions.where(:id => session_ids)
     end
 
