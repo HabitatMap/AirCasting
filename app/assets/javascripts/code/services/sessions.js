@@ -64,7 +64,7 @@ angular.module("aircasting").factory('sessions',
       this.clear();
       this.sessions = [];
       spinner.show();
-      $http.get('/api/sessions.json', {params : {q: reqData}}).success(_(this.onSessionsFetch).bind(this));
+      $http.get('/api/sessions.json', {cache: true, params : {q: reqData}}).success(_(this.onSessionsFetch).bind(this));
     },
 
     onSessionsFetch: function(data, status, headers, config) {
@@ -127,7 +127,7 @@ angular.module("aircasting").factory('sessions',
         return;
       }
       spinner.show();
-      $http.get('/api/sessions/' +  id).success(function(data, status, headers, config){
+      $http.get('/api/sessions/' +  id, {cache : true}).success(function(data, status, headers, config){
         self.onSingleSessionFetch(session, data);
       });
     },
