@@ -17,29 +17,24 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class AutocompleteController < ApplicationController
-  FINDER_SQL = "SELECT name FROM tags WHERE name LIKE ? LIMIT ?"
 
   def tags
     q = params[:q]
+    render :json => [] unless q.present?
 
-    if q.present?
-      sql_query = ActiveRecord::Base.send(:sanitize_sql_array, [FINDER_SQL, "#{q}%", params[:limit].to_i])
-      tag_names = ActiveRecord::Base.connection.execute(sql_query).to_a.flatten
+    base_query = Session
+    base_query = base_query.where(:taggings => {:taggable_id => params[:session_ids]}) unless params[:session_ids].blank?
 
-      render :json => tag_names
-    else
-      render :json => []
-    end
+    base_query = base_query.tag_counts.where(["tags.name LIKE ?", "#{q}%"]).limit(params[:limit])
+    render :json => base_query.map(&:name)
+
   end
 
   def usernames
     q = params[:q]
+    render :json => [] unless q.present?
 
-    if q.present?
-      names = User.select("username").where("username LIKE ?", "#{q}%").order(:username).map(&:username)
-      render :json => names
-    else
-      render :json => []
-    end
+    names = User.select("username").where("username LIKE ?", "#{q}%").order(:username).map(&:username)
+    render :json => names
   end
 end

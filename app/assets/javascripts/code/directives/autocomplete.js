@@ -15,9 +15,11 @@ angular.module("aircasting").directive('autocomplete', function (){
         }
       }).autocomplete({
         source: function( request, response ) {
-          $.getJSON( attrs.autocomplete, {
-            q: extractLast( request.term ), limit: 10
-          }, response );
+          var data = {q: extractLast( request.term ), limit: 10};
+          if(attrs.autocompleteParams){
+            _(data).extend(scope.$eval(attrs.autocompleteParams));
+          }
+          $.getJSON( attrs.autocomplete, data, response );
         },
         search: function() {
           // custom minLength

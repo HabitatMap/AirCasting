@@ -83,7 +83,13 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
       measurement_type:  sensors.selected().measurement_type
     };
     spinner.show();
-    $http.get('/api/averages', {params : {q: reqData}}).success($scope.onAveragesFetch);
+    $http.get('/api/averages', {cache: true, params : {q: reqData}}).success($scope.onAveragesFetch);
+  };
+
+  $scope.getSessionIds = function(){
+    return _(rectangles.getData()).chain().pluck("ids").map(function(ids){
+      return ids.split(",");
+    }).flatten().uniq().value();
   };
 
   $scope.onAveragesFetch = function(data, status, headers, config) {

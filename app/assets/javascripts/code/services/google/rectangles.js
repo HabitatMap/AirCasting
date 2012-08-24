@@ -10,6 +10,9 @@ angular.module("google").factory("rectangles",  function(){
     get: function() {
       return this.rectangles;
     },
+    getData: function() {
+      return _(this.rectangles).pluck("data");
+    },
     position: function(region){
       var lat = (region.south + region.north) / 2;
       var lng = (region.east + region.west) / 2;

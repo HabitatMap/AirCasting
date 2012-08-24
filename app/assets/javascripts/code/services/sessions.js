@@ -17,6 +17,7 @@ angular.module("aircasting").factory('sessions',
     get: function(){
       return this.sessions;
     },
+
     noOfSelectedSessions : function() {
       return this.allSelected().length;
     },

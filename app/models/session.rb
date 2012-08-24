@@ -75,7 +75,7 @@ class Session < ActiveRecord::Base
 
     usernames = data[:usernames].to_s.split(/[\s,]/)
     if usernames.present?
-      sessions = sessions.joins(:user).where("users.username IN (?)", usernames)
+      sessions = sessions.joins(:user).where(:users => {:username => usernames})
     end
 
     location = data[:location]
@@ -84,11 +84,11 @@ class Session < ActiveRecord::Base
       sessions = sessions.joins(:streams)
       if location.present?
         streams_ids = Measurement.near(location, data[:distance]).select('stream_id').map(&:stream_id)
-        sessions = sessions.where("streams.id IN (?)", streams_ids)
+        sessions = sessions.where(:streams => {:id => streams_ids})
       end
 
       if sensor_name.present?
-        sessions = sessions.where("streams.sensor_name = ?",  sensor_name)
+        sessions = sessions.where(:streams => {:sensor_name =>  sensor_name})
       end
     end
 
@@ -182,9 +182,8 @@ class Session < ActiveRecord::Base
       session_data[:streams] || [].each do |key, stream_data|
         if stream_data[:deleted]
           session = Session.find_by_uuid(session_data[:uuid])
-          session.streams.where( "sensor_package_name = ? AND sensor_name = ?",
-                                 stream_data[:sensor_package_name],
-                                 stream_data[:sensor_name] ).each(&:destroy)
+          session.streams.where( :sensor_package_name => stream_data[:sensor_package_name],
+                                  :sensor_name => stream_data[:sensor_name]).each(&:destroy)
         end
       end
 
@@ -232,7 +231,7 @@ class Session < ActiveRecord::Base
     tg = TokenGenerator.new
 
     token = tg.generate_unique(5) do |token|
-      Session.where(:url_token => token).count == 0
+      Session.where(:url_token => token).count.zero?
     end
 
     self.url_token = token

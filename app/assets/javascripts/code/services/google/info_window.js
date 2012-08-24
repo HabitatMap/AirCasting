@@ -9,7 +9,7 @@ angular.module("google").factory("infoWindow",  ["map", "$http", "$compile", "$r
     },
     show: function(url, data, position){
       this.popup.setContent("working..");
-      $http.get(url, {params : data}).success(_(this.onShowData).bind(this));
+      $http.get(url, {params : data, cache: true}).success(_(this.onShowData).bind(this));
       this.popup.setPosition(position);
       this.popup.open(map.get());
     },
