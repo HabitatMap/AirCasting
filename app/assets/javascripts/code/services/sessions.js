@@ -48,8 +48,8 @@ angular.module("aircasting").factory('sessions',
 
       if(!location.limit && location.address) {
         _(reqData).extend({
-          sensor_name:  location.address,
-          measurement_type:  location.distance
+          location:  location.address,
+          distance:  location.distance
         });
       }
       if(sensors.selected()){
