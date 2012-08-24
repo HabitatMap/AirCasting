@@ -42,7 +42,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     }
     params.update({data: {sensorId: newValue}});
     spinner.show();
-    $http.get('/api/thresholds/' + sensors.selected().sensor_name).success($scope.onThresholdsFetch);
+    $http.get('/api/thresholds/' + sensors.selected().sensor_name, {cache: true}).success($scope.onThresholdsFetch);
   });
 
   $scope.onThresholdsFetch = function(data, status, headers, config) {

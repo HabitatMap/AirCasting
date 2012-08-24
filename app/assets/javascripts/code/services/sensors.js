@@ -1,7 +1,7 @@
 angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', function(params, $http, spinner) {
   var Sensors = function() {
     spinner.show();
-    $http.get('/api/sensors').success(_(this.onSensorsFetch).bind(this));
+    $http.get('/api/sensors', {cache: true}).success(_(this.onSensorsFetch).bind(this));
     this.sensors = {};
     this.tmpSensorId = undefined;
     this.shouldInitSelected = false;
