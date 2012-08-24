@@ -67,10 +67,15 @@ angular.module("aircasting").factory('sessions',
     },
 
     onSessionsFetch: function(data, status, headers, config) {
+      var times;
       _(data).each(function(session){
         if(session.start_time_local && session.end_time_local) {
-          session.timeframe = moment(session.start_time_local).format('MM/DD/YYYY, HH:mm') +
-            '-' +  moment(session.end_time_local).format('HH:mm');
+          times = [moment(session.start_time_local), moment(session.end_time_local)];
+          if(session.start_time_local > session.end_time_local){
+            times = _(times).reverse();
+          }
+          session.timeframe = times[0].format('MM/DD/YYYY, HH:mm') +
+            '-' +  times[1].format('HH:mm');
         }
         session.shortTypes = _(session.streams).chain().map(function(stream){
           return {name: stream.measurement_short_type, type: stream.sensor_name};
