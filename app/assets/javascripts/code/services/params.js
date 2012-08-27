@@ -1,12 +1,12 @@
-angular.module("aircasting").factory('params', ['$location', '$rootScope', 'utils',
-                                     function($location, $rootScope, utils) {
+angular.module("aircasting").factory('params', ['$location', '$rootScope', 'utils', '$timeout',
+                                     function($location, $rootScope, utils, $timeout) {
   var Params = function() {
     var self = this;
-    var scope = $rootScope.$new();
+    this.scope = $rootScope.$new();
     //set init params
     this.init($location.search());
-    scope.$location = $location;
-    scope.$watch("$location.search()", _(this.init).bind(this));
+    this.scope.$location = $location;
+    this.scope.$watch("$location.search()", _(this.init).bind(this));
   };
   Params.prototype = {
     init: function(searchData) {
@@ -17,6 +17,11 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
         return;
       }
       this.paramsData = searchData || {};
+    },
+    digest: function() {
+      $timeout(function(){
+        $rootScope.$digest();
+      });
     },
     get: function(name, defaultValue){
       return this.paramsData[name] || defaultValue || {};

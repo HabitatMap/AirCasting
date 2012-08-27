@@ -11,7 +11,7 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
     $scope.$window = $window;
 
     functionBlocker.block("selectedId", !!params.get('data').sensorId);
-    functionBlocker.block("sessionHeat", !!params.get('tmpSessionId') && !_(params.get('sessionsIds')).isEmpty());
+    functionBlocker.block("sessionHeat", !!params.get('tmp').tmpSensorId && !_(params.get('sessionsIds')).isEmpty());
 
     rectangles.clear();
     infoWindow.hide();

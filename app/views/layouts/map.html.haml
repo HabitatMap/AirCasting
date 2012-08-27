@@ -12,7 +12,7 @@
 
   %body(id="map")
     .notice(ng-controller="FlashCtrl" ng-show="flash.message" ng-click="clear()") {{flash.message}}
-    #mapview(googlemap)
+    #mapview(ng-controller="MapCtrl" googlemap="")
     #hud(ng-controller="HudCtrl" ng-hide="map.streetViewVisible()")
       #left-hud(ng-include="" src="'/partials/left_hud.html'")
       #right-hud

@@ -1,12 +1,13 @@
-angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles", "geocoder", '$location',
-                                     function($cookies, $rootScope, rectangles, geocoder, $location){
+angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "rectangles", "geocoder", '$location',
+                                     function(params, $cookies, $rootScope, rectangles, geocoder, $location){
   var Map = function() {};
   Map.prototype = {
     init: function(element, options) {
       this.mapObj = new google.maps.Map(element, options);
       this.listen("idle", this.saveViewport);
       this.listen("visible_changed", function(){$rootScope.$digest();}, this.mapObj.getStreetView());
-      this.listen("zoom_changed", _(this.appendMapType).bind(this));
+      this.listen("zoom_changed", _(this.onZoomChanged).bind(this));
+      this.listen("maptypeid_changed", _(this.onMapTypeIdChanged).bind(this));
       rectangles.init(this.mapObj);
     },
     get: function(){
@@ -43,10 +44,14 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
       var zoom = this.getZoom();
       var lat = this.mapObj.getCenter().lat();
       var lng = this.mapObj.getCenter().lng();
+      var mapType = this.mapObj.getMapTypeId();
 
       $cookies.vp_zoom = zoom;
       $cookies.vp_lat = lat;
       $cookies.vp_lng = lng;
+
+      params.update({map: {zoom: zoom, lat: lat, lng: lng, mapType: mapType}});
+      params.digest();
     },
     appendViewport: function(obj) {
       if(!(obj.north && obj.east && obj.south && obj.west)) {
@@ -57,17 +62,27 @@ angular.module("google").factory("map", ["$cookies", "$rootScope", "rectangles",
       var bounds = new google.maps.LatLngBounds(southwest, northeast);
       this.mapObj.fitBounds(bounds);
     },
-    appendMapType: function() {
+    onZoomChanged: function() {
       // if zoom is too high for terrain map, switch to hybrid map (but remember last used type)
       var zoom = this.getZoom();
+      var newMapTypeId;
       if(zoom >= 15 && this.mapObj.getMapTypeId() == google.maps.MapTypeId.TERRAIN) {
-        this.mapObj.setMapTypeId(google.maps.MapTypeId.HYBRID);
+        newMapTypeId = google.maps.MapTypeId.HYBRID;
         this.previousMapTypeId = google.maps.MapTypeId.TERRAIN;
       } else if(zoom < 15 && this.previousMapTypeId){
         //if zoom is low enough for terrain map, switch to it if it was used before zooming in
-        this.mapObj.setMapTypeId(this.previousMapTypeId);
+        newMapTypeId = this.previousMapTypeId;
         this.previousMapTypeId = null;
       }
+      //Zooming and MapType has been handled by other events
+      if(newMapTypeId) {
+        this.mapObj.setMapTypeId(newMapTypeId);
+      }
+    },
+    onMapTypeIdChanged: function() {
+      var mapType = this.mapObj.getMapTypeId();
+      params.update({map: {mapType: mapType}});
+      params.digest();
     },
     listen: function(name, callback, diffmap) {
       google.maps.event.addListener(diffmap || this.mapObj, name, _(callback).bind(this));
