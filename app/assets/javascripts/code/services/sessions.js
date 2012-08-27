@@ -71,7 +71,8 @@ angular.module("aircasting").factory('sessions',
       var times;
       _(data).each(function(session){
         if(session.start_time_local && session.end_time_local) {
-          times = [moment(session.start_time_local), moment(session.end_time_local)];
+          times = [moment(session.start_time_local, "YYYY-MM-DDTHH:mm:ss"),
+                   moment(session.end_time_local, "YYYY-MM-DDTHH:mm:ss")];
           if(session.start_time_local > session.end_time_local){
             times = _(times).reverse();
           }
