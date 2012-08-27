@@ -83,22 +83,23 @@ class Session < ActiveRecord::Base
     if  location.present? || sensor_name.present?
       sessions = sessions.joins(:streams)
       if location.present?
-        streams_ids = Measurement.near(location, data[:distance]).select('stream_id').map(&:stream_id)
-        sessions = sessions.where(:streams => {:id => streams_ids})
+        point = Geocoder.coordinates(location)
+        box = Geocoder::Calculations.bounding_box(point, data[:distance])
+        streams_ids = Measurement.within_bounding_box(box).select('stream_id').map(&:stream_id)
+        sessions = sessions.where(:streams => {:id => streams_ids.uniq})
       end
 
       if sensor_name.present?
         sessions = sessions.where(:streams => {:sensor_name =>  sensor_name})
       end
-    end
-
-    if data[:east] && data[:west] && data[:north] && data[:south]
+    elsif data[:east] && data[:west] && data[:north] && data[:south]
       session_ids = Measurement.joins(:session).
       latitude_range(data[:south], data[:north]).
       longitude_range(data[:west], data[:east]).
       select("DISTINCT session_id").map(&:session_id)
-      sessions = sessions.where(:id => session_ids)
+      sessions = sessions.where(:id => session_ids.uniq)
     end
+
 
     if data[:time_from] && data[:time_to] && !whole_day?(data[:time_from], data[:time_to])
       sessions = sessions.
@@ -118,8 +119,7 @@ class Session < ActiveRecord::Base
   end
 
   def self.filtered_json(data)
-    includes(:user).
-      includes(:streams).
+    includes(:user).includes(:streams).
       filter(data).as_json(
         :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time_local, :end_time_local, :timezone_offset],
         :methods => [:username, :streams, :no_of_measurements]
@@ -127,7 +127,7 @@ class Session < ActiveRecord::Base
   end
 
   def no_of_measurements
-    measurements_count || 0 #measurements.count
+    measurements_count || 0 #measurements_count TODO
   end
 
   def to_param

@@ -43,9 +43,8 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions,
   };
 
   $scope.isSessionDisabled = function(sessionId) {
-    var session = sessions.find(sessionId);
-    return !sensors.selected() && sessions.noOfSelectedSessions() > 0 &&
-      !_(params.get("sessionsIds")).include(session.id);
+    return !sensors.selected() && !_(params.get("sessionsIds")).include(sessionId) &&
+      sessions.noOfSelectedSessions() > 0 ;
   };
 
   $scope.sessionFetchCondition = function() {

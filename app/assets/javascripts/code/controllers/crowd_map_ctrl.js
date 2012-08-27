@@ -89,9 +89,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
   };
 
   $scope.getSessionIds = function(){
-    return _(rectangles.getData()).chain().pluck("ids").map(function(ids){
-      return ids.split(",");
-    }).flatten().uniq().value();
+    return _(rectangles.getData()).chain().pluck("ids").flatten().uniq().value();
   };
 
   $scope.onAveragesFetch = function(data, status, headers, config) {

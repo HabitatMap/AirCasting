@@ -76,7 +76,7 @@ class Measurement < ActiveRecord::Base
     if tags.present?
       sessions_ids = Session.select("sessions.id").tagged_with(tags).map(&:id)
       if sessions_ids.present?
-        measurements = measurements.where(:streams => {:session_id => sessions_ids})
+        measurements = measurements.where(:streams => {:session_id => sessions_ids.compact.uniq})
       else
         measurements = []
       end
@@ -89,7 +89,7 @@ class Measurement < ActiveRecord::Base
 
     measurements.map do |measurement|
       {
-        :ids => measurement.ids,
+        :ids => [measurement.ids.to_s.split(",")].uniq,
         :value => measurement.avg.to_f,
         :west  =>  measurement.middle_x.to_f * grid_x - grid_x / 2,
         :east  =>  measurement.middle_x.to_f * grid_x + grid_x / 2,
