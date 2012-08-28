@@ -152,11 +152,11 @@ angular.module("aircasting").factory('sessions',
     },
 
     measurementsForSensor: function(session, sensor_name){
-      return session.details.streams[sensor_name].measurements;
+      return session.streams[sensor_name].measurements;
     },
 
     measurements: function(session, sensor_name){
-      return session.details.streams[sensors.anySelected().sensor_name].measurements;
+      return session.streams[sensors.anySelected().sensor_name].measurements;
     },
 
     allMeasurements: function(sensor_name){
@@ -167,7 +167,7 @@ angular.module("aircasting").factory('sessions',
     },
 
     onSingleSessionFetch: function(session, data) {
-      session.details = data;
+      _(session).extend(data);
       session.loaded = true;
       if(sensors.anySelected()){
         this.draw(session);
@@ -182,7 +182,7 @@ angular.module("aircasting").factory('sessions',
       this.undoDraw(session);
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       session.markers = [];
-      session.notes = [];
+      session.noteDrawings = [];
       session.lines = [];
       var points = [];
       _(this.measurements(session)).each(function(measurment, idx){
@@ -197,8 +197,8 @@ angular.module("aircasting").factory('sessions',
           points.push(measurment);
         }
       });
-      _(session.details.notes || []).each(function(note){
-        session.notes.push(map.drawNote(note));
+      _(session.notes || []).each(function(note){
+        session.noteDrawings.push(map.drawNote(note));
       });
       session.lines.push(map.drawLine(points));
 
@@ -213,7 +213,7 @@ angular.module("aircasting").factory('sessions',
       _(session.lines || []).each(function(line){
         map.removeMarker(line);
       });
-      _(session.notes || []).each(function(note){
+      _(session.noteDrawings || []).each(function(note){
         map.removeMarker(note);
       });
     },
