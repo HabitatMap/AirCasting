@@ -1,5 +1,5 @@
-angular.module("aircasting").factory('params', ['$location', '$rootScope', 'utils', '$timeout',
-                                     function($location, $rootScope, utils, $timeout) {
+angular.module("aircasting").factory('params', ['$location', '$rootScope', 'utils',
+                                     function($location, $rootScope, utils) {
   var Params = function() {
     var self = this;
     this.scope = $rootScope.$new();
@@ -17,11 +17,6 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
         return;
       }
       this.paramsData = searchData || {};
-    },
-    digest: function() {
-      $timeout(function(){
-        $rootScope.$digest();
-      });
     },
     get: function(name, defaultValue){
       return this.paramsData[name] || defaultValue || {};

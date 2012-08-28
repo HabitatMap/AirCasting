@@ -1,5 +1,7 @@
-angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "rectangles", "geocoder", '$location',
-                                     function(params, $cookies, $rootScope, rectangles, geocoder, $location){
+angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "digester",
+                                 "rectangles", "geocoder", '$location',
+                                     function(params, $cookies, $rootScope, digester,
+                                              rectangles, geocoder, $location){
   var Map = function() {};
   Map.prototype = {
     init: function(element, options) {
@@ -51,7 +53,7 @@ angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "re
       $cookies.vp_lng = lng;
 
       params.update({map: {zoom: zoom, lat: lat, lng: lng, mapType: mapType}});
-      params.digest();
+      digester();
     },
     appendViewport: function(obj) {
       if(!(obj.north && obj.east && obj.south && obj.west)) {
@@ -82,7 +84,7 @@ angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "re
     onMapTypeIdChanged: function() {
       var mapType = this.mapObj.getMapTypeId();
       params.update({map: {mapType: mapType}});
-      params.digest();
+      digester();
     },
     listen: function(name, callback, diffmap) {
       google.maps.event.addListener(diffmap || this.mapObj, name, _(callback).bind(this));
