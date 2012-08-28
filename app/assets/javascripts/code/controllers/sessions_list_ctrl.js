@@ -30,7 +30,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions,
         }
         $scope.$digest();
       })
-      .opts({ width: 340, height: 'auto', resizable: false, modal:true, position: ["center", 100],
+      .opts({ width: 340, height: 'auto', resizable: false, modal:true, position: ["center", "center"],
       buttons: {
         "submit": function() {
           $scope.sensors.proceedWithTmp();
