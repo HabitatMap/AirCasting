@@ -1,4 +1,4 @@
-function SessionsListCtrl($scope, params, map, sensors, storage, sessions,
+function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash,
                           dialog, functionBlocker, singleSession, $window) {
   $scope.setDefaults = function() {
     $scope.params = params;
@@ -83,6 +83,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions,
 
   $scope.toggleSession = function(sessionId) {
     if(this.isSessionDisabled(sessionId)){
+      flash.set("Filter by Parameter - Sensor to view many sessions at once");
       return;
     }
     var session = sessions.find(sessionId);
@@ -100,4 +101,4 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions,
   $scope.setDefaults();
 }
 SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
-  'sessions', 'dialog', 'functionBlocker', 'singleSession', '$window'];
+  'sessions', 'flash', 'dialog', 'functionBlocker', 'singleSession', '$window'];
