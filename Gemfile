@@ -17,6 +17,7 @@ group :assets, :development do
   gem 'sass-rails'
   gem 'coffee-rails', '~> 3.1.1'
   gem 'uglifier', '~> 1.2.7'
+  gem 'yui-compressor'
 end
 
 gem 'acts-as-taggable-on', '~> 2.3.3'

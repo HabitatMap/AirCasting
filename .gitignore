@@ -6,6 +6,7 @@ tmp/
 .sass-cache/
 .rspec
 config/database.yml
+public/assets
 
 # Paperclip
 public/system
