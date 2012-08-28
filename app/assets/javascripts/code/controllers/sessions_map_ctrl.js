@@ -1,4 +1,4 @@
-function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage,
+function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, sessions,
                          storageEvents, singleSession, functionBlocker, $window, $location,
                          rectangles, infoWindow) {
   $scope.setDefaults = function() {
@@ -61,6 +61,6 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
 
 }
 SessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
-   'map', 'sensors', 'expandables', 'storage',
+   'map', 'sensors', 'expandables', 'storage', 'sessions',
   'storageEvents', 'singleSession', 'functionBlocker', '$window', "$location",
   "rectangles", "infoWindow"];
