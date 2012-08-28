@@ -2,6 +2,7 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
   var Storage = function() {
     this.data = {};
     self = this;
+    this.counter = 0;
     var scope = $rootScope.$new();
     //TODO change to emitter and broadcasters
     scope.params = params;
@@ -11,8 +12,11 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
     }, true);
   };
   Storage.prototype = {
-    get : function(name) {
+    get: function(name) {
       return this.data[name];
+    },
+    refreshCounter: function(){
+      this.set("counter", parseInt(this.get("counter") || 0, 10) + 1);
     },
     set : function(name, value) {
       this.data[name] = angular.copy(value);
@@ -26,6 +30,13 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
     update: function(name) {
       var obj = {};
       obj[name] = this.get(name);
+      params.update({data: obj});
+    },
+    updateWithRefresh: function(name) {
+      this.refreshCounter();
+      var obj = {};
+      obj[name] = this.get(name);
+      obj.counter = this.get("counter");
       params.update({data: obj});
     },
     reset: function(name) {

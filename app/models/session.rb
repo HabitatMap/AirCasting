@@ -80,7 +80,14 @@ class Session < ActiveRecord::Base
 
     location = data[:location]
     sensor_name = data[:sensor_name]
-    if  location.present? || sensor_name.present?
+
+    if data[:east] && data[:west] && data[:north] && data[:south]
+      session_ids = Measurement.joins(:session).
+        latitude_range(data[:south], data[:north]).
+        longitude_range(data[:west], data[:east]).
+        select("DISTINCT session_id").map(&:session_id)
+      sessions = sessions.where(:id => session_ids.uniq)
+    elsif location.present? || sensor_name.present?
       sessions = sessions.joins(:streams)
       if location.present?
         point = Geocoder.coordinates(location)
@@ -92,14 +99,7 @@ class Session < ActiveRecord::Base
       if sensor_name.present?
         sessions = sessions.where(:streams => {:sensor_name =>  sensor_name})
       end
-    elsif data[:east] && data[:west] && data[:north] && data[:south]
-      session_ids = Measurement.joins(:session).
-      latitude_range(data[:south], data[:north]).
-      longitude_range(data[:west], data[:east]).
-      select("DISTINCT session_id").map(&:session_id)
-      sessions = sessions.where(:id => session_ids.uniq)
     end
-
 
     if data[:time_from] && data[:time_to] && !whole_day?(data[:time_from], data[:time_to])
       sessions = sessions.

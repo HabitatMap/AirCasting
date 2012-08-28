@@ -27,13 +27,13 @@ AirCasting::Application.configure do
   config.action_controller.perform_caching = true
 
   # Disable Rails's static asset server (Apache or nginx will already do this)
-  config.serve_static_assets = true
+  config.serve_static_assets = false
 
   # Compress JavaScripts and CSS
   config.assets.compress = false
 
-  config.assets.js_compressor  = :uglifier
-  config.assets.css_compressor = :yui
+  #config.assets.js_compressor  = :uglifier
+  #config.assets.css_compressor = :yui
   # Don't fallback to assets pipeline if a precompiled asset is missed
   #config.assets.compile = true
   #config.assets.initialize_on_precompile = false
