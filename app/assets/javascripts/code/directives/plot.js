@@ -9,8 +9,8 @@ angular.module("aircasting").directive('plot', function (){
         },
         yaxis: {
           show: false,
-          zoomRange: false,
-          panRange: false
+          panRange: false,
+          zoomRange: false
         },
         grid: {
           show: false,
@@ -48,8 +48,8 @@ angular.module("aircasting").directive('plot', function (){
       if(attrs.plotOnzoom){
         $(id).bind("plotzoom", scope[attrs.plotOnzoom]);
       }
-      if(attrs.plotOnopan){
-        $(id).bind("plotpan", scope[attrs.plotOnopan]);
+      if(attrs.plotOnpan){
+        $(id).bind("plotpan", scope[attrs.plotOnpan]);
       }
     }
   };

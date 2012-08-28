@@ -1,18 +1,6 @@
 angular.module("aircasting").factory('plotStorage', ['$rootScope', 'singleSession', 'sensors','heat',
                                      function($rootScope, singleSession, sensors, heat) {
   var PlotStorage = function() {
-    var self = this;
-    this.scope = $rootScope.$new();
-    this.scope.heat = heat;
-    this.scope.shouldRedraw = function() {
-      return singleSession.isSingle() && !!sensors.anySelected() && !!singleSession.get().loaded;
-    };
-    this.scope.$watch("shouldRedraw()", function(ready) {
-      if(ready){self.redraw();}
-    }, true);
-    this.scope.$watch("heat.getValues()", function() {
-      if(self.scope.shouldRedraw()){self.redraw();}
-    }, true);
   };
   PlotStorage.prototype = {
     get: function(data) {

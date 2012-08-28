@@ -52,6 +52,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     functionBlocker.use("heat", function(){
       params.update({data: {heat: heat.parse(data)}});
     });
+    $scope.getAverages();
     spinner.hide();
   };
 

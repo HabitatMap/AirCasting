@@ -29,6 +29,7 @@
 //= require libs/flot/jquery.flot.js
 //= require libs/flot/jquery.flot.crosshair.js
 //= require libs/flot/jquery.flot.resize.js
+//= require libs/flot/jquery.flot.navigate.js
 //= require code/aircasting
 //= require_tree ./code/services
 //= require_tree ./code/directives

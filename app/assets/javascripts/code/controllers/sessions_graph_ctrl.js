@@ -4,6 +4,14 @@ function SessionsGraphCtrl($scope, map, plotStorage, flash, heat, sensors, singl
   $scope.heat = heat;
   $scope.sensors = sensors;
 
+  $scope.$watch("sensors.anySelectedId()", function(id){
+    $scope.expanded = false;
+  });
+
+  $scope.$watch("singleSession.id()", function(id){
+    $scope.expanded = false;
+  });
+
   $scope.css = function() {
     return $scope.expanded ? "" : "collapsed";
   };
@@ -23,6 +31,7 @@ function SessionsGraphCtrl($scope, map, plotStorage, flash, heat, sensors, singl
     var data = plotStorage.getEdge(edge);
     return data ? moment(data).format("HH:mm:ss") : "";
   };
+
   $scope.onPlotHover = function(event, pos, item){
     if(item === null){
       $scope.hideHighlight();
@@ -30,6 +39,12 @@ function SessionsGraphCtrl($scope, map, plotStorage, flash, heat, sensors, singl
       $scope.showHighlight(pos.x);
     }
   };
+
+  $scope.onPlotMove = function(event, move){
+    console.log(plotStorage.plot.getData());
+    var options = plotStorage.plot.getOptions();
+  };
+
   $scope.showHighlight = function(time){
     var index = _(singleSession.measurementsToTime()).sortedIndex([time, null], function(d) {
       return _.first(d);
@@ -47,6 +62,21 @@ function SessionsGraphCtrl($scope, map, plotStorage, flash, heat, sensors, singl
     delete $scope.highlight;
   };
 
+  $scope.shouldRedraw = function() {
+    return singleSession.isSingle() && !!sensors.anySelected() && !!singleSession.get().loaded;
+  };
+
+  $scope.$watch("shouldRedraw()", function(ready) {
+    if(ready){
+      plotStorage.redraw();
+    }
+  }, true);
+
+  $scope.$watch("heat.getValues()", function() {
+    if($scope.shouldRedraw()){
+      plotStorage.redraw();
+    }
+  }, true);
 }
 SessionsGraphCtrl.$inject = ['$scope', 'map',  'plotStorage', 'flash', 'heat', 'sensors', 'singleSession'];
 

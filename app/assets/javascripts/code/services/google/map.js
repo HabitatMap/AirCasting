@@ -106,6 +106,9 @@ angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "re
       });
     },
     drawMarker: function(latLngObj, optionInput, existingMarker){
+      if(!latLngObj) {
+        return;
+      }
       var latlng = new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
       var newMarker;
       if(existingMarker){
