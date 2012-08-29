@@ -109,22 +109,6 @@ $graph-height: 140px;
     position: relative;
     top: -2px;
     width: 100%;
-
-    #graph-label-bottom, #graph-label-top {
-      color: white;
-      left: 0;
-      margin-left: 5px;
-      position: absolute;
-      z-index: 11;
-    }
-
-    #graph-label-top {
-      top: 0;
-    }
-
-    #graph-label-bottom {
-      bottom: 0px
-    }
   }
 
   #graph-top {
@@ -163,72 +147,18 @@ $graph-height: 140px;
     }
   }
 
-  #graph-bottom {
-    bottom: 0;
-    height: 0;
-    left: -2px;
-    margin: 0;
-    overflow: visible !important;
-    position: absolute;
-    right: -2px;
-
-    #graph-label-left, #graph-label-right {
-      background: none repeat scroll 0 0 #FFFFFF;
-      border-style: none solid solid;
-      border-width: medium 2px 2px;
-      font-weight: bold;
-      padding: 4px 16px 1px;
-      position: absolute;
-      top: 0;
-      z-index: $graph-zindex + 10;
-    }
-
-    #graph-label-left {
-      left: 0;
-    }
-
-    #graph-label-right {
-      right: 0;
-    }
-  }
-
-  #graph, #graph-background {
+  #graph {
     height: 100%;
     left: 0;
     margin: 0;
     overflow: hidden;
     position: absolute;
     top: 0;
-    min-width: 100px;
+    width: 100%;
   }
 
   #graph {
     z-index: $graph-zindex;
   }
 
-  #graph-background {
-    z-index: $graph-zindex - 1;
-
-    div {
-      margin: 0;
-      width: 100%;
-      height: 25%;
-    }
-
-    .low {
-      background: #65C68A;
-    }
-
-    .mid {
-      background: #FEE665;
-    }
-
-    .high {
-      background: #FEB065;
-    }
-
-    .highest {
-      background: #FE6465;
-    }
-  }
 }
