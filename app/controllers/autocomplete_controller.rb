@@ -23,7 +23,7 @@ class AutocompleteController < ApplicationController
     render :json => [] unless q.present?
 
     query = Session.where(:contribute => true).tag_counts.where(["tags.name LIKE ?", "#{q}%"]).limit(params[:limit])
-    render :json => base_query.map(&:name)
+    render :json => query.map(&:name)
 
   end
 
