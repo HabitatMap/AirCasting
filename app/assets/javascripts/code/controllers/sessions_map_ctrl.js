@@ -32,10 +32,6 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
     storage.updateFromDefaults();
   };
 
-  $scope.getSessionIds = function(){
-    return _(sessions.get()).pluck("id");
-  };
-
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
     if(newValue == oldValue){
       return;

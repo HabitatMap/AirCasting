@@ -89,10 +89,6 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     $http.get('/api/averages', {cache: true, params : {q: reqData}}).success($scope.onAveragesFetch);
   };
 
-  $scope.getSessionIds = function(){
-    return _(rectangles.getData()).chain().pluck("ids").flatten().uniq().value();
-  };
-
   $scope.onAveragesFetch = function(data, status, headers, config) {
     if($location.path() == "/map_crowd"){
        map.drawRectangles(data,

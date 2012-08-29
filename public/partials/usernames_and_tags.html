@@ -15,7 +15,7 @@
   <h4 class="section-divider" ng-click="expandables.toggle('tags')" ng-class="expandables.css('tags')">Tags</h4>
   <section ng-show="expandables.visible('tags')">
   <div class="textfield">
-      <input type="text" ng-model="storage.data.tags" autocomplete="/autocomplete/tags" autocomplete-params="{session_ids: $parent.getSessionIds()}">
+      <input type="text" ng-model="storage.data.tags" autocomplete="/autocomplete/tags" >
     </div>
     <div>
       <ul class="buttons">
