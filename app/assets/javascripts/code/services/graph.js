@@ -20,21 +20,37 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
           //  load: this.onLoad
           //}
         },
+        labels: {
+          style: {
+            fontFamily: "Arial,sans-serif"
+          }
+        },
+        navigator : {
+          enabled : false
+        },
         rangeSelector : {
+          buttonSpacing: 5,
+          buttonTheme: {
+            width: 50
+          },
           buttons: [{
-            count: 1,
-            type: 'minute',
-            text: '1M'
-          }, {
             count: 5,
             type: 'minute',
-            text: '5M'
+            text: '5min'
+          }, {
+            count: 30,
+            type: 'minute',
+            text: '30min'
+          }, {
+            count: 1,
+            type: 'hour',
+            text: '1hr'
           }, {
             type: 'all',
             text: 'All'
           }],
           inputEnabled: false,
-          selected: 0
+          selected: 3
         },
         series : [{
           name : sensor.measurement_type,
@@ -43,8 +59,29 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
             valueDecimals: 2
           }
         }],
+        plotOptions: {
+          line: {
+            lineColor: "#FFFFFF"
+          }
+        },
+        tooltip: {
+          borderWidth: 0,
+          formatter: function() {
+                var s = '<b>'+ Highcharts.dateFormat('%d/%m/%Y %H:%M:%S', this.x) +'</b>';
+
+                $.each(this.points, function(i, point) {
+                    s += '<br/>' + sensor.measurement_type + ' : '+ point.y + '' + sensor.unit_symbol;
+                });
+
+                return s;
+            }
+        },
         yAxis : {
-          plotBands : []
+          plotBands : [],
+          labels: {
+            enabled : false
+          },
+          gridLineWidth: 0
         }
       };
       _(heat.toLevels()).each(function(level){
