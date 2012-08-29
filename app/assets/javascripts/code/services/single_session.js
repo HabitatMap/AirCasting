@@ -34,8 +34,12 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
       return  sessions.measurementsForSensor(this.get(), sensors.anySelected().sensor_name);
     },
     measurementsToTime: function(){
-      return _(this.measurements()).map(function(measurement){
-        return [moment(measurement.time).valueOf(), measurement.value];
+      var result = _(this.measurements()).map(function(measurement){
+        return {x: moment(measurement.time).valueOf(), y: measurement.value,
+          latitude: measurement.latitude, longitude: measurement.longitude};
+      });
+      return _(result).uniq(true, function(item) {
+        return item.x;
       });
     },
     updateHeat: function() {

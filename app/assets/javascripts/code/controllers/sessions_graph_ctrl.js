@@ -1,8 +1,9 @@
-function SessionsGraphCtrl($scope, map, plotStorage, flash, heat, sensors, singleSession) {
-  $scope.plotStorage = plotStorage;
+function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSession, graphHighlight) {
+  $scope.graph = graph;
   $scope.expanded = false;
   $scope.heat = heat;
   $scope.sensors = sensors;
+  $scope.singleSession = singleSession;
 
   $scope.$watch("sensors.anySelectedId()", function(id){
     $scope.expanded = false;
@@ -27,57 +28,24 @@ function SessionsGraphCtrl($scope, map, plotStorage, flash, heat, sensors, singl
     }
     $scope.expanded = !$scope.expanded;
   };
-  $scope.formattedEdge = function(edge){
-    var data = plotStorage.getEdge(edge);
-    return data ? moment(data).format("HH:mm:ss") : "";
-  };
-
-  $scope.onPlotHover = function(event, pos, item){
-    if(item === null){
-      $scope.hideHighlight();
-    } else {
-      $scope.showHighlight(pos.x);
-    }
-  };
-
-  $scope.onPlotMove = function(event, move){
-    console.log(plotStorage.plot.getData());
-    var options = plotStorage.plot.getOptions();
-  };
-
-  $scope.showHighlight = function(time){
-    var index = _(singleSession.measurementsToTime()).sortedIndex([time, null], function(d) {
-      return _.first(d);
-    });
-    var measurement = singleSession.measurements()[index];
-    $scope.hideHighlight();
-    $scope.highlight = map.drawMarker(measurement, null, $scope.highlight);
-  };
-
-  $scope.hideHighlight = function(){
-    if(!$scope.highlight){
-      return;
-    }
-    map.removeMarker($scope.highlight);
-    delete $scope.highlight;
-  };
 
   $scope.shouldRedraw = function() {
     return singleSession.isSingle() && !!sensors.anySelected() && !!singleSession.get().loaded;
   };
 
   $scope.$watch("shouldRedraw()", function(ready) {
+    graphHighlight.hide();
     if(ready){
-      plotStorage.redraw();
+      graph.redraw();
     }
   }, true);
 
   $scope.$watch("heat.getValues()", function() {
     if($scope.shouldRedraw()){
-      plotStorage.redraw();
+      graph.redraw();
     }
   }, true);
 }
-SessionsGraphCtrl.$inject = ['$scope', 'map',  'plotStorage', 'flash', 'heat', 'sensors', 'singleSession'];
+SessionsGraphCtrl.$inject = ['$scope', 'map',  'graph', 'flash', 'heat', 'sensors', 'singleSession', 'graphHighlight'];
 
 

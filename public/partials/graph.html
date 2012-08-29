@@ -4,18 +4,6 @@
     <a id="graph-arrow" ng-class="css()" ng:click="toggle()"></a>
   </div>
   <div id="graph-box" ng:show="expanded">
-    <span id="graph-label-top">{{heat.getValue('highest')}} {{sensors.anySelected().unit_symbol}}</span>
-    <span id="graph-label-bottom">{{heat.getValue('lowest')}} {{sensors.anySelected().unit_symbol}}</span>
-    <div id="graph" plot plot-onhover="onPlotHover"></div>
-    <div id="graph-background" heatbackground="heat.get()">
-      <div class="highest"></div>
-      <div class="high"></div>
-      <div class="mid"></div>
-      <div class="low"></div>
-    </div>
-    <div id="graph-bottom">
-      <div id="graph-label-left">{{formattedEdge('min')}}</div>
-      <div id="graph-label-right">{{formattedEdge('max')}}</div>
-    </div>
+    <div id="graph" plot></div>
   </div>
 </section>

@@ -102,7 +102,7 @@ $graph-height: 140px;
   #graph-box {
     background: none repeat scroll 0 0 #FFFFFF;
     border: 2px solid #858585;
-    height: 140px;
+    height: 400px;
     left: -2px;
     margin: 0;
     overflow: visible !important;
@@ -199,7 +199,7 @@ $graph-height: 140px;
     overflow: hidden;
     position: absolute;
     top: 0;
-    width: 100%;
+    min-width: 100px;
   }
 
   #graph {

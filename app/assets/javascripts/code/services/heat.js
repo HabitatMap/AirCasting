@@ -2,8 +2,13 @@ angular.module("aircasting").factory('heat', ["$rootScope", "params", function($
   var Heat = function() {
     var self = this;
     this.namesBySensor = ["very_low", "low", "medium", "high", "very_high"];
-    this.namesByApp = ["highest", "high", "mid", "low", "lowest"];
-
+    this.namesByApp =  ["lowest",  "low",  "mid", "high", "highest" ];
+    this.colors = {
+      highest: "#FE6465",
+      high: "#FEB065",
+      mid: "#FEE665",
+      low: "#65C68A"
+    };
     this.heatPercentage = {};
     this.scope = $rootScope.$new();
     this.scope.params = params;
@@ -47,11 +52,21 @@ angular.module("aircasting").factory('heat', ["$rootScope", "params", function($
         lowest: parsedHeat[0]
       };
     },
-    toList: function() {
+
+    toLevels: function() {
       var self = this;
-      return _(this.namesByApp).map(function(name){
-        return self.getValue(name);
+      var levels = [];
+      _(this.namesByApp).each(function(name, idx){
+        if(idx === 0) {
+          return;
+        }
+        levels.push({
+          from: self.getValue(self.namesByApp[idx - 1]),
+          to: self.getValue(name),
+          color: self.colors[name]
+        });
       });
+      return levels;
     },
     toSensoredList: function(sensor) {
       var self = this;
@@ -64,7 +79,7 @@ angular.module("aircasting").factory('heat', ["$rootScope", "params", function($
         return null;
       } else if (value < this.getValue("low")) {
         return 1;
-      } else if (value < this.getValue("medium")) {
+      } else if (value < this.getValue("mid")) {
         return 2;
       } else if (value < this.getValue("high")) {
         return 3;
