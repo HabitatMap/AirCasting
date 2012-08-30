@@ -42,7 +42,7 @@ body#map {
 }
 
 .infoWindow {
-  height: 114px;
+  max-height: 500px;
   width: 250px;
   oveflow: hidden;
   font-size: 12px;
@@ -50,12 +50,12 @@ body#map {
     padding: 0;
     margin:0;
     list-style:none;
-    max-height: 114px;
+    max-height: 500px;
     overflow: hidden;
     li {
       max-height:54px;
-      overflow: hidden;
       max-width: 230px;
+      overflow: hidden;
       span {
         font-weight:bold;
       }
