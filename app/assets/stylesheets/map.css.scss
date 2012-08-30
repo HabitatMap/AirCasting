@@ -246,6 +246,9 @@ body#map {
 
 .note-window {
   width: $right-hud-width;
+  height: 140px !important;
+  overflow-y: auto;
+  margin-right: 15px;
   
   .header {
     background: rgb(133, 133, 133);
