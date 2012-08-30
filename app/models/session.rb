@@ -122,12 +122,8 @@ class Session < ActiveRecord::Base
     includes(:user).includes(:streams).
       filter(data).as_json(
         :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time_local, :end_time_local, :timezone_offset],
-        :methods => [:username, :streams, :no_of_measurements]
+        :methods => [:username, :streams]
     )
-  end
-
-  def no_of_measurements
-    measurements_count || 0 #measurements_count TODO
   end
 
   def to_param
