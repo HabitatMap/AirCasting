@@ -42,10 +42,9 @@ body#map {
 }
 
 .infoWindow {
-  min-height: 100px !important;
+  height: 180px !important;
   max-height: 500px;
   width: 250px;
-  padding:7px;
   font-size: 12px;
 
   ul {
@@ -55,7 +54,6 @@ body#map {
 
     li {
       max-width: 230px;
-      word-break: break-all;
       span {
           font-weight:bold;
         }
