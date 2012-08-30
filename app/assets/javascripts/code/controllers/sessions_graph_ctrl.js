@@ -25,6 +25,9 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSessi
     } else if(sessionsSize > 1) {
       flash.set("You can have only one session selected to view the graph. Currently you have " + sessionsSize);
       return;
+    } else if(!singleSession.get().loaded) {
+      flash.set("You need to wait till session be loaded");
+      return;
     }
     $scope.expanded = !$scope.expanded;
   };

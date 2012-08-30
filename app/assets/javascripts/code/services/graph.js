@@ -15,10 +15,11 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
      });
      var options = {
         chart : {
-          renderTo : this.id
-          //events : {
-          //  load: this.onLoad
-          //}
+          renderTo : this.id,
+          events : {
+            load: this.onLoad
+          },
+          zoomType: "x"
         },
         labels: {
           style: {
@@ -34,6 +35,10 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
             width: 50
           },
           buttons: [{
+            count: 1,
+            type: 'minute',
+            text: '1min'
+          }, {
             count: 5,
             type: 'minute',
             text: '5min'
@@ -50,7 +55,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
             text: 'All'
           }],
           inputEnabled: false,
-          selected: 3
+          selected: 4
         },
         series : [{
           name : sensor.measurement_type,
@@ -61,20 +66,14 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         }],
         plotOptions: {
           line: {
-            lineColor: "#FFFFFF"
+            lineColor: "#FFFFFF",
+            turboThreshold: 9999999 //above that graph will not display,
           }
         },
         tooltip: {
           borderWidth: 0,
-          formatter: function() {
-                var s = '<b>'+ Highcharts.dateFormat('%d/%m/%Y %H:%M:%S', this.x) +'</b>';
-
-                $.each(this.points, function(i, point) {
-                    s += '<br/>' + sensor.measurement_type + ' : '+ point.y + '' + sensor.unit_symbol;
-                });
-
-                return s;
-            }
+          ySuffix: sensor.unit_symbol,
+          xDateFormat: "%d/%m/%Y  %H:%M:%S"
         },
         yAxis : {
           plotBands : [],
@@ -95,6 +94,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         });
       });
       this.loaded = false;
+      //TODO:
+      //to speed up graph provide data as array not object
       this.chart = new Highcharts.StockChart(options);
     },
 
@@ -103,6 +104,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
     },
 
     onMouseOver: function() {
+      //console.log(this);
       graphHighlight.show(this);
     },
 
