@@ -197,8 +197,8 @@ angular.module("aircasting").factory('sessions',
           points.push(measurment);
         }
       });
-      _(session.notes || []).each(function(note){
-        session.noteDrawings.push(map.drawNote(note));
+      _(session.notes || []).each(function(note, idx){
+        session.noteDrawings.push(map.drawNote(note, idx));
       });
       session.lines.push(map.drawLine(points));
 
@@ -206,6 +206,9 @@ angular.module("aircasting").factory('sessions',
       session.drawed = true;
     },
 
+    onNoteClick: function(){
+
+    },
     undoDraw: function(session) {
       _(session.markers || []).each(function(marker){
         map.removeMarker(marker);

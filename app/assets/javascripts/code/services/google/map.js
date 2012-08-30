@@ -1,7 +1,7 @@
 angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "digester",
-                                 "rectangles", "geocoder", '$location',
+                                 "rectangles", "geocoder", '$location','note',
                                      function(params, $cookies, $rootScope, digester,
-                                              rectangles, geocoder, $location){
+                                              rectangles, geocoder, $location, note){
   var Map = function() {};
   Map.prototype = {
     init: function(element, options) {
@@ -151,15 +151,16 @@ angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "di
       return line;
     },
 
-    drawNote: function(note){
-      var marker = this.drawMarker(note, {
-        title: note.text,
+    drawNote: function(item, idx){
+      var self = this;
+      var marker = this.drawMarker(item, {
+        title: item.text,
         icon: "/assets/marker_note.png",
         zIndex: 200000
       });
 
       google.maps.event.addListener(marker, 'click', function(){
-        console.log("display Note");
+        note.show(item, idx, marker, self.get());
       });
       return marker;
     }
