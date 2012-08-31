@@ -49,6 +49,7 @@ namespace :deploy do
   desc "Symlink shared files/directories"
   task :symlink_shared do
     cmd = "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
+    cmd = "ln -nfs #{shared_path}/config/newrelic.yml #{release_path}/config/newrelic.yml"
     cmd << " && ln -nfs #{shared_path}/.rvmrc #{release_path}/.rvmrc"
     run cmd
   end
