@@ -54,6 +54,18 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
     sessions.fetch();
   }, true);
 
+  $scope.canSelectSession = function(sessionId) {
+    var session = sessions.find(sessionId);
+    var maxPoints = 30000;
+    if(sessions.noOfSelectedSessions() === 0){
+      return true;
+    }
+    if((sessions.totalMeasurementsCount() + sessions.measurementsCount(session)) <= maxPoints){
+      return true;
+    }
+    flash.set("You are trying to select too many sessions");
+    return false;
+  };
 
   $scope.sessionRedrawCondition = function() {
     return {id: params.get('tmp').tmpSensorId, heat:  params.get('data').heat };
@@ -70,6 +82,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
       if(newIds.length === 1 && !sensors.selected()) {
         var usableSensors = singleSession.availSensors();
         if(usableSensors.length > 1) {
+          sensors.tmpSensorId = _(usableSensors).first().id;
           $scope.openSensorDialog();
         } else {
           params.update({tmp: {tmpSensorId: _(usableSensors).first().id}});

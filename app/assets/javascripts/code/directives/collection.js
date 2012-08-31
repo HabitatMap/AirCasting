@@ -12,7 +12,12 @@ angular.module("aircasting").directive('collection', function (){
       ctrl.$parsers.push(function(viewValue) {
         var collection = scope.params.get(attrs.collection, []);
         if(viewValue) {
-          collection.push(id);
+          if(!attrs.collectionCondition || scope.$eval(attrs.collectionCondition)) {
+            collection.push(id);
+          } else {
+            element.attr("checked", false);
+            return false;
+          }
         } else {
           collection.splice(_(collection).indexOf(id), 1);
         }

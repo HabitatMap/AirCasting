@@ -151,12 +151,23 @@ angular.module("aircasting").factory('sessions',
       }).compact().value();
     },
 
+    measurementsCount: function(session) {
+      return session.streams[sensors.anySelected().sensor_name].measurements_count;
+    },
+
+    totalMeasurementsCount: function() {
+      var self = this;
+      return _(this.allSelected()).reduce(function(memo, session){
+        return memo + self.measurementsCount(session);
+      }, 0);
+    },
+
     measurementsForSensor: function(session, sensor_name){
       return session.streams[sensor_name].measurements;
     },
 
-    measurements: function(session, sensor_name){
-      return session.streams[sensors.anySelected().sensor_name].measurements;
+    measurements: function(session){
+      return this.measurementsForSensor(session, sensors.anySelected().sensor_name);
     },
 
     allMeasurements: function(sensor_name){
