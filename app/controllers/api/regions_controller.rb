@@ -21,6 +21,7 @@ module Api
     def show
       data = params.symbolize_keys
       data = Hash[[:south, :north, :east, :west].map { |key| [key, data[key].to_f] }]
+      data[:sensor_name] = params[:sensor_name]
 
       respond_with RegionInfo.new(data)
     end
