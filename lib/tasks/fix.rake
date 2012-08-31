@@ -9,5 +9,12 @@ namespace :fix do
       end
     end
   end
-end
 
+  desc "Calculate stream bounding box and average value"
+  task :calc_stream_bbox_and_average_value => :environment do
+    Stream.find_each do |stream|
+      stream.calc_bounding_box! if stream.min_latitude.nil?
+      stream.calc_average_value! if stream.average_value.nil?
+    end
+  end
+end
