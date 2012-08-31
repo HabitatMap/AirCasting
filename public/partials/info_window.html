@@ -5,6 +5,6 @@
       {{sensors.selected().unit_symbol }}</li>
     <li><span># of samples: </span>{{infoWindow.data.number_of_samples_per_sensor[sensors.selected().sensor_name] }}</li>
     <li><span># of contributors: </span>{{infoWindow.data.number_of_contributors_per_sensor[sensors.selected().sensor_name] }}</li>
-    <li><span>Top contributors: </span>{{infoWindow.data.top_contributors_per_sensor[sensors.selected().sensor_name].join(',') }}</li>
+    <li><span>Top contributors: </span>{{infoWindow.data.top_contributors_per_sensor[sensors.selected().sensor_name].join(', ') }}</li>
   </ul>
 </div>
