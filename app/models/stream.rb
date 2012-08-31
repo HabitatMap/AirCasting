@@ -39,10 +39,17 @@ class Stream < ActiveRecord::Base
 
   def self.build!(data = {})
     measurements = data.delete(:measurements)
+
     Stream.transaction do
-      result = create!(data)
-      result.build_measurements!(measurements)
-      result
+      stream = create!(data)
+      stream.build_measurements!(measurements)
+
+      if stream.measurements.size > 0
+        stream.calc_bounding_box! if stream.min_latitude.nil?
+        stream.calc_average_value! if stream.average_value.nil?
+      end
+
+      stream
     end
   end
 
@@ -80,5 +87,18 @@ class Stream < ActiveRecord::Base
     methods += [:size]
 
     super(opts.merge(:methods => methods))
+  end
+
+  def calc_bounding_box!
+    self.min_latitude = measurements.minimum(:latitude)
+    self.max_latitude = measurements.maximum(:latitude)
+    self.min_longitude = measurements.minimum(:longitude)
+    self.max_longitude = measurements.maximum(:longitude)
+    save!
+  end
+
+  def calc_average_value!
+    self.average_value = measurements.average(:value)
+    save!
   end
 end
