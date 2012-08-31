@@ -16,7 +16,11 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSessi
   $scope.css = function() {
     return $scope.expanded ? "" : "collapsed";
   };
-
+  $scope.$watch("expanded", function(expanded) {
+    if(!expanded){
+      graphHighlight.hide();
+    }
+  });
   $scope.toggle = function(){
     var sessionsSize = singleSession.noOfSelectedSessions();
     if(sessionsSize === 0) {
