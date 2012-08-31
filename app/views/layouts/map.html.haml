@@ -4,7 +4,6 @@
     %title AirCasting
     = stylesheet_link_tag    "application"
     = javascript_include_tag "http://maps.googleapis.com/maps/api/js?sensor=true"
-    = javascript_include_tag "application"
     = favicon_link_tag "favicon.png"
     = csrf_meta_tags
     = render :partial => 'shared/analytics'
@@ -26,5 +25,4 @@
     .no-ie(ng-controller="IECheckCtrl" ng-show="visibleIE")
       This site is not optimized for Internet Explorer browsers. The site works best with Firefox or Chrome.
       %a(ng-click="closeIE()") Close
-:javascript
-  window.marker_note_path = '#{image_path "marker_note.png"}';
+    = javascript_include_tag "application"
