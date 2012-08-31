@@ -110,7 +110,16 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
   };
 
   //used to fetch all the sessions
-
+  $scope.shortTypeCss = function(name, selected){
+    var result = name;
+    if(selected) {
+      var sensor = sensors.anySelected();
+      if(sensor && name == sensor.sensor_name){
+        result = result + " sensor-bold";
+      }
+    }
+    return result;
+  };
   $scope.setDefaults();
 }
 SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',

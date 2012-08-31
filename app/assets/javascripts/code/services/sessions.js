@@ -69,6 +69,7 @@ angular.module("aircasting").factory('sessions',
 
     onSessionsFetch: function(data, status, headers, config) {
       var times;
+      var sessionIds = _(params.get('sessionsIds') || []);
       _(data).each(function(session){
         if(session.start_time_local && session.end_time_local) {
           times = [moment(session.start_time_local, "YYYY-MM-DDTHH:mm:ss"),
@@ -84,6 +85,7 @@ angular.module("aircasting").factory('sessions',
         }).sortBy(function(shortType) {
           return shortType.name.toLowerCase();
         }).value();
+        session.$selected = sessionIds.include(session.id);
       });
       this.sessions = data;
       spinner.hide();
