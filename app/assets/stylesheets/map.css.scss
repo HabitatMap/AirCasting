@@ -403,11 +403,8 @@ body#map {
   }
   #crowd-map-tab section.resolution .slider {
     height: 25px;
-  }
-  
-  label {
-    float:left;
-  }
+  }     
+
   
   .ui-slider {
     width: $right-hud-width - 164px;
@@ -437,15 +434,17 @@ body#map {
   p {
     margin:5px 0 10px 0;
     font-weight: normal;
-    label {
-      display:block;
+    label {  
       margin:5px 0 0;
-      float:none;
+      display:block;
     }
     input[type="checkbox"] {
       width:auto;
-      float: left;
-      margin-right:5px;
+      float:left;
+      margin: 2px 5px auto auto;
+      display:inline;
+      text-indent: -15px;
+      padding-left: 15px;
     }
   }
 
@@ -495,6 +494,10 @@ div.no-ie, div.notice {
 
 .ui-dialog .wide {
   width: 100%;
+}
+
+p.ui-dialog-content {
+  font-family: Arial;
 }
 
 #hud #right-hud p.small-text {
