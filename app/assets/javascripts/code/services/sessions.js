@@ -180,14 +180,12 @@ angular.module("aircasting").factory('sessions',
     onSingleSessionFetch: function(session, data) {
       _(session).extend(data);
       session.loaded = true;
-      if(sensors.anySelected()){
-        this.draw(session);
-      }
+      this.draw(session);
       spinner.hide();
     },
 
     draw: function(session) {
-      if(!session || !session.loaded){
+      if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
       this.undoDraw(session);
