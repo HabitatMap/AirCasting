@@ -10,6 +10,16 @@ namespace :fix do
     end
   end
 
+  desc "Set default sensor_package_name where it is missing"
+  task :set_default_sensor_package_name => :environment do
+    Stream.find_each do |stream|
+      if stream.sensor_package_name.blank?
+        stream.sensor_package_name = 'Builtin'
+        stream.save!
+      end
+    end
+  end
+
   desc "Calculate stream bounding box and average value"
   task :calc_stream_bbox_and_average_value => :environment do
     Stream.find_each do |stream|
