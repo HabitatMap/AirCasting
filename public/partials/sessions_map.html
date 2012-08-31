@@ -1,6 +1,6 @@
 <div id="sessions-tab">
-  <div ng-hide="expandables.allHidden" id="sessions" ng-include src="'/partials/sessions_list.html'"></div>
-  <div ng-style="{width: $window.innerWidth - 608}" ng-hide="expandables.allHidden" id="sessions-graph" ng-include src="'/partials/graph.html'"></div>
+  <div ng-hide="expandables.allHidden" id="sessions" ng-include="'/partials/sessions_list.html'"></div>
+  <div ng-style="{width: $window.innerWidth - 608}" ng-hide="expandables.allHidden" id="sessions-graph" ng-include="'/partials/graph.html'"></div>
 
 
   <div id="sessions-map-tab" class="tab-content" ng-hide="expandables.allHidden">
@@ -43,10 +43,10 @@
       </div>
     </section>
 
-    <div class="section-divider" ng-include src="'/partials/usernames_and_tags.html'"></div>
-    <div class="section-divider" ng-include src="'/partials/time_filters.html'"></div>
+    <div class="section-divider" ng-include="'/partials/usernames_and_tags.html'"></div>
+    <div class="section-divider" ng-include="'/partials/time_filters.html'"></div>
     <div ng-switch on="!!singleSession.get() && !!sensors.anySelected()">
-      <div ng-switch-when="true" class="section-divider" ng-include src="'/partials/heat_legend.html'"></div>
+      <div ng-switch-when="true" class="section-divider" ng-include="'/partials/heat_legend.html'"></div>
     </div>
   </div>
 </div>

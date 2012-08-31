@@ -23,8 +23,8 @@
     </div>
   </section>
 
-  <div class="section-divider" ng-include src="'/partials/usernames_and_tags.html'"></div>
-  <div class="section-divider" ng-include src="'/partials/time_filters.html'"></div>
+  <div class="section-divider" ng-include="'/partials/usernames_and_tags.html'"></div>
+  <div class="section-divider" ng-include="'/partials/time_filters.html'"></div>
 
   <h4 ng-click="expandables.toggle('gridResolution')" ng-class="expandables.css('gridResolution')">CrowdMap Resolution</h4>
   <section ng-show="expandables.visible('gridResolution')">
@@ -43,6 +43,6 @@
     </div>
   </section>
   <div ng-switch on="!!sensors.selected()">
-    <div ng-switch-when="true" ng-include src="'/partials/heat_legend.html'"></div>
+    <div ng-switch-when="true" ng-include="'/partials/heat_legend.html'"></div>
   </div>
 </div>
