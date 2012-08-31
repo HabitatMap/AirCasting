@@ -16,8 +16,7 @@
               <label class="narrow">
                 {{session.username}},
                 {{session.timeframe}}
-                <span ng-class="shortType.type" ng-repeat="shortType in session.shortTypes">{{shortType.name}}<span ng-hide="$index==session.shortTypes.length-1">/</span>
-                </span>
+                <span ng-class="shortType.type" ng-repeat="shortType in session.shortTypes">{{shortType.name}}<span ng-hide="$index==session.shortTypes.length-1">/</span></span>
               </label>
             </dd>
           </dl>
