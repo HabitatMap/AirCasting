@@ -55,7 +55,7 @@ class Measurement < ActiveRecord::Base
       joins(:session).
       joins(:stream).
       select(
-        "GROUP_CONCAT(sessions.id) as ids, AVG(value) AS avg, " +
+        "AVG(value) AS avg, " +
           "round(CAST(longitude AS DECIMAL(36, 12)) / CAST(#{grid_x} AS DECIMAL(36,12)), 0) AS middle_x, " +
           "round(CAST(latitude AS DECIMAL(36, 12)) / CAST(#{grid_y} AS DECIMAL(36,12)), 0) AS middle_y "
       ).
@@ -89,7 +89,6 @@ class Measurement < ActiveRecord::Base
 
     measurements.map do |measurement|
       {
-        :ids => [measurement.ids.to_s.split(",")].uniq,
         :value => measurement.avg.to_f,
         :west  =>  measurement.middle_x.to_f * grid_x - grid_x / 2,
         :east  =>  measurement.middle_x.to_f * grid_x + grid_x / 2,
