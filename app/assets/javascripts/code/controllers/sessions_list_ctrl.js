@@ -44,7 +44,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
 
   $scope.isSessionDisabled = function(sessionId) {
     return !sensors.selected() && !_(params.get("sessionsIds")).include(sessionId) &&
-      sessions.noOfSelectedSessions() > 0 ;
+      !sessions.empty() ;
   };
 
   $scope.sessionFetchCondition = function() {
@@ -56,11 +56,10 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
 
   $scope.canSelectSession = function(sessionId) {
     var session = sessions.find(sessionId);
-    var maxPoints = 30000;
-    if(sessions.noOfSelectedSessions() === 0){
+    if(sessions.empty()){
       return true;
     }
-    if((sessions.totalMeasurementsCount() + sessions.measurementsCount(session)) <= maxPoints){
+    if(sessions.canSelectThatSession(session)){
       return true;
     }
     flash.set("You are trying to select too many sessions");
@@ -93,6 +92,21 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
     });
   }, true);
 
+  $scope.toggleAll = function(){
+    if(sessions.empty()) {
+      if(sessions.canSelectAllSessions()){
+        sessions.selectAllSessions();
+      } else {
+        flash.set("You are trying to select too many sessions");
+      }
+    } else {
+      sessions.deselectAllSessions();
+    }
+  };
+
+  $scope.allSelectionText = function() {
+    return sessions.empty() ? "all" : "none";
+  };
 
   $scope.toggleSession = function(sessionId) {
     if(this.isSessionDisabled(sessionId)){

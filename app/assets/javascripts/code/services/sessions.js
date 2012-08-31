@@ -5,6 +5,7 @@ angular.module("aircasting").factory('sessions',
                  heat, spinner, utils) {
   var Sessions = function() {
     this.sessions = [];
+    this.maxPoints = 30000;
     var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
@@ -21,6 +22,19 @@ angular.module("aircasting").factory('sessions',
     noOfSelectedSessions : function() {
       return this.allSelected().length;
     },
+
+    canSelectThatSession: function(session) {
+      return (this.totalMeasurementsSelectedCount() + this.measurementsCount(session)) <= this.maxPoints;
+    },
+
+    canSelectAllSessions: function(session) {
+      return this.totalMeasurementsCount() <= this.maxPoints;
+    },
+
+    empty: function() {
+      return this.noOfSelectedSessions() === 0;
+    },
+
     fetch: function() {
       var viewport = map.viewport();
       var data = params.get('data');
@@ -109,17 +123,25 @@ angular.module("aircasting").factory('sessions',
     },
 
     deselectSession: function(id) {
-      var self = this;
       var session = this.find(id);
+      session.$selected = false;
       if(!session || !session.drawed){
         return;
       }
       this.undoDraw(session);
     },
 
+    deselectAllSessions: function() {
+      params.update({sessionsIds: []});
+    },
+
+    selectAllSessions: function() {
+      params.update({sessionsIds: _(this.get()).pluck("id")});
+    },
     selectSession: function(id) {
       var self = this;
       var session = this.find(id);
+      session.$selected = true;
       if(!session){
         return;
       }
@@ -154,12 +176,19 @@ angular.module("aircasting").factory('sessions',
     },
 
     measurementsCount: function(session) {
-      return session.streams[sensors.anySelected().sensor_name].measurements_count;
+      return session.streams[sensors.selected().sensor_name].measurements_count;
+    },
+
+    totalMeasurementsSelectedCount: function() {
+      var self = this;
+      return _(this.allSelected()).reduce(function(memo, session){
+        return memo + self.measurementsCount(session);
+      }, 0);
     },
 
     totalMeasurementsCount: function() {
       var self = this;
-      return _(this.allSelected()).reduce(function(memo, session){
+      return _(this.get()).reduce(function(memo, session){
         return memo + self.measurementsCount(session);
       }, 0);
     },
@@ -217,9 +246,6 @@ angular.module("aircasting").factory('sessions',
       session.drawed = true;
     },
 
-    onNoteClick: function(){
-
-    },
     undoDraw: function(session) {
       _(session.markers || []).each(function(marker){
         map.removeMarker(marker);
