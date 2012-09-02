@@ -201,11 +201,11 @@ angular.module("aircasting").factory('sessions',
       return this.measurementsForSensor(session, sensors.anySelected().sensor_name);
     },
 
-    allMeasurements: function(sensor_name){
+    allStreams: function(sensor_name){
       var self = this;
-      return _(this.allSelected()).chain().map(function(session){
-        return self.measurements(session, sensor_name);
-      }).flatten().value();
+      return _(this.allSelected()).map(function(session){
+        return session.streams[sensor_name];
+      });
     },
 
     onSingleSessionFetch: function(session, data) {
@@ -219,7 +219,7 @@ angular.module("aircasting").factory('sessions',
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
-      this.undoDraw(session);
+      this.undoDraw(session, true);
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       session.markers = [];
       session.noteDrawings = [];
@@ -242,11 +242,14 @@ angular.module("aircasting").factory('sessions',
       });
       session.lines.push(map.drawLine(points));
 
-      map.appendViewport(this.getBounds());
       session.drawed = true;
+      map.appendViewport(this.getBounds());
     },
 
-    undoDraw: function(session) {
+    undoDraw: function(session, noMove) {
+      if(!session.drawed){
+        return;
+      }
       _(session.markers || []).each(function(marker){
         map.removeMarker(marker);
       });
@@ -256,18 +259,20 @@ angular.module("aircasting").factory('sessions',
       _(session.noteDrawings || []).each(function(note){
         map.removeMarker(note);
       });
+      session.drawed = false;
+      if(!noMove){
+        map.appendViewport(this.getBounds());
+      }
     },
 
     getBounds: function() {
        var north,  east, south, west, lat, lng;
        var self = this;
-       _(this.allMeasurements(sensors.anySelected().sensor_name)).each(function(m){
-         lat = parseFloat(m.latitude);
-         lng = parseFloat(m.longitude);
-         if(!north || lat > north){ north = lat; }
-         if(!east || lng > east){  east = lng ; }
-         if(!south || lat < south){  south = lat; }
-         if(!west || lng < west){  west = lng ; }
+       _(this.allStreams(sensors.anySelected().sensor_name)).each(function(s){
+         if(!north || s.min_latitude < north) { north = s.min_latitude; }
+         if(!east  || s.min_longitude < east) { east = s.min_longitude; }
+         if(!south || s.max_latitude > south) { south = s.max_latitude; }
+         if(!west  || s.max_longitude > west) { west = s.max_longitude ; }
        });
        return {north: north, east: east, south : south, west: west};
      }

@@ -31,7 +31,7 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
       return !!this.get().streams[sensors.anySelected().sensor_name];
     },
     measurements: function(){
-      return  sessions.measurementsForSensor(this.get(), sensors.anySelected().sensor_name);
+      return  sessions.measurements(this.get());
     },
     measurementsToTime: function(){
       var result = _(this.measurements()).map(function(measurement){

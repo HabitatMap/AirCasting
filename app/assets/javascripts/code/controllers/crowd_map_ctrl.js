@@ -101,7 +101,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
   $scope.onRectangleClick = function(rectangleData) {
     if(!rectangleData.sensor_name){
       rectangleData.sensor_name = sensors.selected().sensor_name;
-    };
+    }
     infoWindow.show("/api/region", rectangleData, rectangles.position(rectangleData));
     $scope.$digest();
   };
