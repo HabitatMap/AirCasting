@@ -124,10 +124,10 @@ angular.module("aircasting").factory('sessions',
 
     deselectSession: function(id) {
       var session = this.find(id);
-      session.$selected = false;
-      if(!session || !session.drawed){
+      if(!session){
         return;
       }
+      session.$selected = false;
       this.undoDraw(session);
     },
 
