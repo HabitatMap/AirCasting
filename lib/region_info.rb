@@ -24,7 +24,7 @@ class RegionInfo
   end
 
   def number_of_contributors
-    @measurements.joins(:user).
+    @measurements.joins(:session).
       select("DISTINCT user_id").
       count
   end
