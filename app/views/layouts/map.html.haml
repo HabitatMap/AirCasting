@@ -9,7 +9,7 @@
     = render :partial => 'shared/analytics'
     = render :partial => 'shared/fb_logo'
 
-  %body(id="map")
+  %body(id="map" style="display:none")
     .notice(ng-controller="FlashCtrl" ng-show="flash.message" ng-click="clear()") {{flash.message}}
     #mapview(ng-controller="MapCtrl" googlemap="")
     #hud(ng-controller="HudCtrl" ng-hide="map.streetViewVisible()")

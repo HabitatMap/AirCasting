@@ -6,3 +6,5 @@ angular.module('aircasting', ['ngCookies', "google"], function($routeProvider, $
                       {templateUrl: 'partials/sessions_map.html', controller: SessionsMapCtrl, reloadOnSearch: false});
   $routeProvider.otherwise({redirectTo: '/map_crowd'});
 });
+
+$("body").show();
