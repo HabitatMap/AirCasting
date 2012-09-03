@@ -12,11 +12,14 @@ angular.module("aircasting").directive('spinner', function (){
         shadow: true
       };
       var target = document.getElementById(attrs.id);
+      var overlay = $("#" + attrs.spinner);
       var spinnerInst = new Spinner(spinnerOpts);
       scope.$watch("spinner.visible()", function(newValue, oldValue){
         if(newValue){
+          overlay.show();
           spinnerInst.spin(target);
         } else {
+          overlay.hide();
           spinnerInst.stop();
         }
       }, true);
