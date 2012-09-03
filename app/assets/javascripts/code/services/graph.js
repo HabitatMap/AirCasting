@@ -67,7 +67,12 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         plotOptions: {
           line: {
             lineColor: "#FFFFFF",
-            turboThreshold: 9999999 //above that graph will not display,
+            turboThreshold: 9999999, //above that graph will not display,
+            marker: {
+              fillColor: '#007BF2',
+              lineWidth: 0,
+              lineColor: '#007BF2'
+            } 
           }
         },
         tooltip: {
