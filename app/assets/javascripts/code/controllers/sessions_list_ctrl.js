@@ -134,6 +134,11 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
     }
     return result;
   };
+
+  $scope.sessionCssClass = function(selected) {
+    return selected ? "selected" : "";
+  };
+
   $scope.setDefaults();
 }
 SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
