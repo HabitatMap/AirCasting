@@ -37,6 +37,20 @@ class Stream < ActiveRecord::Base
 
   attr_accessor :deleted
 
+  scope(:in_rectangle, lambda do |data|
+    where(
+      "(min_latitude >= ? AND min_latitude <= ? OR " \
+      "max_latitude >= ? AND max_latitude <= ?) " \
+      "AND " \
+      "(min_longitude >= ? AND min_longitude <= ? OR " \
+      "max_longitude >= ? AND max_longitude <= ?)",
+      data[:south], data[:north],
+      data[:south], data[:north],
+      data[:west], data[:east],
+      data[:west], data[:east]
+    )
+  end)
+
   def self.build!(data = {})
     measurements = data.delete(:measurements)
 

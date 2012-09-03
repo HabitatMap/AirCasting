@@ -1,12 +1,11 @@
 class RegionInfo
   def initialize(data)
-    @streams = Stream.where(:sensor_name => data[:sensor_name])
+    @streams = Stream.where(:sensor_name => data[:sensor_name]).
+      in_rectangle(data)
+
     @stream_ids = @streams.map(&:id)
 
-    @measurements = Measurement.
-      where(:stream_id => @stream_ids).
-      latitude_range(data[:south], data[:north]).
-      longitude_range(data[:west], data[:east])
+    @measurements = Measurement.where(:stream_id => @stream_ids)
   end
 
   def average
