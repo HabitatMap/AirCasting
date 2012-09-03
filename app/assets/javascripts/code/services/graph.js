@@ -13,6 +13,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
      var options = {
         chart : {
           renderTo : this.id,
+          height : 200,
+          spacingTop: 2,
           events : {
             load: this.onLoad
           },
