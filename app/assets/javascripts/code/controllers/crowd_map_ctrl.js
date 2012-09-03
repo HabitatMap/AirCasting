@@ -66,12 +66,18 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     if(!sensors.selected() || !data.time || !data.heat || !data.gridResolution) {
       return;
     }
-    var viewport = map.viewport();
-    var reqData = {
-      west: viewport.west,
-      east: viewport.east,
-      south: viewport.south,
-      north: viewport.north,
+    var reqData = $scope.averagesData(map.viewport());
+    spinner.show();
+    $http.get('/api/averages', {cache: true, params : {q: reqData}}).success($scope.onAveragesFetch);
+  };
+
+  $scope.averagesData = function(bounder) {
+    var data = params.get('data');
+    return {
+      west: bounder.west,
+      east: bounder.east,
+      south: bounder.south,
+      north: bounder.north,
       time_from: utils.normalizeTime(data.time.timeFrom),
       time_to:  utils.normalizeTime(data.time.timeTo),
       day_from:  data.time.dayFrom,
@@ -85,8 +91,6 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
       sensor_name:  sensors.selected().sensor_name,
       measurement_type:  sensors.selected().measurement_type
     };
-    spinner.show();
-    $http.get('/api/averages', {cache: true, params : {q: reqData}}).success($scope.onAveragesFetch);
   };
 
   $scope.onAveragesFetch = function(data, status, headers, config) {
@@ -99,10 +103,8 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
   };
 
   $scope.onRectangleClick = function(rectangleData) {
-    if(!rectangleData.sensor_name){
-      rectangleData.sensor_name = sensors.selected().sensor_name;
-    }
-    infoWindow.show("/api/region", rectangleData, rectangles.position(rectangleData));
+    var paramsToSend = $scope.averagesData(rectangleData);
+    infoWindow.show("/api/region", paramsToSend, rectangles.position(rectangleData));
     $scope.$digest();
   };
 
