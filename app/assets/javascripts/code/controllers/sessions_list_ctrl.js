@@ -94,6 +94,10 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
 
   $scope.toggleAll = function(){
     if(sessions.empty()) {
+      if(!sensors.selectedId()) {
+        flash.set("Filter by Parameter - Sensor to view many sessions at once");
+        return;
+      }
       if(sessions.canSelectAllSessions()){
         sessions.selectAllSessions();
       } else {
