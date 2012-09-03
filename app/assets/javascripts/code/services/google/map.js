@@ -1,6 +1,6 @@
-angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "digester",
+angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope", "digester",
                                  "rectangles", "geocoder", '$location','note',
-                                     function(params, $cookies, $rootScope, digester,
+                                     function(params, $cookieStore, $rootScope, digester,
                                               rectangles, geocoder, $location, note){
   var Map = function() {};
   Map.prototype = {
@@ -16,7 +16,7 @@ angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "di
       return this.mapObj;
     },
     getMapCookie: function(name) {
-      return $cookies[name];
+      return $cookieStore.get(name);
     },
     viewport: function(){
       var bounds = this.mapObj.getBounds();
@@ -47,10 +47,9 @@ angular.module("google").factory("map", ["params", "$cookies", "$rootScope", "di
       var lat = this.mapObj.getCenter().lat();
       var lng = this.mapObj.getCenter().lng();
       var mapType = this.mapObj.getMapTypeId();
-
-      $cookies.vp_zoom = zoom;
-      $cookies.vp_lat = lat;
-      $cookies.vp_lng = lng;
+      $cookieStore.put("vp_zoom", zoom);
+      $cookieStore.put("vp_lat", lat);
+      $cookieStore.put("vp_lng", lng);
 
       params.update({map: {zoom: zoom, lat: lat, lng: lng, mapType: mapType}});
       digester();
