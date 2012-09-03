@@ -90,7 +90,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
               self.onMouseOverSingle({latitude: parseFloat(pointData.point.latitude),
                                      longitude: parseFloat(pointData.point.longitude)});
             }
-            s += '<br/>' +  sensor.measurement_type + ' = ' + pointData.y +' ' + sensor.unit_symbol;
+            s += '<br/>' +  sensor.measurement_type + ' = ' + Math.round(pointData.y) +' ' + sensor.unit_symbol;
             return s;
           }
         },
