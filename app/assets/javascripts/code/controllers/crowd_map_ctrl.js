@@ -63,10 +63,11 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
 
   $scope.getAverages = function(){
     var data = params.get('data');
-    if(!sensors.selected() || !data.time || !data.heat || !data.gridResolution) {
+    var bounder = map.viewport();
+    if(!sensors.selected() || !data.time || !data.heat || !data.gridResolution || !bounder.east) {
       return;
     }
-    var reqData = $scope.averagesData(map.viewport());
+    var reqData = $scope.averagesData(bounder);
     spinner.show();
     $http.get('/api/averages', {cache: true, params : {q: reqData}}).success($scope.onAveragesFetch);
   };
