@@ -268,7 +268,11 @@ angular.module("aircasting").factory('sessions',
     getBounds: function() {
        var north,  east, south, west, lat, lng;
        var self = this;
-       _(this.allStreams(sensors.anySelected().sensor_name)).each(function(s){
+       var sensor = sensors.anySelected();
+       if(!sensor) {
+         return;
+       }
+       _(this.allStreams(sensor.sensor_name)).each(function(s){
          if(!north || s.min_latitude < north) { north = s.min_latitude; }
          if(!west  || s.min_longitude < west) { west = s.min_longitude; }
          if(!south || s.max_latitude > south) { south = s.max_latitude; }
