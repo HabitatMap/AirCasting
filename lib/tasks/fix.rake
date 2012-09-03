@@ -27,4 +27,12 @@ namespace :fix do
       stream.calc_average_value! if stream.average_value.nil?
     end
   end
+
+  desc "Remove space divided tags"
+  task :remove_space_divided_tags => :environment do
+    num = Session.connection.execute("SELECT * FROM tags WHERE name LIKE '% %'").size
+    puts "removing #{num} tags"
+    Session.connection.execute("DELETE FROM tags WHERE name LIKE '% %'")
+  end
+
 end
