@@ -1,7 +1,9 @@
 class RegionInfo
   def initialize(data)
-    @streams = Stream.where(:sensor_name => data[:sensor_name]).
-      in_rectangle(data)
+    @streams = Stream.
+      where(:sensor_name => data[:sensor_name]).
+      in_rectangle(data).
+      all
 
     @stream_ids = @streams.map(&:id)
 
@@ -9,7 +11,7 @@ class RegionInfo
   end
 
   def average
-    @measurements.average(:value)
+    @streams.inject(0.0) { |sum, stream| sum + stream.average_value } / @streams.size
   end
 
   def top_contributors
