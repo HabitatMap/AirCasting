@@ -270,9 +270,9 @@ angular.module("aircasting").factory('sessions',
        var self = this;
        _(this.allStreams(sensors.anySelected().sensor_name)).each(function(s){
          if(!north || s.min_latitude < north) { north = s.min_latitude; }
-         if(!east  || s.min_longitude < east) { east = s.min_longitude; }
+         if(!west  || s.min_longitude < west) { west = s.min_longitude; }
          if(!south || s.max_latitude > south) { south = s.max_latitude; }
-         if(!west  || s.max_longitude > west) { west = s.max_longitude ; }
+         if(!east  || s.max_longitude > east) { east = s.max_longitude ; }
        });
        return {north: north, east: east, south : south, west: west};
      }
