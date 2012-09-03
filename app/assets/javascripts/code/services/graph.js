@@ -10,9 +10,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
     draw : function(data){
      var sensor = sensors.anySelected();
      var self = this;
-     _(data).each(function(item){
-       item.events = {mouseOver: self.onMouseOver, onmouseOut: self.onMouseOut};
-     });
      var options = {
         chart : {
           renderTo : this.id,
@@ -59,10 +56,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         },
         series : [{
           name : sensor.measurement_type,
-          data : data,
-          tooltip: {
-            valueDecimals: 2
-          }
+          data : data
         }],
         plotOptions: {
           line: {
@@ -72,13 +66,33 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
               fillColor: '#007BF2',
               lineWidth: 0,
               lineColor: '#007BF2'
-            } 
+            }
           }
         },
         tooltip: {
+          style: {
+            color: '#000000',
+            fontFamily: "Arial,sans-serif"
+          },
           borderWidth: 0,
-          ySuffix: sensor.unit_symbol,
-          xDateFormat: "%d/%m/%Y  %H:%M:%S"
+          formatter: function() {
+            var pointData = this.points[0];
+            var series = pointData.series;
+            var s = '<span>'+ Highcharts.dateFormat("%d/%m/%Y", this.x) + " ";
+            if(series.hasGroupedData){
+              var groupingDiff = moment.duration(series.currentDataGrouping.unitRange,
+                                   series.currentDataGrouping.unitName).milliseconds();
+              s += Highcharts.dateFormat("%H:%M:%S", this.x - groupingDiff) +'-';
+              s += Highcharts.dateFormat("%H:%M:%S", this.x + groupingDiff) +'</span>';
+              self.onMouseOverMultiple();
+            } else {
+              s += Highcharts.dateFormat("%H:%M:%S", this.x) +'</span>';
+              self.onMouseOverSingle({latitude: parseFloat(pointData.point.latitude),
+                                     longitude: parseFloat(pointData.point.longitude)});
+            }
+            s += '<br/>' +  sensor.measurement_type + ' = ' + pointData.y +' ' + sensor.unit_symbol;
+            return s;
+          }
         },
         yAxis : {
           plotBands : [],
@@ -108,13 +122,11 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
       this.loaded = true;
     },
 
-    onMouseOver: function() {
-      //console.log(this);
-      graphHighlight.show(this);
+    onMouseOverSingle: function(point) {
+      graphHighlight.show(point);
     },
-
-    onMouseOut: function() {
-      graphHighlight.hide(this);
+    onMouseOverMultiple: function(start, end) {
+      //TODO
     },
 
     redraw: function() {

@@ -55,7 +55,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       digester();
     },
     appendViewport: function(obj) {
-      if(!(obj.north && obj.east && obj.south && obj.west)) {
+      if(!obj || !(obj.north && obj.east && obj.south && obj.west)) {
         return;
       }
       var northeast = new google.maps.LatLng(obj.north, obj.east);
