@@ -2,6 +2,9 @@ $button-color: #858585;
 $button-front: #fff;
 $link-color: #669900;
 
+[ng-cloak], .ng-cloak {
+  display: none;
+}
 .error {
   color: red;
 }

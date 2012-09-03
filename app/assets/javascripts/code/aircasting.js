@@ -7,4 +7,3 @@ angular.module('aircasting', ['ngCookies', "google"], function($routeProvider, $
   $routeProvider.otherwise({redirectTo: '/map_crowd'});
 });
 
-$("body").show();

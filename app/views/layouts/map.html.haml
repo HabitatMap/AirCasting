@@ -9,10 +9,10 @@
     = render :partial => 'shared/analytics'
     = render :partial => 'shared/fb_logo'
 
-  %body(id="map" style="display:none")
-    .notice(ng-controller="FlashCtrl" ng-show="flash.message" ng-click="clear()") {{flash.message}}
+  %body(id="map")
+    .notice(ng-controller="FlashCtrl" ng-cloak ng-show="flash.message" ng-click="clear()") {{flash.message}}
     #mapview(ng-controller="MapCtrl" googlemap="")
-    #hud(ng-controller="HudCtrl" ng-hide="map.streetViewVisible()")
+    #hud(ng-controller="HudCtrl" ng-cloak ng-hide="map.streetViewVisible()")
       #left-hud(ng-include="" src="'/partials/left_hud.html'")
       #right-hud
         = yield
@@ -22,7 +22,7 @@
           #zoom-out(ng-click="zoomStep(-1)")
           #zoom-slider(slider=true slider-min=3 slider-max=21 slider-callback="onZoom" slider-value="map.getZoom()")
           #zoom-in(ng-click="zoomStep(1)")
-    .no-ie(ng-controller="IECheckCtrl" ng-show="visibleIE")
+    .no-ie(ng-controller="IECheckCtrl" ng-show="visibleIE" ng-cloak)
       This site is not optimized for Internet Explorer browsers. The site works best with Firefox or Chrome.
       %a(ng-click="closeIE()") Close
     = javascript_include_tag "application"
