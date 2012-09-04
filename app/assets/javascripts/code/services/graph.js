@@ -15,6 +15,12 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
           renderTo : this.id,
           height : 200,
           spacingTop: 2,
+          spacingBottom: 15,
+          spacingRight: 0,
+          spacingLeft: 0,
+          marginBottom: 20,
+          marginRight: 0,
+          marginLeft: 0,
           events : {
             load: this.onLoad
           },
@@ -31,7 +37,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         rangeSelector : {
           buttonSpacing: 5,
           buttonTheme: {
-            width: 50,
+            width: 50
           },
           buttons: [{
             count: 1,
@@ -96,13 +102,24 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
             return s;
           }
         },
+        xAxis: {
+          labels: {
+            style: {
+              color: "#000"
+            }
+          }
+        },
         yAxis : {
           min: heat.getValue("lowest"),
           max: heat.getValue("highest"),
           startOnTick: false,
           endOnTick: false,
           plotBands : [],
-          labels: {},
+          labels: {
+            style: {
+              color: "#000"
+            }
+          },
           gridLineWidth: 0
         }
       };
@@ -110,7 +127,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         options.yAxis.plotBands.push({
           from : level.from,
           to : level.to,
-          color : level.color,
+          color : level.color
         });
       });
       this.loaded = false;

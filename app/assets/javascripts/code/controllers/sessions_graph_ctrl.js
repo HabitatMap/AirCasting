@@ -1,9 +1,15 @@
-function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSession, graphHighlight) {
+function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSession,
+                           graphHighlight, $window) {
   $scope.graph = graph;
+  $scope.$window = $window;
   $scope.expanded = false;
   $scope.heat = heat;
   $scope.sensors = sensors;
   $scope.singleSession = singleSession;
+
+  $scope.graphWidth = function() {
+    return $window.innerWidth - 608 + ($scope.expanded ? 1 : 0);
+  };
 
   $scope.$watch("sensors.anySelectedId()", function(id){
     $scope.expanded = false;
@@ -53,6 +59,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSessi
     }
   }, true);
 }
-SessionsGraphCtrl.$inject = ['$scope', 'map',  'graph', 'flash', 'heat', 'sensors', 'singleSession', 'graphHighlight'];
+SessionsGraphCtrl.$inject = ['$scope', 'map',  'graph', 'flash', 'heat', 'sensors',
+  'singleSession', 'graphHighlight', '$window'];
 
 

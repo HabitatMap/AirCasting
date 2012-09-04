@@ -278,6 +278,7 @@ angular.module("aircasting").factory('sessions',
          if(!south || s.max_latitude > south) { south = s.max_latitude; }
          if(!east  || s.max_longitude > east) { east = s.max_longitude ; }
        });
+       //console.log({north: north, east: east, south : south, west: west});
        return {north: north, east: east, south : south, west: west};
      }
   };

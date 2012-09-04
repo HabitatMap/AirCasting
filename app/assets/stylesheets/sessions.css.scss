@@ -97,7 +97,6 @@ $graph-height: 140px;
   padding: 0;
   position: fixed;
   bottom: $sessions-list-bottom;
-  width: 100%;
   left: $sessions-list-width + 20px;
   #graph-box {
     background: none repeat scroll 0 0 #FFFFFF;
@@ -108,7 +107,7 @@ $graph-height: 140px;
     overflow: visible !important;
     position: relative;
     top: -2px;
-    width: 100%;
+    padding: 0;
   }
 
   #graph-top {
@@ -152,13 +151,11 @@ $graph-height: 140px;
     height: 100%;
     left: 0;
     margin: 0;
+    padding: 0;
     overflow: hidden;
     position: absolute;
     top: 0;
     width: 100%;
-  }
-
-  #graph {
     z-index: $graph-zindex;
   }
 
