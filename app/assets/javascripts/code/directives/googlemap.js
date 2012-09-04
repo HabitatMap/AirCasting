@@ -7,7 +7,7 @@ angular.module("aircasting").directive('googlemap', function(){
       var lng = params.lng || map.getMapCookie("vp_lng") || -87.5;
       var latlng = new google.maps.LatLng(lat, lng);
       var zoom = params.zoom || map.getMapCookie("vp_zoom") || 5;
-      var mapType = params.mapType || google.maps.MapTypeId.TERRAIN;
+      var mapType = params.mapType || map.getMapCookie("vp_mapType") || google.maps.MapTypeId.TERRAIN;
       var minZoom = 3;
       var options = {
         zoom: parseInt(zoom, 10),

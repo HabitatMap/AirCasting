@@ -50,7 +50,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       $cookieStore.put("vp_zoom", zoom);
       $cookieStore.put("vp_lat", lat);
       $cookieStore.put("vp_lng", lng);
-
+      $cookieStore.put("vp_mapType", mapType);
       params.update({map: {zoom: zoom, lat: lat, lng: lng, mapType: mapType}});
       digester();
     },
@@ -78,6 +78,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       //Zooming and MapType has been handled by other events
       if(newMapTypeId) {
         this.mapObj.setMapTypeId(newMapTypeId);
+        $cookieStore.put("vp_mapType", mapType);
       }
     },
     onMapTypeIdChanged: function() {
