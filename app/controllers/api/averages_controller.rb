@@ -35,7 +35,7 @@ module Api
       FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
       INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
-      respond_with Measurement.averages(data)
+      respond_with AverageInfo.new(data)
     end
   end
 end
