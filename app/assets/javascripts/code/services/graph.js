@@ -103,9 +103,11 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
               //var groupingDiff = moment.duration(series.currentDataGrouping.unitRange,
               //                     series.currentDataGrouping.unitName + "s").asMilliseconds();
               var groupingDiff = series.currentDataGrouping.unitRange;
-              s += Highcharts.dateFormat("%H:%M:%S", this.x - groupingDiff) +'-';
-              s += Highcharts.dateFormat("%H:%M:%S", this.x + groupingDiff) +'</span>';
-              self.onMouseOverMultiple();
+              var xLess =  this.x - groupingDiff;
+              var xMore =  this.x + groupingDiff;
+              s += Highcharts.dateFormat("%H:%M:%S", xLess) +'-';
+              s += Highcharts.dateFormat("%H:%M:%S", xMore) +'</span>';
+              self.onMouseOverMultiple(xLess, xMore);
             } else {
               s += Highcharts.dateFormat("%H:%M:%S", this.x) +'</span>';
               self.onMouseOverSingle({latitude: parseFloat(pointData.point.latitude),
@@ -151,6 +153,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
       //to speed up graph provide data as array not object
       this.destroy();
       this.chart = new Highcharts.StockChart(options);
+      this.data = data;
     },
 
     onLoad: function() {
@@ -171,10 +174,14 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
     },
 
     onMouseOverSingle: function(point) {
-      graphHighlight.show(point);
+      graphHighlight.show([point]);
     },
+
     onMouseOverMultiple: function(start, end) {
-      //TODO
+      var measurements = _(this.data).filter(function(m){
+         return (m.x >= start) && (m.x <= end);
+      });
+      graphHighlight.show(measurements);
     },
 
     redraw: function() {

@@ -1,21 +1,22 @@
 angular.module("google").factory("graphHighlight",  ["map",
                                  function(map){
   var GraphHighlight = function() {
-    this.marker = undefined;
+    this.items = [];
     this.point = undefined;
   };
   GraphHighlight.prototype = {
     hide: function(point) {
-      if(!this.marker){
-        return;
-      }
-      map.removeMarker(this.marker);
-      delete this.marker;
+      _(this.items).each(function(item){
+        map.removeMarker(item.marker);
+      });
+      this.items = [];
     },
-    show: function(point){
+    show: function(points){
       this.hide();
-      this.point = point;
-      this.marker = map.drawMarker(point, null, this.marker);
+      var self = this;
+      _(points).each(function(point){
+        self.items.push({marker: map.drawMarker(point), point: point});
+      });
     }
   };
 
