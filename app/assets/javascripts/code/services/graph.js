@@ -31,7 +31,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         rangeSelector : {
           buttonSpacing: 5,
           buttonTheme: {
-            width: 50
+            width: 50,
           },
           buttons: [{
             count: 1,

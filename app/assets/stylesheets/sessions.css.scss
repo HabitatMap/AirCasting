@@ -115,7 +115,7 @@ $graph-height: 140px;
     left: -2px;
     overflow: visible;
     position: absolute;
-    top: -38px;
+    top: -30px;
 
     &.collapsed {
       bottom: 0;
@@ -124,9 +124,10 @@ $graph-height: 140px;
     #graph-header {
       background: none repeat scroll 0 0 #FFFFFF;
       border: 2px solid #858585;
+      border-bottom-style: none;
       float: left;
       font-weight: bold;
-      padding: 4px 16px 1px;
+      padding: 4px 16px 3px;
       position: relative;
       z-index: $graph-zindex + 10;
 
