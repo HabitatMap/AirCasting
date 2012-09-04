@@ -7,11 +7,14 @@ class RegionInfo
 
     @stream_ids = @streams.map(&:id)
 
-    @measurements = Measurement.where(:stream_id => @stream_ids)
+    @measurements = Measurement.
+      where(:stream_id => @stream_ids).
+      latitude_range(data[:south], data[:north]).
+      longitude_range(data[:west], data[:east])
   end
 
   def average
-    @streams.inject(0.0) { |sum, stream| sum + stream.average_value } / @streams.size
+    @measurements.average(:value)
   end
 
   def top_contributors
