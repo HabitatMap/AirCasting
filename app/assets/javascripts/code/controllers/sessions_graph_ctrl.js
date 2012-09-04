@@ -11,7 +11,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSessi
     $scope.expanded = false;
   });
 
-  $scope.$watch("singleSession.id()", function(id){
+  $scope.$watch("singleSession.id(true)", function(id){
     $scope.expanded = false;
   });
 

@@ -12,7 +12,10 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
     get: function() {
       return _(sessions.allSelected()).first();
     },
-    id: function() {
+    id: function(onlySingle) {
+      if(onlySingle && !this.isSingle()){
+        return;
+      }
       var el = this.get();
       return el && el.id;
     },
