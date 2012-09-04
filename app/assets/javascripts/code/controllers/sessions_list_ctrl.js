@@ -83,7 +83,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
         if(usableSensors.length > 1) {
           sensors.tmpSensorId = _(usableSensors).first().id;
           $scope.openSensorDialog();
-        } else {
+        } else if(usableSensors.length === 1){
           params.update({tmp: {tmpSensorId: _(usableSensors).first().id}});
         }
       } else {
