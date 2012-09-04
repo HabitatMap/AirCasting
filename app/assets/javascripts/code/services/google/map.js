@@ -1,7 +1,7 @@
 angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope", "digester",
-                                 "rectangles", "geocoder", '$location','note',
+                                 "rectangles", "geocoder", '$location','note', "$timeout",
                                      function(params, $cookieStore, $rootScope, digester,
-                                              rectangles, geocoder, $location, note){
+                                              rectangles, geocoder, $location, note, $timeout){
   var Map = function() {};
   Map.prototype = {
     init: function(element, options) {
@@ -62,7 +62,10 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       var northeast = new google.maps.LatLng(obj.north, obj.east);
       var southwest = new google.maps.LatLng(obj.south, obj.west);
       var bounds = new google.maps.LatLngBounds(southwest, northeast);
-      this.mapObj.fitBounds(bounds);
+      var self = this;
+      $timeout(function(){
+        self.mapObj.fitBounds(bounds);
+      });
     },
     onZoomChanged: function() {
       // if zoom is too high for terrain map, switch to hybrid map (but remember last used type)
