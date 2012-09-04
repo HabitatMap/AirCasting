@@ -1,5 +1,5 @@
-angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensors', 'storage', 'heat',
-                                     function(sessions, map, sensors, storage, heat) {
+angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensors', 'storage', 'heat', 'utils',
+                                     function(sessions, map, sensors, storage, heat, utils) {
   var SingleSession = function() {
   };
   SingleSession.prototype = {
@@ -37,8 +37,10 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
       return  sessions.measurements(this.get());
     },
     measurementsToTime: function(){
+      var currentOffset = moment.duration(utils.timeOffset, "minutes").asMilliseconds();
       var result = _(this.measurements()).map(function(measurement){
-        return {x: moment(measurement.time).valueOf(), y: measurement.value,
+        return {x: moment(measurement.time,"YYYY-MM-DDTHH:mm:ss").valueOf() - currentOffset,
+                y: measurement.value,
           latitude: measurement.latitude, longitude: measurement.longitude};
       });
       return _(result).uniq(true, function(item) {
