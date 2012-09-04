@@ -115,7 +115,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
             style: {
               color: "#000"
             }
-          }
+          },
+          minRange: 5000
         },
         yAxis : {
           min: heat.getValue("lowest"),

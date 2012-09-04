@@ -15,6 +15,8 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
 
     rectangles.clear();
     infoWindow.hide();
+    map.unregisterAll();
+
     $($window).resize(function() {
       $scope.$digest();
     });

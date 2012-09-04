@@ -10,6 +10,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       this.listen("visible_changed", function(){$rootScope.$digest();}, this.mapObj.getStreetView());
       this.listen("zoom_changed", _(this.onZoomChanged).bind(this));
       this.listen("maptypeid_changed", _(this.onMapTypeIdChanged).bind(this));
+      this.listeners = [];
       rectangles.init(this.mapObj);
     },
     get: function(){
@@ -87,7 +88,15 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       digester();
     },
     listen: function(name, callback, diffmap) {
-      google.maps.event.addListener(diffmap || this.mapObj, name, _(callback).bind(this));
+      return google.maps.event.addListener(diffmap || this.mapObj, name, _(callback).bind(this));
+    },
+    register: function(name, callback, diffmap) {
+      this.listeners.push(this.listen(name, callback, diffmap));
+    },
+    unregisterAll: function(){
+      _(this.listeners).each(function(listener){
+         google.maps.event.removeListener(listener);
+      })
     },
     setZoom: function(zoom) {
       return this.mapObj.setZoom(zoom);
