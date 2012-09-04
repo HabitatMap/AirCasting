@@ -14,13 +14,16 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         chart : {
           renderTo : this.id,
           height : 200,
-          spacingTop: 2,
-          spacingBottom: 15,
+          spacingTop: 5,
+          spacingBottom: 5,
           spacingRight: 0,
           spacingLeft: 0,
-          marginBottom: 20,
-          marginRight: 0,
-          marginLeft: 0,
+          marginBottom: 15,
+          marginRight: 5,
+          marginLeft: 5,
+          borderRadius: 0,
+          borderColor: '#858585',
+          borderWidth: 2,
           events : {
             load: this.onLoad
           },
@@ -30,6 +33,9 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
           style: {
             fontFamily: "Arial,sans-serif"
           }
+        },
+        credits: {
+            enabled: false
         },
         navigator : {
           enabled : false
