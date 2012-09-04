@@ -100,8 +100,9 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
             var series = pointData.series;
             var s = '<span>'+ Highcharts.dateFormat("%m/%d/%Y", this.x) + " ";
             if(series.hasGroupedData){
-              var groupingDiff = moment.duration(series.currentDataGrouping.unitRange,
-                                   series.currentDataGrouping.unitName + "s").asMilliseconds();
+              //var groupingDiff = moment.duration(series.currentDataGrouping.unitRange,
+              //                     series.currentDataGrouping.unitName + "s").asMilliseconds();
+              var groupingDiff = series.currentDataGrouping.unitRange;
               s += Highcharts.dateFormat("%H:%M:%S", this.x - groupingDiff) +'-';
               s += Highcharts.dateFormat("%H:%M:%S", this.x + groupingDiff) +'</span>';
               self.onMouseOverMultiple();
