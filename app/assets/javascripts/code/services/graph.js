@@ -97,10 +97,12 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
           }
         },
         yAxis : {
+          min: heat.getValue("lowest"),
+          max: heat.getValue("highest"),
+          startOnTick: false,
+          endOnTick: false,
           plotBands : [],
-          labels: {
-            enabled : false
-          },
+          labels: {},
           gridLineWidth: 0
         }
       };
@@ -109,9 +111,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
           from : level.from,
           to : level.to,
           color : level.color,
-          label : {
-            text : "" + level.to + sensor.unit_symbol
-          }
         });
       });
       this.loaded = false;
