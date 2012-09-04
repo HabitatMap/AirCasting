@@ -16,6 +16,8 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
+require_dependency 'region_info'
+
 module Api
   class RegionsController < BaseController
     def show

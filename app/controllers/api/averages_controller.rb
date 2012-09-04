@@ -16,8 +16,11 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
+require_dependency 'average_info'
+
 module Api
   class AveragesController < BaseController
+
     FLOAT_Q_ATTRS = [:north, :south, :east, :west]
     INT_Q_ATTRS = [
       :time_from, :time_to,
