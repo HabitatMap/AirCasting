@@ -12,6 +12,10 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
     draw : function(data){
      var sensor = sensors.anySelected();
      var self = this;
+     var low = heat.getValue("lowest");
+     var high = heat.getValue("highest");
+     var tick = Math.round((high - low)/ 4);
+     var ticks = [low, low + tick, low + 2*tick, high - tick, high];
      var options = {
         chart : {
           renderTo : this.id,
@@ -119,18 +123,19 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
           minRange: 1000
         },
         yAxis : {
-          min: heat.getValue("lowest"),
-          max: heat.getValue("highest"),
-          startOnTick: false,
-          endOnTick: false,
+          min: low,
+          max:  high,
+          startOnTick: true,
+          endOnTick: true,
           plotBands : [],
           labels: {
             style: {
               color: "#000"
-            },
-            step: 2
+            }
           },
-          gridLineWidth: 0
+          gridLineWidth: 0,
+          minPadding: 0,
+          tickPositions: ticks
         }
       };
       _(heat.toLevels()).each(function(level){
