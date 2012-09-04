@@ -1,5 +1,7 @@
-angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 'sensors','heat', 'graphHighlight',
-                                     function($rootScope, singleSession, sensors, heat, graphHighlight) {
+angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 'sensors',
+                                     'heat', 'graphHighlight',
+                                     function($rootScope, singleSession, sensors,
+                                              heat, graphHighlight) {
   var Graph = function() {
   };
   Graph.prototype = {
@@ -25,7 +27,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
           borderColor: '#858585',
           borderWidth: 2,
           events : {
-            load: this.onLoad
+            load: _(this.onLoad).bind(this)
           },
           zoomType: "x"
         },
@@ -139,11 +141,25 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
       this.loaded = false;
       //TODO:
       //to speed up graph provide data as array not object
+      this.destroy();
       this.chart = new Highcharts.StockChart(options);
     },
 
     onLoad: function() {
       this.loaded = true;
+    },
+
+    destroy: function() {
+      if(this.chart) {
+        this.chart.destroy();
+        delete this.chart;
+      }
+    },
+
+    update: function() {
+      if(this.chart) {
+        this.chart.redraw();
+      }
     },
 
     onMouseOverSingle: function(point) {

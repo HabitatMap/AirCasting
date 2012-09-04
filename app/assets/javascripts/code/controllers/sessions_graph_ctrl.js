@@ -1,15 +1,11 @@
 function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSession,
-                           graphHighlight, $window) {
+                           graphHighlight, $window, $timeout) {
   $scope.graph = graph;
   $scope.$window = $window;
   $scope.expanded = false;
   $scope.heat = heat;
   $scope.sensors = sensors;
   $scope.singleSession = singleSession;
-
-  $scope.graphWidth = function() {
-    return $window.innerWidth - 608 + ($scope.expanded ? 1 : 0);
-  };
 
   $scope.$watch("sensors.anySelectedId()", function(id){
     $scope.expanded = false;
@@ -25,6 +21,10 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSessi
   $scope.$watch("expanded", function(expanded) {
     if(!expanded){
       graphHighlight.hide();
+    } else {
+      $timeout(function(){
+        $($window).trigger("resize");
+      });
     }
   });
   $scope.toggle = function(){
@@ -60,6 +60,6 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSessi
   }, true);
 }
 SessionsGraphCtrl.$inject = ['$scope', 'map',  'graph', 'flash', 'heat', 'sensors',
-  'singleSession', 'graphHighlight', '$window'];
+  'singleSession', 'graphHighlight', '$window', '$timeout'];
 
 
