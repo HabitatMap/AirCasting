@@ -97,7 +97,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
             var s = '<span>'+ Highcharts.dateFormat("%m/%d/%Y", this.x) + " ";
             if(series.hasGroupedData){
               var groupingDiff = moment.duration(series.currentDataGrouping.unitRange,
-                                   series.currentDataGrouping.unitName).milliseconds();
+                                   series.currentDataGrouping.unitName + "s").asMilliseconds();
               s += Highcharts.dateFormat("%H:%M:%S", this.x - groupingDiff) +'-';
               s += Highcharts.dateFormat("%H:%M:%S", this.x + groupingDiff) +'</span>';
               self.onMouseOverMultiple();
@@ -116,7 +116,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
               color: "#000"
             }
           },
-          minRange: 5000
+          minRange: 1000
         },
         yAxis : {
           min: heat.getValue("lowest"),
@@ -127,7 +127,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
           labels: {
             style: {
               color: "#000"
-            }
+            },
+            step: 2
           },
           gridLineWidth: 0
         }

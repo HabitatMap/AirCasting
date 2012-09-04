@@ -96,7 +96,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
     unregisterAll: function(){
       _(this.listeners).each(function(listener){
          google.maps.event.removeListener(listener);
-      })
+      });
     },
     setZoom: function(zoom) {
       return this.mapObj.setZoom(zoom);
