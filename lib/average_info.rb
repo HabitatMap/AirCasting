@@ -17,16 +17,23 @@ class AverageInfo
     grid_y = (data[:north] - data[:south]) / data[:grid_size_y]
     grid_y = Y_SIZES.find { |x| x > grid_y }
 
-    measurements = Measurement.
+    streams = Stream.
       joins(:session).
-      joins(:stream).
+      where('sessions.contribute' => true).
+      where(:sensor_name => data[:sensor_name]).
+      where(:measurement_type => data[:measurement_type]).
+      in_rectangle(data).
+      all
+
+    stream_ids = streams.map(&:id)
+
+    measurements = Measurement.
       select(
         "AVG(value) AS avg, " +
           "round(CAST(longitude AS DECIMAL(36, 12)) / CAST(#{grid_x} AS DECIMAL(36,12)), 0) AS middle_x, " +
           "round(CAST(latitude AS DECIMAL(36, 12)) / CAST(#{grid_y} AS DECIMAL(36,12)), 0) AS middle_y "
       ).
-        where(:sessions => { :contribute => true }).
-        where(:streams =>  { :measurement_type => data[:measurement_type], :sensor_name => data[:sensor_name] }).
+        where(:stream_id => stream_ids).
         group("middle_x").
         group("middle_y").
         longitude_range(data[:west], data[:east]).
