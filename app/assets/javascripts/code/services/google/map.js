@@ -63,6 +63,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       var southwest = new google.maps.LatLng(obj.south, obj.west);
       var bounds = new google.maps.LatLngBounds(southwest, northeast);
       var self = this;
+      self.mapObj.fitBounds(bounds);
       $timeout(function(){
         self.mapObj.fitBounds(bounds);
       });
