@@ -32,6 +32,13 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
     storage.updateFromDefaults();
   };
 
+  //fix for json null parsing
+  $scope.$watch("params.get('data').sensorId", function(newValue) {
+    if(_(newValue).isNull()){
+      params.update({data: {sensorId: ""}});
+    }
+  }, true);
+
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
     if(newValue == oldValue){
       return;
