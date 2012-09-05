@@ -1,8 +1,8 @@
 angular.module("aircasting").factory('sessions',
        ['params', '$http', 'map','sensors', '$rootScope',
-         'heat', 'spinner',  'utils',
+         'heat', 'spinner',  'utils', "$timeout",
         function(params, $http, map, sensors, $rootScope,
-                 heat, spinner, utils) {
+                 heat, spinner, utils, $timeout) {
   var Sessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
@@ -212,7 +212,9 @@ angular.module("aircasting").factory('sessions',
       _(session).extend(data);
       session.loaded = true;
       this.draw(session);
-      spinner.hide();
+      $timeout(function(){
+        spinner.hide();
+      });
     },
 
     draw: function(session) {
