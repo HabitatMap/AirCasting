@@ -42,16 +42,24 @@ class Stream < ActiveRecord::Base
     longitude_operator = data[:west] < data[:east] ? 'AND' : 'OR'
 
     where(
-      "min_latitude >= ? #{latitude_operator} min_latitude <= ? OR " \
-      "max_latitude >= ? #{latitude_operator} max_latitude <= ?",
-      data[:south], data[:north],
-      data[:south], data[:north]
+      "(:south >= min_latitude AND :south <= max_latitude) " \
+      "OR " \
+      "(:north >= min_latitude AND :north <= max_latitude) " \
+      "OR " \
+      "(min_latitude >= :south #{latitude_operator} min_latitude <= :north) " \
+      "OR " \
+      "(max_latitude >= :south #{latitude_operator} max_latitude <= :north)",
+      :south => data[:south], :north => data[:north]
     ).
     where(
-      "min_longitude >= ? #{longitude_operator} min_longitude <= ? OR " \
-      "max_longitude >= ? #{longitude_operator} max_longitude <= ?",
-      data[:west], data[:east],
-      data[:west], data[:east]
+      "(:west >= min_longitude AND :west <= max_longitude) " \
+      "OR " \
+      "(:east >= min_longitude AND :east <= max_longitude) " \
+      "OR " \
+      "(min_longitude >= :west #{longitude_operator} min_longitude <= :east) " \
+      "OR " \
+      "(max_longitude >= :west #{longitude_operator} max_longitude <= :east)",
+      :west => data[:west], :east => data[:east]
     )
   end)
 
