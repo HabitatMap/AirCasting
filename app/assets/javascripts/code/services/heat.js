@@ -1,4 +1,4 @@
-angular.module("aircasting").factory('heat', ["$rootScope", "params", function($rootScope, params) {
+angular.module("aircasting").factory('heat', ["$rootScope", "params", "storage", function($rootScope, params, storage) {
   var Heat = function() {
     var self = this;
     this.namesBySensor = ["very_low", "low", "medium", "high", "very_high"];

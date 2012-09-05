@@ -5,8 +5,7 @@ angular.module("aircasting").directive('slider', function (){
         min: scope[attrs.sliderMin] || 0,
         max: scope[attrs.sliderMax] || 0,
         step: _.str.toNumber(attrs.sliderStep) || 1,
-        slide: attrs.sliderOnslide && scope.$eval(attrs.sliderOnslide),
-        change: attrs.sliderOnchange && scope.$eval(attrs.sliderOnchange)
+        slide: attrs.sliderOnslide && scope.$eval(attrs.sliderOnslide)
       };
       $(element).slider(opts);
       scope.$watch(attrs.sliderMin, function(newValue, oldValue) {

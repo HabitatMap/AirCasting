@@ -1,6 +1,6 @@
 angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils',  function(params, $rootScope, utils) {
   var Storage = function() {
-    this.data = {};
+    this.data = {heat: {}};
     self = this;
     this.counter = 0;
     var scope = $rootScope.$new();

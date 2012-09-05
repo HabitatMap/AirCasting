@@ -2,23 +2,23 @@
   <h4 ng-click="expandables.toggle('heat')" ng-class="expandables.css('heat')">Heat Legend Units</h4>
   <section ng-show="expandables.visible('heat')">
     <div class="slider">
-      <input type="number" ng-model="storage.data.heat.highest" class="highest narrow"></input>
+      <input type="number" ng-model="storage.data.heat.highest" eventblur="storageEvents.onHighestInput()" class="highest narrow"></input>
       <p class="small-text">values greater than this won't be displayed</p>
     </div>
     <div class="slider wide-slider">
-      <input type="number" ng-model="storage.data.heat.high" class="high narrow"></input>
-      <div slider slider-max="storage.data.heat.highest - 1" slider-min="storage.data.heat.mid + 1" slider-value="storage.data.heat.high" slider-onslide="storageEvents.onHeatChangeHigh" slider-onchange="storageEvents.onHeatChangeHigh"></div>
+      <input type="number" ng-model="storage.data.heat.high" eventblur="storageEvents.onHighInput()" class="high narrow"></input>
+      <div slider slider-max="storage.data.heat.highest - 1"  slider-min="storage.data.heat.mid + 1" slider-value="storage.data.heat.high" slider-onslide="storageEvents.onHeatChangeHigh" slider-onchange="storageEvents.onHeatChangeHigh"></div>
     </div>
     <div class="slider wide-slider">
-      <input type="number" ng-model="storage.data.heat.mid" class="mid narrow"></input>
-      <div slider slider-max="storage.data.heat.high - 1" slider-min="storage.data.heat.low + 1" slider-value="storage.data.heat.mid" slider-onslide="storageEvents.onHeatChangeMid"  slider-onchange="storageEvents.onHeatChangeMid"></div>
+      <input type="number" ng-model="storage.data.heat.mid" eventblur="storageEvents.onMidInput()" class="mid narrow"></input>
+      <div slider slider-max="storage.data.heat.high - 1"  slider-min="storage.data.heat.low + 1" slider-value="storage.data.heat.mid" slider-onslide="storageEvents.onHeatChangeMid"  slider-onchange="storageEvents.onHeatChangeMid"></div>
     </div>
     <div class="slider wide-slider">
-      <input type="number" ng-model="storage.data.heat.low" class="low narrow"></input>
-      <div slider slider-max="storage.data.heat.mid - 1" slider-min="storage.data.heat.lowest + 1" slider-value="storage.data.heat.low" slider-onslide="storageEvents.onHeatChangeLow" slider-onchange="storageEvents.onHeatChangeLow"></div>
+      <input type="number" ng-model="storage.data.heat.low" eventblur="storageEvents.onLowInput()" class="low narrow"></input>
+      <div slider slider-max="storage.data.heat.mid - 1"  slider-min="storage.data.heat.lowest + 1" slider-value="storage.data.heat.low" slider-onslide="storageEvents.onHeatChangeLow" slider-onchange="storageEvents.onHeatChangeLow"></div>
     </div>
     <div class="slider">
-      <input type="number" ng-model="storage.data.heat.lowest" class="lowest narrow"></input>
+      <input type="number" ng-model="storage.data.heat.lowest" eventblur="storageEvents.onLowestInput()" class="lowest narrow"></input>
       <p class="small-text">values less than this won't be displayed</p>
     </div>
 
