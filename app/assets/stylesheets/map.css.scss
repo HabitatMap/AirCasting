@@ -52,10 +52,11 @@ body#map {
 }
 
 .infoWindow {
-  height: 180px !important;
-  max-height: 500px;
   width: 250px;
   font-size: 12px;
+  height: 135px !important;
+  overflow-y: auto;
+  margin-right: 15px;
 
   ul {
     padding-left: 5px;
