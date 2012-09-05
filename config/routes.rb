@@ -18,7 +18,7 @@
 
 
 AirCasting::Application.routes.draw do
-  mount JasmineRails::Engine => "/specs" if Rails.env.production? || Rails.env.development?
+  mount JasmineRails::Engine => "/specs" if Rails.env.development?
   devise_for :users, :controllers => { :sessions => 'sessions', :passwords => 'passwords' }
 
   resource :map

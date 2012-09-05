@@ -30,13 +30,12 @@ AirCasting::Application.configure do
   config.serve_static_assets = false
 
   # Compress JavaScripts and CSS
-  config.assets.compress = false
-
-  #config.assets.js_compressor  = :uglifier
+  config.assets.compress = true
+  config.assets.js_compressor  = :uglifier
   #config.assets.css_compressor = :yui
   # Don't fallback to assets pipeline if a precompiled asset is missed
-  #config.assets.compile = true
-  #config.assets.initialize_on_precompile = false
+  config.assets.compile = true
+  config.assets.initialize_on_precompile = false
 
   # Generate digests for assets URLs
   #config.assets.digest = true doesnt work with sass-rails and rails 3.1 - need to upgrade to 3.2
