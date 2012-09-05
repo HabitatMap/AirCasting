@@ -92,7 +92,21 @@ class Session < ActiveRecord::Base
       if location.present?
         point = Geocoder.coordinates(location)
         box = Geocoder::Calculations.bounding_box(point, data[:distance])
-        streams_ids = Measurement.within_bounding_box(box).select('stream_id').map(&:stream_id)
+
+        data = {
+          :south => box[0],
+          :north => box[2],
+          :west  => box[1],
+          :east  => box[3]
+        }
+
+        streams_ids = Stream.
+          select('streams.id').
+          joins(:session).
+          where('sessions.contribute' => true).
+          in_rectangle(data).
+          map(&:id)
+
         sessions = sessions.where(:streams => {:id => streams_ids.uniq})
       end
 
@@ -121,7 +135,7 @@ class Session < ActiveRecord::Base
   def self.filtered_json(data)
     includes(:user).includes(:streams).
       filter(data).as_json(
-        :only => [:id, :created_at, :title, :calibration, :offset_60_db, :start_time_local, :end_time_local, :timezone_offset],
+        :only => [:id, :title, :start_time_local, :end_time_local],
         :methods => [:username, :streams]
     )
   end
