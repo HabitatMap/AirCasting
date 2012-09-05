@@ -21,8 +21,8 @@
 //= require libs/jquery
 //= require libs/moment
 //= require libs/jquery_ui
-//= require libs/angular
-//= require libs/angular-cookies
+//= require libs/angular-1.0.1.min
+//= require libs/angular-cookies-1.0.1.min
 //= require libs/underscore
 //= require libs/underscore.string.min
 //= require libs/spin
