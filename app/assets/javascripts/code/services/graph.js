@@ -33,11 +33,15 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
           events : {
             load: _(this.onLoad).bind(this)
           },
-          zoomType: "x"
+          zoomType: "x",
+          style: {
+            fontFamily: 'Arial, sans-serif',
+            fontWeight: 'normal',
+          },
         },
         labels: {
           style: {
-            fontFamily: "Arial,sans-serif"
+            fontFamily: 'Arial,sans-serif'
           }
         },
         credits: {
@@ -49,8 +53,15 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         rangeSelector : {
           buttonSpacing: 5,
           buttonTheme: {
-            width: 50
+            width: 50,
+            style: {
+              fontFamily: 'Arial, sans-serif'
+            }
           },
+          labelStyle: {
+                fontWeight: 'normal',
+                fontFamily: 'Arial, sans-serif',
+            },
           buttons: [{
             count: 1,
             type: 'minute',
@@ -120,7 +131,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         xAxis: {
           labels: {
             style: {
-              color: "#000"
+              color: "#000",
+              fontFamily: "Arial, sans-serif",
             }
           },
           minRange: 1000
@@ -133,7 +145,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
           plotBands : [],
           labels: {
             style: {
-              color: "#000"
+              color: "#000",
+              fontFamily: "Arial, sans-serif",
             }
           },
           gridLineWidth: 0,
