@@ -38,14 +38,14 @@ AirCasting::Application.configure do
   config.assets.initialize_on_precompile = false
 
   # Generate digests for assets URLs
-  #config.assets.digest = true doesnt work with sass-rails and rails 3.1 - need to upgrade to 3.2
+  #config.assets.digest = true #doesnt work with sass-rails and rails 3.1 - need to upgrade to 3.2
 
   # Defaults to Rails.root.join("public/assets")
   # config.assets.manifest = YOUR_PATH
 
   # Specifies the header that your server uses for sending files
   # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for apache
-  # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for nginx
+  config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for nginx
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   # config.force_ssl = true
