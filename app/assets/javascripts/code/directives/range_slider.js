@@ -1,13 +1,14 @@
-angular.module("aircasting").directive('slider', function (){
+angular.module("aircasting").directive('rangeslider', function (){
   return {
     link: function(scope, element, attrs, controller) {
       var opts = {
+        range: true,
         min: scope[attrs.sliderMin] || 0,
         max: scope[attrs.sliderMax] || 0,
         step: _.str.toNumber(attrs.sliderStep) || 1,
-        slide: attrs.sliderOnslide && scope.$eval(attrs.sliderOnslide),
-        change: attrs.sliderOnchange && scope.$eval(attrs.sliderOnchange)
+        slide: attrs.sliderOnslide && scope.$eval(attrs.sliderOnslide)
       };
+      opts.values = [opts.min, opts.max];
       $(element).slider(opts);
       scope.$watch(attrs.sliderMin, function(newValue, oldValue) {
         if(!newValue) {
@@ -25,10 +26,10 @@ angular.module("aircasting").directive('slider', function (){
         if(!newValue) {
           return;
         }
-        if(angular.equals($(element).slider("value"), newValue)){
+        if(angular.equals($(element).slider("values"), newValue.split(','))){
           return;
         }
-        $(element).slider("value", newValue);
+        $(element).slider("values", newValue.split(","));
       }, true);
     }
   };

@@ -30,7 +30,7 @@
   <section ng-show="expandables.visible('gridResolution')">
     <div>
       <div class="slider full-slider">
-        <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="storage.data.gridResolution" slider-callback="storageEvents.onResolutionSlide" ></div>
+        <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="storage.data.gridResolution" slider-onslide="storageEvents.onResolutionSlide" ></div>
         <span>{{storage.data.gridResolution}}</span>
       </div>
     </div>

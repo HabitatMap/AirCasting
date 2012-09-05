@@ -5,7 +5,7 @@
       <label>Hours:Minutes</label>
       <div class="slider">
         <input timepicker class="narrow" type="text" ng-model="storage.data.time.timeFrom"></input>
-        <div slider slider-max="maxTime" slider-min="minTime" slider-value="[storage.data.time.timeFrom - utils.timeOffset, storage.data.time.timeTo - utils.timeOffset].join(',')" slider-range="true" slider-callback="storageEvents.onTimeSlide"></div>
+        <div rangeslider slider-max="maxTime" slider-min="minTime" slider-value="[storage.data.time.timeFrom - utils.timeOffset, storage.data.time.timeTo - utils.timeOffset].join(',')" slider-onslide="storageEvents.onTimeSlide"></div>
         <input timepicker class="narrow" type="text" ng-model="storage.data.time.timeTo"></input>
       </div>
     </div>
@@ -13,7 +13,7 @@
       <label>Month/Day</label>
       <div class="slider">
         <input monthday class="narrow" type="text" ng-model="storage.data.time.dayFrom"></input>
-        <div slider slider-max="maxDay" slider-min="minDay" slider-value="[storage.data.time.dayFrom, storage.data.time.dayTo].join(',')" slider-range="true" slider-callback="storageEvents.onMonthDaySlide"></div>
+        <div rangeslider slider-max="maxDay" slider-min="minDay" slider-value="[storage.data.time.dayFrom, storage.data.time.dayTo].join(',')" slider-onslide="storageEvents.onMonthDaySlide"></div>
         <input monthday class="narrow" type="text" ng-model="storage.data.time.dayTo"></input>
       </div>
     </div>
@@ -21,7 +21,7 @@
       <label>Year</label>
       <div class="slider">
         <input number class="narrow" type="text" ng-model="storage.data.time.yearFrom"></input>
-        <div slider slider-max="maxYear" slider-min="minYear" slider-value="[storage.data.time.yearFrom, storage.data.time.yearTo].join(',')" slider-range="true" slider-callback="storageEvents.onYearSlide"></div>
+        <div rangeslider slider-max="maxYear" slider-min="minYear" slider-value="[storage.data.time.yearFrom, storage.data.time.yearTo].join(',')" slider-onslide="storageEvents.onYearSlide"></div>
         <input number class="narrow" type="text" ng-model="storage.data.time.yearTo"></input>
       </div>
     </div>

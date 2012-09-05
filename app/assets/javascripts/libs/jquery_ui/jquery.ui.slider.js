@@ -64,18 +64,19 @@ $.widget( "ui.slider", $.ui.mouse, {
 				if ( !o.values ) {
 					o.values = [ this._valueMin(), this._valueMin() ];
 				}
-				if ( o.values.length && o.values.length !== 2 ) {
+        //support of multi range
+				/*if ( o.values.length && o.values.length !== 2 ) {
 					o.values = [ o.values[0], o.values[0] ];
-				}
+				}*/
 			}
 
-			this.range = $( "<div></div>" )
+			/*this.range = $( "<div></div>" )
 				.appendTo( this.element )
 				.addClass( "ui-slider-range" +
 				// note: this isn't the most fittingly semantic framework class for this element,
 				// but worked best visually with a variety of themes
-				" ui-widget-header" + 
-				( ( o.range === "min" || o.range === "max" ) ? " ui-slider-range-" + o.range : "" ) );
+				" ui-widget-header" +
+				( ( o.range === "min" || o.range === "max" ) ? " ui-slider-range-" + o.range : "" ) );*/
 		}
 
 		for ( var i = existingHandles.length; i < handleCount; i += 1 ) {
@@ -120,11 +121,11 @@ $.widget( "ui.slider", $.ui.mouse, {
 					curVal,
 					newVal,
 					step;
-	
+
 				if ( self.options.disabled ) {
 					return;
 				}
-	
+
 				switch ( event.keyCode ) {
 					case $.ui.keyCode.HOME:
 					case $.ui.keyCode.END:
@@ -145,14 +146,14 @@ $.widget( "ui.slider", $.ui.mouse, {
 						}
 						break;
 				}
-	
+
 				step = self.options.step;
 				if ( self.options.values && self.options.values.length ) {
 					curVal = newVal = self.values( index );
 				} else {
 					curVal = newVal = self.value();
 				}
-	
+
 				switch ( event.keyCode ) {
 					case $.ui.keyCode.HOME:
 						newVal = self._valueMin();
@@ -181,19 +182,19 @@ $.widget( "ui.slider", $.ui.mouse, {
 						newVal = self._trimAlignValue( curVal - step );
 						break;
 				}
-	
+
 				self._slide( event, index, newVal );
 			})
 			.keyup(function( event ) {
 				var index = $( this ).data( "index.ui-slider-handle" );
-	
+
 				if ( self._keySliding ) {
 					self._keySliding = false;
 					self._stop( event, index );
 					self._change( event, index );
 					$( this ).removeClass( "ui-state-active" );
 				}
-	
+
 			});
 
 		this._refreshValue();
@@ -275,7 +276,7 @@ $.widget( "ui.slider", $.ui.mouse, {
 		closestHandle
 			.addClass( "ui-state-active" )
 			.focus();
-		
+
 		offset = closestHandle.offset();
 		mouseOverHandle = !$( event.target ).parents().andSelf().is( ".ui-slider-handle" );
 		this._clickOffset = mouseOverHandle ? { left: 0, top: 0 } : {
@@ -301,7 +302,7 @@ $.widget( "ui.slider", $.ui.mouse, {
 	_mouseDrag: function( event ) {
 		var position = { x: event.pageX, y: event.pageY },
 			normValue = this._normValueFromMouse( position );
-		
+
 		this._slide( event, this._handleIndex, normValue );
 
 		return false;
@@ -320,7 +321,7 @@ $.widget( "ui.slider", $.ui.mouse, {
 
 		return false;
 	},
-	
+
 	_detectOrientation: function() {
 		this.orientation = ( this.options.orientation === "vertical" ) ? "vertical" : "horizontal";
 	},
@@ -377,7 +378,7 @@ $.widget( "ui.slider", $.ui.mouse, {
 		if ( this.options.values && this.options.values.length ) {
 			otherVal = this.values( index ? 0 : 1 );
 
-			if ( ( this.options.values.length === 2 && this.options.range === true ) && 
+			if ( ( this.options.values.length === 2 && this.options.range === true ) &&
 					( ( index === 0 && newVal > otherVal) || ( index === 1 && newVal < otherVal ) )
 				) {
 				newVal = otherVal;
@@ -562,7 +563,7 @@ $.widget( "ui.slider", $.ui.mouse, {
 			return vals;
 		}
 	},
-	
+
 	// returns the step-aligned value that val is closest to, between (inclusive) min and max
 	_trimAlignValue: function( val ) {
 		if ( val <= this._valueMin() ) {
@@ -591,7 +592,7 @@ $.widget( "ui.slider", $.ui.mouse, {
 	_valueMax: function() {
 		return this.options.max;
 	},
-	
+
 	_refreshValue: function() {
 		var oRange = this.options.range,
 			o = this.options,
