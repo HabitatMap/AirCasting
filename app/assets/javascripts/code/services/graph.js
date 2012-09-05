@@ -87,7 +87,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
         },
         series : [{
           name : sensor.measurement_type,
-          data : data
+          data : _(data).values()
         }],
         plotOptions: {
           line: {
@@ -191,10 +191,18 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
     },
 
     onMouseOverMultiple: function(start, end) {
-      var measurements = _(this.data).filter(function(m){
-         return (m.x >= start) && (m.x <= end);
-      });
-      graphHighlight.show(measurements);
+      var startSec = start ;
+      var endSec = end ;
+      var points = [];
+      var point;
+      for(var i = startSec; i <= endSec; i = i + 1000){
+        point = this.data[i + ""];
+        if(point){
+           points.push(point);
+        }
+      }
+      var pointNum = Math.floor(points.length / 2);
+      graphHighlight.show([points[pointNum]]);
     },
 
     redraw: function() {

@@ -38,14 +38,16 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
     },
     measurementsToTime: function(){
       var currentOffset = moment.duration(utils.timeOffset, "minutes").asMilliseconds();
-      var result = _(this.measurements()).map(function(measurement){
-        return {x: moment(measurement.time,"YYYY-MM-DDTHH:mm:ss").valueOf() - currentOffset,
+      var x;
+      var result = {};
+      _(this.measurements()).each(function(measurement){
+        x = moment(measurement.time,"YYYY-MM-DDTHH:mm:ss").valueOf() - currentOffset;
+        result[x + ""] = {x: x,
                 y: measurement.value,
-          latitude: measurement.latitude, longitude: measurement.longitude};
+                latitude: measurement.latitude,
+                longitude: measurement.longitude};
       });
-      return _(result).uniq(true, function(item) {
-        return item.x;
-      });
+      return result;
     },
     updateHeat: function() {
       var data = heat.toSensoredList(this.get().streams[sensors.anySelected().sensor_name]);
