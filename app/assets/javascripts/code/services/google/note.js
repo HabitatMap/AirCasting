@@ -1,5 +1,5 @@
-angular.module("google").factory("note",  ["$http", "$compile", "$rootScope","$timeout",
-                                 function($http, $compile, $rootScope, $timeout){
+angular.module("google").factory("note",  ["$http", "$compile", "$rootScope","$timeout", 'versioner',
+                                 function($http, $compile, $rootScope, $timeout, versioner){
   var Note = function() {
     this.popup = new google.maps.InfoWindow();
   };
@@ -13,7 +13,8 @@ angular.module("google").factory("note",  ["$http", "$compile", "$rootScope","$t
       this.idx = idx;
       var self = this;
       $timeout(function(){
-        var element = $("<div class=\"note-window\"><div ng-include=\"'/partials/note.html'\"></div></div>");
+        var url = versioner.path('/partials/note.html');
+        var element = $("<div class=\"note-window\"><div ng-include=\"'" + url + "'\"></div></div>");
         $compile(element[0])($rootScope);
         self.popup.setContent(element[0]);
       });

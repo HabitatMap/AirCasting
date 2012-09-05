@@ -9,11 +9,11 @@
     = render :partial => 'shared/analytics'
     = render :partial => 'shared/fb_logo'
 
-  %body(id="map")
+  %body(id="map" data-version="1.0")
     .notice(ng-controller="FlashCtrl" ng-cloak ng-show="flash.message" ng-click="clear()") {{flash.message}}
     #mapview(ng-controller="MapCtrl" googlemap="")
     #hud(ng-controller="HudCtrl" ng-cloak ng-hide="map.streetViewVisible()")
-      #left-hud(ng-include="" src="'/partials/left_hud.html'")
+      #left-hud(ng-include="" src="versioner.path('/partials/left_hud.html')")
       #right-hud
         = yield
       #ajax-loader(spinner="overlay")

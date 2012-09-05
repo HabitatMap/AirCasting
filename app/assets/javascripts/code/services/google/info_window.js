@@ -1,5 +1,5 @@
-angular.module("google").factory("infoWindow",  ["map", "$http", "$compile", "$rootScope",
-                                 function(map, $http, $compile, $rootScope){
+angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$rootScope", 'versioner',
+                                 function(map, $http, $compile, $rootScope, versioner){
   var InfoWindow = function() {
     this.popup = new google.maps.InfoWindow();
   };
@@ -15,7 +15,8 @@ angular.module("google").factory("infoWindow",  ["map", "$http", "$compile", "$r
     },
     onShowData: function(data, status, headers, config){
       this.data = data;
-      var element = $("<div class=\"infoWindow\" ng-include=\"'/partials/info_window.html'\"></div>");
+      var url = versioner.path('/partials/info_window.html');
+      var element = $("<div class=\"infoWindow\" ng-include=\"'" + url  +"'\"></div>");
       $compile(element[0])($rootScope);
       this.popup.setContent(element[0]);
     },

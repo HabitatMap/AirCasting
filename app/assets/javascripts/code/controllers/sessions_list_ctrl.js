@@ -1,4 +1,4 @@
-function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash,
+function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash, versioner,
                           dialog, functionBlocker, singleSession, $window) {
   $scope.setDefaults = function() {
     $scope.params = params;
@@ -17,7 +17,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
     $scope.params.update({tmp: {tmpSensorId: ""}});
     var dialogObj = dialog();
     dialogObj.title('Select a Parameter - Sensor')
-      .template("/partials/tmp_sensor_selection_dialog.html")
+      .template(versioner.path("/partials/tmp_sensor_selection_dialog.html"))
       .onClose(function(){
         if(!sensors.tmpSelected()){
           $scope.params.update({sessionsIds: []});
@@ -146,4 +146,4 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
   $scope.setDefaults();
 }
 SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
-  'sessions', 'flash', 'dialog', 'functionBlocker', 'singleSession', '$window'];
+  'sessions', 'flash', 'versioner', 'dialog', 'functionBlocker', 'singleSession', '$window'];

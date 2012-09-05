@@ -1,6 +1,7 @@
-function HudCtrl($scope, map, spinner) {
+function HudCtrl($scope, map, spinner, versioner) {
   $scope.map = map;
   $scope.spinner = spinner;
+  $scope.versioner = versioner;
 
   $scope.onZoom = function(event, ui) {
     map.setZoom(ui.value);
@@ -11,4 +12,4 @@ function HudCtrl($scope, map, spinner) {
   };
 
 }
-HudCtrl.$inject = ['$scope', 'map', 'spinner'];
+HudCtrl.$inject = ['$scope', 'map', 'spinner', 'versioner'];
