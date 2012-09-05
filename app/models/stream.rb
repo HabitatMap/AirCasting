@@ -40,12 +40,13 @@ class Stream < ActiveRecord::Base
   scope(:in_rectangle, lambda do |data|
     where(
       "(min_latitude >= ? AND min_latitude <= ? OR " \
-      "max_latitude >= ? AND max_latitude <= ?) " \
-      "AND " \
+      "max_latitude >= ? AND max_latitude <= ?)",
+      data[:south], data[:north],
+      data[:south], data[:north]
+    ).
+    where(
       "(min_longitude >= ? AND min_longitude <= ? OR " \
       "max_longitude >= ? AND max_longitude <= ?)",
-      data[:south], data[:north],
-      data[:south], data[:north],
       data[:west], data[:east],
       data[:west], data[:east]
     )
