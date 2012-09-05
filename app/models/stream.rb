@@ -38,15 +38,18 @@ class Stream < ActiveRecord::Base
   attr_accessor :deleted
 
   scope(:in_rectangle, lambda do |data|
+    latitude_operator = data[:south] < data[:north] ? 'AND' : 'OR'
+    longitude_operator = data[:west] < data[:east] ? 'AND' : 'OR'
+
     where(
-      "(min_latitude >= ? AND min_latitude <= ? OR " \
-      "max_latitude >= ? AND max_latitude <= ?)",
+      "min_latitude >= ? #{latitude_operator} min_latitude <= ? OR " \
+      "max_latitude >= ? #{latitude_operator} max_latitude <= ?",
       data[:south], data[:north],
       data[:south], data[:north]
     ).
     where(
-      "(min_longitude >= ? AND min_longitude <= ? OR " \
-      "max_longitude >= ? AND max_longitude <= ?)",
+      "min_longitude >= ? #{longitude_operator} min_longitude <= ? OR " \
+      "max_longitude >= ? #{longitude_operator} max_longitude <= ?",
       data[:west], data[:east],
       data[:west], data[:east]
     )
