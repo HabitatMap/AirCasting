@@ -97,6 +97,19 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
               fillColor: '#007BF2',
               lineWidth: 0,
               lineColor: '#007BF2'
+            },
+            dataGrouping: {
+              enabled: true,
+              units: [
+                ['millisecond', []],
+                ['second', [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
+                ['minute', [1, 2, 3, 4, 5]],
+                ['hour', []],
+                ['day', []],
+                ['week', []],
+                ['month', []],
+                ['year', []]
+              ]
             }
           }
         },
