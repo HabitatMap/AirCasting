@@ -1,7 +1,7 @@
 angular.module("aircasting").factory('sessions',
-       ['params', '$http', 'map','sensors', '$rootScope',
+       ['params', '$http', 'map', 'note', 'sensors', '$rootScope',
          'heat', 'spinner',  'utils', "$timeout",
-        function(params, $http, map, sensors, $rootScope,
+        function(params, $http, map, note, sensors, $rootScope,
                  heat, spinner, utils, $timeout) {
   var Sessions = function() {
     this.sessions = [];
@@ -239,8 +239,8 @@ angular.module("aircasting").factory('sessions',
           points.push(measurment);
         }
       });
-      _(session.notes || []).each(function(note, idx){
-        session.noteDrawings.push(map.drawNote(note, idx));
+      _(session.notes || []).each(function(noteItem, idx){
+        session.noteDrawings.push(note.drawNote(noteItem, idx));
       });
       session.lines.push(map.drawLine(points));
 
@@ -258,8 +258,8 @@ angular.module("aircasting").factory('sessions',
       _(session.lines || []).each(function(line){
         map.removeMarker(line);
       });
-      _(session.noteDrawings || []).each(function(note){
-        map.removeMarker(note);
+      _(session.noteDrawings || []).each(function(noteItem){
+        map.removeMarker(noteItem);
       });
       session.drawed = false;
       if(!noMove){

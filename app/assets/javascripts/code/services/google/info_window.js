@@ -2,6 +2,7 @@ angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$ro
                                  function(map, $http, $compile, $rootScope, versioner){
   var InfoWindow = function() {
     this.popup = new google.maps.InfoWindow();
+    map.listen("zoom_changed", _(this.hide).bind(this));
   };
   InfoWindow.prototype = {
     get: function() {

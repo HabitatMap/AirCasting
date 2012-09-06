@@ -1,7 +1,7 @@
 angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope", "digester",
-                                 "rectangles", "geocoder", '$location','note', "$timeout",
+                                 "rectangles", "geocoder", '$location', "$timeout",
                                      function(params, $cookieStore, $rootScope, digester,
-                                              rectangles, geocoder, $location, note, $timeout){
+                                              rectangles, geocoder, $location, $timeout){
   var Map = function() {};
   Map.prototype = {
     init: function(element, options) {
@@ -162,21 +162,8 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
 
       var line = new google.maps.Polyline(lineOptions);
       return line;
-    },
-
-    drawNote: function(item, idx){
-      var self = this;
-      var marker = this.drawMarker(item, {
-        title: item.text,
-        icon: "/assets/marker_note.png",
-        zIndex: 200000
-      });
-
-      google.maps.event.addListener(marker, 'click', function(){
-        note.show(item, idx, marker, self.get());
-      });
-      return marker;
     }
+
   };
 
   return new Map();
