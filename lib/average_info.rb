@@ -52,7 +52,7 @@ class AverageInfo
     if tags.present?
       sessions_ids = Session.select("sessions.id").tagged_with(tags).map(&:id)
       if sessions_ids.present?
-        measurements = measurements.where(:streams => {:session_id => sessions_ids.compact.uniq})
+        measurements = measurements.joins(:stream).where(:streams => {:session_id => sessions_ids.compact.uniq})
       else
         measurements = []
       end

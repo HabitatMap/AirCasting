@@ -26,7 +26,11 @@ describe Api::AveragesController do
 
     subject { get "index", :q => args, :format => :json }
 
-    before(:each) { Measurement.should_receive(:averages).with(expected).and_return(result) }
+    before(:each) do
+      info = double
+      AverageInfo.should_receive(:new).with(expected).and_return(info)
+      info.should_receive(:as_json).and_return(result)
+    end
 
     it { should be_successful }
 

@@ -13,9 +13,9 @@ angular.module("google").factory("note",  ["$http", "$compile", "$rootScope","$t
       this.data = note;
       this.idx = idx;
       var self = this;
+      var url = versioner.path('/partials/note.html');
+      var element = $("<div class=\"note-window\"><div ng-include=\"'" + url + "'\"></div></div>");
       $timeout(function(){
-        var url = versioner.path('/partials/note.html');
-        var element = $("<div class=\"note-window\"><div ng-include=\"'" + url + "'\"></div></div>");
         $compile(element[0])($rootScope);
         self.popup.setContent(element[0]);
       });
