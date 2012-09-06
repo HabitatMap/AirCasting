@@ -4,6 +4,7 @@ angular.module("aircasting").directive('slider', function (){
       var opts = {
         min: scope[attrs.sliderMin] || 0,
         max: scope[attrs.sliderMax] || 0,
+        animate: true,
         step: _.str.toNumber(attrs.sliderStep) || 1,
         slide: attrs.sliderOnslide && scope.$eval(attrs.sliderOnslide)
       };

@@ -1,5 +1,5 @@
-angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$rootScope", 'versioner',
-                                 function(map, $http, $compile, $rootScope, versioner){
+angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$rootScope", 'versioner', '$timeout',
+                                 function(map, $http, $compile, $rootScope, versioner, $timeout){
   var InfoWindow = function() {
     this.popup = new google.maps.InfoWindow();
     map.listen("zoom_changed", _(this.hide).bind(this));
@@ -9,10 +9,13 @@ angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$ro
       return this.popup;
     },
     show: function(url, data, position){
+      var self = this;
       this.popup.setContent("working..");
-      $http.get(url, {params : data, cache: true}).success(_(this.onShowData).bind(this));
       this.popup.setPosition(position);
       this.popup.open(map.get());
+      $timeout(function(){
+        $http.get(url, {params : data, cache: true}).success(_(self.onShowData).bind(self));
+      }, 1);
     },
     onShowData: function(data, status, headers, config){
       this.data = data;
