@@ -27,7 +27,7 @@
 //= require libs/underscore.string.min
 //= require libs/spin
 //= require libs/highcharts/highstock
-//= require libs/lightbox
+//= require libs/jquery.lightbox-0.5
 //= require code/aircasting
 //= require_tree ./code/services
 //= require_tree ./code/directives
