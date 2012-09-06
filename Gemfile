@@ -1,5 +1,4 @@
 source 'http://rubygems.org'
-source 'http://gems.llp.pl:1337'
 
 gem 'rails', '3.1.1'
 gem 'haml'
