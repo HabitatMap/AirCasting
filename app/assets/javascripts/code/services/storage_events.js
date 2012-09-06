@@ -23,78 +23,69 @@ angular.module("aircasting").factory('storageEvents', ['storage', '$rootScope', 
       $rootScope.$digest();
     },
     onHeatChangeLow : function(event, ui) {
-      self.doHeatChange($(this), ui.value, "low", "lowest", "mid");
+      self.doHeatChange($(this), ui.value, "low");
+      self.onLowInput();
+      $rootScope.$digest();
     },
     onHeatChangeHigh : function(event, ui) {
-      self.doHeatChange($(this), ui.value, "high", "mid", "highest");
+      self.doHeatChange($(this), ui.value, "high");
+      self.onHighInput();
+      $rootScope.$digest();
     },
     onHeatChangeMid : function(event, ui) {
-      self.doHeatChange($(this), ui.value, "mid", "low", "high");
-    },
-    doHeatChange: function(element, value, curr, prev, next) {
-      var max = element.slider( "option", "max" );
-      var min = element.slider( "option", "min" );
-      var currValue = element.slider( "option", "value" );
-
-      if(min == value ) {
-        storage.setInHash("heat", prev, value - 2);
-        element.slider( "option", "min", value - 1);
-      }
-      if(max == value ) {
-        storage.setInHash("heat", next, value + 2);
-        element.slider( "option", "max", value + 1);
-      }
-      if(currValue == value) {
-        return;
-      }
-      storage.setInHash("heat", curr, value);
+      self.doHeatChange($(this), ui.value, "mid");
+      self.onMidInput();
       $rootScope.$digest();
+    },
+    doHeatChange: function(element, value, curr) {
+      var currValue = element.slider( "option", "value" );
+      storage.setInHash("heat", curr, value);
     },
 
     onHighestInput: function() {
       var newValue =  storage.get('heat').highest;
       if(newValue <= storage.get('heat').high) {
-         storage.setInHash('heat', "high", newValue - 2);
+         storage.setInHash('heat', "high", newValue - 1);
          self.onHighInput();
       }
     },
     onHighInput: function() {
       var newValue =  storage.get('heat').high;
       if(newValue >= storage.get('heat').highest) {
-         storage.setInHash('heat', "highest", newValue + 2);
+         storage.setInHash('heat', "highest", newValue + 1);
          self.onHighestInput();
       }
       if(newValue <= storage.get('heat').mid) {
-         storage.setInHash('heat', "mid", newValue - 2);
+         storage.setInHash('heat', "mid", newValue - 1);
          self.onMidInput();
       }
     },
     onMidInput: function() {
       var newValue =  storage.get('heat').mid;
       if(newValue >= storage.get('heat').high) {
-         storage.setInHash('heat', "high", newValue + 2);
+         storage.setInHash('heat', "high", newValue + 1);
          self.onHighInput();
       }
       if(newValue <= storage.get('heat').low) {
-         storage.setInHash('heat', "low", newValue - 2);
+         storage.setInHash('heat', "low", newValue - 1);
          self.onLowInput();
       }
     },
     onLowInput: function() {
       var newValue =  storage.get('heat').low;
       if(newValue >= storage.get('heat').mid) {
-         storage.setInHash('heat', "mid", newValue + 2);
+         storage.setInHash('heat', "mid", newValue + 1);
          self.onMidInput();
       }
       if(newValue <= storage.get('heat').lowest) {
-         storage.setInHash('heat', "lowest", newValue - 2);
+         storage.setInHash('heat', "lowest", newValue - 1);
          self.onLowestInput();
       }
     },
     onLowestInput: function() {
       var newValue =  storage.get('heat').lowest;
       if(newValue >= storage.get('heat').low) {
-         storage.setInHash('heat', "low", newValue + 2);
+         storage.setInHash('heat', "low", newValue + 1);
          self.onLowInput();
       }
     }
