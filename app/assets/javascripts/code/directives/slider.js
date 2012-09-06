@@ -13,12 +13,14 @@ angular.module("aircasting").directive('slider', function (){
           return;
         }
         $(element).slider("option", "min", newValue);
+        $(element).slider("value", $(element).slider("value"));
       }, true);
       scope.$watch(attrs.sliderMax, function(newValue, oldValue) {
         if(!newValue) {
           return;
         }
         $(element).slider("option", "max", newValue);
+        $(element).slider("value", $(element).slider("value"));
       }, true);
       scope.$watch(attrs.sliderValue, function(newValue, oldValue) {
         if(!newValue) {

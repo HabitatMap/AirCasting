@@ -39,7 +39,11 @@ angular.module("aircasting").factory('storageEvents', ['storage', '$rootScope', 
     },
     doHeatChange: function(element, value, curr) {
       var currValue = element.slider( "option", "value" );
+      if(value == currValue ) {
+        return false;
+      }
       storage.setInHash("heat", curr, value);
+      return true;
     },
 
     onHighestInput: function() {
