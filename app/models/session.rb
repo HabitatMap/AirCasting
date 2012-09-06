@@ -33,6 +33,8 @@ class Session < ActiveRecord::Base
   validates :url_token, :uuid, :uniqueness => true
   validates_inclusion_of :offset_60_db, :in => -5..5
 
+  prepare_range(:start_year_range, :start_time)
+
   accepts_nested_attributes_for :notes, :streams
 
   before_validation :set_url_token, :unless => :url_token
@@ -118,6 +120,13 @@ class Session < ActiveRecord::Base
     if data[:time_from] && data[:time_to] && !whole_day?(data[:time_from], data[:time_to])
       sessions = sessions.
         local_time_range_by_minutes(data[:time_from], data[:time_to])
+    end
+
+    if data[:year_from] && data[:year_to]
+      sessions = sessions.start_year_range(
+        Date.new(data[:year_from]),
+        Date.new(data[:year_to].to_i + 1) - 1
+      )
     end
 
     if (id = data[:include_session_id]).present?
