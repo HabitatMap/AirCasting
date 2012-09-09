@@ -33,6 +33,7 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
       params.update({data: obj});
     },
     updateWithRefresh: function(name) {
+      //be carefull when using this - currently it is only for location data
       this.refreshCounter();
       var obj = {};
       obj[name] = this.get(name);
