@@ -1,7 +1,7 @@
 angular.module("aircasting").directive('monthday', function(){
 
   var viewToModel = function(viewValue) {
-    return Math.ceil(moment.duration(moment(viewValue, "MM/DD") - moment("01/01",  "MM/DD"))).asDays();
+    return Math.ceil(moment.duration(moment(viewValue, "MM/DD") - moment("01/01",  "MM/DD")).asDays());
   };
   return {
     require: 'ngModel',
