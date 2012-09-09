@@ -126,7 +126,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
             if(series.hasGroupedData){
               //var groupingDiff = moment.duration(series.currentDataGrouping.unitRange,
               //                     series.currentDataGrouping.unitName + "s").asMilliseconds();
-              var groupingDiff = series.currentDataGrouping.unitRange;
+              var groupingDiff = series.currentDataGrouping.totalRange / 2;
+              //console.log(this, groupingDiff, series)
               var xLess =  this.x - groupingDiff;
               var xMore =  this.x + groupingDiff;
               s += Highcharts.dateFormat("%H:%M:%S", xLess) +'-';
