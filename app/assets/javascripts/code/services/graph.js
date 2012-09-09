@@ -124,14 +124,11 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
             var series = pointData.series;
             var s = '<span>'+ Highcharts.dateFormat("%m/%d/%Y", this.x) + " ";
             if(series.hasGroupedData){
-              //var groupingDiff = moment.duration(series.currentDataGrouping.unitRange,
-              //                     series.currentDataGrouping.unitName + "s").asMilliseconds();
-              var groupingDiff = series.currentDataGrouping.totalRange / 2;
-              //console.log(this, groupingDiff, series)
-              var xLess =  this.x - groupingDiff;
+              var groupingDiff = series.currentDataGrouping.totalRange;
+              var xLess =  this.x;
               var xMore =  this.x + groupingDiff;
               s += Highcharts.dateFormat("%H:%M:%S", xLess) +'-';
-              s += Highcharts.dateFormat("%H:%M:%S", xMore) +'</span>';
+              s += Highcharts.dateFormat("%H:%M:%S", xMore - 1000) +'</span>';
               self.onMouseOverMultiple(xLess, xMore);
             } else {
               s += Highcharts.dateFormat("%H:%M:%S", this.x) +'</span>';
