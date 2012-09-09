@@ -283,6 +283,7 @@ angular.module("aircasting").factory('sessions',
        if(!north){
          return;
        }
+       console.log({north: north, east: east, south : south, west: west})
        return {north: north, east: east, south : south, west: west};
      }
   };
