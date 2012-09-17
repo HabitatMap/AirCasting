@@ -29,7 +29,15 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
     },
     update: function(name) {
       var obj = {};
-      obj[name] = this.get(name);
+      if(name = 'time') {
+        var timeObject = this.get('time');
+        _(timeObject).each(function(value, key){
+          timeObject[key] = parseInt(value);
+        });
+        obj[name] = timeObject;
+      } else {
+        obj[name] = this.get(name);
+      }
       params.update({data: obj});
     },
     updateWithRefresh: function(name) {
