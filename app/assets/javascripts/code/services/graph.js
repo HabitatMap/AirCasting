@@ -197,6 +197,10 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
       }
     },
 
+    onMouseLeave: function() {
+      graphHighlight.hide();
+    },
+
     onMouseOverSingle: function(point) {
       graphHighlight.show([point]);
     },

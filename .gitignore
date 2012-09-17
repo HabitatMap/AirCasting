@@ -27,6 +27,8 @@ nbproject/*
 .generators
 .rakeTasks
 AirCasting.iml
+AirCasting.ipr
+AirCasting.iws
 .rvmrc
 config/deploy/*.rb
 config/newrelic.yml

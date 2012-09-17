@@ -5,7 +5,7 @@ angular.module("google").factory("graphHighlight",  ["map",
     this.point = undefined;
   };
   GraphHighlight.prototype = {
-    hide: function(point) {
+    hide: function() {
       _(this.items).each(function(item){
         map.removeMarker(item.marker);
       });
