@@ -29,7 +29,7 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
     },
     update: function(name) {
       var obj = {};
-      if(name = 'time') {
+      if(name == 'time') {
         var timeObject = this.get('time');
         _(timeObject).each(function(value, key){
           timeObject[key] = parseInt(value);
