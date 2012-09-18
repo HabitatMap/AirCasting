@@ -73,6 +73,7 @@ module AirCasting
 
     # App host
     config.action_mailer.default_url_options = { :host => AppConfig.host }
+    config.action_controller.default_url_options = { :host => AppConfig.host }
 
     # Wrap fields with errors with spans
     config.action_view.field_error_proc = Proc.new { |html_tag, instance| %(<span class="fieldWithErrors">#{html_tag}</span>).html_safe }
