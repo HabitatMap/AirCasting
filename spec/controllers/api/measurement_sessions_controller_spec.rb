@@ -1,19 +1,19 @@
 # AirCasting - Share your Air!
 # Copyright (C) 2011-2012 HabitatMap, Inc.
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # You can contact the authors by email at <info@habitatmap.org>
 
 require 'spec_helper'
@@ -66,8 +66,8 @@ describe Api::MeasurementSessionsController do
     let(:builder) { stub }
 
     before do
-      ActiveSupport::JSON.should_receive(:decode).with("session").and_return(:session => :data)
-      SessionBuilder.should_receive(:new).with({ :session => :data }, "some_files", user).and_return(builder)
+      ActiveSupport::JSON.should_receive(:decode).with(:session).and_return(:session => :data)
+      SessionBuilder.should_receive(:new).with({ :session => :data }, :some_files, user).and_return(builder)
       builder.should_receive(:build!).and_return(create_result)
     end
 
@@ -81,8 +81,8 @@ describe Api::MeasurementSessionsController do
 
     context "when the session is sent compressed" do
       before do
-        Base64.should_receive(:decode64).with("zipped_and_encoded").and_return(:zipped)
-        AirCasting::GZip.should_receive(:inflate).with(:zipped).and_return("session")
+        Base64.should_receive(:decode64).with(:zipped_and_encoded).and_return(:zipped)
+        AirCasting::GZip.should_receive(:inflate).with(:zipped).and_return(:session)
 
         post :create, :format => :json, :session => :zipped_and_encoded, :compression => true, :photos => photos
       end

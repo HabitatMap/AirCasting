@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.1.1'
+gem 'rails', '3.2.6'
 gem 'haml'
 gem 'mysql2'
 gem 'therubyracer', '~> 0.10' # For ExecJS
@@ -13,8 +13,8 @@ gem 'newrelic_rpm'
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets, :development do
-  gem 'sass-rails'
-  gem 'coffee-rails', '~> 3.1.1'
+  gem 'sass-rails', '~> 3.2.2'
+  gem 'coffee-rails', '~> 3.2.1'
   gem 'uglifier', '~> 1.2.7'
   gem 'yui-compressor'
 end
