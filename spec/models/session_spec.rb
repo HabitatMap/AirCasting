@@ -129,6 +129,7 @@ describe Session do
     end
 
     it "calls Measurement.near when location is set" do
+      pending "Now uses east west north and south"
       query = {:location => "Krakow", :distance => 10}
       measurements = mock("measurements")
       measurements.should_receive(:select).with('stream_id').and_return(stub(:map => []))
@@ -164,7 +165,7 @@ describe Session do
 
     it 'should return filter() as json' do
       Session.should_receive(:filter).with(data).and_return(records)
-      records.should_receive(:as_json).with(hash_including(:methods => [:username, :streams, :no_of_measurements])).and_return(json)
+      records.should_receive(:as_json).with(hash_including({:only => [:id, :title, :start_time_local, :end_time_local], :methods => [:username, :streams]})).and_return(json)
 
       Session.filtered_json(data).should == json
     end

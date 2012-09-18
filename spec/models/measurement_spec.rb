@@ -34,7 +34,10 @@ describe Measurement do
   end
 
   describe ".averages" do
-    before { Measurement.destroy_all }
+    before do
+      pending "Measurement.averages is not being used anymore"
+      Measurement.destroy_all
+    end
     let(:type) { FactoryGirl.attributes_for(:stream)[:measurement_type] }
     let(:name) { FactoryGirl.attributes_for(:stream)[:sensor_name] }
     let(:data) { {south: 10.0, north: 10.1, west: -9.0, east: 0.0, grid_size_x: 2, grid_size_y: 10,
