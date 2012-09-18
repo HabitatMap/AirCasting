@@ -279,21 +279,32 @@ angular.module("aircasting").factory('sessions',
 
     getBounds: function() {
        var north,  east, south, west, lat, lng;
+       var maxLat = [], minLat = [], maxLong = [], minLong = [];
        var self = this;
        var sensor = sensors.anySelected();
        if(!sensor) {
          return;
        }
-       _(this.allStreams(sensor.sensor_name)).each(function(s){
-         if(!north || s.min_latitude < north) { north = s.min_latitude; }
-         if(!west  || s.min_longitude < west) { west = s.min_longitude; }
-         if(!south || s.max_latitude > south) { south = s.max_latitude; }
-         if(!east  || s.max_longitude > east) { east = s.max_longitude ; }
-       });
+       var streams = this.allStreams(sensor.sensor_name);
+
+       if(!_.isEmpty(streams)){
+        _(streams).each(function(s){
+          maxLat.push(s.max_latitude);
+          minLat.push(s.min_latitude);
+          maxLong.push(s.max_longitude);
+          minLong.push(s.min_longitude);
+        });
+
+        north = Math.max.apply(null, maxLat);
+        south = Math.min.apply(null, minLat);
+        west = Math.min.apply(null, minLong);
+        east = Math.max.apply(null, maxLong);
+       }
+
        if(!north){
          return;
        }
-       //console.log({north: north, east: east, south : south, west: west})
+       //console.log({north: north, east: east, south : south, west: west});
        return {north: north, east: east, south : south, west: west};
      }
   };
