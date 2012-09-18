@@ -1,8 +1,8 @@
 angular.module("aircasting").factory('sessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope',
-         'heat', 'spinner',  'utils', "$timeout",
+         'heat', 'spinner',  'utils', "$timeout", 'flash',
         function(params, $http, map, note, sensors, $rootScope,
-                 heat, spinner, utils, $timeout) {
+                 heat, spinner, utils, $timeout, flash) {
   var Sessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
@@ -78,7 +78,17 @@ angular.module("aircasting").factory('sessions',
       this.clear();
       this.sessions = [];
       spinner.show();
-      $http.get('/api/sessions.json', {cache: true, params : {q: reqData}}).success(_(this.onSessionsFetch).bind(this));
+      $http.get('/api/sessions.json', {cache: true, params : {q: reqData}}).success(
+        _(this.onSessionsFetch).bind(this)
+      ).error(
+        _(this.onSessionsFetchError).bind(this)
+      );
+    },
+
+    onSessionsFetchError: function(data){
+      spinner.hide();
+      errorMsg = data.error || 'There was an error, sorry' ;
+      flash.set(errorMsg);
     },
 
     onSessionsFetch: function(data, status, headers, config) {

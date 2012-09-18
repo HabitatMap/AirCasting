@@ -16,6 +16,7 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
+require_dependency 'aircasting/wrong_coordinates_error'
 class Session < ActiveRecord::Base
   self.skip_time_zone_conversion_for_attributes = [:start_time_local, :end_time_local]
   include AirCasting::FilterRange
@@ -94,6 +95,8 @@ class Session < ActiveRecord::Base
       if location.present?
         point = Geocoder.coordinates(location)
         box = Geocoder::Calculations.bounding_box(point, data[:distance])
+
+        validate_box_coordinates!(box)
 
         data = {
           :south => box[0],
@@ -255,4 +258,9 @@ class Session < ActiveRecord::Base
 
     self.url_token = token
   end
+
+  def self.validate_box_coordinates!(box)
+    raise WrongCoordinatesError if box.any?{ |e| e.nan? }
+  end
+
 end

@@ -32,7 +32,12 @@ module Api
       end
       INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
-      respond_with Session.filtered_json(data)
+      begin
+        respond_with Session.filtered_json(data)
+      rescue WrongCoordinatesError => e
+        error = { :error => "Invalid Location" }
+        respond_with error, :status => :not_found
+      end
     end
 
     def create
