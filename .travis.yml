@@ -8,4 +8,4 @@ before_script:
   - "mysql -e 'create database aircasting_test;'"
   - "RAILS_ENV=test rake db:migrate"
 script:
-  - "rspec spec/spec_helper.rb spec && DISPLAY=:99.0 RAILS_ENV=test rake jasmine:ci"
+  - "rspec spec/spec_helper.rb spec && DISPLAY=:99.0 RAILS_ENV=test rake jasmine:headless"
