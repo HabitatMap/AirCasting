@@ -35,3 +35,4 @@ config/newrelic.yml
 
 analyzing/
 config/rails_best_practices.yml
+.jhw-cache
