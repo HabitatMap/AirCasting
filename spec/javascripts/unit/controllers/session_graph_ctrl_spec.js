@@ -10,7 +10,8 @@ describe('SessionsGraphCtrl', function() {
     ctrl = $controller(SessionsGraphCtrl, {$scope: scope});
   }));
 
-  it('should toggle section', function() {
+  xit('should toggle section', function() {
+
     expect(scope.expanded).toBeFalsy();
     scope.toggle();
     expect(scope.expanded).toBeTruthy();
