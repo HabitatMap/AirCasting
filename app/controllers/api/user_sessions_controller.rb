@@ -35,7 +35,7 @@ class Api::UserSessionsController < Api::BaseController
     session = current_user.sessions.find_by_id(params[:id]) or raise NotFound
 
     respond_with session.as_json(:methods => [:streams, :measurements]).
-      merge(:location => short_session_url(session)).
+      merge(:location => short_session_url(session, :host => AppConfig.host)).
       merge(:tag_list => session.tag_list.join(" ")).
       merge(:notes => prepare_notes(session.notes))
   end
