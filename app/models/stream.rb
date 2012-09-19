@@ -63,6 +63,17 @@ class Stream < ActiveRecord::Base
     )
   end)
 
+  scope(:with_sensor, lambda do |sensor_name|
+    where(:sensor_name => sensor_name)
+  end)
+
+  scope(:with_usernames, lambda do |usernames|
+    if usernames.present?
+      user_ids = User.select("users.id").where("users.username IN (?)", usernames).map(&:id)
+      joins(:session).where(:sessions => {:user_id => user_ids})
+    end
+  end)
+
   def self.build!(data = {})
     measurements = data.delete(:measurements)
 
