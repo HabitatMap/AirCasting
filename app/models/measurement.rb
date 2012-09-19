@@ -41,6 +41,30 @@ class Measurement < ActiveRecord::Base
 
   before_validation :set_timezone_offset
 
+  scope(:with_tags, lambda do |tags|
+    if tags.present?
+      sessions_ids = Session.select("sessions.id").tagged_with(tags).map(&:id)
+      if sessions_ids.present?
+        joins(:stream).where(:streams => {:session_id => sessions_ids.compact.uniq})
+      end
+    end
+  end)
+
+  scope(:with_streams, lambda do |stream_ids|
+    where(:stream_id => stream_ids)
+  end)
+
+  scope(:in_rectangle, lambda do |data|
+    latitude_range(data[:south], data[:north]).
+      longitude_range(data[:west], data[:east])
+  end)
+
+  scope(:with_time, lambda do |data|
+    day_range(data[:day_from], data[:day_to]).
+      time_range(data[:time_from], data[:time_to]).
+      year_range(Date.new(data[:year_from].to_i),Date.new(data[:year_to].to_i + 1) - 1)
+  end)
+
   def set_timezone_offset
     if time_before_type_cast
       self.timezone_offset = time_before_type_cast.to_datetime.utc_offset / SECONDS_IN_MINUTE
