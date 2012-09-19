@@ -1,16 +1,18 @@
 class RegionInfo
   def initialize(data)
-    @streams = Stream.
-      where(:sensor_name => data[:sensor_name]).
-      in_rectangle(data).
-      all
 
-    @stream_ids = @streams.map(&:id)
+    usernames = data[:usernames].to_s.split(/[\s,]/)
+    @streams = Stream.in_rectangle(data).
+                with_sensor(data[:sensor_name]).
+                with_usernames(usernames)
 
-    @measurements = Measurement.
-      where(:stream_id => @stream_ids).
-      latitude_range(data[:south], data[:north]).
-      longitude_range(data[:west], data[:east])
+    stream_ids = @streams.map(&:id)
+    tags = data[:tags].to_s.split(/[\s,]/)
+    @measurements = Measurement.with_tags(tags).
+                      with_streams(stream_ids).
+                      in_rectangle(data).
+                      with_time(data)
+
   end
 
   def average
@@ -19,7 +21,7 @@ class RegionInfo
 
   def top_contributors
     @measurements.joins(:user).
-      group(:user_id).
+      group(:users => :user_id).
       order("count(*) DESC").
       limit(10).
       select(:username).
