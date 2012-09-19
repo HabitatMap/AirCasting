@@ -21,11 +21,12 @@ require_dependency 'region_info'
 module Api
   class RegionsController < BaseController
     def show
-      data = params.symbolize_keys
-      data = Hash[[:south, :north, :east, :west].map { |key| [key, data[key].to_f] }]
-      data[:sensor_name] = params[:sensor_name]
+      params.symbolize_keys
+      [:north, :south, :east, :west].each do |direction|
+        params[direction] = params[direction].to_f
+      end
 
-      respond_with RegionInfo.new(data)
+      respond_with RegionInfo.new(params)
     end
   end
 end
