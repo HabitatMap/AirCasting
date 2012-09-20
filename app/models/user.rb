@@ -84,4 +84,8 @@ class User < ActiveRecord::Base
 
     { :upload => upload, :download => download }
   end
+
+  def admin?
+    email == 'admin@aircasting.org'
+  end
 end

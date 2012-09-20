@@ -18,6 +18,8 @@
 
 
 AirCasting::Application.routes.draw do
+  ActiveAdmin.routes(self)
+
   mount JasmineRails::Engine => "/specs" if Rails.env.development?
   devise_for :users, :controllers => { :sessions => 'sessions', :passwords => 'passwords' }
 
