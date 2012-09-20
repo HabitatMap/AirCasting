@@ -74,6 +74,10 @@ class Stream < ActiveRecord::Base
     end
   end)
 
+  def sensor_full_name
+    "#{measurement_type}-#{sensor_name}"
+  end
+
   def self.build!(data = {})
     measurements = data.delete(:measurements)
 
