@@ -2,16 +2,19 @@ class RegionInfo
   def initialize(data)
 
     usernames = data[:usernames].to_s.split(/[\s,]/)
-    @streams = Stream.in_rectangle(data).
-                with_sensor(data[:sensor_name]).
-                with_usernames(usernames)
+    @streams = Stream.
+      only_contributed.
+      with_measurement_type(data[:measurement_type]).
+      with_sensor(data[:sensor_name]).
+      in_rectangle(data).
+      with_usernames(usernames)
 
     stream_ids = @streams.map(&:id)
     tags = data[:tags].to_s.split(/[\s,]/)
     @measurements = Measurement.with_tags(tags).
-                      with_streams(stream_ids).
-                      in_rectangle(data).
-                      with_time(data)
+      with_streams(stream_ids).
+      in_rectangle(data).
+      with_time(data)
 
   end
 
