@@ -23,6 +23,8 @@ class User < ActiveRecord::Base
          :trackable, :validatable, :token_authenticatable
 
   has_many :sessions, :inverse_of => :user
+  has_many :streams, :through => :sessions
+  has_many :measurements, :through => :streams
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :username, :login, :password, :password_confirmation, :remember_me, :send_emails
