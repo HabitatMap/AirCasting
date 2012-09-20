@@ -79,5 +79,7 @@ module AirCasting
     config.action_view.field_error_proc = Proc.new { |html_tag, instance| %(<span class="fieldWithErrors">#{html_tag}</span>).html_safe }
 
     config.active_record.include_root_in_json = false
+
+    config.assets.precompile += %w( active_admin.css active_admin.js active_admin/print.css )
   end
 end
