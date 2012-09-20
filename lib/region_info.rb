@@ -20,8 +20,8 @@ class RegionInfo
   end
 
   def top_contributors
-    @measurements.joins(:user).
-      group(:users => :user_id).
+    @measurements.joins(:session => :user).
+      group("users.id").
       order("count(*) DESC").
       limit(10).
       select(:username).
