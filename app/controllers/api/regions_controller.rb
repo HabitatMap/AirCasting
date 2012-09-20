@@ -21,12 +21,12 @@ require_dependency 'region_info'
 module Api
   class RegionsController < BaseController
     def show
-      params.symbolize_keys
+      data = params.symbolize_keys
       [:north, :south, :east, :west].each do |direction|
-        params[direction] = params[direction].to_f
+        data[direction] = params[direction].to_f
       end
 
-      respond_with RegionInfo.new(params)
+      respond_with RegionInfo.new(data)
     end
   end
 end
