@@ -17,15 +17,17 @@ class AverageInfo
     grid_y = (data[:north] - data[:south]) / data[:grid_size_y]
     grid_y = Y_SIZES.find { |x| x > grid_y }
 
+    usernames = data[:usernames].to_s.split(/[\s,]/)
+
     streams = Stream.
-      joins(:session).
-      where('sessions.contribute' => true).
-      where(:sensor_name => data[:sensor_name]).
-      where(:measurement_type => data[:measurement_type]).
+      only_contributed.
+      with_measurement_type(data[:measurement_type]).
+      with_sensor(data[:sensor_name]).
       in_rectangle(data).
-      all
+      with_usernames(usernames)
 
     stream_ids = streams.map(&:id)
+    tags = data[:tags].to_s.split(/[\s,]/)
 
     measurements = Measurement.
       select(
@@ -33,35 +35,12 @@ class AverageInfo
           "round(CAST(longitude AS DECIMAL(36, 12)) / CAST(#{grid_x} AS DECIMAL(36,12)), 0) AS middle_x, " +
           "round(CAST(latitude AS DECIMAL(36, 12)) / CAST(#{grid_y} AS DECIMAL(36,12)), 0) AS middle_y "
       ).
-        where(:stream_id => stream_ids).
+        with_streams(stream_ids).
         group("middle_x").
         group("middle_y").
-        longitude_range(data[:west], data[:east]).
-        latitude_range(data[:south], data[:north]).
-        time_range(data[:time_from], data[:time_to]).
-        day_range(data[:day_from], data[:day_to])
-
-    if data[:year_to] && data[:year_from]
-      measurements = measurements.year_range(
-        Date.new(data[:year_from]),
-        Date.new(data[:year_to].to_i + 1) - 1
-      )
-    end
-
-    tags = data[:tags].to_s.split(/[\s,]/)
-    if tags.present?
-      sessions_ids = Session.select("sessions.id").tagged_with(tags).map(&:id)
-      if sessions_ids.present?
-        measurements = measurements.joins(:stream).where(:streams => {:session_id => sessions_ids.compact.uniq})
-      else
-        measurements = []
-      end
-    end
-
-    usernames = data[:usernames].to_s.split(/[\s,]/)
-    if usernames.present?
-      measurements = measurements.joins(:session => :user).where(:users => {:username =>  usernames})
-    end
+        in_rectangle(data).
+        with_time(data).
+        with_tags(tags)
 
     measurements.map do |measurement|
       {
