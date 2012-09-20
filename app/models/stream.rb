@@ -67,6 +67,14 @@ class Stream < ActiveRecord::Base
     where(:sensor_name => sensor_name)
   end)
 
+  scope(:with_measurement_type, lambda do |measurement_type|
+    where(:measurement_type => measurement_type)
+  end)
+
+  scope(:only_contributed, lambda do
+    joins(:session).where("sessions.contribute = ?", true)
+  end)
+
   scope(:with_usernames, lambda do |usernames|
     if usernames.present?
       user_ids = User.select("users.id").where("users.username IN (?)", usernames).map(&:id)
