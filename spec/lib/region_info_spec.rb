@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe RegionInfo do
   before do
-    pending "Measurements working a different way now"
+    pending "RegionInfo working a different way now"
     Measurement.destroy_all
   end
 
@@ -21,8 +21,8 @@ describe RegionInfo do
   let(:relevant_measurements) {[m1, m2]}
 
   describe "#as_json" do
-    let(:data) { { :average => 1, :averages => {"LHC"=>20}, :number_of_samples => 2, :number_of_contributors => 3, 
-    :top_contributors => "joe", :number_of_contributors_per_sensor => 2, :number_of_samples_per_sensor => 2, 
+    let(:data) { { :average => 1, :averages => {"LHC"=>20}, :number_of_samples => 2, :number_of_contributors => 3,
+    :top_contributors => "joe", :number_of_contributors_per_sensor => 2, :number_of_samples_per_sensor => 2,
     :top_contributors_per_sensor => relevant_measurements.map{|m| m.user.login } } }
 
     before { subject.stub!(data) }
