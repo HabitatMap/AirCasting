@@ -2,9 +2,7 @@
   <div class="header">
     <span class="date">{{note.date | date: 'MM/dd/yyyy HH:mm:ss'}}</span>
     <div class="right">
-      <span class="number">{{idx + 1}}/{{total}}</span>
-      <a ng-click="prev()" class="prev-note" title="View previous note"></a>
-      <a ng-click="next()" class="next-note" title="View next note"></a>
+      <span class="number">{{number}}</span>
     </div>
   </div>
   <div class="content">
