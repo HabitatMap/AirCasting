@@ -105,6 +105,45 @@ describe Stream do
       subject[:size].should_not be_nil
       subject[:measurements].should_not be_nil
       #subject[:size].should == stream.reload.measurements.size
-   end
- end
+    end
+  end
+
+  describe "scope" do
+    let(:user) { FactoryGirl.create(:user) }
+    let(:user2) { FactoryGirl.create(:user) }
+    let(:session) { FactoryGirl.create(:session, :user => user) }
+    let(:session2) { FactoryGirl.create(:session, :user => user2) }
+    let(:stream) { FactoryGirl.create(:stream, :sensor_name => "Sensor1", :session => session) }
+    let(:stream2) { FactoryGirl.create(:stream, :sensor_name => "Sensor2", :session => session2) }
+
+    describe "#with_sensor" do
+      it "returns sensor with specified name" do
+        streams = Stream.with_sensor(stream.sensor_name)
+        streams.should include stream
+        streams.should_not include stream2
+      end
+    end
+
+    describe "#with_usernames" do
+      context "no user names" do
+        it "returns all streams" do
+          Stream.with_usernames([]).should include stream, stream2
+        end
+      end
+
+      context "one user name" do
+        it "returns on streams with that user associated" do
+          streams = Stream.with_usernames([user.username])
+          streams.should include stream
+          streams.should_not include stream2
+        end
+      end
+
+      context "multiple user names" do
+        it "returns all streams with those usernames" do
+          Stream.with_usernames([user.username, user2.username]).should include stream, stream2
+        end
+      end
+    end
+  end
 end
