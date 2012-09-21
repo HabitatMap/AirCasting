@@ -78,3 +78,66 @@ p.download {
 .display-none {
   display: none !important;
 }
+
+.columns {
+  .col1, .col2, .col3 {
+    float: left;
+    width: 213px;
+    padding-top: 5px;
+  }
+  .col2 {
+    padding-left: 30px;
+    padding-top: 50px;
+    width: 183px;
+  }
+  .col3 {
+    padding-top: 18px;
+  }
+
+  .habitatmap {
+    background: url("/assets/HM_LogoForAC.jpg") no-repeat;
+    height: 81px;
+    width: 57px;
+    display: block;
+  }
+
+  .twitter-link, .facebook-link {
+    display: inline-block;
+    width: 35px;
+    height: 30px;
+  }
+  .twitter-link {
+    background: url("/assets/AC_TwitterLogo.jpg") no-repeat;
+    margin-right: 15px;
+  }
+  .facebook-link {
+    background: url("/assets/AC_FacebookLogo.jpg") no-repeat;
+  }
+  .label {
+    display:block;
+    font-weight: bold;
+  }
+
+  .social {
+    .label {
+      padding-left: 10px;
+    }
+  }
+
+  form {
+    input[type=email], input[type=text]  {
+      margin: 0 0 10px 0;
+      width: 203px;
+      border: 1px solid #858585;
+      color: #858585;
+      padding: 3px;
+    }
+    input[type=submit] {
+      background-color: #858585;
+      color: #fff;
+      border: none;
+      font-weight: bold;
+      margin-left: 2px;
+    }
+  }
+}
