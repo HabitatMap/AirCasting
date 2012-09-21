@@ -36,7 +36,8 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     $scope.getAverages();
   };
 
-  $scope.$watch("{location: params.get('data').location.address, counter: params.get('data').counter}", function(newValue) {
+  $scope.$watch("{location: params.get('data').location.address, counter: params.get('data').counter}",
+    function(newValue) {
     map.goToAddress(newValue.location);
   }, true);
 

@@ -29,8 +29,7 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
       sensorId: "",
       location: {address: "", distance: "10", limit: false},
       tags: "",
-      usernames: "",
-      heat: {highest: 100, high: 80, mid: 70, low: 60, lowest: 20}
+      usernames: ""
     });
 
     storage.updateFromDefaults();
