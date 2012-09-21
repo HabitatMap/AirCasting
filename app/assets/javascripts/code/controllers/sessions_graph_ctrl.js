@@ -24,6 +24,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSessi
     } else {
       $timeout(function(){
         $($window).trigger("resize");
+        graph.redraw();
       });
     }
   });
@@ -45,13 +46,6 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSessi
   $scope.shouldRedraw = function() {
     return singleSession.isSingle() && !!sensors.anySelected() && !!singleSession.get().loaded;
   };
-
-  $scope.$watch("shouldRedraw()", function(ready) {
-    graphHighlight.hide();
-    if(ready){
-      graph.redraw();
-    }
-  }, true);
 
   $scope.$watch("heat.getValues()", function() {
     if($scope.shouldRedraw()){
