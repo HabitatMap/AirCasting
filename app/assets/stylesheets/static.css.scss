@@ -143,8 +143,13 @@ p.download {
     }
   }
 }
-
+a{
+  font-weight: bold;
+}
 .about-page {
+  a {
+    font-weight: normal;
+  }
   h2{
     margin-bottom: 0px;
   }
