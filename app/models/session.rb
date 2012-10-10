@@ -201,7 +201,8 @@ class Session < ActiveRecord::Base
     transaction do
       update_attributes(session_data, :as => :sync)
 
-      session_data[:streams] || [].each do |key, stream_data|
+     (session_data[:streams] || []).each do |key, stream_data|
+
         if stream_data[:deleted]
           session = Session.find_by_uuid(session_data[:uuid])
           session.streams.where( :sensor_package_name => stream_data[:sensor_package_name],
