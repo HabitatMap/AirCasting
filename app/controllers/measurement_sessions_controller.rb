@@ -23,10 +23,21 @@ class MeasurementSessionsController < ApplicationController
     @session = Session.find_by_url_token(params[:url_token]) or raise NotFound
     lat = @session.streams.first.min_latitude.to_f
     lng = @session.streams.first.min_longitude.to_f
-    tmpSensorId = @session.streams.first.sensor_full_name
+    stream = @session.streams.first
+
+    map = { zoom:16,lat:lat,lng:lng,mapType:"hybrid" }
+    sessionsIds = [@session.id]
+    tmp = { tmpSensorId: stream.sensor_full_name }
+    data = { heat: {
+      highest: stream.threshold_very_high,
+      high: stream.threshold_high,
+      mid: stream.threshold_medium,
+      low: stream.threshold_low,
+      lowest: stream.threshold_very_low }
+    }
 
     redirect_to map_path(
-      :anchor => "/map_sessions?map={\"zoom\":16,\"lat\":#{lat},\"lng\":#{lng},\"mapType\":\"hybrid\"}&sessionsIds=[#{@session.id}]&tmp={\"tmpSensorId\":\"#{tmpSensorId}\"}"
+      :anchor => "/map_sessions?map=#{map.to_json}&sessionsIds=#{sessionsIds.to_json}&tmp=#{tmp.to_json}&data=#{data.to_json}"
     )
   end
 
