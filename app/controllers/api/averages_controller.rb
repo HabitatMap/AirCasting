@@ -38,6 +38,15 @@ module Api
       FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
       INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
+      data[:time_from] = data[:time_from] || 0
+      data[:time_to] = data[:time_to] || 2359
+
+      data[:day_from] = data[:day_from] || 0
+      data[:day_to] = data[:day_to] || 365
+
+      data[:year_from] = data[:year_from] || 2010
+      data[:year_to] = data[:year_to] || 2050
+
       respond_with AverageInfo.new(data)
     end
   end
