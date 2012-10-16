@@ -21,7 +21,8 @@ require 'spec_helper'
 describe Api::AveragesController do
   describe "#index" do
     let(:args) { {north: "1.5", south: "2.5", west: "3.5", east: "4.5", grid_size_x: "5", grid_size_y: "6"} }
-    let(:expected) { {north: 1.5, south: 2.5, west: 3.5, east: 4.5, grid_size_x: 5, grid_size_y: 6} }
+    let(:expected) { {north: 1.5, south: 2.5, west: 3.5, east: 4.5, grid_size_x: 5, grid_size_y: 6,
+                      time_from: 0, time_to: 2359, day_from: 0, day_to: 365, year_from: 2010, year_to: 2050} }
     let(:result) { ["Result"] }
 
     subject { get "index", :q => args, :format => :json }
