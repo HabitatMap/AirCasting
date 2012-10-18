@@ -76,7 +76,7 @@ class Session < ActiveRecord::Base
       sessions = sessions.tagged_with(tags)
     end
 
-    usernames = data[:usernames].to_s.split(/[\s,]/)
+    usernames = data[:usernames].to_s.split(/\s*,\s*/) # "fo bo  , do," => ['fo bo', 'do']
     if usernames.present?
       sessions = sessions.joins(:user).where(:users => {:username => usernames})
     end
