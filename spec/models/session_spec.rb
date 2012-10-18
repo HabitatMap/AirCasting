@@ -147,6 +147,15 @@ describe Session do
       Session.filter(:time_from => from, :time_to => to).all.should == [session]
     end
 
+    it "should find sessions by usernames" do
+      user_1 = FactoryGirl.create(:user, :username => 'foo bar')
+      user_2 = FactoryGirl.create(:user, :username => 'john')
+      session_1 = FactoryGirl.create(:session, :user => user_1)
+      session_2 = FactoryGirl.create(:session, :user => user_2)
+
+      Session.filter(:usernames => 'foo bar    , biz').all.should == [session_1]
+    end
+
 
     it "should not filter by time period if time range is a whole day" do
       from = 0
