@@ -1,3 +1,5 @@
+require_dependency 'aircasting/username_param'
+
 class AverageInfo
   Y_SIZES = (1..300).map { |i| 1.2 ** i * 0.000001 }
 
