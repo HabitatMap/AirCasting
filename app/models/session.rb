@@ -17,6 +17,8 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 require_dependency 'aircasting/wrong_coordinates_error'
+require_dependency 'aircasting/username_param'
+
 class Session < ActiveRecord::Base
   self.skip_time_zone_conversion_for_attributes = [:start_time_local, :end_time_local]
   include AirCasting::FilterRange
@@ -76,7 +78,7 @@ class Session < ActiveRecord::Base
       sessions = sessions.tagged_with(tags)
     end
 
-    usernames = data[:usernames].to_s.split(/\s*,\s*/) # "fo bo  , do," => ['fo bo', 'do']
+    usernames = AirCasting::UsernameParam.split(data[:usernames])
     if usernames.present?
       sessions = sessions.joins(:user).where(:users => {:username => usernames})
     end

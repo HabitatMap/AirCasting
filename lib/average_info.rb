@@ -17,7 +17,7 @@ class AverageInfo
     grid_y = (data[:north] - data[:south]) / data[:grid_size_y]
     grid_y = Y_SIZES.find { |x| x > grid_y }
 
-    usernames = data[:usernames].to_s.split(/[\s,]/)
+    usernames = AirCasting::UsernameParam.split(data[:usernames])
 
     streams = Stream.
       only_contributed.
