@@ -47,7 +47,8 @@ describe User do
     let(:session4) { FactoryGirl.create(:session, :user => user, :notes => [note3]) }
     let(:note1) { FactoryGirl.create(:note, :number => 1, :text => "Old text") }
     let(:note2) { FactoryGirl.create(:note, :number => 2, :text => "Old text") }
-    let(:note3) { FactoryGirl.create(:note, :number => nil, :text => "Old text") }
+
+    let(:note3) { FactoryGirl.create(:note, :number => 3, :text => "Old text") }
 
     let(:data) do
       [
@@ -55,7 +56,7 @@ describe User do
        { :uuid => session2.uuid, :title => "New title", :notes =>
          [{ :number => 2, :text => "Bye" }, { :number => 1, :text => "Hi" }] },
        { :uuid => "something" },
-       { :uuid => session4.uuid, :notes => [note3.attributes.merge(:text => "New text")] }
+       { :uuid => session4.uuid, :notes => [note3.attributes.symbolize_keys.merge(:text => "New text")] }
       ]
     end
 

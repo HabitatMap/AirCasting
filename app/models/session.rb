@@ -220,31 +220,9 @@ class Session < ActiveRecord::Base
         else
           note = Note.new(note_data)
           note.session = self
+          note.save
         end
       end
-
-      #if session_data[:notes].all? { |n| n.include? :number } && notes.all? { |n| n.number }
-      #  session_data[:notes].each do |note_data|
-      #    note = notes.find_by_number(note_data[:number])
-      #    note.update_attributes(note_data)
-      #  end
-      #
-      #  if session_data[:notes].empty?
-      #    notes.destroy_all
-      #  else
-      #    notes.
-      #    where("number NOT IN (?)", session_data[:notes].map { |n| n[:number] }).
-      #    destroy_all
-      #  end
-      #else
-      #  p self.id
-      #  p session_data[:notes]
-      #  session_data[:notes].each do |n|
-      #    note = Note.new(n)
-      #    note.session = self
-      #    note.save
-      #  end
-      #end
     end
   end
 
