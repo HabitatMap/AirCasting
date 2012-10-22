@@ -204,12 +204,12 @@ class Session < ActiveRecord::Base
       update_attributes(session_data, :as => :sync)
 
      (session_data[:streams] || []).each do |key, stream_data|
-
-        if stream_data[:deleted]
-          session = Session.find_by_uuid(session_data[:uuid])
-          session.streams.where( :sensor_package_name => stream_data[:sensor_package_name],
-                                  :sensor_name => stream_data[:sensor_name]).each(&:destroy)
-        end
+       if stream_data[:deleted]
+         streams.where(
+           :sensor_package_name => stream_data[:sensor_package_name],
+           :sensor_name => stream_data[:sensor_name]
+         ).each(&:destroy)
+       end
      end
 
      notes.destroy_all if session_data[:notes].empty?
