@@ -38,7 +38,7 @@ namespace :fix do
   desc 'Chomp username\'s attributes'
   task :chomp_username => :environment do
     User.all.each do |user|
-      user.username.chomp! && user.save
+      user.username_will_change! && user.username.chomp! && user.save
     end
   end
 
