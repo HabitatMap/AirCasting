@@ -210,24 +210,41 @@ class Session < ActiveRecord::Base
           session.streams.where( :sensor_package_name => stream_data[:sensor_package_name],
                                   :sensor_name => stream_data[:sensor_name]).each(&:destroy)
         end
-      end
+     end
 
-      if session_data[:notes].all? { |n| n.include? :number } && notes.all? { |n| n.number }
-        session_data[:notes].each do |note_data|
-          note = notes.find_by_number(note_data[:number])
+     notes.destroy_all if session_data[:notes].empty?
+
+     session_data[:notes].each do |note_data|
+        if note = notes.find_by_number(note_data[:number])
           note.update_attributes(note_data)
-        end
-
-        if session_data[:notes].empty?
-          notes.destroy_all
         else
-          notes.
-          where("number NOT IN (?)", session_data[:notes].map { |n| n[:number] }).
-          destroy_all
+          note = Note.new(note_data)
+          note.session = self
         end
-      else
-        self.notes = session_data[:notes].map { |n| Note.new(n) }
       end
+
+      #if session_data[:notes].all? { |n| n.include? :number } && notes.all? { |n| n.number }
+      #  session_data[:notes].each do |note_data|
+      #    note = notes.find_by_number(note_data[:number])
+      #    note.update_attributes(note_data)
+      #  end
+      #
+      #  if session_data[:notes].empty?
+      #    notes.destroy_all
+      #  else
+      #    notes.
+      #    where("number NOT IN (?)", session_data[:notes].map { |n| n[:number] }).
+      #    destroy_all
+      #  end
+      #else
+      #  p self.id
+      #  p session_data[:notes]
+      #  session_data[:notes].each do |n|
+      #    note = Note.new(n)
+      #    note.session = self
+      #    note.save
+      #  end
+      #end
     end
   end
 

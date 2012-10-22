@@ -68,7 +68,7 @@ class User < ActiveRecord::Base
   def sync(data)
     upload = []
 
-    for session_data in data
+    data.each do |session_data|
       session = sessions.find_by_uuid(session_data[:uuid])
       if session && session_data[:deleted]
         session.destroy
