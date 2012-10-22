@@ -35,4 +35,11 @@ namespace :fix do
     Session.connection.execute("DELETE FROM tags WHERE name LIKE '% %'")
   end
 
+  desc 'Chomp username\'s attributes'
+  task :chomp_username => :environment do
+    User.all.each do |user|
+      user.username.chomp! && user.save
+    end
+  end
+
 end

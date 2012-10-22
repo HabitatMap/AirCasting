@@ -33,6 +33,7 @@ class User < ActiveRecord::Base
   attr_accessor :login
 
   before_create :ensure_authentication_token
+  before_save :chomp_username_attribute!
 
   validates :username, :presence => true
   validates_uniqueness_of :username, :case_sensitive => false
@@ -87,5 +88,10 @@ class User < ActiveRecord::Base
 
   def admin?
     email == 'admin@aircasting.org'
+  end
+
+  private
+  def chomp_username_attribute!
+    self.username.chomp!
   end
 end
