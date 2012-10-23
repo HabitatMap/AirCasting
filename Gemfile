@@ -57,6 +57,7 @@ end
 
 group :production do
   gem 'unicorn'
+  gem 'rainbows'
 end
 
 group :development do

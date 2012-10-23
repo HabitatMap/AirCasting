@@ -250,6 +250,10 @@ GEM
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
     rainbow (1.1.4)
+    rainbows (4.4.1)
+      kgio (~> 2.5)
+      rack (~> 1.1)
+      unicorn (~> 4.1)
     raindrops (0.10.0)
     rake (0.9.2.2)
     rb-fchange (0.0.5)
@@ -356,6 +360,7 @@ DEPENDENCIES
   paperclip (~> 2.0)
   rails (= 3.2.6)
   rails_best_practices
+  rainbows
   rb-inotify
   rspec-rails (~> 2.11.0)
   rvm-capistrano
