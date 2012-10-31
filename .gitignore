@@ -26,6 +26,7 @@ nbproject/*
 
 .generators
 .rakeTasks
+.idea
 AirCasting.iml
 AirCasting.ipr
 AirCasting.iws
