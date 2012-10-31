@@ -2,14 +2,22 @@ source 'http://rubygems.org'
 
 gem 'rails', '3.2.6'
 gem 'haml'
-gem 'mysql2'
-gem 'therubyracer', '~> 0.10' # For ExecJS
 gem 'devise', '~> 2.0.4'
 gem 'paperclip', '~> 2.0'
 gem 'activerecord-import', '~> 0.2.9'
 gem 'coffee-script-source', '1.1.2'
 gem 'newrelic_rpm'
 gem 'activeadmin'
+
+platforms :jruby do
+  gem 'jdbc-mysql', :platform => :jruby
+  gem 'activerecord-jdbc-adapter', :require => false
+  gem 'therubyrhino', :platform => :jruby
+end
+platforms :ruby do
+  gem 'mysql2', :platform => :ruby
+  gem 'therubyracer', '~> 0.10', :platform => :ruby # For ExecJS
+end
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -21,7 +29,7 @@ group :assets, :development do
 end
 
 gem 'acts-as-taggable-on', '~> 2.3.3'
-gem 'thin'
+gem 'thin', :platform => :ruby
 gem 'geocoder', '~> 1.1.2'
 
 # To use ActiveModel has_secure_password
@@ -55,14 +63,17 @@ group :test, :development do
   gem 'jasmine-rails'
 end
 
-group :production do
-  gem 'unicorn'
-  gem 'rainbows'
-end
-
 group :development do
   gem('flog', :require => nil)
   gem('rails_best_practices', :require => nil)
   gem('churn', :require => nil)
   gem('flay', :require => nil)
 end
+
+group :production do
+  platforms :ruby do  
+    gem 'unicorn'
+    gem 'rainbows'
+  end
+end
+
