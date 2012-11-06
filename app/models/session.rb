@@ -203,15 +203,6 @@ class Session < ActiveRecord::Base
     transaction do
       update_attributes(session_data, :as => :sync)
 
-     (session_data[:streams] || []).each do |key, stream_data|
-       if stream_data[:deleted]
-         streams.where(
-           :sensor_package_name => stream_data[:sensor_package_name],
-           :sensor_name => stream_data[:sensor_name]
-         ).each(&:destroy)
-       end
-     end
-
      notes.destroy_all if session_data[:notes].empty?
 
      session_data[:notes].each do |note_data|

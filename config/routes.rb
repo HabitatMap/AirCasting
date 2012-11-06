@@ -36,6 +36,8 @@ AirCasting::Application.routes.draw do
       resources :sessions, :controller => "user_sessions" do
         collection do
           post :sync
+          post :delete_session
+          post :delete_session_streams
         end
       end
     end

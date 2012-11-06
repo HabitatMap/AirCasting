@@ -40,11 +40,57 @@ class Api::UserSessionsController < Api::BaseController
       merge(:notes => prepare_notes(session.notes))
   end
 
+  def delete_session
+    data = decode_and_deep_symbolize(params)
+
+    a_session = current_user.sessions.find_by_uuid(data[:uuid])
+    if a_session
+      puts a_session.destroy.inspect
+      render :json => {:success => true}
+    else
+      render :json => {:success => false}
+    end
+  end
+
+  def delete_session_streams
+    session_data = decode_and_deep_symbolize(params)
+
+    a_session = current_user.sessions.find_by_uuid(session_data[:uuid])
+    if a_session
+      p a_session
+      (session_data[:streams] || []).each do |key, stream_data|
+        if stream_data[:deleted]
+          a_session.streams.where(
+              :sensor_package_name => stream_data[:sensor_package_name],
+              :sensor_name => stream_data[:sensor_name]
+          ).each(&:destroy)
+        end
+      end
+      render :json => {:success => true}
+    else
+      render :json => {:success => false}
+    end
+  end
+
   private
+
+  def decode_and_deep_symbolize(params)
+    if params[:compression]
+      decoded = Base64.decode64(params[:session])
+      session_json = AirCasting::GZip.inflate(decoded)
+    else
+      session_json = params[:session]
+    end
+
+    data = JSON.parse(session_json)
+    p data
+    data = deep_symbolize(data)
+  end
 
   def prepare_notes(notes)
     notes.map do |note|
       note.as_json.merge(:photo_location => photo_location(note))
     end
   end
+
 end
