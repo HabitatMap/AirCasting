@@ -237,16 +237,16 @@ angular.module("aircasting").factory('sessions',
       session.noteDrawings = [];
       session.lines = [];
       var points = [];
-      _(this.measurements(session)).each(function(measurment, idx){
-        var value = _.str.toNumber(measurment.value);
+      _(this.measurements(session)).each(function(measurement, idx){
+        var value = Math.round(measurement.value);
         var level = heat.getLevel(value);
         if(level){
-          session.markers.push(map.drawMarker(measurment, {
-            title: parseInt(measurment.value, 10).toString() + suffix,
+          session.markers.push(map.drawMarker(measurement, {
+            title: parseInt(measurement.value, 10).toString() + suffix,
             zIndex: idx,
             icon: "/assets/marker"+ level + ".png"
           }));
-          points.push(measurment);
+          points.push(measurement);
         }
       });
       _(session.notes || []).each(function(noteItem, idx){
