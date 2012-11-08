@@ -17,6 +17,7 @@ end
 platforms :ruby do
   gem 'mysql2', :platform => :ruby
   gem 'therubyracer', '~> 0.10', :platform => :ruby # For ExecJS
+  gem 'thin'
 end
 
 # Gems used only for assets and not required
@@ -29,7 +30,6 @@ group :assets, :development do
 end
 
 gem 'acts-as-taggable-on', '~> 2.3.3'
-gem 'thin', :platform => :ruby
 gem 'geocoder', '~> 1.1.2'
 
 # To use ActiveModel has_secure_password
@@ -63,17 +63,16 @@ group :test, :development do
   gem 'jasmine-rails'
 end
 
+group :production do
+  platforms :ruby do
+    gem 'unicorn'
+    gem 'rainbows'
+  end
+end
+
 group :development do
   gem('flog', :require => nil)
   gem('rails_best_practices', :require => nil)
   gem('churn', :require => nil)
   gem('flay', :require => nil)
 end
-
-group :production do
-  platforms :ruby do  
-    gem 'unicorn'
-    gem 'rainbows'
-  end
-end
-
