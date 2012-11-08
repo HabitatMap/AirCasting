@@ -48,7 +48,7 @@ class Api::UserSessionsController < Api::BaseController
       puts a_session.destroy.inspect
       render :json => {:success => true}
     else
-      render :json => {:success => false}
+      render :json => {:success => false, :no_such_session => true }
     end
   end
 
@@ -68,7 +68,7 @@ class Api::UserSessionsController < Api::BaseController
       end
       render :json => {:success => true}
     else
-      render :json => {:success => false}
+      render :json => {:success => false, :no_such_session => true }
     end
   end
 
