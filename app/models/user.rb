@@ -70,11 +70,13 @@ class User < ActiveRecord::Base
 
     data.each do |session_data|
       session = sessions.find_by_uuid(session_data[:uuid])
-      if session && session_data[:deleted]
-        session.destroy
-      elsif session
-        session.sync(session_data)
-      else
+      if session
+        if session_data[:deleted]
+          session.destroy
+        else
+          session.sync(session_data)
+        end
+      elsif !session_data[:deleted]
         upload << session_data[:uuid]
       end
     end
