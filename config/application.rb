@@ -81,5 +81,6 @@ module AirCasting
     config.active_record.include_root_in_json = false
 
     config.assets.precompile += %w( active_admin.css active_admin.js active_admin/print.css )
+    config.log_tags = [:uuid]
   end
 end
