@@ -57,7 +57,6 @@ class Api::UserSessionsController < Api::BaseController
 
     a_session = current_user.sessions.find_by_uuid(session_data[:uuid])
     if a_session
-      p a_session
       (session_data[:streams] || []).each do |key, stream_data|
         if stream_data[:deleted]
           a_session.streams.where(
