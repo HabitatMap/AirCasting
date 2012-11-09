@@ -45,7 +45,6 @@ class Api::UserSessionsController < Api::BaseController
 
     a_session = current_user.sessions.find_by_uuid(data[:uuid])
     if a_session
-      puts a_session.destroy.inspect
       render :json => {:success => true}
     else
       render :json => {:success => false, :no_such_session => true }
