@@ -83,7 +83,6 @@ class Api::UserSessionsController < Api::BaseController
     end
 
     data = JSON.parse(session_json)
-    p data
     data = deep_symbolize(data)
   end
 
