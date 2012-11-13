@@ -261,4 +261,10 @@ class Session < ActiveRecord::Base
     raise WrongCoordinatesError if box.any?{ |e| e.nan? }
   end
 
+  after_destroy :insert_into_deleted_sessions
+
+  def insert_into_deleted_sessions
+    DeletedSession.where(:uuid => uuid, :user_id => user.id).first_or_create!
+  end
+
 end

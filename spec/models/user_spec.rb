@@ -41,10 +41,11 @@ describe User do
   end
 
   describe "#sync" do
-    let(:session) { FactoryGirl.create(:session, :user => user) }
+    let(:session1) { FactoryGirl.create(:session, :user => user) }
     let(:session2) { FactoryGirl.create(:session, :user => user, :notes => [note1, note2]) }
     let!(:session3) { FactoryGirl.create(:session, :user => user) }
     let(:session4) { FactoryGirl.create(:session, :user => user, :notes => [note3]) }
+    let(:session5) { FactoryGirl.create(:session, :user => user) }
     let(:note1) { FactoryGirl.create(:note, :number => 1, :text => "Old text") }
     let(:note2) { FactoryGirl.create(:note, :number => 2, :text => "Old text") }
 
@@ -52,7 +53,7 @@ describe User do
 
     let(:data) do
       [
-       { :uuid => session.uuid, :deleted => true },
+       { :uuid => session1.uuid, :deleted => true },
        { :uuid => session2.uuid, :title => "New title", :notes =>
          [{ :number => 2, :text => "Bye" }, { :number => 1, :text => "Hi" }] },
        { :uuid => "something" },
@@ -60,10 +61,17 @@ describe User do
       ]
     end
 
-    before { @result = user.sync(data) }
+    before do
+      @result = user.sync(data)
+    end
+
+    it "should tell phone a session it contains has been deleted" do
+      @result[:deleted].should == [session1.uuid]
+      @result[:upload].should_not include [session1.uuid]
+    end
 
     it "should delete sessions" do
-      Session.exists?(session.id).should be_false
+      Session.exists?(session1.id).should be_false
     end
 
     it "should update sessions" do
