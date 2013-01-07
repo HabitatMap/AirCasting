@@ -17,8 +17,9 @@ For a [Debian](http://debian.org)/[Ubuntu](http://ubuntu.com) system, the easies
 curl -L https://get.rvm.io | bash -s
 * rvm requirements  
 `sudo apt-get install build-essential openssl libreadline6 libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf libc6-dev ncurses-dev automake libtool bison subversion pkg-config imagemagick`
-* install ruby
-`rvm install ruby-1.9.2-p290`
+* install ruby  
+`rvm install ruby-1.9.2-p290`  
+`rvm use ruby-1.9.2-p290`  
 * install database  
 `sudo apt-get install mysql-server libmysqlclient-dev `
 * clone sources  
