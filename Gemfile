@@ -2,7 +2,7 @@ source 'http://rubygems.org'
 
 gem 'rails', '3.2.11'
 gem 'haml'
-gem 'devise', '~> 2.0.4'
+gem 'devise'
 gem 'paperclip', '~> 2.0'
 gem 'activerecord-import', '~> 0.2.9'
 gem 'coffee-script-source', '1.1.2'
