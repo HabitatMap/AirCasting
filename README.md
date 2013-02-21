@@ -39,6 +39,11 @@ If you'd like to contribute just use the usual github process - fork, make chang
 
 You can contact the authors by email at [info@habitatmap.org](mailto:info@habitatmap.org).
 
+###Thanks
+AirCasting uses The YourKit Java Profiler for Performance Tuning
+
+YourKit is kindly supporting open source projects with its full-featured Java Profiler. YourKit, LLC is the creator of innovative and intelligent tools for profiling Java and .NET applications. Take a look at YourKit's leading software products: [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp) and [YourKit .NET Profiler](http://www.yourkit.com/.net/profiler/index.jsp).
+
 ###License
 
 The project is licensed under the GNU Affero GPLv3. For more information see COPYING and visit [http://www.gnu.org/licenses/agpl.html](http://www.gnu.org/licenses/agpl.html).
