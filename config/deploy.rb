@@ -23,7 +23,7 @@ require 'capistrano/ext/multistage'
 set :rvm_ruby_string, '1.9.3-p327'
 set :rvm_type,   :system
 
-set :repository,  "git@github.com:LunarLogicPolska/AirCasting.git"
+set :repository,  "git@github.com:HabitatMap/AirCasting.git"
 set :scm, :git
 
 set :deploy_via, :remote_cache
