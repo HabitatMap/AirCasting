@@ -1,4 +1,4 @@
-![http://travis-ci.org/LunarLogicPolska/AirCasting](https://secure.travis-ci.org/LunarLogicPolska/AirCasting.png)
+[![Build Status](https://secure.travis-ci.org/LunarLogicPolska/AirCasting.png)](https://travis-ci.org/LunarLogicPolska/AirCasting)
 
 ##AirCasting - Share your Air!
 
