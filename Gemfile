@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.12'
+gem 'rails', '3.2.13'
 gem 'haml'
 gem 'devise', '~> 2.0.5'
 gem 'paperclip', '~> 2.0'
@@ -14,6 +14,7 @@ platforms :jruby do
   gem 'activerecord-jdbc-adapter', :require => false
   gem 'therubyrhino', :platform => :jruby
 end
+
 platforms :ruby do
   gem 'mysql2', :platform => :ruby
   gem 'therubyracer', '~> 0.10', :platform => :ruby # For ExecJS
@@ -46,7 +47,7 @@ end
 # gem 'ruby-debug19', :require => 'ruby-debug'
 
 group :test, :development do
-  gem 'rspec-rails', '~> 2.11.0'
+  gem 'rspec-rails'
   gem 'jslint_on_rails'
   gem 'capybara'
   gem 'factory_girl_rails'
