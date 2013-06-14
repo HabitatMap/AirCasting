@@ -63,5 +63,7 @@ Spork.each_run do
     config.include Aircasting::ControllerHelpers, :type => :controller
 
     config.include Aircasting::ModelHelpers, :type => :model
+
+    config.include Capybara::DSL, :type => :request
   end
 end
