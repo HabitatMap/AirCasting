@@ -23,7 +23,7 @@ curl -L https://get.rvm.io | bash -s
 * install database  
 `sudo apt-get install mysql-server libmysqlclient-dev`
 * clone sources  
-`git clone git://github.com/LunarLogicPolska/AirCasting.git aircasting`  
+`git clone git://github.com/HabitatMap/AirCasting.git aircasting`  
 `cd aircasting`    
 `cp config/database.yml.example config/database.yml`  
 * create database  
