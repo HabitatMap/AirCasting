@@ -31,6 +31,8 @@ AirCasting.iml
 AirCasting.ipr
 AirCasting.iws
 .rvmrc
+.ruby-version
+.ruby-gemset
 config/deploy/*.rb
 config/newrelic.yml
 
