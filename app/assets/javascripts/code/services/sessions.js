@@ -281,16 +281,16 @@ angular.module("aircasting").factory('sessions',
     },
 
     getBounds: function() {
-       var north,  east, south, west, lat, lng;
-       var maxLat = [], minLat = [], maxLong = [], minLong = [];
-       var self = this;
-       var sensor = sensors.anySelected();
-       if(!sensor) {
-         return;
-       }
-       var streams = this.allStreams(sensor.sensor_name);
+      var north,  east, south, west, lat, lng;
+      var maxLat = [], minLat = [], maxLong = [], minLong = [];
+      var self = this;
+      var sensor = sensors.anySelected();
+      if(!sensor) {
+       return;
+      }
+      var streams = this.allStreams(sensor.sensor_name);
 
-       if(!_.isEmpty(streams)){
+      if(!_.isEmpty(streams)){
         _(streams).each(function(s){
           maxLat.push(s.max_latitude);
           minLat.push(s.min_latitude);
@@ -302,13 +302,12 @@ angular.module("aircasting").factory('sessions',
         south = Math.min.apply(null, minLat);
         west = Math.min.apply(null, minLong);
         east = Math.max.apply(null, maxLong);
-       }
+      }
 
-       if(!north){
-         return;
-       }
-       //console.log({north: north, east: east, south : south, west: west});
-       return {north: north, east: east, south : south, west: west};
+      if(!north){
+        return;
+      }
+      return {north: north, east: east, south : south, west: west};
      }
   };
   return new Sessions();
