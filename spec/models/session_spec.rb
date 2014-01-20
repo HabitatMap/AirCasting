@@ -120,6 +120,12 @@ describe Session do
       Session.filter.all.should == [session1]
     end
 
+    it 'should include explicitly requested but not contributed sessions' do
+      session =  FactoryGirl.create(:session, :id => 1, :contribute => false)
+
+      Session.filter(:session_ids => [1]).all.should == [session]
+    end
+
     it "should exclude sessions outside the area if given" do
       session1 = session_with_measurement(:longitude => 10, :latitude => 20)
       session2 = session_with_measurement(:longitude => 20, :latitude => 20)

@@ -38,6 +38,7 @@ angular.module("aircasting").factory('sessions',
     fetch: function() {
       var viewport = map.viewport();
       var data = params.get('data');
+      var sessionIds = _.values(params.get('sessionsIds') || [])
       var self = this;
       if(!data.time) {
         return;
@@ -50,7 +51,8 @@ angular.module("aircasting").factory('sessions',
         year_from:  data.time.yearFrom,
         year_to:  data.time.yearTo,
         tags:  data.tags,
-        usernames:  data.usernames
+        usernames:  data.usernames,
+        session_ids: sessionIds
       };
       var location = data.location;
       if(location.limit){
@@ -148,6 +150,7 @@ angular.module("aircasting").factory('sessions',
     selectAllSessions: function() {
       params.update({sessionsIds: _(this.get()).pluck("id")});
     },
+
     selectSession: function(id) {
       var self = this;
       var session = this.find(id);
