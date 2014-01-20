@@ -396,6 +396,7 @@ DEPENDENCIES
   mysql2
   newrelic_rpm
   paperclip (~> 2.0)
+  pry
   rails (= 3.2.13)
   rails_best_practices
   rainbows

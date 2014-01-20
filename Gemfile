@@ -42,6 +42,7 @@ group :development do
   gem 'capistrano'
   gem 'rvm-capistrano'
   gem 'capistrano-ext'
+  gem 'pry'
 end
 # To use debugger
 # gem 'ruby-debug19', :require => 'ruby-debug'
