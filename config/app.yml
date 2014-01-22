@@ -11,8 +11,8 @@ development:
 
 staging:
   <<: *defaults
-  host: aircasting.llpdemo.com
-  mailer_from: "Aircasting <noreply@aircasting.llpdemo.com>"
+  host: aircasting.demo.llp.pl
+  mailer_from: "Aircasting <noreply@aircasting.demo.llp.pl>"
 
 production:
   <<: *defaults
