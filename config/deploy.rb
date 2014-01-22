@@ -20,57 +20,25 @@ require "rvm/capistrano"
 require 'bundler/capistrano'
 require 'capistrano/ext/multistage'
 
-set :rvm_ruby_string, '1.9.3-p327'
-set :rvm_type,   :system
 
-set :repository,  "git@github.com:HabitatMap/AirCasting.git"
+set :application, "aircasting"
+set :repository, "git@github.com:HabitatMap/AirCasting.git"
 set :scm, :git
-
 set :deploy_via, :remote_cache
-set :copy_exclude, [ '.git' ]
+set :copy_exclude, [ ".git" ]
 set :use_sudo, false
-
 set :stages, %w(staging production)
+set :default_stage, "staging"
+set :rvm_ruby_string, "2.0.0"
+set :rvm_type, :system
+set :ssh_options, { :forward_agent => true }
 
-set :bundle_gemfile,  "Gemfile"
-set :bundle_flags,    "--deployment --quiet"
-set :bundle_without,  [:development, :test]
-set :bundle_cmd, "LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' bundle"
-
-namespace :rake do
-  # run like: cap staging rake:invoke task=a_certain_task
-  desc "Run a task on a remote server."
-  task :invoke, :roles => :db do
-    run("cd #{deploy_to}/current; bundle exec rake #{ENV['task']} RAILS_ENV=#{rails_env}")
-  end
+before "deploy:assets:precompile" do
+  run "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
+  run "ln -nfs #{shared_path}/config/unicorn.rb #{release_path}/config/unicorn.rb"
+  run "ln -nfs #{shared_path}/newrelic.yml #{release_path}/config/newrelic.yml"
+  run "ln -nfs #{shared_path}/.rvmrc #{release_path}/.rvmrc"
 end
 
-namespace :deploy do
-  desc "Symlink shared files/directories"
-  task :symlink_shared do
-    cmd = "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
-    cmd << " && ln -nfs #{shared_path}/newrelic.yml #{release_path}/config/newrelic.yml"
-    cmd << " && ln -nfs #{shared_path}/.rvmrc #{release_path}/.rvmrc"
-    run cmd
-  end
-
-  desc "Package assets"
-  task :package_assets do
-    run "cd #{release_path}; RAILS_ENV=#{rails_env} RAILS_GROUPS=assets bundle exec rake assets:precompile --trace"
-  end
-
-  desc "build missing paperclip styles"
-  task :build_missing_paperclip_styles do
-    run "cd #{release_path}; RAILS_ENV=#{rails_env} bundle exec rake paperclip:refresh:missing_styles"
-  end
-end
-
-desc "reset counters"
-task :reset_counters do
-  run "cd #{current_path}; RAILS_ENV=#{rails_env} bundle exec rake sessions:reset_counters"
-end
-
-after 'deploy:update_code', 'deploy:symlink_shared'
-after 'deploy:symlink_shared', 'deploy:package_assets'
-after 'deploy:symlink_shared', 'deploy:build_missing_paperclip_styles'
-after 'deploy:update', 'deploy:cleanup'
+after "deploy:update_code", "deploy:migrate"
+after 'deploy:restart', 'deploy:cleanup'

@@ -41,9 +41,7 @@ AirCasting::Application.routes.draw do
         end
       end
     end
-    resources :sensors do
-
-    end
+    resources :sensors
   end
 
   get 'autocomplete/tags' => 'autocomplete#tags'
