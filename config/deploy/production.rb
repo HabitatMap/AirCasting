@@ -1,6 +1,6 @@
 set :rvm_path,     "/usr/local/rvm"
-set :rvm_bin_path,      "#{rvm_path}/bin"
-set :rvm_lib_path,      "#{rvm_path}/lib"
+set :rvm_bin_path, "#{rvm_path}/bin"
+set :rvm_lib_path, "#{rvm_path}/lib"
 
 set :deploy_to, "/var/www/aircasting"
 set :rails_env, "production"
