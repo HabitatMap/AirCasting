@@ -9,6 +9,7 @@ gem 'activerecord-import', '~> 0.2.9'
 gem 'coffee-script-source', '1.1.2'
 gem 'newrelic_rpm'
 gem 'activeadmin'
+gem 'awesome_print', :require => 'ap'
 
 platforms :jruby do
   gem 'jdbc-mysql', :platform => :jruby
@@ -54,7 +55,6 @@ group :test, :development do
   gem 'capybara'
   gem 'factory_girl_rails'
   gem 'shoulda-matchers'
-  gem 'awesome_print', :require => 'ap'
   gem 'guard', :require => false
   gem 'guard-rspec', :require => false
   gem 'guard-spork', :require => false
