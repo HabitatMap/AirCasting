@@ -33,7 +33,6 @@ AirCasting.iws
 .rvmrc
 .ruby-version
 .ruby-gemset
-config/deploy/*.rb
 config/newrelic.yml
 
 analyzing/
