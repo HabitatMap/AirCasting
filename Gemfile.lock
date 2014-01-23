@@ -400,6 +400,7 @@ DEPENDENCIES
   rails (= 3.2.13)
   rails_best_practices
   rainbows
+  rake (= 10.0.4)
   rb-inotify
   rspec-rails
   rvm-capistrano
