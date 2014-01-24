@@ -30,17 +30,18 @@ body#map {
   opacity:0.6;
   z-index: 50;
 }
+
 #left-hud {
-    position: fixed !important;
+  position: fixed !important;
 }
-#hud{
-}
+
 #hud_view {
   background: none repeat scroll 0 0 #FFFFFF;
   border: 2px solid #858585;
   margin-top: -2px;
   padding: 10px;
 }
+
 #ajax-loader {
   position: fixed;
   top: 50%;
@@ -68,7 +69,7 @@ body#map {
       span {
           font-weight:bold;
         }
-        
+
     }
   }
 }
@@ -84,33 +85,33 @@ body#map {
   z-index: 2;
   width: 182px;
   background: url("zoom-center.png") repeat-x center center;
-  
+
   .content {
     position: relative;
-    
+
     #zoom-in, #zoom-out {
       width: 16px;
       height: 16px;
       top: 2px;
       position: absolute;
     }
-    
+
     #zoom-in {
       background: url("zoom-in.png") no-repeat center center;
       right: 0;
     }
-    
+
     #zoom-out {
       background: url("zoom-out.png") no-repeat center center;
       left: 0;
     }
-    
+
     #zoom-slider {
       border:none;
       width: 140px;
       left: 21px;
       background: transparent;
-      
+
       a.ui-slider-handle {
         background: url("handle.png") no-repeat center center;
         border:none;
@@ -118,7 +119,7 @@ body#map {
         outline:none;
       }
     }
-    
+
   }
 }
 
@@ -127,7 +128,7 @@ body#map {
   list-style:none;
   margin:0;
   padding:0;
-  
+
   li {
     display:inline;
   }
@@ -139,12 +140,10 @@ body#map {
   }
 }
 
-
-
 .slider {
   clear:both;
   padding: 2px 0 0;
-  
+
   input.narrow {
     float:left;
     line-height:13px;
@@ -153,11 +152,11 @@ body#map {
     padding:2px;
     color:#858585;
     text-align: center;
-    
+
     &:last-child {
       float:right;
     }
-    
+
     &.highest {
       border:2px solid #F4001C;
     }
@@ -174,7 +173,7 @@ body#map {
       border:2px solid #ccc;
     }
   }
-  
+
   .ui-slider {
     float:left;
     margin:0 15px;
@@ -195,19 +194,19 @@ body#map {
   font-weight:normal;
   color:#000;
   height:40px;
-  
+
   li {
     display:block;
     float:left;
     position:relative;
     height:20px;
-    
+
     .start {
       position:absolute;
       top: -20px;
       left:-10px;
     }
-    
+
     .end {
       position:absolute;
       bottom: -20px;
@@ -218,37 +217,37 @@ body#map {
       color:#858585;
     }
   }
-  
+
   .low {
     background: rgb(45,166,65);
     width:60%;
-    
+
     .start {
       left:0;
       bottom:-20px;
       top:auto;
     }
   }
-  
+
   .mid {
     background: rgb(249,220,46);
     width:10%;
   }
-  
+
   .high {
     background: rgb(245,127,34);
     width:10%;
-    
+
     .start {
       bottom:-20px;
       top:auto;
     }
   }
-  
+
   .highest {
     background: rgb(244,0,28);
     width:20%;
-    
+
     .end {
       right:0;
     }
@@ -260,69 +259,70 @@ body#map {
   height: 140px !important;
   overflow-y: auto;
   margin-right: 15px;
-  
+
   .header {
     background: rgb(133, 133, 133);
     color: white;
     padding: 2px 5px;
     margin-right: 15px;
     overflow: auto;
-    
+
     .date {
       display: block;
       float: left;
     }
-    
+
     .right {
       display: block;
       float: right;
-      
+
       .number {
         float: left;
         margin-right: 5px;
       }
-      
+
       .next-note, .prev-note {
         display: block;
         height: 19px;
         width: 24px;
         float: left;
       }
-      
+
       .next-note {
         background-image: url("next_note.png")
       }
-      
+
       .prev-note {
         background-image: url("prev_note.png")
       }
     }
   }
-  
+
   .content {
     margin: 10px 16px 0 0;
-    
+
     .photo {
       overflow: hidden;
       float: left;
       margin: 0px 10px 10px 0px;
-      
+
       img {
         max-width: 100px;
         max-height: 100px;
         border: 1px solid #ccc;
       }
     }
-    
+
     a.lightbox {
       display: block;
     }
-    
+
     p {
       margin: 0;
     }
   }
 }
+
 #hud #right-hud {
   font-weight: bold;
   position: absolute;
@@ -361,6 +361,7 @@ body#map {
     }
   }
 }
+
 #hud  #hud-tabs {
   padding:0;
   margin:0;
@@ -394,6 +395,7 @@ body#map {
     text-decoration: none;
   }
 }
+
 #hud #right-hud {
   position: absolute;
   top: 10px;
@@ -401,6 +403,7 @@ body#map {
   width: $right-hud-width;
   z-index: 10;
 }
+
 #hud #right-hud {
   #crowd-map-tab section > div, #sessions-tab section > div {
     @include clearfix;
@@ -409,43 +412,46 @@ body#map {
       margin:0 0 0 0;
     }
   }
+
   .section-divider {
     @include clearfix;
   }
+
   #crowd-map-tab section.resolution .slider {
     height: 25px;
-  }     
+  }
 
-  
   .ui-slider {
     width: $right-hud-width - 164px;
     position:relative;
     top:5px;
   }
-  
+
   .wide-slider .ui-slider {
     width: $right-hud-width - 120px;
   }
-  
+
   .full-slider .ui-slider {
     width: $right-hud-width - 80px;
   }
-  
+
   .textfield input, .legend {
     width: $right-hud-width - 30px;
   }
-  
+
   select {
     background: none repeat scroll 0 0 #FFFFFF;
     border: 1px solid #999999;
     color: #858585;
     padding: 4px 3px 3px;
-    outline:0;
-  }    
+    outline: 0;
+    max-width: 100%;
+  }
+
   p {
     margin:5px 0 10px 0;
     font-weight: normal;
-    label {  
+    label {
       margin:5px 0 0;
       display:block;
     }
@@ -530,11 +536,11 @@ p.ui-dialog-content {
   position: absolute;
   top: 31px;
   width: 299px;
-  
+
   label {
     font-weight:normal;
   }
-  
+
   .close {
     cursor: pointer;
     background: url("close.png") no-repeat center center;
