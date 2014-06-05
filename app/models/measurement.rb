@@ -29,7 +29,7 @@ class Measurement < ActiveRecord::Base
   has_one :session, :through => :stream
   has_one :user, :through => :session
 
-  validates :stream, :value, :longitude, :latitude, :time, :presence => true
+  validates :stream_id, :value, :longitude, :latitude, :time, :presence => true
 
   prepare_range(:longitude_range, :longitude)
   prepare_range(:latitude_range, :latitude)
