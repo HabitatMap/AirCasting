@@ -88,18 +88,9 @@ class Stream < ActiveRecord::Base
 
   def self.build!(data = {})
     measurements = data.delete(:measurements)
-
-    Stream.transaction do
-      stream = create!(data)
-      stream.build_measurements!(measurements)
-
-      if stream.measurements.count > 0
-        stream.calc_bounding_box! if stream.min_latitude.nil?
-        stream.calc_average_value! if stream.average_value.nil?
-      end
-
-      stream
-    end
+    stream = create!(data)
+    StreamsWorker.perform_async(measurements, stream.id)
+    stream
   end
 
   def build_measurements!(data = [])

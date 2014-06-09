@@ -10,6 +10,7 @@ gem 'coffee-script-source', '1.1.2'
 gem 'newrelic_rpm'
 gem 'activeadmin'
 gem 'awesome_print', :require => 'ap'
+gem 'sidekiq'
 
 platforms :jruby do
   gem 'jdbc-mysql', :platform => :jruby
@@ -44,6 +45,7 @@ group :development do
   gem 'capistrano'
   gem 'rvm-capistrano'
   gem 'capistrano-ext'
+  gem 'capistrano-sidekiq'
   gem 'pry'
 end
 # To use debugger
