@@ -19,7 +19,7 @@
 class Stream < ActiveRecord::Base
   belongs_to :session
 
-  has_many :measurements, :dependent => :destroy
+  has_many :measurements, :dependent => :delete_all
 
   delegate :size, :to => :measurements
 

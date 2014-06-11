@@ -28,7 +28,7 @@ class Session < ActiveRecord::Base
   belongs_to :user
   has_many :measurements, :through => :streams, :inverse_of => :session
   has_many :notes, :inverse_of => :session, :dependent => :destroy
-  has_many :streams, :inverse_of => :session, :dependent => :destroy
+  has_many :streams, :inverse_of => :session
 
   validates :user, :uuid, :url_token, :calibration, :offset_60_db, :presence => true
   validates :start_time, :end_time, :presence => true
@@ -262,6 +262,11 @@ class Session < ActiveRecord::Base
   end
 
   after_destroy :insert_into_deleted_sessions
+  after_destroy :async_destroy_streams
+
+  def async_destroy_streams
+    RemoveStreamsWorker.perform_async(id)
+  end
 
   def insert_into_deleted_sessions
     DeletedSession.where(:uuid => uuid, :user_id => user.id).first_or_create!
