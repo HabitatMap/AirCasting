@@ -22,8 +22,8 @@ module Aircasting
     def self.included(base)
       base.class_eval do
         def session_with_measurement(data)
-          measurement = FactoryGirl.create(:measurement, data)
-          stream = FactoryGirl.create(:stream, :measurements => [measurement])
+          stream = FactoryGirl.create(:stream)
+          measurement = FactoryGirl.create(:measurement, data.merge(stream: stream))
           FactoryGirl.create(:session, :streams => [stream])
         end
       end
