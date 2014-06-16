@@ -32,8 +32,11 @@ module Api
       end
       INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
+      page = params[:page] || 0
+      page_size = params[:page_size] || 50
+
       begin
-        respond_with Session.filtered_json(data)
+        respond_with Session.filtered_json(data, page, page_size)
       rescue WrongCoordinatesError => e
         error = { :error => "Invalid Location" }
         respond_with error, :status => :not_found

@@ -146,9 +146,12 @@ class Session < ActiveRecord::Base
     time_from == 0 && time_to == 1439
   end
 
-  def self.filtered_json(data)
-    includes(:user).includes(:streams).
-      filter(data).as_json(
+  def self.filtered_json(data, page, page_size)
+    offset(page.to_i * page_size.to_i)
+    .limit(page_size)
+    .includes(:user)
+    .includes(:streams)
+    .filter(data).as_json(
         :only => [:id, :title, :start_time_local, :end_time_local],
         :methods => [:username, :streams]
     )

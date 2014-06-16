@@ -1,8 +1,8 @@
 angular.module("aircasting").factory('sessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope',
-         'heat', 'spinner',  'utils', "$timeout", 'flash',
+         'heat', 'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
         function(params, $http, map, note, sensors, $rootScope,
-                 heat, spinner, utils, $timeout, flash) {
+                 heat, spinner, utils, $timeout, flash, sessionsDownloader) {
   var Sessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
@@ -80,11 +80,9 @@ angular.module("aircasting").factory('sessions',
       this.clear();
       this.sessions = [];
       spinner.show();
-      $http.get('/api/sessions.json', {cache: true, params : {q: reqData}}).success(
-        _(this.onSessionsFetch).bind(this)
-      ).error(
-        _(this.onSessionsFetchError).bind(this)
-      );
+
+      sessionsDownloader(reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
+          _(this.onSessionsFetchError).bind(this));
     },
 
     onSessionsFetchError: function(data){
@@ -94,26 +92,6 @@ angular.module("aircasting").factory('sessions',
     },
 
     onSessionsFetch: function(data, status, headers, config) {
-      var times;
-      var sessionIds = _(params.get('sessionsIds') || []);
-      _(data).each(function(session){
-        if(session.start_time_local && session.end_time_local) {
-          times = [moment(session.start_time_local, "YYYY-MM-DDTHH:mm:ss"),
-                   moment(session.end_time_local, "YYYY-MM-DDTHH:mm:ss")];
-          if(session.start_time_local > session.end_time_local){
-            times = _(times).reverse();
-          }
-          session.timeframe = times[0].format('MM/DD/YYYY, HH:mm') +
-            '-' +  times[1].format('HH:mm');
-        }
-        session.shortTypes = _(session.streams).chain().map(function(stream){
-          return {name: stream.measurement_short_type, type: stream.sensor_name};
-        }).sortBy(function(shortType) {
-          return shortType.name.toLowerCase();
-        }).value();
-        session.$selected = sessionIds.include(session.id);
-      });
-      this.sessions = data;
       spinner.hide();
       this.reSelectAllSessions();
     },

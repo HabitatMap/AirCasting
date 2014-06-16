@@ -50,6 +50,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
   $scope.sessionFetchCondition = function() {
     return {id:  sensors.selectedId(), params: params.getWithout('data', 'heat')};
   };
+
   $scope.$watch("sessionFetchCondition()", function(newValue, oldValue) {
     sessions.fetch();
   }, true);
