@@ -9,12 +9,13 @@ angular.module("aircasting").factory('sessions',
     var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
-    this.scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
-      _(newIds).chain().difference(oldIds).each(_(self.selectSession).bind(self));
-      _(oldIds).chain().difference(newIds).each(_(self.deselectSession).bind(self));
-    }, true);
   };
+
   Sessions.prototype = {
+    sessionsChanged: function (newIds, oldIds) {
+      _(newIds).chain().difference(oldIds).each(_(this.selectSession).bind(this));
+      _(oldIds).chain().difference(newIds).each(_(this.deselectSession).bind(this));
+    },
     get: function(){
       return this.sessions;
     },
@@ -136,14 +137,14 @@ angular.module("aircasting").factory('sessions',
       if(!session){
         return;
       }
-      if(session.loaded){
-        if(!session.drawed) {
-          this.draw(session);
-        }
-        return;
-      }
       spinner.show();
-      $http.get('/api/sessions/' +  id, {cache : true}).success(function(data, status, headers, config){
+      var sensorId = params.get("data", {}).sensorId || sensors.tmpSelectedId();
+      var sensor = sensors.sensors[sensorId] || {};
+      var sensorName = sensor.sensor_name;
+      $http.get('/api/sessions/' +  id,
+          {cache : true,
+           params: {sensor_id: sensorName
+        }}).success(function(data, status, headers, config){
         self.onSingleSessionFetch(session, data);
       });
     },
@@ -185,6 +186,7 @@ angular.module("aircasting").factory('sessions',
     },
 
     measurementsForSensor: function(session, sensor_name){
+      if (!session.streams[sensor_name]) return [];
       return session.streams[sensor_name].measurements;
     },
 
@@ -200,7 +202,10 @@ angular.module("aircasting").factory('sessions',
     },
 
     onSingleSessionFetch: function(session, data) {
+      var streams = data.streams;
+      delete data.streams;
       _(session).extend(data);
+      _(session.streams).extend(streams);
       session.loaded = true;
       this.draw(session);
       $timeout(function(){

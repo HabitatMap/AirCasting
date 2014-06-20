@@ -7,7 +7,7 @@ angular.module("aircasting").factory("sessionsDownloader", ['$http', function ($
       if (data.length > 0) {
         preprocessData(data, sessions, params);
         refreshSessionsCallback();
-        setTimeout(function () {fetchPage(reqData, page, successCallback, errorCallback)}, 500);
+        setTimeout(function () {fetchPage(reqData, page, successCallback, errorCallback)}, 100);
       }
     }
     fetchPage(reqData, page, successCallback, errorCallback);
@@ -30,6 +30,7 @@ angular.module("aircasting").factory("sessionsDownloader", ['$http', function ($
         session.timeframe = times[0].format('MM/DD/YYYY, HH:mm') +
           '-' +  times[1].format('HH:mm');
       }
+      session.availableStreams = session.streams;
       session.shortTypes = _(session.streams).chain().map(function(stream){
         return {name: stream.measurement_short_type, type: stream.sensor_name};
       }).sortBy(function(shortType) {

@@ -23,7 +23,7 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
       if(!this.get()){
         return [];
       }
-      var ids = _(this.get().streams).map(function(sensor){
+      var ids = _(this.get().availableStreams).map(function(sensor){
         return sensor.measurement_type + "-" + sensor.sensor_name;
       });
       return _(sensors.get()).select(function(sensor){

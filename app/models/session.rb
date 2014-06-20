@@ -182,11 +182,13 @@ class Session < ActiveRecord::Base
 
     methods = opts[:methods] || [:notes, :calibration]
     with_measurements = opts[:methods].delete(:measurements)
+    sensor_id = opts.delete(:sensor_id)
 
     res = super(opts.merge(:methods => methods))
 
     map_of_streams = {}
-    streams.each do |stream|
+    strs = sensor_id ? streams.where(sensor_name: sensor_id) : streams.all
+    strs.each do |stream|
       if with_measurements
         map_of_streams[stream.sensor_name] = stream.as_json(:methods => [:measurements])
       else

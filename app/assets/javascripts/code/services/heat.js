@@ -70,6 +70,7 @@ angular.module("aircasting").factory('heat', ["$rootScope", "params", "storage",
     },
     toSensoredList: function(sensor) {
       var self = this;
+      if (!sensor) return [];
       return _(this.namesBySensor).map(function(name){
         return _.str.toNumber(sensor["threshold_" + name]);
       });

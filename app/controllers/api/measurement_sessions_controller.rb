@@ -65,7 +65,7 @@ module Api
     def show
       session = Session.find(params[:id])
 
-      respond_with session, :methods => [:measurements, :notes]
+      respond_with session, :sensor_id => params[:sensor_id], :methods => [:measurements, :notes]
     end
 
     private
