@@ -119,6 +119,7 @@ angular.module("aircasting").factory('sessions',
         return;
       }
       session.$selected = false;
+      session.alreadySelected = false;
       this.undoDraw(session);
     },
 
@@ -133,10 +134,11 @@ angular.module("aircasting").factory('sessions',
     selectSession: function(id) {
       var self = this;
       var session = this.find(id);
-      session.$selected = true;
-      if(!session){
+      if(!session || session.alreadySelected){
         return;
       }
+      session.$selected = true;
+      session.alreadySelected = true;
       spinner.show();
       var sensorId = params.get("data", {}).sensorId || sensors.tmpSelectedId();
       var sensor = sensors.sensors[sensorId] || {};
