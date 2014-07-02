@@ -48,7 +48,7 @@ angular.module("google").factory("rectangles",  function(){
       }
       var level = _(levels).detect(function(l){
         return value < l;
-      }) || _(levels).last();
+      });
 
       return this.colors[_(levels).indexOf(level)];
     },
