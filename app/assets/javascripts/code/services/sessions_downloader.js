@@ -1,4 +1,4 @@
-angular.module("aircasting").factory("sessionsDownloader", ['$http', function ($http) {
+angular.module("aircasting").factory("sessionsDownloader", ['$http', '$timeout', function ($http, $timeout) {
 
   var fetch = function (reqData, sessions, params, refreshSessionsCallback, errorCallback) {
     var page = 0;
@@ -6,9 +6,9 @@ angular.module("aircasting").factory("sessionsDownloader", ['$http', function ($
       page++;
       if (data.length > 0) {
         preprocessData(data, sessions, params);
-        refreshSessionsCallback();
-        setTimeout(function () {fetchPage(reqData, page, successCallback, errorCallback)}, 100);
+        $timeout(function () {fetchPage(reqData, page, successCallback, errorCallback)}, 100);
       }
+      refreshSessionsCallback();
     }
     fetchPage(reqData, page, successCallback, errorCallback);
   }
