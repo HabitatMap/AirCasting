@@ -1,7 +1,6 @@
 class RegionInfo
   def initialize(data)
-
-    usernames = data[:usernames].to_s.split(/[\s,]/)
+    usernames = data[:usernames].to_s.split(/\s*,\s*/)
     @streams = Stream.
       only_contributed.
       with_measurement_type(data[:measurement_type]).
@@ -15,7 +14,6 @@ class RegionInfo
       with_streams(stream_ids).
       in_rectangle(data).
       with_time(data)
-
   end
 
   def average
