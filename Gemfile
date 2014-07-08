@@ -12,6 +12,8 @@ gem 'activeadmin'
 gem 'awesome_print', :require => 'ap'
 gem 'sidekiq'
 
+gem 'rb-gsl'
+
 platforms :jruby do
   gem 'jdbc-mysql', :platform => :jruby
   gem 'activerecord-jdbc-adapter', :require => false
