@@ -4,7 +4,6 @@ class Regression
   def initialize(target, ref)
     @xs = target.map(&:value)
     @ys = align_timestamps(target, ref).map(&:value)
-    @deg = deg
   end
 
   def run(deg)
