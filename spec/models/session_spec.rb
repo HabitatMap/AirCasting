@@ -72,9 +72,9 @@ describe Session do
   end
 
   describe "#as_json" do
-    let(:m1) { FactoryGirl.create(:measurement) }
-    let(:m2) { FactoryGirl.create(:measurement) }
-    let(:stream) { FactoryGirl.create(:stream, :measurements => [m1, m2]) }
+    let(:stream) { FactoryGirl.create(:stream) }
+    let(:m1) { FactoryGirl.create(:measurement, :stream => stream) }
+    let(:m1) { FactoryGirl.create(:measurement, :stream => stream) }
     let(:session) { FactoryGirl.create(:session, :streams => [stream]) }
 
     subject { session.as_json(:methods => [:measurements]) }
@@ -182,7 +182,7 @@ describe Session do
       Session.should_receive(:filter).with(data).and_return(records)
       records.should_receive(:as_json).with(hash_including({:only => [:id, :title, :start_time_local, :end_time_local], :methods => [:username, :streams]})).and_return(json)
 
-      Session.filtered_json(data).should == json
+      Session.filtered_json(data, 0, 50).should == json
     end
   end
 
