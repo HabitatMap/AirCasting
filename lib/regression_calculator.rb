@@ -1,6 +1,4 @@
-require 'matrix'
-
-class Regression
+class RegressionCalculator
   def initialize(target, ref)
     @xs = target.map(&:value)
     @ys = align_timestamps(target, ref).map(&:value)
