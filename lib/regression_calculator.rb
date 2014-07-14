@@ -7,7 +7,7 @@ class RegressionCalculator
   def run(deg)
     xs = GSL::Vector[@xs]
     ys = GSL::Vector[@ys]
-    GSL::MultiFit.polyfit(xs, ys, deg).to_a
+    GSL::MultiFit.polyfit(xs, ys, deg)[0].to_a
   end
 
   private
