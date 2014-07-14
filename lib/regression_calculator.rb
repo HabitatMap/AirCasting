@@ -1,3 +1,5 @@
+require 'gsl'
+
 class RegressionCalculator
   def initialize(target, ref)
     @xs = target.map(&:value)
