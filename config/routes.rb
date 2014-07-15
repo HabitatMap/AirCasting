@@ -31,6 +31,7 @@ AirCasting::Application.routes.draw do
     resources :measurement_sessions, :path => 'sessions'
     resources :averages
     resources :thresholds, :only => [:show]
+    resources :regressions, :only => [:create, :index]
     resource :region
     resource  :user do
       resources :sessions, :controller => "user_sessions" do
