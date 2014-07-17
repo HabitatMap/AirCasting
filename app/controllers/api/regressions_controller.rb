@@ -4,13 +4,9 @@ module Api
 
     def create
       session = Session.find_by_uuid!(params[:session_uuid])
-      ref = session.streams.where(:sensor_package_name => params[:reference])
-      targets = params[:targets]
-      respond_with targets.map { |target|
-        reg = Regression.build_for_streams(target, reference)
-        reg.save
-        reg
-      }
+      ref = session.streams.where(params[:reference])
+      target = session.streams.where(params[:target])
+      respond_with Regression.create_for_streams(target, ref)
     end
 
     def index
