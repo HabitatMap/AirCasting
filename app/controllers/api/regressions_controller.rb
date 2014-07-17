@@ -6,7 +6,7 @@ module Api
       session = current_user.sessions.find_by_uuid!(params[:session_uuid])
       ref = session.streams.where(JSON.parse(params[:reference])).first
       target = session.streams.where(JSON.parse(params[:target])).first
-      respond_with Regression.create_for_streams(target, ref)
+      respond_with Regression.create_for_streams(target, ref), location: nil
     end
 
     def index

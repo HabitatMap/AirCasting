@@ -10,7 +10,7 @@ class Regression < ActiveRecord::Base
        threshold_medium threshold_high threshold_very_high).inject({}) { |acc, method|
       acc.merge({method => reference.send(method)})
     }
-    fields.merge!(sensor_package_name: target.sensor_package_name, coefficients: coeffs)
+    fields.merge!(sensor_name: target.sensor_name, sensor_package_name: target.sensor_package_name, coefficients: coeffs)
     new(fields)
   end
 
