@@ -6,7 +6,7 @@ class Regression < ActiveRecord::Base
 
   def self.build_for_streams(target, reference, degree = DEGREE, calculator = RegressionCalculator)
     coeffs = calculator.new(target.measurements, reference.measurements).run(degree)
-    fields = %w(measurement_type unit_name unit_symbol threshold_very_low threshold_low
+    fields = %w(measurement_type measurement_short_type unit_name unit_symbol threshold_very_low threshold_low
        threshold_medium threshold_high threshold_very_high).inject({}) { |acc, method|
       acc.merge({method => reference.send(method)})
     }
