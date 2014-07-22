@@ -15,6 +15,7 @@ class Regression < ActiveRecord::Base
   end
 
   def self.create_for_streams(target, reference, degree = DEGREE, calculator = RegressionCalculator)
+    where(sensor_name: target.sensor_name, sensor_package_name: target.sensor_package_name).destroy_all
     reg = build_for_streams(target, reference, degree, calculator)
     reg.save
     reg
