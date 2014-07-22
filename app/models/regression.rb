@@ -1,6 +1,6 @@
 require_dependency 'regression_calculator'
 class Regression < ActiveRecord::Base
-  DEGREE = 10
+  DEGREE = 4
 
   serialize :coefficients, Array
 
