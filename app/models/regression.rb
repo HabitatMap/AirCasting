@@ -1,10 +1,18 @@
 require_dependency 'regression_calculator'
 class Regression < ActiveRecord::Base
-  belongs_to :user
-
   DEGREE = 4
 
+  belongs_to :user
   serialize :coefficients, Array
+
+  attr_accessor :is_owner
+
+  def self.all_with_owner(user)
+    all.map { |reg|
+      reg.is_owner = (user.try(:id) == reg.user.try(:id))
+      reg
+    }
+  end
 
   def self.build_for_streams(target, reference, degree = DEGREE, calculator = RegressionCalculator)
     coeffs = calculator.new(target.measurements, reference.measurements).run(degree)

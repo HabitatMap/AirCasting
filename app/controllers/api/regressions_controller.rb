@@ -10,7 +10,7 @@ module Api
     end
 
     def index
-      respond_with Regression.all
+      respond_with Regression.all_with_owner(current_user), methods: [:is_owner]
     end
   end
 end
