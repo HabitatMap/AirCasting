@@ -25,6 +25,7 @@ class User < ActiveRecord::Base
   has_many :sessions, :inverse_of => :user
   has_many :streams, :through => :sessions
   has_many :measurements, :through => :streams
+  has_many :regressions
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :username, :login, :password, :password_confirmation, :remember_me, :send_emails
