@@ -1,6 +1,7 @@
 module Api
   class RegressionsController < BaseController
-    before_filter :authenticate_user!, only: :create
+    respond_to :json
+    before_filter :authenticate_user!, only: [:create, :destroy]
 
     def create
       session = current_user.sessions.find_by_uuid!(params[:session_uuid])

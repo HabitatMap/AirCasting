@@ -3,7 +3,7 @@ require 'gsl'
 class RegressionCalculator
   def initialize(target, ref)
     @xs = target.map { |meas| measurement_value(meas) }
-    @ys = align_timestamps(target, ref).map { |meas| measurement_value(meas) }
+    @ys = align_timestamps(target, ref).map(&:value)
   end
 
   def run(deg)
