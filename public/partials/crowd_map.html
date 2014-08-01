@@ -2,7 +2,7 @@
   <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
   <section ng-show="expandables.visible('sensor')" >
     <p>
-      <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in sensors.get()">
+      <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for (sensorId, sensor) in sensors.get()">
       </select>
     </p>
   </section>

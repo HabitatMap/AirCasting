@@ -1,6 +1,6 @@
 <div ng-controller="TmpSensorDialogCtrl">
 <p>
-  <select ng-model="sensors.tmpSensorId" ng-options="sensor.id as sensor.label for (sensorId, sensor) in singleSession.availSensors()">
+  <select ng-model="sensors.tmpSensorId" ng-options="sensor.id as sensor.select_label for (sensorId, sensor) in singleSession.availSensors()">
   </select>
 </p>
 </div>
