@@ -36,7 +36,7 @@ production:
   encoding: utf8
   reconnect: false
   database: aircasting_production
-  pool: 5
+  pool: 100
   username: root
   password:
   socket: /var/run/mysqld/mysqld.sock
