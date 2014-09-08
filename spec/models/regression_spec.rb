@@ -1,10 +1,13 @@
 require 'spec_helper'
 
 describe Regression do
-  let(:target) { stub(sensor_package_name: 'target_sensor', measurements: []) }
+  let(:target) { stub(sensor_package_name: 'target_sensor', measurements: [], sensor_name: 'Some sensor') }
   let(:reference) { stub(unit_name: 'Made-up unit',
                          unit_symbol: 'Muu',
                          measurement_type: 'Made-up Quantity',
+                         measurement_short_type: 'MuQ',
+                         sensor_name: 'AirCasting Made-uper',
+                         sensor_package_name: 'Made-up package',
                          threshold_very_low: 10,
                          threshold_low: 20,
                          threshold_medium: 30,
