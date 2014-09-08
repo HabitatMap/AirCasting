@@ -91,7 +91,7 @@ class Stream < ActiveRecord::Base
     measurements = data.delete(:measurements)
     stream = create!(data)
     measurements.each_slice(SLICE_SIZE) do |meas|
-      StreamsWorker.perform_async(measurements, meas)
+      StreamsWorker.perform_async(meas, stream.id)
     end
     stream
   end
