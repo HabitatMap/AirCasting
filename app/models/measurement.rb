@@ -41,6 +41,8 @@ class Measurement < ActiveRecord::Base
 
   before_validation :set_timezone_offset
 
+  default_scope { order("time ASC") }
+
   scope(:with_tags, lambda do |tags|
     if tags.present?
       sessions_ids = Session.select("sessions.id").tagged_with(tags).map(&:id)
