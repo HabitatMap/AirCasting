@@ -80,20 +80,20 @@ angular.module("aircasting").factory('sessions',
 
       this.clear();
       this.sessions = [];
-      spinner.show();
+      spinner.startDownloadingSessions();
 
       sessionsDownloader(reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
           _(this.onSessionsFetchError).bind(this));
     },
 
     onSessionsFetchError: function(data){
-      spinner.hide();
+      spinner.stopDownloadingSessions();
       errorMsg = data.error || 'There was an error, sorry' ;
       flash.set(errorMsg);
     },
 
     onSessionsFetch: function(data, status, headers, config) {
-      spinner.hide();
+      spinner.stopDownloadingSessions();
       this.reSelectAllSessions();
     },
 

@@ -2,6 +2,7 @@ angular.module("aircasting").factory('spinner', [
                                      function() {
   var SpinnerCounter = function() {
     this.counter = 0;
+    this.downloadingSession = false;
   };
   SpinnerCounter.prototype = {
     show: function() {
@@ -15,6 +16,18 @@ angular.module("aircasting").factory('spinner', [
     },
     visible: function(){
       return this.counter > 0;
+    },
+    startDownloadingSessions: function () {
+      if (!this.downloadingSession) {
+        this.counter++;
+        this.downloadingSession = true;
+      }
+    },
+    stopDownloadingSessions: function () {
+      if (this.downloadingSession) {
+        this.counter--;
+        this.downloadingSession = false;
+      }
     }
   };
   return new SpinnerCounter();
