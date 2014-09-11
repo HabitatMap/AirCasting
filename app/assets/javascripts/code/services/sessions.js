@@ -137,12 +137,13 @@ angular.module("aircasting").factory('sessions',
       if(!session || session.alreadySelected){
         return;
       }
-      session.$selected = true;
-      session.alreadySelected = true;
-      spinner.show();
       var sensorId = params.get("data", {}).sensorId || sensors.tmpSelectedId();
       var sensor = sensors.sensors[sensorId] || {};
       var sensorName = sensor.sensor_name;
+      if (!sensorName) return;
+      spinner.show();
+      session.alreadySelected = true;
+      session.$selected = true;
       $http.get('/api/sessions/' +  id,
           {cache : true,
            params: {sensor_id: sensorName
