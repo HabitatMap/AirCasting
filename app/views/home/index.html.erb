@@ -1,34 +1,38 @@
 <div class="desc">
   <p>
-    AirCasting is a platform for recording, mapping, and sharing health and environmental data using your smartphone. Each AirCasting session lets you capture real-world measurements, annotate the data to tell your story, and share it via the CrowdMap.
+  AirCasting is an open-source, end-to-end solution for collecting, displaying, and sharing health and environmental data using your smartphone. The platform consists of wearable sensors that detect changes in your environment and physiology, including a palm-sized air quality monitor called the AirBeam, the <a href="https://play.google.com/store/apps/details?id=pl.llp.aircasting&hl=en">AirCasting Android app</a>, the AirCasting website, and wearable LED accessories. By documenting and leveraging health and environmental data to inform personal decision-making and public policy, the AirCasting platform empowers citizen scientists and changemakers.
   </p>
+  <%= image_tag('kickstarter-sticker.png', class: 'kickstarter') %>
+  <%= image_tag('aircasting_howitworks.jpg', class: 'howitworks') %>
   <p>
-    Using the <a href="https://play.google.com/store/apps/details?id=pl.llp.aircasting&hl=en">AirCasting Android app</a>, AirCasters can record, map, and share:
+    The AirBeam uses a light scattering method to measure fine particulate matter or PM2.5. Air is drawn through a sensing chamber wherein light from an LED bulb scatters off particles in the airstream. This light scatter is registered by a detector and converted into a measurement that estimates the number of particles in the air. Why is this important? The US Environmental Protection Agency monitors and regulates six criteria air pollutants, one of which is PM2.5, and the EPA’s measurements indicate that PM2.5 levels pose a substantial health risk in cities across the country.
   </p>
-  <ul>
-    <li>Sound levels recorded by their phone microphone;</li>
-    <li>Temperature, humidity, carbon monoxide (CO) and nitrogen dioxide (NO<sub>2</sub>) gas concentrations recorded by the Arduino-powered AirCasting Air Monitor;</li>
+  <%= image_tag('aircasting-airbeam.jpg') %>
+  <p>
+    Via Bluetooth, the AirBeam measurements are communicated once a second to the AirCasting Android app, which maps and graphs the data in real time on your smartphone. At the end of each AirCasting session, the collected data is sent to the AirCasting website, where the data is crowdsourced with data from other AirCasters to generate heat maps indicating where PM2.5 concentrations are highest and lowest.
+  </p>
+  <%= image_tag('AirCastingAndroidApp.jpg') %>
+  <p>
+  AirCasting Luminescent Accessories connect to the AirCasting app over Bluetooth to illuminate LEDs in response to the sensor measurements received by the AirCasting app: green for low intensity, then yellow, then orange, and red for high intensity. To date we’ve released designs for two Luminescent Accessories: the <a href="whttp://.habitatmap.org/habitatmap_docs/MakeYourOwnAirCastingLuminescentApparel.pdf">AirCasting Luminescent Vest</a> and the <a href="http://instructables.com/id/AirCasting-LiteBeam/">LiteBeam</a>. AirCasting Luminescence was developed to communicate sensor measurements without the normally required reference to a screen interface and to spark interaction between AirCasters and people located in their immediate vicinity.
+  </p>
+  <%= image_tag('aircasting-vest.jpg') %>
+  <p>
+    The AirBeam is just one instrument among dozens capable of feeding data into the AirCasting platform. There is already a thriving ecosystem of AirCasting compatible instruments - some created by makers, others by consumer electronics firms - that can connect to the AirCasting Android App to record health and environmental data, including but not limited to:
+  </p>
+  <ul class="home-list">
+    <li>Sound levels recorded by your phone microphone;</li>
+    <li>Temperature, humidity, carbon monoxide (CO) and nitrogen dioxide (NO<sub>2</sub>) gas concentrations recorded by the AirCasting Air Monitor;</li>
     <li>Heart rate, heart rate variability, R to R, breathing rate, activity level, peak acceleration and core temperature measurements recorded by the Zephyr BioHarness 3; and</li>
     <li>Heart rate measurements recorded by the Zephyr HxM.</li>
   </ul>
-  <%= image_tag('AC_ACAM_PhoneScreenshot.jpg') %>
   <p>
-    Get Started:<br /> Download the <a href="https://play.google.com/store/apps/details?id=pl.llp.aircasting&amp;hl=en">AirCasting app</a> and record noise pollution in your neighborhood or place of work.
+    To connect your own custom-designed sense device to the AirCasting app, just do the following:
   </p>
-  <p>
-    Don&rsquo;t have an Android device? Check out the <a href="http://aircasting.org/map">AirCasting maps</a> to see if someone has already contributed data for your area.
-  </p>
-  <p>
-    Download the <a href="http://www.habitatmap.org/habitatmap_docs/HowToBuildAnAirCastingAirMonitor.pdf">AirCasting Air Monitor DIY guide</a> and measure air quality.
-  </p>
-  <p>
-    Connect the <a href="http://www.zephyr-technology.com/products/hxm-bluetooth-heart-rate-monitor/">Zephyr HxM</a> or <a href="http://www.zephyr-technology.com/products/bioharness-3/">Zephyr BioHarness 3</a> to the AirCasting app and measure how your heart and breathing respond to your activity level, location, and exposure to noise and air pollution.
-  </p>
-  <p>
-    Download the <a href="http://www.habitatmap.org/habitatmap_docs/MakeYourOwnAirCastingLuminescentApparel.pdf">AirCasting Luminescent Apparel DIY guide</a>
-    and make a fashion statement with your sensor measurements.
-  </p>
-  <%= image_tag('AC_Vest.jpg') %>
+  <ul class="home-list">
+    <li>Download the <a href="https://github.com/HabitatMap/AirCastingAndroidClient/blob/master/arduino/aircasting/aircasting_tmp36.ino">AirCasting Arduino sketch</a> for the <a href="http://habitatmap.org/habitatmap_docs/HowToBuildAnAirCastingAirMonitor.pdf">AirCasting Air monitor</a>, which controls the sensors and sends data to the app via Bluetooth.</li>
+    <li>Alter the Arduino sketch to communicate your sensor data.</li>
+    <li>Use the AirCasting app to send your data to the AirCasting servers for display on the AirCasting website. Want to send the data to your own servers? Just specify the URL in the AirCasting app settings, “Menu” > “Settings” > “Backend settings”.</li>
+  </ul>
   <div class="columns">
     <div class="col1">
       <a class="habitatmap" target="_tab" href="http://habitatmap.org"></a>

@@ -2,6 +2,7 @@
 
 #home {
   background:#f2f2f2;
+  font-size: 17px;
 
   #left-hud {
     position:fixed;
@@ -157,4 +158,23 @@ a{
   p{
     margin-top: 0px;
   }
+}
+
+ul.home-list {
+  margin: 0 0 0 5px;
+  padding: 0 0 0 15px;
+  li {
+    list-style-type: disc;
+  }
+}
+
+.howitworks {
+  z-index: 1;
+}
+
+.kickstarter {
+  position: absolute;
+  left: 9%;
+  top: 31%;
+  z-index: 2;
 }
