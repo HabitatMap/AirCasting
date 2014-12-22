@@ -131,6 +131,14 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
     }
   };
 
+  $scope.canExportSessions = function() {
+    return (true === params.get('sessionSearchPerformed', false));
+  };
+
+  $scope.exportSessions = function() {
+    sessions.export();
+  };
+
   //used to fetch all the sessions
   $scope.shortTypeCss = function(name, selected){
     var result = name;

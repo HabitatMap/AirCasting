@@ -28,7 +28,11 @@ AirCasting::Application.routes.draw do
   match 's/:url_token' => 'measurement_sessions#show', :as => :short_session
 
   namespace :api do
-    resources :measurement_sessions, :path => 'sessions'
+    resources :measurement_sessions, :path => 'sessions' do
+      collection do
+        get :export
+      end
+    end
     resources :averages
     resources :thresholds, :only => [:show]
     resources :regressions, :only => [:create, :index, :destroy]

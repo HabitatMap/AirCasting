@@ -35,6 +35,11 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
     storage.updateFromDefaults();
   };
 
+  $scope.searchSessions = function() {
+    storage.updateWithRefresh('location');
+    params.update({'sessionSearchPerformed': true});
+  };
+
   //fix for json null parsing
   $scope.$watch("params.get('data').sensorId", function(newValue) {
     if(_(newValue).isNull()){

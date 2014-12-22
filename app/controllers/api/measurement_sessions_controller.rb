@@ -68,6 +68,17 @@ module Api
       respond_with session, :sensor_id => params[:sensor_id], :methods => [:measurements, :notes]
     end
 
+    def export
+      sessions = Session.includes(streams: :measurements).find(params[:session_ids])
+      begin
+        exporter = SessionsExporter.new(sessions)
+        data = exporter.export
+        send_data data, type: exporter.mime_type, filename: exporter.filename,  disposition: 'attachment'
+      ensure
+        exporter.clean
+      end
+    end
+
     private
 
     def session_json(session)

@@ -1,8 +1,8 @@
 angular.module("aircasting").factory('sessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope',
-         'heat', 'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
+         'heat', 'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader', 'sessionsExporter',
         function(params, $http, map, note, sensors, $rootScope,
-                 heat, spinner, utils, $timeout, flash, sessionsDownloader) {
+                 heat, spinner, utils, $timeout, flash, sessionsDownloader, sessionsExporter) {
   var Sessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
@@ -19,7 +19,9 @@ angular.module("aircasting").factory('sessions',
     get: function(){
       return this.sessions;
     },
-
+    allSessionIds: function() {
+      return _(this.get()).pluck("id");
+    },
     noOfSelectedSessions : function() {
       return this.allSelected().length;
     },
@@ -34,6 +36,10 @@ angular.module("aircasting").factory('sessions',
 
     empty: function() {
       return this.noOfSelectedSessions() === 0;
+    },
+
+    export: function() {
+      sessionsExporter(this.allSessionIds());
     },
 
     fetch: function() {
@@ -128,7 +134,7 @@ angular.module("aircasting").factory('sessions',
     },
 
     selectAllSessions: function() {
-      params.update({sessionsIds: _(this.get()).pluck("id")});
+      params.update({sessionsIds: this.allSessionIds()});
     },
 
     selectSession: function(id) {
@@ -165,9 +171,13 @@ angular.module("aircasting").factory('sessions',
 
     allSelected: function(){
       var self = this;
-      return _(params.get('sessionsIds')).chain().map(function(id){
+      return _(this.allSelectedIds()).chain().map(function(id){
         return self.find(id);
       }).compact().value();
+    },
+
+    allSelectedIds: function() {
+      return params.get('sessionsIds');
     },
 
     measurementsCount: function(session) {

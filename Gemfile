@@ -14,6 +14,8 @@ gem 'sidekiq'
 
 gem 'rb-gsl'
 
+gem 'rubyzip', '>= 1.0.0'
+
 platforms :jruby do
   gem 'jdbc-mysql', :platform => :jruby
   gem 'activerecord-jdbc-adapter', :require => false
