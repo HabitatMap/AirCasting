@@ -132,7 +132,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
   };
 
   $scope.canExportSessions = function() {
-    return (true === params.get('sessionSearchPerformed', false));
+    return (true === params.get('didSessionsSearch', false));
   };
 
   $scope.exportSessions = function() {
