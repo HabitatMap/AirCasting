@@ -80,7 +80,8 @@ angular.module("aircasting").factory('sessions',
       if(sensors.selected()){
         _(reqData).extend({
           sensor_name:  sensors.selected().sensor_name,
-          measurement_type:  sensors.selected().measurement_type
+          measurement_type:  sensors.selected().measurement_type,
+          unit_symbol:  sensors.selected().unit_symbol,
         });
       }
 

@@ -47,7 +47,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     }
     params.update({data: {sensorId: newValue}});
     spinner.show();
-    $http.get('/api/thresholds/' + sensors.selected().sensor_name, {cache: true}).success($scope.onThresholdsFetch);
+    $http.get('/api/thresholds/' + sensors.selected().sensor_name, {params: {unit_symbol: sensors.selected().unit_symbol}, cache: true}).success($scope.onThresholdsFetch);
   });
 
   $scope.onThresholdsFetch = function(data, status, headers, config) {
@@ -93,7 +93,8 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
       tags:  data.tags,
       usernames:  data.usernames,
       sensor_name:  sensors.selected().sensor_name,
-      measurement_type:  sensors.selected().measurement_type
+      measurement_type:  sensors.selected().measurement_type,
+      unit_symbol:  sensors.selected().unit_symbol
     };
   };
 

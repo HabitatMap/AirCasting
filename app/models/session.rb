@@ -85,6 +85,7 @@ class Session < ActiveRecord::Base
 
     location = data[:location]
     sensor_name = data[:sensor_name]
+    unit_symbol = data[:unit_symbol]
 
     if data[:east] && data[:west] && data[:north] && data[:south]
       session_ids = Measurement.joins(:session).
@@ -120,6 +121,10 @@ class Session < ActiveRecord::Base
 
     if sensor_name.present?
       sessions = sessions.joins(:streams).where(:streams => {:sensor_name =>  sensor_name})
+    end
+
+    if unit_symbol.present?
+      sessions = sessions.joins(:streams).where(:streams => {:unit_symbol =>  unit_symbol})
     end
 
     if data[:time_from] && data[:time_to] && !whole_day?(data[:time_from], data[:time_to])

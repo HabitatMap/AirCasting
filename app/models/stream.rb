@@ -68,6 +68,10 @@ class Stream < ActiveRecord::Base
     where(:sensor_name => sensor_name)
   end)
 
+  scope(:with_unit_symbol, lambda do |unit_symbol|
+    where(:unit_symbol => unit_symbol)
+  end)
+
   scope(:with_measurement_type, lambda do |measurement_type|
     where(:measurement_type => measurement_type)
   end)
@@ -112,13 +116,13 @@ class Stream < ActiveRecord::Base
   def self.sensors
     select("sensor_name, measurement_type, threshold_very_low, threshold_low, unit_symbol,
            threshold_medium, threshold_high, threshold_very_high, count(*) as session_count").
-      group(:sensor_name, :measurement_type).
+      group(:sensor_name, :measurement_type, :unit_symbol).
       map { |stream| stream.attributes.symbolize_keys }
   end
 
-  def self.thresholds(sensor_name)
+  def self.thresholds(sensor_name, unit_symbol)
     select("CONCAT_WS('-', threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high) as thresholds, COUNT(*) as thresholds_count").
-    where(:sensor_name => sensor_name).
+    where(:sensor_name => sensor_name, :unit_symbol => unit_symbol).
     order("thresholds_count DESC").
     group(:thresholds).first.thresholds.split("-")
   end

@@ -10,8 +10,8 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     onSensorsFetch : function(data, status, headers, config) {
       var sensors = {};
       _(data).each(function(sensor){
-        sensor.id = sensor.measurement_type + "-" + sensor.sensor_name;
-        sensor.label = sensor.measurement_type + " - " + sensor.sensor_name;
+        sensor.id = sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
+        sensor.label = sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
         if (sensor.label.length >= 42) {
           sensor.select_label = sensor.label.slice(0, 40) + "…";
         } else {
@@ -28,7 +28,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
       //this is called only for injectors who verified flag - like crowd map
       if(this.shouldInitSelected && !this.isEmpty() && !params.get('data').sensorId){
         params.update({data: {
-          sensorId: _(self.sensors).chain().keys().sortBy(function(sensorId){
+          sensorId: _(self.sensors).chain().keys().sortBy(function(sensorId) {
             return -1 * self.sensors[sensorId].session_count;
           }).first().value()
         }});
