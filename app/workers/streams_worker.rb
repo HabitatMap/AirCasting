@@ -7,8 +7,8 @@ class StreamsWorker
       stream.build_measurements!(measurements)
 
       if stream.measurements.count > 0
-        stream.calc_bounding_box! if stream.min_latitude.nil?
-        stream.calc_average_value! if stream.average_value.nil?
+        stream.calc_bounding_box!
+        stream.calc_average_value!
       end
     end
   end
