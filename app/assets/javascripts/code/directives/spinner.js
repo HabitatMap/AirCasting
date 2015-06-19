@@ -16,7 +16,6 @@ angular.module("aircasting").directive('spinner', function (){
       var spinnerInst = new Spinner(spinnerOpts);
       scope.$watch("spinner.visible()", function(newValue, oldValue){
         if(newValue){
-          overlay.show();
           spinnerInst.spin(target);
         } else {
           overlay.hide();
@@ -26,7 +25,3 @@ angular.module("aircasting").directive('spinner', function (){
     }
   };
 });
-
-
-
-
