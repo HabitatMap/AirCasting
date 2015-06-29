@@ -5,6 +5,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     this.sensors = {};
     this.tmpSensorId = undefined;
     this.shouldInitSelected = false;
+    this.defaultSensor = "Particulate Matter-AirBeam-PM (µg/m³)"
   };
   Sensors.prototype = {
     onSensorsFetch : function(data, status, headers, config) {
@@ -27,11 +28,15 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
       var self = this;
       //this is called only for injectors who verified flag - like crowd map
       if(this.shouldInitSelected && !this.isEmpty() && !params.get('data').sensorId){
-        params.update({data: {
-          sensorId: _(self.sensors).chain().keys().sortBy(function(sensorId) {
-            return -1 * self.sensors[sensorId].session_count;
-          }).first().value()
-        }});
+        if(this.defaultSensor) {
+          params.update({data: {sensorId: this.defaultSensor }});
+        } else {
+          params.update({data: {
+            sensorId: _(self.sensors).chain().keys().sortBy(function(sensorId) {
+              return -1 * self.sensors[sensorId].session_count;
+            }).first().value()
+          }});
+        }
       }
     },
     get : function() {
