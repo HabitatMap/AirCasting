@@ -46,7 +46,9 @@
     <div class="section-divider" ng-include="versioner.path('/partials/usernames_and_tags.html')"></div>
     <div class="section-divider" ng-include="versioner.path('/partials/time_filters.html')"></div>
     <div ng-switch on="!!singleSession.get() && !!sensors.anySelected()">
-      <div ng-switch-when="true" class="section-divider" ng-include="versioner.path('/partials/heat_legend.html')"></div>
+      <div ng-switch-when="true">
+        <div class="section-divider" ng-include="versioner.path('/partials/heat_legend.html')"></div>
+      </div>
     </div>
   </div>
 </div>
