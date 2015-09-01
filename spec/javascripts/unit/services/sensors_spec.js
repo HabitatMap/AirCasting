@@ -27,11 +27,12 @@ describe('sensors', function() {
 
     describe('and required sensor choosing', function() {
       beforeEach(function() {
+        sensors.defaultSensor = null;
         sensors.shouldInitSelected = true;
         sensors.initSelected();
       });
       it('should have sensor with highest session_coount selected in params', function() {
-        expect(params.get("data").sensorId).toEqual("Sound Level-Phone Microphone");
+        expect(params.get("data").sensorId).toEqual("Sound Level-Phone Microphone (dB)");
       });
       it('should have selected sensor', function() {
         expect(sensors.selected().id).toEqual(params.get("data").sensorId);
