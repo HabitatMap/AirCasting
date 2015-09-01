@@ -40,7 +40,6 @@ GEM
       tzinfo (~> 0.3.29)
     activerecord-import (0.2.11)
       activerecord (~> 3.0)
-      activerecord (~> 3.0)
     activerecord-jdbc-adapter (1.2.9)
     activeresource (3.2.13)
       activemodel (= 3.2.13)
@@ -421,7 +420,7 @@ DEPENDENCIES
   rails_best_practices
   rainbows
   rake (= 10.0.3)
-  rb-gsl
+  rb-gsl (= 1.16.0.1)
   rb-inotify
   rspec-rails
   rubyzip (>= 1.0.0)
