@@ -1,4 +1,5 @@
 [![Build Status](https://secure.travis-ci.org/HabitatMap/AirCasting.png)](https://travis-ci.org/HabitatMap/AirCasting)
+[![Code Climate](https://codeclimate.com/github/HabitatMap/AirCasting/badges/gpa.svg)](https://codeclimate.com/github/HabitatMap/AirCasting)
 
 ##AirCasting - Share your Air!
 
