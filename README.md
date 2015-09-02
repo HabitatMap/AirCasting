@@ -14,7 +14,7 @@ For a [Debian](http://debian.org)/[Ubuntu](http://ubuntu.com) system, the easies
     `sudo apt-get install bzip2 curl subversion git-core` 
 
 * install rvm  
-curl -L https://get.rvm.io | bash -s
+`curl -L https://get.rvm.io | bash -s`
 * rvm requirements  
 `sudo apt-get install build-essential openssl libreadline6 libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf libc6-dev ncurses-dev automake libtool bison subversion pkg-config imagemagick`
 * install ruby  
@@ -26,10 +26,21 @@ curl -L https://get.rvm.io | bash -s
 `git clone git://github.com/HabitatMap/AirCasting.git aircasting`  
 `cd aircasting`    
 `cp config/database.yml.example config/database.yml`  
+* rb-gsl dependency  
+`sudo apt-get install libgsl0-dev`
 * create database  
 `bundle exec rake db:create db:migrate`
 * run application, by default starts as [localhost:3000](http://localhost:3000)  
 `bundle exec rails server`
+
+### Tests
+
+* dependencies  
+`sudo apt-get install libqt4-dev qt4-qmake`  
+`sudo apt-get install xvfb`  
+* run tests  
+`bundle exec rspec`  
+`xvfb-run bundle exec rake jasmine:headless`
 
 ###Contribute
 
@@ -47,4 +58,3 @@ YourKit is kindly supporting open source projects with its full-featured Java Pr
 ###License
 
 The project is licensed under the GNU Affero GPLv3. For more information see COPYING and visit [http://www.gnu.org/licenses/agpl.html](http://www.gnu.org/licenses/agpl.html).
-`
