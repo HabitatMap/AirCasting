@@ -2,10 +2,12 @@ language: ruby
 rvm:
   - "1.9.3"
   - "2.0.0"
+sudo: false
 bundler_args: --without development
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libgsl0-dev
+addons:
+  apt:
+    packages:
+    - libgsl0-dev
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
