@@ -1,7 +1,7 @@
 language: ruby
 rvm:
-  - "1.9.3"
-  - "2.0.0"
+  - 1.9.3
+  - 2.0.0
 sudo: false
 bundler_args: --without development
 addons:
@@ -9,10 +9,8 @@ addons:
     packages:
     - libgsl0-dev
 before_script:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - "cp config/database.yml.travis config/database.yml"
-  - "mysql -e 'create database aircasting_test;'"
-  - "RAILS_ENV=test bundle exec rake db:migrate"
+  - cp config/database.yml.travis config/database.yml
+  - mysql -e 'create database aircasting_test;'
+  - RAILS_ENV=test bundle exec rake db:migrate
 script:
-  - "bundle exec rspec --color spec/spec_helper.rb spec && DISPLAY=:99.0 RAILS_ENV=test bundle exec rake jasmine:headless"
+  - "bundle exec rspec --color && RAILS_ENV=test xvfb-run -a bundle exec rake jasmine:headless"
