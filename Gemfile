@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'rake', '10.0.3'
-gem 'rails', '3.2.13'
+gem 'rails', '3.2.22'
 gem 'haml'
 gem 'devise', '~> 2.0.5'
 gem 'paperclip', '~> 2.0'
@@ -12,7 +12,7 @@ gem 'activeadmin'
 gem 'awesome_print', :require => 'ap'
 gem 'sidekiq'
 
-gem 'rb-gsl'
+gem 'rb-gsl', '1.16.0.1'
 
 gem 'rubyzip', '>= 1.0.0'
 
@@ -47,7 +47,7 @@ gem 'geocoder', '~> 1.1.2'
 
 group :development do
   gem 'capistrano'
-  gem 'rvm-capistrano'
+  gem 'rvm-capistrano', require: false
   gem 'capistrano-ext'
   gem 'capistrano-sidekiq'
   gem 'pry'
