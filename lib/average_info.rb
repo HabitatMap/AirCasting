@@ -10,41 +10,12 @@ class AverageInfo
   end
 
   def as_json(options=nil)
-    if data[:west] < data[:east]
-      grid_x = (data[:east] - data[:west]) / data[:grid_size_x]
-    else
-      grid_x = (180 - data[:west] + 180 + data[:east]) / data[:grid_size_x]
-    end
+    averages
+  end
 
-    grid_y = (data[:north] - data[:south]) / data[:grid_size_y]
-    grid_y = Y_SIZES.find { |x| x > grid_y }
+  private
 
-    usernames = AirCasting::UsernameParam.split(data[:usernames])
-
-    streams = Stream.
-      only_contributed.
-      with_measurement_type(data[:measurement_type]).
-      with_sensor(data[:sensor_name]).
-      with_unit_symbol(data[:unit_symbol]).
-      in_rectangle(data).
-      with_usernames(usernames)
-
-    stream_ids = streams.map(&:id)
-    tags = data[:tags].to_s.split(/[\s,]/)
-
-    measurements = Measurement.
-      select(
-        "AVG(value) AS avg, " +
-          "round(CAST(longitude AS DECIMAL(36, 12)) / CAST(#{grid_x} AS DECIMAL(36,12)), 0) AS middle_x, " +
-          "round(CAST(latitude AS DECIMAL(36, 12)) / CAST(#{grid_y} AS DECIMAL(36,12)), 0) AS middle_y "
-      ).
-        with_streams(stream_ids).
-        group("middle_x").
-        group("middle_y").
-        in_rectangle(data).
-        with_time(data).
-        with_tags(tags)
-
+  def averages
     measurements.map do |measurement|
       {
         :value => measurement.avg.to_f,
@@ -54,5 +25,54 @@ class AverageInfo
         :north  =>  measurement.middle_y.to_f * grid_y + grid_y / 2
       }
     end
+  end
+
+  def measurements
+    Measurement.
+      select(
+        "AVG(value) AS avg, " +
+          "round(CAST(longitude AS DECIMAL(36, 12)) / CAST(#{grid_x} AS DECIMAL(36,12)), 0) AS middle_x, " +
+          "round(CAST(latitude AS DECIMAL(36, 12)) / CAST(#{grid_y} AS DECIMAL(36,12)), 0) AS middle_y "
+      ).
+      with_streams(stream_ids).
+      group("middle_x").
+      group("middle_y").
+      in_rectangle(data).
+      with_time(data).
+      with_tags(tags)
+  end
+
+  def stream_ids
+    streams.map(&:id)
+  end
+
+  def streams
+    @streams ||= Stream.
+      only_contributed.
+      with_measurement_type(data[:measurement_type]).
+      with_sensor(data[:sensor_name]).
+      with_unit_symbol(data[:unit_symbol]).
+      in_rectangle(data).
+      with_usernames(usernames)
+  end
+
+  def usernames
+    @username ||= AirCasting::UsernameParam.split(data[:usernames])
+  end
+
+  def grid_x
+    @grid_x ||= if data[:west] < data[:east]
+       (data[:east] - data[:west]) / data[:grid_size_x]
+    else
+      @grid_x = (180 - data[:west] + 180 + data[:east]) / data[:grid_size_x]
+    end
+  end
+
+  def grid_y
+    @grid_y ||= Y_SIZES.find { |x| x > (data[:north] - data[:south]) / data[:grid_size_y] }
+  end
+
+  def tags
+    data[:tags].to_s.split(/[\s,]/)
   end
 end
