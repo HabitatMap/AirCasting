@@ -9,7 +9,6 @@ gem 'activerecord-import', '~> 0.2.9'
 gem 'coffee-script-source', '1.1.2'
 gem 'newrelic_rpm'
 gem 'activeadmin'
-gem 'awesome_print', :require => 'ap'
 gem 'sidekiq'
 
 gem 'rb-gsl', '1.16.0.1'
@@ -40,20 +39,13 @@ end
 gem 'acts-as-taggable-on', '~> 2.3.3'
 gem 'geocoder', '~> 1.1.2'
 
-# To use ActiveModel has_secure_password
-# gem 'bcrypt-ruby', '~> 3.0.0'
-
-# Deploy with Capistrano
-
+# deploy with capistrano
 group :development do
   gem 'capistrano'
-  gem 'rvm-capistrano', require: false
   gem 'capistrano-ext'
   gem 'capistrano-sidekiq'
-  gem 'pry'
+  gem 'rvm-capistrano', require: false
 end
-# To use debugger
-# gem 'ruby-debug19', :require => 'ruby-debug'
 
 group :test, :development do
   gem 'rspec-rails'
@@ -80,8 +72,8 @@ group :production do
 end
 
 group :development do
-  gem('flog', :require => nil)
-  gem('rails_best_practices', :require => nil)
-  gem('churn', :require => nil)
-  gem('flay', :require => nil)
+  gem 'awesome_print'
+  gem 'metric_fu'
+  gem 'pry'
+  gem 'quiet_assets'
 end
