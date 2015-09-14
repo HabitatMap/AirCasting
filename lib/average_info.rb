@@ -31,8 +31,8 @@ class AverageInfo
     Measurement.
       select(
         "AVG(value) AS avg, " +
-          "round(CAST(longitude AS DECIMAL(36, 12)) / CAST(#{grid_x} AS DECIMAL(36,12)), 0) AS middle_x, " +
-          "round(CAST(latitude AS DECIMAL(36, 12)) / CAST(#{grid_y} AS DECIMAL(36,12)), 0) AS middle_y "
+          "ROUND(longitude / #{grid_x}, 0) AS middle_x, " +
+          "ROUND(latitude / #{grid_y}, 0) AS middle_y "
       ).
       with_streams(stream_ids).
       group("middle_x").
@@ -43,7 +43,7 @@ class AverageInfo
   end
 
   def stream_ids
-    streams.map(&:id)
+    streams.pluck(:id)
   end
 
   def streams
