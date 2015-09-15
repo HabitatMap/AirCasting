@@ -17,6 +17,9 @@ gem 'rb-gsl', '1.16.0.1'
 
 gem 'rubyzip', '>= 1.0.0'
 
+gem 'elasticsearch-model'
+gem 'elasticsearch-rails'
+
 platforms :jruby do
   gem 'jdbc-mysql', :platform => :jruby
   gem 'activerecord-jdbc-adapter', :require => false
