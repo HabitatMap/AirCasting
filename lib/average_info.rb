@@ -16,7 +16,7 @@ class AverageInfo
   private
 
   def averages
-    measurements.map do |measurement|
+    @averages ||= measurements.map do |measurement|
       {
         :value => measurement.avg.to_f,
         :west  =>  measurement.middle_x.to_f * grid_x - grid_x / 2,
@@ -28,7 +28,7 @@ class AverageInfo
   end
 
   def measurements
-    Measurement.
+    @measurements ||= Measurement.
       select(
         "AVG(value) AS avg, " +
           "ROUND(longitude / #{grid_x}, 0) AS middle_x, " +
@@ -43,7 +43,7 @@ class AverageInfo
   end
 
   def stream_ids
-    streams.pluck(:id)
+    @stream_ids ||= streams.pluck(:id)
   end
 
   def streams
@@ -73,6 +73,6 @@ class AverageInfo
   end
 
   def tags
-    data[:tags].to_s.split(/[\s,]/)
+    @tags ||= data[:tags].to_s.split(/[\s,]/)
   end
 end
