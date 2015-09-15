@@ -10,6 +10,8 @@ gem 'coffee-script-source', '1.1.2'
 gem 'newrelic_rpm'
 gem 'activeadmin'
 gem 'sidekiq'
+gem 'progress', require: false
+gem 'pry-rails'
 
 gem 'rb-gsl', '1.16.0.1'
 
@@ -75,6 +77,5 @@ end
 group :development do
   gem 'awesome_print'
   gem 'metric_fu'
-  gem 'pry'
   gem 'quiet_assets'
 end
