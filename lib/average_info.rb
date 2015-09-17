@@ -38,8 +38,7 @@ class AverageInfo
       group("middle_x").
       group("middle_y").
       in_rectangle(data).
-      with_time(data).
-      with_tags(tags)
+      with_time(data)
   end
 
   def stream_ids
@@ -53,7 +52,8 @@ class AverageInfo
       with_sensor(data[:sensor_name]).
       with_unit_symbol(data[:unit_symbol]).
       in_rectangle(data).
-      with_usernames(usernames)
+      with_usernames(usernames).
+      with_tags(tags)
   end
 
   def usernames
