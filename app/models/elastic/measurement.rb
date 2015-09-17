@@ -28,6 +28,10 @@ module Elastic
         indexes :time, type: 'date', format: 'dateOptionalTime'
         indexes :timezone_offset, type: 'long'
         indexes :value, type: 'double'
+
+        indexes :day_of_year, type: 'integer'
+        indexes :minutes_of_day, type: 'integer'
+        indexes :year, type: 'integer'
       end
     end
   end

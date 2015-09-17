@@ -72,4 +72,12 @@ class Measurement < ActiveRecord::Base
       self.timezone_offset = time_before_type_cast.to_datetime.utc_offset / SECONDS_IN_MINUTE
     end
   end
+
+  def as_indexed_json(options={})
+    as_json(options).merge(
+      day_of_year: time.yday,
+      minutes_of_day: (time.seconds_since_midnight / 60).to_i,
+      year: time.year
+    )
+  end
 end

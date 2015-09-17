@@ -17,6 +17,7 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 require_dependency 'average_info'
+require_dependency 'elastic/average_info'
 
 module Api
   class AveragesController < BaseController
@@ -47,7 +48,7 @@ module Api
       data[:year_from] = data[:year_from] || 2010
       data[:year_to] = data[:year_to] || 2050
 
-      respond_with AverageInfo.new(data)
+      respond_with Elastic::AverageInfo.new(data)
     end
   end
 end
