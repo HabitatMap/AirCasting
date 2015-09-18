@@ -48,7 +48,11 @@ module Api
       data[:year_from] = data[:year_from] || 2010
       data[:year_to] = data[:year_to] || 2050
 
-      respond_with Elastic::AverageInfo.new(data)
+      if Feature[:elasticsearch].enabled?
+        respond_with Elastic::AverageInfo.new(data)
+      else
+        respond_with AverageInfo.new(data)
+      end
     end
   end
 end

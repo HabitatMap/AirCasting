@@ -19,6 +19,9 @@ gem 'rubyzip', '>= 1.0.0'
 
 gem 'elasticsearch-model'
 gem 'elasticsearch-rails'
+gem 'flipper'
+gem 'flipper-redis'
+gem 'flipper-ui'
 
 platforms :jruby do
   gem 'jdbc-mysql', :platform => :jruby
