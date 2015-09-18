@@ -73,6 +73,10 @@ group :test, :development do
   gem 'jasmine-rails'
 end
 
+group :test do
+  gem 'fakeredis', require: 'fakeredis/rspec'
+end
+
 group :production do
   platforms :ruby do
     gem 'unicorn'
