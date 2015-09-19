@@ -64,6 +64,15 @@ class Stream < ActiveRecord::Base
     )
   end)
 
+  scope(:with_tags, lambda do |tags|
+    if tags.present?
+      session_ids = Session.tagged_with(tags).where('sessions.id IS NOT NULL').pluck('DISTINCT sessions.id')
+      if session_ids.present?
+        where(session_id: session_ids)
+      end
+    end
+  end)
+
   scope(:with_sensor, lambda do |sensor_name|
     where(:sensor_name => sensor_name)
   end)

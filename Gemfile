@@ -17,6 +17,12 @@ gem 'rb-gsl', '1.16.0.1'
 
 gem 'rubyzip', '>= 1.0.0'
 
+gem 'elasticsearch-model'
+gem 'elasticsearch-rails'
+gem 'flipper'
+gem 'flipper-redis'
+gem 'flipper-ui'
+
 platforms :jruby do
   gem 'jdbc-mysql', :platform => :jruby
   gem 'activerecord-jdbc-adapter', :require => false
@@ -65,6 +71,10 @@ group :test, :development do
   gem 'libnotify', :require => false
   gem 'rb-inotify', :require => false
   gem 'jasmine-rails'
+end
+
+group :test do
+  gem 'fakeredis', require: 'fakeredis/rspec'
 end
 
 group :production do
