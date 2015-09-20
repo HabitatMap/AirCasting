@@ -22,6 +22,7 @@ gem 'elasticsearch-rails'
 gem 'flipper'
 gem 'flipper-redis'
 gem 'flipper-ui'
+gem 'sinatra', require: false
 
 platforms :jruby do
   gem 'jdbc-mysql', :platform => :jruby
