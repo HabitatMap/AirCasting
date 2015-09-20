@@ -9,7 +9,7 @@ gem 'activerecord-import', '~> 0.2.9'
 gem 'coffee-script-source', '1.1.2'
 gem 'newrelic_rpm'
 gem 'activeadmin'
-gem 'sidekiq'
+gem 'sidekiq', '~> 3.1.4'
 gem 'sidekiq-unique-jobs'
 gem 'progress', require: false
 gem 'pry-rails'
