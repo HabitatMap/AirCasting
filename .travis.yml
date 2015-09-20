@@ -9,6 +9,8 @@ addons:
   apt:
     packages:
     - libgsl0-dev
+services:
+  - redis-server
 before_script:
   - cp config/database.yml.travis config/database.yml
   - mysql -e 'create database aircasting_test;'
