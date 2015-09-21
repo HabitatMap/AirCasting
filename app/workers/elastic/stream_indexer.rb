@@ -2,7 +2,7 @@ module Elastic
   class StreamIndexer
     include Sidekiq::Worker
 
-    sidekiq_options retry: false, unique: true
+    sidekiq_options retry: false#, unique: true
 
     Client = Elasticsearch::Client.new(host: 'localhost:9200', logger: Sidekiq.logger)
 
