@@ -7,6 +7,8 @@ module Elastic
     Client = Elasticsearch::Client.new(host: 'localhost:9200', logger: Sidekiq.logger)
 
     def perform(stream_id, operation)
+      return unless Feature[:elasticsearch].enabled?
+
       Sidekiq.logger.info("[Stream, id: #{stream_id}, operation: #{operation}]")
 
       case operation
