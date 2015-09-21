@@ -19,7 +19,7 @@
 require "rvm/capistrano"
 require 'bundler/capistrano'
 require 'capistrano/ext/multistage'
-
+require 'new_relic/recipes'
 
 set :application, "aircasting"
 set :repository, "git@github.com:HabitatMap/AirCasting.git"
@@ -42,3 +42,4 @@ end
 
 after "deploy:update_code", "deploy:migrate"
 after 'deploy:restart', 'deploy:cleanup'
+after 'deploy:restart', 'newrelic:notice_deployment'
