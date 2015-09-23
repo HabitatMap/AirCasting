@@ -1,5 +1,5 @@
 function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expandables, $location, versioner,
-                      storage, storageEvents, infoWindow, rectangles, spinner, functionBlocker, utils) {
+                      storage, storageEvents, infoWindow, rectangles, spinner, functionBlocker, utils, flash) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.versioner = versioner;
@@ -72,7 +72,12 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     }
     var reqData = $scope.averagesData(bounder);
     spinner.show();
-    $http.get('/api/averages', {cache: true, params : {q: reqData}}).success($scope.onAveragesFetch);
+    $http.get('/api/averages', {cache: true, params : {q: reqData}}).error($scope.onError).success($scope.onAveragesFetch);
+  };
+
+  $scope.onError = function() {
+    spinner.hide();
+    flash.set('There was an error, sorry');
   };
 
   $scope.averagesData = function(bounder) {
@@ -117,4 +122,4 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
 }
 CrowdMapCtrl.$inject = ['$scope', '$http', 'params', 'heat',
   '$window', 'map', 'sensors', 'expandables', '$location', 'versioner', 'storage',
-  'storageEvents', 'infoWindow', 'rectangles', 'spinner', 'functionBlocker', 'utils'];
+  'storageEvents', 'infoWindow', 'rectangles', 'spinner', 'functionBlocker', 'utils', 'flash'];
