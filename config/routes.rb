@@ -35,7 +35,7 @@ AirCasting::Application.routes.draw do
       end
     end
     resources :averages
-    resources :thresholds, :only => [:show]
+    resources :thresholds, :only => [:show], id: /.*/
     resources :regressions, :only => [:create, :index, :destroy]
     resource :region
     resource  :user do
