@@ -99,7 +99,7 @@ class User < ActiveRecord::Base
   end
 
   def admin?
-    email == 'admin@aircasting.org'
+    read_attribute(:admin) || email.eql?('admin@aircasting.org')
   end
 
   private
