@@ -152,13 +152,17 @@ class Session < ActiveRecord::Base
   end
 
   def self.filtered_json(data, page, page_size)
+    methods = [:username, :streams]
+
+    methods << :measurements if data[:measurements]
+
     offset(page.to_i * page_size.to_i)
     .limit(page_size)
     .includes(:user)
     .includes(:streams)
     .filter(data).as_json(
-        :only => [:id, :title, :start_time_local, :end_time_local],
-        :methods => [:username, :streams]
+      only: [:id, :title, :start_time_local, :end_time_local],
+      methods: methods
     )
   end
 

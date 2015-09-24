@@ -181,6 +181,7 @@ describe Session do
     it 'should return filter() as json' do
       Session.should_receive(:filter).with(data).and_return(records)
       records.should_receive(:as_json).with(hash_including({:only => [:id, :title, :start_time_local, :end_time_local], :methods => [:username, :streams]})).and_return(json)
+      data.should_receive(:[]).with(:measurements).and_return(false)
 
       Session.filtered_json(data, 0, 50).should == json
     end
