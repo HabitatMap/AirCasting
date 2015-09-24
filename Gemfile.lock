@@ -465,6 +465,8 @@ GEM
       json
       redis (>= 3.0.6)
       redis-namespace (>= 1.3.1)
+    sidekiq-unique-jobs (3.0.15)
+      sidekiq (>= 2.6)
     sinatra (1.4.6)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -569,6 +571,7 @@ DEPENDENCIES
   sass-rails (~> 3.2.2)
   shoulda-matchers
   sidekiq (~> 3.1.4)
+  sidekiq-unique-jobs
   sinatra
   spork (~> 0.9.0)
   therubyracer (~> 0.10)
