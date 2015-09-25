@@ -75,6 +75,10 @@ bundle exec rspec
 xvfb-run bundle exec rake jasmine:headless
 ```
 
+### ElasticSearch
+
+Read more [here](doc/elasticsearch.md).
+
 ###Contribute
 
 If you'd like to contribute just use the usual github process - fork, make changes, issue a pull request.
