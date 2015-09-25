@@ -51,6 +51,8 @@ gem 'geocoder', '~> 1.1.2'
 
 # deploy with capistrano
 group :development do
+  gem 'better_errors'
+  gem 'binding_of_caller'
   gem 'capistrano'
   gem 'capistrano-ext'
   gem 'capistrano-sidekiq'
