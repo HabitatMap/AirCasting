@@ -69,7 +69,7 @@ class Session < ActiveRecord::Base
 
   def self.filter(data={})
     sessions = order("sessions.created_at DESC").
-    where("contribute = true OR sessions.id = ?", data[:session_ids]).
+    where("contribute = true OR sessions.id IN (?)", data[:session_ids]).
     day_range(data[:day_from], data[:day_to]).
     joins(:user)
 
