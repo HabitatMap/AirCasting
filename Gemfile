@@ -10,7 +10,7 @@ gem 'coffee-script-source', '1.1.2'
 gem 'newrelic_rpm'
 gem 'activeadmin'
 gem 'sidekiq', '~> 3.1.4'
-gem 'sidekiq-unique-jobs'
+gem 'sidekiq-unique-jobs', '3.0.12'
 gem 'progress', require: false
 gem 'pry-rails'
 
