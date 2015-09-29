@@ -18,6 +18,7 @@ gem 'rb-gsl', '1.16.0.1'
 
 gem 'rubyzip', '>= 1.0.0'
 
+gem 'apipie-rails', github: 'Apipie/apipie-rails'
 gem 'elasticsearch-model'
 gem 'elasticsearch-rails'
 gem 'flipper'

@@ -18,6 +18,8 @@
 
 require 'sidekiq/web'
 AirCasting::Application.routes.draw do
+  apipie
+
   ActiveAdmin.routes(self)
   mount Sidekiq::Web => '/sidekiq'
   mount Flipper::UI.app(Feature.flipper) => '/flipper'
@@ -29,6 +31,16 @@ AirCasting::Application.routes.draw do
   match 's/:url_token' => 'measurement_sessions#show', :as => :short_session
 
   namespace :api do
+    namespace :v2 do
+      namespace :data do
+        resources :sessions, only: [] do
+          collection do
+            get :last
+          end
+        end
+      end
+    end
+
     resources :measurement_sessions, :path => 'sessions' do
       collection do
         get :export
