@@ -78,7 +78,7 @@ class Stream < ActiveRecord::Base
   end)
 
   scope(:with_unit_symbol, lambda do |unit_symbol|
-    where(:unit_symbol => unit_symbol)
+    where(:unit_symbol => unit_symbol) if unit_symbol.present?
   end)
 
   scope(:with_measurement_type, lambda do |measurement_type|
