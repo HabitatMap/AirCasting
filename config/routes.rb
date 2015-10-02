@@ -41,17 +41,17 @@ AirCasting::Application.routes.draw do
       end
     end
 
-    resources :measurement_sessions, :path => 'sessions' do
+    resources :measurement_sessions, path: 'sessions', only: [:show, :create, :index] do
       collection do
         get :export
       end
     end
-    resources :averages
-    resources :thresholds, :only => [:show], id: /.*/
-    resources :regressions, :only => [:create, :index, :destroy]
-    resource :region
-    resource  :user do
-      resources :sessions, :controller => "user_sessions" do
+    resources :averages, only: [:index]
+    resources :thresholds, only: [:show], id: /.*/
+    resources :regressions, only: [:create, :index, :destroy]
+    resource :region, only: [:show]
+    resource  :user, only: [:show, :create] do
+      resources :sessions, only: [:show], controller: "user_sessions" do
         collection do
           post :sync
           post :delete_session
@@ -59,7 +59,7 @@ AirCasting::Application.routes.draw do
         end
       end
     end
-    resources :sensors
+    resources :sensors, only: [:index]
   end
 
   get 'autocomplete/tags' => 'autocomplete#tags'
