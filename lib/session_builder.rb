@@ -24,12 +24,10 @@ class SessionBuilder
 
     begin
       session = Session.create!(data)
-    rescue ActiveRecord::RecordInvalid => e
-      session = Session.where(uuid: data[:uuid], user_id: user.id).first
-      return nil unless session
+    rescue ActiveRecord::RecordInvalid
+      Rails.logger.warn("[SessionBuilder] data: #{data}")
 
-      session.assign_attributes(data)
-      session.save!
+      return nil
     end
 
     stream_data.values.each do |a_stream|
