@@ -1,4 +1,6 @@
 class SessionBuilder
+  attr_reader :user
+
   def initialize(session_data, photos, user)
     @session_data = session_data
     @user = user
@@ -19,7 +21,14 @@ class SessionBuilder
     stream_data = data.delete(:streams)
 
     data = build_local_start_and_end_time(data)
-    session = Session.create!(data)
+
+    begin
+      session = Session.create!(data)
+    rescue ActiveRecord::RecordInvalid => e
+      session = Session.where(uuid: data[:uuid], user_id: user.id).first
+      session.assign_attributes(data)
+      session.save!
+    end
 
     stream_data.values.each do |a_stream|
       a_stream.merge!(:session => session)
