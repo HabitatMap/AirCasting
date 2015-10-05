@@ -18,8 +18,6 @@
 
 require 'sidekiq/web'
 AirCasting::Application.routes.draw do
-  apipie
-
   ActiveAdmin.routes(self)
   mount Sidekiq::Web => '/sidekiq'
   mount Flipper::UI.app(Feature.flipper) => '/flipper'

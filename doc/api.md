@@ -174,3 +174,17 @@ curl http://aircasting.org/api/sessions/9586
   }
 }
 ```
+
+## GET /api/v2/data/sessions/last
+
+### URL
+
+```
+curl http://aircasting.org/api/v2/data/sessions/last
+```
+
+### Example response
+
+```json
+{"id":10105}
+```
