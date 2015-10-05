@@ -23,7 +23,7 @@ module Elastic
         query = lambda { Elastic::Measurement.search({query: {term: {stream_id: stream_id}}, size: 1000}, {index: index_name}) }
         while query.call.results.total > 0
           actions = query.call.results.map do |result|
-            { delete: { _index: 'measurements', _type: 'measurement', _id: result._id } }
+            { delete: { _index: index_name, _type: 'measurement', _id: result._id } }
           end
           Client.bulk(body: actions)
         end
