@@ -79,6 +79,10 @@ xvfb-run bundle exec rake jasmine:headless
 
 Read more [here](doc/elasticsearch.md).
 
+### API documentation
+
+Read more [here](doc/api.md).
+
 ###Contribute
 
 If you'd like to contribute just use the usual github process - fork, make changes, issue a pull request.
