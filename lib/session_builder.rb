@@ -26,6 +26,8 @@ class SessionBuilder
       session = Session.create!(data)
     rescue ActiveRecord::RecordInvalid => e
       session = Session.where(uuid: data[:uuid], user_id: user.id).first
+      return nil unless session
+
       session.assign_attributes(data)
       session.save!
     end
