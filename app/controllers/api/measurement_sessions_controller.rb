@@ -27,8 +27,10 @@ module Api
     def index
       if params[:q].is_a?(String)
         data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
-      else
+      elsif params[:q]
         data = params[:q].symbolize_keys
+      else
+        data = {}
       end
       INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
