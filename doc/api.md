@@ -118,7 +118,23 @@ curl http://aircasting.org/api/sessions/9586
   "url_token": "412mb",
   "user_id": 676,
   "uuid": "34cf435f-e320-4aaf-844d-6be3da866e0d",
-  "notes": [],
+  "notes": [
+    {
+      "created_at": "2015-09-09T17:19:16Z",
+      "date": "2015-09-09T17:19:16Z",
+      "id": 19,
+      "latitude": "39.68933377",
+      "longitude": "-104.89647254",
+      "number": 0,
+      "photo_content_type": "application/octet-stream",
+      "photo_file_name": "1326449167743.jpg",
+      "photo_file_size": 303540,
+      "photo_updated_at": "2015-09-09T17:19:16Z",
+      "session_id": 9586,
+      "text": "Registering 84 dB peak and 64 dB average",
+      "updated_at": "2015-09-09T17:19:16Z"
+    }
+  ],
   "streams": {
     "AirBeam-PM": {
       "average_value": 3.47621,
