@@ -33,6 +33,8 @@ class Note < ActiveRecord::Base
     :hash_secret => AppConfig.attachment_secret
   }
 
+  validates_attachment :photo, content_type: { content_type: /\Aimage\/.*\Z/ }
+
   def photo_exists?
     File.exists?(File.join(Rails.root, "public", photo.to_s.split("?").first))
   end
