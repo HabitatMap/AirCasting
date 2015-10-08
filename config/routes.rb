@@ -21,7 +21,7 @@ AirCasting::Application.routes.draw do
   ActiveAdmin.routes(self)
   mount Sidekiq::Web => '/sidekiq'
   mount Flipper::UI.app(Feature.flipper) => '/flipper'
-  mount JasmineRails::Engine => "/specs" if Rails.env.development?
+  mount JasmineRails::Engine => "/specs" if defined?(JasmineRails)
   devise_for :users, :controllers => { :sessions => 'sessions', :passwords => 'passwords' }
 
   resource :map

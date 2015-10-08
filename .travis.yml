@@ -16,4 +16,4 @@ before_script:
   - mysql -e 'create database aircasting_test;'
   - RAILS_ENV=test bundle exec rake db:migrate
 script:
-  - "bundle exec rspec --color && RAILS_ENV=test xvfb-run -a bundle exec rake jasmine:headless"
+  - "bundle exec rspec --color && bundle exec rake spec:javascript"
