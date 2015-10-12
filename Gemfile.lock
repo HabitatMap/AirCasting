@@ -379,6 +379,8 @@ GEM
       rails-assets-angular (= 1.2.29)
     rails-assets-angular-route (1.2.29)
       rails-assets-angular (= 1.2.29)
+    rails-assets-underscore (1.8.3)
+    rails-assets-underscore.string (2.4.0)
     rails_best_practices (1.15.7)
       activesupport
       code_analyzer (>= 0.4.3)
@@ -573,6 +575,8 @@ DEPENDENCIES
   rails-assets-angular (~> 1.2.29)!
   rails-assets-angular-cookies (~> 1.2.29)!
   rails-assets-angular-route (~> 1.2.29)!
+  rails-assets-underscore (~> 1.8.3)!
+  rails-assets-underscore.string (~> 2.4.0)!
   rainbows
   rake (= 10.0.3)
   rb-gsl (= 1.16.0.1)

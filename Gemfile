@@ -96,4 +96,6 @@ source 'https://rails-assets.org' do
   gem 'rails-assets-angular', ANGULAR_VERSION
   gem 'rails-assets-angular-route', ANGULAR_VERSION
   gem 'rails-assets-angular-cookies', ANGULAR_VERSION
+  gem 'rails-assets-underscore', '~> 1.8.3'
+  gem 'rails-assets-underscore.string', '~> 2.4.0'
 end

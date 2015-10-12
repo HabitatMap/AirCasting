@@ -24,8 +24,8 @@
 //= require angular
 //= require angular-route
 //= require angular-cookies
-//= require libs/underscore
-//= require libs/underscore.string.min
+//= require underscore
+//= require underscore.string
 //= require libs/spin
 //= require libs/highcharts/highstock
 //= require libs/jquery.lightbox-0.5
