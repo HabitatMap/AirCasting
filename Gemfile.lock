@@ -1,5 +1,6 @@
 GEM
   remote: http://rubygems.org/
+  remote: https://rails-assets.org/
   specs:
     POpen4 (0.1.4)
       Platform (>= 0.4.0)
@@ -373,6 +374,11 @@ GEM
       activesupport (= 3.2.22)
       bundler (~> 1.0)
       railties (= 3.2.22)
+    rails-assets-angular (1.2.29)
+    rails-assets-angular-cookies (1.2.29)
+      rails-assets-angular (= 1.2.29)
+    rails-assets-angular-route (1.2.29)
+      rails-assets-angular (= 1.2.29)
     rails_best_practices (1.15.7)
       activesupport
       code_analyzer (>= 0.4.3)
@@ -564,6 +570,9 @@ DEPENDENCIES
   pry-rails
   quiet_assets
   rails (= 3.2.22)
+  rails-assets-angular (~> 1.2.29)!
+  rails-assets-angular-cookies (~> 1.2.29)!
+  rails-assets-angular-route (~> 1.2.29)!
   rainbows
   rake (= 10.0.3)
   rb-gsl (= 1.16.0.1)

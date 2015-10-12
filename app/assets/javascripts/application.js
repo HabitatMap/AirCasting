@@ -21,9 +21,9 @@
 //= require libs/jquery
 //= require libs/moment
 //= require libs/jquery_ui
-//= require libs/angular-1.2.28.min
-//= require libs/angular-route-1.2.28.min
-//= require libs/angular-cookies-1.0.1.min
+//= require angular
+//= require angular-route
+//= require angular-cookies
 //= require libs/underscore
 //= require libs/underscore.string.min
 //= require libs/spin

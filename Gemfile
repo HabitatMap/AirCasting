@@ -89,3 +89,11 @@ group :development do
   gem 'metric_fu'
   gem 'quiet_assets'
 end
+
+ANGULAR_VERSION = '~> 1.2.29'
+
+source 'https://rails-assets.org' do
+  gem 'rails-assets-angular', ANGULAR_VERSION
+  gem 'rails-assets-angular-route', ANGULAR_VERSION
+  gem 'rails-assets-angular-cookies', ANGULAR_VERSION
+end
