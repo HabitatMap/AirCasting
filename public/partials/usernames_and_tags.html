@@ -7,7 +7,7 @@
     <div>
       <ul class="buttons">
         <li><button ng-click="storage.reset('usernames')">reset</button></li>
-        <li><button ng-click="storage.update('usernames')">submit</button></li>
+        <li><button ng-click="storage.update('usernames'); searchSessions();">submit</button></li>
       </ul>
     </div>
   </section>
@@ -20,7 +20,7 @@
     <div>
       <ul class="buttons">
         <li><button ng-click="storage.reset('tags')">reset</button></li>
-        <li><button ng-click="storage.update('tags')">submit</button></li>
+        <li><button ng-click="storage.update('tags'); searchSessions();">submit</button></li>
       </ul>
     </div>
   </section>
