@@ -7,12 +7,22 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors, singleSessi
   $scope.sensors = sensors;
   $scope.singleSession = singleSession;
 
-  $scope.$watch("sensors.anySelectedId()", function(id){
-    $scope.expanded = false;
+  function updateExpanded() {
+    $scope.expanded = singleSession.isSingle() && !_.isEmpty(sensors.anySelected());
+  }
+
+  $scope.$watch('sensors.anySelected()', function() {
+    updateExpanded();
   });
 
-  $scope.$watch("singleSession.id(true)", function(id){
-    $scope.expanded = false;
+  $scope.$watch('singleSession.isSingle()', function() {
+    updateExpanded();
+  });
+
+  $scope.$watch('singleSession.measurements()', function() {
+    if ($scope.expanded && !_.isEmpty(singleSession.measurements())) {
+      graph.redraw();
+    }
   });
 
   $scope.css = function() {
