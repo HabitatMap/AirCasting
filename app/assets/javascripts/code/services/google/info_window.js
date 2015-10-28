@@ -20,7 +20,7 @@ angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$ro
     onShowData: function(data, status, headers, config){
       this.data = data;
       var url = versioner.path('/partials/info_window.html');
-      var element = $("<div class=\"infoWindow\" ng-include=\"'" + url  +"'\"></div>");
+      var element = $("<div class=\"infoWindow\"><div ng-include=\"'" + url  +"'\"></div></div>");
       $compile(element[0])($rootScope);
       this.popup.setContent(element[0]);
     },
