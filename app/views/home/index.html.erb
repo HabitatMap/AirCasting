@@ -1,15 +1,14 @@
 <div class="desc">
   <p>
-  AirCasting is an open-source, end-to-end solution for collecting, displaying, and sharing health and environmental data using your smartphone. The platform consists of wearable sensors that detect changes in your environment and physiology, including a palm-sized air quality monitor called the AirBeam, the <a href="https://play.google.com/store/apps/details?id=pl.llp.aircasting&hl=en">AirCasting Android app</a>, the AirCasting website, and wearable LED accessories. By documenting and leveraging health and environmental data to inform personal decision-making and public policy, the AirCasting platform empowers citizen scientists and changemakers.
+  AirCasting is an open-source, end-to-end solution for collecting, displaying, and sharing health and environmental data using your smartphone. The platform consists of wearable sensors that detect changes in your environment and physiology, including a palm-sized air quality monitor called the <%= link_to 'AirBeam', 'http://www.takingspace.org/aircasting/airbeam/' %>, the <a href="https://play.google.com/store/apps/details?id=pl.llp.aircasting&hl=en">AirCasting Android app</a>, the AirCasting website, and <%= link_to 'wearable LED accessories', 'http://www.instructables.com/id/AirCasting-LiteBeam/' %>. By documenting and leveraging health and environmental data to inform personal decision-making and public policy, the AirCasting platform empowers citizen scientists and changemakers.
   </p>
-  <%= link_to "https://www.kickstarter.com/projects/741031201/981875272?token=b9e7363b" do %>  
-    <%= image_tag('kickstarter-sticker.png', class: 'kickstarter') %>
-  <% end %>
   <%= image_tag('aircasting_howitworks.jpg', class: 'howitworks') %>
   <p>
     The AirBeam uses a light scattering method to measure fine particulate matter or PM2.5. Air is drawn through a sensing chamber wherein light from an LED bulb scatters off particles in the airstream. This light scatter is registered by a detector and converted into a measurement that estimates the number of particles in the air. Why is this important? The US Environmental Protection Agency monitors and regulates six criteria air pollutants, one of which is PM2.5, and the EPA’s measurements indicate that PM2.5 levels pose a substantial health risk in cities across the country.
   </p>
-  <%= image_tag('aircasting-airbeam.jpg') %>
+  <%= link_to 'http://www.takingspace.org/aircasting/airbeam/' do %>
+    <%= image_tag('aircasting-airbeam.jpg') %>
+  <% end %>
   <p>
     Via Bluetooth, the AirBeam measurements are communicated once a second to the AirCasting Android app, which maps and graphs the data in real time on your smartphone. At the end of each AirCasting session, the collected data is sent to the AirCasting website, where the data is crowdsourced with data from other AirCasters to generate heat maps indicating where PM2.5 concentrations are highest and lowest.
   </p>
@@ -19,7 +18,9 @@
   <p>
   AirCasting Luminescent Accessories connect to the AirCasting app over Bluetooth to illuminate LEDs in response to the sensor measurements received by the AirCasting app: green for low intensity, then yellow, then orange, and red for high intensity. To date we’ve released designs for two Luminescent Accessories: the <a href="http://habitatmap.org/habitatmap_docs/MakeYourOwnAirCastingLuminescentApparel.pdf">AirCasting Luminescent Vest</a> and the <a href="http://instructables.com/id/AirCasting-LiteBeam/">LiteBeam</a>. AirCasting Luminescence was developed to communicate sensor measurements without the normally required reference to a screen interface and to spark interaction between AirCasters and people located in their immediate vicinity.
   </p>
-  <%= image_tag('LuminescentAccessories.jpg') %>
+  <%= link_to 'http://www.instructables.com/id/AirCasting-LiteBeam/' do %>
+    <%= image_tag('LuminescentAccessories.jpg') %>
+  <% end %>
   <p>
     The AirBeam is just one instrument among dozens capable of feeding data into the AirCasting platform. There is already a thriving ecosystem of AirCasting compatible instruments - some created by makers, others by consumer electronics firms - that can connect to the AirCasting Android App to record health and environmental data, including but not limited to:
   </p>
