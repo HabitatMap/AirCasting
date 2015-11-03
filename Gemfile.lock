@@ -216,7 +216,7 @@ GEM
       sexp_processor (~> 4.4)
     formtastic (2.2.1)
       actionpack (>= 3.0)
-    geocoder (1.1.6)
+    geocoder (1.2.12)
     guard (1.6.2)
       listen (>= 0.6.0)
       lumberjack (>= 1.0.2)
@@ -553,7 +553,7 @@ DEPENDENCIES
   flipper
   flipper-redis
   flipper-ui
-  geocoder (~> 1.1.2)
+  geocoder (~> 1.2)
   guard
   guard-bundler
   guard-coffeescript

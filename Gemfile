@@ -47,7 +47,7 @@ group :assets, :development do
 end
 
 gem 'acts-as-taggable-on', '~> 2.3.3'
-gem 'geocoder', '~> 1.1.2'
+gem 'geocoder', '~> 1.2'
 
 # deploy with capistrano
 group :development do
