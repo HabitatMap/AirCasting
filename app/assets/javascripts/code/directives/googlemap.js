@@ -1,13 +1,20 @@
-angular.module("aircasting").directive('googlemap', function(){
+angular.module('aircasting').directive('googlemap', function() {
   return {
     link: function(scope, element, attrs, controller) {
+      // New York
+      var point = {
+        lat: 40.6894385,
+        lng: -73.8959434,
+        zoom: 10
+      };
+
       var map = scope.map;
-      var params = scope.params.get("map") || {};
-      var lat = params.lat || map.getMapCookie("vp_lat") || 38.693861956002024;
-      var lng = params.lng || map.getMapCookie("vp_lng") || -87.5;
+      var params = scope.params.get('map') || {};
+      var lat = params.lat || map.getMapCookie('vp_lat') || point.lat;
+      var lng = params.lng || map.getMapCookie('vp_lng') || point.lng;
       var latlng = new google.maps.LatLng(lat, lng);
-      var zoom = params.zoom || map.getMapCookie("vp_zoom") || 5;
-      var mapType = params.mapType || map.getMapCookie("vp_mapType") || google.maps.MapTypeId.TERRAIN;
+      var zoom = params.zoom || map.getMapCookie('vp_zoom') || point.zoom;
+      var mapType = params.mapType || map.getMapCookie('vp_mapType') || google.maps.MapTypeId.TERRAIN;
       var minZoom = 3;
       var options = {
         zoom: parseInt(zoom, 10),
