@@ -70,10 +70,8 @@ group :test, :development do
 end
 
 group :production do
-  platforms :ruby do
-    gem 'unicorn'
-    gem 'rainbows'
-  end
+  gem 'unicorn'
+  gem 'rainbows'
 end
 
 group :development do
