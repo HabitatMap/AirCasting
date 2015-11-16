@@ -11,17 +11,17 @@ This is the AirCasting project - the project aims to build a platform for gather
 
 For a [Debian](http://debian.org)/[Ubuntu](http://ubuntu.com) system, the easiest way to start is:
 
-**rvm prerequisites**
+**RVM prerequisites**
 
 `sudo apt-get install bzip2 curl subversion git-core -y`
 
-**install rvm**
+**Install RVM**
 
 `curl -L https://get.rvm.io | bash -s`
 
-**rvm requirements**
+**RVM & app requirements**
 
-`sudo apt-get install build-essential openssl libreadline6 libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf libc6-dev ncurses-dev automake libtool bison subversion pkg-config imagemagick -y`
+`sudo apt-get install build-essential openssl libreadline6 libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf libc6-dev ncurses-dev automake libtool bison subversion pkg-config imagemagick mysql-server libmysqlclient-dev redis-server libgsl0-dev nodejs -y`
 
 **install ruby**
 
@@ -34,10 +34,6 @@ rvm use 2.0.0
 
 `gem install bundler`
 
-**install databases**
-
-`sudo apt-get install mysql-server libmysqlclient-dev redis-server -y`
-
 **clone sources**
 
 ```
@@ -46,13 +42,9 @@ cd aircasting
 cp config/database.yml.example config/database.yml
 ```
 
-**rb-gsl dependency**
-
-`sudo apt-get install libgsl0-dev -y`
-
 **bundle dependencies**
 
-`bundle`
+`bundle install`
 
 **create database**
 
@@ -64,15 +56,11 @@ cp config/database.yml.example config/database.yml
 
 ### Tests
 
-**dependencies**
-
-`sudo apt-get install libqt4-dev qt4-qmake xvfb -y`
-
 **run tests**
 
 ```
 bundle exec rspec
-xvfb-run bundle exec rake jasmine:headless
+bundle exec rake spec:javascript
 ```
 
 ### ElasticSearch
