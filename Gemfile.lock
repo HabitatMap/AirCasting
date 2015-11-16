@@ -41,7 +41,6 @@ GEM
       tzinfo (~> 0.3.29)
     activerecord-import (0.2.11)
       activerecord (~> 3.0)
-    activerecord-jdbc-adapter (1.2.9)
     activeresource (3.2.22)
       activemodel (= 3.2.22)
       activesupport (= 3.2.22)
@@ -256,7 +255,6 @@ GEM
       phantomjs (>= 1.9)
       railties (>= 3.2.0)
       sprockets-rails
-    jdbc-mysql (5.1.24)
     journey (1.0.4)
     jquery-rails (2.2.1)
       railties (>= 3.0, < 5.0)
@@ -493,9 +491,6 @@ GEM
     therubyracer (0.12.2)
       libv8 (~> 3.16.14.0)
       ref
-    therubyrhino (2.0.2)
-      therubyrhino_jar (>= 1.7.3)
-    therubyrhino_jar (1.7.4)
     thin (1.5.0)
       daemons (>= 1.0.9)
       eventmachine (>= 0.12.6)
@@ -534,7 +529,6 @@ PLATFORMS
 DEPENDENCIES
   activeadmin
   activerecord-import (~> 0.2.9)
-  activerecord-jdbc-adapter
   acts-as-taggable-on (~> 2.3.3)
   awesome_print
   better_errors
@@ -561,7 +555,6 @@ DEPENDENCIES
   guard-spork
   haml
   jasmine-rails
-  jdbc-mysql
   jslint_on_rails
   libnotify
   metric_fu
@@ -591,7 +584,6 @@ DEPENDENCIES
   sinatra
   spork (~> 0.9.0)
   therubyracer (~> 0.10)
-  therubyrhino
   thin
   uglifier (~> 1.2.7)
   unicorn

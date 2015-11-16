@@ -25,17 +25,9 @@ gem 'flipper-redis'
 gem 'flipper-ui'
 gem 'sinatra', require: false
 
-platforms :jruby do
-  gem 'jdbc-mysql', :platform => :jruby
-  gem 'activerecord-jdbc-adapter', :require => false
-  gem 'therubyrhino', :platform => :jruby
-end
-
-platforms :ruby do
-  gem 'mysql2', :platform => :ruby
-  gem 'therubyracer', '~> 0.10', :platform => :ruby # For ExecJS
-  gem 'thin'
-end
+gem 'mysql2'
+gem 'therubyracer', '~> 0.10' # For ExecJS
+gem 'thin'
 
 # Gems used only for assets and not required
 # in production environments by default.
