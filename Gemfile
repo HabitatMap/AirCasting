@@ -20,14 +20,14 @@ gem 'rubyzip', '>= 1.0.0'
 
 gem 'elasticsearch-model', '~> 0.1.8'
 gem 'elasticsearch-rails', '~> 0.1.8'
-gem 'flipper'
-gem 'flipper-redis'
-gem 'flipper-ui'
+FLIPPER_VERSION = '~> 0.7.1'
+gem 'flipper', FLIPPER_VERSION
+gem 'flipper-redis', FLIPPER_VERSION
+gem 'flipper-ui', FLIPPER_VERSION
 gem 'sinatra', require: false
 
 gem 'mysql2'
-gem 'therubyracer', '~> 0.10' # For ExecJS
-gem 'thin'
+gem 'thin', '~> 1.6', '>= 1.6.4'
 
 # Gems used only for assets and not required
 # in production environments by default.
