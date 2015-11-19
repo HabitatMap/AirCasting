@@ -1,8 +1,9 @@
 angular.module("aircasting").factory('sessions',
-       ['params', '$http', 'map', 'note', 'sensors', '$rootScope',
-         'heat', 'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader', 'sessionsExporter',
-        function(params, $http, map, note, sensors, $rootScope,
-                 heat, spinner, utils, $timeout, flash, sessionsDownloader, sessionsExporter) {
+       ['params', '$http', 'map', 'note', 'sensors', '$rootScope', 'heat',
+       'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
+       'sessionsExporter', 'empty',
+        function(params, $http, map, note, sensors, $rootScope, heat, spinner,
+          utils, $timeout, flash, sessionsDownloader, sessionsExporter, empty) {
   var Sessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
@@ -200,11 +201,13 @@ angular.module("aircasting").factory('sessions',
     },
 
     measurementsForSensor: function(session, sensor_name){
-      if (!session.streams[sensor_name]) return [];
+      if (!session.streams[sensor_name]) { return empty.array; }
       return session.streams[sensor_name].measurements;
     },
 
     measurements: function(session){
+      if (!session) { return empty.array; }
+      if (!sensors.anySelected()) { return empty.array; }
       return this.measurementsForSensor(session, sensors.anySelected().sensor_name);
     },
 
