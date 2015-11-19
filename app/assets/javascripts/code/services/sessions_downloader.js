@@ -15,11 +15,28 @@ angular.module("aircasting").factory("sessionsDownloader", ['$http', '$timeout',
 
   var fetchPage = function (reqData, page, success, error) {
     $http.get('/api/sessions.json', {cache: true, params : {q: reqData, page: page}}).success(success).error(error);
-  }
+  };
+
+  var completeSessions = function(data) {
+    var sessions = _.reject(data, function(session) {
+      return _.isEmpty(session.streams);
+    });
+
+    sessions = _.reject(sessions, function(session) {
+      return _.some(_.values(session.streams), function(stream) {
+        return stream.size === 0;
+      });
+    });
+
+    return sessions;
+  };
 
   var preprocessData = function (data, sessions, params) {
     var times;
     var sessionIds = _(params.get('sessionsIds') || []);
+
+    data = completeSessions(data);
+
     _(data).each(function(session){
       if(session.start_time_local && session.end_time_local) {
         times = [moment(session.start_time_local, "YYYY-MM-DDTHH:mm:ss"),
@@ -39,7 +56,7 @@ angular.module("aircasting").factory("sessionsDownloader", ['$http', '$timeout',
       session.$selected = sessionIds.include(session.id);
     });
     sessions.push.apply(sessions, data);
-  }
+  };
 
   return fetch;
 }]);
