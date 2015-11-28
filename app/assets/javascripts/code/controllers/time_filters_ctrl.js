@@ -1,4 +1,12 @@
 function TimeFiltersCtrl($scope, params, expandables, storage, storageEvents, utils) {
+  var currentYear = function() {
+    return parseInt(moment(new Date()).format('YYYY'), 10);
+  };
+
+  var previousYear = function() {
+    return currentYear() - 1;
+  };
+
   $scope.params = params;
   $scope.storage = storage;
   $scope.storageEvents = storageEvents;
@@ -10,17 +18,19 @@ function TimeFiltersCtrl($scope, params, expandables, storage, storageEvents, ut
   $scope.minDay = 0;
   $scope.maxDay = 365;
   $scope.minYear = 2011;
-  $scope.maxYear = parseInt(moment(new Date()).format("YYYY"), 10);
+  $scope.maxYear = currentYear();
+
   storage.updateDefaults({time: {
-      timeFrom : $scope.minTime  + utils.timeOffset,
-      timeTo : $scope.maxTime  + utils.timeOffset,
-      dayFrom : $scope.minDay,
-      dayTo : $scope.maxDay,
-      yearFrom : $scope.minYear,
-      yearTo : $scope.maxYear
+      timeFrom: $scope.minTime  + utils.timeOffset,
+      timeTo: $scope.maxTime  + utils.timeOffset,
+      dayFrom: $scope.minDay,
+      dayTo: $scope.maxDay,
+      yearFrom: previousYear(),
+      yearTo: currentYear()
     }});
-  if(_(params.get('data').time).isEmpty()){
-    storage.reset("time");
+
+  if (_(params.get('data').time).isEmpty()) {
+    storage.reset('time');
   }
 }
 TimeFiltersCtrl.$inject = ['$scope', 'params',  'expandables', 'storage', 'storageEvents', 'utils'];
