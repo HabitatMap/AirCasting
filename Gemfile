@@ -11,6 +11,7 @@ gem 'newrelic_rpm', '~> 3.14', '>= 3.14.0.305'
 gem 'activeadmin'
 gem 'sidekiq', '~> 3.1.4'
 gem 'sidekiq-unique-jobs', '3.0.12'
+gem 'colored', require: false
 gem 'progress', require: false
 gem 'pry-rails'
 

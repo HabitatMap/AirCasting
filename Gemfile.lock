@@ -518,6 +518,7 @@ DEPENDENCIES
   capybara
   coffee-rails (~> 3.2.1)
   coffee-script-source (= 1.1.2)
+  colored
   devise (~> 2.0.5)
   elasticsearch-model (~> 0.1.8)
   elasticsearch-rails (~> 0.1.8)
