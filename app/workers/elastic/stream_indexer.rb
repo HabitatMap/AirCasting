@@ -13,7 +13,7 @@ module Elastic
       Sidekiq.logger.info("[Stream, id: #{stream_id}, operation: #{operation}]")
 
       stream = Stream.find(stream_id)
-      index_name = "#{stream.sensor_name.parameterize.underscore}_#{stream.measurement_type.parameterize.underscore}"
+      index_name = "#{stream.measurement_type.parameterize.underscore}_#{stream.sensor_name.parameterize.underscore}"
 
       case operation
       when 'index_document', 'update_document'

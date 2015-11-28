@@ -92,7 +92,7 @@ module Elastic
           }
         }
       }
-      index_name = "#{data[:sensor_name].parameterize.underscore}_#{data[:measurement_type].parameterize.underscore}"
+      index_name = "#{data[:measurement_type].parameterize.underscore}_#{data[:sensor_name].parameterize.underscore}"
 
       Elastic::Measurement.search(query, index: index_name).response['aggregations']
     end

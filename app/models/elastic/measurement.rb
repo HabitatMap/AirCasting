@@ -17,7 +17,7 @@ module Elastic
       __elasticsearch__.search(*args)
     end
 
-    settings index: { number_of_shards: 1 } do
+    settings index: { number_of_shards: 3 } do
       mappings dynamic: 'false' do
         indexes :id, type: 'long'
         indexes :latitude, type: 'double'
