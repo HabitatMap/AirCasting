@@ -49,7 +49,11 @@ module Api
       data[:year_to] = data[:year_to] || 2050
 
       if Feature[:elasticsearch].enabled?
-        respond_with Elastic::AverageInfo.new(data)
+        begin
+          respond_with Elastic::AverageInfo.new(data)
+        rescue Faraday::TimeoutError, Timeout::Error
+          respond_with AverageInfo.new(data)
+        end
       else
         respond_with AverageInfo.new(data)
       end
