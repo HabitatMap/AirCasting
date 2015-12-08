@@ -24,6 +24,12 @@ class AuthFailureApp < ActionController::Base
     end
   end
 
+  def sync
+    respond_to do |format|
+      format.json { render :nothing => true, :status => :unauthorized }
+    end
+  end
+
   def create
     show
   end
