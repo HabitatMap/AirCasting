@@ -29,7 +29,7 @@ Right now ElasticSearch is used to provide faster results for `/api/averages` en
 
 ### Indexing
 
-Run `rake index:measurements`
+Run `rake elastic:index:measurements`
 
 ### Turning on in Air Casting app
 
