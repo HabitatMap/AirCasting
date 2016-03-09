@@ -50,6 +50,10 @@ cp config/database.yml.example config/database.yml
 
 `bundle exec rake db:create db:migrate`
 
+**run sidekiq**
+
+`bundle exec sidekiq -d`
+
 **run application, by default starts at [localhost:3000](http://localhost:3000)**
 
 `bundle exec rails server`
