@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20151012074610) do
+ActiveRecord::Schema.define(:version => 20150924110008) do
 
   create_table "deleted_sessions", :force => true do |t|
     t.datetime "created_at", :null => false
@@ -22,16 +22,6 @@ ActiveRecord::Schema.define(:version => 20151012074610) do
 
   add_index "deleted_sessions", ["user_id"], :name => "index_deleted_sessions_on_user_id"
   add_index "deleted_sessions", ["uuid", "user_id"], :name => "index_deleted_sessions_on_uuid_and_user_id"
-
-  create_table "exports", :force => true do |t|
-    t.string   "archive_file_name"
-    t.string   "archive_content_type"
-    t.integer  "archive_file_size"
-    t.datetime "archive_updated_at"
-    t.boolean  "completed",            :default => false
-    t.datetime "created_at",                              :null => false
-    t.datetime "updated_at",                              :null => false
-  end
 
   create_table "measurements", :force => true do |t|
     t.float    "value"
@@ -51,8 +41,8 @@ ActiveRecord::Schema.define(:version => 20151012074610) do
   add_index "measurements", ["time"], :name => "index_measurements_on_time"
 
   create_table "notes", :force => true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                        :null => false
+    t.datetime "updated_at",                                        :null => false
     t.datetime "date"
     t.text     "text"
     t.decimal  "longitude",          :precision => 12, :scale => 9
@@ -88,8 +78,8 @@ ActiveRecord::Schema.define(:version => 20151012074610) do
   end
 
   create_table "sessions", :force => true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",         :null => false
+    t.datetime "updated_at",         :null => false
     t.integer  "user_id"
     t.string   "uuid"
     t.string   "url_token"
@@ -179,8 +169,8 @@ ActiveRecord::Schema.define(:version => 20151012074610) do
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
     t.string   "authentication_token"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                               :null => false
+    t.datetime "updated_at",                                               :null => false
     t.string   "username"
     t.boolean  "send_emails"
     t.boolean  "admin",                                 :default => false
