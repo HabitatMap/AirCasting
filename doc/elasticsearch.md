@@ -33,4 +33,12 @@ Run `rake elastic:index:measurements`
 
 ### Turning on in Air Casting app
 
-Visit [locahost:3000/flipper](http://locahost:3000/flipper). Create `elasticsearch` feature and enable it.
+1. Create an account ([http://localhost:3000/users/sign_up](http://localhost:3000/users/sign_up)) and sign in ([http://localhost:3000/users/sign_in](http://localhost:3000/users/sign_in)),
+3. Give yourself admin privileges (replace `<PUT_YOUR_USERNAME_HERE>`):
+
+  ```
+  bundle exec rails c
+  User.find_by_username('<PUT_YOUR_USERNAME_HERE>').update_attribute(:admin, true)
+  exit
+  ```
+4. Visit [locahost:3000/flipper](http://locahost:3000/flipper), create `elasticsearch` feature and enable it.
