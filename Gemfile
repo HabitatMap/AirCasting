@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'rake', '10.0.3'
-gem 'rails', '3.2.22'
+gem 'rails', '3.2.22.2'
 gem 'haml'
 gem 'devise', '~> 2.0.5'
 gem 'paperclip', '~> 4.3'
