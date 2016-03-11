@@ -240,6 +240,7 @@ GEM
     hike (1.2.3)
     hirb (0.7.3)
     hitimes (1.2.3)
+    honeybadger (2.5.3)
     http-cookie (1.0.2)
       domain_name (~> 0.5)
     i18n (0.7.0)
@@ -533,6 +534,7 @@ DEPENDENCIES
   guard-rspec
   guard-spork
   haml
+  honeybadger (~> 2.0)
   jasmine-rails
   jslint_on_rails
   libnotify
@@ -568,4 +570,4 @@ DEPENDENCIES
   yui-compressor
 
 BUNDLED WITH
-   1.10.6
+   1.11.2
