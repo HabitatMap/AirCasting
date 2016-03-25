@@ -60,4 +60,3 @@ angular.module("aircasting").factory("sessionsDownloader", ['$http', '$timeout',
 
   return fetch;
 }]);
-

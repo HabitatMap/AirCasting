@@ -40,4 +40,3 @@ angular.module("google").factory("note",  ["$http", "$compile", "$rootScope","$t
 
   return new Note();
 }]);
-

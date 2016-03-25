@@ -312,4 +312,3 @@ angular.module("aircasting").factory('sessions',
   };
   return new Sessions();
 }]);
-
