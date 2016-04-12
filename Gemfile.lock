@@ -68,6 +68,9 @@ GEM
     bourne (1.1.2)
       mocha (= 0.10.5)
     builder (3.0.4)
+    byebug (1.1.1)
+      columnize (~> 0.3.6)
+      debugger-linecache (~> 1.2.0)
     cane (2.6.2)
       parallel
     capistrano (2.14.2)
@@ -158,9 +161,11 @@ GEM
       execjs
     coffee-script-source (1.1.2)
     colored (1.2)
+    columnize (0.3.6)
     connection_pool (2.2.0)
     daemons (1.2.3)
     debug_inspector (0.0.2)
+    debugger-linecache (1.2.0)
     devise (2.0.5)
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.0.3)
@@ -338,6 +343,9 @@ GEM
       coderay (~> 1.0.5)
       method_source (~> 0.8)
       slop (~> 3.4)
+    pry-byebug (1.0.1)
+      byebug (~> 1.1.1)
+      pry (>= 0.9.10)
     pry-rails (0.3.4)
       pry (>= 0.9.10)
     quiet_assets (1.1.0)
@@ -543,6 +551,7 @@ DEPENDENCIES
   newrelic_rpm (~> 3.14, >= 3.14.0.305)
   paperclip (~> 4.3)
   progress
+  pry-byebug
   pry-rails
   quiet_assets
   rails (= 3.2.22.2)

@@ -43,10 +43,10 @@ end
 gem 'acts-as-taggable-on', '~> 2.3.3'
 gem 'geocoder', '~> 1.2'
 
-# deploy with capistrano
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
+  gem 'pry-byebug'
   gem 'capistrano'
   gem 'capistrano-ext'
   gem 'capistrano-sidekiq'
