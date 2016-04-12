@@ -57,4 +57,3 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
   };
   return new SingleSession();
 }]);
-
