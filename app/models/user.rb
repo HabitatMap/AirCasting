@@ -23,6 +23,8 @@ class User < ActiveRecord::Base
          :trackable, :validatable, :token_authenticatable
 
   has_many :sessions, :inverse_of => :user
+  has_many :timeboxed_sessions, :inverse_of => :user
+  has_many :realtime_sessions, :inverse_of => :user
   has_many :streams, :through => :sessions
   has_many :measurements, :through => :streams
   has_many :regressions
@@ -94,7 +96,7 @@ class User < ActiveRecord::Base
 
     # Apparently NOT IN doesn't work if uuids is empty
     uuids = data.map { |x| x[:uuid] } + [""]
-    download = sessions.where(["uuid NOT IN (?)", uuids]).map(&:id)
+    download = timeboxed_sessions.where(["uuid NOT IN (?)", uuids]).map(&:id)
 
     { :upload => upload, :download => download, :deleted => deleted }
   end

@@ -16,22 +16,7 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-# Read about factories at http://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
-  factory :session do
-    user
-    sequence(:uuid) { |n| "uuid-#{n}" }
-    title { "Another session" }
-    description { "Very nice session" }
-    tag_list { "boring quiet" }
-    calibration 99
-    offset_60_db 0
-    contribute true
-    notes_attributes { [FactoryGirl.attributes_for(:note, :session => nil)] }
-    start_time {Time.now}
-    end_time {Time.now + 1.minute}
-    start_time_local {Time.now}
-    end_time_local {Time.now + 1.minute}
-  end
+class TimeboxedSession < Session
+  validates :end_time, :presence => true
+  validates :end_time_local, :presence => true
 end

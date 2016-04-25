@@ -67,7 +67,7 @@ describe Api::MeasurementSessionsController do
 
     before do
       ActiveSupport::JSON.should_receive(:decode).with(:session).and_return(:session => :data)
-      SessionBuilder.should_receive(:new).with({ :session => :data }, :some_files, user).and_return(builder)
+      TimeboxedSessionBuilder.should_receive(:new).with({ :session => :data }, :some_files, user).and_return(builder)
       builder.should_receive(:build!).and_return(create_result)
     end
 
@@ -92,7 +92,7 @@ describe Api::MeasurementSessionsController do
   end
 
   describe "GET 'show'" do
-    let(:session) { FactoryGirl.create(:session) }
+    let(:session) { FactoryGirl.create(:timeboxed_session) }
 
     before do
       get :show, :id => session.id, :format => :json

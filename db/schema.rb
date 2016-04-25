@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150924110008) do
+ActiveRecord::Schema.define(:version => 20160422131014) do
 
   create_table "deleted_sessions", :force => true do |t|
     t.datetime "created_at", :null => false
@@ -98,6 +98,7 @@ ActiveRecord::Schema.define(:version => 20150924110008) do
     t.integer  "timezone_offset"
     t.datetime "start_time_local"
     t.datetime "end_time_local"
+    t.string   "type",               :null => false
   end
 
   add_index "sessions", ["contribute"], :name => "index_sessions_on_contribute"

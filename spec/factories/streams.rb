@@ -31,6 +31,6 @@ FactoryGirl.define do
     threshold_medium 3
     threshold_high 4
     threshold_very_high 5
-    session
+    association :session, factory: :timeboxed_session
   end
 end

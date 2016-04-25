@@ -1,4 +1,4 @@
-class SessionBuilder
+class TimeboxedSessionBuilder
   attr_reader :user
 
   def initialize(session_data, photos, user)
@@ -15,15 +15,15 @@ class SessionBuilder
 
   def build_session!
     data = @session_data.clone
-    data[:notes_attributes] = SessionBuilder.prepare_notes(data.delete(:notes), @photos)
-    data[:tag_list] = SessionBuilder.normalize_tags(data[:tag_list])
+    data[:notes_attributes] = TimeboxedSessionBuilder.prepare_notes(data.delete(:notes), @photos)
+    data[:tag_list] = TimeboxedSessionBuilder.normalize_tags(data[:tag_list])
     data[:user] = @user
     stream_data = data.delete(:streams)
 
     data = build_local_start_and_end_time(data)
 
     begin
-      session = Session.create!(data)
+      session = TimeboxedSession.create!(data)
     rescue ActiveRecord::RecordInvalid
       Rails.logger.warn("[SessionBuilder] data: #{data}")
 

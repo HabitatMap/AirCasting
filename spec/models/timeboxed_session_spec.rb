@@ -18,11 +18,11 @@
 
 require 'spec_helper'
 
-describe Session do
+describe TimeboxedSession do
   let(:time_in_us) { Time.now.utc.in_time_zone("Eastern Time (US & Canada)") }
 
   describe 'validations' do
-    before { FactoryGirl.create(:session) }
+    before { FactoryGirl.create(:timeboxed_session) }
 
     it { should validate_presence_of :uuid }
     it { should validate_uniqueness_of :uuid }
@@ -52,17 +52,17 @@ describe Session do
       to = (time.hour + 1) * 60 + time.min
 
       session = FactoryGirl.create(
-        :session,
+        :timeboxed_session,
         :start_time_local => time - 1.minute,
         :end_time_local => time + 1.minute
       )
       session1 = FactoryGirl.create(
-        :session,
+        :timeboxed_session,
         :start_time_local => time - 2.minute,
         :end_time_local => time - 1.minute
       )
       session2 = FactoryGirl.create(
-        :session,
+        :timeboxed_session,
         :start_time_local => time + 61.minute,
         :end_time_local => time + 71.minute
       )
@@ -75,7 +75,7 @@ describe Session do
     let(:stream) { FactoryGirl.create(:stream) }
     let(:m1) { FactoryGirl.create(:measurement, :stream => stream) }
     let(:m1) { FactoryGirl.create(:measurement, :stream => stream) }
-    let(:session) { FactoryGirl.create(:session, :streams => [stream]) }
+    let(:session) { FactoryGirl.create(:timeboxed_session, :streams => [stream]) }
 
     subject { session.as_json(:methods => [:measurements]) }
 
@@ -91,7 +91,7 @@ describe Session do
   end
 
   describe '.create' do
-    let(:session) { FactoryGirl.build(:session) }
+    let(:session) { FactoryGirl.build(:timeboxed_session) }
 
     it 'should call set_url_token' do
       session.should_receive(:set_url_token)
@@ -101,7 +101,7 @@ describe Session do
 
   describe "#destroy" do
     let(:stream) { FactoryGirl.create(:stream) }
-    let(:session) { FactoryGirl.create(:session, :streams => [stream]) }
+    let(:session) { FactoryGirl.create(:timeboxed_session, :streams => [stream]) }
 
     it "should destroy streams" do
       session.reload.destroy
@@ -114,14 +114,14 @@ describe Session do
     before { Session.destroy_all }
 
     it 'should exclude not contributed sessions' do
-      session1 = FactoryGirl.create(:session, :contribute => true)
-      session2 = FactoryGirl.create(:session, :contribute => false)
+      session1 = FactoryGirl.create(:timeboxed_session, :contribute => true)
+      session2 = FactoryGirl.create(:timeboxed_session, :contribute => false)
 
       Session.filter.all.should == [session1]
     end
 
     it 'should include explicitly requested but not contributed sessions' do
-      session =  FactoryGirl.create(:session, :id => 1, :contribute => false)
+      session =  FactoryGirl.create(:timeboxed_session, :id => 1, :contribute => false)
 
       Session.filter(:session_ids => [1]).all.should == [session]
     end
@@ -148,7 +148,7 @@ describe Session do
       time = Time.now
       from = time.hour * 60 + time.min
       to = (time.hour + 2) * 60 + time.min
-      session = FactoryGirl.create(:session, :start_time_local => time, :end_time_local => time + 1.minute)
+      session = FactoryGirl.create(:timeboxed_session, :start_time_local => time, :end_time_local => time + 1.minute)
 
       Session.filter(:time_from => from, :time_to => to).all.should == [session]
     end
@@ -156,8 +156,8 @@ describe Session do
     it "should find sessions by usernames" do
       user_1 = FactoryGirl.create(:user, :username => 'foo bar')
       user_2 = FactoryGirl.create(:user, :username => 'john')
-      session_1 = FactoryGirl.create(:session, :user => user_1)
-      session_2 = FactoryGirl.create(:session, :user => user_2)
+      session_1 = FactoryGirl.create(:timeboxed_session, :user => user_1)
+      session_2 = FactoryGirl.create(:timeboxed_session, :user => user_2)
 
       Session.filter(:usernames => 'foo bar    , biz').all.should == [session_1]
     end
@@ -210,7 +210,7 @@ describe Session do
   end
 
   describe "#sync" do
-    let(:session) { FactoryGirl.create(:session) }
+    let(:session) { FactoryGirl.create(:timeboxed_session) }
     let!(:note) { FactoryGirl.create(:note, :session => session) }
     let(:data) { { :tag_list => "some tag or other", :notes => [] } }
 
@@ -247,7 +247,7 @@ describe Session do
 
   describe "#start_time_local" do
     it "keeps local time info" do
-      session = FactoryGirl.build(:session)
+      session = FactoryGirl.build(:timeboxed_session)
       session.start_time_local = time_in_us
 
       session.save
@@ -259,7 +259,7 @@ describe Session do
 
   describe "#end_time_local" do
     it "keeps local time info" do
-      session = FactoryGirl.build(:session)
+      session = FactoryGirl.build(:timeboxed_session)
       session.end_time_local = time_in_us
       session.save
       session.reload

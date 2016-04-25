@@ -23,6 +23,6 @@ FactoryGirl.define do
     text "Hello note!"
     date Time.now
     number 10
-    session
+    association :session, factory: :timeboxed_session
   end
 end

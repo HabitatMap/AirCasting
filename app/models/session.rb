@@ -31,10 +31,11 @@ class Session < ActiveRecord::Base
   has_many :streams, :inverse_of => :session, :dependent => :destroy
 
   validates :user, :uuid, :url_token, :calibration, :offset_60_db, :presence => true
-  validates :start_time, :end_time, :presence => true
-  validates :start_time_local, :end_time_local, :presence => true
+  validates :start_time, :presence => true
+  validates :start_time_local, :presence => true
   validates :url_token, :uuid, :uniqueness => true
   validates_inclusion_of :offset_60_db, :in => -5..5
+  validates :type, :presence => :true
 
   prepare_range(:start_year_range, :start_time)
 
@@ -48,7 +49,7 @@ class Session < ActiveRecord::Base
 
   attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list,
   :contribute, :notes_attributes, :data_type, :instrument, :phone_model,
-  :os_version, :user, :start_time, :end_time, :start_time_local, :end_time_local
+  :os_version, :user, :start_time, :end_time, :start_time_local, :end_time_local, :type
   attr_accessible :title, :description, :tag_list, :as => :sync
 
   scope :local_time_range_by_minutes, lambda { |start_minutes, end_minutes|
@@ -212,7 +213,7 @@ class Session < ActiveRecord::Base
 
   def sync(session_data)
     tag_list = session_data[:tag_list] || ""
-    session_data = session_data.merge(:tag_list => SessionBuilder.normalize_tags(tag_list))
+    session_data = session_data.merge(:tag_list => TimeboxedSessionBuilder.normalize_tags(tag_list))
 
     transaction do
       update_attributes(session_data, :as => :sync)

@@ -16,18 +16,5 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-module Aircasting
-  module ModelHelpers
-
-    def self.included(base)
-      base.class_eval do
-        def session_with_measurement(data)
-          stream = FactoryGirl.create(:stream)
-          measurement = FactoryGirl.create(:measurement, data.merge(stream: stream))
-          FactoryGirl.create(:timeboxed_session, :streams => [stream])
-        end
-      end
-    end
-
-  end
+class RealtimeSession < Session
 end

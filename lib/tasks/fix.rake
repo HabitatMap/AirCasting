@@ -42,4 +42,9 @@ namespace :fix do
     end
   end
 
+  # Do it after "20160422131014_add_type_to_sessions" migration
+  desc "Set empty type of sessions to TimeboxedSession"
+  task :set_empty_type_of_sessions_to_timeboxed => [:environment] do
+    Session.where(type: '').update_all(type: 'TimeboxedSession')
+  end
 end

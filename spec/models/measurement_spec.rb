@@ -52,7 +52,7 @@ describe Measurement do
     end
 
     context "when there is some data inside the grid" do
-      let(:private_session) { FactoryGirl.create(:session, contribute: false) }
+      let(:private_session) { FactoryGirl.create(:timeboxed_session, contribute: false) }
       let(:private_stream) { FactoryGirl.create(:stream, session: private_session)} 
       let!(:private_measurement) do 
         FactoryGirl.create(:measurement, latitude: 10.015, longitude: -8, value: -100, stream: private_stream)
@@ -122,7 +122,7 @@ describe Measurement do
   end
 
   describe "scopes" do
-    let(:session) { FactoryGirl.create(:session) }
+    let(:session) { FactoryGirl.create(:timeboxed_session) }
     let(:stream) { FactoryGirl.create(:stream, :session => session) }
     let(:stream2) { FactoryGirl.create(:stream, :session => session) }
     let(:measurement) { FactoryGirl.create(:measurement, :stream => stream) }
