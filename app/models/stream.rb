@@ -109,6 +109,15 @@ class Stream < ActiveRecord::Base
     stream
   end
 
+  def self.build_or_update!(data = {})
+    measurements = data.delete(:measurements)
+    stream = where(data).first_or_create!
+    measurements.each_slice(SLICE_SIZE) do |meas|
+      StreamsWorker.perform_async(meas, stream.id)
+    end
+    stream
+  end
+
   def build_measurements!(data = [])
     measurements = data.map do |measurement_data|
       m = Measurement.new(measurement_data)

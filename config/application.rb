@@ -33,6 +33,8 @@ require_relative '../lib/aircasting/auth_failure_app'
 require_relative '../lib/aircasting/gzip'
 require_relative '../lib/aircasting/filter_range'
 require_relative '../lib/timeboxed_session_builder'
+require_relative '../lib/realtime_session_builder'
+require_relative '../lib/realtime_measurement_builder'
 require_relative '../lib/aircasting/deep_symbolize'
 require_relative '../lib/aircasting/time_to_local_in_utc'
 

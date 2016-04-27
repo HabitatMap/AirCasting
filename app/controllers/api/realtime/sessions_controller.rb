@@ -30,17 +30,41 @@ module Api
         else
           unzipped = params[:session]
         end
+        photos = params[:photos] || []
 
         data = deep_symbolize ActiveSupport::JSON.decode(unzipped)
+        session = RealtimeSessionBuilder.new(data, photos, current_user).build!
 
-        render :json => {}, :status => :ok
+        if session
+          render :json => session_json(session), :status => :ok
+        else
+          render :nothing => true, :status => :bad_request
+        end
       end
 
       def create_measurements
         data = JSON.parse(params[:data])
         data = deep_symbolize(data)
-        
+
+        session_uuid = data.delete(:session_uuid)
+        stream_data = { data[:stream_name] => data }
+        RealtimeMeasurementBuilder.new(session_uuid, stream_data, current_user).build!
+
         render :json => {}, :status => :ok
+      end
+
+      private
+
+      def session_json(session)
+        {
+          :location => short_session_url(session, :host => AppConfig.host),
+          :notes => session.notes.map do |note|
+            {
+              :number => note.number,
+              :photo_location => photo_location(note)
+            }
+          end
+        }
       end
     end
   end
