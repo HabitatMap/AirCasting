@@ -17,4 +17,11 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class RealtimeSession < Session
+  def end_time
+    start_time
+  end
+
+  def end_time_local
+    start_time_local
+  end
 end
