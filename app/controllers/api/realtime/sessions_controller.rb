@@ -48,9 +48,13 @@ module Api
 
         session_uuid = data.delete(:session_uuid)
         stream_data = { data[:stream_name] => data }
-        RealtimeMeasurementBuilder.new(session_uuid, stream_data, current_user).build!
+        result = RealtimeMeasurementBuilder.new(session_uuid, stream_data, current_user).build!
 
-        render :json => {}, :status => :ok
+        if result
+          render :nothing => true, :status => :ok
+        else
+          render :nothing => true, :status => :bad_request
+        end
       end
 
       private
