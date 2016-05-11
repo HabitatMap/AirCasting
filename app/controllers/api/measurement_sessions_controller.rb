@@ -38,7 +38,7 @@ module Api
       page_size = params[:page_size] || 50
 
       begin
-        respond_with Session.filtered_json(data, page, page_size)
+        respond_with TimeboxedSession.filtered_json(data, page, page_size)
       rescue WrongCoordinatesError => e
         error = { :error => "Invalid Location" }
         respond_with error, :status => :not_found
@@ -65,13 +65,13 @@ module Api
     end
 
     def show
-      session = Session.find(params[:id])
+      session = TimeboxedSession.find(params[:id])
 
       respond_with session, :sensor_id => params[:sensor_id], :methods => [:measurements, :notes]
     end
 
     def export
-      sessions = Session.includes(streams: :measurements).find(params[:session_ids])
+      sessions = TimeboxedSession.includes(streams: :measurements).find(params[:session_ids])
       begin
         exporter = SessionsExporter.new(sessions)
         data = exporter.export
