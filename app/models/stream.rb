@@ -89,6 +89,10 @@ class Stream < ActiveRecord::Base
     joins(:session).where("sessions.contribute = ?", true)
   end)
 
+  scope(:belong_to_timeboxed_sessions, lambda do
+    joins(:session).where("sessions.type = ?", "TimeboxedSession")
+  end)
+
   scope(:with_usernames, lambda do |usernames|
     if usernames.present?
       user_ids = User.select("users.id").where("users.username IN (?)", usernames).map(&:id)
