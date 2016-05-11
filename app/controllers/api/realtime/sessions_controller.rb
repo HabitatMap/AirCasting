@@ -19,7 +19,7 @@
 module Api
   module Realtime
     class SessionsController < BaseController
-      before_filter :authenticate_user!, :only => :create
+      before_filter :authenticate_user!
 
       respond_to :json
 
