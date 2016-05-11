@@ -66,7 +66,7 @@ AirCasting::Application.routes.draw do
 
     namespace :realtime do
       post 'sessions' => 'sessions#create'
-      post 'measurements' => 'sessions#create_measurements'
+      post 'measurements' => 'measurements#create'
     end
   end
 

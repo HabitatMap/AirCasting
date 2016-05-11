@@ -18,42 +18,24 @@
 
 module Api
   module Realtime
-    class SessionsController < BaseController
+    class MeasurementsController < BaseController
       before_filter :authenticate_user!
 
       respond_to :json
 
       def create
-        if params[:compression]
-          decoded = Base64.decode64(params[:session])
-          unzipped = AirCasting::GZip.inflate(decoded)
-        else
-          unzipped = params[:session]
-        end
-        photos = params[:photos] || []
+        data = JSON.parse(params[:data])
+        data = deep_symbolize(data)
 
-        data = deep_symbolize ActiveSupport::JSON.decode(unzipped)
-        session = RealtimeSessionBuilder.new(data, photos, current_user).build!
+        session_uuid = data.delete(:session_uuid)
+        stream_data = { data[:stream_name] => data }
+        result = RealtimeMeasurementBuilder.new(session_uuid, stream_data, current_user).build!
 
-        if session
-          render :json => session_json(session), :status => :ok
+        if result
+          render :nothing => true, :status => :ok
         else
           render :nothing => true, :status => :bad_request
         end
-      end
-
-      private
-
-      def session_json(session)
-        {
-          :location => short_session_url(session, :host => AppConfig.host),
-          :notes => session.notes.map do |note|
-            {
-              :number => note.number,
-              :photo_location => photo_location(note)
-            }
-          end
-        }
       end
     end
   end
