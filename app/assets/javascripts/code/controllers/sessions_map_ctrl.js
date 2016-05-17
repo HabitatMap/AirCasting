@@ -8,6 +8,7 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
     $scope.storageEvents = storageEvents;
     $scope.sensors = sensors;
     $scope.expandables = expandables;
+    $scope.sessions = sessions;
     $scope.singleSession = singleSession;
     $scope.$window = $window;
 

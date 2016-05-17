@@ -1,6 +1,5 @@
-function TmpSensorDialogCtrl($scope, sensors, params, singleSession) {
+function TmpSensorDialogCtrl($scope, sensors, params) {
   $scope.sensors = sensors;
   $scope.params = params;
-  $scope.singleSession = singleSession;
 }
-TmpSensorDialogCtrl.$inject = ['$scope', 'sensors', 'params', 'singleSession'];
+TmpSensorDialogCtrl.$inject = ['$scope', 'sensors', 'params'];

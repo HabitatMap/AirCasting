@@ -1,11 +1,13 @@
-function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash, versioner,
-                          dialog, functionBlocker, singleSession, $window) {
+function SessionsListCtrl($scope, params, map, sensors, storage, flash, versioner,
+                          dialog, functionBlocker, $window) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
     $scope.$window = $window;
     $scope.sensors = sensors;
-    $scope.sessions = sessions;
+    sessions = $scope.sessions;
+    singleSession = $scope.singleSession;
+
     if(_(params.get("sessionsIds", [])).isEmpty()){
       params.update({sessionsIds: []});
     }
@@ -158,4 +160,4 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
   $scope.setDefaults();
 }
 SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
-  'sessions', 'flash', 'versioner', 'dialog', 'functionBlocker', 'singleSession', '$window'];
+  'flash', 'versioner', 'dialog', 'functionBlocker', '$window'];
