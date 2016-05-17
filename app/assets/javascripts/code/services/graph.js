@@ -1,6 +1,6 @@
-angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 'sensors',
+angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
                                      'heat', 'graphHighlight',
-                                     function($rootScope, singleSession, sensors,
+                                     function($rootScope, sensors,
                                               heat, graphHighlight) {
   var Graph = function() {
   };
@@ -219,13 +219,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
       var pointNum = Math.floor(points.length / 2);
       graphHighlight.show([points[pointNum]]);
     },
-
-    redraw: function() {
-      if(!singleSession.withSelectedSensor()) {
-        return;
-      }
-      this.draw(singleSession.measurementsToTime());
-    }
   };
   return new Graph();
 }]);
