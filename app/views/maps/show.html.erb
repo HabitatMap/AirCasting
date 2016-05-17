@@ -4,7 +4,8 @@
   <div ng-hide="expandables.allHidden">
     <ul id="hud-tabs">
       <li ng-class="tabClass('map_crowd')"><a ng-click="goToCrowdMap()">CrowdMap</a></li>
-      <li ng-class="tabClass('map_sessions')"><a ng-click="goToSessionsMap()">Sessions</a></li>
+      <li ng-class="tabClass('map_sessions')"><a ng-click="goToMobileSessionsMap()">Mobile</a></li>
+      <li ng-class="tabClass('map_fixed_sessions')"><a ng-click="goToFixedSessionsMap()">Fixed</a></li>
     </ul>
 
     <div class="permalink" ng:show="permalinkVisible">
@@ -19,7 +20,3 @@
     <div id="hud_view" ng-view></div>
   </div>
 </div>
-
-
-
-

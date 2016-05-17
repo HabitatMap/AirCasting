@@ -5,7 +5,10 @@ angular.module('aircasting', ['ngRoute', 'ngCookies', "google"], [ "$routeProvid
                       {templateUrl: 'partials/crowd_map.html?v=' + v,
                         controller: CrowdMapCtrl, reloadOnSearch: false});
   $routeProvider.when('/map_sessions',
-                      {templateUrl: 'partials/sessions_map.html?v=' + v,
+                      {templateUrl: 'partials/mobile_sessions_map.html?v=' + v,
+                        controller: SessionsMapCtrl, reloadOnSearch: false});
+  $routeProvider.when('/map_fixed_sessions',
+                      {templateUrl: 'partials/fixed_sessions_map.html?v=' + v,
                         controller: SessionsMapCtrl, reloadOnSearch: false});
   $routeProvider.otherwise({redirectTo: '/map_crowd'});
 }]);
