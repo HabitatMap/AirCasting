@@ -65,6 +65,7 @@ AirCasting::Application.routes.draw do
     resources :sensors, only: [:index]
 
     namespace :realtime do
+      get 'sessions' => 'sessions#index'
       post 'sessions' => 'sessions#create'
       post 'measurements' => 'measurements#create'
     end

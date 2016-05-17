@@ -19,9 +19,32 @@
 module Api
   module Realtime
     class SessionsController < BaseController
-      before_filter :authenticate_user!
+      INT_Q_ATTRS = [:time_from, :time_to, :day_from, :day_to]
+
+      before_filter :authenticate_user!, except: :index
 
       respond_to :json
+
+      def index
+        if params[:q].is_a?(String)
+          data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
+        elsif params[:q]
+          data = params[:q].symbolize_keys
+        else
+          data = {}
+        end
+        INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
+
+        page = params[:page] || 0
+        page_size = params[:page_size] || 50
+
+        begin
+          respond_with RealtimeSession.filtered_json(data, page, page_size)
+        rescue WrongCoordinatesError => e
+          error = { :error => "Invalid Location" }
+          respond_with error, :status => :not_found
+        end
+      end
 
       def create
         if params[:compression]
