@@ -21,7 +21,7 @@ module Api
     class SessionsController < BaseController
       INT_Q_ATTRS = [:time_from, :time_to, :day_from, :day_to]
 
-      before_filter :authenticate_user!, except: :index
+      before_filter :authenticate_user!, except: [:index, :show]
 
       respond_to :json
 
@@ -44,6 +44,12 @@ module Api
           error = { :error => "Invalid Location" }
           respond_with error, :status => :not_found
         end
+      end
+
+      def show
+        session = RealtimeSession.find(params[:id])
+
+        respond_with session, :sensor_id => params[:sensor_id], :methods => [:measurements, :notes]
       end
 
       def create
