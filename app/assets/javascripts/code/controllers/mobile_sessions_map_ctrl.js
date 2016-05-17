@@ -1,5 +1,5 @@
-function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, sessions, versioner,
-                         storageEvents, singleSession, functionBlocker, $window, $location,
+function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, mobileSessions, versioner,
+                         storageEvents, singleMobileSession, functionBlocker, $window, $location,
                          rectangles, infoWindow) {
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
@@ -8,8 +8,8 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
     $scope.storageEvents = storageEvents;
     $scope.sensors = sensors;
     $scope.expandables = expandables;
-    $scope.sessions = sessions;
-    $scope.singleSession = singleSession;
+    $scope.sessions = mobileSessions;
+    $scope.singleSession = singleMobileSession;
     $scope.$window = $window;
 
     functionBlocker.block("selectedId", !!params.get('data').sensorId);
@@ -58,19 +58,19 @@ function SessionsMapCtrl($scope, params, heat, map, sensors, expandables, storag
   }, true);
 
   $scope.heatUpdateCondition = function() {
-    return {sensorId:  sensors.anySelectedId(), sessionId: singleSession.id()};
+    return {sensorId:  sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
   };
   $scope.$watch("heatUpdateCondition()", function(newValue, oldValue) {
     if(newValue.sensorId && newValue.sessionId){
       functionBlocker.use("sessionHeat", function(){
-        singleSession.updateHeat();
+        $scope.singleSession.updateHeat();
       });
     }
    }, true);
 
   $scope.setDefaults();
 }
-SessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
-   'map', 'sensors', 'expandables', 'storage', 'sessions', 'versioner',
-  'storageEvents', 'singleSession', 'functionBlocker', '$window', "$location",
+MobileSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
+   'map', 'sensors', 'expandables', 'storage', 'mobileSessions', 'versioner',
+  'storageEvents', 'singleMobileSession', 'functionBlocker', '$window', "$location",
   "rectangles", "infoWindow"];

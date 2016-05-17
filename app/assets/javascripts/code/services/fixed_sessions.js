@@ -1,10 +1,10 @@
-angular.module("aircasting").factory('sessions',
+angular.module("aircasting").factory('fixedSessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope', 'heat',
        'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
        'sessionsExporter', 'empty',
         function(params, $http, map, note, sensors, $rootScope, heat, spinner,
           utils, $timeout, flash, sessionsDownloader, sessionsExporter, empty) {
-  var Sessions = function() {
+  var FixedSessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
     var self = this;
@@ -12,7 +12,7 @@ angular.module("aircasting").factory('sessions',
     this.scope.params = params;
   };
 
-  Sessions.prototype = {
+  FixedSessions.prototype = {
     sessionsChanged: function (newIds, oldIds) {
       _(newIds).chain().difference(oldIds).each(_(this.selectSession).bind(this));
       _(oldIds).chain().difference(newIds).each(_(this.deselectSession).bind(this));
@@ -90,7 +90,7 @@ angular.module("aircasting").factory('sessions',
       this.sessions = [];
       spinner.startDownloadingSessions();
 
-      sessionsDownloader(reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
+      sessionsDownloader('/api/realtime/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
           _(this.onSessionsFetchError).bind(this));
     },
 
@@ -152,7 +152,7 @@ angular.module("aircasting").factory('sessions',
       spinner.show();
       session.alreadySelected = true;
       session.$selected = true;
-      $http.get('/api/sessions/' +  id,
+      $http.get('/api/realtime/sessions/' +  id,
           {cache : true,
            params: {sensor_id: sensorName
         }}).success(function(data, status, headers, config){
@@ -310,5 +310,5 @@ angular.module("aircasting").factory('sessions',
       return {north: north, east: east, south : south, west: west};
      }
   };
-  return new Sessions();
+  return new FixedSessions();
 }]);

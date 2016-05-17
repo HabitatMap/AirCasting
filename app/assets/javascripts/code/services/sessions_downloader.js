@@ -1,20 +1,20 @@
 angular.module("aircasting").factory("sessionsDownloader", ['$http', '$timeout', function ($http, $timeout) {
 
-  var fetch = function (reqData, sessions, params, refreshSessionsCallback, errorCallback) {
+  var fetch = function (url, reqData, sessions, params, refreshSessionsCallback, errorCallback) {
     var page = 0;
     var successCallback = function (data) {
       page++;
       if (data.length > 0) {
         preprocessData(data, sessions, params);
-        $timeout(function () {fetchPage(reqData, page, successCallback, errorCallback)}, 100);
+        $timeout(function () {fetchPage(url, reqData, page, successCallback, errorCallback)}, 100);
       }
       refreshSessionsCallback();
     }
-    fetchPage(reqData, page, successCallback, errorCallback);
+    fetchPage(url, reqData, page, successCallback, errorCallback);
   }
 
-  var fetchPage = function (reqData, page, success, error) {
-    $http.get('/api/sessions.json', {cache: true, params : {q: reqData, page: page}}).success(success).error(error);
+  var fetchPage = function (url, reqData, page, success, error) {
+    $http.get(url, {cache: true, params : {q: reqData, page: page}}).success(success).error(error);
   };
 
   var completeSessions = function(data) {

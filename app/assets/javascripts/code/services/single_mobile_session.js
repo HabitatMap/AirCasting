@@ -1,16 +1,16 @@
-angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensors', 'storage', 'heat', 'utils',
-                                     function(sessions, map, sensors, storage, heat, utils) {
-  var SingleSession = function() {
+angular.module("aircasting").factory('singleMobileSession', ['mobileSessions', 'map','sensors', 'storage', 'heat', 'utils',
+                                     function(mobileSessions, map, sensors, storage, heat, utils) {
+  var SingleMobileSession = function() {
   };
-  SingleSession.prototype = {
+  SingleMobileSession.prototype = {
     isSingle : function() {
       return this.noOfSelectedSessions() == 1;
     },
     noOfSelectedSessions : function() {
-      return sessions.allSelected().length;
+      return mobileSessions.allSelected().length;
     },
     get: function() {
-      return _(sessions.allSelected()).first();
+      return _(mobileSessions.allSelected()).first();
     },
     id: function(onlySingle) {
       if(onlySingle && !this.isSingle()){
@@ -34,7 +34,7 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
       return !!this.get().streams[sensors.anySelected().sensor_name];
     },
     measurements: function(){
-      return  sessions.measurements(this.get());
+      return  mobileSessions.measurements(this.get());
     },
     measurementsToTime: function(){
       var currentOffset = moment.duration(utils.timeOffset, "minutes").asMilliseconds();
@@ -55,5 +55,5 @@ angular.module("aircasting").factory('singleSession', ['sessions', 'map','sensor
       storage.reset("heat");
     }
   };
-  return new SingleSession();
+  return new SingleMobileSession();
 }]);
