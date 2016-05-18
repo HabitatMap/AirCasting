@@ -71,7 +71,7 @@ module Api
     end
 
     def export
-      sessions = TimeboxedSession.includes(streams: :measurements).find(params[:session_ids])
+      sessions = Session.includes(streams: :measurements).find(params[:session_ids])
       begin
         exporter = SessionsExporter.new(sessions)
         data = exporter.export
