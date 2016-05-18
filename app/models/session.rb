@@ -249,6 +249,9 @@ class Session < ActiveRecord::Base
     super(convert_time(time))
   end
 
+  def after_measurements_created
+  end
+
   private
 
   def convert_time(time)
@@ -281,5 +284,4 @@ class Session < ActiveRecord::Base
   def insert_into_deleted_sessions
     DeletedSession.where(:uuid => uuid, :user_id => user.id).first_or_create!
   end
-
 end

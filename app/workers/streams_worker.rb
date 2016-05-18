@@ -9,6 +9,7 @@ class StreamsWorker
       if stream.measurements.count > 0
         stream.calc_bounding_box!
         stream.calc_average_value!
+        stream.after_measurements_created
       end
     end
   end

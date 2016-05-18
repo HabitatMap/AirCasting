@@ -172,4 +172,8 @@ class Stream < ActiveRecord::Base
     self.average_value = measurements.average(:value)
     save!
   end
+
+  def after_measurements_created
+    self.session.after_measurements_created
+  end
 end

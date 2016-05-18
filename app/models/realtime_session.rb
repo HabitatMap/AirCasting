@@ -17,11 +17,13 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class RealtimeSession < Session
-  def end_time
-    start_time
+  def after_measurements_created
+    update_end_time!
   end
 
-  def end_time_local
-    start_time_local
+  def update_end_time!
+    self.end_time = self.measurements.maximum('time')
+    self.end_time_local = self.measurements.maximum('time')
+    self.save!
   end
 end
