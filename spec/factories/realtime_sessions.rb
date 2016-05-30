@@ -33,5 +33,8 @@ FactoryGirl.define do
     end_time {Time.now + 1.minute}
     start_time_local {Time.now}
     end_time_local {Time.now + 1.minute}
+    is_indoor false
+    latitude 11.12
+    longitude 50.1234
   end
 end

@@ -17,6 +17,11 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class RealtimeSession < Session
+  validates :is_indoor, inclusion: { in: [true, false] }
+  validates :latitude, :longitude, presence: true
+
+  attr_accessible :is_indoor, :latitude, :longitude
+
   def after_measurements_created
     update_end_time!
   end
