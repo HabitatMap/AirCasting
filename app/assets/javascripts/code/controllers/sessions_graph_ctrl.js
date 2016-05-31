@@ -67,10 +67,8 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
     if(!singleSession.withSelectedSensor()) {
       return;
     }
-    graph.draw(singleSession.measurementsToTime());
+    graph.draw(singleSession.measurementsToTime(), singleSession.isFixed());
   }
 }
 SessionsGraphCtrl.$inject = ['$scope', 'map',  'graph', 'flash', 'heat', 'sensors',
   'graphHighlight', '$window', '$timeout'];
-
-

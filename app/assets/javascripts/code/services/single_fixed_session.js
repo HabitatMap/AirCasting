@@ -53,6 +53,9 @@ angular.module("aircasting").factory('singleFixedSession', ['fixedSessions', 'ma
       var data = heat.toSensoredList(this.get().streams[sensors.anySelected().sensor_name]);
       storage.updateDefaults({heat: heat.parse(data)});
       storage.reset("heat");
+    },
+    isFixed: function() {
+      return true;
     }
   };
   return new SingleFixedSession();
