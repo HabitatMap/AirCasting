@@ -38,6 +38,7 @@ class User < ActiveRecord::Base
 
   validates :username, :presence => true
   validates_uniqueness_of :username, :case_sensitive => false
+  validates_uniqueness_of :email, case_sensitive: false
 
   def as_json(*args)
     super(:only => [:id, :email, :username, :authentication_token])
