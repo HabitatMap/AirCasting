@@ -67,7 +67,7 @@ describe Api::MeasurementSessionsController do
 
     before do
       ActiveSupport::JSON.should_receive(:decode).with(:session).and_return(:session => :data)
-      TimeboxedSessionBuilder.should_receive(:new).with({ :session => :data }, :some_files, user).and_return(builder)
+      SessionBuilder.should_receive(:new).with({ :session => :data }, :some_files, user).and_return(builder)
       builder.should_receive(:build!).and_return(create_result)
     end
 
