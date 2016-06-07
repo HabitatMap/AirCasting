@@ -31,7 +31,7 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def show
-    session = current_user.timeboxed_sessions.find_by_id(params[:id]) or raise NotFound
+    session = current_user.sessions.find_by_id(params[:id]) or raise NotFound
 
     respond_with session.as_json(:methods => [:streams, :measurements]).
       merge(:location => short_session_url(session, :host => AppConfig.host)).
@@ -42,7 +42,7 @@ class Api::UserSessionsController < Api::BaseController
   def delete_session
     data = decode_and_deep_symbolize(params)
 
-    a_session = current_user.timeboxed_sessions.find_by_uuid(data[:uuid])
+    a_session = current_user.sessions.find_by_uuid(data[:uuid])
     if a_session
       a_session.destroy
       render :json => {:success => true}

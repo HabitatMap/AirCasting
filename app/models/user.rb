@@ -96,7 +96,7 @@ class User < ActiveRecord::Base
 
     # Apparently NOT IN doesn't work if uuids is empty
     uuids = data.map { |x| x[:uuid] } + [""]
-    download = timeboxed_sessions.where(["uuid NOT IN (?)", uuids]).map(&:id)
+    download = sessions.where(["uuid NOT IN (?)", uuids]).map(&:id)
 
     { :upload => upload, :download => download, :deleted => deleted }
   end

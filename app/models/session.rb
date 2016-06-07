@@ -192,6 +192,7 @@ class Session < ActiveRecord::Base
     opts ||= {}
 
     methods = opts[:methods] || [:notes, :calibration]
+    methods << :type
     with_measurements = opts[:methods].delete(:measurements)
     sensor_id = opts.delete(:sensor_id)
 
