@@ -29,4 +29,8 @@ class FixedSession < Session
     self.end_time_local = self.measurements.maximum('time')
     self.save!
   end
+
+  def as_synchronizable
+    as_json(:methods => [:streams])
+  end
 end
