@@ -6,7 +6,6 @@ angular.module("aircasting").factory('fixedSessions',
           utils, $timeout, flash, sessionsDownloader, sessionsExporter, empty) {
   var FixedSessions = function() {
     this.sessions = [];
-    this.maxPoints = 30000;
     var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
@@ -28,11 +27,11 @@ angular.module("aircasting").factory('fixedSessions',
     },
 
     canSelectThatSession: function(session) {
-      return (this.totalMeasurementsSelectedCount() + this.measurementsCount(session)) <= this.maxPoints;
+      return true;
     },
 
     canSelectAllSessions: function(session) {
-      return this.totalMeasurementsCount() <= this.maxPoints;
+      return true;
     },
 
     empty: function() {
@@ -239,23 +238,12 @@ angular.module("aircasting").factory('fixedSessions',
       session.markers = [];
       session.noteDrawings = [];
       session.lines = [];
-      var points = [];
-      _(this.measurements(session)).each(function(measurement, idx){
-        var value = Math.round(measurement.value);
-        var level = heat.getLevel(value);
-        if(level){
-          session.markers.push(map.drawMarker(measurement, {
-            title: parseInt(measurement.value, 10).toString() + suffix,
-            zIndex: idx,
-            icon: "/assets/marker"+ level + ".png"
-          }));
-          points.push(measurement);
-        }
-      });
-      _(session.notes || []).each(function(noteItem, idx){
-        session.noteDrawings.push(note.drawNote(noteItem, idx));
-      });
-      session.lines.push(map.drawLine(points));
+
+      session.markers.push(map.drawMarker(session, {
+        title: session.title,
+        zIndex: 0,
+        icon: "/assets/location_marker.png"
+      }));
 
       session.drawed = true;
       map.appendViewport(this.getBounds());
@@ -308,7 +296,7 @@ angular.module("aircasting").factory('fixedSessions',
         return;
       }
       return {north: north, east: east, south : south, west: west};
-     }
+    }
   };
   return new FixedSessions();
 }]);
