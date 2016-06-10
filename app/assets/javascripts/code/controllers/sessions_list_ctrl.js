@@ -1,12 +1,11 @@
 function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash, versioner,
-                          dialog, functionBlocker, singleSession, $window, $rootScope) {
+                          dialog, functionBlocker, singleSession, $window) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
     $scope.$window = $window;
     $scope.sensors = sensors;
     $scope.sessions = sessions;
-    $scope.sessionsFetched = false;
     if(_(params.get("sessionsIds", [])).isEmpty()){
       params.update({sessionsIds: []});
     }
@@ -57,17 +56,6 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
     sessions.fetch();
   }, true);
 
-  $rootScope.$on("allSessionsFetched", function(){
-    if ($scope.sessionsFetched === false) {
-      $scope.sessionsFetched = true;
-
-      newIds = params.get('sessionsIds');
-      if (newIds.length === 1) {
-        $scope.prepareAndOpenSensorDialog(newIds, []);
-      }
-    }
-  });
-
   $scope.canSelectSession = function(sessionId) {
     var session = sessions.find(sessionId);
     if(sessions.empty()){
@@ -91,24 +79,22 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
   }, true);
 
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
-    functionBlocker.block("sessionDialog", $scope.prepareAndOpenSensorDialog(newIds, oldIds));
-  }, true);
-
-  $scope.prepareAndOpenSensorDialog = function(newIds, oldIds) {
-    if(newIds.length === 1 && !sensors.selected()) {
-      var usableSensors = singleSession.availSensors();
-      if(usableSensors.length > 1) {
-        sensors.tmpSensorId = _(usableSensors).first().id;
-        $scope.openSensorDialog(newIds, oldIds);
-      } else if(usableSensors.length === 1){
-        params.update({tmp: {tmpSensorId: _(usableSensors).first().id}});
+    functionBlocker.use("sessionDialog", function(){
+      if(newIds.length === 1 && !sensors.selected()) {
+        var usableSensors = singleSession.availSensors();
+        if(usableSensors.length > 1) {
+          sensors.tmpSensorId = _(usableSensors).first().id;
+          $scope.openSensorDialog(newIds, oldIds);
+        } else if(usableSensors.length === 1){
+          params.update({tmp: {tmpSensorId: _(usableSensors).first().id}});
+          sessions.sessionsChanged(newIds, oldIds);
+        }
+      } else {
+        params.update({tmp: {tmpSensorId: ""}});
         sessions.sessionsChanged(newIds, oldIds);
       }
-    } else {
-      params.update({tmp: {tmpSensorId: ""}});
-      sessions.sessionsChanged(newIds, oldIds);
-    }
-  }
+    });
+  }, true);
 
   $scope.toggleAll = function(){
     if(sessions.empty()) {
@@ -172,4 +158,4 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
   $scope.setDefaults();
 }
 SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
-  'sessions', 'flash', 'versioner', 'dialog', 'functionBlocker', 'singleSession', '$window', '$rootScope'];
+  'sessions', 'flash', 'versioner', 'dialog', 'functionBlocker', 'singleSession', '$window'];
