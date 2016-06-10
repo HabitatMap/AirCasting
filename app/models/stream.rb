@@ -97,7 +97,7 @@ class Stream < ActiveRecord::Base
   end)
 
   def sensor_full_name
-    "#{measurement_type}-#{sensor_name}"
+    "#{measurement_type}-#{sensor_name} (#{unit_symbol})";
   end
 
   def self.build!(data = {})
