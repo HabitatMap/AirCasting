@@ -28,9 +28,15 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
      var all   = {            type: 'all',    text: 'All'   };
 
      if(isLongTime)
+     {
        var buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
+       var selectedButton = 2;
+     }
      else
+     {
        var buttons = [min1, min5, min30, hr1, hrs12, all];
+       var selectedButton = 4;
+     }
 
      var options = {
         chart : {
@@ -80,7 +86,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
             },
           buttons: buttons,
           inputEnabled: false,
-          selected: 4
+          selected: selectedButton
         },
         series : [{
           name : sensor.measurement_type,
