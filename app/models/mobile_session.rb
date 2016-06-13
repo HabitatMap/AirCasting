@@ -17,9 +17,6 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class MobileSession < Session
-  validates :end_time, :presence => true
-  validates :end_time_local, :presence => true
-
   def as_synchronizable
     as_json(:methods => [:streams, :measurements])
   end

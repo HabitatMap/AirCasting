@@ -33,6 +33,8 @@ class Session < ActiveRecord::Base
   validates :user, :uuid, :url_token, :calibration, :offset_60_db, :presence => true
   validates :start_time, :presence => true
   validates :start_time_local, :presence => true
+  validates :end_time, :presence => true
+  validates :end_time_local, :presence => true
   validates :url_token, :uuid, :uniqueness => true
   validates_inclusion_of :offset_60_db, :in => -5..5
   validates :type, :presence => :true
