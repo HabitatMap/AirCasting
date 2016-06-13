@@ -33,4 +33,8 @@ class FixedSession < Session
   def as_synchronizable
     as_json(:methods => [:streams])
   end
+
+  def self.filtered_json_fields
+    [:id, :title, :start_time_local, :end_time_local, :is_indoor]
+  end
 end

@@ -165,7 +165,7 @@ class Session < ActiveRecord::Base
     .includes(:user)
     .includes(:streams)
     .filter(data).as_json(
-      only: [:id, :title, :start_time_local, :end_time_local],
+      only: filtered_json_fields,
       methods: methods
     )
   end

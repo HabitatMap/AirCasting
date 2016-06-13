@@ -217,6 +217,16 @@ angular.module("aircasting").factory('fixedSessions',
       });
     },
 
+    allStreamsWithLocation: function(sensor_name){
+      var self = this;
+      return _(this.allSelected()).chain().map(function(session){
+        if (session.is_indoor == true)
+          return null;
+        else
+          return session.streams[sensor_name];
+      }).compact().value();
+    },
+
     onSingleSessionFetch: function(session, data) {
       var streams = data.streams;
       delete data.streams;
@@ -234,16 +244,19 @@ angular.module("aircasting").factory('fixedSessions',
         return;
       }
       this.undoDraw(session, true);
-      var suffix = ' ' + sensors.anySelected().unit_symbol;
-      session.markers = [];
-      session.noteDrawings = [];
-      session.lines = [];
 
-      session.markers.push(map.drawMarker(session, {
-        title: session.title,
-        zIndex: 0,
-        icon: "/assets/location_marker.png"
-      }));
+      if(!session.is_indoor) {
+        var suffix = ' ' + sensors.anySelected().unit_symbol;
+        session.markers = [];
+        session.noteDrawings = [];
+        session.lines = [];
+
+        session.markers.push(map.drawMarker(session, {
+          title: session.title,
+          zIndex: 0,
+          icon: "/assets/location_marker.png"
+        }));
+      }
 
       session.drawed = true;
       map.appendViewport(this.getBounds());
@@ -276,7 +289,7 @@ angular.module("aircasting").factory('fixedSessions',
       if(!sensor) {
        return;
       }
-      var streams = this.allStreams(sensor.sensor_name);
+      var streams = this.allStreamsWithLocation(sensor.sensor_name);
 
       if(!_.isEmpty(streams)){
         _(streams).each(function(s){
