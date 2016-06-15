@@ -70,7 +70,11 @@ angular.module("aircasting").factory('fixedSessions',
           north: viewport.north
         });
       }
-
+      if(location.outdoorOnly){
+        _(reqData).extend({
+          is_indoor: false
+        });
+      }
       if(!location.limit && location.address) {
         _(reqData).extend({
           location:  location.address,

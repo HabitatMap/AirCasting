@@ -91,6 +91,8 @@ class Session < ActiveRecord::Base
     sensor_name = data[:sensor_name]
     unit_symbol = data[:unit_symbol]
 
+    sessions = sessions.where(is_indoor: data[:is_indoor]) unless data[:is_indoor].nil?
+
     if data[:east] && data[:west] && data[:north] && data[:south]
       session_ids = Measurement.joins(:session).
         latitude_range(data[:south], data[:north]).
