@@ -10,6 +10,7 @@ angular.module("aircasting").factory('mobileSessions',
     var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
+    this.scope.canNotSelectSession = "You are trying to select too many sessions";
   };
 
   MobileSessions.prototype = {

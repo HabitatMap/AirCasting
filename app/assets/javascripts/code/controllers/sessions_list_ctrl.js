@@ -66,7 +66,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
     if(sessions.canSelectThatSession(session)){
       return true;
     }
-    flash.set("You are trying to select too many sessions");
+    flash.set(sessions.scope.canNotSelectSession);
     return false;
   };
 
@@ -107,7 +107,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
       if(sessions.canSelectAllSessions()){
         sessions.selectAllSessions();
       } else {
-        flash.set("You are trying to select too many sessions");
+        flash.set(sessions.scope.canNotSelectSession);
       }
     } else {
       sessions.deselectAllSessions();
@@ -127,7 +127,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
     if(sessions.isSelected(session)) {
       params.update({sessionsIds: _(params.get("sessionsIds", [])).without(sessionId)});
       session.$selected = false;
-    } else {
+    } else if($scope.canSelectSession(sessionId)) {
       params.update({sessionsIds: params.get("sessionsIds", []).concat([sessionId])});
       session.$selected = true;
     }
