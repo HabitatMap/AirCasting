@@ -55,6 +55,8 @@ module Api
       photos = params[:photos] || []
 
       data = deep_symbolize ActiveSupport::JSON.decode(unzipped)
+      data[:type] = 'MobileSession' # backward compatibility
+
       session = SessionBuilder.new(data, photos, current_user).build!
 
       if session
