@@ -23,8 +23,8 @@ class User < ActiveRecord::Base
          :trackable, :validatable, :token_authenticatable
 
   has_many :sessions, :inverse_of => :user
-  has_many :timeboxed_sessions, :inverse_of => :user
-  has_many :realtime_sessions, :inverse_of => :user
+  has_many :mobile_sessions, :inverse_of => :user
+  has_many :fixed_sessions, :inverse_of => :user
   has_many :streams, :through => :sessions
   has_many :measurements, :through => :streams
   has_many :regressions

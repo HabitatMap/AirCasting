@@ -54,7 +54,7 @@ class Api::UserSessionsController < Api::BaseController
   def delete_session_streams
     session_data = decode_and_deep_symbolize(params)
 
-    a_session = current_user.timeboxed_sessions.find_by_uuid(session_data[:uuid])
+    a_session = current_user.mobile_sessions.find_by_uuid(session_data[:uuid])
     if a_session
       (session_data[:streams] || []).each do |key, stream_data|
         if stream_data[:deleted]

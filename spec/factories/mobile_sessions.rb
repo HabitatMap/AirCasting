@@ -16,19 +16,22 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-class RealtimeSession < Session
-  validates :is_indoor, inclusion: { in: [true, false] }
-  validates :latitude, :longitude, presence: true
+# Read about factories at http://github.com/thoughtbot/factory_girl
 
-  attr_accessible :is_indoor, :latitude, :longitude
-
-  def after_measurements_created
-    update_end_time!
-  end
-
-  def update_end_time!
-    self.end_time = self.measurements.maximum('time')
-    self.end_time_local = self.measurements.maximum('time')
-    self.save!
+FactoryGirl.define do
+  factory :mobile_session do
+    user
+    sequence(:uuid) { |n| "uuid-#{n}" }
+    title { "Another session" }
+    description { "Very nice session" }
+    tag_list { "boring quiet" }
+    calibration 99
+    offset_60_db 0
+    contribute true
+    notes_attributes { [FactoryGirl.attributes_for(:note, :session => nil)] }
+    start_time {Time.now}
+    end_time {Time.now + 1.minute}
+    start_time_local {Time.now}
+    end_time_local {Time.now + 1.minute}
   end
 end

@@ -104,7 +104,7 @@ module Elastic
 
     def streams
       @streams ||= Stream.
-        belong_to_timeboxed_sessions.
+        belong_to_mobile_sessions.
         only_contributed.
         with_measurement_type(data[:measurement_type]).
         with_sensor(data[:sensor_name]).

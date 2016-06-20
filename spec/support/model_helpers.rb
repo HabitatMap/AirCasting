@@ -24,7 +24,7 @@ module Aircasting
         def session_with_measurement(data)
           stream = FactoryGirl.create(:stream)
           measurement = FactoryGirl.create(:measurement, data.merge(stream: stream))
-          FactoryGirl.create(:timeboxed_session, :streams => [stream])
+          FactoryGirl.create(:mobile_session, :streams => [stream])
         end
       end
     end

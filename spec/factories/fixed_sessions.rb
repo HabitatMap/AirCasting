@@ -16,7 +16,25 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-class TimeboxedSession < Session
-  validates :end_time, :presence => true
-  validates :end_time_local, :presence => true
+# Read about factories at http://github.com/thoughtbot/factory_girl
+
+FactoryGirl.define do
+  factory :fixed_session do
+    user
+    sequence(:uuid) { |n| "uuid-#{n}" }
+    title { "Another session" }
+    description { "Very nice session" }
+    tag_list { "boring quiet" }
+    calibration 99
+    offset_60_db 0
+    contribute true
+    notes_attributes { [FactoryGirl.attributes_for(:note, :session => nil)] }
+    start_time {Time.now}
+    end_time {Time.now + 1.minute}
+    start_time_local {Time.now}
+    end_time_local {Time.now + 1.minute}
+    is_indoor false
+    latitude 11.12
+    longitude 50.1234
+  end
 end

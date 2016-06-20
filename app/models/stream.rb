@@ -89,8 +89,8 @@ class Stream < ActiveRecord::Base
     joins(:session).where("sessions.contribute = ?", true)
   end)
 
-  scope(:belong_to_timeboxed_sessions, lambda do
-    joins(:session).where("sessions.type = ?", "TimeboxedSession")
+  scope(:belong_to_mobile_sessions, lambda do
+    joins(:session).where("sessions.type = ?", "MobileSession")
   end)
 
   scope(:with_usernames, lambda do |usernames|

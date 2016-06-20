@@ -39,7 +39,7 @@ describe Api::Realtime::MeasurementsController do
     before { sign_in(user) }
 
     context 'when the session with requested `uuid` and `user` exists' do
-      before { FactoryGirl.create(:realtime_session, user: user, uuid: session_uuid) }
+      before { FactoryGirl.create(:fixed_session, user: user, uuid: session_uuid) }
 
       it 'returns `success`' do
         subject
@@ -57,7 +57,7 @@ describe Api::Realtime::MeasurementsController do
     end
 
     context 'when the session with requested `uuid` does not exist' do
-      before { FactoryGirl.create(:realtime_session, user: user, uuid: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx') }
+      before { FactoryGirl.create(:fixed_session, user: user, uuid: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx') }
 
       it 'returns `bad request`' do
         subject

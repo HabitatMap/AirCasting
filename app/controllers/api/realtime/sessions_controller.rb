@@ -39,7 +39,7 @@ module Api
         page_size = params[:page_size] || 50
 
         begin
-          respond_with RealtimeSession.filtered_json(data, page, page_size)
+          respond_with FixedSession.filtered_json(data, page, page_size)
         rescue WrongCoordinatesError => e
           error = { :error => "Invalid Location" }
           respond_with error, :status => :not_found
@@ -47,7 +47,7 @@ module Api
       end
 
       def show
-        session = RealtimeSession.find(params[:id])
+        session = FixedSession.find(params[:id])
 
         respond_with session, :sensor_id => params[:sensor_id], :methods => [:measurements, :notes]
       end

@@ -111,8 +111,8 @@ describe Stream do
   describe "scope" do
     let(:user) { FactoryGirl.create(:user) }
     let(:user2) { FactoryGirl.create(:user) }
-    let(:session) { FactoryGirl.create(:timeboxed_session, :user => user) }
-    let(:session2) { FactoryGirl.create(:timeboxed_session, :user => user2) }
+    let(:session) { FactoryGirl.create(:mobile_session, :user => user) }
+    let(:session2) { FactoryGirl.create(:mobile_session, :user => user2) }
     let(:stream) { FactoryGirl.create(:stream, :sensor_name => "Sensor1", :session => session) }
     let(:stream2) { FactoryGirl.create(:stream, :sensor_name => "Sensor2", :session => session2) }
 

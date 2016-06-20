@@ -10,7 +10,7 @@ class RealtimeMeasurementBuilder
   end
 
   def build_measurement!
-    session = RealtimeSession.where(uuid: @session_uuid, user_id: @user.id).first
+    session = FixedSession.where(uuid: @session_uuid, user_id: @user.id).first
 
     return false unless session
 

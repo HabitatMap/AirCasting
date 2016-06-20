@@ -92,7 +92,7 @@ describe Api::MeasurementSessionsController do
   end
 
   describe "GET 'show'" do
-    let(:session) { FactoryGirl.create(:timeboxed_session) }
+    let(:session) { FactoryGirl.create(:mobile_session) }
 
     before do
       get :show, :id => session.id, :format => :json
