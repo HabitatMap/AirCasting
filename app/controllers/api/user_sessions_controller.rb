@@ -27,17 +27,18 @@ class Api::UserSessionsController < Api::BaseController
     data = deep_symbolize(data)
 
     response = current_user.sync(data)
-    #print response.as_json
     respond_with(response, :location => nil)
   end
 
   def show
     session = current_user.sessions.find_by_id(params[:id]) or raise NotFound
 
-    respond_with session.as_json(:methods => [:streams, :measurements]).
+    response = session.as_synchronizable.
       merge(:location => short_session_url(session, :host => AppConfig.host)).
       merge(:tag_list => session.tag_list.join(" ")).
       merge(:notes => prepare_notes(session.notes))
+
+    respond_with response
   end
 
   def delete_session
@@ -55,7 +56,7 @@ class Api::UserSessionsController < Api::BaseController
   def delete_session_streams
     session_data = decode_and_deep_symbolize(params)
 
-    a_session = current_user.sessions.find_by_uuid(session_data[:uuid])
+    a_session = current_user.mobile_sessions.find_by_uuid(session_data[:uuid])
     if a_session
       (session_data[:streams] || []).each do |key, stream_data|
         if stream_data[:deleted]

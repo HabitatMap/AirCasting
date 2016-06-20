@@ -89,6 +89,10 @@ class Stream < ActiveRecord::Base
     joins(:session).where("sessions.contribute = ?", true)
   end)
 
+  scope(:belong_to_mobile_sessions, lambda do
+    joins(:session).where("sessions.type = ?", "MobileSession")
+  end)
+
   scope(:with_usernames, lambda do |usernames|
     if usernames.present?
       user_ids = User.select("users.id").where("users.username IN (?)", usernames).map(&:id)
@@ -103,6 +107,15 @@ class Stream < ActiveRecord::Base
   def self.build!(data = {})
     measurements = data.delete(:measurements)
     stream = create!(data)
+    measurements.each_slice(SLICE_SIZE) do |meas|
+      StreamsWorker.perform_async(meas, stream.id)
+    end
+    stream
+  end
+
+  def self.build_or_update!(data = {})
+    measurements = data.delete(:measurements)
+    stream = where(data).first_or_create!
     measurements.each_slice(SLICE_SIZE) do |meas|
       StreamsWorker.perform_async(meas, stream.id)
     end
@@ -158,5 +171,9 @@ class Stream < ActiveRecord::Base
   def calc_average_value!
     self.average_value = measurements.average(:value)
     save!
+  end
+
+  def after_measurements_created
+    self.session.after_measurements_created
   end
 end

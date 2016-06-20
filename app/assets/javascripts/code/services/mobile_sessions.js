@@ -1,18 +1,19 @@
-angular.module("aircasting").factory('sessions',
+angular.module("aircasting").factory('mobileSessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope', 'heat',
        'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
        'sessionsExporter', 'empty',
         function(params, $http, map, note, sensors, $rootScope, heat, spinner,
           utils, $timeout, flash, sessionsDownloader, sessionsExporter, empty) {
-  var Sessions = function() {
+  var MobileSessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
     var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
+    this.scope.canNotSelectSession = "You are trying to select too many sessions";
   };
 
-  Sessions.prototype = {
+  MobileSessions.prototype = {
     sessionsChanged: function (newIds, oldIds) {
       _(newIds).chain().difference(oldIds).each(_(this.selectSession).bind(this));
       _(oldIds).chain().difference(newIds).each(_(this.deselectSession).bind(this));
@@ -90,7 +91,7 @@ angular.module("aircasting").factory('sessions',
       this.sessions = [];
       spinner.startDownloadingSessions();
 
-      sessionsDownloader(reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
+      sessionsDownloader('/api/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
           _(this.onSessionsFetchError).bind(this));
     },
 
@@ -310,5 +311,5 @@ angular.module("aircasting").factory('sessions',
       return {north: north, east: east, south : south, west: west};
      }
   };
-  return new Sessions();
+  return new MobileSessions();
 }]);

@@ -20,7 +20,7 @@ class MeasurementSessionsController < ApplicationController
   layout 'map'
 
   def show
-    @session = Session.find_by_url_token(params[:url_token]) or raise NotFound
+    @session = MobileSession.find_by_url_token(params[:url_token]) or raise NotFound
     lat = @session.streams.first.min_latitude.to_f
     lng = @session.streams.first.min_longitude.to_f
     stream = @session.streams.first

@@ -38,7 +38,7 @@ module Api
       page_size = params[:page_size] || 50
 
       begin
-        respond_with Session.filtered_json(data, page, page_size)
+        respond_with MobileSession.filtered_json(data, page, page_size)
       rescue WrongCoordinatesError => e
         error = { :error => "Invalid Location" }
         respond_with error, :status => :not_found
@@ -55,6 +55,8 @@ module Api
       photos = params[:photos] || []
 
       data = deep_symbolize ActiveSupport::JSON.decode(unzipped)
+      data[:type] = 'MobileSession' # backward compatibility
+
       session = SessionBuilder.new(data, photos, current_user).build!
 
       if session
@@ -65,7 +67,7 @@ module Api
     end
 
     def show
-      session = Session.find(params[:id])
+      session = MobileSession.find(params[:id])
 
       respond_with session, :sensor_id => params[:sensor_id], :methods => [:measurements, :notes]
     end

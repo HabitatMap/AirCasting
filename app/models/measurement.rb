@@ -31,8 +31,8 @@ class Measurement < ActiveRecord::Base
 
   validates :stream_id, :value, :longitude, :latitude, :time, :presence => true
 
-  prepare_range(:longitude_range, :longitude)
-  prepare_range(:latitude_range, :latitude)
+  prepare_range(:longitude_range, 'measurements.longitude')
+  prepare_range(:latitude_range, 'measurements.latitude')
   prepare_range(:time_range, "(EXTRACT(HOUR FROM time) * 60 + EXTRACT(MINUTE FROM time))")
   prepare_range(:day_range, "(DAYOFYEAR(time))")
   prepare_range(:year_range, :time)

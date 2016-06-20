@@ -19,7 +19,7 @@
 # Read about factories at http://github.com/thoughtbot/factory_girl
 
 FactoryGirl.define do
-  factory :session do
+  factory :mobile_session do
     user
     sequence(:uuid) { |n| "uuid-#{n}" }
     title { "Another session" }

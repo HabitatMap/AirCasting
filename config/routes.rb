@@ -63,6 +63,11 @@ AirCasting::Application.routes.draw do
       end
     end
     resources :sensors, only: [:index]
+
+    namespace :realtime do
+      resources :sessions, only: [:create, :index, :show]
+      resources :measurements, only: :create
+    end
   end
 
   get 'autocomplete/tags' => 'autocomplete#tags'

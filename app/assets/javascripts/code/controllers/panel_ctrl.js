@@ -12,10 +12,17 @@ function PanelCtrl($scope,  $location, expandables) {
     $scope.expandables.allHidden = !$scope.expandables.allHidden;
   };
 
-  $scope.goToSessionsMap = function() {
+  $scope.goToMobileSessionsMap = function() {
     if($location.path() != "/map_sessions") {
       $location.search({});
       $location.url("/map_sessions");
+    }
+  };
+
+  $scope.goToFixedSessionsMap = function() {
+    if($location.path() != "/map_fixed_sessions") {
+      $location.search({});
+      $location.url("/map_fixed_sessions");
     }
   };
 

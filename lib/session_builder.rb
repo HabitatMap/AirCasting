@@ -15,6 +15,7 @@ class SessionBuilder
 
   def build_session!
     data = @session_data.clone
+
     data[:notes_attributes] = SessionBuilder.prepare_notes(data.delete(:notes), @photos)
     data[:tag_list] = SessionBuilder.normalize_tags(data[:tag_list])
     data[:user] = @user
@@ -53,5 +54,4 @@ class SessionBuilder
   def self.normalize_tags(tags)
     tags.to_s.split(/[\s,]/).reject(&:empty?).join(',')
   end
-
 end

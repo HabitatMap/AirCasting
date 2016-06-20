@@ -1,11 +1,13 @@
-function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash, versioner,
-                          dialog, functionBlocker, singleSession, $window) {
+function SessionsListCtrl($scope, params, map, sensors, storage, flash, versioner,
+                          dialog, functionBlocker, $window) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
     $scope.$window = $window;
     $scope.sensors = sensors;
-    $scope.sessions = sessions;
+    sessions = $scope.sessions;
+    singleSession = $scope.singleSession;
+
     if(_(params.get("sessionsIds", [])).isEmpty()){
       params.update({sessionsIds: []});
     }
@@ -64,7 +66,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
     if(sessions.canSelectThatSession(session)){
       return true;
     }
-    flash.set("You are trying to select too many sessions");
+    flash.set(sessions.scope.canNotSelectSession);
     return false;
   };
 
@@ -105,7 +107,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
       if(sessions.canSelectAllSessions()){
         sessions.selectAllSessions();
       } else {
-        flash.set("You are trying to select too many sessions");
+        flash.set(sessions.scope.canNotSelectSession);
       }
     } else {
       sessions.deselectAllSessions();
@@ -125,7 +127,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
     if(sessions.isSelected(session)) {
       params.update({sessionsIds: _(params.get("sessionsIds", [])).without(sessionId)});
       session.$selected = false;
-    } else {
+    } else if($scope.canSelectSession(sessionId)) {
       params.update({sessionsIds: params.get("sessionsIds", []).concat([sessionId])});
       session.$selected = true;
     }
@@ -158,4 +160,4 @@ function SessionsListCtrl($scope, params, map, sensors, storage, sessions, flash
   $scope.setDefaults();
 }
 SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
-  'sessions', 'flash', 'versioner', 'dialog', 'functionBlocker', 'singleSession', '$window'];
+  'flash', 'versioner', 'dialog', 'functionBlocker', '$window'];

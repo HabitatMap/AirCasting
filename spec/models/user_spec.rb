@@ -44,11 +44,11 @@ describe User do
   end
 
   describe "#sync" do
-    let(:session1) { FactoryGirl.create(:session, :user => user) }
-    let(:session2) { FactoryGirl.create(:session, :user => user, :notes => [note1, note2]) }
-    let!(:session3) { FactoryGirl.create(:session, :user => user) }
-    let(:session4) { FactoryGirl.create(:session, :user => user, :notes => [note3]) }
-    let(:session5) { FactoryGirl.create(:session, :user => user) }
+    let(:session1) { FactoryGirl.create(:mobile_session, :user => user) }
+    let(:session2) { FactoryGirl.create(:mobile_session, :user => user, :notes => [note1, note2]) }
+    let!(:session3) { FactoryGirl.create(:mobile_session, :user => user) }
+    let(:session4) { FactoryGirl.create(:mobile_session, :user => user, :notes => [note3]) }
+    let(:session5) { FactoryGirl.create(:mobile_session, :user => user) }
     let(:note1) { FactoryGirl.create(:note, :number => 1, :text => "Old text") }
     let(:note2) { FactoryGirl.create(:note, :number => 2, :text => "Old text") }
 

@@ -100,4 +100,3 @@ describe SessionBuilder do
 
   end
 end
-

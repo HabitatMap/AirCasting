@@ -18,11 +18,11 @@
 
 require 'spec_helper'
 
-describe Session do
+describe MobileSession do
   let(:time_in_us) { Time.now.utc.in_time_zone("Eastern Time (US & Canada)") }
 
   describe 'validations' do
-    before { FactoryGirl.create(:session) }
+    before { FactoryGirl.create(:mobile_session) }
 
     it { should validate_presence_of :uuid }
     it { should validate_uniqueness_of :uuid }
@@ -52,22 +52,22 @@ describe Session do
       to = (time.hour + 1) * 60 + time.min
 
       session = FactoryGirl.create(
-        :session,
+        :mobile_session,
         :start_time_local => time - 1.minute,
         :end_time_local => time + 1.minute
       )
       session1 = FactoryGirl.create(
-        :session,
+        :mobile_session,
         :start_time_local => time - 2.minute,
         :end_time_local => time - 1.minute
       )
       session2 = FactoryGirl.create(
-        :session,
+        :mobile_session,
         :start_time_local => time + 61.minute,
         :end_time_local => time + 71.minute
       )
 
-      Session.local_time_range_by_minutes(from, to).all.should == [session]
+      MobileSession.local_time_range_by_minutes(from, to).all.should == [session]
     end
   end
 
@@ -75,7 +75,7 @@ describe Session do
     let(:stream) { FactoryGirl.create(:stream) }
     let(:m1) { FactoryGirl.create(:measurement, :stream => stream) }
     let(:m1) { FactoryGirl.create(:measurement, :stream => stream) }
-    let(:session) { FactoryGirl.create(:session, :streams => [stream]) }
+    let(:session) { FactoryGirl.create(:mobile_session, :streams => [stream]) }
 
     subject { session.as_json(:methods => [:measurements]) }
 
@@ -91,7 +91,7 @@ describe Session do
   end
 
   describe '.create' do
-    let(:session) { FactoryGirl.build(:session) }
+    let(:session) { FactoryGirl.build(:mobile_session) }
 
     it 'should call set_url_token' do
       session.should_receive(:set_url_token)
@@ -101,7 +101,7 @@ describe Session do
 
   describe "#destroy" do
     let(:stream) { FactoryGirl.create(:stream) }
-    let(:session) { FactoryGirl.create(:session, :streams => [stream]) }
+    let(:session) { FactoryGirl.create(:mobile_session, :streams => [stream]) }
 
     it "should destroy streams" do
       session.reload.destroy
@@ -111,19 +111,19 @@ describe Session do
   end
 
   describe '.filter' do
-    before { Session.destroy_all }
+    before { MobileSession.destroy_all }
 
     it 'should exclude not contributed sessions' do
-      session1 = FactoryGirl.create(:session, :contribute => true)
-      session2 = FactoryGirl.create(:session, :contribute => false)
+      session1 = FactoryGirl.create(:mobile_session, :contribute => true)
+      session2 = FactoryGirl.create(:mobile_session, :contribute => false)
 
-      Session.filter.all.should == [session1]
+      MobileSession.filter.all.should == [session1]
     end
 
     it 'should include explicitly requested but not contributed sessions' do
-      session =  FactoryGirl.create(:session, :id => 1, :contribute => false)
+      session =  FactoryGirl.create(:mobile_session, :id => 1, :contribute => false)
 
-      Session.filter(:session_ids => [1]).all.should == [session]
+      MobileSession.filter(:session_ids => [1]).all.should == [session]
     end
 
     it "should exclude sessions outside the area if given" do
@@ -131,7 +131,7 @@ describe Session do
       session2 = session_with_measurement(:longitude => 20, :latitude => 20)
       session3 = session_with_measurement(:longitude => 10, :latitude => 30)
 
-      Session.filter(:west => 5, :east => 15, :south => 15, :north => 25).all.should == [session1]
+      MobileSession.filter(:west => 5, :east => 15, :south => 15, :north => 25).all.should == [session1]
     end
 
     it "calls Measurement.near when location is set" do
@@ -141,25 +141,25 @@ describe Session do
       measurements.should_receive(:select).with('stream_id').and_return(stub(:map => []))
       Measurement.should_receive(:near).with(query[:location], query[:distance]).and_return(measurements)
 
-      Session.filter(:location => "Krakow", :distance => 10).all
+      MobileSession.filter(:location => "Krakow", :distance => 10).all
     end
 
     it "should include sessions with any points inside the time period" do
       time = Time.now
       from = time.hour * 60 + time.min
       to = (time.hour + 2) * 60 + time.min
-      session = FactoryGirl.create(:session, :start_time_local => time, :end_time_local => time + 1.minute)
+      session = FactoryGirl.create(:mobile_session, :start_time_local => time, :end_time_local => time + 1.minute)
 
-      Session.filter(:time_from => from, :time_to => to).all.should == [session]
+      MobileSession.filter(:time_from => from, :time_to => to).all.should == [session]
     end
 
     it "should find sessions by usernames" do
       user_1 = FactoryGirl.create(:user, :username => 'foo bar')
       user_2 = FactoryGirl.create(:user, :username => 'john')
-      session_1 = FactoryGirl.create(:session, :user => user_1)
-      session_2 = FactoryGirl.create(:session, :user => user_2)
+      session_1 = FactoryGirl.create(:mobile_session, :user => user_1)
+      session_2 = FactoryGirl.create(:mobile_session, :user => user_2)
 
-      Session.filter(:usernames => 'foo bar    , biz').all.should == [session_1]
+      MobileSession.filter(:usernames => 'foo bar    , biz').all.should == [session_1]
     end
 
 
@@ -169,7 +169,7 @@ describe Session do
 
       Measurement.should_not_receive(:time_range).with(from, to).and_return(stub.as_null_object)
 
-      Session.filter(:time_from => from, :time_to => to).all
+      MobileSession.filter(:time_from => from, :time_to => to).all
     end
   end
 
@@ -179,11 +179,11 @@ describe Session do
     let(:json) { mock('json') }
 
     it 'should return filter() as json' do
-      Session.should_receive(:filter).with(data).and_return(records)
+      MobileSession.should_receive(:filter).with(data).and_return(records)
       records.should_receive(:as_json).with(hash_including({:only => [:id, :title, :start_time_local, :end_time_local], :methods => [:username, :streams]})).and_return(json)
       data.should_receive(:[]).with(:measurements).and_return(false)
 
-      Session.filtered_json(data, 0, 50).should == json
+      MobileSession.filtered_json(data, 0, 50).should == json
     end
   end
 
@@ -202,7 +202,7 @@ describe Session do
   end
 
   describe '#to_param' do
-    let(:session) { Session.new }
+    let(:session) { MobileSession.new }
 
     subject { session.to_param }
 
@@ -210,7 +210,7 @@ describe Session do
   end
 
   describe "#sync" do
-    let(:session) { FactoryGirl.create(:session) }
+    let(:session) { FactoryGirl.create(:mobile_session) }
     let!(:note) { FactoryGirl.create(:note, :session => session) }
     let(:data) { { :tag_list => "some tag or other", :notes => [] } }
 
@@ -227,7 +227,7 @@ describe Session do
 
   describe "#start_time" do
     it "keeps time info in UTC" do
-      session = Session.new
+      session = MobileSession.new
       time_in_utc = time_in_us.utc
 
       session.start_time = time_in_us
@@ -237,7 +237,7 @@ describe Session do
 
   describe "#end_time" do
     it "keeps time info in UTC" do
-      session = Session.new
+      session = MobileSession.new
       time_in_utc = time_in_us.utc
 
       session.end_time = time_in_us
@@ -247,7 +247,7 @@ describe Session do
 
   describe "#start_time_local" do
     it "keeps local time info" do
-      session = FactoryGirl.build(:session)
+      session = FactoryGirl.build(:mobile_session)
       session.start_time_local = time_in_us
 
       session.save
@@ -259,7 +259,7 @@ describe Session do
 
   describe "#end_time_local" do
     it "keeps local time info" do
-      session = FactoryGirl.build(:session)
+      session = FactoryGirl.build(:mobile_session)
       session.end_time_local = time_in_us
       session.save
       session.reload

@@ -1,0 +1,59 @@
+<div id="sessions-tab">
+  <div ng-hide="expandables.allHidden" id="sessions" ng-include="versioner.path('/partials/sessions_list.html')"></div>
+  <div ng-hide="expandables.allHidden" id="sessions-graph" ng-include="versioner.path('/partials/graph.html')"></div>
+
+  <div id="sessions-map-tab" class="tab-content" ng-hide="expandables.allHidden">
+    <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
+    <section ng-show="expandables.visible('sensor')" >
+    <p>
+      <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for (sensorId, sensor) in sensors.get()">
+        <option value="">All</option>
+      </select>
+    </p>
+    </section>
+
+    <h4 ng-click="expandables.toggle('location')" ng-class="expandables.css('location')">Location</h4>
+    <section ng-show="expandables.visible('location')">
+      <div class="textfield">
+        <p>
+          <label>Address, Intersection, or Zip
+            <input type="text" ng-model="storage.data.location.address" ng-disabled="storage.data.location.limit">
+          </label>
+        </p>
+        <p>
+          <label>Within</label>
+          <select ng-model="storage.data.location.distance" ng-disabled="storage.data.location.limit">
+            <option value="1">1 Mile radius</option>
+            <option value="5">5 Miles radius</option>
+            <option value="10">10 Miles radius</option>
+            <option value="20">20 Miles radius</option>
+          </select>
+        </p>
+
+        <p>
+          <input type="checkbox" ng-model="storage.data.location.limit" >
+          <label>Limit my search to the current map view</label>
+        </p>
+
+        <p>
+          <input type="checkbox" ng-model="storage.data.location.outdoorOnly" >
+          <label>Only display outdoor sessions</label>
+        </p>
+      </div>
+      <div>
+        <ul class="buttons">
+          <li><button ng-click="storage.reset('location')">reset</li>
+          <li><button ng-click="searchSessions()">submit</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider" ng-include="versioner.path('/partials/usernames_and_tags.html')"></div>
+    <div class="section-divider" ng-include="versioner.path('/partials/time_filters.html')"></div>
+    <div ng-switch on="!!singleSession.get() && !!sensors.anySelected()">
+      <div ng-switch-when="true">
+        <div class="section-divider" ng-include="versioner.path('/partials/heat_legend.html')"></div>
+      </div>
+    </div>
+  </div>
+</div>

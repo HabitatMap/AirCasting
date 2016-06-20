@@ -41,5 +41,4 @@ namespace :fix do
       user.username_will_change! && user.username.chomp! && user.save
     end
   end
-
 end

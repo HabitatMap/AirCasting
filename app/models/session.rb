@@ -31,10 +31,13 @@ class Session < ActiveRecord::Base
   has_many :streams, :inverse_of => :session, :dependent => :destroy
 
   validates :user, :uuid, :url_token, :calibration, :offset_60_db, :presence => true
-  validates :start_time, :end_time, :presence => true
-  validates :start_time_local, :end_time_local, :presence => true
+  validates :start_time, :presence => true
+  validates :start_time_local, :presence => true
+  validates :end_time, :presence => true
+  validates :end_time_local, :presence => true
   validates :url_token, :uuid, :uniqueness => true
   validates_inclusion_of :offset_60_db, :in => -5..5
+  validates :type, :presence => :true
 
   prepare_range(:start_year_range, :start_time)
 
@@ -48,7 +51,8 @@ class Session < ActiveRecord::Base
 
   attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list,
   :contribute, :notes_attributes, :data_type, :instrument, :phone_model,
-  :os_version, :user, :start_time, :end_time, :start_time_local, :end_time_local
+  :os_version, :user, :start_time, :end_time, :start_time_local, :end_time_local, :type,
+  :is_indoor, :latitude, :longitude
   attr_accessible :title, :description, :tag_list, :as => :sync
 
   scope :local_time_range_by_minutes, lambda { |start_minutes, end_minutes|
@@ -86,6 +90,8 @@ class Session < ActiveRecord::Base
     location = data[:location]
     sensor_name = data[:sensor_name]
     unit_symbol = data[:unit_symbol]
+
+    sessions = sessions.where(is_indoor: data[:is_indoor]) unless data[:is_indoor].nil?
 
     if data[:east] && data[:west] && data[:north] && data[:south]
       session_ids = Measurement.joins(:session).
@@ -161,7 +167,7 @@ class Session < ActiveRecord::Base
     .includes(:user)
     .includes(:streams)
     .filter(data).as_json(
-      only: [:id, :title, :start_time_local, :end_time_local],
+      only: filtered_json_fields,
       methods: methods
     )
   end
@@ -190,6 +196,7 @@ class Session < ActiveRecord::Base
     opts ||= {}
 
     methods = opts[:methods] || [:notes, :calibration]
+    methods << :type
     with_measurements = opts[:methods].delete(:measurements)
     sensor_id = opts.delete(:sensor_id)
 
@@ -248,6 +255,9 @@ class Session < ActiveRecord::Base
     super(convert_time(time))
   end
 
+  def after_measurements_created
+  end
+
   private
 
   def convert_time(time)
@@ -280,5 +290,4 @@ class Session < ActiveRecord::Base
   def insert_into_deleted_sessions
     DeletedSession.where(:uuid => uuid, :user_id => user.id).first_or_create!
   end
-
 end

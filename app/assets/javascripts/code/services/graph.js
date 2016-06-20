@@ -1,6 +1,6 @@
-angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 'sensors',
+angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
                                      'heat', 'graphHighlight',
-                                     function($rootScope, singleSession, sensors,
+                                     function($rootScope, sensors,
                                               heat, graphHighlight) {
   var Graph = function() {
   };
@@ -9,13 +9,35 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
       this.id = id;
       this.loaded = false;
     },
-    draw : function(data){
+    draw : function(data, isLongTime){
      var sensor = sensors.anySelected();
      var self = this;
      var low = heat.getValue("lowest");
      var high = heat.getValue("highest");
      var tick = Math.round((high - low)/ 4);
      var ticks = [low, low + tick, low + 2*tick, high - tick, high];
+
+     var min1  = { count: 1,  type: 'minute', text: '1min'  };
+     var min5  = { count: 5,  type: 'minute', text: '5min'  };
+     var min30 = { count: 30, type: 'minute', text: '30min' };
+     var hr1   = { count: 1,  type: 'hour',   text: '1hr'   };
+     var hrs12 = { count: 12, type: 'hour',   text: '12hrs' };
+     var hrs24 = { count: 24, type: 'hour',   text: '24hrs' };
+     var wk1   = { count: 1,  type: 'week',   text: '1wk'   };
+     var mth1  = { count: 1,  type: 'month',  text: '1mth'  };
+     var all   = {            type: 'all',    text: 'All'   };
+
+     if(isLongTime)
+     {
+       var buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
+       var selectedButton = 2;
+     }
+     else
+     {
+       var buttons = [min1, min5, min30, hr1, hrs12, all];
+       var selectedButton = 4;
+     }
+
      var options = {
         chart : {
           renderTo : this.id,
@@ -62,28 +84,9 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
                 fontWeight: 'normal',
                 fontFamily: 'Arial, sans-serif'
             },
-          buttons: [{
-            count: 1,
-            type: 'minute',
-            text: '1min'
-          }, {
-            count: 5,
-            type: 'minute',
-            text: '5min'
-          }, {
-            count: 30,
-            type: 'minute',
-            text: '30min'
-          }, {
-            count: 1,
-            type: 'hour',
-            text: '1hr'
-          }, {
-            type: 'all',
-            text: 'All'
-          }],
+          buttons: buttons,
           inputEnabled: false,
-          selected: 4
+          selected: selectedButton
         },
         series : [{
           name : sensor.measurement_type,
@@ -219,15 +222,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'singleSession', 's
       var pointNum = Math.floor(points.length / 2);
       graphHighlight.show([points[pointNum]]);
     },
-
-    redraw: function() {
-      if(!singleSession.withSelectedSensor()) {
-        return;
-      }
-      this.draw(singleSession.measurementsToTime());
-    }
   };
   return new Graph();
 }]);
-
-
