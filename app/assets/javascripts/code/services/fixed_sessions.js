@@ -9,7 +9,8 @@ angular.module("aircasting").factory('fixedSessions',
     var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
-    this.scope.canNotSelectSession = "You can't select multiple fixed-location sessions";
+    this.scope.canNotSelectSessionWithSensorSelected = "You can't select multiple fixed-location sessions";
+    this.scope.canNotSelectSessionWithoutSensorSelected = "You can't select multiple fixed-location sessions";
   };
 
   FixedSessions.prototype = {

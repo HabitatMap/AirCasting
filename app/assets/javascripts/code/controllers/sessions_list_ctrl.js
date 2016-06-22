@@ -66,7 +66,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
     if(sessions.canSelectThatSession(session)){
       return true;
     }
-    flash.set(sessions.scope.canNotSelectSession);
+    flash.set(sessions.scope.canNotSelectSessionWithSensorSelected);
     return false;
   };
 
@@ -101,13 +101,13 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
   $scope.toggleAll = function(){
     if(sessions.empty()) {
       if(!sensors.selectedId()) {
-        flash.set("Filter by Parameter - Sensor to view many sessions at once");
+        flash.set(sessions.scope.canNotSelectSessionWithoutSensorSelected);
         return;
       }
       if(sessions.canSelectAllSessions()){
         sessions.selectAllSessions();
       } else {
-        flash.set(sessions.scope.canNotSelectSession);
+        flash.set(sessions.scope.canNotSelectSessionWithSensorSelected);
       }
     } else {
       sessions.deselectAllSessions();
@@ -120,7 +120,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
 
   $scope.toggleSession = function(sessionId) {
     if(this.isSessionDisabled(sessionId)){
-      flash.set("Filter by Parameter - Sensor to view many sessions at once");
+      flash.set(sessions.scope.canNotSelectSessionWithoutSensorSelected);
       return;
     }
     var session = sessions.find(sessionId);
