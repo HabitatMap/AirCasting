@@ -24,8 +24,13 @@ module Api
       respond_to :json
 
       def create
-        data = JSON.parse(params[:data])
-        data = deep_symbolize(data)
+        if params[:compression]
+          decoded = Base64.decode64(params[:data])
+          unzipped = AirCasting::GZip.inflate(decoded)
+        else
+          unzipped = params[:data]
+        end
+        data = deep_symbolize ActiveSupport::JSON.decode(unzipped)
 
         session_uuid = data.delete(:session_uuid)
         stream_data = { data[:stream_name] => data }
