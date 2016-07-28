@@ -75,6 +75,13 @@ Read more [here](doc/elasticsearch.md).
 
 Read more [here](doc/api.md).
 
+###Troubleshooting
+
+* `Mysql2::Error: All parts of a PRIMARY KEY must be NOT NULL; if you need
+NULL in a key, use UNIQUE instead (...)`
+
+ If you see this error, you need to downgrade MySql database server to ver. 5.6. We don't support the latest MySql server version yet.
+
 ###Contribute
 
 If you'd like to contribute just use the usual github process - fork, make changes, issue a pull request.
