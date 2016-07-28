@@ -16,7 +16,7 @@ gem 'colored', require: false
 gem 'progress', require: false
 gem 'pry-rails'
 
-gem 'rb-gsl', '1.16.0.1'
+gem 'rb-gsl', '1.16.0.6'
 
 gem 'rubyzip', '>= 1.0.0'
 
