@@ -58,6 +58,10 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
     sessions.fetch();
   }, true);
 
+  $scope.$watch("sensors.isEmpty()", function(newValue, oldValue) {
+    sessions.reSelectAllSessions();
+  }, true);
+
   $scope.canSelectSession = function(sessionId) {
     var session = sessions.find(sessionId);
     if(sessions.empty()){
