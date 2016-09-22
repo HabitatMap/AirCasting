@@ -82,6 +82,13 @@ NULL in a key, use UNIQUE instead (...)`
 
  If you see this error, you need to downgrade MySql database server to ver. 5.6. We don't support the latest MySql server version yet.
 
+* `Library not loaded: /usr/local/opt/mysql/lib/libmysqlclient.20.dylib`
+
+ If you get this error while attempting `rake db:migrate`, reinstall gem mysql2:
+
+ `gem uninstall mysql2`
+ `gem install mysql2 -v '0.3.20'`
+
 ###Contribute
 
 If you'd like to contribute just use the usual github process - fork, make changes, issue a pull request.
