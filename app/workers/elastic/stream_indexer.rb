@@ -3,7 +3,7 @@ module Elastic
     include Sidekiq::Worker
 
     sidekiq_options retry: false, unique: true,
-      unique_unlock_order: :never, unique_job_expiration: 5.minute
+      unique_unlock_order: :never, unique_job_expiration: 1.minute
 
     Client = Elasticsearch::Client.new(host: 'localhost:9200', logger: Sidekiq.logger)
 
