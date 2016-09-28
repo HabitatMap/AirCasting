@@ -6,6 +6,7 @@ tmp/
 .rspec
 config/database.yml
 public/assets
+dump.rdb
 
 # Paperclip
 public/system
