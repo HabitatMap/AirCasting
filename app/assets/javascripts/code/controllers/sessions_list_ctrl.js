@@ -55,7 +55,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
     return {id:  sensors.selectedId(), params: params.getWithout('data', 'heat')};
   };
 
-  $scope.updatePage = function() {
+  $scope.updateSessionsPage = function() {
     $scope.page++;
   };
 
@@ -64,6 +64,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
   }, true);
 
   $scope.$watch("sessionFetchCondition()", function(newValue, oldValue) {
+    $scope.page = 0;
     sessions.fetch($scope.page);
   }, true);
 
