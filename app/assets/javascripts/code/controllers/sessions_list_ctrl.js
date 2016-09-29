@@ -5,6 +5,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
     $scope.storage = storage;
     $scope.$window = $window;
     $scope.sensors = sensors;
+    $scope.page = 0;
     sessions = $scope.sessions;
     singleSession = $scope.singleSession;
 
@@ -54,8 +55,16 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
     return {id:  sensors.selectedId(), params: params.getWithout('data', 'heat')};
   };
 
+  $scope.updatePage = function() {
+    $scope.page++;
+  };
+
+  $scope.$watch("page", function() {
+    sessions.fetch($scope.page);
+  }, true);
+
   $scope.$watch("sessionFetchCondition()", function(newValue, oldValue) {
-    sessions.fetch();
+    sessions.fetch($scope.page);
   }, true);
 
   $scope.$watch("sensors.isEmpty()", function(newValue, oldValue) {
