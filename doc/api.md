@@ -90,7 +90,7 @@ curl http://aircasting.org/api/sessions.json?page=0&page_size=50&q[measurements]
 ### Example URL
 
 ```
-curl http://aircasting.org/api/sessions/9586
+curl http://aircasting.org/api/sessions/9586.json
 ```
 
 ### Example response
