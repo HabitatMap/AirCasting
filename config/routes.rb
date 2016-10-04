@@ -49,6 +49,9 @@ AirCasting::Application.routes.draw do
         get :export
       end
     end
+
+    get 'multiple_sessions' =>'measurement_sessions#show_multiple'
+
     resources :averages, only: [:index]
     resources :thresholds, only: [:show], id: /.*/
     resources :regressions, only: [:create, :index, :destroy]
@@ -75,6 +78,7 @@ AirCasting::Application.routes.draw do
 
   get 'about' => 'static_pages#about'
   get 'donate' => 'static_pages#donate'
+
 
   root :to => "home#index"
 end

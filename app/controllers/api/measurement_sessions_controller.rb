@@ -45,6 +45,18 @@ module Api
       end
     end
 
+    def show_multiple
+      if params[:q].is_a?(String)
+        data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
+      elsif params[:q]
+        data = params[:q].symbolize_keys
+      else
+        data = {}
+      end
+
+      respond_with MobileSession.selected_sessions_json(data)
+    end
+
     def create
       if params[:compression]
         decoded = Base64.decode64(params[:session])

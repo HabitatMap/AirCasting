@@ -92,12 +92,15 @@ angular.module("aircasting").factory('mobileSessions',
 
       if (page === 0) {
         this.sessions = [];
+        sessionsDownloader('/api/multiple_sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
+        _(this.onSessionsFetchError).bind(this));
       }
 
       spinner.startDownloadingSessions();
 
       sessionsDownloader('/api/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
           _(this.onSessionsFetchError).bind(this));
+
     },
 
     onSessionsFetch: function() {

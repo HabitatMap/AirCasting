@@ -172,6 +172,20 @@ class Session < ActiveRecord::Base
     )
   end
 
+  def self.selected_sessions_json(data)
+    methods = [:username, :streams]
+
+    methods << :measurements if data[:measurements]
+
+    where("id IN (?)", data[:session_ids])
+    .includes(:user)
+    .includes(:streams)
+    .as_json(
+      only: filtered_json_fields,
+      methods: methods
+    )
+  end
+
   def to_param
     url_token
   end
