@@ -72,10 +72,10 @@ class Session < ActiveRecord::Base
   prepare_range(:day_range, "(DAYOFYEAR(start_time))")
 
   def self.filter(data={})
-    sessions = order("sessions.created_at DESC").
-    where("contribute = true OR sessions.id IN (?)", data[:session_ids]).
-    day_range(data[:day_from], data[:day_to]).
-    joins(:user)
+    sessions = order("sessions.created_at DESC")
+    .where("contribute = true")
+    .day_range(data[:day_from], data[:day_to])
+    .joins(:user)
 
     tags = data[:tags].to_s.split(/[\s,]/)
     if tags.present?
@@ -158,32 +158,32 @@ class Session < ActiveRecord::Base
   end
 
   def self.filtered_json(data, page, page_size)
-    methods = [:username, :streams]
-
-    methods << :measurements if data[:measurements]
-
     offset(page.to_i * page_size.to_i)
     .limit(page_size)
-    .includes(:user)
-    .includes(:streams)
+    .with_user_and_streams
     .filter(data).as_json(
       only: filtered_json_fields,
-      methods: methods
+      methods: session_methods(data)
     )
   end
 
   def self.selected_sessions_json(data)
-    methods = [:username, :streams]
-
-    methods << :measurements if data[:measurements]
-
     where("id IN (?)", data[:session_ids])
-    .includes(:user)
-    .includes(:streams)
+    .with_user_and_streams
     .as_json(
       only: filtered_json_fields,
-      methods: methods
+      methods: session_methods(data)
     )
+  end
+
+  def self.session_methods(data)
+    methods = [:username, :streams]
+    methods << :measurements if data[:measurements]
+    methods    
+  end
+
+  def self.with_user_and_streams
+    includes(:user).includes(:streams)
   end
 
   def to_param

@@ -19,7 +19,7 @@ angular.module("aircasting").factory('mobileSessions',
       _(oldIds).chain().difference(newIds).each(_(this.deselectSession).bind(this));
     },
     get: function(){
-      return this.sessions;
+      return _.uniq(this.sessions, 'id');
     },
     allSessionIds: function() {
       return _(this.get()).pluck("id");
@@ -93,13 +93,13 @@ angular.module("aircasting").factory('mobileSessions',
       if (page === 0) {
         this.sessions = [];
         sessionsDownloader('/api/multiple_sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
-        _(this.onSessionsFetchError).bind(this));
+          _(this.onSessionsFetchError).bind(this));
       }
 
       spinner.startDownloadingSessions();
 
       sessionsDownloader('/api/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
-          _(this.onSessionsFetchError).bind(this));
+        _(this.onSessionsFetchError).bind(this));
 
     },
 
