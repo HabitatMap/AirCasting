@@ -9,7 +9,7 @@
   <div class="nomargin">
     <div id="sessions-bottom" ng-style="{height: $window.innerHeight - 300}">
       <ul>
-        <li ng:repeat="session in sessions.get() | orderBy:'end_time_local':true" ng-class="sessionCssClass(session.$selected)">
+        <li ng:repeat="session in sessions.get()" ng-class="sessionCssClass(session.$selected)">
           <input type="checkbox" collection-condition="canSelectSession(session.id)" collection="sessionsIds" collection-id="session.id" ng-model="session.$selected" ng-disabled="isSessionDisabled(session.id)">
           <dl ng-click="toggleSession(session.id)">
             <dt><label class="narrow">{{session.title || 'unnamed' }}</label></dt>
