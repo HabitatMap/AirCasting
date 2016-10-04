@@ -19,7 +19,7 @@ angular.module("aircasting").factory('fixedSessions',
       _(oldIds).chain().difference(newIds).each(_(this.deselectSession).bind(this));
     },
     get: function(){
-      return this.sessions;
+      return _.uniq(this.sessions, 'id');
     },
     allSessionIds: function() {
       return _(this.get()).pluck("id");
@@ -96,6 +96,8 @@ angular.module("aircasting").factory('fixedSessions',
 
       if (page === 0) {
         this.sessions = [];
+        sessionsDownloader('/api/realtime/multiple_sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
+          _(this.onSessionsFetchError).bind(this));
       }
 
       spinner.startDownloadingSessions();
