@@ -62,6 +62,33 @@ describe Api::MeasurementSessionsController do
     it { should respond_with(:ok) }
   end
 
+  describe "GET 'show'" do
+    let(:session) { FactoryGirl.create(:mobile_session) }
+
+    before do
+      get :show, :id => session.id, :format => :json
+    end
+
+    it { should respond_with(:ok) }
+    it "should contain notes" do
+      json_response['notes'].should == jsonized(session.notes)
+    end
+  end
+
+  describe "GET 'show_multiple'" do
+    let(:session1) { FactoryGirl.create(:mobile_session) }
+    let(:session2) { FactoryGirl.create(:mobile_session) }
+
+    before do
+      get :show_multiple, q: { session_ids: [session1.id, session2.id] }, format: :json
+    end
+
+    it { expect(response.status).to eq 200 }
+    it 'returns multiple sessions' do
+      expect(response.body).to eq MobileSession.selected_sessions_json(session_ids: [session1.id, session2.id]).to_json
+    end
+  end
+
   describe "POST 'create'" do
     let(:builder) { stub }
     let(:data) { {type: "MobileSession"} }
@@ -89,19 +116,6 @@ describe Api::MeasurementSessionsController do
       end
 
       it_should_behave_like "session creation"
-    end
-  end
-
-  describe "GET 'show'" do
-    let(:session) { FactoryGirl.create(:mobile_session) }
-
-    before do
-      get :show, :id => session.id, :format => :json
-    end
-
-    it { should respond_with(:ok) }
-    it "should contain notes" do
-      json_response['notes'].should == jsonized(session.notes)
     end
   end
 end
