@@ -19,7 +19,7 @@ angular.module("aircasting").factory('fixedSessions',
       _(oldIds).chain().difference(newIds).each(_(this.deselectSession).bind(this));
     },
     get: function(){
-      return this.sessions;
+      return _.uniq(this.sessions, 'id');
     },
     allSessionIds: function() {
       return _(this.get()).pluck("id");
@@ -28,11 +28,11 @@ angular.module("aircasting").factory('fixedSessions',
       return this.allSelected().length;
     },
 
-    canSelectThatSession: function(session) {
+    canSelectThatSession: function() {
       return this.empty();
     },
 
-    canSelectAllSessions: function(session) {
+    canSelectAllSessions: function() {
       return false;
     },
 
@@ -44,11 +44,10 @@ angular.module("aircasting").factory('fixedSessions',
       sessionsExporter(this.allSessionIds());
     },
 
-    fetch: function() {
+    fetch: function(page) {
       var viewport = map.viewport();
       var data = params.get('data');
-      var sessionIds = _.values(params.get('sessionsIds') || [])
-      var self = this;
+      var sessionIds = _.values(params.get('sessionsIds') || []);
       if(!data.time) {
         return;
       }
@@ -91,23 +90,31 @@ angular.module("aircasting").factory('fixedSessions',
         });
       }
 
+      _(params).extend({page: page});
+
       this.clear();
-      this.sessions = [];
+
+      if (page === 0) {
+        this.sessions = [];
+        sessionsDownloader('/api/realtime/multiple_sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
+          _(this.onSessionsFetchError).bind(this));
+      }
+
       spinner.startDownloadingSessions();
 
       sessionsDownloader('/api/realtime/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
           _(this.onSessionsFetchError).bind(this));
     },
 
-    onSessionsFetchError: function(data){
-      spinner.stopDownloadingSessions();
-      errorMsg = data.error || 'There was an error, sorry' ;
-      flash.set(errorMsg);
-    },
-
-    onSessionsFetch: function(data, status, headers, config) {
+    onSessionsFetch: function() {
       spinner.stopDownloadingSessions();
       this.reSelectAllSessions();
+    },
+
+    onSessionsFetchError: function(data){
+      spinner.stopDownloadingSessions();
+      var errorMsg = data.error || 'There was an error, sorry' ;
+      flash.set(errorMsg);
     },
 
     find: function(id) {
@@ -117,7 +124,6 @@ angular.module("aircasting").factory('fixedSessions',
     },
 
     redraw: function() {
-      var self = this;
       this.clear();
       _(this.allSelected()).each(_(this.draw).bind(this));
     },
@@ -160,7 +166,7 @@ angular.module("aircasting").factory('fixedSessions',
       $http.get('/api/realtime/sessions/' +  id,
           {cache : true,
            params: {sensor_id: sensorName
-        }}).success(function(data, status, headers, config){
+        }}).success(function(data){
         self.onSingleSessionFetch(session, data);
       });
     },
@@ -217,7 +223,6 @@ angular.module("aircasting").factory('fixedSessions',
     },
 
     allStreams: function(sensor_name){
-      var self = this;
       return _(this.allSelected()).map(function(session){
         return session.streams[sensor_name];
       });
@@ -288,9 +293,8 @@ angular.module("aircasting").factory('fixedSessions',
     },
 
     getBounds: function() {
-      var north,  east, south, west, lat, lng;
+      var north, east, south, west;
       var maxLat = [], minLat = [], maxLong = [], minLong = [];
-      var self = this;
       var sensor = sensors.anySelected();
       if(!sensor) {
        return;

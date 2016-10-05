@@ -7,7 +7,6 @@ angular.module("aircasting").factory('mobileSessions',
   var MobileSessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
-    var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
     this.scope.canNotSelectSessionWithSensorSelected = "You are trying to select too many sessions";
@@ -20,7 +19,7 @@ angular.module("aircasting").factory('mobileSessions',
       _(oldIds).chain().difference(newIds).each(_(this.deselectSession).bind(this));
     },
     get: function(){
-      return this.sessions;
+      return _.uniq(this.sessions, 'id');
     },
     allSessionIds: function() {
       return _(this.get()).pluck("id");
@@ -33,7 +32,7 @@ angular.module("aircasting").factory('mobileSessions',
       return (this.totalMeasurementsSelectedCount() + this.measurementsCount(session)) <= this.maxPoints;
     },
 
-    canSelectAllSessions: function(session) {
+    canSelectAllSessions: function() {
       return this.totalMeasurementsCount() <= this.maxPoints;
     },
 
@@ -45,11 +44,10 @@ angular.module("aircasting").factory('mobileSessions',
       sessionsExporter(this.allSessionIds());
     },
 
-    fetch: function() {
+    fetch: function(page) {
       var viewport = map.viewport();
       var data = params.get('data');
-      var sessionIds = _.values(params.get('sessionsIds') || [])
-      var self = this;
+      var sessionIds = _.values(params.get('sessionsIds') || []);
       if(!data.time) {
         return;
       }
@@ -88,23 +86,32 @@ angular.module("aircasting").factory('mobileSessions',
         });
       }
 
+      _(params).extend({page: page});
+
       this.clear();
-      this.sessions = [];
+
+      if (page === 0) {
+        this.sessions = [];
+        sessionsDownloader('/api/multiple_sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
+          _(this.onSessionsFetchError).bind(this));
+      }
+
       spinner.startDownloadingSessions();
 
       sessionsDownloader('/api/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
-          _(this.onSessionsFetchError).bind(this));
+        _(this.onSessionsFetchError).bind(this));
+
+    },
+
+    onSessionsFetch: function() {
+      spinner.stopDownloadingSessions();
+      this.reSelectAllSessions();
     },
 
     onSessionsFetchError: function(data){
       spinner.stopDownloadingSessions();
-      errorMsg = data.error || 'There was an error, sorry' ;
+      var errorMsg = data.error || 'There was an error, sorry';
       flash.set(errorMsg);
-    },
-
-    onSessionsFetch: function(data, status, headers, config) {
-      spinner.stopDownloadingSessions();
-      this.reSelectAllSessions();
     },
 
     find: function(id) {
@@ -114,7 +121,6 @@ angular.module("aircasting").factory('mobileSessions',
     },
 
     redraw: function() {
-      var self = this;
       this.clear();
       _(this.allSelected()).each(_(this.draw).bind(this));
     },
@@ -157,7 +163,7 @@ angular.module("aircasting").factory('mobileSessions',
       $http.get('/api/sessions/' +  id,
           {cache : true,
            params: {sensor_id: sensorName
-        }}).success(function(data, status, headers, config){
+        }}).success(function(data){
         self.onSingleSessionFetch(session, data);
       });
     },
@@ -214,7 +220,6 @@ angular.module("aircasting").factory('mobileSessions',
     },
 
     allStreams: function(sensor_name){
-      var self = this;
       return _(this.allSelected()).map(function(session){
         return session.streams[sensor_name];
       });
@@ -283,9 +288,8 @@ angular.module("aircasting").factory('mobileSessions',
     },
 
     getBounds: function() {
-      var north,  east, south, west, lat, lng;
+      var north,  east, south, west;
       var maxLat = [], minLat = [], maxLong = [], minLong = [];
-      var self = this;
       var sensor = sensors.anySelected();
       if(!sensor) {
        return;

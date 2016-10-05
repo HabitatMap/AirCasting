@@ -25,13 +25,7 @@ module Api
     respond_to :json
 
     def index
-      if params[:q].is_a?(String)
-        data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
-      elsif params[:q]
-        data = params[:q].symbolize_keys
-      else
-        data = {}
-      end
+      data = decoded_query_data(params[:q])
       INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
       page = params[:page] || 0
@@ -43,6 +37,12 @@ module Api
         error = { :error => "Invalid Location" }
         respond_with error, :status => :not_found
       end
+    end
+
+    def show_multiple
+      data = decoded_query_data(params[:q])
+
+      respond_with MobileSession.selected_sessions_json(data)
     end
 
     def create
@@ -84,6 +84,16 @@ module Api
     end
 
     private
+
+    def decoded_query_data(query)
+      if query.is_a?(String)
+        ActiveSupport::JSON.decode(query).symbolize_keys
+      elsif query
+        query.symbolize_keys
+      else
+        {}
+      end
+    end
 
     def session_json(session)
       {
