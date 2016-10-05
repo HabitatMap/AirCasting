@@ -21,7 +21,7 @@ module Api
     class SessionsController < BaseController
       INT_Q_ATTRS = [:time_from, :time_to, :day_from, :day_to]
 
-      before_filter :authenticate_user!, except: [:index, :show]
+      before_filter :authenticate_user!, only: :create
 
       respond_to :json
 
