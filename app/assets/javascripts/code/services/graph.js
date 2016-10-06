@@ -67,7 +67,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
           }
         },
         credits: {
-            enabled: false
+          enabled: false
         },
         navigator : {
           enabled : false
@@ -78,11 +78,11 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
             width: 50,
             style: {
               fontFamily: 'Arial, sans-serif'
-            }
+            },
           },
           labelStyle: {
-                fontWeight: 'normal',
-                fontFamily: 'Arial, sans-serif'
+              fontWeight: 'normal',
+              fontFamily: 'Arial, sans-serif'
             },
           buttons: buttons,
           inputEnabled: false,
@@ -107,11 +107,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
                 ['millisecond', []],
                 ['second', [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
                 ['minute', [1, 2, 3, 4, 5]],
-                ['hour', []],
-                ['day', []],
-                ['week', []],
-                ['month', []],
-                ['year', []]
               ]
             }
           }
