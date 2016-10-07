@@ -1,5 +1,5 @@
 function SessionsListCtrl($scope, params, map, sensors, storage, flash, versioner,
-                          dialog, functionBlocker, $window) {
+                          dialog, functionBlocker, $window, drawSession) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
@@ -91,7 +91,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
     if(!newValue.id && !newValue.heat){
       return;
     }
-    sessions.redraw();
+    drawSession.redraw(sessions.allSelected());
   }, true);
 
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
@@ -174,4 +174,4 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash, versione
   $scope.setDefaults();
 }
 SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
-  'flash', 'versioner', 'dialog', 'functionBlocker', '$window'];
+  'flash', 'versioner', 'dialog', 'functionBlocker', '$window', 'drawSession'];

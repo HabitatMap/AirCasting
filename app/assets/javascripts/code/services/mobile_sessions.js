@@ -1,9 +1,9 @@
 angular.module("aircasting").factory('mobileSessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope', 'heat',
        'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
-       'sessionsExporter', 'empty',
+       'sessionsExporter', 'drawSession', 'boundsCalculator',
         function(params, $http, map, note, sensors, $rootScope, heat, spinner,
-          utils, $timeout, flash, sessionsDownloader, sessionsExporter, empty) {
+          utils, $timeout, flash, sessionsDownloader, sessionsExporter, drawSession, boundsCalculator) {
   var MobileSessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
@@ -18,12 +18,15 @@ angular.module("aircasting").factory('mobileSessions',
       _(newIds).chain().difference(oldIds).each(_(this.selectSession).bind(this));
       _(oldIds).chain().difference(newIds).each(_(this.deselectSession).bind(this));
     },
+
     get: function(){
       return _.uniq(this.sessions, 'id');
     },
+
     allSessionIds: function() {
       return _(this.get()).pluck("id");
     },
+
     noOfSelectedSessions : function() {
       return this.allSelected().length;
     },
@@ -88,7 +91,7 @@ angular.module("aircasting").factory('mobileSessions',
 
       _(params).extend({page: page});
 
-      this.clear();
+      drawSession.clear(this.sessions);
 
       if (page === 0) {
         this.sessions = [];
@@ -114,19 +117,22 @@ angular.module("aircasting").factory('mobileSessions',
       flash.set(errorMsg);
     },
 
+    onSingleSessionFetch: function(data) {
+      var streams = data.streams;
+      delete data.streams;
+      _(this.get()).extend(data);
+      _(this.get().streams).extend(streams);
+      this.get().loaded = true;
+      drawSession.draw(this.get(), boundsCalculator(this.allSelected()));
+      $timeout(function(){
+        spinner.hide();
+      });
+    },
+
     find: function(id) {
       return _(this.sessions || []).detect(function(session){
         return session.id === id;
       });
-    },
-
-    redraw: function() {
-      this.clear();
-      _(this.allSelected()).each(_(this.draw).bind(this));
-    },
-
-    clear: function() {
-      _(this.sessions).each(_(this.undoDraw).bind(this));
     },
 
     deselectSession: function(id) {
@@ -136,7 +142,7 @@ angular.module("aircasting").factory('mobileSessions',
       }
       session.$selected = false;
       session.alreadySelected = false;
-      this.undoDraw(session);
+      drawSession.undoDraw(session, boundsCalculator(this.sessions));
     },
 
     deselectAllSessions: function() {
@@ -207,114 +213,6 @@ angular.module("aircasting").factory('mobileSessions',
         return memo + self.measurementsCount(session);
       }, 0);
     },
-
-    measurementsForSensor: function(session, sensor_name){
-      if (!session.streams[sensor_name]) { return empty.array; }
-      return session.streams[sensor_name].measurements;
-    },
-
-    measurements: function(session){
-      if (!session) { return empty.array; }
-      if (!sensors.anySelected()) { return empty.array; }
-      return this.measurementsForSensor(session, sensors.anySelected().sensor_name);
-    },
-
-    allStreams: function(sensor_name){
-      return _(this.allSelected()).map(function(session){
-        return session.streams[sensor_name];
-      });
-    },
-
-    onSingleSessionFetch: function(session, data) {
-      var streams = data.streams;
-      delete data.streams;
-      _(session).extend(data);
-      _(session.streams).extend(streams);
-      session.loaded = true;
-      this.draw(session);
-      $timeout(function(){
-        spinner.hide();
-      });
-    },
-
-    draw: function(session) {
-      if(!session || !session.loaded || !sensors.anySelected()){
-        return;
-      }
-      this.undoDraw(session, true);
-      var suffix = ' ' + sensors.anySelected().unit_symbol;
-      session.markers = [];
-      session.noteDrawings = [];
-      session.lines = [];
-      var points = [];
-      _(this.measurements(session)).each(function(measurement, idx){
-        var value = Math.round(measurement.value);
-        var level = heat.getLevel(value);
-        if(level){
-          session.markers.push(map.drawMarker(measurement, {
-            title: parseInt(measurement.value, 10).toString() + suffix,
-            zIndex: idx,
-            icon: "/assets/marker"+ level + ".png"
-          }));
-          points.push(measurement);
-        }
-      });
-      _(session.notes || []).each(function(noteItem, idx){
-        session.noteDrawings.push(note.drawNote(noteItem, idx));
-      });
-      session.lines.push(map.drawLine(points));
-
-      session.drawed = true;
-      map.appendViewport(this.getBounds());
-    },
-
-    undoDraw: function(session, noMove) {
-      if(!session.drawed){
-        return;
-      }
-      _(session.markers || []).each(function(marker){
-        map.removeMarker(marker);
-      });
-      _(session.lines || []).each(function(line){
-        map.removeMarker(line);
-      });
-      _(session.noteDrawings || []).each(function(noteItem){
-        map.removeMarker(noteItem);
-      });
-      session.drawed = false;
-      if(!noMove){
-        map.appendViewport(this.getBounds());
-      }
-    },
-
-    getBounds: function() {
-      var north,  east, south, west;
-      var maxLat = [], minLat = [], maxLong = [], minLong = [];
-      var sensor = sensors.anySelected();
-      if(!sensor) {
-       return;
-      }
-      var streams = this.allStreams(sensor.sensor_name);
-
-      if(!_.isEmpty(streams)){
-        _(streams).each(function(s){
-          maxLat.push(s.max_latitude);
-          minLat.push(s.min_latitude);
-          maxLong.push(s.max_longitude);
-          minLong.push(s.min_longitude);
-        });
-
-        north = Math.max.apply(null, maxLat);
-        south = Math.min.apply(null, minLat);
-        west = Math.min.apply(null, minLong);
-        east = Math.max.apply(null, maxLong);
-      }
-
-      if(!north){
-        return;
-      }
-      return {north: north, east: east, south : south, west: west};
-     }
   };
   return new MobileSessions();
 }]);

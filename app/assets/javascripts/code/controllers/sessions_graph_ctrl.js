@@ -5,7 +5,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
   $scope.expanded = false;
   $scope.heat = heat;
   $scope.sensors = sensors;
-  singleSession = $scope.singleSession;
+  var singleSession = $scope.singleSession;
 
   function updateExpanded() {
     $scope.expanded = singleSession.isSingle() && !_.isEmpty(sensors.anySelected());
@@ -68,7 +68,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
       return;
     }
     graph.draw(singleSession.measurementsToTime(), singleSession.isFixed());
-  }
+  };
 }
 SessionsGraphCtrl.$inject = ['$scope', 'map',  'graph', 'flash', 'heat', 'sensors',
   'graphHighlight', '$window', '$timeout'];
