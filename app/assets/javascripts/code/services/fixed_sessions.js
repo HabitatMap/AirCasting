@@ -223,7 +223,7 @@ angular.module("aircasting").factory('fixedSessions',
       _(session).extend(data);
       _(session.streams).extend(streams);
       session.loaded = true;
-      drawSession.draw(session, boundsCalculator(this.allSelected()));
+      drawSession.drawFixedSession(session, boundsCalculator(this.allSelected()));
       $timeout(function(){
         spinner.hide();
       });
