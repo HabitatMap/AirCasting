@@ -27,17 +27,6 @@ angular.module("aircasting").factory('singleMobileSession',
       return el && el.id;
     },
 
-    measurementsForSensor: function(sensor_name){
-      if (!this.get().streams[sensor_name]) { return empty.array; }
-      return this.get().streams[sensor_name].measurements;
-    },
-
-    measurements: function(){
-      if (!this.get()) { return empty.array; }
-      if (!sensors.anySelected()) { return empty.array; }
-      return this.measurementsForSensor(this.get(), sensors.anySelected().sensor_name);
-    },
-
     availSensors: function() {
       if(!this.get()){
         return [];
@@ -55,7 +44,7 @@ angular.module("aircasting").factory('singleMobileSession',
     },
 
     measurements: function(){
-      return  this.get().measurements;
+      return  drawSession.measurements(this.get());
     },
 
     measurementsToTime: function(){

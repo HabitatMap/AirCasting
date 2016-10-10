@@ -1,6 +1,6 @@
 angular.module('aircasting').factory('drawSession',
-       ['sensors', 'map', 'heat', 'note',
-        function(sensors, map, heat, note) {
+       ['sensors', 'map', 'heat', 'note', 'empty',
+        function(sensors, map, heat, note, empty) {
   var DrawSession = function() {
   };
 
@@ -15,10 +15,10 @@ angular.module('aircasting').factory('drawSession',
       session.noteDrawings = [];
       session.lines = [];
       var points = [];
-      _(session.measurements).each(function(measurement, idx){
+      _(this.measurements(session)).each(function(measurement, idx){
         var value = Math.round(measurement.value);
         var level = heat.getLevel(value);
-        if(level){
+        if (level){
           session.markers.push(map.drawMarker(measurement, {
             title: parseInt(measurement.value, 10).toString() + suffix,
             zIndex: idx,
@@ -62,6 +62,17 @@ angular.module('aircasting').factory('drawSession',
 
     clear: function(sessions) {
       _(sessions).each(_(this.undoDraw).bind(this));
+    },
+
+    measurementsForSensor: function(session, sensor_name){
+      if (!session.streams[sensor_name]) { return empty.array; }
+      return session.streams[sensor_name].measurements;
+    },
+
+    measurements: function(session){
+      if (!session) { return empty.array; }
+      if (!sensors.anySelected()) { return empty.array; }
+      return this.measurementsForSensor(session, sensors.anySelected().sensor_name);
     }
   };
   return new DrawSession();

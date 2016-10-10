@@ -1,9 +1,9 @@
 angular.module("aircasting").factory('mobileSessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope', 'heat',
        'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
-       'sessionsExporter', 'drawSession', 'boundsCalculator',
+       'sessionsExporter', 'drawSession', 'boundsCalculator', 'empty',
         function(params, $http, map, note, sensors, $rootScope, heat, spinner,
-          utils, $timeout, flash, sessionsDownloader, sessionsExporter, drawSession, boundsCalculator) {
+          utils, $timeout, flash, sessionsDownloader, sessionsExporter, drawSession, boundsCalculator, empty) {
   var MobileSessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
@@ -117,13 +117,13 @@ angular.module("aircasting").factory('mobileSessions',
       flash.set(errorMsg);
     },
 
-    onSingleSessionFetch: function(data) {
+    onSingleSessionFetch: function(session, data) {
       var streams = data.streams;
       delete data.streams;
-      _(this.get()).extend(data);
-      _(this.get().streams).extend(streams);
-      this.get().loaded = true;
-      drawSession.draw(this.get(), boundsCalculator(this.allSelected()));
+      _(session).extend(data);
+      _(session.streams).extend(streams);
+      session.loaded = true;
+      drawSession.draw(session, boundsCalculator(this.allSelected()));
       $timeout(function(){
         spinner.hide();
       });

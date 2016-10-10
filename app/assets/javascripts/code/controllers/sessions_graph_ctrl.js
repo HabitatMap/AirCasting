@@ -38,6 +38,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
       });
     }
   });
+
   $scope.toggle = function(){
     var sessionsSize = singleSession.noOfSelectedSessions();
     if(sessionsSize === 0) {
