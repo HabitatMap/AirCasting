@@ -1,9 +1,10 @@
 angular.module("aircasting").factory('fixedSessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope', 'heat',
        'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
-       'sessionsExporter', 'empty',
+       'sessionsExporter', 'drawSession', 'boundsCalculator',
         function(params, $http, map, note, sensors, $rootScope, heat, spinner,
-          utils, $timeout, flash, sessionsDownloader, sessionsExporter, empty) {
+          utils, $timeout, flash, sessionsDownloader, sessionsExporter, drawSession,
+          boundsCalculator) {
   var FixedSessions = function() {
     this.sessions = [];
     var self = this;
@@ -18,12 +19,15 @@ angular.module("aircasting").factory('fixedSessions',
       _(newIds).chain().difference(oldIds).each(_(this.selectSession).bind(this));
       _(oldIds).chain().difference(newIds).each(_(this.deselectSession).bind(this));
     },
+
     get: function(){
       return _.uniq(this.sessions, 'id');
     },
+
     allSessionIds: function() {
       return _(this.get()).pluck("id");
     },
+
     noOfSelectedSessions : function() {
       return this.allSelected().length;
     },
@@ -71,6 +75,7 @@ angular.module("aircasting").factory('fixedSessions',
           north: viewport.north
         });
       }
+
       if(location.outdoorOnly){
         _(reqData).extend({
           is_indoor: false
@@ -92,7 +97,7 @@ angular.module("aircasting").factory('fixedSessions',
 
       _(params).extend({page: page});
 
-      this.clear();
+      drawSession.clear(this.sessions);
 
       if (page === 0) {
         this.sessions = [];
@@ -123,15 +128,6 @@ angular.module("aircasting").factory('fixedSessions',
       });
     },
 
-    redraw: function() {
-      this.clear();
-      _(this.allSelected()).each(_(this.draw).bind(this));
-    },
-
-    clear: function() {
-      _(this.sessions).each(_(this.undoDraw).bind(this));
-    },
-
     deselectSession: function(id) {
       var session = this.find(id);
       if(!session){
@@ -139,7 +135,7 @@ angular.module("aircasting").factory('fixedSessions',
       }
       session.$selected = false;
       session.alreadySelected = false;
-      this.undoDraw(session);
+      drawSession.undoDraw(session, boundsCalculator(this.sessions));
     },
 
     deselectAllSessions: function() {
@@ -211,23 +207,6 @@ angular.module("aircasting").factory('fixedSessions',
       }, 0);
     },
 
-    measurementsForSensor: function(session, sensor_name){
-      if (!session.streams[sensor_name]) { return empty.array; }
-      return session.streams[sensor_name].measurements;
-    },
-
-    measurements: function(session){
-      if (!session) { return empty.array; }
-      if (!sensors.anySelected()) { return empty.array; }
-      return this.measurementsForSensor(session, sensors.anySelected().sensor_name);
-    },
-
-    allStreams: function(sensor_name){
-      return _(this.allSelected()).map(function(session){
-        return session.streams[sensor_name];
-      });
-    },
-
     allStreamsWithLocation: function(sensor_name){
       var self = this;
       return _(this.allSelected()).chain().map(function(session){
@@ -244,81 +223,10 @@ angular.module("aircasting").factory('fixedSessions',
       _(session).extend(data);
       _(session.streams).extend(streams);
       session.loaded = true;
-      this.draw(session);
+      drawSession.draw(session, boundsCalculator(this.allSelected()));
       $timeout(function(){
         spinner.hide();
       });
-    },
-
-    draw: function(session) {
-      if(!session || !session.loaded || !sensors.anySelected()){
-        return;
-      }
-      this.undoDraw(session, true);
-
-      if(!session.is_indoor) {
-        var suffix = ' ' + sensors.anySelected().unit_symbol;
-        session.markers = [];
-        session.noteDrawings = [];
-        session.lines = [];
-
-        session.markers.push(map.drawMarker(session, {
-          title: session.title,
-          zIndex: 0,
-          icon: "/assets/location_marker.png"
-        }));
-      }
-
-      session.drawed = true;
-      map.appendViewport(this.getBounds());
-    },
-
-    undoDraw: function(session, noMove) {
-      if(!session.drawed){
-        return;
-      }
-      _(session.markers || []).each(function(marker){
-        map.removeMarker(marker);
-      });
-      _(session.lines || []).each(function(line){
-        map.removeMarker(line);
-      });
-      _(session.noteDrawings || []).each(function(noteItem){
-        map.removeMarker(noteItem);
-      });
-      session.drawed = false;
-      if(!noMove){
-        map.appendViewport(this.getBounds());
-      }
-    },
-
-    getBounds: function() {
-      var north, east, south, west;
-      var maxLat = [], minLat = [], maxLong = [], minLong = [];
-      var sensor = sensors.anySelected();
-      if(!sensor) {
-       return;
-      }
-      var streams = this.allStreamsWithLocation(sensor.sensor_name);
-
-      if(!_.isEmpty(streams)){
-        _(streams).each(function(s){
-          maxLat.push(s.max_latitude);
-          minLat.push(s.min_latitude);
-          maxLong.push(s.max_longitude);
-          minLong.push(s.min_longitude);
-        });
-
-        north = Math.max.apply(null, maxLat);
-        south = Math.min.apply(null, minLat);
-        west = Math.min.apply(null, minLong);
-        east = Math.max.apply(null, maxLong);
-      }
-
-      if(!north){
-        return;
-      }
-      return {north: north, east: east, south : south, west: west};
     }
   };
   return new FixedSessions();

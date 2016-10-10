@@ -1,8 +1,6 @@
 angular.module("aircasting").factory('singleMobileSession',
-       ['mobileSessions', 'map','sensors', 'storage', 'drawSession', 'heat',
-        'utils', '$timeout', 'spinner', 'note', 'empty', 'params', '$http', 'boundsCalculator',
-        function(mobileSessions, map, sensors, storage, drawSession,
-                 heat, utils, $timeout, spinner, note, empty, params, $http, boundsCalculator) {
+       ['mobileSessions', 'map','sensors', 'storage', 'drawSession', 'heat', 'utils',
+        function(mobileSessions, map, sensors, storage, drawSession, heat, utils) {
   var SingleMobileSession = function() {
   };
 

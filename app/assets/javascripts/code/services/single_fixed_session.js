@@ -1,5 +1,6 @@
-angular.module("aircasting").factory('singleFixedSession', ['fixedSessions', 'map','sensors', 'storage', 'heat', 'utils',
-                                     function(fixedSessions, map, sensors, storage, heat, utils) {
+angular.module("aircasting").factory('singleFixedSession',
+       ['fixedSessions', 'map','sensors', 'storage', 'heat', 'utils', 'drawSession',
+        function(fixedSessions, map, sensors, storage, heat, utils, drawSession) {
   var SingleFixedSession = function() {
   };
   SingleFixedSession.prototype = {
@@ -34,7 +35,7 @@ angular.module("aircasting").factory('singleFixedSession', ['fixedSessions', 'ma
       return !!this.get().streams[sensors.anySelected().sensor_name];
     },
     measurements: function(){
-      return  fixedSessions.measurements(this.get());
+      return  drawSession.measurements(this.get());
     },
     measurementsToTime: function(){
       var currentOffset = moment.duration(utils.timeOffset, "minutes").asMilliseconds();

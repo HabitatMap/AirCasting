@@ -1,9 +1,10 @@
 angular.module("aircasting").factory('mobileSessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope', 'heat',
        'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
-       'sessionsExporter', 'drawSession', 'boundsCalculator', 'empty',
+       'sessionsExporter', 'drawSession', 'boundsCalculator',
         function(params, $http, map, note, sensors, $rootScope, heat, spinner,
-          utils, $timeout, flash, sessionsDownloader, sessionsExporter, drawSession, boundsCalculator, empty) {
+          utils, $timeout, flash, sessionsDownloader, sessionsExporter, drawSession,
+          boundsCalculator) {
   var MobileSessions = function() {
     this.sessions = [];
     this.maxPoints = 30000;
