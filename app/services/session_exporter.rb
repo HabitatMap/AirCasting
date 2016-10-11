@@ -5,7 +5,7 @@ class SessionExporter
 
   def export
     CSV.generate do |csv|
-      @session.streams.each do |stream|
+      streams.each do |stream|
         csv << %w( sensor:model sensor:package sensor:capability sensor:units )
         csv << [ stream.sensor_name, stream.sensor_package_name, stream.measurement_type, stream.unit_name ]
 
@@ -18,5 +18,11 @@ class SessionExporter
         end
       end
     end
+  end
+
+  private
+
+  def streams
+    @streams ||= Stream.where(session_id: @session).includes(:measurements)
   end
 end

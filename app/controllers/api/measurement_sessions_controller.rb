@@ -73,7 +73,7 @@ module Api
     end
 
     def export
-      sessions = Session.includes(streams: :measurements).find(params[:session_ids])
+      sessions = Session.find(params[:session_ids])
       begin
         exporter = SessionsExporter.new(sessions)
         data = exporter.export
