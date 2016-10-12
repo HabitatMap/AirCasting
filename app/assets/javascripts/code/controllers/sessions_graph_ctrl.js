@@ -19,7 +19,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
     updateExpanded();
   });
 
-  $scope.$watch('singleSession.measurements()', function() {
+  $scope.$watch('singleSession.get().$selected', function() {
     if ($scope.expanded && !_.isEmpty(singleSession.measurements())) {
       $scope.redraw();
     }
@@ -68,7 +68,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
     if(!singleSession.withSelectedSensor()) {
       return;
     }
-    graph.draw(singleSession.measurementsToTime(), singleSession.isFixed());
+    graph.draw(singleSession);
   };
 }
 SessionsGraphCtrl.$inject = ['$scope', 'map',  'graph', 'flash', 'heat', 'sensors',
