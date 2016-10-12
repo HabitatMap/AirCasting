@@ -52,7 +52,6 @@ module Api
         respond_with FixedSession.selected_sessions_json(data)
       end
 
-
       def create
         if params[:compression]
           decoded = Base64.decode64(params[:session])

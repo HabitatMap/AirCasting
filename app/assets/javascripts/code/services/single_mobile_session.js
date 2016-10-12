@@ -29,7 +29,7 @@ angular.module("aircasting").factory('singleMobileSession',
       if(!this.get()){
         return [];
       }
-      var ids = _(this.get().availableStreams).map(function(sensor){
+      var ids = _(this.get().streams).map(function(sensor){
         return sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
       });
       return _(sensors.get()).select(function(sensor){
