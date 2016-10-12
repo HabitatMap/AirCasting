@@ -1,7 +1,7 @@
 angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
-                                     'heat', 'graphHighlight',
+                                     'heat', 'graphHighlight', '$http',
                                      function($rootScope, sensors,
-                                              heat, graphHighlight) {
+                                              heat, graphHighlight, $http) {
   var Graph = function() {
   };
   Graph.prototype = {
@@ -9,7 +9,24 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
       this.id = id;
       this.loaded = false;
     },
-    draw: function(data, isLongTime){
+
+    getInitialData: function(session) {
+      var end_date = new Date(session.endTime()).getTime();
+      var start_date = end_date - (24*60*60*1000);
+
+      $http.get('/api/realtime/stream_measurements/',
+          {cache: true,
+            params: {stream_ids: session.selectedStream().id,
+            start_date: start_date,
+            end_date: end_date
+        }}).success(function(data){
+        console.log(data);
+      });
+    },
+
+    draw: function(session){
+      var initial_data = this.getInitialData(session);
+
       var sensor = sensors.anySelected();
       var self = this;
       var low = heat.getValue("lowest");
@@ -27,7 +44,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
       var mth1  = { count: 1,  type: 'month',  text: '1mth'  };
       var all   = {            type: 'all',    text: 'All'   }; 
 
-      if(isLongTime)
+      if (session.isFixed())
       {
         var buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
         var selectedButton = 2;
@@ -190,14 +207,14 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
     },
 
     destroy: function() {
-      if(this.chart) {
+      if (this.chart) {
         this.chart.destroy();
         delete this.chart;
       }
     },
 
     update: function() {
-      if(this.chart) {
+      if (this.chart) {
         this.chart.redraw();
       }
     },
