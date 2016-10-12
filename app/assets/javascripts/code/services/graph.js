@@ -9,36 +9,36 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
       this.id = id;
       this.loaded = false;
     },
-    draw : function(data, isLongTime){
-     var sensor = sensors.anySelected();
-     var self = this;
-     var low = heat.getValue("lowest");
-     var high = heat.getValue("highest");
-     var tick = Math.round((high - low)/ 4);
-     var ticks = [low, low + tick, low + 2*tick, high - tick, high];
+    draw: function(data, isLongTime){
+      var sensor = sensors.anySelected();
+      var self = this;
+      var low = heat.getValue("lowest");
+      var high = heat.getValue("highest");
+      var tick = Math.round((high - low)/ 4);
+      var ticks = [low, low + tick, low + 2*tick, high - tick, high]; 
 
-     var min1  = { count: 1,  type: 'minute', text: '1min'  };
-     var min5  = { count: 5,  type: 'minute', text: '5min'  };
-     var min30 = { count: 30, type: 'minute', text: '30min' };
-     var hr1   = { count: 1,  type: 'hour',   text: '1hr'   };
-     var hrs12 = { count: 12, type: 'hour',   text: '12hrs' };
-     var hrs24 = { count: 24, type: 'hour',   text: '24hrs' };
-     var wk1   = { count: 1,  type: 'week',   text: '1wk'   };
-     var mth1  = { count: 1,  type: 'month',  text: '1mth'  };
-     var all   = {            type: 'all',    text: 'All'   };
+      var min1  = { count: 1,  type: 'minute', text: '1min'  };
+      var min5  = { count: 5,  type: 'minute', text: '5min'  };
+      var min30 = { count: 30, type: 'minute', text: '30min' };
+      var hr1   = { count: 1,  type: 'hour',   text: '1hr'   };
+      var hrs12 = { count: 12, type: 'hour',   text: '12hrs' };
+      var hrs24 = { count: 24, type: 'hour',   text: '24hrs' };
+      var wk1   = { count: 1,  type: 'week',   text: '1wk'   };
+      var mth1  = { count: 1,  type: 'month',  text: '1mth'  };
+      var all   = {            type: 'all',    text: 'All'   }; 
 
-     if(isLongTime)
-     {
-       var buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
-       var selectedButton = 2;
-     }
-     else
-     {
+      if(isLongTime)
+      {
+        var buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
+        var selectedButton = 2;
+      }
+      else
+      {
        var buttons = [min1, min5, min30, hr1, hrs12, all];
        var selectedButton = 4;
-     }
+      }
 
-     var options = {
+      var options = {
         chart : {
           renderTo : this.id,
           height : 200,
@@ -144,7 +144,10 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
               fontFamily: "Arial, sans-serif"
             }
           },
-          minRange: 1000
+          minRange: 1000,
+          events: {
+            afterSetExtremes: this.afterSetExtremes
+          }
         },
         yAxis : {
           min: low,
@@ -180,6 +183,10 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
 
     onLoad: function() {
       this.loaded = true;
+    },
+
+    afterSetExtremes: function(e) {
+      console.log(e.min + ' ' + e.max);
     },
 
     destroy: function() {
