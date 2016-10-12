@@ -24,11 +24,10 @@ module Api
       respond_to :json
 
       def stream_measurements
-        stream = Stream.find(params[:sensor_id])
         start_date = Time.at(params[:start_date].to_i / 1000)
         end_date = Time.at(params[:end_date].to_i / 1000)
 
-        measurements = stream.measurements.where(time: start_date..end_date)
+        measurements = Measurement.with_streams(params[:stream_ids]).where(time: start_date..end_date)
 
         respond_with measurements.as_json
       end
