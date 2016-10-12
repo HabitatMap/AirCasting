@@ -20,6 +20,9 @@ angular.module("aircasting").factory('singleFixedSession',
       var el = this.get();
       return el && el.id;
     },
+    endTime: function() {
+      return this.get().end_time_local;
+    },
     availSensors: function() {
       if(!this.get()){
         return [];
@@ -33,6 +36,9 @@ angular.module("aircasting").factory('singleFixedSession',
     },
     withSelectedSensor: function(){
       return !!this.get().streams[sensors.anySelected().sensor_name];
+    },
+    selectedStream: function() {
+      return this.get().streams[sensors.anySelected().sensor_name];
     },
     measurements: function(){
       return  drawSession.measurements(this.get());
