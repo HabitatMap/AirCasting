@@ -68,7 +68,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
     if(!singleSession.withSelectedSensor()) {
       return;
     }
-    graph.draw(singleSession);
+    graph.getInitialData(singleSession);
   };
 }
 SessionsGraphCtrl.$inject = ['$scope', 'map',  'graph', 'flash', 'heat', 'sensors',
