@@ -35,15 +35,15 @@ module Api
         begin
           respond_with FixedSession.filtered_json(data, page, page_size)
         rescue WrongCoordinatesError => e
-          error = { :error => "Invalid Location" }
-          respond_with error, :status => :not_found
+          error = { error: "Invalid Location" }
+          respond_with error, status: :not_found
         end
       end
 
       def show
         session = FixedSession.find(params[:id])
 
-        respond_with session, :sensor_id => params[:sensor_id], :methods => [:measurements, :notes]
+        respond_with session, sensor_id: params[:sensor_id], methods: [:notes]
       end
 
       def show_multiple
@@ -51,6 +51,7 @@ module Api
 
         respond_with FixedSession.selected_sessions_json(data)
       end
+
 
       def create
         if params[:compression]
@@ -65,9 +66,9 @@ module Api
         session = SessionBuilder.new(data, photos, current_user).build!
 
         if session
-          render :json => session_json(session), :status => :ok
+          render json: session_json(session), status: :ok
         else
-          render :nothing => true, :status => :bad_request
+          render nothing: true, status: :bad_request
         end
       end
 
@@ -85,11 +86,11 @@ module Api
 
       def session_json(session)
         {
-          :location => short_session_url(session, :host => AppConfig.host),
-          :notes => session.notes.map do |note|
+          location: short_session_url(session, host: AppConfig.host),
+          notes: session.notes.map do |note|
             {
-              :number => note.number,
-              :photo_location => photo_location(note)
+              number: note.number,
+              photo_location: photo_location(note)
             }
           end
         }
