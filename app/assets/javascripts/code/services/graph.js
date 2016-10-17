@@ -198,6 +198,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
       //to speed up graph provide data as array not object
       this.destroy();
       this.chart = new Highcharts.StockChart(options);
+      this.data = data;
     },
 
     onLoad: function() {
@@ -237,9 +238,9 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
       var endSec = end ;
       var points = [];
       var point;
-      for(var i = startSec; i <= endSec; i = i + 1000){
+      for (var i = startSec; i <= endSec; i = i + 1000){
         point = this.data[i + ""];
-        if(point){
+        if (point){
            points.push(point);
         }
       }
