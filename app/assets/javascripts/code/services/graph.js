@@ -210,8 +210,11 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
     },
 
     afterSetExtremes: function(e) {
-      console.log(new Date(e.min) + " " + new Date(e.max));
       var self = this;
+      var final_point = {};
+      var end_time = new Date(singleFixedSession.endTime()).getTime();
+      final_point[end_time + ""] = {x: end_time, y: null, latitude: null, longitude: null};
+
       spinner.startDownloadingSessions();
       $http.get('/api/realtime/stream_measurements/',
         {cache: true,
@@ -219,7 +222,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
           start_date: Math.round(e.min),
           end_date: Math.round(e.max)
         }}).success(function(data){
-          self.chart.series[0].setData(_(singleFixedSession.measurementsToTime(data)).values());
+          self.chart.series[0].setData(_(_.extend(singleFixedSession.measurementsToTime(data), final_point)).values());
           spinner.stopDownloadingSessions();
       });
     },
