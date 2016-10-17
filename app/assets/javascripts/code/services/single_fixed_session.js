@@ -23,6 +23,9 @@ angular.module("aircasting").factory('singleFixedSession',
     endTime: function() {
       return this.get().end_time_local;
     },
+    startTime: function() {
+      return this.get().start_time_local;
+    },
     availSensors: function() {
       if(!this.get()){
         return [];

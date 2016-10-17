@@ -1,28 +1,28 @@
-angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
+angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleFixedSession',
                                      'heat', 'graphHighlight', '$http', 'spinner',
-                                     function($rootScope, sensors,
+                                     function($rootScope, sensors, singleFixedSession,
                                               heat, graphHighlight, $http, spinner) {
-  var Graph = function() {
-  };
+  var Graph = function(){};
+
   Graph.prototype = {
     init: function(id){
       this.id = id;
-      this.loaded = false;
+      this.session = singleFixedSession;
     },
 
-    getInitialData: function(session) {
+    getInitialData: function() {
       spinner.startDownloadingSessions();
       var self = this;
-      var end_date = new Date(session.endTime()).getTime();
+      var end_date = new Date(this.session.endTime()).getTime();
       var start_date = end_date - (24*60*60*1000);
 
       $http.get('/api/realtime/stream_measurements/',
         {cache: true,
-          params: {stream_ids: session.selectedStream().id,
+          params: {stream_ids: self.session.selectedStream().id,
           start_date: start_date,
           end_date: end_date
         }}).success(function(data){
-          self.draw(session.measurementsToTime(data), session.isFixed());
+          self.draw(self.session.measurementsToTime(data), self.session.isFixed());
           spinner.stopDownloadingSessions();
       });
     },
@@ -45,15 +45,17 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
       var mth1  = { count: 1,  type: 'month',  text: '1mth'  };
       var all   = {            type: 'all',    text: 'All'   }; 
 
+      var buttons, selectedButton;
+
       if (isFixed)
       {
-        var buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
-        var selectedButton = 2;
+        buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
+        selectedButton = 2;
       }
       else
       {
-       var buttons = [min1, min5, min30, hr1, hrs12, all];
-       var selectedButton = 4;
+       buttons = [min1, min5, min30, hr1, hrs12, all];
+       selectedButton = 4;
       }
 
       var options = {
@@ -196,7 +198,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
       //to speed up graph provide data as array not object
       this.destroy();
       this.chart = new Highcharts.StockChart(options);
-      // this.data = initial_data;
     },
 
     onLoad: function() {
@@ -204,19 +205,22 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors',
     },
 
     afterSetExtremes: function(e) {
-      console.log(e.min + ' ' + e.max);
+      var self = this;
+
+      $http.get('/api/realtime/stream_measurements/',
+        {cache: true,
+          params: {stream_ids: singleFixedSession.selectedStream().id,
+          start_date: e.min,
+          end_date: e.max
+        }}).success(function(data){
+          self.chart.series[0].setData(singleFixedSession.measurementsToTime(data));
+      });
     },
 
     destroy: function() {
       if (this.chart) {
         this.chart.destroy();
         delete this.chart;
-      }
-    },
-
-    update: function() {
-      if (this.chart) {
-        this.chart.redraw();
       }
     },
 
