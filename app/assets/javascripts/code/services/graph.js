@@ -13,7 +13,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
     getInitialData: function() {
       spinner.startDownloadingSessions();
       var self = this;
-      var end_date = new Date(this.session.endTime()).getTime();
+      var end_date = new Date(singleFixedSession.endTime()).getTime();
       var start_date = end_date - (24*60*60*1000);
 
       $http.get('/api/realtime/stream_measurements/',
@@ -33,7 +33,13 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
       var low = heat.getValue("lowest");
       var high = heat.getValue("highest");
       var tick = Math.round((high - low)/ 4);
-      var ticks = [low, low + tick, low + 2*tick, high - tick, high]; 
+      var ticks = [low, low + tick, low + 2*tick, high - tick, high];
+      var initial_point = {x: new Date(singleFixedSession.startTime()).getTime(),
+                           y: null,
+                           latitude: null,
+                           longitude: null
+                          };
+      data = _.extend(initial_point, data);
 
       var min1  = { count: 1,  type: 'minute', text: '1min'  };
       var min5  = { count: 5,  type: 'minute', text: '5min'  };
@@ -158,6 +164,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
           }
         },
         xAxis: {
+          ordinal: false,
           labels: {
             style: {
               color: "#000",
@@ -206,16 +213,17 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
     },
 
     afterSetExtremes: function(e) {
-      var self = this;
+      console.log(new Date(e.min) + " " + new Date(e.max));
+      // var self = this;
 
-      $http.get('/api/realtime/stream_measurements/',
-        {cache: true,
-          params: {stream_ids: singleFixedSession.selectedStream().id,
-          start_date: e.min,
-          end_date: e.max
-        }}).success(function(data){
-          self.chart.series[0].setData(singleFixedSession.measurementsToTime(data));
-      });
+      // $http.get('/api/realtime/stream_measurements/',
+      //   {cache: true,
+      //     params: {stream_ids: singleFixedSession.selectedStream().id,
+      //     start_date: e.min,
+      //     end_date: e.max
+      //   }}).success(function(data){
+      //     self.chart.series[0].setData(singleFixedSession.measurementsToTime(data));
+      // });
     },
 
     destroy: function() {
