@@ -34,12 +34,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
       var high = heat.getValue("highest");
       var tick = Math.round((high - low)/ 4);
       var ticks = [low, low + tick, low + 2*tick, high - tick, high];
-      var start_date = new Date(singleFixedSession.startTime()).getTime();
-      data[start_date + ""] = {x: start_date,
-                               y: null,
-                               latitude: null,
-                               longitude: null
-                              };
 
       var min1  = { count: 1,  type: 'minute', text: '1min'  };
       var min5  = { count: 5,  type: 'minute', text: '5min'  };
@@ -171,7 +165,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
               fontFamily: "Arial, sans-serif"
             }
           },
-          minRange: 1000,
+          minRange: 10000,
           events: {
             afterSetExtremes: this.afterSetExtremes
           }

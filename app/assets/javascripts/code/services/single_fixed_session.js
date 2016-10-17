@@ -50,6 +50,14 @@ angular.module("aircasting").factory('singleFixedSession',
       var currentOffset = moment.duration(utils.timeOffset, "minutes").asMilliseconds();
       var x;
       var result = {};
+
+      var start_date = new Date(this.startTime()).getTime();
+      result[start_date + ""] = {x: start_date,
+                                 y: null,
+                                 latitude: null,
+                                 longitude: null
+                                };
+
       _(measurements).each(function(measurement){
         x = moment(measurement.time,"YYYY-MM-DDTHH:mm:ss").valueOf() - currentOffset;
         result[x + ""] = {x: x,
