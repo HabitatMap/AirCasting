@@ -92,6 +92,9 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
         navigator : {
           enabled : false
         },
+        scrollbar: {
+          liveRedraw: false
+        },
         rangeSelector : {
           buttonSpacing: 5,
           buttonTheme: {
@@ -208,16 +211,17 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
 
     afterSetExtremes: function(e) {
       console.log(new Date(e.min) + " " + new Date(e.max));
-      // var self = this;
-
-      // $http.get('/api/realtime/stream_measurements/',
-      //   {cache: true,
-      //     params: {stream_ids: singleFixedSession.selectedStream().id,
-      //     start_date: e.min,
-      //     end_date: e.max
-      //   }}).success(function(data){
-      //     self.chart.series[0].setData(singleFixedSession.measurementsToTime(data));
-      // });
+      var self = this;
+      spinner.startDownloadingSessions();
+      $http.get('/api/realtime/stream_measurements/',
+        {cache: true,
+          params: {stream_ids: singleFixedSession.selectedStream().id,
+          start_date: Math.round(e.min),
+          end_date: Math.round(e.max)
+        }}).success(function(data){
+          self.chart.series[0].setData(_(singleFixedSession.measurementsToTime(data)).values());
+          spinner.stopDownloadingSessions();
+      });
     },
 
     destroy: function() {
