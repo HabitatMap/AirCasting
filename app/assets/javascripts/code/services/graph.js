@@ -204,8 +204,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
     },
 
     afterSetExtremes: function(e) {
-      console.log(this.chart.series[0].xAxis);
-
       var self = this;
       var final_point = {};
       var end_time = new Date(singleFixedSession.endTime()).getTime();
