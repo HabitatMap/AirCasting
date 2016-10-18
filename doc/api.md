@@ -204,31 +204,32 @@ To get multiple average values for polygons in a region, you would use this quer
 
 ```
 curl http://aircasting.org/api/averages.json?q[west]=-105.42674388525387&q[east]=-104.28347911474606&q[south]=39.530285217883865&q[north]=39.99792504639966&q[time_from]=1320&q[time_to]=1319&q[day_from]=0&q[day_to]=365&q[year_from]=2015&q[year_to]=2016&q[grid_size_x]=46.98081264108352&q[grid_size_y]=25&q[sensor_name]=AirBeam-PM&q[measurement_type]=Particulate+Matter&q[unit_symbol]=µg/m³
+```
 
 ### Example response
 
 ```json
 [
   {
-    value: 5.91492021801733,
-    west: -105.26734642360522,
-    east: -105.24249284163766,
-    south: 39.95864065006056,
-    north: 39.97751131860841
+    "value": 5.91492021801733,
+    "west": -105.26734642360522,
+    "east": -105.24249284163766,
+    "south": 39.95864065006056,
+    "north": 39.97751131860841
   },
   {
-    value: 14.44272413621971,
-    west: -105.26734642360522,
-    east: -105.24249284163766,
-    south: 39.9775113186084,
-    north: 39.99638198715625
+    "value": 14.44272413621971,
+    "west": -105.26734642360522,
+    "east": -105.24249284163766,
+    "south": 39.9775113186084,
+    "north": 39.99638198715625
   },
   {
-    value: 18.60066334891042,
-    west: -105.26734642360522,
-    east: -105.24249284163766,
-    south: 39.99638198715625,
-    north: 40.015252655704096
+    "value": 18.60066334891042,
+    "west": -105.26734642360522,
+    "east": -105.24249284163766,
+    "south": 39.99638198715625,
+    "north": 40.015252655704096
   },
   ...
 ]
@@ -270,12 +271,12 @@ curl http://aircasting.org/api/region.json?day_from=0&day_to=365&east=165.441680
 
 ```json
 {
-  average: "3.050341895701678",
-  top_contributors: [
+  "average": "3.050341895701678",
+  "top_contributors": [
     "ILAQH"
   ],
-  number_of_contributors: 1,
-  number_of_samples: 379359
+  "number_of_contributors": 1,
+  "number_of_samples": 379359
 }
 ```
 
