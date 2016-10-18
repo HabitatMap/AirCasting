@@ -19,7 +19,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
     updateExpanded();
   });
 
-  $scope.$watch('singleSession.get().$selected', function() {
+  $scope.$watch('singleSession.get().loaded', function() {
     if ($scope.expanded && !_.isEmpty(singleSession.measurements())) {
       $scope.redraw();
     }
