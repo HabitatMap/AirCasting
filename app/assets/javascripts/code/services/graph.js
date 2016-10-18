@@ -43,20 +43,12 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
       var hrs24 = { count: 24, type: 'hour',   text: '24hrs' };
       var wk1   = { count: 1,  type: 'week',   text: '1wk'   };
       var mth1  = { count: 1,  type: 'month',  text: '1mth'  };
-      var all   = {            type: 'all',    text: 'All'   }; 
+      var all   = {            type: 'all',    text: 'All'   };
 
       var buttons, selectedButton;
 
-      if (isFixed)
-      {
-        buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
-        selectedButton = 2;
-      }
-      else
-      {
-       buttons = [min1, min5, min30, hr1, hrs12, all];
-       selectedButton = 4;
-      }
+      buttons = [min1, min5, min30, hr1, hrs12, all];
+      selectedButton = 4;
 
       var options = {
         chart : {
@@ -91,9 +83,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
         },
         navigator : {
           enabled : false
-        },
-        scrollbar: {
-          liveRedraw: false
         },
         rangeSelector : {
           buttonSpacing: 5,
@@ -161,7 +150,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
           }
         },
         xAxis: {
-          ordinal: false,
           labels: {
             style: {
               color: "#000",
@@ -169,9 +157,6 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
             }
           },
           minRange: 10000,
-          events: {
-            afterSetExtremes: this.afterSetExtremes
-          }
         },
         yAxis : {
           min: low,
@@ -190,6 +175,17 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
           tickPositions: ticks
         }
       };
+
+      if (isFixed)
+      {
+        buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
+        selectedButton = 2;
+        _.extend(options.rangeSelector, {buttons: buttons, selected: selectedButton})
+        _.extend(options.xAxis, {events: {afterSetExtremes: this.afterSetExtremes},
+                                 ordinal: false});
+        _.extend(options.scrollbar, {liveRedraw: false});
+      }
+
       _(heat.toLevels()).each(function(level){
         options.yAxis.plotBands.push({
           from : level.from,
@@ -215,7 +211,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
       var end_time = new Date(singleFixedSession.endTime()).getTime();
       final_point[end_time + ""] = {x: end_time, y: null, latitude: null, longitude: null};
 
-      spinner.startDownloadingSessions();
+      self.chart.showLoading('Loading data from server...');
       $http.get('/api/realtime/stream_measurements/',
         {cache: true,
           params: {stream_ids: singleFixedSession.selectedStream().id,
@@ -223,7 +219,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
           end_date: Math.round(e.max)
         }}).success(function(data){
           self.chart.series[0].setData(_(_.extend(singleFixedSession.measurementsToTime(data), final_point)).values());
-          spinner.stopDownloadingSessions();
+          self.chart.hideLoading();
       });
     },
 

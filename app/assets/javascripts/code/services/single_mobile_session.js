@@ -48,7 +48,7 @@ angular.module("aircasting").factory('singleMobileSession',
     measurementsToTime: function(){
       var currentOffset = moment.duration(utils.timeOffset, "minutes").asMilliseconds();
       var x;
-      var result = [];
+      var result = {};
       _(this.measurements()).each(function(measurement){
         x = moment(measurement.time,"YYYY-MM-DDTHH:mm:ss").valueOf() - currentOffset;
         result[x + ""] = {x: x,
