@@ -12,7 +12,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
     getInitialData: function() {
       spinner.startDownloadingSessions();
       var self = this;
-      var end_date = moment(singleFixedSession.endTime(), "YYYY-MM-DDTHH:mm:ss").valueOf();
+      var end_date = new Date(singleFixedSession.endTime()).getTime();
       var start_date = end_date - (24*60*60*1000);
 
       $http.get('/api/realtime/stream_measurements/',
@@ -208,7 +208,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
 
       var self = this;
       var final_point = {};
-      var end_time = moment(singleFixedSession.endTime(), "YYYY-MM-DDTHH:mm:ss").valueOf();
+      var end_time = new Date(singleFixedSession.endTime()).getTime();
       final_point[end_time + ""] = {x: end_time, y: null, latitude: null, longitude: null};
 
       self.chart.showLoading('Loading data from server...');
