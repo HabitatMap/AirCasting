@@ -7,22 +7,21 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
   Graph.prototype = {
     init: function(id){
       this.id = id;
-      this.session = singleFixedSession;
     },
 
     getInitialData: function() {
       spinner.startDownloadingSessions();
       var self = this;
-      var end_date = new Date(singleFixedSession.endTime()).getTime();
+      var end_date = moment(singleFixedSession.endTime(), "YYYY-MM-DDTHH:mm:ss").valueOf();
       var start_date = end_date - (24*60*60*1000);
 
       $http.get('/api/realtime/stream_measurements/',
         {cache: true,
-          params: {stream_ids: self.session.selectedStream().id,
+          params: {stream_ids: singleFixedSession.selectedStream().id,
           start_date: start_date,
           end_date: end_date
         }}).success(function(data){
-          self.draw(self.session.measurementsToTime(data), self.session.isFixed());
+          self.draw(singleFixedSession.measurementsToTime(data), singleFixedSession.isFixed());
           spinner.stopDownloadingSessions();
       });
     },
@@ -208,7 +207,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
     afterSetExtremes: function(e) {
       var self = this;
       var final_point = {};
-      var end_time = new Date(singleFixedSession.endTime()).getTime();
+      var end_time = moment(singleFixedSession.endTime(), "YYYY-MM-DDTHH:mm:ss").valueOf();
       final_point[end_time + ""] = {x: end_time, y: null, latitude: null, longitude: null};
 
       self.chart.showLoading('Loading data from server...');
@@ -218,7 +217,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
           start_date: Math.round(e.min),
           end_date: Math.round(e.max)
         }}).success(function(data){
-          self.chart.series[0].setData(_(_.extend(singleFixedSession.measurementsToTime(data), final_point)).values());
+          data = _.extend(singleFixedSession.measurementsToTime(data), final_point);
+          self.chart.series[0].setData(_(data).values());
           self.chart.hideLoading();
       });
     },
