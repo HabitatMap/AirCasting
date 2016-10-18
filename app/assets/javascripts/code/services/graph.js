@@ -180,9 +180,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
       {
         buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
         selectedButton = 2;
-        _.extend(options.rangeSelector, {buttons: buttons, selected: selectedButton})
-        _.extend(options.xAxis, {events: {afterSetExtremes: this.afterSetExtremes},
-                                 ordinal: false});
+        _.extend(options.rangeSelector, {buttons: buttons, selected: selectedButton});
+        _.extend(options.xAxis, {events: {afterSetExtremes: this.afterSetExtremes}, ordinal: false});
         _.extend(options.scrollbar, {liveRedraw: false});
       }
 
@@ -206,6 +205,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
     },
 
     afterSetExtremes: function(e) {
+      console.log(this.chart.series[0].xAxis);
+
       var self = this;
       var final_point = {};
       var end_time = new Date(singleFixedSession.endTime()).getTime();
@@ -218,7 +219,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
           start_date: Math.round(e.min),
           end_date: Math.round(e.max)
         }}).success(function(data){
-          self.chart.series[0].setData(_(_.extend(singleFixedSession.measurementsToTime(data), final_point)).values());
+          data = _.extend(singleFixedSession.measurementsToTime(data), final_point);
+          self.chart.series[0].setData(_(data).values());
           self.chart.hideLoading();
       });
     },
