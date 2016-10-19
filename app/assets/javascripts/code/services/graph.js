@@ -84,12 +84,22 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
           enabled : false
         },
         rangeSelector : {
+          height: 23,
           buttonSpacing: 5,
           buttonTheme: {
             width: 50,
+            height: 15,
+            stroke: '#999999',
+            'stroke-width': 1,
             style: {
-              fontFamily: 'Arial, sans-serif'
+              fontFamily: 'Arial, sans-serif',
+              marginTop: 100
             },
+            states: {
+              select: {
+                fill: '#A1C1E3'
+              }
+            }
           },
           labelStyle: {
               fontWeight: 'normal',
