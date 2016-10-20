@@ -97,7 +97,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
             },
             states: {
               select: {
-                fill: '#A1C1E3'
+                fill: '#D5E9FF'
               }
             }
           },
