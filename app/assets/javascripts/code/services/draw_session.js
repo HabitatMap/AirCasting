@@ -10,6 +10,7 @@ angular.module('aircasting').factory('drawSession',
         return;
       }
       this.undoDraw(session, true);
+
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       session.markers = [];
       session.noteDrawings = [];

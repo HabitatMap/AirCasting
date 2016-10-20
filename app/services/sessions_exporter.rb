@@ -33,7 +33,7 @@ class SessionsExporter
     sessions.map do |session|
       csv_content = SessionExporter.new(session).export
 
-      file = Tempfile.new("session_#{session.id}_#{session.title.parameterize}_")
+      file = Tempfile.new("session_#{session.id}_#{session.title.try(:parameterize)}_")
       file.write(csv_content)
       file.close
 
