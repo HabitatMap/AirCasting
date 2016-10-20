@@ -5,7 +5,7 @@ angular.module('aircasting').factory('drawSession',
   };
 
   DrawSession.prototype = {
-    draw: function(session, bounds) {
+    drawMobileSession: function(session, bounds) {
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
@@ -37,6 +37,28 @@ angular.module('aircasting').factory('drawSession',
       map.appendViewport(bounds);
     },
 
+    drawFixedSession: function(session, bounds) {
+      if(!session || !session.loaded || !sensors.anySelected()){
+        return;
+      }
+      this.undoDraw(session, true);
+
+      if(!session.is_indoor) {
+        session.markers = [];
+        session.noteDrawings = [];
+        session.lines = [];
+
+        session.markers.push(map.drawMarker(session, {
+          title: session.title,
+          zIndex: 0,
+          icon: "/assets/location_marker.png"
+        }));
+      }
+
+      session.drawed = true;
+      map.appendViewport(bounds);
+    },
+
     undoDraw: function(session, bounds, noMove) {
       if(!session.drawed){
         return;
@@ -58,7 +80,13 @@ angular.module('aircasting').factory('drawSession',
 
     redraw: function(sessions) {
       this.clear();
-      _(sessions).each(_(this.draw).bind(this));
+      _(sessions).each(function(session) {
+        if (session.type == 'MobileSession') {
+          _(this.drawMobileSession);
+        } else if (session.type == 'FixedSession') {
+          _(this.drawFixedSession);
+        } else return;
+      }.bind(this));
     },
 
     clear: function(sessions) {

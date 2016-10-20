@@ -69,6 +69,7 @@ AirCasting::Application.routes.draw do
 
     namespace :realtime do
       get 'multiple_sessions' =>'sessions#show_multiple'
+      get 'stream_measurements' => 'measurements#stream_measurements'
       resources :sessions, only: [:create, :index, :show]
       resources :measurements, only: :create
     end
