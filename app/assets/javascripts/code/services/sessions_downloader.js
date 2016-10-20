@@ -1,4 +1,4 @@
-angular.module("aircasting").factory("sessionsDownloader", ['$http', '$timeout', 'orderByFilter', function ($http, $timeout, orderBy) {
+angular.module("aircasting").factory("sessionsDownloader", ['$rootScope', '$http', '$timeout', 'orderByFilter', function ($rootScope, $http, $timeout, orderBy) {
 
   var fetch = function (url, reqData, sessions, params, refreshSessionsCallback, errorCallback) {
     var successCallback = function (data) {
@@ -29,6 +29,7 @@ angular.module("aircasting").factory("sessionsDownloader", ['$http', '$timeout',
   var preprocessData = function (data, sessions, params) {
     var times;
     var sessionIds = _(params.get('sessionsIds') || []);
+    $rootScope.sessionsCount = data.length;
 
     data = completeSessions(data);
 
