@@ -31,10 +31,30 @@ class FixedSession < Session
   end
 
   def as_synchronizable
-    as_json(:methods => [:streams])
+    as_json(methods: [:streams])
   end
 
   def self.filtered_json_fields
     [:id, :title, :start_time_local, :end_time_local, :is_indoor]
+  end
+
+  def as_json(opts=nil)
+    opts ||= {}
+
+    methods = opts[:methods] || [:notes, :calibration]
+    methods << :type
+    sensor_id = opts.delete(:sensor_id)
+
+    res = super(opts.merge(methods: methods))
+
+    map_of_streams = {}
+    strs = sensor_id ? streams.where(sensor_name: sensor_id) : streams.all
+    strs.each do |stream|
+      map_of_streams[stream.sensor_name] = stream.as_json
+    end
+
+    res.merge!(streams: map_of_streams)
+
+    res
   end
 end

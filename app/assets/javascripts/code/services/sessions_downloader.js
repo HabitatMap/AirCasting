@@ -40,7 +40,6 @@ angular.module("aircasting").factory("sessionsDownloader", ['$rootScope', '$http
         session.timeframe = times[0].format('MM/DD/YYYY, HH:mm') +
           '-' +  times[1].format('HH:mm');
       }
-      session.availableStreams = session.streams;
 
       session.shortTypes = _(session.streams).chain().map(function(stream){
         return {name: stream.measurement_short_type, type: stream.sensor_name};
