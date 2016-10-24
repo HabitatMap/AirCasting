@@ -133,10 +133,14 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
           position: latlng,
           zIndex: 300000,
           icon: "/assets/location_marker.png",
-          flat: true
+          flat: true,
+          session: latLngObj
         };
         _(options).extend(optionInput || {});
         newMarker = new google.maps.Marker(options);
+        newMarker.addListener('click', function() {
+          $rootScope.$broadcast('selectEvent', {session_id: latLngObj.id});
+        });
         newMarker.setMap(this.get());
       }
       return newMarker;
