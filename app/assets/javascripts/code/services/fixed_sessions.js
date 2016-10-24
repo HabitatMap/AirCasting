@@ -108,11 +108,22 @@ angular.module("aircasting").factory('fixedSessions',
       spinner.startDownloadingSessions();
 
       sessionsDownloader('/api/realtime/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
-          _(this.onSessionsFetchError).bind(this));
+        _(this.onSessionsFetchError).bind(this));
+    },
+
+    drawSessionsInLocation: function() {
+      var self = this;
+      _(this.get()).each(function(session) {
+        drawSession.drawFixedSession(session, boundsCalculator(self.get()));
+      });
     },
 
     onSessionsFetch: function() {
       spinner.stopDownloadingSessions();
+      var location = params.get('data').location;
+      if (location.limit || location.address) {
+        this.drawSessionsInLocation();
+      }
       this.reSelectAllSessions();
     },
 

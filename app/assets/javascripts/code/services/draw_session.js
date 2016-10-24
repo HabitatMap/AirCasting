@@ -38,12 +38,12 @@ angular.module('aircasting').factory('drawSession',
     },
 
     drawFixedSession: function(session, bounds) {
-      if(!session || !session.loaded || !sensors.anySelected()){
-        return;
-      }
+      // if(!session || !session.loaded || !sensors.anySelected()){
+      //   return;
+      // }
       this.undoDraw(session, true);
 
-      if(!session.is_indoor) {
+      if (!session.is_indoor) {
         session.markers = [];
         session.noteDrawings = [];
         session.lines = [];
@@ -54,7 +54,6 @@ angular.module('aircasting').factory('drawSession',
           icon: "/assets/location_marker.png"
         }));
       }
-
       session.drawed = true;
       map.appendViewport(bounds);
     },
