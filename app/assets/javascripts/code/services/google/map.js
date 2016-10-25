@@ -172,4 +172,3 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
 
   return new Map();
 }]);
-

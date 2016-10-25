@@ -41,10 +41,6 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     params.update({'didSessionsSearch': true});
   };
 
-  $scope.$on('selectEvent', function(event, data){
-    console.log('selected');
-    $scope.sessions.selectSession(data.session_id);
-  });
 
   //fix for json null parsing
   $scope.$watch("params.get('data').sensorId", function(newValue) {

@@ -64,6 +64,10 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
     drawSession.redraw(sessions.allSelected());
   }, true);
 
+  $scope.$on('selectEvent', function(event, data){
+    $scope.toggleSession(data.session_id);
+  });
+
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
     functionBlocker.use("sessionDialog", function(){
       if(newIds.length === 1 && !sensors.selected()) {
