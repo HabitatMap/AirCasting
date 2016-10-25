@@ -118,6 +118,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
     } else if($scope.canSelectSession(sessionId)) {
       params.update({sessionsIds: params.get("sessionsIds", []).concat([sessionId])});
       session.$selected = true;
+      $scope.$apply();
     }
   };
 
