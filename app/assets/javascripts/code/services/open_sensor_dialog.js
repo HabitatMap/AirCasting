@@ -1,5 +1,5 @@
-angular.module('aircasting').factory('openSensorDialog', ['params', 'dialog', 'versioner', 'sensors',
-  function(params, dialog, versioner, sensors) {
+angular.module('aircasting').factory('openSensorDialog', ['$rootScope', 'params', 'dialog', 'versioner', 'sensors',
+  function($rootScope, params, dialog, versioner, sensors) {
 
     var openSensorDialog = function(newIds, oldIds, sessions) {
       params.update({tmp: {tmpSensorId: ""}});
@@ -17,7 +17,7 @@ angular.module('aircasting').factory('openSensorDialog', ['params', 'dialog', 'v
             }
           }
           sessions.sessionsChanged(newIds, oldIds);
-          $digest();
+          $rootScope.$digest();
         })
         .opts({ width: 340, height: 'auto', resizable: false, modal:true, position: ["center", "center"],
         buttons: {
