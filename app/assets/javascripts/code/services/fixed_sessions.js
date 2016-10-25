@@ -146,7 +146,6 @@ angular.module("aircasting").factory('fixedSessions',
       }
       session.$selected = false;
       session.alreadySelected = false;
-      drawSession.undoDraw(session, boundsCalculator(this.sessions));
     },
 
     deselectAllSessions: function() {

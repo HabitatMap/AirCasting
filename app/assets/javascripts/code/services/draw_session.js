@@ -41,7 +41,6 @@ angular.module('aircasting').factory('drawSession',
       // if(!session || !session.loaded || !sensors.anySelected()){
       //   return;
       // }
-      this.undoDraw(session, true);
 
       if (!session.is_indoor) {
         session.markers = [];
