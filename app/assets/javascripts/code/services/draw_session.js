@@ -55,6 +55,7 @@ angular.module('aircasting').factory('drawSession',
       }
       session.drawed = true;
       map.appendViewport(bounds);
+      return session.markers;
     },
 
     undoDraw: function(session, bounds, noMove) {

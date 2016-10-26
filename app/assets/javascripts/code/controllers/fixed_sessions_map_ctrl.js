@@ -1,6 +1,6 @@
 function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, fixedSessions, versioner,
                          storageEvents, singleFixedSession, functionBlocker, $window, $location,
-                         rectangles, infoWindow) {
+                         rectangles, infoWindow, $rootScope) {
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
@@ -74,4 +74,4 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 FixedSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
    'map', 'sensors', 'expandables', 'storage', 'fixedSessions', 'versioner',
   'storageEvents', 'singleFixedSession', 'functionBlocker', '$window', "$location",
-  "rectangles", "infoWindow"];
+  "rectangles", "infoWindow", "$rootScope"];

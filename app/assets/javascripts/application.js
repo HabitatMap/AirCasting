@@ -19,6 +19,7 @@
 */
 
 //= require libs/jquery
+//= require libs/markerclusterer.js
 //= require libs/moment
 //= require libs/jquery_ui
 //= require angular

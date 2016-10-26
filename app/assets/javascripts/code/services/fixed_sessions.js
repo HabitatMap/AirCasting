@@ -7,6 +7,7 @@ angular.module("aircasting").factory('fixedSessions',
           boundsCalculator) {
   var FixedSessions = function() {
     this.sessions = [];
+    $rootScope.markers = [];
     var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
@@ -114,7 +115,7 @@ angular.module("aircasting").factory('fixedSessions',
     drawSessionsInLocation: function() {
       var self = this;
       _(this.get()).each(function(session) {
-        drawSession.drawFixedSession(session, boundsCalculator(self.get()));
+        $rootScope.markers.push(drawSession.drawFixedSession(session, boundsCalculator(self.get())));
       });
     },
 
@@ -124,6 +125,7 @@ angular.module("aircasting").factory('fixedSessions',
       if (location.limit || location.address) {
         this.drawSessionsInLocation();
       }
+      // console.log($rootScope.markers.length);
       this.reSelectAllSessions();
     },
 
