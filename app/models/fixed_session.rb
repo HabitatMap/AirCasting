@@ -27,6 +27,7 @@ class FixedSession < Session
   def update_end_time!
     self.end_time = self.measurements.maximum('time')
     self.end_time_local = self.measurements.maximum('time')
+    self.last_measurement_at = Time.now.to_datetime
     self.save!
   end
 
