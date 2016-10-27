@@ -66,7 +66,8 @@ angular.module("aircasting").factory('fixedSessions',
         tags:  data.tags,
         usernames:  data.usernames,
         session_ids: sessionIds,
-        streaming: data.location.streaming
+        streaming: data.location.streaming,
+        page_size: 1000
       };
       var location = data.location;
       if(location.limit){
