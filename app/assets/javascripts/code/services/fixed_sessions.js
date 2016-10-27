@@ -126,8 +126,9 @@ angular.module("aircasting").factory('fixedSessions',
       if (location.limit || location.address) {
         this.drawSessionsInLocation();
       }
-      // console.log($rootScope.markers.length);
       this.reSelectAllSessions();
+      var markerCluster = new MarkerClusterer(map.get(), map.markers,
+              {imagePath: '/assets/'});
     },
 
     onSessionsFetchError: function(data){

@@ -6,9 +6,6 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
   Map.prototype = {
     init: function(element, options) {
       this.mapObj = new google.maps.Map(element, options);
-      console.log($rootScope.markers.length);
-      this.markerCluster = new MarkerClusterer(this.mapObj, $rootScope.markers,
-              {imagePath: '../../../../images/'});
       this.markers = [];
       this.listen("idle", this.saveViewport);
       this.listen("visible_changed", function(){$rootScope.$digest();}, this.mapObj.getStreetView());
