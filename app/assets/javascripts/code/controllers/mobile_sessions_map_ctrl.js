@@ -18,6 +18,7 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
     rectangles.clear();
     infoWindow.hide();
     map.unregisterAll();
+    map.removeAllMarkers();
 
     $($window).resize(function() {
       $scope.$digest();

@@ -65,7 +65,8 @@ angular.module("aircasting").factory('fixedSessions',
         year_to:  data.time.yearTo,
         tags:  data.tags,
         usernames:  data.usernames,
-        session_ids: sessionIds
+        session_ids: sessionIds,
+        streaming: data.location.streaming
       };
       var location = data.location;
       if(location.limit){
@@ -227,16 +228,6 @@ angular.module("aircasting").factory('fixedSessions',
         else
           return session.streams[sensor_name];
       }).compact().value();
-    },
-
-    allStreaming: function() {
-      _(this.get()).chain().map(function(session) {
-        var last_measurement_time = moment(session.measurements[-1].time, "YYYY-DD-MMTHH:mm:ss");
-        if (moment().diff(last_measurement_time, 'minutes') > 60)
-          return session;
-        else
-          return null;
-      });
     },
 
     onSingleSessionFetch: function(session, data) {

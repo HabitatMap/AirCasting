@@ -89,7 +89,7 @@ class Session < ActiveRecord::Base
 
     sessions = sessions.where(is_indoor: data[:is_indoor]) unless data[:is_indoor].nil?
     location = data[:location]
-    
+
     if data[:east] && data[:west] && data[:north] && data[:south]
       sessions = sessions.from_location(data)
     elsif location.present?
@@ -107,6 +107,10 @@ class Session < ActiveRecord::Base
       }
 
       sessions = sessions.from_location(data)
+    end
+
+    if data[:streaming]
+      sessions = sessions.streaming
     end
 
     sensor_name = data[:sensor_name]
@@ -136,6 +140,10 @@ class Session < ActiveRecord::Base
     end
 
     sessions
+  end
+
+  def self.streaming
+    where(last_measurement_at: Time.at(1.hour.ago)..Time.now)
   end
 
   def self.from_location(data)

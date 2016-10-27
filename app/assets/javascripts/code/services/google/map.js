@@ -9,6 +9,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       console.log($rootScope.markers.length);
       this.markerCluster = new MarkerClusterer(this.mapObj, $rootScope.markers,
               {imagePath: '../../../../images/'});
+      this.markers = [];
       this.listen("idle", this.saveViewport);
       this.listen("visible_changed", function(){$rootScope.$digest();}, this.mapObj.getStreetView());
       this.listen("zoom_changed", _(this.onZoomChanged).bind(this));
@@ -145,6 +146,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
           $rootScope.$broadcast('selectEvent', {session_id: latLngObj.id});
         });
         newMarker.setMap(this.get());
+        this.markers.push(newMarker);
       }
       return newMarker;
     },
@@ -154,6 +156,13 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         return;
       }
       marker.setMap(null);
+    },
+
+    removeAllMarkers: function() {
+      var markers = this.markers;
+      _(markers).each(function(marker) {
+        marker.setMap(null);
+      });
     },
 
     drawLine: function(data){
@@ -170,7 +179,6 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       var line = new google.maps.Polyline(lineOptions);
       return line;
     }
-
   };
 
   return new Map();
