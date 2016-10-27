@@ -18,7 +18,6 @@
 
 class FixedSession < Session
   validates :is_indoor, inclusion: { in: [true, false] }
-  validates :latitude, :longitude, presence: true
 
   def after_measurements_created
     update_end_time!
@@ -29,6 +28,22 @@ class FixedSession < Session
     self.end_time_local = self.measurements.maximum('time')
     self.last_measurement_at = DateTime.current
     self.save!
+  end
+
+  def last_hour_averages
+    return unless self.streaming?
+    streams_averages = {}
+
+    self.streams.each do |stream|
+      last_measurement_time = stream.measurements.last.time
+      measurements = stream.measurements .where(time: last_measurement_time - 1.hour..last_measurement_time)
+      streams_averages[stream.sensor_name] = measurements.average(:value)
+    end
+    streams_averages
+  end
+
+  def streaming?
+    (self.last_measurement_at || 1.year.ago) > Time.at(1.hour.ago)
   end
 
   def as_synchronizable

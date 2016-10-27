@@ -121,7 +121,13 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         }, rectangle);
       });
     },
-    drawMarker: function(latLngObj, optionInput, existingMarker){
+    drawMarker: function(latLngObj, optionInput, existingMarker, level){
+      var self = this;
+      this.markers = _(this.markers).each(function(marker) {
+        if (marker.session == latLngObj)
+          self.removeMarker(marker);
+      });
+
       if(!latLngObj) {
         return;
       }
@@ -133,7 +139,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         var options = {
           position: latlng,
           zIndex: 300000,
-          icon: "/assets/location_marker.png",
+          icon: "/assets/location_marker" + level + ".png",
           flat: true,
           session: latLngObj
         };
