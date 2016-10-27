@@ -228,16 +228,6 @@ angular.module("aircasting").factory('fixedSessions',
       }).compact().value();
     },
 
-    allStreaming: function() {
-      _(this.get()).chain().map(function(session) {
-        var last_measurement_time = moment(session.measurements[-1].time, "YYYY-DD-MMTHH:mm:ss");
-        if (moment().diff(last_measurement_time, 'minutes') > 60)
-          return session;
-        else
-          return null;
-      });
-    },
-
     onSingleSessionFetch: function(session, data) {
       var streams = data.streams;
       delete data.streams;
