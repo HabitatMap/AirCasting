@@ -6,6 +6,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
   Map.prototype = {
     init: function(element, options) {
       this.mapObj = new google.maps.Map(element, options);
+      this.markers = [];
       this.listen("idle", this.saveViewport);
       this.listen("visible_changed", function(){$rootScope.$digest();}, this.mapObj.getStreetView());
       this.listen("zoom_changed", _(this.onZoomChanged).bind(this));
@@ -120,26 +121,41 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         }, rectangle);
       });
     },
-    drawMarker: function(latLngObj, optionInput, existingMarker){
+    drawMarker: function(latLngObj, optionInput, existingMarker, level){
+      this.deleteMarker(latLngObj);
+
       if(!latLngObj) {
         return;
       }
       var latlng = new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
       var newMarker;
-      if(existingMarker){
+      if (existingMarker){
         newMarker = existingMarker.setPosition(latlng);
       } else {
         var options = {
           position: latlng,
           zIndex: 300000,
-          icon: "/assets/location_marker.png",
-          flat: true
+          icon: "/assets/location_marker" + level + ".png",
+          flat: true,
+          session: latLngObj
         };
         _(options).extend(optionInput || {});
         newMarker = new google.maps.Marker(options);
+        newMarker.addListener('click', function() {
+          $rootScope.$broadcast('selectEvent', {session_id: latLngObj.id});
+        });
         newMarker.setMap(this.get());
+        this.markers.push(newMarker);
       }
       return newMarker;
+    },
+
+    deleteMarker: function(session) {
+      var marker = _.find(this.markers, function(marker) {
+        marker.session.id == session.id;
+      });
+
+      this.markers.splice(this.markers.indexOf(marker), 1);
     },
 
     removeMarker: function(marker) {
@@ -147,6 +163,13 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         return;
       }
       marker.setMap(null);
+    },
+
+    removeAllMarkers: function() {
+      var markers = this.markers;
+      _(markers).each(function(marker) {
+        marker.setMap(null);
+      });
     },
 
     drawLine: function(data){
@@ -163,9 +186,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       var line = new google.maps.Polyline(lineOptions);
       return line;
     }
-
   };
 
   return new Map();
 }]);
-

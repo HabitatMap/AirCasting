@@ -18,7 +18,7 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
     refreshCounter: function(){
       this.set("counter", parseInt(this.get("counter") || 0, 10) + 1);
     },
-    set : function(name, value) {
+    set: function(name, value) {
       this.data[name] = angular.copy(value);
     },
     setInHash: function(hashName, name, value) {

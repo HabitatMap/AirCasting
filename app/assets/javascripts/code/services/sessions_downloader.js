@@ -9,7 +9,7 @@ angular.module("aircasting").factory("sessionsDownloader", ['$rootScope', '$http
   };
 
   var fetchPage = function (url, reqData, page, success, error) {
-    $http.get(url, {cache: true, params : {q: reqData, page: page}}).success(success).error(error);
+    $http.get(url, {cache: true, params : {q: reqData, page_size: reqData.page_size, page: page}}).success(success).error(error);
   };
 
   var completeSessions = function(data) {

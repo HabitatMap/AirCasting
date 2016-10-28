@@ -78,13 +78,13 @@ angular.module("aircasting").factory('heat', ["$rootScope", "params", "storage",
     getLevel: function(value){
       if (value < this.getValue("lowest")) {
         return null;
-      } else if (value < this.getValue("low")) {
+      } else if (value <= this.getValue("mid")) {
         return 1;
-      } else if (value < this.getValue("mid")) {
+      } else if (value <= this.getValue("high")) {
         return 2;
-      } else if (value < this.getValue("high")) {
+      } else if (value <= this.getValue("highest")) {
         return 3;
-      } else if (value < this.getValue("highest")) {
+      } else if (value > this.getValue("highest")) {
         return 4;
       } else {
         return null;

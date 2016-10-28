@@ -38,23 +38,34 @@ angular.module('aircasting').factory('drawSession',
     },
 
     drawFixedSession: function(session, bounds) {
-      if(!session || !session.loaded || !sensors.anySelected()){
-        return;
-      }
-      this.undoDraw(session, true);
+      if(!session) return;
 
-      if(!session.is_indoor) {
+      if (!session.is_indoor) {
         session.markers = [];
         session.noteDrawings = [];
         session.lines = [];
+        var sensor_name, level;
 
-        session.markers.push(map.drawMarker(session, {
+        if (session.last_hour_averages) {
+          if (sensors.anySelected()) {
+            sensor_name = sensors.anySelected().sensor_name;
+          } else {
+            sensor_name = 'streaming_sensor';
+          }
+          var value = Math.round(session.last_hour_averages[sensor_name]);
+
+          level = heat.getLevel(value || 0);
+        } else {
+          level = 0;
+        };
+
+        var markerOptions = {
           title: session.title,
-          zIndex: 0,
-          icon: "/assets/location_marker.png"
-        }));
-      }
+          zIndex: 0
+        };
 
+        session.markers.push(map.drawMarker(session, markerOptions, null, level));
+      }
       session.drawed = true;
       map.appendViewport(bounds);
     },

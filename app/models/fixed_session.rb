@@ -18,7 +18,6 @@
 
 class FixedSession < Session
   validates :is_indoor, inclusion: { in: [true, false] }
-  validates :latitude, :longitude, presence: true
 
   def after_measurements_created
     update_end_time!
@@ -27,7 +26,29 @@ class FixedSession < Session
   def update_end_time!
     self.end_time = self.measurements.maximum('time')
     self.end_time_local = self.measurements.maximum('time')
+    self.last_measurement_at = DateTime.current
     self.save!
+  end
+
+  def last_hour_averages
+    return unless self.streaming?
+    streams_averages = {}
+
+    self.streams.each do |stream|
+      last_measurement_time = stream.measurements.last.time
+      measurements = stream.measurements.where(time: last_measurement_time - 1.hour..last_measurement_time)
+      streams_averages[stream.sensor_name] = measurements.average(:value)
+    end
+
+    streaming_sensor = self.measurements.last.stream.sensor_name
+    streams_averages['streaming_sensor'] = streams_averages[streaming_sensor]
+
+    streams_averages
+  end
+
+  def streaming?
+    # Lots of sessions will have last_measurement_at as nil
+    (self.last_measurement_at || 1.year.ago) > Time.at(1.hour.ago)
   end
 
   def as_synchronizable
@@ -35,7 +56,7 @@ class FixedSession < Session
   end
 
   def self.filtered_json_fields
-    [:id, :title, :start_time_local, :end_time_local, :is_indoor]
+    [:id, :title, :start_time_local, :end_time_local, :is_indoor, :latitude, :longitude]
   end
 
   def as_json(opts=nil)
