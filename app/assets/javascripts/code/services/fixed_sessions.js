@@ -1,12 +1,11 @@
 angular.module("aircasting").factory('fixedSessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope', 'heat',
        'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
-       'sessionsExporter', 'drawSession', 'boundsCalculator',
+       'sessionsExporter', 'drawSession', 'boundsCalculator', 'markersClusterer',
         function(params, $http, map, note, sensors, $rootScope, heat, spinner,
           utils, $timeout, flash, sessionsDownloader, sessionsExporter, drawSession,
-          boundsCalculator) {
+          boundsCalculator, markersClusterer) {
   var FixedSessions = function() {
-    this.markerCluster = new MarkerClusterer(map.get(), [], {imagePath: '/assets/'});
     this.sessions = [];
     var self = this;
     this.scope = $rootScope.$new();
@@ -123,10 +122,10 @@ angular.module("aircasting").factory('fixedSessions',
 
     onSessionsFetch: function() {
       map.markers = [];
-      this.markerCluster.clearMarkers();
+      markersClusterer.clear();
       this.drawSessionsInLocation();
       this.reSelectAllSessions();
-      this.markerCluster = new MarkerClusterer(map.get(), map.markers, {imagePath: '/assets/'});
+      markersClusterer.draw(map.get(), map.markers);
       spinner.stopDownloadingSessions();
     },
 

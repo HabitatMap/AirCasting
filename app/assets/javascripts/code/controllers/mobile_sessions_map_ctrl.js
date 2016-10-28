@@ -1,6 +1,6 @@
 function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, mobileSessions, versioner,
                          storageEvents, singleMobileSession, functionBlocker, $window, $location,
-                         rectangles, infoWindow) {
+                         rectangles, infoWindow, markersClusterer) {
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
@@ -19,6 +19,7 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
     infoWindow.hide();
     map.unregisterAll();
     map.removeAllMarkers();
+    markersClusterer.clear();
 
     $($window).resize(function() {
       $scope.$digest();
@@ -74,4 +75,4 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
 MobileSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
    'map', 'sensors', 'expandables', 'storage', 'mobileSessions', 'versioner',
   'storageEvents', 'singleMobileSession', 'functionBlocker', '$window', "$location",
-  "rectangles", "infoWindow"];
+  "rectangles", "infoWindow", "markersClusterer"];
