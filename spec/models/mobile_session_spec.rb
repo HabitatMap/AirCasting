@@ -180,7 +180,7 @@ describe MobileSession do
 
     it 'should return filter() as json' do
       MobileSession.should_receive(:filter).with(data).and_return(records)
-      records.should_receive(:as_json).with(hash_including({:only => [:id, :title, :start_time_local, :end_time_local], :methods => [:username, :streams]})).and_return(json)
+      records.should_receive(:as_json).with(hash_including({:only => [:id, :title, :start_time_local, :end_time_local], :methods => [:username, :streams, :last_hour_averages]})).and_return(json)
       data.should_receive(:[]).with(:measurements).and_return(false)
 
       MobileSession.filtered_json(data, 0, 50).should == json
