@@ -38,25 +38,18 @@ angular.module('aircasting').factory('drawSession',
     },
 
     drawFixedSession: function(session, bounds) {
-      if(!session || !session.loaded || !sensors.anySelected()){
-        return;
-      }
-      this.undoDraw(session, true);
+      session.markers = [];
+      session.noteDrawings = [];
+      session.lines = [];
 
-      if(!session.is_indoor) {
-        session.markers = [];
-        session.noteDrawings = [];
-        session.lines = [];
-
-        session.markers.push(map.drawMarker(session, {
-          title: session.title,
-          zIndex: 0,
-          icon: "/assets/location_marker.png"
-        }));
-      }
-
+      session.markers.push(map.drawMarker(session, {
+        title: session.title,
+        zIndex: 0,
+        icon: "/assets/location_marker.png"
+      }));
       session.drawed = true;
       map.appendViewport(bounds);
+      return session.markers;
     },
 
     undoDraw: function(session, bounds, noMove) {

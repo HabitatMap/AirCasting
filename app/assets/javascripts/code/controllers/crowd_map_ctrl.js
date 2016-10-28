@@ -30,6 +30,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     //refresh averages whenever you move on map
     map.unregisterAll();
     map.register("idle", $scope.getAverages);
+    map.removeAllMarkers();
 
     functionBlocker.block("heat", !_(params.get('data').heat).isEmpty());
 

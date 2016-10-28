@@ -6,6 +6,7 @@ angular.module("aircasting").factory('fixedSessions',
           utils, $timeout, flash, sessionsDownloader, sessionsExporter, drawSession,
           boundsCalculator) {
   var FixedSessions = function() {
+    this.markerCluster = new MarkerClusterer(map.get(), [], {imagePath: '/assets/'});
     this.sessions = [];
     var self = this;
     this.scope = $rootScope.$new();
@@ -64,7 +65,9 @@ angular.module("aircasting").factory('fixedSessions',
         year_to:  data.time.yearTo,
         tags:  data.tags,
         usernames:  data.usernames,
-        session_ids: sessionIds
+        session_ids: sessionIds,
+        streaming: data.location.streaming,
+        page_size: 1000
       };
       var location = data.location;
       if(location.limit){
@@ -108,12 +111,23 @@ angular.module("aircasting").factory('fixedSessions',
       spinner.startDownloadingSessions();
 
       sessionsDownloader('/api/realtime/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
-          _(this.onSessionsFetchError).bind(this));
+        _(this.onSessionsFetchError).bind(this));
+    },
+
+    drawSessionsInLocation: function() {
+      var self = this;
+      _(this.get()).each(function(session) {
+        drawSession.drawFixedSession(session, boundsCalculator(self.get()));
+      });
     },
 
     onSessionsFetch: function() {
-      spinner.stopDownloadingSessions();
+      map.markers = [];
+      this.markerCluster.clearMarkers();
+      this.drawSessionsInLocation();
       this.reSelectAllSessions();
+      this.markerCluster = new MarkerClusterer(map.get(), map.markers, {imagePath: '/assets/'});
+      spinner.stopDownloadingSessions();
     },
 
     onSessionsFetchError: function(data){
@@ -135,7 +149,6 @@ angular.module("aircasting").factory('fixedSessions',
       }
       session.$selected = false;
       session.alreadySelected = false;
-      drawSession.undoDraw(session, boundsCalculator(this.sessions));
     },
 
     deselectAllSessions: function() {

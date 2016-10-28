@@ -87,48 +87,38 @@ class Session < ActiveRecord::Base
       sessions = sessions.joins(:user).where(:users => {:username => usernames})
     end
 
-    location = data[:location]
-    sensor_name = data[:sensor_name]
-    unit_symbol = data[:unit_symbol]
-
     sessions = sessions.where(is_indoor: data[:is_indoor]) unless data[:is_indoor].nil?
+    location = data[:location]
 
     if data[:east] && data[:west] && data[:north] && data[:south]
-      session_ids = Measurement.joins(:session).
-        latitude_range(data[:south], data[:north]).
-        longitude_range(data[:west], data[:east]).
-        select("DISTINCT session_id").map(&:session_id)
-      sessions = sessions.where(:id => session_ids.uniq)
+      sessions = sessions.from_location(data)
     elsif location.present?
       sessions = sessions.joins(:streams)
-      if location.present?
-        point = Geocoder.coordinates(location)
-        box = Geocoder::Calculations.bounding_box(point, data[:distance])
+      point = Geocoder.coordinates(location)
+      box = Geocoder::Calculations.bounding_box(point, data[:distance])
 
-        validate_box_coordinates!(box)
+      validate_box_coordinates!(box)
 
-        data = {
-          :south => box[0],
-          :north => box[2],
-          :west  => box[1],
-          :east  => box[3]
-        }
+      data = {
+        :south => box[0],
+        :north => box[2],
+        :west  => box[1],
+        :east  => box[3]
+      }
 
-        streams_ids = Stream.
-          select('streams.id').
-          joins(:session).
-          where('sessions.contribute' => true).
-          in_rectangle(data).
-          map(&:id)
-
-        sessions = sessions.where(:streams => {:id => streams_ids.uniq})
-      end
+      sessions = sessions.from_location(data)
     end
 
+    if data[:streaming]
+      sessions = sessions.streaming
+    end
+
+    sensor_name = data[:sensor_name]
     if sensor_name.present?
       sessions = sessions.joins(:streams).where(:streams => {:sensor_name =>  sensor_name})
     end
 
+    unit_symbol = data[:unit_symbol]
     if unit_symbol.present?
       sessions = sessions.joins(:streams).where(:streams => {:unit_symbol =>  unit_symbol})
     end
@@ -150,6 +140,20 @@ class Session < ActiveRecord::Base
     end
 
     sessions
+  end
+
+  def self.streaming
+    where(last_measurement_at: Time.at(1.hour.ago)..Time.now)
+  end
+
+  def self.from_location(data)
+    streams_ids = Stream.select('streams.id').
+      joins(:session).
+      where('sessions.contribute' => true).
+      in_rectangle(data).
+      map(&:id)
+
+    where(:streams => {:id => streams_ids.uniq})
   end
 
   # time is in minutes from 00:00 to 23:59
@@ -179,7 +183,7 @@ class Session < ActiveRecord::Base
   def self.session_methods(data)
     methods = [:username, :streams]
     methods << :measurements if data[:measurements]
-    methods    
+    methods
   end
 
   def self.with_user_and_streams

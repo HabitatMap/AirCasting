@@ -10,7 +10,7 @@ angular.module('aircasting', ['ngRoute', 'ngCookies', "google"], [ "$routeProvid
   $routeProvider.when('/map_fixed_sessions',
                       {templateUrl: 'partials/fixed_sessions_map.html?v=' + v,
                         controller: FixedSessionsMapCtrl, reloadOnSearch: false});
-  $routeProvider.otherwise({redirectTo: '/map_crowd'});
+  $routeProvider.otherwise({redirectTo: '/map_fixed_sessions'});
 }]);
 
 angular.module('aircasting').config(['$httpProvider', function($httpProvider) {

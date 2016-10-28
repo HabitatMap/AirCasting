@@ -6,6 +6,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
   Map.prototype = {
     init: function(element, options) {
       this.mapObj = new google.maps.Map(element, options);
+      this.markers = [];
       this.listen("idle", this.saveViewport);
       this.listen("visible_changed", function(){$rootScope.$digest();}, this.mapObj.getStreetView());
       this.listen("zoom_changed", _(this.onZoomChanged).bind(this));
@@ -133,11 +134,16 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
           position: latlng,
           zIndex: 300000,
           icon: "/assets/location_marker.png",
-          flat: true
+          flat: true,
+          session: latLngObj
         };
         _(options).extend(optionInput || {});
         newMarker = new google.maps.Marker(options);
+        newMarker.addListener('click', function() {
+          $rootScope.$broadcast('selectEvent', {session_id: latLngObj.id});
+        });
         newMarker.setMap(this.get());
+        this.markers.push(newMarker);
       }
       return newMarker;
     },
@@ -147,6 +153,13 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         return;
       }
       marker.setMap(null);
+    },
+
+    removeAllMarkers: function() {
+      var markers = this.markers;
+      _(markers).each(function(marker) {
+        marker.setMap(null);
+      });
     },
 
     drawLine: function(data){
@@ -163,9 +176,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       var line = new google.maps.Polyline(lineOptions);
       return line;
     }
-
   };
 
   return new Map();
 }]);
-

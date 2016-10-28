@@ -27,6 +27,7 @@ class FixedSession < Session
   def update_end_time!
     self.end_time = self.measurements.maximum('time')
     self.end_time_local = self.measurements.maximum('time')
+    self.last_measurement_at = DateTime.current
     self.save!
   end
 
@@ -35,7 +36,7 @@ class FixedSession < Session
   end
 
   def self.filtered_json_fields
-    [:id, :title, :start_time_local, :end_time_local, :is_indoor]
+    [:id, :title, :start_time_local, :end_time_local, :is_indoor, :latitude, :longitude]
   end
 
   def as_json(opts=nil)
