@@ -36,13 +36,18 @@ class FixedSession < Session
 
     self.streams.each do |stream|
       last_measurement_time = stream.measurements.last.time
-      measurements = stream.measurements .where(time: last_measurement_time - 1.hour..last_measurement_time)
+      measurements = stream.measurements.where(time: last_measurement_time - 1.hour..last_measurement_time)
       streams_averages[stream.sensor_name] = measurements.average(:value)
     end
+
+    streaming_sensor = self.measurements.last.stream.sensor_name
+    streams_averages['streaming_sensor'] = streams_averages[streaming_sensor]
+
     streams_averages
   end
 
   def streaming?
+    # Lots of sessions will have last_measurement_at as nil
     (self.last_measurement_at || 1.year.ago) > Time.at(1.hour.ago)
   end
 

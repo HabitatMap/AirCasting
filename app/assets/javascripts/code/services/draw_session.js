@@ -38,27 +38,26 @@ angular.module('aircasting').factory('drawSession',
     },
 
     drawFixedSession: function(session, bounds) {
-      if(!session){
-        return;
-      }
+      if(!session) return;
+
       if (!session.is_indoor) {
         session.markers = [];
         session.noteDrawings = [];
         session.lines = [];
-        var sensor_name;
+        var sensor_name, level;
 
-        if (sensors.anySelected())
-          sensor_name = sensors.anySelected().sensor_name;
-        else
-          sensor_name = "AirBeam-C";
+        if (session.last_hour_averages) {
+          if (sensors.anySelected()) {
+            sensor_name = sensors.anySelected().sensor_name;
+          } else {
+            sensor_name = 'streaming_sensor';
+          }
+          var value = Math.round(session.last_hour_averages[sensor_name]);
 
-        var value = Math.round(session.last_hour_averages[sensor_name]);
-
-        if (value == 0)
-          var level = 0;
-        else
           level = heat.getLevel(value || 0);
-
+        } else {
+          level = 0;
+        };
 
         var markerOptions = {
           title: session.title,

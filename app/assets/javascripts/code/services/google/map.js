@@ -122,18 +122,14 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       });
     },
     drawMarker: function(latLngObj, optionInput, existingMarker, level){
-      var self = this;
-      this.markers = _(this.markers).each(function(marker) {
-        if (marker.session == latLngObj)
-          self.removeMarker(marker);
-      });
+      this.deleteMarker(latLngObj);
 
       if(!latLngObj) {
         return;
       }
       var latlng = new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
       var newMarker;
-      if(existingMarker){
+      if (existingMarker){
         newMarker = existingMarker.setPosition(latlng);
       } else {
         var options = {
@@ -152,6 +148,14 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         this.markers.push(newMarker);
       }
       return newMarker;
+    },
+
+    deleteMarker: function(session) {
+      var marker = _.find(this.markers, function(marker) {
+        marker.session.id == session.id;
+      });
+
+      this.markers.splice(this.markers.indexOf(marker), 1);
     },
 
     removeMarker: function(marker) {
