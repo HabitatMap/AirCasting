@@ -181,7 +181,7 @@ class Session < ActiveRecord::Base
   end
 
   def self.session_methods(data)
-    methods = [:username, :streams]
+    methods = [:username, :streams, :last_hour_averages]
     methods << :measurements if data[:measurements]
     methods
   end

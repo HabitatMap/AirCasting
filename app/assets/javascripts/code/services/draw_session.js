@@ -38,20 +38,34 @@ angular.module('aircasting').factory('drawSession',
     },
 
     drawFixedSession: function(session, bounds) {
-      // if(!session || !session.loaded || !sensors.anySelected()){
-      //   return;
-      // }
-
+      if(!session){
+        return;
+      }
       if (!session.is_indoor) {
         session.markers = [];
         session.noteDrawings = [];
         session.lines = [];
+        var sensor_name;
 
-        session.markers.push(map.drawMarker(session, {
+        if (sensors.anySelected())
+          sensor_name = sensors.anySelected().sensor_name;
+        else
+          sensor_name = "AirBeam-C";
+
+        var value = Math.round(session.last_hour_averages[sensor_name]);
+
+        if (value == 0)
+          var level = 0;
+        else
+          level = heat.getLevel(value || 0);
+
+
+        var markerOptions = {
           title: session.title,
-          zIndex: 0,
-          icon: "/assets/location_marker.png"
-        }));
+          zIndex: 0
+        };
+
+        session.markers.push(map.drawMarker(session, markerOptions, null, level));
       }
       session.drawed = true;
       map.appendViewport(bounds);
