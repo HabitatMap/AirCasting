@@ -38,17 +38,15 @@ angular.module('aircasting').factory('drawSession',
     },
 
     drawFixedSession: function(session, bounds) {
-      if (!session.is_indoor) {
-        session.markers = [];
-        session.noteDrawings = [];
-        session.lines = [];
+      session.markers = [];
+      session.noteDrawings = [];
+      session.lines = [];
 
-        session.markers.push(map.drawMarker(session, {
-          title: session.title,
-          zIndex: 0,
-          icon: "/assets/location_marker.png"
-        }));
-      }
+      session.markers.push(map.drawMarker(session, {
+        title: session.title,
+        zIndex: 0,
+        icon: "/assets/location_marker.png"
+      }));
       session.drawed = true;
       map.appendViewport(bounds);
       return session.markers;
