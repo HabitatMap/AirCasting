@@ -38,10 +38,6 @@ angular.module('aircasting').factory('drawSession',
     },
 
     drawFixedSession: function(session, bounds) {
-      // if(!session || !session.loaded || !sensors.anySelected()){
-      //   return;
-      // }
-
       if (!session.is_indoor) {
         session.markers = [];
         session.noteDrawings = [];
