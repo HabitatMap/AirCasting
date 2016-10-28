@@ -122,10 +122,7 @@ angular.module("aircasting").factory('fixedSessions',
 
     onSessionsFetch: function() {
       spinner.stopDownloadingSessions();
-      var location = params.get('data').location;
-      if (location.limit || location.address) {
-        this.drawSessionsInLocation();
-      }
+      this.drawSessionsInLocation();
       this.reSelectAllSessions();
       var markerCluster = new MarkerClusterer(map.get(), map.markers,
               {imagePath: '/assets/'});
