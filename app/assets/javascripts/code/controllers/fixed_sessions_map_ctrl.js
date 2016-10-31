@@ -34,6 +34,10 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     });
 
     storage.updateFromDefaults();
+
+    sensors.shouldInitSelected = true;
+    sensors.initSelected();
+
   };
 
   $scope.searchSessions = function() {
