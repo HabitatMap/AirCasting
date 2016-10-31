@@ -1,11 +1,11 @@
 angular.module('aircasting').directive('googlemap', function() {
   return {
     link: function(scope, element, attrs, controller) {
-      // New York
+      // United States
       var point = {
-        lat: 40.6894385,
-        lng: -73.8959434,
-        zoom: 10
+        lat: 37.09024,
+        lng: -95.712891,
+        zoom: 5
       };
 
       var map = scope.map;
