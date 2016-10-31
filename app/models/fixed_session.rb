@@ -41,9 +41,6 @@ class FixedSession < Session
       streams_averages[stream.sensor_name] = measurements.average(:value)
     end
 
-    streaming_sensor = self.measurements.last.stream.sensor_name
-    streams_averages['streaming_sensor'] = streams_averages[streaming_sensor]
-
     streams_averages
   end
 

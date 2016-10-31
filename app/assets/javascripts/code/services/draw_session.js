@@ -41,15 +41,23 @@ angular.module('aircasting').factory('drawSession',
       session.markers = [];
       session.noteDrawings = [];
       session.lines = [];
+      var markerOptions = {title: session.title, zIndex: 0};
+      var level;
 
-      session.markers.push(map.drawMarker(session, {
-        title: session.title,
-        zIndex: 0,
-        icon: "/assets/location_marker.png"
-      }));
+      if (session.last_hour_averages) {
+        level = this.calculateHeatLevel();
+      } else {
+        level = 0;
+      }
+
+      session.markers.push(map.drawMarker(session, markerOptions, null, level));
       session.drawed = true;
       map.appendViewport(bounds);
       return session.markers;
+    },
+
+    calculateHeatLevel: function(value) {
+      sensors.anySelected().sensor_name
     },
 
     undoDraw: function(session, bounds, noMove) {

@@ -121,7 +121,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         }, rectangle);
       });
     },
-    drawMarker: function(latLngObj, optionInput, existingMarker){
+    drawMarker: function(latLngObj, optionInput, existingMarker, level){
       if(!latLngObj) {
         return;
       }
