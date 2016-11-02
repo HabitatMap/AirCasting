@@ -133,7 +133,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         var options = {
           position: latlng,
           zIndex: 300000,
-          icon: "/assets/location_marker.png",
+          icon: "/assets/location_marker" + level+ ".png",
           flat: true,
           session: latLngObj
         };

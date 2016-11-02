@@ -42,10 +42,11 @@ angular.module('aircasting').factory('drawSession',
       session.noteDrawings = [];
       session.lines = [];
       var markerOptions = {title: session.title, zIndex: 0};
-      var level;
+      var sensor_name, level;
 
       if (session.last_hour_averages) {
-        level = this.calculateHeatLevel();
+        sensor_name = sensors.selected().sensor_name;
+        level = this.calculateHeatLevel(session.last_hour_averages[sensor_name]);
       } else {
         level = 0;
       }
@@ -57,7 +58,7 @@ angular.module('aircasting').factory('drawSession',
     },
 
     calculateHeatLevel: function(value) {
-      sensors.anySelected().sensor_name
+      return heat.getLevel(value);
     },
 
     undoDraw: function(session, bounds, noMove) {
