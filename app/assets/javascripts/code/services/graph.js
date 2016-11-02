@@ -224,7 +224,8 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
         {cache: true,
           params: {stream_ids: singleFixedSession.selectedStream().id,
           start_date: Math.round(e.min),
-          end_date: Math.round(e.max)
+          // winter time fix
+          end_date: Math.round(e.max + (60*60*1000))
         }}).success(function(data){
           data = _.extend(singleFixedSession.measurementsToTime(data), final_point);
           self.chart.series[0].setData(_(data).values());
