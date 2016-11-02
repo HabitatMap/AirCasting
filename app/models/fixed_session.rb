@@ -45,8 +45,8 @@ class FixedSession < Session
   end
 
   def streaming?
-    # Lots of sessions will have last_measurement_at as nil
-    (self.last_measurement_at || 1.year.ago) > Time.at(1.hour.ago)
+    return false unless self.last_measurement_at
+    self.last_measurement_at > Time.at(1.hour.ago)
   end
 
   def as_synchronizable
