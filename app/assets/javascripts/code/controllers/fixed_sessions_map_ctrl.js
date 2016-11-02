@@ -1,6 +1,6 @@
 function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, fixedSessions, versioner,
-                         storageEvents, singleFixedSession, functionBlocker, $window, $location,
-                         rectangles, infoWindow, $rootScope) {
+                         storageEvents, singleFixedSession, functionBlocker, $window, $location, spinner,
+                         rectangles, infoWindow, $rootScope, $http) {
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
@@ -45,7 +45,6 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     params.update({'didSessionsSearch': true});
   };
 
-
   //fix for json null parsing
   $scope.$watch("params.get('data').sensorId", function(newValue) {
     if(_(newValue).isNull()){
@@ -54,13 +53,25 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    if(newValue == oldValue){
+    if(newValue == oldValue || !newValue){
       return;
     }
+    params.update({data: {sensorId: newValue}});
+    spinner.show();
+    $http.get('/api/thresholds/' + sensors.selected().sensor_name,
+      {params: {unit_symbol: sensors.selected().unit_symbol}, cache: true}).success($scope.onThresholdsFetch);
     functionBlocker.use("selectedId", function(){
       params.update({sessionsIds: []});
     });
   }, true);
+
+  $scope.onThresholdsFetch = function(data, status, headers, config) {
+    storage.updateDefaults({heat:  heat.parse(data)});
+    functionBlocker.use("heat", function(){
+      params.update({data: {heat: heat.parse(data)}});
+    });
+    spinner.hide();
+  };
 
   $scope.heatUpdateCondition = function() {
     return {sensorId:  sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
@@ -77,5 +88,5 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 }
 FixedSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
    'map', 'sensors', 'expandables', 'storage', 'fixedSessions', 'versioner',
-  'storageEvents', 'singleFixedSession', 'functionBlocker', '$window', "$location",
-  "rectangles", "infoWindow", "$rootScope"];
+  'storageEvents', 'singleFixedSession', 'functionBlocker', '$window', '$location', 'spinner',
+  'rectangles', 'infoWindow', '$rootScope', '$http'];
