@@ -61,6 +61,7 @@ class FixedSession < Session
     opts ||= {}
 
     methods = opts[:methods] || [:notes, :calibration]
+    methods << :last_hour_averages
     methods << :type
     sensor_id = opts.delete(:sensor_id)
 
