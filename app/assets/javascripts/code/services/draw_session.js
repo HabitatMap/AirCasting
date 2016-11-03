@@ -53,7 +53,8 @@ angular.module('aircasting').factory('drawSession',
 
       session.markers.push(map.drawMarker(session, markerOptions, null, level));
       session.drawed = true;
-      map.appendViewport(bounds);
+      if (!session.is_indoor) map.appendViewport(bounds);
+      
       return session.markers;
     },
 

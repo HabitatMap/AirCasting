@@ -41,8 +41,8 @@ ActiveRecord::Schema.define(:version => 20161027090433) do
   add_index "measurements", ["time"], :name => "index_measurements_on_time"
 
   create_table "notes", :force => true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                        :null => false
+    t.datetime "updated_at",                                        :null => false
     t.datetime "date"
     t.text     "text"
     t.decimal  "longitude",          :precision => 12, :scale => 9
@@ -78,8 +78,8 @@ ActiveRecord::Schema.define(:version => 20161027090433) do
   end
 
   create_table "sessions", :force => true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                         :null => false
+    t.datetime "updated_at",                                         :null => false
     t.integer  "user_id"
     t.string   "uuid"
     t.string   "url_token"
@@ -174,8 +174,8 @@ ActiveRecord::Schema.define(:version => 20161027090433) do
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
     t.string   "authentication_token"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                               :null => false
+    t.datetime "updated_at",                                               :null => false
     t.string   "username"
     t.boolean  "send_emails"
     t.boolean  "admin",                                 :default => false
