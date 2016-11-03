@@ -139,6 +139,12 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         return;
       }
       var latlng = new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
+
+      var icon = "/assets/location_marker0.png"
+      if (level) {
+        icon = "/assets/location_marker" + level + ".png";
+      }
+
       var newMarker;
       if(existingMarker){
         newMarker = existingMarker.setPosition(latlng);
@@ -146,7 +152,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         var options = {
           position: latlng,
           zIndex: 300000,
-          icon: "/assets/location_marker" + level+ ".png",
+          icon: icon,
           flat: true,
           session: latLngObj
         };
