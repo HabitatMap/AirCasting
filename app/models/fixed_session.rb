@@ -50,7 +50,9 @@ class FixedSession < Session
   end
 
   def last_hour_average
-    stream = self.streams.first
+    stream = self.streams.length >= 1 ? self.streams.first : nil
+    return unless stream
+
     last_measurement_time = stream.measurements.last.time
     measurements = stream.measurements.where(time: last_measurement_time - 1.hour..last_measurement_time)
     last_hour_average = measurements.average(:value)
