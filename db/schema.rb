@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20161027090433) do
+ActiveRecord::Schema.define(:version => 20161103124035) do
 
   create_table "deleted_sessions", :force => true do |t|
     t.datetime "created_at", :null => false
@@ -32,6 +32,7 @@ ActiveRecord::Schema.define(:version => 20161027090433) do
     t.integer  "stream_id"
     t.integer  "milliseconds",                                   :default => 0
     t.float    "measured_value"
+    t.datetime "created_at"
   end
 
   add_index "measurements", ["latitude"], :name => "index_measurements_on_latitude"
@@ -41,8 +42,8 @@ ActiveRecord::Schema.define(:version => 20161027090433) do
   add_index "measurements", ["time"], :name => "index_measurements_on_time"
 
   create_table "notes", :force => true do |t|
-    t.datetime "created_at",                                        :null => false
-    t.datetime "updated_at",                                        :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.datetime "date"
     t.text     "text"
     t.decimal  "longitude",          :precision => 12, :scale => 9
@@ -78,8 +79,8 @@ ActiveRecord::Schema.define(:version => 20161027090433) do
   end
 
   create_table "sessions", :force => true do |t|
-    t.datetime "created_at",                                         :null => false
-    t.datetime "updated_at",                                         :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "user_id"
     t.string   "uuid"
     t.string   "url_token"
@@ -108,6 +109,7 @@ ActiveRecord::Schema.define(:version => 20161027090433) do
   add_index "sessions", ["contribute"], :name => "index_sessions_on_contribute"
   add_index "sessions", ["end_time"], :name => "index_sessions_on_end_time"
   add_index "sessions", ["end_time_local"], :name => "index_sessions_on_local_end_time"
+  add_index "sessions", ["last_measurement_at"], :name => "index_sessions_on_last_measurement_at"
   add_index "sessions", ["start_time"], :name => "index_sessions_on_start_time"
   add_index "sessions", ["start_time_local"], :name => "index_sessions_on_local_start_time"
   add_index "sessions", ["url_token"], :name => "index_sessions_on_url_token"
@@ -174,8 +176,8 @@ ActiveRecord::Schema.define(:version => 20161027090433) do
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
     t.string   "authentication_token"
-    t.datetime "created_at",                                               :null => false
-    t.datetime "updated_at",                                               :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "username"
     t.boolean  "send_emails"
     t.boolean  "admin",                                 :default => false

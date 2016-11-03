@@ -40,6 +40,17 @@ module Api
         end
       end
 
+      def index_streaming
+        data = decoded_query_data(params[:q])
+
+        begin
+          respond_with FixedSession.filtered_streaming_json(data)
+        rescue WrongCoordinatesError => e
+          error = { error: "Invalid Location" }
+          respond_with error, status: :not_found
+        end
+      end
+
       def show
         session = FixedSession.find(params[:id])
 
@@ -51,7 +62,6 @@ module Api
 
         respond_with FixedSession.selected_sessions_json(data)
       end
-
 
       def create
         if params[:compression]
