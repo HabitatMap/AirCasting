@@ -109,10 +109,6 @@ class Session < ActiveRecord::Base
       sessions = sessions.from_location(data)
     end
 
-    if data[:streaming]
-      sessions = sessions.streaming
-    end
-
     sensor_name = data[:sensor_name]
     if sensor_name.present?
       sessions = sessions.joins(:streams).where(:streams => {:sensor_name =>  sensor_name})
@@ -124,8 +120,7 @@ class Session < ActiveRecord::Base
     end
 
     if data[:time_from] && data[:time_to] && !whole_day?(data[:time_from], data[:time_to])
-      sessions = sessions.
-        local_time_range_by_minutes(data[:time_from], data[:time_to])
+      sessions = sessions.local_time_range_by_minutes(data[:time_from], data[:time_to])
     end
 
     if data[:year_from] && data[:year_to]
@@ -140,10 +135,6 @@ class Session < ActiveRecord::Base
     end
 
     sessions
-  end
-
-  def self.streaming
-    where(last_measurement_at: Time.at(1.hour.ago)..Time.now)
   end
 
   def self.from_location(data)

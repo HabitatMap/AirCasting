@@ -20,6 +20,24 @@ class FixedSession < Session
   validates :is_indoor, inclusion: { in: [true, false] }
   validates :latitude, :longitude, presence: true
 
+  def self.streaming
+    where(last_measurement_at: Time.at(1.hour.ago)..Time.now)
+  end
+
+  def self.filtered_json_fields
+    [:id, :title, :start_time_local, :end_time_local, :is_indoor, :latitude, :longitude]
+  end
+
+  def self.filtered_streaming_json(data)
+    with_user_and_streams
+    .filter(data)
+    .streaming
+    .as_json(
+      only: filtered_json_fields,
+      methods: [:username, :streams, :last_hour_average]
+    )
+  end
+
   def after_measurements_created
     update_end_time!
   end
@@ -31,37 +49,23 @@ class FixedSession < Session
     self.save!
   end
 
-  def last_hour_averages
-    return unless self.streaming?
-    streams_averages = {}
+  def last_hour_average
+    stream = self.streams.first
+    last_measurement_time = stream.measurements.last.time
+    measurements = stream.measurements.where(time: last_measurement_time - 1.hour..last_measurement_time)
+    last_hour_average = measurements.average(:value)
 
-    self.streams.each do |stream|
-      last_measurement_time = stream.measurements.last.time
-      measurements = stream.measurements.where(time: last_measurement_time - 1.hour..last_measurement_time)
-      streams_averages[stream.sensor_name] = measurements.average(:value)
-    end
-
-    streams_averages
-  end
-
-  def streaming?
-    return false unless self.last_measurement_at
-    self.last_measurement_at > Time.at(1.hour.ago)
+    last_hour_average
   end
 
   def as_synchronizable
     as_json(methods: [:streams])
   end
 
-  def self.filtered_json_fields
-    [:id, :title, :start_time_local, :end_time_local, :is_indoor, :latitude, :longitude]
-  end
-
   def as_json(opts=nil)
     opts ||= {}
 
     methods = opts[:methods] || [:notes, :calibration]
-    methods << :last_hour_averages
     methods << :type
     sensor_id = opts.delete(:sensor_id)
 
