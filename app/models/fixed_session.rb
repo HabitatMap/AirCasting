@@ -29,9 +29,9 @@ class FixedSession < Session
   end
 
   def self.filtered_streaming_json(data)
-    with_user_and_streams
+    streaming
+    .with_user_and_streams
     .filter(data)
-    .streaming
     .as_json(
       only: filtered_json_fields,
       methods: [:username, :streams, :last_hour_average]
@@ -53,7 +53,7 @@ class FixedSession < Session
     stream = self.streams.length >= 1 ? self.streams.first : nil
     return unless stream
 
-    last_measurement_time = stream.measurements.last.time
+    last_measurement_time = self.last_measurement_at
     measurements = stream.measurements.where(time: last_measurement_time - 1.hour..last_measurement_time)
     last_hour_average = measurements.average(:value)
 

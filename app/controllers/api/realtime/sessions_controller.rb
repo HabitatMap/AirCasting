@@ -42,6 +42,7 @@ module Api
 
       def index_streaming
         data = decoded_query_data(params[:q])
+        INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
         begin
           respond_with FixedSession.filtered_streaming_json(data)
