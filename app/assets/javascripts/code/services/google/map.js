@@ -57,10 +57,23 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       digester();
     },
     appendViewport: function(obj) {
+      var northeast;
+      var point = {
+        lat: 50.09024,
+        lng: -90.712891
+      };
+
       if(!obj || !(obj.north && obj.east && obj.south && obj.west)) {
         return;
       }
-      var northeast = new google.maps.LatLng(obj.north, obj.east);
+
+      if (obj.north == 200 && obj.east == 200) {
+        // If we refresh with an indoor session selected - go to US
+        northeast = new google.maps.LatLng(point.lat, point.lng);
+      } else {
+        northeast = new google.maps.LatLng(obj.north, obj.east);
+      }
+
       var southwest = new google.maps.LatLng(obj.south, obj.west);
       var bounds = new google.maps.LatLngBounds(southwest, northeast);
       var self = this;
