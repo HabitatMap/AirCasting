@@ -240,7 +240,7 @@ angular.module("aircasting").factory('fixedSessions',
       _(session.streams).extend(streams);
       session.loaded = true;
       if (!markerSelected.get()) {
-        drawSession.drawFixedSession(session, boundsCalculator(this.allSelected()));
+        map.appendViewport(boundsCalculator(this.allSelected()));
       }
       $timeout(function(){
         spinner.hide();
