@@ -245,7 +245,7 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
     },
 
     onMouseOverSingle: function(point) {
-      if (_(singleFixedSession.get()).isEmpty()) {
+      if (!singleFixedSession.isFixed()) {
         graphHighlight.show([point]);
       }
     },
