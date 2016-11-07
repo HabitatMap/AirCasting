@@ -38,6 +38,7 @@ angular.module('aircasting').factory('drawSession',
     },
 
     drawFixedSession: function(session, bounds) {
+      this.undoDraw(session, true);
       session.markers = [];
       session.noteDrawings = [];
       session.lines = [];
