@@ -84,9 +84,9 @@ angular.module('aircasting').factory('drawSession',
       this.clear();
       _(sessions).each(function(session) {
         if (session.type == 'MobileSession') {
-          _(this.drawMobileSession);
+          _(this.drawMobileSession(session));
         } else if (session.type == 'FixedSession') {
-          _(this.drawFixedSession);
+          _(this.drawFixedSession(session));
         } else return;
       }.bind(this));
     },
