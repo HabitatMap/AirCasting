@@ -245,10 +245,9 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
     },
 
     onMouseOverSingle: function(point) {
-      if (!!singleFixedSession.get()) {
-        return;
+      if (_(singleFixedSession.get()).isEmpty()) {
+        graphHighlight.show([point]);
       }
-      graphHighlight.show([point]);
     },
 
     onMouseOverMultiple: function(start, end) {
