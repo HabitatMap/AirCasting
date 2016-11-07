@@ -39,7 +39,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
         }
       }
     },
-    get : function() {
+    get: function() {
       return this.sensors;
     },
     isEmpty: function() {

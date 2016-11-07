@@ -44,7 +44,7 @@ angular.module('aircasting').factory('drawSession',
       var markerOptions = {title: session.title, zIndex: 0};
       var level;
 
-      if (session.last_hour_average && session.last_hour_average !== null) {
+      if (sensors.anySelected() && !sensors.tmpSelected() && session.last_hour_average) {
         level = this.calculateHeatLevel(session.last_hour_average);
       } else {
         level = 0;
