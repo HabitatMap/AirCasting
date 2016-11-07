@@ -159,7 +159,8 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         _(options).extend(optionInput || {});
         newMarker = new google.maps.Marker(options);
         newMarker.addListener('click', function() {
-          $rootScope.$broadcast('selectEvent', {session_id: latLngObj.id});
+          $rootScope.markerSelected = true;
+          $rootScope.$broadcast('markerSelected', {session_id: latLngObj.id});
         });
         newMarker.setMap(this.get());
         this.markers.push(newMarker);

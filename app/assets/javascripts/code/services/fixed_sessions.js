@@ -1,10 +1,10 @@
 angular.module("aircasting").factory('fixedSessions',
        ['params', '$http', 'map', 'note', 'sensors', '$rootScope', 'heat',
        'spinner',  'utils', "$timeout", 'flash', 'sessionsDownloader',
-       'sessionsExporter', 'drawSession', 'boundsCalculator', 'markersClusterer',
+       'sessionsExporter', 'drawSession', 'boundsCalculator', 'markersClusterer', 'markerSelected',
         function(params, $http, map, note, sensors, $rootScope, heat, spinner,
           utils, $timeout, flash, sessionsDownloader, sessionsExporter, drawSession,
-          boundsCalculator, markersClusterer) {
+          boundsCalculator, markersClusterer, markerSelected) {
   var FixedSessions = function() {
     this.sessions = [];
     var self = this;
@@ -28,7 +28,7 @@ angular.module("aircasting").factory('fixedSessions',
       return _(this.get()).pluck("id");
     },
 
-    noOfSelectedSessions : function() {
+    noOfSelectedSessions: function() {
       return this.allSelected().length;
     },
 
@@ -239,7 +239,9 @@ angular.module("aircasting").factory('fixedSessions',
       _(session).extend(data);
       _(session.streams).extend(streams);
       session.loaded = true;
-      drawSession.drawFixedSession(session, boundsCalculator(this.allSelected()));
+      if (!markerSelected.get()) {
+        drawSession.drawFixedSession(session, boundsCalculator(this.allSelected()));
+      }
       $timeout(function(){
         spinner.hide();
       });

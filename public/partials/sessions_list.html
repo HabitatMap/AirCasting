@@ -11,7 +11,7 @@
       <ul>
         <li ng:repeat="session in sessions.get()" ng-class="sessionCssClass(session.$selected)">
           <input type="checkbox" collection-condition="canSelectSession(session.id)" collection="sessionsIds" collection-id="session.id" ng-model="session.$selected" ng-disabled="isSessionDisabled(session.id)">
-          <dl ng-click="toggleSession(session.id)">
+          <dl ng-click="toggleSession(session.id, false)">
             <dt><label class="narrow">{{session.title || 'unnamed' }}</label></dt>
             <dd>
               <label class="narrow">

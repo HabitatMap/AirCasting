@@ -1,11 +1,12 @@
-function SessionsListCtrl($scope, params, map, sensors, storage, flash,
-                          functionBlocker, $window, drawSession, openSensorDialog) {
+function SessionsListCtrl($scope, $rootScope, params, map, sensors, storage, flash,
+                          functionBlocker, $window, drawSession, openSensorDialog, markerSelected) {
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
     $scope.$window = $window;
     $scope.sensors = sensors;
     $scope.page = 0;
+    $scope.markerSelected = markerSelected;
     sessions = $scope.sessions;
     singleSession = $scope.singleSession;
 
@@ -57,6 +58,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
   $scope.sessionRedrawCondition = function() {
     return {id: params.get('tmp').tmpSensorId, heat:  params.get('data').heat };
   };
+
   $scope.$watch("sessionRedrawCondition()", function(newValue) {
     if(!newValue.id && !newValue.heat){
       return;
@@ -64,8 +66,8 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
     drawSession.redraw(sessions.allSelected());
   }, true);
 
-  $scope.$on('selectEvent', function(event, data){
-    $scope.toggleSession(data.session_id);
+  $scope.$on('markerSelected', function(event, data){
+    $scope.toggleSession(data.session_id, true);
   });
 
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
@@ -106,7 +108,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
     return sessions.empty() ? "all" : "none";
   };
 
-  $scope.toggleSession = function(sessionId) {
+  $scope.toggleSession = function(sessionId, markerSelected) {
     if(this.isSessionDisabled(sessionId)){
       flash.set(sessions.scope.canNotSelectSessionWithoutSensorSelected);
       return;
@@ -117,6 +119,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
       session.$selected = false;
     } else if($scope.canSelectSession(sessionId)) {
       params.update({sessionsIds: params.get("sessionsIds", []).concat([sessionId])});
+      $scope.markerSelected.set(markerSelected);
       session.$selected = true;
       $scope.$apply();
     }
@@ -148,5 +151,5 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
 
   $scope.setDefaults();
 }
-SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
-  'flash', 'functionBlocker', '$window', 'drawSession', 'openSensorDialog'];
+SessionsListCtrl.$inject = ['$scope', '$rootScope', 'params', 'map', 'sensors', 'storage',
+  'flash', 'functionBlocker', '$window', 'drawSession', 'openSensorDialog', 'markerSelected'];
