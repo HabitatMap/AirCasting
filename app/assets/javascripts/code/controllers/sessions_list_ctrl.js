@@ -1,4 +1,4 @@
-function SessionsListCtrl($scope, $rootScope, params, map, sensors, storage, flash,
+function SessionsListCtrl($scope, params, map, sensors, storage, flash,
                           functionBlocker, $window, drawSession, openSensorDialog, markerSelected) {
   $scope.setDefaults = function() {
     $scope.params = params;
@@ -151,5 +151,5 @@ function SessionsListCtrl($scope, $rootScope, params, map, sensors, storage, fla
 
   $scope.setDefaults();
 }
-SessionsListCtrl.$inject = ['$scope', '$rootScope', 'params', 'map', 'sensors', 'storage',
+SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
   'flash', 'functionBlocker', '$window', 'drawSession', 'openSensorDialog', 'markerSelected'];
