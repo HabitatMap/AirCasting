@@ -73,6 +73,12 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     spinner.hide();
   };
 
+  $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
+    if (newValue != oldValue) {
+      $scope.sessions.drawSessionsInLocation();
+    }
+  }, true);
+
   $scope.heatUpdateCondition = function() {
     return {sensorId:  sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
   };
@@ -87,6 +93,6 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   $scope.setDefaults();
 }
 FixedSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
-   'map', 'sensors', 'expandables', 'storage', 'fixedSessions', 'versioner',
+  'map', 'sensors', 'expandables', 'storage', 'fixedSessions', 'versioner',
   'storageEvents', 'singleFixedSession', 'functionBlocker', '$window', '$location', 'spinner',
   'rectangles', 'infoWindow', '$rootScope', '$http'];
