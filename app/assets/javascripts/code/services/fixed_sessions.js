@@ -102,19 +102,21 @@ angular.module("aircasting").factory('fixedSessions',
 
       if (page === 0) {
         this.sessions = [];
-        sessionsDownloader('/api/realtime/multiple_sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
-          _(this.onSessionsFetchError).bind(this));
+        this.downloadSessions('/api/realtime/multiple_sessions.json', reqData);
       }
 
       spinner.startDownloadingSessions();
 
       if (data.location.streaming) {
-        sessionsDownloader('/api/realtime/streaming_sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
-          _(this.onSessionsFetchError).bind(this));
+        this.downloadSessions('/api/realtime/streaming_sessions.json', reqData);
       } else {
-        sessionsDownloader('/api/realtime/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
-          _(this.onSessionsFetchError).bind(this));
+        this.downloadSessions('/api/realtime/sessions.json', reqData);
       }
+    },
+
+    downloadSessions: function(url, reqData) {
+      sessionsDownloader(url, reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
+        _(this.onSessionsFetchError).bind(this));
     },
 
     drawSessionsInLocation: function() {
