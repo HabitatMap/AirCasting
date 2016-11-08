@@ -1,7 +1,7 @@
-angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleFixedSession',
-                                     'heat', 'graphHighlight', '$http', 'spinner',
-                                     function($rootScope, sensors, singleFixedSession,
-                                              heat, graphHighlight, $http, spinner) {
+angular.module("aircasting").factory('graph', ['$q', '$rootScope', 'sensors', 'singleFixedSession',
+                                     'heat', 'graphHighlight', '$http', 'spinner', 'promiseStorage',
+                                     function($q, $rootScope, sensors, singleFixedSession,
+                                              heat, graphHighlight, $http, spinner, promiseStorage) {
   var Graph = function(){};
 
   Graph.prototype = {
@@ -218,18 +218,25 @@ angular.module("aircasting").factory('graph', ['$rootScope', 'sensors', 'singleF
       var final_point = {};
       var end_time = new Date(singleFixedSession.endTime()).getTime();
       final_point[end_time + ""] = {x: end_time, y: null, latitude: null, longitude: null};
-
       self.chart.showLoading('Loading data from server...');
-      $http.get('/api/realtime/stream_measurements/',
-        {cache: true,
-          params: {stream_ids: singleFixedSession.selectedStream().id,
-          start_date: Math.round(e.min),
-          // winter time fix
-          end_date: Math.round(e.max + (60*60*1000))
-        }}).success(function(data){
+
+      promiseStorage.push($http.get('/api/realtime/stream_measurements/',
+        {cache: true, params: {stream_ids: singleFixedSession.selectedStream().id,
+                               start_date: Math.round(e.min),
+                               // winter time fix
+                               end_date: Math.round(e.max + (60*60*1000))
+        }}).success(function(data) {
           data = _.extend(singleFixedSession.measurementsToTime(data), final_point);
-          self.chart.series[0].setData(_(data).values());
+          self.chart.series[0].setData(_(data).values(), false);          
+        })
+      );
+
+      $q.all(promiseStorage.get()).then(function() {
+        promiseStorage.clear();
+        self.chart.redraw();
+        if ($http.pendingRequests.length === 0) {
           self.chart.hideLoading();
+        }
       });
     },
 

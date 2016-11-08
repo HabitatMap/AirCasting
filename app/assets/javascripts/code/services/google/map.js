@@ -139,8 +139,8 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
         return;
       }
       var latlng = new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
+      var icon = "/assets/location_marker0.png";
 
-      var icon = "/assets/location_marker0.png"
       if (level) {
         icon = "/assets/location_marker" + level + ".png";
       }
