@@ -56,11 +56,11 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
   };
 
   $scope.sessionRedrawCondition = function() {
-    return {id: params.get('tmp').tmpSensorId, heat:  params.get('data').heat };
+    return {id: params.get('tmp').tmpSensorId, heat: params.get('data').heat };
   };
 
   $scope.$watch("sessionRedrawCondition()", function(newValue) {
-    if(!newValue.id && !newValue.heat){
+    if(singleSession.isFixed() || (!newValue.id && !newValue.heat)){
       return;
     }
     drawSession.redraw(sessions.allSelected());
