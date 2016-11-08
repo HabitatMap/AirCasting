@@ -120,18 +120,18 @@ angular.module("aircasting").factory('fixedSessions',
     },
 
     drawSessionsInLocation: function() {
-      var self = this;
+      map.markers = [];
+      markersClusterer.clear();
+
       _(this.get()).each(function(session) {
-        drawSession.drawFixedSession(session, boundsCalculator(self.get()));
+        drawSession.drawFixedSession(session);
       });
+      markersClusterer.draw(map.get(), map.markers);
     },
 
     onSessionsFetch: function() {
-      map.markers = [];
-      markersClusterer.clear();
       this.drawSessionsInLocation();
       this.reSelectAllSessions();
-      markersClusterer.draw(map.get(), map.markers);
       spinner.stopDownloadingSessions();
     },
 
