@@ -124,7 +124,7 @@ angular.module("aircasting").factory('fixedSessions',
       markersClusterer.clear();
 
       _(this.get()).each(function(session) {
-        drawSession.drawFixedSession(session);
+        drawSession.drawFixedSession(session, boundsCalculator(this.sessions.get()));
       });
       markersClusterer.draw(map.get(), map.markers);
     },
@@ -241,7 +241,7 @@ angular.module("aircasting").factory('fixedSessions',
       _(session).extend(data);
       _(session.streams).extend(streams);
       session.loaded = true;
-      if (!markerSelected.get()) {
+      if (!markerSelected.get() && !session.is_indoor) {
         map.appendViewport(boundsCalculator(this.allSelected()));
       }
       $timeout(function(){
