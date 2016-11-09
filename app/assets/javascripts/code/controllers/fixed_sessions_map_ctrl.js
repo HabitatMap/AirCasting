@@ -86,11 +86,12 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   }, true);
 
   $scope.heatUpdateCondition = function() {
-    return {sensorId:  sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
+    return {sensorId: sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
   };
   $scope.$watch("heatUpdateCondition()", function(newValue, oldValue) {
-    if(newValue.sensorId && newValue.sessionId){
+    if(newValue.sensorId && newValue.sessionId && !$scope.initializing){
       functionBlocker.use("sessionHeat", function(){
+        console.log('here')
         $scope.singleSession.updateHeat();
       });
     }
