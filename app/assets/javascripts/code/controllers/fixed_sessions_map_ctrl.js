@@ -11,6 +11,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     $scope.sessions = fixedSessions;
     $scope.singleSession = singleFixedSession;
     $scope.$window = $window;
+    $scope.initializing = true;
 
     functionBlocker.block("selectedId", !!params.get('data').sensorId);
     functionBlocker.block("sessionHeat", !_(params.get('sessionsIds')).isEmpty());
@@ -52,7 +53,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    if(newValue == oldValue || !newValue || !oldValue){
+    if(newValue == oldValue || !newValue){
       return;
     }
     params.update({data: {sensorId: newValue}});
@@ -67,7 +68,13 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   $scope.onThresholdsFetch = function(data, status, headers, config) {
     storage.updateDefaults({heat: heat.parse(data)});
     functionBlocker.use("heat", function(){
-      params.update({data: {heat: heat.parse(data)}});
+      if (!params.get('data').heat && $scope.initializing) {
+        params.update({data: {heat: heat.parse(data)}});
+      } else if (params.get('data').heat && !$scope.initializing){
+        params.update({data: {heat: heat.parse(data)}});
+      } else {
+        $scope.initializing = false;
+      }
     });
     spinner.hide();
   };
