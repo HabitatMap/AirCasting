@@ -51,7 +51,7 @@ class Measurement < ActiveRecord::Base
       end
     end
   end)
-
+ 
   scope(:with_streams, lambda do |stream_ids|
     where(:stream_id => stream_ids)
   end)
@@ -74,7 +74,7 @@ class Measurement < ActiveRecord::Base
   end
 
   def as_json(options={})
-    super(only: [:time, :value])
+    super(only: [:time, :value, :latitude, :longitude])
   end
 
   def as_indexed_json(options={})
