@@ -1,6 +1,6 @@
 function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, fixedSessions, versioner,
                          storageEvents, singleFixedSession, functionBlocker, $window, $location, spinner,
-                         rectangles, infoWindow, $rootScope, $http) {
+                         rectangles, infoWindow, $http) {
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
@@ -37,7 +37,6 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 
     sensors.shouldInitSelected = true;
     sensors.initSelected();
-
   };
 
   $scope.searchSessions = function() {
@@ -53,7 +52,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    if(newValue == oldValue || !newValue){
+    if(newValue == oldValue || !newValue || !oldValue){
       return;
     }
     params.update({data: {sensorId: newValue}});
@@ -66,7 +65,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   }, true);
 
   $scope.onThresholdsFetch = function(data, status, headers, config) {
-    storage.updateDefaults({heat:  heat.parse(data)});
+    storage.updateDefaults({heat: heat.parse(data)});
     functionBlocker.use("heat", function(){
       params.update({data: {heat: heat.parse(data)}});
     });
@@ -95,4 +94,4 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 FixedSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
   'map', 'sensors', 'expandables', 'storage', 'fixedSessions', 'versioner',
   'storageEvents', 'singleFixedSession', 'functionBlocker', '$window', '$location', 'spinner',
-  'rectangles', 'infoWindow', '$rootScope', '$http'];
+  'rectangles', 'infoWindow', '$http'];
