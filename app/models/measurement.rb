@@ -73,6 +73,10 @@ class Measurement < ActiveRecord::Base
     end
   end
 
+  def as_json(options={})
+    super(only: [:time, :value])
+  end
+
   def as_indexed_json(options={})
     as_json(options).merge(
       day_of_year: time.yday,
