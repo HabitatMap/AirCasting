@@ -70,6 +70,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     functionBlocker.use("heat", function(){
       if (!params.get('data').heat && $scope.initializing) {
         params.update({data: {heat: heat.parse(data)}});
+        $scope.initializing = false;
       } else if (params.get('data').heat && !$scope.initializing){
         params.update({data: {heat: heat.parse(data)}});
       } else {
