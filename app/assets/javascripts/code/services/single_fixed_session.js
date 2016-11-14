@@ -51,7 +51,7 @@ angular.module("aircasting").factory('singleFixedSession',
       var x;
       var result = {};
       // 1 hour subtraction is a quick and dirty fix for the winter time - should be fixed properly
-      var start_date = new Date(this.startTime()).getTime() - (60*60*1000);
+      var start_date = new Date(this.startTime()).getTime();
 
       result[start_date + ""] = {x: start_date, y: null, latitude: null, longitude: null};
 
