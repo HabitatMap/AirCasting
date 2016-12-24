@@ -130,8 +130,11 @@ class Stream < ActiveRecord::Base
       m
     end
 
-    result = Measurement.import measurements
-    raise "Measurement import failed!" unless result.failed_instances.empty?
+    ActiveRecord::Base.transaction do
+      result = Measurement.import measurements
+      raise "Measurement import failed!" unless result.failed_instances.empty?
+    end
+
     Stream.update_counters(self.id, { :measurements_count => measurements.size })
   end
 
