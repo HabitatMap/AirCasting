@@ -25,7 +25,7 @@ describe Api::Realtime::MeasurementsController do
 
     before do
       sign_in(FactoryGirl.create(:user))
-      FactoryGirl.create(:measurement, stream: stream, time: now)
+      FactoryGirl.create(:measurement, stream: stream, time: now, latitude: 11.12, longitude: 50.1234, value: 12.3456)
       FactoryGirl.create(:measurement, stream: stream, time: now - 3.days)
     end
 
