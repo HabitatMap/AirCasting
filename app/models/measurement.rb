@@ -51,7 +51,7 @@ class Measurement < ActiveRecord::Base
       end
     end
   end)
- 
+
   scope(:with_streams, lambda do |stream_ids|
     where(:stream_id => stream_ids)
   end)
@@ -71,10 +71,6 @@ class Measurement < ActiveRecord::Base
     if time_before_type_cast
       self.timezone_offset = time_before_type_cast.to_datetime.utc_offset / SECONDS_IN_MINUTE
     end
-  end
-
-  def as_json(options={})
-    super(only: [:time, :value, :latitude, :longitude])
   end
 
   def as_indexed_json(options={})

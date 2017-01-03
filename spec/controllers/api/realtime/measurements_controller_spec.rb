@@ -19,6 +19,35 @@
 require 'spec_helper'
 
 describe Api::Realtime::MeasurementsController do
+  describe 'GET #stream_measurements' do
+    let(:now) { Time.parse('2017-01-03T16:58:18Z') }
+    let(:stream) { FactoryGirl.create(:stream) }
+
+    before do
+      sign_in(FactoryGirl.create(:user))
+      FactoryGirl.create(:measurement, stream: stream, time: now)
+      FactoryGirl.create(:measurement, stream: stream, time: now - 3.days)
+    end
+
+    it 'returns measurements in specified period' do
+      get :stream_measurements,
+        format: :json,
+        stream_ids: [stream.id],
+        start_date: ((now - 2.hours).to_i)*1000,
+        end_date: ((now + 2.hours).to_i)*1000
+
+      expect(response.status).to eq 200
+      expect(json_response).to eq [
+        {
+          "latitude"=>"11.12",
+          "longitude"=>"50.1234",
+          "time"=>"2017-01-03T16:58:18Z",
+          "value"=>12.3456
+        },
+      ]
+    end
+  end
+
   describe 'POST #create' do
     subject { post :create, data: data }
 

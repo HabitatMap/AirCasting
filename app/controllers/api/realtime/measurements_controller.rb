@@ -29,7 +29,7 @@ module Api
 
         measurements = Measurement.with_streams(params[:stream_ids]).where(time: start_date..end_date)
 
-        respond_with measurements.as_json
+        respond_with MeasurementPresenter.collection(measurements).as_json
       end
 
       def create
