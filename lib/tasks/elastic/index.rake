@@ -10,7 +10,9 @@ namespace :elastic do
         ActiveRecord::Base.logger = Logger.new(STDOUT)
 
         Stream.pluck(:id).reverse.with_progress do |stream_id|
-          stream = Stream.find(stream_id)
+          stream = Stream.find_by(id: stream_id)
+          next unless stream
+
           index_name = "#{stream.measurement_type.parameterize.underscore}_#{stream.sensor_name.parameterize.underscore}"
           Elastic::Measurement.create_index!(index: index_name)
           Elastic::Measurement.import(index: index_name, query: -> { where(stream_id: stream_id) })
