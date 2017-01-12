@@ -158,19 +158,6 @@ class Stream < ActiveRecord::Base
     super(opts.merge(:methods => methods))
   end
 
-  def calc_bounding_box!
-    self.min_latitude = measurements.minimum(:latitude)
-    self.max_latitude = measurements.maximum(:latitude)
-    self.min_longitude = measurements.minimum(:longitude)
-    self.max_longitude = measurements.maximum(:longitude)
-    save!
-  end
-
-  def calc_average_value!
-    self.average_value = measurements.average(:value)
-    save!
-  end
-
   def after_measurements_created
     self.session.after_measurements_created
   end

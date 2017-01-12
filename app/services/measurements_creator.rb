@@ -11,12 +11,20 @@ class MeasurementsCreator
     end
   end
 
+  def initialize(streams_repository = StreamsRepository.new)
+    @streams_repository = streams_repository
+  end
+
   def call(stream, measurements_attributes)
     stream.build_measurements!(measurements_attributes)
     stream.after_measurements_created
 
     return if stream.session.type == 'FixedSession'
-    stream.calc_bounding_box!
-    stream.calc_average_value!
+    streams_repository.calc_bounding_box!(stream)
+    streams_repository.calc_average_value!(stream)
   end
+
+  private
+
+  attr_reader :streams_repository
 end
