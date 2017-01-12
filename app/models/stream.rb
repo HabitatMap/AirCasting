@@ -17,7 +17,6 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class Stream < ActiveRecord::Base
-  SLICE_SIZE = 500
   belongs_to :session
 
   has_many :measurements, :dependent => :delete_all
@@ -107,18 +106,14 @@ class Stream < ActiveRecord::Base
   def self.build!(data = {})
     measurements = data.delete(:measurements)
     stream = create!(data)
-    measurements.each_slice(SLICE_SIZE) do |meas|
-      StreamsWorker.perform_async(meas, stream.id)
-    end
+    MeasurementsCreator.call(stream, measurements)
     stream
   end
 
   def self.build_or_update!(data = {})
-    measurements = data.delete(:measurements)
+    measurements_attributes = data.delete(:measurements)
     stream = where(data).first_or_create!
-    measurements.each_slice(SLICE_SIZE) do |meas|
-      StreamsWorker.perform_async(meas, stream.id)
-    end
+    MeasurementsCreator.call(stream, measurements_attributes)
     stream
   end
 

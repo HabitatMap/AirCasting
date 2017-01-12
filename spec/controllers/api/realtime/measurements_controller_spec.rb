@@ -80,7 +80,7 @@ describe Api::Realtime::MeasurementsController do
       end
 
       it 'runs the background worker to create measurement' do
-        StreamsWorker.should_receive(:perform_async).once
+        AsyncMeasurementsCreator.should_receive(:perform_async).once
         subject
       end
     end
