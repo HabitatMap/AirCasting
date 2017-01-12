@@ -79,8 +79,8 @@ describe Api::Realtime::MeasurementsController do
         expect { subject }.to change(Stream, :count).by(1)
       end
 
-      it 'runs the background worker to create measurement' do
-        AsyncMeasurementsCreator.should_receive(:perform_async).once
+      it 'creates measurement' do
+        MeasurementsCreator.should_receive(:call).once
         subject
       end
     end
