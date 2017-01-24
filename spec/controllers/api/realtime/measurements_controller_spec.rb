@@ -77,6 +77,12 @@ describe Api::Realtime::MeasurementsController do
 
       it 'creates stream' do
         expect { subject }.to change(Stream, :count).by(1)
+        expect(Stream.first.attributes).to include(
+          "max_latitude" => 56.4523456,
+          "min_latitude" => 56.4523456,
+          "min_longitude" => 25.4356212,
+          "max_longitude" => 25.4356212,
+        )
       end
 
       it 'creates measurement' do

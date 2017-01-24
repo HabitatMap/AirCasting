@@ -112,7 +112,13 @@ class Stream < ActiveRecord::Base
 
   def self.build_or_update!(data = {})
     measurements_attributes = data.delete(:measurements)
-    stream = where(data).first_or_create!
+    stream = where(data).first_or_initialize
+    latitude = measurements_attributes.first.fetch(:latitude)
+    longitude = measurements_attributes.first.fetch(:longitude)
+
+    stream.set_bounding_box(latitude, longitude) unless stream.has_bounds?
+    stream.save!
+
     MeasurementsCreator.call(stream, measurements_attributes)
     stream
   end
@@ -160,5 +166,19 @@ class Stream < ActiveRecord::Base
 
   def after_measurements_created
     self.session.after_measurements_created
+  end
+
+  def set_bounding_box(latitude, longitude)
+    self.min_latitude = latitude
+    self.max_latitude = latitude
+    self.min_longitude = longitude
+    self.max_longitude = longitude
+  end
+
+  def has_bounds?
+    max_latitude.present? &&
+    min_latitude.present? &&
+    max_longitude.present? &&
+    min_longitude.present?
   end
 end
