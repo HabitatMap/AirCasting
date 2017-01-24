@@ -5,7 +5,7 @@ module Elastic
     sidekiq_options retry: false, unique: true,
       unique_unlock_order: :never, unique_job_expiration: 1.minutes
 
-    Client = Elasticsearch::Client.new(host: 'localhost:9200', logger: Sidekiq.logger)
+    Client = Elasticsearch::Client.new(host: 'localhost:9200', logger: Sidekiq.logger, request_timeout: 5*60)
 
     def perform(stream_id, operation)
       return unless Feature[:elasticsearch].enabled?
