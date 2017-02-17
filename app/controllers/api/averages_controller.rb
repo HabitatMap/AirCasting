@@ -51,7 +51,7 @@ module Api
       if Feature[:elasticsearch].enabled?
         begin
           respond_with Elastic::AverageInfo.new(data)
-        rescue Faraday::TimeoutError, Timeout::Error
+        rescue Faraday::ConnectionFailed
           respond_with AverageInfo.new(data)
         end
       else
