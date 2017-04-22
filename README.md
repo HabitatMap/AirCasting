@@ -75,7 +75,7 @@ Read more [here](doc/elasticsearch.md).
 
 Read more [here](doc/api.md).
 
-###Troubleshooting
+### Troubleshooting
 
 * `Mysql2::Error: All parts of a PRIMARY KEY must be NOT NULL; if you need
 NULL in a key, use UNIQUE instead (...)`
