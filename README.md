@@ -75,6 +75,11 @@ Read more [here](doc/elasticsearch.md).
 
 Read more [here](doc/api.md).
 
+### Assets version bumping
+
+Whenever changing code tounching google maps, the `data-version` attribute in `app/views/layouts/map.html.haml` should
+be bumped. This ensures that the assets will reload correctly.
+
 ### Troubleshooting
 
 * `Mysql2::Error: All parts of a PRIMARY KEY must be NOT NULL; if you need
