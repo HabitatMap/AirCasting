@@ -10,7 +10,7 @@ gem 'coffee-script-source', '1.1.2'
 gem 'newrelic_rpm', '~> 3.14', '>= 3.14.0.305'
 gem 'honeybadger', '~> 2.0'
 gem 'activeadmin'
-gem 'sidekiq', '~> 3.1.4'
+gem 'sidekiq', '< 4'
 gem 'sidekiq-unique-jobs', '3.0.12'
 gem 'colored', require: false
 gem 'progress', require: false
