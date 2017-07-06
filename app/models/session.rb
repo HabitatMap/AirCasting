@@ -213,9 +213,10 @@ class Session < ActiveRecord::Base
 
     map_of_streams = {}
     strs = sensor_id ? streams.where(sensor_name: sensor_id) : streams.all
+
     strs.each do |stream|
-      if with_measurements
-        map_of_streams[stream.sensor_name] = stream.as_json(:methods => [:measurements])
+      if opts[:stream_measurements]
+        map_of_streams[stream.sensor_name] = stream.as_json(methods: [:measurements])
       else
         map_of_streams[stream.sensor_name] = stream.as_json
       end

@@ -69,7 +69,7 @@ module Api
     def show
       session = MobileSession.find(params[:id])
 
-      respond_with session, :sensor_id => params[:sensor_id], :methods => [:measurements, :notes]
+      respond_with session, :sensor_id => params[:sensor_id], :methods => [:notes], :stream_measurements => true
     end
 
     def export

@@ -4,6 +4,9 @@ Every response is returned in JSON format.
 
 ## GET /api/sessions
 
+**Remember:** this call will not return measurements data for requested sessions. To do that, use the single session
+endpoint below, i.e. `/api/sessions/:id`
+
 ### Parameters
 
 | name           | type              | default value |
@@ -26,7 +29,6 @@ Every response is returned in JSON format.
 | q[west]        | number, -180..180 |               |
 | q[north]       | number, -90..90   |               |
 | q[south]       | number, -90..90   |               |
-| q[measurements]| true,false        | false         |
 
 ### Example URL
 
@@ -65,19 +67,6 @@ curl http://aircasting.org/api/sessions.json?page=0&page_size=50&q[measurements]
         "threshold_very_low": 0,
         "unit_name": "micrograms per cubic meter",
         "unit_symbol": "µg/m³",
-        "measurements": [
-          {
-            "id": 56292378,
-            "latitude": "39.68352651",
-            "longitude": "-104.89157664",
-            "measured_value": 2.69,
-            "milliseconds": 31,
-            "stream_id": 26343,
-            "time": "2015-09-09T17:19:18Z",
-            "timezone_offset": 0,
-            "value": 2.69
-          }
-        ],
         "size": 1814
       }
     }
