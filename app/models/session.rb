@@ -216,7 +216,7 @@ class Session < ActiveRecord::Base
 
     strs.each do |stream|
       if opts[:stream_measurements]
-        map_of_streams[stream.sensor_name] = stream.as_json(methods: [:measurements])
+        map_of_streams[stream.sensor_name] = stream.as_json(include: { measurements: { only: [:time, :value, :latitude, :longitude] } })
       else
         map_of_streams[stream.sensor_name] = stream.as_json
       end
