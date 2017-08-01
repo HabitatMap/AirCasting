@@ -18,7 +18,7 @@
 
 class MobileSession < Session
   def as_synchronizable
-    as_json(:methods => [:streams, :measurements])
+    as_json(methods: [:streams], stream_measurements: true)
   end
 
   def self.filtered_json_fields

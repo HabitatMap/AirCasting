@@ -206,7 +206,6 @@ class Session < ActiveRecord::Base
 
     methods = opts[:methods] || [:notes, :calibration]
     methods << :type
-    with_measurements = opts[:methods].delete(:measurements)
     sensor_id = opts.delete(:sensor_id)
 
     res = super(opts.merge(:methods => methods))
