@@ -173,7 +173,6 @@ class Session < ActiveRecord::Base
 
   def self.session_methods(data)
     methods = [:username, :streams]
-    methods << :measurements if data[:measurements]
     methods
   end
 
