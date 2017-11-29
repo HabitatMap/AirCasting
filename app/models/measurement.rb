@@ -56,6 +56,10 @@ class Measurement < ActiveRecord::Base
     where(:stream_id => stream_ids)
   end)
 
+  scope(:last_24_hours, lambda do |stream_ids|
+    with_streams(stream_ids).order("time DESC").limit(1440)
+  end)
+
   scope(:in_rectangle, lambda do |data|
     latitude_range(data[:south], data[:north]).
       longitude_range(data[:west], data[:east])

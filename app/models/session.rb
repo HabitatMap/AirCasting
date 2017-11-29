@@ -214,7 +214,13 @@ class Session < ActiveRecord::Base
 
     strs.each do |stream|
       if opts[:stream_measurements]
-        map_of_streams[stream.sensor_name] = stream.as_json(include: { measurements: { only: [:time, :value, :latitude, :longitude] } })
+        if type == "FixedSession"
+          stream_json = stream.as_json
+          last_day_measurements = Measurement.unscoped.last_24_hours([stream.id]).reverse.as_json
+          map_of_streams[stream.sensor_name] = stream_json.merge(measurements: last_day_measurements).as_json
+        else
+          map_of_streams[stream.sensor_name] = stream.as_json(include: { measurements: { only: [:time, :value, :latitude, :longitude] } })
+        end
       else
         map_of_streams[stream.sensor_name] = stream.as_json
       end
