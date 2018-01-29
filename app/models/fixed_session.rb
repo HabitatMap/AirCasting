@@ -60,8 +60,12 @@ class FixedSession < Session
     last_hour_average
   end
 
-  def as_synchronizable(stream_measurements=false)
-    as_json(methods: [:streams], stream_measurements: stream_measurements)
+  def as_synchronizable(stream_measurements=false, last_measurement_sync=nil)
+    as_json(
+      methods: [:streams],
+      stream_measurements: stream_measurements,
+      last_measurement_sync: last_measurement_sync
+    )
   end
 
   def as_json(opts=nil)

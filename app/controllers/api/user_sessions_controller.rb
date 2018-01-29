@@ -17,7 +17,6 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class Api::UserSessionsController < Api::BaseController
-
   before_filter :authenticate_user!
 
   respond_to :json
@@ -92,5 +91,4 @@ class Api::UserSessionsController < Api::BaseController
       note.as_json.merge(:photo_location => photo_location(note))
     end
   end
-
 end

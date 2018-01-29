@@ -22,6 +22,7 @@ class Measurement < ActiveRecord::Base
   include AirCasting::FilterRange
 
   Y_SIZES = (1..300).map { |i| 1.2 ** i * 0.000001 }
+  FIXED_MEASUREMENTS_IN_A_DAY = 1440
   SECONDS_IN_MINUTE = 60
 
   # belongs_to :session, :through => :stream, :inverse_of => :measurements, :counter_cache => true
@@ -57,7 +58,12 @@ class Measurement < ActiveRecord::Base
   end)
 
   scope(:last_24_hours, lambda do |stream_ids|
-    with_streams(stream_ids).order("time DESC").limit(1440)
+    with_streams(stream_ids).order("time DESC").limit(FIXED_MEASUREMENTS_IN_A_DAY)
+  end)
+
+  scope(:since, lambda do |data|
+    since_date = data[:since_date] + 1.second # to eliminate already sent measurements
+    with_streams(data[:stream_id]).order("time DESC").where(time: since_date..DateTime.current)
   end)
 
   scope(:in_rectangle, lambda do |data|

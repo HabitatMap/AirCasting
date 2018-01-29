@@ -19,6 +19,8 @@
 module Api
   module Realtime
     class SessionsController < BaseController
+      require 'uri'
+
       INT_Q_ATTRS = [:time_from, :time_to, :day_from, :day_to]
 
       before_filter :authenticate_user!, only: :create
@@ -56,6 +58,16 @@ module Api
         session = FixedSession.find(params[:id])
 
         respond_with session, sensor_id: params[:sensor_id], methods: [:notes]
+      end
+
+      def sync_measurements
+        session = FixedSession.find_by_uuid(params[:uuid]) or raise NotFound
+        last_measurement_sync = URI.decode(params[:last_measurement_sync]).to_datetime
+        stream_measurements = true
+
+        response = session.as_synchronizable(stream_measurements, last_measurement_sync)
+
+        respond_with response
       end
 
       def show_multiple
