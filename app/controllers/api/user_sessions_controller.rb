@@ -30,15 +30,19 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def show
-    session = current_user.sessions.find_by_id(params[:id]) or raise NotFound
-    stream_measurements = params[:stream_measurements]
+    if request.user_agent =~ /Apache-HttpClient/i 
+      session = current_user.sessions.find_by_id(params[:id]) or raise NotFound
+      stream_measurements = params[:stream_measurements]
 
-    response = session.as_synchronizable(stream_measurements).
-      merge(:location => short_session_url(session, :host => AppConfig.host)).
-      merge(:tag_list => session.tag_list.join(" ")).
-      merge(:notes => prepare_notes(session.notes))
+      response = session.as_synchronizable(stream_measurements).
+        merge(:location => short_session_url(session, :host => AppConfig.host)).
+        merge(:tag_list => session.tag_list.join(" ")).
+        merge(:notes => prepare_notes(session.notes))
 
-    respond_with response
+      respond_with response
+    else
+      render :json => {:success => false, :endpoint_disabled => true}
+    end
   end
 
   def delete_session
