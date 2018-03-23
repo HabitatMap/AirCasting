@@ -50,6 +50,11 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     if(!newValue){
       return;
     }
+
+    var sensor = sensors.findSensorById(newValue);
+    var parameterForSensor = sensors.findParameterForSensor(sensor);
+    sensors.selectedParameter = parameterForSensor;
+
     params.update({data: {sensorId: newValue}});
     spinner.show();
     $http.get('/api/thresholds/' + sensors.selected().sensor_name, {params: {unit_symbol: sensors.selected().unit_symbol}, cache: true}).success($scope.onThresholdsFetch);
@@ -123,6 +128,14 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     infoWindow.show("/api/region", paramsToSend, rectangles.position(rectangleData));
     $scope.$digest();
   };
+
+  $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
+    if (newValue) {
+      sensors.availableSensors = _(sensors.sensors).filter(function(sensor) { return sensor["measurement_type"] == newValue["id"]})
+    } else {
+      sensors.availableSensors = sensors.sensors
+    }
+  }, true)
 
   $scope.setDefaults();
 }
