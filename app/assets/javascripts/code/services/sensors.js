@@ -5,7 +5,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     this.sensors = {};
     this.tmpSensorId = undefined;
     this.shouldInitSelected = false;
-    this.defaultSensor = "Particulate Matter-AirBeam-PM (µg/m³)"
+    this.defaultSensor = "Particulate Matter-AirBeam2-PM2.5 (µg/m³)"
   };
   Sensors.prototype = {
     onSensorsFetch : function(data, status, headers, config) {
