@@ -36,6 +36,7 @@ AirCasting.iws
 .ruby-gemset
 config/deploy/*.rb
 config/newrelic.yml
+config/secrets.yml
 
 analyzing/
 config/rails_best_practices.yml

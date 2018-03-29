@@ -87,5 +87,7 @@ module AirCasting
 
     # Observers
     config.active_record.observers = ['Elastic::StreamObserver']
+
+    config.secrets = YAML.load_file(Rails.root.join('config', 'secrets.yml'))
   end
 end

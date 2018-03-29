@@ -189,7 +189,7 @@ GEM
       sexp_processor (~> 4.4)
     formtastic (2.2.1)
       actionpack (>= 3.0)
-    geocoder (1.2.12)
+    geocoder (1.4.7)
     gsl (2.1.0.1)
     guard (1.6.2)
       listen (>= 0.6.0)
