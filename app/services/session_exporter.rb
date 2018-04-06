@@ -1,3 +1,5 @@
+require 'csv'
+
 class SessionExporter
   def initialize(session)
     @session = session
