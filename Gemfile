@@ -43,10 +43,6 @@ end
 gem 'acts-as-taggable-on', '~> 2.3.3'
 gem 'geocoder', '~> 1.2'
 
-gem 'rails-patch-json-encode', '0.2.0'
-gem 'oj'
-gem 'oj_mimic_json'
-
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
