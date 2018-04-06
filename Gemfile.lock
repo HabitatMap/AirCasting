@@ -296,6 +296,8 @@ GEM
     netrc (0.10.3)
     newrelic_rpm (3.14.0.305)
     nokogiri (1.5.6)
+    oj (3.5.0)
+    oj_mimic_json (1.0.1)
     open4 (1.3.0)
     orm_adapter (0.0.7)
     paperclip (2.8.0)
@@ -344,6 +346,8 @@ GEM
       rails-assets-angular (= 1.2.29)
     rails-assets-underscore (1.8.3)
     rails-assets-underscore.string (2.4.0)
+    rails-patch-json-encode (0.2.0)
+      multi_json (~> 1.0, >= 1.9.3)
     rails_best_practices (1.15.7)
       activesupport
       code_analyzer (>= 0.4.3)
@@ -518,6 +522,8 @@ DEPENDENCIES
   metric_fu
   mysql2
   newrelic_rpm (~> 3.14, >= 3.14.0.305)
+  oj
+  oj_mimic_json
   paperclip (~> 2.8.0)
   progress
   pry-byebug
@@ -529,6 +535,7 @@ DEPENDENCIES
   rails-assets-angular-route (~> 1.2.29)!
   rails-assets-underscore (~> 1.8.3)!
   rails-assets-underscore.string (~> 2.4.0)!
+  rails-patch-json-encode (= 0.2.0)
   rainbows
   rake (= 10.0.3)
   rb-gsl (= 1.16.0.6)
