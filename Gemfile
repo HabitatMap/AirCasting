@@ -28,6 +28,8 @@ gem 'flipper-redis', FLIPPER_VERSION
 gem 'flipper-ui', FLIPPER_VERSION
 gem 'sinatra', require: false
 
+gem 'oj'
+
 gem 'mysql2'
 gem 'thin', '~> 1.6', '>= 1.6.4'
 
