@@ -39,12 +39,15 @@ end
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
-  gem 'capistrano'
+  gem 'capistrano', '3.3.5'
+  gem 'capistrano-bundler', require: false
   gem 'capistrano-ext'
-  gem 'capistrano-sidekiq'
-  gem 'capistrano-unicorn', require: false
+  gem 'capistrano-rails', require: false
+  gem 'capistrano-rbenv', require: false
+  gem 'capistrano-rvm', require: false
+  gem 'capistrano-sidekiq', require: false
+  gem 'capistrano3-unicorn', require: false
   gem 'pry-byebug'
-  gem 'rvm-capistrano', require: false
 end
 
 group :test, :development do
