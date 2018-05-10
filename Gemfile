@@ -33,6 +33,8 @@ gem 'oj'
 gem 'mysql2'
 gem 'thin', '~> 1.6', '>= 1.6.4'
 
+gem 'rack-cors', require: 'rack/cors'
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets, :development do

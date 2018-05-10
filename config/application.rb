@@ -89,5 +89,16 @@ module AirCasting
     config.active_record.observers = ['Elastic::StreamObserver']
 
     config.secrets = YAML.load_file(Rails.root.join('config', 'secrets.yml'))
+
+    config.middleware.insert_before 0, "Rack::Cors", debug: false, logger: (-> { Rails.logger } ) do
+      allow do
+        origins '*'
+
+        resource '/api/*',
+          headers: :any,
+          methods: [:get, :post, :patch, :delete, :put, :options, :head],
+          max_age: 0
+      end
+    end
   end
 end
