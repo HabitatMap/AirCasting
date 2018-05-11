@@ -98,6 +98,12 @@ module AirCasting
           headers: :any,
           methods: [:get, :post, :patch, :delete, :put, :options, :head],
           max_age: 0
+
+        resource '/autocomplete/*',
+          headers: :any,
+          methods: [:get, :post, :patch, :delete, :put, :options, :head],
+          max_age: 0
+
       end
     end
   end
