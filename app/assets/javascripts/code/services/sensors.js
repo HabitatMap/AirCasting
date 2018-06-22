@@ -6,8 +6,8 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     this.sensors = {};
     this.tmpSensorId = undefined;
     this.shouldInitSelected = false;
-    // this.defaultSensor = "AirBeam2-PM2.5 (µg/m³)"
-    this.defaultSensor = "Particulate Matter - PPD42NS (TtPPCF)"; // FIXME
+    this.defaultSensor = "Particulate Matter - AirBeam2-PM2.5 (µg/m³)";
+
     this.availableSensors = {};
     this.defaultParameter = {id: "Particulate Matter", label: "Particulate Matter"};
     this.selectedParameter = {};
