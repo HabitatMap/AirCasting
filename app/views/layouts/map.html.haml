@@ -3,7 +3,7 @@
   %head
     %title AirCasting
     = stylesheet_link_tag    "application"
-    = javascript_include_tag "http://maps.googleapis.com/maps/api/js?sensor=true"
+    = javascript_include_tag "http://maps.googleapis.com/maps/api/js?key=#{Rails.application.config.secrets.fetch('GOOGLE_MAPS_API_KEY')}"
     = favicon_link_tag "favicon.png"
     = csrf_meta_tags
     = render :partial => 'shared/analytics'
