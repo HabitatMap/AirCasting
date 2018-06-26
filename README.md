@@ -67,20 +67,6 @@ Read more [here](doc/api.md).
 Whenever changing code tounching google maps, the `data-version` attribute in `app/views/layouts/map.html.haml` should
 be bumped. This ensures that the assets will reload correctly.
 
-## Troubleshooting
-
-* `Mysql2::Error: All parts of a PRIMARY KEY must be NOT NULL; if you need
-NULL in a key, use UNIQUE instead (...)`
-
- If you see this error, you need to downgrade MySql database server to ver. 5.6. We don't support the latest MySql server version yet.
-
-* `Library not loaded: /usr/local/opt/mysql/lib/libmysqlclient.20.dylib`
-
- If you get this error while attempting `rake db:migrate`, reinstall gem mysql2:
-
- `gem uninstall mysql2`
- `gem install mysql2 -v '0.3.20'`
-
 ## Importing a big db dump to a server, i.e. staging
 
 For restoring a big db dump you can try to opitimize a process by changing the database configuration temporarily.
