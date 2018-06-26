@@ -54,10 +54,6 @@ bundle exec rspec
 bundle exec rake spec:javascript
 ```
 
-## ElasticSearch
-
-Read more [here](doc/elasticsearch.md).
-
 ## API documentation
 
 Read more [here](doc/api.md).
