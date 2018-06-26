@@ -39,3 +39,5 @@ config/secrets.yml
 analyzing/
 config/rails_best_practices.yml
 .jhw-cache
+
+config/initializers/mysql2_adapter.rb
