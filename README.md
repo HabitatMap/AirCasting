@@ -86,6 +86,42 @@ source file.sql --Import your sql dump file
 SET foreign_key_checks = 1; --Remember to enable foreign key checks when procedure is complete!
 ```
 
+## Troubleshooting
+
+In case you encounter a similar error
+
+```
+Mysql2::Error: Expression #3 of SELECT list is not in GROUP BY clause and contains nonaggregated column ...
+```
+
+please check if any of these files
+
+- /etc/my.cnf
+- /etc/mysql/my.cnf
+- /usr/local/etc/my.cnf
+- ~/.my.cnf
+
+contain `sql_mode = "..."`. If that's the case, make sure to remove `ONLY_FULL_GROUP_BY` from the string. Otherwise, just add
+
+```
+sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+```
+
+to any existing configuration file. If none exists just create `~/.my.cnf` as follows
+
+```
+[mysqld]
+sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+```
+
+To double check the configuration works
+
+```bash
+bundle exec rails c
+ActiveRecord::Base.connection.execute("show variables like 'sql_mode'").to_a
+# the return value should not contain ONLY_FULL_GROUP_BY
+```
+
 ## Contribute
 
 If you'd like to contribute just use the usual github process - fork, make changes, issue a pull request.
