@@ -7,7 +7,6 @@ angular.module("aircasting").factory('fixedSessions',
           boundsCalculator, markersClusterer, markerSelected) {
   var FixedSessions = function() {
     this.sessions = [];
-    var self = this;
     this.scope = $rootScope.$new();
     this.scope.params = params;
     this.scope.canNotSelectSessionWithSensorSelected = "You can't select multiple fixed-location sessions";

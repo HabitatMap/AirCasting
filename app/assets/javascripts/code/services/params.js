@@ -1,7 +1,6 @@
 angular.module("aircasting").factory('params', ['$location', '$rootScope', 'utils',
                                      function($location, $rootScope, utils) {
   var Params = function() {
-    var self = this;
     this.scope = $rootScope.$new();
     //set init params
     this.init($location.search());
@@ -28,7 +27,6 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
       return result;
     },
     update: function(newParams) {
-      var self = this;
       var newData = utils.merge(this.paramsData || {}, newParams);
       this.paramsData = angular.copy(newData);
       _(newData).each(function(value, key){
