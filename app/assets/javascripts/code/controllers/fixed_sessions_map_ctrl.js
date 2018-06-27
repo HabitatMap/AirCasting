@@ -47,12 +47,14 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 
   //fix for json null parsing
   $scope.$watch("params.get('data').sensorId", function(newValue) {
+    console.log("watch - params.get('data').sensorId");
     if(_(newValue).isNull()){
       params.update({data: {sensorId: ""}});
     }
   }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
+    console.log("watch - sensors.selectedId()");
     if(newValue == oldValue || !newValue){
       return;
     }
@@ -81,6 +83,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   };
 
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
+    console.log("watch - params.get('data').heat");
     if (newValue != oldValue) {
       $scope.sessions.drawSessionsInLocation();
     }
@@ -90,6 +93,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     return {sensorId: sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
   };
   $scope.$watch("heatUpdateCondition()", function(newValue, oldValue) {
+    console.log("watch - heatUpdateCondition()");
     if(newValue.sensorId && newValue.sessionId && !$scope.initializing){
       functionBlocker.use("sessionHeat", function(){
         $scope.singleSession.updateHeat();

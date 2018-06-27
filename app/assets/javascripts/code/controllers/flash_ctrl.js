@@ -1,6 +1,7 @@
 function FlashCtrl($scope, flash,  $timeout) {
   $scope.flash = flash;
   $scope.$watch("flash.message", function(newValue){
+    console.log("watch - flash.message");
     if(newValue){
       $timeout($scope.clear, 5000);
     }

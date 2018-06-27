@@ -12,14 +12,17 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
   }
 
   $scope.$watch('sensors.anySelected()', function() {
+    console.log('watch - sensors.anySelected()');
     updateExpanded();
   });
 
   $scope.$watch('singleSession.isSingle()', function() {
+    console.log('watch - singleSession.isSingle()');
     updateExpanded();
   });
 
   $scope.$watch('singleSession.get().loaded', function() {
+    console.log('watch - singleSession.get().loaded');
     if ($scope.expanded && !_.isEmpty(singleSession.measurements())) {
       $scope.redraw();
     }
@@ -29,6 +32,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
     return $scope.expanded ? "" : "collapsed";
   };
   $scope.$watch("expanded", function(expanded) {
+    console.log("watch - expanded");
     if(!expanded){
       graphHighlight.hide();
     } else {
@@ -59,6 +63,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
   };
 
   $scope.$watch("heat.getValues()", function() {
+    console.log("watch - heat.getValues()");
     if($scope.shouldRedraw()){
       $scope.redraw();
     }

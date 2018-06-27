@@ -11,6 +11,7 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
   };
   Params.prototype = {
     init: function(searchData) {
+      console.log("watch - $location.search()");
       _(searchData || {}).each(function(value, key){
         searchData[key] = angular.fromJson(value);
       });

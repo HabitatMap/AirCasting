@@ -10,6 +10,7 @@ angular.module("aircasting").directive('slider', function (){
       };
       $(element).slider(opts);
       scope.$watch(attrs.sliderMin, function(newValue, oldValue) {
+        console.log('watch - attrs.sliderMin');
         if(!newValue) {
           return;
         }
@@ -17,6 +18,7 @@ angular.module("aircasting").directive('slider', function (){
         $(element).slider("value", $(element).slider("value"));
       }, true);
       scope.$watch(attrs.sliderMax, function(newValue, oldValue) {
+        console.log('watch - attrs.sliderMax');
         if(!newValue) {
           return;
         }
@@ -24,6 +26,7 @@ angular.module("aircasting").directive('slider', function (){
         $(element).slider("value", $(element).slider("value"));
       }, true);
       scope.$watch(attrs.sliderValue, function(newValue, oldValue) {
+        console.log('watch - attrs.sliderValue');
         if(!newValue) {
           return;
         }

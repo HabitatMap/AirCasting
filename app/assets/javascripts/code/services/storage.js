@@ -8,6 +8,7 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
     scope.params = params;
     this.defaults = {};
     scope.$watch("params.get('data')", function(newValue, oldValue) {
+      console.log("watch - params.get('data')");
       self.extend(newValue);
     }, true);
   };

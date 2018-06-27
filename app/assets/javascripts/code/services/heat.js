@@ -13,6 +13,7 @@ angular.module("aircasting").factory('heat', ["$rootScope", "params", "storage",
     this.scope = $rootScope.$new();
     this.scope.params = params;
     this.scope.$watch("params.get('data').heat", function(newValue, oldValue) {
+      console.log("watch - params.get('data').heat");
       if(!newValue || _(newValue).isEmpty()){
         return;
       }

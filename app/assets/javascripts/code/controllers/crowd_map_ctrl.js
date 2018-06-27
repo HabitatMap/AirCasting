@@ -41,10 +41,12 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
 
   $scope.$watch("{location: params.get('data').location.address, counter: params.get('data').counter}",
     function(newValue) {
+    console.log("watch - {location: params.get('data').location.address, counter: params.get('data').counter}");
     map.goToAddress(newValue.location);
   }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
+    console.log("watch - sensors.selectedId()");
     if(!newValue){
       return;
     }
@@ -63,6 +65,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
   };
 
   $scope.$watch("params.get('data')", function(newValue, oldValue) {
+    console.log("watch - params.get('data')");
     infoWindow.hide();
     $scope.getAverages();
   }, true);
