@@ -15,6 +15,7 @@ angular.module("aircasting").directive('spinner', function (){
       var overlay = $("#" + attrs.spinner);
       var spinnerInst = new Spinner(spinnerOpts);
       scope.$watch("spinner.visible()", function(newValue, oldValue){
+        console.log("watch - spinner.visible()");
         if(newValue){
           spinnerInst.spin(target);
         } else {

@@ -11,18 +11,21 @@ angular.module("aircasting").directive('rangeslider', function (){
       opts.values = [opts.min, opts.max];
       $(element).slider(opts);
       scope.$watch(attrs.sliderMin, function(newValue, oldValue) {
+        console.log('watch - attrs.sliderMin');
         if(!newValue) {
           return;
         }
         $(element).slider("option", "min", newValue);
       }, true);
       scope.$watch(attrs.sliderMax, function(newValue, oldValue) {
+        console.log('watch - attrs.sliderMax');
         if(!newValue) {
           return;
         }
         $(element).slider("option", "max", newValue);
       }, true);
       scope.$watch(attrs.sliderValue, function(newValue, oldValue) {
+        console.log('watch - attrs.sliderValue');
         if(!newValue) {
           return;
         }

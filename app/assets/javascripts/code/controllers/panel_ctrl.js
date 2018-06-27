@@ -34,6 +34,7 @@ function PanelCtrl($scope,  $location, expandables) {
   };
 
   $scope.$watch('$location.path()', function(newValue) {
+    console.log('watch - $location.path()');
     $scope.selectedTab = _.str.trim(newValue, "/");
   });
 

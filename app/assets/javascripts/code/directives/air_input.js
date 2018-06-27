@@ -3,6 +3,7 @@ angular.module("aircasting").directive('airinput', function(){
     link: function(scope, element, attrs, ctrl) {
       var hidden = $(element).siblings(':hidden');
       scope.$watch(hidden.attr("ng-model") ,function(newValue){
+        console.log('watch - hidden.attr("ng-model")');
         $(element).val(newValue);
       });
       $(element).bind("blur", function() {

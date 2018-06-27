@@ -31,15 +31,18 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
   };
 
   $scope.$watch("page", function() {
+    console.log("watch - page");
     sessions.fetch($scope.page);
   }, true);
 
   $scope.$watch("sessionFetchCondition()", function(newValue, oldValue) {
+    console.log("watch - sessionFetchCondition()");
     $scope.page = 0;
     sessions.fetch($scope.page);
   }, true);
 
   $scope.$watch("sensors.isEmpty()", function(newValue, oldValue) {
+    console.log("watch - sensors.isEmpty()");
     sessions.reSelectAllSessions();
   }, true);
 
@@ -60,6 +63,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
   };
 
   $scope.$watch("sessionRedrawCondition()", function(newValue) {
+    console.log("watch - sessionRedrawCondition()");
     if(singleSession.isFixed() || (!newValue.id && !newValue.heat)){
       return;
     }
@@ -71,6 +75,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
   });
 
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
+    console.log("watch - params.get('sessionsIds')");
     functionBlocker.use("sessionDialog", function(){
       if(newIds.length === 1 && !sensors.selected()) {
         var usableSensors = singleSession.availSensors();
