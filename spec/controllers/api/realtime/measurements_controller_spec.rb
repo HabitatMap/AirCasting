@@ -39,8 +39,8 @@ describe Api::Realtime::MeasurementsController do
       expect(response.status).to eq 200
       expect(json_response).to eq [
         {
-          "latitude"=>"11.12",
-          "longitude"=>"50.1234",
+          "latitude"=>11.12,
+          "longitude"=>50.1234,
           "time"=>"2017-01-03T16:58:18Z",
           "value"=>12.3456
         },
