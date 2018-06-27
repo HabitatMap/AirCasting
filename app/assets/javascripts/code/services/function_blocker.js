@@ -15,7 +15,6 @@ angular.module("aircasting").factory('functionBlocker', function() {
       } else {
         fn();
       }
-      var self = this;
     }
   };
   return new FunctionBlocker();
