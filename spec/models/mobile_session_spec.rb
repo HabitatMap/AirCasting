@@ -81,12 +81,13 @@ describe MobileSession do
 
     it "should tell streams to include measurements" do
       a = subject.symbolize_keys[:streams].first
-      b = stream.as_json(:methods => [:measurements])
+      b = stream.as_json
+
       a[1].should == b
     end
 
     it "should not provide own list of measurements" do
-      subject.symbolize_keys[:measurements].should be_nil
+      subject.symbolize_keys[:measurements].should == []
     end
   end
 
@@ -124,25 +125,6 @@ describe MobileSession do
       session =  FactoryGirl.create(:mobile_session, :id => 1, :contribute => false)
 
       MobileSession.filter(:session_ids => [1]).all.should == [session]
-    end
-
-    it "should exclude sessions outside the area if given" do
-      pending "Now uses different filter method"
-      session1 = session_with_measurement(:longitude => 10, :latitude => 20)
-      session2 = session_with_measurement(:longitude => 20, :latitude => 20)
-      session3 = session_with_measurement(:longitude => 10, :latitude => 30)
-
-      MobileSession.filter(:west => 5, :east => 15, :south => 15, :north => 25).all.should == [session1]
-    end
-
-    it "calls Measurement.near when location is set" do
-      pending "Now uses east west north and south"
-      query = {:location => "Krakow", :distance => 10}
-      measurements = mock("measurements")
-      measurements.should_receive(:select).with('stream_id').and_return(stub(:map => []))
-      Measurement.should_receive(:near).with(query[:location], query[:distance]).and_return(measurements)
-
-      MobileSession.filter(:location => "Krakow", :distance => 10).all
     end
 
     it "should include sessions with any points inside the time period" do
@@ -183,7 +165,6 @@ describe MobileSession do
       MobileSession.should_receive(:filter).with(data).and_return(records)
       records.should_receive(:as_json).with(hash_including({:only => [:id, :title, :start_time_local, :end_time_local],
         :methods => [:username, :streams]})).and_return(json)
-      data.should_receive(:[]).with(:measurements).and_return(false)
 
       MobileSession.filtered_json(data, 0, 50).should == json
     end
