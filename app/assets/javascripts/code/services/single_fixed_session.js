@@ -33,7 +33,7 @@ angular.module("aircasting").factory('singleFixedSession',
       var ids = _(this.get().streams).map(function(sensor){
         return sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
       });
-      return _(sensors.get()).select(function(sensor){
+      return _(sensors.selectedSensor).select(function(sensor){
         return _(ids).include(sensor.id);
       });
     },

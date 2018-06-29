@@ -94,11 +94,8 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     }
   }, true);
   $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
-    if (newValue) {
-      sensors.availableSensors = _(sensors.sensors).filter(function(sensor) { return sensor["measurement_type"] == newValue["id"]})
-    } else {
-      sensors.availableSensors = sensors.sensors
-    }
+    console.log("watch - selectedParameter()");
+    sensors.onSelectedParameterChange(newValue);
   }, true)
 
   $scope.heatUpdateCondition = function() {

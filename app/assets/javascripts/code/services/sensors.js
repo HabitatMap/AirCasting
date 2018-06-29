@@ -114,13 +114,23 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     proceedWithTmp: function() {
       params.update({tmp: {tmpSensorId: this.tmpSensorId}});
     },
+    setAllSensors: function() {
+      params.update({data: {sensorId: ""}});
+    },
     findSensorById: function(id) {
       return this.sensors[id]
     },
     findParameterForSensor: function(sensor) {
       return _(this.availableParameters).find(function(parameter) { return (parameter.id == sensor["measurement_type"]) });
+    },
+    onSelectedParameterChange: function(selectedParameter) {
+      if (selectedParameter) {
+        this.availableSensors = _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == selectedParameter["id"]})
+      } else {
+        this.availableSensors = this.sensors;
+        this.setAllSensors();
+      }
     }
-
   };
   return new Sensors();
 }]);
