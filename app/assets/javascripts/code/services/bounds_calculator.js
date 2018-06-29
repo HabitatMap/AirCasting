@@ -3,6 +3,7 @@ angular.module('aircasting').factory('boundsCalculator',
   var calculate = function(sessions) {
     var maxLat = [], minLat = [], maxLong = [], minLong = [];
     var sensor = sensors.anySelected();
+
     if(!sensor) return;
 
     sessions.forEach(function(session){

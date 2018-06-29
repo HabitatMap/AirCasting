@@ -6,7 +6,11 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     this.sensors = {};
     this.tmpSensorId = undefined;
     this.shouldInitSelected = false;
-    this.defaultSensor = "Particulate Matter - AirBeam2-PM2.5 (µg/m³)";
+    this.defaultSensor = this.buildSensorId({
+      measurement_type: "Particulate Matter",
+      sensor_name:      "AirBeam2-PM2.5",
+      unit_symbol:      "µg/m³"
+    });
 
     this.availableSensors = {};
     this.defaultParameter = {id: "Particulate Matter", label: "Particulate Matter"};
@@ -17,8 +21,9 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     onSensorsFetch : function(data, status, headers, config) {
       // Sensors
       var sensors = {};
+      var self = this;
       _(data).each(function(sensor){
-        sensor.id =  sensor.measurement_type + " - " + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
+        sensor.id =  self.buildSensorId(sensor);
         sensor.label = sensor.sensor_name + " (" + sensor.unit_symbol + ")";
         if (sensor.label.length >= 42) {
           sensor.select_label = sensor.label.slice(0, 40) + "…";
@@ -119,6 +124,9 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
         this.availableSensors = this.sensors;
         this.setAllSensors();
       }
+    },
+    buildSensorId: function(sensor) {
+      return sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
     }
   };
   return new Sensors();

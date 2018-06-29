@@ -126,7 +126,6 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
       params.update({sessionsIds: params.get("sessionsIds", []).concat([sessionId])});
       $scope.markerSelected.set(markerSelected);
       session.$selected = true;
-      $scope.$apply();
     }
   };
 
