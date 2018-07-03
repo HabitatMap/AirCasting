@@ -18,6 +18,8 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     });
 
     storage.updateDefaults({
+      // sensorId: "", // EXPERIMENTAL
+      sensorId: sensors.defaultSensor,
       location: {},
       gridResolution : 25,
       tags: "",
@@ -26,8 +28,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
 
     storage.updateFromDefaults();
 
-    sensors.shouldInitSelected = true;
-    sensors.initSelected();
+    sensors.setDefault();
 
     //refresh averages whenever you move on map
     map.unregisterAll();
@@ -45,17 +46,25 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     map.goToAddress(newValue.location);
   }, true);
 
+  $scope.$watch("params.get('data').sensorId", function(newValue) {
+    console.log("watch - params.get('data').sensorId - ", newValue);
+    if(_(newValue).isNull()){
+      params.update({data: {sensorId: ""}});
+    }
+
+    sensors.onSelectedSensorChange(newValue);
+  }, true);
+
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
     console.log("watch - sensors.selectedId()");
     if(!newValue){
       return;
     }
 
-    var sensor = sensors.findSensorById(newValue);
-    var parameterForSensor = sensors.findParameterForSensor(sensor);
-    sensors.selectedParameter = parameterForSensor;
-
     params.update({data: {sensorId: newValue}});
+
+    sensors.onSelectedSensorChange(newValue);
+
     spinner.show();
     $http.get('/api/thresholds/' + sensors.selected().sensor_name, {params: {unit_symbol: sensors.selected().unit_symbol}, cache: true}).success($scope.onThresholdsFetch);
   });

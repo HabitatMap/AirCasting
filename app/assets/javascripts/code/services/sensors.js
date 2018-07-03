@@ -46,35 +46,25 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
         });
       })
       this.availableParameters = availableParameters;
-      // this.selectedParameter = this.defaultParameter;
 
       // Initialize UI
       this.initSelected();
       spinner.hide();
     },
     initSelected: function() {
+      console.log('initSelected()')
       var self = this;
-      //this is called only for injectors who verified flag - like crowd map
 
-      this.selectedParameter = this.defaultParameter;
-      this.availableSensors = _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == self.selectedParameter["id"]})
-      this.availableSensors = this.sensors;
-      if(this.shouldInitSelected && !this.isEmpty() && !params.get('data').sensorId){
-        if(this.defaultSensor) {
-          params.update({data: {sensorId: this.defaultSensor }});
-        } else {
-          params.update({data: {
-            sensorId: _(self.sensors).chain().keys().sortBy(function(sensorId) {
-              return -1 * self.sensors[sensorId].session_count;
-            }).first().value()
-          }});
-        }
-        self.selectedParameter = _(self.availableParameters).find(function(parameter) { return (parameter.id == self.selected()["measurement_type"]) });
+      if(_(params.get('data').sensorId).isNull()) {
+        console.log('bbbb')
+        params.update({data: {sensorId: this.defaultSensor }});
+      } else {
+        console.log("aaaaa")
       }
+      this.selectedParameter = self.findParameterForSensor(self.selected());
+      this.availableSensors = self.findAvailableSensorsForParameter(self.selectedParameter);
     },
-    isEmpty: function() {
-      return _(this.sensors).size() === 0;
-    },
+
     //selected in dropdown
     selected: function() {
       return this.sensors[params.get('data').sensorId];
@@ -109,15 +99,28 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
       params.update({tmp: {tmpSensorId: this.tmpSensorId}});
     },
     setAllSensors: function() {
+      console.log('setAllSensors')
       params.update({data: {sensorId: ""}});
     },
     findSensorById: function(id) {
       return this.sensors[id]
     },
     findParameterForSensor: function(sensor) {
-      return _(this.availableParameters).find(function(parameter) { return (parameter.id == sensor["measurement_type"]) });
+      if (sensor) {
+        return _(this.availableParameters).find(function(parameter) { return (parameter.id == sensor["measurement_type"]) });
+      } else {
+        return null;
+      }
+    },
+    findAvailableSensorsForParameter: function(parameter) {
+      if (parameter) {
+        return _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == parameter["id"]})
+      } else {
+        return this.sensors;
+      }
     },
     onSelectedParameterChange: function(selectedParameter) {
+      console.log('onSelectedParameterChange() - ', selectedParameter)
       if (selectedParameter) {
         this.availableSensors = _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == selectedParameter["id"]})
       } else {
@@ -125,8 +128,17 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
         this.setAllSensors();
       }
     },
+    onSelectedSensorChange: function(newSensorId) {
+      console.log('onSelectedSensorChange() - ', newSensorId)
+      var sensor = this.findSensorById(newSensorId);
+      var parameterForSensor = this.findParameterForSensor(sensor);
+      this.selectedParameter = parameterForSensor;
+    },
     buildSensorId: function(sensor) {
       return sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
+    },
+    setDefault: function() {
+      // params.update({data: {sensorId: this.defaultSensor }});
     }
   };
   return new Sensors();

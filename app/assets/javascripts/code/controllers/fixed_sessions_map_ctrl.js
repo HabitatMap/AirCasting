@@ -28,7 +28,8 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     });
 
     storage.updateDefaults({
-      sensorId: "",
+      sensorId: sensors.defaultSensor,
+      dzik: "dzik",
       location: {address: "", distance: "10", limit: true, outdoorOnly: true, streaming: true},
       tags: "",
       usernames: ""
@@ -36,8 +37,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 
     storage.updateFromDefaults();
 
-    sensors.shouldInitSelected = true;
-    sensors.initSelected();
+    // sensors.setDefault();
   };
 
   $scope.searchSessions = function() {
@@ -47,23 +47,25 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 
   //fix for json null parsing
   $scope.$watch("params.get('data').sensorId", function(newValue) {
-    console.log("watch - params.get('data').sensorId");
+    console.log("watch - params.get('data').sensorId - ", newValue);
     if(_(newValue).isNull()){
+      // Comes here when "all" sensor is selected
       params.update({data: {sensorId: ""}});
     }
+
+    sensors.onSelectedSensorChange(newValue);
   }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    console.log("watch - sensors.selectedId()");
-    if(newValue == oldValue || !newValue){
+    console.log("watch - sensors.selectedId() - ", newValue, " - ", oldValue);
+    if(!newValue){
       return;
     }
 
-    var sensor = sensors.findSensorById(newValue);
-    var parameterForSensor = sensors.findParameterForSensor(sensor);
-    sensors.selectedParameter = parameterForSensor;
-
     params.update({data: {sensorId: newValue}});
+
+    sensors.onSelectedSensorChange(newValue);
+
     spinner.show();
     $http.get('/api/thresholds/' + sensors.selected().sensor_name,
       {params: {unit_symbol: sensors.selected().unit_symbol}, cache: true}).success($scope.onThresholdsFetch);
@@ -88,13 +90,13 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   };
 
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
-    console.log("watch - params.get('data').heat");
+    console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
     if (newValue != oldValue) {
       $scope.sessions.drawSessionsInLocation();
     }
   }, true);
   $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
-    console.log("watch - selectedParameter()");
+    console.log("watch - selectedParameter() - ", newValue, " - ", oldValue);
     sensors.onSelectedParameterChange(newValue);
   }, true)
 
@@ -102,7 +104,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     return {sensorId: sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
   };
   $scope.$watch("heatUpdateCondition()", function(newValue, oldValue) {
-    console.log("watch - heatUpdateCondition()");
+    console.log("watch - heatUpdateCondition() - ", newValue, " - ", oldValue);
     if(newValue.sensorId && newValue.sessionId && !$scope.initializing){
       functionBlocker.use("sessionHeat", function(){
         $scope.singleSession.updateHeat();
