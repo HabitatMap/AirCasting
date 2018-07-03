@@ -47,7 +47,6 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   $scope.$watch("params.get('data').sensorId", function(newValue) {
     console.log("watch - params.get('data').sensorId - ", newValue);
     if(sensors.sensorChangedToAll(newValue)){
-      // Comes here when "all" sensor is selected
       params.update({data: {sensorId: ""}});
     }
 
