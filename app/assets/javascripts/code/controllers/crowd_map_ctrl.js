@@ -18,7 +18,6 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     });
 
     storage.updateDefaults({
-      // sensorId: "", // EXPERIMENTAL
       sensorId: sensors.defaultSensor,
       location: {},
       gridResolution : 25,
@@ -27,8 +26,6 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     });
 
     storage.updateFromDefaults();
-
-    sensors.setDefault();
 
     //refresh averages whenever you move on map
     map.unregisterAll();

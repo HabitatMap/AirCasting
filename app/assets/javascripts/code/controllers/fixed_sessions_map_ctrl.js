@@ -29,15 +29,12 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 
     storage.updateDefaults({
       sensorId: sensors.defaultSensor,
-      dzik: "dzik",
       location: {address: "", distance: "10", limit: true, outdoorOnly: true, streaming: true},
       tags: "",
       usernames: ""
     });
 
     storage.updateFromDefaults();
-
-    // sensors.setDefault();
   };
 
   $scope.searchSessions = function() {

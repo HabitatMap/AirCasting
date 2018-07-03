@@ -56,10 +56,10 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
       var self = this;
 
       if(_(params.get('data').sensorId).isNull()) {
-        console.log('bbbb')
+        console.log('initSelected() - sensorId is null')
         params.update({data: {sensorId: this.defaultSensor }});
       } else {
-        console.log("aaaaa")
+        console.log('initSelected() - sensorId is NOT null')
       }
       this.selectedParameter = self.findParameterForSensor(self.selected());
       this.availableSensors = self.findAvailableSensorsForParameter(self.selectedParameter);
@@ -137,9 +137,9 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     buildSensorId: function(sensor) {
       return sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
     },
-    setDefault: function() {
-      // params.update({data: {sensorId: this.defaultSensor }});
-    }
+    // setDefault: function() {
+    //  params.update({data: {sensorId: this.defaultSensor }});
+    // }
   };
   return new Sensors();
 }]);
