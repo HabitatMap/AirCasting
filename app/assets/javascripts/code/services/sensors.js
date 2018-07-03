@@ -139,9 +139,6 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     buildSensorId: function(sensor) {
       return sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
     },
-    // setDefault: function() {
-    //  params.update({data: {sensorId: this.defaultSensor }});
-    // }
   };
   return new Sensors();
 }]);
