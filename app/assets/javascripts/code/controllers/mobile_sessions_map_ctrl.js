@@ -1,7 +1,7 @@
 function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, mobileSessions, versioner,
                          storageEvents, singleMobileSession, functionBlocker, $window, $location,
-                         rectangles, infoWindow, markersClusterer, yellow) {
-  sensors.setSensors(yellow);
+                         rectangles, infoWindow, markersClusterer, sensorsList) {
+  sensors.setSensors(sensorsList);
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
@@ -46,17 +46,17 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
 
   //fix for json null parsing
   $scope.$watch("params.get('data').sensorId", function(newValue) {
-    console.log("watch - params.get('data').sensorId");
+    console.log("watch - params.get('data').sensorId - ", newValue);
     if(_(newValue).isNull()){
       params.update({data: {sensorId: ""}});
     }
 
-    sensors.onSelectedParameterChange(newValue);
+    sensors.onSelectedSensorChange(newValue);
   }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    console.log("watch - sensors.selectedId()");
-    if(newValue == oldValue){
+    console.log("watch - sensors.selectedId() - ", newValue, " - ", oldValue);
+    if(!newValue){
       return;
     }
 
@@ -74,7 +74,7 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
     return {sensorId:  sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
   };
   $scope.$watch("heatUpdateCondition()", function(newValue, oldValue) {
-    console.log("watch - heatUpdateCondition()");
+    console.log("watch - heatUpdateCondition() - ", newValue, " - ", oldValue);
     if(newValue.sensorId && newValue.sessionId){
       functionBlocker.use("sessionHeat", function(){
         $scope.singleSession.updateHeat();
@@ -92,4 +92,4 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
 MobileSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
    'map', 'sensors', 'expandables', 'storage', 'mobileSessions', 'versioner',
   'storageEvents', 'singleMobileSession', 'functionBlocker', '$window', "$location",
-  "rectangles", "infoWindow", "markersClusterer", 'yellow'];
+  "rectangles", "infoWindow", "markersClusterer", 'sensorsList'];
