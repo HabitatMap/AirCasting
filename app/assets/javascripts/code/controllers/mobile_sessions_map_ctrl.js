@@ -1,6 +1,7 @@
 function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, mobileSessions, versioner,
                          storageEvents, singleMobileSession, functionBlocker, $window, $location,
-                         rectangles, infoWindow, markersClusterer) {
+                         rectangles, infoWindow, markersClusterer, yellow) {
+  sensors.setSensors(yellow);
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
@@ -49,6 +50,8 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
     if(_(newValue).isNull()){
       params.update({data: {sensorId: ""}});
     }
+
+    sensors.onSelectedParameterChange(newValue);
   }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
@@ -56,6 +59,12 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
     if(newValue == oldValue){
       return;
     }
+
+    params.update({data: {sensorId: newValue}});
+
+    // Possibly this is not needed
+    sensors.onSelectedSensorChange(newValue);
+
     functionBlocker.use("selectedId", function(){
       params.update({sessionsIds: []});
     });
@@ -83,4 +92,4 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
 MobileSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
    'map', 'sensors', 'expandables', 'storage', 'mobileSessions', 'versioner',
   'storageEvents', 'singleMobileSession', 'functionBlocker', '$window', "$location",
-  "rectangles", "infoWindow", "markersClusterer"];
+  "rectangles", "infoWindow", "markersClusterer", 'yellow'];

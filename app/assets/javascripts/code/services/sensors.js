@@ -1,7 +1,6 @@
 angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', function(params, $http, spinner) {
   var Sensors = function() {
     spinner.show();
-    $http.get('/api/sensors', {cache: true}).success(_(this.onSensorsFetch).bind(this));
 
     this.sensors = {};
     this.tmpSensorId = undefined;
@@ -18,7 +17,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     this.availableParameters = {};
   };
   Sensors.prototype = {
-    onSensorsFetch : function(data, status, headers, config) {
+    setSensors : function(data, status, headers, config) {
       // Sensors
       var sensors = {};
       var self = this;

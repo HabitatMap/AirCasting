@@ -1,6 +1,7 @@
 function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, fixedSessions, versioner,
                          storageEvents, singleFixedSession, functionBlocker, $window, $location, spinner,
-                         rectangles, infoWindow, $http) {
+                         rectangles, infoWindow, $http, yellow) {
+  sensors.setSensors(yellow);
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
@@ -61,6 +62,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 
     params.update({data: {sensorId: newValue}});
 
+    // Possibly this is not needed
     sensors.onSelectedSensorChange(newValue);
 
     spinner.show();
@@ -114,4 +116,4 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 FixedSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
   'map', 'sensors', 'expandables', 'storage', 'fixedSessions', 'versioner',
   'storageEvents', 'singleFixedSession', 'functionBlocker', '$window', '$location', 'spinner',
-  'rectangles', 'infoWindow', '$http'];
+  'rectangles', 'infoWindow', '$http', 'yellow'];
