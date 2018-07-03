@@ -35,7 +35,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
 
       // Parameters
       var availableParameters = _.uniq(_(this.sensors).map(function(sensor) {
-        return sensor["measurement_type"]
+        return sensor.measurement_type
       }));
       availableParameters = _.sortBy(availableParameters)
       availableParameters = _.map(availableParameters, function(availableParameter) {
@@ -100,6 +100,9 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     setAllSensors: function() {
       console.log('setAllSensors')
       params.update({data: {sensorId: ""}});
+    },
+    sensorChangedToAll: function(newValue) {
+      return !newValue;
     },
     findSensorById: function(id) {
       return this.sensors[id]

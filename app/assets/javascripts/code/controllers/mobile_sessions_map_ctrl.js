@@ -47,7 +47,7 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
   //fix for json null parsing
   $scope.$watch("params.get('data').sensorId", function(newValue) {
     console.log("watch - params.get('data').sensorId - ", newValue);
-    if(_(newValue).isNull()){
+    if(sensors.sensorChangedToAll(newValue)){
       params.update({data: {sensorId: ""}});
     }
 

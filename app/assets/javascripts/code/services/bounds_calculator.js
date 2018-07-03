@@ -21,7 +21,8 @@ angular.module('aircasting').factory('boundsCalculator',
     var west = Math.min.apply(null, minLong);
     var east = Math.max.apply(null, maxLong);
 
-    if(!north){ return; }
+    if(!north) return;
+
     return {north: north, east: east, south : south, west: west};
   };
 

@@ -46,7 +46,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
   //fix for json null parsing
   $scope.$watch("params.get('data').sensorId", function(newValue) {
     console.log("watch - params.get('data').sensorId - ", newValue);
-    if(_(newValue).isNull()){
+    if(sensors.sensorChangedToAll(newValue)){
       // Comes here when "all" sensor is selected
       params.update({data: {sensorId: ""}});
     }

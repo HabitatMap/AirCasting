@@ -46,7 +46,7 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
 
   $scope.$watch("params.get('data').sensorId", function(newValue) {
     console.log("watch - params.get('data').sensorId - ", newValue);
-    if(_(newValue).isNull()){
+    if(sensors.sensorChangedToAll(newValue)){
       params.update({data: {sensorId: ""}});
     }
 
