@@ -7,7 +7,7 @@ function HeatCtrl($scope, sensors, storage, storageEvents, heat ) {
   $scope.heat = heat;
 
   $scope.resetHeat = function() {
-    if(singleSession.get()) {
+    if(singleSession && singleSession.get()) {
       singleSession.updateHeat();
     } else {
       storage.reset('heat');
