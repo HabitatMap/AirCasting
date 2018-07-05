@@ -22,7 +22,6 @@ AirCasting::Application.routes.draw do
 
   constraints AdminConstraint.new do
     mount Sidekiq::Web => '/sidekiq'
-    mount Flipper::UI.app(Feature.flipper) => '/flipper'
   end
 
   mount JasmineRails::Engine => "/specs" if defined?(JasmineRails)

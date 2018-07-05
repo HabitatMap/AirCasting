@@ -20,12 +20,6 @@ gem 'rb-gsl', '1.16.0.6'
 
 gem 'rubyzip', '>= 1.0.0'
 
-gem 'elasticsearch-model', '~> 0.1.8'
-gem 'elasticsearch-rails', '~> 0.1.8'
-FLIPPER_VERSION = '~> 0.7.1'
-gem 'flipper', FLIPPER_VERSION
-gem 'flipper-redis', FLIPPER_VERSION
-gem 'flipper-ui', FLIPPER_VERSION
 gem 'sinatra', require: false
 
 gem 'oj'
