@@ -38,7 +38,7 @@ AirCasting::Application.configure do
   config.assets.initialize_on_precompile = false
 
   # Generate digests for assets URLs
-  #config.assets.digest = true #doesnt work with sass-rails and rails 3.1 - need to upgrade to 3.2
+  config.assets.digest = true
 
   # Defaults to Rails.root.join("public/assets")
   # config.assets.manifest = YOUR_PATH
