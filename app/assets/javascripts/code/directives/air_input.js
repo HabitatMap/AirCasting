@@ -1,16 +1,14 @@
 angular.module("aircasting").directive('airinput', function(){
   return {
-    link: function(scope, element, attrs, ctrl) {
+    link: function(scope, element, attrs) {
       var hidden = $(element).siblings(':hidden');
       scope.$watch(hidden.attr("ng-model") ,function(newValue){
         console.log('watch - hidden.attr("ng-model")');
         $(element).val(newValue);
       });
-      $(element).bind("blur", function() {
+      $(element).bind("input", function() {
         scope.$apply(hidden.attr("ng-model")  + " = " + $(this).val());
-        if(attrs.airinputBlur) {
-          scope.$apply(attrs.airinputBlur);
-        }
+        scope.$apply(attrs.airinputCallback);
       });
     }
   };
