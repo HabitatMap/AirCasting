@@ -6,7 +6,7 @@ angular.module("aircasting").directive('airinput', function(){
         console.log('watch - hidden.attr("ng-model")');
         $(element).val(newValue);
       });
-      $(element).bind("input", function() {
+      $(element).bind("change", function() {
         scope.$apply(hidden.attr("ng-model")  + " = " + $(this).val());
         scope.$apply(attrs.airinputCallback);
       });
