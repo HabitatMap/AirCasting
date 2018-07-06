@@ -72,6 +72,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
 
   $scope.$on('markerSelected', function(event, data){
     $scope.toggleSession(data.session_id, true);
+    $scope.$apply();
   });
 
   $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
