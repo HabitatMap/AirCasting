@@ -6,14 +6,12 @@ angular.module("aircasting").factory('fixedSessions', [
   '$rootScope',
   'spinner',
   'utils',
-  "$timeout",
-  'flash',
   'sessionsDownloader',
-  'sessionsExporter',
   'drawSession',
   'boundsCalculator',
   'markersClusterer',
   'markerSelected',
+  'sessionsUtils',
   function(
     params,
     $http,
@@ -22,14 +20,12 @@ angular.module("aircasting").factory('fixedSessions', [
     $rootScope,
     spinner,
     utils,
-    $timeout,
-    flash,
     sessionsDownloader,
-    sessionsExporter,
     drawSession,
     boundsCalculator,
     markersClusterer,
-    markerSelected
+    markerSelected,
+    sessionsUtils
   ) {
     var FixedSessions = function() {
       this.sessions = [];
@@ -40,37 +36,108 @@ angular.module("aircasting").factory('fixedSessions', [
     };
 
     FixedSessions.prototype = {
-      sessionsChanged: function (newIds, oldIds) {
-        _(newIds).chain().difference(oldIds).each(_(this.selectSession).bind(this));
-        _(oldIds).chain().difference(newIds).each(_(this.deselectSession).bind(this));
+      allSelected: function() { return sessionsUtils.allSelected(this); },
+
+      allSelectedIds: function() { return sessionsUtils.allSelectedIds(); },
+
+      allSessionIds: function() { return sessionsUtils.allSessionIds(this) },
+
+      deselectAllSessions: function() { sessionsUtils.deselectAllSessions(); },
+
+      empty: function() { return sessionsUtils.empty(this); },
+
+      export: function() { sessionsUtils.export(this); },
+
+      find: function(id) { return sessionsUtils.find(this, id); },
+
+      get: function(){ return sessionsUtils.get(this); },
+
+      isSelected: function(session) { return sessionsUtils.isSelected(this, session); },
+
+      measurementsCount: function(session) { return sessionsUtils.measurementsCount(session); },
+
+      noOfSelectedSessions : function() { return sessionsUtils.noOfSelectedSessions(this); },
+
+      onSessionsFetchError: function(data){ sessionsUtils.onSessionsFetchError(data); },
+
+      reSelectAllSessions: function() { sessionsUtils.reSelectAllSessions(this); },
+
+      selectAllSessions: function() { sessionsUtils.selectAllSessions(this); },
+
+      sessionsChanged: function (newIds, oldIds) { sessionsUtils.sessionsChanged(this, newIds, oldIds); },
+
+      totalMeasurementsCount: function() { return sessionsUtils.totalMeasurementsCount(this); },
+
+      totalMeasurementsSelectedCount: function() { return sessionsUtils.totalMeasurementsSelectedCount(this); },
+
+
+
+      canSelectThatSession: function() { return this.empty(); },
+
+      canSelectAllSessions: function() { return false; },
+
+      onSessionsFetch: function() {
+        this.drawSessionsInLocation();
+        sessionsUtils.onSessionsFetch(this);
       },
 
-      get: function(){
-        return _.uniq(this.sessions, 'id');
+      deselectSession: function(id) {
+        var session = this.find(id);
+        if(!session) return;
+        session.$selected = false;
+        session.alreadySelected = false;
       },
 
-      allSessionIds: function() {
-        return _(this.get()).pluck("id");
+      selectSession: function(id) {
+        var self = this;
+        var session = this.find(id);
+        if(!session || session.alreadySelected) return;
+        var sensorId = params.get("data", {}).sensorId || sensors.tmpSelectedId();
+        var sensor = sensors.sensors[sensorId] || {};
+        var sensorName = sensor.sensor_name;
+        if (!sensorName) return;
+        spinner.show();
+        session.alreadySelected = true;
+        session.$selected = true;
+        $http.get('/api/realtime/sessions/' + id, {
+          cache : true,
+          params: { sensor_id: sensorName }
+        }).success(function(data){
+          self.onSingleSessionFetch(session, data);
+        });
       },
 
-      noOfSelectedSessions: function() {
-        return this.allSelected().length;
+      allStreamsWithLocation: function(sensor_name){
+        var self = this;
+        return _(this.allSelected()).chain().map(function(session){
+          if (session.is_indoor == true)
+            return null;
+          else
+            return session.streams[sensor_name];
+        }).compact().value();
       },
 
-      canSelectThatSession: function() {
-        return this.empty();
+      onSingleSessionFetch: function(session, data) {
+        var callback = function(self, session) {
+          if (!markerSelected.get() && !session.is_indoor) {
+            map.appendViewport(boundsCalculator(self.allSelected()));
+          }
+        }
+        sessionsUtils.onSingleSessionFetch(this, session, data, callback);
       },
 
-      canSelectAllSessions: function() {
-        return false;
+      downloadSessions: function(url, reqData) {
+        sessionsDownloader(url, reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
+          _(this.onSessionsFetchError).bind(this));
       },
 
-      empty: function() {
-        return this.noOfSelectedSessions() === 0;
-      },
-
-      export: function() {
-        sessionsExporter(this.allSessionIds());
+      drawSessionsInLocation: function() {
+        map.markers = [];
+        markersClusterer.clear();
+        _(this.get()).each(function(session) {
+          drawSession.drawFixedSession(session, boundsCalculator(this.sessions.get()));
+        });
+        markersClusterer.draw(map.get(), map.markers);
       },
 
       fetch: function(page) {
@@ -137,140 +204,6 @@ angular.module("aircasting").factory('fixedSessions', [
         } else {
           this.downloadSessions('/api/realtime/sessions.json', reqData);
         }
-      },
-
-      downloadSessions: function(url, reqData) {
-        sessionsDownloader(url, reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
-          _(this.onSessionsFetchError).bind(this));
-      },
-
-      drawSessionsInLocation: function() {
-        map.markers = [];
-        markersClusterer.clear();
-        _(this.get()).each(function(session) {
-          drawSession.drawFixedSession(session, boundsCalculator(this.sessions.get()));
-        });
-        markersClusterer.draw(map.get(), map.markers);
-      },
-
-      onSessionsFetch: function() {
-        this.drawSessionsInLocation();
-        this.reSelectAllSessions();
-        spinner.stopDownloadingSessions();
-      },
-
-      onSessionsFetchError: function(data){
-        spinner.stopDownloadingSessions();
-        var errorMsg = data.error || 'There was an error, sorry' ;
-        flash.set(errorMsg);
-      },
-
-      find: function(id) {
-        return _(this.sessions || []).detect(function(session){
-          return session.id === id;
-        });
-      },
-
-      deselectSession: function(id) {
-        var session = this.find(id);
-        if(!session){
-          return;
-        }
-        session.$selected = false;
-        session.alreadySelected = false;
-      },
-
-      deselectAllSessions: function() {
-        params.update({sessionsIds: []});
-      },
-
-      selectAllSessions: function() {
-        params.update({sessionsIds: this.allSessionIds()});
-      },
-
-      selectSession: function(id) {
-        var self = this;
-        var session = this.find(id);
-        if(!session || session.alreadySelected){
-          return;
-        }
-        var sensorId = params.get("data", {}).sensorId || sensors.tmpSelectedId();
-        var sensor = sensors.sensors[sensorId] || {};
-        var sensorName = sensor.sensor_name;
-        if (!sensorName) return;
-        spinner.show();
-        session.alreadySelected = true;
-        session.$selected = true;
-        $http.get('/api/realtime/sessions/' +  id,
-          {cache : true,
-            params: {sensor_id: sensorName
-            }}).success(function(data){
-              self.onSingleSessionFetch(session, data);
-            });
-      },
-
-      reSelectAllSessions: function(){
-        var self = this;
-        _(params.get('sessionsIds')).each(function(id){
-          self.selectSession(id);
-        });
-      },
-
-      isSelected: function(session) {
-        return _(this.allSelected()).include(session);
-      },
-
-      allSelected: function(){
-        var self = this;
-        return _(this.allSelectedIds()).chain().map(function(id){
-          return self.find(id);
-        }).compact().value();
-      },
-
-      allSelectedIds: function() {
-        return params.get('sessionsIds');
-      },
-
-      measurementsCount: function(session) {
-        return session.streams[sensors.selected().sensor_name].measurements_count;
-      },
-
-      totalMeasurementsSelectedCount: function() {
-        var self = this;
-        return _(this.allSelected()).reduce(function(memo, session){
-          return memo + self.measurementsCount(session);
-        }, 0);
-      },
-
-      totalMeasurementsCount: function() {
-        var self = this;
-        return _(this.get()).reduce(function(memo, session){
-          return memo + self.measurementsCount(session);
-        }, 0);
-      },
-
-      allStreamsWithLocation: function(sensor_name){
-        var self = this;
-        return _(this.allSelected()).chain().map(function(session){
-          if (session.is_indoor == true)
-            return null;
-          else
-            return session.streams[sensor_name];
-        }).compact().value();
-      },
-
-      onSingleSessionFetch: function(session, data) {
-        var streams = data.streams;
-        delete data.streams;
-        _(session).extend(data);
-        _(session.streams).extend(streams);
-        session.loaded = true;
-        if (!markerSelected.get() && !session.is_indoor) {
-          map.appendViewport(boundsCalculator(this.allSelected()));
-        }
-        $timeout(function(){
-          spinner.hide();
-        });
       }
     };
     return new FixedSessions();
