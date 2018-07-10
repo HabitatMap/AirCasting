@@ -84,6 +84,7 @@ angular.module("aircasting").factory('fixedSessions', [
       deselectSession: function(id) {
         var session = this.find(id);
         if(!session) return;
+        session.loaded = false;
         session.$selected = false;
         session.alreadySelected = false;
       },

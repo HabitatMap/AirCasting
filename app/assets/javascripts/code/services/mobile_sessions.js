@@ -81,6 +81,7 @@ angular.module("aircasting").factory('mobileSessions', [
       deselectSession: function(id) {
         var session = this.find(id);
         if(!session) return;
+        session.loaded = false;
         session.$selected = false;
         session.alreadySelected = false;
         drawSession.undoDraw(session, boundsCalculator(this.sessions));
