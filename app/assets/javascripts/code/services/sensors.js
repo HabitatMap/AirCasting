@@ -122,12 +122,13 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
         return this.sensors;
       }
     },
-    onSelectedParameterChange: function(selectedParameter, onChangeSelectFirstSensor = false) {
+    onSelectedParameterChange: function(selectedParameter, oldValue, onChangeSelectFirstSensor = false) {
       console.log('onSelectedParameterChange() - ', selectedParameter)
-      if (selectedParameter) {
+      if (selectedParameter === oldValue) return; // first run
+      if (selectedParameter) { // not 'all'
         this.availableSensors = _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == selectedParameter["id"]})
         if (onChangeSelectFirstSensor) params.update({data: {sensorId: this.availableSensors[0].id}});
-      } else {
+      } else { // 'all'
         this.availableSensors = this.sensors;
         this.setAllSensors();
       }

@@ -119,7 +119,9 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     $scope.$digest();
   };
 
-  $scope.$watch("sensors.selectedParameter", function(newValue) { sensors.onSelectedParameterChange(newValue, true); }, true);
+  $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
+    sensors.onSelectedParameterChange(newValue, oldValue, true);
+  }, true);
 
   $scope.setDefaults();
 }
