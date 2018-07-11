@@ -141,8 +141,9 @@ angular.module("aircasting").factory('mobileSessions',
       if(!session){
         return;
       }
+      session.loaded = false;
       session.$selected = false;
-      session.alreadySelected = false;
+      session.hasBeenDrawn = false;
       drawSession.undoDraw(session, boundsCalculator(this.sessions));
     },
 
@@ -155,18 +156,17 @@ angular.module("aircasting").factory('mobileSessions',
     },
 
     selectSession: function(id) {
-      var self = this;
       var session = this.find(id);
-      if(!session || session.alreadySelected){
-        return;
-      }
+      if(!session || session.hasBeenDrawn) return;
+
       var sensorId = params.get("data", {}).sensorId || sensors.tmpSelectedId();
       var sensor = sensors.sensors[sensorId] || {};
       var sensorName = sensor.sensor_name;
       if (!sensorName) return;
       spinner.show();
-      session.alreadySelected = true;
+      session.hasBeenDrawn = true;
       session.$selected = true;
+      var self = this;
       $http.get('/api/sessions/' +  id,
           {cache : true,
            params: {sensor_id: sensorName
