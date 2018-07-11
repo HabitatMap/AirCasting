@@ -82,10 +82,7 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
     }
    }, true);
 
-  $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
-    console.log("watch - selectedParameter()");
-    sensors.onSelectedParameterChange(newValue);
-  }, true)
+  $scope.$watch("sensors.selectedParameter", function(newValue) { sensors.onSelectedParameterChange(newValue); }, true);
 
   $scope.setDefaults();
 }

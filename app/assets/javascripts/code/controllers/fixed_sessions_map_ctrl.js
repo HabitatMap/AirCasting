@@ -93,10 +93,8 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
       $scope.sessions.drawSessionsInLocation();
     }
   }, true);
-  $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
-    console.log("watch - selectedParameter() - ", newValue, " - ", oldValue);
-    sensors.onSelectedParameterChange(newValue);
-  }, true)
+
+  $scope.$watch("sensors.selectedParameter", function(newValue) { sensors.onSelectedParameterChange(newValue); }, true);
 
   $scope.heatUpdateCondition = function() {
     return {sensorId: sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
