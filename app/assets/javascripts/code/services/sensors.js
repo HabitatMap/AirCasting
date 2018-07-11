@@ -1,4 +1,8 @@
 angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', function(params, $http, spinner) {
+  function sensorChangedToAll(newValue) {
+    return !newValue;
+  }
+
   var Sensors = function() {
     spinner.show();
 
@@ -101,9 +105,6 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
       console.log('setAllSensors')
       params.update({data: {sensorId: ""}});
     },
-    sensorChangedToAll: function(newValue) {
-      return !newValue;
-    },
     findSensorById: function(id) {
       return this.sensors[id]
     },
@@ -131,7 +132,10 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
       }
     },
     onSelectedSensorChange: function(newSensorId) {
-      console.log('onSelectedSensorChange() - ', newSensorId)
+      console.log('onSelectedSensorChange() - ', newSensorId);
+      if(sensorChangedToAll(newSensorId)){
+        params.update({data: {sensorId: ""}});
+      }
       var sensor = this.findSensorById(newSensorId);
       var parameterForSensor = this.findParameterForSensor(sensor);
       this.selectedParameter = parameterForSensor;
