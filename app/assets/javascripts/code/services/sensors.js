@@ -143,6 +143,24 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     buildSensorId: function(sensor) {
       return sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
     },
+    onSensorsSelectedIdChange: function(newValue, oldValue, callback = null) {
+      console.log("onSensorsSelectedIdChange - ", newValue, " - ", oldValue);
+
+      if(!newValue) return; // selectedId === 'all'
+
+      if (callback) {
+        spinner.show();
+        $http.get( '/api/thresholds/' + this.selected().sensor_name, {
+          params: { unit_symbol: this.selected().unit_symbol },
+          cache: true
+        }).success(callback);
+      }
+
+      if (newValue === oldValue) return; // first run
+
+      params.update({data: {sensorId: newValue}});
+      params.update({sessionsIds: []});
+    }
   };
   return new Sensors();
 }]);

@@ -13,7 +13,6 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
     $scope.singleSession = singleMobileSession;
     $scope.$window = $window;
 
-    functionBlocker.block("selectedId", !!params.get('data').sensorId);
     functionBlocker.block("sessionHeat", !_(params.get('sessionsIds')).isEmpty());
 
     rectangles.clear();
@@ -44,23 +43,10 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
     params.update({'didSessionsSearch': true});
   };
 
-  //fix for json null parsing
   $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    console.log("watch - sensors.selectedId() - ", newValue, " - ", oldValue);
-    if(!newValue){
-      return;
-    }
-
-    params.update({data: {sensorId: newValue}});
-
-    // Possibly this is not needed
-    sensors.onSelectedSensorChange(newValue);
-
-    functionBlocker.use("selectedId", function(){
-      params.update({sessionsIds: []});
-    });
+    sensors.onSensorsSelectedIdChange(newValue, oldValue);
   }, true);
 
   $scope.heatUpdateCondition = function() {
