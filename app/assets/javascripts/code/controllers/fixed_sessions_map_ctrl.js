@@ -50,6 +50,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 
   $scope.onThresholdsFetch = function(data, status, headers, config) {
     storage.updateDefaults({heat: heat.parse(data)});
+    // seems like there's no call to block so this function blocker is prolly not needed
     functionBlocker.use("heat", function(){
       if (!params.get('data').heat && $scope.initializing) {
         params.update({data: {heat: heat.parse(data)}});
