@@ -2,6 +2,10 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
   function sensorChangedToAll(newValue) {
     return !newValue;
   }
+  function max(valueOf, xs) {
+    var reducer = function(acc, x) { return valueOf(x) > valueOf(acc) ? x : acc };
+    return xs.reduce(reducer, xs[0]);
+  }
 
   var Sensors = function() {
     spinner.show();
@@ -122,12 +126,15 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
         return this.sensors;
       }
     },
-    onSelectedParameterChange: function(selectedParameter, oldValue, onChangeSelectFirstSensor = false) {
+    onSelectedParameterChange: function(selectedParameter, oldValue, onChangeSelectSensorWithMostSessions = false) {
       console.log('onSelectedParameterChange() - ', selectedParameter)
       if (selectedParameter === oldValue) return; // first run
       if (selectedParameter) { // not 'all'
         this.availableSensors = _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == selectedParameter["id"]})
-        if (onChangeSelectFirstSensor) params.update({data: {sensorId: this.availableSensors[0].id}});
+        if (onChangeSelectSensorWithMostSessions) {
+          var sensor = max(function(sensor) { return sensor.session_count; }, this.availableSensors) || { id: null };
+          params.update({data: {sensorId: sensor.id}});
+        }
       } else { // 'all'
         this.availableSensors = this.sensors;
         this.setAllSensors();
