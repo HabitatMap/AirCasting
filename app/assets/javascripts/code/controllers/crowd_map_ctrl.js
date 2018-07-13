@@ -44,27 +44,10 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     map.goToAddress(newValue.location);
   }, true);
 
-  $scope.$watch("params.get('data').sensorId", function(newValue) {
-    console.log("watch - params.get('data').sensorId - ", newValue);
-    if(sensors.sensorChangedToAll(newValue)){
-      params.update({data: {sensorId: ""}});
-    }
-
-    sensors.onSelectedSensorChange(newValue);
-  }, true);
+  $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    console.log("watch - sensors.selectedId()");
-    if(!newValue){
-      return;
-    }
-
-    params.update({data: {sensorId: newValue}});
-
-    sensors.onSelectedSensorChange(newValue);
-
-    spinner.show();
-    $http.get('/api/thresholds/' + sensors.selected().sensor_name, {params: {unit_symbol: sensors.selected().unit_symbol}, cache: true}).success($scope.onThresholdsFetch);
+    sensors.onSensorsSelectedIdChange(newValue, oldValue, $scope.onThresholdsFetch);
   });
 
   $scope.onThresholdsFetch = function(data, status, headers, config) {
@@ -136,7 +119,9 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
     $scope.$digest();
   };
 
-  $scope.$watch("sensors.selectedParameter", function(newValue) { sensors.onSelectedParameterChange(newValue); }, true);
+  $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
+    sensors.onSelectedParameterChange(newValue, oldValue, true);
+  }, true);
 
   $scope.setDefaults();
 }
