@@ -152,7 +152,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     buildSensorId: function(sensor) {
       return sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
     },
-    onSensorsSelectedIdChange: function(newValue, oldValue, callback = null) {
+    onSensorsSelectedIdChange: function(newValue, oldValue, callback) {
       console.log("onSensorsSelectedIdChange - ", newValue, " - ", oldValue);
 
       if(sensorChangedToAll(newValue)) return;
