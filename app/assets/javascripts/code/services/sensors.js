@@ -128,16 +128,16 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     },
     onSelectedParameterChange: function(selectedParameter, oldValue, onChangeSelectSensorWithMostSessions = false) {
       console.log('onSelectedParameterChange() - ', selectedParameter)
-      if (selectedParameter === oldValue) return; // first run
-      if (selectedParameter) { // not 'all'
+      if (selectedParameter === oldValue) return; // first angular watch run
+      if (sensorChangedToAll(selectedParameter)) {
+        this.availableSensors = this.sensors;
+        this.setAllSensors();
+      } else {
         this.availableSensors = _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == selectedParameter["id"]})
         if (onChangeSelectSensorWithMostSessions) {
           var sensor = max(function(sensor) { return sensor.session_count; }, this.availableSensors) || { id: null };
           params.update({data: {sensorId: sensor.id}});
         }
-      } else { // 'all'
-        this.availableSensors = this.sensors;
-        this.setAllSensors();
       }
     },
     onSelectedSensorChange: function(newSensorId) {
@@ -155,7 +155,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     onSensorsSelectedIdChange: function(newValue, oldValue, callback = null) {
       console.log("onSensorsSelectedIdChange - ", newValue, " - ", oldValue);
 
-      if(!newValue) return; // selectedId === 'all'
+      if(sensorChangedToAll(newValue)) return;
 
       if (callback) {
         spinner.show();
@@ -165,7 +165,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
         }).success(callback);
       }
 
-      if (newValue === oldValue) return; // first run
+      if (newValue === oldValue) return; // first angular watch run
 
       params.update({data: {sensorId: newValue}});
       params.update({sessionsIds: []});
