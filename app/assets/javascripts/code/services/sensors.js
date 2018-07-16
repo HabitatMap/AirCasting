@@ -129,6 +129,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     onSelectedParameterChange: function(selectedParameter, oldValue) {
       console.log('onSelectedParameterChange() - ', selectedParameter)
       if (selectedParameter === oldValue) return; // first angular watch run
+      params.update({sessionsIds: []});
       if (hasChangedToAll(selectedParameter)) {
         this.availableSensors = this.sensors;
         this.setAllSensors();
