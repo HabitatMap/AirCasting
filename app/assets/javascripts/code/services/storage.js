@@ -55,7 +55,7 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
         this.update(name);
       }
     },
-    updateDefaults :  function(newData) {
+    updateDefaults: function(newData) {
       this.defaults = utils.merge(this.defaults, newData);
     },
     updateFromDefaults: function() {
