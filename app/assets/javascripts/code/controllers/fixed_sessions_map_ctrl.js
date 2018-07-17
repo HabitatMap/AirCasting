@@ -29,7 +29,7 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 
     storage.updateDefaults({
       sensorId: sensors.defaultSensor,
-      location: {address: "", distance: "10", limit: true, outdoorOnly: true, streaming: true},
+      location: {address: "", distance: "10", outdoorOnly: true, streaming: true},
       tags: "",
       usernames: ""
     });
