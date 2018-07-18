@@ -34,7 +34,7 @@ angular.module('aircasting').factory('drawSession',
       session.lines.push(map.drawLine(points));
 
       session.drawed = true;
-      map.appendViewport(bounds);
+      map.fitBounds(bounds);
     },
 
     drawFixedSession: function(session, bounds) {
@@ -53,7 +53,7 @@ angular.module('aircasting').factory('drawSession',
 
       session.markers.push(map.drawMarker(session, markerOptions, null, level));
       session.drawed = true;
-      if (!session.is_indoor) map.appendViewport(bounds);
+      if (!session.is_indoor) map.fitBounds(bounds);
       
       return session.markers;
     },
@@ -77,7 +77,7 @@ angular.module('aircasting').factory('drawSession',
       });
       session.drawed = false;
       if(!noMove){
-        map.appendViewport(bounds);
+        map.fitBounds(bounds);
       }
     },
 

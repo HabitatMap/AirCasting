@@ -121,7 +121,7 @@ angular.module("aircasting").factory('fixedSessions', [
       onSingleSessionFetch: function(session, data) {
         var callback = function(self, session) {
           if (!markerSelected.get() && !session.is_indoor) {
-            map.appendViewport(boundsCalculator(self.allSelected()));
+            map.fitBounds(boundsCalculator(self.allSelected()));
           }
         }
         sessionsUtils.onSingleSessionFetch(this, session, data, callback);
