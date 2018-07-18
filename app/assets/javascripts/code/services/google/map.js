@@ -77,9 +77,6 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       var bounds = new google.maps.LatLngBounds(southwest, northeast);
       var self = this;
       self.mapObj.fitBounds(bounds);
-      $timeout(function(){
-        self.mapObj.fitBounds(bounds);
-      });
     },
     onMapTypeIdChanged: function() {
       var mapType = this.mapObj.getMapTypeId();
