@@ -155,8 +155,7 @@ angular.module("aircasting").factory('fixedSessions', [
           year_to:  data.time.yearTo,
           tags:  data.tags,
           usernames:  data.usernames,
-          session_ids: sessionIds,
-          page_size: 1000
+          session_ids: sessionIds
         };
         var location = data.location;
         if(location.limit){

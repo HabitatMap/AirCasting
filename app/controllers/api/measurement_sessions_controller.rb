@@ -28,9 +28,6 @@ module Api
       data = decoded_query_data(params[:q])
       INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
-      page = params[:page] || 0
-      page_size = params[:page_size] || 50
-
       begin
         respond_with MobileSession.filtered_json(data, page, page_size)
       rescue WrongCoordinatesError => e
@@ -84,6 +81,14 @@ module Api
     end
 
     private
+
+    def page
+      @page ||= params[:page] || 0
+    end
+
+    def page_size
+      @page_size ||= params[:page_size] || 50
+    end
 
     def decoded_query_data(query)
       if query.is_a?(String)
