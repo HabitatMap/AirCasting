@@ -7,3 +7,4 @@ function IECheckCtrl($scope, $cookieStore) {
   };
 }
 IECheckCtrl.$inject = ['$scope', '$cookieStore'];
+angular.module('aircasting').controller('IECheckCtrl', IECheckCtrl);

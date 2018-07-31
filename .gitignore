@@ -41,3 +41,7 @@ config/rails_best_practices.yml
 .jhw-cache
 
 .capistrano/
+
+/node_modules
+/public/webpack
+yarn-error.log

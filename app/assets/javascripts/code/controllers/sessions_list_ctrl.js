@@ -1,5 +1,7 @@
 function SessionsListCtrl($scope, params, map, sensors, storage, flash,
                           functionBlocker, $window, drawSession, openSensorDialog, markerSelected) {
+  let sessions;
+  let singleSession;
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
@@ -7,8 +9,8 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
     $scope.sensors = sensors;
     $scope.page = 0;
     $scope.markerSelected = markerSelected;
-    sessions = $scope.sessions;
-    singleSession = $scope.singleSession;
+    window.sessions = sessions = $scope.sessions;
+    window.singleSession = singleSession = $scope.singleSession;
 
     if(_(params.get("sessionsIds", [])).isEmpty()){
       params.update({sessionsIds: []});
@@ -158,3 +160,4 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
 }
 SessionsListCtrl.$inject = ['$scope', 'params', 'map', 'sensors', 'storage',
   'flash', 'functionBlocker', '$window', 'drawSession', 'openSensorDialog', 'markerSelected'];
+angular.module('aircasting').controller('SessionsListCtrl', SessionsListCtrl);

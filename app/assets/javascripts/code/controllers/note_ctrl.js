@@ -9,3 +9,4 @@ function NoteCtrl($scope, note, singleMobileSession) {
   $scope.number = noteNumber + '/' + total;
 }
 NoteCtrl.$inject = ['$scope', 'note', 'singleMobileSession'];
+angular.module('aircasting').controller('NoteCtrl', NoteCtrl);

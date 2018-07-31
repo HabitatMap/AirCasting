@@ -3,7 +3,8 @@ function TmpSensorDialogCtrl($scope, sensors, params) {
   $scope.params = params;
 
   $scope.availSensors = function() {
-    return singleSession ? singleSession.availSensors() : [];
+    return window.singleSession ? window.singleSession.availSensors() : [];
   };
 }
 TmpSensorDialogCtrl.$inject = ['$scope', 'sensors', 'params'];
+angular.module('aircasting').controller('TmpSensorDialogCtrl', TmpSensorDialogCtrl);

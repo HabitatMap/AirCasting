@@ -93,3 +93,4 @@ FixedSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
   'map', 'sensors', 'expandables', 'storage', 'fixedSessions', 'versioner',
   'storageEvents', 'singleFixedSession', 'functionBlocker', '$window', '$location', 'spinner',
   'rectangles', 'infoWindow', '$http', 'sensorsList'];
+angular.module('aircasting').controller('FixedSessionsMapCtrl', FixedSessionsMapCtrl);

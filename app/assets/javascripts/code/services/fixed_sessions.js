@@ -135,9 +135,7 @@ angular.module("aircasting").factory('fixedSessions', [
       drawSessionsInLocation: function() {
         map.markers = [];
         markersClusterer.clear();
-        _(this.get()).each(function(session) {
-          drawSession.drawFixedSession(session, boundsCalculator(this.sessions.get()));
-        });
+        _(this.get()).each(session => drawSession.drawFixedSession(session, boundsCalculator(this.sessions)));
         markersClusterer.draw(map.get(), map.markers);
       },
 

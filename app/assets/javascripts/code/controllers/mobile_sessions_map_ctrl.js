@@ -71,3 +71,4 @@ MobileSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
    'map', 'sensors', 'expandables', 'storage', 'mobileSessions', 'versioner',
   'storageEvents', 'singleMobileSession', 'functionBlocker', '$window', "$location",
   "rectangles", "infoWindow", "markersClusterer", 'sensorsList'];
+angular.module('aircasting').controller('MobileSessionsMapCtrl', MobileSessionsMapCtrl);

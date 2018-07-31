@@ -17,20 +17,3 @@
 
   You can contact the authors by email at <info@habitatmap.org>
 */
-
-//= require libs/jquery
-//= require libs/markerclusterer.js
-//= require libs/moment
-//= require libs/jquery_ui
-//= require angular
-//= require angular-route
-//= require angular-cookies
-//= require underscore
-//= require underscore.string
-//= require libs/spin
-//= require libs/highcharts/highstock
-//= require libs/jquery.lightbox-0.5
-//= require code/aircasting
-//= require_tree ./code/services
-//= require_tree ./code/directives
-//= require_tree ./code/controllers

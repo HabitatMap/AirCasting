@@ -6,6 +6,7 @@ gem 'acts-as-taggable-on', '~> 2.3.3'
 gem 'coffee-script-source', '1.1.2'
 gem 'colored', require: false
 gem 'devise', '~> 2.0.5'
+gem "foreman"
 gem 'geocoder', '~> 1.2'
 gem 'haml'
 gem 'honeybadger', '~> 2.0'
@@ -24,6 +25,7 @@ gem 'sidekiq', '< 4'
 gem 'sidekiq-unique-jobs', '3.0.12'
 gem 'sinatra', require: false
 gem 'thin', '~> 1.6', '>= 1.6.4'
+gem 'webpack-rails'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -71,13 +73,4 @@ group :development do
   gem 'awesome_print'
   gem 'metric_fu'
   gem 'quiet_assets'
-end
-
-ANGULAR_VERSION = '~> 1.2.29'
-source 'https://rails-assets.org' do
-  gem 'rails-assets-angular', ANGULAR_VERSION
-  gem 'rails-assets-angular-cookies', ANGULAR_VERSION
-  gem 'rails-assets-angular-route', ANGULAR_VERSION
-  gem 'rails-assets-underscore', '~> 1.8.3'
-  gem 'rails-assets-underscore.string', '~> 2.4.0'
 end

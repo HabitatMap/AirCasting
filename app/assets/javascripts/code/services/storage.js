@@ -1,7 +1,7 @@
 angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils',  function(params, $rootScope, utils) {
   var Storage = function() {
     this.data = {heat: {}};
-    self = this;
+    const self = this;
     this.counter = 0;
     var scope = $rootScope.$new();
     //TODO change to emitter and broadcasters

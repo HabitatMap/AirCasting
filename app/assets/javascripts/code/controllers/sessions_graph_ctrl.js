@@ -81,3 +81,4 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
 }
 SessionsGraphCtrl.$inject = ['$scope', 'map',  'graph', 'flash', 'heat', 'sensors',
   'graphHighlight', '$window', '$timeout'];
+angular.module('aircasting').controller('SessionsGraphCtrl', SessionsGraphCtrl);

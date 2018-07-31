@@ -13,3 +13,4 @@ function HudCtrl($scope, map, spinner, versioner) {
 
 }
 HudCtrl.$inject = ['$scope', 'map', 'spinner', 'versioner'];
+angular.module('aircasting').controller('HudCtrl', HudCtrl);

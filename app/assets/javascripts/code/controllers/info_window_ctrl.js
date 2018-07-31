@@ -3,3 +3,4 @@ function InfoWindowCtrl($scope, sensors, infoWindow ) {
   $scope.infoWindow = infoWindow;
 }
 InfoWindowCtrl.$inject = ['$scope', 'sensors', 'infoWindow'];
+angular.module('aircasting').controller('InfoWindowCtrl', InfoWindowCtrl);

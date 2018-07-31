@@ -4,3 +4,4 @@ function UsernamesAndTagsFiltersCtrl($scope, expandables, storage, storageEvents
   $scope.expandables = expandables;
 }
 UsernamesAndTagsFiltersCtrl.$inject = ['$scope', 'expandables', 'storage', 'storageEvents'];
+angular.module('aircasting').controller('UsernamesAndTagsFiltersCtrl', UsernamesAndTagsFiltersCtrl);

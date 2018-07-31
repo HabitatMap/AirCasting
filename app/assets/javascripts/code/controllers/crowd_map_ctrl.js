@@ -128,3 +128,4 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
 CrowdMapCtrl.$inject = ['$scope', '$http', 'params', 'heat',
   '$window', 'map', 'sensors', 'expandables', '$location', 'versioner', 'storage',
   'storageEvents', 'infoWindow', 'rectangles', 'spinner', 'functionBlocker', 'utils', 'flash', 'markersClusterer', 'sensorsList'];
+angular.module('aircasting').controller('CrowdMapCtrl', CrowdMapCtrl);
