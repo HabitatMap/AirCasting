@@ -158,7 +158,7 @@ class Session < ActiveRecord::Base
     .with_user_and_streams
     .filter(data).as_json(
       only: filtered_json_fields,
-      methods: session_methods(data)
+      methods: session_methods
     )
   end
 
@@ -167,13 +167,12 @@ class Session < ActiveRecord::Base
     .with_user_and_streams
     .as_json(
       only: filtered_json_fields,
-      methods: session_methods(data)
+      methods: session_methods
     )
   end
 
-  def self.session_methods(data)
-    methods = [:username, :streams]
-    methods
+  def self.session_methods
+    [:username, :streams]
   end
 
   def self.with_user_and_streams
@@ -215,9 +214,8 @@ class Session < ActiveRecord::Base
     strs.each do |stream|
       if opts[:stream_measurements]
         if type == "FixedSession"
-          stream_json = stream.as_json
           measurements_to_send = get_measurement_scope(stream.id, opts[:last_measurement_sync])
-          map_of_streams[stream.sensor_name] = stream_json.merge(measurements: measurements_to_send).as_json
+          map_of_streams[stream.sensor_name] = stream.as_json.merge(measurements: measurements_to_send).as_json
         else
           map_of_streams[stream.sensor_name] = stream.as_json(include: { measurements: { only: [:time, :value, :latitude, :longitude] } })
         end

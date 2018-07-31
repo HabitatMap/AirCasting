@@ -11,3 +11,4 @@ function FlashCtrl($scope, flash,  $timeout) {
   };
 }
 FlashCtrl.$inject = ['$scope', 'flash', '$timeout'];
+angular.module('aircasting').controller('FlashCtrl', FlashCtrl);

@@ -34,3 +34,4 @@ function TimeFiltersCtrl($scope, params, expandables, storage, storageEvents, ut
   }
 }
 TimeFiltersCtrl.$inject = ['$scope', 'params',  'expandables', 'storage', 'storageEvents', 'utils'];
+angular.module('aircasting').controller('TimeFiltersCtrl', TimeFiltersCtrl);

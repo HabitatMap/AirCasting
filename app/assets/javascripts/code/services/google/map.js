@@ -55,7 +55,7 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       params.update({map: {zoom: zoom, lat: lat, lng: lng, mapType: mapType}});
       digester();
     },
-    appendViewport: function(obj) {
+    fitBounds: function(obj) {
       var northeast;
       var point = {
         lat: 50.09024,
@@ -77,9 +77,6 @@ angular.module("google").factory("map", ["params", "$cookieStore", "$rootScope",
       var bounds = new google.maps.LatLngBounds(southwest, northeast);
       var self = this;
       self.mapObj.fitBounds(bounds);
-      $timeout(function(){
-        self.mapObj.fitBounds(bounds);
-      });
     },
     onMapTypeIdChanged: function() {
       var mapType = this.mapObj.getMapTypeId();

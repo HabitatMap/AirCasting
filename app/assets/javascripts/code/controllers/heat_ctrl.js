@@ -1,5 +1,5 @@
 function HeatCtrl($scope, sensors, storage, storageEvents, heat ) {
-  singleSession = $scope.singleSession;
+  const singleSession = $scope.singleSession;
 
   $scope.storage = storage;
   $scope.storageEvents = storageEvents;
@@ -15,3 +15,4 @@ function HeatCtrl($scope, sensors, storage, storageEvents, heat ) {
   };
 }
 HeatCtrl.$inject = ['$scope', 'sensors', 'storage', 'storageEvents', 'heat'];
+angular.module('aircasting').controller('HeatCtrl', HeatCtrl);

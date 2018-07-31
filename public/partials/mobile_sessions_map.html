@@ -12,7 +12,7 @@
     </p>
     <p>
       <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for (sensorId, sensor) in sensors.availableSensors">
-        <option value="">All</option>
+        <option disabled value="">All</option>
       </select>
     </p>
     </section>

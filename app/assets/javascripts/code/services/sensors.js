@@ -1,4 +1,12 @@
 angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', function(params, $http, spinner) {
+  function hasChangedToAll(newValue) {
+    return !newValue;
+  }
+  function max(valueOf, xs) {
+    var reducer = function(acc, x) { return valueOf(x) > valueOf(acc) ? x : acc };
+    return xs.reduce(reducer, xs[0]);
+  }
+
   var Sensors = function() {
     spinner.show();
 
@@ -101,9 +109,6 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
       console.log('setAllSensors')
       params.update({data: {sensorId: ""}});
     },
-    sensorChangedToAll: function(newValue) {
-      return !newValue;
-    },
     findSensorById: function(id) {
       return this.sensors[id]
     },
@@ -121,17 +126,24 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
         return this.sensors;
       }
     },
-    onSelectedParameterChange: function(selectedParameter) {
+    onSelectedParameterChange: function(selectedParameter, oldValue) {
       console.log('onSelectedParameterChange() - ', selectedParameter)
-      if (selectedParameter) {
-        this.availableSensors = _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == selectedParameter["id"]})
-      } else {
+      if (selectedParameter === oldValue) return; // first angular watch run
+      params.update({sessionsIds: []});
+      if (hasChangedToAll(selectedParameter)) {
         this.availableSensors = this.sensors;
         this.setAllSensors();
+      } else {
+        this.availableSensors = _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == selectedParameter["id"]})
+        var sensor = max(function(sensor) { return sensor.session_count; }, this.availableSensors) || { id: null };
+        params.update({data: {sensorId: sensor.id}});
       }
     },
     onSelectedSensorChange: function(newSensorId) {
-      console.log('onSelectedSensorChange() - ', newSensorId)
+      console.log('onSelectedSensorChange() - ', newSensorId);
+      if(hasChangedToAll(newSensorId)){
+        params.update({data: {sensorId: ""}});
+      }
       var sensor = this.findSensorById(newSensorId);
       var parameterForSensor = this.findParameterForSensor(sensor);
       this.selectedParameter = parameterForSensor;
@@ -139,6 +151,24 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
     buildSensorId: function(sensor) {
       return sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
     },
+    onSensorsSelectedIdChange: function(newValue, oldValue, callback) {
+      console.log("onSensorsSelectedIdChange - ", newValue, " - ", oldValue);
+
+      if(hasChangedToAll(newValue)) return;
+
+      if (callback) {
+        spinner.show();
+        $http.get( '/api/thresholds/' + this.selected().sensor_name, {
+          params: { unit_symbol: this.selected().unit_symbol },
+          cache: true
+        }).success(callback);
+      }
+
+      if (newValue === oldValue) return; // first angular watch run
+
+      params.update({data: {sensorId: newValue}});
+      params.update({sessionsIds: []});
+    }
   };
   return new Sensors();
 }]);

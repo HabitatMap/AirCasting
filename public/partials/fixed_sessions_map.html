@@ -12,7 +12,7 @@
     </p>
     <p>
       <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for (sensorId, sensor) in sensors.availableSensors">
-        <option value="">All</option>
+        <option disabled value="">All</option>
       </select>
     </p>
     </section>
@@ -33,11 +33,6 @@
             <option value="10">10 Miles radius</option>
             <option value="20">20 Miles radius</option>
           </select>
-        </p>
-
-        <p>
-          <input type="checkbox" ng-model="storage.data.location.limit" id="checkbox-limit-search-fixed">
-          <label for="checkbox-limit-search-fixed">Limit my search to the current map view</label>
         </p>
 
         <p>

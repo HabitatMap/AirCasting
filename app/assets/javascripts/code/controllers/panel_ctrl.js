@@ -43,3 +43,4 @@ function PanelCtrl($scope,  $location, expandables) {
   };
 }
 PanelCtrl.$inject = ['$scope', '$location', 'expandables'];
+angular.module('aircasting').controller('PanelCtrl', PanelCtrl);

@@ -13,7 +13,6 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
     $scope.singleSession = singleMobileSession;
     $scope.$window = $window;
 
-    functionBlocker.block("selectedId", !!params.get('data').sensorId);
     functionBlocker.block("sessionHeat", !_(params.get('sessionsIds')).isEmpty());
 
     rectangles.clear();
@@ -44,30 +43,10 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
     params.update({'didSessionsSearch': true});
   };
 
-  //fix for json null parsing
-  $scope.$watch("params.get('data').sensorId", function(newValue) {
-    console.log("watch - params.get('data').sensorId - ", newValue);
-    if(sensors.sensorChangedToAll(newValue)){
-      params.update({data: {sensorId: ""}});
-    }
-
-    sensors.onSelectedSensorChange(newValue);
-  }, true);
+  $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    console.log("watch - sensors.selectedId() - ", newValue, " - ", oldValue);
-    if(!newValue){
-      return;
-    }
-
-    params.update({data: {sensorId: newValue}});
-
-    // Possibly this is not needed
-    sensors.onSelectedSensorChange(newValue);
-
-    functionBlocker.use("selectedId", function(){
-      params.update({sessionsIds: []});
-    });
+    sensors.onSensorsSelectedIdChange(newValue, oldValue, false);
   }, true);
 
   $scope.heatUpdateCondition = function() {
@@ -83,9 +62,8 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
    }, true);
 
   $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
-    console.log("watch - selectedParameter()");
-    sensors.onSelectedParameterChange(newValue);
-  }, true)
+    sensors.onSelectedParameterChange(newValue, oldValue);
+  }, true);
 
   $scope.setDefaults();
 }
@@ -93,3 +71,4 @@ MobileSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
    'map', 'sensors', 'expandables', 'storage', 'mobileSessions', 'versioner',
   'storageEvents', 'singleMobileSession', 'functionBlocker', '$window', "$location",
   "rectangles", "infoWindow", "markersClusterer", 'sensorsList'];
+angular.module('aircasting').controller('MobileSessionsMapCtrl', MobileSessionsMapCtrl);

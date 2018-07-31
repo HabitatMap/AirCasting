@@ -44,8 +44,7 @@ cp config/secrets.yml.example config/secrets.yml
 # fill proper secrets in config/secrets.yml
 bundle install
 bundle exec rake db:create db:migrate
-bundle exec sidekiq -d
-bundle exec rails server
+bundle exec foreman start
 # visit http://localhost:3000
 ```
 
