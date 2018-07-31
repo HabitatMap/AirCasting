@@ -132,8 +132,7 @@ angular.module("aircasting").factory('mobileSessions', [
           usernames:  data.usernames,
           session_ids: sessionIds
         };
-        var location = data.location;
-        if(location.limit){
+        if(data.location.limit){
           _(reqData).extend({
             west: viewport.west,
             east: viewport.east,
@@ -142,10 +141,10 @@ angular.module("aircasting").factory('mobileSessions', [
           });
         }
 
-        if(!location.limit && location.address) {
+        if(!data.location.limit && data.location.address) {
           _(reqData).extend({
-            location:  location.address,
-            distance:  location.distance
+            location:  data.location.address,
+            distance:  data.location.distance
           });
         }
         if(sensors.selected()){

@@ -157,8 +157,19 @@ angular.module("aircasting").factory('fixedSessions', [
           usernames:  data.usernames,
           session_ids: sessionIds
         };
-        var location = data.location;
-        if(location.limit){
+
+        if(data.location.outdoorOnly){
+          _(reqData).extend({
+            is_indoor: false
+          });
+        }
+
+        if(data.location.address) {
+          _(reqData).extend({
+            location:  data.location.address,
+            distance:  data.location.distance
+          });
+        } else {
           _(reqData).extend({
             west: viewport.west,
             east: viewport.east,
@@ -167,17 +178,6 @@ angular.module("aircasting").factory('fixedSessions', [
           });
         }
 
-        if(location.outdoorOnly){
-          _(reqData).extend({
-            is_indoor: false
-          });
-        }
-        if(!location.limit && location.address) {
-          _(reqData).extend({
-            location:  location.address,
-            distance:  location.distance
-          });
-        }
         if(sensors.selected()){
           _(reqData).extend({
             sensor_name:  sensors.selected().sensor_name,
