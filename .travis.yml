@@ -1,20 +1,27 @@
-language: ruby
-cache: bundler
-rvm:
-  - 1.9.3
-  - 2.0.0
 sudo: false
-bundler_args: --without development
+language: ruby
+before_install:
+  - gem update --system
+cache:
+  bundler: true
+  directories:
+    - node_modules
+  yarn: true
 addons:
   apt:
     packages:
-    - libgsl0-dev
-services:
-  - redis-server
+      - libgsl0-dev
+install:
+  - bundle install
+  - nvm install node
+  - node -v
+  - npm i -g yarn
+  - yarn
 before_script:
   - cp config/database.yml.travis config/database.yml
+  - cp config/secrets.yml.example config/secrets.yml
   - mysql -e 'create database aircasting_test;'
   - RAILS_ENV=test bundle exec rake db:migrate
 script:
   - yarn test
-  - bundle exec rspec --color && bundle exec rake spec:javascript
+  - bundle exec rspec --color
