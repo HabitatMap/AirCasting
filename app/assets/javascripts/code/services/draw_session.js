@@ -9,7 +9,7 @@ angular.module('aircasting').factory('drawSession',
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
-      this.undoDraw(session, true);
+      this.undoDraw(session);
 
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       session.markers = [];
@@ -38,7 +38,7 @@ angular.module('aircasting').factory('drawSession',
     },
 
     drawFixedSession: function(session, bounds) {
-      this.undoDraw(session, true);
+      this.undoDraw(session);
       session.markers = [];
       session.noteDrawings = [];
       session.lines = [];
@@ -54,7 +54,7 @@ angular.module('aircasting').factory('drawSession',
       session.markers.push(map.drawMarker(session, markerOptions, null, level));
       session.drawed = true;
       if (!session.is_indoor) map.fitBounds(bounds);
-      
+
       return session.markers;
     },
 
@@ -62,7 +62,7 @@ angular.module('aircasting').factory('drawSession',
       return heat.getLevel(value);
     },
 
-    undoDraw: function(session, bounds, noMove) {
+    undoDraw: function(session, bounds) {
       if(!session.drawed){
         return;
       }
@@ -76,7 +76,7 @@ angular.module('aircasting').factory('drawSession',
         map.removeMarker(noteItem);
       });
       session.drawed = false;
-      if(!noMove){
+      if(bounds){
         map.fitBounds(bounds);
       }
     },
