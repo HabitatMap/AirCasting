@@ -32,12 +32,18 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
     $scope.page++;
   };
 
-  $scope.$watch("page", function() {
+  $scope.$watch("page", () => {
     console.log("watch - page");
     sessions.fetch($scope.page);
   }, true);
 
-  $scope.$watch("sessionFetchCondition()", function(newValue, oldValue) {
+  $scope.$watch("params.get('map')", () => {
+    console.log("watch - params.get('map')");
+    $scope.page = 0;
+    sessions.fetch($scope.page);
+  }, true);
+
+  $scope.$watch("sessionFetchCondition()", () => {
     console.log("watch - sessionFetchCondition()");
     $scope.page = 0;
     sessions.fetch($scope.page);
