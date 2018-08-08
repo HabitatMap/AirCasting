@@ -1,6 +1,6 @@
 angular.module('aircasting').directive('googlemap', function() {
   return {
-    link: function(scope, element, attrs, controller) {
+    link: function(scope, element) {
       // United States
       var point = {
         lat: 37.09024,
