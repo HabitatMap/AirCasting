@@ -90,6 +90,22 @@ angular.module("aircasting").factory('fixedSessions', [
       },
 
       selectSession: function(id) {
+        const session = this.find(id);
+        const allSelected = this.allSelected();
+        const fitBounds = () => {
+          if (!markerSelected.get() && !session.is_indoor) {
+            map.fitBounds(boundsCalculator(allSelected));
+          }
+        };
+        this._selectSession(id, fitBounds);
+      },
+
+      reSelectSession: function(id) {
+        const noop = () => {};
+        this._selectSession(id, noop);
+      },
+
+      _selectSession: function(id, callback) {
         var self = this;
         var session = this.find(id);
         if(!session || session.alreadySelected) return;
@@ -104,7 +120,7 @@ angular.module("aircasting").factory('fixedSessions', [
           cache : true,
           params: { sensor_id: sensorName }
         }).success(function(data){
-          self.onSingleSessionFetch(session, data);
+          sessionsUtils.onSingleSessionFetch(session, data, callback);
         });
       },
 
@@ -118,15 +134,6 @@ angular.module("aircasting").factory('fixedSessions', [
         }).compact().value();
       },
 
-      onSingleSessionFetch: function(session, data) {
-        var callback = function(self, session) {
-          if (!markerSelected.get() && !session.is_indoor) {
-            map.fitBounds(boundsCalculator(self.allSelected()));
-          }
-        }
-        sessionsUtils.onSingleSessionFetch(this, session, data, callback);
-      },
-
       downloadSessions: function(url, reqData) {
         sessionsDownloader(url, reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
           _(this.onSessionsFetchError).bind(this));
@@ -137,6 +144,10 @@ angular.module("aircasting").factory('fixedSessions', [
         markersClusterer.clear();
         _(this.get()).each(session => drawSession.drawFixedSession(session, boundsCalculator(this.sessions)));
         markersClusterer.draw(map.get(), map.markers);
+      },
+
+      shouldUpdateWithMapPanOrZoom: function() {
+        return true;
       },
 
       fetch: function(page) {

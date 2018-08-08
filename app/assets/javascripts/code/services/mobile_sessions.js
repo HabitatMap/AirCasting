@@ -71,11 +71,11 @@ angular.module("aircasting").factory('mobileSessions', [
 
 
 
-      onSingleSessionFetch: function(session, data) {
-        var callback = function(self) {
-          drawSession.drawMobileSession(session, boundsCalculator(self.allSelected()));
+      onSingleSessionFetch: function(session, data, allSelected) {
+        const draw = () => {
+          drawSession.drawMobileSession(session, boundsCalculator(allSelected));
         }
-        sessionsUtils.onSingleSessionFetch(this, session, data, callback);
+        sessionsUtils.onSingleSessionFetch(session, data, draw);
       },
 
       deselectSession: function(id) {
@@ -102,9 +102,11 @@ angular.module("aircasting").factory('mobileSessions', [
           cache : true,
           params: { sensor_id: sensorName }
         }).success(function(data){
-          self.onSingleSessionFetch(session, data);
+          self.onSingleSessionFetch(session, data, self.allSelected());
         });
       },
+
+      reSelectSession: function(id) { this.selectSession(id); },
 
       canSelectThatSession: function(session) {
         return (this.totalMeasurementsSelectedCount() + this.measurementsCount(session)) <= this.maxPoints;
@@ -112,6 +114,10 @@ angular.module("aircasting").factory('mobileSessions', [
 
       canSelectAllSessions: function() {
         return this.totalMeasurementsCount() <= this.maxPoints;
+      },
+
+      shouldUpdateWithMapPanOrZoom: function() {
+        return false;
       },
 
       fetch: function(page) {

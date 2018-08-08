@@ -15,6 +15,7 @@ angular.module("aircasting").factory('sessionsUtils', [
   ) {
     return {
       sessionsChanged: function (self, newIds, oldIds) {
+
         _(newIds).chain().difference(oldIds).each(_(self.selectSession).bind(self));
         _(oldIds).chain().difference(newIds).each(_(self.deselectSession).bind(self));
       },
@@ -66,7 +67,7 @@ angular.module("aircasting").factory('sessionsUtils', [
 
       reSelectAllSessions: function(self){
         _(params.get('sessionsIds')).each(function(id){
-          self.selectSession(id);
+          self.reSelectSession(id);
         });
       },
 
@@ -100,13 +101,13 @@ angular.module("aircasting").factory('sessionsUtils', [
         }, 0);
       },
 
-      onSingleSessionFetch: function(self, session, data, callback) {
+      onSingleSessionFetch: function(session, data, callback) {
         var streams = data.streams;
         delete data.streams;
         _(session).extend(data);
         _(session.streams).extend(streams);
         session.loaded = true;
-        callback(self, session);
+        callback();
         $timeout(function(){
           spinner.hide();
         });

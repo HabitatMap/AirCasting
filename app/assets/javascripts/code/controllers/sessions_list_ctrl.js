@@ -39,6 +39,7 @@ function SessionsListCtrl($scope, params, map, sensors, storage, flash,
 
   $scope.$watch("params.get('map')", () => {
     console.log("watch - params.get('map')");
+    if (sessions && !sessions.shouldUpdateWithMapPanOrZoom()) return;
     $scope.page = 0;
     sessions.fetch($scope.page);
   }, true);
