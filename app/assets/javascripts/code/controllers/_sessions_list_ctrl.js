@@ -1,3 +1,5 @@
+import _ from 'underscore';
+
 export const SessionsListCtrl = (
   $scope,
   params,
@@ -8,10 +10,12 @@ export const SessionsListCtrl = (
   $window,
   drawSession,
   openSensorDialog,
-  markerSelected
+  markerSelected,
+  map
 ) => {
   let sessions;
   let singleSession;
+
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.storage = storage;
@@ -19,14 +23,18 @@ export const SessionsListCtrl = (
     $scope.sensors = sensors;
     $scope.page = 0;
     $scope.markerSelected = markerSelected;
-    window.sessions = sessions = $scope.sessions;
-    window.singleSession = singleSession = $scope.singleSession;
+    $window.sessions = sessions = $scope.sessions;
+    $window.singleSession = singleSession = $scope.singleSession;
 
     if(_(params.get("sessionsIds", [])).isEmpty()){
       params.update({sessionsIds: []});
     }
 
     functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").tmpSensorId);
+
+    if (sessions && sessions.shouldUpdateWithMapPanOrZoom()) {
+      map.onPanOrZoom(() => storage.resetAddress());
+    }
   };
 
   $scope.isSessionDisabled = function(sessionId) {

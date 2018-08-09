@@ -55,6 +55,12 @@ angular.module("aircasting").factory('storage', ['params', '$rootScope', 'utils'
         this.update(name);
       }
     },
+    resetAddress: function() {
+      if(_(this.defaults).has('location')){
+        this.data.location = { ...this.data.location, address: '' };
+        this.update('location');
+      }
+    },
     updateDefaults: function(newData) {
       this.defaults = utils.merge(this.defaults, newData);
     },

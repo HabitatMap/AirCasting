@@ -11,5 +11,6 @@ angular.module('aircasting').controller('SessionsListCtrl', [
   'drawSession',
   'openSensorDialog',
   'markerSelected',
+  'map',
   SessionsListCtrl
 ]);
