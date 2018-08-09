@@ -29,17 +29,7 @@ config = {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
         use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              ['env', {
-                targets: {
-                  browsers: ['last 1 version', 'not dead', '> 0.2%'] // http://browserl.ist/?q=last+1+version%2C+not+dead%2C+%3E+0.2%25
-                }
-              }],
-            ],
-            plugins: ["transform-object-rest-spread"]
-          }
+          loader: 'babel-loader'
         }
       }
     ]
