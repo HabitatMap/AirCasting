@@ -2,24 +2,28 @@ import test from 'blue-tape';
 import { fixedSessions } from '../code/services/_fixed_sessions';
 
 test('fetch with address calls goToAddress', t => {
-  const $rootScope = { $new: () => ({}) };
-  const map = mockMap();
-  const params = { get: () => ({ location: { address: 'new york' } }) };
-  const fixedSessions_ = fixedSessions(params, null, map, null, $rootScope);
+  const map = mockMap('goToAddress');
+  const fixedSessionsService = _fixedSessionsService(map, 'new york');
 
-  fixedSessions_.fetch();
+  fixedSessionsService.fetch();
 
   t.true(map.wasCalled());
 
   t.end();
 });
 
-const mockMap = () => {
+const _fixedSessionsService = (map, address) => {
+  const $rootScope = { $new: () => ({}) };
+  const params = { get: () => ({ location: { address } }) };
+  return fixedSessions(params, null, map, null, $rootScope);
+};
+
+const mockMap = (name) => {
   let count = 0;
 
   return {
     viewport: () => {},
-    goToAddress: () => { count += 1 },
+    [name]: () => { count += 1 },
     wasCalled: () => count === 1
   };
 };

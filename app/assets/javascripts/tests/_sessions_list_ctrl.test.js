@@ -3,37 +3,36 @@ import { SessionsListCtrl } from '../code/controllers/_sessions_list_ctrl';
 
 test('it sets onPanOrZoom', t => {
   const map = mock('onPanOrZoom');
+  const sessions = {
+    shouldUpdateWithMapPanOrZoom: () => true
+  };
 
-  SessionsListCtrlWithMap(map);
+  _SessionsListCtrl(map, sessions);
 
   t.true(map.wasCalled());
 
   t.end();
 });
 
-const SessionsListCtrlWithMap = (map) => {
-  const sessions = {
-    shouldUpdateWithMapPanOrZoom: () => true
-  };
+const _SessionsListCtrl = (map, sessions) => {
   const scope = {
     setDefaults: () => {},
     $watch: () => {},
     $on: () => {},
     sessions
   };
-  const $window = {};
   const params = { get: () => ({}), update: () => {} };
   const functionBlocker = { block: () => {} };
-  const storage = {};
 
-  return SessionsListCtrl(scope, params, null, storage, null, functionBlocker, $window, null, null, null, map);
+  return SessionsListCtrl(scope, params, null, {}, null, functionBlocker, {}, null, null, null, map);
 }
 
 const mock = (name) => {
-  let count = 0;
+  let calls = [];
 
   return {
-    [name]: () => { count += 1 },
-    wasCalled: () => count === 1
+    [name]: arg => calls.push(arg),
+    wasCalled: () => calls.length === 1,
+    wasCalledWith: (arg) => deepEqual(arg, calls[calls.length - 1])
   };
 };

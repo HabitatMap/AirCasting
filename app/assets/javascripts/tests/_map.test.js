@@ -103,11 +103,12 @@ test('unregisterAll removes the onPanOrZoom callback too', t => {
 });
 
 const mock = (name) => {
-  let count = 0;
+  let calls = [];
 
   return {
-    [name]: () => { count += 1 },
-    wasCalled: () => count === 1
+    [name]: arg => calls.push(arg),
+    wasCalled: () => calls.length === 1,
+    wasCalledWith: (arg) => deepEqual(arg, calls[calls.length - 1])
   };
 };
 
