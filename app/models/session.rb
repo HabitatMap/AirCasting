@@ -95,7 +95,8 @@ class Session < ActiveRecord::Base
     elsif location.present?
       sessions = sessions.joins(:streams)
       point = Geocoder.coordinates(location)
-      box = Geocoder::Calculations.bounding_box(point, data[:distance])
+      radius_in_miles = 20
+      box = Geocoder::Calculations.bounding_box(point, radius_in_miles)
 
       validate_box_coordinates!(box)
 

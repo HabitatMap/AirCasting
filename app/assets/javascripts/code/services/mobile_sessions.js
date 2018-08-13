@@ -149,8 +149,7 @@ angular.module("aircasting").factory('mobileSessions', [
 
         if(!data.location.limit && data.location.address) {
           _(reqData).extend({
-            location:  data.location.address,
-            distance:  data.location.distance
+            location:  data.location.address
           });
         }
         if(sensors.selected()){

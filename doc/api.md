@@ -22,7 +22,6 @@ endpoint below, i.e. `/api/sessions/:id`
 | q[tags]        | text              |               |
 | q[usernames]   | text              |               |
 | q[location]    | text              |               |
-| q[distance]    | number            |               |
 | q[sensor_name] | text              |               |
 | q[unit_symbol] | text              |               |
 | q[east]        | number, -180..180 |               |
@@ -33,7 +32,7 @@ endpoint below, i.e. `/api/sessions/:id`
 ### Example URL
 
 ```
-curl http://aircasting.org/api/sessions.json?page=0&page_size=50&q[measurements]=true&q[time_from]=0&q[time_to]=1439&q[day_from]=0&q[day_to]=355&q[usernames]=HHHDenver&q[location]=Denver&q[distance]=50&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³
+curl http://aircasting.org/api/sessions.json?page=0&page_size=50&q[measurements]=true&q[time_from]=0&q[time_to]=1439&q[day_from]=0&q[day_to]=355&q[usernames]=HHHDenver&q[location]=Denver&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³
 ```
 
 ### Example response

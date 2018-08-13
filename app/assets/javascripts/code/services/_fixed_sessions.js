@@ -171,8 +171,7 @@ export const fixedSessions = (
 
       if(data.location.address) {
         _(reqData).extend({
-          location:  data.location.address,
-          distance:  data.location.distance
+          location:  data.location.address
         });
       } else {
         _(reqData).extend({

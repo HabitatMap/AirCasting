@@ -30,7 +30,7 @@ function MobileSessionsMapCtrl($scope, params, heat, map, sensors, expandables, 
 
     storage.updateDefaults({
       sensorId: "",
-      location: {address: "", distance: "10", limit: false},
+      location: {address: "", limit: false},
       tags: "",
       usernames: ""
     });

@@ -5,11 +5,11 @@ import { storage } from '../code/services/_storage';
 test('resetAddress calls params.update with emptied address', t => {
   const params = mock('update');
   const storageService = _storage(params);
-  storageService.set('location', { address: 'new york', distance: 10 });
+  storageService.set('location', { address: 'new york', streaming: true });
 
   storageService.resetAddress();
 
-  t.true(params.wasCalledWith({ data: { location: { address: '', distance: 10 } } }));
+  t.true(params.wasCalledWith({ data: { location: { address: '', streaming: true } } }));
 
   t.end();
 });
