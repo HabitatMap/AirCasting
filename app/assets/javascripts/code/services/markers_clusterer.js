@@ -1,18 +1,24 @@
-angular.module("aircasting").factory('markersClusterer', ['map', function(map) {
+const markersClusterer = map => {
+  const styles = [{
+    url: '/assets/1.png',
+    height: 53,
+    width: 53,
+    textColor: 'white'
+  }];
 
-  var MarkersClusterer = function() {
-    this.markerCluster = new MarkerClusterer(map.get(), [], {gridSize: 40, imagePath: '/assets/'});
-  };
+  const options = { styles };
 
-  MarkersClusterer.prototype = {
+  let markerCluster = new MarkerClusterer(map.get(), [], options);
+
+  return {
     draw: function(map, markers) {
-      this.markerCluster = new MarkerClusterer(map, markers, {gridSize: 40, imagePath: '/assets/'});
+      markerCluster = new MarkerClusterer(map, markers, options);
     },
 
     clear: function() {
-      this.markerCluster.clearMarkers();
+      markerCluster.clearMarkers();
     }
   };
+};
 
-  return new MarkersClusterer();
-}]);
+angular.module("aircasting").factory('markersClusterer', ['map', markersClusterer]);
