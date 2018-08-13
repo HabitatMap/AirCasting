@@ -1,6 +1,5 @@
-function HudCtrl($scope, map, spinner, versioner) {
+function HudCtrl($scope, map, versioner) {
   $scope.map = map;
-  $scope.spinner = spinner;
   $scope.versioner = versioner;
 
   $scope.onZoom = function(event, ui) {
@@ -12,5 +11,5 @@ function HudCtrl($scope, map, spinner, versioner) {
   };
 
 }
-HudCtrl.$inject = ['$scope', 'map', 'spinner', 'versioner'];
+HudCtrl.$inject = ['$scope', 'map', 'versioner'];
 angular.module('aircasting').controller('HudCtrl', HudCtrl);

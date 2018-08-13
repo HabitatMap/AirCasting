@@ -17,7 +17,7 @@
       #left-hud(ng-include="" src="versioner.path('/partials/left_hud.html')")
       #right-hud
         = yield
-      #ajax-loader(spinner="overlay")
+      %http-spinner(overlay="overlay")
       #zoom-box
         .content
           #zoom-out(ng-click="zoomStep(-1)")

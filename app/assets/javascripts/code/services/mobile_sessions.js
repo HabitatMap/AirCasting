@@ -4,7 +4,6 @@ angular.module("aircasting").factory('mobileSessions', [
   'map',
   'sensors',
   '$rootScope',
-  'spinner',
   'utils',
   'sessionsDownloader',
   'drawSession',
@@ -16,7 +15,6 @@ angular.module("aircasting").factory('mobileSessions', [
     map,
     sensors,
     $rootScope,
-    spinner,
     utils,
     sessionsDownloader,
     drawSession,
@@ -95,7 +93,6 @@ angular.module("aircasting").factory('mobileSessions', [
         var sensor = sensors.sensors[sensorId] || {};
         var sensorName = sensor.sensor_name;
         if (!sensorName) return;
-        spinner.show();
         session.alreadySelected = true;
         session.$selected = true;
         $http.get('/api/sessions/' + id, {
@@ -169,8 +166,6 @@ angular.module("aircasting").factory('mobileSessions', [
           sessionsDownloader('/api/multiple_sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
             _(this.onSessionsFetchError).bind(this));
         }
-
-        spinner.startDownloadingSessions();
 
         sessionsDownloader('/api/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
           _(this.onSessionsFetchError).bind(this));

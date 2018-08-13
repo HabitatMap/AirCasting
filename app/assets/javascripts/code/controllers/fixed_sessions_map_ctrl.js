@@ -1,5 +1,5 @@
 function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, storage, fixedSessions, versioner,
-                         storageEvents, singleFixedSession, functionBlocker, $window, $location, spinner,
+                         storageEvents, singleFixedSession, functionBlocker, $window, $location,
                          rectangles, infoWindow, $http, sensorsList) {
   sensors.setSensors(sensorsList);
   $scope.setDefaults = function() {
@@ -61,7 +61,6 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
         $scope.initializing = false;
       }
     });
-    spinner.hide();
   };
 
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
@@ -91,6 +90,6 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
 }
 FixedSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',
   'map', 'sensors', 'expandables', 'storage', 'fixedSessions', 'versioner',
-  'storageEvents', 'singleFixedSession', 'functionBlocker', '$window', '$location', 'spinner',
+  'storageEvents', 'singleFixedSession', 'functionBlocker', '$window', '$location',
   'rectangles', 'infoWindow', '$http', 'sensorsList'];
 angular.module('aircasting').controller('FixedSessionsMapCtrl', FixedSessionsMapCtrl);

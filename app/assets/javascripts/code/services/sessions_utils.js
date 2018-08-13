@@ -1,14 +1,12 @@
 angular.module("aircasting").factory('sessionsUtils', [
   'params',
   'sensors',
-  'spinner',
   "$timeout",
   'flash',
   'sessionsExporter',
   function(
     params,
     sensors,
-    spinner,
     $timeout,
     flash,
     sessionsExporter
@@ -42,11 +40,9 @@ angular.module("aircasting").factory('sessionsUtils', [
 
       onSessionsFetch: function(self) {
         self.reSelectAllSessions();
-        spinner.stopDownloadingSessions();
       },
 
       onSessionsFetchError: function(data){
-        spinner.stopDownloadingSessions();
         var errorMsg = data.error || 'There was an error, sorry' ;
         flash.set(errorMsg);
       },
@@ -108,9 +104,6 @@ angular.module("aircasting").factory('sessionsUtils', [
         _(session.streams).extend(streams);
         session.loaded = true;
         callback();
-        $timeout(function(){
-          spinner.hide();
-        });
       }
     };
 }]);

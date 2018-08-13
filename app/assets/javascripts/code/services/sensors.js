@@ -1,4 +1,4 @@
-angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', function(params, $http, spinner) {
+angular.module("aircasting").factory('sensors', ['params', '$http', function(params, $http) {
   function hasChangedToAll(newValue) {
     return !newValue;
   }
@@ -8,8 +8,6 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
   }
 
   var Sensors = function() {
-    spinner.show();
-
     this.sensors = {};
     this.tmpSensorId = undefined;
     this.shouldInitSelected = false;
@@ -56,7 +54,6 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
 
       // Initialize UI
       this.initSelected();
-      spinner.hide();
     },
     initSelected: function() {
       console.log('initSelected()')
@@ -157,7 +154,6 @@ angular.module("aircasting").factory('sensors', ['params', '$http', 'spinner', f
       if(hasChangedToAll(newValue)) return;
 
       if (callback) {
-        spinner.show();
         $http.get( '/api/thresholds/' + this.selected().sensor_name, {
           params: { unit_symbol: this.selected().unit_symbol },
           cache: true

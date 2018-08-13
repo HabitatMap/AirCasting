@@ -6,7 +6,6 @@ export const fixedSessions = (
   map,
   sensors,
   $rootScope,
-  spinner,
   utils,
   sessionsDownloader,
   drawSession,
@@ -101,7 +100,6 @@ export const fixedSessions = (
       var sensor = sensors.sensors[sensorId] || {};
       var sensorName = sensor.sensor_name;
       if (!sensorName) return;
-      spinner.show();
       session.alreadySelected = true;
       session.$selected = true;
       $http.get('/api/realtime/sessions/' + id, {
@@ -198,8 +196,6 @@ export const fixedSessions = (
         this.sessions = [];
         this.downloadSessions('/api/realtime/multiple_sessions.json', reqData);
       }
-
-      spinner.startDownloadingSessions();
 
       if (data.location.streaming) {
         this.downloadSessions('/api/realtime/streaming_sessions.json', reqData);
