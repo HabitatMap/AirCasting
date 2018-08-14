@@ -6,7 +6,6 @@ angular.module("aircasting").factory('fixedSessions', [
   'map',
   'sensors',
   '$rootScope',
-  'spinner',
   'utils',
   'sessionsDownloader',
   'drawSession',

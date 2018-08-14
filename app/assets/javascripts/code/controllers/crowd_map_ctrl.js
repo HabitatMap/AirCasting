@@ -1,5 +1,5 @@
 function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expandables, $location, versioner,
-                      storage, storageEvents, infoWindow, rectangles, spinner, functionBlocker, utils, flash, markersClusterer, sensorsList) {
+                      storage, storageEvents, infoWindow, rectangles, functionBlocker, utils, flash, markersClusterer, sensorsList) {
   sensors.setSensors(sensorsList);
   $scope.setDefaults = function() {
     $scope.params = params;
@@ -56,7 +56,6 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
       params.update({data: {heat: heat.parse(data)}});
     });
     $scope.getAverages();
-    spinner.hide();
   };
 
   $scope.$watch("params.get('data')", function(newValue, oldValue) {
@@ -72,12 +71,10 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
       return;
     }
     var reqData = $scope.averagesData(bounder);
-    spinner.show();
     $http.get('/api/averages', {cache: true, params : {q: reqData}}).error($scope.onError).success($scope.onAveragesFetch);
   };
 
   $scope.onError = function() {
-    spinner.hide();
     flash.set('There was an error, sorry');
   };
 
@@ -105,7 +102,6 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
   };
 
   $scope.onAveragesFetch = function(data, status, headers, config) {
-    spinner.hide();
     if($location.path() == "/map_crowd"){
        map.drawRectangles(data,
                        _(params.get('data').heat).chain().values().sortBy(function(i){return i;}).value(),
@@ -127,5 +123,5 @@ function CrowdMapCtrl($scope, $http, params, heat, $window, map, sensors, expand
 }
 CrowdMapCtrl.$inject = ['$scope', '$http', 'params', 'heat',
   '$window', 'map', 'sensors', 'expandables', '$location', 'versioner', 'storage',
-  'storageEvents', 'infoWindow', 'rectangles', 'spinner', 'functionBlocker', 'utils', 'flash', 'markersClusterer', 'sensorsList'];
+  'storageEvents', 'infoWindow', 'rectangles', 'functionBlocker', 'utils', 'flash', 'markersClusterer', 'sensorsList'];
 angular.module('aircasting').controller('CrowdMapCtrl', CrowdMapCtrl);

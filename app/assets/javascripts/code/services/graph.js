@@ -1,7 +1,7 @@
 angular.module("aircasting").factory('graph', ['$q', '$rootScope', 'sensors', 'singleFixedSession',
-                                     'heat', 'graphHighlight', '$http', 'spinner', 'promiseStorage',
+                                     'heat', 'graphHighlight', '$http', 'promiseStorage',
                                      function($q, $rootScope, sensors, singleFixedSession,
-                                              heat, graphHighlight, $http, spinner, promiseStorage) {
+                                              heat, graphHighlight, $http, promiseStorage) {
   var Graph = function(){};
 
   Graph.prototype = {
@@ -10,7 +10,6 @@ angular.module("aircasting").factory('graph', ['$q', '$rootScope', 'sensors', 's
     },
 
     getInitialData: function() {
-      spinner.startDownloadingSessions();
       var self = this;
       var end_date = new Date(singleFixedSession.endTime()).getTime();
       var start_date = end_date - (24*60*60*1000);
@@ -22,7 +21,6 @@ angular.module("aircasting").factory('graph', ['$q', '$rootScope', 'sensors', 's
           end_date: end_date
         }}).success(function(data){
           self.draw(singleFixedSession.measurementsToTime(data), singleFixedSession.isFixed());
-          spinner.stopDownloadingSessions();
       });
     },
 
