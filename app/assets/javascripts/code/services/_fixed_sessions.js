@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import { debounce } from 'debounce';
 
 export const fixedSessions = (
   params,
@@ -136,19 +137,18 @@ export const fixedSessions = (
       return true;
     },
 
-    fetch: function(page) {
-      var viewport = map.viewport();
-      var data = params.get('data');
+    _fetch: function(page) {
+      const data = params.get('data');
 
-      if (data.location && data.location.address.length !== 0) {
+      if (data.location && data.location.address && data.location.address.length !== 0) {
         map.goToAddress(data.location.address);
       }
 
-      var sessionIds = _.values(params.get('sessionsIds') || []);
+      // _.values suggests that `params.get('sessionsIds')` could be an obj, is it true?
+      const sessionIds = _.values(params.get('sessionsIds') || []);
 
-      if(!data.time) {
-        return;
-      }
+      if (!data.time) return;
+
       var reqData = {
         time_from: data.time.timeFrom - utils.timeOffset,
         time_to:  data.time.timeTo - utils.timeOffset,
@@ -161,10 +161,8 @@ export const fixedSessions = (
         session_ids: sessionIds
       };
 
-      if(data.location.outdoorOnly){
-        _(reqData).extend({
-          is_indoor: false
-        });
+      if(data.location.outdoorOnly) {
+        reqData = { ...reqData, is_indoor: false };
       }
 
       if(data.location.address) {
@@ -172,6 +170,7 @@ export const fixedSessions = (
           location:  data.location.address
         });
       } else {
+        const viewport = map.viewport();
         _(reqData).extend({
           west: viewport.west,
           east: viewport.east,
@@ -202,7 +201,9 @@ export const fixedSessions = (
       } else {
         this.downloadSessions('/api/realtime/sessions.json', reqData);
       }
-    }
+    },
+
+    fetch: debounce(function() { this._fetch() }, 1000)
   };
   return new FixedSessions();
 };
