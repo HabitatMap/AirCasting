@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import { debounce } from 'debounce';
 
 export const fixedSessions = (
   params,
@@ -136,7 +137,7 @@ export const fixedSessions = (
       return true;
     },
 
-    fetch: function(page) {
+    _fetch: function(page) {
       const data = params.get('data');
 
       if (data.location && data.location.address && data.location.address.length !== 0) {
@@ -200,7 +201,9 @@ export const fixedSessions = (
       } else {
         this.downloadSessions('/api/realtime/sessions.json', reqData);
       }
-    }
+    },
+
+    fetch: debounce(function() { this._fetch() }, 1000)
   };
   return new FixedSessions();
 };

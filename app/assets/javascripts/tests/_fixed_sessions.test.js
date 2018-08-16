@@ -18,7 +18,7 @@ test('fetch with no address does not call goToAddress', t => {
   const data = buildData({ location: { address: undefined } });
   const fixedSessionsService = _fixedSessions({ map, data });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.false(map.wasCalled());
 
@@ -30,7 +30,7 @@ test('fetch with empty address does not call goToAddress', t => {
   const data = buildData({ location: { address: '' } });
   const fixedSessionsService = _fixedSessions({ map, data });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.false(map.wasCalled());
 
@@ -43,7 +43,7 @@ test('fetch with no sessions ids in params passes empty array to sessionsDownloa
   const sessionIds = [];
   const fixedSessionsService = _fixedSessions({ args, data, sessionIds });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.deepEqual(args[0].session_ids, sessionIds);
 
@@ -56,7 +56,7 @@ test('fetch with sessions ids in params passes them to sessionsDownloader', t =>
   const sessionIds = [1, 2, 3];
   const fixedSessionsService = _fixedSessions({ args, data, sessionIds });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.deepEqual(args[0].session_ids, sessionIds);
 
@@ -69,7 +69,7 @@ test('fetch with time params passes them to sessionsDownloader after subtracting
   const utils = { timeOffset: 1 };
   const fixedSessionsService = _fixedSessions({ args, data, utils });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.deepEqual(args[0].time_from, 0);
   t.deepEqual(args[0].time_to, 1);
@@ -82,7 +82,7 @@ test('fetch with day and year params passes them to sessionsDownloader', t => {
   const data = buildData({ time: { dayFrom: 3, dayTo: 4, yearFrom: 5, yearTo: 6 } });
   const fixedSessionsService = _fixedSessions({ args, data });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.deepEqual(args[0].day_from, 3);
   t.deepEqual(args[0].day_to, 4);
@@ -97,7 +97,7 @@ test('fetch with tags and usernames params passes them to sessionsDownloader', t
   const data = buildData({ tags: "tag1, tag2", usernames: "will123, agata" });
   const fixedSessionsService = _fixedSessions({ args, data });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.deepEqual(args[0].tags, "tag1, tag2");
   t.deepEqual(args[0].usernames, "will123, agata");
@@ -110,7 +110,7 @@ test('fetch with outdoorOnly set to true passes is_indoor false to sessionsDownl
   const data = buildData({ location: { outdoorOnly: true, address: '' } });
   const fixedSessionsService = _fixedSessions({ args, data });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.deepEqual(args[0].is_indoor, false);
 
@@ -122,7 +122,7 @@ test('fetch with outdoorOnly set to false does not pass is_indoor to sessionsDow
   const data = buildData({ location: { outdoorOnly: false, address: '' } });
   const fixedSessionsService = _fixedSessions({ args, data });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.deepEqual(args[0].is_indoor, undefined);
 
@@ -134,7 +134,7 @@ test('fetch with no time in params does not call downloadSessions', t => {
   const data = buildData({ time: undefined });
   const fixedSessionsService = _fixedSessions({ args, data });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.true(args.length === 0);
 
@@ -146,7 +146,7 @@ test('fetch with time calls drawSession.clear', t => {
   const data = buildData({ time: {} });
   const fixedSessionsService = _fixedSessions({ data, drawSession });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.true(drawSession.wasCalled());
 
@@ -158,7 +158,7 @@ test('fetch with time calls downloadSessions', t => {
   const data = buildData({ time: {} });
   const fixedSessionsService = _fixedSessions({ args, data });
 
-  fixedSessionsService.fetch();
+  fixedSessionsService._fetch();
 
   t.true(args.length > 0);
 
