@@ -203,7 +203,7 @@ export const fixedSessions = (
       }
     },
 
-    fetch: debounce(function() { this._fetch() }, 1000)
+    fetch: debounce(function(page) { this._fetch(page) }, 1000)
   };
   return new FixedSessions();
 };
