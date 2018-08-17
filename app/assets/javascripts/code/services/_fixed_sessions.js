@@ -166,19 +166,12 @@ export const fixedSessions = (
         reqData = { ...reqData, is_indoor: false };
       }
 
-      if(data.location.address) {
-        _(reqData).extend({
-          location:  data.location.address
-        });
-      } else {
-        const viewport = map.viewport();
-        _(reqData).extend({
-          west: viewport.west,
-          east: viewport.east,
-          south: viewport.south,
-          north: viewport.north
-        });
-      }
+      _(reqData).extend({
+        west: map.viewport().west,
+        east: map.viewport().east,
+        south: map.viewport().south,
+        north: map.viewport().north
+      });
 
       if(sensors.selected()){
         _(reqData).extend({
