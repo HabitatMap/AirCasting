@@ -165,9 +165,22 @@ test('fetch with time calls downloadSessions', t => {
   t.end();
 });
 
+test('fetch when on a different route than fixed map does not call downloadSessions', t => {
+  const args = [];
+  const data = buildData({ time: {} });
+  const $window = { location: { href: '/other_route' } };
+  const fixedSessionsService = _fixedSessions({ args, data, $window });
+
+  fixedSessionsService._fetch();
+
+  t.true(args.length === 0);
+
+  t.end();
+});
+
 const buildData = obj => ({ time: {}, location: {}, ...obj });
 
-const _fixedSessions = ({ args = [], map, data, drawSession, utils, sessionIds = [] }) => {
+const _fixedSessions = ({ args = [], map, data, drawSession, utils, sessionIds = [], $window = { location: { href: '/map_fixed_sessions' } } }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -186,7 +199,7 @@ const _fixedSessions = ({ args = [], map, data, drawSession, utils, sessionIds =
   const _drawSession = drawSession || { clear: () => {} };
   const sessionsDownloader = (_, arg) => { args.push(arg) };
 
-  return fixedSessions(params, null, _map, sensors, $rootScope, _utils, sessionsDownloader, _drawSession);
+  return fixedSessions(params, null, _map, sensors, $rootScope, _utils, sessionsDownloader, _drawSession, null, null, null, null, $window);
 };
 
 const mock = (name) => {

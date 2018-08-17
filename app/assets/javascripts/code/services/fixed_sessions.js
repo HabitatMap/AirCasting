@@ -13,5 +13,6 @@ angular.module("aircasting").factory('fixedSessions', [
   'markersClusterer',
   'markerSelected',
   'sessionsUtils',
+  '$window',
   fixedSessions
 ]);

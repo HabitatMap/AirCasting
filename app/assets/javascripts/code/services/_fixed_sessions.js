@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import { debounce } from 'debounce';
+import constants from '../constants';
 
 export const fixedSessions = (
   params,
@@ -13,7 +14,8 @@ export const fixedSessions = (
   boundsCalculator,
   markersClusterer,
   markerSelected,
-  sessionsUtils
+  sessionsUtils,
+  $window
 ) => {
   var FixedSessions = function() {
     this.sessions = [];
@@ -138,6 +140,9 @@ export const fixedSessions = (
     },
 
     _fetch: function(page) {
+      // if _fetch is called after the route has changed (eg debounced)
+      if (!$window.location.href.includes(constants.fixedMapRoute)) return;
+
       const data = params.get('data');
 
       if (data.location && data.location.address && data.location.address.length !== 0) {
