@@ -1,42 +1,6 @@
 import test from 'blue-tape';
 import { fixedSessions } from '../code/services/_fixed_sessions';
 
-test('fetch with address calls goToAddress', t => {
-  const map = mockMap('goToAddress');
-  const data = buildData({ location: { address: 'new york' } });
-  const fixedSessionsService = _fixedSessions({ map, data });
-
-  fixedSessionsService._fetch();
-
-  t.true(map.wasCalled());
-
-  t.end();
-});
-
-test('fetch with no address does not call goToAddress', t => {
-  const map = mockMap('goToAddress');
-  const data = buildData({ location: { address: undefined } });
-  const fixedSessionsService = _fixedSessions({ map, data });
-
-  fixedSessionsService._fetch();
-
-  t.false(map.wasCalled());
-
-  t.end();
-});
-
-test('fetch with empty address does not call goToAddress', t => {
-  const map = mockMap('goToAddress');
-  const data = buildData({ location: { address: '' } });
-  const fixedSessionsService = _fixedSessions({ map, data });
-
-  fixedSessionsService._fetch();
-
-  t.false(map.wasCalled());
-
-  t.end();
-});
-
 test('fetch with no sessions ids in params passes empty array to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
   const data = buildData();
@@ -180,7 +144,7 @@ test('fetch when on a different route than fixed map does not call downloadSessi
 
 const buildData = obj => ({ time: {}, location: {}, ...obj });
 
-const _fixedSessions = ({ sessionsDownloaderCalls = [], map, data, drawSession, utils, sessionIds = [], $window = { location: { href: '/map_fixed_sessions' } } }) => {
+const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $window = { location: { href: '/map_fixed_sessions' } } }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -193,7 +157,7 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], map, data, drawSession, 
       }
     }
   };
-  const _map = map || { viewport: () => ({}) };
+  const _map = { viewport: () => ({}) };
   const _utils = utils || {};
   const sensors = { selected: () => {} };
   const _drawSession = drawSession || { clear: () => {} };
@@ -209,15 +173,5 @@ const mock = (name) => {
     [name]: arg => calls.push(arg),
     wasCalled: () => calls.length === 1,
     wasCalledWith: (arg) => deepEqual(arg, calls[calls.length - 1])
-  };
-};
-
-const mockMap = (name) => {
-  let count = 0;
-
-  return {
-    viewport: () => ({}),
-    [name]: () => { count += 1 },
-    wasCalled: () => count === 1
   };
 };

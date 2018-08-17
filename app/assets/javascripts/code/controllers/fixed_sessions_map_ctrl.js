@@ -86,6 +86,12 @@ function FixedSessionsMapCtrl($scope, params, heat, map, sensors, expandables, s
     }
    }, true);
 
+  $scope.$watch("{location: params.get('data').location.address, counter: params.get('data').counter}",
+    function(newValue) {
+    console.log("watch - {location: params.get('data').location.address, counter: params.get('data').counter}");
+    map.goToAddress(newValue.location);
+  }, true);
+
   $scope.setDefaults();
 }
 FixedSessionsMapCtrl.$inject = ['$scope', 'params', 'heat',

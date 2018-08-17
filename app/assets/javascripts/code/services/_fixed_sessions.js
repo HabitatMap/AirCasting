@@ -145,10 +145,6 @@ export const fixedSessions = (
 
       const data = params.get('data');
 
-      if (data.location && data.location.address && data.location.address.length !== 0) {
-        map.goToAddress(data.location.address);
-      }
-
       // _.values suggests that `params.get('sessionsIds')` could be an obj, is it true?
       const sessionIds = _.values(params.get('sessionsIds') || []);
 
