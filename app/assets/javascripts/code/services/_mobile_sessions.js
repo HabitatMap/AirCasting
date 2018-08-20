@@ -108,7 +108,7 @@ export const mobileSessions = (
     },
 
     shouldUpdateWithMapPanOrZoom: function() {
-      return false;
+      return true;
     },
 
     _fetch: function(page) {
@@ -163,7 +163,7 @@ export const mobileSessions = (
 
     },
 
-    fetch: function(page) { this._fetch(page) }
+    fetch: debounce(function(page) { this._fetch(page) }, 1000)
   };
   return new MobileSessions();
 }
