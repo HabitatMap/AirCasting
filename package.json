@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "license": "GNU Affero General Public License",
   "scripts": {
-    "test": "blue-tape -r babel-register app/assets/javascripts/tests/**/*.test.js"
+    "test": "NODE_ENV=test blue-tape -r babel-register app/assets/javascripts/tests/**/*.test.js"
   },
   "dependencies": {
     "@google/markerclusterer": "~1.0.2",
