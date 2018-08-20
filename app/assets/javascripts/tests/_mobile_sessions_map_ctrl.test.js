@@ -34,7 +34,7 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback }) => {
     clear: () => {}
   };
 
-  return MobileSessionsMapCtrl($scope, params, null, map, sensors, expandables, storage, null, null, null, null, functionBlocker, null, null, rectangles, infoWindow, markersClusterer);
+  return MobileSessionsMapCtrl($scope, params, map, sensors, expandables, storage, null, null, null, null, functionBlocker, null, rectangles, infoWindow, markersClusterer);
 };
 
 const mock = (name) => {

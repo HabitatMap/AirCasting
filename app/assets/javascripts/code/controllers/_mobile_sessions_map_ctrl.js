@@ -3,7 +3,6 @@ import _ from 'underscore';
 export const MobileSessionsMapCtrl = (
   $scope,
   params,
-  heat,
   map,
   sensors,
   expandables,
@@ -14,7 +13,6 @@ export const MobileSessionsMapCtrl = (
   singleMobileSession,
   functionBlocker,
   $window,
-  $location,
   rectangles,
   infoWindow,
   markersClusterer,
