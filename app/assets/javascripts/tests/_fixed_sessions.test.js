@@ -142,9 +142,31 @@ test('fetch when on a different route than fixed map does not call downloadSessi
   t.end();
 });
 
+test('fetch passes map corner coordinates to sessionsDownloader', t => {
+  const sessionsDownloaderCalls = [];
+  const map = {
+    viewport: () => ({
+      west: 1,
+      east: 2,
+      south: 3,
+      north: 4
+    })
+  };
+  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, map });
+
+  fixedSessionsService._fetch();
+
+  t.deepEqual(sessionsDownloaderCalls[0].west, 1);
+  t.deepEqual(sessionsDownloaderCalls[0].east, 2);
+  t.deepEqual(sessionsDownloaderCalls[0].south, 3);
+  t.deepEqual(sessionsDownloaderCalls[0].north, 4);
+
+  t.end();
+});
+
 const buildData = obj => ({ time: {}, location: {}, ...obj });
 
-const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $window = { location: { href: '/map_fixed_sessions' } } }) => {
+const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $window = { location: { href: '/map_fixed_sessions' } }, map }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -157,7 +179,7 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
       }
     }
   };
-  const _map = { viewport: () => ({}) };
+  const _map = map || { viewport: () => ({}) };
   const _utils = utils || {};
   const sensors = { selected: () => {} };
   const _drawSession = drawSession || { clear: () => {} };
