@@ -12,7 +12,7 @@ angular.module('aircasting', ['ngRoute', 'ngCookies', "google"], [ "$routeProvid
                           sensorsList: ['$http', function($http) {return $http.get('/api/sensors', {cache: true}).then(function(response){ return response.data}) }]
                         }
                       });
-  $routeProvider.when('/map_sessions',
+  $routeProvider.when(constants.mobileMapRoute,
                       {templateUrl: 'partials/mobile_sessions_map.html?v=' + v,
                         controller: 'MobileSessionsMapCtrl', reloadOnSearch: false,
                         resolve: {
