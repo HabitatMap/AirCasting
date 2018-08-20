@@ -90,8 +90,8 @@ namespace :deploy do
 end
 
 after "deploy:assets:precompile", "deploy:webpack"
-after "deploy:publishing", "deploy:restart_app_server"
-after "deploy:publishing", "deploy:restart_sidekiq"
+after "deploy:published", "deploy:restart_app_server"
+after "deploy:published", "deploy:restart_sidekiq"
 
 # Custom SSH Options
 # ==================
