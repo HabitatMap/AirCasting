@@ -76,7 +76,7 @@ test('goToAddress re-adds callbacks from the map after calling fitBounds', t => 
     t.true(googleMaps.hasCallbacks());
 
     t.end();
-  }, 1001);
+  }, 2001);
 });
 
 test('onPanOrZoom', t => {
