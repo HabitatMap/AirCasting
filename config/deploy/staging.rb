@@ -61,9 +61,17 @@ set :rbenv_map_bins, %w(rake gem bundle ruby rails sidekiq sidekiqctl)
 #set :unicorn_pid, -> { File.join(current_path, "pids/unicorn.pid") }
 
 namespace :deploy do
-  task :restart do
+  task :restart_app_server do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
       execute "sudo systemctl restart #{fetch(:application)}"
+    end
+  end
+end
+
+namespace :deploy do
+  task :restart_sidekiq do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      execute "sudo systemctl restart sidekiq"
     end
   end
 end
@@ -82,7 +90,8 @@ namespace :deploy do
 end
 
 after "deploy:assets:precompile", "deploy:webpack"
-after "deploy:publishing", "deploy:restart"
+after "deploy:publishing", "deploy:restart_app_server"
+after "deploy:publishing", "deploy:restart_sidekiq"
 
 # Custom SSH Options
 # ==================
