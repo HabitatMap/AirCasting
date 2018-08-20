@@ -63,7 +63,7 @@ test('goToAddress when calling fitBounds removes callbacks from the map', t => {
   t.end();
 });
 
-test('goToAddress readds callbacks from the map after calling fitBounds', t => {
+test('goToAddress re-adds callbacks from the map after calling fitBounds', t => {
   const geocoder = mockGeocoder();
   const googleMaps = mockGoogleMaps({ successfulGeocoding: true })
   googleMaps.listen('bounds_changed', () => {});
