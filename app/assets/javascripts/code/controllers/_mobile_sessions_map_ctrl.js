@@ -90,5 +90,12 @@ export const MobileSessionsMapCtrl = (
       map.goToAddress(newValue.location);
     }, true);
 
+  $scope.$watch("storage.data.location.limit", function(newValue, oldValue) {
+    console.log("watch - storage.data.location.limit");
+    if (!newValue) return;
+    storage.resetAddress();
+  });
+
+
   $scope.setDefaults();
 }
