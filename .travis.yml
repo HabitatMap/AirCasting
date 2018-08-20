@@ -23,5 +23,5 @@ before_script:
   - mysql -e 'create database aircasting_test;'
   - RAILS_ENV=test bundle exec rake db:migrate
 script:
-  - yarn test
+  - NODE_ENV=test yarn test
   - bundle exec rspec --color
