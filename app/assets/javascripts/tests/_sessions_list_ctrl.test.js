@@ -1,7 +1,7 @@
 import test from 'blue-tape';
 import { SessionsListCtrl } from '../code/controllers/_sessions_list_ctrl';
 
-test('it sets onPanOrZoom', t => {
+test('if flag on sessions is true it calls onPanOrZoom', t => {
   const map = mock('onPanOrZoom');
   const sessions = {
     shouldUpdateWithMapPanOrZoom: () => true
@@ -10,6 +10,19 @@ test('it sets onPanOrZoom', t => {
   _SessionsListCtrl(map, sessions);
 
   t.true(map.wasCalled());
+
+  t.end();
+});
+
+test('if flag on sessions is false it calls onPanOrZoom', t => {
+  const map = mock('onPanOrZoom');
+  const sessions = {
+    shouldUpdateWithMapPanOrZoom: () => false
+  };
+
+  _SessionsListCtrl(map, sessions);
+
+  t.false(map.wasCalled());
 
   t.end();
 });
