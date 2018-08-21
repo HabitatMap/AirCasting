@@ -34,7 +34,6 @@ angular.module('aircasting').factory('drawSession',
       session.lines.push(map.drawLine(points));
 
       session.drawed = true;
-      map.fitBounds(bounds);
     },
 
     drawFixedSession: function(session, bounds) {
