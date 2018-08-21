@@ -1,6 +1,6 @@
 import test from 'blue-tape';
+import { mock } from './helpers';
 import { FixedSessionsMapCtrl } from '../code/controllers/_fixed_sessions_map_ctrl';
-import deepEqual from 'fast-deep-equal';
 
 test('registers a callback to map.goToAddress', t => {
   const callbacks = [];
@@ -30,14 +30,4 @@ const _FixedSessionsMapCtrl = ({ $scope, map, callback }) => {
   };
 
   return FixedSessionsMapCtrl($scope, params, null, map, sensors, expandables, storage, null, null, null, null, functionBlocker, null, null, rectangles, infoWindow);
-};
-
-const mock = (name) => {
-  let calls = [];
-
-  return {
-    [name]: arg => calls.push(arg),
-    wasCalled: () => calls.length === 1,
-    wasCalledWith: (arg) => deepEqual(arg, calls[calls.length - 1])
-  };
 };

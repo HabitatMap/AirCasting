@@ -1,6 +1,6 @@
 import test from 'blue-tape';
+import { mock } from './helpers';
 import { CrowdMapCtrl } from '../code/controllers/_crowd_map_ctrl';
-import deepEqual from 'fast-deep-equal';
 
 test('registers a callback to map.goToAddress', t => {
   const callbacks = [];
@@ -36,13 +36,4 @@ const _CrowdMapCtrl = ({ $scope, map, callback }) => {
   };
 
   return CrowdMapCtrl($scope, null, params, null, null, map, sensors, expandables, null, null, storage, null, infoWindow, rectangles, functionBlocker, null, null, markersClusterer);
-};
-const mock = (name) => {
-  let calls = [];
-
-  return {
-    [name]: arg => calls.push(arg),
-    wasCalled: () => calls.length === 1,
-    wasCalledWith: (arg) => deepEqual(arg, calls[calls.length - 1])
-  };
 };

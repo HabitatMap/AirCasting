@@ -1,4 +1,5 @@
 import test from 'blue-tape';
+import { mock } from './helpers';
 import { mobileSessions } from '../code/services/_mobile_sessions';
 
 test('fetch with no sessions ids in params passes empty array to sessionsDownloader', t => {
@@ -301,14 +302,4 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
   const boundsCalculator = () => {};
 
   return mobileSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, $window);
-};
-
-const mock = (name) => {
-  let calls = [];
-
-  return {
-    [name]: arg => calls.push(arg),
-    wasCalled: () => calls.length === 1,
-    wasCalledWith: (arg) => deepEqual(arg, calls[calls.length - 1])
-  };
 };

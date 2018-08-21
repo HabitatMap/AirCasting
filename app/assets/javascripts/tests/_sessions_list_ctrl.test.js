@@ -1,4 +1,5 @@
 import test from 'blue-tape';
+import { mock } from './helpers';
 import { SessionsListCtrl } from '../code/controllers/_sessions_list_ctrl';
 
 test('if flag on sessions is true it calls onPanOrZoom', t => {
@@ -39,13 +40,3 @@ const _SessionsListCtrl = (map, sessions) => {
 
   return SessionsListCtrl(scope, params, null, {}, null, functionBlocker, {}, null, null, null, map);
 }
-
-const mock = (name) => {
-  let calls = [];
-
-  return {
-    [name]: arg => calls.push(arg),
-    wasCalled: () => calls.length === 1,
-    wasCalledWith: (arg) => deepEqual(arg, calls[calls.length - 1])
-  };
-};

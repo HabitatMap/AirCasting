@@ -1,4 +1,5 @@
 import test from 'blue-tape';
+import { mock } from './helpers';
 import { fixedSessions } from '../code/services/_fixed_sessions';
 
 test('fetch with no sessions ids in params passes empty array to sessionsDownloader', t => {
@@ -186,14 +187,4 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
 
   return fixedSessions(params, null, _map, sensors, $rootScope, _utils, sessionsDownloader, _drawSession, null, null, null, null, $window);
-};
-
-const mock = (name) => {
-  let calls = [];
-
-  return {
-    [name]: arg => calls.push(arg),
-    wasCalled: () => calls.length === 1,
-    wasCalledWith: (arg) => deepEqual(arg, calls[calls.length - 1])
-  };
 };

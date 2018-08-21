@@ -1,4 +1,5 @@
 import test from 'blue-tape';
+import { mock } from './helpers';
 import { map } from '../code/services/google/_map';
 
 test('goToAddress with no address it does not decode', t => {
@@ -101,16 +102,6 @@ test('unregisterAll removes the onPanOrZoom callback too', t => {
 
   t.end();
 });
-
-const mock = (name) => {
-  let calls = [];
-
-  return {
-    [name]: arg => calls.push(arg),
-    wasCalled: () => calls.length === 1,
-    wasCalledWith: (arg) => deepEqual(arg, calls[calls.length - 1])
-  };
-};
 
 const mockGeocoder = () => ({
   get: (_, callback) => callback([ { geometry: { viewport: null } } ])
