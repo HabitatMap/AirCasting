@@ -210,9 +210,31 @@ test('fetch with limit checkbox unselected and no address does not pass map corn
   t.end();
 });
 
-const buildData = obj => ({ time: {}, location: {}, ...obj });
+test('selectSession after successfully fetching calls sessionsUtils.onSingleSessionFetch', t => {
+  const sessionsUtils = mock('onSingleSessionFetch');
+  const mobileSessionsService = _mobileSessions({ sessionsUtils, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
 
-const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $window = { location: { href: '/map_sessions' } }, map }) => {
+  mobileSessionsService.selectSession(123);
+
+  t.true(sessionsUtils.wasCalled());
+
+  t.end();
+});
+
+test('selectSession after successfully fetching calls drawSession.drawMobileSession', t => {
+  const drawSession = mock('drawMobileSession');
+  const mobileSessionsService = _mobileSessions({ drawSession, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
+
+  mobileSessionsService.selectSession(123);
+
+  t.true(drawSession.wasCalled());
+
+  t.end();
+});
+
+const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
+
+const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $window = { location: { href: '/map_sessions' } }, map, sessionsUtils, sensors }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -227,11 +249,14 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
   };
   const _map = map || { viewport: () => ({}) };
   const _utils = utils || {};
-  const sensors = { selected: () => {} };
+  const _sensors = { selected: () => {}, sensors: {}, ...sensors };
   const _drawSession = drawSession || { clear: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
+  const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), ...sessionsUtils };
+  const $http = { get: () => ({ success: callback => callback() }) };
+  const boundsCalculator = () => {};
 
-  return mobileSessions(params, null, _map, sensors, $rootScope, _utils, sessionsDownloader, _drawSession, null, null, $window);
+  return mobileSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, $window);
 };
 
 const mock = (name) => {
