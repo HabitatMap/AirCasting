@@ -176,7 +176,7 @@ export const mobileSessions = (
 
     },
 
-    fetch: debounce(function(page) { this._fetch(page) }, 1000)
+    fetch: debounce(function(page) { this._fetch(page) }, 750)
   };
   return new MobileSessions();
 }
