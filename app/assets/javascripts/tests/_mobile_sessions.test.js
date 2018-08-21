@@ -232,6 +232,50 @@ test('selectSession after successfully fetching calls drawSession.drawMobileSess
   t.end();
 });
 
+test('selectSession after successfully fetching calls map.fitBounds', t => {
+  const map = mock('fitBounds');
+  const mobileSessionsService = _mobileSessions({ map, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
+
+  mobileSessionsService.selectSession(123);
+
+  t.true(map.wasCalled());
+
+  t.end();
+});
+
+test('reSelectSession after successfully fetching calls sessionsUtils.onSingleSessionFetch', t => {
+  const sessionsUtils = mock('onSingleSessionFetch');
+  const mobileSessionsService = _mobileSessions({ sessionsUtils, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
+
+  mobileSessionsService.reSelectSession(123);
+
+  t.true(sessionsUtils.wasCalled());
+
+  t.end();
+});
+
+test('reSelectSession after successfully fetching calls drawSession.drawMobileSession', t => {
+  const drawSession = mock('drawMobileSession');
+  const mobileSessionsService = _mobileSessions({ drawSession, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
+
+  mobileSessionsService.reSelectSession(123);
+
+  t.true(drawSession.wasCalled());
+
+  t.end();
+});
+
+test('reSelectSession after successfully fetching does not call map.fitBounds', t => {
+  const map = mock('fitBounds');
+  const mobileSessionsService = _mobileSessions({ map, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
+
+  mobileSessionsService.reSelectSession(123);
+
+  t.false(map.wasCalled());
+
+  t.end();
+});
+
 const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
 
 const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $window = { location: { href: '/map_sessions' } }, map, sessionsUtils, sensors }) => {
@@ -247,10 +291,10 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
       }
     }
   };
-  const _map = map || { viewport: () => ({}) };
+  const _map = map || { viewport: () => ({}), fitBounds: () => {} };
   const _utils = utils || {};
   const _sensors = { selected: () => {}, sensors: {}, ...sensors };
-  const _drawSession = drawSession || { clear: () => {} };
+  const _drawSession = drawSession || { clear: () => {}, drawMobileSession: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };

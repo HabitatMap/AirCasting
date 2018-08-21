@@ -80,7 +80,24 @@ export const mobileSessions = (
     },
 
     selectSession: function(id) {
-      var self = this;
+      const callback = (session, allSelected) => (data) => {
+        const draw = () => drawSession.drawMobileSession(session, boundsCalculator(allSelected));
+        sessionsUtils.onSingleSessionFetch(session, data, draw);
+        map.fitBounds(boundsCalculator(allSelected));
+      }
+      this._selectSession(id, callback);
+    },
+
+    reSelectSession: function(id) {
+      const callback = (session, allSelected) => (data) => {
+        const draw = () => drawSession.drawMobileSession(session, boundsCalculator(allSelected));
+        sessionsUtils.onSingleSessionFetch(session, data, draw);
+      }
+      this._selectSession(id, callback);
+    },
+
+    _selectSession: function(id, callback) {
+      const allSelected = this.allSelected();
       var session = this.find(id);
       if(!session || session.alreadySelected) return;
       var sensorId = params.get("data", {}).sensorId || sensors.tmpSelectedId();
@@ -92,12 +109,8 @@ export const mobileSessions = (
       $http.get('/api/sessions/' + id, {
         cache : true,
         params: { sensor_id: sensorName }
-      }).success(function(data){
-        self.onSingleSessionFetch(session, data, self.allSelected());
-      });
+      }).success(callback(session, allSelected));
     },
-
-    reSelectSession: function(id) { this.selectSession(id); },
 
     canSelectThatSession: function(session) {
       return (this.totalMeasurementsSelectedCount() + this.measurementsCount(session)) <= this.maxPoints;
