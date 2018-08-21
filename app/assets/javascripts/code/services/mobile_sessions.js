@@ -11,6 +11,6 @@ angular.module("aircasting").factory('mobileSessions', [
   'drawSession',
   'boundsCalculator',
   'sessionsUtils',
-  '$window',
+  '$location',
   mobileSessions
 ]);

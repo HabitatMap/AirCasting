@@ -13,7 +13,7 @@ export const mobileSessions = (
   drawSession,
   boundsCalculator,
   sessionsUtils,
-  $window
+  $location
 ) => {
   var MobileSessions = function() {
     this.sessions = [];
@@ -126,7 +126,7 @@ export const mobileSessions = (
 
     _fetch: function(page) {
       // if _fetch is called after the route has changed (eg debounced)
-      if (!$window.location.href.includes(constants.mobileMapRoute)) return;
+      if ($location.path() !== constants.mobileMapRoute) return;
 
       var viewport = map.viewport();
       var data = params.get('data');

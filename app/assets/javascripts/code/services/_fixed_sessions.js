@@ -15,7 +15,7 @@ export const fixedSessions = (
   markersClusterer,
   markerSelected,
   sessionsUtils,
-  $window
+  $location
 ) => {
   var FixedSessions = function() {
     this.sessions = [];
@@ -140,7 +140,7 @@ export const fixedSessions = (
 
     _fetch: function(page) {
       // if _fetch is called after the route has changed (eg debounced)
-      if (!$window.location.href.includes(constants.fixedMapRoute)) return;
+      if ($location.path() !== constants.fixedMapRoute) return;
 
       const data = params.get('data');
 

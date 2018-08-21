@@ -109,8 +109,8 @@ test('fetch with time calls downloadSessions', t => {
 test('fetch when on a different route than mobile map does not call downloadSessions', t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ time: {} });
-  const $window = { location: { href: '/other_route' } };
-  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, data, $window });
+  const $location = { path: () => '/other_route' };
+  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, data, $location });
 
   mobileSessionsService._fetch();
 
@@ -279,7 +279,7 @@ test('reSelectSession after successfully fetching does not call map.fitBounds', 
 
 const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
 
-const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $window = { location: { href: '/map_sessions' } }, map, sessionsUtils, sensors }) => {
+const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -300,6 +300,7 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
   const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };
   const boundsCalculator = () => {};
+  const _$location = $location || { path: () => '/map_sessions' };
 
-  return mobileSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, $window);
+  return mobileSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location);
 };

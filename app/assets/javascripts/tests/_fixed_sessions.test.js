@@ -133,8 +133,8 @@ test('fetch with time calls downloadSessions', t => {
 test('fetch when on a different route than fixed map does not call downloadSessions', t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ time: {} });
-  const $window = { location: { href: '/other_route' } };
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data, $window });
+  const $location = { path: () => '/other_route' };
+  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data, $location });
 
   fixedSessionsService._fetch();
 
@@ -167,7 +167,7 @@ test('fetch passes map corner coordinates to sessionsDownloader', t => {
 
 const buildData = obj => ({ time: {}, location: {}, ...obj });
 
-const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $window = { location: { href: '/map_fixed_sessions' } }, map }) => {
+const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -185,6 +185,7 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
   const sensors = { selected: () => {} };
   const _drawSession = drawSession || { clear: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
+  const _$location = $location || { path: () => '/map_fixed_sessions' };
 
-  return fixedSessions(params, null, _map, sensors, $rootScope, _utils, sessionsDownloader, _drawSession, null, null, null, null, $window);
+  return fixedSessions(params, null, _map, sensors, $rootScope, _utils, sessionsDownloader, _drawSession, null, null, null, null, _$location);
 };
