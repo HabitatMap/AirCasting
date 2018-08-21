@@ -31,24 +31,14 @@ module Api
         data = decoded_query_data(params[:q])
         INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
-        begin
-          respond_with FixedSession.filtered_json(data, page, page_size)
-        rescue WrongCoordinatesError => e
-          error = { error: "Invalid Location" }
-          respond_with error, status: :not_found
-        end
+        respond_with FixedSession.filtered_json(data, page, page_size)
       end
 
       def index_streaming
         data = decoded_query_data(params[:q])
         INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
-        begin
-          respond_with FixedSession.filtered_streaming_json(data)
-        rescue WrongCoordinatesError => e
-          error = { error: "Invalid Location" }
-          respond_with error, status: :not_found
-        end
+        respond_with FixedSession.filtered_streaming_json(data)
       end
 
       def show

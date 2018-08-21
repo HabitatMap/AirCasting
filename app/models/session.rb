@@ -16,7 +16,6 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-require_dependency 'aircasting/wrong_coordinates_error'
 require_dependency 'aircasting/username_param'
 
 class Session < ActiveRecord::Base
@@ -88,25 +87,8 @@ class Session < ActiveRecord::Base
     end
 
     sessions = sessions.where(is_indoor: data[:is_indoor]) unless data[:is_indoor].nil?
-    location = data[:location]
 
     if data[:east] && data[:west] && data[:north] && data[:south]
-      sessions = sessions.from_location(data)
-    elsif location.present?
-      sessions = sessions.joins(:streams)
-      point = Geocoder.coordinates(location)
-      radius_in_miles = 20
-      box = Geocoder::Calculations.bounding_box(point, radius_in_miles)
-
-      validate_box_coordinates!(box)
-
-      data = {
-        :south => box[0],
-        :north => box[2],
-        :west  => box[1],
-        :east  => box[3]
-      }
-
       sessions = sessions.from_location(data)
     end
 
@@ -301,10 +283,6 @@ class Session < ActiveRecord::Base
     end
 
     self.url_token = token
-  end
-
-  def self.validate_box_coordinates!(box)
-    raise WrongCoordinatesError if box.any?{ |e| e.nan? }
   end
 
   after_destroy :insert_into_deleted_sessions

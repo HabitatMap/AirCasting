@@ -1,2 +1,0 @@
-class WrongCoordinatesError < ArgumentError
-end

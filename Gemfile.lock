@@ -181,7 +181,6 @@ GEM
       thor (>= 0.13.6)
     formtastic (2.2.1)
       actionpack (>= 3.0)
-    geocoder (1.4.7)
     gsl (2.1.0.1)
     guard (1.6.2)
       listen (>= 0.6.0)
@@ -486,7 +485,6 @@ DEPENDENCIES
   devise (~> 2.0.5)
   factory_girl_rails
   foreman
-  geocoder (~> 1.2)
   guard
   guard-bundler
   guard-coffeescript
