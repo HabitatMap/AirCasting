@@ -7,6 +7,7 @@ gem 'coffee-script-source', '1.1.2'
 gem 'colored', require: false
 gem 'devise', '~> 2.0.5'
 gem "foreman"
+gem 'geocoder', '~> 1.2'
 gem 'haml'
 gem 'honeybadger', '~> 2.0'
 gem 'mysql2'
