@@ -83,7 +83,7 @@ export const mobileSessions = (
       const callback = (session, allSelected) => (data) => {
         const draw = () => drawSession.drawMobileSession(session, boundsCalculator(allSelected));
         sessionsUtils.onSingleSessionFetch(session, data, draw);
-        //map.fitBounds(boundsCalculator(allSelected));
+        map.fitBounds(boundsCalculator(allSelected));
       }
       this._selectSession(id, callback);
     },
