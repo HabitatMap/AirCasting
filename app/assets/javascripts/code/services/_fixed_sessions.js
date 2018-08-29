@@ -84,7 +84,7 @@ export const fixedSessions = (
       const allSelected = this.allSelected();
       const fitBounds = () => {
         if (!markerSelected.get() && !session.is_indoor) {
-          map.fitBounds(boundsCalculator(allSelected));
+          //map.fitBounds(boundsCalculator(allSelected));
         }
       };
       this._selectSession(id, fitBounds);
