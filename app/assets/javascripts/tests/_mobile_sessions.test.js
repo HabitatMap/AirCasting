@@ -119,7 +119,7 @@ test('fetch when on a different route than mobile map does not call downloadSess
   t.end();
 });
 
-test('fetch with limit checkbox selected passes map corner coordinates to sessionsDownloader', t => {
+test('fetch passes map corner coordinates to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
   const map = {
     viewport: () => ({
@@ -129,8 +129,7 @@ test('fetch with limit checkbox selected passes map corner coordinates to sessio
       north: 4
     })
   };
-  const data = buildData({ location: { limit: true } });
-  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, map, data });
+  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, map });
 
   mobileSessionsService._fetch();
 
@@ -138,75 +137,6 @@ test('fetch with limit checkbox selected passes map corner coordinates to sessio
   t.deepEqual(sessionsDownloaderCalls[0].east, 2);
   t.deepEqual(sessionsDownloaderCalls[0].south, 3);
   t.deepEqual(sessionsDownloaderCalls[0].north, 4);
-
-  t.end();
-});
-
-test('fetch with limit checkbox selected and address passes map corner coordinates to sessionsDownloader', t => {
-  const sessionsDownloaderCalls = [];
-  const map = {
-    viewport: () => ({
-      west: 1,
-      east: 2,
-      south: 3,
-      north: 4
-    })
-  };
-  const data = buildData({ location: { limit: true, address: 'new york' } });
-  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, map, data });
-
-  mobileSessionsService._fetch();
-
-  t.deepEqual(sessionsDownloaderCalls[0].west, 1);
-  t.deepEqual(sessionsDownloaderCalls[0].east, 2);
-  t.deepEqual(sessionsDownloaderCalls[0].south, 3);
-  t.deepEqual(sessionsDownloaderCalls[0].north, 4);
-
-  t.end();
-});
-
-test('fetch with address passes map corner coordinates to sessionsDownloader', t => {
-  const sessionsDownloaderCalls = [];
-  const map = {
-    viewport: () => ({
-      west: 1,
-      east: 2,
-      south: 3,
-      north: 4
-    })
-  };
-  const data = buildData({ location: { address: 'new york' } });
-  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, map, data });
-
-  mobileSessionsService._fetch();
-
-  t.deepEqual(sessionsDownloaderCalls[0].west, 1);
-  t.deepEqual(sessionsDownloaderCalls[0].east, 2);
-  t.deepEqual(sessionsDownloaderCalls[0].south, 3);
-  t.deepEqual(sessionsDownloaderCalls[0].north, 4);
-
-  t.end();
-});
-
-test('fetch with limit checkbox unselected and no address does not pass map corner coordinates to sessionsDownloader', t => {
-  const sessionsDownloaderCalls = [];
-  const map = {
-    viewport: () => ({
-      west: 1,
-      east: 2,
-      south: 3,
-      north: 4
-    })
-  };
-  const data = buildData();
-  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, map, data });
-
-  mobileSessionsService._fetch();
-
-  t.deepEqual(sessionsDownloaderCalls[0].west, undefined);
-  t.deepEqual(sessionsDownloaderCalls[0].east, undefined);
-  t.deepEqual(sessionsDownloaderCalls[0].south, undefined);
-  t.deepEqual(sessionsDownloaderCalls[0].north, undefined);
 
   t.end();
 });

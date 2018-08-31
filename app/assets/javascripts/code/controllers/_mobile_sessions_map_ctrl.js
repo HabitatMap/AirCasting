@@ -49,7 +49,7 @@ export const MobileSessionsMapCtrl = (
 
     storage.updateDefaults({
       sensorId: "",
-      location: {address: "", limit: false},
+      location: {address: ""},
       tags: "",
       usernames: ""
     });
@@ -89,13 +89,6 @@ export const MobileSessionsMapCtrl = (
       console.log("watch - {location: params.get('data').location.address, counter: params.get('data').counter}");
       map.goToAddress(newValue.location);
     }, true);
-
-  $scope.$watch("storage.data.location.limit", function(newValue, oldValue) {
-    console.log("watch - storage.data.location.limit");
-    if (!newValue) return;
-    storage.resetAddress();
-  });
-
 
   $scope.setDefaults();
 }

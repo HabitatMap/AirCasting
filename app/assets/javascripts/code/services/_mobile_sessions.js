@@ -144,14 +144,12 @@ export const mobileSessions = (
         session_ids: sessionIds
       };
 
-      if (data.location.address || data.location.limit) {
-        _(reqData).extend({
-          west: viewport.west,
-          east: viewport.east,
-          south: viewport.south,
-          north: viewport.north
-        });
-      }
+      _(reqData).extend({
+        west: viewport.west,
+        east: viewport.east,
+        south: viewport.south,
+        north: viewport.north
+      });
 
       if(sensors.selected()){
         _(reqData).extend({

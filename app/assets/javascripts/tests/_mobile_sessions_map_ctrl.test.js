@@ -18,38 +18,6 @@ test('registers a callback to map.goToAddress', t => {
   t.end();
 });
 
-test('registers a callback to resetAddress which is called if limit checkbox is selected', t => {
-  const callbacks = [];
-  const $scope = {
-    $watch: (str, callback) => str.includes('location.limit') ? callbacks.push(callback) : null
-  };
-  // diff from fixed_sessions_map_ctrl removeAllMarkers
-  const storage = mock('resetAddress');
-  const controller = _MobileSessionsMapCtrl({ $scope, storage, callbacks });
-
-  callbacks.forEach(callback => callback(true));
-
-  t.true(storage.wasCalled());
-
-  t.end();
-});
-
-test('registers a callback to resetAddress which is not called if limit checkbox is unselected', t => {
-  const callbacks = [];
-  const $scope = {
-    $watch: (str, callback) => str.includes('location.limit') ? callbacks.push(callback) : null
-  };
-  // diff from fixed_sessions_map_ctrl removeAllMarkers
-  const storage = mock('resetAddress');
-  const controller = _MobileSessionsMapCtrl({ $scope, storage, callbacks });
-
-  callbacks.forEach(callback => callback(false));
-
-  t.false(storage.wasCalled());
-
-  t.end();
-});
-
 const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage }) => {
   const expandables = { show: () => {} };
   const sensors = { setSensors: () => {} };
