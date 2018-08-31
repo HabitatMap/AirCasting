@@ -60,7 +60,7 @@ angular.module('aircasting').factory('drawSession',
       return heat.getLevel(value);
     },
 
-    undoDraw: function(session, bounds) {
+    undoDraw: function(session, mapPosition) {
       if(!session.drawed){
         return;
       }
@@ -74,8 +74,8 @@ angular.module('aircasting').factory('drawSession',
         map.removeMarker(noteItem);
       });
       session.drawed = false;
-      if(bounds){
-        map.fitBounds(bounds);
+      if(mapPosition){
+        map.fitBounds(mapPosition.bounds, mapPosition.zoom);
       }
     },
 

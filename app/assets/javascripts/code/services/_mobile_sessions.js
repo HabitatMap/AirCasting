@@ -24,6 +24,11 @@ export const mobileSessions = (
     this.scope.canNotSelectSessionWithoutSensorSelected = "Filter by Parameter - Sensor to view many sessions at once";
   };
 
+  let prevMapPosition = {
+    bounds: map.viewport(),
+    zoom: map.getZoom()
+  };
+
   MobileSessions.prototype = {
     allSelected: function() { return sessionsUtils.allSelected(this); },
 
@@ -71,16 +76,20 @@ export const mobileSessions = (
     },
 
     deselectSession: function(id) {
-      var session = this.find(id);
-      if(!session) return;
+      const session = this.find(id);
+      if (!session) return;
       session.loaded = false;
       session.$selected = false;
       session.alreadySelected = false;
-      drawSession.undoDraw(session, boundsCalculator(this.sessions));
+      drawSession.undoDraw(session, prevMapPosition);
     },
 
     selectSession: function(id) {
       const callback = (session, allSelected) => (data) => {
+        prevMapPosition = {
+          bounds: map.viewport(),
+          zoom: map.getZoom()
+        };
         const draw = () => drawSession.drawMobileSession(session, boundsCalculator(allSelected));
         sessionsUtils.onSingleSessionFetch(session, data, draw);
         map.fitBounds(boundsCalculator(allSelected));
