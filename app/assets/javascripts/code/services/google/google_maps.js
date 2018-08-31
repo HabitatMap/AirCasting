@@ -24,7 +24,11 @@ angular.module("google").factory("googleMaps", [
         unlistenPanOrZoom(mapObj);
         onPanOrZoomCallback = callback;
         onPanOrZoomHandle = mapObj.addListener('bounds_changed', callback);
-      }
+      },
+
+      latLng: (lat, lng) => new google.maps.LatLng(lat, lng),
+
+      latLngBounds: (lat, lng) => new google.maps.LatLngBounds(lat, lng)
     };
   }
 ]);

@@ -9,6 +9,8 @@ export const map = (
   geocoder,
   googleMaps
 ) => {
+  const TIMEOUT_DELAY = process.env.NODE_ENV === 'test' ? 0 : 1000;
+
   var Map = function() {};
 
   Map.prototype = {
@@ -54,10 +56,8 @@ export const map = (
       const callback = (results, status) => {
         if (!googleMaps.wasGeocodingSuccessful(status)) return;
 
-        googleMaps.unlistenPanOrZoom(this.mapObj);
         const viewport = results[0].geometry.viewport;
-        googleMaps.fitBounds(this.mapObj, viewport);
-        setTimeout(() => googleMaps.relistenPanOrZoom(this.mapObj), 1000);
+        this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, viewport);
       };
 
       geocoder.get(address, callback);
@@ -77,27 +77,21 @@ export const map = (
     },
 
     fitBounds: function(obj) {
-      var northeast;
-      var point = {
-        lat: 50.09024,
-        lng: -90.712891
-      };
+      if (!obj) return;
+      if (!(obj.north && obj.east && obj.south && obj.west)) return;
 
-      if(!obj || !(obj.north && obj.east && obj.south && obj.west)) {
-        return;
-      }
+      const northeast = (obj.north == 200 && obj.east == 200) ?
+        googleMaps.latLng(50.09024, -90.712891) : // refresh with an indoor session selected goes to US
+        googleMaps.latLng(obj.north, obj.east);
+      const southwest = googleMaps.latLng(obj.south, obj.west);
+      const bounds = googleMaps.latLngBounds(southwest, northeast);
+      this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, bounds);
+    },
 
-      if (obj.north == 200 && obj.east == 200) {
-        // If we refresh with an indoor session selected - go to US
-        northeast = new google.maps.LatLng(point.lat, point.lng);
-      } else {
-        northeast = new google.maps.LatLng(obj.north, obj.east);
-      }
-
-      var southwest = new google.maps.LatLng(obj.south, obj.west);
-      var bounds = new google.maps.LatLngBounds(southwest, northeast);
-      var self = this;
-      self.mapObj.fitBounds(bounds);
+    _fitBoundsWithoutPanOrZoomCallback: (mapObj, bounds) => {
+      googleMaps.unlistenPanOrZoom(mapObj);
+      googleMaps.fitBounds(mapObj, bounds);
+      setTimeout(() => googleMaps.relistenPanOrZoom(mapObj), TIMEOUT_DELAY);
     },
 
     onMapTypeIdChanged: function() {
