@@ -182,14 +182,14 @@ test('hasSelectedSessions with selected session returns true', t => {
 
   const hasSelectedSessions = fixedSessionsService.hasSelectedSessions();
 
-  t.false(hasSelectedSessions);
+  t.true(hasSelectedSessions);
 
   t.end();
 });
 
 const buildData = obj => ({ time: {}, location: {}, ...obj });
 
-const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map }) => {
+const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -209,5 +209,5 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _$location = $location || { path: () => '/map_fixed_sessions' };
 
-  return fixedSessions(params, null, _map, sensors, $rootScope, _utils, sessionsDownloader, _drawSession, null, null, null, null, _$location);
+  return fixedSessions(params, null, _map, sensors, $rootScope, _utils, sessionsDownloader, _drawSession, null, null, null, sessionsUtils, _$location);
 };
