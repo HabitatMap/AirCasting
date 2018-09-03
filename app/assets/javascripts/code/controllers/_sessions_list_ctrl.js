@@ -15,6 +15,7 @@ export const SessionsListCtrl = (
 ) => {
   let sessions;
   let singleSession;
+  const CANNOT_SELECT_MULTIPLE_SESSIONS = "You can't select multiple sessions";
 
   $scope.setDefaults = function() {
     $scope.params = params;
@@ -76,15 +77,13 @@ export const SessionsListCtrl = (
   }, true);
 
   $scope.canSelectSession = function(sessionId) {
-    var session = sessions.find(sessionId);
-    if(!sessions.hasSelectedSessions()){
+    const session = sessions.find(sessionId);
+    if(sessions.hasSelectedSessions()){
+      flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
+      return false;
+    } else {
       return true;
     }
-    if(sessions.canSelectThatSession(session)){
-      return true;
-    }
-    flash.set(sessions.scope.canNotSelectSessionWithSensorSelected);
-    return false;
   };
 
   $scope.sessionRedrawCondition = function() {
@@ -127,15 +126,7 @@ export const SessionsListCtrl = (
     if(sessions.hasSelectedSessions()) {
       sessions.deselectAllSessions();
     } else {
-      if(!sensors.selectedId()) {
-        flash.set(sessions.scope.canNotSelectSessionWithoutSensorSelected);
-        return;
-      }
-      if(sessions.canSelectAllSessions()){
-        sessions.selectAllSessions();
-      } else {
-        flash.set(sessions.scope.canNotSelectSessionWithSensorSelected);
-      }
+      flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
     }
   };
 
@@ -145,7 +136,7 @@ export const SessionsListCtrl = (
 
   $scope.toggleSession = function(sessionId, markerSelected) {
     if(this.isSessionDisabled(sessionId)){
-      flash.set(sessions.scope.canNotSelectSessionWithoutSensorSelected);
+      flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
       return;
     }
     var session = sessions.find(sessionId);

@@ -85,18 +85,6 @@ angular.module("aircasting").factory('sessionsUtils', [
         return session.streams[sensors.selected().sensor_name].measurements_count;
       },
 
-      totalMeasurementsSelectedCount: function(self) {
-        return _(self.allSelected()).reduce(function(memo, session){
-          return memo + self.measurementsCount(session);
-        }, 0);
-      },
-
-      totalMeasurementsCount: function(self) {
-        return _(self.get()).reduce(function(memo, session){
-          return memo + self.measurementsCount(session);
-        }, 0);
-      },
-
       onSingleSessionFetch: function(session, data, callback) {
         var streams = data.streams;
         delete data.streams;

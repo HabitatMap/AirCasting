@@ -17,11 +17,8 @@ export const mobileSessions = (
 ) => {
   var MobileSessions = function() {
     this.sessions = [];
-    this.maxPoints = 30000;
     this.scope = $rootScope.$new();
     this.scope.params = params;
-    this.scope.canNotSelectSessionWithSensorSelected = "You are trying to select too many sessions";
-    this.scope.canNotSelectSessionWithoutSensorSelected = "Filter by Parameter - Sensor to view many sessions at once";
   };
 
   let prevMapPosition = {
@@ -63,10 +60,6 @@ export const mobileSessions = (
     selectAllSessions: function() { sessionsUtils.selectAllSessions(this); },
 
     sessionsChanged: function (newIds, oldIds) { sessionsUtils.sessionsChanged(this, newIds, oldIds); },
-
-    totalMeasurementsCount: function() { return sessionsUtils.totalMeasurementsCount(this); },
-
-    totalMeasurementsSelectedCount: function() { return sessionsUtils.totalMeasurementsSelectedCount(this); },
 
 
 
@@ -121,14 +114,6 @@ export const mobileSessions = (
         cache : true,
         params: { sensor_id: sensorName }
       }).success(callback(session, allSelected));
-    },
-
-    canSelectThatSession: function(session) {
-      return (this.totalMeasurementsSelectedCount() + this.measurementsCount(session)) <= this.maxPoints;
-    },
-
-    canSelectAllSessions: function() {
-      return this.totalMeasurementsCount() <= this.maxPoints;
     },
 
     shouldUpdateWithMapPanOrZoom: function() {

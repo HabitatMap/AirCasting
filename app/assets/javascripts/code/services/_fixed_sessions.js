@@ -21,8 +21,6 @@ export const fixedSessions = (
     this.sessions = [];
     this.scope = $rootScope.$new();
     this.scope.params = params;
-    this.scope.canNotSelectSessionWithSensorSelected = "You can't select multiple fixed-location sessions";
-    this.scope.canNotSelectSessionWithoutSensorSelected = "You can't select multiple fixed-location sessions";
   };
 
   FixedSessions.prototype = {
@@ -58,15 +56,7 @@ export const fixedSessions = (
 
     sessionsChanged: function (newIds, oldIds) { sessionsUtils.sessionsChanged(this, newIds, oldIds); },
 
-    totalMeasurementsCount: function() { return sessionsUtils.totalMeasurementsCount(this); },
 
-    totalMeasurementsSelectedCount: function() { return sessionsUtils.totalMeasurementsSelectedCount(this); },
-
-
-
-    canSelectThatSession: function() { return !this.hasSelectedSessions(); },
-
-    canSelectAllSessions: function() { return false; },
 
     onSessionsFetch: function() {
       this.drawSessionsInLocation();
