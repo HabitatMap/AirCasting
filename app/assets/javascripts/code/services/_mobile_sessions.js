@@ -24,6 +24,11 @@ export const mobileSessions = (
     this.scope.canNotSelectSessionWithoutSensorSelected = "Filter by Parameter - Sensor to view many sessions at once";
   };
 
+  let prevMapPosition = {
+    bounds: map.getBounds(),
+    zoom: map.getZoom()
+  };
+
   MobileSessions.prototype = {
     allSelected: function() { return sessionsUtils.allSelected(this); },
 
@@ -71,16 +76,20 @@ export const mobileSessions = (
     },
 
     deselectSession: function(id) {
-      var session = this.find(id);
-      if(!session) return;
+      const session = this.find(id);
+      if (!session) return;
       session.loaded = false;
       session.$selected = false;
       session.alreadySelected = false;
-      drawSession.undoDraw(session, boundsCalculator(this.sessions));
+      drawSession.undoDraw(session, prevMapPosition);
     },
 
     selectSession: function(id) {
       const callback = (session, allSelected) => (data) => {
+        prevMapPosition = {
+          bounds: map.getBounds(),
+          zoom: map.getZoom()
+        };
         const draw = () => drawSession.drawMobileSession(session, boundsCalculator(allSelected));
         sessionsUtils.onSingleSessionFetch(session, data, draw);
         map.fitBounds(boundsCalculator(allSelected));
@@ -128,7 +137,7 @@ export const mobileSessions = (
       // if _fetch is called after the route has changed (eg debounced)
       if ($location.path() !== constants.mobileMapRoute) return;
 
-      var viewport = map.viewport();
+      var bounds = map.getBounds();
       var data = params.get('data');
       var sessionIds = _.values(params.get('sessionsIds') || []);
       if (!data.time) return;
@@ -145,10 +154,10 @@ export const mobileSessions = (
       };
 
       _(reqData).extend({
-        west: viewport.west,
-        east: viewport.east,
-        south: viewport.south,
-        north: viewport.north
+        west: bounds.west,
+        east: bounds.east,
+        south: bounds.south,
+        north: bounds.north
       });
 
       if(sensors.selected()){

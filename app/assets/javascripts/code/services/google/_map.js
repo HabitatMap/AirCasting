@@ -32,7 +32,7 @@ export const map = (
       return $cookieStore.get(name);
     },
 
-    viewport: function(){
+    getBounds: function(){
       var bounds = this.mapObj.getBounds();
       if(bounds) {
         return {
@@ -56,8 +56,8 @@ export const map = (
       const callback = (results, status) => {
         if (!googleMaps.wasGeocodingSuccessful(status)) return;
 
-        const viewport = results[0].geometry.viewport;
-        this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, viewport);
+        const latLngBounds = results[0].geometry.viewport;
+        this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, latLngBounds);
       };
 
       geocoder.get(address, callback);
@@ -76,21 +76,22 @@ export const map = (
       digester();
     },
 
-    fitBounds: function(obj) {
-      if (!obj) return;
-      if (!(obj.north && obj.east && obj.south && obj.west)) return;
+    fitBounds: function(bounds, zoom) {
+      if (!bounds) return;
+      if (!(bounds.north && bounds.east && bounds.south && bounds.west)) return;
 
-      const northeast = (obj.north == 200 && obj.east == 200) ?
+      const northeast = (bounds.north == 200 && bounds.east == 200) ?
         googleMaps.latLng(50.09024, -90.712891) : // refresh with an indoor session selected goes to US
-        googleMaps.latLng(obj.north, obj.east);
-      const southwest = googleMaps.latLng(obj.south, obj.west);
-      const bounds = googleMaps.latLngBounds(southwest, northeast);
-      this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, bounds);
+        googleMaps.latLng(bounds.north, bounds.east);
+      const southwest = googleMaps.latLng(bounds.south, bounds.west);
+      const latLngBounds = googleMaps.latLngBounds(southwest, northeast);
+      this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, latLngBounds, zoom);
     },
 
-    _fitBoundsWithoutPanOrZoomCallback: (mapObj, bounds) => {
+    _fitBoundsWithoutPanOrZoomCallback: (mapObj, latLngBounds, zoom) => {
       googleMaps.unlistenPanOrZoom(mapObj);
-      googleMaps.fitBounds(mapObj, bounds);
+      googleMaps.fitBounds(mapObj, latLngBounds);
+      if (zoom) mapObj.setZoom(zoom);
       setTimeout(() => googleMaps.relistenPanOrZoom(mapObj), TIMEOUT_DELAY);
     },
 

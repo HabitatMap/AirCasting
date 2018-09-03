@@ -87,11 +87,11 @@ export const CrowdMapCtrl = (
 
   $scope.getAverages = function(){
     var data = params.get('data');
-    var bounder = map.viewport();
-    if(!sensors.selected() || !data.time || !data.heat || !data.gridResolution || !bounder.east) {
+    var bounds = map.getBounds();
+    if(!sensors.selected() || !data.time || !data.heat || !data.gridResolution || !bounds.east) {
       return;
     }
-    var reqData = $scope.averagesData(bounder);
+    var reqData = $scope.averagesData(bounds);
     $http.get('/api/averages', {cache: true, params : {q: reqData}}).error($scope.onError).success($scope.onAveragesFetch);
   };
 
@@ -99,13 +99,13 @@ export const CrowdMapCtrl = (
     flash.set('There was an error, sorry');
   };
 
-  $scope.averagesData = function(bounder) {
+  $scope.averagesData = function(bounds) {
     var data = params.get('data');
     return {
-      west: bounder.west,
-      east: bounder.east,
-      south: bounder.south,
-      north: bounder.north,
+      west: bounds.west,
+      east: bounds.east,
+      south: bounds.south,
+      north: bounds.north,
       time_from: utils.normalizeTime(data.time.timeFrom),
       time_to:  utils.normalizeTime(data.time.timeTo),
       day_from:  data.time.dayFrom,

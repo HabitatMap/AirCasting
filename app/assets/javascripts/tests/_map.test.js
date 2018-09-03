@@ -179,7 +179,7 @@ test('fitBounds re-adds callbacks from the map after calling fitBounds', t => {
 });
 
 const mockGeocoder = () => ({
-  get: (_, callback) => callback([ { geometry: { viewport: null } } ])
+  get: (_, callback) => callback([ { geometry: { getBounds: null } } ])
 });
 
 const mockGoogleMaps = (opts = {}) => {

@@ -146,7 +146,7 @@ test('fetch when on a different route than fixed map does not call downloadSessi
 test('fetch passes map corner coordinates to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
   const map = {
-    viewport: () => ({
+    getBounds: () => ({
       west: 1,
       east: 2,
       south: 3,
@@ -180,7 +180,7 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
       }
     }
   };
-  const _map = map || { viewport: () => ({}) };
+  const _map = map || { getBounds: () => ({}) };
   const _utils = utils || {};
   const sensors = { selected: () => {} };
   const _drawSession = drawSession || { clear: () => {} };
