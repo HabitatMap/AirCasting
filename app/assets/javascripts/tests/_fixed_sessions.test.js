@@ -165,6 +165,28 @@ test('fetch passes map corner coordinates to sessionsDownloader', t => {
   t.end();
 });
 
+test('hasSelectedSessions with no selected sessions returns false', t => {
+  const sessionsUtils = { noOfSelectedSessions: () => 0 };
+  const fixedSessionsService = _fixedSessions({ sessionsUtils });
+
+  const hasSelectedSessions = fixedSessionsService.hasSelectedSessions();
+
+  t.false(hasSelectedSessions);
+
+  t.end();
+});
+
+test('hasSelectedSessions with selected session returns true', t => {
+  const sessionsUtils = { noOfSelectedSessions: () => 1 };
+  const fixedSessionsService = _fixedSessions({ sessionsUtils });
+
+  const hasSelectedSessions = fixedSessionsService.hasSelectedSessions();
+
+  t.false(hasSelectedSessions);
+
+  t.end();
+});
+
 const buildData = obj => ({ time: {}, location: {}, ...obj });
 
 const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map }) => {
