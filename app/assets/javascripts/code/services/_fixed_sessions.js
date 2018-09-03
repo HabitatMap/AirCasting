@@ -166,10 +166,10 @@ export const fixedSessions = (
       }
 
       _(reqData).extend({
-        west: map.viewport().west,
-        east: map.viewport().east,
-        south: map.viewport().south,
-        north: map.viewport().north
+        west: map.getBounds().west,
+        east: map.getBounds().east,
+        south: map.getBounds().south,
+        north: map.getBounds().north
       });
 
       if(sensors.selected()){

@@ -32,7 +32,7 @@ export const map = (
       return $cookieStore.get(name);
     },
 
-    viewport: function(){
+    getBounds: function(){
       var bounds = this.mapObj.getBounds();
       if(bounds) {
         return {
@@ -56,8 +56,8 @@ export const map = (
       const callback = (results, status) => {
         if (!googleMaps.wasGeocodingSuccessful(status)) return;
 
-        const viewport = results[0].geometry.viewport;
-        this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, viewport);
+        const latLngBounds = results[0].geometry.viewport;
+        this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, latLngBounds);
       };
 
       geocoder.get(address, callback);

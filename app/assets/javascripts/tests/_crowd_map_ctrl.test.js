@@ -8,7 +8,7 @@ test('registers a callback to map.goToAddress', t => {
     $watch: (str, callback) => str.includes('address') ? callbacks.push(callback) : null
   };
   // diff from fixed_sessions_map_ctrl
-  const map = { ...mock('goToAddress'), unregisterAll: () => {}, register: () => {}, removeAllMarkers: () => {}, viewport: () => {} };
+  const map = { ...mock('goToAddress'), unregisterAll: () => {}, register: () => {}, removeAllMarkers: () => {}, getBounds: () => {} };
   const controller = _CrowdMapCtrl({ $scope, map, callbacks });
 
   callbacks.forEach(callback => callback({ location: 'new york' }));

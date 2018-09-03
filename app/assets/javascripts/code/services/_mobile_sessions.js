@@ -25,7 +25,7 @@ export const mobileSessions = (
   };
 
   let prevMapPosition = {
-    bounds: map.viewport(),
+    bounds: map.getBounds(),
     zoom: map.getZoom()
   };
 
@@ -87,7 +87,7 @@ export const mobileSessions = (
     selectSession: function(id) {
       const callback = (session, allSelected) => (data) => {
         prevMapPosition = {
-          bounds: map.viewport(),
+          bounds: map.getBounds(),
           zoom: map.getZoom()
         };
         const draw = () => drawSession.drawMobileSession(session, boundsCalculator(allSelected));
@@ -137,7 +137,7 @@ export const mobileSessions = (
       // if _fetch is called after the route has changed (eg debounced)
       if ($location.path() !== constants.mobileMapRoute) return;
 
-      var viewport = map.viewport();
+      var bounds = map.getBounds();
       var data = params.get('data');
       var sessionIds = _.values(params.get('sessionsIds') || []);
       if (!data.time) return;
@@ -154,10 +154,10 @@ export const mobileSessions = (
       };
 
       _(reqData).extend({
-        west: viewport.west,
-        east: viewport.east,
-        south: viewport.south,
-        north: viewport.north
+        west: bounds.west,
+        east: bounds.east,
+        south: bounds.south,
+        north: bounds.north
       });
 
       if(sensors.selected()){

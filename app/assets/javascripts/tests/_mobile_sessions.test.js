@@ -122,7 +122,7 @@ test('fetch when on a different route than mobile map does not call downloadSess
 test('fetch passes map corner coordinates to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
   const map = {
-    viewport: () => ({
+    getBounds: () => ({
       west: 1,
       east: 2,
       south: 3,
@@ -232,7 +232,7 @@ test('deselectSession with non-existing session does not call drawSession.undoDr
 });
 
 test('deselectSession calls drawSession.undoDraw with the bounds saved before selecting the session', t => {
-  const map = { viewport: () => 50 };
+  const map = { getBounds: () => 50 };
   const drawSession = mock('undoDraw');
   const sessionsUtils = { find: () => ({ id: 1 }) };
   const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils, map, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
@@ -256,7 +256,7 @@ test('deselectSession with no previously selected sessions calls drawSession.und
   };
   const zoom = 10;
   const mapPosition = { bounds, zoom };
-  const map = { viewport: () => bounds, getZoom: () => zoom };
+  const map = { getBounds: () => bounds, getZoom: () => zoom };
   const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils, map });
 
   mobileSessionsService.deselectSession(1);
@@ -281,7 +281,7 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
       }
     }
   };
-  const _map = { viewport: () => ({}), fitBounds: () => {}, getZoom: () => {}, ...map };
+  const _map = { getBounds: () => ({}), fitBounds: () => {}, getZoom: () => {}, ...map };
   const _utils = utils || {};
   const _sensors = { selected: () => {}, sensors: {}, ...sensors };
   const _drawSession = { clear: () => {}, drawMobileSession: () => {}, ...drawSession };
