@@ -38,8 +38,6 @@ export const fixedSessions = (
 
     deselectAllSessions: function() { sessionsUtils.deselectAllSessions(); },
 
-    empty: function() { return sessionsUtils.empty(this); },
-
     export: function() { sessionsUtils.export(this); },
 
     find: function(id) { return sessionsUtils.find(this, id); },
@@ -66,7 +64,7 @@ export const fixedSessions = (
 
 
 
-    canSelectThatSession: function() { return this.empty(); },
+    canSelectThatSession: function() { return !this.hasSelectedSessions(); },
 
     canSelectAllSessions: function() { return false; },
 

@@ -39,7 +39,7 @@ export const SessionsListCtrl = (
 
   $scope.isSessionDisabled = function(sessionId) {
     return !sensors.selected() && !_(params.get("sessionsIds")).include(sessionId) &&
-      !sessions.empty() ;
+      sessions.hasSelectedSessions() ;
   };
 
   $scope.sessionFetchCondition = function() {
@@ -77,7 +77,7 @@ export const SessionsListCtrl = (
 
   $scope.canSelectSession = function(sessionId) {
     var session = sessions.find(sessionId);
-    if(sessions.empty()){
+    if(!sessions.hasSelectedSessions()){
       return true;
     }
     if(sessions.canSelectThatSession(session)){
@@ -124,7 +124,9 @@ export const SessionsListCtrl = (
   }, true);
 
   $scope.toggleAll = function(){
-    if(sessions.empty()) {
+    if(sessions.hasSelectedSessions()) {
+      sessions.deselectAllSessions();
+    } else {
       if(!sensors.selectedId()) {
         flash.set(sessions.scope.canNotSelectSessionWithoutSensorSelected);
         return;
@@ -134,13 +136,11 @@ export const SessionsListCtrl = (
       } else {
         flash.set(sessions.scope.canNotSelectSessionWithSensorSelected);
       }
-    } else {
-      sessions.deselectAllSessions();
     }
   };
 
   $scope.allSelectionText = function() {
-    return sessions.empty() ? "all" : "none";
+    return sessions.hasSelectedSessions() ? "none" : "all";
   };
 
   $scope.toggleSession = function(sessionId, markerSelected) {
