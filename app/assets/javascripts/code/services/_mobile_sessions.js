@@ -30,6 +30,10 @@ export const mobileSessions = (
   };
 
   MobileSessions.prototype = {
+    hasSelectedSessions: function() {
+      return this.noOfSelectedSessions() > 0;
+    },
+
     allSelected: function() { return sessionsUtils.allSelected(this); },
 
     allSelectedIds: function() { return sessionsUtils.allSelectedIds(); },

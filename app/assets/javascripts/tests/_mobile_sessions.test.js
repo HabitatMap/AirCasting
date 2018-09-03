@@ -266,6 +266,28 @@ test('deselectSession with no previously selected sessions calls drawSession.und
   t.end();
 });
 
+test('hasSelectedSessions with no selected sessions returns false', t => {
+  const sessionsUtils = { noOfSelectedSessions: () => 0 };
+  const mobileSessionsService = _mobileSessions({ sessionsUtils });
+
+  const hasSelectedSessions = mobileSessionsService.hasSelectedSessions();
+
+  t.false(hasSelectedSessions);
+
+  t.end();
+});
+
+test('hasSelectedSessions with selected session returns true', t => {
+  const sessionsUtils = { noOfSelectedSessions: () => 1 };
+  const mobileSessionsService = _mobileSessions({ sessionsUtils });
+
+  const hasSelectedSessions = mobileSessionsService.hasSelectedSessions();
+
+  t.true(hasSelectedSessions);
+
+  t.end();
+});
+
 const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
 
 const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {

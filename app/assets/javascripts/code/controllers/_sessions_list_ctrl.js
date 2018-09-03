@@ -57,6 +57,7 @@ export const SessionsListCtrl = (
 
   $scope.$watch("params.get('map')", () => {
     console.log("watch - params.get('map')");
+    if (sessions.hasSelectedSessions()) return;
     if (sessions && !sessions.shouldUpdateWithMapPanOrZoom()) return;
     $scope.page = 0;
     sessions.fetch($scope.page);
@@ -64,6 +65,7 @@ export const SessionsListCtrl = (
 
   $scope.$watch("sessionFetchCondition()", () => {
     console.log("watch - sessionFetchCondition()");
+    if (sessions.hasSelectedSessions()) return;
     $scope.page = 0;
     sessions.fetch($scope.page);
   }, true);
