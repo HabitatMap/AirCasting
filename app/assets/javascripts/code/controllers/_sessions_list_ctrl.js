@@ -39,8 +39,9 @@ export const SessionsListCtrl = (
   };
 
   $scope.isSessionDisabled = function(sessionId) {
-    return !sensors.selected() && !_(params.get("selectedSessionIds")).include(sessionId) &&
-      sessions.hasSelectedSessions() ;
+    // disabled if there is another selected session and it is not the selected session
+    // when refactoring to a radio button this should always be false
+    return !params.get("selectedSessionIds", []).includes(sessionId) && sessions.hasSelectedSessions();
   };
 
   $scope.sessionFetchCondition = function() {
@@ -141,10 +142,10 @@ export const SessionsListCtrl = (
     }
     var session = sessions.find(sessionId);
     if(sessions.isSelected(session)) {
-      params.update({selectedSessionIds: _(params.get("selectedSessionIds", [])).without(sessionId)});
+      params.update({selectedSessionIds: []});
       session.$selected = false;
     } else if($scope.canSelectSession(sessionId)) {
-      params.update({selectedSessionIds: params.get("selectedSessionIds", []).concat([sessionId])});
+      params.update({selectedSessionIds: [sessionId]});
       $scope.markerSelected.set(markerSelected);
       session.$selected = true;
     }
