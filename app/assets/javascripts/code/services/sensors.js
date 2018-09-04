@@ -9,7 +9,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
 
   var Sensors = function() {
     this.sensors = {};
-    this.tmpSensorId = undefined;
+    this.candidateSelectedSensorId = undefined;
     this.shouldInitSelected = false;
     this.defaultSensor = this.buildSensorId({
       measurement_type: "Particulate Matter",
@@ -81,7 +81,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
     },
     //used when "all" sensors are choosen
     tmpSelected: function() {
-      return this.sensors[params.get('tmp').tmpSensorId];
+      return this.sensors[params.get('tmp').selectedSensorId];
     },
     tmpSelectedId: function() {
       if(!this.tmpSelected()){
@@ -100,7 +100,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       return this.anySelected().id;
     },
     proceedWithTmp: function() {
-      params.update({tmp: {tmpSensorId: this.tmpSensorId}});
+      params.update({tmp: {selectedSensorId: this.candidateSelectedSensorId}});
     },
     setAllSensors: function() {
       console.log('setAllSensors')
@@ -126,7 +126,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
     onSelectedParameterChange: function(selectedParameter, oldValue) {
       console.log('onSelectedParameterChange() - ', selectedParameter)
       if (selectedParameter === oldValue) return; // first angular watch run
-      params.update({sessionsIds: []});
+      params.update({selectedSessionIds: []});
       if (hasChangedToAll(selectedParameter)) {
         this.availableSensors = this.sensors;
         this.setAllSensors();
@@ -163,7 +163,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       if (newValue === oldValue) return; // first angular watch run
 
       params.update({data: {sensorId: newValue}});
-      params.update({sessionsIds: []});
+      params.update({selectedSessionIds: []});
     }
   };
   return new Sensors();

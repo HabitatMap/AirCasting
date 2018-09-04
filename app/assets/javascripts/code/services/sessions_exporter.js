@@ -5,8 +5,8 @@ angular.module("aircasting").factory("sessionsExporter", ['$window', function ($
     $window.open(url, '_blank', '');
   };
 
-  var downloadUrl = function(sessionsIds) {
-    var sessionIdsStr = _(sessionsIds).map(function(sessionId) {
+  var downloadUrl = function(selectedSessionIds) {
+    var sessionIdsStr = _(selectedSessionIds).map(function(sessionId) {
       return 'session_ids[]='+sessionId
     }).join('&');
 

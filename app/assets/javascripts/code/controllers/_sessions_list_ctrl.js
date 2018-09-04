@@ -11,7 +11,8 @@ export const SessionsListCtrl = (
   drawSession,
   openSensorDialog,
   markerSelected,
-  map
+  map,
+  expandables
 ) => {
   let sessions;
   let singleSession;
@@ -27,11 +28,11 @@ export const SessionsListCtrl = (
     $window.sessions = sessions = $scope.sessions;
     $window.singleSession = singleSession = $scope.singleSession;
 
-    if(_(params.get("sessionsIds", [])).isEmpty()){
-      params.update({sessionsIds: []});
+    if(_(params.get("selectedSessionIds", [])).isEmpty()){
+      params.update({selectedSessionIds: []});
     }
 
-    functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").tmpSensorId);
+    functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").selectedSensorId);
 
     if (sessions && sessions.shouldUpdateWithMapPanOrZoom()) {
       map.onPanOrZoom(() => storage.resetAddress());
@@ -39,8 +40,9 @@ export const SessionsListCtrl = (
   };
 
   $scope.isSessionDisabled = function(sessionId) {
-    return !sensors.selected() && !_(params.get("sessionsIds")).include(sessionId) &&
-      sessions.hasSelectedSessions() ;
+    // disabled if there is another selected session and it is not the selected session
+    // when refactoring to a radio button this should always be false
+    return !params.get("selectedSessionIds", []).includes(sessionId) && sessions.hasSelectedSessions();
   };
 
   $scope.sessionFetchCondition = function() {
@@ -87,7 +89,7 @@ export const SessionsListCtrl = (
   };
 
   $scope.sessionRedrawCondition = function() {
-    return {id: params.get('tmp').tmpSensorId, heat: params.get('data').heat };
+    return {id: params.get('tmp').selectedSensorId, heat: params.get('data').heat };
   };
 
   $scope.$watch("sessionRedrawCondition()", function(newValue) {
@@ -103,20 +105,22 @@ export const SessionsListCtrl = (
     $scope.$apply();
   });
 
-  $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
-    console.log("watch - params.get('sessionsIds')");
+  $scope.$watch("params.get('selectedSessionIds')", function(newIds, oldIds) {
+    console.log("watch - params.get('selectedSessionIds')");
     functionBlocker.use("sessionDialog", function(){
       if(newIds.length === 1 && !sensors.selected()) {
+        console.warn('select 2?')
         var usableSensors = singleSession.availSensors();
         if(usableSensors.length > 1) {
-          sensors.tmpSensorId = _(usableSensors).first().id;
+          sensors.candidateSelectedSensorId = _(usableSensors).first().id;
           openSensorDialog(newIds, oldIds, sessions);
         } else if(usableSensors.length === 1){
-          params.update({tmp: {tmpSensorId: _(usableSensors).first().id}});
+          params.update({tmp: {selectedSensorId: _(usableSensors).first().id}});
           sessions.sessionsChanged(newIds, oldIds);
         }
       } else {
-        params.update({tmp: {tmpSensorId: ""}});
+        console.warn('deselect 2?')
+        params.update({tmp: {selectedSensorId: ""}});
         sessions.sessionsChanged(newIds, oldIds);
       }
     });
@@ -141,10 +145,13 @@ export const SessionsListCtrl = (
     }
     var session = sessions.find(sessionId);
     if(sessions.isSelected(session)) {
-      params.update({sessionsIds: _(params.get("sessionsIds", [])).without(sessionId)});
+      params.update({selectedSessionIds: []});
       session.$selected = false;
+      expandables.unjustHeat();
+      console.warn('deselect?')
     } else if($scope.canSelectSession(sessionId)) {
-      params.update({sessionsIds: params.get("sessionsIds", []).concat([sessionId])});
+      console.warn('select?')
+      params.update({selectedSessionIds: [sessionId]});
       $scope.markerSelected.set(markerSelected);
       session.$selected = true;
     }

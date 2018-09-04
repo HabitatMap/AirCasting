@@ -2,13 +2,13 @@ angular.module('aircasting').factory('openSensorDialog', ['$rootScope', 'params'
   function($rootScope, params, dialog, versioner, sensors) {
 
     var openSensorDialog = function(newIds, oldIds, sessions) {
-      params.update({tmp: {tmpSensorId: ""}});
+      params.update({tmp: {selectedSensorId: ""}});
       var dialogObj = dialog();
       dialogObj.title('Select a Parameter - Sensor')
         .template(versioner.path("/partials/tmp_sensor_selection_dialog.html"))
         .onClose(function(){
           if(!sensors.tmpSelected()){
-            params.update({sessionsIds: []});
+            params.update({selectedSessionIds: []});
             var selectedSession = _(sessions.get()).detect(function(session){
               return session.$selected;
             });

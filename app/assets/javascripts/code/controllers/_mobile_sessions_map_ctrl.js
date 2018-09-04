@@ -30,7 +30,7 @@ export const MobileSessionsMapCtrl = (
     $scope.singleSession = singleMobileSession;
     $scope.$window = $window;
 
-    functionBlocker.block("sessionHeat", !_(params.get('sessionsIds')).isEmpty());
+    functionBlocker.block("sessionHeat", !_(params.get('selectedSessionIds')).isEmpty());
 
     rectangles.clear();
     infoWindow.hide();
@@ -75,6 +75,7 @@ export const MobileSessionsMapCtrl = (
     console.log("watch - heatUpdateCondition() - ", newValue, " - ", oldValue);
     if(newValue.sensorId && newValue.sessionId){
       functionBlocker.use("sessionHeat", function(){
+        expandables.justHeat();
         $scope.singleSession.updateHeat();
       });
     }
