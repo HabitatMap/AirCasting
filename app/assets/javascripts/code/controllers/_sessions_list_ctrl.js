@@ -109,7 +109,7 @@ export const SessionsListCtrl = (
       if(newIds.length === 1 && !sensors.selected()) {
         var usableSensors = singleSession.availSensors();
         if(usableSensors.length > 1) {
-          sensors.tmpSensorId = _(usableSensors).first().id;
+          sensors.candidateSelectedSensorId = _(usableSensors).first().id;
           openSensorDialog(newIds, oldIds, sessions);
         } else if(usableSensors.length === 1){
           params.update({tmp: {tmpSensorId: _(usableSensors).first().id}});

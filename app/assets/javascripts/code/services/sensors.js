@@ -9,7 +9,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
 
   var Sensors = function() {
     this.sensors = {};
-    this.tmpSensorId = undefined;
+    this.candidateSelectedSensorId = undefined;
     this.shouldInitSelected = false;
     this.defaultSensor = this.buildSensorId({
       measurement_type: "Particulate Matter",
@@ -100,7 +100,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       return this.anySelected().id;
     },
     proceedWithTmp: function() {
-      params.update({tmp: {tmpSensorId: this.tmpSensorId}});
+      params.update({tmp: {tmpSensorId: this.candidateSelectedSensorId}});
     },
     setAllSensors: function() {
       console.log('setAllSensors')
