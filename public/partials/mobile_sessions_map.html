@@ -3,39 +3,41 @@
   <div ng-hide="expandables.allHidden" id="sessions-graph" ng-include="versioner.path('/partials/graph.html')"></div>
 
   <div id="sessions-map-tab" class="tab-content" ng-hide="expandables.allHidden">
-    <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
-    <section ng-show="expandables.visible('sensor')" >
-    <p>
-      <select ng-model="sensors.selectedParameter" ng-options="parameter as parameter.label for parameter in sensors.availableParameters track by parameter.id">
-        <option value="">All</option>
-      </select>
-    </p>
-    <p>
-      <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for (sensorId, sensor) in sensors.availableSensors">
-        <option disabled value="">All</option>
-      </select>
-    </p>
-    </section>
+    <div ng-show="!expandables.isJustHeat()">
+      <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
+      <section ng-show="expandables.visible('sensor')" >
+      <p>
+        <select ng-model="sensors.selectedParameter" ng-options="parameter as parameter.label for parameter in sensors.availableParameters track by parameter.id">
+          <option value="">All</option>
+        </select>
+      </p>
+      <p>
+        <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for (sensorId, sensor) in sensors.availableSensors">
+          <option disabled value="">All</option>
+        </select>
+      </p>
+      </section>
 
-    <h4 ng-click="expandables.toggle('location')" ng-class="expandables.css('location')">Location</h4>
-    <section ng-show="expandables.visible('location')">
-      <div class="textfield">
-        <p>
-          <label>Address, Intersection, or Zip
-            <input type="text" ng-model="storage.data.location.address">
-          </label>
-        </p>
-      </div>
-      <div>
-        <ul class="buttons">
-          <li><button ng-click="storage.reset('location')">reset</li>
-          <li><button ng-click="searchSessions()">submit</li>
-        </ul>
-      </div>
-    </section>
+      <h4 ng-click="expandables.toggle('location')" ng-class="expandables.css('location')">Location</h4>
+      <section ng-show="expandables.visible('location')">
+        <div class="textfield">
+          <p>
+            <label>Address, Intersection, or Zip
+              <input type="text" ng-model="storage.data.location.address">
+            </label>
+          </p>
+        </div>
+        <div>
+          <ul class="buttons">
+            <li><button ng-click="storage.reset('location')">reset</li>
+            <li><button ng-click="searchSessions()">submit</li>
+          </ul>
+        </div>
+      </section>
 
-    <div class="section-divider" ng-include="versioner.path('/partials/usernames_and_tags.html')"></div>
-    <div class="section-divider" ng-include="versioner.path('/partials/time_filters.html')"></div>
+      <div class="section-divider" ng-include="versioner.path('/partials/usernames_and_tags.html')"></div>
+      <div class="section-divider" ng-include="versioner.path('/partials/time_filters.html')"></div>
+    </div>
     <div ng-switch on="!!singleSession.get() && !!sensors.anySelected()">
       <div ng-switch-when="true">
         <div class="section-divider" ng-include="versioner.path('/partials/heat_legend.html')"></div>
