@@ -126,7 +126,7 @@ export const mobileSessions = (
 
       var bounds = map.getBounds();
       var data = params.get('data');
-      var sessionIds = _.values(params.get('sessionsIds') || []);
+      var sessionIds = _.values(params.get('selectedSessionIds') || []);
       if (!data.time) return;
       var reqData = {
         time_from: data.time.timeFrom - utils.timeOffset,

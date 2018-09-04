@@ -54,15 +54,15 @@ angular.module("aircasting").factory('sessionsUtils', [
       },
 
       deselectAllSessions: function() {
-        params.update({sessionsIds: []});
+        params.update({selectedSessionIds: []});
       },
 
       selectAllSessions: function(self) {
-        params.update({sessionsIds: self.allSessionIds()});
+        params.update({selectedSessionIds: self.allSessionIds()});
       },
 
       reSelectAllSessions: function(self){
-        _(params.get('sessionsIds')).each(function(id){
+        _(params.get('selectedSessionIds')).each(function(id){
           self.reSelectSession(id);
         });
       },
@@ -78,7 +78,7 @@ angular.module("aircasting").factory('sessionsUtils', [
       },
 
       allSelectedIds: function() {
-        return params.get('sessionsIds');
+        return params.get('selectedSessionIds');
       },
 
       measurementsCount: function(session) {

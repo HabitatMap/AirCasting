@@ -34,7 +34,7 @@ export const FixedSessionsMapCtrl = (
     $scope.$window = $window;
     $scope.initializing = true;
 
-    functionBlocker.block("sessionHeat", !_(params.get('sessionsIds')).isEmpty());
+    functionBlocker.block("sessionHeat", !_(params.get('selectedSessionIds')).isEmpty());
 
     rectangles.clear();
     infoWindow.hide();

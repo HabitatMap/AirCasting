@@ -27,8 +27,8 @@ export const SessionsListCtrl = (
     $window.sessions = sessions = $scope.sessions;
     $window.singleSession = singleSession = $scope.singleSession;
 
-    if(_(params.get("sessionsIds", [])).isEmpty()){
-      params.update({sessionsIds: []});
+    if(_(params.get("selectedSessionIds", [])).isEmpty()){
+      params.update({selectedSessionIds: []});
     }
 
     functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").tmpSensorId);
@@ -39,7 +39,7 @@ export const SessionsListCtrl = (
   };
 
   $scope.isSessionDisabled = function(sessionId) {
-    return !sensors.selected() && !_(params.get("sessionsIds")).include(sessionId) &&
+    return !sensors.selected() && !_(params.get("selectedSessionIds")).include(sessionId) &&
       sessions.hasSelectedSessions() ;
   };
 
@@ -103,8 +103,8 @@ export const SessionsListCtrl = (
     $scope.$apply();
   });
 
-  $scope.$watch("params.get('sessionsIds')", function(newIds, oldIds) {
-    console.log("watch - params.get('sessionsIds')");
+  $scope.$watch("params.get('selectedSessionIds')", function(newIds, oldIds) {
+    console.log("watch - params.get('selectedSessionIds')");
     functionBlocker.use("sessionDialog", function(){
       if(newIds.length === 1 && !sensors.selected()) {
         var usableSensors = singleSession.availSensors();
@@ -141,10 +141,10 @@ export const SessionsListCtrl = (
     }
     var session = sessions.find(sessionId);
     if(sessions.isSelected(session)) {
-      params.update({sessionsIds: _(params.get("sessionsIds", [])).without(sessionId)});
+      params.update({selectedSessionIds: _(params.get("selectedSessionIds", [])).without(sessionId)});
       session.$selected = false;
     } else if($scope.canSelectSession(sessionId)) {
-      params.update({sessionsIds: params.get("sessionsIds", []).concat([sessionId])});
+      params.update({selectedSessionIds: params.get("selectedSessionIds", []).concat([sessionId])});
       $scope.markerSelected.set(markerSelected);
       session.$selected = true;
     }

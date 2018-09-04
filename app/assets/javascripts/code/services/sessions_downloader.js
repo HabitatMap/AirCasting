@@ -28,7 +28,7 @@ angular.module("aircasting").factory("sessionsDownloader", ['$rootScope', '$http
 
   var preprocessData = function (data, sessions, params) {
     var times;
-    var sessionIds = _(params.get('sessionsIds') || []);
+    var sessionIds = _(params.get('selectedSessionIds') || []);
     $rootScope.sessionsCount = data.length;
 
     data = completeSessions(data);

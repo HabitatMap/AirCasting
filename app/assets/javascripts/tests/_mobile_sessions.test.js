@@ -296,7 +296,7 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
     get: what => {
       if (what === "data") {
         return data || buildData();
-      } else if (what === "sessionsIds") {
+      } else if (what === "selectedSessionIds") {
         return sessionIds || [];
       } else {
         throw new Error(`unexpected param ${what}`);

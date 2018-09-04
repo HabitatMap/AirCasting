@@ -126,7 +126,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
     onSelectedParameterChange: function(selectedParameter, oldValue) {
       console.log('onSelectedParameterChange() - ', selectedParameter)
       if (selectedParameter === oldValue) return; // first angular watch run
-      params.update({sessionsIds: []});
+      params.update({selectedSessionIds: []});
       if (hasChangedToAll(selectedParameter)) {
         this.availableSensors = this.sensors;
         this.setAllSensors();
@@ -163,7 +163,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       if (newValue === oldValue) return; // first angular watch run
 
       params.update({data: {sensorId: newValue}});
-      params.update({sessionsIds: []});
+      params.update({selectedSessionIds: []});
     }
   };
   return new Sensors();

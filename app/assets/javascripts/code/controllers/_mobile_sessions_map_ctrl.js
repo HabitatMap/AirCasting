@@ -30,7 +30,7 @@ export const MobileSessionsMapCtrl = (
     $scope.singleSession = singleMobileSession;
     $scope.$window = $window;
 
-    functionBlocker.block("sessionHeat", !_(params.get('sessionsIds')).isEmpty());
+    functionBlocker.block("sessionHeat", !_(params.get('selectedSessionIds')).isEmpty());
 
     rectangles.clear();
     infoWindow.hide();

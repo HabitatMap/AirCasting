@@ -8,7 +8,7 @@ angular.module('aircasting').factory('openSensorDialog', ['$rootScope', 'params'
         .template(versioner.path("/partials/tmp_sensor_selection_dialog.html"))
         .onClose(function(){
           if(!sensors.tmpSelected()){
-            params.update({sessionsIds: []});
+            params.update({selectedSessionIds: []});
             var selectedSession = _(sessions.get()).detect(function(session){
               return session.$selected;
             });

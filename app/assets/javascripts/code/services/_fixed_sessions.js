@@ -136,8 +136,8 @@ export const fixedSessions = (
 
       const data = params.get('data');
 
-      // _.values suggests that `params.get('sessionsIds')` could be an obj, is it true?
-      const sessionIds = _.values(params.get('sessionsIds') || []);
+      // _.values suggests that `params.get('selectedSessionIds')` could be an obj, is it true?
+      const sessionIds = _.values(params.get('selectedSessionIds') || []);
 
       if (!data.time) return;
 
