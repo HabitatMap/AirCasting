@@ -27,7 +27,7 @@ class MeasurementSessionsController < ApplicationController
 
     map = { zoom:16,lat:lat,lng:lng,mapType:"hybrid" }
     selected_session_ids = [@session.id]
-    tmp = { tmpSensorId: stream.sensor_full_name }
+    tmp = { selectedSensorId: stream.sensor_full_name }
     data = {
       heat: { highest: stream.threshold_very_high,
               high: stream.threshold_high,

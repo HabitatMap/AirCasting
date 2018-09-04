@@ -31,7 +31,7 @@ export const SessionsListCtrl = (
       params.update({selectedSessionIds: []});
     }
 
-    functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").tmpSensorId);
+    functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").selectedSensorId);
 
     if (sessions && sessions.shouldUpdateWithMapPanOrZoom()) {
       map.onPanOrZoom(() => storage.resetAddress());
@@ -87,7 +87,7 @@ export const SessionsListCtrl = (
   };
 
   $scope.sessionRedrawCondition = function() {
-    return {id: params.get('tmp').tmpSensorId, heat: params.get('data').heat };
+    return {id: params.get('tmp').selectedSensorId, heat: params.get('data').heat };
   };
 
   $scope.$watch("sessionRedrawCondition()", function(newValue) {
@@ -112,11 +112,11 @@ export const SessionsListCtrl = (
           sensors.candidateSelectedSensorId = _(usableSensors).first().id;
           openSensorDialog(newIds, oldIds, sessions);
         } else if(usableSensors.length === 1){
-          params.update({tmp: {tmpSensorId: _(usableSensors).first().id}});
+          params.update({tmp: {selectedSensorId: _(usableSensors).first().id}});
           sessions.sessionsChanged(newIds, oldIds);
         }
       } else {
-        params.update({tmp: {tmpSensorId: ""}});
+        params.update({tmp: {selectedSensorId: ""}});
         sessions.sessionsChanged(newIds, oldIds);
       }
     });

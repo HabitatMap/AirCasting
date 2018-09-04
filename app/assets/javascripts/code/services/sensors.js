@@ -81,7 +81,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
     },
     //used when "all" sensors are choosen
     tmpSelected: function() {
-      return this.sensors[params.get('tmp').tmpSensorId];
+      return this.sensors[params.get('tmp').selectedSensorId];
     },
     tmpSelectedId: function() {
       if(!this.tmpSelected()){
@@ -100,7 +100,7 @@ angular.module("aircasting").factory('sensors', ['params', '$http', function(par
       return this.anySelected().id;
     },
     proceedWithTmp: function() {
-      params.update({tmp: {tmpSensorId: this.candidateSelectedSensorId}});
+      params.update({tmp: {selectedSensorId: this.candidateSelectedSensorId}});
     },
     setAllSensors: function() {
       console.log('setAllSensors')
