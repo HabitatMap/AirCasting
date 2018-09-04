@@ -11,7 +11,8 @@ export const SessionsListCtrl = (
   drawSession,
   openSensorDialog,
   markerSelected,
-  map
+  map,
+  expandables
 ) => {
   let sessions;
   let singleSession;
@@ -108,6 +109,7 @@ export const SessionsListCtrl = (
     console.log("watch - params.get('selectedSessionIds')");
     functionBlocker.use("sessionDialog", function(){
       if(newIds.length === 1 && !sensors.selected()) {
+        console.warn('select 2?')
         var usableSensors = singleSession.availSensors();
         if(usableSensors.length > 1) {
           sensors.candidateSelectedSensorId = _(usableSensors).first().id;
@@ -117,6 +119,7 @@ export const SessionsListCtrl = (
           sessions.sessionsChanged(newIds, oldIds);
         }
       } else {
+        console.warn('deselect 2?')
         params.update({tmp: {selectedSensorId: ""}});
         sessions.sessionsChanged(newIds, oldIds);
       }
@@ -144,7 +147,10 @@ export const SessionsListCtrl = (
     if(sessions.isSelected(session)) {
       params.update({selectedSessionIds: []});
       session.$selected = false;
+      expandables.unjustHeat();
+      console.warn('deselect?')
     } else if($scope.canSelectSession(sessionId)) {
+      console.warn('select?')
       params.update({selectedSessionIds: [sessionId]});
       $scope.markerSelected.set(markerSelected);
       session.$selected = true;
