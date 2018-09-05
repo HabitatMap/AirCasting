@@ -23,6 +23,11 @@ export const fixedSessions = (
     this.scope.params = params;
   };
 
+  let prevMapPosition = {
+    bounds: map.getBounds(),
+    zoom: map.getZoom()
+  };
+
   FixedSessions.prototype = {
     hasSelectedSessions: function() {
       return this.noOfSelectedSessions() > 0;
@@ -69,6 +74,7 @@ export const fixedSessions = (
       session.loaded = false;
       session.$selected = false;
       session.alreadySelected = false;
+      map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
     },
 
     selectSession: function(id) {
@@ -76,6 +82,10 @@ export const fixedSessions = (
       const allSelected = this.allSelected();
       const fitBounds = () => {
         if (!session.is_indoor) {
+          prevMapPosition = {
+            bounds: map.getBounds(),
+            zoom: map.getZoom()
+          };
           map.fitBounds(boundsCalculator(allSelected));
         }
       };

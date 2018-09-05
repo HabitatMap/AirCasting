@@ -231,23 +231,7 @@ test('deselectSession with non-existing session does not call drawSession.undoDr
   t.end();
 });
 
-test('deselectSession calls drawSession.undoDraw with the bounds saved before selecting the session', t => {
-  const map = { getBounds: () => 50 };
-  const drawSession = mock('undoDraw');
-  const sessionsUtils = { find: () => ({ id: 1 }) };
-  const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils, map, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
-  mobileSessionsService.selectSession(123);
-
-  mobileSessionsService.deselectSession(1);
-
-  t.true(drawSession.wasCalledWith2({ bounds: 50, zoom: undefined }));
-
-  t.end();
-});
-
-test('deselectSession with no previously selected sessions calls drawSession.undoDraw with initial map position', t => {
-  const drawSession = mock('undoDraw');
-  const sessionsUtils = { find: () => ({ id: 1 }) };
+test('deselectSession calls drawSession.undoDraw with the position saved before selecting the session', t => {
   const bounds = {
     east: -68.06802987730651,
     north: 47.98992183263727,
@@ -255,6 +239,29 @@ test('deselectSession with no previously selected sessions calls drawSession.und
     west: -123.65885018980651
   };
   const zoom = 10;
+  const map = { getBounds: () => bounds, getZoom: () => zoom };
+  const drawSession = mock('undoDraw');
+  const sessionsUtils = { find: () => ({ id: 1 }) };
+  const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils, map, sensors: { sensors: { 2: { sensor_name: 'sensor_name' } } } });
+  mobileSessionsService.selectSession(1);
+
+  mobileSessionsService.deselectSession(1);
+
+  t.true(drawSession.wasCalledWith2({ bounds, zoom }));
+
+  t.end();
+});
+
+test('deselectSession with no previously selected sessions calls drawSession.undoDraw with initial map position', t => {
+  const bounds = {
+    east: -68.06802987730651,
+    north: 47.98992183263727,
+    south: 24.367113787533707,
+    west: -123.65885018980651
+  };
+  const zoom = 10;
+  const drawSession = mock('undoDraw');
+  const sessionsUtils = { find: () => ({ id: 1 }) };
   const mapPosition = { bounds, zoom };
   const map = { getBounds: () => bounds, getZoom: () => zoom };
   const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils, map });
