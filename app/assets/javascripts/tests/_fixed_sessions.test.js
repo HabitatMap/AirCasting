@@ -187,9 +187,36 @@ test('hasSelectedSessions with selected session returns true', t => {
   t.end();
 });
 
-const buildData = obj => ({ time: {}, location: {}, ...obj });
+test('selectSession with indoor session after successfully fetching calls map.fitBounds', t => {
+  const map = mock('fitBounds');
+  const sessionsUtils = { find: () => ({ is_indoor: false }) };
+  const sensors = { sensors: { 123: { sensor_name: 'sensor_name' } } };
+  const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
 
-const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils }) => {
+  fixedSessionsService.selectSession(123);
+
+  t.true(map.wasCalled());
+
+  t.end();
+});
+
+test('selectSession with outdoor session after successfully fetching does not call map.fitBounds', t => {
+  const map = mock('fitBounds');
+  const sessionsUtils = { find: () => ({ is_indoor: true }) };
+  const sensors = { sensors: { 123: { sensor_name: 'sensor_name' } } };
+  const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
+
+  fixedSessionsService.selectSession(123);
+
+  t.false(map.wasCalled());
+
+  t.end();
+});
+
+
+const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
+
+const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -204,10 +231,13 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
   };
   const _map = map || { getBounds: () => ({}) };
   const _utils = utils || {};
-  const sensors = { selected: () => {} };
+  const _sensors = { selected: () => {}, sensors: {}, ...sensors };
   const _drawSession = drawSession || { clear: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _$location = $location || { path: () => '/map_fixed_sessions' };
+  const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), ...sessionsUtils };
+  const $http = { get: () => ({ success: callback => callback() }) };
+  const boundsCalculator = () => {};
 
-  return fixedSessions(params, null, _map, sensors, $rootScope, _utils, sessionsDownloader, _drawSession, null, null, null, sessionsUtils, _$location);
+  return fixedSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, null, null, _sessionsUtils, _$location);
 };
