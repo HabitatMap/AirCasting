@@ -27,6 +27,7 @@ export const SessionsListCtrl = (
     $window.sessions = sessions = $scope.sessions;
     $window.singleSession = singleSession = $scope.singleSession;
 
+    // prolly this can be removed
     if(_(params.get("selectedSessionIds", [])).isEmpty()){
       params.update({selectedSessionIds: []});
     }
