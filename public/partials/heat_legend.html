@@ -1,6 +1,6 @@
 <div ng-controller="HeatCtrl">
-  <h4 ng-click="expandables.toggle('heat')" ng-class="expandables.css('heat')">Heat Legend Units</h4>
-  <section ng-show="expandables.visible('heat')">
+  <h4>Heat Legend Units</h4>
+  <section>
     <div class="slider">
       <input airinput type="number" class="highest narrow" airinput-callback="storageEvents.onHighestInput()" >
       <input type="hidden" ng-model="storage.data.heat.highest" >

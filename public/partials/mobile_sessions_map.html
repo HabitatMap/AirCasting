@@ -3,7 +3,7 @@
   <div ng-hide="expandables.allHidden" id="sessions-graph" ng-include="versioner.path('/partials/graph.html')"></div>
 
   <div id="sessions-map-tab" class="tab-content" ng-hide="expandables.allHidden">
-    <div ng-show="!expandables.isJustHeat()">
+    <div ng-show="!singleSession.get()">
       <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
       <section ng-show="expandables.visible('sensor')" >
       <p>

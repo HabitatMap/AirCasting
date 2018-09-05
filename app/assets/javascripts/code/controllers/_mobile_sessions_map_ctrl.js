@@ -75,7 +75,6 @@ export const MobileSessionsMapCtrl = (
     console.log("watch - heatUpdateCondition() - ", newValue, " - ", oldValue);
     if(newValue.sensorId && newValue.sessionId){
       functionBlocker.use("sessionHeat", function(){
-        expandables.justHeat();
         $scope.singleSession.updateHeat();
       });
     }

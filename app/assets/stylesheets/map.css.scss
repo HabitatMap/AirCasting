@@ -473,13 +473,17 @@ http-spinner {
   h4 {
     margin:0 0 5px 0;
     border-bottom: 1px dashed #ccc;
-    background: url("arrow-down.png") no-repeat right center;
     padding:5px 0px;
+  }
+
+  .expandable {
+    background: url("arrow-down.png") no-repeat right center;
     cursor: pointer;
     &.expanded {
       background: url("arrow-up.png") no-repeat right center;
     }
   }
+
   section {
     &.hidden {
       display:none;
