@@ -16,11 +16,9 @@ angular.module('aircasting').directive('googlemap', function() {
       var zoom = params.zoom || map.getMapCookie('vp_zoom') || point.zoom;
       var mapType = map.getMapCookie('vp_mapType') || google.maps.MapTypeId.TERRAIN || params.mapType;
       const minZoom = 3;
-      const maxZoom = 17;
       var options = {
         zoom: parseInt(zoom, 10),
         minZoom,
-        maxZoom,
         center: latlng,
         mapTypeId: mapType,
         mapTypeControl: true,
