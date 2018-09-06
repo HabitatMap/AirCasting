@@ -13,7 +13,6 @@ export const fixedSessions = (
   drawSession,
   boundsCalculator,
   markersClusterer,
-  markerSelected,
   sessionsUtils,
   $location
 ) => {
