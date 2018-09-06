@@ -45,3 +45,4 @@ config/rails_best_practices.yml
 /node_modules
 /public/webpack
 yarn-error.log
+pids/
