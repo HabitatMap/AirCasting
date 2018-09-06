@@ -15,10 +15,12 @@ angular.module('aircasting').directive('googlemap', function() {
       var latlng = new google.maps.LatLng(lat, lng);
       var zoom = params.zoom || map.getMapCookie('vp_zoom') || point.zoom;
       var mapType = map.getMapCookie('vp_mapType') || google.maps.MapTypeId.TERRAIN || params.mapType;
-      var minZoom = 3;
+      const minZoom = 3;
+      const maxZoom = 17;
       var options = {
         zoom: parseInt(zoom, 10),
-        minZoom: minZoom,
+        minZoom,
+        maxZoom,
         center: latlng,
         mapTypeId: mapType,
         mapTypeControl: true,
