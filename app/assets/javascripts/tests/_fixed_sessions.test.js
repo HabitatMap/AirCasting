@@ -70,21 +70,44 @@ test('fetch with tags and usernames params passes them to sessionsDownloader', t
   t.end();
 });
 
-test('fetch with outdoorOnly set to true passes is_indoor false to sessionsDownloader', t => {
+test('fetch with indoorOnly set to true passes is_indoor true to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
-  const data = buildData({ location: { outdoorOnly: true, address: '' } });
+  const data = buildData({ location: { indoorOnly: true } });
   const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
 
   fixedSessionsService._fetch();
 
-  t.deepEqual(sessionsDownloaderCalls[0].is_indoor, false);
+  t.deepEqual(sessionsDownloaderCalls[0].is_indoor, true);
 
   t.end();
 });
 
-test('fetch with outdoorOnly set to false does not pass is_indoor to sessionsDownloader', t => {
+test('fetch with indoorOnly set to true does not pass map corner coordinates to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
-  const data = buildData({ location: { outdoorOnly: false, address: '' } });
+  const data = buildData({ location: { indoorOnly: true } });
+  const map = {
+    getBounds: () => ({
+      west: 1,
+      east: 2,
+      south: 3,
+      north: 4
+    })
+  };
+  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data, map });
+
+  fixedSessionsService._fetch();
+
+  t.deepEqual(sessionsDownloaderCalls[0].west, undefined);
+  t.deepEqual(sessionsDownloaderCalls[0].east, undefined);
+  t.deepEqual(sessionsDownloaderCalls[0].south, undefined);
+  t.deepEqual(sessionsDownloaderCalls[0].north, undefined);
+
+  t.end();
+});
+
+test('fetch with indoorOnly set to false does not pass is_indoor to sessionsDownloader', t => {
+  const sessionsDownloaderCalls = [];
+  const data = buildData({ location: { indoorOnly: false } });
   const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
 
   fixedSessionsService._fetch();

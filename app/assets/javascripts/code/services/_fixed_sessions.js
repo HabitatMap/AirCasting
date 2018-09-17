@@ -162,16 +162,16 @@ export const fixedSessions = (
         session_ids: sessionIds
       };
 
-      if(data.location.outdoorOnly) {
-        reqData = { ...reqData, is_indoor: false };
+      if(data.location.indoorOnly) {
+        reqData = { ...reqData, is_indoor: true };
+      } else {
+        _(reqData).extend({
+          west: map.getBounds().west,
+          east: map.getBounds().east,
+          south: map.getBounds().south,
+          north: map.getBounds().north
+        });
       }
-
-      _(reqData).extend({
-        west: map.getBounds().west,
-        east: map.getBounds().east,
-        south: map.getBounds().south,
-        north: map.getBounds().north
-      });
 
       if(sensors.selected()){
         _(reqData).extend({
