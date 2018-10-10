@@ -30,10 +30,6 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage }) => {
     updateFromDefaults: () => {},
     ...storage
   };
-  // diff from fixed_sessions_map_ctrl
-  const markersClusterer = {
-    clear: () => {}
-  };
   const _map = {
     goToAddress: () => {},
     unregisterAll: () => {},
@@ -41,5 +37,5 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage }) => {
     ...map
   };
 
-  return MobileSessionsMapCtrl($scope, params, _map, sensors, expandables, _storage, null, null, null, null, functionBlocker, null, rectangles, infoWindow, markersClusterer);
+  return MobileSessionsMapCtrl($scope, params, _map, sensors, expandables, _storage, null, null, null, null, functionBlocker, null, rectangles, infoWindow);
 };

@@ -2,10 +2,6 @@
 # yarn lockfile v1
 
 
-"@google/markerclusterer@~1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@google/markerclusterer/-/markerclusterer-1.0.2.tgz#eb12b322b5f292448e309de38fe8797fa1595893"
-
 "@webassemblyjs/ast@1.5.13":
   version "1.5.13"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.5.13.tgz#81155a570bd5803a30ec31436bc2c9c0ede38f25"

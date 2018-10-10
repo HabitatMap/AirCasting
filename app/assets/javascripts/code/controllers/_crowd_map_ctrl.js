@@ -18,7 +18,6 @@ export const CrowdMapCtrl = (
   functionBlocker,
   utils,
   flash,
-  markersClusterer,
   sensorsList
 ) => {
   sensors.setSensors(sensorsList);
@@ -32,8 +31,6 @@ export const CrowdMapCtrl = (
 
     $scope.minResolution = 10;
     $scope.maxResolution = 50;
-
-    markersClusterer.clear();
 
     _.each(['sensor', 'location', 'usernames'], function(name) {
       expandables.show(name);

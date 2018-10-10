@@ -17,7 +17,6 @@ angular.module('aircasting').controller('CrowdMapCtrl', [
   'functionBlocker',
   'utils',
   'flash',
-  'markersClusterer',
   'sensorsList',
   CrowdMapCtrl
 ]);

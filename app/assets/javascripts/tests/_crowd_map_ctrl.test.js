@@ -30,10 +30,6 @@ const _CrowdMapCtrl = ({ $scope, map, callback }) => {
     updateDefaults: () => {},
     updateFromDefaults: () => {}
   };
-  // diff from fixed_sessions_map_ctrl
-  const markersClusterer = {
-    clear: () => {}
-  };
 
-  return CrowdMapCtrl($scope, null, params, null, null, map, sensors, expandables, null, null, storage, null, infoWindow, rectangles, functionBlocker, null, null, markersClusterer);
+  return CrowdMapCtrl($scope, null, params, null, null, map, sensors, expandables, null, null, storage, null, infoWindow, rectangles, functionBlocker);
 };

@@ -15,7 +15,6 @@ export const MobileSessionsMapCtrl = (
   $window,
   rectangles,
   infoWindow,
-  markersClusterer,
   sensorsList
 ) => {
   sensors.setSensors(sensorsList);
@@ -36,7 +35,6 @@ export const MobileSessionsMapCtrl = (
     infoWindow.hide();
     map.unregisterAll();
     map.removeAllMarkers();
-    markersClusterer.clear();
 
     if (process.env.NODE_ENV !== 'test') {
       $($window).resize(function() {

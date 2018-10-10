@@ -328,5 +328,5 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
   const $http = { get: () => ({ success: callback => callback() }) };
   const boundsCalculator = () => {};
 
-  return fixedSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, null, _sessionsUtils, _$location);
+  return fixedSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location);
 };

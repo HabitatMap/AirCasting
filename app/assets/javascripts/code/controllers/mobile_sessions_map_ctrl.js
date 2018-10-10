@@ -15,7 +15,6 @@ angular.module('aircasting').controller('MobileSessionsMapCtrl', [
   '$window',
   "rectangles",
   "infoWindow",
-  "markersClusterer",
   'sensorsList',
   MobileSessionsMapCtrl
 ]);
