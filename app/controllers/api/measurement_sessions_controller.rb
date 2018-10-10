@@ -65,13 +65,15 @@ module Api
     end
 
     def export
-      sessions = Session.find(params[:session_ids])
+      service = Csv::ExportSessionsToCsv.new
+
       begin
-        exporter = SessionsExporter.new(sessions)
-        data = exporter.export
-        send_data data, type: exporter.mime_type, filename: exporter.filename,  disposition: 'attachment'
+        zip_path = service.call(params[:session_ids])
+        zip_file = File.read(zip_path)
+        zip_filename = File.basename(zip_path)
+        send_data zip_file, type: Mime::ZIP, filename: zip_filename,  disposition: "attachment"
       ensure
-        exporter.clean
+        service.clean
       end
     end
 

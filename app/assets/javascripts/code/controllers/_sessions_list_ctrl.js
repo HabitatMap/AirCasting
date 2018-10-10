@@ -153,7 +153,7 @@ export const SessionsListCtrl = (
   };
 
   $scope.canExportSessions = function() {
-    return (true === params.get('didSessionsSearch', false));
+    return (true === params.get('didSessionsSearch', false) && sessions.get().length > 0);
   };
 
   $scope.exportSessions = function() {

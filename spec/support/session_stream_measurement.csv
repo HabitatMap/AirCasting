@@ -1,0 +1,10 @@
+,,,,,Sensor_Package_Name
+,,,,,AirBeam2:00189610719F
+,,,,,Sensor_Name
+,,,,,AirBeam2-F
+,,,,,Measurement_Type
+,,,,,Temperature
+,,,,,Measurement_Units
+,,,,,Fahrenheit
+ObjectID,Session_Name,Timestamp,Latitude,Longitude,1:Measurement_Value
+1,Example Session,2018-08-20T11:16:44.234,40.68038924,-73.97631499,77.0
