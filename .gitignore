@@ -46,3 +46,4 @@ config/rails_best_practices.yml
 /public/webpack
 yarn-error.log
 pids/
+.byebug_history
