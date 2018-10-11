@@ -21,7 +21,7 @@ class FixedSession < Session
   validates :latitude, :longitude, presence: true
 
   def self.streaming
-    where(last_measurement_at: Time.at(1.hour.ago)..Time.now)
+    where("last_measurement_at > ?", Time.current - 1.hour)
   end
 
   def self.filtered_json_fields
