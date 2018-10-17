@@ -23,7 +23,6 @@ class Measurement < ActiveRecord::Base
 
   Y_SIZES = (1..300).map { |i| 1.2 ** i * 0.000001 }
   FIXED_MEASUREMENTS_IN_A_DAY = 1440
-  SECONDS_IN_MINUTE = 60
 
   # belongs_to :session, :through => :stream, :inverse_of => :measurements, :counter_cache => true
   belongs_to :stream, :inverse_of =>:measurements, :counter_cache => true
@@ -39,8 +38,6 @@ class Measurement < ActiveRecord::Base
   prepare_range(:year_range, :time)
 
   geocoded_by :address # field doesn't exist, call used for .near scope inclusion only
-
-  before_validation :set_timezone_offset
 
   default_scope { order("time ASC") }
 
@@ -76,12 +73,6 @@ class Measurement < ActiveRecord::Base
       time_range(data[:time_from], data[:time_to]).
       year_range(Date.new(data[:year_from].to_i),Date.new(data[:year_to].to_i + 1) - 1)
   end)
-
-  def set_timezone_offset
-    if time_before_type_cast
-      self.timezone_offset = time_before_type_cast.to_datetime.utc_offset / SECONDS_IN_MINUTE
-    end
-  end
 
   def as_indexed_json(options={})
     as_json(options).merge(

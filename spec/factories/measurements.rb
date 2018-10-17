@@ -24,7 +24,6 @@ FactoryGirl.define do
     longitude 50.1234
     latitude 11.12
     time { Time.parse("2011-10-21T14:51:54Z") }
-    timezone_offset 60
     stream
   end
 end

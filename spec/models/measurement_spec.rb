@@ -24,15 +24,6 @@ describe Measurement do
   it { should validate_presence_of :latitude }
   it { should validate_presence_of :time }
 
-  describe ".create" do
-    it "should save timezone info" do
-      attributes = FactoryGirl.attributes_for(:measurement).merge(:time => "10/11/12 10:11:12 +0600")
-      measurement = Measurement.create(attributes)
-
-      measurement.timezone_offset.should == 360
-    end
-  end
-
   describe "scopes" do
     let(:session) { FactoryGirl.create(:mobile_session) }
     let(:stream) { FactoryGirl.create(:stream, :session => session) }

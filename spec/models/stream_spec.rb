@@ -45,7 +45,6 @@ describe Stream do
     before do
       Measurement.should_receive(:new).with(measurement_data).and_return(measurement)
       measurement.should_receive(:stream=).with(any_args) { |x| x.id == stream.id }
-      measurement.should_receive(:set_timezone_offset)
       Measurement.should_receive(:import).with(any_args) do |measurements|
         measurements.should include measurement
         import_result

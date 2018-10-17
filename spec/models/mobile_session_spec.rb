@@ -127,13 +127,34 @@ describe MobileSession do
       MobileSession.filter(:session_ids => [1]).all.should == [session]
     end
 
-    it "should include sessions with any points inside the time period" do
-      time = Time.now
-      from = time.hour * 60 + time.min
-      to = (time.hour + 2) * 60 + time.min
-      session = FactoryGirl.create(:mobile_session, :start_time_local => time, :end_time_local => time + 1.minute)
+    it "#filter includes sessions overlapping the time range" do
+      now = Time.now
+      plus_one_hour_in_minutes = (now.hour + 1) * 60 + now.min
+      plus_two_hours_in_minutes = (now.hour + 2) * 60 + now.min
+      session = FactoryGirl.create(
+        :mobile_session,
+        :start_time_local => now,
+        :end_time_local => now + 3.hours
+      )
 
-      MobileSession.filter(:time_from => from, :time_to => to).all.should == [session]
+      actual = MobileSession.filter(:time_from => plus_one_hour_in_minutes, :time_to => plus_two_hours_in_minutes).all
+
+      actual.should == [session]
+    end
+
+    it "#filter excludes sessions outside the time range" do
+      now = Time.now
+      plus_one_hour_in_minutes = (now.hour + 1) * 60 + now.min
+      plus_two_hours_in_minutes = (now.hour + 2) * 60 + now.min
+      session = FactoryGirl.create(
+        :mobile_session,
+        :start_time_local => now,
+        :end_time_local => now + 1.second
+      )
+
+      actual = MobileSession.filter(:time_from => plus_one_hour_in_minutes, :time_to => plus_two_hours_in_minutes).all
+
+      actual.should == []
     end
 
     it "should find sessions by usernames" do
@@ -146,13 +167,13 @@ describe MobileSession do
     end
 
 
-    it "should not filter by time period if time range is a whole day" do
-      from = 0
-      to = 1439 # 23:59
+    it "#filter when time range is the whole day it does not call local_time_range_by_minutes" do
+      from = Session::FIRST_MINUTE_OF_DAY
+      to = Session::LAST_MINUTE_OF_DAY
 
-      Measurement.should_not_receive(:time_range).with(from, to).and_return(stub.as_null_object)
+      Session.should_not_receive(:local_time_range_by_minutes).with(from, to)
 
-      MobileSession.filter(:time_from => from, :time_to => to).all
+      MobileSession.filter(:time_from => from, :time_to => to)
     end
   end
 

@@ -23,6 +23,8 @@ class Session < ActiveRecord::Base
   include AirCasting::FilterRange
 
   MINUTES_IN_DAY = 60 * 24
+  FIRST_MINUTE_OF_DAY = 0
+  LAST_MINUTE_OF_DAY = MINUTES_IN_DAY - 1
 
   belongs_to :user
   has_many :measurements, :through => :streams, :inverse_of => :session
@@ -130,9 +132,8 @@ class Session < ActiveRecord::Base
     where(:streams => {:id => streams_ids.uniq})
   end
 
-  # time is in minutes from 00:00 to 23:59
   def self.whole_day?(time_from, time_to)
-    time_from == 0 && time_to == 1439
+    time_from == FIRST_MINUTE_OF_DAY && time_to == LAST_MINUTE_OF_DAY
   end
 
   def self.filtered_json(data, page, page_size)

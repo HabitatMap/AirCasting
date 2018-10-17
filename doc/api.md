@@ -100,7 +100,6 @@ curl http://aircasting.org/api/sessions/9586.json
   "phone_model": "SCH-I545",
   "start_time": "2015-09-09T17:19:16Z",
   "start_time_local": "2015-09-09T17:19:16Z",
-  "timezone_offset": null,
   "title": "Bike ride short ",
   "updated_at": "2015-09-09T23:50:47Z",
   "url_token": "412mb",
@@ -153,7 +152,6 @@ curl http://aircasting.org/api/sessions/9586.json
           "milliseconds": 31,
           "stream_id": 26343,
           "time": "2015-09-09T17:19:18Z",
-          "timezone_offset": 0,
           "value": 2.69
         }
       ],

@@ -127,7 +127,6 @@ class Stream < ActiveRecord::Base
     measurements = data.map do |measurement_data|
       m = Measurement.new(measurement_data)
       m.stream = self
-      m.set_timezone_offset
       m
     end
 
