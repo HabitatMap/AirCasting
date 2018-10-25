@@ -2,10 +2,14 @@
 
 Every response is returned in JSON format.
 
-## GET /api/sessions
+## Sessions
 
-**Remember:** this call will not return measurements data for requested sessions. To do that, use the single session
-endpoint below, i.e. `/api/sessions/:id`
+Endpoints
+- GET `/api/realtime/streaming_sessions.json` -> streaming fixed sessions
+- GET `/api/realtime/sessions.json` -> fixed sessions
+- GET `/api/sessions.json` -> mobile sessions
+
+**Remember:** this call will not return measurements data for requested sessions. To do that, use either the single session or measurements endpoint below.
 
 ### Parameters
 
@@ -29,7 +33,7 @@ endpoint below, i.e. `/api/sessions/:id`
 | q[north]       | number, -90..90   |               |
 | q[south]       | number, -90..90   |               |
 
-### Example URL
+### Example request
 
 ```
 curl http://aircasting.org/api/sessions.json?page=0&page_size=50&q[measurements]=true&q[time_from]=0&q[time_to]=1439&q[day_from]=0&q[day_to]=355&q[usernames]=HHHDenver&q[location]=Denver&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³
@@ -73,9 +77,11 @@ curl http://aircasting.org/api/sessions.json?page=0&page_size=50&q[measurements]
 ]
 ```
 
-## GET /api/sessions/:id
+## Session
 
-### Example URL
+GET `/api/sessions/:id`
+
+### Example request
 
 ```
 curl http://aircasting.org/api/sessions/9586.json
@@ -160,7 +166,25 @@ curl http://aircasting.org/api/sessions/9586.json
   }
 }
 ```
-## GET /api/averages
+
+## Measurements for stream id
+
+GET `/api/realtime/stream_measurements.json`
+
+### Example request
+```
+curl http://aircasting.org/api/realtime/stream_measurements.json/?end_date=2281550369000&start_date=0&stream_ids[]=1&stream_ids[]=2
+```
+
+Where
+- `end_date` and `start_date` are mandatory and are expressed in [POSIX time](https://en.wikipedia.org/wiki/Unix_time)
+- `start_date=0` means 1970-01-01 at 00:00:00 UTC
+- `end_date=2281550369000` means 2042-04-19 19:59:29 UTC
+- it's possible to convert dates to POSIX [here](https://www.unixtimestamp.com/index.php); for example converting 1970-01-01 at 00:00:00 UTC returns 0 (as explained above)
+
+## Averages
+
+GET `/api/averages`
 
 To get multiple average values for polygons in a region, you would use this query:
 
@@ -186,7 +210,7 @@ To get multiple average values for polygons in a region, you would use this quer
 | south           | number, -90..90   |               |
 | measurement_type| text              |               |
 
-### Example URL
+### Example request
 
 ```
 curl http://aircasting.org/api/averages.json?q[west]=-105.42674388525387&q[east]=-104.28347911474606&q[south]=39.530285217883865&q[north]=39.99792504639966&q[time_from]=1320&q[time_to]=1319&q[day_from]=0&q[day_to]=365&q[year_from]=2015&q[year_to]=2016&q[grid_size_x]=46.98081264108352&q[grid_size_y]=25&q[sensor_name]=AirBeam-PM&q[measurement_type]=Particulate+Matter&q[unit_symbol]=µg/m³
@@ -221,7 +245,9 @@ curl http://aircasting.org/api/averages.json?q[west]=-105.42674388525387&q[east]
 ]
 ```
 
-## GET /api/region
+## Region
+
+GET `/api/region`
 
 This will let you fetch the average measured value for a region of the map specified by the `east`, `west`, `north` and `south` parameters. Also pass the `measurement_type` and `sensor_name` parameters to specify the measurements you want the average of.
 
@@ -247,7 +273,7 @@ This will let you fetch the average measured value for a region of the map speci
 | south           | number, -90..90   |               |
 | measurement_type| text              |               |
 
-### Example URL
+### Example request
 
 ```
 curl http://aircasting.org/api/region.json?day_from=0&day_to=365&east=165.44168097265174&grid_size_x=1&grid_size_y=1&measurement_type=Particulate+Matter&north=-24.217858119836414&sensor_name=AirBeam-PM&south=-30.55369611748509&tags=&time_from=1320&time_to=1319&unit_symbol=%C2%B5g%2Fm%C2%B3&usernames=&west=144.34793097265174&year_from=2015&year_to=2016
@@ -266,7 +292,9 @@ curl http://aircasting.org/api/region.json?day_from=0&day_to=365&east=165.441680
 }
 ```
 
-## GET /api/v2/data/sessions/last
+## Last Session
+
+GET `/api/v2/data/sessions/last`
 
 ### URL
 
