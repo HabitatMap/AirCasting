@@ -39,7 +39,7 @@ end
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
-  gem 'capistrano', '3.3.5'
+  gem 'capistrano'
   gem 'capistrano-bundler', require: false
   gem 'capistrano-ext'
   gem 'capistrano-rails', require: false
