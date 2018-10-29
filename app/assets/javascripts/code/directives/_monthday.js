@@ -1,12 +1,11 @@
 import moment from 'moment';
 
 export const toDayOfYear = monthDay => {
-  const doy = moment.duration(moment(monthDay, 'MM/DD') - moment('01/01', 'MM/DD')).asDays();
-  return Math.ceil(doy);
+  return moment(monthDay, 'MM/DD').dayOfYear();
 };
 
 export const toMonthDay = dayOfYear => {
-  return moment('01/01', 'MM/DD').add('days', dayOfYear).format('MM/DD');
+  return moment('01/01', 'MM/DD').add(dayOfYear - 1, 'days').format('MM/DD');
 };
 
 export const monthday = () => {

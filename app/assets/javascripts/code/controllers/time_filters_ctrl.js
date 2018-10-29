@@ -15,8 +15,8 @@ function TimeFiltersCtrl($scope, params, expandables, storage, storageEvents, ut
 
   $scope.minTime = 0;
   $scope.maxTime = 24 * 60 - 1;
-  $scope.minDay = 0;
-  $scope.maxDay = 365;
+  $scope.minDay = 1;
+  $scope.maxDay = 365; // TODO: should be 366 when leap year
   $scope.minYear = 2011;
   $scope.maxYear = currentYear();
 
