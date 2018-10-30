@@ -34,7 +34,7 @@ class Measurement < ActiveRecord::Base
   prepare_range(:longitude_range, 'measurements.longitude')
   prepare_range(:latitude_range, 'measurements.latitude')
   prepare_range(:time_range, "(EXTRACT(HOUR FROM time) * 60 + EXTRACT(MINUTE FROM time))")
-  prepare_range(:day_range, "(DAYOFYEAR(DATE_ADD(start_time, INTERVAL (YEAR(NOW()) - YEAR(start_time)) YEAR)))")
+  prepare_range(:day_range, "(DAYOFYEAR(DATE_ADD(time, INTERVAL (YEAR(NOW()) - YEAR(time)) YEAR)))")
   prepare_range(:year_range, :time)
 
   geocoded_by :address # field doesn't exist, call used for .near scope inclusion only
