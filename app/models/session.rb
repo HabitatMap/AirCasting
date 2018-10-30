@@ -70,7 +70,7 @@ class Session < ActiveRecord::Base
     ", :start_minutes => start_minutes, :end_minutes => end_minutes
   }
 
-  prepare_range(:day_range, "(DAYOFYEAR(start_time))")
+  prepare_range(:day_range, "(DAYOFYEAR(DATE_ADD(start_time, INTERVAL (YEAR(NOW()) - YEAR(start_time)) YEAR)))")
 
   def self.filter(data={})
     sessions = order("sessions.created_at DESC")
