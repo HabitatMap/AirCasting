@@ -88,8 +88,10 @@ class User < ActiveRecord::Base
           else
             session.sync(session_data)
           end
-        elsif !session_data[:deleted]
+        elsif !session && !session_data[:deleted] # session hasn't been yet uploaded by the mobile app
           upload << uuid
+        else
+          # session was not found && session_data[:deleted] == true
         end
       end
     end
