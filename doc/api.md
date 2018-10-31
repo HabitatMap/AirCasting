@@ -95,7 +95,6 @@ curl http://aircasting.org/api/sessions/9586.json
   "contribute": true,
   "created_at": "2015-09-09T23:50:47Z",
   "data_type": null,
-  "description": "",
   "end_time": "2015-09-09T17:49:38Z",
   "end_time_local": "2015-09-09T17:49:38Z",
   "id": 9586,

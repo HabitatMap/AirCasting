@@ -23,7 +23,6 @@ FactoryGirl.define do
     user
     sequence(:uuid) { |n| "uuid-#{n}" }
     title { "Another session" }
-    description { "Very nice session" }
     tag_list { "boring quiet" }
     calibration 99
     offset_60_db 0

@@ -50,11 +50,11 @@ class Session < ActiveRecord::Base
 
   acts_as_taggable
 
-  attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list,
+  attr_accessible :uuid, :calibration, :offset_60_db, :title, :tag_list,
   :contribute, :notes_attributes, :data_type, :instrument,
   :user, :start_time, :end_time, :start_time_local, :end_time_local, :type,
   :is_indoor, :latitude, :longitude
-  attr_accessible :title, :description, :tag_list, :as => :sync
+  attr_accessible :title, :tag_list, :as => :sync
 
   scope :local_time_range_by_minutes, lambda { |start_minutes, end_minutes|
     field_in_minutes = lambda { |field|
