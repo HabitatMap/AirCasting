@@ -52,7 +52,7 @@ class Session < ActiveRecord::Base
 
   attr_accessible :uuid, :calibration, :offset_60_db, :title, :description, :tag_list,
   :contribute, :notes_attributes, :data_type, :instrument, :phone_model,
-  :os_version, :user, :start_time, :end_time, :start_time_local, :end_time_local, :type,
+  :user, :start_time, :end_time, :start_time_local, :end_time_local, :type,
   :is_indoor, :latitude, :longitude
   attr_accessible :title, :description, :tag_list, :as => :sync
 

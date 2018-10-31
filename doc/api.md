@@ -102,7 +102,6 @@ curl http://aircasting.org/api/sessions/9586.json
   "instrument": null,
   "measurements_count": null,
   "offset_60_db": 0,
-  "os_version": "android-5.0.1",
   "phone_model": "SCH-I545",
   "start_time": "2015-09-09T17:19:16Z",
   "start_time_local": "2015-09-09T17:19:16Z",
