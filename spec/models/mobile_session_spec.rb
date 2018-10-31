@@ -40,7 +40,6 @@ describe MobileSession do
   describe 'mass assignment' do
     it { should allow_mass_assignment_of :data_type }
     it { should allow_mass_assignment_of :instrument }
-    it { should allow_mass_assignment_of :phone_model }
   end
 
   describe '#local_time_range' do
