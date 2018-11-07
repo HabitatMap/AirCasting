@@ -4,14 +4,12 @@ angular.module("aircasting").factory('singleMobileSession', [
   'storage',
   'drawSession',
   'heat',
-  'utils',
   function(
     mobileSessions,
     sensors,
     storage,
     drawSession,
-    heat,
-    utils
+    heat
   ) {
     var SingleMobileSession = function() {
     };
@@ -59,11 +57,10 @@ angular.module("aircasting").factory('singleMobileSession', [
       },
 
       measurementsToTime: function(){
-        var currentOffset = moment.duration(utils.timeOffset, "minutes").asMilliseconds();
         var x;
         var result = {};
         _(this.measurements()).each(function(measurement){
-          x = moment(measurement.time,"YYYY-MM-DDTHH:mm:ss").valueOf() - currentOffset;
+          x = moment(measurement.time,"YYYY-MM-DDTHH:mm:ss").utcOffset(0, true).valueOf();
           result[x + ""] = {x: x,
             y: measurement.value,
             latitude: measurement.latitude,

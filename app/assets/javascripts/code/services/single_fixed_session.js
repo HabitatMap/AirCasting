@@ -3,14 +3,12 @@ angular.module("aircasting").factory('singleFixedSession', [
   'sensors',
   'storage',
   'heat',
-  'utils',
   'drawSession',
   function(
     fixedSessions,
     sensors,
     storage,
     heat,
-    utils,
     drawSession
   ) {
     var SingleFixedSession = function() {
@@ -59,7 +57,6 @@ angular.module("aircasting").factory('singleFixedSession', [
         return  drawSession.measurements(this.get());
       },
       measurementsToTime: function(measurements){
-        var currentOffset = moment.duration(utils.timeOffset, "minutes").asMilliseconds();
         var x;
         var result = {};
         // 1 hour subtraction is a quick and dirty fix for the winter time - should be fixed properly
@@ -68,7 +65,7 @@ angular.module("aircasting").factory('singleFixedSession', [
         result[start_date + ""] = {x: start_date, y: null, latitude: null, longitude: null};
 
         _(measurements).each(function(measurement){
-          x = moment(measurement.time, "YYYY-MM-DDTHH:mm:ss").valueOf() - currentOffset;
+          x = moment(measurement.time,"YYYY-MM-DDTHH:mm:ss").utcOffset(0, true).valueOf();
           result[x + ""] = {x: x,
             y: measurement.value,
             latitude: measurement.latitude,
