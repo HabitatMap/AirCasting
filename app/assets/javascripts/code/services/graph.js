@@ -75,10 +75,6 @@ angular.module("aircasting").factory('graph', [
             borderRadius: 0,
             borderColor: '#858585',
             borderWidth: 2,
-            events : {
-              load: _(this.onLoad).bind(this)
-            },
-
             zoomType: "x",
             style: {
               fontFamily: 'Arial, sans-serif',
@@ -228,16 +224,11 @@ angular.module("aircasting").factory('graph', [
             color : level.color
           });
         });
-        this.loaded = false;
         //TODO:
         //to speed up graph provide data as array not object
         this.destroy();
         this.chart = new Highcharts.StockChart(options);
         this.data = data;
-      },
-
-      onLoad: function() {
-        this.loaded = true;
       },
 
       afterSetExtremes: function(e) {
