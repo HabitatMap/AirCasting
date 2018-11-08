@@ -46,6 +46,7 @@ cp config/secrets.yml.example config/secrets.yml
 bundle install
 bundle exec rake db:create db:migrate
 bundle exec foreman start
+yarn install
 # visit http://localhost:3000
 ```
 
@@ -56,7 +57,7 @@ bundle exec foreman start
 ```bash
 RAILS_ENV=test bundle exec rake db:create db:migrate
 bundle exec rspec
-bundle exec rake spec:javascript
+yarn test
 ```
 
 ## API documentation
