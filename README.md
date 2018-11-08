@@ -27,6 +27,7 @@ sudo apt-get install build-essential openssl libreadline6 libreadline6-dev curl 
 ```bash
 # install rvm https://rvm.io/rvm/install
 brew install gsl
+brew install imagemagick
 ```
 
 ### App (any OS)
