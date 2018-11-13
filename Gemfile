@@ -10,7 +10,7 @@ gem "foreman"
 gem 'geocoder', '~> 1.2'
 gem 'haml'
 gem 'honeybadger', '~> 2.0'
-gem 'mysql2'
+gem 'mysql2', '~> 0.3.10'
 gem 'newrelic_rpm', '~> 3.14', '>= 3.14.0.305'
 gem 'oj'
 gem 'paperclip', '~> 2.8.0'
@@ -53,18 +53,17 @@ end
 group :test, :development do
   gem 'capybara'
   gem 'factory_girl_rails'
-  gem 'guard', :require => false
-  gem 'guard-bundler'
-  gem 'guard-coffeescript'
-  gem 'guard-rspec', :require => false
-  gem 'guard-spork', :require => false
   gem 'jasmine-rails'
   gem 'jslint_on_rails'
   gem 'libnotify', :require => false
   gem 'rb-inotify', :require => false
-  gem 'rspec-rails'
+  gem 'rspec-rails', '~> 2.99'
   gem 'shoulda-matchers'
   gem 'spork', '~> 0.9.0', :require => false
+end
+
+group :test do
+  gem 'test-unit', '~> 3.0'
 end
 
 group :production do
