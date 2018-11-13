@@ -18,13 +18,14 @@ cache:
   bundler: true
   directories:
   - node_modules
+  - vendor/bundle
   yarn: true
 addons:
   apt:
     packages:
     - libgsl0-dev
 install:
-- bundle install
+- bundle install --path=vendor/bundle
 - nvm install node
 - node -v
 - npm i -g yarn
