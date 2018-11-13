@@ -11,8 +11,8 @@ This is the AirCasting project - the project aims to build a platform for gather
 
 ### Branching strategy
 
-- `production` is stable code which gets deployed to `aircasting.org`. If you're setting up your own copy of Aircasting use this branch.
-- `master` is a base branch to which we merge code. It gets deployed to staging server. It may contain some work-in-progress code or unfinished features.
+- `master` is stable code, which automatically deployes to `aircasting.org`. If you're setting up your own copy of Aircasting use this branch.
+- `staging` is a base branch to which we merge code. It automatically deployes to staging server. It may contain some work-in-progress code or unfinished features.
 
 ### Prerequisite: Debian / Ubuntu
 
@@ -27,6 +27,8 @@ sudo apt-get install build-essential openssl libreadline6 libreadline6-dev curl 
 ```bash
 # install rvm https://rvm.io/rvm/install
 brew install gsl
+brew install imagemagick
+brew install mysql@5.7
 ```
 
 ### App (any OS)
@@ -45,6 +47,7 @@ cp config/secrets.yml.example config/secrets.yml
 bundle install
 bundle exec rake db:create db:migrate
 bundle exec foreman start
+yarn install
 # visit http://localhost:3000
 ```
 
@@ -55,7 +58,7 @@ bundle exec foreman start
 ```bash
 RAILS_ENV=test bundle exec rake db:create db:migrate
 bundle exec rspec
-bundle exec rake spec:javascript
+yarn test
 ```
 
 ## API documentation
@@ -117,6 +120,7 @@ to any existing configuration file. If none exists just create `~/.my.cnf` as fo
 [mysqld]
 sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
 ```
+Note: If you installed mysql using a dmg file, you will have to create ~/.my.cnf according to the insturctions above, Even if some of the other files listed above contains `sql_mode = "..."` - this is just a left over from the previous instalations and will not be used by mysql installed by dmg.
 
 To double check the configuration works
 
@@ -125,6 +129,12 @@ bundle exec rails c
 ActiveRecord::Base.connection.execute("show variables like 'sql_mode'").to_a
 # the return value should not contain ONLY_FULL_GROUP_BY
 ```
+
+### Problems with mysql2 gem
+If you run into error while installing mysql2 with exit code 2 try installing form [this source](https://dev.mysql.com/downloads/mysql/5.7.html#downloads).
+
+If you run into problems with db:migrate related to passwords make sure that you change the root password to `''`. To do that open `/your/path/to/mysql -uroot -p` provide the temporary password you were given during installation, then execute `set password = password('');`.
+
 
 ## Contribute
 
