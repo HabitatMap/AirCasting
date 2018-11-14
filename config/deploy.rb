@@ -64,3 +64,5 @@ def processes_pids
 
   pids
 end
+
+set :migration_role, :app
