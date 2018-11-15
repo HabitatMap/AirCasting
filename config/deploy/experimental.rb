@@ -44,7 +44,6 @@ set :default_env, {
     rbenv_root: '/usr/local/rbenv'
 }
 set :rbenv_roles, :all
-set :rbenv_ruby, '2.2.10'
 set :rbenv_ruby_dir, '/usr/local/rbenv/versions/2.2.10'
 set :rbenv_custom_path, '/usr/local/rbenv'
 set :rbenv_path, '/usr/local/rbenv'
