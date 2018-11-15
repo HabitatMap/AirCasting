@@ -2,6 +2,13 @@ class MeasurementsCreator
   SLICE_SIZE = 500
 
   def self.call(stream, measurements_attributes)
+    if stream.session.type == "FixedSession"
+      measurements_attributes = measurements_attributes.map do |measurement_attributes|
+        measurement_attributes[:utc_time] = Time.now.utc
+        measurement_attributes
+      end
+    end
+
     if measurements_attributes.count == 1
       new.call(stream, measurements_attributes)
     else
