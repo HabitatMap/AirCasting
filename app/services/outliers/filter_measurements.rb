@@ -1,8 +1,7 @@
 class Outliers::FilterMeasurements
-  # Since San Francisco is ~ (37.7576793,-122.5076403) and Philadelphia ~ (40.0024137,-75.258118), 25 for MAX_DISTANCE
-  # means more or less half of the distance between them. In fact,
-  # sqrt[(37.7576793 - 40.0024137)^2 + (-122.5076403 - -75.258118)^2] ~= 47.31
-  MAX_DISTANCE = 25
+  # Since New York is located ~ (40.6971494, -74.259869) and Pittsburgh ~ (40.4313473,-80.0505407), 5 for MAX_DISTANCE
+  # the distance in between. In fact, sqrt[(40.6971494 - 40.4313473)^2 + (-74.259869 - -80.0505407)^2] ~= 5
+  MAX_DISTANCE = 5
 
   def initialize(
     max_distance = MAX_DISTANCE,
