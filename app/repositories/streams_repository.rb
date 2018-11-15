@@ -3,11 +3,13 @@ class StreamsRepository
     Stream.find(id)
   end
 
-  def calc_bounding_box!(stream)
-    stream.min_latitude = stream.measurements.minimum(:latitude)
-    stream.max_latitude = stream.measurements.maximum(:latitude)
-    stream.min_longitude = stream.measurements.minimum(:longitude)
-    stream.max_longitude = stream.measurements.maximum(:longitude)
+  def calc_bounding_box!(stream, calculate_bounding_box = Outliers::CalculateBoundingBox.new)
+    measurements = stream.measurements.select([:latitude, :longitude])
+    bounding_box = calculate_bounding_box.call(measurements)
+    stream.min_latitude = bounding_box.fetch(:min_latitude)
+    stream.max_latitude = bounding_box.fetch(:max_latitude)
+    stream.min_longitude = bounding_box.fetch(:min_longitude)
+    stream.max_longitude = bounding_box.fetch(:max_longitude)
     stream.save!
   end
 
