@@ -1,6 +1,14 @@
 require "spec_helper"
 
 describe Outliers::FilterMeasurements do
+  it "when measurements is an empty array it returns it" do
+    measurements = []
+
+    actual = Outliers::FilterMeasurements.new.call(measurements)
+
+    expect(actual).to eq(measurements)
+  end
+
   it "filters measurement outliers" do
     max_distance = 1
 

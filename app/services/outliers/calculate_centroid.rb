@@ -12,8 +12,8 @@ class Outliers::CalculateCentroid
     end
   end
 
-  def average(lng_lat, amount)
-    lng_lat.map { |x| x / amount }
+  def average(lng_lat, number)
+    lng_lat.map { |x| x / number }
   end
 
   def zero

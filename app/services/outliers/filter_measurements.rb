@@ -15,6 +15,8 @@ class Outliers::FilterMeasurements
   end
 
   def call(measurements)
+    return measurements unless measurements.any?
+
     centroid = @calculate_centroid.call(measurements)
     filter_outliers(centroid, measurements, @max_distance)
   end
