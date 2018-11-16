@@ -21,27 +21,6 @@ require 'spec_helper'
 describe MobileSession do
   let(:time_in_us) { Time.now.utc.in_time_zone("Eastern Time (US & Canada)") }
 
-  describe 'validations' do
-    before { FactoryGirl.create(:mobile_session) }
-
-    it { should validate_presence_of :uuid }
-    it { should validate_uniqueness_of :uuid }
-    it { should validate_uniqueness_of :url_token }
-    it { should validate_presence_of :calibration }
-    it { should validate_presence_of :offset_60_db }
-    it { should validate_presence_of :start_time }
-    it { should validate_presence_of :end_time }
-    it { should validate_presence_of :start_time_local }
-    it { should validate_presence_of :end_time_local }
-
-    it { should ensure_inclusion_of(:offset_60_db).in_range(-5..5) }
-  end
-
-  describe 'mass assignment' do
-    it { should allow_mass_assignment_of :data_type }
-    it { should allow_mass_assignment_of :instrument }
-  end
-
   describe '#local_time_range' do
     it "should include sessions with start_time_local or end_time_local inside time range" do
       time = Time.now
