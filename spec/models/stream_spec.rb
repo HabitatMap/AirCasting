@@ -40,7 +40,7 @@ describe Stream do
   let!(:measurement) { FactoryGirl.create(:measurement, :stream => stream) }
 
   describe "#build_measurements!" do
-    let(:measurement_data) { stub("measurement data") }
+    let(:measurement_data) { double("measurement data") }
 
     before do
       Measurement.should_receive(:new).with(measurement_data).and_return(measurement)
@@ -52,7 +52,7 @@ describe Stream do
     end
 
     context "the measurements are valid" do
-      let(:import_result) { stub(:failed_instances => []) }
+      let(:import_result) { double(:failed_instances => []) }
 
       it "should import the measurements" do
         Stream.should_receive(:update_counters).with(stream.id, :measurements_count => 1)
@@ -62,7 +62,7 @@ describe Stream do
     end
 
     context "the measurements are invalid" do
-      let(:import_result) { stub(:failed_instances => [1,2,3]) }
+      let(:import_result) { double(:failed_instances => [1,2,3]) }
 
       it "should cause an error" do
         lambda { stream.build_measurements!([measurement_data]) }.should raise_error
@@ -93,7 +93,7 @@ describe Stream do
     it "should destroy measurements" do
       stream.reload.destroy
 
-      Measurement.exists?(measurement.id).should be_false
+      expect(Measurement.exists?(measurement.id)).to be(false)
     end
   end
 

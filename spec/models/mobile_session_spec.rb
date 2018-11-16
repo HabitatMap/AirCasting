@@ -84,7 +84,7 @@ describe MobileSession do
     it "should destroy streams" do
       session.reload.destroy
 
-      Stream.exists?(stream.id).should be_false
+      expect(Stream.exists?(stream.id)).to be(false)
     end
   end
 
@@ -155,9 +155,9 @@ describe MobileSession do
   end
 
   describe '.filtered_json' do
-    let(:data) { mock('data') }
-    let(:records) { mock('records') }
-    let(:json) { mock('json') }
+    let(:data) { double('data') }
+    let(:records) { double('records') }
+    let(:json) { double('json') }
 
     it 'should return filter() as json' do
       MobileSession.should_receive(:filter).with(data).and_return(records)
@@ -169,11 +169,11 @@ describe MobileSession do
   end
 
   describe '#set_url_token' do
-    let(:token) { mock }
-    let(:gen) { mock(:generate_unique => token) }
+    let(:token) { double }
+    let(:gen) { double(:generate_unique => token) }
 
     before do
-      TokenGenerator.stub!(:new => gen)
+      TokenGenerator.stub(:new => gen)
       subject.send(:set_url_token)
     end
 
@@ -202,7 +202,7 @@ describe MobileSession do
     end
 
     it "should delete notes" do
-      Note.exists?(note.id).should be_false
+      expect(Note.exists?(note.id)).to be(false)
     end
   end
 

@@ -44,7 +44,7 @@ describe Api::UsersController do
 
     before do
       User.should_receive(:new).with(attrs.stringify_keys).and_return(user)
-      user.stub!(:save => success)
+      user.stub(:save => success)
 
       post :create,
            :user => attrs,

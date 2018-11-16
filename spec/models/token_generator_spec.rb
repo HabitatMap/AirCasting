@@ -23,7 +23,7 @@ describe TokenGenerator do
   describe '#generate' do
     it 'should generate token of given length' do
       [1, 3, 5, 7].each do |n|
-        subject.generate(n).should have(n).items
+        expect(subject.generate(n).size).to eq(n)
       end
     end
   end
@@ -31,7 +31,7 @@ describe TokenGenerator do
   describe '#generate_unique' do
     let(:gen) { TokenGenerator.new }
     let(:length) { 5 }
-    let(:uniq_verifier) { mock }
+    let(:uniq_verifier) { double }
 
     subject do
       gen.generate_unique(length) do

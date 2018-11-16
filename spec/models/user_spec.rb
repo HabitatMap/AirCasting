@@ -32,7 +32,7 @@ describe User do
       username = "FooBoo\n"
       user = User.new(:username => username, :email => 'foo@boo.biz',
                       :password => 'BizBar')
-      user.save.should be_true
+      expect(user.save).to be(true)
       user.username.should == username.chomp
     end
   end
@@ -74,7 +74,7 @@ describe User do
     end
 
     it "should delete sessions" do
-      Session.exists?(session1.id).should be_false
+      expect(Session.exists?(session1.id)).to be(false)
     end
 
     it "should update sessions" do

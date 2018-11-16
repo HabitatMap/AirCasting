@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Regression do
-  let(:target) { stub(sensor_package_name: 'target_sensor', measurements: [], sensor_name: 'Some sensor') }
-  let(:reference) { stub(unit_name: 'Made-up unit',
+  let(:target) { double(sensor_package_name: 'target_sensor', measurements: [], sensor_name: 'Some sensor') }
+  let(:reference) { double(unit_name: 'Made-up unit',
                          unit_symbol: 'Muu',
                          measurement_type: 'Made-up Quantity',
                          measurement_short_type: 'MuQ',
@@ -14,7 +14,7 @@ describe Regression do
                          threshold_high: 40,
                          threshold_very_high: 50,
                          measurements: []) }
-  let(:calculator) { stub(new: stub(run: [1, 2, 3])) }
+  let(:calculator) { double(new: double(run: [1, 2, 3])) }
 
   describe '.build_for_streams' do
     subject { described_class.build_for_streams(target, reference, 2, calculator) }

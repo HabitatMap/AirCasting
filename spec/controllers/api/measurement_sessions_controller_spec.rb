@@ -90,7 +90,7 @@ describe Api::MeasurementSessionsController do
   end
 
   describe "POST 'create'" do
-    let(:builder) { stub }
+    let(:builder) { double }
     let(:data) { {type: "MobileSession"} }
 
     before do

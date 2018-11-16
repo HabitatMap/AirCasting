@@ -48,7 +48,7 @@ describe Measurement do
     describe "#with_streams" do
       context "no stream ids" do
         it "returns no measurements" do
-          Measurement.with_streams([]).blank?.should be_true
+          expect(Measurement.with_streams([]).blank?).to be(true)
         end
       end
 

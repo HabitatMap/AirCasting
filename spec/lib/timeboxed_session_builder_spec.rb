@@ -21,9 +21,9 @@ require './lib/session_builder'
 
 describe SessionBuilder do
   let(:session_data) { { :some => :data, :notes => :note_data, :tag_list => :denormalized_tags, :streams => {:some_stream => {:some => :data}} } }
-  let(:session) { stub("session", :id => :session_id) }
-  let(:user) { stub("user") }
-  let(:photos) { stub("photos") }
+  let(:session) { double("session", :id => :session_id) }
+  let(:user) { double("user") }
+  let(:photos) { double("photos") }
 
   subject { SessionBuilder.new(session_data, photos, user) }
 
