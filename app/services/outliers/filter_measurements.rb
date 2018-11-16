@@ -4,29 +4,17 @@ class Outliers::FilterMeasurements
   MAX_DISTANCE = 5
 
   def initialize(
-    max_distance = MAX_DISTANCE,
     calculate_centroid = Outliers::CalculateCentroid.new,
-    calculate_distance = Outliers::CalculateDistance.new
+    filter = Outliers::FilterMeasurementsFartherThan.new(MAX_DISTANCE, Outliers::CalculateDistance.new)
   )
-    @max_distance = max_distance
     @calculate_centroid = calculate_centroid
-    @calculate_distance = calculate_distance
+    @filter = filter
   end
 
   def call(measurements)
     return measurements unless measurements.any?
 
     centroid = @calculate_centroid.call(measurements)
-    filter_outliers(centroid, measurements, @max_distance)
-  end
-
-  private
-
-  def filter_outliers(centroid, measurements, max_distance)
-    measurements.select do |measurement|
-      lng_lat = [measurement.longitude, measurement.latitude]
-      @calculate_distance.call(lng_lat, centroid) <= max_distance
-    end
+    @filter.call(centroid, measurements)
   end
 end
-
