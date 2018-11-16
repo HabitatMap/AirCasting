@@ -53,8 +53,6 @@ end
 group :test, :development do
   gem 'capybara'
   gem 'factory_girl_rails'
-  gem 'libnotify', :require => false
-  gem 'rb-inotify', :require => false
   gem 'rspec-rails', '~> 2.99'
   gem 'shoulda-matchers'
   gem 'spork', '~> 0.9.0', :require => false

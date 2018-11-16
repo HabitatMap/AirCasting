@@ -218,8 +218,6 @@ GEM
     kgio (2.11.2)
     launchy (2.4.3)
       addressable (~> 2.3)
-    libnotify (0.9.4)
-      ffi (>= 1.0.11)
     mail (2.5.5)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
@@ -479,7 +477,6 @@ DEPENDENCIES
   geocoder (~> 1.2)
   haml
   honeybadger (~> 2.0)
-  libnotify
   metric_fu
   mysql2 (~> 0.3.10)
   newrelic_rpm (~> 3.14, >= 3.14.0.305)
@@ -494,7 +491,6 @@ DEPENDENCIES
   rainbows
   rake (= 10.0.3)
   rb-gsl (= 1.16.0.6)
-  rb-inotify
   rspec-rails (~> 2.99)
   rubyzip (>= 1.0.0)
   sass-rails (~> 3.2.2)
