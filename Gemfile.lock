@@ -216,7 +216,6 @@ GEM
     jquery-rails (2.3.0)
       railties (>= 3.0, < 5.0)
       thor (>= 0.14, < 2.0)
-    jslint_on_rails (1.1.1)
     json (1.8.6)
     json_pure (2.1.0)
     kaminari (0.17.0)
@@ -490,7 +489,6 @@ DEPENDENCIES
   haml
   honeybadger (~> 2.0)
   jasmine-rails
-  jslint_on_rails
   libnotify
   metric_fu
   mysql2 (~> 0.3.10)
