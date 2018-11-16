@@ -53,7 +53,6 @@ end
 group :test, :development do
   gem 'capybara'
   gem 'factory_girl_rails'
-  gem 'jasmine-rails'
   gem 'libnotify', :require => false
   gem 'rb-inotify', :require => false
   gem 'rspec-rails', '~> 2.99'

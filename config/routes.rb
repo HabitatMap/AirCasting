@@ -24,8 +24,6 @@ AirCasting::Application.routes.draw do
     mount Sidekiq::Web => '/sidekiq'
   end
 
-  mount JasmineRails::Engine => "/specs" if defined?(JasmineRails)
-
   devise_for :users, :controllers => { :sessions => 'sessions', :passwords => 'passwords' }
 
   resource :map

@@ -1,3 +1,0 @@
-#!/bin/bash
-
-rspec spec/spec_helper.rb spec && DISPLAY=:99.0 RAILS_ENV=test rake jasmine:ci
