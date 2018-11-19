@@ -8,7 +8,7 @@ describe MeasurementsCreator do
         session = create_session!
         stream = create_stream!(session: session)
 
-        MeasurementsCreator.call(stream, [measurement_attributes])
+        MeasurementsCreator.call(stream, single_measurement_attributes)
 
         expect(Measurement.count).to eq(1)
       end
@@ -17,7 +17,7 @@ describe MeasurementsCreator do
         session = create_session!(type: "FixedSession")
         stream = create_stream!(session: session)
 
-        MeasurementsCreator.call(stream, [measurement_attributes])
+        MeasurementsCreator.call(stream, single_measurement_attributes)
 
         expect(Measurement.first.arrival_utc_time).to be_within(1.second).of Time.current
       end
@@ -26,7 +26,7 @@ describe MeasurementsCreator do
         session = create_session!(type: "MoblieSession")
         stream = create_stream!(session: session)
 
-        MeasurementsCreator.call(stream, [measurement_attributes])
+        MeasurementsCreator.call(stream, single_measurement_attributes)
 
         expect(Measurement.first.arrival_utc_time).to be_nil
       end
@@ -37,14 +37,68 @@ describe MeasurementsCreator do
         session = create_session!
         stream = create_stream!(session: session)
 
-        MeasurementsCreator.call(stream, [measurement_attributes, measurement_attributes])
+        MeasurementsCreator.call(stream, multiple_measurements_attributes)
 
         assert_equal 1, AsyncMeasurementsCreator.jobs.size
       end
     end
   end
 
+  describe "#call" do
+    let(:streams_repository) { double(StreamsRepository.new) }
+    let(:measurements_creator) { MeasurementsCreator.new(streams_repository) }
+    let(:stream) { double(Stream.new) }
+
+    before() do
+      allow(stream).to receive(:after_measurements_created)
+      allow(stream).to receive(:build_measurements!)
+      allow(streams_repository).to receive(:calc_average_value!)
+      allow(streams_repository).to receive(:calc_bounding_box!)
+      allow(stream).to receive(:fixed?)
+    end
+
+    context "for all sessions" do
+      it "delegates building the measurements" do
+        expect(stream).to receive(:build_measurements!).with(single_measurement_attributes)
+
+        measurements_creator.call(stream, single_measurement_attributes)
+      end
+
+      it "performs a callback after measuremnets are created" do
+        expect(stream).to receive(:after_measurements_created).with()
+
+        measurements_creator.call(stream, single_measurement_attributes)
+      end
+    end
+
+    context "for sessions that are not fixed" do
+      before() do
+        allow(stream).to receive(:fixed?).and_return(false)
+      end
+
+      it "calculates bounding box of stearm" do
+        expect(streams_repository).to receive(:calc_bounding_box!).with(stream)
+
+        measurements_creator.call(stream, single_measurement_attributes)
+      end
+
+      it "calculattes average value of steram" do
+        expect(streams_repository).to receive(:calc_average_value!).with(stream)
+
+        measurements_creator.call(stream, single_measurement_attributes)
+      end
+    end
+  end
+
   private
+
+  def multiple_measurements_attributes
+    [measurement_attributes, measurement_attributes]
+  end
+
+  def single_measurement_attributes
+    [measurement_attributes]
+  end
 
   def measurement_attributes
     { longitude: 25.4356212,
