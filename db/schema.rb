@@ -32,7 +32,7 @@ ActiveRecord::Schema.define(:version => 20181114165757) do
     t.integer  "stream_id"
     t.integer  "milliseconds",                                   :default => 0
     t.float    "measured_value"
-    t.datetime "utc_time"
+    t.datetime "arrival_utc_time"
   end
 
   add_index "measurements", ["latitude"], :name => "index_measurements_on_latitude"
