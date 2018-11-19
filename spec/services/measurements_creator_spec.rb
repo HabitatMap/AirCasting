@@ -1,23 +1,21 @@
 require "spec_helper"
 
 describe MeasurementsCreator do
-  let(:measurements_attributes) { [{:longitude=>25.4356212, :latitude=>56.4523456, :time=>"2016-05-11T17:09:02", :milliseconds=>925, :measured_value=>59.15683475380729, :value=>59.15683475380729}] }
-
-  it "creates a mesurement" do
+  it "creates a measurement" do
     stream = create_stream!
     MeasurementsCreator.call(stream, measurements_attributes)
 
     expect(Measurement.count).to eq(1)
   end
 
-  it "creates a mesurement with utc time for fixed sessions" do
+  it "creates a measurement with utc time for fixed sessions" do
     stream = create_stream!("FixedSession")
     MeasurementsCreator.call(stream, measurements_attributes)
 
     expect(Measurement.first.utc_time).to be_within(1.second).of Time.now
   end
 
-  it "creates a mesurement without utc time for mobile sessions" do
+  it "creates a measurement without utc time for mobile sessions" do
     stream = create_stream!("MobileSession")
     MeasurementsCreator.call(stream, measurements_attributes)
 
@@ -25,6 +23,16 @@ describe MeasurementsCreator do
   end
 
   private
+
+  def measurements_attributes
+    [{ longitude: 25.4356212,
+      latitude: 56.4523456,
+      time: "2016-05-11T17:09:02",
+      milliseconds: 925,
+      measured_value: 59.15683475380729,
+      value: 59.15683475380729,
+    }]
+  end
 
   def create_stream!(session_type  = "MobileSession")
     Stream.create!(
