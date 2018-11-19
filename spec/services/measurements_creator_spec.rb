@@ -2,21 +2,27 @@ require "spec_helper"
 
 describe MeasurementsCreator do
   it "creates a measurement" do
-    stream = create_stream!
+    session = create_session!
+    stream = create_stream!(session: session)
+
     MeasurementsCreator.call(stream, measurements_attributes)
 
     expect(Measurement.count).to eq(1)
   end
 
-  it "creates a measurement with utc time for fixed sessions" do
-    stream = create_stream!("FixedSession")
+  it "when sessions fixed creates a measurement with utc time" do
+    session = create_session!(type: "FixedSession")
+    stream = create_stream!(session: session)
+
     MeasurementsCreator.call(stream, measurements_attributes)
 
     expect(Measurement.first.utc_time).to be_within(1.second).of Time.now
   end
 
-  it "creates a measurement without utc time for mobile sessions" do
-    stream = create_stream!("MobileSession")
+  it "when session is moblie creates a measurement without utc time" do
+    session = create_session!(type: "MoblieSession")
+    stream = create_stream!(session: session)
+
     MeasurementsCreator.call(stream, measurements_attributes)
 
     expect(Measurement.first.utc_time).to be_nil
@@ -34,13 +40,13 @@ describe MeasurementsCreator do
     }]
   end
 
-  def create_stream!(session_type  = "MobileSession")
+  def create_stream!(attributes)
     Stream.create!(
       sensor_package_name: "AirBeam2:00189610719F",
       sensor_name: "AirBeam2-F",
       measurement_type: "Temperature",
       unit_name: "Fahrenheit",
-      session: create_session!(session_type),
+      session: attributes[:session],
       measurement_short_type: "dB",
       unit_symbol: "dB",
       threshold_very_low: 20,
@@ -51,7 +57,7 @@ describe MeasurementsCreator do
     )
   end
 
-  def create_session!(type)
+  def create_session!(attributes = { type: "MobileSession" })
     Session.create!(
       title: "Example Session",
       user: User.new,
@@ -62,7 +68,7 @@ describe MeasurementsCreator do
       start_time_local: DateTime.current,
       end_time: DateTime.current,
       end_time_local: DateTime.current,
-      type: type
+      type: attributes[:type]
     )
   end
 end
