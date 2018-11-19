@@ -1,8 +1,12 @@
 require "spec_helper"
-require 'sidekiq/testing'
 
 describe MeasurementsCreator do
   describe "#self.call" do
+    before() do
+      @arrival_utc_time = Time.utc(2018, 11, 19)
+      allow(Time).to receive(:current).and_return(@arrival_utc_time)
+    end
+
     context "when there is only one measurement" do
       it "creates a measurement" do
         session = create_session!
@@ -13,13 +17,13 @@ describe MeasurementsCreator do
         expect(Measurement.count).to eq(1)
       end
 
-      it "when sessions fixed creates a measurement with utc time" do
+      it "when sessions is fixed creates a measurement with utc time" do
         session = create_session!(type: "FixedSession")
         stream = create_stream!(session: session)
 
         MeasurementsCreator.call(stream, single_measurement_attributes)
 
-        expect(Measurement.first.arrival_utc_time).to be_within(1.second).of Time.current
+        expect(Measurement.first.arrival_utc_time).to eq(@arrival_utc_time)
       end
 
       it "when session is moblie creates a measurement without utc time" do
@@ -65,7 +69,7 @@ describe MeasurementsCreator do
       end
 
       it "performs a callback after measuremnets are created" do
-        expect(stream).to receive(:after_measurements_created).with()
+        expect(stream).to receive(:after_measurements_created).with(no_args)
 
         measurements_creator.call(stream, single_measurement_attributes)
       end
@@ -76,13 +80,13 @@ describe MeasurementsCreator do
         allow(stream).to receive(:fixed?).and_return(false)
       end
 
-      it "calculates bounding box of stearm" do
+      it "calculates bounding box of stream" do
         expect(streams_repository).to receive(:calc_bounding_box!).with(stream)
 
         measurements_creator.call(stream, single_measurement_attributes)
       end
 
-      it "calculattes average value of steram" do
+      it "calculattes average value of stream" do
         expect(streams_repository).to receive(:calc_average_value!).with(stream)
 
         measurements_creator.call(stream, single_measurement_attributes)
