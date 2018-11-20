@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 if [ "$TRAVIS_PULL_REQUEST" = "true" ]; then
   echo "This is a pull request build so no deploy"
