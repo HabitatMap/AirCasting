@@ -180,4 +180,8 @@ class Stream < ActiveRecord::Base
     max_longitude.present? &&
     min_longitude.present?
   end
+
+  def fixed?
+    session.fixed?
+  end
 end
