@@ -53,7 +53,7 @@ end
 group :test, :development do
   gem 'capybara'
   gem 'factory_girl_rails'
-  gem 'rspec-rails', '~> 2.99'
+  gem 'rspec-rails', '~> 3.7'
   gem 'shoulda-matchers'
   gem 'spork', '~> 0.9.0', :require => false
 end
