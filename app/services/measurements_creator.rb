@@ -32,7 +32,7 @@ class MeasurementsCreator
 
   def self.add_arrival_time(measurements_attributes)
     measurements_attributes.map do |measurement_attributes|
-      measurement_attributes[:arrival_utc_time] = Time.current.utc
+      measurement_attributes[:arrival_utc_time] = Time.current
       measurement_attributes
     end
   end

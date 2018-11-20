@@ -1,10 +1,11 @@
 require "spec_helper"
 
 describe MeasurementsCreator do
-  describe "#self.call" do
-    before() do
-      @arrival_utc_time = Time.utc(2018, 11, 19)
-      allow(Time).to receive(:current).and_return(@arrival_utc_time)
+  describe ".call" do
+    let(:arrival_utc_time) { Time.utc(2018, 11, 19) }
+
+    before do
+      allow(Time).to receive(:current).and_return(arrival_utc_time)
     end
 
     context "when there is only one measurement" do
@@ -23,10 +24,10 @@ describe MeasurementsCreator do
 
         MeasurementsCreator.call(stream, single_measurement_attributes)
 
-        expect(Measurement.first.arrival_utc_time).to eq(@arrival_utc_time)
+        expect(Measurement.first.arrival_utc_time).to eq(arrival_utc_time)
       end
 
-      it "when session is moblie creates a measurement without utc time" do
+      it "when session is mobile creates a measurement without utc time" do
         session = create_session!(type: "MoblieSession")
         stream = create_stream!(session: session)
 
@@ -43,17 +44,17 @@ describe MeasurementsCreator do
 
         MeasurementsCreator.call(stream, multiple_measurements_attributes)
 
-        assert_equal 1, AsyncMeasurementsCreator.jobs.size
+        expect(AsyncMeasurementsCreator.jobs.size).to be(1)
       end
     end
   end
 
   describe "#call" do
-    let(:streams_repository) { double(StreamsRepository.new) }
+    let(:streams_repository) { double("streams_repository" ) }
     let(:measurements_creator) { MeasurementsCreator.new(streams_repository) }
-    let(:stream) { double(Stream.new) }
+    let(:stream) { double("stream") }
 
-    before() do
+    before do
       allow(stream).to receive(:after_measurements_created)
       allow(stream).to receive(:build_measurements!)
       allow(streams_repository).to receive(:calc_average_value!)
@@ -76,7 +77,7 @@ describe MeasurementsCreator do
     end
 
     context "for sessions that are not fixed" do
-      before() do
+      before do
         allow(stream).to receive(:fixed?).and_return(false)
       end
 
@@ -86,7 +87,7 @@ describe MeasurementsCreator do
         measurements_creator.call(stream, single_measurement_attributes)
       end
 
-      it "calculattes average value of stream" do
+      it "calculates average value of stream" do
         expect(streams_repository).to receive(:calc_average_value!).with(stream)
 
         measurements_creator.call(stream, single_measurement_attributes)
@@ -120,7 +121,7 @@ describe MeasurementsCreator do
       sensor_name: "AirBeam2-F",
       measurement_type: "Temperature",
       unit_name: "Fahrenheit",
-      session: attributes[:session],
+      session: attributes.fetch(:session),
       measurement_short_type: "dB",
       unit_symbol: "dB",
       threshold_very_low: 20,
@@ -142,7 +143,7 @@ describe MeasurementsCreator do
       start_time_local: DateTime.current,
       end_time: DateTime.current,
       end_time_local: DateTime.current,
-      type: attributes[:type]
+      type: attributes.fetch(:type)
     )
   end
 end
