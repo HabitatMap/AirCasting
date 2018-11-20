@@ -29,16 +29,19 @@ describe Api::AveragesController do
 
     before(:each) do
       info = double
-      AverageInfo.should_receive(:new).with(expected).and_return(info)
-      info.should_receive(:as_json).and_return(result)
+      expect(AverageInfo).to receive(:new).with(expected).and_return(info)
+      expect(info).to receive(:as_json).and_return(result)
     end
 
-    it { should be_successful }
+    it { is_expected.to be_successful }
 
     it "should get its data from Measurement.averages" do
       subject
     end
 
-    its(:body) { should == result.to_json }
+    describe '#body' do
+      subject { super().body }
+      it { is_expected.to eq(result.to_json) }
+    end
   end
 end

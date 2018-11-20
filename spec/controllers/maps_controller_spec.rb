@@ -3,20 +3,20 @@ require 'spec_helper'
 describe MapsController do
   describe "#show" do
     context "with valid map state" do
-      before { ActiveSupport::JSON.should_receive(:decode).with("value").and_return(:result) }
+      before { expect(ActiveSupport::JSON).to receive(:decode).with("value").and_return(:result) }
 
       it "validates map state" do
         get :show, :map_state => "value"
-        assigns[:map_state].should == "value"
+        expect(assigns[:map_state]).to eq("value")
       end
     end
 
     context "with invalid map state" do
-      before { ActiveSupport::JSON.should_receive(:decode).with("value").and_raise("some error") }
+      before { expect(ActiveSupport::JSON).to receive(:decode).with("value").and_raise("some error") }
 
       it "should fail" do
         get :show, :map_state => "value"
-        should respond_with(:not_acceptable)
+        is_expected.to respond_with(:not_acceptable)
       end
     end
   end

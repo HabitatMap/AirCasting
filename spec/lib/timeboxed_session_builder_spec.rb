@@ -28,49 +28,49 @@ describe SessionBuilder do
   subject { SessionBuilder.new(session_data, photos, user) }
 
   before do
-    ::Stream = stub("Stream") unless Module.const_defined?(:Stream)
-    ::Session = stub("Session") unless Module.const_defined?(:Session)
+    ::Stream = double("Stream") unless Module.const_defined?(:Stream)
+    ::Session = double("Session") unless Module.const_defined?(:Session)
   end
 
   describe "#build!" do
-    before { Session.should_receive(:transaction).and_yield }
+    before { expect(Session).to receive(:transaction).and_yield }
 
     it "should build all the parts" do
-      subject.should_receive(:build_session!).and_return(session)
+      expect(subject).to receive(:build_session!).and_return(session)
 
-      subject.build!.should == session
+      expect(subject.build!).to eq(session)
     end
   end
 
   describe "#build_session!" do
     it "should process the data" do
-      SessionBuilder.should_receive(:prepare_notes).with(:note_data, photos).and_return(:prepared_notes)
-      SessionBuilder.should_receive(:normalize_tags).with(:denormalized_tags).and_return(:normalized_tags)
+      expect(SessionBuilder).to receive(:prepare_notes).with(:note_data, photos).and_return(:prepared_notes)
+      expect(SessionBuilder).to receive(:normalize_tags).with(:denormalized_tags).and_return(:normalized_tags)
       data = {
         :some => :data,
         :notes_attributes => :prepared_notes,
         :tag_list => :normalized_tags,
         :user => user
       }
-      subject.should_receive(:build_local_start_and_end_time).and_return(data)
-      Session.should_receive(:create!).with(data).and_return(session)
+      expect(subject).to receive(:build_local_start_and_end_time).and_return(data)
+      expect(Session).to receive(:create!).with(data).and_return(session)
 
-      Stream.should_receive(:build!).with(:some => :data, :session => session)
+      expect(Stream).to receive(:build!).with(:some => :data, :session => session)
 
-      subject.build_session!.should == session
+      expect(subject.build_session!).to eq(session)
     end
   end
 
   describe ".prepare_notes" do
     it "should match the photos" do
-      SessionBuilder.prepare_notes([{:note => :one}, {:note => :two}], [:photo1, :photo2]).
-        should == [{:note => :one, :photo => :photo1}, {:note => :two, :photo => :photo2}]
+      expect(SessionBuilder.prepare_notes([{:note => :one}, {:note => :two}], [:photo1, :photo2])).
+        to eq([{:note => :one, :photo => :photo1}, {:note => :two, :photo => :photo2}])
     end
   end
 
   describe '.normalize_tags' do
     it 'should replace spaces and commas with commas as tag delimiters' do
-      SessionBuilder.normalize_tags('jola misio, foo').should == 'jola,misio,foo'
+      expect(SessionBuilder.normalize_tags('jola misio, foo')).to eq('jola,misio,foo')
     end
   end
 
@@ -92,10 +92,10 @@ describe SessionBuilder do
     it 'adds timezone offset to start_time and end_time and saves it as a local time' do
       data = subject.build_local_start_and_end_time(session_data)
 
-      data[:start_time_local].should == start_time
-      data[:end_time_local].should == end_time
-      data[:some].should == :data
-      data[:notes].should == :note_data
+      expect(data[:start_time_local]).to eq(start_time)
+      expect(data[:end_time_local]).to eq(end_time)
+      expect(data[:some]).to eq(:data)
+      expect(data[:notes]).to eq(:note_data)
     end
 
   end

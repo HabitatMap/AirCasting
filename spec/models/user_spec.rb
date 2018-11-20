@@ -22,10 +22,10 @@ describe User do
   let(:user) { FactoryGirl.create(:user) }
   subject { user }
 
-  it { should validate_presence_of(:username) }
-  it { should validate_uniqueness_of(:username).case_insensitive }
-  it { should validate_presence_of(:email) }
-  it { should validate_uniqueness_of(:email).case_insensitive }
+  it { is_expected.to validate_presence_of(:username) }
+  it { is_expected.to validate_uniqueness_of(:username).case_insensitive }
+  it { is_expected.to validate_presence_of(:email) }
+  it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
 
   describe "#before_save" do
     it 'chomps username attr, so there is no new lines chars at the end' do
@@ -33,14 +33,14 @@ describe User do
       user = User.new(:username => username, :email => 'foo@boo.biz',
                       :password => 'BizBar')
       expect(user.save).to be(true)
-      user.username.should == username.chomp
+      expect(user.username).to eq(username.chomp)
     end
   end
 
   describe "#as_json" do
     subject { user.as_json }
 
-    it { should include("username" => user.username) }
+    it { is_expected.to include("username" => user.username) }
   end
 
   describe "#sync" do
@@ -69,8 +69,8 @@ describe User do
     end
 
     it "should tell phone a session it contains has been deleted" do
-      @result[:deleted].should == [session1.uuid]
-      @result[:upload].should_not include [session1.uuid]
+      expect(@result[:deleted]).to eq([session1.uuid])
+      expect(@result[:upload]).not_to include [session1.uuid]
     end
 
     it "should delete sessions" do
@@ -78,25 +78,25 @@ describe User do
     end
 
     it "should update sessions" do
-      session2.reload.title.should == "New title"
+      expect(session2.reload.title).to eq("New title")
     end
 
     it "should return a list of session uuids to upload" do
-      @result[:upload].should == ["something"]
+      expect(@result[:upload]).to eq(["something"])
     end
 
     it "should return a list of session ids to download" do
-      @result[:download].should == [session3.id]
+      expect(@result[:download]).to eq([session3.id])
     end
 
     it "should update notes matching numbers" do
-      session2.notes.find_by_number(1).text.should == "Hi"
-      session2.notes.find_by_number(2).text.should == "Bye"
+      expect(session2.notes.find_by_number(1).text).to eq("Hi")
+      expect(session2.notes.find_by_number(2).text).to eq("Bye")
     end
 
     it "should replace notes when there are no numbers" do
-      session4.reload.notes.size.should == 1
-      session4.notes.first.text.should == "New text"
+      expect(session4.reload.notes.size).to eq(1)
+      expect(session4.notes.first.text).to eq("New text")
     end
   end
 end

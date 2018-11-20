@@ -20,10 +20,10 @@ require 'spec_helper'
 
 describe Note do
   describe "validations" do
-    it { should validate_presence_of :text }
-    it { should validate_presence_of :date }
-    it { should validate_presence_of :latitude }
-    it { should validate_presence_of :longitude }
-    it { should validate_presence_of :session }
+    it { is_expected.to validate_presence_of :text }
+    it { is_expected.to validate_presence_of :date }
+    it { is_expected.to validate_presence_of :latitude }
+    it { is_expected.to validate_presence_of :longitude }
+    it { is_expected.to validate_presence_of :session }
   end
 end

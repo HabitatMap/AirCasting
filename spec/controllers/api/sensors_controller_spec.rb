@@ -21,11 +21,11 @@ require 'spec_helper'
 describe Api::SensorsController do
 	describe "GET #index" do
 		it "should delegate to stream" do
-			Stream.should_receive(:sensors).and_return({:some => :result})
+			expect(Stream).to receive(:sensors).and_return({:some => :result})
 
 			get :index, :format => :json
 
-			json_response.should == {"some" => "result"}
+			expect(json_response).to eq({"some" => "result"})
 		end
 	end
 end
