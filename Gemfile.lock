@@ -498,7 +498,7 @@ DEPENDENCIES
   rake (= 10.0.3)
   rb-gsl (= 1.16.0.6)
   rspec-activemodel-mocks
-  rspec-rails (~> 3.7)
+  rspec-rails (~> 3.8.0)
   rubyzip (>= 1.0.0)
   sass-rails (~> 3.2.2)
   shoulda-matchers

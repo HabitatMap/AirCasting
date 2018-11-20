@@ -44,7 +44,7 @@ describe Api::UsersController do
 
     before do
       expect(User).to receive(:new).with(attrs.stringify_keys).and_return(user)
-      user.stub(:save => success)
+      allow(user).to receive_messages(:save => success)
 
       post :create,
            :user => attrs,

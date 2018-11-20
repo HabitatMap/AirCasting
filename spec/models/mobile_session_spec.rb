@@ -173,7 +173,7 @@ describe MobileSession do
     let(:gen) { double(:generate_unique => token) }
 
     before do
-      TokenGenerator.stub(:new => gen)
+      allow(TokenGenerator).to receive_messages(:new => gen)
       subject.send(:set_url_token)
     end
 
