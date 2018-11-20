@@ -9,17 +9,17 @@ describe Csv::ExportSessionsToCsv do
     @subject.clean
   end
 
-  it "with no sessions the zip is empty" do
+  it "with no sessions the zip just contains an empty dotfile" do
     session_ids = []
 
     zip_path = @subject.call(session_ids)
 
     Zip::File.open(zip_path) do |zip_file|
-      expect(zip_file.size).to eq(0)
+      expect(zip_file.size).to eq(1)
     end
   end
 
-  it "with one session with one stream and with one measurement the zip contains one file with the right CSV content and filename" do
+  it "with one session with one stream and with one measurement the zip contains one empty dotfile and one file with the right CSV content and filename" do
     session = create_session!(title: "Example Session")
     stream = create_stream!(
       sensor_package_name: "AirBeam2:00189610719F",
@@ -28,7 +28,7 @@ describe Csv::ExportSessionsToCsv do
       unit_name: "Fahrenheit",
       session: session
     )
-    measurement = create_measurement!(
+    measurement = create_mobile_measurement!(
       time: DateTime.new(2018,8,20,11,16,44),
       latitude: BigDecimal.new("40.68038924"),
       longitude: BigDecimal.new("-73.97631499"),
@@ -43,13 +43,41 @@ describe Csv::ExportSessionsToCsv do
       actual_contents = zip_file.entries.map { |entry| entry.get_input_stream.read }
       actual_filenames = zip_file.entries.map(&:name).join(", ")
 
-      expected_filename = /^example_session_#{session.id}__.*\.csv$/
+      expected_filename = /example_session_#{session.id}__.*\.csv$/
       expect(actual_filenames).to match(expected_filename)
 
-      expected_contents = [File.read("#{Rails.root}/spec/support/session_stream_measurement.csv")]
+      expected_contents = ["", File.read("#{Rails.root}/spec/support/session_stream_measurement.csv")]
       expect(actual_contents).to eq(expected_contents)
 		end
 	end
+
+  it "adds a utc time info for fixed sessions" do
+    session = create_session!(title: "Example Session", type: "FixedSession")
+    stream = create_stream!(
+      sensor_package_name: "AirBeam2:00189610719F",
+      sensor_name: "AirBeam2-F",
+      measurement_type: "Temperature",
+      unit_name: "Fahrenheit",
+      session: session
+    )
+    measurement = create_fixed_measurement!(
+      time: DateTime.new(2018,8,20,11,16,44),
+      latitude: BigDecimal.new("40.68038924"),
+      longitude: BigDecimal.new("-73.97631499"),
+      value: 77.0,
+      milliseconds: 234,
+      stream: stream
+    )
+
+    zip_path = @subject.call([session.id])
+
+    Zip::File.open(zip_path) do |zip_file|
+      actual_content = zip_file.entries.last.get_input_stream.read
+      expected_content = File.read("#{Rails.root}/spec/support/fixed_session_stream_measurement.csv")
+
+      expect(actual_content).to eq(expected_content)
+    end
+  end
 
   private
 
@@ -64,7 +92,7 @@ describe Csv::ExportSessionsToCsv do
       start_time_local: DateTime.current,
       end_time: DateTime.current,
       end_time_local: DateTime.current,
-      type: "MobileSession"
+      type: attributes[:type] || "MobileSession"
     )
   end
 
@@ -85,7 +113,7 @@ describe Csv::ExportSessionsToCsv do
     )
   end
 
-  def create_measurement!(attributes)
+  def create_mobile_measurement!(attributes)
     Measurement.create!(
       time: attributes.fetch(:time),
       latitude: attributes.fetch(:latitude),
@@ -93,6 +121,18 @@ describe Csv::ExportSessionsToCsv do
       value: attributes.fetch(:value),
       milliseconds: attributes.fetch(:milliseconds),
       stream: attributes.fetch(:stream)
+    )
+  end
+
+  def create_fixed_measurement!(attributes)
+    Measurement.create!(
+      time: attributes.fetch(:time),
+      latitude: attributes.fetch(:latitude),
+      longitude: attributes.fetch(:longitude),
+      value: attributes.fetch(:value),
+      milliseconds: attributes.fetch(:milliseconds),
+      stream: attributes.fetch(:stream),
+      arrival_utc_time: Time.utc(2018, 11, 13)
     )
   end
 end

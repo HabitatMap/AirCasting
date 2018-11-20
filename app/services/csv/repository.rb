@@ -38,7 +38,8 @@ SELECT streams.sensor_package_name as stream_sensor_package_name, streams.sensor
        streams.measurement_type as stream_measurement_type, streams.unit_name as stream_unit_name,
        sessions.title as session_title, measurements.time as measurement_time,
        measurements.milliseconds as measurement_milliseconds, measurements.latitude as measurement_latitude,
-       measurements.longitude as measurement_longitude, measurements.value as measurement_value
+       measurements.longitude as measurement_longitude, measurements.value as measurement_value,
+       measurements.arrival_utc_time as arrival_utc_time
 FROM `sessions`
 INNER JOIN `streams`
 ON `streams`.`session_id`= `sessions`.`id`

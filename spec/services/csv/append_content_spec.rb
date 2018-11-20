@@ -1,6 +1,8 @@
 require "spec_helper"
 
 describe Csv::AppendContent do
+  let(:utc_time) { nil }
+
   before(:each) do
     @subject = Csv::AppendContent.new
   end
@@ -26,16 +28,16 @@ describe Csv::AppendContent do
 
     result = @subject.call(lines, data)
 
-    expect(lines[0].drop(5)).to eq(["Sensor_Package_Name"])
-    expect(lines[1].drop(5)).to eq([sensor_package_name])
-    expect(lines[2].drop(5)).to eq(["Sensor_Name"])
-    expect(lines[3].drop(5)).to eq([sensor_name])
-    expect(lines[4].drop(5)).to eq(["Measurement_Type"])
-    expect(lines[5].drop(5)).to eq([measurement_type])
-    expect(lines[6].drop(5)).to eq(["Measurement_Units"])
-    expect(lines[7].drop(5)).to eq([measurement_units])
-    expect(lines[8].drop(5)).to eq(["1:Measurement_Value"])
-    expect(lines[9].drop(5)).to eq([measurement_value])
+    expect(lines[0].drop(6)).to eq(["Sensor_Package_Name"])
+    expect(lines[1].drop(6)).to eq([sensor_package_name])
+    expect(lines[2].drop(6)).to eq(["Sensor_Name"])
+    expect(lines[3].drop(6)).to eq([sensor_name])
+    expect(lines[4].drop(6)).to eq(["Measurement_Type"])
+    expect(lines[5].drop(6)).to eq([measurement_type])
+    expect(lines[6].drop(6)).to eq(["Measurement_Units"])
+    expect(lines[7].drop(6)).to eq([measurement_units])
+    expect(lines[8].drop(6)).to eq(["1:Measurement_Value"])
+    expect(lines[9].drop(6)).to eq([measurement_value])
 	end
 
   it "with one stream with no measurements appends nine lines" do
@@ -105,6 +107,7 @@ describe Csv::AppendContent do
       1,
       session_title,
       measurement_timestamp_1,
+      utc_time,
       latitude_1,
       longitude_1,
       measurement_value_1
@@ -113,6 +116,7 @@ describe Csv::AppendContent do
       2,
       session_title,
       measurement_timestamp_2,
+      utc_time,
       latitude_2,
       longitude_2,
       measurement_value_2
@@ -128,11 +132,11 @@ describe Csv::AppendContent do
 
     result = @subject.call(lines, data)
 
-    expect(lines[0].drop(5)).to eq(["Sensor_Package_Name"] * 2)
-    expect(lines[2].drop(5)).to eq(["Sensor_Name"] * 2)
-    expect(lines[4].drop(5)).to eq(["Measurement_Type"] * 2)
-    expect(lines[6].drop(5)).to eq(["Measurement_Units"] * 2)
-    expect(lines[8].drop(5)).to eq(["1:Measurement_Value", "2:Measurement_Value"])
+    expect(lines[0].drop(6)).to eq(["Sensor_Package_Name"] * 2)
+    expect(lines[2].drop(6)).to eq(["Sensor_Name"] * 2)
+    expect(lines[4].drop(6)).to eq(["Measurement_Type"] * 2)
+    expect(lines[6].drop(6)).to eq(["Measurement_Units"] * 2)
+    expect(lines[8].drop(6)).to eq(["1:Measurement_Value", "2:Measurement_Value"])
 	end
 
   it "with two streams appends the correct sensor package names in the second line" do
@@ -143,7 +147,7 @@ describe Csv::AppendContent do
 
     result = @subject.call(lines, data)
 
-    expect(lines[1].drop(5)).to eq([sensor_package_name] * 2)
+    expect(lines[1].drop(6)).to eq([sensor_package_name] * 2)
 	end
 
   it "with two streams appends the correct sensor names in the fourth line" do
@@ -156,7 +160,7 @@ describe Csv::AppendContent do
 
     result = @subject.call(lines, data)
 
-    expect(lines[3].drop(5)).to eq([sensor_name_1, sensor_name_2])
+    expect(lines[3].drop(6)).to eq([sensor_name_1, sensor_name_2])
 	end
 
   it "with two streams appends the correct measurement types in the sixth line" do
@@ -169,7 +173,7 @@ describe Csv::AppendContent do
 
     result = @subject.call(lines, data)
 
-    expect(lines[5].drop(5)).to eq([measurement_type_1, measurement_type_2])
+    expect(lines[5].drop(6)).to eq([measurement_type_1, measurement_type_2])
 	end
 
   it "with two streams appends the correct measurement units in the eighth line" do
@@ -182,7 +186,7 @@ describe Csv::AppendContent do
 
     result = @subject.call(lines, data)
 
-    expect(lines[7].drop(5)).to eq([measurement_units_1, measurement_units_2])
+    expect(lines[7].drop(6)).to eq([measurement_units_1, measurement_units_2])
 	end
 
   it "with two streams with two measurements with different sensor names but same timestamp and coordinates appends the correct single measurement line" do
@@ -228,6 +232,7 @@ describe Csv::AppendContent do
       1,
       session_title,
       measurement_timestamp,
+      utc_time,
       latitude,
       longitude,
       measurement_value_1,
@@ -280,6 +285,7 @@ describe Csv::AppendContent do
       1,
       session_title,
       measurement_timestamp,
+      utc_time,
       latitude_1,
       longitude_1,
       measurement_value_1,
@@ -289,6 +295,7 @@ describe Csv::AppendContent do
       2,
       session_title,
       measurement_timestamp,
+      utc_time,
       latitude_2,
       longitude_2,
       nil,
@@ -344,6 +351,7 @@ describe Csv::AppendContent do
       1,
       session_title,
       measurement_timestamp_1,
+      utc_time,
       latitude,
       longitude,
       measurement_value_1,
@@ -353,6 +361,7 @@ describe Csv::AppendContent do
       2,
       session_title,
       measurement_timestamp_2,
+      utc_time,
       latitude,
       longitude,
       nil,
@@ -419,17 +428,17 @@ describe Csv::AppendContent do
     result = @subject.call(lines, data)
 
     expected = [
-      [ nil, nil, nil, nil, nil, "Sensor_Package_Name", "Sensor_Package_Name" ],
-      [ nil, nil, nil, nil, nil, sensor_package_name, sensor_package_name ],
-      [ nil, nil, nil, nil, nil, "Sensor_Name", "Sensor_Name" ],
-      [ nil, nil, nil, nil, nil, sensor_name_1, sensor_name_2 ],
-      [ nil, nil, nil, nil, nil, "Measurement_Type", "Measurement_Type" ],
-      [ nil, nil, nil, nil, nil, measurement_type_1, measurement_type_2 ],
-      [ nil, nil, nil, nil, nil, "Measurement_Units", "Measurement_Units" ],
-      [ nil, nil, nil, nil, nil, measurement_units_1, measurement_units_2 ],
-      [ "ObjectID", "Session_Name", "Timestamp", "Latitude", "Longitude", "1:Measurement_Value", "2:Measurement_Value" ],
-      [ 1, session_title, measurement_timestamp_1, latitude_1, longitude_1, measurement_value_1, nil ],
-      [ 2, session_title, measurement_timestamp_2, latitude_2, longitude_2, nil, measurement_value_2 ]
+      [ nil, nil, nil, nil, nil, nil, "Sensor_Package_Name", "Sensor_Package_Name" ],
+      [ nil, nil, nil, nil, nil, nil, sensor_package_name, sensor_package_name ],
+      [ nil, nil, nil, nil, nil, nil, "Sensor_Name", "Sensor_Name" ],
+      [ nil, nil, nil, nil, nil, nil, sensor_name_1, sensor_name_2 ],
+      [ nil, nil, nil, nil, nil, nil, "Measurement_Type", "Measurement_Type" ],
+      [ nil, nil, nil, nil, nil, nil, measurement_type_1, measurement_type_2 ],
+      [ nil, nil, nil, nil, nil, nil, "Measurement_Units", "Measurement_Units" ],
+      [ nil, nil, nil, nil, nil, nil, measurement_units_1, measurement_units_2 ],
+      [ "ObjectID", "Session_Name", "Timestamp", "UTC_Time", "Latitude", "Longitude", "1:Measurement_Value", "2:Measurement_Value" ],
+      [ 1, session_title, measurement_timestamp_1, utc_time,  latitude_1, longitude_1, measurement_value_1, nil ],
+      [ 2, session_title, measurement_timestamp_2, utc_time, latitude_2, longitude_2, nil, measurement_value_2 ]
      ]
 
     expect(lines).to eq(expected)

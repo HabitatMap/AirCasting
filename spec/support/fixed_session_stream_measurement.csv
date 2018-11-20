@@ -7,4 +7,4 @@
 ,,,,,,Measurement_Units
 ,,,,,,Fahrenheit
 ObjectID,Session_Name,Timestamp,UTC_Time,Latitude,Longitude,1:Measurement_Value
-1,Example Session,2018-08-20T11:16:44.234,,40.68038924,-73.97631499,77.0
+1,Example Session,2018-08-20T11:16:44.234,2018-11-13T00:00:00.000,40.68038924,-73.97631499,77.0

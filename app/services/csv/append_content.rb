@@ -1,5 +1,5 @@
 class Csv::AppendContent
-  MEASUREMENT_HEADING_PREFIX = [ "ObjectID", "Session_Name", "Timestamp", "Latitude", "Longitude" ]
+  MEASUREMENT_HEADING_PREFIX = [ "ObjectID", "Session_Name", "Timestamp", "UTC_Time", "Latitude", "Longitude" ]
   PADDING = Array.new(MEASUREMENT_HEADING_PREFIX.size, nil)
 
   def call(csv, data)
@@ -39,6 +39,7 @@ class Csv::AppendContent
       object_id,
       measurement["session_title"],
       format_time(measurement["measurement_time"], measurement["measurement_milliseconds"]),
+      format_utc_time(measurement["arrival_utc_time"]),
       measurement["measurement_latitude"],
       measurement["measurement_longitude"]
     ] + Array.new(columns_before, nil) + [measurement["measurement_value"]]
@@ -47,6 +48,10 @@ class Csv::AppendContent
   def format_time(time, milliseconds)
     with_milliseconds = time + (milliseconds / 1000.0)
     with_milliseconds.strftime("%FT%T.%L")
+  end
+
+  def format_utc_time(time)
+    time ? time.strftime("%FT%T.%L") : nil
   end
 
   def is_new_line(measurement, cached)
