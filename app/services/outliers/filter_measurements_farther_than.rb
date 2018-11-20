@@ -17,9 +17,10 @@ class Outliers::FilterMeasurementsFartherThan
   private
 
   def filter(centroid, measurements)
-    measurements.select do |measurement|
+    measurements.reduce([]) do |filtered, measurement|
       lng_lat = [measurement.longitude, measurement.latitude]
-      @calculate_distance.call(lng_lat, centroid) <= @max_distance
+      filtered << measurement if @calculate_distance.call(lng_lat, centroid) <= @max_distance
+      filtered
     end
   end
 
