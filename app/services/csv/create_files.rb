@@ -23,6 +23,8 @@ class Csv::CreateFiles
 
     stream_parameters = @repository.find_stream_parameters(session_id, sensor_package_name)
     measurements = @repository.find_measurements(session_id, sensor_package_name)
+    return acc if measurements.size == 0
+
     data = build_data(amount_of_streams, measurements, sensor_package_name, session_id, stream_parameters)
     acc + [@create_csv_file.call(data)]
   end
