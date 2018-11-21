@@ -48,27 +48,24 @@ group :development do
   gem 'capistrano-sidekiq', require: false
   gem 'capistrano3-unicorn', require: false
   gem 'pry-byebug'
+  gem 'awesome_print'
+  gem 'metric_fu'
+  gem 'quiet_assets'
 end
 
 group :test, :development do
-  gem 'capybara'
-  gem 'factory_girl_rails'
-  gem 'rspec-rails', '~> 3.8.0'
   gem 'shoulda-matchers'
   gem 'spork', '~> 0.9.0', :require => false
 end
 
 group :test do
   gem 'test-unit', '~> 3.0'
+  gem 'capybara'
+  gem 'factory_girl_rails'
+  gem 'rspec-rails', '~> 3.8.0'
 end
 
 group :production do
   gem 'rainbows'
   gem 'unicorn'
-end
-
-group :development do
-  gem 'awesome_print'
-  gem 'metric_fu'
-  gem 'quiet_assets'
 end
