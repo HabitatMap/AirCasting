@@ -19,7 +19,7 @@
 require 'spec_helper'
 
 shared_examples_for "session creation" do
-  let(:session) { mock_model(Session, :notes => [note]) }
+  let(:session) { double("session", :notes => [note]) }
   let(:note) { FactoryGirl.create(:note, :photo => photo, :number => 10) }
   let(:photo) { File.new(Rails.root + "spec" + "fixtures" + "test.jpg") }
   let(:photos) { :some_files }
@@ -27,21 +27,22 @@ shared_examples_for "session creation" do
   context "when session creation fails" do
     let(:create_result) { nil }
 
-    it { should respond_with(:bad_request) }
+    it { is_expected.to respond_with(:bad_request) }
   end
 
   context "when session creation succeeds" do
     let(:create_result) { session }
 
-    it { should respond_with(:ok) }
+    it { is_expected.to respond_with(:ok) }
 
     it 'returns JSON with location of created session' do
-      json_response.should have_key('location')
+      expect(json_response).to have_key('location')
     end
 
     it 'returns JSON with locations of note photos' do
-      json_response["notes"].first.should ==
+      expect(json_response["notes"].first).to eq(
         { "photo_location" => "http://test.host:80" + note.photo.url(:medium), "number" => note.number }
+      )
     end
   end
 end
@@ -55,11 +56,11 @@ describe Api::MeasurementSessionsController do
     let(:json) { [] }
 
     before do
-      Session.should_receive(:filtered_json).and_return(json)
+      expect(Session).to receive(:filtered_json).and_return(json)
       get :index, :format => :json, :q => {}
     end
 
-    it { should respond_with(:ok) }
+    it { is_expected.to respond_with(:ok) }
   end
 
   describe "GET 'show'" do
@@ -69,9 +70,9 @@ describe Api::MeasurementSessionsController do
       get :show, :id => session.id, :format => :json
     end
 
-    it { should respond_with(:ok) }
+    it { is_expected.to respond_with(:ok) }
     it "should contain notes" do
-      json_response['notes'].should == jsonized(session.notes)
+      expect(json_response['notes']).to eq(jsonized(session.notes))
     end
   end
 
@@ -94,9 +95,9 @@ describe Api::MeasurementSessionsController do
     let(:data) { {type: "MobileSession"} }
 
     before do
-      ActiveSupport::JSON.should_receive(:decode).with(:session).and_return(data)
-      SessionBuilder.should_receive(:new).with(data, :some_files, user).and_return(builder)
-      builder.should_receive(:build!).and_return(create_result)
+      expect(ActiveSupport::JSON).to receive(:decode).with(:session).and_return(data)
+      expect(SessionBuilder).to receive(:new).with(data, :some_files, user).and_return(builder)
+      expect(builder).to receive(:build!).and_return(create_result)
     end
 
     context "when the session is sent without compression" do
@@ -109,8 +110,8 @@ describe Api::MeasurementSessionsController do
 
     context "when the session is sent compressed" do
       before do
-        Base64.should_receive(:decode64).with(:zipped_and_encoded).and_return(:zipped)
-        AirCasting::GZip.should_receive(:inflate).with(:zipped).and_return(:session)
+        expect(Base64).to receive(:decode64).with(:zipped_and_encoded).and_return(:zipped)
+        expect(AirCasting::GZip).to receive(:inflate).with(:zipped).and_return(:session)
 
         post :create, :format => :json, :session => :zipped_and_encoded, :compression => true, :photos => photos
       end

@@ -22,16 +22,16 @@ describe Regression do
     it 'copies proper fields from reference device' do
       %w(unit_name unit_symbol measurement_type threshold_very_low threshold_low
          threshold_medium threshold_high threshold_very_high).each do |field|
-        subject.send(field).should == reference.send(field)
+        expect(subject.send(field)).to eq(reference.send(field))
       end
     end
 
     it 'uses calculator to obtain coefficients' do
-      subject.coefficients.should == [1, 2, 3]
+      expect(subject.coefficients).to eq([1, 2, 3])
     end
 
     it 'uses sensor_package_name from target' do
-      subject.sensor_package_name.should == 'target_sensor'
+      expect(subject.sensor_package_name).to eq('target_sensor')
     end
   end
 end

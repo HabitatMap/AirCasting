@@ -25,19 +25,19 @@ describe DeepSymbolize do
 		subject { Object.new.extend(DeepSymbolize).deep_symbolize(data) }
 
 		it "should symbolize keys" do
-			subject.should include(:some => "data")
+			expect(subject).to include(:some => "data")
 		end
 
 		it "should symbolize keys in nested hashes" do
-			subject[:nested].should include(:nested_key => "nested_val")
+			expect(subject[:nested]).to include(:nested_key => "nested_val")
 		end
 
 		it "should symbolize keys in deeply nested hashes" do
-			subject[:nested][:nested_hash].should include(:deep_key => "deep_value")
+			expect(subject[:nested][:nested_hash]).to include(:deep_key => "deep_value")
 		end		
 
 		it "should symbolize arrays" do
-			subject[:nested][:array].should include(:key => "val")
+			expect(subject[:nested][:array]).to include(:key => "val")
 		end
 	end
 end

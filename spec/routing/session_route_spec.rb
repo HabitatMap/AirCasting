@@ -20,7 +20,7 @@ require 'spec_helper'
 
 describe 'routing to sessions' do
   it 'it routes /s/:url_token to measurement_sessions#show for url_token' do
-    { :get => "/s/ab4c5" }.should route_to(
+    expect({ :get => "/s/ab4c5" }).to route_to(
       :controller => "measurement_sessions",
       :action => "show",
       :url_token => "ab4c5"

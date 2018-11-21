@@ -19,10 +19,10 @@
 require 'spec_helper'
 
 describe Measurement do
-  it { should validate_presence_of :value }
-  it { should validate_presence_of :longitude }
-  it { should validate_presence_of :latitude }
-  it { should validate_presence_of :time }
+  it { is_expected.to validate_presence_of :value }
+  it { is_expected.to validate_presence_of :longitude }
+  it { is_expected.to validate_presence_of :latitude }
+  it { is_expected.to validate_presence_of :time }
 
   describe "scopes" do
     let(:session) { FactoryGirl.create(:mobile_session) }
@@ -34,13 +34,13 @@ describe Measurement do
     describe "#with_tags" do
       context "no tags" do
         it "returns all measurements" do
-          Measurement.with_tags([]).should include measurement, measurement2
+          expect(Measurement.with_tags([])).to include measurement, measurement2
         end
       end
 
       context "multiple tags" do
         it "returns measurements in stream sessions that have associated tags" do
-          Measurement.with_tags(["quiet", "boring"]).should include measurement, measurement2
+          expect(Measurement.with_tags(["quiet", "boring"])).to include measurement, measurement2
         end
       end
     end
@@ -55,14 +55,14 @@ describe Measurement do
       context "one stream id" do
         it "returns only measurements in that stream" do
           measurements = Measurement.with_streams([stream.id])
-          measurements.should include measurement
-          measurements.should_not include measurement2
+          expect(measurements).to include measurement
+          expect(measurements).not_to include measurement2
         end
       end
 
       context "multiple stream ids" do
         it "returns measurements in those streams" do
-          Measurement.with_streams([stream.id, stream2.id]).should include measurement, measurement2
+          expect(Measurement.with_streams([stream.id, stream2.id])).to include measurement, measurement2
         end
       end
     end
@@ -72,12 +72,12 @@ describe Measurement do
 
       it "does not return measurement not in range" do
         data = {:north => 10, :south => 5, :east => 10, :west => 5}
-        Measurement.in_rectangle(data).should_not include measurement
+        expect(Measurement.in_rectangle(data)).not_to include measurement
       end
 
       it "returns measurement in range" do
         data = {:north => 10, :south => -10, :east => 10, :west => -10}
-        Measurement.in_rectangle(data).should include measurement
+        expect(Measurement.in_rectangle(data)).to include measurement
       end
     end
 
@@ -90,7 +90,7 @@ describe Measurement do
                 :year_from => Date.today.year,
                 :year_to => Date.today.year}
 
-        Measurement.with_time(data).should_not include measurement
+        expect(Measurement.with_time(data)).not_to include measurement
       end
 
       it "returns measurement in time range" do
@@ -99,7 +99,7 @@ describe Measurement do
                 :year_from => Date.today.year,
                 :year_to => Date.today.year}
 
-        Measurement.with_time(data).should include measurement
+        expect(Measurement.with_time(data)).to include measurement
       end
     end
   end

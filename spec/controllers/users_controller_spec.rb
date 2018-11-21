@@ -20,9 +20,9 @@ require 'spec_helper'
 
 shared_examples_for "action returning user as json" do
   it "returns user's id, email and auth token" do
-    json_response.should have_key('id')
-    json_response.should have_key('email')
-    json_response.should have_key('authentication_token')
+    expect(json_response).to have_key('id')
+    expect(json_response).to have_key('email')
+    expect(json_response).to have_key('authentication_token')
   end
 end
 
@@ -43,8 +43,8 @@ describe Api::UsersController do
     let(:attrs) { { :lolz => "rotfl" } }
 
     before do
-      User.should_receive(:new).with(attrs.stringify_keys).and_return(user)
-      user.stub(:save => success)
+      expect(User).to receive(:new).with(attrs.stringify_keys).and_return(user)
+      allow(user).to receive_messages(:save => success)
 
       post :create,
            :user => attrs,
@@ -54,7 +54,7 @@ describe Api::UsersController do
     context 'when user creation succeeds' do
       let(:success) { true }
 
-      it { should respond_with(:created) }
+      it { is_expected.to respond_with(:created) }
 
       it_should_behave_like 'action returning user as json'
     end
@@ -62,7 +62,7 @@ describe Api::UsersController do
     context 'when user creation fails' do
       let(:success) { false }
 
-      it { should respond_with(:unprocessable_entity) }
+      it { is_expected.to respond_with(:unprocessable_entity) }
     end
   end
 

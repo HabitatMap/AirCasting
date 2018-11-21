@@ -40,10 +40,13 @@ describe TokenGenerator do
     end
 
     before do
-      uniq_verifier.should_receive(:verify).and_return(false, false, true)
+      expect(uniq_verifier).to receive(:verify).and_return(false, false, true)
     end
 
-    its(:size) { should == length + 2 }
+    describe '#size' do
+      subject { super().size }
+      it { is_expected.to eq(length + 2) }
+    end
   end
 
 end

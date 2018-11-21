@@ -11,7 +11,7 @@ describe Session do
 
       actual = Session.day_range(yesterday, tomorrow)
 
-      actual.size.should == 1
+      expect(actual.size).to eq(1)
     end
 
     it "with day out of the range it does not return it" do
@@ -23,7 +23,7 @@ describe Session do
 
       actual = Session.day_range(tomorrow, day_after_tomorrow)
 
-      actual.size.should == 0
+      expect(actual.size).to eq(0)
     end
 
     it "Feb 28th and 29th are both the 59th day of the year" do
@@ -36,7 +36,7 @@ describe Session do
 
       actual = Session.day_range(59, 59)
 
-      actual.size.should == 2
+      expect(actual.size).to eq(2)
     end
   end
 

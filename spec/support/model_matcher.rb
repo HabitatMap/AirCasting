@@ -35,11 +35,11 @@ RSpec::Matchers.define :have_same_attributes_as do |expected|
     "should have proper attributes"
   end
 
-  failure_message_for_should do |actual|
+  failure_message do |actual|
     "expected\n\t#{actual.inspect}\n\nto have the same attribues as\n\t#{expected.inspect}"
   end
 
-  failure_message_for_should_not do |actual|
+  failure_message_when_negated do |actual|
     "expected\n\t#{actual.inspect}\n\tto have different attributes from\n\t#{expected.inspect}"
   end
 end

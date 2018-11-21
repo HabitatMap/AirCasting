@@ -86,7 +86,7 @@ describe Api::Realtime::MeasurementsController do
       end
 
       it 'creates measurement' do
-        MeasurementsCreator.should_receive(:call).once
+        expect(MeasurementsCreator).to receive(:call).once
         subject
       end
     end
