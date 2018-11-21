@@ -1,4 +1,5 @@
-require('../app/assets/javascripts/libs/jquery');
+window.jQuery = window.$ = require('jquery');
+require('jquery-migrate');
 window.moment = require('moment');
 require('../app/assets/javascripts/libs/jquery_ui/jquery.ui.core');
 require('../app/assets/javascripts/libs/jquery_ui/jquery.ui.widget');
