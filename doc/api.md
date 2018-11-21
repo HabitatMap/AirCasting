@@ -100,7 +100,6 @@ curl http://aircasting.org/api/sessions/9586.json
   "id": 9586,
   "instrument": null,
   "measurements_count": null,
-  "offset_60_db": 0,
   "start_time": "2015-09-09T17:19:16Z",
   "start_time_local": "2015-09-09T17:19:16Z",
   "title": "Bike ride short ",

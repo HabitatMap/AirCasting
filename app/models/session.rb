@@ -31,13 +31,12 @@ class Session < ActiveRecord::Base
   has_many :notes, :inverse_of => :session, :dependent => :destroy
   has_many :streams, :inverse_of => :session, :dependent => :destroy
 
-  validates :user, :uuid, :url_token, :calibration, :offset_60_db, :presence => true
+  validates :user, :uuid, :url_token, :calibration, :presence => true
   validates :start_time, :presence => true
   validates :start_time_local, :presence => true
   validates :end_time, :presence => true
   validates :end_time_local, :presence => true
   validates :url_token, :uuid, :uniqueness => true
-  validates_inclusion_of :offset_60_db, :in => -5..5
   validates :type, :presence => :true
 
   prepare_range(:start_year_range, :start_time)
@@ -50,7 +49,7 @@ class Session < ActiveRecord::Base
 
   acts_as_taggable
 
-  attr_accessible :uuid, :calibration, :offset_60_db, :title, :tag_list,
+  attr_accessible :uuid, :calibration, :title, :tag_list,
   :contribute, :notes_attributes, :data_type, :instrument,
   :user, :start_time, :end_time, :start_time_local, :end_time_local, :type,
   :is_indoor, :latitude, :longitude

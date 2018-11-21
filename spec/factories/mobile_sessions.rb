@@ -25,7 +25,6 @@ FactoryGirl.define do
     title { "Another session" }
     tag_list { "boring quiet" }
     calibration 99
-    offset_60_db 0
     contribute true
     notes_attributes { [FactoryGirl.attributes_for(:note, :session => nil)] }
     start_time {Time.now}
