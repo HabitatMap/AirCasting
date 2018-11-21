@@ -19,7 +19,7 @@
 require 'spec_helper'
 
 shared_examples_for "session creation" do
-  let(:session) { mock_model(Session, :notes => [note]) }
+  let(:session) { double("session", :notes => [note]) }
   let(:note) { FactoryGirl.create(:note, :photo => photo, :number => 10) }
   let(:photo) { File.new(Rails.root + "spec" + "fixtures" + "test.jpg") }
   let(:photos) { :some_files }

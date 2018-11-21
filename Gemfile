@@ -60,7 +60,6 @@ end
 
 group :test do
   gem 'test-unit', '~> 3.0'
-  gem 'rspec-activemodel-mocks'
 end
 
 group :production do
