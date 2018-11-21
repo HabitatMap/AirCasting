@@ -91,7 +91,6 @@ curl http://aircasting.org/api/sessions/9586.json
 
 ```json
 {
-  "calibration": 100,
   "contribute": true,
   "created_at": "2015-09-09T23:50:47Z",
   "data_type": null,

@@ -31,7 +31,7 @@ class Session < ActiveRecord::Base
   has_many :notes, :inverse_of => :session, :dependent => :destroy
   has_many :streams, :inverse_of => :session, :dependent => :destroy
 
-  validates :user, :uuid, :url_token, :calibration, :presence => true
+  validates :user, :uuid, :url_token, :presence => true
   validates :start_time, :presence => true
   validates :start_time_local, :presence => true
   validates :end_time, :presence => true
@@ -49,7 +49,7 @@ class Session < ActiveRecord::Base
 
   acts_as_taggable
 
-  attr_accessible :uuid, :calibration, :title, :tag_list,
+  attr_accessible :uuid, :title, :tag_list,
   :contribute, :notes_attributes, :data_type, :instrument,
   :user, :start_time, :end_time, :start_time_local, :end_time_local, :type,
   :is_indoor, :latitude, :longitude
@@ -185,7 +185,7 @@ class Session < ActiveRecord::Base
   def as_json(opts=nil)
     opts ||= {}
 
-    methods = opts[:methods] || [:notes, :calibration]
+    methods = opts[:methods] || [:notes]
     methods << :type
     sensor_id = opts.delete(:sensor_id)
 

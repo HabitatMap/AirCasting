@@ -71,7 +71,7 @@ class FixedSession < Session
   def as_json(opts=nil)
     opts ||= {}
 
-    methods = opts[:methods] || [:notes, :calibration]
+    methods = opts[:methods] || [:notes]
     methods << :type
 
     res = super(opts.merge(methods: methods))

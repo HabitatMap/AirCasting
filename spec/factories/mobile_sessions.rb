@@ -24,7 +24,6 @@ FactoryGirl.define do
     sequence(:uuid) { |n| "uuid-#{n}" }
     title { "Another session" }
     tag_list { "boring quiet" }
-    calibration 99
     contribute true
     notes_attributes { [FactoryGirl.attributes_for(:note, :session => nil)] }
     start_time {Time.now}

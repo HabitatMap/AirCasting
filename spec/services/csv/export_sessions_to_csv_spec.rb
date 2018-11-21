@@ -58,7 +58,6 @@ describe Csv::ExportSessionsToCsv do
       title: attributes[:title],
       user: User.new,
       uuid: "845342a6-f9f4-4835-86b3-b100163ec39a",
-      calibration: 100,
       start_time: DateTime.current,
       start_time_local: DateTime.current,
       end_time: DateTime.current,
