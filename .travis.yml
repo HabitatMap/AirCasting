@@ -38,7 +38,6 @@ before_script:
 script:
 - yarn test
 - bundle exec rspec --color
-after_success:
 - ./bin/deploy.sh
 env:
 - secure: SB6cGWtgFS6K+Kp1zkwUgzF62lRIIJMTJOOzK/ozmtSMzhL2BqjTkVOtm83jkbNcpZm5bDumWUCPTml4snOBpid7V9gw+Ot2V8kUHd2AGPVi/3Rvglk9OL3dGz7P+32oNlF/tjjdVzQoAU2HdIwSaEVxdn3q9thSRJMwGo8HsPQ=
