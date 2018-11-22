@@ -189,7 +189,9 @@ class Session < ActiveRecord::Base
     methods << :type
     sensor_id = opts.delete(:sensor_id)
 
-    res = super(opts.merge(:methods => methods))
+    # temporary solution until columns are removed from schema
+    except = [:calibration, :offset_60_db, :description, :phone_model, :os_version, :timezone_offset]
+    res = super(opts.merge(:methods => methods).merge(except: except))
 
     map_of_streams = {}
     strs = sensor_id ? streams.where(sensor_name: sensor_id) : streams.all

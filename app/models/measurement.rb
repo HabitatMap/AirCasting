@@ -81,4 +81,9 @@ class Measurement < ActiveRecord::Base
       year: time.year
     )
   end
+
+  def as_json(options = {})
+    # temporary solution until columns are removed from schema
+    super(options.merge(except: [:timezone_offset]))
+  end
 end
