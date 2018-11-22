@@ -25,7 +25,6 @@ class Session < ActiveRecord::Base
   MINUTES_IN_DAY = 60 * 24
   FIRST_MINUTE_OF_DAY = 0
   LAST_MINUTE_OF_DAY = MINUTES_IN_DAY - 1
-  FIXED_SESSION = "FixedSession"
 
   belongs_to :user
   has_many :measurements, :through => :streams, :inverse_of => :session
@@ -253,10 +252,6 @@ class Session < ActiveRecord::Base
   end
 
   def after_measurements_created
-  end
-
-  def fixed?
-    type == FIXED_SESSION
   end
 
   private

@@ -29,7 +29,6 @@ Spork.prefork do
   # Add this to load Capybara integration:
   require 'capybara/rspec'
   require 'capybara/rails'
-  require 'sidekiq/testing'
 end
 
 Spork.each_run do
