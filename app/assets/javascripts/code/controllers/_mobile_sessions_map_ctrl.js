@@ -41,7 +41,8 @@ export const MobileSessionsMapCtrl = (
         $scope.$digest();
       });
     }
-    _.each(['sensor', 'location', 'usernames'], function(name) {
+
+    ['sensor', 'location', 'usernames', 'layers'].forEach(function(name) {
       $scope.expandables.show(name);
     });
 

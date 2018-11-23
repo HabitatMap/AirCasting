@@ -7,9 +7,8 @@ test('registers a callback to map.goToAddress', t => {
   const $scope = {
     $watch: (str, callback) => str.includes('address') ? callbacks.push(callback) : null
   };
-  // diff from fixed_sessions_map_ctrl removeAllMarkers
   const map = mock('goToAddress');
-  const controller = _MobileSessionsMapCtrl({ $scope, map, callbacks });
+  _MobileSessionsMapCtrl({ $scope, map, callbacks });
 
   callbacks.forEach(callback => callback({ location: 'new york' }));
 
@@ -18,8 +17,21 @@ test('registers a callback to map.goToAddress', t => {
   t.end();
 });
 
-const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage }) => {
-  const expandables = { show: () => {} };
+test('it shows by default sensor, location, usernames and layers sections', t => {
+  const shown = [];
+  const expandables = {
+    show: name => shown.push(name)
+  };
+
+  _MobileSessionsMapCtrl({ expandables });
+
+  t.deepEqual(shown, ['sensor', 'location', 'usernames', 'layers']);
+
+  t.end();
+});
+
+const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables }) => {
+  const _expandables = { show: () => {}, ...expandables };
   const sensors = { setSensors: () => {} };
   const functionBlocker = { block: () => {} };
   const params = { get: () => {} };
@@ -36,6 +48,7 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage }) => {
     removeAllMarkers: () => {},
     ...map
   };
+  const _$scope = { $watch: () => {}, ...$scope };
 
-  return MobileSessionsMapCtrl($scope, params, _map, sensors, expandables, _storage, null, null, null, null, functionBlocker, null, rectangles, infoWindow);
+  return MobileSessionsMapCtrl(_$scope, params, _map, sensors, _expandables, _storage, null, null, null, null, functionBlocker, null, rectangles, infoWindow);
 };
