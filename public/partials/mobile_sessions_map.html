@@ -36,6 +36,30 @@
       </section>
 
       <div class="section-divider" ng-include="versioner.path('/partials/usernames_and_tags.html')"></div>
+
+      <h4 ng-click="expandables.toggle('layers')" ng-class="expandables.css('layers')">Layers</h4>
+      <section ng-show="expandables.visible('layers')">
+        <div class="textfield">
+          <p>
+            <input type="checkbox" ng-model="storage.data.crowdMap" id="checkbox-crowd-map">
+            <label for="checkbox-crowd-map">Crowd Map</label>
+          </p>
+        </div>
+        <div>
+          <div class="slider full-slider">
+            <p>Resolution</p>
+            <div slider slider-max="maxResolution" slider-min="minResolution" slider-value="storage.data.gridResolution" slider-onslide="storageEvents.onResolutionSlide" ></div>
+            <span>{{storage.data.gridResolution}}</span>
+          </div>
+        </div>
+        <div>
+          <ul class="buttons">
+            <li><button ng-click="storage.reset('gridResolution')">reset</button></li>
+            <li><button ng-click="storage.update('gridResolution')">submit</button></li>
+          </ul>
+        </div>
+      </section>
+
       <div class="section-divider" ng-include="versioner.path('/partials/time_filters.html')"></div>
     </div>
     <div ng-switch on="!!singleSession.get() && !!sensors.anySelected()">
