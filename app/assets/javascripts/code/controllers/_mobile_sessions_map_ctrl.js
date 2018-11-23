@@ -41,7 +41,8 @@ export const MobileSessionsMapCtrl = (
         $scope.$digest();
       });
     }
-    _.each(['sensor', 'location', 'usernames'], function(name) {
+
+    ['sensor', 'location', 'usernames', 'layers'].forEach(function(name) {
       $scope.expandables.show(name);
     });
 
@@ -49,8 +50,12 @@ export const MobileSessionsMapCtrl = (
       sensorId: "",
       location: {address: ""},
       tags: "",
-      usernames: ""
+      usernames: "",
+      gridResolution: 25
     });
+
+    $scope.minResolution = 10;
+    $scope.maxResolution = 50;
 
     storage.updateFromDefaults();
   };
@@ -87,6 +92,15 @@ export const MobileSessionsMapCtrl = (
       console.log("watch - {location: params.get('data').location.address, counter: params.get('data').counter}");
       map.goToAddress(newValue.location);
     }, true);
+
+  $scope.$watch("storage.data.crowdMap", function(newValue, oldValue) {
+    console.log("watch - storage.data.crowdMap");
+  }, true);
+
+  $scope.$watch("params.get('data').gridResolution", function(newValue, oldValue) {
+    console.log("watch - params.get('data').gridResolution");
+    if (!storage.data.crowdMap) return;
+  }, true);
 
   $scope.setDefaults();
 }
