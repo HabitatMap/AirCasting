@@ -50,8 +50,12 @@ export const MobileSessionsMapCtrl = (
       sensorId: "",
       location: {address: ""},
       tags: "",
-      usernames: ""
+      usernames: "",
+      gridResolution: 25
     });
+
+    $scope.minResolution = 10;
+    $scope.maxResolution = 50;
 
     storage.updateFromDefaults();
   };

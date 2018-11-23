@@ -30,6 +30,26 @@ test('it shows by default sensor, location, usernames and layers sections', t =>
   t.end();
 });
 
+test('it updates defaults', t => {
+  let defaults = {};
+  const storage = {
+    updateDefaults: opts => defaults = opts
+  };
+
+  _MobileSessionsMapCtrl({ storage });
+
+  const expected = {
+    sensorId: "",
+    location: {address: ""},
+    tags: "",
+    usernames: "",
+    gridResolution: 25
+  };
+  t.deepEqual(defaults, expected);
+
+  t.end();
+});
+
 const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables }) => {
   const _expandables = { show: () => {}, ...expandables };
   const sensors = { setSensors: () => {} };
