@@ -93,5 +93,14 @@ export const MobileSessionsMapCtrl = (
       map.goToAddress(newValue.location);
     }, true);
 
+  $scope.$watch("storage.data.crowdMap", function(newValue, oldValue) {
+    console.log("watch - storage.data.crowdMap");
+  }, true);
+
+  $scope.$watch("params.get('data').gridResolution", function(newValue, oldValue) {
+    console.log("watch - params.get('data').gridResolution");
+    if (!storage.data.crowdMap) return;
+  }, true);
+
   $scope.setDefaults();
 }

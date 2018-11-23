@@ -8,7 +8,7 @@ test('registers a callback to map.goToAddress', t => {
     $watch: (str, callback) => str.includes('address') ? callbacks.push(callback) : null
   };
   const map = mock('goToAddress');
-  _MobileSessionsMapCtrl({ $scope, map, callbacks });
+  _MobileSessionsMapCtrl({ $scope, map });
 
   callbacks.forEach(callback => callback({ location: 'new york' }));
 
@@ -46,6 +46,32 @@ test('it updates defaults', t => {
     gridResolution: 25
   };
   t.deepEqual(defaults, expected);
+
+  t.end();
+});
+
+test('registers a callback for the crowd map checkbox', t => {
+  const callbacks = [];
+  const $scope = {
+    $watch: (str, callback) => str.includes('crowdMap') ? callbacks.push(callback) : null
+  };
+
+  _MobileSessionsMapCtrl({ $scope });
+
+  t.equal(callbacks.length, 1);
+
+  t.end();
+});
+
+test('registers a callback for the crowd map resolution slider', t => {
+  const callbacks = [];
+  const $scope = {
+    $watch: (str, callback) => str.includes('gridResolution') ? callbacks.push(callback) : null
+  };
+
+  _MobileSessionsMapCtrl({ $scope });
+
+  t.equal(callbacks.length, 1);
 
   t.end();
 });
