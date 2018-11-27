@@ -96,7 +96,6 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables, u
   const sensors = { setSensors: () => {} };
   const functionBlocker = { block: () => {} };
   const params = { get: () => {} };
-  const rectangles = { clear: () => {} };
   const infoWindow = { hide: () => {} };
   const _storage = {
     updateDefaults: () => {},
@@ -107,9 +106,10 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables, u
     goToAddress: () => {},
     unregisterAll: () => {},
     removeAllMarkers: () => {},
+    clearRectangles: () => {},
     ...map
   };
   const _$scope = { $watch: () => {}, ...$scope };
 
-  return MobileSessionsMapCtrl(_$scope, params, _map, sensors, _expandables, _storage, null, null, null, null, functionBlocker, null, rectangles, infoWindow, null, updateCrowdMapLayer);
+  return MobileSessionsMapCtrl(_$scope, params, _map, sensors, _expandables, _storage, null, null, null, null, functionBlocker, null, infoWindow, null, updateCrowdMapLayer);
 };

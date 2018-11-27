@@ -13,7 +13,6 @@ export const MobileSessionsMapCtrl = (
   singleMobileSession,
   functionBlocker,
   $window,
-  rectangles,
   infoWindow,
   sensorsList,
   updateCrowdMapLayer
@@ -32,7 +31,7 @@ export const MobileSessionsMapCtrl = (
 
     functionBlocker.block("sessionHeat", !_(params.get('selectedSessionIds')).isEmpty());
 
-    rectangles.clear();
+    map.clearRectangles();
     infoWindow.hide();
     map.unregisterAll();
     map.removeAllMarkers();

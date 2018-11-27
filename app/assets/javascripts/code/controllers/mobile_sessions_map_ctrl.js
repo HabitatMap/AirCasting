@@ -13,7 +13,6 @@ angular.module('aircasting').controller('MobileSessionsMapCtrl', [
   'singleMobileSession',
   'functionBlocker',
   '$window',
-  "rectangles",
   "infoWindow",
   'sensorsList',
   'updateCrowdMapLayer',
