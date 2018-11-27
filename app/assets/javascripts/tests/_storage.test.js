@@ -14,6 +14,17 @@ test('resetAddress calls params.update with emptied address', t => {
   t.end();
 });
 
+test('isCrowdMapLayerOn', t => {
+  const storageService = _storage();
+  storageService.set('crowdMap', true);
+
+  const actual = storageService.isCrowdMapLayerOn();
+
+  t.true(actual);
+
+  t.end();
+});
+
 const _storage = (params) => {
   const $rootScope = { $new: () => ({ $watch: () => {} }) };
   return storage(params, $rootScope);
