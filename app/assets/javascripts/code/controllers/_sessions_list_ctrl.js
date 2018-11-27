@@ -34,9 +34,7 @@ export const SessionsListCtrl = (
 
     functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").selectedSensorId);
 
-    if (sessions && sessions.shouldUpdateWithMapPanOrZoom()) {
-      map.onPanOrZoom(() => storage.resetAddress());
-    }
+    map.onPanOrZoom(() => storage.resetAddress());
   };
 
   $scope.isSessionDisabled = function(sessionId) {
@@ -61,7 +59,6 @@ export const SessionsListCtrl = (
   $scope.$watch("params.get('map')", () => {
     console.log("watch - params.get('map')");
     if (sessions.hasSelectedSessions()) return;
-    if (sessions && !sessions.shouldUpdateWithMapPanOrZoom()) return;
     $scope.page = 0;
     sessions.fetch($scope.page);
   }, true);

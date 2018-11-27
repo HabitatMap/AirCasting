@@ -116,10 +116,6 @@ export const mobileSessions = (
       }).success(callback(session, allSelected));
     },
 
-    shouldUpdateWithMapPanOrZoom: function() {
-      return true;
-    },
-
     _fetch: function(page) {
       // if _fetch is called after the route has changed (eg debounced)
       if ($location.path() !== constants.mobileMapRoute) return;

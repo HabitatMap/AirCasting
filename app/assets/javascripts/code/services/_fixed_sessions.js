@@ -132,10 +132,6 @@ export const fixedSessions = (
       _(this.get()).each(session => drawSession.drawFixedSession(session, boundsCalculator(this.sessions)));
     },
 
-    shouldUpdateWithMapPanOrZoom: function() {
-      return true;
-    },
-
     _fetch: function(page) {
       // if _fetch is called after the route has changed (eg debounced)
       if ($location.path() !== constants.fixedMapRoute) return;
