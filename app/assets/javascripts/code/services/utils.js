@@ -1,4 +1,6 @@
-angular.module("aircasting").factory('utils', function() {
+import _str from 'underscore.string';
+
+angular.module("aircasting").factory('utils', ['$window', function($window) {
   var Utils = function() {
     this.timeOffset = (new Date()).getTimezoneOffset();
   };
@@ -25,8 +27,14 @@ angular.module("aircasting").factory('utils', function() {
       } else {
         return time % minutes;
       }
+    },
+    gridSizeX: function(x) {
+      return _str.toNumber(x) * $($window).width() / $($window).height();
+    },
+    heats: function(heat) {
+      return _(heat).chain().values().sortBy(function(i){return i;}).value();
     }
   };
   return new Utils();
-});
+}]);
 

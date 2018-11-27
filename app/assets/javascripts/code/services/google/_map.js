@@ -198,6 +198,10 @@ export const map = (
 
       var line = new google.maps.Polyline(lineOptions);
       return line;
+    },
+
+    clearRectangles: function() {
+      rectangles.clear();
     }
   };
 

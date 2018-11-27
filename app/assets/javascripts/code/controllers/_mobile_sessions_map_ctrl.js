@@ -15,7 +15,8 @@ export const MobileSessionsMapCtrl = (
   $window,
   rectangles,
   infoWindow,
-  sensorsList
+  sensorsList,
+  updateCrowdMapLayer
 ) => {
   sensors.setSensors(sensorsList);
   $scope.setDefaults = function() {
@@ -95,6 +96,7 @@ export const MobileSessionsMapCtrl = (
 
   $scope.$watch("storage.data.crowdMap", function(newValue, oldValue) {
     console.log("watch - storage.data.crowdMap");
+    updateCrowdMapLayer.call();
   }, true);
 
   $scope.$watch("params.get('data').gridResolution", function(newValue, oldValue) {

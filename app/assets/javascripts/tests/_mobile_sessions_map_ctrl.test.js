@@ -50,7 +50,7 @@ test('it updates defaults', t => {
   t.end();
 });
 
-test('registers a callback for the crowd map checkbox', t => {
+test('registers a callback for the crowd map layer checkbox', t => {
   const callbacks = [];
   const $scope = {
     $watch: (str, callback) => str.includes('crowdMap') ? callbacks.push(callback) : null
@@ -63,7 +63,7 @@ test('registers a callback for the crowd map checkbox', t => {
   t.end();
 });
 
-test('registers a callback for the crowd map resolution slider', t => {
+test('registers a callback for the crowd map layer resolution slider', t => {
   const callbacks = [];
   const $scope = {
     $watch: (str, callback) => str.includes('gridResolution') ? callbacks.push(callback) : null
@@ -76,7 +76,22 @@ test('registers a callback for the crowd map resolution slider', t => {
   t.end();
 });
 
-const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables }) => {
+test('when crowd map layer checkbox is ticked it delegates to service to update', t => {
+  const callbacks = [];
+  const $scope = {
+    $watch: (str, callback) => str.includes('crowdMap') ? callbacks.push(callback) : null
+  }
+  const updateCrowdMapLayer = mock('call');
+  _MobileSessionsMapCtrl({ $scope, updateCrowdMapLayer });
+
+  callbacks.forEach(callback => callback());
+
+  t.true(updateCrowdMapLayer.wasCalled());
+
+  t.end();
+});
+
+const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables, updateCrowdMapLayer }) => {
   const _expandables = { show: () => {}, ...expandables };
   const sensors = { setSensors: () => {} };
   const functionBlocker = { block: () => {} };
@@ -96,5 +111,5 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables })
   };
   const _$scope = { $watch: () => {}, ...$scope };
 
-  return MobileSessionsMapCtrl(_$scope, params, _map, sensors, _expandables, _storage, null, null, null, null, functionBlocker, null, rectangles, infoWindow);
+  return MobileSessionsMapCtrl(_$scope, params, _map, sensors, _expandables, _storage, null, null, null, null, functionBlocker, null, rectangles, infoWindow, null, updateCrowdMapLayer);
 };

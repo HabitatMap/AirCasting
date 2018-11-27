@@ -72,6 +72,9 @@ export const storage = (params, $rootScope, utils) => {
         }
       });
       params.update({data: notUsedDefaults});
+    },
+    isCrowdMapLayerOn: function() {
+      return this.data.crowdMap;
     }
   };
   return new Storage();
