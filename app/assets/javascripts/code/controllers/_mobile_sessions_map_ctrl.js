@@ -34,6 +34,7 @@ export const MobileSessionsMapCtrl = (
     map.clearRectangles();
     infoWindow.hide();
     map.unregisterAll();
+    map.register("idle", () => setTimeout(updateCrowdMapLayer.call, 0));
     map.removeAllMarkers();
 
     if (process.env.NODE_ENV !== 'test') {
