@@ -41,6 +41,10 @@ class Measurement < ActiveRecord::Base
 
   default_scope { order("time ASC") }
 
+  scope(:belonging_to_sessions_with_ids, lambda do |session_ids|
+    joins(:stream).where(streams: { session_id: session_ids })
+  end)
+
   scope(:with_tags, lambda do |tags|
     if tags.present?
       sessions_ids = Session.select("sessions.id").tagged_with(tags).map(&:id)
