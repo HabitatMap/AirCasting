@@ -3,7 +3,7 @@ export const buildQueryParamsForAverages = (
   sensors,
   params,
   utils,
-  $window
+  mobileSessions,
 ) => ({
   call: () => {
     if (!sensors.selected()) return false;
@@ -31,7 +31,8 @@ export const buildQueryParamsForAverages = (
       usernames: data.usernames,
       sensor_name: sensors.selected().sensor_name,
       measurement_type: sensors.selected().measurement_type,
-      unit_symbol: sensors.selected().unit_symbol
+      unit_symbol: sensors.selected().unit_symbol,
+      session_ids: mobileSessions.sessionIds()
     };
   }
 });

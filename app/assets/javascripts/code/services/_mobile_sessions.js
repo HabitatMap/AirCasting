@@ -27,6 +27,9 @@ export const mobileSessions = (
   };
 
   MobileSessions.prototype = {
+    sessionIds: function() {
+      return this.sessions.map(x => x.id);
+    },
     hasSelectedSessions: function() {
       return this.noOfSelectedSessions() > 0;
     },

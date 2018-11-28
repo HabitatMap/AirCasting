@@ -113,11 +113,16 @@ test('when everything is present it returns params for averages', t => {
     normalizeTime: x => x,
     gridSizeX: x => grid_size_x
   };
-  const service = buildQueryParamsForAverages(map, sensors, params, utils);
+  const sessionIds = [3, 4];
+  const mobileSessions = {
+    sessionIds: () => sessionIds
+  };
+  const service = buildQueryParamsForAverages(map, sensors, params, utils, mobileSessions);
 
   const actual = service.call();
 
   const grid_size_y = gridResolution;
+  const session_ids = sessionIds;
   const expected = {
     west,
     east,
@@ -135,7 +140,8 @@ test('when everything is present it returns params for averages', t => {
     usernames,
     sensor_name,
     measurement_type,
-    unit_symbol
+    unit_symbol,
+    session_ids
   };
   t.deepEqual(actual, expected);
 
