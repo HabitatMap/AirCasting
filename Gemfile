@@ -26,6 +26,7 @@ gem 'sidekiq-unique-jobs', '3.0.12'
 gem 'sinatra', require: false
 gem 'thin', '~> 1.6', '>= 1.6.4'
 gem 'webpack-rails'
+gem 'test-unit', '~> 3.0'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -59,7 +60,6 @@ group :test, :development do
 end
 
 group :test do
-  gem 'test-unit', '~> 3.0'
   gem 'capybara'
   gem 'factory_girl_rails'
   gem 'rspec-rails', '~> 3.8.0'
