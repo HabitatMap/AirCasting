@@ -47,6 +47,8 @@ module Api
       data[:year_from] = data[:year_from] || 2010
       data[:year_to] = data[:year_to] || 2050
 
+      data[:session_ids] ||= []
+
       respond_with AverageInfo.new(data)
     end
   end
