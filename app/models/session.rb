@@ -31,13 +31,12 @@ class Session < ActiveRecord::Base
   has_many :notes, :inverse_of => :session, :dependent => :destroy
   has_many :streams, :inverse_of => :session, :dependent => :destroy
 
-  validates :user, :uuid, :url_token, :calibration, :offset_60_db, :presence => true
+  validates :user, :uuid, :url_token, :presence => true
   validates :start_time, :presence => true
   validates :start_time_local, :presence => true
   validates :end_time, :presence => true
   validates :end_time_local, :presence => true
   validates :url_token, :uuid, :uniqueness => true
-  validates_inclusion_of :offset_60_db, :in => -5..5
   validates :type, :presence => :true
 
   prepare_range(:start_year_range, :start_time)
@@ -50,7 +49,7 @@ class Session < ActiveRecord::Base
 
   acts_as_taggable
 
-  attr_accessible :uuid, :calibration, :offset_60_db, :title, :tag_list,
+  attr_accessible :uuid, :title, :tag_list,
   :contribute, :notes_attributes, :data_type, :instrument,
   :user, :start_time, :end_time, :start_time_local, :end_time_local, :type,
   :is_indoor, :latitude, :longitude
@@ -186,11 +185,13 @@ class Session < ActiveRecord::Base
   def as_json(opts=nil)
     opts ||= {}
 
-    methods = opts[:methods] || [:notes, :calibration]
+    methods = opts[:methods] || [:notes]
     methods << :type
     sensor_id = opts.delete(:sensor_id)
 
-    res = super(opts.merge(:methods => methods))
+    # temporary solution until columns are removed from schema
+    except = [:calibration, :offset_60_db, :description, :phone_model, :os_version, :timezone_offset]
+    res = super(opts.merge(:methods => methods).merge(except: except))
 
     map_of_streams = {}
     strs = sensor_id ? streams.where(sensor_name: sensor_id) : streams.all
