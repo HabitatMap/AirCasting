@@ -54,7 +54,8 @@ export const SessionsListCtrl = (
 
   $scope.$watch("storage.data.crowdMap", function(newValue, oldValue) {
     console.log("watch - storage.data.crowdMap");
-    updateCrowdMapLayer.call(sessions.sessionIds());
+    // when crowd layer will be implemented for fixed we can remove the if
+    if (sessions.sessionIds) updateCrowdMapLayer.call(sessions.sessionIds());
   }, true);
 
   $scope.$watch("params.get('data').gridResolution", function(newValue, oldValue) {
