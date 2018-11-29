@@ -66,13 +66,6 @@ export const mobileSessions = (
 
 
 
-    onSingleSessionFetch: function(session, data, allSelected) {
-      const draw = () => {
-        drawSession.drawMobileSession(session, boundsCalculator(allSelected));
-      }
-      sessionsUtils.onSingleSessionFetch(session, data, draw);
-    },
-
     deselectSession: function(id) {
       const session = this.find(id);
       if (!session) return;
