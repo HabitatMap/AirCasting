@@ -42,14 +42,17 @@ test('when crowd map layer checkbox is ticked it delegates to service to update 
   const callbacks = [];
   const sessionIds = [1, 2];
   const $scope = {
-    $watch: (str, callback) => str.includes('crowdMap') ? callbacks.push(callback) : null
+    $watch: (str, callback) => str.includes('crowdMap') ? callbacks.push(callback) : null,
+    sessions: {
+      sessionIds: () => sessionIds
+    }
   }
   const updateCrowdMapLayer = mock('call');
   _SessionsListCtrl({ $scope, updateCrowdMapLayer });
 
   callbacks.forEach(callback => callback());
 
-  t.true(updateCrowdMapLayer.wasCalled());
+  t.true(updateCrowdMapLayer.wasCalled(sessionIds));
 
   t.end();
 });

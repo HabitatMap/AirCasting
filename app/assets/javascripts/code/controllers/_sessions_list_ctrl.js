@@ -54,7 +54,7 @@ export const SessionsListCtrl = (
 
   $scope.$watch("storage.data.crowdMap", function(newValue, oldValue) {
     console.log("watch - storage.data.crowdMap");
-    updateCrowdMapLayer.call();
+    updateCrowdMapLayer.call(sessions.sessionIds());
   }, true);
 
   $scope.$watch("params.get('data').gridResolution", function(newValue, oldValue) {

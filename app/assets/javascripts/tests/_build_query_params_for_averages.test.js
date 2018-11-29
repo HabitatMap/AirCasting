@@ -113,13 +113,10 @@ test('when everything is present it returns params for averages', t => {
     normalizeTime: x => x,
     gridSizeX: x => grid_size_x
   };
+  const service = buildQueryParamsForAverages(map, sensors, params, utils);
   const sessionIds = [3, 4];
-  const mobileSessions = {
-    sessionIds: () => sessionIds
-  };
-  const service = buildQueryParamsForAverages(map, sensors, params, utils, mobileSessions);
 
-  const actual = service.call();
+  const actual = service.call(sessionIds);
 
   const grid_size_y = gridResolution;
   const session_ids = sessionIds;
