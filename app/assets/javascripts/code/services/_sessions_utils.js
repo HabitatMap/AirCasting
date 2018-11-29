@@ -37,6 +37,10 @@ export const sessionsUtils = (
     self.reSelectAllSessions();
   },
 
+  updateCrowdMapLayer: function(sessionIds) {
+    updateCrowdMapLayer.call(sessionIds);
+  },
+
   onSessionsFetchError: function(data){
     var errorMsg = data.error || 'There was an error, sorry' ;
     flash.set(errorMsg);
@@ -87,6 +91,6 @@ export const sessionsUtils = (
     _(session.streams).extend(streams);
     session.loaded = true;
     callback();
-    updateCrowdMapLayer.call([session.id]);
+    this.updateCrowdMapLayer([session.id]);
   }
 });
