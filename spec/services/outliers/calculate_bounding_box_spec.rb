@@ -21,11 +21,11 @@ describe Outliers::CalculateBoundingBox do
     bounding_boxes = { with_outliers: { a: 1 }, without_outliers: { b: 2 } }
     bounding_box = bounding_boxes.fetch(:without_outliers)
     calculate_centroid = double
-    calculate_centroid.should_receive(:call).with(measurements) { centroid }
+    expect(calculate_centroid).to receive(:call).with(measurements) { centroid }
     calculate_bounding_boxes = double
-    calculate_bounding_boxes.should_receive(:call).with(centroid, measurements) { bounding_boxes }
+    expect(calculate_bounding_boxes).to receive(:call).with(centroid, measurements) { bounding_boxes }
     select_bounding_box = double
-    select_bounding_box.should_receive(:call).with(measurements.size, bounding_boxes) { bounding_box }
+    expect(select_bounding_box).to receive(:call).with(measurements.size, bounding_boxes) { bounding_box }
 
     actual = Outliers::CalculateBoundingBox
       .new(calculate_centroid, calculate_bounding_boxes, select_bounding_box)
