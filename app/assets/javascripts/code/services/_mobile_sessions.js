@@ -82,8 +82,8 @@ export const mobileSessions = (
           zoom: map.getZoom()
         };
         const draw = () => drawSession.drawMobileSession(session, boundsCalculator(allSelected));
-        sessionsUtils.onSingleSessionFetch(session, data, draw);
         map.fitBounds(boundsCalculator(allSelected));
+        sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
       this._selectSession(id, callback);
     },

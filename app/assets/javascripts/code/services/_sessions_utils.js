@@ -1,9 +1,12 @@
+import _ from 'underscore';
+
 export const sessionsUtils = (
   params,
   sensors,
   $timeout,
   flash,
-  sessionsExporter
+  sessionsExporter,
+  updateCrowdMapLayer
 ) => ({
   sessionsChanged: function (self, newIds, oldIds) {
     _(newIds).chain().difference(oldIds).each(_(self.selectSession).bind(self));
@@ -84,5 +87,6 @@ export const sessionsUtils = (
     _(session.streams).extend(streams);
     session.loaded = true;
     callback();
+    updateCrowdMapLayer.call([session.id]);
   }
 });
