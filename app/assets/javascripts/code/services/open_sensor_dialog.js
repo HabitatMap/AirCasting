@@ -20,6 +20,11 @@ angular.module('aircasting').factory('openSensorDialog', ['$rootScope', 'params'
           $rootScope.$digest();
         })
         .opts({ width: 340, height: 'auto', resizable: false, modal:true, position: ["center", "center"],
+          open: function (event, ui) {
+            $('.ui-dialog-buttonset').children().each(function() {
+              $(this).html($(this).attr('text'));
+            })
+          },
         buttons: {
           "submit": function() {
             sensors.proceedWithTmp();
