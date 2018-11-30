@@ -11,7 +11,8 @@ export const SessionsListCtrl = (
   drawSession,
   openSensorDialog,
   markerSelected,
-  map
+  map,
+  updateCrowdMapLayer
 ) => {
   let sessions;
   let singleSession;
@@ -50,6 +51,17 @@ export const SessionsListCtrl = (
   $scope.updateSessionsPage = function() {
     $scope.page++;
   };
+
+  $scope.$watch("storage.data.crowdMap", function(newValue, oldValue) {
+    console.log("watch - storage.data.crowdMap");
+    // when crowd layer will be implemented for fixed we can remove the if
+    if (sessions.sessionIds) updateCrowdMapLayer.call(sessions.sessionIds());
+  }, true);
+
+  $scope.$watch("params.get('data').gridResolution", function(newValue, oldValue) {
+    console.log("watch - params.get('data').gridResolution");
+    if (!storage.data.crowdMap) return;
+  }, true);
 
   $scope.$watch("page", () => {
     console.log("watch - page");

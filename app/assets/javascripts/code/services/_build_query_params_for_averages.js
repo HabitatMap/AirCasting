@@ -2,10 +2,9 @@ export const buildQueryParamsForAverages = (
   map,
   sensors,
   params,
-  utils,
-  $window
+  utils
 ) => ({
-  call: () => {
+  call: (sessionIds) => {
     if (!sensors.selected()) return false;
     const bounds = map.getBounds();
     if (!hasTruthyValues(bounds)) return false;
@@ -31,7 +30,8 @@ export const buildQueryParamsForAverages = (
       usernames: data.usernames,
       sensor_name: sensors.selected().sensor_name,
       measurement_type: sensors.selected().measurement_type,
-      unit_symbol: sensors.selected().unit_symbol
+      unit_symbol: sensors.selected().unit_symbol,
+      session_ids: sessionIds
     };
   }
 });

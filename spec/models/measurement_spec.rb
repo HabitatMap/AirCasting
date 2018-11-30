@@ -102,5 +102,66 @@ describe Measurement do
         expect(Measurement.with_time(data)).to include measurement
       end
     end
+
+    describe "#belonging_to_sessions_with_ids" do
+      it "returns measurements belonging to the sessions with the passed ids" do
+        session1 = create_session!
+        session2 = create_session!
+        stream1 = create_stream!(session: session1)
+        stream2 = create_stream!(session: session2)
+        create_measurement!(stream: stream1)
+        measurement2 = create_measurement!(stream: stream2)
+        measurement3 = create_measurement!(stream: stream2)
+
+        actual = Measurement.belonging_to_sessions_with_ids([session2.id])
+
+        expect(actual).to eq([measurement2, measurement3])
+      end
+    end
+  end
+
+  private
+
+  def create_session!
+    Session.create!(
+      title: "abc",
+      user: User.new,
+      uuid: SecureRandom.uuid,
+      calibration: 100,
+      offset_60_db: 0,
+      start_time: DateTime.current,
+      start_time_local: DateTime.current,
+      end_time: DateTime.current,
+      end_time_local: DateTime.current,
+      type: "MobileSession"
+    )
+  end
+
+  def create_stream!(attributes)
+    Stream.create!(
+      sensor_package_name: "abc",
+      sensor_name: "abc",
+      measurement_type: "abc",
+      unit_name: "abc",
+      session: attributes[:session],
+      measurement_short_type: "dB",
+      unit_symbol: "dB",
+      threshold_very_low: 20,
+      threshold_low: 60,
+      threshold_medium: 70,
+      threshold_high: 80,
+      threshold_very_high: 100
+    )
+  end
+
+  def create_measurement!(attributes)
+    Measurement.create!(
+      time: DateTime.current,
+      latitude: 123,
+      longitude: 123,
+      value: 123,
+      milliseconds: 123,
+      stream: attributes.fetch(:stream)
+    )
   end
 end
