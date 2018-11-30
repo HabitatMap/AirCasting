@@ -7,7 +7,8 @@ class Csv::CreateFiles
   end
 
   def call(session_ids)
-    session_ids.flat_map { |session_id| csv_files_for(session_id) }
+    session_ids.flat_map { |session_id| csv_files_for(session_id) } +
+    session_ids.flat_map { |session_id| csv_notes_files_for(session_id) }
   end
 
   private
@@ -15,6 +16,19 @@ class Csv::CreateFiles
   def csv_files_for(session_id)
     sensor_package_names = @repository.find_sensor_package_names(session_id)
     sensor_package_names.reduce([]) { |acc, sensor_package_name| reduce(acc, sensor_package_name, session_id) }
+  end
+
+  def csv_notes_files_for(session_id)
+    session = Session.find(session_id)
+    notes_data = build_notes_data(session.notes)
+
+    return [] unless session.notes.any?
+
+    file = Tempfile.new(["notes_from_#{session.title.parameterize('_')}_#{session_id}__", ".csv"])
+    csv = CSV.generate { |csv| Csv::AppendNotesContent.new.call(csv, notes_data)  }
+    file.write(csv)
+    file.close
+    file
   end
 
   def reduce(acc, sensor_package_name, session_id)
@@ -36,6 +50,12 @@ class Csv::CreateFiles
       "sensor_package_name" => sensor_package_name,
       "session_id" => session_id,
       "stream_parameters" => stream_parameters
+    )
+  end
+
+  def build_notes_data(notes)
+    Csv::NotesData.new(
+      "notes" => notes
     )
   end
 end
