@@ -52,7 +52,7 @@ describe Csv::ExportSessionsToCsv do
 	end
 
   it "adds a file with session notes" do
-    session = create_session!(title: "Example Session")
+    session = create_session!
     note = Note.create!(
       text: "Example Note",
       date: DateTime.new(2018,8,20,11,16,44),
@@ -77,9 +77,9 @@ describe Csv::ExportSessionsToCsv do
 
   private
 
-  def create_session!(attributes)
+  def create_session!(attributes = {})
     Session.create!(
-      title: attributes[:title],
+      title: attributes.fetch(:title, "Example Session"),
       user: User.new,
       uuid: "845342a6-f9f4-4835-86b3-b100163ec39a",
       start_time: DateTime.current,
@@ -92,11 +92,11 @@ describe Csv::ExportSessionsToCsv do
 
   def create_stream!(attributes)
     Stream.create!(
-      sensor_package_name: attributes[:sensor_package_name],
-      sensor_name: attributes[:sensor_name],
-      measurement_type: attributes[:measurement_type],
-      unit_name: attributes[:unit_name],
-      session: attributes[:session],
+      sensor_package_name: attributes.fetch(:sensor_package_name),
+      sensor_name: attributes.fetch(:sensor_name),
+      measurement_type: attributes.fetch(:measurement_type),
+      unit_name: attributes.fetch(:unit_name),
+      session: attributes.fetch(:session),
       measurement_short_type: "dB",
       unit_symbol: "dB",
       threshold_very_low: 20,

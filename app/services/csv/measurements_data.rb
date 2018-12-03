@@ -1,4 +1,4 @@
-class Csv::Data
+class Csv::MeasurementsData
   attr_reader :session_id, :amount_of_streams, :stream_parameters, :measurements, :sensor_package_name
 
   def initialize(data)

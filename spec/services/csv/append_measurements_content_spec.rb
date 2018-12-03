@@ -1,8 +1,8 @@
 require "spec_helper"
 
-describe Csv::AppendContent do
+describe Csv::AppendMeasurementsContent do
   before(:each) do
-    @subject = Csv::AppendContent.new
+    @subject = Csv::AppendMeasurementsContent.new
   end
 
   it "with one stream with one measurement appends the correct measurement column" do
@@ -438,7 +438,7 @@ describe Csv::AppendContent do
   private
 
   def build_data(amount_of_streams, measurements, sensor_package_name, session_id, stream_parameters)
-    Csv::Data.new(
+    Csv::MeasurementsData.new(
       "amount_of_streams" => amount_of_streams,
       "measurements" => measurements,
       "sensor_package_name" => sensor_package_name,

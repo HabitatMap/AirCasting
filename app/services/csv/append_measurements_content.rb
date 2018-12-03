@@ -1,4 +1,4 @@
-class Csv::AppendContent
+class Csv::AppendMeasurementsContent
   MEASUREMENT_HEADING_PREFIX = %w(ObjectID Session_Name Timestamp Latitude Longitude)
   PADDING = Array.new(MEASUREMENT_HEADING_PREFIX.size, nil)
 

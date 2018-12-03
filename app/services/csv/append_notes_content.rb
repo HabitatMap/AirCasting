@@ -14,8 +14,6 @@ class Csv::AppendNotesContent
     data.notes.each do |note|
       append_note(csv, note)
     end
-
-    csv
   end
 
   def append_note(csv, note)

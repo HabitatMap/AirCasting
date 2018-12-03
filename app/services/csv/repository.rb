@@ -67,14 +67,12 @@ ORDER BY streams.sensor_package_name
 
   def find_notes(session_id)
     sql = <<-SQL
-SELECT notes.date,
-       notes.text,
-       notes.longitude,
-       notes.latitude,
-       sessions.title
+SELECT notes.date, notes.text, notes.longitude, notes.latitude,
+       sessions.title as session_title
 FROM `notes`
 INNER JOIN `sessions`
 ON `notes`.`session_id` = `sessions`.`id`
+WHERE sessions.id = "#{session_id}"
 ORDER BY notes.date ASC
     SQL
 
