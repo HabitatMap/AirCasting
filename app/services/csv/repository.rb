@@ -64,4 +64,20 @@ ORDER BY streams.sensor_package_name
 
     ActiveRecord::Base.connection.exec_query(sql).to_hash.map { |h| h["stream_sensor_package_name"] }
   end
+
+  def find_notes(session_id)
+    sql = <<-SQL
+SELECT notes.date,
+       notes.text,
+       notes.longitude,
+       notes.latitude,
+       sessions.title
+FROM `notes`
+INNER JOIN `sessions`
+ON `notes`.`session_id` = `sessions`.`id`
+ORDER BY notes.date ASC
+    SQL
+
+    ActiveRecord::Base.connection.exec_query(sql).to_hash
+  end
 end

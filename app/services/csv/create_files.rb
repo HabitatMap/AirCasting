@@ -19,12 +19,14 @@ class Csv::CreateFiles
   end
 
   def csv_notes_files_for(session_id)
-    session = Session.find(session_id)
-    notes_data = build_notes_data(session.notes)
+    notes = @repository.find_notes(session_id)
 
-    return [] unless session.notes.any?
+    return [] unless notes.any?
 
-    file = Tempfile.new(["notes_from_#{session.title.parameterize('_')}_#{session_id}__", ".csv"])
+    session_title = notes.first["title"] || ""
+    notes_data = build_notes_data(notes)
+
+    file = Tempfile.new(["notes_from_#{session_title.parameterize('_')}_#{session_id}__", ".csv"])
     csv = CSV.generate { |csv| Csv::AppendNotesContent.new.call(csv, notes_data)  }
     file.write(csv)
     file.close

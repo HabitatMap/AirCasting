@@ -5,9 +5,9 @@ describe Csv::AppendNotesContent do
   let(:date) { DateTime.new(2018,8,20,11,16,44) }
   let(:latitude) { BigDecimal.new("40.68038924") }
   let(:longitude) { BigDecimal.new("-73.97631499") }
-  let(:note1) { { text: "Example Note", date: date, latitude: latitude, longitude: longitude, } }
-  let(:note_with_comma) { { text: 'Example, Note', date: date, latitude: latitude, longitude: longitude, } }
-  let(:note2) { { text: "Example Note 2", date: date, latitude: latitude, longitude: longitude, } }
+  let(:note1) { { "text" => "Example Note", "date" => date, "latitude" => latitude, "longitude" => longitude, } }
+  let(:note_with_comma) { { "text" => 'Example, Note', "date" => date, "latitude" => latitude, "longitude" => longitude, } }
+  let(:note2) { { "text" => "Example Note 2", "date" => date, "latitude" => latitude, "longitude" => longitude, } }
   let(:expected_headers) { %w(Note Time Latitude Longitude) }
 
   it "appends correct headers" do

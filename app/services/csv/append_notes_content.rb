@@ -14,12 +14,12 @@ class Csv::AppendNotesContent
     data.notes.each do |note|
       append_note(csv, note)
     end
-    
+
     csv
   end
 
   def append_note(csv, note)
-    csv << [note[:text], format_time(note[:date]), note[:latitude], note[:longitude]]
+    csv << [note["text"], format_time(note["date"]), note["latitude"], note["longitude"]]
   end
 
   def format_time(date)
