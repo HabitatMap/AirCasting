@@ -1,5 +1,5 @@
-class Csv::AppendContent
-  MEASUREMENT_HEADING_PREFIX = [ "ObjectID", "Session_Name", "Timestamp", "Latitude", "Longitude" ]
+class Csv::AppendMeasurementsContent
+  MEASUREMENT_HEADING_PREFIX = %w(ObjectID Session_Name Timestamp Latitude Longitude)
   PADDING = Array.new(MEASUREMENT_HEADING_PREFIX.size, nil)
 
   def call(csv, data)

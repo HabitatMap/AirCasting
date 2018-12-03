@@ -1,20 +1,36 @@
 require "csv"
 
 class Csv::CreateFiles
-  def initialize(repository = Csv::Repository.new, create_csv_file = Csv::CreateFile.new)
-    @create_csv_file = create_csv_file
+  def initialize(
+      repository = Csv::Repository.new,
+      create_measurements_csv_file = Csv::CreateMeasurementsFile.new,
+      create_notes_csv_file = Csv::CreateNotesFile.new
+    )
+
+    @create_measurements_csv_file = create_measurements_csv_file
+    @create_notes_csv_file = create_notes_csv_file
     @repository = repository
   end
 
   def call(session_ids)
-    session_ids.flat_map { |session_id| csv_files_for(session_id) }
+    session_ids.flat_map { |session_id| csv_measurements_files_for(session_id) } +
+    session_ids.flat_map { |session_id| csv_notes_files_for(session_id) }
   end
 
   private
 
-  def csv_files_for(session_id)
+  def csv_measurements_files_for(session_id)
     sensor_package_names = @repository.find_sensor_package_names(session_id)
     sensor_package_names.reduce([]) { |acc, sensor_package_name| reduce(acc, sensor_package_name, session_id) }
+  end
+
+  def csv_notes_files_for(session_id)
+    notes = @repository.find_notes(session_id)
+
+    return [] unless notes.any?
+    notes_data = build_notes_data(notes, session_id)
+
+    @create_notes_csv_file.call(notes_data)
   end
 
   def reduce(acc, sensor_package_name, session_id)
@@ -23,12 +39,14 @@ class Csv::CreateFiles
 
     stream_parameters = @repository.find_stream_parameters(session_id, sensor_package_name)
     measurements = @repository.find_measurements(session_id, sensor_package_name)
-    data = build_data(amount_of_streams, measurements, sensor_package_name, session_id, stream_parameters)
-    acc + [@create_csv_file.call(data)]
+    return acc if measurements.size == 0
+
+    data = build_measurements_data(amount_of_streams, measurements, sensor_package_name, session_id, stream_parameters)
+    acc + [@create_measurements_csv_file.call(data)]
   end
 
-  def build_data(amount_of_streams, measurements, sensor_package_name, session_id, stream_parameters)
-    Csv::Data.new(
+  def build_measurements_data(amount_of_streams, measurements, sensor_package_name, session_id, stream_parameters)
+    Csv::MeasurementsData.new(
       "amount_of_streams" => amount_of_streams,
       "measurements" => measurements,
       "sensor_package_name" => sensor_package_name,
@@ -36,18 +54,41 @@ class Csv::CreateFiles
       "stream_parameters" => stream_parameters
     )
   end
+
+  def build_notes_data(notes, session_id)
+    Csv::NotesData.new(
+      "notes" => notes,
+      "session_id" => session_id
+    )
+  end
 end
 
-class Csv::CreateFile
-  def initialize(append_content = Csv::AppendContent.new)
-    @append_content = append_content
+class Csv::CreateMeasurementsFile
+  def initialize(append_measurements_content = Csv::AppendMeasurementsContent.new)
+    @append_measurements_content = append_measurements_content
   end
 
   def call(data)
     session_title = data.measurements.first["session_title"] || ""
     filename = "#{session_title.parameterize('_')}_#{data.session_id}__"
     file = Tempfile.new([filename, ".csv"])
-    csv = CSV.generate { |csv| @append_content.call(csv, data) }
+    csv = CSV.generate { |csv| @append_measurements_content.call(csv, data) }
+    file.write(csv)
+    file.close
+    file
+  end
+end
+
+class Csv::CreateNotesFile
+  def initialize(append_notes_content = Csv::AppendNotesContent.new)
+    @append_notes_content = append_notes_content
+  end
+
+  def call(data)
+    session_title = data.notes.first["session_title"] || ""
+    filename = "notes_from_#{session_title.parameterize('_')}_#{data.session_id}__"
+    file = Tempfile.new([filename, ".csv"])
+    csv = CSV.generate { |csv| @append_notes_content.call(csv, data) }
     file.write(csv)
     file.close
     file

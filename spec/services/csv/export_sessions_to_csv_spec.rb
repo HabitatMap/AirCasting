@@ -9,17 +9,17 @@ describe Csv::ExportSessionsToCsv do
     @subject.clean
   end
 
-  it "with no sessions the zip is empty" do
+  it "with no sessions the zip just contains an empty dotfile" do
     session_ids = []
 
     zip_path = @subject.call(session_ids)
 
     Zip::File.open(zip_path) do |zip_file|
-      expect(zip_file.size).to eq(0)
+      expect(zip_file.size).to eq(1)
     end
   end
 
-  it "with one session with one stream and with one measurement the zip contains one file with the right CSV content and filename" do
+  it "with one session with one stream and with one measurement the zip contains one empty dotfile and one file with the right CSV content and filename" do
     session = create_session!(title: "Example Session")
     stream = create_stream!(
       sensor_package_name: "AirBeam2:00189610719F",
@@ -43,19 +43,43 @@ describe Csv::ExportSessionsToCsv do
       actual_contents = zip_file.entries.map { |entry| entry.get_input_stream.read }
       actual_filenames = zip_file.entries.map(&:name).join(", ")
 
-      expected_filename = /^example_session_#{session.id}__.*\.csv$/
+      expected_filename = /example_session_#{session.id}__.*\.csv$/
       expect(actual_filenames).to match(expected_filename)
 
-      expected_contents = [File.read("#{Rails.root}/spec/support/session_stream_measurement.csv")]
+      expected_contents = ["", File.read("#{Rails.root}/spec/support/session_stream_measurement.csv")]
       expect(actual_contents).to eq(expected_contents)
 		end
 	end
 
+  it "adds a file with session notes" do
+    session = create_session!
+    note = Note.create!(
+      text: "Example Note",
+      date: DateTime.new(2018,8,20,11,16,44),
+      latitude: BigDecimal.new("40.68038924"),
+      longitude: BigDecimal.new("-73.97631499"),
+      session: session,
+    )
+
+    zip_path = @subject.call([session.id])
+
+    Zip::File.open(zip_path) do |zip_file|
+      actual_contents = zip_file.entries.map { |entry| entry.get_input_stream.read }
+      actual_filenames = zip_file.entries.map(&:name).join(", ")
+
+      expected_filename = /notes_from_example_session_#{session.id}__.*\.csv$/
+      expect(actual_filenames).to match(expected_filename)
+
+      expected_contents = ["", File.read("#{Rails.root}/spec/support/session_notes.csv")]
+      expect(actual_contents).to eq(expected_contents)
+    end
+  end
+
   private
 
-  def create_session!(attributes)
+  def create_session!(attributes = {})
     Session.create!(
-      title: attributes[:title],
+      title: attributes.fetch(:title, "Example Session"),
       user: User.new,
       uuid: "845342a6-f9f4-4835-86b3-b100163ec39a",
       start_time: DateTime.current,
@@ -68,11 +92,11 @@ describe Csv::ExportSessionsToCsv do
 
   def create_stream!(attributes)
     Stream.create!(
-      sensor_package_name: attributes[:sensor_package_name],
-      sensor_name: attributes[:sensor_name],
-      measurement_type: attributes[:measurement_type],
-      unit_name: attributes[:unit_name],
-      session: attributes[:session],
+      sensor_package_name: attributes.fetch(:sensor_package_name),
+      sensor_name: attributes.fetch(:sensor_name),
+      measurement_type: attributes.fetch(:measurement_type),
+      unit_name: attributes.fetch(:unit_name),
+      session: attributes.fetch(:session),
       measurement_short_type: "dB",
       unit_symbol: "dB",
       threshold_very_low: 20,
