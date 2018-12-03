@@ -10,11 +10,11 @@ export const updateCrowdMapLayer = (
   params,
   utils
 ) => ({
-  call: (sessionIds) => {
+  call: () => {
     map.clearRectangles();
     if (!storage.isCrowdMapLayerOn()) return;
 
-    const q = buildQueryParamsForAverages.call(sessionIds);
+    const q = buildQueryParamsForAverages.call();
     if (!q) return;
 
     $http.get('/api/averages', { cache: true, params: { q }})

@@ -14,7 +14,8 @@ export const MobileSessionsMapCtrl = (
   functionBlocker,
   $window,
   infoWindow,
-  sensorsList
+  sensorsList,
+  updateCrowdMapLayer
 ) => {
   sensors.setSensors(sensorsList);
   $scope.setDefaults = function() {
@@ -33,6 +34,7 @@ export const MobileSessionsMapCtrl = (
     map.clearRectangles();
     infoWindow.hide();
     map.unregisterAll();
+    map.register("idle", () => setTimeout(updateCrowdMapLayer.call, 0));
     map.removeAllMarkers();
 
     if (process.env.NODE_ENV !== 'test') {
@@ -91,6 +93,16 @@ export const MobileSessionsMapCtrl = (
       console.log("watch - {location: params.get('data').location.address, counter: params.get('data').counter}");
       map.goToAddress(newValue.location);
     }, true);
+
+  $scope.$watch("storage.data.crowdMap", function(newValue, oldValue) {
+    console.log("watch - storage.data.crowdMap");
+    updateCrowdMapLayer.call();
+  }, true);
+
+  $scope.$watch("params.get('data').gridResolution", function(newValue, oldValue) {
+    console.log("watch - params.get('data').gridResolution");
+    if (!storage.data.crowdMap) return;
+  }, true);
 
   $scope.setDefaults();
 }

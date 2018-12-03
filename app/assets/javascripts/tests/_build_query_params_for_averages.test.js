@@ -114,12 +114,10 @@ test('when everything is present it returns params for averages', t => {
     gridSizeX: x => grid_size_x
   };
   const service = buildQueryParamsForAverages(map, sensors, params, utils);
-  const sessionIds = [3, 4];
 
-  const actual = service.call(sessionIds);
+  const actual = service.call();
 
   const grid_size_y = gridResolution;
-  const session_ids = sessionIds;
   const expected = {
     west,
     east,
@@ -137,8 +135,7 @@ test('when everything is present it returns params for averages', t => {
     usernames,
     sensor_name,
     measurement_type,
-    unit_symbol,
-    session_ids
+    unit_symbol
   };
   t.deepEqual(actual, expected);
 
