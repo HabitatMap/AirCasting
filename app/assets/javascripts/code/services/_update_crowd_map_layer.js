@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import constants from '../constants';
 
 export const updateCrowdMapLayer = (
   storage,
@@ -26,7 +27,7 @@ export const updateCrowdMapLayer = (
 const onError = (flash) => () => flash.set('There was an error, sorry');
 
 const onAveragesFetch = ($location, map, params, utils) => data => {
-  if($location.path() !== "/map_sessions") return;
+  if($location.path() !== constants.mobileMapRoute) return;
   const heats = utils.heats(params.get('data').heat)
   map.drawRectangles(data, heats, () => {});
 };
