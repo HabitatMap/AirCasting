@@ -71,7 +71,7 @@ describe Csv::ExportSessionsToCsv do
       expected_filename = /notes_from_example_session_#{session.id}__.*\.csv$/
       expect(actual_filenames).to match(expected_filename)
 
-      expected_contents = /^Note,Time,Latitude,Longitude,Photo_Url\nExample Note,2018-08-20T11:16:44,40.68038924,-73.97631499,http:\/\/aircasting.org\/system\/.+jpg\?\d+\n$/
+      expected_contents = /^Note,Time,Latitude,Longitude,Photo_Url\nExample Note,2018-08-20T11:16:44,40.68038924,-73.97631499,http:\/\/localhost:3000\/system\/.+jpg\?\d+\n$/
       expect(actual_contents).to match(expected_contents)
     end
   end

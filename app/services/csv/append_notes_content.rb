@@ -25,12 +25,9 @@ class Csv::AppendNotesContent
   end
 
   def format_url(note)
-    return "No photo" unless note.photo_file_name
-    current_host_url.to_s + note.photo.url
-  end
+    return "No photo was attached" unless note.photo_file_name
 
-  def current_host_url
-    "http://aircasting.org"
-    # would be better to use request.base_url but it only works in controllers
+    current_host_url = Rails.application.config.secrets.fetch('HOST_URL')
+    current_host_url.to_s + note.photo.url
   end
 end

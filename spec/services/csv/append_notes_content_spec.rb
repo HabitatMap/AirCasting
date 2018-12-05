@@ -5,7 +5,7 @@ describe Csv::AppendNotesContent do
   let(:date) { DateTime.new(2018,8,20,11,16,44) }
   let(:latitude) { BigDecimal.new("40.68038924") }
   let(:longitude) { BigDecimal.new("-73.97631499") }
-  let(:photo_url) { /http:\/\/aircasting.org\/system\/.+jpg\?\d+$/ }
+  let(:photo_url) { /http:\/\/localhost:3000\/system\/.+jpg\?\d+$/ }
 
   it "appends correct headers" do
     note = create_note!
