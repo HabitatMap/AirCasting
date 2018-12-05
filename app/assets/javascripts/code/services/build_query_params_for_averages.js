@@ -5,5 +5,6 @@ angular.module("aircasting").factory('buildQueryParamsForAverages', [
   'sensors',
   'params',
   'utils',
+  'flash',
   buildQueryParamsForAverages
 ]);

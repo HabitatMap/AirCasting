@@ -2,14 +2,16 @@ import test from 'blue-tape';
 import { mock } from './helpers';
 import { buildQueryParamsForAverages } from '../code/services/_build_query_params_for_averages';
 
-test('when no sensor is selected it returns false', t => {
+test('when no sensor is selected it flashes a message and returns false', t => {
   const sensors = {
     selected: () => false
   };
-  const service = _buildQueryParamsForAverages({ sensors });
+  const flash = mock('set');
+  const service = _buildQueryParamsForAverages({ sensors, flash });
 
   const actual = service.call();
 
+  t.true(flash.wasCalled());
   t.false(actual);
 
   t.end();
@@ -145,7 +147,7 @@ test('when everything is present it returns params for averages', t => {
   t.end();
 });
 
-const _buildQueryParamsForAverages = ({ sensors, map, params }) => {
+const _buildQueryParamsForAverages = ({ sensors, map, params, flash }) => {
   const sensor_name = "sensor_name";
   const measurement_type = "measurement_type";
   const unit_symbol = "unit_symbol";
@@ -185,6 +187,7 @@ const _buildQueryParamsForAverages = ({ sensors, map, params }) => {
     normalizeTime: x => x,
     gridSizeX: x => grid_size_x
   };
+  const _flash = flash || {};
 
-  return buildQueryParamsForAverages(_map, _sensors, _params, utils);
+  return buildQueryParamsForAverages(_map, _sensors, _params, utils, _flash);
 };

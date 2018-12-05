@@ -2,10 +2,14 @@ export const buildQueryParamsForAverages = (
   map,
   sensors,
   params,
-  utils
+  utils,
+  flash
 ) => ({
   call: (sessionIds) => {
-    if (!sensors.selected()) return false;
+    if (!sensors.selected()) {
+      flash.set('You need to select parameter / sensor');
+      return false;
+    }
     const bounds = map.getBounds();
     if (!hasTruthyValues(bounds)) return false;
     const data = params.get('data');
