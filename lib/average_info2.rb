@@ -1,6 +1,6 @@
 require_dependency 'aircasting/username_param'
 
-class AverageInfo
+class AverageInfo2
   Y_SIZES = (1..300).map { |i| 1.2 ** i * 0.000001 }
 
   attr_reader :data
@@ -38,7 +38,8 @@ class AverageInfo
       group("middle_x").
       group("middle_y").
       in_rectangle(data).
-      with_time(data)
+      with_time(data)#.
+      #belonging_to_sessions_with_ids(data[:session_ids])
   end
 
   def stream_ids

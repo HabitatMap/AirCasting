@@ -50,6 +50,7 @@ AirCasting::Application.routes.draw do
     get 'multiple_sessions' =>'measurement_sessions#show_multiple'
 
     resources :averages, only: [:index]
+    get "averages2" => "averages#index2"
     resources :thresholds, only: [:show], id: /.*/
     resources :regressions, only: [:create, :index, :destroy]
     resource :region, only: [:show]

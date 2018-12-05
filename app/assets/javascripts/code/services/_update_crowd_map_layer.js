@@ -17,7 +17,7 @@ export const updateCrowdMapLayer = (
     const q = buildQueryParamsForAverages.call(sessionIds);
     if (!q) return;
 
-    $http.get('/api/averages', { cache: true, params: { q }})
+    $http.get('/api/averages2', { cache: true, params: { q }})
       .error(onError(flash))
       .success(onAveragesFetch($location, map, params, utils));
   }
