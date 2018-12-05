@@ -5,10 +5,11 @@ describe Csv::AppendNotesContent do
   let(:date) { DateTime.new(2018,8,20,11,16,44) }
   let(:latitude) { BigDecimal.new("40.68038924") }
   let(:longitude) { BigDecimal.new("-73.97631499") }
-  let(:note1) { { "text" => "Example Note", "date" => date, "latitude" => latitude, "longitude" => longitude, } }
-  let(:note_with_comma) { { "text" => 'Example, Note', "date" => date, "latitude" => latitude, "longitude" => longitude, } }
-  let(:note2) { { "text" => "Example Note 2", "date" => date, "latitude" => latitude, "longitude" => longitude, } }
-  let(:expected_headers) { %w(Note Time Latitude Longitude) }
+  let(:photo_url) { "http://aircasting.org/system/example.jpg" }
+  let(:photo_file_name) { "example.jpg" }
+  let(:note1) { { "text" => "Example Note", "date" => date, "latitude" => latitude, "longitude" => longitude, "photo_file_name" => photo_file_name } }
+  let(:note2) { { "text" => "Example Note 2", "date" => date, "latitude" => latitude, "longitude" => longitude, "photo_file_name" => photo_file_name } }
+  let(:expected_headers) { %w(Note Time Latitude Longitude Photo_Url) }
 
   it "appends correct headers" do
     data = build_data([note1])
@@ -25,7 +26,7 @@ describe Csv::AppendNotesContent do
 
     actual_note = lines.second
 
-    expected_note = ["Example Note","2018-08-20T11:16:44",latitude,longitude]
+    expected_note = ["Example Note","2018-08-20T11:16:44",latitude,longitude,photo_url]
     expect(actual_note).to eq(expected_note)
   end
 
@@ -37,8 +38,8 @@ describe Csv::AppendNotesContent do
 
     expected_content = [
       expected_headers,
-      ["Example Note","2018-08-20T11:16:44",latitude,longitude],
-      ["Example Note 2","2018-08-20T11:16:44",latitude,longitude],
+      ["Example Note","2018-08-20T11:16:44",latitude,longitude,photo_url],
+      ["Example Note 2","2018-08-20T11:16:44",latitude,longitude,photo_url],
     ]
     expect(actual_content).to eq(expected_content)
   end

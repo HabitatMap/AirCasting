@@ -1,2 +1,2 @@
-Note,Time,Latitude,Longitude
-Example Note,2018-08-20T11:16:44,40.68038924,-73.97631499
+Note,Time,Latitude,Longitude,Photo_Url
+Example Note,2018-08-20T11:16:44,40.68038924,-73.97631499,http://aircasting.org/system/example_photo.jpg

@@ -51,13 +51,14 @@ describe Csv::ExportSessionsToCsv do
 		end
 	end
 
-  it "adds a file with session notes" do
+  it "adds a file with session notes and images urls" do
     session = create_session!
     note = Note.create!(
       text: "Example Note",
       date: DateTime.new(2018,8,20,11,16,44),
       latitude: BigDecimal.new("40.68038924"),
       longitude: BigDecimal.new("-73.97631499"),
+      photo: File.new("#{Rails.root}/spec/support/example_photo.jpg"),
       session: session,
     )
 
