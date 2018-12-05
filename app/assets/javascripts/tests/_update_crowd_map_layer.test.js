@@ -26,6 +26,22 @@ test('when the request for the averages fails it flashes an error', t => {
   t.end();
 });
 
+test('it delegates building the query param to a service passing it the session ids', t => {
+  const calls = [];
+  const buildQueryParamsForAverages = {
+    call: arg => { calls.push(arg); return false },
+    wasCalledWith: arg => calls[calls.length - 1] === arg
+  };
+  const service = _updateCrowdMapLayer({ buildQueryParamsForAverages });
+  const sessionIds = [1, 2];
+
+  service.call(sessionIds);
+
+  t.true(buildQueryParamsForAverages.wasCalledWith(sessionIds));
+
+  t.end();
+});
+
 test('when the request for the averages succeeds but the app is not on the mobile tab it does not delegate to map.drawRectangles', t => {
   const map = {
     clearRectangles: () => {},

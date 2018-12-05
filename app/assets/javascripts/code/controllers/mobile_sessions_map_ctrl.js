@@ -15,6 +15,5 @@ angular.module('aircasting').controller('MobileSessionsMapCtrl', [
   '$window',
   "infoWindow",
   'sensorsList',
-  'updateCrowdMapLayer',
   MobileSessionsMapCtrl
 ]);

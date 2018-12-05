@@ -27,6 +27,9 @@ export const mobileSessions = (
   };
 
   MobileSessions.prototype = {
+    sessionIds: function() {
+      return this.sessions.map(x => x.id);
+    },
     hasSelectedSessions: function() {
       return this.noOfSelectedSessions() > 0;
     },
@@ -51,8 +54,6 @@ export const mobileSessions = (
 
     noOfSelectedSessions : function() { return sessionsUtils.noOfSelectedSessions(this); },
 
-    onSessionsFetch: function() { sessionsUtils.onSessionsFetch(this); },
-
     onSessionsFetchError: function(data){ sessionsUtils.onSessionsFetchError(data); },
 
     reSelectAllSessions: function(){ sessionsUtils.reSelectAllSessions(this); },
@@ -61,13 +62,13 @@ export const mobileSessions = (
 
     sessionsChanged: function (newIds, oldIds) { sessionsUtils.sessionsChanged(this, newIds, oldIds); },
 
+    onSessionsFetch: function() { sessionsUtils.onSessionsFetch(this); },
 
 
-    onSingleSessionFetch: function(session, data, allSelected) {
-      const draw = () => {
-        drawSession.drawMobileSession(session, boundsCalculator(allSelected));
-      }
-      sessionsUtils.onSingleSessionFetch(session, data, draw);
+
+    onSessionsFetchWithCrowdMapLayerUpdate: function() {
+      this.onSessionsFetch();
+      sessionsUtils.updateCrowdMapLayer(this.sessionIds());
     },
 
     deselectSession: function(id) {
@@ -86,8 +87,8 @@ export const mobileSessions = (
           zoom: map.getZoom()
         };
         const draw = () => drawSession.drawMobileSession(session, boundsCalculator(allSelected));
-        sessionsUtils.onSingleSessionFetch(session, data, draw);
         map.fitBounds(boundsCalculator(allSelected));
+        sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
       this._selectSession(id, callback);
     },
@@ -157,11 +158,12 @@ export const mobileSessions = (
 
       if (page === 0) {
         this.sessions = [];
+        // seems to be called for selected sessions; thus, only when loading the app with selections in the url
         sessionsDownloader('/api/multiple_sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
           _(this.onSessionsFetchError).bind(this));
       }
 
-      sessionsDownloader('/api/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
+      sessionsDownloader('/api/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this),
         _(this.onSessionsFetchError).bind(this));
 
     },
