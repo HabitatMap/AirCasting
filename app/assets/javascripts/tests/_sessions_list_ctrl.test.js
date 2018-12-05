@@ -38,11 +38,30 @@ test('registers a callback for the crowd map layer resolution slider', t => {
   t.end();
 });
 
-test('when crowd map layer checkbox is ticked it delegates to service to update session with passed ids', t => {
+test('when crowd map layer checkbox is ticked it delegates to service to update layer with passed session ids', t => {
   const callbacks = [];
   const sessionIds = [1, 2];
   const $scope = {
     $watch: (str, callback) => str.includes('crowdMap') ? callbacks.push(callback) : null,
+    sessions: {
+      sessionIds: () => sessionIds
+    }
+  }
+  const updateCrowdMapLayer = mock('call');
+  _SessionsListCtrl({ $scope, updateCrowdMapLayer });
+
+  callbacks.forEach(callback => callback());
+
+  t.true(updateCrowdMapLayer.wasCalled(sessionIds));
+
+  t.end();
+});
+
+test('when crowd map layer resolution is submitted it delegates to service to update layer with passed session ids', t => {
+  const callbacks = [];
+  const sessionIds = [1, 2];
+  const $scope = {
+    $watch: (str, callback) => str.includes('gridResolution') ? callbacks.push(callback) : null,
     sessions: {
       sessionIds: () => sessionIds
     }
@@ -71,6 +90,10 @@ const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer }) => {
     ...map
   };
   const _updateCrowdMapLayer = updateCrowdMapLayer || {};
+  const $location = {
+    path: () => "/map_sessions"
+  };
 
-  return SessionsListCtrl(_$scope, params, null, {}, null, functionBlocker, {}, null, null, null, _map, _updateCrowdMapLayer);
-}
+  return SessionsListCtrl(_$scope, params, null, {}, null, functionBlocker, {}, null, null, null, _map, _updateCrowdMapLayer, $location);
+};
+
