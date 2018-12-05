@@ -1,11 +1,12 @@
 require "spec_helper"
 
 describe Csv::AppendNotesContent do
+  let(:subject) { described_class.new(host: "http://expample.com/") }
   let(:lines) { [] }
   let(:date) { DateTime.new(2018,8,20,11,16,44) }
   let(:latitude) { BigDecimal.new("40.68038924") }
   let(:longitude) { BigDecimal.new("-73.97631499") }
-  let(:photo_url) { /http:\/\/localhost:3000\/system\/.+jpg\?\d+$/ }
+  let(:photo_url_regexp) { /http:\/\/expample.com\/\/system\/.+jpg\?\d+$/ }
 
   it "appends correct headers" do
     note = create_note!
@@ -23,9 +24,9 @@ describe Csv::AppendNotesContent do
 
     actual_note = lines.second
 
-    expected_note = ["Example Note","2018-08-20T11:16:44",latitude,longitude,photo_url]
-    expect(actual_note[0..-2]).to eq(expected_note[0..-2])
-    expect(actual_note[-1]).to match(expected_note[-1])
+    expected_first_part_of_row = ["Example Note","2018-08-20T11:16:44",latitude,longitude]
+    expect(actual_note[0..-2]).to eq(expected_first_part_of_row)
+    expect(actual_note[-1]).to match(photo_url_regexp)
   end
 
   private
@@ -37,7 +38,7 @@ describe Csv::AppendNotesContent do
       date: date,
       latitude: latitude,
       longitude: longitude,
-      photo: File.new("#{Rails.root}/spec/support/example_photo.jpg"),
+      photo: File.new("#{Rails.root}/spec/fixtures/test.jpg"),
     )
   end
 end

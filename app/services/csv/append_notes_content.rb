@@ -1,10 +1,15 @@
 class Csv::AppendNotesContent
+  def initialize(host: Rails.application.config.secrets.fetch('HOST'))
+    @host = host
+  end
+
   def call(csv, notes)
     append_headings(csv)
     append_notes(csv, notes)
   end
 
   private
+  attr_reader :host
 
   def append_headings(csv)
     csv << %w(Note Time Latitude Longitude Photo_Url)
@@ -27,7 +32,6 @@ class Csv::AppendNotesContent
   def format_url(note)
     return "No photo was attached" unless note.photo_file_name
 
-    current_host_url = Rails.application.config.secrets.fetch('HOST_URL')
-    current_host_url.to_s + note.photo.url
+    host + note.photo.url
   end
 end

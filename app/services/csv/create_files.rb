@@ -28,7 +28,7 @@ class Csv::CreateFiles
     notes = @repository.find_notes(session_id)
 
     return [] unless notes.any?
-    session_title = Session.find(session_id).title
+    session_title = @repository.find_session_title(session_id)
 
     @create_notes_csv_file.call(notes, session_title, session_id)
   end

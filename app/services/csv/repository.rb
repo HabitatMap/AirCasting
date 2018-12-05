@@ -70,4 +70,14 @@ ORDER BY streams.sensor_package_name
       .where(session_id: session_id)
       .order(date: :asc)
   end
+
+  def find_session_title(session_id)
+    sql = <<-SQL
+SELECT sessions.title
+FROM `sessions`
+WHERE sessions.id= "#{session_id}"
+    SQL
+
+    ActiveRecord::Base.connection.exec_query(sql).to_hash.first["title"]
+  end
 end
