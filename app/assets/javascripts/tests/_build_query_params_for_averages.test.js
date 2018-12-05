@@ -18,12 +18,10 @@ test('when no sensor is selected it flashes a message and returns false', t => {
 });
 
 test('when one coordinate is missing in bounds it returns false', t => {
-  const map = {
-    getBounds: () => ({ west: null, east: 2, north: 3, south: 4 })
-  };
-  const service = _buildQueryParamsForAverages({ map });
+  const bounds = { west: null, east: 2, north: 3, south: 4 }
+  const service = _buildQueryParamsForAverages({});
 
-  const actual = service.call();
+  const actual = service.call(null, bounds);
 
   t.false(actual);
 
@@ -39,7 +37,7 @@ test('when time is missing in params it returns false', t => {
   };
   const service = _buildQueryParamsForAverages({ params });
 
-  const actual = service.call();
+  const actual = service.call(null, { west: 1, east: 2, north: 3, south: 4 });
 
   t.false(actual);
 
@@ -55,7 +53,7 @@ test('when heat is missing in params it returns false', t => {
   };
   const service = _buildQueryParamsForAverages({ params });
 
-  const actual = service.call();
+  const actual = service.call(null, { west: 1, east: 2, north: 3, south: 4 });
 
   t.false(actual);
 
@@ -71,7 +69,7 @@ test('when gridResolution is missing in params it returns false', t => {
   };
   const service = _buildQueryParamsForAverages({ params });
 
-  const actual = service.call();
+  const actual = service.call(null, { west: 1, east: 2, north: 3, south: 4 });
 
   t.false(actual);
 
@@ -89,9 +87,6 @@ test('when everything is present it returns params for averages', t => {
   const east = 2;
   const north = 3;
   const south = 4;
-  const map = {
-    getBounds: () => ({ west, east, north, south })
-  };
   const timeFrom = 5;
   const timeTo = 6;
   const dayFrom = 7;
@@ -115,10 +110,11 @@ test('when everything is present it returns params for averages', t => {
     normalizeTime: x => x,
     gridSizeX: x => grid_size_x
   };
-  const service = buildQueryParamsForAverages(map, sensors, params, utils);
+  const service = buildQueryParamsForAverages(sensors, params, utils);
   const sessionIds = [3, 4];
+  const bounds = { west, east, north, south };
 
-  const actual = service.call(sessionIds);
+  const actual = service.call(sessionIds, bounds);
 
   const grid_size_y = gridResolution;
   const session_ids = sessionIds;
@@ -147,7 +143,7 @@ test('when everything is present it returns params for averages', t => {
   t.end();
 });
 
-const _buildQueryParamsForAverages = ({ sensors, map, params, flash }) => {
+const _buildQueryParamsForAverages = ({ sensors, params, flash }) => {
   const sensor_name = "sensor_name";
   const measurement_type = "measurement_type";
   const unit_symbol = "unit_symbol";
@@ -159,10 +155,6 @@ const _buildQueryParamsForAverages = ({ sensors, map, params, flash }) => {
   const east = 2;
   const north = 3;
   const south = 4;
-  const _map = {
-    getBounds: () => ({ west, east, north, south }),
-    ...map
-  };
   const timeFrom = 5;
   const timeTo = 6;
   const dayFrom = 7;
@@ -189,5 +181,5 @@ const _buildQueryParamsForAverages = ({ sensors, map, params, flash }) => {
   };
   const _flash = flash || {};
 
-  return buildQueryParamsForAverages(_map, _sensors, _params, utils, _flash);
+  return buildQueryParamsForAverages(_sensors, _params, utils, _flash);
 };
