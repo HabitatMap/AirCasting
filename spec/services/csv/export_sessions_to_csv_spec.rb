@@ -51,7 +51,7 @@ describe Csv::ExportSessionsToCsv do
 		end
 	end
 
-  it "adds a file with session notes and images urls" do
+  it "adds a file with session notes and images info" do
     session = create_session!
     note = Note.create!(
       text: "Example Note",
@@ -65,14 +65,14 @@ describe Csv::ExportSessionsToCsv do
     zip_path = @subject.call([session.id])
 
     Zip::File.open(zip_path) do |zip_file|
-      actual_contents = zip_file.entries.map { |entry| entry.get_input_stream.read }
+      actual_contents = zip_file.entries.map { |entry| entry.get_input_stream.read }.last
       actual_filenames = zip_file.entries.map(&:name).join(", ")
 
       expected_filename = /notes_from_example_session_#{session.id}__.*\.csv$/
       expect(actual_filenames).to match(expected_filename)
 
-      expected_contents = ["", File.read("#{Rails.root}/spec/support/session_notes.csv")]
-      expect(actual_contents).to eq(expected_contents)
+      expected_contents = /^Note,Time,Latitude,Longitude,Photo_Url\nExample Note,2018-08-20T11:16:44,40.68038924,-73.97631499,http:\/\/aircasting.org\/system\/.+jpg\?\d+\n$/
+      expect(actual_contents).to match(expected_contents)
     end
   end
 

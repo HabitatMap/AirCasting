@@ -28,9 +28,9 @@ class Csv::CreateFiles
     notes = @repository.find_notes(session_id)
 
     return [] unless notes.any?
-    notes_data = build_notes_data(notes, session_id)
+    session_title = Session.find(session_id).title
 
-    @create_notes_csv_file.call(notes_data)
+    @create_notes_csv_file.call(notes, session_title, session_id)
   end
 
   def reduce(acc, sensor_package_name, session_id)
@@ -52,13 +52,6 @@ class Csv::CreateFiles
       "sensor_package_name" => sensor_package_name,
       "session_id" => session_id,
       "stream_parameters" => stream_parameters
-    )
-  end
-
-  def build_notes_data(notes, session_id)
-    Csv::NotesData.new(
-      "notes" => notes,
-      "session_id" => session_id
     )
   end
 end
@@ -84,11 +77,11 @@ class Csv::CreateNotesFile
     @append_notes_content = append_notes_content
   end
 
-  def call(data)
-    session_title = data.notes.first["session_title"] || ""
-    filename = "notes_from_#{session_title.parameterize('_')}_#{data.session_id}__"
+  def call(notes, session_title, session_id)
+    session_title = session_title || ""
+    filename = "notes_from_#{session_title.parameterize('_')}_#{session_id}__"
     file = Tempfile.new([filename, ".csv"])
-    csv = CSV.generate { |csv| @append_notes_content.call(csv, data) }
+    csv = CSV.generate { |csv| @append_notes_content.call(csv, notes) }
     file.write(csv)
     file.close
     file
