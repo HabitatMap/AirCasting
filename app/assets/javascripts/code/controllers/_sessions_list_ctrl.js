@@ -53,18 +53,6 @@ export const SessionsListCtrl = (
     $scope.page++;
   };
 
-  $scope.$watch("storage.data.crowdMap", function(newValue, oldValue) {
-    console.log("watch - storage.data.crowdMap");
-    // when crowd layer will be implemented for fixed we can remove the if
-    if ($location.path() === "/map_sessions") updateCrowdMapLayer.call(sessions.sessionIds());
-  }, true);
-
-  $scope.$watch("params.get('data').gridResolution", function(newValue, oldValue) {
-    console.log("watch - params.get('data').gridResolution");
-    // when crowd layer will be implemented for fixed we can remove the if
-    if ($location.path() === "/map_sessions") updateCrowdMapLayer.call(sessions.sessionIds());
-  }, true);
-
   $scope.$watch("page", () => {
     console.log("watch - page");
     sessions.fetch($scope.page);
@@ -77,8 +65,8 @@ export const SessionsListCtrl = (
     sessions.fetch($scope.page);
   }, true);
 
-  $scope.$watch("sessionFetchCondition()", () => {
-    console.log("watch - sessionFetchCondition()");
+  $scope.$watch("sessionFetchCondition()", (newValue, oldValue) => {
+    console.log("watch - sessionFetchCondition()", newValue, oldValue);
     if (sessions.hasSelectedSessions()) return;
     $scope.page = 0;
     sessions.fetch($scope.page);

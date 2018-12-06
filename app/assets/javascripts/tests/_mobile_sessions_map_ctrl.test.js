@@ -43,7 +43,8 @@ test('it updates defaults', t => {
     location: {address: ""},
     tags: "",
     usernames: "",
-    gridResolution: 25
+    gridResolution: 25,
+    crowdMap: false
   };
   t.deepEqual(defaults, expected);
 

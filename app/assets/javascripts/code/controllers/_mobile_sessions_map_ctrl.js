@@ -50,7 +50,8 @@ export const MobileSessionsMapCtrl = (
       location: {address: ""},
       tags: "",
       usernames: "",
-      gridResolution: 25
+      gridResolution: 25,
+      crowdMap: false
     });
 
     $scope.minResolution = 10;

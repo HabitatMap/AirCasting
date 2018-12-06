@@ -43,6 +43,15 @@ export const storage = (params, $rootScope, utils) => {
       }
       params.update({data: obj});
     },
+    updateCrowdMapLayer: function() {
+      params.update({
+        data: {
+          ...this.data,
+          gridResolution: this.get('gridResolution'),
+          crowdMap: this.get('crowdMap')
+        }
+      });
+    },
     updateWithRefresh: function(name) {
       //be carefull when using this - currently it is only for location data
       this.refreshCounter();
@@ -60,6 +69,11 @@ export const storage = (params, $rootScope, utils) => {
     resetAddress: function() {
       this.data.location = { ...this.data.location, address: '' };
       this.update('location');
+    },
+    resetCrowdMapLayer: function() {
+      this.data.gridResolution = this.defaults.gridResolution;
+      this.data.crowdMap = this.defaults.crowdMap;
+      this.updateCrowdMapLayer();
     },
     updateDefaults: function(newData) {
       this.defaults = utils.merge(this.defaults, newData);
