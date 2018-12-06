@@ -28,16 +28,16 @@ test('when the request for the averages fails it flashes an error', t => {
 
 test('it delegates building the query param to a service passing it the session ids', t => {
   const calls = [];
-  const buildQueryParamsForAverages = {
+  const buildQueryParamsForCrowdMapLayer = {
     call: arg => { calls.push(arg); return false },
     wasCalledWith: arg => calls[calls.length - 1] === arg
   };
-  const service = _updateCrowdMapLayer({ buildQueryParamsForAverages });
+  const service = _updateCrowdMapLayer({ buildQueryParamsForCrowdMapLayer });
   const sessionIds = [1, 2];
 
   service.call(sessionIds);
 
-  t.true(buildQueryParamsForAverages.wasCalledWith(sessionIds));
+  t.true(buildQueryParamsForCrowdMapLayer.wasCalledWith(sessionIds));
 
   t.end();
 });
@@ -74,14 +74,55 @@ test('when the request for the averages succeeds and the app is on the mobile ta
   t.end();
 });
 
-test('when buildQueryParamsForAverages return false it does not request the averages', t => {
-  const buildQueryParamsForAverages = { call: () => false };
+test('when buildQueryParamsForCrowdMapLayer return false it does not request the averages', t => {
+  const buildQueryParamsForCrowdMapLayer = { call: () => false };
   const $http = mock('get');
-  const service = _updateCrowdMapLayer({ $http, buildQueryParamsForAverages });
+  const service = _updateCrowdMapLayer({ $http, buildQueryParamsForCrowdMapLayer });
 
   service.call();
 
   t.false($http.wasCalled());
+
+  t.end();
+});
+
+test('when the request for the averages succeeds and the app is on the mobile tab it passes a callback to drawRectangles', t => {
+  const map = {
+    clearRectangles: () => {},
+    drawRectangles: (_a, _b, callback) => { callback() }
+  };
+  const $http = mockHttp({ shouldFail: false });
+  const $location = { path: () => "/map_sessions" };
+  const rectangles ={
+    position: () => {}
+  };
+  const infoWindow = mock('show');
+  const service = _updateCrowdMapLayer({ map, $http, $location, infoWindow, rectangles });
+
+  service.call();
+
+  t.true(infoWindow.wasCalled());
+
+  t.end();
+});
+
+test('when the request for the averages succeeds and the app is on the mobile tab it passes a callback to drawRectangles with query params for averages', t => {
+  const map = {
+    clearRectangles: () => {},
+    drawRectangles: (_a, _b, callback) => { callback() }
+  };
+  const $http = mockHttp({ shouldFail: false });
+  const $location = { path: () => "/map_sessions" };
+  const infoWindow = mock('show');
+  const queryParamsForAverages = {};
+  const buildQueryParamsForCrowdMapLayer = {
+    call: () => queryParamsForAverages
+  };
+  const service = _updateCrowdMapLayer({ map, $http, buildQueryParamsForCrowdMapLayer, $location, infoWindow });
+
+  service.call();
+
+  t.true(infoWindow.wasCalledWith2(queryParamsForAverages));
 
   t.end();
 });
@@ -101,18 +142,19 @@ const mockHttp = ({ shouldFail }) => {
   };
 };
 
-const _updateCrowdMapLayer = ({ storage, map, $http, flash, buildQueryParamsForAverages, $location }) => {
+const _updateCrowdMapLayer = ({ storage, map, $http, flash, buildQueryParamsForCrowdMapLayer, $location, infoWindow, rectangles }) => {
   const _storage = {
     isCrowdMapLayerOn: () => true,
     ...storage
   };
   const _map = {
     clearRectangles: () => {},
+    getBounds: () => {},
     ...map
   };
-  const _buildQueryParamsForAverages = {
+  const _buildQueryParamsForCrowdMapLayer = {
     call: () => ({}),
-    ...buildQueryParamsForAverages
+    ...buildQueryParamsForCrowdMapLayer
   };
   const params = {
     get: () => ({})
@@ -120,6 +162,9 @@ const _updateCrowdMapLayer = ({ storage, map, $http, flash, buildQueryParamsForA
   const utils = {
     heats: x => x
   };
+  const _rectangles = {
+    position: () => {}
+  };
 
-  return updateCrowdMapLayer(_storage, _map, $http, _buildQueryParamsForAverages, flash, $location, params, utils);
+  return updateCrowdMapLayer(_storage, _map, $http, _buildQueryParamsForCrowdMapLayer, flash, $location, params, utils, infoWindow, _rectangles);
 };
