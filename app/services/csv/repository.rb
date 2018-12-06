@@ -66,9 +66,7 @@ ORDER BY streams.sensor_package_name
   end
 
   def find_notes(session_id)
-    Note.select([:date, :text, :longitude, :latitude, :photo_file_name, :photo_updated_at])
-      .where(session_id: session_id)
-      .order(date: :asc)
+    Note.where(session_id: session_id).order(date: :asc)
   end
 
   def find_session_title(session_id)
