@@ -66,16 +66,16 @@ ORDER BY streams.sensor_package_name
   end
 
   def find_notes(session_id)
+    Note.where(session_id: session_id).order(date: :asc)
+  end
+
+  def find_session_title(session_id)
     sql = <<-SQL
-SELECT notes.date, notes.text, notes.longitude, notes.latitude,
-       sessions.title as session_title
-FROM `notes`
-INNER JOIN `sessions`
-ON `notes`.`session_id` = `sessions`.`id`
-WHERE sessions.id = "#{session_id}"
-ORDER BY notes.date ASC
+SELECT sessions.title
+FROM `sessions`
+WHERE sessions.id= "#{session_id}"
     SQL
 
-    ActiveRecord::Base.connection.exec_query(sql).to_hash
+    ActiveRecord::Base.connection.exec_query(sql).to_hash.first["title"]
   end
 end

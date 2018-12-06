@@ -1,54 +1,44 @@
 require "spec_helper"
 
 describe Csv::AppendNotesContent do
+  let(:subject) { described_class.new(host: "http://expample.com/") }
   let(:lines) { [] }
   let(:date) { DateTime.new(2018,8,20,11,16,44) }
   let(:latitude) { BigDecimal.new("40.68038924") }
   let(:longitude) { BigDecimal.new("-73.97631499") }
-  let(:note1) { { "text" => "Example Note", "date" => date, "latitude" => latitude, "longitude" => longitude, } }
-  let(:note_with_comma) { { "text" => 'Example, Note', "date" => date, "latitude" => latitude, "longitude" => longitude, } }
-  let(:note2) { { "text" => "Example Note 2", "date" => date, "latitude" => latitude, "longitude" => longitude, } }
-  let(:expected_headers) { %w(Note Time Latitude Longitude) }
+  let(:photo_url_regexp) { /http:\/\/expample.com\/\/system\/.+jpg\?\d+$/ }
 
   it "appends correct headers" do
-    data = build_data([note1])
-    subject.call(lines, data)
+    note = create_note!
+    subject.call(lines, [note])
 
     actual_headers = lines.first
 
+    expected_headers = %w(Note Time Latitude Longitude Photo_Url)
     expect(actual_headers).to eq(expected_headers)
   end
 
-  it "appends the content of the note" do
-    data = build_data([note1])
-    subject.call(lines, data)
+  it "appends note and image info" do
+    note = create_note!
+    subject.call(lines, [note])
 
     actual_note = lines.second
 
-    expected_note = ["Example Note","2018-08-20T11:16:44",latitude,longitude]
-    expect(actual_note).to eq(expected_note)
-  end
-
-  it "appends correct content" do
-    data = build_data([note1, note2])
-    subject.call(lines, data)
-
-    actual_content = lines
-
-    expected_content = [
-      expected_headers,
-      ["Example Note","2018-08-20T11:16:44",latitude,longitude],
-      ["Example Note 2","2018-08-20T11:16:44",latitude,longitude],
-    ]
-    expect(actual_content).to eq(expected_content)
+    expected_first_part_of_row = ["Example Note","2018-08-20T11:16:44",latitude,longitude]
+    expect(actual_note[0..-2]).to eq(expected_first_part_of_row)
+    expect(actual_note[-1]).to match(photo_url_regexp)
   end
 
   private
 
-  def build_data(notes)
-    Csv::NotesData.new(
-      "notes" => notes,
-      "session_id" => 123
+  def create_note!
+    Note.create!(
+      session: Session.new,
+      text: "Example Note",
+      date: date,
+      latitude: latitude,
+      longitude: longitude,
+      photo: File.new("#{Rails.root}/spec/fixtures/test.jpg"),
     )
   end
 end

@@ -40,8 +40,8 @@ describe Csv::ExportSessionsToCsv do
     zip_path = @subject.call([session.id])
 
 		Zip::File.open(zip_path) do |zip_file|
-      actual_contents = zip_file.entries.map { |entry| entry.get_input_stream.read }
-      actual_filenames = zip_file.entries.map(&:name).join(", ")
+      actual_contents = file_content(zip_file)
+      actual_filenames = file_names(zip_file)
 
       expected_filename = /example_session_#{session.id}__.*\.csv$/
       expect(actual_filenames).to match(expected_filename)
@@ -51,27 +51,28 @@ describe Csv::ExportSessionsToCsv do
 		end
 	end
 
-  it "adds a file with session notes" do
+  it "adds a file with session notes and images info" do
     session = create_session!
     note = Note.create!(
       text: "Example Note",
       date: DateTime.new(2018,8,20,11,16,44),
       latitude: BigDecimal.new("40.68038924"),
       longitude: BigDecimal.new("-73.97631499"),
+      photo: File.new("#{Rails.root}/spec/fixtures/test.jpg"),
       session: session,
     )
 
     zip_path = @subject.call([session.id])
 
     Zip::File.open(zip_path) do |zip_file|
-      actual_contents = zip_file.entries.map { |entry| entry.get_input_stream.read }
-      actual_filenames = zip_file.entries.map(&:name).join(", ")
+      actual_contents = file_content(zip_file).last
+      actual_filenames = file_names(zip_file)
 
       expected_filename = /notes_from_example_session_#{session.id}__.*\.csv$/
       expect(actual_filenames).to match(expected_filename)
 
-      expected_contents = ["", File.read("#{Rails.root}/spec/support/session_notes.csv")]
-      expect(actual_contents).to eq(expected_contents)
+      expected_contents = /^Note,Time,Latitude,Longitude,Photo_Url\nExample Note,2018-08-20T11:16:44,40.68038924,-73.97631499,http:\/\/localhost:3000\/\/system\/.+jpg\?\d+\n$/
+      expect(actual_contents).to match(expected_contents)
     end
   end
 
@@ -116,5 +117,15 @@ describe Csv::ExportSessionsToCsv do
       milliseconds: attributes.fetch(:milliseconds),
       stream: attributes.fetch(:stream)
     )
+  end
+
+  def file_content(zip_file)
+    zip_file.entries.map do |entry|
+      entry.get_input_stream.read
+    end
+  end
+
+  def file_names(zip_file)
+    zip_file.entries.map(&:name).join(", ")
   end
 end

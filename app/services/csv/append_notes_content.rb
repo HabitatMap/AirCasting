@@ -1,26 +1,37 @@
 class Csv::AppendNotesContent
-  def call(csv, data)
+  def initialize(host: Rails.application.config.secrets.fetch('HOST'))
+    @host = host
+  end
+
+  def call(csv, notes)
     append_headings(csv)
-    append_notes(csv, data)
+    append_notes(csv, notes)
   end
 
   private
+  attr_reader :host
 
   def append_headings(csv)
-    csv << %w(Note Time Latitude Longitude)
+    csv << %w(Note Time Latitude Longitude Photo_Url)
   end
 
-  def append_notes(csv, data)
-    data.notes.each do |note|
+  def append_notes(csv, notes)
+    notes.each do |note|
       append_note(csv, note)
     end
   end
 
   def append_note(csv, note)
-    csv << [note["text"], format_time(note["date"]), note["latitude"], note["longitude"]]
+    csv << [note.text, format_time(note.date), note.latitude, note.longitude, format_url(note)]
   end
 
   def format_time(date)
     date.strftime("%FT%T")
+  end
+
+  def format_url(note)
+    return "No photo was attached" unless note.photo_file_name
+
+    host + note.photo.url
   end
 end
