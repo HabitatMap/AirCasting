@@ -1,4 +1,4 @@
-export const buildQueryParamsForAverages = (
+export const buildQueryParamsForCrowdMapLayer = (
   sensors,
   params,
   utils,

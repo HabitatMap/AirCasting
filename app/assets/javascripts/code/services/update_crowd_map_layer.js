@@ -4,7 +4,7 @@ angular.module("aircasting").factory('updateCrowdMapLayer', [
   'storage',
   'map',
   '$http',
-  'buildQueryParamsForAverages',
+  'buildQueryParamsForCrowdMapLayer',
   'flash',
   '$location',
   'params',

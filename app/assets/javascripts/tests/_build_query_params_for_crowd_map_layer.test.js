@@ -1,13 +1,13 @@
 import test from 'blue-tape';
 import { mock } from './helpers';
-import { buildQueryParamsForAverages } from '../code/services/_build_query_params_for_averages';
+import { buildQueryParamsForCrowdMapLayer } from '../code/services/_build_query_params_for_crowd_map_layer';
 
 test('when no sensor is selected it flashes a message and returns false', t => {
   const sensors = {
     selected: () => false
   };
   const flash = mock('set');
-  const service = _buildQueryParamsForAverages({ sensors, flash });
+  const service = _buildQueryParamsForCrowdMapLayer({ sensors, flash });
 
   const actual = service.call();
 
@@ -19,7 +19,7 @@ test('when no sensor is selected it flashes a message and returns false', t => {
 
 test('when one coordinate is missing in bounds it returns false', t => {
   const bounds = { west: null, east: 2, north: 3, south: 4 }
-  const service = _buildQueryParamsForAverages({});
+  const service = _buildQueryParamsForCrowdMapLayer({});
 
   const actual = service.call(null, bounds);
 
@@ -35,7 +35,7 @@ test('when time is missing in params it returns false', t => {
       gridResolution: 123
     })
   };
-  const service = _buildQueryParamsForAverages({ params });
+  const service = _buildQueryParamsForCrowdMapLayer({ params });
 
   const actual = service.call(null, { west: 1, east: 2, north: 3, south: 4 });
 
@@ -51,7 +51,7 @@ test('when heat is missing in params it returns false', t => {
       gridResolution: 123
     })
   };
-  const service = _buildQueryParamsForAverages({ params });
+  const service = _buildQueryParamsForCrowdMapLayer({ params });
 
   const actual = service.call(null, { west: 1, east: 2, north: 3, south: 4 });
 
@@ -67,7 +67,7 @@ test('when gridResolution is missing in params it returns false', t => {
       heat: {}
     })
   };
-  const service = _buildQueryParamsForAverages({ params });
+  const service = _buildQueryParamsForCrowdMapLayer({ params });
 
   const actual = service.call(null, { west: 1, east: 2, north: 3, south: 4 });
 
@@ -110,7 +110,7 @@ test('when everything is present it returns params for averages', t => {
     normalizeTime: x => x,
     gridSizeX: x => grid_size_x
   };
-  const service = buildQueryParamsForAverages(sensors, params, utils);
+  const service = buildQueryParamsForCrowdMapLayer(sensors, params, utils);
   const sessionIds = [3, 4];
   const bounds = { west, east, north, south };
 
@@ -143,7 +143,7 @@ test('when everything is present it returns params for averages', t => {
   t.end();
 });
 
-const _buildQueryParamsForAverages = ({ sensors, params, flash }) => {
+const _buildQueryParamsForCrowdMapLayer = ({ sensors, params, flash }) => {
   const sensor_name = "sensor_name";
   const measurement_type = "measurement_type";
   const unit_symbol = "unit_symbol";
@@ -181,5 +181,5 @@ const _buildQueryParamsForAverages = ({ sensors, params, flash }) => {
   };
   const _flash = flash || {};
 
-  return buildQueryParamsForAverages(_sensors, _params, utils, _flash);
+  return buildQueryParamsForCrowdMapLayer(_sensors, _params, utils, _flash);
 };
