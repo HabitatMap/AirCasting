@@ -4,6 +4,5 @@ angular.module("aircasting").factory('buildQueryParamsForCrowdMapLayer', [
   'sensors',
   'params',
   'utils',
-  'flash',
   buildQueryParamsForCrowdMapLayer
 ]);

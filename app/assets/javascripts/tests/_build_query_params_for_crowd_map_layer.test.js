@@ -2,16 +2,14 @@ import test from 'blue-tape';
 import { mock } from './helpers';
 import { buildQueryParamsForCrowdMapLayer } from '../code/services/_build_query_params_for_crowd_map_layer';
 
-test('when no sensor is selected it flashes a message and returns false', t => {
+test('when no sensor is selected it returns false', t => {
   const sensors = {
     selected: () => false
   };
-  const flash = mock('set');
-  const service = _buildQueryParamsForCrowdMapLayer({ sensors, flash });
+  const service = _buildQueryParamsForCrowdMapLayer({ sensors });
 
   const actual = service.call();
 
-  t.true(flash.wasCalled());
   t.false(actual);
 
   t.end();
@@ -143,7 +141,7 @@ test('when everything is present it returns params for averages', t => {
   t.end();
 });
 
-const _buildQueryParamsForCrowdMapLayer = ({ sensors, params, flash }) => {
+const _buildQueryParamsForCrowdMapLayer = ({ sensors, params }) => {
   const sensor_name = "sensor_name";
   const measurement_type = "measurement_type";
   const unit_symbol = "unit_symbol";
@@ -179,7 +177,6 @@ const _buildQueryParamsForCrowdMapLayer = ({ sensors, params, flash }) => {
     normalizeTime: x => x,
     gridSizeX: x => grid_size_x
   };
-  const _flash = flash || {};
 
-  return buildQueryParamsForCrowdMapLayer(_sensors, _params, utils, _flash);
+  return buildQueryParamsForCrowdMapLayer(_sensors, _params, utils);
 };

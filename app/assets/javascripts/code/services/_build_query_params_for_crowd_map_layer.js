@@ -1,14 +1,10 @@
 export const buildQueryParamsForCrowdMapLayer = (
   sensors,
   params,
-  utils,
-  flash
+  utils
 ) => ({
   call: (sessionIds, bounds) => {
-    if (!sensors.selected()) {
-      flash.set('You need to select parameter / sensor');
-      return false;
-    }
+    if (!sensors.selected()) return false;
     if (!hasTruthyValues(bounds)) return false;
     const data = params.get('data');
     if (!data.time) return false;
