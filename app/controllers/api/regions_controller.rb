@@ -17,6 +17,7 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 require_dependency 'region_info'
+require_dependency 'region_info2'
 
 module Api
   class RegionsController < BaseController
@@ -27,6 +28,34 @@ module Api
       end
 
       respond_with RegionInfo.new(data)
+    end
+
+    FLOAT_Q_ATTRS = [:north, :south, :east, :west]
+    INT_Q_ATTRS = [
+      :time_from, :time_to,
+      :day_from, :day_to,
+      :year_from, :year_to,
+      :grid_size_x, :grid_size_y
+    ]
+
+    def show2
+      data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
+
+      FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
+      INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
+
+      data[:time_from] = data[:time_from] || 0
+      data[:time_to] = data[:time_to] || 2359
+
+      data[:day_from] = data[:day_from] || 0
+      data[:day_to] = data[:day_to] || 365
+
+      data[:year_from] = data[:year_from] || 2010
+      data[:year_to] = data[:year_to] || 2050
+
+      data[:session_ids] ||= []
+
+      respond_with RegionInfo2.new(data)
     end
   end
 end

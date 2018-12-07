@@ -38,5 +38,5 @@ const onAveragesFetch = ($location, map, params, utils, _onRectangleClick) => da
 };
 
 const onRectangleClick = (infoWindow, rectangles, sessionIds, buildQueryParamsForCrowdMapLayer) => rectangleData => {
-  infoWindow.show("/api/region", buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData), rectangles.position(rectangleData));
+  infoWindow.show("/api/region2", { q: buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData) }, rectangles.position(rectangleData));
 };

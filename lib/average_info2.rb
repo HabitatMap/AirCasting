@@ -38,8 +38,8 @@ class AverageInfo2
       group("middle_x").
       group("middle_y").
       in_rectangle(data).
-      with_time(data)#.
-      #belonging_to_sessions_with_ids(data[:session_ids])
+      with_time(data).
+      belonging_to_sessions_with_ids(data[:session_ids])
   end
 
   def stream_ids

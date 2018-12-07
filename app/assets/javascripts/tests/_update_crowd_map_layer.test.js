@@ -122,7 +122,7 @@ test('when the request for the averages succeeds and the app is on the mobile ta
 
   service.call();
 
-  t.true(infoWindow.wasCalledWith2(queryParamsForAverages));
+  t.true(infoWindow.wasCalledWith2({ q: queryParamsForAverages }));
 
   t.end();
 });

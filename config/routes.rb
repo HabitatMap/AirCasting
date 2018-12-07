@@ -54,6 +54,7 @@ AirCasting::Application.routes.draw do
     resources :thresholds, only: [:show], id: /.*/
     resources :regressions, only: [:create, :index, :destroy]
     resource :region, only: [:show]
+    get "region2" => "regions#show2"
     resource  :user, only: [:show, :create] do
       resources :sessions, only: [:show], controller: "user_sessions" do
         collection do
