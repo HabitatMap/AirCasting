@@ -10,7 +10,7 @@ export const drawSession = (
   };
 
   DrawSession.prototype = {
-    drawMobileSession: function(session, bounds) {
+    drawMobileSession: function(session) {
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
@@ -41,7 +41,7 @@ export const drawSession = (
       session.drawed = true;
     },
 
-    drawFixedSession: function(session, bounds) {
+    drawFixedSession: function(session) {
       this.undoDraw(session);
       session.markers = [];
       session.noteDrawings = [];
@@ -50,7 +50,7 @@ export const drawSession = (
       var level;
 
       if (sensors.anySelected() && !sensors.tmpSelected() && session.last_hour_average) {
-        level = this.calculateHeatLevel(session.last_hour_average);
+        level = this._calculateHeatLevel(session.last_hour_average);
       } else {
         level = 0;
       }
@@ -61,7 +61,21 @@ export const drawSession = (
       return session.markers;
     },
 
-    calculateHeatLevel: function(value) {
+    drawMobileSessionStartPoint: function(session) {
+      if(!session || !sensors.anySelected()){
+        return;
+      }
+      this.undoDraw(session);
+
+      session.markers = [];
+      var markerOptions = {title: session.title, zIndex: 0};
+      var lngLatObject = { longitude: session.starting_longitude, latitude: session.starting_latitude }
+      session.markers.push(map.drawMarker(lngLatObject, markerOptions, null, "0"));
+
+      session.drawed = true;
+    },
+
+    _calculateHeatLevel: function(value) {
       return heat.getLevel(value);
     },
 

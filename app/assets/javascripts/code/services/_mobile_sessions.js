@@ -62,9 +62,11 @@ export const mobileSessions = (
 
     sessionsChanged: function (newIds, oldIds) { sessionsUtils.sessionsChanged(this, newIds, oldIds); },
 
-    onSessionsFetch: function() { sessionsUtils.onSessionsFetch(this); },
 
-
+    onSessionsFetch: function() {
+      this.drawSessionsInLocation();
+      sessionsUtils.onSessionsFetch(this);
+    },
 
     onSessionsFetchWithCrowdMapLayerUpdate: function() {
       this.onSessionsFetch();
@@ -81,12 +83,13 @@ export const mobileSessions = (
     },
 
     selectSession: function(id) {
+      drawSession.clear(this.sessions);
       const callback = (session, allSelected) => (data) => {
         prevMapPosition = {
           bounds: map.getBounds(),
           zoom: map.getZoom()
         };
-        const draw = () => drawSession.drawMobileSession(session, boundsCalculator(allSelected));
+        const draw = () => drawSession.drawMobileSession(session);
         map.fitBounds(boundsCalculator(allSelected));
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
@@ -94,11 +97,18 @@ export const mobileSessions = (
     },
 
     reSelectSession: function(id) {
+      // I think this is never used since we blocked the button to select all sessions
+      drawSession.clear(this.sessions);
       const callback = (session, allSelected) => (data) => {
-        const draw = () => drawSession.drawMobileSession(session, boundsCalculator(allSelected));
+        const draw = () => drawSession.drawMobileSession(session);
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
       this._selectSession(id, callback);
+    },
+
+    drawSessionsInLocation: function() {
+      map.markers = [];
+      _(this.get()).each(session => drawSession.drawMobileSessionStartPoint(session));
     },
 
     _selectSession: function(id, callback) {
