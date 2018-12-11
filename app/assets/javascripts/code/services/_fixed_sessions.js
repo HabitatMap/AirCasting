@@ -129,7 +129,7 @@ export const fixedSessions = (
 
     drawSessionsInLocation: function() {
       map.markers = [];
-      _(this.get()).each(session => drawSession.drawFixedSession(session, boundsCalculator(this.sessions)));
+      _(this.get()).each(session => drawSession.drawFixedSession(session));
     },
 
     _fetch: function(page) {

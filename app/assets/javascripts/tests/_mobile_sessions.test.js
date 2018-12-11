@@ -295,6 +295,20 @@ test('hasSelectedSessions with selected session returns true', t => {
   t.end();
 });
 
+test('drawSessionsInLocation calls drawSession.drawMobileSessionStartPoint', t => {
+  const session = "session"
+  const sessions = { session1: session }
+  const sessionsUtils = { get: () => (sessions) };
+  const drawSession = mock('drawMobileSessionStartPoint');
+  const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils });
+
+  mobileSessionsService.drawSessionsInLocation();
+
+  t.true(drawSession.wasCalledWith(session));
+
+  t.end();
+});
+
 const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
 
 const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
