@@ -50,7 +50,7 @@ export const drawSession = (
       var level;
 
       if (sensors.anySelected() && !sensors.tmpSelected() && session.last_hour_average) {
-        level = this._calculateHeatLevel(session.last_hour_average);
+        level = this.calculateHeatLevel(session.last_hour_average);
       } else {
         level = 0;
       }
@@ -62,21 +62,11 @@ export const drawSession = (
     },
 
     drawMobileSessionStartPoint: function(session) {
-      if(!session || !sensors.anySelected()){
-        return;
-      }
       this.undoDraw(session);
 
-      session.markers = [];
-      var markerOptions = {title: session.title, zIndex: 0};
-      var lngLatObject = { longitude: session.starting_longitude, latitude: session.starting_latitude }
+      var markerOptions = map.defaultMarkerOptions;
+      var lngLatObject = { longitude: session.startingLongitude, latitude: session.startingLatitude }
       session.markers.push(map.drawMarker(lngLatObject, markerOptions, null, "0"));
-
-      session.drawed = true;
-    },
-
-    _calculateHeatLevel: function(value) {
-      return heat.getLevel(value);
     },
 
     undoDraw: function(session, mapPosition) {
@@ -125,4 +115,8 @@ export const drawSession = (
     }
   };
   return new DrawSession();
-}
+};
+
+function calculateHeatLevel(value) {
+  return heat.getLevel(value);
+};

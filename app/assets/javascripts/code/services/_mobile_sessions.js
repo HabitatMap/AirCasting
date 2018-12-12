@@ -108,7 +108,15 @@ export const mobileSessions = (
 
     drawSessionsInLocation: function() {
       map.markers = [];
-      _(this.get()).each(session => drawSession.drawMobileSessionStartPoint(session));
+      if(sensors.anySelected()) {
+        (this.get()).forEach(session => this.drawSessionInLocation(session));
+      }
+    },
+
+    drawSessionInLocation: function(session) {
+      session.markers = [];
+      drawSession.drawMobileSessionStartPoint(session);
+      session.drawed = true;
     },
 
     _selectSession: function(id, callback) {
