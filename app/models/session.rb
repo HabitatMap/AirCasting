@@ -210,7 +210,7 @@ class Session < ActiveRecord::Base
     end
 
     first_measurement = fetch_first_measurement_coordinates
-    res.merge!(:starting_longitude => first_measurement.longitude, :starting_latitude => first_measurement.latitude)
+    res.merge!(:startingLongitude => first_measurement.longitude, :startingLatitude => first_measurement.latitude)
 
     res.merge!(:streams => map_of_streams)
 
