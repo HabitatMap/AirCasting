@@ -1,12 +1,4 @@
 export const sensors = (params, $http) => {
-  function hasChangedToAll(newValue) {
-    return !newValue;
-  }
-  function max(valueOf, xs) {
-    var reducer = function(acc, x) { return valueOf(x) > valueOf(acc) ? x : acc };
-    return xs.reduce(reducer, xs[0]);
-  }
-
   var Sensors = function() {
     this.sensors = {};
     this.candidateSelectedSensorId = undefined;
@@ -169,3 +161,9 @@ export const sensors = (params, $http) => {
   return new Sensors();
 };
 
+const hasChangedToAll = newValue => !newValue;
+
+const max = (valueOf, xs) => {
+  const reducer = (acc, x) => valueOf(x) > valueOf(acc) ? x : acc;
+  return xs.reduce(reducer, xs[0]);
+};
