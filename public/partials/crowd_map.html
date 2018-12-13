@@ -5,7 +5,7 @@
       <select ng-model="sensors.selectedParameter" ng-options="parameter as parameter.label for parameter in sensors.availableParameters track by parameter.id" />
     </p>
     <p>
-      <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for (sensorId, sensor) in sensors.availableSensors" />
+      <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for sensor in sensors.availableSensors">
     </p>
   </section>
 

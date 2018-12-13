@@ -1,3 +1,5 @@
+import _ from 'underscore';
+
 export const sensors = (params, $http) => {
   var Sensors = function() {
     this.sensors = {};
@@ -9,10 +11,11 @@ export const sensors = (params, $http) => {
       unit_symbol:      "µg/m³"
     });
 
-    this.availableSensors = {};
+    this.availableSensors = [];
     this.defaultParameter = {id: "Particulate Matter", label: "Particulate Matter"};
     this.selectedParameter = {};
-    this.availableParameters = {};
+    // [{label: "Activity Level", id: "Activity Level"}, ...]
+    this.availableParameters = [];
   };
   Sensors.prototype = {
     setSensors : function(data, status, headers, config) {
@@ -31,18 +34,7 @@ export const sensors = (params, $http) => {
       });
       this.sensors = sensors;
 
-      // Parameters
-      var availableParameters = _.uniq(_(this.sensors).map(function(sensor) {
-        return sensor.measurement_type
-      }));
-      availableParameters = _.sortBy(availableParameters)
-      availableParameters = _.map(availableParameters, function(availableParameter) {
-        return ({
-          label: availableParameter,
-          id: availableParameter
-        });
-      })
-      this.availableParameters = availableParameters;
+      this.availableParameters = buildAvailableParameters(this.sensors);
 
       // Initialize UI
       this.initSelected();
@@ -58,7 +50,7 @@ export const sensors = (params, $http) => {
         console.log('initSelected() - sensorId is NOT null')
       }
       this.selectedParameter = self.findParameterForSensor(self.selected());
-      this.availableSensors = self.findAvailableSensorsForParameter(self.selectedParameter);
+      this.availableSensors = findAvailableSensorsForParameter(sort, this.sensors, self.selectedParameter);
     },
 
     //selected in dropdown
@@ -104,24 +96,17 @@ export const sensors = (params, $http) => {
         return null;
       }
     },
-    findAvailableSensorsForParameter: function(parameter) {
-      if (parameter) {
-        return _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == parameter["id"]})
-      } else {
-        return this.sensors;
-      }
-    },
     onSelectedParameterChange: function(selectedParameter, oldValue) {
       console.log('onSelectedParameterChange() - ', selectedParameter)
       if (selectedParameter === oldValue) return; // first angular watch run
       params.update({selectedSessionIds: []});
       if (hasChangedToAll(selectedParameter)) {
-        this.availableSensors = this.sensors;
+        this.availableSensors = sort(Object.values(this.sensors));
         params.update({data: {sensorId: ""}});
       } else {
-        this.availableSensors = _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == selectedParameter["id"]})
-        var sensor = max(function(sensor) { return sensor.session_count; }, this.availableSensors) || { id: null };
-        params.update({data: {sensorId: sensor.id}});
+        this.availableSensors = sort(Object.values(this.sensors).filter(sensor => sensor.measurement_type === selectedParameter.id));
+        const sensorId = defaultSensorIdForParameter(selectedParameter, this.availableSensors);
+        params.update({ data: { sensorId }});
       }
     },
     onSelectedSensorChange: function(newSensorId) {
@@ -134,7 +119,7 @@ export const sensors = (params, $http) => {
       this.selectedParameter = parameterForSensor;
     },
     buildSensorId: function(sensor) {
-      return sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
+      return buildSensorId(sensor);
     },
     onSensorsSelectedIdChange: function(newValue, oldValue, callback) {
       console.log("onSensorsSelectedIdChange - ", newValue, " - ", oldValue);
@@ -163,3 +148,76 @@ const max = (valueOf, xs) => {
   const reducer = (acc, x) => valueOf(x) > valueOf(acc) ? x : acc;
   return xs.reduce(reducer, xs[0]);
 };
+
+export const findAvailableSensorsForParameter = (sort, sensors, parameter) =>
+  parameter ?
+    sort(Object.values(sensors).filter(sensor => sensor.measurement_type === parameter.id)) :
+    sort(Object.values(sensors));
+
+export const sort = sensors => {
+  const ORDERS = {
+    "Particulate Matter-AirBeam2-PM2.5 (µg/m³)": 4,
+    "Particulate Matter-AirBeam2-PM1 (µg/m³)": 3,
+    "Particulate Matter-AirBeam2-PM10 (µg/m³)": 2,
+    "Particulate Matter-AirBeam-PM (µg/m³)": 1,
+    "Humidity-AirBeam2-RH (%)": 2,
+    "Humidity-AirBeam-RH (%)": 1,
+    "Temperature-AirBeam2-F (F)": 2,
+    "Temperature-AirBeam-F (F)": 1,
+    "Sound Level-Phone Microphone (dB)": 1
+  };
+
+  const compare = (sensor1, sensor2) => {
+    if (ORDERS[sensor1.id] && ORDERS[sensor2.id]) {
+      return ORDERS[sensor2.id] - ORDERS[sensor1.id];
+    } else if (ORDERS[sensor1.id]) {
+      return -1;
+    } else if (ORDERS[sensor2.id]) {
+      return +1;
+    } else {
+      return sensor2.session_count - sensor1.session_count;
+    }
+  }
+
+  return sensors.sort(compare);
+}
+
+const buildSensorId = sensor =>
+  sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
+
+export const defaultSensorIdForParameter = (parameter, sensors) => {
+  const DEFAULT_IDS = {
+    "Particulate Matter": buildSensorId({
+      measurement_type: "Particulate Matter",
+      sensor_name:      "AirBeam2-PM2.5",
+      unit_symbol:      "µg/m³"
+    }),
+    "Humidity": buildSensorId({
+      measurement_type: "Humidity",
+      sensor_name:      "AirBeam2-RH",
+      unit_symbol:      "%"
+    }),
+    "Temperature": buildSensorId({
+      measurement_type: "Temperature",
+      sensor_name:      "AirBeam2-F",
+      unit_symbol:      "F"
+    }),
+    "Sound Level": buildSensorId({
+      measurement_type: "Sound Level",
+      sensor_name:      "Phone Microphone",
+      unit_symbol:      "dB"
+    })
+  };
+
+  return DEFAULT_IDS[parameter.id] || max(sensor => sensor.session_count, sensors).id;
+};
+
+export const buildAvailableParameters = sensors => {
+  const uniq = (v, i, a) => a.indexOf(v) === i;
+
+  return Object.values(sensors)
+    .sort((a, b) => b.session_count - a.session_count)
+    .map(sensor => sensor.measurement_type)
+    .filter(uniq)
+    .map(measurementType => ({ label: measurementType, id: measurementType }))
+}
