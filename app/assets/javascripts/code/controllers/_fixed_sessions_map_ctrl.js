@@ -39,6 +39,7 @@ export const FixedSessionsMapCtrl = (
     rectangles.clear();
     infoWindow.hide();
     map.unregisterAll();
+    map.removeAllMarkers();
 
     if (process.env.NODE_ENV !== 'test') {
       $($window).resize(function() {
@@ -120,4 +121,3 @@ export const FixedSessionsMapCtrl = (
 
   $scope.setDefaults();
 }
-
