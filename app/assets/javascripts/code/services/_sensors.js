@@ -94,10 +94,6 @@ export const sensors = (params, $http) => {
     proceedWithTmp: function() {
       params.update({tmp: {selectedSensorId: this.candidateSelectedSensorId}});
     },
-    setAllSensors: function() {
-      console.log('setAllSensors')
-      params.update({data: {sensorId: ""}});
-    },
     findSensorById: function(id) {
       return this.sensors[id]
     },
@@ -121,7 +117,7 @@ export const sensors = (params, $http) => {
       params.update({selectedSessionIds: []});
       if (hasChangedToAll(selectedParameter)) {
         this.availableSensors = this.sensors;
-        this.setAllSensors();
+        params.update({data: {sensorId: ""}});
       } else {
         this.availableSensors = _(this.sensors).filter(function(sensor) { return sensor["measurement_type"] == selectedParameter["id"]})
         var sensor = max(function(sensor) { return sensor.session_count; }, this.availableSensors) || { id: null };
