@@ -20,7 +20,6 @@ export const map = (
       this.listen("idle", this.saveViewport);
       this.listen("visible_changed", function(){$rootScope.$digest();}, this.mapObj.getStreetView());
       this.listen("maptypeid_changed", _(this.onMapTypeIdChanged).bind(this));
-      this.listeners = [];
       rectangles.init(this.mapObj);
     },
 
@@ -105,15 +104,8 @@ export const map = (
       return google.maps.event.addListener(diffmap || this.mapObj, name, _(callback).bind(this));
     },
 
-    register: function(name, callback, diffmap) {
-      this.listeners.push(this.listen(name, callback, diffmap));
-    },
-
     unregisterAll: function(){
       googleMaps.unlistenPanOrZoom(this.mapObj);
-      _(this.listeners).each(function(listener){
-        google.maps.event.removeListener(listener);
-      });
     },
 
     setZoom: function(zoom) {

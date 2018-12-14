@@ -17,7 +17,6 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 require_dependency 'average_info'
-require_dependency 'average_info2'
 
 module Api
   class AveragesController < BaseController
@@ -48,30 +47,9 @@ module Api
       data[:year_from] = data[:year_from] || 2010
       data[:year_to] = data[:year_to] || 2050
 
-      respond_with AverageInfo.new(data)
-    end
-
-    def index2
-      if params[:q].is_a?(String)
-        data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
-      else
-        data = params[:q].symbolize_keys
-      end
-      FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
-      INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
-
-      data[:time_from] = data[:time_from] || 0
-      data[:time_to] = data[:time_to] || 2359
-
-      data[:day_from] = data[:day_from] || 0
-      data[:day_to] = data[:day_to] || 365
-
-      data[:year_from] = data[:year_from] || 2010
-      data[:year_to] = data[:year_to] || 2050
-
       data[:session_ids] ||= []
 
-      respond_with AverageInfo2.new(data)
+      respond_with AverageInfo.new(data)
     end
   end
 end

@@ -71,7 +71,6 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables, s
     unregisterAll: () => {},
     removeAllMarkers: () => {},
     clearRectangles: () => {},
-    register: () => {},
     ...map
   };
   const _$scope = { $watch: () => {}, ...$scope };

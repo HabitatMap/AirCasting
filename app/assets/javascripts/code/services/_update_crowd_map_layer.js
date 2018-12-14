@@ -23,7 +23,7 @@ export const updateCrowdMapLayer = (
 
     const _onRectangleClick = onRectangleClick(infoWindow, rectangles, sessionIds, buildQueryParamsForCrowdMapLayer);
 
-    $http.get('/api/averages2', { cache: true, params: { q }})
+    $http.get('/api/averages', { cache: true, params: { q }})
       .error(onError(flash))
       .success(onAveragesFetch($location, map, params, utils, _onRectangleClick));
   }
@@ -38,5 +38,5 @@ const onAveragesFetch = ($location, map, params, utils, _onRectangleClick) => da
 };
 
 const onRectangleClick = (infoWindow, rectangles, sessionIds, buildQueryParamsForCrowdMapLayer) => rectangleData => {
-  infoWindow.show("/api/region2", { q: buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData) }, rectangles.position(rectangleData));
+  infoWindow.show("/api/region", { q: buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData) }, rectangles.position(rectangleData));
 };

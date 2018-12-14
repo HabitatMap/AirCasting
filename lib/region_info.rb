@@ -12,10 +12,7 @@ class RegionInfo
 
     stream_ids = @streams.map(&:id)
     tags = data[:tags].to_s.split(/[\s,]/)
-    @measurements = Measurement.with_tags(tags).
-      with_streams(stream_ids).
-      in_rectangle(data).
-      with_time(data)
+    @measurements = Measurement.with_tags(tags).with_streams(stream_ids).in_rectangle(data).with_time(data).belonging_to_sessions_with_ids(data[:session_ids])
   end
 
   def average

@@ -26,13 +26,6 @@ function PanelCtrl($scope,  $location, expandables) {
     }
   };
 
-  $scope.goToCrowdMap = function() {
-    if($location.path() != "/map_crowd") {
-      $location.search({});
-      $location.url("/map_crowd");
-    }
-  };
-
   $scope.$watch('$location.path()', function(newValue) {
     console.log('watch - $location.path()');
     $scope.selectedTab = _.str.trim(newValue, "/");

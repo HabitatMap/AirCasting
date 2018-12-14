@@ -22,7 +22,8 @@ describe Api::AveragesController do
       day_from: 0,
       day_to: 365,
       year_from: 2010,
-      year_to: 2050
+      year_to: 2050,
+      session_ids: []
     }
     result = [{}, {}]
     info = double

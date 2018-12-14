@@ -17,19 +17,9 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 require_dependency 'region_info'
-require_dependency 'region_info2'
 
 module Api
   class RegionsController < BaseController
-    def show
-      data = params.symbolize_keys
-      [:north, :south, :east, :west].each do |direction|
-        data[direction] = params[direction].to_f
-      end
-
-      respond_with RegionInfo.new(data)
-    end
-
     FLOAT_Q_ATTRS = [:north, :south, :east, :west]
     INT_Q_ATTRS = [
       :time_from, :time_to,
@@ -38,7 +28,7 @@ module Api
       :grid_size_x, :grid_size_y
     ]
 
-    def show2
+    def show
       data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
 
       FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
@@ -55,7 +45,7 @@ module Api
 
       data[:session_ids] ||= []
 
-      respond_with RegionInfo2.new(data)
+      respond_with RegionInfo.new(data)
     end
   end
 end

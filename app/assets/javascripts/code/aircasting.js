@@ -2,16 +2,8 @@ import constants from './constants';
 
 angular.module('google', []);
 angular.module('aircasting', ['ngRoute', 'ngCookies', "google"], [ "$routeProvider", function($routeProvider){
-  var v = $("body").data("version");
-  var sensorsList = fetch('/api/sensors').then(function(r) { return r.json() });
+  const v = $("body").data("version");
 
-  $routeProvider.when('/map_crowd',
-                      {templateUrl: 'partials/crowd_map.html?v=' + v,
-                        controller: 'CrowdMapCtrl', reloadOnSearch: false,
-                        resolve: {
-                          sensorsList: ['$http', function($http) {return $http.get('/api/sensors', {cache: true}).then(function(response){ return response.data}) }]
-                        }
-                      });
   $routeProvider.when(constants.mobileMapRoute,
                       {templateUrl: 'partials/mobile_sessions_map.html?v=' + v,
                         controller: 'MobileSessionsMapCtrl', reloadOnSearch: false,
