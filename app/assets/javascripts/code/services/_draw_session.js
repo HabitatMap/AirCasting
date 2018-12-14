@@ -10,7 +10,7 @@ export const drawSession = (
   };
 
   DrawSession.prototype = {
-    drawMobileSession: function(session, bounds) {
+    drawMobileSession: function(session) {
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
@@ -41,7 +41,7 @@ export const drawSession = (
       session.drawed = true;
     },
 
-    drawFixedSession: function(session, bounds) {
+    drawFixedSession: function(session) {
       this.undoDraw(session);
       session.markers = [];
       session.noteDrawings = [];
@@ -61,8 +61,12 @@ export const drawSession = (
       return session.markers;
     },
 
-    calculateHeatLevel: function(value) {
-      return heat.getLevel(value);
+    drawMobileSessionStartPoint: function(session) {
+      this.undoDraw(session);
+
+      var markerOptions = map.defaultMarkerOptions;
+      var lngLatObject = { longitude: session.startingLongitude, latitude: session.startingLatitude }
+      session.markers.push(map.drawMarker(lngLatObject, markerOptions, null, "0"));
     },
 
     undoDraw: function(session, mapPosition) {
@@ -111,4 +115,8 @@ export const drawSession = (
     }
   };
   return new DrawSession();
-}
+};
+
+function calculateHeatLevel(value) {
+  return heat.getLevel(value);
+};

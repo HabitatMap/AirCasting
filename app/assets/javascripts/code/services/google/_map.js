@@ -202,6 +202,10 @@ export const map = (
 
     clearRectangles: function() {
       rectangles.clear();
+    },
+
+    defaultMarkerOptions: function() {
+      return { title: session.title, zIndex: 0 };
     }
   };
 
