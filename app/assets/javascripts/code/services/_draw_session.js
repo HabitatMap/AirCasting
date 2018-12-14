@@ -64,9 +64,10 @@ export const drawSession = (
     drawMobileSessionStartPoint: function(session) {
       this.undoDraw(session);
 
-      var markerOptions = map.defaultMarkerOptions;
-      var lngLatObject = { longitude: session.startingLongitude, latitude: session.startingLatitude }
-      session.markers.push(map.drawMarker(lngLatObject, markerOptions, null, "0"));
+      const markerOptions = map.defaultMarkerOptions;
+      const lngLatObject = { longitude: session.startingLongitude, latitude: session.startingLatitude };
+      const level = heat.getLevel(session.average);
+      session.markers.push(map.drawMarker(lngLatObject, markerOptions, null, level));
     },
 
     undoDraw: function(session, mapPosition) {
