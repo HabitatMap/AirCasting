@@ -46,7 +46,7 @@ export const MobileSessionsMapCtrl = (
     });
 
     storage.updateDefaults({
-      sensorId: "",
+      sensorId: sensors.defaultSensor,
       location: {address: ""},
       tags: "",
       usernames: "",
