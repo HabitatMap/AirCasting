@@ -37,7 +37,7 @@
 
       <div class="section-divider" ng-include="versioner.path('/partials/usernames_and_tags.html')"></div>
 
-      <section ng-show="false && !!sensors.anySelected()">
+      <section ng-show="!!sensors.anySelected()">
         <h4 ng-click="expandables.toggle('layers')" ng-class="expandables.css('layers')">Layers</h4>
         <section ng-show="expandables.visible('layers')">
           <div class="textfield">
