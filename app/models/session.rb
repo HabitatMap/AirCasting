@@ -209,8 +209,10 @@ class Session < ActiveRecord::Base
       end
     end
 
-    first_measurement = fetch_first_measurement_coordinates
-    res.merge!(:startingLongitude => first_measurement.longitude, :startingLatitude => first_measurement.latitude)
+    if type == "MobileSession"
+      first_measurement = fetch_first_measurement_coordinates
+      res.merge!(:startingLongitude => first_measurement.longitude, :startingLatitude => first_measurement.latitude, :average => measurements.average(:value))
+    end
 
     res.merge!(:streams => map_of_streams)
 
