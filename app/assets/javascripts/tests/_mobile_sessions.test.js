@@ -295,34 +295,6 @@ test('hasSelectedSessions with selected session returns true', t => {
   t.end();
 });
 
-test('when sensor is selected drawSessionInLocation calls drawSession.drawMobileSessionStartPoint', t => {
-  const session = { drawed: false }
-  const sessions = [ session ];
-  const sessionsUtils = { get: () => sessions };
-  const drawSession = mock('drawMobileSessionStartPoint');
-  const sensors = { anySelected: () => true };
-  const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils, sensors });
-
-  mobileSessionsService.drawSessionsInLocation();
-
-  t.true(drawSession.wasCalledWith(session));
-  t.true(session.drawed);
-
-  t.end();
-});
-
-test('when no sensor is selected drawSessionInLocation doesnt call drawSession.drawMobileSessionStartPoint', t => {
-  const drawSession = mock('drawMobileSessionStartPoint');
-  const sensors = { anySelected: () => false };
-  const mobileSessionsService = _mobileSessions({ drawSession, sensors });
-
-  mobileSessionsService.drawSessionsInLocation();
-
-  t.false(drawSession.wasCalled());
-
-  t.end();
-});
-
 const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
 
 const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {

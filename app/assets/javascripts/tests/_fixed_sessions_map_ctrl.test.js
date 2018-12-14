@@ -7,7 +7,7 @@ test('registers a callback to map.goToAddress', t => {
   const $scope = {
     $watch: (str, callback) => str.includes('address') ? callbacks.push(callback) : null
   };
-  const map = { ...mock('goToAddress'), unregisterAll: () => {}, removeAllMarkers: () => {} };
+  const map = { ...mock('goToAddress'), unregisterAll: () => {} };
   const controller = _FixedSessionsMapCtrl({ $scope, map, callbacks });
 
   callbacks.forEach(callback => callback({ location: 'new york' }));

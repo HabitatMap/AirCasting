@@ -209,9 +209,6 @@ class Session < ActiveRecord::Base
       end
     end
 
-    first_measurement = fetch_first_measurement_coordinates
-    res.merge!(:startingLongitude => first_measurement.longitude, :startingLatitude => first_measurement.latitude)
-
     res.merge!(:streams => map_of_streams)
 
     res
@@ -260,10 +257,6 @@ class Session < ActiveRecord::Base
 
   private
 
-  def fetch_first_measurement_coordinates
-    self.measurements.select("longitude, latitude").order(time: :asc).first || NullMeasuremnt.new
-  end
-
   def get_measurement_scope(stream_id, since_date)
     if since_date
       data = { stream_id: stream_id, since_date: since_date }
@@ -298,15 +291,5 @@ class Session < ActiveRecord::Base
 
   def insert_into_deleted_sessions
     DeletedSession.where(:uuid => uuid, :user_id => user.id).first_or_create!
-  end
-end
-
-class NullMeasuremnt
-  def longitude
-    0
-  end
-
-  def latitude
-    0
   end
 end
