@@ -98,7 +98,6 @@ export const sensors = (params, $http) => {
     },
     onSelectedParameterChange: function(selectedParameter, oldValue) {
       console.log('onSelectedParameterChange() - ', selectedParameter)
-      if (selectedParameter === oldValue) return; // first angular watch run
       params.update({selectedSessionIds: []});
       if (selectedParameter.id === ALL_PARAMETER.id) {
         this.availableSensors = [ALL_SENSOR].concat(sort(Object.values(this.sensors)));
