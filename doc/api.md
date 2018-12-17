@@ -181,18 +181,18 @@ Where
 
 GET `/api/averages`
 
-To get multiple average values for polygons in a region, you would use this query:
+To get multiple average values for polygons in a region. You need to pass a list of session ids otherwise nothing will be returned.
 
 ### Parameters
 
 | name            | type              | default value |
 |:----------------|:------------------|:--------------|
-| time_from       | number, 0..1439   |               |
-| time_to         | number, 0..1439   |               |
-| day_from        | number, 1..366    |               |
-| day_to          | number, 1..366    |               |
-| year_from       | number, >= 2011   |               |
-| year_to         | number, >= 2011   |               |
+| time_from       | number, 0..1439   | 0             |
+| time_to         | number, 0..1439   | 2359          |
+| day_from        | number, 1..366    | 0             |
+| day_to          | number, 1..366    | 365           |
+| year_from       | number, >= 2011   | 2010          |
+| year_to         | number, >= 2011   | 2050          |
 | grid_size_y     | number, 1..50     |               |
 | grid_size_x     | number, 1..50     |               |
 | tags            | text              |               |
@@ -204,11 +204,12 @@ To get multiple average values for polygons in a region, you would use this quer
 | north           | number, -90..90   |               |
 | south           | number, -90..90   |               |
 | measurement_type| text              |               |
+| session_ids     | list number       | empty list    |
 
 ### Example request
 
 ```
-curl http://aircasting.org/api/averages.json?q[west]=-105.42674388525387&q[east]=-104.28347911474606&q[south]=39.530285217883865&q[north]=39.99792504639966&q[time_from]=1320&q[time_to]=1319&q[day_from]=0&q[day_to]=365&q[year_from]=2015&q[year_to]=2016&q[grid_size_x]=46.98081264108352&q[grid_size_y]=25&q[sensor_name]=AirBeam-PM&q[measurement_type]=Particulate+Matter&q[unit_symbol]=µg/m³
+curl 'http://aircasting.org/api/averages?q=%7B%22west%22:-123.50830115625001,%22east%22:-67.91748084375001,%22south%22:30.334954095062294,%22north%22:43.29320049354096,%22time_from%22:1380,%22time_to%22:1379,%22day_from%22:1,%22day_to%22:365,%22year_from%22:2017,%22year_to%22:2018,%22grid_size_x%22:85.47297297297297,%22grid_size_y%22:25,%22tags%22:%22%22,%22usernames%22:%22%22,%22sensor_name%22:%22AirBeam2-PM2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B57488,57487,57469,57468,57333,57331,57326,57321,57319,57299,57073,56976,56975,56974,56965,56898,56797,56792,56714,56711,56297,56271,56183,55885,55851,55850,55849,55819,55487,55485,55482,55481,55398,55377,55376,55375,55374,55364,55363,55332,55268,55266,55239,55196,55016,55007,54914,54910,54909,54907%5D%7D'
 ```
 
 ### Example response
@@ -244,18 +245,18 @@ curl http://aircasting.org/api/averages.json?q[west]=-105.42674388525387&q[east]
 
 GET `/api/region`
 
-This will let you fetch the average measured value for a region of the map specified by the `east`, `west`, `north` and `south` parameters. Also pass the `measurement_type` and `sensor_name` parameters to specify the measurements you want the average of.
+This will let you fetch the average measured value for a region of the map specified by the `east`, `west`, `north` and `south` parameters. Also pass the `measurement_type` and `sensor_name` parameters to specify the measurements you want the average of. You need to pass a list of session ids otherwise nothing will be returned.
 
 ### Parameters
 
 | name            | type              | default value |
 |:----------------|:------------------|:--------------|
-| time_from       | number, 0..1439   |               |
-| time_to         | number, 0..1439   |               |
-| day_from        | number, 1..366    |               |
-| day_to          | number, 1..366    |               |
-| year_from       | number, >= 2011   |               |
-| year_to         | number, >= 2011   |               |
+| time_from       | number, 0..1439   | 0             |
+| time_to         | number, 0..1439   | 2359          |
+| day_from        | number, 1..366    | 0             |
+| day_to          | number, 1..366    | 365           |
+| year_from       | number, >= 2011   | 2010          |
+| year_to         | number, >= 2011   | 2050          |
 | grid_size_y     | number, 1..50     |               |
 | grid_size_x     | number, 1..50     |               |
 | tags            | text              |               |
@@ -267,11 +268,12 @@ This will let you fetch the average measured value for a region of the map speci
 | north           | number, -90..90   |               |
 | south           | number, -90..90   |               |
 | measurement_type| text              |               |
+| session_ids     | list number       | empty list    |
 
 ### Example request
 
 ```
-curl http://aircasting.org/api/region.json?day_from=0&day_to=365&east=165.44168097265174&grid_size_x=1&grid_size_y=1&measurement_type=Particulate+Matter&north=-24.217858119836414&sensor_name=AirBeam-PM&south=-30.55369611748509&tags=&time_from=1320&time_to=1319&unit_symbol=%C2%B5g%2Fm%C2%B3&usernames=&west=144.34793097265174&year_from=2015&year_to=2016
+curl 'http://aircasting.org/api/region?q=%7B%22west%22:-84.6942497702206,%22east%22:-84.04024011948529,%22south%22:37.68000734867853,%22north%22:38.28288746625739,%22time_from%22:1380,%22time_to%22:1379,%22day_from%22:1,%22day_to%22:365,%22year_from%22:2017,%22year_to%22:2018,%22grid_size_x%22:85.47297297297297,%22grid_size_y%22:25,%22tags%22:%22%22,%22usernames%22:%22%22,%22sensor_name%22:%22AirBeam2-PM2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B57488,57487,57469,57468,57333,57331,57326,57321,57319,57299,57073,56976,56975,56974,56965,56898,56797,56792,56714,56711,56297,56271,56183,55885,55851,55850,55849,55819,55487,55485,55482,55481,55398,55377,55376,55375,55374,55364,55363,55332,55268,55266,55239,55196,55016,55007,54914,54910,54909,54907%5D%7D'
 ```
 
 ### Example response
