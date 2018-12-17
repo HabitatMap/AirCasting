@@ -8,12 +8,12 @@
       <section ng-show="expandables.visible('sensor')" >
       <p>
         <select ng-model="sensors.selectedParameter" ng-options="parameter as parameter.label for parameter in sensors.availableParameters track by parameter.id">
-          <option value="">All</option>
+          <option value="all">All</option>
         </select>
       </p>
       <p>
         <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for sensor in sensors.availableSensors">
-          <option disabled value="">All</option>
+          <option disabled value="all">All</option>
         </select>
       </p>
       </section>

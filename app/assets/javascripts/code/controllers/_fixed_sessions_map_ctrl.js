@@ -49,8 +49,11 @@ export const FixedSessionsMapCtrl = (
       $scope.expandables.show(name);
     });
 
+    const sensorId = params
+      .get('data', { sensorId: sensors.defaultSensor })
+      .sensorId;
     storage.updateDefaults({
-      sensorId: sensors.defaultSensor,
+      sensorId,
       location: {address: "", indoorOnly: false, streaming: true},
       tags: "",
       usernames: ""
