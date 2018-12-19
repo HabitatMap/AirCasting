@@ -19,9 +19,10 @@ class StreamsRepository
   end
 
   def add_start_coordinates!(stream)
-      first_measurement = stream.measurements.order(time: :asc).first
-      stream.start_longitude = first_measurement.longitude
-      stream.start_latitude = first_measurement.latitude
-      stream.save!
+    first_measurement = stream.measurements.order(time: :asc).first
+    #we should change that to use created_at once it's implemented
+    stream.start_longitude = first_measurement.longitude
+    stream.start_latitude = first_measurement.latitude
+    stream.save!
   end
 end
