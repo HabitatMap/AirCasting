@@ -13,7 +13,6 @@ before_install:
   ~/.ssh/config
 - echo -e "Host aircasting.org\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - chmod +x ./bin/deploy.sh
-- gem update --system
 cache:
   bundler: true
   directories:
