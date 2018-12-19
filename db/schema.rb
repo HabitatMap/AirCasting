@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20181113100336) do
+ActiveRecord::Schema.define(:version => 20181219094432) do
 
   create_table "deleted_sessions", :force => true do |t|
     t.datetime "created_at", :null => false
@@ -135,6 +135,8 @@ ActiveRecord::Schema.define(:version => 20181113100336) do
     t.decimal "min_longitude",          :precision => 12, :scale => 9
     t.decimal "max_longitude",          :precision => 12, :scale => 9
     t.float   "average_value"
+    t.decimal "start_longitude",        :precision => 12, :scale => 9
+    t.decimal "start_latitude",         :precision => 12, :scale => 9
   end
 
   add_index "streams", ["max_latitude"], :name => "index_streams_on_max_latitude"
