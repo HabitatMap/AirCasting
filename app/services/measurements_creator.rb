@@ -22,6 +22,7 @@ class MeasurementsCreator
     return if stream.session.type == 'FixedSession'
     streams_repository.calc_bounding_box!(stream)
     streams_repository.calc_average_value!(stream)
+    streams_repository.add_start_coordinates!(stream)
   end
 
   private

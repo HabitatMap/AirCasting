@@ -42,9 +42,32 @@ describe StreamsRepository do
     expect(actual.max_longitude).to eq(8)
   end
 
+  describe "#add_start_coordinates!" do
+    it "assigns start longitude and latitude to stream based on first measurement" do
+      stream = create_stream!
+      create_measurement!({
+        time: Time.utc(2018, 12, 1),
+        latitude: 11,
+        longitude: 12,
+        stream: stream
+      })
+      create_measurement!({
+        time: Time.utc(2018, 12, 2),
+        latitude: 21,
+        longitude: 22,
+        stream: stream
+      })
+
+      subject.add_start_coordinates!(stream)
+
+      expect(Stream.first.start_latitude).to eq(11)
+      expect(Stream.first.start_longitude).to eq(12)
+    end
+  end
+
   private
 
-  def create_stream!(attributes)
+  def create_stream!(attributes = {})
     Stream.create!(
       sensor_package_name: "abc",
       sensor_name: "abc",
@@ -58,16 +81,16 @@ describe StreamsRepository do
       threshold_medium: 70,
       threshold_high: 80,
       threshold_very_high: 100,
-      min_latitude: attributes.fetch(:min_latitude),
-      max_latitude: attributes.fetch(:max_latitude),
-      min_longitude: attributes.fetch(:min_longitude),
-      max_longitude: attributes.fetch(:max_longitude)
+      min_latitude: attributes.fetch(:min_latitude, 0),
+      max_latitude: attributes.fetch(:max_latitude, 0),
+      min_longitude: attributes.fetch(:min_longitude, 0),
+      max_longitude: attributes.fetch(:max_longitude, 0)
     )
   end
 
   def create_measurement!(attributes)
     Measurement.create!(
-      time: DateTime.current,
+      time: attributes.fetch(:time, DateTime.current),
       latitude: attributes.fetch(:latitude),
       longitude: attributes.fetch(:longitude),
       value: 123,
