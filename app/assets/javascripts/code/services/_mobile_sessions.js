@@ -13,7 +13,8 @@ export const mobileSessions = (
   drawSession,
   boundsCalculator,
   sessionsUtils,
-  $location
+  $location,
+  storage
 ) => {
   var MobileSessions = function() {
     this.sessions = [];
@@ -64,7 +65,9 @@ export const mobileSessions = (
 
 
     onSessionsFetch: function() {
-      this.drawSessionsInLocation();
+      if (!storage.isCrowdMapLayerOn()) {
+        this.drawSessionsInLocation();
+      };
       sessionsUtils.onSessionsFetch(this);
     },
 
