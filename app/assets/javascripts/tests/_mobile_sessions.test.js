@@ -300,7 +300,7 @@ test('when sensor is selected drawSessionInLocation calls drawSession.drawMobile
   const sessions = [ session ];
   const sessionsUtils = { get: () => sessions };
   const drawSession = mock('drawMobileSessionStartPoint');
-  const sensors = { anySelected: () => true };
+  const sensors = { anySelected: () => true, selectedId: () => 1 };
   const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils, sensors });
 
   mobileSessionsService.drawSessionsInLocation();

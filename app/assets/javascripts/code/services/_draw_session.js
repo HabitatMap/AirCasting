@@ -61,11 +61,14 @@ export const drawSession = (
       return session.markers;
     },
 
-    drawMobileSessionStartPoint: function(session) {
+    drawMobileSessionStartPoint: function(session, selectedSensor) {
       this.undoDraw(session);
 
       var markerOptions = map.defaultMarkerOptions;
-      var lngLatObject = { longitude: session.startingLongitude, latitude: session.startingLatitude }
+      var lngLatObject = {
+        longitude: session.streams[selectedSensor]["start_longitude"],
+        latitude: session.streams[selectedSensor]["start_latitude"]
+      }
       session.markers.push(map.drawMarker(lngLatObject, markerOptions, null, "0"));
     },
 

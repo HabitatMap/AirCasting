@@ -109,13 +109,16 @@ export const mobileSessions = (
     drawSessionsInLocation: function() {
       map.markers = [];
       if(sensors.anySelected()) {
-        (this.get()).forEach(session => this.drawSessionInLocation(session));
+        const sensorId = sensors.selectedId() || sensors.tmpSelectedId();
+        const sensor = sensors.sensors[sensorId] || {};
+        const selectedSensor = sensor.sensor_name;
+        (this.get()).forEach(session => this.drawSessionInLocation(session, selectedSensor));
       }
     },
 
-    drawSessionInLocation: function(session) {
+    drawSessionInLocation: function(session, selectedSensor) {
       session.markers = [];
-      drawSession.drawMobileSessionStartPoint(session);
+      drawSession.drawMobileSessionStartPoint(session, selectedSensor);
       session.drawed = true;
     },
 
