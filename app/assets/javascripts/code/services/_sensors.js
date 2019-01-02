@@ -7,7 +7,6 @@ export const sensors = (params, $http) => {
   var Sensors = function() {
     this.sensors = {};
     this.candidateSelectedSensorId = undefined;
-    this.shouldInitSelected = false;
     this.defaultSensor = this.buildSensorId({
       measurement_type: "Particulate Matter",
       sensor_name:      "AirBeam2-PM2.5",
