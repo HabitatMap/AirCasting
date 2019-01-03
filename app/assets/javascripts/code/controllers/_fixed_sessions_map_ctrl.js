@@ -50,7 +50,7 @@ export const FixedSessionsMapCtrl = (
     });
 
     const sensorId = params
-      .get('data', { sensorId: sensors.defaultSensor })
+      .get('data', { sensorId: sensors.defaultSensorId })
       .sensorId;
     storage.updateDefaults({
       sensorId,
