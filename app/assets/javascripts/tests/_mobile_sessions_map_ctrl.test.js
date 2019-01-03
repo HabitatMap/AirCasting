@@ -34,7 +34,7 @@ test('it updates defaults', t => {
   let defaults = {};
   const sensorId = "sensor id";
   const sensors = {
-    defaultSensor: sensorId
+    defaultSensorId: sensorId
   };
   const storage = {
     updateDefaults: opts => defaults = opts

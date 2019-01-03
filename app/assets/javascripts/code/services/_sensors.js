@@ -5,7 +5,7 @@ export const sensors = (params, $http) => {
     this.sensors = {};
     this.candidateSelectedSensorId = undefined;
     this.shouldInitSelected = false;
-    this.defaultSensor = this.buildSensorId({
+    this.defaultSensorId = this.buildSensorId({
       measurement_type: "Particulate Matter",
       sensor_name:      "AirBeam2-PM2.5",
       unit_symbol:      "µg/m³"
@@ -45,7 +45,7 @@ export const sensors = (params, $http) => {
 
       if(_(params.get('data').sensorId).isNull()) {
         console.log('initSelected() - sensorId is null')
-        params.update({data: {sensorId: this.defaultSensor }});
+        params.update({data: {sensorId: this.defaultSensorId }});
       } else {
         console.log('initSelected() - sensorId is NOT null')
       }

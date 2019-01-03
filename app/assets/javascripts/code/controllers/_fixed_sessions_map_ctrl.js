@@ -50,7 +50,7 @@ export const FixedSessionsMapCtrl = (
     });
 
     storage.updateDefaults({
-      sensorId: sensors.defaultSensor,
+      sensorId: sensors.defaultSensorId,
       location: {address: "", indoorOnly: false, streaming: true},
       tags: "",
       usernames: ""
