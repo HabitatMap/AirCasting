@@ -4,7 +4,8 @@ import {
   findAvailableSensorsForParameter,
   sort,
   defaultSensorIdForParameter,
-  buildAvailableParameters
+  buildAvailableParameters,
+  sensors
 } from '../code/services/_sensors';
 
 test('findAvailableSensorsForParameter when parameter is falsy it returns sensors sorted with passed function', t => {
@@ -169,7 +170,7 @@ test('defaultSensorIdForParameter returns hardcoded id for Sound Level', t => {
   t.end();
 });
 
-test('buildAvailableParameters builds available parameters sorted by session_count', t => {
+test('buildAvailableParameters builds available parameters sorted by session_count with all as first', t => {
   const sensors = {
     "a": {
       measurement_type: "Particulate Matter",
@@ -183,12 +184,144 @@ test('buildAvailableParameters builds available parameters sorted by session_cou
 
   const actual = buildAvailableParameters(sensors);
 
-  const expected = [{
-    label: "Humidity", id: "Humidity"
-  }, {
-    label: "Particulate Matter", id: "Particulate Matter"
-  }];
+  const expected = [
+    { label: "All", id: "all" },
+    { label: "Humidity", id: "Humidity" },
+    { label: "Particulate Matter", id: "Particulate Matter" }
+  ];
   t.deepEqual(actual, expected);
 
   t.end();
 });
+
+test('selected with no sensor id in the url returns the default sensor with added id, label, select_label', t => {
+  const params = {
+    get: () => ({ sensorId: null })
+  };
+  const service = _sensors({ params })
+  const defaultSensor = {
+    measurement_type: "Particulate Matter",
+    sensor_name: "AirBeam2-PM2.5",
+    unit_symbol: "µg/m³"
+  };
+  const allSensors = [defaultSensor];
+  service.setSensors(allSensors)
+
+  const actual = service.selected();
+
+  const expected = {
+    ...defaultSensor,
+    id: 'Particulate Matter-AirBeam2-PM2.5 (µg/m³)',
+    label: 'AirBeam2-PM2.5 (µg/m³)',
+    select_label: 'AirBeam2-PM2.5 (µg/m³)'
+  };
+  t.deepEqual(actual, expected);
+
+  t.end();
+});
+
+test('selected with all as sensor id in the url returns undefined', t => {
+  const params = {
+    get: () => ({ sensorId: "all" })
+  };
+  const service = _sensors({ params })
+
+  const actual = service.selected();
+
+  const expected = undefined;
+  t.deepEqual(actual, expected);
+
+  t.end();
+});
+
+test('selected with sensor id in the url returns the correct sensor with added id, label, select_label', t => {
+  const params = {
+    get: () => ({ sensorId: "Humidity-AirBeam2-RH (%)" })
+  };
+  const service = _sensors({ params })
+  const sensor = {
+    measurement_type: "Humidity",
+    sensor_name:      "AirBeam2-RH",
+    unit_symbol:      "%"
+  };
+  const allSensors = [sensor];
+  service.setSensors(allSensors)
+
+  const actual = service.selected();
+
+  const expected = {
+    ...sensor,
+    id: 'Humidity-AirBeam2-RH (%)',
+    label: 'AirBeam2-RH (%)',
+    select_label: 'AirBeam2-RH (%)'
+  };
+  t.deepEqual(actual, expected);
+
+  t.end();
+});
+
+test('selectedId with no sensor id in the url returns the default sensor id', t => {
+  const params = {
+    get: () => ({ sensorId: null })
+  };
+  const service = _sensors({ params })
+  const defaultSensor = {
+    measurement_type: "Particulate Matter",
+    sensor_name: "AirBeam2-PM2.5",
+    unit_symbol: "µg/m³"
+  };
+  const allSensors = [defaultSensor];
+  service.setSensors(allSensors)
+
+  const actual = service.selectedId();
+
+  const expected = 'Particulate Matter-AirBeam2-PM2.5 (µg/m³)';
+  t.deepEqual(actual, expected);
+
+  t.end();
+});
+
+test('selectedId with all as sensor id in the url returns undefined', t => {
+  const params = {
+    get: () => ({ sensorId: "all" })
+  };
+  const service = _sensors({ params })
+
+  const actual = service.selectedId();
+
+  const expected = undefined;
+  t.deepEqual(actual, expected);
+
+  t.end();
+});
+
+test('selectedId with sensor id in the url returns the correct sensor id', t => {
+  const params = {
+    get: () => ({ sensorId: "Humidity-AirBeam2-RH (%)" })
+  };
+  const service = _sensors({ params })
+  const sensor = {
+    measurement_type: "Humidity",
+    sensor_name:      "AirBeam2-RH",
+    unit_symbol:      "%"
+  };
+  const allSensors = [sensor];
+  service.setSensors(allSensors)
+
+  const actual = service.selectedId();
+
+  const expected = 'Humidity-AirBeam2-RH (%)';
+  t.deepEqual(actual, expected);
+
+  t.end();
+});
+
+const _sensors = ({ params }) => {
+  const _params = {
+    get: () => ({ sensorId: null }),
+    update: () => {},
+    ...params
+  };
+
+  return sensors(_params);
+};
