@@ -17,17 +17,47 @@ test('registers a callback to map.goToAddress', t => {
   t.end();
 });
 
-const _FixedSessionsMapCtrl = ({ $scope, map, callback }) => {
+test('it updates defaults', t => {
+  let defaults = {};
+  const sensorId = "sensor id";
+  const params = {
+    get: () => ({ sensorId })
+  };
+  const storage = {
+    updateDefaults: opts => defaults = opts
+  };
+
+  _FixedSessionsMapCtrl({ storage, params });
+
+  const expected = {
+    sensorId,
+    location: {
+      address: "",
+      indoorOnly: false,
+      streaming: true
+    },
+    tags: "",
+    usernames: ""
+  };
+  t.deepEqual(defaults, expected);
+
+  t.end();
+});
+
+const _FixedSessionsMapCtrl = ({ $scope, map, callback, storage, params }) => {
   const expandables = { show: () => {} };
   const sensors = { setSensors: () => {} };
   const functionBlocker = { block: () => {} };
-  const params = { get: () => {} };
+  const _params = { get: () => ({}), ...params };
   const rectangles = { clear: () => {} };
   const infoWindow = { hide: () => {} };
-  const storage = {
+  const _storage = {
     updateDefaults: () => {},
-    updateFromDefaults: () => {}
+    updateFromDefaults: () => {},
+    ...storage
   };
+  const _$scope = { $watch: () => {}, ...$scope };
+  const _map = { unregisterAll: () => {}, ...map };
 
-  return FixedSessionsMapCtrl($scope, params, null, map, sensors, expandables, storage, null, null, null, null, functionBlocker, null, null, rectangles, infoWindow);
+  return FixedSessionsMapCtrl(_$scope, _params, null, _map, sensors, expandables, _storage, null, null, null, null, functionBlocker, null, null, rectangles, infoWindow);
 };
