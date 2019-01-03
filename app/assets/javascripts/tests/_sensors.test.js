@@ -169,7 +169,7 @@ test('defaultSensorIdForParameter returns hardcoded id for Sound Level', t => {
   t.end();
 });
 
-test('buildAvailableParameters builds available parameters sorted by session_count', t => {
+test('buildAvailableParameters builds available parameters sorted by session_count with all as first', t => {
   const sensors = {
     "a": {
       measurement_type: "Particulate Matter",
@@ -183,11 +183,11 @@ test('buildAvailableParameters builds available parameters sorted by session_cou
 
   const actual = buildAvailableParameters(sensors);
 
-  const expected = [{
-    label: "Humidity", id: "Humidity"
-  }, {
-    label: "Particulate Matter", id: "Particulate Matter"
-  }];
+  const expected = [
+    { label: "All", id: "all" },
+    { label: "Humidity", id: "Humidity" },
+    { label: "Particulate Matter", id: "Particulate Matter" }
+  ];
   t.deepEqual(actual, expected);
 
   t.end();

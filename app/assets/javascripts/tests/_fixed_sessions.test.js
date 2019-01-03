@@ -320,7 +320,7 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
   };
   const _map = { getBounds: () => ({}), getZoom: () => undefined, ...map };
   const _utils = utils || {};
-  const _sensors = { selected: () => {}, sensors: {}, ...sensors };
+  const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, ...sensors };
   const _drawSession = drawSession || { clear: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _$location = $location || { path: () => '/map_fixed_sessions' };
