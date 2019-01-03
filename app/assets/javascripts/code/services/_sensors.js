@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-const ALL_SENSOR = { id: "all", select_label: "All", session_count: 0 };
+const ALL_SENSOR = { id: "all", select_label: "All", session_count: 0, measurement_type: "all" };
 const ALL_PARAMETER = { id: "all", label: "All" };
 
 export const sensors = (params, $http) => {
@@ -12,15 +12,13 @@ export const sensors = (params, $http) => {
       sensor_name:      "AirBeam2-PM2.5",
       unit_symbol:      "µg/m³"
     });
-
     this.availableSensors = [];
-    this.defaultParameter = {id: "Particulate Matter", label: "Particulate Matter"};
     this.selectedParameter = {};
-    // [{label: "Activity Level", id: "Activity Level"}, ...]
     this.availableParameters = [];
   };
+
   Sensors.prototype = {
-    setSensors : function(data, status, headers, config) {
+    setSensors: function(data, status, headers, config) {
       // Sensors
       var sensors = {};
       var self = this;
@@ -57,10 +55,11 @@ export const sensors = (params, $http) => {
 
     //selected sensor in dropdown
     selected: function() {
-      return this.sensors[params.get('data').sensorId];
+      return params.get('data').sensorId === ALL_SENSOR.id ?
+        ALL_SENSOR : this.sensors[params.get('data').sensorId] || this.sensors[this.defaultSensor];
     },
     selectedId: function() {
-      return this.selected() ? this.selected().id : ALL_SENSOR.id;
+      return this.selected().id;
     },
     //used when "all" sensors are choosen
     tmpSelected: function() {
@@ -86,17 +85,13 @@ export const sensors = (params, $http) => {
       params.update({tmp: {selectedSensorId: this.candidateSelectedSensorId}});
     },
     findSensorById: function(id) {
-      return this.sensors[id]
+      return id === ALL_SENSOR.id ? ALL_SENSOR : this.sensors[id];
     },
     findParameterForSensor: function(sensor) {
-      if (sensor) {
-        return _(this.availableParameters).find(function(parameter) { return (parameter.id == sensor["measurement_type"]) });
-      } else {
-        return ALL_PARAMETER;
-      }
+      return _(this.availableParameters).find(function(parameter) { return (parameter.id == sensor["measurement_type"]) });
     },
     onSelectedParameterChange: function(selectedParameter, oldValue) {
-      console.log('onSelectedParameterChange() - ', selectedParameter)
+      console.log('onSelectedParameterChange() - ', selectedParameter, ' - ', oldValue)
       if (selectedParameter === oldValue) return; // first angular watch run
       params.update({selectedSessionIds: []});
       if (selectedParameter.id === ALL_PARAMETER.id) {
@@ -109,8 +104,8 @@ export const sensors = (params, $http) => {
       }
     },
     // changed params.get('data').sensorId
-    onSelectedSensorChange: function(newSensorId) {
-      console.log('onSelectedSensorChange() - ', newSensorId);
+    onSelectedSensorChange: function(newSensorId, oldSensorId) {
+      console.log('onSelectedSensorChange() - ', newSensorId, ' - ', oldSensorId);
       if (!newSensorId) return;
       if(newSensorId === ALL_SENSOR.id) params.update({data: {sensorId: ALL_SENSOR.id}});
       var sensor = this.findSensorById(newSensorId);

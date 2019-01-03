@@ -107,7 +107,7 @@ export const SessionsListCtrl = (
   $scope.$watch("params.get('selectedSessionIds')", function(newIds, oldIds) {
     console.log("watch - params.get('selectedSessionIds')");
     functionBlocker.use("sessionDialog", function(){
-      if(newIds.length === 1 && !sensors.selected()) {
+      if(newIds.length === 1 && sensors.selected().id === "all") {
         var usableSensors = singleSession.availSensors();
         if(usableSensors.length > 1) {
           sensors.candidateSelectedSensorId = _(usableSensors).first().id;
