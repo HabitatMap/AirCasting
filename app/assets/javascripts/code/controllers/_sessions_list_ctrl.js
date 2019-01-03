@@ -46,7 +46,7 @@ export const SessionsListCtrl = (
   };
 
   $scope.sessionFetchCondition = function() {
-    return {id:  sensors.selectedId(), params: params.getWithout('data', 'heat')};
+    return {id: sensors.selectedId(), params: params.getWithout('data', 'heat')};
   };
 
   $scope.updateSessionsPage = function() {

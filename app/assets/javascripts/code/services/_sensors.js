@@ -94,7 +94,7 @@ export const sensors = (params, $http) => {
       console.log('onSelectedParameterChange() - ', selectedParameter, ' - ', oldValue)
       if (selectedParameter === oldValue) return; // first angular watch run
       params.update({selectedSessionIds: []});
-      if (selectedParameter.id === ALL_PARAMETER.id) {
+      if (selectedParameter=== ALL_PARAMETER) {
         this.availableSensors = [ALL_SENSOR].concat(sort(Object.values(this.sensors)));
         params.update({data: {sensorId: ALL_SENSOR.id}});
       } else {
@@ -119,7 +119,8 @@ export const sensors = (params, $http) => {
     onSensorsSelectedIdChange: function(newValue, oldValue, callback) {
       console.log("onSensorsSelectedIdChange - ", newValue, " - ", oldValue);
 
-      if(!newValue || newValue === ALL_SENSOR.id) return;
+      if(!newValue) return;
+      if(newValue === ALL_SENSOR.id) return;
 
       if (callback) {
         $http.get( '/api/thresholds/' + this.selected().sensor_name, {

@@ -168,7 +168,7 @@ export const fixedSessions = (
         });
       }
 
-      if(sensors.selected()){
+      if(sensors.selected().id !== "all"){
         _(reqData).extend({
           sensor_name:  sensors.selected().sensor_name,
           measurement_type:  sensors.selected().measurement_type,
