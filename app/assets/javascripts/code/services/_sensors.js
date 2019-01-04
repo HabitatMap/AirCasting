@@ -1,29 +1,32 @@
 import _ from 'underscore';
 
+const buildSensorId = sensor =>
+  sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
+
 const ALL_SENSOR = { id: "all", select_label: "All", session_count: 0, measurement_type: "all" };
 const ALL_PARAMETER = { id: "all", label: "All" };
+const DEFAULT_SENSOR_ID = buildSensorId({
+  measurement_type: "Particulate Matter",
+  sensor_name: "AirBeam2-PM2.5",
+  unit_symbol: "µg/m³"
+});
 
 export const sensors = (params, $http) => {
   var Sensors = function() {
     this.sensors = {};
     this.candidateSelectedSensorId = undefined;
-    this.defaultSensorId = this.buildSensorId({
-      measurement_type: "Particulate Matter",
-      sensor_name:      "AirBeam2-PM2.5",
-      unit_symbol:      "µg/m³"
-    });
-
+    this.defaultSensorId = DEFAULT_SENSOR_ID;
     this.availableSensors = [];
     this.selectedParameter = {};
     this.availableParameters = [];
   };
+
   Sensors.prototype = {
-    setSensors : function(data, status, headers, config) {
-      // Sensors
+    setSensors: function(data) {
       var sensors = {};
       var self = this;
       _(data).each(function(sensor){
-        sensor.id =  self.buildSensorId(sensor);
+        sensor.id =  buildSensorId(sensor);
         sensor.label = sensor.sensor_name + " (" + sensor.unit_symbol + ")";
         if (sensor.label.length >= 42) {
           sensor.select_label = sensor.label.slice(0, 40) + "…";
@@ -39,12 +42,13 @@ export const sensors = (params, $http) => {
       // Initialize UI
       this.initSelected();
     },
+
     initSelected: function() {
       console.log('initSelected()')
 
       if(_(params.get('data').sensorId).isNull()) {
         console.log('initSelected() - sensorId is null')
-        params.update({data: {sensorId: this.defaultSensorId }});
+        params.update({data: {sensorId: DEFAULT_SENSOR_ID }});
       } else {
         console.log('initSelected() - sensorId is NOT null')
       }
@@ -55,16 +59,16 @@ export const sensors = (params, $http) => {
     //selected sensor in dropdown
     //undefined if all
     selected: function() {
-      return params.get('data').sensorId === "all" ?
+      return params.get('data').sensorId === ALL_SENSOR.id ?
         undefined :
-        (this.sensors[params.get('data').sensorId || this.defaultSensorId]);
+        this.sensors[params.get('data').sensorId || DEFAULT_SENSOR_ID];
     },
+
     selectedId: function() {
-      if(!this.selected()){
-        return;
-      }
-      return this.selected().id;
+      return this.selected() ?
+        this.selected().id : undefined;
     },
+
     //used when "all" sensors are choosen
     tmpSelected: function() {
       return this.sensors[params.get('tmp').selectedSensorId];
@@ -147,7 +151,7 @@ export const sensors = (params, $http) => {
   return new Sensors();
 };
 
-const hasChangedToAll = newValue => !newValue || newValue === "all";
+const hasChangedToAll = newValue => !newValue || newValue === ALL_SENSOR.id;
 
 const max = (valueOf, xs) => {
   const reducer = (acc, x) => valueOf(x) > valueOf(acc) ? x : acc;
@@ -186,9 +190,6 @@ export const sort = sensors => {
 
   return sensors.sort(compare);
 }
-
-const buildSensorId = sensor =>
-  sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
 
 export const defaultSensorIdForParameter = (parameter, sensors) => {
   const DEFAULT_IDS = {
