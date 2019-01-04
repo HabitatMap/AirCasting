@@ -45,8 +45,12 @@ export const MobileSessionsMapCtrl = (
       $scope.expandables.show(name);
     });
 
+    const sensorId = params
+      .get('data', { sensorId: sensors.defaultSensorId })
+      .sensorId;
+
     storage.updateDefaults({
-      sensorId: sensors.defaultSensor,
+      sensorId,
       location: {address: ""},
       tags: "",
       usernames: "",

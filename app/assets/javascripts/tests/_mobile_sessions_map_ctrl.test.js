@@ -33,14 +33,14 @@ test('it shows by default sensor, location, usernames and layers sections', t =>
 test('it updates defaults', t => {
   let defaults = {};
   const sensorId = "sensor id";
-  const sensors = {
-    defaultSensor: sensorId
+  const params = {
+    get: () => ({ sensorId })
   };
   const storage = {
     updateDefaults: opts => defaults = opts
   };
 
-  _MobileSessionsMapCtrl({ storage, sensors });
+  _MobileSessionsMapCtrl({ storage, params });
 
   const expected = {
     sensorId,
@@ -55,11 +55,11 @@ test('it updates defaults', t => {
   t.end();
 });
 
-const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables, sensors }) => {
+const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables, sensors, params }) => {
   const _expandables = { show: () => {}, ...expandables };
   const _sensors = { setSensors: () => {}, ...sensors };
   const functionBlocker = { block: () => {} };
-  const params = { get: () => {} };
+  const _params = { get: () => ({}), ...params };
   const infoWindow = { hide: () => {} };
   const _storage = {
     updateDefaults: () => {},
@@ -75,5 +75,5 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables, s
   };
   const _$scope = { $watch: () => {}, ...$scope };
 
-  return MobileSessionsMapCtrl(_$scope, params, _map, _sensors, _expandables, _storage, null, null, null, null, functionBlocker, null, infoWindow);
+  return MobileSessionsMapCtrl(_$scope, _params, _map, _sensors, _expandables, _storage, null, null, null, null, functionBlocker, null, infoWindow);
 };
