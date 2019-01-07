@@ -209,6 +209,10 @@ class Session < ActiveRecord::Base
       end
     end
 
+    if type == "MobileSession"
+      res.merge!(:average => measurements_average)
+    end
+
     res.merge!(:streams => map_of_streams)
 
     res

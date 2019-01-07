@@ -24,4 +24,11 @@ class MobileSession < Session
   def self.filtered_json_fields
     [:id, :title, :start_time_local, :end_time_local]
   end
+
+  def measurements_average
+    stream = self.streams.length >= 1 ? self.streams.first : nil
+    if stream
+      self.streams.first.measurements.average(:value)
+    end
+  end
 end
