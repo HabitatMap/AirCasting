@@ -196,7 +196,7 @@ export const map = (
       rectangles.clear();
     },
 
-    defaultMarkerOptions: function() {
+    defaultMarkerOptions: function(session) {
       return { title: session.title, zIndex: 0 };
     }
   };
