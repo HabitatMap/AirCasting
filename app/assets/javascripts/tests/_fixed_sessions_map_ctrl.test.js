@@ -57,7 +57,7 @@ const _FixedSessionsMapCtrl = ({ $scope, map, callback, storage, params }) => {
     ...storage
   };
   const _$scope = { $watch: () => {}, ...$scope };
-  const _map = { unregisterAll: () => {}, ...map };
+  const _map = { unregisterAll: () => {}, removeAllMarkers: () => {}, ...map };
 
   return FixedSessionsMapCtrl(_$scope, _params, null, _map, sensors, expandables, _storage, null, null, null, null, functionBlocker, null, null, rectangles, infoWindow);
 };
