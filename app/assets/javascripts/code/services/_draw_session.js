@@ -67,7 +67,8 @@ export const drawSession = (
       const markerOptions = map.defaultMarkerOptions;
       const lngLatObject = {
         longitude: session.streams[selectedSensor]["start_longitude"],
-        latitude: session.streams[selectedSensor]["start_latitude"]
+        latitude: session.streams[selectedSensor]["start_latitude"],
+        id: session.id
       }
       const level = heat.getLevel(session.average)
       session.markers.push(map.drawMarker(lngLatObject, markerOptions, null, level));
