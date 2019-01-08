@@ -23,7 +23,7 @@ export const drawSession = (
       var points = [];
       _(this.measurements(session)).each(function(measurement, idx){
         var value = Math.round(measurement.value);
-        var level = heat.getLevel(value);
+        var level = calculateHeatLevel(heat, value);
         if (level){
           session.markers.push(map.drawMarker(measurement, {
             title: parseInt(measurement.value, 10).toString() + suffix,
@@ -50,7 +50,7 @@ export const drawSession = (
       var level;
 
       if (sensors.anySelected() && !sensors.tmpSelected() && session.last_hour_average) {
-        level = this.calculateHeatLevel(session.last_hour_average);
+        level = calculateHeatLevel(heat, session.last_hour_average);
       } else {
         level = 0;
       }
@@ -70,7 +70,7 @@ export const drawSession = (
         latitude: session.streams[selectedSensor]["start_latitude"],
         id: session.id
       }
-      const level = heat.getLevel(session.average)
+      const level = calculateHeatLevel(heat, session.average);
       session.markers.push(map.drawMarker(lngLatObject, markerOptions, null, level));
     },
 
@@ -122,6 +122,4 @@ export const drawSession = (
   return new DrawSession();
 };
 
-function calculateHeatLevel(value) {
-  return heat.getLevel(value);
-};
+const calculateHeatLevel = (heat, value) => heat.getLevel(value);
