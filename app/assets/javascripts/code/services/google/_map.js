@@ -2,7 +2,6 @@ import _ from 'underscore';
 
 export const map = (
   params,
-  $cookieStore,
   $rootScope,
   digester,
   rectangles,
@@ -25,10 +24,6 @@ export const map = (
 
     get: function(){
       return this.mapObj;
-    },
-
-    getMapCookie: function(name) {
-      return $cookieStore.get(name);
     },
 
     getBounds: function(){
@@ -67,10 +62,6 @@ export const map = (
       var lat = this.mapObj.getCenter().lat();
       var lng = this.mapObj.getCenter().lng();
       var mapType = this.mapObj.getMapTypeId();
-      $cookieStore.put("vp_zoom", zoom);
-      $cookieStore.put("vp_lat", lat);
-      $cookieStore.put("vp_lng", lng);
-      $cookieStore.put("vp_mapType", mapType);
       params.update({map: {zoom: zoom, lat: lat, lng: lng, mapType: mapType}});
       digester();
     },

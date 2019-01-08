@@ -5,7 +5,7 @@ import { map } from '../code/services/google/_map';
 
 test('goToAddress with no address it does not decode', t => {
   const geocoder = mock('get');
-  const mapService = map(null, null, null, null, null, geocoder);
+  const mapService = map(null, null, null, null, geocoder);
 
   mapService.goToAddress();
 
@@ -16,7 +16,7 @@ test('goToAddress with no address it does not decode', t => {
 
 test('goToAddress with address it decodes', t => {
   const geocoder = mock('get');
-  const mapService = map(null, null, null, null, null, geocoder);
+  const mapService = map(null, null, null, null, geocoder);
 
   mapService.goToAddress('new york');
 
@@ -28,7 +28,7 @@ test('goToAddress with address it decodes', t => {
 test('goToAddress with unsuccessful geocoding does not call fitBounds', t => {
   const geocoder = mockGeocoder();
   const googleMaps = mockGoogleMaps({ successfulGeocoding: false })
-  const mapService = map(null, null, null, null, null, geocoder, googleMaps);
+  const mapService = map(null, null, null, null, geocoder, googleMaps);
 
   mapService.goToAddress('new york');
 
@@ -40,7 +40,7 @@ test('goToAddress with unsuccessful geocoding does not call fitBounds', t => {
 test('goToAddress with successful geocoding calls fitBounds', t => {
   const geocoder = mockGeocoder();
   const googleMaps = mockGoogleMaps({ successfulGeocoding: true })
-  const mapService = map(null, null, null, null, null, geocoder, googleMaps);
+  const mapService = map(null, null, null, null, geocoder, googleMaps);
 
   mapService.goToAddress('new york');
 
@@ -56,7 +56,7 @@ test('goToAddress when calling fitBounds removes callbacks from the map', t => {
 
   t.true(googleMaps.hasCallbacks());
 
-  const mapService = map(null, null, null, null, null, geocoder, googleMaps);
+  const mapService = map(null, null, null, null, geocoder, googleMaps);
 
   mapService.goToAddress('new york');
 
@@ -70,7 +70,7 @@ test('goToAddress re-adds callbacks from the map after calling fitBounds', t => 
   const googleMaps = mockGoogleMaps({ successfulGeocoding: true })
   googleMaps.listen('bounds_changed', () => {});
 
-  const mapService = map(null, null, null, null, null, geocoder, googleMaps);
+  const mapService = map(null, null, null, null, geocoder, googleMaps);
 
   mapService.goToAddress('new york');
 
@@ -83,7 +83,7 @@ test('goToAddress re-adds callbacks from the map after calling fitBounds', t => 
 
 test('onPanOrZoom', t => {
   const googleMaps = mockGoogleMaps();
-  const mapService = map(null, null, null, null, null, null, googleMaps);
+  const mapService = map(null, null, null, null, null, googleMaps);
 
   mapService.onPanOrZoom(() => {});
 
@@ -94,7 +94,7 @@ test('onPanOrZoom', t => {
 
 test('unregisterAll removes the onPanOrZoom callback too', t => {
   const googleMaps = mockGoogleMaps();
-  const mapService = map(null, null, null, null, null, null, googleMaps);
+  const mapService = map(null, null, null, null, null, googleMaps);
   mapService.onPanOrZoom(() => {});
 
   mapService.unregisterAll();
@@ -106,7 +106,7 @@ test('unregisterAll removes the onPanOrZoom callback too', t => {
 
 test('fitBounds calls fitBounds', t => {
   const googleMaps = mockGoogleMaps();
-  const mapService = map(null, null, null, null, null, null, googleMaps);
+  const mapService = map(null, null, null, null, null, googleMaps);
 
   mapService.fitBounds({
     north: 1,
@@ -122,7 +122,7 @@ test('fitBounds calls fitBounds', t => {
 
 test('fitBounds with coord 200 north and 200 east calls fitBounds with a specific northeast coords', t => {
   const googleMaps = mockGoogleMaps();
-  const mapService = map(null, null, null, null, null, null, googleMaps);
+  const mapService = map(null, null, null, null, null, googleMaps);
 
   mapService.fitBounds({
     north: 200,
@@ -142,7 +142,7 @@ test('fitBounds when calling fitBounds removes callbacks from the map', t => {
 
   t.true(googleMaps.hasCallbacks());
 
-  const mapService = map(null, null, null, null, null, null, googleMaps);
+  const mapService = map(null, null, null, null, null, googleMaps);
 
   mapService.fitBounds({
     north: 123,
@@ -162,7 +162,7 @@ test('fitBounds re-adds callbacks from the map after calling fitBounds', t => {
 
   t.true(googleMaps.hasCallbacks());
 
-  const mapService = map(null, null, null, null, null, null, googleMaps);
+  const mapService = map(null, null, null, null, null, googleMaps);
 
   mapService.fitBounds({
     north: 123,
