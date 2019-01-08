@@ -10,11 +10,11 @@ angular.module('aircasting').directive('googlemap', function() {
 
       var map = scope.map;
       var params = scope.params.get('map') || {};
-      var lat = params.lat || map.getMapCookie('vp_lat') || point.lat;
-      var lng = params.lng || map.getMapCookie('vp_lng') || point.lng;
+      var lat = params.lat || point.lat;
+      var lng = params.lng || point.lng;
       var latlng = new google.maps.LatLng(lat, lng);
-      var zoom = params.zoom || map.getMapCookie('vp_zoom') || point.zoom;
-      var mapType = map.getMapCookie('vp_mapType') || google.maps.MapTypeId.TERRAIN || params.mapType;
+      var zoom = params.zoom || point.zoom;
+      var mapType = params.mapType || google.maps.MapTypeId.TERRAIN;
       const minZoom = 3;
       var options = {
         zoom: parseInt(zoom, 10),
