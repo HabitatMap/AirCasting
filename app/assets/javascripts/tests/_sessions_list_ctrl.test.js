@@ -12,8 +12,45 @@ test('it calls onPanOrZoom', t => {
   t.end();
 });
 
-const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer }) => {
+test('with no sessions selected when params.map changes it calls sessions.fetch', t => {
+  const callbacks = [];
+  const $scope = {
+    $watch: (str, callback) => str.includes('map') ? callbacks.push(callback) : null,
+  };
+  const sessions = {
+    hasSelectedSessions: () => false,
+    ...mock('fetch')
+  }
+  _SessionsListCtrl({ $scope, sessions });
+
+  callbacks.forEach(callback => callback({}));
+
+  t.true(sessions.wasCalled());
+
+  t.end();
+});
+
+test('with session selected when params.map changes it does not call sessions.fetch', t => {
+  const callbacks = [];
+  const $scope = {
+    $watch: (str, callback) => str.includes('map') ? callbacks.push(callback) : null,
+  };
+  const sessions = {
+    hasSelectedSessions: () => true,
+    ...mock('fetch')
+  }
+  _SessionsListCtrl({ $scope, sessions });
+
+  callbacks.forEach(callback => callback({}));
+
+  t.false(sessions.wasCalled());
+
+  t.end();
+});
+
+const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
   const _$scope = {
+    sessions,
     setDefaults: () => {},
     $watch: () => {},
     $on: () => {},

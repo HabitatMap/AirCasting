@@ -58,10 +58,10 @@ export const SessionsListCtrl = (
     sessions.fetch($scope.page);
   }, true);
 
-  $scope.$watch("params.get('map')", () => {
+  $scope.$watch("params.get('map')", ({ hasChangedProgrammatically }) => {
     console.log("watch - params.get('map')");
     if (sessions.hasSelectedSessions()) return;
-    $scope.page = 0;
+    if (!hasChangedProgrammatically) $scope.page = 0;
     sessions.fetch($scope.page);
   }, true);
 
