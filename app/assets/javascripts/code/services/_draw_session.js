@@ -17,7 +17,6 @@ export const drawSession = (
       }
 
       var suffix = ' ' + sensors.anySelected().unit_symbol;
-      session.markers = [];
       session.noteDrawings = [];
       session.lines = [];
       var points = [];
