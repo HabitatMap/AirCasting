@@ -1,3 +1,4 @@
+import _ from "underscore";
 
 export const drawSession = (
   sensors,
@@ -14,7 +15,6 @@ export const drawSession = (
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
-      this.undoDraw(session);
 
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       session.markers = [];
@@ -64,12 +64,12 @@ export const drawSession = (
     drawMobileSessionStartPoint: function(session, selectedSensor) {
       this.undoDraw(session);
 
-      const markerOptions = map.defaultMarkerOptions(session);
+      const markerOptions = { title: session.title, zIndex: 100000 };
       const lngLatObject = {
         longitude: session.streams[selectedSensor]["start_longitude"],
         latitude: session.streams[selectedSensor]["start_latitude"],
         id: session.id
-      }
+      };
       const level = calculateHeatLevel(heat, session.average);
       session.markers.push(map.drawMarker(lngLatObject, markerOptions, null, level));
     },
@@ -105,7 +105,13 @@ export const drawSession = (
     },
 
     clear: function(sessions) {
-      _(sessions).each(_(this.undoDraw).bind(this));
+      sessions.forEach(this.undoDraw);
+    },
+
+    clearOtherSessions: function(sessions, selectedSession) {
+      sessions
+      .filter(session => session !== selectedSession)
+      .forEach(this.undoDraw)
     },
 
     measurementsForSensor: function(session, sensor_name){

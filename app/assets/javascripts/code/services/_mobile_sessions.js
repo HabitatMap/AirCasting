@@ -86,8 +86,8 @@ export const mobileSessions = (
     },
 
     selectSession: function(id) {
-      drawSession.clear(this.sessions);
       const callback = (session, allSelected) => (data) => {
+        drawSession.clearOtherSessions(this.sessions, session);
         prevMapPosition = {
           bounds: map.getBounds(),
           zoom: map.getZoom()

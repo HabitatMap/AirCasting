@@ -341,7 +341,7 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
   const _map = { getBounds: () => ({}), fitBounds: () => {}, getZoom: () => {}, ...map };
   const _utils = utils || {};
   const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, ...sensors };
-  const _drawSession = { clear: () => {}, drawMobileSession: () => {}, ...drawSession };
+  const _drawSession = { clear: () => {}, clearOtherSessions: () => {}, drawMobileSession: () => {}, ...drawSession };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };

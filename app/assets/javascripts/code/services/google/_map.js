@@ -186,10 +186,6 @@ export const map = (
     clearRectangles: function() {
       rectangles.clear();
     },
-
-    defaultMarkerOptions: function(session) {
-      return { title: session.title, zIndex: 0 };
-    }
   };
 
   return new Map();
