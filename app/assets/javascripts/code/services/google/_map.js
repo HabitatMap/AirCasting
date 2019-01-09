@@ -9,6 +9,7 @@ export const map = (
   googleMaps
 ) => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === 'test' ? 0 : 1000;
+  let hasChangedProgrammatically = false;
 
   var Map = function() {};
 
@@ -62,7 +63,8 @@ export const map = (
       var lat = this.mapObj.getCenter().lat();
       var lng = this.mapObj.getCenter().lng();
       var mapType = this.mapObj.getMapTypeId();
-      params.update({map: {zoom: zoom, lat: lat, lng: lng, mapType: mapType}});
+      params.update({map: {zoom: zoom, lat: lat, lng: lng, mapType: mapType, hasChangedProgrammatically}});
+      hasChangedProgrammatically = false;
       digester();
     },
 
@@ -75,6 +77,7 @@ export const map = (
         googleMaps.latLng(bounds.north, bounds.east);
       const southwest = googleMaps.latLng(bounds.south, bounds.west);
       const latLngBounds = googleMaps.latLngBounds(southwest, northeast);
+      hasChangedProgrammatically = true;
       this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, latLngBounds, zoom);
     },
 
@@ -92,7 +95,8 @@ export const map = (
     },
 
     listen: function(name, callback, diffmap) {
-      return google.maps.event.addListener(diffmap || this.mapObj, name, _(callback).bind(this));
+      const cb = _(callback).bind(this);
+      return googleMaps.listen(diffmap || this.mapObj, name, cb);
     },
 
     unregisterAll: function(){

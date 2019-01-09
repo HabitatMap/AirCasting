@@ -5,9 +5,9 @@ import { map } from '../code/services/google/_map';
 
 test('goToAddress with no address it does not decode', t => {
   const geocoder = mock('get');
-  const mapService = map(null, null, null, null, geocoder);
+  const service = _map({ geocoder });
 
-  mapService.goToAddress();
+  service.goToAddress();
 
   t.false(geocoder.wasCalled());
 
@@ -16,9 +16,9 @@ test('goToAddress with no address it does not decode', t => {
 
 test('goToAddress with address it decodes', t => {
   const geocoder = mock('get');
-  const mapService = map(null, null, null, null, geocoder);
+  const service = _map({ geocoder });
 
-  mapService.goToAddress('new york');
+  service.goToAddress('new york');
 
   t.true(geocoder.wasCalled());
 
@@ -28,9 +28,9 @@ test('goToAddress with address it decodes', t => {
 test('goToAddress with unsuccessful geocoding does not call fitBounds', t => {
   const geocoder = mockGeocoder();
   const googleMaps = mockGoogleMaps({ successfulGeocoding: false })
-  const mapService = map(null, null, null, null, geocoder, googleMaps);
+  const service = _map({ geocoder, googleMaps });
 
-  mapService.goToAddress('new york');
+  service.goToAddress('new york');
 
   t.false(googleMaps.wasCalled());
 
@@ -40,9 +40,9 @@ test('goToAddress with unsuccessful geocoding does not call fitBounds', t => {
 test('goToAddress with successful geocoding calls fitBounds', t => {
   const geocoder = mockGeocoder();
   const googleMaps = mockGoogleMaps({ successfulGeocoding: true })
-  const mapService = map(null, null, null, null, geocoder, googleMaps);
+  const service = _map({ geocoder, googleMaps });
 
-  mapService.goToAddress('new york');
+  service.goToAddress('new york');
 
   t.true(googleMaps.wasCalled());
 
@@ -56,9 +56,9 @@ test('goToAddress when calling fitBounds removes callbacks from the map', t => {
 
   t.true(googleMaps.hasCallbacks());
 
-  const mapService = map(null, null, null, null, geocoder, googleMaps);
+  const service = _map({ geocoder, googleMaps });
 
-  mapService.goToAddress('new york');
+  service.goToAddress('new york');
 
   t.false(googleMaps.hasCallbacks());
 
@@ -70,9 +70,9 @@ test('goToAddress re-adds callbacks from the map after calling fitBounds', t => 
   const googleMaps = mockGoogleMaps({ successfulGeocoding: true })
   googleMaps.listen('bounds_changed', () => {});
 
-  const mapService = map(null, null, null, null, geocoder, googleMaps);
+  const service = _map({ geocoder, googleMaps });
 
-  mapService.goToAddress('new york');
+  service.goToAddress('new york');
 
   setTimeout(() => {
     t.true(googleMaps.hasCallbacks());
@@ -83,9 +83,9 @@ test('goToAddress re-adds callbacks from the map after calling fitBounds', t => 
 
 test('onPanOrZoom', t => {
   const googleMaps = mockGoogleMaps();
-  const mapService = map(null, null, null, null, null, googleMaps);
+  const service = _map({ googleMaps });
 
-  mapService.onPanOrZoom(() => {});
+  service.onPanOrZoom(() => {});
 
   t.true(googleMaps.hasCallbacks());
 
@@ -94,10 +94,10 @@ test('onPanOrZoom', t => {
 
 test('unregisterAll removes the onPanOrZoom callback too', t => {
   const googleMaps = mockGoogleMaps();
-  const mapService = map(null, null, null, null, null, googleMaps);
-  mapService.onPanOrZoom(() => {});
+  const service = _map({ googleMaps });
+  service.onPanOrZoom(() => {});
 
-  mapService.unregisterAll();
+  service.unregisterAll();
 
   t.false(googleMaps.hasCallbacks());
 
@@ -106,9 +106,9 @@ test('unregisterAll removes the onPanOrZoom callback too', t => {
 
 test('fitBounds calls fitBounds', t => {
   const googleMaps = mockGoogleMaps();
-  const mapService = map(null, null, null, null, null, googleMaps);
+  const service = _map({ googleMaps });
 
-  mapService.fitBounds({
+  service.fitBounds({
     north: 1,
     east: 2,
     south: 3,
@@ -122,9 +122,9 @@ test('fitBounds calls fitBounds', t => {
 
 test('fitBounds with coord 200 north and 200 east calls fitBounds with a specific northeast coords', t => {
   const googleMaps = mockGoogleMaps();
-  const mapService = map(null, null, null, null, null, googleMaps);
+  const service = _map({ googleMaps });
 
-  mapService.fitBounds({
+  service.fitBounds({
     north: 200,
     east: 200,
     south: 1,
@@ -142,9 +142,9 @@ test('fitBounds when calling fitBounds removes callbacks from the map', t => {
 
   t.true(googleMaps.hasCallbacks());
 
-  const mapService = map(null, null, null, null, null, googleMaps);
+  const service = _map({ googleMaps });
 
-  mapService.fitBounds({
+  service.fitBounds({
     north: 123,
     east: 123,
     south: 123,
@@ -162,9 +162,9 @@ test('fitBounds re-adds callbacks from the map after calling fitBounds', t => {
 
   t.true(googleMaps.hasCallbacks());
 
-  const mapService = map(null, null, null, null, null, googleMaps);
+  const service = _map({ googleMaps });
 
-  mapService.fitBounds({
+  service.fitBounds({
     north: 123,
     east: 123,
     south: 123,
@@ -178,14 +178,49 @@ test('fitBounds re-adds callbacks from the map after calling fitBounds', t => {
   }, 0);
 });
 
+test('when map was not change programatically saveViewport calls params update with the correct flag', t => {
+  let calls = [];
+  const params = {
+    update: arg => calls.push(arg)
+  };
+  const googleMaps = mockGoogleMaps();
+  const service = _map({ params, googleMaps });
+  service.init();
+
+  service.saveViewport();
+
+  const expected = false;
+  t.equal(calls[0].map.hasChangedProgrammatically, expected);
+
+  t.end();
+});
+
+test('when map was change programatically saveViewport calls params update with the correct flag', t => {
+  let calls = [];
+  const params = {
+    update: arg => calls.push(arg)
+  };
+  const googleMaps = mockGoogleMaps();
+  const service = _map({ params, googleMaps });
+  service.init();
+  service.fitBounds({ north: 123, east: 123, south: 123, west: 123 });
+
+  const actual = service.saveViewport();
+
+  const expected = true;
+  t.equal(calls[0].map.hasChangedProgrammatically, expected);
+
+  t.end();
+});
+
 const mockGeocoder = () => ({
   get: (_, callback) => callback([ { geometry: { getBounds: null } } ])
 });
 
-const mockGoogleMaps = (opts = {}) => {
+const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
   let count = 0;
   let callbacks = 0;
-  const geocoding = opts.successfulGeocoding === undefined ? true : opts.successfulGeocoding;
+  const geocoding = successfulGeocoding === undefined ? true : successfulGeocoding;
   const calls = [];
 
   return {
@@ -199,6 +234,19 @@ const mockGoogleMaps = (opts = {}) => {
     relistenPanOrZoom: () => { callbacks += 1 },
     listenPanOrZoom: () => { callbacks += 1 },
     latLng: (lat, lng) => [lat, lng],
-    latLngBounds: (southwest, northeast) => [southwest, northeast]
+    latLngBounds: (southwest, northeast) => [southwest, northeast],
+    init: () => ({
+      getStreetView: () => {},
+      getBounds: () => {},
+      getZoom: () => {},
+      getCenter: () => ({ lat: () => {}, lng: () => {} }),
+      getMapTypeId: () => {}
+    })
   };
+};
+
+const _map = ({ geocoder, googleMaps, params }) => {
+  const digester = () => {};
+  const rectangles = { init: () => {} };
+  return map(params, null, digester, rectangles, geocoder, googleMaps);
 };
