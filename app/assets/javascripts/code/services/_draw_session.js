@@ -104,7 +104,7 @@ export const drawSession = (
     },
 
     clear: function(sessions) {
-      sessions.forEach(this.undoDraw);
+      _(sessions).each(_(this.undoDraw).bind(this));
     },
 
     clearOtherSessions: function(sessions, selectedSession) {
