@@ -63,8 +63,9 @@ class Measurement < ActiveRecord::Base
   end)
 
   scope(:since, lambda do |data|
-    since_date = data[:since_date] + 1.second # to eliminate already sent measurements
-    with_streams(data[:stream_id]).order("time DESC").where(time: since_date..DateTime.current)
+    with_streams(data[:stream_id])
+      .order("time DESC")
+      .where("time > ?", data[:since_date])
   end)
 
   scope(:in_rectangle, lambda do |data|

@@ -32,6 +32,20 @@ describe Measurement do
     let(:measurement2) { FactoryGirl.create(:measurement, :stream => stream2) }
 
     describe "#with_tags" do
+      it "returns all measurements belonging to stream id after since_date ordered by time" do
+        now = DateTime.current
+        stream = create_stream!(session: create_session!)
+        measurement1 = create_measurement!(stream: stream, time: now)
+        measurement2 = create_measurement!(stream: stream, time: now + 2.second)
+        measurement3 = create_measurement!(stream: stream, time: now + 1.second)
+
+        actual = Measurement.since(stream_id: stream.id, since_date: now)
+
+        expect(actual).to eq([measurement3, measurement2])
+      end
+    end
+
+    describe "#with_tags" do
       context "no tags" do
         it "returns all measurements" do
           expect(Measurement.with_tags([])).to include measurement, measurement2
@@ -156,7 +170,7 @@ describe Measurement do
 
   def create_measurement!(attributes)
     Measurement.create!(
-      time: DateTime.current,
+      time: attributes.fetch(:time, DateTime.current),
       latitude: 123,
       longitude: 123,
       value: 123,
