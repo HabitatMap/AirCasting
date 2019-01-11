@@ -80,10 +80,6 @@ export const sessionsUtils = (
     return params.get('selectedSessionIds');
   },
 
-  measurementsCount: function(session) {
-    return session.streams[sensors.selected().sensor_name].measurements_count;
-  },
-
   onSingleSessionFetch: function(session, data, callback) {
     var streams = data.streams;
     delete data.streams;

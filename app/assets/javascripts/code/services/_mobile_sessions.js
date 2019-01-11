@@ -51,8 +51,6 @@ export const mobileSessions = (
 
     isSelected: function(session) { return sessionsUtils.isSelected(this, session); },
 
-    measurementsCount: function(session) { return sessionsUtils.measurementsCount(session); },
-
     noOfSelectedSessions : function() { return sessionsUtils.noOfSelectedSessions(this); },
 
     onSessionsFetchError: function(data){ sessionsUtils.onSessionsFetchError(data); },

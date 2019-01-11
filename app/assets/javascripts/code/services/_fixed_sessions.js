@@ -47,8 +47,6 @@ export const fixedSessions = (
 
     isSelected: function(session) { return sessionsUtils.isSelected(this, session); },
 
-    measurementsCount: function(session) { return sessionsUtils.measurementsCount(session); },
-
     noOfSelectedSessions : function() { return sessionsUtils.noOfSelectedSessions(this); },
 
     onSessionsFetchError: function(data){ sessionsUtils.onSessionsFetchError(data); },
@@ -110,16 +108,6 @@ export const fixedSessions = (
       }).success(function(data){
         sessionsUtils.onSingleSessionFetch(session, data, callback);
       });
-    },
-
-    allStreamsWithLocation: function(sensor_name){
-      var self = this;
-      return _(this.allSelected()).chain().map(function(session){
-        if (session.is_indoor == true)
-          return null;
-        else
-          return session.streams[sensor_name];
-      }).compact().value();
     },
 
     downloadSessions: function(url, reqData) {
