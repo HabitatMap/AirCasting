@@ -1,7 +1,7 @@
 import _ from 'underscore';
 
 const buildSensorId = sensor =>
-  sensor.measurement_type + "-" + sensor.sensor_name + " (" + sensor.unit_symbol + ")";
+  sensor.measurement_type + "-" + sensor.sensor_name.toLowerCase() + " (" + sensor.unit_symbol + ")";
 
 const ALL_SENSOR = { id: "all", select_label: "All", session_count: 0, measurement_type: "all" };
 const ALL_PARAMETER = { id: "all", label: "All" };
@@ -28,6 +28,9 @@ export const sensors = (params, $http) => {
       _(data).each(function(sensor){
         sensor.id =  buildSensorId(sensor);
         sensor.label = sensor.sensor_name + " (" + sensor.unit_symbol + ")";
+
+        sensor.sensor_name = sensor.sensor_name.toLowerCase();
+
         if (sensor.label.length >= 42) {
           sensor.select_label = sensor.label.slice(0, 40) + "…";
         } else {
@@ -164,17 +167,16 @@ export const findAvailableSensorsForParameter = (sort, sensors, parameter) =>
     sort(Object.values(sensors).filter(sensor => sensor.measurement_type === parameter.id));
 
 export const sort = sensors => {
-  const ORDERS = {
-    "Particulate Matter-AirBeam2-PM2.5 (µg/m³)": 4,
-    "Particulate Matter-AirBeam2-PM1 (µg/m³)": 3,
-    "Particulate Matter-AirBeam2-PM10 (µg/m³)": 2,
-    "Particulate Matter-AirBeam-PM (µg/m³)": 1,
-    "Humidity-AirBeam2-RH (%)": 2,
-    "Humidity-AirBeam-RH (%)": 1,
-    "Temperature-AirBeam2-F (F)": 2,
-    "Temperature-AirBeam-F (F)": 1,
-    "Sound Level-Phone Microphone (dB)": 1
-  };
+  const ORDERS = {};
+  ORDERS[buildSensorId({measurement_type: "Particulate Matter", sensor_name: "AirBeam2-PM2.5", unit_symbol: "µg/m³"})] = 4;
+  ORDERS[buildSensorId({measurement_type: "Particulate Matter", sensor_name: "AirBeam2-PM1", unit_symbol: "µg/m³"})] = 3;
+  ORDERS[buildSensorId({measurement_type: "Particulate Matter", sensor_name: "AirBeam2-PM10", unit_symbol: "µg/m³"})] = 2;
+  ORDERS[buildSensorId({measurement_type: "Particulate Matter", sensor_name: "AirBeam-PM", unit_symbol: "µg/m³"})] = 1;
+  ORDERS[buildSensorId({measurement_type: "Humidity", sensor_name: "AirBeam2-RH", unit_symbol: "%"})] = 2;
+  ORDERS[buildSensorId({measurement_type: "Humidity", sensor_name: "AirBeam-RH", unit_symbol: "%"})] = 1;
+  ORDERS[buildSensorId({measurement_type: "Temperature", sensor_name: "AirBeam2-F", unit_symbol: "F"})] = 2;
+  ORDERS[buildSensorId({measurement_type: "Temperature", sensor_name: "AirBeam-F", unit_symbol: "F"})] = 1;
+  ORDERS[buildSensorId({measurement_type: "Sound Level", sensor_name: "Phone Microphone", unit_symbol: "dB"})] = 1;
 
   const compare = (sensor1, sensor2) => {
     if (ORDERS[sensor1.id] && ORDERS[sensor2.id]) {
