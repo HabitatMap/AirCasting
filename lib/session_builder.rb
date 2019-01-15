@@ -25,8 +25,9 @@ class SessionBuilder
 
     begin
       session = Session.create!(data)
-    rescue ActiveRecord::RecordInvalid
+    rescue ActiveRecord::RecordInvalid => invalid
       Rails.logger.warn("[SessionBuilder] data: #{data}")
+      Rails.logger.warn(invalid.record.errors)
 
       return nil
     end
