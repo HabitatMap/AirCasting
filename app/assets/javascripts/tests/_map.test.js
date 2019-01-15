@@ -248,5 +248,6 @@ const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
 const _map = ({ geocoder, googleMaps, params }) => {
   const digester = () => {};
   const rectangles = { init: () => {} };
-  return map(params, null, digester, rectangles, geocoder, googleMaps);
+  const $cookieStore = { put: () => {} };
+  return map(params, $cookieStore, null, digester, rectangles, geocoder, googleMaps);
 };
