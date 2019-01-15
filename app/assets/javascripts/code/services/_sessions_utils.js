@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import {keysToLowerCase} from '../utils.js';
 
 export const sessionsUtils = (
   params,
@@ -82,7 +81,7 @@ export const sessionsUtils = (
   },
 
   onSingleSessionFetch: function(session, data, callback) {
-    var streams = keysToLowerCase(data.streams);
+    var streams = data.streams;
     delete data.streams;
     _(session).extend(data);
     _(session.streams).extend(streams);
