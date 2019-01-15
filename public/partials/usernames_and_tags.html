@@ -1,17 +1,15 @@
 <div ng-controller="UsernamesAndTagsFiltersCtrl">
-  <section ng-show="!storage.data.location.indoorOnly">
-    <h4 ng-click="expandables.toggle('usernames')" ng-class="expandables.css('usernames')">Profile names</h4>
-    <section ng-show="expandables.visible('usernames')">
-      <div class="textfield">
-        <input type="text" autocomplete="/autocomplete/usernames" ng-model="storage.data.usernames">
-      </div>
-      <div>
-        <ul class="buttons">
-          <li><button ng-click="storage.reset('usernames')">reset</button></li>
-          <li><button ng-click="storage.update('usernames'); searchSessions();">submit</button></li>
-        </ul>
-      </div>
-    </section>
+  <h4 ng-click="expandables.toggle('usernames')" ng-class="expandables.css('usernames')">Profile names</h4>
+  <section ng-show="expandables.visible('usernames')">
+    <div class="textfield">
+      <input type="text" autocomplete="/autocomplete/usernames" ng-model="storage.data.usernames">
+    </div>
+    <div>
+      <ul class="buttons">
+        <li><button ng-click="storage.reset('usernames')">reset</button></li>
+        <li><button ng-click="storage.update('usernames'); searchSessions();">submit</button></li>
+      </ul>
+    </div>
   </section>
 
   <h4 class="section-divider" ng-click="expandables.toggle('tags')" ng-class="expandables.css('tags')">Tags</h4>

@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import { formatSessionForList } from '../values/sessions'
 
 export const SessionsListCtrl = (
   $scope,
@@ -29,7 +28,6 @@ export const SessionsListCtrl = (
     $scope.markerSelected = markerSelected;
     $window.sessions = sessions = $scope.sessions;
     $window.singleSession = singleSession = $scope.singleSession;
-    $scope.sessionsForList = [];
 
     // prolly this can be removed
     if(_(params.get("selectedSessionIds", [])).isEmpty()){
@@ -88,15 +86,6 @@ export const SessionsListCtrl = (
       return true;
     }
   };
-
-  $scope.newSessionsForList = function() {
-    return $scope.sessions.get().map(formatSessionForList);
-  }
-
-  $scope.$watch("newSessionsForList()", function(newSessions, oldSessions) {
-    console.log("newSessionsForList()", newSessions, oldSessions);
-    $scope.sessionsForList = newSessions;
-  }, true);
 
   $scope.sessionRedrawCondition = function() {
     return {id: params.get('tmp').selectedSensorId, heat: params.get('data').heat };
