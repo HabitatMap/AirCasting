@@ -104,23 +104,6 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (>= 2.0, < 4.0)
-    celluloid (0.17.3)
-      celluloid-essentials
-      celluloid-extras
-      celluloid-fsm
-      celluloid-pool
-      celluloid-supervision
-      timers (>= 4.1.1)
-    celluloid-essentials (0.20.5)
-      timers (>= 4.1.1)
-    celluloid-extras (0.20.5)
-      timers (>= 4.1.1)
-    celluloid-fsm (0.20.5)
-      timers (>= 4.1.1)
-    celluloid-pool (0.20.5)
-      timers (>= 4.1.1)
-    celluloid-supervision (0.20.6)
-      timers (>= 4.1.1)
     chronic (0.10.2)
     churn (0.0.35)
       chronic (>= 0.2.3)
@@ -340,8 +323,6 @@ GEM
       json (~> 1.4)
     redcard (1.1.0)
     redis (3.3.5)
-    redis-namespace (1.6.0)
-      redis (>= 3.0.4)
     reek (2.2.1)
       parser (~> 2.2)
       rainbow (~> 2.0)
@@ -388,12 +369,11 @@ GEM
     sexp_processor (4.11.0)
     shoulda-matchers (2.8.0)
       activesupport (>= 3.0.0)
-    sidekiq (3.5.4)
-      celluloid (~> 0.17.2)
+    sidekiq (4.2.10)
+      concurrent-ruby (~> 1.0)
       connection_pool (~> 2.2, >= 2.2.0)
-      json (~> 1.0)
+      rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
-      redis-namespace (~> 1.5, >= 1.5.2)
     sidekiq-unique-jobs (3.0.12)
       sidekiq (>= 2.6)
     sinatra (1.4.6)
@@ -421,7 +401,6 @@ GEM
     thor (0.19.4)
     thread_safe (0.3.6)
     tilt (1.4.1)
-    timers (4.2.0)
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
@@ -497,7 +476,7 @@ DEPENDENCIES
   rubyzip (>= 1.0.0)
   sass-rails (~> 3.2.2)
   shoulda-matchers
-  sidekiq (< 4)
+  sidekiq (~> 4.0)
   sidekiq-unique-jobs (= 3.0.12)
   sinatra
   spork (~> 0.9.0)
