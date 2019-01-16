@@ -270,9 +270,7 @@ angular.module("aircasting").factory('graph', [
       },
 
       onMouseOverSingle: function(point) {
-        if (!singleFixedSession.isFixed()) {
-          graphHighlight.show([point]);
-        }
+        graphHighlight.show([point]);
       },
 
       onMouseOverMultiple: function(start, end) {
