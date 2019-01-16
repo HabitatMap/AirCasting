@@ -1,18 +1,6 @@
 import test from 'blue-tape';
 import { formatSessionForList } from '../code/values/sessions';
 
-test('removes markers', t => {
-  const session = {
-    markers: [{}]
-  };
-
-  const actual = formatSessionForList(session);
-
-  t.deepEqual(actual.markers, []);
-
-  t.end();
-});
-
 test('when title is missing it defaults to unnamed', t => {
   const session = {};
 
