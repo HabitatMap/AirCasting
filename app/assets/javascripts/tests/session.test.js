@@ -1,5 +1,5 @@
 import test from 'blue-tape';
-import { formatSessionForList } from '../code/values/sessions';
+import { formatSessionForList } from '../code/values/session';
 
 test('when title is missing it defaults to unnamed', t => {
   const session = {};
