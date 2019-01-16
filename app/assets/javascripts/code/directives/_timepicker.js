@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 const toTime = scope => viewValue => {
-  const date = moment(viewValue,"HH:MM");
+  const date = moment(viewValue,"HH:mm");
   return date.minutes() + 60 * date.hours() + scope.utils.timeOffset;
 };
 
