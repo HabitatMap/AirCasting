@@ -2,9 +2,7 @@ import moment from 'moment';
 
 const toTime = scope => viewValue => {
   const date = moment(viewValue,"HH:MM");
-  if(date) {
-    return date.minutes() + 60 * date.hours() + scope.utils.timeOffset;
-  }
+  return date.minutes() + 60 * date.hours() + scope.utils.timeOffset;
 };
 
 const toString = scope => modelValue => {
