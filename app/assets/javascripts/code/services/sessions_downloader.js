@@ -48,6 +48,8 @@ angular.module("aircasting").factory("sessionsDownloader", ['$rootScope', '$http
       }).value();
 
       session.$selected = sessionIds.include(session.id);
+
+      setDefaultSessionAttributes(session);
     });
     sessions.push.apply(sessions, data);
     sessions = orderBy(sessions, '$selected', 'end_time_local');
@@ -55,3 +57,9 @@ angular.module("aircasting").factory("sessionsDownloader", ['$rootScope', '$http
 
   return fetch;
 }]);
+
+const setDefaultSessionAttributes = session => {
+  session.markers = [];
+  session.lines = [];
+  session.noteDrawings = [];
+}
