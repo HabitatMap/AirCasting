@@ -52,10 +52,10 @@ test('sort sorts sensors by session_count descending', t => {
 });
 
 test('sort when sorting particulate matter sensors it first puts AirBeams', t => {
-  const airbeamSensor1 = { session_count: 1, id: "Particulate Matter-AirBeam2-PM2.5 (µg/m³)" };
-  const airbeamSensor2 = { session_count: 2, id: "Particulate Matter-AirBeam2-PM1 (µg/m³)" };
-  const airbeamSensor3 = { session_count: 3, id: "Particulate Matter-AirBeam2-PM10 (µg/m³)" };
-  const airbeamSensor4 = { session_count: 4, id: "Particulate Matter-AirBeam-PM (µg/m³)" };
+  const airbeamSensor1 = { session_count: 1, id: "Particulate Matter-airbeam2-pm2.5 (µg/m³)" };
+  const airbeamSensor2 = { session_count: 2, id: "Particulate Matter-airbeam2-pm1 (µg/m³)" };
+  const airbeamSensor3 = { session_count: 3, id: "Particulate Matter-airbeam2-pm10 (µg/m³)" };
+  const airbeamSensor4 = { session_count: 4, id: "Particulate Matter-airbeam-pm (µg/m³)" };
   const otherSensor = { session_count: 5 };
   const sensors = [otherSensor, airbeamSensor4, airbeamSensor3, airbeamSensor2, airbeamSensor1];
 
@@ -68,8 +68,8 @@ test('sort when sorting particulate matter sensors it first puts AirBeams', t =>
 });
 
 test('sort when sorting humidity sensors it first puts AirBeams', t => {
-  const airbeamSensor1 = { session_count: 1, id: "Humidity-AirBeam2-RH (%)" };
-  const airbeamSensor2 = { session_count: 2, id: "Humidity-AirBeam-RH (%)" };
+  const airbeamSensor1 = { session_count: 1, id: "Humidity-airbeam2-rh (%)" };
+  const airbeamSensor2 = { session_count: 2, id: "Humidity-airbeam-rh (%)" };
   const otherSensor = { session_count: 3 };
   const sensors = [otherSensor, airbeamSensor2, airbeamSensor1];
 
@@ -82,8 +82,8 @@ test('sort when sorting humidity sensors it first puts AirBeams', t => {
 });
 
 test('sort when sorting temperature sensors it first puts AirBeams', t => {
-  const airbeamSensor1 = { session_count: 1, id: "Temperature-AirBeam2-F (F)" };
-  const airbeamSensor2 = { session_count: 2, id: "Temperature-AirBeam-F (F)" };
+  const airbeamSensor1 = { session_count: 1, id: "Temperature-airbeam2-f (F)" };
+  const airbeamSensor2 = { session_count: 2, id: "Temperature-airbeam-f (F)" };
   const otherSensor = { session_count: 3 };
   const sensors = [otherSensor, airbeamSensor2, airbeamSensor1];
 
@@ -96,7 +96,7 @@ test('sort when sorting temperature sensors it first puts AirBeams', t => {
 });
 
 test('sort when sorting sound level sensors it first puts Phone Microphone', t => {
-  const phoneMicrophoneSensor = { session_count: 1, id: "Sound Level-Phone Microphone (dB)" };
+  const phoneMicrophoneSensor = { session_count: 1, id: "Sound Level-phone microphone (dB)" };
   const otherSensor = { session_count: 2 };
   const sensors = [otherSensor, phoneMicrophoneSensor];
 
@@ -128,7 +128,7 @@ test('defaultSensorIdForParameter returns hardcoded id for Particulate Matter', 
 
   const actual = defaultSensorIdForParameter(parameter, sensors);
 
-  const expected = "Particulate Matter-AirBeam2-PM2.5 (µg/m³)";
+  const expected = "Particulate Matter-airbeam2-pm2.5 (µg/m³)";
   t.deepEqual(actual, expected);
 
   t.end();
@@ -140,7 +140,7 @@ test('defaultSensorIdForParameter returns hardcoded id for Humidity', t => {
 
   const actual = defaultSensorIdForParameter(parameter, sensors);
 
-  const expected = "Humidity-AirBeam2-RH (%)";
+  const expected = "Humidity-airbeam2-rh (%)";
   t.deepEqual(actual, expected);
 
   t.end();
@@ -152,7 +152,7 @@ test('defaultSensorIdForParameter returns hardcoded id for Temperature', t => {
 
   const actual = defaultSensorIdForParameter(parameter, sensors);
 
-  const expected = "Temperature-AirBeam2-F (F)";
+  const expected = "Temperature-airbeam2-f (F)";
   t.deepEqual(actual, expected);
 
   t.end();
@@ -164,7 +164,7 @@ test('defaultSensorIdForParameter returns hardcoded id for Sound Level', t => {
 
   const actual = defaultSensorIdForParameter(parameter, sensors);
 
-  const expected = "Sound Level-Phone Microphone (dB)";
+  const expected = "Sound Level-phone microphone (dB)";
   t.deepEqual(actual, expected);
 
   t.end();
@@ -211,7 +211,7 @@ test('selected with no sensor id in the url returns the default sensor with adde
 
   const expected = {
     ...defaultSensor,
-    id: 'Particulate Matter-AirBeam2-PM2.5 (µg/m³)',
+    id: 'Particulate Matter-airbeam2-pm2.5 (µg/m³)',
     label: 'AirBeam2-PM2.5 (µg/m³)',
     select_label: 'AirBeam2-PM2.5 (µg/m³)'
   };
@@ -236,7 +236,7 @@ test('selected with all as sensor id in the url returns undefined', t => {
 
 test('selected with sensor id in the url returns the correct sensor with added id, label, select_label', t => {
   const params = {
-    get: () => ({ sensorId: "Humidity-AirBeam2-RH (%)" })
+    get: () => ({ sensorId: "Humidity-airbeam2-rh (%)" })
   };
   const service = _sensors({ params })
   const sensor = {
@@ -251,7 +251,7 @@ test('selected with sensor id in the url returns the correct sensor with added i
 
   const expected = {
     ...sensor,
-    id: 'Humidity-AirBeam2-RH (%)',
+    id: 'Humidity-airbeam2-rh (%)',
     label: 'AirBeam2-RH (%)',
     select_label: 'AirBeam2-RH (%)'
   };
@@ -275,7 +275,7 @@ test('selectedId with no sensor id in the url returns the default sensor id', t 
 
   const actual = service.selectedId();
 
-  const expected = 'Particulate Matter-AirBeam2-PM2.5 (µg/m³)';
+  const expected = 'Particulate Matter-airbeam2-pm2.5 (µg/m³)';
   t.deepEqual(actual, expected);
 
   t.end();
@@ -297,7 +297,7 @@ test('selectedId with all as sensor id in the url returns undefined', t => {
 
 test('selectedId with sensor id in the url returns the correct sensor id', t => {
   const params = {
-    get: () => ({ sensorId: "Humidity-AirBeam2-RH (%)" })
+    get: () => ({ sensorId: "Humidity-airbeam2-rh (%)" })
   };
   const service = _sensors({ params })
   const sensor = {
@@ -310,7 +310,7 @@ test('selectedId with sensor id in the url returns the correct sensor id', t => 
 
   const actual = service.selectedId();
 
-  const expected = 'Humidity-AirBeam2-RH (%)';
+  const expected = 'Humidity-airbeam2-rh (%)';
   t.deepEqual(actual, expected);
 
   t.end();
