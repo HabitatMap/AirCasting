@@ -585,7 +585,6 @@ p.ui-dialog-content {
 
 .fixed-marker::before {
   content: '';
-  background-color: red;
   position: absolute;
   width: 12px;
   height: 12px;
@@ -612,4 +611,40 @@ p.ui-dialog-content {
 .fixed-marker.low::before {
   background: #2DA641;
   border: 1px solid #336633;
+}
+
+.fixed-marker.lowest::before {
+  background: #ccc;
+  border: 1px solid #ccc;
+}
+
+.fixed-marker::after {
+  content: '';
+  width: 75px;
+  height: 75px;
+  z-index: -1;
+  position: absolute;
+  left: -22.5px;
+  top: -22.5px;
+  border-radius: 50%;
+}
+
+.fixed-marker.highest::after {
+  background-image: radial-gradient(circle at 50%, rgba(244, 0, 28, 1) 0%, rgba(244, 0, 28, 0) 70%);
+}
+
+.fixed-marker.high::after {
+  background-image: radial-gradient(circle at 50%, rgba(245, 127, 34, 1) 0%, rgba(245, 127, 34, 0) 70%);
+}
+
+.fixed-marker.mid::after {
+  background-image: radial-gradient(circle at 50%, rgba(255, 204, 51, 1) 0%, rgba(255, 204, 51, 0) 70%);
+}
+
+.fixed-marker.low::after {
+  background-image: radial-gradient(circle at 50%, rgba(45, 166, 65, 1) 0%, rgba(45, 166, 65, 0) 70%);
+}
+
+.fixed-marker.lowest::after {
+  background-image: radial-gradient(circle at 50%, rgba(204, 204, 204, 1) 0%, rgba(204, 204, 204, 0) 70%);
 }
