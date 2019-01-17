@@ -61,6 +61,7 @@ AirCasting::Application.routes.draw do
           post :delete_session_streams
         end
       end
+      get 'sessions/:uuid' => 'user_sessions#show'
     end
     resources :sensors, only: [:index]
 
