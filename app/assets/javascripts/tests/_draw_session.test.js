@@ -22,7 +22,7 @@ test('drawMobileSessionStartPoint calls drawMarker', t => {
   const selectedSensor = "sensorId";
   const streams = { sensorId: {} };
   const session = { streams: streams, markers: [] };
-  const drawSessionMock = _drawSession({map});
+  const drawSessionMock = _drawSession({ map });
 
   drawSessionMock.drawMobileSessionStartPoint(session, selectedSensor);
 
@@ -31,8 +31,35 @@ test('drawMobileSessionStartPoint calls drawMarker', t => {
   t.end();
 });
 
-const _drawSession = ({ map }) => {
-  const _map = { ...map };
-  const _heat = { getLevel: () => {} };
-  return drawSession(null, _map, _heat);
+test('drawFixedSession creates a marker if heat level is not null', t => {
+  const marker = {};
+  const heat = { getLevel: () => 1 }
+  const drawSessionMock = _drawSession({ heat });
+  const session = { last_hour_average: 1 };
+
+  const actual = drawSessionMock.drawFixedSession(session);
+
+  const expected = [marker]
+  t.deepEqual(actual, expected);
+
+  t.end();
+})
+
+test('drawFixedSession does not create a marker if heat level is null', t => {
+  const drawSessionMock = _drawSession({});
+  const session = { last_hour_average: 1 };
+
+  const actual = drawSessionMock.drawFixedSession(session);
+
+  const expected = []
+  t.deepEqual(actual, expected  );
+
+  t.end();
+})
+
+const _drawSession = ({ map, sensors, heat }) => {
+  const _map = { drawMarker: () => { return {}}, ...map };
+  const _heat = { getLevel: () => {}, ...heat };
+  const _sensors = { anySelected: () => true , tmpSelected: () => false, ...sensors };
+  return drawSession(_sensors, _map, _heat);
 };

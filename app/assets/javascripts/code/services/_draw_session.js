@@ -50,6 +50,7 @@ export const drawSession = (
 
       if (sensors.anySelected() && !sensors.tmpSelected() && session.last_hour_average) {
         level = calculateHeatLevel(heat, session.last_hour_average);
+        if (!level) return  session.markers;
       } else {
         level = 0;
       }
