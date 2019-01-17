@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'activeadmin'
-gem 'activerecord-import', '~> 0.2.9'
+gem 'activerecord-import', '0.4.1'
 gem 'acts-as-taggable-on', '~> 2.3.3'
 gem 'coffee-script-source', '1.1.2'
 gem 'colored', require: false
