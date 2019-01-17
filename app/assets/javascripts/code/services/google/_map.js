@@ -166,7 +166,7 @@ export const map = (
         //newMarker.setMap(this.get());
         definePopupClass();
         console.warn(latLngObj)
-        const popup = new Popup(new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude), "hello");
+        const popup = new Popup(new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude), "1243µg/m³");
         console.warn(popup)
         popup.setMap(this.get());
         this.markers.push(newMarker);
@@ -225,7 +225,8 @@ function definePopupClass() {
     this.position = position;
 
     this.anchor = document.createElement('div');
-    this.anchor.classList.add('pina');
+    this.anchor.classList.add('fixed-marker');
+    this.anchor.classList.add('mid');
     this.anchor.innerText = content;
 
     // Optionally stop clicks, etc., from bubbling up to the map.
