@@ -5,7 +5,7 @@ gem 'activerecord-import', '0.4.1'
 gem 'acts-as-taggable-on', '2.4.1'
 gem 'coffee-script-source', '1.1.2'
 gem 'colored', require: false
-gem 'devise', '~> 2.0.5'
+gem 'devise', '3.0.0'
 gem "foreman"
 gem 'geocoder', '~> 1.2'
 gem 'haml'
