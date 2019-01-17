@@ -24,7 +24,6 @@ class Measurement < ActiveRecord::Base
   Y_SIZES = (1..300).map { |i| 1.2 ** i * 0.000001 }
   FIXED_MEASUREMENTS_IN_A_DAY = 1440
 
-  # belongs_to :session, :through => :stream, :inverse_of => :measurements, :counter_cache => true
   belongs_to :stream, :inverse_of =>:measurements, :counter_cache => true
   has_one :session, :through => :stream
   has_one :user, :through => :session

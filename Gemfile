@@ -27,7 +27,6 @@ gem 'sinatra', require: false
 gem 'thin', '~> 1.6', '>= 1.6.4'
 gem 'webpack-rails'
 gem 'test-unit', '~> 3.0'
-gem 'protected_attributes'
 
 group :development do
   gem 'coffee-rails', '4.0.0'
@@ -56,11 +55,11 @@ end
 group :test, :development do
   gem 'shoulda-matchers'
   gem 'spork', '~> 0.9.0', :require => false
+  gem 'factory_girl_rails'
 end
 
 group :test do
   gem 'capybara'
-  gem 'factory_girl_rails'
   gem 'rspec-rails', '~> 3.8.0'
 end
 

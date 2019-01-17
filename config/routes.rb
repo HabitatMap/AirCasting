@@ -10,7 +10,7 @@ AirCasting::Application.routes.draw do
 
   resource :map
 
-  match 's/:url_token' => 'measurement_sessions#show', :as => :short_session
+  get 's/:url_token' => 'measurement_sessions#show', :as => :short_session
 
   namespace :api do
     namespace :v2 do

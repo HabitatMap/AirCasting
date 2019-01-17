@@ -27,9 +27,6 @@ AirCasting::Application.configure do
   # number of complex assets.
   config.assets.debug = true
 
-  # Log error messages when you accidentally call methods on nil.
-  config.whiny_nils = true
-
   # Only use best-standards-support built into browsers
   config.action_dispatch.best_standards_support = :builtin
 

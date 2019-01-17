@@ -49,12 +49,6 @@ class Session < ActiveRecord::Base
 
   acts_as_taggable
 
-  attr_accessible :uuid, :title, :tag_list,
-  :contribute, :notes_attributes, :data_type, :instrument,
-  :user, :start_time, :end_time, :start_time_local, :end_time_local, :type,
-  :is_indoor, :latitude, :longitude
-  attr_accessible :title, :tag_list, :as => :sync
-
   scope :local_time_range_by_minutes, lambda { |start_minutes, end_minutes|
     field_in_minutes = lambda { |field|
       "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{field}))"
@@ -194,7 +188,7 @@ class Session < ActiveRecord::Base
     res = super(opts.merge(:methods => methods).merge(except: except))
 
     map_of_streams = {}
-    strs = sensor_id ? streams.where(sensor_name: sensor_id) : streams.all
+    strs = sensor_id ? streams.where(sensor_name: sensor_id) : streams.all.to_a
 
     strs.each do |stream|
       if opts[:stream_measurements]
@@ -223,7 +217,9 @@ class Session < ActiveRecord::Base
     session_data = session_data.merge(:tag_list => SessionBuilder.normalize_tags(tag_list))
 
     transaction do
-      update_attributes(session_data, :as => :sync)
+      self.title = session_data[:title]
+      self.tag_list = session_data[:tag_list]
+      self.save!
 
       (session_data[:streams] || []).each do |key, stream_data|
         if stream_data[:deleted]
