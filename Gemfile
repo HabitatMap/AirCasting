@@ -28,9 +28,7 @@ gem 'thin', '~> 1.6', '>= 1.6.4'
 gem 'webpack-rails'
 gem 'test-unit', '~> 3.0'
 
-# Gems used only for assets and not required
-# in production environments by default.
-group :assets, :development do
+group :development do
   gem 'coffee-rails', '4.0.0'
   gem 'sass-rails', '4.0.0'
   gem 'uglifier', '~> 1.2.7'
