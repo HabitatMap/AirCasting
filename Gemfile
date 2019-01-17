@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'activeadmin'
+gem 'activeadmin', '1.0.0.pre5'
 gem 'activerecord-import', '0.4.1'
 gem 'acts-as-taggable-on', '2.4.1'
 gem 'coffee-script-source', '1.1.2'
@@ -17,7 +17,7 @@ gem 'paperclip', '~> 2.8.0'
 gem 'progress', require: false
 gem 'pry-rails'
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails', '3.2.22.5'
+gem 'rails', '4.0.0'
 gem 'rake', '10.0.3'
 gem 'rb-gsl', '1.16.0.6'
 gem 'rubyzip', '>= 1.0.0'
@@ -31,8 +31,8 @@ gem 'test-unit', '~> 3.0'
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets, :development do
-  gem 'coffee-rails', '~> 3.2.1'
-  gem 'sass-rails', '~> 3.2.2'
+  gem 'coffee-rails', '4.0.0'
+  gem 'sass-rails', '4.0.0'
   gem 'uglifier', '~> 1.2.7'
   gem 'yui-compressor'
 end
