@@ -42,8 +42,8 @@ GEM
     activesupport (3.2.22.5)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
-    acts-as-taggable-on (2.3.3)
-      rails (~> 3.0)
+    acts-as-taggable-on (2.4.1)
+      rails (>= 3, < 5)
     adamantium (0.2.0)
       ice_nine (~> 0.11.0)
       memoizable (~> 0.4.0)
@@ -436,7 +436,7 @@ PLATFORMS
 DEPENDENCIES
   activeadmin
   activerecord-import (= 0.4.1)
-  acts-as-taggable-on (~> 2.3.3)
+  acts-as-taggable-on (= 2.4.1)
   awesome_print
   better_errors
   binding_of_caller
