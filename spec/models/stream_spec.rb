@@ -63,8 +63,8 @@ describe Stream do
 
     it "should return all sensors" do
       thresholds = FactoryGirl.attributes_for(:stream).select { |k,v| k =~ /^threshold/ }
-      expect(subject).to include({ :unit_symbol => "%", :sensor_name => "s1", :measurement_type => "m1", :session_count => 2 }.merge(thresholds))
-      expect(subject).to include({ :unit_symbol => "%", :sensor_name => "s2", :measurement_type => "m2", :session_count => 1 }.merge(thresholds))
+      expect(subject).to include({ :id => nil, :unit_symbol => "%", :sensor_name => "s1", :measurement_type => "m1", :session_count => 2 }.merge(thresholds))
+      expect(subject).to include({ :id => nil, :unit_symbol => "%", :sensor_name => "s2", :measurement_type => "m2", :session_count => 1 }.merge(thresholds))
     end
 
     it "should return unique sensors" do
@@ -84,9 +84,8 @@ describe Stream do
     subject { stream.as_json(:methods => [:measurements]) }
 
     it "should include stream size and measurements" do
-      expect(subject[:size]).not_to be_nil
-      expect(subject[:measurements]).not_to be_nil
-      #subject[:size].should == stream.reload.measurements.size
+      expect(subject["size"]).not_to be_nil
+      expect(subject["measurements"]).not_to be_nil
     end
   end
 
