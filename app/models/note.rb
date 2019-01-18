@@ -30,6 +30,7 @@ class Note < ActiveRecord::Base
   has_attached_file :photo, {
     :styles => { :thumbnail => "100x100", :medium => "600x600" },
     :url => "/system/:hash.:extension",
+    :path => ":rails_root/public/system/:hash.:extension",
     :hash_secret => AppConfig.attachment_secret
   }
 

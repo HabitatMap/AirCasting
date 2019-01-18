@@ -13,7 +13,7 @@ gem 'honeybadger', '~> 2.0'
 gem 'mysql2', '~> 0.3.10'
 gem 'newrelic_rpm', '~> 3.14', '>= 3.14.0.305'
 gem 'oj'
-gem 'paperclip', '~> 2.8.0'
+gem 'paperclip', '3.5.4'
 gem 'progress', require: false
 gem 'pry-rails'
 gem 'rack-cors', require: 'rack/cors'
