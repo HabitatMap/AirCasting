@@ -26,7 +26,7 @@
 # Loading the secrets, as you cannot use `Rails.` functions here to read them.
 secrets = YAML.load(File.read(File.expand_path('../../../config/secrets.yml', __FILE__)))
 
-server secrets.fetch('EXPERIMENTAL_SERVER_ADDRESS'), user: 'aircasting', roles: %w{web app}
+server Rails.application.secrets.experimental_server_address, user: 'aircasting', roles: %w{web app}
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, '/home/aircasting/application'
 set :rails_env, "production"
