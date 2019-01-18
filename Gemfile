@@ -27,6 +27,7 @@ gem 'sinatra', require: false
 gem 'thin', '~> 1.6', '>= 1.6.4'
 gem 'webpack-rails'
 gem 'test-unit', '~> 3.0'
+gem 'a9n'
 
 group :development do
   gem 'coffee-rails', '4.0.0'

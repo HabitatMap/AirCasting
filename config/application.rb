@@ -6,6 +6,9 @@ require 'rails/all'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+A9n.root = File.expand_path('../..', __FILE__)
+A9n.load
+
 require_relative '../lib/app_config'
 require_relative '../lib/aircasting/auth_failure_app'
 require_relative '../lib/aircasting/gzip'

@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    a9n (0.6.1)
     abstract_type (0.0.7)
     actionmailer (4.1.2)
       actionpack (= 4.1.2)
@@ -441,6 +442,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  a9n
   activeadmin (= 1.0.0.pre5)
   activerecord-import (= 0.4.1)
   acts-as-taggable-on (= 2.4.1)

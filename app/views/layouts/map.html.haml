@@ -4,7 +4,7 @@
     %title AirCasting
     = javascript_include_tag *webpack_asset_paths("application")
     = stylesheet_link_tag    "application"
-    = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{Rails.application.secrets.google_maps_api_key}"
+    = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}"
     = favicon_link_tag "favicon.png"
     = csrf_meta_tags
     = render :partial => 'shared/analytics'

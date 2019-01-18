@@ -1,5 +1,5 @@
 class Csv::AppendNotesContent
-  def initialize(host: Rails.application.secrets.host)
+  def initialize(host: A9n.host)
     @host = host
   end
 

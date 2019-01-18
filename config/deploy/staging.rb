@@ -23,11 +23,8 @@
 # server list. The second argument is a, or duck-types, Hash and is
 # used to set extended properties on the server.
 
-# Loading the secrets, as you cannot use `Rails.` functions here to read them.
-secrets = YAML.load(File.read(File.expand_path('../../../config/secrets.yml', __FILE__)))
-
 staging_server_address = ENV.fetch('STAGING_SERVER_ADDRESS') do |_|
-  Rails.application.secrets.staging_server_address
+  A9n.staging_server_address
 end
 server staging_server_address, user: 'aircasting', roles: %w{web app}
 # Default deploy_to directory is /var/www/my_app_name
