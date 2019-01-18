@@ -18,7 +18,7 @@ angular.module('aircasting', ['ngRoute', 'ngCookies', "google"], [ "$routeProvid
                           sensorsList: ['$http', function($http) {return $http.get('/api/sensors', {cache: true}).then(function(response){ return response.data}) }]
                         }
                       });
-  $routeProvider.otherwise({redirectTo: '/map_sessions'});
+  $routeProvider.otherwise({redirectTo: '/map_fixed_sessions'});
 }]);
 
 angular.module('aircasting').config(['$httpProvider', function($httpProvider) {
