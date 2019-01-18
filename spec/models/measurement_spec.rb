@@ -19,11 +19,6 @@
 require 'spec_helper'
 
 describe Measurement do
-  it { is_expected.to validate_presence_of :value }
-  it { is_expected.to validate_presence_of :longitude }
-  it { is_expected.to validate_presence_of :latitude }
-  it { is_expected.to validate_presence_of :time }
-
   describe "scopes" do
     let(:session) { FactoryGirl.create(:mobile_session) }
     let(:stream) { FactoryGirl.create(:stream, :session => session) }

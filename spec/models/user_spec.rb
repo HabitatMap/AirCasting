@@ -22,11 +22,6 @@ describe User do
   let(:user) { FactoryGirl.create(:user) }
   subject { user }
 
-  it { is_expected.to validate_presence_of(:username) }
-  it { is_expected.to validate_uniqueness_of(:username).case_insensitive }
-  it { is_expected.to validate_presence_of(:email) }
-  it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
-
   describe "#before_save" do
     it 'chomps username attr, so there is no new lines chars at the end' do
       username = "FooBoo\n"

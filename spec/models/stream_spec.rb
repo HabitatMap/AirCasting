@@ -19,23 +19,6 @@
 require 'spec_helper'
 
 describe Stream do
-
-  describe "validations" do
-    [:sensor_name,
-     :sensor_package_name,
-     :unit_name,
-     :measurement_type,
-     :measurement_short_type,
-     :unit_symbol,
-     :threshold_very_low,
-     :threshold_low,
-     :threshold_medium,
-     :threshold_high,
-     :threshold_very_high].each do |field|
-      it { is_expected.to validate_presence_of field }
-    end
-  end
-
   let(:stream) { FactoryGirl.create(:stream) }
   let!(:measurement) { FactoryGirl.create(:measurement, :stream => stream) }
 
