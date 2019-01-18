@@ -1,6 +1,8 @@
 !!! 5
-%html(ng-app="aircasting")
+%html(lang="en" ng-app="aircasting")
   %head
+    %meta(name='viewport' content='width=device-width,initial-scale=0.5')
+    %meta(name='description' content='AirCasting map showing health and environmental data like air quality, temperature, humidity, sound levels and more.')
     %title AirCasting
     = javascript_include_tag *webpack_asset_paths("application")
     = stylesheet_link_tag    "application"

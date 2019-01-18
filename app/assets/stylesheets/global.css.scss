@@ -1,4 +1,6 @@
-$button-color: #858585;
+$brand-color: #757575;
+$text-color: #757575;
+$button-color: #757575;
 $button-front: #fff;
 $link-color: #669900;
 
@@ -22,7 +24,7 @@ html {
   height: 100%;
   width: 100%;
   font: 14px/1.5 Helvetica,Arial,sans-serif;
-  color: #858585;
+  color: $text-color;
 }
 
 button, .button {
@@ -54,7 +56,7 @@ a {
   }
 
   #logo {
-    background-color: #858585;
+    background-color: $brand-color;
     width: 160px;
     height: 174px;
     float: left;
@@ -79,16 +81,16 @@ a {
       li {
         margin: 0 0 3px 0;
         font-weight: bold;
-        background-color: #858585;
+        background-color: $brand-color;
         text-transform: uppercase;
       }
 
       li.active {
         background-color: white;
-        color: #858585;
+        color: $brand-color;
 
         a {
-          color: #858585;
+          color: $brand-color;
         }
       }
     }
@@ -101,7 +103,7 @@ a {
 
     #account-status {
       opacity: 0.9;
-      background-color: #858585;
+      background-color: $brand-color;
       padding: 5px;
       text-align: center;
       // height: 20px;
@@ -114,7 +116,7 @@ a {
 
     #sign-in {
       opacity: 0.9;
-      background-color: #858585;
+      background-color: $brand-color;
       width: 223px;
       padding: 5px;
 
@@ -135,4 +137,15 @@ a {
 
 #jquery-lightbox {
   z-index: 2050 !important;
+}
+
+.visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
 }

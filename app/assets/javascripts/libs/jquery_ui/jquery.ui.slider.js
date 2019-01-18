@@ -38,7 +38,7 @@ $.widget( "ui.slider", $.ui.mouse, {
 		var self = this,
 			o = this.options,
 			existingHandles = this.element.find( ".ui-slider-handle" ).addClass( "ui-state-default ui-corner-all" ),
-			handle = "<a class='ui-slider-handle ui-state-default ui-corner-all' href='#'></a>",
+			handle = "<a class='ui-slider-handle ui-state-default ui-corner-all' aria-label='ui slider' href='#'></a>",
 			handleCount = ( o.values && o.values.length ) || 1,
 			handles = [];
 
