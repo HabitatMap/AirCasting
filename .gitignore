@@ -34,7 +34,6 @@ AirCasting.iws
 .rvmrc
 config/newrelic.yml
 config/honeybadger.yml
-config/secrets.yml
 config/configuration.yml
 
 analyzing/
