@@ -3,9 +3,9 @@ import { mock } from './helpers';
 import { heat } from '../code/services/_heat';
 
 test('outsideOfScope return true when value outside of scope', t => {
-  const heatMock = _heat();
+  const heatStub = _heat();
 
-  const actual = heatMock.outsideOfScope(-1)
+  const actual = heatStub.outsideOfScope(-1)
 
   t.equal(actual, true)
 
@@ -13,9 +13,9 @@ test('outsideOfScope return true when value outside of scope', t => {
 });
 
 test('outsideOfScope return false when value inside scope', t => {
-  const heatMock = _heat();
+  const heatStub = _heat();
 
-  const actual = heatMock.outsideOfScope(1)
+  const actual = heatStub.outsideOfScope(1)
 
   t.equal(actual, false)
 
@@ -26,5 +26,5 @@ const _heat = () => {
   const params = { get: () => ({ heat: { lowest: 0, highest: 150 }})};
   const $rootScope = { $new: () => ({ $watch: () => {} }) };
 
-  return heat($rootScope, params, null);
+  return heat($rootScope, params);
 };
