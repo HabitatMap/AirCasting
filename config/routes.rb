@@ -1,5 +1,5 @@
 require 'sidekiq/web'
-AirCasting::Application.routes.draw do
+Rails.application.routes.draw do
   ActiveAdmin.routes(self)
 
   constraints AdminConstraint.new do
