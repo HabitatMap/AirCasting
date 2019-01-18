@@ -188,9 +188,9 @@ class Session < ActiveRecord::Base
     res = super(opts.merge(:methods => methods).merge(except: except))
 
     map_of_streams = {}
-    strs = sensor_id ? streams.where(sensor_name: sensor_id) : streams.all.to_a
+    strs = sensor_id ? streams.where(sensor_name: sensor_id) : streams
 
-    strs.each do |stream|
+    strs.to_a.each do |stream|
       if opts[:stream_measurements]
         if type == "FixedSession"
           measurements_to_send = get_measurement_scope(stream.id, opts[:last_measurement_sync])
