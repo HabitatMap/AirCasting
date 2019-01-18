@@ -45,20 +45,14 @@ export const drawSession = (
       session.markers = [];
       session.noteDrawings = [];
       session.lines = [];
-      var markerOptions = {title: session.title, zIndex: 0};
-      var level;
 
-      if (sensors.anySelected() && !sensors.tmpSelected() && session.last_hour_average) {
-        level = calculateHeatLevel(heat, session.last_hour_average);
-        if (!level) return  session.markers;
-      } else {
-        level = 0;
-      }
+      if (!sensors.selected()) { return drawDefaultMarker(session, map) };
 
-      session.markers.push(map.drawMarker(session, markerOptions, null, level));
-      session.drawed = true;
+      if (session.last_hour_average === undefined) { return drawDefaultMarker(session, map) };
 
-      return session.markers;
+      if (heat.outsideOfScope(session.last_hour_average)) { return session.markers };
+
+      return drawColorCodedMarker(session, map, heat)
     },
 
     drawMobileSessionStartPoint: function(session, selectedSensor) {
@@ -129,3 +123,23 @@ export const drawSession = (
 };
 
 const calculateHeatLevel = (heat, value) => heat.getLevel(value);
+
+const drawDefaultMarker = (session, map) => {
+  const level = 0;
+  const markerOptions = {title: session.title, zIndex: 0};
+
+  session.markers.push(map.drawMarker(session, markerOptions, null, level));
+  session.drawed = true;
+
+  return session.markers;
+};
+
+const drawColorCodedMarker = (session, map, heat) => {
+  const level = calculateHeatLevel(heat, session.last_hour_average);
+  const markerOptions = {title: session.title, zIndex: 0};
+
+  session.markers.push(map.drawMarker(session, markerOptions, null, level));
+  session.drawed = true;
+
+  return session.markers;
+};

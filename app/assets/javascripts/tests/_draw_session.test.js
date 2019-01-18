@@ -7,9 +7,9 @@ test('clearOtherSessions removes all markers expect the selected one', t => {
   const selected_session = { drawed: true, markers: ["selected session marker"] };
   const other_session = { drawed: true, markers: ["other session marker"] }
   const sessions = [other_session, selected_session];
-  const drawSessionMock = _drawSession({ map });
+  const drawSessionStub = _drawSession({ map });
 
-  drawSessionMock.clearOtherSessions(sessions, selected_session);
+  drawSessionStub.clearOtherSessions(sessions, selected_session);
 
   t.true(map.wasCalledWith("other session marker"));
 
@@ -22,22 +22,22 @@ test('drawMobileSessionStartPoint calls drawMarker', t => {
   const selectedSensor = "sensorId";
   const streams = { sensorId: {} };
   const session = { streams: streams, markers: [] };
-  const drawSessionMock = _drawSession({ map });
+  const drawSessionStub = _drawSession({ map });
 
-  drawSessionMock.drawMobileSessionStartPoint(session, selectedSensor);
+  drawSessionStub.drawMobileSessionStartPoint(session, selectedSensor);
 
   t.true(map.wasCalled());
 
   t.end();
 });
 
-test('drawFixedSession creates a marker if heat level is not null', t => {
+test('with all sensors selected drawFixedSession creates a marker', t => {
   const marker = {};
-  const heat = { getLevel: () => 1 }
-  const drawSessionMock = _drawSession({ heat });
-  const session = { last_hour_average: 1 };
+  const sensors = { selected: () => false }
+  const session = {};
+  const drawSessionStub = _drawSession({ sensors });
 
-  const actual = drawSessionMock.drawFixedSession(session);
+  const actual = drawSessionStub.drawFixedSession(session);
 
   const expected = [marker]
   t.deepEqual(actual, expected);
@@ -45,21 +45,53 @@ test('drawFixedSession creates a marker if heat level is not null', t => {
   t.end();
 })
 
-test('drawFixedSession does not create a marker if heat level is null', t => {
-  const drawSessionMock = _drawSession({});
-  const session = { last_hour_average: 1 };
+test('with sensor selected and last_hour_average is undefined drawFixedSession creates a marker', t => {
+  const marker = {};
+  const sensors = { selected: () => true }
+  const session = {};
+  const drawSessionStub = _drawSession({ sensors });
 
-  const actual = drawSessionMock.drawFixedSession(session);
+  const actual = drawSessionStub.drawFixedSession(session);
 
-  const expected = []
-  t.deepEqual(actual, expected  );
+  const expected = [marker]
+  t.deepEqual(actual, expected);
 
   t.end();
 })
 
+test('with selected sensor and last_hour_average outsied of scope drawFixedSession does not create a marker', t => {
+  const sensors = { selected: () => true }
+  const session = { last_hour_average: -1 };
+  const heat = { outsideOfScope: () => true };
+  const drawSessionStub = _drawSession({ sensors, heat });
+
+  const actual = drawSessionStub.drawFixedSession(session);
+
+  const expected = []
+  t.deepEqual(actual, expected);
+
+  t.end();
+})
+
+test('with selected sensor and last_hour_average defined and inside scope drawFixedSession creates a marker', t => {
+  const marker = {};
+  const sensors = { selected: () => true }
+  const session = { last_hour_average: 1 };
+  const heat = { outsideOfScope: () => false, getLevel: () => 1 }
+  const drawSessionStub = _drawSession({ sensors, heat });
+
+  const actual = drawSessionStub.drawFixedSession(session);
+
+  const expected = [marker]
+  t.deepEqual(actual, expected);
+
+  t.end();
+})
+
+
 const _drawSession = ({ map, sensors, heat }) => {
-  const _map = { drawMarker: () => { return {}}, ...map };
+  const _map = { drawMarker: () => ({}), ...map };
   const _heat = { getLevel: () => {}, ...heat };
-  const _sensors = { anySelected: () => true , tmpSelected: () => false, ...sensors };
+  const _sensors = { ...sensors };
   return drawSession(_sensors, _map, _heat);
 };
