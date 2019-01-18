@@ -30,7 +30,7 @@ gem 'test-unit', '~> 3.0'
 
 group :development do
   gem 'coffee-rails', '4.0.0'
-  gem 'sass-rails', '4.0.0'
+  gem 'sass-rails'
   gem 'uglifier', '~> 1.2.7'
   gem 'yui-compressor'
 end
