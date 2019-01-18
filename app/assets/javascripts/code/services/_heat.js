@@ -1,5 +1,3 @@
-import _ from 'underscore';
-
 export const heat = ($rootScope, params, storage) => {
 
   var Heat = function() {
@@ -93,6 +91,10 @@ export const heat = ($rootScope, params, storage) => {
       } else {
         return null;
       }
+    },
+
+    outsideOfScope: function(value) {
+      return (value < this.getValue("lowest")) || (value > this.getValue("highest"))
     }
   };
 
