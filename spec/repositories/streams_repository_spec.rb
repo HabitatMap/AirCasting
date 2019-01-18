@@ -22,7 +22,7 @@ describe StreamsRepository do
     })
 
     calculate_bounding_box = double
-    expect(calculate_bounding_box).to receive(:call).with(stream.measurements.select([:latitude, :longitude])) {
+    expect(calculate_bounding_box).to receive(:call) {
       {
         min_latitude: 5,
         max_latitude: 6,
