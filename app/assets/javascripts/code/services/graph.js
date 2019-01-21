@@ -73,7 +73,7 @@ angular.module("aircasting").factory('graph', [
             marginRight: 5,
             marginLeft: 5,
             borderRadius: 0,
-            borderColor: '#858585',
+            borderColor: '#757575',
             borderWidth: 2,
             zoomType: "x",
             style: {
@@ -245,7 +245,7 @@ angular.module("aircasting").factory('graph', [
             end_date: Math.round(e.max)
           }}).success(function(data) {
             data = _.extend(singleFixedSession.measurementsToTime(data), final_point);
-            self.chart.series[0].setData(_(data).values(), false);          
+            self.chart.series[0].setData(_(data).values(), false);
           })
         );
 

@@ -2,6 +2,7 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+@import "global";
 @import "mixins";
 
 $right-hud-width: 320px;
@@ -37,7 +38,7 @@ body#map {
 
 #hud_view {
   background: none repeat scroll 0 0 #FFFFFF;
-  border: 2px solid #858585;
+  border: 2px solid $text-color;
   margin-top: -2px;
   padding: 10px;
 }
@@ -145,12 +146,12 @@ http-spinner {
   padding: 2px 0 0;
 
   input.narrow {
-    float:left;
-    line-height:13px;
-    height:16px;
-    width:42px !important;
-    padding:2px;
-    color:#858585;
+    float: left;
+    line-height: 13px;
+    height: 16px;
+    width: 42px !important;
+    padding: 2px;
+    color: $text-color;
     text-align: center;
 
     &:last-child {
@@ -214,7 +215,7 @@ http-spinner {
     }
     span {
       white-space:nowrap;
-      color:#858585;
+      color: $text-color;
     }
   }
 
@@ -363,28 +364,27 @@ http-spinner {
 }
 
 #hud  #hud-tabs {
-  padding:0;
-  margin:0;
-  overflow:hidden;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
 
   li {
-    display:inline;
-    float:left;
+    display: inline;
+    float: left;
 
     color: white;
-    background:#858585;
-    background:rgb(133,133,133);
+    background: $text-color;
 
-    padding:5px 10px;
-    border:2px solid #858585;
-    border-bottom:none;
-    margin-right:10px;
+    padding: 5px 10px;
+    border: 2px solid $text-color;
+    border-bottom: none;
+    margin-right: 10px;
 
     &.active {
       background: rgb(255, 255, 255);
 
       a {
-        color:#858585;
+        color: $text-color;
         outline: none;
       }
     }
@@ -442,7 +442,7 @@ http-spinner {
   select {
     background: none repeat scroll 0 0 #FFFFFF;
     border: 1px solid #999999;
-    color: #858585;
+    color: $text-color;
     padding: 4px 3px 3px;
     outline: 0;
     max-width: 100%;
@@ -555,4 +555,8 @@ p.ui-dialog-content {
     right: 2px;
     top: 2px;
   }
+}
+
+.gm-fullscreen-control {
+  display: none;
 }

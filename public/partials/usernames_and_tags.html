@@ -3,7 +3,8 @@
     <h4 ng-click="expandables.toggle('usernames')" ng-class="expandables.css('usernames')">Profile names</h4>
     <section ng-show="expandables.visible('usernames')">
       <div class="textfield">
-        <input type="text" autocomplete="/autocomplete/usernames" ng-model="storage.data.usernames">
+        <label class="visuallyhidden" for="profile-names-input">Profile name</label>
+        <input id="profile-names-input" type="text" autocomplete="/autocomplete/usernames" ng-model="storage.data.usernames">
       </div>
       <div>
         <ul class="buttons">

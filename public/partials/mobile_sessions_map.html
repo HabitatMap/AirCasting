@@ -7,10 +7,12 @@
       <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
       <section ng-show="expandables.visible('sensor')" >
       <p>
-        <select ng-model="sensors.selectedParameter" ng-options="parameter as parameter.label for parameter in sensors.availableParameters track by parameter.id"></select>
+        <label for="mobile-parameters-dropdown" class="visuallyhidden">Parameter</label>
+        <select id="mobile-parameters-dropdown" ng-model="sensors.selectedParameter" ng-options="parameter as parameter.label for parameter in sensors.availableParameters track by parameter.id"></select>
       </p>
       <p>
-        <select ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for sensor in sensors.availableSensors"></select>
+        <label for="mobile-sensors-dropdown" class="visuallyhidden">Sensor</label>
+        <select id="mobile-sensors-dropdown" ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for sensor in sensors.availableSensors"></select>
       </p>
       </section>
 
@@ -18,8 +20,8 @@
       <section ng-show="expandables.visible('location')">
         <div class="textfield">
           <p>
-            <label>Address, Intersection, or Zip
-              <input type="text" ng-model="storage.data.location.address">
+            <label for="mobile-session-location">Address, Intersection, or Zip
+              <input id="mobile-session-location" type="text" ng-model="storage.data.location.address">
             </label>
           </p>
         </div>
