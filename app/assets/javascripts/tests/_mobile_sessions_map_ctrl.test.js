@@ -48,7 +48,8 @@ test('it updates defaults', t => {
     tags: "",
     usernames: "",
     gridResolution: 25,
-    crowdMap: false
+    crowdMap: false,
+    heat: { highest: 150, high: 55, mid: 35, low: 12, lowest: 0 }
   };
   t.deepEqual(defaults, expected);
 

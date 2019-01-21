@@ -3,8 +3,8 @@
   <a class="panel-arrow" ng-click="togglePanel()"></a>
   <div ng-hide="expandables.allHidden">
     <ul id="hud-tabs">
-      <li ng-class="tabClass('map_fixed_sessions')"><a ng-click="goToFixedSessionsMap()">Fixed</a></li>
       <li ng-class="tabClass('map_sessions')"><a ng-click="goToMobileSessionsMap()">Mobile</a></li>
+      <li ng-class="tabClass('map_fixed_sessions')"><a ng-click="goToFixedSessionsMap()">Fixed</a></li>
     </ul>
 
     <div class="permalink" ng:show="permalinkVisible">
