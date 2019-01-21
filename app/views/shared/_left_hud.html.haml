@@ -11,7 +11,7 @@
       %li{:class => request.path.start_with?(map_path) || request.path.start_with?('/s/') ? 'active' : ''}
         = link_to 'Maps', map_path
       %li
-        = link_to 'Blog', 'http://www.takingspace.org/', :target => '_blank'
+        = link_to 'Blog', 'http://www.takingspace.org/', :target => '_blank', :rel => 'noreferrer'
       %li{:class => request.path.start_with?(donate_path) ? 'active' : ''}
         = link_to 'Donate', donate_path
 
