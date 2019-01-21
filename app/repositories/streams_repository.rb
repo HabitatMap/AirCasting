@@ -3,6 +3,10 @@ class StreamsRepository
     Stream.find(id)
   end
 
+  def find_by_id(id)
+    Stream.find_by_id(id)
+  end
+
   def calc_bounding_box!(stream, calculate_bounding_box = Outliers::CalculateBoundingBox.new)
     measurements = stream.measurements.select([:latitude, :longitude])
     bounding_box = calculate_bounding_box.call(measurements)
