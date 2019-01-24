@@ -13,5 +13,6 @@ angular.module("aircasting").factory('mobileSessions', [
   'sessionsUtils',
   '$location',
   'storage',
+  'heat',
   mobileSessions
 ]);
