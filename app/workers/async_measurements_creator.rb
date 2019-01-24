@@ -2,10 +2,8 @@ class AsyncMeasurementsCreator
   include Sidekiq::Worker
 
   def perform(stream_id, measurements_attributes)
-    stream = streams_repository.find_by_id(stream_id)
-    if stream
-      measurements_creator.call(stream, measurements_attributes)
-    end
+    stream = streams_repository.find(stream_id)
+    measurements_creator.call(stream, measurements_attributes)
   end
 
   private
