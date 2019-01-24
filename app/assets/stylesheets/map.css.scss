@@ -566,6 +566,7 @@ p.ui-dialog-content {
   border: 1.5px solid black;
   position: absolute;
   color: black;
+  transform: translate(-16px, -18px);
   &.highest {
     border: 1px solid #F4001C;
   }
