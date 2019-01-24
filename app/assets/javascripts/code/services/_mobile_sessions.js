@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import { debounce } from 'debounce';
 import constants from '../constants';
+import { Session } from '../values/session'
 
 export const mobileSessions = (
   params,
@@ -14,7 +15,8 @@ export const mobileSessions = (
   boundsCalculator,
   sessionsUtils,
   $location,
-  storage
+  storage,
+  heat
 ) => {
   var MobileSessions = function() {
     this.sessions = [];
@@ -119,7 +121,21 @@ export const mobileSessions = (
 
     drawSessionInLocation: function(session, selectedSensor) {
       session.markers = [];
-      drawSession.drawMobileSessionStartPoint(session, selectedSensor);
+      drawSession.undoDraw(session);
+
+      const mySession = new Session(session);
+      const content = mySession.roundedAverage() + " " + mySession.selectedSensorUnit(selectedSensor);
+      const heatLevel = heat.levelName(mySession.average());
+
+      if (!heat.outsideOfScope()) {
+        const popup = map.drawCustomMarker({
+            latLng: mySession.startingLatLng(selectedSensor),
+            content: content,
+            colorClass: heatLevel,
+            clicableObject: session.id
+          });
+        session.markers.push(popup);
+      }
       session.drawed = true;
     },
 
