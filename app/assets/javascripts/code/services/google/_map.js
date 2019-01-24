@@ -163,16 +163,27 @@ export const map = (
         newMarker.addListener('click', function() {
           $rootScope.$broadcast('markerSelected', {session_id: latLngObj.id});
         });
-        //newMarker.setMap(this.get());
-        definePopupClass();
-        console.warn(latLngObj)
-        const popup = new Popup(new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude), "1243µg/m³");
-        console.warn(popup)
-        popup.setMap(this.get());
+        newMarker.setMap(this.get());
         this.markers.push(newMarker);
-        this.markers.push(popup);
       }
       return newMarker;
+    },
+
+    drawCustomMarker: function({
+        latLng: latLng,
+        content: content,
+        colorClass: colorClass,
+        clicableObject: clicableObject
+      }) {
+
+      definePopupClass();
+
+      const popup = new Popup(latLng, content, colorClass, $rootScope, clicableObject);
+
+      popup.setMap(this.get());
+      this.markers.push(popup);
+
+      return popup;
     },
 
     removeMarker: function(marker) {
@@ -221,13 +232,17 @@ function definePopupClass() {
    * @constructor
    * @extends {google.maps.OverlayView}
    */
-  Popup = function(position, content) {
+  Popup = function(position, content, colorClass, $rootScope, clicableObject) {
     this.position = position;
 
     this.anchor = document.createElement('div');
     this.anchor.classList.add('fixed-marker');
-    this.anchor.classList.add('mid');
+    this.anchor.classList.add(colorClass);
     this.anchor.innerText = content;
+    this.anchor.addEventListener('click', function() {
+      console.log('CLICKED')
+      $rootScope.$broadcast('markerSelected', {session_id: clicableObject});
+    });
 
     // Optionally stop clicks, etc., from bubbling up to the map.
     this.stopEventPropagation();
