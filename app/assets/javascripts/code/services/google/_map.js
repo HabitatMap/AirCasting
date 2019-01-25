@@ -169,11 +169,10 @@ export const map = (
       return newMarker;
     },
 
-
-    drawCustomMarker: function({ latLng, content, colorClass, clicableObject }) {
+    drawCustomMarker: function({ latLng, content, colorClass, callback }) {
       definePopupClass();
 
-      const popup = new Popup(latLng, content, colorClass, $rootScope, clicableObject);
+      const popup = new Popup(latLng, content, colorClass, callback);
 
       popup.setMap(this.get());
       this.markers.push(popup);
@@ -227,17 +226,14 @@ function definePopupClass() {
    * @constructor
    * @extends {google.maps.OverlayView}
    */
-  Popup = function(position, content, colorClass, $rootScope, clicableObject) {
+  Popup = function(position, content, colorClass, callback) {
     this.position = position;
 
     this.anchor = document.createElement('div');
     this.anchor.classList.add('fixed-marker');
     this.anchor.classList.add(colorClass);
     this.anchor.innerText = content;
-    this.anchor.addEventListener('click', function() {
-      console.log('CLICKED')
-      $rootScope.$broadcast('markerSelected', {session_id: clicableObject});
-    });
+    this.anchor.addEventListener('click', callback);
 
     // Optionally stop clicks, etc., from bubbling up to the map.
     this.stopEventPropagation();

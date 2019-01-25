@@ -126,13 +126,14 @@ export const mobileSessions = (
       const content = Session.averageVauleAndUnit(session, selectedSensor);
       const heatLevel = heat.levelName(Session.average(session));
       const latLng = new google.maps.LatLng(Session.startingLat(session, selectedSensor), Session.startingLng(session, selectedSensor));
+      const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
       if (!heat.outsideOfScope()) {
         const popup = map.drawCustomMarker({
             latLng: latLng,
             content: content,
             colorClass: heatLevel,
-            clicableObject: session.id
+            callback: callback(Session.id(session))
           });
         session.markers.push(popup);
       }
