@@ -128,7 +128,7 @@ export const mobileSessions = (
       const latLng = new google.maps.LatLng(Session.startingLat(session, selectedSensor), Session.startingLng(session, selectedSensor));
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
-      if (!heat.outsideOfScope()) {
+      if (!heat.outsideOfScope(heatLevel)) {
         const popup = map.drawCustomMarker({
             latLng: latLng,
             content: content,
