@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import { debounce } from 'debounce';
 import constants from '../constants';
-import { Session } from '../values/session'
+import * as Session from '../values/session'
 
 export const mobileSessions = (
   params,
@@ -123,13 +123,13 @@ export const mobileSessions = (
       session.markers = [];
       drawSession.undoDraw(session);
 
-      const mySession = new Session(session);
-      const content = mySession.roundedAverage() + " " + mySession.selectedSensorUnit(selectedSensor);
-      const heatLevel = heat.levelName(mySession.average());
+      const content = Session.averageVauleAndUnit(session, selectedSensor);
+      const heatLevel = heat.levelName(Session.average(session));
+      const latLng = new google.maps.LatLng(Session.startingLat(session, selectedSensor), Session.startingLng(session, selectedSensor));
 
       if (!heat.outsideOfScope()) {
         const popup = map.drawCustomMarker({
-            latLng: mySession.startingLatLng(selectedSensor),
+            latLng: latLng,
             content: content,
             colorClass: heatLevel,
             clicableObject: session.id
