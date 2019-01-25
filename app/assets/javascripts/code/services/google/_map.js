@@ -169,13 +169,8 @@ export const map = (
       return newMarker;
     },
 
-    drawCustomMarker: function({
-        latLng: latLng,
-        content: content,
-        colorClass: colorClass,
-        clicableObject: clicableObject
-      }) {
 
+    drawCustomMarker: function({ latLng, content, colorClass, clicableObject }) {
       definePopupClass();
 
       const popup = new Popup(latLng, content, colorClass, $rootScope, clicableObject);
@@ -266,19 +261,28 @@ function definePopupClass() {
   /** Called when the popup needs to draw itself. */
   Popup.prototype.draw = function() {
     var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
-    // Hide the popup when it is far out of view.
+
+    const divCenteredPosition = this.centerMarker(divPosition)
+
     var display =
-        Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000 ?
+        Math.abs(divCenteredPosition.x) < 4000 && Math.abs(divCenteredPosition.y) < 4000 ?
         'block' :
         'none';
 
     if (display === 'block') {
-      this.anchor.style.left = divPosition.x + 'px';
-      this.anchor.style.top = divPosition.y + 'px';
+      this.anchor.style.left = divCenteredPosition.x + 'px';
+      this.anchor.style.top = divCenteredPosition.y + 'px';
     }
     if (this.anchor.style.display !== display) {
       this.anchor.style.display = display;
     }
+  };
+
+  Popup.prototype.centerMarker = function(divPosition) {
+    const horizontalShift = -16
+    const verticalShift = -18
+
+    return { x: divPosition.x + horizontalShift, y: divPosition.y + verticalShift }
   };
 
   /** Stops clicks/drags from bubbling up to the map. */
