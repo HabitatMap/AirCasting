@@ -18,6 +18,8 @@ export const startingLng = (session, selectedSensor) => session.streams[selected
 
 export const averageVauleAndUnit = (session, selectedSensor) => roundedAverage(session) + " " + selectedSensorUnit(session, selectedSensor);
 
+export const id = (session) => session.id
+
 const roundedAverage = session => Math.round(average(session));
 
 const selectedSensorUnit = (session, selectedSensor) => session.streams[selectedSensor].unit_symbol;
