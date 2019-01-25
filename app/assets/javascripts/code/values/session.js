@@ -10,26 +10,14 @@ export const formatSessionForList = session => ({
   shortTypes: session.shortTypes
 });
 
-export class Session {
-  constructor(session) {
-    this.session = session;
-  };
+export const average = session => session.average;
 
-  roundedAverage() {
-    return Math.round(this.session.average)
-  };
+export const startingLat = (session, selectedSensor) => session.streams[selectedSensor].start_latitude;
 
-  average() {
-    return this.session.average
-  };
+export const startingLng = (session, selectedSensor) => session.streams[selectedSensor].start_longitude;
 
-  selectedSensorUnit(selectedSensor) {
-    this.session.streams[selectedSensor]["unit_symbol"];
-  };
+export const averageVauleAndUnit = (session, selectedSensor) => roundedAverage(session) + " " + selectedSensorUnit(session, selectedSensor);
 
-  startingLatLng(selectedSensor) {
-    const latitude = this.session.streams[selectedSensor]["start_latitude"];
-    const longitude = this.session.streams[selectedSensor]["start_longitude"];
-    return new google.maps.LatLng(latitude, longitude);
-  };
-}
+const roundedAverage = session => Math.round(average(session));
+
+const selectedSensorUnit = (session, selectedSensor) => session.streams[selectedSensor].unit_symbol;
