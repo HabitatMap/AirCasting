@@ -12,13 +12,17 @@ export const formatSessionForList = session => ({
 
 export const average = session => session.average;
 
-export const startingLat = (session, selectedSensor) => session.streams[selectedSensor].start_latitude;
-
-export const startingLng = (session, selectedSensor) => session.streams[selectedSensor].start_longitude;
-
 export const averageVauleAndUnit = (session, selectedSensor) => roundedAverage(session) + " " + selectedSensorUnit(session, selectedSensor);
 
 export const id = (session) => session.id
+
+export const startingLatLng = (session, selectedSensor) => {
+  return { lat: () => startingLat(session, selectedSensor), lng: () => startingLng(session, selectedSensor) }
+};
+
+const startingLat = (session, selectedSensor) => session.streams[selectedSensor].start_latitude;
+
+const startingLng = (session, selectedSensor) => session.streams[selectedSensor].start_longitude;
 
 const roundedAverage = session => Math.round(average(session));
 
