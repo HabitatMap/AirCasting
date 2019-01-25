@@ -1,10 +1,10 @@
 import test from 'blue-tape';
-import { formatSessionForList } from '../code/values/session';
+import * as Session from '../code/values/session';
 
 test('when title is missing it defaults to unnamed', t => {
   const session = {};
 
-  const actual = formatSessionForList(session);
+  const actual = Session.formatSessionForList(session);
 
   t.deepEqual(actual.title, 'unnamed');
 
@@ -17,7 +17,7 @@ test('when title is present it uses it', t => {
     title
   };
 
-  const actual = formatSessionForList(session);
+  const actual = Session.formatSessionForList(session);
 
   t.deepEqual(actual.title, title);
 
@@ -29,7 +29,7 @@ test('when session is indoor it uses anonymous as username', t => {
     is_indoor: true
   };
 
-  const actual = formatSessionForList(session);
+  const actual = Session.formatSessionForList(session);
 
   t.deepEqual(actual.username, 'anonymous');
 
@@ -43,9 +43,57 @@ test('when session is outdoor it uses its username', t => {
     username
   };
 
-  const actual = formatSessionForList(session);
+  const actual = Session.formatSessionForList(session);
 
   t.deepEqual(actual.username, username);
+
+  t.end();
+});
+
+test('average return session average', t => {
+  const session = { average: 1 };
+  const actual = Session.average(session);
+
+  t.deepEqual(actual, 1);
+
+  t.end();
+});
+
+test('id return session id', t => {
+  const session = { id: 1 };
+  const actual = Session.id(session);
+
+  t.deepEqual(actual, 1);
+
+  t.end();
+});
+
+test('startingLat return starting latitude of selected sensor', t => {
+  const selectedSensor = "selectedSensor"
+  const session = { streams: { selectedSensor: { start_latitude: 1 } } };
+  const actual = Session.startingLat(session, selectedSensor);
+
+  t.deepEqual(actual, 1);
+
+  t.end();
+});
+
+test('startingLng return starting longitude of selected sensor', t => {
+  const selectedSensor = "selectedSensor"
+  const session = { streams: { selectedSensor: { start_longitude: 1 } } };
+  const actual = Session.startingLng(session, selectedSensor);
+
+  t.deepEqual(actual, 1);
+
+  t.end();
+});
+
+test('averageVauleAndUnit returns rounded session average value and unit for selected sensor', t => {
+  const selectedSensor = "selectedSensor"
+  const session = { average: 1.2, streams: { selectedSensor: { unit_symbol: "dB" } } };
+  const actual = Session.averageVauleAndUnit(session, selectedSensor);
+
+  t.deepEqual(actual, "1 dB");
 
   t.end();
 });

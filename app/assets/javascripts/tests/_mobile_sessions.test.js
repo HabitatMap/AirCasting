@@ -295,30 +295,31 @@ test('hasSelectedSessions with selected session returns true', t => {
   t.end();
 });
 
-test('when sensor is selected drawSessionInLocation calls drawSession.drawMobileSessionStartPoint', t => {
-  const session = { drawed: false }
+test('when sensor is selected drawSessionsInLocation calls map.drawCustomMarker', t => {
+  const map = mock('drawCustomMarker');
+  const session = { drawed: false, streams: {sensorName: { unit_symbol: "unit" }}};
   const sessions = [ session ];
   const sessionsUtils = { get: () => sessions };
-  const drawSession = mock('drawMobileSessionStartPoint');
-  const sensors = { anySelected: () => true, selectedId: () => 1 };
-  const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils, sensors });
+  const sensors = { anySelected: () => true, selectedId: () => 1, sensors: { 1: {sensor_name: "sensorName" }} };
+
+  const mobileSessionsService = _mobileSessions({ map, sensors, sessionsUtils });
 
   mobileSessionsService.drawSessionsInLocation();
 
-  t.true(drawSession.wasCalledWith(session));
+  t.true(map.wasCalled());
   t.true(session.drawed);
 
   t.end();
 });
 
-test('when no sensor is selected drawSessionInLocation doesnt call drawSession.drawMobileSessionStartPoint', t => {
-  const drawSession = mock('drawMobileSessionStartPoint');
+test('when no sensor is selected drawSessionsInLocation doesnt call map.drawCustomMarker', t => {
+  const map = mock('drawCustomMarker');
   const sensors = { anySelected: () => false };
-  const mobileSessionsService = _mobileSessions({ drawSession, sensors });
+  const mobileSessionsService = _mobileSessions({ map, sensors });
 
   mobileSessionsService.drawSessionsInLocation();
 
-  t.false(drawSession.wasCalled());
+  t.false(map.wasCalled());
 
   t.end();
 });
@@ -341,12 +342,13 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
   const _map = { getBounds: () => ({}), fitBounds: () => {}, getZoom: () => {}, ...map };
   const _utils = utils || {};
   const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, ...sensors };
-  const _drawSession = { clear: () => {}, clearOtherSessions: () => {}, drawMobileSession: () => {}, ...drawSession };
+  const _drawSession = { clear: () => {}, clearOtherSessions: () => {}, drawMobileSession: () => {}, undoDraw: () => {}, ...drawSession };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };
   const boundsCalculator = () => {};
   const _$location = $location || { path: () => '/map_sessions' };
+  const _heat = { levelName: () => "mid", outsideOfScope: () => false }
 
-  return mobileSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location);
+  return mobileSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location, null, _heat);
 };
