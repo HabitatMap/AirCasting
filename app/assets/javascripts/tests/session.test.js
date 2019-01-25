@@ -68,22 +68,14 @@ test('id return session id', t => {
   t.end();
 });
 
-test('startingLat return starting latitude of selected sensor', t => {
+test('startingLatLng return starting latitude and longitude of selected sensor', t => {
   const selectedSensor = "selectedSensor"
-  const session = { streams: { selectedSensor: { start_latitude: 1 } } };
-  const actual = Session.startingLat(session, selectedSensor);
+  const session = { streams: { selectedSensor: { start_latitude: 1, start_longitude: 2 } } };
+  const actual = Session.startingLatLng(session, selectedSensor);
+  const expected = { lat: () => 1, lng: () => 2 }
 
-  t.deepEqual(actual, 1);
-
-  t.end();
-});
-
-test('startingLng return starting longitude of selected sensor', t => {
-  const selectedSensor = "selectedSensor"
-  const session = { streams: { selectedSensor: { start_longitude: 1 } } };
-  const actual = Session.startingLng(session, selectedSensor);
-
-  t.deepEqual(actual, 1);
+  t.deepEqual(actual.lat(), expected.lat());
+  t.deepEqual(actual.lng(), expected.lng());
 
   t.end();
 });
