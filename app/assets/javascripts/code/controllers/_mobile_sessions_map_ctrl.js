@@ -14,9 +14,11 @@ export const MobileSessionsMapCtrl = (
   functionBlocker,
   $window,
   infoWindow,
-  sensorsList
+  sensorsList,
+  heat
 ) => {
   sensors.setSensors(sensorsList);
+
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
@@ -27,6 +29,7 @@ export const MobileSessionsMapCtrl = (
     $scope.sessions = mobileSessions;
     $scope.singleSession = singleMobileSession;
     $scope.$window = $window;
+    $scope.initializing = true;
 
     functionBlocker.block("sessionHeat", !_(params.get('selectedSessionIds')).isEmpty());
 
@@ -56,7 +59,6 @@ export const MobileSessionsMapCtrl = (
       usernames: "",
       gridResolution: 25,
       crowdMap: false,
-      heat: { highest: 150, high: 55, mid: 35, low: 12, lowest: 0 }
     });
 
     $scope.minResolution = 10;
@@ -73,7 +75,29 @@ export const MobileSessionsMapCtrl = (
   $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    sensors.onSensorsSelectedIdChange(newValue, oldValue, false);
+    sensors.onSensorsSelectedIdChange(newValue, oldValue, $scope.onThresholdsFetch);
+  }, true);
+
+  $scope.onThresholdsFetch = function(data, status, headers, config) {
+    storage.updateDefaults({heat: heat.parse(data)});
+    // seems like there's no call to block so this function blocker is prolly not needed
+    functionBlocker.use("heat", function(){
+      if (!params.get('data').heat && $scope.initializing) {
+        params.update({data: {heat: heat.parse(data)}});
+        $scope.initializing = false;
+      } else if (params.get('data').heat && !$scope.initializing){
+        params.update({data: {heat: heat.parse(data)}});
+      } else {
+        $scope.initializing = false;
+      }
+    });
+  };
+
+  $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
+    console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
+    if (newValue != oldValue) {
+      $scope.sessions.drawSessionsInLocation();
+    }
   }, true);
 
   $scope.heatUpdateCondition = function() {
