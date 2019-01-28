@@ -52,7 +52,6 @@ export function buildCustomMarker(latLng, content, colorClass, callback) {
 
   CustomMarker.prototype.stopEventPropagation = function() {
     var anchor = this.anchor;
-    anchor.style.cursor = 'auto';
 
     ['click', 'dblclick', 'contextmenu', 'wheel', 'mousedown', 'touchstart',
      'pointerdown']
