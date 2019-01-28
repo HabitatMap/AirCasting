@@ -120,8 +120,8 @@ export const mobileSessions = (
     },
 
     drawSessionInLocation: function(session, selectedSensor) {
-      session.markers = [];
       drawSession.undoDraw(session);
+      session.markers = [];
 
       const content = Session.averageVauleAndUnit(session, selectedSensor);
       const heatLevel = heat.levelName(Session.average(session));
