@@ -15,5 +15,6 @@ angular.module('aircasting').controller('MobileSessionsMapCtrl', [
   '$window',
   "infoWindow",
   'sensorsList',
+  'heat',
   MobileSessionsMapCtrl
 ]);
