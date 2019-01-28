@@ -565,6 +565,7 @@ p.ui-dialog-content {
   border: 1.5px solid black;
   position: absolute;
   color: black;
+  cursor: pointer;
   &.highest {
     border: 1px solid #F4001C;
   }
