@@ -29,7 +29,6 @@ export const MobileSessionsMapCtrl = (
     $scope.sessions = mobileSessions;
     $scope.singleSession = singleMobileSession;
     $scope.$window = $window;
-    $scope.initializing = true;
 
     functionBlocker.block("sessionHeat", !_(params.get('selectedSessionIds')).isEmpty());
 
@@ -64,6 +63,10 @@ export const MobileSessionsMapCtrl = (
     $scope.minResolution = 10;
     $scope.maxResolution = 50;
 
+    if (!params.get('data').heat) {
+      sensors.fetchHeatLevels($scope.onHeatLevelsFetch);
+    }
+
     storage.updateFromDefaults();
   };
 
@@ -75,27 +78,19 @@ export const MobileSessionsMapCtrl = (
   $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    sensors.onSensorsSelectedIdChange(newValue, oldValue, $scope.onThresholdsFetch);
+    console.warn(newValue, oldValue)
+    sensors.onSensorsSelectedIdChange(newValue, oldValue, $scope.onHeatLevelsFetch);
   }, true);
 
-  $scope.onThresholdsFetch = function(data, status, headers, config) {
+  $scope.onHeatLevelsFetch = function(data, status, headers, config) {
+    console.warn('changing levels')
     storage.updateDefaults({heat: heat.parse(data)});
-    // seems like there's no call to block so this function blocker is prolly not needed
-    functionBlocker.use("heat", function(){
-      if (!params.get('data').heat && $scope.initializing) {
-        params.update({data: {heat: heat.parse(data)}});
-        $scope.initializing = false;
-      } else if (params.get('data').heat && !$scope.initializing){
-        params.update({data: {heat: heat.parse(data)}});
-      } else {
-        $scope.initializing = false;
-      }
-    });
+    params.update({data: {heat: heat.parse(data)}});
   };
 
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
     console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
-    if (newValue === oldValue) { return };
+    if (newValue === oldValue) return;
 
     if (storage.isCrowdMapLayerOn()) {
       mobileSessions.onHeatLevelChangeWithCrowdMapLayerOn();
@@ -107,6 +102,7 @@ export const MobileSessionsMapCtrl = (
   $scope.heatUpdateCondition = function() {
     return {sensorId:  sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
   };
+
   $scope.$watch("heatUpdateCondition()", function(newValue, oldValue) {
     console.log("watch - heatUpdateCondition() - ", newValue, " - ", oldValue);
     if(newValue.sensorId && newValue.sessionId){
