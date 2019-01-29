@@ -16,6 +16,7 @@ class MeasurementsCreator
   end
 
   def call(stream, measurements_attributes, jid=nil)
+    Sidekiq.logger.info "processing stream #{stream.id} with #{measurements_attributes.count} measurements" if jid
     time1 = Time.current
     stream.build_measurements!(measurements_attributes)
     time2 = Time.current
