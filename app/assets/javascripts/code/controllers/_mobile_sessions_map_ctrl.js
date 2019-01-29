@@ -95,9 +95,13 @@ export const MobileSessionsMapCtrl = (
 
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
     console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
-    if (newValue != oldValue) {
+    if (newValue === oldValue) { return };
+
+    if (storage.isCrowdMapLayerOn()) {
+      mobileSessions.onHeatLevelChangeWithCrowdMapLayerOn();
+    } else {
       $scope.sessions.drawSessionsInLocation();
-    }
+    };
   }, true);
 
   $scope.heatUpdateCondition = function() {
