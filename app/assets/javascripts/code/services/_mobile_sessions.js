@@ -76,6 +76,11 @@ export const mobileSessions = (
       sessionsUtils.updateCrowdMapLayer(this.sessionIds());
     },
 
+    onHeatLevelChangeWithCrowdMapLayerOn: function() {
+      sessionsUtils.updateCrowdMapLayer(this.sessionIds());
+    },
+
+
     deselectSession: function(id) {
       const session = this.find(id);
       if (!session) return;
