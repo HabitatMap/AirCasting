@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import { debounce } from 'debounce';
 import constants from '../constants';
+import * as Session from '../values/session'
 
 export const fixedSessions = (
   params,
@@ -13,7 +14,8 @@ export const fixedSessions = (
   drawSession,
   boundsCalculator,
   sessionsUtils,
-  $location
+  $location,
+  heat
 ) => {
   var FixedSessions = function() {
     this.sessions = [];
@@ -56,7 +58,6 @@ export const fixedSessions = (
     selectAllSessions: function() { sessionsUtils.selectAllSessions(this); },
 
     sessionsChanged: function (newIds, oldIds) { sessionsUtils.sessionsChanged(this, newIds, oldIds); },
-
 
 
     onSessionsFetch: function() {
@@ -117,7 +118,52 @@ export const fixedSessions = (
 
     drawSessionsInLocation: function() {
       map.markers = [];
-      (this.get()).forEach(session => drawSession.drawFixedSession(session));
+      if (sensors.anySelected() && this.scope.params.get('data').location.streaming) {
+        const sensorId = sensors.selectedId() || sensors.tmpSelectedId();
+        const sensor = sensors.sensors[sensorId] || {};
+        const selectedSensor = sensor.sensor_name;
+        (this.get()).forEach(session => this.drawColorCodedMarkers(session, selectedSensor));
+      } else {
+        (this.get()).forEach(session => this.drawDefaultMarkers(session));
+      }
+    },
+
+    drawColorCodedMarkers: function(session, selectedSensor) {
+      drawSession.undoDraw(session);
+      session.markers = [];
+
+      const content = Session.lastHourAverageVauleAndUnit(session, selectedSensor);
+      const heatLevel = heat.levelName(Session.lastHourAverage(session));
+      const latLng = Session.latLng(session);
+      const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
+
+      if (!heat.outsideOfScope(heatLevel)) {
+        const popup = map.drawCustomMarker({
+            latLng: latLng,
+            content: content,
+            colorClass: heatLevel,
+            callback: callback(Session.id(session))
+          });
+        session.markers.push(popup);
+      }
+      session.drawed = true;
+    },
+
+    drawDefaultMarkers: function(session) {
+      drawSession.undoDraw(session);
+      session.markers = [];
+
+      const latLng = Session.latLng(session);
+      const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
+
+      const popup = map.drawCustomMarker({
+          latLng: latLng,
+          colorClass: "default",
+          callback: callback(Session.id(session))
+        });
+      session.markers.push(popup);
+
+      session.drawed = true;
     },
 
     _fetch: function(page) {
