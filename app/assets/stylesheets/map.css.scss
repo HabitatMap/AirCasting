@@ -643,6 +643,6 @@ p.ui-dialog-content {
   background-image: radial-gradient(circle at 50%, rgba(45, 166, 65, 1) 0%, rgba(45, 166, 65, 0) 70%);
 }
 
-.fixed-marker.lowest::after {
-  background-image: radial-gradient(circle at 50%, rgba(204, 204, 204, 1) 0%, rgba(204, 204, 204, 0) 70%);
+.fixed-marker.default::after {
+  background-image: radial-gradient(circle at 50%, rgba(75, 75, 75, 1) 0%, rgba(75, 75, 75, 0) 70%);
 }

@@ -12,5 +12,6 @@ angular.module("aircasting").factory('fixedSessions', [
   'boundsCalculator',
   'sessionsUtils',
   '$location',
+  'heat',
   fixedSessions
 ]);
