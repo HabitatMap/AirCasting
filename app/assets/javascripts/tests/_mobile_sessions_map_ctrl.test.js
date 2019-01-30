@@ -17,7 +17,7 @@ test('registers a callback to map.goToAddress', t => {
   t.end();
 });
 
-test('it shows by default sensor, location, usernames and layers sections', t => {
+test('it shows by default sensor, location, usernames, layers sections and heat legend', t => {
   const shown = [];
   const expandables = {
     show: name => shown.push(name)
@@ -25,7 +25,7 @@ test('it shows by default sensor, location, usernames and layers sections', t =>
 
   _MobileSessionsMapCtrl({ expandables });
 
-  t.deepEqual(shown, ['sensor', 'location', 'usernames', 'layers']);
+  t.deepEqual(shown, ['sensor', 'location', 'usernames', 'layers', 'heatLegend']);
 
   t.end();
 });

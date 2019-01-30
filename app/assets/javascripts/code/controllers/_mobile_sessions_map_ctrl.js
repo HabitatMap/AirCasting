@@ -43,7 +43,7 @@ export const MobileSessionsMapCtrl = (
       });
     }
 
-    ['sensor', 'location', 'usernames', 'layers'].forEach(function(name) {
+    ['sensor', 'location', 'usernames', 'layers', 'heatLegend'].forEach(function(name) {
       $scope.expandables.show(name);
     });
 
