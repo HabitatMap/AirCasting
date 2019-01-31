@@ -117,7 +117,6 @@ export const fixedSessions = (
     },
 
     drawSessionsInLocation: function() {
-      map.markers = [];
       if (sensors.anySelected() && this.scope.params.get('data').location.streaming) {
         const sensorId = sensors.selectedId() || sensors.tmpSelectedId();
         const sensor = sensors.sensors[sensorId] || {};
@@ -145,6 +144,7 @@ export const fixedSessions = (
             callback: callback(Session.id(session))
           });
         session.markers.push(popup);
+        map.markers.push(popup);
       }
       session.drawed = true;
     },
@@ -162,6 +162,7 @@ export const fixedSessions = (
           callback: callback(Session.id(session))
         });
       session.markers.push(popup);
+      map.markers.push(popup);
 
       session.drawed = true;
     },
