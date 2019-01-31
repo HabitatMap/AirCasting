@@ -185,10 +185,8 @@ export const map = (
     },
 
     removeAllMarkers: function() {
-      var markers = this.markers;
-      _(markers).each(function(marker) {
-        marker.setMap(null);
-      });
+      this.markers.forEach(marker => marker.setMap(null));
+      this.markers = [];
     },
 
     drawLine: function(data){
