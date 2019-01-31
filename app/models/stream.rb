@@ -123,19 +123,26 @@ class Stream < ActiveRecord::Base
     stream
   end
 
-  def build_measurements!(data = [])
+  def build_measurements!(data = [], jid = nil)
+    time1 = Time.current
     measurements = data.map do |measurement_data|
       m = Measurement.new(measurement_data)
       m.stream = self
       m
     end
+    time2 = Time.current
+    Sidekiq.logger.info "build_measurements: map in #{(time2 - time1).round(3)}" if jid
 
     ActiveRecord::Base.transaction do
       result = Measurement.import measurements
       raise "Measurement import failed!" unless result.failed_instances.empty?
     end
+    time3 = Time.current
+    Sidekiq.logger.info "build_measurements: import in #{(time3 - time2).round(3)}" if jid
 
     Stream.update_counters(self.id, { :measurements_count => measurements.size })
+    time4 = Time.current
+    Sidekiq.logger.info "build_measurements: update_counters in #{(time4 - time3).round(3)}" if jid
   end
 
   def self.sensors
