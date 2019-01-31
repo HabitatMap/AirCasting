@@ -84,7 +84,6 @@ export const MobileSessionsMapCtrl = (
   }, true);
 
   $scope.onHeatLevelsFetch = function(data, status, headers, config) {
-    console.warn('changing levels')
     storage.updateDefaults({heat: heat.parse(data)});
     params.update({data: {heat: heat.parse(data)}});
   };
