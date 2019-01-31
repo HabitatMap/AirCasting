@@ -50,7 +50,7 @@ test('when session is outdoor it uses its username', t => {
   t.end();
 });
 
-test('average return session average', t => {
+test('average returns session average', t => {
   const session = { average: 1 };
   const actual = Session.average(session);
 
@@ -59,7 +59,16 @@ test('average return session average', t => {
   t.end();
 });
 
-test('id return session id', t => {
+test('lastHourAverage returns session last hour average', t => {
+  const session = { last_hour_average: 1 };
+  const actual = Session.lastHourAverage(session);
+
+  t.deepEqual(actual, 1);
+
+  t.end();
+});
+
+test('id returns session id', t => {
   const session = { id: 1 };
   const actual = Session.id(session);
 
@@ -68,10 +77,21 @@ test('id return session id', t => {
   t.end();
 });
 
-test('startingLatLng return starting latitude and longitude of selected sensor', t => {
+test('startingLatLng returns starting latitude and longitude of selected sensor', t => {
   const selectedSensor = "selectedSensor"
   const session = { streams: { selectedSensor: { start_latitude: 1, start_longitude: 2 } } };
   const actual = Session.startingLatLng(session, selectedSensor);
+  const expected = { lat: () => 1, lng: () => 2 }
+
+  t.deepEqual(actual.lat(), expected.lat());
+  t.deepEqual(actual.lng(), expected.lng());
+
+  t.end();
+});
+
+test('latLng returns latitude and longitude of the session', t => {
+  const session = { latitude: 1, longitude: 2 };
+  const actual = Session.latLng(session);
   const expected = { lat: () => 1, lng: () => 2 }
 
   t.deepEqual(actual.lat(), expected.lat());
@@ -84,6 +104,16 @@ test('averageVauleAndUnit returns rounded session average value and unit for sel
   const selectedSensor = "selectedSensor"
   const session = { average: 1.2, streams: { selectedSensor: { unit_symbol: "dB" } } };
   const actual = Session.averageVauleAndUnit(session, selectedSensor);
+
+  t.deepEqual(actual, "1 dB");
+
+  t.end();
+});
+
+test('lastHourAverageVauleAndUnit returns rounded session last hour average value and unit for selected sensor', t => {
+  const selectedSensor = "selectedSensor"
+  const session = { last_hour_average: 1.2, streams: { selectedSensor: { unit_symbol: "dB" } } };
+  const actual = Session.lastHourAverageVauleAndUnit(session, selectedSensor);
 
   t.deepEqual(actual, "1 dB");
 
