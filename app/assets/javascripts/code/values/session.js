@@ -24,7 +24,7 @@ export const startingLatLng = (session, selectedSensor) => {
   return { lat: () => startingLat(session, selectedSensor), lng: () => startingLng(session, selectedSensor) }
 };
 
-export const latLng = (session, selectedSensor) => {
+export const latLng = (session) => {
   return { lat: () => session.latitude, lng: () => session.longitude }
 };
 
