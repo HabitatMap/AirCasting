@@ -133,14 +133,14 @@ export const mobileSessions = (
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
       if (!heat.outsideOfScope(heatLevel)) {
-        const popup = map.drawCustomMarker({
+        const customMarker = map.drawCustomMarker({
             latLng: latLng,
             content: content,
             colorClass: heatLevel,
             callback: callback(Session.id(session))
           });
-        session.markers.push(popup);
-        map.markers.push(popup);
+        session.markers.push(customMarker);
+        map.markers.push(customMarker);
       }
       session.drawed = true;
     },

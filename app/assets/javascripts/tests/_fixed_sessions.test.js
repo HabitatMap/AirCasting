@@ -303,6 +303,56 @@ test('deselectSession with no previously selected sessions calls fitBounds with 
   t.end();
 });
 
+
+test('drawSessionsInLocation draws colorcoded marker for currently streaming sessions when sensor selected', t => {
+  const map = mock('drawCustomMarker');
+  const session = { id: 123, drawed: false, latitude: 1, longitude: 2, last_hour_average: 1.1, streams: {sensorName: { unit_symbol: "unit" }}};
+  const sensors = { anySelected: () => true, selectedId: () => 1, sensors: { 1: {sensor_name: "sensorName" }}};
+  const data = buildData({ location: { streaming: true } });
+
+  const fixedSessionsService = _fixedSessions({ data, map, sensors });
+  fixedSessionsService.sessions = [session]
+
+  fixedSessionsService.drawSessionsInLocation();
+
+  t.true(map.wasCalledWithParameter({ colorClass: "mid" }));
+  t.true(session.drawed)
+
+  t.end();
+});
+
+test('drawSessionsInLocation draws default marker when no sensor selected', t => {
+  const map = mock('drawCustomMarker');
+  const session = { drawed: false, latitude: 1, longitude: 2 };
+  const sensors = { anySelected: () => false };
+
+  const fixedSessionsService = _fixedSessions({ map, sensors });
+  fixedSessionsService.sessions = [session];
+
+  fixedSessionsService.drawSessionsInLocation();
+
+  t.true(map.wasCalledWithParameter({ colorClass: "default" }));
+  t.true(session.drawed)
+
+  t.end();
+});
+
+test('drawSessionsInLocation draws default marker for sessions that are not streaming currently', t => {
+  const map = mock('drawCustomMarker');
+  const session = { drawed: false, latitude: 1, longitude: 2 };
+  const data = buildData({ location: { streaming: false } });
+
+  const fixedSessionsService = _fixedSessions({ data, map });
+  fixedSessionsService.sessions = [session];
+
+  fixedSessionsService.drawSessionsInLocation();
+
+  t.true(map.wasCalledWithParameter({ colorClass: "default" }));
+  t.true(session.drawed);
+
+  t.end();
+});
+
 const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
 
 const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
@@ -318,15 +368,16 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
       }
     }
   };
-  const _map = { getBounds: () => ({}), getZoom: () => undefined, ...map };
+  const _map = { getBounds: () => ({}), getZoom: () => undefined, markers: [],...map };
   const _utils = utils || {};
-  const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, ...sensors };
-  const _drawSession = drawSession || { clear: () => {} };
+  const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, anySelected: () => false, ...sensors };
+  const _drawSession = drawSession || { clear: () => {}, undoDraw: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _$location = $location || { path: () => '/map_fixed_sessions' };
-  const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), ...sessionsUtils };
+  const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), get: (self) => self.sessions, ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };
   const boundsCalculator = () => {};
+  const _heat = { levelName: () => "mid", outsideOfScope: () => false }
 
-  return fixedSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location);
+  return fixedSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location, _heat);
 };
