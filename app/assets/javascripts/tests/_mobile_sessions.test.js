@@ -339,7 +339,7 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
       }
     }
   };
-  const _map = { getBounds: () => ({}), fitBounds: () => {}, getZoom: () => {}, ...map };
+  const _map = { getBounds: () => ({}), fitBounds: () => {}, getZoom: () => {}, markers: [], ...map };
   const _utils = utils || {};
   const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, ...sensors };
   const _drawSession = { clear: () => {}, clearOtherSessions: () => {}, drawMobileSession: () => {}, undoDraw: () => {}, ...drawSession };

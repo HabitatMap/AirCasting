@@ -115,7 +115,6 @@ export const mobileSessions = (
     },
 
     drawSessionsInLocation: function() {
-      map.markers = [];
       if(sensors.anySelected()) {
         const sensorId = sensors.selectedId() || sensors.tmpSelectedId();
         const sensor = sensors.sensors[sensorId] || {};
@@ -141,6 +140,7 @@ export const mobileSessions = (
             callback: callback(Session.id(session))
           });
         session.markers.push(popup);
+        map.markers.push(popup);
       }
       session.drawed = true;
     },
