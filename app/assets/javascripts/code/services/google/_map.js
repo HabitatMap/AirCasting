@@ -135,36 +135,12 @@ export const map = (
       });
     },
 
-    drawMarker: function(latLngObj, optionInput, existingMarker, level){
-      if(!latLngObj) {
-        return;
-      }
-      var latlng = new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
-      var icon = "/assets/location_marker0.png";
+    drawMarker: function({ position, title, zIndex, icon }){
+      var newMarker = new google.maps.Marker({ position, title, zIndex, icon });
 
-      if (level) {
-        icon = "/assets/location_marker" + level + ".png";
-      }
+      newMarker.setMap(this.get());
+      this.markers.push(newMarker);
 
-      var newMarker;
-      if(existingMarker){
-        newMarker = existingMarker.setPosition(latlng);
-      } else {
-        var options = {
-          position: latlng,
-          zIndex: 300000,
-          icon: icon,
-          flat: true,
-          session: latLngObj
-        };
-        _(options).extend(optionInput || {});
-        newMarker = new google.maps.Marker(options);
-        newMarker.addListener('click', function() {
-          $rootScope.$broadcast('markerSelected', {session_id: latLngObj.id});
-        });
-        newMarker.setMap(this.get());
-        this.markers.push(newMarker);
-      }
       return newMarker;
     },
 
