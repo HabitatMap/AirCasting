@@ -20,19 +20,15 @@ export const drawSession = (
       session.noteDrawings = [];
       session.lines = [];
       var points = [];
-      _(this.measurements(session)).each(function(measurement, idx){
-        var value = Math.round(measurement.value);
-        var level = calculateHeatLevel(heat, value);
-        if (level){
-          session.markers.push(map.drawMarker(measurement, {
-            title: parseInt(measurement.value, 10).toString() + suffix,
-            zIndex: idx,
-            icon: "/assets/marker"+ level + ".png"
-          }));
-          points.push(measurement);
-        }
+
+      this.measurements(session).forEach(function(measurement, idx){
+        const marker = createMeasurementMarker(measurement, idx, heat, map, suffix);
+
+        session.markers.push(marker);
+        points.push(measurement);
       });
-      _(session.notes || []).each(function(noteItem, idx){
+
+      (session.notes || []).forEach(function(noteItem, idx){
         session.noteDrawings.push(note.drawNote(noteItem, idx));
       });
       session.lines.push(map.drawLine(points));
@@ -95,3 +91,17 @@ export const drawSession = (
 };
 
 const calculateHeatLevel = (heat, value) => heat.getLevel(value);
+
+const createMeasurementMarker = (measurement, idx, heat, map, suffix) => {
+  var roundedValue = Math.round(measurement.value);
+  var level = calculateHeatLevel(heat, roundedValue);
+  if (level){
+    const marker = map.drawMarker({
+      position: { lat: measurement.latitude, lng: measurement.longitude },
+      title: roundedValue.toString() + suffix,
+      zIndex: idx,
+      icon: "/assets/marker"+ level + ".png"
+    });
+  return marker;
+  }
+}

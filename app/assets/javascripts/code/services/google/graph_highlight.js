@@ -15,7 +15,11 @@ angular.module("google").factory("graphHighlight",  ["map",
       this.hide();
       var self = this;
       _(points).each(function(point){
-        self.items.push({marker: map.drawMarker(point), point: point});
+        self.items.push({marker: map.drawMarker({
+          position: { lat: point.latitude, lng: point.longitude },
+          zIndex: 300000,
+          icon: "/assets/location_marker0.png"
+        }), point: point});
       });
     }
   };
