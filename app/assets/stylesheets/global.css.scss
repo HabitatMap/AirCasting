@@ -25,6 +25,8 @@ html {
   width: 100%;
   font: 14px/1.5 Helvetica,Arial,sans-serif;
   color: $text-color;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button, .button {
