@@ -561,10 +561,12 @@ p.ui-dialog-content {
   border-radius: 15px;
   background: white;
   font-size: 12px;
-  padding: 6px 10px 6px 26px;
+  padding: 0 5px 0 18px;
   border: 1.5px solid black;
   position: absolute;
+  line-height: 18px;
   color: black;
+  box-sizing: border-box;
   cursor: pointer;
   &.highest {
     border: 1px solid #F4001C;
@@ -589,43 +591,39 @@ p.ui-dialog-content {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  top: 6px;
-  left: 9px;
+  margin-top: 3.6px;
+  top: 0;
+  left: 3.6px;
 }
 
 .fixed-marker.highest::before {
   background: #F4001C;
-  border: 1px solid #CC0000;
 }
 
 .fixed-marker.high::before {
   background: #F57F22;
-  border: 1px solid #cc6600;
 }
 
 .fixed-marker.mid::before {
   background: #F9DC2E;
-  border: 1px solid #FFCC33;
 }
 
 .fixed-marker.low::before {
   background: #2DA641;
-  border: 1px solid #336633;
 }
 
-.fixed-marker.lowest::before {
-  background: #ccc;
-  border: 1px solid #ccc;
+.fixed-marker.default::before {
+  background: #757575;
 }
 
 .fixed-marker::after {
   content: '';
-  width: 75px;
-  height: 75px;
+  width: 45px;
+  height: 45px;
   z-index: -1;
   position: absolute;
-  left: -22.5px;
-  top: -22.5px;
+  left: -15px;
+  top: -14px;
   border-radius: 50%;
 }
 
