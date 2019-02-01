@@ -15,10 +15,9 @@ export const drawSession = (
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
+      this.undoDraw(session);
 
       var suffix = ' ' + sensors.anySelected().unit_symbol;
-      session.noteDrawings = [];
-      session.lines = [];
       var points = [];
 
       this.measurements(session).forEach(function(measurement, idx){
@@ -40,15 +39,21 @@ export const drawSession = (
       if(!session.drawed){
         return;
       }
-      _(session.markers || []).each(function(marker){
+      (session.markers || []).forEach(function(marker){
         map.removeMarker(marker);
       });
-      _(session.lines || []).each(function(line){
+      session.markers = [];
+
+      (session.lines || []).forEach(function(line){
         map.removeMarker(line);
       });
-      _(session.noteDrawings || []).each(function(noteItem){
+      session.lines = [];
+
+      (session.noteDrawings || []).forEach(function(noteItem){
         map.removeMarker(noteItem);
       });
+      session.noteDrawings = [];
+
       session.drawed = false;
       if(mapPosition){
         map.fitBounds(mapPosition.bounds, mapPosition.zoom);
@@ -93,15 +98,17 @@ export const drawSession = (
 const calculateHeatLevel = (heat, value) => heat.getLevel(value);
 
 const createMeasurementMarker = (measurement, idx, heat, map, suffix) => {
-  var roundedValue = Math.round(measurement.value);
-  var level = calculateHeatLevel(heat, roundedValue);
-  if (level){
-    const marker = map.drawMarker({
-      position: { lat: measurement.latitude, lng: measurement.longitude },
-      title: roundedValue.toString() + suffix,
-      zIndex: idx,
-      icon: "/assets/marker"+ level + ".png"
-    });
+  const roundedValue = Math.round(measurement.value);
+  if (heat.outsideOfScope(roundedValue)) return;
+
+  const level = calculateHeatLevel(heat, roundedValue);
+
+  const marker = map.drawMarker({
+    position: { lat: measurement.latitude, lng: measurement.longitude },
+    title: roundedValue.toString() + suffix,
+    zIndex: idx,
+    icon: "/assets/marker"+ level + ".png"
+  });
+
   return marker;
-  }
 }
