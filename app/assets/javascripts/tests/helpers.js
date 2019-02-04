@@ -8,6 +8,7 @@ export const mock = name => {
   return {
     [name]: (arg1, arg2, arg3) => { calls1.push(arg1); calls2.push(arg2); calls3.push(arg3); },
     wasCalled: () => calls1.length === 1,
+    wasCalledNTimes: (n) => calls1.length === n,
     wasCalledWith: arg => deepEqual(arg, calls1[calls1.length - 1]),
     wasCalledWith2: arg => deepEqual(arg, calls2[calls2.length - 1]),
     wasCalledWith3: arg => deepEqual(arg, calls3[calls3.length - 1]),
