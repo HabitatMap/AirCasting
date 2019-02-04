@@ -315,7 +315,7 @@ test('deselectSession with no previously selected sessions calls fitBounds with 
 //
 //   fixedSessionsService.drawSessionsInLocation();
 //
-//   t.true(map.wasCalledWithParameter({ colorClass: "mid" }));
+//   t.true(map.wasCalledWithObjIncluding({ colorClass: "mid" }));
 //   t.true(session.drawed)
 //
 //   t.end();
@@ -331,7 +331,7 @@ test('deselectSession with no previously selected sessions calls fitBounds with 
 //
 //   fixedSessionsService.drawSessionsInLocation();
 //
-//   t.true(map.wasCalledWithParameter({ colorClass: "default" }));
+//   t.true(map.wasCalledWithObjIncluding({ colorClass: "default" }));
 //   t.true(session.drawed)
 //
 //   t.end();
@@ -347,7 +347,7 @@ test('deselectSession with no previously selected sessions calls fitBounds with 
 //
 //   fixedSessionsService.drawSessionsInLocation();
 //
-//   t.true(map.wasCalledWithParameter({ colorClass: "default" }));
+//   t.true(map.wasCalledWithObjIncluding({ colorClass: "default" }));
 //   t.true(session.drawed);
 //
 //   t.end();

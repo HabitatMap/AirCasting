@@ -12,7 +12,7 @@ export const mock = name => {
     wasCalledWith: arg => deepEqual(arg, calls1[calls1.length - 1]),
     wasCalledWith2: arg => deepEqual(arg, calls2[calls2.length - 1]),
     wasCalledWith3: arg => deepEqual(arg, calls3[calls3.length - 1]),
-    wasCalledWithParameter: obj => {
+    wasCalledWithObjIncluding: obj => {
       const reducer = (acc, key) => ({ ...acc, [key]: calls1[calls1.length - 1][key]})
       const actual = Object.keys(obj).reduce(reducer, {} )
       return deepEqual(obj, actual)
