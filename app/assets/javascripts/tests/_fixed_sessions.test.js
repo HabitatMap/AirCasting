@@ -307,7 +307,7 @@ test('deselectSession with no previously selected sessions calls fitBounds with 
 test('drawSessionsInLocation draws colorcoded marker for currently streaming sessions when sensor selected', t => {
   const map = mock('drawCustomMarker');
   const session = { id: 123, drawed: false, latitude: 1, longitude: 2, last_hour_average: 1.1, streams: {sensorName: { unit_symbol: "unit" }}};
-  const sensors = { anySelected: () => true, selectedId: () => 1, sensors: { 1: {sensor_name: "sensorName" }}};
+  const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName"};
   const data = buildData({ location: { streaming: true } });
 
   const fixedSessionsService = _fixedSessions({ data, map, sensors });

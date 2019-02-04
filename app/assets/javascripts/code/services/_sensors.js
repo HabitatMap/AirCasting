@@ -92,6 +92,11 @@ export const sensors = (params, $http) => {
       }
       return this.anySelected().id;
     },
+    selectedSensorName: function() {
+      const sensorId = this.selectedId() || this.tmpSelectedId();
+      const sensor = this.sensors[sensorId] || {};
+      return sensor.sensor_name;
+    },
     proceedWithTmp: function() {
       params.update({tmp: {selectedSensorId: this.candidateSelectedSensorId}});
     },
@@ -133,7 +138,7 @@ export const sensors = (params, $http) => {
     },
     onSensorsSelectedIdChange: function(newValue, oldValue, callback) {
       if(hasChangedToAll(this.selectedId())) return;
-      
+
       console.log("onSensorsSelectedIdChange 1 - ", newValue, " - ", oldValue);
 
       if (newValue === oldValue) return; // first angular watch run

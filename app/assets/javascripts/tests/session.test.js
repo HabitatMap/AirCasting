@@ -100,20 +100,20 @@ test('latLng returns latitude and longitude of the session', t => {
   t.end();
 });
 
-test('averageVauleAndUnit returns rounded session average value and unit for selected sensor', t => {
+test('averageValueAndUnit returns rounded session average value and unit for selected sensor', t => {
   const selectedSensor = "selectedSensor"
   const session = { average: 1.2, streams: { selectedSensor: { unit_symbol: "dB" } } };
-  const actual = Session.averageVauleAndUnit(session, selectedSensor);
+  const actual = Session.averageValueAndUnit(session, selectedSensor);
 
   t.deepEqual(actual, "1 dB");
 
   t.end();
 });
 
-test('lastHourAverageVauleAndUnit returns rounded session last hour average value and unit for selected sensor', t => {
+test('lastHourAverageValueAndUnit returns rounded session last hour average value and unit for selected sensor', t => {
   const selectedSensor = "selectedSensor"
   const session = { last_hour_average: 1.2, streams: { selectedSensor: { unit_symbol: "dB" } } };
-  const actual = Session.lastHourAverageVauleAndUnit(session, selectedSensor);
+  const actual = Session.lastHourAverageValueAndUnit(session, selectedSensor);
 
   t.deepEqual(actual, "1 dB");
 
