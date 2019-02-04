@@ -127,7 +127,7 @@ export const mobileSessions = (
       drawSession.undoDraw(session);
       session.markers = [];
 
-      const content = Session.averageVauleAndUnit(session, selectedSensor);
+      const content = Session.averageValueAndUnit(session, selectedSensor);
       const heatLevel = heat.levelName(Session.average(session));
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
