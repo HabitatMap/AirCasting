@@ -193,7 +193,7 @@ export const map = (
     },
 
     removeAllMarkers: function() {
-      this.markers.forEach(marker => marker.setMap(null));
+      (this.markers || []).forEach(marker => marker.setMap(null));
       this.markers = [];
     },
 

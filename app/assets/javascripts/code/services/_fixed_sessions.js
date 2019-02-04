@@ -136,14 +136,14 @@ export const fixedSessions = (
 
       if (heat.outsideOfScope(heatLevel)) return;
 
-      const customMarker = map.drawCustomMarker({
+      const marker = map.drawCustomMarker({
           latLng: latLng,
           content: content,
           colorClass: heatLevel,
           callback: callback(Session.id(session))
         });
-      session.markers.push(customMarker);
-      map.markers.push(customMarker);
+      session.markers.push(marker);
+      map.markers.push(marker);
       session.drawed = true;
     },
 
