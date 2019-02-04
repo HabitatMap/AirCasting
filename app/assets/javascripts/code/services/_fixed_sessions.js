@@ -117,11 +117,8 @@ export const fixedSessions = (
     },
 
     drawSessionsInLocation: function() {
-      if (sensors.anySelected() && this.scope.params.get('data').location.streaming) {
-        const sensorId = sensors.selectedId() || sensors.tmpSelectedId();
-        const sensor = sensors.sensors[sensorId] || {};
-        const selectedSensor = sensor.sensor_name;
-        (this.get()).forEach(session => this.drawColorCodedMarkers(session, selectedSensor));
+      if (sensors.anySelected() && params.get('data').location.streaming) {
+        (this.get()).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
       } else {
         (this.get()).forEach(session => this.drawDefaultMarkers(session));
       }
@@ -131,22 +128,22 @@ export const fixedSessions = (
       drawSession.undoDraw(session);
       session.markers = [];
 
-      const content = Session.lastHourAverageVauleAndUnit(session, selectedSensor);
+      const content = Session.lastHourAverageValueAndUnit(session, selectedSensor);
       const heatLevel = heat.levelName(Session.lastHourAverage(session));
       const latLng = Session.latLng(session);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
-      if (!heat.outsideOfScope(heatLevel)) {
-        const customMarker = map.drawCustomMarker({
-            latLng: latLng,
-            content: content,
-            colorClass: heatLevel,
-            callback: callback(Session.id(session))
-          });
-        session.markers.push(customMarker);
-        map.markers.push(customMarker);
-        session.drawed = true;
-      }
+      if (heat.outsideOfScope(heatLevel)) return;
+
+      const customMarker = map.drawCustomMarker({
+          latLng: latLng,
+          content: content,
+          colorClass: heatLevel,
+          callback: callback(Session.id(session))
+        });
+      session.markers.push(customMarker);
+      map.markers.push(customMarker);
+      session.drawed = true;
     },
 
     drawDefaultMarkers: function(session) {

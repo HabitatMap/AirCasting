@@ -14,9 +14,9 @@ export const average = session => session.average;
 
 export const lastHourAverage = session => session.last_hour_average;
 
-export const averageVauleAndUnit = (session, selectedSensor) => roundedAverage(session) + " " + selectedSensorUnit(session, selectedSensor);
+export const averageValueAndUnit = (session, selectedSensor) => roundedAverage(session) + " " + selectedSensorUnit(session, selectedSensor);
 
-export const lastHourAverageVauleAndUnit = (session, selectedSensor) => lastHourRoundedAverage(session) + " " + selectedSensorUnit(session, selectedSensor);
+export const lastHourAverageValueAndUnit = (session, selectedSensor) => lastHourRoundedAverage(session) + " " + selectedSensorUnit(session, selectedSensor);
 
 export const id = (session) => session.id
 
