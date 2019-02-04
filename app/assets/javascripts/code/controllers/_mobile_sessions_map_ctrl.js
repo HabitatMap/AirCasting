@@ -15,7 +15,8 @@ export const MobileSessionsMapCtrl = (
   $window,
   infoWindow,
   sensorsList,
-  heat
+  heat,
+  sessionsUtils
 ) => {
   sensors.setSensors(sensorsList);
 
@@ -91,7 +92,10 @@ export const MobileSessionsMapCtrl = (
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
     console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
     if (newValue === oldValue) return;
-    if (mobileSessions.noOfSelectedSessions() !== 0) return;
+    if (mobileSessions.noOfSelectedSessions() !== 0) {
+      sessionsUtils.updateCrowdMapLayer($scope.params.get('selectedSessionIds'))
+      return;
+    };
 
     if (storage.isCrowdMapLayerOn()) {
       mobileSessions.onHeatLevelChangeWithCrowdMapLayerOn();
