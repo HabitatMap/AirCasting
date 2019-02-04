@@ -217,12 +217,12 @@ test('removeAllMarkers removes all markers', t => {
   let markers = [{setMap: (_) => {}}]
   const service = _map({})
   service.markers = markers
-  
+
   service.removeAllMarkers()
 
-  const expected = [];
   const actual = service.markers;
 
+  const expected = [];
   t.deepEqual(actual, expected)
 
   t.end();
