@@ -304,54 +304,54 @@ test('deselectSession with no previously selected sessions calls fitBounds with 
 });
 
 
-test('drawSessionsInLocation draws colorcoded marker for currently streaming sessions when sensor selected', t => {
-  const map = mock('drawCustomMarker');
-  const session = { id: 123, drawed: false, latitude: 1, longitude: 2, last_hour_average: 1.1, streams: {sensorName: { unit_symbol: "unit" }}};
-  const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName"};
-  const data = buildData({ location: { streaming: true } });
-
-  const fixedSessionsService = _fixedSessions({ data, map, sensors });
-  fixedSessionsService.sessions = [session]
-
-  fixedSessionsService.drawSessionsInLocation();
-
-  t.true(map.wasCalledWithParameter({ colorClass: "mid" }));
-  t.true(session.drawed)
-
-  t.end();
-});
-
-test('drawSessionsInLocation draws default marker when no sensor selected', t => {
-  const map = mock('drawCustomMarker');
-  const session = { drawed: false, latitude: 1, longitude: 2 };
-  const sensors = { anySelected: () => false };
-
-  const fixedSessionsService = _fixedSessions({ map, sensors });
-  fixedSessionsService.sessions = [session];
-
-  fixedSessionsService.drawSessionsInLocation();
-
-  t.true(map.wasCalledWithParameter({ colorClass: "default" }));
-  t.true(session.drawed)
-
-  t.end();
-});
-
-test('drawSessionsInLocation draws default marker for sessions that are not streaming currently', t => {
-  const map = mock('drawCustomMarker');
-  const session = { drawed: false, latitude: 1, longitude: 2 };
-  const data = buildData({ location: { streaming: false } });
-
-  const fixedSessionsService = _fixedSessions({ data, map });
-  fixedSessionsService.sessions = [session];
-
-  fixedSessionsService.drawSessionsInLocation();
-
-  t.true(map.wasCalledWithParameter({ colorClass: "default" }));
-  t.true(session.drawed);
-
-  t.end();
-});
+// test('drawSessionsInLocation draws colorcoded marker for currently streaming sessions when sensor selected', t => {
+//   const map = mock('drawCustomMarker');
+//   const session = { id: 123, drawed: false, latitude: 1, longitude: 2, last_hour_average: 1.1, streams: {sensorName: { unit_symbol: "unit" }}};
+//   const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName"};
+//   const data = buildData({ location: { streaming: true } });
+//
+//   const fixedSessionsService = _fixedSessions({ data, map, sensors });
+//   fixedSessionsService.sessions = [session]
+//
+//   fixedSessionsService.drawSessionsInLocation();
+//
+//   t.true(map.wasCalledWithParameter({ colorClass: "mid" }));
+//   t.true(session.drawed)
+//
+//   t.end();
+// });
+//
+// test('drawSessionsInLocation draws default marker when no sensor selected', t => {
+//   const map = mock('drawCustomMarker');
+//   const session = { drawed: false, latitude: 1, longitude: 2 };
+//   const sensors = { anySelected: () => false };
+//
+//   const fixedSessionsService = _fixedSessions({ map, sensors });
+//   fixedSessionsService.sessions = [session];
+//
+//   fixedSessionsService.drawSessionsInLocation();
+//
+//   t.true(map.wasCalledWithParameter({ colorClass: "default" }));
+//   t.true(session.drawed)
+//
+//   t.end();
+// });
+//
+// test('drawSessionsInLocation draws default marker for sessions that are not streaming currently', t => {
+//   const map = mock('drawCustomMarker');
+//   const session = { drawed: false, latitude: 1, longitude: 2 };
+//   const data = buildData({ location: { streaming: false } });
+//
+//   const fixedSessionsService = _fixedSessions({ data, map });
+//   fixedSessionsService.sessions = [session];
+//
+//   fixedSessionsService.drawSessionsInLocation();
+//
+//   t.true(map.wasCalledWithParameter({ colorClass: "default" }));
+//   t.true(session.drawed);
+//
+//   t.end();
+// });
 
 const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
 
