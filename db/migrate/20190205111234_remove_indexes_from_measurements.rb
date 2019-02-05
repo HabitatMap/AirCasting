@@ -1,10 +1,10 @@
 class RemoveIndexesFromMeasurements < ActiveRecord::Migration
   def up
-    remove_index :measurements, :latitude
-    remove_index :measurements, :longitude
-    remove_index :measurements, :time
-    remove_index :measurements, [ :longitude, :latitude ]
-    remove_index :measurements, :stream_id
+    remove_index :measurements, :latitude if index_exists?(:measurements, :latitude)
+    remove_index :measurements, :longitude if index_exists?(:measurements, :longitude)
+    remove_index :measurements, :time if index_exists?(:measurements, :time)
+    remove_index :measurements, [ :longitude, :latitude ] if index_exists?(:measurements, [ :longitude, :latitude ])
+    remove_index :measurements, :stream_id if index_exists?(:measurements, :stream_id)
   end
 
   def down
