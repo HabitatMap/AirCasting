@@ -300,7 +300,7 @@ test('when sensor is selected drawSessionsInLocation calls map.drawCustomMarker'
   const session = { drawed: false, streams: {sensorName: { unit_symbol: "unit" }}};
   const sessions = [ session ];
   const sessionsUtils = { get: () => sessions };
-  const sensors = { anySelected: () => true, selectedId: () => 1, sensors: { 1: {sensor_name: "sensorName" }} };
+  const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName" };
 
   const mobileSessionsService = _mobileSessions({ map, sensors, sessionsUtils });
 
