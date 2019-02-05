@@ -557,7 +557,35 @@ p.ui-dialog-content {
   }
 }
 
-.fixed-marker {
+.marker {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  left: 3.6px;
+  color: transparent;
+  &.default {
+    background-color: #aaaaaa;
+  }
+  &.highest {
+    background-color: #F4001C;
+  }
+
+  &.high {
+    background-color: #F57F22;
+  }
+
+  &.mid {
+    background-color: #F9DC2E;
+  }
+
+  &.low {
+    background-color: #2DA641;
+  }
+}
+
+.data-marker {
   border-radius: 15px;
   background: white;
   font-size: 12px;
@@ -585,64 +613,65 @@ p.ui-dialog-content {
   }
 }
 
-.fixed-marker::before {
+.data-marker::before {
   content: '';
   position: absolute;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  margin-top: 3.6px;
-  top: 0;
+  top: 50%;
+  transform: translateY(-50%);
   left: 3.6px;
 }
 
-.fixed-marker.highest::before {
+.data-marker.highest::before {
   background: #F4001C;
 }
 
-.fixed-marker.high::before {
+.data-marker.high::before {
   background: #F57F22;
 }
 
-.fixed-marker.mid::before {
+.data-marker.mid::before {
   background: #F9DC2E;
 }
 
-.fixed-marker.low::before {
+.data-marker.low::before {
   background: #2DA641;
 }
 
-.fixed-marker.default::before {
+.data-marker.default::before {
   background: #757575;
 }
 
-.fixed-marker::after {
+.data-marker::after, .marker::after {
   content: '';
   width: 45px;
   height: 45px;
   z-index: -1;
   position: absolute;
-  left: -15px;
-  top: -14px;
+  left: -16px;
+  top: -15px;
   border-radius: 50%;
+  background: transparent;
 }
 
-.fixed-marker.highest::after {
-  background-image: radial-gradient(circle at 50%, rgba(244, 0, 28, 1) 0%, rgba(244, 0, 28, 0) 70%);
+.marker.default::after, .data-marker.default::after {
+  background-image: radial-gradient(circle at 50%, rgba( 202, 200, 200, 1) 0%, rgba(244, 0, 28, 0) 70%);
 }
 
-.fixed-marker.high::after {
-  background-image: radial-gradient(circle at 50%, rgba(245, 127, 34, 1) 0%, rgba(245, 127, 34, 0) 70%);
+.data-marker.highest::after, .marker.highest::after {
+  background-image: radial-gradient(circle at 50%, rgba(246, 52, 52, 1) 0%, rgba(244, 0, 28, 0) 70%);
 }
 
-.fixed-marker.mid::after {
-  background-image: radial-gradient(circle at 50%, rgba(255, 204, 51, 1) 0%, rgba(255, 204, 51, 0) 70%);
+.data-marker.high::after, .marker.high::after {
+  background-image: radial-gradient(circle at 50%, rgba(246, 150, 74, 1) 0%, rgba(245, 127, 34, 0) 70%);
 }
 
-.fixed-marker.low::after {
-  background-image: radial-gradient(circle at 50%, rgba(45, 166, 65, 1) 0%, rgba(45, 166, 65, 0) 70%);
+.data-marker.mid::after, .marker.mid::after {
+  background-image: radial-gradient(circle at 50%, rgba(250, 226, 84, 1) 0%, rgba(255, 204, 51, 0) 70%);
 }
 
-.fixed-marker.default::after {
-  background-image: radial-gradient(circle at 50%, rgba(75, 75, 75, 1) 0%, rgba(75, 75, 75, 0) 70%);
+.data-marker.low::after, .marker.low::after {
+  background-image: radial-gradient(circle at 50%, rgba(83, 182, 99, 1) 0%, rgba(45, 166, 65, 0) 70%);
 }
