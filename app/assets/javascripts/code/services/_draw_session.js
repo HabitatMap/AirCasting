@@ -15,7 +15,6 @@ export const drawSession = (
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
-      this.undoDraw(session);
 
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       var points = [];
@@ -76,7 +75,7 @@ export const drawSession = (
     },
 
     redraw: function(sessions) {
-      this.clear();
+      this.clear(sessions);
       _(sessions).each(function(session) {
         if (session.type == 'MobileSession') {
           _(this.drawMobileSession(session));
