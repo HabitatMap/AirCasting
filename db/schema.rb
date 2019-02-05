@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20181219094432) do
+ActiveRecord::Schema.define(:version => 20190205111234) do
 
   create_table "deleted_sessions", :force => true do |t|
     t.datetime "created_at", :null => false
@@ -34,12 +34,7 @@ ActiveRecord::Schema.define(:version => 20181219094432) do
     t.float    "measured_value"
   end
 
-  add_index "measurements", ["latitude"], :name => "index_measurements_on_latitude"
-  add_index "measurements", ["longitude", "latitude"], :name => "index_measurements_on_longitude_and_latitude"
-  add_index "measurements", ["longitude"], :name => "index_measurements_on_longitude"
   add_index "measurements", ["stream_id", "time"], :name => "index_measurements_on_stream_id_and_time"
-  add_index "measurements", ["stream_id"], :name => "index_measurements_on_stream_id"
-  add_index "measurements", ["time"], :name => "index_measurements_on_time"
 
   create_table "notes", :force => true do |t|
     t.datetime "created_at"
