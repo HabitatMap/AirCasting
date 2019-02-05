@@ -3,7 +3,7 @@ export function buildCustomMarker(latLng, content, colorClass, callback) {
     this.position = position;
 
     this.anchor = document.createElement('div');
-    this.anchor.classList.add('fixed-marker');
+    this.anchor.classList.add('data-marker');
     this.anchor.classList.add(colorClass);
     this.anchor.innerText = content;
     this.anchor.addEventListener('click', callback);
