@@ -41,3 +41,6 @@ script:
 - ./bin/deploy.sh
 env:
 - secure: SB6cGWtgFS6K+Kp1zkwUgzF62lRIIJMTJOOzK/ozmtSMzhL2BqjTkVOtm83jkbNcpZm5bDumWUCPTml4snOBpid7V9gw+Ot2V8kUHd2AGPVi/3Rvglk9OL3dGz7P+32oNlF/tjjdVzQoAU2HdIwSaEVxdn3q9thSRJMwGo8HsPQ=
+notifications:
+  slack:
+    secure: bmp+mN1rGXtHTlWjDmJixpVcVVj+fTQvWJIJz1oNCq5xmNytAtzLCR1lRCIp2GzBHteR9A/j1+2YwzKz2ExHmnublmK80eVrwx+a4+ZanvqPGFWyHkfdfJDbZR8Z9655IlcTh+OUYzqqDVpccNwHD7uU3b7ZSJrjzjl0RpsamIA=
