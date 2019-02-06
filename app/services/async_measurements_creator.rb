@@ -1,6 +1,6 @@
 class AsyncMeasurementsCreator
   SLICE_SIZE = 500
-  AMOUNT_THRESHOLD = 20_000
+  AMOUNT_THRESHOLD = 6_000
 
   def initialize(measurements_creator_worker: MeasurementsCreatorWorker)
     @measurements_creator_worker = measurements_creator_worker
