@@ -13,6 +13,6 @@ class AsyncMeasurementsCreator
   end
 
   def measurements_creator
-    @measurements_creator ||= MeasurementsCreator.new
+    @measurements_creator ||= SyncMeasurementsCreator.new
   end
 end
