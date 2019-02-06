@@ -106,7 +106,7 @@ class Stream < ActiveRecord::Base
   def self.build!(data = {})
     measurements = data.delete(:measurements)
     stream = create!(data)
-    MeasurementsCreator.call(stream, measurements)
+    MeasurementsCreator.new.call(stream, measurements)
     stream
   end
 
@@ -119,7 +119,7 @@ class Stream < ActiveRecord::Base
     stream.set_bounding_box(latitude, longitude) unless stream.has_bounds?
     stream.save!
 
-    MeasurementsCreator.call(stream, measurements_attributes)
+    MeasurementsCreator.new.call(stream, measurements_attributes)
     stream
   end
 
