@@ -17,7 +17,7 @@ class AsyncMeasurementsCreator
     measurements_attributes.each_slice(SLICE_SIZE) do |attributes|
       @measurements_creator_worker
         .set(queue: queue)
-        .perform_async(stream_id: stream_id, measurements_attributes: attributes)
+        .perform_async(stream_id, attributes)
     end
   end
 end

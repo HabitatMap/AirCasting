@@ -16,7 +16,7 @@ describe AsyncMeasurementsCreator do
       .and_return(measurements_creator_worker)
     expect(measurements_creator_worker)
       .to receive(:perform_async)
-      .with(stream_id: stream_id, measurements_attributes: measurement_attributes)
+      .with(stream_id, measurement_attributes)
       .once
 
     subject.call(stream: stream, measurements_attributes: measurement_attributes)
@@ -37,7 +37,7 @@ describe AsyncMeasurementsCreator do
       .and_return(measurements_creator_worker)
     expect(measurements_creator_worker)
       .to receive(:perform_async)
-      .with(stream_id: stream_id, measurements_attributes: [{}] * 500)
+      .with(stream_id, measurement_attributes)
       .once
     expect(measurements_creator_worker)
       .to receive(:set)
@@ -46,7 +46,7 @@ describe AsyncMeasurementsCreator do
       .and_return(measurements_creator_worker)
     expect(measurements_creator_worker)
       .to receive(:perform_async)
-      .with(stream_id: stream_id, measurements_attributes: [{}])
+      .with(stream_id, measurement_attributes)
       .once
 
     subject.call(stream: stream, measurements_attributes: measurement_attributes)
@@ -68,7 +68,7 @@ describe AsyncMeasurementsCreator do
       .and_return(measurements_creator_worker)
     expect(measurements_creator_worker)
       .to receive(:perform_async)
-      .with(stream_id: stream_id, measurements_attributes: [{}] * 500)
+      .with(stream_id, measurement_attributes)
       .exactly(40)
       .times
 
