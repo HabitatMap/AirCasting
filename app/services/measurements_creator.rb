@@ -11,11 +11,21 @@ class MeasurementsCreator
 
   def call(stream, measurements_attributes)
     if measurements_attributes.one?
-      @sync_measurements_creator.call(stream, measurements_attributes)
+      create_one_sync(stream, measurements_attributes)
     else
-      measurements_attributes.each_slice(SLICE_SIZE) do |measurement_attributes|
-        @async_measurements_creator.perform_async(stream.id, measurement_attributes)
-      end
+      create_multiple_async(stream.id, measurements_attributes)
+    end
+  end
+
+  private
+
+  def create_one_sync(stream, measurements_attributes)
+    @sync_measurements_creator.call(stream, measurements_attributes)
+  end
+
+  def create_multiple_async(stream_id, measurements_attributes)
+    measurements_attributes.each_slice(SLICE_SIZE) do |attributes|
+      @async_measurements_creator.perform_async(stream_id: stream_id, measurements_attributes: attributes)
     end
   end
 end

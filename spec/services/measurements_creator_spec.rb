@@ -20,7 +20,10 @@ describe MeasurementsCreator do
     stream.id = stream_id
     measurement_attributes = [{}] * 2
 
-    expect(async_measurements_creator).to receive(:perform_async).with(stream_id, measurement_attributes).once
+    expect(async_measurements_creator)
+      .to receive(:perform_async)
+      .with(stream_id: stream_id, measurements_attributes: measurement_attributes)
+      .once
 
     subject.call(stream, measurement_attributes)
 	end
@@ -33,8 +36,14 @@ describe MeasurementsCreator do
     stream.id = stream_id
     measurement_attributes = [{}] * 501
 
-    expect(async_measurements_creator).to receive(:perform_async).with(stream_id, [{}] * 500).once
-    expect(async_measurements_creator).to receive(:perform_async).with(stream_id, [{}]).once
+    expect(async_measurements_creator)
+      .to receive(:perform_async)
+      .with(stream_id: stream_id, measurements_attributes: [{}] * 500)
+      .once
+    expect(async_measurements_creator)
+      .to receive(:perform_async)
+      .with(stream_id: stream_id, measurements_attributes: [{}])
+      .once
 
     subject.call(stream, measurement_attributes)
 	end
