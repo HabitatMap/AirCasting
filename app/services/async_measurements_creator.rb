@@ -7,16 +7,13 @@ class AsyncMeasurementsCreator
   end
 
   def call(stream:, measurements_attributes:)
-    if measurements_attributes.size < AMOUNT_THRESHOLD
-      create_multiple_async(stream.id, measurements_attributes, :default)
-    else
-      create_multiple_async(stream.id, measurements_attributes, :slow)
-    end
+    queue = measurements_attributes.size < AMOUNT_THRESHOLD ? :default : :slow
+    create(stream.id, measurements_attributes, queue)
   end
 
   private
 
-  def create_multiple_async(stream_id, measurements_attributes, queue)
+  def create(stream_id, measurements_attributes, queue)
     measurements_attributes.each_slice(SLICE_SIZE) do |attributes|
       @measurements_creator_worker
         .set(queue: queue)
