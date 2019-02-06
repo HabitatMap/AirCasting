@@ -1,9 +1,9 @@
 class SyncMeasurementsCreator
-  def initialize(streams_repository = StreamsRepository.new)
+  def initialize(streams_repository: StreamsRepository.new)
     @streams_repository = streams_repository
   end
 
-  def call(stream, measurements_attributes, jid=nil)
+  def call(stream:, measurements_attributes:, jid: nil)
     Sidekiq.logger.info "processing stream #{stream.id} with #{measurements_attributes.count} measurements" if jid
     time1 = Time.current
     stream.build_measurements!(measurements_attributes, jid)
