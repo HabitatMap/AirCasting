@@ -611,6 +611,9 @@ p.ui-dialog-content {
   &.lowest {
     border: 1px solid #ccc;
   }
+  &.default {
+    border: 1px solid #757575;
+  }
 }
 
 .data-marker::before {
