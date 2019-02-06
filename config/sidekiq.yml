@@ -3,3 +3,6 @@
 :pidfile: ./tmp/pids/sidekiq.pid
 :logfile: ./log/sidekiq.log
 :concurrency: 25
+:queues:
+  - [default, 8]
+  - [slow, 2]
