@@ -30,7 +30,9 @@ angular.module("google").factory("googleMaps", [
 
       latLng: (lat, lng) => new google.maps.LatLng(lat, lng),
 
-      latLngBounds: (lat, lng) => new google.maps.LatLngBounds(lat, lng)
+      latLngBounds: (lat, lng) => new google.maps.LatLngBounds(lat, lng),
+
+      fromLatLngToPoint: (mapObj, latLng) => mapObj.getProjection().fromLatLngToPoint(latLng)
     };
   }
 ]);
