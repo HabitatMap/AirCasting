@@ -3,3 +3,6 @@ defaults:
   staging_server_address: example.com
   experimental_server_address: example.com
   host: 'http://localhost:3000/'
+  host_: localhost:3000
+  mailer_from: noreply@localhost
+  attachment_secret: "some long and random string"

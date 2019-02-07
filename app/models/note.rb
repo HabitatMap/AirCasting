@@ -31,7 +31,7 @@ class Note < ActiveRecord::Base
     :styles => { :thumbnail => "100x100", :medium => "600x600" },
     :url => "/system/:hash.:extension",
     :path => ":rails_root/public/system/:hash.:extension",
-    :hash_secret => AppConfig.attachment_secret
+    :hash_secret => A9n.attachment_secret
   }
 
   def photo_exists?

@@ -99,7 +99,7 @@ module Api
 
     def session_json(session)
       {
-        :location => short_session_url(session, :host => AppConfig.host),
+        :location => short_session_url(session, :host => A9n.host_),
         :notes => session.notes.map do |note|
           {
             :number => note.number,

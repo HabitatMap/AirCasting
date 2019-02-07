@@ -9,7 +9,6 @@ Bundler.require(*Rails.groups)
 A9n.root = File.expand_path('../..', __FILE__)
 A9n.load
 
-require_relative '../lib/app_config'
 require_relative '../lib/aircasting/auth_failure_app'
 require_relative '../lib/aircasting/gzip'
 require_relative '../lib/aircasting/filter_range'
@@ -45,8 +44,8 @@ module AirCasting
     config.assets.version = '1.0'
 
     # App host
-    config.action_mailer.default_url_options = { :host => AppConfig.host }
-    config.action_controller.default_url_options = { :host => AppConfig.host }
+    config.action_mailer.default_url_options = { :host => A9n.host_ }
+    config.action_controller.default_url_options = { :host => A9n.host_ }
 
     # Wrap fields with errors with spans
     config.action_view.field_error_proc = Proc.new { |html_tag, instance| %(<span class="fieldWithErrors">#{html_tag}</span>).html_safe }

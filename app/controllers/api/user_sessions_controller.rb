@@ -34,7 +34,7 @@ class Api::UserSessionsController < Api::BaseController
     stream_measurements = params[:stream_measurements]
 
     response = session.as_synchronizable(stream_measurements).
-      merge(:location => short_session_url(session, :host => AppConfig.host)).
+      merge(:location => short_session_url(session, :host => A9n.host_)).
       merge(:tag_list => session.tag_list.join(" ")).
       merge(:notes => prepare_notes(session.notes))
 
