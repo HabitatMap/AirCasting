@@ -2,6 +2,7 @@ import _ from 'underscore';
 import { debounce } from 'debounce';
 import constants from '../constants';
 import * as Session from '../values/session'
+import { clusterer } from '../clusterer'
 
 export const mobileSessions = (
   params,
@@ -115,12 +116,29 @@ export const mobileSessions = (
     },
 
     drawSessionsInLocation: function() {
-      if(sensors.anySelected()) {
-        (this.get()).forEach(session => this.drawSessionInLocation(session, sensors.selectedSensorName()));
-      }
+      if (!sensors.anySelected()) return;
+
+      const sessions = this.get();
+      const sessionsToCluster = []
+      sessions.forEach((session) => {
+        sessionsToCluster.push({
+          latLng: Session.startingLatLng(session, sensors.selectedSensorName()),
+          object: session
+        });
+      });
+
+      const clusteredSessions = clusterer(sessionsToCluster, map);
+      const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
+
+      clusteredSessions.forEach(session => {
+        this.drawSessionWithoutLabel(session, sensors.selectedSensorName())
+      });
+      lonelySessions.forEach(session => {
+        this.drawSessionWithLabel(session, sensors.selectedSensorName())
+      });
     },
 
-    drawSessionInLocation: function(session, selectedSensor) {
+    drawSessionWithoutLabel: function(session, selectedSensor) {
       drawSession.undoDraw(session);
       session.markers = [];
 
@@ -135,7 +153,32 @@ export const mobileSessions = (
           latLng: latLng,
           content: content,
           colorClass: heatLevel,
-          callback: callback(Session.id(session))
+          callback: callback(Session.id(session)),
+          type: 'marker'
+        });
+      session.markers.push(marker);
+      map.markers.push(marker);
+
+      session.drawed = true;
+    },
+
+    drawSessionWithLabel: function(session, selectedSensor) {
+      drawSession.undoDraw(session);
+      session.markers = [];
+
+      const content = Session.averageValueAndUnit(session, selectedSensor);
+      const heatLevel = heat.levelName(Session.average(session));
+      const latLng = Session.startingLatLng(session, selectedSensor);
+      const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
+
+      if (heat.outsideOfScope(heatLevel)) return;
+
+      const marker = map.drawCustomMarker({
+          latLng: latLng,
+          content: content,
+          colorClass: heatLevel,
+          callback: callback(Session.id(session)),
+          type: 'data-marker'
         });
       session.markers.push(marker);
       map.markers.push(marker);
@@ -214,3 +257,5 @@ export const mobileSessions = (
   };
   return new MobileSessions();
 }
+
+const isNotIn = arr => x => !(arr.includes(x))
