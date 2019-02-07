@@ -1,13 +1,13 @@
 class AsyncMeasurementsCreator
   SLICE_SIZE = 500
-  AMOUNT_THRESHOLD = 6_000
+  MEASUREMENTS_THRESHOLD = 6_000
 
   def initialize(measurements_creator_worker: MeasurementsCreatorWorker)
     @measurements_creator_worker = measurements_creator_worker
   end
 
   def call(stream:, measurements_attributes:)
-    queue = measurements_attributes.size < AMOUNT_THRESHOLD ? :default : :slow
+    queue = measurements_attributes.size < MEASUREMENTS_THRESHOLD ? :default : :slow
     create(stream.id, measurements_attributes, queue)
   end
 
