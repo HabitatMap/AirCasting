@@ -1,6 +1,8 @@
 import test from 'blue-tape';
 import { mock } from './helpers';
 import { mobileSessions } from '../code/services/_mobile_sessions';
+import * as Clusterer from '../code/clusterer';
+import sinon from 'sinon';
 
 test('fetch with no sessions ids in params passes empty array to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
@@ -295,9 +297,9 @@ test('hasSelectedSessions with selected session returns true', t => {
   t.end();
 });
 
-test('when sensor is selected drawSessionsInLocation calls map.drawCustomMarker', t => {
+test('when sensor is selected drawSessionsInLocation calls map.drawCustomMarker to draw marker with label', t => {
   const map = mock('drawCustomMarker');
-  const session = { drawed: false, streams: {sensorName: { unit_symbol: "unit" }}};
+  const session = { drawed: false, streams: { sensorName: { unit_symbol: "unit" }}};
   const sessions = [ session ];
   const sessionsUtils = { get: () => sessions };
   const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName" };
@@ -306,9 +308,36 @@ test('when sensor is selected drawSessionsInLocation calls map.drawCustomMarker'
 
   mobileSessionsService.drawSessionsInLocation();
 
-  t.true(map.wasCalled());
+  t.true(map.wasCalledWithObjIncluding({ type: 'data-marker' }));
   t.true(session.drawed);
 
+  t.end();
+});
+
+let clusterer
+
+test('when sensor is selected and sessions are located near each other drawSessionsInLocation calls map.drawCustomMarker to draw marker without label', t => {
+  const map = mock('drawCustomMarker');
+  const session1 = { drawed: false, streams: { sensorName: { unit_symbol: "unit", start_latitude: 1, start_longitude: 1 }}};
+  const session2 = { drawed: false, streams: { sensorName: { unit_symbol: "unit", start_latitude: 1, start_longitude: 1 }}};
+  const sessions = [ session1, session2 ];
+  const sessionsUtils = { get: () => sessions };
+  const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName" };
+  clusterer = sinon.stub(Clusterer, 'clusterer').returns(sessions);
+
+  const mobileSessionsService = _mobileSessions({ map, sensors, sessionsUtils, clusterer });
+
+  mobileSessionsService.drawSessionsInLocation();
+
+  t.true(map.wasCalledWithObjIncluding({ type: 'marker' }));
+  t.true(session1.drawed);
+  t.true(session2.drawed);
+
+  t.end();
+});
+
+test('teardown', t => {
+  clusterer.restore();
   t.end();
 });
 
@@ -348,7 +377,7 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
   const $http = { get: () => ({ success: callback => callback() }) };
   const boundsCalculator = () => {};
   const _$location = $location || { path: () => '/map_sessions' };
-  const _heat = { levelName: () => "mid", outsideOfScope: () => false }
+  const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
   return mobileSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location, null, _heat);
 };

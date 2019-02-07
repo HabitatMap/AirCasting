@@ -1,9 +1,9 @@
-export function buildCustomMarker(latLng, content, colorClass, callback) {
-  const CustomMarker = function(position, content, colorClass, callback) {
+export function buildCustomMarker(latLng, content, colorClass, callback, type) {
+  const CustomMarker = function(position, content, colorClass, callback, type) {
     this.position = position;
 
     this.anchor = document.createElement('div');
-    this.anchor.classList.add('data-marker');
+    this.anchor.classList.add(type);
     this.anchor.classList.add(colorClass);
     this.anchor.innerText = content;
     this.anchor.addEventListener('click', callback);
@@ -61,5 +61,5 @@ export function buildCustomMarker(latLng, content, colorClass, callback) {
           });
         });
   };
-  return new CustomMarker(latLng, content, colorClass, callback);
+  return new CustomMarker(latLng, content, colorClass, callback, type);
 }

@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { buildCustomMarker } from './customMarker';
+import { buildCustomMarker } from './custom_marker';
 
 export const map = (
   params,
@@ -176,8 +176,8 @@ export const map = (
       return newMarker;
     },
 
-    drawCustomMarker: function({ latLng, content, colorClass, callback }) {
-      const customMarker = buildCustomMarker(latLng, content, colorClass, callback);
+    drawCustomMarker: function({ latLng, content, colorClass, callback, type }) {
+      const customMarker = buildCustomMarker(latLng, content, colorClass, callback, type);
 
       customMarker.setMap(this.get());
       this.markers.push(customMarker);
@@ -215,6 +215,8 @@ export const map = (
     clearRectangles: function() {
       rectangles.clear();
     },
+
+    fromLatLngToPoint: function(latLng) { return googleMaps.fromLatLngToPoint(this.mapObj, latLng); }
   };
 
   return new Map();
