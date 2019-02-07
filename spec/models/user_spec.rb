@@ -26,7 +26,7 @@ describe User do
     it 'chomps username attr, so there is no new lines chars at the end' do
       username = "FooBoo\n"
       user = User.new(:username => username, :email => 'foo@boo.biz',
-                      :password => 'BizBar')
+                      :password => '12345678')
       expect(user.save).to be(true)
       expect(user.username).to eq(username.chomp)
     end
