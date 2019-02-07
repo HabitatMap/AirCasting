@@ -1,7 +1,8 @@
 class CreateRegressions < ActiveRecord::Migration
   def change
     create_table :regressions do |t|
-      t.timestamps
+      t.datetime :created_at, :null => false
+      t.datetime :updated_at, :null => false
       t.string :sensor_package_name
       t.string :measurement_type
       t.string :unit_name

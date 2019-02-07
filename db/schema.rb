@@ -9,45 +9,45 @@
 # from scratch. The latter is a flawed and unsustainable approach (the more migrations
 # you'll amass, the slower it'll run and the greater likelihood for issues).
 #
-# It's strongly recommended to check this file into your version control system.
+# It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20181219094432) do
+ActiveRecord::Schema.define(version: 20181219094432) do
 
-  create_table "deleted_sessions", :force => true do |t|
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+  create_table "deleted_sessions", force: true do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string   "uuid"
     t.integer  "user_id"
   end
 
-  add_index "deleted_sessions", ["user_id"], :name => "index_deleted_sessions_on_user_id"
-  add_index "deleted_sessions", ["uuid", "user_id"], :name => "index_deleted_sessions_on_uuid_and_user_id"
+  add_index "deleted_sessions", ["user_id"], name: "index_deleted_sessions_on_user_id", using: :btree
+  add_index "deleted_sessions", ["uuid", "user_id"], name: "index_deleted_sessions_on_uuid_and_user_id", using: :btree
 
-  create_table "measurements", :force => true do |t|
-    t.float    "value"
-    t.decimal  "latitude",        :precision => 12, :scale => 9
-    t.decimal  "longitude",       :precision => 12, :scale => 9
+  create_table "measurements", force: true do |t|
+    t.float    "value",           limit: 24
+    t.decimal  "latitude",                   precision: 12, scale: 9
+    t.decimal  "longitude",                  precision: 12, scale: 9
     t.datetime "time"
     t.integer  "timezone_offset"
     t.integer  "stream_id"
-    t.integer  "milliseconds",                                   :default => 0
-    t.float    "measured_value"
+    t.integer  "milliseconds",                                        default: 0
+    t.float    "measured_value",  limit: 24
   end
 
-  add_index "measurements", ["latitude"], :name => "index_measurements_on_latitude"
-  add_index "measurements", ["longitude", "latitude"], :name => "index_measurements_on_longitude_and_latitude"
-  add_index "measurements", ["longitude"], :name => "index_measurements_on_longitude"
-  add_index "measurements", ["stream_id", "time"], :name => "index_measurements_on_stream_id_and_time"
-  add_index "measurements", ["stream_id"], :name => "index_measurements_on_stream_id"
-  add_index "measurements", ["time"], :name => "index_measurements_on_time"
+  add_index "measurements", ["latitude"], name: "index_measurements_on_latitude", using: :btree
+  add_index "measurements", ["longitude", "latitude"], name: "index_measurements_on_longitude_and_latitude", using: :btree
+  add_index "measurements", ["longitude"], name: "index_measurements_on_longitude", using: :btree
+  add_index "measurements", ["stream_id", "time"], name: "index_measurements_on_stream_id_and_time", using: :btree
+  add_index "measurements", ["stream_id"], name: "index_measurements_on_stream_id", using: :btree
+  add_index "measurements", ["time"], name: "index_measurements_on_time", using: :btree
 
-  create_table "notes", :force => true do |t|
+  create_table "notes", force: true do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "date"
     t.text     "text"
-    t.decimal  "longitude",          :precision => 12, :scale => 9
-    t.decimal  "latitude",           :precision => 12, :scale => 9
+    t.decimal  "longitude",          precision: 12, scale: 9
+    t.decimal  "latitude",           precision: 12, scale: 9
     t.integer  "session_id"
     t.string   "photo_file_name"
     t.string   "photo_content_type"
@@ -56,11 +56,11 @@ ActiveRecord::Schema.define(:version => 20181219094432) do
     t.integer  "number"
   end
 
-  add_index "notes", ["session_id"], :name => "index_notes_on_session_id"
+  add_index "notes", ["session_id"], name: "index_notes_on_session_id", using: :btree
 
-  create_table "regressions", :force => true do |t|
-    t.datetime "created_at",                    :null => false
-    t.datetime "updated_at",                    :null => false
+  create_table "regressions", force: true do |t|
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
     t.string   "sensor_package_name"
     t.string   "measurement_type"
     t.string   "unit_name"
@@ -78,7 +78,7 @@ ActiveRecord::Schema.define(:version => 20181219094432) do
     t.integer  "user_id"
   end
 
-  create_table "sessions", :force => true do |t|
+  create_table "sessions", force: true do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "user_id"
@@ -99,24 +99,24 @@ ActiveRecord::Schema.define(:version => 20181219094432) do
     t.integer  "timezone_offset"
     t.datetime "start_time_local"
     t.datetime "end_time_local"
-    t.string   "type",                                               :null => false
+    t.string   "type",                                         null: false
     t.boolean  "is_indoor"
-    t.decimal  "latitude",            :precision => 12, :scale => 9
-    t.decimal  "longitude",           :precision => 12, :scale => 9
+    t.decimal  "latitude",            precision: 12, scale: 9
+    t.decimal  "longitude",           precision: 12, scale: 9
     t.datetime "last_measurement_at"
   end
 
-  add_index "sessions", ["contribute"], :name => "index_sessions_on_contribute"
-  add_index "sessions", ["end_time"], :name => "index_sessions_on_end_time"
-  add_index "sessions", ["end_time_local"], :name => "index_sessions_on_local_end_time"
-  add_index "sessions", ["last_measurement_at"], :name => "index_sessions_on_last_measurement_at"
-  add_index "sessions", ["start_time"], :name => "index_sessions_on_start_time"
-  add_index "sessions", ["start_time_local"], :name => "index_sessions_on_local_start_time"
-  add_index "sessions", ["url_token"], :name => "index_sessions_on_url_token"
-  add_index "sessions", ["user_id"], :name => "index_sessions_on_user_id"
-  add_index "sessions", ["uuid"], :name => "index_sessions_on_uuid"
+  add_index "sessions", ["contribute"], name: "index_sessions_on_contribute", using: :btree
+  add_index "sessions", ["end_time"], name: "index_sessions_on_end_time", using: :btree
+  add_index "sessions", ["end_time_local"], name: "index_sessions_on_end_time_local", using: :btree
+  add_index "sessions", ["last_measurement_at"], name: "index_sessions_on_last_measurement_at", using: :btree
+  add_index "sessions", ["start_time"], name: "index_sessions_on_start_time", using: :btree
+  add_index "sessions", ["start_time_local"], name: "index_sessions_on_start_time_local", using: :btree
+  add_index "sessions", ["url_token"], name: "index_sessions_on_url_token", using: :btree
+  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
+  add_index "sessions", ["uuid"], name: "index_sessions_on_uuid", using: :btree
 
-  create_table "streams", :force => true do |t|
+  create_table "streams", force: true do |t|
     t.string  "sensor_name"
     t.string  "unit_name"
     t.string  "measurement_type"
@@ -128,26 +128,26 @@ ActiveRecord::Schema.define(:version => 20181219094432) do
     t.integer "threshold_high"
     t.integer "threshold_very_high"
     t.integer "session_id"
-    t.string  "sensor_package_name",                                   :default => "Builtin", :null => false
-    t.integer "measurements_count",                                    :default => 0,         :null => false
-    t.decimal "min_latitude",           :precision => 12, :scale => 9
-    t.decimal "max_latitude",           :precision => 12, :scale => 9
-    t.decimal "min_longitude",          :precision => 12, :scale => 9
-    t.decimal "max_longitude",          :precision => 12, :scale => 9
-    t.float   "average_value"
-    t.decimal "start_longitude",        :precision => 12, :scale => 9
-    t.decimal "start_latitude",         :precision => 12, :scale => 9
+    t.string  "sensor_package_name",                                        default: "Builtin", null: false
+    t.integer "measurements_count",                                         default: 0,         null: false
+    t.decimal "min_latitude",                      precision: 12, scale: 9
+    t.decimal "max_latitude",                      precision: 12, scale: 9
+    t.decimal "min_longitude",                     precision: 12, scale: 9
+    t.decimal "max_longitude",                     precision: 12, scale: 9
+    t.float   "average_value",          limit: 24
+    t.decimal "start_longitude",                   precision: 12, scale: 9
+    t.decimal "start_latitude",                    precision: 12, scale: 9
   end
 
-  add_index "streams", ["max_latitude"], :name => "index_streams_on_max_latitude"
-  add_index "streams", ["max_longitude"], :name => "index_streams_on_max_longitude"
-  add_index "streams", ["min_latitude"], :name => "index_streams_on_min_latitude"
-  add_index "streams", ["min_longitude"], :name => "index_streams_on_min_longitude"
-  add_index "streams", ["sensor_name", "measurement_type"], :name => "index_streams_on_sensor_name_and_measurement_type"
-  add_index "streams", ["sensor_name"], :name => "index_streams_on_sensor_name"
-  add_index "streams", ["session_id"], :name => "index_streams_on_session_id"
+  add_index "streams", ["max_latitude"], name: "index_streams_on_max_latitude", using: :btree
+  add_index "streams", ["max_longitude"], name: "index_streams_on_max_longitude", using: :btree
+  add_index "streams", ["min_latitude"], name: "index_streams_on_min_latitude", using: :btree
+  add_index "streams", ["min_longitude"], name: "index_streams_on_min_longitude", using: :btree
+  add_index "streams", ["sensor_name", "measurement_type"], name: "index_streams_on_sensor_name_and_measurement_type", using: :btree
+  add_index "streams", ["sensor_name"], name: "index_streams_on_sensor_name", using: :btree
+  add_index "streams", ["session_id"], name: "index_streams_on_session_id", using: :btree
 
-  create_table "taggings", :force => true do |t|
+  create_table "taggings", force: true do |t|
     t.integer  "tag_id"
     t.integer  "taggable_id"
     t.string   "taggable_type"
@@ -157,22 +157,22 @@ ActiveRecord::Schema.define(:version => 20181219094432) do
     t.datetime "created_at"
   end
 
-  add_index "taggings", ["tag_id"], :name => "index_taggings_on_tag_id"
-  add_index "taggings", ["taggable_id", "taggable_type", "context"], :name => "index_taggings_on_taggable_id_and_taggable_type_and_context"
+  add_index "taggings", ["tag_id"], name: "index_taggings_on_tag_id", using: :btree
+  add_index "taggings", ["taggable_id", "taggable_type", "context"], name: "index_taggings_on_taggable_id_and_taggable_type_and_context", using: :btree
 
-  create_table "tags", :force => true do |t|
+  create_table "tags", force: true do |t|
     t.string "name"
   end
 
-  add_index "tags", ["name"], :name => "index_tags_on_name"
+  add_index "tags", ["name"], name: "index_tags_on_name", using: :btree
 
-  create_table "users", :force => true do |t|
-    t.string   "email",                                 :default => "",    :null => false
-    t.string   "encrypted_password",     :limit => 128, :default => "",    :null => false
+  create_table "users", force: true do |t|
+    t.string   "email",                              default: "",    null: false
+    t.string   "encrypted_password",     limit: 128, default: "",    null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                         :default => 0
+    t.integer  "sign_in_count",                      default: 0
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
@@ -182,11 +182,11 @@ ActiveRecord::Schema.define(:version => 20181219094432) do
     t.datetime "updated_at"
     t.string   "username"
     t.boolean  "send_emails"
-    t.boolean  "admin",                                 :default => false
+    t.boolean  "admin",                              default: false
   end
 
-  add_index "users", ["authentication_token"], :name => "index_users_on_authentication_token", :unique => true
-  add_index "users", ["email"], :name => "index_users_on_email", :unique => true
-  add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
+  add_index "users", ["authentication_token"], name: "index_users_on_authentication_token", unique: true, using: :btree
+  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
 end
