@@ -156,8 +156,6 @@ export const mobileSessions = (
         });
       session.markers.push(marker);
       map.markers.push(marker);
-
-      session.drawed = true;
     },
 
     drawSessionWithLabel: function(session, selectedSensor) {
@@ -178,8 +176,6 @@ export const mobileSessions = (
         });
       session.markers.push(marker);
       map.markers.push(marker);
-
-      session.drawed = true;
     },
 
     _selectSession: function(id, callback) {

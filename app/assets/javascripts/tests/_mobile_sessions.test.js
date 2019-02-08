@@ -299,7 +299,7 @@ test('hasSelectedSessions with selected session returns true', t => {
 
 test('when sensor is selected drawSessionsInLocation calls map.drawCustomMarker to draw marker with label', t => {
   const map = mock('drawCustomMarker');
-  const session = { drawed: false, streams: { sensorName: { unit_symbol: "unit" }}};
+  const session = { streams: { sensorName: { unit_symbol: "unit" }}};
   const sessions = [ session ];
   const sessionsUtils = { get: () => sessions };
   const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName" };
@@ -309,7 +309,6 @@ test('when sensor is selected drawSessionsInLocation calls map.drawCustomMarker 
   mobileSessionsService.drawSessionsInLocation();
 
   t.true(map.wasCalledWithObjIncluding({ type: 'data-marker' }));
-  t.true(session.drawed);
 
   t.end();
 });
@@ -318,8 +317,8 @@ let clusterer
 
 test('when sensor is selected and sessions are located near each other drawSessionsInLocation calls map.drawCustomMarker to draw marker without label', t => {
   const map = mock('drawCustomMarker');
-  const session1 = { drawed: false, streams: { sensorName: { unit_symbol: "unit", start_latitude: 1, start_longitude: 1 }}};
-  const session2 = { drawed: false, streams: { sensorName: { unit_symbol: "unit", start_latitude: 1, start_longitude: 1 }}};
+  const session1 = { streams: { sensorName: { unit_symbol: "unit", start_latitude: 1, start_longitude: 1 }}};
+  const session2 = { streams: { sensorName: { unit_symbol: "unit", start_latitude: 1, start_longitude: 1 }}};
   const sessions = [ session1, session2 ];
   const sessionsUtils = { get: () => sessions };
   const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName" };
@@ -330,8 +329,6 @@ test('when sensor is selected and sessions are located near each other drawSessi
   mobileSessionsService.drawSessionsInLocation();
 
   t.true(map.wasCalledWithObjIncluding({ type: 'marker' }));
-  t.true(session1.drawed);
-  t.true(session2.drawed);
 
   t.end();
 });

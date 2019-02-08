@@ -144,7 +144,6 @@ export const fixedSessions = (
         });
       session.markers.push(marker);
       map.markers.push(marker);
-      session.drawed = true;
     },
 
     drawDefaultMarkers: function(session) {
@@ -162,8 +161,6 @@ export const fixedSessions = (
         });
       session.markers.push(customMarker);
       map.markers.push(customMarker);
-
-      session.drawed = true;
     },
 
     _fetch: function(page) {

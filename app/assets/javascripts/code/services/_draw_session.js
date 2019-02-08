@@ -30,14 +30,9 @@ export const drawSession = (
         session.noteDrawings.push(note.drawNote(noteItem, idx));
       });
       session.lines.push(map.drawLine(points));
-
-      session.drawed = true;
     },
 
     undoDraw: function(session, mapPosition) {
-      if(!session.drawed){
-        return;
-      }
       (session.markers || []).forEach(function(marker){
         map.removeMarker(marker);
       });
@@ -53,7 +48,6 @@ export const drawSession = (
       });
       session.noteDrawings = [];
 
-      session.drawed = false;
       if(mapPosition){
         map.fitBounds(mapPosition.bounds, mapPosition.zoom);
       }

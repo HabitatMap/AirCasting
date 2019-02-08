@@ -4,8 +4,8 @@ import { drawSession } from '../code/services/_draw_session';
 
 test('clearOtherSessions removes all markers expect the selected one', t => {
   const map = mock('removeMarker');
-  const selected_session = { drawed: true, markers: ["selected session marker"] };
-  const other_session = { drawed: true, markers: ["other session marker"] }
+  const selected_session = { markers: ["selected session marker"] };
+  const other_session = { markers: ["other session marker"] }
   const sessions = [other_session, selected_session];
   const drawSessionStub = _drawSession({ map });
 
@@ -23,14 +23,13 @@ test('drawMobileSession draws a session when session is loaded and sensor is sel
   drawSessionStub.drawMobileSession(loadedSession);
 
   t.true(map.wasCalled());
-  t.true(loadedSession.drawed);
 
   t.end();
 });
 
 test('undoDraw removes all session elements from the map', t => {
   const map = mock('removeMarker');
-  const session = { drawed: true, markers: [1], lines: [1], noteDrawings: [1] }
+  const session = { markers: [1], lines: [1], noteDrawings: [1] }
   const drawSessionStub = _drawSession({ map });
 
   drawSessionStub.undoDraw(session)
@@ -39,7 +38,6 @@ test('undoDraw removes all session elements from the map', t => {
   t.deepEqual(session.markers, [])
   t.deepEqual(session.lines , [])
   t.deepEqual(session.noteDrawings, [])
-  t.false(session.drawed)
 
   t.end();
 });
