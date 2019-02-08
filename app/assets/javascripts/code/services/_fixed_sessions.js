@@ -117,12 +117,11 @@ export const fixedSessions = (
     },
 
     drawSessionsInLocation: function() {
-      (this.get()).forEach(session => drawSession.drawFixedSession(session));
-      // if (sensors.anySelected() && params.get('data').location.streaming) {
-      //   (this.get()).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
-      // } else {
-      //   (this.get()).forEach(session => this.drawDefaultMarkers(session));
-      // }
+      if (sensors.anySelected() && params.get('data').location.streaming) {
+        (this.get()).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
+      } else {
+        (this.get()).forEach(session => this.drawDefaultMarkers(session));
+      }
     },
 
     drawColorCodedMarkers: function(session, selectedSensor) {
