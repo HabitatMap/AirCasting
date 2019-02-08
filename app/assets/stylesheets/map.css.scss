@@ -585,6 +585,20 @@ p.ui-dialog-content {
   }
 }
 
+.halo-marker {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  left: 3.6px;
+  color: transparent;
+  &.default {
+    background-color: #757575;
+  }
+}
+
+
 .data-marker {
   border-radius: 15px;
   background: white;
@@ -647,7 +661,7 @@ p.ui-dialog-content {
   background: #757575;
 }
 
-.data-marker::after {
+.data-marker::after, .halo-marker::after{
   content: '';
   width: 45px;
   height: 45px;
@@ -659,7 +673,7 @@ p.ui-dialog-content {
   background: transparent;
 }
 
-.marker.default::after, .data-marker.default::after {
+.data-marker.default::after, .halo-marker.default::after {
   background-image: radial-gradient(circle at 50%, rgba( 202, 200, 200, 1) 0%, rgba(244, 0, 28, 0) 70%);
 }
 
