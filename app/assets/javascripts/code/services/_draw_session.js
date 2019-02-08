@@ -62,11 +62,9 @@ export const drawSession = (
     redraw: function(sessions) {
       this.clear(sessions);
       _(sessions).each(function(session) {
-        if (session.type == 'MobileSession') {
-          _(this.drawMobileSession(session));
-        } else if (session.type == 'FixedSession') {
-          _(this.drawFixedSession(session));
-        } else return;
+        if (session.type !== 'MobileSession') return;
+
+        _(this.drawMobileSession(session));
       }.bind(this));
     },
 

@@ -315,7 +315,7 @@ test('drawSessionsInLocation draws colorcoded marker for currently streaming ses
 
   fixedSessionsService.drawSessionsInLocation();
 
-  t.true(map.wasCalledWithParameter({ colorClass: "mid" }));
+  t.true(map.wasCalledWithObjIncluding({ colorClass: "mid" }));
 
   t.end();
 });
@@ -330,7 +330,7 @@ test('drawSessionsInLocation draws default marker when no sensor selected', t =>
 
   fixedSessionsService.drawSessionsInLocation();
 
-  t.true(map.wasCalledWithParameter({ colorClass: "default" }));
+  t.true(map.wasCalledWithObjIncluding({ colorClass: "default" }));
 
   t.end();
 });
@@ -345,7 +345,7 @@ test('drawSessionsInLocation draws default marker for sessions that are not stre
 
   fixedSessionsService.drawSessionsInLocation();
 
-  t.true(map.wasCalledWithParameter({ colorClass: "default" }));
+  t.true(map.wasCalledWithObjIncluding({ colorClass: "default" }));
 
   t.end();
 });
