@@ -139,7 +139,8 @@ export const fixedSessions = (
           latLng: latLng,
           content: content,
           colorClass: heatLevel,
-          callback: callback(Session.id(session))
+          callback: callback(Session.id(session)),
+          type: 'data-marker'
         });
       session.markers.push(marker);
       map.markers.push(marker);
@@ -156,7 +157,8 @@ export const fixedSessions = (
       const customMarker = map.drawCustomMarker({
           latLng: latLng,
           colorClass: "default",
-          callback: callback(Session.id(session))
+          callback: callback(Session.id(session)),
+          type: 'halo-marker',
         });
       session.markers.push(customMarker);
       map.markers.push(customMarker);
