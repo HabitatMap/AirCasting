@@ -31,7 +31,7 @@ server secrets.fetch('EXPERIMENTAL_SERVER_ADDRESS'), user: 'aircasting', roles: 
 set :deploy_to, '/home/aircasting/application'
 set :rails_env, "production"
 
-set :branch, ENV.fetch("BRANCH", "staging")
+set :branch, ENV.fetch("BRANCH")
 set :keep_releases, 3
 
 set :rbenv_type, :system

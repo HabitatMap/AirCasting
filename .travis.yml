@@ -10,8 +10,6 @@ before_install:
 - ssh-add ./keys/github_deploy_key
 - chmod 600 ./keys/container_deploy_key
 - ssh-add ./keys/container_deploy_key
-- echo -e "Host staging.aircasting.lunarlogic.io\n\tStrictHostKeyChecking no\n" >>
-  ~/.ssh/config
 - echo -e "Host aircasting.org\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - chmod +x ./bin/deploy.sh
 cache:

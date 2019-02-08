@@ -12,7 +12,6 @@ This is the AirCasting project - the project aims to build a platform for gather
 ### Branching strategy
 
 - `master` is stable code, which automatically deployes to `aircasting.org`. If you're setting up your own copy of Aircasting use this branch.
-- `staging` is a base branch to which we merge code. It automatically deployes to staging server. It may contain some work-in-progress code or unfinished features.
 
 ### Prerequisite: Debian / Ubuntu
 
