@@ -58,7 +58,8 @@ export const FixedSessionsMapCtrl = (
       sensorId,
       location: {address: "", indoorOnly: false, streaming: true},
       tags: "",
-      usernames: ""
+      usernames: "",
+      crowdMap: true,
     });
 
     storage.updateFromDefaults();

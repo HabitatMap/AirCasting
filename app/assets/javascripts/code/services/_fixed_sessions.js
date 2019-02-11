@@ -108,7 +108,7 @@ export const fixedSessions = (
         cache : true,
         params: { sensor_id: sensorName }
       }).success(function(data){
-        sessionsUtils.onSingleSessionFetch(session, data, callback);
+        sessionsUtils.onSingleSessionFetchWithoutCrowdMap(session, data, callback);
       });
     },
 
@@ -130,8 +130,6 @@ export const fixedSessions = (
 
         const clusteredSessions = clusterer(sessionsToCluster, map);
         const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
-
-        console.warn(sessionsIds(clusteredSessions))
 
         sessionsUtils.updateCrowdMapLayer(sessionsIds(clusteredSessions));
 

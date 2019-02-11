@@ -82,12 +82,22 @@ export const sessionsUtils = (
   },
 
   onSingleSessionFetch: function(session, data, callback) {
-    var streams = keysToLowerCase(data.streams);
-    delete data.streams;
-    _(session).extend(data);
-    _(session.streams).extend(streams);
+    createSessionData(session, data)
     session.loaded = true;
     callback();
     this.updateCrowdMapLayer([session.id]);
+  },
+
+  onSingleSessionFetchWithoutCrowdMap: function(session, data, callback) {
+    createSessionData(session, data)
+    session.loaded = true;
+    callback();
   }
 });
+
+const createSessionData = (session, data) => {
+  const streams = keysToLowerCase(data.streams);
+  delete data.streams;
+  _(session).extend(data);
+  _(session.streams).extend(streams);
+}
