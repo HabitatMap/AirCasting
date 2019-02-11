@@ -95,7 +95,7 @@ export const heat = ($rootScope, params, storage) => {
 
     levelName: function(value){
       if (value < this.getValue("lowest")) {
-        return null;
+        return "default";
       } else if (value < this.getValue("low")) {
         return "low";
       } else if (value < this.getValue("mid")) {
@@ -105,7 +105,7 @@ export const heat = ($rootScope, params, storage) => {
       } else if (value < this.getValue("highest")) {
         return "highest";
       } else {
-        return null;
+        return "default";
       }
     },
     outsideOfScope: function(value) {

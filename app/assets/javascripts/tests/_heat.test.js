@@ -62,12 +62,12 @@ test('levelName returns highest when heat level between high and highest' , t =>
   t.end()
 });
 
-test('levelName returns null when heat level outside of scope' , t => {
+test('levelName returns default when heat level outside of scope' , t => {
   const heatStub = _heat();
 
   const actual = heatStub.levelName(151)
 
-  t.equal(actual, null)
+  t.equal(actual, "default")
 
   t.end()
 });

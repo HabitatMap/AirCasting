@@ -147,8 +147,6 @@ export const mobileSessions = (
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
-      if (heat.outsideOfScope(heatLevel)) { heatLevel = 'default' };
-
       const marker = map.drawCustomMarker({
           latLng: latLng,
           content: content,
@@ -170,8 +168,6 @@ export const mobileSessions = (
       let heatLevel = heat.levelName(Session.average(session));
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
-
-      if (heat.outsideOfScope(heatLevel)) { heatLevel = 'default' };
 
       const marker = map.drawCustomMarker({
           latLng: latLng,
