@@ -1,6 +1,8 @@
 import test from 'blue-tape';
 import { mock } from './helpers';
 import { fixedSessions } from '../code/services/_fixed_sessions';
+import * as Clusterer from '../code/clusterer';
+import sinon from 'sinon';
 
 test('fetch with no sessions ids in params passes empty array to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
@@ -303,7 +305,6 @@ test('deselectSession with no previously selected sessions calls fitBounds with 
   t.end();
 });
 
-
 test('drawSessionsInLocation draws colorcoded marker for currently streaming sessions when sensor selected', t => {
   const map = mock('drawCustomMarker');
   const session = { id: 123, latitude: 1, longitude: 2, last_hour_average: 1.1, streams: {sensorName: { unit_symbol: "unit" }}};
@@ -319,6 +320,34 @@ test('drawSessionsInLocation draws colorcoded marker for currently streaming ses
 
   t.end();
 });
+
+let clusterer;
+
+test('drawSessionsInLocation draws crowd map rectangles for clustered sessions for currently streaming sessions when sensor selected', t => {
+  const sessionsUtils = mock('updateCrowdMapLayer')
+  const session1 = { id: 1, latitude: 50, longitude: 50, streams: {sensorName: { unit_symbol: "unit" }}};
+  const session2 = { id: 2, latitude: 1, longitude: 1 };
+  const session3 = { id: 3, latitude: 1, longitude: 1 };
+  const sessions = [session1, session2, session3];
+  const sensors = { anySelected: () => true };
+  const data = buildData({ location: { streaming: true } });
+  clusterer = sinon.stub(Clusterer, 'clusterer').returns([session2, session3]);
+
+  const fixedSessionsService = _fixedSessions({ data, sessionsUtils, sensors });
+  fixedSessionsService.sessions = sessions
+
+  fixedSessionsService.drawSessionsInLocation();
+
+  t.true(sessionsUtils.wasCalledWith([2, 3]))
+
+  t.end();
+});
+
+test('teardown', t => {
+  clusterer.restore();
+  t.end();
+});
+
 
 test('drawSessionsInLocation draws default marker when no sensor selected', t => {
   const map = mock('drawCustomMarker');
@@ -365,13 +394,13 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
       }
     }
   };
-  const _map = { getBounds: () => ({}), getZoom: () => undefined, markers: [],...map };
+  const _map = { getBounds: () => ({}), getZoom: () => undefined, markers: [], drawCustomMarker: () => {}, ...map };
   const _utils = utils || {};
-  const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, anySelected: () => false, ...sensors };
+  const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, anySelected: () => false, selectedSensorName: () => "sensorName", ...sensors };
   const _drawSession = drawSession || { clear: () => {}, undoDraw: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _$location = $location || { path: () => '/map_fixed_sessions' };
-  const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), get: (self) => self.sessions, ...sessionsUtils };
+  const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), get: (self) => self.sessions, updateCrowdMapLayer: () => {}, ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };
   const boundsCalculator = () => {};
   const _heat = { levelName: () => "mid", outsideOfScope: () => false }
