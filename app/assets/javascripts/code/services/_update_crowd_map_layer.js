@@ -7,7 +7,6 @@ export const updateCrowdMapLayer = (
   $http,
   buildQueryParamsForCrowdMapLayer,
   flash,
-  $location,
   params,
   utils,
   infoWindow,
@@ -25,14 +24,13 @@ export const updateCrowdMapLayer = (
 
     $http.get('/api/averages', { cache: true, params: { q }})
       .error(onError(flash))
-      .success(onAveragesFetch($location, map, params, utils, _onRectangleClick));
+      .success(onAveragesFetch( map, params, utils, _onRectangleClick));
   }
 });
 
 const onError = (flash) => () => flash.set('There was an error, sorry');
 
-const onAveragesFetch = ($location, map, params, utils, _onRectangleClick) => data => {
-  if($location.path() !== constants.mobileMapRoute) return;
+const onAveragesFetch = (map, params, utils, _onRectangleClick) => data => {
   const heats = utils.heats(params.get('data').heat)
   map.drawRectangles(data, heats, _onRectangleClick);
 };
