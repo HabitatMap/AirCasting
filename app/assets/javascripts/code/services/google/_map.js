@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import { buildCustomMarker } from './custom_marker';
 
 export const map = (
   params,
@@ -134,7 +135,15 @@ export const map = (
       });
     },
 
-    drawMarker: function(latLngObj, optionInput, existingMarker, level){
+    drawMarker: function({ position, title, zIndex, icon }){
+      var newMarker = new google.maps.Marker({ position, title, zIndex, icon });
+
+      newMarker.setMap(this.get());
+      this.markers.push(newMarker);
+
+      return newMarker;
+    },
+    drawMarkerOld: function(latLngObj, optionInput, existingMarker, level){
       if(!latLngObj) {
         return;
       }
@@ -167,6 +176,15 @@ export const map = (
       return newMarker;
     },
 
+    drawCustomMarker: function({ latLng, content, colorClass, callback, type }) {
+      const customMarker = buildCustomMarker(latLng, content, colorClass, callback, type);
+
+      customMarker.setMap(this.get());
+      this.markers.push(customMarker);
+
+      return customMarker;
+    },
+
     removeMarker: function(marker) {
       if(!marker){
         return;
@@ -175,10 +193,8 @@ export const map = (
     },
 
     removeAllMarkers: function() {
-      var markers = this.markers;
-      _(markers).each(function(marker) {
-        marker.setMap(null);
-      });
+      (this.markers || []).forEach(marker => marker.setMap(null));
+      this.markers = [];
     },
 
     drawLine: function(data){
@@ -199,6 +215,8 @@ export const map = (
     clearRectangles: function() {
       rectangles.clear();
     },
+
+    fromLatLngToPoint: function(latLng) { return googleMaps.fromLatLngToPoint(this.mapObj, latLng); }
   };
 
   return new Map();

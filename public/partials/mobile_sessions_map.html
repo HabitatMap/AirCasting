@@ -62,8 +62,17 @@
 
       <div class="section-divider" ng-include="versioner.path('/partials/time_filters.html')"></div>
     </div>
+    <div ng-switch on="!singleSession.get() &&!!sensors.anySelected()">
+      <div ng-switch-when="true">
+        <h4 ng-click="expandables.toggle('heatLegend')" ng-class="expandables.css('heatLegend')">Heat Legend</h4>
+        <section ng-show="expandables.visible('heatLegend')">
+          <div class="section-divider" ng-include="versioner.path('/partials/heat_legend.html')"></div>
+        </section>
+      </div>
+    </div>
     <div ng-switch on="!!singleSession.get() && !!sensors.anySelected()">
       <div ng-switch-when="true">
+        <h4>Heat Legend</h4>
         <div class="section-divider" ng-include="versioner.path('/partials/heat_legend.html')"></div>
       </div>
     </div>

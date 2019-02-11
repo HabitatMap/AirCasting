@@ -14,9 +14,12 @@ export const MobileSessionsMapCtrl = (
   functionBlocker,
   $window,
   infoWindow,
-  sensorsList
+  sensorsList,
+  heat,
+  sessionsUtils
 ) => {
   sensors.setSensors(sensorsList);
+
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
@@ -41,7 +44,7 @@ export const MobileSessionsMapCtrl = (
       });
     }
 
-    ['sensor', 'location', 'usernames', 'layers'].forEach(function(name) {
+    ['sensor', 'location', 'usernames', 'layers', 'heatLegend'].forEach(function(name) {
       $scope.expandables.show(name);
     });
 
@@ -56,11 +59,14 @@ export const MobileSessionsMapCtrl = (
       usernames: "",
       gridResolution: 25,
       crowdMap: false,
-      heat: { highest: 150, high: 55, mid: 35, low: 12, lowest: 0 }
     });
 
     $scope.minResolution = 10;
     $scope.maxResolution = 50;
+
+    if (!params.get('data').heat) {
+      sensors.fetchHeatLevels($scope.onHeatLevelsFetch);
+    }
 
     storage.updateFromDefaults();
   };
@@ -73,12 +79,34 @@ export const MobileSessionsMapCtrl = (
   $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    sensors.onSensorsSelectedIdChange(newValue, oldValue, false);
+    console.warn(newValue, oldValue)
+    sensors.onSensorsSelectedIdChange(newValue, oldValue, $scope.onHeatLevelsFetch);
+  }, true);
+
+  $scope.onHeatLevelsFetch = function(data, status, headers, config) {
+    storage.updateDefaults({heat: heat.parse(data)});
+    params.update({data: {heat: heat.parse(data)}});
+  };
+
+  $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
+    console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
+    if (newValue === oldValue) return;
+    if (mobileSessions.noOfSelectedSessions() !== 0) {
+      sessionsUtils.updateCrowdMapLayer($scope.params.get('selectedSessionIds'))
+      return;
+    };
+
+    if (storage.isCrowdMapLayerOn()) {
+      mobileSessions.onHeatLevelChangeWithCrowdMapLayerOn();
+    } else {
+      $scope.sessions.drawSessionsInLocation();
+    };
   }, true);
 
   $scope.heatUpdateCondition = function() {
     return {sensorId:  sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
   };
+
   $scope.$watch("heatUpdateCondition()", function(newValue, oldValue) {
     console.log("watch - heatUpdateCondition() - ", newValue, " - ", oldValue);
     if(newValue.sensorId && newValue.sessionId){

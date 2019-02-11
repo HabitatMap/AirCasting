@@ -25,7 +25,8 @@ angular.module("google").factory("note",  ["$http", "$compile", "$rootScope","$t
     },
     drawNote: function(item, idx){
       var self = this;
-      var marker = map.drawMarker(item, {
+      var marker = map.drawMarker({
+        position: { lat: item.latitude, lng: item.longitude },
         title: item.text,
         icon: "/assets/marker_note.png",
         zIndex: 200000

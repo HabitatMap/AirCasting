@@ -213,6 +213,21 @@ test('when map was change programatically saveViewport calls params update with 
   t.end();
 });
 
+test('removeAllMarkers removes all markers', t => {
+  let markers = [{setMap: (_) => {}}]
+  const service = _map({})
+  service.markers = markers
+
+  service.removeAllMarkers()
+
+  const actual = service.markers;
+
+  const expected = [];
+  t.deepEqual(actual, expected)
+
+  t.end();
+});
+
 const mockGeocoder = () => ({
   get: (_, callback) => callback([ { geometry: { getBounds: null } } ])
 });

@@ -19,4 +19,3 @@ angular.module("aircasting").factory('functionBlocker', function() {
   };
   return new FunctionBlocker();
 });
-

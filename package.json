@@ -26,6 +26,7 @@
     "babel-register": "^6.26.0",
     "blue-tape": "^1.0.0",
     "fast-deep-equal": "^2.0.1",
+    "sinon": "^7.2.3",
     "stats-webpack-plugin": "^0.4.3",
     "webpack": "^4.16.1",
     "webpack-cli": "^3.1.0",

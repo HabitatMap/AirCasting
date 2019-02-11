@@ -17,7 +17,7 @@ test('registers a callback to map.goToAddress', t => {
   t.end();
 });
 
-test('it shows by default sensor, location, usernames and layers sections', t => {
+test('it shows by default sensor, location, usernames, layers sections and heat legend', t => {
   const shown = [];
   const expandables = {
     show: name => shown.push(name)
@@ -25,7 +25,7 @@ test('it shows by default sensor, location, usernames and layers sections', t =>
 
   _MobileSessionsMapCtrl({ expandables });
 
-  t.deepEqual(shown, ['sensor', 'location', 'usernames', 'layers']);
+  t.deepEqual(shown, ['sensor', 'location', 'usernames', 'layers', 'heatLegend']);
 
   t.end();
 });
@@ -49,16 +49,34 @@ test('it updates defaults', t => {
     usernames: "",
     gridResolution: 25,
     crowdMap: false,
-    heat: { highest: 150, high: 55, mid: 35, low: 12, lowest: 0 }
   };
   t.deepEqual(defaults, expected);
 
   t.end();
 });
 
+test('fetches heat levels on first opening map tab', t => {
+  const sensors = mock('fetchHeatLevels');
+  const mobileSessionsMapCtrl = _MobileSessionsMapCtrl({ sensors });
+
+  t.true(sensors.wasCalled())
+
+  t.end();
+});
+
+test('doesnt fetch heat levels if they are already in the params', t => {
+  const sensors = mock('fetchHeatLevels');
+  const params = { get: () => ({ heat: {}})};
+  const mobileSessionsMapCtrl = _MobileSessionsMapCtrl({ sensors, params });
+
+  t.false(sensors.wasCalled())
+
+  t.end();
+});
+
 const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables, sensors, params }) => {
   const _expandables = { show: () => {}, ...expandables };
-  const _sensors = { setSensors: () => {}, ...sensors };
+  const _sensors = { setSensors: () => {}, fetchHeatLevels: () => {}, ...sensors };
   const functionBlocker = { block: () => {} };
   const _params = { get: () => ({}), ...params };
   const infoWindow = { hide: () => {} };

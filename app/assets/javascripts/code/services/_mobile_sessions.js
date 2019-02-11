@@ -1,6 +1,8 @@
 import _ from 'underscore';
 import { debounce } from 'debounce';
 import constants from '../constants';
+import * as Session from '../values/session'
+import { clusterer } from '../clusterer'
 
 export const mobileSessions = (
   params,
@@ -14,7 +16,8 @@ export const mobileSessions = (
   boundsCalculator,
   sessionsUtils,
   $location,
-  storage
+  storage,
+  heat
 ) => {
   var MobileSessions = function() {
     this.sessions = [];
@@ -74,6 +77,11 @@ export const mobileSessions = (
       sessionsUtils.updateCrowdMapLayer(this.sessionIds());
     },
 
+    onHeatLevelChangeWithCrowdMapLayerOn: function() {
+      sessionsUtils.updateCrowdMapLayer(this.sessionIds());
+    },
+
+
     deselectSession: function(id) {
       const session = this.find(id);
       if (!session) return;
@@ -108,18 +116,69 @@ export const mobileSessions = (
     },
 
     drawSessionsInLocation: function() {
-      map.markers = [];
-      if(sensors.anySelected()) {
-        const sensorId = sensors.selectedId() || sensors.tmpSelectedId();
-        const sensor = sensors.sensors[sensorId] || {};
-        const selectedSensor = sensor.sensor_name;
-        (this.get()).forEach(session => this.drawSessionInLocation(session, selectedSensor));
-      }
+      if (!sensors.anySelected()) return;
+
+      const sessions = this.get();
+      const sessionsToCluster = []
+      sessions.forEach((session) => {
+        sessionsToCluster.push({
+          latLng: Session.startingLatLng(session, sensors.selectedSensorName()),
+          object: session
+        });
+      });
+
+      const clusteredSessions = clusterer(sessionsToCluster, map);
+      const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
+
+      clusteredSessions.forEach(session => {
+        this.drawSessionWithoutLabel(session, sensors.selectedSensorName())
+      });
+      lonelySessions.forEach(session => {
+        this.drawSessionWithLabel(session, sensors.selectedSensorName())
+      });
     },
 
-    drawSessionInLocation: function(session, selectedSensor) {
+    drawSessionWithoutLabel: function(session, selectedSensor) {
+      drawSession.undoDraw(session);
       session.markers = [];
-      drawSession.drawMobileSessionStartPoint(session, selectedSensor);
+
+      const content = Session.averageValueAndUnit(session, selectedSensor);
+      let heatLevel = heat.levelName(Session.average(session));
+      const latLng = Session.startingLatLng(session, selectedSensor);
+      const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
+
+      const marker = map.drawCustomMarker({
+          latLng: latLng,
+          content: content,
+          colorClass: heatLevel,
+          callback: callback(Session.id(session)),
+          type: 'marker'
+        });
+      session.markers.push(marker);
+      map.markers.push(marker);
+
+      session.drawed = true;
+    },
+
+    drawSessionWithLabel: function(session, selectedSensor) {
+      drawSession.undoDraw(session);
+      session.markers = [];
+
+      const content = Session.averageValueAndUnit(session, selectedSensor);
+      let heatLevel = heat.levelName(Session.average(session));
+      const latLng = Session.startingLatLng(session, selectedSensor);
+      const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
+
+      const marker = map.drawCustomMarker({
+          latLng: latLng,
+          content: content,
+          colorClass: heatLevel,
+          callback: callback(Session.id(session)),
+          type: 'data-marker'
+        });
+      session.markers.push(marker);
+      map.markers.push(marker);
+
       session.drawed = true;
     },
 
@@ -194,3 +253,5 @@ export const mobileSessions = (
   };
   return new MobileSessions();
 }
+
+const isNotIn = arr => x => !(arr.includes(x))

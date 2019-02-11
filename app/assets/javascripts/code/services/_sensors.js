@@ -92,6 +92,11 @@ export const sensors = (params, $http) => {
       }
       return this.anySelected().id;
     },
+    selectedSensorName: function() {
+      const sensorId = this.selectedId() || this.tmpSelectedId();
+      const sensor = this.sensors[sensorId] || {};
+      return sensor.sensor_name;
+    },
     proceedWithTmp: function() {
       params.update({tmp: {selectedSensorId: this.candidateSelectedSensorId}});
     },
@@ -132,9 +137,21 @@ export const sensors = (params, $http) => {
       return buildSensorId(sensor);
     },
     onSensorsSelectedIdChange: function(newValue, oldValue, callback) {
-      if(hasChangedToAll(newValue)) return;
+      if(hasChangedToAll(this.selectedId())) return;
 
       console.log("onSensorsSelectedIdChange 1 - ", newValue, " - ", oldValue);
+
+      if (newValue === oldValue) return; // first angular watch run
+
+      console.log("onSensorsSelectedIdChange 2 - ", newValue, " - ", oldValue);
+
+      this.fetchHeatLevels(callback);
+      params.update({data: {sensorId: newValue}});
+      params.update({selectedSessionIds: []});
+    },
+
+    fetchHeatLevels: function(callback) {
+      if(hasChangedToAll(this.selectedId())) return;
 
       if (callback) {
         $http.get( '/api/thresholds/' + this.selected().sensor_name, {
@@ -142,13 +159,6 @@ export const sensors = (params, $http) => {
           cache: true
         }).success(callback);
       }
-
-      if (newValue === oldValue) return; // first angular watch run
-
-      console.log("onSensorsSelectedIdChange 2 - ", newValue, " - ", oldValue);
-
-      params.update({data: {sensorId: newValue}});
-      params.update({selectedSessionIds: []});
     }
   };
   return new Sensors();
