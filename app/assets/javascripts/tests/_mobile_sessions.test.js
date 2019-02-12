@@ -165,6 +165,32 @@ test('selectSession after successfully fetching calls drawSession.drawMobileSess
   t.end();
 });
 
+test('selectSession after successfully fetching undraws all sessions', t => {
+  const drawSession = mock('clear');
+  const sessions = []
+  const mobileSessionsService = _mobileSessions({ drawSession, sensors });
+  mobileSessionsService.sessions = sessions
+
+  mobileSessionsService.selectSession(1);
+
+  t.true(drawSession.wasCalledWith(sessions));
+
+  t.end();
+});
+
+test('selectSession after successfully fetching calls drawSession.drawMobileSession with selected session', t => {
+  const drawSession = mock('drawMobileSession');
+  const session = { id: 1 };
+  const sessionsUtils = { find: () => session }
+  const mobileSessionsService = _mobileSessions({ drawSession, sensors, sessionsUtils });
+
+  mobileSessionsService.selectSession(1);
+
+  t.true(drawSession.wasCalledWith(session));
+
+  t.end();
+});
+
 test('selectSession after successfully fetching calls map.fitBounds', t => {
   const map = mock('fitBounds');
   const mobileSessionsService = _mobileSessions({ map, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
@@ -299,7 +325,7 @@ test('hasSelectedSessions with selected session returns true', t => {
 
 test('when sensor is selected drawSessionsInLocation calls map.drawCustomMarker to draw marker with label', t => {
   const map = mock('drawCustomMarker');
-  const session = { drawed: false, streams: { sensorName: { unit_symbol: "unit" }}};
+  const session = { streams: { sensorName: { unit_symbol: "unit" }}};
   const sessions = [ session ];
   const sessionsUtils = { get: () => sessions };
   const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName" };
@@ -309,7 +335,6 @@ test('when sensor is selected drawSessionsInLocation calls map.drawCustomMarker 
   mobileSessionsService.drawSessionsInLocation();
 
   t.true(map.wasCalledWithObjIncluding({ type: 'data-marker' }));
-  t.true(session.drawed);
 
   t.end();
 });
@@ -318,8 +343,8 @@ let clusterer
 
 test('when sensor is selected and sessions are located near each other drawSessionsInLocation calls map.drawCustomMarker to draw marker without label', t => {
   const map = mock('drawCustomMarker');
-  const session1 = { drawed: false, streams: { sensorName: { unit_symbol: "unit", start_latitude: 1, start_longitude: 1 }}};
-  const session2 = { drawed: false, streams: { sensorName: { unit_symbol: "unit", start_latitude: 1, start_longitude: 1 }}};
+  const session1 = { streams: { sensorName: { unit_symbol: "unit", start_latitude: 1, start_longitude: 1 }}};
+  const session2 = { streams: { sensorName: { unit_symbol: "unit", start_latitude: 1, start_longitude: 1 }}};
   const sessions = [ session1, session2 ];
   const sessionsUtils = { get: () => sessions };
   const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName" };
@@ -330,8 +355,6 @@ test('when sensor is selected and sessions are located near each other drawSessi
   mobileSessionsService.drawSessionsInLocation();
 
   t.true(map.wasCalledWithObjIncluding({ type: 'marker' }));
-  t.true(session1.drawed);
-  t.true(session2.drawed);
 
   t.end();
 });
@@ -353,7 +376,21 @@ test('when no sensor is selected drawSessionsInLocation doesnt call map.drawCust
   t.end();
 });
 
+test('redrawSelectedSession call drawSession.drawMobileSession with selected session', t => {
+  const drawSession = mock('drawMobileSession');
+  const session = { id: 1 }
+  const sessionsUtils = { find: () => session }
+
+  const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils });
+  mobileSessionsService.redrawSelectedSession(1);
+
+  t.true(drawSession.wasCalledWith(session));
+
+  t.end();
+});
+
 const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
+const sensors = { sensors: { 123: { sensor_name: 'sensor_name' }}};
 
 const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
   const $rootScope = { $new: () => ({}) };
@@ -371,7 +408,7 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
   const _map = { getBounds: () => ({}), fitBounds: () => {}, getZoom: () => {}, markers: [], ...map };
   const _utils = utils || {};
   const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, ...sensors };
-  const _drawSession = { clear: () => {}, clearOtherSessions: () => {}, drawMobileSession: () => {}, undoDraw: () => {}, ...drawSession };
+  const _drawSession = { clear: () => {}, drawMobileSession: () => {}, undoDraw: () => {}, ...drawSession };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };

@@ -77,11 +77,6 @@ export const mobileSessions = (
       sessionsUtils.updateCrowdMapLayer(this.sessionIds());
     },
 
-    onHeatLevelChangeWithCrowdMapLayerOn: function() {
-      sessionsUtils.updateCrowdMapLayer(this.sessionIds());
-    },
-
-
     deselectSession: function(id) {
       const session = this.find(id);
       if (!session) return;
@@ -93,12 +88,13 @@ export const mobileSessions = (
 
     selectSession: function(id) {
       const callback = (session, allSelected) => (data) => {
-        drawSession.clearOtherSessions(this.sessions, session);
+        drawSession.clear(this.sessions);
         prevMapPosition = {
           bounds: map.getBounds(),
           zoom: map.getZoom()
         };
-        const draw = () => drawSession.drawMobileSession(session);
+        const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+        const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMarker);
         map.fitBounds(boundsCalculator(allSelected));
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
@@ -106,13 +102,23 @@ export const mobileSessions = (
     },
 
     reSelectSession: function(id) {
-      // I think this is never used since we blocked the button to select all sessions
+      // this is called when refreshing a page with selected session
       drawSession.clear(this.sessions);
       const callback = (session, allSelected) => (data) => {
-        const draw = () => drawSession.drawMobileSession(session);
+        const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+        const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMarker);
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
       this._selectSession(id, callback);
+    },
+
+    redrawSelectedSession: function(id) {
+      const session = this.find(id);
+      if (!session) return;
+
+      const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+
+      drawSession.drawMobileSession(session, drawSessionStartingMarker);
     },
 
     drawSessionsInLocation: function() {
@@ -142,22 +148,17 @@ export const mobileSessions = (
       drawSession.undoDraw(session);
       session.markers = [];
 
-      const content = Session.averageValueAndUnit(session, selectedSensor);
-      let heatLevel = heat.levelName(Session.average(session));
+      const heatLevel = heat.levelName(Session.average(session, selectedSensor));
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
       const marker = map.drawCustomMarker({
           latLng: latLng,
-          content: content,
           colorClass: heatLevel,
           callback: callback(Session.id(session)),
           type: 'marker'
         });
       session.markers.push(marker);
-      map.markers.push(marker);
-
-      session.drawed = true;
     },
 
     drawSessionWithLabel: function(session, selectedSensor) {
@@ -165,7 +166,7 @@ export const mobileSessions = (
       session.markers = [];
 
       const content = Session.averageValueAndUnit(session, selectedSensor);
-      let heatLevel = heat.levelName(Session.average(session));
+      const heatLevel = heat.levelName(Session.average(session, selectedSensor));
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
@@ -177,9 +178,6 @@ export const mobileSessions = (
           type: 'data-marker'
         });
       session.markers.push(marker);
-      map.markers.push(marker);
-
-      session.drawed = true;
     },
 
     _selectSession: function(id, callback) {

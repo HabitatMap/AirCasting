@@ -11,10 +11,12 @@ export const drawSession = (
   };
 
   DrawSession.prototype = {
-    drawMobileSession: function(session) {
+    drawMobileSession: function(session, drawSessionStartingMarker) {
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
+
+      drawSessionStartingMarker(session, sensors.selectedSensorName());
 
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       var points = [];
@@ -30,14 +32,9 @@ export const drawSession = (
         session.noteDrawings.push(note.drawNote(noteItem, idx));
       });
       session.lines.push(map.drawLine(points));
-
-      session.drawed = true;
     },
 
     undoDraw: function(session, mapPosition) {
-      if(!session.drawed){
-        return;
-      }
       (session.markers || []).forEach(function(marker){
         map.removeMarker(marker);
       });
@@ -53,29 +50,13 @@ export const drawSession = (
       });
       session.noteDrawings = [];
 
-      session.drawed = false;
       if(mapPosition){
         map.fitBounds(mapPosition.bounds, mapPosition.zoom);
       }
     },
 
-    redraw: function(sessions) {
-      this.clear(sessions);
-      _(sessions).each(function(session) {
-        if (session.type !== 'MobileSession') return;
-
-        _(this.drawMobileSession(session));
-      }.bind(this));
-    },
-
     clear: function(sessions) {
       _(sessions).each(_(this.undoDraw).bind(this));
-    },
-
-    clearOtherSessions: function(sessions, selectedSession) {
-      sessions
-      .filter(session => session !== selectedSession)
-      .forEach(this.undoDraw)
     },
 
     measurementsForSensor: function(session, sensor_name){
