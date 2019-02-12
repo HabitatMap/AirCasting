@@ -102,14 +102,6 @@ export const SessionsListCtrl = (
     return {id: params.get('tmp').selectedSensorId, heat: params.get('data').heat };
   };
 
-  $scope.$watch("sessionRedrawCondition()", function(newValue) {
-    console.log("watch - sessionRedrawCondition()");
-    if(singleSession.isFixed() || (!newValue.id && !newValue.heat)){
-      return;
-    }
-    drawSession.redraw(sessions.allSelected());
-  }, true);
-
   $scope.$on('markerSelected', function(event, data){
     $scope.toggleSession(data.session_id, true);
     $scope.$apply();
