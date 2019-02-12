@@ -148,20 +148,17 @@ export const mobileSessions = (
       drawSession.undoDraw(session);
       session.markers = [];
 
-      const content = Session.averageValueAndUnit(session, selectedSensor);
       let heatLevel = heat.levelName(Session.average(session, selectedSensor));
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
       const marker = map.drawCustomMarker({
           latLng: latLng,
-          content: content,
           colorClass: heatLevel,
           callback: callback(Session.id(session)),
           type: 'marker'
         });
       session.markers.push(marker);
-      map.markers.push(marker);
     },
 
     drawSessionWithLabel: function(session, selectedSensor) {
@@ -181,7 +178,6 @@ export const mobileSessions = (
           type: 'data-marker'
         });
       session.markers.push(marker);
-      map.markers.push(marker);
     },
 
     _selectSession: function(id, callback) {
