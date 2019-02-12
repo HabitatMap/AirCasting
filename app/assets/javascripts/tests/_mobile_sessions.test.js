@@ -165,6 +165,32 @@ test('selectSession after successfully fetching calls drawSession.drawMobileSess
   t.end();
 });
 
+test('selectSession after successfully fetching undraws all sessions', t => {
+  const drawSession = mock('clear');
+  const sessions = []
+  const mobileSessionsService = _mobileSessions({ drawSession, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
+  mobileSessionsService.sessions = sessions
+
+  mobileSessionsService.selectSession(1);
+
+  t.true(drawSession.wasCalledWith(sessions));
+
+  t.end();
+});
+
+test('selectSession after successfully fetching calls drawSession.drawMobileSession with selected session', t => {
+  const drawSession = mock('drawMobileSession');
+  const session = { id: 1 };
+  const sessionsUtils = { find: () => session }
+  const mobileSessionsService = _mobileSessions({ drawSession, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } }, sessionsUtils });
+
+  mobileSessionsService.selectSession(1);
+
+  t.true(drawSession.wasCalledWith(session));
+
+  t.end();
+});
+
 test('selectSession after successfully fetching calls map.fitBounds', t => {
   const map = mock('fitBounds');
   const mobileSessionsService = _mobileSessions({ map, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
@@ -368,7 +394,7 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
   const _map = { getBounds: () => ({}), fitBounds: () => {}, getZoom: () => {}, markers: [], ...map };
   const _utils = utils || {};
   const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, ...sensors };
-  const _drawSession = { clear: () => {}, clearOtherSessions: () => {}, drawMobileSession: () => {}, undoDraw: () => {}, ...drawSession };
+  const _drawSession = { clear: () => {}, drawMobileSession: () => {}, undoDraw: () => {}, ...drawSession };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };

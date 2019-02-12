@@ -93,12 +93,13 @@ export const mobileSessions = (
 
     selectSession: function(id) {
       const callback = (session, allSelected) => (data) => {
-        drawSession.clearOtherSessions(this.sessions, session);
+        drawSession.clear(this.sessions);
         prevMapPosition = {
           bounds: map.getBounds(),
           zoom: map.getZoom()
         };
-        const draw = () => drawSession.drawMobileSession(session);
+        const drawSessionStartingMakrer = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+        const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMakrer);
         map.fitBounds(boundsCalculator(allSelected));
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
@@ -106,10 +107,11 @@ export const mobileSessions = (
     },
 
     reSelectSession: function(id) {
-      // I think this is never used since we blocked the button to select all sessions
+      // this is called when refreshing a page with selected session
       drawSession.clear(this.sessions);
       const callback = (session, allSelected) => (data) => {
-        const draw = () => drawSession.drawMobileSession(session);
+        const drawSessionStartingMakrer = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+        const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMakrer);
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
       this._selectSession(id, callback);

@@ -11,10 +11,12 @@ export const drawSession = (
   };
 
   DrawSession.prototype = {
-    drawMobileSession: function(session) {
+    drawMobileSession: function(session, drawSessionStartingMakrer) {
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
+
+      drawSessionStartingMakrer(session, sensors.selectedSensorName());
 
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       var points = [];
@@ -55,12 +57,6 @@ export const drawSession = (
 
     clear: function(sessions) {
       _(sessions).each(_(this.undoDraw).bind(this));
-    },
-
-    clearOtherSessions: function(sessions, selectedSession) {
-      sessions
-      .filter(session => session !== selectedSession)
-      .forEach(this.undoDraw)
     },
 
     measurementsForSensor: function(session, sensor_name){

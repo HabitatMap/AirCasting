@@ -2,25 +2,12 @@ import test from 'blue-tape';
 import { mock } from './helpers';
 import { drawSession } from '../code/services/_draw_session';
 
-test('clearOtherSessions removes all markers expect the selected one', t => {
-  const map = mock('removeMarker');
-  const selected_session = { markers: ["selected session marker"] };
-  const other_session = { markers: ["other session marker"] }
-  const sessions = [other_session, selected_session];
-  const drawSessionStub = _drawSession({ map });
-
-  drawSessionStub.clearOtherSessions(sessions, selected_session);
-
-  t.true(map.wasCalledWith("other session marker"));
-
-  t.end();
-});
-
 test('drawMobileSession draws a session when session is loaded and sensor is selected', t => {
   const map = mock('drawMarker');
   const drawSessionStub = _drawSession({ map, sensors: selectedSensor });
+  const callback = () => {};
 
-  drawSessionStub.drawMobileSession(loadedSession);
+  drawSessionStub.drawMobileSession(loadedSession, callback);
 
   t.true(map.wasCalled());
 
@@ -54,6 +41,6 @@ const loadedSession = {
 const _drawSession = ({ map, sensors, heat }) => {
   const _map = { drawMarker: () => ({}), drawLine: () => ({}), ...map };
   const _heat = { getLevel: () => {}, outsideOfScope: () => false, ...heat };
-  const _sensors = { ...sensors };
+  const _sensors = { selectedSensorName: () => "sensorName", ...sensors };
   return drawSession(_sensors, _map, _heat);
 };
