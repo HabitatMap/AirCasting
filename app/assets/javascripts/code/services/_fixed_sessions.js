@@ -117,12 +117,11 @@ export const fixedSessions = (
     },
 
     drawSessionsInLocation: function() {
-      (this.get()).forEach(session => drawSession.drawFixedSession(session));
-      // if (sensors.anySelected() && params.get('data').location.streaming) {
-      //   (this.get()).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
-      // } else {
-      //   (this.get()).forEach(session => this.drawDefaultMarkers(session));
-      // }
+      if (sensors.anySelected() && params.get('data').location.streaming) {
+        (this.get()).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
+      } else {
+        (this.get()).forEach(session => this.drawDefaultMarkers(session));
+      }
     },
 
     drawColorCodedMarkers: function(session, selectedSensor) {
@@ -140,7 +139,8 @@ export const fixedSessions = (
           latLng: latLng,
           content: content,
           colorClass: heatLevel,
-          callback: callback(Session.id(session))
+          callback: callback(Session.id(session)),
+          type: 'data-marker'
         });
       session.markers.push(marker);
       map.markers.push(marker);
@@ -157,7 +157,8 @@ export const fixedSessions = (
       const customMarker = map.drawCustomMarker({
           latLng: latLng,
           colorClass: "default",
-          callback: callback(Session.id(session))
+          callback: callback(Session.id(session)),
+          type: 'halo-marker',
         });
       session.markers.push(customMarker);
       map.markers.push(customMarker);
