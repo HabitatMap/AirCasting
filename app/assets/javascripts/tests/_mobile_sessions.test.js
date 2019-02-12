@@ -168,7 +168,7 @@ test('selectSession after successfully fetching calls drawSession.drawMobileSess
 test('selectSession after successfully fetching undraws all sessions', t => {
   const drawSession = mock('clear');
   const sessions = []
-  const mobileSessionsService = _mobileSessions({ drawSession, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
+  const mobileSessionsService = _mobileSessions({ drawSession, sensors });
   mobileSessionsService.sessions = sessions
 
   mobileSessionsService.selectSession(1);
@@ -182,7 +182,7 @@ test('selectSession after successfully fetching calls drawSession.drawMobileSess
   const drawSession = mock('drawMobileSession');
   const session = { id: 1 };
   const sessionsUtils = { find: () => session }
-  const mobileSessionsService = _mobileSessions({ drawSession, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } }, sessionsUtils });
+  const mobileSessionsService = _mobileSessions({ drawSession, sensors, sessionsUtils });
 
   mobileSessionsService.selectSession(1);
 
@@ -390,6 +390,7 @@ test('redrawSelectedSession call drawSession.drawMobileSession with selected ses
 });
 
 const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
+const sensors = { sensors: { 123: { sensor_name: 'sensor_name' }}};
 
 const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
   const $rootScope = { $new: () => ({}) };

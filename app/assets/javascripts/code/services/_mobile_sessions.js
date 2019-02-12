@@ -93,8 +93,8 @@ export const mobileSessions = (
           bounds: map.getBounds(),
           zoom: map.getZoom()
         };
-        const drawSessionStartingMakrer = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
-        const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMakrer);
+        const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+        const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMarker);
         map.fitBounds(boundsCalculator(allSelected));
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
@@ -105,8 +105,8 @@ export const mobileSessions = (
       // this is called when refreshing a page with selected session
       drawSession.clear(this.sessions);
       const callback = (session, allSelected) => (data) => {
-        const drawSessionStartingMakrer = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
-        const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMakrer);
+        const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+        const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMarker);
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
       this._selectSession(id, callback);
@@ -116,9 +116,9 @@ export const mobileSessions = (
       const session = this.find(id);
       if (!session) return;
 
-      const drawSessionStartingMakrer = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+      const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
 
-      drawSession.drawMobileSession(session, drawSessionStartingMakrer);
+      drawSession.drawMobileSession(session, drawSessionStartingMarker);
     },
 
     drawSessionsInLocation: function() {
@@ -148,7 +148,7 @@ export const mobileSessions = (
       drawSession.undoDraw(session);
       session.markers = [];
 
-      let heatLevel = heat.levelName(Session.average(session, selectedSensor));
+      const heatLevel = heat.levelName(Session.average(session, selectedSensor));
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
@@ -166,7 +166,7 @@ export const mobileSessions = (
       session.markers = [];
 
       const content = Session.averageValueAndUnit(session, selectedSensor);
-      let heatLevel = heat.levelName(Session.average(session, selectedSensor));
+      const heatLevel = heat.levelName(Session.average(session, selectedSensor));
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 

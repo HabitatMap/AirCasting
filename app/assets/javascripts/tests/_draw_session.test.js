@@ -5,9 +5,8 @@ import { drawSession } from '../code/services/_draw_session';
 test('drawMobileSession draws a session when session is loaded and sensor is selected', t => {
   const map = mock('drawMarker');
   const drawSessionStub = _drawSession({ map, sensors: selectedSensor });
-  const callback = () => {};
 
-  drawSessionStub.drawMobileSession(loadedSession, callback);
+  drawSessionStub.drawMobileSession(loadedSession, () => {});
 
   t.true(map.wasCalled());
 

@@ -98,10 +98,6 @@ export const SessionsListCtrl = (
     $scope.sessionsForList = newSessions;
   }, true);
 
-  $scope.sessionRedrawCondition = function() {
-    return {id: params.get('tmp').selectedSensorId, heat: params.get('data').heat };
-  };
-
   $scope.$on('markerSelected', function(event, data){
     $scope.toggleSession(data.session_id, true);
     $scope.$apply();

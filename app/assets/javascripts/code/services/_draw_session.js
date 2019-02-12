@@ -11,12 +11,12 @@ export const drawSession = (
   };
 
   DrawSession.prototype = {
-    drawMobileSession: function(session, drawSessionStartingMakrer) {
+    drawMobileSession: function(session, drawSessionStartingMarker) {
       if(!session || !session.loaded || !sensors.anySelected()){
         return;
       }
 
-      drawSessionStartingMakrer(session, sensors.selectedSensorName());
+      drawSessionStartingMarker(session, sensors.selectedSensorName());
 
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       var points = [];
