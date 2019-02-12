@@ -10,11 +10,11 @@ export const formatSessionForList = session => ({
   shortTypes: session.shortTypes
 });
 
-export const average = session => session.average;
+export const average = (session, selectedSensor) => session.streams[selectedSensor].average_value;
 
 export const lastHourAverage = session => session.last_hour_average;
 
-export const averageValueAndUnit = (session, selectedSensor) => roundedAverage(session) + " " + selectedSensorUnit(session, selectedSensor);
+export const averageValueAndUnit = (session, selectedSensor) => roundedAverage(session, selectedSensor) + " " + selectedSensorUnit(session, selectedSensor);
 
 export const lastHourAverageValueAndUnit = (session, selectedSensor) => lastHourRoundedAverage(session) + " " + selectedSensorUnit(session, selectedSensor);
 
@@ -32,7 +32,7 @@ const startingLat = (session, selectedSensor) => session.streams[selectedSensor]
 
 const startingLng = (session, selectedSensor) => session.streams[selectedSensor].start_longitude;
 
-const roundedAverage = session => Math.round(average(session));
+const roundedAverage = (session, selectedSensor) => Math.round(average(session, selectedSensor));
 
 const lastHourRoundedAverage = session => Math.round(lastHourAverage(session));
 

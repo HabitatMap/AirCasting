@@ -50,9 +50,10 @@ test('when session is outdoor it uses its username', t => {
   t.end();
 });
 
-test('average returns session average', t => {
-  const session = { average: 1 };
-  const actual = Session.average(session);
+test('average returns session average for selected stream', t => {
+  const selectedSensor = "selectedSensor"
+  const session = { streams: { selectedSensor: { average_value: 1 }}};
+  const actual = Session.average(session, selectedSensor);
 
   t.deepEqual(actual, 1);
 
@@ -102,7 +103,7 @@ test('latLng returns latitude and longitude of the session', t => {
 
 test('averageValueAndUnit returns rounded session average value and unit for selected sensor', t => {
   const selectedSensor = "selectedSensor"
-  const session = { average: 1.2, streams: { selectedSensor: { unit_symbol: "dB" } } };
+  const session = { streams: { selectedSensor: { unit_symbol: "dB", average_value: 1.2 } } };
   const actual = Session.averageValueAndUnit(session, selectedSensor);
 
   t.deepEqual(actual, "1 dB");
