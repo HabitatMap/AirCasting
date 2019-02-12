@@ -77,11 +77,6 @@ export const mobileSessions = (
       sessionsUtils.updateCrowdMapLayer(this.sessionIds());
     },
 
-    onHeatLevelChangeWithCrowdMapLayerOn: function() {
-      sessionsUtils.updateCrowdMapLayer(this.sessionIds());
-    },
-
-
     deselectSession: function(id) {
       const session = this.find(id);
       if (!session) return;
@@ -115,6 +110,15 @@ export const mobileSessions = (
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
       this._selectSession(id, callback);
+    },
+
+    redrawSelectedSession: function(id) {
+      const session = this.find(id);
+      if (!session) return;
+
+      const drawSessionStartingMakrer = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+
+      drawSession.drawMobileSession(session, drawSessionStartingMakrer);
     },
 
     drawSessionsInLocation: function() {

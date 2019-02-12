@@ -376,6 +376,19 @@ test('when no sensor is selected drawSessionsInLocation doesnt call map.drawCust
   t.end();
 });
 
+test('redrawSelectedSession call drawSession.drawMobileSession with selected session', t => {
+  const drawSession = mock('drawMobileSession');
+  const session = { id: 1 }
+  const sessionsUtils = { find: () => session }
+
+  const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils });
+  mobileSessionsService.redrawSelectedSession(1);
+
+  t.true(drawSession.wasCalledWith(session));
+
+  t.end();
+});
+
 const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
 
 const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {

@@ -91,14 +91,16 @@ export const MobileSessionsMapCtrl = (
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
     console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
     if (newValue === oldValue) return;
-    if (mobileSessions.noOfSelectedSessions() !== 0) {
-      sessionsUtils.updateCrowdMapLayer($scope.params.get('selectedSessionIds'))
-      return;
-    };
 
     if (storage.isCrowdMapLayerOn()) {
-      mobileSessions.onHeatLevelChangeWithCrowdMapLayerOn();
-    } else {
+      sessionsUtils.updateCrowdMapLayer($scope.params.get('selectedSessionIds'));
+    }
+
+    if (mobileSessions.noOfSelectedSessions() === 1) {
+      mobileSessions.redrawSelectedSession($scope.params.get('selectedSessionIds')[0]);
+    };
+
+    if (mobileSessions.noOfSelectedSessions() === 0) {
       $scope.sessions.drawSessionsInLocation();
     };
   }, true);
