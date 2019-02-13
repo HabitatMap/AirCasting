@@ -118,22 +118,28 @@ export const fixedSessions = (
     },
 
     drawSessionsInLocation: function() {
+      map.clearRectangles();
       if (sensors.anySelected() && params.get('data').location.streaming) {
         const sessions = (this.get());
-        const sessionsToCluster = []
-        sessions.forEach((session) => {
-          sessionsToCluster.push({
-            latLng: Session.latLng(session),
-            object: session
+
+        if (map.maxZoomLevel()) {
+          sessions.forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
+        } else {
+          const sessionsToCluster = []
+          sessions.forEach((session) => {
+            sessionsToCluster.push({
+              latLng: Session.latLng(session),
+              object: session
+            });
           });
-        });
 
-        const clusteredSessions = clusterer(sessionsToCluster, map);
-        const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
+          const clusteredSessions = clusterer(sessionsToCluster, map);
+          const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
 
-        sessionsUtils.updateCrowdMapLayer(sessionsIds(clusteredSessions));
+          sessionsUtils.updateCrowdMapLayer(sessionsIds(clusteredSessions));
 
-        (lonelySessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
+          (lonelySessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
+        }
       } else {
         (this.get()).forEach(session => this.drawDefaultMarkers(session));
       }

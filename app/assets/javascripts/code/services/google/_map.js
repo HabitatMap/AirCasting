@@ -184,7 +184,9 @@ export const map = (
       rectangles.clear();
     },
 
-    fromLatLngToPoint: function(latLng) { return googleMaps.fromLatLngToPoint(this.mapObj, latLng); }
+    fromLatLngToPoint: function(latLng) { return googleMaps.fromLatLngToPoint(this.mapObj, latLng); },
+
+    maxZoomLevel: function() { return (this.getZoom() === 21) }
   };
 
   return new Map();
