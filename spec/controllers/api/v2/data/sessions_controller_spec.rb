@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::V2::Data::SessionsController do
   describe "GET 'last'" do

@@ -16,22 +16,17 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe User do
   let(:user) { FactoryGirl.create(:user) }
   subject { user }
 
-  it { is_expected.to validate_presence_of(:username) }
-  it { is_expected.to validate_uniqueness_of(:username).case_insensitive }
-  it { is_expected.to validate_presence_of(:email) }
-  it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
-
   describe "#before_save" do
     it 'chomps username attr, so there is no new lines chars at the end' do
       username = "FooBoo\n"
       user = User.new(:username => username, :email => 'foo@boo.biz',
-                      :password => 'BizBar')
+                      :password => '12345678')
       expect(user.save).to be(true)
       expect(user.username).to eq(username.chomp)
     end

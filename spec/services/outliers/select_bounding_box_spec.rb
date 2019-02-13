@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe Outliers::SelectBoundingBox do
   it "when number of outliers is below the threshold the bounding box without outliers is returned" do

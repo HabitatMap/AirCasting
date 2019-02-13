@@ -23,13 +23,7 @@
 # server list. The second argument is a, or duck-types, Hash and is
 # used to set extended properties on the server.
 
-# Loading the secrets, as you cannot use `Rails.` functions here to read them.
-secrets = YAML.load(File.read(File.expand_path('../../../config/secrets.yml', __FILE__)))
-
-staging_server_address = ENV.fetch('STAGING_SERVER_ADDRESS') do |_|
-  secrets.fetch('STAGING_SERVER_ADDRESS')
-end
-server staging_server_address, user: 'aircasting', roles: %w{web app}
+server ENV.fetch("SERVER"), user: 'aircasting', roles: %w{web app}
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, '/home/aircasting/application'
 set :rails_env, "production"

@@ -16,7 +16,7 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::UserSessionsController do
   let(:user) { FactoryGirl.create(:user) }

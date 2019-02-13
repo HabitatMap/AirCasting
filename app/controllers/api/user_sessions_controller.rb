@@ -17,6 +17,9 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class Api::UserSessionsController < Api::BaseController
+  # TokenAuthenticatable was removed from Devise in 3.1
+  # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
+  before_filter :authenticate_user_from_token!
   before_filter :authenticate_user!
 
   respond_to :json
@@ -35,7 +38,7 @@ class Api::UserSessionsController < Api::BaseController
     stream_measurements = params[:stream_measurements]
 
     response = session.as_synchronizable(stream_measurements).
-      merge(:location => short_session_url(session, :host => AppConfig.host)).
+      merge(:location => short_session_url(session, :host => A9n.host_)).
       merge(:tag_list => session.tag_list.join(" ")).
       merge(:notes => prepare_notes(session.notes))
 

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe TimeToLocalInUTC do
   it 'converts time with timezone to the same time, but in UTC' do

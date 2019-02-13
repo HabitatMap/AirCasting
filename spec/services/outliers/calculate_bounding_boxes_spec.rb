@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe Outliers::CalculateBoundingBoxes do
   it "calculates bounding box with and without outliers" do

@@ -1,26 +1,8 @@
-# AirCasting - Share your Air!
-# Copyright (C) 2011-2012 HabitatMap, Inc.
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# You can contact the authors by email at <info@habitatmap.org>
-
 class User < ActiveRecord::Base
   # Include default devise modules. Others available are:
   #   :encryptable, :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable, :recoverable, :rememberable,
-         :trackable, :validatable, :token_authenticatable
+         :trackable, :validatable
 
   has_many :sessions, :inverse_of => :user
   has_many :mobile_sessions, :inverse_of => :user
@@ -28,9 +10,6 @@ class User < ActiveRecord::Base
   has_many :streams, :through => :sessions
   has_many :measurements, :through => :streams
   has_many :regressions
-
-  # Setup accessible (or protected) attributes for your model
-  attr_accessible :email, :username, :login, :password, :password_confirmation, :remember_me, :send_emails
 
   # Virtual attribute for devise
   attr_accessor :login
@@ -42,27 +21,32 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :username, :case_sensitive => false
   validates_uniqueness_of :email, case_sensitive: false
 
+  # TokenAuthenticatable was removed from Devise in 3.1
+  # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
+  def ensure_authentication_token
+    if authentication_token.blank?
+      self.authentication_token = generate_authentication_token
+    end
+  end
+
   def as_json(*args)
     super(:only => [:id, :email, :username, :authentication_token])
   end
 
-  # Copied from devise wiki
+  # Inspired by Devise wiki
+  # https://github.com/plataformatec/devise/wiki/How-To:-Allow-users-to-sign-in-using-their-username-or-email-address
+  # https://github.com/plataformatec/devise/wiki/How-To:-Allow-users-to-sign_in-using-their-username-or-email-address
   def self.find_for_database_authentication(conditions)
     conditions = conditions.dup
     login = conditions.delete(:login)
-    login ||= conditions.delete(:authentication_token)
 
-    where(conditions).
-      where(["authentication_token = :token OR " +
-             "lower(username) = :value OR " +
-             "lower(email) = :value",
-             { :value => login.downcase,
-               :token => login
-             }]).
-      first
+    where([
+      "authentication_token = :token OR " + "lower(username) = :value OR " + "lower(email) = :value",
+      { :value => login.downcase, :token => login }
+    ]).first
   end
 
-  # Adapted from devise wiki
+  # Inspired by Devise wiki
   def self.send_reset_password_instructions(conditions = {})
     record = find_for_database_authentication(conditions)
     record.send_reset_password_instructions if record
@@ -110,5 +94,14 @@ class User < ActiveRecord::Base
   private
   def chomp_username_attribute!
     self.username.chomp!
+  end
+
+  # TokenAuthenticatable was removed from Devise in 3.1
+  # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
+  def generate_authentication_token
+    loop do
+      token = Devise.friendly_token
+      break token unless User.where(authentication_token: token).first
+    end
   end
 end

@@ -1,7 +1,8 @@
 class CreateDeletedSessions < ActiveRecord::Migration
   def change
     create_table :deleted_sessions do |t|
-      t.timestamps
+      t.datetime :created_at, :null => false
+      t.datetime :updated_at, :null => false
       t.string :uuid, :size => 36
       t.integer :user_id
     end

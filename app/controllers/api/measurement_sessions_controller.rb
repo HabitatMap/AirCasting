@@ -20,6 +20,9 @@ module Api
   class MeasurementSessionsController < BaseController
     INT_Q_ATTRS = [:time_from, :time_to, :day_from, :day_to]
 
+    # TokenAuthenticatable was removed from Devise in 3.1
+    # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
+    before_filter :authenticate_user_from_token!, :only => :create
     before_filter :authenticate_user!, :only => :create
 
     respond_to :json
@@ -99,7 +102,7 @@ module Api
 
     def session_json(session)
       {
-        :location => short_session_url(session, :host => AppConfig.host),
+        :location => short_session_url(session, :host => A9n.host_),
         :notes => session.notes.map do |note|
           {
             :number => note.number,

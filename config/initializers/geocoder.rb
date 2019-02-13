@@ -1,5 +1,5 @@
 Geocoder.configure(
-  api_key:              Rails.application.config.secrets.fetch('GOOGLE_MAPS_API_KEY'),
+  api_key:              A9n.google_maps_api_key,
   use_https:            true,
   logger:               :kernel,
   kernel_logger_level:  ::Logger::INFO,

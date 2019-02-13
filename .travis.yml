@@ -30,7 +30,6 @@ install:
 - yarn
 before_script:
 - cp config/database.yml.travis config/database.yml
-- cp config/secrets.yml.example config/secrets.yml
 - mysql -e 'create database aircasting_test;'
 - RAILS_ENV=test bundle exec rake db:migrate
 script:
