@@ -119,30 +119,34 @@ export const fixedSessions = (
 
     drawSessionsInLocation: function() {
       map.clearRectangles();
-      if (sensors.anySelected() && params.get('data').location.streaming) {
-        const sessions = (this.get());
+      if (params.get('data').location.indoorOnly) return;
 
-        if (map.maxZoomLevel()) {
-          sessions.forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
-        } else {
-          const sessionsToCluster = []
-          sessions.forEach((session) => {
-            sessionsToCluster.push({
-              latLng: Session.latLng(session),
-              object: session
-            });
-          });
+      const sessions = this.get();
 
-          const clusteredSessions = clusterer(sessionsToCluster, map);
-          const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
-
-          sessionsUtils.updateCrowdMapLayer(sessionsIds(clusteredSessions));
-
-          (lonelySessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
-        }
-      } else {
-        (this.get()).forEach(session => this.drawDefaultMarkers(session));
+      if (!sensors.anySelected() || !params.get('data').location.streaming) {
+        sessions.forEach(session => this.drawDefaultMarkers(session));
+        return;
       }
+
+      if (map.maxZoomLevel()) {
+        sessions.forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
+        return;
+      }
+
+      const sessionsToCluster = []
+      sessions.forEach((session) => {
+        sessionsToCluster.push({
+          latLng: Session.latLng(session),
+          object: session
+        });
+      });
+
+      const clusteredSessions = clusterer(sessionsToCluster, map);
+      const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
+
+      sessionsUtils.updateCrowdMapLayer(sessionsIds(clusteredSessions));
+
+      (lonelySessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
     },
 
     drawColorCodedMarkers: function(session, selectedSensor) {
