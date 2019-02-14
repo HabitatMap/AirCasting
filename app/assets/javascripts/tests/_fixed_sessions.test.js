@@ -433,7 +433,7 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
   const _drawSession = drawSession || { clear: () => {}, undoDraw: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
   const _$location = $location || { path: () => '/map_fixed_sessions' };
-  const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), get: (self) => self.sessions, updateCrowdMapLayer: () => {}, onSingleSessionFetchWithoutCrowdMap: () => {}, ...sessionsUtils };
+  const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), get: (self) => self.sessions, updateCrowdMapLayer: () => {}, onSingleSessionFetchWithoutCrowdMap: (x, y, callback) => callback(), ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };
   const boundsCalculator = () => {};
   const _heat = { levelName: () => "mid", outsideOfScope: () => false }
