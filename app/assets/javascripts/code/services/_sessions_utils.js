@@ -38,8 +38,8 @@ export const sessionsUtils = (
     self.reSelectAllSessions();
   },
 
-  updateCrowdMapLayer: function(sessionIds) {
-    updateCrowdMapLayer.call(sessionIds);
+  updateCrowdMapLayer: function(sessionIds, type) {
+    updateCrowdMapLayer.call(sessionIds, type);
   },
 
   onSessionsFetchError: function(data){

@@ -12,7 +12,7 @@ export const updateCrowdMapLayer = (
   infoWindow,
   rectangles
 ) => ({
-  call: (sessionIds) => {
+  call: (sessionIds, type) => {
     map.clearRectangles();
     if (!storage.isCrowdMapLayerOn()) return;
 
@@ -20,7 +20,13 @@ export const updateCrowdMapLayer = (
     const q = buildQueryParamsForCrowdMapLayer.call(sessionIds, bounds);
     if (!q) return;
 
-    const _onRectangleClick = onRectangleClick(infoWindow, rectangles, sessionIds, buildQueryParamsForCrowdMapLayer);
+    let _onRectangleClick;
+    if (type === "Fixed") {
+      _onRectangleClick = fixedOnRectangleClick(infoWindow, rectangles, sessionIds, buildQueryParamsForCrowdMapLayer);
+    } else {
+      _onRectangleClick = onRectangleClick(infoWindow, rectangles, sessionIds, buildQueryParamsForCrowdMapLayer);
+    }
+
 
     $http.get('/api/averages', { cache: true, params: { q }})
       .error(onError(flash))
@@ -37,4 +43,8 @@ const onAveragesFetch = (map, params, utils, _onRectangleClick) => data => {
 
 const onRectangleClick = (infoWindow, rectangles, sessionIds, buildQueryParamsForCrowdMapLayer) => rectangleData => {
   infoWindow.show("/api/region", { q: buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData) }, rectangles.position(rectangleData));
+};
+
+const fixedOnRectangleClick = (infoWindow, rectangles, sessionIds, buildQueryParamsForCrowdMapLayer) => rectangleData => {
+  infoWindow.fixedShow("/api/region", { q: buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData) }, rectangles.position(rectangleData));
 };
