@@ -158,8 +158,6 @@ export const fixedSessions = (
       const latLng = Session.latLng(session);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
-      if (heatLevel === "default") return;
-
       const marker = map.drawCustomMarker({
           latLng: latLng,
           content: content,
