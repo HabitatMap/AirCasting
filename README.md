@@ -113,42 +113,6 @@ SET foreign_key_checks = 1; --Remember to enable foreign key checks when procedu
 
 ## Troubleshooting
 
-In case you encounter a similar error
-
-```
-Mysql2::Error: Expression #3 of SELECT list is not in GROUP BY clause and contains nonaggregated column ...
-```
-
-please check if any of these files
-
-- /etc/my.cnf
-- /etc/mysql/my.cnf
-- /usr/local/etc/my.cnf
-- ~/.my.cnf
-
-contain `sql_mode = "..."`. If that's the case, make sure to remove `ONLY_FULL_GROUP_BY` from the string. Otherwise, just add
-
-```
-sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
-```
-
-to any existing configuration file. If none exists just create `~/.my.cnf` as follows
-
-```
-[mysqld]
-sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
-```
-
-Note: If you installed mysql using a dmg file, you will have to create ~/.my.cnf according to the insturctions above, Even if some of the other files listed above contains `sql_mode = "..."` - this is just a left over from the previous instalations and will not be used by mysql installed by dmg.
-
-To double check the configuration works
-
-```bash
-bundle exec rails c
-ActiveRecord::Base.connection.execute("show variables like 'sql_mode'").to_a
-# the return value should not contain ONLY_FULL_GROUP_BY
-```
-
 ### Problems with mysql2 gem
 
 If you run into the error `libmysqlclient is missing` while installing mysql2 then run `brew install mysql-connector-c`.
