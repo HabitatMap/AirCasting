@@ -144,7 +144,7 @@ export const fixedSessions = (
       const clusteredSessions = clusterer(sessionsToCluster, map);
       const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
 
-      sessionsUtils.updateCrowdMapLayer(sessionsIds(clusteredSessions), "Fixed");
+      sessionsUtils.updateCrowdMapLayer(sessionsIds(clusteredSessions), constants.fixedSession);
 
       (lonelySessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
     },
