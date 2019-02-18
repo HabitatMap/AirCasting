@@ -31,4 +31,8 @@ class MobileSession < Session
       self.streams.first.measurements.average(:value)
     end
   end
+
+  def fixed?
+    false
+  end
 end

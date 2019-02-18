@@ -1,9 +1,11 @@
 require "spec_helper"
 
 describe FixedRegionInfo do
-  it "calculates average, number of contributors, top contributors and number of samples for sessions for given stearm" do
-    session1 = create_session_with_stearms_and_measurements!({ id: 1, longitude: 1.0, latitude: 1.0, value: 1 })
-    session2 = create_session_with_stearms_and_measurements!({ id: 2, longitude: 1.0, latitude: 1.0, value: 2 })
+  it "calculates average, number of contributors, top contributors and number of samples for sessions for given stream for last hour" do
+    user1 = create_user!(id: 1)
+    user2 = create_user!(id: 2)
+    session1 = create_session_with_streams_and_measurements!(id: 1, value: 1, user: user1)
+    session2 = create_session_with_streams_and_measurements!(id: 2, value: 2, user: user2)
 
     data = {
       session_ids: [session1.id, session2.id],
@@ -15,18 +17,20 @@ describe FixedRegionInfo do
     expect(region_info).to eq({
         average: 1.5,
         number_of_contributors: 2,
-        top_contributors: (["Test User1", "Test User2"]),
+        top_contributors: ([user1.username, user2.username]),
         number_of_samples: 120,
         number_of_instruments: 2,
       })
   end
 
   it "doesn't take into account measurements older than one hour" do
-    session1 = create_session_with_stearms_and_measurements!({ id: 1, longitude: 1.0, latitude: 1.0, value: 1 })
-    session2 = create_session!({ id: 2, longitude: 1.0, latitude: 1.0 })
-    stream = create_stream!({session: session2})
-    create_measurements!({ value: 2, stream: stream })
-    create_old_measurements!({ value: 20, stream: stream })
+    user1 = create_user!(id: 1)
+    user2 = create_user!(id: 2)
+    session1 = create_session_with_streams_and_measurements!(id: 1, value: 1, user: user1)
+    session2 = create_session!(id: 2, user: user2)
+    stream = create_stream!(session: session2)
+    create_measurements!(value: 2, stream: stream)
+    create_old_measurements!(value: 20, stream: stream)
 
     data = {
       session_ids: [session1.id, session2.id],
@@ -38,7 +42,7 @@ describe FixedRegionInfo do
     expect(region_info).to eq({
         average: 1.5,
         number_of_contributors: 2,
-        top_contributors: (["Test User1", "Test User2"]),
+        top_contributors: ([user1.username, user2.username]),
         number_of_samples: 120,
         number_of_instruments: 2,
       })
@@ -47,14 +51,10 @@ end
 
 private
 
-def create_session_with_stearms_and_measurements!(attributes)
-  session = create_session!({
-    id: attributes.fetch(:id),
-    longitude: attributes.fetch(:longitude),
-    latitude: attributes.fetch(:latitude),
-  })
-  stream = create_stream!({ session: session })
-  create_measurements!({ stream: stream, value: attributes.fetch(:value) })
+def create_session_with_streams_and_measurements!(attributes)
+  session = create_session!(id: attributes.fetch(:id), user: attributes.fetch(:user))
+  stream = create_stream!(session: session)
+  create_measurements!(stream: stream, value: attributes.fetch(:value))
 
   session
 end
@@ -62,15 +62,15 @@ end
 def create_session!(attributes)
   Session.create!(
     title: "Example Session",
-    user: create_user!({id: attributes.fetch(:id)}),
+    user: attributes.fetch(:user),
     uuid: "845342a6-f9f4-4835-86b3-b100163ec39#{attributes.fetch(:id)}",
     start_time: DateTime.current,
     start_time_local: DateTime.current,
     end_time: DateTime.current,
     end_time_local: DateTime.current,
     type: "FixedSession",
-    longitude: attributes.fetch(:longitude),
-    latitude: attributes.fetch(:latitude)
+    longitude: 1.0,
+    latitude: 1.0,
   )
 end
 

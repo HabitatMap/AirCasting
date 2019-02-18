@@ -45,7 +45,7 @@ module Api
 
       data[:session_ids] ||= []
 
-      if (data[:session_ids] != [] && Session.find(data[:session_ids].first).type == "FixedSession")
+      if (data[:session_ids] != [] && Session.find(data[:session_ids].first).fixed?)
         respond_with FixedRegionInfo.new.call(data)
       else
         respond_with RegionInfo.new(data)

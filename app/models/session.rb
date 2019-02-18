@@ -259,6 +259,10 @@ class Session < ActiveRecord::Base
   def after_measurements_created
   end
 
+  def fixed?
+    raise NotImplementedError, "subclass did not define #fixed?"
+  end
+
   private
 
   def get_measurement_scope(stream_id, since_date)
