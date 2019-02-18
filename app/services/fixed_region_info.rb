@@ -1,31 +1,39 @@
 class FixedRegionInfo
   def call(data)
     streams_ids = streams_ids(data[:session_ids], data[:sensor_name])
+    last_measurement_time = last_measurement_time(streams_ids)
 
     {
-      average: calculate_average(data[:session_ids], data[:sensor_name]).to_f,
+      average: calculate_average(streams_ids, last_measurement_time).to_f,
       number_of_contributors: number_of_contributors(streams_ids),
-      top_contributors: top_contributors(streams_ids),
-      number_of_samples: number_of_samples(streams_ids),
-      number_of_instruments: data[:session_ids].count,
+      top_contributors: top_contributors(streams_ids, last_measurement_time),
+      number_of_samples: number_of_samples(streams_ids, last_measurement_time),
+      number_of_instruments: streams_ids.count,
     }
   end
 
   private
 
-  def calculate_average(sessions_ids, sensor_name)
-    sessions_ids
-    .map { |session_id| last_hour_average_for(session_id, sensor_name) }
-    .sum / sessions_ids.size
+  def streams_ids(sessions, sensor_name)
+    Stream.
+      select("id").
+      where(sensor_name: sensor_name, session_id: sessions)
   end
 
-  def last_hour_average_for(session_id, sensor_name)
-    stream = Stream.where(sensor_name: sensor_name, session_id: session_id).first
-    last_measurement_time = stream.measurements.last.time
+  def last_measurement_time(streams_ids)
+    Measurement.with_streams(streams_ids).last.time
+  end
 
-    stream.
-      measurements.
-      where(time: (last_measurement_time - 1.hour)..last_measurement_time).
+  def calculate_average(streams_ids, end_time)
+    streams_ids
+    .map { |stream_id| one_hour_average(stream_id, end_time) }
+    .sum / streams_ids.size
+  end
+
+  def one_hour_average(stream_id, end_time)
+    Measurement.
+      with_streams(stream_id).
+      where(time: (end_time - 1.hour)..end_time).
       average(:value)
   end
 
@@ -37,9 +45,10 @@ class FixedRegionInfo
       count
   end
 
-  def top_contributors(streams_ids)
+  def top_contributors(streams_ids, end_time)
     Measurement.
       unscoped.   # this removes the default_scope { order("time ASC") } that we have for measurements
+      where(time: (end_time - 1.hour)..end_time).
       with_streams(streams_ids).
       joins(:session => :user).
       group("users.id").
@@ -49,15 +58,10 @@ class FixedRegionInfo
       map(&:username)
   end
 
-  def number_of_samples(streams_ids)
+  def number_of_samples(streams_ids, end_time)
     Measurement.
       with_streams(streams_ids).
+      where(time: (end_time - 1.hour)..end_time).
       count
-  end
-
-  def streams_ids(sessions, sensor_name)
-    Stream.
-      select("id").
-      where(sensor_name: sensor_name, session_id: sessions)
   end
 end

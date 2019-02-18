@@ -20,6 +20,29 @@ describe FixedRegionInfo do
         number_of_instruments: 2,
       })
   end
+
+  it "doesn't take into account measurements older than one hour" do
+    session1 = create_session_with_stearms_and_measurements!({ id: 1, longitude: 1.0, latitude: 1.0, value: 1 })
+    session2 = create_session!({ id: 2, longitude: 1.0, latitude: 1.0 })
+    stream = create_stream!({session: session2})
+    create_measurements!({ value: 2, stream: stream })
+    create_old_measurements!({ value: 20, stream: stream })
+
+    data = {
+      session_ids: [session1.id, session2.id],
+      sensor_name: "AirBeam2-F",
+    }
+
+    region_info = FixedRegionInfo.new.call(data)
+
+    expect(region_info).to eq({
+        average: 1.5,
+        number_of_contributors: 2,
+        top_contributors: (["Test User1", "Test User2"]),
+        number_of_samples: 120,
+        number_of_instruments: 2,
+      })
+  end
 end
 
 private
@@ -72,6 +95,19 @@ def create_measurements!(attributes)
   60.times do |n|
     Measurement.create!(
       time: Time.current - n.minutes,
+      latitude: 1,
+      longitude: 1,
+      value: attributes.fetch(:value),
+      milliseconds: 0,
+      stream: attributes.fetch(:stream)
+    )
+  end
+end
+
+def create_old_measurements!(attributes)
+  60.times do |n|
+    Measurement.create!(
+      time: Time.current - (61 + n).minutes,
       latitude: 1,
       longitude: 1,
       value: attributes.fetch(:value),
