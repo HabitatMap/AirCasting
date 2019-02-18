@@ -29,7 +29,7 @@ describe FixedAverageInfo do
 
   it "counts average only based on last hour measurements" do
     session1 = create_session_with_stearms_and_measurements!({ id: 1, longitude: 1.0, latitude: 1.0, value: 1 })
-    session2 = create_session!({ id: 2, longitude: 1.0, latitude: 1.0 })
+    session2 = create_session({ id: 2, longitude: 1.0, latitude: 1.0 })
     stream = create_stream!({session: session2})
     create_measurements!({ value: 2, stream: stream })
     create_old_measurements!({ value: 20, stream: stream })
@@ -120,7 +120,7 @@ end
 private
 
 def create_session_with_stearms_and_measurements!(attributes)
-  session = create_session!({
+  session = create_session({
     id: attributes.fetch(:id),
     longitude: attributes.fetch(:longitude),
     latitude: attributes.fetch(:latitude),
@@ -131,7 +131,7 @@ def create_session_with_stearms_and_measurements!(attributes)
   session
 end
 
-def create_session!(attributes)
+def create_session(attributes)
   Session.create!(
     title: "Example Session",
     user: User.new,
