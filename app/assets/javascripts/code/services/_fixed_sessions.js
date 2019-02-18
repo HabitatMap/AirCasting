@@ -182,7 +182,7 @@ export const fixedSessions = (
           latLng: latLng,
           colorClass: "default",
           callback: callback(Session.id(session)),
-          type: 'halo-marker',
+          type: 'marker',
         });
       session.markers.push(customMarker);
       map.markers.push(customMarker);
