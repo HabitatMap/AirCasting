@@ -154,7 +154,7 @@ export const fixedSessions = (
       session.markers = [];
 
       const content = Session.lastHourAverageValueAndUnit(session, selectedSensor);
-      const heatLevel = heat.levelName(Session.lastHourAverage(session));
+      const heatLevel = heat.levelName(Session.lastHourRoundedAverage(session));
       const latLng = Session.latLng(session);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
