@@ -50,19 +50,19 @@ test('when session is outdoor it uses its username', t => {
   t.end();
 });
 
-test('average returns session average for selected stream', t => {
+test('roundedAverage returns session rounded average for selected stream', t => {
   const selectedSensor = "selectedSensor"
-  const session = { streams: { selectedSensor: { average_value: 1 }}};
-  const actual = Session.average(session, selectedSensor);
+  const session = { streams: { selectedSensor: { average_value: 1.1 }}};
+  const actual = Session.roundedAverage(session, selectedSensor);
 
   t.deepEqual(actual, 1);
 
   t.end();
 });
 
-test('lastHourAverage returns session last hour average', t => {
-  const session = { last_hour_average: 1 };
-  const actual = Session.lastHourAverage(session);
+test('lastHourRoundedAverage returns session last hour rounded average', t => {
+  const session = { last_hour_average: 1.1 };
+  const actual = Session.lastHourRoundedAverage(session);
 
   t.deepEqual(actual, 1);
 

@@ -148,7 +148,7 @@ export const mobileSessions = (
       drawSession.undoDraw(session);
       session.markers = [];
 
-      const heatLevel = heat.levelName(Session.average(session, selectedSensor));
+      const heatLevel = heat.levelName(Session.roundedAverage(session, selectedSensor));
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
@@ -166,7 +166,7 @@ export const mobileSessions = (
       session.markers = [];
 
       const content = Session.averageValueAndUnit(session, selectedSensor);
-      const heatLevel = heat.levelName(Session.average(session, selectedSensor));
+      const heatLevel = heat.levelName(Session.roundedAverage(session, selectedSensor));
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 

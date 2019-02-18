@@ -6,7 +6,6 @@ angular.module("aircasting").factory('updateCrowdMapLayer', [
   '$http',
   'buildQueryParamsForCrowdMapLayer',
   'flash',
-  '$location',
   'params',
   'utils',
   'infoWindow',

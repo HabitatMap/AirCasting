@@ -37,7 +37,9 @@ test('it updates defaults', t => {
       streaming: true
     },
     tags: "",
-    usernames: ""
+    usernames: "",
+    gridResolution: 10,
+    crowdMap: true,
   };
   t.deepEqual(defaults, expected);
 

@@ -2,6 +2,7 @@ import _ from 'underscore';
 import { debounce } from 'debounce';
 import constants from '../constants';
 import * as Session from '../values/session'
+import { clusterer } from '../clusterer'
 
 export const fixedSessions = (
   params,
@@ -107,7 +108,7 @@ export const fixedSessions = (
         cache : true,
         params: { sensor_id: sensorName }
       }).success(function(data){
-        sessionsUtils.onSingleSessionFetch(session, data, callback);
+        sessionsUtils.onSingleSessionFetchWithoutCrowdMap(session, data, callback);
       });
     },
 
@@ -117,11 +118,35 @@ export const fixedSessions = (
     },
 
     drawSessionsInLocation: function() {
-      if (sensors.anySelected() && params.get('data').location.streaming) {
-        (this.get()).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
-      } else {
-        (this.get()).forEach(session => this.drawDefaultMarkers(session));
+      map.clearRectangles();
+      if (params.get('data').location.indoorOnly) return;
+
+      const sessions = this.get();
+
+      if (!sensors.anySelected() || !params.get('data').location.streaming) {
+        sessions.forEach(session => this.drawDefaultMarkers(session));
+        return;
       }
+
+      if (map.maxZoomLevel()) {
+        sessions.forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
+        return;
+      }
+
+      const sessionsToCluster = []
+      sessions.forEach((session) => {
+        sessionsToCluster.push({
+          latLng: Session.latLng(session),
+          object: session
+        });
+      });
+
+      const clusteredSessions = clusterer(sessionsToCluster, map);
+      const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
+
+      sessionsUtils.updateCrowdMapLayer(sessionsIds(clusteredSessions), constants.fixedSession);
+
+      (lonelySessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
     },
 
     drawColorCodedMarkers: function(session, selectedSensor) {
@@ -129,11 +154,9 @@ export const fixedSessions = (
       session.markers = [];
 
       const content = Session.lastHourAverageValueAndUnit(session, selectedSensor);
-      const heatLevel = heat.levelName(Session.lastHourAverage(session));
+      const heatLevel = heat.levelName(Session.lastHourRoundedAverage(session));
       const latLng = Session.latLng(session);
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
-
-      if (heatLevel === "default") return;
 
       const marker = map.drawCustomMarker({
           latLng: latLng,
@@ -157,7 +180,7 @@ export const fixedSessions = (
           latLng: latLng,
           colorClass: "default",
           callback: callback(Session.id(session)),
-          type: 'halo-marker',
+          type: 'marker',
         });
       session.markers.push(customMarker);
       map.markers.push(customMarker);
@@ -225,3 +248,7 @@ export const fixedSessions = (
   };
   return new FixedSessions();
 };
+
+const isNotIn = arr => x => !(arr.includes(x));
+
+const sessionsIds = sessions => sessions.map(x => x.id);

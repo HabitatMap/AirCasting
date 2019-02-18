@@ -76,4 +76,8 @@ class FixedSession < Session
 
     res = super(opts.merge(methods: methods))
   end
+
+  def fixed?
+    true
+  end
 end

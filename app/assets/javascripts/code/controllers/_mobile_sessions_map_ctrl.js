@@ -92,17 +92,18 @@ export const MobileSessionsMapCtrl = (
     console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
     if (newValue === oldValue) return;
 
-    if (storage.isCrowdMapLayerOn()) {
+    if (storage.isCrowdMapLayerOn() && mobileSessions.noOfSelectedSessions() === 0) {
+      sessionsUtils.updateCrowdMapLayer(mobileSessions.sessionIds());
+    } else if (storage.isCrowdMapLayerOn() && mobileSessions.noOfSelectedSessions() === 1) {
       sessionsUtils.updateCrowdMapLayer($scope.params.get('selectedSessionIds'));
-    }
-
-    if (mobileSessions.noOfSelectedSessions() === 1) {
       mobileSessions.redrawSelectedSession($scope.params.get('selectedSessionIds')[0]);
-    };
-
-    if (mobileSessions.noOfSelectedSessions() === 0) {
+    } else if (mobileSessions.noOfSelectedSessions() === 1) {
+      mobileSessions.redrawSelectedSession($scope.params.get('selectedSessionIds')[0]);
+    } else if (mobileSessions.noOfSelectedSessions() === 0) {
       $scope.sessions.drawSessionsInLocation();
-    };
+    } else {
+      console.warn("mobileSessions.noOfSelectedSessions() should be 0 or 1 and is: ", mobileSessions.noOfSelectedSessions())
+    }
   }, true);
 
   $scope.heatUpdateCondition = function() {
