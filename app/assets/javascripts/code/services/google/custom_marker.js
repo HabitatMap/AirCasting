@@ -2,11 +2,15 @@ export function buildCustomMarker(latLng, content, colorClass, callback, type) {
   const CustomMarker = function(position, content, colorClass, callback, type) {
     this.position = position;
 
-    this.anchor = document.createElement('div');
-    this.anchor.classList.add(type);
-    this.anchor.classList.add(colorClass);
-    this.anchor.innerText = content;
-    this.anchor.addEventListener('click', callback);
+    const marker = document.createElement('div');
+    marker.classList.add(type);
+    marker.classList.add(colorClass);
+    marker.innerText = content;
+    marker.addEventListener('click', callback);
+
+    this.markerContainer = document.createElement('div');
+    this.markerContainer.classList.add('marker-container');
+    this.markerContainer.appendChild(marker);
 
     this.stopEventPropagation();
   };
@@ -15,12 +19,12 @@ export function buildCustomMarker(latLng, content, colorClass, callback, type) {
   CustomMarker.prototype = Object.create(google.maps.OverlayView.prototype);
 
   CustomMarker.prototype.onAdd = function() {
-    this.getPanes().floatPane.appendChild(this.anchor);
+    this.getPanes().floatPane.appendChild(this.markerContainer);
   };
 
   CustomMarker.prototype.onRemove = function() {
-    if (this.anchor.parentElement) {
-      this.anchor.parentElement.removeChild(this.anchor);
+    if (this.markerContainer.parentElement) {
+      this.markerContainer.parentElement.removeChild(this.markerContainer);
     }
   };
 
@@ -33,21 +37,21 @@ export function buildCustomMarker(latLng, content, colorClass, callback, type) {
         'none';
 
     if (display === 'block') {
-      this.anchor.style.left = divPosition.x + 'px';
-      this.anchor.style.top = divPosition.y + 'px';
+      this.markerContainer.style.left = divPosition.x + 'px';
+      this.markerContainer.style.top = divPosition.y + 'px';
     }
-    if (this.anchor.style.display !== display) {
-      this.anchor.style.display = display;
+    if (this.markerContainer.style.display !== display) {
+      this.markerContainer.style.display = display;
     }
   };
 
   CustomMarker.prototype.stopEventPropagation = function() {
-    var anchor = this.anchor;
+    var markerContainer = this.markerContainer;
 
     ['click', 'dblclick', 'contextmenu', 'wheel', 'mousedown', 'touchstart',
      'pointerdown']
         .forEach(function(event) {
-          anchor.addEventListener(event, function(e) {
+          markerContainer.addEventListener(event, function(e) {
             e.stopPropagation();
           });
         });
