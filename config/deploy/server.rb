@@ -23,12 +23,12 @@
 # server list. The second argument is a, or duck-types, Hash and is
 # used to set extended properties on the server.
 
-server ENV.fetch("SERVER"), user: 'aircasting', roles: %w{web app}
+server ENV.fetch("SERVER", 'aircasting.org'), user: 'aircasting', roles: %w{web app}
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, '/home/aircasting/application'
 set :rails_env, "production"
 
-set :branch, ENV.fetch("BRANCH")
+set :branch, ENV.fetch("BRANCH", "master")
 set :keep_releases, 3
 
 set :rbenv_type, :system

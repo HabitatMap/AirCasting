@@ -1,7 +1,5 @@
 defaults:
   google_maps_api_key: REPLACEMEWITHYOURKEY
-  staging_server_address: example.com
-  experimental_server_address: example.com
   host: 'http://localhost:3000/'
   host_: localhost:3000
   mailer_from: noreply@localhost
