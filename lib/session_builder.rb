@@ -24,10 +24,10 @@ class SessionBuilder
     data = build_local_start_and_end_time(data)
 
     begin
-      session = Session.create!(data)
+      session = Session.create!(data.reject { |k| [:drawable, :deleted].include?(k)})
     rescue ActiveRecord::RecordInvalid => invalid
       Rails.logger.warn("[SessionBuilder] data: #{data}")
-      Rails.logger.warn(invalid.record.errors)
+      Rails.logger.warn(invalid.record.errors.full_messages)
 
       return nil
     end

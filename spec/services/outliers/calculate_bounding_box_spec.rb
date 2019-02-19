@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe Outliers::CalculateBoundingBox do
   it "when measurements is an empty array it returns a bounding box of nils" do

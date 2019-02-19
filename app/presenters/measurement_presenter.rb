@@ -13,7 +13,7 @@ class MeasurementPresenter
 
   def as_json
     {
-      time: time,
+      time: time.strftime("%FT%TZ"),
       value: value,
       latitude: latitude,
       longitude: longitude,

@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe FixedAverageInfo do
   it "for two sessions in the same location creates json with one rectangle" do
@@ -142,7 +142,8 @@ def create_session(attributes)
     end_time_local: DateTime.current,
     type: "FixedSession",
     longitude: attributes.fetch(:longitude),
-    latitude: attributes.fetch(:latitude)
+    latitude: attributes.fetch(:latitude),
+    is_indoor: false
   )
 end
 

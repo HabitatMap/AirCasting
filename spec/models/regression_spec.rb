@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Regression do
   let(:target) { double(sensor_package_name: 'target_sensor', measurements: [], sensor_name: 'Some sensor') }

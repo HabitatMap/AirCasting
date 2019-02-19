@@ -22,6 +22,8 @@ class NotAcceptable < StandardError; end
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
   [
     [NotFound, "404 Not Found", :not_found],
     [NotAcceptable, "406 Not Acceptable", :not_acceptable]
@@ -36,5 +38,14 @@ class ApplicationController < ActionController::Base
   def authenticate_admin_user!
     redirect_to(new_user_session_path) && return unless current_user
     redirect_to(new_user_session_path) && return unless current_user.admin?
+  end
+
+  protected
+
+  def configure_permitted_parameters
+    added_attrs = [:login, :authentication_token, :email, :password, :password_confirmation, :remember_me]
+    devise_parameter_sanitizer.permit :sign_in, keys: added_attrs
+    devise_parameter_sanitizer.permit :sign_up, keys: added_attrs
+    devise_parameter_sanitizer.permit :account_update, keys: added_attrs
   end
 end

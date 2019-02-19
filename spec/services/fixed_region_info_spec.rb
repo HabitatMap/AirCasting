@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe FixedRegionInfo do
   it "calculates average, number of contributors, top contributors and number of samples for sessions for given stream for last hour" do
@@ -71,6 +71,7 @@ def create_session!(attributes)
     type: "FixedSession",
     longitude: 1.0,
     latitude: 1.0,
+    is_indoor: false
   )
 end
 

@@ -1,6 +1,9 @@
 module Api
   class RegressionsController < BaseController
     respond_to :json
+    # TokenAuthenticatable was removed from Devise in 3.1
+    # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
+    before_filter :authenticate_user_from_token!, only: [:create, :destroy]
     before_filter :authenticate_user!, only: [:create, :destroy]
 
     def create

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::AveragesController do
   it "#index adds defaults to missing params and returns result from AverageInfo#as_json" do

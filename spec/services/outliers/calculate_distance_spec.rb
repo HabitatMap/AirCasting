@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe Outliers::CalculateDistance do
   before(:each) do

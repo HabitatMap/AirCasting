@@ -41,8 +41,8 @@ cd aircasting
 cp config/database.yml.example config/database.yml
 # `socket:` in `config/database.yml` should be equal to the path from
 # `mysqladmin variables -uroot | grep socket | grep "\.sock"`
-cp config/secrets.yml.example config/secrets.yml
-# fill proper secrets in config/secrets.yml
+cp config/configuration.yml.example config/configuration.yml
+# fill proper configuration in config/configuration.yml
 bundle install
 bundle exec rake db:create db:migrate
 bundle exec foreman start
