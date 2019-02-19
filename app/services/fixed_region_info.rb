@@ -21,7 +21,7 @@ class FixedRegionInfo
   end
 
   def last_measurement_time(streams_ids)
-    Measurement.with_streams(streams_ids).last.time
+    Measurement.with_streams(streams_ids).select("MAX(time) as last_time").first.last_time
   end
 
   def calculate_average(streams_ids, end_time)
