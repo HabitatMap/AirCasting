@@ -10,7 +10,7 @@ describe FixedRegionInfo do
     data = {
       session_ids: [session1.id, session2.id],
       sensor_name: "AirBeam2-F",
-    }
+    }.merge(borders)
 
     region_info = FixedRegionInfo.new.call(data)
 
@@ -35,7 +35,31 @@ describe FixedRegionInfo do
     data = {
       session_ids: [session1.id, session2.id],
       sensor_name: "AirBeam2-F",
-    }
+    }.merge(borders)
+
+    region_info = FixedRegionInfo.new.call(data)
+
+    expect(region_info).to eq({
+        average: 1.5,
+        number_of_contributors: 2,
+        top_contributors: ([user1.username, user2.username]),
+        number_of_samples: 120,
+        number_of_instruments: 2,
+      })
+  end
+
+  it "does't take into account sessions from other rectangles" do
+    user1 = create_user!(id: 1)
+    user2 = create_user!(id: 2)
+    user3 = create_user!(id: 3)
+    session1 = create_session_with_streams_and_measurements!(id: 1, value: 1, user: user1)
+    session2 = create_session_with_streams_and_measurements!(id: 2, value: 2, user: user2)
+    session3 = create_session_with_streams_and_measurements!(id: 3, value: 3, user: user3, min_latitude: 50.0, max_latitude: 50.0, min_longitude: 50.0, max_longitude: 50.0)
+
+    data = {
+      session_ids: [session1.id, session2.id, session3.id],
+      sensor_name: "AirBeam2-F",
+    }.merge(borders)
 
     region_info = FixedRegionInfo.new.call(data)
 
@@ -53,7 +77,7 @@ private
 
 def create_session_with_streams_and_measurements!(attributes)
   session = create_session!(id: attributes.fetch(:id), user: attributes.fetch(:user))
-  stream = create_stream!(session: session)
+  stream = create_stream!(session: session, min_latitude: attributes.fetch(:min_latitude, 1.0), max_latitude: attributes.fetch(:max_latitude, 1.0), min_longitude: attributes.fetch(:min_longitude, 1.0), max_longitude: attributes.fetch(:max_longitude, 1.0))
   create_measurements!(stream: stream, value: attributes.fetch(:value))
 
   session
@@ -88,7 +112,11 @@ def create_stream!(attributes)
     threshold_low: 60,
     threshold_medium: 70,
     threshold_high: 80,
-    threshold_very_high: 100
+    threshold_very_high: 100,
+    min_latitude: attributes.fetch(:min_latitude, 1.0),
+    max_latitude: attributes.fetch(:max_latitude, 1.0),
+    min_longitude: attributes.fetch(:min_longitude, 1.0),
+    max_longitude: attributes.fetch(:max_longitude, 1.0)
   )
 end
 
@@ -124,4 +152,8 @@ def create_user!(attributes)
     email: "email#{attributes.fetch(:id)}@example.com",
     password: "password"
   )
+end
+
+def borders
+  { north: 2.0, south: 0.0, east:2.0, west: 0.0 }
 end

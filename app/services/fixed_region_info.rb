@@ -1,6 +1,6 @@
 class FixedRegionInfo
   def call(data)
-    streams_ids = streams_ids(data[:session_ids], data[:sensor_name])
+    streams_ids = streams_ids(data)
     last_measurement_time = last_measurement_time(streams_ids)
 
     {
@@ -14,10 +14,11 @@ class FixedRegionInfo
 
   private
 
-  def streams_ids(sessions, sensor_name)
+  def streams_ids(data)
     Stream.
       select("id").
-      where(sensor_name: sensor_name, session_id: sessions)
+      in_rectangle(data).
+      where(sensor_name: data[:sensor_name], session_id: data[:session_ids])
   end
 
   def last_measurement_time(streams_ids)
