@@ -59,7 +59,7 @@ export const FixedSessionsMapCtrl = (
       location: {address: "", indoorOnly: false, streaming: true},
       tags: "",
       usernames: "",
-      gridResolution: 10,
+      gridResolution: 40,
       crowdMap: true,
     });
 
