@@ -96,13 +96,13 @@ export const heat = ($rootScope, params, storage) => {
     levelName: function(value){
       if (value < this.getValue("lowest")) {
         return "default";
-      } else if (value < this.getValue("low")) {
+      } else if (value <= this.getValue("low")) {
         return "low";
-      } else if (value < this.getValue("mid")) {
+      } else if (value <= this.getValue("mid")) {
         return "mid";
-      } else if (value < this.getValue("high")) {
+      } else if (value <= this.getValue("high")) {
         return "high";
-      } else if (value < this.getValue("highest")) {
+      } else if (value <= this.getValue("highest")) {
         return "highest";
       } else {
         return "default";
