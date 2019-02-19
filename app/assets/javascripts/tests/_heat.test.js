@@ -62,6 +62,56 @@ test('levelName returns highest when heat level between high and highest' , t =>
   t.end()
 });
 
+test('levelName returns low the same as lowest' , t => {
+  const heatStub = _heat();
+
+  const actual = heatStub.levelName(0)
+
+  t.equal(actual, "low")
+
+  t.end()
+});
+
+test('levelName returns low the same as low' , t => {
+  const heatStub = _heat();
+
+  const actual = heatStub.levelName(10)
+
+  t.equal(actual, "low")
+
+  t.end()
+});
+
+test('levelName returns mid the same as mid' , t => {
+  const heatStub = _heat();
+
+  const actual = heatStub.levelName(50)
+
+  t.equal(actual, "mid")
+
+  t.end()
+});
+
+test('levelName returns high the same as high' , t => {
+  const heatStub = _heat();
+
+  const actual = heatStub.levelName(100)
+
+  t.equal(actual, "high")
+
+  t.end()
+});
+
+test('levelName returns highest the same as highest' , t => {
+  const heatStub = _heat();
+
+  const actual = heatStub.levelName(150)
+
+  t.equal(actual, "highest")
+
+  t.end()
+});
+
 test('levelName returns default when heat level outside of scope' , t => {
   const heatStub = _heat();
 
