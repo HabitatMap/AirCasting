@@ -34,7 +34,7 @@ class FixedRegionInfo
     Measurement.
       with_streams(stream_id).
       where(time: (end_time - 1.hour)..end_time).
-      average(:value)
+      average(:value) || 0
   end
 
   def number_of_contributors(streams_ids)
