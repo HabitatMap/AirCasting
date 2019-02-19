@@ -27,27 +27,18 @@ export function buildCustomMarker(latLng, content, colorClass, callback, type) {
   CustomMarker.prototype.draw = function() {
     var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
 
-    const divCenteredPosition = this.centerMarker(divPosition)
-
     var display =
-        Math.abs(divCenteredPosition.x) < 4000 && Math.abs(divCenteredPosition.y) < 4000 ?
+        Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000 ?
         'block' :
         'none';
 
     if (display === 'block') {
-      this.anchor.style.left = divCenteredPosition.x + 'px';
-      this.anchor.style.top = divCenteredPosition.y + 'px';
+      this.anchor.style.left = divPosition.x + 'px';
+      this.anchor.style.top = divPosition.y + 'px';
     }
     if (this.anchor.style.display !== display) {
       this.anchor.style.display = display;
     }
-  };
-
-  CustomMarker.prototype.centerMarker = function(divPosition) {
-    const horizontalShift = -16
-    const verticalShift = -18
-
-    return { x: divPosition.x + horizontalShift, y: divPosition.y + verticalShift }
   };
 
   CustomMarker.prototype.stopEventPropagation = function() {
