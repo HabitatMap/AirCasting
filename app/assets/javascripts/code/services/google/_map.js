@@ -130,7 +130,12 @@ export const map = (
       rectangles.draw(data, thresholds);
       _(rectangles.get()).each(function(rectangle){
         self.listen('click', function(){
-          clickCallback(rectangle.data);
+          clickCallback({
+            north: rectangle.data.north,
+            south: rectangle.data.south,
+            west: rectangle.data.west,
+            east: rectangle.data.east
+          });
         }, rectangle);
       });
     },
