@@ -72,20 +72,6 @@ namespace :deploy do
   end
 end
 
-namespace :deploy do
-  task :webpack do
-    on roles(:web) do
-      within release_path do
-        with rails_env: fetch(:rails_env) do
-          execute "yarn"
-          execute "rake", "webpack:compile"
-        end
-      end
-    end
-  end
-end
-
-after "deploy:assets:precompile", "deploy:webpack"
 after "deploy:published", "deploy:restart_app_server"
 after "deploy:published", "deploy:restart_sidekiq"
 

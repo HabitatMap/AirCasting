@@ -29,6 +29,7 @@ brew install gsl
 brew install imagemagick
 brew install redis
 brew install mysql@5.7
+brew install redis
 ```
 
 ### App (any OS)
@@ -59,6 +60,8 @@ yarn install
 RAILS_ENV=test bundle exec rake db:create db:migrate
 bundle exec rspec
 yarn test
+yarn run elm-test app/javascript/elm/tests
+yarn run elm-format --validate app/javascript/elm
 ```
 
 ## API documentation

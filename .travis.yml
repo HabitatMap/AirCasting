@@ -34,6 +34,8 @@ before_script:
 - RAILS_ENV=test bundle exec rake db:migrate
 script:
 - yarn test
+- yarn run elm-test app/javascript/elm/tests
+- yarn run elm-format --validate app/javascript/elm/
 - bundle exec rspec --color
 - ./bin/deploy.sh
 env:

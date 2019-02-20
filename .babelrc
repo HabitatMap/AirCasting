@@ -1,14 +1,23 @@
 {
   "presets": [
     ["env", {
-      browsers: [
-        "last 1 version",
-        "not dead",
-        "> 0.2%"
-      ] // http://browserl.ist/?q=last+1+version%2C+not+dead%2C+%3E+0.2%25
+      "targets": {
+        "browsers": "> 1%",
+        "uglify": true
+      },
+      "useBuiltIns": true
     }]
   ],
+
   "plugins": [
-    "transform-object-rest-spread"
-  ]
+    "syntax-dynamic-import",
+    "transform-object-rest-spread",
+    ["transform-class-properties", { "spec": true }]
+  ],
+
+  "env": {
+    "test": {
+      "plugins": [ "babel-plugin-elm" ]
+    }
+  }
 }
