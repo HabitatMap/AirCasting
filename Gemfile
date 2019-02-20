@@ -25,13 +25,13 @@ gem 'sidekiq'
 gem 'sidekiq-unique-jobs', '3.0.12'
 gem 'sinatra', require: false
 gem 'thin', '~> 1.6', '>= 1.6.4'
-gem 'webpack-rails'
 gem 'test-unit', '~> 3.0'
 gem 'a9n'
 gem 'uglifier'
 gem 'sass-rails'
 gem 'coffee-rails'
 gem 'activesupport-json_encoder'
+gem 'webpacker', git: 'https://github.com/rails/webpacker.git', branch: '3-x-stable'
 
 group :development do
   gem 'web-console', '~> 2.0'

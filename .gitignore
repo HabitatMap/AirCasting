@@ -46,3 +46,10 @@ config/rails_best_practices.yml
 yarn-error.log
 pids/
 .byebug_history
+repl-temp-*
+elm-stuff
+build/
+/public/packs
+/public/packs-test
+yarn-debug.log*
+.yarn-integrity
