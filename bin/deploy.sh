@@ -12,7 +12,7 @@ if [ $TRAVIS_TEST_RESULT != 0 ]; then
 fi
 
 if [ "$TRAVIS_BRANCH" == "master" ]; then
-  bundle exec cap production deploy
+  bundle exec cap server deploy
 else
   echo "$TRAVIS_BRANCH is a feature branch so no deploy"
 fi
