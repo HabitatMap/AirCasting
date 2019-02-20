@@ -2,6 +2,7 @@ import test from 'blue-tape';
 import deepEqual from 'fast-deep-equal';
 import { mock } from './helpers';
 import { map } from '../code/services/google/_map';
+import sinon from 'sinon';
 
 test('goToAddress with no address it does not decode', t => {
   const geocoder = mock('get');
@@ -228,6 +229,49 @@ test('removeAllMarkers removes all markers', t => {
   t.end();
 });
 
+test('drawRectangles calls rectangle.draw with data and thresholds', t => {
+  const draw = sinon.spy();
+  const rectangles = { draw };
+  const data = { a: 1 };
+  const thresholds = { b: 2 };
+  const service = _map({ rectangles });
+
+  service.drawRectangles(data, thresholds);
+
+  t.true(draw.calledWith(data, thresholds));
+
+  t.end();
+})
+
+test('drawRectangles sets a listener with a callback with bounds excluding other properties', t => {
+  const rectangle = { data: { north: 1, south: 2, west: 3, east: 4, otherProperty: 0 } }
+  const rectangles = { get: () => [rectangle] };
+  const googleMaps = { listen: (x, y, mapCallback) => { mapCallback() }};
+  const service = _map({ rectangles, googleMaps });
+  const callback = sinon.spy();
+
+  service.drawRectangles({}, {}, callback);
+
+
+  t.true(callback.calledWith({ north: 1, south: 2, west: 3, east: 4 }))
+
+  t.end();
+});
+
+test('drawRectangles sets a listener on rectangle click', t => {
+  const rectangle = { a: null };
+  const rectangles = { get: () => [rectangle] };
+  const mapListen = sinon.spy();
+  const googleMaps = { listen: mapListen };
+  const service = _map({ rectangles, googleMaps });
+
+  service.drawRectangles({}, {}, () => {});
+
+  t.true(mapListen.calledWith(rectangle , 'click'))
+
+  t.end();
+});
+
 const mockGeocoder = () => ({
   get: (_, callback) => callback([ { geometry: { getBounds: null } } ])
 });
@@ -260,9 +304,9 @@ const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
   };
 };
 
-const _map = ({ geocoder, googleMaps, params }) => {
+const _map = ({ geocoder, googleMaps, params, rectangles }) => {
   const digester = () => {};
-  const rectangles = { init: () => {} };
+  const _rectangles = { init: () => {}, get: () => {}, draw: () => {},...rectangles };
   const $cookieStore = { put: () => {} };
-  return map(params, $cookieStore, null, digester, rectangles, geocoder, googleMaps);
+  return map(params, $cookieStore, null, digester, _rectangles, geocoder, googleMaps);
 };
