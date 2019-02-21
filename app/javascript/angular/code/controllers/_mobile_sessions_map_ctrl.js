@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import { Elm } from '../../../elm/src/Main.elm';
 
 export const MobileSessionsMapCtrl = (
   $scope,
@@ -60,9 +61,6 @@ export const MobileSessionsMapCtrl = (
       crowdMap: false,
     });
 
-    $scope.minResolution = 10;
-    $scope.maxResolution = 50;
-
     if (!params.get('data').heat) sensors.fetchHeatLevels();
 
     storage.updateFromDefaults();
@@ -109,4 +107,27 @@ export const MobileSessionsMapCtrl = (
     }, true);
 
   $scope.setDefaults();
+
+  if (process.env.NODE_ENV !== 'test') {
+    angular.element(document).ready(function () {
+      const node = document.getElementById('crowdMapLayer');
+
+      const flags = {
+        isCrowdMapOn: $scope.params.get('data').crowdMap || false,
+        crowdMapResolution: $scope.params.get('data').gridResolution || 25,
+      }
+
+      const elmApp = Elm.Main.init({ node: node, flags: flags });
+
+      elmApp.ports.toggleCrowdMap.subscribe(() => {
+        storage.toggleCrowdMapData();
+        $scope.sessions.fetch();
+      });
+
+      elmApp.ports.updateResolutionPort.subscribe((newResolution) => {
+        storage.updateCrowdMapResolution(newResolution);
+        sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
+      });
+    });
+  }
 }

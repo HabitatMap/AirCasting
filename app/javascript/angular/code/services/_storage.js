@@ -43,7 +43,7 @@ export const storage = (params, $rootScope, utils) => {
       }
       params.update({data: obj});
     },
-    updateCrowdMapLayer: function() {
+    updateCrowdMapDataInParams: function() {
       params.update({
         data: {
           ...this.data,
@@ -70,11 +70,6 @@ export const storage = (params, $rootScope, utils) => {
       this.data.location = { ...this.data.location, address: '' };
       this.update('location');
     },
-    resetCrowdMapLayer: function() {
-      this.data.gridResolution = this.defaults.gridResolution;
-      this.data.crowdMap = this.defaults.crowdMap;
-      this.updateCrowdMapLayer();
-    },
     updateDefaults: function(newData) {
       this.defaults = utils.merge(this.defaults, newData);
     },
@@ -89,8 +84,15 @@ export const storage = (params, $rootScope, utils) => {
     },
     isCrowdMapLayerOn: function() {
       return this.data.crowdMap;
+    },
+    toggleCrowdMapData: function() {
+      this.set("crowdMap",!this.isCrowdMapLayerOn());
+      this.updateCrowdMapDataInParams();
+    },
+    updateCrowdMapResolution: function(newResolution) {
+      this.set("gridResolution", newResolution);
+      this.updateCrowdMapDataInParams();
     }
   };
   return new Storage();
 }
-
