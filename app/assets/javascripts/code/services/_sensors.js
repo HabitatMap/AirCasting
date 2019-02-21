@@ -11,7 +11,7 @@ const DEFAULT_SENSOR_ID = buildSensorId({
   unit_symbol: "µg/m³"
 });
 
-export const sensors = (params, $http) => {
+export const sensors = (params, storage, heat, $http) => {
   var Sensors = function() {
     this.sensors = {};
     this.candidateSelectedSensorId = undefined;
@@ -86,12 +86,6 @@ export const sensors = (params, $http) => {
     anySelected: function() {
       return this.selected() || this.tmpSelected();
     },
-    anySelectedId: function() {
-      if(!this.anySelected()){
-        return;
-      }
-      return this.anySelected().id;
-    },
     selectedSensorName: function() {
       const sensorId = this.selectedId() || this.tmpSelectedId();
       const sensor = this.sensors[sensorId] || {};
@@ -99,6 +93,8 @@ export const sensors = (params, $http) => {
     },
     proceedWithTmp: function() {
       params.update({tmp: {selectedSensorId: this.candidateSelectedSensorId}});
+
+      this.fetchHeatLevelsForTmp();
     },
     findSensorById: function(id) {
       return this.sensors[id]
@@ -145,20 +141,30 @@ export const sensors = (params, $http) => {
 
       console.log("onSensorsSelectedIdChange 2 - ", newValue, " - ", oldValue);
 
-      this.fetchHeatLevels(callback);
+      this.fetchHeatLevels();
       params.update({data: {sensorId: newValue}});
       params.update({selectedSessionIds: []});
     },
 
-    fetchHeatLevels: function(callback) {
-      if(hasChangedToAll(this.selectedId())) return;
+    fetchHeatLevels: function() {
+      this.fetchHeatLevelsForSensor(this.selected());
+    },
 
-      if (callback) {
-        $http.get( '/api/thresholds/' + this.selected().sensor_name, {
-          params: { unit_symbol: this.selected().unit_symbol },
-          cache: true
-        }).success(callback);
-      }
+    fetchHeatLevelsForTmp: function() {
+      this.fetchHeatLevelsForSensor(this.tmpSelected());
+    },
+
+    fetchHeatLevelsForSensor: function(sensor) {
+      if (!sensor) return;
+
+      const callback = data => {
+        storage.updateDefaults({heat: heat.parse(data)});
+        params.update({data: {heat: heat.parse(data)}});
+      };
+      $http.get('/api/thresholds/' + sensor.sensor_name, {
+        params: { unit_symbol: sensor.unit_symbol },
+        cache: true
+      }).success(callback);
     }
   };
   return new Sensors();

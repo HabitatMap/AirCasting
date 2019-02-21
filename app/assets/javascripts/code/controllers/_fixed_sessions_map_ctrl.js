@@ -32,7 +32,6 @@ export const FixedSessionsMapCtrl = (
     $scope.sessions = fixedSessions;
     $scope.singleSession = singleFixedSession;
     $scope.$window = $window;
-    $scope.initializing = true;
 
     functionBlocker.block("sessionHeat", !_(params.get('selectedSessionIds')).isEmpty());
 
@@ -63,6 +62,8 @@ export const FixedSessionsMapCtrl = (
       crowdMap: true,
     });
 
+    if (!params.get('data').heat) sensors.fetchHeatLevels();
+
     storage.updateFromDefaults();
   };
 
@@ -74,23 +75,8 @@ export const FixedSessionsMapCtrl = (
   $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    sensors.onSensorsSelectedIdChange(newValue, oldValue, $scope.onThresholdsFetch);
+    sensors.onSensorsSelectedIdChange(newValue, oldValue);
   }, true);
-
-  $scope.onThresholdsFetch = function(data, status, headers, config) {
-    storage.updateDefaults({heat: heat.parse(data)});
-    // seems like there's no call to block so this function blocker is prolly not needed
-    functionBlocker.use("heat", function(){
-      if (!params.get('data').heat && $scope.initializing) {
-        params.update({data: {heat: heat.parse(data)}});
-        $scope.initializing = false;
-      } else if (params.get('data').heat && !$scope.initializing){
-        params.update({data: {heat: heat.parse(data)}});
-      } else {
-        $scope.initializing = false;
-      }
-    });
-  };
 
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
     console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
@@ -101,18 +87,6 @@ export const FixedSessionsMapCtrl = (
 
   $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
     sensors.onSelectedParameterChange(newValue, oldValue);
-  }, true);
-
-  $scope.heatUpdateCondition = function() {
-    return {sensorId: sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
-  };
-  $scope.$watch("heatUpdateCondition()", function(newValue, oldValue) {
-    console.log("watch - heatUpdateCondition() - ", newValue, " - ", oldValue);
-    if(newValue.sensorId && newValue.sessionId && !$scope.initializing){
-      functionBlocker.use("sessionHeat", function(){
-        $scope.singleSession.updateHeat();
-      });
-    }
   }, true);
 
   $scope.$watch("{location: params.get('data').location.address, counter: params.get('data').counter}",

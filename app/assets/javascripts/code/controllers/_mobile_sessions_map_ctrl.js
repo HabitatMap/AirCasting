@@ -15,7 +15,6 @@ export const MobileSessionsMapCtrl = (
   $window,
   infoWindow,
   sensorsList,
-  heat,
   sessionsUtils
 ) => {
   sensors.setSensors(sensorsList);
@@ -64,9 +63,7 @@ export const MobileSessionsMapCtrl = (
     $scope.minResolution = 10;
     $scope.maxResolution = 50;
 
-    if (!params.get('data').heat) {
-      sensors.fetchHeatLevels($scope.onHeatLevelsFetch);
-    }
+    if (!params.get('data').heat) sensors.fetchHeatLevels();
 
     storage.updateFromDefaults();
   };
@@ -80,13 +77,8 @@ export const MobileSessionsMapCtrl = (
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
     console.warn(newValue, oldValue)
-    sensors.onSensorsSelectedIdChange(newValue, oldValue, $scope.onHeatLevelsFetch);
+    sensors.onSensorsSelectedIdChange(newValue, oldValue);
   }, true);
-
-  $scope.onHeatLevelsFetch = function(data, status, headers, config) {
-    storage.updateDefaults({heat: heat.parse(data)});
-    params.update({data: {heat: heat.parse(data)}});
-  };
 
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
     console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
@@ -103,19 +95,6 @@ export const MobileSessionsMapCtrl = (
       $scope.sessions.drawSessionsInLocation();
     } else {
       console.warn("mobileSessions.noOfSelectedSessions() should be 0 or 1 and is: ", mobileSessions.noOfSelectedSessions())
-    }
-  }, true);
-
-  $scope.heatUpdateCondition = function() {
-    return {sensorId:  sensors.anySelectedId(), sessionId: $scope.singleSession.id()};
-  };
-
-  $scope.$watch("heatUpdateCondition()", function(newValue, oldValue) {
-    console.log("watch - heatUpdateCondition() - ", newValue, " - ", oldValue);
-    if(newValue.sensorId && newValue.sessionId){
-      functionBlocker.use("sessionHeat", function(){
-        $scope.singleSession.updateHeat();
-      });
     }
   }, true);
 

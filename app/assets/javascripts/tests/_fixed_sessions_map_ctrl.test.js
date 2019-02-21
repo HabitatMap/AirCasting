@@ -46,9 +46,28 @@ test('it updates defaults', t => {
   t.end();
 });
 
-const _FixedSessionsMapCtrl = ({ $scope, map, callback, storage, params }) => {
+test('fetches heat levels on first opening map tab', t => {
+  const sensors = mock('fetchHeatLevels');
+  _FixedSessionsMapCtrl({ sensors });
+
+  t.true(sensors.wasCalled())
+
+  t.end();
+});
+
+test('does not fetch heat levels if they are already in the params', t => {
+  const sensors = mock('fetchHeatLevels');
+  const params = { get: () => ({ heat: {}})};
+  _FixedSessionsMapCtrl({ sensors, params });
+
+  t.false(sensors.wasCalled())
+
+  t.end();
+});
+
+const _FixedSessionsMapCtrl = ({ $scope, map, callback, storage, params, sensors }) => {
   const expandables = { show: () => {} };
-  const sensors = { setSensors: () => {} };
+  const _sensors = { setSensors: () => {}, fetchHeatLevels: () => {}, ...sensors };
   const functionBlocker = { block: () => {} };
   const _params = { get: () => ({}), ...params };
   const rectangles = { clear: () => {} };
@@ -61,5 +80,5 @@ const _FixedSessionsMapCtrl = ({ $scope, map, callback, storage, params }) => {
   const _$scope = { $watch: () => {}, ...$scope };
   const _map = { unregisterAll: () => {}, removeAllMarkers: () => {}, ...map };
 
-  return FixedSessionsMapCtrl(_$scope, _params, null, _map, sensors, expandables, _storage, null, null, null, null, functionBlocker, null, null, rectangles, infoWindow);
+  return FixedSessionsMapCtrl(_$scope, _params, null, _map, _sensors, expandables, _storage, null, null, null, null, functionBlocker, null, null, rectangles, infoWindow);
 };
