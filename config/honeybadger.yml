@@ -1,0 +1,3 @@
+---
+api_key: <%= A9n.honeybadger_api_key %>
+env: <%= A9n.honeybadger_env %>

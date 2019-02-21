@@ -25,7 +25,7 @@ set :scm, :git
 # Default value for :linked_files is []
 # set :linked_files, fetch(:linked_files, []).push('config/database.yml')
 set :linked_dirs,  fetch(:linked_dirs, []).push('public/assets', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system')
-set :linked_files, fetch(:linked_files, []).push('config/database.yml', 'config/secrets.yml', 'newrelic.yml', 'config/honeybadger.yml', 'config/configuration.yml')
+set :linked_files, fetch(:linked_files, []).push('config/database.yml', 'config/secrets.yml', 'newrelic.yml', 'config/configuration.yml')
 
 # Default value for linked_dirs is []
 # set :linked_dirs, fetch(:linked_dirs, []).push('bin', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system')

@@ -33,7 +33,6 @@ AirCasting.ipr
 AirCasting.iws
 .rvmrc
 config/newrelic.yml
-config/honeybadger.yml
 config/configuration.yml
 
 analyzing/
