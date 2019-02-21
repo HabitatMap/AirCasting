@@ -3,10 +3,6 @@ angular.module("aircasting").factory('storageEvents', ['storage', '$rootScope', 
   var StorageEvents = function() {};
   var self;
   StorageEvents.prototype = {
-    onResolutionSlide : function(event, ui) {
-      storage.set("gridResolution", ui.value);
-      $rootScope.$digest();
-    },
     onMonthDaySlide : function(event, ui) {
       storage.setInHash("time", "dayFrom", _.min(ui.values));
       storage.setInHash("time", "dayTo", _.max(ui.values));

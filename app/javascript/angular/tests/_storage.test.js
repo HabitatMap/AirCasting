@@ -1,6 +1,7 @@
 import test from 'blue-tape';
 import { mock } from './helpers';
 import { storage } from '../code/services/_storage';
+import sinon from 'sinon';
 
 test('resetAddress calls params.update with emptied address', t => {
   const params = mock('update');
@@ -25,14 +26,14 @@ test('isCrowdMapLayerOn', t => {
   t.end();
 });
 
-test('updateCrowdMapLayer updates params preserving old values', t => {
+test('updateCrowdMapDataInParams updates params preserving old values', t => {
   const params = mock('update');
   const service = _storage({ params });
   service.set('crowdMap', true);
   service.set('gridResolution', 1);
   service.set('heat', {});
 
-  const actual = service.updateCrowdMapLayer();
+  const actual = service.updateCrowdMapDataInParams();
 
   const expected = { data: { gridResolution: 1, crowdMap: true, heat: {} } };
   t.true(params.wasCalledWith(expected));
@@ -40,24 +41,20 @@ test('updateCrowdMapLayer updates params preserving old values', t => {
   t.end();
 });
 
-test('resetCrowdMapLayer resets to defaults and calls updateCrowdMapLayer', t => {
-  const params = mock('update');
+test('toggleCrowdMapData toggles crowdMap value in params and crowdMap value in storage', t => {
+  const update = sinon.spy();
+  const params = { update };
   const service = _storage({ params });
-  service.updateDefaults({
-   gridResolution: 2,
-   crowdMap: false,
-  });
-  service.set('crowdMap', true);
-  service.set('gridResolution', 1);
+  service.set('crowdMap', false);
 
-  const actual = service.resetCrowdMapLayer();
+  service.toggleCrowdMapData();
 
-  const expected = { data: { gridResolution: 2, crowdMap: false, heat: {} } };
-  t.true(params.wasCalledWith(expected));
+  const expected = { data: { gridResolution: undefined, crowdMap: true, heat: {}}};
+  t.true(update.calledWith(expected));
+  t.true(service.get('crowdMap'));
 
   t.end();
 });
-
 const _storage = ({ params }) => {
   const $rootScope = { $new: () => ({ $watch: () => {} }) };
   const utils = {
