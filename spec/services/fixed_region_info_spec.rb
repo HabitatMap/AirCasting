@@ -14,13 +14,11 @@ describe FixedRegionInfo do
 
     region_info = FixedRegionInfo.new.call(data)
 
-    expect(region_info).to eq({
-        average: 1.5,
-        number_of_contributors: 2,
-        top_contributors: ([user1.username, user2.username]),
-        number_of_samples: 120,
-        number_of_instruments: 2,
-      })
+    expect(region_info[:average]).to eq(1.5)
+    expect(region_info[:number_of_contributors]).to eq(2)
+    expect(region_info[:top_contributors]).to match_array([user1.username, user2.username])
+    expect(region_info[:number_of_samples]).to eq(120)
+    expect(region_info[:number_of_instruments]).to eq(2)
   end
 
   it "doesn't take into account measurements older than one hour" do
@@ -39,13 +37,11 @@ describe FixedRegionInfo do
 
     region_info = FixedRegionInfo.new.call(data)
 
-    expect(region_info).to eq({
-        average: 1.5,
-        number_of_contributors: 2,
-        top_contributors: ([user1.username, user2.username]),
-        number_of_samples: 120,
-        number_of_instruments: 2,
-      })
+    expect(region_info[:average]).to eq(1.5)
+    expect(region_info[:number_of_contributors]).to eq(2)
+    expect(region_info[:top_contributors]).to match_array([user1.username, user2.username])
+    expect(region_info[:number_of_samples]).to eq(120)
+    expect(region_info[:number_of_instruments]).to eq(2)
   end
 
   it "does't take into account sessions from other rectangles" do
@@ -63,13 +59,11 @@ describe FixedRegionInfo do
 
     region_info = FixedRegionInfo.new.call(data)
 
-    expect(region_info).to eq({
-        average: 1.5,
-        number_of_contributors: 2,
-        top_contributors: ([user1.username, user2.username]),
-        number_of_samples: 120,
-        number_of_instruments: 2,
-      })
+    expect(region_info[:average]).to eq(1.5)
+    expect(region_info[:number_of_contributors]).to eq(2)
+    expect(region_info[:top_contributors]).to match_array([user1.username, user2.username])
+    expect(region_info[:number_of_samples]).to eq(120)
+    expect(region_info[:number_of_instruments]).to eq(2)
   end
 end
 
