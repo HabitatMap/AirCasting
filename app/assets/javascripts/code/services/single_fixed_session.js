@@ -23,13 +23,6 @@ angular.module("aircasting").factory('singleFixedSession', [
       get: function() {
         return _(fixedSessions.allSelected()).first();
       },
-      id: function(onlySingle) {
-        if(onlySingle && !this.isSingle()){
-          return;
-        }
-        var el = this.get();
-        return el && el.id;
-      },
       endTime: function() {
         return this.get().end_time_local;
       },

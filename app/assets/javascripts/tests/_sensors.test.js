@@ -1,5 +1,6 @@
 import test from 'blue-tape';
 import { mock } from './helpers';
+import sinon from 'sinon';
 import {
   findAvailableSensorsForParameter,
   sort,
@@ -316,12 +317,49 @@ test('selectedId with sensor id in the url returns the correct sensor id', t => 
   t.end();
 });
 
-const _sensors = ({ params }) => {
+test('when passed a falsy param as sensor fetchHeatLevelsForSensor does not do anything', t => {
+  const $http = sinon.spy();
+  const sensor = false;
+  const service = _sensors({ $http })
+
+  const actual = service.fetchHeatLevelsForSensor(sensor);
+
+  t.false($http.called);
+
+  t.end();
+});
+
+test('fetchHeatLevelsForSensor calls callback after fetching thresholds', t => {
+  const sensor = {};
+  const thresholds = { ts: 123 };
+  const parsedThresholds = { parsed: 234 };
+  const heat = { parse: sinon.stub().withArgs(thresholds).returns(parsedThresholds) };
+  const $http = {
+    get: () => ({
+      success: cb => cb(thresholds)
+    })
+  };
+  const storage = { updateDefaults: sinon.spy() };
+  const params = { update: sinon.spy() };
+  const service = _sensors({ $http, params, storage, heat })
+
+  const actual = service.fetchHeatLevelsForSensor(sensor);
+
+  t.true(storage.updateDefaults.calledWith({ heat: parsedThresholds }));
+  t.true(params.update.calledWith({ data: { heat: parsedThresholds }}));
+
+  t.end();
+});
+
+const _sensors = ({ params, $http, storage, heat }) => {
+  const _$http = { ...$http };
+  const _storage = { ...storage };
   const _params = {
     get: () => ({ sensorId: null }),
     update: () => {},
     ...params
   };
+  const _heat = { ...heat }
 
-  return sensors(_params);
+  return sensors(_params, _storage, _heat, _$http);
 };

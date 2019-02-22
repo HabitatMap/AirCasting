@@ -27,14 +27,6 @@ angular.module("aircasting").factory('singleMobileSession', [
         return _(mobileSessions.allSelected()).first();
       },
 
-      id: function(onlySingle) {
-        if(onlySingle && !this.isSingle()){
-          return;
-        }
-        var el = this.get();
-        return el && el.id;
-      },
-
       availSensors: function() {
         if(!this.get()){
           return [];
