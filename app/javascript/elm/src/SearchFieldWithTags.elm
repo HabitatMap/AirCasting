@@ -10,7 +10,8 @@ view : Model -> Html Msg
 view model =
     div [ Attr.id "tags" ]
         [ input
-            [ Events.onInput UpdateFieldContent
+            [ Attr.id "tags-search"
+            , Events.onInput UpdateFieldContent
             , Attr.value model.searchFieldContent
             ]
             []

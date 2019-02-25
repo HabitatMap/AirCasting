@@ -128,6 +128,26 @@ export const MobileSessionsMapCtrl = (
         storage.updateCrowdMapResolution(newResolution);
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
       });
+
+      elmApp.ports.updateTagsSearchField.subscribe((content) => {
+        window.requestAnimationFrame(() => {
+          runAutocomplete(content).on("change", (activity) => {
+            const x = document.getElementById('tags-search').value
+            console.warn(x)
+            elmApp.ports.tagSelected.send(x);
+          });
+        });
+      });
+
     });
   }
 }
+
+const runAutocomplete = (content) => {
+  return $( "#tags-search" ).autocomplete({
+    source: function( request, response ) {
+      const data = {q: request.term, limit: 10};
+      $.getJSON( "/autocomplete/tags", data, response );
+    },
+  });
+};

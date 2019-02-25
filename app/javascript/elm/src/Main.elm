@@ -1,10 +1,13 @@
 port module Main exposing (Msg(..), defaultModel, update, view)
 
 import Browser
-import Html exposing (Html, div, input, label, p, span, text)
+import Debug
+import Html exposing (Html, div, hr, input, label, p, span, text)
 import Html.Attributes exposing (checked, class, for, id, max, min, type_, value)
-import Html.Events exposing (on, onClick, targetValue)
-import Json.Decode
+import Html.Events as Events exposing (on, onClick, onInput)
+import Json.Decode as Decode
+import Ports exposing (tagSelected, updateTagsSearchField)
+import SearchFieldWithTags
 
 
 
@@ -14,6 +17,7 @@ import Json.Decode
 type alias Model =
     { crowdMapResolution : Int
     , isCrowdMapOn : Bool
+    , tagsSearchField : SearchFieldWithTags.Model
     }
 
 
@@ -37,6 +41,7 @@ defaultModel : Model
 defaultModel =
     { crowdMapResolution = 25
     , isCrowdMapOn = False
+    , tagsSearchField = SearchFieldWithTags.initialModel
     }
 
 
@@ -53,6 +58,8 @@ port updateResolutionPort : Int -> Cmd a
 type Msg
     = ToggleCrowdMap
     | UpdateCrowdMapResolution Int
+    | TagsSearchFieldMsg SearchFieldWithTags.Msg
+    | GotActivity String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -64,6 +71,20 @@ update msg model =
         UpdateCrowdMapResolution resolution ->
             ( { model | crowdMapResolution = resolution }, updateResolutionPort resolution )
 
+        TagsSearchFieldMsg subMsg ->
+            let
+                ( subModel, subCmd ) =
+                    SearchFieldWithTags.update subMsg model.tagsSearchField
+            in
+            ( { model | tagsSearchField = subModel }, Cmd.map TagsSearchFieldMsg subCmd )
+
+        GotActivity activity ->
+            let
+                ( subModel, subCmd ) =
+                    SearchFieldWithTags.update (SearchFieldWithTags.GotActivity activity) model.tagsSearchField
+            in
+            ( { model | tagsSearchField = subModel }, subCmd )
+
 
 
 ---- VIEW ----
@@ -72,7 +93,12 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewCrowdMapCheckBox model.isCrowdMapOn
+        [ text "Tags"
+        , hr [] []
+        , Html.map TagsSearchFieldMsg (SearchFieldWithTags.view model.tagsSearchField)
+        , text "Layers"
+        , hr [] []
+        , viewCrowdMapCheckBox model.isCrowdMapOn
         , viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
         ]
 
@@ -117,7 +143,7 @@ viewCrowdMapSlider resolution =
 
 onChange : (String -> msg) -> Html.Attribute msg
 onChange tagger =
-    on "change" (Json.Decode.map tagger Html.Events.targetValue)
+    on "change" (Decode.map tagger Events.targetValue)
 
 
 
@@ -130,5 +156,5 @@ main =
         { view = view
         , init = init
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = \_ -> tagSelected GotActivity
         }
