@@ -19,7 +19,7 @@ export function buildCustomMarker(latLng, content, colorClass, callback, type) {
   CustomMarker.prototype = Object.create(google.maps.OverlayView.prototype);
 
   CustomMarker.prototype.onAdd = function() {
-    this.getPanes().floatPane.appendChild(this.markerContainer);
+    this.getPanes().markerLayer.appendChild(this.markerContainer);
   };
 
   CustomMarker.prototype.onRemove = function() {
