@@ -130,24 +130,28 @@ export const MobileSessionsMapCtrl = (
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
       });
 
-      elmApp.ports.showAutocomplete.subscribe((content) => {
-        window.requestAnimationFrame(() => {
-          $( "#tags-search" ).autocomplete({
-            source: function( request, response ) {
-              const data = {q: request.term, limit: 10};
-              $.getJSON( "/autocomplete/tags", data, response );
-            },
-            select: function( event, ui) {
-              elmApp.ports.tagSelected.send(ui.item.value);
-            }
-          });
-        });
-      });
+      runTagsAutocomplete(elmApp)
 
       elmApp.ports.updateTags.subscribe((tags) => {
-        storage.updateTags(tags);
+        params.update({data: {tags: tags.join(", ")}});
         $scope.sessions.fetch();
       })
     });
   }
+}
+
+const runTagsAutocomplete = (elmApp) => {
+  if (document.getElementById('tags-search')) {
+    $( "#tags-search" ).autocomplete({
+      source: function( request, response ) {
+        const data = {q: request.term, limit: 10};
+        $.getJSON( "/autocomplete/tags", data, response );
+      },
+      select: function( event, ui) {
+        elmApp.ports.tagSelected.send(ui.item.value);
+      }
+    });
+  } else {
+    window.setTimeout(runTagsAutocomplete(elmApp), 100);
+  };
 }

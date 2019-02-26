@@ -36,12 +36,6 @@ tagsArea =
                         |> Query.find [ Slc.id "tags" ]
                         |> Query.find [ Slc.tag "input" ]
                         |> Query.has [ Slc.attribute <| Attr.value inputValue ]
-            , fuzz string "when UpdateTagsSearchFieldContent is triggered the input is send to showAutocomplete port" <|
-                \inputValue ->
-                    defaultModel
-                        |> update (UpdateTagsSearchFieldContent inputValue)
-                        |> Tuple.second
-                        |> Expect.equal (Ports.showAutocomplete inputValue)
             ]
         , describe "when new activity happens "
             [ fuzz string "the search field value is reset" <|
