@@ -115,6 +115,7 @@ export const MobileSessionsMapCtrl = (
       const flags = {
         isCrowdMapOn: $scope.params.get('data').crowdMap || false,
         crowdMapResolution: $scope.params.get('data').gridResolution || 25,
+        tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || []
       }
 
       const elmApp = Elm.Main.init({ node: node, flags: flags });
@@ -128,6 +129,25 @@ export const MobileSessionsMapCtrl = (
         storage.updateCrowdMapResolution(newResolution);
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
       });
+
+      elmApp.ports.showAutocomplete.subscribe((content) => {
+        window.requestAnimationFrame(() => {
+          $( "#tags-search" ).autocomplete({
+            source: function( request, response ) {
+              const data = {q: request.term, limit: 10};
+              $.getJSON( "/autocomplete/tags", data, response );
+            },
+            select: function( event, ui) {
+              elmApp.ports.tagSelected.send(ui.item.value);
+            }
+          });
+        });
+      });
+
+      elmApp.ports.updateTags.subscribe((tags) => {
+        storage.updateTags(tags);
+        $scope.sessions.fetch();
+      })
     });
   }
 }
