@@ -27,6 +27,7 @@ sudo apt-get install build-essential openssl libreadline6 libreadline6-dev curl 
 # install rvm https://rvm.io/rvm/install
 brew install gsl
 brew install imagemagick
+brew install redis
 brew install mysql@5.7
 ```
 
