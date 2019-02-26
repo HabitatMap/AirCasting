@@ -24,7 +24,9 @@ class SessionBuilder
     data = build_local_start_and_end_time(data)
 
     begin
-      session = Session.create!(data.reject { |k| [:drawable, :deleted].include?(k)})
+      allowed = Session.attribute_names + ["notes_attributes", "tag_list", "user"]
+      filtered = data.select { |k, _| allowed.include?(k.to_s) }
+      session = Session.create!(filtered)
     rescue ActiveRecord::RecordInvalid => invalid
       Rails.logger.warn("[SessionBuilder] data: #{data}")
       Rails.logger.warn(invalid.record.errors.full_messages)

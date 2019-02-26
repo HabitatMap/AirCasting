@@ -53,7 +53,7 @@ describe SessionBuilder do
         :user => user
       }
       expect(subject).to receive(:build_local_start_and_end_time).and_return(data)
-      expect(Session).to receive(:create!).with(data).and_return(session)
+      expect(Session).to receive(:create!).with(data.reject{ |k| k == :some }).and_return(session)
 
       expect(Stream).to receive(:build!).with(:some => :data, :session => session)
 
