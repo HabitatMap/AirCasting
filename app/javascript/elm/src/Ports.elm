@@ -1,7 +1,4 @@
-port module Ports exposing (showAutocomplete, tagSelected, toggleCrowdMap, updateResolutionPort, updateTags)
-
-
-port showAutocomplete : String -> Cmd a
+port module Ports exposing (tagSelected, toggleCrowdMap, updateResolutionPort, updateTags)
 
 
 port tagSelected : (String -> msg) -> Sub msg

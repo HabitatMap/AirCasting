@@ -69,7 +69,7 @@ update msg model =
             ( { model | crowdMapResolution = resolution }, Ports.updateResolutionPort resolution )
 
         UpdateTagsSearchFieldContent content ->
-            ( { model | tagsSearchFieldContent = content }, Ports.showAutocomplete content )
+            ( { model | tagsSearchFieldContent = content }, Cmd.none )
 
         GotActivity activityValue ->
             let
