@@ -1,5 +1,6 @@
 port module Main exposing (Msg(..), defaultModel, update, view)
 
+import Aaa
 import Browser
 import Html exposing (Html, button, div, hr, input, label, p, span, text)
 import Html.Attributes as Attr
@@ -16,8 +17,7 @@ import Set
 type alias Model =
     { crowdMapResolution : Int
     , isCrowdMapOn : Bool
-    , tagsSearch : String
-    , tags : List String
+    , tags : Aaa.Bbb
     , profilesSearch : String
     , profiles : Set.Set String
     }
@@ -36,7 +36,8 @@ init flags =
     ( { defaultModel
         | isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
-        , tags = flags.tags
+
+        -- , { tags | collection = flags.tags }
         , profiles = Set.fromList flags.profiles
       }
     , Cmd.none
@@ -47,8 +48,7 @@ defaultModel : Model
 defaultModel =
     { crowdMapResolution = 25
     , isCrowdMapOn = False
-    , tagsSearch = ""
-    , tags = []
+    , tags = Aaa.default
     , profilesSearch = ""
     , profiles = Set.empty
     }
@@ -79,21 +79,21 @@ update msg model =
             ( { model | crowdMapResolution = resolution }, Ports.updateResolutionPort resolution )
 
         UpdateTagsSearch content ->
-            ( { model | tagsSearch = content }, Cmd.none )
+            ( { model | tags = Aaa.updateCurrent model.tags content }, Cmd.none )
 
         AddTag tag_ ->
             let
                 newTags =
-                    tag_ :: model.tags
+                    Aaa.addToCollection model.tags tag_
             in
-            ( { model | tags = newTags, tagsSearch = "" }, Ports.updateTags newTags )
+            ( { model | tags = newTags }, Ports.updateTags (Aaa.getCollection newTags) )
 
         RemoveTag tagContent ->
             let
                 filteredTags =
-                    List.filter ((/=) tagContent) model.tags
+                    Aaa.removeFromCollection model.tags tagContent
             in
-            ( { model | tags = filteredTags }, Ports.updateTags filteredTags )
+            ( { model | tags = filteredTags }, Ports.updateTags (Aaa.getCollection filteredTags) )
 
         UpdateProfileSearch content ->
             ( { model | profilesSearch = content }, Cmd.none )
@@ -121,7 +121,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ viewProfiles model.profilesSearch model.profiles
-        , viewTags model.tagsSearch model.tags
+        , viewTags model.tags
         , text "Layers"
         , hr [] []
         , viewCrowdMapCheckBox model.isCrowdMapOn
@@ -156,18 +156,18 @@ viewProfileName profile =
         ]
 
 
-viewTags : String -> List String -> Html Msg
-viewTags tagsSearch tags =
+viewTags : Aaa.Bbb -> Html Msg
+viewTags tags =
     div [ Attr.id "tags" ]
         [ text "Tags"
         , hr [] []
         , input
             [ Attr.id "tags-search"
             , Events.onInput UpdateTagsSearch
-            , Attr.value tagsSearch
+            , Attr.value <| Aaa.getCurrentInput tags
             ]
             []
-        , div [] (List.map viewTag tags)
+        , div [] (List.map viewTag (Aaa.getCollection tags))
         ]
 
 
