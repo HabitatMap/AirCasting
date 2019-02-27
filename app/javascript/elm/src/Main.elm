@@ -1,10 +1,11 @@
 port module Main exposing (Msg(..), defaultModel, update, view)
 
 import Browser
-import Html exposing (Html, div, input, label, p, span, text)
-import Html.Attributes exposing (checked, class, for, id, max, min, type_, value)
-import Html.Events exposing (on, onClick, targetValue)
+import Html exposing (Html, button, div, hr, input, label, p, span, text)
+import Html.Attributes as Attr
+import Html.Events as Events
 import Json.Decode
+import Ports
 
 
 
@@ -14,12 +15,15 @@ import Json.Decode
 type alias Model =
     { crowdMapResolution : Int
     , isCrowdMapOn : Bool
+    , tagsSearchFieldContent : String
+    , tags : List String
     }
 
 
 type alias Flags =
     { crowdMapResolution : Int
     , isCrowdMapOn : Bool
+    , tags : List String
     }
 
 
@@ -28,6 +32,7 @@ init flags =
     ( { defaultModel
         | isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
+        , tags = flags.tags
       }
     , Cmd.none
     )
@@ -37,6 +42,8 @@ defaultModel : Model
 defaultModel =
     { crowdMapResolution = 25
     , isCrowdMapOn = False
+    , tagsSearchFieldContent = ""
+    , tags = []
     }
 
 
@@ -44,25 +51,39 @@ defaultModel =
 ---- UPDATE ----
 
 
-port toggleCrowdMap : () -> Cmd a
-
-
-port updateResolutionPort : Int -> Cmd a
-
-
 type Msg
     = ToggleCrowdMap
     | UpdateCrowdMapResolution Int
+    | UpdateTagsSearchFieldContent String
+    | GotActivity String
+    | RemoveTag String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ToggleCrowdMap ->
-            ( { model | isCrowdMapOn = not model.isCrowdMapOn }, toggleCrowdMap () )
+            ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap () )
 
         UpdateCrowdMapResolution resolution ->
-            ( { model | crowdMapResolution = resolution }, updateResolutionPort resolution )
+            ( { model | crowdMapResolution = resolution }, Ports.updateResolutionPort resolution )
+
+        UpdateTagsSearchFieldContent content ->
+            ( { model | tagsSearchFieldContent = content }, Cmd.none )
+
+        GotActivity activityValue ->
+            let
+                newTags =
+                    activityValue :: model.tags
+            in
+            ( { model | tags = newTags, tagsSearchFieldContent = "" }, Ports.updateTags newTags )
+
+        RemoveTag tagContent ->
+            let
+                filteredTags =
+                    List.filter ((/=) tagContent) model.tags
+            in
+            ( { model | tags = filteredTags }, Ports.updateTags filteredTags )
 
 
 
@@ -72,23 +93,53 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewCrowdMapCheckBox model.isCrowdMapOn
+        [ text "Tags"
+        , hr [] []
+        , viewTagsArea model.tagsSearchFieldContent model.tags
+        , text "Layers"
+        , hr [] []
+        , viewCrowdMapCheckBox model.isCrowdMapOn
         , viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
+        ]
+
+
+viewTagsArea : String -> List String -> Html Msg
+viewTagsArea tagsSearchFieldContent tags =
+    div [ Attr.id "tags" ]
+        [ input
+            [ Attr.id "tags-search"
+            , Events.onInput UpdateTagsSearchFieldContent
+            , Attr.value tagsSearchFieldContent
+            ]
+            []
+        , div [] (List.map viewTag tags)
+        ]
+
+
+viewTag : String -> Html Msg
+viewTag tagContent =
+    div []
+        [ text tagContent
+        , button
+            [ Attr.id tagContent
+            , Events.onClick (RemoveTag tagContent)
+            ]
+            []
         ]
 
 
 viewCrowdMapCheckBox : Bool -> Html Msg
 viewCrowdMapCheckBox isCrowdMapOn =
-    div [ class "textfield" ]
+    div [ Attr.class "textfield" ]
         [ p []
             [ input
-                [ id "checkbox-crowd-map"
-                , type_ "checkbox"
-                , checked isCrowdMapOn
-                , onClick ToggleCrowdMap
+                [ Attr.id "checkbox-crowd-map"
+                , Attr.type_ "checkbox"
+                , Attr.checked isCrowdMapOn
+                , Events.onClick ToggleCrowdMap
                 ]
                 []
-            , label [ for "checkbox-crowd-map" ]
+            , label [ Attr.for "checkbox-crowd-map" ]
                 [ text "Crowd Map" ]
             ]
         ]
@@ -96,17 +147,17 @@ viewCrowdMapCheckBox isCrowdMapOn =
 
 viewCrowdMapSlider : String -> Html Msg
 viewCrowdMapSlider resolution =
-    div [ id "crowd-map-slider" ]
+    div [ Attr.id "crowd-map-slider" ]
         [ p []
             [ text "Resolution" ]
         , div []
             [ input
-                [ class "crowd-map-slider"
+                [ Attr.class "crowd-map-slider"
                 , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateCrowdMapResolution)
-                , value resolution
-                , max "50"
-                , min "10"
-                , type_ "range"
+                , Attr.value resolution
+                , Attr.max "50"
+                , Attr.min "10"
+                , Attr.type_ "range"
                 ]
                 []
             , span []
@@ -117,7 +168,7 @@ viewCrowdMapSlider resolution =
 
 onChange : (String -> msg) -> Html.Attribute msg
 onChange tagger =
-    on "change" (Json.Decode.map tagger Html.Events.targetValue)
+    Events.on "change" (Json.Decode.map tagger Events.targetValue)
 
 
 
@@ -130,5 +181,5 @@ main =
         { view = view
         , init = init
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = \_ -> Ports.tagSelected GotActivity
         }

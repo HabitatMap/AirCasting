@@ -55,6 +55,7 @@ test('toggleCrowdMapData toggles crowdMap value in params and crowdMap value in 
 
   t.end();
 });
+
 const _storage = ({ params }) => {
   const $rootScope = { $new: () => ({ $watch: () => {} }) };
   const utils = {
