@@ -1,4 +1,4 @@
-module MainTests exposing (tagsArea, updateTests, viewTests)
+module MainTests exposing (profileNamesArea, tagsArea, updateTests, viewTests)
 
 import Expect
 import Fuzz exposing (Fuzzer, bool, int, list, string)
@@ -7,6 +7,7 @@ import Html.Attributes as Attr
 import Json.Encode as Encode
 import Main exposing (..)
 import Ports
+import Set
 import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
@@ -17,7 +18,7 @@ tagsArea : Test
 tagsArea =
     describe "Tags area tests: "
         [ describe "given a search field"
-            [ fuzz string "when user types, UpdateTagsSearchFieldContent is triggered with the input" <|
+            [ fuzz string "when user types, UpdateTagsSearch is triggered with the input" <|
                 \inputValue ->
                     defaultModel
                         |> view
@@ -25,11 +26,11 @@ tagsArea =
                         |> Query.find [ Slc.id "tags" ]
                         |> Query.find [ Slc.tag "input" ]
                         |> Event.simulate (Event.input inputValue)
-                        |> Event.expect (UpdateTagsSearchFieldContent inputValue)
-            , fuzz string "when UpdateTagsSearchFieldContent is triggered the input is displayed in the search field" <|
+                        |> Event.expect (UpdateTagsSearch inputValue)
+            , fuzz string "when UpdateTagsSearch is triggered the input is displayed in the search field" <|
                 \inputValue ->
                     defaultModel
-                        |> update (UpdateTagsSearchFieldContent inputValue)
+                        |> update (UpdateTagsSearch inputValue)
                         |> Tuple.first
                         |> view
                         |> Query.fromHtml
@@ -40,8 +41,8 @@ tagsArea =
         , describe "when new activity happens "
             [ fuzz string "the search field value is reset" <|
                 \activityValue ->
-                    { defaultModel | tagsSearchFieldContent = "some string" }
-                        |> update (GotActivity activityValue)
+                    { defaultModel | tagsSearch = "some string" }
+                        |> update (AddTag activityValue)
                         |> Tuple.first
                         |> view
                         |> Query.fromHtml
@@ -51,7 +52,7 @@ tagsArea =
             , fuzz string "new tag is created" <|
                 \activityValue ->
                     defaultModel
-                        |> update (GotActivity activityValue)
+                        |> update (AddTag activityValue)
                         |> Tuple.first
                         |> view
                         |> Query.fromHtml
@@ -66,7 +67,7 @@ tagsArea =
             , fuzz string "updated tags list is sent updateTags port" <|
                 \activityValue ->
                     { defaultModel | tags = [ "old tag" ] }
-                        |> update (GotActivity activityValue)
+                        |> update (AddTag activityValue)
                         |> Tuple.second
                         |> Expect.equal (Ports.updateTags [ activityValue, "old tag" ])
             ]
@@ -78,7 +79,7 @@ tagsArea =
                             List.foldl
                                 (\value acc ->
                                     acc
-                                        |> update (GotActivity value)
+                                        |> update (AddTag value)
                                         |> Tuple.first
                                 )
                                 defaultModel
@@ -124,6 +125,122 @@ tagsArea =
                         |> update (RemoveTag firstTag)
                         |> Tuple.second
                         |> Expect.equal (Ports.updateTags [ secondTag ])
+            ]
+        ]
+
+
+profileNamesArea : Test
+profileNamesArea =
+    describe "Profile names tests: "
+        [ describe "given a search field"
+            [ fuzz string "when user types, UpdateProfileSearch is triggered with the input" <|
+                \inputValue ->
+                    defaultModel
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.find [ Slc.id "test-profile-names" ]
+                        |> Query.find [ Slc.tag "input" ]
+                        |> Event.simulate (Event.input inputValue)
+                        |> Event.expect (UpdateProfileSearch inputValue)
+            , fuzz string "when UpdateProfileSearch is triggered the input is displayed in the search field" <|
+                \inputValue ->
+                    defaultModel
+                        |> update (UpdateProfileSearch inputValue)
+                        |> Tuple.first
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.find [ Slc.id "test-profile-names" ]
+                        |> Query.find [ Slc.tag "input" ]
+                        |> Query.has [ Slc.attribute <| Attr.value inputValue ]
+            ]
+        , describe "when AddProfile is triggered"
+            [ fuzz string "the search field value is reset" <|
+                \activityValue ->
+                    { defaultModel | profilesSearch = "some string" }
+                        |> update (AddProfile activityValue)
+                        |> Tuple.first
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.find [ Slc.id "test-profile-names" ]
+                        |> Query.find [ Slc.tag "input" ]
+                        |> Query.has [ Slc.attribute <| Attr.value "" ]
+            , fuzz string "new profile label is created" <|
+                \activityValue ->
+                    defaultModel
+                        |> update (AddProfile activityValue)
+                        |> Tuple.first
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.has [ Slc.text activityValue ]
+            , fuzz string "new profile label has a button" <|
+                \profileName ->
+                    { defaultModel | profiles = Set.singleton profileName }
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.find [ Slc.id "test-profile-names" ]
+                        |> Query.find [ Slc.containing [ Slc.text profileName ] ]
+                        |> Query.has [ Slc.tag "button" ]
+            , fuzz string "updated profiles list is sent updateProfiles port" <|
+                \activityValue ->
+                    defaultModel
+                        |> update (AddProfile activityValue)
+                        |> Tuple.second
+                        |> Expect.equal (Ports.updateProfiles [ activityValue ])
+            ]
+        , describe "when AddProfile is triggered multiple times"
+            [ fuzz (list string) "corresponding profile labels are created" <|
+                \activityValues ->
+                    let
+                        model =
+                            List.foldl
+                                (\value acc ->
+                                    acc
+                                        |> update (AddProfile value)
+                                        |> Tuple.first
+                                )
+                                defaultModel
+                                activityValues
+
+                        profile =
+                            List.map (\value -> Slc.containing [ Slc.text value ]) activityValues
+                    in
+                    model
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.has
+                            [ Slc.all profile ]
+            ]
+        , describe "give profile label delete button"
+            [ fuzz2 string string "when user clicks it, RemoveProfile is triggered with correct profile" <|
+                \profile1 profile2 ->
+                    { defaultModel | profiles = Set.fromList [ profile1, profile2 ] }
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.find [ Slc.id profile1 ]
+                        |> Event.simulate Event.click
+                        |> Event.expect (RemoveProfile profile1)
+            , test "when RemoveProfile is triggered with a profile the corresponding label disappears" <|
+                \_ ->
+                    { defaultModel | profiles = Set.fromList [ "profile1", "profile2" ] }
+                        |> update (RemoveProfile "profile1")
+                        |> Tuple.first
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.hasNot [ Slc.id "profile1" ]
+            , test "when RemoveProfile is triggered with a profile the other labels don't disappear" <|
+                \_ ->
+                    { defaultModel | profiles = Set.fromList [ "profile1", "profile2" ] }
+                        |> update (RemoveProfile "profile1")
+                        |> Tuple.first
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.has [ Slc.id "profile2" ]
+            , test "when RemoveProfile is triggered updated profile list is sent to updateProfiles port" <|
+                \_ ->
+                    { defaultModel | profiles = Set.fromList [ "profile1", "profile2" ] }
+                        |> update (RemoveProfile "profile1")
+                        |> Tuple.second
+                        |> Expect.equal (Ports.updateProfiles [ "profile2" ])
             ]
         ]
 
