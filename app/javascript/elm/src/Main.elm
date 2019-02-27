@@ -6,6 +6,7 @@ import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode
 import Ports
+import Set
 
 
 
@@ -15,8 +16,10 @@ import Ports
 type alias Model =
     { crowdMapResolution : Int
     , isCrowdMapOn : Bool
-    , tagsSearchFieldContent : String
+    , tagsSearch : String
     , tags : List String
+    , profilesSearch : String
+    , profiles : Set.Set String
     }
 
 
@@ -42,8 +45,10 @@ defaultModel : Model
 defaultModel =
     { crowdMapResolution = 25
     , isCrowdMapOn = False
-    , tagsSearchFieldContent = ""
+    , tagsSearch = ""
     , tags = []
+    , profilesSearch = ""
+    , profiles = Set.empty
     }
 
 
@@ -54,9 +59,12 @@ defaultModel =
 type Msg
     = ToggleCrowdMap
     | UpdateCrowdMapResolution Int
-    | UpdateTagsSearchFieldContent String
-    | GotActivity String
+    | UpdateTagsSearch String
+    | AddTag String
     | RemoveTag String
+    | UpdateProfileSearch String
+    | AddProfile String
+    | RemoveProfile String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -68,15 +76,15 @@ update msg model =
         UpdateCrowdMapResolution resolution ->
             ( { model | crowdMapResolution = resolution }, Ports.updateResolutionPort resolution )
 
-        UpdateTagsSearchFieldContent content ->
-            ( { model | tagsSearchFieldContent = content }, Cmd.none )
+        UpdateTagsSearch content ->
+            ( { model | tagsSearch = content }, Cmd.none )
 
-        GotActivity activityValue ->
+        AddTag tag_ ->
             let
                 newTags =
-                    activityValue :: model.tags
+                    tag_ :: model.tags
             in
-            ( { model | tags = newTags, tagsSearchFieldContent = "" }, Ports.updateTags newTags )
+            ( { model | tags = newTags, tagsSearch = "" }, Ports.updateTags newTags )
 
         RemoveTag tagContent ->
             let
@@ -84,6 +92,23 @@ update msg model =
                     List.filter ((/=) tagContent) model.tags
             in
             ( { model | tags = filteredTags }, Ports.updateTags filteredTags )
+
+        UpdateProfileSearch content ->
+            ( { model | profilesSearch = content }, Cmd.none )
+
+        AddProfile profile ->
+            let
+                newProfiles =
+                    Set.insert profile model.profiles
+            in
+            ( { model | profiles = newProfiles, profilesSearch = "" }, Ports.updateProfiles (Set.toList newProfiles) )
+
+        RemoveProfile profile ->
+            let
+                filteredProfiles =
+                    Set.remove profile model.profiles
+            in
+            ( { model | profiles = filteredProfiles }, Ports.updateProfiles (Set.toList filteredProfiles) )
 
 
 
@@ -93,9 +118,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ text "Tags"
-        , hr [] []
-        , viewTagsArea model.tagsSearchFieldContent model.tags
+        [ viewProfiles model.profilesSearch model.profiles
+        , viewTags model.tagsSearch model.tags
         , text "Layers"
         , hr [] []
         , viewCrowdMapCheckBox model.isCrowdMapOn
@@ -103,13 +127,42 @@ view model =
         ]
 
 
-viewTagsArea : String -> List String -> Html Msg
-viewTagsArea tagsSearchFieldContent tags =
+viewProfiles : String -> Set.Set String -> Html Msg
+viewProfiles profilesSearch profile =
+    div [ Attr.id "test-profile-names" ]
+        [ text "Profile Names"
+        , hr [] []
+        , input
+            [ Attr.id "profiles-search"
+            , Events.onInput UpdateProfileSearch
+            , Attr.value profilesSearch
+            ]
+            []
+        , div [] (List.map viewProfileName (Set.toList profile))
+        ]
+
+
+viewProfileName : String -> Html Msg
+viewProfileName profile =
+    div []
+        [ text profile
+        , button
+            [ Attr.id profile
+            , Events.onClick (RemoveProfile profile)
+            ]
+            []
+        ]
+
+
+viewTags : String -> List String -> Html Msg
+viewTags tagsSearch tags =
     div [ Attr.id "tags" ]
-        [ input
+        [ text "Tags"
+        , hr [] []
+        , input
             [ Attr.id "tags-search"
-            , Events.onInput UpdateTagsSearchFieldContent
-            , Attr.value tagsSearchFieldContent
+            , Events.onInput UpdateTagsSearch
+            , Attr.value tagsSearch
             ]
             []
         , div [] (List.map viewTag tags)
@@ -181,5 +234,9 @@ main =
         { view = view
         , init = init
         , update = update
-        , subscriptions = \_ -> Ports.tagSelected GotActivity
+        , subscriptions = \_ -> subscriptions
         }
+
+
+subscriptions =
+    Sub.batch [ Ports.tagSelected AddTag, Ports.profileNameSelected AddProfile ]
