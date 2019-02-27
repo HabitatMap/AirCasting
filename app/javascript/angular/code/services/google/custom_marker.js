@@ -14,12 +14,11 @@ export function buildCustomMarker(latLng, content, colorClass, callback, type) {
 
     this.stopEventPropagation();
   };
-    // NOTE: google.maps.OverlayView is only defined once the Maps API has
-    // loaded. That is why CustomMarker is defined inside initMap().
+
   CustomMarker.prototype = Object.create(google.maps.OverlayView.prototype);
 
   CustomMarker.prototype.onAdd = function() {
-    this.getPanes().markerLayer.appendChild(this.markerContainer);
+    this.getPanes().overlayMouseTarget.appendChild(this.markerContainer);
   };
 
   CustomMarker.prototype.onRemove = function() {
