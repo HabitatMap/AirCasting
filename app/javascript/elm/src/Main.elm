@@ -27,6 +27,7 @@ type alias Flags =
     { crowdMapResolution : Int
     , isCrowdMapOn : Bool
     , tags : List String
+    , profiles : List String
     }
 
 
@@ -36,6 +37,7 @@ init flags =
         | isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
         , tags = flags.tags
+        , profiles = Set.fromList flags.profiles
       }
     , Cmd.none
     )
