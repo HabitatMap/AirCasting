@@ -44,7 +44,7 @@ export const MobileSessionsMapCtrl = (
       });
     }
 
-    ['sensor', 'location', 'usernames', 'layers', 'heatLegend'].forEach(function(name) {
+    ['sensor', 'location', 'heatLegend'].forEach(function(name) {
       $scope.expandables.show(name);
     });
 
@@ -115,7 +115,8 @@ export const MobileSessionsMapCtrl = (
       const flags = {
         isCrowdMapOn: $scope.params.get('data').crowdMap || false,
         crowdMapResolution: $scope.params.get('data').gridResolution || 25,
-        tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || []
+        tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
+        profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || []
       }
 
       const elmApp = Elm.Main.init({ node: node, flags: flags });
@@ -130,9 +131,17 @@ export const MobileSessionsMapCtrl = (
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
       });
 
-      runAutocomplete(elmApp.ports.profileNameSelected, "profiles-search", "/autocomplete/usernames")
+      setAutocomplete(
+        (selectedValue) => elmApp.ports.profileNameSelected.send(selectedValue)
+        , "profiles-search"
+        , "/autocomplete/usernames"
+      )
 
-      runAutocomplete(elmApp.ports.tagSelected, "tags-search", "/autocomplete/tags")
+      setAutocomplete(
+        (selectedValue) => elmApp.ports.tagSelected.send(selectedValue)
+        , "tags-search"
+        , "/autocomplete/tags"
+      )
 
       elmApp.ports.updateTags.subscribe((tags) => {
         params.update({data: {tags: tags.join(", ")}});
@@ -147,18 +156,18 @@ export const MobileSessionsMapCtrl = (
   }
 }
 
-const runAutocomplete = (port, divId, sourcePath) => {
-  if (document.getElementById(divId)) {
-    $( "#" + divId ).autocomplete({
+const setAutocomplete = (callback, id, path) => {
+  if (document.getElementById(id)) {
+    $( "#" + id ).autocomplete({
       source: function( request, response ) {
         const data = {q: request.term, limit: 10};
-        $.getJSON( sourcePath, data, response );
+        $.getJSON( path, data, response );
       },
       select: function( event, ui) {
-        port.send(ui.item.value);
+        callback(ui.item.value);
       }
     });
   } else {
-    window.setTimeout(runTagsAutocomplete(elmApp), 100);
+    window.setTimeout(setAutocomplete(callback, id, path), 100);
   };
 }
