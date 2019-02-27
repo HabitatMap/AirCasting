@@ -1,11 +1,11 @@
 port module Main exposing (Msg(..), defaultModel, update, view)
 
-import Aaa
 import Browser
 import Html exposing (Html, button, div, hr, input, label, p, span, text)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode
+import Labels exposing (Labels)
 import Ports
 import Set
 
@@ -17,9 +17,17 @@ import Set
 type alias Model =
     { crowdMapResolution : Int
     , isCrowdMapOn : Bool
-    , tags : Aaa.Bbb
-    , profilesSearch : String
-    , profiles : Set.Set String
+    , tags : Labels
+    , profiles : Labels
+    }
+
+
+defaultModel : Model
+defaultModel =
+    { crowdMapResolution = 25
+    , isCrowdMapOn = False
+    , tags = Labels.empty
+    , profiles = Labels.empty
     }
 
 
@@ -36,22 +44,11 @@ init flags =
     ( { defaultModel
         | isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
-
-        -- , { tags | collection = flags.tags }
-        , profiles = Set.fromList flags.profiles
+        , tags = Labels.fromList flags.tags
+        , profiles = Labels.fromList flags.profiles
       }
     , Cmd.none
     )
-
-
-defaultModel : Model
-defaultModel =
-    { crowdMapResolution = 25
-    , isCrowdMapOn = False
-    , tags = Aaa.default
-    , profilesSearch = ""
-    , profiles = Set.empty
-    }
 
 
 
@@ -79,38 +76,38 @@ update msg model =
             ( { model | crowdMapResolution = resolution }, Ports.updateResolutionPort resolution )
 
         UpdateTagsSearch content ->
-            ( { model | tags = Aaa.updateCurrent model.tags content }, Cmd.none )
+            ( { model | tags = Labels.updateCandidate model.tags content }, Cmd.none )
+
+        UpdateProfileSearch content ->
+            ( { model | profiles = Labels.updateCandidate model.profiles content }, Cmd.none )
 
         AddTag tag_ ->
             let
                 newTags =
-                    Aaa.addToCollection model.tags tag_
+                    Labels.addToCollection model.tags tag_
             in
-            ( { model | tags = newTags }, Ports.updateTags (Aaa.getCollection newTags) )
+            ( { model | tags = newTags }, Ports.updateTags (Labels.getCollection newTags) )
 
         RemoveTag tagContent ->
             let
                 filteredTags =
-                    Aaa.removeFromCollection model.tags tagContent
+                    Labels.removeFromCollection model.tags tagContent
             in
-            ( { model | tags = filteredTags }, Ports.updateTags (Aaa.getCollection filteredTags) )
-
-        UpdateProfileSearch content ->
-            ( { model | profilesSearch = content }, Cmd.none )
+            ( { model | tags = filteredTags }, Ports.updateTags (Labels.getCollection filteredTags) )
 
         AddProfile profile ->
             let
                 newProfiles =
-                    Set.insert profile model.profiles
+                    Labels.addToCollection model.profiles profile
             in
-            ( { model | profiles = newProfiles, profilesSearch = "" }, Ports.updateProfiles (Set.toList newProfiles) )
+            ( { model | profiles = newProfiles }, Ports.updateProfiles (Labels.getCollection newProfiles) )
 
         RemoveProfile profile ->
             let
                 filteredProfiles =
-                    Set.remove profile model.profiles
+                    Labels.removeFromCollection model.profiles profile
             in
-            ( { model | profiles = filteredProfiles }, Ports.updateProfiles (Set.toList filteredProfiles) )
+            ( { model | profiles = filteredProfiles }, Ports.updateProfiles (Labels.getCollection filteredProfiles) )
 
 
 
@@ -120,7 +117,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewProfiles model.profilesSearch model.profiles
+        [ viewProfiles model.profiles
         , viewTags model.tags
         , text "Layers"
         , hr [] []
@@ -129,18 +126,18 @@ view model =
         ]
 
 
-viewProfiles : String -> Set.Set String -> Html Msg
-viewProfiles profilesSearch profile =
+viewProfiles : Labels -> Html Msg
+viewProfiles profiles =
     div [ Attr.id "test-profile-names" ]
         [ text "Profile Names"
         , hr [] []
         , input
             [ Attr.id "profiles-search"
             , Events.onInput UpdateProfileSearch
-            , Attr.value profilesSearch
+            , Attr.value <| Labels.getCandidate profiles
             ]
             []
-        , div [] (List.map viewProfileName (Set.toList profile))
+        , div [] (List.map viewProfileName (Labels.asList profiles))
         ]
 
 
@@ -156,7 +153,7 @@ viewProfileName profile =
         ]
 
 
-viewTags : Aaa.Bbb -> Html Msg
+viewTags : Labels -> Html Msg
 viewTags tags =
     div [ Attr.id "tags" ]
         [ text "Tags"
@@ -164,10 +161,10 @@ viewTags tags =
         , input
             [ Attr.id "tags-search"
             , Events.onInput UpdateTagsSearch
-            , Attr.value <| Aaa.getCurrentInput tags
+            , Attr.value <| Labels.getCandidate tags
             ]
             []
-        , div [] (List.map viewTag (Aaa.getCollection tags))
+        , div [] (List.map viewTag (Labels.asList tags))
         ]
 
 
