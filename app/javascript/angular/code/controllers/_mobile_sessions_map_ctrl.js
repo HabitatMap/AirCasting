@@ -110,7 +110,7 @@ export const MobileSessionsMapCtrl = (
 
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(function () {
-      const node = document.getElementById('crowdMapLayer');
+      const node = document.getElementById('newFilters');
 
       const flags = {
         isCrowdMapOn: $scope.params.get('data').crowdMap || false,
@@ -130,25 +130,32 @@ export const MobileSessionsMapCtrl = (
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
       });
 
-      runTagsAutocomplete(elmApp)
+      runAutocomplete(elmApp.ports.profileNameSelected, "profiles-search", "/autocomplete/usernames")
+
+      runAutocomplete(elmApp.ports.tagSelected, "tags-search", "/autocomplete/tags")
 
       elmApp.ports.updateTags.subscribe((tags) => {
         params.update({data: {tags: tags.join(", ")}});
         $scope.sessions.fetch();
-      })
+      });
+
+      elmApp.ports.updateProfiles.subscribe((profiles) => {
+        params.update({data: {usernames: profiles.join(", ")}});
+        $scope.sessions.fetch();
+      });
     });
   }
 }
 
-const runTagsAutocomplete = (elmApp) => {
-  if (document.getElementById('tags-search')) {
-    $( "#tags-search" ).autocomplete({
+const runAutocomplete = (port, divId, sourcePath) => {
+  if (document.getElementById(divId)) {
+    $( "#" + divId ).autocomplete({
       source: function( request, response ) {
         const data = {q: request.term, limit: 10};
-        $.getJSON( "/autocomplete/tags", data, response );
+        $.getJSON( sourcePath, data, response );
       },
       select: function( event, ui) {
-        elmApp.ports.tagSelected.send(ui.item.value);
+        port.send(ui.item.value);
       }
     });
   } else {
