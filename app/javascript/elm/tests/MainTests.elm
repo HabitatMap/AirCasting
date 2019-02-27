@@ -59,17 +59,17 @@ tagsArea =
                         |> Query.has [ Slc.text activityValue ]
             , test "new tag has a button" <|
                 \_ ->
-                    { defaultModel | tags = [ "tag" ] }
+                    { defaultModel | tags = Set.fromList [ "tag" ] }
                         |> view
                         |> Query.fromHtml
                         |> Query.find [ Slc.containing [ Slc.text "tag" ] ]
                         |> Query.has [ Slc.tag "button" ]
-            , fuzz string "updated tags list is sent updateTags port" <|
-                \activityValue ->
-                    { defaultModel | tags = [ "old tag" ] }
-                        |> update (AddTag activityValue)
+            , test "updated tags list is sent updateTags port" <|
+                \_ ->
+                    { defaultModel | tags = Set.fromList [ "oldTag" ] }
+                        |> update (AddTag "newTag")
                         |> Tuple.second
-                        |> Expect.equal (Ports.updateTags [ activityValue, "old tag" ])
+                        |> Expect.equal (Ports.updateTags [ "newTag", "oldTag" ])
             ]
         , describe "when multiple activities happen"
             [ fuzz (list string) "corresponding tags are created" <|
@@ -97,7 +97,7 @@ tagsArea =
         , describe "give tags delete button"
             [ test "when user clicks it, RemoveTag is triggered with correct tag content" <|
                 \_ ->
-                    { defaultModel | tags = [ "tag1", "tag2" ] }
+                    { defaultModel | tags = Set.fromList [ "tag1", "tag2" ] }
                         |> view
                         |> Query.fromHtml
                         |> Query.find [ Slc.id "tag1" ]
@@ -105,7 +105,7 @@ tagsArea =
                         |> Event.expect (RemoveTag "tag1")
             , test "when RemoveTag is triggered with a tag content the corresponding tag disappears" <|
                 \_ ->
-                    { defaultModel | tags = [ "tag1", "tag2" ] }
+                    { defaultModel | tags = Set.fromList [ "tag1", "tag2" ] }
                         |> update (RemoveTag "tag1")
                         |> Tuple.first
                         |> view
@@ -113,7 +113,7 @@ tagsArea =
                         |> Query.hasNot [ Slc.id "tag1" ]
             , test "when RemoveTag is triggered with a tag content the other tags don't disappear" <|
                 \_ ->
-                    { defaultModel | tags = [ "tag1", "tag2" ] }
+                    { defaultModel | tags = Set.fromList [ "tag1", "tag2" ] }
                         |> update (RemoveTag "tag1")
                         |> Tuple.first
                         |> view
@@ -121,7 +121,7 @@ tagsArea =
                         |> Query.has [ Slc.id "tag2" ]
             , fuzz2 string string "when RemoveTag is triggered updated tags list is sent updateTags port" <|
                 \firstTag secondTag ->
-                    { defaultModel | tags = [ firstTag, secondTag ] }
+                    { defaultModel | tags = Set.fromList [ firstTag, secondTag ] }
                         |> update (RemoveTag firstTag)
                         |> Tuple.second
                         |> Expect.equal (Ports.updateTags [ secondTag ])
