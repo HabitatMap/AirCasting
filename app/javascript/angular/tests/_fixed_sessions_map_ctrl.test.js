@@ -38,7 +38,7 @@ test('it updates defaults', t => {
     },
     tags: "",
     usernames: "",
-    gridResolution: 35,
+    gridResolution: 20,
     crowdMap: true,
   };
   t.deepEqual(defaults, expected);
