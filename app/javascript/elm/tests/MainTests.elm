@@ -120,12 +120,12 @@ tagsArea =
                         |> view
                         |> Query.fromHtml
                         |> Query.has [ Slc.id "tag2" ]
-            , fuzz2 string string "when RemoveTag is triggered updated tags list is sent updateTags port" <|
-                \firstTag secondTag ->
-                    { defaultModel | tags = Labels.fromList [ firstTag, secondTag ] }
-                        |> update (RemoveTag firstTag)
+            , test "when RemoveTag is triggered updated tags list is sent updateTags port" <|
+                \_ ->
+                    { defaultModel | tags = Labels.fromList [ "firstTag", "secondTag" ] }
+                        |> update (RemoveTag "firstTag")
                         |> Tuple.second
-                        |> Expect.equal (Ports.updateTags [ secondTag ])
+                        |> Expect.equal (Ports.updateTags [ "secondTag" ])
             ]
         ]
 
