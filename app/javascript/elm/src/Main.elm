@@ -129,8 +129,8 @@ updateTags labelled labels =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewProfiles model.profiles
-        , viewTags model.tags
+        [ viewLabels model.profiles "Profile Names" "test-profiles" "profiles-search" UpdateProfileSearch RemoveProfile
+        , viewLabels model.tags "Tags" "test-tags" "tags-search" UpdateTagsSearch RemoveTag
         , text "Layers"
         , hr [] []
         , viewCrowdMapCheckBox model.isCrowdMapOn
@@ -138,55 +138,28 @@ view model =
         ]
 
 
-viewProfiles : Labels -> Html Msg
-viewProfiles profiles =
-    div [ Attr.id "test-profile-names" ]
-        [ text "Profile Names"
+viewLabels : Labels -> String -> String -> String -> (String -> Msg) -> (String -> Msg) -> Html Msg
+viewLabels labels description testId inputId updateSearchMsg removeLabelMsg =
+    div [ Attr.id testId ]
+        [ text description
         , hr [] []
         , input
-            [ Attr.id "profiles-search"
-            , Events.onInput UpdateProfileSearch
-            , Attr.value <| Labels.getCandidate profiles
+            [ Attr.id inputId
+            , Events.onInput updateSearchMsg
+            , Attr.value <| Labels.getCandidate labels
             ]
             []
-        , div [] (List.map viewProfileName (Labels.asList profiles))
+        , div [] (List.map (viewLabel removeLabelMsg) (Labels.asList labels))
         ]
 
 
-viewProfileName : String -> Html Msg
-viewProfileName profile =
+viewLabel : (String -> Msg) -> String -> Html Msg
+viewLabel msg profile =
     div []
         [ text profile
         , button
             [ Attr.id profile
-            , Events.onClick (RemoveProfile profile)
-            ]
-            []
-        ]
-
-
-viewTags : Labels -> Html Msg
-viewTags tags =
-    div [ Attr.id "tags" ]
-        [ text "Tags"
-        , hr [] []
-        , input
-            [ Attr.id "tags-search"
-            , Events.onInput UpdateTagsSearch
-            , Attr.value <| Labels.getCandidate tags
-            ]
-            []
-        , div [] (List.map viewTag (Labels.asList tags))
-        ]
-
-
-viewTag : String -> Html Msg
-viewTag tagContent =
-    div []
-        [ text tagContent
-        , button
-            [ Attr.id tagContent
-            , Events.onClick (RemoveTag tagContent)
+            , Events.onClick (msg profile)
             ]
             []
         ]
