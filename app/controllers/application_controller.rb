@@ -22,7 +22,7 @@ class NotAcceptable < StandardError; end
 class ApplicationController < ActionController::Base
   helper Webpacker::Helper
 
-  protect_from_forgery
+  protect_from_forgery with: :null_session
 
   before_action :configure_permitted_parameters, if: :devise_controller?
 
