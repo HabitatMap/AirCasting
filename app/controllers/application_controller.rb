@@ -20,6 +20,8 @@ class NotFound < StandardError; end
 class NotAcceptable < StandardError; end
 
 class ApplicationController < ActionController::Base
+  respond_to :html, :json
+
   helper Webpacker::Helper
 
   protect_from_forgery with: :null_session
