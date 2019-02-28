@@ -194,7 +194,7 @@ class Session < ActiveRecord::Base
       if opts[:stream_measurements]
         if type == "FixedSession"
           measurements_to_send = get_measurement_scope(stream.id, opts[:last_measurement_sync])
-          map_of_streams[stream.sensor_name] = stream.as_json.merge(measurements: measurements_to_send).as_json
+          map_of_streams[stream.sensor_name] = stream.as_json.merge("measurements" => measurements_to_send).as_json
         else
           map_of_streams[stream.sensor_name] = stream.as_json(include: { measurements: { only: [:time, :value, :latitude, :longitude] } })
         end
@@ -204,10 +204,10 @@ class Session < ActiveRecord::Base
     end
 
     if type == "MobileSession"
-      res.merge!(:average => measurements_average)
+      res.merge!("average" => measurements_average)
     end
 
-    res.merge!(:streams => map_of_streams)
+    res.merge!("streams" => map_of_streams)
 
     res
   end
