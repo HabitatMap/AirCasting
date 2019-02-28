@@ -82,32 +82,44 @@ update msg model =
             ( { model | profiles = Labels.updateCandidate model.profiles content }, Cmd.none )
 
         AddTag tag_ ->
-            let
-                newTags =
-                    Labels.addToCollection model.tags tag_
-            in
-            ( { model | tags = newTags }, Ports.updateTags (Labels.getCollection newTags) )
+            addLabel tag_ model.tags (updateTags model) Ports.updateTags
 
-        RemoveTag tagContent ->
-            let
-                filteredTags =
-                    Labels.removeFromCollection model.tags tagContent
-            in
-            ( { model | tags = filteredTags }, Ports.updateTags (Labels.getCollection filteredTags) )
+        RemoveTag tag_ ->
+            removeLabel tag_ model.tags (updateTags model) Ports.updateTags
 
         AddProfile profile ->
-            let
-                newProfiles =
-                    Labels.addToCollection model.profiles profile
-            in
-            ( { model | profiles = newProfiles }, Ports.updateProfiles (Labels.getCollection newProfiles) )
+            addLabel profile model.profiles (updateProfiles model) Ports.updateProfiles
 
         RemoveProfile profile ->
-            let
-                filteredProfiles =
-                    Labels.removeFromCollection model.profiles profile
-            in
-            ( { model | profiles = filteredProfiles }, Ports.updateProfiles (Labels.getCollection filteredProfiles) )
+            removeLabel profile model.profiles (updateProfiles model) Ports.updateProfiles
+
+
+removeLabel : String -> Labels -> (Labels -> Model) -> (List String -> Cmd a) -> ( Model, Cmd a )
+removeLabel labelToRemove labels updateLabels toCmd =
+    let
+        newLabels =
+            Labels.remove labels labelToRemove
+    in
+    ( updateLabels newLabels, toCmd (Labels.asList newLabels) )
+
+
+addLabel : String -> Labels -> (Labels -> Model) -> (List String -> Cmd a) -> ( Model, Cmd a )
+addLabel newLabel labels updateLabels toCmd =
+    let
+        newLabels =
+            Labels.add labels newLabel
+    in
+    ( updateLabels newLabels, toCmd (Labels.asList newLabels) )
+
+
+updateProfiles : { a | profiles : Labels } -> Labels -> { a | profiles : Labels }
+updateProfiles labelled labels =
+    { labelled | profiles = labels }
+
+
+updateTags : { a | tags : Labels } -> Labels -> { a | tags : Labels }
+updateTags labelled labels =
+    { labelled | tags = labels }
 
 
 
