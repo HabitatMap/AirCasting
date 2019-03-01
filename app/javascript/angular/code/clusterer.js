@@ -1,15 +1,17 @@
-export const clusterer = (objects, map, distanceThreshold = 22) => objects.reduce(reducer(objects, map, distanceThreshold), []);
+export const clusterer = (objects, map) => objects.reduce(reducer(objects, map), []);
 
-const reducer = (objs, map, distanceThreshold) => (acc, obj) =>
-  isClose(obj, objs, map, distanceThreshold) ? [...acc, obj.object] : acc
+const reducer = (objs, map) => (acc, obj) =>
+  isClose(obj, objs, map) ? [...acc, obj.object] : acc
 
-const isClose = (obj, objs, map, distanceThreshold) =>
-  objs.filter(isNot(obj)).some(otherObj => objectsTooClose(obj, otherObj, map, distanceThreshold))
+const isClose = (obj, objs, map) =>
+  objs.filter(isNot(obj)).some(otherObj => objectsTooClose(obj, otherObj, map))
 
-const objectsTooClose = (obj, otherObj, map, distanceThreshold) => {
+const objectsTooClose = (obj, otherObj, map) => {
   const distance = distanceBetweenInPixels(obj.latLng, otherObj.latLng, (latLng) => map.fromLatLngToPoint(latLng), map.getZoom());
   return (distance < distanceThreshold);
 };
+
+const distanceThreshold = 21;
 
 export const distanceBetweenInPixels = (latLng1, latLng2, fromLatLngToPoint, zoom) => {
   const point1 = fromLatLngToPoint(latLng1);

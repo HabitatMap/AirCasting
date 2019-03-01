@@ -141,7 +141,7 @@ export const fixedSessions = (
         });
       });
 
-      const clusteredSessions = clusterer(sessionsToCluster, map, 13);
+      const clusteredSessions = clusterer(sessionsToCluster, map);
       const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
 
       sessionsUtils.updateCrowdMapLayer(sessionsIds(clusteredSessions), constants.fixedSession);
