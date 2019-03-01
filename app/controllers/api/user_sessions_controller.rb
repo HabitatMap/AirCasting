@@ -35,7 +35,7 @@ class Api::UserSessionsController < Api::BaseController
   def show
     session = (current_user.sessions.find_by_id(params[:id]) or current_user.sessions.find_by_uuid(params[:uuid])) or raise NotFound
 
-    stream_measurements = params[:stream_measurements]
+    stream_measurements = params[:stream_measurements] == "true"
 
     response = session.as_synchronizable(stream_measurements).
       merge(:location => short_session_url(session, :host => A9n.host_)).
