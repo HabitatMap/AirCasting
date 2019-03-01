@@ -17,7 +17,6 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 require_dependency 'average_info'
-require_dependency 'fixed_average_info'
 
 module Api
   class AveragesController < BaseController
@@ -50,11 +49,7 @@ module Api
 
       data[:session_ids] ||= []
 
-      if (data[:session_ids] != [] && Session.find(data[:session_ids].first).fixed?)
-        respond_with FixedAverageInfo.new(data)
-      else
-        respond_with AverageInfo.new(data)
-      end
+      respond_with AverageInfo.new(data)
     end
   end
 end

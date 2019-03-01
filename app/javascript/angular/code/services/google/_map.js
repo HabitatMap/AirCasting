@@ -190,8 +190,6 @@ export const map = (
     },
 
     fromLatLngToPoint: function(latLng) { return googleMaps.fromLatLngToPoint(this.mapObj, latLng); },
-
-    maxZoomLevel: function() { return (this.getZoom() === 21) }
   };
 
   return new Map();

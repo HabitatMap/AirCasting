@@ -2,7 +2,6 @@ import _ from 'underscore';
 import { debounce } from 'debounce';
 import constants from '../constants';
 import * as Session from '../values/session'
-import { clusterer } from '../clusterer'
 
 export const fixedSessions = (
   params,
@@ -118,7 +117,6 @@ export const fixedSessions = (
     },
 
     drawSessionsInLocation: function() {
-      map.clearRectangles();
       if (params.get('data').location.indoorOnly) return;
 
       const sessions = this.get();
@@ -128,25 +126,7 @@ export const fixedSessions = (
         return;
       }
 
-      if (map.maxZoomLevel()) {
-        sessions.forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
-        return;
-      }
-
-      const sessionsToCluster = []
-      sessions.forEach((session) => {
-        sessionsToCluster.push({
-          latLng: Session.latLng(session),
-          object: session
-        });
-      });
-
-      const clusteredSessions = clusterer(sessionsToCluster, map);
-      const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
-
-      sessionsUtils.updateCrowdMapLayer(sessionsIds(clusteredSessions), constants.fixedSession);
-
-      (lonelySessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
+      (sessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
     },
 
     drawColorCodedMarkers: function(session, selectedSensor) {
@@ -248,7 +228,3 @@ export const fixedSessions = (
   };
   return new FixedSessions();
 };
-
-const isNotIn = arr => x => !(arr.includes(x));
-
-const sessionsIds = sessions => sessions.map(x => x.id);

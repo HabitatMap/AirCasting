@@ -57,9 +57,7 @@ export const FixedSessionsMapCtrl = (
       sensorId,
       location: {address: "", indoorOnly: false, streaming: true},
       tags: "",
-      usernames: "",
-      gridResolution: 35,
-      crowdMap: true,
+      usernames: ""
     });
 
     if (!params.get('data').heat) sensors.fetchHeatLevels();
