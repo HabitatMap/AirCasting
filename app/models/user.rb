@@ -38,7 +38,8 @@ class User < ActiveRecord::Base
   # https://github.com/plataformatec/devise/wiki/How-To:-Allow-users-to-sign_in-using-their-username-or-email-address
   def self.find_for_database_authentication(conditions)
     conditions = conditions.dup
-    login = conditions.delete(:login)
+    # login if coming from mobile || email if coming from web
+    login = conditions.delete(:login) || conditions.fetch(:email)
 
     where([
       "authentication_token = :token OR " + "lower(username) = :value OR " + "lower(email) = :value",
