@@ -17,8 +17,8 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class MobileSession < Session
-  def as_synchronizable(_stream_measurements)
-    as_json(methods: [:streams], stream_measurements: true)
+  def as_synchronizable(stream_measurements)
+    as_json(methods: [:streams], stream_measurements: stream_measurements)
   end
 
   def self.filtered_json_fields
