@@ -3,6 +3,7 @@ module Labels exposing (Labels, add, asList, empty, fromList, getCandidate, remo
 import Html exposing (Html, button, div, h4, input, label, p, span, text)
 import Html.Attributes as Attr
 import Html.Events as Events
+import Html.Events.Extra as ExtraEvents
 import Set exposing (Set)
 
 
@@ -55,14 +56,15 @@ emptyCandidate =
     ""
 
 
-viewLabels : Labels -> String -> String -> String -> (String -> msg) -> (String -> msg) -> Html msg
-viewLabels labels description testId inputId updateSearchMsg removeLabelMsg =
+viewLabels : Labels -> String -> String -> String -> (String -> msg) -> (String -> msg) -> (String -> msg) -> Html msg
+viewLabels labels description testId inputId updateSearchMsg removeLabelMsg addLabelMsg =
     div [ Attr.id testId ]
         [ h4 []
             [ text description
             ]
         , input
             [ Attr.id inputId
+            , ExtraEvents.onEnter (addLabelMsg (getCandidate labels))
             , Attr.class "filters-input"
             , Events.onInput updateSearchMsg
             , Attr.value <| getCandidate labels
