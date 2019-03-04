@@ -1,7 +1,7 @@
 port module Main exposing (Msg(..), defaultModel, update, view)
 
 import Browser
-import Html exposing (Html, button, div, hr, input, label, p, span, text)
+import Html exposing (Html, button, div, h4, input, label, p, span, text)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode
@@ -131,8 +131,9 @@ view model =
     div []
         [ viewLabels model.profiles "Profile Names" "test-profiles" "profiles-search" UpdateProfileSearch RemoveProfile
         , viewLabels model.tags "Tags" "test-tags" "tags-search" UpdateTagsSearch RemoveTag
-        , text "Layers"
-        , hr [] []
+        , h4 []
+          [ text "Layers"
+          ]
         , viewCrowdMapCheckBox model.isCrowdMapOn
         , viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
         ]
@@ -141,10 +142,12 @@ view model =
 viewLabels : Labels -> String -> String -> String -> (String -> Msg) -> (String -> Msg) -> Html Msg
 viewLabels labels description testId inputId updateSearchMsg removeLabelMsg =
     div [ Attr.id testId ]
-        [ text description
-        , hr [] []
+        [ h4 []
+          [ text description
+          ]
         , input
             [ Attr.id inputId
+            , Attr.class "filters-input"
             , Events.onInput updateSearchMsg
             , Attr.value <| Labels.getCandidate labels
             ]
@@ -155,10 +158,11 @@ viewLabels labels description testId inputId updateSearchMsg removeLabelMsg =
 
 viewLabel : (String -> Msg) -> String -> Html Msg
 viewLabel msg profile =
-    div []
+    div [ Attr.class "filters-tag"]
         [ text profile
         , button
             [ Attr.id profile
+            , Attr.class "filters-tag-close"
             , Events.onClick (msg profile)
             ]
             []
