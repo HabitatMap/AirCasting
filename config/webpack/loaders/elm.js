@@ -4,7 +4,14 @@ const isProduction = process.env.NODE_ENV === 'production'
 const elmSource = resolve(process.cwd())
 const elmBinary = `${elmSource}/node_modules/.bin/elm`
 
-const elmDefaultOptions = { cwd: elmSource, pathToElm: elmBinary }
+const elmDefaultOptions = {
+  cwd: elmSource,
+  pathToElm: elmBinary,
+  files: [
+    resolve(__dirname, "../../../app/javascript/elm/src/MobileSessionsFilters.elm"),
+    resolve(__dirname, "../../../app/javascript/elm/src/FixedSessionFilters.elm")
+  ]
+}
 const developmentOptions = Object.assign({}, elmDefaultOptions, {
   verbose: true,
   debug: true

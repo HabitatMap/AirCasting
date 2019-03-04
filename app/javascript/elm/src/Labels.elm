@@ -1,5 +1,8 @@
-module Labels exposing (Labels, add, asList, empty, fromList, getCandidate, remove, updateCandidate)
+module Labels exposing (Labels, add, asList, empty, fromList, getCandidate, remove, updateCandidate, viewLabels)
 
+import Html exposing (Html, button, div, h4, input, label, p, span, text)
+import Html.Attributes as Attr
+import Html.Events as Events
 import Set exposing (Set)
 
 
@@ -50,3 +53,33 @@ updateCandidate (Labels labels) newCandidate =
 emptyCandidate : String
 emptyCandidate =
     ""
+
+
+viewLabels : Labels -> String -> String -> String -> (String -> msg) -> (String -> msg) -> Html msg
+viewLabels labels description testId inputId updateSearchMsg removeLabelMsg =
+    div [ Attr.id testId ]
+        [ h4 []
+            [ text description
+            ]
+        , input
+            [ Attr.id inputId
+            , Attr.class "filters-input"
+            , Events.onInput updateSearchMsg
+            , Attr.value <| getCandidate labels
+            ]
+            []
+        , div [] (List.map (viewLabel removeLabelMsg) (asList labels))
+        ]
+
+
+viewLabel : (String -> msg) -> String -> Html msg
+viewLabel msg profile =
+    div [ Attr.class "filters-tag" ]
+        [ text profile
+        , button
+            [ Attr.id profile
+            , Attr.class "filters-tag-close"
+            , Events.onClick (msg profile)
+            ]
+            []
+        ]
