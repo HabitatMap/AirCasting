@@ -441,8 +441,12 @@ http-spinner {
     width: $right-hud-width - 80px;
   }
 
-  .textfield input, .legend {
+  .textfield input, .legend, .filters-input  {
     width: $right-hud-width - 30px;
+  }
+
+  .filters-input {
+    margin: 5px 0 10px 0;
   }
 
   select {
@@ -495,6 +499,25 @@ http-spinner {
       display:none;
     }
   }
+}
+
+.filters-tag {
+  display: inline-block;
+  background-color: #ccc;
+  color: #525151;
+  margin-right: 10px;
+  font-weight: normal;
+  margin-bottom: 5px;
+  padding: 3px 8px 3px 7px;
+  border-radius: 15px;
+  font-size: 12px;
+}
+
+.filters-tag-close {
+  width: 8px;
+  height: 8px;
+  padding: 0 0 0 12px;
+  background: url("close-icon.svg") no-repeat right center;
 }
 
 div.no-ie, div.notice {
