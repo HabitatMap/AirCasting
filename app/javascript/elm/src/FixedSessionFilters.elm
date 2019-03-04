@@ -111,8 +111,8 @@ updateTags labelled labels =
 view : Model -> Html Msg
 view model =
     div []
-        [ Labels.viewLabels model.profiles "Profile Names" "test-profiles" "profiles-search" UpdateProfileSearch RemoveProfile
-        , Labels.viewLabels model.tags "Tags" "test-tags" "tags-search" UpdateTagsSearch RemoveTag
+        [ Labels.viewLabels model.profiles "Profile Names" "test-profiles" "profiles-search" UpdateProfileSearch RemoveProfile AddProfile
+        , Labels.viewLabels model.tags "Tags" "test-tags" "tags-search" UpdateTagsSearch RemoveTag AddTag
         ]
 
 
