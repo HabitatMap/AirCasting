@@ -135,15 +135,21 @@ export const FixedSessionsMapCtrl = (
 
 const setAutocomplete = (callback, id, path) => {
   if (document.getElementById(id)) {
-    $( "#" + id ).autocomplete({
-      source: function( request, response ) {
-        const data = {q: request.term, limit: 10};
-        $.getJSON( path, data, response );
-      },
-      select: function( event, ui) {
-        callback(ui.item.value);
-      }
-    });
+    $( "#" + id )
+      .bind( "keydown", function( event ) {
+        if ( event.keyCode === $.ui.keyCode.ENTER ) {
+          $( this ).data( "autocomplete" ).close(event);
+        }
+      })
+      .autocomplete({
+        source: function( request, response ) {
+          const data = {q: request.term, limit: 10};
+          $.getJSON( path, data, response );
+        },
+        select: function( event, ui) {
+          callback(ui.item.value);
+        }
+      });
   } else {
     window.setTimeout(setAutocomplete(callback, id, path), 100);
   };

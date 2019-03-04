@@ -158,7 +158,13 @@ export const MobileSessionsMapCtrl = (
 
 const setAutocomplete = (callback, id, path) => {
   if (document.getElementById(id)) {
-    $( "#" + id ).autocomplete({
+    $( "#" + id )
+      .bind( "keydown", function( event ) {
+        if ( event.keyCode === $.ui.keyCode.ENTER ) {
+          $( this ).data( "autocomplete" ).close(event);
+        }
+      })
+      .autocomplete({
       source: function( request, response ) {
         const data = {q: request.term, limit: 10};
         $.getJSON( path, data, response );
