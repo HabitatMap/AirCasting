@@ -1,4 +1,4 @@
-module MainTests exposing (tagsArea, updateTests, viewTests)
+module MobileSessionsFiltersTests exposing (tagsArea, updateTests, viewTests)
 
 import Expect
 import Fuzz exposing (Fuzzer, bool, int, list, string)
@@ -6,7 +6,7 @@ import Html exposing (Html, div, input, label, text)
 import Html.Attributes as Attr
 import Json.Encode as Encode
 import Labels
-import Main exposing (..)
+import MobileSessionsFilters exposing (..)
 import Ports
 import Set
 import Test exposing (..)
@@ -272,7 +272,7 @@ viewTests =
         [ test "checkbox has a correct label" <|
             \_ ->
                 defaultModel
-                    |> Main.view
+                    |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.for "checkbox-crowd-map" ]
                     |> Query.contains
@@ -280,7 +280,7 @@ viewTests =
         , test "checkbox is not checked as default" <|
             \_ ->
                 defaultModel
-                    |> Main.view
+                    |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.id "checkbox-crowd-map" ]
                     |> Query.has
@@ -292,7 +292,7 @@ viewTests =
                         { defaultModel | isCrowdMapOn = onOffValue }
                 in
                 model
-                    |> Main.view
+                    |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.id "checkbox-crowd-map" ]
                     |> Query.has
@@ -300,7 +300,7 @@ viewTests =
         , test "clicking the checkbox sends ToggleCrowdMap message" <|
             \_ ->
                 defaultModel
-                    |> Main.view
+                    |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.id "checkbox-crowd-map" ]
                     |> Event.simulate Event.click
@@ -308,7 +308,7 @@ viewTests =
         , test "slider has a description" <|
             \_ ->
                 defaultModel
-                    |> Main.view
+                    |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.id "crowd-map-slider" ]
                     |> Query.contains
@@ -316,7 +316,7 @@ viewTests =
         , test "slider has a description with current crowd map resolution" <|
             \_ ->
                 defaultModel
-                    |> Main.view
+                    |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.id "crowd-map-slider" ]
                     |> Query.contains
@@ -324,7 +324,7 @@ viewTests =
         , test "slider default value is 25" <|
             \_ ->
                 defaultModel
-                    |> Main.view
+                    |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.class "crowd-map-slider" ]
                     |> Query.has
@@ -336,7 +336,7 @@ viewTests =
                         { defaultModel | crowdMapResolution = resolution }
                 in
                 model
-                    |> Main.view
+                    |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.class "crowd-map-slider" ]
                     |> Query.has
@@ -351,7 +351,7 @@ viewTests =
                         Encode.object [ ( "target", target ) ]
                 in
                 defaultModel
-                    |> Main.view
+                    |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.class "crowd-map-slider" ]
                     |> Event.simulate (Event.custom "change" simulatedEventObject)

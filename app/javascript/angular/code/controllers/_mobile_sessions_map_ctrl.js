@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { Elm } from '../../../elm/src/Main.elm';
+import { Elm } from '../../../elm/src/MobileSessionsFilters.elm';
 
 export const MobileSessionsMapCtrl = (
   $scope,
@@ -110,7 +110,7 @@ export const MobileSessionsMapCtrl = (
 
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(function () {
-      const node = document.getElementById('newFilters');
+      const node = document.getElementById('newMobileFilters');
 
       const flags = {
         isCrowdMapOn: $scope.params.get('data').crowdMap || false,
@@ -119,7 +119,7 @@ export const MobileSessionsMapCtrl = (
         profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || []
       }
 
-      const elmApp = Elm.Main.init({ node: node, flags: flags });
+      const elmApp = Elm.MobileSessionsFilters.init({ node: node, flags: flags });
 
       elmApp.ports.toggleCrowdMap.subscribe(() => {
         storage.toggleCrowdMapData();
