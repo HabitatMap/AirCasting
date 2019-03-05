@@ -1,4 +1,4 @@
-port module Ports exposing (profileNameSelected, tagSelected, timeRangeSelected, toggleCrowdMap, updateProfiles, updateResolution, updateTags)
+port module Ports exposing (profileSelected, tagSelected, timeRangeSelected, toggleCrowdMap, updateProfiles, updateResolution, updateTags)
 
 import Json.Encode as Encode
 
@@ -6,7 +6,7 @@ import Json.Encode as Encode
 port tagSelected : (String -> msg) -> Sub msg
 
 
-port profileNameSelected : (String -> msg) -> Sub msg
+port profileSelected : (String -> msg) -> Sub msg
 
 
 port timeRangeSelected : (Encode.Value -> msg) -> Sub msg
