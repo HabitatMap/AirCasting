@@ -117,7 +117,7 @@ export const FixedSessionsMapCtrl = (
       const elmApp = Elm.FixedSessionFilters.init({ node: node, flags: flags });
 
       setupAutocomplete(
-        (selectedValue) => elmApp.ports.profileNameSelected.send(selectedValue)
+        (selectedValue) => elmApp.ports.profileSelected.send(selectedValue)
         , "profiles-search"
         , "/autocomplete/usernames"
       )
