@@ -1,6 +1,6 @@
-module Labels exposing (Labels, add, asList, empty, fromList, getCandidate, remove, updateCandidate, viewLabels)
+module Labels exposing (Labels, add, addLabel, empty, fromList, removeLabel, updateCandidate, viewLabels)
 
-import Html exposing (Html, button, div, h4, input, label, p, span, text)
+import Html exposing (Html, button, div, h4, input, text)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Html.Events.Extra as ExtraEvents
@@ -14,6 +14,7 @@ type Labels
         }
 
 
+empty : Labels
 empty =
     Labels
         { candidate = emptyCandidate
@@ -56,9 +57,9 @@ emptyCandidate =
     ""
 
 
-viewLabels : Labels -> String -> String -> String -> (String -> msg) -> (String -> msg) -> (String -> msg) -> Html msg
-viewLabels labels description testId inputId updateSearchMsg removeLabelMsg addLabelMsg =
-    div [ Attr.id testId ]
+viewLabels : Labels -> String -> String -> (String -> msg) -> (String -> msg) -> (String -> msg) -> Html msg
+viewLabels labels description inputId updateSearchMsg removeLabelMsg addLabelMsg =
+    div []
         [ h4 []
             [ text description
             ]
@@ -75,13 +76,31 @@ viewLabels labels description testId inputId updateSearchMsg removeLabelMsg addL
 
 
 viewLabel : (String -> msg) -> String -> Html msg
-viewLabel msg profile =
+viewLabel msg label =
     div [ Attr.class "filters-tag" ]
-        [ text profile
+        [ text label
         , button
-            [ Attr.id profile
+            [ Attr.id label
             , Attr.class "filters-tag-close"
-            , Events.onClick (msg profile)
+            , Events.onClick (msg label)
             ]
             []
         ]
+
+
+removeLabel : String -> Labels -> (Labels -> model) -> (List String -> Cmd a) -> ( model, Cmd a )
+removeLabel labelToRemove labels updateLabels toCmd =
+    let
+        newLabels =
+            remove labels labelToRemove
+    in
+    ( updateLabels newLabels, toCmd (asList newLabels) )
+
+
+addLabel : String -> Labels -> (Labels -> model) -> (List String -> Cmd a) -> ( model, Cmd a )
+addLabel newLabel labels updateLabels toCmd =
+    let
+        newLabels =
+            add labels newLabel
+    in
+    ( updateLabels newLabels, toCmd (asList newLabels) )
