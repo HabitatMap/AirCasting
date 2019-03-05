@@ -73,7 +73,7 @@ class Session < ActiveRecord::Base
 
     tags = data[:tags].to_s.split(/[\s,]/)
     if tags.present?
-      sessions = sessions.tagged_with(tags)
+      sessions = sessions.tagged_with(tags, :any => true)
     end
 
     usernames = AirCasting::UsernameParam.split(data[:usernames])
