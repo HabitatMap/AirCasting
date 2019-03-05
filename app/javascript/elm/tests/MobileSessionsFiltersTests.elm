@@ -1,14 +1,13 @@
-module MobileSessionsFiltersTests exposing (tagsArea, updateTests, viewTests)
+module MobileSessionsFiltersTests exposing (profileNamesArea, tagsArea, updateTests, viewTests)
 
 import Expect
-import Fuzz exposing (Fuzzer, bool, int, list, string)
-import Html exposing (Html, div, input, label, text)
+import Fuzz exposing (bool, int, list, string)
+import Html exposing (text)
 import Html.Attributes as Attr
 import Json.Encode as Encode
 import Labels
 import MobileSessionsFilters exposing (..)
 import Ports
-import Set
 import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
@@ -18,39 +17,8 @@ import Test.Html.Selector as Slc
 tagsArea : Test
 tagsArea =
     describe "Tags area tests: "
-        [ describe "given a search field"
-            [ fuzz string "when user types, UpdateTagsSearch is triggered with the input" <|
-                \inputValue ->
-                    defaultModel
-                        |> view
-                        |> Query.fromHtml
-                        |> Query.find [ Slc.id "test-tags" ]
-                        |> Query.find [ Slc.tag "input" ]
-                        |> Event.simulate (Event.input inputValue)
-                        |> Event.expect (UpdateTagsSearch inputValue)
-            , fuzz string "when UpdateTagsSearch is triggered the input is displayed in the search field" <|
-                \inputValue ->
-                    defaultModel
-                        |> update (UpdateTagsSearch inputValue)
-                        |> Tuple.first
-                        |> view
-                        |> Query.fromHtml
-                        |> Query.find [ Slc.id "test-tags" ]
-                        |> Query.find [ Slc.tag "input" ]
-                        |> Query.has [ Slc.attribute <| Attr.value inputValue ]
-            ]
-        , describe "when new activity happens "
-            [ fuzz string "the search field value is reset" <|
-                \activityValue ->
-                    { defaultModel | tags = Labels.updateCandidate defaultModel.tags "some string" }
-                        |> update (AddTag activityValue)
-                        |> Tuple.first
-                        |> view
-                        |> Query.fromHtml
-                        |> Query.find [ Slc.id "test-tags" ]
-                        |> Query.find [ Slc.tag "input" ]
-                        |> Query.has [ Slc.attribute <| Attr.value "" ]
-            , fuzz string "new tag is created" <|
+        [ describe "when new activity happens "
+            [ fuzz string "new tag is created" <|
                 \activityValue ->
                     defaultModel
                         |> update (AddTag activityValue)
@@ -133,39 +101,8 @@ tagsArea =
 profileNamesArea : Test
 profileNamesArea =
     describe "Profile names tests: "
-        [ describe "given a search field"
-            [ fuzz string "when user types, UpdateProfileSearch is triggered with the input" <|
-                \inputValue ->
-                    defaultModel
-                        |> view
-                        |> Query.fromHtml
-                        |> Query.find [ Slc.id "test-profiles" ]
-                        |> Query.find [ Slc.tag "input" ]
-                        |> Event.simulate (Event.input inputValue)
-                        |> Event.expect (UpdateProfileSearch inputValue)
-            , fuzz string "when UpdateProfileSearch is triggered the input is displayed in the search field" <|
-                \inputValue ->
-                    defaultModel
-                        |> update (UpdateProfileSearch inputValue)
-                        |> Tuple.first
-                        |> view
-                        |> Query.fromHtml
-                        |> Query.find [ Slc.id "test-profiles" ]
-                        |> Query.find [ Slc.tag "input" ]
-                        |> Query.has [ Slc.attribute <| Attr.value inputValue ]
-            ]
-        , describe "when AddProfile is triggered"
-            [ fuzz string "the search field value is reset" <|
-                \activityValue ->
-                    { defaultModel | profiles = Labels.updateCandidate defaultModel.profiles "some string" }
-                        |> update (AddProfile activityValue)
-                        |> Tuple.first
-                        |> view
-                        |> Query.fromHtml
-                        |> Query.find [ Slc.id "test-profiles" ]
-                        |> Query.find [ Slc.tag "input" ]
-                        |> Query.has [ Slc.attribute <| Attr.value "" ]
-            , fuzz string "new profile label is created" <|
+        [ describe "when AddProfile is triggered"
+            [ fuzz string "new profile label is created" <|
                 \activityValue ->
                     defaultModel
                         |> update (AddProfile activityValue)
@@ -173,13 +110,12 @@ profileNamesArea =
                         |> view
                         |> Query.fromHtml
                         |> Query.has [ Slc.text activityValue ]
-            , fuzz string "new profile label has a button" <|
-                \profileName ->
-                    { defaultModel | profiles = Labels.fromList [ profileName ] }
+            , test "new profile label has a button" <|
+                \_ ->
+                    { defaultModel | profiles = Labels.fromList [ "profileName" ] }
                         |> view
                         |> Query.fromHtml
-                        |> Query.find [ Slc.id "test-profiles" ]
-                        |> Query.find [ Slc.containing [ Slc.text profileName ] ]
+                        |> Query.find [ Slc.containing [ Slc.text "profileName" ] ]
                         |> Query.has [ Slc.tag "button" ]
             , fuzz string "updated profiles list is sent updateProfiles port" <|
                 \activityValue ->

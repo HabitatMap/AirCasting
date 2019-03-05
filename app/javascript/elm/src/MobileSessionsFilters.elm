@@ -1,7 +1,7 @@
-port module MobileSessionsFilters exposing (Msg(..), defaultModel, update, view)
+module MobileSessionsFilters exposing (Msg(..), defaultModel, update, view)
 
 import Browser
-import Html exposing (Html, button, div, h4, input, label, p, span, text)
+import Html exposing (Html, div, h4, input, label, p, span, text)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode
@@ -81,34 +81,16 @@ update msg model =
             ( { model | profiles = Labels.updateCandidate model.profiles content }, Cmd.none )
 
         AddTag tag_ ->
-            addLabel tag_ model.tags (updateTags model) Ports.updateTags
+            Labels.addLabel tag_ model.tags (updateTags model) Ports.updateTags
 
         RemoveTag tag_ ->
-            removeLabel tag_ model.tags (updateTags model) Ports.updateTags
+            Labels.removeLabel tag_ model.tags (updateTags model) Ports.updateTags
 
         AddProfile profile ->
-            addLabel profile model.profiles (updateProfiles model) Ports.updateProfiles
+            Labels.addLabel profile model.profiles (updateProfiles model) Ports.updateProfiles
 
         RemoveProfile profile ->
-            removeLabel profile model.profiles (updateProfiles model) Ports.updateProfiles
-
-
-removeLabel : String -> Labels -> (Labels -> Model) -> (List String -> Cmd a) -> ( Model, Cmd a )
-removeLabel labelToRemove labels updateLabels toCmd =
-    let
-        newLabels =
-            Labels.remove labels labelToRemove
-    in
-    ( updateLabels newLabels, toCmd (Labels.asList newLabels) )
-
-
-addLabel : String -> Labels -> (Labels -> Model) -> (List String -> Cmd a) -> ( Model, Cmd a )
-addLabel newLabel labels updateLabels toCmd =
-    let
-        newLabels =
-            Labels.add labels newLabel
-    in
-    ( updateLabels newLabels, toCmd (Labels.asList newLabels) )
+            Labels.removeLabel profile model.profiles (updateProfiles model) Ports.updateProfiles
 
 
 updateProfiles : { a | profiles : Labels } -> Labels -> { a | profiles : Labels }
@@ -128,8 +110,8 @@ updateTags labelled labels =
 view : Model -> Html Msg
 view model =
     div []
-        [ Labels.viewLabels model.profiles "Profile Names" "test-profiles" "profiles-search" UpdateProfileSearch RemoveProfile AddProfile
-        , Labels.viewLabels model.tags "Tags" "test-tags" "tags-search" UpdateTagsSearch RemoveTag AddTag
+        [ Labels.viewLabels model.profiles "Profile Names" "profiles-search" UpdateProfileSearch RemoveProfile AddProfile
+        , Labels.viewLabels model.tags "Tags" "tags-search" UpdateTagsSearch RemoveTag AddTag
         , h4 []
             [ text "Layers"
             ]
@@ -195,5 +177,6 @@ main =
         }
 
 
+subscriptions : Sub Msg
 subscriptions =
     Sub.batch [ Ports.tagSelected AddTag, Ports.profileNameSelected AddProfile ]
