@@ -29,7 +29,6 @@ brew install gsl
 brew install imagemagick
 brew install redis
 brew install mysql@5.7
-brew install redis
 ```
 
 ### App (any OS)
