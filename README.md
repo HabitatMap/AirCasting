@@ -133,9 +133,11 @@ ActiveRecord::Base.connection.execute("show variables like 'sql_mode'").to_a
 ```
 
 ### Problems with mysql2 gem
-If you run into error while installing mysql2 with exit code 2 try
-- https://stackoverflow.com/questions/43661360/install-mysql2-gem-on-macos-sierra#answer-44790834
-- installing form [this source](https://dev.mysql.com/downloads/mysql/5.7.html#downloads).
+If you run into the error `libmysqlclient is missing` while installing mysql2 then run `brew install mysql-connector-c`.
+
+If you run into the error `ld: library not found for -l-lpthread` while installing mysql2 then check https://stackoverflow.com/questions/43661360/install-mysql2-gem-on-macos-sierra#answer-44790834
+
+If you run into errors while installing mysql2 with exit code 2 try installing from [this source](https://dev.mysql.com/downloads/mysql/5.7.html#downloads).
 
 If you run into problems with db:migrate related to passwords make sure that you change the root password to `''`. To do that open `/your/path/to/mysql -uroot -p` provide the temporary password you were given during installation, then execute `set password = password('');`.
 
