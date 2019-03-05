@@ -141,7 +141,7 @@ export const MobileSessionsMapCtrl = (
       });
 
       setupAutocomplete(
-        (selectedValue) => elmApp.ports.profileNameSelected.send(selectedValue)
+        (selectedValue) => elmApp.ports.profileSelected.send(selectedValue)
         , "profiles-search"
         , "/autocomplete/usernames"
       )

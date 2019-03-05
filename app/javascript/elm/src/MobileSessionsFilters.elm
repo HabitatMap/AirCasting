@@ -6,7 +6,7 @@ import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Labels exposing (Labels)
+import LabelsInput
 import Ports
 import TimeRange exposing (TimeRange)
 
@@ -18,8 +18,8 @@ import TimeRange exposing (TimeRange)
 type alias Model =
     { crowdMapResolution : Int
     , isCrowdMapOn : Bool
-    , tags : Labels
-    , profiles : Labels
+    , tags : LabelsInput.Model
+    , profiles : LabelsInput.Model
     , timeRange : TimeRange
     }
 
@@ -28,8 +28,8 @@ defaultModel : Model
 defaultModel =
     { crowdMapResolution = 25
     , isCrowdMapOn = False
-    , tags = Labels.empty
-    , profiles = Labels.empty
+    , tags = LabelsInput.empty
+    , profiles = LabelsInput.empty
     , timeRange = TimeRange.defaultTimeRange
     }
 
@@ -48,8 +48,8 @@ init flags =
     ( { defaultModel
         | isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
-        , tags = Labels.fromList flags.tags
-        , profiles = Labels.fromList flags.profiles
+        , tags = LabelsInput.init flags.tags
+        , profiles = LabelsInput.init flags.profiles
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
       }
     , Cmd.none
@@ -63,12 +63,8 @@ init flags =
 type Msg
     = ToggleCrowdMap
     | UpdateCrowdMapResolution Int
-    | UpdateTagsSearch String
-    | AddTag String
-    | RemoveTag String
-    | UpdateProfileSearch String
-    | AddProfile String
-    | RemoveProfile String
+    | TagsLabels LabelsInput.Msg
+    | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
 
 
@@ -81,23 +77,11 @@ update msg model =
         UpdateCrowdMapResolution resolution ->
             ( { model | crowdMapResolution = resolution }, Ports.updateResolution resolution )
 
-        UpdateTagsSearch content ->
-            ( { model | tags = Labels.updateCandidate model.tags content }, Cmd.none )
+        TagsLabels subMsg ->
+            updateLabels subMsg model.tags Ports.updateTags TagsLabels (\tags -> { model | tags = tags })
 
-        UpdateProfileSearch content ->
-            ( { model | profiles = Labels.updateCandidate model.profiles content }, Cmd.none )
-
-        AddTag tag_ ->
-            Labels.addLabel tag_ model.tags (updateTags model) Ports.updateTags
-
-        RemoveTag tag_ ->
-            Labels.removeLabel tag_ model.tags (updateTags model) Ports.updateTags
-
-        AddProfile profile ->
-            Labels.addLabel profile model.profiles (updateProfiles model) Ports.updateProfiles
-
-        RemoveProfile profile ->
-            Labels.removeLabel profile model.profiles (updateProfiles model) Ports.updateProfiles
+        ProfileLabels subMsg ->
+            updateLabels subMsg model.profiles Ports.updateProfiles ProfileLabels (\profiles -> { model | profiles = profiles })
 
         UpdateTimeRange value ->
             let
@@ -107,14 +91,19 @@ update msg model =
             ( { model | timeRange = newTimeRange }, Cmd.none )
 
 
-updateProfiles : { a | profiles : Labels } -> Labels -> { a | profiles : Labels }
-updateProfiles labelled labels =
-    { labelled | profiles = labels }
-
-
-updateTags : { a | tags : Labels } -> Labels -> { a | tags : Labels }
-updateTags labelled labels =
-    { labelled | tags = labels }
+updateLabels :
+    LabelsInput.Msg
+    -> LabelsInput.Model
+    -> (List String -> Cmd LabelsInput.Msg)
+    -> (LabelsInput.Msg -> Msg)
+    -> (LabelsInput.Model -> Model)
+    -> ( Model, Cmd Msg )
+updateLabels msg model toSubCmd mapper updateModel =
+    let
+        ( subModel, subCmd ) =
+            LabelsInput.update msg model toSubCmd
+    in
+    ( updateModel subModel, Cmd.map mapper subCmd )
 
 
 
@@ -124,8 +113,8 @@ updateTags labelled labels =
 view : Model -> Html Msg
 view model =
     div []
-        [ Labels.viewLabels model.profiles "Profile Names" "profiles-search" UpdateProfileSearch RemoveProfile AddProfile
-        , Labels.viewLabels model.tags "Tags" "tags-search" UpdateTagsSearch RemoveTag AddTag
+        [ Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
+        , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
         , h4 []
             [ text "Layers"
             ]
@@ -194,8 +183,8 @@ main =
 
 subscriptions : Sub Msg
 subscriptions =
-    Sub.batch
-        [ Ports.tagSelected AddTag
-        , Ports.profileNameSelected AddProfile
+    Sub.batch <|
+        [ Sub.map ProfileLabels <| LabelsInput.subscriptions Ports.profileSelected
+        , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
         ]

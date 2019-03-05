@@ -1,11 +1,11 @@
-module MobileSessionsFiltersTests exposing (profileNamesArea, tagsArea, timeFilter, updateTests, viewTests)
+module MobileSessionsFiltersTests exposing (profilesArea, tagsArea, timeFilter, updateTests, viewTests)
 
 import Expect
 import Fuzz exposing (bool, int, list, string)
 import Html exposing (text)
 import Html.Attributes as Attr
 import Json.Encode as Encode
-import Labels
+import LabelsInput
 import MobileSessionsFilters exposing (..)
 import Ports
 import Test exposing (..)
@@ -45,129 +45,129 @@ timeFilter =
 tagsArea : Test
 tagsArea =
     describe "Tags area tests: "
-        [ describe "when new activity happens "
+        [ describe "when new tag is added "
             [ fuzz string "new tag is created" <|
-                \activityValue ->
+                \tag ->
                     defaultModel
-                        |> update (AddTag activityValue)
+                        |> update (TagsLabels <| LabelsInput.Add tag)
                         |> Tuple.first
                         |> view
                         |> Query.fromHtml
-                        |> Query.has [ Slc.text activityValue ]
+                        |> Query.has [ Slc.text tag ]
             , test "new tag has a button" <|
                 \_ ->
-                    { defaultModel | tags = Labels.fromList [ "tag" ] }
+                    { defaultModel | tags = LabelsInput.fromList [ "tag" ] }
                         |> view
                         |> Query.fromHtml
                         |> Query.find [ Slc.containing [ Slc.text "tag" ] ]
                         |> Query.has [ Slc.tag "button" ]
             , test "updated tags list is sent updateTags port" <|
                 \_ ->
-                    { defaultModel | tags = Labels.fromList [ "oldTag" ] }
-                        |> update (AddTag "newTag")
+                    { defaultModel | tags = LabelsInput.fromList [ "oldTag" ] }
+                        |> update (TagsLabels <| LabelsInput.Add "newTag")
                         |> Tuple.second
-                        |> Expect.equal (Ports.updateTags [ "newTag", "oldTag" ])
+                        |> Expect.equal (Cmd.map TagsLabels <| Ports.updateTags [ "newTag", "oldTag" ])
             ]
-        , describe "when multiple activities happen"
+        , describe "when multiple tags are added"
             [ fuzz (list string) "corresponding tags are created" <|
-                \activityValues ->
+                \tags ->
                     let
                         model =
                             List.foldl
                                 (\value acc ->
                                     acc
-                                        |> update (AddTag value)
+                                        |> update (TagsLabels <| LabelsInput.Add value)
                                         |> Tuple.first
                                 )
                                 defaultModel
-                                activityValues
+                                tags
 
-                        tags =
-                            List.map (\value -> Slc.containing [ Slc.text value ]) activityValues
+                        expected =
+                            List.map (\value -> Slc.containing [ Slc.text value ]) tags
                     in
                     model
                         |> view
                         |> Query.fromHtml
                         |> Query.has
-                            [ Slc.all tags ]
+                            [ Slc.all expected ]
             ]
         , describe "give tags delete button"
-            [ test "when user clicks it, RemoveTag is triggered with correct tag content" <|
+            [ test "when user clicks it, Remove is triggered with correct tag content" <|
                 \_ ->
-                    { defaultModel | tags = Labels.fromList [ "tag1", "tag2" ] }
+                    { defaultModel | tags = LabelsInput.fromList [ "tag1", "tag2" ] }
                         |> view
                         |> Query.fromHtml
                         |> Query.find [ Slc.id "tag1" ]
                         |> Event.simulate Event.click
-                        |> Event.expect (RemoveTag "tag1")
-            , test "when RemoveTag is triggered with a tag content the corresponding tag disappears" <|
+                        |> Event.expect (TagsLabels <| LabelsInput.Remove "tag1")
+            , test "when Remove is triggered with a tag content the corresponding tag disappears" <|
                 \_ ->
-                    { defaultModel | tags = Labels.fromList [ "tag1", "tag2" ] }
-                        |> update (RemoveTag "tag1")
+                    { defaultModel | tags = LabelsInput.fromList [ "tag1", "tag2" ] }
+                        |> update (TagsLabels <| LabelsInput.Remove "tag1")
                         |> Tuple.first
                         |> view
                         |> Query.fromHtml
                         |> Query.hasNot [ Slc.id "tag1" ]
-            , test "when RemoveTag is triggered with a tag content the other tags don't disappear" <|
+            , test "when Remove is triggered with a tag content the other tags don't disappear" <|
                 \_ ->
-                    { defaultModel | tags = Labels.fromList [ "tag1", "tag2" ] }
-                        |> update (RemoveTag "tag1")
+                    { defaultModel | tags = LabelsInput.fromList [ "tag1", "tag2" ] }
+                        |> update (TagsLabels <| LabelsInput.Remove "tag1")
                         |> Tuple.first
                         |> view
                         |> Query.fromHtml
                         |> Query.has [ Slc.id "tag2" ]
-            , test "when RemoveTag is triggered updated tags list is sent updateTags port" <|
+            , test "when Remove is triggered updated tags list is sent updateTags port" <|
                 \_ ->
-                    { defaultModel | tags = Labels.fromList [ "firstTag", "secondTag" ] }
-                        |> update (RemoveTag "firstTag")
+                    { defaultModel | tags = LabelsInput.fromList [ "firstTag", "secondTag" ] }
+                        |> update (TagsLabels <| LabelsInput.Remove "firstTag")
                         |> Tuple.second
-                        |> Expect.equal (Ports.updateTags [ "secondTag" ])
+                        |> Expect.equal (Cmd.map TagsLabels <| Ports.updateTags [ "secondTag" ])
             ]
         ]
 
 
-profileNamesArea : Test
-profileNamesArea =
+profilesArea : Test
+profilesArea =
     describe "Profile names tests: "
-        [ describe "when AddProfile is triggered"
+        [ describe "when Add is triggered"
             [ fuzz string "new profile label is created" <|
-                \activityValue ->
+                \profile ->
                     defaultModel
-                        |> update (AddProfile activityValue)
+                        |> update (ProfileLabels <| LabelsInput.Add profile)
                         |> Tuple.first
                         |> view
                         |> Query.fromHtml
-                        |> Query.has [ Slc.text activityValue ]
+                        |> Query.has [ Slc.text profile ]
             , test "new profile label has a button" <|
                 \_ ->
-                    { defaultModel | profiles = Labels.fromList [ "profileName" ] }
+                    { defaultModel | profiles = LabelsInput.fromList [ "profileName" ] }
                         |> view
                         |> Query.fromHtml
                         |> Query.find [ Slc.containing [ Slc.text "profileName" ] ]
                         |> Query.has [ Slc.tag "button" ]
             , fuzz string "updated profiles list is sent updateProfiles port" <|
-                \activityValue ->
+                \profile ->
                     defaultModel
-                        |> update (AddProfile activityValue)
+                        |> update (ProfileLabels <| LabelsInput.Add profile)
                         |> Tuple.second
-                        |> Expect.equal (Ports.updateProfiles [ activityValue ])
+                        |> Expect.equal (Cmd.map ProfileLabels <| Ports.updateProfiles [ profile ])
             ]
-        , describe "when AddProfile is triggered multiple times"
+        , describe "when Add is triggered multiple times"
             [ fuzz (list string) "corresponding profile labels are created" <|
-                \activityValues ->
+                \profiles ->
                     let
                         model =
                             List.foldl
                                 (\value acc ->
                                     acc
-                                        |> update (AddProfile value)
+                                        |> update (ProfileLabels <| LabelsInput.Add value)
                                         |> Tuple.first
                                 )
                                 defaultModel
-                                activityValues
+                                profiles
 
                         profile =
-                            List.map (\value -> Slc.containing [ Slc.text value ]) activityValues
+                            List.map (\value -> Slc.containing [ Slc.text value ]) profiles
                     in
                     model
                         |> view
@@ -176,36 +176,36 @@ profileNamesArea =
                             [ Slc.all profile ]
             ]
         , describe "give profile label delete button"
-            [ fuzz2 string string "when user clicks it, RemoveProfile is triggered with correct profile" <|
+            [ fuzz2 string string "when user clicks it, Remove is triggered with correct profile" <|
                 \profile1 profile2 ->
-                    { defaultModel | profiles = Labels.fromList [ profile1, profile2 ] }
+                    { defaultModel | profiles = LabelsInput.fromList [ profile1, profile2 ] }
                         |> view
                         |> Query.fromHtml
                         |> Query.find [ Slc.id profile1 ]
                         |> Event.simulate Event.click
-                        |> Event.expect (RemoveProfile profile1)
-            , test "when RemoveProfile is triggered with a profile the corresponding label disappears" <|
+                        |> Event.expect (ProfileLabels <| LabelsInput.Remove profile1)
+            , test "when Remove is triggered with a profile the corresponding label disappears" <|
                 \_ ->
-                    { defaultModel | profiles = Labels.fromList [ "profile1", "profile2" ] }
-                        |> update (RemoveProfile "profile1")
+                    { defaultModel | profiles = LabelsInput.fromList [ "profile1", "profile2" ] }
+                        |> update (ProfileLabels <| LabelsInput.Remove "profile1")
                         |> Tuple.first
                         |> view
                         |> Query.fromHtml
                         |> Query.hasNot [ Slc.id "profile1" ]
-            , test "when RemoveProfile is triggered with a profile the other labels don't disappear" <|
+            , test "when Remove is triggered with a profile the other labels don't disappear" <|
                 \_ ->
-                    { defaultModel | profiles = Labels.fromList [ "profile1", "profile2" ] }
-                        |> update (RemoveProfile "profile1")
+                    { defaultModel | profiles = LabelsInput.fromList [ "profile1", "profile2" ] }
+                        |> update (ProfileLabels <| LabelsInput.Remove "profile1")
                         |> Tuple.first
                         |> view
                         |> Query.fromHtml
                         |> Query.has [ Slc.id "profile2" ]
-            , test "when RemoveProfile is triggered updated profile list is sent to updateProfiles port" <|
+            , test "when Remove is triggered updated profile list is sent to updateProfiles port" <|
                 \_ ->
-                    { defaultModel | profiles = Labels.fromList [ "profile1", "profile2" ] }
-                        |> update (RemoveProfile "profile1")
+                    { defaultModel | profiles = LabelsInput.fromList [ "profile1", "profile2" ] }
+                        |> update (ProfileLabels <| LabelsInput.Remove "profile1")
                         |> Tuple.second
-                        |> Expect.equal (Ports.updateProfiles [ "profile2" ])
+                        |> Expect.equal (Cmd.map ProfileLabels <| Ports.updateProfiles [ "profile2" ])
             ]
         ]
 
