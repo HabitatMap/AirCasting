@@ -43,7 +43,8 @@
         </div>
       </section>
 
-      <div class="section-divider" ng-include="versioner.path('/partials/usernames_and_tags.html')"></div>
+      <div id="newFixedFilters"></div>
+
       <div class="section-divider" ng-include="versioner.path('/partials/time_filters.html')"></div>
     </div>
     <div ng-switch on="!!sensors.anySelected()">

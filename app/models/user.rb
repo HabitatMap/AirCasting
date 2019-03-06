@@ -83,7 +83,10 @@ class User < ActiveRecord::Base
 
     # Apparently NOT IN doesn't work if uuids is empty
     uuids = data.map { |x| x[:uuid] } + [""]
-    download = sessions.where(["uuid NOT IN (?)", uuids]).map(&:id)
+    download = sessions
+      .where(["uuid NOT IN (?)", uuids])
+      .select { |session| (session.streams.count != 0) && (session.streams.all? { |stream| stream.measurements.count != 0 }) }
+      .map(&:id)
 
     { :upload => upload, :download => download, :deleted => deleted }
   end

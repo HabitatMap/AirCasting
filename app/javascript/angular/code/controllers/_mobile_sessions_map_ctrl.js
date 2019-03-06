@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { Elm } from '../../../elm/src/Main.elm';
+import { Elm } from '../../../elm/src/MobileSessionsFilters.elm';
 
 export const MobileSessionsMapCtrl = (
   $scope,
@@ -44,7 +44,7 @@ export const MobileSessionsMapCtrl = (
       });
     }
 
-    ['sensor', 'location', 'usernames', 'layers', 'heatLegend'].forEach(function(name) {
+    ['sensor', 'location', 'heatLegend'].forEach(function(name) {
       $scope.expandables.show(name);
     });
 
@@ -110,14 +110,16 @@ export const MobileSessionsMapCtrl = (
 
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(function () {
-      const node = document.getElementById('crowdMapLayer');
+      const node = document.getElementById('newMobileFilters');
 
       const flags = {
         isCrowdMapOn: $scope.params.get('data').crowdMap || false,
         crowdMapResolution: $scope.params.get('data').gridResolution || 25,
+        tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
+        profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || []
       }
 
-      const elmApp = Elm.Main.init({ node: node, flags: flags });
+      const elmApp = Elm.MobileSessionsFilters.init({ node: node, flags: flags });
 
       elmApp.ports.toggleCrowdMap.subscribe(() => {
         storage.toggleCrowdMapData();
@@ -128,6 +130,50 @@ export const MobileSessionsMapCtrl = (
         storage.updateCrowdMapResolution(newResolution);
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
       });
+
+      setAutocomplete(
+        (selectedValue) => elmApp.ports.profileNameSelected.send(selectedValue)
+        , "profiles-search"
+        , "/autocomplete/usernames"
+      )
+
+      setAutocomplete(
+        (selectedValue) => elmApp.ports.tagSelected.send(selectedValue)
+        , "tags-search"
+        , "/autocomplete/tags"
+      )
+
+      elmApp.ports.updateTags.subscribe((tags) => {
+        params.update({data: {tags: tags.join(", ")}});
+        $scope.sessions.fetch();
+      });
+
+      elmApp.ports.updateProfiles.subscribe((profiles) => {
+        params.update({data: {usernames: profiles.join(", ")}});
+        $scope.sessions.fetch();
+      });
     });
   }
+}
+
+const setAutocomplete = (callback, id, path) => {
+  if (document.getElementById(id)) {
+    $( "#" + id )
+      .bind( "keydown", function( event ) {
+        if ( event.keyCode === $.ui.keyCode.ENTER ) {
+          $( this ).data( "autocomplete" ).close(event);
+        }
+      })
+      .autocomplete({
+      source: function( request, response ) {
+        const data = {q: request.term, limit: 10};
+        $.getJSON( path, data, response );
+      },
+      select: function( event, ui) {
+        callback(ui.item.value);
+      }
+    });
+  } else {
+    window.setTimeout(setAutocomplete(callback, id, path), 100);
+  };
 }

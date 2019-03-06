@@ -41,7 +41,6 @@ describe User do
   describe "#sync" do
     let(:session1) { FactoryGirl.create(:mobile_session, :user => user) }
     let(:session2) { FactoryGirl.create(:mobile_session, :user => user, :notes => [note1, note2]) }
-    let!(:session3) { FactoryGirl.create(:mobile_session, :user => user) }
     let(:session4) { FactoryGirl.create(:mobile_session, :user => user, :notes => [note3]) }
     let(:session5) { FactoryGirl.create(:mobile_session, :user => user) }
     let(:note1) { FactoryGirl.create(:note, :number => 1, :text => "Old text") }
@@ -80,10 +79,6 @@ describe User do
       expect(@result[:upload]).to eq(["something"])
     end
 
-    it "should return a list of session ids to download" do
-      expect(@result[:download]).to eq([session3.id])
-    end
-
     it "should update notes matching numbers" do
       expect(session2.notes.find_by_number(1).text).to eq("Hi")
       expect(session2.notes.find_by_number(2).text).to eq("Bye")
@@ -94,4 +89,89 @@ describe User do
       expect(session4.notes.first.text).to eq("New text")
     end
   end
+
+  describe "#sync downloaded sessions" do
+    it "should return a list of session ids to download" do
+      session = create_session!(user: user)
+      stream = create_stream!(session: session)
+      create_measurements!(stream: stream)
+
+      expected = user.sync([{ uuid: [] }])[:download]
+
+      expect(expected).to eq([session.id])
+    end
+
+    it "should return a list of session ids to download that doesn't include sessions without sterams" do
+      session = create_session!(user: user)
+
+      expected = user.sync([{ uuid: [] }])[:download]
+
+      expect(expected).to eq([])
+    end
+
+    it "should return a list of session ids to download that doesn't include sessions with at least one sterams without any measurements" do
+      session = create_session!(user: user)
+      stream1 = create_stream!(session: session)
+      create_measurements!(stream: stream1)
+      stream2 = create_stream!(session: session)
+
+      expected = user.sync([{ uuid: [] }])[:download]
+
+      expect(expected).to eq([])
+    end
+  end
+
+  private
+
+  def create_session!(attributes)
+    Session.create!(
+      title: "Example Session",
+      user: attributes.fetch(:user),
+      uuid: "abc",
+      start_time: DateTime.current,
+      start_time_local: DateTime.current,
+      end_time: DateTime.current,
+      end_time_local: DateTime.current,
+      type: "MobileSession",
+      longitude: 1.0,
+      latitude: 1.0,
+      is_indoor: false
+    )
+  end
+
+  def create_stream!(attributes)
+    Stream.create!(
+      sensor_package_name: "AirBeam2:00189610719F",
+      sensor_name: "AirBeam2-F",
+      measurement_type: "Temperature",
+      unit_name: "Fahrenheit",
+      session: attributes.fetch(:session),
+      measurement_short_type: "dB",
+      unit_symbol: "dB",
+      threshold_very_low: 20,
+      threshold_low: 60,
+      threshold_medium: 70,
+      threshold_high: 80,
+      threshold_very_high: 100
+    )
+  end
+
+  def create_measurements!(attributes)
+    Measurement.create!(
+      time: Time.current,
+      latitude: 1,
+      longitude: 1,
+      value: 1,
+      milliseconds: 0,
+      stream: attributes.fetch(:stream)
+    )
+  end
+
+  def create_user!()
+  User.create!(
+    username: "Test User",
+    email: "email@example.com",
+    password: "password"
+  )
+end
 end
