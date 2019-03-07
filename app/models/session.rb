@@ -119,9 +119,6 @@ class Session < ActiveRecord::Base
     time_from = Time.strptime(time_from.to_s, '%s')
     time_to = Time.strptime(time_to.to_s, '%s')
 
-    minutes_from = time_from.hour * 60 + time_from.min
-    minutes_to = time_to.hour * 60 + time_to.min
-
     sessions.where(
       "(start_time_local BETWEEN :time_from AND :time_to)
       OR
@@ -129,11 +126,15 @@ class Session < ActiveRecord::Base
       OR
       (:time_from BETWEEN start_time_local AND end_time_local)",
       :time_from => time_from, :time_to => time_to)
-      .local_minutes_range(minutes_from, minutes_to)
+      .local_minutes_range(minutes_of_day(time_from), minutes_of_day(time_to))
   end
 
   def self.whole_day?(time_from, time_to)
     time_from == FIRST_MINUTE_OF_DAY && time_to == LAST_MINUTE_OF_DAY
+  end
+
+  def self.minutes_of_day(time)
+    time.hour * 60 + time.min
   end
 
   def self.filtered_json(data, page, page_size)
