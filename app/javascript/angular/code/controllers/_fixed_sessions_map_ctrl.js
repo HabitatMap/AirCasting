@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import { Elm } from '../../../elm/src/FixedSessionFilters.elm';
-
+import moment from 'moment'
 
 export const FixedSessionsMapCtrl = (
   $scope,
@@ -59,7 +59,9 @@ export const FixedSessionsMapCtrl = (
       sensorId,
       location: {address: "", indoorOnly: false, streaming: true},
       tags: "",
-      usernames: ""
+      usernames: "",
+      timeFrom: moment().utc().startOf('day').subtract(1, 'year').format('X'),
+      timeTo: moment().utc().endOf('day').format('X')
     });
 
     if (!params.get('data').heat) sensors.fetchHeatLevels();
@@ -101,10 +103,16 @@ export const FixedSessionsMapCtrl = (
     angular.element(document).ready(function () {
       const node = document.getElementById('newFixedFilters');
 
+      const timeRange = {
+        timeFrom: $scope.params.get('data').timeFrom,
+        timeTo: $scope.params.get('data').timeTo,
+      };
+
       const flags = {
         tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
-        profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || []
-      }
+        profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
+        timeRange: timeRange
+      };
 
       const elmApp = Elm.FixedSessionFilters.init({ node: node, flags: flags });
 
@@ -129,7 +137,35 @@ export const FixedSessionsMapCtrl = (
         params.update({data: {usernames: profiles.join(", ")}});
         $scope.sessions.fetch();
       });
+
+      setTimeRangeFilter(params, elmApp)
+
+      elmApp.ports.updateTimeRange.subscribe((timeRange) => {
+        params.update({data: {timeFrom: timeRange.timeFrom, timeTo: timeRange.timeTo}});
+        $scope.sessions.fetch();
+      });
     });
+  }
+}
+
+const setTimeRangeFilter = (params, elmApp) => {
+  if (document.getElementById("daterange")) {
+    $('input[id="daterange"]').daterangepicker({
+      opens: 'left',
+      timePicker: true,
+      startDate: moment.unix((params.get('data').timeFrom)).utc().format('DD/MM/YYYY hh:mm A'),
+      endDate: moment.unix((params.get('data').timeTo)).utc().format('DD/MM/YYYY hh:mm A'),
+      locale: {
+        format: 'DD/MM/YYYY hh:mm A'
+      }
+    }, function(timeFrom, timeTo, _) {
+      elmApp.ports.timeRangeSelected.send({
+        timeFrom: timeFrom.utcOffset(0, true).unix(),
+        timeTo: timeTo.utcOffset(0, true).unix()
+      })
+    });
+  } else {
+    window.setTimeout(setTimeRangeFilter(params, elmApp), 100);
   }
 }
 

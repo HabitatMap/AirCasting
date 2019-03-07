@@ -10,7 +10,6 @@ export const mobileSessions = (
   map,
   sensors,
   $rootScope,
-  utils,
   sessionsDownloader,
   drawSession,
   boundsCalculator,
@@ -203,14 +202,10 @@ export const mobileSessions = (
       var bounds = map.getBounds();
       var data = params.get('data');
       var sessionIds = _.values(params.get('selectedSessionIds') || []);
-      if (!data.time) return;
+      if (!data.timeFrom || !data.timeTo) return;
       var reqData = {
-        time_from: data.time.timeFrom - utils.timeOffset,
-        time_to:  data.time.timeTo - utils.timeOffset,
-        day_from:  data.time.dayFrom,
-        day_to:  data.time.dayTo,
-        year_from:  data.time.yearFrom,
-        year_to:  data.time.yearTo,
+        time_from:  data.timeFrom,
+        time_to:  data.timeTo,
         tags:  data.tags,
         usernames:  data.usernames,
         session_ids: sessionIds
