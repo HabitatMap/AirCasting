@@ -3,21 +3,6 @@ angular.module("aircasting").factory('storageEvents', ['storage', '$rootScope', 
   var StorageEvents = function() {};
   var self;
   StorageEvents.prototype = {
-    onMonthDaySlide : function(event, ui) {
-      storage.setInHash("time", "dayFrom", _.min(ui.values));
-      storage.setInHash("time", "dayTo", _.max(ui.values));
-      $rootScope.$digest();
-    },
-    onYearSlide : function(event, ui) {
-      storage.setInHash("time", "yearFrom", _.min(ui.values));
-      storage.setInHash("time", "yearTo", _.max(ui.values));
-      $rootScope.$digest();
-    },
-    onTimeSlide : function(event, ui) {
-      storage.setInHash("time", "timeFrom", _.min(ui.values) + utils.timeOffset);
-      storage.setInHash("time", "timeTo", _.max(ui.values) + utils.timeOffset);
-      $rootScope.$digest();
-    },
     onHeatChangeLow : function(event, ui) {
       self.doHeatChange($(this), ui.value, "low");
       self.onLowInput();
