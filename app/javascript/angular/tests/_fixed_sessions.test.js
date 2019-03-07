@@ -28,31 +28,15 @@ test('fetch with sessions ids in params passes them to sessionsDownloader', t =>
   t.end();
 });
 
-test('fetch with time params passes them to sessionsDownloader after subtracting an offset from utils', t => {
+test('fetch with time params passes them to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
-  const data = buildData({ time: { timeFrom: 1, timeTo: 2 } });
-  const utils = { timeOffset: 1 };
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data, utils });
-
-  fixedSessionsService._fetch();
-
-  t.deepEqual(sessionsDownloaderCalls[0].time_from, 0);
-  t.deepEqual(sessionsDownloaderCalls[0].time_to, 1);
-
-  t.end();
-});
-
-test('fetch with day and year params passes them to sessionsDownloader', t => {
-  const sessionsDownloaderCalls = [];
-  const data = buildData({ time: { dayFrom: 3, dayTo: 4, yearFrom: 5, yearTo: 6 } });
+  const data = buildData({ timeFrom: 1, timeTo: 2 });
   const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
 
   fixedSessionsService._fetch();
 
-  t.deepEqual(sessionsDownloaderCalls[0].day_from, 3);
-  t.deepEqual(sessionsDownloaderCalls[0].day_to, 4);
-  t.deepEqual(sessionsDownloaderCalls[0].year_from, 5);
-  t.deepEqual(sessionsDownloaderCalls[0].year_to, 6);
+  t.deepEqual(sessionsDownloaderCalls[0].time_from, 1);
+  t.deepEqual(sessionsDownloaderCalls[0].time_to, 2);
 
   t.end();
 });
@@ -117,9 +101,21 @@ test('fetch with indoorOnly set to false does not pass is_indoor to sessionsDown
   t.end();
 });
 
-test('fetch with no time in params does not call downloadSessions', t => {
+test('fetch with missing timeFrom value in params does not call downloadSessions', t => {
   const sessionsDownloaderCalls = [];
-  const data = buildData({ time: undefined });
+  const data = buildData({ timeFrom: undefined });
+  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
+
+  fixedSessionsService._fetch();
+
+  t.true(sessionsDownloaderCalls.length === 0);
+
+  t.end();
+});
+
+test('fetch with missing timeTo value in params does not call downloadSessions', t => {
+  const sessionsDownloaderCalls = [];
+  const data = buildData({ timeTo: undefined });
   const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
 
   fixedSessionsService._fetch();
@@ -365,9 +361,9 @@ test('drawSessionsInLocation draws colorcoded marker for currently streaming ses
 });
 
 
-const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
+const buildData = obj => ({ timeFrom: 1, timeTo: 1, location: {}, sensorId: 123, ...obj });
 
-const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
+const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -381,7 +377,6 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
     }
   };
   const _map = { getBounds: () => ({}), getZoom: () => undefined, markers: [], drawCustomMarker: () => {}, ...map };
-  const _utils = utils || {};
   const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, anySelected: () => false, selectedSensorName: () => "sensorName", ...sensors };
   const _drawSession = drawSession || { clear: () => {}, undoDraw: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
@@ -391,5 +386,5 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils
   const boundsCalculator = () => {};
   const _heat = { levelName: () => "mid", outsideOfScope: () => false }
 
-  return fixedSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location, _heat);
+  return fixedSessions(params, $http, _map, _sensors, $rootScope, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location, _heat);
 };

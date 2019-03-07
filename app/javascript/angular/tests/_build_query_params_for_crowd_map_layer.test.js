@@ -87,16 +87,13 @@ test('when everything is present it returns params for averages', t => {
   const south = 4;
   const timeFrom = 5;
   const timeTo = 6;
-  const dayFrom = 7;
-  const dayTo = 8;
-  const yearFrom = 9;
-  const yearTo = 10;
   const gridResolution = 11;
   const tags = [1];
   const usernames = [2];
   const params = {
     get: () => ({
-      time: { timeFrom, timeTo, dayFrom, dayTo, yearFrom, yearTo },
+      timeFrom: timeFrom,
+      timeTo: timeTo,
       heat: {},
       gridResolution,
       tags,
@@ -123,10 +120,6 @@ test('when everything is present it returns params for averages', t => {
     north,
     time_from: timeFrom,
     time_to: timeTo,
-    day_from: dayFrom,
-    day_to: dayTo,
-    year_from: yearFrom,
-    year_to: yearTo,
     grid_size_x,
     grid_size_y,
     tags,
@@ -155,10 +148,6 @@ const _buildQueryParamsForCrowdMapLayer = ({ sensors, params }) => {
   const south = 4;
   const timeFrom = 5;
   const timeTo = 6;
-  const dayFrom = 7;
-  const dayTo = 8;
-  const yearFrom = 9;
-  const yearTo = 10;
   const gridResolution = 11;
   const tags = [1];
   const usernames = [2];
