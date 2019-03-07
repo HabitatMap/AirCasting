@@ -1,6 +1,7 @@
 import test from 'blue-tape';
 import { mock } from './helpers';
 import { MobileSessionsMapCtrl } from '../code/controllers/_mobile_sessions_map_ctrl';
+import moment from 'moment'
 
 test('registers a callback to map.goToAddress', t => {
   const callbacks = [];
@@ -49,6 +50,8 @@ test('it updates defaults', t => {
     usernames: "",
     gridResolution: 25,
     crowdMap: false,
+    timeFrom: moment().utc().startOf('day').subtract(1, 'year').format('X'),
+    timeTo: moment().utc().endOf('day').format('X')
   };
   t.deepEqual(defaults, expected);
 

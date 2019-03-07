@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import { Elm } from '../../../elm/src/MobileSessionsFilters.elm';
+import moment from 'moment'
 
 export const MobileSessionsMapCtrl = (
   $scope,
@@ -59,6 +60,8 @@ export const MobileSessionsMapCtrl = (
       usernames: "",
       gridResolution: 25,
       crowdMap: false,
+      timeFrom: moment().utc().startOf('day').subtract(1, 'year').format('X'),
+      timeTo: moment().utc().endOf('day').format('X')
     });
 
     if (!params.get('data').heat) sensors.fetchHeatLevels();
@@ -112,12 +115,18 @@ export const MobileSessionsMapCtrl = (
     angular.element(document).ready(function () {
       const node = document.getElementById('newMobileFilters');
 
+      const timeRange = {
+        timeFrom: $scope.params.get('data').timeFrom,
+        timeTo: $scope.params.get('data').timeTo,
+      };
+
       const flags = {
         isCrowdMapOn: $scope.params.get('data').crowdMap || false,
         crowdMapResolution: $scope.params.get('data').gridResolution || 25,
         tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
-        profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || []
-      }
+        profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
+        timeRange: timeRange
+      };
 
       const elmApp = Elm.MobileSessionsFilters.init({ node: node, flags: flags });
 
@@ -126,7 +135,7 @@ export const MobileSessionsMapCtrl = (
         $scope.sessions.fetch();
       });
 
-      elmApp.ports.updateResolutionPort.subscribe((newResolution) => {
+      elmApp.ports.updateResolution.subscribe((newResolution) => {
         storage.updateCrowdMapResolution(newResolution);
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
       });
@@ -152,7 +161,35 @@ export const MobileSessionsMapCtrl = (
         params.update({data: {usernames: profiles.join(", ")}});
         $scope.sessions.fetch();
       });
+
+      setTimeRangeFilter(params, elmApp)
+
+      elmApp.ports.updateTimeRange.subscribe((timeRange) => {
+        params.update({data: {timeFrom: timeRange.timeFrom, timeTo: timeRange.timeTo}});
+        $scope.sessions.fetch();
+      });
     });
+  }
+}
+
+const setTimeRangeFilter = (params, elmApp) => {
+  if (document.getElementById("daterange")) {
+    $('input[id="daterange"]').daterangepicker({
+      opens: 'left',
+      timePicker: true,
+      startDate: moment.unix((params.get('data').timeFrom)).utc().format('DD/MM/YYYY hh:mm A'),
+      endDate: moment.unix((params.get('data').timeTo)).utc().format('DD/MM/YYYY hh:mm A'),
+      locale: {
+        format: 'DD/MM/YYYY hh:mm A'
+      }
+    }, function(timeFrom, timeTo, _) {
+      elmApp.ports.timeRangeSelected.send({
+        timeFrom: timeFrom.utcOffset(0, true).unix(),
+        timeTo: timeTo.utcOffset(0, true).unix()
+      })
+    });
+  } else {
+    window.setTimeout(setTimeRangeFilter(params, elmApp), 100);
   }
 }
 
