@@ -1,9 +1,7 @@
 import _str from 'underscore.string';
 
 angular.module("aircasting").factory('utils', ['$window', function($window) {
-  var Utils = function() {
-    this.timeOffset = (new Date()).getTimezoneOffset();
-  };
+  var Utils = function() {};
   Utils.prototype = {
     // supports simple merging for object , primitives and arrays (no functions, dates etc)
     merge : function(source, obj2) {
@@ -37,4 +35,3 @@ angular.module("aircasting").factory('utils', ['$window', function($window) {
   };
   return new Utils();
 }]);
-

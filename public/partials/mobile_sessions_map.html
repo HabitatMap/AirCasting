@@ -34,8 +34,6 @@
       </section>
 
       <div id="newMobileFilters"></div>
-
-      <div class="section-divider" ng-include="versioner.path('/partials/time_filters.html')"></div>
     </div>
     <div ng-switch on="!singleSession.get() &&!!sensors.anySelected()">
       <div ng-switch-when="true">
@@ -53,3 +51,5 @@
     </div>
   </div>
 </div>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
