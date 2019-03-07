@@ -44,7 +44,7 @@ describe MobileSession do
         :end_time_local => time + 71.minute
       )
 
-      expect(MobileSession.local_time_range_by_minutes(from, to).to_a).to eq([session])
+      expect(MobileSession.local_minutes_range(from, to).to_a).to eq([session])
     end
   end
 
@@ -106,30 +106,30 @@ describe MobileSession do
 
     it "#filter includes sessions overlapping the time range" do
       now = Time.now
-      plus_one_hour_in_minutes = (now.hour + 1) * 60 + now.min
-      plus_two_hours_in_minutes = (now.hour + 2) * 60 + now.min
+      plus_one_hour = (now + 1.hour).to_i
+      plus_two_hours = (now + 2.hours).to_i
       session = FactoryGirl.create(
         :mobile_session,
         :start_time_local => now,
         :end_time_local => now + 3.hours
       )
 
-      actual = MobileSession.filter(:time_from => plus_one_hour_in_minutes, :time_to => plus_two_hours_in_minutes).to_a
+      actual = MobileSession.filter(:time_from => plus_one_hour, :time_to => plus_two_hours).to_a
 
       expect(actual).to eq([session])
     end
 
     it "#filter excludes sessions outside the time range" do
       now = Time.now
-      plus_one_hour_in_minutes = (now.hour + 1) * 60 + now.min
-      plus_two_hours_in_minutes = (now.hour + 2) * 60 + now.min
+      plus_one_hour = (now + 1.hour).to_i
+      plus_two_hours = (now + 2.hours).to_i
       session = FactoryGirl.create(
         :mobile_session,
         :start_time_local => now,
         :end_time_local => now + 1.second
       )
 
-      actual = MobileSession.filter(:time_from => plus_one_hour_in_minutes, :time_to => plus_two_hours_in_minutes).to_a
+      actual = MobileSession.filter(:time_from => plus_one_hour, :time_to => plus_two_hours).to_a
 
       expect(actual).to eq([])
     end
@@ -144,11 +144,11 @@ describe MobileSession do
     end
 
 
-    it "#filter when time range is the whole day it does not call local_time_range_by_minutes" do
+    it "#filter when time range is the whole day it does not call local_minutes_range" do
       from = Session::FIRST_MINUTE_OF_DAY
       to = Session::LAST_MINUTE_OF_DAY
 
-      expect(Session).not_to receive(:local_time_range_by_minutes).with(from, to)
+      expect(Session).not_to receive(:local_minutes_range).with(from, to)
 
       MobileSession.filter(:time_from => from, :time_to => to)
     end

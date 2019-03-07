@@ -1,52 +1,97 @@
 require 'rails_helper'
 
 describe Session do
-  describe "#day_range" do
-    it "with day in the middle of the range it returns it" do
-      yesterday = 1
-      today = 2
-      tomorrow = 3
-      time = Time.new(2001, 01, today)
-      create_session(time)
+  describe "#filter_by_time_range" do
+    it "returns sessions that started and ended in the range" do
+      session = create_session(start_time: Time.new(2010, 1, 2), end_time: Time.new(2010, 1, 3))
 
-      actual = Session.day_range(yesterday, tomorrow)
+      actual = Session.filter_by_time_range(Session.all, Time.new(2010, 1, 1).to_i, Time.new(2010, 1, 4).to_i)
 
-      expect(actual.size).to eq(1)
+      expect(actual.all).to eq([session])
     end
 
-    it "with day out of the range it does not return it" do
-      today = 1
-      tomorrow = 2
-      day_after_tomorrow = 3
-      time = Time.new(2001, 01, today)
-      create_session(time)
+    it "returns sessions that started in the range and ended after the range" do
+      session = create_session(start_time: Time.new(2010, 1, 2), end_time: Time.new(2010, 1, 4))
 
-      actual = Session.day_range(tomorrow, day_after_tomorrow)
+      actual = Session.filter_by_time_range(Session.all, Time.new(2010, 1, 1).to_i, Time.new(2010, 1, 3).to_i)
 
-      expect(actual.size).to eq(0)
+      expect(actual.all).to eq([session])
     end
 
-    it "Feb 28th and 29th are both the 59th day of the year" do
-      leap_year = 2000
-      common_year = 2001
-      time1 = Time.new(leap_year, 02, 29)
-      time2 = Time.new(common_year, 02, 28)
-      create_session(time1)
-      create_session(time2)
+    it "returns sessions that started before the range and ended in the range" do
+      session = create_session(start_time: Time.new(2010, 1, 1), end_time: Time.new(2010, 1, 3))
 
-      actual = Session.day_range(59, 59)
+      actual = Session.filter_by_time_range(Session.all, Time.new(2010, 1, 2).to_i, Time.new(2010, 1, 4).to_i)
 
-      expect(actual.size).to eq(2)
+      expect(actual.all).to eq([session])
+    end
+
+    it "returns sessions that started before the range and ended after the range" do
+      session = create_session(start_time: Time.new(2010, 1, 1), end_time: Time.new(2010, 1, 4))
+
+      actual = Session.filter_by_time_range(Session.all, Time.new(2010, 1, 2).to_i, Time.new(2010, 1, 3).to_i)
+
+      expect(actual.all).to eq([session])
+    end
+
+    it "does not return sessions that dont everlap with the range" do
+      session = create_session(start_time: Time.new(2010, 1, 1), end_time: Time.new(2010, 1, 2))
+
+      actual = Session.filter_by_time_range(Session.all, Time.new(2010, 1, 3).to_i, Time.new(2010, 1, 4).to_i)
+
+      expect(actual.all).to eq([])
+    end
+
+    it "returns sessions that started and ended in the minutes range" do
+      session = create_session(start_time: Time.new(2010, 1, 2, 1, 2), end_time: Time.new(2010, 1, 2, 1, 3))
+
+      actual = Session.filter_by_time_range(Session.all, Time.new(2010, 1, 1, 1, 1).to_i, Time.new(2010, 1, 3, 1, 4).to_i)
+
+      expect(actual.all).to eq([session])
+    end
+
+    it "returns sessions that started in the range and ended after the minutes range" do
+      session = create_session(start_time: Time.new(2010, 1, 2, 1, 2), end_time: Time.new(2010, 1, 2, 1, 4))
+
+      actual = Session.filter_by_time_range(Session.all, Time.new(2010, 1, 1, 1, 1).to_i, Time.new(2010, 1, 3, 1, 3).to_i)
+
+      expect(actual.all).to eq([session])
+    end
+
+    it "returns sessions that started before the range and ended in the minutes range" do
+      session = create_session(start_time: Time.new(2010, 1, 2, 1, 1), end_time: Time.new(2010, 1, 2, 1, 3))
+
+      actual = Session.filter_by_time_range(Session.all, Time.new(2010, 1, 1, 1, 2).to_i, Time.new(2010, 1, 3, 1, 4).to_i)
+
+      expect(actual.all).to eq([session])
+    end
+
+    it "returns sessions that started before the range and ended after the minutes range" do
+      session = create_session(start_time: Time.new(2010, 1, 2, 1, 1), end_time: Time.new(2010, 1, 2, 1, 4))
+
+      actual = Session.filter_by_time_range(Session.all, Time.new(2010, 1, 1, 1, 2).to_i, Time.new(2010, 1, 3, 1, 3).to_i)
+
+      expect(actual.all).to eq([session])
+    end
+
+    it "does not return sessions that dont everlap with the minutes range even when they are in the date range" do
+      session = create_session(start_time: Time.new(2010, 1, 2, 1, 1), end_time: Time.new(2010, 1, 2, 1, 2))
+
+      actual = Session.filter_by_time_range(Session.all, Time.new(2010, 1, 1, 1, 3).to_i, Time.new(2010, 1, 3, 1, 4).to_i)
+
+      expect(actual.all).to eq([])
     end
   end
 
   private
 
-  def create_session(start_time)
+  def create_session(attributes)
     session = Session.new(
-      type: 'FixedSession',
-      start_time: start_time
+      type: "FixedSession",
+      start_time_local: attributes.fetch(:start_time),
+      end_time_local: attributes.fetch(:end_time)
     )
     session.save(validate: false)
+    session
   end
 end

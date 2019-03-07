@@ -43,6 +43,7 @@ class FixedSession < Session
   end
 
   def update_end_time!
+    # Measurement.time is a local time, so this are both local end times:
     self.end_time = self.measurements.maximum('time')
     self.end_time_local = self.measurements.maximum('time')
     self.last_measurement_at = DateTime.current
