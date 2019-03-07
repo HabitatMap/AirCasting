@@ -39,8 +39,6 @@ class Session < ActiveRecord::Base
   validates :url_token, :uuid, :uniqueness => true
   validates :type, :presence => :true
 
-  prepare_range(:start_year_range, :start_time)
-
   accepts_nested_attributes_for :notes, :streams
 
   before_validation :set_url_token, :unless => :url_token
@@ -49,26 +47,25 @@ class Session < ActiveRecord::Base
 
   acts_as_taggable
 
-  scope :local_time_range_by_minutes, lambda { |start_minutes, end_minutes|
-    field_in_minutes = lambda { |field|
-      "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{field}))"
-    }
+  scope :local_minutes_range, lambda { |minutes_from, minutes_to|
+    if !whole_day?(minutes_from, minutes_to)
+      field_in_minutes = lambda { |field|
+        "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{field}))"
+      }
 
-    where "
-      (#{field_in_minutes.call('start_time_local')} BETWEEN :start_minutes AND :end_minutes)
-      OR
-      (#{field_in_minutes.call('end_time_local')} BETWEEN :start_minutes AND :end_minutes)
-      OR
-      (:start_minutes BETWEEN #{field_in_minutes.call('start_time_local')} AND #{field_in_minutes.call('end_time_local')})
-    ", :start_minutes => start_minutes, :end_minutes => end_minutes
+      where "
+        (#{field_in_minutes.call('start_time_local')} BETWEEN :minutes_from AND :minutes_to)
+        OR
+        (#{field_in_minutes.call('end_time_local')} BETWEEN :minutes_from AND :minutes_to)
+        OR
+        (:minutes_from BETWEEN #{field_in_minutes.call('start_time_local')} AND #{field_in_minutes.call('end_time_local')})
+      ", :minutes_from => minutes_from, :minutes_to => minutes_to
+    end
   }
-
-  prepare_range(:day_range, "(DAYOFYEAR(DATE_ADD(start_time, INTERVAL (YEAR(NOW()) - YEAR(start_time)) YEAR)))")
 
   def self.filter(data={})
     sessions = order("sessions.created_at DESC")
     .where("contribute = true OR sessions.id in (?)", data[:session_ids])
-    .day_range(data[:day_from], data[:day_to])
     .joins(:user)
 
     tags = data[:tags].to_s.split(/[\s,]/)
@@ -97,15 +94,8 @@ class Session < ActiveRecord::Base
       sessions = sessions.joins(:streams).where(:streams => {:unit_symbol =>  unit_symbol})
     end
 
-    if data[:time_from] && data[:time_to] && !whole_day?(data[:time_from], data[:time_to])
-      sessions = sessions.local_time_range_by_minutes(data[:time_from], data[:time_to])
-    end
-
-    if data[:year_from] && data[:year_to]
-      sessions = sessions.start_year_range(
-        Date.new(data[:year_from]),
-        Date.new(data[:year_to].to_i + 1) - 1
-      )
+    if data[:time_from] && data[:time_to]
+      sessions = filter_by_time_range(sessions, data[:time_from], data[:time_to])
     end
 
     if (id = data[:include_session_id]).present?
@@ -123,6 +113,23 @@ class Session < ActiveRecord::Base
       map(&:id)
 
     where(:streams => {:id => streams_ids.uniq})
+  end
+
+  def self.filter_by_time_range(sessions, time_from, time_to)
+    time_from = Time.strptime(time_from.to_s, '%s')
+    time_to = Time.strptime(time_to.to_s, '%s')
+
+    minutes_from = time_from.hour * 60 + time_from.min
+    minutes_to = time_to.hour * 60 + time_to.min
+
+    sessions.where(
+      "(start_time_local BETWEEN :time_from AND :time_to)
+      OR
+      (end_time_local BETWEEN :time_from AND :time_to)
+      OR
+      (:time_from BETWEEN start_time_local AND end_time_local)",
+      :time_from => time_from, :time_to => time_to)
+      .local_minutes_range(minutes_from, minutes_to)
   end
 
   def self.whole_day?(time_from, time_to)
