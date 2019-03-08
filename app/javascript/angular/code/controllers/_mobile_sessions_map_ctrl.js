@@ -179,11 +179,13 @@ const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
   if (document.getElementById("daterange")) {
     $('#daterange').daterangepicker({
       opens: 'left',
+      linkedCalendars: false,
       timePicker: true,
-      startDate: moment.unix(timeFrom).utc().format('DD/MM/YYYY hh:mm A'),
-      endDate: moment.unix(timeTo).utc().format('DD/MM/YYYY hh:mm A'),
+      timePicker24Hour: true,
+      startDate: moment.unix(timeFrom).utc().format('MM/DD/YYYY HH:mm'),
+      endDate: moment.unix(timeTo).utc().format('MM/DD/YYYY HH:mm'),
       locale: {
-        format: 'DD/MM/YYYY hh:mm A'
+        format: 'MM/DD/YYYY HH:mm'
       }
     }, function(timeFrom, timeTo) {
       timeFrom = timeFrom.utcOffset(0, true).unix();
