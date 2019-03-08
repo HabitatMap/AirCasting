@@ -206,7 +206,7 @@ export const mapSettings = () => {
           "elementType": "all",
           "stylers": [
               {
-                  "color": "#dde6e8"
+                  "color": "#e0f1f9"
               },
               {
                   "visibility": "on"
