@@ -57,7 +57,7 @@ describe Api::MeasurementSessionsController do
 
     before do
       expect(Session).to receive(:filtered_json).and_return(json)
-      get :index, :format => :json, :q => {}
+      get :index, :format => :json, :q => {time_from: 1,time_to: 1}
     end
 
     it { is_expected.to respond_with(:ok) }
