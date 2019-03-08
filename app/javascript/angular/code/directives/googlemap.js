@@ -1,3 +1,5 @@
+import * as MapSettings from '../directives/map_settings'
+
 angular.module('aircasting').directive('googlemap', function() {
   return {
     link: function(scope, element) {
@@ -20,7 +22,7 @@ angular.module('aircasting').directive('googlemap', function() {
         zoom: parseInt(zoom, 10),
         minZoom,
         center: latlng,
-        styles: [],
+        styles: MapSettings.mapSettings(),
         mapTypeId: mapType,
         mapTypeControl: true,
         mapTypeControlOptions: {
