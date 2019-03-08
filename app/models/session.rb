@@ -22,10 +22,6 @@ class Session < ActiveRecord::Base
   self.skip_time_zone_conversion_for_attributes = [:start_time_local, :end_time_local]
   include AirCasting::FilterRange
 
-  MINUTES_IN_DAY = 60 * 24
-  FIRST_MINUTE_OF_DAY = 0
-  LAST_MINUTE_OF_DAY = MINUTES_IN_DAY - 1
-
   belongs_to :user
   has_many :measurements, :through => :streams, :inverse_of => :session
   has_many :notes, :inverse_of => :session, :dependent => :destroy
@@ -48,7 +44,7 @@ class Session < ActiveRecord::Base
   acts_as_taggable
 
   scope :local_minutes_range, lambda { |minutes_from, minutes_to|
-    if !whole_day?(minutes_from, minutes_to)
+    unless Utils.whole_day?(minutes_from, minutes_to)
       field_in_minutes = lambda { |field|
         "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{field}))"
       }
@@ -126,15 +122,7 @@ class Session < ActiveRecord::Base
       OR
       (:time_from BETWEEN start_time_local AND end_time_local)",
       :time_from => time_from, :time_to => time_to)
-      .local_minutes_range(minutes_of_day(time_from), minutes_of_day(time_to))
-  end
-
-  def self.whole_day?(time_from, time_to)
-    time_from == FIRST_MINUTE_OF_DAY && time_to == LAST_MINUTE_OF_DAY
-  end
-
-  def self.minutes_of_day(time)
-    time.hour * 60 + time.min
+      .local_minutes_range(Utils.minutes_of_day(time_from), Utils.minutes_of_day(time_to))
   end
 
   def self.filtered_json(data, page, page_size)

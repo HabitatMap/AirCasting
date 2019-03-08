@@ -75,11 +75,11 @@ class Measurement < ActiveRecord::Base
 
     where("DATE(time) >= ?", time_from.beginning_of_day)
       .where("DATE(time) <= ?",  time_to.end_of_day)
-      .minutes_range(Session.minutes_of_day(time_from), Session.minutes_of_day(time_to))
+      .minutes_range(Utils.minutes_of_day(time_from), Utils.minutes_of_day(time_to))
   end)
 
   scope(:minutes_range, lambda do |minutes_from, minutes_to|
-    if !Session.whole_day?(minutes_from, minutes_to)
+    unless Utils.whole_day?(minutes_from, minutes_to)
       field_in_minutes = lambda { |field|
          "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{field}))"
        }

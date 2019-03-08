@@ -145,8 +145,8 @@ describe MobileSession do
 
 
     it "#filter when time range is the whole day it does not call local_minutes_range" do
-      from = Session::FIRST_MINUTE_OF_DAY
-      to = Session::LAST_MINUTE_OF_DAY
+      from = Time.strptime(Utils::FIRST_MINUTE_OF_DAY.to_s, '%s')
+      to = Time.strptime(Utils::LAST_MINUTE_OF_DAY.to_s, '%s')
 
       expect(Session).not_to receive(:local_minutes_range).with(from, to)
 
