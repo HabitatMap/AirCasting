@@ -52,5 +52,9 @@ viewTimeFilter =
     div
         [ Attr.id "test-time-filter" ]
         [ h4 [] [ text "Time Range" ]
-        , input [ Attr.id "daterange" ] []
+        , input
+            [  Attr.id "daterange",
+               Attr.class "filters-input"
+            ]
+            []
         ]
