@@ -34,12 +34,18 @@ module Api
         data = decoded_query_data(params[:q])
         INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
+        data[:time_from] = Time.strptime(data[:time_from].to_s, '%s')
+        data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
+
         respond_with FixedSession.filtered_json(data, page, page_size)
       end
 
       def index_streaming
         data = decoded_query_data(params[:q])
         INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
+
+        data[:time_from] = Time.strptime(data[:time_from].to_s, '%s')
+        data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
 
         respond_with FixedSession.filtered_streaming_json(data)
       end

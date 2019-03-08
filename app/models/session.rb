@@ -112,9 +112,6 @@ class Session < ActiveRecord::Base
   end
 
   def self.filter_by_time_range(sessions, time_from, time_to)
-    time_from = Time.strptime(time_from.to_s, '%s')
-    time_to = Time.strptime(time_to.to_s, '%s')
-
     sessions.where(
       "(start_time_local BETWEEN :time_from AND :time_to)
       OR

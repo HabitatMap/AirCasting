@@ -106,8 +106,8 @@ describe MobileSession do
 
     it "#filter includes sessions overlapping the time range" do
       now = Time.now
-      plus_one_hour = (now + 1.hour).to_i
-      plus_two_hours = (now + 2.hours).to_i
+      plus_one_hour = (now + 1.hour)
+      plus_two_hours = (now + 2.hours)
       session = FactoryGirl.create(
         :mobile_session,
         :start_time_local => now,
@@ -121,8 +121,8 @@ describe MobileSession do
 
     it "#filter excludes sessions outside the time range" do
       now = Time.now
-      plus_one_hour = (now + 1.hour).to_i
-      plus_two_hours = (now + 2.hours).to_i
+      plus_one_hour = (now + 1.hour)
+      plus_two_hours = (now + 2.hours)
       session = FactoryGirl.create(
         :mobile_session,
         :start_time_local => now,
