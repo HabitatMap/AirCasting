@@ -111,18 +111,18 @@ export const FixedSessionsMapCtrl = (
       const flags = {
         tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
         profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
-        timeRange: timeRange
+        timeRange
       };
 
       const elmApp = Elm.FixedSessionFilters.init({ node: node, flags: flags });
 
-      setAutocomplete(
+      setupAutocomplete(
         (selectedValue) => elmApp.ports.profileNameSelected.send(selectedValue)
         , "profiles-search"
         , "/autocomplete/usernames"
       )
 
-      setAutocomplete(
+      setupAutocomplete(
         (selectedValue) => elmApp.ports.tagSelected.send(selectedValue)
         , "tags-search"
         , "/autocomplete/tags"
@@ -138,43 +138,47 @@ export const FixedSessionsMapCtrl = (
         $scope.sessions.fetch();
       });
 
-      setTimeRangeFilter(params, elmApp, $scope.sessions);
+      const callback = (timeFrom, timeTo) => {
+        params.update({ data: {
+          timeFrom: timeFrom,
+          timeTo: timeTo
+        }});
+
+        sessions.fetch();
+      }
+
+      setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
     });
   }
 }
 
-const setTimeRangeFilter = (params, elmApp, sessions) => {
+const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
   if (document.getElementById("daterange")) {
-    $('input[id="daterange"]').daterangepicker({
+    $('#daterange').daterangepicker({
       opens: 'left',
       timePicker: true,
-      startDate: moment.unix((params.get('data').timeFrom)).utc().format('DD/MM/YYYY hh:mm A'),
-      endDate: moment.unix((params.get('data').timeTo)).utc().format('DD/MM/YYYY hh:mm A'),
+      startDate: moment.unix(timeFrom).utc().format('DD/MM/YYYY hh:mm A'),
+      endDate: moment.unix(timeTo).utc().format('DD/MM/YYYY hh:mm A'),
       locale: {
         format: 'DD/MM/YYYY hh:mm A'
       }
-    }, function(timeFrom, timeTo, _) {
-      timeFrom = timeFrom.utcOffset(0, true).unix(),
-      timeTo = timeTo.utcOffset(0, true).unix()
+    }, function(timeFrom, timeTo) {
+      timeFrom = timeFrom.utcOffset(0, true).unix();
+      timeTo = timeTo.utcOffset(0, true).unix();
 
       elmApp.ports.timeRangeSelected.send({
         timeFrom: timeFrom,
         timeTo: timeTo
-      })
+      });
 
-      params.update({ data: {
-        timeFrom: timeFrom,
-        timeTo: timeTo
-      }});
-
-      sessions.fetch();
+      callback(timeFrom, timeTo);
     });
   } else {
-    window.setTimeout(setTimeRangeFilter(params, elmApp, sessions), 100);
-  }
-}
+    window.setTimeout(setupTimeRangeFilter(elmApp, sessions, callback, timeFrom, timeTo), 100);
+  };
+};
 
-const setAutocomplete = (callback, id, path) => {
+const setupAutocomplete = (callback, id, path) => {
   if (document.getElementById(id)) {
     $( "#" + id )
       .bind( "keydown", function( event ) {
@@ -192,6 +196,6 @@ const setAutocomplete = (callback, id, path) => {
         }
       });
   } else {
-    window.setTimeout(setAutocomplete(callback, id, path), 100);
+    window.setTimeout(setupAutocomplete(callback, id, path), 100);
   };
 }
