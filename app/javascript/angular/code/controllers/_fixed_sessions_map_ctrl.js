@@ -138,17 +138,12 @@ export const FixedSessionsMapCtrl = (
         $scope.sessions.fetch();
       });
 
-      setTimeRangeFilter(params, elmApp)
-
-      elmApp.ports.updateTimeRange.subscribe((timeRange) => {
-        params.update({data: {timeFrom: timeRange.timeFrom, timeTo: timeRange.timeTo}});
-        $scope.sessions.fetch();
-      });
+      setTimeRangeFilter(params, elmApp, $scope.sessions);
     });
   }
 }
 
-const setTimeRangeFilter = (params, elmApp) => {
+const setTimeRangeFilter = (params, elmApp, sessions) => {
   if (document.getElementById("daterange")) {
     $('input[id="daterange"]').daterangepicker({
       opens: 'left',
@@ -159,13 +154,23 @@ const setTimeRangeFilter = (params, elmApp) => {
         format: 'DD/MM/YYYY hh:mm A'
       }
     }, function(timeFrom, timeTo, _) {
+      timeFrom = timeFrom.utcOffset(0, true).unix(),
+      timeTo = timeTo.utcOffset(0, true).unix()
+
       elmApp.ports.timeRangeSelected.send({
-        timeFrom: timeFrom.utcOffset(0, true).unix(),
-        timeTo: timeTo.utcOffset(0, true).unix()
+        timeFrom: timeFrom,
+        timeTo: timeTo
       })
+
+      params.update({ data: {
+        timeFrom: timeFrom,
+        timeTo: timeTo
+      }});
+
+      sessions.fetch();
     });
   } else {
-    window.setTimeout(setTimeRangeFilter(params, elmApp), 100);
+    window.setTimeout(setTimeRangeFilter(params, elmApp, sessions), 100);
   }
 }
 
