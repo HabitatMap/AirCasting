@@ -53,8 +53,9 @@ viewTimeFilter =
         [ Attr.id "test-time-filter" ]
         [ h4 [] [ text "Time Range" ]
         , input
-            [  Attr.id "daterange",
-               Attr.class "filters-input"
+            [ Attr.id "daterange"
+            , Attr.class "filters-input"
+            , Attr.attribute "autocomplete" "off"
             ]
             []
         ]
