@@ -35,14 +35,4 @@ timeFilter =
                     |> update (UpdateTimeRange value)
                     |> Tuple.first
                     |> Expect.equal expected
-        , fuzz2 int int "UpdateTimeRange triggers updateTimeRange port" <|
-            \timeFrom timeTo ->
-                let
-                    value =
-                        Encode.object [ ( "timeFrom", Encode.int timeFrom ), ( "timeTo", Encode.int timeTo ) ]
-                in
-                defaultModel
-                    |> update (UpdateTimeRange value)
-                    |> Tuple.second
-                    |> Expect.equal (Ports.updateTimeRange value)
         ]

@@ -104,7 +104,7 @@ update msg model =
                 newTimeRange =
                     TimeRange.update model.timeRange value
             in
-            ( { model | timeRange = newTimeRange }, Ports.updateTimeRange value )
+            ( { model | timeRange = newTimeRange }, Cmd.none )
 
 
 updateProfiles : { a | profiles : Labels } -> Labels -> { a | profiles : Labels }
