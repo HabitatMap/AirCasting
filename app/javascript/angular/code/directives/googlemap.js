@@ -16,7 +16,7 @@ angular.module('aircasting').directive('googlemap', function() {
       var lng = params.lng || map.getMapCookie('vp_lng') || point.lng;
       var latlng = new google.maps.LatLng(lat, lng);
       var zoom = params.zoom || map.getMapCookie('vp_zoom') || point.zoom;
-      var mapType = params.mapType || map.getMapCookie('vp_mapType') || google.maps.MapTypeId.roadmap;
+      var mapType = params.mapType || google.maps.MapTypeId.roadmap;
       const minZoom = 3;
       var options = {
         zoom: parseInt(zoom, 10),
