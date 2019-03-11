@@ -17,12 +17,8 @@ describe Api::AveragesController do
       east: 4.5,
       grid_size_x: 5,
       grid_size_y: 6,
-      time_from: 0,
-      time_to: 2359,
-      day_from: 0,
-      day_to: 365,
-      year_from: 2010,
-      year_to: 2050,
+      time_from: Time.new(2010).to_i,
+      time_to: Time.new(2100).end_of_year.to_i,
       session_ids: []
     }
     result = [{}, {}]

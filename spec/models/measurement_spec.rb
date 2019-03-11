@@ -91,24 +91,28 @@ describe Measurement do
     end
 
     describe "#with_time" do
-      let!(:measurement) { FactoryGirl.create(:measurement, :time => Time.now) }
+      it "returns measurements that are in the range" do
+        measurement = create_measurement!(time: Time.new(2010, 1, 2))
 
-      it "does not return measurement not in time range" do
-        data = {:day_from => -1, :day_to => -1,
-                :time_from => -120, :time_to => 1319,
-                :year_from => Date.today.year,
-                :year_to => Date.today.year}
+        data = { time_from: Time.new(2010, 1, 1).to_i, time_to: Time.new(2010, 1, 3).to_i }
+
+        expect(Measurement.with_time(data)).to include measurement
+      end
+
+      it "does not return measurements that are not in the range" do
+        measurement = create_measurement!(time: Time.new(2010, 1, 1))
+
+        data = { time_from: Time.new(2010, 1, 2).to_i, time_to: Time.new(2010, 1, 3).to_i }
 
         expect(Measurement.with_time(data)).not_to include measurement
       end
 
-      it "returns measurement in time range" do
-        data = {:day_from => 0, :day_to => 365,
-                :time_from => -120, :time_to => 1319,
-                :year_from => Date.today.year,
-                :year_to => Date.today.year}
+      it "does not return measurements that are not in the minutes range even when they are in the date range" do
+        measurement = create_measurement!(time: Time.new(2010, 1, 2, 1, 1))
 
-        expect(Measurement.with_time(data)).to include measurement
+        data = { time_from: Time.new(2010, 1, 1, 1, 3).to_i, time_to: Time.new(2010, 1, 3, 1, 4).to_i }
+
+        expect(Measurement.with_time(data)).not_to include measurement
       end
     end
 
@@ -152,7 +156,7 @@ describe Measurement do
       sensor_name: "abc",
       measurement_type: "abc",
       unit_name: "abc",
-      session: attributes[:session],
+      session: attributes.fetch(:session, create_session!()),
       measurement_short_type: "dB",
       unit_symbol: "dB",
       threshold_very_low: 20,
@@ -170,7 +174,7 @@ describe Measurement do
       longitude: 123,
       value: 123,
       milliseconds: 123,
-      stream: attributes.fetch(:stream)
+      stream: attributes.fetch(:stream, create_stream!({}))
     )
   end
 end

@@ -24,8 +24,6 @@ module Api
     FLOAT_Q_ATTRS = [:north, :south, :east, :west]
     INT_Q_ATTRS = [
       :time_from, :time_to,
-      :day_from, :day_to,
-      :year_from, :year_to,
       :grid_size_x, :grid_size_y
     ]
 
@@ -38,14 +36,8 @@ module Api
       FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
       INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
 
-      data[:time_from] = data[:time_from] || 0
-      data[:time_to] = data[:time_to] || 2359
-
-      data[:day_from] = data[:day_from] || 0
-      data[:day_to] = data[:day_to] || 365
-
-      data[:year_from] = data[:year_from] || 2010
-      data[:year_to] = data[:year_to] || 2050
+      data[:time_from] = data[:time_from] || Time.new(2010).to_i
+      data[:time_to] = data[:time_to] || Time.new(2100).end_of_year.to_i
 
       data[:session_ids] ||= []
 

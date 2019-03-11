@@ -4,9 +4,11 @@ import Browser
 import Html exposing (Html, div, h4, input, label, p, span, text)
 import Html.Attributes as Attr
 import Html.Events as Events
-import Json.Decode
+import Json.Decode as Decode
+import Json.Encode as Encode
 import Labels exposing (Labels)
 import Ports
+import TimeRange exposing (TimeRange)
 
 
 
@@ -18,6 +20,7 @@ type alias Model =
     , isCrowdMapOn : Bool
     , tags : Labels
     , profiles : Labels
+    , timeRange : TimeRange
     }
 
 
@@ -27,6 +30,7 @@ defaultModel =
     , isCrowdMapOn = False
     , tags = Labels.empty
     , profiles = Labels.empty
+    , timeRange = TimeRange.defaultTimeRange
     }
 
 
@@ -35,6 +39,7 @@ type alias Flags =
     , isCrowdMapOn : Bool
     , tags : List String
     , profiles : List String
+    , timeRange : Encode.Value
     }
 
 
@@ -45,6 +50,7 @@ init flags =
         , crowdMapResolution = flags.crowdMapResolution
         , tags = Labels.fromList flags.tags
         , profiles = Labels.fromList flags.profiles
+        , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
       }
     , Cmd.none
     )
@@ -63,6 +69,7 @@ type Msg
     | UpdateProfileSearch String
     | AddProfile String
     | RemoveProfile String
+    | UpdateTimeRange Encode.Value
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -72,7 +79,7 @@ update msg model =
             ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap () )
 
         UpdateCrowdMapResolution resolution ->
-            ( { model | crowdMapResolution = resolution }, Ports.updateResolutionPort resolution )
+            ( { model | crowdMapResolution = resolution }, Ports.updateResolution resolution )
 
         UpdateTagsSearch content ->
             ( { model | tags = Labels.updateCandidate model.tags content }, Cmd.none )
@@ -91,6 +98,13 @@ update msg model =
 
         RemoveProfile profile ->
             Labels.removeLabel profile model.profiles (updateProfiles model) Ports.updateProfiles
+
+        UpdateTimeRange value ->
+            let
+                newTimeRange =
+                    TimeRange.update model.timeRange value
+            in
+            ( { model | timeRange = newTimeRange }, Cmd.none )
 
 
 updateProfiles : { a | profiles : Labels } -> Labels -> { a | profiles : Labels }
@@ -117,6 +131,7 @@ view model =
             ]
         , viewCrowdMapCheckBox model.isCrowdMapOn
         , viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
+        , TimeRange.viewTimeFilter
         ]
 
 
@@ -160,7 +175,7 @@ viewCrowdMapSlider resolution =
 
 onChange : (String -> msg) -> Html.Attribute msg
 onChange tagger =
-    Events.on "change" (Json.Decode.map tagger Events.targetValue)
+    Events.on "change" (Decode.map tagger Events.targetValue)
 
 
 
@@ -179,4 +194,8 @@ main =
 
 subscriptions : Sub Msg
 subscriptions =
-    Sub.batch [ Ports.tagSelected AddTag, Ports.profileNameSelected AddProfile ]
+    Sub.batch
+        [ Ports.tagSelected AddTag
+        , Ports.profileNameSelected AddProfile
+        , Ports.timeRangeSelected UpdateTimeRange
+        ]

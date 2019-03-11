@@ -1,3 +1,5 @@
+import * as MapSettings from '../directives/map_settings'
+
 angular.module('aircasting').directive('googlemap', function() {
   return {
     link: function(scope, element) {
@@ -14,12 +16,13 @@ angular.module('aircasting').directive('googlemap', function() {
       var lng = params.lng || map.getMapCookie('vp_lng') || point.lng;
       var latlng = new google.maps.LatLng(lat, lng);
       var zoom = params.zoom || map.getMapCookie('vp_zoom') || point.zoom;
-      var mapType = params.mapType || map.getMapCookie('vp_mapType') || google.maps.MapTypeId.TERRAIN;
+      var mapType = params.mapType || google.maps.MapTypeId.roadmap;
       const minZoom = 3;
       var options = {
         zoom: parseInt(zoom, 10),
         minZoom,
         center: latlng,
+        styles: MapSettings.mapSettings(),
         mapTypeId: mapType,
         mapTypeControl: true,
         mapTypeControlOptions: {

@@ -32,9 +32,6 @@ class Measurement < ActiveRecord::Base
 
   prepare_range(:longitude_range, 'measurements.longitude')
   prepare_range(:latitude_range, 'measurements.latitude')
-  prepare_range(:time_range, "(EXTRACT(HOUR FROM time) * 60 + EXTRACT(MINUTE FROM time))")
-  prepare_range(:day_range, "(DAYOFYEAR(DATE_ADD(time, INTERVAL (YEAR(NOW()) - YEAR(time)) YEAR)))")
-  prepare_range(:year_range, :time)
 
   geocoded_by :address # field doesn't exist, call used for .near scope inclusion only
 
@@ -73,9 +70,23 @@ class Measurement < ActiveRecord::Base
   end)
 
   scope(:with_time, lambda do |data|
-    day_range(data[:day_from], data[:day_to]).
-      time_range(data[:time_from], data[:time_to]).
-      year_range(Date.new(data[:year_from].to_i),Date.new(data[:year_to].to_i + 1) - 1)
+    time_from = Time.strptime(data[:time_from].to_s, '%s')
+    time_to = Time.strptime(data[:time_to].to_s, '%s')
+
+    where("DATE(time) >= ?", time_from.beginning_of_day)
+      .where("DATE(time) <= ?",  time_to.end_of_day)
+      .minutes_range(Utils.minutes_of_day(time_from), Utils.minutes_of_day(time_to))
+  end)
+
+  scope(:minutes_range, lambda do |minutes_from, minutes_to|
+    unless Utils.whole_day?(minutes_from, minutes_to)
+      field_in_minutes = lambda { |field|
+         "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{field}))"
+       }
+
+      where("#{field_in_minutes.call('time')} >= ?", minutes_from)
+        .where("#{field_in_minutes.call('time')} <= ?",  minutes_to)
+    end
   end)
 
   def as_indexed_json(options={})

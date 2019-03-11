@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import { Elm } from '../../../elm/src/FixedSessionFilters.elm';
-
+import moment from 'moment'
 
 export const FixedSessionsMapCtrl = (
   $scope,
@@ -59,7 +59,9 @@ export const FixedSessionsMapCtrl = (
       sensorId,
       location: {address: "", indoorOnly: false, streaming: true},
       tags: "",
-      usernames: ""
+      usernames: "",
+      timeFrom: moment().utc().startOf('day').subtract(1, 'year').format('X'),
+      timeTo: moment().utc().endOf('day').format('X')
     });
 
     if (!params.get('data').heat) sensors.fetchHeatLevels();
@@ -101,20 +103,26 @@ export const FixedSessionsMapCtrl = (
     angular.element(document).ready(function () {
       const node = document.getElementById('newFixedFilters');
 
+      const timeRange = {
+        timeFrom: $scope.params.get('data').timeFrom,
+        timeTo: $scope.params.get('data').timeTo,
+      };
+
       const flags = {
         tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
-        profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || []
-      }
+        profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
+        timeRange
+      };
 
       const elmApp = Elm.FixedSessionFilters.init({ node: node, flags: flags });
 
-      setAutocomplete(
+      setupAutocomplete(
         (selectedValue) => elmApp.ports.profileNameSelected.send(selectedValue)
         , "profiles-search"
         , "/autocomplete/usernames"
       )
 
-      setAutocomplete(
+      setupAutocomplete(
         (selectedValue) => elmApp.ports.tagSelected.send(selectedValue)
         , "tags-search"
         , "/autocomplete/tags"
@@ -129,11 +137,50 @@ export const FixedSessionsMapCtrl = (
         params.update({data: {usernames: profiles.join(", ")}});
         $scope.sessions.fetch();
       });
+
+      const callback = (timeFrom, timeTo) => {
+        params.update({ data: {
+          timeFrom: timeFrom,
+          timeTo: timeTo
+        }});
+
+        sessions.fetch();
+      }
+
+      setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
     });
   }
 }
 
-const setAutocomplete = (callback, id, path) => {
+const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
+  if (document.getElementById("daterange")) {
+    $('#daterange').daterangepicker({
+      opens: 'left',
+      linkedCalendars: false,
+      timePicker: true,
+      timePicker24Hour: true,
+      startDate: moment.unix(timeFrom).utc().format('MM/DD/YYYY HH:mm'),
+      endDate: moment.unix(timeTo).utc().format('MM/DD/YYYY HH:mm'),
+      locale: {
+        format: 'MM/DD/YYYY HH:mm'
+      }
+    }, function(timeFrom, timeTo) {
+      timeFrom = timeFrom.utcOffset(0, true).unix();
+      timeTo = timeTo.utcOffset(0, true).unix();
+
+      elmApp.ports.timeRangeSelected.send({
+        timeFrom: timeFrom,
+        timeTo: timeTo
+      });
+
+      callback(timeFrom, timeTo);
+    });
+  } else {
+    window.setTimeout(setupTimeRangeFilter(elmApp, sessions, callback, timeFrom, timeTo), 100);
+  };
+};
+
+const setupAutocomplete = (callback, id, path) => {
   if (document.getElementById(id)) {
     $( "#" + id )
       .bind( "keydown", function( event ) {
@@ -151,6 +198,6 @@ const setAutocomplete = (callback, id, path) => {
         }
       });
   } else {
-    window.setTimeout(setAutocomplete(callback, id, path), 100);
+    window.setTimeout(setupAutocomplete(callback, id, path), 100);
   };
 }

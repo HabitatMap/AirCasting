@@ -30,31 +30,15 @@ test('fetch with sessions ids in params passes them to sessionsDownloader', t =>
   t.end();
 });
 
-test('fetch with time params passes them to sessionsDownloader after subtracting an offset from utils', t => {
+test('fetch with time params passes them to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
-  const data = buildData({ time: { timeFrom: 1, timeTo: 2 } });
-  const utils = { timeOffset: 1 };
-  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, data, utils });
-
-  mobileSessionsService._fetch();
-
-  t.deepEqual(sessionsDownloaderCalls[0].time_from, 0);
-  t.deepEqual(sessionsDownloaderCalls[0].time_to, 1);
-
-  t.end();
-});
-
-test('fetch with day and year params passes them to sessionsDownloader', t => {
-  const sessionsDownloaderCalls = [];
-  const data = buildData({ time: { dayFrom: 3, dayTo: 4, yearFrom: 5, yearTo: 6 } });
+  const data = buildData({ timeFrom: 1, timeTo: 2 });
   const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, data });
 
   mobileSessionsService._fetch();
 
-  t.deepEqual(sessionsDownloaderCalls[0].day_from, 3);
-  t.deepEqual(sessionsDownloaderCalls[0].day_to, 4);
-  t.deepEqual(sessionsDownloaderCalls[0].year_from, 5);
-  t.deepEqual(sessionsDownloaderCalls[0].year_to, 6);
+  t.deepEqual(sessionsDownloaderCalls[0].time_from, 1);
+  t.deepEqual(sessionsDownloaderCalls[0].time_to, 2);
 
   t.end();
 });
@@ -72,9 +56,21 @@ test('fetch with tags and usernames params passes them to sessionsDownloader', t
   t.end();
 });
 
-test('fetch with no time in params does not call downloadSessions', t => {
+test('fetch with missing timeFrom value in params does not call downloadSessions', t => {
   const sessionsDownloaderCalls = [];
-  const data = buildData({ time: undefined });
+  const data = buildData({ timeFrom: undefined });
+  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, data });
+
+  mobileSessionsService._fetch();
+
+  t.true(sessionsDownloaderCalls.length === 0);
+
+  t.end();
+});
+
+test('fetch with missing timeTo value in params does not call downloadSessions', t => {
+  const sessionsDownloaderCalls = [];
+  const data = buildData({ timeTo: undefined });
   const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, data });
 
   mobileSessionsService._fetch();
@@ -389,10 +385,10 @@ test('redrawSelectedSession call drawSession.drawMobileSession with selected ses
   t.end();
 });
 
-const buildData = obj => ({ time: {}, location: {}, sensorId: 123, ...obj });
+const buildData = obj => ({ timeFrom: 1, timeTo: 1, location: {}, sensorId: 123, ...obj });
 const sensors = { sensors: { 123: { sensor_name: 'sensor_name' }}};
 
-const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, utils, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
+const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -406,7 +402,6 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
     }
   };
   const _map = { getBounds: () => ({}), fitBounds: () => {}, getZoom: () => {}, markers: [], ...map };
-  const _utils = utils || {};
   const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, ...sensors };
   const _drawSession = { clear: () => {}, drawMobileSession: () => {}, undoDraw: () => {}, ...drawSession };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
@@ -416,5 +411,5 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, util
   const _$location = $location || { path: () => '/map_sessions' };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
-  return mobileSessions(params, $http, _map, _sensors, $rootScope, _utils, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location, null, _heat);
+  return mobileSessions(params, $http, _map, _sensors, $rootScope, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location, null, _heat);
 };
