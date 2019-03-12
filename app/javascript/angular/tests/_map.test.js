@@ -229,6 +229,19 @@ test('removeAllMarkers removes all markers', t => {
   t.end();
 });
 
+test('removeAllMarkers clears the clustering', t => {
+  const clearMarkers = sinon.spy()
+  const service = _map({})
+  service.clusterer = { clearMarkers }
+
+  service.removeAllMarkers()
+
+  sinon.assert.called(clearMarkers);
+
+  t.end();
+});
+
+
 test('drawRectangles calls rectangle.draw with data and thresholds', t => {
   const draw = sinon.spy();
   const rectangles = { draw };
