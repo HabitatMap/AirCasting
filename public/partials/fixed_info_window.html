@@ -1,0 +1,10 @@
+<div ng-controller="InfoWindowCtrl" >
+  <ul>
+    <li>{{sensors.selected().label}}</li>
+    <li>avg. {{infoWindow.data.average | number:0 }} {{sensors.selected().unit_symbol }}</li>
+    <hr>
+    <li>{{infoWindow.data.number_of_instruments }} instruments</li>
+    <li>{{infoWindow.data.number_of_samples }} measurements</li>
+    <li>{{infoWindow.data.number_of_contributors }} contribitors</li>
+  </ul>
+</div>
