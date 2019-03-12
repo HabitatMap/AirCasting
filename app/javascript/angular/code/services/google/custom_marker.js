@@ -55,5 +55,12 @@ export function buildCustomMarker(latLng, content, colorClass, callback, type) {
           });
         });
   };
+
+  CustomMarker.prototype.getPosition = function() {
+    return new google.maps.LatLng({ lat: this.position.lat(), lng: this.position.lng() });
+  };
+
+  CustomMarker.prototype.getDraggable = function() {};
+
   return new CustomMarker(latLng, content, colorClass, callback, type);
 }
