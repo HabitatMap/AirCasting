@@ -2,6 +2,7 @@ import _ from 'underscore';
 import { debounce } from 'debounce';
 import constants from '../constants';
 import * as Session from '../values/session'
+import MarkerClusterer from "@google/markerclustererplus"
 
 export const fixedSessions = (
   params,
@@ -126,6 +127,17 @@ export const fixedSessions = (
       }
 
       (sessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
+
+      const styling = {
+        styles: [{
+          url: '/assets/marker1.png',
+          height: 10,
+          width: 10,
+          textColor: 'green', // it should be the same as icon color, cause we don't want the number to be visible
+        }],
+        zoomOnClick: false
+      }
+      var markerCluster = new MarkerClusterer(map.mapObj, map.markers, styling);
     },
 
     drawColorCodedMarkers: function(session, selectedSensor) {
