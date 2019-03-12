@@ -1,6 +1,7 @@
 import test from 'blue-tape';
 import { mock } from './helpers';
 import { fixedSessions } from '../code/services/_fixed_sessions';
+import sinon from 'sinon';
 
 test('fetch with no sessions ids in params passes empty array to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
@@ -360,6 +361,20 @@ test('drawSessionsInLocation draws colorcoded marker for currently streaming ses
   t.end();
 });
 
+test('drawSessionsInLocation calls map.clusterMarkers for currently streaming sessions when sensor selected', t => {
+  const clusterMarkers = sinon.spy();
+  const map = { clusterMarkers }
+  const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName"};
+  const data = buildData({ location: { streaming: true } });
+
+  const fixedSessionsService = _fixedSessions({ data, map, sensors });
+
+  fixedSessionsService.drawSessionsInLocation();
+
+  sinon.assert.called(clusterMarkers);
+
+  t.end();
+});
 
 const buildData = obj => ({ timeFrom: 1, timeTo: 1, location: {}, sensorId: 123, ...obj });
 
@@ -376,7 +391,7 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessi
       }
     }
   };
-  const _map = { getBounds: () => ({}), getZoom: () => undefined, markers: [], drawCustomMarker: () => {}, ...map };
+  const _map = { getBounds: () => ({}), getZoom: () => undefined, markers: [], drawCustomMarker: () => {}, removeAllMarkers: () => {}, clusterMarkers: () => {}, ...map };
   const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, anySelected: () => false, selectedSensorName: () => "sensorName", ...sensors };
   const _drawSession = drawSession || { clear: () => {}, undoDraw: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };

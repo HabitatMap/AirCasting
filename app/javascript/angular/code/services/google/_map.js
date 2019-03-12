@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import { buildCustomMarker } from './custom_marker';
+import MarkerClusterer from "@google/markerclustererplus";
 
 export const map = (
   params,
@@ -8,7 +9,8 @@ export const map = (
   digester,
   rectangles,
   geocoder,
-  googleMaps
+  googleMaps,
+  heat,
 ) => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === 'test' ? 0 : 1000;
   let hasChangedProgrammatically = false;
@@ -149,13 +151,35 @@ export const map = (
       return newMarker;
     },
 
-    drawCustomMarker: function({ latLng, content, colorClass, callback, type, objectId }) {
-      const customMarker = buildCustomMarker(latLng, content, colorClass, callback, type, objectId );
+    drawCustomMarker: function({ latLng, content, colorClass, callback, type, objectId, value }) {
+      const customMarker = buildCustomMarker(latLng, content, colorClass, callback, type, objectId, value );
 
       customMarker.setMap(this.get());
       this.markers.push(customMarker);
 
       return customMarker;
+    },
+
+    clusterMarkers: function(onClick) {
+      const options = {
+        styles: [
+          { url: '/assets/marker1.png', height: 10, width: 10 },
+          { url: '/assets/marker2.png', height: 10, width: 10 },
+          { url: '/assets/marker3.png', height: 10, width: 10 },
+          { url: '/assets/marker4.png', height: 10, width: 10 },
+        ],
+        zoomOnClick: false,
+        gridSize: 20,
+        calculator: (markers, stylesCount) => {
+          const average = markers.reduce((sum, marker) => sum + marker.value(), 0) / markers.length
+          return { text: "", index: heat.getLevel(Math.round(average)) }
+        }
+      };
+
+      const markerClusterer = new MarkerClusterer(this.mapObj, this.markers, options);
+
+      googleMaps.listen(markerClusterer, 'clusterclick', onClick);
+      this.clusterer = markerClusterer;
     },
 
     removeMarker: function(marker) {
@@ -166,6 +190,8 @@ export const map = (
     },
 
     removeAllMarkers: function() {
+      if (this.clusterer) this.clusterer.clearMarkers();
+
       (this.markers || []).forEach(marker => marker.setMap(null));
       this.markers = [];
     },

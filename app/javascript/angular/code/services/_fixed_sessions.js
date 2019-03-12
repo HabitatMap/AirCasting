@@ -2,7 +2,6 @@ import _ from 'underscore';
 import { debounce } from 'debounce';
 import constants from '../constants';
 import * as Session from '../values/session'
-import MarkerClusterer from "@google/markerclustererplus"
 
 export const fixedSessions = (
   params,
@@ -129,25 +128,16 @@ export const fixedSessions = (
 
       (sessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
 
-      const styling = {
-        styles: [{
-          url: '/assets/marker1.png',
-          height: 10,
-          width: 10,
-          textColor: 'green', // it should be the same as icon colour, cause we don't want the number to be visible
-        }],
-        zoomOnClick: false
+      const callback = (cluster) => {
+        const data = {q: {
+          session_ids: cluster.getMarkers().map((marker) => marker.objectId()),
+          sensor_name: sensors.selectedSensorName()
+        }};
+
+        infoWindow.show("/api/region", data, cluster.getCenter(), constants.fixedSession);
       }
-      var markerCluster = new MarkerClusterer(map.mapObj, map.markers, styling);
 
-      google.maps.event.addListener(markerCluster, 'clusterclick', function (cluster) {
-        const objectsIds = cluster.getMarkers().map((marker) => marker.objectId());
-
-        const data = { sessionIds: objectsIds }
-        infoWindow.show("", data, cluster.getCenter(), constants.fixedSession)
-
-        console.warn("cluster click event " + objectsIds);
-      });
+      map.clusterMarkers(callback);
     },
 
     drawColorCodedMarkers: function(session, selectedSensor) {
@@ -166,6 +156,7 @@ export const fixedSessions = (
           callback: callback(Session.id(session)),
           type: 'data-marker',
           objectId: Session.id(session),
+          value: Session.lastHourRoundedAverage(session),
         });
       session.markers.push(marker);
       map.markers.push(marker);
@@ -183,7 +174,6 @@ export const fixedSessions = (
           colorClass: "default",
           callback: callback(Session.id(session)),
           type: 'marker',
-          objectId: Session.id(session),
         });
       session.markers.push(customMarker);
       map.markers.push(customMarker);
