@@ -149,8 +149,8 @@ export const map = (
       return newMarker;
     },
 
-    drawCustomMarker: function({ latLng, content, colorClass, callback, type }) {
-      const customMarker = buildCustomMarker(latLng, content, colorClass, callback, type);
+    drawCustomMarker: function({ latLng, content, colorClass, callback, type, objectId }) {
+      const customMarker = buildCustomMarker(latLng, content, colorClass, callback, type, objectId );
 
       customMarker.setMap(this.get());
       this.markers.push(customMarker);

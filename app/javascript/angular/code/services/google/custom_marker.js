@@ -1,5 +1,5 @@
-export function buildCustomMarker(latLng, content, colorClass, callback, type) {
-  const CustomMarker = function(position, content, colorClass, callback, type) {
+export function buildCustomMarker(latLng, content, colorClass, callback, type, objectId) {
+  const CustomMarker = function(position, content, colorClass, callback, type, objectId) {
     this.position = position;
 
     const marker = document.createElement('div');
@@ -62,5 +62,7 @@ export function buildCustomMarker(latLng, content, colorClass, callback, type) {
 
   CustomMarker.prototype.getDraggable = function() {};
 
-  return new CustomMarker(latLng, content, colorClass, callback, type);
+  CustomMarker.prototype.objectId = function() { return objectId } ;
+
+  return new CustomMarker(latLng, content, colorClass, callback, type, objectId);
 }

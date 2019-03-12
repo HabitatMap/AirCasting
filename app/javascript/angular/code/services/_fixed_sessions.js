@@ -15,7 +15,8 @@ export const fixedSessions = (
   boundsCalculator,
   sessionsUtils,
   $location,
-  heat
+  heat,
+  infoWindow
 ) => {
   var FixedSessions = function() {
     this.sessions = [];
@@ -133,11 +134,20 @@ export const fixedSessions = (
           url: '/assets/marker1.png',
           height: 10,
           width: 10,
-          textColor: 'green', // it should be the same as icon color, cause we don't want the number to be visible
+          textColor: 'green', // it should be the same as icon colour, cause we don't want the number to be visible
         }],
         zoomOnClick: false
       }
       var markerCluster = new MarkerClusterer(map.mapObj, map.markers, styling);
+
+      google.maps.event.addListener(markerCluster, 'clusterclick', function (cluster) {
+        const objectsIds = cluster.getMarkers().map((marker) => marker.objectId());
+
+        const data = { sessionIds: objectsIds }
+        infoWindow.show("", data, cluster.getCenter(), constants.fixedSession)
+
+        console.warn("cluster click event " + objectsIds);
+      });
     },
 
     drawColorCodedMarkers: function(session, selectedSensor) {
@@ -154,7 +164,8 @@ export const fixedSessions = (
           content: content,
           colorClass: heatLevel,
           callback: callback(Session.id(session)),
-          type: 'data-marker'
+          type: 'data-marker',
+          objectId: Session.id(session),
         });
       session.markers.push(marker);
       map.markers.push(marker);
@@ -172,6 +183,7 @@ export const fixedSessions = (
           colorClass: "default",
           callback: callback(Session.id(session)),
           type: 'marker',
+          objectId: Session.id(session),
         });
       session.markers.push(customMarker);
       map.markers.push(customMarker);
