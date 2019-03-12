@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@google/markerclustererplus@^2.1.11":
+  version "2.1.11"
+  resolved "https://registry.yarnpkg.com/@google/markerclustererplus/-/markerclustererplus-2.1.11.tgz#cc8598d7f17ada8eab13a2f25094d020dbd0bf36"
+
 "@rails/webpacker@3.5":
   version "3.5.5"
   resolved "https://registry.yarnpkg.com/@rails/webpacker/-/webpacker-3.5.5.tgz#8911c66bcefc8bc6b91270e92f0d39e3c2d43116"
