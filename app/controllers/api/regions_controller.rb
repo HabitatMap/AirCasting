@@ -28,16 +28,19 @@ module Api
 
     def show
       data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
-
-      FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
-      INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
-
-      data[:time_from] = data[:time_from] || Time.new(2010).to_i
-      data[:time_to] = data[:time_to] || Time.new(2100).end_of_year.to_i
-
       data[:session_ids] ||= []
 
-      respond_with RegionInfo.new(data)
+      if (data[:session_ids] != [] && Session.find(data[:session_ids].first).fixed?)
+        respond_with FixedRegionInfo.new.call(data)
+      else
+        FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
+        INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
+
+        data[:time_from] = data[:time_from] || Time.new(2010).to_i
+        data[:time_to] = data[:time_to] || Time.new(2100).end_of_year.to_i
+
+        respond_with RegionInfo.new(data)
+      end
     end
   end
 end
