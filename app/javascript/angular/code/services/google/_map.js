@@ -182,6 +182,14 @@ export const map = (
       this.clusterer = markerClusterer;
     },
 
+    setSelectedCluster: function(cluster) {
+      this.selectedCluster = cluster;
+    },
+
+    zoomToSelectedCluster: function() {
+      googleMaps.fitBounds(this.mapObj,  this.selectedCluster.bounds_)
+    },
+
     removeMarker: function(marker) {
       if(!marker){
         return;
