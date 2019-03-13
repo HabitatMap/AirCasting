@@ -117,6 +117,8 @@ export const fixedSessions = (
     },
 
     drawSessionsInLocation: function() {
+      map.removeAllMarkers();
+
       if (params.get('data').location.indoorOnly) return;
 
       const sessions = this.get();
@@ -128,16 +130,7 @@ export const fixedSessions = (
 
       (sessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
 
-      const callback = (cluster) => {
-        const data = {q: {
-          session_ids: cluster.getMarkers().map((marker) => marker.objectId()),
-          sensor_name: sensors.selectedSensorName()
-        }};
-
-        infoWindow.show("/api/region", data, cluster.getCenter(), constants.fixedSession);
-      }
-
-      map.clusterMarkers(callback);
+      map.clusterMarkers(showClusterInfo(sensors.selectedSensorName(), map, infoWindow));
     },
 
     drawColorCodedMarkers: function(session, selectedSensor) {
@@ -237,3 +230,14 @@ export const fixedSessions = (
   };
   return new FixedSessions();
 };
+
+export const showClusterInfo = (sensorName, map, infoWindow) => (cluster) => {
+  map.setSelectedCluster(cluster);
+
+  const data = { q: {
+    session_ids: cluster.getMarkers().map((marker) => marker.objectId()),
+    sensor_name: sensorName
+  }};
+
+  infoWindow.show("/api/region", data, cluster.getCenter(), constants.fixedSession);
+}
