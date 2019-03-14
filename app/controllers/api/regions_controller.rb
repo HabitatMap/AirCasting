@@ -16,8 +16,6 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-require_dependency 'region_info'
-
 module Api
   class RegionsController < BaseController
     FLOAT_Q_ATTRS = [:north, :south, :east, :west]
@@ -39,7 +37,7 @@ module Api
         data[:time_from] = data[:time_from] || Time.new(2010).to_i
         data[:time_to] = data[:time_to] || Time.new(2100).end_of_year.to_i
 
-        respond_with RegionInfo.new(data)
+        respond_with MobileRegionInfo.new(data)
       end
     end
   end
