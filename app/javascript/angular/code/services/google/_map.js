@@ -170,6 +170,7 @@ export const map = (
         ],
         zoomOnClick: false,
         gridSize: 20,
+        maxZoom: 21,
         calculator: (markers) => {
           // calculator returns an index value that is used to select the corresponding style from the styles array by: styles[index -1]
           // documented at: https://htmlpreview.github.io/?https://github.com/googlemaps/v3-utility-library/blob/master/markerclustererplus/docs/reference.html
