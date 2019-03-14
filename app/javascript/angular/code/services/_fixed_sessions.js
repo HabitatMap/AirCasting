@@ -143,13 +143,11 @@ export const fixedSessions = (
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
       const marker = map.drawCustomMarker({
-          latLng: latLng,
+          object: { latLng, id: Session.id(session), value: Session.lastHourRoundedAverage(session) },
           content: content,
           colorClass: heatLevel,
           callback: callback(Session.id(session)),
           type: 'data-marker',
-          objectId: Session.id(session),
-          value: Session.lastHourRoundedAverage(session),
         });
       session.markers.push(marker);
       map.markers.push(marker);
@@ -163,7 +161,7 @@ export const fixedSessions = (
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
       const customMarker = map.drawCustomMarker({
-          latLng: latLng,
+          object: { latLng },
           colorClass: "default",
           callback: callback(Session.id(session)),
           type: 'marker',

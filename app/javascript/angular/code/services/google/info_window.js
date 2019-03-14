@@ -22,11 +22,11 @@ angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$ro
       const htmlPath = (sessionType === constants.fixedSession) ? FIXED_INFO_WINDOW_PATH : MOBILE_INFO_WINDOW_PATH;
 
       $timeout(() => {
-        $http.get(url, {params : data, cache: true}).success((data, status, headers, config) => this.onShowData(data, status, headers, config, htmlPath));
+        $http.get(url, {params : data, cache: true}).success((data) => this.onShowData(data, htmlPath));
       }, 1);
     },
 
-    onShowData: function(data, status, headers, config, htmlPath){
+    onShowData: function(data, htmlPath){
       this.data = data;
       var url = versioner.path(htmlPath);
       var element = $("<div class=\"infoWindow\"><div ng-include=\"'" + url  +"'\"></div></div>");
