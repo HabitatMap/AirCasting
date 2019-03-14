@@ -32,6 +32,7 @@ gem 'sass-rails'
 gem 'coffee-rails'
 gem 'activesupport-json_encoder'
 gem 'webpacker', git: 'https://github.com/rails/webpacker.git', branch: '3-x-stable'
+gem 'dry-validation'
 
 group :development do
   gem 'web-console', '~> 2.0'

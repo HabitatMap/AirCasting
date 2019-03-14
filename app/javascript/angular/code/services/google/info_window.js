@@ -1,7 +1,7 @@
 import constants from '../../constants'
 
-angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$rootScope", 'versioner', '$timeout',
-                                 function(map, $http, $compile, $rootScope, versioner, $timeout){
+angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$rootScope", 'versioner', '$timeout', 'flash',
+                                 function(map, $http, $compile, $rootScope, versioner, $timeout, flash){
   var InfoWindow = function() {
     this.popup = new google.maps.InfoWindow();
     map.listen("zoom_changed", _(this.hide).bind(this));
@@ -22,7 +22,12 @@ angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$ro
       const htmlPath = (sessionType === constants.fixedSession) ? FIXED_INFO_WINDOW_PATH : MOBILE_INFO_WINDOW_PATH;
 
       $timeout(() => {
-        $http.get(url, {params : data, cache: true}).success((data) => this.onShowData(data, htmlPath));
+        $http.get(url, {params : data, cache: true})
+          .error(() => {
+            flash.set('There was an error, while fetching the data.');
+            this.hide();
+          })
+          .success((data) => this.onShowData(data, htmlPath))
       }, 1);
     },
 
