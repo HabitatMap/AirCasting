@@ -239,5 +239,5 @@ export const showClusterInfo = (sensorName, map, infoWindow) => (cluster) => {
     sensor_name: sensorName
   }};
 
-  infoWindow.show("/api/region", data, cluster.getCenter(), constants.fixedSession);
+  infoWindow.show("/api/fixed_region", data, cluster.getCenter(), constants.fixedSession);
 }
