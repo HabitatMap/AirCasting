@@ -408,7 +408,7 @@ test('showClusterInfo returns a callback that calls infoWindow.show with correct
 
   callback(cluster);
 
-  sinon.assert.calledWith(show, "/api/region", { q: { session_ids: [1], sensor_name: "Sensor Name" }});
+  sinon.assert.calledWith(show, "/api/fixed_region", { q: { session_ids: [1], sensor_name: "Sensor Name" }});
 
   t.end();
 });
