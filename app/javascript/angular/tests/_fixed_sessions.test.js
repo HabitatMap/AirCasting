@@ -364,9 +364,8 @@ test('drawSessionsInLocation draws colorcoded marker for currently streaming ses
 test('drawSessionsInLocation calls map.clusterMarkers for currently streaming sessions when sensor selected', t => {
   const clusterMarkers = sinon.spy();
   const map = { clusterMarkers }
-  const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName"};
+  const sensors = { anySelected: () => true};
   const data = buildData({ location: { streaming: true } });
-
   const fixedSessionsService = _fixedSessions({ data, map, sensors });
 
   fixedSessionsService.drawSessionsInLocation();
