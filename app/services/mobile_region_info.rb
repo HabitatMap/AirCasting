@@ -1,4 +1,4 @@
-class RegionInfo
+class MobileRegionInfo
   def initialize(data)
     usernames = data[:usernames].to_s.split(/\s*,\s*/)
     @streams = Stream.
