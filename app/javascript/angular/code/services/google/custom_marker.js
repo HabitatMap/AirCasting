@@ -56,6 +56,7 @@ export function buildCustomMarker(latLng, content, colorClass, callback, type, o
         });
   };
 
+  // getPosition and getDraggable are required markers methods for google/markerclustererplus library
   CustomMarker.prototype.getPosition = function() {
     return new google.maps.LatLng({ lat: this.position.lat(), lng: this.position.lng() });
   };
