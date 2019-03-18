@@ -1,7 +1,10 @@
 module FixedSessionFilters exposing (Msg(..), defaultModel, update, view)
 
 import Browser
-import Html exposing (Html, div)
+import Html exposing (Html, button, div, text)
+import Html.Attributes as Attr
+import Html.Events as Events
+import Http
 import Json.Encode as Encode
 import LabelsInput
 import Ports
@@ -16,6 +19,8 @@ type alias Model =
     { tags : LabelsInput.Model
     , profiles : LabelsInput.Model
     , timeRange : TimeRange
+    , shortUrl : String
+    , isCopyLinkActive : Bool
     }
 
 
@@ -24,6 +29,8 @@ defaultModel =
     { tags = LabelsInput.empty
     , profiles = LabelsInput.empty
     , timeRange = TimeRange.defaultTimeRange
+    , shortUrl = "fetching..."
+    , isCopyLinkActive = False
     }
 
 
@@ -53,6 +60,8 @@ type Msg
     = TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
+    | GotShortUrl (Result Http.Error String)
+    | FetchShortUrl
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -71,6 +80,15 @@ update msg model =
             in
             ( { model | timeRange = newTimeRange }, Cmd.none )
 
+        FetchShortUrl ->
+            ( { model | isCopyLinkActive = not model.isCopyLinkActive }, fetchShortUrl )
+
+        GotShortUrl (Ok shortUrl) ->
+            ( { model | shortUrl = shortUrl }, Cmd.none )
+
+        GotShortUrl (Err _) ->
+            ( { model | shortUrl = "error" }, Cmd.none )
+
 
 updateLabels :
     LabelsInput.Msg
@@ -87,6 +105,14 @@ updateLabels msg model toSubCmd mapper updateModel =
     ( updateModel subModel, Cmd.map mapper subCmd )
 
 
+fetchShortUrl : Cmd Msg
+fetchShortUrl =
+    Http.get
+        { url = "api/short_url?longUrl=http://example.com"
+        , expect = Http.expectString GotShortUrl
+        }
+
+
 
 ---- VIEW ----
 
@@ -97,6 +123,22 @@ view model =
         [ Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
         , TimeRange.viewTimeFilter
+        , viewCopyLink model.shortUrl model.isCopyLinkActive
+        ]
+
+
+viewCopyLink : String -> Bool -> Html Msg
+viewCopyLink shortUrl isCopyLinkActive =
+    div []
+        [ button [ Events.onClick FetchShortUrl ] []
+        , if isCopyLinkActive then
+            div []
+                [ text shortUrl
+                , button [ Attr.class "copy-link", Attr.attribute "data-clipboard-text" shortUrl ] []
+                ]
+
+          else
+            Html.text ""
         ]
 
 
