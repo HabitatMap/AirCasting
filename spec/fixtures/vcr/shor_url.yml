@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api-ssl.bitly.com/v4/shorten
+    body:
+      encoding: UTF-8
+      string: '{"long_url":"http://example.com"}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer 49dc858b4cf1498c42e0382afccaf71e8fb24141
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 18 Mar 2019 12:45:16 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '263'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Xss-Protection:
+      - 1; mode=blockFilter
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - default-src 'none
+    body:
+      encoding: UTF-8
+      string: '{"created_at":"1970-01-01T00:00:00+0000","id":"bit.ly/2VVPWJI","link":"http://bit.ly/2VVPWJI","custom_bitlinks":[],"long_url":"http://example.com/","archived":false,"tags":[],"deeplinks":[],"references":{"group":"https://api-ssl.bitly.com/v4/groups/Bj3fbsBA1Tp"}}'
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 12:45:16 GMT
+recorded_with: VCR 4.0.0
