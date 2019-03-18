@@ -56,6 +56,8 @@ Rails.application.routes.draw do
       resources :sessions, only: [:create, :index, :show]
       resources :measurements, only: :create
     end
+
+    resources :short_url, only: [:index]
   end
 
   get 'autocomplete/tags' => 'autocomplete#tags'
