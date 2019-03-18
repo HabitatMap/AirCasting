@@ -63,6 +63,8 @@ end
 group :test do
   gem 'capybara'
   gem 'rspec-rails', '~> 3.8.0'
+  gem 'vcr'
+  gem 'webmock'
 end
 
 group :production do
