@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import { Elm } from '../../../elm/src/FixedSessionFilters.elm';
 import moment from 'moment'
+import Clipboard from 'clipboard';
 
 export const FixedSessionsMapCtrl = (
   $scope,
@@ -101,6 +102,8 @@ export const FixedSessionsMapCtrl = (
 
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(function () {
+      new Clipboard('.copy-link');
+
       const node = document.getElementById('newFixedFilters');
 
       const timeRange = {
