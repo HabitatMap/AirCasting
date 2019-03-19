@@ -151,6 +151,10 @@ export const FixedSessionsMapCtrl = (
       }
 
       setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
+
+      elmApp.ports.requestCurrentUrl.subscribe(() => {
+        elmApp.ports.gotCurrentUrl.send(window.location.href)
+      });
     });
   }
 }
