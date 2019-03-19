@@ -60,9 +60,8 @@ type Msg
     = TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
-    | GotShortUrl (Result Http.Error String)
+    | GotShortUrl String
     | RequestCurrentUrl
-    | FetchShortUrl String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -82,16 +81,14 @@ update msg model =
             ( { model | timeRange = newTimeRange }, Cmd.none )
 
         RequestCurrentUrl ->
-            ( model, Ports.requestCurrentUrl () )
+            if model.isCopyLinkActive then
+                ( { model | isCopyLinkActive = not model.isCopyLinkActive }, Cmd.none )
 
-        FetchShortUrl longUrl ->
-            ( { model | isCopyLinkActive = not model.isCopyLinkActive }, fetchShortUrl longUrl )
+            else
+                ( { model | isCopyLinkActive = not model.isCopyLinkActive }, Ports.requestCurrentUrl () )
 
-        GotShortUrl (Ok shortUrl) ->
+        GotShortUrl shortUrl ->
             ( { model | shortUrl = shortUrl }, Cmd.none )
-
-        GotShortUrl (Err _) ->
-            ( { model | shortUrl = "error" }, Cmd.none )
 
 
 updateLabels :
@@ -107,14 +104,6 @@ updateLabels msg model toSubCmd mapper updateModel =
             LabelsInput.update msg model toSubCmd
     in
     ( updateModel subModel, Cmd.map mapper subCmd )
-
-
-fetchShortUrl : String -> Cmd Msg
-fetchShortUrl longUrl =
-    Http.get
-        { url = "api/short_url?longUrl=" ++ longUrl
-        , expect = Http.expectString GotShortUrl
-        }
 
 
 
@@ -166,5 +155,5 @@ subscriptions =
         [ Sub.map ProfileLabels <| LabelsInput.subscriptions Ports.profileSelected
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
-        , Ports.gotCurrentUrl FetchShortUrl
+        , Ports.gotCurrentUrl GotShortUrl
         ]
