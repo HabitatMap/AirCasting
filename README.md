@@ -50,7 +50,8 @@ bundle exec foreman start
 yarn install
 # visit http://localhost:3000
 ```
-
+### Obtaining a bitly access token
+Go to https://bitly.com/ create an account and log in. To generate the token go to Settings -> Advanced settings -> For Developers -> OAuth -> Generic Access Token. 
 ## Tests
 
 **run tests**
