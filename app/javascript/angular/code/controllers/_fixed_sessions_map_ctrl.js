@@ -102,8 +102,6 @@ export const FixedSessionsMapCtrl = (
 
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(function () {
-      new Clipboard('.copy-link');
-
       const node = document.getElementById('newFixedFilters');
 
       const timeRange = {
@@ -152,8 +150,13 @@ export const FixedSessionsMapCtrl = (
 
       setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
 
+      new Clipboard('.copy-link');
       elmApp.ports.requestCurrentUrl.subscribe(() => {
-        elmApp.ports.gotCurrentUrl.send(window.location.href)
+        const longUrl = window.location.href
+
+        $http.get("api/short_url", { params: { longUrl: longUrl }})
+        .success((shortUrl) => { elmApp.ports.gotCurrentUrl.send(shortUrl) })
+        .error(() => { elmApp.ports.gotCurrentUrl.send(longUrl) })
       });
     });
   }

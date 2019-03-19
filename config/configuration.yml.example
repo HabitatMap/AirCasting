@@ -1,5 +1,6 @@
 defaults:
   google_maps_api_key: REPLACEME
+  bitly_access_token: REPLACEME
   host: 'http://localhost:3000/'
   host_: localhost:3000
   mailer_from: noreply@localhost
