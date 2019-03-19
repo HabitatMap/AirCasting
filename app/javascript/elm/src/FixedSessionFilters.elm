@@ -1,7 +1,7 @@
 module FixedSessionFilters exposing (Msg(..), defaultModel, update, view)
 
 import Browser
-import Html exposing (Html, button, div, text)
+import Html exposing (Html, button, div, input, text)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Http
@@ -19,8 +19,7 @@ type alias Model =
     { tags : LabelsInput.Model
     , profiles : LabelsInput.Model
     , timeRange : TimeRange
-    , shortUrl : String
-    , isCopyLinkActive : Bool
+    , copyLinkState : CopyLinkState
     }
 
 
@@ -29,9 +28,14 @@ defaultModel =
     { tags = LabelsInput.empty
     , profiles = LabelsInput.empty
     , timeRange = TimeRange.defaultTimeRange
-    , shortUrl = "fetching..."
-    , isCopyLinkActive = False
+    , copyLinkState = NotAsked
     }
+
+
+type CopyLinkState
+    = NotAsked
+    | Fetching
+    | Fetched String
 
 
 type alias Flags =
@@ -81,14 +85,10 @@ update msg model =
             ( { model | timeRange = newTimeRange }, Cmd.none )
 
         RequestCurrentUrl ->
-            if model.isCopyLinkActive then
-                ( { model | isCopyLinkActive = not model.isCopyLinkActive }, Cmd.none )
-
-            else
-                ( { model | isCopyLinkActive = not model.isCopyLinkActive }, Ports.requestCurrentUrl () )
+            ( { model | copyLinkState = Fetching }, Ports.requestCurrentUrl () )
 
         GotShortUrl shortUrl ->
-            ( { model | shortUrl = shortUrl }, Cmd.none )
+            ( { model | copyLinkState = Fetched shortUrl }, Cmd.none )
 
 
 updateLabels :
@@ -116,23 +116,32 @@ view model =
         [ Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
         , TimeRange.viewTimeFilter
-        , viewCopyLink model.shortUrl model.isCopyLinkActive
+        , viewCopyLink model.copyLinkState
         ]
 
 
-viewCopyLink : String -> Bool -> Html Msg
-viewCopyLink shortUrl isCopyLinkActive =
-    div []
-        [ button [ Events.onClick RequestCurrentUrl ] []
-        , if isCopyLinkActive then
+viewCopyLink : CopyLinkState -> Html Msg
+viewCopyLink copyLinkState =
+    case copyLinkState of
+        NotAsked ->
             div []
-                [ text shortUrl
-                , button [ Attr.class "copy-link", Attr.attribute "data-clipboard-text" shortUrl ] []
+                [ button [ Events.onClick RequestCurrentUrl ] [ text "fetch url" ]
                 ]
 
-          else
-            Html.text ""
-        ]
+        Fetching ->
+            div []
+                [ button [ Events.onClick RequestCurrentUrl ] [ text "fetch url" ]
+                , text "Fetching..."
+                ]
+
+        Fetched shortUrl ->
+            div []
+                [ button [ Events.onClick RequestCurrentUrl ] [ text "fetch url" ]
+                , div []
+                    [ input [ Attr.value shortUrl, Attr.id "generated-link" ] []
+                    , button [ Attr.class "copy-link", Attr.attribute "data-clipboard-text" shortUrl ] [ text "copy to clipboard" ]
+                    ]
+                ]
 
 
 
