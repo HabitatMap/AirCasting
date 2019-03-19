@@ -35,6 +35,7 @@ export const drawSession = (
     },
 
     undoDraw: function(session, mapPosition) {
+      console.trace();
       (session.markers || []).forEach(function(marker){
         map.removeMarker(marker);
       });
