@@ -39,6 +39,8 @@ export const SessionsListCtrl = (
     functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").selectedSensorId);
 
     map.onPanOrZoom(() => storage.resetAddress());
+
+    sessions.reSelectAllSessions();
   };
 
   $scope.isSessionDisabled = function(sessionId) {
@@ -72,11 +74,6 @@ export const SessionsListCtrl = (
     if (sessions.hasSelectedSessions()) return;
     $scope.page = 0;
     sessions.fetch($scope.page);
-  }, true);
-
-  $scope.$watch("sensors.isEmpty()", function(newValue, oldValue) {
-    console.log("watch - sensors.isEmpty()");
-    sessions.reSelectAllSessions();
   }, true);
 
   $scope.canSelectSession = function(sessionId) {

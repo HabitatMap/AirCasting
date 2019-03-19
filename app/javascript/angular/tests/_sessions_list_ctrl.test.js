@@ -49,8 +49,9 @@ test('with session selected when params.map changes it does not call sessions.fe
 });
 
 const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
+  const _sessions = { reSelectAllSessions: () => {}, ...sessions };
   const _$scope = {
-    sessions,
+    sessions: _sessions,
     setDefaults: () => {},
     $watch: () => {},
     $on: () => {},
