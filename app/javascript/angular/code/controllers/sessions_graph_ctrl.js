@@ -24,7 +24,7 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
   $scope.$watch('singleSession.get().loaded', function() {
     console.log('watch - singleSession.get().loaded');
     if ($scope.expanded && !_.isEmpty(singleSession.measurements())) {
-      setTimeout(() => $scope.redraw(), 500)
+      $scope.redraw();
     }
   });
 
