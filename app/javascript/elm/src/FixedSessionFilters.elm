@@ -61,7 +61,8 @@ type Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
     | GotShortUrl (Result Http.Error String)
-    | FetchShortUrl
+    | RequestCurrentUrl
+    | FetchShortUrl String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -80,8 +81,11 @@ update msg model =
             in
             ( { model | timeRange = newTimeRange }, Cmd.none )
 
-        FetchShortUrl ->
-            ( { model | isCopyLinkActive = not model.isCopyLinkActive }, fetchShortUrl )
+        RequestCurrentUrl ->
+            ( model, Ports.requestCurrentUrl () )
+
+        FetchShortUrl longUrl ->
+            ( { model | isCopyLinkActive = not model.isCopyLinkActive }, fetchShortUrl longUrl )
 
         GotShortUrl (Ok shortUrl) ->
             ( { model | shortUrl = shortUrl }, Cmd.none )
@@ -105,10 +109,10 @@ updateLabels msg model toSubCmd mapper updateModel =
     ( updateModel subModel, Cmd.map mapper subCmd )
 
 
-fetchShortUrl : Cmd Msg
-fetchShortUrl =
+fetchShortUrl : String -> Cmd Msg
+fetchShortUrl longUrl =
     Http.get
-        { url = "api/short_url?longUrl=http://example.com"
+        { url = "api/short_url?longUrl=" ++ longUrl
         , expect = Http.expectString GotShortUrl
         }
 
@@ -130,7 +134,7 @@ view model =
 viewCopyLink : String -> Bool -> Html Msg
 viewCopyLink shortUrl isCopyLinkActive =
     div []
-        [ button [ Events.onClick FetchShortUrl ] []
+        [ button [ Events.onClick RequestCurrentUrl ] []
         , if isCopyLinkActive then
             div []
                 [ text shortUrl
@@ -162,4 +166,5 @@ subscriptions =
         [ Sub.map ProfileLabels <| LabelsInput.subscriptions Ports.profileSelected
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
+        , Ports.gotCurrentUrl FetchShortUrl
         ]
