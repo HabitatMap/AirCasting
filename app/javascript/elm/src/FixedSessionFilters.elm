@@ -64,8 +64,7 @@ type Msg
     = TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
-    | GotShortUrl String
-    | RequestCurrentUrl
+    | ShowCopyLinkTooltip
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -84,11 +83,8 @@ update msg model =
             in
             ( { model | timeRange = newTimeRange }, Cmd.none )
 
-        RequestCurrentUrl ->
-            ( { model | copyLinkState = Fetching }, Ports.requestCurrentUrl () )
-
-        GotShortUrl shortUrl ->
-            ( { model | copyLinkState = Fetched shortUrl }, Cmd.none )
+        ShowCopyLinkTooltip ->
+            ( model, Ports.showCopyLinkTooltip () )
 
 
 updateLabels :
@@ -116,32 +112,8 @@ view model =
         [ Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
         , TimeRange.viewTimeFilter
-        , viewCopyLink model.copyLinkState
+        , button [ Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ] [ text "oo" ]
         ]
-
-
-viewCopyLink : CopyLinkState -> Html Msg
-viewCopyLink copyLinkState =
-    case copyLinkState of
-        NotAsked ->
-            div []
-                [ button [ Events.onClick RequestCurrentUrl ] [ text "fetch url" ]
-                ]
-
-        Fetching ->
-            div []
-                [ button [ Events.onClick RequestCurrentUrl ] [ text "fetch url" ]
-                , text "Fetching..."
-                ]
-
-        Fetched shortUrl ->
-            div []
-                [ button [ Events.onClick RequestCurrentUrl ] [ text "fetch url" ]
-                , div []
-                    [ input [ Attr.value shortUrl, Attr.id "generated-link" ] []
-                    , button [ Attr.class "copy-link", Attr.attribute "data-clipboard-text" shortUrl ] [ text "copy to clipboard" ]
-                    ]
-                ]
 
 
 
@@ -164,5 +136,4 @@ subscriptions =
         [ Sub.map ProfileLabels <| LabelsInput.subscriptions Ports.profileSelected
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
-        , Ports.gotCurrentUrl GotShortUrl
         ]

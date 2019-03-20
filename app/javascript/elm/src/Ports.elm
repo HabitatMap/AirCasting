@@ -1,4 +1,4 @@
-port module Ports exposing (gotCurrentUrl, profileSelected, requestCurrentUrl, tagSelected, timeRangeSelected, toggleCrowdMap, updateProfiles, updateResolution, updateTags)
+port module Ports exposing (profileSelected, showCopyLinkTooltip, tagSelected, timeRangeSelected, toggleCrowdMap, updateProfiles, updateResolution, updateTags)
 
 import Json.Encode as Encode
 
@@ -10,9 +10,6 @@ port profileSelected : (String -> msg) -> Sub msg
 
 
 port timeRangeSelected : (Encode.Value -> msg) -> Sub msg
-
-
-port gotCurrentUrl : (String -> msg) -> Sub msg
 
 
 port toggleCrowdMap : () -> Cmd a
@@ -27,4 +24,4 @@ port updateTags : List String -> Cmd a
 port updateProfiles : List String -> Cmd a
 
 
-port requestCurrentUrl : () -> Cmd a
+port showCopyLinkTooltip : () -> Cmd a
