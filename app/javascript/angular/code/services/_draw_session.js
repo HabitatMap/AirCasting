@@ -23,7 +23,7 @@ export const drawSession = (
 
       this.measurements(session).forEach(function(measurement, idx){
         const marker = createMeasurementMarker(measurement, idx, heat, map, suffix);
-	console.log('after createMeasurementMarker');
+	console.trace();
 
         session.markers.push(marker);
         points.push(measurement);

@@ -103,14 +103,14 @@ export const mobileSessions = (
     reSelectSession: function(id) {
       // this is called when refreshing a page with selected session
       setTimeout(() => {
-        drawSession.clear(this.sessions);
+        //drawSession.clear(this.sessions);
         const callback = (session, allSelected) => (data) => {
-          const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
-          const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMarker);
+          //const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+          const draw = () => drawSession.drawMobileSession(session, () => {});
           sessionsUtils.onSingleSessionFetch(session, data, draw);
         }
         this._selectSession(id, callback);
-      }, 1000);
+      }, 5000);
     },
 
     redrawSelectedSession: function(id) {
