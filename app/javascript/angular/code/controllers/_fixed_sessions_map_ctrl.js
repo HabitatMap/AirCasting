@@ -2,6 +2,7 @@ import _ from 'underscore';
 import { Elm } from '../../../elm/src/FixedSessionFilters.elm';
 import moment from 'moment'
 import Clipboard from 'clipboard';
+import tippy from 'tippy.js'
 
 export const FixedSessionsMapCtrl = (
   $scope,
@@ -150,22 +151,50 @@ export const FixedSessionsMapCtrl = (
 
       setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
 
-      new Clipboard('.copy-link');
-      elmApp.ports.requestCurrentUrl.subscribe(() => {
-        const longUrl = window.location.href
+      new Clipboard('#copy-link-button');
+      elmApp.ports.showCopyLinkTooltip.subscribe(() => {
+        let currentUrl = window.location.href;
 
+        const tooltip = tippy('#copy-link-tooltip', {
+          trigger: 'manual',
+          interactive: true,
+          content: '<span>Fetching...</span>',
+        })[0];
 
-        fetch("api/short_url?longUrl=" + longUrl)
-        .then(response => response.json())
-        .then(json => elmApp.ports.gotCurrentUrl.send(json.short_url))
-        .catch(err => {
-          elmApp.ports.gotCurrentUrl.send(longUrl);
-          console.warn("Couldn't fetch shorten url: ", err)
-        });
+        tooltip.show();
+
+        fetch('api/short_url?longUrl=' + currentUrl)
+          .then(response => response.json())
+          .then(json => updateTooltipContent(json.short_url, tooltip))
+          .catch(err => {
+            console.warn('Couldn\'t fetch shorten url: ', err);
+            updateTooltipContent(currentUrl, tooltip)
+          });
       });
     });
-  }
-}
+  };
+};
+
+const updateTooltipContent = (link, tooltip) => {
+  const content = `
+    <input value=${link}></input>
+    <button
+      id='copy-link-button'
+      data-clipboard-text=${link}
+    >
+      Copy
+    </button>
+  `
+  tooltip.setContent(content);
+
+  document.getElementById('copy-link-button').addEventListener('click', () => {
+    tooltip.set({
+      content: 'Copied!',
+      animation: 'fade',
+    });
+    tooltip.hide(1000)
+  });
+};
 
 const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
   if (document.getElementById("daterange")) {
