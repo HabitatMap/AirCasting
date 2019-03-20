@@ -19,7 +19,6 @@ type alias Model =
     { tags : LabelsInput.Model
     , profiles : LabelsInput.Model
     , timeRange : TimeRange
-    , copyLinkState : CopyLinkState
     }
 
 
@@ -28,14 +27,7 @@ defaultModel =
     { tags = LabelsInput.empty
     , profiles = LabelsInput.empty
     , timeRange = TimeRange.defaultTimeRange
-    , copyLinkState = NotAsked
     }
-
-
-type CopyLinkState
-    = NotAsked
-    | Fetching
-    | Fetched String
 
 
 type alias Flags =

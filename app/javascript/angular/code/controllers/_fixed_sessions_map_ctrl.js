@@ -2,7 +2,8 @@ import _ from 'underscore';
 import { Elm } from '../../../elm/src/FixedSessionFilters.elm';
 import moment from 'moment'
 import Clipboard from 'clipboard';
-import tippy from 'tippy.js'
+import tippy from 'tippy.js';
+import * as FiltersUtils from '../filtersUtils'
 
 export const FixedSessionsMapCtrl = (
   $scope,
@@ -118,13 +119,13 @@ export const FixedSessionsMapCtrl = (
 
       const elmApp = Elm.FixedSessionFilters.init({ node: node, flags: flags });
 
-      setupAutocomplete(
+      FiltersUtils.setupAutocomplete(
         (selectedValue) => elmApp.ports.profileSelected.send(selectedValue)
         , "profiles-search"
         , "/autocomplete/usernames"
       )
 
-      setupAutocomplete(
+      FiltersUtils.setupAutocomplete(
         (selectedValue) => elmApp.ports.tagSelected.send(selectedValue)
         , "tags-search"
         , "/autocomplete/tags"
@@ -149,7 +150,7 @@ export const FixedSessionsMapCtrl = (
         sessions.fetch();
       }
 
-      setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
+      FiltersUtils.setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
 
       new Clipboard('#copy-link-button');
       elmApp.ports.showCopyLinkTooltip.subscribe(() => {
@@ -165,83 +166,12 @@ export const FixedSessionsMapCtrl = (
 
         fetch('api/short_url?longUrl=' + currentUrl)
           .then(response => response.json())
-          .then(json => updateTooltipContent(json.short_url, tooltip))
+          .then(json => FiltersUtils.updateTooltipContent(json.short_url, tooltip))
           .catch(err => {
             console.warn('Couldn\'t fetch shorten url: ', err);
-            updateTooltipContent(currentUrl, tooltip)
+            FiltersUtils.updateTooltipContent(currentUrl, tooltip)
           });
       });
     });
   };
 };
-
-const updateTooltipContent = (link, tooltip) => {
-  const content = `
-    <input value=${link}></input>
-    <button
-      id='copy-link-button'
-      data-clipboard-text=${link}
-    >
-      Copy
-    </button>
-  `
-  tooltip.setContent(content);
-
-  document.getElementById('copy-link-button').addEventListener('click', () => {
-    tooltip.set({
-      content: 'Copied!',
-      animation: 'fade',
-    });
-    tooltip.hide(1000)
-  });
-};
-
-const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
-  if (document.getElementById("daterange")) {
-    $('#daterange').daterangepicker({
-      opens: 'left',
-      linkedCalendars: false,
-      timePicker: true,
-      timePicker24Hour: true,
-      startDate: moment.unix(timeFrom).utc().format('MM/DD/YYYY HH:mm'),
-      endDate: moment.unix(timeTo).utc().format('MM/DD/YYYY HH:mm'),
-      locale: {
-        format: 'MM/DD/YYYY HH:mm'
-      }
-    }, function(timeFrom, timeTo) {
-      timeFrom = timeFrom.utcOffset(0, true).unix();
-      timeTo = timeTo.utcOffset(0, true).unix();
-
-      elmApp.ports.timeRangeSelected.send({
-        timeFrom: timeFrom,
-        timeTo: timeTo
-      });
-
-      callback(timeFrom, timeTo);
-    });
-  } else {
-    window.setTimeout(setupTimeRangeFilter(elmApp, sessions, callback, timeFrom, timeTo), 100);
-  };
-};
-
-const setupAutocomplete = (callback, id, path) => {
-  if (document.getElementById(id)) {
-    $( "#" + id )
-      .bind( "keydown", function( event ) {
-        if ( event.keyCode === $.ui.keyCode.ENTER ) {
-          $( this ).data( "autocomplete" ).close(event);
-        }
-      })
-      .autocomplete({
-        source: function( request, response ) {
-          const data = {q: request.term, limit: 10};
-          $.getJSON( path, data, response );
-        },
-        select: function( event, ui) {
-          callback(ui.item.value);
-        }
-      });
-  } else {
-    window.setTimeout(setupAutocomplete(callback, id, path), 100);
-  };
-}
