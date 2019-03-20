@@ -23,7 +23,6 @@ export const drawSession = (
 
       this.measurements(session).forEach(function(measurement, idx){
         const marker = createMeasurementMarker(measurement, idx, heat, map, suffix);
-	console.log('after createMeasurementMarker');
 
         session.markers.push(marker);
         points.push(measurement);
@@ -36,7 +35,6 @@ export const drawSession = (
     },
 
     undoDraw: function(session, mapPosition) {
-      console.trace();
       (session.markers || []).forEach(function(marker){
         map.removeMarker(marker);
       });

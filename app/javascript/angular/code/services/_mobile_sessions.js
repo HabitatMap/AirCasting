@@ -29,6 +29,8 @@ export const mobileSessions = (
     zoom: map.getZoom()
   };
 
+  const TIMEOUT_DELAY = process.env.NODE_ENV === 'test' ? 0 : 3000;
+
   MobileSessions.prototype = {
     sessionIds: function() {
       return this.sessions.map(x => x.id);
@@ -100,8 +102,9 @@ export const mobileSessions = (
       this._selectSession(id, callback);
     },
 
+    // this is called when refreshing a page with selected session
     reSelectSession: function(id) {
-      // this is called when refreshing a page with selected session
+      // this must happen before everything else, otherwise the session is drawn on the map and removed right away
       drawSession.clear(this.sessions);
       setTimeout(() => {
         const callback = (session, allSelected) => (data) => {
@@ -110,7 +113,7 @@ export const mobileSessions = (
           sessionsUtils.onSingleSessionFetch(session, data, draw);
         }
         this._selectSession(id, callback);
-      }, 3000);
+      }, TIMEOUT_DELAY);
     },
 
     redrawSelectedSession: function(id) {
