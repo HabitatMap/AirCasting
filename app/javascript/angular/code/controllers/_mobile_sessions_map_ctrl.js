@@ -1,6 +1,9 @@
 import _ from 'underscore';
 import { Elm } from '../../../elm/src/MobileSessionsFilters.elm';
 import moment from 'moment'
+import * as FiltersUtils from '../filtersUtils'
+import Clipboard from 'clipboard';
+import tippy from 'tippy.js';
 
 export const MobileSessionsMapCtrl = (
   $scope,
@@ -140,13 +143,13 @@ export const MobileSessionsMapCtrl = (
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
       });
 
-      setupAutocomplete(
+      FiltersUtils.setupAutocomplete(
         (selectedValue) => elmApp.ports.profileSelected.send(selectedValue)
         , "profiles-search"
         , "/autocomplete/usernames"
       )
 
-      setupAutocomplete(
+      FiltersUtils.setupAutocomplete(
         (selectedValue) => elmApp.ports.tagSelected.send(selectedValue)
         , "tags-search"
         , "/autocomplete/tags"
@@ -170,57 +173,28 @@ export const MobileSessionsMapCtrl = (
         sessions.fetch();
       }
 
-      setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
+      FiltersUtils.setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
+
+      new Clipboard('#copy-link-button');
+      elmApp.ports.showCopyLinkTooltip.subscribe(() => {
+        let currentUrl = window.location.href;
+
+        const tooltip = tippy('#copy-link-tooltip', {
+          trigger: 'manual',
+          interactive: true,
+          content: '<span>Fetching...</span>',
+        })[0];
+
+        tooltip.show();
+
+        fetch('api/short_url?longUrl=' + currentUrl)
+          .then(response => response.json())
+          .then(json => FiltersUtils.updateTooltipContent(json.short_url, tooltip))
+          .catch(err => {
+            console.warn('Couldn\'t fetch shorten url: ', err);
+            FiltersUtils.updateTooltipContent(currentUrl, tooltip)
+          });
+      });
     });
   }
-}
-
-const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
-  if (document.getElementById("daterange")) {
-    $('#daterange').daterangepicker({
-      opens: 'left',
-      linkedCalendars: false,
-      timePicker: true,
-      timePicker24Hour: true,
-      startDate: moment.unix(timeFrom).utc().format('MM/DD/YYYY HH:mm'),
-      endDate: moment.unix(timeTo).utc().format('MM/DD/YYYY HH:mm'),
-      locale: {
-        format: 'MM/DD/YYYY HH:mm'
-      }
-    }, function(timeFrom, timeTo) {
-      timeFrom = timeFrom.utcOffset(0, true).unix();
-      timeTo = timeTo.utcOffset(0, true).unix();
-
-      elmApp.ports.timeRangeSelected.send({
-        timeFrom: timeFrom,
-        timeTo: timeTo
-      });
-
-      callback(timeFrom, timeTo);
-    });
-  } else {
-    window.setTimeout(setupTimeRangeFilter(elmApp, sessions, callback, timeFrom, timeTo), 100);
-  };
-};
-
-const setupAutocomplete = (callback, id, path) => {
-  if (document.getElementById(id)) {
-    $( "#" + id )
-      .bind( "keydown", function( event ) {
-        if ( event.keyCode === $.ui.keyCode.ENTER ) {
-          $( this ).data( "autocomplete" ).close(event);
-        }
-      })
-      .autocomplete({
-      source: function( request, response ) {
-        const data = {q: request.term, limit: 10};
-        $.getJSON( path, data, response );
-      },
-      select: function( event, ui) {
-        callback(ui.item.value);
-      }
-    });
-  } else {
-    window.setTimeout(setupAutocomplete(callback, id, path), 100);
-  };
 }
