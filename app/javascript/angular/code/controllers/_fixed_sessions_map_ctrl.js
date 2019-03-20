@@ -154,9 +154,14 @@ export const FixedSessionsMapCtrl = (
       elmApp.ports.requestCurrentUrl.subscribe(() => {
         const longUrl = window.location.href
 
-        $http.get("api/short_url", { params: { longUrl: longUrl }})
-        .success((shortUrl) => { elmApp.ports.gotCurrentUrl.send(shortUrl) })
-        .error(() => { elmApp.ports.gotCurrentUrl.send(longUrl) })
+
+        fetch("api/short_url?longUrl=" + longUrl)
+        .then(response => response.json())
+        .then(json => elmApp.ports.gotCurrentUrl.send(json.short_url))
+        .catch(err => {
+          elmApp.ports.gotCurrentUrl.send(longUrl);
+          console.warn("Couldn't fetch shorten url: ", err)
+        });
       });
     });
   }
