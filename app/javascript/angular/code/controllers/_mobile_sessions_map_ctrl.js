@@ -185,6 +185,7 @@ export const MobileSessionsMapCtrl = (
           content: '<span>Fetching...</span>',
         })[0];
 
+        tooltip.setContent('Fetching...');
         tooltip.show();
 
         fetch('api/short_url?longUrl=' + currentUrl)
