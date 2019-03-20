@@ -102,6 +102,7 @@ export const mobileSessions = (
 
     reSelectSession: function(id) {
       // this is called when refreshing a page with selected session
+      drawSession.clear(this.sessions);
       setTimeout(() => {
         const callback = (session, allSelected) => (data) => {
           const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
