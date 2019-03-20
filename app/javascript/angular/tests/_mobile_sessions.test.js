@@ -198,27 +198,6 @@ test('selectSession after successfully fetching calls map.fitBounds', t => {
   t.end();
 });
 
-test('reSelectSession after successfully fetching calls sessionsUtils.onSingleSessionFetch', t => {
-  const sessionsUtils = mock('onSingleSessionFetch');
-  const mobileSessionsService = _mobileSessions({ sessionsUtils, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
-
-  mobileSessionsService.reSelectSession(123);
-
-  t.true(sessionsUtils.wasCalled());
-
-  t.end();
-});
-
-test('reSelectSession after successfully fetching calls drawSession.drawMobileSession', t => {
-  const drawSession = mock('drawMobileSession');
-  const mobileSessionsService = _mobileSessions({ drawSession, sensors: { sensors: { 123: { sensor_name: 'sensor_name' } } } });
-
-  mobileSessionsService.reSelectSession(123);
-
-  t.true(drawSession.wasCalled());
-
-  t.end();
-});
 
 test('reSelectSession after successfully fetching does not call map.fitBounds', t => {
   const map = mock('fitBounds');
