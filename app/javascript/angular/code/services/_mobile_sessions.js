@@ -105,7 +105,7 @@ export const mobileSessions = (
       setTimeout(() => {
         drawSession.clear(this.sessions);
         const callback = (session, allSelected) => (data) => {
-          const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+          const drawSessionStartingMarker = () => {} //(session, sensorName) => this.drawSessionWithLabel(session, sensorName);
           const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMarker);
           sessionsUtils.onSingleSessionFetch(session, data, draw);
         }
