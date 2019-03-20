@@ -110,7 +110,7 @@ export const mobileSessions = (
           sessionsUtils.onSingleSessionFetch(session, data, draw);
         }
         this._selectSession(id, callback);
-      }, 1000);
+      }, 3000);
     },
 
     redrawSelectedSession: function(id) {
