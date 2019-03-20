@@ -16,6 +16,7 @@ angular.module("aircasting").factory('graph', [
     promiseStorage
   ) {
     var Graph = function(){};
+    let measurementsByTime = {};
 
     Graph.prototype = {
       init: function(id){
@@ -228,7 +229,7 @@ angular.module("aircasting").factory('graph', [
         //to speed up graph provide data as array not object
         this.destroy();
         this.chart = new Highcharts.StockChart(options);
-        this.data = data;
+        measurementsByTime = data;
       },
 
       afterSetExtremes: function(e) {
@@ -245,6 +246,7 @@ angular.module("aircasting").factory('graph', [
             end_date: Math.round(e.max)
           }}).success(function(data) {
             data = _.extend(singleFixedSession.measurementsToTime(data), final_point);
+            measurementsByTime = data
             self.chart.series[0].setData(_(data).values(), false);
           })
         );
@@ -279,7 +281,7 @@ angular.module("aircasting").factory('graph', [
         var points = [];
         var point;
         for (var i = startSec; i <= endSec; i = i + 1000){
-          point = this.data[i + ""];
+          point = measurementsByTime[i + ""];
           if (point){
             points.push(point);
           }

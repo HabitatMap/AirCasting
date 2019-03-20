@@ -2,7 +2,6 @@ angular.module("google").factory("graphHighlight",  ["map",
                                  function(map){
   var GraphHighlight = function() {
     this.items = [];
-    this.point = undefined;
   };
   GraphHighlight.prototype = {
     hide: function() {
