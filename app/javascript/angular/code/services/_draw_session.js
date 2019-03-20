@@ -16,7 +16,7 @@ export const drawSession = (
         return;
       }
 
-      //drawSessionStartingMarker(session, sensors.selectedSensorName());
+      drawSessionStartingMarker(session, sensors.selectedSensorName());
 
       var suffix = ' ' + sensors.anySelected().unit_symbol;
       var points = [];
