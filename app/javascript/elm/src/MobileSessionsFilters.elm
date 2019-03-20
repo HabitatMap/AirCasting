@@ -1,7 +1,7 @@
 module MobileSessionsFilters exposing (Msg(..), defaultModel, update, view)
 
 import Browser
-import Html exposing (Html, div, h4, input, label, p, span, text)
+import Html exposing (Html, button, div, h4, input, label, p, span, text)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as Decode
@@ -66,6 +66,7 @@ type Msg
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
+    | ShowCopyLinkTooltip
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -89,6 +90,9 @@ update msg model =
                     TimeRange.update model.timeRange value
             in
             ( { model | timeRange = newTimeRange }, Cmd.none )
+
+        ShowCopyLinkTooltip ->
+            ( model, Ports.showCopyLinkTooltip () )
 
 
 updateLabels :
@@ -121,6 +125,7 @@ view model =
         , viewCrowdMapCheckBox model.isCrowdMapOn
         , viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
         , TimeRange.viewTimeFilter
+        , button [ Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ] [ text "oo" ]
         ]
 
 
