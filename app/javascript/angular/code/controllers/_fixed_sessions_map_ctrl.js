@@ -153,15 +153,16 @@ export const FixedSessionsMapCtrl = (
       FiltersUtils.setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
 
       new Clipboard('#copy-link-button');
+
+      const tooltip = tippy('#copy-link-tooltip', {
+        trigger: 'manual',
+        interactive: true,
+      })[0];
+
       elmApp.ports.showCopyLinkTooltip.subscribe(() => {
-        let currentUrl = window.location.href;
+        const currentUrl = window.location.href;
 
-        const tooltip = tippy('#copy-link-tooltip', {
-          trigger: 'manual',
-          interactive: true,
-          content: '<span>Fetching...</span>',
-        })[0];
-
+        tooltip.setContent('Fetching...');
         tooltip.show();
 
         fetch('api/short_url?longUrl=' + currentUrl)
