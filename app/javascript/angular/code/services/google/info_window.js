@@ -16,7 +16,7 @@ angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$ro
     },
 
     show: function(url, data, position, sessionType){
-      this.popup.setContent("working..");
+      this.popup.setContent("fetching...");
       this.popup.setPosition(position);
       this.popup.open(map.get());
       const htmlPath = (sessionType === constants.fixedSession) ? FIXED_INFO_WINDOW_PATH : MOBILE_INFO_WINDOW_PATH;
@@ -29,7 +29,7 @@ angular.module("google").factory("infoWindow", ["map", "$http", "$compile", "$ro
     onShowData: function(data, htmlPath){
       this.data = data;
       var url = versioner.path(htmlPath);
-      var element = $("<div class=\"infoWindow\"><div ng-include=\"'" + url  +"'\"></div></div>");
+      var element = $("<div class=\"info-window\"><div ng-include=\"'" + url  +"'\"></div></div>");
       $compile(element[0])($rootScope);
       this.popup.setContent(element[0]);
     },

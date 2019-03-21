@@ -53,28 +53,6 @@ http-spinner {
   z-index: 100;
 }
 
-.infoWindow {
-  width: 250px;
-  font-size: 12px;
-  height: 140px !important;
-  overflow-y: auto;
-  margin-right: 15px;
-
-  ul {
-    padding-left: 5px;
-    list-style: none;
-    height:100%;
-
-    li {
-      max-width: 230px;
-      span {
-          font-weight:bold;
-        }
-
-    }
-  }
-}
-
 #zoom-box {
   position: fixed;
   bottom: 10px;

@@ -163,10 +163,10 @@ export const map = (
     clusterMarkers: function(onClick) {
       const options = {
         styles: [
-          { url: '/assets/marker1.png', height: 10, width: 10 },
-          { url: '/assets/marker2.png', height: 10, width: 10 },
-          { url: '/assets/marker3.png', height: 10, width: 10 },
-          { url: '/assets/marker4.png', height: 10, width: 10 },
+          { url: '/assets/marker1.svg', height: 30, width: 30 },
+          { url: '/assets/marker2.svg', height: 30, width: 30 },
+          { url: '/assets/marker3.svg', height: 30, width: 30 },
+          { url: '/assets/marker4.svg', height: 30, width: 30 },
         ],
         zoomOnClick: false,
         gridSize: 20,
