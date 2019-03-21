@@ -152,7 +152,6 @@ export const fixedSessions = (
           type: 'data-marker',
         });
       session.markers.push(marker);
-      map.markers.push(marker);
     },
 
     drawDefaultMarkers: function(session) {
@@ -169,7 +168,6 @@ export const fixedSessions = (
           type: 'marker',
         });
       session.markers.push(customMarker);
-      map.markers.push(customMarker);
     },
 
     _fetch: function(page) {
