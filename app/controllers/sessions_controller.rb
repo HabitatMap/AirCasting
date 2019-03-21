@@ -22,6 +22,7 @@ class SessionsController < Devise::SessionsController
     return sign_in_and_redirect(resource_name, resource)
   end
 
+  # if user is admin then redirect to active admin root else render json
   def sign_in_and_redirect(resource_or_scope, resource=nil)
     scope = Devise::Mapping.find_scope!(resource_or_scope)
     resource ||= resource_or_scope
