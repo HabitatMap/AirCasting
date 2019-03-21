@@ -38,6 +38,15 @@ class FixedSession < Session
     )
   end
 
+  def self.selected_sessions_json(data)
+    filter_sessions_ids_and_streams(data)
+    .with_user_and_streams
+    .as_json(
+      only: filtered_json_fields,
+      methods: [:username, :streams, :last_hour_average]
+    )
+  end
+
   def after_measurements_created
     update_end_time!
   end

@@ -101,6 +101,22 @@ class Session < ActiveRecord::Base
     sessions
   end
 
+  def self.filter_sessions_ids_and_streams(data={})
+    sessions = where("sessions.id IN (?)", data[:session_ids])
+
+    sensor_name = data[:sensor_name]
+    if sensor_name.present?
+      sessions = sessions.joins(:streams).where(:streams => {:sensor_name =>  sensor_name})
+    end
+
+    unit_symbol = data[:unit_symbol]
+    if unit_symbol.present?
+      sessions = sessions.joins(:streams).where(:streams => {:unit_symbol =>  unit_symbol})
+    end
+
+    sessions
+  end
+
   def self.from_location(data)
     streams_ids = Stream.select('streams.id').
       joins(:session).
