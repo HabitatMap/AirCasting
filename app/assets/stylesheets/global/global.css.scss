@@ -1,9 +1,3 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
 html {
   height: 100%;
 }
@@ -21,7 +15,8 @@ body {
   }
 }
 
-[ng-cloak], .ng-cloak {
+[ng-cloak],
+.ng-cloak {
   display: none;
 }
 
@@ -29,10 +24,26 @@ body {
   color: red;
 }
 
+@mixin button {
+  color: #fff;
+  background: $button-color;
+  font-weight: bold;
+  padding: 5px 10px;
+  border: 0;
+  text-decoration: none;
+}
+
+button,
+.button {
+  @include button;
+}
+
 a {
-  color: $dark-blue;
-  text-decoration:none;
-  font-weight: $font-stack-regular;
+  color: $link-color;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 #jquery-overlay {

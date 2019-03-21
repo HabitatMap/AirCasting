@@ -1,9 +1,9 @@
 #home {
-  background:#f2f2f2;
+  background: #f2f2f2;
   font-size: 17px;
 
   #left-hud {
-    position:fixed;
+    position: fixed;
   }
 }
 
@@ -17,14 +17,16 @@
   width: 32%;
   font-weight: bold;
   margin-right: 10px;
-  text-align:center;
+  text-align: center;
 
   img {
     margin-bottom: 10px;
   }
 
-  &.last, &:last-child, &:nth-child(3n) {
-    margin-right:0;
+  &.last,
+  &:last-child,
+  &:nth-child(3n) {
+    margin-right: 0;
   }
 }
 
@@ -61,7 +63,9 @@ p.download {
 }
 
 .columns {
-  .col1, .col2, .col3 {
+  .col1,
+  .col2,
+  .col3 {
     float: left;
     width: 213px;
     padding-top: 5px;
@@ -82,7 +86,8 @@ p.download {
     display: block;
   }
 
-  .twitter-link, .facebook-link {
+  .twitter-link,
+  .facebook-link {
     display: inline-block;
     width: 35px;
     height: 30px;
@@ -95,7 +100,7 @@ p.download {
     background: url("/assets/AC_FacebookLogo.jpg") no-repeat;
   }
   .label {
-    display:block;
+    display: block;
     font-weight: bold;
   }
 
@@ -106,14 +111,15 @@ p.download {
   }
 
   form {
-    input[type=email], input[type=text]  {
+    input[type="email"],
+    input[type="text"] {
       margin: 0 0 10px 0;
       width: 203px;
       border: 1px solid $text-color;
       color: $text-color;
       padding: 3px;
     }
-    input[type=submit] {
+    input[type="submit"] {
       background-color: $text-color;
       color: #fff;
       border: none;
@@ -129,11 +135,11 @@ p.download {
   a {
     font-weight: normal;
   }
-  h2{
+  h2 {
     margin-bottom: 0px;
   }
 
-  p{
+  p {
     margin-top: 0px;
   }
 }

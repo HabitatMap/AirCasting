@@ -1,13 +1,10 @@
 body {
-  font-size: 12px;
+  font-size: 18px;
   line-height: 1.5;
   color: black;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   font-smoothing: antialiased;
-  font-family: sans-serif;
-  -webkit-text-size-adjust: 100%;
-  font-family: 'PT Sans', sans-serif;
 }
 
 h1,
@@ -16,5 +13,3 @@ h3,
 p {
   margin: 0;
 }
-
-@import url('https://fonts.googleapis.com/css?family=PT+Sans:400,700');

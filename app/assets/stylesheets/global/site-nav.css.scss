@@ -2,12 +2,11 @@ nav {
   margin: 0;
   min-width: 100%;
   max-width: 100%;
-  height: $nav-height;
   background-color: white;
   ul {
     padding: 0;
     padding-right: 10px;
-    margin: 0 0 0 $filters-width;
+    margin: 0;
   }
   ul li {
     display: inline-block;
@@ -15,12 +14,8 @@ nav {
   }
   a {
     display: inline-block;
-    line-height: $nav-height;
+    padding: 20px 10px;
     width: auto;
-    color: #B0B0B0;
-    text-transform: lowercase;
-    font-weight: $font-stack-regular;
-    font-size: $small-font;
-    margin-right: 65px;
+    color: black;
   }
 }
