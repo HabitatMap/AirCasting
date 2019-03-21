@@ -10,6 +10,8 @@ Rails.application.routes.draw do
 
   resource :map
 
+  get 'map2' => 'yellow#index'
+
   get 's/:url_token' => 'measurement_sessions#show', :as => :short_session
 
   namespace :api do
