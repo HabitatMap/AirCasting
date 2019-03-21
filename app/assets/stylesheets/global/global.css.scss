@@ -1,0 +1,64 @@
+html {
+  height: 100%;
+}
+
+body,
+html {
+  background-color: white;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  &.disable-scrolling {
+    overflow: hidden !important;
+  }
+}
+
+[ng-cloak], .ng-cloak {
+  display: none;
+}
+
+.error {
+  color: red;
+}
+
+@mixin button {
+  color:#fff;
+  background: $button-color;
+  font-weight:bold;
+  padding:5px 10px;
+  border:0;
+  text-decoration:none;
+}
+
+button, .button {
+  @include button;
+}
+
+a {
+  color: $link-color;
+  text-decoration:none;
+  &:hover {
+    text-decoration:underline;
+  }
+}
+
+#jquery-overlay {
+  z-index: 2000 !important;
+}
+
+#jquery-lightbox {
+  z-index: 2050 !important;
+}
+
+.visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
