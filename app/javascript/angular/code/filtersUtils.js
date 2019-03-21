@@ -1,3 +1,6 @@
+import tippy from 'tippy.js';
+import Clipboard from 'clipboard';
+
 export const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
   if (document.getElementById("daterange")) {
     $('#daterange').daterangepicker({
@@ -47,8 +50,31 @@ export const setupAutocomplete = (callback, id, path) => {
     window.setTimeout(setupAutocomplete(callback, id, path), 100);
   };
 };
+export const setupClipboard = () => {
+  new Clipboard('#copy-link-button');
+};
 
-export const updateTooltipContent = (link, tooltip) => {
+export const tooltipInstance = () => {
+  return tippy('#copy-link-tooltip', {
+    trigger: 'manual',
+    interactive: true,
+  })[0];
+};
+
+export const fetchShortUrl = (currentUrl, tooltip) => {
+  tooltip.setContent('Fetching...');
+  tooltip.show();
+
+  fetch('api/short_url?longUrl=' + currentUrl)
+    .then(response => response.json())
+    .then(json => updateTooltipContent(json.short_url, tooltip))
+    .catch(err => {
+      console.warn('Couldn\'t fetch shorten url: ', err);
+      updateTooltipContent(currentUrl, tooltip)
+    });
+};
+
+const updateTooltipContent = (link, tooltip) => {
   const content = `
     <input value=${link}></input>
     <button
