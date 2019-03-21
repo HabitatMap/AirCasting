@@ -178,7 +178,7 @@ export const MobileSessionsMapCtrl = (
       const tooltip = FiltersUtils.tooltipInstance()
 
       elmApp.ports.showCopyLinkTooltip.subscribe(() => {
-        const currentUrl = window.location.href;
+        const currentUrl = encodeURIComponent(window.location.href);
 
         FiltersUtils.fetchShortUrl(currentUrl, tooltip);
       });
