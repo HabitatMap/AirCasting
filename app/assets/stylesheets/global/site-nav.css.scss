@@ -1,0 +1,21 @@
+nav {
+  margin: 0;
+  min-width: 100%;
+  max-width: 100%;
+  background-color: white;
+  ul {
+    padding: 0;
+    padding-right: 10px;
+    margin: 0;
+  }
+  ul li {
+    display: inline-block;
+    text-align: left;
+  }
+  a {
+    display: inline-block;
+    padding: 20px 10px;
+    width: auto;
+    color: black;
+  }
+}
