@@ -31,10 +31,10 @@ export const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeT
 
 export const setupAutocomplete = (callback, id, path) => {
   if (document.getElementById(id)) {
-    $( "#" + id )
-      .bind( "keydown", function( event ) {
-        if ( event.keyCode === $.ui.keyCode.ENTER ) {
-          $( this ).data( "autocomplete" ).close(event);
+    $('#' + id)
+      .bind('keydown', function(event) {
+        if (event.keyCode === $.ui.keyCode.ENTER) {
+          $(this).data('autocomplete').close(event);
         }
       })
       .autocomplete({
@@ -50,16 +50,18 @@ export const setupAutocomplete = (callback, id, path) => {
     window.setTimeout(setupAutocomplete(callback, id, path), 100);
   };
 };
+
 export const setupClipboard = () => {
   new Clipboard('#copy-link-button');
 };
 
-export const tooltipInstance = () => {
-  return tippy('#copy-link-tooltip', {
-    trigger: 'manual',
+export const tooltipInstance = () => (
+  tippy('#copy-link-tooltip', {
+    animateFill: false,
     interactive: true,
-  })[0];
-};
+    trigger: 'manual',
+  })[0]
+);
 
 export const fetchShortUrl = (currentUrl, tooltip) => {
   tooltip.setContent('Fetching...');
@@ -84,13 +86,12 @@ const updateTooltipContent = (link, tooltip) => {
       Copy
     </button>
   `
+
   tooltip.setContent(content);
 
   document.getElementById('copy-link-button').addEventListener('click', () => {
-    tooltip.set({
-      content: 'Copied!',
-      animation: 'fade',
-    });
-    tooltip.hide(1000)
+    tooltip.setContent('Copied!');
+
+    window.setTimeout(tooltip.hide, 1000);
   });
 };
