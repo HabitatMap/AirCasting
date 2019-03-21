@@ -1,8 +1,7 @@
 import _ from 'underscore';
 import { Elm } from '../../../elm/src/FixedSessionFilters.elm';
 import moment from 'moment'
-import Clipboard from 'clipboard';
-import tippy from 'tippy.js';
+
 import * as FiltersUtils from '../filtersUtils'
 
 export const FixedSessionsMapCtrl = (
@@ -152,26 +151,15 @@ export const FixedSessionsMapCtrl = (
 
       FiltersUtils.setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
 
-      new Clipboard('#copy-link-button');
 
-      const tooltip = tippy('#copy-link-tooltip', {
-        trigger: 'manual',
-        interactive: true,
-      })[0];
+      FiltersUtils.setupClipboard();
+
+      const tooltip = FiltersUtils.tooltipInstance()
 
       elmApp.ports.showCopyLinkTooltip.subscribe(() => {
         const currentUrl = window.location.href;
 
-        tooltip.setContent('Fetching...');
-        tooltip.show();
-
-        fetch('api/short_url?longUrl=' + currentUrl)
-          .then(response => response.json())
-          .then(json => FiltersUtils.updateTooltipContent(json.short_url, tooltip))
-          .catch(err => {
-            console.warn('Couldn\'t fetch shorten url: ', err);
-            FiltersUtils.updateTooltipContent(currentUrl, tooltip)
-          });
+        FiltersUtils.fetchShortUrl(currentUrl, tooltip);
       });
     });
   };
