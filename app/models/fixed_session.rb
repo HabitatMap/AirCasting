@@ -56,9 +56,7 @@ class FixedSession < Session
 
     last_measurement_time = stream.measurements.last.time
     measurements = stream.measurements.where(time: last_measurement_time - 1.hour..last_measurement_time)
-    last_hour_average = measurements.average(:value)
-
-    last_hour_average
+    measurements.average(:value)
   end
 
   def as_synchronizable(stream_measurements=false, last_measurement_sync=nil)
