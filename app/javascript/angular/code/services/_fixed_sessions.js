@@ -61,6 +61,8 @@ export const fixedSessions = (
 
 
     onSessionsFetch: function() {
+      if($location.path() !== constants.fixedMapRoute) return;
+
       this.drawSessionsInLocation();
       sessionsUtils.onSessionsFetch(this);
     },
