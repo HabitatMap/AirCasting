@@ -1,0 +1,27 @@
+.info-window {
+  width: auto;
+  height: auto;
+  color: black;
+  p {
+    padding: 0;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.cluster-data-list {
+  font-size: 12px;
+  padding-left: 5px;
+  list-style: none;
+  height:100%;
+
+  li {
+    max-width: 230px;
+    line-height: 1.5;
+  }
+}
+
+.info-window-sensor {
+  font-size: 14px;
+  font-weight: bold;
+}
