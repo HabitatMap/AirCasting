@@ -1,0 +1,38 @@
+.map-filters {
+  min-height: calc(100vh - #{$nav-height});
+  width: $filters-width;
+  min-width: $filters-width;
+  background: $brand-secondary;
+  color: white;
+  z-index: 2;
+}
+
+.filters-form {
+  padding: 16px;
+}
+
+.sessions-type {
+  width: 100%;
+  @include flexbox();
+  @include justify-content(space-between);
+}
+
+.session-type-mobile, .session-type-fixed {
+  width: 50%;
+  background-color: $brand-primary;
+  font-size: $small-font;
+  padding: $margin-default;
+  text-align: left;
+  &.selected {
+    background-color: $brand-secondary;
+  }
+  &:focus {
+    outline: none;
+  }
+}
+
+.filter-separator {
+  width: 100%;
+  border-bottom: white solid 0.6px;
+  opacity: 0.4;
+}
