@@ -5,7 +5,6 @@
   background: $brand-secondary;
   color: white;
   z-index: 2;
-  position: relative;
 }
 
 .filters-form {
@@ -24,9 +23,6 @@
   font-size: $small-font;
   padding: $margin-default;
   text-align: left;
-  color: white;
-  border: none;
-  font-weight: $font-stack-bold;
   &.selected {
     background-color: $brand-secondary;
   }
@@ -39,19 +35,4 @@
   width: 100%;
   border-bottom: white solid 0.6px;
   opacity: 0.4;
-}
-
-.filters-buttons {
-  width: 100%;
-  @include flexbox();
-  @include justify-content(space-between);
-  @include align-items(center);
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  padding: $margin-default;
-}
-
-.export-button {
-  width: 170px;
 }
