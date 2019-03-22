@@ -1,0 +1,33 @@
+label {
+  font-size: $tiny-font;
+  font-weight: bold;
+}
+
+input {
+  border: none;
+  border-radius: 6px;
+  font-size: $small-font;
+  line-height: 2.2;
+  width: 100%;
+  padding: 0 7px;
+  &:focus {
+    outline: none;
+  }
+}
+
+input[type=checkbox] {
+  margin-top: 24px;
+  width: auto;
+}
+
+.input-dark {
+  background-color: $input-bg;
+  color: white;
+  &::placeholder {
+    color: #A0A3B2;
+  }
+}
+
+.input-filters {
+  margin-bottom: 24px;
+}
