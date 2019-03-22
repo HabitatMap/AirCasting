@@ -15,7 +15,7 @@ nav {
   }
   a {
     display: inline-block;
-    padding: 20px 10px;
+    line-height: $nav-height;
     width: auto;
     color: #B0B0B0;
     text-transform: lowercase;
