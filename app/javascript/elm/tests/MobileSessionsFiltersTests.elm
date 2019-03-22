@@ -1,4 +1,4 @@
-module MobileSessionsFiltersTests exposing (crowdMapArea, profilesArea, tagsArea, timeFilter)
+module MobileSessionsFiltersTests exposing (crowdMapArea, locationFilter, profilesArea, tagsArea, timeFilter)
 
 import Expect
 import Fuzz exposing (bool, int, list, string)
@@ -13,6 +13,35 @@ import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Slc
 import TimeRange
+
+
+locationFilter : Test
+locationFilter =
+    describe "Location filter tests:"
+        [ test "Location filter is present" <|
+            \_ ->
+                defaultModel
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.id "location-filter" ]
+        , fuzz string "when user types UpdateLocationInput is triggered" <|
+            \locationValue ->
+                defaultModel
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "location-filter" ]
+                    |> Event.simulate (Event.input locationValue)
+                    |> Event.expect (UpdateLocationInput locationValue)
+        , fuzz string "when UpdateLocationInput is triggered model.location is updated" <|
+            \locationValue ->
+                defaultModel
+                    |> update (UpdateLocationInput locationValue)
+                    |> Tuple.first
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "location-filter" ]
+                    |> Query.has [ Slc.attribute <| Attr.value locationValue ]
+        ]
 
 
 timeFilter : Test
