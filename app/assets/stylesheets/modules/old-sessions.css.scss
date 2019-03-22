@@ -1,0 +1,159 @@
+$sessions-list-height: 300px;
+$sessions-list-width: 238px;
+$sessions-list-bottom: 30px;
+$graph-zindex: 10;
+$graph-height: 140px;
+
+#hud #sessions {
+  background: none repeat scroll 0 0 #FFFFFF;
+  border: 2px solid $text-color;
+  left: 10px;
+  padding: 0;
+  position: fixed;
+  top: 255px;
+  width: $sessions-list-width;
+
+  .sensor-bold {
+    font-weight: bold;
+  }
+
+  #sessions-top {
+    left: -2px;
+    position: absolute;
+    top: -40px;
+    width:$sessions-list-width + 4px;
+
+    .name {
+      background: #fff;
+      border: 2px solid $text-color;
+      font-weight:bold;
+      padding:6px 16px 1px;
+      float: left;
+      border-bottom: none;
+    }
+  }
+
+  label.narrow {
+    width: 170px;
+  }
+
+  #sessions-bottom {
+    overflow: auto;
+    height: 300px;
+
+    ul {
+      list-style:none;
+      margin:0;
+      padding:0;
+    }
+
+    li {
+      padding:5px 10px;
+      clear:both;
+      overflow: hidden;
+
+      &:nth-child(2n+1) {
+        background:#eee;
+      }
+
+      input[type="checkbox"], input {
+        float:left;
+        margin:3px 0 0;
+      }
+
+      dl {
+        float:left;
+        margin:0 0 0 10px;
+      }
+
+      dt, dd {
+        color:#000;
+        font-weight:normal;
+      }
+
+      dt {
+        font-size:14px;
+      }
+
+      dd {
+        font-size:11px;
+        margin:0;
+      }
+
+      label {
+        display: block;
+        cursor: pointer;
+      }
+    }
+
+    li.selected {
+      background: #d5e9ff
+    }
+  }
+}
+#hud #sessions-graph {
+  padding: 0;
+  position: fixed;
+  bottom: $sessions-list-bottom;
+  left: $sessions-list-width + 20px;
+  font-family:'Arial', sans-serif !important;
+  #graph-box {
+    height: 200px;
+    left: -2px;
+    margin: 0;
+    overflow: visible !important;
+    position: relative;
+    top: -2px;
+    padding: 0;
+  }
+
+  #graph-top {
+    left: -2px;
+    overflow: visible;
+    position: absolute;
+    top: -30px;
+
+    &.collapsed {
+      bottom: 0;
+      top: auto;
+    }
+    #graph-header {
+      background: none repeat scroll 0 0 #FFFFFF;
+      border: 2px solid $text-color;
+      border-bottom-style: none;
+      float: left;
+      font-weight: bold;
+      padding: 4px 16px 3px;
+      position: relative;
+      z-index: $graph-zindex + 10;
+
+      &.collapsed {
+        border-bottom: 2px solid $text-color;
+      }
+    }
+
+    #graph-arrow {
+      float: right;
+      width: 22px;
+      height: 22px;
+      margin-left: 4px;
+      background: url("arrow-close-down.png") no-repeat right center;
+      &.collapsed {
+        background: url("arrow-open-up.png") no-repeat right center;
+      }
+    }
+  }
+
+  #graph {
+    height: 100%;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: $graph-zindex;
+  }
+
+}

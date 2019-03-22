@@ -1,2 +1,48 @@
-<div class="map-filters">
+<div class="maps-page-container">
+  <div class="map-filters">
+    <div class="sessions-type">
+      <button class="session-type-mobile selected">mobile</button>
+      <button class="session-type-fixed">fixed</button>
+    </div>
+    <form class="filters-form">
+     <label for="parameter">parameter:</label>
+     <input class="input-dark input-filters " placeholder="particulate matter" type="text" id="parameter" name="user_name">
+     <label for="sensor">sensor:</label>
+     <input class="input-dark input-filters " placeholder="sensor" type="text" id="sensor" name="user_name">
+     <label for="location">location:</label>
+     <input class="input-dark input-filters " placeholder="location" type="text" id="location" name="user_name">
+     <label for="time-frame">time frame:</label>
+     <input class="input-dark input-filters " placeholder="time frame" type="time-frame" id="parameter" name="user_name">
+     <label for="profile-names">profile names:</label>
+     <input class="input-dark input-filters " placeholder="+ add profile name" type="text" id="profile-names" name="user_name">
+     <label for="parameter">tags:</label>
+     <input class="input-dark input-filters " placeholder="+ add tag" type="text" id="tag" name="user_name">
+     <div class="filter-separator"></div>
+     <input type="checkbox" name="CrowdMap" value="CrowdMap">
+     <label for="CrowdMap">CrowdMap</label>
+   </form>
+  </div>
+  <div class="maps-content-container">
+    <div class="map-container">
+      <div class="sessions">
+        <h2 class="sessions-header">Sessions</h2>
+        <span class="sessions-number">showing 6 of 500 reuslts</span>
+        <div class="sessions-container">
+          <% 9.times do %>
+            <div class="session">
+              <div class="session-header-container">
+                <div class="session-color heat-lvl1-bg"></div>
+                <h3 class="session-name">Lunar HQ</h3>
+              </div>
+              <p class="session-owner">Lunar team</p>
+              <p class="session-dates">12.02.2019 13:00-15:30</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="heatmap">
+      A place for heatmap
+    </div>
+  </div>
 </div>
