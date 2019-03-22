@@ -5,6 +5,7 @@
   background: $brand-secondary;
   color: white;
   z-index: 2;
+  position: relative;
 }
 
 .filters-form {
@@ -35,4 +36,19 @@
   width: 100%;
   border-bottom: white solid 0.6px;
   opacity: 0.4;
+}
+
+.filters-buttons {
+  width: 100%;
+  @include flexbox();
+  @include justify-content(space-between);
+  @include align-items(center);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: $margin-default;
+}
+
+.export-button {
+  width: 170px;
 }

@@ -21,9 +21,15 @@
      <input type="checkbox" name="CrowdMap" value="CrowdMap">
      <label for="CrowdMap">CrowdMap</label>
    </form>
+   <div class="filters-buttons">
+     <button class="filters-button export-button" id="copy-link-tooltip">export session</button>
+     <button class="filters-button circular-button" id="copy-link-tooltip">o</button>
+   </div>
   </div>
   <div class="maps-content-container">
     <div class="map-container">
+      <div class="map" id="map1">
+      </div>
       <div class="sessions">
         <h2 class="sessions-header">Sessions</h2>
         <span class="sessions-number">showing 6 of 500 reuslts</span>
@@ -46,3 +52,15 @@
     </div>
   </div>
 </div>
+
+<script>
+  var map;
+  function initMap() {
+    map = new google.maps.Map(document.getElementById('map1'), {
+      center: {lat: -34.397, lng: 150.644},
+      zoom: 8
+    });
+  }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= A9n.google_maps_api_key %>&callback=initMap"
+async defer></script>

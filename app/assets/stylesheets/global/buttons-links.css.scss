@@ -3,28 +3,9 @@
   height: 33px;
   border-radius: 30px;
   font-size: $small-font;
-  border: none;
-  color: white;
 }
 
 .circular-button {
   heigh: 33px;
   width: 33px;
-}
-
-.clear-button {
-  background: white;
-  border-radius: 30px;
-  font-size: $tiny-font;
-  color: $dark-blue;
-  font-weight: $font-stack-regular;
-  box-shadow: 1px 1px 4px 0 rgba(160, 192, 290 ,0.5);
-  border: none;
-}
-
-.parameter-filters-button {
-  @extend .clear-button;
-  width: 126px;
-  padding: 6px 0;
-  margin-bottom: 12px;
 }
