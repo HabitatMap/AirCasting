@@ -19,3 +19,8 @@
   background: white;
   width: 100vw;
 }
+
+.map {
+  width: calc( 100vw - #{$filters-width});
+  height: 100%;
+}
