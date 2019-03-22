@@ -12,5 +12,6 @@ angular.module("aircasting").factory('fixedSessions', [
   'sessionsUtils',
   '$location',
   'heat',
+  'infoWindow',
   fixedSessions
 ]);

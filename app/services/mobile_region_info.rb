@@ -1,4 +1,4 @@
-class RegionInfo
+class MobileRegionInfo
   def initialize(data)
     usernames = data[:usernames].to_s.split(/\s*,\s*/)
     @streams = Stream.
@@ -19,15 +19,6 @@ class RegionInfo
     @measurements.average(:value)
   end
 
-  def top_contributors
-    @measurements.joins(:session => :user).
-      group("users.id").
-      order("count(*) DESC").
-      limit(10).
-      select(:username).
-      map(&:username)
-  end
-
   def number_of_contributors
     @measurements.joins(:session).
       select("DISTINCT user_id").
@@ -41,7 +32,6 @@ class RegionInfo
   def as_json(options=nil)
     {
       :average => average,
-      :top_contributors => top_contributors,
       :number_of_contributors => number_of_contributors,
       :number_of_samples => number_of_samples
     }

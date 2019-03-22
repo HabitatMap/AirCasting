@@ -1,0 +1,11 @@
+<div ng-controller="InfoWindowCtrl" >
+  <p class="info-window-sensor">{{sensors.selected().label}}</p>
+  <p class="info-window-avg">avg. {{infoWindow.data.average | number:0 }} {{sensors.selected().unit_symbol }}</p>
+  <hr>
+  <ul class="cluster-data-list">
+    <li>{{infoWindow.data.number_of_instruments }} instruments</li>
+    <li>{{infoWindow.data.number_of_samples }} measurements</li>
+    <li>{{infoWindow.data.number_of_contributors }} contribitors</li>
+    <button class="info-window-button" ng-click="zoomIn()">zoom in and show sessions</button>
+  </ul>
+</div>

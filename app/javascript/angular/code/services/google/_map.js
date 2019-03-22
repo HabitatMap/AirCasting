@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import { buildCustomMarker } from './custom_marker';
+import MarkerClusterer from "@google/markerclustererplus";
 
 export const map = (
   params,
@@ -8,7 +9,8 @@ export const map = (
   digester,
   rectangles,
   geocoder,
-  googleMaps
+  googleMaps,
+  heat,
 ) => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === 'test' ? 0 : 1000;
   let hasChangedProgrammatically = false;
@@ -149,13 +151,46 @@ export const map = (
       return newMarker;
     },
 
-    drawCustomMarker: function({ latLng, content, colorClass, callback, type }) {
-      const customMarker = buildCustomMarker(latLng, content, colorClass, callback, type);
+    drawCustomMarker: function({ object, content, colorClass, callback, type }) {
+      const customMarker = buildCustomMarker(object, content, colorClass, callback, type );
 
       customMarker.setMap(this.get());
       this.markers.push(customMarker);
 
       return customMarker;
+    },
+
+    clusterMarkers: function(onClick) {
+      const options = {
+        styles: [
+          { url: '/assets/marker1.svg', height: 30, width: 30 },
+          { url: '/assets/marker2.svg', height: 30, width: 30 },
+          { url: '/assets/marker3.svg', height: 30, width: 30 },
+          { url: '/assets/marker4.svg', height: 30, width: 30 },
+        ],
+        zoomOnClick: false,
+        gridSize: 20,
+        maxZoom: 21,
+        calculator: (markers) => {
+          // calculator returns an index value that is used to select the corresponding style from the styles array by: styles[index -1]
+          // documented at: https://htmlpreview.github.io/?https://github.com/googlemaps/v3-utility-library/blob/master/markerclustererplus/docs/reference.html
+          const average = markers.reduce((sum, marker) => sum + marker.value(), 0) / markers.length
+          return { text: "", index: heat.getLevel(Math.round(average)) }
+        }
+      };
+
+      const markerClusterer = new MarkerClusterer(this.mapObj, this.markers, options);
+
+      googleMaps.listen(markerClusterer, 'clusterclick', onClick);
+      this.clusterer = markerClusterer;
+    },
+
+    setSelectedCluster: function(cluster) {
+      this.selectedCluster = cluster;
+    },
+
+    zoomToSelectedCluster: function() {
+      googleMaps.fitBounds(this.mapObj,  this.selectedCluster.bounds_)
     },
 
     removeMarker: function(marker) {
@@ -166,6 +201,8 @@ export const map = (
     },
 
     removeAllMarkers: function() {
+      if (this.clusterer) this.clusterer.clearMarkers();
+
       (this.markers || []).forEach(marker => marker.setMap(null));
       this.markers = [];
     },

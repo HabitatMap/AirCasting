@@ -14,7 +14,8 @@ export const fixedSessions = (
   boundsCalculator,
   sessionsUtils,
   $location,
-  heat
+  heat,
+  infoWindow
 ) => {
   var FixedSessions = function() {
     this.sessions = [];
@@ -60,6 +61,8 @@ export const fixedSessions = (
 
 
     onSessionsFetch: function() {
+      if($location.path() !== constants.fixedMapRoute) return;
+
       this.drawSessionsInLocation();
       sessionsUtils.onSessionsFetch(this);
     },
@@ -116,6 +119,8 @@ export const fixedSessions = (
     },
 
     drawSessionsInLocation: function() {
+      map.removeAllMarkers();
+
       if (params.get('data').location.indoorOnly) return;
 
       const sessions = this.get();
@@ -126,6 +131,8 @@ export const fixedSessions = (
       }
 
       (sessions).forEach(session => this.drawColorCodedMarkers(session, sensors.selectedSensorName()));
+
+      map.clusterMarkers(showClusterInfo(sensors.selectedSensorName(), map, infoWindow));
     },
 
     drawColorCodedMarkers: function(session, selectedSensor) {
@@ -138,14 +145,13 @@ export const fixedSessions = (
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
       const marker = map.drawCustomMarker({
-          latLng: latLng,
+          object: { latLng, id: Session.id(session), value: Session.lastHourRoundedAverage(session) },
           content: content,
           colorClass: heatLevel,
           callback: callback(Session.id(session)),
-          type: 'data-marker'
+          type: 'data-marker',
         });
       session.markers.push(marker);
-      map.markers.push(marker);
     },
 
     drawDefaultMarkers: function(session) {
@@ -156,13 +162,12 @@ export const fixedSessions = (
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
       const customMarker = map.drawCustomMarker({
-          latLng: latLng,
+          object: { latLng },
           colorClass: "default",
           callback: callback(Session.id(session)),
           type: 'marker',
         });
       session.markers.push(customMarker);
-      map.markers.push(customMarker);
     },
 
     _fetch: function(page) {
@@ -223,3 +228,14 @@ export const fixedSessions = (
   };
   return new FixedSessions();
 };
+
+export const showClusterInfo = (sensorName, map, infoWindow) => (cluster) => {
+  map.setSelectedCluster(cluster);
+
+  const data = { q: {
+    session_ids: cluster.getMarkers().map((marker) => marker.objectId()),
+    sensor_name: sensorName
+  }};
+
+  infoWindow.show("/api/fixed_region", data, cluster.getCenter(), constants.fixedSession);
+}

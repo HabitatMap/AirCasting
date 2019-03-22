@@ -1,6 +1,6 @@
-export function buildCustomMarker(latLng, content, colorClass, callback, type) {
-  const CustomMarker = function(position, content, colorClass, callback, type) {
-    this.position = position;
+export function buildCustomMarker(object, content, colorClass, callback, type) {
+  const CustomMarker = function(object, content, colorClass, callback, type) {
+    this.position = object.latLng
 
     const marker = document.createElement('div');
     marker.classList.add(type);
@@ -55,5 +55,17 @@ export function buildCustomMarker(latLng, content, colorClass, callback, type) {
           });
         });
   };
-  return new CustomMarker(latLng, content, colorClass, callback, type);
+
+  // getPosition and getDraggable are required markers methods for google/markerclustererplus library
+  CustomMarker.prototype.getPosition = function() {
+    return new google.maps.LatLng({ lat: this.position.lat(), lng: this.position.lng() });
+  };
+
+  CustomMarker.prototype.getDraggable = () => {};
+
+  CustomMarker.prototype.objectId = () => object.id;
+
+  CustomMarker.prototype.value = () => object.value;
+
+  return new CustomMarker(object, content, colorClass, callback, type);
 }

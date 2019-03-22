@@ -8,5 +8,6 @@ angular.module("google").factory("map", [
   "rectangles",
   "geocoder",
   "googleMaps",
+  "heat",
   map
 ]);

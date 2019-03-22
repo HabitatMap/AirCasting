@@ -229,6 +229,19 @@ test('removeAllMarkers removes all markers', t => {
   t.end();
 });
 
+test('removeAllMarkers clears the clustering', t => {
+  const clearMarkers = sinon.spy()
+  const service = _map({})
+  service.clusterer = { clearMarkers }
+
+  service.removeAllMarkers()
+
+  sinon.assert.called(clearMarkers);
+
+  t.end();
+});
+
+
 test('drawRectangles calls rectangle.draw with data and thresholds', t => {
   const draw = sinon.spy();
   const rectangles = { draw };
@@ -271,6 +284,33 @@ test('drawRectangles sets a listener on rectangle click', t => {
 
   t.end();
 });
+
+test('setSelectedCluster sets the passed argument as a selected cluster', t => {
+  const cluster = { id:1 }
+  const service = _map({});
+
+  service.setSelectedCluster(cluster);
+
+  t.deepEqual(service.selectedCluster, cluster);
+  t.end();
+})
+
+test('zoomToSelectedCluster calls fitBounds with current map object and bound of selected cluster', t => {
+  const fitBounds = sinon.spy();
+  const mapObj = sinon.stub();
+  const bounds = sinon.stub();
+  const googleMaps = { fitBounds };
+
+  const service = _map({ googleMaps });
+  service.selectedCluster = { bounds_: bounds };
+  service.mapObj = mapObj;
+
+  service.zoomToSelectedCluster();
+
+  sinon.assert.calledWith(fitBounds, mapObj, bounds);
+
+  t.end();
+})
 
 const mockGeocoder = () => ({
   get: (_, callback) => callback([ { geometry: { getBounds: null } } ])

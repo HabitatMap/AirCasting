@@ -1,6 +1,9 @@
-function InfoWindowCtrl($scope, sensors, infoWindow ) {
-  $scope.sensors = sensors;
-  $scope.infoWindow = infoWindow;
-}
-InfoWindowCtrl.$inject = ['$scope', 'sensors', 'infoWindow'];
-angular.module('aircasting').controller('InfoWindowCtrl', InfoWindowCtrl);
+import { InfoWindowCtrl } from './_info_window_ctrl'
+
+angular.module('aircasting').controller('InfoWindowCtrl', [
+  '$scope',
+  'sensors',
+  'infoWindow',
+  'map',
+  InfoWindowCtrl
+]);

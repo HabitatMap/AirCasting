@@ -67,6 +67,8 @@ export const mobileSessions = (
 
 
     onSessionsFetch: function() {
+      if($location.path() !== constants.mobileMapRoute) return;
+
       if (!storage.isCrowdMapLayerOn()) {
         this.drawSessionsInLocation();
       };
@@ -157,7 +159,7 @@ export const mobileSessions = (
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
       const marker = map.drawCustomMarker({
-          latLng: latLng,
+          object: { latLng },
           colorClass: heatLevel,
           callback: callback(Session.id(session)),
           type: 'marker'
@@ -175,7 +177,7 @@ export const mobileSessions = (
       const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
 
       const marker = map.drawCustomMarker({
-          latLng: latLng,
+          object: { latLng },
           content: content,
           colorClass: heatLevel,
           callback: callback(Session.id(session)),

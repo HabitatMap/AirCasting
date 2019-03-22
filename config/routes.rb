@@ -34,7 +34,8 @@ Rails.application.routes.draw do
     resources :averages, only: [:index]
     resources :thresholds, only: [:show], id: /.*/
     resources :regressions, only: [:create, :index, :destroy]
-    resource :region, only: [:show]
+    resource :region, only: [:show], controller: "mobile_regions"
+    resource :fixed_region, only: [:show]
     resource  :user, only: [:show, :create] do
       resources :sessions, only: [:show], controller: "user_sessions" do
         collection do

@@ -1,6 +1,7 @@
 import test from 'blue-tape';
 import { mock } from './helpers';
-import { fixedSessions } from '../code/services/_fixed_sessions';
+import { fixedSessions, showClusterInfo } from '../code/services/_fixed_sessions';
+import sinon from 'sinon';
 
 test('fetch with no sessions ids in params passes empty array to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
@@ -360,6 +361,56 @@ test('drawSessionsInLocation draws colorcoded marker for currently streaming ses
   t.end();
 });
 
+test('drawSessionsInLocation calls map.clusterMarkers for currently streaming sessions when sensor selected', t => {
+  const clusterMarkers = sinon.spy();
+  const map = { clusterMarkers }
+  const sensors = { anySelected: () => true};
+  const data = buildData({ location: { streaming: true } });
+  const fixedSessionsService = _fixedSessions({ data, map, sensors });
+
+  fixedSessionsService.drawSessionsInLocation();
+
+  sinon.assert.called(clusterMarkers);
+
+  t.end();
+});
+
+test('drawSessionsInLocation removes previous markers', t => {
+  const removeAllMarkers = sinon.spy();
+  const map = { removeAllMarkers }
+  const fixedSessionsService = _fixedSessions({ map });
+
+  fixedSessionsService.drawSessionsInLocation();
+
+  sinon.assert.called(removeAllMarkers);
+
+  t.end();
+});
+
+test('showClusterInfo returns a callback that calls setSelectedCluster with current cluster', t => {
+  const setSelectedCluster = sinon.spy();
+  const cluster = { getMarkers: () => [], getCenter: () => {} }
+  const callback = showClusterInfo("", { setSelectedCluster }, { show: () => {} });
+
+  callback(cluster);
+
+  sinon.assert.calledWith(setSelectedCluster, cluster);
+
+  t.end();
+});
+
+test('showClusterInfo returns a callback that calls infoWindow.show with correct sessions ids and sensor name', t => {
+  const show = sinon.spy();
+  const infoWindow = { show };
+  const cluster = { getMarkers: () => [{ objectId: () => 1 }], getCenter: () => {} }
+  const callback = showClusterInfo("Sensor Name", { setSelectedCluster: () => {} }, infoWindow);
+
+  callback(cluster);
+
+  sinon.assert.calledWith(show, "/api/fixed_region", { q: { session_ids: [1], sensor_name: "Sensor Name" }});
+
+  t.end();
+});
 
 const buildData = obj => ({ timeFrom: 1, timeTo: 1, location: {}, sensorId: 123, ...obj });
 
@@ -376,7 +427,7 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessi
       }
     }
   };
-  const _map = { getBounds: () => ({}), getZoom: () => undefined, markers: [], drawCustomMarker: () => {}, ...map };
+  const _map = { getBounds: () => ({}), getZoom: () => undefined, markers: [], drawCustomMarker: () => {}, removeAllMarkers: () => {}, clusterMarkers: () => {}, ...map };
   const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, anySelected: () => false, selectedSensorName: () => "sensorName", ...sensors };
   const _drawSession = drawSession || { clear: () => {}, undoDraw: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
