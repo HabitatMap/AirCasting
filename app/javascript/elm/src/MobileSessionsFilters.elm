@@ -18,6 +18,7 @@ import TimeRange exposing (TimeRange)
 type alias Model =
     { crowdMapResolution : Int
     , isCrowdMapOn : Bool
+    , location : String
     , tags : LabelsInput.Model
     , profiles : LabelsInput.Model
     , timeRange : TimeRange
@@ -28,6 +29,7 @@ defaultModel : Model
 defaultModel =
     { crowdMapResolution = 25
     , isCrowdMapOn = False
+    , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
     , timeRange = TimeRange.defaultTimeRange
@@ -63,6 +65,7 @@ init flags =
 type Msg
     = ToggleCrowdMap
     | UpdateCrowdMapResolution Int
+    | UpdateLocationInput String
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
@@ -77,6 +80,9 @@ update msg model =
 
         UpdateCrowdMapResolution resolution ->
             ( { model | crowdMapResolution = resolution }, Ports.updateResolution resolution )
+
+        UpdateLocationInput newValue ->
+            ( { model | location = newValue }, Cmd.none )
 
         TagsLabels subMsg ->
             updateLabels subMsg model.tags Ports.updateTags TagsLabels (\tags -> { model | tags = tags })
@@ -117,7 +123,8 @@ updateLabels msg model toSubCmd mapper updateModel =
 view : Model -> Html Msg
 view model =
     div []
-        [ Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
+        [ viewLocation model.location
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
         , h4 []
             [ text "Layers"
@@ -126,6 +133,14 @@ view model =
         , viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
         , TimeRange.viewTimeFilter
         , button [ Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ] [ text "oo" ]
+        ]
+
+
+viewLocation : String -> Html Msg
+viewLocation location =
+    div []
+        [ h4 [] [ text "Location" ]
+        , input [ Attr.id "location-filter", Attr.value location, Events.onInput UpdateLocationInput ] []
         ]
 
 
