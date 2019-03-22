@@ -1,4 +1,4 @@
-module MobileSessionsFiltersTests exposing (profilesArea, tagsArea, timeFilter, updateTests, viewTests)
+module MobileSessionsFiltersTests exposing (crowdMapArea, profilesArea, tagsArea, timeFilter)
 
 import Expect
 import Fuzz exposing (bool, int, list, string)
@@ -210,9 +210,9 @@ profilesArea =
         ]
 
 
-updateTests : Test
-updateTests =
-    describe "update tests"
+crowdMapArea : Test
+crowdMapArea =
+    describe "Crowd Map filter test: "
         [ fuzz bool "ToggleCrowdMap toggles the value of model.isCrowdMapOn" <|
             \onOffValue ->
                 { defaultModel | isCrowdMapOn = onOffValue }
@@ -227,13 +227,7 @@ updateTests =
                     |> Tuple.first
                     |> .crowdMapResolution
                     |> Expect.equal resolution
-        ]
-
-
-viewTests : Test
-viewTests =
-    describe "view tests"
-        [ test "checkbox has a correct label" <|
+        , test "checkbox has a correct label" <|
             \_ ->
                 defaultModel
                     |> view
