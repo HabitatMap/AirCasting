@@ -32,7 +32,7 @@ locationFilter =
                     |> Query.find [ Slc.id "location-filter" ]
                     |> Event.simulate (Event.input locationValue)
                     |> Event.expect (UpdateLocationInput locationValue)
-        , fuzz string "when UpdateLocationInput is triggered model.location is updated" <|
+        , fuzz string "when UpdateLocationInput is triggered new input value is visible" <|
             \locationValue ->
                 defaultModel
                     |> update (UpdateLocationInput locationValue)
@@ -41,6 +41,25 @@ locationFilter =
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "location-filter" ]
                     |> Query.has [ Slc.attribute <| Attr.value locationValue ]
+        , test "when Enter key is pressed SubmitLocation is triggered" <|
+            \_ ->
+                let
+                    simulatedEnterKeydown : Encode.Value
+                    simulatedEnterKeydown =
+                        Encode.object [ ( "keyCode", Encode.int 13 ) ]
+                in
+                defaultModel
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "location-filter" ]
+                    |> Event.simulate (Event.custom "keydown" simulatedEnterKeydown)
+                    |> Event.expect SubmitLocation
+        , fuzz string "when SubmitLocation is triggered Port.findLocation is called with current location field value" <|
+            \location ->
+                { defaultModel | location = location }
+                    |> update SubmitLocation
+                    |> Tuple.second
+                    |> Expect.equal (Ports.findLocation location)
         ]
 
 
