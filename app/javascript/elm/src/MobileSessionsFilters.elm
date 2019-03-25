@@ -70,6 +70,7 @@ type Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
     | ShowCopyLinkTooltip
+    | SubmitLocation
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -99,6 +100,9 @@ update msg model =
 
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
+
+        SubmitLocation ->
+            ( model, Ports.findLocation model.location )
 
 
 updateLabels :
@@ -140,7 +144,13 @@ viewLocation : String -> Html Msg
 viewLocation location =
     div []
         [ h4 [] [ text "Location" ]
-        , input [ Attr.id "location-filter", Attr.value location, Events.onInput UpdateLocationInput ] []
+        , input
+            [ Attr.id "location-filter"
+            , Attr.value location
+            , Events.onInput UpdateLocationInput
+            , onEnter SubmitLocation
+            ]
+            []
         ]
 
 
@@ -185,6 +195,19 @@ viewCrowdMapSlider resolution =
 onChange : (String -> msg) -> Html.Attribute msg
 onChange tagger =
     Events.on "change" (Decode.map tagger Events.targetValue)
+
+
+onEnter : Msg -> Html.Attribute Msg
+onEnter msg =
+    let
+        isEnter code =
+            if code == 13 then
+                Decode.succeed msg
+
+            else
+                Decode.fail "not ENTER"
+    in
+    Events.on "keydown" (Decode.andThen isEnter Events.keyCode)
 
 
 

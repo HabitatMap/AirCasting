@@ -1,4 +1,14 @@
-port module Ports exposing (profileSelected, showCopyLinkTooltip, tagSelected, timeRangeSelected, toggleCrowdMap, updateProfiles, updateResolution, updateTags)
+port module Ports exposing
+    ( findLocation
+    , profileSelected
+    , showCopyLinkTooltip
+    , tagSelected
+    , timeRangeSelected
+    , toggleCrowdMap
+    , updateProfiles
+    , updateResolution
+    , updateTags
+    )
 
 import Json.Encode as Encode
 
@@ -25,3 +35,6 @@ port updateProfiles : List String -> Cmd a
 
 
 port showCopyLinkTooltip : () -> Cmd a
+
+
+port findLocation : String -> Cmd a
