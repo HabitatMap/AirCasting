@@ -12,7 +12,7 @@ port profileSelected : (String -> msg) -> Sub msg
 port timeRangeSelected : (Encode.Value -> msg) -> Sub msg
 
 
-port toggleCrowdMap : () -> Cmd a
+port toggleCrowdMap : Bool -> Cmd a
 
 
 port updateResolution : Int -> Cmd a
