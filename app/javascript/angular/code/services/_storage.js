@@ -25,6 +25,7 @@ export const storage = (params, $rootScope, utils) => {
       this.data[name] = JSON.parse(JSON.stringify(value));
     },
     setInHash: function(hashName, name, value) {
+      //only used for updating heat; todo - delete when new heat legend implemented
       this.data[hashName][name] = angular.copy(value);
     },
     extend: function(data) {
@@ -42,15 +43,6 @@ export const storage = (params, $rootScope, utils) => {
         obj[name] = this.get(name);
       }
       params.update({data: obj});
-    },
-    updateCrowdMapDataInParams: function() {
-      params.update({
-        data: {
-          ...this.data,
-          gridResolution: this.get('gridResolution'),
-          crowdMap: this.get('crowdMap')
-        }
-      });
     },
     updateWithRefresh: function(name) {
       //be carefull when using this - currently it is only for location data
@@ -71,28 +63,9 @@ export const storage = (params, $rootScope, utils) => {
       this.update('location');
     },
     updateDefaults: function(newData) {
+      //only used for updating heat; todo - delete when new heat legend implemented
       this.defaults = utils.merge(this.defaults, newData);
     },
-    updateFromDefaults: function() {
-      var notUsedDefaults = {};
-      _(this.defaults).each(function(value, key){
-        if(!params.get("data")[key]){
-          notUsedDefaults[key] = value;
-        }
-      });
-      params.update({data: notUsedDefaults});
-    },
-    isCrowdMapLayerOn: function() {
-      return this.data.crowdMap;
-    },
-    toggleCrowdMapData: function() {
-      this.set("crowdMap",!this.isCrowdMapLayerOn());
-      this.updateCrowdMapDataInParams();
-    },
-    updateCrowdMapResolution: function(newResolution) {
-      this.set("gridResolution", newResolution);
-      this.updateCrowdMapDataInParams();
-    }
   };
   return new Storage();
 }
