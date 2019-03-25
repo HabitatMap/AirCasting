@@ -34,8 +34,22 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
         newData[key] =  angular.toJson(value);
       });
       $location.search(newData);
+    },
+    updateFromDefaults : function(defaults) {
+      this.update({data: filterAlreadySetParams(defaults, this.paramsData.data)});
     }
   };
   return new Params();
 }]);
 
+
+const filterAlreadySetParams = (defaults, currentParamsData = {}) => {
+  return Object.keys(defaults).reduce((acc, key) => {
+    if (paramNotSet(key, currentParamsData)) {
+      acc[key] = defaults[key];
+    };
+    return acc;
+  }, {});
+};
+
+const paramNotSet = (param, currentParamsData) => !(param in currentParamsData)

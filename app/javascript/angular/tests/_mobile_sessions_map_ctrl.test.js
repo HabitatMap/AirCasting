@@ -35,13 +35,11 @@ test('it updates defaults', t => {
   let defaults = {};
   const sensorId = "sensor id";
   const params = {
-    get: () => ({ sensorId })
-  };
-  const storage = {
-    updateDefaults: opts => defaults = opts
+    get: () => ({ sensorId }),
+    updateFromDefaults: opts => defaults = opts
   };
 
-  _MobileSessionsMapCtrl({ storage, params });
+  _MobileSessionsMapCtrl({ params });
 
   const expected = {
     sensorId,
@@ -77,17 +75,12 @@ test('does not fetch heat levels if they are already in the params', t => {
   t.end();
 });
 
-const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables, sensors, params }) => {
+const _MobileSessionsMapCtrl = ({ $scope, map, callback, expandables, sensors, params }) => {
   const _expandables = { show: () => {}, ...expandables };
   const _sensors = { setSensors: () => {}, fetchHeatLevels: () => {}, ...sensors };
   const functionBlocker = { block: () => {} };
-  const _params = { get: () => ({}), ...params };
+  const _params = { get: () => ({}), updateFromDefaults: () => {}, ...params };
   const infoWindow = { hide: () => {} };
-  const _storage = {
-    updateDefaults: () => {},
-    updateFromDefaults: () => {},
-    ...storage
-  };
   const _map = {
     goToAddress: () => {},
     unregisterAll: () => {},
@@ -97,5 +90,5 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, storage, expandables, s
   };
   const _$scope = { $watch: () => {}, ...$scope };
 
-  return MobileSessionsMapCtrl(_$scope, _params, _map, _sensors, _expandables, _storage, null, null, null, null, functionBlocker, null, infoWindow);
+  return MobileSessionsMapCtrl(_$scope, _params, _map, _sensors, _expandables, null, null, null, null, null, functionBlocker, null, infoWindow);
 };
