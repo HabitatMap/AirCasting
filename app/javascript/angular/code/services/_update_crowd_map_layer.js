@@ -2,7 +2,6 @@ import _ from 'underscore';
 import constants from '../constants';
 
 export const updateCrowdMapLayer = (
-  storage,
   map,
   $http,
   buildQueryParamsForCrowdMapLayer,
@@ -15,7 +14,7 @@ export const updateCrowdMapLayer = (
 ) => ({
   call: (sessionIds) => {
     map.clearRectangles();
-    if (!storage.isCrowdMapLayerOn()) return;
+    if (!params.get('data').crowdMap) return;
 
     const bounds = map.getBounds();
     const q = buildQueryParamsForCrowdMapLayer.call(sessionIds, bounds);

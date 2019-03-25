@@ -86,9 +86,9 @@ export const MobileSessionsMapCtrl = (
     console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
     if (newValue === oldValue) return;
 
-    if (storage.isCrowdMapLayerOn() && mobileSessions.noOfSelectedSessions() === 0) {
+    if ($scope.params.get('data').crowdMap && mobileSessions.noOfSelectedSessions() === 0) {
       sessionsUtils.updateCrowdMapLayer(mobileSessions.sessionIds());
-    } else if (storage.isCrowdMapLayerOn() && mobileSessions.noOfSelectedSessions() === 1) {
+    } else if ($scope.params.get('data').crowdMap && mobileSessions.noOfSelectedSessions() === 1) {
       sessionsUtils.updateCrowdMapLayer($scope.params.get('selectedSessionIds'));
       mobileSessions.redrawSelectedSession($scope.params.get('selectedSessionIds')[0]);
     } else if (mobileSessions.noOfSelectedSessions() === 1) {
@@ -131,13 +131,13 @@ export const MobileSessionsMapCtrl = (
 
       const elmApp = Elm.MobileSessionsFilters.init({ node: node, flags: flags });
 
-      elmApp.ports.toggleCrowdMap.subscribe(() => {
-        storage.toggleCrowdMapData();
+      elmApp.ports.toggleCrowdMap.subscribe((crowdMap) => {
+        params.updateData({ crowdMap });
         $scope.sessions.fetch();
       });
 
-      elmApp.ports.updateResolution.subscribe((newResolution) => {
-        storage.updateCrowdMapResolution(newResolution);
+      elmApp.ports.updateResolution.subscribe((gridResolution) => {
+        params.updateData({ gridResolution });
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
       });
 
