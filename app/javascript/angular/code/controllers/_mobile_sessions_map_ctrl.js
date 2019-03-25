@@ -46,7 +46,7 @@ export const MobileSessionsMapCtrl = (
       });
     }
 
-    ['sensor', 'location', 'heatLegend'].forEach(function(name) {
+    ['sensor', 'heatLegend'].forEach(function(name) {
       $scope.expandables.show(name);
     });
 
@@ -124,6 +124,7 @@ export const MobileSessionsMapCtrl = (
       const flags = {
         isCrowdMapOn: $scope.params.get('data').crowdMap || false,
         crowdMapResolution: $scope.params.get('data').gridResolution || 25,
+        location: $scope.params.get('data').location || "",
         tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
         profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
         timeRange

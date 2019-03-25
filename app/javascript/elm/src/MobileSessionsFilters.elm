@@ -39,6 +39,7 @@ defaultModel =
 type alias Flags =
     { crowdMapResolution : Int
     , isCrowdMapOn : Bool
+    , location : String
     , tags : List String
     , profiles : List String
     , timeRange : Encode.Value
@@ -50,6 +51,7 @@ init flags =
     ( { defaultModel
         | isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
+        , location = flags.location
         , tags = LabelsInput.init flags.tags
         , profiles = LabelsInput.init flags.profiles
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
