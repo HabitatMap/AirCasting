@@ -57,18 +57,18 @@ export const FixedSessionsMapCtrl = (
       .get('data', { sensorId: sensors.defaultSensorId })
       .sensorId;
 
-    storage.updateDefaults({
+    const defaults = {
       sensorId,
       location: {address: "", indoorOnly: false, streaming: true},
       tags: "",
       usernames: "",
       timeFrom: moment().utc().startOf('day').subtract(1, 'year').format('X'),
       timeTo: moment().utc().endOf('day').format('X')
-    });
+    };
 
     if (!params.get('data').heat) sensors.fetchHeatLevels();
 
-    storage.updateFromDefaults();
+    params.updateFromDefaults(defaults);
   };
 
   $scope.searchSessions = function() {
