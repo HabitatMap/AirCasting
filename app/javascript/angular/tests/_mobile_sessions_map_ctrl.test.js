@@ -3,22 +3,7 @@ import { mock } from './helpers';
 import { MobileSessionsMapCtrl } from '../code/controllers/_mobile_sessions_map_ctrl';
 import moment from 'moment'
 
-test('registers a callback to map.goToAddress', t => {
-  const callbacks = [];
-  const $scope = {
-    $watch: (str, callback) => str.includes('address') ? callbacks.push(callback) : null
-  };
-  const map = mock('goToAddress');
-  _MobileSessionsMapCtrl({ $scope, map });
-
-  callbacks.forEach(callback => callback({ location: 'new york' }));
-
-  t.true(map.wasCalledWith('new york'));
-
-  t.end();
-});
-
-test('it shows by default sensor, location,  and heat legend', t => {
+test('it shows by default sensor and heat legend', t => {
   const shown = [];
   const expandables = {
     show: name => shown.push(name)
@@ -26,7 +11,7 @@ test('it shows by default sensor, location,  and heat legend', t => {
 
   _MobileSessionsMapCtrl({ expandables });
 
-  t.deepEqual(shown, ['sensor', 'location', 'heatLegend']);
+  t.deepEqual(shown, ['sensor', 'heatLegend']);
 
   t.end();
 });
@@ -43,7 +28,7 @@ test('it updates defaults', t => {
 
   const expected = {
     sensorId,
-    location: {address: ""},
+    location: "",
     tags: "",
     usernames: "",
     gridResolution: 25,
