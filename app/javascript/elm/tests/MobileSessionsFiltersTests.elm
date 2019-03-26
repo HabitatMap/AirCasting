@@ -60,6 +60,15 @@ locationFilter =
                     |> update SubmitLocation
                     |> Tuple.second
                     |> Expect.equal (Ports.findLocation location)
+        , test "when ClearLocation is triggered input is cleared" <|
+            \_ ->
+                { defaultModel | location = "Pcim" }
+                    |> update ClearLocation
+                    |> Tuple.first
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "location-filter" ]
+                    |> Query.has [ Slc.attribute <| Attr.value "" ]
         ]
 
 

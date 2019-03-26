@@ -136,6 +136,11 @@ export const MobileSessionsMapCtrl = (
         map.goToAddress(location);
       });
 
+      map.onPanOrZoom(() => {
+        elmApp.ports.locationCleared.send(null);
+        params.update({ data: { location: '' }});
+      });
+
       FiltersUtils.setupAutocomplete(
         (selectedValue) => elmApp.ports.profileSelected.send(selectedValue)
         , "profiles-search"

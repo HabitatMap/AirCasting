@@ -68,6 +68,7 @@ type Msg
     = ToggleCrowdMap
     | UpdateCrowdMapResolution Int
     | UpdateLocationInput String
+    | ClearLocation
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
@@ -105,6 +106,9 @@ update msg model =
 
         SubmitLocation ->
             ( model, Ports.findLocation model.location )
+
+        ClearLocation ->
+            ( { model | location = "" }, Cmd.none )
 
 
 updateLabels :
@@ -232,4 +236,5 @@ subscriptions =
         [ Sub.map ProfileLabels <| LabelsInput.subscriptions Ports.profileSelected
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
+        , Ports.locationCleared (always ClearLocation)
         ]

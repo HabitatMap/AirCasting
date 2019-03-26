@@ -2,16 +2,6 @@ import test from 'blue-tape';
 import { mock } from './helpers';
 import { SessionsListCtrl } from '../code/controllers/_sessions_list_ctrl';
 
-test('it calls onPanOrZoom', t => {
-  const map = mock('onPanOrZoom');
-
-  _SessionsListCtrl({ map });
-
-  t.true(map.wasCalled());
-
-  t.end();
-});
-
 test('with no sessions selected when params.map changes it calls sessions.fetch', t => {
   const callbacks = [];
   const $scope = {
@@ -70,4 +60,3 @@ const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
 
   return SessionsListCtrl(_$scope, params, null, {}, null, functionBlocker, {}, null, null, null, _map, _updateCrowdMapLayer, $location);
 };
-

@@ -1,5 +1,6 @@
 port module Ports exposing
     ( findLocation
+    , locationCleared
     , profileSelected
     , showCopyLinkTooltip
     , tagSelected
@@ -20,6 +21,9 @@ port profileSelected : (String -> msg) -> Sub msg
 
 
 port timeRangeSelected : (Encode.Value -> msg) -> Sub msg
+
+
+port locationCleared : (() -> msg) -> Sub msg
 
 
 port toggleCrowdMap : Bool -> Cmd a
