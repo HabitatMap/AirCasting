@@ -56,7 +56,7 @@ export const MobileSessionsMapCtrl = (
 
     const defaults = {
       sensorId,
-      location: {address: ""},
+      location: "",
       tags: "",
       usernames: "",
       gridResolution: 25,
@@ -140,6 +140,11 @@ export const MobileSessionsMapCtrl = (
       elmApp.ports.updateResolution.subscribe(gridResolution => {
         params.updateData({ gridResolution });
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
+      });
+
+      elmApp.ports.findLocation.subscribe(location => {
+        params.update({ data: { location: location }});
+        map.goToAddress(location);
       });
 
       FiltersUtils.setupAutocomplete(
