@@ -30,11 +30,9 @@ test('it updates defaults', t => {
 
   const expected = {
     sensorId,
-    location: {
-      address: "",
-      indoorOnly: false,
-      streaming: true
-    },
+    location: "",
+    indoorOnly: false,
+    streaming: true,
     tags: "",
     usernames: "",
     timeFrom: moment().utc().startOf('day').subtract(1, 'year').format('X'),
