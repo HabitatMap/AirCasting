@@ -59,7 +59,9 @@ export const FixedSessionsMapCtrl = (
 
     const defaults = {
       sensorId,
-      location: {address: "", indoorOnly: false, streaming: true},
+      location: '',
+      indoorOnly: false,
+      streaming: true,
       tags: "",
       usernames: "",
       timeFrom: moment().utc().startOf('day').subtract(1, 'year').format('X'),
@@ -111,12 +113,21 @@ export const FixedSessionsMapCtrl = (
       };
 
       const flags = {
+        location: $scope.params.get('data').location || "",
         tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
         profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
         timeRange
       };
 
       const elmApp = Elm.FixedSessionFilters.init({ node: node, flags: flags });
+
+      elmApp.ports.findLocation.subscribe(location => {
+        FiltersUtils.findLocation(location, params, map);
+      });
+
+      map.onPanOrZoom(() => {
+        FiltersUtils.clearLocation(elmApp, params);
+      });
 
       FiltersUtils.setupAutocomplete(
         (selectedValue) => elmApp.ports.profileSelected.send(selectedValue)
