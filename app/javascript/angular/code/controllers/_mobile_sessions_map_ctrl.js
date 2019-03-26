@@ -70,11 +70,6 @@ export const MobileSessionsMapCtrl = (
     params.updateFromDefaults(defaults);
   };
 
-  $scope.searchSessions = function() {
-    storage.updateWithRefresh('location');
-    params.update({'didSessionsSearch': true});
-  };
-
   $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
@@ -103,12 +98,6 @@ export const MobileSessionsMapCtrl = (
   $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
     sensors.onSelectedParameterChange(newValue, oldValue);
   }, true);
-
-  $scope.$watch("{location: params.get('data').location.address, counter: params.get('data').counter}",
-    function(newValue) {
-      console.log("watch - {location: params.get('data').location.address, counter: params.get('data').counter}");
-      map.goToAddress(newValue.location);
-    }, true);
 
   $scope.setDefaults();
 
