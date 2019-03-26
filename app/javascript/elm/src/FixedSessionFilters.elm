@@ -60,7 +60,6 @@ init flags =
 type Msg
     = UpdateLocationInput String
     | SubmitLocation
-    | ClearLocation
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
@@ -75,9 +74,6 @@ update msg model =
 
         SubmitLocation ->
             ( model, Ports.findLocation model.location )
-
-        ClearLocation ->
-            ( { model | location = "" }, Cmd.none )
 
         TagsLabels subMsg ->
             updateLabels subMsg model.tags Ports.updateTags TagsLabels (\tags -> { model | tags = tags })
@@ -146,5 +142,5 @@ subscriptions =
         [ Sub.map ProfileLabels <| LabelsInput.subscriptions Ports.profileSelected
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
-        , Ports.locationCleared (always ClearLocation)
+        , Ports.locationCleared (always (UpdateLocationInput ""))
         ]
