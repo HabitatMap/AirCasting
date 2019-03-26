@@ -3,7 +3,7 @@ import { mock } from './helpers';
 import { updateCrowdMapLayer } from '../code/services/_update_crowd_map_layer';
 
 test('when crowd map layer is off it clears rectangles', t => {
-  const params = { get: () => ({ crowdMap: false }), };
+  const params = { isCrowdMapOn: () => false };
   const map = mock('clearRectangles');
   const service = _updateCrowdMapLayer({ params, map });
 
@@ -153,7 +153,8 @@ const _updateCrowdMapLayer = ({params, map, $http, flash, buildQueryParamsForCro
     ...buildQueryParamsForCrowdMapLayer
   };
   const _params = {
-    get: () => ({crowdMap: true}),
+    isCrowdMapOn: () => true,
+    get: () => ({}),
     ... params
   };
   const utils = {
