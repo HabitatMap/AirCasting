@@ -38,7 +38,7 @@ export const SessionsListCtrl = (
 
     functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").selectedSensorId);
 
-    map.onPanOrZoom(() => storage.resetAddress());
+    map.onPanOrZoom(() => params.update({ data: { location: "" }}));
 
     sessions.reSelectAllSessions();
   };
