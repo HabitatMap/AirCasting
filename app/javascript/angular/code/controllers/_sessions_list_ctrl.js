@@ -13,7 +13,6 @@ export const SessionsListCtrl = (
   drawSession,
   openSensorDialog,
   markerSelected,
-  map,
   updateCrowdMapLayer,
   $location
 ) => {
@@ -39,8 +38,6 @@ export const SessionsListCtrl = (
     }
 
     functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").selectedSensorId);
-
-    map.onPanOrZoom(() => params.update({ data: { location: "" }}));
 
     sessions.reSelectAllSessions();
   };
