@@ -132,13 +132,11 @@ export const MobileSessionsMapCtrl = (
       });
 
       elmApp.ports.findLocation.subscribe(location => {
-        params.update({ data: { location: location }});
-        map.goToAddress(location);
+        FiltersUtils.findLocation(location, params, map);
       });
 
       map.onPanOrZoom(() => {
-        elmApp.ports.locationCleared.send(null);
-        params.update({ data: { location: '' }});
+        FiltersUtils.clearLocation(elmApp, params);
       });
 
       FiltersUtils.setupAutocomplete(

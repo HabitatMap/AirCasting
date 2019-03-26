@@ -7,6 +7,7 @@ import Html.Events as Events
 import Http
 import Json.Encode as Encode
 import LabelsInput
+import LocationFilter
 import Ports
 import TimeRange exposing (TimeRange)
 
@@ -16,7 +17,8 @@ import TimeRange exposing (TimeRange)
 
 
 type alias Model =
-    { tags : LabelsInput.Model
+    { location : String
+    , tags : LabelsInput.Model
     , profiles : LabelsInput.Model
     , timeRange : TimeRange
     }
@@ -24,14 +26,16 @@ type alias Model =
 
 defaultModel : Model
 defaultModel =
-    { tags = LabelsInput.empty
+    { location = ""
+    , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
     , timeRange = TimeRange.defaultTimeRange
     }
 
 
 type alias Flags =
-    { tags : List String
+    { location : String
+    , tags : List String
     , profiles : List String
     , timeRange : Encode.Value
     }
@@ -40,7 +44,8 @@ type alias Flags =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { defaultModel
-        | tags = LabelsInput.init flags.tags
+        | location = flags.location
+        , tags = LabelsInput.init flags.tags
         , profiles = LabelsInput.init flags.profiles
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
       }
@@ -53,7 +58,10 @@ init flags =
 
 
 type Msg
-    = TagsLabels LabelsInput.Msg
+    = UpdateLocationInput String
+    | SubmitLocation
+    | ClearLocation
+    | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
     | ShowCopyLinkTooltip
@@ -62,6 +70,15 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        UpdateLocationInput newValue ->
+            ( { model | location = newValue }, Cmd.none )
+
+        SubmitLocation ->
+            ( model, Ports.findLocation model.location )
+
+        ClearLocation ->
+            ( { model | location = "" }, Cmd.none )
+
         TagsLabels subMsg ->
             updateLabels subMsg model.tags Ports.updateTags TagsLabels (\tags -> { model | tags = tags })
 
@@ -101,7 +118,8 @@ updateLabels msg model toSubCmd mapper updateModel =
 view : Model -> Html Msg
 view model =
     div []
-        [ Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
+        [ LocationFilter.view model.location UpdateLocationInput SubmitLocation
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
         , TimeRange.viewTimeFilter
         , button [ Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ] [ text "oo" ]
@@ -128,4 +146,5 @@ subscriptions =
         [ Sub.map ProfileLabels <| LabelsInput.subscriptions Ports.profileSelected
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
+        , Ports.locationCleared (always ClearLocation)
         ]

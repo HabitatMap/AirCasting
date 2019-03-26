@@ -95,3 +95,13 @@ const updateTooltipContent = (link, tooltip) => {
     window.setTimeout(tooltip.hide, 1000);
   });
 };
+
+export const findLocation = (location, params, map) => {
+  params.update({ data: { location: location }});
+  map.goToAddress(location);
+};
+
+export const clearLocation = (elmApp, params) => {
+  elmApp.ports.locationCleared.send(null);
+  params.update({ data: { location: '' }});
+}

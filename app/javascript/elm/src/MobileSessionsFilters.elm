@@ -7,6 +7,7 @@ import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
 import LabelsInput
+import LocationFilter
 import Ports
 import TimeRange exposing (TimeRange)
 
@@ -68,12 +69,12 @@ type Msg
     = ToggleCrowdMap
     | UpdateCrowdMapResolution Int
     | UpdateLocationInput String
+    | SubmitLocation
     | ClearLocation
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
     | ShowCopyLinkTooltip
-    | SubmitLocation
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -87,6 +88,12 @@ update msg model =
 
         UpdateLocationInput newValue ->
             ( { model | location = newValue }, Cmd.none )
+
+        SubmitLocation ->
+            ( model, Ports.findLocation model.location )
+
+        ClearLocation ->
+            ( { model | location = "" }, Cmd.none )
 
         TagsLabels subMsg ->
             updateLabels subMsg model.tags Ports.updateTags TagsLabels (\tags -> { model | tags = tags })
@@ -103,12 +110,6 @@ update msg model =
 
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
-
-        SubmitLocation ->
-            ( model, Ports.findLocation model.location )
-
-        ClearLocation ->
-            ( { model | location = "" }, Cmd.none )
 
 
 updateLabels :
@@ -133,7 +134,7 @@ updateLabels msg model toSubCmd mapper updateModel =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewLocation model.location
+        [ LocationFilter.view model.location UpdateLocationInput SubmitLocation
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
         , h4 []
@@ -143,20 +144,6 @@ view model =
         , viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
         , TimeRange.viewTimeFilter
         , button [ Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ] [ text "oo" ]
-        ]
-
-
-viewLocation : String -> Html Msg
-viewLocation location =
-    div []
-        [ h4 [] [ text "Location" ]
-        , input
-            [ Attr.id "location-filter"
-            , Attr.value location
-            , Events.onInput UpdateLocationInput
-            , onEnter SubmitLocation
-            ]
-            []
         ]
 
 
@@ -201,19 +188,6 @@ viewCrowdMapSlider resolution =
 onChange : (String -> msg) -> Html.Attribute msg
 onChange tagger =
     Events.on "change" (Decode.map tagger Events.targetValue)
-
-
-onEnter : Msg -> Html.Attribute Msg
-onEnter msg =
-    let
-        isEnter code =
-            if code == 13 then
-                Decode.succeed msg
-
-            else
-                Decode.fail "not ENTER"
-    in
-    Events.on "keydown" (Decode.andThen isEnter Events.keyCode)
 
 
 
