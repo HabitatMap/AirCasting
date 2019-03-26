@@ -14,7 +14,7 @@ export const updateCrowdMapLayer = (
 ) => ({
   call: (sessionIds) => {
     map.clearRectangles();
-    if (!params.get('data').crowdMap) return;
+    if (!params.isCrowdMapOn()) return;
 
     const bounds = map.getBounds();
     const q = buildQueryParamsForCrowdMapLayer.call(sessionIds, bounds);
