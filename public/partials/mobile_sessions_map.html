@@ -16,23 +16,6 @@
       </p>
       </section>
 
-      <h4 ng-click="expandables.toggle('location')" ng-class="expandables.css('location')">Location</h4>
-      <section ng-show="expandables.visible('location')">
-        <div class="textfield">
-          <p>
-            <label for="mobile-session-location">Address, Intersection, or Zip
-              <input id="mobile-session-location" type="text" ng-model="storage.data.location.address">
-            </label>
-          </p>
-        </div>
-        <div>
-          <ul class="buttons">
-            <li><button ng-click="storage.reset('location')">reset</li>
-            <li><button ng-click="searchSessions()">submit</li>
-          </ul>
-        </div>
-      </section>
-
       <div id="newMobileFilters"></div>
     </div>
     <div ng-switch on="!singleSession.get() &&!!sensors.anySelected()">
