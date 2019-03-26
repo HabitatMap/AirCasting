@@ -3,9 +3,9 @@ import { mock } from './helpers';
 import { updateCrowdMapLayer } from '../code/services/_update_crowd_map_layer';
 
 test('when crowd map layer is off it clears rectangles', t => {
-  const storage = { isCrowdMapLayerOn: () => false };
+  const params = { get: () => ({ crowdMap: false }), };
   const map = mock('clearRectangles');
-  const service = _updateCrowdMapLayer({ storage, map });
+  const service = _updateCrowdMapLayer({ params, map });
 
   service.call()
 
@@ -142,11 +142,7 @@ const mockHttp = ({ shouldFail }) => {
   };
 };
 
-const _updateCrowdMapLayer = ({ storage, map, $http, flash, buildQueryParamsForCrowdMapLayer, $location, infoWindow, rectangles }) => {
-  const _storage = {
-    isCrowdMapLayerOn: () => true,
-    ...storage
-  };
+const _updateCrowdMapLayer = ({params, map, $http, flash, buildQueryParamsForCrowdMapLayer, $location, infoWindow, rectangles }) => {
   const _map = {
     clearRectangles: () => {},
     getBounds: () => {},
@@ -156,8 +152,9 @@ const _updateCrowdMapLayer = ({ storage, map, $http, flash, buildQueryParamsForC
     call: () => ({}),
     ...buildQueryParamsForCrowdMapLayer
   };
-  const params = {
-    get: () => ({})
+  const _params = {
+    get: () => ({crowdMap: true}),
+    ... params
   };
   const utils = {
     heats: x => x
@@ -166,5 +163,5 @@ const _updateCrowdMapLayer = ({ storage, map, $http, flash, buildQueryParamsForC
     position: () => {}
   };
 
-  return updateCrowdMapLayer(_storage, _map, $http, _buildQueryParamsForCrowdMapLayer, flash, params, utils, infoWindow, _rectangles, $location);
+  return updateCrowdMapLayer(_map, $http, _buildQueryParamsForCrowdMapLayer, flash, _params, utils, infoWindow, _rectangles, $location);
 };

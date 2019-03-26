@@ -34,8 +34,16 @@ angular.module("aircasting").factory('params', ['$location', '$rootScope', 'util
         newData[key] =  angular.toJson(value);
       });
       $location.search(newData);
-    }
+    },
+    updateFromDefaults: function(defaults) {
+      this.update({data: { ...defaults, ...this.paramsData.data }});
+    },
+    updateData: function(newData) {
+      this.update({data: utils.merge(this.paramsData.data || {}, newData)})
+    },
+    isCrowdMapOn: function() {
+      return this.paramsData.data.crowdMap
+    },
   };
   return new Params();
 }]);
-

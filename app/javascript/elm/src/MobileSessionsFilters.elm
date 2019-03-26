@@ -73,7 +73,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ToggleCrowdMap ->
-            ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap () )
+            ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap (not model.isCrowdMapOn) )
 
         UpdateCrowdMapResolution resolution ->
             ( { model | crowdMapResolution = resolution }, Ports.updateResolution resolution )
