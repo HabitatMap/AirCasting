@@ -13,7 +13,7 @@ class UrlShortener
     if result.success?
       result.value["link"]
     else
-      puts "An error occured while shortening a link: #{result.value}"
+      puts "An error occured while shortening a link: #{result.errors}"
       link
     end
   end
