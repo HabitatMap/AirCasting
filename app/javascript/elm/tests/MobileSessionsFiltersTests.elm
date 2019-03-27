@@ -44,15 +44,15 @@ locationFilter =
         , test "when Enter key is pressed SubmitLocation is triggered" <|
             \_ ->
                 let
-                    simulatedEnterKeydown : Encode.Value
-                    simulatedEnterKeydown =
+                    enterKeydownEvent : Encode.Value
+                    enterKeydownEvent =
                         Encode.object [ ( "keyCode", Encode.int 13 ) ]
                 in
                 defaultModel
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "location-filter" ]
-                    |> Event.simulate (Event.custom "keydown" simulatedEnterKeydown)
+                    |> Event.simulate (Event.custom "keydown" enterKeydownEvent)
                     |> Event.expect SubmitLocation
         , fuzz string "when SubmitLocation is triggered Port.findLocation is called with current location field value" <|
             \location ->
