@@ -31,7 +31,7 @@ test("findLocation adds the new location to the params", t => {
 test("clearLocation informs elm that location field should be cleared", t => {
   const send = sinon.spy();
   const params = { update: () => {}};
-  const elmApp = { ports: { locationCleared: { send }}};
+  const elmApp = { send };
 
   clearLocation(elmApp, params);
 
@@ -43,9 +43,9 @@ test("clearLocation informs elm that location field should be cleared", t => {
 test("clearLocation changes location in the params to empty string", t => {
   const update = sinon.spy();
   const params = { update };
-  const elmApp = { ports: { locationCleared: { send: () => {}}}};
+  const elmAction = { send: () => {}};
 
-  clearLocation(elmApp, params);
+  clearLocation(elmAction, params);
 
   sinon.assert.calledWith(update, { data: { location: "" }});
 
