@@ -101,7 +101,7 @@ export const findLocation = (location, params, map) => {
   map.goToAddress(location);
 };
 
-export const clearLocation = (elmApp, params) => {
-  elmApp.ports.locationCleared.send(null);
+export const clearLocation = (elmAction, params) => {
+  elmAction.send(null);
   params.update({ data: { location: '' }});
 }
