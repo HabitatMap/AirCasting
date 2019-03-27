@@ -4,7 +4,6 @@ import Expect
 import FixedSessionFilters exposing (..)
 import Fuzz exposing (int)
 import Json.Encode as Encode
-import Ports
 import Test exposing (..)
 import Test.Html.Query as Query
 import Test.Html.Selector as Slc

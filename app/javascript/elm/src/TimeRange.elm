@@ -41,6 +41,7 @@ update timeRange newValue =
             timeRange
 
 
+timeRangeDecoder : Decode.Decoder Range
 timeRangeDecoder =
     Decode.map2 Range
         (Decode.field "timeFrom" Decode.int)

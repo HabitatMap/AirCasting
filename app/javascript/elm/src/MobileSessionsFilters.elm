@@ -16,32 +16,32 @@ import TimeRange exposing (TimeRange)
 
 
 type alias Model =
-    { crowdMapResolution : Int
-    , isCrowdMapOn : Bool
-    , location : String
+    { location : String
     , tags : LabelsInput.Model
     , profiles : LabelsInput.Model
+    , isCrowdMapOn : Bool
+    , crowdMapResolution : Int
     , timeRange : TimeRange
     }
 
 
 defaultModel : Model
 defaultModel =
-    { crowdMapResolution = 25
-    , isCrowdMapOn = False
-    , location = ""
+    { location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
+    , isCrowdMapOn = False
+    , crowdMapResolution = 25
     , timeRange = TimeRange.defaultTimeRange
     }
 
 
 type alias Flags =
-    { crowdMapResolution : Int
-    , isCrowdMapOn : Bool
-    , location : String
+    { location : String
     , tags : List String
     , profiles : List String
+    , isCrowdMapOn : Bool
+    , crowdMapResolution : Int
     , timeRange : Encode.Value
     }
 
@@ -49,11 +49,11 @@ type alias Flags =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { defaultModel
-        | isCrowdMapOn = flags.isCrowdMapOn
-        , crowdMapResolution = flags.crowdMapResolution
-        , location = flags.location
+        | location = flags.location
         , tags = LabelsInput.init flags.tags
         , profiles = LabelsInput.init flags.profiles
+        , isCrowdMapOn = flags.isCrowdMapOn
+        , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
       }
     , Cmd.none
@@ -65,12 +65,12 @@ init flags =
 
 
 type Msg
-    = ToggleCrowdMap
-    | UpdateCrowdMapResolution Int
-    | UpdateLocationInput String
+    = UpdateLocationInput String
     | SubmitLocation
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
+    | ToggleCrowdMap
+    | UpdateCrowdMapResolution Int
     | UpdateTimeRange Encode.Value
     | ShowCopyLinkTooltip
 
@@ -78,12 +78,6 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ToggleCrowdMap ->
-            ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap (not model.isCrowdMapOn) )
-
-        UpdateCrowdMapResolution resolution ->
-            ( { model | crowdMapResolution = resolution }, Ports.updateResolution resolution )
-
         UpdateLocationInput newLocation ->
             ( { model | location = newLocation }, Cmd.none )
 
@@ -95,6 +89,12 @@ update msg model =
 
         ProfileLabels subMsg ->
             updateLabels subMsg model.profiles Ports.updateProfiles ProfileLabels (\profiles -> { model | profiles = profiles })
+
+        ToggleCrowdMap ->
+            ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap (not model.isCrowdMapOn) )
+
+        UpdateCrowdMapResolution resolution ->
+            ( { model | crowdMapResolution = resolution }, Ports.updateResolution resolution )
 
         UpdateTimeRange value ->
             let

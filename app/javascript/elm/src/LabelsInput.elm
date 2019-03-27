@@ -4,7 +4,6 @@ import Html exposing (Html, button, div, h4, input, text)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Html.Events.Extra as ExtraEvents
-import Ports
 import Set exposing (Set)
 
 
