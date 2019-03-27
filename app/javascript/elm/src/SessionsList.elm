@@ -7,6 +7,7 @@ import Html.Events as Events
 import String exposing (fromInt)
 
 
+
 ---- MODEL ----
 
 
@@ -69,6 +70,7 @@ update msg model =
                 ( { model | selectedSessionId = Nothing }
                 , checkedSession { deselected = model.selectedSessionId, selected = Nothing }
                 )
+
             else
                 ( { model | selectedSessionId = Just id }
                 , checkedSession { deselected = model.selectedSessionId, selected = Just id }
@@ -79,7 +81,7 @@ update msg model =
                 selectedSessionId =
                     List.head << List.map .id << List.filter .selected
             in
-                ( { model | sessions = sessions, selectedSessionId = selectedSessionId sessions }, Cmd.none )
+            ( { model | sessions = sessions, selectedSessionId = selectedSessionId sessions }, Cmd.none )
 
         LoadMoreSessions ->
             ( model, loadMoreSessions () )
@@ -95,12 +97,12 @@ viewSession selectedSessionId session =
         [ Attr.style "padding" "5px 10px"
         , Attr.style "clear" "both"
         , Attr.style "overflow" "hidden"
+        , Events.onClick <| ToggleSessionSelection session.id
         ]
         [ input
             [ Attr.type_ "radio"
             , Attr.id <| "radio-" ++ fromInt session.id
             , Attr.checked <| selectedSessionId == Just session.id
-            , Events.onClick <| ToggleSessionSelection session.id
             , Attr.style "float" "left"
             , Attr.style "margin" "3px 0 0"
             ]
@@ -119,7 +121,6 @@ viewSession selectedSessionId session =
                     , Attr.style "display" "block"
                     , Attr.style "cursor" "pointer"
                     , Attr.style "width" "170px"
-                    , Attr.for <| "radio-" ++ fromInt session.id
                     ]
                     [ text session.title ]
                 ]
@@ -151,6 +152,7 @@ viewShortType length index shortType =
         , span []
             [ if index == length - 1 then
                 text ""
+
               else
                 text "/"
             ]
@@ -170,6 +172,7 @@ viewLoadMore : Int -> Html Msg
 viewLoadMore sessionCount =
     if sessionCount /= 0 && modBy 50 sessionCount == 0 then
         li [] [ button [ Events.onClick LoadMoreSessions ] [ text "Load More..." ] ]
+
     else
         text ""
 
