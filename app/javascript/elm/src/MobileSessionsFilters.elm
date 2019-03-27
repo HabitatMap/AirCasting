@@ -7,7 +7,6 @@ import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
 import LabelsInput
-import LocationFilter
 import Ports
 import TimeRange exposing (TimeRange)
 
@@ -85,8 +84,8 @@ update msg model =
         UpdateCrowdMapResolution resolution ->
             ( { model | crowdMapResolution = resolution }, Ports.updateResolution resolution )
 
-        UpdateLocationInput newValue ->
-            ( { model | location = newValue }, Cmd.none )
+        UpdateLocationInput newLocation ->
+            ( { model | location = newLocation }, Cmd.none )
 
         SubmitLocation ->
             ( model, Ports.findLocation model.location )
@@ -130,7 +129,7 @@ updateLabels msg model toSubCmd mapper updateModel =
 view : Model -> Html Msg
 view model =
     div []
-        [ LocationFilter.view model.location UpdateLocationInput SubmitLocation
+        [ viewLocation model.location
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
         , h4 []
@@ -179,6 +178,33 @@ viewCrowdMapSlider resolution =
                 [ text resolution ]
             ]
         ]
+
+
+viewLocation : String -> Html Msg
+viewLocation location =
+    div []
+        [ h4 [] [ text "Location" ]
+        , input
+            [ Attr.id "location-filter"
+            , Attr.value location
+            , Events.onInput UpdateLocationInput
+            , onEnter SubmitLocation
+            ]
+            []
+        ]
+
+
+onEnter : msg -> Html.Attribute msg
+onEnter msg =
+    let
+        isEnter code =
+            if code == 13 then
+                Decode.succeed msg
+
+            else
+                Decode.fail "not ENTER"
+    in
+    Events.on "keydown" (Decode.andThen isEnter Events.keyCode)
 
 
 onChange : (String -> msg) -> Html.Attribute msg
