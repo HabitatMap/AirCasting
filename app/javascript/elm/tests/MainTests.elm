@@ -1,4 +1,4 @@
-module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, updateTests, viewTests)
+module MainTests exposing (crowdMapArea, locationFilter, indoorOnlyFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, updateTests, viewTests)
 
 import Data.Session exposing (..)
 import Expect
@@ -414,6 +414,48 @@ crowdMapArea =
                     |> Query.find [ Slc.attribute <| Attr.class "crowd-map-slider" ]
                     |> Event.simulate (Event.custom "change" simulatedEventObject)
                     |> Event.expect (UpdateCrowdMapResolution resolution)
+        ]
+
+
+indoorOnlyFilter : Test
+indoorOnlyFilter =
+    describe "indoor/outdoor filter tests:"
+        [ test "filter is displayed" <|
+            \_ ->
+                { defaultModel | page = Main.Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.attribute <| Attr.id "indoor-only-filter" ]
+        , test "checking checkbox triggers ToggleIndoorOnly" <|
+            \_ ->
+                { defaultModel | page = Main.Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
+                    |> Event.simulate (Event.check True)
+                    |> Event.expect (ToggleIndoorOnly True)
+        , test "checkbox is not checked as default" <|
+            \_ ->
+                { defaultModel | page = Main.Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
+                    |> Query.has [ Slc.attribute <| Attr.checked False ]
+        , fuzz bool "interacting with checkbox changes 'checked' value" <|
+            \indoorOnlyValue ->
+                { defaultModel | page = Main.Fixed }
+                    |> update (ToggleIndoorOnly indoorOnlyValue)
+                    |> Tuple.first
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
+                    |> Query.has [ Slc.attribute <| Attr.checked indoorOnlyValue ]
+        , fuzz bool "ToggleIndoorOnly triggers Ports.toggleIndoorOnly with 'checked' value" <|
+            \indoorOnlyValue ->
+                { defaultModel | page = Main.Fixed }
+                    |> update (ToggleIndoorOnly indoorOnlyValue)
+                    |> Tuple.second
+                    |> Expect.equal (Ports.toggleIndoorOnly indoorOnlyValue)
         ]
 
 

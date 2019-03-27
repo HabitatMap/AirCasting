@@ -1,4 +1,4 @@
-module Main exposing (Msg(..), defaultModel, exportPath, update, view)
+module Main exposing (Msg(..), Page(..), defaultModel, exportPath, update, view)
 
 import Browser exposing (..)
 import Browser.Events
@@ -48,6 +48,7 @@ type alias Model =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : TimeRange
+    , indoorOnly : Bool
     }
 
 
@@ -71,6 +72,7 @@ defaultModel =
     , isCrowdMapOn = False
     , crowdMapResolution = 25
     , timeRange = TimeRange.defaultTimeRange
+    , indoorOnly = False
     }
 
 
@@ -83,6 +85,7 @@ type alias Flags =
     , timeRange : Encode.Value
     , selectedParameter : String
     , parametersList : Encode.Value
+    , indoorOnly : Bool
     }
 
 
@@ -122,6 +125,7 @@ init flags url key =
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , selectedParameter = flags.selectedParameter
         , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
+        , indoorOnly = flags.indoorOnly
       }
     , Ports.selectParameter flags.selectedParameter
     )
@@ -150,6 +154,7 @@ type Msg
     | UpdateSessions (List Session)
     | LoadMoreSessions
     | UpdateIsHttping Bool
+    | ToggleIndoorOnly Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -240,6 +245,10 @@ update msg model =
 
         UpdateIsHttping isHttpingNow ->
             ( { model | isHttping = isHttpingNow }, Cmd.none )
+
+        ToggleIndoorOnly indoorOnlyValue ->
+            ( { model | indoorOnly = indoorOnlyValue }, Ports.toggleIndoorOnly indoorOnlyValue )
+
 
 
 updateLabels :
@@ -494,6 +503,21 @@ viewFixedFilters model =
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
+        , label
+            [ Attr.style "display" "block"
+            , Attr.style "margin" "10px 0"
+            , Attr.style "font-weight" "normal"
+            ]
+            [ input
+                [ Attr.type_ "checkbox"
+                , Attr.style "margin-right" "5px"
+                , Attr.checked model.indoorOnly
+                , Attr.id "indoor-only-filter"
+                , Events.onCheck ToggleIndoorOnly
+                ]
+                []
+            , text "Only show indoor sessions"
+            ]
         ]
 
 
