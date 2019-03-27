@@ -122,18 +122,6 @@ export const SessionsListCtrl = (
     });
   }, true);
 
-  $scope.toggleAll = function(){
-    if(sessions.hasSelectedSessions()) {
-      sessions.deselectAllSessions();
-    } else {
-      flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
-    }
-  };
-
-  $scope.allSelectionText = function() {
-    return sessions.hasSelectedSessions() ? "none" : "all";
-  };
-
   $scope.toggleSession = function(sessionId, markerSelected) {
     if(this.isSessionDisabled(sessionId)){
       flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
