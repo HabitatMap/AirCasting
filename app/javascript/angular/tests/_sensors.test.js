@@ -171,7 +171,7 @@ test('defaultSensorIdForParameter returns hardcoded id for Sound Level', t => {
   t.end();
 });
 
-test('buildAvailableParameters builds available parameters sorted by session_count with all as first', t => {
+test('buildAvailableParameters builds available parameters sorted by session_count', t => {
   const sensors = {
     "a": {
       measurement_type: "Particulate Matter",
@@ -186,7 +186,6 @@ test('buildAvailableParameters builds available parameters sorted by session_cou
   const actual = buildAvailableParameters(sensors);
 
   const expected = [
-    { label: "All", id: "all" },
     { label: "Humidity", id: "Humidity" },
     { label: "Particulate Matter", id: "Particulate Matter" }
   ];
@@ -216,20 +215,6 @@ test('selected with no sensor id in the url returns the default sensor with adde
     label: 'AirBeam2-PM2.5 (µg/m³)',
     select_label: 'AirBeam2-PM2.5 (µg/m³)'
   };
-  t.deepEqual(actual, expected);
-
-  t.end();
-});
-
-test('selected with all as sensor id in the url returns undefined', t => {
-  const params = {
-    get: () => ({ sensorId: "all" })
-  };
-  const service = _sensors({ params })
-
-  const actual = service.selected();
-
-  const expected = undefined;
   t.deepEqual(actual, expected);
 
   t.end();
@@ -277,20 +262,6 @@ test('selectedId with no sensor id in the url returns the default sensor id', t 
   const actual = service.selectedId();
 
   const expected = 'Particulate Matter-airbeam2-pm2.5 (µg/m³)';
-  t.deepEqual(actual, expected);
-
-  t.end();
-});
-
-test('selectedId with all as sensor id in the url returns undefined', t => {
-  const params = {
-    get: () => ({ sensorId: "all" })
-  };
-  const service = _sensors({ params })
-
-  const actual = service.selectedId();
-
-  const expected = undefined;
   t.deepEqual(actual, expected);
 
   t.end();

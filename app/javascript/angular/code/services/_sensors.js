@@ -3,8 +3,6 @@ import _ from 'underscore';
 const buildSensorId = sensor =>
   sensor.measurement_type + "-" + sensor.sensor_name.toLowerCase() + " (" + sensor.unit_symbol + ")";
 
-const ALL_SENSOR = { id: "all", select_label: "All", session_count: 0, measurement_type: "all" };
-const ALL_PARAMETER = { id: "all", label: "All" };
 const DEFAULT_SENSOR_ID = buildSensorId({
   measurement_type: "Particulate Matter",
   sensor_name: "AirBeam2-PM2.5",
@@ -14,7 +12,6 @@ const DEFAULT_SENSOR_ID = buildSensorId({
 export const sensors = (params, storage, heat, $http) => {
   var Sensors = function() {
     this.sensors = {};
-    this.candidateSelectedSensorId = undefined;
     this.defaultSensorId = DEFAULT_SENSOR_ID;
     this.availableSensors = [];
     this.selectedParameter = {};
@@ -56,75 +53,43 @@ export const sensors = (params, storage, heat, $http) => {
         console.log('initSelected() - sensorId is NOT null')
       }
       this.selectedParameter = this.findParameterForSensor(this.selected());
-      this.availableSensors = [ALL_SENSOR].concat(findAvailableSensorsForParameter(sort, this.sensors, this.selectedParameter));
+      this.availableSensors = findAvailableSensorsForParameter(sort, this.sensors, this.selectedParameter);
     },
 
-    //selected sensor in dropdown
-    //undefined if all
     selected: function() {
-      return params.get('data').sensorId === ALL_SENSOR.id ?
-        undefined :
-        this.sensors[params.get('data').sensorId || DEFAULT_SENSOR_ID];
+        return this.sensors[params.get('data').sensorId || DEFAULT_SENSOR_ID];
     },
 
     selectedId: function() {
-      return this.selected() ?
-        this.selected().id : undefined;
+        return this.selected().id;
     },
 
-    //used when "all" sensors are choosen
-    tmpSelected: function() {
-      return this.sensors[params.get('tmp').selectedSensorId];
-    },
-    tmpSelectedId: function() {
-      if(!this.tmpSelected()){
-        return;
-      }
-      return this.tmpSelected().id;
-    },
-    //pick tmp when "all option is selected
     anySelected: function() {
-      return this.selected() || this.tmpSelected();
+      return this.selected();
     },
     selectedSensorName: function() {
-      const sensorId = this.selectedId() || this.tmpSelectedId();
+      const sensorId = this.selectedId();
       const sensor = this.sensors[sensorId] || {};
       return sensor.sensor_name;
-    },
-    proceedWithTmp: function() {
-      params.update({tmp: {selectedSensorId: this.candidateSelectedSensorId}});
-
-      this.fetchHeatLevelsForTmp();
     },
     findSensorById: function(id) {
       return this.sensors[id]
     },
     findParameterForSensor: function(sensor) {
-      if (sensor) {
-        return _(this.availableParameters).find(function(parameter) { return (parameter.id == sensor["measurement_type"]) });
-      } else {
-        return ALL_PARAMETER;
-      }
+      return _(this.availableParameters).find(function(parameter) { return (parameter.id == sensor["measurement_type"]) });
     },
     onSelectedParameterChange: function(selectedParameter, oldValue) {
       if (selectedParameter === oldValue) return; // first angular watch run
       console.log('onSelectedParameterChange() - ', selectedParameter, ' - ', oldValue)
       params.update({selectedSessionIds: []});
-      if (hasChangedToAll(selectedParameter)) {
-        this.availableSensors = [ALL_SENSOR].concat(sort(Object.values(this.sensors)));
-        params.update({data: {sensorId: ALL_SENSOR.id}});
-      } else {
-        this.availableSensors = [ALL_SENSOR].concat(sort(Object.values(this.sensors).filter(sensor => sensor.measurement_type === selectedParameter.id)));
-        const sensorId = defaultSensorIdForParameter(selectedParameter, this.availableSensors);
-        params.update({ data: { sensorId }});
-      }
+
+      this.availableSensors = sort(Object.values(this.sensors).filter(sensor => sensor.measurement_type === selectedParameter.id));
+      const sensorId = defaultSensorIdForParameter(selectedParameter, this.availableSensors);
+      params.update({ data: { sensorId }});
     },
     onSelectedSensorChange: function(newSensorId, oldSensorId) {
       if (newSensorId === oldSensorId) return;
       console.log('onSelectedSensorChange() - ', newSensorId, ' - ', oldSensorId);
-      if(hasChangedToAll(newSensorId)){
-        params.update({data: {sensorId: ALL_SENSOR.id}});
-      }
       var sensor = this.findSensorById(newSensorId);
       var parameterForSensor = this.findParameterForSensor(sensor);
       this.selectedParameter = parameterForSensor;
@@ -133,8 +98,6 @@ export const sensors = (params, storage, heat, $http) => {
       return buildSensorId(sensor);
     },
     onSensorsSelectedIdChange: function(newValue, oldValue, callback) {
-      if(hasChangedToAll(this.selectedId())) return;
-
       console.log("onSensorsSelectedIdChange 1 - ", newValue, " - ", oldValue);
 
       if (newValue === oldValue) return; // first angular watch run
@@ -148,10 +111,6 @@ export const sensors = (params, storage, heat, $http) => {
 
     fetchHeatLevels: function() {
       this.fetchHeatLevelsForSensor(this.selected());
-    },
-
-    fetchHeatLevelsForTmp: function() {
-      this.fetchHeatLevelsForSensor(this.tmpSelected());
     },
 
     fetchHeatLevelsForSensor: function(sensor) {
@@ -170,16 +129,12 @@ export const sensors = (params, storage, heat, $http) => {
   return new Sensors();
 };
 
-const hasChangedToAll = newValue => !newValue || newValue === ALL_SENSOR.id;
-
 const max = (valueOf, xs) => {
   const reducer = (acc, x) => valueOf(x) > valueOf(acc) ? x : acc;
   return xs.reduce(reducer, xs[0]);
 };
 
 export const findAvailableSensorsForParameter = (sort, sensors, parameter) =>
-  parameter === ALL_PARAMETER ?
-    sort(Object.values(sensors)) :
     sort(Object.values(sensors).filter(sensor => sensor.measurement_type === parameter.id));
 
 export const sort = sensors => {
@@ -239,11 +194,9 @@ export const defaultSensorIdForParameter = (parameter, sensors) => {
 export const buildAvailableParameters = sensors => {
   const uniq = (v, i, a) => a.indexOf(v) === i;
 
-  return [ALL_PARAMETER].concat(
-    Object.values(sensors)
+  return Object.values(sensors)
     .sort((a, b) => b.session_count - a.session_count)
     .map(sensor => sensor.measurement_type)
     .filter(uniq)
-    .map(measurementType => ({ label: measurementType, id: measurementType }))
-  );
+    .map(measurementType => ({ label: measurementType, id: measurementType }));
 }

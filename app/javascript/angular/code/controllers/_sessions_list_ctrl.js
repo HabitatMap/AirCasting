@@ -8,10 +8,8 @@ export const SessionsListCtrl = (
   sensors,
   storage,
   flash,
-  functionBlocker,
   $window,
   drawSession,
-  openSensorDialog,
   markerSelected,
   updateCrowdMapLayer,
   $location
@@ -36,8 +34,6 @@ export const SessionsListCtrl = (
     if(_(params.get("selectedSessionIds", [])).isEmpty()){
       params.update({selectedSessionIds: []});
     }
-
-    functionBlocker.block("sessionDialog", !!$scope.params.get("tmp").selectedSensorId);
 
     sessions.reSelectAllSessions();
   };
@@ -99,25 +95,6 @@ export const SessionsListCtrl = (
     $scope.toggleSession(data.session_id, true);
     $scope.$apply();
   });
-
-  $scope.$watch("params.get('selectedSessionIds')", function(newIds, oldIds) {
-    console.log("watch - params.get('selectedSessionIds')");
-    functionBlocker.use("sessionDialog", function(){
-      if(newIds.length === 1 && !sensors.selected()) {
-        var usableSensors = singleSession.availSensors();
-        if(usableSensors.length > 1) {
-          sensors.candidateSelectedSensorId = _(usableSensors).first().id;
-          openSensorDialog(newIds, oldIds, sessions);
-        } else if(usableSensors.length === 1){
-          params.update({tmp: {selectedSensorId: _(usableSensors).first().id}});
-          sessions.sessionsChanged(newIds, oldIds);
-        }
-      } else {
-        params.update({tmp: {selectedSensorId: ""}});
-        sessions.sessionsChanged(newIds, oldIds);
-      }
-    });
-  }, true);
 
   $scope.toggleSession = function(sessionId, markerSelected) {
     if(this.isSessionDisabled(sessionId)){
