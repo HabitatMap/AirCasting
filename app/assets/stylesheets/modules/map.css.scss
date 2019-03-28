@@ -7,6 +7,7 @@
   @include flexbox();
   @include flex-direction(column);
   @include justify-content(space-between);
+  position: relative;
 }
 
 .map-container {
