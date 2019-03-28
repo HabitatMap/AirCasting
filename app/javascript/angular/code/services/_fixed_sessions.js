@@ -99,7 +99,7 @@ export const fixedSessions = (
     _selectSession: function(id, callback) {
       var session = this.find(id);
       if(!session || session.alreadySelected) return;
-      var sensorId = sensors.selectedId() || sensors.tmpSelectedId();
+      var sensorId = sensors.selectedId();
       var sensor = sensors.sensors[sensorId] || {};
       var sensorName = sensor.sensor_name;
       if (!sensorName) return;
