@@ -8,9 +8,11 @@ Rails.application.routes.draw do
 
   devise_for :users, :controllers => { :sessions => 'sessions', :passwords => 'passwords' }
 
-  resource :map
+  get 'map', to: redirect('mobile_map', status: 302)
+  get 'mobile_map' => 'yellow#index'
+  get 'fixed_map' => 'yellow#index'
 
-  get 'map2' => 'yellow#index'
+  resource :map
 
   get 's/:url_token' => 'measurement_sessions#show', :as => :short_session
 

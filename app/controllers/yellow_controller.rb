@@ -18,6 +18,6 @@
 
 class YellowController < ApplicationController
   def index
-    # render layout: false
+    render layout: "yellow"
   end
 end
