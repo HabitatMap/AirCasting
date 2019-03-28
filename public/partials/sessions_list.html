@@ -3,31 +3,11 @@
     <div class="name"><span>Sessions</span></div>
     <ul class="buttons">
       <li><button ng-click="exportSessions()" ng-show="canExportSessions()">export</button></li>
-      <li><button ng-click="toggleAll()">{{allSelectionText()}}</button></li>
     </ul>
   </div>
   <div class="nomargin">
     <div id="sessions-bottom" ng-style="{height: $window.innerHeight - 300}">
-      <ul>
-        <li ng:repeat="session in sessionsForList" ng-class="sessionCssClass(session.$selected)">
-          <input type="checkbox" collection-condition="canSelectSession(session.id)" collection="selectedSessionIds" collection-id="session.id" ng-model="session.$selected" ng-disabled="isSessionDisabled(session.id)">
-          <dl ng-click="toggleSession(session.id, false)">
-            <dt><label class="narrow">{{session.title}}</label></dt>
-            <dd>
-              <label class="narrow">
-                {{session.username}},
-                {{session.timeframe}}
-                <span ng-class="shortTypeCss(shortType.type, session.$selected)" ng-repeat="shortType in session.shortTypes">{{shortType.name}}<span ng-hide="$index==session.shortTypes.length-1">/</span></span>
-              </label>
-            </dd>
-          </dl>
-        </li>
-
-        <li ng-show = "sessionsCount === 50 || sessionsCount === 100">
-          <button ng-click="updateSessionsPage()">Load More...</button>
-        </li>
-
-      </ul>
+      <div id="sessions-bottom-elm"></div>
     </div>
   </div>
 </section>
