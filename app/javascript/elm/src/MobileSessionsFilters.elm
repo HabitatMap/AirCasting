@@ -1,6 +1,7 @@
-module MobileSessionsFilters exposing (Msg(..), defaultModel, update, view)
+module MobileSessionsFilters exposing (Msg(..), Popups(..), defaultModel, update, view)
 
 import Browser
+import Browser.Events
 import Html exposing (Html, button, div, h4, input, label, p, span, text)
 import Html.Attributes as Attr
 import Html.Events as Events
@@ -16,7 +17,8 @@ import TimeRange exposing (TimeRange)
 
 
 type alias Model =
-    { location : String
+    { popup : Popups
+    , location : String
     , tags : LabelsInput.Model
     , profiles : LabelsInput.Model
     , isCrowdMapOn : Bool
@@ -25,9 +27,15 @@ type alias Model =
     }
 
 
+type Popups
+    = ParametersList
+    | None
+
+
 defaultModel : Model
 defaultModel =
-    { location = ""
+    { popup = None
+    , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
     , isCrowdMapOn = False
@@ -65,7 +73,8 @@ init flags =
 
 
 type Msg
-    = UpdateLocationInput String
+    = ShowParametersList
+    | UpdateLocationInput String
     | SubmitLocation
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
@@ -73,11 +82,15 @@ type Msg
     | UpdateCrowdMapResolution Int
     | UpdateTimeRange Encode.Value
     | ShowCopyLinkTooltip
+    | ClosePopup
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        ShowParametersList ->
+            ( { model | popup = ParametersList }, Cmd.none )
+
         UpdateLocationInput newLocation ->
             ( { model | location = newLocation }, Cmd.none )
 
@@ -106,6 +119,9 @@ update msg model =
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
 
+        ClosePopup ->
+            ( { model | popup = None }, Cmd.none )
+
 
 updateLabels :
     LabelsInput.Msg
@@ -129,7 +145,14 @@ updateLabels msg model toSubCmd mapper updateModel =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewLocation model.location
+        [ viewParameter
+        , case model.popup of
+            ParametersList ->
+                viewParameterList
+
+            None ->
+                div [] []
+        , viewLocation model.location
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
         , h4 []
@@ -139,6 +162,25 @@ view model =
         , viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
         , TimeRange.viewTimeFilter
         , button [ Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ] [ text "oo" ]
+        ]
+
+
+viewParameter : Html Msg
+viewParameter =
+    div []
+        [ h4 [] [ text "parameter" ]
+        , input
+            [ Attr.id "parameter-filter"
+            , Events.onClick ShowParametersList
+            ]
+            []
+        ]
+
+
+viewParameterList : Html Msg
+viewParameterList =
+    div [ Attr.id "parameters-list" ]
+        [ text "parameters list"
         ]
 
 
@@ -222,15 +264,16 @@ main =
         { view = view
         , init = init
         , update = update
-        , subscriptions = \_ -> subscriptions
+        , subscriptions = subscriptions
         }
 
 
-subscriptions : Sub Msg
-subscriptions =
+subscriptions : Model -> Sub Msg
+subscriptions model =
     Sub.batch <|
         [ Sub.map ProfileLabels <| LabelsInput.subscriptions Ports.profileSelected
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
         , Ports.locationCleared (always (UpdateLocationInput ""))
+        , Browser.Events.onMouseUp (Decode.succeed ClosePopup)
         ]
