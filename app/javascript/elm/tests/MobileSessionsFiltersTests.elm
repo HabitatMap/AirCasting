@@ -1,4 +1,4 @@
-module MobileSessionsFiltersTests exposing (crowdMapArea, locationFilter, profilesArea, tagsArea, timeFilter)
+module MobileSessionsFiltersTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, tagsArea, timeFilter)
 
 import Expect
 import Fuzz exposing (bool, int, list, string)
@@ -13,6 +13,46 @@ import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Slc
 import TimeRange
+
+
+popups : Test
+popups =
+    test "when ClosePopup is triggered the popup is hidden" <|
+        \_ ->
+            { defaultModel | popup = ParametersList }
+                |> update ClosePopup
+                |> Tuple.first
+                |> view
+                |> Query.fromHtml
+                |> Query.hasNot [ Slc.id "parameters-list" ]
+
+
+parameterSensorFilter : Test
+parameterSensorFilter =
+    describe "Parameter filter tests: "
+        [ test "parameter filter is present" <|
+            \_ ->
+                defaultModel
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.id "parameter-filter" ]
+        , test "Clicking on parameter filter triggers ShowParametersList" <|
+            \_ ->
+                defaultModel
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "parameter-filter" ]
+                    |> Event.simulate Event.click
+                    |> Event.expect ShowParametersList
+        , test "when ShowParametersList is triggered parameters-list is shown" <|
+            \_ ->
+                defaultModel
+                    |> update ShowParametersList
+                    |> Tuple.first
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.id "parameters-list" ]
+        ]
 
 
 locationFilter : Test
