@@ -60,11 +60,24 @@ type alias Flags =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : Encode.Value
+    , sensorsList : Encode.Value
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
+    let
+        result =
+            Decode.decodeValue (Decode.list parameterDecoder) flags.sensorsList
+
+        uniqueParameters =
+            case result of
+                Ok allParameters ->
+                    allParameters |> Set.fromList |> Set.toList
+
+                Err _ ->
+                    []
+    in
     ( { defaultModel
         | location = flags.location
         , tags = LabelsInput.init flags.tags
@@ -72,8 +85,9 @@ init flags =
         , isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
+        , parameters = uniqueParameters
       }
-    , fetchSensors
+    , Cmd.none
     )
 
 
@@ -93,7 +107,6 @@ type Msg
     | ShowSelectFormItemsPopup
     | SelectParameter String
     | ClosePopup
-    | GotSensors (Result Http.Error (List String))
     | TogglePopupState
 
 
@@ -136,18 +149,6 @@ update msg model =
 
         TogglePopupState ->
             ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
-
-        GotSensors result ->
-            case result of
-                Ok parameters ->
-                    let
-                        distinctParameter =
-                            parameters |> Set.fromList |> Set.toList
-                    in
-                    ( { model | parameters = distinctParameter }, Cmd.none )
-
-                Err _ ->
-                    ( model, Cmd.none )
 
         SelectParameter parameter ->
             ( { model | selectedParameter = parameter }, Ports.selectParameter parameter )
@@ -255,22 +256,6 @@ preventDefault msg =
     , stopPropagation = True
     , preventDefault = True
     }
-
-
-fetchSensors : Cmd Msg
-fetchSensors =
-    Http.request
-        { method = "GET"
-        , headers =
-            [ Http.header "Accept" "application/json, text/plain, */*"
-            , Http.header "X-Requested-With" "XMLHttpRequest"
-            ]
-        , url = "/api/sensors"
-        , body = Http.emptyBody
-        , expect = Http.expectJson GotSensors (Decode.list parameterDecoder)
-        , timeout = Nothing
-        , tracker = Nothing
-        }
 
 
 parameterDecoder : Decode.Decoder String
