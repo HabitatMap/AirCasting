@@ -3,6 +3,7 @@ import * as MapSettings from '../directives/map_settings'
 angular.module('aircasting').directive('googlemap', function() {
   return {
     link: function(scope, element) {
+       console.warn('init')
       // United States
       var point = {
         lat: 37.09024,

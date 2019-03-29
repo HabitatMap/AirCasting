@@ -4,9 +4,10 @@
     %meta(name='viewport' content='width=device-width,initial-scale=0.5')
     %meta(name='description' content='AirCasting map showing health and environmental data like air quality, temperature, humidity, sound levels and more.')
     %title AirCasting
+    = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}"
     = javascript_pack_tag "map2"
     = stylesheet_link_tag "application"
-    = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}&callback=initMap", defer: true, async: true
+    = javascript_pack_tag "application"
     = favicon_link_tag "favicon.png"
     = csrf_meta_tags # TODO
     = render :partial => 'shared/analytics' # TODO

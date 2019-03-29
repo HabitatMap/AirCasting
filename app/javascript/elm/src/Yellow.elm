@@ -1,8 +1,8 @@
-module Yellow exposing (Flags, Model, Msg(..), init, main, update, view)
+port module Yellow exposing (Flags, Model, Msg(..), init, main, update, view)
 
 import Browser exposing (..)
 import Browser.Navigation
-import Html exposing (Html, a, button, div, form, h2, h3, h4, input, label, li, main_, nav, p, span, text, ul)
+import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, h4, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as Decode
@@ -10,6 +10,7 @@ import Json.Encode as Encode
 import LabelsInput
 import Maybe exposing (..)
 import Ports
+import String exposing (fromInt)
 import TimeRange exposing (TimeRange)
 import Url exposing (Url)
 
@@ -22,9 +23,28 @@ type alias Flags =
     {}
 
 
+type alias ShortType =
+    { name : String
+    , type_ : String
+    }
+
+
+type alias Session =
+    { title : String
+    , id : Int
+    , timeframe : String
+    , username : String
+    , shortTypes : List ShortType
+    , selected : Bool -- THIS IS USED IN JS, IN ELM WE TRACK SELECTION IN selectedSessionId. REMOVE WHEN MOVING FETCHING FROM JS TO ELM
+    }
+
+
 type alias Model =
     { page : Page
     , key : Maybe Browser.Navigation.Key
+    , sessions : List Session
+    , selectedSessionId : Maybe Int
+    , isHttping : Bool
     }
 
 
@@ -54,17 +74,38 @@ init flags url key =
                 _ ->
                     Mobile
     in
-    ( { page = page, key = Just key }, Cmd.none )
+    ( { page = page, key = Just key, sessions = [], selectedSessionId = Nothing, isHttping = False }, Cmd.none )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch [ updateSessions UpdateSessions, updateIsHttping UpdateIsHttping ]
 
 
 
 ---- UPDATE ----
 
 
+port updateSessions : (List Session -> msg) -> Sub msg
+
+
+port checkedSession : { deselected : Maybe Int, selected : Maybe Int } -> Cmd msg
+
+
+port loadMoreSessions : () -> Cmd msg
+
+
+port updateIsHttping : (Bool -> msg) -> Sub msg
+
+
 type Msg
     = NoOp
     | UrlChange Url
     | UrlRequest Browser.UrlRequest
+    | ToggleSessionSelection Int
+    | UpdateSessions (List Session)
+    | LoadMoreSessions
+    | UpdateIsHttping Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -95,6 +136,30 @@ update msg model =
 
                 External url ->
                     ( model, Browser.Navigation.load url )
+
+        ToggleSessionSelection id ->
+            if model.selectedSessionId == Just id then
+                ( { model | selectedSessionId = Nothing }
+                , checkedSession { deselected = model.selectedSessionId, selected = Nothing }
+                )
+
+            else
+                ( { model | selectedSessionId = Just id }
+                , checkedSession { deselected = model.selectedSessionId, selected = Just id }
+                )
+
+        UpdateSessions sessions ->
+            let
+                selectedSessionId =
+                    List.head << List.map .id << List.filter .selected
+            in
+            ( { model | sessions = sessions, selectedSessionId = selectedSessionId sessions }, Cmd.none )
+
+        LoadMoreSessions ->
+            ( model, loadMoreSessions () )
+
+        UpdateIsHttping isHttpingNow ->
+            ( { model | isHttping = isHttpingNow }, Cmd.none )
 
 
 
@@ -136,6 +201,7 @@ view model =
                 ]
             ]
         , main_
+            --[ Attr.attribute "ng-controller" "MobileSessionsMapCtrl" ]
             []
             [ div [ Attr.class "maps-page-container" ]
                 [ div [ Attr.class "map-filters" ]
@@ -149,15 +215,38 @@ view model =
                         ]
                     ]
                 , div [ Attr.class "maps-content-container" ]
-                    [ div [ Attr.class "map-container" ]
-                        [ div [ Attr.class "map", Attr.id "map1" ]
+                    [ if model.isHttping then
+                        div [ Attr.class "overlay" ]
+                            [ div [ Attr.class "lds-dual-ring" ] []
+                            ]
+
+                      else
+                        text ""
+                    , div [ Attr.class "map-container" ]
+                        [ div [ Attr.class "map", Attr.id "map11", Attr.attribute "ng-controller" "MapCtrl", Attr.attribute "googlemap" "" ]
                             []
-                        , div [ Attr.class "sessions" ]
-                            [ h2 [ Attr.class "sessions-header" ]
-                                [ text "Sessions" ]
-                            , span [ Attr.class "sessions-number" ]
-                                [ text "showing 6 of 500 reuslts" ]
-                            , div [ Attr.class "sessions-container" ] (List.repeat 9 viewSessionCard)
+                        , div [ Attr.attribute "ng-controller" "MobileSessionsMapCtrl" ]
+                            [ div [ Attr.class "sessions", Attr.attribute "ng-controller" "SessionsGraphCtrl" ]
+                                (case model.selectedSessionId of
+                                    Nothing ->
+                                        [ h2 [ Attr.class "sessions-header" ]
+                                            [ text "Sessions" ]
+                                        , span [ Attr.class "sessions-number" ]
+                                            [ text "showing 6 of 500 reuslts" ]
+                                        , viewSessions model
+                                        ]
+
+                                    Just _ ->
+                                        [ div [ Attr.id "graph-top" ]
+                                            [ div [ Attr.id "graph-header" ] [ text "Sessions Graph" ]
+                                            , a [ Attr.id "graph-arrow" ] []
+                                            ]
+                                        , div
+                                            [ Attr.id "graph-box" ]
+                                            [ div [ Attr.id "graph" ] []
+                                            ]
+                                        ]
+                                )
                             ]
                         ]
                     , div [ Attr.class "heatmap" ]
@@ -178,19 +267,107 @@ viewSessionTypes model =
         ]
 
 
-viewSessionCard : Html Msg
-viewSessionCard =
-    div [ Attr.class "session" ]
+viewSessions : Model -> Html Msg
+viewSessions model =
+    div [ Attr.class "sessions-container", Attr.attribute "ng-controller" "SessionsListCtrl" ]
+        (List.map (viewSessionCard model.selectedSessionId) model.sessions
+            ++ [ viewLoadMore <| List.length model.sessions ]
+        )
+
+
+viewShortType : Int -> Int -> ShortType -> Html msg
+viewShortType length index shortType =
+    span [ Attr.class shortType.type_ ]
+        [ text shortType.name
+        , span []
+            [ if index == length - 1 then
+                text ""
+
+              else
+                text "/"
+            ]
+        ]
+
+
+viewLoadMore : Int -> Html Msg
+viewLoadMore sessionCount =
+    if sessionCount /= 0 && modBy 50 sessionCount == 0 then
+        li [] [ button [ Events.onClick LoadMoreSessions ] [ text "Load More..." ] ]
+
+    else
+        text ""
+
+
+viewSession : Maybe Int -> Session -> Html Msg
+viewSession selectedSessionId session =
+    li
+        [ Attr.style "padding" "5px 10px"
+        , Attr.style "clear" "both"
+        , Attr.style "overflow" "hidden"
+        , Events.onClick <| ToggleSessionSelection session.id
+        ]
+        [ input
+            [ Attr.type_ "radio"
+            , Attr.id <| "radio-" ++ fromInt session.id
+            , Attr.checked <| selectedSessionId == Just session.id
+            , Attr.style "float" "left"
+            , Attr.style "margin" "3px 0 0"
+            ]
+            []
+        , dl
+            [ Attr.style "float" "left"
+            , Attr.style "margin" "0 0 0 10px"
+            ]
+            [ dt
+                [ Attr.style "font-size" "14px"
+                , Attr.style "color" "#000"
+                , Attr.style "font-weight" "normal"
+                ]
+                [ label
+                    [ Attr.class "narrow"
+                    , Attr.style "display" "block"
+                    , Attr.style "cursor" "pointer"
+                    , Attr.style "width" "170px"
+                    ]
+                    [ text session.title ]
+                ]
+            , dd
+                [ Attr.style "font-size" "11px"
+                , Attr.style "margin" "0"
+                , Attr.style "color" "#000"
+                , Attr.style "font-weight" "normal"
+                ]
+                [ label
+                    [ Attr.class "narrow"
+                    , Attr.style "display" "block"
+                    , Attr.style "cursor" "pointer"
+                    , Attr.style "width" "170px"
+                    ]
+                    ([ div [] [ text <| session.username ++ ", " ++ session.timeframe ]
+                     ]
+                        ++ List.indexedMap (viewShortType <| List.length session.shortTypes) session.shortTypes
+                    )
+                ]
+            ]
+        ]
+
+
+viewSessionCard : Maybe Int -> Session -> Html Msg
+viewSessionCard selectedSessionId session =
+    div
+        [ Attr.class "session"
+        , Events.onClick <| ToggleSessionSelection session.id
+        ]
         [ div [ Attr.class "session-header-container" ]
             [ div [ Attr.class "session-color heat-lvl1-bg" ]
                 []
             , h3 [ Attr.class "session-name" ]
-                [ text "Lunar HQ" ]
+                [ text session.title ]
             ]
         , p [ Attr.class "session-owner" ]
-            [ text "Lunar team" ]
+            [ text session.username ]
         , p [ Attr.class "session-dates" ]
-            [ text "12.02.2019 13:00-15:30" ]
+            [ text session.timeframe ]
         ]
 
 
@@ -255,7 +432,7 @@ main =
         { init = init
         , view = viewDocument
         , update = update
-        , subscriptions = always Sub.none
+        , subscriptions = subscriptions
         , onUrlRequest = UrlRequest
         , onUrlChange = UrlChange
         }

@@ -7,6 +7,11 @@
 // To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
 // layout file, like app/views/layouts/application.html.erb
 
+
+setTimeout(() => {
+
+console.warn('loading')
+
 window.jQuery = window.$ = require('jquery');
 require('jquery-migrate');
 window.moment = require('moment');
@@ -42,3 +47,4 @@ var req = require.context("../angular/code/controllers", true, /\.js$/);
 req.keys().forEach(function(key){
   req(key);
 });
+}, 5000);

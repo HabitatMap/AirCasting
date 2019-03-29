@@ -14,5 +14,7 @@ angular.module('aircasting').controller('SessionsListCtrl', [
   'map',
   'updateCrowdMapLayer',
   '$location',
+  'fixedSessions',
+  'mobileSessions',
   SessionsListCtrl
 ]);

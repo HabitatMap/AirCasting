@@ -204,7 +204,7 @@ export const mobileSessions = (
 
     _fetch: function(page) {
       // if _fetch is called after the route has changed (eg debounced)
-      if ($location.path() !== constants.mobileMapRoute) return;
+      //if ($location.path() !== constants.mobileMapRoute) return;
 
       var bounds = map.getBounds();
       var data = params.get('data');

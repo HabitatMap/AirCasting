@@ -17,9 +17,11 @@ export const MobileSessionsMapCtrl = (
   $window,
   infoWindow,
   sensorsList,
-  sessionsUtils
+  //sessionsUtils,
+  $http
 ) => {
-  sensors.setSensors(sensorsList);
+
+  $http.get('/api/sensors', {cache: true}).then(function(response){ return sensors.setSensors(response.data) });
 
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
@@ -128,7 +130,7 @@ export const MobileSessionsMapCtrl = (
         timeRange
       };
 
-      const elmApp = Elm.MobileSessionsFilters.init({ node: node, flags: flags });
+      const elmApp = window.__SessionsList;
 
       elmApp.ports.toggleCrowdMap.subscribe(() => {
         storage.toggleCrowdMapData();
@@ -176,6 +178,7 @@ export const MobileSessionsMapCtrl = (
 }
 
 const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
+	return
   if (document.getElementById("daterange")) {
     $('#daterange').daterangepicker({
       opens: 'left',
@@ -204,6 +207,7 @@ const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
 };
 
 const setupAutocomplete = (callback, id, path) => {
+	return
   if (document.getElementById(id)) {
     $( "#" + id )
       .bind( "keydown", function( event ) {

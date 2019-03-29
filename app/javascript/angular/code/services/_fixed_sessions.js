@@ -172,7 +172,7 @@ export const fixedSessions = (
 
     _fetch: function(page) {
       // if _fetch is called after the route has changed (eg debounced)
-      if ($location.path() !== constants.fixedMapRoute) return;
+      //if ($location.path() !== constants.fixedMapRoute) return;
 
       const data = params.get('data');
 

@@ -1,5 +1,6 @@
 function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
                            graphHighlight, $window, $timeout) {
+	console.warn('graph')
   $scope.graph = graph;
   $scope.$window = $window;
   $scope.expanded = false;

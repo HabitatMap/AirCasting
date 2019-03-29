@@ -10,7 +10,7 @@ const elmDefaultOptions = {
   files: [
     resolve(__dirname, "../../../app/javascript/elm/src/MobileSessionsFilters.elm"),
     resolve(__dirname, "../../../app/javascript/elm/src/FixedSessionFilters.elm"),
-    resolve(__dirname, "../../../app/javascript/elm/src/SessionsList.elm"),
+    //resolve(__dirname, "../../../app/javascript/elm/src/SessionsList.elm"),
     resolve(__dirname, "../../../app/javascript/elm/src/Yellow.elm")
   ]
 }

@@ -15,7 +15,9 @@ export const SessionsListCtrl = (
   markerSelected,
   map,
   updateCrowdMapLayer,
-  $location
+  $location,
+  fixedSessions,
+  mobileSessions
 ) => {
   let sessions;
   let singleSession;
@@ -30,6 +32,7 @@ export const SessionsListCtrl = (
     $scope.page = 0;
     $scope.markerSelected = markerSelected;
     $window.sessions = sessions = $scope.sessions;
+    //$window.sessions = sessions = mobileSessions;
     $window.singleSession = singleSession = $scope.singleSession;
     $scope.sessionsForList = [];
 
@@ -89,6 +92,7 @@ export const SessionsListCtrl = (
   };
 
   $scope.newSessionsForList = function() {
+    //return mobileSessions.get().map(formatSessionForList);
     return $scope.sessions.get().map(formatSessionForList);
   }
 
@@ -167,8 +171,9 @@ export const SessionsListCtrl = (
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(() => {
       const node = document.getElementById('sessions-bottom-elm');
+      //const flags = mobileSessions.get().map(formatSessionForList).map(formatSessionForElm);
       const flags = $scope.sessions.get().map(formatSessionForList).map(formatSessionForElm);
-      elmApp = Elm.SessionsList.init({ node, flags });
+      elmApp = window.__SessionsList;
 
       elmApp.ports.checkedSession.subscribe(({ selected, deselected }) => {
         if (deselected) $scope.toggleSession(deselected, true);

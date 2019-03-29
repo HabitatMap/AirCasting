@@ -14,7 +14,8 @@ angular.module('aircasting').controller('MobileSessionsMapCtrl', [
   'functionBlocker',
   '$window',
   "infoWindow",
-  'sensorsList',
+  //'sensorsList',
   'sessionsUtils',
+  '$http',
   MobileSessionsMapCtrl
 ]);

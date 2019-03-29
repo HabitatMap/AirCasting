@@ -15,10 +15,13 @@ export const map = (
   const TIMEOUT_DELAY = process.env.NODE_ENV === 'test' ? 0 : 1000;
   let hasChangedProgrammatically = false;
 
-  var Map = function() {};
+  var Map = function() {
+   //this.mapObj = window.__map;
+  };
 
   Map.prototype = {
     init: function(element, options) {
+      //this.mapObj = window.__map //googleMaps.init(element, options);
       this.mapObj = googleMaps.init(element, options);
       this.markers = [];
       this.listen("idle", this.saveViewport);

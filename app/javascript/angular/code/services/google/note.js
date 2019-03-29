@@ -1,6 +1,8 @@
 angular.module("google").factory("note",  ["$http", "$compile", "$rootScope","$timeout", 'versioner', 'map',
                                  function($http, $compile, $rootScope, $timeout, versioner, map){
   var Note = function() {
+    //this.popup = new google.maps.InfoWindow();
+    //map.listen("zoom_changed", _(this.hide).bind(this));
     this.popup = new google.maps.InfoWindow();
     map.listen("zoom_changed", _(this.hide).bind(this));
   };

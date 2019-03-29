@@ -18,6 +18,6 @@ angular.module('aircasting').controller('FixedSessionsMapCtrl', [
   'rectangles',
   'infoWindow',
   '$http',
-  'sensorsList',
+  //'sensorsList',
   FixedSessionsMapCtrl
 ]);
