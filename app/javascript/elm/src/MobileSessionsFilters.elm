@@ -2,16 +2,13 @@ module MobileSessionsFilters exposing (Msg(..), Popups(..), defaultModel, update
 
 import Browser
 import Browser.Events
-import Debug
 import Html exposing (Html, button, div, h4, input, label, li, option, p, select, span, text, ul)
 import Html.Attributes as Attr
 import Html.Events as Events
-import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import LabelsInput
 import Ports
-import Set
 import TimeRange exposing (TimeRange)
 
 
@@ -61,7 +58,6 @@ type alias Flags =
     , crowdMapResolution : Int
     , timeRange : Encode.Value
     , selectedParameter : String
-    , sensorsList : Encode.Value
     , parametersList : Encode.Value
     }
 
@@ -179,15 +175,10 @@ updateLabels msg model toSubCmd mapper updateModel =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewParameter model.selectedParameter
+        [ viewParameterFilter model.selectedParameter
         , case model.popup of
             SelectFromItems items ->
-                case model.isPopupExtended of
-                    True ->
-                        viewPopup SelectParameter model.isPopupExtended items
-
-                    False ->
-                        viewPopup SelectParameter model.isPopupExtended items
+                viewPopup SelectParameter model.isPopupExtended items
 
             None ->
                 div [] []
@@ -204,13 +195,13 @@ view model =
         ]
 
 
-viewParameter : String -> Html Msg
-viewParameter selectedParameter =
+viewParameterFilter : String -> Html Msg
+viewParameterFilter selectedParameter =
     div []
         [ h4 [] [ text "parameter" ]
         , input
             [ Attr.id "parameter-filter"
-            , Events.custom "click" (Decode.map preventDefault (Decode.succeed ShowSelectFormItemsPopup))
+            , clickWithoutDefault ShowSelectFormItemsPopup
             , Attr.value selectedParameter
             ]
             []
@@ -218,7 +209,7 @@ viewParameter selectedParameter =
 
 
 viewPopup : (String -> Msg) -> Bool -> List String -> Html Msg
-viewPopup select isPopupExtended items =
+viewPopup onSelect isPopupExtended items =
     let
         numberOfMainItems =
             4
@@ -230,27 +221,32 @@ viewPopup select isPopupExtended items =
             List.drop numberOfMainItems items
     in
     div [ Attr.id "popup" ]
-        [ mainItems
-            |> List.map (\item -> li [] [ button [ Events.onClick (select item) ] [ text item ] ])
-            |> ul []
-        , case isPopupExtended of
-            False ->
-                button
-                    [ Events.custom "click" (Decode.map preventDefault (Decode.succeed TogglePopupState))
-                    ]
-                    [ text "more parameters" ]
+        [ selectableItems mainItems onSelect
+        , if isPopupExtended then
+            div []
+                [ selectableItems moreItems onSelect
+                , button
+                    [ clickWithoutDefault TogglePopupState ]
+                    [ text "less parameters" ]
+                ]
 
-            True ->
-                div []
-                    [ moreItems
-                        |> List.map (\item -> li [] [ button [ Events.onClick (select item) ] [ text item ] ])
-                        |> ul []
-                    , button
-                        [ Events.custom "click" (Decode.map preventDefault (Decode.succeed TogglePopupState))
-                        ]
-                        [ text "less parameters" ]
-                    ]
+          else
+            button
+                [ clickWithoutDefault TogglePopupState ]
+                [ text "more parameters" ]
         ]
+
+
+selectableItems : List String -> (String -> Msg) -> Html Msg
+selectableItems items onSelect =
+    items
+        |> List.map (\item -> li [] [ button [ Events.onClick (onSelect item) ] [ text item ] ])
+        |> ul []
+
+
+clickWithoutDefault : Msg -> Html.Attribute Msg
+clickWithoutDefault msg =
+    Events.custom "click" (Decode.map preventDefault (Decode.succeed msg))
 
 
 preventDefault : Msg -> { message : Msg, stopPropagation : Bool, preventDefault : Bool }
@@ -259,11 +255,6 @@ preventDefault msg =
     , stopPropagation = True
     , preventDefault = True
     }
-
-
-parameterDecoder : Decode.Decoder String
-parameterDecoder =
-    Decode.field "measurement_type" Decode.string
 
 
 viewCrowdMapCheckBox : Bool -> Html Msg
@@ -346,12 +337,12 @@ main =
         { view = view
         , init = init
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> subscriptions
         }
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions : Sub Msg
+subscriptions =
     Sub.batch <|
         [ Sub.map ProfileLabels <| LabelsInput.subscriptions Ports.profileSelected
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
