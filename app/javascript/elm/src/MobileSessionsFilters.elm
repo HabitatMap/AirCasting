@@ -60,6 +60,7 @@ type alias Flags =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : Encode.Value
+    , selectedParameter : String
     , sensorsList : Encode.Value
     }
 
@@ -85,9 +86,10 @@ init flags =
         , isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
+        , selectedParameter = flags.selectedParameter
         , parameters = uniqueParameters
       }
-    , Cmd.none
+    , Ports.selectParameter flags.selectedParameter
     )
 
 
