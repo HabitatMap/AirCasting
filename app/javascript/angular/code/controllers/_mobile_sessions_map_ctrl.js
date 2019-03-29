@@ -95,6 +95,7 @@ export const MobileSessionsMapCtrl = (
     }
   }, true);
 
+  // two places in _sensors.js still use that watch
   $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
     sensors.onSelectedParameterChange(newValue, oldValue);
   }, true);
@@ -120,6 +121,15 @@ export const MobileSessionsMapCtrl = (
       };
 
       const elmApp = Elm.MobileSessionsFilters.init({ node: node, flags: flags });
+
+      elmApp.ports.selectParameter.subscribe(parameter =>{
+        const oldValue = sensors.selectedParameter;
+        const newParameter = { label: parameter, id: parameter };
+
+        $scope.sensors.selectedParameter = newParameter
+        sensors.onSelectedParameterChange(newParameter, oldValue);
+        $scope.sessions.fetch();
+      });
 
       elmApp.ports.toggleCrowdMap.subscribe(crowdMap => {
         params.updateData({ crowdMap });
