@@ -78,7 +78,7 @@ popups =
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.tag "li" ]
                     |> Query.count (Expect.equal 5)
-        , test "clicking on an item executed select function" <|
+        , test "clicking on an item executes select function" <|
             \_ ->
                 [ "item" ]
                     |> viewPopup SelectParameter False
