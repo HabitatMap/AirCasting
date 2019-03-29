@@ -23,6 +23,7 @@ type alias Model =
     { popup : Popups
     , isPopupExtended : Bool
     , parameters : List String
+    , selectedParameter : String
     , location : String
     , tags : LabelsInput.Model
     , profiles : LabelsInput.Model
@@ -42,6 +43,7 @@ defaultModel =
     { popup = None
     , isPopupExtended = False
     , parameters = []
+    , selectedParameter = "particulate matter"
     , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
@@ -169,7 +171,7 @@ updateLabels msg model toSubCmd mapper updateModel =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewParameter
+        [ viewParameter model.selectedParameter
         , case model.popup of
             SelectFromItems items ->
                 case model.isPopupExtended of
@@ -194,13 +196,14 @@ view model =
         ]
 
 
-viewParameter : Html Msg
-viewParameter =
+viewParameter : String -> Html Msg
+viewParameter selectedParameter =
     div []
         [ h4 [] [ text "parameter" ]
         , input
             [ Attr.id "parameter-filter"
             , Events.custom "click" (Decode.map preventDefault (Decode.succeed ShowSelectFormItemsPopup))
+            , Attr.value selectedParameter
             ]
             []
         ]

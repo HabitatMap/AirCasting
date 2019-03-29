@@ -84,12 +84,13 @@ popups =
 parameterSensorFilter : Test
 parameterSensorFilter =
     describe "Parameter filter tests: "
-        [ test "parameter filter is present" <|
-            \_ ->
-                defaultModel
+        [ fuzz string "parameter filter shows the selected parameter" <|
+            \parameter ->
+                { defaultModel | selectedParameter = parameter }
                     |> view
                     |> Query.fromHtml
-                    |> Query.has [ Slc.id "parameter-filter" ]
+                    |> Query.find [ Slc.id "parameter-filter" ]
+                    |> Query.has [ Slc.attribute <| Attr.value parameter ]
         , test "Clicking on parameter filter triggers ShowSelectFormItemsPopup" <|
             \_ ->
                 defaultModel
