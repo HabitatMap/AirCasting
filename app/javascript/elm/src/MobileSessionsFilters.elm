@@ -62,6 +62,7 @@ type alias Flags =
     , timeRange : Encode.Value
     , selectedParameter : String
     , sensorsList : Encode.Value
+    , parametersList : Encode.Value
     }
 
 
@@ -69,12 +70,12 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
         result =
-            Decode.decodeValue (Decode.list parameterDecoder) flags.sensorsList
+            Decode.decodeValue (Decode.list (Decode.field "label" Decode.string)) flags.parametersList
 
-        uniqueParameters =
+        parameters =
             case result of
-                Ok allParameters ->
-                    allParameters |> Set.fromList |> Set.toList
+                Ok values ->
+                    values
 
                 Err _ ->
                     []
@@ -87,7 +88,7 @@ init flags =
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , selectedParameter = flags.selectedParameter
-        , parameters = uniqueParameters
+        , parameters = parameters
       }
     , Ports.selectParameter flags.selectedParameter
     )
