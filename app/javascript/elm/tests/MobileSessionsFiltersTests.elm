@@ -38,7 +38,7 @@ popups =
                                 (\item -> Slc.containing [ Slc.text item ])
                 in
                 items
-                    |> viewPopup False
+                    |> viewPopup SelectParameter False
                     |> Query.fromHtml
                     |> Query.has [ Slc.all itemsHtml ]
         , fuzz string "popup shows only 4 main items when not extended" <|
@@ -48,14 +48,14 @@ popups =
                         List.map (\index -> itemBase ++ String.fromInt index) (List.range 1 5)
                 in
                 items
-                    |> viewPopup False
+                    |> viewPopup SelectParameter False
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.tag "li" ]
                     |> Query.count (Expect.equal 4)
         , test "popup has a button that triggers TogglePopupState" <|
             \_ ->
                 []
-                    |> viewPopup False
+                    |> viewPopup SelectParameter False
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "button" ]
                     |> Event.simulate Event.click
@@ -74,10 +74,18 @@ popups =
                         List.map (\index -> itemBase ++ String.fromInt index) (List.range 1 5)
                 in
                 items
-                    |> viewPopup True
+                    |> viewPopup SelectParameter True
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.tag "li" ]
                     |> Query.count (Expect.equal 5)
+        , test "clicking on an item executed select function" <|
+            \_ ->
+                [ "item" ]
+                    |> viewPopup SelectParameter False
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.tag "button", Slc.containing [ Slc.text "item" ] ]
+                    |> Event.simulate Event.click
+                    |> Event.expect (SelectParameter "item")
         ]
 
 

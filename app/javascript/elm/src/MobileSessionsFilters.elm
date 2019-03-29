@@ -91,6 +91,7 @@ type Msg
     | UpdateTimeRange Encode.Value
     | ShowCopyLinkTooltip
     | ShowSelectFormItemsPopup
+    | SelectParameter String
     | ClosePopup
     | GotSensors (Result Http.Error (List String))
     | TogglePopupState
@@ -148,6 +149,9 @@ update msg model =
                 Err _ ->
                     ( model, Cmd.none )
 
+        SelectParameter parameter ->
+            ( { model | selectedParameter = parameter }, Cmd.none )
+
 
 updateLabels :
     LabelsInput.Msg
@@ -176,10 +180,10 @@ view model =
             SelectFromItems items ->
                 case model.isPopupExtended of
                     True ->
-                        viewPopup model.isPopupExtended items
+                        viewPopup SelectParameter model.isPopupExtended items
 
                     False ->
-                        viewPopup model.isPopupExtended items
+                        viewPopup SelectParameter model.isPopupExtended items
 
             None ->
                 div [] []
@@ -209,8 +213,8 @@ viewParameter selectedParameter =
         ]
 
 
-viewPopup : Bool -> List String -> Html Msg
-viewPopup isPopupExtended items =
+viewPopup : (String -> Msg) -> Bool -> List String -> Html Msg
+viewPopup select isPopupExtended items =
     let
         numberOfMainItems =
             4
@@ -223,7 +227,7 @@ viewPopup isPopupExtended items =
     in
     div [ Attr.id "popup" ]
         [ mainItems
-            |> List.map (\item -> li [] [ button [] [ text item ] ])
+            |> List.map (\item -> li [] [ button [ Events.onClick (select item) ] [ text item ] ])
             |> ul []
         , case isPopupExtended of
             False ->
@@ -235,7 +239,7 @@ viewPopup isPopupExtended items =
             True ->
                 div []
                     [ moreItems
-                        |> List.map (\item -> li [] [ button [] [ text item ] ])
+                        |> List.map (\item -> li [] [ button [ Events.onClick (select item) ] [ text item ] ])
                         |> ul []
                     , button
                         [ Events.custom "click" (Decode.map preventDefault (Decode.succeed TogglePopupState))
