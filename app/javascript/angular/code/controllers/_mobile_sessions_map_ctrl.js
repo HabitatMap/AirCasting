@@ -112,6 +112,7 @@ export const MobileSessionsMapCtrl = (
       };
 
       const flags = {
+        sensorsList,
         isCrowdMapOn: $scope.params.get('data').crowdMap || false,
         crowdMapResolution: $scope.params.get('data').gridResolution || 25,
         location: $scope.params.get('data').location || "",
