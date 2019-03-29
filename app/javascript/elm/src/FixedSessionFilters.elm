@@ -53,6 +53,7 @@ type Msg
     = TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
+    | RefreshTimeRange
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -70,6 +71,9 @@ update msg model =
                     TimeRange.update model.timeRange value
             in
             ( { model | timeRange = newTimeRange }, Cmd.none )
+
+        RefreshTimeRange ->
+            ( model, Ports.refreshTimeRange () )
 
 
 updateLabels :
@@ -96,7 +100,7 @@ view model =
     div []
         [ Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
-        , TimeRange.viewTimeFilter
+        , TimeRange.viewTimeFilter RefreshTimeRange
         ]
 
 

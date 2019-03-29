@@ -66,6 +66,7 @@ type Msg
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
+    | RefreshTimeRange
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -89,6 +90,9 @@ update msg model =
                     TimeRange.update model.timeRange value
             in
             ( { model | timeRange = newTimeRange }, Cmd.none )
+
+        RefreshTimeRange ->
+            ( model, Ports.refreshTimeRange () )
 
 
 updateLabels :
@@ -120,7 +124,7 @@ view model =
             ]
         , viewCrowdMapCheckBox model.isCrowdMapOn
         , viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
-        , TimeRange.viewTimeFilter
+        , TimeRange.viewTimeFilter RefreshTimeRange
         ]
 
 

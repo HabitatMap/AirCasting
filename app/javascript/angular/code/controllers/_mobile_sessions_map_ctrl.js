@@ -2,6 +2,10 @@ import _ from 'underscore';
 import { Elm } from '../../../elm/src/MobileSessionsFilters.elm';
 import moment from 'moment'
 
+const EndOfToday = moment().utc().endOf('day').format('X');
+const OneYearAgo = moment().utc().startOf('day').subtract(1, 'year').format('X');
+
+
 export const MobileSessionsMapCtrl = (
   $scope,
   params,
@@ -60,8 +64,8 @@ export const MobileSessionsMapCtrl = (
       usernames: "",
       gridResolution: 25,
       crowdMap: false,
-      timeFrom: moment().utc().startOf('day').subtract(1, 'year').format('X'),
-      timeTo: moment().utc().endOf('day').format('X')
+      timeFrom: OneYearAgo,
+      timeTo: EndOfToday
     });
 
     if (!params.get('data').heat) sensors.fetchHeatLevels();
@@ -161,7 +165,13 @@ export const MobileSessionsMapCtrl = (
         params.update({data: {usernames: profiles.join(", ")}});
         $scope.sessions.fetch();
       });
-      const callback = (timeFrom, timeTo) => {
+
+      const onTimeRangeChanged = (timeFrom, timeTo) => {
+        elmApp.ports.timeRangeSelected.send({
+          timeFrom: timeFrom,
+          timeTo: timeTo
+        });
+
         params.update({ data: {
           timeFrom: timeFrom,
           timeTo: timeTo
@@ -170,12 +180,18 @@ export const MobileSessionsMapCtrl = (
         sessions.fetch();
       }
 
-      setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
+      setupTimeRangeFilter(onTimeRangeChanged,  params.get('data').timeFrom, params.get('data').timeTo);
+
+      elmApp.ports.refreshTimeRange.subscribe(() => {
+        setupTimeRangeFilter(onTimeRangeChanged, OneYearAgo , EndOfToday);
+
+        onTimeRangeChanged(OneYearAgo, EndOfToday);
+      })
     });
   }
 }
 
-const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
+const setupTimeRangeFilter = (callback, timeFrom, timeTo) => {
   if (document.getElementById("daterange")) {
     $('#daterange').daterangepicker({
       opens: 'left',
@@ -191,15 +207,10 @@ const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
       timeFrom = timeFrom.utcOffset(0, true).unix();
       timeTo = timeTo.utcOffset(0, true).unix();
 
-      elmApp.ports.timeRangeSelected.send({
-        timeFrom: timeFrom,
-        timeTo: timeTo
-      });
-
       callback(timeFrom, timeTo);
     });
   } else {
-    window.setTimeout(setupTimeRangeFilter(elmApp, sessions, callback, timeFrom, timeTo), 100);
+    window.setTimeout(setupTimeRangeFilter(callback, timeFrom, timeTo), 100);
   };
 };
 
