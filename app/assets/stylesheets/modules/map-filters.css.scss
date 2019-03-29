@@ -24,6 +24,9 @@
   font-size: $small-font;
   padding: $margin-default;
   text-align: left;
+  color: white;
+  border: none;
+  font-weight: $font-stack-bold;
   &.selected {
     background-color: $brand-secondary;
   }
