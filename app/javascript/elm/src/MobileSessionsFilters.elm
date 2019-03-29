@@ -6,6 +6,7 @@ import Debug
 import Html exposing (Html, button, div, h4, input, label, li, option, p, select, span, text, ul)
 import Html.Attributes as Attr
 import Html.Events as Events
+import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import LabelsInput
@@ -70,7 +71,7 @@ init flags =
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
       }
-    , Cmd.none
+    , fetchSensors
     )
 
 
@@ -132,6 +133,19 @@ update msg model =
 
         TogglePopupState ->
             ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
+
+        GotSensors result ->
+            case result of
+                Ok parameters ->
+                    let
+                        distinctParameter =
+                            parameters |> Set.fromList |> Set.toList
+                    in
+                    ( { model | parameters = distinctParameter }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
 
 updateLabels :
     LabelsInput.Msg
@@ -234,6 +248,29 @@ preventDefault msg =
     , stopPropagation = True
     , preventDefault = True
     }
+
+
+fetchSensors : Cmd Msg
+fetchSensors =
+    Http.request
+        { method = "GET"
+        , headers =
+            [ Http.header "Accept" "application/json, text/plain, */*"
+            , Http.header "X-Requested-With" "XMLHttpRequest"
+            ]
+        , url = "/api/sensors"
+        , body = Http.emptyBody
+        , expect = Http.expectJson GotSensors (Decode.list parameterDecoder)
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+parameterDecoder : Decode.Decoder String
+parameterDecoder =
+    Decode.field "measurement_type" Decode.string
+
+
 viewCrowdMapCheckBox : Bool -> Html Msg
 viewCrowdMapCheckBox isCrowdMapOn =
     div [ Attr.class "textfield" ]
