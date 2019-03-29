@@ -52,7 +52,6 @@ export const sensors = (params, storage, heat, $http) => {
       } else {
         console.log('initSelected() - sensorId is NOT null')
       }
-      this.selectedParameter = this.findParameterForSensor(this.selected()); //uses the watch
       this.availableSensors = findAvailableSensorsForParameter(sort, this.sensors, this.selectedParameter);
     },
 
