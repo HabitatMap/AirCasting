@@ -7,10 +7,6 @@
   }
 }
 
-.button {
-  @include button;
-}
-
 .inline-image {
   float: left;
   margin-right: 5px;
@@ -128,9 +124,7 @@ p.download {
     }
   }
 }
-a{
-  font-weight: bold;
-}
+
 .about-page {
   a {
     font-weight: normal;

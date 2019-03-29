@@ -6,21 +6,50 @@
   height: 100%;
   z-index: 3;
   background-color: white;
-  opacity: 0.56;
+  opacity: 0.6;
 }
 
 .parameter-filters-popup {
   position: absolute;
   z-index: 4;
-  top: 50%;
-  left: 50%;
+  top: 8rem;
+  width: 310px;
+  left: calc(#{$filters-width} + 2rem);
   background: white;
+  padding: $margin-default;
+  box-shadow: 1px 1px 4px 0 rgba(160, 192, 290 ,0.5);
+  color: $text-color;
+}
+
+.parameter-more-list {
+  @include flexbox();
+  @include flex-direction(row);
+  @include flex-wrap(wrap);
+  @include justify-content(space-between);
+  margin: 0 auto;
+  width: 100%;
 }
 
 .parameter-filters-buttons-container {
   @include flexbox();
   @include flex-direction(row);
   @include flex-wrap(wrap);
-  width: 350px;
-  padding: $margin-default;
+  @include justify-content(space-between);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.more-parameters-link {
+  width: 50%;
+  font-size: $tiny-font;
+  width: 50%;
+  padding: 6px 12px 6px 12px;
+}
+
+.parameters-toggle-open {
+  width: 100%;
+  border-top: 1px solid $separator-color;
+  display: inline-block;
+  text-align: right;
+  font-size: $tiny-font;
 }
