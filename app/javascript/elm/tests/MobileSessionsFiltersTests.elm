@@ -17,14 +17,68 @@ import TimeRange
 
 popups : Test
 popups =
-    test "when ClosePopup is triggered the popup is hidden" <|
-        \_ ->
-            { defaultModel | popup = ParametersList }
-                |> update ClosePopup
-                |> Tuple.first
-                |> view
-                |> Query.fromHtml
-                |> Query.hasNot [ Slc.id "parameters-list" ]
+    describe "Popup tests: "
+        [ test "when ClosePopup is triggered the popup is hidden" <|
+            \_ ->
+                { defaultModel | popup = SelectFromItems [] }
+                    |> update ClosePopup
+                    |> Tuple.first
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.hasNot [ Slc.id "popup" ]
+        , fuzz string "popup shows 4 main items" <|
+            \itemBase ->
+                let
+                    items =
+                        List.map (\index -> itemBase ++ String.fromInt index) (List.range 1 4)
+
+                    itemsHtml =
+                        items
+                            |> List.map
+                                (\item -> Slc.containing [ Slc.text item ])
+                in
+                items
+                    |> viewPopup False
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.all itemsHtml ]
+        , fuzz string "popup shows only 4 main items when not extended" <|
+            \itemBase ->
+                let
+                    items =
+                        List.map (\index -> itemBase ++ String.fromInt index) (List.range 1 5)
+                in
+                items
+                    |> viewPopup False
+                    |> Query.fromHtml
+                    |> Query.findAll [ Slc.tag "li" ]
+                    |> Query.count (Expect.equal 4)
+        , test "popup has a button that triggers TogglePopupState" <|
+            \_ ->
+                []
+                    |> viewPopup False
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.tag "button" ]
+                    |> Event.simulate Event.click
+                    |> Event.expect TogglePopupState
+        , test "TogglePopupState toggles the popup state" <|
+            \_ ->
+                defaultModel
+                    |> update TogglePopupState
+                    |> Tuple.first
+                    |> .isPopupExtended
+                    |> Expect.equal True
+        , fuzz string "popup shows all items when extended" <|
+            \itemBase ->
+                let
+                    items =
+                        List.map (\index -> itemBase ++ String.fromInt index) (List.range 1 5)
+                in
+                items
+                    |> viewPopup True
+                    |> Query.fromHtml
+                    |> Query.findAll [ Slc.tag "li" ]
+                    |> Query.count (Expect.equal 5)
+        ]
 
 
 parameterSensorFilter : Test
@@ -36,22 +90,22 @@ parameterSensorFilter =
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.id "parameter-filter" ]
-        , test "Clicking on parameter filter triggers ShowParametersList" <|
+        , test "Clicking on parameter filter triggers ShowSelectFormItemsPopup" <|
             \_ ->
                 defaultModel
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "parameter-filter" ]
                     |> Event.simulate Event.click
-                    |> Event.expect ShowParametersList
-        , test "when ShowParametersList is triggered parameters-list is shown" <|
+                    |> Event.expect ShowSelectFormItemsPopup
+        , test "when ShowSelectFormItemsPopup is triggered popup is shown" <|
             \_ ->
                 defaultModel
-                    |> update ShowParametersList
+                    |> update ShowSelectFormItemsPopup
                     |> Tuple.first
                     |> view
                     |> Query.fromHtml
-                    |> Query.has [ Slc.id "parameters-list" ]
+                    |> Query.has [ Slc.id "popup" ]
         ]
 
 
