@@ -14,7 +14,17 @@ window.initMap = () => {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  window.__SessionsList = Elm.Yellow.init();
+  const flags = {
+    isCrowdMapOn: false, //$scope.params.get('data').crowdMap || false,
+    crowdMapResolution: 25, //$scope.params.get('data').gridResolution || 25,
+    tags: [], //$scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
+    profiles: [], //$scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
+    timeRange: {
+      timeFrom: 0,
+      timeTo: 0
+    }
+  }
+  window.__SessionsList = Elm.Yellow.init({ flags });
 })
 
 

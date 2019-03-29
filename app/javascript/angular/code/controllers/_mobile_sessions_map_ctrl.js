@@ -177,7 +177,6 @@ export const MobileSessionsMapCtrl = (
 }
 
 const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
-	return
   if (document.getElementById("daterange")) {
     $('#daterange').daterangepicker({
       opens: 'left',
@@ -206,7 +205,6 @@ const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
 };
 
 const setupAutocomplete = (callback, id, path) => {
-	return
   if (document.getElementById(id)) {
     $( "#" + id )
       .bind( "keydown", function( event ) {

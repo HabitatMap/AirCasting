@@ -4,6 +4,7 @@
     %meta(name='viewport' content='width=device-width,initial-scale=0.5')
     %meta(name='description' content='AirCasting map showing health and environmental data like air quality, temperature, humidity, sound levels and more.')
     %title AirCasting
+    %link{rel: :stylesheet, type: :"text/css", :href => "https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"}
     = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}"
     = javascript_pack_tag "map2"
     = stylesheet_link_tag "application"

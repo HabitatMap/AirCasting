@@ -20,7 +20,12 @@ import Url exposing (Url)
 
 
 type alias Flags =
-    {}
+    { crowdMapResolution : Int
+    , isCrowdMapOn : Bool
+    , tags : List String
+    , profiles : List String
+    , timeRange : Encode.Value
+    }
 
 
 type alias ShortType =
@@ -45,6 +50,11 @@ type alias Model =
     , sessions : List Session
     , selectedSessionId : Maybe Int
     , isHttping : Bool
+    , crowdMapResolution : Int
+    , isCrowdMapOn : Bool
+    , tags : LabelsInput.Model
+    , profiles : LabelsInput.Model
+    , timeRange : TimeRange
     }
 
 
@@ -55,6 +65,21 @@ type Page
 
 
 -- TODO: show right page depending on location
+
+
+defaultModel : Model
+defaultModel =
+    { page = Mobile
+    , key = Nothing
+    , sessions = []
+    , selectedSessionId = Nothing
+    , isHttping = False
+    , crowdMapResolution = 25
+    , isCrowdMapOn = False
+    , tags = LabelsInput.empty
+    , profiles = LabelsInput.empty
+    , timeRange = TimeRange.defaultTimeRange
+    }
 
 
 init : Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
@@ -74,7 +99,17 @@ init flags url key =
                 _ ->
                     Mobile
     in
-    ( { page = page, key = Just key, sessions = [], selectedSessionId = Nothing, isHttping = False }, Cmd.none )
+    ( { defaultModel
+        | page = page
+        , key = Just key
+        , isCrowdMapOn = flags.isCrowdMapOn
+        , crowdMapResolution = flags.crowdMapResolution
+        , tags = LabelsInput.init flags.tags
+        , profiles = LabelsInput.init flags.profiles
+        , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
+      }
+    , Cmd.none
+    )
 
 
 subscriptions : Model -> Sub Msg
@@ -106,6 +141,11 @@ type Msg
     | UpdateSessions (List Session)
     | LoadMoreSessions
     | UpdateIsHttping Bool
+    | ToggleCrowdMap
+    | UpdateCrowdMapResolution Int
+    | TagsLabels LabelsInput.Msg
+    | ProfileLabels LabelsInput.Msg
+    | UpdateTimeRange Encode.Value
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -160,6 +200,40 @@ update msg model =
 
         UpdateIsHttping isHttpingNow ->
             ( { model | isHttping = isHttpingNow }, Cmd.none )
+
+        ToggleCrowdMap ->
+            ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap () )
+
+        UpdateCrowdMapResolution resolution ->
+            ( { model | crowdMapResolution = resolution }, Ports.updateResolution resolution )
+
+        TagsLabels subMsg ->
+            updateLabels subMsg model.tags Ports.updateTags TagsLabels (\tags -> { model | tags = tags })
+
+        ProfileLabels subMsg ->
+            updateLabels subMsg model.profiles Ports.updateProfiles ProfileLabels (\profiles -> { model | profiles = profiles })
+
+        UpdateTimeRange value ->
+            let
+                newTimeRange =
+                    TimeRange.update model.timeRange value
+            in
+            ( { model | timeRange = newTimeRange }, Cmd.none )
+
+
+updateLabels :
+    LabelsInput.Msg
+    -> LabelsInput.Model
+    -> (List String -> Cmd LabelsInput.Msg)
+    -> (LabelsInput.Msg -> Msg)
+    -> (LabelsInput.Model -> Model)
+    -> ( Model, Cmd Msg )
+updateLabels msg model toSubCmd mapper updateModel =
+    let
+        ( subModel, subCmd ) =
+            LabelsInput.update msg model toSubCmd
+    in
+    ( updateModel subModel, Cmd.map mapper subCmd )
 
 
 
@@ -375,14 +449,14 @@ viewFilters : Model -> Html Msg
 viewFilters model =
     case model.page of
         Mobile ->
-            viewMobileFilters
+            viewMobileFilters model
 
         Fixed ->
             viewFixedFilters
 
 
-viewMobileFilters : Html Msg
-viewMobileFilters =
+viewMobileFilters : Model -> Html Msg
+viewMobileFilters model =
     form [ Attr.class "filters-form" ]
         [ label [ Attr.for "parameter" ]
             [ text "parameter:" ]
@@ -398,23 +472,45 @@ viewMobileFilters =
             []
         , label [ Attr.for "time-frame" ]
             [ text "time frame:" ]
-        , input [ Attr.class "input-dark input-filters ", Attr.id "parameter", Attr.name "user_name", Attr.placeholder "time frame", Attr.type_ "time-frame" ]
+        , input [ Attr.class "input-dark input-filters ", Attr.id "daterange", Attr.name "user_name", Attr.placeholder "time frame", Attr.type_ "time-frame" ]
             []
         , label [ Attr.for "profile-names" ]
             [ text "profile names:" ]
-        , input [ Attr.class "input-dark input-filters ", Attr.id "profile-names", Attr.name "user_name", Attr.placeholder "+ add profile name", Attr.type_ "text" ]
-            []
+        , input [ Attr.class "input-dark input-filters ", Attr.id "profiles-search", Attr.name "user_name", Attr.placeholder "+ add profile name", Attr.type_ "text" ]
+            [ Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search" ]
         , label [ Attr.for "parameter" ]
             [ text "tags:" ]
-        , input [ Attr.class "input-dark input-filters ", Attr.id "tag", Attr.name "user_name", Attr.placeholder "+ add tag", Attr.type_ "text" ]
-            []
+        , input [ Attr.class "input-dark input-filters ", Attr.id "tags-search", Attr.name "user_name", Attr.placeholder "+ add tag", Attr.type_ "text" ]
+            [ Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search" ]
         , div [ Attr.class "filter-separator" ]
             []
-        , input [ Attr.name "CrowdMap", Attr.type_ "checkbox", Attr.value "CrowdMap" ]
+        , input [ Attr.name "CrowdMap", Attr.type_ "checkbox", Attr.value "CrowdMap", Attr.checked model.isCrowdMapOn, Events.onClick ToggleCrowdMap ]
             []
         , label [ Attr.for "CrowdMap" ]
             [ text "CrowdMap" ]
+        , div [ Attr.id "crowd-map-slider" ]
+            [ p []
+                [ text "Resolution" ]
+            , div []
+                [ input
+                    [ Attr.class "crowd-map-slider"
+                    , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateCrowdMapResolution)
+                    , Attr.value (String.fromInt model.crowdMapResolution)
+                    , Attr.max "50"
+                    , Attr.min "10"
+                    , Attr.type_ "range"
+                    ]
+                    []
+                , span []
+                    [ text <| String.fromInt model.crowdMapResolution ]
+                ]
+            ]
         ]
+
+
+onChange : (String -> msg) -> Html.Attribute msg
+onChange tagger =
+    Events.on "change" (Decode.map tagger Events.targetValue)
 
 
 viewFixedFilters : Html Msg
