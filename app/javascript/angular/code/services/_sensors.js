@@ -23,6 +23,7 @@ export const sensors = (params, storage, heat, $http) => {
 
   Sensors.prototype = {
     setSensors: function(data) {
+	    console.warn(data)
       var sensors = {};
       var self = this;
       _(data).each(function(sensor){

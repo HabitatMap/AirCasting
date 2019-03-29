@@ -22,8 +22,7 @@ export const FixedSessionsMapCtrl = (
   $http,
   sensorsList
 ) => {
-  sensorsList = []
-  sensors.setSensors(sensorsList);
+  sensors.setSensors(window.__sensors)
 
   $scope.setDefaults = function() {
     $scope.versioner = versioner;

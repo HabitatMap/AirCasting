@@ -67,7 +67,7 @@ export const mobileSessions = (
 
 
     onSessionsFetch: function() {
-      if($location.path() !== constants.mobileMapRoute) return;
+      //if($location.path() !== constants.mobileMapRoute) return;
 
       if (!storage.isCrowdMapLayerOn()) {
         this.drawSessionsInLocation();

@@ -20,8 +20,7 @@ export const MobileSessionsMapCtrl = (
   //sessionsUtils,
   $http
 ) => {
-
-  $http.get('/api/sensors', {cache: true}).then(function(response){ return sensors.setSensors(response.data) });
+  sensors.setSensors(window.__sensors)
 
   $scope.setDefaults = function() {
     $scope.versioner = versioner;

@@ -16,3 +16,6 @@ window.initMap = () => {
 document.addEventListener('DOMContentLoaded', () => {
   window.__SessionsList = Elm.Yellow.init();
 })
+
+
+fetch('/api/sensors.json').then(x => x.json()).then(x => { window.__sensors = x })
