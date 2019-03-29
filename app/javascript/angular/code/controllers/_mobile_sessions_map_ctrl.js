@@ -2,6 +2,7 @@ import _ from 'underscore';
 import { Elm } from '../../../elm/src/MobileSessionsFilters.elm';
 import moment from 'moment'
 import * as FiltersUtils from '../filtersUtils'
+import { buildAvailableParameters } from '../services/_sensors'
 
 export const MobileSessionsMapCtrl = (
   $scope,
@@ -112,7 +113,7 @@ export const MobileSessionsMapCtrl = (
       };
 
       const flags = {
-        sensorsList,
+        parametersList: buildAvailableParameters(sensorsList),
         selectedParameter: sensors.findParameterForSensor(sensors.selected()).id,
         isCrowdMapOn: $scope.params.get('data').crowdMap || false,
         crowdMapResolution: $scope.params.get('data').gridResolution || 25,
