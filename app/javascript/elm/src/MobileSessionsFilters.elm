@@ -1,14 +1,16 @@
-module MobileSessionsFilters exposing (Msg(..), Popups(..), defaultModel, update, view)
+module MobileSessionsFilters exposing (Msg(..), Popups(..), defaultModel, update, view, viewPopup)
 
 import Browser
 import Browser.Events
-import Html exposing (Html, button, div, h4, input, label, p, span, text)
+import Debug
+import Html exposing (Html, button, div, h4, input, label, li, option, p, select, span, text, ul)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
 import LabelsInput
 import Ports
+import Set
 import TimeRange exposing (TimeRange)
 
 
@@ -18,6 +20,8 @@ import TimeRange exposing (TimeRange)
 
 type alias Model =
     { popup : Popups
+    , isPopupExtended : Bool
+    , parameters : List String
     , location : String
     , tags : LabelsInput.Model
     , profiles : LabelsInput.Model
@@ -28,13 +32,15 @@ type alias Model =
 
 
 type Popups
-    = ParametersList
+    = SelectFromItems (List String)
     | None
 
 
 defaultModel : Model
 defaultModel =
     { popup = None
+    , isPopupExtended = False
+    , parameters = []
     , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
@@ -73,8 +79,7 @@ init flags =
 
 
 type Msg
-    = ShowParametersList
-    | UpdateLocationInput String
+    = UpdateLocationInput String
     | SubmitLocation
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
@@ -82,15 +87,15 @@ type Msg
     | UpdateCrowdMapResolution Int
     | UpdateTimeRange Encode.Value
     | ShowCopyLinkTooltip
+    | ShowSelectFormItemsPopup
     | ClosePopup
+    | GotSensors (Result Http.Error (List String))
+    | TogglePopupState
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ShowParametersList ->
-            ( { model | popup = ParametersList }, Cmd.none )
-
         UpdateLocationInput newLocation ->
             ( { model | location = newLocation }, Cmd.none )
 
@@ -119,9 +124,14 @@ update msg model =
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
 
+        ShowSelectFormItemsPopup ->
+            ( { model | popup = SelectFromItems model.parameters }, Cmd.none )
+
         ClosePopup ->
             ( { model | popup = None }, Cmd.none )
 
+        TogglePopupState ->
+            ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
 
 updateLabels :
     LabelsInput.Msg
@@ -147,8 +157,13 @@ view model =
     div []
         [ viewParameter
         , case model.popup of
-            ParametersList ->
-                viewParameterList
+            SelectFromItems items ->
+                case model.isPopupExtended of
+                    True ->
+                        viewPopup model.isPopupExtended items
+
+                    False ->
+                        viewPopup model.isPopupExtended items
 
             None ->
                 div [] []
@@ -171,19 +186,54 @@ viewParameter =
         [ h4 [] [ text "parameter" ]
         , input
             [ Attr.id "parameter-filter"
-            , Events.onClick ShowParametersList
+            , Events.custom "click" (Decode.map preventDefault (Decode.succeed ShowSelectFormItemsPopup))
             ]
             []
         ]
 
 
-viewParameterList : Html Msg
-viewParameterList =
-    div [ Attr.id "parameters-list" ]
-        [ text "parameters list"
+viewPopup : Bool -> List String -> Html Msg
+viewPopup isPopupExtended items =
+    let
+        numberOfMainItems =
+            4
+
+        mainItems =
+            List.take numberOfMainItems items
+
+        moreItems =
+            List.drop numberOfMainItems items
+    in
+    div [ Attr.id "popup" ]
+        [ mainItems
+            |> List.map (\item -> li [] [ button [] [ text item ] ])
+            |> ul []
+        , case isPopupExtended of
+            False ->
+                button
+                    [ Events.custom "click" (Decode.map preventDefault (Decode.succeed TogglePopupState))
+                    ]
+                    [ text "more parameters" ]
+
+            True ->
+                div []
+                    [ moreItems
+                        |> List.map (\item -> li [] [ button [] [ text item ] ])
+                        |> ul []
+                    , button
+                        [ Events.custom "click" (Decode.map preventDefault (Decode.succeed TogglePopupState))
+                        ]
+                        [ text "less parameters" ]
+                    ]
         ]
 
 
+preventDefault : Msg -> { message : Msg, stopPropagation : Bool, preventDefault : Bool }
+preventDefault msg =
+    { message = msg
+    , stopPropagation = True
+    , preventDefault = True
+    }
 viewCrowdMapCheckBox : Bool -> Html Msg
 viewCrowdMapCheckBox isCrowdMapOn =
     div [ Attr.class "textfield" ]
@@ -275,5 +325,5 @@ subscriptions model =
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
         , Ports.locationCleared (always (UpdateLocationInput ""))
-        , Browser.Events.onMouseUp (Decode.succeed ClosePopup)
+        , Browser.Events.onClick (Decode.succeed ClosePopup)
         ]
