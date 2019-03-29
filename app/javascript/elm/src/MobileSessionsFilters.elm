@@ -150,7 +150,7 @@ update msg model =
                     ( model, Cmd.none )
 
         SelectParameter parameter ->
-            ( { model | selectedParameter = parameter }, Cmd.none )
+            ( { model | selectedParameter = parameter }, Ports.selectParameter parameter )
 
 
 updateLabels :

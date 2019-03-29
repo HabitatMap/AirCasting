@@ -52,7 +52,7 @@ export const sensors = (params, storage, heat, $http) => {
       } else {
         console.log('initSelected() - sensorId is NOT null')
       }
-      this.selectedParameter = this.findParameterForSensor(this.selected());
+      this.selectedParameter = this.findParameterForSensor(this.selected()); //uses the watch
       this.availableSensors = findAvailableSensorsForParameter(sort, this.sensors, this.selectedParameter);
     },
 
@@ -92,7 +92,7 @@ export const sensors = (params, storage, heat, $http) => {
       console.log('onSelectedSensorChange() - ', newSensorId, ' - ', oldSensorId);
       var sensor = this.findSensorById(newSensorId);
       var parameterForSensor = this.findParameterForSensor(sensor);
-      this.selectedParameter = parameterForSensor;
+      this.selectedParameter = parameterForSensor; //uses the watch
     },
     buildSensorId: function(sensor) {
       return buildSensorId(sensor);

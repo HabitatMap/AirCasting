@@ -2,6 +2,7 @@ port module Ports exposing
     ( findLocation
     , locationCleared
     , profileSelected
+    , selectParameter
     , showCopyLinkTooltip
     , tagSelected
     , timeRangeSelected
@@ -42,3 +43,6 @@ port showCopyLinkTooltip : () -> Cmd a
 
 
 port findLocation : String -> Cmd a
+
+
+port selectParameter : String -> Cmd a
