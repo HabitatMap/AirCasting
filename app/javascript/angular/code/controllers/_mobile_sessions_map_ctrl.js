@@ -2,8 +2,8 @@ import _ from 'underscore';
 import { Elm } from '../../../elm/src/MobileSessionsFilters.elm';
 import moment from 'moment'
 
-const EndOfToday = moment().utc().endOf('day').format('X');
-const OneYearAgo = moment().utc().startOf('day').subtract(1, 'year').format('X');
+const endOfToday = moment().utc().endOf('day').format('X');
+const oneYearAgo = moment().utc().startOf('day').subtract(1, 'year').format('X');
 
 
 export const MobileSessionsMapCtrl = (
@@ -64,8 +64,8 @@ export const MobileSessionsMapCtrl = (
       usernames: "",
       gridResolution: 25,
       crowdMap: false,
-      timeFrom: OneYearAgo,
-      timeTo: EndOfToday
+      timeFrom: oneYearAgo,
+      timeTo: endOfToday
     });
 
     if (!params.get('data').heat) sensors.fetchHeatLevels();
@@ -167,15 +167,9 @@ export const MobileSessionsMapCtrl = (
       });
 
       const onTimeRangeChanged = (timeFrom, timeTo) => {
-        elmApp.ports.timeRangeSelected.send({
-          timeFrom: timeFrom,
-          timeTo: timeTo
-        });
+        elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
 
-        params.update({ data: {
-          timeFrom: timeFrom,
-          timeTo: timeTo
-        }});
+        params.update({ data: { timeFrom, timeTo }});
 
         sessions.fetch();
       }
@@ -183,9 +177,9 @@ export const MobileSessionsMapCtrl = (
       setupTimeRangeFilter(onTimeRangeChanged,  params.get('data').timeFrom, params.get('data').timeTo);
 
       elmApp.ports.refreshTimeRange.subscribe(() => {
-        setupTimeRangeFilter(onTimeRangeChanged, OneYearAgo , EndOfToday);
+        setupTimeRangeFilter(onTimeRangeChanged, oneYearAgo , endOfToday);
 
-        onTimeRangeChanged(OneYearAgo, EndOfToday);
+        onTimeRangeChanged(oneYearAgo, endOfToday);
       })
     });
   }

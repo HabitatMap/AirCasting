@@ -10,8 +10,8 @@ import Test.Html.Selector as Slc
 import TimeRange
 
 
-type MsgStub
-    = MsgStub
+type Msg
+    = Msg
 
 
 all : Test
@@ -49,9 +49,9 @@ all =
                     |> Expect.equal expected
         , test "viewTimeFilter has a button" <|
             \_ ->
-                TimeRange.viewTimeFilter MsgStub
+                TimeRange.viewTimeFilter Msg
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "button" ]
                     |> Event.simulate Event.click
-                    |> Event.expect MsgStub
+                    |> Event.expect Msg
         ]
