@@ -20,44 +20,41 @@ popups =
     describe "Popup tests: "
         [ test "when ClosePopup is triggered the popup is hidden" <|
             \_ ->
-                { defaultModel | popup = SelectFromItems [] }
+                { defaultModel | popup = SelectFromItems { main = [], other = Nothing } }
                     |> update ClosePopup
                     |> Tuple.first
                     |> view
                     |> Query.fromHtml
                     |> Query.hasNot [ Slc.id "popup" ]
-        , fuzz string "popup shows 4 main items" <|
-            \itemBase ->
+        , fuzz (list string) "popup shows main items" <|
+            \items ->
                 let
-                    items =
-                        List.map (\index -> itemBase ++ String.fromInt index) (List.range 1 4)
-
                     itemsHtml =
-                        items
-                            |> List.map
-                                (\item -> Slc.containing [ Slc.text item ])
+                        List.map (\item -> Slc.containing [ Slc.text item ]) items
                 in
-                items
+                { main = items, other = Nothing }
                     |> viewPopup SelectParameter False
                     |> Query.fromHtml
                     |> Query.has [ Slc.all itemsHtml ]
-        , fuzz string "popup shows only 4 main items when not extended" <|
-            \itemBase ->
-                let
-                    items =
-                        List.map (\index -> itemBase ++ String.fromInt index) (List.range 1 5)
-                in
-                items
+        , fuzz2 (list string) (list string) "popup shows only main items when not extended" <|
+            \mainItems otherItems ->
+                { main = mainItems, other = Just otherItems }
                     |> viewPopup SelectParameter False
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.tag "li" ]
-                    |> Query.count (Expect.equal 4)
-        , test "popup has a button that triggers TogglePopupState" <|
+                    |> Query.count (Expect.equal (List.length mainItems))
+        , test "if there are no other items popup doesn't have a toggle popup button" <|
             \_ ->
-                []
+                { main = [], other = Nothing }
                     |> viewPopup SelectParameter False
                     |> Query.fromHtml
-                    |> Query.find [ Slc.tag "button" ]
+                    |> Query.hasNot [ Slc.id "toggle-popup-button" ]
+        , test "if there are other items popup has a button that triggers TogglePopupState" <|
+            \_ ->
+                { main = [], other = Just [ "item" ] }
+                    |> viewPopup SelectParameter False
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "toggle-popup-button" ]
                     |> Event.simulate Event.click
                     |> Event.expect TogglePopupState
         , test "TogglePopupState toggles the popup state" <|
@@ -67,20 +64,20 @@ popups =
                     |> Tuple.first
                     |> .isPopupExtended
                     |> Expect.equal True
-        , fuzz string "popup shows all items when extended" <|
-            \itemBase ->
+        , fuzz2 (list string) (list string) "popup shows all items when extended" <|
+            \mainItems otherItems ->
                 let
-                    items =
-                        List.map (\index -> itemBase ++ String.fromInt index) (List.range 1 5)
+                    numberOfItems =
+                        List.length mainItems + List.length otherItems
                 in
-                items
+                { main = mainItems, other = Just otherItems }
                     |> viewPopup SelectParameter True
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.tag "li" ]
-                    |> Query.count (Expect.equal 5)
+                    |> Query.count (Expect.equal numberOfItems)
         , test "clicking on an item executes select function" <|
             \_ ->
-                [ "item" ]
+                { main = [ "item" ], other = Nothing }
                     |> viewPopup SelectParameter False
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "button", Slc.containing [ Slc.text "item" ] ]

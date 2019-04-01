@@ -19,7 +19,7 @@ import TimeRange exposing (TimeRange)
 type alias Model =
     { popup : Popups
     , isPopupExtended : Bool
-    , parameters : List String
+    , parameters : Items
     , selectedParameter : String
     , location : String
     , tags : LabelsInput.Model
@@ -31,16 +31,23 @@ type alias Model =
 
 
 type Popups
-    = SelectFromItems (List String)
+    = SelectFromItems Items
     | None
+
+
+type alias Items =
+    { main : List String, other : Maybe (List String) }
 
 
 defaultModel : Model
 defaultModel =
     { popup = None
     , isPopupExtended = False
-    , parameters = []
-    , selectedParameter = "particulate matter"
+    , parameters =
+        { main = [ "Particulate Matter", "Humidity", "Temperature", "Sound Levels" ]
+        , other = Nothing
+        }
+    , selectedParameter = "Particulate Matter"
     , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
@@ -66,12 +73,14 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
         result =
-            Decode.decodeValue (Decode.list (Decode.field "label" Decode.string)) flags.parametersList
+            Decode.decodeValue (Decode.list (Decode.field "id" Decode.string)) flags.parametersList
 
-        parameters =
+        fetchedParameters =
             case result of
                 Ok values ->
                     values
+                        |> List.filter (\value -> not (List.member value defaultModel.parameters.main))
+                        |> List.sort
 
                 Err _ ->
                     []
@@ -84,7 +93,7 @@ init flags =
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , selectedParameter = flags.selectedParameter
-        , parameters = parameters
+        , parameters = { main = defaultModel.parameters.main, other = Just fetchedParameters }
       }
     , Ports.selectParameter flags.selectedParameter
     )
@@ -144,7 +153,7 @@ update msg model =
             ( { model | popup = SelectFromItems model.parameters }, Cmd.none )
 
         ClosePopup ->
-            ( { model | popup = None }, Cmd.none )
+            ( { model | popup = None, isPopupExtended = False }, Cmd.none )
 
         TogglePopupState ->
             ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
@@ -181,7 +190,7 @@ view model =
                 viewPopup SelectParameter model.isPopupExtended items
 
             None ->
-                div [] []
+                text ""
         , viewLocation model.location
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
@@ -208,33 +217,32 @@ viewParameterFilter selectedParameter =
         ]
 
 
-viewPopup : (String -> Msg) -> Bool -> List String -> Html Msg
+viewPopup : (String -> Msg) -> Bool -> Items -> Html Msg
 viewPopup onSelect isPopupExtended items =
-    let
-        numberOfMainItems =
-            4
-
-        mainItems =
-            List.take numberOfMainItems items
-
-        moreItems =
-            List.drop numberOfMainItems items
-    in
     div [ Attr.id "popup" ]
-        [ selectableItems mainItems onSelect
-        , if isPopupExtended then
-            div []
-                [ selectableItems moreItems onSelect
-                , button
-                    [ clickWithoutDefault TogglePopupState ]
-                    [ text "less parameters" ]
-                ]
+        [ selectableItems items.main onSelect
+        , case items.other of
+            Just moreItems ->
+                if isPopupExtended then
+                    div []
+                        [ selectableItems moreItems onSelect
+                        , togglePopupStateButton "less parameters"
+                        ]
 
-          else
-            button
-                [ clickWithoutDefault TogglePopupState ]
-                [ text "more parameters" ]
+                else
+                    togglePopupStateButton "more parameters"
+
+            Nothing ->
+                text ""
         ]
+
+
+togglePopupStateButton name =
+    button
+        [ Attr.id "toggle-popup-button"
+        , clickWithoutDefault TogglePopupState
+        ]
+        [ text name ]
 
 
 selectableItems : List String -> (String -> Msg) -> Html Msg
