@@ -7,10 +7,6 @@
       <h4 ng-click="expandables.toggle('sensor')" ng-class="expandables.css('sensor')">Parameter - Sensor</h4>
       <section ng-show="expandables.visible('sensor')" >
       <p>
-        <label for="parameters-dropdown" class="visuallyhidden">Parameter</label>
-        <select id="parameters-dropdown" ng-model="sensors.selectedParameter" ng-options="parameter as parameter.label for parameter in sensors.availableParameters track by parameter.id"></select>
-      </p>
-      <p>
         <label for="sensors-dropdown" class="visuallyhidden">Sensor</label>
         <select id="sensors-dropdown" ng-model="params.get('data').sensorId" ng-options="sensor.id as sensor.select_label for sensor in sensors.availableSensors"></select>
       </p>
