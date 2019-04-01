@@ -1,13 +1,14 @@
-module MobileSessionsFilters exposing (Msg(..), Popups(..), defaultModel, update, view, viewPopup)
+module MobileSessionsFilters exposing (Msg(..), defaultModel, update, view)
 
 import Browser
 import Browser.Events
-import Html exposing (Html, button, div, h4, input, label, li, option, p, select, span, text, ul)
+import Html exposing (Html, button, div, h4, input, label, p, span, text)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
 import LabelsInput
+import Popup
 import Ports
 import TimeRange exposing (TimeRange)
 
@@ -17,9 +18,9 @@ import TimeRange exposing (TimeRange)
 
 
 type alias Model =
-    { popup : Popups
+    { popup : Popup.Popup
     , isPopupExtended : Bool
-    , parameters : Items
+    , parameters : Popup.Items
     , selectedParameter : String
     , location : String
     , tags : LabelsInput.Model
@@ -30,18 +31,9 @@ type alias Model =
     }
 
 
-type Popups
-    = SelectFromItems Items
-    | None
-
-
-type alias Items =
-    { main : List String, other : Maybe (List String) }
-
-
 defaultModel : Model
 defaultModel =
-    { popup = None
+    { popup = Popup.None
     , isPopupExtended = False
     , parameters =
         { main = [ "Particulate Matter", "Humidity", "Temperature", "Sound Levels" ]
@@ -81,9 +73,10 @@ init flags =
                     values
                         |> List.filter (\value -> not (List.member value defaultModel.parameters.main))
                         |> List.sort
+                        |> Just
 
                 Err _ ->
-                    []
+                    Nothing
     in
     ( { defaultModel
         | location = flags.location
@@ -93,7 +86,7 @@ init flags =
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , selectedParameter = flags.selectedParameter
-        , parameters = { main = defaultModel.parameters.main, other = Just fetchedParameters }
+        , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
       }
     , Ports.selectParameter flags.selectedParameter
     )
@@ -150,10 +143,10 @@ update msg model =
             ( model, Ports.showCopyLinkTooltip () )
 
         ShowSelectFormItemsPopup ->
-            ( { model | popup = SelectFromItems model.parameters }, Cmd.none )
+            ( { model | popup = Popup.SelectFromItems model.parameters }, Cmd.none )
 
         ClosePopup ->
-            ( { model | popup = None, isPopupExtended = False }, Cmd.none )
+            ( { model | popup = Popup.None, isPopupExtended = False }, Cmd.none )
 
         TogglePopupState ->
             ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
@@ -185,12 +178,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ viewParameterFilter model.selectedParameter
-        , case model.popup of
-            SelectFromItems items ->
-                viewPopup SelectParameter model.isPopupExtended items
-
-            None ->
-                text ""
+        , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
         , viewLocation model.location
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
@@ -210,59 +198,11 @@ viewParameterFilter selectedParameter =
         [ h4 [] [ text "parameter" ]
         , input
             [ Attr.id "parameter-filter"
-            , clickWithoutDefault ShowSelectFormItemsPopup
+            , Popup.clickWithoutDefault ShowSelectFormItemsPopup
             , Attr.value selectedParameter
             ]
             []
         ]
-
-
-viewPopup : (String -> Msg) -> Bool -> Items -> Html Msg
-viewPopup onSelect isPopupExtended items =
-    div [ Attr.id "popup" ]
-        [ selectableItems items.main onSelect
-        , case items.other of
-            Just moreItems ->
-                if isPopupExtended then
-                    div []
-                        [ selectableItems moreItems onSelect
-                        , togglePopupStateButton "less parameters"
-                        ]
-
-                else
-                    togglePopupStateButton "more parameters"
-
-            Nothing ->
-                text ""
-        ]
-
-
-togglePopupStateButton name =
-    button
-        [ Attr.id "toggle-popup-button"
-        , clickWithoutDefault TogglePopupState
-        ]
-        [ text name ]
-
-
-selectableItems : List String -> (String -> Msg) -> Html Msg
-selectableItems items onSelect =
-    items
-        |> List.map (\item -> li [] [ button [ Events.onClick (onSelect item) ] [ text item ] ])
-        |> ul []
-
-
-clickWithoutDefault : Msg -> Html.Attribute Msg
-clickWithoutDefault msg =
-    Events.custom "click" (Decode.map preventDefault (Decode.succeed msg))
-
-
-preventDefault : Msg -> { message : Msg, stopPropagation : Bool, preventDefault : Bool }
-preventDefault msg =
-    { message = msg
-    , stopPropagation = True
-    , preventDefault = True
-    }
 
 
 viewCrowdMapCheckBox : Bool -> Html Msg
