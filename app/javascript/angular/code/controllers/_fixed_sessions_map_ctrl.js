@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import { Elm } from '../../../elm/src/FixedSessionFilters.elm';
 import moment from 'moment'
+import { buildAvailableParameters } from '../services/_sensors'
 
 import * as FiltersUtils from '../filtersUtils'
 
@@ -113,6 +114,8 @@ export const FixedSessionsMapCtrl = (
       };
 
       const flags = {
+        parametersList: buildAvailableParameters(sensorsList),
+        selectedParameter: sensors.findParameterForSensor(sensors.selected()).id,
         location: $scope.params.get('data').location || "",
         tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
         profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
@@ -120,6 +123,15 @@ export const FixedSessionsMapCtrl = (
       };
 
       const elmApp = Elm.FixedSessionFilters.init({ node: node, flags: flags });
+
+      elmApp.ports.selectParameter.subscribe(parameter =>{
+        const oldValue = sensors.selectedParameter;
+        const newParameter = { label: parameter, id: parameter };
+
+        $scope.sensors.selectedParameter = newParameter
+        sensors.onSelectedParameterChange(newParameter, oldValue);
+        $scope.sessions.fetch();
+      });
 
       elmApp.ports.findLocation.subscribe(location => {
         FiltersUtils.findLocation(location, params, map);
