@@ -173,7 +173,7 @@ export const SessionsListCtrl = (
       const node = document.getElementById('sessions-bottom-elm');
       //const flags = mobileSessions.get().map(formatSessionForList).map(formatSessionForElm);
       const flags = $scope.sessions.get().map(formatSessionForList).map(formatSessionForElm);
-      elmApp = window.__SessionsList;
+      elmApp = window.__elmApp;
 
       elmApp.ports.checkedSession.subscribe(({ selected, deselected }) => {
         if (deselected) $scope.toggleSession(deselected, true);

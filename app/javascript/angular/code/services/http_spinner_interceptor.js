@@ -3,7 +3,7 @@ const httpSpinnerInterceptor = ($q, $rootScope, $log) => {
 
   const update = by => {
     counter += by;
-    window.__SessionsList.ports.updateIsHttping.send(counter !== 0)
+    window.__elmApp.ports.updateIsHttping.send(counter !== 0)
     //$rootScope.$isHttpInProgress = (counter > 0);
   };
 

@@ -29,6 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.warn(flags);
 
-    window.__SessionsList = Elm.Yellow.init({ flags });
+    window.__elmApp = Elm.Yellow.init({ flags });
   });
 });

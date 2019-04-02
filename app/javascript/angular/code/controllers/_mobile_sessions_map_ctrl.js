@@ -129,7 +129,7 @@ export const MobileSessionsMapCtrl = (
         timeRange
       };
 
-      const elmApp = window.__SessionsList;
+      const elmApp = window.__elmApp;
 
       elmApp.ports.toggleCrowdMap.subscribe(() => {
         storage.toggleCrowdMapData();
