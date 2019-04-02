@@ -43,10 +43,6 @@ export const storage = (params, $rootScope, utils) => {
         this.update(name);
       }
     },
-    resetAddress: function() {
-      this.data.location = { ...this.data.location, address: '' };
-      this.update('location');
-    },
     updateDefaults: function(newData) {
       //only used for updating heat; todo - delete when new heat legend implemented
       this.defaults = utils.merge(this.defaults, newData);
