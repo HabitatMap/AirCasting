@@ -96,6 +96,11 @@ export const FixedSessionsMapCtrl = (
         FiltersUtils.findLocation(location, params, map);
       });
 
+      elmApp.ports.toggleIndoorOnly.subscribe(isIndoorOnly => {
+        FiltersUtils.toggleIndoorOnly(isIndoorOnly, params);
+        $scope.sessions.fetch();
+      });
+
       map.onPanOrZoom(() => {
         FiltersUtils.clearLocation(elmApp.ports.locationCleared, params);
       });
