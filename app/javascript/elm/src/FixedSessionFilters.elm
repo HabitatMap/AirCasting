@@ -1,6 +1,7 @@
 module FixedSessionFilters exposing (Msg(..), defaultModel, update, view)
 
 import Browser
+import Browser.Events
 import Html exposing (Html, button, div, h4, input, text)
 import Html.Attributes as Attr
 import Html.Events as Events
@@ -8,6 +9,7 @@ import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import LabelsInput
+import Popup
 import Ports
 import TimeRange exposing (TimeRange)
 
@@ -17,7 +19,11 @@ import TimeRange exposing (TimeRange)
 
 
 type alias Model =
-    { location : String
+    { popup : Popup.Popup
+    , isPopupExtended : Bool
+    , parameters : Popup.Items
+    , selectedParameter : String
+    , location : String
     , tags : LabelsInput.Model
     , profiles : LabelsInput.Model
     , timeRange : TimeRange
@@ -26,7 +32,14 @@ type alias Model =
 
 defaultModel : Model
 defaultModel =
-    { location = ""
+    { popup = Popup.None
+    , isPopupExtended = False
+    , parameters =
+        { main = [ "Particulate Matter", "Humidity", "Temperature", "Sound Levels" ]
+        , other = Nothing
+        }
+    , selectedParameter = "Particulate Matter"
+    , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
     , timeRange = TimeRange.defaultTimeRange
@@ -38,18 +51,37 @@ type alias Flags =
     , tags : List String
     , profiles : List String
     , timeRange : Encode.Value
+    , selectedParameter : String
+    , parametersList : Encode.Value
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
+    let
+        result =
+            Decode.decodeValue (Decode.list (Decode.field "id" Decode.string)) flags.parametersList
+
+        fetchedParameters =
+            case result of
+                Ok values ->
+                    values
+                        |> List.filter (\value -> not (List.member value defaultModel.parameters.main))
+                        |> List.sort
+                        |> Just
+
+                Err _ ->
+                    Nothing
+    in
     ( { defaultModel
         | location = flags.location
         , tags = LabelsInput.init flags.tags
         , profiles = LabelsInput.init flags.profiles
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
+        , selectedParameter = flags.selectedParameter
+        , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
       }
-    , Cmd.none
+    , Ports.selectParameter flags.selectedParameter
     )
 
 
@@ -64,6 +96,10 @@ type Msg
     | ProfileLabels LabelsInput.Msg
     | UpdateTimeRange Encode.Value
     | ShowCopyLinkTooltip
+    | ShowSelectFormItemsPopup
+    | SelectParameter String
+    | ClosePopup
+    | TogglePopupState
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -91,6 +127,18 @@ update msg model =
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
 
+        ShowSelectFormItemsPopup ->
+            ( { model | popup = Popup.SelectFromItems model.parameters }, Cmd.none )
+
+        ClosePopup ->
+            ( { model | popup = Popup.None, isPopupExtended = False }, Cmd.none )
+
+        TogglePopupState ->
+            ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
+
+        SelectParameter parameter ->
+            ( { model | selectedParameter = parameter }, Ports.selectParameter parameter )
+
 
 updateLabels :
     LabelsInput.Msg
@@ -114,11 +162,26 @@ updateLabels msg model toSubCmd mapper updateModel =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewLocation model.location
+        [ viewParameterFilter model.selectedParameter
+        , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
+        , viewLocation model.location
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "Profile Names" "profiles-search"
         , Html.map TagsLabels <| LabelsInput.view model.tags "Tags" "tags-search"
         , TimeRange.viewTimeFilter
         , button [ Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ] [ text "oo" ]
+        ]
+
+
+viewParameterFilter : String -> Html Msg
+viewParameterFilter selectedParameter =
+    div []
+        [ h4 [] [ text "parameter" ]
+        , input
+            [ Attr.id "parameter-filter"
+            , Popup.clickWithoutDefault ShowSelectFormItemsPopup
+            , Attr.value selectedParameter
+            ]
+            []
         ]
 
 
@@ -170,4 +233,5 @@ subscriptions =
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
         , Ports.locationCleared (always (UpdateLocationInput ""))
+        , Browser.Events.onClick (Decode.succeed ClosePopup)
         ]

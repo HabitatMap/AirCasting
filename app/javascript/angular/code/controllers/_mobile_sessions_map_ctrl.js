@@ -2,6 +2,7 @@ import _ from 'underscore';
 import { Elm } from '../../../elm/src/MobileSessionsFilters.elm';
 import moment from 'moment'
 import * as FiltersUtils from '../filtersUtils'
+import { buildAvailableParameters } from '../services/_sensors'
 
 export const MobileSessionsMapCtrl = (
   $scope,
@@ -95,6 +96,7 @@ export const MobileSessionsMapCtrl = (
     }
   }, true);
 
+  // two places in _sensors.js still use that watch
   $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
     sensors.onSelectedParameterChange(newValue, oldValue);
   }, true);
@@ -111,6 +113,8 @@ export const MobileSessionsMapCtrl = (
       };
 
       const flags = {
+        parametersList: buildAvailableParameters(sensorsList),
+        selectedParameter: sensors.findParameterForSensor(sensors.selected()).id,
         isCrowdMapOn: $scope.params.get('data').crowdMap || false,
         crowdMapResolution: $scope.params.get('data').gridResolution || 25,
         location: $scope.params.get('data').location || "",
@@ -120,6 +124,15 @@ export const MobileSessionsMapCtrl = (
       };
 
       const elmApp = Elm.MobileSessionsFilters.init({ node: node, flags: flags });
+
+      elmApp.ports.selectParameter.subscribe(parameter =>{
+        const oldValue = sensors.selectedParameter;
+        const newParameter = { label: parameter, id: parameter };
+
+        $scope.sensors.selectedParameter = newParameter
+        sensors.onSelectedParameterChange(newParameter, oldValue);
+        $scope.sessions.fetch();
+      });
 
       elmApp.ports.toggleCrowdMap.subscribe(crowdMap => {
         params.updateData({ crowdMap });

@@ -1,4 +1,4 @@
-module MobileSessionsFiltersTests exposing (crowdMapArea, locationFilter, profilesArea, tagsArea, timeFilter)
+module MobileSessionsFiltersTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, tagsArea, timeFilter)
 
 import Expect
 import Fuzz exposing (bool, int, list, string)
@@ -7,12 +7,63 @@ import Html.Attributes as Attr
 import Json.Encode as Encode
 import LabelsInput
 import MobileSessionsFilters exposing (..)
+import Popup
 import Ports
 import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Slc
 import TimeRange
+
+
+popups : Test
+popups =
+    describe "Popup tests: "
+        [ test "when ClosePopup is triggered the popup is hidden" <|
+            \_ ->
+                { defaultModel | popup = Popup.SelectFromItems { main = [], other = Nothing } }
+                    |> update ClosePopup
+                    |> Tuple.first
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.hasNot [ Slc.id "popup" ]
+        , test "TogglePopupState toggles the popup state" <|
+            \_ ->
+                defaultModel
+                    |> update TogglePopupState
+                    |> Tuple.first
+                    |> .isPopupExtended
+                    |> Expect.equal True
+        ]
+
+
+parameterSensorFilter : Test
+parameterSensorFilter =
+    describe "Parameter filter tests: "
+        [ fuzz string "parameter filter shows the selected parameter" <|
+            \parameter ->
+                { defaultModel | selectedParameter = parameter }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "parameter-filter" ]
+                    |> Query.has [ Slc.attribute <| Attr.value parameter ]
+        , test "Clicking on parameter filter triggers ShowSelectFormItemsPopup" <|
+            \_ ->
+                defaultModel
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "parameter-filter" ]
+                    |> Event.simulate Event.click
+                    |> Event.expect ShowSelectFormItemsPopup
+        , test "when ShowSelectFormItemsPopup is triggered popup is shown" <|
+            \_ ->
+                defaultModel
+                    |> update ShowSelectFormItemsPopup
+                    |> Tuple.first
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.id "popup" ]
+        ]
 
 
 locationFilter : Test
