@@ -14,9 +14,9 @@ export const mobileSessions = (
   drawSession,
   boundsCalculator,
   sessionsUtils,
-  $location,
   storage,
-  heat
+  heat,
+  $window
 ) => {
   var MobileSessions = function() {
     this.sessions = [];
@@ -67,7 +67,7 @@ export const mobileSessions = (
 
 
     onSessionsFetch: function() {
-      if($location.path() !== constants.mobileMapRoute) return;
+      if($window.location.pathname !== constants.mobileMapRoute) return;
 
       if (!params.isCrowdMapOn()) {
         this.drawSessionsInLocation();
@@ -204,7 +204,7 @@ export const mobileSessions = (
 
     _fetch: function(page) {
       // if _fetch is called after the route has changed (eg debounced)
-      if ($location.path() !== constants.mobileMapRoute) return;
+      if ($window.location.pathname !== constants.mobileMapRoute) return;
 
       var bounds = map.getBounds();
       var data = params.get('data');

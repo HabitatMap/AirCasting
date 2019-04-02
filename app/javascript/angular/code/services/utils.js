@@ -18,14 +18,6 @@ angular.module("aircasting").factory('utils', ['$window', function($window) {
       });
       return obj1;
     },
-    normalizeTime: function(time) {
-      var minutes = 1440;
-      if(time < 0){
-        return minutes + time;
-      } else {
-        return time % minutes;
-      }
-    },
     gridSizeX: function(x) {
       return _str.toNumber(x) * $($window).width() / $($window).height();
     },

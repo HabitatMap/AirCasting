@@ -3,19 +3,6 @@ import { mock } from './helpers';
 import { MobileSessionsMapCtrl } from '../code/controllers/_mobile_sessions_map_ctrl';
 import moment from 'moment'
 
-test('it shows by default sensor and heat legend', t => {
-  const shown = [];
-  const expandables = {
-    show: name => shown.push(name)
-  };
-
-  _MobileSessionsMapCtrl({ expandables });
-
-  t.deepEqual(shown, ['sensor', 'heatLegend']);
-
-  t.end();
-});
-
 test('it updates defaults', t => {
   let defaults = {};
   const sensorId = "sensor id";
@@ -60,8 +47,7 @@ test('does not fetch heat levels if they are already in the params', t => {
   t.end();
 });
 
-const _MobileSessionsMapCtrl = ({ $scope, map, callback, expandables, sensors, params }) => {
-  const _expandables = { show: () => {}, ...expandables };
+const _MobileSessionsMapCtrl = ({ $scope, map, callback, sensors, params }) => {
   const _sensors = { setSensors: () => {}, fetchHeatLevels: () => {}, ...sensors };
   const functionBlocker = { block: () => {} };
   const _params = { get: () => ({}), updateFromDefaults: () => {}, ...params };
@@ -74,6 +60,7 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, expandables, sensors, p
     ...map
   };
   const _$scope = { $watch: () => {}, ...$scope };
+  const _$window = {};
 
-  return MobileSessionsMapCtrl(_$scope, _params, _map, _sensors, _expandables, null, null, null, null, null, functionBlocker, null, infoWindow);
+  return MobileSessionsMapCtrl(_$scope, _params, _map, _sensors, null, null, null, null, functionBlocker, _$window, infoWindow);
 };

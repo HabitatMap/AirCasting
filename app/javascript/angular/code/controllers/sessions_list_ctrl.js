@@ -10,6 +10,5 @@ angular.module('aircasting').controller('SessionsListCtrl', [
   'drawSession',
   'markerSelected',
   'updateCrowdMapLayer',
-  '$location',
   SessionsListCtrl
 ]);

@@ -153,8 +153,8 @@ test('fetch with time calls downloadSessions', t => {
 test('fetch when on a different route than fixed map does not call downloadSessions', t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ time: {} });
-  const $location = { path: () => '/other_route' };
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data, $location });
+  const $window = { location: { pathname: '/other_route' } };
+  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data, $window });
 
   fixedSessionsService._fetch();
 
@@ -414,7 +414,7 @@ test('showClusterInfo returns a callback that calls infoWindow.show with correct
 
 const buildData = obj => ({ timeFrom: 1, timeTo: 1, location: {}, sensorId: 123, ...obj });
 
-const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
+const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessionIds = [], $window, map, sessionsUtils, sensors }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -431,11 +431,11 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessi
   const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, anySelected: () => false, selectedSensorName: () => "sensorName", ...sensors };
   const _drawSession = drawSession || { clear: () => {}, undoDraw: () => {} };
   const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
-  const _$location = $location || { path: () => '/map_fixed_sessions' };
+  const _$window = $window || { location: { pathname: '/fixed_map' } };
   const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), get: (self) => self.sessions, onSingleSessionFetchWithoutCrowdMap: (x, y, callback) => callback(), ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };
   const boundsCalculator = () => {};
   const _heat = { levelName: () => "mid", outsideOfScope: () => false }
 
-  return fixedSessions(params, $http, _map, _sensors, $rootScope, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location, _heat);
+  return fixedSessions(params, $http, _map, _sensors, $rootScope, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$window, _heat);
 };

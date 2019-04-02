@@ -1,35 +1,28 @@
 import _ from 'underscore';
-import { Elm } from '../../../elm/src/MobileSessionsFilters.elm';
 import moment from 'moment'
 import * as FiltersUtils from '../filtersUtils'
-import { buildAvailableParameters } from '../services/_sensors'
 
 export const MobileSessionsMapCtrl = (
   $scope,
   params,
   map,
   sensors,
-  expandables,
   storage,
   mobileSessions,
   versioner,
-  storageEvents,
   singleMobileSession,
   functionBlocker,
   $window,
   infoWindow,
-  sensorsList,
   sessionsUtils
 ) => {
-  sensors.setSensors(sensorsList);
+  sensors.setSensors($window.__sensors);
 
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
     $scope.storage = storage;
-    $scope.storageEvents = storageEvents;
     $scope.sensors = sensors;
-    $scope.expandables = expandables;
     $scope.sessions = mobileSessions;
     $scope.singleSession = singleMobileSession;
     $scope.$window = $window;
@@ -46,10 +39,6 @@ export const MobileSessionsMapCtrl = (
         $scope.$digest();
       });
     }
-
-    ['sensor', 'heatLegend'].forEach(function(name) {
-      $scope.expandables.show(name);
-    });
 
     const sensorId = params
       .get('data', { sensorId: sensors.defaultSensorId })
@@ -105,25 +94,7 @@ export const MobileSessionsMapCtrl = (
 
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(function () {
-      const node = document.getElementById('newMobileFilters');
-
-      const timeRange = {
-        timeFrom: $scope.params.get('data').timeFrom,
-        timeTo: $scope.params.get('data').timeTo,
-      };
-
-      const flags = {
-        parametersList: buildAvailableParameters(sensorsList),
-        selectedParameter: sensors.findParameterForSensor(sensors.selected()).id,
-        isCrowdMapOn: $scope.params.get('data').crowdMap || false,
-        crowdMapResolution: $scope.params.get('data').gridResolution || 25,
-        location: $scope.params.get('data').location || "",
-        tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
-        profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
-        timeRange
-      };
-
-      const elmApp = Elm.MobileSessionsFilters.init({ node: node, flags: flags });
+      const elmApp = window.__elmApp;
 
       elmApp.ports.selectParameter.subscribe(parameter =>{
         const oldValue = sensors.selectedParameter;
@@ -154,13 +125,13 @@ export const MobileSessionsMapCtrl = (
 
       FiltersUtils.setupAutocomplete(
         (selectedValue) => elmApp.ports.profileSelected.send(selectedValue)
-        , "profiles-search"
+        , "profile-names"
         , "/autocomplete/usernames"
       )
 
       FiltersUtils.setupAutocomplete(
         (selectedValue) => elmApp.ports.tagSelected.send(selectedValue)
-        , "tags-search"
+        , "tags"
         , "/autocomplete/tags"
       )
 

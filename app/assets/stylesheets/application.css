@@ -167,3 +167,22 @@
   width: 100px;
   background-color: red;
 }
+
+.filters-tag {
+  display: inline-block;
+  background-color: #ccc;
+  color: #525151;
+  margin-right: 10px;
+  font-weight: normal;
+  margin-bottom: 5px;
+  padding: 3px 8px 3px 7px;
+  border-radius: 15px;
+  font-size: 12px;
+}
+
+.filters-tag-close {
+  width: 8px;
+  height: 8px;
+  padding: 0 0 0 12px;
+  background: url("close-icon.svg") no-repeat right center;
+}

@@ -28,9 +28,6 @@ function SessionsGraphCtrl($scope, map, graph, flash, heat, sensors,
     }
   });
 
-  $scope.css = function() {
-    return $scope.expanded ? "" : "collapsed";
-  };
   $scope.$watch("expanded", function(expanded) {
     console.log("watch - expanded");
     if(!expanded){
