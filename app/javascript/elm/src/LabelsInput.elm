@@ -1,6 +1,6 @@
 module LabelsInput exposing (Model, Msg(..), empty, fromList, init, subscriptions, update, view, withCandidate)
 
-import Html exposing (Html, button, div, h4, input, text)
+import Html exposing (Html, button, div, h4, input, label, text)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Html.Events.Extra as ExtraEvents
@@ -68,16 +68,18 @@ update msg model toCmd =
 -- VIEW
 
 
-view : Model -> String -> String -> Html Msg
-view model description inputId =
+view : Model -> String -> String -> String -> Html Msg
+view model text_ inputId placeholder =
     div []
-        [ h4 []
-            [ text description
-            ]
+        [ label [ Attr.for inputId ] [ text text_ ]
         , input
             [ Attr.id inputId
+            , Attr.class "input-dark"
+            , Attr.class "input-filters"
+            , Attr.placeholder placeholder
+            , Attr.type_ "text"
+            , Attr.name inputId
             , ExtraEvents.onEnter (Add <| getCandidate model)
-            , Attr.class "filters-input"
             , Events.onInput UpdateCandidate
             , Attr.value <| getCandidate model
             ]

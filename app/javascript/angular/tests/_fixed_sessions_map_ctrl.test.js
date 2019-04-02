@@ -63,7 +63,6 @@ test('does not fetch heat levels if they are already in the params', t => {
 });
 
 const _FixedSessionsMapCtrl = ({ $scope, map, callback, params, sensors }) => {
-  const expandables = { show: () => {} };
   const _sensors = { setSensors: () => {}, fetchHeatLevels: () => {}, ...sensors };
   const functionBlocker = { block: () => {} };
   const _params = { get: () => ({}), updateFromDefaults: () => {}, ...params };
@@ -71,6 +70,7 @@ const _FixedSessionsMapCtrl = ({ $scope, map, callback, params, sensors }) => {
   const infoWindow = { hide: () => {} };
   const _$scope = { $watch: () => {}, ...$scope };
   const _map = { unregisterAll: () => {}, removeAllMarkers: () => {}, ...map };
+  const _$window = {};
 
-  return FixedSessionsMapCtrl(_$scope, _params, null, _map, _sensors, expandables, null, null, null, null, null, functionBlocker, null, null, rectangles, infoWindow);
+  return FixedSessionsMapCtrl(_$scope, _params, null, _map, _sensors, null, null, null, null, functionBlocker, _$window, rectangles, infoWindow);
 };

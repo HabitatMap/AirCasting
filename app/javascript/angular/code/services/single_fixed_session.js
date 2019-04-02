@@ -29,17 +29,6 @@ angular.module("aircasting").factory('singleFixedSession', [
       startTime: function() {
         return this.get().start_time_local;
       },
-      availSensors: function() {
-        if(!this.get()){
-          return [];
-        }
-        var ids = _(this.get().streams).map(function(sensor){
-          return sensors.buildSensorId(sensor)
-        });
-        return _(sensors.sensors).select(function(sensor){
-          return _(ids).include(sensor.id);
-        });
-      },
       withSelectedSensor: function(){
         return !!this.get().streams[sensors.anySelected().sensor_name];
       },

@@ -1,12 +1,13 @@
-module MobileSessionsFiltersTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, tagsArea, timeFilter)
+module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, updateTests, viewTests)
 
+import Data.Session exposing (..)
 import Expect
-import Fuzz exposing (bool, int, list, string)
+import Fuzz exposing (bool, int, intRange, list, string)
 import Html exposing (text)
 import Html.Attributes as Attr
 import Json.Encode as Encode
 import LabelsInput
-import MobileSessionsFilters exposing (..)
+import Main exposing (..)
 import Popup
 import Ports
 import Test exposing (..)
@@ -45,14 +46,14 @@ parameterSensorFilter =
                 { defaultModel | selectedParameter = parameter }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.id "parameter-filter" ]
+                    |> Query.find [ Slc.id "parameter" ]
                     |> Query.has [ Slc.attribute <| Attr.value parameter ]
         , test "Clicking on parameter filter triggers ShowSelectFormItemsPopup" <|
             \_ ->
                 defaultModel
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.id "parameter-filter" ]
+                    |> Query.find [ Slc.id "parameter" ]
                     |> Event.simulate Event.click
                     |> Event.expect ShowSelectFormItemsPopup
         , test "when ShowSelectFormItemsPopup is triggered popup is shown" <|
@@ -74,13 +75,13 @@ locationFilter =
                 defaultModel
                     |> view
                     |> Query.fromHtml
-                    |> Query.has [ Slc.id "location-filter" ]
+                    |> Query.has [ Slc.id "location" ]
         , fuzz string "when user types UpdateLocationInput is triggered" <|
             \locationValue ->
                 defaultModel
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.id "location-filter" ]
+                    |> Query.find [ Slc.id "location" ]
                     |> Event.simulate (Event.input locationValue)
                     |> Event.expect (UpdateLocationInput locationValue)
         , fuzz string "when UpdateLocationInput is triggered new input value is visible" <|
@@ -90,7 +91,7 @@ locationFilter =
                     |> Tuple.first
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.id "location-filter" ]
+                    |> Query.find [ Slc.id "location" ]
                     |> Query.has [ Slc.attribute <| Attr.value locationValue ]
         , test "when Enter key is pressed SubmitLocation is triggered" <|
             \_ ->
@@ -102,7 +103,7 @@ locationFilter =
                 defaultModel
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.id "location-filter" ]
+                    |> Query.find [ Slc.id "location" ]
                     |> Event.simulate (Event.custom "keydown" enterKeydownEvent)
                     |> Event.expect SubmitLocation
         , fuzz string "when SubmitLocation is triggered Port.findLocation is called with current location field value" <|
@@ -122,7 +123,7 @@ timeFilter =
                 defaultModel
                     |> view
                     |> Query.fromHtml
-                    |> Query.has [ Slc.id "test-time-filter" ]
+                    |> Query.has [ Slc.id "time-range" ]
         , fuzz2 int int "UpdateTimeRange returns the updated model" <|
             \timeFrom timeTo ->
                 let
@@ -364,7 +365,7 @@ crowdMapArea =
                     |> Event.expect ToggleCrowdMap
         , test "slider has a description" <|
             \_ ->
-                defaultModel
+                { defaultModel | isCrowdMapOn = True }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.id "crowd-map-slider" ]
@@ -372,7 +373,7 @@ crowdMapArea =
                         [ text "Resolution" ]
         , test "slider has a description with current crowd map resolution" <|
             \_ ->
-                defaultModel
+                { defaultModel | isCrowdMapOn = True }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.id "crowd-map-slider" ]
@@ -380,7 +381,7 @@ crowdMapArea =
                         [ text (String.fromInt defaultModel.crowdMapResolution) ]
         , test "slider default value is 25" <|
             \_ ->
-                defaultModel
+                { defaultModel | isCrowdMapOn = True }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.class "crowd-map-slider" ]
@@ -390,7 +391,7 @@ crowdMapArea =
             \resolution ->
                 let
                     model =
-                        { defaultModel | crowdMapResolution = resolution }
+                        { defaultModel | isCrowdMapOn = True, crowdMapResolution = resolution }
                 in
                 model
                     |> view
@@ -407,10 +408,192 @@ crowdMapArea =
                     simulatedEventObject =
                         Encode.object [ ( "target", target ) ]
                 in
-                defaultModel
+                { defaultModel | isCrowdMapOn = True }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.class "crowd-map-slider" ]
                     |> Event.simulate (Event.custom "change" simulatedEventObject)
                     |> Event.expect (UpdateCrowdMapResolution resolution)
+        ]
+
+
+shortTypes : List ShortType
+shortTypes =
+    [ { name = "name", type_ = "type_" } ]
+
+
+session : Session
+session =
+    { title = "title"
+    , id = 1
+    , timeframe = "timeframe"
+    , username = "username"
+    , shortTypes = shortTypes
+    , selected = False
+    }
+
+
+sessionWithId : Int -> Session
+sessionWithId id =
+    { session | id = id }
+
+
+sessionWithTitle : String -> Session
+sessionWithTitle title =
+    { session | title = title }
+
+
+viewTests : Test
+viewTests =
+    describe "view"
+        [ fuzz2 string string "session titles are displayed in the list" <|
+            \title1 title2 ->
+                { defaultModel | sessions = [ sessionWithTitle title1, sessionWithTitle title2 ], selectedSessionId = Nothing }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.contains
+                        [ Html.text title1
+                        , Html.text title2
+                        ]
+        , fuzz (intRange 1 10) "with modulo 50 sessions in the model the load more button is shown" <|
+            \times ->
+                { defaultModel | sessions = List.repeat (50 * times) session, selectedSessionId = Nothing }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.contains [ Html.text "Load More..." ]
+        , test "with 0 sessions in the model the load more button is not shown" <|
+            \times ->
+                { defaultModel | sessions = [], selectedSessionId = Nothing }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.findAll [ Slc.text "Load More..." ]
+                    |> Query.count (Expect.equal 0)
+        ]
+
+
+updateTests : Test
+updateTests =
+    describe "update"
+        [ fuzz int "with no selections ToggleSessionSelection selects the session" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Nothing }
+
+                    expected =
+                        { model | selectedSessionId = Just (id + 1) }
+                in
+                model
+                    |> update (ToggleSessionSelection (id + 1))
+                    |> Tuple.first
+                    |> Expect.equal expected
+        , fuzz int "when session was selected ToggleSessionSelection deselects it" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Just (id + 1) }
+
+                    expected =
+                        { model | selectedSessionId = Nothing }
+                in
+                model
+                    |> update (ToggleSessionSelection (id + 1))
+                    |> Tuple.first
+                    |> Expect.equal expected
+        , fuzz int "when another session was selected ToggleSessionSelection selects the new one" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Just (id + 1) }
+
+                    expected =
+                        { model | selectedSessionId = Just id }
+                in
+                model
+                    |> update (ToggleSessionSelection id)
+                    |> Tuple.first
+                    |> Expect.equal expected
+        , fuzz int "with no selections ToggleSessionSelection tells javascript what was selected" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Nothing }
+
+                    expected =
+                        Ports.checkedSession { selected = Just (id + 1), deselected = Nothing }
+                in
+                model
+                    |> update (ToggleSessionSelection (id + 1))
+                    |> Tuple.second
+                    |> Expect.equal expected
+        , fuzz int "when session was selected ToggleSessionSelection tells javascript what was deselected" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Just (id + 1) }
+
+                    expected =
+                        Ports.checkedSession { selected = Nothing, deselected = Just (id + 1) }
+                in
+                model
+                    |> update (ToggleSessionSelection (id + 1))
+                    |> Tuple.second
+                    |> Expect.equal expected
+        , fuzz int "when another session was selected ToggleSessionSelection tells javascript what was selected and what was deselected" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Just (id + 1) }
+
+                    expected =
+                        Ports.checkedSession { selected = Just id, deselected = Just (id + 1) }
+                in
+                model
+                    |> update (ToggleSessionSelection id)
+                    |> Tuple.second
+                    |> Expect.equal expected
+        , fuzz int "UpdateSessions replaces sessions in the model" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | sessions = [ sessionWithId id ], selectedSessionId = Nothing }
+
+                    newSessions =
+                        [ sessionWithId (id + 1) ]
+                in
+                model
+                    |> update (UpdateSessions newSessions)
+                    |> Tuple.first
+                    |> .sessions
+                    |> Expect.equal newSessions
+        , fuzz int "UpdateSessions selects the proper session in the model" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | sessions = [], selectedSessionId = Nothing }
+
+                    selectedSession =
+                        { session | id = id, selected = True }
+
+                    unselectedSession =
+                        { session | id = id + 1, selected = False }
+
+                    newSessions =
+                        [ selectedSession, unselectedSession ]
+                in
+                model
+                    |> update (UpdateSessions newSessions)
+                    |> Tuple.first
+                    |> .selectedSessionId
+                    |> Expect.equal (Just id)
+        , fuzz int "LoadMoreSessions delegates to javascript" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | sessions = [], selectedSessionId = Nothing }
+                in
+                model
+                    |> update LoadMoreSessions
+                    |> Tuple.second
+                    |> Expect.equal (Ports.loadMoreSessions ())
         ]

@@ -14,12 +14,12 @@ all =
     describe "view"
         [ fuzz string "lebel area has a description" <|
             \description ->
-                LabelsInput.view LabelsInput.empty description "input-id"
+                LabelsInput.view LabelsInput.empty description "input-id" "placeholder"
                     |> Query.fromHtml
                     |> Query.has [ Slc.text description ]
         , fuzz string "when user types, updateLabelsSearch is triggered with the input" <|
             \input ->
-                LabelsInput.view LabelsInput.empty "description" "input-id"
+                LabelsInput.view LabelsInput.empty "description" "input-id" "placeholder"
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "input" ]
                     |> Event.simulate (Event.input input)
@@ -30,7 +30,7 @@ all =
                     labels =
                         LabelsInput.withCandidate candidate LabelsInput.empty
                 in
-                LabelsInput.view labels "description" "input-id"
+                LabelsInput.view labels "description" "input-id" "placeholder"
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "input" ]
                     |> Query.has [ Slc.attribute <| Attr.value candidate ]
@@ -40,7 +40,7 @@ all =
                     labels =
                         LabelsInput.fromList [ label ]
                 in
-                LabelsInput.view labels "description" "input-id"
+                LabelsInput.view labels "description" "input-id" "placeholder"
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "button" ]
                     |> Event.simulate Event.click

@@ -10,7 +10,6 @@ angular.module("aircasting").factory('fixedSessions', [
   'drawSession',
   'boundsCalculator',
   'sessionsUtils',
-  '$location',
   'heat',
   'infoWindow',
   fixedSessions

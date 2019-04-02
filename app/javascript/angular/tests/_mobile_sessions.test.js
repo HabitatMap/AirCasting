@@ -107,8 +107,8 @@ test('fetch with time calls downloadSessions', t => {
 test('fetch when on a different route than mobile map does not call downloadSessions', t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ time: {} });
-  const $location = { path: () => '/other_route' };
-  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, data, $location });
+  const $window = { location: { pathname: '/other_route' } };
+  const mobileSessionsService = _mobileSessions({ sessionsDownloaderCalls, data, $window });
 
   mobileSessionsService._fetch();
 
@@ -392,7 +392,7 @@ test('redrawSelectedSession call drawSession.drawMobileSession with selected ses
 const buildData = obj => ({ timeFrom: 1, timeTo: 1, location: {}, sensorId: 123, ...obj });
 const sensors = { sensors: { 123: { sensor_name: 'sensor_name' }}};
 
-const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessionIds = [], $location, map, sessionsUtils, sensors }) => {
+const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessionIds = [], $window, map, sessionsUtils, sensors }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -412,8 +412,8 @@ const _mobileSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sess
   const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), ...sessionsUtils };
   const $http = { get: () => ({ success: callback => callback() }) };
   const boundsCalculator = () => {};
-  const _$location = $location || { path: () => '/map_sessions' };
+  const _$window = $window || { location: { pathname: '/mobile_map' } };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
-  return mobileSessions(params, $http, _map, _sensors, $rootScope, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$location, null, _heat);
+  return mobileSessions(params, $http, _map, _sensors, $rootScope, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, null, _heat, _$window);
 };

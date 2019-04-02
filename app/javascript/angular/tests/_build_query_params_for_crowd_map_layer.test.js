@@ -102,7 +102,6 @@ test('when everything is present it returns params for averages', t => {
   };
   const grid_size_x = 12;
   const utils = {
-    normalizeTime: x => x,
     gridSizeX: x => grid_size_x
   };
   const service = buildQueryParamsForCrowdMapLayer(sensors, params, utils);
@@ -163,7 +162,6 @@ const _buildQueryParamsForCrowdMapLayer = ({ sensors, params }) => {
   };
   const grid_size_x = 12;
   const utils = {
-    normalizeTime: x => x,
     gridSizeX: x => grid_size_x
   };
 

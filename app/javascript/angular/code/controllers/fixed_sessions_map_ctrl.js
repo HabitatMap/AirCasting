@@ -6,18 +6,14 @@ angular.module('aircasting').controller('FixedSessionsMapCtrl', [
   'heat',
   'map',
   'sensors',
-  'expandables',
   'storage',
   'fixedSessions',
   'versioner',
-  'storageEvents',
   'singleFixedSession',
   'functionBlocker',
   '$window',
-  '$location',
   'rectangles',
   'infoWindow',
   '$http',
-  'sensorsList',
   FixedSessionsMapCtrl
 ]);

@@ -1,5 +1,5 @@
 export default {
-  fixedMapRoute: '/map_fixed_sessions',
-  mobileMapRoute: '/map_sessions',
+  fixedMapRoute: '/fixed_map',
+  mobileMapRoute: '/mobile_map',
   fixedSession: "Fixed"
 };

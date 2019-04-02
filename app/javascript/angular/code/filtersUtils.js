@@ -2,8 +2,8 @@ import tippy from 'tippy.js';
 import Clipboard from 'clipboard';
 
 export const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
-  if (document.getElementById("daterange")) {
-    $('#daterange').daterangepicker({
+  if (document.getElementById("time-range")) {
+    $('#time-range').daterangepicker({
       opens: 'left',
       linkedCalendars: false,
       timePicker: true,

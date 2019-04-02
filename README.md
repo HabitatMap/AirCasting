@@ -68,11 +68,6 @@ yarn run elm-format --validate app/javascript/elm
 
 Read more [here](doc/api.md).
 
-## Assets version bumping
-
-Whenever changing code tounching google maps, the `data-version` attribute in `app/views/layouts/map.html.haml` should
-be bumped. This ensures that the assets will reload correctly.
-
 ## Importing a big db dump to a server, i.e. staging
 
 For restoring a big db dump you can try to opitimize a process by changing the database configuration temporarily.

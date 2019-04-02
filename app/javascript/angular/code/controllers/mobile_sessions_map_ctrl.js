@@ -5,16 +5,13 @@ angular.module('aircasting').controller('MobileSessionsMapCtrl', [
   'params',
   'map',
   'sensors',
-  'expandables',
   'storage',
   'mobileSessions',
   'versioner',
-  'storageEvents',
   'singleMobileSession',
   'functionBlocker',
   '$window',
   "infoWindow",
-  'sensorsList',
   'sessionsUtils',
   MobileSessionsMapCtrl
 ]);

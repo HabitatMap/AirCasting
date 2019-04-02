@@ -9,6 +9,6 @@ angular.module("aircasting").factory('updateCrowdMapLayer', [
   'utils',
   'infoWindow',
   'rectangles',
-  '$location',
+  '$window',
   updateCrowdMapLayer
 ]);
