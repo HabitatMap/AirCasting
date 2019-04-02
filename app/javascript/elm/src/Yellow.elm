@@ -249,7 +249,7 @@ viewDocument model =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ Attr.id "elm-app" ]
         [ nav []
             [ ul []
                 [ li [ Attr.class "" ]

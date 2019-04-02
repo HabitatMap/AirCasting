@@ -1,31 +1,34 @@
 import { Elm } from '../elm/src/Yellow.elm';
 
-window.initMap = () => {
-  const node = document.getElementById('map1');
-
-  if (!node) return setTimeout(window.initMap, 100);
-
-  window.__map = new google.maps.Map(node, {
-    center: {lat: -34.397, lng: 150.644},
-    zoom: 8
-  });
-
-	console.warn(window.__map)
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-  const flags = {
-    isCrowdMapOn: false, //$scope.params.get('data').crowdMap || false,
-    crowdMapResolution: 25, //$scope.params.get('data').gridResolution || 25,
-    tags: [], //$scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
-    profiles: [], //$scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
-    timeRange: {
-      timeFrom: 0,
-      timeTo: 0
-    }
-  }
-  window.__SessionsList = Elm.Yellow.init({ flags });
-})
+  fetch('/api/sensors.json').then(x => x.json()).then(sensors => {
+    window.__sensors = sensors;
+    const params = window.location.hash
+      .slice(2)
+      .split('&')
+      .filter(x => x.length !== 0)
+      .map(x => x.split('='))
+      .map(([k, v]) => [k, decodeURIComponent(v)])
+      .map(([k, v]) => [k, JSON.parse(v)])
+      .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
+    const defaultData = { tags: "", usernames: "", crowdMap: false, gridResolution: 25 };
+    const data = { ...defaultData, ...params.data };
 
+    console.warn(data);
 
-fetch('/api/sensors.json').then(x => x.json()).then(x => { window.__sensors = x })
+    const flags = {
+      isCrowdMapOn: data.crowdMap || false,
+      crowdMapResolution: data.gridResolution || 25,
+      tags: data.tags.split(', ').filter((tag) => tag !== "") || [],
+      profiles: data.usernames.split(', ').filter((tag) => tag !== "") || [],
+      timeRange: {
+        timeFrom: data.timeFrom,
+        timeTo: data.timeTo
+      }
+    };
+
+    console.warn(flags);
+
+    window.__SessionsList = Elm.Yellow.init({ flags });
+  });
+});
