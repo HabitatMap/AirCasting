@@ -34,3 +34,136 @@
    transform: rotate(360deg);
   }
 }
+
+.marker {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  left: -6px;
+  top: -6px;
+  color: transparent;
+  cursor: pointer;
+  &.default {
+    background-color: #757575;
+  }
+  &.highest {
+    background-color: #F4001C;
+  }
+
+  &.high {
+    background-color: #F57F22;
+  }
+
+  &.mid {
+    background-color: #F9DC2E;
+  }
+
+  &.low {
+    background-color: #2DA641;
+  }
+}
+
+.data-marker {
+  border-radius: 15px;
+  background: white;
+  font-size: 12px;
+  padding: 0 5px 0 18px;
+  border: 1.5px solid black;
+  position: absolute;
+  line-height: 18px;
+  color: black;
+  box-sizing: border-box;
+  cursor: pointer;
+  left: -10px;
+  top: -11px;
+  &.highest {
+    border: 1px solid #F4001C;
+  }
+  &.high {
+    border: 1px solid #F57F22;
+  }
+  &.mid {
+    border: 1px solid #FFCC33;
+  }
+  &.low {
+    border: 1px solid #2DA641;
+  }
+  &.lowest {
+    border: 1px solid #ccc;
+  }
+  &.default {
+    border: 1px solid #757575;
+  }
+}
+
+.data-marker::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 3.6px;
+}
+
+.data-marker.highest::before {
+  background: #F4001C;
+}
+
+.data-marker.high::before {
+  background: #F57F22;
+}
+
+.data-marker.mid::before {
+  background: #F9DC2E;
+}
+
+.data-marker.low::before {
+  background: #2DA641;
+}
+
+.data-marker.default::before {
+  background: #757575;
+}
+
+.data-marker::after {
+  content: '';
+  width: 45px;
+  height: 45px;
+  z-index: -1;
+  position: absolute;
+  left: -16px;
+  top: -15px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.data-marker.default::after {
+  background-image: radial-gradient(circle at 50%, rgba( 202, 200, 200, 1) 0%, rgba(244, 0, 28, 0) 70%);
+}
+
+.data-marker.highest::after, .marker.highest::after {
+  background-image: radial-gradient(circle at 50%, rgba(246, 52, 52, 1) 0%, rgba(244, 0, 28, 0) 70%);
+}
+
+.data-marker.high::after, .marker.high::after {
+  background-image: radial-gradient(circle at 50%, rgba(246, 150, 74, 1) 0%, rgba(245, 127, 34, 0) 70%);
+}
+
+.data-marker.mid::after, .marker.mid::after {
+  background-image: radial-gradient(circle at 50%, rgba(250, 226, 84, 1) 0%, rgba(255, 204, 51, 0) 70%);
+}
+
+.data-marker.low::after, .marker.low::after {
+  background-image: radial-gradient(circle at 50%, rgba(83, 182, 99, 1) 0%, rgba(45, 166, 65, 0) 70%);
+}
+
+.marker-container {
+  position: absolute;
+  height: 0px;
+  width: 100px;
+  background-color: red;
+}
