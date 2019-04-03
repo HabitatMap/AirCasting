@@ -41,8 +41,6 @@ export const fixedSessions = (
 
     deselectAllSessions: function() { sessionsUtils.deselectAllSessions(); },
 
-    export: function() { sessionsUtils.export(this); },
-
     find: function(id) { return sessionsUtils.find(this, id); },
 
     get: function(){ return sessionsUtils.get(this); },

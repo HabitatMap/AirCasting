@@ -58,5 +58,5 @@ const _sessionsUtils = ({ updateCrowdMapLayer }) => {
     ...updateCrowdMapLayer
   };
 
-  return sessionsUtils(null, null, null, null, null, _updateCrowdMapLayer);
+  return sessionsUtils(null, null, null, null, _updateCrowdMapLayer);
 };

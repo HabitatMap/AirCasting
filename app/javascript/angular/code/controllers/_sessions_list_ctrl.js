@@ -113,10 +113,6 @@ export const SessionsListCtrl = (
     sessions.sessionsChanged(newIds, oldIds);
   }, true);
 
-  $scope.exportSessions = function() {
-    sessions.export();
-  };
-
   //used to fetch all the sessions
   $scope.shortTypeCss = function(name, selected){
     var result = name;

@@ -6,7 +6,6 @@ export const sessionsUtils = (
   sensors,
   $timeout,
   flash,
-  sessionsExporter,
   updateCrowdMapLayer
 ) => ({
   sessionsChanged: function (self, newIds, oldIds) {
@@ -28,10 +27,6 @@ export const sessionsUtils = (
 
   empty: function(self) {
     return self.noOfSelectedSessions() === 0;
-  },
-
-  export: function(self) {
-    sessionsExporter(self.allSessionIds());
   },
 
   onSessionsFetch: function(self) {
