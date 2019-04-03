@@ -5,7 +5,6 @@ angular.module("aircasting").factory('sessionsUtils', [
   'sensors',
   "$timeout",
   'flash',
-  'sessionsExporter',
   'updateCrowdMapLayer',
   sessionsUtils
 ]);

@@ -468,6 +468,28 @@ viewTests =
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.text "Load More..." ]
                     |> Query.count (Expect.equal 0)
+        , fuzz int "with 1 sessions in the model the export link is correctly generated" <|
+            \id ->
+                let
+                    expected =
+                        exportPath ++ "?session_ids[]=" ++ String.fromInt id
+                in
+                { defaultModel | sessions = [ sessionWithId id ] }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.containing [ Slc.text "export sessions" ] ]
+                    |> Query.has [ Slc.attribute <| Attr.href expected ]
+        , fuzz int "with 2 sessions in the model the export link is correctly generated" <|
+            \id ->
+                let
+                    expected =
+                        exportPath ++ "?session_ids[]=" ++ String.fromInt id ++ "&session_ids[]=" ++ String.fromInt (id + 1)
+                in
+                { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ] }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.containing [ Slc.text "export sessions" ] ]
+                    |> Query.has [ Slc.attribute <| Attr.href expected ]
         ]
 
 
