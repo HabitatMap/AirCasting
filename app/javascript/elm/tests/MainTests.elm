@@ -1,4 +1,4 @@
-module MainTests exposing (crowdMapArea, locationFilter, indoorFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, updateTests, viewTests)
+module MainTests exposing (crowdMapArea, indoorFilter, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, updateTests, viewTests)
 
 import Data.Session exposing (..)
 import Expect

@@ -250,7 +250,6 @@ update msg model =
             ( { model | indoor = indoorValue }, Ports.toggleIndoor indoorValue )
 
 
-
 updateLabels :
     LabelsInput.Msg
     -> LabelsInput.Model
