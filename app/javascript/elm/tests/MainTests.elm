@@ -422,13 +422,13 @@ indoorOnlyFilter =
     describe "indoor/outdoor filter tests:"
         [ test "filter is displayed" <|
             \_ ->
-                { defaultModel | page = Main.Fixed }
+                { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.attribute <| Attr.id "indoor-only-filter" ]
         , test "checking checkbox triggers ToggleIndoorOnly" <|
             \_ ->
-                { defaultModel | page = Main.Fixed }
+                { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
@@ -436,14 +436,14 @@ indoorOnlyFilter =
                     |> Event.expect (ToggleIndoorOnly True)
         , test "checkbox is not checked as default" <|
             \_ ->
-                { defaultModel | page = Main.Fixed }
+                { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
                     |> Query.has [ Slc.attribute <| Attr.checked False ]
         , fuzz bool "interacting with checkbox changes 'checked' value" <|
             \indoorOnlyValue ->
-                { defaultModel | page = Main.Fixed }
+                { defaultModel | page = Fixed }
                     |> update (ToggleIndoorOnly indoorOnlyValue)
                     |> Tuple.first
                     |> view
@@ -452,7 +452,7 @@ indoorOnlyFilter =
                     |> Query.has [ Slc.attribute <| Attr.checked indoorOnlyValue ]
         , fuzz bool "ToggleIndoorOnly triggers Ports.toggleIndoorOnly with 'checked' value" <|
             \indoorOnlyValue ->
-                { defaultModel | page = Main.Fixed }
+                { defaultModel | page = Fixed }
                     |> update (ToggleIndoorOnly indoorOnlyValue)
                     |> Tuple.second
                     |> Expect.equal (Ports.toggleIndoorOnly indoorOnlyValue)
