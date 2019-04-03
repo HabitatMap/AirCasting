@@ -6,7 +6,6 @@ angular.module('aircasting').controller('FixedSessionsMapCtrl', [
   'heat',
   'map',
   'sensors',
-  'storage',
   'fixedSessions',
   'versioner',
   'singleFixedSession',
