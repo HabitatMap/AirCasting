@@ -14,7 +14,6 @@ export const FixedSessionsMapCtrl = (
   singleFixedSession,
   functionBlocker,
   $window,
-  rectangles,
   infoWindow,
   $http
 ) => {

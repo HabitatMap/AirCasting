@@ -3,21 +3,6 @@ import { mock } from './helpers';
 import { FixedSessionsMapCtrl } from '../code/controllers/_fixed_sessions_map_ctrl';
 import moment from 'moment'
 
-test('registers a callback to map.goToAddress', t => {
-  const callbacks = [];
-  const $scope = {
-    $watch: (str, callback) => str.includes('address') ? callbacks.push(callback) : null
-  };
-  const map = { ...mock('goToAddress'), unregisterAll: () => {}, removeAllMarkers: () => {} };
-  const controller = _FixedSessionsMapCtrl({ $scope, map, callbacks });
-
-  callbacks.forEach(callback => callback({ location: 'new york' }));
-
-  t.true(map.wasCalledWith('new york'));
-
-  t.end();
-});
-
 test('it updates defaults', t => {
   let defaults = {};
   const sensorId = "sensor id";
@@ -62,15 +47,19 @@ test('does not fetch heat levels if they are already in the params', t => {
   t.end();
 });
 
-const _FixedSessionsMapCtrl = ({ $scope, map, callback, params, sensors }) => {
+const _FixedSessionsMapCtrl = ({ callback, params, sensors }) => {
   const _sensors = { setSensors: () => {}, fetchHeatLevels: () => {}, ...sensors };
   const functionBlocker = { block: () => {} };
   const _params = { get: () => ({}), updateFromDefaults: () => {}, ...params };
   const rectangles = { clear: () => {} };
   const infoWindow = { hide: () => {} };
-  const _$scope = { $watch: () => {}, ...$scope };
-  const _map = { unregisterAll: () => {}, removeAllMarkers: () => {}, ...map };
+  const _$scope = { $watch: () => {} };
+  const _map = {
+    unregisterAll: () => {},
+    clearRectangles: () => {},
+    removeAllMarkers: () => {},
+  };
   const _$window = {};
 
-  return FixedSessionsMapCtrl(_$scope, _params, null, _map, _sensors, null, null, null, functionBlocker, _$window, rectangles, infoWindow);
+  return FixedSessionsMapCtrl(_$scope, _params, null, _map, _sensors, null, null, null, functionBlocker, _$window, infoWindow);
 };
