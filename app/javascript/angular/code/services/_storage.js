@@ -18,9 +18,6 @@ export const storage = (params, $rootScope, utils) => {
     get: function(name) {
       return this.data[name];
     },
-    refreshCounter: function(){
-      this.set("counter", parseInt(this.get("counter") || 0, 10) + 1);
-    },
     set: function(name, value) {
       this.data[name] = JSON.parse(JSON.stringify(value));
     },
@@ -38,14 +35,6 @@ export const storage = (params, $rootScope, utils) => {
       } else {
         obj[name] = this.get(name);
       }
-      params.update({data: obj});
-    },
-    updateWithRefresh: function(name) {
-      //be carefull when using this - currently it is only for location data
-      this.refreshCounter();
-      var obj = {};
-      obj[name] = this.get(name);
-      obj.counter = this.get("counter");
       params.update({data: obj});
     },
     reset: function(name) {

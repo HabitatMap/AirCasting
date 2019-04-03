@@ -9,7 +9,6 @@ export const FixedSessionsMapCtrl = (
   heat,
   map,
   sensors,
-  storage,
   fixedSessions,
   versioner,
   singleFixedSession,
@@ -24,7 +23,6 @@ export const FixedSessionsMapCtrl = (
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
-    $scope.storage = storage;
     $scope.sensors = sensors;
     $scope.sessions = fixedSessions;
     $scope.singleSession = singleFixedSession;
@@ -32,7 +30,7 @@ export const FixedSessionsMapCtrl = (
 
     functionBlocker.block("sessionHeat", !_(params.get('selectedSessionIds')).isEmpty());
 
-    rectangles.clear();
+    map.clearRectangles();
     infoWindow.hide();
     map.unregisterAll();
     map.removeAllMarkers();
@@ -63,11 +61,6 @@ export const FixedSessionsMapCtrl = (
     params.updateFromDefaults(defaults);
   };
 
-  $scope.searchSessions = function() {
-    storage.updateWithRefresh('location');
-    params.update({'didSessionsSearch': true});
-  };
-
   $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
 
   $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
@@ -84,12 +77,6 @@ export const FixedSessionsMapCtrl = (
   $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
     sensors.onSelectedParameterChange(newValue, oldValue);
   }, true);
-
-  $scope.$watch("{location: params.get('data').location.address, counter: params.get('data').counter}",
-    function(newValue) {
-      console.log("watch - {location: params.get('data').location.address, counter: params.get('data').counter}");
-      map.goToAddress(newValue.location);
-    }, true);
 
   $scope.setDefaults();
 

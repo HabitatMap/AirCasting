@@ -113,10 +113,6 @@ export const SessionsListCtrl = (
     sessions.sessionsChanged(newIds, oldIds);
   }, true);
 
-  $scope.canExportSessions = function() {
-    return (true === params.get('didSessionsSearch', false) && sessions.get().length > 0);
-  };
-
   $scope.exportSessions = function() {
     sessions.export();
   };
