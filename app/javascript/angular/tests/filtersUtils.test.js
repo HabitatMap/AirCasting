@@ -1,6 +1,6 @@
 import test from 'blue-tape';
 import sinon from 'sinon';
-import { findLocation, clearLocation, toggleIndoorOnly } from '../code/filtersUtils';
+import { findLocation, clearLocation, toggleIndoor } from '../code/filtersUtils';
 
 test("findLocation asks google maps to pan to the given location", t => {
   const goToAddress = sinon.spy();
@@ -52,13 +52,13 @@ test("clearLocation changes location in the params to empty string", t => {
   t.end();
 });
 
-test("toggleIndoorOnly sets the indoorOnly parameter to the passed boolean value", t => {
+test("toggleIndoor sets the indoor parameter to the passed boolean value", t => {
   const update = sinon.spy();
   const params = { update };
 
-  toggleIndoorOnly(true, params);
+  toggleIndoor(true, params);
 
-  sinon.assert.calledWith(update, { data: { indoorOnly: true }});
+  sinon.assert.calledWith(update, { data: { indoor: true }});
 
   t.end();
 });
