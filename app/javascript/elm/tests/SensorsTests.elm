@@ -12,11 +12,11 @@ import Test.Html.Selector as Slc
 all : Test
 all =
     describe "all:"
-        [ test "decodeParameterSensorPairs return a list of parameter-sensor pairs" <|
+        [ test "decodeParameterSensorPair return a list of parameter-sensor pairs" <|
             \_ ->
                 -- todo
                 Expect.equal [] []
-        , test "allSensorsForParameter finds all sensors for parameter" <|
+        , test "allSensorsLabelsForParameter finds all sensors for parameter" <|
             \_ ->
                 let
                     parameterSensorPairs =
@@ -26,6 +26,6 @@ all =
                         ]
                 in
                 "parameter"
-                    |> allSensorsForParameter parameterSensorPairs
+                    |> allSensorsLabelsForParameter parameterSensorPairs
                     |> Expect.equal [ "label1", "label2" ]
         ]
