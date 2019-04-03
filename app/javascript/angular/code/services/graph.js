@@ -17,12 +17,9 @@ angular.module("aircasting").factory('graph', [
   ) {
     var Graph = function(){};
     let measurementsByTime = {};
+    const ID = "graph";
 
     Graph.prototype = {
-      init: function(id){
-        this.id = id;
-      },
-
       getInitialData: function() {
         var self = this;
         var end_date = new Date(singleFixedSession.endTime()).getTime();
@@ -64,7 +61,7 @@ angular.module("aircasting").factory('graph', [
 
         var options = {
           chart : {
-            renderTo : this.id,
+            renderTo : ID,
             height : 200,
             spacingTop: 5,
             spacingBottom: 5,

@@ -12,9 +12,9 @@ import TimeRange
 all : Test
 all =
     describe "TimeRange"
-        [ test ".viewTimeFilter has an input field" <|
+        [ test ".view has an input field" <|
             \_ ->
-                TimeRange.viewTimeFilter |> Query.fromHtml |> Query.has [ Slc.tag "input" ]
+                TimeRange.view |> Query.fromHtml |> Query.has [ Slc.tag "input" ]
         , fuzz2 int int ".update returns updated TimeRange if value has correct format" <|
             \timeFrom timeTo ->
                 let

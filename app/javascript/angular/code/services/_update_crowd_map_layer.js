@@ -10,7 +10,7 @@ export const updateCrowdMapLayer = (
   utils,
   infoWindow,
   rectangles,
-  $location,
+  $window,
 ) => ({
   call: (sessionIds) => {
     map.clearRectangles();
@@ -25,14 +25,14 @@ export const updateCrowdMapLayer = (
 
     $http.get('/api/averages', { cache: true, params: { q }})
       .error(onError(flash))
-      .success(onAveragesFetch($location, map, params, utils, _onRectangleClick));
+      .success(onAveragesFetch($window, map, params, utils, _onRectangleClick));
   }
 });
 
 const onError = (flash) => () => flash.set('There was an error, sorry');
 
-const onAveragesFetch = ($location, map, params, utils, _onRectangleClick) => data => {
-  if($location.path() !== constants.mobileMapRoute) return;
+const onAveragesFetch = ($window, map, params, utils, _onRectangleClick) => data => {
+  if($window.location.pathname !== constants.mobileMapRoute) return;
   const heats = utils.heats(params.get('data').heat)
   map.drawRectangles(data, heats, _onRectangleClick);
 };

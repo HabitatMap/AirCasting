@@ -4,29 +4,13 @@
     %meta(name='viewport' content='width=device-width,initial-scale=0.5')
     %meta(name='description' content='AirCasting map showing health and environmental data like air quality, temperature, humidity, sound levels and more.')
     %title AirCasting
-    = javascript_pack_tag "application"
-    = stylesheet_link_tag    "application"
+    %link{rel: :stylesheet, type: :"text/css", :href => "https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"}
     = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}"
+    = javascript_pack_tag "elm"
+    = stylesheet_link_tag "application"
+    = javascript_pack_tag "application"
     = favicon_link_tag "favicon.png"
-    = csrf_meta_tags
     = render :partial => 'shared/analytics'
     = render :partial => 'shared/fb_logo'
 
-  %body(id="map" data-version="1.0.23")
-    .notice(ng-controller="FlashCtrl" ng-cloak ng-show="flash.message" ng-click="clear()") {{flash.message}}
-    #mapview(ng-controller="MapCtrl" googlemap="")
-    #hud(ng-controller="HudCtrl" ng-cloak ng-hide="map.streetViewVisible()")
-      #left-hud(ng-include="" src="versioner.path('/partials/left_hud.html')")
-      #right-hud
-        = yield
-      %http-spinner(overlay="overlay")
-      #zoom-box
-        .content
-          #zoom-out(ng-click="zoomStep(-1)")
-          #zoom-slider(slider=true slider-min=3 slider-max=21 slider-onslide="onZoom" slider-value="map.getZoom()")
-          #zoom-in(ng-click="zoomStep(1)")
-    .no-ie(ng-controller="IECheckCtrl" ng-show="visibleIE" ng-cloak)
-      This site is not optimized for Internet Explorer browsers. The site works best with Firefox or Chrome.
-      %a(ng-click="closeIE()") Close
-    #overlay
-    = javascript_include_tag "application"
+  = yield

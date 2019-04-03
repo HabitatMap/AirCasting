@@ -1,0 +1,27 @@
+.maps-page-container {
+  @include flexbox();
+  @include justify-content(space-between);
+}
+
+.maps-content-container {
+  @include flexbox();
+  @include flex-direction(column);
+  @include justify-content(space-between);
+  position: relative;
+}
+
+.map-container {
+  min-height: calc((100vh - #{$heatmap-height}) - #{$nav-height});
+  position: relative;
+}
+
+.heatmap {
+  height: $heatmap-height;
+  background: white;
+  width: 100vw;
+}
+
+.map {
+  width: calc( 100vw - #{$filters-width});
+  height: 100%;
+}

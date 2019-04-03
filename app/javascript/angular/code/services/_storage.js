@@ -24,10 +24,6 @@ export const storage = (params, $rootScope, utils) => {
     set: function(name, value) {
       this.data[name] = JSON.parse(JSON.stringify(value));
     },
-    setInHash: function(hashName, name, value) {
-      //only used for updating heat; todo - delete when new heat legend implemented
-      this.data[hashName][name] = angular.copy(value);
-    },
     extend: function(data) {
       _.extend(this.data, angular.copy(data));
     },

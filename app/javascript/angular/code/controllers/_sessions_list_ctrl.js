@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import { formatSessionForList } from '../values/session'
-import { Elm } from '../../../elm/src/SessionsList.elm';
 
 export const SessionsListCtrl = (
   $scope,
@@ -11,12 +10,10 @@ export const SessionsListCtrl = (
   $window,
   drawSession,
   markerSelected,
-  updateCrowdMapLayer,
-  $location
+  updateCrowdMapLayer
 ) => {
   let sessions;
-  let singleSession;
-  let elmApp;
+  const elmApp = $window.__elmApp;
   const CANNOT_SELECT_MULTIPLE_SESSIONS = "You can't select multiple sessions";
 
   $scope.setDefaults = function() {
@@ -27,7 +24,6 @@ export const SessionsListCtrl = (
     $scope.page = 0;
     $scope.markerSelected = markerSelected;
     $window.sessions = sessions = $scope.sessions;
-    $window.singleSession = singleSession = $scope.singleSession;
     $scope.sessionsForList = [];
 
     // prolly this can be removed
@@ -88,7 +84,7 @@ export const SessionsListCtrl = (
   $scope.$watch("newSessionsForList()", function(newSessions, oldSessions) {
     console.log("newSessionsForList()", newSessions, oldSessions);
     $scope.sessionsForList = newSessions;
-    if (elmApp) elmApp.ports.updateSessions.send(newSessions.map(formatSessionForElm));
+    elmApp.ports.updateSessions.send(newSessions.map(formatSessionForElm));
   }, true);
 
   $scope.$on('markerSelected', function(event, data){
@@ -111,6 +107,11 @@ export const SessionsListCtrl = (
       session.$selected = true;
     }
   };
+
+  $scope.$watch("params.get('selectedSessionIds')", function(newIds, oldIds) {
+    console.log("watch - params.get('selectedSessionIds')");
+    sessions.sessionsChanged(newIds, oldIds);
+  }, true);
 
   $scope.canExportSessions = function() {
     return (true === params.get('didSessionsSearch', false) && sessions.get().length > 0);
@@ -140,10 +141,6 @@ export const SessionsListCtrl = (
 
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(() => {
-      const node = document.getElementById('sessions-bottom-elm');
-      const flags = $scope.sessions.get().map(formatSessionForList).map(formatSessionForElm);
-      elmApp = Elm.SessionsList.init({ node, flags });
-
       elmApp.ports.checkedSession.subscribe(({ selected, deselected }) => {
         if (deselected) $scope.toggleSession(deselected, true);
         if (selected) $scope.toggleSession(selected, true);

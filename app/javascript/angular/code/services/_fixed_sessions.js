@@ -13,7 +13,7 @@ export const fixedSessions = (
   drawSession,
   boundsCalculator,
   sessionsUtils,
-  $location,
+  $window,
   heat,
   infoWindow
 ) => {
@@ -61,7 +61,7 @@ export const fixedSessions = (
 
 
     onSessionsFetch: function() {
-      if($location.path() !== constants.fixedMapRoute) return;
+      if($window.location.pathname !== constants.fixedMapRoute) return;
 
       this.drawSessionsInLocation();
       sessionsUtils.onSessionsFetch(this);
@@ -172,7 +172,7 @@ export const fixedSessions = (
 
     _fetch: function(page) {
       // if _fetch is called after the route has changed (eg debounced)
-      if ($location.path() !== constants.fixedMapRoute) return;
+      if ($window.location.pathname !== constants.fixedMapRoute) return;
 
       const data = params.get('data');
 

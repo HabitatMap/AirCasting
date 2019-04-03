@@ -1,9 +1,9 @@
-const httpSpinnerInterceptor = ($q, $rootScope, $log) => {
+const httpSpinnerInterceptor = ($q, $log) => {
   let counter = 0;
 
   const update = by => {
     counter += by;
-    $rootScope.$isHttpInProgress = (counter > 0);
+    window.__elmApp.ports.updateIsHttping.send(counter !== 0);
   };
 
   return {
@@ -28,4 +28,4 @@ const httpSpinnerInterceptor = ($q, $rootScope, $log) => {
   };
 };
 
-angular.module('aircasting').service('http_spinner_interceptor', ['$q', '$rootScope', '$log', httpSpinnerInterceptor ]);
+angular.module('aircasting').service('http_spinner_interceptor', ['$q', '$log', httpSpinnerInterceptor ]);

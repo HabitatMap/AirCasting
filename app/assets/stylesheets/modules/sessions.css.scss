@@ -1,0 +1,63 @@
+.sessions-container {
+  @include flexbox();
+  @include flex-direction(row);
+  width: calc(100vw - #{$filters-width});
+  overflow-x: scroll;
+}
+
+.sessions {
+  padding: $margin-default $margin-default 0 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.session {
+  background: white;
+  min-width: 165px;
+  min-height: 84px;
+  margin: $margin-default 0 $margin-default $margin-default;
+  padding: $margin-default;
+  border-radius: 12px;
+}
+
+.session-header-container {
+  @include flexbox();
+  @include flex-direction(row);
+  @include justify-content(flex-start);
+  @include align-items(center);
+}
+
+.sessions-header {
+  display: inline-block;
+  font-size: $medium-font;
+  font-weight: $font-stack-bold;
+  margin: 0 $margin-default;
+  color: $brand-secondary;
+}
+
+.sessions-number {
+  font-size: $small-font;
+  color: $brand-secondary;
+}
+
+.session-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 12px;
+  margin-right: 10px;
+}
+
+.session-name {
+  font-size: 16px;
+  font-weight: $font-stack-regular;
+}
+
+.session-owner {
+  font-size: $small-font;
+  margin: 2px 0 4px 22px;
+}
+
+.session-dates {
+  font-size: $tiny-font;
+}

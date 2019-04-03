@@ -1,7 +1,5 @@
 import _ from 'underscore';
-import { Elm } from '../../../elm/src/FixedSessionFilters.elm';
 import moment from 'moment'
-import { buildAvailableParameters } from '../services/_sensors'
 
 import * as FiltersUtils from '../filtersUtils'
 
@@ -11,29 +9,23 @@ export const FixedSessionsMapCtrl = (
   heat,
   map,
   sensors,
-  expandables,
   storage,
   fixedSessions,
   versioner,
-  storageEvents,
   singleFixedSession,
   functionBlocker,
   $window,
-  $location,
   rectangles,
   infoWindow,
-  $http,
-  sensorsList
+  $http
 ) => {
-  sensors.setSensors(sensorsList);
+  sensors.setSensors($window.__sensors);
 
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
     $scope.storage = storage;
-    $scope.storageEvents = storageEvents;
     $scope.sensors = sensors;
-    $scope.expandables = expandables;
     $scope.sessions = fixedSessions;
     $scope.singleSession = singleFixedSession;
     $scope.$window = $window;
@@ -50,9 +42,6 @@ export const FixedSessionsMapCtrl = (
         $scope.$digest();
       });
     }
-    _.each(['sensor', 'location', 'usernames'], function(name) {
-      $scope.expandables.show(name);
-    });
 
     const sensorId = params
       .get('data', { sensorId: sensors.defaultSensorId })
@@ -106,23 +95,7 @@ export const FixedSessionsMapCtrl = (
 
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(function () {
-      const node = document.getElementById('newFixedFilters');
-
-      const timeRange = {
-        timeFrom: $scope.params.get('data').timeFrom,
-        timeTo: $scope.params.get('data').timeTo,
-      };
-
-      const flags = {
-        parametersList: buildAvailableParameters(sensorsList),
-        selectedParameter: sensors.findParameterForSensor(sensors.selected()).id,
-        location: $scope.params.get('data').location || "",
-        tags: $scope.params.get('data').tags.split(', ').filter((tag) => tag !== "") || [],
-        profiles: $scope.params.get('data').usernames.split(', ').filter((tag) => tag !== "") || [],
-        timeRange
-      };
-
-      const elmApp = Elm.FixedSessionFilters.init({ node: node, flags: flags });
+      const elmApp = window.__elmApp;
 
       elmApp.ports.selectParameter.subscribe(parameter =>{
         const oldValue = sensors.selectedParameter;
@@ -143,13 +116,13 @@ export const FixedSessionsMapCtrl = (
 
       FiltersUtils.setupAutocomplete(
         (selectedValue) => elmApp.ports.profileSelected.send(selectedValue)
-        , "profiles-search"
+        , "profile-names"
         , "/autocomplete/usernames"
       )
 
       FiltersUtils.setupAutocomplete(
         (selectedValue) => elmApp.ports.tagSelected.send(selectedValue)
-        , "tags-search"
+        , "tags"
         , "/autocomplete/tags"
       )
 

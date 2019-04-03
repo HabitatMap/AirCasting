@@ -1,5 +1,7 @@
 port module Ports exposing
-    ( findLocation
+    ( checkedSession
+    , findLocation
+    , loadMoreSessions
     , locationCleared
     , profileSelected
     , selectParameter
@@ -7,11 +9,14 @@ port module Ports exposing
     , tagSelected
     , timeRangeSelected
     , toggleCrowdMap
+    , updateIsHttping
     , updateProfiles
     , updateResolution
+    , updateSessions
     , updateTags
     )
 
+import Data.Session exposing (..)
 import Json.Encode as Encode
 
 
@@ -46,3 +51,15 @@ port findLocation : String -> Cmd a
 
 
 port selectParameter : String -> Cmd a
+
+
+port updateSessions : (List Session -> msg) -> Sub msg
+
+
+port checkedSession : { deselected : Maybe Int, selected : Maybe Int } -> Cmd msg
+
+
+port loadMoreSessions : () -> Cmd msg
+
+
+port updateIsHttping : (Bool -> msg) -> Sub msg

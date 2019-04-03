@@ -1,0 +1,23 @@
+.filters-button {
+  background-color: $brand-primary;
+  height: 33px;
+  border-radius: 30px;
+  font-size: $small-font;
+}
+
+.circular-button {
+  heigh: 33px;
+  width: 33px;
+}
+
+.parameter-filters-button {
+  width: 126px;
+  height: 33px;
+  background: white;
+  border-radius: 30px;
+  font-size: $tiny-font;
+  margin-right: $margin-default;
+  color: $dark-blue;
+  font-weight: $font-stack-regular;
+  box-shadow: 1px 1px 4px 0 rgba(160, 192, 290 ,0.5);
+}

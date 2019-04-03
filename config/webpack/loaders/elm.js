@@ -8,9 +8,7 @@ const elmDefaultOptions = {
   cwd: elmSource,
   pathToElm: elmBinary,
   files: [
-    resolve(__dirname, "../../../app/javascript/elm/src/MobileSessionsFilters.elm"),
-    resolve(__dirname, "../../../app/javascript/elm/src/FixedSessionFilters.elm"),
-    resolve(__dirname, "../../../app/javascript/elm/src/SessionsList.elm")
+    resolve(__dirname, "../../../app/javascript/elm/src/Main.elm"),
   ]
 }
 const developmentOptions = Object.assign({}, elmDefaultOptions, {

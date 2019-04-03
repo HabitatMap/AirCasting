@@ -1,6 +1,6 @@
-module TimeRange exposing (TimeRange(..), defaultTimeRange, update, viewTimeFilter)
+module TimeRange exposing (TimeRange(..), defaultTimeRange, update, view)
 
-import Html exposing (Html, div, h4, input, text)
+import Html exposing (Html, div, h4, input, label, text)
 import Html.Attributes as Attr
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -48,15 +48,18 @@ timeRangeDecoder =
         (Decode.field "timeTo" Decode.int)
 
 
-viewTimeFilter : Html msg
-viewTimeFilter =
-    div
-        [ Attr.id "test-time-filter" ]
-        [ h4 [] [ text "Time Range" ]
+view : Html msg
+view =
+    div []
+        [ label [ Attr.for "time-range" ] [ text "time range:" ]
         , input
-            [ Attr.id "daterange"
-            , Attr.class "filters-input"
+            [ Attr.id "time-range"
             , Attr.attribute "autocomplete" "off"
+            , Attr.class "input-dark"
+            , Attr.class "input-filters"
+            , Attr.placeholder "time range"
+            , Attr.type_ "text"
+            , Attr.name "time-range"
             ]
             []
         ]
