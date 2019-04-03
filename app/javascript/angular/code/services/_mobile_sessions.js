@@ -47,8 +47,6 @@ export const mobileSessions = (
 
     deselectAllSessions: function() { sessionsUtils.deselectAllSessions(); },
 
-    export: function() { sessionsUtils.export(this); },
-
     find: function(id) { return sessionsUtils.find(this, id); },
 
     get: function(){ return sessionsUtils.get(this); },
