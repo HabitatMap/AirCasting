@@ -7,7 +7,8 @@ import Json.Decode as Decode
 
 
 type Popup
-    = SelectFromItems Items
+    = ExpandableSelectFrom Items
+    | SelectFrom (List String)
     | None
 
 
@@ -20,7 +21,7 @@ type alias Items =
 viewPopup : msg -> (String -> msg) -> Bool -> Popup -> Html msg
 viewPopup toggle onSelect isPopupExtended popup =
     case popup of
-        SelectFromItems items ->
+        ExpandableSelectFrom items ->
             div [ Attr.id "popup" ]
                 [ selectableItems items.main onSelect
                 , case items.other of
@@ -37,6 +38,9 @@ viewPopup toggle onSelect isPopupExtended popup =
                     Nothing ->
                         text ""
                 ]
+
+        SelectFrom items ->
+            selectableItems items onSelect
 
         None ->
             text ""

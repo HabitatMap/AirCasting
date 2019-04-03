@@ -150,7 +150,8 @@ type Msg
     | UpdateCrowdMapResolution Int
     | UpdateTimeRange Encode.Value
     | ShowCopyLinkTooltip
-    | ShowSelectFormItemsPopup
+    | ShowExpandableSelectFromPopup
+    | ShowSelectFormPopup
     | SelectParameter String
     | ClosePopup
     | TogglePopupState
@@ -196,8 +197,11 @@ update msg model =
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
 
-        ShowSelectFormItemsPopup ->
-            ( { model | popup = Popup.SelectFromItems model.parameters }, Cmd.none )
+        ShowExpandableSelectFromPopup ->
+            ( { model | popup = Popup.ExpandableSelectFrom model.parameters }, Cmd.none )
+
+        ShowSelectFormPopup ->
+            ( { model | popup = Popup.SelectFrom [ "a", "b" ] }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None, isPopupExtended = False }, Cmd.none )
@@ -560,7 +564,7 @@ viewParameterFilter selectedParameter =
             , Attr.placeholder "parameter"
             , Attr.type_ "text"
             , Attr.name "parameter"
-            , Popup.clickWithoutDefault ShowSelectFormItemsPopup
+            , Popup.clickWithoutDefault ShowExpandableSelectFromPopup
             , Attr.value selectedParameter
             ]
             []
@@ -578,6 +582,7 @@ viewSensorFilter selectedSensor =
             , Attr.placeholder "sensor"
             , Attr.type_ "text"
             , Attr.name "sensor"
+            , Popup.clickWithoutDefault ShowSelectFormPopup
             , Attr.value selectedSensor
             ]
             []
