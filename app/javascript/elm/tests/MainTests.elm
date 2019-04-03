@@ -112,6 +112,13 @@ locationFilter =
                     |> update SubmitLocation
                     |> Tuple.second
                     |> Expect.equal (Ports.findLocation location)
+        , test "is disabled when showing indoor sessions" <|
+            \_ ->
+                { defaultModel | indoor = True }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "location" ]
+                    |> Query.has [ Slc.attribute <| Attr.disabled True ]
         ]
 
 

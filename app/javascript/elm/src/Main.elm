@@ -479,7 +479,7 @@ viewMobileFilters model =
     form [ Attr.class "filters-form" ]
         [ viewParameterFilter model.selectedParameter
         , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
-        , viewLocation model.location
+        , viewLocation model
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
@@ -498,7 +498,7 @@ viewFixedFilters model =
     form [ Attr.class "filters-form" ]
         [ viewParameterFilter model.selectedParameter
         , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
-        , viewLocation model.location
+        , viewLocation model
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
@@ -575,18 +575,19 @@ viewCrowdMapSlider resolution =
         ]
 
 
-viewLocation : String -> Html Msg
-viewLocation location =
+viewLocation : Model -> Html Msg
+viewLocation model =
     div []
         [ label [ Attr.for "location" ] [ text "location:" ]
         , input
             [ Attr.id "location"
-            , Attr.value location
+            , Attr.value model.location
             , Attr.class "input-dark"
             , Attr.class "input-filters"
             , Attr.placeholder "location"
             , Attr.type_ "text"
             , Attr.name "location"
+            , Attr.disabled model.indoor
             , Events.onInput UpdateLocationInput
             , onEnter SubmitLocation
             ]
