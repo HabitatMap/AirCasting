@@ -312,7 +312,15 @@ view model =
                     , div [ Attr.class "map-container" ]
                         [ div [ Attr.class "map", Attr.id "map11", Attr.attribute "ng-controller" "MapCtrl", Attr.attribute "googlemap" "" ]
                             []
-                        , div [ Attr.attribute "ng-controller" "MobileSessionsMapCtrl" ]
+                        , div
+                            [ Attr.attribute "ng-controller"
+                                (if model.page == Mobile then
+                                    "MobileSessionsMapCtrl"
+
+                                 else
+                                    "FixedSessionsMapCtrl"
+                                )
+                            ]
                             [ div [ Attr.class "sessions", Attr.attribute "ng-controller" "SessionsGraphCtrl" ]
                                 (case model.selectedSessionId of
                                     Nothing ->
