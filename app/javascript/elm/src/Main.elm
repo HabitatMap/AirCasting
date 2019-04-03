@@ -42,7 +42,7 @@ type alias Model =
     , popup : Popup.Popup
     , isPopupExtended : Bool
     , parameters : Popup.Items
-    , parameterSensorPairs : List Sensors.ParameterSensorPairs
+    , parameterSensorPairs : List Sensors.ParameterSensorPair
     , selectedParameter : String
     , selectedSensor : String
     , location : String
@@ -65,11 +65,11 @@ defaultModel =
     , popup = Popup.None
     , isPopupExtended = False
     , parameters =
-        { main = [ "Particulate Matter", "Humidity", "Temperature", "Sound Level" ]
+        { main = [ "particulate matter", "humidity", "temperature", "sound level" ]
         , other = Nothing
         }
     , parameterSensorPairs = []
-    , selectedParameter = "Particulate Matter"
+    , selectedParameter = "particulate matter"
     , selectedSensor = "AirBeam2-PM2.5 (ug/m3)"
     , location = ""
     , tags = LabelsInput.empty
@@ -202,7 +202,7 @@ update msg model =
             ( { model | popup = Popup.ExpandableSelectFrom model.parameters }, Cmd.none )
 
         ShowSelectFormPopup ->
-            ( { model | popup = Popup.SelectFrom (Sensors.allSensorsForParameter model.parameterSensorPairs model.selectedParameter) }, Cmd.none )
+            ( { model | popup = Popup.SelectFrom (Sensors.allSensorsLabelsForParameter model.parameterSensorPairs model.selectedParameter) }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None, isPopupExtended = False }, Cmd.none )
@@ -211,7 +211,7 @@ update msg model =
             ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
 
         SelectParameter parameter ->
-            ( { model | selectedParameter = parameter }, Ports.selectSensorId (Sensors.idFor parameter model.selectedSensor) )
+            ( { model | selectedParameter = parameter }, Ports.selectSensorId (Sensors.idFor parameter model.selectedSensor model.parameterSensorPairs) )
 
         UrlChange url ->
             case model.key of
