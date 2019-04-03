@@ -11,7 +11,6 @@ angular.module('aircasting').controller('FixedSessionsMapCtrl', [
   'singleFixedSession',
   'functionBlocker',
   '$window',
-  'rectangles',
   'infoWindow',
   '$http',
   FixedSessionsMapCtrl
