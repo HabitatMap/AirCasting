@@ -10,7 +10,7 @@ port module Ports exposing
     , timeRangeSelected
     , toggleCrowdMap
     , updateIsHttping
-    , toggleIndoorOnly
+    , toggleIndoor
     , updateProfiles
     , updateResolution
     , updateSessions
@@ -42,7 +42,7 @@ port showCopyLinkTooltip : () -> Cmd a
 port toggleCrowdMap : Bool -> Cmd a
 
 
-port toggleIndoorOnly : Bool -> Cmd a
+port toggleIndoor : Bool -> Cmd a
 
 
 port updateResolution : Int -> Cmd a

@@ -48,7 +48,7 @@ type alias Model =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : TimeRange
-    , indoorOnly : Bool
+    , indoor : Bool
     }
 
 
@@ -72,7 +72,7 @@ defaultModel =
     , isCrowdMapOn = False
     , crowdMapResolution = 25
     , timeRange = TimeRange.defaultTimeRange
-    , indoorOnly = False
+    , indoor = False
     }
 
 
@@ -85,7 +85,7 @@ type alias Flags =
     , timeRange : Encode.Value
     , selectedParameter : String
     , parametersList : Encode.Value
-    , indoorOnly : Bool
+    , indoor : Bool
     }
 
 
@@ -125,7 +125,7 @@ init flags url key =
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , selectedParameter = flags.selectedParameter
         , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
-        , indoorOnly = flags.indoorOnly
+        , indoor = flags.indoor
       }
     , Ports.selectParameter flags.selectedParameter
     )
@@ -154,7 +154,7 @@ type Msg
     | UpdateSessions (List Session)
     | LoadMoreSessions
     | UpdateIsHttping Bool
-    | ToggleIndoorOnly Bool
+    | ToggleIndoor Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -246,8 +246,8 @@ update msg model =
         UpdateIsHttping isHttpingNow ->
             ( { model | isHttping = isHttpingNow }, Cmd.none )
 
-        ToggleIndoorOnly indoorOnlyValue ->
-            ( { model | indoorOnly = indoorOnlyValue }, Ports.toggleIndoorOnly indoorOnlyValue )
+        ToggleIndoor indoorValue ->
+            ( { model | indoor = indoorValue }, Ports.toggleIndoor indoorValue )
 
 
 
@@ -511,9 +511,9 @@ viewFixedFilters model =
             [ input
                 [ Attr.type_ "checkbox"
                 , Attr.style "margin-right" "5px"
-                , Attr.checked model.indoorOnly
+                , Attr.checked model.indoor
                 , Attr.id "indoor-only-filter"
-                , Events.onCheck ToggleIndoorOnly
+                , Events.onCheck ToggleIndoor
                 ]
                 []
             , text "Only show indoor sessions"

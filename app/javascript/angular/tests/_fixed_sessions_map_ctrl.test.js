@@ -16,7 +16,7 @@ test('it updates defaults', t => {
   const expected = {
     sensorId,
     location: "",
-    indoorOnly: false,
+    indoor: false,
     streaming: true,
     tags: "",
     usernames: "",

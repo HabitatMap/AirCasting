@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .map(([k, v]) => [k, decodeURIComponent(v)])
       .map(([k, v]) => [k, JSON.parse(v)])
       .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
-    const defaultData = { location: "", tags: "", usernames: "", crowdMap: false, gridResolution: 25, indoorOnly: false };
+    const defaultData = { location: "", tags: "", usernames: "", crowdMap: false, gridResolution: 25, indoor: false };
     const data = { ...defaultData, ...params.data };
 
     console.warn(data);
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         timeFrom: data.timeFrom,
         timeTo: data.timeTo
       },
-      indoorOnly: data.indoorOnly
+      indoor: data.indoor
     };
 
     console.warn(flags);
