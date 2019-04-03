@@ -52,7 +52,6 @@ view : Html msg
 view =
     div []
         [ label [ Attr.for "time-range" ] [ text "time range:" ]
-
         , input
             [ Attr.id "time-range"
             , Attr.attribute "autocomplete" "off"

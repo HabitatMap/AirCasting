@@ -9,8 +9,8 @@ port module Ports exposing
     , tagSelected
     , timeRangeSelected
     , toggleCrowdMap
-    , updateIsHttping
     , toggleIndoor
+    , updateIsHttping
     , updateProfiles
     , updateResolution
     , updateSessions
