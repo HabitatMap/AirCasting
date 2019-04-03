@@ -13,6 +13,7 @@ import LabelsInput
 import Maybe exposing (..)
 import Popup
 import Ports
+import Sensors
 import String exposing (fromInt)
 import TimeRange exposing (TimeRange)
 import Url exposing (Url)
@@ -41,6 +42,7 @@ type alias Model =
     , popup : Popup.Popup
     , isPopupExtended : Bool
     , parameters : Popup.Items
+    , parameterSensorPairs : List Sensors.ParameterSensorPairs
     , selectedParameter : String
     , selectedSensor : String
     , location : String
@@ -66,6 +68,7 @@ defaultModel =
         { main = [ "Particulate Matter", "Humidity", "Temperature", "Sound Level" ]
         , other = Nothing
         }
+    , parameterSensorPairs = []
     , selectedParameter = "Particulate Matter"
     , selectedSensor = "AirBeam2-PM2.5 (ug/m3)"
     , location = ""
@@ -85,11 +88,10 @@ type alias Flags =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : Encode.Value
-
-    -- , selectedParameter : String
     , parametersList : Encode.Value
     , isIndoor : Bool
     , selectedSessionId : Maybe Int
+    , sensors : Encode.Value
     }
 
 
@@ -127,13 +129,12 @@ init flags url key =
         , isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
-
-        -- , selectedParameter = flags.selectedParameter
         , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
         , isIndoor = flags.isIndoor
         , selectedSessionId = flags.selectedSessionId
+        , parameterSensorPairs = Sensors.decodeParameterSensorPairs flags.sensors
       }
-    , Ports.selectParameter defaultModel.selectedParameter
+    , Ports.selectSensorId defaultModel.selectedParameter
     )
 
 
@@ -201,7 +202,7 @@ update msg model =
             ( { model | popup = Popup.ExpandableSelectFrom model.parameters }, Cmd.none )
 
         ShowSelectFormPopup ->
-            ( { model | popup = Popup.SelectFrom [ "a", "b" ] }, Cmd.none )
+            ( { model | popup = Popup.SelectFrom (Sensors.allSensorsForParameter model.parameterSensorPairs model.selectedParameter) }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None, isPopupExtended = False }, Cmd.none )
@@ -210,7 +211,7 @@ update msg model =
             ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
 
         SelectParameter parameter ->
-            ( { model | selectedParameter = parameter }, Ports.selectParameter parameter )
+            ( { model | selectedParameter = parameter }, Ports.selectSensorId (Sensors.idFor parameter model.selectedSensor) )
 
         UrlChange url ->
             case model.key of

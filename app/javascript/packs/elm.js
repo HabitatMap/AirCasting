@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const flags = {
       parametersList: buildAvailableParameters(window.__sensors),
-      // selectedParameter: "TODO", //sensors.findParameterForSensor(sensors.selected()).id
+      sensors: window.__sensors,
       location: data.location,
       isCrowdMapOn: data.crowdMap,
       crowdMapResolution: data.gridResolution,
