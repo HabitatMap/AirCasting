@@ -42,6 +42,7 @@ type alias Model =
     , isPopupExtended : Bool
     , parameters : Popup.Items
     , selectedParameter : String
+    , selectedSensor : String
     , location : String
     , tags : LabelsInput.Model
     , profiles : LabelsInput.Model
@@ -62,10 +63,11 @@ defaultModel =
     , popup = Popup.None
     , isPopupExtended = False
     , parameters =
-        { main = [ "Particulate Matter", "Humidity", "Temperature", "Sound Levels" ]
+        { main = [ "Particulate Matter", "Humidity", "Temperature", "Sound Level" ]
         , other = Nothing
         }
     , selectedParameter = "Particulate Matter"
+    , selectedSensor = "AirBeam2-PM2.5 (ug/m3)"
     , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
@@ -83,7 +85,8 @@ type alias Flags =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : Encode.Value
-    , selectedParameter : String
+
+    -- , selectedParameter : String
     , parametersList : Encode.Value
     , isIndoor : Bool
     , selectedSessionId : Maybe Int
@@ -124,12 +127,13 @@ init flags url key =
         , isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
-        , selectedParameter = flags.selectedParameter
+
+        -- , selectedParameter = flags.selectedParameter
         , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
         , isIndoor = flags.isIndoor
         , selectedSessionId = flags.selectedSessionId
       }
-    , Ports.selectParameter flags.selectedParameter
+    , Ports.selectParameter defaultModel.selectedParameter
     )
 
 
@@ -322,6 +326,7 @@ view model =
                     , viewFilters model
                     , viewFiltersButtons model.selectedSessionId model.sessions
                     ]
+                , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
                 , div [ Attr.class "maps-content-container" ]
                     [ if model.isHttping then
                         div [ Attr.class "overlay" ]
@@ -507,7 +512,7 @@ viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     form [ Attr.class "filters-form" ]
         [ viewParameterFilter model.selectedParameter
-        , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
+        , viewSensorFilter model.selectedSensor
         , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
@@ -526,8 +531,7 @@ viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     form [ Attr.class "filters-form" ]
         [ viewParameterFilter model.selectedParameter
-        , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
-        , viewLocation model.location model.isIndoor
+        , viewLocation model.location
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
@@ -558,6 +562,23 @@ viewParameterFilter selectedParameter =
             , Attr.name "parameter"
             , Popup.clickWithoutDefault ShowSelectFormItemsPopup
             , Attr.value selectedParameter
+            ]
+            []
+        ]
+
+
+viewSensorFilter : String -> Html Msg
+viewSensorFilter selectedSensor =
+    div []
+        [ label [ Attr.for "sensor" ] [ text "sensor:" ]
+        , input
+            [ Attr.id "sensor-filter"
+            , Attr.class "input-dark"
+            , Attr.class "input-filters"
+            , Attr.placeholder "sensor"
+            , Attr.type_ "text"
+            , Attr.name "sensor"
+            , Attr.value selectedSensor
             ]
             []
         ]
