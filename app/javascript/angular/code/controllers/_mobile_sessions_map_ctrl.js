@@ -60,13 +60,6 @@ export const MobileSessionsMapCtrl = (
     params.updateFromDefaults(defaults);
   };
 
-  $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
-
-  $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    console.warn(newValue, oldValue)
-    sensors.onSensorsSelectedIdChange(newValue, oldValue);
-  }, true);
-
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
     console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
     if (newValue === oldValue) return;
@@ -85,23 +78,15 @@ export const MobileSessionsMapCtrl = (
     }
   }, true);
 
-  // two places in _sensors.js still use that watch
-  $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
-    sensors.onSelectedParameterChange(newValue, oldValue);
-  }, true);
-
   $scope.setDefaults();
 
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(function () {
       const elmApp = window.__elmApp;
 
-      elmApp.ports.selectParameter.subscribe(parameter =>{
-        const oldValue = sensors.selectedParameter;
-        const newParameter = { label: parameter, id: parameter };
-
-        $scope.sensors.selectedParameter = newParameter
-        sensors.onSelectedParameterChange(newParameter, oldValue);
+      elmApp.ports.selectSensorId.subscribe(sensorId =>{
+        params.update({ selectedSessionIds: [] });
+        params.update({ data: { sensorId }});
         $scope.sessions.fetch();
       });
 
