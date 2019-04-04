@@ -21,6 +21,10 @@ body {
   }
 }
 
+main {
+  z-index: 0;
+}
+
 [ng-cloak],
 .ng-cloak {
   display: none;
@@ -30,26 +34,10 @@ body {
   color: red;
 }
 
-@mixin button {
-  color: #fff;
-  background: $button-color;
-  font-weight: bold;
-  padding: 5px 10px;
-  border: 0;
-  text-decoration: none;
-}
-
-button,
-.button {
-  @include button;
-}
-
 a {
-  color: $link-color;
+  color: $dark-blue;
   text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-  }
+  font-weight: $font-stack-regular;
 }
 
 #jquery-overlay {

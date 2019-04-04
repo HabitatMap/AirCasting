@@ -31,6 +31,9 @@ $brand-primary: $blue;
 $brand-secondary: $dark-blue;
 $input-bg: $dark-grey;
 
+$shadow-color: rgba(160, 192, 290 ,0.5);
+$basic-shadow: 1px 1px 4px 0 $shadow-color;
+
 // element sizes
 $nav-height: 50px;
 $filters-width: 250px;

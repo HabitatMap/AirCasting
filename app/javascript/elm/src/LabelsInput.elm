@@ -72,19 +72,22 @@ view : Model -> String -> String -> String -> Html Msg
 view model text_ inputId placeholder =
     div []
         [ label [ Attr.for inputId ] [ text text_ ]
-        , input
-            [ Attr.id inputId
-            , Attr.class "input-dark"
-            , Attr.class "input-filters"
-            , Attr.placeholder placeholder
-            , Attr.type_ "text"
-            , Attr.name inputId
-            , ExtraEvents.onEnter (Add <| getCandidate model)
-            , Events.onInput UpdateCandidate
-            , Attr.value <| getCandidate model
+        , div [ Attr.class "tag-container" ]
+            [ input
+                [ Attr.id inputId
+                , Attr.class "input-dark"
+                , Attr.class "input-filters"
+                , Attr.class "input-filters-tag"
+                , Attr.placeholder placeholder
+                , Attr.type_ "text"
+                , Attr.name inputId
+                , ExtraEvents.onEnter (Add <| getCandidate model)
+                , Events.onInput UpdateCandidate
+                , Attr.value <| getCandidate model
+                ]
+                []
+            , div [] (List.map viewLabel <| asList model)
             ]
-            []
-        , div [] (List.map viewLabel <| asList model)
         ]
 
 
