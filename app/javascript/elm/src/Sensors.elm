@@ -11,6 +11,7 @@ type alias ParameterSensorPair =
     , parameter : String
     , unit : String
     , label : String
+    , session_count : Int
     }
 
 
@@ -30,6 +31,7 @@ decodeParameterSensorPairs sensors =
                         , parameter = String.toLower pair.parameter
                         , unit = pair.unit
                         , label = pair.sensor ++ " (" ++ pair.unit ++ ")"
+                        , session_count = pair.session_count
                         }
                     )
 
@@ -38,16 +40,18 @@ decodeParameterSensorPairs sensors =
 
 
 sensorsDecoder =
-    Decode.map3 Yellow
+    Decode.map4 Decodable
         (Decode.field "sensor_name" Decode.string)
         (Decode.field "measurement_type" Decode.string)
         (Decode.field "unit_symbol" Decode.string)
+        (Decode.field "session_count" Decode.int)
 
 
-type alias Yellow =
+type alias Decodable =
     { sensor : String
     , parameter : String
     , unit : String
+    , session_count : Int
     }
 
 
@@ -126,6 +130,8 @@ idForParameterOrLabel key oldSensorId pairs =
         maybeParameterPair =
             pairs
                 |> List.filter (\pair -> pair.parameter == key)
+                |> List.sortBy .session_count
+                |> List.reverse
                 |> List.head
     in
     case maybeParameterPair of

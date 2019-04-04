@@ -21,14 +21,17 @@ all =
                             [ [ ( "measurement_type", Encode.string "parameter" )
                               , ( "sensor_name", Encode.string "Sensor" )
                               , ( "unit_symbol", Encode.string "unit" )
+                              , ( "session_count", Encode.int 1 )
                               ]
                             , [ ( "measurement_type", Encode.string "parameter" )
                               , ( "sensor_name", Encode.string "Sensor2" )
                               , ( "unit_symbol", Encode.string "unit" )
+                              , ( "session_count", Encode.int 2 )
                               ]
                             , [ ( "measurement_type", Encode.string "parameter2" )
                               , ( "sensor_name", Encode.string "Sensor3" )
                               , ( "unit_symbol", Encode.string "unit" )
+                              , ( "session_count", Encode.int 1 )
                               ]
                             ]
                 in
@@ -50,6 +53,11 @@ all =
                 parameterSensorPairs
                     |> idForParameterOrLabel "Sensor2 (unit)" "parameter-sensor (unit)"
                     |> Expect.equal "parameter-sensor2 (unit)"
+        , test "idForParameterOrLabel finds sensorId with highest sessions count for parameter" <|
+            \_ ->
+                parameterSensorPairs
+                    |> idForParameterOrLabel "parameter" "parameter2-sensor3 (unit)"
+                    |> Expect.equal "parameter-sensor2 (unit)"
         ]
 
 
@@ -59,17 +67,20 @@ parameterSensorPairs =
       , label = "Sensor (unit)"
       , sensor = "Sensor"
       , unit = "unit"
+      , session_count = 1
       }
     , { id_ = "parameter-sensor2 (unit)"
       , parameter = "parameter"
       , label = "Sensor2 (unit)"
       , sensor = "Sensor2"
       , unit = "unit"
+      , session_count = 2
       }
     , { id_ = "parameter2-sensor3 (unit)"
       , parameter = "parameter2"
       , label = "Sensor3 (unit)"
       , sensor = "Sensor3"
       , unit = "unit"
+      , session_count = 1
       }
     ]
