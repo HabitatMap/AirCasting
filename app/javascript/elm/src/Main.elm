@@ -1,4 +1,4 @@
-module Main exposing (Msg(..), defaultModel, exportPath, update, view)
+module Main exposing (Msg(..), Page(..), defaultModel, exportPath, update, view)
 
 import Browser exposing (..)
 import Browser.Events
@@ -48,6 +48,7 @@ type alias Model =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : TimeRange
+    , isIndoor : Bool
     }
 
 
@@ -71,6 +72,7 @@ defaultModel =
     , isCrowdMapOn = False
     , crowdMapResolution = 25
     , timeRange = TimeRange.defaultTimeRange
+    , isIndoor = False
     }
 
 
@@ -83,6 +85,7 @@ type alias Flags =
     , timeRange : Encode.Value
     , selectedParameter : String
     , parametersList : Encode.Value
+    , isIndoor : Bool
     }
 
 
@@ -122,6 +125,7 @@ init flags url key =
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , selectedParameter = flags.selectedParameter
         , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
+        , isIndoor = flags.isIndoor
       }
     , Ports.selectParameter flags.selectedParameter
     )
@@ -150,6 +154,7 @@ type Msg
     | UpdateSessions (List Session)
     | LoadMoreSessions
     | UpdateIsHttping Bool
+    | ToggleIndoor Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -241,6 +246,9 @@ update msg model =
         UpdateIsHttping isHttpingNow ->
             ( { model | isHttping = isHttpingNow }, Cmd.none )
 
+        ToggleIndoor value ->
+            ( { model | isIndoor = value }, Ports.toggleIndoor value )
+
 
 updateLabels :
     LabelsInput.Msg
@@ -317,7 +325,12 @@ view model =
                       else
                         text ""
                     , div [ Attr.class "map-container" ]
-                        [ div [ Attr.class "map", Attr.id "map11", Attr.attribute "ng-controller" "MapCtrl", Attr.attribute "googlemap" "" ]
+                        [ if model.isIndoor && not model.isHttping then
+                            div [ Attr.class "overlay" ] []
+
+                          else
+                            text ""
+                        , div [ Attr.class "map", Attr.id "map11", Attr.attribute "ng-controller" "MapCtrl", Attr.attribute "googlemap" "" ]
                             []
                         , div
                             [ Attr.attribute "ng-controller"
@@ -474,7 +487,7 @@ viewMobileFilters model =
     form [ Attr.class "filters-form" ]
         [ viewParameterFilter model.selectedParameter
         , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
-        , viewLocation model.location
+        , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
@@ -493,10 +506,21 @@ viewFixedFilters model =
     form [ Attr.class "filters-form" ]
         [ viewParameterFilter model.selectedParameter
         , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
-        , viewLocation model.location
+        , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
+        , label
+            []
+            [ input
+                [ Attr.type_ "checkbox"
+                , Attr.checked model.isIndoor
+                , Attr.id "indoor-filter"
+                , Events.onCheck ToggleIndoor
+                ]
+                []
+            , text "Only show indoor sessions"
+            ]
         ]
 
 
@@ -555,8 +579,8 @@ viewCrowdMapSlider resolution =
         ]
 
 
-viewLocation : String -> Html Msg
-viewLocation location =
+viewLocation : String -> Bool -> Html Msg
+viewLocation location isIndoor =
     div []
         [ label [ Attr.for "location" ] [ text "location:" ]
         , input
@@ -567,6 +591,7 @@ viewLocation location =
             , Attr.placeholder "location"
             , Attr.type_ "text"
             , Attr.name "location"
+            , Attr.disabled isIndoor
             , Events.onInput UpdateLocationInput
             , onEnter SubmitLocation
             ]

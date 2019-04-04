@@ -9,6 +9,7 @@ port module Ports exposing
     , tagSelected
     , timeRangeSelected
     , toggleCrowdMap
+    , toggleIndoor
     , updateIsHttping
     , updateProfiles
     , updateResolution
@@ -32,22 +33,19 @@ port timeRangeSelected : (Encode.Value -> msg) -> Sub msg
 port locationCleared : (() -> msg) -> Sub msg
 
 
-port toggleCrowdMap : Bool -> Cmd a
-
-
-port updateResolution : Int -> Cmd a
-
-
-port updateTags : List String -> Cmd a
-
-
-port updateProfiles : List String -> Cmd a
+port findLocation : String -> Cmd a
 
 
 port showCopyLinkTooltip : () -> Cmd a
 
 
-port findLocation : String -> Cmd a
+port toggleCrowdMap : Bool -> Cmd a
+
+
+port toggleIndoor : Bool -> Cmd a
+
+
+port updateResolution : Int -> Cmd a
 
 
 port selectParameter : String -> Cmd a
@@ -63,3 +61,9 @@ port loadMoreSessions : () -> Cmd msg
 
 
 port updateIsHttping : (Bool -> msg) -> Sub msg
+
+
+port updateTags : List String -> Cmd a
+
+
+port updateProfiles : List String -> Cmd a

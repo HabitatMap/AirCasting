@@ -1,4 +1,4 @@
-module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, updateTests, viewTests)
+module MainTests exposing (crowdMapArea, indoorFilter, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, updateTests, viewTests)
 
 import Data.Session exposing (..)
 import Expect
@@ -112,6 +112,13 @@ locationFilter =
                     |> update SubmitLocation
                     |> Tuple.second
                     |> Expect.equal (Ports.findLocation location)
+        , test "is disabled when showing indoor sessions" <|
+            \_ ->
+                { defaultModel | isIndoor = True }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "location" ]
+                    |> Query.has [ Slc.attribute <| Attr.disabled True ]
         ]
 
 
@@ -414,6 +421,48 @@ crowdMapArea =
                     |> Query.find [ Slc.attribute <| Attr.class "crowd-map-slider" ]
                     |> Event.simulate (Event.custom "change" simulatedEventObject)
                     |> Event.expect (UpdateCrowdMapResolution resolution)
+        ]
+
+
+indoorFilter : Test
+indoorFilter =
+    describe "indoor/outdoor filter tests:"
+        [ test "filter is displayed" <|
+            \_ ->
+                { defaultModel | page = Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.attribute <| Attr.id "indoor-filter" ]
+        , test "checkbox is not checked as default" <|
+            \_ ->
+                { defaultModel | page = Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| Attr.id "indoor-filter" ]
+                    |> Query.has [ Slc.attribute <| Attr.checked False ]
+        , fuzz bool "interacting with checkbox changes 'checked' value" <|
+            \isIndoor ->
+                { defaultModel | page = Fixed }
+                    |> update (ToggleIndoor isIndoor)
+                    |> Tuple.first
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| Attr.id "indoor-filter" ]
+                    |> Query.has [ Slc.attribute <| Attr.checked isIndoor ]
+        , fuzz bool "interacting with checkbox triggers ToggleIndoor" <|
+            \isIndoor ->
+                { defaultModel | page = Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| Attr.id "indoor-filter" ]
+                    |> Event.simulate (Event.check isIndoor)
+                    |> Event.expect (ToggleIndoor isIndoor)
+        , fuzz bool "ToggleIndoor triggers Ports.toggleIndoor with 'checked' value" <|
+            \isIndoor ->
+                { defaultModel | page = Fixed }
+                    |> update (ToggleIndoor isIndoor)
+                    |> Tuple.second
+                    |> Expect.equal (Ports.toggleIndoor isIndoor)
         ]
 
 

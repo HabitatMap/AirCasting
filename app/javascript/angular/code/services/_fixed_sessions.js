@@ -119,7 +119,7 @@ export const fixedSessions = (
     drawSessionsInLocation: function() {
       map.removeAllMarkers();
 
-      if (params.get('data').location.indoorOnly) return;
+      if (params.get('data').isIndoor) return;
 
       const sessions = this.get();
 
@@ -187,7 +187,7 @@ export const fixedSessions = (
         session_ids: sessionIds
       };
 
-      if(data.location.indoorOnly) {
+      if (data.isIndoor) {
         reqData = { ...reqData, is_indoor: true };
       } else {
         _(reqData).extend({

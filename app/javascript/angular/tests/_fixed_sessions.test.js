@@ -55,9 +55,9 @@ test('fetch with tags and usernames params passes them to sessionsDownloader', t
   t.end();
 });
 
-test('fetch with indoorOnly set to true passes is_indoor true to sessionsDownloader', t => {
+test('fetch with isIndoor set to true passes is_indoor true to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
-  const data = buildData({ location: { indoorOnly: true } });
+  const data = buildData({ isIndoor: true });
   const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
 
   fixedSessionsService._fetch();
@@ -67,9 +67,9 @@ test('fetch with indoorOnly set to true passes is_indoor true to sessionsDownloa
   t.end();
 });
 
-test('fetch with indoorOnly set to true does not pass map corner coordinates to sessionsDownloader', t => {
+test('fetch with isIndoor set to true does not pass map corner coordinates to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
-  const data = buildData({ location: { indoorOnly: true } });
+  const data = buildData({ isIndoor: true });
   const map = {
     getBounds: () => ({
       west: 1,
@@ -90,9 +90,9 @@ test('fetch with indoorOnly set to true does not pass map corner coordinates to 
   t.end();
 });
 
-test('fetch with indoorOnly set to false does not pass is_indoor to sessionsDownloader', t => {
+test('fetch with isIndoor set to false does not pass is_indoor to sessionsDownloader', t => {
   const sessionsDownloaderCalls = [];
-  const data = buildData({ location: { indoorOnly: false } });
+  const data = buildData({ isIndoor: false });
   const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
 
   fixedSessionsService._fetch();
@@ -303,7 +303,7 @@ test('deselectSession with no previously selected sessions calls fitBounds with 
 test('drawSessionsInLocation doesnt draw markers for indoor sessions', t => {
   const map = mock('drawCustomMarker');
   const session = { latitude: 1, longitude: 1 };
-  const data = buildData({ location: { indoorOnly: true } });
+  const data = buildData({ isIndoor: true });
 
   const fixedSessionsService = _fixedSessions({ data, map });
   fixedSessionsService.sessions = [session];
