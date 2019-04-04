@@ -113,22 +113,6 @@ export const SessionsListCtrl = (
     sessions.sessionsChanged(newIds, oldIds);
   }, true);
 
-  //used to fetch all the sessions
-  $scope.shortTypeCss = function(name, selected){
-    var result = name;
-    if(selected) {
-      var sensor = sensors.anySelected();
-      if(sensor && name == sensor.sensor_name){
-        result = result + " sensor-bold";
-      }
-    }
-    return result;
-  };
-
-  $scope.sessionCssClass = function(selected) {
-    return selected ? "selected" : "";
-  };
-
   $scope.setDefaults();
 
   if (process.env.NODE_ENV !== 'test') {
