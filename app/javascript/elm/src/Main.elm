@@ -4,7 +4,7 @@ import Browser exposing (..)
 import Browser.Events
 import Browser.Navigation
 import Data.Session exposing (..)
-import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, h4, input, label, li, main_, nav, p, span, text, ul)
+import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, h4, img, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as Decode
@@ -271,8 +271,10 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ Attr.id "elm-app" ]
-        [ nav []
-            [ ul []
+        [ nav [ Attr.class "nav" ]
+            [ div [ Attr.class "nav-logo" ]
+                [ img [ Attr.src "aircasting-logo-nav.svg" ] [] ]
+            , ul []
                 [ li [ Attr.class "" ]
                     [ a [ Attr.href "/" ]
                         [ text "Home" ]

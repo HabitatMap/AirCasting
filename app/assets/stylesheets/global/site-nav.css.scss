@@ -1,13 +1,15 @@
-nav {
+.nav {
   margin: 0;
   min-width: 100%;
   max-width: 100%;
   height: $nav-height;
   background-color: white;
+  @include flexbox();
+
   ul {
     padding: 0;
     padding-right: 10px;
-    margin: 0 0 0 $filters-width;
+    margin: 0 0 0 calc( #{$filters-width} - #{$logo-width});
   }
   ul li {
     display: inline-block;
@@ -22,5 +24,32 @@ nav {
     font-weight: $font-stack-regular;
     font-size: $small-font;
     margin-right: 65px;
+  }
+  li.active a {
+    font-weight: $font-stack-bold;
+    color: $text-color;
+  }
+}
+
+.nav-logo {
+  padding-left: 24px;
+  @include flexbox();
+  @include align-items(center);
+  img {
+    margin-top: -12px;
+  }
+}
+
+.nav > #nav-check {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .nav > #nav-check:not(:checked) + .nav-links {
+      height: 0px;
+    }
+  .nav > #nav-check:checked + .nav-links {
+    height: calc(100vh - 50px);
+    overflow-y: auto;
   }
 }
