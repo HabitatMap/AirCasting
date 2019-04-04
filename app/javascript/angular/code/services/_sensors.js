@@ -1,7 +1,7 @@
 import _ from 'underscore';
 
 const buildSensorId = sensor =>
-  sensor.measurement_type + "-" + sensor.sensor_name.toLowerCase() + " (" + sensor.unit_symbol + ")";
+  sensor.measurement_type.toLowerCase() + "-" + sensor.sensor_name.toLowerCase() + " (" + sensor.unit_symbol + ")";
 
 const DEFAULT_SENSOR_ID = buildSensorId({
   measurement_type: "Particulate Matter",
@@ -60,7 +60,7 @@ export const sensors = (params, storage, heat, $http) => {
     },
 
     selectedId: function() {
-        return this.selected().id;
+        return params.get('data').sensorId || DEFAULT_SENSOR_ID;
     },
 
     anySelected: function() {

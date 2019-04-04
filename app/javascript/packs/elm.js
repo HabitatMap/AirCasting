@@ -1,5 +1,4 @@
 import { Elm } from '../elm/src/Main.elm';
-import { buildAvailableParameters } from '../angular/code/services/_sensors';
 
 document.addEventListener('DOMContentLoaded', () => {
   fetch('/api/sensors.json').then(x => x.json()).then(sensors => {
@@ -12,15 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
       .map(([k, v]) => [k, decodeURIComponent(v)])
       .map(([k, v]) => [k, JSON.parse(v)])
       .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
-    const defaultData = { location: "", tags: "", usernames: "", crowdMap: false, gridResolution: 25, isIndoor: false };
+    const defaultData = { location: "", tags: "", usernames: "", crowdMap: false, gridResolution: 25, isIndoor: false, sensorId: "particulate matter-airbeam2-pm2.5 (µg/m³)" };
     const data = { ...defaultData, ...params.data };
 
     console.warn(params);
     console.warn(data);
 
     const flags = {
-      parametersList: buildAvailableParameters(window.__sensors),
       sensors: window.__sensors,
+      selectedSensorId: data.sensorId,
       location: data.location,
       isCrowdMapOn: data.crowdMap,
       crowdMapResolution: data.gridResolution,
