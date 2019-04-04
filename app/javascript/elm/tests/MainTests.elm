@@ -114,7 +114,7 @@ locationFilter =
                     |> Expect.equal (Ports.findLocation location)
         , test "is disabled when showing indoor sessions" <|
             \_ ->
-                { defaultModel | indoor = True }
+                { defaultModel | isIndoor = True }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "location" ]
@@ -432,13 +432,13 @@ indoorFilter =
                 { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
-                    |> Query.has [ Slc.attribute <| Attr.id "indoor-only-filter" ]
+                    |> Query.has [ Slc.attribute <| Attr.id "indoor-filter" ]
         , test "checkbox is not checked as default" <|
             \_ ->
                 { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
+                    |> Query.find [ Slc.attribute <| Attr.id "indoor-filter" ]
                     |> Query.has [ Slc.attribute <| Attr.checked False ]
         , fuzz bool "interacting with checkbox changes 'checked' value" <|
             \isIndoor ->
@@ -447,14 +447,14 @@ indoorFilter =
                     |> Tuple.first
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
+                    |> Query.find [ Slc.attribute <| Attr.id "indoor-filter" ]
                     |> Query.has [ Slc.attribute <| Attr.checked isIndoor ]
         , fuzz bool "interacting with checkbox triggers ToggleIndoor" <|
             \isIndoor ->
                 { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
+                    |> Query.find [ Slc.attribute <| Attr.id "indoor-filter" ]
                     |> Event.simulate (Event.check isIndoor)
                     |> Event.expect (ToggleIndoor isIndoor)
         , fuzz bool "ToggleIndoor triggers Ports.toggleIndoor with 'checked' value" <|

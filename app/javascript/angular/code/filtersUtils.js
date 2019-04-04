@@ -105,7 +105,3 @@ export const clearLocation = (elmAction, params) => {
   elmAction.send(null);
   params.update({ data: { location: '' }});
 }
-
-export const toggleIndoor = (isIndoor, params) => {
-  params.update({ data: { indoor: isIndoor }});
-}
