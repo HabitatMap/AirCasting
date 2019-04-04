@@ -339,16 +339,14 @@ view model =
                                         ]
 
                                     Just _ ->
-                                        [ div []
-                                            [ div [] []
-                                            , div [ Attr.id "graph-top" ]
-                                                [ div [ Attr.id "graph-header" ] [ text "Sessions Graph" ]
-                                                , a [ Attr.id "graph-arrow" ] []
-                                                ]
+                                        [ div [ Attr.class "single-session-container" ]
+                                            [ div [ Attr.class "single-session-info" ]
+                                                [ p [ Attr.class "single-session-owner" ] [ text "NYCEJA" ] ]
                                             , div
-                                                [ Attr.id "graph-box" ]
+                                                [ Attr.class "single-session-graph", Attr.id "graph-box" ]
                                                 [ div [ Attr.id "graph" ] []
                                                 ]
+                                            , div [ Attr.class "single-session-close" ] []
                                             ]
                                         ]
                                 )

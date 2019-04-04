@@ -70,14 +70,7 @@ angular.module("aircasting").factory('graph', [
             marginBottom: 15,
             marginRight: 5,
             marginLeft: 5,
-            borderRadius: 0,
-            borderColor: '#757575',
-            borderWidth: 2,
             zoomType: "x",
-            style: {
-              fontFamily: 'Arial, sans-serif',
-              fontWeight: 'normal'
-            }
           },
 
           labels: {

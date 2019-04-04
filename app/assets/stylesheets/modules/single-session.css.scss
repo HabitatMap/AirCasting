@@ -1,0 +1,17 @@
+.single-session-container {
+  min-width: 80vw;
+  @include flexbox();
+  @include flex-direction(row);
+  @include align-items(center);
+  @include justify-content(space-between);
+  background-color: white;
+  padding: $margin-default;
+}
+
+.single-session-info {
+  width: 20%;
+}
+
+.single-session-graph {
+  width: 80%;
+}
