@@ -64,10 +64,10 @@ labelsForParameterInId pairs sensorId =
 
 
 labelForId : List ParameterSensorPair -> String -> String
-labelForId parameterSensorPairs sensorId =
+labelForId pairs sensorId =
     let
         maybePair =
-            parameterSensorPairs
+            pairs
                 |> List.filter (\pair -> pair.id_ == sensorId)
                 |> List.head
     in

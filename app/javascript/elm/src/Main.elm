@@ -113,7 +113,7 @@ init flags url key =
         , parameterSensorPairs = Sensors.decodeParameterSensorPairs flags.sensors
         , selectedSensorId = flags.selectedSensorId
       }
-    , Ports.selectSensorId flags.selectedSensorId
+    , Cmd.none
     )
 
 
@@ -522,7 +522,7 @@ viewFixedFilters model =
     form [ Attr.class "filters-form" ]
         [ viewParameterFilter (Sensors.parameterForId model.parameterSensorPairs model.selectedSensorId)
         , viewSensorFilter (Sensors.labelForId model.parameterSensorPairs model.selectedSensorId)
-        , viewLocation model.location
+        , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"

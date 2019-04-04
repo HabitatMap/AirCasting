@@ -76,6 +76,7 @@ export const FixedSessionsMapCtrl = (
       elmApp.ports.selectSensorId.subscribe(sensorId =>{
         params.update({ selectedSessionIds: [] });
         params.update({ data: { sensorId }});
+        sensors.fetchHeatLevels();
         $scope.sessions.fetch();
       });
 
