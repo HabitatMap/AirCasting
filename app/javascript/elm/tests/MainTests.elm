@@ -38,16 +38,45 @@ popups =
         ]
 
 
+parameterSensorPairs =
+    [ { id_ = "parameter-sensor (unit)"
+      , parameter = "parameter"
+      , label = "Sensor (unit)"
+      , sensor = "Sensor"
+      , unit = "unit"
+      }
+    , { id_ = "parameter-sensor2 (unit)"
+      , parameter = "parameter"
+      , label = "Sensor2 (unit)"
+      , sensor = "Sensor2"
+      , unit = "unit"
+      }
+    ]
+
+
 parameterSensorFilter : Test
 parameterSensorFilter =
     describe "Parameter filter tests: "
-        [ fuzz string "parameter filter shows the selected parameter" <|
-            \parameter ->
-                { defaultModel | selectedParameter = parameter }
+        [ test "parameter filter shows parameter name based on selectedSensorId" <|
+            \_ ->
+                { defaultModel
+                    | selectedSensorId = "parameter-sensor (unit)"
+                    , parameterSensorPairs = parameterSensorPairs
+                }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "parameter" ]
-                    |> Query.has [ Slc.attribute <| Attr.value parameter ]
+                    |> Query.has [ Slc.attribute <| Attr.value "parameter" ]
+        , fuzz string "sensor filter shows sensor label based on selectedSensorId" <|
+            \parameter ->
+                { defaultModel
+                    | selectedSensorId = "parameter-sensor (unit)"
+                    , parameterSensorPairs = parameterSensorPairs
+                }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "sensor" ]
+                    |> Query.has [ Slc.attribute <| Attr.value "Sensor (unit)" ]
         , test "Clicking on parameter filter triggers ShowExpandableSelectFromPopup" <|
             \_ ->
                 defaultModel
@@ -64,6 +93,26 @@ parameterSensorFilter =
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.id "popup" ]
+        , test "when SelectSensorId is triggered with selected parameter it finds correct sensorId" <|
+            \_ ->
+                { defaultModel | parameterSensorPairs = parameterSensorPairs }
+                    |> update (SelectSensorId "parameter")
+                    |> Tuple.first
+                    |> .selectedSensorId
+                    |> Expect.equal "parameter-sensor (unit)"
+        , test "when SelectSensorId is triggered with selected sensor label it finds correct sensorId" <|
+            \_ ->
+                { defaultModel | parameterSensorPairs = parameterSensorPairs, selectedSensorId = "parameter-sensor2 (unit)" }
+                    |> update (SelectSensorId "Sensor (unit)")
+                    |> Tuple.first
+                    |> .selectedSensorId
+                    |> Expect.equal "parameter-sensor (unit)"
+        , test "when SelectSensorId is triggered sensorId is sent through selectSensorId port" <|
+            \_ ->
+                { defaultModel | parameterSensorPairs = parameterSensorPairs }
+                    |> update (SelectSensorId "parameter")
+                    |> Tuple.second
+                    |> Expect.equal (Ports.selectSensorId "parameter-sensor (unit)")
         ]
 
 

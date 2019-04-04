@@ -41,10 +41,8 @@ type alias Model =
     , isHttping : Bool
     , popup : Popup.Popup
     , isPopupExtended : Bool
-    , parameters : Popup.Items
     , parameterSensorPairs : List Sensors.ParameterSensorPair
-    , selectedParameter : String
-    , selectedSensor : String
+    , selectedSensorId : String
     , location : String
     , tags : LabelsInput.Model
     , profiles : LabelsInput.Model
@@ -64,13 +62,8 @@ defaultModel =
     , isHttping = False
     , popup = Popup.None
     , isPopupExtended = False
-    , parameters =
-        { main = [ "particulate matter", "humidity", "temperature", "sound level" ]
-        , other = Nothing
-        }
     , parameterSensorPairs = []
-    , selectedParameter = "particulate matter"
-    , selectedSensor = "AirBeam2-PM2.5 (ug/m3)"
+    , selectedSensorId = "particulate matter-airbeam2-pm2.5 (µg/m³)"
     , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
@@ -105,20 +98,6 @@ init flags url key =
 
                 _ ->
                     Mobile
-
-        result =
-            Decode.decodeValue (Decode.list (Decode.field "id" Decode.string)) flags.parametersList
-
-        fetchedParameters =
-            case result of
-                Ok values ->
-                    values
-                        |> List.filter (\value -> not (List.member value defaultModel.parameters.main))
-                        |> List.sort
-                        |> Just
-
-                Err _ ->
-                    Nothing
     in
     ( { defaultModel
         | page = page
@@ -129,12 +108,11 @@ init flags url key =
         , isCrowdMapOn = flags.isCrowdMapOn
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
-        , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
         , isIndoor = flags.isIndoor
         , selectedSessionId = flags.selectedSessionId
         , parameterSensorPairs = Sensors.decodeParameterSensorPairs flags.sensors
       }
-    , Ports.selectSensorId defaultModel.selectedParameter
+    , Ports.selectSensorId defaultModel.selectedSensorId
     )
 
 
@@ -153,7 +131,7 @@ type Msg
     | ShowCopyLinkTooltip
     | ShowExpandableSelectFromPopup
     | ShowSelectFormPopup
-    | SelectParameter String
+    | SelectSensorId String
     | ClosePopup
     | TogglePopupState
     | UrlChange Url
@@ -199,10 +177,10 @@ update msg model =
             ( model, Ports.showCopyLinkTooltip () )
 
         ShowExpandableSelectFromPopup ->
-            ( { model | popup = Popup.ExpandableSelectFrom model.parameters }, Cmd.none )
+            ( { model | popup = Popup.ExpandableSelectFrom (Sensors.allParametersWithPrioritization model.parameterSensorPairs) }, Cmd.none )
 
         ShowSelectFormPopup ->
-            ( { model | popup = Popup.SelectFrom (Sensors.allSensorsLabelsForParameter model.parameterSensorPairs model.selectedParameter) }, Cmd.none )
+            ( { model | popup = Popup.SelectFrom (Sensors.labelsForParameterInId model.parameterSensorPairs model.selectedSensorId) }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None, isPopupExtended = False }, Cmd.none )
@@ -210,8 +188,12 @@ update msg model =
         TogglePopupState ->
             ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
 
-        SelectParameter parameter ->
-            ( { model | selectedParameter = parameter }, Ports.selectSensorId (Sensors.idFor parameter model.selectedSensor model.parameterSensorPairs) )
+        SelectSensorId value ->
+            let
+                selectedSensorId =
+                    Sensors.idForParameterOrLabel value model.selectedSensorId model.parameterSensorPairs
+            in
+            ( { model | selectedSensorId = selectedSensorId }, Ports.selectSensorId selectedSensorId )
 
         UrlChange url ->
             case model.key of
@@ -331,7 +313,7 @@ view model =
                     , viewFilters model
                     , viewFiltersButtons model.selectedSessionId model.sessions
                     ]
-                , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
+                , Popup.viewPopup TogglePopupState SelectSensorId model.isPopupExtended model.popup
                 , div [ Attr.class "maps-content-container" ]
                     [ if model.isHttping then
                         div [ Attr.class "overlay" ]
@@ -516,8 +498,8 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter model.selectedParameter
-        , viewSensorFilter model.selectedSensor
+        [ viewParameterFilter (Sensors.parameterForId model.parameterSensorPairs model.selectedSensorId)
+        , viewSensorFilter (Sensors.labelForId model.parameterSensorPairs model.selectedSensorId)
         , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
@@ -535,7 +517,7 @@ viewMobileFilters model =
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter model.selectedParameter
+        [ viewParameterFilter model.selectedSensorId
         , viewLocation model.location
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
@@ -577,7 +559,7 @@ viewSensorFilter selectedSensor =
     div []
         [ label [ Attr.for "sensor" ] [ text "sensor:" ]
         , input
-            [ Attr.id "sensor-filter"
+            [ Attr.id "sensor"
             , Attr.class "input-dark"
             , Attr.class "input-filters"
             , Attr.placeholder "sensor"
