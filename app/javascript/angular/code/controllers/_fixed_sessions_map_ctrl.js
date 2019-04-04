@@ -47,7 +47,7 @@ export const FixedSessionsMapCtrl = (
     const defaults = {
       sensorId,
       location: '',
-      indoor: false,
+      isIndoor: false,
       streaming: true,
       tags: "",
       usernames: "",
@@ -97,7 +97,7 @@ export const FixedSessionsMapCtrl = (
       });
 
       elmApp.ports.toggleIndoor.subscribe(isIndoor => {
-        FiltersUtils.toggleIndoor(isIndoor, params);
+        params.update({ data: { isIndoor: isIndoor }});
         $scope.sessions.fetch();
       });
 

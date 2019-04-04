@@ -48,7 +48,7 @@ type alias Model =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : TimeRange
-    , indoor : Bool
+    , isIndoor : Bool
     }
 
 
@@ -72,7 +72,7 @@ defaultModel =
     , isCrowdMapOn = False
     , crowdMapResolution = 25
     , timeRange = TimeRange.defaultTimeRange
-    , indoor = False
+    , isIndoor = False
     }
 
 
@@ -85,7 +85,7 @@ type alias Flags =
     , timeRange : Encode.Value
     , selectedParameter : String
     , parametersList : Encode.Value
-    , indoor : Bool
+    , isIndoor : Bool
     }
 
 
@@ -125,7 +125,7 @@ init flags url key =
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , selectedParameter = flags.selectedParameter
         , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
-        , indoor = flags.indoor
+        , isIndoor = flags.isIndoor
       }
     , Ports.selectParameter flags.selectedParameter
     )
@@ -246,8 +246,8 @@ update msg model =
         UpdateIsHttping isHttpingNow ->
             ( { model | isHttping = isHttpingNow }, Cmd.none )
 
-        ToggleIndoor indoorValue ->
-            ( { model | indoor = indoorValue }, Ports.toggleIndoor indoorValue )
+        ToggleIndoor value ->
+            ( { model | isIndoor = value }, Ports.toggleIndoor value )
 
 
 updateLabels :
@@ -323,7 +323,7 @@ view model =
                       else
                         text ""
                     , div [ Attr.class "map-container" ]
-                        [ if model.indoor then
+                        [ if model.isIndoor then
                             div [ Attr.class "overlay" ] []
 
                           else
@@ -484,7 +484,7 @@ viewMobileFilters model =
     form [ Attr.class "filters-form" ]
         [ viewParameterFilter model.selectedParameter
         , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
-        , viewLocation model
+        , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
@@ -503,20 +503,16 @@ viewFixedFilters model =
     form [ Attr.class "filters-form" ]
         [ viewParameterFilter model.selectedParameter
         , Popup.viewPopup TogglePopupState SelectParameter model.isPopupExtended model.popup
-        , viewLocation model
+        , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
         , label
-            [ Attr.style "display" "block"
-            , Attr.style "margin" "10px 0"
-            , Attr.style "font-weight" "normal"
-            ]
+            []
             [ input
                 [ Attr.type_ "checkbox"
-                , Attr.style "margin-right" "5px"
-                , Attr.checked model.indoor
-                , Attr.id "indoor-only-filter"
+                , Attr.checked model.isIndoor
+                , Attr.id "indoor-filter"
                 , Events.onCheck ToggleIndoor
                 ]
                 []
@@ -580,19 +576,19 @@ viewCrowdMapSlider resolution =
         ]
 
 
-viewLocation : Model -> Html Msg
-viewLocation model =
+viewLocation : String -> Bool -> Html Msg
+viewLocation location isIndoor =
     div []
         [ label [ Attr.for "location" ] [ text "location:" ]
         , input
             [ Attr.id "location"
-            , Attr.value model.location
+            , Attr.value location
             , Attr.class "input-dark"
             , Attr.class "input-filters"
             , Attr.placeholder "location"
             , Attr.type_ "text"
             , Attr.name "location"
-            , Attr.disabled model.indoor
+            , Attr.disabled isIndoor
             , Events.onInput UpdateLocationInput
             , onEnter SubmitLocation
             ]
