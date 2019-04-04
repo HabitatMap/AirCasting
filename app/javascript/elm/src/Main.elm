@@ -81,10 +81,10 @@ type alias Flags =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : Encode.Value
-    , parametersList : Encode.Value
     , isIndoor : Bool
     , selectedSessionId : Maybe Int
     , sensors : Encode.Value
+    , selectedSensorId : String
     }
 
 
@@ -111,8 +111,9 @@ init flags url key =
         , isIndoor = flags.isIndoor
         , selectedSessionId = flags.selectedSessionId
         , parameterSensorPairs = Sensors.decodeParameterSensorPairs flags.sensors
+        , selectedSensorId = flags.selectedSensorId
       }
-    , Ports.selectSensorId defaultModel.selectedSensorId
+    , Ports.selectSensorId flags.selectedSensorId
     )
 
 
