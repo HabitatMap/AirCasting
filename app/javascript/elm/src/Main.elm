@@ -323,7 +323,12 @@ view model =
                       else
                         text ""
                     , div [ Attr.class "map-container" ]
-                        [ div [ Attr.class "map", Attr.id "map11", Attr.attribute "ng-controller" "MapCtrl", Attr.attribute "googlemap" "" ]
+                        [ if model.indoor then
+                            div [ Attr.class "overlay" ] []
+
+                          else
+                            text ""
+                        , div [ Attr.class "map", Attr.id "map11", Attr.attribute "ng-controller" "MapCtrl", Attr.attribute "googlemap" "" ]
                             []
                         , div
                             [ Attr.attribute "ng-controller"
