@@ -345,13 +345,16 @@ view model =
                                         ]
 
                                     Just _ ->
-                                        [ div [ Attr.id "graph-top" ]
-                                            [ div [ Attr.id "graph-header" ] [ text "Sessions Graph" ]
-                                            , a [ Attr.id "graph-arrow" ] []
-                                            ]
-                                        , div
-                                            [ Attr.id "graph-box" ]
-                                            [ div [ Attr.id "graph" ] []
+                                        [ div []
+                                            [ div [] []
+                                            , div [ Attr.id "graph-top" ]
+                                                [ div [ Attr.id "graph-header" ] [ text "Sessions Graph" ]
+                                                , a [ Attr.id "graph-arrow" ] []
+                                                ]
+                                            , div
+                                                [ Attr.id "graph-box" ]
+                                                [ div [ Attr.id "graph" ] []
+                                                ]
                                             ]
                                         ]
                                 )
