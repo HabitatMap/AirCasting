@@ -111,6 +111,7 @@ allParametersWithPrioritization pairs =
         otherParameters =
             allParameters pairs
                 |> List.filter (\pair -> not (List.member pair prioritizeParameters))
+                |> List.sort
 
         maybeOtherParameters =
             if List.isEmpty otherParameters then
