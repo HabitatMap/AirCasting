@@ -478,7 +478,6 @@ session =
     , timeframe = "timeframe"
     , username = "username"
     , shortTypes = shortTypes
-    , selected = False
     }
 
 
@@ -545,37 +544,37 @@ viewTests =
 updateTests : Test
 updateTests =
     describe "update"
-        [ fuzz int "with no selections ToggleSessionSelection selects the session" <|
+        [ fuzz int "with no selections ToggleSessionSelection selects the passed id" <|
             \id ->
                 let
                     model =
-                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Nothing }
+                        { defaultModel | selectedSessionId = Nothing }
 
                     expected =
-                        { model | selectedSessionId = Just (id + 1) }
+                        { model | selectedSessionId = Just id }
                 in
                 model
-                    |> update (ToggleSessionSelection (id + 1))
+                    |> update (ToggleSessionSelection id)
                     |> Tuple.first
                     |> Expect.equal expected
-        , fuzz int "when session was selected ToggleSessionSelection deselects it" <|
+        , fuzz int "when id was selected ToggleSessionSelection deselects it" <|
             \id ->
                 let
                     model =
-                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Just (id + 1) }
+                        { defaultModel | selectedSessionId = Just id }
 
                     expected =
                         { model | selectedSessionId = Nothing }
                 in
                 model
-                    |> update (ToggleSessionSelection (id + 1))
+                    |> update (ToggleSessionSelection id)
                     |> Tuple.first
                     |> Expect.equal expected
-        , fuzz int "when another session was selected ToggleSessionSelection selects the new one" <|
+        , fuzz int "when another id was selected ToggleSessionSelection selects the new one" <|
             \id ->
                 let
                     model =
-                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Just (id + 1) }
+                        { defaultModel | selectedSessionId = Just (id + 1) }
 
                     expected =
                         { model | selectedSessionId = Just id }
@@ -637,26 +636,6 @@ updateTests =
                     |> Tuple.first
                     |> .sessions
                     |> Expect.equal newSessions
-        , fuzz int "UpdateSessions selects the proper session in the model" <|
-            \id ->
-                let
-                    model =
-                        { defaultModel | sessions = [], selectedSessionId = Nothing }
-
-                    selectedSession =
-                        { session | id = id, selected = True }
-
-                    unselectedSession =
-                        { session | id = id + 1, selected = False }
-
-                    newSessions =
-                        [ selectedSession, unselectedSession ]
-                in
-                model
-                    |> update (UpdateSessions newSessions)
-                    |> Tuple.first
-                    |> .selectedSessionId
-                    |> Expect.equal (Just id)
         , fuzz int "LoadMoreSessions delegates to javascript" <|
             \id ->
                 let
@@ -667,4 +646,56 @@ updateTests =
                     |> update LoadMoreSessions
                     |> Tuple.second
                     |> Expect.equal (Ports.loadMoreSessions ())
+        , fuzz int "DeselectSession deselects the selected id" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | selectedSessionId = Just id }
+
+                    expected =
+                        { model | selectedSessionId = Nothing }
+                in
+                model
+                    |> update DeselectSession
+                    |> Tuple.first
+                    |> Expect.equal expected
+        , fuzz int "DeselectSession tells javascript what to deselect" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | selectedSessionId = Just id }
+
+                    expected =
+                        Ports.checkedSession { deselected = Just id, selected = Nothing }
+                in
+                model
+                    |> update DeselectSession
+                    |> Tuple.second
+                    |> Expect.equal expected
+        , fuzz int "with Just ToggleSessionSelectionFromAngular selects the passed id" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | selectedSessionId = Nothing }
+
+                    expected =
+                        { model | selectedSessionId = Just id }
+                in
+                model
+                    |> update (ToggleSessionSelectionFromAngular <| Just id)
+                    |> Tuple.first
+                    |> Expect.equal expected
+        , fuzz int "with Nothing ToggleSessionSelectionFromAngular deselects the selected id" <|
+            \id ->
+                let
+                    model =
+                        { defaultModel | selectedSessionId = Just id }
+
+                    expected =
+                        { model | selectedSessionId = Nothing }
+                in
+                model
+                    |> update (ToggleSessionSelectionFromAngular Nothing)
+                    |> Tuple.first
+                    |> Expect.equal expected
         ]

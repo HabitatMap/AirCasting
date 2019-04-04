@@ -51,12 +51,10 @@ angular.module("aircasting").factory("sessionsDownloader", ['$rootScope', '$http
         return shortType.name.toLowerCase();
       }).value();
 
-      session.$selected = sessionIds.include(session.id);
-
       setDefaultSessionAttributes(session);
     });
     sessions.push.apply(sessions, data);
-    sessions = orderBy(sessions, '$selected', 'end_time_local');
+    sessions = orderBy(sessions, 'end_time_local');
   };
 
   return fetch;

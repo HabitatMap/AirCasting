@@ -69,7 +69,6 @@ export const fixedSessions = (
       var session = this.find(id);
       if(!session) return;
       session.loaded = false;
-      session.$selected = false;
       session.alreadySelected = false;
       map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
     },
@@ -102,7 +101,6 @@ export const fixedSessions = (
       var sensorName = sensor.sensor_name;
       if (!sensorName) return;
       session.alreadySelected = true;
-      session.$selected = true;
       $http.get('/api/realtime/sessions/' + id, {
         cache : true,
         params: { sensor_id: sensorName }

@@ -10,6 +10,7 @@ port module Ports exposing
     , timeRangeSelected
     , toggleCrowdMap
     , toggleIndoor
+    , toggleSessionSelection
     , updateIsHttping
     , updateProfiles
     , updateResolution
@@ -67,3 +68,6 @@ port updateTags : List String -> Cmd a
 
 
 port updateProfiles : List String -> Cmd a
+
+
+port toggleSessionSelection : (Maybe Int -> msg) -> Sub msg
