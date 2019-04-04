@@ -60,21 +60,11 @@ export const FixedSessionsMapCtrl = (
     params.updateFromDefaults(defaults);
   };
 
-  $scope.$watch("params.get('data').sensorId", function(newValue) { sensors.onSelectedSensorChange(newValue); }, true);
-
-  $scope.$watch("sensors.selectedId()", function(newValue, oldValue) {
-    sensors.onSensorsSelectedIdChange(newValue, oldValue);
-  }, true);
-
   $scope.$watch("params.get('data').heat", function(newValue, oldValue) {
     console.log("watch - params.get('data').heat - ", newValue, " - ", oldValue);
     if (newValue != oldValue) {
       $scope.sessions.drawSessionsInLocation();
     }
-  }, true);
-
-  $scope.$watch("sensors.selectedParameter", function(newValue, oldValue) {
-    sensors.onSelectedParameterChange(newValue, oldValue);
   }, true);
 
   $scope.setDefaults();
