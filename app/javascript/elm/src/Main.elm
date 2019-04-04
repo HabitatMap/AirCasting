@@ -155,6 +155,8 @@ type Msg
     | LoadMoreSessions
     | UpdateIsHttping Bool
     | ToggleIndoor Bool
+    | DeselectSession
+    | ToggleSessionSelectionFromAngular (Maybe Int)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -234,11 +236,7 @@ update msg model =
                 )
 
         UpdateSessions sessions ->
-            let
-                selectedSessionId =
-                    List.head << List.map .id << List.filter .selected
-            in
-            ( { model | sessions = sessions, selectedSessionId = selectedSessionId sessions }, Cmd.none )
+            ( { model | sessions = sessions }, Cmd.none )
 
         LoadMoreSessions ->
             ( model, Ports.loadMoreSessions () )
@@ -248,6 +246,17 @@ update msg model =
 
         ToggleIndoor value ->
             ( { model | isIndoor = value }, Ports.toggleIndoor value )
+
+        DeselectSession ->
+            ( { model | selectedSessionId = Nothing }, Ports.checkedSession { deselected = model.selectedSessionId, selected = Nothing } )
+
+        ToggleSessionSelectionFromAngular maybeId ->
+            case maybeId of
+                Just id ->
+                    ( { model | selectedSessionId = Just id }, Cmd.none )
+
+                Nothing ->
+                    ( { model | selectedSessionId = Nothing }, Cmd.none )
 
 
 updateLabels :
@@ -359,7 +368,7 @@ view model =
                                                 [ Attr.class "single-session-graph", Attr.id "graph-box" ]
                                                 [ div [ Attr.id "graph" ] []
                                                 ]
-                                            , div [ Attr.class "single-session-close" ] []
+                                            , div [ Attr.class "single-session-close" ] [ button [ Events.onClick DeselectSession ] [ text "X" ] ]
                                             ]
                                         ]
                                 )
@@ -643,4 +652,5 @@ subscriptions _ =
         , Browser.Events.onClick (Decode.succeed ClosePopup)
         , Ports.updateSessions UpdateSessions
         , Ports.updateIsHttping UpdateIsHttping
+        , Ports.toggleSessionSelection ToggleSessionSelectionFromAngular
         ]

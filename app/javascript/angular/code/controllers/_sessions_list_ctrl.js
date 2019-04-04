@@ -100,11 +100,11 @@ export const SessionsListCtrl = (
     var session = sessions.find(sessionId);
     if(sessions.isSelected(session)) {
       params.update({selectedSessionIds: []});
-      session.$selected = false;
+      elmApp.ports.toggleSessionSelection.send(null);
     } else if($scope.canSelectSession(sessionId)) {
       params.update({selectedSessionIds: [sessionId]});
       $scope.markerSelected.set(markerSelected);
-      session.$selected = true;
+      elmApp.ports.toggleSessionSelection.send(sessionId);
     }
   };
 
