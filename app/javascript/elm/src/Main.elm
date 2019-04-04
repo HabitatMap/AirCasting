@@ -518,7 +518,8 @@ viewMobileFilters model =
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter model.selectedSensorId
+        [ viewParameterFilter (Sensors.parameterForId model.parameterSensorPairs model.selectedSensorId)
+        , viewSensorFilter (Sensors.labelForId model.parameterSensorPairs model.selectedSensorId)
         , viewLocation model.location
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
