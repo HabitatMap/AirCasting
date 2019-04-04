@@ -323,7 +323,7 @@ view model =
                       else
                         text ""
                     , div [ Attr.class "map-container" ]
-                        [ if model.isIndoor then
+                        [ if model.isIndoor && not model.isHttping then
                             div [ Attr.class "overlay" ] []
 
                           else
