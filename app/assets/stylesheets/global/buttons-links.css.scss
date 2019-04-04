@@ -1,10 +1,13 @@
 .filters-button {
   background-color: $brand-primary;
   height: 33px;
+  line-height: 33px;
   border-radius: 30px;
   font-size: $small-font;
   border: none;
   color: white;
+  text-align: center;
+  font-weight: $font-stack-bold;
 }
 
 .circular-button {

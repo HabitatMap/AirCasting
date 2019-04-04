@@ -21,6 +21,10 @@ body {
   }
 }
 
+main {
+  z-index: 0;
+}
+
 [ng-cloak], .ng-cloak {
   display: none;
 }

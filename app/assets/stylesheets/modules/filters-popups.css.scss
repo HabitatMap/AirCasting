@@ -17,7 +17,7 @@
   left: calc(#{$filters-width} + 2rem);
   background: white;
   padding: $margin-default;
-  box-shadow: 1px 1px 4px 0 rgba(160, 192, 290 ,0.5);
+  box-shadow: $basic-shadow;
   color: $text-color;
 }
 

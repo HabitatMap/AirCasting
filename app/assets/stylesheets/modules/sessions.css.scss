@@ -15,17 +15,17 @@
 .session {
   background: white;
   min-width: 165px;
-  min-height: 84px;
   margin: $margin-default 0 $margin-default $margin-default;
   padding: $margin-default;
   border-radius: 12px;
+  box-shadow: 0px 2px 4px 0px #BDBDBD;
 }
 
 .session-header-container {
   @include flexbox();
   @include flex-direction(row);
   @include justify-content(flex-start);
-  @include align-items(center);
+  @include align-items(flex-start);
 }
 
 .sessions-header {
@@ -42,10 +42,11 @@
 }
 
 .session-color {
-  width: 12px;
-  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
   border-radius: 12px;
   margin-right: 10px;
+  margin-top: 5px;
 }
 
 .session-name {

@@ -6,6 +6,7 @@
   color: white;
   z-index: 2;
   position: relative;
+  box-shadow: 1px 1px 6px 0 rgba(51, 51, 51 ,0.5);
 }
 
 .filters-form {
@@ -27,8 +28,11 @@
   color: white;
   border: none;
   font-weight: $font-stack-bold;
+  z-index: 1;
   &.selected {
     background-color: $brand-secondary;
+    box-shadow: 1px 1px 6px 0 rgba(51, 51, 51 ,0.5);
+    z-index: 2;
   }
   &:focus {
     outline: none;
@@ -54,4 +58,33 @@
 
 .export-button {
   width: 170px;
+  text-align: center;
+}
+
+.filters-tag {
+  display: inline-block;
+  background-color: white;
+  color: $brand-secondary;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 3px 8px 3px 7px;
+  border-radius: 15px;
+  font-size: $tiny-font;
+  font-weight: $font-stack-regular;
+}
+
+.filters-tag-close {
+  width: 8px;
+  height: 8px;
+  padding: 0 0 0 12px;
+  border: none;
+  background: url("close-icon.svg") no-repeat right center;
+}
+
+.input-filters.input-filters-tag {
+  margin-bottom: 0px;
+}
+
+.tag-container {
+  margin-bottom: 24px;
 }

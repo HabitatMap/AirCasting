@@ -5,6 +5,9 @@
   height: $nav-height;
   background-color: white;
   @include flexbox();
+  z-index: 5;
+  position: relative;
+  box-shadow: 1px 1px 2px 0 rgba(51, 51, 51 ,0.2);
 
   ul {
     padding: 0;
