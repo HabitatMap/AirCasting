@@ -433,14 +433,6 @@ indoorFilter =
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.attribute <| Attr.id "indoor-only-filter" ]
-        , test "checking checkbox triggers ToggleIndoor" <|
-            \_ ->
-                { defaultModel | page = Fixed }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
-                    |> Event.simulate (Event.check True)
-                    |> Event.expect (ToggleIndoor True)
         , test "checkbox is not checked as default" <|
             \_ ->
                 { defaultModel | page = Fixed }
@@ -449,20 +441,28 @@ indoorFilter =
                     |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
                     |> Query.has [ Slc.attribute <| Attr.checked False ]
         , fuzz bool "interacting with checkbox changes 'checked' value" <|
-            \indoorValue ->
+            \isIndoor ->
                 { defaultModel | page = Fixed }
-                    |> update (ToggleIndoor indoorValue)
+                    |> update (ToggleIndoor isIndoor)
                     |> Tuple.first
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
-                    |> Query.has [ Slc.attribute <| Attr.checked indoorValue ]
-        , fuzz bool "ToggleIndoor triggers Ports.toggleIndoor with 'checked' value" <|
-            \indoorValue ->
+                    |> Query.has [ Slc.attribute <| Attr.checked isIndoor ]
+        , fuzz bool "interacting with checkbox triggers ToggleIndoor" <|
+            \isIndoor ->
                 { defaultModel | page = Fixed }
-                    |> update (ToggleIndoor indoorValue)
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| Attr.id "indoor-only-filter" ]
+                    |> Event.simulate (Event.check isIndoor)
+                    |> Event.expect (ToggleIndoor isIndoor)
+        , fuzz bool "ToggleIndoor triggers Ports.toggleIndoor with 'checked' value" <|
+            \isIndoor ->
+                { defaultModel | page = Fixed }
+                    |> update (ToggleIndoor isIndoor)
                     |> Tuple.second
-                    |> Expect.equal (Ports.toggleIndoor indoorValue)
+                    |> Expect.equal (Ports.toggleIndoor isIndoor)
         ]
 
 
