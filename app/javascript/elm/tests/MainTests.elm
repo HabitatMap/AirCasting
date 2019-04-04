@@ -44,12 +44,7 @@ parameterSensorPairs =
       , label = "Sensor (unit)"
       , sensor = "Sensor"
       , unit = "unit"
-      }
-    , { id_ = "parameter-sensor2 (unit)"
-      , parameter = "parameter"
-      , label = "Sensor2 (unit)"
-      , sensor = "Sensor2"
-      , unit = "unit"
+      , session_count = 1
       }
     ]
 
@@ -93,26 +88,6 @@ parameterSensorFilter =
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.id "popup" ]
-        , test "when SelectSensorId is triggered with selected parameter it finds correct sensorId" <|
-            \_ ->
-                { defaultModel | parameterSensorPairs = parameterSensorPairs }
-                    |> update (SelectSensorId "parameter")
-                    |> Tuple.first
-                    |> .selectedSensorId
-                    |> Expect.equal "parameter-sensor (unit)"
-        , test "when SelectSensorId is triggered with selected sensor label it finds correct sensorId" <|
-            \_ ->
-                { defaultModel | parameterSensorPairs = parameterSensorPairs, selectedSensorId = "parameter-sensor2 (unit)" }
-                    |> update (SelectSensorId "Sensor (unit)")
-                    |> Tuple.first
-                    |> .selectedSensorId
-                    |> Expect.equal "parameter-sensor (unit)"
-        , test "when SelectSensorId is triggered sensorId is sent through selectSensorId port" <|
-            \_ ->
-                { defaultModel | parameterSensorPairs = parameterSensorPairs }
-                    |> update (SelectSensorId "parameter")
-                    |> Tuple.second
-                    |> Expect.equal (Ports.selectSensorId "parameter-sensor (unit)")
         ]
 
 
