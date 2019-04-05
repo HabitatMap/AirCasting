@@ -4,7 +4,7 @@ port module Ports exposing
     , loadMoreSessions
     , locationCleared
     , profileSelected
-    , selectParameter
+    , selectSensorId
     , showCopyLinkTooltip
     , tagSelected
     , timeRangeSelected
@@ -49,7 +49,7 @@ port toggleIndoor : Bool -> Cmd a
 port updateResolution : Int -> Cmd a
 
 
-port selectParameter : String -> Cmd a
+port selectSensorId : String -> Cmd a
 
 
 port updateSessions : (List Session -> msg) -> Sub msg

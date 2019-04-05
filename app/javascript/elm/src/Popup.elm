@@ -1,4 +1,4 @@
-module Popup exposing (Items, Popup(..), clickWithoutDefault, viewPopup)
+module Popup exposing (Items, Popup(..), clickWithoutDefault, view)
 
 import Html exposing (Html, button, div, li, text, ul)
 import Html.Attributes as Attr
@@ -7,23 +7,24 @@ import Json.Decode as Decode
 
 
 type Popup
-    = SelectFromItems Items
+    = ExpandableSelectFrom Items
+    | SelectFrom (List String)
     | None
 
 
 type alias Items =
     { main : List String
-    , other : Maybe (List String)
+    , others : Maybe (List String)
     }
 
 
-viewPopup : msg -> (String -> msg) -> Bool -> Popup -> Html msg
-viewPopup toggle onSelect isPopupExtended popup =
+view : msg -> (String -> msg) -> Bool -> Popup -> Html msg
+view toggle onSelect isPopupExtended popup =
     case popup of
-        SelectFromItems items ->
+        ExpandableSelectFrom items ->
             div [ Attr.id "popup" ]
                 [ selectableItems items.main onSelect
-                , case items.other of
+                , case items.others of
                     Just moreItems ->
                         if isPopupExtended then
                             div []
@@ -37,6 +38,9 @@ viewPopup toggle onSelect isPopupExtended popup =
                     Nothing ->
                         text ""
                 ]
+
+        SelectFrom items ->
+            selectableItems items onSelect
 
         None ->
             text ""

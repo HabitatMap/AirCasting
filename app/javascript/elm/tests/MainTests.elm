@@ -10,6 +10,7 @@ import LabelsInput
 import Main exposing (..)
 import Popup
 import Ports
+import Sensor
 import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
@@ -22,7 +23,7 @@ popups =
     describe "Popup tests: "
         [ test "when ClosePopup is triggered the popup is hidden" <|
             \_ ->
-                { defaultModel | popup = Popup.SelectFromItems { main = [], other = Nothing } }
+                { defaultModel | popup = Popup.ExpandableSelectFrom { main = [], others = Nothing } }
                     |> update ClosePopup
                     |> Tuple.first
                     |> view
@@ -38,28 +39,53 @@ popups =
         ]
 
 
+sensors : List Sensor.Sensor
+sensors =
+    [ { id_ = "parameter-sensor (unit)"
+      , parameter = "parameter"
+      , label = "Sensor (unit)"
+      , sensor = "Sensor"
+      , unit = "unit"
+      , session_count = 1
+      }
+    ]
+
+
 parameterSensorFilter : Test
 parameterSensorFilter =
     describe "Parameter filter tests: "
-        [ fuzz string "parameter filter shows the selected parameter" <|
-            \parameter ->
-                { defaultModel | selectedParameter = parameter }
+        [ test "parameter filter shows parameter name based on selectedSensorId" <|
+            \_ ->
+                { defaultModel
+                    | selectedSensorId = "parameter-sensor (unit)"
+                    , sensors = sensors
+                }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "parameter" ]
-                    |> Query.has [ Slc.attribute <| Attr.value parameter ]
-        , test "Clicking on parameter filter triggers ShowSelectFormItemsPopup" <|
+                    |> Query.has [ Slc.attribute <| Attr.value "parameter" ]
+        , test "sensor filter shows sensor label based on selectedSensorId" <|
+            \_ ->
+                { defaultModel
+                    | selectedSensorId = "parameter-sensor (unit)"
+                    , sensors = sensors
+                }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "sensor" ]
+                    |> Query.has [ Slc.attribute <| Attr.value "Sensor (unit)" ]
+        , test "Clicking on parameter filter triggers ShowExpandableSelectFromPopup" <|
             \_ ->
                 defaultModel
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "parameter" ]
                     |> Event.simulate Event.click
-                    |> Event.expect ShowSelectFormItemsPopup
-        , test "when ShowSelectFormItemsPopup is triggered popup is shown" <|
+                    |> Event.expect ShowExpandableSelectFromPopup
+        , test "when ShowExpandableSelectFromPopup is triggered popup is shown" <|
             \_ ->
                 defaultModel
-                    |> update ShowSelectFormItemsPopup
+                    |> update ShowExpandableSelectFromPopup
                     |> Tuple.first
                     |> view
                     |> Query.fromHtml

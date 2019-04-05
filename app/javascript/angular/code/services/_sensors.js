@@ -1,7 +1,7 @@
 import _ from 'underscore';
 
 const buildSensorId = sensor =>
-  sensor.measurement_type + "-" + sensor.sensor_name.toLowerCase() + " (" + sensor.unit_symbol + ")";
+  sensor.measurement_type.toLowerCase() + "-" + sensor.sensor_name.toLowerCase() + " (" + sensor.unit_symbol + ")";
 
 const DEFAULT_SENSOR_ID = buildSensorId({
   measurement_type: "Particulate Matter",
@@ -37,8 +37,6 @@ export const sensors = (params, storage, heat, $http) => {
       });
       this.sensors = sensors;
 
-      this.availableParameters = buildAvailableParameters(this.sensors);
-
       // Initialize UI
       this.initSelected();
     },
@@ -52,7 +50,6 @@ export const sensors = (params, storage, heat, $http) => {
       } else {
         console.log('initSelected() - sensorId is NOT null')
       }
-      this.availableSensors = findAvailableSensorsForParameter(sort, this.sensors, this.selectedParameter);
     },
 
     selected: function() {
@@ -60,7 +57,7 @@ export const sensors = (params, storage, heat, $http) => {
     },
 
     selectedId: function() {
-        return this.selected().id;
+        return params.get('data').sensorId || DEFAULT_SENSOR_ID;
     },
 
     anySelected: function() {
@@ -77,37 +74,9 @@ export const sensors = (params, storage, heat, $http) => {
     findParameterForSensor: function(sensor) {
       return _(this.availableParameters).find(function(parameter) { return (parameter.id == sensor["measurement_type"]) });
     },
-    onSelectedParameterChange: function(selectedParameter, oldValue) {
-      if (selectedParameter === oldValue) return; // first angular watch run
-      console.log('onSelectedParameterChange() - ', selectedParameter, ' - ', oldValue)
-      params.update({selectedSessionIds: []});
-
-      this.availableSensors = sort(Object.values(this.sensors).filter(sensor => sensor.measurement_type === selectedParameter.id));
-      const sensorId = defaultSensorIdForParameter(selectedParameter, this.availableSensors);
-      params.update({ data: { sensorId }});
-    },
-    onSelectedSensorChange: function(newSensorId, oldSensorId) {
-      if (newSensorId === oldSensorId) return;
-      console.log('onSelectedSensorChange() - ', newSensorId, ' - ', oldSensorId);
-      var sensor = this.findSensorById(newSensorId);
-      var parameterForSensor = this.findParameterForSensor(sensor);
-      this.selectedParameter = parameterForSensor; //uses the watch
-    },
     buildSensorId: function(sensor) {
       return buildSensorId(sensor);
     },
-    onSensorsSelectedIdChange: function(newValue, oldValue, callback) {
-      console.log("onSensorsSelectedIdChange 1 - ", newValue, " - ", oldValue);
-
-      if (newValue === oldValue) return; // first angular watch run
-
-      console.log("onSensorsSelectedIdChange 2 - ", newValue, " - ", oldValue);
-
-      this.fetchHeatLevels();
-      params.update({data: {sensorId: newValue}});
-      params.update({selectedSessionIds: []});
-    },
-
     fetchHeatLevels: function() {
       this.fetchHeatLevelsForSensor(this.selected());
     },
@@ -132,70 +101,3 @@ const max = (valueOf, xs) => {
   const reducer = (acc, x) => valueOf(x) > valueOf(acc) ? x : acc;
   return xs.reduce(reducer, xs[0]);
 };
-
-export const findAvailableSensorsForParameter = (sort, sensors, parameter) =>
-    sort(Object.values(sensors).filter(sensor => sensor.measurement_type === parameter.id));
-
-export const sort = sensors => {
-  const ORDERS = {};
-  ORDERS[buildSensorId({measurement_type: "Particulate Matter", sensor_name: "AirBeam2-PM2.5", unit_symbol: "µg/m³"})] = 4;
-  ORDERS[buildSensorId({measurement_type: "Particulate Matter", sensor_name: "AirBeam2-PM1", unit_symbol: "µg/m³"})] = 3;
-  ORDERS[buildSensorId({measurement_type: "Particulate Matter", sensor_name: "AirBeam2-PM10", unit_symbol: "µg/m³"})] = 2;
-  ORDERS[buildSensorId({measurement_type: "Particulate Matter", sensor_name: "AirBeam-PM", unit_symbol: "µg/m³"})] = 1;
-  ORDERS[buildSensorId({measurement_type: "Humidity", sensor_name: "AirBeam2-RH", unit_symbol: "%"})] = 2;
-  ORDERS[buildSensorId({measurement_type: "Humidity", sensor_name: "AirBeam-RH", unit_symbol: "%"})] = 1;
-  ORDERS[buildSensorId({measurement_type: "Temperature", sensor_name: "AirBeam2-F", unit_symbol: "F"})] = 2;
-  ORDERS[buildSensorId({measurement_type: "Temperature", sensor_name: "AirBeam-F", unit_symbol: "F"})] = 1;
-  ORDERS[buildSensorId({measurement_type: "Sound Level", sensor_name: "Phone Microphone", unit_symbol: "dB"})] = 1;
-
-  const compare = (sensor1, sensor2) => {
-    if (ORDERS[sensor1.id] && ORDERS[sensor2.id]) {
-      return ORDERS[sensor2.id] - ORDERS[sensor1.id];
-    } else if (ORDERS[sensor1.id]) {
-      return -1;
-    } else if (ORDERS[sensor2.id]) {
-      return +1;
-    } else {
-      return sensor2.session_count - sensor1.session_count;
-    }
-  }
-
-  return sensors.sort(compare);
-}
-
-export const defaultSensorIdForParameter = (parameter, sensors) => {
-  const DEFAULT_IDS = {
-    "Particulate Matter": buildSensorId({
-      measurement_type: "Particulate Matter",
-      sensor_name:      "AirBeam2-PM2.5",
-      unit_symbol:      "µg/m³"
-    }),
-    "Humidity": buildSensorId({
-      measurement_type: "Humidity",
-      sensor_name:      "AirBeam2-RH",
-      unit_symbol:      "%"
-    }),
-    "Temperature": buildSensorId({
-      measurement_type: "Temperature",
-      sensor_name:      "AirBeam2-F",
-      unit_symbol:      "F"
-    }),
-    "Sound Level": buildSensorId({
-      measurement_type: "Sound Level",
-      sensor_name:      "Phone Microphone",
-      unit_symbol:      "dB"
-    })
-  };
-
-  return DEFAULT_IDS[parameter.id] || max(sensor => sensor.session_count, sensors).id;
-};
-
-export const buildAvailableParameters = sensors => {
-  const uniq = (v, i, a) => a.indexOf(v) === i;
-
-  return Object.values(sensors)
-    .sort((a, b) => b.session_count - a.session_count)
-    .map(sensor => sensor.measurement_type)
-    .filter(uniq)
-    .map(measurementType => ({ label: measurementType, id: measurementType }));
-}
