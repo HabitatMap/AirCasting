@@ -1,8 +1,10 @@
 module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, toggleIndoorFilter, updateTests, viewTests)
 
+import Data.Page exposing (Page(..))
+import Data.SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
 import Expect
-import Fuzz exposing (bool, int, intRange, list, string)
+import Fuzz exposing (bool, float, int, intRange, list, string)
 import Html exposing (text)
 import Html.Attributes as Attr
 import Html.Attributes.Aria exposing (..)
@@ -11,6 +13,7 @@ import LabelsInput
 import Main exposing (..)
 import Popup
 import Ports
+import RemoteData exposing (RemoteData(..))
 import Sensor
 import Test exposing (..)
 import Test.Html.Event as Event
@@ -509,7 +512,7 @@ session : Session
 session =
     { title = "title"
     , id = 1
-    , timeframe = "timeframe"
+    , timeRange = "timeRange"
     , username = "username"
     , shortTypes = shortTypes
     }
@@ -525,132 +528,173 @@ sessionWithTitle title =
     { session | title = title }
 
 
+selectedSession =
+    { title = "title"
+    , username = "username"
+    , sensorName = "sensor-name"
+    , average = 2.0
+    , min = 1.0
+    , max = 3.0
+    , timeRange = "time range"
+    , measurements = [ 1.0, 2.0, 3.0 ]
+    , id = 123
+    }
+
+
+selectedSessionWithId : Int -> SelectedSession
+selectedSessionWithId id =
+    { selectedSession | id = id }
+
+
 viewTests : Test
 viewTests =
     describe "view"
-        [ fuzz2 string string "session titles are displayed in the list" <|
+        [ fuzz2 string string "with no selection session titles are displayed in the list" <|
             \title1 title2 ->
-                { defaultModel | sessions = [ sessionWithTitle title1, sessionWithTitle title2 ], selectedSessionId = Nothing }
+                { defaultModel | sessions = [ sessionWithTitle title1, sessionWithTitle title2 ], selectedSession = NotAsked }
                     |> view
                     |> Query.fromHtml
                     |> Query.contains
                         [ Html.text title1
                         , Html.text title2
                         ]
-        , fuzz (intRange 1 10) "with modulo 50 sessions in the model the load more button is shown" <|
+        , fuzz (intRange 1 10) "with no selection and modulo 50 sessions in the model the load more button is shown" <|
             \times ->
-                { defaultModel | sessions = List.repeat (50 * times) session, selectedSessionId = Nothing }
+                { defaultModel | sessions = List.repeat (50 * times) session, selectedSession = NotAsked }
                     |> view
                     |> Query.fromHtml
                     |> Query.contains [ Html.text "Load More..." ]
-        , test "with 0 sessions in the model the load more button is not shown" <|
+        , test "with no selection and 0 sessions in the model the load more button is not shown" <|
             \times ->
-                { defaultModel | sessions = [], selectedSessionId = Nothing }
+                { defaultModel | sessions = [], selectedSession = NotAsked }
                     |> view
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.text "Load More..." ]
                     |> Query.count (Expect.equal 0)
-        , fuzz int "with 1 sessions in the model the export link is correctly generated" <|
+        , fuzz int "with no selection and 1 sessions in the model the export link is correctly generated" <|
             \id ->
                 let
                     expected =
                         exportPath ++ "?session_ids[]=" ++ String.fromInt id
                 in
-                { defaultModel | sessions = [ sessionWithId id ] }
+                { defaultModel | sessions = [ sessionWithId id ], selectedSession = NotAsked }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.containing [ Slc.text "export sessions" ] ]
                     |> Query.has [ Slc.attribute <| Attr.href expected ]
-        , fuzz int "with 2 sessions in the model the export link is correctly generated" <|
+        , fuzz int "with no selection and 2 sessions in the model the export link is correctly generated" <|
             \id ->
                 let
                     expected =
                         exportPath ++ "?session_ids[]=" ++ String.fromInt id ++ "&session_ids[]=" ++ String.fromInt (id + 1)
                 in
-                { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ] }
+                { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSession = NotAsked }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.containing [ Slc.text "export sessions" ] ]
                     |> Query.has [ Slc.attribute <| Attr.href expected ]
+        , test "with selection graph is shown" <|
+            \_ ->
+                { defaultModel | selectedSession = Success selectedSession }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.findAll [ Slc.id "graph" ]
+                    |> Query.count (Expect.equal 1)
+        , test "with selection a button to deselect session is shown" <|
+            \_ ->
+                { defaultModel | selectedSession = Success selectedSession }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.tag "button", Slc.containing [ Slc.text "X" ] ]
+                    |> Event.simulate Event.click
+                    |> Event.expect DeselectSession
+        , fuzz3 string string string "with selection the session title username and sensorName are shown" <|
+            \title username sensorName ->
+                let
+                    selectedSession_ =
+                        { selectedSession
+                            | title = title
+                            , username = username
+                            , sensorName = sensorName
+                        }
+
+                    expected =
+                        List.map (\x -> Slc.containing [ Slc.text x ]) [ title, username, sensorName ]
+                in
+                { defaultModel | selectedSession = Success selectedSession_ }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.all expected ]
+        , fuzz3 float float float "with selection the session average min and max are shown" <|
+            \average min max ->
+                let
+                    selectedSession_ =
+                        { selectedSession
+                            | average = average
+                            , min = min
+                            , max = max
+                        }
+
+                    expected =
+                        List.map (\x -> Slc.containing [ Slc.text <| String.fromFloat x ]) [ average, min, max ]
+                in
+                { defaultModel | selectedSession = Success selectedSession_ }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.all expected ]
+        , fuzz string "with selection the session timeRange is shown" <|
+            \timeRange ->
+                let
+                    selectedSession_ =
+                        { selectedSession | timeRange = timeRange }
+
+                    expected =
+                        List.map (\x -> Slc.containing [ Slc.text x ]) [ timeRange ]
+                in
+                { defaultModel | selectedSession = Success selectedSession_ }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.all expected ]
         ]
 
 
 updateTests : Test
 updateTests =
     describe "update"
-        [ fuzz int "with no selections ToggleSessionSelection selects the passed id" <|
+        [ fuzz int "when passed the selected session ToggleSessionSelection deselects it" <|
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSessionId = Nothing }
+                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
 
                     expected =
-                        { model | selectedSessionId = Just id }
+                        { model | selectedSession = NotAsked }
                 in
                 model
                     |> update (ToggleSessionSelection id)
                     |> Tuple.first
                     |> Expect.equal expected
-        , fuzz int "when id was selected ToggleSessionSelection deselects it" <|
+        , fuzz int "when passed another session ToggleSessionSelection deselects the selected session" <|
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSessionId = Just id }
+                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
 
                     expected =
-                        { model | selectedSessionId = Nothing }
-                in
-                model
-                    |> update (ToggleSessionSelection id)
-                    |> Tuple.first
-                    |> Expect.equal expected
-        , fuzz int "when another id was selected ToggleSessionSelection selects the new one" <|
-            \id ->
-                let
-                    model =
-                        { defaultModel | selectedSessionId = Just (id + 1) }
-
-                    expected =
-                        { model | selectedSessionId = Just id }
-                in
-                model
-                    |> update (ToggleSessionSelection id)
-                    |> Tuple.first
-                    |> Expect.equal expected
-        , fuzz int "with no selections ToggleSessionSelection tells javascript what was selected" <|
-            \id ->
-                let
-                    model =
-                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Nothing }
-
-                    expected =
-                        Ports.checkedSession { selected = Just (id + 1), deselected = Nothing }
+                        { model | selectedSession = NotAsked }
                 in
                 model
                     |> update (ToggleSessionSelection (id + 1))
-                    |> Tuple.second
+                    |> Tuple.first
                     |> Expect.equal expected
         , fuzz int "when session was selected ToggleSessionSelection tells javascript what was deselected" <|
             \id ->
                 let
                     model =
-                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Just (id + 1) }
+                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
 
                     expected =
-                        Ports.checkedSession { selected = Nothing, deselected = Just (id + 1) }
-                in
-                model
-                    |> update (ToggleSessionSelection (id + 1))
-                    |> Tuple.second
-                    |> Expect.equal expected
-        , fuzz int "when another session was selected ToggleSessionSelection tells javascript what was selected and what was deselected" <|
-            \id ->
-                let
-                    model =
-                        { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSessionId = Just (id + 1) }
-
-                    expected =
-                        Ports.checkedSession { selected = Just id, deselected = Just (id + 1) }
+                        Ports.checkedSession { selected = Nothing, deselected = Just id }
                 in
                 model
                     |> update (ToggleSessionSelection id)
@@ -660,7 +704,7 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | sessions = [ sessionWithId id ], selectedSessionId = Nothing }
+                        { defaultModel | sessions = [ sessionWithId id ], selectedSession = NotAsked }
 
                     newSessions =
                         [ sessionWithId (id + 1) ]
@@ -674,20 +718,20 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | sessions = [], selectedSessionId = Nothing }
+                        { defaultModel | sessions = [], selectedSession = NotAsked }
                 in
                 model
                     |> update LoadMoreSessions
                     |> Tuple.second
                     |> Expect.equal (Ports.loadMoreSessions ())
-        , fuzz int "DeselectSession deselects the selected id" <|
+        , fuzz int "DeselectSession deselects the selected session" <|
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSessionId = Just id }
+                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
 
                     expected =
-                        { model | selectedSessionId = Nothing }
+                        { model | selectedSession = NotAsked }
                 in
                 model
                     |> update DeselectSession
@@ -697,7 +741,7 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSessionId = Just id }
+                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
 
                     expected =
                         Ports.checkedSession { deselected = Just id, selected = Nothing }
@@ -706,27 +750,14 @@ updateTests =
                     |> update DeselectSession
                     |> Tuple.second
                     |> Expect.equal expected
-        , fuzz int "with Just ToggleSessionSelectionFromAngular selects the passed id" <|
-            \id ->
-                let
-                    model =
-                        { defaultModel | selectedSessionId = Nothing }
-
-                    expected =
-                        { model | selectedSessionId = Just id }
-                in
-                model
-                    |> update (ToggleSessionSelectionFromAngular <| Just id)
-                    |> Tuple.first
-                    |> Expect.equal expected
         , fuzz int "with Nothing ToggleSessionSelectionFromAngular deselects the selected id" <|
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSessionId = Just id }
+                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
 
                     expected =
-                        { model | selectedSessionId = Nothing }
+                        { model | selectedSession = NotAsked }
                 in
                 model
                     |> update (ToggleSessionSelectionFromAngular Nothing)
