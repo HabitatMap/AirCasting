@@ -10,7 +10,7 @@ import Test exposing (..)
 all : Test
 all =
     describe "all:"
-        [ test "decodeSensors return a list of sensors" <|
+        [ test "decodeSensors returns a list of sensors" <|
             \_ ->
                 let
                     encodedValue =
@@ -55,6 +55,19 @@ all =
                 sensors
                     |> idForParameterOrLabel "parameter" "parameter2-sensor3 (unit)"
                     |> Expect.equal "parameter-sensor2 (unit)"
+        , test "sensorsLabelsForIdWithPrioritization returns labels divided into main and others" <|
+            \_ ->
+                "particulate matter-airbeam2-pm2.5 (µg/m³)"
+                    |> sensorsLabelsForIdWithPrioritization sensorsWithPriority
+                    |> Expect.equal
+                        { main =
+                            [ "AirBeam2-PM2.5 (µg/m³)"
+                            , "AirBeam2-PM1 (µg/m³)"
+                            , "AirBeam2-PM10 (µg/m³)"
+                            , "AirBeam-PM (µg/m³)"
+                            ]
+                        , others = [ "Other Label (µg/m³)" ]
+                        }
         ]
 
 
@@ -79,6 +92,46 @@ sensors =
       , label = "Sensor3 (unit)"
       , sensor = "Sensor3"
       , unit = "unit"
+      , session_count = 1
+      }
+    ]
+
+
+sensorsWithPriority : List Sensor.Sensor
+sensorsWithPriority =
+    [ { id_ = "particulate matter-airbeam2-pm2.5 (µg/m³)"
+      , parameter = "particulate matter"
+      , label = "AirBeam2-PM2.5 (µg/m³)"
+      , sensor = "AirBeam2-PM2.5"
+      , unit = "µg/m³"
+      , session_count = 1
+      }
+    , { id_ = "particulate matter-airbeam2-pm1 (µg/m³)"
+      , parameter = "particulate matter"
+      , label = "AirBeam2-PM1 (µg/m³)"
+      , sensor = "AirBeam2-PM1"
+      , unit = "µg/m³"
+      , session_count = 1
+      }
+    , { id_ = "particulate matter-airbeam2-pm10 (µg/m³)"
+      , parameter = "particulate matter"
+      , label = "AirBeam2-PM10 (µg/m³)"
+      , sensor = "AirBeam2-PM10"
+      , unit = "µg/m³"
+      , session_count = 1
+      }
+    , { id_ = "particulate matter-airbeam-pm (µg/m³)"
+      , parameter = "particulate matter"
+      , label = "AirBeam-PM (µg/m³)"
+      , sensor = "AirBeam-PM"
+      , unit = "µg/m³"
+      , session_count = 1
+      }
+    , { id_ = "particulate matter-other label (µg/m³)"
+      , parameter = "particulate matter"
+      , label = "Other Label (µg/m³)"
+      , sensor = "Other Label"
+      , unit = "µg/m³"
       , session_count = 1
       }
     ]
