@@ -86,6 +86,7 @@ type alias Flags =
     , selectedParameter : String
     , parametersList : Encode.Value
     , isIndoor : Bool
+    , selectedSessionId : Maybe Int
     }
 
 
@@ -126,6 +127,7 @@ init flags url key =
         , selectedParameter = flags.selectedParameter
         , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
         , isIndoor = flags.isIndoor
+        , selectedSessionId = flags.selectedSessionId
       }
     , Ports.selectParameter flags.selectedParameter
     )
@@ -351,27 +353,29 @@ view model =
                                 )
                             ]
                             [ div [ Attr.class "sessions", Attr.attribute "ng-controller" "SessionsGraphCtrl" ]
-                                (case model.selectedSessionId of
-                                    Nothing ->
-                                        [ h2 [ Attr.class "sessions-header" ]
-                                            [ text "Sessions" ]
-                                        , span [ Attr.class "sessions-number" ]
-                                            [ text "showing 6 of 500 reuslts" ]
-                                        , viewSessions model
-                                        ]
-
-                                    Just _ ->
-                                        [ div [ Attr.class "single-session-container" ]
-                                            [ div [ Attr.class "single-session-info" ]
-                                                [ p [ Attr.class "single-session-owner" ] [ text "NYCEJA" ] ]
-                                            , div
-                                                [ Attr.class "single-session-graph", Attr.id "graph-box" ]
-                                                [ div [ Attr.id "graph" ] []
-                                                ]
-                                            , div [ Attr.class "single-session-close" ] [ button [ Events.onClick DeselectSession ] [ text "X" ] ]
+                                [ div [ Attr.attribute "ng-controller" "SessionsListCtrl" ]
+                                    (case model.selectedSessionId of
+                                        Nothing ->
+                                            [ h2 [ Attr.class "sessions-header" ]
+                                                [ text "Sessions" ]
+                                            , span [ Attr.class "sessions-number" ]
+                                                [ text "showing 6 of 500 reuslts" ]
+                                            , viewSessions model
                                             ]
-                                        ]
-                                )
+
+                                        Just _ ->
+                                            [ div [ Attr.class "single-session-container" ]
+                                                [ div [ Attr.class "single-session-info" ]
+                                                    [ p [ Attr.class "single-session-owner" ] [ text "NYCEJA" ] ]
+                                                , div
+                                                    [ Attr.class "single-session-graph", Attr.id "graph-box" ]
+                                                    [ div [ Attr.id "graph" ] []
+                                                    ]
+                                                , div [ Attr.class "single-session-close" ] [ button [ Events.onClick DeselectSession ] [ text "X" ] ]
+                                                ]
+                                            ]
+                                    )
+                                ]
                             ]
                         ]
                     , div [ Attr.class "heatmap" ]
@@ -403,7 +407,7 @@ viewSessionTypes model =
 
 viewSessions : Model -> Html Msg
 viewSessions model =
-    div [ Attr.class "sessions-container", Attr.attribute "ng-controller" "SessionsListCtrl" ]
+    div [ Attr.class "sessions-container" ]
         (List.map (viewSessionCard model.selectedSessionId) model.sessions
             ++ [ viewLoadMore <| List.length model.sessions ]
         )
