@@ -1,10 +1,11 @@
-module MainTests exposing (crowdMapArea, indoorFilter, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, updateTests, viewTests)
+module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, toggleIndoorFilter, updateTests, viewTests)
 
 import Data.Session exposing (..)
 import Expect
 import Fuzz exposing (bool, int, intRange, list, string)
 import Html exposing (text)
 import Html.Attributes as Attr
+import Html.Attributes.Aria exposing (..)
 import Json.Encode as Encode
 import LabelsInput
 import Main exposing (..)
@@ -442,40 +443,42 @@ crowdMapArea =
         ]
 
 
-indoorFilter : Test
-indoorFilter =
+toggleIndoorFilter : Test
+toggleIndoorFilter =
     describe "indoor/outdoor filter tests:"
-        [ test "filter is displayed" <|
+        [ test "toggle is displayed" <|
             \_ ->
                 { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
-                    |> Query.has [ Slc.attribute <| Attr.id "indoor-filter" ]
-        , test "checkbox is not checked as default" <|
+                    |> Expect.all
+                        [ Query.has [ Slc.attribute <| ariaLabel "indoor" ]
+                        , Query.has [ Slc.attribute <| ariaLabel "outdoor" ]
+                        ]
+        , test "outdoor is selected by default" <|
             \_ ->
                 { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "indoor-filter" ]
-                    |> Query.has [ Slc.attribute <| Attr.checked False ]
-        , fuzz bool "interacting with checkbox changes 'checked' value" <|
-            \isIndoor ->
-                { defaultModel | page = Fixed }
-                    |> update (ToggleIndoor isIndoor)
-                    |> Tuple.first
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "indoor-filter" ]
-                    |> Query.has [ Slc.attribute <| Attr.checked isIndoor ]
-        , fuzz bool "interacting with checkbox triggers ToggleIndoor" <|
-            \isIndoor ->
+                    |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
+                    |> Query.has [ Slc.attribute <| Attr.class "toggle-button--pressed" ]
+        , test "clicking indoor button triggers ToggleIndoor with True" <|
+            \_ ->
                 { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "indoor-filter" ]
-                    |> Event.simulate (Event.check isIndoor)
-                    |> Event.expect (ToggleIndoor isIndoor)
-        , fuzz bool "ToggleIndoor triggers Ports.toggleIndoor with 'checked' value" <|
+                    |> Query.find [ Slc.attribute <| ariaLabel "indoor" ]
+                    |> Event.simulate Event.click
+                    |> Event.expect (ToggleIndoor True)
+        , test "clicking outdoor button triggers ToggleIndoor with False" <|
+            \_ ->
+                { defaultModel | page = Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
+                    |> Event.simulate Event.click
+                    |> Event.expect (ToggleIndoor False)
+        , fuzz bool "ToggleIndoor triggers Ports.toggleIndoor with isIndoor value" <|
             \isIndoor ->
                 { defaultModel | page = Fixed }
                     |> update (ToggleIndoor isIndoor)

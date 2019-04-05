@@ -1,0 +1,26 @@
+.toggle-button {
+  background-color: $dark-blue;
+  border: 1px solid $dark-grey;
+  color: $dark-grey;
+  font-size: $small-font;
+  outline: none;
+  padding: 7px 0;
+  width: 50%;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  &:first-of-type {
+    border-radius: 6px 0 0 6px;
+  }
+
+  &:last-of-type {
+    border-radius: 0 6px 6px 0;
+  }
+}
+
+.toggle-button--pressed {
+  background-color: $dark-grey;
+  color: white;
+}
+
