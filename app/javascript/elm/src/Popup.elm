@@ -7,36 +7,34 @@ import Json.Decode as Decode
 
 
 type Popup
-    = ExpandableSelectFrom Items
+    = ExpandableSelectFrom Items String
     | SelectFrom (List String)
     | None
 
 
 type alias Items =
     { main : List String
-    , others : Maybe (List String)
+    , others : List String
     }
 
 
 view : msg -> (String -> msg) -> Bool -> Popup -> Html msg
 view toggle onSelect isPopupExtended popup =
     case popup of
-        ExpandableSelectFrom items ->
+        ExpandableSelectFrom items itemType ->
             div [ Attr.id "popup" ]
                 [ selectableItems items.main onSelect
-                , case items.others of
-                    Just moreItems ->
-                        if isPopupExtended then
-                            div []
-                                [ selectableItems moreItems onSelect
-                                , togglePopupStateButton "less parameters" toggle
-                                ]
+                , if List.isEmpty items.others then
+                    text ""
 
-                        else
-                            togglePopupStateButton "more parameters" toggle
+                  else if isPopupExtended then
+                    div []
+                        [ selectableItems items.others onSelect
+                        , togglePopupStateButton ("less " ++ itemType) toggle
+                        ]
 
-                    Nothing ->
-                        text ""
+                  else
+                    togglePopupStateButton ("more " ++ itemType) toggle
                 ]
 
         SelectFrom items ->

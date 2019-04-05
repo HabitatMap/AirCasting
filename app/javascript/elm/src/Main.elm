@@ -131,7 +131,7 @@ type Msg
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
     | ShowCopyLinkTooltip
-    | ShowExpandableSelectFromPopup
+    | ShowExpandableSelectFromPopup Popup.Items String
     | ShowSelectFormPopup
     | SelectSensorId String
     | ClosePopup
@@ -181,8 +181,8 @@ update msg model =
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
 
-        ShowExpandableSelectFromPopup ->
-            ( { model | popup = Popup.ExpandableSelectFrom (Sensor.allParametersWithPrioritization model.sensors) }, Cmd.none )
+        ShowExpandableSelectFromPopup items itemType ->
+            ( { model | popup = Popup.ExpandableSelectFrom items itemType, isPopupExtended = False }, Cmd.none )
 
         ShowSelectFormPopup ->
             ( { model | popup = Popup.SelectFrom (Sensor.sensorLabelsForParameterInId model.sensors model.selectedSensorId) }, Cmd.none )
@@ -504,8 +504,8 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter (Sensor.parameterForId model.sensors model.selectedSensorId)
-        , viewSensorFilter (Sensor.sensorLabelForId model.sensors model.selectedSensorId)
+        [ viewParameterFilter model.sensors model.selectedSensorId
+        , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
         , TimeRange.view RefreshTimeRange
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
@@ -523,8 +523,8 @@ viewMobileFilters model =
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter (Sensor.parameterForId model.sensors model.selectedSensorId)
-        , viewSensorFilter (Sensor.sensorLabelForId model.sensors model.selectedSensorId)
+        [ viewParameterFilter model.sensors model.selectedSensorId
+        , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
         , TimeRange.view RefreshTimeRange
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
@@ -543,8 +543,8 @@ viewFixedFilters model =
         ]
 
 
-viewParameterFilter : String -> Html Msg
-viewParameterFilter selectedParameter =
+viewParameterFilter : List Sensor.Sensor -> String -> Html Msg
+viewParameterFilter sensors selectedSensorId =
     div []
         [ label [ Attr.for "parameter" ] [ text "parameter:" ]
         , input
@@ -554,15 +554,15 @@ viewParameterFilter selectedParameter =
             , Attr.placeholder "parameter"
             , Attr.type_ "text"
             , Attr.name "parameter"
-            , Popup.clickWithoutDefault ShowExpandableSelectFromPopup
-            , Attr.value selectedParameter
+            , Popup.clickWithoutDefault (ShowExpandableSelectFromPopup (Sensor.allParametersWithPrioritization sensors) "parameters")
+            , Attr.value (Sensor.parameterForId sensors selectedSensorId)
             ]
             []
         ]
 
 
-viewSensorFilter : String -> Html Msg
-viewSensorFilter selectedSensor =
+viewSensorFilter : List Sensor.Sensor -> String -> Html Msg
+viewSensorFilter sensors selectedSensorId =
     div []
         [ label [ Attr.for "sensor" ] [ text "sensor:" ]
         , input
@@ -572,8 +572,12 @@ viewSensorFilter selectedSensor =
             , Attr.placeholder "sensor"
             , Attr.type_ "text"
             , Attr.name "sensor"
-            , Popup.clickWithoutDefault ShowSelectFormPopup
-            , Attr.value selectedSensor
+            , if Sensor.parameterIsPrioritized sensors selectedSensorId then
+                Popup.clickWithoutDefault (ShowExpandableSelectFromPopup (Sensor.sensorsLabelsForIdWithPrioritization sensors selectedSensorId) "sensors")
+
+              else
+                Popup.clickWithoutDefault ShowSelectFormPopup
+            , Attr.value (Sensor.sensorLabelForId sensors selectedSensorId)
             ]
             []
         ]
