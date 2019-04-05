@@ -530,30 +530,35 @@ viewFixedFilters model =
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
         , label [] [ text "type" ]
-        , div []
-            [ button
-                [ Attr.type_ "button"
-                , if model.isIndoor then
-                    Attr.class "toggle-button toggle-button--pressed"
+        , viewToggleButtons "indoor" "outdoor" model.isIndoor ToggleIndoor
+        ]
 
-                  else
-                    Attr.class "toggle-button"
-                , ariaLabel "indoor"
-                , Events.onClick (ToggleIndoor True)
-                ]
-                [ text "indoor" ]
-            , button
-                [ Attr.type_ "button"
-                , if not model.isIndoor then
-                    Attr.class "toggle-button toggle-button--pressed"
 
-                  else
-                    Attr.class "toggle-button"
-                , ariaLabel "outdoor"
-                , Events.onClick (ToggleIndoor False)
-                ]
-                [ text "outdoor" ]
+viewToggleButtons : String -> String -> Bool -> (Bool -> Msg) -> Html Msg
+viewToggleButtons label1 label2 requirement callback =
+    div []
+        [ button
+            [ Attr.type_ "button"
+            , if requirement then
+                Attr.class "toggle-button toggle-button--pressed"
+
+              else
+                Attr.class "toggle-button"
+            , ariaLabel label1
+            , Events.onClick (callback True)
             ]
+            [ text label1 ]
+        , button
+            [ Attr.type_ "button"
+            , if not requirement then
+                Attr.class "toggle-button toggle-button--pressed"
+
+              else
+                Attr.class "toggle-button"
+            , ariaLabel label2
+            , Events.onClick (callback False)
+            ]
+            [ text label2 ]
         ]
 
 
