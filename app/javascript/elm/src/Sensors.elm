@@ -1,11 +1,11 @@
-module Sensors exposing (ParameterSensorPair, allParametersWithPrioritization, decodeParameterSensorPairs, idForParameterOrLabel, labelForId, labelsForParameterInId, parameterForId)
+module Sensors exposing (Sensor, allParametersWithPrioritization, decodeSensors, idForParameterOrLabel, parameterForId, sensorLabelForId, sensorLabelsForParameterInId)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Set
 
 
-type alias ParameterSensorPair =
+type alias Sensor =
     { id_ : String
     , sensor : String
     , parameter : String
@@ -15,8 +15,8 @@ type alias ParameterSensorPair =
     }
 
 
-decodeParameterSensorPairs : Encode.Value -> List ParameterSensorPair
-decodeParameterSensorPairs sensors =
+decodeSensors : Encode.Value -> List Sensor
+decodeSensors sensors =
     let
         result =
             Decode.decodeValue (Decode.list sensorsDecoder) sensors
@@ -25,13 +25,13 @@ decodeParameterSensorPairs sensors =
         Ok values ->
             values
                 |> List.map
-                    (\pair ->
-                        { id_ = String.toLower pair.parameter ++ "-" ++ String.toLower pair.sensor ++ " (" ++ pair.unit ++ ")"
-                        , sensor = pair.sensor
-                        , parameter = String.toLower pair.parameter
-                        , unit = pair.unit
-                        , label = pair.sensor ++ " (" ++ pair.unit ++ ")"
-                        , session_count = pair.session_count
+                    (\sensor ->
+                        { id_ = String.toLower sensor.parameter ++ "-" ++ String.toLower sensor.sensor ++ " (" ++ sensor.unit ++ ")"
+                        , sensor = sensor.sensor
+                        , parameter = String.toLower sensor.parameter
+                        , unit = sensor.unit
+                        , label = sensor.sensor ++ " (" ++ sensor.unit ++ ")"
+                        , session_count = sensor.session_count
                         }
                     )
 
@@ -55,100 +55,76 @@ type alias Decodable =
     }
 
 
-labelsForParameterInId : List ParameterSensorPair -> String -> List String
-labelsForParameterInId pairs sensorId =
-    pairs
-        |> List.filter (\pair -> pair.parameter == parameterForId pairs sensorId)
-        |> List.map (\pair -> pair.label)
+sensorLabelsForParameterInId : List Sensor -> String -> List String
+sensorLabelsForParameterInId sensors sensorId =
+    sensors
+        |> List.filter (\sensor -> sensor.parameter == parameterForId sensors sensorId)
+        |> List.map .label
         |> List.sort
 
 
-labelForId : List ParameterSensorPair -> String -> String
-labelForId pairs sensorId =
-    let
-        maybePair =
-            pairs
-                |> List.filter (\pair -> pair.id_ == sensorId)
-                |> List.head
-    in
-    case maybePair of
-        Just pair ->
-            pair.label
-
-        Nothing ->
-            ""
+sensorLabelForId : List Sensor -> String -> String
+sensorLabelForId sensors sensorId =
+    sensors
+        |> List.filter (\sensor -> sensor.id_ == sensorId)
+        |> List.head
+        |> Maybe.map .label
+        |> Maybe.withDefault ""
 
 
-parameterForId : List ParameterSensorPair -> String -> String
-parameterForId pairs sensorId =
-    let
-        maybePair =
-            pairs
-                |> List.filter (\pair -> pair.id_ == sensorId)
-                |> List.head
-    in
-    case maybePair of
-        Just pair ->
-            pair.parameter
-
-        Nothing ->
-            ""
+parameterForId : List Sensor -> String -> String
+parameterForId sensors sensorId =
+    sensors
+        |> List.filter (\sensor -> sensor.id_ == sensorId)
+        |> List.head
+        |> Maybe.map .parameter
+        |> Maybe.withDefault ""
 
 
-allParameters : List ParameterSensorPair -> List String
-allParameters pairs =
-    List.map (\pair -> pair.parameter) pairs
+allParameters : List Sensor -> List String
+allParameters sensors =
+    sensors
+        |> List.map .parameter
         |> Set.fromList
         |> Set.toList
 
 
-allParametersWithPrioritization : List ParameterSensorPair -> { main : List String, other : Maybe (List String) }
-allParametersWithPrioritization pairs =
+allParametersWithPrioritization : List Sensor -> { main : List String, others : Maybe (List String) }
+allParametersWithPrioritization sensors =
     let
         prioritizeParameters =
             [ "particulate matter", "humidity", "temperature", "sound level" ]
 
-        otherParameters =
-            allParameters pairs
-                |> List.filter (\pair -> not (List.member pair prioritizeParameters))
+        othersParameters =
+            allParameters sensors
+                |> List.filter (\sensor -> not (List.member sensor prioritizeParameters))
                 |> List.sort
 
         maybeOtherParameters =
-            if List.isEmpty otherParameters then
+            if List.isEmpty othersParameters then
                 Nothing
 
             else
-                Just otherParameters
+                Just othersParameters
     in
     { main = prioritizeParameters
-    , other = maybeOtherParameters
+    , others = maybeOtherParameters
     }
 
 
-idForParameterOrLabel : String -> String -> List ParameterSensorPair -> String
-idForParameterOrLabel key oldSensorId pairs =
-    let
-        maybeParameterPair =
-            pairs
-                |> List.filter (\pair -> pair.parameter == key)
-                |> List.sortBy .session_count
-                |> List.reverse
+idForParameterOrLabel : String -> String -> List Sensor -> String
+idForParameterOrLabel key oldSensorId sensors =
+    sensors
+        |> List.filter (\sensor -> sensor.parameter == key)
+        |> List.sortBy .session_count
+        |> List.reverse
+        |> List.head
+        |> Maybe.map .id_
+        |> Maybe.withDefault
+            (sensors
+                |> List.filter (\sensor -> sensor.label == key && sensor.parameter == parameterForId sensors oldSensorId)
                 |> List.head
-    in
-    case maybeParameterPair of
-        Just pair ->
-            pair.id_
-
-        Nothing ->
-            let
-                maybeSensorPair =
-                    pairs
-                        |> List.filter (\pair -> pair.label == key)
-                        |> List.head
-            in
-            case maybeSensorPair of
-                Just pair ->
-                    pair.id_
-
-                Nothing ->
+                |> Maybe.map .id_
+                |> Maybe.withDefault
                     "particulate matter-airbeam2-pm2.5 (µg/m³)"
+            )

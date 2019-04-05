@@ -41,7 +41,7 @@ type alias Model =
     , isHttping : Bool
     , popup : Popup.Popup
     , isPopupExtended : Bool
-    , parameterSensorPairs : List Sensors.ParameterSensorPair
+    , sensors : List Sensors.Sensor
     , selectedSensorId : String
     , location : String
     , tags : LabelsInput.Model
@@ -62,7 +62,7 @@ defaultModel =
     , isHttping = False
     , popup = Popup.None
     , isPopupExtended = False
-    , parameterSensorPairs = []
+    , sensors = []
     , selectedSensorId = "particulate matter-airbeam2-pm2.5 (µg/m³)"
     , location = ""
     , tags = LabelsInput.empty
@@ -110,7 +110,7 @@ init flags url key =
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , isIndoor = flags.isIndoor
         , selectedSessionId = flags.selectedSessionId
-        , parameterSensorPairs = Sensors.decodeParameterSensorPairs flags.sensors
+        , sensors = Sensors.decodeSensors flags.sensors
         , selectedSensorId = flags.selectedSensorId
       }
     , Cmd.none
@@ -178,10 +178,10 @@ update msg model =
             ( model, Ports.showCopyLinkTooltip () )
 
         ShowExpandableSelectFromPopup ->
-            ( { model | popup = Popup.ExpandableSelectFrom (Sensors.allParametersWithPrioritization model.parameterSensorPairs) }, Cmd.none )
+            ( { model | popup = Popup.ExpandableSelectFrom (Sensors.allParametersWithPrioritization model.sensors) }, Cmd.none )
 
         ShowSelectFormPopup ->
-            ( { model | popup = Popup.SelectFrom (Sensors.labelsForParameterInId model.parameterSensorPairs model.selectedSensorId) }, Cmd.none )
+            ( { model | popup = Popup.SelectFrom (Sensors.sensorLabelsForParameterInId model.sensors model.selectedSensorId) }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None, isPopupExtended = False }, Cmd.none )
@@ -192,7 +192,7 @@ update msg model =
         SelectSensorId value ->
             let
                 selectedSensorId =
-                    Sensors.idForParameterOrLabel value model.selectedSensorId model.parameterSensorPairs
+                    Sensors.idForParameterOrLabel value model.selectedSensorId model.sensors
             in
             ( { model | selectedSensorId = selectedSensorId }, Ports.selectSensorId selectedSensorId )
 
@@ -314,7 +314,7 @@ view model =
                     , viewFilters model
                     , viewFiltersButtons model.selectedSessionId model.sessions
                     ]
-                , Popup.viewPopup TogglePopupState SelectSensorId model.isPopupExtended model.popup
+                , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup
                 , div [ Attr.class "maps-content-container" ]
                     [ if model.isHttping then
                         div [ Attr.class "overlay" ]
@@ -499,8 +499,8 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter (Sensors.parameterForId model.parameterSensorPairs model.selectedSensorId)
-        , viewSensorFilter (Sensors.labelForId model.parameterSensorPairs model.selectedSensorId)
+        [ viewParameterFilter (Sensors.parameterForId model.sensors model.selectedSensorId)
+        , viewSensorFilter (Sensors.sensorLabelForId model.sensors model.selectedSensorId)
         , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
@@ -518,8 +518,8 @@ viewMobileFilters model =
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter (Sensors.parameterForId model.parameterSensorPairs model.selectedSensorId)
-        , viewSensorFilter (Sensors.labelForId model.parameterSensorPairs model.selectedSensorId)
+        [ viewParameterFilter (Sensors.parameterForId model.sensors model.selectedSensorId)
+        , viewSensorFilter (Sensors.sensorLabelForId model.sensors model.selectedSensorId)
         , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"

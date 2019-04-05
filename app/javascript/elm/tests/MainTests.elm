@@ -22,7 +22,7 @@ popups =
     describe "Popup tests: "
         [ test "when ClosePopup is triggered the popup is hidden" <|
             \_ ->
-                { defaultModel | popup = Popup.ExpandableSelectFrom { main = [], other = Nothing } }
+                { defaultModel | popup = Popup.ExpandableSelectFrom { main = [], others = Nothing } }
                     |> update ClosePopup
                     |> Tuple.first
                     |> view
@@ -38,7 +38,7 @@ popups =
         ]
 
 
-parameterSensorPairs =
+sensors =
     [ { id_ = "parameter-sensor (unit)"
       , parameter = "parameter"
       , label = "Sensor (unit)"
@@ -56,7 +56,7 @@ parameterSensorFilter =
             \_ ->
                 { defaultModel
                     | selectedSensorId = "parameter-sensor (unit)"
-                    , parameterSensorPairs = parameterSensorPairs
+                    , sensors = sensors
                 }
                     |> view
                     |> Query.fromHtml
@@ -66,7 +66,7 @@ parameterSensorFilter =
             \parameter ->
                 { defaultModel
                     | selectedSensorId = "parameter-sensor (unit)"
-                    , parameterSensorPairs = parameterSensorPairs
+                    , sensors = sensors
                 }
                     |> view
                     |> Query.fromHtml
