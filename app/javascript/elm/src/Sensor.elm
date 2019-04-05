@@ -1,4 +1,4 @@
-module Sensors exposing (Sensor, allParametersWithPrioritization, decodeSensors, idForParameterOrLabel, parameterForId, sensorLabelForId, sensorLabelsForParameterInId)
+module Sensor exposing (Sensor, allParametersWithPrioritization, decodeSensors, idForParameterOrLabel, parameterForId, sensorLabelForId, sensorLabelsForParameterInId)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -18,40 +18,25 @@ type alias Sensor =
 decodeSensors : Encode.Value -> List Sensor
 decodeSensors sensors =
     let
-        result =
-            Decode.decodeValue (Decode.list sensorsDecoder) sensors
+        sensorsDecoder =
+            Decode.map4 toSensor
+                (Decode.field "sensor_name" Decode.string)
+                (Decode.field "measurement_type" Decode.string)
+                (Decode.field "unit_symbol" Decode.string)
+                (Decode.field "session_count" Decode.int)
     in
-    case result of
-        Ok values ->
-            values
-                |> List.map
-                    (\sensor ->
-                        { id_ = String.toLower sensor.parameter ++ "-" ++ String.toLower sensor.sensor ++ " (" ++ sensor.unit ++ ")"
-                        , sensor = sensor.sensor
-                        , parameter = String.toLower sensor.parameter
-                        , unit = sensor.unit
-                        , label = sensor.sensor ++ " (" ++ sensor.unit ++ ")"
-                        , session_count = sensor.session_count
-                        }
-                    )
-
-        Err error ->
-            []
+    sensors
+        |> Decode.decodeValue (Decode.list sensorsDecoder)
+        |> Result.withDefault []
 
 
-sensorsDecoder =
-    Decode.map4 Decodable
-        (Decode.field "sensor_name" Decode.string)
-        (Decode.field "measurement_type" Decode.string)
-        (Decode.field "unit_symbol" Decode.string)
-        (Decode.field "session_count" Decode.int)
-
-
-type alias Decodable =
-    { sensor : String
-    , parameter : String
-    , unit : String
-    , session_count : Int
+toSensor sensor parameter unit session_count =
+    { id_ = String.toLower parameter ++ "-" ++ String.toLower sensor ++ " (" ++ unit ++ ")"
+    , sensor = sensor
+    , parameter = String.toLower parameter
+    , unit = unit
+    , label = sensor ++ " (" ++ unit ++ ")"
+    , session_count = session_count
     }
 
 
