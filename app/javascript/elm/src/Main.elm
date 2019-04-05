@@ -4,7 +4,7 @@ import Browser exposing (..)
 import Browser.Events
 import Browser.Navigation
 import Data.Session exposing (..)
-import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, h4, img, input, label, li, main_, nav, p, span, text, ul)
+import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as Decode
@@ -13,7 +13,7 @@ import LabelsInput
 import Maybe exposing (..)
 import Popup
 import Ports
-import Sensors
+import Sensor
 import String exposing (fromInt)
 import TimeRange exposing (TimeRange)
 import Url exposing (Url)
@@ -41,7 +41,7 @@ type alias Model =
     , isHttping : Bool
     , popup : Popup.Popup
     , isPopupExtended : Bool
-    , sensors : List Sensors.Sensor
+    , sensors : List Sensor.Sensor
     , selectedSensorId : String
     , location : String
     , tags : LabelsInput.Model
@@ -110,7 +110,7 @@ init flags url key =
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , isIndoor = flags.isIndoor
         , selectedSessionId = flags.selectedSessionId
-        , sensors = Sensors.decodeSensors flags.sensors
+        , sensors = Sensor.decodeSensors flags.sensors
         , selectedSensorId = flags.selectedSensorId
       }
     , Cmd.none
@@ -178,10 +178,10 @@ update msg model =
             ( model, Ports.showCopyLinkTooltip () )
 
         ShowExpandableSelectFromPopup ->
-            ( { model | popup = Popup.ExpandableSelectFrom (Sensors.allParametersWithPrioritization model.sensors) }, Cmd.none )
+            ( { model | popup = Popup.ExpandableSelectFrom (Sensor.allParametersWithPrioritization model.sensors) }, Cmd.none )
 
         ShowSelectFormPopup ->
-            ( { model | popup = Popup.SelectFrom (Sensors.sensorLabelsForParameterInId model.sensors model.selectedSensorId) }, Cmd.none )
+            ( { model | popup = Popup.SelectFrom (Sensor.sensorLabelsForParameterInId model.sensors model.selectedSensorId) }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None, isPopupExtended = False }, Cmd.none )
@@ -192,7 +192,7 @@ update msg model =
         SelectSensorId value ->
             let
                 selectedSensorId =
-                    Sensors.idForParameterOrLabel value model.selectedSensorId model.sensors
+                    Sensor.idForParameterOrLabel value model.selectedSensorId model.sensors
             in
             ( { model | selectedSensorId = selectedSensorId }, Ports.selectSensorId selectedSensorId )
 
@@ -501,8 +501,8 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter (Sensors.parameterForId model.sensors model.selectedSensorId)
-        , viewSensorFilter (Sensors.sensorLabelForId model.sensors model.selectedSensorId)
+        [ viewParameterFilter (Sensor.parameterForId model.sensors model.selectedSensorId)
+        , viewSensorFilter (Sensor.sensorLabelForId model.sensors model.selectedSensorId)
         , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
@@ -520,8 +520,8 @@ viewMobileFilters model =
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter (Sensors.parameterForId model.sensors model.selectedSensorId)
-        , viewSensorFilter (Sensors.sensorLabelForId model.sensors model.selectedSensorId)
+        [ viewParameterFilter (Sensor.parameterForId model.sensors model.selectedSensorId)
+        , viewSensorFilter (Sensor.sensorLabelForId model.sensors model.selectedSensorId)
         , viewLocation model.location model.isIndoor
         , TimeRange.view
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"

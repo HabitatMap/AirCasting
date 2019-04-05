@@ -10,6 +10,7 @@ import LabelsInput
 import Main exposing (..)
 import Popup
 import Ports
+import Sensor
 import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
@@ -38,6 +39,7 @@ popups =
         ]
 
 
+sensors : List Sensor.Sensor
 sensors =
     [ { id_ = "parameter-sensor (unit)"
       , parameter = "parameter"
@@ -62,8 +64,8 @@ parameterSensorFilter =
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "parameter" ]
                     |> Query.has [ Slc.attribute <| Attr.value "parameter" ]
-        , fuzz string "sensor filter shows sensor label based on selectedSensorId" <|
-            \parameter ->
+        , test "sensor filter shows sensor label based on selectedSensorId" <|
+            \_ ->
                 { defaultModel
                     | selectedSensorId = "parameter-sensor (unit)"
                     , sensors = sensors

@@ -1,13 +1,10 @@
-module SensorsTests exposing (all)
+module SensorTests exposing (all)
 
 import Expect
-import Fuzz exposing (bool, int, intRange, list, string)
+import Fuzz exposing (int, list, string)
 import Json.Encode as Encode
-import Sensors exposing (..)
+import Sensor exposing (..)
 import Test exposing (..)
-import Test.Html.Event as Event
-import Test.Html.Query as Query
-import Test.Html.Selector as Slc
 
 
 all : Test
@@ -61,6 +58,7 @@ all =
         ]
 
 
+sensors : List Sensor.Sensor
 sensors =
     [ { id_ = "parameter-sensor (unit)"
       , parameter = "parameter"
