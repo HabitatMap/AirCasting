@@ -320,10 +320,7 @@ view model =
                 [ div [ Attr.class "map-filters" ]
                     [ viewSessionTypes model
                     , viewFilters model
-                    , div [ Attr.class "filters-buttons" ]
-                        [ a [ Attr.class "filters-button export-button", Attr.target "_blank", Attr.href <| exportLink model.sessions ] [ text "export sessions" ]
-                        , button [ Attr.class "filters-button circular-button", Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ] [ text "oo" ]
-                        ]
+                    , viewFiltersButtons model.selectedSessionId model.sessions
                     ]
                 , div [ Attr.class "maps-content-container" ]
                     [ if model.isHttping then
@@ -382,6 +379,19 @@ view model =
                 ]
             ]
         ]
+
+
+viewFiltersButtons : Maybe Int -> List Session -> Html Msg
+viewFiltersButtons selectedSessionId sessions =
+    case selectedSessionId of
+        Just _ ->
+            text ""
+
+        Nothing ->
+            div [ Attr.class "filters-buttons" ]
+                [ a [ Attr.class "filters-button export-button", Attr.target "_blank", Attr.href <| exportLink sessions ] [ text "export sessions" ]
+                , button [ Attr.class "filters-button circular-button", Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ] [ text "oo" ]
+                ]
 
 
 exportLink : List Session -> String
