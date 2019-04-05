@@ -13,7 +13,7 @@ import Test.Html.Selector as Slc
 all : Test
 all =
     describe "all:"
-        [ test "decodeParameterSensorPairs return a list of parameter-sensor pairs" <|
+        [ test "decodeSensors return a list of sensors" <|
             \_ ->
                 let
                     encodedValue =
@@ -36,32 +36,32 @@ all =
                             ]
                 in
                 encodedValue
-                    |> decodeParameterSensorPairs
-                    |> Expect.equal parameterSensorPairs
-        , test "labelsForParameterInId finds all sensors for parameter" <|
+                    |> decodeSensors
+                    |> Expect.equal sensors
+        , test "sensorLabelsForParameterInId finds all sensors for parameter" <|
             \_ ->
                 "parameter-sensor (unit)"
-                    |> labelsForParameterInId parameterSensorPairs
+                    |> sensorLabelsForParameterInId sensors
                     |> Expect.equal [ "Sensor (unit)", "Sensor2 (unit)" ]
         , test "idForParameterOrLabel finds sensorId for parameter" <|
             \_ ->
-                parameterSensorPairs
+                sensors
                     |> idForParameterOrLabel "parameter2" "parameter-sensor (unit)"
                     |> Expect.equal "parameter2-sensor3 (unit)"
         , test "idForParameterOrLabel finds sensorId for sensor label" <|
             \_ ->
-                parameterSensorPairs
+                sensors
                     |> idForParameterOrLabel "Sensor2 (unit)" "parameter-sensor (unit)"
                     |> Expect.equal "parameter-sensor2 (unit)"
         , test "idForParameterOrLabel finds sensorId with highest sessions count for parameter" <|
             \_ ->
-                parameterSensorPairs
+                sensors
                     |> idForParameterOrLabel "parameter" "parameter2-sensor3 (unit)"
                     |> Expect.equal "parameter-sensor2 (unit)"
         ]
 
 
-parameterSensorPairs =
+sensors =
     [ { id_ = "parameter-sensor (unit)"
       , parameter = "parameter"
       , label = "Sensor (unit)"

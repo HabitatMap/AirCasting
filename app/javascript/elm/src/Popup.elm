@@ -1,4 +1,4 @@
-module Popup exposing (Items, Popup(..), clickWithoutDefault, viewPopup)
+module Popup exposing (Items, Popup(..), clickWithoutDefault, view)
 
 import Html exposing (Html, button, div, li, text, ul)
 import Html.Attributes as Attr
@@ -14,17 +14,17 @@ type Popup
 
 type alias Items =
     { main : List String
-    , other : Maybe (List String)
+    , others : Maybe (List String)
     }
 
 
-viewPopup : msg -> (String -> msg) -> Bool -> Popup -> Html msg
-viewPopup toggle onSelect isPopupExtended popup =
+view : msg -> (String -> msg) -> Bool -> Popup -> Html msg
+view toggle onSelect isPopupExtended popup =
     case popup of
         ExpandableSelectFrom items ->
             div [ Attr.id "popup" ]
                 [ selectableItems items.main onSelect
-                , case items.other of
+                , case items.others of
                     Just moreItems ->
                         if isPopupExtended then
                             div []
