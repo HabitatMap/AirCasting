@@ -13,7 +13,9 @@ const elmDefaultOptions = {
 }
 const developmentOptions = Object.assign({}, elmDefaultOptions, {
   verbose: true,
-  debug: true
+  // when running the app in debug mode decoding a long list crashes the app
+  // that happens for example when receiving all measurements for a selected session
+  debug: false
 })
 const productionOptions = Object.assign({}, elmDefaultOptions, {
   optimize: true

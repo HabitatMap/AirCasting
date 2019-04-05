@@ -1,19 +1,22 @@
-module Main exposing (Msg(..), Page(..), defaultModel, exportPath, update, view)
+module Main exposing (Msg(..), defaultModel, exportPath, update, view)
 
 import Browser exposing (..)
 import Browser.Events
 import Browser.Navigation
+import Data.Page exposing (Page(..))
+import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
 import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes as Attr
 import Html.Attributes.Aria exposing (..)
 import Html.Events as Events
-import Json.Decode as Decode
+import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
 import LabelsInput
 import Maybe exposing (..)
 import Popup
 import Ports
+import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import String exposing (fromInt)
 import TimeRange exposing (TimeRange)
@@ -29,16 +32,11 @@ exportPath =
 ---- MODEL ----
 
 
-type Page
-    = Fixed
-    | Mobile
-
-
 type alias Model =
     { page : Page
     , key : Maybe Browser.Navigation.Key
     , sessions : List Session
-    , selectedSessionId : Maybe Int
+    , selectedSession : WebData SelectedSession
     , isHttping : Bool
     , popup : Popup.Popup
     , isPopupExtended : Bool
@@ -59,7 +57,6 @@ defaultModel =
     { page = Mobile
     , key = Nothing
     , sessions = []
-    , selectedSessionId = Nothing
     , isHttping = False
     , popup = Popup.None
     , isPopupExtended = False
@@ -72,6 +69,7 @@ defaultModel =
     , crowdMapResolution = 25
     , timeRange = TimeRange.defaultTimeRange
     , isIndoor = False
+    , selectedSession = NotAsked
     }
 
 
@@ -110,11 +108,15 @@ init flags url key =
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , isIndoor = flags.isIndoor
-        , selectedSessionId = flags.selectedSessionId
         , sensors = Sensor.decodeSensors flags.sensors
         , selectedSensorId = flags.selectedSensorId
       }
-    , Cmd.none
+    , case flags.selectedSessionId of
+        Nothing ->
+            Cmd.none
+
+        Just id ->
+            SelectedSession.fetch flags.selectedSensorId page id GotSession
     )
 
 
@@ -138,13 +140,14 @@ type Msg
     | TogglePopupState
     | UrlChange Url
     | UrlRequest Browser.UrlRequest
-    | ToggleSessionSelection Int
     | UpdateSessions (List Session)
     | LoadMoreSessions
     | UpdateIsHttping Bool
     | ToggleIndoor
     | DeselectSession
     | ToggleSessionSelectionFromAngular (Maybe Int)
+    | ToggleSessionSelection Int
+    | GotSession (WebData SelectedSession)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -219,17 +222,6 @@ update msg model =
                 External url ->
                     ( model, Browser.Navigation.load url )
 
-        ToggleSessionSelection id ->
-            if model.selectedSessionId == Just id then
-                ( { model | selectedSessionId = Nothing }
-                , Ports.checkedSession { deselected = model.selectedSessionId, selected = Nothing }
-                )
-
-            else
-                ( { model | selectedSessionId = Just id }
-                , Ports.checkedSession { deselected = model.selectedSessionId, selected = Just id }
-                )
-
         UpdateSessions sessions ->
             ( { model | sessions = sessions }, Cmd.none )
 
@@ -249,15 +241,50 @@ update msg model =
                 )
 
         DeselectSession ->
-            ( { model | selectedSessionId = Nothing }, Ports.checkedSession { deselected = model.selectedSessionId, selected = Nothing } )
+            case model.selectedSession of
+                Success selectedSession ->
+                    ( { model | selectedSession = NotAsked }, Ports.checkedSession { deselected = Just selectedSession.id, selected = Nothing } )
+
+                _ ->
+                    ( model, Cmd.none )
 
         ToggleSessionSelectionFromAngular maybeId ->
             case maybeId of
                 Just id ->
-                    ( { model | selectedSessionId = Just id }, Cmd.none )
+                    ( model, SelectedSession.fetch model.selectedSensorId model.page id GotSession )
 
                 Nothing ->
-                    ( { model | selectedSessionId = Nothing }, Cmd.none )
+                    ( { model | selectedSession = NotAsked }, Cmd.none )
+
+        ToggleSessionSelection id ->
+            case model.selectedSession of
+                NotAsked ->
+                    ( model
+                    , Cmd.batch
+                        [ Ports.checkedSession { deselected = Nothing, selected = Just id }
+                        , SelectedSession.fetch model.selectedSensorId model.page id GotSession
+                        ]
+                    )
+
+                Success selectedSession ->
+                    if selectedSession.id == id then
+                        ( { model | selectedSession = NotAsked }
+                        , Ports.checkedSession { deselected = Just selectedSession.id, selected = Nothing }
+                        )
+
+                    else
+                        ( { model | selectedSession = NotAsked }
+                        , Cmd.batch
+                            [ Ports.checkedSession { deselected = Just selectedSession.id, selected = Just id }
+                            , SelectedSession.fetch model.selectedSensorId model.page id GotSession
+                            ]
+                        )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        GotSession response ->
+            ( { model | selectedSession = response }, Cmd.none )
 
 
 updateLabels :
@@ -321,7 +348,7 @@ view model =
                 [ div [ Attr.class "map-filters" ]
                     [ viewSessionTypes model
                     , viewFilters model
-                    , viewFiltersButtons model.selectedSessionId model.sessions
+                    , viewFiltersButtons model.selectedSession model.sessions
                     ]
                 , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup
                 , div [ Attr.class "maps-content-container" ]
@@ -351,29 +378,7 @@ view model =
                                 )
                             ]
                             [ div [ Attr.class "sessions", Attr.attribute "ng-controller" "SessionsGraphCtrl" ]
-                                [ div [ Attr.attribute "ng-controller" "SessionsListCtrl" ]
-                                    (case model.selectedSessionId of
-                                        Nothing ->
-                                            [ h2 [ Attr.class "sessions-header" ]
-                                                [ text "Sessions" ]
-                                            , span [ Attr.class "sessions-number" ]
-                                                [ text "showing 6 of 500 reuslts" ]
-                                            , viewSessions model
-                                            ]
-
-                                        Just _ ->
-                                            [ div [ Attr.class "single-session-container" ]
-                                                [ div [ Attr.class "single-session-info" ]
-                                                    [ p [ Attr.class "single-session-owner" ] [ text "NYCEJA" ] ]
-                                                , div
-                                                    [ Attr.class "single-session-graph", Attr.id "graph-box" ]
-                                                    [ div [ Attr.id "graph" ] []
-                                                    ]
-                                                , div [ Attr.class "single-session-close" ] [ button [ Events.onClick DeselectSession ] [ text "X" ] ]
-                                                ]
-                                            ]
-                                    )
-                                ]
+                                [ div [ Attr.attribute "ng-controller" "SessionsListCtrl" ] (viewSessionsOrSelectedSession model.selectedSession model.sessions) ]
                             ]
                         ]
                     , div [ Attr.class "heatmap" ]
@@ -384,18 +389,56 @@ view model =
         ]
 
 
-viewFiltersButtons : Maybe Int -> List Session -> Html Msg
-viewFiltersButtons selectedSessionId sessions =
-    case selectedSessionId of
-        Just _ ->
-            text ""
+viewSessionsOrSelectedSession selectedSession sessions =
+    case selectedSession of
+        NotAsked ->
+            [ h2 [ Attr.class "sessions-header" ]
+                [ text "Sessions" ]
+            , span [ Attr.class "sessions-number" ]
+                [ text "showing 6 of 500 reuslts" ]
+            , viewSessions sessions
+            ]
 
-        Nothing ->
+        Success session ->
+            [ viewSelectedSession <| Just session ]
+
+        Loading ->
+            [ viewSelectedSession Nothing ]
+
+        Failure _ ->
+            [ div [] [ text "error!" ] ]
+
+
+viewSelectedSession maybeSession =
+    div [ Attr.class "single-session-container" ]
+        [ div [ Attr.class "single-session-info" ]
+            (case maybeSession of
+                Nothing ->
+                    [ text "loading" ]
+
+                Just session ->
+                    [ SelectedSession.view session ]
+            )
+        , div
+            [ Attr.class "single-session-graph", Attr.id "graph-box" ]
+            [ div [ Attr.id "graph" ] []
+            ]
+        , div [ Attr.class "single-session-close" ] [ button [ Events.onClick DeselectSession ] [ text "X" ] ]
+        ]
+
+
+viewFiltersButtons : WebData SelectedSession -> List Session -> Html Msg
+viewFiltersButtons selectedSession sessions =
+    case selectedSession of
+        NotAsked ->
             div [ Attr.class "filters-buttons" ]
                 [ a [ Attr.class "filters-button export-button", Attr.target "_blank", Attr.href <| exportLink sessions ] [ text "export sessions" ]
                 , button [ Attr.class "filters-button circular-button", Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ]
                     [ img [ Attr.src "link-icon.svg" ] [] ]
                 ]
+
+        _ ->
+            text ""
 
 
 exportLink : List Session -> String
@@ -417,12 +460,10 @@ viewSessionTypes model =
         ]
 
 
-viewSessions : Model -> Html Msg
-viewSessions model =
+viewSessions : List Session -> Html Msg
+viewSessions sessions =
     div [ Attr.class "sessions-container" ]
-        (List.map (viewSessionCard model.selectedSessionId) model.sessions
-            ++ [ viewLoadMore <| List.length model.sessions ]
-        )
+        (List.map viewSessionCard sessions ++ [ viewLoadMore <| List.length sessions ])
 
 
 viewShortType : Int -> Int -> ShortType -> Html msg
@@ -448,38 +489,8 @@ viewLoadMore sessionCount =
         text ""
 
 
-viewSession : Maybe Int -> Session -> Html Msg
-viewSession selectedSessionId session =
-    li
-        [ Events.onClick <| ToggleSessionSelection session.id ]
-        [ input
-            [ Attr.type_ "radio"
-            , Attr.id <| "radio-" ++ fromInt session.id
-            , Attr.checked <| selectedSessionId == Just session.id
-            ]
-            []
-        , dl
-            []
-            [ dt
-                []
-                [ label
-                    [ Attr.class "narrow" ]
-                    [ text session.title ]
-                ]
-            , dd []
-                [ label
-                    [ Attr.class "narrow" ]
-                    ([ div [] [ text <| session.username ++ ", " ++ session.timeframe ]
-                     ]
-                        ++ List.indexedMap (viewShortType <| List.length session.shortTypes) session.shortTypes
-                    )
-                ]
-            ]
-        ]
-
-
-viewSessionCard : Maybe Int -> Session -> Html Msg
-viewSessionCard selectedSessionId session =
+viewSessionCard : Session -> Html Msg
+viewSessionCard session =
     div
         [ Attr.class "session"
         , Events.onClick <| ToggleSessionSelection session.id
@@ -493,7 +504,7 @@ viewSessionCard selectedSessionId session =
         , p [ Attr.class "session-owner" ]
             [ text session.username ]
         , p [ Attr.class "session-dates" ]
-            [ text session.timeframe ]
+            [ text session.timeRange ]
         ]
 
 

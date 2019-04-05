@@ -59,6 +59,14 @@ Rails.application.routes.draw do
       resources :measurements, only: :create
     end
 
+    namespace :fixed do
+      get "sessions/:id" => "sessions#show"
+    end
+
+    namespace :mobile do
+      get "sessions/:id" => "sessions#show"
+    end
+
     resources :short_url, only: [:index]
   end
 

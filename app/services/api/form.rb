@@ -1,6 +1,5 @@
 class Api::Form
-  def initialize(json:, schema:, struct:)
-    @json = json || "{}"
+  def initialize(schema:, struct:)
     @schema = schema
     @struct = struct
     @errors = []
@@ -26,14 +25,12 @@ class Api::Form
 
   private
 
-  def params
-    @params ||= ActiveSupport::JSON.decode(@json).symbolize_keys
-  rescue JSON::ParserError
-    raise Errors::Api::CouldNotParseJsonParams
+  def parsed_params
+    raise NotImplementedError
   end
 
   def validated_params
-    @validated_params ||= @schema.call(params)
+    @validated_params ||= @schema.call(parsed_params)
   end
 
   def validation_errors

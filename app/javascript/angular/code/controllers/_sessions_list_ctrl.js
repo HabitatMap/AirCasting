@@ -132,4 +132,4 @@ export const SessionsListCtrl = (
 }
 
 const formatSessionForElm = s =>
-  ({ ...s , shortTypes: s.shortTypes.map(({ name, type }) => ({ name, type_: type })) });
+  ({ ...s , timeRange: s.timeframe, shortTypes: s.shortTypes.map(({ name, type }) => ({ name, type_: type })) });
