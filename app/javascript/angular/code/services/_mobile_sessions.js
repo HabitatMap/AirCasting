@@ -82,7 +82,6 @@ export const mobileSessions = (
       const session = this.find(id);
       if (!session) return;
       session.loaded = false;
-      session.$selected = false;
       session.alreadySelected = false;
       drawSession.undoDraw(session, prevMapPosition);
     },
@@ -193,7 +192,6 @@ export const mobileSessions = (
       var sensorName = sensor.sensor_name;
       if (!sensorName) return;
       session.alreadySelected = true;
-      session.$selected = true;
       $http.get('/api/sessions/' + id, {
         cache : true,
         params: { sensor_id: sensorName }

@@ -86,6 +86,7 @@ type alias Flags =
     , selectedParameter : String
     , parametersList : Encode.Value
     , isIndoor : Bool
+    , selectedSessionId : Maybe Int
     }
 
 
@@ -126,6 +127,7 @@ init flags url key =
         , selectedParameter = flags.selectedParameter
         , parameters = { main = defaultModel.parameters.main, other = fetchedParameters }
         , isIndoor = flags.isIndoor
+        , selectedSessionId = flags.selectedSessionId
       }
     , Ports.selectParameter flags.selectedParameter
     )
@@ -155,6 +157,8 @@ type Msg
     | LoadMoreSessions
     | UpdateIsHttping Bool
     | ToggleIndoor Bool
+    | DeselectSession
+    | ToggleSessionSelectionFromAngular (Maybe Int)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -234,11 +238,7 @@ update msg model =
                 )
 
         UpdateSessions sessions ->
-            let
-                selectedSessionId =
-                    List.head << List.map .id << List.filter .selected
-            in
-            ( { model | sessions = sessions, selectedSessionId = selectedSessionId sessions }, Cmd.none )
+            ( { model | sessions = sessions }, Cmd.none )
 
         LoadMoreSessions ->
             ( model, Ports.loadMoreSessions () )
@@ -248,6 +248,17 @@ update msg model =
 
         ToggleIndoor value ->
             ( { model | isIndoor = value }, Ports.toggleIndoor value )
+
+        DeselectSession ->
+            ( { model | selectedSessionId = Nothing }, Ports.checkedSession { deselected = model.selectedSessionId, selected = Nothing } )
+
+        ToggleSessionSelectionFromAngular maybeId ->
+            case maybeId of
+                Just id ->
+                    ( { model | selectedSessionId = Just id }, Cmd.none )
+
+                Nothing ->
+                    ( { model | selectedSessionId = Nothing }, Cmd.none )
 
 
 updateLabels :
@@ -342,27 +353,29 @@ view model =
                                 )
                             ]
                             [ div [ Attr.class "sessions", Attr.attribute "ng-controller" "SessionsGraphCtrl" ]
-                                (case model.selectedSessionId of
-                                    Nothing ->
-                                        [ h2 [ Attr.class "sessions-header" ]
-                                            [ text "Sessions" ]
-                                        , span [ Attr.class "sessions-number" ]
-                                            [ text "showing 6 of 500 reuslts" ]
-                                        , viewSessions model
-                                        ]
-
-                                    Just _ ->
-                                        [ div [ Attr.class "single-session-container" ]
-                                            [ div [ Attr.class "single-session-info" ]
-                                                [ p [ Attr.class "single-session-owner" ] [ text "NYCEJA" ] ]
-                                            , div
-                                                [ Attr.class "single-session-graph", Attr.id "graph-box" ]
-                                                [ div [ Attr.id "graph" ] []
-                                                ]
-                                            , div [ Attr.class "single-session-close" ] []
+                                [ div [ Attr.attribute "ng-controller" "SessionsListCtrl" ]
+                                    (case model.selectedSessionId of
+                                        Nothing ->
+                                            [ h2 [ Attr.class "sessions-header" ]
+                                                [ text "Sessions" ]
+                                            , span [ Attr.class "sessions-number" ]
+                                                [ text "showing 6 of 500 reuslts" ]
+                                            , viewSessions model
                                             ]
-                                        ]
-                                )
+
+                                        Just _ ->
+                                            [ div [ Attr.class "single-session-container" ]
+                                                [ div [ Attr.class "single-session-info" ]
+                                                    [ p [ Attr.class "single-session-owner" ] [ text "NYCEJA" ] ]
+                                                , div
+                                                    [ Attr.class "single-session-graph", Attr.id "graph-box" ]
+                                                    [ div [ Attr.id "graph" ] []
+                                                    ]
+                                                , div [ Attr.class "single-session-close" ] [ button [ Events.onClick DeselectSession ] [ text "X" ] ]
+                                                ]
+                                            ]
+                                    )
+                                ]
                             ]
                         ]
                     , div [ Attr.class "heatmap" ]
@@ -394,7 +407,7 @@ viewSessionTypes model =
 
 viewSessions : Model -> Html Msg
 viewSessions model =
-    div [ Attr.class "sessions-container", Attr.attribute "ng-controller" "SessionsListCtrl" ]
+    div [ Attr.class "sessions-container" ]
         (List.map (viewSessionCard model.selectedSessionId) model.sessions
             ++ [ viewLoadMore <| List.length model.sessions ]
         )
@@ -643,4 +656,5 @@ subscriptions _ =
         , Browser.Events.onClick (Decode.succeed ClosePopup)
         , Ports.updateSessions UpdateSessions
         , Ports.updateIsHttping UpdateIsHttping
+        , Ports.toggleSessionSelection ToggleSessionSelectionFromAngular
         ]

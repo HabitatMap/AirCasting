@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultData = { location: "", tags: "", usernames: "", crowdMap: false, gridResolution: 25, isIndoor: false };
     const data = { ...defaultData, ...params.data };
 
+    console.warn(params);
     console.warn(data);
 
     const flags = {
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
       crowdMapResolution: data.gridResolution,
       tags: data.tags.split(', ').filter((tag) => tag !== ""),
       profiles: data.usernames.split(', ').filter((tag) => tag !== ""),
+      selectedSessionId: params.selectedSessionIds ? params.selectedSessionIds[0] ? params.selectedSessionIds[0] : null : null,
       timeRange: {
         timeFrom: data.timeFrom,
         timeTo: data.timeTo
