@@ -6,6 +6,7 @@ import Browser.Navigation
 import Data.Session exposing (..)
 import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes as Attr
+import Html.Attributes.Aria exposing (..)
 import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -526,16 +527,30 @@ viewFixedFilters model =
         , TimeRange.view RefreshTimeRange
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
-        , label
-            []
-            [ input
-                [ Attr.type_ "checkbox"
-                , Attr.checked model.isIndoor
-                , Attr.id "indoor-filter"
-                , Events.onCheck ToggleIndoor
+        , label [] [ text "type" ]
+        , div []
+            [ button
+                [ Attr.type_ "button"
+                , if model.isIndoor then
+                    Attr.class "toggle-button toggle-button--pressed"
+
+                  else
+                    Attr.class "toggle-button"
+                , ariaLabel "indoor"
+                , Events.onClick (ToggleIndoor True)
                 ]
-                []
-            , text "Only show indoor sessions"
+                [ text "indoor" ]
+            , button
+                [ Attr.type_ "button"
+                , if not model.isIndoor then
+                    Attr.class "toggle-button toggle-button--pressed"
+
+                  else
+                    Attr.class "toggle-button"
+                , ariaLabel "outdoor"
+                , Events.onClick (ToggleIndoor False)
+                ]
+                [ text "outdoor" ]
             ]
         ]
 
