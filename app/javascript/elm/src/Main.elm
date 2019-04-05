@@ -327,7 +327,8 @@ view model =
                         text ""
                     , div [ Attr.class "map-container" ]
                         [ if model.isIndoor && not model.isHttping then
-                            div [ Attr.class "overlay" ] []
+                            div [ Attr.class "overlay" ]
+                                [ div [ Attr.class "change-this-classname-Pina" ] [ text "In order to preserve privacy, we don't display indoor sessions on the map." ] ]
 
                           else
                             text ""
