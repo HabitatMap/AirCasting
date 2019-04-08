@@ -13,7 +13,7 @@ import LabelsInput
 import Maybe exposing (..)
 import Popup
 import Ports
-import Sensor
+import Sensor exposing (Sensor)
 import String exposing (fromInt)
 import TimeRange exposing (TimeRange)
 import Url exposing (Url)
@@ -41,7 +41,7 @@ type alias Model =
     , isHttping : Bool
     , popup : Popup.Popup
     , isPopupExtended : Bool
-    , sensors : List Sensor.Sensor
+    , sensors : List Sensor
     , selectedSensorId : String
     , location : String
     , tags : LabelsInput.Model
@@ -63,7 +63,7 @@ defaultModel =
     , popup = Popup.None
     , isPopupExtended = False
     , sensors = []
-    , selectedSensorId = "particulate matter-airbeam2-pm2.5 (µg/m³)"
+    , selectedSensorId = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
     , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
@@ -131,8 +131,7 @@ type Msg
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
     | ShowCopyLinkTooltip
-    | ShowExpandableSelectFromPopup
-    | ShowSelectFormPopup
+    | ShowPopup ( List String, List String ) String
     | SelectSensorId String
     | ClosePopup
     | TogglePopupState
@@ -181,14 +180,11 @@ update msg model =
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
 
-        ShowExpandableSelectFromPopup ->
-            ( { model | popup = Popup.ExpandableSelectFrom (Sensor.allParametersWithPrioritization model.sensors) }, Cmd.none )
-
-        ShowSelectFormPopup ->
-            ( { model | popup = Popup.SelectFrom (Sensor.sensorLabelsForParameterInId model.sensors model.selectedSensorId) }, Cmd.none )
+        ShowPopup items itemType ->
+            ( { model | popup = Popup.SelectFrom items itemType, isPopupExtended = False }, Cmd.none )
 
         ClosePopup ->
-            ( { model | popup = Popup.None, isPopupExtended = False }, Cmd.none )
+            ( { model | popup = Popup.None }, Cmd.none )
 
         TogglePopupState ->
             ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
@@ -506,8 +502,8 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter (Sensor.parameterForId model.sensors model.selectedSensorId)
-        , viewSensorFilter (Sensor.sensorLabelForId model.sensors model.selectedSensorId)
+        [ viewParameterFilter model.sensors model.selectedSensorId
+        , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
         , TimeRange.view RefreshTimeRange
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
@@ -525,8 +521,8 @@ viewMobileFilters model =
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     form [ Attr.class "filters-form" ]
-        [ viewParameterFilter (Sensor.parameterForId model.sensors model.selectedSensorId)
-        , viewSensorFilter (Sensor.sensorLabelForId model.sensors model.selectedSensorId)
+        [ viewParameterFilter model.sensors model.selectedSensorId
+        , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
         , TimeRange.view RefreshTimeRange
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
@@ -545,8 +541,8 @@ viewFixedFilters model =
         ]
 
 
-viewParameterFilter : String -> Html Msg
-viewParameterFilter selectedParameter =
+viewParameterFilter : List Sensor -> String -> Html Msg
+viewParameterFilter sensors selectedSensorId =
     div []
         [ label [ Attr.for "parameter" ] [ text "parameter:" ]
         , input
@@ -556,15 +552,15 @@ viewParameterFilter selectedParameter =
             , Attr.placeholder "parameter"
             , Attr.type_ "text"
             , Attr.name "parameter"
-            , Popup.clickWithoutDefault ShowExpandableSelectFromPopup
-            , Attr.value selectedParameter
+            , Popup.clickWithoutDefault (ShowPopup (Sensor.parameters sensors) "parameters")
+            , Attr.value (Sensor.parameterForId sensors selectedSensorId)
             ]
             []
         ]
 
 
-viewSensorFilter : String -> Html Msg
-viewSensorFilter selectedSensor =
+viewSensorFilter : List Sensor -> String -> Html Msg
+viewSensorFilter sensors selectedSensorId =
     div []
         [ label [ Attr.for "sensor" ] [ text "sensor:" ]
         , input
@@ -574,8 +570,8 @@ viewSensorFilter selectedSensor =
             , Attr.placeholder "sensor"
             , Attr.type_ "text"
             , Attr.name "sensor"
-            , Popup.clickWithoutDefault ShowSelectFormPopup
-            , Attr.value selectedSensor
+            , Popup.clickWithoutDefault (ShowPopup (Sensor.labelsForParameter sensors selectedSensorId) "sensors")
+            , Attr.value (Sensor.sensorLabelForId sensors selectedSensorId)
             ]
             []
         ]

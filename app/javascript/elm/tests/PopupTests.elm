@@ -24,26 +24,26 @@ popups =
                     itemsHtml =
                         List.map (\item -> Slc.containing [ Slc.text item ]) items
                 in
-                Popup.ExpandableSelectFrom { main = items, others = Nothing }
+                Popup.SelectFrom ( items, [] ) ""
                     |> view Toggle Select False
                     |> Query.fromHtml
                     |> Query.has [ Slc.all itemsHtml ]
-        , fuzz2 (list string) (list string) "popup shows only main items when not extended" <|
-            \mainItems otherItems ->
-                Popup.ExpandableSelectFrom { main = mainItems, others = Just otherItems }
+        , fuzz3 string (list string) (list string) "popup shows only main items when not extended" <|
+            \mainItem mainItems otherItems ->
+                Popup.SelectFrom ( mainItem :: mainItems, otherItems ) ""
                     |> view Toggle Select False
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.tag "li" ]
-                    |> Query.count (Expect.equal (List.length mainItems))
+                    |> Query.count (Expect.equal (List.length mainItems + 1))
         , test "if there are no others items popup doesn't have a toggle popup button" <|
             \_ ->
-                Popup.ExpandableSelectFrom { main = [], others = Nothing }
+                Popup.SelectFrom ( [], [] ) ""
                     |> view Toggle Select False
                     |> Query.fromHtml
                     |> Query.hasNot [ Slc.id "toggle-popup-button" ]
         , test "if there are others items popup has a button that triggers TogglePopupState" <|
             \_ ->
-                Popup.ExpandableSelectFrom { main = [], others = Just [ "item" ] }
+                Popup.SelectFrom ( [ "" ], [ "item" ] ) ""
                     |> view Toggle Select False
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "toggle-popup-button" ]
@@ -55,14 +55,14 @@ popups =
                     numberOfItems =
                         List.length mainItems + List.length otherItems
                 in
-                Popup.ExpandableSelectFrom { main = mainItems, others = Just otherItems }
+                Popup.SelectFrom ( mainItems, otherItems ) ""
                     |> view Toggle Select True
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.tag "li" ]
                     |> Query.count (Expect.equal numberOfItems)
         , test "clicking on an item executes select function" <|
             \_ ->
-                Popup.ExpandableSelectFrom { main = [ "item" ], others = Nothing }
+                Popup.SelectFrom ( [ "item" ], [] ) ""
                     |> view Toggle Select False
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "button", Slc.containing [ Slc.text "item" ] ]

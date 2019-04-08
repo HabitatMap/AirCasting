@@ -1,5 +1,14 @@
-module Sensor exposing (Sensor, allParametersWithPrioritization, decodeSensors, idForParameterOrLabel, parameterForId, sensorLabelForId, sensorLabelsForParameterInId)
+module Sensor exposing
+    ( Sensor
+    , decodeSensors
+    , idForParameterOrLabel
+    , labelsForParameter
+    , parameterForId
+    , parameters
+    , sensorLabelForId
+    )
 
+import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Set
@@ -30,22 +39,15 @@ decodeSensors sensors =
         |> Result.withDefault []
 
 
+toSensor : String -> String -> String -> Int -> Sensor
 toSensor sensor parameter unit session_count =
-    { id_ = String.toLower parameter ++ "-" ++ String.toLower sensor ++ " (" ++ unit ++ ")"
+    { id_ = parameter ++ "-" ++ String.toLower sensor ++ " (" ++ unit ++ ")"
     , sensor = sensor
-    , parameter = String.toLower parameter
+    , parameter = parameter
     , unit = unit
     , label = sensor ++ " (" ++ unit ++ ")"
     , session_count = session_count
     }
-
-
-sensorLabelsForParameterInId : List Sensor -> String -> List String
-sensorLabelsForParameterInId sensors sensorId =
-    sensors
-        |> List.filter (\sensor -> sensor.parameter == parameterForId sensors sensorId)
-        |> List.map .label
-        |> List.sort
 
 
 sensorLabelForId : List Sensor -> String -> String
@@ -66,35 +68,38 @@ parameterForId sensors sensorId =
         |> Maybe.withDefault ""
 
 
-allParameters : List Sensor -> List String
-allParameters sensors =
-    sensors
-        |> List.map .parameter
-        |> Set.fromList
-        |> Set.toList
-
-
-allParametersWithPrioritization : List Sensor -> { main : List String, others : Maybe (List String) }
-allParametersWithPrioritization sensors =
+parameters : List Sensor -> ( List String, List String )
+parameters sensors =
     let
-        prioritizeParameters =
-            [ "particulate matter", "humidity", "temperature", "sound level" ]
-
         othersParameters =
-            allParameters sensors
-                |> List.filter (\sensor -> not (List.member sensor prioritizeParameters))
+            sensors
+                |> List.map .parameter
+                |> Set.fromList
+                |> Set.toList
+                |> List.filter (\sensor -> not (List.member sensor (Dict.keys mainSensors)))
+                |> List.sort
+    in
+    ( Dict.keys mainSensors, othersParameters )
+
+
+labelsForParameter : List Sensor -> String -> ( List String, List String )
+labelsForParameter sensors sensorId =
+    let
+        allLabels =
+            sensors
+                |> List.filter (\sensor -> sensor.parameter == parameterForId sensors sensorId)
+                |> List.map .label
                 |> List.sort
 
-        maybeOtherParameters =
-            if List.isEmpty othersParameters then
-                Nothing
+        mainLabels_ =
+            mainSensors
+                |> Dict.get (parameterForId sensors sensorId)
+                |> Maybe.withDefault []
 
-            else
-                Just othersParameters
+        othersLabels_ =
+            List.filter (\label -> not (List.member label mainLabels_)) allLabels
     in
-    { main = prioritizeParameters
-    , others = maybeOtherParameters
-    }
+    ( mainLabels_, othersLabels_ )
 
 
 idForParameterOrLabel : String -> String -> List Sensor -> String
@@ -111,5 +116,21 @@ idForParameterOrLabel key oldSensorId sensors =
                 |> List.head
                 |> Maybe.map .id_
                 |> Maybe.withDefault
-                    "particulate matter-airbeam2-pm2.5 (µg/m³)"
+                    "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
             )
+
+
+mainSensors : Dict.Dict String (List String)
+mainSensors =
+    Dict.fromList
+        [ ( "Particulate Matter"
+          , [ "AirBeam2-PM2.5 (µg/m³)"
+            , "AirBeam2-PM1 (µg/m³)"
+            , "AirBeam2-PM10 (µg/m³)"
+            , "AirBeam-PM (µg/m³)"
+            ]
+          )
+        , ( "Humidity", [ "AirBeam2-RH (%)", "AirBeam-RH (%)" ] )
+        , ( "Temperature", [ "AirBeam2-F (F)", "AirBeam-F (F)" ] )
+        , ( "Sound Level", [ "Phone Microphone (dB)" ] )
+        ]

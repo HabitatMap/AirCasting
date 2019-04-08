@@ -22,7 +22,7 @@ test('selected with no sensor id in the url returns the default sensor with adde
 
   const expected = {
     ...defaultSensor,
-    id: 'particulate matter-airbeam2-pm2.5 (µg/m³)',
+    id: 'Particulate Matter-airbeam2-pm2.5 (µg/m³)',
     label: 'AirBeam2-PM2.5 (µg/m³)',
     select_label: 'AirBeam2-PM2.5 (µg/m³)'
   };
@@ -33,7 +33,7 @@ test('selected with no sensor id in the url returns the default sensor with adde
 
 test('selected with sensor id in the url returns the correct sensor with added id, label, select_label', t => {
   const params = {
-    get: () => ({ sensorId: "humidity-airbeam2-rh (%)" })
+    get: () => ({ sensorId: "Humidity-airbeam2-rh (%)" })
   };
   const service = _sensors({ params })
   const sensor = {
@@ -48,7 +48,7 @@ test('selected with sensor id in the url returns the correct sensor with added i
 
   const expected = {
     ...sensor,
-    id: 'humidity-airbeam2-rh (%)',
+    id: 'Humidity-airbeam2-rh (%)',
     label: 'AirBeam2-RH (%)',
     select_label: 'AirBeam2-RH (%)'
   };
@@ -72,7 +72,7 @@ test('selectedId with no sensor id in the url returns the default sensor id', t 
 
   const actual = service.selectedId();
 
-  const expected = 'particulate matter-airbeam2-pm2.5 (µg/m³)';
+  const expected = 'Particulate Matter-airbeam2-pm2.5 (µg/m³)';
   t.deepEqual(actual, expected);
 
   t.end();
