@@ -1,4 +1,12 @@
-module Sensor exposing (Sensor, allParametersWithPrioritization, decodeSensors, idForParameterOrLabel, isParametedPrioritized, parameterForId, sensorLabelForId, sensorLabelsForParameterInId, sensorsLabelsForIdWithPrioritization)
+module Sensor exposing
+    ( Sensor
+    , decodeSensors
+    , idForParameterOrLabel
+    , labelsForParameter
+    , parameterForId
+    , parameters
+    , sensorLabelForId
+    )
 
 import Dict
 import Json.Decode as Decode
@@ -42,14 +50,6 @@ toSensor sensor parameter unit session_count =
     }
 
 
-sensorLabelsForParameterInId : List Sensor -> String -> List String
-sensorLabelsForParameterInId sensors sensorId =
-    sensors
-        |> List.filter (\sensor -> sensor.parameter == parameterForId sensors sensorId)
-        |> List.map .label
-        |> List.sort
-
-
 sensorLabelForId : List Sensor -> String -> String
 sensorLabelForId sensors sensorId =
     sensors
@@ -68,29 +68,22 @@ parameterForId sensors sensorId =
         |> Maybe.withDefault ""
 
 
-allParameters : List Sensor -> List String
-allParameters sensors =
-    sensors
-        |> List.map .parameter
-        |> Set.fromList
-        |> Set.toList
-
-
-allParametersWithPrioritization : List Sensor -> { main : List String, others : List String }
-allParametersWithPrioritization sensors =
+parameters : List Sensor -> ( List String, List String )
+parameters sensors =
     let
         othersParameters =
-            allParameters sensors
+            sensors
+                |> List.map .parameter
+                |> Set.fromList
+                |> Set.toList
                 |> List.filter (\sensor -> not (List.member sensor (Dict.keys mainSensors)))
                 |> List.sort
     in
-    { main = Dict.keys mainSensors
-    , others = othersParameters
-    }
+    ( Dict.keys mainSensors, othersParameters )
 
 
-sensorsLabelsForIdWithPrioritization : List Sensor -> String -> { main : List String, others : List String }
-sensorsLabelsForIdWithPrioritization sensors sensorId =
+labelsForParameter : List Sensor -> String -> ( List String, List String )
+labelsForParameter sensors sensorId =
     let
         allLabels =
             sensors
@@ -98,17 +91,15 @@ sensorsLabelsForIdWithPrioritization sensors sensorId =
                 |> List.map .label
                 |> List.sort
 
-        mainLabels =
+        mainLabels_ =
             mainSensors
                 |> Dict.get (parameterForId sensors sensorId)
                 |> Maybe.withDefault []
 
-        othersLabels =
-            List.filter (\label -> not (List.member label mainLabels)) allLabels
+        othersLabels_ =
+            List.filter (\label -> not (List.member label mainLabels_)) allLabels
     in
-    { main = mainLabels
-    , others = othersLabels
-    }
+    ( mainLabels_, othersLabels_ )
 
 
 idForParameterOrLabel : String -> String -> List Sensor -> String
@@ -127,11 +118,6 @@ idForParameterOrLabel key oldSensorId sensors =
                 |> Maybe.withDefault
                     "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
             )
-
-
-isParametedPrioritized : List Sensor -> String -> Bool
-isParametedPrioritized sensors sensorId =
-    List.member (parameterForId sensors sensorId) (Dict.keys mainSensors)
 
 
 mainSensors : Dict.Dict String (List String)

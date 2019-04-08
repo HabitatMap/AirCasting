@@ -1,4 +1,4 @@
-module Popup exposing (Items, Popup(..), clickWithoutDefault, view)
+module Popup exposing (Popup(..), clickWithoutDefault, view)
 
 import Html exposing (Html, button, div, li, text, ul)
 import Html.Attributes as Attr
@@ -7,38 +7,39 @@ import Json.Decode as Decode
 
 
 type Popup
-    = ExpandableSelectFrom Items String
-    | SelectFrom (List String)
+    = SelectFrom ( List String, List String ) String
     | None
-
-
-type alias Items =
-    { main : List String
-    , others : List String
-    }
 
 
 view : msg -> (String -> msg) -> Bool -> Popup -> Html msg
 view toggle onSelect isPopupExtended popup =
     case popup of
-        ExpandableSelectFrom items itemType ->
-            div [ Attr.id "popup" ]
-                [ selectableItems items.main onSelect
-                , if List.isEmpty items.others then
-                    text ""
+        SelectFrom ( main, others ) itemType ->
+            case ( List.isEmpty main, List.isEmpty others ) of
+                ( True, _ ) ->
+                    div [ Attr.id "popup" ]
+                        [ selectableItems others onSelect ]
 
-                  else if isPopupExtended then
-                    div []
-                        [ selectableItems items.others onSelect
-                        , togglePopupStateButton ("less " ++ itemType) toggle
+                ( False, True ) ->
+                    div [ Attr.id "popup" ]
+                        [ selectableItems main onSelect
                         ]
 
-                  else
-                    togglePopupStateButton ("more " ++ itemType) toggle
-                ]
+                ( False, False ) ->
+                    div [ Attr.id "popup" ]
+                        [ selectableItems main onSelect
+                        , if List.isEmpty others then
+                            text ""
 
-        SelectFrom items ->
-            selectableItems items onSelect
+                          else if isPopupExtended then
+                            div []
+                                [ selectableItems others onSelect
+                                , togglePopupStateButton ("less " ++ itemType) toggle
+                                ]
+
+                          else
+                            togglePopupStateButton ("more " ++ itemType) toggle
+                        ]
 
         None ->
             text ""

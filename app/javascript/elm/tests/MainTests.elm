@@ -23,7 +23,7 @@ popups =
     describe "Popup tests: "
         [ test "when ClosePopup is triggered the popup is hidden" <|
             \_ ->
-                { defaultModel | popup = Popup.ExpandableSelectFrom { main = [], others = [] } "" }
+                { defaultModel | popup = Popup.SelectFrom ( [], [] ) "" }
                     |> update ClosePopup
                     |> Tuple.first
                     |> view
@@ -74,10 +74,10 @@ parameterSensorFilter =
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "sensor" ]
                     |> Query.has [ Slc.attribute <| Attr.value "Sensor (unit)" ]
-        , test "when ShowExpandableSelectFromPopup is triggered popup is shown" <|
+        , test "when ShowPopup is triggered popup is shown" <|
             \_ ->
                 defaultModel
-                    |> update (ShowExpandableSelectFromPopup { main = [], others = [] } "")
+                    |> update (ShowPopup ( [], [] ) "")
                     |> Tuple.first
                     |> view
                     |> Query.fromHtml

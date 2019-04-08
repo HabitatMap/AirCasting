@@ -35,11 +35,6 @@ all =
                 encodedValue
                     |> decodeSensors
                     |> Expect.equal sensors
-        , test "sensorLabelsForParameterInId finds all sensors for parameter" <|
-            \_ ->
-                "parameter-sensor (unit)"
-                    |> sensorLabelsForParameterInId sensors
-                    |> Expect.equal [ "Sensor (unit)", "Sensor2 (unit)" ]
         , test "idForParameterOrLabel finds sensorId for parameter" <|
             \_ ->
                 sensors
@@ -55,19 +50,18 @@ all =
                 sensors
                     |> idForParameterOrLabel "parameter" "parameter2-sensor3 (unit)"
                     |> Expect.equal "parameter-sensor2 (unit)"
-        , test "sensorsLabelsForIdWithPrioritization returns labels divided into main and others" <|
+        , test "labelsForParameter returns labels divided into main and others" <|
             \_ ->
                 "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-                    |> sensorsLabelsForIdWithPrioritization sensorsWithPriority
+                    |> labelsForParameter sensorsWithPriority
                     |> Expect.equal
-                        { main =
-                            [ "AirBeam2-PM2.5 (µg/m³)"
-                            , "AirBeam2-PM1 (µg/m³)"
-                            , "AirBeam2-PM10 (µg/m³)"
-                            , "AirBeam-PM (µg/m³)"
-                            ]
-                        , others = [ "Other Label (µg/m³)" ]
-                        }
+                        ( [ "AirBeam2-PM2.5 (µg/m³)"
+                          , "AirBeam2-PM1 (µg/m³)"
+                          , "AirBeam2-PM10 (µg/m³)"
+                          , "AirBeam-PM (µg/m³)"
+                          ]
+                        , [ "Other Label (µg/m³)" ]
+                        )
         ]
 
 

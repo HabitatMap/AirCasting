@@ -131,8 +131,7 @@ type Msg
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
     | ShowCopyLinkTooltip
-    | ShowExpandableSelectFromPopup Popup.Items String
-    | ShowSelectFromPopup
+    | ShowPopup ( List String, List String ) String
     | SelectSensorId String
     | ClosePopup
     | TogglePopupState
@@ -181,14 +180,11 @@ update msg model =
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
 
-        ShowExpandableSelectFromPopup items itemType ->
-            ( { model | popup = Popup.ExpandableSelectFrom items itemType, isPopupExtended = False }, Cmd.none )
-
-        ShowSelectFromPopup ->
-            ( { model | popup = Popup.SelectFrom (Sensor.sensorLabelsForParameterInId model.sensors model.selectedSensorId) }, Cmd.none )
+        ShowPopup items itemType ->
+            ( { model | popup = Popup.SelectFrom items itemType, isPopupExtended = False }, Cmd.none )
 
         ClosePopup ->
-            ( { model | popup = Popup.None, isPopupExtended = False }, Cmd.none )
+            ( { model | popup = Popup.None }, Cmd.none )
 
         TogglePopupState ->
             ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
@@ -554,7 +550,7 @@ viewParameterFilter sensors selectedSensorId =
             , Attr.placeholder "parameter"
             , Attr.type_ "text"
             , Attr.name "parameter"
-            , Popup.clickWithoutDefault (ShowExpandableSelectFromPopup (Sensor.allParametersWithPrioritization sensors) "parameters")
+            , Popup.clickWithoutDefault (ShowPopup (Sensor.parameters sensors) "parameters")
             , Attr.value (Sensor.parameterForId sensors selectedSensorId)
             ]
             []
@@ -572,11 +568,7 @@ viewSensorFilter sensors selectedSensorId =
             , Attr.placeholder "sensor"
             , Attr.type_ "text"
             , Attr.name "sensor"
-            , if Sensor.isParametedPrioritized sensors selectedSensorId then
-                Popup.clickWithoutDefault (ShowExpandableSelectFromPopup (Sensor.sensorsLabelsForIdWithPrioritization sensors selectedSensorId) "sensors")
-
-              else
-                Popup.clickWithoutDefault ShowSelectFromPopup
+            , Popup.clickWithoutDefault (ShowPopup (Sensor.labelsForParameter sensors selectedSensorId) "sensors")
             , Attr.value (Sensor.sensorLabelForId sensors selectedSensorId)
             ]
             []
