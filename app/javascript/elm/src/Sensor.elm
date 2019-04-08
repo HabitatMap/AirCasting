@@ -1,4 +1,4 @@
-module Sensor exposing (Sensor, allParametersWithPrioritization, decodeSensors, idForParameterOrLabel, parameterForId, parameterIsPrioritized, sensorLabelForId, sensorLabelsForParameterInId, sensorsLabelsForIdWithPrioritization)
+module Sensor exposing (Sensor, allParametersWithPrioritization, decodeSensors, idForParameterOrLabel, isParametedPrioritized, parameterForId, sensorLabelForId, sensorLabelsForParameterInId, sensorsLabelsForIdWithPrioritization)
 
 import Dict
 import Json.Decode as Decode
@@ -33,9 +33,9 @@ decodeSensors sensors =
 
 toSensor : String -> String -> String -> Int -> Sensor
 toSensor sensor parameter unit session_count =
-    { id_ = String.toLower parameter ++ "-" ++ String.toLower sensor ++ " (" ++ unit ++ ")"
+    { id_ = parameter ++ "-" ++ String.toLower sensor ++ " (" ++ unit ++ ")"
     , sensor = sensor
-    , parameter = String.toLower parameter
+    , parameter = parameter
     , unit = unit
     , label = sensor ++ " (" ++ unit ++ ")"
     , session_count = session_count
@@ -81,10 +81,10 @@ allParametersWithPrioritization sensors =
     let
         othersParameters =
             allParameters sensors
-                |> List.filter (\sensor -> not (List.member sensor prioritizedParameters))
+                |> List.filter (\sensor -> not (List.member sensor (Dict.keys mainSensors)))
                 |> List.sort
     in
-    { main = prioritizedParameters
+    { main = Dict.keys mainSensors
     , others = othersParameters
     }
 
@@ -99,7 +99,7 @@ sensorsLabelsForIdWithPrioritization sensors sensorId =
                 |> List.sort
 
         mainLabels =
-            prioritizedLabels
+            mainSensors
                 |> Dict.get (parameterForId sensors sensorId)
                 |> Maybe.withDefault []
 
@@ -125,31 +125,26 @@ idForParameterOrLabel key oldSensorId sensors =
                 |> List.head
                 |> Maybe.map .id_
                 |> Maybe.withDefault
-                    "particulate matter-airbeam2-pm2.5 (µg/m³)"
+                    "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
             )
 
 
-parameterIsPrioritized : List Sensor -> String -> Bool
-parameterIsPrioritized pairs sensorId =
-    List.member (parameterForId pairs sensorId) prioritizedParameters
+isParametedPrioritized : List Sensor -> String -> Bool
+isParametedPrioritized sensors sensorId =
+    List.member (parameterForId sensors sensorId) (Dict.keys mainSensors)
 
 
-prioritizedParameters : List String
-prioritizedParameters =
-    [ "particulate matter", "humidity", "temperature", "sound level" ]
-
-
-prioritizedLabels : Dict.Dict String (List String)
-prioritizedLabels =
+mainSensors : Dict.Dict String (List String)
+mainSensors =
     Dict.fromList
-        [ ( "particulate matter"
+        [ ( "Particulate Matter"
           , [ "AirBeam2-PM2.5 (µg/m³)"
             , "AirBeam2-PM1 (µg/m³)"
             , "AirBeam2-PM10 (µg/m³)"
             , "AirBeam-PM (µg/m³)"
             ]
           )
-        , ( "humidity", [ "AirBeam2-RH (%)", "AirBeam-RH (%)" ] )
-        , ( "temperature", [ "AirBeam2-F (F)", "AirBeam-F (F)" ] )
-        , ( "sound level", [ "Phone Microphone (dB)" ] )
+        , ( "Humidity", [ "AirBeam2-RH (%)", "AirBeam-RH (%)" ] )
+        , ( "Temperature", [ "AirBeam2-F (F)", "AirBeam-F (F)" ] )
+        , ( "Sound Level", [ "Phone Microphone (dB)" ] )
         ]

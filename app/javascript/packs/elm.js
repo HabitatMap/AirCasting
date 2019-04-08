@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .map(([k, v]) => [k, decodeURIComponent(v)])
       .map(([k, v]) => [k, JSON.parse(v)])
       .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
-    const defaultData = { location: "", tags: "", usernames: "", crowdMap: false, gridResolution: 25, isIndoor: false, sensorId: "particulate matter-airbeam2-pm2.5 (µg/m³)" };
+    const defaultData = { location: "", tags: "", usernames: "", crowdMap: false, gridResolution: 25, isIndoor: false, sensorId: "Particulate Matter-airbeam2-pm2.5 (µg/m³)" };
     const data = { ...defaultData, ...params.data };
 
     console.warn(params);

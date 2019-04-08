@@ -13,7 +13,7 @@ import LabelsInput
 import Maybe exposing (..)
 import Popup
 import Ports
-import Sensor
+import Sensor exposing (Sensor)
 import String exposing (fromInt)
 import TimeRange exposing (TimeRange)
 import Url exposing (Url)
@@ -41,7 +41,7 @@ type alias Model =
     , isHttping : Bool
     , popup : Popup.Popup
     , isPopupExtended : Bool
-    , sensors : List Sensor.Sensor
+    , sensors : List Sensor
     , selectedSensorId : String
     , location : String
     , tags : LabelsInput.Model
@@ -63,7 +63,7 @@ defaultModel =
     , popup = Popup.None
     , isPopupExtended = False
     , sensors = []
-    , selectedSensorId = "particulate matter-airbeam2-pm2.5 (µg/m³)"
+    , selectedSensorId = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
     , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
@@ -132,7 +132,7 @@ type Msg
     | RefreshTimeRange
     | ShowCopyLinkTooltip
     | ShowExpandableSelectFromPopup Popup.Items String
-    | ShowSelectFormPopup
+    | ShowSelectFromPopup
     | SelectSensorId String
     | ClosePopup
     | TogglePopupState
@@ -184,7 +184,7 @@ update msg model =
         ShowExpandableSelectFromPopup items itemType ->
             ( { model | popup = Popup.ExpandableSelectFrom items itemType, isPopupExtended = False }, Cmd.none )
 
-        ShowSelectFormPopup ->
+        ShowSelectFromPopup ->
             ( { model | popup = Popup.SelectFrom (Sensor.sensorLabelsForParameterInId model.sensors model.selectedSensorId) }, Cmd.none )
 
         ClosePopup ->
@@ -543,7 +543,7 @@ viewFixedFilters model =
         ]
 
 
-viewParameterFilter : List Sensor.Sensor -> String -> Html Msg
+viewParameterFilter : List Sensor -> String -> Html Msg
 viewParameterFilter sensors selectedSensorId =
     div []
         [ label [ Attr.for "parameter" ] [ text "parameter:" ]
@@ -561,7 +561,7 @@ viewParameterFilter sensors selectedSensorId =
         ]
 
 
-viewSensorFilter : List Sensor.Sensor -> String -> Html Msg
+viewSensorFilter : List Sensor -> String -> Html Msg
 viewSensorFilter sensors selectedSensorId =
     div []
         [ label [ Attr.for "sensor" ] [ text "sensor:" ]
@@ -572,11 +572,11 @@ viewSensorFilter sensors selectedSensorId =
             , Attr.placeholder "sensor"
             , Attr.type_ "text"
             , Attr.name "sensor"
-            , if Sensor.parameterIsPrioritized sensors selectedSensorId then
+            , if Sensor.isParametedPrioritized sensors selectedSensorId then
                 Popup.clickWithoutDefault (ShowExpandableSelectFromPopup (Sensor.sensorsLabelsForIdWithPrioritization sensors selectedSensorId) "sensors")
 
               else
-                Popup.clickWithoutDefault ShowSelectFormPopup
+                Popup.clickWithoutDefault ShowSelectFromPopup
             , Attr.value (Sensor.sensorLabelForId sensors selectedSensorId)
             ]
             []

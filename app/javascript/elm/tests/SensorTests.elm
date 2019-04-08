@@ -57,7 +57,7 @@ all =
                     |> Expect.equal "parameter-sensor2 (unit)"
         , test "sensorsLabelsForIdWithPrioritization returns labels divided into main and others" <|
             \_ ->
-                "particulate matter-airbeam2-pm2.5 (µg/m³)"
+                "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
                     |> sensorsLabelsForIdWithPrioritization sensorsWithPriority
                     |> Expect.equal
                         { main =
@@ -71,7 +71,7 @@ all =
         ]
 
 
-sensors : List Sensor.Sensor
+sensors : List Sensor
 sensors =
     [ { id_ = "parameter-sensor (unit)"
       , parameter = "parameter"
@@ -97,38 +97,38 @@ sensors =
     ]
 
 
-sensorsWithPriority : List Sensor.Sensor
+sensorsWithPriority : List Sensor
 sensorsWithPriority =
-    [ { id_ = "particulate matter-airbeam2-pm2.5 (µg/m³)"
-      , parameter = "particulate matter"
+    [ { id_ = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
+      , parameter = "Particulate Matter"
       , label = "AirBeam2-PM2.5 (µg/m³)"
       , sensor = "AirBeam2-PM2.5"
       , unit = "µg/m³"
       , session_count = 1
       }
-    , { id_ = "particulate matter-airbeam2-pm1 (µg/m³)"
-      , parameter = "particulate matter"
+    , { id_ = "Particulate Matter-airbeam2-pm1 (µg/m³)"
+      , parameter = "Particulate Matter"
       , label = "AirBeam2-PM1 (µg/m³)"
       , sensor = "AirBeam2-PM1"
       , unit = "µg/m³"
       , session_count = 1
       }
-    , { id_ = "particulate matter-airbeam2-pm10 (µg/m³)"
-      , parameter = "particulate matter"
+    , { id_ = "Particulate Matter-airbeam2-pm10 (µg/m³)"
+      , parameter = "Particulate Matter"
       , label = "AirBeam2-PM10 (µg/m³)"
       , sensor = "AirBeam2-PM10"
       , unit = "µg/m³"
       , session_count = 1
       }
-    , { id_ = "particulate matter-airbeam-pm (µg/m³)"
-      , parameter = "particulate matter"
+    , { id_ = "Particulate Matter-airbeam-pm (µg/m³)"
+      , parameter = "Particulate Matter"
       , label = "AirBeam-PM (µg/m³)"
       , sensor = "AirBeam-PM"
       , unit = "µg/m³"
       , session_count = 1
       }
-    , { id_ = "particulate matter-other label (µg/m³)"
-      , parameter = "particulate matter"
+    , { id_ = "Particulate Matter-other label (µg/m³)"
+      , parameter = "Particulate Matter"
       , label = "Other Label (µg/m³)"
       , sensor = "Other Label"
       , unit = "µg/m³"
