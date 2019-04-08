@@ -48,7 +48,7 @@ test('selected with sensor id in the url returns the correct sensor with added i
 
   const expected = {
     ...sensor,
-    id: 'humidity-airbeam2-rh (%)',
+    id: 'Humidity-airbeam2-rh (%)',
     label: 'AirBeam2-RH (%)',
     select_label: 'AirBeam2-RH (%)'
   };
