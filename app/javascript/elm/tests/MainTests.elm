@@ -332,6 +332,13 @@ profilesArea =
                         |> update (ProfileLabels <| LabelsInput.Remove "profile1")
                         |> Tuple.second
                         |> Expect.equal (Cmd.map ProfileLabels <| Ports.updateProfiles [ "profile2" ])
+            , test "input is disabled when showing fixed indoor sessions" <|
+                \_ ->
+                    { defaultModel | isIndoor = True, page = Fixed }
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.find [ Slc.id "profile-names" ]
+                        |> Query.has [ Slc.attribute <| Attr.disabled True ]
             ]
         ]
 
