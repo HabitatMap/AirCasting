@@ -142,7 +142,7 @@ type Msg
     | UpdateSessions (List Session)
     | LoadMoreSessions
     | UpdateIsHttping Bool
-    | ToggleIndoor Bool
+    | ToggleIndoor
     | DeselectSession
     | ToggleSessionSelectionFromAngular (Maybe Int)
 
@@ -239,8 +239,8 @@ update msg model =
         UpdateIsHttping isHttpingNow ->
             ( { model | isHttping = isHttpingNow }, Cmd.none )
 
-        ToggleIndoor value ->
-            ( { model | isIndoor = value }, Ports.toggleIndoor value )
+        ToggleIndoor ->
+            ( { model | isIndoor = not model.isIndoor }, Ports.toggleIndoor (not model.isIndoor) )
 
         DeselectSession ->
             ( { model | selectedSessionId = Nothing }, Ports.checkedSession { deselected = model.selectedSessionId, selected = Nothing } )
@@ -528,36 +528,24 @@ viewFixedFilters model =
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
         , label [] [ text "type" ]
-        , viewToggleButtons "indoor" "outdoor" model.isIndoor ToggleIndoor
+        , viewToggleButton "indoor" model.isIndoor ToggleIndoor
+        , viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
         ]
 
 
-viewToggleButtons : String -> String -> Bool -> (Bool -> Msg) -> Html Msg
-viewToggleButtons label1 label2 requirement callback =
-    div []
-        [ button
-            [ Attr.type_ "button"
-            , if requirement then
-                Attr.class "toggle-button toggle-button--pressed"
+viewToggleButton : String -> Bool -> Msg -> Html Msg
+viewToggleButton label isPressed callback =
+    button
+        [ Attr.type_ "button"
+        , if isPressed then
+            Attr.class "toggle-button toggle-button--pressed"
 
-              else
-                Attr.class "toggle-button"
-            , ariaLabel label1
-            , Events.onClick (callback True)
-            ]
-            [ text label1 ]
-        , button
-            [ Attr.type_ "button"
-            , if not requirement then
-                Attr.class "toggle-button toggle-button--pressed"
-
-              else
-                Attr.class "toggle-button"
-            , ariaLabel label2
-            , Events.onClick (callback False)
-            ]
-            [ text label2 ]
+          else
+            Attr.class "toggle-button"
+        , ariaLabel label
+        , Events.onClick callback
         ]
+        [ text label ]
 
 
 viewParameterFilter : List Sensor -> String -> Html Msg

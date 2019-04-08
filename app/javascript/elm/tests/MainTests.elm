@@ -462,28 +462,28 @@ toggleIndoorFilter =
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
                     |> Query.has [ Slc.attribute <| Attr.class "toggle-button--pressed" ]
-        , test "clicking indoor button triggers ToggleIndoor with True" <|
+        , test "clicking indoor button triggers ToggleIndoor" <|
             \_ ->
                 { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "indoor" ]
                     |> Event.simulate Event.click
-                    |> Event.expect (ToggleIndoor True)
-        , test "clicking outdoor button triggers ToggleIndoor with False" <|
+                    |> Event.expect ToggleIndoor
+        , test "clicking outdoor button triggers ToggleIndoor" <|
             \_ ->
                 { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
                     |> Event.simulate Event.click
-                    |> Event.expect (ToggleIndoor False)
-        , fuzz bool "ToggleIndoor triggers Ports.toggleIndoor with isIndoor value" <|
-            \isIndoor ->
-                { defaultModel | page = Fixed }
-                    |> update (ToggleIndoor isIndoor)
+                    |> Event.expect ToggleIndoor
+        , fuzz bool "ToggleIndoor triggers Ports.toggleIndoor with negated isIndoor value" <|
+            \value ->
+                { defaultModel | page = Fixed, isIndoor = value }
+                    |> update ToggleIndoor
                     |> Tuple.second
-                    |> Expect.equal (Ports.toggleIndoor isIndoor)
+                    |> Expect.equal (Ports.toggleIndoor (not value))
         ]
 
 
