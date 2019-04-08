@@ -6,6 +6,7 @@ import Browser.Navigation
 import Data.Session exposing (..)
 import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes as Attr
+import Html.Attributes.Aria exposing (..)
 import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -141,7 +142,7 @@ type Msg
     | UpdateSessions (List Session)
     | LoadMoreSessions
     | UpdateIsHttping Bool
-    | ToggleIndoor Bool
+    | ToggleIndoor
     | DeselectSession
     | ToggleSessionSelectionFromAngular (Maybe Int)
 
@@ -238,8 +239,8 @@ update msg model =
         UpdateIsHttping isHttpingNow ->
             ( { model | isHttping = isHttpingNow }, Cmd.none )
 
-        ToggleIndoor value ->
-            ( { model | isIndoor = value }, Ports.toggleIndoor value )
+        ToggleIndoor ->
+            ( { model | isIndoor = not model.isIndoor }, Ports.toggleIndoor (not model.isIndoor) )
 
         DeselectSession ->
             ( { model | selectedSessionId = Nothing }, Ports.checkedSession { deselected = model.selectedSessionId, selected = Nothing } )
@@ -327,7 +328,8 @@ view model =
                         text ""
                     , div [ Attr.class "map-container" ]
                         [ if model.isIndoor && not model.isHttping then
-                            div [ Attr.class "overlay" ] []
+                            div [ Attr.class "overlay" ]
+                                [ div [ Attr.class "change-this-classname-Pina" ] [ text "Indoor sessions aren't mapped." ] ]
 
                           else
                             text ""
@@ -527,18 +529,27 @@ viewFixedFilters model =
         , TimeRange.view RefreshTimeRange
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
-        , label
-            []
-            [ input
-                [ Attr.type_ "checkbox"
-                , Attr.checked model.isIndoor
-                , Attr.id "indoor-filter"
-                , Events.onCheck ToggleIndoor
-                ]
-                []
-            , text "Only show indoor sessions"
+        , label [] [ text "type" ]
+        , div []
+            [ viewToggleButton "indoor" model.isIndoor ToggleIndoor
+            , viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
             ]
         ]
+
+
+viewToggleButton : String -> Bool -> Msg -> Html Msg
+viewToggleButton label isPressed callback =
+    button
+        [ Attr.type_ "button"
+        , if isPressed then
+            Attr.class "toggle-button toggle-button--pressed"
+
+          else
+            Attr.class "toggle-button"
+        , ariaLabel label
+        , Events.onClick callback
+        ]
+        [ text label ]
 
 
 viewParameterFilter : List Sensor -> String -> Html Msg
