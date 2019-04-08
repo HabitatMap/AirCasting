@@ -31,3 +31,31 @@
   padding: 6px 0;
   margin-bottom: 12px;
 }
+
+.btn-primary {
+  background-color: $brand-primary;
+  border-radius: 30px;
+  font-size: $tiny-font;
+  line-height: 2;
+  border: none;
+  color: white;
+  text-align: center;
+  font-weight: $font-stack-bold;
+  padding: 0 18px;
+  text-transform: lowercase;
+}
+
+.cancelBtn {
+  font-size: $tiny-font;
+  line-height: 2;
+  border: none;
+  color: $brand-primary;
+  text-align: center;
+  font-weight: $font-stack-bold;
+  padding: 0 18px;
+  text-transform: lowercase;
+}
+
+.time-calendar-label {
+  color: $navy-font;
+}

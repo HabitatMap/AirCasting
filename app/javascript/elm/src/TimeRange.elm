@@ -58,6 +58,7 @@ view refreshTimeRange =
             , Attr.attribute "autocomplete" "off"
             , Attr.class "input-dark"
             , Attr.class "input-filters"
+            , Attr.class "input-time"
             , Attr.placeholder "time range"
             , Attr.type_ "text"
             , Attr.name "time-range"

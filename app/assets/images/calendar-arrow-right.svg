@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="15px" height="15px" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
+    <title>Group 3</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Design" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Calendar" transform="translate(-721.000000, -374.000000)">
+            <g id="Time-filters" transform="translate(262.000000, 343.000000)">
+                <g id="Simple-Calendar" transform="translate(278.000000, 28.000000)">
+                    <g id="Group-3" transform="translate(181.000000, 3.000000)">
+                        <path d="M0,7.5 C0,3.35786438 3.36629279,0 7.5,0 L7.5,0 C11.6421356,0 15,3.35514396 15,7.5 L15,7.5 L15,7.5 C15,11.6421356 11.6337072,15 7.5,15 L7.5,15 C3.35786438,15 0,11.6337072 0,7.5 L0,7.5 Z" id="Rectangle-10" fill="#3E4970"></path>
+                        <polygon id="Shape" fill="#FFFFFF" transform="translate(8.120930, 7.567667) rotate(-92.000000) translate(-8.120930, -7.567667) " points="10.8042632 5.56766689 8.12092989 8.05415337 5.43759656 5.56766689 4.62092989 6.32442364 8.12092989 9.56766689 11.6209299 6.32442364"></polygon>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

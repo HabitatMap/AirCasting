@@ -4,7 +4,6 @@ import Clipboard from 'clipboard';
 export const setupTimeRangeFilter = (callback, timeFrom, timeTo) => {
   if (document.getElementById("time-range")) {
     $('#time-range').daterangepicker({
-      opens: 'left',
       linkedCalendars: false,
       timePicker: true,
       timePicker24Hour: true,
