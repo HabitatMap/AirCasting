@@ -129,6 +129,7 @@ type Msg
     | ToggleCrowdMap
     | UpdateCrowdMapResolution Int
     | UpdateTimeRange Encode.Value
+    | RefreshTimeRange
     | ShowCopyLinkTooltip
     | ShowExpandableSelectFromPopup
     | ShowSelectFormPopup
@@ -173,6 +174,9 @@ update msg model =
                     TimeRange.update model.timeRange value
             in
             ( { model | timeRange = newTimeRange }, Cmd.none )
+
+        RefreshTimeRange ->
+            ( model, Ports.refreshTimeRange () )
 
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
@@ -504,7 +508,7 @@ viewMobileFilters model =
         [ viewParameterFilter (Sensor.parameterForId model.sensors model.selectedSensorId)
         , viewSensorFilter (Sensor.sensorLabelForId model.sensors model.selectedSensorId)
         , viewLocation model.location model.isIndoor
-        , TimeRange.view
+        , TimeRange.view RefreshTimeRange
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
         , div [ Attr.class "filter-separator" ] []
@@ -523,7 +527,7 @@ viewFixedFilters model =
         [ viewParameterFilter (Sensor.parameterForId model.sensors model.selectedSensorId)
         , viewSensorFilter (Sensor.sensorLabelForId model.sensors model.selectedSensorId)
         , viewLocation model.location model.isIndoor
-        , TimeRange.view
+        , TimeRange.view RefreshTimeRange
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
         , label

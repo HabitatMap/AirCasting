@@ -1,7 +1,8 @@
 module TimeRange exposing (TimeRange(..), defaultTimeRange, update, view)
 
-import Html exposing (Html, div, h4, input, label, text)
+import Html exposing (Html, button, div, h4, input, label, text)
 import Html.Attributes as Attr
+import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
 
@@ -48,8 +49,8 @@ timeRangeDecoder =
         (Decode.field "timeTo" Decode.int)
 
 
-view : Html msg
-view =
+view : msg -> Html msg
+view refreshTimeRange =
     div []
         [ label [ Attr.for "time-range" ] [ text "time range:" ]
         , input
@@ -62,4 +63,5 @@ view =
             , Attr.name "time-range"
             ]
             []
+        , button [ Events.onClick refreshTimeRange ] [ text "refresh" ]
         ]

@@ -1,7 +1,7 @@
 import tippy from 'tippy.js';
 import Clipboard from 'clipboard';
 
-export const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeTo) => {
+export const setupTimeRangeFilter = (callback, timeFrom, timeTo) => {
   if (document.getElementById("time-range")) {
     $('#time-range').daterangepicker({
       opens: 'left',
@@ -17,15 +17,10 @@ export const setupTimeRangeFilter = (elmApp, sessions, callback, timeFrom, timeT
       timeFrom = timeFrom.utcOffset(0, true).unix();
       timeTo = timeTo.utcOffset(0, true).unix();
 
-      elmApp.ports.timeRangeSelected.send({
-        timeFrom: timeFrom,
-        timeTo: timeTo
-      });
-
       callback(timeFrom, timeTo);
     });
   } else {
-    window.setTimeout(setupTimeRangeFilter(elmApp, sessions, callback, timeFrom, timeTo), 100);
+    window.setTimeout(setupTimeRangeFilter(callback, timeFrom, timeTo), 100);
   };
 };
 

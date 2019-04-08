@@ -3,6 +3,9 @@ import moment from 'moment'
 
 import * as FiltersUtils from '../filtersUtils'
 
+const endOfToday = moment().utc().endOf('day').format('X');
+const oneYearAgo = moment().utc().startOf('day').subtract(1, 'year').format('X');
+
 export const FixedSessionsMapCtrl = (
   $scope,
   params,
@@ -51,8 +54,8 @@ export const FixedSessionsMapCtrl = (
       streaming: true,
       tags: "",
       usernames: "",
-      timeFrom: moment().utc().startOf('day').subtract(1, 'year').format('X'),
-      timeTo: moment().utc().endOf('day').format('X')
+      timeFrom: oneYearAgo,
+      timeTo: endOfToday
     };
 
     if (!params.get('data').heat) sensors.fetchHeatLevels();
@@ -115,17 +118,22 @@ export const FixedSessionsMapCtrl = (
         $scope.sessions.fetch();
       });
 
-      const callback = (timeFrom, timeTo) => {
-        params.update({ data: {
-          timeFrom: timeFrom,
-          timeTo: timeTo
-        }});
+
+      const onTimeRangeChanged = (timeFrom, timeTo) => {
+        elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
+
+        params.update({ data: { timeFrom, timeTo }});
 
         sessions.fetch();
-      }
+      };
 
-      FiltersUtils.setupTimeRangeFilter(elmApp, $scope.sessions, callback,  params.get('data').timeFrom, params.get('data').timeTo);
+      FiltersUtils.setupTimeRangeFilter(onTimeRangeChanged,  params.get('data').timeFrom, params.get('data').timeTo);
 
+      elmApp.ports.refreshTimeRange.subscribe(() => {
+        FiltersUtils.setupTimeRangeFilter(onTimeRangeChanged, oneYearAgo , endOfToday);
+
+        onTimeRangeChanged(oneYearAgo, endOfToday);
+      });
 
       FiltersUtils.setupClipboard();
 

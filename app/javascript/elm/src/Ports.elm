@@ -4,6 +4,7 @@ port module Ports exposing
     , loadMoreSessions
     , locationCleared
     , profileSelected
+    , refreshTimeRange
     , selectSensorId
     , showCopyLinkTooltip
     , tagSelected
@@ -71,3 +72,6 @@ port updateProfiles : List String -> Cmd a
 
 
 port toggleSessionSelection : (Maybe Int -> msg) -> Sub msg
+
+
+port refreshTimeRange : () -> Cmd a
