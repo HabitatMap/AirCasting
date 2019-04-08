@@ -387,7 +387,8 @@ viewFiltersButtons selectedSessionId sessions =
         Nothing ->
             div [ Attr.class "filters-buttons" ]
                 [ a [ Attr.class "filters-button export-button", Attr.target "_blank", Attr.href <| exportLink sessions ] [ text "export sessions" ]
-                , button [ Attr.class "filters-button circular-button", Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ] [ text "oo" ]
+                , button [ Attr.class "filters-button circular-button", Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ]
+                    [ img [ Attr.src "link-icon.svg" ] [] ]
                 ]
 
 

@@ -103,11 +103,20 @@
                 '<div class="ranges"></div>' +
                 '<div class="drp-calendar left">' +
                     '<div class="calendar-table"></div>' +
-                    '<div class="calendar-time"></div>' +
                 '</div>' +
                 '<div class="drp-calendar right">' +
                     '<div class="calendar-table"></div>' +
-                    '<div class="calendar-time"></div>' +
+                '</div>' +
+                '<div class="time-container">' +
+                  '<span class="time-header">Daily measurement time frame:</span>' +
+                  '<div class="drp-calendar left time-calendar">' +
+                      '<div class="calendar-time-label">From:</div>' +
+                      '<div class="calendar-time"></div>' +
+                  '</div>' +
+                  '<div class="drp-calendar right time-calendar">' +
+                      '<div class="calendar-time-label">Until:</div>' +
+                      '<div class="calendar-time"></div>' +
+                  '</div>' +
                 '</div>' +
                 '<div class="drp-buttons">' +
                     '<span class="drp-selected"></span>' +
@@ -688,16 +697,6 @@
             html += '<thead>';
             html += '<tr>';
 
-            // add empty cell for week number
-            if (this.showWeekNumbers || this.showISOWeekNumbers)
-                html += '<th></th>';
-
-            if ((!minDate || minDate.isBefore(calendar.firstDay)) && (!this.linkedCalendars || side == 'left')) {
-                html += '<th class="prev available"><span></span></th>';
-            } else {
-                html += '<th></th>';
-            }
-
             var dateHtml = this.locale.monthNames[calendar[1][1].month()] + calendar[1][1].format(" YYYY");
 
             if (this.showDropdowns) {
@@ -734,6 +733,16 @@
             }
 
             html += '<th colspan="5" class="month">' + dateHtml + '</th>';
+            // add empty cell for week number
+            if (this.showWeekNumbers || this.showISOWeekNumbers)
+                html += '<th></th>';
+
+            if ((!minDate || minDate.isBefore(calendar.firstDay)) && (!this.linkedCalendars || side == 'left')) {
+                html += '<th class="prev available"><span></span></th>';
+            } else {
+                html += '<th></th>';
+            }
+
             if ((!maxDate || maxDate.isAfter(calendar.lastDay)) && (!this.linkedCalendars || side == 'right' || this.singleDatePicker)) {
                 html += '<th class="next available"><span></span></th>';
             } else {
