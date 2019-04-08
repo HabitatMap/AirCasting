@@ -68,8 +68,8 @@ update msg model toCmd =
 -- VIEW
 
 
-view : Model -> String -> String -> String -> Html Msg
-view model text_ inputId placeholder =
+view : Model -> String -> String -> String -> Bool -> Html Msg
+view model text_ inputId placeholder isDisabled =
     div []
         [ label [ Attr.for inputId ] [ text text_ ]
         , div [ Attr.class "tag-container" ]
@@ -84,6 +84,7 @@ view model text_ inputId placeholder =
                 , ExtraEvents.onEnter (Add <| getCandidate model)
                 , Events.onInput UpdateCandidate
                 , Attr.value <| getCandidate model
+                , Attr.disabled isDisabled
                 ]
                 []
             , div [] (List.map viewLabel <| asList model)

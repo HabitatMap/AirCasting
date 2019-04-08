@@ -508,8 +508,8 @@ viewMobileFilters model =
         , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
         , TimeRange.view RefreshTimeRange
-        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
-        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False
+        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False
         , div [ Attr.class "filter-separator" ] []
         , viewCrowdMapCheckBox model.isCrowdMapOn
         , if model.isCrowdMapOn then
@@ -527,8 +527,8 @@ viewFixedFilters model =
         , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
         , TimeRange.view RefreshTimeRange
-        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
-        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor
+        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False
         , label [] [ text "type" ]
         , div []
             [ viewToggleButton "indoor" model.isIndoor ToggleIndoor
