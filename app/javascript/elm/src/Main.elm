@@ -528,8 +528,10 @@ viewFixedFilters model =
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name"
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag"
         , label [] [ text "type" ]
-        , viewToggleButton "indoor" model.isIndoor ToggleIndoor
-        , viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
+        , div []
+            [ viewToggleButton "indoor" model.isIndoor ToggleIndoor
+            , viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
+            ]
         ]
 
 
