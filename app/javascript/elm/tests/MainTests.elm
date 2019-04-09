@@ -332,6 +332,13 @@ profilesArea =
                         |> update (ProfileLabels <| LabelsInput.Remove "profile1")
                         |> Tuple.second
                         |> Expect.equal (Cmd.map ProfileLabels <| Ports.updateProfiles [ "profile2" ])
+            , test "input is disabled when showing fixed indoor sessions" <|
+                \_ ->
+                    { defaultModel | isIndoor = True, page = Fixed }
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.find [ Slc.id "profile-names" ]
+                        |> Query.has [ Slc.attribute <| Attr.disabled True ]
             ]
         ]
 
@@ -478,12 +485,18 @@ toggleIndoorFilter =
                     |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
                     |> Event.simulate Event.click
                     |> Event.expect ToggleIndoor
-        , fuzz bool "ToggleIndoor triggers Ports.toggleIndoor with negated isIndoor value" <|
-            \value ->
-                { defaultModel | page = Fixed, isIndoor = value }
+        , test "when indoor false ToggleIndoor triggers Ports.toggleIndoor with True and Ports.updateProfiles with []" <|
+            \_ ->
+                { defaultModel | page = Fixed }
                     |> update ToggleIndoor
                     |> Tuple.second
-                    |> Expect.equal (Ports.toggleIndoor (not value))
+                    |> Expect.equal (Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [] ])
+        , test "when is indoor true ToggleIndoor triggers Ports.toggleIndoor with False" <|
+            \_ ->
+                { defaultModel | page = Fixed, isIndoor = True }
+                    |> update ToggleIndoor
+                    |> Tuple.second
+                    |> Expect.equal (Ports.toggleIndoor False)
         ]
 
 
