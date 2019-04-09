@@ -240,7 +240,13 @@ update msg model =
             ( { model | isHttping = isHttpingNow }, Cmd.none )
 
         ToggleIndoor ->
-            ( { model | isIndoor = not model.isIndoor }, Ports.toggleIndoor (not model.isIndoor) )
+            if model.isIndoor then
+                ( { model | isIndoor = not model.isIndoor }, Ports.toggleIndoor (not model.isIndoor) )
+
+            else
+                ( { model | isIndoor = not model.isIndoor, profiles = LabelsInput.empty }
+                , Cmd.batch [ Ports.toggleIndoor (not model.isIndoor), Ports.updateProfiles [] ]
+                )
 
         DeselectSession ->
             ( { model | selectedSessionId = Nothing }, Ports.checkedSession { deselected = model.selectedSessionId, selected = Nothing } )
