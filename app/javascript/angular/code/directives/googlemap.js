@@ -34,12 +34,16 @@ angular.module('aircasting').directive('googlemap', function() {
             google.maps.MapTypeId.HYBRID
           ]
         },
-        zoomControl: false,
+        zoomControl: true,
+        zoomControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_TOP
+        },
         panControl: false,
         streetViewControl: true,
         streetViewControlOptions: {
           position: google.maps.ControlPosition.TOP_CENTER
-        }
+        },
+        fullscreenControl: false,
       };
       map.init(element[0], options);
     }
