@@ -53,3 +53,6 @@ build/
 /public/packs-test
 yarn-debug.log*
 .yarn-integrity
+
+.nyc_output/
+coverage/
