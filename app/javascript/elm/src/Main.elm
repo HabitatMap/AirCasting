@@ -387,15 +387,11 @@ view model =
         ]
 
 
+viewSessionsOrSelectedSession : WebData SelectedSession -> List Session -> List (Html Msg)
 viewSessionsOrSelectedSession selectedSession sessions =
     case selectedSession of
         NotAsked ->
-            [ h2 [ Attr.class "sessions-header" ]
-                [ text "Sessions" ]
-            , span [ Attr.class "sessions-number" ]
-                [ text "showing 6 of 500 reuslts" ]
-            , viewSessions sessions
-            ]
+            [ viewSessions sessions ]
 
         Success session ->
             [ viewSelectedSession <| Just session ]
@@ -407,6 +403,7 @@ viewSessionsOrSelectedSession selectedSession sessions =
             [ div [] [ text "error!" ] ]
 
 
+viewSelectedSession : Maybe SelectedSession -> Html Msg
 viewSelectedSession maybeSession =
     div [ Attr.class "single-session-container" ]
         [ div [ Attr.class "single-session-info" ]
@@ -460,8 +457,18 @@ viewSessionTypes model =
 
 viewSessions : List Session -> Html Msg
 viewSessions sessions =
-    div [ Attr.class "sessions-container" ]
-        (List.map viewSessionCard sessions ++ [ viewLoadMore <| List.length sessions ])
+    if List.length sessions == 0 then
+        text ""
+
+    else
+        div []
+            [ h2 [ Attr.class "sessions-header" ]
+                [ text "Sessions" ]
+            , span [ Attr.class "sessions-number" ]
+                [ text "showing 6 of 500 reuslts" ]
+            , div [ Attr.class "sessions-container" ]
+                (List.map viewSessionCard sessions ++ [ viewLoadMore <| List.length sessions ])
+            ]
 
 
 viewShortType : Int -> Int -> ShortType -> Html msg
