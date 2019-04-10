@@ -10,7 +10,8 @@ type alias ShortType =
 type alias Session =
     { title : String
     , id : Int
-    , timeRange : String
+    , startTime : String
+    , endTime : String
     , username : String
     , shortTypes : List ShortType
     }

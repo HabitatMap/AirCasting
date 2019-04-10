@@ -2,7 +2,8 @@ export const formatSessionForList = session => ({
   title: session.title || 'unnamed',
   username: session.is_indoor ? 'anonymous' : session.username,
   id: session.id,
-  timeframe: session.timeframe,
+  startTime: session.startTime,
+  endTime: session.endTime,
   shortTypes: session.shortTypes
 });
 

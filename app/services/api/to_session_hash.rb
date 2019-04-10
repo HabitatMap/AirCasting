@@ -17,7 +17,8 @@ class Api::ToSessionHash
       sensor_name: session.streams.first.sensor_name,
       average: session.streams.first.average_value,
       measurements: session.streams.first.measurements.map(&:value),
-      timeRange: "#{format_datetime(session.start_time_local)} - #{format_datetime(session.end_time_local)}",
+      startTime: format_datetime(session.start_time_local),
+      endTime: format_datetime(session.end_time_local),
       id: session.id,
     )
   end

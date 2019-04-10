@@ -160,9 +160,7 @@ timeFilter =
                         Encode.object [ ( "timeFrom", Encode.int timeFrom ), ( "timeTo", Encode.int timeTo ) ]
 
                     expected =
-                        { defaultModel
-                            | timeRange = TimeRange.update defaultModel.timeRange value
-                        }
+                        { defaultModel | timeRange = TimeRange.update defaultModel.timeRange value }
                 in
                 defaultModel
                     |> update (UpdateTimeRange value)
@@ -512,7 +510,8 @@ session : Session
 session =
     { title = "title"
     , id = 1
-    , timeRange = "timeRange"
+    , startTime = "start time"
+    , endTime = "end time"
     , username = "username"
     , shortTypes = shortTypes
     }
@@ -535,7 +534,8 @@ selectedSession =
     , average = 2.0
     , min = 1.0
     , max = 3.0
-    , timeRange = "time range"
+    , startTime = "start time"
+    , endTime = "end time"
     , measurements = [ 1.0, 2.0, 3.0 ]
     , id = 123
     }
@@ -642,14 +642,14 @@ viewTests =
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.all expected ]
-        , fuzz string "with selection the session timeRange is shown" <|
-            \timeRange ->
+        , fuzz2 string string "with selection the session startTime and endTime is shown" <|
+            \startTime endTime ->
                 let
                     selectedSession_ =
-                        { selectedSession | timeRange = timeRange }
+                        { selectedSession | startTime = startTime, endTime = endTime }
 
                     expected =
-                        List.map (\x -> Slc.containing [ Slc.text x ]) [ timeRange ]
+                        List.map (\x -> Slc.containing [ Slc.text x ]) [ startTime, endTime ]
                 in
                 { defaultModel | selectedSession = Success selectedSession_ }
                     |> view
