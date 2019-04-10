@@ -504,7 +504,9 @@ viewSessionCard session =
         , p [ Attr.class "session-owner" ]
             [ text session.username ]
         , p [ Attr.class "session-dates" ]
-            [ text session.timeRange ]
+            [ text session.startTime ]
+        , p [ Attr.class "session-dates" ]
+            [ text session.endTime ]
         ]
 
 

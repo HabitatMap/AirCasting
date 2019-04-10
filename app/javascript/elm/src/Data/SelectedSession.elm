@@ -15,7 +15,8 @@ type alias SelectedSession =
     , average : Float
     , min : Float
     , max : Float
-    , timeRange : String
+    , startTime : String
+    , endTime : String
     , measurements : List Float
     , id : Int
     }
@@ -23,25 +24,27 @@ type alias SelectedSession =
 
 decoder : Decoder SelectedSession
 decoder =
-    Decode.map7 toSelectedSession
+    Decode.map8 toSelectedSession
         (Decode.field "title" Decode.string)
         (Decode.field "username" Decode.string)
         (Decode.field "sensor_name" Decode.string)
         (Decode.field "average" (Decode.nullable Decode.float) |> Decode.map (Maybe.withDefault -1))
-        (Decode.field "timeRange" Decode.string)
+        (Decode.field "endTime" Decode.string)
+        (Decode.field "startTime" Decode.string)
         (Decode.field "measurements" (Decode.list Decode.float))
         (Decode.field "id" Decode.int)
 
 
-toSelectedSession : String -> String -> String -> Float -> String -> List Float -> Int -> SelectedSession
-toSelectedSession title username sensorName average timeRange measurements sessionId =
+toSelectedSession : String -> String -> String -> Float -> String -> String -> List Float -> Int -> SelectedSession
+toSelectedSession title username sensorName average startTime endTime measurements sessionId =
     { title = title
     , username = username
     , sensorName = sensorName
     , average = average
     , min = List.minimum measurements |> Maybe.withDefault -1
     , max = List.maximum measurements |> Maybe.withDefault -1
-    , timeRange = timeRange
+    , startTime = startTime
+    , endTime = endTime
     , measurements = measurements
     , id = sessionId
     }
@@ -74,5 +77,6 @@ view session =
         , p [ Attr.class "single-session-TODO" ] [ text <| String.fromFloat session.min ]
         , p [ Attr.class "single-session-TODO" ] [ text <| String.fromFloat session.max ]
         , p [ Attr.class "single-session-TODO" ] [ text <| String.fromFloat session.average ]
-        , p [ Attr.class "single-session-TODO" ] [ text session.timeRange ]
+        , p [ Attr.class "single-session-TODO" ] [ text session.startTime ]
+        , p [ Attr.class "single-session-TODO" ] [ text session.endTime ]
         ]
