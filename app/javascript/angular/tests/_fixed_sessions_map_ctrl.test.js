@@ -17,7 +17,7 @@ test("it updates defaults", t => {
     sensorId,
     location: "",
     isIndoor: false,
-    streaming: true,
+    isStreaming: true,
     tags: "",
     usernames: "",
     timeFrom: moment()
