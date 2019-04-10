@@ -16,29 +16,15 @@ module Test
   end
 end
 
-describe Api::Form do
-  context "when json is invalid" do
-    it "raises" do
-      expect do
-        json = "{"
-        schema = Test::Schema
-        struct = Test::Struct
-
-        form = Api::Form.new(json: json, schema: schema, struct: struct)
-
-        form.invalid?
-      end.to raise_error(Errors::Api::CouldNotParseJsonParams)
-    end
-  end
-
+describe Api::ParamsForm do
   describe "#invalid?" do
     context "when required param is missing" do
       it "returns true" do
-        json = "{}"
+        params = {}
         schema = Test::Schema
         struct = Test::Struct
 
-        form = Api::Form.new(json: json, schema: schema, struct: struct)
+        form = Api::ParamsForm.new(params: params, schema: schema, struct: struct)
 
         expect(form.invalid?).to eq(true)
       end
@@ -46,11 +32,11 @@ describe Api::Form do
 
     context "when required param is present" do
       it "returns true" do
-        json = "{\"name\":\"name\"}"
+        params = { "name": "name" }
         schema = Test::Schema
         struct = Test::Struct
 
-        form = Api::Form.new(json: json, schema: schema, struct: struct)
+        form = Api::ParamsForm.new(params: params, schema: schema, struct: struct)
 
         expect(form.invalid?).to eq(false)
       end
@@ -60,11 +46,11 @@ describe Api::Form do
   describe "#errors" do
     context "when required param is missing" do
       it "returns proper errors" do
-        json = "{}"
+        params = {}
         schema = Test::Schema
         struct = Test::Struct
 
-        form = Api::Form.new(json: json, schema: schema, struct: struct)
+        form = Api::ParamsForm.new(params: params, schema: schema, struct: struct)
 
         expect(form.errors).to eq([ "name is missing" ])
       end
@@ -72,11 +58,11 @@ describe Api::Form do
 
     context "required param is present" do
       it "returns no errors" do
-        json = "{\"name\":\"name\"}"
+        params = { "name": "name" }
         schema = Test::Schema
         struct = Test::Struct
 
-        form = Api::Form.new(json: json, schema: schema, struct: struct)
+        form = Api::ParamsForm.new(params: params, schema: schema, struct: struct)
 
         expect(form.errors).to eq([])
       end
@@ -86,11 +72,11 @@ describe Api::Form do
   describe "#to_h" do
     context "required param is present" do
       it "returns no errors" do
-        json = "{\"name\":\"name\"}"
+        params = { "name": "name" }
         schema = Test::Schema
         struct = Test::Struct
 
-        form = Api::Form.new(json: json, schema: schema, struct: struct)
+        form = Api::ParamsForm.new(params: params, schema: schema, struct: struct)
 
         expect(form.to_h).to eq(Test::Struct.new(name: "name"))
       end
@@ -99,14 +85,30 @@ describe Api::Form do
 
   describe "#add_error" do
     it "adds errors to the form" do
-      json = "{}"
+      params = {}
       schema = Test::Schema
       struct = Test::Struct
 
-      form = Api::Form.new(json: json, schema: schema, struct: struct)
+      form = Api::ParamsForm.new(params: params, schema: schema, struct: struct)
       form.add_error("added error")
 
       expect(form.errors).to eq([ "name is missing", "added error" ])
+    end
+  end
+end
+
+describe Api::JsonForm do
+  context "when json is invalid" do
+    it "raises" do
+      expect do
+        json = "{"
+        schema = Test::Schema
+        struct = Test::Struct
+
+        form = Api::JsonForm.new(json: json, schema: schema, struct: struct)
+
+        form.invalid?
+      end.to raise_error(Errors::Api::CouldNotParseJsonParams)
     end
   end
 end
