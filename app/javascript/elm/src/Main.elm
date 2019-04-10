@@ -233,11 +233,11 @@ update msg model =
 
         ToggleIndoor ->
             if model.isIndoor then
-                ( { model | isIndoor = not model.isIndoor }, Ports.toggleIndoor (not model.isIndoor) )
+                ( { model | isIndoor = False }, Ports.toggleIndoor False )
 
             else
-                ( { model | isIndoor = not model.isIndoor, profiles = LabelsInput.empty }
-                , Cmd.batch [ Ports.toggleIndoor (not model.isIndoor), Ports.updateProfiles [] ]
+                ( { model | isIndoor = True, profiles = LabelsInput.empty }
+                , Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [] ]
                 )
 
         DeselectSession ->
