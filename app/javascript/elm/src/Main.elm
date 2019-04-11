@@ -6,7 +6,7 @@ import Browser.Navigation
 import Data.Page exposing (Page(..))
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
-import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, input, label, li, main_, nav, p, span, text, ul)
+import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes as Attr
 import Html.Attributes.Aria exposing (..)
 import Html.Events as Events
@@ -49,6 +49,8 @@ type alias Model =
     , crowdMapResolution : Int
     , timeRange : TimeRange
     , isIndoor : Bool
+    , logoNav : String
+    , linkIcon : String
     }
 
 
@@ -70,6 +72,8 @@ defaultModel =
     , timeRange = TimeRange.defaultTimeRange
     , isIndoor = False
     , selectedSession = NotAsked
+    , logoNav = ""
+    , linkIcon = ""
     }
 
 
@@ -84,6 +88,8 @@ type alias Flags =
     , selectedSessionId : Maybe Int
     , sensors : Encode.Value
     , selectedSensorId : String
+    , logoNav : String
+    , linkIcon : String
     }
 
 
@@ -110,6 +116,8 @@ init flags url key =
         , isIndoor = flags.isIndoor
         , sensors = Sensor.decodeSensors flags.sensors
         , selectedSensorId = flags.selectedSensorId
+        , logoNav = flags.logoNav
+        , linkIcon = flags.linkIcon
       }
     , case flags.selectedSessionId of
         Nothing ->
@@ -316,8 +324,10 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ Attr.id "elm-app" ]
-        [ nav []
-            [ ul []
+        [ nav [ Attr.class "nav" ]
+            [ div [ Attr.class "nav-logo" ]
+                [ img [ Attr.src model.logoNav ] [] ]
+            , ul []
                 [ li [ Attr.class "" ]
                     [ a [ Attr.href "/" ]
                         [ text "Home" ]
@@ -346,7 +356,7 @@ view model =
                 [ div [ Attr.class "map-filters" ]
                     [ viewSessionTypes model
                     , viewFilters model
-                    , viewFiltersButtons model.selectedSession model.sessions
+                    , viewFiltersButtons model.selectedSession model.sessions model.linkIcon
                     ]
                 , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup
                 , div [ Attr.class "maps-content-container" ]
@@ -422,14 +432,14 @@ viewSelectedSession maybeSession =
         ]
 
 
-viewFiltersButtons : WebData SelectedSession -> List Session -> Html Msg
-viewFiltersButtons selectedSession sessions =
+viewFiltersButtons : WebData SelectedSession -> List Session -> String -> Html Msg
+viewFiltersButtons selectedSession sessions linkIcon =
     case selectedSession of
         NotAsked ->
             div [ Attr.class "filters-buttons" ]
                 [ a [ Attr.class "filters-button export-button", Attr.target "_blank", Attr.href <| exportLink sessions ] [ text "export sessions" ]
                 , button [ Attr.class "filters-button circular-button", Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ]
-                    [ img [ Attr.src "link-icon.svg" ] [] ]
+                    [ img [ Attr.src linkIcon ] [] ]
                 ]
 
         _ ->
