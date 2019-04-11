@@ -185,6 +185,20 @@ timeFilter =
                     |> update (UpdateTimeRange value)
                     |> Tuple.first
                     |> Expect.equal expected
+        , fuzz bool "is enabled for dormant and disabled for active Fixed sessions" <|
+            \isStreaming ->
+                { defaultModel | isStreaming = isStreaming, page = Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "time-range" ]
+                    |> Query.has [ Slc.attribute <| disabled isStreaming ]
+        , fuzz bool "is always enabled for Mobile sessions" <|
+            \isStreaming ->
+                { defaultModel | isStreaming = isStreaming, page = Mobile }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "time-range" ]
+                    |> Query.has [ Slc.attribute <| disabled False ]
         ]
 
 

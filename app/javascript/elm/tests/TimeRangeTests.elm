@@ -1,12 +1,13 @@
 module TimeRangeTests exposing (all)
 
 import Expect
-import Fuzz exposing (int)
+import Fuzz exposing (bool, int)
+import Html.Attributes exposing (disabled)
 import Json.Encode as Encode
 import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
-import Test.Html.Selector as Slc
+import Test.Html.Selector exposing (attribute, id, tag)
 import TimeRange
 
 
@@ -19,9 +20,9 @@ all =
     describe "TimeRange"
         [ test ".view has an input field" <|
             \_ ->
-                TimeRange.view (\_ -> ())
+                TimeRange.view (\_ -> ()) True
                     |> Query.fromHtml
-                    |> Query.has [ Slc.tag "input" ]
+                    |> Query.has [ tag "input" ]
         , fuzz2 int int ".update returns updated TimeRange if value has correct format" <|
             \timeFrom timeTo ->
                 let
@@ -49,9 +50,15 @@ all =
                     |> Expect.equal expected
         , test "viewTimeFilter has a button" <|
             \_ ->
-                TimeRange.view Msg
+                TimeRange.view Msg True
                     |> Query.fromHtml
-                    |> Query.find [ Slc.tag "button" ]
+                    |> Query.find [ tag "button" ]
                     |> Event.simulate Event.click
                     |> Event.expect Msg
+        , fuzz bool "may be disabled" <|
+            \isDisabled ->
+                TimeRange.view (\_ -> ()) isDisabled
+                    |> Query.fromHtml
+                    |> Query.find [ id "time-range" ]
+                    |> Query.has [ attribute <| disabled isDisabled ]
         ]

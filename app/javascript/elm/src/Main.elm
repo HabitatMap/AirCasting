@@ -686,7 +686,7 @@ viewMobileFilters model =
         [ viewParameterFilter model.sensors model.selectedSensorId
         , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
-        , TimeRange.view RefreshTimeRange
+        , TimeRange.view RefreshTimeRange False
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False
         , div [ class "filter-separator" ] []
@@ -705,7 +705,7 @@ viewFixedFilters model =
         [ viewParameterFilter model.sensors model.selectedSensorId
         , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
-        , TimeRange.view RefreshTimeRange
+        , TimeRange.view RefreshTimeRange model.isStreaming
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False
         , label [] [ text "type" ]
