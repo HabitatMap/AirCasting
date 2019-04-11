@@ -565,8 +565,8 @@ viewFixedFilters model =
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False
         , label [] [ text "type" ]
         , div []
-            [ viewToggleButton "indoor" model.isIndoor ToggleIndoor
-            , viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
+            [ viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
+            , viewToggleButton "indoor" model.isIndoor ToggleIndoor
             ]
         ]
 
