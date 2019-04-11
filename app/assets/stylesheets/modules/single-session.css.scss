@@ -1,5 +1,13 @@
+.single-session {
+  min-width: calc(100vw - #{$filters-width});
+  max-width: calc(100vw - #{$filters-width});
+  position: relative;
+}
+
 .single-session-container {
-  min-width: 80vw;
+  width: 95%;
+  margin: 0 auto $margin-default auto;
+  overflow: hidden;
   @include flexbox();
   @include flex-direction(row);
   @include align-items(center);

@@ -11,11 +11,12 @@
   bottom: 0;
   left: 0;
   z-index: 4;
+  min-width: 100%;
 }
 
 .session {
   background: white;
-  min-width: 165px;
+  min-width: 220px;
   margin: $margin-default 0 $margin-default $margin-default;
   padding: $margin-default;
   border-radius: 12px;
@@ -62,4 +63,5 @@
 
 .session-dates {
   font-size: $tiny-font;
+  margin-right: 3px;
 }

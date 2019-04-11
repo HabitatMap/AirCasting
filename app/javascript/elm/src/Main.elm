@@ -386,7 +386,7 @@ view model =
                                 )
                             ]
                             [ div [ class "sessions", attribute "ng-controller" "SessionsGraphCtrl" ]
-                                [ div [ attribute "ng-controller" "SessionsListCtrl" ] (viewSessionsOrSelectedSession model.selectedSession model.sessions) ]
+                                [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ] (viewSessionsOrSelectedSession model.selectedSession model.sessions) ]
                             ]
                         ]
                     , div [ class "heatmap" ]
@@ -525,9 +525,9 @@ viewSessionCard session =
             ]
         , p [ class "session-owner" ]
             [ text session.username ]
-        , p [ class "session-dates" ]
+        , span [ class "session-dates" ]
             [ text session.startTime ]
-        , p [ class "session-dates" ]
+        , span [ class "session-dates" ]
             [ text session.endTime ]
         ]
 
