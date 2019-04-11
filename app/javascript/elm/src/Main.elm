@@ -142,7 +142,7 @@ type Msg
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
     | ShowCopyLinkTooltip
-    | ShowPopup ( List String, List String ) String
+    | ShowPopup ( List String, List String ) String String
     | SelectSensorId String
     | ClosePopup
     | TogglePopupState
@@ -192,8 +192,8 @@ update msg model =
         ShowCopyLinkTooltip ->
             ( model, Ports.showCopyLinkTooltip () )
 
-        ShowPopup items itemType ->
-            ( { model | popup = Popup.SelectFrom items itemType, isPopupExtended = False }, Cmd.none )
+        ShowPopup items itemType selectedItem ->
+            ( { model | popup = Popup.SelectFrom items itemType selectedItem, isPopupExtended = False }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None }, Cmd.none )
@@ -597,7 +597,7 @@ viewParameterFilter sensors selectedSensorId =
             , Attr.placeholder "parameter"
             , Attr.type_ "text"
             , Attr.name "parameter"
-            , Popup.clickWithoutDefault (ShowPopup (Sensor.parameters sensors) "parameters")
+            , Popup.clickWithoutDefault (ShowPopup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId))
             , Attr.value (Sensor.parameterForId sensors selectedSensorId)
             ]
             []
@@ -615,7 +615,7 @@ viewSensorFilter sensors selectedSensorId =
             , Attr.placeholder "sensor"
             , Attr.type_ "text"
             , Attr.name "sensor"
-            , Popup.clickWithoutDefault (ShowPopup (Sensor.labelsForParameter sensors selectedSensorId) "sensors")
+            , Popup.clickWithoutDefault (ShowPopup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId))
             , Attr.value (Sensor.sensorLabelForId sensors selectedSensorId)
             ]
             []
