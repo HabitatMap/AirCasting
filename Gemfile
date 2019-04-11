@@ -50,8 +50,8 @@ group :development do
   gem 'capistrano3-unicorn', require: false
   gem 'pry-byebug'
   gem 'awesome_print'
-  gem 'metric_fu'
   gem 'quiet_assets'
+  gem 'rubycritic', require: false
 end
 
 group :test, :development do
