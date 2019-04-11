@@ -8,13 +8,15 @@ describe Api::Fixed::SessionsController do
       start_time_local = DateTime.new(2000, 10, 1, 2, 3)
       end_time_local = DateTime.new(2001, 11, 4, 5, 6)
       sensor_name = "sensor-name"
-      average = value = 123
       user = create_user!(username: username)
       session = create_fixed_session!(user: user, title: title, start_time_local: start_time_local, end_time_local: end_time_local)
-      create_stream!(session: session, sensor_name: "another-sensor-name", average_value: average)
-      stream = create_stream!(session: session, sensor_name: sensor_name, average_value: average)
-      create_stream!(session: session, sensor_name: "yet another-sensor-name", average_value: average)
-      create_measurement!(stream: stream, sensor_name: sensor_name, value: value)
+      create_stream!(session: session, sensor_name: "another-sensor-name")
+      stream = create_stream!(session: session, sensor_name: sensor_name)
+      create_stream!(session: session, sensor_name: "yet another-sensor-name")
+      value1 = 1.0
+      create_measurement!(stream: stream, sensor_name: sensor_name, value: value1)
+      value2 = 2.0
+      create_measurement!(stream: stream, sensor_name: sensor_name, value: value2)
 
       get :show, id: session.id, sensor_name: sensor_name
 
@@ -22,8 +24,8 @@ describe Api::Fixed::SessionsController do
         "title" => title,
         "username" => username,
         "sensor_name" => sensor_name,
-        "average" => average.to_f,
-        "measurements" => [value.to_f],
+        "average" => 1.5,
+        "measurements" => [value1, value2],
         "startTime" => "01/10/2000, 02:03",
         "endTime" => "04/11/2001, 05:06",
         "id" => session.id,
@@ -59,12 +61,11 @@ describe Api::Fixed::SessionsController do
     )
   end
 
-  def create_stream!(session:, sensor_name:, average_value:)
+  def create_stream!(session:, sensor_name:)
     Stream.create!(
       sensor_package_name: "abc",
       sensor_name: sensor_name,
       measurement_type: "abc",
-      average_value: average_value,
       unit_name: "abc",
       session: session,
       measurement_short_type: "dB",
@@ -82,7 +83,7 @@ describe Api::Fixed::SessionsController do
       time: DateTime.current,
       latitude: 123,
       longitude: 123,
-      value: 123,
+      value: value,
       milliseconds: 123,
       stream: stream
     )
