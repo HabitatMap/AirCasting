@@ -50,6 +50,87 @@ all =
                 sensors
                     |> idForParameterOrLabel "parameter" "parameter2-sensor3 (unit)"
                     |> Expect.equal "parameter-sensor2 (unit)"
+        , test "idForParameterOrLabel always finds airbeam2-pm2.5 for Particulate Matter" <|
+            \_ ->
+                [ { id_ = "Particulate Matter-other label (µg/m³)"
+                  , parameter = "Particulate Matter"
+                  , label = "Other Label (µg/m³)"
+                  , sensor = "Other Label"
+                  , unit = "µg/m³"
+                  , session_count = 1
+                  }
+                , { id_ = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
+                  , parameter = "Particulate Matter"
+                  , label = "AirBeam2-PM2.5 (µg/m³)"
+                  , sensor = "AirBeam2-PM2.5"
+                  , unit = "µg/m³"
+                  , session_count = 0
+                  }
+                ]
+                    |> idForParameterOrLabel "Particulate Matter" "parameter2-sensor3 (unit)"
+                    |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
+        , test "idForParameterOrLabel always finds airbeam2-rh for Humidity" <|
+            \_ ->
+                [ { id_ = "Humidity-other label (%)"
+                  , parameter = "Humidity"
+                  , label = "Other Label (%)"
+                  , sensor = "Other Label"
+                  , unit = "%"
+                  , session_count = 1
+                  }
+                , { id_ = "Humidity-airbeam2-rh (%)"
+                  , parameter = "Humidity"
+                  , label = "AirBeam2-RH (%)"
+                  , sensor = "AirBeam2-RH"
+                  , unit = "%"
+                  , session_count = 0
+                  }
+                ]
+                    |> idForParameterOrLabel "Humidity" "parameter2-sensor3 (unit)"
+                    |> Expect.equal "Humidity-airbeam2-rh (%)"
+        , test "idForParameterOrLabel always finds phone microphone for Sound Levels" <|
+            \_ ->
+                [ { id_ = "Sound Level-other label (dB)"
+                  , parameter = "Sound Level"
+                  , label = "Other Label (dB)"
+                  , sensor = "Other Label"
+                  , unit = "dB"
+                  , session_count = 1
+                  }
+                , { id_ = "Sound Level-phone microphone (dB)"
+                  , parameter = "Sound Level"
+                  , label = "Phone Microphone (dB)"
+                  , sensor = "Phone Microphone"
+                  , unit = "dB"
+                  , session_count = 0
+                  }
+                ]
+                    |> idForParameterOrLabel "Sound Level" "parameter2-sensor3 (unit)"
+                    |> Expect.equal "Sound Level-phone microphone (dB)"
+        , test "idForParameterOrLabel always finds airbeam2-f for Temperature" <|
+            \_ ->
+                [ { id_ = "Temperature-other label (F)"
+                  , parameter = "Temperature"
+                  , label = "Other Label (F)"
+                  , sensor = "Other Label"
+                  , unit = "F"
+                  , session_count = 1
+                  }
+                , { id_ = "Temperature-airbeam2-f (F)"
+                  , parameter = "Temperature"
+                  , label = "Temperature (F)"
+                  , sensor = "Temperature"
+                  , unit = "F"
+                  , session_count = 0
+                  }
+                ]
+                    |> idForParameterOrLabel "Temperature" "parameter2-sensor3 (unit)"
+                    |> Expect.equal "Temperature-airbeam2-f (F)"
+        , test "when the default is missing idForParameterOrLabel returns airbeam2-pm2.5" <|
+            \_ ->
+                []
+                    |> idForParameterOrLabel "Temperature" "parameter2-sensor3 (unit)"
+                    |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
         , test "labelsForParameter returns labels divided into main and others" <|
             \_ ->
                 "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
