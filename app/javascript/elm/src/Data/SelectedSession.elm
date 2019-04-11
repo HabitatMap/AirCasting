@@ -2,7 +2,7 @@ module Data.SelectedSession exposing (SelectedSession, decoder, fetch, sensorNam
 
 import Data.Page exposing (Page(..))
 import Html exposing (Html, div, p, text)
-import Html.Attributes as Attr
+import Html.Attributes exposing (class)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import RemoteData exposing (RemoteData(..), WebData)
@@ -71,12 +71,12 @@ fetch sensorId page id toMsg =
 view : SelectedSession -> Html msg
 view session =
     div []
-        [ p [ Attr.class "single-session-TODO" ] [ text session.title ]
-        , p [ Attr.class "single-session-TODO" ] [ text session.username ]
-        , p [ Attr.class "single-session-TODO" ] [ text session.sensorName ]
-        , p [ Attr.class "single-session-TODO" ] [ text <| String.fromFloat session.min ]
-        , p [ Attr.class "single-session-TODO" ] [ text <| String.fromFloat session.max ]
-        , p [ Attr.class "single-session-TODO" ] [ text <| String.fromInt <| round session.average ]
-        , p [ Attr.class "single-session-TODO" ] [ text session.startTime ]
-        , p [ Attr.class "single-session-TODO" ] [ text session.endTime ]
+        [ p [ class "single-session-TODO" ] [ text session.title ]
+        , p [ class "single-session-TODO" ] [ text session.username ]
+        , p [ class "single-session-TODO" ] [ text session.sensorName ]
+        , p [ class "single-session-TODO" ] [ text <| String.fromFloat session.min ]
+        , p [ class "single-session-TODO" ] [ text <| String.fromFloat session.max ]
+        , p [ class "single-session-TODO" ] [ text <| String.fromInt <| round session.average ]
+        , p [ class "single-session-TODO" ] [ text session.startTime ]
+        , p [ class "single-session-TODO" ] [ text session.endTime ]
         ]
