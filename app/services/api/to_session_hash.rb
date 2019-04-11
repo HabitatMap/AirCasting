@@ -15,8 +15,8 @@ class Api::ToSessionHash
       title: session.title,
       username: session.user.username,
       sensor_name: session.streams.first.sensor_name,
-      average: session.streams.first.average_value,
-      measurements: session.streams.first.measurements.map(&:value),
+      average: average(measurements(session)),
+      measurements: measurements(session),
       startTime: format_datetime(session.start_time_local),
       endTime: format_datetime(session.end_time_local),
       id: session.id,
@@ -27,6 +27,14 @@ class Api::ToSessionHash
 
   def format_datetime(datetime)
     datetime.strftime("%d/%m/%Y, %H:%M")
+  end
+
+  def average(xs)
+    xs.inject(:+).to_f / xs.length
+  end
+
+  def measurements(session)
+    @measurements ||= session.streams.first.measurements.map(&:value)
   end
 end
 
