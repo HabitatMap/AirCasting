@@ -17,16 +17,16 @@ view toggle onSelect isPopupExtended popup =
         SelectFrom ( main, others ) itemType ->
             case ( List.isEmpty main, List.isEmpty others ) of
                 ( True, _ ) ->
-                    div [ Attr.id "popup" ]
+                    div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
                         [ selectableItems others onSelect ]
 
                 ( False, True ) ->
-                    div [ Attr.id "popup" ]
+                    div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
                         [ selectableItems main onSelect
                         ]
 
                 ( False, False ) ->
-                    div [ Attr.id "popup" ]
+                    div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
                         [ selectableItems main onSelect
                         , if List.isEmpty others then
                             text ""
@@ -49,6 +49,7 @@ togglePopupStateButton : String -> msg -> Html msg
 togglePopupStateButton name toggle =
     button
         [ Attr.id "toggle-popup-button"
+        , Attr.class "parameter-more-container"
         , clickWithoutDefault toggle
         ]
         [ text name ]
@@ -57,8 +58,8 @@ togglePopupStateButton name toggle =
 selectableItems : List String -> (String -> msg) -> Html msg
 selectableItems items onSelect =
     items
-        |> List.map (\item -> li [] [ button [ Events.onClick (onSelect item) ] [ text item ] ])
-        |> ul []
+        |> List.map (\item -> button [ Events.onClick (onSelect item), Attr.class "parameter-filters-button" ] [ text item ])
+        |> div [ Attr.class "parameter-filters-buttons-container" ]
 
 
 clickWithoutDefault : msg -> Html.Attribute msg
