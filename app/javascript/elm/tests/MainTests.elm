@@ -6,8 +6,8 @@ import Data.Session exposing (..)
 import Expect
 import Fuzz exposing (bool, float, int, intRange, list, string)
 import Html exposing (text)
-import Html.Attributes as Attr
-import Html.Attributes.Aria exposing (..)
+import Html.Attributes exposing (checked, class, disabled, for, href, id, value)
+import Html.Attributes.Aria exposing (ariaLabel)
 import Json.Encode as Encode
 import LabelsInput
 import Main exposing (..)
@@ -67,7 +67,7 @@ parameterSensorFilter =
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "parameter" ]
-                    |> Query.has [ Slc.attribute <| Attr.value "parameter" ]
+                    |> Query.has [ Slc.attribute <| value "parameter" ]
         , test "sensor filter shows sensor label based on selectedSensorId" <|
             \_ ->
                 { defaultModel
@@ -77,7 +77,7 @@ parameterSensorFilter =
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "sensor" ]
-                    |> Query.has [ Slc.attribute <| Attr.value "Sensor (unit)" ]
+                    |> Query.has [ Slc.attribute <| value "Sensor (unit)" ]
         , test "when ShowPopup is triggered popup is shown" <|
             \_ ->
                 defaultModel
@@ -114,7 +114,7 @@ locationFilter =
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "location" ]
-                    |> Query.has [ Slc.attribute <| Attr.value locationValue ]
+                    |> Query.has [ Slc.attribute <| value locationValue ]
         , test "when Enter key is pressed SubmitLocation is triggered" <|
             \_ ->
                 let
@@ -140,7 +140,7 @@ locationFilter =
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "location" ]
-                    |> Query.has [ Slc.attribute <| Attr.disabled True ]
+                    |> Query.has [ Slc.attribute <| disabled True ]
         ]
 
 
@@ -339,7 +339,7 @@ profilesArea =
                         |> view
                         |> Query.fromHtml
                         |> Query.find [ Slc.id "profile-names" ]
-                        |> Query.has [ Slc.attribute <| Attr.disabled True ]
+                        |> Query.has [ Slc.attribute <| disabled True ]
             ]
         ]
 
@@ -366,7 +366,7 @@ crowdMapArea =
                 defaultModel
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.for "checkbox-crowd-map" ]
+                    |> Query.find [ Slc.attribute <| for "checkbox-crowd-map" ]
                     |> Query.contains
                         [ text "Crowd Map" ]
         , test "checkbox is not checked as default" <|
@@ -374,9 +374,9 @@ crowdMapArea =
                 defaultModel
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "checkbox-crowd-map" ]
+                    |> Query.find [ Slc.attribute <| id "checkbox-crowd-map" ]
                     |> Query.has
-                        [ Slc.attribute <| Attr.checked False ]
+                        [ Slc.attribute <| checked False ]
         , fuzz bool "checkbox state depends on model.isCrowdMapOn" <|
             \onOffValue ->
                 let
@@ -386,15 +386,15 @@ crowdMapArea =
                 model
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "checkbox-crowd-map" ]
+                    |> Query.find [ Slc.attribute <| id "checkbox-crowd-map" ]
                     |> Query.has
-                        [ Slc.attribute <| Attr.checked model.isCrowdMapOn ]
+                        [ Slc.attribute <| checked model.isCrowdMapOn ]
         , test "clicking the checkbox sends ToggleCrowdMap message" <|
             \_ ->
                 defaultModel
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "checkbox-crowd-map" ]
+                    |> Query.find [ Slc.attribute <| id "checkbox-crowd-map" ]
                     |> Event.simulate Event.click
                     |> Event.expect ToggleCrowdMap
         , test "slider has a description" <|
@@ -402,7 +402,7 @@ crowdMapArea =
                 { defaultModel | isCrowdMapOn = True }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "crowd-map-slider" ]
+                    |> Query.find [ Slc.attribute <| id "crowd-map-slider" ]
                     |> Query.contains
                         [ text "Resolution" ]
         , test "slider has a description with current crowd map resolution" <|
@@ -410,7 +410,7 @@ crowdMapArea =
                 { defaultModel | isCrowdMapOn = True }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.id "crowd-map-slider" ]
+                    |> Query.find [ Slc.attribute <| id "crowd-map-slider" ]
                     |> Query.contains
                         [ text (String.fromInt defaultModel.crowdMapResolution) ]
         , test "slider default value is 25" <|
@@ -418,9 +418,9 @@ crowdMapArea =
                 { defaultModel | isCrowdMapOn = True }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.class "crowd-map-slider" ]
+                    |> Query.find [ Slc.attribute <| class "crowd-map-slider" ]
                     |> Query.has
-                        [ Slc.attribute <| Attr.value "25" ]
+                        [ Slc.attribute <| value "25" ]
         , fuzz int "slider value depends on model.crowdMapResolution" <|
             \resolution ->
                 let
@@ -430,9 +430,9 @@ crowdMapArea =
                 model
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.class "crowd-map-slider" ]
+                    |> Query.find [ Slc.attribute <| class "crowd-map-slider" ]
                     |> Query.has
-                        [ Slc.attribute <| Attr.value (String.fromInt resolution) ]
+                        [ Slc.attribute <| value (String.fromInt resolution) ]
         , fuzz int "moving the slider updates crowd map resolution" <|
             \resolution ->
                 let
@@ -445,7 +445,7 @@ crowdMapArea =
                 { defaultModel | isCrowdMapOn = True }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| Attr.class "crowd-map-slider" ]
+                    |> Query.find [ Slc.attribute <| class "crowd-map-slider" ]
                     |> Event.simulate (Event.custom "change" simulatedEventObject)
                     |> Event.expect (UpdateCrowdMapResolution resolution)
         ]
@@ -469,7 +469,7 @@ toggleIndoorFilter =
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
-                    |> Query.has [ Slc.attribute <| Attr.class "toggle-button--pressed" ]
+                    |> Query.has [ Slc.attribute <| class "toggle-button--pressed" ]
         , test "clicking indoor button triggers ToggleIndoor" <|
             \_ ->
                 { defaultModel | page = Fixed }
@@ -581,7 +581,7 @@ viewTests =
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.containing [ Slc.text "export sessions" ] ]
-                    |> Query.has [ Slc.attribute <| Attr.href expected ]
+                    |> Query.has [ Slc.attribute <| href expected ]
         , fuzz int "with no selection and 2 sessions in the model the export link is correctly generated" <|
             \id ->
                 let
@@ -592,7 +592,7 @@ viewTests =
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.containing [ Slc.text "export sessions" ] ]
-                    |> Query.has [ Slc.attribute <| Attr.href expected ]
+                    |> Query.has [ Slc.attribute <| href expected ]
         , test "with selection graph is shown" <|
             \_ ->
                 { defaultModel | selectedSession = Success selectedSession }

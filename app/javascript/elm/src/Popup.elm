@@ -1,7 +1,7 @@
 module Popup exposing (Popup(..), clickWithoutDefault, view)
 
 import Html exposing (Html, button, div, li, text, ul)
-import Html.Attributes as Attr
+import Html.Attributes exposing (class, classList, id)
 import Html.Events as Events
 import Json.Decode as Decode
 
@@ -22,22 +22,22 @@ view toggle onSelect isPopupExtended popup =
         SelectFrom ( main, others ) itemType selectedItem ->
             case ( List.isEmpty main, List.isEmpty others ) of
                 ( True, _ ) ->
-                    div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
+                    div [ id "popup", class "parameter-filters-popup" ]
                         [ selectableItems MainPart others onSelect selectedItem ]
 
                 ( False, True ) ->
-                    div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
+                    div [ id "popup", class "parameter-filters-popup" ]
                         [ selectableItems MainPart main onSelect selectedItem
                         ]
 
                 ( False, False ) ->
-                    div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
+                    div [ id "popup", class "parameter-filters-popup" ]
                         [ selectableItems MainPart main onSelect selectedItem
                         , if List.isEmpty others then
                             text ""
 
                           else if isPopupExtended then
-                            div [ Attr.class "parameter-more-container" ]
+                            div [ class "parameter-more-container" ]
                                 [ selectableItems OtherPart others onSelect selectedItem
                                 , togglePopupStateButton ("less " ++ itemType) toggle
                                 ]
@@ -53,8 +53,8 @@ view toggle onSelect isPopupExtended popup =
 togglePopupStateButton : String -> msg -> Html msg
 togglePopupStateButton name toggle =
     button
-        [ Attr.id "toggle-popup-button"
-        , Attr.class "parameters-toggle-open"
+        [ id "toggle-popup-button"
+        , class "parameters-toggle-open"
         , clickWithoutDefault toggle
         ]
         [ text name ]
@@ -74,7 +74,7 @@ selectableItems part items onSelect selectedItem =
         toButton item =
             button
                 [ Events.onClick (onSelect item)
-                , Attr.classList
+                , classList
                     [ ( "active", item == selectedItem )
                     , ( childClass, True )
                     , ( "test-parameter-filters-button", True )
@@ -82,7 +82,7 @@ selectableItems part items onSelect selectedItem =
                 ]
                 [ text item ]
     in
-    div [ Attr.class parentClass ] (List.map toButton items)
+    div [ class parentClass ] (List.map toButton items)
 
 
 clickWithoutDefault : msg -> Html.Attribute msg

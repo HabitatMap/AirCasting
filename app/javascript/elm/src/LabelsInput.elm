@@ -1,7 +1,7 @@
 module LabelsInput exposing (Model, Msg(..), empty, fromList, init, subscriptions, update, view, withCandidate)
 
 import Html exposing (Html, button, div, h4, input, label, text)
-import Html.Attributes as Attr
+import Html.Attributes exposing (class, disabled, for, id, name, placeholder, type_, value)
 import Html.Events as Events
 import Html.Events.Extra as ExtraEvents
 import Set exposing (Set)
@@ -69,22 +69,22 @@ update msg model toCmd =
 
 
 view : Model -> String -> String -> String -> Bool -> Html Msg
-view model text_ inputId placeholder isDisabled =
+view model text_ inputId placeholderText isDisabled =
     div []
-        [ label [ Attr.for inputId ] [ text text_ ]
-        , div [ Attr.class "tag-container" ]
+        [ label [ for inputId ] [ text text_ ]
+        , div [ class "tag-container" ]
             [ input
-                [ Attr.id inputId
-                , Attr.class "input-dark"
-                , Attr.class "input-filters"
-                , Attr.class "input-filters-tag"
-                , Attr.placeholder placeholder
-                , Attr.type_ "text"
-                , Attr.name inputId
+                [ id inputId
+                , class "input-dark"
+                , class "input-filters"
+                , class "input-filters-tag"
+                , placeholder placeholderText
+                , type_ "text"
+                , name inputId
                 , ExtraEvents.onEnter (Add <| getCandidate model)
                 , Events.onInput UpdateCandidate
-                , Attr.value <| getCandidate model
-                , Attr.disabled isDisabled
+                , value <| getCandidate model
+                , disabled isDisabled
                 ]
                 []
             , div [] (List.map viewLabel <| asList model)
@@ -94,11 +94,11 @@ view model text_ inputId placeholder isDisabled =
 
 viewLabel : String -> Html Msg
 viewLabel label =
-    div [ Attr.class "filters-tag" ]
+    div [ class "filters-tag" ]
         [ text label
         , button
-            [ Attr.id label
-            , Attr.class "filters-tag-close"
+            [ id label
+            , class "filters-tag-close"
             , Events.onClick <| Remove label
             ]
             []
