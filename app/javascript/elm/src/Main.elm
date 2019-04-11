@@ -599,6 +599,7 @@ viewParameterFilter sensors selectedSensorId =
             , Attr.name "parameter"
             , Popup.clickWithoutDefault (ShowPopup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId))
             , Attr.value (Sensor.parameterForId sensors selectedSensorId)
+            , Attr.autocomplete False
             ]
             []
         ]
@@ -617,6 +618,7 @@ viewSensorFilter sensors selectedSensorId =
             , Attr.name "sensor"
             , Popup.clickWithoutDefault (ShowPopup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId))
             , Attr.value (Sensor.sensorLabelForId sensors selectedSensorId)
+            , Attr.autocomplete False
             ]
             []
         ]
