@@ -27,7 +27,7 @@ popups =
     describe "Popup tests: "
         [ test "when ClosePopup is triggered the popup is hidden" <|
             \_ ->
-                { defaultModel | popup = Popup.SelectFrom ( [], [] ) "" }
+                { defaultModel | popup = Popup.SelectFrom ( [], [] ) "" "" }
                     |> update ClosePopup
                     |> Tuple.first
                     |> view
@@ -81,7 +81,7 @@ parameterSensorFilter =
         , test "when ShowPopup is triggered popup is shown" <|
             \_ ->
                 defaultModel
-                    |> update (ShowPopup ( [], [] ) "")
+                    |> update (ShowPopup ( [], [] ) "" "")
                     |> Tuple.first
                     |> view
                     |> Query.fromHtml

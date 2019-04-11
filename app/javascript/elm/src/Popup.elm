@@ -7,7 +7,7 @@ import Json.Decode as Decode
 
 
 type Popup
-    = SelectFrom ( List String, List String ) String
+    = SelectFrom ( List String, List String ) String String
     | None
 
 
@@ -19,26 +19,26 @@ type PopupPart
 view : msg -> (String -> msg) -> Bool -> Popup -> Html msg
 view toggle onSelect isPopupExtended popup =
     case popup of
-        SelectFrom ( main, others ) itemType ->
+        SelectFrom ( main, others ) itemType selectedItem ->
             case ( List.isEmpty main, List.isEmpty others ) of
                 ( True, _ ) ->
                     div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
-                        [ selectableItems MainPart others onSelect ]
+                        [ selectableItems MainPart others onSelect selectedItem ]
 
                 ( False, True ) ->
                     div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
-                        [ selectableItems MainPart main onSelect
+                        [ selectableItems MainPart main onSelect selectedItem
                         ]
 
                 ( False, False ) ->
                     div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
-                        [ selectableItems MainPart main onSelect
+                        [ selectableItems MainPart main onSelect selectedItem
                         , if List.isEmpty others then
                             text ""
 
                           else if isPopupExtended then
                             div [ Attr.class "parameter-more-container" ]
-                                [ selectableItems OtherPart others onSelect
+                                [ selectableItems OtherPart others onSelect selectedItem
                                 , togglePopupStateButton ("less " ++ itemType) toggle
                                 ]
 
@@ -60,8 +60,8 @@ togglePopupStateButton name toggle =
         [ text name ]
 
 
-selectableItems : PopupPart -> List String -> (String -> msg) -> Html msg
-selectableItems part items onSelect =
+selectableItems : PopupPart -> List String -> (String -> msg) -> String -> Html msg
+selectableItems part items onSelect selectedItem =
     let
         ( parentClass, childClass ) =
             case part of
@@ -70,10 +70,19 @@ selectableItems part items onSelect =
 
                 OtherPart ->
                     ( "parameter-more-list", "more-parameters-link" )
+
+        toButton item =
+            button
+                [ Events.onClick (onSelect item)
+                , Attr.classList
+                    [ ( "active", item == selectedItem )
+                    , ( childClass, True )
+                    , ( "test-parameter-filters-button", True )
+                    ]
+                ]
+                [ text item ]
     in
-    items
-        |> List.map (\item -> button [ Events.onClick (onSelect item), Attr.class childClass, Attr.class "test-parameter-filters-button" ] [ text item ])
-        |> div [ Attr.class parentClass ]
+    div [ Attr.class parentClass ] (List.map toButton items)
 
 
 clickWithoutDefault : msg -> Html.Attribute msg
