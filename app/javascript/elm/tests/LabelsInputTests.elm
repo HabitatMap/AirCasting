@@ -1,7 +1,7 @@
 module LabelsInputTests exposing (all)
 
 import Fuzz exposing (bool, string)
-import Html.Attributes as Attr
+import Html.Attributes exposing (disabled, type_, value)
 import LabelsInput
 import Test exposing (..)
 import Test.Html.Event as Event
@@ -21,8 +21,8 @@ all =
             \isDisabled ->
                 LabelsInput.view LabelsInput.empty "description" "input-id" "placeholder" isDisabled
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute (Attr.type_ "text") ]
-                    |> Query.has [ Slc.attribute (Attr.disabled isDisabled) ]
+                    |> Query.find [ Slc.attribute (type_ "text") ]
+                    |> Query.has [ Slc.attribute (disabled isDisabled) ]
         , fuzz string "when user types, updateLabelsSearch is triggered with the input" <|
             \input ->
                 LabelsInput.view LabelsInput.empty "description" "input-id" "placeholder" False
@@ -39,7 +39,7 @@ all =
                 LabelsInput.view labels "description" "input-id" "placeholder" False
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "input" ]
-                    |> Query.has [ Slc.attribute <| Attr.value candidate ]
+                    |> Query.has [ Slc.attribute <| value candidate ]
         , fuzz string "label has button that deletes the label" <|
             \label ->
                 let

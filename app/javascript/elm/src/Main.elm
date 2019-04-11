@@ -7,8 +7,8 @@ import Data.Page exposing (Page(..))
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
 import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
-import Html.Attributes as Attr
-import Html.Attributes.Aria exposing (..)
+import Html.Attributes exposing (attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, type_, value)
+import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
@@ -323,61 +323,61 @@ viewDocument model =
 
 view : Model -> Html Msg
 view model =
-    div [ Attr.id "elm-app" ]
-        [ nav [ Attr.class "nav" ]
-            [ div [ Attr.class "nav-logo" ]
-                [ img [ Attr.src model.logoNav ] [] ]
+    div [ id "elm-app" ]
+        [ nav [ class "nav" ]
+            [ div [ class "nav-logo" ]
+                [ img [ src model.logoNav ] [] ]
             , ul []
-                [ li [ Attr.class "" ]
-                    [ a [ Attr.href "/" ]
+                [ li [ class "" ]
+                    [ a [ href "/" ]
                         [ text "Home" ]
                     ]
-                , li [ Attr.class "" ]
-                    [ a [ Attr.href "/about" ]
+                , li [ class "" ]
+                    [ a [ href "/about" ]
                         [ text "About" ]
                     ]
-                , li [ Attr.class "active" ]
-                    [ a [ Attr.href "/map" ]
+                , li [ class "active" ]
+                    [ a [ href "/map" ]
                         [ text "Maps" ]
                     ]
                 , li []
-                    [ a [ Attr.href "http://www.takingspace.org/", Attr.rel "noreferrer", Attr.target "_blank" ]
+                    [ a [ href "http://www.takingspace.org/", rel "noreferrer", target "_blank" ]
                         [ text "Blog" ]
                     ]
-                , li [ Attr.class "" ]
-                    [ a [ Attr.href "/donate" ]
+                , li [ class "" ]
+                    [ a [ href "/donate" ]
                         [ text "Donate" ]
                     ]
                 ]
             ]
         , main_
             []
-            [ div [ Attr.class "maps-page-container" ]
-                [ div [ Attr.class "map-filters" ]
+            [ div [ class "maps-page-container" ]
+                [ div [ class "map-filters" ]
                     [ viewSessionTypes model
                     , viewFilters model
                     , viewFiltersButtons model.selectedSession model.sessions model.linkIcon
                     ]
                 , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup
-                , div [ Attr.class "maps-content-container" ]
+                , div [ class "maps-content-container" ]
                     [ if model.isHttping then
-                        div [ Attr.class "overlay" ]
-                            [ div [ Attr.class "lds-dual-ring" ] []
+                        div [ class "overlay" ]
+                            [ div [ class "lds-dual-ring" ] []
                             ]
 
                       else
                         text ""
-                    , div [ Attr.class "map-container" ]
+                    , div [ class "map-container" ]
                         [ if model.isIndoor && not model.isHttping then
-                            div [ Attr.class "overlay" ]
-                                [ div [ Attr.class "change-this-classname-Pina" ] [ text "Indoor sessions aren't mapped." ] ]
+                            div [ class "overlay" ]
+                                [ div [ class "change-this-classname-Pina" ] [ text "Indoor sessions aren't mapped." ] ]
 
                           else
                             text ""
-                        , div [ Attr.class "map", Attr.id "map11", Attr.attribute "ng-controller" "MapCtrl", Attr.attribute "googlemap" "" ]
+                        , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
                             []
                         , div
-                            [ Attr.attribute "ng-controller"
+                            [ attribute "ng-controller"
                                 (if model.page == Mobile then
                                     "MobileSessionsMapCtrl"
 
@@ -385,11 +385,11 @@ view model =
                                     "FixedSessionsMapCtrl"
                                 )
                             ]
-                            [ div [ Attr.class "sessions", Attr.attribute "ng-controller" "SessionsGraphCtrl" ]
-                                [ div [ Attr.attribute "ng-controller" "SessionsListCtrl" ] (viewSessionsOrSelectedSession model.selectedSession model.sessions) ]
+                            [ div [ class "sessions", attribute "ng-controller" "SessionsGraphCtrl" ]
+                                [ div [ attribute "ng-controller" "SessionsListCtrl" ] (viewSessionsOrSelectedSession model.selectedSession model.sessions) ]
                             ]
                         ]
-                    , div [ Attr.class "heatmap" ]
+                    , div [ class "heatmap" ]
                         [ text "A place for heatmap    " ]
                     ]
                 ]
@@ -415,8 +415,8 @@ viewSessionsOrSelectedSession selectedSession sessions =
 
 viewSelectedSession : Maybe SelectedSession -> Html Msg
 viewSelectedSession maybeSession =
-    div [ Attr.class "single-session-container" ]
-        [ div [ Attr.class "single-session-info" ]
+    div [ class "single-session-container" ]
+        [ div [ class "single-session-info" ]
             (case maybeSession of
                 Nothing ->
                     [ text "loading" ]
@@ -425,10 +425,10 @@ viewSelectedSession maybeSession =
                     [ SelectedSession.view session ]
             )
         , div
-            [ Attr.class "single-session-graph", Attr.id "graph-box" ]
-            [ div [ Attr.id "graph" ] []
+            [ class "single-session-graph", id "graph-box" ]
+            [ div [ id "graph" ] []
             ]
-        , div [ Attr.class "single-session-close" ] [ button [ Events.onClick DeselectSession ] [ text "X" ] ]
+        , div [ class "single-session-close" ] [ button [ Events.onClick DeselectSession ] [ text "X" ] ]
         ]
 
 
@@ -436,10 +436,10 @@ viewFiltersButtons : WebData SelectedSession -> List Session -> String -> Html M
 viewFiltersButtons selectedSession sessions linkIcon =
     case selectedSession of
         NotAsked ->
-            div [ Attr.class "filters-buttons" ]
-                [ a [ Attr.class "filters-button export-button", Attr.target "_blank", Attr.href <| exportLink sessions ] [ text "export sessions" ]
-                , button [ Attr.class "filters-button circular-button", Events.onClick ShowCopyLinkTooltip, Attr.id "copy-link-tooltip" ]
-                    [ img [ Attr.src linkIcon ] [] ]
+            div [ class "filters-buttons" ]
+                [ a [ class "filters-button export-button", target "_blank", href <| exportLink sessions ] [ text "export sessions" ]
+                , button [ class "filters-button circular-button", Events.onClick ShowCopyLinkTooltip, id "copy-link-tooltip" ]
+                    [ img [ src linkIcon ] [] ]
                 ]
 
         _ ->
@@ -457,10 +457,10 @@ exportLink sessions =
 
 viewSessionTypes : Model -> Html Msg
 viewSessionTypes model =
-    div [ Attr.class "sessions-type" ]
-        [ a [ Attr.href "/mobile_map", Attr.classList [ ( "session-type-mobile", True ), ( "selected", model.page == Mobile ) ] ]
+    div [ class "sessions-type" ]
+        [ a [ href "/mobile_map", classList [ ( "session-type-mobile", True ), ( "selected", model.page == Mobile ) ] ]
             [ text "mobile" ]
-        , a [ Attr.href "/fixed_map", Attr.classList [ ( "session-type-fixed", True ), ( "selected", model.page == Fixed ) ] ]
+        , a [ href "/fixed_map", classList [ ( "session-type-fixed", True ), ( "selected", model.page == Fixed ) ] ]
             [ text "fixed" ]
         ]
 
@@ -472,18 +472,18 @@ viewSessions sessions =
 
     else
         div []
-            [ h2 [ Attr.class "sessions-header" ]
+            [ h2 [ class "sessions-header" ]
                 [ text "Sessions" ]
-            , span [ Attr.class "sessions-number" ]
+            , span [ class "sessions-number" ]
                 [ text "showing 6 of 500 reuslts" ]
-            , div [ Attr.class "sessions-container" ]
+            , div [ class "sessions-container" ]
                 (List.map viewSessionCard sessions ++ [ viewLoadMore <| List.length sessions ])
             ]
 
 
 viewShortType : Int -> Int -> ShortType -> Html msg
 viewShortType length index shortType =
-    span [ Attr.class shortType.type_ ]
+    span [ class shortType.type_ ]
         [ text shortType.name
         , span []
             [ if index == length - 1 then
@@ -507,20 +507,20 @@ viewLoadMore sessionCount =
 viewSessionCard : Session -> Html Msg
 viewSessionCard session =
     div
-        [ Attr.class "session"
+        [ class "session"
         , Events.onClick <| ToggleSessionSelection session.id
         ]
-        [ div [ Attr.class "session-header-container" ]
-            [ div [ Attr.class "session-color heat-lvl1-bg" ]
+        [ div [ class "session-header-container" ]
+            [ div [ class "session-color heat-lvl1-bg" ]
                 []
-            , h3 [ Attr.class "session-name" ]
+            , h3 [ class "session-name" ]
                 [ text session.title ]
             ]
-        , p [ Attr.class "session-owner" ]
+        , p [ class "session-owner" ]
             [ text session.username ]
-        , p [ Attr.class "session-dates" ]
+        , p [ class "session-dates" ]
             [ text session.startTime ]
-        , p [ Attr.class "session-dates" ]
+        , p [ class "session-dates" ]
             [ text session.endTime ]
         ]
 
@@ -537,14 +537,14 @@ viewFilters model =
 
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
-    form [ Attr.class "filters-form" ]
+    form [ class "filters-form" ]
         [ viewParameterFilter model.sensors model.selectedSensorId
         , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
         , TimeRange.view RefreshTimeRange
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False
-        , div [ Attr.class "filter-separator" ] []
+        , div [ class "filter-separator" ] []
         , viewCrowdMapCheckBox model.isCrowdMapOn
         , if model.isCrowdMapOn then
             viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
@@ -556,7 +556,7 @@ viewMobileFilters model =
 
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
-    form [ Attr.class "filters-form" ]
+    form [ class "filters-form" ]
         [ viewParameterFilter model.sensors model.selectedSensorId
         , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
@@ -574,12 +574,12 @@ viewFixedFilters model =
 viewToggleButton : String -> Bool -> Msg -> Html Msg
 viewToggleButton label isPressed callback =
     button
-        [ Attr.type_ "button"
+        [ type_ "button"
         , if isPressed then
-            Attr.class "toggle-button toggle-button--pressed"
+            class "toggle-button toggle-button--pressed"
 
           else
-            Attr.class "toggle-button"
+            class "toggle-button"
         , ariaLabel label
         , Events.onClick callback
         ]
@@ -589,17 +589,17 @@ viewToggleButton label isPressed callback =
 viewParameterFilter : List Sensor -> String -> Html Msg
 viewParameterFilter sensors selectedSensorId =
     div []
-        [ label [ Attr.for "parameter" ] [ text "parameter:" ]
+        [ label [ for "parameter" ] [ text "parameter:" ]
         , input
-            [ Attr.id "parameter"
-            , Attr.class "input-dark"
-            , Attr.class "input-filters"
-            , Attr.placeholder "parameter"
-            , Attr.type_ "text"
-            , Attr.name "parameter"
+            [ id "parameter"
+            , class "input-dark"
+            , class "input-filters"
+            , placeholder "parameter"
+            , type_ "text"
+            , name "parameter"
             , Popup.clickWithoutDefault (ShowPopup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId))
-            , Attr.value (Sensor.parameterForId sensors selectedSensorId)
-            , Attr.autocomplete False
+            , value (Sensor.parameterForId sensors selectedSensorId)
+            , autocomplete False
             ]
             []
         ]
@@ -608,17 +608,17 @@ viewParameterFilter sensors selectedSensorId =
 viewSensorFilter : List Sensor -> String -> Html Msg
 viewSensorFilter sensors selectedSensorId =
     div []
-        [ label [ Attr.for "sensor" ] [ text "sensor:" ]
+        [ label [ for "sensor" ] [ text "sensor:" ]
         , input
-            [ Attr.id "sensor"
-            , Attr.class "input-dark"
-            , Attr.class "input-filters"
-            , Attr.placeholder "sensor"
-            , Attr.type_ "text"
-            , Attr.name "sensor"
+            [ id "sensor"
+            , class "input-dark"
+            , class "input-filters"
+            , placeholder "sensor"
+            , type_ "text"
+            , name "sensor"
             , Popup.clickWithoutDefault (ShowPopup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId))
-            , Attr.value (Sensor.sensorLabelForId sensors selectedSensorId)
-            , Attr.autocomplete False
+            , value (Sensor.sensorLabelForId sensors selectedSensorId)
+            , autocomplete False
             ]
             []
         ]
@@ -629,30 +629,30 @@ viewCrowdMapCheckBox isCrowdMapOn =
     div []
         [ p []
             [ input
-                [ Attr.id "checkbox-crowd-map"
-                , Attr.type_ "checkbox"
-                , Attr.checked isCrowdMapOn
+                [ id "checkbox-crowd-map"
+                , type_ "checkbox"
+                , checked isCrowdMapOn
                 , Events.onClick ToggleCrowdMap
                 ]
                 []
-            , label [ Attr.for "checkbox-crowd-map" ] [ text "Crowd Map" ]
+            , label [ for "checkbox-crowd-map" ] [ text "Crowd Map" ]
             ]
         ]
 
 
 viewCrowdMapSlider : String -> Html Msg
 viewCrowdMapSlider resolution =
-    div [ Attr.id "crowd-map-slider" ]
+    div [ id "crowd-map-slider" ]
         [ p []
             [ text "Resolution" ]
         , div []
             [ input
-                [ Attr.class "crowd-map-slider"
+                [ class "crowd-map-slider"
                 , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateCrowdMapResolution)
-                , Attr.value resolution
-                , Attr.max "50"
-                , Attr.min "10"
-                , Attr.type_ "range"
+                , value resolution
+                , max "50"
+                , min "10"
+                , type_ "range"
                 ]
                 []
             , span []
@@ -664,16 +664,16 @@ viewCrowdMapSlider resolution =
 viewLocation : String -> Bool -> Html Msg
 viewLocation location isIndoor =
     div []
-        [ label [ Attr.for "location" ] [ text "location:" ]
+        [ label [ for "location" ] [ text "location:" ]
         , input
-            [ Attr.id "location"
-            , Attr.value location
-            , Attr.class "input-dark"
-            , Attr.class "input-filters"
-            , Attr.placeholder "location"
-            , Attr.type_ "text"
-            , Attr.name "location"
-            , Attr.disabled isIndoor
+            [ id "location"
+            , value location
+            , class "input-dark"
+            , class "input-filters"
+            , placeholder "location"
+            , type_ "text"
+            , name "location"
+            , disabled isIndoor
             , Events.onInput UpdateLocationInput
             , onEnter SubmitLocation
             ]
