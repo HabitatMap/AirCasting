@@ -24,8 +24,8 @@ describe Api::Fixed::SessionsController do
         "sensor_name" => sensor_name,
         "average" => average.to_f,
         "measurements" => [value.to_f],
-        "startTime" => "01.10.2000 02:03",
-        "endTime" => "04.11.2001 05:06",
+        "startTime" => "01/10/2000, 02:03",
+        "endTime" => "04/11/2001, 05:06",
         "id" => session.id,
       }
       expect(json_response).to eq(expected)

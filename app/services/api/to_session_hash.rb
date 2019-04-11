@@ -26,7 +26,7 @@ class Api::ToSessionHash
   private
 
   def format_datetime(datetime)
-    datetime.strftime("%d.%m.%Y %H:%M")
+    datetime.strftime("%d/%m/%Y, %H:%M")
   end
 end
 
