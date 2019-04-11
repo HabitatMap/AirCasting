@@ -625,7 +625,7 @@ viewTests =
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.all expected ]
-        , fuzz3 float float float "with selection the session average min and max are shown" <|
+        , fuzz3 float float float "with selection the session rounded average min and max are shown" <|
             \average min max ->
                 let
                     selectedSession_ =
@@ -636,7 +636,7 @@ viewTests =
                         }
 
                     expected =
-                        List.map (\x -> Slc.containing [ Slc.text <| String.fromFloat x ]) [ average, min, max ]
+                        List.map (\x -> Slc.containing [ Slc.text x ]) [ String.fromInt <| round average, String.fromFloat min, String.fromFloat max ]
                 in
                 { defaultModel | selectedSession = Success selectedSession_ }
                     |> view

@@ -76,7 +76,7 @@ view session =
         , p [ Attr.class "single-session-TODO" ] [ text session.sensorName ]
         , p [ Attr.class "single-session-TODO" ] [ text <| String.fromFloat session.min ]
         , p [ Attr.class "single-session-TODO" ] [ text <| String.fromFloat session.max ]
-        , p [ Attr.class "single-session-TODO" ] [ text <| String.fromFloat session.average ]
+        , p [ Attr.class "single-session-TODO" ] [ text <| String.fromInt <| round session.average ]
         , p [ Attr.class "single-session-TODO" ] [ text session.startTime ]
         , p [ Attr.class "single-session-TODO" ] [ text session.endTime ]
         ]
