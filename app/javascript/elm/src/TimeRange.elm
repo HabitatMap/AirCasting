@@ -1,7 +1,7 @@
 module TimeRange exposing (TimeRange(..), defaultTimeRange, update, view)
 
 import Html exposing (Html, button, div, h4, input, label, text)
-import Html.Attributes as Attr
+import Html.Attributes exposing (attribute, class, disabled, for, id, name, placeholder, type_)
 import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -49,19 +49,20 @@ timeRangeDecoder =
         (Decode.field "timeTo" Decode.int)
 
 
-view : msg -> Html msg
-view refreshTimeRange =
+view : msg -> Bool -> Html msg
+view refreshTimeRange isDisabled =
     div []
-        [ label [ Attr.for "time-range" ] [ text "time range:" ]
+        [ label [ for "time-range" ] [ text "time range:" ]
         , input
-            [ Attr.id "time-range"
-            , Attr.attribute "autocomplete" "off"
-            , Attr.class "input-dark"
-            , Attr.class "input-filters"
-            , Attr.class "input-time"
-            , Attr.placeholder "time range"
-            , Attr.type_ "text"
-            , Attr.name "time-range"
+            [ id "time-range"
+            , attribute "autocomplete" "off"
+            , class "input-dark"
+            , class "input-filters"
+            , class "input-time"
+            , placeholder "time range"
+            , type_ "text"
+            , name "time-range"
+            , disabled isDisabled
             ]
             []
         , button [ Events.onClick refreshTimeRange ] [ text "refresh" ]
