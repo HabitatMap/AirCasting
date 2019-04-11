@@ -11,6 +11,11 @@ type Popup
     | None
 
 
+type PopupPart
+    = MainPart
+    | OtherPart
+
+
 view : msg -> (String -> msg) -> Bool -> Popup -> Html msg
 view toggle onSelect isPopupExtended popup =
     case popup of
@@ -18,22 +23,22 @@ view toggle onSelect isPopupExtended popup =
             case ( List.isEmpty main, List.isEmpty others ) of
                 ( True, _ ) ->
                     div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
-                        [ selectableItems others onSelect ]
+                        [ selectableItems MainPart others onSelect ]
 
                 ( False, True ) ->
                     div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
-                        [ selectableItems main onSelect
+                        [ selectableItems MainPart main onSelect
                         ]
 
                 ( False, False ) ->
                     div [ Attr.id "popup", Attr.class "parameter-filters-popup" ]
-                        [ selectableItems main onSelect
+                        [ selectableItems MainPart main onSelect
                         , if List.isEmpty others then
                             text ""
 
                           else if isPopupExtended then
-                            div []
-                                [ selectableItems others onSelect
+                            div [ Attr.class "parameter-more-container" ]
+                                [ selectableItems OtherPart others onSelect
                                 , togglePopupStateButton ("less " ++ itemType) toggle
                                 ]
 
@@ -49,17 +54,26 @@ togglePopupStateButton : String -> msg -> Html msg
 togglePopupStateButton name toggle =
     button
         [ Attr.id "toggle-popup-button"
-        , Attr.class "parameter-more-container"
+        , Attr.class "parameters-toggle-open"
         , clickWithoutDefault toggle
         ]
         [ text name ]
 
 
-selectableItems : List String -> (String -> msg) -> Html msg
-selectableItems items onSelect =
+selectableItems : PopupPart -> List String -> (String -> msg) -> Html msg
+selectableItems part items onSelect =
+    let
+        ( parentClass, childClass ) =
+            case part of
+                MainPart ->
+                    ( "parameter-filters-buttons-container", "parameter-filters-button" )
+
+                OtherPart ->
+                    ( "parameter-more-list", "more-parameters-link" )
+    in
     items
-        |> List.map (\item -> button [ Events.onClick (onSelect item), Attr.class "parameter-filters-button" ] [ text item ])
-        |> div [ Attr.class "parameter-filters-buttons-container" ]
+        |> List.map (\item -> button [ Events.onClick (onSelect item), Attr.class childClass, Attr.class "test-parameter-filters-button" ] [ text item ])
+        |> div [ Attr.class parentClass ]
 
 
 clickWithoutDefault : msg -> Html.Attribute msg
