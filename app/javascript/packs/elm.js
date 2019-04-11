@@ -1,4 +1,6 @@
 import { Elm } from '../elm/src/Main.elm';
+import logoNav from '../../assets/images/aircasting-logo-nav.svg';
+import linkIcon from '../../assets/images/link-icon.svg';
 
 document.addEventListener('DOMContentLoaded', () => {
   fetch('/api/sensors.json').then(x => x.json()).then(sensors => {
@@ -30,7 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
         timeFrom: data.timeFrom,
         timeTo: data.timeTo
       },
-      isIndoor: data.isIndoor
+      isIndoor: data.isIndoor,
+      logoNav,
+      linkIcon,
     };
 
     console.warn(flags);
