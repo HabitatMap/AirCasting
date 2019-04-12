@@ -46,9 +46,12 @@
 .session-color {
   min-width: 12px;
   min-height: 12px;
+  max-width: 12px;
+  max-height: 12px;
   border-radius: 12px;
   margin-right: 10px;
   margin-top: 5px;
+  float: left;
 }
 
 .session-name {

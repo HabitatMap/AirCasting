@@ -10,10 +10,12 @@
   overflow: hidden;
   @include flexbox();
   @include flex-direction(row);
-  @include align-items(center);
+  @include align-items(flex-start);
   @include justify-content(space-between);
   background-color: white;
-  padding: $margin-default;
+  padding: 16px 16px 0 16px;
+  border-radius: $basic-radius;
+  box-shadow: $basic-shadow;
 }
 
 .single-session-info {
@@ -22,4 +24,61 @@
 
 .single-session-graph {
   width: 80%;
+}
+
+.single-session-name {
+  font-size: $medium-font;
+}
+
+.single-session-username {
+  font-size: $small-font;
+}
+
+.single-session-max {
+  font-size: $tiny-font;
+}
+
+.single-session-avg {
+  font-size: $medium-font;
+}
+
+.single-session-sensor {
+  font-size: $tiny-font;
+  margin-bottom: 16px;
+}
+
+.single-session-start, .single-session-end  {
+  font-size: $tiny-font;
+}
+
+.session-numbers-container {
+  @include flexbox();
+  @include justify-content(flex-start);
+  @include align-items(center);
+}
+
+.single-min-max-container {
+  padding: 6px 15px 6px 0;
+}
+
+.single-session-color {
+  min-width: 6px;
+  min-height: 6px;
+  max-width: 6px;
+  max-height: 6px;
+  border-radius: 12px;
+  margin-right: 3px;
+  margin-top: 6px;
+  float: left;
+}
+
+.single-session-avg-color {
+  min-width: 9px;
+  min-height: 9px;
+  max-width: 9px;
+  max-height: 9px;
+  border-radius: 12px;
+  margin-right: 6px;
+  margin-top: 11px;
+  float: left;
 }

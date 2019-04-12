@@ -42,16 +42,16 @@
   left: -10px;
   top: -11px;
   &.highest {
-    border: 1px solid #F4001C;
+    border: 1px solid $red;
   }
   &.high {
-    border: 1px solid #F57F22;
+    border: 1px solid $orange;
   }
   &.mid {
     border: 1px solid #FFCC33;
   }
   &.low {
-    border: 1px solid #2DA641;
+    border: 1px solid $green;
   }
   &.lowest {
     border: 1px solid #ccc;
@@ -73,19 +73,19 @@
 }
 
 .data-marker.highest::before {
-  background: #F4001C;
+  background: $red;
 }
 
 .data-marker.high::before {
-  background: #F57F22;
+  background: $orange;
 }
 
 .data-marker.mid::before {
-  background: #F9DC2E;
+  background: $yellow;
 }
 
 .data-marker.low::before {
-  background: #2DA641;
+  background: $green;
 }
 
 .data-marker.default::before {

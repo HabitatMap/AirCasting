@@ -1,7 +1,7 @@
 module Data.SelectedSession exposing (SelectedSession, decoder, fetch, sensorNameFromId, view)
 
 import Data.Page exposing (Page(..))
-import Html exposing (Html, div, p, text)
+import Html exposing (Html, div, p, span, text)
 import Html.Attributes exposing (class)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
@@ -71,12 +71,26 @@ fetch sensorId page id toMsg =
 view : SelectedSession -> Html msg
 view session =
     div []
-        [ p [ class "single-session-TODO" ] [ text session.title ]
-        , p [ class "single-session-TODO" ] [ text session.username ]
-        , p [ class "single-session-TODO" ] [ text session.sensorName ]
-        , p [ class "single-session-TODO" ] [ text <| String.fromFloat session.min ]
-        , p [ class "single-session-TODO" ] [ text <| String.fromFloat session.max ]
-        , p [ class "single-session-TODO" ] [ text <| String.fromInt <| round session.average ]
-        , p [ class "single-session-TODO" ] [ text session.startTime ]
-        , p [ class "single-session-TODO" ] [ text session.endTime ]
+        [ p [ class "single-session-name" ] [ text session.title ]
+        , p [ class "single-session-username" ] [ text session.username ]
+        , p [ class "single-session-sensor" ] [ text session.sensorName ]
+        , div []
+            [ div [ class "single-session-avg-color green-bg" ] []
+            , span [ class "single-session-info" ] [ text "avg. " ]
+            , span [ class "single-session-avg" ] [ text <| String.fromFloat session.average ]
+            ]
+        , div [ class "session-numbers-container" ]
+            [ div [ class "single-min-max-container" ]
+                [ div [ class "single-session-color green-bg" ] []
+                , span [ class "single-session-info" ] [ text "min. " ]
+                , span [ class "single-session-min" ] [ text <| String.fromFloat session.min ]
+                ]
+            , div [ class "single-min-max-container" ]
+                [ div [ class "single-session-color green-bg" ] []
+                , span [ class "single-session-info" ] [ text "max. " ]
+                , span [ class "single-session-max" ] [ text <| String.fromFloat session.max ]
+                ]
+            ]
+        , span [ class "single-session-start" ] [ text session.startTime, text " " ]
+        , span [ class "single-session-end" ] [ text session.endTime ]
         ]

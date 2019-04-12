@@ -19,6 +19,8 @@
   padding: $margin-default;
   box-shadow: $basic-shadow;
   color: $text-color;
+  border-radius: $basic-radius;
+  animation: show-up 0.4s ease;
 }
 
 .parameter-more-list {
@@ -28,6 +30,7 @@
   @include justify-content(space-between);
   margin: 0 auto;
   width: 100%;
+  animation: show-up 1s ease;
 }
 
 .parameter-filters-buttons-container {
@@ -43,7 +46,16 @@
   width: 50%;
   font-size: $tiny-font;
   width: 50%;
-  padding: 6px 12px 6px 12px;
+  padding: 12px;
+  border: none;
+  -webkit-appearance: none;
+  text-align: left;
+  &:hover {
+    text-decoration: underline;
+  }
+  &:focus {
+    outline: none;
+  }
 }
 
 .parameters-toggle-open {
@@ -52,4 +64,6 @@
   display: inline-block;
   text-align: right;
   font-size: $tiny-font;
+  border: none;
+  -webkit-appearance: none;
 }

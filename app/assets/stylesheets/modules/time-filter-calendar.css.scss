@@ -2,7 +2,6 @@
   position: absolute;
   color: inherit;
   background-color: white;
-  border-radius: 4px;
   width: 278px;
   max-width: none;
   padding: 0;
@@ -11,7 +10,8 @@
   margin-top: -23px;
   margin-left: calc(#{$filters-width});
   box-shadow: $basic-shadow;
-  border-radius: 12px;
+  border-radius: $basic-radius;
+  animation: show-up 0.4s ease;
 }
 
 .daterangepicker.single .daterangepicker .ranges, .daterangepicker.single .drp-calendar {
