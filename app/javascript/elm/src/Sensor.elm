@@ -3,9 +3,11 @@ module Sensor exposing
     , decodeSensors
     , idForParameterOrLabel
     , labelsForParameter
+    , nameForSensorId
     , parameterForId
     , parameters
     , sensorLabelForId
+    , unitForSensorId
     )
 
 import Dict
@@ -50,7 +52,7 @@ mainSensors =
    { id_ = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
    , label = "AirBeam2-PM2.5 (µg/m³)"
    , parameter = "Particulate Matter"
-   , sensor = "AirBeam2-PM2.5"
+   , name = "AirBeam2-PM2.5"
    , session_count = 24
    , unit = "µg/m³"
    }
@@ -59,7 +61,7 @@ mainSensors =
 
 type alias Sensor =
     { id_ : String
-    , sensor : String
+    , name : String
     , parameter : String
     , unit : String
     , label : String
@@ -83,12 +85,12 @@ decodeSensors sensors =
 
 
 toSensor : String -> String -> String -> Int -> Sensor
-toSensor sensor parameter unit session_count =
-    { id_ = parameter ++ "-" ++ String.toLower sensor ++ " (" ++ unit ++ ")"
-    , sensor = sensor
+toSensor name parameter unit session_count =
+    { id_ = parameter ++ "-" ++ String.toLower name ++ " (" ++ unit ++ ")"
+    , name = name
     , parameter = parameter
     , unit = unit
-    , label = sensor ++ " (" ++ unit ++ ")"
+    , label = name ++ " (" ++ unit ++ ")"
     , session_count = session_count
     }
 
@@ -184,3 +186,19 @@ idForParameterOrLabel parameterOrLabel oldSensorId sensors =
 
         _ ->
             defaultSensorId
+
+
+nameForSensorId : String -> List Sensor -> Maybe String
+nameForSensorId id sensors =
+    sensors
+        |> List.filter (\sensor -> sensor.id_ == id)
+        |> List.head
+        |> Maybe.map .name
+
+
+unitForSensorId : String -> List Sensor -> Maybe String
+unitForSensorId id sensors =
+    sensors
+        |> List.filter (\sensor -> sensor.id_ == id)
+        |> List.head
+        |> Maybe.map .unit

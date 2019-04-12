@@ -5,7 +5,6 @@ import Html exposing (Html, div, p, span, text)
 import Html.Attributes exposing (class)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
-import RemoteData exposing (RemoteData(..), WebData)
 
 
 type alias SelectedSession =
@@ -55,8 +54,8 @@ sensorNameFromId =
     String.split "-" >> List.drop 1 >> String.join "-" >> String.split " " >> List.head >> Maybe.withDefault ""
 
 
-fetch : String -> Page -> Int -> (WebData SelectedSession -> msg) -> Cmd msg
-fetch sensorId page id toMsg =
+fetch : String -> Page -> Int -> (Result Http.Error SelectedSession -> msg) -> Cmd msg
+fetch sensorId page id toCmd =
     Http.get
         { url =
             if page == Mobile then
@@ -64,7 +63,7 @@ fetch sensorId page id toMsg =
 
             else
                 "/api/fixed/sessions/" ++ String.fromInt id ++ ".json?sensor_name=" ++ sensorNameFromId sensorId
-        , expect = Http.expectJson (RemoteData.fromResult >> toMsg) decoder
+        , expect = Http.expectJson toCmd decoder
         }
 
 

@@ -55,14 +55,14 @@ all =
                 [ { id_ = "Particulate Matter-other label (µg/m³)"
                   , parameter = "Particulate Matter"
                   , label = "Other Label (µg/m³)"
-                  , sensor = "Other Label"
+                  , name = "Other Label"
                   , unit = "µg/m³"
                   , session_count = 1
                   }
                 , { id_ = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
                   , parameter = "Particulate Matter"
                   , label = "AirBeam2-PM2.5 (µg/m³)"
-                  , sensor = "AirBeam2-PM2.5"
+                  , name = "AirBeam2-PM2.5"
                   , unit = "µg/m³"
                   , session_count = 0
                   }
@@ -74,14 +74,14 @@ all =
                 [ { id_ = "Humidity-other label (%)"
                   , parameter = "Humidity"
                   , label = "Other Label (%)"
-                  , sensor = "Other Label"
+                  , name = "Other Label"
                   , unit = "%"
                   , session_count = 1
                   }
                 , { id_ = "Humidity-airbeam2-rh (%)"
                   , parameter = "Humidity"
                   , label = "AirBeam2-RH (%)"
-                  , sensor = "AirBeam2-RH"
+                  , name = "AirBeam2-RH"
                   , unit = "%"
                   , session_count = 0
                   }
@@ -93,14 +93,14 @@ all =
                 [ { id_ = "Sound Level-other label (dB)"
                   , parameter = "Sound Level"
                   , label = "Other Label (dB)"
-                  , sensor = "Other Label"
+                  , name = "Other Label"
                   , unit = "dB"
                   , session_count = 1
                   }
                 , { id_ = "Sound Level-phone microphone (dB)"
                   , parameter = "Sound Level"
                   , label = "Phone Microphone (dB)"
-                  , sensor = "Phone Microphone"
+                  , name = "Phone Microphone"
                   , unit = "dB"
                   , session_count = 0
                   }
@@ -112,14 +112,14 @@ all =
                 [ { id_ = "Temperature-other label (F)"
                   , parameter = "Temperature"
                   , label = "Other Label (F)"
-                  , sensor = "Other Label"
+                  , name = "Other Label"
                   , unit = "F"
                   , session_count = 1
                   }
                 , { id_ = "Temperature-airbeam2-f (F)"
                   , parameter = "Temperature"
                   , label = "Temperature (F)"
-                  , sensor = "Temperature"
+                  , name = "Temperature"
                   , unit = "F"
                   , session_count = 0
                   }
@@ -143,7 +143,44 @@ all =
                           ]
                         , [ "Other Label (µg/m³)" ]
                         )
+        , test "nameForSensorId returns the name given the sensorId" <|
+            \_ ->
+                [ { sensor
+                    | id_ = "id"
+                    , name = "name"
+                  }
+                , { sensor
+                    | id_ = "other id"
+                    , name = "other name"
+                  }
+                ]
+                    |> nameForSensorId "id"
+                    |> Expect.equal (Just "name")
+        , test "unitForSensorId returns the unit given the sensorId" <|
+            \_ ->
+                [ { sensor
+                    | id_ = "id"
+                    , unit = "unit"
+                  }
+                , { sensor
+                    | id_ = "other id"
+                    , unit = "other unit"
+                  }
+                ]
+                    |> unitForSensorId "id"
+                    |> Expect.equal (Just "unit")
         ]
+
+
+sensor : Sensor
+sensor =
+    { id_ = "parameter-sensor (unit)"
+    , parameter = "parameter"
+    , label = "Sensor (unit)"
+    , name = "Sensor"
+    , unit = "unit"
+    , session_count = 1
+    }
 
 
 sensors : List Sensor
@@ -151,21 +188,21 @@ sensors =
     [ { id_ = "parameter-sensor (unit)"
       , parameter = "parameter"
       , label = "Sensor (unit)"
-      , sensor = "Sensor"
+      , name = "Sensor"
       , unit = "unit"
       , session_count = 1
       }
     , { id_ = "parameter-sensor2 (unit)"
       , parameter = "parameter"
       , label = "Sensor2 (unit)"
-      , sensor = "Sensor2"
+      , name = "Sensor2"
       , unit = "unit"
       , session_count = 2
       }
     , { id_ = "parameter2-sensor3 (unit)"
       , parameter = "parameter2"
       , label = "Sensor3 (unit)"
-      , sensor = "Sensor3"
+      , name = "Sensor3"
       , unit = "unit"
       , session_count = 1
       }
@@ -177,35 +214,35 @@ sensorsWithPriority =
     [ { id_ = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
       , parameter = "Particulate Matter"
       , label = "AirBeam2-PM2.5 (µg/m³)"
-      , sensor = "AirBeam2-PM2.5"
+      , name = "AirBeam2-PM2.5"
       , unit = "µg/m³"
       , session_count = 1
       }
     , { id_ = "Particulate Matter-airbeam2-pm1 (µg/m³)"
       , parameter = "Particulate Matter"
       , label = "AirBeam2-PM1 (µg/m³)"
-      , sensor = "AirBeam2-PM1"
+      , name = "AirBeam2-PM1"
       , unit = "µg/m³"
       , session_count = 1
       }
     , { id_ = "Particulate Matter-airbeam2-pm10 (µg/m³)"
       , parameter = "Particulate Matter"
       , label = "AirBeam2-PM10 (µg/m³)"
-      , sensor = "AirBeam2-PM10"
+      , name = "AirBeam2-PM10"
       , unit = "µg/m³"
       , session_count = 1
       }
     , { id_ = "Particulate Matter-airbeam-pm (µg/m³)"
       , parameter = "Particulate Matter"
       , label = "AirBeam-PM (µg/m³)"
-      , sensor = "AirBeam-PM"
+      , name = "AirBeam-PM"
       , unit = "µg/m³"
       , session_count = 1
       }
     , { id_ = "Particulate Matter-other label (µg/m³)"
       , parameter = "Particulate Matter"
       , label = "Other Label (µg/m³)"
-      , sensor = "Other Label"
+      , name = "Other Label"
       , unit = "µg/m³"
       , session_count = 1
       }
