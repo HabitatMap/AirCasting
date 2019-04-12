@@ -1,3 +1,22 @@
+.heatmap {
+  @include flexbox;
+  @include align-items(center);
+  @include justify-content(space-between);
+  max-width: calc( 100vw - #{$filters-width} );
+  min-width: calc( 100vw - #{$filters-width} );
+  padding: 0 18px;
+}
+.heatmap-input {
+  @include flexbox;
+  @include align-items(center);
+  @include justify-content(space-between);
+  input {
+    max-width: 35px;
+    height: 25px;
+    box-shadow: $basic-shadow;
+  }
+}
+
 /*! nouislider - 13.1.4 - 3/20/2019 */
 /* Functional styling;
  * These styles are required for noUiSlider to function.
@@ -60,14 +79,17 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
 .noUi-vertical .noUi-origin {
   width: 0;
 }
+
 .noUi-horizontal .noUi-origin {
   height: 0;
 }
+
 .noUi-handle {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   position: absolute;
 }
+
 .noUi-touch-area {
   height: 100%;
   width: 100%;
@@ -83,23 +105,18 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
 /* Slider size and handle placement;
  */
 .noUi-horizontal {
-  height: 18px;
+  height: 3px;
+  width: 80%;
+  min-width: 80%;
+  max-width: 80%;
 }
 .noUi-horizontal .noUi-handle {
-  width: 34px;
-  height: 28px;
-  left: -17px;
-  top: -6px;
-}
-.noUi-vertical {
-  width: 18px;
-}
-.noUi-vertical .noUi-handle {
-  width: 28px;
-  height: 34px;
+  width: 12px;
+  height: 12px;
   left: -6px;
-  top: -17px;
+  top: -5px;
 }
+
 html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
   right: -17px;
   left: auto;
@@ -109,16 +126,11 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
  */
 .noUi-target {
   background: #FAFAFA;
-  border-radius: 4px;
-  border: 1px solid #D3D3D3;
-  box-shadow: inset 0 1px 1px #F0F0F0, 0 3px 6px -5px #BBB;
 }
 .noUi-connects {
   border-radius: 3px;
 }
-.noUi-connect {
-  background: #3FB8AF;
-}
+
 /* Handles and cursors;
  */
 .noUi-draggable {
@@ -128,41 +140,15 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
   cursor: ns-resize;
 }
 .noUi-handle {
-  border: 1px solid #D9D9D9;
-  border-radius: 3px;
-  background: #FFF;
+  border-radius: 12px;
+  background: white;
   cursor: default;
-  box-shadow: inset 0 0 1px #FFF, inset 0 1px 7px #EBEBEB, 0 3px 6px -3px #BBB;
+  box-shadow: $basic-shadow;
 }
 .noUi-active {
-  box-shadow: inset 0 0 1px #FFF, inset 0 1px 7px #DDD, 0 3px 6px -3px #BBB;
+  box-shadow: $basic-shadow;
 }
-/* Handle stripes;
- */
-.noUi-handle:before,
-.noUi-handle:after {
-  content: "";
-  display: block;
-  position: absolute;
-  height: 14px;
-  width: 1px;
-  background: #E8E7E6;
-  left: 14px;
-  top: 6px;
-}
-.noUi-handle:after {
-  left: 17px;
-}
-.noUi-vertical .noUi-handle:before,
-.noUi-vertical .noUi-handle:after {
-  width: 14px;
-  height: 1px;
-  left: 6px;
-  top: 14px;
-}
-.noUi-vertical .noUi-handle:after {
-  top: 17px;
-}
+
 /* Disabled state;
  */
 [disabled] .noUi-connect {
@@ -237,42 +223,12 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
   height: 10px;
 }
 .noUi-marker-horizontal.noUi-marker-large {
-  height: 15px;
-}
-/* Vertical layout;
- *
- */
-.noUi-pips-vertical {
-  padding: 0 10px;
-  height: 100%;
-  top: 0;
-  left: 100%;
-}
-.noUi-value-vertical {
-  -webkit-transform: translate(0, -50%);
-  transform: translate(0, -50%);
-  padding-left: 25px;
-}
-.noUi-rtl .noUi-value-vertical {
-  -webkit-transform: translate(0, 50%);
-  transform: translate(0, 50%);
-}
-.noUi-marker-vertical.noUi-marker {
-  width: 5px;
   height: 2px;
-  margin-top: -1px;
 }
-.noUi-marker-vertical.noUi-marker-sub {
-  width: 10px;
-}
-.noUi-marker-vertical.noUi-marker-large {
-  width: 15px;
-}
+
 .noUi-tooltip {
   display: block;
   position: absolute;
-  border: 1px solid #D9D9D9;
-  border-radius: 3px;
   background: #fff;
   color: #000;
   padding: 5px;
@@ -291,7 +247,3 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
   top: 50%;
   right: 120%;
 }
-.c-1-color { background: red; }
-.c-2-color { background: yellow; }
-.c-3-color { background: green; }
-.c-4-color { background: blue; }
