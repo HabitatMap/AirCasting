@@ -48,7 +48,7 @@ sensors =
     [ { id_ = "parameter-sensor (unit)"
       , parameter = "parameter"
       , label = "Sensor (unit)"
-      , sensor = "Sensor"
+      , name = "Sensor"
       , unit = "unit"
       , session_count = 1
       }

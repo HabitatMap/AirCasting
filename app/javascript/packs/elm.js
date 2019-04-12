@@ -69,5 +69,9 @@ const setupHeatMap = () => {
     for (var i = 0; i < connect.length; i++) {
       connect[i].classList.add(classes[i]);
     }
+
+    window.__elmApp.ports.updateHeatMapThresholds.subscribe(({ h1, h2, h3, h4, h5 }) => {
+      node.noUiSlider.set([h2, h3, h4]);
+    });
   }
 };

@@ -3,6 +3,7 @@ module Main exposing (Msg(..), defaultModel, exportPath, update, view)
 import Browser exposing (..)
 import Browser.Events
 import Browser.Navigation
+import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
@@ -51,6 +52,7 @@ type alias Model =
     , isIndoor : Bool
     , logoNav : String
     , linkIcon : String
+    , heatMapThresholds : WebData HeatMapThresholds
     }
 
 
@@ -74,6 +76,7 @@ defaultModel =
     , selectedSession = NotAsked
     , logoNav = ""
     , linkIcon = ""
+    , heatMapThresholds = NotAsked
     }
 
 
@@ -103,6 +106,9 @@ init flags url key =
 
                 _ ->
                     Mobile
+
+        sensors =
+            Sensor.decodeSensors flags.sensors
     in
     ( { defaultModel
         | page = page
@@ -114,12 +120,15 @@ init flags url key =
         , crowdMapResolution = flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , isIndoor = flags.isIndoor
-        , sensors = Sensor.decodeSensors flags.sensors
+        , sensors = sensors
         , selectedSensorId = flags.selectedSensorId
         , logoNav = flags.logoNav
         , linkIcon = flags.linkIcon
       }
-    , fetchSelectedSession flags.selectedSessionId flags.selectedSensorId page
+    , Cmd.batch
+        [ fetchSelectedSession flags.selectedSessionId flags.selectedSensorId page
+        , fetchHeatMapThresholds sensors flags.selectedSensorId
+        ]
     )
 
 
@@ -130,7 +139,13 @@ fetchSelectedSession maybeId selectedSensorId page =
             Cmd.none
 
         Just id ->
-            SelectedSession.fetch selectedSensorId page id GotSession
+            SelectedSession.fetch selectedSensorId page id (RemoteData.fromResult >> GotSession)
+
+
+fetchHeatMapThresholds : List Sensor -> String -> Cmd Msg
+fetchHeatMapThresholds sensors selectedSensorId =
+    HeatMapThresholds.fetch sensors selectedSensorId (RemoteData.fromResult >> UpdateHeatMapThresholds)
+        |> Maybe.withDefault Cmd.none
 
 
 
@@ -161,6 +176,7 @@ type Msg
     | ToggleSessionSelectionFromAngular (Maybe Int)
     | ToggleSessionSelection Int
     | GotSession (WebData SelectedSession)
+    | UpdateHeatMapThresholds (WebData HeatMapThresholds)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -264,7 +280,7 @@ update msg model =
         ToggleSessionSelectionFromAngular maybeId ->
             case maybeId of
                 Just id ->
-                    ( model, SelectedSession.fetch model.selectedSensorId model.page id GotSession )
+                    ( model, SelectedSession.fetch model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession) )
 
                 Nothing ->
                     ( { model | selectedSession = NotAsked }, Cmd.none )
@@ -275,7 +291,7 @@ update msg model =
                     ( model
                     , Cmd.batch
                         [ Ports.toggleSession { deselected = Nothing, selected = Just id }
-                        , SelectedSession.fetch model.selectedSensorId model.page id GotSession
+                        , SelectedSession.fetch model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                         ]
                     )
 
@@ -289,7 +305,7 @@ update msg model =
                         ( { model | selectedSession = NotAsked }
                         , Cmd.batch
                             [ Ports.toggleSession { deselected = Just selectedSession.id, selected = Just id }
-                            , SelectedSession.fetch model.selectedSensorId model.page id GotSession
+                            , SelectedSession.fetch model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                             ]
                         )
 
@@ -298,6 +314,18 @@ update msg model =
 
         GotSession response ->
             ( { model | selectedSession = response }, Cmd.none )
+
+        UpdateHeatMapThresholds heatMapThresholds ->
+            let
+                cmd =
+                    case heatMapThresholds of
+                        Success thresholds ->
+                            Ports.updateHeatMapThresholds thresholds
+
+                        _ ->
+                            Cmd.none
+            in
+            ( { model | heatMapThresholds = heatMapThresholds }, cmd )
 
 
 updateLabels :
