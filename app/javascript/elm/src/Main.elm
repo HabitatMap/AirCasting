@@ -119,13 +119,18 @@ init flags url key =
         , logoNav = flags.logoNav
         , linkIcon = flags.linkIcon
       }
-    , case flags.selectedSessionId of
+    , fetchSelectedSession flags.selectedSessionId flags.selectedSensorId page
+    )
+
+
+fetchSelectedSession : Maybe Int -> String -> Page -> Cmd Msg
+fetchSelectedSession maybeId selectedSensorId page =
+    case maybeId of
         Nothing ->
             Cmd.none
 
         Just id ->
-            SelectedSession.fetch flags.selectedSensorId page id GotSession
-    )
+            SelectedSession.fetch selectedSensorId page id GotSession
 
 
 
