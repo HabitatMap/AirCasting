@@ -77,7 +77,7 @@ view session =
         , div []
             [ div [ class "single-session-avg-color green-bg" ] []
             , span [ class "single-session-info" ] [ text "avg. " ]
-            , span [ class "single-session-avg" ] [ text <| String.fromFloat session.average ]
+            , span [ class "single-session-avg" ] [ text <| String.fromInt <| round session.average ]
             ]
         , div [ class "session-numbers-container" ]
             [ div [ class "single-min-max-container" ]
