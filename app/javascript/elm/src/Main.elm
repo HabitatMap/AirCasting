@@ -362,7 +362,7 @@ view model =
                 , div [ class "maps-content-container" ]
                     [ if model.isHttping then
                         div [ class "overlay" ]
-                            [ div [ class "lds-dual-ring" ] []
+                            [ div [ class "spinner" ] []
                             ]
 
                       else
@@ -449,7 +449,7 @@ viewFiltersButtons selectedSession sessions linkIcon =
         NotAsked ->
             div [ class "filters-buttons" ]
                 [ a [ class "filters-button export-button", target "_blank", href <| exportLink sessions ] [ text "export sessions" ]
-                , button [ class "filters-button circular-button", Events.onClick ShowCopyLinkTooltip, id "copy-link-tooltip" ]
+                , button [ class "filters-button circular-button link-button", Events.onClick ShowCopyLinkTooltip, id "copy-link-tooltip" ]
                     [ img [ src linkIcon ] [] ]
                 ]
 
