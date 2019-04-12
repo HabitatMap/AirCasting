@@ -7,6 +7,7 @@ module Sensor exposing
     , parameterForId
     , parameters
     , sensorLabelForId
+    , toId
     , unitForSensorId
     )
 
@@ -49,9 +50,7 @@ mainSensors =
 
 
 {-
-   { id_ = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-   , label = "AirBeam2-PM2.5 (µg/m³)"
-   , parameter = "Particulate Matter"
+   { parameter = "Particulate Matter"
    , name = "AirBeam2-PM2.5"
    , session_count = 24
    , unit = "µg/m³"
@@ -60,11 +59,9 @@ mainSensors =
 
 
 type alias Sensor =
-    { id_ : String
-    , name : String
+    { name : String
     , parameter : String
     , unit : String
-    , label : String
     , session_count : Int
     }
 
@@ -86,28 +83,36 @@ decodeSensors sensors =
 
 toSensor : String -> String -> String -> Int -> Sensor
 toSensor name parameter unit session_count =
-    { id_ = parameter ++ "-" ++ String.toLower name ++ " (" ++ unit ++ ")"
-    , name = name
+    { name = name
     , parameter = parameter
     , unit = unit
-    , label = name ++ " (" ++ unit ++ ")"
     , session_count = session_count
     }
+
+
+toId : Sensor -> String
+toId sensor =
+    sensor.parameter ++ "-" ++ String.toLower sensor.name ++ " (" ++ sensor.unit ++ ")"
+
+
+toLabel : Sensor -> String
+toLabel sensor =
+    sensor.name ++ " (" ++ sensor.unit ++ ")"
 
 
 sensorLabelForId : List Sensor -> String -> String
 sensorLabelForId sensors sensorId =
     sensors
-        |> List.filter (\sensor -> sensor.id_ == sensorId)
+        |> List.filter (\sensor -> toId sensor == sensorId)
         |> List.head
-        |> Maybe.map .label
+        |> Maybe.map toLabel
         |> Maybe.withDefault ""
 
 
 parameterForId : List Sensor -> String -> String
 parameterForId sensors sensorId =
     sensors
-        |> List.filter (\sensor -> sensor.id_ == sensorId)
+        |> List.filter (\sensor -> toId sensor == sensorId)
         |> List.head
         |> Maybe.map .parameter
         |> Maybe.withDefault ""
@@ -133,7 +138,7 @@ labelsForParameter sensors sensorId =
         allLabels =
             sensors
                 |> List.filter (\sensor -> sensor.parameter == parameterForId sensors sensorId)
-                |> List.map .label
+                |> List.map toLabel
                 |> List.sort
 
         mainLabels_ =
@@ -152,9 +157,9 @@ idForParameterOrLabel parameterOrLabel oldSensorId sensors =
     let
         byId id =
             sensors
-                |> List.filter (\sensor -> sensor.id_ == id)
+                |> List.filter (\sensor -> toId sensor == id)
                 |> List.head
-                |> Maybe.map .id_
+                |> Maybe.map toId
 
         maybeDefault =
             Dict.get parameterOrLabel defaultSensorIdByParameter
@@ -166,13 +171,13 @@ idForParameterOrLabel parameterOrLabel oldSensorId sensors =
                 |> List.sortBy .session_count
                 |> List.reverse
                 |> List.head
-                |> Maybe.map .id_
+                |> Maybe.map toId
 
         maybeByLabel =
             sensors
-                |> List.filter (\sensor -> sensor.label == parameterOrLabel && sensor.parameter == parameterForId sensors oldSensorId)
+                |> List.filter (\sensor -> toLabel sensor == parameterOrLabel && sensor.parameter == parameterForId sensors oldSensorId)
                 |> List.head
-                |> Maybe.map .id_
+                |> Maybe.map toId
     in
     case ( maybeDefault, maybeByParameter, maybeByLabel ) of
         ( Just default, _, _ ) ->
@@ -191,7 +196,7 @@ idForParameterOrLabel parameterOrLabel oldSensorId sensors =
 nameForSensorId : String -> List Sensor -> Maybe String
 nameForSensorId id sensors =
     sensors
-        |> List.filter (\sensor -> sensor.id_ == id)
+        |> List.filter (\sensor -> toId sensor == id)
         |> List.head
         |> Maybe.map .name
 
@@ -199,6 +204,6 @@ nameForSensorId id sensors =
 unitForSensorId : String -> List Sensor -> Maybe String
 unitForSensorId id sensors =
     sensors
-        |> List.filter (\sensor -> sensor.id_ == id)
+        |> List.filter (\sensor -> toId sensor == id)
         |> List.head
         |> Maybe.map .unit

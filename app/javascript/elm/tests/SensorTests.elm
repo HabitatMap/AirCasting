@@ -52,16 +52,12 @@ all =
                     |> Expect.equal "parameter-sensor2 (unit)"
         , test "idForParameterOrLabel always finds airbeam2-pm2.5 for Particulate Matter" <|
             \_ ->
-                [ { id_ = "Particulate Matter-other label (µg/m³)"
-                  , parameter = "Particulate Matter"
-                  , label = "Other Label (µg/m³)"
+                [ { parameter = "Particulate Matter"
                   , name = "Other Label"
                   , unit = "µg/m³"
                   , session_count = 1
                   }
-                , { id_ = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-                  , parameter = "Particulate Matter"
-                  , label = "AirBeam2-PM2.5 (µg/m³)"
+                , { parameter = "Particulate Matter"
                   , name = "AirBeam2-PM2.5"
                   , unit = "µg/m³"
                   , session_count = 0
@@ -71,16 +67,12 @@ all =
                     |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
         , test "idForParameterOrLabel always finds airbeam2-rh for Humidity" <|
             \_ ->
-                [ { id_ = "Humidity-other label (%)"
-                  , parameter = "Humidity"
-                  , label = "Other Label (%)"
+                [ { parameter = "Humidity"
                   , name = "Other Label"
                   , unit = "%"
                   , session_count = 1
                   }
-                , { id_ = "Humidity-airbeam2-rh (%)"
-                  , parameter = "Humidity"
-                  , label = "AirBeam2-RH (%)"
+                , { parameter = "Humidity"
                   , name = "AirBeam2-RH"
                   , unit = "%"
                   , session_count = 0
@@ -90,16 +82,12 @@ all =
                     |> Expect.equal "Humidity-airbeam2-rh (%)"
         , test "idForParameterOrLabel always finds phone microphone for Sound Levels" <|
             \_ ->
-                [ { id_ = "Sound Level-other label (dB)"
-                  , parameter = "Sound Level"
-                  , label = "Other Label (dB)"
+                [ { parameter = "Sound Level"
                   , name = "Other Label"
                   , unit = "dB"
                   , session_count = 1
                   }
-                , { id_ = "Sound Level-phone microphone (dB)"
-                  , parameter = "Sound Level"
-                  , label = "Phone Microphone (dB)"
+                , { parameter = "Sound Level"
                   , name = "Phone Microphone"
                   , unit = "dB"
                   , session_count = 0
@@ -109,17 +97,13 @@ all =
                     |> Expect.equal "Sound Level-phone microphone (dB)"
         , test "idForParameterOrLabel always finds airbeam2-f for Temperature" <|
             \_ ->
-                [ { id_ = "Temperature-other label (F)"
-                  , parameter = "Temperature"
-                  , label = "Other Label (F)"
+                [ { parameter = "Temperature"
                   , name = "Other Label"
                   , unit = "F"
                   , session_count = 1
                   }
-                , { id_ = "Temperature-airbeam2-f (F)"
-                  , parameter = "Temperature"
-                  , label = "Temperature (F)"
-                  , name = "Temperature"
+                , { parameter = "Temperature"
+                  , name = "AirBeam2-F"
                   , unit = "F"
                   , session_count = 0
                   }
@@ -145,38 +129,34 @@ all =
                         )
         , test "nameForSensorId returns the name given the sensorId" <|
             \_ ->
-                [ { sensor
-                    | id_ = "id"
-                    , name = "name"
-                  }
-                , { sensor
-                    | id_ = "other id"
-                    , name = "other name"
-                  }
-                ]
-                    |> nameForSensorId "id"
+                let
+                    sensor1 =
+                        { sensor | name = "name" }
+
+                    sensor2 =
+                        { sensor | name = "other name" }
+                in
+                [ sensor1, sensor2 ]
+                    |> nameForSensorId (toId sensor1)
                     |> Expect.equal (Just "name")
         , test "unitForSensorId returns the unit given the sensorId" <|
             \_ ->
-                [ { sensor
-                    | id_ = "id"
-                    , unit = "unit"
-                  }
-                , { sensor
-                    | id_ = "other id"
-                    , unit = "other unit"
-                  }
-                ]
-                    |> unitForSensorId "id"
+                let
+                    sensor1 =
+                        { sensor | unit = "unit" }
+
+                    sensor2 =
+                        { sensor | unit = "other unit" }
+                in
+                [ sensor1, sensor2 ]
+                    |> unitForSensorId (toId sensor1)
                     |> Expect.equal (Just "unit")
         ]
 
 
 sensor : Sensor
 sensor =
-    { id_ = "parameter-sensor (unit)"
-    , parameter = "parameter"
-    , label = "Sensor (unit)"
+    { parameter = "parameter"
     , name = "Sensor"
     , unit = "unit"
     , session_count = 1
@@ -185,23 +165,17 @@ sensor =
 
 sensors : List Sensor
 sensors =
-    [ { id_ = "parameter-sensor (unit)"
-      , parameter = "parameter"
-      , label = "Sensor (unit)"
+    [ { parameter = "parameter"
       , name = "Sensor"
       , unit = "unit"
       , session_count = 1
       }
-    , { id_ = "parameter-sensor2 (unit)"
-      , parameter = "parameter"
-      , label = "Sensor2 (unit)"
+    , { parameter = "parameter"
       , name = "Sensor2"
       , unit = "unit"
       , session_count = 2
       }
-    , { id_ = "parameter2-sensor3 (unit)"
-      , parameter = "parameter2"
-      , label = "Sensor3 (unit)"
+    , { parameter = "parameter2"
       , name = "Sensor3"
       , unit = "unit"
       , session_count = 1
@@ -211,37 +185,27 @@ sensors =
 
 sensorsWithPriority : List Sensor
 sensorsWithPriority =
-    [ { id_ = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-      , parameter = "Particulate Matter"
-      , label = "AirBeam2-PM2.5 (µg/m³)"
+    [ { parameter = "Particulate Matter"
       , name = "AirBeam2-PM2.5"
       , unit = "µg/m³"
       , session_count = 1
       }
-    , { id_ = "Particulate Matter-airbeam2-pm1 (µg/m³)"
-      , parameter = "Particulate Matter"
-      , label = "AirBeam2-PM1 (µg/m³)"
+    , { parameter = "Particulate Matter"
       , name = "AirBeam2-PM1"
       , unit = "µg/m³"
       , session_count = 1
       }
-    , { id_ = "Particulate Matter-airbeam2-pm10 (µg/m³)"
-      , parameter = "Particulate Matter"
-      , label = "AirBeam2-PM10 (µg/m³)"
+    , { parameter = "Particulate Matter"
       , name = "AirBeam2-PM10"
       , unit = "µg/m³"
       , session_count = 1
       }
-    , { id_ = "Particulate Matter-airbeam-pm (µg/m³)"
-      , parameter = "Particulate Matter"
-      , label = "AirBeam-PM (µg/m³)"
+    , { parameter = "Particulate Matter"
       , name = "AirBeam-PM"
       , unit = "µg/m³"
       , session_count = 1
       }
-    , { id_ = "Particulate Matter-other label (µg/m³)"
-      , parameter = "Particulate Matter"
-      , label = "Other Label (µg/m³)"
+    , { parameter = "Particulate Matter"
       , name = "Other Label"
       , unit = "µg/m³"
       , session_count = 1
