@@ -1,6 +1,7 @@
 import { Elm } from '../elm/src/Main.elm';
 import logoNav from '../../assets/images/aircasting-logo-nav.svg';
 import linkIcon from '../../assets/images/link-icon.svg';
+import 'nouislider';
 
 document.addEventListener('DOMContentLoaded', () => {
   fetch('/api/sensors.json').then(x => x.json()).then(sensors => {
@@ -40,5 +41,33 @@ document.addEventListener('DOMContentLoaded', () => {
     console.warn(flags);
 
     window.__elmApp = Elm.Main.init({ flags });
+
+    setupHeatMap();
   });
 });
+
+const setupHeatMap = () => {
+  const node = document.getElementById("heatmap");
+  if (node) {
+    noUiSlider.create(node, {
+      start: [20, 40, 60],
+      step: 1,
+      range: {
+        min: 0,
+        max: 100
+      },
+      tooltips: true,
+      format: {
+        to: x => x,
+        from: x => x
+      },
+      connect: [ true, true, true, true ]
+    });
+
+    var connect = node.querySelectorAll(".noUi-connect");
+    var classes = [ "c-1-color", "c-2-color", "c-3-color", "c-4-color" ];
+    for (var i = 0; i < connect.length; i++) {
+      connect[i].classList.add(classes[i]);
+    }
+  }
+};
