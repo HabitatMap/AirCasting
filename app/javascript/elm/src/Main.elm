@@ -229,7 +229,12 @@ update msg model =
                 selectedSensorId =
                     Sensor.idForParameterOrLabel value model.selectedSensorId model.sensors
             in
-            ( { model | selectedSensorId = selectedSensorId }, Ports.selectSensorId selectedSensorId )
+            ( { model | selectedSensorId = selectedSensorId }
+            , Cmd.batch
+                [ Ports.selectSensorId selectedSensorId
+                , fetchHeatMapThresholds model.sensors selectedSensorId
+                ]
+            )
 
         UrlChange url ->
             case model.key of
