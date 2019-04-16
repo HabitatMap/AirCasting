@@ -58,8 +58,8 @@ const setupHeatMap = () => {
       },
       tooltips: true,
       format: {
-        to: x => x,
-        from: x => x
+        to: x => Math.round(x),
+        from: Number
       },
       connect: [ true, true, true, true ]
     });
@@ -71,7 +71,12 @@ const setupHeatMap = () => {
     }
 
     window.__elmApp.ports.updateHeatMapThresholds.subscribe(({ h1, h2, h3, h4, h5 }) => {
+      console.warn('heatmap from elm', [h1, h2, h3, h4, h5]);
+      node.noUiSlider.updateOptions({
+        range: { min: h1, max: h5 }
+      });
       node.noUiSlider.set([h2, h3, h4]);
+      console.warn('heatmap updated', node.noUiSlider.get());
     });
   }
 };
