@@ -1,4 +1,4 @@
-module Data.HeatMapThresholds exposing (HeatMapThresholds, fetch)
+module Data.HeatMapThresholds exposing (HeatMapThresholds, extremes, fetch, updateMaximum, updateMinimum)
 
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
@@ -13,6 +13,21 @@ type alias HeatMapThresholds =
     , h4 : Int
     , h5 : Int
     }
+
+
+extremes : HeatMapThresholds -> ( Int, Int )
+extremes heatMapThresholds =
+    ( heatMapThresholds.h1, heatMapThresholds.h5 )
+
+
+updateMinimum : Int -> HeatMapThresholds -> HeatMapThresholds
+updateMinimum h1 heatMapThresholds =
+    { heatMapThresholds | h1 = h1 }
+
+
+updateMaximum : Int -> HeatMapThresholds -> HeatMapThresholds
+updateMaximum h5 heatMapThresholds =
+    { heatMapThresholds | h5 = h5 }
 
 
 fetch : List Sensor -> String -> (Result Http.Error HeatMapThresholds -> msg) -> Maybe (Cmd msg)

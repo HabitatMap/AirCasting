@@ -179,6 +179,8 @@ type Msg
     | ToggleSessionSelection Int
     | GotSession (WebData SelectedSession)
     | UpdateHeatMapThresholds (WebData HeatMapThresholds)
+    | UpdateHeatMapMinimum String
+    | UpdateHeatMapMaximum String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -334,6 +336,24 @@ update msg model =
             in
             ( { model | heatMapThresholds = heatMapThresholds }, cmd )
 
+        UpdateHeatMapMinimum value ->
+            updateHeatMapExtreme model value HeatMapThresholds.updateMinimum
+
+        UpdateHeatMapMaximum value ->
+            updateHeatMapExtreme model value HeatMapThresholds.updateMaximum
+
+
+updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
+updateHeatMapExtreme model str updateExtreme =
+    case ( String.toInt str, model.heatMapThresholds ) of
+        ( Just i, Success thresholds ) ->
+            ( { model | heatMapThresholds = Success <| updateExtreme i thresholds }
+            , Ports.updateHeatMapThresholds <| updateExtreme i thresholds
+            )
+
+        ( _, _ ) ->
+            ( model, Cmd.none )
+
 
 updateLabels :
     LabelsInput.Msg
@@ -429,22 +449,33 @@ view model =
                                 [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ] (viewSessionsOrSelectedSession model.selectedSession model.sessions) ]
                             ]
                         ]
-                    , div [ class "heatmap" ]
-                        [ div [ class "heatmap-input" ]
-                            [ p [] [ text "min" ]
-                            , input [ type_ "number" ] []
-                            , p [] [ text "ug/m3" ]
-                            ]
-                        , div [ id "heatmap" ] []
-                        , div [ class "heatmap-input" ]
-                            [ p [] [ text "max" ]
-                            , input [ type_ "number" ] []
-                            , p [] [ text "ug/m3" ]
-                            ]
-                        ]
+                    , viewHeatMapSlider model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "")
                     ]
                 ]
             ]
+        ]
+
+
+viewHeatMapSlider : WebData HeatMapThresholds -> String -> Html Msg
+viewHeatMapSlider heatMapThresholds sensorUnit =
+    let
+        ( h1, h5 ) =
+            RemoteData.map HeatMapThresholds.extremes heatMapThresholds
+                |> RemoteData.withDefault ( 0, 0 )
+    in
+    div [ class "heatmap" ]
+        [ div [ class "heatmap-input" ] [ viewHeatMapInput "min" h1 sensorUnit UpdateHeatMapMinimum ]
+        , div [ id "heatmap" ] []
+        , div [ class "heatmap-input" ] [ viewHeatMapInput "max" h5 sensorUnit UpdateHeatMapMaximum ]
+        ]
+
+
+viewHeatMapInput : String -> Int -> String -> (String -> Msg) -> Html Msg
+viewHeatMapInput text_ value_ sensorUnit toMsg =
+    div [ class "heatmap-input" ]
+        [ p [] [ text text_ ]
+        , input [ id <| "heatmap-" ++ text_, type_ "number", value <| String.fromInt value_, onChange toMsg ] []
+        , p [ id <| "heatmap-unit-" ++ text_ ] [ text sensorUnit ]
         ]
 
 
