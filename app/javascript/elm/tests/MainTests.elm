@@ -342,6 +342,14 @@ profilesArea =
         ]
 
 
+simulatedEventObject value =
+    let
+        target =
+            Encode.object [ ( "value", Encode.string value ) ]
+    in
+    Encode.object [ ( "target", target ) ]
+
+
 crowdMapArea : Test
 crowdMapArea =
     describe "Crowd Map filter test: "
@@ -433,18 +441,11 @@ crowdMapArea =
                         [ Slc.attribute <| value (String.fromInt resolution) ]
         , fuzz int "moving the slider updates crowd map resolution" <|
             \resolution ->
-                let
-                    target =
-                        Encode.object [ ( "value", Encode.string (String.fromInt resolution) ) ]
-
-                    simulatedEventObject =
-                        Encode.object [ ( "target", target ) ]
-                in
                 { defaultModel | isCrowdMapOn = True }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| class "crowd-map-slider" ]
-                    |> Event.simulate (Event.custom "change" simulatedEventObject)
+                    |> Event.simulate (Event.custom "change" <| simulatedEventObject <| String.fromInt resolution)
                     |> Event.expect (UpdateCrowdMapResolution resolution)
         ]
 
@@ -653,6 +654,57 @@ viewTests =
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.all expected ]
+        , fuzz string "when heatmap minimum input changes UpdateHeatMapMinimum is triggered" <|
+            \min ->
+                defaultModel
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| id "heatmap-min" ]
+                    |> Event.simulate (Event.custom "change" <| simulatedEventObject min)
+                    |> Event.expect (UpdateHeatMapMinimum min)
+        , fuzz string "when heatmap maximum changes UpdateHeatMapMaximum is triggered" <|
+            \max ->
+                defaultModel
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| id "heatmap-max" ]
+                    |> Event.simulate (Event.custom "change" <| simulatedEventObject max)
+                    |> Event.expect (UpdateHeatMapMaximum max)
+        , fuzz int "heatMapThresholds h1 is used as a value for the heatmap minimum input" <|
+            \min ->
+                { defaultModel
+                    | heatMapThresholds = Success { h1 = min, h2 = 2, h3 = 3, h4 = 4, h5 = 5 }
+                }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "heatmap-min" ]
+                    |> Query.has [ Slc.attribute <| value <| String.fromInt min ]
+        , fuzz int "heatMapThresholds h5 is used as a value for the heatmap maximum input" <|
+            \max ->
+                { defaultModel
+                    | heatMapThresholds = Success { h1 = 1, h2 = 2, h3 = 3, h4 = 4, h5 = max }
+                }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "heatmap-max" ]
+                    |> Query.has [ Slc.attribute <| value <| String.fromInt max ]
+        , fuzz3 string string string "heatmap minimum input unit is calculated from the selectedSensorId" <|
+            \parameter name unit ->
+                let
+                    sensor =
+                        { parameter = parameter
+                        , name = name
+                        , unit = unit
+                        , session_count = 123
+                        }
+
+                    selectedSensorId =
+                        Sensor.toId sensor
+                in
+                { defaultModel | sensors = [ sensor ], selectedSensorId = selectedSensorId }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.has [ Slc.id "heatmap-unit-min", Slc.containing [ Slc.text unit ] ]
         ]
 
 
@@ -759,6 +811,60 @@ updateTests =
                 in
                 model
                     |> update (ToggleSessionSelectionFromAngular Nothing)
+                    |> Tuple.first
+                    |> Expect.equal expected
+        , fuzz2 int int "with valid int and loaded heatMapThresholds UpdateHeatMapMinimum updates the minimum" <|
+            \oldMin newMin ->
+                let
+                    int =
+                        String.fromInt newMin
+
+                    oldHeatMapThresholds =
+                        { h1 = oldMin
+                        , h2 = 2
+                        , h3 = 3
+                        , h4 = 4
+                        , h5 = 5
+                        }
+
+                    newHeatMapThresholds =
+                        { oldHeatMapThresholds | h1 = newMin }
+
+                    model =
+                        { defaultModel | heatMapThresholds = Success oldHeatMapThresholds }
+
+                    expected =
+                        { defaultModel | heatMapThresholds = Success newHeatMapThresholds }
+                in
+                model
+                    |> update (UpdateHeatMapMinimum int)
+                    |> Tuple.first
+                    |> Expect.equal expected
+        , fuzz2 int int "with valid int and loaded heatMapThresholds UpdateHeatMapMaximum updates the maximum" <|
+            \oldMax newMax ->
+                let
+                    int =
+                        String.fromInt newMax
+
+                    oldHeatMapThresholds =
+                        { h1 = 1
+                        , h2 = 2
+                        , h3 = 3
+                        , h4 = 4
+                        , h5 = oldMax
+                        }
+
+                    newHeatMapThresholds =
+                        { oldHeatMapThresholds | h5 = newMax }
+
+                    model =
+                        { defaultModel | heatMapThresholds = Success oldHeatMapThresholds }
+
+                    expected =
+                        { defaultModel | heatMapThresholds = Success newHeatMapThresholds }
+                in
+                model
+                    |> update (UpdateHeatMapMaximum int)
                     |> Tuple.first
                     |> Expect.equal expected
         ]
