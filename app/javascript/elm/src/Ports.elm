@@ -12,6 +12,7 @@ port module Ports exposing
     , toggleIndoor
     , toggleSession
     , toggleSessionSelection
+    , updateHeatMapThresholds
     , updateIsHttping
     , updateProfiles
     , updateResolution
@@ -19,7 +20,8 @@ port module Ports exposing
     , updateTags
     )
 
-import Data.Session exposing (..)
+import Data.HeatMapThresholds exposing (HeatMapThresholds)
+import Data.Session exposing (Session)
 import Json.Encode as Encode
 
 
@@ -75,3 +77,6 @@ port toggleSessionSelection : (Maybe Int -> msg) -> Sub msg
 
 
 port refreshTimeRange : () -> Cmd a
+
+
+port updateHeatMapThresholds : HeatMapThresholds -> Cmd a

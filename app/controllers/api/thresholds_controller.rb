@@ -21,7 +21,7 @@ module Api
     respond_to :json
 
     def show
-      respond_with Stream.thresholds(params[:id], params[:unit_symbol])
+      render json: Stream.thresholds(params[:id], params[:unit_symbol])
     end
   end
 end

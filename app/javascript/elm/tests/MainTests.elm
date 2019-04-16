@@ -45,10 +45,8 @@ popups =
 
 sensors : List Sensor.Sensor
 sensors =
-    [ { id_ = "parameter-sensor (unit)"
-      , parameter = "parameter"
-      , label = "Sensor (unit)"
-      , sensor = "Sensor"
+    [ { parameter = "parameter"
+      , name = "Sensor"
       , unit = "unit"
       , session_count = 1
       }
