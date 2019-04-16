@@ -108,7 +108,9 @@ init flags url key =
                     Mobile
 
         sensors =
-            Sensor.decodeSensors flags.sensors
+            flags.sensors
+                |> Decode.decodeValue (Decode.list Sensor.decoder)
+                |> Result.withDefault []
     in
     ( { defaultModel
         | page = page

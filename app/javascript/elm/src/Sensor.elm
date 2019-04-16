@@ -1,6 +1,6 @@
 module Sensor exposing
     ( Sensor
-    , decodeSensors
+    , decoder
     , idForParameterOrLabel
     , labelsForParameter
     , nameForSensorId
@@ -12,8 +12,7 @@ module Sensor exposing
     )
 
 import Dict
-import Json.Decode as Decode
-import Json.Encode as Encode
+import Json.Decode as Decode exposing (Decoder(..))
 import Set
 
 
@@ -66,28 +65,13 @@ type alias Sensor =
     }
 
 
-decodeSensors : Encode.Value -> List Sensor
-decodeSensors sensors =
-    let
-        sensorsDecoder =
-            Decode.map4 toSensor
-                (Decode.field "sensor_name" Decode.string)
-                (Decode.field "measurement_type" Decode.string)
-                (Decode.field "unit_symbol" Decode.string)
-                (Decode.field "session_count" Decode.int)
-    in
-    sensors
-        |> Decode.decodeValue (Decode.list sensorsDecoder)
-        |> Result.withDefault []
-
-
-toSensor : String -> String -> String -> Int -> Sensor
-toSensor name parameter unit session_count =
-    { name = name
-    , parameter = parameter
-    , unit = unit
-    , session_count = session_count
-    }
+decoder : Decoder Sensor
+decoder =
+    Decode.map4 Sensor
+        (Decode.field "sensor_name" Decode.string)
+        (Decode.field "measurement_type" Decode.string)
+        (Decode.field "unit_symbol" Decode.string)
+        (Decode.field "session_count" Decode.int)
 
 
 toId : Sensor -> String

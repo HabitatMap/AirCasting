@@ -2,7 +2,9 @@ module SensorTests exposing (all)
 
 import Expect
 import Fuzz exposing (int, list, string)
+import Json.Decode as Decode
 import Json.Encode as Encode
+import Result exposing (Result(..))
 import Sensor exposing (..)
 import Test exposing (..)
 
@@ -10,31 +12,27 @@ import Test exposing (..)
 all : Test
 all =
     describe "all:"
-        [ test "decodeSensors returns a list of sensors" <|
+        [ test "decoder returns a list of sensors" <|
             \_ ->
                 let
                     encodedValue =
-                        Encode.list Encode.object
-                            [ [ ( "measurement_type", Encode.string "parameter" )
-                              , ( "sensor_name", Encode.string "Sensor" )
-                              , ( "unit_symbol", Encode.string "unit" )
-                              , ( "session_count", Encode.int 1 )
-                              ]
-                            , [ ( "measurement_type", Encode.string "parameter" )
-                              , ( "sensor_name", Encode.string "Sensor2" )
-                              , ( "unit_symbol", Encode.string "unit" )
-                              , ( "session_count", Encode.int 2 )
-                              ]
-                            , [ ( "measurement_type", Encode.string "parameter2" )
-                              , ( "sensor_name", Encode.string "Sensor3" )
-                              , ( "unit_symbol", Encode.string "unit" )
-                              , ( "session_count", Encode.int 1 )
-                              ]
+                        Encode.object
+                            [ ( "measurement_type", Encode.string "parameter" )
+                            , ( "sensor_name", Encode.string "Sensor" )
+                            , ( "unit_symbol", Encode.string "unit" )
+                            , ( "session_count", Encode.int 1 )
                             ]
+
+                    expected =
+                        { parameter = "parameter"
+                        , name = "Sensor"
+                        , unit = "unit"
+                        , session_count = 1
+                        }
                 in
                 encodedValue
-                    |> decodeSensors
-                    |> Expect.equal sensors
+                    |> Decode.decodeValue decoder
+                    |> Expect.equal (Ok expected)
         , test "idForParameterOrLabel finds sensorId for parameter" <|
             \_ ->
                 sensors
