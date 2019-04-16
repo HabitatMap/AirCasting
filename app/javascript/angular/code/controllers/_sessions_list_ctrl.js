@@ -117,7 +117,7 @@ export const SessionsListCtrl = (
 
   if (process.env.NODE_ENV !== 'test') {
     angular.element(document).ready(() => {
-      elmApp.ports.checkedSession.subscribe(({ selected, deselected }) => {
+      elmApp.ports.toggleSession.subscribe(({ selected, deselected }) => {
         if (deselected) $scope.toggleSession(deselected, true);
         if (selected) $scope.toggleSession(selected, true);
         $scope.$apply();

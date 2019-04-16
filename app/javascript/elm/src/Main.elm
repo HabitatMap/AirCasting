@@ -251,7 +251,7 @@ update msg model =
         DeselectSession ->
             case model.selectedSession of
                 Success selectedSession ->
-                    ( { model | selectedSession = NotAsked }, Ports.checkedSession { deselected = Just selectedSession.id, selected = Nothing } )
+                    ( { model | selectedSession = NotAsked }, Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing } )
 
                 _ ->
                     ( model, Cmd.none )
@@ -269,7 +269,7 @@ update msg model =
                 NotAsked ->
                     ( model
                     , Cmd.batch
-                        [ Ports.checkedSession { deselected = Nothing, selected = Just id }
+                        [ Ports.toggleSession { deselected = Nothing, selected = Just id }
                         , SelectedSession.fetch model.selectedSensorId model.page id GotSession
                         ]
                     )
@@ -277,13 +277,13 @@ update msg model =
                 Success selectedSession ->
                     if selectedSession.id == id then
                         ( { model | selectedSession = NotAsked }
-                        , Ports.checkedSession { deselected = Just selectedSession.id, selected = Nothing }
+                        , Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing }
                         )
 
                     else
                         ( { model | selectedSession = NotAsked }
                         , Cmd.batch
-                            [ Ports.checkedSession { deselected = Just selectedSession.id, selected = Just id }
+                            [ Ports.toggleSession { deselected = Just selectedSession.id, selected = Just id }
                             , SelectedSession.fetch model.selectedSensorId model.page id GotSession
                             ]
                         )

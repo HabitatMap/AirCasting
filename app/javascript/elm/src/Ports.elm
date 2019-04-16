@@ -1,6 +1,5 @@
 port module Ports exposing
-    ( checkedSession
-    , findLocation
+    ( findLocation
     , loadMoreSessions
     , locationCleared
     , profileSelected
@@ -11,6 +10,7 @@ port module Ports exposing
     , timeRangeSelected
     , toggleCrowdMap
     , toggleIndoor
+    , toggleSession
     , toggleSessionSelection
     , updateIsHttping
     , updateProfiles
@@ -56,7 +56,7 @@ port selectSensorId : String -> Cmd a
 port updateSessions : (List Session -> msg) -> Sub msg
 
 
-port checkedSession : { deselected : Maybe Int, selected : Maybe Int } -> Cmd msg
+port toggleSession : { deselected : Maybe Int, selected : Maybe Int } -> Cmd msg
 
 
 port loadMoreSessions : () -> Cmd msg
