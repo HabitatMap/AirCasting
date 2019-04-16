@@ -3,6 +3,7 @@ module Data.HeatMapThresholds exposing (HeatMapThresholds, fetch)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Sensor exposing (Sensor)
+import Url
 
 
 type alias HeatMapThresholds =
@@ -25,7 +26,7 @@ fetch sensors sensorId toCmd =
 
         fetch_ sensorName unit =
             Http.get
-                { url = "/api/thresholds/" ++ sensorName ++ "?unit_symbol=" ++ unit
+                { url = "/api/thresholds/" ++ sensorName ++ "?unit_symbol=" ++ Url.percentEncode unit
                 , expect = Http.expectJson toCmd decoder
                 }
     in
