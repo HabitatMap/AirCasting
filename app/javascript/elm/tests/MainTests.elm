@@ -694,7 +694,7 @@ updateTests =
                         { defaultModel | selectedSession = Success <| selectedSessionWithId id }
 
                     expected =
-                        Ports.checkedSession { selected = Nothing, deselected = Just id }
+                        Ports.toggleSession { selected = Nothing, deselected = Just id }
                 in
                 model
                     |> update (ToggleSessionSelection id)
@@ -744,7 +744,7 @@ updateTests =
                         { defaultModel | selectedSession = Success <| selectedSessionWithId id }
 
                     expected =
-                        Ports.checkedSession { deselected = Just id, selected = Nothing }
+                        Ports.toggleSession { deselected = Just id, selected = Nothing }
                 in
                 model
                     |> update DeselectSession
