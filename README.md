@@ -61,7 +61,21 @@ RAILS_ENV=test bundle exec rake db:create db:migrate
 bundle exec rspec
 yarn test
 yarn run elm-test app/javascript/elm/tests
+```
+
+**lint/format files**
+
+format elm files:
+
+```bash
 yarn run elm-format --validate app/javascript/elm
+```
+
+format js and css files:
+
+```bash
+yarn prettier --write app/assets/stylesheets/*
+yarn prettier --write app/javascript/path/to/your/file.js
 ```
 
 ## API documentation
