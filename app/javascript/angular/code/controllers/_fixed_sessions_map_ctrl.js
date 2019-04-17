@@ -1,18 +1,5 @@
 import _ from "underscore";
-import moment from "moment";
-
 import * as FiltersUtils from "../filtersUtils";
-
-const endOfToday = moment()
-  .utc()
-  .endOf("day")
-  .format("X");
-
-const oneYearAgo = moment()
-  .utc()
-  .startOf("day")
-  .subtract(1, "year")
-  .format("X");
 
 export const FixedSessionsMapCtrl = (
   $scope,
@@ -64,8 +51,8 @@ export const FixedSessionsMapCtrl = (
       isStreaming: true,
       tags: "",
       usernames: "",
-      timeFrom: oneYearAgo,
-      timeTo: endOfToday
+      timeFrom: FiltersUtils.oneHourAgo(),
+      timeTo: FiltersUtils.presentMoment()
     };
 
     if (!params.get("data").heat) sensors.fetchHeatLevels();
@@ -144,9 +131,7 @@ export const FixedSessionsMapCtrl = (
 
       const onTimeRangeChanged = (timeFrom, timeTo) => {
         elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
-
         params.update({ data: { timeFrom, timeTo } });
-
         sessions.fetch();
       };
 
@@ -159,11 +144,9 @@ export const FixedSessionsMapCtrl = (
       elmApp.ports.refreshTimeRange.subscribe(() => {
         FiltersUtils.setupTimeRangeFilter(
           onTimeRangeChanged,
-          oneYearAgo,
-          endOfToday
+          FiltersUtils.defaultTimeFrom(params.get("data").isStreaming),
+          FiltersUtils.defaultTimeTo(params.get("data").isStreaming)
         );
-
-        onTimeRangeChanged(oneYearAgo, endOfToday);
       });
 
       FiltersUtils.setupClipboard();
