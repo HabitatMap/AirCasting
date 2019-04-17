@@ -12,7 +12,7 @@ import Test exposing (..)
 all : Test
 all =
     describe "all:"
-        [ test "decoder returns a list of sensors" <|
+        [ test "decoder decodes a sensor" <|
             \_ ->
                 let
                     encodedValue =
