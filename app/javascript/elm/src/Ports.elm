@@ -13,6 +13,7 @@ port module Ports exposing
     , toggleSession
     , toggleSessionSelection
     , updateHeatMapThresholds
+    , updateHeatMapThresholdsFromAngular
     , updateIsHttping
     , updateProfiles
     , updateResolution
@@ -80,3 +81,6 @@ port refreshTimeRange : () -> Cmd a
 
 
 port updateHeatMapThresholds : HeatMapThresholdValues -> Cmd a
+
+
+port updateHeatMapThresholdsFromAngular : (HeatMapThresholdValues -> msg) -> Sub msg

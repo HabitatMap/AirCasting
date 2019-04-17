@@ -127,6 +127,18 @@ export const SessionsListCtrl = (
         $scope.updateSessionsPage();
         $scope.$apply();
       });
+
+      elmApp.ports.updateHeatMapThresholds.subscribe(({ threshold1, threshold2, threshold3, threshold4, threshold5 }) => {
+        const heat = {
+          lowest: threshold1,
+          low: threshold2,
+          mid: threshold3,
+          high: threshold4,
+          highest: threshold5
+        };
+        params.update({ data: { heat } });
+        $scope.$apply();
+      });
     });
   };
 }
