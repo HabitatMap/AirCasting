@@ -1,5 +1,6 @@
 module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, toggleIndoorFilter, updateTests, viewTests)
 
+import Data.HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
 import Data.SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
@@ -20,6 +21,26 @@ import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Slc
 import TimeRange
+
+
+heatMapThresholdsWithMinimum : Int -> HeatMapThresholds
+heatMapThresholdsWithMinimum value =
+    { threshold1 = { value = value, default = 1 }
+    , threshold2 = { value = 2, default = 2 }
+    , threshold3 = { value = 3, default = 3 }
+    , threshold4 = { value = 4, default = 4 }
+    , threshold5 = { value = 5, default = 5 }
+    }
+
+
+heatMapThresholdsWithMaximum : Int -> HeatMapThresholds
+heatMapThresholdsWithMaximum value =
+    { threshold1 = { value = 1, default = 1 }
+    , threshold2 = { value = 2, default = 2 }
+    , threshold3 = { value = 3, default = 3 }
+    , threshold4 = { value = 4, default = 4 }
+    , threshold5 = { value = value, default = 5 }
+    }
 
 
 popups : Test
@@ -672,18 +693,14 @@ viewTests =
                     |> Event.expect (UpdateHeatMapMaximum max)
         , fuzz int "heatMapThresholds threshold1 is used as a value for the heatmap minimum input" <|
             \min ->
-                { defaultModel
-                    | heatMapThresholds = Success { threshold1 = min, threshold2 = 2, threshold3 = 3, threshold4 = 4, threshold5 = 5 }
-                }
+                { defaultModel | heatMapThresholds = Success <| heatMapThresholdsWithMinimum min }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "heatmap-min" ]
                     |> Query.has [ Slc.attribute <| value <| String.fromInt min ]
         , fuzz int "heatMapThresholds threshold5 is used as a value for the heatmap maximum input" <|
             \max ->
-                { defaultModel
-                    | heatMapThresholds = Success { threshold1 = 1, threshold2 = 2, threshold3 = 3, threshold4 = 4, threshold5 = max }
-                }
+                { defaultModel | heatMapThresholds = Success <| heatMapThresholdsWithMaximum max }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "heatmap-max" ]
@@ -819,22 +836,11 @@ updateTests =
                     int =
                         String.fromInt newMin
 
-                    oldHeatMapThresholds =
-                        { threshold1 = oldMin
-                        , threshold2 = 2
-                        , threshold3 = 3
-                        , threshold4 = 4
-                        , threshold5 = 5
-                        }
-
-                    newHeatMapThresholds =
-                        { oldHeatMapThresholds | threshold1 = newMin }
-
                     model =
-                        { defaultModel | heatMapThresholds = Success oldHeatMapThresholds }
+                        { defaultModel | heatMapThresholds = Success <| heatMapThresholdsWithMinimum oldMin }
 
                     expected =
-                        { defaultModel | heatMapThresholds = Success newHeatMapThresholds }
+                        { defaultModel | heatMapThresholds = Success <| heatMapThresholdsWithMinimum newMin }
                 in
                 model
                     |> update (UpdateHeatMapMinimum int)
@@ -846,22 +852,11 @@ updateTests =
                     int =
                         String.fromInt newMax
 
-                    oldHeatMapThresholds =
-                        { threshold1 = 1
-                        , threshold2 = 2
-                        , threshold3 = 3
-                        , threshold4 = 4
-                        , threshold5 = oldMax
-                        }
-
-                    newHeatMapThresholds =
-                        { oldHeatMapThresholds | threshold5 = newMax }
-
                     model =
-                        { defaultModel | heatMapThresholds = Success oldHeatMapThresholds }
+                        { defaultModel | heatMapThresholds = Success <| heatMapThresholdsWithMaximum oldMax }
 
                     expected =
-                        { defaultModel | heatMapThresholds = Success newHeatMapThresholds }
+                        { defaultModel | heatMapThresholds = Success <| heatMapThresholdsWithMaximum newMax }
                 in
                 model
                     |> update (UpdateHeatMapMaximum int)
