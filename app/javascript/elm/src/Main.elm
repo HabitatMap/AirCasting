@@ -346,8 +346,12 @@ update msg model =
         ResetHeatMapToDefaults ->
             case model.heatMapThresholds of
                 Success thresholds ->
-                    ( { model | heatMapThresholds = Success <| HeatMapThresholds.resetToDefaults thresholds }
-                    , Ports.updateHeatMapThresholds <| HeatMapThresholds.toValues thresholds
+                    let
+                        newThresholds =
+                            HeatMapThresholds.resetToDefaults thresholds
+                    in
+                    ( { model | heatMapThresholds = Success newThresholds }
+                    , Ports.updateHeatMapThresholds <| HeatMapThresholds.toValues newThresholds
                     )
 
                 _ ->
