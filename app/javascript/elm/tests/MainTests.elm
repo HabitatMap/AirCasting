@@ -670,19 +670,19 @@ viewTests =
                     |> Query.find [ Slc.attribute <| id "heatmap-max" ]
                     |> Event.simulate (Event.custom "change" <| simulatedEventObject max)
                     |> Event.expect (UpdateHeatMapMaximum max)
-        , fuzz int "heatMapThresholds h1 is used as a value for the heatmap minimum input" <|
+        , fuzz int "heatMapThresholds threshold1 is used as a value for the heatmap minimum input" <|
             \min ->
                 { defaultModel
-                    | heatMapThresholds = Success { h1 = min, h2 = 2, h3 = 3, h4 = 4, h5 = 5 }
+                    | heatMapThresholds = Success { threshold1 = min, threshold2 = 2, threshold3 = 3, threshold4 = 4, threshold5 = 5 }
                 }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "heatmap-min" ]
                     |> Query.has [ Slc.attribute <| value <| String.fromInt min ]
-        , fuzz int "heatMapThresholds h5 is used as a value for the heatmap maximum input" <|
+        , fuzz int "heatMapThresholds threshold5 is used as a value for the heatmap maximum input" <|
             \max ->
                 { defaultModel
-                    | heatMapThresholds = Success { h1 = 1, h2 = 2, h3 = 3, h4 = 4, h5 = max }
+                    | heatMapThresholds = Success { threshold1 = 1, threshold2 = 2, threshold3 = 3, threshold4 = 4, threshold5 = max }
                 }
                     |> view
                     |> Query.fromHtml
@@ -820,15 +820,15 @@ updateTests =
                         String.fromInt newMin
 
                     oldHeatMapThresholds =
-                        { h1 = oldMin
-                        , h2 = 2
-                        , h3 = 3
-                        , h4 = 4
-                        , h5 = 5
+                        { threshold1 = oldMin
+                        , threshold2 = 2
+                        , threshold3 = 3
+                        , threshold4 = 4
+                        , threshold5 = 5
                         }
 
                     newHeatMapThresholds =
-                        { oldHeatMapThresholds | h1 = newMin }
+                        { oldHeatMapThresholds | threshold1 = newMin }
 
                     model =
                         { defaultModel | heatMapThresholds = Success oldHeatMapThresholds }
@@ -847,15 +847,15 @@ updateTests =
                         String.fromInt newMax
 
                     oldHeatMapThresholds =
-                        { h1 = 1
-                        , h2 = 2
-                        , h3 = 3
-                        , h4 = 4
-                        , h5 = oldMax
+                        { threshold1 = 1
+                        , threshold2 = 2
+                        , threshold3 = 3
+                        , threshold4 = 4
+                        , threshold5 = oldMax
                         }
 
                     newHeatMapThresholds =
-                        { oldHeatMapThresholds | h5 = newMax }
+                        { oldHeatMapThresholds | threshold5 = newMax }
 
                     model =
                         { defaultModel | heatMapThresholds = Success oldHeatMapThresholds }

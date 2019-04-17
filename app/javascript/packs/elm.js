@@ -70,12 +70,12 @@ const setupHeatMap = () => {
       connect[i].classList.add(classes[i]);
     }
 
-    window.__elmApp.ports.updateHeatMapThresholds.subscribe(({ h1, h2, h3, h4, h5 }) => {
-      console.warn('heatmap from elm', [h1, h2, h3, h4, h5]);
+    window.__elmApp.ports.updateHeatMapThresholds.subscribe(({ threshold1, threshold2, threshold3, threshold4, threshold5 }) => {
+      console.warn('heatmap from elm', [threshold1, threshold2, threshold3, threshold4, threshold5]);
       node.noUiSlider.updateOptions({
-        range: { min: h1, max: h5 }
+        range: { min: threshold1, max: threshold5 }
       });
-      node.noUiSlider.set([h2, h3, h4]);
+      node.noUiSlider.set([threshold2, threshold3, threshold4]);
       console.warn('heatmap updated', node.noUiSlider.get());
     });
   }
