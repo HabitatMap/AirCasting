@@ -3,7 +3,7 @@ module Main exposing (Msg(..), defaultModel, exportPath, update, view)
 import Browser exposing (..)
 import Browser.Events
 import Browser.Navigation
-import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds)
+import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds)
 import Data.Page exposing (Page(..))
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
@@ -182,6 +182,7 @@ type Msg
     | UpdateHeatMapMinimum String
     | UpdateHeatMapMaximum String
     | ResetHeatMapToDefaults
+    | UpdateHeatMapThresholdsFromAngular HeatMapThresholdValues
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -352,6 +353,16 @@ update msg model =
                     in
                     ( { model | heatMapThresholds = Success newThresholds }
                     , Ports.updateHeatMapThresholds <| HeatMapThresholds.toValues newThresholds
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        UpdateHeatMapThresholdsFromAngular values ->
+            case model.heatMapThresholds of
+                Success thresholds ->
+                    ( { model | heatMapThresholds = Success <| HeatMapThresholds.updateFromValues values thresholds }
+                    , Ports.updateHeatMapThresholds values
                     )
 
                 _ ->
@@ -824,4 +835,5 @@ subscriptions _ =
         , Ports.updateSessions UpdateSessions
         , Ports.updateIsHttping UpdateIsHttping
         , Ports.toggleSessionSelection ToggleSessionSelectionFromAngular
+        , Ports.updateHeatMapThresholdsFromAngular UpdateHeatMapThresholdsFromAngular
         ]

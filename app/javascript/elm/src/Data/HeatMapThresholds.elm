@@ -1,4 +1,4 @@
-module Data.HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Threshold, extremes, fetch, resetToDefaults, toValues, updateMaximum, updateMinimum)
+module Data.HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Threshold, extremes, fetch, resetToDefaults, toValues, updateFromValues, updateMaximum, updateMinimum)
 
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
@@ -71,6 +71,17 @@ updateMinimum value heatMapThresholds =
 updateMaximum : Int -> HeatMapThresholds -> HeatMapThresholds
 updateMaximum value heatMapThresholds =
     { heatMapThresholds | threshold5 = updateThresholdValue value heatMapThresholds.threshold5 }
+
+
+updateFromValues : HeatMapThresholdValues -> HeatMapThresholds -> HeatMapThresholds
+updateFromValues values heatMapThresholds =
+    { heatMapThresholds
+        | threshold1 = updateThresholdValue values.threshold1 heatMapThresholds.threshold1
+        , threshold2 = updateThresholdValue values.threshold2 heatMapThresholds.threshold2
+        , threshold3 = updateThresholdValue values.threshold3 heatMapThresholds.threshold3
+        , threshold4 = updateThresholdValue values.threshold4 heatMapThresholds.threshold4
+        , threshold5 = updateThresholdValue values.threshold5 heatMapThresholds.threshold5
+    }
 
 
 fetch : List Sensor -> String -> (Result Http.Error HeatMapThresholds -> msg) -> Maybe (Cmd msg)

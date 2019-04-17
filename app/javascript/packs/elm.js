@@ -70,6 +70,17 @@ const setupHeatMap = () => {
       connect[i].classList.add(classes[i]);
     }
 
+    node.noUiSlider.on('end', ([threshold2, threshold3, threshold4]) => {
+      const values = {
+        threshold1: node.noUiSlider.options.range.min,
+        threshold2,
+        threshold3,
+        threshold4,
+        threshold5: node.noUiSlider.options.range.max
+      };
+      window.__elmApp.ports.updateHeatMapThresholdsFromAngular.send(values);
+    });
+
     window.__elmApp.ports.updateHeatMapThresholds.subscribe(({ threshold1, threshold2, threshold3, threshold4, threshold5 }) => {
       console.warn('heatmap from elm', [threshold1, threshold2, threshold3, threshold4, threshold5]);
       node.noUiSlider.updateOptions({
