@@ -459,14 +459,14 @@ view model =
 viewHeatMapSlider : WebData HeatMapThresholds -> String -> Html Msg
 viewHeatMapSlider heatMapThresholds sensorUnit =
     let
-        ( h1, h5 ) =
+        ( threshold1, threshold5 ) =
             RemoteData.map HeatMapThresholds.extremes heatMapThresholds
                 |> RemoteData.withDefault ( 0, 0 )
     in
     div [ class "heatmap" ]
-        [ div [ class "heatmap-input" ] [ viewHeatMapInput "min" h1 sensorUnit UpdateHeatMapMinimum ]
+        [ div [ class "heatmap-input" ] [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum ]
         , div [ id "heatmap" ] []
-        , div [ class "heatmap-input" ] [ viewHeatMapInput "max" h5 sensorUnit UpdateHeatMapMaximum ]
+        , div [ class "heatmap-input" ] [ viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum ]
         ]
 
 

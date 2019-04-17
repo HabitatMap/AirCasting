@@ -7,27 +7,27 @@ import Url
 
 
 type alias HeatMapThresholds =
-    { h1 : Int
-    , h2 : Int
-    , h3 : Int
-    , h4 : Int
-    , h5 : Int
+    { threshold1 : Int
+    , threshold2 : Int
+    , threshold3 : Int
+    , threshold4 : Int
+    , threshold5 : Int
     }
 
 
 extremes : HeatMapThresholds -> ( Int, Int )
 extremes heatMapThresholds =
-    ( heatMapThresholds.h1, heatMapThresholds.h5 )
+    ( heatMapThresholds.threshold1, heatMapThresholds.threshold5 )
 
 
 updateMinimum : Int -> HeatMapThresholds -> HeatMapThresholds
-updateMinimum h1 heatMapThresholds =
-    { heatMapThresholds | h1 = h1 }
+updateMinimum threshold1 heatMapThresholds =
+    { heatMapThresholds | threshold1 = threshold1 }
 
 
 updateMaximum : Int -> HeatMapThresholds -> HeatMapThresholds
-updateMaximum h5 heatMapThresholds =
-    { heatMapThresholds | h5 = h5 }
+updateMaximum threshold5 heatMapThresholds =
+    { heatMapThresholds | threshold5 = threshold5 }
 
 
 fetch : List Sensor -> String -> (Result Http.Error HeatMapThresholds -> msg) -> Maybe (Cmd msg)

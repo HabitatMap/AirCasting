@@ -12,16 +12,16 @@ suite : Test
 suite =
     describe "Data.HeatMapThresholds"
         [ fuzz2 int int "updateMinimum, updateMaximum and extremes" <|
-            \h1 h5 ->
+            \threshold1 threshold5 ->
                 let
                     thresholds =
-                        { h1 = 1, h2 = 2, h3 = 3, h4 = 4, h5 = 5 }
+                        { threshold1 = 1, threshold2 = 2, threshold3 = 3, threshold4 = 4, threshold5 = 5 }
 
                     expected =
-                        { thresholds | h1 = h1, h5 = h5 }
+                        { thresholds | threshold1 = threshold1, threshold5 = threshold5 }
                 in
                 thresholds
-                    |> updateMinimum h1
-                    |> updateMaximum h5
+                    |> updateMinimum threshold1
+                    |> updateMaximum threshold5
                     |> Expect.equal expected
         ]
