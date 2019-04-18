@@ -15,7 +15,7 @@ input {
   }
 }
 
-input[type=checkbox] {
+input[type="checkbox"] {
   margin-top: 24px;
   width: auto;
 }
@@ -24,7 +24,7 @@ input[type=checkbox] {
   background-color: $input-bg;
   color: white;
   &::placeholder {
-    color: #A0A3B2;
+    color: #a0a3b2;
   }
 }
 

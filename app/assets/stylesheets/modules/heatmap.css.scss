@@ -2,8 +2,8 @@
   @include flexbox;
   @include align-items(center);
   @include justify-content(space-between);
-  max-width: calc( 100vw - #{$filters-width} );
-  min-width: calc( 100vw - #{$filters-width} );
+  max-width: calc(100vw - #{$filters-width});
+  min-width: calc(100vw - #{$filters-width});
   padding: 0 18px;
 }
 .heatmap-input {
@@ -128,7 +128,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
  * Giving the connect element a border radius causes issues with using transform: scale
  */
 .noUi-target {
-  background: #FAFAFA;
+  background: #fafafa;
 }
 .noUi-connects {
   border-radius: 3px;
@@ -155,7 +155,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 /* Disabled state;
  */
 [disabled] .noUi-connect {
-  background: #B8B8B8;
+  background: #b8b8b8;
 }
 [disabled].noUi-target,
 [disabled].noUi-handle,
@@ -191,13 +191,13 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
  */
 .noUi-marker {
   position: absolute;
-  background: #CCC;
+  background: #ccc;
 }
 .noUi-marker-sub {
-  background: #AAA;
+  background: #aaa;
 }
 .noUi-marker-large {
-  background: #AAA;
+  background: #aaa;
 }
 /* Horizontal layout;
  *

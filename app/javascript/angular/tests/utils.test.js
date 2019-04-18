@@ -1,7 +1,7 @@
-import test from 'blue-tape';
-import { keysToLowerCase } from '../code/utils';
+import test from "blue-tape";
+import { keysToLowerCase } from "../code/utils";
 
-test('keysToLowerCase changes object keys to lower case', t => {
+test("keysToLowerCase changes object keys to lower case", t => {
   const value = 1;
   const object = { Aa: value };
 
@@ -11,4 +11,4 @@ test('keysToLowerCase changes object keys to lower case', t => {
   t.deepEqual(actual, expected);
 
   t.end();
-})
+});

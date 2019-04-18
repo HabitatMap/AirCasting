@@ -5,7 +5,7 @@ $graph-zindex: 10;
 $graph-height: 140px;
 
 #hud #sessions {
-  background: none repeat scroll 0 0 #FFFFFF;
+  background: none repeat scroll 0 0 #ffffff;
   border: 2px solid $text-color;
   left: 10px;
   padding: 0;
@@ -21,13 +21,13 @@ $graph-height: 140px;
     left: -2px;
     position: absolute;
     top: -40px;
-    width:$sessions-list-width + 4px;
+    width: $sessions-list-width + 4px;
 
     .name {
       background: #fff;
       border: 2px solid $text-color;
-      font-weight:bold;
-      padding:6px 16px 1px;
+      font-weight: bold;
+      padding: 6px 16px 1px;
       float: left;
       border-bottom: none;
     }
@@ -42,42 +42,44 @@ $graph-height: 140px;
     height: 300px;
 
     ul {
-      list-style:none;
-      margin:0;
-      padding:0;
+      list-style: none;
+      margin: 0;
+      padding: 0;
     }
 
     li {
-      padding:5px 10px;
-      clear:both;
+      padding: 5px 10px;
+      clear: both;
       overflow: hidden;
 
-      &:nth-child(2n+1) {
-        background:#eee;
+      &:nth-child(2n + 1) {
+        background: #eee;
       }
 
-      input[type="checkbox"], input {
-        float:left;
-        margin:3px 0 0;
+      input[type="checkbox"],
+      input {
+        float: left;
+        margin: 3px 0 0;
       }
 
       dl {
-        float:left;
-        margin:0 0 0 10px;
+        float: left;
+        margin: 0 0 0 10px;
       }
 
-      dt, dd {
-        color:#000;
-        font-weight:normal;
+      dt,
+      dd {
+        color: #000;
+        font-weight: normal;
       }
 
       dt {
-        font-size:14px;
+        font-size: 14px;
       }
 
       dd {
-        font-size:11px;
-        margin:0;
+        font-size: 11px;
+        margin: 0;
       }
 
       label {
@@ -87,7 +89,7 @@ $graph-height: 140px;
     }
 
     li.selected {
-      background: #d5e9ff
+      background: #d5e9ff;
     }
   }
 }
@@ -96,7 +98,7 @@ $graph-height: 140px;
   position: fixed;
   bottom: $sessions-list-bottom;
   left: $sessions-list-width + 20px;
-  font-family:'Arial', sans-serif !important;
+  font-family: "Arial", sans-serif !important;
   #graph-box {
     height: 200px;
     left: -2px;
@@ -118,7 +120,7 @@ $graph-height: 140px;
       top: auto;
     }
     #graph-header {
-      background: none repeat scroll 0 0 #FFFFFF;
+      background: none repeat scroll 0 0 #ffffff;
       border: 2px solid $text-color;
       border-bottom-style: none;
       float: left;
@@ -155,5 +157,4 @@ $graph-height: 140px;
     width: 100%;
     z-index: $graph-zindex;
   }
-
 }

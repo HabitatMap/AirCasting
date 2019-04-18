@@ -1,5 +1,5 @@
 .marker {
-  content: '';
+  content: "";
   position: absolute;
   width: 12px;
   height: 12px;
@@ -48,7 +48,7 @@
     border: 1px solid $orange;
   }
   &.mid {
-    border: 1px solid #FFCC33;
+    border: 1px solid #ffcc33;
   }
   &.low {
     border: 1px solid $green;
@@ -62,7 +62,7 @@
 }
 
 .data-marker::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 12px;
   height: 12px;
@@ -93,7 +93,7 @@
 }
 
 .data-marker::after {
-  content: '';
+  content: "";
   width: 45px;
   height: 45px;
   z-index: -1;
@@ -105,23 +105,47 @@
 }
 
 .data-marker.default::after {
-  background-image: radial-gradient(circle at 50%, rgba( 202, 200, 200, 1) 0%, rgba(244, 0, 28, 0) 70%);
+  background-image: radial-gradient(
+    circle at 50%,
+    rgba(202, 200, 200, 1) 0%,
+    rgba(244, 0, 28, 0) 70%
+  );
 }
 
-.data-marker.highest::after, .marker.highest::after {
-  background-image: radial-gradient(circle at 50%, rgba(246, 52, 52, 1) 0%, rgba(244, 0, 28, 0) 70%);
+.data-marker.highest::after,
+.marker.highest::after {
+  background-image: radial-gradient(
+    circle at 50%,
+    rgba(246, 52, 52, 1) 0%,
+    rgba(244, 0, 28, 0) 70%
+  );
 }
 
-.data-marker.high::after, .marker.high::after {
-  background-image: radial-gradient(circle at 50%, rgba(246, 150, 74, 1) 0%, rgba(245, 127, 34, 0) 70%);
+.data-marker.high::after,
+.marker.high::after {
+  background-image: radial-gradient(
+    circle at 50%,
+    rgba(246, 150, 74, 1) 0%,
+    rgba(245, 127, 34, 0) 70%
+  );
 }
 
-.data-marker.mid::after, .marker.mid::after {
-  background-image: radial-gradient(circle at 50%, rgba(250, 226, 84, 1) 0%, rgba(255, 204, 51, 0) 70%);
+.data-marker.mid::after,
+.marker.mid::after {
+  background-image: radial-gradient(
+    circle at 50%,
+    rgba(250, 226, 84, 1) 0%,
+    rgba(255, 204, 51, 0) 70%
+  );
 }
 
-.data-marker.low::after, .marker.low::after {
-  background-image: radial-gradient(circle at 50%, rgba(83, 182, 99, 1) 0%, rgba(45, 166, 65, 0) 70%);
+.data-marker.low::after,
+.marker.low::after {
+  background-image: radial-gradient(
+    circle at 50%,
+    rgba(83, 182, 99, 1) 0%,
+    rgba(45, 166, 65, 0) 70%
+  );
 }
 
 .marker-container {

@@ -1,11 +1,11 @@
-import test from 'blue-tape';
-import deepEqual from 'fast-deep-equal';
-import { mock } from './helpers';
-import { map } from '../code/services/google/_map';
-import sinon from 'sinon';
+import test from "blue-tape";
+import deepEqual from "fast-deep-equal";
+import { mock } from "./helpers";
+import { map } from "../code/services/google/_map";
+import sinon from "sinon";
 
-test('goToAddress with no address it does not decode', t => {
-  const geocoder = mock('get');
+test("goToAddress with no address it does not decode", t => {
+  const geocoder = mock("get");
   const service = _map({ geocoder });
 
   service.goToAddress();
@@ -15,65 +15,65 @@ test('goToAddress with no address it does not decode', t => {
   t.end();
 });
 
-test('goToAddress with address it decodes', t => {
-  const geocoder = mock('get');
+test("goToAddress with address it decodes", t => {
+  const geocoder = mock("get");
   const service = _map({ geocoder });
 
-  service.goToAddress('new york');
+  service.goToAddress("new york");
 
   t.true(geocoder.wasCalled());
 
   t.end();
 });
 
-test('goToAddress with unsuccessful geocoding does not call fitBounds', t => {
+test("goToAddress with unsuccessful geocoding does not call fitBounds", t => {
   const geocoder = mockGeocoder();
-  const googleMaps = mockGoogleMaps({ successfulGeocoding: false })
+  const googleMaps = mockGoogleMaps({ successfulGeocoding: false });
   const service = _map({ geocoder, googleMaps });
 
-  service.goToAddress('new york');
+  service.goToAddress("new york");
 
   t.false(googleMaps.wasCalled());
 
   t.end();
 });
 
-test('goToAddress with successful geocoding calls fitBounds', t => {
+test("goToAddress with successful geocoding calls fitBounds", t => {
   const geocoder = mockGeocoder();
-  const googleMaps = mockGoogleMaps({ successfulGeocoding: true })
+  const googleMaps = mockGoogleMaps({ successfulGeocoding: true });
   const service = _map({ geocoder, googleMaps });
 
-  service.goToAddress('new york');
+  service.goToAddress("new york");
 
   t.true(googleMaps.wasCalled());
 
   t.end();
 });
 
-test('goToAddress when calling fitBounds removes callbacks from the map', t => {
+test("goToAddress when calling fitBounds removes callbacks from the map", t => {
   const geocoder = mockGeocoder();
-  const googleMaps = mockGoogleMaps({ successfulGeocoding: true })
-  googleMaps.listen('bounds_changed', () => {});
+  const googleMaps = mockGoogleMaps({ successfulGeocoding: true });
+  googleMaps.listen("bounds_changed", () => {});
 
   t.true(googleMaps.hasCallbacks());
 
   const service = _map({ geocoder, googleMaps });
 
-  service.goToAddress('new york');
+  service.goToAddress("new york");
 
   t.false(googleMaps.hasCallbacks());
 
   t.end();
 });
 
-test('goToAddress re-adds callbacks from the map after calling fitBounds', t => {
+test("goToAddress re-adds callbacks from the map after calling fitBounds", t => {
   const geocoder = mockGeocoder();
-  const googleMaps = mockGoogleMaps({ successfulGeocoding: true })
-  googleMaps.listen('bounds_changed', () => {});
+  const googleMaps = mockGoogleMaps({ successfulGeocoding: true });
+  googleMaps.listen("bounds_changed", () => {});
 
   const service = _map({ geocoder, googleMaps });
 
-  service.goToAddress('new york');
+  service.goToAddress("new york");
 
   setTimeout(() => {
     t.true(googleMaps.hasCallbacks());
@@ -82,7 +82,7 @@ test('goToAddress re-adds callbacks from the map after calling fitBounds', t => 
   }, 0);
 });
 
-test('onPanOrZoom', t => {
+test("onPanOrZoom", t => {
   const googleMaps = mockGoogleMaps();
   const service = _map({ googleMaps });
 
@@ -93,7 +93,7 @@ test('onPanOrZoom', t => {
   t.end();
 });
 
-test('unregisterAll removes the onPanOrZoom callback too', t => {
+test("unregisterAll removes the onPanOrZoom callback too", t => {
   const googleMaps = mockGoogleMaps();
   const service = _map({ googleMaps });
   service.onPanOrZoom(() => {});
@@ -105,7 +105,7 @@ test('unregisterAll removes the onPanOrZoom callback too', t => {
   t.end();
 });
 
-test('fitBounds calls fitBounds', t => {
+test("fitBounds calls fitBounds", t => {
   const googleMaps = mockGoogleMaps();
   const service = _map({ googleMaps });
 
@@ -116,12 +116,12 @@ test('fitBounds calls fitBounds', t => {
     west: 4
   });
 
-  t.true(googleMaps.wasFitBoundsCalledWith([[ 3, 4 ], [ 1, 2 ]]));
+  t.true(googleMaps.wasFitBoundsCalledWith([[3, 4], [1, 2]]));
 
   t.end();
 });
 
-test('fitBounds with coord 200 north and 200 east calls fitBounds with a specific northeast coords', t => {
+test("fitBounds with coord 200 north and 200 east calls fitBounds with a specific northeast coords", t => {
   const googleMaps = mockGoogleMaps();
   const service = _map({ googleMaps });
 
@@ -132,14 +132,14 @@ test('fitBounds with coord 200 north and 200 east calls fitBounds with a specifi
     west: 2
   });
 
-  t.true(googleMaps.wasFitBoundsCalledWith([[ 1, 2 ], [ 50.09024, -90.712891 ]]));
+  t.true(googleMaps.wasFitBoundsCalledWith([[1, 2], [50.09024, -90.712891]]));
 
   t.end();
 });
 
-test('fitBounds when calling fitBounds removes callbacks from the map', t => {
+test("fitBounds when calling fitBounds removes callbacks from the map", t => {
   const googleMaps = mockGoogleMaps();
-  googleMaps.listen('bounds_changed', () => {});
+  googleMaps.listen("bounds_changed", () => {});
 
   t.true(googleMaps.hasCallbacks());
 
@@ -157,9 +157,9 @@ test('fitBounds when calling fitBounds removes callbacks from the map', t => {
   t.end();
 });
 
-test('fitBounds re-adds callbacks from the map after calling fitBounds', t => {
+test("fitBounds re-adds callbacks from the map after calling fitBounds", t => {
   const googleMaps = mockGoogleMaps();
-  googleMaps.listen('bounds_changed', () => {});
+  googleMaps.listen("bounds_changed", () => {});
 
   t.true(googleMaps.hasCallbacks());
 
@@ -179,7 +179,7 @@ test('fitBounds re-adds callbacks from the map after calling fitBounds', t => {
   }, 0);
 });
 
-test('when map was not change programatically saveViewport calls params update with the correct flag', t => {
+test("when map was not change programatically saveViewport calls params update with the correct flag", t => {
   let calls = [];
   const params = {
     update: arg => calls.push(arg)
@@ -196,7 +196,7 @@ test('when map was not change programatically saveViewport calls params update w
   t.end();
 });
 
-test('when map was change programatically saveViewport calls params update with the correct flag', t => {
+test("when map was change programatically saveViewport calls params update with the correct flag", t => {
   let calls = [];
   const params = {
     update: arg => calls.push(arg)
@@ -214,35 +214,34 @@ test('when map was change programatically saveViewport calls params update with 
   t.end();
 });
 
-test('removeAllMarkers removes all markers', t => {
-  let markers = [{setMap: (_) => {}}]
-  const service = _map({})
-  service.markers = markers
+test("removeAllMarkers removes all markers", t => {
+  let markers = [{ setMap: _ => {} }];
+  const service = _map({});
+  service.markers = markers;
 
-  service.removeAllMarkers()
+  service.removeAllMarkers();
 
   const actual = service.markers;
 
   const expected = [];
-  t.deepEqual(actual, expected)
+  t.deepEqual(actual, expected);
 
   t.end();
 });
 
-test('removeAllMarkers clears the clustering', t => {
-  const clearMarkers = sinon.spy()
-  const service = _map({})
-  service.clusterer = { clearMarkers }
+test("removeAllMarkers clears the clustering", t => {
+  const clearMarkers = sinon.spy();
+  const service = _map({});
+  service.clusterer = { clearMarkers };
 
-  service.removeAllMarkers()
+  service.removeAllMarkers();
 
   sinon.assert.called(clearMarkers);
 
   t.end();
 });
 
-
-test('drawRectangles calls rectangle.draw with data and thresholds', t => {
+test("drawRectangles calls rectangle.draw with data and thresholds", t => {
   const draw = sinon.spy();
   const rectangles = { draw };
   const data = { a: 1 };
@@ -254,24 +253,29 @@ test('drawRectangles calls rectangle.draw with data and thresholds', t => {
   t.true(draw.calledWith(data, thresholds));
 
   t.end();
-})
+});
 
-test('drawRectangles sets a listener with a callback with bounds excluding other properties', t => {
-  const rectangle = { data: { north: 1, south: 2, west: 3, east: 4, otherProperty: 0 } }
+test("drawRectangles sets a listener with a callback with bounds excluding other properties", t => {
+  const rectangle = {
+    data: { north: 1, south: 2, west: 3, east: 4, otherProperty: 0 }
+  };
   const rectangles = { get: () => [rectangle] };
-  const googleMaps = { listen: (x, y, mapCallback) => { mapCallback() }};
+  const googleMaps = {
+    listen: (x, y, mapCallback) => {
+      mapCallback();
+    }
+  };
   const service = _map({ rectangles, googleMaps });
   const callback = sinon.spy();
 
   service.drawRectangles({}, {}, callback);
 
-
-  t.true(callback.calledWith({ north: 1, south: 2, west: 3, east: 4 }))
+  t.true(callback.calledWith({ north: 1, south: 2, west: 3, east: 4 }));
 
   t.end();
 });
 
-test('drawRectangles sets a listener on rectangle click', t => {
+test("drawRectangles sets a listener on rectangle click", t => {
   const rectangle = { a: null };
   const rectangles = { get: () => [rectangle] };
   const mapListen = sinon.spy();
@@ -280,22 +284,22 @@ test('drawRectangles sets a listener on rectangle click', t => {
 
   service.drawRectangles({}, {}, () => {});
 
-  t.true(mapListen.calledWith(rectangle , 'click'))
+  t.true(mapListen.calledWith(rectangle, "click"));
 
   t.end();
 });
 
-test('setSelectedCluster sets the passed argument as a selected cluster', t => {
-  const cluster = { id:1 }
+test("setSelectedCluster sets the passed argument as a selected cluster", t => {
+  const cluster = { id: 1 };
   const service = _map({});
 
   service.setSelectedCluster(cluster);
 
   t.deepEqual(service.selectedCluster, cluster);
   t.end();
-})
+});
 
-test('zoomToSelectedCluster calls fitBounds with current map object and bound of selected cluster', t => {
+test("zoomToSelectedCluster calls fitBounds with current map object and bound of selected cluster", t => {
   const fitBounds = sinon.spy();
   const mapObj = sinon.stub();
   const bounds = sinon.stub();
@@ -310,28 +314,40 @@ test('zoomToSelectedCluster calls fitBounds with current map object and bound of
   sinon.assert.calledWith(fitBounds, mapObj, bounds);
 
   t.end();
-})
+});
 
 const mockGeocoder = () => ({
-  get: (_, callback) => callback([ { geometry: { getBounds: null } } ])
+  get: (_, callback) => callback([{ geometry: { getBounds: null } }])
 });
 
 const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
   let count = 0;
   let callbacks = 0;
-  const geocoding = successfulGeocoding === undefined ? true : successfulGeocoding;
+  const geocoding =
+    successfulGeocoding === undefined ? true : successfulGeocoding;
   const calls = [];
 
   return {
     wasGeocodingSuccessful: () => geocoding,
-    fitBounds: (_, arg) => { calls.push(arg); count += 1 },
+    fitBounds: (_, arg) => {
+      calls.push(arg);
+      count += 1;
+    },
     wasCalled: () => count === 1,
-    wasFitBoundsCalledWith: (arg) => deepEqual(arg, calls[calls.length - 1]),
-    listen: (event) => { callbacks += 1 },
+    wasFitBoundsCalledWith: arg => deepEqual(arg, calls[calls.length - 1]),
+    listen: event => {
+      callbacks += 1;
+    },
     hasCallbacks: () => callbacks > 0,
-    unlistenPanOrZoom: () => { callbacks -= 1 },
-    relistenPanOrZoom: () => { callbacks += 1 },
-    listenPanOrZoom: () => { callbacks += 1 },
+    unlistenPanOrZoom: () => {
+      callbacks -= 1;
+    },
+    relistenPanOrZoom: () => {
+      callbacks += 1;
+    },
+    listenPanOrZoom: () => {
+      callbacks += 1;
+    },
     latLng: (lat, lng) => [lat, lng],
     latLngBounds: (southwest, northeast) => [southwest, northeast],
     init: () => ({
@@ -346,7 +362,20 @@ const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
 
 const _map = ({ geocoder, googleMaps, params, rectangles }) => {
   const digester = () => {};
-  const _rectangles = { init: () => {}, get: () => {}, draw: () => {},...rectangles };
+  const _rectangles = {
+    init: () => {},
+    get: () => {},
+    draw: () => {},
+    ...rectangles
+  };
   const $cookieStore = { put: () => {} };
-  return map(params, $cookieStore, null, digester, _rectangles, geocoder, googleMaps);
+  return map(
+    params,
+    $cookieStore,
+    null,
+    digester,
+    _rectangles,
+    geocoder,
+    googleMaps
+  );
 };

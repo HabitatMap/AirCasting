@@ -25,7 +25,8 @@ main {
   z-index: 0;
 }
 
-[ng-cloak], .ng-cloak {
+[ng-cloak],
+.ng-cloak {
   display: none;
 }
 
@@ -35,7 +36,7 @@ main {
 
 a {
   color: $dark-blue;
-  text-decoration:none;
+  text-decoration: none;
   font-weight: $font-stack-regular;
 }
 

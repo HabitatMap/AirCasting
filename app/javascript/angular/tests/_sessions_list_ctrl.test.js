@@ -1,16 +1,17 @@
-import test from 'blue-tape';
-import { mock } from './helpers';
-import { SessionsListCtrl } from '../code/controllers/_sessions_list_ctrl';
+import test from "blue-tape";
+import { mock } from "./helpers";
+import { SessionsListCtrl } from "../code/controllers/_sessions_list_ctrl";
 
-test('with no sessions selected when params.map changes it calls sessions.fetch', t => {
+test("with no sessions selected when params.map changes it calls sessions.fetch", t => {
   const callbacks = [];
   const $scope = {
-    $watch: (str, callback) => str.includes('map') ? callbacks.push(callback) : null,
+    $watch: (str, callback) =>
+      str.includes("map") ? callbacks.push(callback) : null
   };
   const sessions = {
     hasSelectedSessions: () => false,
-    ...mock('fetch')
-  }
+    ...mock("fetch")
+  };
   _SessionsListCtrl({ $scope, sessions });
 
   callbacks.forEach(callback => callback({}));
@@ -20,15 +21,16 @@ test('with no sessions selected when params.map changes it calls sessions.fetch'
   t.end();
 });
 
-test('with session selected when params.map changes it does not call sessions.fetch', t => {
+test("with session selected when params.map changes it does not call sessions.fetch", t => {
   const callbacks = [];
   const $scope = {
-    $watch: (str, callback) => str.includes('map') ? callbacks.push(callback) : null,
+    $watch: (str, callback) =>
+      str.includes("map") ? callbacks.push(callback) : null
   };
   const sessions = {
     hasSelectedSessions: () => true,
-    ...mock('fetch')
-  }
+    ...mock("fetch")
+  };
   _SessionsListCtrl({ $scope, sessions });
 
   callbacks.forEach(callback => callback({}));
@@ -58,5 +60,19 @@ const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
     path: () => "/map_sessions"
   };
 
-  return SessionsListCtrl(_$scope, params, null, {}, null, functionBlocker, {}, null, null, null, _map, _updateCrowdMapLayer, $location);
+  return SessionsListCtrl(
+    _$scope,
+    params,
+    null,
+    {},
+    null,
+    functionBlocker,
+    {},
+    null,
+    null,
+    null,
+    _map,
+    _updateCrowdMapLayer,
+    $location
+  );
 };

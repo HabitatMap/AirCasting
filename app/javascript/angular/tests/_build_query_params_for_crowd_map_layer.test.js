@@ -1,8 +1,8 @@
-import test from 'blue-tape';
-import { mock } from './helpers';
-import { buildQueryParamsForCrowdMapLayer } from '../code/services/_build_query_params_for_crowd_map_layer';
+import test from "blue-tape";
+import { mock } from "./helpers";
+import { buildQueryParamsForCrowdMapLayer } from "../code/services/_build_query_params_for_crowd_map_layer";
 
-test('when no sensor is selected it returns false', t => {
+test("when no sensor is selected it returns false", t => {
   const sensors = {
     selected: () => false
   };
@@ -15,8 +15,8 @@ test('when no sensor is selected it returns false', t => {
   t.end();
 });
 
-test('when one coordinate is missing in bounds it returns false', t => {
-  const bounds = { west: null, east: 2, north: 3, south: 4 }
+test("when one coordinate is missing in bounds it returns false", t => {
+  const bounds = { west: null, east: 2, north: 3, south: 4 };
   const service = _buildQueryParamsForCrowdMapLayer({});
 
   const actual = service.call(null, bounds);
@@ -26,7 +26,7 @@ test('when one coordinate is missing in bounds it returns false', t => {
   t.end();
 });
 
-test('when time is missing in params it returns false', t => {
+test("when time is missing in params it returns false", t => {
   const params = {
     get: () => ({
       heat: {},
@@ -42,7 +42,7 @@ test('when time is missing in params it returns false', t => {
   t.end();
 });
 
-test('when heat is missing in params it returns false', t => {
+test("when heat is missing in params it returns false", t => {
   const params = {
     get: () => ({
       time: {},
@@ -58,7 +58,7 @@ test('when heat is missing in params it returns false', t => {
   t.end();
 });
 
-test('when gridResolution is missing in params it returns false', t => {
+test("when gridResolution is missing in params it returns false", t => {
   const params = {
     get: () => ({
       time: {},
@@ -74,7 +74,7 @@ test('when gridResolution is missing in params it returns false', t => {
   t.end();
 });
 
-test('when everything is present it returns params for averages', t => {
+test("when everything is present it returns params for averages", t => {
   const sensor_name = "sensor_name";
   const measurement_type = "measurement_type";
   const unit_symbol = "unit_symbol";
