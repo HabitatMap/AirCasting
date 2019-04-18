@@ -534,6 +534,7 @@ session =
     , endTime = "end time"
     , username = "username"
     , shortTypes = shortTypes
+    , average = Nothing
     }
 
 

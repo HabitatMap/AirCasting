@@ -1,4 +1,17 @@
-module Data.HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Threshold, extremes, fetch, resetToDefaults, toValues, updateFromValues, updateMaximum, updateMinimum)
+module Data.HeatMapThresholds exposing
+    ( HeatMapThresholdValues
+    , HeatMapThresholds
+    , Range(..)
+    , Threshold
+    , extremes
+    , fetch
+    , rangeFor
+    , resetToDefaults
+    , toValues
+    , updateFromValues
+    , updateMaximum
+    , updateMinimum
+    )
 
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
@@ -28,6 +41,15 @@ type alias HeatMapThresholdValues =
     }
 
 
+type Range
+    = Range1
+    | Range2
+    | Range3
+    | Range4
+    | Range5
+    | Range6
+
+
 updateThresholdValue : Int -> Threshold -> Threshold
 updateThresholdValue value threshold =
     { threshold | value = value }
@@ -46,6 +68,27 @@ toValues { threshold1, threshold2, threshold3, threshold4, threshold5 } =
     , threshold4 = threshold4.value
     , threshold5 = threshold5.value
     }
+
+
+rangeFor : Int -> HeatMapThresholds -> Range
+rangeFor i thresholds =
+    if i < thresholds.threshold1.value then
+        Range1
+
+    else if i <= thresholds.threshold2.value then
+        Range2
+
+    else if i <= thresholds.threshold3.value then
+        Range3
+
+    else if i <= thresholds.threshold4.value then
+        Range4
+
+    else if i <= thresholds.threshold5.value then
+        Range5
+
+    else
+        Range6
 
 
 resetToDefaults : HeatMapThresholds -> HeatMapThresholds
