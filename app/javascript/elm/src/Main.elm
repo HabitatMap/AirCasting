@@ -3,7 +3,7 @@ module Main exposing (Msg(..), defaultModel, exportPath, update, view)
 import Browser exposing (..)
 import Browser.Events
 import Browser.Navigation
-import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds)
+import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Page exposing (Page(..))
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
@@ -472,7 +472,9 @@ view model =
                                 )
                             ]
                             [ div [ class "sessions", attribute "ng-controller" "SessionsGraphCtrl" ]
-                                [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ] (viewSessionsOrSelectedSession model.selectedSession model.sessions) ]
+                                [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ]
+                                    (viewSessionsOrSelectedSession model.selectedSession model.sessions model.heatMapThresholds)
+                                ]
                             ]
                         ]
                     , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "")
@@ -506,24 +508,24 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         ]
 
 
-viewSessionsOrSelectedSession : WebData SelectedSession -> List Session -> List (Html Msg)
-viewSessionsOrSelectedSession selectedSession sessions =
+viewSessionsOrSelectedSession : WebData SelectedSession -> List Session -> WebData HeatMapThresholds -> List (Html Msg)
+viewSessionsOrSelectedSession selectedSession sessions heatMapThresholds =
     case selectedSession of
         NotAsked ->
-            [ viewSessions sessions ]
+            [ viewSessions sessions heatMapThresholds ]
 
         Success session ->
-            [ viewSelectedSession <| Just session ]
+            [ viewSelectedSession heatMapThresholds <| Just session ]
 
         Loading ->
-            [ viewSelectedSession Nothing ]
+            [ viewSelectedSession heatMapThresholds Nothing ]
 
         Failure _ ->
             [ div [] [ text "error!" ] ]
 
 
-viewSelectedSession : Maybe SelectedSession -> Html Msg
-viewSelectedSession maybeSession =
+viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Html Msg
+viewSelectedSession heatMapThresholds maybeSession =
     div [ class "single-session-container" ]
         [ div [ class "single-session-info" ]
             (case maybeSession of
@@ -531,7 +533,7 @@ viewSelectedSession maybeSession =
                     [ text "loading" ]
 
                 Just session ->
-                    [ SelectedSession.view session ]
+                    [ SelectedSession.view session heatMapThresholds ]
             )
         , div
             [ class "single-session-graph", id "graph-box" ]
@@ -574,8 +576,8 @@ viewSessionTypes model =
         ]
 
 
-viewSessions : List Session -> Html Msg
-viewSessions sessions =
+viewSessions : List Session -> WebData HeatMapThresholds -> Html Msg
+viewSessions sessions heatMapThresholds =
     if List.length sessions == 0 then
         text ""
 
@@ -586,7 +588,7 @@ viewSessions sessions =
             , span [ class "sessions-number" ]
                 [ text "showing 6 of 500 reuslts" ]
             , div [ class "sessions-container" ]
-                (List.map viewSessionCard sessions ++ [ viewLoadMore <| List.length sessions ])
+                (List.map (viewSessionCard heatMapThresholds) sessions ++ [ viewLoadMore <| List.length sessions ])
             ]
 
 
@@ -613,14 +615,17 @@ viewLoadMore sessionCount =
         text ""
 
 
-viewSessionCard : Session -> Html Msg
-viewSessionCard session =
+viewSessionCard : WebData HeatMapThresholds -> Session -> Html Msg
+viewSessionCard heatMapThresholds session =
     div
         [ class "session"
         , Events.onClick <| ToggleSessionSelection session.id
         ]
         [ div [ class "session-header-container" ]
-            [ div [ class "session-color heat-lvl1-bg" ]
+            [ div
+                [ class "session-color"
+                , class <| Data.Session.classByValue session.average heatMapThresholds
+                ]
                 []
             , h3 [ class "session-name" ]
                 [ text session.title ]

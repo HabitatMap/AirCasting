@@ -71,23 +71,43 @@ const setupHeatMap = () => {
     }
 
     node.noUiSlider.on('end', ([threshold2, threshold3, threshold4]) => {
-      const values = {
-        threshold1: node.noUiSlider.options.range.min,
-        threshold2,
-        threshold3,
-        threshold4,
-        threshold5: node.noUiSlider.options.range.max
-      };
-      window.__elmApp.ports.updateHeatMapThresholdsFromAngular.send(values);
+      window.__elmApp.ports.updateHeatMapThresholdsFromAngular.send(toValues(node.noUiSlider));
     });
 
-    window.__elmApp.ports.updateHeatMapThresholds.subscribe(({ threshold1, threshold2, threshold3, threshold4, threshold5 }) => {
-      console.warn('heatmap from elm', [threshold1, threshold2, threshold3, threshold4, threshold5]);
+    window.__elmApp.ports.updateHeatMapThresholds.subscribe(thresholds => {
+      console.warn('heatmap from elm', Object.values(thresholds));
+      node.noUiSlider.set(toMiddleValues(thresholds));
+      const [ min, max ] = toExtremes(thresholds);
       node.noUiSlider.updateOptions({
-        range: { min: threshold1, max: threshold5 }
+        range: { min, max }
       });
-      node.noUiSlider.set([threshold2, threshold3, threshold4]);
-      console.warn('heatmap updated', node.noUiSlider.get());
+
+      console.warn('heatmap updated', Object.values(toValues(node.noUiSlider)));
+
+      // changing extremes could have changed middle values
+      if (haveMiddleValuesChanged(node.noUiSlider, thresholds)) {
+        window.__elmApp.ports.updateHeatMapThresholdsFromAngular.send(toValues(node.noUiSlider));
+      }
     });
   }
 };
+
+const toValues = noUiSlider =>
+  ({
+    threshold1: noUiSlider.options.range.min,
+    threshold2: noUiSlider.get()[0],
+    threshold3: noUiSlider.get()[1],
+    threshold4: noUiSlider.get()[2],
+    threshold5: noUiSlider.options.range.max
+  });
+
+const haveMiddleValuesChanged = (noUiSlider, thresholds) => {
+  const [ threshold2, threshold3, threshold4 ] = toMiddleValues(thresholds);
+  return threshold2 !== noUiSlider.get()[0] || threshold3 !== noUiSlider.get()[1] || threshold4 !== noUiSlider.get()[2];
+}
+
+const toMiddleValues = ({ threshold2, threshold3, threshold4 }) =>
+  [ threshold2, threshold3, threshold4 ];
+
+const toExtremes = ({ threshold1, threshold5 }) =>
+  [ threshold1, threshold5 ];
