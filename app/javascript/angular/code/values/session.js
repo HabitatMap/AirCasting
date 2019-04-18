@@ -4,7 +4,10 @@ export const formatSessionForList = session => ({
   id: session.id,
   startTime: session.startTime,
   endTime: session.endTime,
-  shortTypes: session.shortTypes
+  shortTypes: session.shortTypes,
+  // average for mobile sessions, last_hour_average for streaming fixed sessions
+  // non-streaming fixed sessions do not have average
+  average: session.average || session.last_hour_average || null
 });
 
 const average = (session, selectedSensor) => session.streams[selectedSensor].average_value;

@@ -1,10 +1,13 @@
 module Data.SelectedSession exposing (SelectedSession, decoder, fetch, sensorNameFromId, view)
 
+import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
+import Data.Session
 import Html exposing (Html, div, p, span, text)
 import Html.Attributes exposing (class)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
+import RemoteData exposing (WebData)
 
 
 type alias SelectedSession =
@@ -67,25 +70,25 @@ fetch sensorId page id toCmd =
         }
 
 
-view : SelectedSession -> Html msg
-view session =
+view : SelectedSession -> WebData HeatMapThresholds -> Html msg
+view session heatMapThresholds =
     div []
         [ p [ class "single-session-name" ] [ text session.title ]
         , p [ class "single-session-username" ] [ text session.username ]
         , p [ class "single-session-sensor" ] [ text session.sensorName ]
         , div []
-            [ div [ class "single-session-avg-color green-bg" ] []
+            [ div [ class "single-session-avg-color", class <| Data.Session.classByValue (Just session.average) heatMapThresholds ] []
             , span [ class "single-session-info" ] [ text "avg. " ]
             , span [ class "single-session-avg" ] [ text <| String.fromInt <| round session.average ]
             ]
         , div [ class "session-numbers-container" ]
             [ div [ class "single-min-max-container" ]
-                [ div [ class "single-session-color green-bg" ] []
+                [ div [ class "single-session-color", class <| Data.Session.classByValue (Just session.min) heatMapThresholds ] []
                 , span [ class "single-session-info" ] [ text "min. " ]
                 , span [ class "single-session-min" ] [ text <| String.fromFloat session.min ]
                 ]
             , div [ class "single-min-max-container" ]
-                [ div [ class "single-session-color green-bg" ] []
+                [ div [ class "single-session-color", class <| Data.Session.classByValue (Just session.max) heatMapThresholds ] []
                 , span [ class "single-session-info" ] [ text "max. " ]
                 , span [ class "single-session-max" ] [ text <| String.fromFloat session.max ]
                 ]
