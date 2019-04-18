@@ -57,7 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const setupHeatMap = () => {
   const node = document.getElementById("heatmap");
-  if (node) {
+  if (!node) {
+    setTimeout(setupHeatMap, 100);
+  } else {
     noUiSlider.create(node, {
       start: [20, 40, 60],
       step: 1,
