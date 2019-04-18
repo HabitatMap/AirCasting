@@ -20,6 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
     console.warn(params);
     console.warn(data);
 
+    const heatMapThresholdValues = data.heat ? {
+      threshold1: data.heat.lowest,
+      threshold2: data.heat.low,
+      threshold3: data.heat.mid,
+      threshold4: data.heat.high,
+      threshold5: data.heat.highest,
+    } : null;
+
     const flags = {
       sensors: window.__sensors,
       selectedSensorId: data.sensorId,
@@ -36,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
       isIndoor: data.isIndoor,
       logoNav,
       linkIcon,
+      heatMapThresholdValues
     };
 
     console.warn(flags);
