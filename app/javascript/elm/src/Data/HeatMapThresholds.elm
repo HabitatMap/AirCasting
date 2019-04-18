@@ -5,6 +5,7 @@ module Data.HeatMapThresholds exposing
     , Threshold
     , extremes
     , fetch
+    , fromValues
     , rangeFor
     , resetToDefaults
     , toValues
@@ -68,6 +69,11 @@ toValues { threshold1, threshold2, threshold3, threshold4, threshold5 } =
     , threshold4 = threshold4.value
     , threshold5 = threshold5.value
     }
+
+
+fromValues : HeatMapThresholdValues -> HeatMapThresholds
+fromValues { threshold1, threshold2, threshold3, threshold4, threshold5 } =
+    toHeatMapThresholds threshold1 threshold2 threshold3 threshold4 threshold5
 
 
 rangeFor : Int -> HeatMapThresholds -> Range

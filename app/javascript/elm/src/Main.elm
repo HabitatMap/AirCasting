@@ -93,6 +93,7 @@ type alias Flags =
     , selectedSensorId : String
     , logoNav : String
     , linkIcon : String
+    , heatMapThresholdValues : Maybe HeatMapThresholdValues
     }
 
 
@@ -126,10 +127,18 @@ init flags url key =
         , selectedSensorId = flags.selectedSensorId
         , logoNav = flags.logoNav
         , linkIcon = flags.linkIcon
+        , heatMapThresholds =
+            Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
+                |> Maybe.withDefault defaultModel.heatMapThresholds
       }
     , Cmd.batch
         [ fetchSelectedSession flags.selectedSessionId flags.selectedSensorId page
-        , fetchHeatMapThresholds sensors flags.selectedSensorId
+        , case flags.heatMapThresholdValues of
+            Nothing ->
+                fetchHeatMapThresholds sensors flags.selectedSensorId
+
+            Just values ->
+                Ports.updateHeatMapThresholds values
         ]
     )
 
