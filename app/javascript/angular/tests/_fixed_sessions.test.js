@@ -1,13 +1,20 @@
-import test from 'blue-tape';
-import { mock } from './helpers';
-import { fixedSessions, showClusterInfo } from '../code/services/_fixed_sessions';
-import sinon from 'sinon';
+import test from "blue-tape";
+import { mock } from "./helpers";
+import {
+  fixedSessions,
+  showClusterInfo
+} from "../code/services/_fixed_sessions";
+import sinon from "sinon";
 
-test('fetch with no sessions ids in params passes empty array to sessionsDownloader', t => {
+test("fetch with no sessions ids in params passes empty array to sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData();
   const sessionIds = [];
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls , data, sessionIds });
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data,
+    sessionIds
+  });
 
   fixedSessionsService._fetch();
 
@@ -16,11 +23,15 @@ test('fetch with no sessions ids in params passes empty array to sessionsDownloa
   t.end();
 });
 
-test('fetch with sessions ids in params passes them to sessionsDownloader', t => {
+test("fetch with sessions ids in params passes them to sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData();
   const sessionIds = [1, 2, 3];
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data, sessionIds });
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data,
+    sessionIds
+  });
 
   fixedSessionsService._fetch();
 
@@ -29,10 +40,13 @@ test('fetch with sessions ids in params passes them to sessionsDownloader', t =>
   t.end();
 });
 
-test('fetch with time params passes them to sessionsDownloader', t => {
+test("fetch with time params passes them to sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ timeFrom: 1, timeTo: 2 });
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data
+  });
 
   fixedSessionsService._fetch();
 
@@ -42,10 +56,13 @@ test('fetch with time params passes them to sessionsDownloader', t => {
   t.end();
 });
 
-test('fetch with tags and usernames params passes them to sessionsDownloader', t => {
+test("fetch with tags and usernames params passes them to sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ tags: "tag1, tag2", usernames: "will123, agata" });
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data
+  });
 
   fixedSessionsService._fetch();
 
@@ -55,10 +72,13 @@ test('fetch with tags and usernames params passes them to sessionsDownloader', t
   t.end();
 });
 
-test('fetch with isIndoor set to true passes is_indoor true to sessionsDownloader', t => {
+test("fetch with isIndoor set to true passes is_indoor true to sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ isIndoor: true });
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data
+  });
 
   fixedSessionsService._fetch();
 
@@ -67,7 +87,7 @@ test('fetch with isIndoor set to true passes is_indoor true to sessionsDownloade
   t.end();
 });
 
-test('fetch with isIndoor set to true does not pass map corner coordinates to sessionsDownloader', t => {
+test("fetch with isIndoor set to true does not pass map corner coordinates to sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ isIndoor: true });
   const map = {
@@ -78,7 +98,11 @@ test('fetch with isIndoor set to true does not pass map corner coordinates to se
       north: 4
     })
   };
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data, map });
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data,
+    map
+  });
 
   fixedSessionsService._fetch();
 
@@ -90,10 +114,13 @@ test('fetch with isIndoor set to true does not pass map corner coordinates to se
   t.end();
 });
 
-test('fetch with isIndoor set to false does not pass is_indoor to sessionsDownloader', t => {
+test("fetch with isIndoor set to false does not pass is_indoor to sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ isIndoor: false });
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data
+  });
 
   fixedSessionsService._fetch();
 
@@ -102,10 +129,13 @@ test('fetch with isIndoor set to false does not pass is_indoor to sessionsDownlo
   t.end();
 });
 
-test('fetch with missing timeFrom value in params does not call downloadSessions', t => {
+test("fetch with missing timeFrom value in params does not call downloadSessions", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ timeFrom: undefined });
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data
+  });
 
   fixedSessionsService._fetch();
 
@@ -114,10 +144,13 @@ test('fetch with missing timeFrom value in params does not call downloadSessions
   t.end();
 });
 
-test('fetch with missing timeTo value in params does not call downloadSessions', t => {
+test("fetch with missing timeTo value in params does not call downloadSessions", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ timeTo: undefined });
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data
+  });
 
   fixedSessionsService._fetch();
 
@@ -126,8 +159,8 @@ test('fetch with missing timeTo value in params does not call downloadSessions',
   t.end();
 });
 
-test('fetch with time calls drawSession.clear', t => {
-  const drawSession = mock('clear');
+test("fetch with time calls drawSession.clear", t => {
+  const drawSession = mock("clear");
   const data = buildData({ time: {} });
   const fixedSessionsService = _fixedSessions({ data, drawSession });
 
@@ -138,10 +171,13 @@ test('fetch with time calls drawSession.clear', t => {
   t.end();
 });
 
-test('fetch with time calls downloadSessions', t => {
+test("fetch with time calls downloadSessions", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ time: {} });
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data });
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data
+  });
 
   fixedSessionsService._fetch();
 
@@ -150,11 +186,15 @@ test('fetch with time calls downloadSessions', t => {
   t.end();
 });
 
-test('fetch when on a different route than fixed map does not call downloadSessions', t => {
+test("fetch when on a different route than fixed map does not call downloadSessions", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ time: {} });
-  const $window = { location: { pathname: '/other_route' } };
-  const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, data, $window });
+  const $window = { location: { pathname: "/other_route" } };
+  const fixedSessionsService = _fixedSessions({
+    sessionsDownloaderCalls,
+    data,
+    $window
+  });
 
   fixedSessionsService._fetch();
 
@@ -163,7 +203,7 @@ test('fetch when on a different route than fixed map does not call downloadSessi
   t.end();
 });
 
-test('fetch passes map corner coordinates to sessionsDownloader', t => {
+test("fetch passes map corner coordinates to sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
   const map = {
     getBounds: () => ({
@@ -185,7 +225,7 @@ test('fetch passes map corner coordinates to sessionsDownloader', t => {
   t.end();
 });
 
-test('hasSelectedSessions with no selected sessions returns false', t => {
+test("hasSelectedSessions with no selected sessions returns false", t => {
   const sessionsUtils = { noOfSelectedSessions: () => 0 };
   const fixedSessionsService = _fixedSessions({ sessionsUtils });
 
@@ -196,7 +236,7 @@ test('hasSelectedSessions with no selected sessions returns false', t => {
   t.end();
 });
 
-test('hasSelectedSessions with selected session returns true', t => {
+test("hasSelectedSessions with selected session returns true", t => {
   const sessionsUtils = { noOfSelectedSessions: () => 1 };
   const fixedSessionsService = _fixedSessions({ sessionsUtils });
 
@@ -207,10 +247,10 @@ test('hasSelectedSessions with selected session returns true', t => {
   t.end();
 });
 
-test('selectSession with indoor session after successfully fetching calls map.fitBounds', t => {
-  const map = mock('fitBounds');
+test("selectSession with indoor session after successfully fetching calls map.fitBounds", t => {
+  const map = mock("fitBounds");
   const sessionsUtils = { find: () => ({ is_indoor: false }) };
-  const sensors = { sensors: { 123: { sensor_name: 'sensor_name' } } };
+  const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
 
   fixedSessionsService.selectSession(123);
@@ -220,10 +260,10 @@ test('selectSession with indoor session after successfully fetching calls map.fi
   t.end();
 });
 
-test('selectSession with outdoor session after successfully fetching does not call map.fitBounds', t => {
-  const map = mock('fitBounds');
+test("selectSession with outdoor session after successfully fetching does not call map.fitBounds", t => {
+  const map = mock("fitBounds");
   const sessionsUtils = { find: () => ({ is_indoor: true }) };
-  const sensors = { sensors: { 123: { sensor_name: 'sensor_name' } } };
+  const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
 
   fixedSessionsService.selectSession(123);
@@ -233,8 +273,8 @@ test('selectSession with outdoor session after successfully fetching does not ca
   t.end();
 });
 
-test('deselectSession with existing session calls fitBounds', t => {
-  const map = mock('fitBounds');
+test("deselectSession with existing session calls fitBounds", t => {
+  const map = mock("fitBounds");
   const sessionsUtils = { find: () => ({ id: 1 }) };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils });
 
@@ -245,8 +285,8 @@ test('deselectSession with existing session calls fitBounds', t => {
   t.end();
 });
 
-test('deselectSession with non-existing session does not call drawSession.undoDraw', t => {
-  const map = mock('fitBounds');
+test("deselectSession with non-existing session does not call drawSession.undoDraw", t => {
+  const map = mock("fitBounds");
   const sessionsUtils = { find: () => null };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils });
 
@@ -257,7 +297,7 @@ test('deselectSession with non-existing session does not call drawSession.undoDr
   t.end();
 });
 
-test('deselectSession calls fitBounds with the bounds saved before selecting the session', t => {
+test("deselectSession calls fitBounds with the bounds saved before selecting the session", t => {
   const bounds = {
     east: -68.06802987730651,
     north: 47.98992183263727,
@@ -265,9 +305,13 @@ test('deselectSession calls fitBounds with the bounds saved before selecting the
     west: -123.65885018980651
   };
   const zoom = 10;
-  const map = { getBounds: () => bounds, getZoom: () => zoom, ...mock('fitBounds') };
+  const map = {
+    getBounds: () => bounds,
+    getZoom: () => zoom,
+    ...mock("fitBounds")
+  };
   const sessionsUtils = { find: () => ({ id: 1 }) };
-  const sensors = { sensors: { 1: { sensor_name: 'sensor_name' } } };
+  const sensors = { sensors: { 1: { sensor_name: "sensor_name" } } };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
   fixedSessionsService.selectSession(1);
 
@@ -279,7 +323,7 @@ test('deselectSession calls fitBounds with the bounds saved before selecting the
   t.end();
 });
 
-test('deselectSession with no previously selected sessions calls fitBounds with initial map position', t => {
+test("deselectSession with no previously selected sessions calls fitBounds with initial map position", t => {
   const bounds = {
     east: -68.06802987730651,
     north: 47.98992183263727,
@@ -289,7 +333,11 @@ test('deselectSession with no previously selected sessions calls fitBounds with 
   const zoom = 10;
   const sessionsUtils = { find: () => ({ id: 1 }) };
   const mapPosition = { bounds, zoom };
-  const map = { getBounds: () => bounds, getZoom: () => zoom, ...mock('fitBounds') };
+  const map = {
+    getBounds: () => bounds,
+    getZoom: () => zoom,
+    ...mock("fitBounds")
+  };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils });
 
   fixedSessionsService.deselectSession(1);
@@ -300,8 +348,8 @@ test('deselectSession with no previously selected sessions calls fitBounds with 
   t.end();
 });
 
-test('drawSessionsInLocation doesnt draw markers for indoor sessions', t => {
-  const map = mock('drawCustomMarker');
+test("drawSessionsInLocation doesnt draw markers for indoor sessions", t => {
+  const map = mock("drawCustomMarker");
   const session = { latitude: 1, longitude: 1 };
   const data = buildData({ isIndoor: true });
 
@@ -315,8 +363,8 @@ test('drawSessionsInLocation doesnt draw markers for indoor sessions', t => {
   t.end();
 });
 
-test('drawSessionsInLocation draws default marker when no sensor selected', t => {
-  const map = mock('drawCustomMarker');
+test("drawSessionsInLocation draws default marker when no sensor selected", t => {
+  const map = mock("drawCustomMarker");
   const session = { latitude: 1, longitude: 2 };
   const sensors = { anySelected: () => false };
 
@@ -330,8 +378,8 @@ test('drawSessionsInLocation draws default marker when no sensor selected', t =>
   t.end();
 });
 
-test('drawSessionsInLocation draws default marker for sessions that are not streaming currently', t => {
-  const map = mock('drawCustomMarker');
+test("drawSessionsInLocation draws default marker for sessions that are not streaming currently", t => {
+  const map = mock("drawCustomMarker");
   const session = { latitude: 1, longitude: 2 };
   const data = buildData({ location: { streaming: false } });
 
@@ -345,14 +393,23 @@ test('drawSessionsInLocation draws default marker for sessions that are not stre
   t.end();
 });
 
-test('drawSessionsInLocation draws colorcoded marker for currently streaming sessions when sensor selected', t => {
-  const map = mock('drawCustomMarker');
-  const session = { id: 123, latitude: 1, longitude: 2, last_hour_average: 1.1, streams: {sensorName: { unit_symbol: "unit" }}};
-  const sensors = { anySelected: () => true, selectedSensorName: () => "sensorName"};
+test("drawSessionsInLocation draws colorcoded marker for currently streaming sessions when sensor selected", t => {
+  const map = mock("drawCustomMarker");
+  const session = {
+    id: 123,
+    latitude: 1,
+    longitude: 2,
+    last_hour_average: 1.1,
+    streams: { sensorName: { unit_symbol: "unit" } }
+  };
+  const sensors = {
+    anySelected: () => true,
+    selectedSensorName: () => "sensorName"
+  };
   const data = buildData({ location: { streaming: true } });
 
   const fixedSessionsService = _fixedSessions({ data, map, sensors });
-  fixedSessionsService.sessions = [session]
+  fixedSessionsService.sessions = [session];
 
   fixedSessionsService.drawSessionsInLocation();
 
@@ -361,10 +418,10 @@ test('drawSessionsInLocation draws colorcoded marker for currently streaming ses
   t.end();
 });
 
-test('drawSessionsInLocation calls map.clusterMarkers for currently streaming sessions when sensor selected', t => {
+test("drawSessionsInLocation calls map.clusterMarkers for currently streaming sessions when sensor selected", t => {
   const clusterMarkers = sinon.spy();
-  const map = { clusterMarkers }
-  const sensors = { anySelected: () => true};
+  const map = { clusterMarkers };
+  const sensors = { anySelected: () => true };
   const data = buildData({ location: { streaming: true } });
   const fixedSessionsService = _fixedSessions({ data, map, sensors });
 
@@ -375,9 +432,9 @@ test('drawSessionsInLocation calls map.clusterMarkers for currently streaming se
   t.end();
 });
 
-test('drawSessionsInLocation removes previous markers', t => {
+test("drawSessionsInLocation removes previous markers", t => {
   const removeAllMarkers = sinon.spy();
-  const map = { removeAllMarkers }
+  const map = { removeAllMarkers };
   const fixedSessionsService = _fixedSessions({ map });
 
   fixedSessionsService.drawSessionsInLocation();
@@ -387,10 +444,14 @@ test('drawSessionsInLocation removes previous markers', t => {
   t.end();
 });
 
-test('showClusterInfo returns a callback that calls setSelectedCluster with current cluster', t => {
+test("showClusterInfo returns a callback that calls setSelectedCluster with current cluster", t => {
   const setSelectedCluster = sinon.spy();
-  const cluster = { getMarkers: () => [], getCenter: () => {} }
-  const callback = showClusterInfo("", { setSelectedCluster }, { show: () => {} });
+  const cluster = { getMarkers: () => [], getCenter: () => {} };
+  const callback = showClusterInfo(
+    "",
+    { setSelectedCluster },
+    { show: () => {} }
+  );
 
   callback(cluster);
 
@@ -399,22 +460,46 @@ test('showClusterInfo returns a callback that calls setSelectedCluster with curr
   t.end();
 });
 
-test('showClusterInfo returns a callback that calls infoWindow.show with correct sessions ids and sensor name', t => {
+test("showClusterInfo returns a callback that calls infoWindow.show with correct sessions ids and sensor name", t => {
   const show = sinon.spy();
   const infoWindow = { show };
-  const cluster = { getMarkers: () => [{ objectId: () => 1 }], getCenter: () => {} }
-  const callback = showClusterInfo("Sensor Name", { setSelectedCluster: () => {} }, infoWindow);
+  const cluster = {
+    getMarkers: () => [{ objectId: () => 1 }],
+    getCenter: () => {}
+  };
+  const callback = showClusterInfo(
+    "Sensor Name",
+    { setSelectedCluster: () => {} },
+    infoWindow
+  );
 
   callback(cluster);
 
-  sinon.assert.calledWith(show, "/api/fixed_region", { q: { session_ids: [1], sensor_name: "Sensor Name" }});
+  sinon.assert.calledWith(show, "/api/fixed_region", {
+    q: { session_ids: [1], sensor_name: "Sensor Name" }
+  });
 
   t.end();
 });
 
-const buildData = obj => ({ timeFrom: 1, timeTo: 1, location: {}, sensorId: 123, ...obj });
+const buildData = obj => ({
+  timeFrom: 1,
+  timeTo: 1,
+  location: {},
+  sensorId: 123,
+  ...obj
+});
 
-const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessionIds = [], $window, map, sessionsUtils, sensors }) => {
+const _fixedSessions = ({
+  sessionsDownloaderCalls = [],
+  data,
+  drawSession,
+  sessionIds = [],
+  $window,
+  map,
+  sessionsUtils,
+  sensors
+}) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
@@ -427,15 +512,51 @@ const _fixedSessions = ({ sessionsDownloaderCalls = [], data, drawSession, sessi
       }
     }
   };
-  const _map = { getBounds: () => ({}), getZoom: () => undefined, markers: [], drawCustomMarker: () => {}, removeAllMarkers: () => {}, clusterMarkers: () => {}, ...map };
-  const _sensors = { selectedId: () => 123, selected: () => {}, sensors: {}, anySelected: () => false, selectedSensorName: () => "sensorName", ...sensors };
+  const _map = {
+    getBounds: () => ({}),
+    getZoom: () => undefined,
+    markers: [],
+    drawCustomMarker: () => {},
+    removeAllMarkers: () => {},
+    clusterMarkers: () => {},
+    ...map
+  };
+  const _sensors = {
+    selectedId: () => 123,
+    selected: () => {},
+    sensors: {},
+    anySelected: () => false,
+    selectedSensorName: () => "sensorName",
+    ...sensors
+  };
   const _drawSession = drawSession || { clear: () => {}, undoDraw: () => {} };
-  const sessionsDownloader = (_, arg) => { sessionsDownloaderCalls.push(arg) };
-  const _$window = $window || { location: { pathname: '/fixed_map' } };
-  const _sessionsUtils = { find: () => ({}), allSelected: () => {}, onSingleSessionFetch: (x, y, callback) => callback(), get: (self) => self.sessions, onSingleSessionFetchWithoutCrowdMap: (x, y, callback) => callback(), ...sessionsUtils };
+  const sessionsDownloader = (_, arg) => {
+    sessionsDownloaderCalls.push(arg);
+  };
+  const _$window = $window || { location: { pathname: "/fixed_map" } };
+  const _sessionsUtils = {
+    find: () => ({}),
+    allSelected: () => {},
+    onSingleSessionFetch: (x, y, callback) => callback(),
+    get: self => self.sessions,
+    onSingleSessionFetchWithoutCrowdMap: (x, y, callback) => callback(),
+    ...sessionsUtils
+  };
   const $http = { get: () => ({ success: callback => callback() }) };
   const boundsCalculator = () => {};
-  const _heat = { levelName: () => "mid", outsideOfScope: () => false }
+  const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
-  return fixedSessions(params, $http, _map, _sensors, $rootScope, sessionsDownloader, _drawSession, boundsCalculator, _sessionsUtils, _$window, _heat);
+  return fixedSessions(
+    params,
+    $http,
+    _map,
+    _sensors,
+    $rootScope,
+    sessionsDownloader,
+    _drawSession,
+    boundsCalculator,
+    _sessionsUtils,
+    _$window,
+    _heat
+  );
 };

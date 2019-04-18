@@ -1,18 +1,18 @@
-import test from 'blue-tape';
-import * as Session from '../code/values/session';
+import test from "blue-tape";
+import * as Session from "../code/values/session";
 
-test('when title is missing it defaults to unnamed', t => {
+test("when title is missing it defaults to unnamed", t => {
   const session = {};
 
   const actual = Session.formatSessionForList(session);
 
-  t.deepEqual(actual.title, 'unnamed');
+  t.deepEqual(actual.title, "unnamed");
 
   t.end();
 });
 
-test('when title is present it uses it', t => {
-  const title = 'walk to the park';
+test("when title is present it uses it", t => {
+  const title = "walk to the park";
   const session = {
     title
   };
@@ -24,20 +24,20 @@ test('when title is present it uses it', t => {
   t.end();
 });
 
-test('when session is indoor it uses anonymous as username', t => {
+test("when session is indoor it uses anonymous as username", t => {
   const session = {
     is_indoor: true
   };
 
   const actual = Session.formatSessionForList(session);
 
-  t.deepEqual(actual.username, 'anonymous');
+  t.deepEqual(actual.username, "anonymous");
 
   t.end();
 });
 
-test('when session is outdoor it uses its username', t => {
-  const username = 'user1234';
+test("when session is outdoor it uses its username", t => {
+  const username = "user1234";
   const session = {
     is_indoor: false,
     username
@@ -50,9 +50,9 @@ test('when session is outdoor it uses its username', t => {
   t.end();
 });
 
-test('roundedAverage returns session rounded average for selected stream', t => {
-  const selectedSensor = "selectedSensor"
-  const session = { streams: { selectedSensor: { average_value: 1.1 }}};
+test("roundedAverage returns session rounded average for selected stream", t => {
+  const selectedSensor = "selectedSensor";
+  const session = { streams: { selectedSensor: { average_value: 1.1 } } };
   const actual = Session.roundedAverage(session, selectedSensor);
 
   t.deepEqual(actual, 1);
@@ -60,7 +60,7 @@ test('roundedAverage returns session rounded average for selected stream', t => 
   t.end();
 });
 
-test('lastHourRoundedAverage returns session last hour rounded average', t => {
+test("lastHourRoundedAverage returns session last hour rounded average", t => {
   const session = { last_hour_average: 1.1 };
   const actual = Session.lastHourRoundedAverage(session);
 
@@ -69,7 +69,7 @@ test('lastHourRoundedAverage returns session last hour rounded average', t => {
   t.end();
 });
 
-test('id returns session id', t => {
+test("id returns session id", t => {
   const session = { id: 1 };
   const actual = Session.id(session);
 
@@ -78,11 +78,13 @@ test('id returns session id', t => {
   t.end();
 });
 
-test('startingLatLng returns starting latitude and longitude of selected sensor', t => {
-  const selectedSensor = "selectedSensor"
-  const session = { streams: { selectedSensor: { start_latitude: 1, start_longitude: 2 } } };
+test("startingLatLng returns starting latitude and longitude of selected sensor", t => {
+  const selectedSensor = "selectedSensor";
+  const session = {
+    streams: { selectedSensor: { start_latitude: 1, start_longitude: 2 } }
+  };
   const actual = Session.startingLatLng(session, selectedSensor);
-  const expected = { lat: () => 1, lng: () => 2 }
+  const expected = { lat: () => 1, lng: () => 2 };
 
   t.deepEqual(actual.lat(), expected.lat());
   t.deepEqual(actual.lng(), expected.lng());
@@ -90,10 +92,10 @@ test('startingLatLng returns starting latitude and longitude of selected sensor'
   t.end();
 });
 
-test('latLng returns latitude and longitude of the session', t => {
+test("latLng returns latitude and longitude of the session", t => {
   const session = { latitude: 1, longitude: 2 };
   const actual = Session.latLng(session);
-  const expected = { lat: () => 1, lng: () => 2 }
+  const expected = { lat: () => 1, lng: () => 2 };
 
   t.deepEqual(actual.lat(), expected.lat());
   t.deepEqual(actual.lng(), expected.lng());
@@ -101,9 +103,11 @@ test('latLng returns latitude and longitude of the session', t => {
   t.end();
 });
 
-test('averageValueAndUnit returns rounded session average value and unit for selected sensor', t => {
-  const selectedSensor = "selectedSensor"
-  const session = { streams: { selectedSensor: { unit_symbol: "dB", average_value: 1.2 } } };
+test("averageValueAndUnit returns rounded session average value and unit for selected sensor", t => {
+  const selectedSensor = "selectedSensor";
+  const session = {
+    streams: { selectedSensor: { unit_symbol: "dB", average_value: 1.2 } }
+  };
   const actual = Session.averageValueAndUnit(session, selectedSensor);
 
   t.deepEqual(actual, "1 dB");
@@ -111,9 +115,12 @@ test('averageValueAndUnit returns rounded session average value and unit for sel
   t.end();
 });
 
-test('lastHourAverageValueAndUnit returns rounded session last hour average value and unit for selected sensor', t => {
-  const selectedSensor = "selectedSensor"
-  const session = { last_hour_average: 1.2, streams: { selectedSensor: { unit_symbol: "dB" } } };
+test("lastHourAverageValueAndUnit returns rounded session last hour average value and unit for selected sensor", t => {
+  const selectedSensor = "selectedSensor";
+  const session = {
+    last_hour_average: 1.2,
+    streams: { selectedSensor: { unit_symbol: "dB" } }
+  };
   const actual = Session.lastHourAverageValueAndUnit(session, selectedSensor);
 
   t.deepEqual(actual, "1 dB");

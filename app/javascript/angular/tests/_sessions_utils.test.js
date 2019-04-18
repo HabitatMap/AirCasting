@@ -1,8 +1,8 @@
-import test from 'blue-tape';
-import { mock } from './helpers';
-import { sessionsUtils } from '../code/services/_sessions_utils';
+import test from "blue-tape";
+import { mock } from "./helpers";
+import { sessionsUtils } from "../code/services/_sessions_utils";
 
-test('onSingleSessionFetch extends session.streams with data.streams with lower case keys', t => {
+test("onSingleSessionFetch extends session.streams with data.streams with lower case keys", t => {
   const data = { streams: { Key1: 1 } };
   const session = { streams: { key2: 2 } };
   const service = _sessionsUtils({});
@@ -15,7 +15,7 @@ test('onSingleSessionFetch extends session.streams with data.streams with lower 
   t.end();
 });
 
-test('onSingleSessionFetch adds loaded flag to session', t => {
+test("onSingleSessionFetch adds loaded flag to session", t => {
   const session = {};
   const service = _sessionsUtils({});
 
@@ -26,9 +26,11 @@ test('onSingleSessionFetch adds loaded flag to session', t => {
   t.end();
 });
 
-test('onSingleSessionFetch calls the passed callback', t => {
+test("onSingleSessionFetch calls the passed callback", t => {
   let called = false;
-  const callback = () => { called = true; }
+  const callback = () => {
+    called = true;
+  };
 
   const service = _sessionsUtils({});
 
@@ -39,10 +41,10 @@ test('onSingleSessionFetch calls the passed callback', t => {
   t.end();
 });
 
-test('onSingleSessionFetch calls updateCrowdMapLayer with the session id', t => {
+test("onSingleSessionFetch calls updateCrowdMapLayer with the session id", t => {
   const sessionId = 1;
   const session = { id: sessionId };
-  const updateCrowdMapLayer = mock('call');
+  const updateCrowdMapLayer = mock("call");
   const service = _sessionsUtils({ updateCrowdMapLayer });
 
   service.onSingleSessionFetch(session, { streams: {} }, () => {});

@@ -52,6 +52,7 @@ yarn install
 ```
 ### Obtaining a bitly access token
 Go to https://bitly.com/ create an account and log in. To generate the token go to Settings -> Advanced settings -> For Developers -> OAuth -> Generic Access Token. 
+
 ## Tests
 
 **run tests**
@@ -74,9 +75,12 @@ yarn run elm-format --validate app/javascript/elm
 format js and css files:
 
 ```bash
-yarn prettier --write app/assets/stylesheets/*
+yarn prettier --write app/assets/stylesheets/path/to/your/file.scss
 yarn prettier --write app/javascript/path/to/your/file.js
 ```
+ 
+ Best to add prettier to your editor to do this for you on save :)
+ Same goes for elm-format.
 
 ## API documentation
 
