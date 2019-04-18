@@ -31,8 +31,8 @@ decoder =
         (Decode.field "username" Decode.string)
         (Decode.field "sensor_name" Decode.string)
         (Decode.field "average" (Decode.nullable Decode.float) |> Decode.map (Maybe.withDefault -1))
-        (Decode.field "endTime" Decode.string)
         (Decode.field "startTime" Decode.string)
+        (Decode.field "endTime" Decode.string)
         (Decode.field "measurements" (Decode.list Decode.float))
         (Decode.field "id" Decode.int)
 
