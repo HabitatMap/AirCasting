@@ -512,7 +512,13 @@ viewHeatMapInput : String -> Int -> String -> (String -> Msg) -> Html Msg
 viewHeatMapInput text_ value_ sensorUnit toMsg =
     div [ class "heatmap-input" ]
         [ p [] [ text text_ ]
-        , input [ id <| "heatmap-" ++ text_, type_ "number", value <| String.fromInt value_, onChange toMsg ] []
+        , input
+            [ id <| "heatmap-" ++ text_
+            , type_ "number"
+            , value <| String.fromInt value_
+            , Events.onInput toMsg
+            ]
+            []
         , p [ id <| "heatmap-unit-" ++ text_ ] [ text sensorUnit ]
         ]
 
