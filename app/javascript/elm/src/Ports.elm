@@ -12,6 +12,7 @@ port module Ports exposing
     , toggleIndoor
     , toggleSession
     , toggleSessionSelection
+    , toggleStreaming
     , updateHeatMapThresholds
     , updateHeatMapThresholdsFromAngular
     , updateIsHttping
@@ -48,6 +49,9 @@ port toggleCrowdMap : Bool -> Cmd a
 
 
 port toggleIndoor : Bool -> Cmd a
+
+
+port toggleStreaming : Bool -> Cmd a
 
 
 port updateResolution : Int -> Cmd a

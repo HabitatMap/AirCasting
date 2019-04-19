@@ -17,17 +17,15 @@ test("it updates defaults", t => {
     sensorId,
     location: "",
     isIndoor: false,
-    streaming: true,
+    isStreaming: true,
     tags: "",
     usernames: "",
     timeFrom: moment()
       .utc()
-      .startOf("day")
-      .subtract(1, "year")
+      .subtract(1, "hour")
       .format("X"),
     timeTo: moment()
       .utc()
-      .endOf("day")
       .format("X")
   };
   t.deepEqual(defaults, expected);

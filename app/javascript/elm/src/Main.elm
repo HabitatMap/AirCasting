@@ -53,6 +53,7 @@ type alias Model =
     , logoNav : String
     , linkIcon : String
     , heatMapThresholds : WebData HeatMapThresholds
+    , isStreaming : Bool
     }
 
 
@@ -73,6 +74,7 @@ defaultModel =
     , crowdMapResolution = 25
     , timeRange = TimeRange.defaultTimeRange
     , isIndoor = False
+    , isStreaming = True
     , selectedSession = NotAsked
     , logoNav = ""
     , linkIcon = ""
@@ -88,6 +90,7 @@ type alias Flags =
     , crowdMapResolution : Int
     , timeRange : Encode.Value
     , isIndoor : Bool
+    , isStreaming : Bool
     , selectedSessionId : Maybe Int
     , sensors : Encode.Value
     , selectedSensorId : String
@@ -124,6 +127,7 @@ init flags url key =
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , isIndoor = flags.isIndoor
         , sensors = sensors
+        , isStreaming = flags.isStreaming
         , selectedSensorId = flags.selectedSensorId
         , logoNav = flags.logoNav
         , linkIcon = flags.linkIcon
@@ -183,6 +187,7 @@ type Msg
     | LoadMoreSessions
     | UpdateIsHttping Bool
     | ToggleIndoor
+    | ToggleStreaming
     | DeselectSession
     | ToggleSessionSelectionFromAngular (Maybe Int)
     | ToggleSessionSelection Int
@@ -289,6 +294,17 @@ update msg model =
                 , Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [] ]
                 )
 
+        ToggleStreaming ->
+            -- two branches cos choosing streaming will affect time range filter later on
+            if model.isStreaming then
+                ( { model | isStreaming = False }, Ports.toggleStreaming False )
+
+            else
+                ( { model | isStreaming = True }, Ports.toggleStreaming True )
+
+        --( { model | isStreaming = True }
+        --, Cmd.batch [ Ports.toggleStreaming True, UpdateTimeRange <last hour> ]
+        --)
         DeselectSession ->
             case model.selectedSession of
                 Success selectedSession ->
@@ -670,7 +686,7 @@ viewMobileFilters model =
         [ viewParameterFilter model.sensors model.selectedSensorId
         , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
-        , TimeRange.view RefreshTimeRange
+        , TimeRange.view RefreshTimeRange False
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False
         , div [ class "filter-separator" ] []
@@ -689,13 +705,18 @@ viewFixedFilters model =
         [ viewParameterFilter model.sensors model.selectedSensorId
         , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocation model.location model.isIndoor
-        , TimeRange.view RefreshTimeRange
+        , TimeRange.view RefreshTimeRange model.isStreaming
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False
         , label [] [ text "type" ]
         , div []
             [ viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
             , viewToggleButton "indoor" model.isIndoor ToggleIndoor
+            ]
+        , label [] [ text "streaming" ]
+        , div []
+            [ viewToggleButton "active" model.isStreaming ToggleStreaming
+            , viewToggleButton "dormant" (not model.isStreaming) ToggleStreaming
             ]
         ]
 
@@ -704,6 +725,7 @@ viewToggleButton : String -> Bool -> Msg -> Html Msg
 viewToggleButton label isPressed callback =
     button
         [ type_ "button"
+        , class "input-filters"
         , if isPressed then
             class "toggle-button toggle-button--pressed"
 

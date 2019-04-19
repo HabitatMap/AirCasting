@@ -381,7 +381,7 @@ test("drawSessionsInLocation draws default marker when no sensor selected", t =>
 test("drawSessionsInLocation draws default marker for sessions that are not streaming currently", t => {
   const map = mock("drawCustomMarker");
   const session = { latitude: 1, longitude: 2 };
-  const data = buildData({ location: { streaming: false } });
+  const data = buildData({ isStreaming: false });
 
   const fixedSessionsService = _fixedSessions({ data, map });
   fixedSessionsService.sessions = [session];
@@ -406,7 +406,7 @@ test("drawSessionsInLocation draws colorcoded marker for currently streaming ses
     anySelected: () => true,
     selectedSensorName: () => "sensorName"
   };
-  const data = buildData({ location: { streaming: true } });
+  const data = buildData({ isStreaming: true });
 
   const fixedSessionsService = _fixedSessions({ data, map, sensors });
   fixedSessionsService.sessions = [session];
@@ -422,7 +422,7 @@ test("drawSessionsInLocation calls map.clusterMarkers for currently streaming se
   const clusterMarkers = sinon.spy();
   const map = { clusterMarkers };
   const sensors = { anySelected: () => true };
-  const data = buildData({ location: { streaming: true } });
+  const data = buildData({ isStreaming: true });
   const fixedSessionsService = _fixedSessions({ data, map, sensors });
 
   fixedSessionsService.drawSessionsInLocation();

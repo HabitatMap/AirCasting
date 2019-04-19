@@ -121,7 +121,7 @@ export const fixedSessions = (
 
       const sessions = this.get();
 
-      if (!sensors.anySelected() || !params.get('data').location.streaming) {
+      if (!sensors.anySelected() || !params.get('data').isStreaming) {
         sessions.forEach(session => this.drawDefaultMarkers(session));
         return;
       }
@@ -213,7 +213,7 @@ export const fixedSessions = (
         this.downloadSessions('/api/realtime/multiple_sessions.json', reqData);
       }
 
-      if (data.location.streaming) {
+      if (data.isStreaming) {
         this.downloadSessions('/api/realtime/streaming_sessions.json', reqData);
       } else {
         this.downloadSessions('/api/realtime/sessions.json', reqData);

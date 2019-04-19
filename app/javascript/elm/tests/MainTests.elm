@@ -1,4 +1,4 @@
-module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, toggleIndoorFilter, updateTests, viewTests)
+module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, toggleIndoorFilter, toggleStreamingFilter, updateTests, viewTests)
 
 import Data.HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
@@ -185,6 +185,20 @@ timeFilter =
                     |> update (UpdateTimeRange value)
                     |> Tuple.first
                     |> Expect.equal expected
+        , fuzz bool "is enabled for dormant and disabled for active Fixed sessions" <|
+            \isStreaming ->
+                { defaultModel | isStreaming = isStreaming, page = Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "time-range" ]
+                    |> Query.has [ Slc.attribute <| disabled isStreaming ]
+        , fuzz bool "is always enabled for Mobile sessions" <|
+            \isStreaming ->
+                { defaultModel | isStreaming = isStreaming, page = Mobile }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "time-range" ]
+                    |> Query.has [ Slc.attribute <| disabled False ]
         ]
 
 
@@ -506,18 +520,68 @@ toggleIndoorFilter =
                     |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
                     |> Event.simulate Event.click
                     |> Event.expect ToggleIndoor
-        , test "when indoor false ToggleIndoor triggers Ports.toggleIndoor with True and Ports.updateProfiles with []" <|
+        , test "when isIndoor is false ToggleIndoor triggers Ports.toggleIndoor with True and Ports.updateProfiles with []" <|
             \_ ->
                 { defaultModel | page = Fixed }
                     |> update ToggleIndoor
                     |> Tuple.second
                     |> Expect.equal (Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [] ])
-        , test "when is indoor true ToggleIndoor triggers Ports.toggleIndoor with False" <|
+        , test "when isIndoor is true ToggleIndoor triggers Ports.toggleIndoor with False" <|
             \_ ->
                 { defaultModel | page = Fixed, isIndoor = True }
                     |> update ToggleIndoor
                     |> Tuple.second
                     |> Expect.equal (Ports.toggleIndoor False)
+        ]
+
+
+toggleStreamingFilter : Test
+toggleStreamingFilter =
+    describe "active/dormant filter tests:"
+        [ test "toggle is displayed" <|
+            \_ ->
+                { defaultModel | page = Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Expect.all
+                        [ Query.has [ Slc.attribute <| ariaLabel "active" ]
+                        , Query.has [ Slc.attribute <| ariaLabel "dormant" ]
+                        ]
+        , test "active is selected by default" <|
+            \_ ->
+                { defaultModel | page = Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| ariaLabel "active" ]
+                    |> Query.has [ Slc.attribute <| class "toggle-button--pressed" ]
+        , test "clicking dormant button triggers ToggleStreaming" <|
+            \_ ->
+                { defaultModel | page = Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| ariaLabel "dormant" ]
+                    |> Event.simulate Event.click
+                    |> Event.expect ToggleStreaming
+        , test "clicking active button triggers ToggleStreaming" <|
+            \_ ->
+                { defaultModel | page = Fixed }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.attribute <| ariaLabel "active" ]
+                    |> Event.simulate Event.click
+                    |> Event.expect ToggleStreaming
+        , test "when isStreaming is true ToggleStreaming triggers Ports.toggleStreaming with False" <|
+            \_ ->
+                { defaultModel | page = Fixed }
+                    |> update ToggleStreaming
+                    |> Tuple.second
+                    |> Expect.equal (Ports.toggleStreaming False)
+        , test "when isStreaming is false ToggleStreaming triggers Ports.toggleStreaming with True" <|
+            \_ ->
+                { defaultModel | page = Fixed, isStreaming = False }
+                    |> update ToggleStreaming
+                    |> Tuple.second
+                    |> Expect.equal (Ports.toggleStreaming True)
         ]
 
 
