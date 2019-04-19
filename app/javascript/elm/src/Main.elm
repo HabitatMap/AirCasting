@@ -138,7 +138,7 @@ init flags url key =
                 |> Maybe.withDefault defaultModel.heatMapThresholds
       }
     , Cmd.batch
-        [ fetchSelectedSession flags.selectedSessionId flags.selectedSensorId page
+        [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
         , case flags.heatMapThresholdValues of
             Nothing ->
                 fetchHeatMapThresholds sensors flags.selectedSensorId
@@ -149,14 +149,14 @@ init flags url key =
     )
 
 
-fetchSelectedSession : Maybe Int -> String -> Page -> Cmd Msg
-fetchSelectedSession maybeId selectedSensorId page =
+fetchSelectedSession : List Sensor -> Maybe Int -> String -> Page -> Cmd Msg
+fetchSelectedSession sensors maybeId selectedSensorId page =
     case maybeId of
         Nothing ->
             Cmd.none
 
         Just id ->
-            SelectedSession.fetch selectedSensorId page id (RemoteData.fromResult >> GotSession)
+            SelectedSession.fetch sensors selectedSensorId page id (RemoteData.fromResult >> GotSession)
 
 
 fetchHeatMapThresholds : List Sensor -> String -> Cmd Msg
@@ -322,7 +322,7 @@ update msg model =
         ToggleSessionSelectionFromAngular maybeId ->
             case maybeId of
                 Just id ->
-                    ( model, SelectedSession.fetch model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession) )
+                    ( model, SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession) )
 
                 Nothing ->
                     ( { model | selectedSession = NotAsked }, Cmd.none )
@@ -333,7 +333,7 @@ update msg model =
                     ( model
                     , Cmd.batch
                         [ Ports.toggleSession { deselected = Nothing, selected = Just id }
-                        , SelectedSession.fetch model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
+                        , SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                         ]
                     )
 
@@ -347,7 +347,7 @@ update msg model =
                         ( { model | selectedSession = NotAsked }
                         , Cmd.batch
                             [ Ports.toggleSession { deselected = Just selectedSession.id, selected = Just id }
-                            , SelectedSession.fetch model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
+                            , SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                             ]
                         )
 
