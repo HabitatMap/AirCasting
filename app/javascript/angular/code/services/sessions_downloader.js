@@ -37,9 +37,8 @@ angular.module("aircasting").factory("sessionsDownloader", ['$rootScope', '$http
 
     _(data).each(function(session){
       if(session.start_time_local && session.end_time_local) {
-        times = [moment(session.start_time_local, "YYYY-MM-DDTHH:mm:ss"), moment(session.end_time_local, "YYYY-MM-DDTHH:mm:ss")];
-        session.startTime = times[0].format('MM/DD/YYYY, HH:mm');
-        session.endTime = times[1].format('MM/DD/YYYY, HH:mm');
+        session.startTime = moment(session.start_time_local).utc().valueOf();
+        session.endTime = moment(session.end_time_local).utc().valueOf();
       }
 
       session.streams = keysToLowerCase(session.streams)

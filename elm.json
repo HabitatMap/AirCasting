@@ -17,11 +17,13 @@
             "elm-community/html-extra": "3.1.0",
             "elm-community/maybe-extra": "5.0.0",
             "fapian/elm-html-aria": "1.4.0",
-            "krisajenkins/remotedata": "6.0.1"
+            "krisajenkins/remotedata": "6.0.1",
+            "rtfeldman/elm-iso8601-date-strings": "1.1.3"
         },
         "indirect": {
             "elm/bytes": "1.0.8",
             "elm/file": "1.0.4",
+            "elm/parser": "1.1.0",
             "elm/virtual-dom": "1.0.2"
         }
     },

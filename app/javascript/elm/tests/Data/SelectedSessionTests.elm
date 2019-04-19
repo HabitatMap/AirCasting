@@ -1,9 +1,7 @@
 module Data.SelectedSessionTests exposing (suite)
 
-import Data.SelectedSession exposing (sensorNameFromId)
+import Data.SelectedSession exposing (..)
 import Expect
-import Fuzz exposing (int, list, string)
-import Json.Encode as Encode
 import Sensor exposing (..)
 import Test exposing (..)
 
