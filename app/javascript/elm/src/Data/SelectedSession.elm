@@ -1,4 +1,4 @@
-module Data.SelectedSession exposing (SelectedSession, decoder, fetch, sensorNameFromId, view)
+module Data.SelectedSession exposing (SelectedSession, decoder, fetch, view)
 
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
@@ -9,6 +9,7 @@ import Html.Attributes exposing (class)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import RemoteData exposing (WebData)
+import Sensor exposing (Sensor)
 import Time exposing (Posix)
 
 
@@ -54,22 +55,26 @@ toSelectedSession title username sensorName average startTime endTime measuremen
     }
 
 
-sensorNameFromId : String -> String
-sensorNameFromId =
-    String.split "-" >> List.drop 1 >> String.join "-" >> String.split " " >> List.head >> Maybe.withDefault ""
+fetch : List Sensor -> String -> Page -> Int -> (Result Http.Error SelectedSession -> msg) -> Cmd msg
+fetch sensors sensorId page id toCmd =
+    let
+        maybeSensorName =
+            Sensor.nameForSensorId sensorId sensors
+    in
+    case maybeSensorName of
+        Just sensorName ->
+            Http.get
+                { url =
+                    if page == Mobile then
+                        "/api/mobile/sessions/" ++ String.fromInt id ++ ".json?sensor_name=" ++ sensorName
 
+                    else
+                        "/api/fixed/sessions/" ++ String.fromInt id ++ ".json?sensor_name=" ++ sensorName
+                , expect = Http.expectJson toCmd decoder
+                }
 
-fetch : String -> Page -> Int -> (Result Http.Error SelectedSession -> msg) -> Cmd msg
-fetch sensorId page id toCmd =
-    Http.get
-        { url =
-            if page == Mobile then
-                "/api/mobile/sessions/" ++ String.fromInt id ++ ".json?sensor_name=" ++ sensorNameFromId sensorId
-
-            else
-                "/api/fixed/sessions/" ++ String.fromInt id ++ ".json?sensor_name=" ++ sensorNameFromId sensorId
-        , expect = Http.expectJson toCmd decoder
-        }
+        Nothing ->
+            Cmd.none
 
 
 view : SelectedSession -> WebData HeatMapThresholds -> Html msg
