@@ -3,11 +3,13 @@ module Data.SelectedSession exposing (SelectedSession, decoder, fetch, sensorNam
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
 import Data.Session
+import Data.Times as Times
 import Html exposing (Html, div, p, span, text)
 import Html.Attributes exposing (class)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import RemoteData exposing (WebData)
+import Time exposing (Posix)
 
 
 type alias SelectedSession =
@@ -17,8 +19,8 @@ type alias SelectedSession =
     , average : Float
     , min : Float
     , max : Float
-    , startTime : String
-    , endTime : String
+    , startTime : Posix
+    , endTime : Posix
     , measurements : List Float
     , id : Int
     }
@@ -31,13 +33,13 @@ decoder =
         (Decode.field "username" Decode.string)
         (Decode.field "sensor_name" Decode.string)
         (Decode.field "average" (Decode.nullable Decode.float) |> Decode.map (Maybe.withDefault -1))
-        (Decode.field "startTime" Decode.string)
-        (Decode.field "endTime" Decode.string)
+        (Decode.field "startTime" Decode.int |> Decode.map Time.millisToPosix)
+        (Decode.field "endTime" Decode.int |> Decode.map Time.millisToPosix)
         (Decode.field "measurements" (Decode.list Decode.float))
         (Decode.field "id" Decode.int)
 
 
-toSelectedSession : String -> String -> String -> Float -> String -> String -> List Float -> Int -> SelectedSession
+toSelectedSession : String -> String -> String -> Float -> Posix -> Posix -> List Float -> Int -> SelectedSession
 toSelectedSession title username sensorName average startTime endTime measurements sessionId =
     { title = title
     , username = username
@@ -72,6 +74,10 @@ fetch sensorId page id toCmd =
 
 view : SelectedSession -> WebData HeatMapThresholds -> Html msg
 view session heatMapThresholds =
+    let
+        ( start, end ) =
+            Times.format session.startTime session.endTime
+    in
     div []
         [ p [ class "single-session-name" ] [ text session.title ]
         , p [ class "single-session-username" ] [ text session.username ]
@@ -93,6 +99,6 @@ view session heatMapThresholds =
                 , span [ class "single-session-max" ] [ text <| String.fromFloat session.max ]
                 ]
             ]
-        , span [ class "single-session-start" ] [ text session.startTime, text " " ]
-        , span [ class "single-session-end" ] [ text session.endTime ]
+        , span [ class "single-session-start" ] [ text start, text " " ]
+        , span [ class "single-session-end" ] [ text end ]
         ]

@@ -7,6 +7,7 @@ import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdVal
 import Data.Page exposing (Page(..))
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
+import Data.Times as Times
 import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes exposing (attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel)
@@ -20,6 +21,7 @@ import Ports
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import String exposing (fromInt)
+import Time exposing (Posix)
 import TimeRange exposing (TimeRange)
 import Url exposing (Url)
 
@@ -183,7 +185,7 @@ type Msg
     | TogglePopupState
     | UrlChange Url
     | UrlRequest Browser.UrlRequest
-    | UpdateSessions (List Session)
+    | UpdateSessions Encode.Value
     | LoadMoreSessions
     | UpdateIsHttping Bool
     | ToggleIndoor
@@ -276,8 +278,12 @@ update msg model =
                 External url ->
                     ( model, Browser.Navigation.load url )
 
-        UpdateSessions sessions ->
-            ( { model | sessions = sessions }, Cmd.none )
+        UpdateSessions value ->
+            let
+                sessions =
+                    Decode.decodeValue (Decode.list Data.Session.decoder) value
+            in
+            ( { model | sessions = Result.withDefault [] sessions }, Cmd.none )
 
         LoadMoreSessions ->
             ( model, Ports.loadMoreSessions () )
@@ -648,6 +654,10 @@ viewLoadMore sessionCount =
 
 viewSessionCard : WebData HeatMapThresholds -> Session -> Html Msg
 viewSessionCard heatMapThresholds session =
+    let
+        ( start, end ) =
+            Times.format session.startTime session.endTime
+    in
     div
         [ class "session"
         , Events.onClick <| ToggleSessionSelection session.id
@@ -664,9 +674,9 @@ viewSessionCard heatMapThresholds session =
         , p [ class "session-owner" ]
             [ text session.username ]
         , span [ class "session-dates" ]
-            [ text session.startTime ]
+            [ text start ]
         , span [ class "session-dates" ]
-            [ text session.endTime ]
+            [ text end ]
         ]
 
 
