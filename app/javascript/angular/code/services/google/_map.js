@@ -123,10 +123,6 @@ export const map = (
       return this.mapObj.getZoom();
     },
 
-    streetViewVisible: function(zoom) {
-      return this.mapObj.getStreetView().getVisible();
-    },
-
     drawRectangles: function(data, thresholds, clickCallback){
       var self = this;
       rectangles.draw(data, thresholds);
