@@ -100,6 +100,7 @@ export const FixedSessionsMapCtrl = (
 
       elmApp.ports.toggleStreaming.subscribe(isStreaming => {
         params.update({ data: { isStreaming: isStreaming } });
+        resetTimeRangeFilter();
         $scope.sessions.fetch();
       });
 
@@ -142,12 +143,16 @@ export const FixedSessionsMapCtrl = (
       );
 
       elmApp.ports.refreshTimeRange.subscribe(() => {
+        resetTimeRangeFilter();
+      });
+
+      const resetTimeRangeFilter = () => {
         FiltersUtils.setupTimeRangeFilter(
           onTimeRangeChanged,
           FiltersUtils.defaultTimeFrom(params.get("data").isStreaming),
           FiltersUtils.defaultTimeTo(params.get("data").isStreaming)
         );
-      });
+      };
 
       FiltersUtils.setupClipboard();
 
