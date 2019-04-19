@@ -530,9 +530,9 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         [ p [] [ text text_ ]
         , input
             [ id <| "heatmap-" ++ text_
-            , type_ "number"
+            , type_ "text"
             , value <| String.fromInt value_
-            , Events.onInput toMsg
+            , onChange toMsg
             ]
             []
         , p [ id <| "heatmap-unit-" ++ text_ ] [ text sensorUnit ]
