@@ -682,7 +682,7 @@ viewTests =
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| id "heatmap-min" ]
-                    |> Event.simulate (Event.custom "input" <| simulatedEventObject min)
+                    |> Event.simulate (Event.custom "change" <| simulatedEventObject min)
                     |> Event.expect (UpdateHeatMapMinimum min)
         , fuzz string "when heatmap maximum changes UpdateHeatMapMaximum is triggered" <|
             \max ->
@@ -690,7 +690,7 @@ viewTests =
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| id "heatmap-max" ]
-                    |> Event.simulate (Event.custom "input" <| simulatedEventObject max)
+                    |> Event.simulate (Event.custom "change" <| simulatedEventObject max)
                     |> Event.expect (UpdateHeatMapMaximum max)
         , fuzz int "heatMapThresholds threshold1 is used as a value for the heatmap minimum input" <|
             \min ->
