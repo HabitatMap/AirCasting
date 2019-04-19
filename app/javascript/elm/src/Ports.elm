@@ -60,7 +60,7 @@ port updateResolution : Int -> Cmd a
 port selectSensorId : String -> Cmd a
 
 
-port updateSessions : (List Session -> msg) -> Sub msg
+port updateSessions : (Encode.Value -> msg) -> Sub msg
 
 
 port toggleSession : { deselected : Maybe Int, selected : Maybe Int } -> Cmd msg

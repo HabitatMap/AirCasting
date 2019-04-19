@@ -9,6 +9,7 @@ import Fuzz exposing (bool, float, int, intRange, list, string)
 import Html exposing (text)
 import Html.Attributes exposing (checked, class, disabled, for, href, id, value)
 import Html.Attributes.Aria exposing (ariaLabel)
+import Iso8601
 import Json.Encode as Encode
 import LabelsInput
 import Main exposing (..)
@@ -20,6 +21,7 @@ import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Slc
+import Time
 import TimeRange
 
 
@@ -594,8 +596,8 @@ session : Session
 session =
     { title = "title"
     , id = 1
-    , startTime = "start time"
-    , endTime = "end time"
+    , startTime = Time.millisToPosix 0
+    , endTime = Time.millisToPosix 0
     , username = "username"
     , shortTypes = shortTypes
     , average = Nothing
@@ -619,8 +621,8 @@ selectedSession =
     , average = 2.0
     , min = 1.0
     , max = 3.0
-    , startTime = "start time"
-    , endTime = "end time"
+    , startTime = Time.millisToPosix 0
+    , endTime = Time.millisToPosix 0
     , measurements = [ 1.0, 2.0, 3.0 ]
     , id = 123
     }
@@ -727,14 +729,23 @@ viewTests =
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.all expected ]
-        , fuzz2 string string "with selection the session startTime and endTime is shown" <|
-            \startTime endTime ->
+        , test "with selection the session startTime and endTime is shown" <|
+            \_ ->
                 let
+                    start =
+                        Iso8601.toTime "2010-12-31T09:08:00.000Z"
+                            |> Result.withDefault (Time.millisToPosix 0)
+
+                    end =
+                        Iso8601.toTime "2011-12-31T13:22:00.000Z"
+                            |> Result.withDefault (Time.millisToPosix 0)
+
                     selectedSession_ =
-                        { selectedSession | startTime = startTime, endTime = endTime }
+                        { selectedSession | startTime = start, endTime = end }
 
                     expected =
-                        List.map (\x -> Slc.containing [ Slc.text x ]) [ startTime, endTime ]
+                        List.map (\x -> Slc.containing [ Slc.text x ])
+                            [ "12/31/2010, 09:08", "12/31/2011, 13:22" ]
                 in
                 { defaultModel | selectedSession = Success selectedSession_ }
                     |> view
@@ -832,20 +843,40 @@ updateTests =
                     |> update (ToggleSessionSelection id)
                     |> Tuple.second
                     |> Expect.equal expected
-        , fuzz int "UpdateSessions replaces sessions in the model" <|
+        , fuzz int "UpdateSessions decodes the encoded value and replaces sessions in the model" <|
             \id ->
                 let
                     model =
                         { defaultModel | sessions = [ sessionWithId id ], selectedSession = NotAsked }
 
+                    newSession =
+                        { id = id + 1
+                        , title = "title"
+                        , startTime = Time.millisToPosix 0
+                        , endTime = Time.millisToPosix 0
+                        , username = "username"
+                        , shortTypes = []
+                        , average = Nothing
+                        }
+
                     newSessions =
-                        [ sessionWithId (id + 1) ]
+                        Encode.list identity
+                            [ Encode.object
+                                [ ( "title", Encode.string "title" )
+                                , ( "id", Encode.int <| id + 1 )
+                                , ( "startTime", Encode.int 0 )
+                                , ( "endTime", Encode.int 0 )
+                                , ( "username", Encode.string "username" )
+                                , ( "shortTypes", Encode.list identity [] )
+                                , ( "average", Encode.null )
+                                ]
+                            ]
                 in
                 model
                     |> update (UpdateSessions newSessions)
                     |> Tuple.first
                     |> .sessions
-                    |> Expect.equal newSessions
+                    |> Expect.equal [ newSession ]
         , fuzz int "LoadMoreSessions delegates to javascript" <|
             \id ->
                 let
