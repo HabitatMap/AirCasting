@@ -105,7 +105,9 @@ export const fixedSessions = (
             bounds: map.getBounds(),
             zoom: map.getZoom()
           };
-          map.fitBounds(calculateBounds(sensors, allSelected, map.getZoom()));
+          map.fitBoundsWithBottomPadding(
+            calculateBounds(sensors, allSelected, map.getZoom())
+          );
         }
       };
       this._selectSession(id, fitBounds);

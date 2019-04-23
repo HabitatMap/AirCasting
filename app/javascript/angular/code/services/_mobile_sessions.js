@@ -120,7 +120,9 @@ export const mobileSessions = (
           this.drawSessionWithLabel(session, sensorName);
         const draw = () =>
           drawSession.drawMobileSession(session, drawSessionStartingMarker);
-        map.fitBounds(calculateBounds(sensors, allSelected, map.getZoom()));
+        map.fitBoundsWithBottomPadding(
+          calculateBounds(sensors, allSelected, map.getZoom())
+        );
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       };
       this._selectSession(id, callback);

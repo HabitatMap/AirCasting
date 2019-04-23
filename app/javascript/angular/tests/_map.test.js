@@ -333,6 +333,10 @@ const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
       calls.push(arg);
       count += 1;
     },
+    fitBoundsWithBottomPadding: (_, arg) => {
+      calls.push(arg);
+      count += 1;
+    },
     wasCalled: () => count === 1,
     wasFitBoundsCalledWith: arg => deepEqual(arg, calls[calls.length - 1]),
     listen: event => {
