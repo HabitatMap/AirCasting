@@ -7,7 +7,7 @@ module Data.HeatMapThresholds exposing
     , fetch
     , fromValues
     , rangeFor
-    , resetToDefaults
+    , toDefaults
     , toValues
     , updateFromValues
     , updateMaximum
@@ -97,8 +97,8 @@ rangeFor i thresholds =
         Range6
 
 
-resetToDefaults : HeatMapThresholds -> HeatMapThresholds
-resetToDefaults heatMapThresholds =
+toDefaults : HeatMapThresholds -> HeatMapThresholds
+toDefaults heatMapThresholds =
     { threshold1 = resetThresholdValueToDefault heatMapThresholds.threshold1
     , threshold2 = resetThresholdValueToDefault heatMapThresholds.threshold2
     , threshold3 = resetThresholdValueToDefault heatMapThresholds.threshold3
