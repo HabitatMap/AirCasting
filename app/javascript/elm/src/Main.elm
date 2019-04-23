@@ -380,7 +380,7 @@ update msg model =
                 Success thresholds ->
                     let
                         newThresholds =
-                            HeatMapThresholds.resetToDefaults thresholds
+                            HeatMapThresholds.toDefaults thresholds
                     in
                     ( { model | heatMapThresholds = Success newThresholds }
                     , Ports.updateHeatMapThresholds <| HeatMapThresholds.toValues newThresholds
