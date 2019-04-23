@@ -1,5 +1,5 @@
-import _ from 'underscore';
-import {keysToLowerCase} from '../utils.js';
+import _ from "underscore";
+import { keysToLowerCase } from "../utils.js";
 
 export const sessionsUtils = (
   params,
@@ -8,13 +8,19 @@ export const sessionsUtils = (
   flash,
   updateCrowdMapLayer
 ) => ({
-  sessionsChanged: function (self, newIds, oldIds) {
-    _(newIds).chain().difference(oldIds).each(_(self.selectSession).bind(self));
-    _(oldIds).chain().difference(newIds).each(_(self.deselectSession).bind(self));
+  sessionsChanged: function(self, newIds, oldIds) {
+    _(newIds)
+      .chain()
+      .difference(oldIds)
+      .each(_(self.selectSession).bind(self));
+    _(oldIds)
+      .chain()
+      .difference(newIds)
+      .each(_(self.deselectSession).bind(self));
   },
 
   get: function(self) {
-    return _.uniq(self.sessions, 'id');
+    return _.uniq(self.sessions, "id");
   },
 
   allSessionIds: function(self) {
@@ -37,27 +43,27 @@ export const sessionsUtils = (
     updateCrowdMapLayer.call(sessionIds);
   },
 
-  onSessionsFetchError: function(data){
-    var errorMsg = data.error || 'There was an error, sorry' ;
+  onSessionsFetchError: function(data) {
+    var errorMsg = data.error || "There was an error, sorry";
     flash.set(errorMsg);
   },
 
   find: function(self, id) {
-    return _(self.sessions || []).detect(function(session){
+    return _(self.sessions || []).detect(function(session) {
       return session.id === id;
     });
   },
 
   deselectAllSessions: function() {
-    params.update({selectedSessionIds: []});
+    params.update({ selectedSessionIds: [] });
   },
 
   selectAllSessions: function(self) {
-    params.update({selectedSessionIds: self.allSessionIds()});
+    params.update({ selectedSessionIds: self.allSessionIds() });
   },
 
-  reSelectAllSessions: function(self){
-    _(params.get('selectedSessionIds')).each(function(id){
+  reSelectAllSessions: function(self) {
+    _(params.get("selectedSessionIds")).each(function(id) {
       self.reSelectSession(id);
     });
   },
@@ -66,25 +72,29 @@ export const sessionsUtils = (
     return _(self.allSelected()).include(session);
   },
 
-  allSelected: function(self){
-    return _(self.allSelectedIds()).chain().map(function(id){
-      return self.find(id);
-    }).compact().value();
+  allSelected: function(self) {
+    return _(self.allSelectedIds())
+      .chain()
+      .map(function(id) {
+        return self.find(id);
+      })
+      .compact()
+      .value();
   },
 
   allSelectedIds: function() {
-    return params.get('selectedSessionIds');
+    return params.get("selectedSessionIds");
   },
 
   onSingleSessionFetch: function(session, data, callback) {
-    createSessionData(session, data)
+    createSessionData(session, data);
     session.loaded = true;
     callback();
     this.updateCrowdMapLayer([session.id]);
   },
 
   onSingleSessionFetchWithoutCrowdMap: function(session, data, callback) {
-    createSessionData(session, data)
+    createSessionData(session, data);
     session.loaded = true;
     callback();
   }
@@ -95,4 +105,4 @@ const createSessionData = (session, data) => {
   delete data.streams;
   _(session).extend(data);
   _(session.streams).extend(streams);
-}
+};

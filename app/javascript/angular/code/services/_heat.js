@@ -1,9 +1,8 @@
 export const heat = ($rootScope, params, storage) => {
-
   var Heat = function() {
     var self = this;
     this.namesBySensor = ["very_low", "low", "medium", "high", "very_high"];
-    this.namesByApp =  ["lowest",  "low",  "mid", "high", "highest" ];
+    this.namesByApp = ["lowest", "low", "mid", "high", "highest"];
     this.colors = {
       highest: "#FE6465",
       high: "#FEB065",
@@ -13,23 +12,33 @@ export const heat = ($rootScope, params, storage) => {
     this.heatPercentage = {};
     this.scope = $rootScope.$new();
     this.scope.params = params;
-    this.scope.$watch("params.get('data').heat", function(newValue, oldValue) {
-      console.log("watch - params.get('data').heat");
-      if(!newValue || _(newValue).isEmpty()){
-        return;
-      }
-      var value = newValue;
-      var scale =  value.highest - value.lowest;
-      var percentageHeat = {
-        highest: Math.round((1.0 * (value.highest - value.high) / scale) * 100),
-        high :  Math.round((1.0 * (value.high - value.mid) / scale) * 100),
-        mid : Math.round((1.0 * (value.mid - value.low) / scale ) * 100)
-      };
-      percentageHeat.low =  (100 - percentageHeat.highest - percentageHeat.high - percentageHeat.mid);
-      _(["highest", "high", "mid", "low"]).each(function(heat){
-        self.heatPercentage[heat] = {width: percentageHeat[heat] + "%"};
-      });
-    }, true);
+    this.scope.$watch(
+      "params.get('data').heat",
+      function(newValue, oldValue) {
+        console.log("watch - params.get('data').heat");
+        if (!newValue || _(newValue).isEmpty()) {
+          return;
+        }
+        var value = newValue;
+        var scale = value.highest - value.lowest;
+        var percentageHeat = {
+          highest: Math.round(
+            ((1.0 * (value.highest - value.high)) / scale) * 100
+          ),
+          high: Math.round(((1.0 * (value.high - value.mid)) / scale) * 100),
+          mid: Math.round(((1.0 * (value.mid - value.low)) / scale) * 100)
+        };
+        percentageHeat.low =
+          100 -
+          percentageHeat.highest -
+          percentageHeat.high -
+          percentageHeat.mid;
+        _(["highest", "high", "mid", "low"]).each(function(heat) {
+          self.heatPercentage[heat] = { width: percentageHeat[heat] + "%" };
+        });
+      },
+      true
+    );
   };
 
   Heat.prototype = {
@@ -40,10 +49,10 @@ export const heat = ($rootScope, params, storage) => {
       return (this.getValues() || {})[name];
     },
     getValues: function() {
-      return params.get('data').heat;
+      return params.get("data").heat;
     },
     parse: function(heat) {
-      var parsedHeat = _(heat).map(function(item){
+      var parsedHeat = _(heat).map(function(item) {
         return _.str.toNumber(item);
       });
       return {
@@ -58,8 +67,8 @@ export const heat = ($rootScope, params, storage) => {
     toLevels: function() {
       var self = this;
       var levels = [];
-      _(this.namesByApp).each(function(name, idx){
-        if(idx === 0) {
+      _(this.namesByApp).each(function(name, idx) {
+        if (idx === 0) {
           return;
         }
         levels.push({
@@ -73,11 +82,11 @@ export const heat = ($rootScope, params, storage) => {
     toSensoredList: function(sensor) {
       var self = this;
       if (!sensor) return [];
-      return _(this.namesBySensor).map(function(name){
+      return _(this.namesBySensor).map(function(name) {
         return _.str.toNumber(sensor["threshold_" + name]);
       });
     },
-    getLevel: function(value){
+    getLevel: function(value) {
       if (value < this.getValue("lowest")) {
         return null;
       } else if (value <= this.getValue("low")) {
@@ -93,7 +102,7 @@ export const heat = ($rootScope, params, storage) => {
       }
     },
 
-    levelName: function(value){
+    levelName: function(value) {
       if (value < this.getValue("lowest")) {
         return "default";
       } else if (value <= this.getValue("low")) {
@@ -109,7 +118,9 @@ export const heat = ($rootScope, params, storage) => {
       }
     },
     outsideOfScope: function(value) {
-      return (value < this.getValue("lowest")) || (value > this.getValue("highest"))
+      return (
+        value < this.getValue("lowest") || value > this.getValue("highest")
+      );
     }
   };
 

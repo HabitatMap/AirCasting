@@ -1,23 +1,16 @@
-angular.module("aircasting").factory('singleFixedSession', [
-  'fixedSessions',
-  'sensors',
-  'storage',
-  'heat',
-  'drawSession',
-  function(
-    fixedSessions,
-    sensors,
-    storage,
-    heat,
-    drawSession
-  ) {
-    var SingleFixedSession = function() {
-    };
+angular.module("aircasting").factory("singleFixedSession", [
+  "fixedSessions",
+  "sensors",
+  "storage",
+  "heat",
+  "drawSession",
+  function(fixedSessions, sensors, storage, heat, drawSession) {
+    var SingleFixedSession = function() {};
     SingleFixedSession.prototype = {
-      isSingle : function() {
+      isSingle: function() {
         return this.noOfSelectedSessions() == 1;
       },
-      noOfSelectedSessions : function() {
+      noOfSelectedSessions: function() {
         return fixedSessions.allSelected().length;
       },
       get: function() {
@@ -29,35 +22,46 @@ angular.module("aircasting").factory('singleFixedSession', [
       startTime: function() {
         return this.get().start_time_local;
       },
-      withSelectedSensor: function(){
+      withSelectedSensor: function() {
         return !!this.get().streams[sensors.anySelected().sensor_name];
       },
       selectedStream: function() {
         return this.get().streams[sensors.anySelected().sensor_name];
       },
-      measurements: function(){
-        return  drawSession.measurements(this.get());
+      measurements: function() {
+        return drawSession.measurements(this.get());
       },
-      measurementsToTime: function(measurements){
+      measurementsToTime: function(measurements) {
         var x;
         var result = {};
         // 1 hour subtraction is a quick and dirty fix for the winter time - should be fixed properly
         var start_date = new Date(this.startTime()).getTime();
 
-        result[start_date + ""] = {x: start_date, y: null, latitude: null, longitude: null};
+        result[start_date + ""] = {
+          x: start_date,
+          y: null,
+          latitude: null,
+          longitude: null
+        };
 
-        _(measurements).each(function(measurement){
-          x = moment(measurement.time,"YYYY-MM-DDTHH:mm:ss").utcOffset(0, true).valueOf();
-          result[x + ""] = {x: x,
+        _(measurements).each(function(measurement) {
+          x = moment(measurement.time, "YYYY-MM-DDTHH:mm:ss")
+            .utcOffset(0, true)
+            .valueOf();
+          result[x + ""] = {
+            x: x,
             y: measurement.value,
             latitude: measurement.latitude,
-            longitude: measurement.longitude};
+            longitude: measurement.longitude
+          };
         });
         return result;
       },
       updateHeat: function() {
-        var data = heat.toSensoredList(this.get().streams[sensors.anySelected().sensor_name]);
-        storage.updateDefaults({heat: heat.parse(data)});
+        var data = heat.toSensoredList(
+          this.get().streams[sensors.anySelected().sensor_name]
+        );
+        storage.updateDefaults({ heat: heat.parse(data) });
         storage.reset("heat");
       },
       isFixed: function() {
@@ -65,4 +69,5 @@ angular.module("aircasting").factory('singleFixedSession', [
       }
     };
     return new SingleFixedSession();
-  }]);
+  }
+]);

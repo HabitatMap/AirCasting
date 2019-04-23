@@ -1,6 +1,5 @@
-angular.module("aircasting").factory('flash', function() {
-  var Flash = function() {
-  };
+angular.module("aircasting").factory("flash", function() {
+  var Flash = function() {};
 
   Flash.prototype = {
     set: function(message) {
@@ -13,4 +12,3 @@ angular.module("aircasting").factory('flash', function() {
 
   return new Flash();
 });
-

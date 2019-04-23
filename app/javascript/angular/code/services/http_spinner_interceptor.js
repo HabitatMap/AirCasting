@@ -13,7 +13,7 @@ const httpSpinnerInterceptor = ($q, $log) => {
     },
     requestError: rejection => {
       update(-1);
-      $log.error('Request error:', rejection);
+      $log.error("Request error:", rejection);
       return $q.reject(rejection);
     },
     response: response => {
@@ -22,10 +22,12 @@ const httpSpinnerInterceptor = ($q, $log) => {
     },
     responseError: rejection => {
       update(-1);
-      $log.error('Response error:', rejection);
+      $log.error("Response error:", rejection);
       return $q.reject(rejection);
     }
   };
 };
 
-angular.module('aircasting').service('http_spinner_interceptor', ['$q', '$log', httpSpinnerInterceptor ]);
+angular
+  .module("aircasting")
+  .service("http_spinner_interceptor", ["$q", "$log", httpSpinnerInterceptor]);

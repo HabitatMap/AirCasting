@@ -1,65 +1,94 @@
-import {keysToLowerCase} from '../utils.js';
+import { keysToLowerCase } from "../utils.js";
 
-angular.module("aircasting").factory("sessionsDownloader", ['$rootScope', '$http', '$timeout', 'orderByFilter', function ($rootScope, $http, $timeout, orderBy) {
-
-  var fetch = function (url, reqData, sessions, params, refreshSessionsCallback, errorCallback) {
-    var successCallback = function (data) {
-      preprocessData(data, sessions, params);
-      refreshSessionsCallback();
+angular.module("aircasting").factory("sessionsDownloader", [
+  "$rootScope",
+  "$http",
+  "$timeout",
+  "orderByFilter",
+  function($rootScope, $http, $timeout, orderBy) {
+    var fetch = function(
+      url,
+      reqData,
+      sessions,
+      params,
+      refreshSessionsCallback,
+      errorCallback
+    ) {
+      var successCallback = function(data) {
+        preprocessData(data, sessions, params);
+        refreshSessionsCallback();
+      };
+      fetchPage(url, reqData, params.page, successCallback, errorCallback);
     };
-    fetchPage(url, reqData, params.page, successCallback, errorCallback);
-  };
 
-  var fetchPage = function (url, reqData, page, success, error) {
-    $http.get(url, {cache: true, params : {q: reqData, page_size: reqData.page_size, page: page}}).success(success).error(error);
-  };
+    var fetchPage = function(url, reqData, page, success, error) {
+      $http
+        .get(url, {
+          cache: true,
+          params: { q: reqData, page_size: reqData.page_size, page: page }
+        })
+        .success(success)
+        .error(error);
+    };
 
-  var completeSessions = function(data) {
-    var sessions = _.reject(data, function(session) {
-      return _.isEmpty(session.streams);
-    });
-
-    sessions = _.reject(sessions, function(session) {
-      return _.some(_.values(session.streams), function(stream) {
-        return stream.size === 0;
+    var completeSessions = function(data) {
+      var sessions = _.reject(data, function(session) {
+        return _.isEmpty(session.streams);
       });
-    });
 
-    return sessions;
-  };
+      sessions = _.reject(sessions, function(session) {
+        return _.some(_.values(session.streams), function(stream) {
+          return stream.size === 0;
+        });
+      });
 
-  var preprocessData = function (data, sessions, params) {
-    var times;
-    var sessionIds = _(params.get('selectedSessionIds') || []);
-    $rootScope.sessionsCount = data.length;
+      return sessions;
+    };
 
-    data = completeSessions(data);
+    var preprocessData = function(data, sessions, params) {
+      var times;
+      var sessionIds = _(params.get("selectedSessionIds") || []);
+      $rootScope.sessionsCount = data.length;
 
-    _(data).each(function(session){
-      if(session.start_time_local && session.end_time_local) {
-        session.startTime = moment(session.start_time_local).utc().valueOf();
-        session.endTime = moment(session.end_time_local).utc().valueOf();
-      }
+      data = completeSessions(data);
 
-      session.streams = keysToLowerCase(session.streams)
+      _(data).each(function(session) {
+        if (session.start_time_local && session.end_time_local) {
+          session.startTime = moment(session.start_time_local)
+            .utc()
+            .valueOf();
+          session.endTime = moment(session.end_time_local)
+            .utc()
+            .valueOf();
+        }
 
-      session.shortTypes = _(session.streams).chain().map(function(stream){
-        return {name: stream.measurement_short_type, type: stream.sensor_name};
-      }).sortBy(function(shortType) {
-        return shortType.name.toLowerCase();
-      }).value();
+        session.streams = keysToLowerCase(session.streams);
 
-      setDefaultSessionAttributes(session);
-    });
-    sessions.push.apply(sessions, data);
-    sessions = orderBy(sessions, 'end_time_local');
-  };
+        session.shortTypes = _(session.streams)
+          .chain()
+          .map(function(stream) {
+            return {
+              name: stream.measurement_short_type,
+              type: stream.sensor_name
+            };
+          })
+          .sortBy(function(shortType) {
+            return shortType.name.toLowerCase();
+          })
+          .value();
 
-  return fetch;
-}]);
+        setDefaultSessionAttributes(session);
+      });
+      sessions.push.apply(sessions, data);
+      sessions = orderBy(sessions, "end_time_local");
+    };
+
+    return fetch;
+  }
+]);
 
 const setDefaultSessionAttributes = session => {
   session.markers = [];
   session.lines = [];
   session.noteDrawings = [];
-}
+};

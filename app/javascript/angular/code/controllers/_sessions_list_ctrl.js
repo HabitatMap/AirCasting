@@ -1,5 +1,5 @@
-import _ from 'underscore';
-import { formatSessionForList } from '../values/session'
+import _ from "underscore";
+import { formatSessionForList } from "../values/session";
 
 export const SessionsListCtrl = (
   $scope,
@@ -27,8 +27,8 @@ export const SessionsListCtrl = (
     $scope.sessionsForList = [];
 
     // prolly this can be removed
-    if(_(params.get("selectedSessionIds", [])).isEmpty()){
-      params.update({selectedSessionIds: []});
+    if (_(params.get("selectedSessionIds", [])).isEmpty()) {
+      params.update({ selectedSessionIds: [] });
     }
 
     sessions.reSelectAllSessions();
@@ -37,39 +37,57 @@ export const SessionsListCtrl = (
   $scope.isSessionDisabled = function(sessionId) {
     // disabled if there is another selected session and it is not the selected session
     // when refactoring to a radio button this should always be false
-    return !params.get("selectedSessionIds", []).includes(sessionId) && sessions.hasSelectedSessions();
+    return (
+      !params.get("selectedSessionIds", []).includes(sessionId) &&
+      sessions.hasSelectedSessions()
+    );
   };
 
   $scope.sessionFetchCondition = function() {
-    return {id:  sensors.selectedId(), params: params.getWithout('data', 'heat')};
+    return {
+      id: sensors.selectedId(),
+      params: params.getWithout("data", "heat")
+    };
   };
 
   $scope.updateSessionsPage = function() {
     $scope.page++;
   };
 
-  $scope.$watch("page", () => {
-    console.log("watch - page");
-    sessions.fetch($scope.page);
-  }, true);
+  $scope.$watch(
+    "page",
+    () => {
+      console.log("watch - page");
+      sessions.fetch($scope.page);
+    },
+    true
+  );
 
-  $scope.$watch("params.get('map')", ({ hasChangedProgrammatically }) => {
-    console.log("watch - params.get('map')");
-    if (sessions.hasSelectedSessions()) return;
-    if (!hasChangedProgrammatically) $scope.page = 0;
-    sessions.fetch($scope.page);
-  }, true);
+  $scope.$watch(
+    "params.get('map')",
+    ({ hasChangedProgrammatically }) => {
+      console.log("watch - params.get('map')");
+      if (sessions.hasSelectedSessions()) return;
+      if (!hasChangedProgrammatically) $scope.page = 0;
+      sessions.fetch($scope.page);
+    },
+    true
+  );
 
-  $scope.$watch("sessionFetchCondition()", (newValue, oldValue) => {
-    console.log("watch - sessionFetchCondition()", newValue, oldValue);
-    if (sessions.hasSelectedSessions()) return;
-    $scope.page = 0;
-    sessions.fetch($scope.page);
-  }, true);
+  $scope.$watch(
+    "sessionFetchCondition()",
+    (newValue, oldValue) => {
+      console.log("watch - sessionFetchCondition()", newValue, oldValue);
+      if (sessions.hasSelectedSessions()) return;
+      $scope.page = 0;
+      sessions.fetch($scope.page);
+    },
+    true
+  );
 
   $scope.canSelectSession = function(sessionId) {
     const session = sessions.find(sessionId);
-    if(sessions.hasSelectedSessions()){
+    if (sessions.hasSelectedSessions()) {
       flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
       return false;
     } else {
@@ -79,43 +97,51 @@ export const SessionsListCtrl = (
 
   $scope.newSessionsForList = function() {
     return $scope.sessions.get().map(formatSessionForList);
-  }
+  };
 
-  $scope.$watch("newSessionsForList()", function(newSessions, oldSessions) {
-    console.log("newSessionsForList()", newSessions, oldSessions);
-    $scope.sessionsForList = newSessions;
-    elmApp.ports.updateSessions.send(newSessions.map(formatSessionForElm));
-  }, true);
+  $scope.$watch(
+    "newSessionsForList()",
+    function(newSessions, oldSessions) {
+      console.log("newSessionsForList()", newSessions, oldSessions);
+      $scope.sessionsForList = newSessions;
+      elmApp.ports.updateSessions.send(newSessions.map(formatSessionForElm));
+    },
+    true
+  );
 
-  $scope.$on('markerSelected', function(event, data){
+  $scope.$on("markerSelected", function(event, data) {
     $scope.toggleSession(data.session_id, true);
     $scope.$apply();
   });
 
   $scope.toggleSession = function(sessionId, markerSelected) {
-    if(this.isSessionDisabled(sessionId)){
+    if (this.isSessionDisabled(sessionId)) {
       flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
       return;
     }
     var session = sessions.find(sessionId);
-    if(sessions.isSelected(session)) {
-      params.update({selectedSessionIds: []});
+    if (sessions.isSelected(session)) {
+      params.update({ selectedSessionIds: [] });
       elmApp.ports.toggleSessionSelection.send(null);
-    } else if($scope.canSelectSession(sessionId)) {
-      params.update({selectedSessionIds: [sessionId]});
+    } else if ($scope.canSelectSession(sessionId)) {
+      params.update({ selectedSessionIds: [sessionId] });
       $scope.markerSelected.set(markerSelected);
       elmApp.ports.toggleSessionSelection.send(sessionId);
     }
   };
 
-  $scope.$watch("params.get('selectedSessionIds')", function(newIds, oldIds) {
-    console.log("watch - params.get('selectedSessionIds')");
-    sessions.sessionsChanged(newIds, oldIds);
-  }, true);
+  $scope.$watch(
+    "params.get('selectedSessionIds')",
+    function(newIds, oldIds) {
+      console.log("watch - params.get('selectedSessionIds')");
+      sessions.sessionsChanged(newIds, oldIds);
+    },
+    true
+  );
 
   $scope.setDefaults();
 
-  if (process.env.NODE_ENV !== 'test') {
+  if (process.env.NODE_ENV !== "test") {
     angular.element(document).ready(() => {
       elmApp.ports.toggleSession.subscribe(({ selected, deselected }) => {
         if (deselected) $scope.toggleSession(deselected, true);
@@ -128,23 +154,24 @@ export const SessionsListCtrl = (
         $scope.$apply();
       });
 
-      elmApp.ports.updateHeatMapThresholds.subscribe(({ threshold1, threshold2, threshold3, threshold4, threshold5 }) => {
-        const heat = {
-          lowest: threshold1,
-          low: threshold2,
-          mid: threshold3,
-          high: threshold4,
-          highest: threshold5
-        };
-        params.update({ data: { heat } });
-        $scope.$apply();
-      });
+      elmApp.ports.updateHeatMapThresholds.subscribe(
+        ({ threshold1, threshold2, threshold3, threshold4, threshold5 }) => {
+          const heat = {
+            lowest: threshold1,
+            low: threshold2,
+            mid: threshold3,
+            high: threshold4,
+            highest: threshold5
+          };
+          params.update({ data: { heat } });
+          $scope.$apply();
+        }
+      );
     });
-  };
-}
+  }
+};
 
-const formatSessionForElm = s =>
-  ({
-    ...s,
-    shortTypes: s.shortTypes.map(({ name, type }) => ({ name, type_: type }))
-  });
+const formatSessionForElm = s => ({
+  ...s,
+  shortTypes: s.shortTypes.map(({ name, type }) => ({ name, type_: type }))
+});

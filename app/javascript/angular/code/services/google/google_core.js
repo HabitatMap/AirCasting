@@ -1,8 +1,7 @@
-angular.module("google").factory('googleCore', function() {
+angular.module("google").factory("googleCore", function() {
   return {
-    geocoder: function(){
+    geocoder: function() {
       return new google.maps.Geocoder();
     }
   };
 });
-
