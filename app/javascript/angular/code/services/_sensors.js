@@ -1,7 +1,12 @@
-import _ from 'underscore';
+import _ from "underscore";
 
 const buildSensorId = sensor =>
-  sensor.measurement_type + "-" + sensor.sensor_name.toLowerCase() + " (" + sensor.unit_symbol + ")";
+  sensor.measurement_type +
+  "-" +
+  sensor.sensor_name.toLowerCase() +
+  " (" +
+  sensor.unit_symbol +
+  ")";
 
 const DEFAULT_SENSOR_ID = buildSensorId({
   measurement_type: "Particulate Matter",
@@ -22,8 +27,8 @@ export const sensors = (params, storage, heat, $http) => {
     setSensors: function(data) {
       var sensors = {};
       var self = this;
-      _(data).each(function(sensor){
-        sensor.id =  buildSensorId(sensor);
+      _(data).each(function(sensor) {
+        sensor.id = buildSensorId(sensor);
         sensor.label = sensor.sensor_name + " (" + sensor.unit_symbol + ")";
 
         sensor.sensor_name = sensor.sensor_name.toLowerCase();
@@ -42,22 +47,22 @@ export const sensors = (params, storage, heat, $http) => {
     },
 
     initSelected: function() {
-      console.log('initSelected()')
+      console.log("initSelected()");
 
-      if(_(params.get('data').sensorId).isNull()) {
-        console.log('initSelected() - sensorId is null')
-        params.update({data: {sensorId: DEFAULT_SENSOR_ID }});
+      if (_(params.get("data").sensorId).isNull()) {
+        console.log("initSelected() - sensorId is null");
+        params.update({ data: { sensorId: DEFAULT_SENSOR_ID } });
       } else {
-        console.log('initSelected() - sensorId is NOT null')
+        console.log("initSelected() - sensorId is NOT null");
       }
     },
 
     selected: function() {
-        return this.sensors[params.get('data').sensorId || DEFAULT_SENSOR_ID];
+      return this.sensors[params.get("data").sensorId || DEFAULT_SENSOR_ID];
     },
 
     selectedId: function() {
-        return params.get('data').sensorId || DEFAULT_SENSOR_ID;
+      return params.get("data").sensorId || DEFAULT_SENSOR_ID;
     },
 
     anySelected: function() {
@@ -69,10 +74,12 @@ export const sensors = (params, storage, heat, $http) => {
       return sensor.sensor_name;
     },
     findSensorById: function(id) {
-      return this.sensors[id]
+      return this.sensors[id];
     },
     findParameterForSensor: function(sensor) {
-      return _(this.availableParameters).find(function(parameter) { return (parameter.id == sensor["measurement_type"]) });
+      return _(this.availableParameters).find(function(parameter) {
+        return parameter.id == sensor["measurement_type"];
+      });
     },
     buildSensorId: function(sensor) {
       return buildSensorId(sensor);
@@ -85,19 +92,21 @@ export const sensors = (params, storage, heat, $http) => {
       if (!sensor) return;
 
       const callback = data => {
-        storage.updateDefaults({heat: heat.parse(data)});
-        params.update({data: {heat: heat.parse(data)}});
+        storage.updateDefaults({ heat: heat.parse(data) });
+        params.update({ data: { heat: heat.parse(data) } });
       };
-      $http.get('/api/thresholds/' + sensor.sensor_name, {
-        params: { unit_symbol: sensor.unit_symbol },
-        cache: true
-      }).success(callback);
+      $http
+        .get("/api/thresholds/" + sensor.sensor_name, {
+          params: { unit_symbol: sensor.unit_symbol },
+          cache: true
+        })
+        .success(callback);
     }
   };
   return new Sensors();
 };
 
 const max = (valueOf, xs) => {
-  const reducer = (acc, x) => valueOf(x) > valueOf(acc) ? x : acc;
+  const reducer = (acc, x) => (valueOf(x) > valueOf(acc) ? x : acc);
   return xs.reduce(reducer, xs[0]);
 };

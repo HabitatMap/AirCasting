@@ -1,9 +1,9 @@
-import _ from 'underscore';
-import { debounce } from 'debounce';
-import constants from '../constants';
-import * as Session from '../values/session'
-import { clusterer } from '../clusterer'
-import { calculateBounds } from '../calculateBounds'
+import _ from "underscore";
+import { debounce } from "debounce";
+import constants from "../constants";
+import * as Session from "../values/session";
+import { clusterer } from "../clusterer";
+import { calculateBounds } from "../calculateBounds";
 
 export const mobileSessions = (
   params,
@@ -29,7 +29,7 @@ export const mobileSessions = (
     zoom: map.getZoom()
   };
 
-  const TIMEOUT_DELAY = process.env.NODE_ENV === 'test' ? 0 : 3000;
+  const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 3000;
 
   MobileSessions.prototype = {
     sessionIds: function() {
@@ -39,37 +39,60 @@ export const mobileSessions = (
       return this.noOfSelectedSessions() > 0;
     },
 
-    allSelected: function() { return sessionsUtils.allSelected(this); },
+    allSelected: function() {
+      return sessionsUtils.allSelected(this);
+    },
 
-    allSelectedIds: function() { return sessionsUtils.allSelectedIds(); },
+    allSelectedIds: function() {
+      return sessionsUtils.allSelectedIds();
+    },
 
-    allSessionIds: function() { return sessionsUtils.allSessionIds(this) },
+    allSessionIds: function() {
+      return sessionsUtils.allSessionIds(this);
+    },
 
-    deselectAllSessions: function() { sessionsUtils.deselectAllSessions(); },
+    deselectAllSessions: function() {
+      sessionsUtils.deselectAllSessions();
+    },
 
-    find: function(id) { return sessionsUtils.find(this, id); },
+    find: function(id) {
+      return sessionsUtils.find(this, id);
+    },
 
-    get: function(){ return sessionsUtils.get(this); },
+    get: function() {
+      return sessionsUtils.get(this);
+    },
 
-    isSelected: function(session) { return sessionsUtils.isSelected(this, session); },
+    isSelected: function(session) {
+      return sessionsUtils.isSelected(this, session);
+    },
 
-    noOfSelectedSessions : function() { return sessionsUtils.noOfSelectedSessions(this); },
+    noOfSelectedSessions: function() {
+      return sessionsUtils.noOfSelectedSessions(this);
+    },
 
-    onSessionsFetchError: function(data){ sessionsUtils.onSessionsFetchError(data); },
+    onSessionsFetchError: function(data) {
+      sessionsUtils.onSessionsFetchError(data);
+    },
 
-    reSelectAllSessions: function(){ sessionsUtils.reSelectAllSessions(this); },
+    reSelectAllSessions: function() {
+      sessionsUtils.reSelectAllSessions(this);
+    },
 
-    selectAllSessions: function() { sessionsUtils.selectAllSessions(this); },
+    selectAllSessions: function() {
+      sessionsUtils.selectAllSessions(this);
+    },
 
-    sessionsChanged: function (newIds, oldIds) { sessionsUtils.sessionsChanged(this, newIds, oldIds); },
-
+    sessionsChanged: function(newIds, oldIds) {
+      sessionsUtils.sessionsChanged(this, newIds, oldIds);
+    },
 
     onSessionsFetch: function() {
-      if($window.location.pathname !== constants.mobileMapRoute) return;
+      if ($window.location.pathname !== constants.mobileMapRoute) return;
 
       if (!params.isCrowdMapOn()) {
         this.drawSessionsInLocation();
-      };
+      }
       sessionsUtils.onSessionsFetch(this);
     },
 
@@ -87,17 +110,19 @@ export const mobileSessions = (
     },
 
     selectSession: function(id) {
-      const callback = (session, allSelected) => (data) => {
+      const callback = (session, allSelected) => data => {
         drawSession.clear(this.sessions);
         prevMapPosition = {
           bounds: map.getBounds(),
           zoom: map.getZoom()
         };
-        const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
-        const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMarker);
+        const drawSessionStartingMarker = (session, sensorName) =>
+          this.drawSessionWithLabel(session, sensorName);
+        const draw = () =>
+          drawSession.drawMobileSession(session, drawSessionStartingMarker);
         map.fitBounds(calculateBounds(sensors, allSelected, map.getZoom()));
         sessionsUtils.onSingleSessionFetch(session, data, draw);
-      }
+      };
       this._selectSession(id, callback);
     },
 
@@ -106,11 +131,13 @@ export const mobileSessions = (
       // this must happen before everything else, otherwise the session is drawn on the map and removed right away
       drawSession.clear(this.sessions);
       setTimeout(() => {
-        const callback = (session, allSelected) => (data) => {
-          const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
-          const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMarker);
+        const callback = (session, allSelected) => data => {
+          const drawSessionStartingMarker = (session, sensorName) =>
+            this.drawSessionWithLabel(session, sensorName);
+          const draw = () =>
+            drawSession.drawMobileSession(session, drawSessionStartingMarker);
           sessionsUtils.onSingleSessionFetch(session, data, draw);
-        }
+        };
         this._selectSession(id, callback);
       }, TIMEOUT_DELAY);
     },
@@ -119,7 +146,8 @@ export const mobileSessions = (
       const session = this.find(id);
       if (!session) return;
 
-      const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
+      const drawSessionStartingMarker = (session, sensorName) =>
+        this.drawSessionWithLabel(session, sensorName);
 
       drawSession.drawMobileSession(session, drawSessionStartingMarker);
     },
@@ -128,8 +156,8 @@ export const mobileSessions = (
       if (!sensors.anySelected()) return;
 
       const sessions = this.get();
-      const sessionsToCluster = []
-      sessions.forEach((session) => {
+      const sessionsToCluster = [];
+      sessions.forEach(session => {
         sessionsToCluster.push({
           latLng: Session.startingLatLng(session, sensors.selectedSensorName()),
           object: session
@@ -140,10 +168,10 @@ export const mobileSessions = (
       const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
 
       clusteredSessions.forEach(session => {
-        this.drawSessionWithoutLabel(session, sensors.selectedSensorName())
+        this.drawSessionWithoutLabel(session, sensors.selectedSensorName());
       });
       lonelySessions.forEach(session => {
-        this.drawSessionWithLabel(session, sensors.selectedSensorName())
+        this.drawSessionWithLabel(session, sensors.selectedSensorName());
       });
     },
 
@@ -151,16 +179,19 @@ export const mobileSessions = (
       drawSession.undoDraw(session);
       session.markers = [];
 
-      const heatLevel = heat.levelName(Session.roundedAverage(session, selectedSensor));
+      const heatLevel = heat.levelName(
+        Session.roundedAverage(session, selectedSensor)
+      );
       const latLng = Session.startingLatLng(session, selectedSensor);
-      const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
+      const callback = id => () =>
+        $rootScope.$broadcast("markerSelected", { session_id: id });
 
       const marker = map.drawCustomMarker({
-          object: { latLng },
-          colorClass: heatLevel,
-          callback: callback(Session.id(session)),
-          type: 'marker'
-        });
+        object: { latLng },
+        colorClass: heatLevel,
+        callback: callback(Session.id(session)),
+        type: "marker"
+      });
       session.markers.push(marker);
     },
 
@@ -169,33 +200,38 @@ export const mobileSessions = (
       session.markers = [];
 
       const content = Session.averageValueAndUnit(session, selectedSensor);
-      const heatLevel = heat.levelName(Session.roundedAverage(session, selectedSensor));
+      const heatLevel = heat.levelName(
+        Session.roundedAverage(session, selectedSensor)
+      );
       const latLng = Session.startingLatLng(session, selectedSensor);
-      const callback = (id) => () => $rootScope.$broadcast('markerSelected', {session_id: id});
+      const callback = id => () =>
+        $rootScope.$broadcast("markerSelected", { session_id: id });
 
       const marker = map.drawCustomMarker({
-          object: { latLng },
-          content: content,
-          colorClass: heatLevel,
-          callback: callback(Session.id(session)),
-          type: 'data-marker'
-        });
+        object: { latLng },
+        content: content,
+        colorClass: heatLevel,
+        callback: callback(Session.id(session)),
+        type: "data-marker"
+      });
       session.markers.push(marker);
     },
 
     _selectSession: function(id, callback) {
       const allSelected = this.allSelected();
       var session = this.find(id);
-      if(!session || session.alreadySelected) return;
+      if (!session || session.alreadySelected) return;
       var sensorId = sensors.selectedId();
       var sensor = sensors.sensors[sensorId] || {};
       var sensorName = sensor.sensor_name;
       if (!sensorName) return;
       session.alreadySelected = true;
-      $http.get('/api/sessions/' + id, {
-        cache : true,
-        params: { sensor_id: sensorName }
-      }).success(callback(session, allSelected));
+      $http
+        .get("/api/sessions/" + id, {
+          cache: true,
+          params: { sensor_id: sensorName }
+        })
+        .success(callback(session, allSelected));
     },
 
     _fetch: function(page) {
@@ -203,14 +239,14 @@ export const mobileSessions = (
       if ($window.location.pathname !== constants.mobileMapRoute) return;
 
       var bounds = map.getBounds();
-      var data = params.get('data');
-      var sessionIds = _.values(params.get('selectedSessionIds') || []);
+      var data = params.get("data");
+      var sessionIds = _.values(params.get("selectedSessionIds") || []);
       if (!data.timeFrom || !data.timeTo) return;
       var reqData = {
-        time_from:  data.timeFrom,
-        time_to:  data.timeTo,
-        tags:  data.tags,
-        usernames:  data.usernames,
+        time_from: data.timeFrom,
+        time_to: data.timeTo,
+        tags: data.tags,
+        usernames: data.usernames,
         session_ids: sessionIds
       };
 
@@ -221,33 +257,46 @@ export const mobileSessions = (
         north: bounds.north
       });
 
-      if(sensors.selected()){
+      if (sensors.selected()) {
         _(reqData).extend({
-          sensor_name:  sensors.selected().sensor_name,
-          measurement_type:  sensors.selected().measurement_type,
-          unit_symbol:  sensors.selected().unit_symbol,
+          sensor_name: sensors.selected().sensor_name,
+          measurement_type: sensors.selected().measurement_type,
+          unit_symbol: sensors.selected().unit_symbol
         });
       }
 
-      _(params).extend({page: page});
+      _(params).extend({ page: page });
 
       drawSession.clear(this.sessions);
 
       if (page === 0) {
         this.sessions = [];
         // seems to be called for selected sessions; thus, only when loading the app with selections in the url
-        sessionsDownloader('/api/multiple_sessions.json', reqData, this.sessions, params, _(this.onSessionsFetch).bind(this),
-          _(this.onSessionsFetchError).bind(this));
+        sessionsDownloader(
+          "/api/multiple_sessions.json",
+          reqData,
+          this.sessions,
+          params,
+          _(this.onSessionsFetch).bind(this),
+          _(this.onSessionsFetchError).bind(this)
+        );
       }
 
-      sessionsDownloader('/api/sessions.json', reqData, this.sessions, params, _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this),
-        _(this.onSessionsFetchError).bind(this));
-
+      sessionsDownloader(
+        "/api/sessions.json",
+        reqData,
+        this.sessions,
+        params,
+        _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this),
+        _(this.onSessionsFetchError).bind(this)
+      );
     },
 
-    fetch: debounce(function(page) { this._fetch(page) }, 750)
+    fetch: debounce(function(page) {
+      this._fetch(page);
+    }, 750)
   };
   return new MobileSessions();
-}
+};
 
-const isNotIn = arr => x => !(arr.includes(x))
+const isNotIn = arr => x => !arr.includes(x);

@@ -1,25 +1,18 @@
-angular.module("aircasting").factory('singleMobileSession', [
-  'mobileSessions',
-  'sensors',
-  'storage',
-  'drawSession',
-  'heat',
-  function(
-    mobileSessions,
-    sensors,
-    storage,
-    drawSession,
-    heat
-  ) {
-    var SingleMobileSession = function() {
-    };
+angular.module("aircasting").factory("singleMobileSession", [
+  "mobileSessions",
+  "sensors",
+  "storage",
+  "drawSession",
+  "heat",
+  function(mobileSessions, sensors, storage, drawSession, heat) {
+    var SingleMobileSession = function() {};
 
     SingleMobileSession.prototype = {
       isSingle: function() {
         return this.noOfSelectedSessions() == 1;
       },
 
-      noOfSelectedSessions : function() {
+      noOfSelectedSessions: function() {
         return mobileSessions.allSelected().length;
       },
 
@@ -27,30 +20,36 @@ angular.module("aircasting").factory('singleMobileSession', [
         return _(mobileSessions.allSelected()).first();
       },
 
-      withSelectedSensor: function(){
+      withSelectedSensor: function() {
         return !!this.get().streams[sensors.anySelected().sensor_name];
       },
 
-      measurements: function(){
-        return  drawSession.measurements(this.get());
+      measurements: function() {
+        return drawSession.measurements(this.get());
       },
 
-      measurementsToTime: function(){
+      measurementsToTime: function() {
         var x;
         var result = {};
-        _(this.measurements()).each(function(measurement){
-          x = moment(measurement.time,"YYYY-MM-DDTHH:mm:ss").utcOffset(0, true).valueOf();
-          result[x + ""] = {x: x,
+        _(this.measurements()).each(function(measurement) {
+          x = moment(measurement.time, "YYYY-MM-DDTHH:mm:ss")
+            .utcOffset(0, true)
+            .valueOf();
+          result[x + ""] = {
+            x: x,
             y: measurement.value,
             latitude: measurement.latitude,
-            longitude: measurement.longitude};
+            longitude: measurement.longitude
+          };
         });
         return result;
       },
 
       updateHeat: function() {
-        var data = heat.toSensoredList(this.get().streams[sensors.anySelected().sensor_name]);
-        storage.updateDefaults({heat: heat.parse(data)});
+        var data = heat.toSensoredList(
+          this.get().streams[sensors.anySelected().sensor_name]
+        );
+        storage.updateDefaults({ heat: heat.parse(data) });
         storage.reset("heat");
       },
 
@@ -59,4 +58,5 @@ angular.module("aircasting").factory('singleMobileSession', [
       }
     };
     return new SingleMobileSession();
-  }]);
+  }
+]);

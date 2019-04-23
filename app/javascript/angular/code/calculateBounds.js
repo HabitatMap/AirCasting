@@ -32,7 +32,7 @@ export const calculateBounds_ = pixelsToLength => (sensors, sessions, zoom) => {
 
   if (!north) return;
 
-  return {north, east, south, west};
+  return { north, east, south, west };
 };
 
 export const calculateBounds = calculateBounds_(pixelsToLength);

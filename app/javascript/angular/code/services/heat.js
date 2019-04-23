@@ -1,3 +1,5 @@
-import { heat } from './_heat';
+import { heat } from "./_heat";
 
-angular.module("aircasting").factory('heat', ['$rootScope', 'params', 'storage', heat]);
+angular
+  .module("aircasting")
+  .factory("heat", ["$rootScope", "params", "storage", heat]);

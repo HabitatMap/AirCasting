@@ -1,5 +1,5 @@
-import _ from 'underscore';
-import { buildCustomMarker } from './custom_marker';
+import _ from "underscore";
+import { buildCustomMarker } from "./custom_marker";
 import MarkerClusterer from "@google/markerclustererplus";
 
 export const map = (
@@ -10,9 +10,9 @@ export const map = (
   rectangles,
   geocoder,
   googleMaps,
-  heat,
+  heat
 ) => {
-  const TIMEOUT_DELAY = process.env.NODE_ENV === 'test' ? 0 : 1000;
+  const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
   let hasChangedProgrammatically = false;
 
   var Map = function() {};
@@ -22,12 +22,18 @@ export const map = (
       this.mapObj = googleMaps.init(element, options);
       this.markers = [];
       this.listen("idle", this.saveViewport);
-      this.listen("visible_changed", function(){$rootScope.$digest();}, this.mapObj.getStreetView());
+      this.listen(
+        "visible_changed",
+        function() {
+          $rootScope.$digest();
+        },
+        this.mapObj.getStreetView()
+      );
       this.listen("maptypeid_changed", _(this.onMapTypeIdChanged).bind(this));
       rectangles.init(this.mapObj);
     },
 
-    get: function(){
+    get: function() {
       return this.mapObj;
     },
 
@@ -35,9 +41,9 @@ export const map = (
       return $cookieStore.get(name);
     },
 
-    getBounds: function(){
+    getBounds: function() {
       var bounds = this.mapObj.getBounds();
-      if(bounds) {
+      if (bounds) {
         return {
           west: bounds.getSouthWest().lng(),
           east: bounds.getNorthEast().lng(),
@@ -66,7 +72,7 @@ export const map = (
       geocoder.get(address, callback);
     },
 
-    saveViewport: function(){
+    saveViewport: function() {
       var zoom = this.getZoom();
       var lat = this.mapObj.getCenter().lat();
       var lng = this.mapObj.getCenter().lng();
@@ -75,7 +81,15 @@ export const map = (
       $cookieStore.put("vp_lat", lat);
       $cookieStore.put("vp_lng", lng);
       $cookieStore.put("vp_mapType", mapType);
-      params.update({map: {zoom: zoom, lat: lat, lng: lng, mapType: mapType, hasChangedProgrammatically}});
+      params.update({
+        map: {
+          zoom: zoom,
+          lat: lat,
+          lng: lng,
+          mapType: mapType,
+          hasChangedProgrammatically
+        }
+      });
       hasChangedProgrammatically = false;
       digester();
     },
@@ -84,9 +98,10 @@ export const map = (
       if (!bounds) return;
       if (!(bounds.north && bounds.east && bounds.south && bounds.west)) return;
 
-      const northeast = (bounds.north == 200 && bounds.east == 200) ?
-        googleMaps.latLng(50.09024, -90.712891) : // refresh with an indoor session selected goes to US
-        googleMaps.latLng(bounds.north, bounds.east);
+      const northeast =
+        bounds.north == 200 && bounds.east == 200
+          ? googleMaps.latLng(50.09024, -90.712891) // refresh with an indoor session selected goes to US
+          : googleMaps.latLng(bounds.north, bounds.east);
       const southwest = googleMaps.latLng(bounds.south, bounds.west);
       const latLngBounds = googleMaps.latLngBounds(southwest, northeast);
       hasChangedProgrammatically = true;
@@ -102,7 +117,7 @@ export const map = (
 
     onMapTypeIdChanged: function() {
       var mapType = this.mapObj.getMapTypeId();
-      params.update({map: {mapType: mapType}});
+      params.update({ map: { mapType: mapType } });
       digester();
     },
 
@@ -111,7 +126,7 @@ export const map = (
       return googleMaps.listen(diffmap || this.mapObj, name, cb);
     },
 
-    unregisterAll: function(){
+    unregisterAll: function() {
       googleMaps.unlistenPanOrZoom(this.mapObj);
     },
 
@@ -123,22 +138,26 @@ export const map = (
       return this.mapObj.getZoom();
     },
 
-    drawRectangles: function(data, thresholds, clickCallback){
+    drawRectangles: function(data, thresholds, clickCallback) {
       var self = this;
       rectangles.draw(data, thresholds);
-      _(rectangles.get()).each(function(rectangle){
-        self.listen('click', function(){
-          clickCallback({
-            north: rectangle.data.north,
-            south: rectangle.data.south,
-            west: rectangle.data.west,
-            east: rectangle.data.east
-          });
-        }, rectangle);
+      _(rectangles.get()).each(function(rectangle) {
+        self.listen(
+          "click",
+          function() {
+            clickCallback({
+              north: rectangle.data.north,
+              south: rectangle.data.south,
+              west: rectangle.data.west,
+              east: rectangle.data.east
+            });
+          },
+          rectangle
+        );
       });
     },
 
-    drawMarker: function({ position, title, zIndex, icon }){
+    drawMarker: function({ position, title, zIndex, icon }) {
       var newMarker = new google.maps.Marker({ position, title, zIndex, icon });
 
       newMarker.setMap(this.get());
@@ -147,8 +166,20 @@ export const map = (
       return newMarker;
     },
 
-    drawCustomMarker: function({ object, content, colorClass, callback, type }) {
-      const customMarker = buildCustomMarker(object, content, colorClass, callback, type );
+    drawCustomMarker: function({
+      object,
+      content,
+      colorClass,
+      callback,
+      type
+    }) {
+      const customMarker = buildCustomMarker(
+        object,
+        content,
+        colorClass,
+        callback,
+        type
+      );
 
       customMarker.setMap(this.get());
       this.markers.push(customMarker);
@@ -159,25 +190,31 @@ export const map = (
     clusterMarkers: function(onClick) {
       const options = {
         styles: [
-          { url: '/assets/marker1.svg', height: 30, width: 30 },
-          { url: '/assets/marker2.svg', height: 30, width: 30 },
-          { url: '/assets/marker3.svg', height: 30, width: 30 },
-          { url: '/assets/marker4.svg', height: 30, width: 30 },
+          { url: "/assets/marker1.svg", height: 30, width: 30 },
+          { url: "/assets/marker2.svg", height: 30, width: 30 },
+          { url: "/assets/marker3.svg", height: 30, width: 30 },
+          { url: "/assets/marker4.svg", height: 30, width: 30 }
         ],
         zoomOnClick: false,
         gridSize: 20,
         maxZoom: 21,
-        calculator: (markers) => {
+        calculator: markers => {
           // calculator returns an index value that is used to select the corresponding style from the styles array by: styles[index -1]
           // documented at: https://htmlpreview.github.io/?https://github.com/googlemaps/v3-utility-library/blob/master/markerclustererplus/docs/reference.html
-          const average = markers.reduce((sum, marker) => sum + marker.value(), 0) / markers.length
-          return { text: "", index: heat.getLevel(Math.round(average)) }
+          const average =
+            markers.reduce((sum, marker) => sum + marker.value(), 0) /
+            markers.length;
+          return { text: "", index: heat.getLevel(Math.round(average)) };
         }
       };
 
-      const markerClusterer = new MarkerClusterer(this.mapObj, this.markers, options);
+      const markerClusterer = new MarkerClusterer(
+        this.mapObj,
+        this.markers,
+        options
+      );
 
-      googleMaps.listen(markerClusterer, 'clusterclick', onClick);
+      googleMaps.listen(markerClusterer, "clusterclick", onClick);
       this.clusterer = markerClusterer;
     },
 
@@ -186,11 +223,11 @@ export const map = (
     },
 
     zoomToSelectedCluster: function() {
-      googleMaps.fitBounds(this.mapObj,  this.selectedCluster.bounds_)
+      googleMaps.fitBounds(this.mapObj, this.selectedCluster.bounds_);
     },
 
     removeMarker: function(marker) {
-      if(!marker){
+      if (!marker) {
         return;
       }
       marker.setMap(null);
@@ -203,8 +240,8 @@ export const map = (
       this.markers = [];
     },
 
-    drawLine: function(data){
-      var points = _(data).map(function(latLngObj){
+    drawLine: function(data) {
+      var points = _(data).map(function(latLngObj) {
         return new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
       });
       var lineOptions = {
@@ -222,7 +259,9 @@ export const map = (
       rectangles.clear();
     },
 
-    fromLatLngToPoint: function(latLng) { return googleMaps.fromLatLngToPoint(this.mapObj, latLng); },
+    fromLatLngToPoint: function(latLng) {
+      return googleMaps.fromLatLngToPoint(this.mapObj, latLng);
+    }
   };
 
   return new Map();

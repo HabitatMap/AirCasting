@@ -10,37 +10,37 @@
 const initAngular = () => {
   if (!document.getElementById("elm-app")) return setTimeout(initAngular, 100);
 
-  window.jQuery = window.$ = require('jquery');
-  require('jquery-migrate');
-  window.moment = require('moment');
-  require('../angular/libs/jquery_ui/jquery.ui.core');
-  require('../angular/libs/jquery_ui/jquery.ui.widget');
-  require('../angular/libs/jquery_ui/jquery.ui.mouse');
-  require('../angular/libs/jquery_ui/jquery.ui.position');
-  require('../angular/libs/jquery_ui/jquery.ui.slider');
-  require('../angular/libs/jquery_ui/jquery.ui.autocomplete');
-  require('../angular/libs/jquery_ui/jquery.ui.dialog');
-  require('../angular/libs/jquery_ui/jquery.ui.daterangepicker');
-  require('angular');
-  require('angular-cookies');
-  window._ = require('underscore');
-  window._.str = require('underscore.string');
-  window.Highcharts = require('highcharts/highstock');
-  require('../angular/libs/jquery.lightbox-0.5');
-  require('../angular/code/aircasting');
+  window.jQuery = window.$ = require("jquery");
+  require("jquery-migrate");
+  window.moment = require("moment");
+  require("../angular/libs/jquery_ui/jquery.ui.core");
+  require("../angular/libs/jquery_ui/jquery.ui.widget");
+  require("../angular/libs/jquery_ui/jquery.ui.mouse");
+  require("../angular/libs/jquery_ui/jquery.ui.position");
+  require("../angular/libs/jquery_ui/jquery.ui.slider");
+  require("../angular/libs/jquery_ui/jquery.ui.autocomplete");
+  require("../angular/libs/jquery_ui/jquery.ui.dialog");
+  require("../angular/libs/jquery_ui/jquery.ui.daterangepicker");
+  require("angular");
+  require("angular-cookies");
+  window._ = require("underscore");
+  window._.str = require("underscore.string");
+  window.Highcharts = require("highcharts/highstock");
+  require("../angular/libs/jquery.lightbox-0.5");
+  require("../angular/code/aircasting");
 
   var req = require.context("../angular/code/services", true, /\.js$/);
-  req.keys().forEach(function(key){
+  req.keys().forEach(function(key) {
     req(key);
   });
 
   var req = require.context("../angular/code/directives", true, /\.js$/);
-  req.keys().forEach(function(key){
+  req.keys().forEach(function(key) {
     req(key);
   });
 
   var req = require.context("../angular/code/controllers", true, /\.js$/);
-  req.keys().forEach(function(key){
+  req.keys().forEach(function(key) {
     req(key);
   });
 };

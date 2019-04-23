@@ -1,6 +1,6 @@
-import * as MapSettings from '../directives/map_settings'
+import * as MapSettings from "../directives/map_settings";
 
-angular.module('aircasting').directive('googlemap', function() {
+angular.module("aircasting").directive("googlemap", function() {
   return {
     link: function(scope, element) {
       // United States
@@ -11,11 +11,11 @@ angular.module('aircasting').directive('googlemap', function() {
       };
 
       var map = scope.map;
-      var params = scope.params.get('map') || {};
-      var lat = params.lat || map.getMapCookie('vp_lat') || point.lat;
-      var lng = params.lng || map.getMapCookie('vp_lng') || point.lng;
+      var params = scope.params.get("map") || {};
+      var lat = params.lat || map.getMapCookie("vp_lat") || point.lat;
+      var lng = params.lng || map.getMapCookie("vp_lng") || point.lng;
       var latlng = new google.maps.LatLng(lat, lng);
-      var zoom = params.zoom || map.getMapCookie('vp_zoom') || point.zoom;
+      var zoom = params.zoom || map.getMapCookie("vp_zoom") || point.zoom;
       var mapType = params.mapType || google.maps.MapTypeId.roadmap;
       const minZoom = 3;
       var options = {
@@ -43,7 +43,7 @@ angular.module('aircasting').directive('googlemap', function() {
         streetViewControlOptions: {
           position: google.maps.ControlPosition.TOP_CENTER
         },
-        fullscreenControl: false,
+        fullscreenControl: false
       };
       map.init(element[0], options);
     }

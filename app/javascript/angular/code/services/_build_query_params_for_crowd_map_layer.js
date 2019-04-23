@@ -1,12 +1,8 @@
-export const buildQueryParamsForCrowdMapLayer = (
-  sensors,
-  params,
-  utils
-) => ({
+export const buildQueryParamsForCrowdMapLayer = (sensors, params, utils) => ({
   call: (sessionIds, bounds) => {
     if (!sensors.selected()) return false;
     if (!hasTruthyValues(bounds)) return false;
-    const data = params.get('data');
+    const data = params.get("data");
     if (!data.timeFrom || !data.timeTo) return false;
     if (!data.heat) return false;
     if (!data.gridResolution) return false;
@@ -16,8 +12,8 @@ export const buildQueryParamsForCrowdMapLayer = (
       east: bounds.east,
       south: bounds.south,
       north: bounds.north,
-      time_from:  data.timeFrom,
-      time_to:  data.timeTo,
+      time_from: data.timeFrom,
+      time_to: data.timeTo,
       grid_size_x: utils.gridSizeX(data.gridResolution),
       grid_size_y: data.gridResolution,
       tags: data.tags,
@@ -30,4 +26,4 @@ export const buildQueryParamsForCrowdMapLayer = (
   }
 });
 
-const hasTruthyValues = obj => Object.values(obj).every(x => !!x)
+const hasTruthyValues = obj => Object.values(obj).every(x => !!x);

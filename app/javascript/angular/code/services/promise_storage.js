@@ -1,4 +1,4 @@
-angular.module('aircasting').factory('promiseStorage', function() {
+angular.module("aircasting").factory("promiseStorage", function() {
   var PromiseStorage = function() {
     this.promises = [];
   };
