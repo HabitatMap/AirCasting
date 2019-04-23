@@ -14,10 +14,10 @@ const objectsTooClose = (obj, otherObj, map) => {
     latLng => map.fromLatLngToPoint(latLng),
     map.getZoom()
   );
-  return distance < distanceThreshold;
+  return distance < DISTANCE_THRESHOLD;
 };
 
-const distanceThreshold = 21;
+const DISTANCE_THRESHOLD = 21;
 
 export const distanceBetweenInPixels = (
   latLng1,
