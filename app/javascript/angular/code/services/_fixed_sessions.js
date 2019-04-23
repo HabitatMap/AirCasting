@@ -2,6 +2,7 @@ import _ from 'underscore';
 import { debounce } from 'debounce';
 import constants from '../constants';
 import * as Session from '../values/session'
+import { calculateBounds } from '../calculateBounds'
 
 export const fixedSessions = (
   params,
@@ -11,7 +12,6 @@ export const fixedSessions = (
   $rootScope,
   sessionsDownloader,
   drawSession,
-  boundsCalculator,
   sessionsUtils,
   $window,
   heat,
@@ -82,7 +82,7 @@ export const fixedSessions = (
             bounds: map.getBounds(),
             zoom: map.getZoom()
           };
-          map.fitBounds(boundsCalculator(allSelected));
+          map.fitBounds(calculateBounds(sensors, allSelected, map.getZoom()));
         }
       };
       this._selectSession(id, fitBounds);
