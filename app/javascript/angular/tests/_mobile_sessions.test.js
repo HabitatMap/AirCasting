@@ -227,8 +227,8 @@ test("selectSession after successfully fetching calls drawSession.drawMobileSess
   t.end();
 });
 
-test("selectSession after successfully fetching calls map.fitBounds", t => {
-  const map = mock("fitBounds");
+test("selectSession after successfully fetching calls map.fitBoundsWithBottomPadding", t => {
+  const map = mock("fitBoundsWithBottomPadding");
   const mobileSessionsService = _mobileSessions({
     map,
     sensors: { sensors: { 123: { sensor_name: "sensor_name" } } }
@@ -507,6 +507,7 @@ const _mobileSessions = ({
   const _map = {
     getBounds: () => ({}),
     fitBounds: () => {},
+    fitBoundsWithBottomPadding: () => {},
     getZoom: () => {},
     markers: [],
     ...map

@@ -247,8 +247,8 @@ test("hasSelectedSessions with selected session returns true", t => {
   t.end();
 });
 
-test("selectSession with indoor session after successfully fetching calls map.fitBounds", t => {
-  const map = mock("fitBounds");
+test("selectSession with indoor session after successfully fetching calls map.fitBoundsWithBottomPadding", t => {
+  const map = mock("fitBoundsWithBottomPadding");
   const sessionsUtils = { find: () => ({ is_indoor: false }) };
   const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });

@@ -66,7 +66,7 @@ export const map = (
         if (!googleMaps.wasGeocodingSuccessful(status)) return;
 
         const latLngBounds = results[0].geometry.viewport;
-        this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, latLngBounds);
+        this._fitBoundsWithoutPanOrZoomCallback(latLngBounds);
       };
 
       geocoder.get(address, callback);
@@ -95,6 +95,20 @@ export const map = (
     },
 
     fitBounds: function(bounds, zoom) {
+      const fnc = (latLngBounds, zoom) => () =>
+        this._fitBoundsWithoutPanOrZoomCallback(latLngBounds, zoom);
+      this._fitBounds(bounds, zoom, fnc);
+    },
+
+    fitBoundsWithBottomPadding: function(bounds, zoom) {
+      const fnc = (latLngBounds, zoom) => () => {
+        googleMaps.fitBoundsWithBottomPadding(this.mapObj, latLngBounds);
+        if (zoom) this.mapObj.setZoom(zoom);
+      };
+      this._fitBounds(bounds, zoom, fnc);
+    },
+
+    _fitBounds: function(bounds, zoom, fnc) {
       if (!bounds) return;
       if (!(bounds.north && bounds.east && bounds.south && bounds.west)) return;
 
@@ -105,14 +119,24 @@ export const map = (
       const southwest = googleMaps.latLng(bounds.south, bounds.west);
       const latLngBounds = googleMaps.latLngBounds(southwest, northeast);
       hasChangedProgrammatically = true;
-      this._fitBoundsWithoutPanOrZoomCallback(this.mapObj, latLngBounds, zoom);
+      this._withoutPanOrZoomCallback(fnc(latLngBounds, zoom));
     },
 
-    _fitBoundsWithoutPanOrZoomCallback: (mapObj, latLngBounds, zoom) => {
-      googleMaps.unlistenPanOrZoom(mapObj);
-      googleMaps.fitBounds(mapObj, latLngBounds);
-      if (zoom) mapObj.setZoom(zoom);
-      setTimeout(() => googleMaps.relistenPanOrZoom(mapObj), TIMEOUT_DELAY);
+    _fitBoundsWithoutPanOrZoomCallback: function(latLngBounds, zoom) {
+      const fnc = () => {
+        googleMaps.fitBounds(this.mapObj, latLngBounds);
+        if (zoom) this.mapObj.setZoom(zoom);
+      };
+      this._withoutPanOrZoomCallback(fnc);
+    },
+
+    _withoutPanOrZoomCallback: function(fnc) {
+      googleMaps.unlistenPanOrZoom(this.mapObj);
+      fnc();
+      setTimeout(
+        () => googleMaps.relistenPanOrZoom(this.mapObj),
+        TIMEOUT_DELAY
+      );
     },
 
     onMapTypeIdChanged: function() {
