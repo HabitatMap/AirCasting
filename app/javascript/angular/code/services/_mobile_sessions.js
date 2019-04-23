@@ -3,6 +3,7 @@ import { debounce } from 'debounce';
 import constants from '../constants';
 import * as Session from '../values/session'
 import { clusterer } from '../clusterer'
+import { calculateBounds } from '../calculateBounds'
 
 export const mobileSessions = (
   params,
@@ -12,7 +13,6 @@ export const mobileSessions = (
   $rootScope,
   sessionsDownloader,
   drawSession,
-  boundsCalculator,
   sessionsUtils,
   storage,
   heat,
@@ -95,7 +95,7 @@ export const mobileSessions = (
         };
         const drawSessionStartingMarker = (session, sensorName) => this.drawSessionWithLabel(session, sensorName);
         const draw = () => drawSession.drawMobileSession(session, drawSessionStartingMarker);
-        map.fitBounds(boundsCalculator(allSelected));
+        map.fitBounds(calculateBounds(sensors, allSelected, map.getZoom()));
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       }
       this._selectSession(id, callback);

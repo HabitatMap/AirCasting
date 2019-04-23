@@ -543,7 +543,6 @@ const _fixedSessions = ({
     ...sessionsUtils
   };
   const $http = { get: () => ({ success: callback => callback() }) };
-  const boundsCalculator = () => {};
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
   return fixedSessions(
@@ -554,7 +553,6 @@ const _fixedSessions = ({
     $rootScope,
     sessionsDownloader,
     _drawSession,
-    boundsCalculator,
     _sessionsUtils,
     _$window,
     _heat

@@ -8,7 +8,6 @@ angular.module("aircasting").factory('mobileSessions', [
   '$rootScope',
   'sessionsDownloader',
   'drawSession',
-  'boundsCalculator',
   'sessionsUtils',
   'storage',
   'heat',
