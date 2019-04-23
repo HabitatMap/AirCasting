@@ -515,6 +515,7 @@ const _mobileSessions = ({
     selectedId: () => 123,
     selected: () => {},
     sensors: {},
+    anySelected: () => false,
     ...sensors
   };
   const _drawSession = {
@@ -533,7 +534,6 @@ const _mobileSessions = ({
     ...sessionsUtils
   };
   const $http = { get: () => ({ success: callback => callback() }) };
-  const boundsCalculator = () => {};
   const _$window = $window || { location: { pathname: "/mobile_map" } };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
@@ -545,7 +545,6 @@ const _mobileSessions = ({
     $rootScope,
     sessionsDownloader,
     _drawSession,
-    boundsCalculator,
     _sessionsUtils,
     null,
     _heat,
