@@ -87,10 +87,6 @@ angular.module("aircasting").factory("graph", [
             }
           },
 
-          credits: {
-            enabled: false
-          },
-
           navigator: {
             enabled: false
           },
