@@ -147,11 +147,17 @@ export const FixedSessionsMapCtrl = (
       });
 
       const resetTimeRangeFilter = () => {
-        FiltersUtils.setupTimeRangeFilter(
-          onTimeRangeChanged,
-          FiltersUtils.defaultTimeFrom(params.get("data").isStreaming),
-          FiltersUtils.defaultTimeTo(params.get("data").isStreaming)
-        );
+        const timeFrom = params.get("data").isStreaming
+          ? FiltersUtils.oneHourAgo()
+          : FiltersUtils.oneYearAgo();
+
+        const timeTo = params.get("data").isStreaming
+          ? FiltersUtils.presentMoment()
+          : FiltersUtils.endOfToday();
+
+        FiltersUtils.setupTimeRangeFilter(onTimeRangeChanged, timeFrom, timeTo);
+
+        onTimeRangeChanged(timeFrom, timeTo);
       };
 
       FiltersUtils.setupClipboard();
