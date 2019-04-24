@@ -2,13 +2,13 @@ import tippy from "tippy.js";
 import Clipboard from "clipboard";
 import moment from "moment";
 
-const endOfToday = () =>
+export const endOfToday = () =>
   moment()
     .utc()
     .endOf("day")
     .format("X");
 
-const oneYearAgo = () =>
+export const oneYearAgo = () =>
   moment()
     .utc()
     .startOf("day")
@@ -25,22 +25,6 @@ export const oneHourAgo = () =>
     .utc()
     .subtract(1, "hour")
     .format("X");
-
-export const defaultTimeFrom = isStreaming => {
-  if (isStreaming) {
-    return oneHourAgo();
-  } else {
-    return oneYearAgo();
-  }
-};
-
-export const defaultTimeTo = isStreaming => {
-  if (isStreaming) {
-    return presentMoment();
-  } else {
-    return endOfToday();
-  }
-};
 
 export const setupTimeRangeFilter = (callback, timeFrom, timeTo) => {
   if (document.getElementById("time-range")) {
