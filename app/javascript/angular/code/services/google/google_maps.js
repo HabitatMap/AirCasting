@@ -1,3 +1,5 @@
+const SELECTED_SESSION_DIV_HEIGHT = 220;
+
 angular.module("google").factory("googleMaps", [
   () => {
     let onPanOrZoomHandle;
@@ -13,6 +15,14 @@ angular.module("google").factory("googleMaps", [
         status === google.maps.GeocoderStatus.OK,
 
       fitBounds: (mapObj, viewport) => mapObj.fitBounds(viewport),
+
+      fitBoundsWithBottomPadding: (mapObj, viewport) =>
+        mapObj.fitBounds(viewport, {
+          bottom: SELECTED_SESSION_DIV_HEIGHT,
+          top: 0,
+          left: 0,
+          right: 0
+        }),
 
       unlistenPanOrZoom,
 

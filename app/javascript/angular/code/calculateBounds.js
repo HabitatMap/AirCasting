@@ -1,10 +1,4 @@
-import { pixelsToLength } from "./mapsUtils.js";
-
-// The graph is ~220px high. For whatever reason the OFFSET_IN_PIXEL
-// must be 1000 to not have the session path covered by the graph.
-const OFFSET_IN_PIXEL = 1000;
-
-export const calculateBounds_ = pixelsToLength => (sensors, sessions, zoom) => {
+export const calculateBounds = (sensors, sessions) => {
   const maxLat = [];
   const minLat = [];
   const maxLong = [];
@@ -28,11 +22,7 @@ export const calculateBounds_ = pixelsToLength => (sensors, sessions, zoom) => {
   var west = Math.min.apply(null, minLong);
   var east = Math.max.apply(null, maxLong);
 
-  south = south - pixelsToLength(OFFSET_IN_PIXEL, zoom);
-
   if (!north) return;
 
   return { north, east, south, west };
 };
-
-export const calculateBounds = calculateBounds_(pixelsToLength);

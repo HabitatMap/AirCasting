@@ -1,10 +1,10 @@
 import test from "blue-tape";
-import { calculateBounds_ } from "../code/calculateBounds";
+import { calculateBounds } from "../code/calculateBounds";
 
 test("with no selected sensors it returns null", t => {
   const sensors = { anySelected: () => null };
 
-  const actual = calculateBounds_()(sensors);
+  const actual = calculateBounds(sensors);
 
   const expected = undefined;
   t.deepEqual(actual, expected);
@@ -37,10 +37,8 @@ test("returns the correct bounds", t => {
       }
     }
   ];
-  const zoom = 1;
-  const pixelsToLength = () => 0;
 
-  const actual = calculateBounds_(pixelsToLength)(sensors, sessions, zoom);
+  const actual = calculateBounds(sensors, sessions);
 
   const expected = { north: 3, east: 3, south: 1, west: 1 };
   t.deepEqual(actual, expected);
@@ -63,10 +61,8 @@ test("it skips streams with different name than the selected sensor", t => {
       }
     }
   ];
-  const zoom = 1;
-  const pixelsToLength = () => 0;
 
-  const actual = calculateBounds_(pixelsToLength)(sensors, sessions, zoom);
+  const actual = calculateBounds(sensors, sessions);
 
   const expected = {
     north: -Infinity,
