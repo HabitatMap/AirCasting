@@ -3065,9 +3065,9 @@ hasha@^3.0.0:
   dependencies:
     is-stream "^1.0.1"
 
-highcharts@~5.0.0:
-  version "5.0.15"
-  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-5.0.15.tgz#a9af11538a85b85f300e66f7a0e048a7ef8ab381"
+highcharts@~7.1.0:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-7.1.1.tgz#8c4433e39d5e7dbdc064685d9548181a35e12c19"
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
@@ -5473,7 +5473,6 @@ preserve@^0.2.0:
 prettier@1.17.0:
   version "1.17.0"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.17.0.tgz#53b303676eed22cc14a9f0cec09b477b3026c008"
-  integrity sha512-sXe5lSt2WQlCbydGETgfm1YBShgOX4HxQkFPvbxkcwgDvGDeqVau8h+12+lmSVlP3rHPz0oavfddSZg/q+Szjw==
 
 private@^0.1.6, private@^0.1.8:
   version "0.1.8"
