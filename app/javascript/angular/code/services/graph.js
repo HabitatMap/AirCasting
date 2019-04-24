@@ -95,7 +95,10 @@ angular.module("aircasting").factory("graph", [
           ticks,
           scrollbar,
           measurementType: sensor.measurement_type,
-          unitSymbol: sensor.unit_symbol
+          unitSymbol: sensor.unit_symbol,
+          onMouseOverSingle: point => this.onMouseOverSingle(point),
+          onMouseOverMultiple: (start, end) =>
+            this.onMouseOverMultiple(start, end)
         });
 
         _(heat.toLevels()).each(function(level) {
