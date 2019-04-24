@@ -1,4 +1,5 @@
 import Highcharts from "highcharts/highstock";
+import { buildOptions } from "./buildGraphOptions";
 
 angular.module("aircasting").factory("graph", [
   "$q",
@@ -19,7 +20,7 @@ angular.module("aircasting").factory("graph", [
   ) {
     var Graph = function() {};
     let measurementsByTime = {};
-    const ID = "graph";
+    const RENDER_TO_ID = "graph";
 
     Graph.prototype = {
       getInitialData: function() {
@@ -62,172 +63,40 @@ angular.module("aircasting").factory("graph", [
         var mth1 = { count: 1, type: "month", text: "1mth" };
         var all = { type: "all", text: "All" };
 
-        var buttons, selectedButton;
+        const buttons = isFixed
+          ? [hr1, hrs12, hrs24, wk1, mth1, all]
+          : [min1, min5, min30, hr1, hrs12, all];
+        const selectedButton = isFixed ? 2 : 4;
 
-        buttons = [min1, min5, min30, hr1, hrs12, all];
-        selectedButton = 4;
+        const scrollbar = isFixed ? { liveRedraw: false } : {};
 
-        var options = {
-          chart: {
-            renderTo: ID,
-            height: 200,
-            spacingTop: 5,
-            spacingBottom: 5,
-            spacingRight: 0,
-            spacingLeft: 0,
-            marginBottom: 15,
-            marginRight: 5,
-            marginLeft: 5,
-            zoomType: "x"
-          },
-
-          labels: {
-            style: {
-              fontFamily: "Arial,sans-serif"
+        const xAxis = isFixed
+          ? {
+              events: { afterSetExtremes: this.afterSetExtremes },
+              ordinal: false
             }
-          },
+          : {};
 
-          navigator: {
-            enabled: false
-          },
-
-          rangeSelector: {
-            height: 23,
-            buttonSpacing: 5,
-            buttonTheme: {
-              width: 50,
-              height: 15,
-              stroke: "#999999",
-              "stroke-width": 1,
-              style: {
-                fontFamily: "Arial, sans-serif",
-                marginTop: 100
-              },
-
-              states: {
-                select: {
-                  fill: "#D5E9FF"
-                }
-              }
-            },
-
-            labelStyle: {
-              fontWeight: "normal",
-              fontFamily: "Arial, sans-serif"
-            },
-
-            buttons: buttons,
-            inputEnabled: false,
-            selected: selectedButton
-          },
-
-          series: [
-            {
-              name: sensor.measurement_type,
-              data: _(data).values()
-            }
-          ],
-
-          plotOptions: {
-            line: {
-              lineColor: "#FFFFFF",
-              turboThreshold: 9999999, //above that graph will not display,
-              marker: {
-                fillColor: "#007BF2",
-                lineWidth: 0,
-                lineColor: "#007BF2"
-              },
-
-              dataGrouping: {
-                enabled: true,
-                units: [
-                  ["millisecond", []],
-                  ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
-                  ["minute", [1, 2, 3, 4, 5]]
-                ]
-              }
-            }
-          },
-
-          tooltip: {
-            style: {
-              color: "#000000",
-              fontFamily: "Arial,sans-serif"
-            },
-
-            borderWidth: 0,
-            formatter: function() {
-              var pointData = this.points[0];
-              var series = pointData.series;
-              var s =
-                "<span>" + Highcharts.dateFormat("%m/%d/%Y", this.x) + " ";
-              if (series.hasGroupedData) {
-                var groupingDiff = series.currentDataGrouping.totalRange;
-                var xLess = this.x;
-                var xMore = this.x + groupingDiff;
-                s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
-                s +=
-                  Highcharts.dateFormat("%H:%M:%S", xMore - 1000) + "</span>";
-                self.onMouseOverMultiple(xLess, xMore);
-              } else {
-                s += Highcharts.dateFormat("%H:%M:%S", this.x) + "</span>";
-                self.onMouseOverSingle({
-                  latitude: parseFloat(pointData.point.latitude),
-                  longitude: parseFloat(pointData.point.longitude)
-                });
-              }
-              s +=
-                "<br/>" +
-                sensor.measurement_type +
-                " = " +
-                Math.round(pointData.y) +
-                " " +
-                sensor.unit_symbol;
-              return s;
-            }
-          },
-
-          xAxis: {
-            labels: {
-              style: {
-                color: "#000",
-                fontFamily: "Arial, sans-serif"
-              }
-            },
-            minRange: 10000
-          },
-
-          yAxis: {
-            min: low,
-            max: high,
-            startOnTick: true,
-            endOnTick: true,
-            plotBands: [],
-            labels: {
-              style: {
-                color: "#000",
-                fontFamily: "Arial, sans-serif"
-              }
-            },
-            gridLineWidth: 0,
-            minPadding: 0,
-            tickPositions: ticks
+        const series = [
+          {
+            name: sensor.measurement_type,
+            data: _(data).values()
           }
-        };
+        ];
 
-        if (isFixed) {
-          buttons = [hr1, hrs12, hrs24, wk1, mth1, all];
-          selectedButton = 2;
-          _.extend(options.rangeSelector, {
-            buttons: buttons,
-            selected: selectedButton
-          });
-          _.extend(options.xAxis, {
-            events: { afterSetExtremes: this.afterSetExtremes },
-            ordinal: false
-          });
-          _.extend(options.scrollbar, { liveRedraw: false });
-        }
+        const options = buildOptions({
+          renderTo: RENDER_TO_ID,
+          buttons,
+          selectedButton,
+          series,
+          xAxis,
+          low,
+          high,
+          ticks,
+          scrollbar,
+          measurementType: sensor.measurement_type,
+          unitSymbol: sensor.unit_symbol
+        });
 
         _(heat.toLevels()).each(function(level) {
           options.yAxis.plotBands.push({
