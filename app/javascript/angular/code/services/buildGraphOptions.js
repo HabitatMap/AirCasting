@@ -102,7 +102,12 @@ const buildYAxis = ({ low, high, ticks }) => ({
   tickPositions: ticks
 });
 
-const formatter = ({ measurementType, unitSymbol }) =>
+const formatter = ({
+  measurementType,
+  unitSymbol,
+  onMouseOverSingle,
+  onMouseOverMultiple
+}) =>
   function() {
     var pointData = this.points[0];
     var series = pointData.series;
@@ -113,10 +118,10 @@ const formatter = ({ measurementType, unitSymbol }) =>
       var xMore = this.x + groupingDiff;
       s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
       s += Highcharts.dateFormat("%H:%M:%S", xMore - 1000) + "</span>";
-      self.onMouseOverMultiple(xLess, xMore);
+      onMouseOverMultiple(xLess, xMore);
     } else {
       s += Highcharts.dateFormat("%H:%M:%S", this.x) + "</span>";
-      self.onMouseOverSingle({
+      onMouseOverSingle({
         latitude: parseFloat(pointData.point.latitude),
         longitude: parseFloat(pointData.point.longitude)
       });
@@ -131,14 +136,24 @@ const formatter = ({ measurementType, unitSymbol }) =>
     return s;
   };
 
-const buildTooltip = ({ measurementType, unitSymbol }) => ({
+const buildTooltip = ({
+  measurementType,
+  unitSymbol,
+  onMouseOverSingle,
+  onMouseOverMultiple
+}) => ({
   style: {
     color: "#000000",
     fontFamily: "Arial,sans-serif"
   },
 
   borderWidth: 0,
-  formatter: formatter({ measurementType, unitSymbol })
+  formatter: formatter({
+    measurementType,
+    unitSymbol,
+    onMouseOverSingle,
+    onMouseOverMultiple
+  })
 });
 
 export const buildOptions = ({
@@ -152,7 +167,9 @@ export const buildOptions = ({
   ticks,
   scrollbar,
   measurementType,
-  unitSymbol
+  unitSymbol,
+  onMouseOverSingle,
+  onMouseOverMultiple
 }) => ({
   chart: buildChart({ renderTo }),
   labels,
@@ -160,7 +177,12 @@ export const buildOptions = ({
   rangeSelector: buildRangeSelector({ buttons, selected: selectedButton }),
   series,
   plotOptions,
-  tooltip: buildTooltip({ measurementType, unitSymbol }),
+  tooltip: buildTooltip({
+    measurementType,
+    unitSymbol,
+    onMouseOverSingle,
+    onMouseOverMultiple
+  }),
   xAxis: buildXAxis(xAxis),
   yAxis: buildYAxis({ low, high, ticks }),
   scrollbar
