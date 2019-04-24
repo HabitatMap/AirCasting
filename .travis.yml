@@ -24,7 +24,7 @@ addons:
     - libgsl0-dev
 install:
 - bundle install --path=vendor/bundle
-- nvm install node
+- nvm install 8.10
 - node -v
 - npm i -g yarn
 - yarn
