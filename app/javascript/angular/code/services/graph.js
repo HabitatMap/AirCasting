@@ -1,3 +1,5 @@
+import Highcharts from "highcharts/highstock";
+
 angular.module("aircasting").factory("graph", [
   "$q",
   "sensors",

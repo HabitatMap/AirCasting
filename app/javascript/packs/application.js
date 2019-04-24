@@ -25,7 +25,6 @@ const initAngular = () => {
   require("angular-cookies");
   window._ = require("underscore");
   window._.str = require("underscore.string");
-  window.Highcharts = require("highcharts/highstock");
   require("../angular/libs/jquery.lightbox-0.5");
   require("../angular/code/aircasting");
 
