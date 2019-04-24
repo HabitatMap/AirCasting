@@ -1,3 +1,5 @@
+import Highcharts from "highcharts/highstock";
+
 const buildChart = ({ renderTo }) => ({
   renderTo,
   height: 200,
