@@ -564,14 +564,6 @@ toggleStreamingFilter =
                     |> Query.find [ Slc.attribute <| ariaLabel "dormant" ]
                     |> Event.simulate Event.click
                     |> Event.expect ToggleStreaming
-        , test "clicking active button triggers ToggleStreaming" <|
-            \_ ->
-                { defaultModel | page = Fixed }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| ariaLabel "active" ]
-                    |> Event.simulate Event.click
-                    |> Event.expect ToggleStreaming
         , test "when isStreaming is true ToggleStreaming triggers Ports.toggleStreaming with False" <|
             \_ ->
                 { defaultModel | page = Fixed }
