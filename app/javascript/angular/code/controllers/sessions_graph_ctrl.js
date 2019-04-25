@@ -1,12 +1,14 @@
+import * as graphHighlight from "../services/google/graph_highlight";
+
 function SessionsGraphCtrl(
   $scope,
   map,
   graph,
   heat,
   sensors,
-  graphHighlight,
   $window,
-  $timeout
+  $timeout,
+  singleFixedSession
 ) {
   $scope.graph = graph;
   $scope.$window = $window;
@@ -61,8 +63,15 @@ function SessionsGraphCtrl(
     if (!singleSession.withSelectedSensor()) {
       return;
     }
-    if (singleSession.isFixed()) graph.getInitialData();
-    else graph.draw(singleSession.measurementsToTime(), false);
+    if (singleSession.isFixed())
+      graph.getInitialData(sensors.anySelected(), heat, singleFixedSession);
+    else
+      graph.draw(
+        singleSession.measurementsToTime(),
+        false,
+        sensors.anySelected(),
+        heat
+      );
   };
 }
 SessionsGraphCtrl.$inject = [
@@ -71,8 +80,8 @@ SessionsGraphCtrl.$inject = [
   "graph",
   "heat",
   "sensors",
-  "graphHighlight",
   "$window",
-  "$timeout"
+  "$timeout",
+  "singleFixedSession"
 ];
 angular.module("aircasting").controller("SessionsGraphCtrl", SessionsGraphCtrl);

@@ -1,52 +1,41 @@
 import Highcharts from "highcharts/highstock";
 import { buildOptions } from "./buildGraphOptions";
+import * as graphHighlight from "./google/graph_highlight";
+import * as http from "./http";
 
 angular.module("aircasting").factory("graph", [
-  "$q",
-  "sensors",
-  "singleFixedSession",
-  "heat",
-  "graphHighlight",
-  "$http",
-  "promiseStorage",
-  function(
-    $q,
-    sensors,
-    singleFixedSession,
-    heat,
-    graphHighlight,
-    $http,
-    promiseStorage
-  ) {
+  function() {
     var Graph = function() {};
     let measurementsByTime = {};
     const RENDER_TO_ID = "graph";
 
     Graph.prototype = {
-      getInitialData: function() {
+      // fixed
+      getInitialData: function(selectedSensor, heat, singleFixedSession) {
         var self = this;
         var end_date = new Date(singleFixedSession.endTime()).getTime();
         var start_date = end_date - 24 * 60 * 60 * 1000;
 
-        $http
-          .get("/api/realtime/stream_measurements/", {
-            cache: true,
-            params: {
-              stream_ids: singleFixedSession.selectedStream().id,
-              start_date,
-              end_date
-            }
+        http
+          .get("/api/realtime/stream_measurements.json", {
+            stream_ids: singleFixedSession.selectedStream().id,
+            start_date,
+            end_date
           })
-          .success(function(data) {
+          .then(xs => {
             self.draw(
-              singleFixedSession.measurementsToTime(data),
-              singleFixedSession.isFixed()
+              singleFixedSession.measurementsToTime(xs),
+              singleFixedSession.isFixed(),
+              selectedSensor,
+              heat,
+              singleFixedSession
             );
           });
       },
 
-      draw: function(data, isFixed) {
-        var sensor = sensors.anySelected();
+      // fixed and mobile
+      draw: function(data, isFixed, selectedSensor, heat, singleFixedSession) {
+        var sensor = selectedSensor;
         var self = this;
         var low = heat.getValue("lowest");
         var high = heat.getValue("highest");
@@ -72,7 +61,11 @@ angular.module("aircasting").factory("graph", [
 
         const xAxis = isFixed
           ? {
-              events: { afterSetExtremes: this.afterSetExtremes },
+              events: {
+                afterSetExtremes: this.afterSetExtremes(
+                  singleFixedSession
+                ).bind(this)
+              },
               ordinal: false
             }
           : {};
@@ -115,30 +108,27 @@ angular.module("aircasting").factory("graph", [
         measurementsByTime = data;
       },
 
-      afterSetExtremes: function(e) {
-        var self = this;
-        var final_point = {};
-        var end_time = new Date(singleFixedSession.endTime()).getTime();
-        final_point[end_time + ""] = {
-          x: end_time,
-          y: null,
-          latitude: null,
-          longitude: null
-        };
-        self.chart.showLoading("Loading data from server...");
+      afterSetExtremes: singleFixedSession =>
+        function(e) {
+          var self = this;
+          var final_point = {};
+          var end_time = new Date(singleFixedSession.endTime()).getTime();
+          final_point[end_time + ""] = {
+            x: end_time,
+            y: null,
+            latitude: null,
+            longitude: null
+          };
+          self.chart.showLoading("Loading data from server...");
 
-        promiseStorage.push(
-          $http
-            .get("/api/realtime/stream_measurements/", {
-              cache: true,
-              params: {
-                stream_ids: singleFixedSession.selectedStream().id,
-                start_date: Math.round(e.min),
-                // winter time fix
-                end_date: Math.round(e.max)
-              }
+          http
+            .get("/api/realtime/stream_measurements.json", {
+              stream_ids: singleFixedSession.selectedStream().id,
+              start_date: Math.round(e.min),
+              // winter time fix
+              end_date: Math.round(e.max)
             })
-            .success(function(data) {
+            .then(data => {
               data = _.extend(
                 singleFixedSession.measurementsToTime(data),
                 final_point
@@ -146,16 +136,11 @@ angular.module("aircasting").factory("graph", [
               measurementsByTime = data;
               self.chart.series[0].setData(_(data).values(), false);
             })
-        );
-
-        $q.all(promiseStorage.get()).then(function() {
-          promiseStorage.clear();
-          self.chart.redraw();
-          if ($http.pendingRequests.length === 0) {
-            self.chart.hideLoading();
-          }
-        });
-      },
+            .then(() => {
+              self.chart.redraw();
+              self.chart.hideLoading();
+            });
+        },
 
       destroy: function() {
         if (this.chart) {
