@@ -8,21 +8,26 @@ let chart = null;
 const RENDER_TO_ID = "graph";
 
 export const fetchAndDrawFixed = (selectedSensor, heat, singleFixedSession) => {
-  var end_date = new Date(singleFixedSession.endTime()).getTime();
-  var start_date = end_date - 24 * 60 * 60 * 1000;
+  const endDate = new Date(singleFixedSession.endTime()).getTime();
+  const startDate = endDate - 24 * 60 * 60 * 1000;
+  const streamId = singleFixedSession.selectedStream().id;
 
   http
     .get("/api/realtime/stream_measurements.json", {
-      stream_ids: singleFixedSession.selectedStream().id,
-      start_date,
-      end_date
+      stream_ids: streamId,
+      start_date: startDate,
+      end_date: endDate
     })
     .then(xs => {
       drawFixed(
         singleFixedSession.measurementsToTime(xs),
         selectedSensor,
         heat,
-        singleFixedSession
+        afterSetExtremes({
+          streamId,
+          endDate,
+          measurementsToTime: xs => singleFixedSession.measurementsToTime(xs)
+        })
       );
     });
 };
@@ -42,30 +47,28 @@ const onMouseOverMultiple = (start, end) => {
   graphHighlight.show([points[pointNum]]);
 };
 
-const afterSetExtremes = singleFixedSession => e => {
-  var final_point = {};
-  var end_time = new Date(singleFixedSession.endTime()).getTime();
-  final_point[end_time + ""] = {
-    x: end_time,
-    y: null,
-    latitude: null,
-    longitude: null
+const afterSetExtremes = ({ streamId, endDate, measurementsToTime }) => e => {
+  var finalPoint = {
+    [endDate]: {
+      x: endDate,
+      y: null,
+      latitude: null,
+      longitude: null
+    }
   };
   chart.showLoading("Loading data from server...");
 
   http
     .get("/api/realtime/stream_measurements.json", {
-      stream_ids: singleFixedSession.selectedStream().id,
+      stream_ids: streamId,
       start_date: Math.round(e.min),
       // winter time fix
       end_date: Math.round(e.max)
     })
     .then(data => {
-      data = _.extend(singleFixedSession.measurementsToTime(data), final_point);
-      measurementsByTime = data;
-      chart.series[0].setData(_(data).values(), false);
-    })
-    .then(() => {
+      dataWithFinalPoint = { ...measurementsToTime(data), ...finalPoint };
+      measurementsByTime = dataWithFinalPoint;
+      chart.series[0].setData(Object.values(dataWithFinalPoint), false);
       chart.redraw();
       chart.hideLoading();
     });
@@ -92,13 +95,13 @@ export const drawMobile = (data, selectedSensor, heat) => {
   draw(buttons, selectedButton, scrollbar, xAxis, data, selectedSensor, heat);
 };
 
-const drawFixed = (data, selectedSensor, heat, singleFixedSession) => {
+const drawFixed = (data, selectedSensor, heat, afterSetExtremes) => {
   const [buttons, selectedButton] = fixedButtons;
   const scrollbar = { liveRedraw: false };
 
   const xAxis = {
     events: {
-      afterSetExtremes: afterSetExtremes(singleFixedSession)
+      afterSetExtremes
     },
     ordinal: false
   };
@@ -123,7 +126,7 @@ const draw = (
   const series = [
     {
       name: selectedSensor.measurement_type,
-      data: _(data).values()
+      data: Object.values(data)
     }
   ];
 
@@ -143,7 +146,7 @@ const draw = (
     onMouseOverMultiple
   });
 
-  _(heat.toLevels()).each(function(level) {
+  heat.toLevels().forEach(level => {
     options.yAxis.plotBands.push({
       from: level.from,
       to: level.to,
