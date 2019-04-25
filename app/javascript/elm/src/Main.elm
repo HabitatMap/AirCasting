@@ -301,16 +301,8 @@ update msg model =
                 )
 
         ToggleStreaming ->
-            -- two branches cos choosing streaming will affect time range filter later on
-            if model.isStreaming then
-                ( { model | isStreaming = False }, Ports.toggleStreaming False )
+            ( { model | isStreaming = not model.isStreaming }, Ports.toggleStreaming (not model.isStreaming) )
 
-            else
-                ( { model | isStreaming = True }, Ports.toggleStreaming True )
-
-        --( { model | isStreaming = True }
-        --, Cmd.batch [ Ports.toggleStreaming True, UpdateTimeRange <last hour> ]
-        --)
         DeselectSession ->
             case model.selectedSession of
                 Success selectedSession ->
