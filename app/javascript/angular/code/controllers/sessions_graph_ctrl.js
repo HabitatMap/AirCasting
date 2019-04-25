@@ -63,11 +63,10 @@ function SessionsGraphCtrl(
       return;
     }
     if (singleSession.isFixed())
-      graph.getInitialData(sensors.anySelected(), heat, singleFixedSession);
+      graph.fetchAndDrawFixed(sensors.anySelected(), heat, singleFixedSession);
     else
-      graph.draw(
+      graph.drawMobile(
         singleSession.measurementsToTime(),
-        false,
         sensors.anySelected(),
         heat
       );
