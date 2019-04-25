@@ -22,10 +22,12 @@ test("it updates defaults", t => {
     usernames: "",
     timeFrom: moment()
       .utc()
-      .subtract(1, "hour")
+      .startOf("day")
+      .subtract(1, "year")
       .format("X"),
     timeTo: moment()
       .utc()
+      .endOf("day")
       .format("X")
   };
   t.deepEqual(defaults, expected);
