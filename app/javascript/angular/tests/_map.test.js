@@ -382,6 +382,7 @@ const _map = ({ geocoder, googleMaps, params, rectangles }) => {
     _rectangles,
     geocoder,
     googleMaps,
+    null,
     $window
   );
 };

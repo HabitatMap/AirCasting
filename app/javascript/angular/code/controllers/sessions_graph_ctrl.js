@@ -1,16 +1,15 @@
 import * as graphHighlight from "../services/google/graph_highlight";
+import * as graph from "../services/graph";
 
 function SessionsGraphCtrl(
   $scope,
   map,
-  graph,
   heat,
   sensors,
   $window,
   $timeout,
   singleFixedSession
 ) {
-  $scope.graph = graph;
   $scope.$window = $window;
   $scope.isSingleSessionSelected = false;
   $scope.heat = heat;
@@ -64,11 +63,10 @@ function SessionsGraphCtrl(
       return;
     }
     if (singleSession.isFixed())
-      graph.getInitialData(sensors.anySelected(), heat, singleFixedSession);
+      graph.fetchAndDrawFixed(sensors.anySelected(), heat, singleFixedSession);
     else
-      graph.draw(
+      graph.drawMobile(
         singleSession.measurementsToTime(),
-        false,
         sensors.anySelected(),
         heat
       );
@@ -77,7 +75,6 @@ function SessionsGraphCtrl(
 SessionsGraphCtrl.$inject = [
   "$scope",
   "map",
-  "graph",
   "heat",
   "sensors",
   "$window",
