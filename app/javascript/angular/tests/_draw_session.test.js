@@ -14,13 +14,17 @@ test("drawMobileSession draws a session when session is loaded and sensor is sel
 });
 
 test("undoDraw removes all session elements from the map", t => {
-  const map = mock("removeMarker");
-  const session = { markers: [1], lines: [1], noteDrawings: [1] };
-  const drawSessionStub = _drawSession({ map });
+  const marker = mock("setMap");
+  const session = {
+    markers: [marker],
+    lines: [marker],
+    noteDrawings: [marker]
+  };
+  const drawSessionStub = _drawSession({});
 
   drawSessionStub.undoDraw(session);
 
-  t.true(map.wasCalledNTimes(3));
+  t.true(marker.wasCalledNTimes(3));
   t.deepEqual(session.markers, []);
   t.deepEqual(session.lines, []);
   t.deepEqual(session.noteDrawings, []);

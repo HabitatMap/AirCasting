@@ -10,17 +10,19 @@ export const map = (
   rectangles,
   geocoder,
   googleMaps,
-  heat
+  heat,
+  $window
 ) => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
   let hasChangedProgrammatically = false;
+  $window.__markers = [];
 
   var Map = function() {};
 
   Map.prototype = {
     init: function(element, options) {
       this.mapObj = googleMaps.init(element, options);
-      this.markers = [];
+      this.markers = $window.__markers;
       this.listen("idle", this.saveViewport);
       this.listen(
         "visible_changed",
@@ -250,13 +252,6 @@ export const map = (
       googleMaps.fitBounds(this.mapObj, this.selectedCluster.bounds_);
     },
 
-    removeMarker: function(marker) {
-      if (!marker) {
-        return;
-      }
-      marker.setMap(null);
-    },
-
     removeAllMarkers: function() {
       if (this.clusterer) this.clusterer.clearMarkers();
 
@@ -289,4 +284,20 @@ export const map = (
   };
 
   return new Map();
+};
+
+export const removeMarker = function(marker) {
+  if (!marker) {
+    return;
+  }
+  marker.setMap(null);
+};
+
+export const drawMarker = function({ position, title, zIndex, icon }) {
+  var newMarker = new google.maps.Marker({ position, title, zIndex, icon });
+
+  newMarker.setMap(window.__map);
+  window.__markers.push(newMarker);
+
+  return newMarker;
 };

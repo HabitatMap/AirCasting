@@ -9,7 +9,8 @@ angular.module("google").factory("googleMaps", [
       google.maps.event.clearListeners(mapObj, "bounds_changed");
 
     return {
-      init: (element, options) => new google.maps.Map(element, options),
+      init: (element, options) =>
+        (window.__map = new google.maps.Map(element, options)),
 
       wasGeocodingSuccessful: status =>
         status === google.maps.GeocoderStatus.OK,

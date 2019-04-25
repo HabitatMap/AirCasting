@@ -11,5 +11,6 @@ angular
     "geocoder",
     "googleMaps",
     "heat",
+    "$window",
     map
   ]);
