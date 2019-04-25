@@ -1,16 +1,15 @@
 import * as graphHighlight from "../services/google/graph_highlight";
+import * as graph from "../services/graph";
 
 function SessionsGraphCtrl(
   $scope,
   map,
-  graph,
   heat,
   sensors,
   $window,
   $timeout,
   singleFixedSession
 ) {
-  $scope.graph = graph;
   $scope.$window = $window;
   $scope.isSingleSessionSelected = false;
   $scope.heat = heat;
@@ -77,7 +76,6 @@ function SessionsGraphCtrl(
 SessionsGraphCtrl.$inject = [
   "$scope",
   "map",
-  "graph",
   "heat",
   "sensors",
   "$window",
