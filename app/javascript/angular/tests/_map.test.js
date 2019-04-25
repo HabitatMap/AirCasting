@@ -373,6 +373,7 @@ const _map = ({ geocoder, googleMaps, params, rectangles }) => {
     ...rectangles
   };
   const $cookieStore = { put: () => {} };
+  const $window = {};
   return map(
     params,
     $cookieStore,
@@ -380,6 +381,7 @@ const _map = ({ geocoder, googleMaps, params, rectangles }) => {
     digester,
     _rectangles,
     geocoder,
-    googleMaps
+    googleMaps,
+    $window
   );
 };

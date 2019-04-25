@@ -1,4 +1,5 @@
 import _ from "underscore";
+import { removeMarker } from "./google/_map";
 
 export const drawSession = (sensors, map, heat, note, empty) => {
   var DrawSession = function() {};
@@ -35,17 +36,17 @@ export const drawSession = (sensors, map, heat, note, empty) => {
 
     undoDraw: function(session, mapPosition) {
       (session.markers || []).forEach(function(marker) {
-        map.removeMarker(marker);
+        removeMarker(marker);
       });
       session.markers = [];
 
       (session.lines || []).forEach(function(line) {
-        map.removeMarker(line);
+        removeMarker(line);
       });
       session.lines = [];
 
       (session.noteDrawings || []).forEach(function(noteItem) {
-        map.removeMarker(noteItem);
+        removeMarker(noteItem);
       });
       session.noteDrawings = [];
 
