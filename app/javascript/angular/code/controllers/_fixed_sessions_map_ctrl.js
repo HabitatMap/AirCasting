@@ -51,8 +51,8 @@ export const FixedSessionsMapCtrl = (
       isStreaming: true,
       tags: "",
       usernames: "",
-      timeFrom: FiltersUtils.oneHourAgo(),
-      timeTo: FiltersUtils.presentMoment()
+      timeFrom: FiltersUtils.oneYearAgo(),
+      timeTo: FiltersUtils.endOfToday()
     };
 
     if (!params.get("data").heat) sensors.fetchHeatLevels();
@@ -136,28 +136,71 @@ export const FixedSessionsMapCtrl = (
         sessions.fetch();
       };
 
-      FiltersUtils.setupTimeRangeFilter(
-        onTimeRangeChanged,
-        params.get("data").timeFrom,
-        params.get("data").timeTo
-      );
+      const setupStreamingTimeRangeFilter = (timeFrom, timeTo) => {
+        if (document.getElementById("time-range")) {
+          $("#time-range").daterangepicker(
+            {
+              linkedCalendars: false,
+              timePicker: true,
+              timePicker24Hour: true,
+              startDate: moment
+                .unix(timeFrom)
+                .utc()
+                .format("MM/DD/YYYY HH:mm"),
+              endDate: moment
+                .unix(timeTo)
+                .utc()
+                .format("MM/DD/YYYY HH:mm"),
+              locale: {
+                format: "MM/DD/YYYY HH:mm"
+              }
+            },
+            () => {}
+          );
+        } else {
+          window.setTimeout(
+            setupStreamingTimeRangeFilter(timeFrom, timeTo),
+            100
+          );
+        }
+      };
+
+      if (params.get("data").isStreaming) {
+        setupStreamingTimeRangeFilter(
+          FiltersUtils.oneHourAgo(),
+          FiltersUtils.presentMoment()
+        );
+      } else {
+        FiltersUtils.setupTimeRangeFilter(
+          onTimeRangeChanged,
+          params.get("data").timeFrom,
+          params.get("data").timeTo
+        );
+      }
 
       elmApp.ports.refreshTimeRange.subscribe(() => {
         resetTimeRangeFilter();
       });
 
       const resetTimeRangeFilter = () => {
-        const timeFrom = params.get("data").isStreaming
-          ? FiltersUtils.oneHourAgo()
-          : FiltersUtils.oneYearAgo();
+        if (params.get("data").isStreaming) {
+          setupStreamingTimeRangeFilter(
+            FiltersUtils.oneHourAgo(),
+            FiltersUtils.presentMoment()
+          );
+          $scope.sessions.fetch();
+        } else {
+          FiltersUtils.setupTimeRangeFilter(
+            onTimeRangeChanged,
+            FiltersUtils.oneYearAgo(),
+            FiltersUtils.endOfToday()
+          );
 
-        const timeTo = params.get("data").isStreaming
-          ? FiltersUtils.presentMoment()
-          : FiltersUtils.endOfToday();
-
-        FiltersUtils.setupTimeRangeFilter(onTimeRangeChanged, timeFrom, timeTo);
-
-        onTimeRangeChanged(timeFrom, timeTo);
+          onTimeRangeChanged(
+            FiltersUtils.oneYearAgo(),
+            FiltersUtils.endOfToday()
+          );
+        }
       };
 
       FiltersUtils.setupClipboard();
