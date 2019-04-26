@@ -1,5 +1,6 @@
 import * as graphHighlight from "../services/google/graph_highlight";
 import * as graph from "../services/graph";
+import { measurementsToTime } from "../services/singleSession";
 
 function SessionsGraphCtrl(
   $scope,
@@ -66,7 +67,7 @@ function SessionsGraphCtrl(
       graph.fetchAndDrawFixed(sensors.anySelected(), heat, singleFixedSession);
     else
       graph.drawMobile(
-        singleSession.measurementsToTime(),
+        measurementsToTime(singleSession.measurements()),
         sensors.anySelected(),
         heat
       );

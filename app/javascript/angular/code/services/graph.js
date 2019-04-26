@@ -2,32 +2,34 @@ import Highcharts from "highcharts/highstock";
 import { buildOptions } from "./buildGraphOptions";
 import * as graphHighlight from "./google/graph_highlight";
 import * as http from "./http";
+import { measurementsToTimeWithExtremes } from "./singleSession";
 
 let measurementsByTime = {};
 let chart = null;
 const RENDER_TO_ID = "graph";
 
 export const fetchAndDrawFixed = (selectedSensor, heat, singleFixedSession) => {
+  const startDate = new Date(singleFixedSession.startTime()).getTime();
   const endDate = new Date(singleFixedSession.endTime()).getTime();
-  const startDate = endDate - 24 * 60 * 60 * 1000;
+  const pageStartDate = endDate - 24 * 60 * 60 * 1000;
   const streamId = singleFixedSession.selectedStream().id;
 
   http
     .get("/api/realtime/stream_measurements.json", {
       stream_ids: streamId,
-      start_date: startDate,
+      start_date: pageStartDate,
       end_date: endDate
     })
     .then(xs => {
       drawFixed(
-        singleFixedSession.measurementsToTime(xs),
+        measurementsToTimeWithExtremes({
+          measurements: xs,
+          startDate,
+          endDate
+        }),
         selectedSensor,
         heat,
-        afterSetExtremes({
-          streamId,
-          endDate,
-          measurementsToTime: xs => singleFixedSession.measurementsToTime(xs)
-        })
+        afterSetExtremes({ streamId, endDate, startDate })
       );
     });
 };
@@ -47,15 +49,7 @@ const onMouseOverMultiple = (start, end) => {
   graphHighlight.show([points[pointNum]]);
 };
 
-const afterSetExtremes = ({ streamId, endDate, measurementsToTime }) => e => {
-  var finalPoint = {
-    [endDate]: {
-      x: endDate,
-      y: null,
-      latitude: null,
-      longitude: null
-    }
-  };
+const afterSetExtremes = ({ streamId, startDate, endDate }) => e => {
   chart.showLoading("Loading data from server...");
 
   http
@@ -66,9 +60,13 @@ const afterSetExtremes = ({ streamId, endDate, measurementsToTime }) => e => {
       end_date: Math.round(e.max)
     })
     .then(data => {
-      const dataWithFinalPoint = { ...measurementsToTime(data), ...finalPoint };
-      measurementsByTime = dataWithFinalPoint;
-      chart.series[0].setData(Object.values(dataWithFinalPoint), false);
+      const dataByTime = measurementsToTimeWithExtremes({
+        measurements: data,
+        startDate,
+        endDate
+      });
+      measurementsByTime = dataByTime;
+      chart.series[0].setData(Object.values(dataByTime), false);
       chart.redraw();
       chart.hideLoading();
     });

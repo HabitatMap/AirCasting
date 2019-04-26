@@ -28,23 +28,6 @@ angular.module("aircasting").factory("singleMobileSession", [
         return drawSession.measurements(this.get());
       },
 
-      measurementsToTime: function() {
-        var x;
-        var result = {};
-        _(this.measurements()).each(function(measurement) {
-          x = moment(measurement.time, "YYYY-MM-DDTHH:mm:ss")
-            .utcOffset(0, true)
-            .valueOf();
-          result[x + ""] = {
-            x: x,
-            y: measurement.value,
-            latitude: measurement.latitude,
-            longitude: measurement.longitude
-          };
-        });
-        return result;
-      },
-
       updateHeat: function() {
         var data = heat.toSensoredList(
           this.get().streams[sensors.anySelected().sensor_name]
