@@ -3,21 +3,18 @@
 // that has 1 month of measurements. By setting one empty start point at the beginning
 // of the month, Highcharts knows that the 1 week and 1 month button should be enabled.
 // The same for the empty point at the end.
-export const measurementsToTimeWithExtremes = ({
-  measurements,
-  endDate,
-  startDate
-}) => {
+export const measurementsToTimeWithExtremes = ({ measurements, times }) => {
+  const { start, end } = times;
   return {
-    [startDate]: {
-      x: startDate,
+    [start]: {
+      x: start,
       y: null,
       latitude: null,
       longitude: null
     },
     ...measurementsToTime(measurements),
-    [endDate]: {
-      x: endDate,
+    [end]: {
+      x: end,
       y: null,
       latitude: null,
       longitude: null

@@ -7,9 +7,6 @@ angular.module("aircasting").factory("singleFixedSession", [
   function(fixedSessions, sensors, storage, heat, drawSession) {
     var SingleFixedSession = function() {};
     SingleFixedSession.prototype = {
-      isSingle: function() {
-        return this.noOfSelectedSessions() == 1;
-      },
       noOfSelectedSessions: function() {
         return fixedSessions.allSelected().length;
       },
@@ -22,14 +19,8 @@ angular.module("aircasting").factory("singleFixedSession", [
       startTime: function() {
         return this.get().start_time_local;
       },
-      withSelectedSensor: function() {
-        return !!this.get().streams[sensors.anySelected().sensor_name];
-      },
       selectedStream: function() {
         return this.get().streams[sensors.anySelected().sensor_name];
-      },
-      measurements: function() {
-        return drawSession.measurements(this.get());
       },
       updateHeat: function() {
         var data = heat.toSensoredList(

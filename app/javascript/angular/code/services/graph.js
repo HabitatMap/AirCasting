@@ -2,35 +2,44 @@ import Highcharts from "highcharts/highstock";
 import { buildOptions } from "./buildGraphOptions";
 import * as graphHighlight from "./google/graph_highlight";
 import * as http from "./http";
-import { measurementsToTimeWithExtremes } from "./singleSession";
+import {
+  measurementsToTime,
+  measurementsToTimeWithExtremes
+} from "./singleSession";
 
 let measurementsByTime = {};
 let chart = null;
 const RENDER_TO_ID = "graph";
 
-export const fetchAndDrawFixed = (selectedSensor, heat, singleFixedSession) => {
-  const startDate = new Date(singleFixedSession.startTime()).getTime();
-  const endDate = new Date(singleFixedSession.endTime()).getTime();
-  const pageStartDate = endDate - 24 * 60 * 60 * 1000;
-  const streamId = singleFixedSession.selectedStream().id;
+export const fetchAndDrawFixed = ({ sensor, heat, times, streamId }) => {
+  const pageStartDate = times.end - 24 * 60 * 60 * 1000;
 
   http
-    .get("/api/realtime/stream_measurements.json", {
-      stream_ids: streamId,
+    .get("/api/measurements.json", {
+      stream_id: streamId,
       start_date: pageStartDate,
-      end_date: endDate
+      end_date: times.end
     })
     .then(xs => {
-      drawFixed(
-        measurementsToTimeWithExtremes({
+      drawFixed({
+        measurements: measurementsToTimeWithExtremes({
           measurements: xs,
-          startDate,
-          endDate
+          times
         }),
-        selectedSensor,
+        sensor,
         heat,
-        afterSetExtremes({ streamId, endDate, startDate })
-      );
+        afterSetExtremes: afterSetExtremes({ streamId, times })
+      });
+    });
+};
+
+export const fetchAndDrawMobile = ({ sensor, heat, times, streamId }) => {
+  http
+    .get("/api/measurements.json", {
+      stream_id: streamId
+    })
+    .then(xs => {
+      drawMobile({ measurements: measurementsToTime(xs), sensor, heat });
     });
 };
 
@@ -49,21 +58,21 @@ const onMouseOverMultiple = (start, end) => {
   graphHighlight.show([points[pointNum]]);
 };
 
-const afterSetExtremes = ({ streamId, startDate, endDate }) => e => {
+const afterSetExtremes = ({ streamId, times }) => e => {
   chart.showLoading("Loading data from server...");
 
   http
-    .get("/api/realtime/stream_measurements.json", {
-      stream_ids: streamId,
+    .get("/api/measurements.json", {
+      stream_id: streamId,
       start_date: Math.round(e.min),
       // winter time fix
       end_date: Math.round(e.max)
     })
-    .then(data => {
+    .then(measurements => {
       const dataByTime = measurementsToTimeWithExtremes({
-        measurements: data,
-        startDate,
-        endDate
+        measurements,
+        startDate: times.start,
+        endDate: times.end
       });
       measurementsByTime = dataByTime;
       chart.series[0].setData(Object.values(dataByTime), false);
@@ -86,14 +95,22 @@ const fixedButtons = [[hr1, hrs12, hrs24, wk1, mth1, all], 2];
 
 const mobileButtons = [[min1, min5, min30, hr1, hrs12, all], 4];
 
-export const drawMobile = (data, selectedSensor, heat) => {
+export const drawMobile = ({ measurements, sensor, heat }) => {
   const [buttons, selectedButton] = mobileButtons;
   const scrollbar = {};
   const xAxis = {};
-  draw(buttons, selectedButton, scrollbar, xAxis, data, selectedSensor, heat);
+  draw({
+    buttons,
+    selectedButton,
+    scrollbar,
+    xAxis,
+    measurements,
+    sensor,
+    heat
+  });
 };
 
-const drawFixed = (data, selectedSensor, heat, afterSetExtremes) => {
+const drawFixed = ({ measurements, sensor, heat, afterSetExtremes }) => {
   const [buttons, selectedButton] = fixedButtons;
   const scrollbar = { liveRedraw: false };
 
@@ -104,27 +121,35 @@ const drawFixed = (data, selectedSensor, heat, afterSetExtremes) => {
     ordinal: false
   };
 
-  draw(buttons, selectedButton, scrollbar, xAxis, data, selectedSensor, heat);
+  draw({
+    buttons,
+    selectedButton,
+    scrollbar,
+    xAxis,
+    measurements,
+    sensor,
+    heat
+  });
 };
 
-const draw = (
+const draw = ({
   buttons,
   selectedButton,
   scrollbar,
   xAxis,
-  data,
-  selectedSensor,
+  measurements,
+  sensor,
   heat
-) => {
-  const low = heat.getValue("lowest");
-  const high = heat.getValue("highest");
+}) => {
+  const low = heat.threshold1;
+  const high = heat.threshold5;
   const tick = Math.round((high - low) / 4);
   const ticks = [low, low + tick, low + 2 * tick, high - tick, high];
 
   const series = [
     {
-      name: selectedSensor.measurement_type,
-      data: Object.values(data)
+      name: sensor.parameter,
+      data: Object.values(measurements)
     }
   ];
 
@@ -138,13 +163,13 @@ const draw = (
     high,
     ticks,
     scrollbar,
-    measurementType: selectedSensor.measurement_type,
-    unitSymbol: selectedSensor.unit_symbol,
+    measurementType: sensor.parameter,
+    unitSymbol: sensor.unit,
     onMouseOverSingle,
     onMouseOverMultiple
   });
 
-  heat.toLevels().forEach(level => {
+  heat.levels.forEach(level => {
     options.yAxis.plotBands.push({
       from: level.from,
       to: level.to,
@@ -155,5 +180,5 @@ const draw = (
   //to speed up graph provide data as array not object
   chart ? chart.destroy() : null;
   chart = new Highcharts.StockChart(options);
-  measurementsByTime = data;
+  measurementsByTime = measurements;
 };

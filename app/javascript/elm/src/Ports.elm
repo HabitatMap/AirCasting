@@ -1,5 +1,7 @@
 port module Ports exposing
-    ( findLocation
+    ( drawFixed
+    , drawMobile
+    , findLocation
     , loadMoreSessions
     , locationCleared
     , profileSelected
@@ -22,6 +24,7 @@ port module Ports exposing
     , updateTags
     )
 
+import Data.GraphData exposing (GraphData)
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
 import Data.Session exposing (Session)
 import Json.Encode as Encode
@@ -88,3 +91,9 @@ port updateHeatMapThresholds : HeatMapThresholdValues -> Cmd a
 
 
 port updateHeatMapThresholdsFromAngular : (HeatMapThresholdValues -> msg) -> Sub msg
+
+
+port drawMobile : GraphData -> Cmd a
+
+
+port drawFixed : GraphData -> Cmd a

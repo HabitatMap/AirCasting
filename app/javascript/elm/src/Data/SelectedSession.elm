@@ -1,4 +1,11 @@
-module Data.SelectedSession exposing (SelectedSession, decoder, fetch, view)
+module Data.SelectedSession exposing
+    ( SelectedSession
+    , decoder
+    , fetch
+    , times
+    , toStreamId
+    , view
+    )
 
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
@@ -8,6 +15,7 @@ import Html exposing (Html, div, p, span, text)
 import Html.Attributes exposing (class)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
+import Json.Decode.Pipeline exposing (custom, required)
 import RemoteData exposing (WebData)
 import Sensor exposing (Sensor)
 import Time exposing (Posix)
@@ -24,24 +32,42 @@ type alias SelectedSession =
     , endTime : Posix
     , measurements : List Float
     , id : Int
+    , streamId : Int
     }
+
+
+times : SelectedSession -> { start : Int, end : Int }
+times { startTime, endTime } =
+    { start = Time.posixToMillis startTime, end = Time.posixToMillis endTime }
+
+
+toStreamId : SelectedSession -> Int
+toStreamId { streamId } =
+    streamId
+
+
+millisToPosixDecoder : Decoder Posix
+millisToPosixDecoder =
+    Decode.int
+        |> Decode.map Time.millisToPosix
 
 
 decoder : Decoder SelectedSession
 decoder =
-    Decode.map8 toSelectedSession
-        (Decode.field "title" Decode.string)
-        (Decode.field "username" Decode.string)
-        (Decode.field "sensor_name" Decode.string)
-        (Decode.field "average" (Decode.nullable Decode.float) |> Decode.map (Maybe.withDefault -1))
-        (Decode.field "startTime" Decode.int |> Decode.map Time.millisToPosix)
-        (Decode.field "endTime" Decode.int |> Decode.map Time.millisToPosix)
-        (Decode.field "measurements" (Decode.list Decode.float))
-        (Decode.field "id" Decode.int)
+    Decode.succeed toSelectedSession
+        |> required "title" Decode.string
+        |> required "username" Decode.string
+        |> required "sensorName" Decode.string
+        |> required "average" Decode.float
+        |> required "startTime" millisToPosixDecoder
+        |> required "endTime" millisToPosixDecoder
+        |> required "measurements" (Decode.list Decode.float)
+        |> required "id" Decode.int
+        |> required "streamId" Decode.int
 
 
-toSelectedSession : String -> String -> String -> Float -> Posix -> Posix -> List Float -> Int -> SelectedSession
-toSelectedSession title username sensorName average startTime endTime measurements sessionId =
+toSelectedSession : String -> String -> String -> Float -> Posix -> Posix -> List Float -> Int -> Int -> SelectedSession
+toSelectedSession title username sensorName average startTime endTime measurements sessionId streamId =
     { title = title
     , username = username
     , sensorName = sensorName
@@ -52,6 +78,7 @@ toSelectedSession title username sensorName average startTime endTime measuremen
     , endTime = endTime
     , measurements = measurements
     , id = sessionId
+    , streamId = streamId
     }
 
 
