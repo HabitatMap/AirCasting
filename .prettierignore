@@ -2,6 +2,7 @@
 vendor
 app/javascript/angular/libs
 elm-stuff
+public
 
 # css
 assets/stylesheets/vendor
