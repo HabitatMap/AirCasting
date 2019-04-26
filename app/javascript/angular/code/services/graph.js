@@ -66,7 +66,7 @@ const afterSetExtremes = ({ streamId, endDate, measurementsToTime }) => e => {
       end_date: Math.round(e.max)
     })
     .then(data => {
-      dataWithFinalPoint = { ...measurementsToTime(data), ...finalPoint };
+      const dataWithFinalPoint = { ...measurementsToTime(data), ...finalPoint };
       measurementsByTime = dataWithFinalPoint;
       chart.series[0].setData(Object.values(dataWithFinalPoint), false);
       chart.redraw();
