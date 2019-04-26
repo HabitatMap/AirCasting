@@ -14,12 +14,13 @@ class Api::ToSessionHash
     Success.new(
       title: session.title,
       username: session.user.username,
-      sensor_name: session.streams.first.sensor_name,
+      sensorName: session.streams.first.sensor_name,
       average: average(measurements(session)),
       measurements: measurements(session),
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
       id: session.id,
+      streamId: session.streams.first.id
     )
   end
 

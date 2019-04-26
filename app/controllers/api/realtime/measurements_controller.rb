@@ -26,15 +26,6 @@ module Api
 
       respond_to :json
 
-      def stream_measurements
-        start_date = Time.at(params[:start_date].to_i / 1000)
-        end_date = Time.at(params[:end_date].to_i / 1000)
-
-        measurements = Measurement.with_streams(params[:stream_ids]).where(time: start_date..end_date)
-
-        respond_with MeasurementPresenter.collection(measurements).as_json
-      end
-
       def create
         if params[:compression]
           decoded = Base64.decode64(params[:data])

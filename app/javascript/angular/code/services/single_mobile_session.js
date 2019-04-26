@@ -8,24 +8,12 @@ angular.module("aircasting").factory("singleMobileSession", [
     var SingleMobileSession = function() {};
 
     SingleMobileSession.prototype = {
-      isSingle: function() {
-        return this.noOfSelectedSessions() == 1;
-      },
-
       noOfSelectedSessions: function() {
         return mobileSessions.allSelected().length;
       },
 
       get: function() {
         return _(mobileSessions.allSelected()).first();
-      },
-
-      withSelectedSensor: function() {
-        return !!this.get().streams[sensors.anySelected().sensor_name];
-      },
-
-      measurements: function() {
-        return drawSession.measurements(this.get());
       },
 
       updateHeat: function() {

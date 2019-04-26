@@ -5,6 +5,7 @@ Every response is returned in JSON format.
 ## Sessions
 
 Endpoints
+
 - GET `/api/realtime/streaming_sessions.json` -> streaming fixed sessions
 - GET `/api/realtime/sessions.json` -> fixed sessions
 - GET `/api/sessions.json` -> mobile sessions
@@ -14,7 +15,7 @@ Endpoints
 ### Parameters
 
 | name           | type              | default value |
-|:---------------|:------------------|:--------------|
+| :------------- | :---------------- | :------------ |
 | page           | number            | 0             |
 | page_size      | number            | 50            |
 | q[time_from]   | number            |               |
@@ -167,15 +168,17 @@ curl http://aircasting.org/api/sessions/9586.json
 
 ## Measurements for stream id
 
-GET `/api/realtime/stream_measurements.json`
+GET `/api/measurements.json`
 
 ### Example request
+
 ```
-curl http://aircasting.org/api/realtime/stream_measurements.json/?end_date=2281550369000&start_date=0&stream_ids[]=1&stream_ids[]=2
+curl http://aircasting.org/api/measurements.json/?end_date=2281550369000&start_date=0&stream_id=1
 ```
 
 Where
-- `end_date` and `start_date` are mandatory and are expressed in [POSIX time](https://en.wikipedia.org/wiki/Unix_time)
+
+- `end_date` and `start_date` are optional and are expressed in [POSIX time](https://en.wikipedia.org/wiki/Unix_time)
 - `start_date=0` means 1970-01-01 at 00:00:00 UTC
 - `end_date=2281550369000` means 2042-04-19 19:59:29 UTC
 - it's possible to convert dates to POSIX [here](https://www.unixtimestamp.com/index.php); for example converting 1970-01-01 at 00:00:00 UTC returns 0 (as explained above)
@@ -188,22 +191,22 @@ To get multiple average values for polygons in a region. You need to pass a list
 
 ### Parameters
 
-| name            | type              | default value |
-|:----------------|:------------------|:--------------|
-| time_from       | number            |               |
-| time_to         | number            |               |
-| grid_size_y     | number, 1..50     |               |
-| grid_size_x     | number, 1..50     |               |
-| tags            | text              |               |
-| usernames       | text              |               |
-| sensor_name     | text              |               |
-| unit_symbol     | text              |               |
-| east            | number, -180..180 |               |
-| west            | number, -180..180 |               |
-| north           | number, -90..90   |               |
-| south           | number, -90..90   |               |
-| measurement_type| text              |               |
-| session_ids     | list number       | empty list    |
+| name             | type              | default value |
+| :--------------- | :---------------- | :------------ |
+| time_from        | number            |               |
+| time_to          | number            |               |
+| grid_size_y      | number, 1..50     |               |
+| grid_size_x      | number, 1..50     |               |
+| tags             | text              |               |
+| usernames        | text              |               |
+| sensor_name      | text              |               |
+| unit_symbol      | text              |               |
+| east             | number, -180..180 |               |
+| west             | number, -180..180 |               |
+| north            | number, -90..90   |               |
+| south            | number, -90..90   |               |
+| measurement_type | text              |               |
+| session_ids      | list number       | empty list    |
 
 How to select the time range:
 - `time_from` and `time_to` should be passed as seconds since epoch.
@@ -254,22 +257,22 @@ This will let you fetch the average measured value for a region of the map speci
 
 ### Parameters
 
-| name            | type              | default value |
-|:----------------|:------------------|:--------------|
-| time_from       | number            |               |
-| time_to         | number            |               |
-| grid_size_y     | number, 1..50     |               |
-| grid_size_x     | number, 1..50     |               |
-| tags            | text              |               |
-| usernames       | text              |               |
-| sensor_name     | text              |               |
-| unit_symbol     | text              |               |
-| east            | number, -180..180 |               |
-| west            | number, -180..180 |               |
-| north           | number, -90..90   |               |
-| south           | number, -90..90   |               |
-| measurement_type| text              |               |
-| session_ids     | list number       | empty list    |
+| name             | type              | default value |
+| :--------------- | :---------------- | :------------ |
+| time_from        | number            |               |
+| time_to          | number            |               |
+| grid_size_y      | number, 1..50     |               |
+| grid_size_x      | number, 1..50     |               |
+| tags             | text              |               |
+| usernames        | text              |               |
+| sensor_name      | text              |               |
+| unit_symbol      | text              |               |
+| east             | number, -180..180 |               |
+| west             | number, -180..180 |               |
+| north            | number, -90..90   |               |
+| south            | number, -90..90   |               |
+| measurement_type | text              |               |
+| session_ids      | list number       | empty list    |
 
 Where time_from and time_to are seconds since epoch.
 
@@ -302,5 +305,5 @@ curl http://aircasting.org/api/v2/data/sessions/last.json
 ### Example response
 
 ```json
-{"id":10105}
+{ "id": 10105 }
 ```

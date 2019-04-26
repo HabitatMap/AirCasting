@@ -3,6 +3,7 @@ module Main exposing (Msg(..), defaultModel, exportPath, update, view)
 import Browser exposing (..)
 import Browser.Events
 import Browser.Navigation
+import Data.GraphData exposing (GraphData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Page exposing (Page(..))
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
@@ -347,7 +348,24 @@ update msg model =
                     ( model, Cmd.none )
 
         GotSession response ->
-            ( { model | selectedSession = response }, Cmd.none )
+            case ( model.heatMapThresholds, response ) of
+                ( Success thresholds, Success selectedSession ) ->
+                    let
+                        params =
+                            toGraphParams thresholds selectedSession model.sensors model.selectedSensorId
+
+                        cmd =
+                            case model.page of
+                                Mobile ->
+                                    Ports.drawMobile params
+
+                                Fixed ->
+                                    Ports.drawFixed params
+                    in
+                    ( { model | selectedSession = response }, cmd )
+
+                _ ->
+                    ( { model | selectedSession = response }, Cmd.none )
 
         UpdateHeatMapThresholds heatMapThresholds ->
             let
@@ -417,6 +435,32 @@ updateLabels msg model toSubCmd mapper updateModel =
             LabelsInput.update msg model toSubCmd
     in
     ( updateModel subModel, Cmd.map mapper subCmd )
+
+
+toGraphParams : HeatMapThresholds -> SelectedSession -> List Sensor -> String -> GraphData
+toGraphParams thresholds selectedSession sensors selectedSensorId =
+    let
+        { threshold1, threshold2, threshold3, threshold4, threshold5 } =
+            HeatMapThresholds.toValues thresholds
+
+        levels =
+            [ { from = threshold1, to = threshold2, color = "#aaa" }
+            , { from = threshold2, to = threshold3, color = "#bbb" }
+            , { from = threshold3, to = threshold4, color = "#ccc" }
+            , { from = threshold4, to = threshold5, color = "#ddd" }
+            ]
+
+        parameter =
+            Sensor.parameterForId sensors selectedSensorId
+
+        unit =
+            Sensor.unitForSensorId selectedSensorId sensors |> Maybe.withDefault ""
+    in
+    { sensor = { parameter = parameter, unit = unit }
+    , heat = { threshold1 = threshold1, threshold5 = threshold5, levels = levels }
+    , times = SelectedSession.times selectedSession
+    , streamId = SelectedSession.toStreamId selectedSession
+    }
 
 
 
@@ -494,7 +538,7 @@ view model =
                                     "FixedSessionsMapCtrl"
                                 )
                             ]
-                            [ div [ class "sessions", attribute "ng-controller" "SessionsGraphCtrl" ]
+                            [ div [ class "sessions" ]
                                 [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ]
                                     (viewSessionsOrSelectedSession model.selectedSession model.sessions model.heatMapThresholds)
                                 ]

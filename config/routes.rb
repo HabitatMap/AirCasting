@@ -52,7 +52,6 @@ Rails.application.routes.draw do
 
     namespace :realtime do
       get 'multiple_sessions'   => 'sessions#show_multiple'
-      get 'stream_measurements' => 'measurements#stream_measurements'
       get 'streaming_sessions'  => 'sessions#index_streaming'
       get 'sync_measurements'   => 'sessions#sync_measurements'
       resources :sessions, only: [:create, :index, :show]
@@ -66,6 +65,8 @@ Rails.application.routes.draw do
     namespace :mobile do
       get "sessions/:id" => "sessions#show"
     end
+
+    get "measurements" => "measurements#index"
 
     resources :short_url, only: [:index]
   end

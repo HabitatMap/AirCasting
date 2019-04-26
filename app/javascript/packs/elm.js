@@ -2,6 +2,7 @@ import { Elm } from "../elm/src/Main.elm";
 import logoNav from "../../assets/images/aircasting-logo-nav.svg";
 import linkIcon from "../../assets/images/link-icon.svg";
 import "nouislider";
+import * as graph from "../angular/code/services/graph";
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch("/api/sensors.json")
@@ -125,8 +126,15 @@ const setupHeatMap = () => {
         );
       }
     });
+
+    window.__elmApp.ports.drawFixed.subscribe(draw(graph.fetchAndDrawFixed));
+
+    window.__elmApp.ports.drawMobile.subscribe(draw(graph.fetchAndDrawMobile));
   }
 };
+
+const draw = fnc => ({ times, streamId, heat, sensor }) =>
+  fnc({ sensor, heat, times, streamId });
 
 const toValues = noUiSlider => ({
   threshold1: noUiSlider.options.range.min,
