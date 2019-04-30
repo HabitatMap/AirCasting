@@ -99,7 +99,7 @@ export const FixedSessionsMapCtrl = (
       });
 
       elmApp.ports.toggleStreaming.subscribe(isStreaming => {
-        params.update({ data: { isStreaming: isStreaming } });
+        params.update({ data: { isStreaming } });
         resetTimeRangeFilter();
         $scope.sessions.fetch();
       });
