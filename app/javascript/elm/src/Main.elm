@@ -559,9 +559,9 @@ viewHeatMap heatMapThresholds sensorUnit =
                 |> RemoteData.withDefault ( 0, 0 )
     in
     div [ class "heatmap" ]
-        [ div [ class "heatmap-input" ] [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum ]
+        [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum
         , div [ id "heatmap" ] []
-        , div [ class "heatmap-input" ] [ viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum ]
+        , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
         , button [ Events.onClick ResetHeatMapToDefaults ] [ text "D" ]
         ]
 
