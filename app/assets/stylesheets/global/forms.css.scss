@@ -5,11 +5,12 @@ label {
 
 input {
   border: none;
-  border-radius: 6px;
+  border-radius: $input-radius;
   font-size: $small-font;
   line-height: 2.2;
   width: 100%;
-  padding: 0 7px;
+  padding: 0 $input-padding;
+
   &:focus {
     outline: none;
   }
@@ -23,6 +24,7 @@ input[type="checkbox"] {
 .input-dark {
   background-color: $input-bg;
   color: white;
+
   &::placeholder {
     color: #a0a3b2;
   }
