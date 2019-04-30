@@ -55,6 +55,7 @@ type alias Model =
     , isIndoor : Bool
     , logoNav : String
     , linkIcon : String
+    , resetIcon : String
     , heatMapThresholds : WebData HeatMapThresholds
     , isStreaming : Bool
     }
@@ -81,6 +82,7 @@ defaultModel =
     , selectedSession = NotAsked
     , logoNav = ""
     , linkIcon = ""
+    , resetIcon = ""
     , heatMapThresholds = NotAsked
     }
 
@@ -99,6 +101,7 @@ type alias Flags =
     , selectedSensorId : String
     , logoNav : String
     , linkIcon : String
+    , resetIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     }
 
@@ -134,6 +137,7 @@ init flags url key =
         , selectedSensorId = flags.selectedSensorId
         , logoNav = flags.logoNav
         , linkIcon = flags.linkIcon
+        , resetIcon = flags.resetIcon
         , heatMapThresholds =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
                 |> Maybe.withDefault defaultModel.heatMapThresholds
@@ -544,15 +548,15 @@ view model =
                                 ]
                             ]
                         ]
-                    , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "")
+                    , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "") model.resetIcon
                     ]
                 ]
             ]
         ]
 
 
-viewHeatMap : WebData HeatMapThresholds -> String -> Html Msg
-viewHeatMap heatMapThresholds sensorUnit =
+viewHeatMap : WebData HeatMapThresholds -> String -> String -> Html Msg
+viewHeatMap heatMapThresholds sensorUnit resetIcon =
     let
         ( threshold1, threshold5 ) =
             RemoteData.map HeatMapThresholds.extremes heatMapThresholds
@@ -562,7 +566,8 @@ viewHeatMap heatMapThresholds sensorUnit =
         [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum
         , div [ id "heatmap", class "heatmap-slider" ] []
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
-        , button [ Events.onClick ResetHeatMapToDefaults ] [ text "D" ]
+        , button [ ariaLabel "Reset", class "reset-button", Events.onClick ResetHeatMapToDefaults ]
+            [ img [ src resetIcon ] [] ]
         ]
 
 
