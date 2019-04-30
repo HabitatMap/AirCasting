@@ -560,7 +560,7 @@ viewHeatMap heatMapThresholds sensorUnit =
     in
     div [ class "heatmap" ]
         [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum
-        , div [ id "heatmap" ] []
+        , div [ id "heatmap", class "heatmap-slider" ] []
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
         , button [ Events.onClick ResetHeatMapToDefaults ] [ text "D" ]
         ]
