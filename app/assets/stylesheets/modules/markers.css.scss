@@ -8,8 +8,9 @@
   top: -6px;
   color: transparent;
   cursor: pointer;
+
   &.default {
-    background-color: #757575;
+    background-color: $grey;
   }
   &.highest {
     @extend .red-bg;
@@ -57,7 +58,7 @@
     border: 1px solid #ccc;
   }
   &.default {
-    border: 1px solid #757575;
+    border: 1px solid $grey;
   }
 }
 
@@ -89,7 +90,7 @@
 }
 
 .data-marker.default::before {
-  background: #757575;
+  background: $grey;
 }
 
 .data-marker::after {

@@ -1,14 +1,3 @@
-// old variables
-$brand-color: #757575;
-$text-color: #757575;
-$button-color: #757575;
-$button-front: #fff;
-$link-color: #558000;
-$right-hud-width: 320px;
-$color-body: #f1f1f1;
-
-// new variables
-
 // colors
 $blue: #09a7f0;
 $dark-grey: #6b6d7c;
@@ -18,8 +7,8 @@ $separator-color: #cbcaca;
 $separator-color-light: rgba(203, 202, 202, 0.6);
 $text-color: #383b41;
 
-//heatmap colors
-
+// heatmap colors
+$grey: lighten($dark-grey, 30%);
 $green: #96d788;
 $yellow: #ffd960;
 $orange: #fca443;
@@ -57,3 +46,9 @@ $medium-font: 18px;
 
 $font-stack-regular: 400;
 $font-stack-bold: 700;
+
+//*********************
+
+// old variables
+$text-color: #757575;
+$right-hud-width: 320px;
