@@ -6,15 +6,20 @@
   min-width: calc(100vw - #{$filters-width});
   padding: 0 18px;
 }
+
 .heatmap-input {
   @include flexbox;
   @include align-items(center);
   @include justify-content(space-between);
+
   input {
-    margin: 0 4px;
-    max-width: 40px;
-    height: 25px;
+    border: 1px solid #e0e0e0;
     box-shadow: $basic-shadow;
+    font-size: $small-font;
+    height: 25px;
+    margin: 0 4px;
+    width: 48px;
+    text-align: center;
   }
 }
 

@@ -27,7 +27,6 @@ $navy-font: #3e4970;
 
 $shadow-color: rgba(160, 192, 290, 0.5);
 $basic-shadow: 1px 1px 4px 0 $shadow-color;
-$basic-radius: 8px;
 
 // element sizes
 $nav-height: 50px;
@@ -36,7 +35,8 @@ $heatmap-height: 65px;
 $logo-width: 110px;
 $sessions-list-width: 238px;
 
-// margins
+// spacing
+$input-padding: 7px;
 $margin-default: 12px;
 
 // typography
@@ -46,6 +46,10 @@ $medium-font: 18px;
 
 $font-stack-regular: 400;
 $font-stack-bold: 700;
+
+// other
+$basic-radius: 8px;
+$input-radius: 6px;
 
 //*********************
 
