@@ -10,7 +10,7 @@ import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
 import Data.Times as Times
 import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
-import Html.Attributes exposing (attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, type_, value)
+import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events
 import Json.Decode as Decode exposing (Decoder(..))
@@ -483,7 +483,7 @@ view model =
     div [ id "elm-app" ]
         [ nav [ class "nav" ]
             [ div [ class "nav-logo" ]
-                [ img [ src model.logoNav ] [] ]
+                [ img [ src model.logoNav, alt "Aircasting Logo" ] [] ]
             , ul []
                 [ li [ class "" ]
                     [ a [ href "/" ]
@@ -567,7 +567,7 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon =
         , div [ id "heatmap", class "heatmap-slider" ] []
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
         , button [ ariaLabel "Reset", class "reset-button", Events.onClick ResetHeatMapToDefaults ]
-            [ img [ src resetIcon ] [] ]
+            [ img [ src resetIcon, alt "Reset icon" ] [] ]
         ]
 
 
@@ -628,7 +628,7 @@ viewFiltersButtons selectedSession sessions linkIcon =
             div [ class "filters-buttons" ]
                 [ a [ class "filters-button export-button", target "_blank", href <| exportLink sessions ] [ text "export sessions" ]
                 , button [ class "filters-button link-button", Events.onClick ShowCopyLinkTooltip, id "copy-link-tooltip" ]
-                    [ img [ src linkIcon ] [] ]
+                    [ img [ src linkIcon, alt "Link icon" ] [] ]
                 ]
 
         _ ->
