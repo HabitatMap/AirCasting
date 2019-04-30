@@ -14,21 +14,22 @@ describe Api::Mobile::SessionsController do
       stream = create_stream!(session: session, sensor_name: sensor_name)
       create_stream!(session: session, sensor_name: "yet another-sensor-name")
       value1 = 1.0
-      create_measurement!(stream: stream, sensor_name: sensor_name, value: value1)
+      create_measurement!(stream: stream, value: value1)
       value2 = 2.0
-      create_measurement!(stream: stream, sensor_name: sensor_name, value: value2)
+      create_measurement!(stream: stream, value: value2)
 
       get :show, id: session.id, sensor_name: sensor_name
 
       expected = {
         "title" => title,
         "username" => username,
-        "sensor_name" => sensor_name,
+        "sensorName" => sensor_name,
         "average" => 1.5,
         "measurements" => [value1, value2],
         "startTime" => 970365780000,
         "endTime" => 1004850360000,
         "id" => session.id,
+        "streamId" => stream.id,
       }
       expect(json_response).to eq(expected)
     end
@@ -75,7 +76,7 @@ describe Api::Mobile::SessionsController do
     )
   end
 
-  def create_measurement!(stream:, sensor_name:, value:)
+  def create_measurement!(stream:, value:)
     Measurement.create!(
       time: DateTime.current,
       latitude: 123,

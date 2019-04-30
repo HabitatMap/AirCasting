@@ -2,13 +2,6 @@ export const heat = ($rootScope, params, storage) => {
   var Heat = function() {
     var self = this;
     this.namesBySensor = ["very_low", "low", "medium", "high", "very_high"];
-    this.namesByApp = ["lowest", "low", "mid", "high", "highest"];
-    this.colors = {
-      highest: "#FE6465",
-      high: "#FEB065",
-      mid: "#FEE665",
-      low: "#65C68A"
-    };
     this.heatPercentage = {};
     this.scope = $rootScope.$new();
     this.scope.params = params;
@@ -64,21 +57,6 @@ export const heat = ($rootScope, params, storage) => {
       };
     },
 
-    toLevels: function() {
-      var self = this;
-      var levels = [];
-      _(this.namesByApp).each(function(name, idx) {
-        if (idx === 0) {
-          return;
-        }
-        levels.push({
-          from: self.getValue(self.namesByApp[idx - 1]),
-          to: self.getValue(name),
-          color: self.colors[name]
-        });
-      });
-      return levels;
-    },
     toSensoredList: function(sensor) {
       var self = this;
       if (!sensor) return [];

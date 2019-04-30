@@ -617,6 +617,7 @@ selectedSession =
     , endTime = Time.millisToPosix 0
     , measurements = [ 1.0, 2.0, 3.0 ]
     , id = 123
+    , streamId = 123
     }
 
 
