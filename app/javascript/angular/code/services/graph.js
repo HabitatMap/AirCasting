@@ -12,13 +12,13 @@ let chart = null;
 const RENDER_TO_ID = "graph";
 
 export const fetchAndDrawFixed = ({ sensor, heat, times, streamId }) => {
-  const pageStartDate = times.end - 24 * 60 * 60 * 1000;
+  const pageStartTime = times.end - 24 * 60 * 60 * 1000;
 
   http
     .get("/api/measurements.json", {
       stream_id: streamId,
-      start_date: pageStartDate,
-      end_date: times.end
+      start_time: pageStartTime,
+      end_time: times.end
     })
     .then(xs => {
       drawFixed({
@@ -64,15 +64,14 @@ const afterSetExtremes = ({ streamId, times }) => e => {
   http
     .get("/api/measurements.json", {
       stream_id: streamId,
-      start_date: Math.round(e.min),
-      // winter time fix
-      end_date: Math.round(e.max)
+      start_time: Math.round(e.min),
+      end_time: Math.round(e.max)
     })
     .then(measurements => {
       const dataByTime = measurementsToTimeWithExtremes({
         measurements,
-        startDate: times.start,
-        endDate: times.end
+        startTime: times.start,
+        endTime: times.end
       });
       measurementsByTime = dataByTime;
       chart.series[0].setData(Object.values(dataByTime), false);

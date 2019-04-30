@@ -173,14 +173,14 @@ GET `/api/measurements.json`
 ### Example request
 
 ```
-curl http://aircasting.org/api/measurements.json/?end_date=2281550369000&start_date=0&stream_id=1
+curl http://aircasting.org/api/measurements.json/?end_time=2281550369000&start_time=0&stream_id=1
 ```
 
 Where
 
-- `end_date` and `start_date` are optional and are expressed in [POSIX time](https://en.wikipedia.org/wiki/Unix_time)
-- `start_date=0` means 1970-01-01 at 00:00:00 UTC
-- `end_date=2281550369000` means 2042-04-19 19:59:29 UTC
+- `end_time` and `start_time` are optional and are expressed in [POSIX time](https://en.wikipedia.org/wiki/Unix_time)
+- `start_time=0` means 1970-01-01 at 00:00:00 UTC
+- `end_time=2281550369000` means 2042-04-19 19:59:29 UTC
 - it's possible to convert dates to POSIX [here](https://www.unixtimestamp.com/index.php); for example converting 1970-01-01 at 00:00:00 UTC returns 0 (as explained above)
 
 ## Averages
