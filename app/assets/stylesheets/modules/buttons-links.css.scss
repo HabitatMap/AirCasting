@@ -1,22 +1,22 @@
 .filters-button {
   background-color: $brand-primary;
-  height: 33px;
-  line-height: 33px;
-  border-radius: 30px;
-  font-size: $small-font;
   border: none;
+  border-radius: 30px;
   color: white;
-  text-align: center;
+  font-size: $small-font;
   font-weight: $font-stack-bold;
-}
-
-.circular-button {
   height: 33px;
-  width: 33px;
+  text-align: center;
 }
 
 .link-button {
+  height: 33px;
   margin-top: 3px;
+  width: 33px;
+
+  img {
+    vertical-align: middle;
+  }
 }
 
 .clear-button {
