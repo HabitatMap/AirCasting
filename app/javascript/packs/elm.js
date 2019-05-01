@@ -1,6 +1,7 @@
 import { Elm } from "../elm/src/Main.elm";
 import logoNav from "../../assets/images/aircasting-logo-nav.svg";
 import linkIcon from "../../assets/images/link-icon.svg";
+import resetIcon from "../../assets/images/reset-icon.svg";
 import "nouislider";
 import * as graph from "../angular/code/services/graph";
 
@@ -65,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isIndoor: data.isIndoor,
         logoNav,
         linkIcon,
+        resetIcon,
         heatMapThresholdValues,
         isStreaming: data.isStreaming
       };

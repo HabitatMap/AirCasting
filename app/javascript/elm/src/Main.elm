@@ -10,7 +10,7 @@ import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
 import Data.Times as Times
 import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
-import Html.Attributes exposing (attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, type_, value)
+import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events
 import Json.Decode as Decode exposing (Decoder(..))
@@ -55,6 +55,7 @@ type alias Model =
     , isIndoor : Bool
     , logoNav : String
     , linkIcon : String
+    , resetIcon : String
     , heatMapThresholds : WebData HeatMapThresholds
     , isStreaming : Bool
     }
@@ -81,6 +82,7 @@ defaultModel =
     , selectedSession = NotAsked
     , logoNav = ""
     , linkIcon = ""
+    , resetIcon = ""
     , heatMapThresholds = NotAsked
     }
 
@@ -99,6 +101,7 @@ type alias Flags =
     , selectedSensorId : String
     , logoNav : String
     , linkIcon : String
+    , resetIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     }
 
@@ -134,6 +137,7 @@ init flags url key =
         , selectedSensorId = flags.selectedSensorId
         , logoNav = flags.logoNav
         , linkIcon = flags.linkIcon
+        , resetIcon = flags.resetIcon
         , heatMapThresholds =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
                 |> Maybe.withDefault defaultModel.heatMapThresholds
@@ -479,7 +483,7 @@ view model =
     div [ id "elm-app" ]
         [ nav [ class "nav" ]
             [ div [ class "nav-logo" ]
-                [ img [ src model.logoNav ] [] ]
+                [ img [ src model.logoNav, alt "Aircasting Logo" ] [] ]
             , ul []
                 [ li [ class "" ]
                     [ a [ href "/" ]
@@ -544,25 +548,26 @@ view model =
                                 ]
                             ]
                         ]
-                    , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "")
+                    , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "") model.resetIcon
                     ]
                 ]
             ]
         ]
 
 
-viewHeatMap : WebData HeatMapThresholds -> String -> Html Msg
-viewHeatMap heatMapThresholds sensorUnit =
+viewHeatMap : WebData HeatMapThresholds -> String -> String -> Html Msg
+viewHeatMap heatMapThresholds sensorUnit resetIcon =
     let
         ( threshold1, threshold5 ) =
             RemoteData.map HeatMapThresholds.extremes heatMapThresholds
                 |> RemoteData.withDefault ( 0, 0 )
     in
     div [ class "heatmap" ]
-        [ div [ class "heatmap-input" ] [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum ]
-        , div [ id "heatmap" ] []
-        , div [ class "heatmap-input" ] [ viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum ]
-        , button [ Events.onClick ResetHeatMapToDefaults ] [ text "D" ]
+        [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum
+        , div [ id "heatmap", class "heatmap-slider" ] []
+        , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
+        , button [ ariaLabel "Reset", class "reset-button", Events.onClick ResetHeatMapToDefaults ]
+            [ img [ src resetIcon, alt "Reset icon" ] [] ]
         ]
 
 
@@ -622,8 +627,8 @@ viewFiltersButtons selectedSession sessions linkIcon =
         NotAsked ->
             div [ class "filters-buttons" ]
                 [ a [ class "filters-button export-button", target "_blank", href <| exportLink sessions ] [ text "export sessions" ]
-                , button [ class "filters-button circular-button link-button", Events.onClick ShowCopyLinkTooltip, id "copy-link-tooltip" ]
-                    [ img [ src linkIcon ] [] ]
+                , button [ class "filters-button link-button", Events.onClick ShowCopyLinkTooltip, id "copy-link-tooltip" ]
+                    [ img [ src linkIcon, alt "Link icon" ] [] ]
                 ]
 
         _ ->

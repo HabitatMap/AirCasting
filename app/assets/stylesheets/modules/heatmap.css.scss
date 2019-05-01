@@ -6,23 +6,31 @@
   min-width: calc(100vw - #{$filters-width});
   padding: 0 18px;
 }
+
+.heatmap-slider {
+  flex: 1 1 80%;
+  height: 3px;
+  margin: 0 14px;
+}
+
 .heatmap-input {
   @include flexbox;
   @include align-items(center);
   @include justify-content(space-between);
+
   input {
-    margin: 0 4px;
-    max-width: 40px;
-    height: 25px;
+    border: 1px solid #e0e0e0;
     box-shadow: $basic-shadow;
+    font-size: $small-font;
+    height: 25px;
+    margin: 0 4px;
+    width: 48px;
+    text-align: center;
   }
 }
 
-/*! nouislider - 13.1.4 - 3/20/2019 */
-/* Functional styling;
- * These styles are required for noUiSlider to function.
- * You don't need to change these rules to apply your design.
- */
+// Customised noUiSlider styles, based on version: nouislider - 13.1.4 - 3/20/2019
+
 .noUi-target,
 .noUi-target * {
   -webkit-touch-callout: none;
@@ -105,12 +113,6 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
 }
 /* Slider size and handle placement;
  */
-.noUi-horizontal {
-  height: 3px;
-  width: 80%;
-  min-width: 80%;
-  max-width: 80%;
-}
 .noUi-horizontal .noUi-handle {
   width: 12px;
   height: 12px;
