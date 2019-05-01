@@ -80,7 +80,7 @@ p.download {
   }
 
   .habitatmap {
-    background: url("/assets/HM_LogoForAC.jpg") no-repeat;
+    background: image-url("HM_LogoForAC.jpg") no-repeat;
     height: 81px;
     width: 57px;
     display: block;
@@ -93,11 +93,11 @@ p.download {
     height: 30px;
   }
   .twitter-link {
-    background: url("/assets/AC_TwitterLogo.jpg") no-repeat;
+    background: image-url("AC_TwitterLogo.jpg") no-repeat;
     margin-right: 15px;
   }
   .facebook-link {
-    background: url("/assets/AC_FacebookLogo.jpg") no-repeat;
+    background: image-url("AC_FacebookLogo.jpg") no-repeat;
   }
   .label {
     display: block;
