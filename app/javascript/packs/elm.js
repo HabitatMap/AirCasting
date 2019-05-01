@@ -92,6 +92,10 @@ const setupHeatMap = () => {
         max: 100
       },
       tooltips: true,
+      ariaFormat: {
+        to: x => Math.round(x),
+        from: Number
+      },
       format: {
         to: x => Math.round(x),
         from: Number
