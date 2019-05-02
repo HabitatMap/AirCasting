@@ -317,11 +317,18 @@ update msg model =
                     ( model, Cmd.none )
 
         ToggleSessionSelectionFromAngular maybeId ->
-            case maybeId of
-                Just id ->
+            case ( model.selectedSession, maybeId ) of
+                ( Success session, Just id ) ->
+                    if SelectedSession.toId session == id then
+                        ( { model | selectedSession = NotAsked }, Cmd.none )
+
+                    else
+                        ( model, SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession) )
+
+                ( _, Just id ) ->
                     ( model, SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession) )
 
-                Nothing ->
+                ( _, Nothing ) ->
                     ( { model | selectedSession = NotAsked }, Cmd.none )
 
         ToggleSessionSelection id ->

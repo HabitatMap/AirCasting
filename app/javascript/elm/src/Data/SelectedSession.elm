@@ -3,6 +3,7 @@ module Data.SelectedSession exposing
     , decoder
     , fetch
     , times
+    , toId
     , toStreamId
     , view
     )
@@ -44,6 +45,11 @@ times { startTime, endTime } =
 toStreamId : SelectedSession -> Int
 toStreamId { streamId } =
     streamId
+
+
+toId : SelectedSession -> Int
+toId { id } =
+    id
 
 
 millisToPosixDecoder : Decoder Posix
