@@ -81,8 +81,7 @@ const afterSetExtremes = ({ streamId, times }) => e => {
     .then(measurements => {
       const dataByTime = measurementsToTimeWithExtremes({
         measurements,
-        startTime: times.start,
-        endTime: times.end
+        times
       });
       measurementsByTime = dataByTime;
       chart.series[0].setData(Object.values(dataByTime), false);
