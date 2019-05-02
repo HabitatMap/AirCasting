@@ -106,10 +106,6 @@ fetch sensors sensorId page id toCmd =
 
 view : SelectedSession -> WebData HeatMapThresholds -> Html msg
 view session heatMapThresholds =
-    let
-        ( start, end ) =
-            Times.format session.startTime session.endTime
-    in
     div []
         [ p [ class "single-session-name" ] [ text session.title ]
         , p [ class "single-session-username" ] [ text session.username ]
@@ -131,6 +127,5 @@ view session heatMapThresholds =
                 , span [ class "single-session-max" ] [ text <| String.fromFloat session.max ]
                 ]
             ]
-        , span [ class "single-session-start" ] [ text start, text " " ]
-        , span [ class "single-session-end" ] [ text end ]
+        , span [ class "single-session-date" ] [ text <| Times.format session.startTime session.endTime ]
         ]

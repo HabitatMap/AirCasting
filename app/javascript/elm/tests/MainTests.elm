@@ -735,15 +735,11 @@ viewTests =
 
                     selectedSession_ =
                         { selectedSession | startTime = start, endTime = end }
-
-                    expected =
-                        List.map (\x -> Slc.containing [ Slc.text x ])
-                            [ "12/31/2010, 09:08", "12/31/2011, 13:22" ]
                 in
                 { defaultModel | selectedSession = Success selectedSession_ }
                     |> view
                     |> Query.fromHtml
-                    |> Query.has [ Slc.all expected ]
+                    |> Query.contains [ text "12/31/10 09:08 - 12/31/11 13:22" ]
         , fuzz string "when heatmap minimum input changes UpdateHeatMapMinimum is triggered" <|
             \min ->
                 defaultModel
