@@ -52,14 +52,14 @@ timeRangeDecoder =
 view : msg -> Bool -> Html msg
 view refreshTimeRange isDisabled =
     div []
-        [ label [ for "time-range" ] [ text "time range:" ]
+        [ label [ for "time-range" ] [ text "time frame:" ]
         , input
             [ id "time-range"
             , attribute "autocomplete" "off"
             , class "input-dark"
             , class "input-filters"
             , class "input-time"
-            , placeholder "time range"
+            , placeholder "time frame"
             , type_ "text"
             , name "time-range"
             , disabled isDisabled
