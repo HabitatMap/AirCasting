@@ -3,11 +3,11 @@ module Data.Times exposing (format)
 import Time exposing (Month(..), Posix)
 
 
-format : Posix -> Posix -> ( String, String )
+format : Posix -> Posix -> String
 format start end =
     let
         toFullDate p =
-            toMonth p ++ "/" ++ toDay p ++ "/" ++ toYear p ++ ", " ++ toTime p
+            toMonth p ++ "/" ++ toDay p ++ "/" ++ toYear p ++ " " ++ toTime p
 
         toTime p =
             toHour p ++ ":" ++ toMinute p
@@ -16,7 +16,7 @@ format start end =
             toYear p1 == toYear p2 && toMonth p1 == toMonth p2 && toDay p1 == toDay p2
 
         toYear =
-            String.fromInt << Time.toYear Time.utc
+            String.right 2 << String.fromInt << Time.toYear Time.utc
 
         toMonth =
             monthToString << Time.toMonth Time.utc
@@ -30,13 +30,13 @@ format start end =
         toMinute =
             String.padLeft 2 '0' << String.fromInt << Time.toMinute Time.utc
     in
-    ( toFullDate start
-    , if areOnSameDate start end then
-        toTime end
+    toFullDate start
+        ++ (if areOnSameDate start end then
+                "-" ++ toTime end
 
-      else
-        toFullDate end
-    )
+            else
+                " - " ++ toFullDate end
+           )
 
 
 monthToString : Month -> String
