@@ -126,11 +126,9 @@ const setupHeatMap = () => {
       console.warn("heatmap updated", Object.values(toValues(node.noUiSlider)));
 
       // changing extremes could have changed middle values
-      if (haveMiddleValuesChanged(node.noUiSlider, thresholds)) {
-        window.__elmApp.ports.updateHeatMapThresholdsFromAngular.send(
-          toValues(node.noUiSlider)
-        );
-      }
+      window.__elmApp.ports.updateHeatMapThresholdsFromAngular.send(
+        toValues(node.noUiSlider)
+      );
     });
 
     window.__elmApp.ports.drawFixed.subscribe(draw(graph.fetchAndDrawFixed));
@@ -140,7 +138,7 @@ const setupHeatMap = () => {
 };
 
 const draw = fnc => ({ times, streamId, heat, sensor }) =>
-  fnc({ sensor, heat, times, streamId });
+  window.requestAnimationFrame(() => fnc({ sensor, heat, times, streamId }));
 
 const toValues = noUiSlider => ({
   threshold1: noUiSlider.options.range.min,
@@ -149,15 +147,6 @@ const toValues = noUiSlider => ({
   threshold4: noUiSlider.get()[2],
   threshold5: noUiSlider.options.range.max
 });
-
-const haveMiddleValuesChanged = (noUiSlider, thresholds) => {
-  const [threshold2, threshold3, threshold4] = toMiddleValues(thresholds);
-  return (
-    threshold2 !== noUiSlider.get()[0] ||
-    threshold3 !== noUiSlider.get()[1] ||
-    threshold4 !== noUiSlider.get()[2]
-  );
-};
 
 const toMiddleValues = ({ threshold2, threshold3, threshold4 }) => [
   threshold2,

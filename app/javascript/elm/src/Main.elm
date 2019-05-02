@@ -317,11 +317,18 @@ update msg model =
                     ( model, Cmd.none )
 
         ToggleSessionSelectionFromAngular maybeId ->
-            case maybeId of
-                Just id ->
+            case ( model.selectedSession, maybeId ) of
+                ( Success session, Just id ) ->
+                    if SelectedSession.toId session == id then
+                        ( { model | selectedSession = NotAsked }, Cmd.none )
+
+                    else
+                        ( model, SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession) )
+
+                ( _, Just id ) ->
                     ( model, SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession) )
 
-                Nothing ->
+                ( _, Nothing ) ->
                     ( { model | selectedSession = NotAsked }, Cmd.none )
 
         ToggleSessionSelection id ->
@@ -354,19 +361,9 @@ update msg model =
         GotSession response ->
             case ( model.heatMapThresholds, response ) of
                 ( Success thresholds, Success selectedSession ) ->
-                    let
-                        params =
-                            toGraphParams thresholds selectedSession model.sensors model.selectedSensorId
-
-                        cmd =
-                            case model.page of
-                                Mobile ->
-                                    Ports.drawMobile params
-
-                                Fixed ->
-                                    Ports.drawFixed params
-                    in
-                    ( { model | selectedSession = response }, cmd )
+                    ( { model | selectedSession = response }
+                    , graphDrawCmd thresholds selectedSession model.sensors model.selectedSensorId model.page
+                    )
 
                 _ ->
                     ( { model | selectedSession = response }, Cmd.none )
@@ -404,10 +401,29 @@ update msg model =
                     ( model, Cmd.none )
 
         UpdateHeatMapThresholdsFromAngular values ->
-            case model.heatMapThresholds of
-                Success thresholds ->
-                    ( { model | heatMapThresholds = Success <| HeatMapThresholds.updateFromValues values thresholds }
-                    , Ports.updateHeatMapThresholds values
+            let
+                updateThresholdsInModel thresholds =
+                    { model | heatMapThresholds = Success <| HeatMapThresholds.updateFromValues values thresholds }
+
+                updateThresholdsCmd thresholds =
+                    if values /= HeatMapThresholds.toValues thresholds then
+                        Ports.updateHeatMapThresholds values
+
+                    else
+                        Cmd.none
+            in
+            case ( model.heatMapThresholds, model.selectedSession ) of
+                ( Success thresholds, Success session ) ->
+                    ( updateThresholdsInModel thresholds
+                    , Cmd.batch
+                        [ updateThresholdsCmd thresholds
+                        , graphDrawCmd (HeatMapThresholds.updateFromValues values thresholds) session model.sensors model.selectedSensorId model.page
+                        ]
+                    )
+
+                ( Success thresholds, _ ) ->
+                    ( updateThresholdsInModel thresholds
+                    , updateThresholdsCmd thresholds
                     )
 
                 _ ->
@@ -441,6 +457,20 @@ updateLabels msg model toSubCmd mapper updateModel =
     ( updateModel subModel, Cmd.map mapper subCmd )
 
 
+graphDrawCmd : HeatMapThresholds -> SelectedSession -> List Sensor -> String -> Page -> Cmd Msg
+graphDrawCmd thresholds session sensors selectedSensorId page =
+    let
+        params =
+            toGraphParams thresholds session sensors selectedSensorId
+    in
+    case page of
+        Mobile ->
+            Ports.drawMobile params
+
+        Fixed ->
+            Ports.drawFixed params
+
+
 toGraphParams : HeatMapThresholds -> SelectedSession -> List Sensor -> String -> GraphData
 toGraphParams thresholds selectedSession sensors selectedSensorId =
     let
@@ -448,10 +478,10 @@ toGraphParams thresholds selectedSession sensors selectedSensorId =
             HeatMapThresholds.toValues thresholds
 
         levels =
-            [ { from = threshold1, to = threshold2, color = "#aaa" }
-            , { from = threshold2, to = threshold3, color = "#bbb" }
-            , { from = threshold3, to = threshold4, color = "#ccc" }
-            , { from = threshold4, to = threshold5, color = "#ddd" }
+            [ { from = threshold1, to = threshold2, className = "first-band" }
+            , { from = threshold2, to = threshold3, className = "second-band" }
+            , { from = threshold3, to = threshold4, className = "third-band" }
+            , { from = threshold4, to = threshold5, className = "fourth-band" }
             ]
 
         parameter =

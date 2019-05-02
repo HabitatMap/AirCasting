@@ -24,3 +24,19 @@
 @import "./modules/static";
 @import "./modules/time-filter-calendar";
 @import "./modules/toggle-button";
+
+.first-band {
+  fill: $green;
+}
+
+.second-band {
+  fill: $yellow;
+}
+
+.third-band {
+  fill: $orange;
+}
+
+.fourth-band {
+  fill: $red;
+}

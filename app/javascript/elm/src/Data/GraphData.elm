@@ -13,7 +13,7 @@ type alias GraphData =
             List
                 { from : Int
                 , to : Int
-                , color : String
+                , className : String
                 }
         }
     , times :
