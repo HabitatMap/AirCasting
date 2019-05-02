@@ -153,7 +153,18 @@ const buildTooltip = ({
     unitSymbol,
     onMouseOverSingle,
     onMouseOverMultiple
-  })
+  }),
+  positioner: function(labelWidth, labelHeight, point) {
+    const tooltipX =
+      labelWidth / 2 > point.plotX
+        ? point.plotX // extreme left
+        : point.plotX + labelWidth / 2 > this.chart.plotWidth
+        ? point.plotX - labelWidth // extreme right
+        : point.plotX - labelWidth / 2; // middle
+    const tooltipY = point.plotY - labelHeight - 10;
+
+    return { x: tooltipX, y: tooltipY };
+  }
 });
 
 export const buildOptions = ({
