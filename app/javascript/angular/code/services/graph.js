@@ -188,9 +188,15 @@ const draw = ({
   //TODO:
   //to speed up graph provide data as array not object
   chart ? chart.destroy() : null;
+  document
+    .getElementById(RENDER_TO_ID)
+    .removeEventListener("mouseleave", graphHighlight.hide);
   chart = new Highcharts.StockChart(options);
   measurements.length === 0
     ? chart.showLoading("Loading data from server...")
     : chart.hideLoading();
   measurementsByTime = measurements;
+  document
+    .getElementById(RENDER_TO_ID)
+    .addEventListener("mouseleave", graphHighlight.hide);
 };
