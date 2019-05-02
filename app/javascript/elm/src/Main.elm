@@ -354,19 +354,9 @@ update msg model =
         GotSession response ->
             case ( model.heatMapThresholds, response ) of
                 ( Success thresholds, Success selectedSession ) ->
-                    let
-                        params =
-                            toGraphParams thresholds selectedSession model.sensors model.selectedSensorId
-
-                        cmd =
-                            case model.page of
-                                Mobile ->
-                                    Ports.drawMobile params
-
-                                Fixed ->
-                                    Ports.drawFixed params
-                    in
-                    ( { model | selectedSession = response }, cmd )
+                    ( { model | selectedSession = response }
+                    , toGraphDrawCmd thresholds selectedSession model.sensors model.selectedSensorId model.page
+                    )
 
                 _ ->
                     ( { model | selectedSession = response }, Cmd.none )
@@ -404,8 +394,16 @@ update msg model =
                     ( model, Cmd.none )
 
         UpdateHeatMapThresholdsFromAngular values ->
-            case model.heatMapThresholds of
-                Success thresholds ->
+            case ( model.heatMapThresholds, model.selectedSession ) of
+                ( Success thresholds, Success session ) ->
+                    ( { model | heatMapThresholds = Success <| HeatMapThresholds.updateFromValues values thresholds }
+                    , Cmd.batch
+                        [ Ports.updateHeatMapThresholds values
+                        , toGraphDrawCmd (HeatMapThresholds.updateFromValues values thresholds) session model.sensors model.selectedSensorId model.page
+                        ]
+                    )
+
+                ( Success thresholds, _ ) ->
                     ( { model | heatMapThresholds = Success <| HeatMapThresholds.updateFromValues values thresholds }
                     , Ports.updateHeatMapThresholds values
                     )
@@ -439,6 +437,20 @@ updateLabels msg model toSubCmd mapper updateModel =
             LabelsInput.update msg model toSubCmd
     in
     ( updateModel subModel, Cmd.map mapper subCmd )
+
+
+toGraphDrawCmd : HeatMapThresholds -> SelectedSession -> List Sensor -> String -> Page -> Cmd Msg
+toGraphDrawCmd thresholds session sensors selectedSensorId page =
+    let
+        params =
+            toGraphParams thresholds session sensors selectedSensorId
+    in
+    case page of
+        Mobile ->
+            Ports.drawMobile params
+
+        Fixed ->
+            Ports.drawFixed params
 
 
 toGraphParams : HeatMapThresholds -> SelectedSession -> List Sensor -> String -> GraphData
