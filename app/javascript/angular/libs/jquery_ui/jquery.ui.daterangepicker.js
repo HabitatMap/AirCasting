@@ -1,3 +1,5 @@
+// This is not the original library! The code has been customized.
+
 /**
 * @version: 3.0.3
 * @author: Dan Grossman http://www.dangrossman.info/
@@ -108,7 +110,7 @@
                     '<div class="calendar-table"></div>' +
                 '</div>' +
                 '<div class="time-container">' +
-                  '<span class="time-header">Daily measurement time frame:</span>' +
+                  '<span class="time-header">Daily time frame:</span>' +
                   '<div class="drp-calendar left time-calendar">' +
                       '<div class="calendar-time-label">From:</div>' +
                       '<div class="calendar-time"></div>' +
