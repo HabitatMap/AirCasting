@@ -183,7 +183,7 @@ const draw = ({
     options.yAxis.plotBands.push({
       from: level.from,
       to: level.to,
-      color: level.color
+      className: level.className
     });
   });
   //TODO:

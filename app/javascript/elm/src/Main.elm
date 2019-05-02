@@ -448,10 +448,10 @@ toGraphParams thresholds selectedSession sensors selectedSensorId =
             HeatMapThresholds.toValues thresholds
 
         levels =
-            [ { from = threshold1, to = threshold2, color = "#aaa" }
-            , { from = threshold2, to = threshold3, color = "#bbb" }
-            , { from = threshold3, to = threshold4, color = "#ccc" }
-            , { from = threshold4, to = threshold5, color = "#ddd" }
+            [ { from = threshold1, to = threshold2, className = "first-band" }
+            , { from = threshold2, to = threshold3, className = "second-band" }
+            , { from = threshold3, to = threshold4, className = "third-band" }
+            , { from = threshold4, to = threshold5, className = "fourth-band" }
             ]
 
         parameter =
