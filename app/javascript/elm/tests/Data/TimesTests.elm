@@ -30,7 +30,7 @@ suite =
                             |> Result.withDefault (Time.millisToPosix 0)
 
                     expected =
-                        ( "12/31/" ++ startYear ++ ", 13:12", "12/31/" ++ endYear ++ ", 13:12" )
+                        "12/31/" ++ String.right 2 startYear ++ " 13:12 - 12/31/" ++ String.right 2 endYear ++ " 13:12"
                 in
                 format start end
                     |> Expect.equal expected
@@ -52,7 +52,7 @@ suite =
                             |> Result.withDefault (Time.millisToPosix 0)
 
                     expected =
-                        ( startMonth ++ "/28/2000, 13:12", endMonth ++ "/28/2000, 13:12" )
+                        startMonth ++ "/28/00 13:12 - " ++ endMonth ++ "/28/00 13:12"
                 in
                 format start end
                     |> Expect.equal expected
@@ -74,7 +74,7 @@ suite =
                             |> Result.withDefault (Time.millisToPosix 0)
 
                     expected =
-                        ( "01/" ++ startDay ++ "/2000, 13:12", "01/" ++ endDay ++ "/2000, 13:12" )
+                        "01/" ++ startDay ++ "/00 13:12 - 01/" ++ endDay ++ "/00 13:12"
                 in
                 format start end
                     |> Expect.equal expected
@@ -90,7 +90,7 @@ suite =
                             |> Result.withDefault (Time.millisToPosix 0)
 
                     expected =
-                        ( "12/31/2010, 09:08", "13:22" )
+                        "12/31/10 09:08-13:22"
                 in
                 format start end
                     |> Expect.equal expected

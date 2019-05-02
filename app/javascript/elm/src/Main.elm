@@ -695,10 +695,6 @@ viewLoadMore sessionCount =
 
 viewSessionCard : WebData HeatMapThresholds -> Session -> Html Msg
 viewSessionCard heatMapThresholds session =
-    let
-        ( start, end ) =
-            Times.format session.startTime session.endTime
-    in
     div
         [ class "session"
         , Events.onClick <| ToggleSessionSelection session.id
@@ -715,9 +711,7 @@ viewSessionCard heatMapThresholds session =
         , p [ class "session-owner" ]
             [ text session.username ]
         , span [ class "session-dates" ]
-            [ text start ]
-        , span [ class "session-dates" ]
-            [ text end ]
+            [ text <| Times.format session.startTime session.endTime ]
         ]
 
 
