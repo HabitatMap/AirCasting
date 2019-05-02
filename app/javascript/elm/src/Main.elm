@@ -355,7 +355,7 @@ update msg model =
             case ( model.heatMapThresholds, response ) of
                 ( Success thresholds, Success selectedSession ) ->
                     ( { model | selectedSession = response }
-                    , toGraphDrawCmd thresholds selectedSession model.sensors model.selectedSensorId model.page
+                    , graphDrawCmd thresholds selectedSession model.sensors model.selectedSensorId model.page
                     )
 
                 _ ->
@@ -394,18 +394,29 @@ update msg model =
                     ( model, Cmd.none )
 
         UpdateHeatMapThresholdsFromAngular values ->
+            let
+                updateThresholdsInModel thresholds =
+                    { model | heatMapThresholds = Success <| HeatMapThresholds.updateFromValues values thresholds }
+
+                updateThresholdsCmd thresholds =
+                    if values /= HeatMapThresholds.toValues thresholds then
+                        Ports.updateHeatMapThresholds values
+
+                    else
+                        Cmd.none
+            in
             case ( model.heatMapThresholds, model.selectedSession ) of
                 ( Success thresholds, Success session ) ->
-                    ( { model | heatMapThresholds = Success <| HeatMapThresholds.updateFromValues values thresholds }
+                    ( updateThresholdsInModel thresholds
                     , Cmd.batch
-                        [ Ports.updateHeatMapThresholds values
-                        , toGraphDrawCmd (HeatMapThresholds.updateFromValues values thresholds) session model.sensors model.selectedSensorId model.page
+                        [ updateThresholdsCmd thresholds
+                        , graphDrawCmd (HeatMapThresholds.updateFromValues values thresholds) session model.sensors model.selectedSensorId model.page
                         ]
                     )
 
                 ( Success thresholds, _ ) ->
-                    ( { model | heatMapThresholds = Success <| HeatMapThresholds.updateFromValues values thresholds }
-                    , Ports.updateHeatMapThresholds values
+                    ( updateThresholdsInModel thresholds
+                    , updateThresholdsCmd thresholds
                     )
 
                 _ ->
@@ -439,8 +450,8 @@ updateLabels msg model toSubCmd mapper updateModel =
     ( updateModel subModel, Cmd.map mapper subCmd )
 
 
-toGraphDrawCmd : HeatMapThresholds -> SelectedSession -> List Sensor -> String -> Page -> Cmd Msg
-toGraphDrawCmd thresholds session sensors selectedSensorId page =
+graphDrawCmd : HeatMapThresholds -> SelectedSession -> List Sensor -> String -> Page -> Cmd Msg
+graphDrawCmd thresholds session sensors selectedSensorId page =
     let
         params =
             toGraphParams thresholds session sensors selectedSensorId
