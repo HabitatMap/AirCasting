@@ -77,13 +77,13 @@ $action-container-height: 60px;
   font-weight: $font-stack-regular;
   margin-right: 10px;
   margin-top: 10px;
-  padding: 3px 8px 3px 7px;
+  padding: 3px 8px;
 }
 
 .filters-tag-close {
   background: image-url("close-icon.svg") no-repeat right center;
   border: none;
-  padding: 0 0 0 12px;
+  padding: 0 0 0 16px;
   width: 8px;
   height: 8px;
 }
