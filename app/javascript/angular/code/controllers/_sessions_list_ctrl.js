@@ -110,11 +110,14 @@ export const SessionsListCtrl = (
   );
 
   $scope.$on("markerSelected", function(event, data) {
-    $scope.toggleSession(data.session_id, true);
+    $scope.toggleSession(
+      data.session_id,
+      elmApp.ports.toggleSessionSelection.send
+    );
     $scope.$apply();
   });
 
-  $scope.toggleSession = function(sessionId, markerSelected) {
+  $scope.toggleSession = function(sessionId, callback) {
     if (this.isSessionDisabled(sessionId)) {
       flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
       return;
@@ -122,11 +125,11 @@ export const SessionsListCtrl = (
     var session = sessions.find(sessionId);
     if (sessions.isSelected(session)) {
       params.update({ selectedSessionIds: [] });
-      elmApp.ports.toggleSessionSelection.send(null);
+      callback(null);
     } else if ($scope.canSelectSession(sessionId)) {
       params.update({ selectedSessionIds: [sessionId] });
-      $scope.markerSelected.set(markerSelected);
-      elmApp.ports.toggleSessionSelection.send(sessionId);
+      $scope.markerSelected.set(true);
+      callback(sessionId);
     }
   };
 
@@ -144,8 +147,8 @@ export const SessionsListCtrl = (
   if (process.env.NODE_ENV !== "test") {
     angular.element(document).ready(() => {
       elmApp.ports.toggleSession.subscribe(({ selected, deselected }) => {
-        if (deselected) $scope.toggleSession(deselected, true);
-        if (selected) $scope.toggleSession(selected, true);
+        if (deselected) $scope.toggleSession(deselected, () => {});
+        if (selected) $scope.toggleSession(selected, () => {});
         $scope.$apply();
       });
 
