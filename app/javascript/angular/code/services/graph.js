@@ -12,6 +12,14 @@ let chart = null;
 const RENDER_TO_ID = "graph";
 
 export const fetchAndDrawFixed = ({ sensor, heat, times, streamId }) => {
+  // render empty graph with loading message
+  drawFixed({
+    measurements: [],
+    sensor,
+    heat,
+    afterSetExtremes: afterSetExtremes({ streamId, times })
+  });
+
   const pageStartTime = times.end - 24 * 60 * 60 * 1000;
 
   http
@@ -34,6 +42,9 @@ export const fetchAndDrawFixed = ({ sensor, heat, times, streamId }) => {
 };
 
 export const fetchAndDrawMobile = ({ sensor, heat, times, streamId }) => {
+  // render empty graph with loading message
+  drawMobile({ measurements: [], sensor, heat });
+
   http
     .get("/api/measurements.json", {
       stream_id: streamId
@@ -179,5 +190,8 @@ const draw = ({
   //to speed up graph provide data as array not object
   chart ? chart.destroy() : null;
   chart = new Highcharts.StockChart(options);
+  measurements.length === 0
+    ? chart.showLoading("Loading data from server...")
+    : chart.hideLoading();
   measurementsByTime = measurements;
 };
