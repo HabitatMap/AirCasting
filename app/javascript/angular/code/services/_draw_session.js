@@ -94,7 +94,7 @@ const createMeasurementMarker = (measurement, idx, heat, map, suffix) => {
     position: { lat: measurement.latitude, lng: measurement.longitude },
     title: roundedValue.toString() + suffix,
     zIndex: idx,
-    icon: "/assets/marker" + level + ".png"
+    icon: "/assets/location_marker" + level + ".svg"
   });
 
   return marker;
