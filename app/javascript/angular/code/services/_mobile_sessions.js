@@ -236,7 +236,7 @@ export const mobileSessions = (
         .success(callback(session, allSelected));
     },
 
-    _fetch: function(page) {
+    _fetch: function() {
       // if _fetch is called after the route has changed (eg debounced)
       if ($window.location.pathname !== constants.mobileMapRoute) return;
 
@@ -267,11 +267,9 @@ export const mobileSessions = (
         });
       }
 
-      _(params).extend({ page: page });
-
       drawSession.clear(this.sessions);
 
-      if (page === 0) {
+      if (params.paramsData.fetchedSessionsCount === 0) {
         this.sessions = [];
         // seems to be called for selected sessions; thus, only when loading the app with selections in the url
         sessionsDownloader(
@@ -294,8 +292,8 @@ export const mobileSessions = (
       );
     },
 
-    fetch: debounce(function(page) {
-      this._fetch(page);
+    fetch: debounce(function() {
+      this._fetch();
     }, 750)
   };
   return new MobileSessions();

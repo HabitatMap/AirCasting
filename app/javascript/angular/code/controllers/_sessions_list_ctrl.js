@@ -21,7 +21,6 @@ export const SessionsListCtrl = (
     $scope.storage = storage;
     $scope.$window = $window;
     $scope.sensors = sensors;
-    $scope.page = 0;
     $scope.markerSelected = markerSelected;
     $window.sessions = sessions = $scope.sessions;
     $scope.sessionsForList = [];
@@ -32,6 +31,7 @@ export const SessionsListCtrl = (
     }
 
     sessions.reSelectAllSessions();
+    if (params.paramsData.fetchedSessionsCount === undefined) params.update({ fetchedSessionsCount: 0 });
   };
 
   $scope.isSessionDisabled = function(sessionId) {
@@ -50,26 +50,13 @@ export const SessionsListCtrl = (
     };
   };
 
-  $scope.updateSessionsPage = function() {
-    $scope.page++;
-  };
-
-  $scope.$watch(
-    "page",
-    () => {
-      console.log("watch - page");
-      sessions.fetch($scope.page);
-    },
-    true
-  );
-
   $scope.$watch(
     "params.get('map')",
     ({ hasChangedProgrammatically }) => {
       console.log("watch - params.get('map')");
       if (sessions.hasSelectedSessions()) return;
-      if (!hasChangedProgrammatically) $scope.page = 0;
-      sessions.fetch($scope.page);
+      if (!hasChangedProgrammatically) params.update({ fetchedSessionsCount: 0 });
+      sessions.fetch();
     },
     true
   );
@@ -79,8 +66,8 @@ export const SessionsListCtrl = (
     (newValue, oldValue) => {
       console.log("watch - sessionFetchCondition()", newValue, oldValue);
       if (sessions.hasSelectedSessions()) return;
-      $scope.page = 0;
-      sessions.fetch($scope.page);
+      params.update({ fetchedSessionsCount: 0 });
+      sessions.fetch();
     },
     true
   );
@@ -153,8 +140,7 @@ export const SessionsListCtrl = (
       });
 
       elmApp.ports.loadMoreSessions.subscribe(() => {
-        $scope.updateSessionsPage();
-        $scope.$apply();
+        sessions.fetch();
       });
 
       elmApp.ports.updateHeatMapThresholds.subscribe(

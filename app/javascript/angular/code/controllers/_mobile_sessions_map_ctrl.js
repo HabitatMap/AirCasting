@@ -124,7 +124,6 @@ export const MobileSessionsMapCtrl = (
         params.update({ selectedSessionIds: [] });
         params.update({ data: { sensorId } });
         sensors.fetchHeatLevels();
-        $scope.sessions.fetch();
       });
 
       elmApp.ports.toggleCrowdMap.subscribe(crowdMap => {
