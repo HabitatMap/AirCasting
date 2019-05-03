@@ -58,9 +58,9 @@ const plotOptions = {
     lineColor: "#FFFFFF",
     turboThreshold: 9999999, //above that graph will not display,
     marker: {
-      fillColor: "#007BF2",
+      fillColor: "#09a7f0",
       lineWidth: 0,
-      lineColor: "#007BF2"
+      lineColor: "#09a7f0"
     },
 
     dataGrouping: {
