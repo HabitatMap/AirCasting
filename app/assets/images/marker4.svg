@@ -4,9 +4,9 @@
     <title>Slice 1</title>
     <desc>Created with Sketch.</desc>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Colors/dark-green" transform="translate(8.000000, 8.000000)" fill="#F4001C">
+        <g id="Colors/red" transform="translate(8.000000, 8.000000)" fill="#e95f5f">
             <rect id="Rectangle" x="0" y="0" width="13" height="13" rx="6.5"></rect>
         </g>
-        <circle id="Oval-3" stroke="#F4001C" cx="14.5" cy="14.5" r="13.5"></circle>
+        <circle id="Oval-3" stroke="#e95f5f" cx="14.5" cy="14.5" r="13.5"></circle>
     </g>
 </svg>
