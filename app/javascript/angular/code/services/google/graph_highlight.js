@@ -16,7 +16,7 @@ export const show = points => {
       marker: drawMarker({
         position: { lat: point.latitude, lng: point.longitude },
         zIndex: 300000,
-        icon: "/assets/location_marker0.png"
+        icon: "/assets/location_marker.svg"
       }),
       point: point
     });
