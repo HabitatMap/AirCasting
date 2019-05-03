@@ -1,4 +1,7 @@
-import { removeMarker, drawMarker } from "./_map";
+import { removeMarker, drawMarker } from "./_map.js.erb";
+
+<% helpers = ActionController::Base.helpers %>
+const locationMarkerPath = "<%= helpers.image_path('location_marker.svg') %>"
 
 let items = [];
 
@@ -10,13 +13,15 @@ export const hide = () => {
 };
 
 export const show = points => {
+  
+
   hide();
   points.forEach(point => {
     items.push({
       marker: drawMarker({
         position: { lat: point.latitude, lng: point.longitude },
         zIndex: 300000,
-        icon: "/assets/location_marker.svg"
+        icon: locationMarkerPath
       }),
       point: point
     });

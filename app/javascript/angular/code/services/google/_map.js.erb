@@ -2,6 +2,13 @@ import _ from "underscore";
 import { buildCustomMarker } from "./custom_marker";
 import MarkerClusterer from "@google/markerclustererplus";
 
+<% helpers = ActionController::Base.helpers %>
+
+const marker1Path = "<%= helpers.image_path('marker1.svg') %>";
+const marker2Path = "<%= helpers.image_path('marker2.svg') %>";
+const marker3Path = "<%= helpers.image_path('marker3.svg') %>";
+const marker4Path = "<%= helpers.image_path('marker4.svg') %>";
+
 export const map = (
   params,
   $cookieStore,
@@ -213,13 +220,13 @@ export const map = (
       return customMarker;
     },
 
-    clusterMarkers: function(onClick) {
+    clusterMarkers: function(onClick) {      
       const options = {
         styles: [
-          { url: "/assets/marker1.svg", height: 30, width: 30 },
-          { url: "/assets/marker2.svg", height: 30, width: 30 },
-          { url: "/assets/marker3.svg", height: 30, width: 30 },
-          { url: "/assets/marker4.svg", height: 30, width: 30 }
+          { url: marker1Path, height: 30, width: 30 },
+          { url: marker2Path, height: 30, width: 30 },
+          { url: marker3Path, height: 30, width: 30 },
+          { url: marker4Path, height: 30, width: 30 }
         ],
         zoomOnClick: false,
         gridSize: 20,

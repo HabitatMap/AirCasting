@@ -1,6 +1,6 @@
 import Highcharts from "highcharts/highstock";
 import { buildOptions } from "./buildGraphOptions";
-import * as graphHighlight from "./google/graph_highlight";
+import * as graphHighlight from "./google/graph_highlight.js.erb";
 import * as http from "./http";
 import {
   measurementsToTime,
