@@ -21,6 +21,7 @@
     "jquery-migrate": "1.4.1",
     "moment": "~2.15.2",
     "nouislider": "^13.1.4",
+    "rails-erb-loader": "^5.5.2",
     "tippy.js": "^4.2.0",
     "underscore": "~1.8.3",
     "underscore.string": "~2.4.0"

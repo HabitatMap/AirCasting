@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { drawSession } from "../code/services/_draw_session";
+import { drawSession } from "../code/services/_draw_session.js.erb";
 
 test("drawMobileSession draws a session when session is loaded and sensor is selected", t => {
   const map = mock("drawMarker");

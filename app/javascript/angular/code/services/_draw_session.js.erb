@@ -1,5 +1,12 @@
 import _ from "underscore";
-import { removeMarker } from "./google/_map";
+import { removeMarker } from "./google/_map.js.erb";
+
+<% helpers = ActionController::Base.helpers %>
+
+const locationMarker1Path = "<%= helpers.image_path('location_marker1.svg') %>";
+const locationMarker2Path = "<%= helpers.image_path('location_marker2.svg') %>";
+const locationMarker3Path = "<%= helpers.image_path('location_marker3.svg') %>";
+const locationMarker4Path = "<%= helpers.image_path('location_marker4.svg') %>";
 
 export const drawSession = (sensors, map, heat, note, empty) => {
   var DrawSession = function() {};
@@ -94,7 +101,7 @@ const createMeasurementMarker = (measurement, idx, heat, map, suffix) => {
     position: { lat: measurement.latitude, lng: measurement.longitude },
     title: roundedValue.toString() + suffix,
     zIndex: idx,
-    icon: "/assets/location_marker" + level + ".svg"
+    icon: eval(`locationMarker${level}Path`)
   });
 
   return marker;
