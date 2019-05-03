@@ -34,7 +34,7 @@ module Api
       data[:time_from] = Time.strptime(data[:time_from].to_s, '%s')
       data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
 
-      respond_with MobileSession.filtered_json(data, page, page_size)
+      respond_with MobileSession.filtered_json(data, page_size, params[:offset])
     end
 
     def show_multiple
@@ -84,10 +84,6 @@ module Api
     end
 
     private
-
-    def page
-      @page ||= params[:page] || 0
-    end
 
     def page_size
       @page_size ||= params[:page_size] || 50
