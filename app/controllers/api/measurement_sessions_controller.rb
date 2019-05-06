@@ -18,7 +18,7 @@
 
 module Api
   class MeasurementSessionsController < BaseController
-    INT_Q_ATTRS = [:time_from, :time_to, :day_from, :day_to]
+    INT_Q_ATTRS = [:time_from, :time_to, :day_from, :day_to, :limit, :offset]
 
     # TokenAuthenticatable was removed from Devise in 3.1
     # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
@@ -34,7 +34,7 @@ module Api
       data[:time_from] = Time.strptime(data[:time_from].to_s, '%s')
       data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
 
-      respond_with MobileSession.filtered_json(data, page_size, params[:offset])
+      respond_with MobileSession.filtered_json(data, data[:limit], data[:offset])
     end
 
     def show_multiple
@@ -84,10 +84,6 @@ module Api
     end
 
     private
-
-    def page_size
-      @page_size ||= params[:page_size] || 50
-    end
 
     def decoded_query_data(query)
       if query.is_a?(String)
