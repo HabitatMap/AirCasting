@@ -24,10 +24,15 @@ export const mobileSessions = (
     this.scope.params = params;
   };
 
-  let prevMapPosition = {
-    bounds: map.getBounds(),
-    zoom: map.getZoom()
-  };
+  let prevMapPosition = {};
+  if (params.get("selectedSessionIds").length === 1) {
+    prevMapPosition = params.get("prevMapPosition");
+  } else {
+    prevMapPosition = {
+      bounds: map.getBounds(),
+      zoom: map.getZoom()
+    };
+  }
 
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 3000;
 
@@ -106,6 +111,7 @@ export const mobileSessions = (
       if (!session) return;
       session.loaded = false;
       session.alreadySelected = false;
+      params.update({ prevMapPosition: {} });
       drawSession.undoDraw(session, prevMapPosition);
     },
 
@@ -116,6 +122,8 @@ export const mobileSessions = (
           bounds: map.getBounds(),
           zoom: map.getZoom()
         };
+        params.update({ prevMapPosition: prevMapPosition });
+
         const drawSessionStartingMarker = (session, sensorName) =>
           this.drawSessionWithLabel(session, sensorName);
         const draw = () =>
@@ -271,7 +279,7 @@ export const mobileSessions = (
 
       drawSession.clear(this.sessions);
 
-      if (params.get("selectedSessionIds").length == 1) {
+      if (params.get("selectedSessionIds").length === 1) {
         sessionsDownloader(
           "/api/multiple_sessions.json",
           reqData,
