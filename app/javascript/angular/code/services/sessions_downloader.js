@@ -81,7 +81,10 @@ angular.module("aircasting").factory("sessionsDownloader", [
       });
       sessions.push.apply(sessions, data);
       sessions = orderBy(sessions, "end_time_local");
-      params.update({ fetchedSessionsCount: sessions.length });
+
+      if (params.get("selectedSessionIds").length === 0) {
+        params.update({ fetchedSessionsCount: sessions.length });
+      }
     };
 
     return fetch;
