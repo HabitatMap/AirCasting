@@ -56,18 +56,6 @@ export const SessionsListCtrl = (
       console.log("watch - params.get('map')");
       if (sessions.hasSelectedSessions()) return;
       if (!hasChangedProgrammatically) params.update({ fetchedSessionsCount: 0 });
-      sessions.fetch();
-    },
-    true
-  );
-
-  $scope.$watch(
-    "sessionFetchCondition()",
-    (newValue, oldValue) => {
-      console.log("watch - sessionFetchCondition()", newValue, oldValue);
-      if (sessions.hasSelectedSessions()) return;
-      params.update({ fetchedSessionsCount: 0 });
-      sessions.fetch();
     },
     true
   );
