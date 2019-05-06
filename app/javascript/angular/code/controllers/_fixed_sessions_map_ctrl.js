@@ -85,6 +85,7 @@ export const FixedSessionsMapCtrl = (
       elmApp.ports.selectSensorId.subscribe(sensorId => {
         params.update({ selectedSessionIds: [] });
         params.update({ data: { sensorId } });
+        params.update({ fetchedSessionsCount: 0 });
         sensors.fetchHeatLevels();
         $scope.sessions.fetch();
       });
@@ -95,11 +96,13 @@ export const FixedSessionsMapCtrl = (
 
       elmApp.ports.toggleIndoor.subscribe(isIndoor => {
         params.update({ data: { isIndoor: isIndoor } });
+        params.update({ fetchedSessionsCount: 0 });
         $scope.sessions.fetch();
       });
 
       elmApp.ports.toggleStreaming.subscribe(isStreaming => {
         params.update({ data: { isStreaming } });
+        params.update({ fetchedSessionsCount: 0 });
         resetTimeRangeFilter();
         $scope.sessions.fetch();
       });
@@ -122,18 +125,21 @@ export const FixedSessionsMapCtrl = (
 
       elmApp.ports.updateTags.subscribe(tags => {
         params.update({ data: { tags: tags.join(", ") } });
+        params.update({ fetchedSessionsCount: 0 });
         $scope.sessions.fetch();
       });
 
       elmApp.ports.updateProfiles.subscribe(profiles => {
         params.update({ data: { usernames: profiles.join(", ") } });
+        params.update({ fetchedSessionsCount: 0 });
         $scope.sessions.fetch();
       });
 
       const onTimeRangeChanged = (timeFrom, timeTo) => {
         elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
         params.update({ data: { timeFrom, timeTo } });
-        sessions.fetch();
+        params.update({ fetchedSessionsCount: 0 });
+        $scope.sessions.fetch();
       };
 
       const setupStreamingTimeRangeFilter = (timeFrom, timeTo) => {
