@@ -236,7 +236,7 @@ export const mobileSessions = (
         .success(callback(session, allSelected));
     },
 
-    _fetch: function() {
+    _fetch: function(numberToFetch, fetchedSessionsCount) {
       // if _fetch is called after the route has changed (eg debounced)
       if ($window.location.pathname !== constants.mobileMapRoute) return;
 
@@ -256,7 +256,9 @@ export const mobileSessions = (
         west: bounds.west,
         east: bounds.east,
         south: bounds.south,
-        north: bounds.north
+        north: bounds.north,
+        limit: numberToFetch,
+        offset: fetchedSessionsCount
       });
 
       if (sensors.selected()) {
@@ -269,9 +271,7 @@ export const mobileSessions = (
 
       drawSession.clear(this.sessions);
 
-      if (params.paramsData.fetchedSessionsCount === 0) {
-        this.sessions = [];
-        // seems to be called for selected sessions; thus, only when loading the app with selections in the url
+      if (params.get("selectedSessionIds").length == 1) {
         sessionsDownloader(
           "/api/multiple_sessions.json",
           reqData,
@@ -280,20 +280,25 @@ export const mobileSessions = (
           _(this.onSessionsFetch).bind(this),
           _(this.onSessionsFetchError).bind(this)
         );
-      }
+      } else {
+        if (fetchedSessionsCount === 0) this.sessions = [];
 
-      sessionsDownloader(
-        "/api/sessions.json",
-        reqData,
-        this.sessions,
-        params,
-        _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this),
-        _(this.onSessionsFetchError).bind(this)
-      );
+        sessionsDownloader(
+          "/api/sessions.json",
+          reqData,
+          this.sessions,
+          params,
+          _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this),
+          _(this.onSessionsFetchError).bind(this)
+        );
+      }
     },
 
-    fetch: debounce(function() {
-      this._fetch();
+    fetch: debounce(function(values = {}) {
+      const numberToFetch = values.numberToFetch || 50;
+      const fetchedSessionsCount = values.fetchedSessionsCount || 0;
+
+      this._fetch(numberToFetch, fetchedSessionsCount);
     }, 750)
   };
   return new MobileSessions();

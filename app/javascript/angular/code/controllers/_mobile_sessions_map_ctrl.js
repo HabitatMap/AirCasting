@@ -123,14 +123,12 @@ export const MobileSessionsMapCtrl = (
       elmApp.ports.selectSensorId.subscribe(sensorId => {
         params.update({ selectedSessionIds: [] });
         params.update({ data: { sensorId } });
-        params.update({ fetchedSessionsCount: 0 });
         sensors.fetchHeatLevels();
         $scope.sessions.fetch();
       });
 
       elmApp.ports.toggleCrowdMap.subscribe(crowdMap => {
         params.updateData({ crowdMap });
-        params.update({ fetchedSessionsCount: 0 });
         $scope.sessions.fetch();
       });
 
@@ -161,13 +159,11 @@ export const MobileSessionsMapCtrl = (
 
       elmApp.ports.updateTags.subscribe(tags => {
         params.update({ data: { tags: tags.join(", ") } });
-        params.update({ fetchedSessionsCount: 0 });
         $scope.sessions.fetch();
       });
 
       elmApp.ports.updateProfiles.subscribe(profiles => {
         params.update({ data: { usernames: profiles.join(", ") } });
-        params.update({ fetchedSessionsCount: 0 });
         $scope.sessions.fetch();
       });
 
@@ -175,7 +171,6 @@ export const MobileSessionsMapCtrl = (
         elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
 
         params.update({ data: { timeFrom, timeTo } });
-        params.update({ fetchedSessionsCount: 0 });
         $scope.sessions.fetch();
       };
 

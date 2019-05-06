@@ -24,6 +24,7 @@ export const SessionsListCtrl = (
     $scope.markerSelected = markerSelected;
     $window.sessions = sessions = $scope.sessions;
     $scope.sessionsForList = [];
+    $scope.firstLoad = true;
 
     // prolly this can be removed
     if (_(params.get("selectedSessionIds", [])).isEmpty()) {
@@ -31,7 +32,6 @@ export const SessionsListCtrl = (
     }
 
     sessions.reSelectAllSessions();
-    if (params.paramsData.fetchedSessionsCount === undefined) params.update({ fetchedSessionsCount: 0 });
   };
 
   $scope.isSessionDisabled = function(sessionId) {
@@ -43,19 +43,17 @@ export const SessionsListCtrl = (
     );
   };
 
-  $scope.sessionFetchCondition = function() {
-    return {
-      id: sensors.selectedId(),
-      params: params.getWithout("data", "heat")
-    };
-  };
-
   $scope.$watch(
     "params.get('map')",
     ({ hasChangedProgrammatically }) => {
       console.log("watch - params.get('map')");
       if (sessions.hasSelectedSessions()) return;
-      if (!hasChangedProgrammatically) params.update({ fetchedSessionsCount: 0 });
+      if ($scope.firstLoad || hasChangedProgrammatically) {
+        sessions.fetch({ numberToFetch: params.get("fetchedSessionsCount") });
+      } else {
+        sessions.fetch();
+      }
+      $scope.firstLoad = false;
     },
     true
   );
@@ -128,7 +126,9 @@ export const SessionsListCtrl = (
       });
 
       elmApp.ports.loadMoreSessions.subscribe(() => {
-        sessions.fetch();
+        sessions.fetch({
+          fetchedSessionsCount: params.get("fetchedSessionsCount")
+        });
       });
 
       elmApp.ports.updateHeatMapThresholds.subscribe(

@@ -18,15 +18,14 @@ angular.module("aircasting").factory("sessionsDownloader", [
         preprocessData(data, sessions, params);
         refreshSessionsCallback();
       };
-      fetchPage(url, reqData, params.paramsData.fetchedSessionsCount, successCallback, errorCallback);
+      fetchPage(url, reqData, successCallback, errorCallback);
     };
 
-    var fetchPage = function(url, reqData, offset, success, error) {
-      console.warn("offset:   ", offset)
+    var fetchPage = function(url, reqData, success, error) {
       $http
         .get(url, {
           cache: true,
-          params: { q: {offset: offset, ...reqData}, page_size: reqData.page_size, offset: offset }
+          params: { q: reqData }
         })
         .success(success)
         .error(error);
@@ -80,7 +79,6 @@ angular.module("aircasting").factory("sessionsDownloader", [
 
         setDefaultSessionAttributes(session);
       });
-      console.warn("new: ", sessions, data)
       sessions.push.apply(sessions, data);
       sessions = orderBy(sessions, "end_time_local");
       params.update({ fetchedSessionsCount: sessions.length });

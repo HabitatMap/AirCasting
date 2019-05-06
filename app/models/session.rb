@@ -138,9 +138,9 @@ class Session < ActiveRecord::Base
       .local_minutes_range(Utils.minutes_of_day(time_from), Utils.minutes_of_day(time_to))
   end
 
-  def self.filtered_json(data, page_size, offset)
+  def self.filtered_json(data, limit, offset)
     offset(offset)
-    .limit(page_size)
+    .limit(limit)
     .with_user_and_streams
     .filter(data).as_json(
       only: filtered_json_fields,
