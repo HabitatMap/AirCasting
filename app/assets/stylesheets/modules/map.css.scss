@@ -11,17 +11,16 @@
 }
 
 .map-container {
-  min-height: calc((100vh - #{$heatmap-height}) - #{$nav-height});
   position: relative;
+  flex: 1 1 100%;
 }
 
 .heatmap {
-  height: $heatmap-height;
   background: white;
-  width: 100vw;
+  flex: 1 0 $heatmap-height;
 }
 
 .map {
-  width: calc(100vw - #{$filters-width});
   height: 100%;
+  width: calc(100vw - #{$filters-width});
 }
