@@ -244,9 +244,11 @@ export const mobileSessions = (
         .success(callback(session, allSelected));
     },
 
-    _fetch: function(numberToFetch, fetchedSessionsCount) {
+    _fetch: function(values = {}) {
       // if _fetch is called after the route has changed (eg debounced)
       if ($window.location.pathname !== constants.mobileMapRoute) return;
+      const limit = values.amount || 50;
+      const offset = values.fetchedSessionsCount || 0;
 
       var bounds = map.getBounds();
       var data = params.get("data");
@@ -265,8 +267,8 @@ export const mobileSessions = (
         east: bounds.east,
         south: bounds.south,
         north: bounds.north,
-        limit: numberToFetch,
-        offset: fetchedSessionsCount
+        limit: limit,
+        offset: offset
       });
 
       if (sensors.selected()) {
@@ -289,7 +291,7 @@ export const mobileSessions = (
           _(this.onSessionsFetchError).bind(this)
         );
       } else {
-        if (fetchedSessionsCount === 0) this.sessions = [];
+        if (offset === 0) this.sessions = [];
 
         sessionsDownloader(
           "/api/sessions.json",
@@ -302,11 +304,8 @@ export const mobileSessions = (
       }
     },
 
-    fetch: debounce(function(values = {}) {
-      const numberToFetch = values.numberToFetch || 50;
-      const fetchedSessionsCount = values.fetchedSessionsCount || 0;
-
-      this._fetch(numberToFetch, fetchedSessionsCount);
+    fetch: debounce(function(values) {
+      this._fetch(values);
     }, 750)
   };
   return new MobileSessions();

@@ -223,9 +223,11 @@ export const fixedSessions = (
       session.markers.push(customMarker);
     },
 
-    _fetch: function(numberToFetch, fetchedSessionsCount) {
+    _fetch: function(values = {}) {
       // if _fetch is called after the route has changed (eg debounced)
       if ($window.location.pathname !== constants.fixedMapRoute) return;
+      const limit = values.amount || 50;
+      const offset = values.fetchedSessionsCount || 0;
 
       const data = params.get("data");
 
@@ -250,8 +252,8 @@ export const fixedSessions = (
           east: map.getBounds().east,
           south: map.getBounds().south,
           north: map.getBounds().north,
-          limit: numberToFetch,
-          offset: fetchedSessionsCount
+          limit,
+          offset
         });
       }
 
@@ -268,7 +270,7 @@ export const fixedSessions = (
       if (params.get("selectedSessionIds").length === 1) {
         this.downloadSessions("/api/realtime/multiple_sessions.json", reqData);
       } else {
-        if (fetchedSessionsCount === 0) this.sessions = [];
+        if (offset === 0) this.sessions = [];
 
         if (data.isStreaming) {
           this.downloadSessions(
@@ -281,11 +283,8 @@ export const fixedSessions = (
       }
     },
 
-    fetch: debounce(function(values = {}) {
-      const numberToFetch = values.numberToFetch || 50;
-      const fetchedSessionsCount = values.fetchedSessionsCount || 0;
-
-      this._fetch(numberToFetch, fetchedSessionsCount);
+    fetch: debounce(function(values) {
+      this._fetch(values);
     }, 750)
   };
   return new FixedSessions();
