@@ -49,7 +49,7 @@ export const SessionsListCtrl = (
       console.log("watch - params.get('map')");
       if (sessions.hasSelectedSessions()) return;
       if ($scope.firstLoad || hasChangedProgrammatically) {
-        sessions.fetch({ numberToFetch: params.get("fetchedSessionsCount") });
+        sessions.fetch({ amount: params.get("fetchedSessionsCount") });
       } else {
         sessions.fetch();
       }
@@ -127,7 +127,7 @@ export const SessionsListCtrl = (
 
       elmApp.ports.loadMoreSessions.subscribe(() => {
         sessions.fetch({
-          fetchedSessionsCount: params.get("fetchedSessionsCount")
+          fetchedSessionsCount: sessions.sessions.length
         });
       });
 
