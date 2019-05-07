@@ -40,6 +40,7 @@ type alias Model =
     { page : Page
     , key : Maybe Browser.Navigation.Key
     , sessions : List Session
+    , availableSessionsCount : Int
     , selectedSession : WebData SelectedSession
     , isHttping : Bool
     , popup : Popup.Popup
@@ -66,6 +67,7 @@ defaultModel =
     { page = Mobile
     , key = Nothing
     , sessions = []
+    , availableSessionsCount = 0
     , isHttping = False
     , popup = Popup.None
     , isPopupExtended = False
@@ -285,10 +287,16 @@ update msg model =
 
         UpdateSessions value ->
             let
+                decoder =
+                    Decode.map2 FetchedSessions
+                        (Decode.field "availableSessionsCount" Decode.int)
+                        (Decode.field "fetched" (Decode.list Data.Session.decoder))
+
                 sessions =
-                    Decode.decodeValue (Decode.list Data.Session.decoder) value
+                    Decode.decodeValue decoder value
+                        |> Result.withDefault { availableSessionsCount = 0, fetched = [] }
             in
-            ( { model | sessions = Result.withDefault [] sessions }, Cmd.none )
+            ( { model | sessions = sessions.fetched, availableSessionsCount = sessions.availableSessionsCount }, Cmd.none )
 
         LoadMoreSessions ->
             ( model, Ports.loadMoreSessions () )
@@ -497,6 +505,10 @@ toGraphParams thresholds selectedSession sensors selectedSensorId =
     }
 
 
+type alias FetchedSessions =
+    { availableSessionsCount : Int, fetched : List Data.Session.Session }
+
+
 
 ---- VIEW ----
 
@@ -574,7 +586,7 @@ view model =
                             ]
                             [ div [ class "sessions" ]
                                 [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ]
-                                    (viewSessionsOrSelectedSession model.selectedSession model.sessions model.heatMapThresholds)
+                                    (viewSessionsOrSelectedSession model.availableSessionsCount model.selectedSession model.sessions model.heatMapThresholds)
                                 ]
                             ]
                         ]
@@ -616,11 +628,11 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         ]
 
 
-viewSessionsOrSelectedSession : WebData SelectedSession -> List Session -> WebData HeatMapThresholds -> List (Html Msg)
-viewSessionsOrSelectedSession selectedSession sessions heatMapThresholds =
+viewSessionsOrSelectedSession : Int -> WebData SelectedSession -> List Session -> WebData HeatMapThresholds -> List (Html Msg)
+viewSessionsOrSelectedSession availableSessionsCount selectedSession sessions heatMapThresholds =
     case selectedSession of
         NotAsked ->
-            [ viewSessions sessions heatMapThresholds ]
+            [ viewSessions availableSessionsCount sessions heatMapThresholds ]
 
         Success session ->
             [ viewSelectedSession heatMapThresholds <| Just session ]
@@ -684,8 +696,15 @@ viewSessionTypes model =
         ]
 
 
-viewSessions : List Session -> WebData HeatMapThresholds -> Html Msg
-viewSessions sessions heatMapThresholds =
+viewSessions : Int -> List Session -> WebData HeatMapThresholds -> Html Msg
+viewSessions availableSessionsCount sessions heatMapThresholds =
+    let
+        sessionsCount =
+            sessions |> List.length |> String.fromInt
+
+        allSessionsCount =
+            availableSessionsCount |> String.fromInt
+    in
     if List.length sessions == 0 then
         text ""
 
@@ -694,7 +713,7 @@ viewSessions sessions heatMapThresholds =
             [ h2 [ class "sessions-header" ]
                 [ text "Sessions" ]
             , span [ class "sessions-number" ]
-                [ text "showing 6 of 500 reuslts" ]
+                [ text ("showing " ++ sessionsCount ++ " of " ++ allSessionsCount ++ " results") ]
             , div [ class "sessions-container" ]
                 (List.map (viewSessionCard heatMapThresholds) sessions ++ [ viewLoadMore <| List.length sessions ])
             ]
