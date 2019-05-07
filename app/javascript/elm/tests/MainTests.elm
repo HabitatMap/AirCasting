@@ -849,16 +849,21 @@ updateTests =
                         }
 
                     newSessions =
-                        Encode.list identity
-                            [ Encode.object
-                                [ ( "title", Encode.string "title" )
-                                , ( "id", Encode.int <| id + 1 )
-                                , ( "startTime", Encode.int 0 )
-                                , ( "endTime", Encode.int 0 )
-                                , ( "username", Encode.string "username" )
-                                , ( "shortTypes", Encode.list identity [] )
-                                , ( "average", Encode.null )
-                                ]
+                        Encode.object
+                            [ ( "fetched"
+                              , Encode.list identity
+                                    [ Encode.object
+                                        [ ( "title", Encode.string "title" )
+                                        , ( "id", Encode.int <| id + 1 )
+                                        , ( "startTime", Encode.int 0 )
+                                        , ( "endTime", Encode.int 0 )
+                                        , ( "username", Encode.string "username" )
+                                        , ( "shortTypes", Encode.list identity [] )
+                                        , ( "average", Encode.null )
+                                        ]
+                                    ]
+                              )
+                            , ( "availableSessionsCount", Encode.int 1 )
                             ]
                 in
                 model
@@ -866,6 +871,23 @@ updateTests =
                     |> Tuple.first
                     |> .sessions
                     |> Expect.equal [ newSession ]
+        , fuzz int "UpdateSessions decodes the encoded value and updates model.availableSessionsCount" <|
+            \count ->
+                let
+                    model =
+                        { defaultModel | availableSessionsCount = 0, selectedSession = NotAsked }
+
+                    newSessions =
+                        Encode.object
+                            [ ( "fetched", Encode.list identity [] )
+                            , ( "availableSessionsCount", Encode.int count )
+                            ]
+                in
+                model
+                    |> update (UpdateSessions newSessions)
+                    |> Tuple.first
+                    |> .availableSessionsCount
+                    |> Expect.equal count
         , fuzz int "LoadMoreSessions delegates to javascript" <|
             \id ->
                 let
