@@ -24,10 +24,15 @@ export const mobileSessions = (
     this.scope.params = params;
   };
 
-  let prevMapPosition = {
-    bounds: map.getBounds(),
-    zoom: map.getZoom()
-  };
+  let prevMapPosition = {};
+  if (params.get("selectedSessionIds").length === 1) {
+    prevMapPosition = params.get("prevMapPosition");
+  } else {
+    prevMapPosition = {
+      bounds: map.getBounds(),
+      zoom: map.getZoom()
+    };
+  }
 
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 3000;
 
@@ -106,6 +111,7 @@ export const mobileSessions = (
       if (!session) return;
       session.loaded = false;
       session.alreadySelected = false;
+      params.update({ prevMapPosition: {} });
       drawSession.undoDraw(session, prevMapPosition);
     },
 
@@ -116,6 +122,8 @@ export const mobileSessions = (
           bounds: map.getBounds(),
           zoom: map.getZoom()
         };
+        params.update({ prevMapPosition: prevMapPosition });
+
         const drawSessionStartingMarker = (session, sensorName) =>
           this.drawSessionWithLabel(session, sensorName);
         const draw = () =>
@@ -236,9 +244,11 @@ export const mobileSessions = (
         .success(callback(session, allSelected));
     },
 
-    _fetch: function(page) {
+    _fetch: function(values = {}) {
       // if _fetch is called after the route has changed (eg debounced)
       if ($window.location.pathname !== constants.mobileMapRoute) return;
+      const limit = values.amount || 50;
+      const offset = values.fetchedSessionsCount || 0;
 
       var bounds = map.getBounds();
       var data = params.get("data");
@@ -256,7 +266,9 @@ export const mobileSessions = (
         west: bounds.west,
         east: bounds.east,
         south: bounds.south,
-        north: bounds.north
+        north: bounds.north,
+        limit: limit,
+        offset: offset
       });
 
       if (sensors.selected()) {
@@ -267,13 +279,9 @@ export const mobileSessions = (
         });
       }
 
-      _(params).extend({ page: page });
-
       drawSession.clear(this.sessions);
 
-      if (page === 0) {
-        this.sessions = [];
-        // seems to be called for selected sessions; thus, only when loading the app with selections in the url
+      if (params.get("selectedSessionIds").length === 1) {
         sessionsDownloader(
           "/api/multiple_sessions.json",
           reqData,
@@ -282,20 +290,22 @@ export const mobileSessions = (
           _(this.onSessionsFetch).bind(this),
           _(this.onSessionsFetchError).bind(this)
         );
-      }
+      } else {
+        if (offset === 0) this.sessions = [];
 
-      sessionsDownloader(
-        "/api/sessions.json",
-        reqData,
-        this.sessions,
-        params,
-        _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this),
-        _(this.onSessionsFetchError).bind(this)
-      );
+        sessionsDownloader(
+          "/api/sessions.json",
+          reqData,
+          this.sessions,
+          params,
+          _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this),
+          _(this.onSessionsFetchError).bind(this)
+        );
+      }
     },
 
-    fetch: debounce(function(page) {
-      this._fetch(page);
+    fetch: debounce(function(values) {
+      this._fetch(values);
     }, 750)
   };
   return new MobileSessions();

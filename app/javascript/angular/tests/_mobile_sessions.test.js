@@ -169,6 +169,63 @@ test("fetch passes map corner coordinates to sessionsDownloader", t => {
   t.end();
 });
 
+test("fetch called without arguments assigns default values", t => {
+  const sessionsDownloaderCalls = [];
+  const mobileSessionsService = _mobileSessions({
+    sessionsDownloaderCalls
+  });
+
+  mobileSessionsService._fetch();
+
+  t.deepEqual(sessionsDownloaderCalls[0].limit, 50);
+  t.deepEqual(sessionsDownloaderCalls[0].offset, 0);
+
+  t.end();
+});
+
+test("fetch called with values passes them to session downloader", t => {
+  const sessionsDownloaderCalls = [];
+  const mobileSessionsService = _mobileSessions({
+    sessionsDownloaderCalls
+  });
+
+  mobileSessionsService._fetch({
+    amount: 100,
+    fetchedSessionsCount: 50
+  });
+
+  t.deepEqual(sessionsDownloaderCalls[0].limit, 100);
+  t.deepEqual(sessionsDownloaderCalls[0].offset, 50);
+
+  t.end();
+});
+
+test("fetch resets sessions list if offset equal 0", t => {
+  const mobileSessionsService = _mobileSessions({});
+
+  mobileSessionsService._fetch({
+    fetchedSessionsCount: 0
+  });
+
+  t.deepEqual(mobileSessionsService.sessions, []);
+
+  t.end();
+});
+
+test("fetch keeps the previous sessions list if offset does not equal 0", t => {
+  const mobileSessionsService = _mobileSessions({});
+
+  mobileSessionsService.sessions = ["someSession"];
+
+  mobileSessionsService._fetch({
+    fetchedSessionsCount: 50
+  });
+
+  t.deepEqual(mobileSessionsService.sessions, ["someSession"]);
+
+  t.end();
+});
+
 test("selectSession after successfully fetching calls sessionsUtils.onSingleSessionFetch", t => {
   const sessionsUtils = mock("onSingleSessionFetch");
   const mobileSessionsService = _mobileSessions({
@@ -502,7 +559,8 @@ const _mobileSessions = ({
       } else {
         throw new Error(`unexpected param ${what}`);
       }
-    }
+    },
+    update: () => {}
   };
   const _map = {
     getBounds: () => ({}),

@@ -133,7 +133,7 @@ export const FixedSessionsMapCtrl = (
       const onTimeRangeChanged = (timeFrom, timeTo) => {
         elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
         params.update({ data: { timeFrom, timeTo } });
-        sessions.fetch();
+        $scope.sessions.fetch();
       };
 
       const setupStreamingTimeRangeFilter = (timeFrom, timeTo) => {

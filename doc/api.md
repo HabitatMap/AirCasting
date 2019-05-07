@@ -16,8 +16,8 @@ Endpoints
 
 | name           | type              | default value |
 | :------------- | :---------------- | :------------ |
-| page           | number            | 0             |
-| page_size      | number            | 50            |
+| limit          | number            |               |
+| offset         | number            |               |
 | q[time_from]   | number            |               |
 | q[time_to]     | number            |               |
 | q[tags]        | text              |               |
@@ -35,7 +35,7 @@ Where time_from and time_to are seconds since epoch.
 ### Example request
 
 ```
-curl http://aircasting.org/api/sessions.json?page=0&page_size=50&q[measurements]=true&q[time_from]=0&q[time_to]=1552648500&q[usernames]=HHHDenver&q[location]=Denver&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³
+curl http://aircasting.org/api/sessions.json?limit=50&offset=0&q[measurements]=true&q[time_from]=0&q[time_to]=1552648500&q[usernames]=HHHDenver&q[location]=Denver&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³
 ```
 
 ### Example response
