@@ -280,7 +280,7 @@ export const fixedSessions = (
             reqData
           );
         } else {
-          this.downloadSessions("/api/realtime/sessions.json", reqData);
+          this.downloadSessions("/api/fixed/dormant/sessions.json", reqData);
         }
       }
     },

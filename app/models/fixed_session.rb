@@ -24,6 +24,22 @@ class FixedSession < Session
     where("last_measurement_at > ?", Time.current - 1.hour)
   end
 
+  def self.dormant
+    where("last_measurement_at <= ?", Time.current - 1.hour)
+  end
+
+  def self.all_dormant(data, limit, offset)
+    dormant
+    .offset(offset)
+    .limit(limit)
+    .with_user_and_streams
+    .filter(data)
+    .as_json(
+      only: filtered_json_fields,
+      methods: [:username, :streams]
+    )
+  end
+
   def self.filtered_json_fields
     [:id, :title, :start_time_local, :end_time_local, :is_indoor, :latitude, :longitude]
   end
