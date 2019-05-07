@@ -7,7 +7,7 @@ Every response is returned in JSON format.
 Endpoints
 
 - GET `/api/realtime/streaming_sessions.json` -> streaming fixed sessions
-- GET `/api/realtime/sessions.json` -> fixed sessions
+- GET `/api/fixed/dormant/sessions.json` -> fixed dormant sessions
 - GET `/api/sessions.json` -> mobile sessions
 
 **Remember:** this call will not return measurements data for requested sessions. To do that, use either the single session or measurements endpoint below.

@@ -94,10 +94,6 @@ class Session < ActiveRecord::Base
       sessions = filter_by_time_range(sessions, data[:time_from], data[:time_to])
     end
 
-    if (id = data[:include_session_id]).present?
-      sessions = (sessions + [Session.find(id)]).uniq
-    end
-
     sessions
   end
 
