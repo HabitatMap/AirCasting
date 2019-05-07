@@ -23,10 +23,15 @@ export const fixedSessions = (
     this.scope.params = params;
   };
 
-  let prevMapPosition = {
-    bounds: map.getBounds(),
-    zoom: map.getZoom()
-  };
+  let prevMapPosition = {};
+  if (params.get("selectedSessionIds").length === 1) {
+    prevMapPosition = params.get("prevMapPosition");
+  } else {
+    prevMapPosition = {
+      bounds: map.getBounds(),
+      zoom: map.getZoom()
+    };
+  }
 
   FixedSessions.prototype = {
     hasSelectedSessions: function() {
@@ -93,6 +98,7 @@ export const fixedSessions = (
       if (!session) return;
       session.loaded = false;
       session.alreadySelected = false;
+      params.update({ prevMapPosition: {} });
       map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
     },
 
@@ -105,6 +111,7 @@ export const fixedSessions = (
             bounds: map.getBounds(),
             zoom: map.getZoom()
           };
+          params.update({ prevMapPosition: prevMapPosition });
           map.fitBoundsWithBottomPadding(
             calculateBounds(sensors, allSelected, map.getZoom())
           );
@@ -216,7 +223,7 @@ export const fixedSessions = (
       session.markers.push(customMarker);
     },
 
-    _fetch: function(page) {
+    _fetch: function(numberToFetch, fetchedSessionsCount) {
       // if _fetch is called after the route has changed (eg debounced)
       if ($window.location.pathname !== constants.fixedMapRoute) return;
 
@@ -242,7 +249,9 @@ export const fixedSessions = (
           west: map.getBounds().west,
           east: map.getBounds().east,
           south: map.getBounds().south,
-          north: map.getBounds().north
+          north: map.getBounds().north,
+          limit: numberToFetch,
+          offset: fetchedSessionsCount
         });
       }
 
@@ -254,24 +263,29 @@ export const fixedSessions = (
         });
       }
 
-      _(params).extend({ page: page });
-
       drawSession.clear(this.sessions);
 
-      if (page === 0) {
-        this.sessions = [];
+      if (params.get("selectedSessionIds").length === 1) {
         this.downloadSessions("/api/realtime/multiple_sessions.json", reqData);
-      }
-
-      if (data.isStreaming) {
-        this.downloadSessions("/api/realtime/streaming_sessions.json", reqData);
       } else {
-        this.downloadSessions("/api/realtime/sessions.json", reqData);
+        if (fetchedSessionsCount === 0) this.sessions = [];
+
+        if (data.isStreaming) {
+          this.downloadSessions(
+            "/api/realtime/streaming_sessions.json",
+            reqData
+          );
+        } else {
+          this.downloadSessions("/api/realtime/sessions.json", reqData);
+        }
       }
     },
 
-    fetch: debounce(function(page) {
-      this._fetch(page);
+    fetch: debounce(function(values = {}) {
+      const numberToFetch = values.numberToFetch || 50;
+      const fetchedSessionsCount = values.fetchedSessionsCount || 0;
+
+      this._fetch(numberToFetch, fetchedSessionsCount);
     }, 750)
   };
   return new FixedSessions();
