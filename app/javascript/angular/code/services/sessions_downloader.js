@@ -15,8 +15,8 @@ angular.module("aircasting").factory("sessionsDownloader", [
       errorCallback
     ) {
       var successCallback = function(data) {
-        preprocessData(data, sessions, params);
-        refreshSessionsCallback();
+        preprocessData(data.sessions, sessions, params);
+        refreshSessionsCallback(data.availableSessionsCount);
       };
       fetchPage(url, reqData, successCallback, errorCallback);
     };

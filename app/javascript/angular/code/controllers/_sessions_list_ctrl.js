@@ -79,7 +79,7 @@ export const SessionsListCtrl = (
       $scope.sessionsForList = newSessions;
       elmApp.ports.updateSessions.send({
         fetched: newSessions.map(formatSessionForElm),
-        availableSessionsCount: 147
+        availableSessionsCount: $scope.sessions.availableSessionsCount
       });
     },
     true
