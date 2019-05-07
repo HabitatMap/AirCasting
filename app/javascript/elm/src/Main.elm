@@ -701,9 +701,6 @@ viewSessions availableSessionsCount sessions heatMapThresholds =
     let
         sessionsCount =
             sessions |> List.length |> String.fromInt
-
-        allSessionsCount =
-            availableSessionsCount |> String.fromInt
     in
     if List.length sessions == 0 then
         text ""
@@ -713,9 +710,9 @@ viewSessions availableSessionsCount sessions heatMapThresholds =
             [ h2 [ class "sessions-header" ]
                 [ text "Sessions" ]
             , span [ class "sessions-number" ]
-                [ text ("showing " ++ sessionsCount ++ " of " ++ allSessionsCount ++ " results") ]
+                [ text ("showing " ++ sessionsCount ++ " of " ++ String.fromInt availableSessionsCount ++ " results") ]
             , div [ class "sessions-container" ]
-                (List.map (viewSessionCard heatMapThresholds) sessions ++ [ viewLoadMore <| List.length sessions ])
+                (List.map (viewSessionCard heatMapThresholds) sessions ++ [ viewLoadMore availableSessionsCount (List.length sessions) ])
             ]
 
 
@@ -733,9 +730,9 @@ viewShortType length index shortType =
         ]
 
 
-viewLoadMore : Int -> Html Msg
-viewLoadMore sessionCount =
-    if sessionCount /= 0 && modBy 50 sessionCount == 0 then
+viewLoadMore : Int -> Int -> Html Msg
+viewLoadMore availableSessionsCount sessionCount =
+    if sessionCount < availableSessionsCount then
         li [] [ button [ Events.onClick LoadMoreSessions ] [ text "Load More..." ] ]
 
     else

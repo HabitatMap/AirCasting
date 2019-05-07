@@ -638,12 +638,27 @@ viewTests =
                         [ Html.text title1
                         , Html.text title2
                         ]
-        , fuzz (intRange 1 10) "with no selection and modulo 50 sessions in the model the load more button is shown" <|
+        , fuzz (intRange 1 100) "with no selection and availableSessionsCount bigger than current session list length load more button is shown" <|
             \times ->
-                { defaultModel | sessions = List.repeat (50 * times) session, selectedSession = NotAsked }
+                { defaultModel
+                    | sessions = List.repeat times session
+                    , availableSessionsCount = times + 1
+                    , selectedSession = NotAsked
+                }
                     |> view
                     |> Query.fromHtml
                     |> Query.contains [ Html.text "Load More..." ]
+        , fuzz (intRange 1 100) "with no selection and availableSessionsCount equal to current session list length load more button is not shown" <|
+            \times ->
+                { defaultModel
+                    | sessions = List.repeat times session
+                    , availableSessionsCount = times
+                    , selectedSession = NotAsked
+                }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.findAll [ Slc.text "Load More..." ]
+                    |> Query.count (Expect.equal 0)
         , test "with no selection and 0 sessions in the model the load more button is not shown" <|
             \times ->
                 { defaultModel | sessions = [], selectedSession = NotAsked }
