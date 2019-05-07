@@ -502,7 +502,8 @@ const _mobileSessions = ({
       } else {
         throw new Error(`unexpected param ${what}`);
       }
-    }
+    },
+    update: () => {}
   };
   const _map = {
     getBounds: () => ({}),

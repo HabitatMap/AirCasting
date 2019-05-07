@@ -510,7 +510,8 @@ const _fixedSessions = ({
       } else {
         throw new Error(`unexpected param ${what}`);
       }
-    }
+    },
+    update: () => {}
   };
   const _map = {
     getBounds: () => ({}),
