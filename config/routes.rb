@@ -54,12 +54,16 @@ Rails.application.routes.draw do
       get 'multiple_sessions'   => 'sessions#show_multiple'
       get 'streaming_sessions'  => 'sessions#index_streaming'
       get 'sync_measurements'   => 'sessions#sync_measurements'
-      resources :sessions, only: [:create, :index, :show]
+      resources :sessions, only: [:create, :show]
       resources :measurements, only: :create
     end
 
     namespace :fixed do
       get "sessions/:id" => "sessions#show"
+
+      namespace :dormant do
+        get "sessions" => "sessions#index"
+      end
     end
 
     namespace :mobile do
