@@ -12,6 +12,7 @@ port module Ports exposing
     , timeRangeSelected
     , toggleCrowdMap
     , toggleIndoor
+    , toggleIsSearchOn
     , toggleSession
     , toggleSessionSelection
     , toggleStreaming
@@ -97,3 +98,6 @@ port drawMobile : GraphData -> Cmd a
 
 
 port drawFixed : GraphData -> Cmd a
+
+
+port toggleIsSearchOn : Bool -> Cmd a

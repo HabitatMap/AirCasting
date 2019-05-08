@@ -59,6 +59,7 @@ type alias Model =
     , resetIcon : String
     , heatMapThresholds : WebData HeatMapThresholds
     , isStreaming : Bool
+    , isSearchOn : Bool
     }
 
 
@@ -86,6 +87,7 @@ defaultModel =
     , linkIcon = ""
     , resetIcon = ""
     , heatMapThresholds = NotAsked
+    , isSearchOn = False
     }
 
 
@@ -105,6 +107,7 @@ type alias Flags =
     , linkIcon : String
     , resetIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
+    , isSearchOn : Bool
     }
 
 
@@ -143,6 +146,7 @@ init flags url key =
         , heatMapThresholds =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
                 |> Maybe.withDefault defaultModel.heatMapThresholds
+        , isSearchOn = flags.isSearchOn
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -206,6 +210,7 @@ type Msg
     | UpdateHeatMapMaximum String
     | ResetHeatMapToDefaults
     | UpdateHeatMapThresholdsFromAngular HeatMapThresholdValues
+    | ToggleIsSearchOn
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -437,6 +442,9 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        ToggleIsSearchOn ->
+            ( { model | isSearchOn = not model.isSearchOn }, Ports.toggleIsSearchOn (not model.isSearchOn) )
+
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
 updateHeatMapExtreme model str updateExtreme =
@@ -569,6 +577,16 @@ view model =
 
                           else
                             text ""
+                        , div []
+                            [ input
+                                [ id "checkbox-search"
+                                , type_ "checkbox"
+                                , checked model.isSearchOn
+                                , Events.onClick ToggleIsSearchOn
+                                ]
+                                []
+                            , label [ for "checkbox-search" ] [ text "Search as I move the map" ]
+                            ]
                         , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
                             []
                         , div

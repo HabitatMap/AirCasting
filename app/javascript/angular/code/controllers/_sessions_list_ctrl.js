@@ -48,12 +48,19 @@ export const SessionsListCtrl = (
     ({ hasChangedProgrammatically }) => {
       console.log("watch - params.get('map')");
       if (sessions.hasSelectedSessions()) return;
-      if ($scope.firstLoad || hasChangedProgrammatically) {
+
+      if ($scope.firstLoad) {
+        sessions.fetch({ amount: params.get("fetchedSessionsCount") });
+        $scope.firstLoad = false;
+      }
+
+      if (!params.get("data").isSearchOn) return;
+
+      if (hasChangedProgrammatically) {
         sessions.fetch({ amount: params.get("fetchedSessionsCount") });
       } else {
         sessions.fetch();
       }
-      $scope.firstLoad = false;
     },
     true
   );
@@ -147,6 +154,11 @@ export const SessionsListCtrl = (
           $scope.$apply();
         }
       );
+
+      elmApp.ports.toggleIsSearchOn.subscribe(isSearchOn => {
+        params.update({ data: { isSearchOn: isSearchOn } });
+        $scope.$apply();
+      });
     });
   }
 };
