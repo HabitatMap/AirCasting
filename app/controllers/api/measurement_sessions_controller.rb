@@ -41,7 +41,7 @@ module Api
     def show_multiple
       data = decoded_query_data(params[:q])
 
-      respond_with MobileSession.selected_sessions_json(data)
+      respond_with sessions: MobileSession.selected_sessions_json(data)
     end
 
     def create

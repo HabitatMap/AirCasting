@@ -38,7 +38,7 @@ module Api
         data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
 
         respond_with sessions: FixedSession.filtered_json(data, data[:limit], data[:offset]),
-                     fetchableSessionsCount: MobileSession.filter(data).count
+                     fetchableSessionsCount: FixedSession.filter(data).count
       end
 
       def index_streaming
@@ -47,8 +47,11 @@ module Api
 
         data[:time_from] = Time.strptime(data[:time_from].to_s, '%s')
         data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
+        
+        sessions = FixedSession.filtered_streaming_json(data)
 
-        respond_with FixedSession.filtered_streaming_json(data)
+        respond_with sessions: sessions,
+                     fetchableSessionsCount: sessions.count
       end
 
       def show
@@ -70,7 +73,7 @@ module Api
       def show_multiple
         data = decoded_query_data(params[:q])
 
-        respond_with FixedSession.selected_sessions_json(data)
+        respond_with sessions: FixedSession.selected_sessions_json(data)
       end
 
       def create
