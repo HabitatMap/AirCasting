@@ -13,15 +13,17 @@ export const hide = () => {
 };
 
 export const show = points => {
-  
-
   hide();
   points.forEach(point => {
     items.push({
       marker: drawMarker({
         position: { lat: point.latitude, lng: point.longitude },
         zIndex: 300000,
-        icon: locationMarkerPath
+        icon: {
+          anchor: new google.maps.Point(8, 8),
+          size: new google.maps.Size(16, 16),
+          url: locationMarkerPath
+        }
       }),
       point: point
     });

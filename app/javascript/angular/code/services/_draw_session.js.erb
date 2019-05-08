@@ -101,7 +101,11 @@ const createMeasurementMarker = (measurement, idx, heat, map, suffix) => {
     position: { lat: measurement.latitude, lng: measurement.longitude },
     title: roundedValue.toString() + suffix,
     zIndex: idx,
-    icon: eval(`locationMarker${level}Path`)
+    icon: {
+      anchor: new google.maps.Point(6, 6),
+      size: new google.maps.Size(12, 12),
+      url: eval(`locationMarker${level}Path`)
+    }
   });
 
   return marker;
