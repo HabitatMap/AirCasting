@@ -61,6 +61,7 @@ type alias Model =
     , heatMapThresholds : WebData HeatMapThresholds
     , isStreaming : Bool
     , isSearchOn : Bool
+    , wasMapMoved : Bool
     }
 
 
@@ -89,6 +90,7 @@ defaultModel =
     , resetIcon = ""
     , heatMapThresholds = NotAsked
     , isSearchOn = False
+    , wasMapMoved = False
     }
 
 
@@ -212,6 +214,8 @@ type Msg
     | ResetHeatMapToDefaults
     | UpdateHeatMapThresholdsFromAngular HeatMapThresholdValues
     | ToggleIsSearchOn
+    | MapMoved
+    | FetchSessions
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -302,7 +306,9 @@ update msg model =
                     Decode.decodeValue decoder value
                         |> Result.withDefault ( [], 0 )
             in
-            ( { model | sessions = fetched, fetchableSessionsCount = fetchableSessionsCount }, Cmd.none )
+            ( { model | sessions = fetched, fetchableSessionsCount = fetchableSessionsCount, wasMapMoved = False }
+            , Cmd.none
+            )
 
         LoadMoreSessions ->
             ( model, Ports.loadMoreSessions () )
@@ -446,6 +452,12 @@ update msg model =
         ToggleIsSearchOn ->
             ( { model | isSearchOn = not model.isSearchOn }, Ports.toggleIsSearchOn (not model.isSearchOn) )
 
+        MapMoved ->
+            ( { model | wasMapMoved = True }, Cmd.none )
+
+        FetchSessions ->
+            ( model, Ports.fetchSessions () )
+
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
 updateHeatMapExtreme model str updateExtreme =
@@ -578,16 +590,7 @@ view model =
 
                           else
                             text ""
-                        , div []
-                            [ input
-                                [ id "checkbox-search"
-                                , type_ "checkbox"
-                                , checked model.isSearchOn
-                                , Events.onClick ToggleIsSearchOn
-                                ]
-                                []
-                            , label [ for "checkbox-search" ] [ text "Search as I move the map" ]
-                            ]
+                        , viewSearchAsIMove model.wasMapMoved model.isSearchOn
                         , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
                             []
                         , div
@@ -609,6 +612,29 @@ view model =
                     ]
                 ]
             ]
+        ]
+
+
+viewSearchAsIMove : Bool -> Bool -> Html Msg
+viewSearchAsIMove wasMapMoved isSearchOn =
+    div []
+        [ if wasMapMoved then
+            button
+                [ Events.onClick FetchSessions
+                ]
+                [ text "Search again" ]
+
+          else
+            div []
+                [ input
+                    [ id "checkbox-search"
+                    , type_ "checkbox"
+                    , checked isSearchOn
+                    , Events.onClick ToggleIsSearchOn
+                    ]
+                    []
+                , label [ for "checkbox-search" ] [ text "Search as I move the map" ]
+                ]
         ]
 
 
@@ -992,4 +1018,5 @@ subscriptions _ =
         , Ports.updateIsHttping UpdateIsHttping
         , Ports.toggleSessionSelection ToggleSessionSelectionFromAngular
         , Ports.updateHeatMapThresholdsFromAngular UpdateHeatMapThresholdsFromAngular
+        , Ports.mapMoved (always MapMoved)
         ]

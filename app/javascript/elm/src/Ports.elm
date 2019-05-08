@@ -1,9 +1,11 @@
 port module Ports exposing
     ( drawFixed
     , drawMobile
+    , fetchSessions
     , findLocation
     , loadMoreSessions
     , locationCleared
+    , mapMoved
     , profileSelected
     , refreshTimeRange
     , selectSensorId
@@ -101,3 +103,9 @@ port drawFixed : GraphData -> Cmd a
 
 
 port toggleIsSearchOn : Bool -> Cmd a
+
+
+port mapMoved : (() -> msg) -> Sub msg
+
+
+port fetchSessions : () -> Cmd a
