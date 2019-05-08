@@ -86,7 +86,7 @@ describe Api::MeasurementSessionsController do
 
     it { expect(response.status).to eq 200 }
     it 'returns multiple sessions' do
-      expect(response.body).to eq MobileSession.selected_sessions_json(session_ids: [session1.id, session2.id]).to_json
+      expect(response.body).to eq ({ sessions: MobileSession.selected_sessions_json(session_ids: [session1.id, session2.id]) }).to_json
     end
   end
 
