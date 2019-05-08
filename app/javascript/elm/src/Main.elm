@@ -40,6 +40,7 @@ type alias Model =
     { page : Page
     , key : Maybe Browser.Navigation.Key
     , sessions : List Session
+    , fetchableSessionsCount : Int
     , selectedSession : WebData SelectedSession
     , isHttping : Bool
     , popup : Popup.Popup
@@ -66,6 +67,7 @@ defaultModel =
     { page = Mobile
     , key = Nothing
     , sessions = []
+    , fetchableSessionsCount = 0
     , isHttping = False
     , popup = Popup.None
     , isPopupExtended = False
@@ -285,10 +287,16 @@ update msg model =
 
         UpdateSessions value ->
             let
-                sessions =
-                    Decode.decodeValue (Decode.list Data.Session.decoder) value
+                decoder =
+                    Decode.map2 Tuple.pair
+                        (Decode.field "fetched" (Decode.list Data.Session.decoder))
+                        (Decode.field "fetchableSessionsCount" Decode.int)
+
+                ( fetched, fetchableSessionsCount ) =
+                    Decode.decodeValue decoder value
+                        |> Result.withDefault ( [], 0 )
             in
-            ( { model | sessions = Result.withDefault [] sessions }, Cmd.none )
+            ( { model | sessions = fetched, fetchableSessionsCount = fetchableSessionsCount }, Cmd.none )
 
         LoadMoreSessions ->
             ( model, Ports.loadMoreSessions () )
@@ -574,7 +582,7 @@ view model =
                             ]
                             [ div [ class "sessions" ]
                                 [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ]
-                                    (viewSessionsOrSelectedSession model.selectedSession model.sessions model.heatMapThresholds)
+                                    (viewSessionsOrSelectedSession model.fetchableSessionsCount model.selectedSession model.sessions model.heatMapThresholds)
                                 ]
                             ]
                         ]
@@ -616,11 +624,11 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         ]
 
 
-viewSessionsOrSelectedSession : WebData SelectedSession -> List Session -> WebData HeatMapThresholds -> List (Html Msg)
-viewSessionsOrSelectedSession selectedSession sessions heatMapThresholds =
+viewSessionsOrSelectedSession : Int -> WebData SelectedSession -> List Session -> WebData HeatMapThresholds -> List (Html Msg)
+viewSessionsOrSelectedSession fetchableSessionsCount selectedSession sessions heatMapThresholds =
     case selectedSession of
         NotAsked ->
-            [ viewSessions sessions heatMapThresholds ]
+            [ viewSessions fetchableSessionsCount sessions heatMapThresholds ]
 
         Success session ->
             [ viewSelectedSession heatMapThresholds <| Just session ]
@@ -684,8 +692,12 @@ viewSessionTypes model =
         ]
 
 
-viewSessions : List Session -> WebData HeatMapThresholds -> Html Msg
-viewSessions sessions heatMapThresholds =
+viewSessions : Int -> List Session -> WebData HeatMapThresholds -> Html Msg
+viewSessions fetchableSessionsCount sessions heatMapThresholds =
+    let
+        sessionsCount =
+            sessions |> List.length |> String.fromInt
+    in
     if List.length sessions == 0 then
         text ""
 
@@ -694,9 +706,9 @@ viewSessions sessions heatMapThresholds =
             [ h2 [ class "sessions-header" ]
                 [ text "Sessions" ]
             , span [ class "sessions-number" ]
-                [ text "showing 6 of 500 reuslts" ]
+                [ text ("showing " ++ sessionsCount ++ " of " ++ String.fromInt fetchableSessionsCount ++ " results") ]
             , div [ class "sessions-container" ]
-                (List.map (viewSessionCard heatMapThresholds) sessions ++ [ viewLoadMore <| List.length sessions ])
+                (List.map (viewSessionCard heatMapThresholds) sessions ++ [ viewLoadMore fetchableSessionsCount (List.length sessions) ])
             ]
 
 
@@ -714,9 +726,9 @@ viewShortType length index shortType =
         ]
 
 
-viewLoadMore : Int -> Html Msg
-viewLoadMore sessionCount =
-    if sessionCount /= 0 && modBy 50 sessionCount == 0 then
+viewLoadMore : Int -> Int -> Html Msg
+viewLoadMore fetchableSessionsCount sessionCount =
+    if sessionCount < fetchableSessionsCount then
         li [] [ button [ Events.onClick LoadMoreSessions ] [ text "Load More..." ] ]
 
     else

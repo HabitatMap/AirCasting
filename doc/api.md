@@ -41,39 +41,43 @@ curl http://aircasting.org/api/sessions.json?limit=50&offset=0&q[measurements]=t
 ### Example response
 
 ```json
-[
-  {
-    "end_time_local": "2015-09-09T17:49:38Z",
-    "id": 9586,
-    "start_time_local": "2015-09-09T17:19:16Z",
-    "title": "Bike ride short ",
-    "username": "HHHDenver",
-    "streams": {
-      "AirBeam-PM": {
-        "average_value": 3.47621,
-        "id": 26343,
-        "max_latitude": "39.68933377",
-        "max_longitude": "-104.89177015",
-        "measurement_short_type": "PM",
-        "measurement_type": "Particulate Matter",
-        "measurements_count": 1814,
-        "min_latitude": "39.68364632",
-        "min_longitude": "-104.89647254",
-        "sensor_name": "AirBeam-PM",
-        "sensor_package_name": "AirBeam:001896105CBB",
-        "session_id": 9586,
-        "threshold_high": 55,
-        "threshold_low": 12,
-        "threshold_medium": 35,
-        "threshold_very_high": 150,
-        "threshold_very_low": 0,
-        "unit_name": "micrograms per cubic meter",
-        "unit_symbol": "µg/m³",
-        "size": 1814
+{
+"sessions":
+  [
+    {
+      "end_time_local": "2015-09-09T17:49:38Z",
+      "id": 9586,
+      "start_time_local": "2015-09-09T17:19:16Z",
+      "title": "Bike ride short ",
+      "username": "HHHDenver",
+      "streams": {
+        "AirBeam-PM": {
+          "average_value": 3.47621,
+          "id": 26343,
+          "max_latitude": "39.68933377",
+          "max_longitude": "-104.89177015",
+          "measurement_short_type": "PM",
+          "measurement_type": "Particulate Matter",
+          "measurements_count": 1814,
+          "min_latitude": "39.68364632",
+          "min_longitude": "-104.89647254",
+          "sensor_name": "AirBeam-PM",
+          "sensor_package_name": "AirBeam:001896105CBB",
+          "session_id": 9586,
+          "threshold_high": 55,
+          "threshold_low": 12,
+          "threshold_medium": 35,
+          "threshold_very_high": 150,
+          "threshold_very_low": 0,
+          "unit_name": "micrograms per cubic meter",
+          "unit_symbol": "µg/m³",
+          "size": 1814
+        }
       }
     }
-  }
-]
+  ],
+"fetchableSessionsCount": 1
+}
 ```
 
 ## Session

@@ -22,6 +22,7 @@ export const mobileSessions = (
     this.sessions = [];
     this.scope = $rootScope.$new();
     this.scope.params = params;
+    this.fetchableSessionsCount = 0;
   };
 
   let prevMapPosition = {};
@@ -92,17 +93,18 @@ export const mobileSessions = (
       sessionsUtils.sessionsChanged(this, newIds, oldIds);
     },
 
-    onSessionsFetch: function() {
+    onSessionsFetch: function(fetchableSessionsCount) {
       if ($window.location.pathname !== constants.mobileMapRoute) return;
 
       if (!params.isCrowdMapOn()) {
         this.drawSessionsInLocation();
       }
+      this.fetchableSessionsCount = fetchableSessionsCount;
       sessionsUtils.onSessionsFetch(this);
     },
 
-    onSessionsFetchWithCrowdMapLayerUpdate: function() {
-      this.onSessionsFetch();
+    onSessionsFetchWithCrowdMapLayerUpdate: function(fetchableSessionsCount) {
+      this.onSessionsFetch(fetchableSessionsCount);
       sessionsUtils.updateCrowdMapLayer(this.sessionIds());
     },
 

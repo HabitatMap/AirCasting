@@ -34,7 +34,8 @@ module Api
       data[:time_from] = Time.strptime(data[:time_from].to_s, '%s')
       data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
 
-      respond_with MobileSession.filtered_json(data, data[:limit], data[:offset])
+      respond_with sessions: MobileSession.filtered_json(data, data[:limit], data[:offset]),
+                   fetchableSessionsCount: MobileSession.filter(data).count
     end
 
     def show_multiple
