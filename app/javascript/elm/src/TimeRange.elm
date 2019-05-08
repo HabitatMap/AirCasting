@@ -5,6 +5,7 @@ import Html.Attributes exposing (attribute, class, disabled, for, id, name, plac
 import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
+import Tooltip
 
 
 type TimeRange
@@ -53,6 +54,7 @@ view : msg -> Bool -> Html msg
 view refreshTimeRange isDisabled =
     div []
         [ label [ for "time-range" ] [ text "time frame:" ]
+        , Tooltip.view Tooltip.timeRangeFilter
         , input
             [ id "time-range"
             , attribute "autocomplete" "off"

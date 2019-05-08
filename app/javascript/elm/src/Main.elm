@@ -24,6 +24,7 @@ import Sensor exposing (Sensor)
 import String exposing (fromInt)
 import Time exposing (Posix)
 import TimeRange exposing (TimeRange)
+import Tooltip
 import Url exposing (Url)
 
 
@@ -705,8 +706,10 @@ viewSessionTypes model =
     div [ class "sessions-type" ]
         [ a [ href "/mobile_map", classList [ ( "session-type-mobile", True ), ( "selected", model.page == Mobile ) ] ]
             [ text "mobile" ]
+        , Tooltip.view Tooltip.mobileTab
         , a [ href "/fixed_map", classList [ ( "session-type-fixed", True ), ( "selected", model.page == Fixed ) ] ]
             [ text "fixed" ]
+        , Tooltip.view Tooltip.fixedTab
         ]
 
 
@@ -790,10 +793,10 @@ viewMobileFilters model =
     form [ class "filters-form" ]
         [ viewParameterFilter model.sensors model.selectedSensorId
         , viewSensorFilter model.sensors model.selectedSensorId
-        , viewLocation model.location model.isIndoor
+        , viewLocationFilter model.location model.isIndoor
         , TimeRange.view RefreshTimeRange False
-        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False
-        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter
+        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter
         , div [ class "filter-separator" ] []
         , viewCrowdMapCheckBox model.isCrowdMapOn
         , if model.isCrowdMapOn then
@@ -809,16 +812,18 @@ viewFixedFilters model =
     form [ class "filters-form" ]
         [ viewParameterFilter model.sensors model.selectedSensorId
         , viewSensorFilter model.sensors model.selectedSensorId
-        , viewLocation model.location model.isIndoor
+        , viewLocationFilter model.location model.isIndoor
         , TimeRange.view RefreshTimeRange model.isStreaming
-        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor
-        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter
+        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter
         , label [] [ text "type" ]
+        , Tooltip.view Tooltip.typeToggleFilter
         , div []
             [ viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
             , viewToggleButton "indoor" model.isIndoor ToggleIndoor
             ]
         , label [] [ text "streaming" ]
+        , Tooltip.view Tooltip.streamingToggleFilter
         , div []
             [ viewToggleButton "active" model.isStreaming ToggleStreaming
             , viewToggleButton "dormant" (not model.isStreaming) ToggleStreaming
@@ -846,6 +851,7 @@ viewParameterFilter : List Sensor -> String -> Html Msg
 viewParameterFilter sensors selectedSensorId =
     div []
         [ label [ for "parameter" ] [ text "parameter:" ]
+        , Tooltip.view Tooltip.parameterFilter
         , input
             [ id "parameter"
             , class "input-dark"
@@ -865,6 +871,7 @@ viewSensorFilter : List Sensor -> String -> Html Msg
 viewSensorFilter sensors selectedSensorId =
     div []
         [ label [ for "sensor" ] [ text "sensor:" ]
+        , Tooltip.view Tooltip.sensorFilter
         , input
             [ id "sensor"
             , class "input-dark"
@@ -892,6 +899,7 @@ viewCrowdMapCheckBox isCrowdMapOn =
                 ]
                 []
             , label [ for "checkbox-crowd-map" ] [ text "Crowd Map" ]
+            , Tooltip.view Tooltip.crowdMap
             ]
         ]
 
@@ -917,10 +925,11 @@ viewCrowdMapSlider resolution =
         ]
 
 
-viewLocation : String -> Bool -> Html Msg
-viewLocation location isIndoor =
+viewLocationFilter : String -> Bool -> Html Msg
+viewLocationFilter location isIndoor =
     div []
         [ label [ for "location" ] [ text "location:" ]
+        , Tooltip.view Tooltip.locationFilter
         , input
             [ id "location"
             , value location

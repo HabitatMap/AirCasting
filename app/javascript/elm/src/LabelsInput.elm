@@ -5,6 +5,7 @@ import Html.Attributes exposing (class, disabled, for, id, name, placeholder, ty
 import Html.Events as Events
 import Html.Events.Extra as ExtraEvents
 import Set exposing (Set)
+import Tooltip exposing (TooltipText)
 
 
 type Model
@@ -68,10 +69,11 @@ update msg model toCmd =
 -- VIEW
 
 
-view : Model -> String -> String -> String -> Bool -> Html Msg
-view model text_ inputId placeholderText isDisabled =
+view : Model -> String -> String -> String -> Bool -> TooltipText -> Html Msg
+view model text_ inputId placeholderText isDisabled tooltipText =
     div []
         [ label [ for inputId ] [ text text_ ]
+        , Tooltip.view tooltipText
         , div [ class "tag-container" ]
             [ input
                 [ id inputId
