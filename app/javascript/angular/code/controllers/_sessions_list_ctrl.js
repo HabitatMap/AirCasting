@@ -13,6 +13,7 @@ export const SessionsListCtrl = (
   updateCrowdMapLayer
 ) => {
   let sessions;
+  let firstLoad = true;
   const elmApp = $window.__elmApp;
   const CANNOT_SELECT_MULTIPLE_SESSIONS = "You can't select multiple sessions";
 
@@ -24,7 +25,6 @@ export const SessionsListCtrl = (
     $scope.markerSelected = markerSelected;
     $window.sessions = sessions = $scope.sessions;
     $scope.sessionsForList = [];
-    $scope.firstLoad = true;
 
     // prolly this can be removed
     if (_(params.get("selectedSessionIds", [])).isEmpty()) {
@@ -48,19 +48,25 @@ export const SessionsListCtrl = (
     ({ hasChangedProgrammatically }) => {
       console.log("watch - params.get('map')");
       if (sessions.hasSelectedSessions()) return;
+      if (hasChangedProgrammatically === undefined) return;
 
-      if ($scope.firstLoad) {
+      if (firstLoad) {
         sessions.fetch({ amount: params.get("fetchedSessionsCount") });
-        $scope.firstLoad = false;
+        firstLoad = false;
+        return;
       }
 
-      if (!params.get("data").isSearchOn) return;
+      if (!params.get("data").isSearchOn) {
+        console.warn("map was moved");
+        elmApp.ports.mapMoved.send(null);
+        return;
+      }
 
       if (hasChangedProgrammatically) {
         sessions.fetch({ amount: params.get("fetchedSessionsCount") });
-      } else {
-        sessions.fetch();
+        return;
       }
+      sessions.fetch();
     },
     true
   );
@@ -158,6 +164,10 @@ export const SessionsListCtrl = (
       elmApp.ports.toggleIsSearchOn.subscribe(isSearchOn => {
         params.update({ data: { isSearchOn: isSearchOn } });
         $scope.$apply();
+      });
+
+      elmApp.ports.fetchSessions.subscribe(() => {
+        sessions.fetch();
       });
     });
   }
