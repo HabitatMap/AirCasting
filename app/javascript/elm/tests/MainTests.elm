@@ -802,6 +802,14 @@ viewTests =
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.id "heatmap-unit-min", Slc.containing [ Slc.text unit ] ]
+        , fuzz bool "search checkbox state depends on model.isSearchOn" <|
+            \isSearchOn ->
+                { defaultModel | isSearchOn = isSearchOn }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ Slc.id "checkbox-search" ]
+                    |> Query.has
+                        [ Slc.attribute <| checked isSearchOn ]
         ]
 
 
@@ -984,4 +992,11 @@ updateTests =
                     |> update (UpdateHeatMapMaximum int)
                     |> Tuple.first
                     |> Expect.equal expected
+        , fuzz bool "ToggleIsSearchOn changes the state of model.isSearchOn" <|
+            \onOrOff ->
+                { defaultModel | isSearchOn = onOrOff }
+                    |> update ToggleIsSearchOn
+                    |> Tuple.first
+                    |> .isSearchOn
+                    |> Expect.equal (not onOrOff)
         ]
