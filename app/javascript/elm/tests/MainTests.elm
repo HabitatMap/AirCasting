@@ -638,21 +638,21 @@ viewTests =
                         [ Html.text title1
                         , Html.text title2
                         ]
-        , fuzz (intRange 1 100) "with no selection and availableSessionsCount bigger than current session list length load more button is shown" <|
+        , fuzz (intRange 1 100) "with no selection and fetchableSessionsCount bigger than current session list length load more button is shown" <|
             \times ->
                 { defaultModel
                     | sessions = List.repeat times session
-                    , availableSessionsCount = times + 1
+                    , fetchableSessionsCount = times + 1
                     , selectedSession = NotAsked
                 }
                     |> view
                     |> Query.fromHtml
                     |> Query.contains [ Html.text "Load More..." ]
-        , fuzz (intRange 1 100) "with no selection and availableSessionsCount equal to current session list length load more button is not shown" <|
+        , fuzz (intRange 1 100) "with no selection and fetchableSessionsCount equal to current session list length load more button is not shown" <|
             \times ->
                 { defaultModel
                     | sessions = List.repeat times session
-                    , availableSessionsCount = times
+                    , fetchableSessionsCount = times
                     , selectedSession = NotAsked
                 }
                     |> view
@@ -851,7 +851,7 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | sessions = [ sessionWithId id ], selectedSession = NotAsked }
+                        { defaultModel | sessions = [ sessionWithId id ] }
 
                     newSession =
                         { id = id + 1
@@ -878,7 +878,7 @@ updateTests =
                                         ]
                                     ]
                               )
-                            , ( "availableSessionsCount", Encode.int 1 )
+                            , ( "fetchableSessionsCount", Encode.int 1 )
                             ]
                 in
                 model
@@ -886,22 +886,22 @@ updateTests =
                     |> Tuple.first
                     |> .sessions
                     |> Expect.equal [ newSession ]
-        , fuzz int "UpdateSessions decodes the encoded value and updates model.availableSessionsCount" <|
+        , fuzz int "UpdateSessions decodes the encoded value and updates model.fetchableSessionsCount" <|
             \count ->
                 let
                     model =
-                        { defaultModel | availableSessionsCount = 0, selectedSession = NotAsked }
+                        { defaultModel | fetchableSessionsCount = 0 }
 
                     newSessions =
                         Encode.object
                             [ ( "fetched", Encode.list identity [] )
-                            , ( "availableSessionsCount", Encode.int count )
+                            , ( "fetchableSessionsCount", Encode.int count )
                             ]
                 in
                 model
                     |> update (UpdateSessions newSessions)
                     |> Tuple.first
-                    |> .availableSessionsCount
+                    |> .fetchableSessionsCount
                     |> Expect.equal count
         , fuzz int "LoadMoreSessions delegates to javascript" <|
             \id ->
