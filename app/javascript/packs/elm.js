@@ -117,11 +117,11 @@ const setupHeatMap = () => {
 
     window.__elmApp.ports.updateHeatMapThresholds.subscribe(thresholds => {
       console.warn("heatmap from elm", Object.values(thresholds));
-      node.noUiSlider.set(toMiddleValues(thresholds));
       const [min, max] = toExtremes(thresholds);
       node.noUiSlider.updateOptions({
         range: { min, max }
       });
+      node.noUiSlider.set(toMiddleValues(thresholds));
 
       console.warn("heatmap updated", Object.values(toValues(node.noUiSlider)));
 
