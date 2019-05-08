@@ -76,7 +76,7 @@ curl http://aircasting.org/api/sessions.json?limit=50&offset=0&q[measurements]=t
       }
     }
   ],
-"availableSessionsCount": 1
+"fetchableSessionsCount": 1
 }
 ```
 

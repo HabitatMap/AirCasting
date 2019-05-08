@@ -38,7 +38,7 @@ module Api
         data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
 
         respond_with sessions: FixedSession.filtered_json(data, data[:limit], data[:offset]),
-                     availableSessionsCount: MobileSession.filter(data).count
+                     fetchableSessionsCount: MobileSession.filter(data).count
       end
 
       def index_streaming

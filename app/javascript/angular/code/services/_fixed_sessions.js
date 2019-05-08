@@ -21,7 +21,7 @@ export const fixedSessions = (
     this.sessions = [];
     this.scope = $rootScope.$new();
     this.scope.params = params;
-    this.availableSessionsCount = 0;
+    this.fetchableSessionsCount = 0;
   };
 
   let prevMapPosition = {};
@@ -87,11 +87,11 @@ export const fixedSessions = (
       sessionsUtils.sessionsChanged(this, newIds, oldIds);
     },
 
-    onSessionsFetch: function(availableSessionsCount) {
+    onSessionsFetch: function(fetchableSessionsCount) {
       if ($window.location.pathname !== constants.fixedMapRoute) return;
 
       this.drawSessionsInLocation();
-      this.availableSessionsCount = availableSessionsCount;
+      this.fetchableSessionsCount = fetchableSessionsCount;
       sessionsUtils.onSessionsFetch(this);
     },
 
