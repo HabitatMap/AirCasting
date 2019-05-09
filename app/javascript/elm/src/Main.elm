@@ -565,8 +565,8 @@ view model =
         , main_
             []
             [ div [ class "maps-page-container" ]
-                [ div [ class "map-filters" ]
-                    [ viewSessionTypes model
+                [ div [ class "filters" ]
+                    [ viewSessionTypeNav model
                     , viewFilters model
                     , viewFiltersButtons model.selectedSession model.sessions model.linkIcon
                     ]
@@ -708,9 +708,9 @@ viewFiltersButtons selectedSession sessions linkIcon =
                 tooltipId =
                     "copy-link-tooltip"
             in
-            div [ class "filters-buttons" ]
-                [ a [ class "filters-button export-button", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
-                , button [ class "filters-button link-button", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
+            div [ class "filters__actions action-buttons" ]
+                [ button [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
+                , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
                     [ img [ src linkIcon, alt "Link icon" ] [] ]
                 ]
 
@@ -718,13 +718,13 @@ viewFiltersButtons selectedSession sessions linkIcon =
             text ""
 
 
-viewSessionTypes : Model -> Html Msg
-viewSessionTypes model =
-    div [ class "sessions-type" ]
-        [ a [ href "/mobile_map", classList [ ( "session-type-mobile", True ), ( "selected", model.page == Mobile ) ] ]
+viewSessionTypeNav : Model -> Html Msg
+viewSessionTypeNav model =
+    div [ class "session-type-nav" ]
+        [ a [ href "/mobile_map", classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
             [ text "mobile" ]
         , Tooltip.view Tooltip.mobileTab
-        , a [ href "/fixed_map", classList [ ( "session-type-fixed", True ), ( "selected", model.page == Fixed ) ] ]
+        , a [ href "/fixed_map", classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
             [ text "fixed" ]
         , Tooltip.view Tooltip.fixedTab
         ]
@@ -807,7 +807,7 @@ viewFilters model =
 
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
-    form [ class "filters-form" ]
+    form [ class "filters__form" ]
         [ viewParameterFilter model.sensors model.selectedSensorId
         , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocationFilter model.location model.isIndoor
@@ -826,7 +826,7 @@ viewMobileFilters model =
 
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
-    form [ class "filters-form" ]
+    form [ class "filters__form" ]
         [ viewParameterFilter model.sensors model.selectedSensorId
         , viewSensorFilter model.sensors model.selectedSensorId
         , viewLocationFilter model.location model.isIndoor

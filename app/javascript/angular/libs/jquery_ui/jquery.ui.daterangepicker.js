@@ -67,8 +67,8 @@
             this.drops = 'up';
 
         this.buttonClasses = 'btn btn-sm';
-        this.applyButtonClasses = 'btn-primary';
-        this.cancelButtonClasses = 'btn-default';
+        this.applyButtonClasses = 'button button--primary time-frame-button';
+        this.cancelButtonClasses = 'button button--default time-frame-button';
 
         this.locale = {
             direction: 'ltr',

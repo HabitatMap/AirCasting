@@ -22,22 +22,22 @@ view toggle onSelect isPopupExtended popup =
         SelectFrom ( main, others ) itemType selectedItem ->
             case ( List.isEmpty main, List.isEmpty others ) of
                 ( True, _ ) ->
-                    div [ id "popup", class "parameter-filters-popup" ]
+                    div [ id "popup", class "filter-popup" ]
                         [ selectableItems MainPart others onSelect selectedItem ]
 
                 ( False, True ) ->
-                    div [ id "popup", class "parameter-filters-popup" ]
+                    div [ id "popup", class "filter-popup" ]
                         [ selectableItems MainPart main onSelect selectedItem
                         ]
 
                 ( False, False ) ->
-                    div [ id "popup", class "parameter-filters-popup" ]
+                    div [ id "popup", class "filter-popup" ]
                         [ selectableItems MainPart main onSelect selectedItem
                         , if List.isEmpty others then
                             text ""
 
                           else if isPopupExtended then
-                            div [ class "parameter-more-container" ]
+                            div [ class "filter-popup__more" ]
                                 [ selectableItems OtherPart others onSelect selectedItem
                                 , togglePopupStateButton ("less " ++ itemType) toggle
                                 ]
@@ -54,7 +54,7 @@ togglePopupStateButton : String -> msg -> Html msg
 togglePopupStateButton name toggle =
     button
         [ id "toggle-popup-button"
-        , class "parameters-toggle-open"
+        , class "filter-popup__toggle-more-button"
         , clickWithoutDefault toggle
         ]
         [ text name ]
@@ -66,10 +66,10 @@ selectableItems part items onSelect selectedItem =
         ( parentClass, childClass ) =
             case part of
                 MainPart ->
-                    ( "parameter-filters-buttons-container", "parameter-filters-button" )
+                    ( "filter-popup__list", "button filter-popup-button" )
 
                 OtherPart ->
-                    ( "parameter-more-list", "more-parameters-link" )
+                    ( "filter-popup__list--more", "button filter-popup-button--more" )
 
         toButton item =
             button
@@ -77,7 +77,7 @@ selectableItems part items onSelect selectedItem =
                 , classList
                     [ ( "active", item == selectedItem )
                     , ( childClass, True )
-                    , ( "test-parameter-filters-button", True )
+                    , ( "test-filter-popup-button", True )
                     ]
                 ]
                 [ text item ]

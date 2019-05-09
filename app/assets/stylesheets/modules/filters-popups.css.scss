@@ -1,15 +1,4 @@
-.overlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  min-width: 100%;
-  height: 100%;
-  z-index: 3;
-  background-color: white;
-  opacity: 0.6;
-}
-
-.parameter-filters-popup {
+.filter-popup {
   position: absolute;
   z-index: 8;
   top: 8rem;
@@ -23,47 +12,57 @@
   animation: show-up 0.4s ease;
 }
 
-.parameter-more-list {
+.filter-popup__list {
   @include flexbox();
   @include flex-direction(row);
   @include flex-wrap(wrap);
   @include justify-content(space-between);
   margin: 0 auto;
   width: 100%;
+}
+
+.filter-popup__list--more {
   animation: show-up 1s ease;
 }
 
-.parameter-filters-buttons-container {
-  @include flexbox();
-  @include flex-direction(row);
-  @include flex-wrap(wrap);
-  @include justify-content(space-between);
-  width: 100%;
-  margin: 0 auto;
-}
-
-.more-parameters-link {
-  width: 50%;
-  font-size: $tiny-font;
-  width: 50%;
-  padding: 12px;
+.filter-popup__toggle-more-button {
   border: none;
+  border-top: 1px solid $separator-color;
+  font-size: $tiny-font;
+  margin-top: 8px;
+  padding-top: 12px;
+  text-align: right;
   -webkit-appearance: none;
-  text-align: left;
+  width: 100%;
+
   &:hover {
     text-decoration: underline;
   }
-  &:focus {
+
+  &:focus,
+  &:active {
     outline: none;
   }
 }
 
-.parameters-toggle-open {
-  width: 100%;
-  border-top: 1px solid $separator-color;
-  display: inline-block;
-  text-align: right;
-  font-size: $tiny-font;
+.filter-popup-button {
+  background: white;
+  box-shadow: 1px 1px 4px 0 rgba(160, 192, 290, 0.5);
   border: none;
+  color: $dark-blue;
+  font-size: $tiny-font;
+  font-weight: $font-stack-regular;
+  width: 126px;
+  padding: 6px 0;
+  margin-bottom: 12px;
+}
+
+.filter-popup-button--more {
+  border: none;
+  display: inline-block;
+  font-size: $tiny-font;
+  padding: 12px;
+  text-align: left;
+  width: 50%;
   -webkit-appearance: none;
 }

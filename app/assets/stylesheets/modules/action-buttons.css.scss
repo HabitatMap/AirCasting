@@ -1,0 +1,28 @@
+.action-buttons {
+  @include flexbox();
+  @include justify-content(space-between);
+  @include align-items(center);
+  height: $action-container-height;
+  width: 100%;
+}
+
+.action-button {
+  font-size: $small-font;
+  font-weight: $font-stack-bold;
+  height: 33px;
+  text-transform: lowercase;
+}
+
+.action-button--export {
+  line-height: 33px;
+  width: 170px;
+}
+
+.action-button--copy-link {
+  margin-top: 3px;
+  width: 33px;
+
+  img {
+    vertical-align: middle;
+  }
+}

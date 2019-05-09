@@ -33,7 +33,7 @@ popups =
                 Popup.SelectFrom ( mainItem :: mainItems, otherItems ) "" ""
                     |> view Toggle Select False
                     |> Query.fromHtml
-                    |> Query.findAll [ Slc.class "test-parameter-filters-button" ]
+                    |> Query.findAll [ Slc.class "test-filter-popup-button" ]
                     |> Query.count (Expect.equal (List.length mainItems + 1))
         , test "if there are no others items popup doesn't have a toggle popup button" <|
             \_ ->
@@ -58,7 +58,7 @@ popups =
                 Popup.SelectFrom ( mainItems, otherItems ) "" ""
                     |> view Toggle Select True
                     |> Query.fromHtml
-                    |> Query.findAll [ Slc.class "test-parameter-filters-button" ]
+                    |> Query.findAll [ Slc.class "test-filter-popup-button" ]
                     |> Query.count (Expect.equal numberOfItems)
         , test "clicking on an item executes select function" <|
             \_ ->
