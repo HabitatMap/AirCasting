@@ -45,7 +45,7 @@ port locationCleared : (() -> msg) -> Sub msg
 port findLocation : String -> Cmd a
 
 
-port showCopyLinkTooltip : () -> Cmd a
+port showCopyLinkTooltip : String -> Cmd a
 
 
 port toggleCrowdMap : Bool -> Cmd a
