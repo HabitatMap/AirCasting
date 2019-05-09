@@ -12,6 +12,7 @@
   &.default {
     background-color: $grey;
   }
+
   &.highest {
     @extend .red-bg;
   }
@@ -30,47 +31,47 @@
 }
 
 .data-marker {
-  border-radius: 15px;
   background: white;
-  font-size: 12px;
-  padding: 0 5px 0 18px;
-  border: 1.5px solid black;
-  position: absolute;
-  line-height: 18px;
-  color: black;
+  border-radius: 15px;
   box-sizing: border-box;
   cursor: pointer;
+  font-size: 12px;
+  padding: 0 5px 0 18px;
+  position: absolute;
+  line-height: 18px;
   left: -10px;
   top: -11px;
+
   &.highest {
     border: 1px solid $red;
   }
+
   &.high {
     border: 1px solid $orange;
   }
+
   &.mid {
-    border: 1px solid #ffcc33;
+    border: 1px solid $yellow;
   }
+
   &.low {
     border: 1px solid $green;
   }
-  &.lowest {
-    border: 1px solid #ccc;
-  }
+
   &.default {
     border: 1px solid $grey;
   }
 }
 
 .data-marker::before {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 12px;
   border-radius: 50%;
+  content: "";
+  height: 12px;
+  left: 3.6px;
+  position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  left: 3.6px;
+  width: 12px;
 }
 
 .data-marker.highest::before {
@@ -94,22 +95,22 @@
 }
 
 .data-marker::after {
-  content: "";
-  width: 45px;
-  height: 45px;
-  z-index: -1;
-  position: absolute;
-  left: -16px;
-  top: -15px;
-  border-radius: 50%;
   background: transparent;
+  border-radius: 50%;
+  content: "";
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  left: -11px;
+  top: -11px;
+  z-index: -1;
 }
 
 .data-marker.default::after {
   background-image: radial-gradient(
     circle at 50%,
-    rgba(202, 200, 200, 1) 0%,
-    rgba(244, 0, 28, 0) 70%
+    transparentize($grey, 0.5) 0%,
+    transparentize($grey, 0.5) 100%
   );
 }
 
@@ -117,8 +118,8 @@
 .marker.highest::after {
   background-image: radial-gradient(
     circle at 50%,
-    rgba(246, 52, 52, 1) 0%,
-    rgba(244, 0, 28, 0) 70%
+    transparentize($red, 0.5) 0%,
+    transparentize($red, 0.5) 100%
   );
 }
 
@@ -126,8 +127,8 @@
 .marker.high::after {
   background-image: radial-gradient(
     circle at 50%,
-    rgba(246, 150, 74, 1) 0%,
-    rgba(245, 127, 34, 0) 70%
+    transparentize($orange, 0.5) 0%,
+    transparentize($orange, 0.5) 100%
   );
 }
 
@@ -135,8 +136,8 @@
 .marker.mid::after {
   background-image: radial-gradient(
     circle at 50%,
-    rgba(250, 226, 84, 1) 0%,
-    rgba(255, 204, 51, 0) 70%
+    transparentize($yellow, 0.5) 0%,
+    transparentize($yellow, 0.5) 100%
   );
 }
 
@@ -144,8 +145,8 @@
 .marker.low::after {
   background-image: radial-gradient(
     circle at 50%,
-    rgba(83, 182, 99, 1) 0%,
-    rgba(45, 166, 65, 0) 70%
+    transparentize($green, 0.5) 0%,
+    transparentize($green, 0.5) 100%
   );
 }
 
@@ -153,5 +154,4 @@
   position: absolute;
   height: 0px;
   width: 100px;
-  background-color: red;
 }
