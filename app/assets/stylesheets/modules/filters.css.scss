@@ -1,6 +1,4 @@
-$action-container-height: 60px;
-
-.map-filters {
+.filters {
   background: $brand-secondary;
   box-shadow: 1px 1px 6px 0 rgba(51, 51, 51, 0.5);
   color: white;
@@ -11,61 +9,21 @@ $action-container-height: 60px;
   width: $filters-width;
 }
 
-.filters-form {
+.filters__form {
   padding: 12px 12px $action-container-height 12px;
 }
 
-.sessions-type {
-  @include flexbox();
-  @include justify-content(space-between);
-  width: 100%;
-}
-
-.session-type-mobile,
-.session-type-fixed {
-  background-color: $brand-primary;
-  border: none;
-  color: white;
-  font-weight: $font-stack-bold;
-  font-size: $small-font;
-  padding: $margin-default;
-  text-align: left;
-  width: 50%;
-  z-index: 1;
-
-  &.selected {
-    background-color: $brand-secondary;
-    box-shadow: 1px 1px 6px 0 rgba(51, 51, 51, 0.5);
-    z-index: 2;
-  }
-
-  &:focus {
-    outline: none;
-  }
+.filters__actions {
+  bottom: 0;
+  left: 0;
+  padding: 12px;
+  position: absolute;
 }
 
 .filter-separator {
   border-bottom: white solid 0.6px;
   opacity: 0.4;
   width: 100%;
-}
-
-.filters-buttons {
-  @include flexbox();
-  @include justify-content(space-between);
-  @include align-items(center);
-  height: $action-container-height;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  padding: $margin-default;
-  width: 100%;
-}
-
-.export-button {
-  line-height: 33px;
-  text-align: center;
-  width: 170px;
 }
 
 .filters-tag {

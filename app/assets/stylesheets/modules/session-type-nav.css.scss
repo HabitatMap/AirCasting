@@ -1,0 +1,27 @@
+.session-type-nav {
+  @include flexbox();
+  @include justify-content(space-between);
+  width: 100%;
+}
+
+.session-type-nav__item {
+  background-color: $brand-primary;
+  border: none;
+  color: white;
+  font-weight: $font-stack-bold;
+  font-size: $small-font;
+  padding: $margin-default;
+  text-align: left;
+  width: 50%;
+  z-index: 1;
+
+  &.selected {
+    background-color: $brand-secondary;
+    box-shadow: 1px 1px 6px 0 rgba(51, 51, 51, 0.5);
+    z-index: 2;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
