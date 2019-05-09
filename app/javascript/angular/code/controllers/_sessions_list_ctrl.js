@@ -51,19 +51,18 @@ export const SessionsListCtrl = (
       if (hasChangedProgrammatically === undefined) return;
 
       if (firstLoad) {
-        sessions.fetch({ amount: params.get("fetchedSessionsCount") });
+        sessions.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
         firstLoad = false;
         return;
       }
 
       if (!params.get("data").isSearchOn) {
-        console.warn("map was moved");
         elmApp.ports.mapMoved.send(null);
         return;
       }
 
       if (hasChangedProgrammatically) {
-        sessions.fetch({ amount: params.get("fetchedSessionsCount") });
+        sessions.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
         return;
       }
       sessions.fetch();
