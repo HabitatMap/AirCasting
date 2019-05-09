@@ -85,14 +85,16 @@ export const setupClipboard = () => {
   new Clipboard("#copy-link-button");
 };
 
-export const tooltipInstance = () =>
-  tippy("#copy-link-tooltip", {
+export const tooltipInstance = tooltipId =>
+  tippy(`#${tooltipId}`, {
     animateFill: false,
     interactive: true,
     trigger: "manual"
   })[0];
 
-export const fetchShortUrl = (currentUrl, tooltip) => {
+export const fetchShortUrl = (tooltipId, currentUrl) => {
+  const tooltip = tooltipInstance(tooltipId);
+
   tooltip.setContent("Fetching...");
   tooltip.show();
 
@@ -121,7 +123,7 @@ const updateTooltipContent = (link, tooltip) => {
   document.getElementById("copy-link-button").addEventListener("click", () => {
     tooltip.setContent("Copied!");
 
-    window.setTimeout(tooltip.hide, 1000);
+    window.setTimeout(tooltip.destroy, 1000);
   });
 };
 

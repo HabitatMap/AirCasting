@@ -13,8 +13,9 @@ import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
 import Data.Session
 import Data.Times as Times
-import Html exposing (Html, a, div, p, span, text)
-import Html.Attributes exposing (class, href, target)
+import Html exposing (Html, a, button, div, img, p, span, text)
+import Html.Attributes exposing (alt, class, href, id, src, target)
+import Html.Events as Events
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Decode.Pipeline exposing (custom, required)
@@ -111,8 +112,12 @@ fetch sensors sensorId page id toCmd =
             Cmd.none
 
 
-view : SelectedSession -> WebData HeatMapThresholds -> Html msg
-view session heatMapThresholds =
+view : SelectedSession -> WebData HeatMapThresholds -> String -> (String -> msg) -> Html msg
+view session heatMapThresholds linkIcon toMsg =
+    let
+        tooltipId =
+            "graph-copy-link-tooltip"
+    in
     div []
         [ p [ class "single-session-name" ] [ text session.title ]
         , p [ class "single-session-username" ] [ text session.username ]
@@ -136,4 +141,6 @@ view session heatMapThresholds =
             ]
         , span [ class "single-session-date" ] [ text <| Times.format session.startTime session.endTime ]
         , a [ target "_blank", href <| Api.exportLink [ session ] ] [ text "export sessions" ]
+        , button [ class "filters-button link-button", Events.onClick <| toMsg tooltipId, id tooltipId ]
+            [ img [ src linkIcon, alt "Link icon" ] [] ]
         ]

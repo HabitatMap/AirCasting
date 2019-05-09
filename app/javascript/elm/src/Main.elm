@@ -182,7 +182,7 @@ type Msg
     | UpdateCrowdMapResolution Int
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
-    | ShowCopyLinkTooltip
+    | ShowCopyLinkTooltip String
     | ShowPopup ( List String, List String ) String String
     | SelectSensorId String
     | ClosePopup
@@ -236,8 +236,8 @@ update msg model =
         RefreshTimeRange ->
             ( model, Ports.refreshTimeRange () )
 
-        ShowCopyLinkTooltip ->
-            ( model, Ports.showCopyLinkTooltip () )
+        ShowCopyLinkTooltip tooltipId ->
+            ( model, Ports.showCopyLinkTooltip tooltipId )
 
         ShowPopup items itemType selectedItem ->
             ( { model | popup = Popup.SelectFrom items itemType selectedItem, isPopupExtended = False }, Cmd.none )
@@ -579,7 +579,7 @@ view model =
                             ]
                             [ div [ class "sessions" ]
                                 [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ]
-                                    (viewSessionsOrSelectedSession model.fetchableSessionsCount model.selectedSession model.sessions model.heatMapThresholds)
+                                    (viewSessionsOrSelectedSession model.fetchableSessionsCount model.selectedSession model.sessions model.heatMapThresholds model.linkIcon)
                                 ]
                             ]
                         ]
@@ -621,24 +621,24 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         ]
 
 
-viewSessionsOrSelectedSession : Int -> WebData SelectedSession -> List Session -> WebData HeatMapThresholds -> List (Html Msg)
-viewSessionsOrSelectedSession fetchableSessionsCount selectedSession sessions heatMapThresholds =
+viewSessionsOrSelectedSession : Int -> WebData SelectedSession -> List Session -> WebData HeatMapThresholds -> String -> List (Html Msg)
+viewSessionsOrSelectedSession fetchableSessionsCount selectedSession sessions heatMapThresholds linkIcon =
     case selectedSession of
         NotAsked ->
             [ viewSessions fetchableSessionsCount sessions heatMapThresholds ]
 
         Success session ->
-            [ viewSelectedSession heatMapThresholds <| Just session ]
+            [ viewSelectedSession heatMapThresholds (Just session) linkIcon ]
 
         Loading ->
-            [ viewSelectedSession heatMapThresholds Nothing ]
+            [ viewSelectedSession heatMapThresholds Nothing linkIcon ]
 
         Failure _ ->
             [ div [] [ text "error!" ] ]
 
 
-viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Html Msg
-viewSelectedSession heatMapThresholds maybeSession =
+viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> String -> Html Msg
+viewSelectedSession heatMapThresholds maybeSession linkIcon =
     div [ class "single-session-container" ]
         [ div [ class "single-session-info" ]
             (case maybeSession of
@@ -646,7 +646,7 @@ viewSelectedSession heatMapThresholds maybeSession =
                     [ text "loading" ]
 
                 Just session ->
-                    [ SelectedSession.view session heatMapThresholds ]
+                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ]
             )
         , div
             [ class "single-session-graph", id "graph-box" ]
@@ -660,9 +660,13 @@ viewFiltersButtons : WebData SelectedSession -> List Session -> String -> Html M
 viewFiltersButtons selectedSession sessions linkIcon =
     case selectedSession of
         NotAsked ->
+            let
+                tooltipId =
+                    "copy-link-tooltip"
+            in
             div [ class "filters-buttons" ]
                 [ a [ class "filters-button export-button", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
-                , button [ class "filters-button link-button", Events.onClick ShowCopyLinkTooltip, id "copy-link-tooltip" ]
+                , button [ class "filters-button link-button", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
                     [ img [ src linkIcon, alt "Link icon" ] [] ]
                 ]
 
