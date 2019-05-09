@@ -109,7 +109,7 @@
 @mixin halo($color) {
   background-image: radial-gradient(
     circle at 50%,
-    transparentize($color, 0.25) 36%,
+    transparentize($color, 0.25) 10px,
     transparentize($color, 0.5) 45%,
     rgba(255, 255, 255, 0) 70%
   );
