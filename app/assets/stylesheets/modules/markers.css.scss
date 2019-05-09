@@ -98,56 +98,45 @@
   background: transparent;
   border-radius: 50%;
   content: "";
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   position: absolute;
-  left: -11px;
-  top: -11px;
+  left: -14px;
+  top: -14px;
   z-index: -1;
 }
 
-.data-marker.default::after {
+@mixin halo($color) {
   background-image: radial-gradient(
     circle at 50%,
-    transparentize($grey, 0.5) 0%,
-    transparentize($grey, 0.5) 100%
+    transparentize($color, 0.25) 36%,
+    transparentize($color, 0.5) 45%,
+    rgba(255, 255, 255, 0) 70%
   );
+}
+
+.data-marker.default::after {
+  @include halo($grey);
 }
 
 .data-marker.highest::after,
 .marker.highest::after {
-  background-image: radial-gradient(
-    circle at 50%,
-    transparentize($red, 0.5) 0%,
-    transparentize($red, 0.5) 100%
-  );
+  @include halo($red);
 }
 
 .data-marker.high::after,
 .marker.high::after {
-  background-image: radial-gradient(
-    circle at 50%,
-    transparentize($orange, 0.5) 0%,
-    transparentize($orange, 0.5) 100%
-  );
+  @include halo($orange);
 }
 
 .data-marker.mid::after,
 .marker.mid::after {
-  background-image: radial-gradient(
-    circle at 50%,
-    transparentize($yellow, 0.5) 0%,
-    transparentize($yellow, 0.5) 100%
-  );
+  @include halo($yellow);
 }
 
 .data-marker.low::after,
 .marker.low::after {
-  background-image: radial-gradient(
-    circle at 50%,
-    transparentize($green, 0.5) 0%,
-    transparentize($green, 0.5) 100%
-  );
+  @include halo($green);
 }
 
 .marker-container {
