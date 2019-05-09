@@ -277,10 +277,14 @@ profilesArea =
                         |> Query.has [ Slc.tag "button" ]
             , fuzz string "updated profiles list is sent updateProfiles port" <|
                 \profile ->
+                    let
+                        nonEmptyProfile =
+                            profile ++ "."
+                    in
                     defaultModel
-                        |> update (ProfileLabels <| LabelsInput.Add profile)
+                        |> update (ProfileLabels <| LabelsInput.Add nonEmptyProfile)
                         |> Tuple.second
-                        |> Expect.equal (Cmd.map ProfileLabels <| Ports.updateProfiles [ profile ])
+                        |> Expect.equal (Cmd.map ProfileLabels <| Ports.updateProfiles [ nonEmptyProfile ])
             ]
         , describe "when Add is triggered multiple times"
             [ fuzz (list string) "corresponding profile labels are created" <|
