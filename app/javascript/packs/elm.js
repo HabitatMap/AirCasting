@@ -4,6 +4,7 @@ import linkIcon from "../../assets/images/link-icon.svg";
 import resetIcon from "../../assets/images/reset-icon.svg";
 import "nouislider";
 import * as graph from "../angular/code/services/graph";
+import tippy from "tippy.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch("/api/sensors.json")
@@ -76,8 +77,22 @@ document.addEventListener("DOMContentLoaded", () => {
       window.__elmApp = Elm.Main.init({ flags });
 
       setupHeatMap();
+
+      setupTooltips();
     });
 });
+
+const setupTooltips = () => {
+  const nodes = document.querySelectorAll("[data-tippy-content]");
+  if (nodes.length === 0) {
+    setTimeout(setupTooltips, 100);
+  } else {
+    tippy(nodes, {
+      placement: "right",
+      arrow: true
+    });
+  }
+};
 
 const setupHeatMap = () => {
   const node = document.getElementById("heatmap");

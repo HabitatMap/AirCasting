@@ -7,6 +7,7 @@ import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Slc
+import Tooltip
 
 
 all : Test
@@ -14,18 +15,18 @@ all =
     describe "view"
         [ fuzz string "label area has a description" <|
             \description ->
-                LabelsInput.view LabelsInput.empty description "input-id" "placeholder" False
+                LabelsInput.view LabelsInput.empty description "input-id" "placeholder" False Tooltip.profilesFilter
                     |> Query.fromHtml
                     |> Query.has [ Slc.text description ]
         , fuzz bool "label input can be disabled" <|
             \isDisabled ->
-                LabelsInput.view LabelsInput.empty "description" "input-id" "placeholder" isDisabled
+                LabelsInput.view LabelsInput.empty "description" "input-id" "placeholder" isDisabled Tooltip.profilesFilter
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute (type_ "text") ]
                     |> Query.has [ Slc.attribute (disabled isDisabled) ]
         , fuzz string "when user types, updateLabelsSearch is triggered with the input" <|
             \input ->
-                LabelsInput.view LabelsInput.empty "description" "input-id" "placeholder" False
+                LabelsInput.view LabelsInput.empty "description" "input-id" "placeholder" False Tooltip.profilesFilter
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "input" ]
                     |> Event.simulate (Event.input input)
@@ -36,7 +37,7 @@ all =
                     labels =
                         LabelsInput.withCandidate candidate LabelsInput.empty
                 in
-                LabelsInput.view labels "description" "input-id" "placeholder" False
+                LabelsInput.view labels "description" "input-id" "placeholder" False Tooltip.profilesFilter
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "input" ]
                     |> Query.has [ Slc.attribute <| value candidate ]
@@ -46,7 +47,7 @@ all =
                     labels =
                         LabelsInput.fromList [ label ]
                 in
-                LabelsInput.view labels "description" "input-id" "placeholder" False
+                LabelsInput.view labels "description" "input-id" "placeholder" False Tooltip.profilesFilter
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "button" ]
                     |> Event.simulate Event.click
