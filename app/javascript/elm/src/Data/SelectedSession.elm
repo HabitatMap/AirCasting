@@ -8,12 +8,13 @@ module Data.SelectedSession exposing
     , view
     )
 
+import Api
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
 import Data.Session
 import Data.Times as Times
-import Html exposing (Html, div, p, span, text)
-import Html.Attributes exposing (class)
+import Html exposing (Html, a, div, p, span, text)
+import Html.Attributes exposing (class, href, target)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Decode.Pipeline exposing (custom, required)
@@ -134,4 +135,5 @@ view session heatMapThresholds =
                 ]
             ]
         , span [ class "single-session-date" ] [ text <| Times.format session.startTime session.endTime ]
+        , a [ target "_blank", href <| Api.exportLink [ session ] ] [ text "export sessions" ]
         ]

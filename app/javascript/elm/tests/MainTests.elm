@@ -1,5 +1,6 @@
 module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, toggleIndoorFilter, toggleStreamingFilter, updateTests, viewTests)
 
+import Api
 import Data.HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
 import Data.SelectedSession exposing (SelectedSession)
@@ -670,7 +671,7 @@ viewTests =
             \id ->
                 let
                     expected =
-                        exportPath ++ "?session_ids[]=" ++ String.fromInt id
+                        Api.exportPath ++ "?session_ids[]=" ++ String.fromInt id
                 in
                 { defaultModel | sessions = [ sessionWithId id ], selectedSession = NotAsked }
                     |> view
@@ -681,7 +682,7 @@ viewTests =
             \id ->
                 let
                     expected =
-                        exportPath ++ "?session_ids[]=" ++ String.fromInt id ++ "&session_ids[]=" ++ String.fromInt (id + 1)
+                        Api.exportPath ++ "?session_ids[]=" ++ String.fromInt id ++ "&session_ids[]=" ++ String.fromInt (id + 1)
                 in
                 { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSession = NotAsked }
                     |> view
