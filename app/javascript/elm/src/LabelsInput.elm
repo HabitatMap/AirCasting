@@ -51,11 +51,16 @@ update msg model toCmd =
             ( withCandidate str model, Cmd.none )
 
         Add str ->
-            let
-                newModel =
-                    add str model
-            in
-            ( newModel, toCmd (asList newModel) )
+            case str of
+                "" ->
+                    ( model, Cmd.none )
+
+                _ ->
+                    let
+                        newModel =
+                            add str model
+                    in
+                    ( newModel, toCmd (asList newModel) )
 
         Remove str ->
             let
