@@ -192,12 +192,10 @@ export const MobileSessionsMapCtrl = (
 
       FiltersUtils.setupClipboard();
 
-      const tooltip = FiltersUtils.tooltipInstance();
-
-      elmApp.ports.showCopyLinkTooltip.subscribe(() => {
+      elmApp.ports.showCopyLinkTooltip.subscribe(tooltipId => {
         const currentUrl = encodeURIComponent(window.location.href);
 
-        FiltersUtils.fetchShortUrl(currentUrl, tooltip);
+        FiltersUtils.fetchShortUrl(tooltipId, currentUrl);
       });
     });
   }

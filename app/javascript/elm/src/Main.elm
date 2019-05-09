@@ -188,7 +188,7 @@ type Msg
     | UpdateCrowdMapResolution Int
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
-    | ShowCopyLinkTooltip
+    | ShowCopyLinkTooltip String
     | ShowPopup ( List String, List String ) String String
     | SelectSensorId String
     | ClosePopup
@@ -245,8 +245,8 @@ update msg model =
         RefreshTimeRange ->
             ( model, Ports.refreshTimeRange () )
 
-        ShowCopyLinkTooltip ->
-            ( model, Ports.showCopyLinkTooltip () )
+        ShowCopyLinkTooltip tooltipId ->
+            ( model, Ports.showCopyLinkTooltip tooltipId )
 
         ShowPopup items itemType selectedItem ->
             ( { model | popup = Popup.SelectFrom items itemType selectedItem, isPopupExtended = False }, Cmd.none )
@@ -704,9 +704,13 @@ viewFiltersButtons : WebData SelectedSession -> List Session -> String -> Html M
 viewFiltersButtons selectedSession sessions linkIcon =
     case selectedSession of
         NotAsked ->
+            let
+                tooltipId =
+                    "copy-link-tooltip"
+            in
             div [ class "filters-buttons" ]
                 [ a [ class "filters-button export-button", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
-                , button [ class "filters-button link-button", Events.onClick ShowCopyLinkTooltip, id "copy-link-tooltip" ]
+                , button [ class "filters-button link-button", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
                     [ img [ src linkIcon, alt "Link icon" ] [] ]
                 ]
 
