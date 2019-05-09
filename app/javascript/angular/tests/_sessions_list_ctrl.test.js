@@ -14,7 +14,9 @@ test("with no sessions selected when params.map changes it calls sessions.fetch"
   };
   _SessionsListCtrl({ $scope, sessions });
 
-  callbacks.forEach(callback => callback({}));
+  callbacks.forEach(callback =>
+    callback({ hasChangedProgrammatically: false })
+  );
 
   t.true(sessions.wasCalled());
 
@@ -49,7 +51,7 @@ const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
     $on: () => {},
     ...$scope
   };
-  const params = { get: () => ({}), update: () => {} };
+  const params = { get: () => ({}), update: () => {}, paramsData: {} };
   const functionBlocker = { block: () => {} };
   const _map = {
     onPanOrZoom: () => {},

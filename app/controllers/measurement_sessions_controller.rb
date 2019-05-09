@@ -27,18 +27,18 @@ class MeasurementSessionsController < ApplicationController
 
     map = { zoom:16,lat:lat,lng:lng,mapType:"hybrid" }
     selected_session_ids = [@session.id]
-    tmp = { selectedSensorId: stream.sensor_full_name }
     data = {
       heat: { highest: stream.threshold_very_high,
               high: stream.threshold_high,
               mid: stream.threshold_medium,
               low: stream.threshold_low,
               lowest: stream.threshold_very_low },
-      usernames: @session.user.username
+      usernames: @session.user.username,
+      sensorId: stream.sensor_id
     }
 
     redirect_to map_path(
-      :anchor => "/map_sessions?map=#{map.to_json}&selectedSessionIds=#{selected_session_ids.to_json}&tmp=#{tmp.to_json}&data=#{data.to_json}"
+      :anchor => "/map_sessions?map=#{map.to_json}&selectedSessionIds=#{selected_session_ids.to_json}&data=#{data.to_json}"
     )
   end
 end
