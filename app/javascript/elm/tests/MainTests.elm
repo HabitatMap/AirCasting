@@ -1,9 +1,6 @@
-module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, session, sessionWithId, sessionWithTitle, shortTypes, tagsArea, timeFilter, toggleIndoorFilter, toggleStreamingFilter, updateTests, viewTests)
+module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, tagsArea, timeFilter, toggleIndoorFilter, toggleStreamingFilter, updateTests, viewTests)
 
-import Data.HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
-import Data.SelectedSession exposing (SelectedSession)
-import Data.Session exposing (..)
 import Expect
 import Fuzz exposing (bool, float, int, intRange, list, string)
 import Html exposing (text)
@@ -21,28 +18,9 @@ import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Slc
+import TestUtils exposing (defaultSelectedSession, defaultSensors, defaultSession, heatMapThresholdsWithMaximum, heatMapThresholdsWithMinimum, simulatedEventObject)
 import Time
 import TimeRange
-
-
-heatMapThresholdsWithMinimum : Int -> HeatMapThresholds
-heatMapThresholdsWithMinimum value =
-    { threshold1 = { value = value, default = 1 }
-    , threshold2 = { value = 2, default = 2 }
-    , threshold3 = { value = 3, default = 3 }
-    , threshold4 = { value = 4, default = 4 }
-    , threshold5 = { value = 5, default = 5 }
-    }
-
-
-heatMapThresholdsWithMaximum : Int -> HeatMapThresholds
-heatMapThresholdsWithMaximum value =
-    { threshold1 = { value = 1, default = 1 }
-    , threshold2 = { value = 2, default = 2 }
-    , threshold3 = { value = 3, default = 3 }
-    , threshold4 = { value = 4, default = 4 }
-    , threshold5 = { value = value, default = 5 }
-    }
 
 
 popups : Test
@@ -66,16 +44,6 @@ popups =
         ]
 
 
-sensors : List Sensor.Sensor
-sensors =
-    [ { parameter = "parameter"
-      , name = "Sensor"
-      , unit = "unit"
-      , session_count = 1
-      }
-    ]
-
-
 parameterSensorFilter : Test
 parameterSensorFilter =
     describe "Parameter filter tests: "
@@ -83,7 +51,7 @@ parameterSensorFilter =
             \_ ->
                 { defaultModel
                     | selectedSensorId = "parameter-sensor (unit)"
-                    , sensors = sensors
+                    , sensors = defaultSensors
                 }
                     |> view
                     |> Query.fromHtml
@@ -93,7 +61,7 @@ parameterSensorFilter =
             \_ ->
                 { defaultModel
                     | selectedSensorId = "parameter-sensor (unit)"
-                    , sensors = sensors
+                    , sensors = defaultSensors
                 }
                     |> view
                     |> Query.fromHtml
@@ -379,14 +347,6 @@ profilesArea =
         ]
 
 
-simulatedEventObject value =
-    let
-        target =
-            Encode.object [ ( "value", Encode.string value ) ]
-    in
-    Encode.object [ ( "target", target ) ]
-
-
 crowdMapArea : Test
 crowdMapArea =
     describe "Crowd Map filter test: "
@@ -579,59 +539,12 @@ toggleStreamingFilter =
         ]
 
 
-shortTypes : List ShortType
-shortTypes =
-    [ { name = "name", type_ = "type_" } ]
-
-
-session : Session
-session =
-    { title = "title"
-    , id = 1
-    , startTime = Time.millisToPosix 0
-    , endTime = Time.millisToPosix 0
-    , username = "username"
-    , shortTypes = shortTypes
-    , average = Nothing
-    }
-
-
-sessionWithId : Int -> Session
-sessionWithId id =
-    { session | id = id }
-
-
-sessionWithTitle : String -> Session
-sessionWithTitle title =
-    { session | title = title }
-
-
-selectedSession =
-    { title = "title"
-    , username = "username"
-    , sensorName = "sensor-name"
-    , average = 2.0
-    , min = 1.0
-    , max = 3.0
-    , startTime = Time.millisToPosix 0
-    , endTime = Time.millisToPosix 0
-    , measurements = [ 1.0, 2.0, 3.0 ]
-    , id = 123
-    , streamId = 123
-    }
-
-
-selectedSessionWithId : Int -> SelectedSession
-selectedSessionWithId id =
-    { selectedSession | id = id }
-
-
 viewTests : Test
 viewTests =
     describe "view"
         [ fuzz2 string string "with no selection session titles are displayed in the list" <|
             \title1 title2 ->
-                { defaultModel | sessions = [ sessionWithTitle title1, sessionWithTitle title2 ], selectedSession = NotAsked }
+                { defaultModel | sessions = [ { defaultSession | title = title1 }, { defaultSession | title = title2 } ], selectedSession = NotAsked }
                     |> view
                     |> Query.fromHtml
                     |> Query.contains
@@ -641,7 +554,7 @@ viewTests =
         , fuzz (intRange 1 100) "with no selection and fetchableSessionsCount bigger than current session list length load more button is shown" <|
             \times ->
                 { defaultModel
-                    | sessions = List.repeat times session
+                    | sessions = List.repeat times defaultSession
                     , fetchableSessionsCount = times + 1
                     , selectedSession = NotAsked
                 }
@@ -651,7 +564,7 @@ viewTests =
         , fuzz (intRange 1 100) "with no selection and fetchableSessionsCount equal to current session list length load more button is not shown" <|
             \times ->
                 { defaultModel
-                    | sessions = List.repeat times session
+                    | sessions = List.repeat times defaultSession
                     , fetchableSessionsCount = times
                     , selectedSession = NotAsked
                 }
@@ -666,38 +579,16 @@ viewTests =
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.text "Load More..." ]
                     |> Query.count (Expect.equal 0)
-        , fuzz int "with no selection and 1 sessions in the model the export link is correctly generated" <|
-            \id ->
-                let
-                    expected =
-                        exportPath ++ "?session_ids[]=" ++ String.fromInt id
-                in
-                { defaultModel | sessions = [ sessionWithId id ], selectedSession = NotAsked }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.containing [ Slc.text "export sessions" ] ]
-                    |> Query.has [ Slc.attribute <| href expected ]
-        , fuzz int "with no selection and 2 sessions in the model the export link is correctly generated" <|
-            \id ->
-                let
-                    expected =
-                        exportPath ++ "?session_ids[]=" ++ String.fromInt id ++ "&session_ids[]=" ++ String.fromInt (id + 1)
-                in
-                { defaultModel | sessions = [ sessionWithId id, sessionWithId (id + 1) ], selectedSession = NotAsked }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.containing [ Slc.text "export sessions" ] ]
-                    |> Query.has [ Slc.attribute <| href expected ]
         , test "with selection graph is shown" <|
             \_ ->
-                { defaultModel | selectedSession = Success selectedSession }
+                { defaultModel | selectedSession = Success defaultSelectedSession }
                     |> view
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.id "graph" ]
                     |> Query.count (Expect.equal 1)
         , test "with selection a button to deselect session is shown" <|
             \_ ->
-                { defaultModel | selectedSession = Success selectedSession }
+                { defaultModel | selectedSession = Success defaultSelectedSession }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "button", Slc.containing [ Slc.text "X" ] ]
@@ -707,7 +598,7 @@ viewTests =
             \title username sensorName ->
                 let
                     selectedSession_ =
-                        { selectedSession
+                        { defaultSelectedSession
                             | title = title
                             , username = username
                             , sensorName = sensorName
@@ -724,7 +615,7 @@ viewTests =
             \average min max ->
                 let
                     selectedSession_ =
-                        { selectedSession
+                        { defaultSelectedSession
                             | average = average
                             , min = min
                             , max = max
@@ -749,7 +640,7 @@ viewTests =
                             |> Result.withDefault (Time.millisToPosix 0)
 
                     selectedSession_ =
-                        { selectedSession | startTime = start, endTime = end }
+                        { defaultSelectedSession | startTime = start, endTime = end }
                 in
                 { defaultModel | selectedSession = Success selectedSession_ }
                     |> view
@@ -812,7 +703,7 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
+                        { defaultModel | selectedSession = Success <| { defaultSelectedSession | id = id } }
 
                     expected =
                         { model | selectedSession = NotAsked }
@@ -825,7 +716,7 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
+                        { defaultModel | selectedSession = Success <| { defaultSelectedSession | id = id } }
 
                     expected =
                         { model | selectedSession = NotAsked }
@@ -838,7 +729,7 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
+                        { defaultModel | selectedSession = Success <| { defaultSelectedSession | id = id } }
 
                     expected =
                         Ports.toggleSession { selected = Nothing, deselected = Just id }
@@ -851,7 +742,7 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | sessions = [ sessionWithId id ] }
+                        { defaultModel | sessions = [ { defaultSession | id = id } ] }
 
                     newSession =
                         { id = id + 1
@@ -917,7 +808,7 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
+                        { defaultModel | selectedSession = Success <| { defaultSelectedSession | id = id } }
 
                     expected =
                         { model | selectedSession = NotAsked }
@@ -930,7 +821,7 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
+                        { defaultModel | selectedSession = Success <| { defaultSelectedSession | id = id } }
 
                     expected =
                         Ports.toggleSession { deselected = Just id, selected = Nothing }
@@ -943,7 +834,7 @@ updateTests =
             \id ->
                 let
                     model =
-                        { defaultModel | selectedSession = Success <| selectedSessionWithId id }
+                        { defaultModel | selectedSession = Success <| { defaultSelectedSession | id = id } }
 
                     expected =
                         { model | selectedSession = NotAsked }
