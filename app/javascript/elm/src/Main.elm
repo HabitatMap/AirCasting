@@ -1,5 +1,6 @@
-module Main exposing (Msg(..), defaultModel, exportPath, update, view)
+module Main exposing (Msg(..), defaultModel, update, view)
 
+import Api
 import Browser exposing (..)
 import Browser.Events
 import Browser.Navigation
@@ -26,11 +27,6 @@ import Time exposing (Posix)
 import TimeRange exposing (TimeRange)
 import Tooltip
 import Url exposing (Url)
-
-
-exportPath : String
-exportPath =
-    "/api/sessions/export.json"
 
 
 
@@ -709,22 +705,13 @@ viewFiltersButtons selectedSession sessions linkIcon =
     case selectedSession of
         NotAsked ->
             div [ class "filters-buttons" ]
-                [ a [ class "filters-button export-button", target "_blank", href <| exportLink sessions ] [ text "export sessions" ]
+                [ a [ class "filters-button export-button", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
                 , button [ class "filters-button link-button", Events.onClick ShowCopyLinkTooltip, id "copy-link-tooltip" ]
                     [ img [ src linkIcon, alt "Link icon" ] [] ]
                 ]
 
         _ ->
             text ""
-
-
-exportLink : List Session -> String
-exportLink sessions =
-    let
-        query =
-            String.join "&" << List.map ((++) "session_ids[]=" << String.fromInt << .id)
-    in
-    exportPath ++ "?" ++ query sessions
 
 
 viewSessionTypes : Model -> Html Msg
