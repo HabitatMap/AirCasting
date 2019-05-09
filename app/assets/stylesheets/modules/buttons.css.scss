@@ -1,0 +1,27 @@
+.button {
+  border: none;
+  border-radius: 30px;
+  text-align: center;
+}
+
+.button--default {
+  background-color: white;
+  color: $brand-primary;
+}
+
+.button--primary {
+  background-color: $brand-primary;
+  color: white;
+}
+
+.time-frame-button {
+  font-size: $tiny-font;
+  font-weight: $font-stack-bold;
+  line-height: 2;
+  padding: 0 18px;
+  text-transform: lowercase;
+}
+
+.time-calendar-label {
+  color: $navy-font;
+}
