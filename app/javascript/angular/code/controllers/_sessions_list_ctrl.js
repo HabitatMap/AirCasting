@@ -56,7 +56,7 @@ export const SessionsListCtrl = (
         return;
       }
 
-      if (!params.get("data").isSearchOn) {
+      if (!params.get("data").isSearchAsIMoveOn) {
         elmApp.ports.mapMoved.send(null);
         return;
       }
@@ -160,8 +160,8 @@ export const SessionsListCtrl = (
         }
       );
 
-      elmApp.ports.toggleIsSearchOn.subscribe(isSearchOn => {
-        params.update({ data: { isSearchOn: isSearchOn } });
+      elmApp.ports.toggleIsSearchOn.subscribe(isSearchAsIMoveOn => {
+        params.update({ data: { isSearchAsIMoveOn: isSearchAsIMoveOn } });
         $scope.$apply();
       });
 

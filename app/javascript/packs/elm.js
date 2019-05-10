@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isIndoor: false,
         isStreaming: true,
         sensorId: "Particulate Matter-airbeam2-pm2.5 (µg/m³)",
-        isSearchOn: false
+        isSearchAsIMoveOn: false
       };
 
       const data = { ...defaultData, ...params.data };
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
         resetIcon,
         heatMapThresholdValues,
         isStreaming: data.isStreaming,
-        isSearchOn: data.isSearchOn
+        isSearchAsIMoveOn: data.isSearchAsIMoveOn
       };
 
       console.warn(flags);
