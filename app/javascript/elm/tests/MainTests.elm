@@ -18,7 +18,7 @@ import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Slc
-import TestUtils exposing (defaultSelectedSession, defaultSensors, defaultSession, heatMapThresholdsWithMaximum, heatMapThresholdsWithMinimum, simulatedEventObject)
+import TestUtils exposing (defaultSelectedSession, defaultSession, heatMapThresholdsWithMaximum, heatMapThresholdsWithMinimum, simulatedEventObject)
 import Time
 import TimeRange
 
@@ -49,9 +49,17 @@ parameterSensorFilter =
     describe "Parameter filter tests: "
         [ test "parameter filter shows parameter name based on selectedSensorId" <|
             \_ ->
+                let
+                    sensor =
+                        { parameter = "parameter"
+                        , name = "Sensor"
+                        , unit = "unit"
+                        , session_count = 1
+                        }
+                in
                 { defaultModel
-                    | selectedSensorId = "parameter-sensor (unit)"
-                    , sensors = defaultSensors
+                    | selectedSensorId = Sensor.toId sensor
+                    , sensors = [ sensor ]
                 }
                     |> view
                     |> Query.fromHtml
@@ -59,9 +67,17 @@ parameterSensorFilter =
                     |> Query.has [ Slc.attribute <| value "parameter" ]
         , test "sensor filter shows sensor label based on selectedSensorId" <|
             \_ ->
+                let
+                    sensor =
+                        { parameter = "parameter"
+                        , name = "Sensor"
+                        , unit = "unit"
+                        , session_count = 1
+                        }
+                in
                 { defaultModel
-                    | selectedSensorId = "parameter-sensor (unit)"
-                    , sensors = defaultSensors
+                    | selectedSensorId = Sensor.toId sensor
+                    , sensors = [ sensor ]
                 }
                     |> view
                     |> Query.fromHtml
