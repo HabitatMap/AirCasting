@@ -698,8 +698,8 @@ viewTests =
                     |> Query.fromHtml
                     |> Query.has [ Slc.id "heatmap-unit-min", Slc.containing [ Slc.text unit ] ]
         , fuzz bool "search checkbox state depends on model.isSearchAsIMoveOn" <|
-            \isSearchAsIMoveOn ->
-                { defaultModel | isSearchAsIMoveOn = isSearchAsIMoveOn }
+            \onOrOff ->
+                { defaultModel | isSearchAsIMoveOn = onOrOff }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "checkbox-search" ]
