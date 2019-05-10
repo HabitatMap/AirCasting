@@ -1,6 +1,5 @@
 module TestUtils exposing
     ( defaultSelectedSession
-    , defaultSensors
     , defaultSession
     , heatMapThresholdsWithMaximum
     , heatMapThresholdsWithMinimum
@@ -59,16 +58,6 @@ heatMapThresholdsWithMaximum value =
     , threshold4 = { value = 4, default = 4 }
     , threshold5 = { value = value, default = 5 }
     }
-
-
-defaultSensors : List Sensor
-defaultSensors =
-    [ { parameter = "parameter"
-      , name = "Sensor"
-      , unit = "unit"
-      , session_count = 1
-      }
-    ]
 
 
 defaultSelectedSession : SelectedSession
