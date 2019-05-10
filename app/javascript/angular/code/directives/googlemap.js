@@ -26,7 +26,7 @@ angular.module("aircasting").directive("googlemap", function() {
         mapTypeId: mapType,
         mapTypeControl: true,
         mapTypeControlOptions: {
-          position: google.maps.ControlPosition.TOP_CENTER,
+          position: google.maps.ControlPosition.TOP_RIGHT,
           mapTypeIds: [
             google.maps.MapTypeId.ROADMAP,
             google.maps.MapTypeId.SATELLITE,
@@ -41,7 +41,7 @@ angular.module("aircasting").directive("googlemap", function() {
         panControl: false,
         streetViewControl: true,
         streetViewControlOptions: {
-          position: google.maps.ControlPosition.TOP_CENTER
+          position: google.maps.ControlPosition.RIGHT_TOP
         },
         fullscreenControl: false
       };
