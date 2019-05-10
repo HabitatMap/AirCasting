@@ -601,7 +601,7 @@ viewTests =
         , fuzz3 string string string "with selection the session title username and sensorName are shown" <|
             \title username sensorName ->
                 let
-                    selectedSession_ =
+                    selectedSession =
                         { defaultSelectedSession
                             | title = title
                             , username = username
@@ -611,14 +611,14 @@ viewTests =
                     expected =
                         List.map (\x -> Slc.containing [ Slc.text x ]) [ title, username, sensorName ]
                 in
-                { defaultModel | selectedSession = Success selectedSession_ }
+                { defaultModel | selectedSession = Success selectedSession }
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.all expected ]
         , fuzz3 float float float "with selection the session rounded average min and max are shown" <|
             \average min max ->
                 let
-                    selectedSession_ =
+                    selectedSession =
                         { defaultSelectedSession
                             | average = average
                             , min = min
@@ -628,7 +628,7 @@ viewTests =
                     expected =
                         List.map (\x -> Slc.containing [ Slc.text x ]) [ String.fromInt <| round average, String.fromFloat min, String.fromFloat max ]
                 in
-                { defaultModel | selectedSession = Success selectedSession_ }
+                { defaultModel | selectedSession = Success selectedSession }
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.all expected ]
@@ -643,10 +643,10 @@ viewTests =
                         Iso8601.toTime "2011-12-31T13:22:00.000Z"
                             |> Result.withDefault (Time.millisToPosix 0)
 
-                    selectedSession_ =
+                    selectedSession =
                         { defaultSelectedSession | startTime = start, endTime = end }
                 in
-                { defaultModel | selectedSession = Success selectedSession_ }
+                { defaultModel | selectedSession = Success selectedSession }
                     |> view
                     |> Query.fromHtml
                     |> Query.contains [ text "12/31/10 09:08 - 12/31/11 13:22" ]
