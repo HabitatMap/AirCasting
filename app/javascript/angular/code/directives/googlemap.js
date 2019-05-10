@@ -27,6 +27,7 @@ angular.module("aircasting").directive("googlemap", function() {
         mapTypeControl: true,
         mapTypeControlOptions: {
           position: google.maps.ControlPosition.TOP_RIGHT,
+          style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
           mapTypeIds: [
             google.maps.MapTypeId.ROADMAP,
             google.maps.MapTypeId.SATELLITE,
