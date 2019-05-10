@@ -12,5 +12,6 @@ angular
     "drawSession",
     "markerSelected",
     "updateCrowdMapLayer",
+    "sessionsUtils",
     SessionsListCtrl
   ]);

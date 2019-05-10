@@ -22,6 +22,7 @@ export const fixedSessions = (
     this.scope = $rootScope.$new();
     this.scope.params = params;
     this.fetchableSessionsCount = 0;
+    this.type = "FixedSessions";
   };
 
   let prevMapPosition = {};
@@ -91,7 +92,9 @@ export const fixedSessions = (
       if ($window.location.pathname !== constants.fixedMapRoute) return;
 
       this.drawSessionsInLocation();
-      this.fetchableSessionsCount = fetchableSessionsCount;
+      if (fetchableSessionsCount) {
+        this.fetchableSessionsCount = fetchableSessionsCount;
+      }
       sessionsUtils.onSessionsFetch(this);
     },
 

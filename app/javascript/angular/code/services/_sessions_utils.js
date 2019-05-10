@@ -97,6 +97,15 @@ export const sessionsUtils = (
     createSessionData(session, data);
     session.loaded = true;
     callback();
+  },
+  refreshMapView: function(sessions) {
+    if (sessions.type === "MobileSessions") {
+      sessions.onSessionsFetchWithCrowdMapLayerUpdate();
+    } else if (sessions.type === "FixedSessions") {
+      sessions.onSessionsFetch();
+    } else {
+      console.warn("Incorrect sessions type");
+    }
   }
 });
 

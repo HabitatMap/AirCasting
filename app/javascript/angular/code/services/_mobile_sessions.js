@@ -23,6 +23,7 @@ export const mobileSessions = (
     this.scope = $rootScope.$new();
     this.scope.params = params;
     this.fetchableSessionsCount = 0;
+    this.type = "MobileSessions";
   };
 
   let prevMapPosition = {};
@@ -99,7 +100,9 @@ export const mobileSessions = (
       if (!params.isCrowdMapOn()) {
         this.drawSessionsInLocation();
       }
-      this.fetchableSessionsCount = fetchableSessionsCount;
+      if (fetchableSessionsCount) {
+        this.fetchableSessionsCount = fetchableSessionsCount;
+      }
       sessionsUtils.onSessionsFetch(this);
     },
 

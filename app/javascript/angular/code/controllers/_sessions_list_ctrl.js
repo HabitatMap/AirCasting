@@ -10,7 +10,8 @@ export const SessionsListCtrl = (
   $window,
   drawSession,
   markerSelected,
-  updateCrowdMapLayer
+  updateCrowdMapLayer,
+  sessionsUtils
 ) => {
   let sessions;
   let firstLoad = true;
@@ -48,6 +49,7 @@ export const SessionsListCtrl = (
     ({ hasChangedProgrammatically }) => {
       console.log("watch - params.get('map')");
       if (sessions.hasSelectedSessions()) return;
+      // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically is undefined
       if (hasChangedProgrammatically === undefined) return;
 
       if (firstLoad) {
@@ -56,7 +58,8 @@ export const SessionsListCtrl = (
         return;
       }
 
-      if (!params.get("data").isSearchOn) {
+      if (!params.get("data").isSearchAsIMoveOn) {
+        sessionsUtils.refreshMapView(sessions);
         elmApp.ports.mapMoved.send(null);
         return;
       }
@@ -160,8 +163,8 @@ export const SessionsListCtrl = (
         }
       );
 
-      elmApp.ports.toggleIsSearchOn.subscribe(isSearchOn => {
-        params.update({ data: { isSearchOn: isSearchOn } });
+      elmApp.ports.toggleIsSearchOn.subscribe(isSearchAsIMoveOn => {
+        params.update({ data: { isSearchAsIMoveOn: isSearchAsIMoveOn } });
         $scope.$apply();
       });
 
