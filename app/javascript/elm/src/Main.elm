@@ -56,7 +56,7 @@ type alias Model =
     , resetIcon : String
     , heatMapThresholds : WebData HeatMapThresholds
     , isStreaming : Bool
-    , isSearchOn : Bool
+    , isSearchAsIMoveOn : Bool
     , wasMapMoved : Bool
     }
 
@@ -85,7 +85,7 @@ defaultModel =
     , linkIcon = ""
     , resetIcon = ""
     , heatMapThresholds = NotAsked
-    , isSearchOn = False
+    , isSearchAsIMoveOn = False
     , wasMapMoved = False
     }
 
@@ -106,7 +106,7 @@ type alias Flags =
     , linkIcon : String
     , resetIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
-    , isSearchOn : Bool
+    , isSearchAsIMoveOn : Bool
     }
 
 
@@ -145,7 +145,7 @@ init flags url key =
         , heatMapThresholds =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
                 |> Maybe.withDefault defaultModel.heatMapThresholds
-        , isSearchOn = flags.isSearchOn
+        , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -262,7 +262,7 @@ update msg model =
                 selectedSensorId =
                     Sensor.idForParameterOrLabel value model.selectedSensorId model.sensors
             in
-            ( { model | selectedSensorId = selectedSensorId }
+            ( { model | selectedSensorId = selectedSensorId, selectedSession = NotAsked }
             , Cmd.batch
                 [ Ports.selectSensorId selectedSensorId
                 , fetchHeatMapThresholds model.sensors selectedSensorId
@@ -446,7 +446,7 @@ update msg model =
                     ( model, Cmd.none )
 
         ToggleIsSearchOn ->
-            ( { model | isSearchOn = not model.isSearchOn }, Ports.toggleIsSearchOn (not model.isSearchOn) )
+            ( { model | isSearchAsIMoveOn = not model.isSearchAsIMoveOn }, Ports.toggleIsSearchOn (not model.isSearchAsIMoveOn) )
 
         MapMoved ->
             ( { model | wasMapMoved = True }, Cmd.none )
@@ -586,7 +586,7 @@ view model =
 
                           else
                             text ""
-                        , viewSearchAsIMove model.wasMapMoved model.isSearchOn
+                        , viewSearchAsIMove model.wasMapMoved model.isSearchAsIMoveOn
                         , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
                             []
                         , div
@@ -612,8 +612,8 @@ view model =
 
 
 viewSearchAsIMove : Bool -> Bool -> Html Msg
-viewSearchAsIMove wasMapMoved isSearchOn =
-    div []
+viewSearchAsIMove wasMapMoved isSearchAsIMoveOn =
+    div [ Html.Attributes.style "position" "absolute", Html.Attributes.style "z-index" "99999" ]
         [ if wasMapMoved then
             button
                 [ Events.onClick FetchSessions
@@ -625,7 +625,7 @@ viewSearchAsIMove wasMapMoved isSearchOn =
                 [ input
                     [ id "checkbox-search"
                     , type_ "checkbox"
-                    , checked isSearchOn
+                    , checked isSearchAsIMoveOn
                     , Events.onClick ToggleIsSearchOn
                     ]
                     []
