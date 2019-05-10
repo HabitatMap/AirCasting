@@ -8,7 +8,7 @@ export const sessionsUtils = (
   flash,
   updateCrowdMapLayer
 ) => ({
-  sessionsChanged: function(self, newIds, oldIds) {
+  sessionsChanged: (self, newIds, oldIds) => {
     _(newIds)
       .chain()
       .difference(oldIds)
@@ -19,60 +19,60 @@ export const sessionsUtils = (
       .each(_(self.deselectSession).bind(self));
   },
 
-  get: function(self) {
+  get: self => {
     return _.uniq(self.sessions, "id");
   },
 
-  allSessionIds: function(self) {
+  allSessionIds: self => {
     return _(self.get()).pluck("id");
   },
 
-  noOfSelectedSessions: function(self) {
+  noOfSelectedSessions: self => {
     return self.allSelected().length;
   },
 
-  empty: function(self) {
+  empty: self => {
     return self.noOfSelectedSessions() === 0;
   },
 
-  onSessionsFetch: function(self) {
+  onSessionsFetch: self => {
     self.reSelectAllSessions();
   },
 
-  updateCrowdMapLayer: function(sessionIds) {
+  updateCrowdMapLayer: sessionIds => {
     updateCrowdMapLayer.call(sessionIds);
   },
 
-  onSessionsFetchError: function(data) {
+  onSessionsFetchError: data => {
     var errorMsg = data.error || "There was an error, sorry";
     flash.set(errorMsg);
   },
 
-  find: function(self, id) {
+  find: (self, id) => {
     return _(self.sessions || []).detect(function(session) {
       return session.id === id;
     });
   },
 
-  deselectAllSessions: function() {
+  deselectAllSessions: () => {
     params.update({ selectedSessionIds: [] });
   },
 
-  selectAllSessions: function(self) {
+  selectAllSessions: self => {
     params.update({ selectedSessionIds: self.allSessionIds() });
   },
 
-  reSelectAllSessions: function(self) {
+  reSelectAllSessions: self => {
     _(params.get("selectedSessionIds")).each(function(id) {
       self.reSelectSession(id);
     });
   },
 
-  isSelected: function(self, session) {
+  isSelected: (self, session) => {
     return _(self.allSelected()).include(session);
   },
 
-  allSelected: function(self) {
+  allSelected: self => {
     return _(self.allSelectedIds())
       .chain()
       .map(function(id) {
@@ -82,29 +82,29 @@ export const sessionsUtils = (
       .value();
   },
 
-  allSelectedIds: function() {
+  allSelectedIds: () => {
     return params.get("selectedSessionIds");
   },
 
-  onSingleSessionFetch: function(session, data, callback) {
+  onSingleSessionFetch: (session, data, callback) => {
     createSessionData(session, data);
     session.loaded = true;
     callback();
     this.updateCrowdMapLayer([session.id]);
   },
 
-  onSingleSessionFetchWithoutCrowdMap: function(session, data, callback) {
+  onSingleSessionFetchWithoutCrowdMap: (session, data, callback) => {
     createSessionData(session, data);
     session.loaded = true;
     callback();
   },
-  refreshMapView: function(sessions) {
+  refreshMapView: sessions => {
     if (sessions.type === "MobileSessions") {
       sessions.onSessionsFetchWithCrowdMapLayerUpdate();
     } else if (sessions.type === "FixedSessions") {
       sessions.onSessionsFetch();
     } else {
-      console.warn("Incorrect sessions type");
+      console.warn("Incorrect sessions type: ", sessions.type);
     }
   }
 });
