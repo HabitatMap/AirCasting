@@ -262,7 +262,7 @@ update msg model =
                 selectedSensorId =
                     Sensor.idForParameterOrLabel value model.selectedSensorId model.sensors
             in
-            ( { model | selectedSensorId = selectedSensorId, selectedSession = NotAsked }
+            ( { model | selectedSensorId = selectedSensorId }
             , Cmd.batch
                 [ Ports.selectSensorId selectedSensorId
                 , fetchHeatMapThresholds model.sensors selectedSensorId
