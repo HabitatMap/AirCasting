@@ -18,25 +18,12 @@
 
 module Api
   class MeasurementSessionsController < BaseController
-    INT_Q_ATTRS = [:time_from, :time_to, :day_from, :day_to, :limit, :offset]
-
     # TokenAuthenticatable was removed from Devise in 3.1
     # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
     before_filter :authenticate_user_from_token!, :only => :create
     before_filter :authenticate_user!, :only => :create
 
     respond_to :json
-
-    def index
-      data = decoded_query_data(params[:q])
-      INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
-
-      data[:time_from] = Time.strptime(data[:time_from].to_s, '%s')
-      data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
-
-      respond_with sessions: MobileSession.filtered_json(data, data[:limit], data[:offset]),
-                   fetchableSessionsCount: MobileSession.filter(data).count
-    end
 
     def show_multiple
       data = decoded_query_data(params[:q])
