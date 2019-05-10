@@ -8,7 +8,7 @@ Endpoints
 
 - GET `/api/realtime/streaming_sessions.json` -> streaming fixed sessions
 - GET `/api/fixed/dormant/sessions.json` -> fixed dormant sessions
-- GET `/api/sessions.json` -> mobile sessions
+- GET `/api/mobile/sessions.json` -> mobile sessions
 
 **Remember:** this call will not return measurements data for requested sessions. To do that, use either the single session or measurements endpoint below.
 
@@ -40,15 +40,14 @@ How to select the time range:
 ### Example request
 
 ```
-curl http://aircasting.org/api/sessions.json?limit=50&offset=0&q[measurements]=true&q[time_from]=0&q[time_to]=1552648500&q[usernames]=HHHDenver&q[location]=Denver&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³
+curl http://aircasting.org/api/mobile/sessions.json?limit=50&offset=0&q[measurements]=true&q[time_from]=0&q[time_to]=1552648500&q[usernames]=HHHDenver&q[location]=Denver&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³
 ```
 
 ### Example response
 
 ```json
 {
-"sessions":
-  [
+  "sessions": [
     {
       "end_time_local": "2015-09-09T17:49:38Z",
       "id": 9586,
@@ -81,7 +80,7 @@ curl http://aircasting.org/api/sessions.json?limit=50&offset=0&q[measurements]=t
       }
     }
   ],
-"fetchableSessionsCount": 1
+  "fetchableSessionsCount": 1
 }
 ```
 
