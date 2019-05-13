@@ -20,7 +20,7 @@ angular.module("aircasting").directive("googlemap", function() {
       const minZoom = 3;
       let options = {
         center: latlng,
-        controlSize: 24,
+        controlSize: 25,
         fullscreenControl: false,
         minZoom,
         mapTypeId: mapType,
