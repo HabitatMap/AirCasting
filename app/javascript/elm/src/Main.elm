@@ -709,7 +709,7 @@ viewFiltersButtons selectedSession sessions linkIcon =
                     "copy-link-tooltip"
             in
             div [ class "filters__actions action-buttons" ]
-                [ button [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
+                [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
                 , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
                     [ img [ src linkIcon, alt "Link icon" ] [] ]
                 ]
