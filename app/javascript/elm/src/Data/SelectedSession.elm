@@ -141,7 +141,7 @@ view session heatMapThresholds linkIcon toMsg =
             ]
         , span [ class "single-session-date" ] [ text <| Times.format session.startTime session.endTime ]
         , div [ class "action-buttons " ]
-            [ button [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink [ session ] ] [ text "export session" ]
+            [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink [ session ] ] [ text "export session" ]
             , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| toMsg tooltipId, id tooltipId ] [ img [ src linkIcon, alt "Link icon" ] [] ]
             ]
         ]
