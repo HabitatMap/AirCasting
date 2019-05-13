@@ -1,5 +1,5 @@
 import _ from "underscore";
-import { formatSessionForList } from "../values/session";
+import { formatSessionForList, startingLatLngLiteral } from "../values/session";
 
 export const SessionsListCtrl = (
   $scope,
@@ -11,7 +11,8 @@ export const SessionsListCtrl = (
   drawSession,
   markerSelected,
   updateCrowdMapLayer,
-  sessionsUtils
+  sessionsUtils,
+  map
 ) => {
   let sessions;
   let firstLoad = true;
@@ -170,6 +171,19 @@ export const SessionsListCtrl = (
 
       elmApp.ports.fetchSessions.subscribe(() => {
         sessions.fetch();
+      });
+
+      elmApp.ports.highlightSessionMarker.subscribe(id => {
+        const session = sessionsUtils.find(sessions, id);
+
+        if (session === undefined) {
+          $scope.highlightedSessionMarker.setMap(null);
+          return;
+        }
+
+        $scope.highlightedSessionMarker = map.drawMarker({
+          position: startingLatLngLiteral(session, sensors.selectedSensorName())
+        });
       });
     });
   }
