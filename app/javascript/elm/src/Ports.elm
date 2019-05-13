@@ -3,6 +3,7 @@ port module Ports exposing
     , drawMobile
     , fetchSessions
     , findLocation
+    , highlightSessionMarker
     , loadMoreSessions
     , locationCleared
     , mapMoved
@@ -109,3 +110,6 @@ port mapMoved : (() -> msg) -> Sub msg
 
 
 port fetchSessions : () -> Cmd a
+
+
+port highlightSessionMarker : Maybe Int -> Cmd a

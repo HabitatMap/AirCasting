@@ -34,6 +34,13 @@ export const startingLatLng = (session, selectedSensor) => {
   };
 };
 
+export const startingLatLngLiteral = (session, selectedSensor) => {
+  return {
+    lat: startingLat(session, selectedSensor),
+    lng: startingLng(session, selectedSensor)
+  };
+};
+
 export const latLng = session => {
   return { lat: () => session.latitude, lng: () => session.longitude };
 };
