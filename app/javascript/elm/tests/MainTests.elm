@@ -718,7 +718,7 @@ viewTests =
                 { defaultModel | isSearchAsIMoveOn = isSearchAsIMoveOn }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.id "checkbox-search" ]
+                    |> Query.find [ Slc.id "checkbox-search-as-i-move" ]
                     |> Query.has
                         [ Slc.attribute <| checked isSearchAsIMoveOn ]
         ]

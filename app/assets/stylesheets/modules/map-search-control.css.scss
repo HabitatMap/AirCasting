@@ -1,0 +1,26 @@
+.search-control {
+  position: absolute;
+  right: 175px;
+  top: 6px;
+  z-index: 999;
+}
+
+.search-control__switch {
+  background: white;
+  border-radius: 2px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 1px;
+  padding: 4px 25px 3px 10px;
+}
+
+.search-control__button {
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 6px 20px 5px;
+}
+
+label[for="search-control-checkbox"] {
+  font-family: sans-serif;
+  font-size: 13px;
+  font-weight: $font-stack-regular;
+}

@@ -613,23 +613,24 @@ view model =
 
 viewSearchAsIMove : Bool -> Bool -> Html Msg
 viewSearchAsIMove wasMapMoved isSearchAsIMoveOn =
-    div [ Html.Attributes.style "position" "absolute", Html.Attributes.style "z-index" "99999" ]
+    div [ class "search-control" ]
         [ if wasMapMoved then
             button
-                [ Events.onClick FetchSessions
+                [ class "button button--dark search-control__button"
+                , Events.onClick FetchSessions
                 ]
                 [ text "Search again" ]
 
           else
-            div []
+            div [ class "search-control__switch" ]
                 [ input
-                    [ id "checkbox-search"
+                    [ id "checkbox-search-as-i-move"
                     , type_ "checkbox"
                     , checked isSearchAsIMoveOn
                     , Events.onClick ToggleIsSearchOn
                     ]
                     []
-                , label [ for "checkbox-search" ] [ text "Search as I move the map" ]
+                , label [ for "search-control-checkbox" ] [ text "Search as I move the map" ]
                 ]
         ]
 
