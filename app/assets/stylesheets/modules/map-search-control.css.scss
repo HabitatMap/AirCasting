@@ -1,7 +1,11 @@
+$search-control-width: 250px;
+
 .search-control {
   position: absolute;
-  right: 175px;
+  right: calc(50% - 125px);
+  text-align: center;
   top: 6px;
+  width: 250px;
   z-index: 999;
 }
 
@@ -19,7 +23,9 @@
   font-size: 13px;
   font-weight: bold;
   height: 25px;
-  padding: 6px 20px 5px;
+  line-height: 25px;
+  text-align: center;
+  width: 150px;
 }
 
 label[for="checkbox-search-as-i-move"] {
