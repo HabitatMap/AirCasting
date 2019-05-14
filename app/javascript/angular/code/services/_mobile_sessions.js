@@ -299,7 +299,7 @@ export const mobileSessions = (
         if (offset === 0) this.sessions = [];
 
         sessionsDownloader(
-          "/api/sessions.json",
+          "/api/mobile/sessions.json",
           reqData,
           this.sessions,
           params,

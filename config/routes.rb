@@ -25,7 +25,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :measurement_sessions, path: 'sessions', only: [:show, :create, :index] do
+    resources :measurement_sessions, path: 'sessions', only: [:show, :create] do
       collection do
         get :export
       end
@@ -67,6 +67,7 @@ Rails.application.routes.draw do
     end
 
     namespace :mobile do
+      get "sessions" => "sessions#index"
       get "sessions/:id" => "sessions#show"
     end
 
