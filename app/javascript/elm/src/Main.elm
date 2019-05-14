@@ -212,7 +212,7 @@ type Msg
     | ToggleIsSearchOn
     | MapMoved
     | FetchSessions
-    | HighlightSessionMarker (Maybe Int)
+    | HighlightSessionMarker (Maybe Location)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -457,8 +457,8 @@ update msg model =
         FetchSessions ->
             ( model, Ports.fetchSessions () )
 
-        HighlightSessionMarker hoveredSessionId ->
-            ( model, Ports.highlightSessionMarker hoveredSessionId )
+        HighlightSessionMarker location ->
+            ( model, Ports.highlightSessionMarker location )
 
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
@@ -785,7 +785,7 @@ viewSessionCard heatMapThresholds session =
     div
         [ class "session"
         , Events.onClick <| ToggleSessionSelection session.id
-        , Events.onMouseEnter <| HighlightSessionMarker (Just session.id)
+        , Events.onMouseEnter <| HighlightSessionMarker (Just session.location)
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]
         [ div [ class "session-header-container" ]

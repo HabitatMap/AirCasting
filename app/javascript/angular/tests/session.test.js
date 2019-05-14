@@ -2,7 +2,7 @@ import test from "blue-tape";
 import * as Session from "../code/values/session";
 
 test("when title is missing it defaults to unnamed", t => {
-  const session = {};
+  const session = { selectedStream: {} };
 
   const actual = Session.formatSessionForList(session);
 
@@ -14,7 +14,8 @@ test("when title is missing it defaults to unnamed", t => {
 test("when title is present it uses it", t => {
   const title = "walk to the park";
   const session = {
-    title
+    title,
+    selectedStream: {}
   };
 
   const actual = Session.formatSessionForList(session);
@@ -26,7 +27,8 @@ test("when title is present it uses it", t => {
 
 test("when session is indoor it uses anonymous as username", t => {
   const session = {
-    is_indoor: true
+    is_indoor: true,
+    selectedStream: {}
   };
 
   const actual = Session.formatSessionForList(session);
@@ -40,7 +42,8 @@ test("when session is outdoor it uses its username", t => {
   const username = "user1234";
   const session = {
     is_indoor: false,
-    username
+    username,
+    selectedStream: {}
   };
 
   const actual = Session.formatSessionForList(session);
