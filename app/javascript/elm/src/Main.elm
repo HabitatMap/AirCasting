@@ -616,10 +616,10 @@ viewSearchAsIMove wasMapMoved isSearchAsIMoveOn =
     div [ class "search-control" ]
         [ if wasMapMoved then
             button
-                [ class "button button--dark search-control__button"
+                [ class "button button--primary search-control__button"
                 , Events.onClick FetchSessions
                 ]
-                [ text "Search again" ]
+                [ text "Redo Search in Map" ]
 
           else
             div [ class "search-control__switch" ]
@@ -630,7 +630,7 @@ viewSearchAsIMove wasMapMoved isSearchAsIMoveOn =
                     , Events.onClick ToggleIsSearchOn
                     ]
                     []
-                , label [ for "checkbox-search-as-i-move" ] [ text "Search as I move the map" ]
+                , label [ for "checkbox-search-as-i-move" ] [ text "Redo search when map is moved" ]
                 ]
         ]
 
