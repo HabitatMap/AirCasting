@@ -11,10 +11,12 @@ export const SessionsListCtrl = (
   drawSession,
   markerSelected,
   updateCrowdMapLayer,
-  sessionsUtils
+  sessionsUtils,
+  map
 ) => {
   let sessions;
   let firstLoad = true;
+  let highlightedSessionMarker = null;
   const elmApp = $window.__elmApp;
   const CANNOT_SELECT_MULTIPLE_SESSIONS = "You can't select multiple sessions";
 
@@ -84,8 +86,16 @@ export const SessionsListCtrl = (
   };
 
   $scope.newSessionsForList = function() {
-    return $scope.sessions.get().map(formatSessionForList);
+    return $scope.sessions
+      .get()
+      .map($scope.selectedStream)
+      .map(formatSessionForList);
   };
+
+  $scope.selectedStream = session => ({
+    ...session,
+    selectedStream: session.streams[sensors.selectedSensorName()]
+  });
 
   $scope.$watch(
     "newSessionsForList()",
@@ -170,6 +180,15 @@ export const SessionsListCtrl = (
 
       elmApp.ports.fetchSessions.subscribe(() => {
         sessions.fetch();
+      });
+
+      elmApp.ports.highlightSessionMarker.subscribe(location => {
+        if (location === null) {
+          highlightedSessionMarker.setMap(null);
+          return;
+        }
+
+        highlightedSessionMarker = map.drawHighlightMarker(location);
       });
     });
   }

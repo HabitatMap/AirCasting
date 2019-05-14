@@ -13,5 +13,6 @@ angular
     "markerSelected",
     "updateCrowdMapLayer",
     "sessionsUtils",
+    "map",
     SessionsListCtrl
   ]);
