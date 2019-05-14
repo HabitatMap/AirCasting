@@ -17,8 +17,11 @@ input {
 }
 
 input[type="checkbox"] {
-  margin-top: 24px;
-  width: auto;
+  width: inherit;
+
+  & + label {
+    margin-left: 10px;
+  }
 }
 
 .input-dark {
