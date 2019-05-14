@@ -76,36 +76,33 @@ update msg model toCmd =
 
 view : Model -> String -> String -> String -> Bool -> TooltipText -> Html Msg
 view model text_ inputId placeholderText isDisabled tooltipText =
-    div []
-        [ label [ for inputId ] [ text text_ ]
-        , Tooltip.view tooltipText
-        , div [ class "tag-container" ]
-            [ input
-                [ id inputId
-                , class "input-dark"
-                , class "input-filters"
-                , class "input-filters-tag"
-                , placeholder placeholderText
-                , type_ "text"
-                , name inputId
-                , ExtraEvents.onEnter (Add <| getCandidate model)
-                , Events.onInput UpdateCandidate
-                , value <| getCandidate model
-                , disabled isDisabled
-                ]
-                []
-            , div [] (List.map viewLabel <| asList model)
+    div [ class "filters__input-group" ]
+        [ div [ class "tag-container" ] (List.map viewLabel <| asList model)
+        , input
+            [ id inputId
+            , class "input-dark"
+            , class "input-filters"
+            , placeholder placeholderText
+            , type_ "text"
+            , name inputId
+            , ExtraEvents.onEnter (Add <| getCandidate model)
+            , Events.onInput UpdateCandidate
+            , value <| getCandidate model
+            , disabled isDisabled
             ]
+            []
+        , label [ for inputId ] [ text text_ ]
+        , Tooltip.view tooltipText
         ]
 
 
 viewLabel : String -> Html Msg
 viewLabel label =
-    div [ class "filters-tag" ]
+    div [ class "tag" ]
         [ text label
         , button
             [ id label
-            , class "filters-tag-close"
+            , class "tag-close"
             , Events.onClick <| Remove label
             ]
             []

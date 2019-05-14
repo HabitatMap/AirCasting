@@ -52,10 +52,8 @@ timeRangeDecoder =
 
 view : msg -> Bool -> Html msg
 view refreshTimeRange isDisabled =
-    div []
-        [ label [ for "time-range" ] [ text "time frame:" ]
-        , Tooltip.view Tooltip.timeRangeFilter
-        , input
+    div [ class "filters__input-group" ]
+        [ input
             [ id "time-range"
             , attribute "autocomplete" "off"
             , class "input-dark"
@@ -67,5 +65,7 @@ view refreshTimeRange isDisabled =
             , disabled isDisabled
             ]
             []
+        , label [ for "time-range" ] [ text "time frame:" ]
+        , Tooltip.view Tooltip.timeRangeFilter
         , button [ Events.onClick refreshTimeRange ] [ text "refresh" ]
         ]

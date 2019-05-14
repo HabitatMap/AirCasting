@@ -14,6 +14,14 @@ input {
   &:focus {
     outline: none;
   }
+
+  &[disabled] {
+    opacity: 0.6;
+
+    & + label {
+      opacity: 0.6;
+    }
+  }
 }
 
 input[type="checkbox"] {
