@@ -630,7 +630,7 @@ viewSearchAsIMove wasMapMoved isSearchAsIMoveOn =
                     , Events.onClick ToggleIsSearchOn
                     ]
                     []
-                , label [ for "search-control-checkbox" ] [ text "Search as I move the map" ]
+                , label [ for "checkbox-search-as-i-move" ] [ text "Search as I move the map" ]
                 ]
         ]
 
