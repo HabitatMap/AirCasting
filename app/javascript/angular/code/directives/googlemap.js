@@ -4,20 +4,21 @@ angular.module("aircasting").directive("googlemap", function() {
   return {
     link: function(scope, element) {
       // United States
-      let point = {
+      const point = {
         lat: 37.09024,
         lng: -95.712891,
         zoom: 5
       };
 
-      let map = scope.map;
-      let params = scope.params.get("map") || {};
-      let lat = params.lat || map.getMapCookie("vp_lat") || point.lat;
-      let lng = params.lng || map.getMapCookie("vp_lng") || point.lng;
-      let latlng = new google.maps.LatLng(lat, lng);
-      let zoom = params.zoom || map.getMapCookie("vp_zoom") || point.zoom;
-      let mapType = params.mapType || google.maps.MapTypeId.roadmap;
+      const map = scope.map;
+      const params = scope.params.get("map") || {};
+      const lat = params.lat || map.getMapCookie("vp_lat") || point.lat;
+      const lng = params.lng || map.getMapCookie("vp_lng") || point.lng;
+      const latlng = new google.maps.LatLng(lat, lng);
+      const zoom = params.zoom || map.getMapCookie("vp_zoom") || point.zoom;
+      const mapType = params.mapType || google.maps.MapTypeId.roadmap;
       const minZoom = 3;
+
       let options = {
         center: latlng,
         controlSize: 24,
