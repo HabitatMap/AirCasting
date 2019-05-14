@@ -16,6 +16,7 @@ export const SessionsListCtrl = (
 ) => {
   let sessions;
   let firstLoad = true;
+  let highlightedSessionMarker = null;
   const elmApp = $window.__elmApp;
   const CANNOT_SELECT_MULTIPLE_SESSIONS = "You can't select multiple sessions";
 
@@ -177,13 +178,13 @@ export const SessionsListCtrl = (
         const session = sessionsUtils.find(sessions, id);
 
         if (session === undefined) {
-          $scope.highlightedSessionMarker.setMap(null);
+          highlightedSessionMarker.setMap(null);
           return;
         }
 
-        $scope.highlightedSessionMarker = map.drawMarker({
-          position: startingLatLngLiteral(session, sensors.selectedSensorName())
-        });
+        highlightedSessionMarker = map.drawHighlightMarker(
+          startingLatLngLiteral(session, sensors.selectedSensorName())
+        );
       });
     });
   }

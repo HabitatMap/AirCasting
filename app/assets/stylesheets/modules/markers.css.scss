@@ -144,3 +144,25 @@
   height: 0px;
   width: 100px;
 }
+
+#highlightMarkerLayer img {
+  animation: pulse 0.7s infinite alternate;
+  -webkit-animation: pulse 0.7s infinite alternate;
+  transform-origin: center;
+  -webkit-transform-origin: center;
+}
+
+/* Animaitons */
+keyframes pulse {
+  to {
+    transform: scale(0.23);
+    -webkit-transform: scale(0.23);
+  }
+}
+
+@-webkit-keyframes pulse {
+  to {
+    transform: scale(0.23);
+    -webkit-transform: scale(0.23);
+  }
+}
