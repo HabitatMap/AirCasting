@@ -4,6 +4,7 @@ import MarkerClusterer from "@google/markerclustererplus";
 
 <% helpers = ActionController::Base.helpers %>
 
+const locationMarkerPath = "<%= helpers.image_path('location_marker.svg') %>";
 const marker1Path = "<%= helpers.image_path('marker1.svg') %>";
 const marker2Path = "<%= helpers.image_path('marker2.svg') %>";
 const marker3Path = "<%= helpers.image_path('marker3.svg') %>";
@@ -220,7 +221,27 @@ export const map = (
       return customMarker;
     },
 
-    clusterMarkers: function(onClick) {      
+    drawHighlightMarker: function(position) {
+      const highlightMarker = this.drawMarker({
+        position: position,
+        icon: {
+          anchor: new google.maps.Point(30, 31),
+          size: new google.maps.Size(60, 60),
+          scaledSize: new google.maps.Size(60, 60),
+          url: locationMarkerPath
+        }
+      });
+
+      let overlay = new google.maps.OverlayView();
+      overlay.draw = function() {
+        this.getPanes().markerLayer.id = "highlightMarkerLayer";
+      };
+      overlay.setMap(this.mapObj);
+
+      return highlightMarker;
+    },
+
+    clusterMarkers: function(onClick) {
       const options = {
         styles: [
           { url: marker1Path, height: 30, width: 30 },
