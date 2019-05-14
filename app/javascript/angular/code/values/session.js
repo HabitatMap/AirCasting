@@ -7,7 +7,13 @@ export const formatSessionForList = session => ({
   shortTypes: session.shortTypes,
   // average for mobile sessions, last_hour_average for streaming fixed sessions
   // non-streaming fixed sessions do not have average
-  average: session.average || session.last_hour_average || null
+  average: session.average || session.last_hour_average || null,
+  // marker location for mobile sessions is based on the location of first measurement for a given stream
+  // for fixed sessions location is constant so and stored on the session directly
+  location: {
+    lat: session.selectedStream.start_latitude || session.latitude,
+    lng: session.selectedStream.start_longitude || session.longitude
+  }
 });
 
 const average = (session, selectedSensor) =>
@@ -31,13 +37,6 @@ export const startingLatLng = (session, selectedSensor) => {
   return {
     lat: () => startingLat(session, selectedSensor),
     lng: () => startingLng(session, selectedSensor)
-  };
-};
-
-export const startingLatLngLiteral = (session, selectedSensor) => {
-  return {
-    lat: startingLat(session, selectedSensor),
-    lng: startingLng(session, selectedSensor)
   };
 };
 

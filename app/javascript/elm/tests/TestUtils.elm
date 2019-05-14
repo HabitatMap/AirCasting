@@ -37,6 +37,13 @@ defaultSession =
     , username = "username"
     , shortTypes = defaultShortTypes
     , average = Nothing
+    , location = defaultLocation
+    }
+
+
+defaultLocation =
+    { lng = 0
+    , lat = 0
     }
 
 

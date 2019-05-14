@@ -1,5 +1,5 @@
 import _ from "underscore";
-import { formatSessionForList, startingLatLngLiteral } from "../values/session";
+import { formatSessionForList } from "../values/session";
 
 export const SessionsListCtrl = (
   $scope,
@@ -86,8 +86,16 @@ export const SessionsListCtrl = (
   };
 
   $scope.newSessionsForList = function() {
-    return $scope.sessions.get().map(formatSessionForList);
+    return $scope.sessions
+      .get()
+      .map($scope.selectedStream)
+      .map(formatSessionForList);
   };
+
+  $scope.selectedStream = session => ({
+    ...session,
+    selectedStream: session.streams[sensors.selectedSensorName()]
+  });
 
   $scope.$watch(
     "newSessionsForList()",
@@ -174,17 +182,13 @@ export const SessionsListCtrl = (
         sessions.fetch();
       });
 
-      elmApp.ports.highlightSessionMarker.subscribe(id => {
-        const session = sessionsUtils.find(sessions, id);
-
-        if (session === undefined) {
+      elmApp.ports.highlightSessionMarker.subscribe(location => {
+        if (location === null) {
           highlightedSessionMarker.setMap(null);
           return;
         }
 
-        highlightedSessionMarker = map.drawHighlightMarker(
-          startingLatLngLiteral(session, sensors.selectedSensorName())
-        );
+        highlightedSessionMarker = map.drawHighlightMarker(location);
       });
     });
   }

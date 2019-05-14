@@ -772,6 +772,9 @@ updateTests =
                     model =
                         { defaultModel | sessions = [ { defaultSession | id = id } ] }
 
+                    location =
+                        { lng = 0, lat = 0 }
+
                     newSession =
                         { id = id + 1
                         , title = "title"
@@ -780,6 +783,7 @@ updateTests =
                         , username = "username"
                         , shortTypes = []
                         , average = Nothing
+                        , location = location
                         }
 
                     newSessions =
@@ -794,6 +798,12 @@ updateTests =
                                         , ( "username", Encode.string "username" )
                                         , ( "shortTypes", Encode.list identity [] )
                                         , ( "average", Encode.null )
+                                        , ( "location"
+                                          , Encode.object
+                                                [ ( "lng", Encode.int 0 )
+                                                , ( "lat", Encode.int 0 )
+                                                ]
+                                          )
                                         ]
                                     ]
                               )
