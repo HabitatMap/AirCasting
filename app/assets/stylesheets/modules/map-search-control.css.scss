@@ -9,14 +9,17 @@
   background: white;
   border-radius: 2px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 1px;
+  height: 25px;
   padding: 4px 25px 3px 10px;
 }
 
 .search-control__button {
   border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 1px;
   font-size: 13px;
   font-weight: bold;
-  padding: 6px 20px;
+  height: 25px;
+  padding: 6px 20px 5px;
 }
 
 label[for="checkbox-search-as-i-move"] {
