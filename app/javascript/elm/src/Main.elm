@@ -875,10 +875,8 @@ viewToggleButton label isPressed callback =
 
 viewParameterFilter : List Sensor -> String -> Html Msg
 viewParameterFilter sensors selectedSensorId =
-    div []
-        [ label [ for "parameter" ] [ text "parameter:" ]
-        , Tooltip.view Tooltip.parameterFilter
-        , input
+    div [ class "filters__input-group" ]
+        [ input
             [ id "parameter"
             , class "input-dark"
             , class "input-filters"
@@ -890,15 +888,15 @@ viewParameterFilter sensors selectedSensorId =
             , autocomplete False
             ]
             []
+        , label [ for "parameter" ] [ text "parameter:" ]
+        , Tooltip.view Tooltip.parameterFilter
         ]
 
 
 viewSensorFilter : List Sensor -> String -> Html Msg
 viewSensorFilter sensors selectedSensorId =
-    div []
-        [ label [ for "sensor" ] [ text "sensor:" ]
-        , Tooltip.view Tooltip.sensorFilter
-        , input
+    div [ class "filters__input-group" ]
+        [ input
             [ id "sensor"
             , class "input-dark"
             , class "input-filters"
@@ -910,6 +908,8 @@ viewSensorFilter sensors selectedSensorId =
             , autocomplete False
             ]
             []
+        , label [ for "sensor" ] [ text "sensor:" ]
+        , Tooltip.view Tooltip.sensorFilter
         ]
 
 
@@ -953,10 +953,8 @@ viewCrowdMapSlider resolution =
 
 viewLocationFilter : String -> Bool -> Html Msg
 viewLocationFilter location isIndoor =
-    div []
-        [ label [ for "location" ] [ text "location:" ]
-        , Tooltip.view Tooltip.locationFilter
-        , input
+    div [ class "filters__input-group" ]
+        [ input
             [ id "location"
             , value location
             , class "input-dark"
@@ -969,6 +967,8 @@ viewLocationFilter location isIndoor =
             , onEnter SubmitLocation
             ]
             []
+        , label [ for "location" ] [ text "location:" ]
+        , Tooltip.view Tooltip.locationFilter
         ]
 
 
