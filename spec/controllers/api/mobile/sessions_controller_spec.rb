@@ -106,6 +106,99 @@ describe Api::Mobile::SessionsController do
     end
   end
 
+  describe "#show2" do
+    it "returns session json including stream and measurements" do
+      sensor_name = "sensor-name"
+      user = create_user!
+      session = create_mobile_session!(user: user)
+      create_stream!(session: session, sensor_name: "another-sensor-name")
+      stream = create_stream!(session: session, sensor_name: sensor_name)
+      create_stream!(session: session, sensor_name: "yet another-sensor-name")
+      measurement1 = create_measurement!(stream: stream)
+      measurement2 = create_measurement!(stream: stream)
+      note = create_note!(session: session)
+
+      get :show2, id: session.id, sensor_name: sensor_name
+
+      expected = {
+        "title" => session.title,
+        "average" => (measurement1.value + measurement2.value) / 2,
+        "id" => session.id,
+        "contribute" => session.contribute,
+        "created_at" => format_time(session.created_at),
+        "data_type" => nil,
+        "end_time" => format_time(session.end_time),
+        "end_time_local" => format_time(session.end_time_local),
+        "instrument" => nil,
+        "is_indoor" => session.is_indoor,
+        "last_measurement_at" => nil,
+        "latitude" => session.latitude,
+        "longitude" => session.longitude,
+        "measurements_count" => nil,
+        "start_time" => format_time(session.start_time),
+        "start_time_local" => format_time(session.start_time_local),
+        "type" => "MobileSession",
+        "updated_at" => format_time(session.updated_at),
+        "url_token" => session.url_token,
+        "user_id" => user.id,
+        "uuid" => session.uuid,
+        "notes" => [{
+          "created_at" => format_time(note.created_at),
+          "date" => format_time(note.date),
+          "id" => note.id,
+          "latitude" => note.latitude,
+          "longitude" => note.longitude,
+          "number" => note.number,
+          "photo_content_type" => note.photo_content_type,
+          "photo_file_name" => note.photo_file_name,
+          "photo_file_size" => note.photo_file_size,
+          "photo_updated_at" => note.photo_updated_at,
+          "session_id" => session.id,
+          "text" => note.text,
+          "updated_at" => format_time(note.updated_at)
+        }],
+        "streams" => {
+          stream.sensor_name => {
+            "average_value" => stream.average_value,
+            "id" => stream.id,
+            "max_latitude" => stream.max_latitude,
+            "max_longitude" => stream.max_longitude,
+            "measurement_short_type" => stream.measurement_short_type,
+            "measurement_type" => stream.measurement_type,
+            "measurements_count" => 2,
+            "min_latitude" => stream.min_latitude,
+            "min_longitude" => stream.min_longitude,
+            "sensor_name" => stream.sensor_name,
+            "sensor_package_name" => stream.sensor_package_name,
+            "session_id" => session.id,
+            "size" => 2,
+            "start_latitude" => stream.start_latitude,
+            "start_longitude" => stream.start_longitude,
+            "threshold_high" => stream.threshold_high,
+            "threshold_low" => stream.threshold_low,
+            "threshold_medium" => stream.threshold_medium,
+            "threshold_very_high" => stream.threshold_very_high,
+            "threshold_very_low" => stream.threshold_very_low,
+            "unit_name" => stream.unit_name,
+            "unit_symbol" => stream.unit_symbol,
+            "measurements" => [{
+              "value" => measurement1.value,
+              "latitude" => measurement1.latitude,
+              "longitude" => measurement1.longitude,
+              "time" => format_time(measurement1.time)
+            }, {
+              "value" => measurement2.value,
+              "latitude" => measurement2.latitude,
+              "longitude" => measurement2.longitude,
+              "time" => format_time(measurement2.time)
+            }],
+          }
+        }
+      }
+      expect(json_response).to eq(expected)
+    end
+  end
+
   private
 
   def create_user!
@@ -116,7 +209,7 @@ describe Api::Mobile::SessionsController do
     )
   end
 
-  def create_mobile_session!(user:, start_time_local:, end_time_local:)
+  def create_mobile_session!(user:, start_time_local: DateTime.current, end_time_local: DateTime.current)
     MobileSession.create!(
       title: "title",
       user: user,
@@ -166,5 +259,19 @@ describe Api::Mobile::SessionsController do
       milliseconds: 123,
       stream: stream
     )
+  end
+
+  def create_note!(session:)
+    Note.create!(
+      text: "text",
+      date: DateTime.current,
+      latitude: 123,
+      longitude: 123,
+      session: session
+    )
+  end
+
+  def format_time(time)
+    time.strftime("%FT%T.000Z")
   end
 end
