@@ -84,14 +84,14 @@ curl http://aircasting.org/api/mobile/sessions.json?limit=50&offset=0&q[measurem
 }
 ```
 
-## Session
+## Mobile Session
 
-GET `/api/sessions/:id`
+GET `/api/mobile/sessions2/:id`
 
 ### Example request
 
 ```
-curl http://aircasting.org/api/sessions/9586.json
+curl http://aircasting.org/api/mobile/sessions2/9586.json
 ```
 
 ### Example response
