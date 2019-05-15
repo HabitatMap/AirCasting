@@ -11,6 +11,7 @@
   font-weight: $font-stack-bold;
   font-size: $small-font;
   padding: $margin-default;
+  position: relative;
   text-align: left;
   width: 50%;
   z-index: 1;
@@ -23,5 +24,10 @@
 
   &:focus {
     outline: none;
+  }
+
+  [data-tippy-content] {
+    right: 20px;
+    top: initial;
   }
 }

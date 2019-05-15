@@ -729,11 +729,9 @@ viewSessionTypeNav : Model -> Html Msg
 viewSessionTypeNav model =
     div [ class "session-type-nav" ]
         [ a [ href "/mobile_map", classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
-            [ text "mobile" ]
-        , Tooltip.view Tooltip.mobileTab
+            [ text "mobile", Tooltip.view Tooltip.mobileTab ]
         , a [ href "/fixed_map", classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
-            [ text "fixed" ]
-        , Tooltip.view Tooltip.fixedTab
+            [ text "fixed", Tooltip.view Tooltip.fixedTab ]
         ]
 
 
