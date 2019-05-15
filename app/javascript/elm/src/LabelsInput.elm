@@ -74,8 +74,8 @@ update msg model toCmd =
 -- VIEW
 
 
-view : Model -> String -> String -> String -> Bool -> TooltipText -> Html Msg
-view model text_ inputId placeholderText isDisabled tooltipText =
+view : Model -> String -> String -> String -> Bool -> TooltipText -> String -> Html Msg
+view model text_ inputId placeholderText isDisabled tooltipText tooltipIcon =
     div [ class "filters__input-group" ]
         [ div [ class "tag-container" ] (List.map viewLabel <| asList model)
         , input
@@ -92,7 +92,7 @@ view model text_ inputId placeholderText isDisabled tooltipText =
             ]
             []
         , label [ for inputId ] [ text text_ ]
-        , Tooltip.view tooltipText
+        , Tooltip.view tooltipText tooltipIcon
         ]
 
 

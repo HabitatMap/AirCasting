@@ -27,7 +27,7 @@
   }
 
   [data-tippy-content] {
-    right: 20px;
-    top: initial;
+    position: static;
+    float: right;
   }
 }

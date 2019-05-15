@@ -54,6 +54,7 @@ type alias Model =
     , logoNav : String
     , linkIcon : String
     , resetIcon : String
+    , tooltipIcon : String
     , heatMapThresholds : WebData HeatMapThresholds
     , isStreaming : Bool
     , isSearchAsIMoveOn : Bool
@@ -84,6 +85,7 @@ defaultModel =
     , logoNav = ""
     , linkIcon = ""
     , resetIcon = ""
+    , tooltipIcon = ""
     , heatMapThresholds = NotAsked
     , isSearchAsIMoveOn = False
     , wasMapMoved = False
@@ -105,6 +107,7 @@ type alias Flags =
     , logoNav : String
     , linkIcon : String
     , resetIcon : String
+    , tooltipIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     , isSearchAsIMoveOn : Bool
     }
@@ -142,6 +145,7 @@ init flags url key =
         , logoNav = flags.logoNav
         , linkIcon = flags.linkIcon
         , resetIcon = flags.resetIcon
+        , tooltipIcon = flags.tooltipIcon
         , heatMapThresholds =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
                 |> Maybe.withDefault defaultModel.heatMapThresholds
@@ -740,9 +744,9 @@ viewSessionTypeNav : Model -> Html Msg
 viewSessionTypeNav model =
     div [ class "session-type-nav" ]
         [ a [ href "/mobile_map", classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
-            [ text "mobile", Tooltip.view Tooltip.mobileTab ]
+            [ text "mobile", Tooltip.view Tooltip.mobileTab model.tooltipIcon ]
         , a [ href "/fixed_map", classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
-            [ text "fixed", Tooltip.view Tooltip.fixedTab ]
+            [ text "fixed", Tooltip.view Tooltip.fixedTab model.tooltipIcon ]
         ]
 
 
@@ -826,34 +830,34 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     form [ class "filters__form" ]
-        [ viewParameterFilter model.sensors model.selectedSensorId
-        , viewSensorFilter model.sensors model.selectedSensorId
-        , viewLocationFilter model.location model.isIndoor
-        , TimeRange.view RefreshTimeRange False
-        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter
-        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter
+        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
+        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
+        , viewLocationFilter model.location model.isIndoor model.tooltipIcon
+        , TimeRange.view RefreshTimeRange False model.tooltipIcon
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter model.tooltipIcon
+        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
         , div [ class "filter-separator" ] []
-        , viewCrowdMapOptions model.isCrowdMapOn model.crowdMapResolution (SelectedSession.isSessionSelected model.selectedSession)
+        , viewCrowdMapOptions model.isCrowdMapOn model.crowdMapResolution (SelectedSession.isSessionSelected model.selectedSession) model.tooltipIcon
         ]
 
 
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     form [ class "filters__form" ]
-        [ viewParameterFilter model.sensors model.selectedSensorId
-        , viewSensorFilter model.sensors model.selectedSensorId
-        , viewLocationFilter model.location model.isIndoor
-        , TimeRange.view RefreshTimeRange model.isStreaming
-        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter
-        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter
+        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
+        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
+        , viewLocationFilter model.location model.isIndoor model.tooltipIcon
+        , TimeRange.view RefreshTimeRange model.isStreaming model.tooltipIcon
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
+        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
         , label [] [ text "type" ]
-        , Tooltip.view Tooltip.typeToggleFilter
+        , Tooltip.view Tooltip.typeToggleFilter model.tooltipIcon
         , div []
             [ viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
             , viewToggleButton "indoor" model.isIndoor ToggleIndoor
             ]
         , label [] [ text "streaming" ]
-        , Tooltip.view Tooltip.streamingToggleFilter
+        , Tooltip.view Tooltip.streamingToggleFilter model.tooltipIcon
         , div []
             [ viewToggleButton "active" model.isStreaming ToggleStreaming
             , viewToggleButton "dormant" (not model.isStreaming) ToggleStreaming
@@ -877,8 +881,8 @@ viewToggleButton label isPressed callback =
         [ text label ]
 
 
-viewParameterFilter : List Sensor -> String -> Html Msg
-viewParameterFilter sensors selectedSensorId =
+viewParameterFilter : List Sensor -> String -> String -> Html Msg
+viewParameterFilter sensors selectedSensorId tooltipIcon =
     div [ class "filters__input-group" ]
         [ input
             [ id "parameter"
@@ -893,12 +897,12 @@ viewParameterFilter sensors selectedSensorId =
             ]
             []
         , label [ for "parameter" ] [ text "parameter:" ]
-        , Tooltip.view Tooltip.parameterFilter
+        , Tooltip.view Tooltip.parameterFilter tooltipIcon
         ]
 
 
-viewSensorFilter : List Sensor -> String -> Html Msg
-viewSensorFilter sensors selectedSensorId =
+viewSensorFilter : List Sensor -> String -> String -> Html Msg
+viewSensorFilter sensors selectedSensorId tooltipIcon =
     div [ class "filters__input-group" ]
         [ input
             [ id "sensor"
@@ -913,12 +917,12 @@ viewSensorFilter sensors selectedSensorId =
             ]
             []
         , label [ for "sensor" ] [ text "sensor:" ]
-        , Tooltip.view Tooltip.sensorFilter
+        , Tooltip.view Tooltip.sensorFilter tooltipIcon
         ]
 
 
-viewCrowdMapOptions : Bool -> Int -> Bool -> Html Msg
-viewCrowdMapOptions isCrowdMapOn crowdMapResolution isDisabled =
+viewCrowdMapOptions : Bool -> Int -> Bool -> String -> Html Msg
+viewCrowdMapOptions isCrowdMapOn crowdMapResolution isDisabled tooltipIcon =
     let
         class_ =
             case isDisabled of
@@ -929,7 +933,7 @@ viewCrowdMapOptions isCrowdMapOn crowdMapResolution isDisabled =
                     ""
     in
     div [ class class_ ]
-        [ viewCrowdMapCheckBox isCrowdMapOn
+        [ viewCrowdMapCheckBox isCrowdMapOn tooltipIcon
         , if isCrowdMapOn then
             viewCrowdMapSlider (String.fromInt crowdMapResolution)
 
@@ -938,8 +942,8 @@ viewCrowdMapOptions isCrowdMapOn crowdMapResolution isDisabled =
         ]
 
 
-viewCrowdMapCheckBox : Bool -> Html Msg
-viewCrowdMapCheckBox isCrowdMapOn =
+viewCrowdMapCheckBox : Bool -> String -> Html Msg
+viewCrowdMapCheckBox isCrowdMapOn tooltipIcon =
     div []
         [ p []
             [ input
@@ -950,7 +954,7 @@ viewCrowdMapCheckBox isCrowdMapOn =
                 ]
                 []
             , label [ for "checkbox-crowd-map" ] [ text "Crowd Map" ]
-            , Tooltip.view Tooltip.crowdMap
+            , Tooltip.view Tooltip.crowdMap tooltipIcon
             ]
         ]
 
@@ -976,8 +980,8 @@ viewCrowdMapSlider resolution =
         ]
 
 
-viewLocationFilter : String -> Bool -> Html Msg
-viewLocationFilter location isIndoor =
+viewLocationFilter : String -> Bool -> String -> Html Msg
+viewLocationFilter location isIndoor tooltipIcon =
     div [ class "filters__input-group" ]
         [ input
             [ id "location"
@@ -993,7 +997,7 @@ viewLocationFilter location isIndoor =
             ]
             []
         , label [ for "location" ] [ text "location:" ]
-        , Tooltip.view Tooltip.locationFilter
+        , Tooltip.view Tooltip.locationFilter tooltipIcon
         ]
 
 

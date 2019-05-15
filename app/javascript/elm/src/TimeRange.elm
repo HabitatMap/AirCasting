@@ -1,7 +1,7 @@
 module TimeRange exposing (TimeRange(..), defaultTimeRange, update, view)
 
-import Html exposing (Html, button, div, h4, input, label, text)
-import Html.Attributes exposing (attribute, class, disabled, for, id, name, placeholder, type_)
+import Html exposing (Html, button, div, h4, img, input, label, text)
+import Html.Attributes exposing (alt, attribute, class, disabled, for, id, name, placeholder, src, type_)
 import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -50,8 +50,8 @@ timeRangeDecoder =
         (Decode.field "timeTo" Decode.int)
 
 
-view : msg -> Bool -> Html msg
-view refreshTimeRange isDisabled =
+view : msg -> Bool -> String -> Html msg
+view refreshTimeRange isDisabled tooltipIcon =
     div [ class "filters__input-group" ]
         [ input
             [ id "time-range"
@@ -66,6 +66,6 @@ view refreshTimeRange isDisabled =
             ]
             []
         , label [ for "time-range" ] [ text "time frame:" ]
-        , Tooltip.view Tooltip.timeRangeFilter
+        , Tooltip.view Tooltip.timeRangeFilter tooltipIcon
         , button [ Events.onClick refreshTimeRange ] [ text "refresh" ]
         ]
