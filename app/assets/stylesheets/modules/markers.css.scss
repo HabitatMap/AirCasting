@@ -146,6 +146,7 @@
 }
 
 #highlightMarkerLayer img {
+  margin: 18px !important;
   animation: pulse 0.7s infinite alternate;
   -webkit-animation: pulse 0.7s infinite alternate;
   transform-origin: center;
@@ -155,14 +156,14 @@
 /* Animations */
 keyframes pulse {
   to {
-    transform: scale(0.23);
-    -webkit-transform: scale(0.23);
+    transform: scale(4);
+    -webkit-transform: scale(4);
   }
 }
 
 @-webkit-keyframes pulse {
   to {
-    transform: scale(0.23);
-    -webkit-transform: scale(0.23);
+    transform: scale(4);
+    -webkit-transform: scale(4);
   }
 }

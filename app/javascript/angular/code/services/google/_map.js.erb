@@ -225,9 +225,11 @@ export const map = (
       const highlightMarker = this.drawMarker({
         position: position,
         icon: {
-          anchor: new google.maps.Point(30, 31),
-          size: new google.maps.Size(60, 60),
-          scaledSize: new google.maps.Size(60, 60),
+          // anchor formula: margin + (scaledSize / 2) = 24
+          // but we had to add +1 to the second anchor value based on visual feedback
+          anchor: new google.maps.Point(24, 25),
+          size: new google.maps.Size(60,60),
+          scaledSize: new google.maps.Size(12,12),
           url: locationMarkerPath
         }
       });
