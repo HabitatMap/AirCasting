@@ -20,41 +20,24 @@
   position: absolute;
 }
 
+.filters__input-group {
+  display: flex;
+  flex-flow: column-reverse;
+  position: relative;
+}
+
 .filter-separator {
   border-bottom: white solid 0.6px;
   opacity: 0.4;
   width: 100%;
 }
 
-.filters-tag {
-  background-color: white;
-  border-radius: 15px;
-  color: $brand-secondary;
-  display: inline-block;
-  font-size: $tiny-font;
-  font-weight: $font-stack-regular;
-  margin-right: 10px;
-  margin-top: 10px;
-  padding: 3px 8px;
-}
-
-.filters-tag-close {
-  background: image-url("close-icon.svg") no-repeat right center;
-  border: none;
-  padding: 0 0 0 16px;
-  width: 8px;
-  height: 8px;
-  vertical-align: middle;
-}
-
-.input-filters.input-filters-tag {
-  margin-bottom: 0px;
-}
-
-.tag-container {
-  margin-bottom: 24px;
-}
-
 .input-time {
   letter-spacing: -0.4px;
+}
+
+[data-tippy-content] {
+  position: absolute;
+  right: 0;
+  top: 0;
 }

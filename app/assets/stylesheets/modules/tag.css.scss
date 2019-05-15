@@ -1,0 +1,29 @@
+.tag-container {
+  margin-bottom: 24px;
+  order: -1;
+
+  & + input {
+    margin-bottom: 0;
+  }
+}
+
+.tag {
+  background-color: white;
+  border-radius: 15px;
+  color: $brand-secondary;
+  display: inline-block;
+  font-size: $tiny-font;
+  font-weight: $font-stack-regular;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 3px 8px;
+}
+
+.tag-close {
+  background: image-url("close-icon.svg") no-repeat right center;
+  border: none;
+  padding: 0 0 0 16px;
+  width: 8px;
+  height: 8px;
+  vertical-align: middle;
+}
