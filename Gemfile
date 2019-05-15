@@ -31,7 +31,7 @@ gem 'uglifier'
 gem 'sass-rails'
 gem 'coffee-rails'
 gem 'activesupport-json_encoder'
-gem 'webpacker', git: 'https://github.com/rails/webpacker.git', branch: '3-x-stable'
+gem 'webpacker', '~> 4.0.2'
 gem 'dry-validation'
 gem 'dry-struct'
 

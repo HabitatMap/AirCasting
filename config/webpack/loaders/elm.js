@@ -4,11 +4,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const elmSource = resolve(process.cwd());
 const elmBinary = `${elmSource}/node_modules/.bin/elm`;
 
-const elmDefaultOptions = {
-  cwd: elmSource,
-  pathToElm: elmBinary,
-  files: [resolve(__dirname, "../../../app/javascript/elm/src/Main.elm")]
-};
+const elmDefaultOptions = { cwd: elmSource, pathToElm: elmBinary };
 const developmentOptions = Object.assign({}, elmDefaultOptions, {
   verbose: true,
   // when running the app in debug mode decoding a long list crashes the app

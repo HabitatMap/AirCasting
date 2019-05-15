@@ -41,6 +41,7 @@ config/rails_best_practices.yml
 
 .capistrano/
 
+/elm-stuff
 /node_modules
 /public/webpack
 yarn-error.log
@@ -56,3 +57,10 @@ yarn-debug.log*
 
 .nyc_output/
 coverage/
+
+/public/packs
+/public/packs-test
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
