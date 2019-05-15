@@ -1,4 +1,4 @@
-import { drawSession } from "./_draw_session.js.erb";
+import { drawSession } from "./_draw_session.js";
 
 angular
   .module("aircasting")

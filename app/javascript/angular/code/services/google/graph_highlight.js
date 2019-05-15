@@ -1,7 +1,5 @@
-import { removeMarker, drawMarker } from "./_map.js.erb";
-
-<% helpers = ActionController::Base.helpers %>
-const locationMarkerPath = "<%= helpers.image_path('location_marker.svg') %>"
+import { removeMarker, drawMarker } from "./_map.js";
+import * as assets from "../../../../assets";
 
 let items = [];
 
@@ -22,7 +20,7 @@ export const show = points => {
         icon: {
           anchor: new google.maps.Point(8, 8),
           size: new google.maps.Size(16, 16),
-          url: locationMarkerPath
+          url: assets.locationMarkerPath
         }
       }),
       point: point
