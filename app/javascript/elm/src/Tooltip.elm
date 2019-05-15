@@ -14,17 +14,17 @@ module Tooltip exposing
     , view
     )
 
-import Html exposing (Html, span, text)
-import Html.Attributes exposing (attribute)
+import Html exposing (Html, div, img, span, text)
+import Html.Attributes exposing (alt, attribute, src)
 
 
 type TooltipText
     = TooltipText String
 
 
-view : TooltipText -> Html msg
-view (TooltipText tooltipText) =
-    span [ attribute "data-tippy-content" tooltipText ] [ text "?" ]
+view : TooltipText -> String -> Html msg
+view (TooltipText tooltipText) tooltipIcon =
+    div [ attribute "data-tippy-content" tooltipText ] [ img [ src tooltipIcon, alt "Toolip icon" ] [] ]
 
 
 mobileTab =
