@@ -242,9 +242,9 @@ export const mobileSessions = (
       if (!sensorName) return;
       session.alreadySelected = true;
       $http
-        .get("/api/sessions/" + id, {
+        .get("/api/mobile/sessions2/" + id, {
           cache: true,
-          params: { sensor_id: sensorName }
+          params: { sensor_name: sensorName }
         })
         .success(callback(session, allSelected));
     },

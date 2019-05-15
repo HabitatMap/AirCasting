@@ -52,12 +52,6 @@ module Api
       end
     end
 
-    def show
-      session = MobileSession.find(params[:id])
-
-      respond_with session, :sensor_id => params[:sensor_id], :methods => [:notes], :stream_measurements => true
-    end
-
     def export
       service = Csv::ExportSessionsToCsv.new
 

@@ -52,19 +52,6 @@ describe Api::MeasurementSessionsController do
 
   before { sign_in user }
 
-  describe "GET 'show'" do
-    let(:session) { FactoryGirl.create(:mobile_session) }
-
-    before do
-      get :show, :id => session.id, :format => :json
-    end
-
-    it { is_expected.to respond_with(:ok) }
-    it "should contain notes" do
-      expect(json_response['notes']).to eq(jsonized(session.notes))
-    end
-  end
-
   describe "GET 'show_multiple'" do
     let(:session1) { FactoryGirl.create(:mobile_session) }
     let(:session2) { FactoryGirl.create(:mobile_session) }
