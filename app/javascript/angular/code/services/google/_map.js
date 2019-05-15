@@ -1,14 +1,7 @@
 import _ from "underscore";
 import { buildCustomMarker } from "./custom_marker";
 import MarkerClusterer from "@google/markerclustererplus";
-
-<% helpers = ActionController::Base.helpers %>
-
-const locationMarkerPath = "<%= helpers.image_path('location_marker.svg') %>";
-const marker1Path = "<%= helpers.image_path('marker1.svg') %>";
-const marker2Path = "<%= helpers.image_path('marker2.svg') %>";
-const marker3Path = "<%= helpers.image_path('marker3.svg') %>";
-const marker4Path = "<%= helpers.image_path('marker4.svg') %>";
+import * as assets from "../../../../assets";
 
 export const map = (
   params,
@@ -228,9 +221,9 @@ export const map = (
           // anchor formula: margin + (scaledSize / 2) = 24
           // but we had to add +1 to the second anchor value based on visual feedback
           anchor: new google.maps.Point(24, 25),
-          size: new google.maps.Size(60,60),
-          scaledSize: new google.maps.Size(12,12),
-          url: locationMarkerPath
+          size: new google.maps.Size(60, 60),
+          scaledSize: new google.maps.Size(12, 12),
+          url: assets.locationMarkerPath
         }
       });
 
@@ -246,10 +239,10 @@ export const map = (
     clusterMarkers: function(onClick) {
       const options = {
         styles: [
-          { url: marker1Path, height: 30, width: 30 },
-          { url: marker2Path, height: 30, width: 30 },
-          { url: marker3Path, height: 30, width: 30 },
-          { url: marker4Path, height: 30, width: 30 }
+          { url: assets.marker1Path, height: 30, width: 30 },
+          { url: assets.marker2Path, height: 30, width: 30 },
+          { url: assets.marker3Path, height: 30, width: 30 },
+          { url: assets.marker4Path, height: 30, width: 30 }
         ],
         zoomOnClick: false,
         gridSize: 20,
