@@ -88,14 +88,9 @@ export const SessionsListCtrl = (
   $scope.newSessionsForList = function() {
     return $scope.sessions
       .get()
-      .map($scope.selectedStream)
+      .map(selectedStream(sensors.selectedSensorName()))
       .map(formatSessionForList);
   };
-
-  $scope.selectedStream = session => ({
-    ...session,
-    selectedStream: session.streams[sensors.selectedSensorName()]
-  });
 
   $scope.$watch(
     "newSessionsForList()",
@@ -193,6 +188,11 @@ export const SessionsListCtrl = (
     });
   }
 };
+
+const selectedStream = sensorName => session => ({
+  ...session,
+  selectedStream: session.streams[sensorName]
+});
 
 const formatSessionForElm = s => ({
   ...s,
