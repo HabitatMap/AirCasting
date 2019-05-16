@@ -131,7 +131,7 @@ view session heatMapThresholds linkIcon toMsg =
         , p [ class "single-session-sensor" ] [ text session.sensorName ]
         , case session.selectedMeasurements of
             [] ->
-                div [] []
+                div [ class "single-session-placeholder" ] []
 
             measurements ->
                 let
