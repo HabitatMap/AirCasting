@@ -1,11 +1,11 @@
-$search-control-width: 250px;
+$search-control-width: 300px;
 
 .search-control {
   position: absolute;
-  right: calc(50% - 125px);
+  right: calc(50% - #{$search-control-width/2});
   text-align: center;
   top: 6px;
-  width: 250px;
+  width: $search-control-width;
   z-index: 1;
 }
 
@@ -13,6 +13,7 @@ $search-control-width: 250px;
   background: white;
   border-radius: 2px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 1px;
+  display: inline-block;
   height: 25px;
   padding: 4px 25px 3px 10px;
 }
