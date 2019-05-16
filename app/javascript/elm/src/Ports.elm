@@ -3,6 +3,7 @@ port module Ports exposing
     , drawMobile
     , fetchSessions
     , findLocation
+    , graphRangeSelected
     , highlightSessionMarker
     , loadMoreSessions
     , locationCleared
@@ -113,3 +114,6 @@ port fetchSessions : () -> Cmd a
 
 
 port highlightSessionMarker : Maybe Location -> Cmd a
+
+
+port graphRangeSelected : (List Float -> msg) -> Sub msg
