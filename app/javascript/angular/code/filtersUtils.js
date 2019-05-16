@@ -1,6 +1,7 @@
-import tippy from "tippy.js";
 import Clipboard from "clipboard";
 import moment from "moment";
+import tippy from "tippy.js";
+import "tippy.js/themes/light-border.css";
 
 export const endOfToday = () =>
   moment()
@@ -87,6 +88,7 @@ const tooltipInstance = (() => {
       instance = tippy(`#${tooltipId}`, {
         animateFill: false,
         interactive: true,
+        theme: "light-border",
         trigger: "manual"
       })[0];
     }
