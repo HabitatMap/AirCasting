@@ -1,0 +1,16 @@
+$overlay-info-width: 500px;
+
+.overlay-info {
+  color: $dark-blue;
+  font-size: $medium-font;
+  font-weight: $font-stack-bold;
+  position: relative;
+  z-index: 4; // overlay has z-index 3
+
+  p {
+    position: absolute;
+    top: 40vh;
+    left: calc(50vw - #{$overlay-info-width/2});
+    text-align: center;
+  }
+}
