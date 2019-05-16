@@ -241,16 +241,16 @@ const draw = ({
 
 const getValues = data => data.map(m => m.value);
 
-const filterMeasurements = measurements => {
-  measurements = Object.values(measurements);
-  const diff = mobileButtons[0][mobileButtons[1]];
+const filterMeasurements = measurementsByTime => {
+  const measurements = Object.values(measurementsByTime);
+  const selectedTimeRange = mobileButtons[0][mobileButtons[1]];
 
-  if (diff.type === "all") {
+  if (selectedTimeRange.type === "all") {
     return measurements.map(measurement => measurement.y);
   } else {
     const max = Math.max(...measurements.map(measurement => measurement.x));
     const min = moment(max)
-      .subtract(diff.count, diff.type)
+      .subtract(selectedTimeRange.count, selectedTimeRange.type)
       .valueOf();
 
     return getValuesInRange(measurements, min, max);

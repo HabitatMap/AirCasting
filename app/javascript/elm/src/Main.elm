@@ -462,12 +462,7 @@ update msg model =
             ( model, Ports.highlightSessionMarker location )
 
         GraphRangeSelected measurements ->
-            case model.selectedSession of
-                Success selectedSession ->
-                    ( { model | selectedSession = Success { selectedSession | selectedRangeMeasurements = measurements } }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            ( { model | selectedSession = SelectedSession.updateRange model.selectedSession measurements }, Cmd.none )
 
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )

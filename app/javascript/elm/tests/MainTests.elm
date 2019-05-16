@@ -636,7 +636,7 @@ viewTests =
                 let
                     selectedSession =
                         { defaultSelectedSession
-                            | selectedRangeMeasurements = [ 1, 4 ]
+                            | selectedMeasurements = [ 1, 4 ]
                         }
 
                     expected =

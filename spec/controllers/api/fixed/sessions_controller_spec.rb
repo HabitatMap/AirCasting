@@ -24,7 +24,6 @@ describe Api::Fixed::SessionsController do
         "title" => title,
         "username" => username,
         "sensorName" => sensor_name,
-        "average" => 1.5,
         "measurements" => [value1, value2],
         "startTime" => 970365780000,
         "endTime" => 1004850360000,

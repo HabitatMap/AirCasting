@@ -5,6 +5,7 @@ module Data.SelectedSession exposing
     , times
     , toId
     , toStreamId
+    , updateRange
     , view
     )
 
@@ -19,7 +20,7 @@ import Html.Events as Events
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Decode.Pipeline exposing (custom, hardcoded, required)
-import RemoteData exposing (WebData)
+import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import Time exposing (Posix)
 
@@ -33,7 +34,7 @@ type alias SelectedSession =
     , measurements : List Float
     , id : Int
     , streamId : Int
-    , selectedRangeMeasurements : List Float
+    , selectedMeasurements : List Float
     }
 
 
@@ -73,7 +74,7 @@ decoder =
 
 
 toSelectedSession : String -> String -> String -> Posix -> Posix -> List Float -> Int -> Int -> List Float -> SelectedSession
-toSelectedSession title username sensorName startTime endTime measurements sessionId streamId selectedRangeMeasurements =
+toSelectedSession title username sensorName startTime endTime measurements sessionId streamId selectedMeasurements =
     { title = title
     , username = username
     , sensorName = sensorName
@@ -82,7 +83,7 @@ toSelectedSession title username sensorName startTime endTime measurements sessi
     , measurements = measurements
     , id = sessionId
     , streamId = streamId
-    , selectedRangeMeasurements = selectedRangeMeasurements
+    , selectedMeasurements = selectedMeasurements
     }
 
 
@@ -108,6 +109,16 @@ fetch sensors sensorId page id toCmd =
             Cmd.none
 
 
+updateRange : WebData SelectedSession -> List Float -> WebData SelectedSession
+updateRange result measurements =
+    case result of
+        Success session ->
+            Success { session | selectedMeasurements = measurements }
+
+        _ ->
+            result
+
+
 view : SelectedSession -> WebData HeatMapThresholds -> String -> (String -> msg) -> Html msg
 view session heatMapThresholds linkIcon toMsg =
     let
@@ -118,7 +129,7 @@ view session heatMapThresholds linkIcon toMsg =
         [ p [ class "single-session-name" ] [ text session.title ]
         , p [ class "single-session-username" ] [ text session.username ]
         , p [ class "single-session-sensor" ] [ text session.sensorName ]
-        , case session.selectedRangeMeasurements of
+        , case session.selectedMeasurements of
             [] ->
                 div [] []
 
