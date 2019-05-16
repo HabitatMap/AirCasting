@@ -79,15 +79,17 @@ export const setupClipboard = () => {
   new Clipboard("#copy-link-button");
 };
 
-export const tooltipInstance = tooltipId =>
+export const tooltipInstance = (tooltipId, oldTooltip) =>
   tippy(`#${tooltipId}`, {
     animateFill: false,
     interactive: true,
     trigger: "manual"
-  })[0];
+  })[0] || oldTooltip;
+
+let tooltip;
 
 export const fetchShortUrl = (tooltipId, currentUrl) => {
-  const tooltip = tooltipInstance(tooltipId);
+  tooltip = tooltipInstance(tooltipId, tooltip);
 
   tooltip.setContent("Fetching...");
   tooltip.show();
