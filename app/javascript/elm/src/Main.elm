@@ -213,6 +213,7 @@ type Msg
     | MapMoved
     | FetchSessions
     | HighlightSessionMarker (Maybe Location)
+    | GraphRangeSelected (List Float)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -459,6 +460,14 @@ update msg model =
 
         HighlightSessionMarker location ->
             ( model, Ports.highlightSessionMarker location )
+
+        GraphRangeSelected measurements ->
+            case model.selectedSession of
+                Success selectedSession ->
+                    ( { model | selectedSession = Success { selectedSession | selectedRangeMeasurements = measurements } }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
@@ -1017,4 +1026,5 @@ subscriptions _ =
         , Ports.toggleSessionSelection ToggleSessionSelectionFromAngular
         , Ports.updateHeatMapThresholdsFromAngular UpdateHeatMapThresholdsFromAngular
         , Ports.mapMoved (always MapMoved)
+        , Ports.graphRangeSelected GraphRangeSelected
         ]
