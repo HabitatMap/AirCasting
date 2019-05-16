@@ -26,25 +26,27 @@ export const oneHourAgo = () =>
     .subtract(1, "hour")
     .format("X");
 
+export const daterangepickerConfig = (timeFrom, timeTo) => ({
+  linkedCalendars: false,
+  timePicker: true,
+  timePicker24Hour: true,
+  startDate: moment
+    .unix(timeFrom)
+    .utc()
+    .format("MM/DD/YY HH:mm"),
+  endDate: moment
+    .unix(timeTo)
+    .utc()
+    .format("MM/DD/YY HH:mm"),
+  locale: {
+    format: "MM/DD/YY HH:mm"
+  }
+});
+
 export const setupTimeRangeFilter = (callback, timeFrom, timeTo) => {
   if (document.getElementById("time-range")) {
     $("#time-range").daterangepicker(
-      {
-        linkedCalendars: false,
-        timePicker: true,
-        timePicker24Hour: true,
-        startDate: moment
-          .unix(timeFrom)
-          .utc()
-          .format("MM/DD/YYYY HH:mm"),
-        endDate: moment
-          .unix(timeTo)
-          .utc()
-          .format("MM/DD/YYYY HH:mm"),
-        locale: {
-          format: "MM/DD/YYYY HH:mm"
-        }
-      },
+      daterangepickerConfig(timeFrom, timeTo),
       function(timeFrom, timeTo) {
         timeFrom = timeFrom.utcOffset(0, true).unix();
         timeTo = timeTo.utcOffset(0, true).unix();

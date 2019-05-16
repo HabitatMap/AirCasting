@@ -138,22 +138,9 @@ export const FixedSessionsMapCtrl = (
 
       const setupStreamingTimeRangeFilter = (timeFrom, timeTo) => {
         if (document.getElementById("time-range")) {
-          $("#time-range").daterangepicker({
-            linkedCalendars: false,
-            timePicker: true,
-            timePicker24Hour: true,
-            startDate: moment
-              .unix(timeFrom)
-              .utc()
-              .format("MM/DD/YYYY HH:mm"),
-            endDate: moment
-              .unix(timeTo)
-              .utc()
-              .format("MM/DD/YYYY HH:mm"),
-            locale: {
-              format: "MM/DD/YYYY HH:mm"
-            }
-          });
+          $("#time-range").daterangepicker(
+            FiltersUtils.daterangepickerConfig(timeFrom, timeTo)
+          );
         } else {
           window.setTimeout(
             setupStreamingTimeRangeFilter(timeFrom, timeTo),
