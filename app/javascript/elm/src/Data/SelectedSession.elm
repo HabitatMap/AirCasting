@@ -5,6 +5,7 @@ module Data.SelectedSession exposing
     , times
     , toId
     , toStreamId
+    , updateRange
     , view
     )
 
@@ -18,8 +19,8 @@ import Html.Attributes exposing (alt, class, href, id, src, target)
 import Html.Events as Events
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
-import Json.Decode.Pipeline exposing (custom, required)
-import RemoteData exposing (WebData)
+import Json.Decode.Pipeline exposing (custom, hardcoded, required)
+import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import Time exposing (Posix)
 
@@ -28,14 +29,12 @@ type alias SelectedSession =
     { title : String
     , username : String
     , sensorName : String
-    , average : Float
-    , min : Float
-    , max : Float
     , startTime : Posix
     , endTime : Posix
     , measurements : List Float
     , id : Int
     , streamId : Int
+    , selectedMeasurements : List Float
     }
 
 
@@ -66,27 +65,25 @@ decoder =
         |> required "title" Decode.string
         |> required "username" Decode.string
         |> required "sensorName" Decode.string
-        |> required "average" Decode.float
         |> required "startTime" millisToPosixDecoder
         |> required "endTime" millisToPosixDecoder
         |> required "measurements" (Decode.list Decode.float)
         |> required "id" Decode.int
         |> required "streamId" Decode.int
+        |> hardcoded []
 
 
-toSelectedSession : String -> String -> String -> Float -> Posix -> Posix -> List Float -> Int -> Int -> SelectedSession
-toSelectedSession title username sensorName average startTime endTime measurements sessionId streamId =
+toSelectedSession : String -> String -> String -> Posix -> Posix -> List Float -> Int -> Int -> List Float -> SelectedSession
+toSelectedSession title username sensorName startTime endTime measurements sessionId streamId selectedMeasurements =
     { title = title
     , username = username
     , sensorName = sensorName
-    , average = average
-    , min = List.minimum measurements |> Maybe.withDefault -1
-    , max = List.maximum measurements |> Maybe.withDefault -1
     , startTime = startTime
     , endTime = endTime
     , measurements = measurements
     , id = sessionId
     , streamId = streamId
+    , selectedMeasurements = selectedMeasurements
     }
 
 
@@ -112,6 +109,16 @@ fetch sensors sensorId page id toCmd =
             Cmd.none
 
 
+updateRange : WebData SelectedSession -> List Float -> WebData SelectedSession
+updateRange result measurements =
+    case result of
+        Success session ->
+            Success { session | selectedMeasurements = measurements }
+
+        _ ->
+            result
+
+
 view : SelectedSession -> WebData HeatMapThresholds -> String -> (String -> msg) -> Html msg
 view session heatMapThresholds linkIcon toMsg =
     let
@@ -122,23 +129,40 @@ view session heatMapThresholds linkIcon toMsg =
         [ p [ class "single-session-name" ] [ text session.title ]
         , p [ class "single-session-username" ] [ text session.username ]
         , p [ class "single-session-sensor" ] [ text session.sensorName ]
-        , div []
-            [ div [ class "single-session-avg-color", class <| Data.Session.classByValue (Just session.average) heatMapThresholds ] []
-            , span [] [ text "avg. " ]
-            , span [ class "single-session-avg" ] [ text <| String.fromInt <| round session.average ]
-            ]
-        , div [ class "session-numbers-container" ]
-            [ div [ class "single-min-max-container" ]
-                [ div [ class "single-session-color", class <| Data.Session.classByValue (Just session.min) heatMapThresholds ] []
-                , span [] [ text "min. " ]
-                , span [ class "single-session-min" ] [ text <| String.fromFloat session.min ]
-                ]
-            , div [ class "single-min-max-container" ]
-                [ div [ class "single-session-color", class <| Data.Session.classByValue (Just session.max) heatMapThresholds ] []
-                , span [] [ text "max. " ]
-                , span [ class "single-session-max" ] [ text <| String.fromFloat session.max ]
-                ]
-            ]
+        , case session.selectedMeasurements of
+            [] ->
+                div [ class "single-session-placeholder" ] []
+
+            measurements ->
+                let
+                    min =
+                        List.minimum measurements |> Maybe.withDefault -1
+
+                    max =
+                        List.maximum measurements |> Maybe.withDefault -1
+
+                    average =
+                        List.sum measurements / toFloat (List.length measurements)
+                in
+                div []
+                    [ div []
+                        [ div [ class "single-session-avg-color", class <| Data.Session.classByValue (Just average) heatMapThresholds ] []
+                        , span [] [ text "avg. " ]
+                        , span [ class "single-session-avg" ] [ text <| String.fromInt <| round average ]
+                        ]
+                    , div [ class "session-numbers-container" ]
+                        [ div [ class "single-min-max-container" ]
+                            [ div [ class "single-session-color", class <| Data.Session.classByValue (Just min) heatMapThresholds ] []
+                            , span [] [ text "min. " ]
+                            , span [ class "single-session-min" ] [ text <| String.fromFloat min ]
+                            ]
+                        , div [ class "single-min-max-container" ]
+                            [ div [ class "single-session-color", class <| Data.Session.classByValue (Just max) heatMapThresholds ] []
+                            , span [] [ text "max. " ]
+                            , span [ class "single-session-max" ] [ text <| String.fromFloat max ]
+                            ]
+                        ]
+                    ]
         , span [ class "single-session-date" ] [ text <| Times.format session.startTime session.endTime ]
         , div [ class "action-buttons " ]
             [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink [ session ] ] [ text "export session" ]

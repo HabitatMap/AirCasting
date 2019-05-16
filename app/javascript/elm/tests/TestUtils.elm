@@ -72,12 +72,10 @@ defaultSelectedSession =
     { title = "title"
     , username = "username"
     , sensorName = "sensor-name"
-    , average = 2.0
-    , min = 1.0
-    , max = 3.0
     , startTime = Time.millisToPosix 0
     , endTime = Time.millisToPosix 0
     , measurements = [ 1.0, 2.0, 3.0 ]
     , id = 123
     , streamId = 123
+    , selectedMeasurements = []
     }

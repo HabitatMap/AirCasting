@@ -95,7 +95,6 @@ describe Api::Mobile::SessionsController do
         "title" => session.title,
         "username" => user.username,
         "sensorName" => sensor_name,
-        "average" => (measurement1.value + measurement2.value) / 2,
         "measurements" => [measurement1.value, measurement2.value],
         "startTime" => 970365780000,
         "endTime" => 1004850360000,

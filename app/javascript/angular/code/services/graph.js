@@ -11,7 +11,12 @@ let measurementsByTime = {};
 let chart = null;
 const RENDER_TO_ID = "graph";
 
-export const fetchAndDrawFixed = ({ sensor, heat, times, streamId }) => {
+export const fetchAndDrawFixed = showStatsCallback => ({
+  sensor,
+  heat,
+  times,
+  streamId
+}) => {
   // render empty graph with loading message
   drawFixed({
     measurements: [],
@@ -28,29 +33,49 @@ export const fetchAndDrawFixed = ({ sensor, heat, times, streamId }) => {
       start_time: pageStartTime,
       end_time: times.end
     })
-    .then(xs => {
+    .then(measurements => {
+      showStatsCallback(getValues(measurements));
+
       drawFixed({
         measurements: measurementsToTimeWithExtremes({
-          measurements: xs,
+          measurements,
           times
         }),
         sensor,
         heat,
-        afterSetExtremes: afterSetExtremes({ streamId, times })
+        afterSetExtremes: afterSetExtremes({
+          streamId,
+          times,
+          showStatsCallback
+        })
       });
     });
 };
 
-export const fetchAndDrawMobile = ({ sensor, heat, times, streamId }) => {
+export const fetchAndDrawMobile = showStatsCallback => ({
+  sensor,
+  heat,
+  times,
+  streamId
+}) => {
   // render empty graph with loading message
-  drawMobile({ measurements: [], sensor, heat });
+  drawMobile({ measurements: [], sensor, heat, showStatsCallback });
 
   http
     .get("/api/measurements.json", {
       stream_id: streamId
     })
-    .then(xs => {
-      drawMobile({ measurements: measurementsToTime(xs), sensor, heat });
+    .then(measurements => {
+      measurements = measurementsToTime(measurements);
+
+      showStatsCallback(filterMeasurements(measurements));
+
+      drawMobile({
+        measurements,
+        sensor,
+        heat,
+        showStatsCallback
+      });
     });
 };
 
@@ -69,7 +94,7 @@ const onMouseOverMultiple = (start, end) => {
   graphHighlight.show([points[pointNum]]);
 };
 
-const afterSetExtremes = ({ streamId, times }) => e => {
+const afterSetExtremes = ({ streamId, times, showStatsCallback }) => e => {
   chart.showLoading("Loading data from server...");
 
   http
@@ -83,7 +108,7 @@ const afterSetExtremes = ({ streamId, times }) => e => {
         measurements,
         times
       });
-      measurementsByTime = dataByTime;
+      showStatsCallback(getValues(measurements));
       chart.series[0].setData(Object.values(dataByTime), false);
       chart.redraw();
       chart.hideLoading();
@@ -104,10 +129,23 @@ const fixedButtons = [[hr1, hrs12, hrs24, wk1, mth1, all], 2];
 
 const mobileButtons = [[min1, min5, min30, hr1, hrs12, all], 4];
 
-export const drawMobile = ({ measurements, sensor, heat }) => {
+export const drawMobile = ({
+  measurements,
+  sensor,
+  heat,
+  showStatsCallback
+}) => {
   const [buttons, selectedButton] = mobileButtons;
   const scrollbar = {};
-  const xAxis = {};
+  const xAxis = {
+    events: {
+      afterSetExtremes: event => {
+        showStatsCallback(
+          getValuesInRange(Object.values(measurements), event.min, event.max)
+        );
+      }
+    }
+  };
   draw({
     buttons,
     selectedButton,
@@ -200,3 +238,26 @@ const draw = ({
     .getElementById(RENDER_TO_ID)
     .addEventListener("mouseleave", graphHighlight.hide);
 };
+
+const getValues = data => data.map(m => m.value);
+
+const filterMeasurements = measurementsByTime => {
+  const measurements = Object.values(measurementsByTime);
+  const selectedTimeRange = mobileButtons[0][mobileButtons[1]];
+
+  if (selectedTimeRange.type === "all") {
+    return measurements.map(measurement => measurement.y);
+  } else {
+    const max = Math.max(...measurements.map(measurement => measurement.x));
+    const min = moment(max)
+      .subtract(selectedTimeRange.count, selectedTimeRange.type)
+      .valueOf();
+
+    return getValuesInRange(measurements, min, max);
+  }
+};
+
+const getValuesInRange = (data, min, max) =>
+  data
+    .filter(dataPoint => dataPoint.x >= min && dataPoint.x <= max)
+    .map(dataPoint => dataPoint.y);

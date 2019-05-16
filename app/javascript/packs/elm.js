@@ -148,9 +148,15 @@ const setupHeatMap = () => {
       );
     });
 
-    window.__elmApp.ports.drawFixed.subscribe(draw(graph.fetchAndDrawFixed));
+    const callback = window.__elmApp.ports.graphRangeSelected.send;
 
-    window.__elmApp.ports.drawMobile.subscribe(draw(graph.fetchAndDrawMobile));
+    window.__elmApp.ports.drawFixed.subscribe(
+      draw(graph.fetchAndDrawFixed(callback))
+    );
+
+    window.__elmApp.ports.drawMobile.subscribe(
+      draw(graph.fetchAndDrawMobile(callback))
+    );
   }
 };
 
