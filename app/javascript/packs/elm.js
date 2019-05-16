@@ -93,7 +93,8 @@ const setupTooltips = () => {
   } else {
     tippy(nodes, {
       placement: "right",
-      arrow: true
+      arrow: true,
+      theme: "light-border"
     });
   }
 };
