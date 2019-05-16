@@ -1,7 +1,7 @@
 module TimeRange exposing (TimeRange(..), defaultTimeRange, update, view)
 
 import Html exposing (Html, button, div, h4, img, input, label, text)
-import Html.Attributes exposing (alt, attribute, class, disabled, for, id, name, placeholder, src, type_)
+import Html.Attributes exposing (attribute, class, disabled, for, id, name, placeholder, src, type_)
 import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode

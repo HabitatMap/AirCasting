@@ -37,7 +37,7 @@ all =
                     labels =
                         LabelsInput.withCandidate candidate LabelsInput.empty
                 in
-                LabelsInput.view labels "description" "input-id" "placeholder" False Tooltip.profilesFilter "tooltip-icon"
+                LabelsInput.view labels "description" "input-id" "placeholder" False Tooltip.profilesFilter "tooltip-icon.svg"
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "input" ]
                     |> Query.has [ Slc.attribute <| value candidate ]
@@ -47,7 +47,7 @@ all =
                     labels =
                         LabelsInput.fromList [ label ]
                 in
-                LabelsInput.view labels "description" "input-id" "placeholder" False Tooltip.profilesFilter "tooltip-icon"
+                LabelsInput.view labels "description" "input-id" "placeholder" False Tooltip.profilesFilter "tooltip-icon.svg"
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "button" ]
                     |> Event.simulate Event.click
