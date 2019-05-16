@@ -1,12 +1,13 @@
 import _ from "underscore";
-import { removeMarker } from "./google/_map.js.erb";
+import { removeMarker } from "./google/_map.js";
+import * as assets from "../../../assets";
 
-<% helpers = ActionController::Base.helpers %>
-
-const locationMarker1Path = "<%= helpers.image_path('location_marker1.svg') %>";
-const locationMarker2Path = "<%= helpers.image_path('location_marker2.svg') %>";
-const locationMarker3Path = "<%= helpers.image_path('location_marker3.svg') %>";
-const locationMarker4Path = "<%= helpers.image_path('location_marker4.svg') %>";
+const locationMarkersByLevel = {
+  1: assets.locationMarker1Path,
+  2: assets.locationMarker2Path,
+  3: assets.locationMarker3Path,
+  4: assets.locationMarker4Path
+};
 
 export const drawSession = (sensors, map, heat, note, empty) => {
   var DrawSession = function() {};
@@ -104,7 +105,7 @@ const createMeasurementMarker = (measurement, idx, heat, map, suffix) => {
     icon: {
       anchor: new google.maps.Point(6, 6),
       size: new google.maps.Size(12, 12),
-      url: eval(`locationMarker${level}Path`)
+      url: locationMarkersByLevel[level]
     }
   });
 

@@ -1,7 +1,7 @@
 import test from "blue-tape";
 import deepEqual from "fast-deep-equal";
 import { mock } from "./helpers";
-import { map } from "../code/services/google/_map.js.erb";
+import { map } from "../code/services/google/_map.js";
 import sinon from "sinon";
 
 test("goToAddress with no address it does not decode", t => {

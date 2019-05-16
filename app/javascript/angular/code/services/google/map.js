@@ -1,4 +1,4 @@
-import { map } from "./_map.js.erb";
+import { map } from "./_map.js";
 
 angular
   .module("google")

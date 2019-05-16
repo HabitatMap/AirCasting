@@ -1,17 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { drawSession } from "../code/services/_draw_session.js.erb";
-
-test("drawMobileSession draws a session when session is loaded and sensor is selected", t => {
-  const map = mock("drawMarker");
-  const drawSessionStub = _drawSession({ map, sensors: selectedSensor });
-
-  drawSessionStub.drawMobileSession(loadedSession, () => {});
-
-  t.true(map.wasCalled());
-
-  t.end();
-});
+import { drawSession } from "../code/services/_draw_session.js";
 
 test("undoDraw removes all session elements from the map", t => {
   const marker = mock("setMap");
