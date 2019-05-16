@@ -1,6 +1,7 @@
 label {
   font-size: $tiny-font;
   font-weight: bold;
+  transition: opacity 0.5s;
 }
 
 input {
@@ -10,16 +11,19 @@ input {
   line-height: 2.2;
   width: 100%;
   padding: 0 $input-padding;
+  transition: opacity 0.5s;
 
   &:focus {
     outline: none;
   }
 
   &[disabled] {
-    opacity: 0.6;
+    opacity: 0.4;
+    transition: opacity 0.5s;
 
     & + label {
-      opacity: 0.6;
+      opacity: 0.4;
+      transition: opacity 0.5s;
     }
   }
 }
