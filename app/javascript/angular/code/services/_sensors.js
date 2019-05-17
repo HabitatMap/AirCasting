@@ -14,7 +14,7 @@ const DEFAULT_SENSOR_ID = buildSensorId({
   unit_symbol: "µg/m³"
 });
 
-export const sensors = (params, storage, heat, $http) => {
+export const sensors = (params, heat, $http) => {
   var Sensors = function() {
     this.sensors = {};
     this.defaultSensorId = DEFAULT_SENSOR_ID;
@@ -83,24 +83,6 @@ export const sensors = (params, storage, heat, $http) => {
     },
     buildSensorId: function(sensor) {
       return buildSensorId(sensor);
-    },
-    fetchHeatLevels: function() {
-      this.fetchHeatLevelsForSensor(this.selected());
-    },
-
-    fetchHeatLevelsForSensor: function(sensor) {
-      if (!sensor) return;
-
-      const callback = data => {
-        storage.updateDefaults({ heat: heat.parse(data) });
-        params.update({ data: { heat: heat.parse(data) } });
-      };
-      $http
-        .get("/api/thresholds/" + sensor.sensor_name, {
-          params: { unit_symbol: sensor.unit_symbol },
-          cache: true
-        })
-        .success(callback);
     }
   };
   return new Sensors();

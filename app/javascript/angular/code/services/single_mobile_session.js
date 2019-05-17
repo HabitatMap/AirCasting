@@ -1,10 +1,9 @@
 angular.module("aircasting").factory("singleMobileSession", [
   "mobileSessions",
   "sensors",
-  "storage",
   "drawSession",
   "heat",
-  function(mobileSessions, sensors, storage, drawSession, heat) {
+  function(mobileSessions, sensors, drawSession, heat) {
     var SingleMobileSession = function() {};
 
     SingleMobileSession.prototype = {
@@ -14,14 +13,6 @@ angular.module("aircasting").factory("singleMobileSession", [
 
       get: function() {
         return _(mobileSessions.allSelected()).first();
-      },
-
-      updateHeat: function() {
-        var data = heat.toSensoredList(
-          this.get().streams[sensors.anySelected().sensor_name]
-        );
-        storage.updateDefaults({ heat: heat.parse(data) });
-        storage.reset("heat");
       },
 
       isFixed: function() {

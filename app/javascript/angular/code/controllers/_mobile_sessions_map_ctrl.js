@@ -17,7 +17,6 @@ export const MobileSessionsMapCtrl = (
   params,
   map,
   sensors,
-  storage,
   mobileSessions,
   versioner,
   singleMobileSession,
@@ -31,7 +30,6 @@ export const MobileSessionsMapCtrl = (
   $scope.setDefaults = function() {
     $scope.versioner = versioner;
     $scope.params = params;
-    $scope.storage = storage;
     $scope.sensors = sensors;
     $scope.sessions = mobileSessions;
     $scope.singleSession = singleMobileSession;
@@ -66,8 +64,6 @@ export const MobileSessionsMapCtrl = (
       timeFrom: oneYearAgo,
       timeTo: endOfToday
     };
-
-    if (!params.get("data").heat) sensors.fetchHeatLevels();
 
     params.updateFromDefaults(defaults);
   };
@@ -123,7 +119,6 @@ export const MobileSessionsMapCtrl = (
       elmApp.ports.selectSensorId.subscribe(sensorId => {
         params.update({ selectedSessionIds: [] });
         params.update({ data: { sensorId } });
-        sensors.fetchHeatLevels();
         $scope.sessions.fetch();
       });
 

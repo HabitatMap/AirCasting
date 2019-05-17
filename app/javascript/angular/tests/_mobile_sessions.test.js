@@ -605,7 +605,6 @@ const _mobileSessions = ({
     sessionsDownloader,
     _drawSession,
     _sessionsUtils,
-    null,
     _heat,
     _$window
   );

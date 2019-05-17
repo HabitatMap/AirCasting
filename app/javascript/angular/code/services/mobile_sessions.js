@@ -11,7 +11,6 @@ angular
     "sessionsDownloader",
     "drawSession",
     "sessionsUtils",
-    "storage",
     "heat",
     "$window",
     mobileSessions

@@ -7,7 +7,6 @@ angular
     "params",
     "map",
     "sensors",
-    "storage",
     "mobileSessions",
     "versioner",
     "singleMobileSession",
