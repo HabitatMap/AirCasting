@@ -90,7 +90,7 @@ export const sessionsUtils = (
     createSessionData(session, data);
     session.loaded = true;
     callback();
-    this.updateCrowdMapLayer([session.id]);
+    this.updateCrowdMapLayer();
   },
 
   onSingleSessionFetchWithoutCrowdMap: function(session, data, callback) {

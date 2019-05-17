@@ -833,12 +833,7 @@ viewMobileFilters model =
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter
         , div [ class "filter-separator" ] []
-        , viewCrowdMapCheckBox model.isCrowdMapOn
-        , if model.isCrowdMapOn then
-            viewCrowdMapSlider (String.fromInt model.crowdMapResolution)
-
-          else
-            text ""
+        , viewCrowdMapOptions model.isCrowdMapOn model.crowdMapResolution (SelectedSession.isSessionSelected model.selectedSession)
         ]
 
 
@@ -919,6 +914,27 @@ viewSensorFilter sensors selectedSensorId =
             []
         , label [ for "sensor" ] [ text "sensor:" ]
         , Tooltip.view Tooltip.sensorFilter
+        ]
+
+
+viewCrowdMapOptions : Bool -> Int -> Bool -> Html Msg
+viewCrowdMapOptions isCrowdMapOn crowdMapResolution isDisabled =
+    let
+        class_ =
+            case isDisabled of
+                True ->
+                    "disabled-area"
+
+                False ->
+                    ""
+    in
+    div [ class class_ ]
+        [ viewCrowdMapCheckBox isCrowdMapOn
+        , if isCrowdMapOn then
+            viewCrowdMapSlider (String.fromInt crowdMapResolution)
+
+          else
+            text ""
         ]
 
 

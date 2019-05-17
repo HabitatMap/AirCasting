@@ -41,7 +41,7 @@ test("onSingleSessionFetch calls the passed callback", t => {
   t.end();
 });
 
-test("onSingleSessionFetch calls updateCrowdMapLayer with the session id", t => {
+test("onSingleSessionFetch calls updateCrowdMapLayer without arguments", t => {
   const sessionId = 1;
   const session = { id: sessionId };
   const updateCrowdMapLayer = mock("call");
@@ -49,7 +49,7 @@ test("onSingleSessionFetch calls updateCrowdMapLayer with the session id", t => 
 
   service.onSingleSessionFetch(session, { streams: {} }, () => {});
 
-  t.true(updateCrowdMapLayer.wasCalledWith([sessionId]));
+  t.true(updateCrowdMapLayer.wasCalledWith());
 
   t.end();
 });
