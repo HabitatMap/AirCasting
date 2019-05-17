@@ -41,3 +41,8 @@
   right: 0;
   top: 0;
 }
+
+.disabled-area {
+  pointer-events: none;
+  opacity: 0.4;
+}

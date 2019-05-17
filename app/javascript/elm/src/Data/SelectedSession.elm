@@ -2,6 +2,7 @@ module Data.SelectedSession exposing
     ( SelectedSession
     , decoder
     , fetch
+    , isSessionSelected
     , times
     , toId
     , toStreamId
@@ -169,3 +170,13 @@ view session heatMapThresholds linkIcon toMsg =
             , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| toMsg tooltipId, id tooltipId ] [ img [ src linkIcon, alt "Link icon" ] [] ]
             ]
         ]
+
+
+isSessionSelected : WebData SelectedSession -> Bool
+isSessionSelected selectedSession =
+    case selectedSession of
+        Success _ ->
+            True
+
+        _ ->
+            False
