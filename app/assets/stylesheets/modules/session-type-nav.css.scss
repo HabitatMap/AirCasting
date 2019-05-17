@@ -22,10 +22,6 @@
     z-index: 2;
   }
 
-  &:focus {
-    outline: none;
-  }
-
   [data-tippy-content] {
     position: static;
     float: right;
