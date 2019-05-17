@@ -51,7 +51,7 @@ export const SessionsListCtrl = (
     ({ hasChangedProgrammatically }) => {
       console.log("watch - params.get('map')");
       if (sessions.hasSelectedSessions()) return;
-      // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically is undefined
+      // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically as undefined
       if (hasChangedProgrammatically === undefined) return;
 
       if (firstLoad) {
@@ -62,7 +62,7 @@ export const SessionsListCtrl = (
 
       if (!params.get("data").isSearchAsIMoveOn) {
         sessionsUtils.refreshMapView(sessions);
-        elmApp.ports.mapMoved.send(null);
+        if (!hasChangedProgrammatically) elmApp.ports.mapMoved.send(null);
         return;
       }
 

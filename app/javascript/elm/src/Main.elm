@@ -598,7 +598,12 @@ view model =
 
                           else
                             text ""
-                        , viewSearchAsIMove model.wasMapMoved model.isSearchAsIMoveOn
+                        , case model.selectedSession of
+                            Success _ ->
+                                text ""
+
+                            _ ->
+                                viewSearchAsIMove model.wasMapMoved model.isSearchAsIMoveOn
                         , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
                             []
                         , div
