@@ -26,6 +26,14 @@
   position: relative;
 }
 
+.filters__toggle-group {
+  position: relative;
+
+  label {
+    display: block;
+  }
+}
+
 .filter-separator {
   border-bottom: white solid 0.6px;
   opacity: 0.4;
@@ -34,12 +42,6 @@
 
 .input-time {
   letter-spacing: -0.4px;
-}
-
-[data-tippy-content] {
-  position: absolute;
-  right: 0;
-  top: 0;
 }
 
 .disabled-area {

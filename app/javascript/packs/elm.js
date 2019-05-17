@@ -2,6 +2,7 @@ import { Elm } from "../elm/src/Main.elm";
 import logoNav from "../../assets/images/aircasting-logo-nav.svg";
 import linkIcon from "../../assets/images/link-icon.svg";
 import resetIcon from "../../assets/images/reset-icon.svg";
+import tooltipIcon from "../../assets/images/tooltip-icon.svg";
 import "nouislider";
 import * as graph from "../angular/code/services/graph";
 import tippy from "tippy.js";
@@ -69,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
         logoNav,
         linkIcon,
         resetIcon,
+        tooltipIcon,
         heatMapThresholdValues,
         isStreaming: data.isStreaming,
         isSearchAsIMoveOn: data.isSearchAsIMoveOn
@@ -91,7 +93,8 @@ const setupTooltips = () => {
   } else {
     tippy(nodes, {
       placement: "right",
-      arrow: true
+      arrow: true,
+      theme: "light-border"
     });
   }
 };

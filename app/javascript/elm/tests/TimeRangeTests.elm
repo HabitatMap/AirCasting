@@ -1,5 +1,6 @@
 module TimeRangeTests exposing (all)
 
+import Data.Path as Path exposing (Path)
 import Expect
 import Fuzz exposing (bool, int)
 import Html.Attributes exposing (disabled)
@@ -20,7 +21,7 @@ all =
     describe "TimeRange"
         [ test ".view has an input field" <|
             \_ ->
-                TimeRange.view (\_ -> ()) True
+                TimeRange.view (\_ -> ()) True (Path.fromString "tooltip-icon.svg")
                     |> Query.fromHtml
                     |> Query.has [ tag "input" ]
         , fuzz2 int int ".update returns updated TimeRange if value has correct format" <|
@@ -50,14 +51,14 @@ all =
                     |> Expect.equal expected
         , test "viewTimeFilter has a button" <|
             \_ ->
-                TimeRange.view Msg True
+                TimeRange.view Msg True (Path.fromString "tooltip-icon.svg")
                     |> Query.fromHtml
                     |> Query.find [ tag "button" ]
                     |> Event.simulate Event.click
                     |> Event.expect Msg
         , fuzz bool "may be disabled" <|
             \isDisabled ->
-                TimeRange.view (\_ -> ()) isDisabled
+                TimeRange.view (\_ -> ()) isDisabled (Path.fromString "tooltip-icon.svg")
                     |> Query.fromHtml
                     |> Query.find [ id "time-range" ]
                     |> Query.has [ attribute <| disabled isDisabled ]
