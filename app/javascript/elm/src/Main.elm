@@ -850,16 +850,16 @@ viewFixedFilters model =
         , TimeRange.view RefreshTimeRange model.isStreaming model.tooltipIcon
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
-        , label [] [ text "type" ]
-        , Tooltip.view Tooltip.typeToggleFilter model.tooltipIcon
-        , div []
-            [ viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
+        , div [ class "filters__toggle-group" ]
+            [ label [] [ text "type" ]
+            , Tooltip.view Tooltip.typeToggleFilter model.tooltipIcon
+            , viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
             , viewToggleButton "indoor" model.isIndoor ToggleIndoor
             ]
-        , label [] [ text "streaming" ]
-        , Tooltip.view Tooltip.streamingToggleFilter model.tooltipIcon
-        , div []
-            [ viewToggleButton "active" model.isStreaming ToggleStreaming
+        , div [ class "filters__toggle-group" ]
+            [ label [] [ text "streaming" ]
+            , Tooltip.view Tooltip.streamingToggleFilter model.tooltipIcon
+            , viewToggleButton "active" model.isStreaming ToggleStreaming
             , viewToggleButton "dormant" (not model.isStreaming) ToggleStreaming
             ]
         ]
