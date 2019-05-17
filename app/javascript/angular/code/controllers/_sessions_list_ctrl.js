@@ -5,7 +5,6 @@ export const SessionsListCtrl = (
   $scope,
   params,
   sensors,
-  storage,
   flash,
   $window,
   drawSession,
@@ -22,7 +21,6 @@ export const SessionsListCtrl = (
 
   $scope.setDefaults = function() {
     $scope.params = params;
-    $scope.storage = storage;
     $scope.$window = $window;
     $scope.sensors = sensors;
     $scope.markerSelected = markerSelected;

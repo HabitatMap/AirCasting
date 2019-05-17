@@ -55,8 +55,6 @@ export const FixedSessionsMapCtrl = (
       timeTo: FiltersUtils.endOfToday()
     };
 
-    if (!params.get("data").heat) sensors.fetchHeatLevels();
-
     params.updateFromDefaults(defaults);
   };
 
@@ -85,7 +83,6 @@ export const FixedSessionsMapCtrl = (
       elmApp.ports.selectSensorId.subscribe(sensorId => {
         params.update({ selectedSessionIds: [] });
         params.update({ data: { sensorId } });
-        sensors.fetchHeatLevels();
         $scope.sessions.fetch();
       });
 

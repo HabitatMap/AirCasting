@@ -35,25 +35,6 @@ test("it updates defaults", t => {
   t.end();
 });
 
-test("fetches heat levels on first opening map tab", t => {
-  const sensors = mock("fetchHeatLevels");
-  _MobileSessionsMapCtrl({ sensors });
-
-  t.true(sensors.wasCalled());
-
-  t.end();
-});
-
-test("does not fetch heat levels if they are already in the params", t => {
-  const sensors = mock("fetchHeatLevels");
-  const params = { get: () => ({ heat: {} }) };
-  _MobileSessionsMapCtrl({ sensors, params });
-
-  t.false(sensors.wasCalled());
-
-  t.end();
-});
-
 const _MobileSessionsMapCtrl = ({ $scope, map, callback, sensors, params }) => {
   const _sensors = {
     setSensors: () => {},
@@ -78,7 +59,6 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, sensors, params }) => {
     _params,
     _map,
     _sensors,
-    null,
     null,
     null,
     null,
