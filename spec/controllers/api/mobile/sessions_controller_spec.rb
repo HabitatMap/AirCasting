@@ -86,8 +86,6 @@ describe Api::Mobile::SessionsController do
       create_stream!(session: session, sensor_name: "another-sensor-name")
       stream = create_stream!(session: session, sensor_name: sensor_name)
       create_stream!(session: session, sensor_name: "yet another-sensor-name")
-      measurement1 = create_measurement!(stream: stream)
-      measurement2 = create_measurement!(stream: stream)
 
       get :show, id: session.id, sensor_name: sensor_name
 
@@ -95,7 +93,6 @@ describe Api::Mobile::SessionsController do
         "title" => session.title,
         "username" => user.username,
         "sensorName" => sensor_name,
-        "measurements" => [measurement1.value, measurement2.value],
         "startTime" => 970365780000,
         "endTime" => 1004850360000,
         "id" => session.id,

@@ -108,6 +108,7 @@ const afterSetExtremes = ({ streamId, times, showStatsCallback }) => e => {
         measurements,
         times
       });
+      measurementsByTime = dataByTime;
       showStatsCallback(getValues(measurements));
       chart.series[0].setData(Object.values(dataByTime), false);
       chart.redraw();
