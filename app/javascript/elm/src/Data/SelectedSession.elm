@@ -32,7 +32,6 @@ type alias SelectedSession =
     , sensorName : String
     , startTime : Posix
     , endTime : Posix
-    , measurements : List Float
     , id : Int
     , streamId : Int
     , selectedMeasurements : List Float
@@ -68,20 +67,18 @@ decoder =
         |> required "sensorName" Decode.string
         |> required "startTime" millisToPosixDecoder
         |> required "endTime" millisToPosixDecoder
-        |> required "measurements" (Decode.list Decode.float)
         |> required "id" Decode.int
         |> required "streamId" Decode.int
         |> hardcoded []
 
 
-toSelectedSession : String -> String -> String -> Posix -> Posix -> List Float -> Int -> Int -> List Float -> SelectedSession
-toSelectedSession title username sensorName startTime endTime measurements sessionId streamId selectedMeasurements =
+toSelectedSession : String -> String -> String -> Posix -> Posix -> Int -> Int -> List Float -> SelectedSession
+toSelectedSession title username sensorName startTime endTime sessionId streamId selectedMeasurements =
     { title = title
     , username = username
     , sensorName = sensorName
     , startTime = startTime
     , endTime = endTime
-    , measurements = measurements
     , id = sessionId
     , streamId = streamId
     , selectedMeasurements = selectedMeasurements

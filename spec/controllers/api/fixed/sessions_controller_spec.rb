@@ -13,10 +13,6 @@ describe Api::Fixed::SessionsController do
       create_stream!(session: session, sensor_name: "another-sensor-name")
       stream = create_stream!(session: session, sensor_name: sensor_name)
       create_stream!(session: session, sensor_name: "yet another-sensor-name")
-      value1 = 1.0
-      create_measurement!(stream: stream, value: value1)
-      value2 = 2.0
-      create_measurement!(stream: stream, value: value2)
 
       get :show, id: session.id, sensor_name: sensor_name
 
@@ -24,7 +20,6 @@ describe Api::Fixed::SessionsController do
         "title" => title,
         "username" => username,
         "sensorName" => sensor_name,
-        "measurements" => [value1, value2],
         "startTime" => 970365780000,
         "endTime" => 1004850360000,
         "id" => session.id,
@@ -75,17 +70,6 @@ describe Api::Fixed::SessionsController do
       threshold_medium: 70,
       threshold_high: 80,
       threshold_very_high: 100
-    )
-  end
-
-  def create_measurement!(stream:, value:)
-    Measurement.create!(
-      time: DateTime.current,
-      latitude: 123,
-      longitude: 123,
-      value: value,
-      milliseconds: 123,
-      stream: stream
     )
   end
 end
