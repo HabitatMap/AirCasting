@@ -12,5 +12,9 @@ environment.plugins.append(
   })
 );
 
+environment.loaders.get("sass").use.splice(-1, 0, {
+  loader: "resolve-url-loader"
+});
+
 environment.loaders.prepend("elm", elm);
 module.exports = environment;
