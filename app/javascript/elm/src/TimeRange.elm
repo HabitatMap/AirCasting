@@ -1,5 +1,6 @@
 module TimeRange exposing (TimeRange(..), defaultTimeRange, update, view)
 
+import Data.Path as Path exposing (Path)
 import Html exposing (Html, button, div, h4, img, input, label, text)
 import Html.Attributes exposing (attribute, class, disabled, for, id, name, placeholder, src, type_)
 import Html.Events as Events
@@ -50,7 +51,7 @@ timeRangeDecoder =
         (Decode.field "timeTo" Decode.int)
 
 
-view : msg -> Bool -> String -> Html msg
+view : msg -> Bool -> Path -> Html msg
 view refreshTimeRange isDisabled tooltipIcon =
     div [ class "filters__input-group" ]
         [ input
