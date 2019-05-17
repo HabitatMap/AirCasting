@@ -223,15 +223,10 @@ export const map = (
           anchor: new google.maps.Point(24, 25),
           size: new google.maps.Size(60, 60),
           scaledSize: new google.maps.Size(12, 12),
-          url: assets.locationMarkerPath
+          url: assets.pulsingLocationMarkerPath
         }
       });
-
-      let overlay = new google.maps.OverlayView();
-      overlay.draw = function() {
-        this.getPanes().markerLayer.id = "highlightMarkerLayer";
-      };
-      overlay.setMap(this.mapObj);
+      highlightMarker.setAnimation(true);
 
       return highlightMarker;
     },
