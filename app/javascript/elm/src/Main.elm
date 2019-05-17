@@ -7,6 +7,7 @@ import Browser.Navigation
 import Data.GraphData exposing (GraphData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Page exposing (Page(..))
+import Data.Path as Path exposing (Path)
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
 import Data.Times as Times
@@ -54,7 +55,7 @@ type alias Model =
     , logoNav : String
     , linkIcon : String
     , resetIcon : String
-    , tooltipIcon : String
+    , tooltipIcon : Path
     , heatMapThresholds : WebData HeatMapThresholds
     , isStreaming : Bool
     , isSearchAsIMoveOn : Bool
@@ -85,7 +86,7 @@ defaultModel =
     , logoNav = ""
     , linkIcon = ""
     , resetIcon = ""
-    , tooltipIcon = ""
+    , tooltipIcon = Path.fromString ""
     , heatMapThresholds = NotAsked
     , isSearchAsIMoveOn = False
     , wasMapMoved = False
@@ -145,7 +146,7 @@ init flags url key =
         , logoNav = flags.logoNav
         , linkIcon = flags.linkIcon
         , resetIcon = flags.resetIcon
-        , tooltipIcon = flags.tooltipIcon
+        , tooltipIcon = Path.fromString flags.tooltipIcon
         , heatMapThresholds =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
                 |> Maybe.withDefault defaultModel.heatMapThresholds
@@ -881,7 +882,7 @@ viewToggleButton label isPressed callback =
         [ text label ]
 
 
-viewParameterFilter : List Sensor -> String -> String -> Html Msg
+viewParameterFilter : List Sensor -> String -> Path -> Html Msg
 viewParameterFilter sensors selectedSensorId tooltipIcon =
     div [ class "filters__input-group" ]
         [ input
@@ -901,7 +902,7 @@ viewParameterFilter sensors selectedSensorId tooltipIcon =
         ]
 
 
-viewSensorFilter : List Sensor -> String -> String -> Html Msg
+viewSensorFilter : List Sensor -> String -> Path -> Html Msg
 viewSensorFilter sensors selectedSensorId tooltipIcon =
     div [ class "filters__input-group" ]
         [ input
@@ -921,7 +922,7 @@ viewSensorFilter sensors selectedSensorId tooltipIcon =
         ]
 
 
-viewCrowdMapOptions : Bool -> Int -> Bool -> String -> Html Msg
+viewCrowdMapOptions : Bool -> Int -> Bool -> Path -> Html Msg
 viewCrowdMapOptions isCrowdMapOn crowdMapResolution isDisabled tooltipIcon =
     let
         class_ =
@@ -942,7 +943,7 @@ viewCrowdMapOptions isCrowdMapOn crowdMapResolution isDisabled tooltipIcon =
         ]
 
 
-viewCrowdMapCheckBox : Bool -> String -> Html Msg
+viewCrowdMapCheckBox : Bool -> Path -> Html Msg
 viewCrowdMapCheckBox isCrowdMapOn tooltipIcon =
     div []
         [ p []
@@ -980,7 +981,7 @@ viewCrowdMapSlider resolution =
         ]
 
 
-viewLocationFilter : String -> Bool -> String -> Html Msg
+viewLocationFilter : String -> Bool -> Path -> Html Msg
 viewLocationFilter location isIndoor tooltipIcon =
     div [ class "filters__input-group" ]
         [ input
