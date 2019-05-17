@@ -1,33 +1,34 @@
 .ui-icon {
   width: 16px;
   height: 16px;
-  background-image: image-url("ui-icons_222222_256x240.png");
+  background-image: url("../../images/ui-icons_222222_256x240.png");
 }
 .ui-widget-content .ui-icon {
-  background-image: image-url("ui-icons_222222_256x240.png");
+  background-image: url("../../images/ui-icons_222222_256x240.png");
 }
 .ui-widget-header .ui-icon {
-  background-image: image-url("ui-icons_222222_256x240.png");
+  background-image: url("../../images/ui-icons_222222_256x240.png");
 }
 .ui-state-default .ui-icon {
-  background-image: image-url("ui-icons_888888_256x240.png");
+  background-image: url("../../images/ui-icons_888888_256x240.png");
 }
 .ui-state-hover .ui-icon,
 .ui-state-focus .ui-icon {
-  background-image: image-url("ui-icons_454545_256x240.png");
+  background-image: url("../../images/ui-icons_454545_256x240.png");
 }
 .ui-state-active .ui-icon {
-  background-image: image-url("ui-icons_454545_256x240.png");
+  background-image: url("../../images/ui-icons_454545_256x240.png");
 }
 .ui-state-highlight .ui-icon {
-  background-image: image-url("ui-icons_2e83ff_256x240.png");
+  background-image: url("../../images/ui-icons_2e83ff_256x240.png");
 }
 .ui-state-error .ui-icon,
 .ui-state-error-text .ui-icon {
-  background-image: image-url("ui-icons_cd0a0a_256x240.png");
+  background-image: url("../../images/ui-icons_cd0a0a_256x240.png");
 }
 .ui-autocomplete-loading {
-  background: white url("ui-anim_basic_16x16.gif") right center no-repeat;
+  background: white url("../../images/ui-anim_basic_16x16.gif") right center
+    no-repeat;
 }
 .ui-widget-header,
 .ui-widget button {

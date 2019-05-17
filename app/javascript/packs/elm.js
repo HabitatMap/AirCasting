@@ -7,6 +7,7 @@ import tooltipIcon from "../../assets/images/tooltip-icon.svg";
 import "nouislider";
 import * as graph from "../angular/code/services/graph";
 import tippy from "tippy.js";
+import "../../assets/stylesheets/main.scss";
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch("/api/sensors.json")
