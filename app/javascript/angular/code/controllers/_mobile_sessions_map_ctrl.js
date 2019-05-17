@@ -84,16 +84,6 @@ export const MobileSessionsMapCtrl = (
         mobileSessions.noOfSelectedSessions() === 0
       ) {
         sessionsUtils.updateCrowdMapLayer(mobileSessions.sessionIds());
-      } else if (
-        $scope.params.isCrowdMapOn() &&
-        mobileSessions.noOfSelectedSessions() === 1
-      ) {
-        sessionsUtils.updateCrowdMapLayer(
-          $scope.params.get("selectedSessionIds")
-        );
-        mobileSessions.redrawSelectedSession(
-          $scope.params.get("selectedSessionIds")[0]
-        );
       } else if (mobileSessions.noOfSelectedSessions() === 1) {
         mobileSessions.redrawSelectedSession(
           $scope.params.get("selectedSessionIds")[0]
