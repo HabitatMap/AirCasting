@@ -1,4 +1,4 @@
-export const heat = ($rootScope, params, storage) => {
+export const heat = ($rootScope, params) => {
   var Heat = function() {
     var self = this;
     this.namesBySensor = ["very_low", "low", "medium", "high", "very_high"];

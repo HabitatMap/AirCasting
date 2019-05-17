@@ -14,7 +14,6 @@ export const mobileSessions = (
   sessionsDownloader,
   drawSession,
   sessionsUtils,
-  storage,
   heat,
   $window
 ) => {

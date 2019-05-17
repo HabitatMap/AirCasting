@@ -35,25 +35,6 @@ test("it updates defaults", t => {
   t.end();
 });
 
-test("fetches heat levels on first opening map tab", t => {
-  const sensors = mock("fetchHeatLevels");
-  _FixedSessionsMapCtrl({ sensors });
-
-  t.true(sensors.wasCalled());
-
-  t.end();
-});
-
-test("does not fetch heat levels if they are already in the params", t => {
-  const sensors = mock("fetchHeatLevels");
-  const params = { get: () => ({ heat: {} }) };
-  _FixedSessionsMapCtrl({ sensors, params });
-
-  t.false(sensors.wasCalled());
-
-  t.end();
-});
-
 const _FixedSessionsMapCtrl = ({ callback, params, sensors }) => {
   const _sensors = {
     setSensors: () => {},

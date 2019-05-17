@@ -66,7 +66,6 @@ const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
     _$scope,
     params,
     null,
-    {},
     null,
     functionBlocker,
     {},

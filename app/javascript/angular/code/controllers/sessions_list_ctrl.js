@@ -6,7 +6,6 @@ angular
     "$scope",
     "params",
     "sensors",
-    "storage",
     "flash",
     "$window",
     "drawSession",
