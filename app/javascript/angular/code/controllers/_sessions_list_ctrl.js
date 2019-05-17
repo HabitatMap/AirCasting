@@ -10,7 +10,6 @@ export const SessionsListCtrl = (
   $window,
   drawSession,
   markerSelected,
-  updateCrowdMapLayer,
   sessionsUtils,
   map
 ) => {

@@ -11,7 +11,6 @@ angular
     "$window",
     "drawSession",
     "markerSelected",
-    "updateCrowdMapLayer",
     "sessionsUtils",
     "map",
     SessionsListCtrl
