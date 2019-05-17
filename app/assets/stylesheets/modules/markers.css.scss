@@ -145,7 +145,7 @@
   width: 100px;
 }
 
-#highlightMarkerLayer img {
+img[src*="pulsing_location_marker"] {
   margin: 18px !important;
   animation: pulse 0.7s infinite alternate;
   -webkit-animation: pulse 0.7s infinite alternate;
