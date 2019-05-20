@@ -155,9 +155,10 @@ const buildTooltip = ({
     onMouseOverMultiple
   }),
   positioner: function(labelWidth, labelHeight, point) {
+    const pointerWidth = 10;
     const tooltipX = Math.min(
-      Math.max(0, point.plotX - labelWidth / 2), // (extreme right, middle)
-      this.chart.plotWidth - labelWidth // extreme left
+      Math.max(0, point.plotX - (labelWidth - pointerWidth) / 2), // (extreme left, middle)
+      this.chart.plotWidth - labelWidth // extreme right
     );
     const tooltipY = point.plotY - labelHeight - 10;
 
