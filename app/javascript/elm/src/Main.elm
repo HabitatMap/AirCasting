@@ -674,7 +674,7 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon =
         [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum
         , div [ id "heatmap", class "heatmap-slider" ] []
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
-        , button [ ariaLabel "Reset heatmap", class "reset-button", Events.onClick ResetHeatMapToDefaults ]
+        , button [ ariaLabel "Reset heatmap", class "reset-heatmap-button", Events.onClick ResetHeatMapToDefaults ]
             [ img [ src (Path.toString resetIcon), alt "Reset icon" ] [] ]
         ]
 
