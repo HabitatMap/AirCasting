@@ -9,7 +9,6 @@ test("with no sessions selected when params.map changes it calls sessions.fetch"
       str.includes("map") ? callbacks.push(callback) : null
   };
   const sessions = {
-    hasSelectedSessions: () => false,
     ...mock("fetch")
   };
   _SessionsListCtrl({ $scope, sessions });
@@ -30,7 +29,6 @@ test("with session selected when params.map changes it does not call sessions.fe
       str.includes("map") ? callbacks.push(callback) : null
   };
   const sessions = {
-    hasSelectedSessions: () => true,
     ...mock("fetch")
   };
   _SessionsListCtrl({ $scope, sessions });
@@ -52,7 +50,6 @@ const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
     ...$scope
   };
   const params = { get: () => ({}), update: () => {}, paramsData: {} };
-  const functionBlocker = { block: () => {} };
   const _map = {
     onPanOrZoom: () => {},
     ...map
@@ -61,19 +58,17 @@ const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
   const $location = {
     path: () => "/map_sessions"
   };
+  const _sessionsUtils = { isSessionSelected: () => false };
 
   return SessionsListCtrl(
     _$scope,
     params,
     null,
     null,
-    functionBlocker,
     {},
     null,
     null,
-    null,
-    _map,
-    _updateCrowdMapLayer,
-    $location
+    _sessionsUtils,
+    _map
   );
 };

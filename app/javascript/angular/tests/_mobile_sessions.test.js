@@ -419,28 +419,6 @@ test("deselectSession with no previously selected sessions calls drawSession.und
   t.end();
 });
 
-test("hasSelectedSessions with no selected sessions returns false", t => {
-  const sessionsUtils = { noOfSelectedSessions: () => 0 };
-  const mobileSessionsService = _mobileSessions({ sessionsUtils });
-
-  const hasSelectedSessions = mobileSessionsService.hasSelectedSessions();
-
-  t.false(hasSelectedSessions);
-
-  t.end();
-});
-
-test("hasSelectedSessions with selected session returns true", t => {
-  const sessionsUtils = { noOfSelectedSessions: () => 1 };
-  const mobileSessionsService = _mobileSessions({ sessionsUtils });
-
-  const hasSelectedSessions = mobileSessionsService.hasSelectedSessions();
-
-  t.true(hasSelectedSessions);
-
-  t.end();
-});
-
 test("when sensor is selected drawSessionsInLocation calls map.drawCustomMarker to draw marker with label", t => {
   const map = mock("drawCustomMarker");
   const session = { streams: { sensorName: { unit_symbol: "unit" } } };

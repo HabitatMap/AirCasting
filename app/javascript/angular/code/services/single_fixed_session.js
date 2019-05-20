@@ -6,9 +6,6 @@ angular.module("aircasting").factory("singleFixedSession", [
   function(fixedSessions, sensors, heat, drawSession) {
     var SingleFixedSession = function() {};
     SingleFixedSession.prototype = {
-      noOfSelectedSessions: function() {
-        return fixedSessions.allSelected().length;
-      },
       get: function() {
         return _(fixedSessions.allSelected()).first();
       },

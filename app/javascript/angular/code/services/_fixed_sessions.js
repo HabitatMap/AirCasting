@@ -36,16 +36,8 @@ export const fixedSessions = (
   }
 
   FixedSessions.prototype = {
-    hasSelectedSessions: function() {
-      return this.noOfSelectedSessions() > 0;
-    },
-
     allSelected: function() {
       return sessionsUtils.allSelected(this);
-    },
-
-    allSelectedIds: function() {
-      return sessionsUtils.allSelectedIds();
     },
 
     allSessionIds: function() {
@@ -66,10 +58,6 @@ export const fixedSessions = (
 
     isSelected: function(session) {
       return sessionsUtils.isSelected(this, session);
-    },
-
-    noOfSelectedSessions: function() {
-      return sessionsUtils.noOfSelectedSessions(this);
     },
 
     onSessionsFetchError: function(data) {
