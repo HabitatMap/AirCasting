@@ -13,6 +13,7 @@ module Data.SelectedSession exposing
 import Api
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
+import Data.Path as Path exposing (Path)
 import Data.Session
 import Data.Times as Times
 import Html exposing (Html, a, button, div, img, p, span, text)
@@ -117,7 +118,7 @@ updateRange result measurements =
             result
 
 
-view : SelectedSession -> WebData HeatMapThresholds -> String -> (String -> msg) -> Html msg
+view : SelectedSession -> WebData HeatMapThresholds -> Path -> (String -> msg) -> Html msg
 view session heatMapThresholds linkIcon toMsg =
     let
         tooltipId =
@@ -164,7 +165,7 @@ view session heatMapThresholds linkIcon toMsg =
         , span [ class "single-session-date" ] [ text <| Times.format session.startTime session.endTime ]
         , div [ class "action-buttons " ]
             [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink [ session ] ] [ text "export session" ]
-            , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| toMsg tooltipId, id tooltipId ] [ img [ src linkIcon, alt "Link icon" ] [] ]
+            , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| toMsg tooltipId, id tooltipId ] [ img [ src (Path.toString linkIcon), alt "Link icon" ] [] ]
             ]
         ]
 

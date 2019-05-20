@@ -53,8 +53,8 @@ type alias Model =
     , timeRange : TimeRange
     , isIndoor : Bool
     , logoNav : String
-    , linkIcon : String
-    , resetIcon : String
+    , linkIcon : Path
+    , resetIcon : Path
     , resetIconWhite : Path
     , tooltipIcon : Path
     , heatMapThresholds : WebData HeatMapThresholds
@@ -85,8 +85,8 @@ defaultModel =
     , isStreaming = True
     , selectedSession = NotAsked
     , logoNav = ""
-    , linkIcon = ""
-    , resetIcon = ""
+    , linkIcon = Path.fromString ""
+    , resetIcon = Path.fromString ""
     , resetIconWhite = Path.fromString ""
     , tooltipIcon = Path.fromString ""
     , heatMapThresholds = NotAsked
@@ -147,8 +147,8 @@ init flags url key =
         , isStreaming = flags.isStreaming
         , selectedSensorId = flags.selectedSensorId
         , logoNav = flags.logoNav
-        , linkIcon = flags.linkIcon
-        , resetIcon = flags.resetIcon
+        , linkIcon = Path.fromString flags.linkIcon
+        , resetIcon = Path.fromString flags.resetIcon
         , resetIconWhite = Path.fromString flags.resetIconWhite
         , tooltipIcon = Path.fromString flags.tooltipIcon
         , heatMapThresholds =
@@ -661,7 +661,7 @@ viewSearchAsIMove wasMapMoved isSearchAsIMoveOn =
         ]
 
 
-viewHeatMap : WebData HeatMapThresholds -> String -> String -> Html Msg
+viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Html Msg
 viewHeatMap heatMapThresholds sensorUnit resetIcon =
     let
         ( threshold1, threshold5 ) =
@@ -672,8 +672,8 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon =
         [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum
         , div [ id "heatmap", class "heatmap-slider" ] []
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
-        , button [ ariaLabel "Reset", class "reset-button", Events.onClick ResetHeatMapToDefaults ]
-            [ img [ src resetIcon, alt "Reset icon" ] [] ]
+        , button [ ariaLabel "Reset heatmap", class "reset-button", Events.onClick ResetHeatMapToDefaults ]
+            [ img [ src (Path.toString resetIcon), alt "Reset icon" ] [] ]
         ]
 
 
@@ -692,7 +692,7 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         ]
 
 
-viewSessionsOrSelectedSession : Int -> WebData SelectedSession -> List Session -> WebData HeatMapThresholds -> String -> List (Html Msg)
+viewSessionsOrSelectedSession : Int -> WebData SelectedSession -> List Session -> WebData HeatMapThresholds -> Path -> List (Html Msg)
 viewSessionsOrSelectedSession fetchableSessionsCount selectedSession sessions heatMapThresholds linkIcon =
     case selectedSession of
         NotAsked ->
@@ -708,7 +708,7 @@ viewSessionsOrSelectedSession fetchableSessionsCount selectedSession sessions he
             [ div [] [ text "error!" ] ]
 
 
-viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> String -> Html Msg
+viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> Html Msg
 viewSelectedSession heatMapThresholds maybeSession linkIcon =
     div [ class "single-session-container" ]
         [ div [ class "single-session-info" ]
@@ -727,7 +727,7 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon =
         ]
 
 
-viewFiltersButtons : WebData SelectedSession -> List Session -> String -> Html Msg
+viewFiltersButtons : WebData SelectedSession -> List Session -> Path -> Html Msg
 viewFiltersButtons selectedSession sessions linkIcon =
     case selectedSession of
         NotAsked ->
@@ -738,7 +738,7 @@ viewFiltersButtons selectedSession sessions linkIcon =
             div [ class "filters__actions action-buttons" ]
                 [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
                 , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
-                    [ img [ src linkIcon, alt "Link icon" ] [] ]
+                    [ img [ src (Path.toString linkIcon), alt "Link icon" ] [] ]
                 ]
 
         _ ->
