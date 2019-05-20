@@ -1,7 +1,9 @@
-.reset-button {
+.reset-heatmap-button {
+  background: #fff;
   border: none;
   border-radius: 50%;
   box-shadow: $bottom-shadow;
+  cursor: pointer;
   height: 25px;
   margin: 0 0 3px 20px;
   width: 25px;

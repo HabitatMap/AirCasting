@@ -2,7 +2,8 @@ module TimeRange exposing (TimeRange(..), defaultTimeRange, update, view)
 
 import Data.Path as Path exposing (Path)
 import Html exposing (Html, button, div, h4, img, input, label, text)
-import Html.Attributes exposing (attribute, class, disabled, for, id, name, placeholder, src, type_)
+import Html.Attributes exposing (alt, attribute, class, disabled, for, id, name, placeholder, src, type_)
+import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -51,8 +52,8 @@ timeRangeDecoder =
         (Decode.field "timeTo" Decode.int)
 
 
-view : msg -> Bool -> Path -> Html msg
-view refreshTimeRange isDisabled tooltipIcon =
+view : msg -> Bool -> Path -> Path -> Html msg
+view refreshTimeRange isDisabled tooltipIcon resetIcon =
     div [ class "filters__input-group" ]
         [ input
             [ id "time-range"
@@ -68,5 +69,6 @@ view refreshTimeRange isDisabled tooltipIcon =
             []
         , label [ for "time-range" ] [ text "time frame:" ]
         , Tooltip.view Tooltip.timeRangeFilter tooltipIcon
-        , button [ Events.onClick refreshTimeRange ] [ text "refresh" ]
+        , button [ ariaLabel "Reset time frame", class "refresh-timerange-button", Events.onClick refreshTimeRange ]
+            [ img [ src (Path.toString resetIcon), alt "Reset icon" ] [] ]
         ]
