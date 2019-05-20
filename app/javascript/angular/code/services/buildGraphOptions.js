@@ -160,7 +160,13 @@ const buildTooltip = ({
       Math.max(0, point.plotX - (labelWidth - pointerWidth) / 2), // (extreme left, middle)
       this.chart.plotWidth - labelWidth // extreme right
     );
-    const tooltipY = point.plotY - labelHeight - 10;
+
+    const pointerHeight = 10;
+    let tooltipY = point.plotY - labelHeight - pointerHeight;
+    if (tooltipY < 0) {
+      // changes tooltip position at the top of the graph
+      tooltipY = point.plotY + pointerHeight;
+    }
 
     return { x: tooltipX, y: tooltipY };
   }
