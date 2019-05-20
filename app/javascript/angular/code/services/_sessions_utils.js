@@ -46,14 +46,6 @@ export const sessionsUtils = (
     });
   },
 
-  deselectAllSessions: function() {
-    params.update({ selectedSessionIds: [] });
-  },
-
-  selectAllSessions: function(self) {
-    params.update({ selectedSessionIds: self.allSessionIds() });
-  },
-
   reSelectAllSessions: function(self) {
     _(params.get("selectedSessionIds")).each(function(id) {
       self.reSelectSession(id);
