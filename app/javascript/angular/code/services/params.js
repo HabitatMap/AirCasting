@@ -46,6 +46,9 @@ angular.module("aircasting").factory("params", [
       },
       isCrowdMapOn: function() {
         return this.paramsData.data.crowdMap;
+      },
+      selectedSessionIds: function() {
+        return this.paramsData["selectedSessionIds"] || [];
       }
     };
     return new Params();

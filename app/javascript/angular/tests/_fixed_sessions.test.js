@@ -225,28 +225,6 @@ test("fetch passes map corner coordinates to sessionsDownloader", t => {
   t.end();
 });
 
-test("hasSelectedSessions with no selected sessions returns false", t => {
-  const sessionsUtils = { noOfSelectedSessions: () => 0 };
-  const fixedSessionsService = _fixedSessions({ sessionsUtils });
-
-  const hasSelectedSessions = fixedSessionsService.hasSelectedSessions();
-
-  t.false(hasSelectedSessions);
-
-  t.end();
-});
-
-test("hasSelectedSessions with selected session returns true", t => {
-  const sessionsUtils = { noOfSelectedSessions: () => 1 };
-  const fixedSessionsService = _fixedSessions({ sessionsUtils });
-
-  const hasSelectedSessions = fixedSessionsService.hasSelectedSessions();
-
-  t.true(hasSelectedSessions);
-
-  t.end();
-});
-
 test("selectSession with indoor session after successfully fetching calls map.fitBoundsWithBottomPadding", t => {
   const map = mock("fitBoundsWithBottomPadding");
   const sessionsUtils = { find: () => ({ is_indoor: false }) };

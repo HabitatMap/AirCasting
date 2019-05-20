@@ -27,14 +27,6 @@ export const sessionsUtils = (
     return _(self.get()).pluck("id");
   },
 
-  noOfSelectedSessions: function(self) {
-    return self.allSelected().length;
-  },
-
-  empty: function(self) {
-    return self.noOfSelectedSessions() === 0;
-  },
-
   onSessionsFetch: function(self) {
     self.reSelectAllSessions();
   },
@@ -73,7 +65,7 @@ export const sessionsUtils = (
   },
 
   allSelected: function(self) {
-    return _(self.allSelectedIds())
+    return _(params.selectedSessionIds())
       .chain()
       .map(function(id) {
         return self.find(id);
@@ -82,8 +74,8 @@ export const sessionsUtils = (
       .value();
   },
 
-  allSelectedIds: function() {
-    return params.get("selectedSessionIds");
+  isSessionSelected: function() {
+    params.selectedSessionIds().length === 1;
   },
 
   onSingleSessionFetch: function(session, data, callback) {

@@ -7,10 +7,6 @@ angular.module("aircasting").factory("singleMobileSession", [
     var SingleMobileSession = function() {};
 
     SingleMobileSession.prototype = {
-      noOfSelectedSessions: function() {
-        return mobileSessions.allSelected().length;
-      },
-
       get: function() {
         return _(mobileSessions.allSelected()).first();
       },
