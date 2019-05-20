@@ -50,10 +50,6 @@ export const mobileSessions = (
       return sessionsUtils.allSessionIds(this);
     },
 
-    deselectAllSessions: function() {
-      sessionsUtils.deselectAllSessions();
-    },
-
     find: function(id) {
       return sessionsUtils.find(this, id);
     },
@@ -72,10 +68,6 @@ export const mobileSessions = (
 
     reSelectAllSessions: function() {
       sessionsUtils.reSelectAllSessions(this);
-    },
-
-    selectAllSessions: function() {
-      sessionsUtils.selectAllSessions(this);
     },
 
     sessionsChanged: function(newIds, oldIds) {
