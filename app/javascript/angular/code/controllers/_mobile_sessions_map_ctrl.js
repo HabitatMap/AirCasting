@@ -79,22 +79,14 @@ export const MobileSessionsMapCtrl = (
       );
       if (newValue === oldValue) return;
 
-      if (
-        $scope.params.isCrowdMapOn() &&
-        mobileSessions.noOfSelectedSessions() === 0
-      ) {
+      if ($scope.params.isCrowdMapOn() && !sessionsUtils.isSessionSelected()) {
         sessionsUtils.updateCrowdMapLayer(mobileSessions.sessionIds());
-      } else if (mobileSessions.noOfSelectedSessions() === 1) {
+      } else if (sessionsUtils.isSessionSelected()) {
         mobileSessions.redrawSelectedSession(
-          $scope.params.get("selectedSessionIds")[0]
+          $scope.params.selectedSessionIds()[0]
         );
-      } else if (mobileSessions.noOfSelectedSessions() === 0) {
-        $scope.sessions.drawSessionsInLocation();
       } else {
-        console.warn(
-          "mobileSessions.noOfSelectedSessions() should be 0 or 1 and is: ",
-          mobileSessions.noOfSelectedSessions()
-        );
+        $scope.sessions.drawSessionsInLocation();
       }
     },
     true

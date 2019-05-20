@@ -26,11 +26,6 @@ export const SessionsListCtrl = (
     $window.sessions = sessions = $scope.sessions;
     $scope.sessionsForList = [];
 
-    // prolly this can be removed
-    if (_(params.get("selectedSessionIds", [])).isEmpty()) {
-      params.update({ selectedSessionIds: [] });
-    }
-
     sessions.reSelectAllSessions();
   };
 
@@ -39,7 +34,7 @@ export const SessionsListCtrl = (
     // when refactoring to a radio button this should always be false
     return (
       !params.get("selectedSessionIds", []).includes(sessionId) &&
-      sessions.hasSelectedSessions()
+      sessionsUtils.isSessionSelected()
     );
   };
 
@@ -47,7 +42,7 @@ export const SessionsListCtrl = (
     "params.get('map')",
     ({ hasChangedProgrammatically }) => {
       console.log("watch - params.get('map')");
-      if (sessions.hasSelectedSessions()) return;
+      if (sessionsUtils.isSessionSelected() && !firstLoad) return;
       // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically as undefined
       if (hasChangedProgrammatically === undefined) return;
 
@@ -76,7 +71,7 @@ export const SessionsListCtrl = (
 
   $scope.canSelectSession = function(sessionId) {
     const session = sessions.find(sessionId);
-    if (sessions.hasSelectedSessions()) {
+    if (sessionsUtils.isSessionSelected()) {
       flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
       return false;
     } else {
