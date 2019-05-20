@@ -9,6 +9,7 @@ import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (attribute, id, tag)
+import TestUtils exposing (defaultIcon)
 import TimeRange
 
 
@@ -21,7 +22,7 @@ all =
     describe "TimeRange"
         [ test ".view has an input field" <|
             \_ ->
-                TimeRange.view (\_ -> ()) True (Path.fromString "tooltip-icon.svg") (Path.fromString "reset-icon.svg")
+                TimeRange.view (\_ -> ()) True defaultIcon defaultIcon
                     |> Query.fromHtml
                     |> Query.has [ tag "input" ]
         , fuzz2 int int ".update returns updated TimeRange if value has correct format" <|
@@ -51,14 +52,14 @@ all =
                     |> Expect.equal expected
         , test "viewTimeFilter has a button" <|
             \_ ->
-                TimeRange.view Msg True (Path.fromString "tooltip-icon.svg") (Path.fromString "reset-icon.svg")
+                TimeRange.view Msg True defaultIcon defaultIcon
                     |> Query.fromHtml
                     |> Query.find [ tag "button" ]
                     |> Event.simulate Event.click
                     |> Event.expect Msg
         , fuzz bool "may be disabled" <|
             \isDisabled ->
-                TimeRange.view (\_ -> ()) isDisabled (Path.fromString "tooltip-icon.svg") (Path.fromString "reset-icon.svg")
+                TimeRange.view (\_ -> ()) isDisabled defaultIcon defaultIcon
                     |> Query.fromHtml
                     |> Query.find [ id "time-range" ]
                     |> Query.has [ attribute <| disabled isDisabled ]

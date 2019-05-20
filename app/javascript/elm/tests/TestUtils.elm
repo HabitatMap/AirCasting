@@ -1,5 +1,6 @@
 module TestUtils exposing
-    ( defaultSelectedSession
+    ( defaultIcon
+    , defaultSelectedSession
     , defaultSession
     , heatMapThresholdsWithMaximum
     , heatMapThresholdsWithMinimum
@@ -7,6 +8,7 @@ module TestUtils exposing
     )
 
 import Data.HeatMapThresholds exposing (HeatMapThresholds)
+import Data.Path as Path exposing (Path)
 import Data.SelectedSession exposing (SelectedSession)
 import Data.Session exposing (Session, ShortType)
 import Json.Encode as Encode
@@ -78,3 +80,8 @@ defaultSelectedSession =
     , streamId = 123
     , selectedMeasurements = []
     }
+
+
+defaultIcon : Path
+defaultIcon =
+    Path.fromString "icon.svg"
