@@ -87,14 +87,15 @@ const tooltipInstance = (() => {
   let instance;
 
   return tooltipId => {
-    if (!instance) {
-      instance = tippy(`#${tooltipId}`, {
+    const oldInstance = instance;
+    instance =
+      tippy(`#${tooltipId}`, {
         animateFill: false,
         interactive: true,
         theme: "light-border",
         trigger: "manual"
-      })[0];
-    }
+      })[0] || oldInstance;
+
     return instance;
   };
 })();
