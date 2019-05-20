@@ -612,7 +612,7 @@ view model =
                                 text ""
 
                             _ ->
-                                viewSearchAsIMove model.wasMapMoved model.isSearchAsIMoveOn
+                                viewSearchAsIMove model.wasMapMoved model.isSearchAsIMoveOn model.resetIconWhite
                         , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
                             []
                         , div
@@ -637,15 +637,17 @@ view model =
         ]
 
 
-viewSearchAsIMove : Bool -> Bool -> Html Msg
-viewSearchAsIMove wasMapMoved isSearchAsIMoveOn =
+viewSearchAsIMove : Bool -> Bool -> Path -> Html Msg
+viewSearchAsIMove wasMapMoved isSearchAsIMoveOn resetIcon =
     div [ class "search-control" ]
         [ if wasMapMoved then
             button
                 [ class "button button--primary search-control__button"
                 , Events.onClick FetchSessions
                 ]
-                [ text "Redo Search in Map" ]
+                [ text "Redo Search in Map"
+                , img [ src (Path.toString resetIcon), alt "Reset icon" ] []
+                ]
 
           else
             div [ class "search-control__switch" ]
