@@ -14,6 +14,7 @@
 @import "./modules//buttons";
 @import "./modules/filters";
 @import "./modules/filters-popups";
+@import "./modules/graph-bands";
 @import "./modules/heatmap";
 @import "./modules/map";
 @import "./modules/map-search-control";
@@ -31,19 +32,3 @@
 @import "./modules/time-filter-calendar";
 @import "./modules/tooltip";
 @import "./modules/toggle-button";
-
-.first-band {
-  fill: $green;
-}
-
-.second-band {
-  fill: $yellow;
-}
-
-.third-band {
-  fill: $orange;
-}
-
-.fourth-band {
-  fill: $red;
-}
