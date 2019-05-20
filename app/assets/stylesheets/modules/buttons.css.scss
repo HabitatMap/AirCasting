@@ -22,24 +22,6 @@
   text-transform: lowercase;
 }
 
-.refresh-timerange-button {
-  background: transparent;
-  border: none;
-  border-radius: $input-radius;
-  cursor: pointer;
-  margin: -$input-padding 0;
-  padding: $input-padding;
-  position: absolute;
-  bottom: calc(24px + #{$input-padding});
-  right: 0;
-
-  img:-moz-loading {
-    height: 0;
-    width: 0;
-    visibility: hidden;
-  }
-}
-
 .time-calendar-label {
   color: $navy-font;
 }
