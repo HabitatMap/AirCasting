@@ -55,6 +55,7 @@ type alias Model =
     , logoNav : String
     , linkIcon : String
     , resetIcon : String
+    , resetIconWhite : Path
     , tooltipIcon : Path
     , heatMapThresholds : WebData HeatMapThresholds
     , isStreaming : Bool
@@ -86,6 +87,7 @@ defaultModel =
     , logoNav = ""
     , linkIcon = ""
     , resetIcon = ""
+    , resetIconWhite = Path.fromString ""
     , tooltipIcon = Path.fromString ""
     , heatMapThresholds = NotAsked
     , isSearchAsIMoveOn = False
@@ -108,6 +110,7 @@ type alias Flags =
     , logoNav : String
     , linkIcon : String
     , resetIcon : String
+    , resetIconWhite : String
     , tooltipIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     , isSearchAsIMoveOn : Bool
@@ -146,6 +149,7 @@ init flags url key =
         , logoNav = flags.logoNav
         , linkIcon = flags.linkIcon
         , resetIcon = flags.resetIcon
+        , resetIconWhite = Path.fromString flags.resetIconWhite
         , tooltipIcon = Path.fromString flags.tooltipIcon
         , heatMapThresholds =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
@@ -834,7 +838,7 @@ viewMobileFilters model =
         [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
-        , TimeRange.view RefreshTimeRange False model.tooltipIcon
+        , TimeRange.view RefreshTimeRange False model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
         , div [ class "filter-separator" ] []
@@ -848,7 +852,7 @@ viewFixedFilters model =
         [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
-        , TimeRange.view RefreshTimeRange model.isStreaming model.tooltipIcon
+        , TimeRange.view RefreshTimeRange model.isStreaming model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
         , div [ class "filters__toggle-group" ]
