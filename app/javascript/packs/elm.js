@@ -8,6 +8,7 @@ import "nouislider";
 import * as graph from "../angular/code/services/graph";
 import tippy from "tippy.js";
 import "../../assets/stylesheets/main.scss";
+import "tippy.js/themes/light-border.css";
 import { createObserver } from "../createObserver.js";
 
 document.addEventListener("DOMContentLoaded", () => {
