@@ -138,7 +138,7 @@ locationFilter =
                 { defaultModel | location = location }
                     |> update SubmitLocation
                     |> Tuple.second
-                    |> Expect.equal (Ports.findLocation location)
+                    |> Expect.equal (Cmd.batch [ Cmd.none, Ports.findLocation location ])
         , test "is disabled when showing indoor sessions" <|
             \_ ->
                 { defaultModel | isIndoor = True }
@@ -212,7 +212,7 @@ tagsArea =
                     { defaultModel | tags = LabelsInput.fromList [ "oldTag" ] }
                         |> update (TagsLabels <| LabelsInput.Add "newTag")
                         |> Tuple.second
-                        |> Expect.equal (Cmd.map TagsLabels <| Ports.updateTags [ "newTag", "oldTag" ])
+                        |> Expect.equal (Cmd.batch [ Cmd.none, Cmd.map TagsLabels <| Ports.updateTags [ "newTag", "oldTag" ] ])
             ]
         , describe "when multiple tags are added"
             [ fuzz (list string) "corresponding tags are created" <|
@@ -267,7 +267,7 @@ tagsArea =
                     { defaultModel | tags = LabelsInput.fromList [ "firstTag", "secondTag" ] }
                         |> update (TagsLabels <| LabelsInput.Remove "firstTag")
                         |> Tuple.second
-                        |> Expect.equal (Cmd.map TagsLabels <| Ports.updateTags [ "secondTag" ])
+                        |> Expect.equal (Cmd.batch [ Cmd.none, Cmd.map TagsLabels <| Ports.updateTags [ "secondTag" ] ])
             ]
         ]
 
@@ -300,7 +300,7 @@ profilesArea =
                     defaultModel
                         |> update (ProfileLabels <| LabelsInput.Add nonEmptyProfile)
                         |> Tuple.second
-                        |> Expect.equal (Cmd.map ProfileLabels <| Ports.updateProfiles [ nonEmptyProfile ])
+                        |> Expect.equal (Cmd.batch [ Cmd.none, Cmd.map ProfileLabels <| Ports.updateProfiles [ nonEmptyProfile ] ])
             ]
         , describe "when Add is triggered multiple times"
             [ fuzz (list string) "corresponding profile labels are created" <|
@@ -355,7 +355,7 @@ profilesArea =
                     { defaultModel | profiles = LabelsInput.fromList [ "profile1", "profile2" ] }
                         |> update (ProfileLabels <| LabelsInput.Remove "profile1")
                         |> Tuple.second
-                        |> Expect.equal (Cmd.map ProfileLabels <| Ports.updateProfiles [ "profile2" ])
+                        |> Expect.equal (Cmd.batch [ Cmd.none, Cmd.map ProfileLabels <| Ports.updateProfiles [ "profile2" ] ])
             , test "input is disabled when showing fixed indoor sessions" <|
                 \_ ->
                     { defaultModel | isIndoor = True, page = Fixed }
@@ -507,13 +507,13 @@ toggleIndoorFilter =
                 { defaultModel | page = Fixed }
                     |> update ToggleIndoor
                     |> Tuple.second
-                    |> Expect.equal (Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [] ])
+                    |> Expect.equal (Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [], Cmd.none ])
         , test "when isIndoor is true ToggleIndoor triggers Ports.toggleIndoor with False" <|
             \_ ->
                 { defaultModel | page = Fixed, isIndoor = True }
                     |> update ToggleIndoor
                     |> Tuple.second
-                    |> Expect.equal (Ports.toggleIndoor False)
+                    |> Expect.equal (Cmd.batch [ Ports.toggleIndoor False, Cmd.none ])
         ]
 
 
@@ -549,13 +549,13 @@ toggleStreamingFilter =
                 { defaultModel | page = Fixed }
                     |> update ToggleStreaming
                     |> Tuple.second
-                    |> Expect.equal (Ports.toggleStreaming False)
+                    |> Expect.equal (Cmd.batch [ Ports.toggleStreaming False, Cmd.none ])
         , test "when isStreaming is false ToggleStreaming triggers Ports.toggleStreaming with True" <|
             \_ ->
                 { defaultModel | page = Fixed, isStreaming = False }
                     |> update ToggleStreaming
                     |> Tuple.second
-                    |> Expect.equal (Ports.toggleStreaming True)
+                    |> Expect.equal (Cmd.batch [ Ports.toggleStreaming True, Cmd.none ])
         ]
 
 
