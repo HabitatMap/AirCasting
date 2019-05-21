@@ -844,7 +844,7 @@ viewMobileFilters model =
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
         , div [ class "filter-separator" ] []
-        , viewCrowdMapOptions model.isCrowdMapOn model.crowdMapResolution (SelectedSession.isSessionSelected model.selectedSession) model.tooltipIcon
+        , viewCrowdMapOptions model.isCrowdMapOn model.crowdMapResolution model.selectedSession model.tooltipIcon
         ]
 
 
@@ -928,18 +928,9 @@ viewSensorFilter sensors selectedSensorId tooltipIcon =
         ]
 
 
-viewCrowdMapOptions : Bool -> Int -> Bool -> Path -> Html Msg
-viewCrowdMapOptions isCrowdMapOn crowdMapResolution isDisabled tooltipIcon =
-    let
-        class_ =
-            case isDisabled of
-                True ->
-                    "disabled-area"
-
-                False ->
-                    ""
-    in
-    div [ class class_ ]
+viewCrowdMapOptions : Bool -> Int -> WebData SelectedSession -> Path -> Html Msg
+viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon =
+    div [ classList [ ( "disabled-area", RemoteData.isSuccess selectedSession ) ] ]
         [ viewCrowdMapCheckBox isCrowdMapOn tooltipIcon
         , if isCrowdMapOn then
             viewCrowdMapSlider (String.fromInt crowdMapResolution)
