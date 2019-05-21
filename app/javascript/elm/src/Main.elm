@@ -232,13 +232,31 @@ update msg model =
             ( { model | location = newLocation }, Cmd.none )
 
         SubmitLocation ->
-            ( model, Ports.findLocation model.location )
+            let
+                ( sudModel, subCmd ) =
+                    deselectSession model
+            in
+            ( sudModel, Cmd.batch [ subCmd, Ports.findLocation sudModel.location ] )
 
         TagsLabels subMsg ->
-            updateLabels subMsg model.tags Ports.updateTags TagsLabels (\tags -> { model | tags = tags })
+            let
+                ( sudModel, subCmd1 ) =
+                    deselectSession model
+
+                ( subModel2, subCmd2 ) =
+                    updateLabels subMsg sudModel.tags Ports.updateTags TagsLabels (\tags -> { sudModel | tags = tags })
+            in
+            ( subModel2, Cmd.batch [ subCmd1, subCmd2 ] )
 
         ProfileLabels subMsg ->
-            updateLabels subMsg model.profiles Ports.updateProfiles ProfileLabels (\profiles -> { model | profiles = profiles })
+            let
+                ( sudModel, subCmd1 ) =
+                    deselectSession model
+
+                ( subModel2, subCmd2 ) =
+                    updateLabels subMsg sudModel.profiles Ports.updateProfiles ProfileLabels (\profiles -> { sudModel | profiles = profiles })
+            in
+            ( subModel2, Cmd.batch [ subCmd1, subCmd2 ] )
 
         ToggleCrowdMap ->
             ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap (not model.isCrowdMapOn) )
@@ -248,10 +266,13 @@ update msg model =
 
         UpdateTimeRange value ->
             let
+                ( sudModel, subCmd ) =
+                    deselectSession model
+
                 newTimeRange =
-                    TimeRange.update model.timeRange value
+                    TimeRange.update sudModel.timeRange value
             in
-            ( { model | timeRange = newTimeRange }, Cmd.none )
+            ( { sudModel | timeRange = newTimeRange }, subCmd )
 
         RefreshTimeRange ->
             ( model, Ports.refreshTimeRange () )
@@ -270,13 +291,17 @@ update msg model =
 
         SelectSensorId value ->
             let
+                ( sudModel, subCmd ) =
+                    deselectSession model
+
                 selectedSensorId =
-                    Sensor.idForParameterOrLabel value model.selectedSensorId model.sensors
+                    Sensor.idForParameterOrLabel value sudModel.selectedSensorId sudModel.sensors
             in
-            ( { model | selectedSensorId = selectedSensorId }
+            ( { sudModel | selectedSensorId = selectedSensorId }
             , Cmd.batch
                 [ Ports.selectSensorId selectedSensorId
-                , fetchHeatMapThresholds model.sensors selectedSensorId
+                , fetchHeatMapThresholds sudModel.sensors selectedSensorId
+                , subCmd
                 ]
             )
 
@@ -324,24 +349,31 @@ update msg model =
             ( { model | isHttping = isHttpingNow }, Cmd.none )
 
         ToggleIndoor ->
-            if model.isIndoor then
-                ( { model | isIndoor = False }, Ports.toggleIndoor False )
+            let
+                ( sudModel, subCmd ) =
+                    deselectSession model
+            in
+            if sudModel.isIndoor then
+                ( { sudModel | isIndoor = False }
+                , Cmd.batch [ Ports.toggleIndoor False, subCmd ]
+                )
 
             else
-                ( { model | isIndoor = True, profiles = LabelsInput.empty }
-                , Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [] ]
+                ( { sudModel | isIndoor = True, profiles = LabelsInput.empty }
+                , Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [], subCmd ]
                 )
 
         ToggleStreaming ->
-            ( { model | isStreaming = not model.isStreaming }, Ports.toggleStreaming (not model.isStreaming) )
+            let
+                ( sudModel, subCmd ) =
+                    deselectSession model
+            in
+            ( { sudModel | isStreaming = not sudModel.isStreaming }
+            , Cmd.batch [ Ports.toggleStreaming (not sudModel.isStreaming), subCmd ]
+            )
 
         DeselectSession ->
-            case model.selectedSession of
-                Success selectedSession ->
-                    ( { model | selectedSession = NotAsked }, Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing } )
-
-                _ ->
-                    ( model, Cmd.none )
+            deselectSession model
 
         ToggleSessionSelectionFromAngular maybeId ->
             case ( model.selectedSession, maybeId ) of
@@ -539,6 +571,22 @@ toGraphParams thresholds selectedSession sensors selectedSensorId =
     , times = SelectedSession.times selectedSession
     , streamId = SelectedSession.toStreamId selectedSession
     }
+
+
+type alias Selectable a =
+    { a | selectedSession : WebData SelectedSession }
+
+
+deselectSession : Selectable a -> ( Selectable a, Cmd Msg )
+deselectSession selectable =
+    case selectable.selectedSession of
+        Success selectedSession ->
+            ( { selectable | selectedSession = NotAsked }
+            , Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing }
+            )
+
+        _ ->
+            ( selectable, Cmd.none )
 
 
 
