@@ -8,6 +8,7 @@ import "nouislider";
 import * as graph from "../angular/code/services/graph";
 import tippy from "tippy.js";
 import "../../assets/stylesheets/main.scss";
+import { createObserver } from "../createObserver.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch("/api/sensors.json")
@@ -184,3 +185,20 @@ const toMiddleValues = ({ threshold2, threshold3, threshold4 }) => [
 ];
 
 const toExtremes = ({ threshold1, threshold5 }) => [threshold1, threshold5];
+
+const setupHorizontalWheelScroll = node => {
+  const callback = event => {
+    // The "wheel" event is triggered by both a mouse wheel and a trackpad.
+    // Only when `deltaX` is 0 the scroll is assured to be coming from a trackpad.
+    if (Math.abs(event.deltaX) !== 0) return;
+    const scrollBy = Math.sign(event.deltaY) * 30;
+    node.scroll(node.scrollLeft + scrollBy, 0);
+  };
+
+  node.addEventListener("wheel", callback);
+};
+
+createObserver({
+  selector: ".sessions-container",
+  onMount: setupHorizontalWheelScroll
+});
