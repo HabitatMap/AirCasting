@@ -133,12 +133,6 @@ locationFilter =
                     |> Query.find [ Slc.id "location" ]
                     |> Event.simulate (Event.custom "keydown" enterKeydownEvent)
                     |> Event.expect SubmitLocation
-        , fuzz string "when SubmitLocation is triggered Port.findLocation is called with current location field value" <|
-            \location ->
-                { defaultModel | location = location }
-                    |> update SubmitLocation
-                    |> Tuple.second
-                    |> Expect.equal (Cmd.batch [ Cmd.none, Ports.findLocation location ])
         , test "is disabled when showing indoor sessions" <|
             \_ ->
                 { defaultModel | isIndoor = True }
@@ -207,12 +201,6 @@ tagsArea =
                         |> Query.fromHtml
                         |> Query.find [ Slc.containing [ Slc.text "tag" ] ]
                         |> Query.has [ Slc.tag "button" ]
-            , test "updated tags list is sent updateTags port" <|
-                \_ ->
-                    { defaultModel | tags = LabelsInput.fromList [ "oldTag" ] }
-                        |> update (TagsLabels <| LabelsInput.Add "newTag")
-                        |> Tuple.second
-                        |> Expect.equal (Cmd.batch [ Cmd.none, Cmd.map TagsLabels <| Ports.updateTags [ "newTag", "oldTag" ] ])
             ]
         , describe "when multiple tags are added"
             [ fuzz (list string) "corresponding tags are created" <|
@@ -262,12 +250,6 @@ tagsArea =
                         |> view
                         |> Query.fromHtml
                         |> Query.has [ Slc.id "tag2" ]
-            , test "when Remove is triggered updated tags list is sent updateTags port" <|
-                \_ ->
-                    { defaultModel | tags = LabelsInput.fromList [ "firstTag", "secondTag" ] }
-                        |> update (TagsLabels <| LabelsInput.Remove "firstTag")
-                        |> Tuple.second
-                        |> Expect.equal (Cmd.batch [ Cmd.none, Cmd.map TagsLabels <| Ports.updateTags [ "secondTag" ] ])
             ]
         ]
 
@@ -291,16 +273,6 @@ profilesArea =
                         |> Query.fromHtml
                         |> Query.find [ Slc.containing [ Slc.text "profileName" ] ]
                         |> Query.has [ Slc.tag "button" ]
-            , fuzz string "updated profiles list is sent updateProfiles port" <|
-                \profile ->
-                    let
-                        nonEmptyProfile =
-                            profile ++ "."
-                    in
-                    defaultModel
-                        |> update (ProfileLabels <| LabelsInput.Add nonEmptyProfile)
-                        |> Tuple.second
-                        |> Expect.equal (Cmd.batch [ Cmd.none, Cmd.map ProfileLabels <| Ports.updateProfiles [ nonEmptyProfile ] ])
             ]
         , describe "when Add is triggered multiple times"
             [ fuzz (list string) "corresponding profile labels are created" <|
@@ -350,12 +322,6 @@ profilesArea =
                         |> view
                         |> Query.fromHtml
                         |> Query.has [ Slc.id "profile2" ]
-            , test "when Remove is triggered updated profile list is sent to updateProfiles port" <|
-                \_ ->
-                    { defaultModel | profiles = LabelsInput.fromList [ "profile1", "profile2" ] }
-                        |> update (ProfileLabels <| LabelsInput.Remove "profile1")
-                        |> Tuple.second
-                        |> Expect.equal (Cmd.batch [ Cmd.none, Cmd.map ProfileLabels <| Ports.updateProfiles [ "profile2" ] ])
             , test "input is disabled when showing fixed indoor sessions" <|
                 \_ ->
                     { defaultModel | isIndoor = True, page = Fixed }
@@ -502,18 +468,6 @@ toggleIndoorFilter =
                     |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
                     |> Event.simulate Event.click
                     |> Event.expect ToggleIndoor
-        , test "when isIndoor is false ToggleIndoor triggers Ports.toggleIndoor with True and Ports.updateProfiles with []" <|
-            \_ ->
-                { defaultModel | page = Fixed }
-                    |> update ToggleIndoor
-                    |> Tuple.second
-                    |> Expect.equal (Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [], Cmd.none ])
-        , test "when isIndoor is true ToggleIndoor triggers Ports.toggleIndoor with False" <|
-            \_ ->
-                { defaultModel | page = Fixed, isIndoor = True }
-                    |> update ToggleIndoor
-                    |> Tuple.second
-                    |> Expect.equal (Cmd.batch [ Ports.toggleIndoor False, Cmd.none ])
         ]
 
 
@@ -544,18 +498,6 @@ toggleStreamingFilter =
                     |> Query.find [ Slc.attribute <| ariaLabel "dormant" ]
                     |> Event.simulate Event.click
                     |> Event.expect ToggleStreaming
-        , test "when isStreaming is true ToggleStreaming triggers Ports.toggleStreaming with False" <|
-            \_ ->
-                { defaultModel | page = Fixed }
-                    |> update ToggleStreaming
-                    |> Tuple.second
-                    |> Expect.equal (Cmd.batch [ Ports.toggleStreaming False, Cmd.none ])
-        , test "when isStreaming is false ToggleStreaming triggers Ports.toggleStreaming with True" <|
-            \_ ->
-                { defaultModel | page = Fixed, isStreaming = False }
-                    |> update ToggleStreaming
-                    |> Tuple.second
-                    |> Expect.equal (Cmd.batch [ Ports.toggleStreaming True, Cmd.none ])
         ]
 
 
