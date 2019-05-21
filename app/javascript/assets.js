@@ -23,6 +23,11 @@ export const locationMarkerPath =
     ? ""
     : require("../assets/images/location_marker.svg");
 
+export const pulsingLocationMarkerPath =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/pulsing_location_marker.svg");
+
 export const marker1Path =
   process.env.NODE_ENV === "test"
     ? ""
