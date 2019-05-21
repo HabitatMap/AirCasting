@@ -2,10 +2,6 @@ import Clipboard from "clipboard";
 import moment from "moment";
 import tippy from "tippy.js";
 
-process.env.NODE_ENV === "test"
-  ? null
-  : require("tippy.js/themes/light-border.css");
-
 export const endOfToday = () =>
   moment()
     .utc()
