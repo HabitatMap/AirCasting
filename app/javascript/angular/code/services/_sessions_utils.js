@@ -74,6 +74,10 @@ export const sessionsUtils = (
     return params.selectedSessionIds()[0];
   },
 
+  selectedSession: function(self) {
+    return this.find(self, this.selectedSessionId());
+  },
+
   onSingleSessionFetch: function(session, data, callback) {
     createSessionData(session, data);
     session.loaded = true;

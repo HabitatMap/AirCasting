@@ -10,7 +10,6 @@ angular
     "sensors",
     "fixedSessions",
     "versioner",
-    "singleFixedSession",
     "functionBlocker",
     "$window",
     "infoWindow",
