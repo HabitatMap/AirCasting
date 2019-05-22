@@ -61,7 +61,6 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, sensors, params }) => {
     _sensors,
     null,
     null,
-    null,
     functionBlocker,
     _$window,
     infoWindow

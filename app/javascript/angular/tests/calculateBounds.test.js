@@ -15,30 +15,18 @@ test("with no selected sensors it returns null", t => {
 test("returns the correct bounds", t => {
   const sensorName = "sensor name";
   const sensors = { anySelected: () => ({ sensor_name: sensorName }) };
-  const sessions = [
-    {
-      streams: {
-        [sensorName]: {
-          min_latitude: 1,
-          max_latitude: 1,
-          min_longitude: 1,
-          max_longitude: 1
-        }
-      }
-    },
-    {
-      streams: {
-        [sensorName]: {
-          min_latitude: 3,
-          max_latitude: 3,
-          min_longitude: 3,
-          max_longitude: 3
-        }
+  const session = {
+    streams: {
+      [sensorName]: {
+        min_latitude: 1,
+        max_latitude: 3,
+        min_longitude: 1,
+        max_longitude: 3
       }
     }
-  ];
+  };
 
-  const actual = calculateBounds(sensors, sessions);
+  const actual = calculateBounds(sensors, session);
 
   const expected = { north: 3, east: 3, south: 1, west: 1 };
   t.deepEqual(actual, expected);
@@ -49,20 +37,18 @@ test("returns the correct bounds", t => {
 test("it skips streams with different name than the selected sensor", t => {
   const sensorName = "sensor name";
   const sensors = { anySelected: () => ({ sensor_name: sensorName }) };
-  const sessions = [
-    {
-      streams: {
-        otherStream: {
-          min_latitude: 1,
-          max_latitude: 1,
-          min_longitude: 1,
-          max_longitude: 1
-        }
+  const session = {
+    streams: {
+      otherStream: {
+        min_latitude: 1,
+        max_latitude: 1,
+        min_longitude: 1,
+        max_longitude: 1
       }
     }
-  ];
+  };
 
-  const actual = calculateBounds(sensors, sessions);
+  const actual = calculateBounds(sensors, session);
 
   const expected = {
     north: -Infinity,
