@@ -26,7 +26,7 @@ export const mobileSessions = (
   };
 
   let prevMapPosition = {};
-  if (params.get("selectedSessionIds").length === 1) {
+  if (sessionsUtils.isSessionSelected()) {
     prevMapPosition = params.get("prevMapPosition");
   } else {
     prevMapPosition = {
@@ -266,7 +266,7 @@ export const mobileSessions = (
 
       drawSession.clear(this.sessions);
 
-      if (params.get("selectedSessionIds").length === 1) {
+      if (sessionsUtils.isSessionSelected()) {
         sessionsDownloader(
           "/api/multiple_sessions.json",
           reqData,
