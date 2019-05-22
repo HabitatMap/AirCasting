@@ -62,10 +62,6 @@ export const mobileSessions = (
       sessionsUtils.onSessionsFetchError(data);
     },
 
-    reSelectAllSessions: function() {
-      sessionsUtils.reSelectAllSessions(this);
-    },
-
     sessionsChanged: function(newIds, oldIds) {
       sessionsUtils.sessionsChanged(this, newIds, oldIds);
     },
@@ -79,7 +75,9 @@ export const mobileSessions = (
       if (fetchableSessionsCount) {
         this.fetchableSessionsCount = fetchableSessionsCount;
       }
-      sessionsUtils.onSessionsFetch(this);
+      if (sessionsUtils.isSessionSelected()) {
+        this.reSelectSession(sessionsUtils.selectedSessionId());
+      }
     },
 
     onSessionsFetchWithCrowdMapLayerUpdate: function(fetchableSessionsCount) {
@@ -232,14 +230,13 @@ export const mobileSessions = (
 
       var bounds = map.getBounds();
       var data = params.get("data");
-      var sessionIds = _.values(params.get("selectedSessionIds") || []);
       if (!data.timeFrom || !data.timeTo) return;
       var reqData = {
         time_from: data.timeFrom,
         time_to: data.timeTo,
         tags: data.tags,
         usernames: data.usernames,
-        session_ids: sessionIds
+        session_ids: params.selectedSessionIds()
       };
 
       _(reqData).extend({

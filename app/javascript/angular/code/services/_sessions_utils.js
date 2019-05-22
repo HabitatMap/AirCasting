@@ -27,10 +27,6 @@ export const sessionsUtils = (
     return _(self.get()).pluck("id");
   },
 
-  onSessionsFetch: function(self) {
-    self.reSelectAllSessions();
-  },
-
   updateCrowdMapLayer: function(sessionIds) {
     updateCrowdMapLayer.call(sessionIds);
   },
@@ -43,12 +39,6 @@ export const sessionsUtils = (
   find: function(self, id) {
     return _(self.sessions || []).detect(function(session) {
       return session.id === id;
-    });
-  },
-
-  reSelectAllSessions: function(self) {
-    _(params.get("selectedSessionIds")).each(function(id) {
-      self.reSelectSession(id);
     });
   },
 

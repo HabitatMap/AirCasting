@@ -26,7 +26,8 @@ export const SessionsListCtrl = (
     $window.sessions = sessions = $scope.sessions;
     $scope.sessionsForList = [];
 
-    sessions.reSelectAllSessions();
+    if (sessionsUtils.isSessionSelected())
+      sessions.reSelectSession(sessionsUtils.selectedSessionId());
   };
 
   $scope.isSessionDisabled = function(sessionId) {

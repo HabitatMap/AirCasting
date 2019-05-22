@@ -532,13 +532,12 @@ const _mobileSessions = ({
     get: what => {
       if (what === "data") {
         return data || buildData();
-      } else if (what === "selectedSessionIds") {
-        return sessionIds || [];
       } else {
         throw new Error(`unexpected param ${what}`);
       }
     },
-    update: () => {}
+    update: () => {},
+    selectedSessionIds: () => sessionIds
   };
   const _map = {
     getBounds: () => ({}),

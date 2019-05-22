@@ -56,10 +56,6 @@ export const fixedSessions = (
       sessionsUtils.onSessionsFetchError(data);
     },
 
-    reSelectAllSessions: function() {
-      sessionsUtils.reSelectAllSessions(this);
-    },
-
     sessionsChanged: function(newIds, oldIds) {
       sessionsUtils.sessionsChanged(this, newIds, oldIds);
     },
@@ -71,7 +67,9 @@ export const fixedSessions = (
       if (fetchableSessionsCount) {
         this.fetchableSessionsCount = fetchableSessionsCount;
       }
-      sessionsUtils.onSessionsFetch(this);
+      if (sessionsUtils.isSessionSelected()) {
+        this.reSelectSession(sessionsUtils.selectedSessionId());
+      }
     },
 
     deselectSession: function(id) {
@@ -215,9 +213,6 @@ export const fixedSessions = (
 
       const data = params.get("data");
 
-      // _.values suggests that `params.get('selectedSessionIds')` could be an obj, is it true?
-      const sessionIds = _.values(params.get("selectedSessionIds") || []);
-
       if (!data.timeFrom || !data.timeTo) return;
 
       var reqData = {
@@ -225,7 +220,7 @@ export const fixedSessions = (
         time_to: data.timeTo,
         tags: data.tags,
         usernames: data.usernames,
-        session_ids: sessionIds
+        session_ids: params.selectedSessionIds()
       };
 
       if (data.isIndoor) {
