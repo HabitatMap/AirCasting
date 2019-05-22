@@ -192,7 +192,7 @@ const setupHorizontalWheelScroll = node => {
     // The "wheel" event is triggered by both a mouse wheel and a trackpad.
     // Only when `deltaX` is 0 the scroll is assured to be coming from a trackpad.
     if (Math.abs(event.deltaX) !== 0) return;
-    const scrollBy = Math.sign(event.deltaY) * 90;
+    const scrollBy = Math.sign(event.deltaY) * 180;
     node.scroll(node.scrollLeft + scrollBy, 0);
   };
 
