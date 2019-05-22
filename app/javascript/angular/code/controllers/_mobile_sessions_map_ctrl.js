@@ -19,7 +19,6 @@ export const MobileSessionsMapCtrl = (
   sensors,
   mobileSessions,
   versioner,
-  singleMobileSession,
   functionBlocker,
   $window,
   infoWindow,
@@ -32,7 +31,6 @@ export const MobileSessionsMapCtrl = (
     $scope.params = params;
     $scope.sensors = sensors;
     $scope.sessions = mobileSessions;
-    $scope.singleSession = singleMobileSession;
     $scope.$window = $window;
 
     functionBlocker.block(

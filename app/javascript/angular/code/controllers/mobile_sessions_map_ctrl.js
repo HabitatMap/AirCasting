@@ -9,7 +9,6 @@ angular
     "sensors",
     "mobileSessions",
     "versioner",
-    "singleMobileSession",
     "functionBlocker",
     "$window",
     "infoWindow",
