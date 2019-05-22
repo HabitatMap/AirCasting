@@ -57,16 +57,18 @@ export const SessionsListCtrl = (
         return;
       }
 
+      if (hasChangedProgrammatically) {
+        //triggered when deselecting a session
+        sessions.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
+        return;
+      }
+
       if (!params.get("data").isSearchAsIMoveOn) {
         sessionsUtils.refreshMapView(sessions);
         if (!hasChangedProgrammatically) elmApp.ports.mapMoved.send(null);
         return;
       }
 
-      if (hasChangedProgrammatically) {
-        sessions.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
-        return;
-      }
       sessions.fetch();
     },
     true
