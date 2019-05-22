@@ -51,4 +51,18 @@ namespace :fix do
       user.username_will_change! && user.username.chomp! && user.save
     end
   end
+
+  desc "Destroy empty streams"
+  task :destroy_empty_streams => :environment do
+    ActiveRecord::Base.transaction do
+      sql = "SELECT s.id FROM streams s WHERE NOT EXISTS (SELECT m.id FROM measurements m WHERE s.id = m.stream_id);"
+      ids = Stream.find_by_sql(sql).map(&:id)
+      puts "Destroying #{ids.size} streams"
+
+      Stream.where(id: ids).each do |stream|
+        puts "Destroying #{stream.inspect}"
+        stream.destroy!
+      end
+    end
+  end
 end
