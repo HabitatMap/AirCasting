@@ -42,10 +42,6 @@ export const mobileSessions = (
       return this.sessions.map(x => x.id);
     },
 
-    allSelected: function() {
-      return sessionsUtils.allSelected(this);
-    },
-
     allSessionIds: function() {
       return sessionsUtils.allSessionIds(this);
     },
@@ -101,7 +97,7 @@ export const mobileSessions = (
     },
 
     selectSession: function(id) {
-      const callback = (session, allSelected) => data => {
+      const callback = (session, selectedSession) => data => {
         drawSession.clear(this.sessions);
         prevMapPosition = {
           bounds: map.getBounds(),
@@ -114,7 +110,7 @@ export const mobileSessions = (
         const draw = () =>
           drawSession.drawMobileSession(session, drawSessionStartingMarker);
         map.fitBoundsWithBottomPadding(
-          calculateBounds(sensors, allSelected, map.getZoom())
+          calculateBounds(sensors, selectedSession, map.getZoom())
         );
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       };
@@ -126,7 +122,7 @@ export const mobileSessions = (
       // this must happen before everything else, otherwise the session is drawn on the map and removed right away
       drawSession.clear(this.sessions);
       setTimeout(() => {
-        const callback = (session, allSelected) => data => {
+        const callback = session => data => {
           const drawSessionStartingMarker = (session, sensorName) =>
             this.drawSessionWithLabel(session, sensorName);
           const draw = () =>
@@ -213,7 +209,6 @@ export const mobileSessions = (
     },
 
     _selectSession: function(id, callback) {
-      const allSelected = this.allSelected();
       var session = this.find(id);
       if (!session || session.alreadySelected) return;
       var sensorId = sensors.selectedId();
@@ -226,7 +221,7 @@ export const mobileSessions = (
           cache: true,
           params: { sensor_name: sensorName }
         })
-        .success(callback(session, allSelected));
+        .success(callback(session, sessionsUtils.selectedSession(this)));
     },
 
     _fetch: function(values = {}) {

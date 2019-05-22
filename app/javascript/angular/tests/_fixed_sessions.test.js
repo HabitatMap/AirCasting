@@ -515,10 +515,11 @@ const _fixedSessions = ({
   const _$window = $window || { location: { pathname: "/fixed_map" } };
   const _sessionsUtils = {
     find: () => ({}),
-    allSelected: () => {},
     onSingleSessionFetch: (x, y, callback) => callback(),
     get: self => self.sessions,
     onSingleSessionFetchWithoutCrowdMap: (x, y, callback) => callback(),
+    isSessionSelected: () => false,
+    selectedSession: () => {},
     ...sessionsUtils
   };
   const $http = { get: () => ({ success: callback => callback() }) };

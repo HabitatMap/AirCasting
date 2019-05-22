@@ -53,17 +53,7 @@ export const sessionsUtils = (
   },
 
   isSelected: function(self, session) {
-    return _(self.allSelected()).include(session);
-  },
-
-  allSelected: function(self) {
-    return _(params.selectedSessionIds())
-      .chain()
-      .map(function(id) {
-        return self.find(id);
-      })
-      .compact()
-      .value();
+    return this.selectedSessionId() === session.id;
   },
 
   isSessionSelected: function() {

@@ -566,8 +566,9 @@ const _mobileSessions = ({
   };
   const _sessionsUtils = {
     find: () => ({}),
-    allSelected: () => {},
     onSingleSessionFetch: (x, y, callback) => callback(),
+    isSessionSelected: () => false,
+    selectedSession: () => {},
     ...sessionsUtils
   };
   const $http = { get: () => ({ success: callback => callback() }) };
