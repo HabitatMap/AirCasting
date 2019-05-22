@@ -43,8 +43,8 @@ GEM
       activemodel (= 4.2.11)
       activesupport (= 4.2.11)
       arel (~> 6.0)
-    activerecord-import (0.4.1)
-      activerecord (>= 3.0)
+    activerecord-import (0.28.2)
+      activerecord (>= 3.2)
     activesupport (4.2.11)
       i18n (~> 0.7)
       minitest (~> 5.1)
@@ -441,7 +441,7 @@ PLATFORMS
 DEPENDENCIES
   a9n
   activeadmin
-  activerecord-import (= 0.4.1)
+  activerecord-import (~> 0.28)
   activesupport-json_encoder
   acts-as-taggable-on (= 3.5.0)
   awesome_print
