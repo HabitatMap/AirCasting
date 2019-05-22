@@ -43,4 +43,7 @@ config.webpacker.check_yarn_integrity = true
   # config.action_view.raise_on_missing_translations = true
 
   Paperclip.options[:command_path] = "/user/bin"
+
+  config.sass.inline_source_maps = true
+  config.sass.line_comments = true
 end
