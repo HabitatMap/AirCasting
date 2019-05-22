@@ -26,7 +26,7 @@ export const fixedSessions = (
   };
 
   let prevMapPosition = {};
-  if (params.get("selectedSessionIds").length === 1) {
+  if (sessionsUtils.isSessionSelected()) {
     prevMapPosition = params.get("prevMapPosition");
   } else {
     prevMapPosition = {
@@ -252,7 +252,7 @@ export const fixedSessions = (
 
       drawSession.clear(this.sessions);
 
-      if (params.get("selectedSessionIds").length === 1) {
+      if (sessionsUtils.isSessionSelected()) {
         this.downloadSessions("/api/realtime/multiple_sessions.json", reqData);
       } else {
         if (offset === 0) this.sessions = [];

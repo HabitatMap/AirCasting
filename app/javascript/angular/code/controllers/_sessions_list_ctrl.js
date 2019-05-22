@@ -33,7 +33,7 @@ export const SessionsListCtrl = (
     // disabled if there is another selected session and it is not the selected session
     // when refactoring to a radio button this should always be false
     return (
-      !params.get("selectedSessionIds", []).includes(sessionId) &&
+      !(sessionsUtils.selectedSessionId() === sessionId) &&
       sessionsUtils.isSessionSelected()
     );
   };

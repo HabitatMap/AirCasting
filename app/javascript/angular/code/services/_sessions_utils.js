@@ -67,7 +67,11 @@ export const sessionsUtils = (
   },
 
   isSessionSelected: function() {
-    params.selectedSessionIds().length === 1;
+    return params.selectedSessionIds().length === 1;
+  },
+
+  selectedSessionId: function() {
+    return params.selectedSessionIds()[0];
   },
 
   onSingleSessionFetch: function(session, data, callback) {
