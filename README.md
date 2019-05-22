@@ -34,8 +34,8 @@ brew install mysql@5.7
 ### App (any OS)
 
 ```bash
-rvm install 2.2.10
-rvm use 2.2.10
+rvm install 2.4.6
+rvm use 2.4.6
 gem install bundler
 git clone git://github.com/HabitatMap/AirCasting.git
 cd aircasting
@@ -50,8 +50,10 @@ bundle exec foreman start
 yarn install
 # visit http://localhost:3000
 ```
+
 ### Obtaining a bitly access token
-Go to https://bitly.com/ create an account and log in. To generate the token go to Settings -> Advanced settings -> For Developers -> OAuth -> Generic Access Token. 
+
+Go to https://bitly.com/ create an account and log in. To generate the token go to Settings -> Advanced settings -> For Developers -> OAuth -> Generic Access Token.
 
 ## Tests
 
@@ -78,9 +80,9 @@ format js and css files:
 yarn prettier --write app/assets/stylesheets/path/to/your/file.scss
 yarn prettier --write app/javascript/path/to/your/file.js
 ```
- 
- Best to add prettier to your editor to do this for you on save :)
- Same goes for elm-format.
+
+Best to add prettier to your editor to do this for you on save :)
+Same goes for elm-format.
 
 ## API documentation
 
@@ -136,6 +138,7 @@ to any existing configuration file. If none exists just create `~/.my.cnf` as fo
 [mysqld]
 sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
 ```
+
 Note: If you installed mysql using a dmg file, you will have to create ~/.my.cnf according to the insturctions above, Even if some of the other files listed above contains `sql_mode = "..."` - this is just a left over from the previous instalations and will not be used by mysql installed by dmg.
 
 To double check the configuration works
@@ -147,6 +150,7 @@ ActiveRecord::Base.connection.execute("show variables like 'sql_mode'").to_a
 ```
 
 ### Problems with mysql2 gem
+
 If you run into the error `libmysqlclient is missing` while installing mysql2 then run `brew install mysql-connector-c`.
 
 If you run into the error `ld: library not found for -l-lpthread` while installing mysql2 then check https://stackoverflow.com/questions/43661360/install-mysql2-gem-on-macos-sierra#answer-44790834
@@ -154,7 +158,6 @@ If you run into the error `ld: library not found for -l-lpthread` while installi
 If you run into errors while installing mysql2 with exit code 2 try installing from [this source](https://dev.mysql.com/downloads/mysql/5.7.html#downloads).
 
 If you run into problems with db:migrate related to passwords make sure that you change the root password to `''`. To do that open `/your/path/to/mysql -uroot -p` provide the temporary password you were given during installation, then execute `set password = password('');`.
-
 
 ## Contribute
 
@@ -165,6 +168,7 @@ If you'd like to contribute just use the usual github process - fork, make chang
 You can contact the authors by email at [info@habitatmap.org](mailto:info@habitatmap.org).
 
 ## Thanks
+
 AirCasting uses The YourKit Java Profiler for Performance Tuning
 
 YourKit is kindly supporting open source projects with its full-featured Java Profiler. YourKit, LLC is the creator of innovative and intelligent tools for profiling Java and .NET applications. Take a look at YourKit's leading software products: [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp) and [YourKit .NET Profiler](http://www.yourkit.com/.net/profiler/index.jsp).
