@@ -55,7 +55,13 @@ namespace :fix do
   desc "Destroy empty streams"
   task :destroy_empty_streams => :environment do
     ActiveRecord::Base.transaction do
-      sql = "SELECT s.id FROM streams s WHERE NOT EXISTS (SELECT m.id FROM measurements m WHERE s.id = m.stream_id);"
+      sql = <<~END
+        SELECT s.id FROM streams s
+        INNER JOIN sessions ss ON ss.id = s.session_id
+        WHERE NOT EXISTS (SELECT m.id FROM measurements m WHERE s.id = m.stream_id)
+        AND ss.created_at < DATE_SUB(CURDATE(), INTERVAL 3 DAY)
+        AND ss.updated_at < DATE_SUB(CURDATE(), INTERVAL 3 DAY);
+      END
       ids = Stream.find_by_sql(sql).map(&:id)
       puts "Destroying #{ids.size} streams"
 
