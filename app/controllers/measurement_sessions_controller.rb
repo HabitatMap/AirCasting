@@ -20,25 +20,26 @@ class MeasurementSessionsController < ApplicationController
   layout 'map'
 
   def show
-    @session = MobileSession.find_by_url_token(params[:url_token]) or raise NotFound
-    lat = @session.streams.first.min_latitude.to_f
-    lng = @session.streams.first.min_longitude.to_f
-    stream = @session.streams.first
+    session = Session.find_by_url_token(params[:url_token]) or raise NotFound
+    lat = session.streams.first.min_latitude.to_f
+    lng = session.streams.first.min_longitude.to_f
+    stream = session.streams.first
 
     map = { zoom:16,lat:lat,lng:lng,mapType:"hybrid" }
-    selected_session_ids = [@session.id]
+    selected_session_ids = [session.id]
     data = {
       heat: { highest: stream.threshold_very_high,
               high: stream.threshold_high,
               mid: stream.threshold_medium,
               low: stream.threshold_low,
               lowest: stream.threshold_very_low },
-      usernames: @session.user.username,
+      usernames: session.user.username,
       sensorId: stream.sensor_id
     }
+    type = (session.type == "MobileSession") ? "map_sessions" : "map_fixed_sessions"
 
     redirect_to map_path(
-      :anchor => "/map_sessions?map=#{map.to_json}&selectedSessionIds=#{selected_session_ids.to_json}&data=#{data.to_json}"
+      :anchor => "/#{type}?map=#{map.to_json}&selectedSessionIds=#{selected_session_ids.to_json}&data=#{data.to_json}"
     )
   end
 end
