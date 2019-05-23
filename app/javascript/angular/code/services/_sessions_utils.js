@@ -27,18 +27,6 @@ export const sessionsUtils = (
     return _(self.get()).pluck("id");
   },
 
-  noOfSelectedSessions: function(self) {
-    return self.allSelected().length;
-  },
-
-  empty: function(self) {
-    return self.noOfSelectedSessions() === 0;
-  },
-
-  onSessionsFetch: function(self) {
-    self.reSelectAllSessions();
-  },
-
   updateCrowdMapLayer: function(sessionIds) {
     updateCrowdMapLayer.call(sessionIds);
   },
@@ -54,36 +42,20 @@ export const sessionsUtils = (
     });
   },
 
-  deselectAllSessions: function() {
-    params.update({ selectedSessionIds: [] });
-  },
-
-  selectAllSessions: function(self) {
-    params.update({ selectedSessionIds: self.allSessionIds() });
-  },
-
-  reSelectAllSessions: function(self) {
-    _(params.get("selectedSessionIds")).each(function(id) {
-      self.reSelectSession(id);
-    });
-  },
-
   isSelected: function(self, session) {
-    return _(self.allSelected()).include(session);
+    return this.selectedSessionId() === session.id;
   },
 
-  allSelected: function(self) {
-    return _(self.allSelectedIds())
-      .chain()
-      .map(function(id) {
-        return self.find(id);
-      })
-      .compact()
-      .value();
+  isSessionSelected: function() {
+    return params.selectedSessionIds().length === 1;
   },
 
-  allSelectedIds: function() {
-    return params.get("selectedSessionIds");
+  selectedSessionId: function() {
+    return params.selectedSessionIds()[0];
+  },
+
+  selectedSession: function(self) {
+    return this.find(self, this.selectedSessionId());
   },
 
   onSingleSessionFetch: function(session, data, callback) {

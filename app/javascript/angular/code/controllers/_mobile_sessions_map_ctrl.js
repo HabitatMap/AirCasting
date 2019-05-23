@@ -19,7 +19,6 @@ export const MobileSessionsMapCtrl = (
   sensors,
   mobileSessions,
   versioner,
-  singleMobileSession,
   functionBlocker,
   $window,
   infoWindow,
@@ -32,7 +31,6 @@ export const MobileSessionsMapCtrl = (
     $scope.params = params;
     $scope.sensors = sensors;
     $scope.sessions = mobileSessions;
-    $scope.singleSession = singleMobileSession;
     $scope.$window = $window;
 
     functionBlocker.block(
@@ -79,22 +77,12 @@ export const MobileSessionsMapCtrl = (
       );
       if (newValue === oldValue) return;
 
-      if (
-        $scope.params.isCrowdMapOn() &&
-        mobileSessions.noOfSelectedSessions() === 0
-      ) {
+      if ($scope.params.isCrowdMapOn() && !sessionsUtils.isSessionSelected()) {
         sessionsUtils.updateCrowdMapLayer(mobileSessions.sessionIds());
-      } else if (mobileSessions.noOfSelectedSessions() === 1) {
-        mobileSessions.redrawSelectedSession(
-          $scope.params.get("selectedSessionIds")[0]
-        );
-      } else if (mobileSessions.noOfSelectedSessions() === 0) {
-        $scope.sessions.drawSessionsInLocation();
+      } else if (sessionsUtils.isSessionSelected()) {
+        mobileSessions.redrawSelectedSession(sessionsUtils.selectedSessionId());
       } else {
-        console.warn(
-          "mobileSessions.noOfSelectedSessions() should be 0 or 1 and is: ",
-          mobileSessions.noOfSelectedSessions()
-        );
+        $scope.sessions.drawSessionsInLocation();
       }
     },
     true

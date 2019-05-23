@@ -26,7 +26,7 @@ export const fixedSessions = (
   };
 
   let prevMapPosition = {};
-  if (params.get("selectedSessionIds").length === 1) {
+  if (sessionsUtils.isSessionSelected()) {
     prevMapPosition = params.get("prevMapPosition");
   } else {
     prevMapPosition = {
@@ -36,24 +36,8 @@ export const fixedSessions = (
   }
 
   FixedSessions.prototype = {
-    hasSelectedSessions: function() {
-      return this.noOfSelectedSessions() > 0;
-    },
-
-    allSelected: function() {
-      return sessionsUtils.allSelected(this);
-    },
-
-    allSelectedIds: function() {
-      return sessionsUtils.allSelectedIds();
-    },
-
     allSessionIds: function() {
       return sessionsUtils.allSessionIds(this);
-    },
-
-    deselectAllSessions: function() {
-      sessionsUtils.deselectAllSessions();
     },
 
     find: function(id) {
@@ -68,20 +52,8 @@ export const fixedSessions = (
       return sessionsUtils.isSelected(this, session);
     },
 
-    noOfSelectedSessions: function() {
-      return sessionsUtils.noOfSelectedSessions(this);
-    },
-
     onSessionsFetchError: function(data) {
       sessionsUtils.onSessionsFetchError(data);
-    },
-
-    reSelectAllSessions: function() {
-      sessionsUtils.reSelectAllSessions(this);
-    },
-
-    selectAllSessions: function() {
-      sessionsUtils.selectAllSessions(this);
     },
 
     sessionsChanged: function(newIds, oldIds) {
@@ -95,7 +67,9 @@ export const fixedSessions = (
       if (fetchableSessionsCount) {
         this.fetchableSessionsCount = fetchableSessionsCount;
       }
-      sessionsUtils.onSessionsFetch(this);
+      if (sessionsUtils.isSessionSelected()) {
+        this.reSelectSession(sessionsUtils.selectedSessionId());
+      }
     },
 
     deselectSession: function(id) {
@@ -109,7 +83,6 @@ export const fixedSessions = (
 
     selectSession: function(id) {
       const session = this.find(id);
-      const allSelected = this.allSelected();
       const fitBounds = () => {
         if (!session.is_indoor) {
           prevMapPosition = {
@@ -118,7 +91,11 @@ export const fixedSessions = (
           };
           params.update({ prevMapPosition: prevMapPosition });
           map.fitBoundsWithBottomPadding(
-            calculateBounds(sensors, allSelected, map.getZoom())
+            calculateBounds(
+              sensors,
+              sessionsUtils.selectedSession(this),
+              map.getZoom()
+            )
           );
         }
       };
@@ -236,9 +213,6 @@ export const fixedSessions = (
 
       const data = params.get("data");
 
-      // _.values suggests that `params.get('selectedSessionIds')` could be an obj, is it true?
-      const sessionIds = _.values(params.get("selectedSessionIds") || []);
-
       if (!data.timeFrom || !data.timeTo) return;
 
       var reqData = {
@@ -246,7 +220,7 @@ export const fixedSessions = (
         time_to: data.timeTo,
         tags: data.tags,
         usernames: data.usernames,
-        session_ids: sessionIds
+        session_ids: params.selectedSessionIds()
       };
 
       if (data.isIndoor) {
@@ -272,7 +246,7 @@ export const fixedSessions = (
 
       drawSession.clear(this.sessions);
 
-      if (params.get("selectedSessionIds").length === 1) {
+      if (sessionsUtils.isSessionSelected()) {
         this.downloadSessions("/api/realtime/multiple_sessions.json", reqData);
       } else {
         if (offset === 0) this.sessions = [];

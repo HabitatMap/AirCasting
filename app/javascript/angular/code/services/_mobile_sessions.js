@@ -26,7 +26,7 @@ export const mobileSessions = (
   };
 
   let prevMapPosition = {};
-  if (params.get("selectedSessionIds").length === 1) {
+  if (sessionsUtils.isSessionSelected()) {
     prevMapPosition = params.get("prevMapPosition");
   } else {
     prevMapPosition = {
@@ -41,24 +41,9 @@ export const mobileSessions = (
     sessionIds: function() {
       return this.sessions.map(x => x.id);
     },
-    hasSelectedSessions: function() {
-      return this.noOfSelectedSessions() > 0;
-    },
-
-    allSelected: function() {
-      return sessionsUtils.allSelected(this);
-    },
-
-    allSelectedIds: function() {
-      return sessionsUtils.allSelectedIds();
-    },
 
     allSessionIds: function() {
       return sessionsUtils.allSessionIds(this);
-    },
-
-    deselectAllSessions: function() {
-      sessionsUtils.deselectAllSessions();
     },
 
     find: function(id) {
@@ -73,20 +58,8 @@ export const mobileSessions = (
       return sessionsUtils.isSelected(this, session);
     },
 
-    noOfSelectedSessions: function() {
-      return sessionsUtils.noOfSelectedSessions(this);
-    },
-
     onSessionsFetchError: function(data) {
       sessionsUtils.onSessionsFetchError(data);
-    },
-
-    reSelectAllSessions: function() {
-      sessionsUtils.reSelectAllSessions(this);
-    },
-
-    selectAllSessions: function() {
-      sessionsUtils.selectAllSessions(this);
     },
 
     sessionsChanged: function(newIds, oldIds) {
@@ -102,7 +75,9 @@ export const mobileSessions = (
       if (fetchableSessionsCount) {
         this.fetchableSessionsCount = fetchableSessionsCount;
       }
-      sessionsUtils.onSessionsFetch(this);
+      if (sessionsUtils.isSessionSelected()) {
+        this.reSelectSession(sessionsUtils.selectedSessionId());
+      }
     },
 
     onSessionsFetchWithCrowdMapLayerUpdate: function(fetchableSessionsCount) {
@@ -120,7 +95,7 @@ export const mobileSessions = (
     },
 
     selectSession: function(id) {
-      const callback = (session, allSelected) => data => {
+      const callback = (session, selectedSession) => data => {
         drawSession.clear(this.sessions);
         prevMapPosition = {
           bounds: map.getBounds(),
@@ -133,7 +108,7 @@ export const mobileSessions = (
         const draw = () =>
           drawSession.drawMobileSession(session, drawSessionStartingMarker);
         map.fitBoundsWithBottomPadding(
-          calculateBounds(sensors, allSelected, map.getZoom())
+          calculateBounds(sensors, selectedSession, map.getZoom())
         );
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       };
@@ -145,7 +120,7 @@ export const mobileSessions = (
       // this must happen before everything else, otherwise the session is drawn on the map and removed right away
       drawSession.clear(this.sessions);
       setTimeout(() => {
-        const callback = (session, allSelected) => data => {
+        const callback = session => data => {
           const drawSessionStartingMarker = (session, sensorName) =>
             this.drawSessionWithLabel(session, sensorName);
           const draw = () =>
@@ -232,7 +207,6 @@ export const mobileSessions = (
     },
 
     _selectSession: function(id, callback) {
-      const allSelected = this.allSelected();
       var session = this.find(id);
       if (!session || session.alreadySelected) return;
       var sensorId = sensors.selectedId();
@@ -245,7 +219,7 @@ export const mobileSessions = (
           cache: true,
           params: { sensor_name: sensorName }
         })
-        .success(callback(session, allSelected));
+        .success(callback(session, sessionsUtils.selectedSession(this)));
     },
 
     _fetch: function(values = {}) {
@@ -256,14 +230,13 @@ export const mobileSessions = (
 
       var bounds = map.getBounds();
       var data = params.get("data");
-      var sessionIds = _.values(params.get("selectedSessionIds") || []);
       if (!data.timeFrom || !data.timeTo) return;
       var reqData = {
         time_from: data.timeFrom,
         time_to: data.timeTo,
         tags: data.tags,
         usernames: data.usernames,
-        session_ids: sessionIds
+        session_ids: params.selectedSessionIds()
       };
 
       _(reqData).extend({
@@ -285,7 +258,7 @@ export const mobileSessions = (
 
       drawSession.clear(this.sessions);
 
-      if (params.get("selectedSessionIds").length === 1) {
+      if (sessionsUtils.isSessionSelected()) {
         sessionsDownloader(
           "/api/multiple_sessions.json",
           reqData,

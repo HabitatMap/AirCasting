@@ -9,7 +9,6 @@ export const FixedSessionsMapCtrl = (
   sensors,
   fixedSessions,
   versioner,
-  singleFixedSession,
   functionBlocker,
   $window,
   infoWindow,
@@ -22,7 +21,6 @@ export const FixedSessionsMapCtrl = (
     $scope.params = params;
     $scope.sensors = sensors;
     $scope.sessions = fixedSessions;
-    $scope.singleSession = singleFixedSession;
     $scope.$window = $window;
 
     functionBlocker.block(
