@@ -1,4 +1,6 @@
 class Api::JsonForm < Api::Form
+  include AirCasting::DeepSymbolize
+
   def initialize(json:, schema:, struct:)
     @json = json || "{}"
     super(schema: schema, struct: struct)
@@ -7,7 +9,7 @@ class Api::JsonForm < Api::Form
   private
 
   def parsed_params
-    @parsed_params ||= ActiveSupport::JSON.decode(@json).symbolize_keys
+    @parsed_params ||= deep_symbolize(ActiveSupport::JSON.decode(@json))
   rescue JSON::ParserError
     raise Errors::Api::CouldNotParseJsonParams
   end
