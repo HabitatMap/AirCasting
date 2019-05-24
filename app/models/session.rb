@@ -239,9 +239,9 @@ class Session < ActiveRecord::Base
         end
       end
 
-     notes.destroy_all if session_data[:notes].empty?
+      notes.where.not({ number: note_numbers(session_data) }).destroy_all
 
-     session_data[:notes].each do |note_data|
+      session_data[:notes].each do |note_data|
         if note = notes.find_by_number(note_data[:number])
           note.update_attributes(note_data)
         else
@@ -304,5 +304,9 @@ class Session < ActiveRecord::Base
 
   def insert_into_deleted_sessions
     DeletedSession.where(:uuid => uuid, :user_id => user.id).first_or_create!
+  end
+
+  def note_numbers(session_data)
+    session_data[:notes].map{ |note| note[:number] }
   end
 end
