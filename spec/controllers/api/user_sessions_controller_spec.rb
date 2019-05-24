@@ -1,21 +1,3 @@
-# AirCasting - Share your Air!
-# Copyright (C) 2011-2012 HabitatMap, Inc.
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# You can contact the authors by email at <info@habitatmap.org>
-
 require 'rails_helper'
 
 describe Api::UserSessionsController do
@@ -25,19 +7,62 @@ describe Api::UserSessionsController do
   before { allow(controller).to receive(:current_user) { user } }
 
   describe "#sync" do
-    let(:data) { [{ "something" => "value", :notes => [{ "key" => "value" }] }].to_json }
+    it "returns session for upload when it's not present in the db" do
+      post :sync, :format => :json, :data => session_data(uuid: "abc")
 
-    before do
-      expect(user).to receive(:sync).
-        with([{:something => "value", :notes => [{ :key => "value" }] }]).
-        and_return(["Result"])
+      expected = { "download" => [], "upload" => ["abc"], "deleted" => [] }
+
+      expect(json_response).to eq(expected)
     end
 
-    before { post :sync, :format => :json, :data => data }
+    it "returns session as deleted when it's already deleted in the db" do
+      session = create_session!(user: user, uuid: "abc")
+      session.destroy
 
-    it { is_expected.to respond_with(:created) }
-    it "should return results" do
-      expect(json_response).to eq(["Result"])
+      post :sync, :format => :json, :data => session_data(uuid: "abc")
+
+      expected = { "download" => [], "upload" => [], "deleted" => ["abc"] }
+
+      expect(json_response).to eq(expected)
+    end
+
+    it "deletes a session and returns it as deleted if it was mark for deletion" do
+      session = create_session!(user: user, uuid: "abc")
+
+      post :sync, :format => :json, :data => session_data(uuid: "abc", deleted: true)
+
+      expected = { "download" => [], "upload" => [], "deleted" => ["abc"] }
+
+      expect(user.sessions.count).to eq(0)
+      expect(json_response).to eq(expected)
+    end
+
+    it "returns session for download when present it's in the db, but not in the mobile app" do
+      session = create_session!(user: user)
+      stream = create_stream!(session: session)
+      create_measurements!(stream: stream)
+
+      post :sync, :format => :json, :data => "[]"
+
+      expected = { "download" => [session.id], "upload" => [], "deleted" => [] }
+
+      expect(json_response).to eq(expected)
+    end
+
+    it "syncs the session data if it's present in db and wasn't mark for deletion" do
+      session = create_session!(user: user, uuid: "abc", title: "old title", tag_list: "old")
+      stream = create_stream!(session: session)
+      create_measurements!(stream: stream)
+
+      post :sync, :format => :json, :data => session_data(uuid: "abc", title: "new title", tag_list: "new other")
+
+      expected = { "download" => [], "upload" => [], "deleted" => [] }
+
+      synced_session = user.sessions.first
+
+      expect(json_response).to eq(expected)
+      expect(synced_session.title).to eq("new title")
+      expect(synced_session.tags.map { |tag| tag.name } ).to match_array(["new", "other"])
     end
   end
 
@@ -92,5 +117,87 @@ describe Api::UserSessionsController do
         is_expected.to respond_with(:not_found)
       end
     end
+  end
+
+  private
+
+  def create_session!(attributes)
+    Session.create!(
+      title: attributes.fetch(:title, "Example Session"),
+      user: attributes.fetch(:user),
+      uuid: attributes.fetch(:uuid, "uuid"),
+      start_time: DateTime.current,
+      start_time_local: DateTime.current,
+      end_time: DateTime.current,
+      end_time_local: DateTime.current,
+      type: "MobileSession",
+      longitude: 1.0,
+      latitude: 1.0,
+      is_indoor: false
+    )
+  end
+
+  def create_stream!(attributes)
+    Stream.create!(
+      sensor_package_name: "AirBeam2:00189610719F",
+      sensor_name: "AirBeam2-F",
+      measurement_type: "Temperature",
+      unit_name: "Fahrenheit",
+      session: attributes.fetch(:session),
+      measurement_short_type: "dB",
+      unit_symbol: "dB",
+      threshold_very_low: 20,
+      threshold_low: 60,
+      threshold_medium: 70,
+      threshold_high: 80,
+      threshold_very_high: 100
+    )
+  end
+
+  def create_measurements!(attributes)
+    Measurement.create!(
+      time: Time.current,
+      latitude: 1,
+      longitude: 1,
+      value: 1,
+      milliseconds: 0,
+      stream: attributes.fetch(:stream)
+    )
+  end
+
+  def session_data(attributes)
+    "[
+    {\"calibration\":0,
+      \"contribute\":true,
+      \"drawable\":2131165435,
+      \"end_time\":\"2019-05-24T11:37:19\",
+      \"is_indoor\":false,
+      \"latitude\":0.0,
+      \"location\":\"http://localhost/s/4oefo\",
+      \"longitude\":0.0,
+      \"deleted\":#{attributes.fetch(:deleted, false)},
+      \"notes\":[],
+      \"start_time\":\"2019-05-24T11:37:16\",
+      \"streams\":{\"Phone Microphone\"
+        :{\"average_value\":0.0,
+          \"deleted\":false,
+          \"measurement_type\":\"Sound Level\",
+          \"measurements\":[],
+          \"sensor_package_name\":\"Builtin\",
+          \"sensor_name\":\"Phone Microphone\",
+          \"measurement_short_type\":\"dB\",
+          \"unit_symbol\":\"dB\",
+          \"threshold_high\":80,
+          \"threshold_low\":60,
+          \"threshold_medium\":70,
+          \"threshold_very_high\":100,
+          \"threshold_very_low\":20,
+          \"unit_name\":\"decibels\"}
+        },
+      \"tag_list\":\"#{attributes.fetch(:tag_list, "")}\",
+      \"title\":\"#{attributes.fetch(:title, "title")}\",
+      \"type\":\"MobileSession\",
+      \"uuid\":\"#{attributes.fetch(:uuid, "uuid")}\"}
+    ]"
   end
 end
