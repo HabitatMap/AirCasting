@@ -1000,8 +1000,7 @@ viewCrowdMapToggle isCrowdMapOn tooltipIcon =
 viewCrowdMapSlider : String -> Html Msg
 viewCrowdMapSlider resolution =
     div [ id "crowd-map-slider" ]
-        [ p []
-            [ text "Resolution" ]
+        [ label [] [ text "grid cell size" ]
         , div []
             [ input
                 [ class "crowd-map-slider"
