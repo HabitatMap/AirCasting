@@ -58,3 +58,10 @@ a {
   position: absolute;
   width: 1px;
 }
+
+// disable showing alt text until images are loaded in FF
+img:-moz-loading {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
