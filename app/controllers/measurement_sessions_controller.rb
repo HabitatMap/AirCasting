@@ -40,9 +40,9 @@ class MeasurementSessionsController < ApplicationController
     anchor = "?data=#{data.to_json}&selectedSessionIds=#{selected_session_ids.to_json}&map=#{map.to_json}"
 
     if (session.type == "FixedSession")
-      redirect_to fixed_map_url(:anchor => anchor)
+      redirect_to fixed_map_path(:anchor => anchor)
     else
-      redirect_to map_url(:anchor => anchor)
+      redirect_to map_path(:anchor => anchor)
     end
   end
 end
