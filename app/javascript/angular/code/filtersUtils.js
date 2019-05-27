@@ -116,6 +116,7 @@ const updateTooltipContent = (link, tooltip) => {
     <input value=${link}></input>
     <button
       id='copy-link-button'
+      class='button button--primary copy-link-button'
       data-clipboard-text=${link}
     >
       Copy
