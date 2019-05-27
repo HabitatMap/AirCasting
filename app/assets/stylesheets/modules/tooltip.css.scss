@@ -1,6 +1,12 @@
-.tippy-tooltip input {
-  border: 1px solid #ddd;
-  margin: 0.5em 0;
+.tippy-tooltip {
+  &.light-border-theme {
+    text-align: left;
+  }
+
+  input {
+    border: 1px solid #ddd;
+    margin: 0.5em 0;
+  }
 }
 
 [data-tippy-content] {
