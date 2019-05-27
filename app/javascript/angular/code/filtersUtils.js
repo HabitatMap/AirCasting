@@ -88,6 +88,7 @@ const tooltipInstance = (() => {
       tippy(`#${tooltipId}`, {
         animateFill: false,
         interactive: true,
+        theme: "light-border",
         trigger: "manual"
       })[0] || oldInstance;
 
