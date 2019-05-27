@@ -350,50 +350,21 @@ crowdMapArea =
                     |> Tuple.first
                     |> .crowdMapResolution
                     |> Expect.equal resolution
-        , test "checkbox has a correct label" <|
+        , test "'off' is selected by default" <|
             \_ ->
                 defaultModel
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| for "checkbox-crowd-map" ]
-                    |> Query.contains
-                        [ text "Crowd Map" ]
-        , test "checkbox is not checked as default" <|
+                    |> Query.find [ Slc.attribute <| ariaLabel "off" ]
+                    |> Query.has [ Slc.attribute <| class "toggle-button--pressed" ]
+        , test "toggling sends ToggleCrowdMap message" <|
             \_ ->
                 defaultModel
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| id "checkbox-crowd-map" ]
-                    |> Query.has
-                        [ Slc.attribute <| checked False ]
-        , fuzz bool "checkbox state depends on model.isCrowdMapOn" <|
-            \onOffValue ->
-                let
-                    model =
-                        { defaultModel | isCrowdMapOn = onOffValue }
-                in
-                model
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| id "checkbox-crowd-map" ]
-                    |> Query.has
-                        [ Slc.attribute <| checked model.isCrowdMapOn ]
-        , test "clicking the checkbox sends ToggleCrowdMap message" <|
-            \_ ->
-                defaultModel
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| id "checkbox-crowd-map" ]
+                    |> Query.find [ Slc.attribute <| ariaLabel "on" ]
                     |> Event.simulate Event.click
                     |> Event.expect ToggleCrowdMap
-        , test "slider has a description" <|
-            \_ ->
-                { defaultModel | isCrowdMapOn = True }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| id "crowd-map-slider" ]
-                    |> Query.contains
-                        [ text "Resolution" ]
         , test "slider has a description with current crowd map resolution" <|
             \_ ->
                 { defaultModel | isCrowdMapOn = True }
@@ -452,20 +423,12 @@ toggleIndoorFilter =
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
                     |> Query.has [ Slc.attribute <| class "toggle-button--pressed" ]
-        , test "clicking indoor button triggers ToggleIndoor" <|
+        , test "toggling triggers ToggleIndoor" <|
             \_ ->
                 { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "indoor" ]
-                    |> Event.simulate Event.click
-                    |> Event.expect ToggleIndoor
-        , test "clicking outdoor button triggers ToggleIndoor" <|
-            \_ ->
-                { defaultModel | page = Fixed }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
                     |> Event.simulate Event.click
                     |> Event.expect ToggleIndoor
         ]

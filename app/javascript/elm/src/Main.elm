@@ -891,7 +891,6 @@ viewMobileFilters model =
         , TimeRange.view RefreshTimeRange False model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
-        , div [ class "filter-separator" ] []
         , viewCrowdMapOptions model.isCrowdMapOn model.crowdMapResolution model.selectedSession model.tooltipIcon
         ]
 
@@ -979,7 +978,7 @@ viewSensorFilter sensors selectedSensorId tooltipIcon =
 viewCrowdMapOptions : Bool -> Int -> WebData SelectedSession -> Path -> Html Msg
 viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon =
     div [ classList [ ( "disabled-area", RemoteData.isSuccess selectedSession ) ] ]
-        [ viewCrowdMapCheckBox isCrowdMapOn tooltipIcon
+        [ viewCrowdMapToggle isCrowdMapOn tooltipIcon
         , if isCrowdMapOn then
             viewCrowdMapSlider (String.fromInt crowdMapResolution)
 
@@ -988,17 +987,12 @@ viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon 
         ]
 
 
-viewCrowdMapCheckBox : Bool -> Path -> Html Msg
-viewCrowdMapCheckBox isCrowdMapOn tooltipIcon =
+viewCrowdMapToggle : Bool -> Path -> Html Msg
+viewCrowdMapToggle isCrowdMapOn tooltipIcon =
     div [ class "filters__toggle-group" ]
-        [ input
-            [ id "checkbox-crowd-map"
-            , type_ "checkbox"
-            , checked isCrowdMapOn
-            , Events.onClick ToggleCrowdMap
-            ]
-            []
-        , label [ for "checkbox-crowd-map" ] [ text "Crowd Map" ]
+        [ label [] [ text "crowdmap:" ]
+        , viewToggleButton "off" (not isCrowdMapOn) ToggleCrowdMap
+        , viewToggleButton "on" isCrowdMapOn ToggleCrowdMap
         , Tooltip.view Tooltip.crowdMap tooltipIcon
         ]
 
