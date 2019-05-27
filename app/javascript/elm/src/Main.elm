@@ -990,18 +990,16 @@ viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon 
 
 viewCrowdMapCheckBox : Bool -> Path -> Html Msg
 viewCrowdMapCheckBox isCrowdMapOn tooltipIcon =
-    div []
-        [ p []
-            [ input
-                [ id "checkbox-crowd-map"
-                , type_ "checkbox"
-                , checked isCrowdMapOn
-                , Events.onClick ToggleCrowdMap
-                ]
-                []
-            , label [ for "checkbox-crowd-map" ] [ text "Crowd Map" ]
-            , Tooltip.view Tooltip.crowdMap tooltipIcon
+    div [ class "filters__toggle-group" ]
+        [ input
+            [ id "checkbox-crowd-map"
+            , type_ "checkbox"
+            , checked isCrowdMapOn
+            , Events.onClick ToggleCrowdMap
             ]
+            []
+        , label [ for "checkbox-crowd-map" ] [ text "Crowd Map" ]
+        , Tooltip.view Tooltip.crowdMap tooltipIcon
         ]
 
 
