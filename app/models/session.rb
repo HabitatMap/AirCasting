@@ -134,16 +134,6 @@ class Session < ActiveRecord::Base
       .local_minutes_range(Utils.minutes_of_day(time_from), Utils.minutes_of_day(time_to))
   end
 
-  def self.filtered_json(data, limit, offset)
-    offset(offset)
-    .limit(limit)
-    .with_user_and_streams
-    .filter(data).as_json(
-      only: filtered_json_fields,
-      methods: session_methods
-    )
-  end
-
   def self.selected_sessions_json(data)
     where("id IN (?)", data[:session_ids])
     .with_user_and_streams
