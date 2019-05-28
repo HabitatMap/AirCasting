@@ -7,7 +7,7 @@ class Api::ToMobileSessionsArray
     return Failure.new(form.errors) if form.invalid?
 
     Success.new(
-      sessions: MobileSession.filtered_json(data, limit, offset),
+      sessions: filtered,
       fetchableSessionsCount: MobileSession.filter(data).count
     )
   end
@@ -15,6 +15,52 @@ class Api::ToMobileSessionsArray
   private
 
   attr_reader :form
+
+  def filtered
+    sessions = MobileSession
+    .offset(offset)
+    .limit(limit)
+    .with_user_and_streams
+    .filter(data)
+    .map do |session|
+      {
+        id: session.id,
+        title: session.title,
+        start_time_local: session.start_time_local,
+        end_time_local: session.end_time_local,
+        title: session.title,
+        type: session.type,
+        username: session.user.username,
+        streams: session.streams.reduce({}) do |acc, stream|
+          acc.merge(stream.sensor_name =>
+          {
+            average_value: stream.average_value,
+            id: stream.id,
+            max_latitude: stream.max_latitude,
+            max_longitude: stream.max_longitude,
+            measurement_short_type: stream.measurement_short_type,
+            measurement_type: stream.measurement_type,
+            measurements_count: stream.measurements_count,
+            min_latitude: stream.min_latitude,
+            min_longitude: stream.min_longitude,
+            sensor_name: stream.sensor_name,
+            sensor_package_name: stream.sensor_package_name,
+            session_id: stream.session_id,
+            size: stream.size,
+            start_latitude: stream.start_latitude,
+            start_longitude: stream.start_longitude,
+            threshold_high: stream.threshold_high,
+            threshold_low: stream.threshold_low,
+            threshold_medium: stream.threshold_medium,
+            threshold_very_high: stream.threshold_very_high,
+            threshold_very_low: stream.threshold_very_low,
+            unit_name: stream.unit_name,
+            unit_symbol: stream.unit_symbol
+          })
+        end
+      }
+    end
+  end
 
   def data
     # `Session.filter` checks for the presence of `is_indoor`.

@@ -37,7 +37,6 @@ describe Api::Mobile::SessionsController do
       expected = {
         "fetchableSessionsCount" => 1,
         "sessions" => [
-          "average" => measurement.value,
           "end_time_local" => "2000-10-01T02:03:04.000Z",
           "start_time_local" => "2000-10-01T02:03:04.000Z",
           "id" => session.id,
