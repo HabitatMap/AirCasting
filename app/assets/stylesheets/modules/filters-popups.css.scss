@@ -1,12 +1,14 @@
+$popup-background-color: #f7f7f7;
+
 .filter-popup {
   position: absolute;
   z-index: 8;
   top: 8rem;
   width: 310px;
   left: calc(#{$filters-width} + 2rem);
-  background: white;
+  background: $popup-background-color;
   padding: $margin-default;
-  box-shadow: $basic-shadow;
+  box-shadow: $bottom-shadow-lighter;
   color: $text-color;
   border-radius: $basic-radius;
   animation: show-up 0.4s ease;
@@ -26,14 +28,16 @@
 }
 
 .filter-popup__toggle-more-button {
+  background: $popup-background-color;
   border: none;
   border-top: 1px solid $separator-color;
+  cursor: pointer;
   font-size: $tiny-font;
   margin-top: 8px;
   padding-top: 12px;
   text-align: right;
-  -webkit-appearance: none;
   width: 100%;
+  -webkit-appearance: none;
 
   &:hover {
     text-decoration: underline;
@@ -45,6 +49,7 @@
   box-shadow: 1px 1px 4px 0 rgba(160, 192, 290, 0.5);
   border: none;
   color: $dark-blue;
+  cursor: pointer;
   font-size: $tiny-font;
   font-weight: $font-stack-regular;
   width: 126px;
@@ -53,7 +58,9 @@
 }
 
 .filter-popup-button--more {
+  background: none;
   border: none;
+  cursor: pointer;
   display: inline-block;
   font-size: $tiny-font;
   padding: 12px;
