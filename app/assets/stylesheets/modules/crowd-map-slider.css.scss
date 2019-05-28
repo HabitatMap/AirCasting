@@ -1,0 +1,129 @@
+/*
+ * Custom range input
+ * Used https://www.cssportal.com/style-input-range/ to generate basic styles and then tweaked.
+ * For more info see https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/.
+ */
+
+$track-color: #fff;
+$thumb-color: $blue;
+
+$thumb-radius: 10px;
+$thumb-height: 20px;
+$thumb-width: 20px;
+
+$track-height: 2px;
+
+input[type="range"] {
+  height: $track-height;
+  -webkit-appearance: none;
+  margin: 0 5px;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]::-moz-focus-outer {
+  border: 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  height: $thumb-height;
+  width: $thumb-width;
+  border-radius: $thumb-radius;
+  background: $blue;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: ($track-height / 2) - ($thumb-height / 2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  box-shadow: none;
+  border: none;
+  height: $thumb-height;
+  width: $thumb-width;
+  border-radius: $thumb-radius;
+  background: $blue;
+  cursor: pointer;
+}
+
+input[type="range"]::-ms-thumb {
+  margin-top: 1px;
+  box-shadow: none;
+  border: none;
+  height: $thumb-height;
+  width: $thumb-width;
+  border-radius: $thumb-radius;
+  background: $blue;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: $track-height;
+  cursor: pointer;
+  background: $track-color;
+  border-radius: 0;
+}
+
+input[type="range"]:focus::-webkit-slider-runnable-track {
+  background: $track-color;
+}
+
+input[type="range"]::-moz-range-track {
+  height: $track-height;
+  cursor: pointer;
+  box-shadow: none;
+  background: $track-color;
+  border-radius: 0;
+  border: none;
+}
+
+input[type="range"]::-ms-track {
+  width: 100%;
+  height: $track-height;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+input[type="range"]::-ms-fill-lower {
+  background: $track-color;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+input[type="range"]::-ms-fill-upper {
+  background: $track-color;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+input[type="range"]:focus::-ms-fill-lower {
+  background: $track-color;
+}
+
+input[type="range"]:focus::-ms-fill-upper {
+  background: $track-color;
+}
+
+.crowd-map-slider-container {
+  align-items: center;
+  display: flex;
+
+  span {
+    font-size: 24px;
+    height: $thumb-height;
+    line-height: $thumb-height;
+
+    &.minus {
+      margin-top: -1px;
+    }
+
+    &.plus {
+      margin-top: 2px;
+    }
+  }
+}
