@@ -5,14 +5,14 @@ export const formatSessionForList = session => ({
   startTime: session.startTime,
   endTime: session.endTime,
   shortTypes: session.shortTypes,
-  // `average` for mobile sessions, `last_hour_average` for streaming fixed sessions
+  // `stream.average_value` for mobile sessions
+  // `session.last_hour_average` for streaming fixed sessions
   // non-streaming fixed sessions do not have average
   // The `hasOwnProperty` check is needed because 0 is falsy in JS
-  average: session.hasOwnProperty("average")
-    ? session.average
-    : session.hasOwnProperty("last_hour_average")
-    ? session.last_hour_average
-    : null,
+  average:
+    session.type === "MobileSession"
+      ? session.selectedStream.average_value
+      : session.last_hour_average,
   // marker location for mobile sessions is based on the location of first measurement for a given stream
   // for fixed sessions location is constant so and stored on the session directly
   location: {
