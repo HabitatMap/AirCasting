@@ -372,7 +372,9 @@ crowdMapArea =
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| id "crowd-map-slider" ]
                     |> Query.contains
-                        [ text "grid cell size: 40" ] -- resolution 11 maps to size 40
+                        [ text "grid cell size: 40" ]
+
+        -- resolution 11 maps to size 40
         , test "slider default value is 25" <|
             \_ ->
                 { defaultModel | isCrowdMapOn = True }
