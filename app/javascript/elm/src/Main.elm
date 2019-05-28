@@ -995,7 +995,7 @@ viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon 
 viewCrowdMapToggle : Bool -> Path -> Html Msg
 viewCrowdMapToggle isCrowdMapOn tooltipIcon =
     div [ class "filters__toggle-group" ]
-        [ label [] [ text "crowdmap:" ]
+        [ label [] [ text "CrowdMap:" ]
         , viewToggleButton "off" (not isCrowdMapOn) ToggleCrowdMap
         , viewToggleButton "on" isCrowdMapOn ToggleCrowdMap
         , Tooltip.view Tooltip.crowdMap tooltipIcon
@@ -1005,7 +1005,8 @@ viewCrowdMapToggle isCrowdMapOn tooltipIcon =
 viewCrowdMapSlider : String -> Html Msg
 viewCrowdMapSlider resolution =
     div [ id "crowd-map-slider" ]
-        [ label [] [ text "grid cell size:" ]
+        [ label [] [ text <| "grid cell size: " ++ (String.fromInt <| 51 - (Maybe.withDefault 20 <| String.toInt resolution)) ]
+         -- size 40 to 1 maps to resolution 11 to 50
         , div [ class "crowd-map-slider-container" ]
             [ span [ class "minus" ] [ text "-" ]
             , input
@@ -1019,7 +1020,6 @@ viewCrowdMapSlider resolution =
                 []
             , span [ class "plus" ] [ text "+" ]
             ]
-        , div [] [ text <| String.fromInt <| 51 - (Maybe.withDefault 20 <| String.toInt resolution) ] -- resolution 11 to 50 maps to size 40 to 1
         ]
 
 
