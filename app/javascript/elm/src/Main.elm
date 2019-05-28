@@ -645,11 +645,16 @@ view model =
                             ]
 
                       else
-                        text ""
+                        case model.popup of
+                            Popup.None ->
+                                text ""
+
+                            _ ->
+                                div [ class "overlay" ] []
                     , div [ class "map-container" ]
                         [ if model.isIndoor && not model.isHttping then
                             div []
-                                [ div [ class "overlay" ] []
+                                [ div [ class "overlay overlay--indoor" ] []
                                 , div [ class "overlay-info" ] [ p [] [ text "Indoor sessions aren't mapped." ] ]
                                 ]
 
