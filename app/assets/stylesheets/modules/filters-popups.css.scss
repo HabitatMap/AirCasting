@@ -55,6 +55,12 @@ $popup-background-color: #f7f7f7;
   width: 126px;
   padding: 6px 0;
   margin-bottom: 12px;
+
+  &.active {
+    background: $blue;
+    color: white;
+    font-weight: $font-stack-bold;
+  }
 }
 
 .filter-popup-button--more {
