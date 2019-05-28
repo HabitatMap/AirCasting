@@ -58,14 +58,12 @@ $thumb-radius: 10px;
 $thumb-height: 20px;
 $thumb-width: 20px;
 
-$track-width: 100%;
 $track-height: 2px;
 
 input[type="range"] {
   height: $track-height;
   -webkit-appearance: none;
-  margin: 10px 0;
-  width: $track-width;
+  margin: 0 5px;
 }
 
 input[type="range"]:focus {
@@ -108,7 +106,6 @@ input[type="range"]::-ms-thumb {
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
-  width: $track-width;
   height: $track-height;
   cursor: pointer;
   background: $track-color;
@@ -120,7 +117,6 @@ input[type="range"]:focus::-webkit-slider-runnable-track {
 }
 
 input[type="range"]::-moz-range-track {
-  width: $track-width;
   height: $track-height;
   cursor: pointer;
   box-shadow: none;
@@ -158,4 +154,23 @@ input[type="range"]:focus::-ms-fill-lower {
 
 input[type="range"]:focus::-ms-fill-upper {
   background: $track-color;
+}
+
+.crowd-map-slider-container {
+  align-items: center;
+  display: flex;
+
+  span {
+    font-size: 24px;
+    height: $thumb-height;
+    line-height: $thumb-height;
+
+    &.minus {
+      margin-top: -1px;
+    }
+
+    &.plus {
+      margin-top: 2px;
+    }
+  }
 }

@@ -1001,8 +1001,9 @@ viewCrowdMapSlider : String -> Html Msg
 viewCrowdMapSlider resolution =
     div [ id "crowd-map-slider" ]
         [ label [] [ text "grid cell size" ]
-        , div []
-            [ input
+        , div [ class "crowd-map-slider-container" ]
+            [ span [ class "minus" ] [ text "-" ]
+            , input
                 [ class "crowd-map-slider"
                 , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateCrowdMapResolution)
                 , value resolution
@@ -1011,9 +1012,9 @@ viewCrowdMapSlider resolution =
                 , type_ "range"
                 ]
                 []
-            , span []
-                [ text resolution ]
+            , span [ class "plus" ] [ text "+" ]
             ]
+        , div [] [ text resolution ]
         ]
 
 
