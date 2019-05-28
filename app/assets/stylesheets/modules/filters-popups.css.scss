@@ -1,17 +1,19 @@
 $popup-background-color: #f7f7f7;
 
 .filter-popup {
-  position: absolute;
-  z-index: 8;
-  top: 8rem;
-  width: 310px;
-  left: calc(#{$filters-width} + 2rem);
+  animation: show-up 0.4s ease;
   background: $popup-background-color;
-  padding: $margin-default;
+  border-radius: $basic-radius;
   box-shadow: $bottom-shadow-lighter;
   color: $text-color;
-  border-radius: $basic-radius;
-  animation: show-up 0.4s ease;
+  max-height: 100vh;
+  overflow: scroll;
+  padding: $margin-default;
+  position: absolute;
+  left: calc(#{$filters-width} + 2rem);
+  top: 8rem;
+  width: 310px;
+  z-index: 8;
 }
 
 .filter-popup__list {
