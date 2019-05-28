@@ -32,24 +32,8 @@ angular.module("aircasting").factory("sessionsDownloader", [
         .error(error);
     };
 
-    var completeSessions = function(data) {
-      var sessions = _.reject(data, function(session) {
-        return _.isEmpty(session.streams);
-      });
-
-      sessions = _.reject(sessions, function(session) {
-        return _.some(_.values(session.streams), function(stream) {
-          return stream.size === 0;
-        });
-      });
-
-      return sessions;
-    };
-
     var preprocessData = function(data, sessions, params) {
       var times;
-
-      data = completeSessions(data);
 
       _(data).each(function(session) {
         if (session.start_time_local && session.end_time_local) {

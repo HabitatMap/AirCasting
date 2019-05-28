@@ -154,20 +154,6 @@ describe MobileSession do
     end
   end
 
-  describe '.filtered_json' do
-    let(:data) { double('data') }
-    let(:records) { double('records') }
-    let(:json) { double('json') }
-
-    it 'should return filter() as json' do
-      expect(MobileSession).to receive(:filter).with(data).and_return(records)
-      expect(records).to receive(:as_json).with(hash_including({:only => [:id, :title, :start_time_local, :end_time_local],
-        :methods => [:username, :streams]})).and_return(json)
-
-      expect(MobileSession.filtered_json(data, 0, 50)).to eq(json)
-    end
-  end
-
   describe '#set_url_token' do
     let(:token) { "abc123" }
     let(:gen) { double(:generate_unique => token) }
