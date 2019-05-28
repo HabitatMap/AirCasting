@@ -1013,13 +1013,13 @@ viewCrowdMapSlider resolution =
                 , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateCrowdMapResolution)
                 , value resolution
                 , max "50"
-                , min "10"
+                , min "11"
                 , type_ "range"
                 ]
                 []
             , span [ class "plus" ] [ text "+" ]
             ]
-        , div [] [ text resolution ]
+        , div [] [ text <| String.fromInt <| 51 - (Maybe.withDefault 20 <| String.toInt resolution) ] -- resolution 11 to 50 maps to size 40 to 1
         ]
 
 
