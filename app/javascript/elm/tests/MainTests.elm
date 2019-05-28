@@ -365,14 +365,14 @@ crowdMapArea =
                     |> Query.find [ Slc.attribute <| ariaLabel "on" ]
                     |> Event.simulate Event.click
                     |> Event.expect ToggleCrowdMap
-        , test "slider has a description with current crowd map resolution" <|
+        , test "slider has a description with current crowd map grid cell size" <|
             \_ ->
-                { defaultModel | isCrowdMapOn = True }
+                { defaultModel | isCrowdMapOn = True, crowdMapResolution = 11 }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| id "crowd-map-slider" ]
                     |> Query.contains
-                        [ text (String.fromInt defaultModel.crowdMapResolution) ]
+                        [ text "40" ] -- resolution 11 to 50 maps to size 40 to 1
         , test "slider default value is 25" <|
             \_ ->
                 { defaultModel | isCrowdMapOn = True }
