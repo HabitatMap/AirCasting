@@ -15,6 +15,10 @@ import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../assets/stylesheets/vendor/jquery.lightbox-0.5.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
 
+if (window.NodeList && !NodeList.prototype.forEach) {
+  NodeList.prototype.forEach = Array.prototype.forEach;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   fetch("/api/sensors.json")
     .then(x => x.json())
