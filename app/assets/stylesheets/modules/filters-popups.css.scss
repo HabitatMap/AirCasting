@@ -7,7 +7,7 @@ $popup-background-color: #f7f7f7;
   box-shadow: $bottom-shadow-lighter;
   color: $text-color;
   max-height: 80vh;
-  overflow: scroll;
+  overflow: auto;
   padding: $margin-default;
   position: absolute;
   left: calc(#{$filters-width} + 2rem);
