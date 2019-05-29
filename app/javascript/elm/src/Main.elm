@@ -85,10 +85,10 @@ defaultModel =
     , isStreaming = True
     , selectedSession = NotAsked
     , logoNav = ""
-    , linkIcon = Path.fromString ""
-    , resetIcon = Path.fromString ""
-    , resetIconWhite = Path.fromString ""
-    , tooltipIcon = Path.fromString ""
+    , linkIcon = Path.empty
+    , resetIcon = Path.empty
+    , resetIconWhite = Path.empty
+    , tooltipIcon = Path.empty
     , heatMapThresholds = NotAsked
     , isSearchAsIMoveOn = False
     , wasMapMoved = False
@@ -699,7 +699,7 @@ viewSearchAsIMove wasMapMoved isSearchAsIMoveOn resetIcon =
                 , Events.onClick FetchSessions
                 ]
                 [ text "Redo Search in Map"
-                , img [ src (Path.toString resetIcon), alt "Reset icon" ] []
+                , img [ src <| Path.toString resetIcon, alt "Reset icon" ] []
                 ]
 
           else
@@ -728,7 +728,7 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon =
         , div [ id "heatmap", class "heatmap-slider" ] []
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
         , button [ ariaLabel "Reset heatmap", class "reset-heatmap-button", Events.onClick ResetHeatMapToDefaults ]
-            [ img [ src (Path.toString resetIcon), alt "Reset icon" ] [] ]
+            [ img [ src <| Path.toString resetIcon, alt "Reset icon" ] [] ]
         ]
 
 
@@ -793,7 +793,7 @@ viewFiltersButtons selectedSession sessions linkIcon =
             div [ class "filters__actions action-buttons" ]
                 [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
                 , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
-                    [ img [ src (Path.toString linkIcon), alt "Link icon" ] [] ]
+                    [ img [ src <| Path.toString linkIcon, alt "Link icon" ] [] ]
                 ]
 
         _ ->
