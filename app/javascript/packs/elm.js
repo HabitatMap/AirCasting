@@ -13,6 +13,7 @@ import { createObserver } from "../createObserver.js";
 import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
 import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../assets/stylesheets/vendor/jquery.lightbox-0.5.css";
+import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch("/api/sensors.json")
