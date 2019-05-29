@@ -221,15 +221,6 @@ export const mapSettings = () => {
           visibility: "off"
         }
       ]
-    },
-    {
-      featureType: "man_made",
-      elementType: "geometry.stroke",
-      stylers: [
-        {
-          visibility: "on"
-        }
-      ]
     }
   ];
 };
