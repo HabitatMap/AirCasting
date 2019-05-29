@@ -9,6 +9,10 @@
   color: transparent;
   cursor: pointer;
 
+  &.measurement {
+    background-color: pink;
+  }
+
   &.default {
     background-color: $grey;
   }

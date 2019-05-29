@@ -200,13 +200,13 @@ export const map = (
       callback,
       type
     }) {
-      const customMarker = buildCustomMarker(
+      const customMarker = buildCustomMarker({
         object,
         content,
         colorClass,
         callback,
         type
-      );
+      });
 
       customMarker.setMap(this.get());
       this.markers.push(customMarker);
@@ -311,11 +311,15 @@ export const removeMarker = function(marker) {
   marker.setMap(null);
 };
 
-export const drawMarker = function({ position, title, zIndex, icon }) {
-  var newMarker = new google.maps.Marker({ position, title, zIndex, icon });
+export const drawCustomMarker = ({ position }) => {
+  const customMarker = buildCustomMarker({
+    object: { latLng: new google.maps.LatLng(position) },
+    colorClass: "measurement",
+    type: "marker"
+  });
 
-  newMarker.setMap(window.__map);
-  window.__markers.push(newMarker);
+  customMarker.setMap(window.__map);
+  window.__markers.push(customMarker);
 
-  return newMarker;
+  return customMarker;
 };
