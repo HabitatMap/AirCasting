@@ -46,6 +46,10 @@ $popup-background-color: #f7f7f7;
   &:hover {
     text-decoration: underline;
   }
+
+  .filter-popup__more & {
+    margin-bottom: 16px;
+  }
 }
 
 .filter-popup-button {
