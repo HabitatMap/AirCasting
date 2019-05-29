@@ -39,7 +39,7 @@ view toggle onSelect isPopupExtended popup =
                           else if isPopupExtended then
                             div [ class "filter-popup__more" ]
                                 [ selectableItems OtherPart others onSelect selectedItem
-                                , togglePopupStateButton ("less " ++ itemType) toggle
+                                , togglePopupStateButton ("fewer " ++ itemType) toggle
                                 ]
 
                           else
