@@ -1,5 +1,17 @@
-export function buildCustomMarker(object, content, colorClass, callback, type) {
-  const CustomMarker = function(object, content, colorClass, callback, type) {
+export function buildCustomMarker({
+  object,
+  content,
+  colorClass,
+  callback,
+  type
+}) {
+  const CustomMarker = function({
+    object,
+    content,
+    colorClass,
+    callback,
+    type
+  }) {
     this.position = object.latLng;
 
     const marker = document.createElement("div");
@@ -76,5 +88,5 @@ export function buildCustomMarker(object, content, colorClass, callback, type) {
 
   CustomMarker.prototype.value = () => object.value;
 
-  return new CustomMarker(object, content, colorClass, callback, type);
+  return new CustomMarker({ object, content, colorClass, callback, type });
 }

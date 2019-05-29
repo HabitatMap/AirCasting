@@ -200,13 +200,13 @@ export const map = (
       callback,
       type
     }) {
-      const customMarker = buildCustomMarker(
+      const customMarker = buildCustomMarker({
         object,
         content,
         colorClass,
         callback,
         type
-      );
+      });
 
       customMarker.setMap(this.get());
       this.markers.push(customMarker);
