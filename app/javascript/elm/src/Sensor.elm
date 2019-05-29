@@ -111,7 +111,7 @@ parameters sensors =
                 |> Set.fromList
                 |> Set.toList
                 |> List.filter (\sensor -> not (List.member sensor (Dict.keys mainSensors)))
-                |> List.sortBy String.toUpper
+                |> List.sortBy (\name -> String.trim <| String.toUpper name)
     in
     ( Dict.keys mainSensors, othersParameters )
 
