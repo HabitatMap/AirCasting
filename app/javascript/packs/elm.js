@@ -19,6 +19,10 @@ if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
 }
 
+if (!Object.values) {
+  Object.values = obj => Object.keys(obj).map(key => obj[key]);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   fetch("/api/sensors.json")
     .then(x => x.json())
