@@ -26,6 +26,8 @@ $popup-background-color: #f7f7f7;
 }
 
 .filter-popup__list--more {
+  @include flexbox();
+  @include flex-wrap(wrap);
   animation: show-up 1s ease;
 }
 
@@ -52,10 +54,10 @@ $popup-background-color: #f7f7f7;
   border: none;
   color: $dark-blue;
   cursor: pointer;
+  flex: 1 0 48%;
   font-size: $tiny-font;
   font-weight: $font-stack-regular;
-  width: 126px;
-  padding: 6px 0;
+  padding: 8px 12px;
   margin-bottom: 12px;
 
   &.active {
@@ -63,16 +65,19 @@ $popup-background-color: #f7f7f7;
     color: white;
     font-weight: $font-stack-bold;
   }
+
+  &:nth-child(2n) {
+    margin-left: 3%;
+  }
 }
 
-.filter-popup-button--more {
+.filter-popup-secondary-button {
   background: none;
   border: none;
   cursor: pointer;
-  display: inline-block;
+  flex: 1 0 50%;
   font-size: $tiny-font;
   padding: 12px;
   text-align: left;
-  width: 50%;
   -webkit-appearance: none;
 }

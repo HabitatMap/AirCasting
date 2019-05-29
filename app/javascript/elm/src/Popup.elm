@@ -69,7 +69,7 @@ selectableItems part items onSelect selectedItem =
                     ( "filter-popup__list", "button filter-popup-button" )
 
                 OtherPart ->
-                    ( "filter-popup__list--more", "button filter-popup-button--more" )
+                    ( "filter-popup__list--more", "button filter-popup-secondary-button" )
 
         toButton item =
             button
