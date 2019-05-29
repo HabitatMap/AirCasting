@@ -13,6 +13,7 @@ module Sensor exposing
 
 import Dict
 import Json.Decode as Decode exposing (Decoder(..))
+import NaturalOrdering
 import Set
 
 
@@ -108,10 +109,11 @@ parameters sensors =
         othersParameters =
             sensors
                 |> List.map .parameter
+                |> List.map String.trim
                 |> Set.fromList
                 |> Set.toList
                 |> List.filter (\sensor -> not (List.member sensor (Dict.keys mainSensors)))
-                |> List.sortBy (\name -> String.trim <| String.toUpper name)
+                |> List.sortWith NaturalOrdering.compare
     in
     ( Dict.keys mainSensors, othersParameters )
 
