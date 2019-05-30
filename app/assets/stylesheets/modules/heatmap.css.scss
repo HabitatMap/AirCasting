@@ -20,7 +20,7 @@
 
   input {
     border: 1px solid #e0e0e0;
-    box-shadow: $basic-shadow;
+    box-shadow: $delicate-shadow;
     font-size: $small-font;
     height: 25px;
     margin: 0 4px;
@@ -148,10 +148,10 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
   border-radius: 12px;
   background: white;
   cursor: default;
-  box-shadow: $basic-shadow;
+  box-shadow: $darker-shadow;
 }
 .noUi-active {
-  box-shadow: $basic-shadow;
+  box-shadow: $darker-shadow;
 }
 
 /* Disabled state;
