@@ -1,5 +1,3 @@
-import constants from "./constants";
-
 angular.module("google", []);
 angular.module("aircasting", ["ngCookies", "google"]);
 

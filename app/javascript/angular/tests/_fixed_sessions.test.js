@@ -16,7 +16,7 @@ test("fetch with no sessions ids in params passes empty array to sessionsDownloa
     sessionIds
   });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].session_ids, sessionIds);
 
@@ -33,7 +33,7 @@ test("fetch with sessions ids in params passes them to sessionsDownloader", t =>
     sessionIds
   });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].session_ids, sessionIds);
 
@@ -48,7 +48,7 @@ test("fetch with time params passes them to sessionsDownloader", t => {
     data
   });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].time_from, 1);
   t.deepEqual(sessionsDownloaderCalls[0].time_to, 2);
@@ -64,7 +64,7 @@ test("fetch with tags and usernames params passes them to sessionsDownloader", t
     data
   });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].tags, "tag1, tag2");
   t.deepEqual(sessionsDownloaderCalls[0].usernames, "will123, agata");
@@ -80,7 +80,7 @@ test("fetch with isIndoor set to true passes is_indoor true to sessionsDownloade
     data
   });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].is_indoor, true);
 
@@ -104,7 +104,7 @@ test("fetch with isIndoor set to true does not pass map corner coordinates to se
     map
   });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].west, undefined);
   t.deepEqual(sessionsDownloaderCalls[0].east, undefined);
@@ -122,7 +122,7 @@ test("fetch with isIndoor set to false does not pass is_indoor to sessionsDownlo
     data
   });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].is_indoor, undefined);
 
@@ -137,7 +137,7 @@ test("fetch with missing timeFrom value in params does not call downloadSessions
     data
   });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.true(sessionsDownloaderCalls.length === 0);
 
@@ -152,7 +152,7 @@ test("fetch with missing timeTo value in params does not call downloadSessions",
     data
   });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.true(sessionsDownloaderCalls.length === 0);
 
@@ -164,7 +164,7 @@ test("fetch with time calls drawSession.clear", t => {
   const data = buildData({ time: {} });
   const fixedSessionsService = _fixedSessions({ data, drawSession });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.true(drawSession.wasCalled());
 
@@ -179,26 +179,9 @@ test("fetch with time calls downloadSessions", t => {
     data
   });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.true(sessionsDownloaderCalls.length > 0);
-
-  t.end();
-});
-
-test("fetch when on a different route than fixed map does not call downloadSessions", t => {
-  const sessionsDownloaderCalls = [];
-  const data = buildData({ time: {} });
-  const $window = { location: { pathname: "/other_route" } };
-  const fixedSessionsService = _fixedSessions({
-    sessionsDownloaderCalls,
-    data,
-    $window
-  });
-
-  fixedSessionsService._fetch();
-
-  t.true(sessionsDownloaderCalls.length === 0);
 
   t.end();
 });
@@ -215,7 +198,7 @@ test("fetch passes map corner coordinates to sessionsDownloader", t => {
   };
   const fixedSessionsService = _fixedSessions({ sessionsDownloaderCalls, map });
 
-  fixedSessionsService._fetch();
+  fixedSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].west, 1);
   t.deepEqual(sessionsDownloaderCalls[0].east, 2);
@@ -473,7 +456,6 @@ const _fixedSessions = ({
   data,
   drawSession,
   sessionIds = [],
-  $window,
   map,
   sessionsUtils,
   sensors
@@ -511,7 +493,6 @@ const _fixedSessions = ({
   const sessionsDownloader = (_, arg) => {
     sessionsDownloaderCalls.push(arg);
   };
-  const _$window = $window || { location: { pathname: "/fixed_map" } };
   const _sessionsUtils = {
     find: () => ({}),
     onSingleSessionFetch: (x, y, callback) => callback(),
@@ -533,7 +514,7 @@ const _fixedSessions = ({
     sessionsDownloader,
     _drawSession,
     _sessionsUtils,
-    _$window,
+    null,
     _heat
   );
 };
