@@ -64,38 +64,4 @@ describe StreamsRepository do
       expect(Stream.first.start_longitude).to eq(12)
     end
   end
-
-  private
-
-  def create_stream!(attributes = {})
-    Stream.create!(
-      sensor_package_name: "abc",
-      sensor_name: "abc",
-      measurement_type: "abc",
-      unit_name: "abc",
-      session_id: 123,
-      measurement_short_type: "dB",
-      unit_symbol: "dB",
-      threshold_very_low: 20,
-      threshold_low: 60,
-      threshold_medium: 70,
-      threshold_high: 80,
-      threshold_very_high: 100,
-      min_latitude: attributes.fetch(:min_latitude, 0),
-      max_latitude: attributes.fetch(:max_latitude, 0),
-      min_longitude: attributes.fetch(:min_longitude, 0),
-      max_longitude: attributes.fetch(:max_longitude, 0)
-    )
-  end
-
-  def create_measurement!(attributes)
-    Measurement.create!(
-      time: attributes.fetch(:time, DateTime.current),
-      latitude: attributes.fetch(:latitude),
-      longitude: attributes.fetch(:longitude),
-      value: 123,
-      milliseconds: 123,
-      stream: attributes.fetch(:stream)
-    )
-  end
 end
