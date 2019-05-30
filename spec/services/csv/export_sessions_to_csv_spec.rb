@@ -78,47 +78,6 @@ describe Csv::ExportSessionsToCsv do
 
   private
 
-  def create_session!(attributes = {})
-    Session.create!(
-      title: attributes.fetch(:title, "Example Session"),
-      user: User.new,
-      uuid: "845342a6-f9f4-4835-86b3-b100163ec39a",
-      start_time: DateTime.current,
-      start_time_local: DateTime.current,
-      end_time: DateTime.current,
-      end_time_local: DateTime.current,
-      type: "MobileSession"
-    )
-  end
-
-  def create_stream!(attributes)
-    Stream.create!(
-      sensor_package_name: attributes.fetch(:sensor_package_name),
-      sensor_name: attributes.fetch(:sensor_name),
-      measurement_type: attributes.fetch(:measurement_type),
-      unit_name: attributes.fetch(:unit_name),
-      session: attributes.fetch(:session),
-      measurement_short_type: "dB",
-      unit_symbol: "dB",
-      threshold_very_low: 20,
-      threshold_low: 60,
-      threshold_medium: 70,
-      threshold_high: 80,
-      threshold_very_high: 100
-    )
-  end
-
-  def create_measurement!(attributes)
-    Measurement.create!(
-      time: attributes.fetch(:time),
-      latitude: attributes.fetch(:latitude),
-      longitude: attributes.fetch(:longitude),
-      value: attributes.fetch(:value),
-      milliseconds: attributes.fetch(:milliseconds),
-      stream: attributes.fetch(:stream)
-    )
-  end
-
   def file_content(zip_file)
     zip_file.entries.map do |entry|
       entry.get_input_stream.read

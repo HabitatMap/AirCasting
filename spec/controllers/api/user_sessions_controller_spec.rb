@@ -120,51 +120,7 @@ describe Api::UserSessionsController do
   end
 
   private
-
-  def create_session!(attributes)
-    Session.create!(
-      title: attributes.fetch(:title, "Example Session"),
-      user: attributes.fetch(:user),
-      uuid: attributes.fetch(:uuid, "uuid"),
-      start_time: DateTime.current,
-      start_time_local: DateTime.current,
-      end_time: DateTime.current,
-      end_time_local: DateTime.current,
-      type: "MobileSession",
-      longitude: 1.0,
-      latitude: 1.0,
-      is_indoor: false
-    )
-  end
-
-  def create_stream!(attributes)
-    Stream.create!(
-      sensor_package_name: "AirBeam2:00189610719F",
-      sensor_name: "AirBeam2-F",
-      measurement_type: "Temperature",
-      unit_name: "Fahrenheit",
-      session: attributes.fetch(:session),
-      measurement_short_type: "dB",
-      unit_symbol: "dB",
-      threshold_very_low: 20,
-      threshold_low: 60,
-      threshold_medium: 70,
-      threshold_high: 80,
-      threshold_very_high: 100
-    )
-  end
-
-  def create_measurements!(attributes)
-    Measurement.create!(
-      time: Time.current,
-      latitude: 1,
-      longitude: 1,
-      value: 1,
-      milliseconds: 0,
-      stream: attributes.fetch(:stream)
-    )
-  end
-
+  
   def session_data(attributes)
     "[
     {\"calibration\":0,

@@ -94,6 +94,10 @@ class Session < ActiveRecord::Base
       sessions = filter_by_time_range(sessions, data[:time_from], data[:time_to])
     end
 
+    if sessions
+      sessions = sessions.joins(:streams).where("streams.measurements_count > 0")
+    end
+
     sessions
   end
 

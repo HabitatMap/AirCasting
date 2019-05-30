@@ -92,14 +92,14 @@ describe MobileSession do
     before { MobileSession.destroy_all }
 
     it 'should exclude not contributed sessions' do
-      session1 = FactoryGirl.create(:mobile_session, :contribute => true)
-      session2 = FactoryGirl.create(:mobile_session, :contribute => false)
+      session1 = create_session_with_streams_and_measurements!
+      session2 = create_session_with_streams_and_measurements!(contribute: false)
 
       expect(MobileSession.filter.to_a).to eq([session1])
     end
 
     it 'should include explicitly requested but not contributed sessions' do
-      session =  FactoryGirl.create(:mobile_session, :id => 1, :contribute => false)
+      session =  create_session_with_streams_and_measurements!(id: 1, contribute: false)
 
       expect(MobileSession.filter(:session_ids => [1]).to_a).to eq([session])
     end
@@ -108,10 +108,9 @@ describe MobileSession do
       now = Time.now
       plus_one_hour = (now + 1.hour)
       plus_two_hours = (now + 2.hours)
-      session = FactoryGirl.create(
-        :mobile_session,
-        :start_time_local => now,
-        :end_time_local => now + 3.hours
+      session = create_session_with_streams_and_measurements!(
+        start_time_local: now,
+        end_time_local: now + 3.hours
       )
 
       actual = MobileSession.filter(:time_from => plus_one_hour, :time_to => plus_two_hours).to_a
@@ -135,12 +134,12 @@ describe MobileSession do
     end
 
     it "should find sessions by usernames" do
-      user_1 = FactoryGirl.create(:user, :username => 'foo bar')
-      user_2 = FactoryGirl.create(:user, :username => 'john')
-      session_1 = FactoryGirl.create(:mobile_session, :user => user_1)
-      session_2 = FactoryGirl.create(:mobile_session, :user => user_2)
+      user_1 = create_user!(username: 'foo bar')
+      user_2 = create_user!(username: 'john')
+      session_1 = create_session_with_streams_and_measurements!(user: user_1)
+      session_2 = create_session_with_streams_and_measurements!(user: user_2)
 
-      expect(MobileSession.filter(:usernames => 'foo bar    , biz').to_a).to eq([session_1])
+      expect(MobileSession.filter(:usernames => 'foo bar, biz').to_a).to eq([session_1])
     end
 
 
