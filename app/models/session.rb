@@ -77,7 +77,7 @@ class Session < ActiveRecord::Base
     sessions = sessions.where(is_indoor: data[:is_indoor]) unless data[:is_indoor].nil?
 
     if data[:east] && data[:west] && data[:north] && data[:south]
-      sessions = sessions.from_location(data)
+      joins(:streams).merge(Stream.in_rectangle(data))
     end
 
     sensor_name = data[:sensor_name]
@@ -111,16 +111,6 @@ class Session < ActiveRecord::Base
     end
 
     sessions
-  end
-
-  def self.from_location(data)
-    streams_ids = Stream.select('streams.id').
-      joins(:session).
-      where('sessions.contribute' => true).
-      in_rectangle(data).
-      map(&:id)
-
-    where(:streams => {:id => streams_ids.uniq})
   end
 
   def self.filter_by_time_range(sessions, time_from, time_to)
