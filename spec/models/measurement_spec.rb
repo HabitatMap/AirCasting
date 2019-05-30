@@ -132,49 +132,4 @@ describe Measurement do
       end
     end
   end
-
-  private
-
-  def create_session!
-    Session.create!(
-      title: "abc",
-      user: User.new,
-      uuid: SecureRandom.uuid,
-      calibration: 100,
-      offset_60_db: 0,
-      start_time: DateTime.current,
-      start_time_local: DateTime.current,
-      end_time: DateTime.current,
-      end_time_local: DateTime.current,
-      type: "MobileSession"
-    )
-  end
-
-  def create_stream!(attributes)
-    Stream.create!(
-      sensor_package_name: "abc",
-      sensor_name: "abc",
-      measurement_type: "abc",
-      unit_name: "abc",
-      session: attributes.fetch(:session, create_session!()),
-      measurement_short_type: "dB",
-      unit_symbol: "dB",
-      threshold_very_low: 20,
-      threshold_low: 60,
-      threshold_medium: 70,
-      threshold_high: 80,
-      threshold_very_high: 100
-    )
-  end
-
-  def create_measurement!(attributes)
-    Measurement.create!(
-      time: attributes.fetch(:time, DateTime.current),
-      latitude: 123,
-      longitude: 123,
-      value: 123,
-      milliseconds: 123,
-      stream: attributes.fetch(:stream, create_stream!({}))
-    )
-  end
 end
