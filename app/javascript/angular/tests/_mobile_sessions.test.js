@@ -14,7 +14,7 @@ test("fetch with no sessions ids in params passes empty array to sessionsDownloa
     sessionIds
   });
 
-  mobileSessionsService._fetch();
+  mobileSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].session_ids, sessionIds);
 
@@ -31,7 +31,7 @@ test("fetch with sessions ids in params passes them to sessionsDownloader", t =>
     sessionIds
   });
 
-  mobileSessionsService._fetch();
+  mobileSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].session_ids, sessionIds);
 
@@ -46,7 +46,7 @@ test("fetch with time params passes them to sessionsDownloader", t => {
     data
   });
 
-  mobileSessionsService._fetch();
+  mobileSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].time_from, 1);
   t.deepEqual(sessionsDownloaderCalls[0].time_to, 2);
@@ -62,7 +62,7 @@ test("fetch with tags and usernames params passes them to sessionsDownloader", t
     data
   });
 
-  mobileSessionsService._fetch();
+  mobileSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].tags, "tag1, tag2");
   t.deepEqual(sessionsDownloaderCalls[0].usernames, "will123, agata");
@@ -78,7 +78,7 @@ test("fetch with missing timeFrom value in params does not call downloadSessions
     data
   });
 
-  mobileSessionsService._fetch();
+  mobileSessionsService.fetch();
 
   t.true(sessionsDownloaderCalls.length === 0);
 
@@ -93,7 +93,7 @@ test("fetch with missing timeTo value in params does not call downloadSessions",
     data
   });
 
-  mobileSessionsService._fetch();
+  mobileSessionsService.fetch();
 
   t.true(sessionsDownloaderCalls.length === 0);
 
@@ -105,7 +105,7 @@ test("fetch with time calls drawSession.clear", t => {
   const data = buildData({ time: {} });
   const mobileSessionsService = _mobileSessions({ data, drawSession });
 
-  mobileSessionsService._fetch();
+  mobileSessionsService.fetch();
 
   t.true(drawSession.wasCalled());
 
@@ -120,26 +120,9 @@ test("fetch with time calls downloadSessions", t => {
     data
   });
 
-  mobileSessionsService._fetch();
+  mobileSessionsService.fetch();
 
   t.true(sessionsDownloaderCalls.length > 0);
-
-  t.end();
-});
-
-test("fetch when on a different route than mobile map does not call downloadSessions", t => {
-  const sessionsDownloaderCalls = [];
-  const data = buildData({ time: {} });
-  const $window = { location: { pathname: "/other_route" } };
-  const mobileSessionsService = _mobileSessions({
-    sessionsDownloaderCalls,
-    data,
-    $window
-  });
-
-  mobileSessionsService._fetch();
-
-  t.true(sessionsDownloaderCalls.length === 0);
 
   t.end();
 });
@@ -159,7 +142,7 @@ test("fetch passes map corner coordinates to sessionsDownloader", t => {
     map
   });
 
-  mobileSessionsService._fetch();
+  mobileSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].west, 1);
   t.deepEqual(sessionsDownloaderCalls[0].east, 2);
@@ -175,7 +158,7 @@ test("fetch called without arguments assigns default values", t => {
     sessionsDownloaderCalls
   });
 
-  mobileSessionsService._fetch();
+  mobileSessionsService.fetch();
 
   t.deepEqual(sessionsDownloaderCalls[0].limit, 50);
   t.deepEqual(sessionsDownloaderCalls[0].offset, 0);
@@ -189,7 +172,7 @@ test("fetch called with values passes them to session downloader", t => {
     sessionsDownloaderCalls
   });
 
-  mobileSessionsService._fetch({
+  mobileSessionsService.fetch({
     amount: 100,
     fetchedSessionsCount: 50
   });
@@ -203,7 +186,7 @@ test("fetch called with values passes them to session downloader", t => {
 test("fetch resets sessions list if offset equal 0", t => {
   const mobileSessionsService = _mobileSessions({});
 
-  mobileSessionsService._fetch({
+  mobileSessionsService.fetch({
     fetchedSessionsCount: 0
   });
 
@@ -217,7 +200,7 @@ test("fetch keeps the previous sessions list if offset does not equal 0", t => {
 
   mobileSessionsService.sessions = ["someSession"];
 
-  mobileSessionsService._fetch({
+  mobileSessionsService.fetch({
     fetchedSessionsCount: 50
   });
 
@@ -522,7 +505,6 @@ const _mobileSessions = ({
   data,
   drawSession,
   sessionIds = [],
-  $window,
   map,
   sessionsUtils,
   sensors
@@ -571,7 +553,6 @@ const _mobileSessions = ({
     ...sessionsUtils
   };
   const $http = { get: () => ({ success: callback => callback() }) };
-  const _$window = $window || { location: { pathname: "/mobile_map" } };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
   return mobileSessions(
@@ -583,7 +564,6 @@ const _mobileSessions = ({
     sessionsDownloader,
     _drawSession,
     _sessionsUtils,
-    _heat,
-    _$window
+    _heat
   );
 };
