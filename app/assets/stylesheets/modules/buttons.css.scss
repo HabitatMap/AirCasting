@@ -1,6 +1,7 @@
 .button {
   border: none;
   border-radius: 30px;
+  cursor: pointer;
   text-align: center;
 }
 
@@ -27,7 +28,6 @@
 }
 
 .copy-link-button {
-  cursor: pointer;
   display: block;
   margin: 0 auto;
   padding: 5px 15px;
