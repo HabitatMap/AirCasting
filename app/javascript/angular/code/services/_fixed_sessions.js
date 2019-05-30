@@ -1,5 +1,4 @@
 import _ from "underscore";
-import { debounce } from "debounce";
 import constants from "../constants";
 import * as Session from "../values/session";
 import { calculateBounds } from "../calculateBounds";
@@ -61,8 +60,6 @@ export const fixedSessions = (
     },
 
     onSessionsFetch: function(fetchableSessionsCount) {
-      if ($window.location.pathname !== constants.fixedMapRoute) return;
-
       this.drawSessionsInLocation();
       if (fetchableSessionsCount) {
         this.fetchableSessionsCount = fetchableSessionsCount;
@@ -205,9 +202,7 @@ export const fixedSessions = (
       session.markers.push(customMarker);
     },
 
-    _fetch: function(values = {}) {
-      // if _fetch is called after the route has changed (eg debounced)
-      if ($window.location.pathname !== constants.fixedMapRoute) return;
+    fetch: function(values = {}) {
       const limit = values.amount || 50;
       const offset = values.fetchedSessionsCount || 0;
 
@@ -260,11 +255,7 @@ export const fixedSessions = (
           this.downloadSessions("/api/fixed/dormant/sessions.json", reqData);
         }
       }
-    },
-
-    fetch: debounce(function(values) {
-      this._fetch(values);
-    }, 750)
+    }
   };
   return new FixedSessions();
 };

@@ -1,6 +1,4 @@
 import _ from "underscore";
-import { debounce } from "debounce";
-import constants from "../constants";
 import * as Session from "../values/session";
 import { clusterer } from "../clusterer";
 import { calculateBounds } from "../calculateBounds";
@@ -67,8 +65,6 @@ export const mobileSessions = (
     },
 
     onSessionsFetch: function(fetchableSessionsCount) {
-      if ($window.location.pathname !== constants.mobileMapRoute) return;
-
       if (!params.isCrowdMapOn()) {
         this.drawSessionsInLocation();
       }
@@ -222,9 +218,7 @@ export const mobileSessions = (
         .success(callback(session, sessionsUtils.selectedSession(this)));
     },
 
-    _fetch: function(values = {}) {
-      // if _fetch is called after the route has changed (eg debounced)
-      if ($window.location.pathname !== constants.mobileMapRoute) return;
+    fetch: function(values = {}) {
       const limit = values.amount || 50;
       const offset = values.fetchedSessionsCount || 0;
 
@@ -279,11 +273,7 @@ export const mobileSessions = (
           _(this.onSessionsFetchError).bind(this)
         );
       }
-    },
-
-    fetch: debounce(function(values) {
-      this._fetch(values);
-    }, 750)
+    }
   };
   return new MobileSessions();
 };
