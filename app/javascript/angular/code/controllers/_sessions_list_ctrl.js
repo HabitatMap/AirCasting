@@ -191,5 +191,6 @@ const selectedStream = sensorName => session => ({
 
 const formatSessionForElm = s => ({
   ...s,
-  shortTypes: s.shortTypes.map(({ name, type }) => ({ name, type_: type }))
+  shortTypes: s.shortTypes.map(({ name, type }) => ({ name, type_: type })),
+  average: s.average || null
 });
