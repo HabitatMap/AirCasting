@@ -77,7 +77,7 @@ class Session < ActiveRecord::Base
     sessions = sessions.where(is_indoor: data[:is_indoor]) unless data[:is_indoor].nil?
 
     if data[:east] && data[:west] && data[:north] && data[:south]
-      joins(:streams).merge(Stream.in_rectangle(data))
+      sessions = sessions.joins(:streams).merge(Stream.in_rectangle(data))
     end
 
     sensor_name = data[:sensor_name]
