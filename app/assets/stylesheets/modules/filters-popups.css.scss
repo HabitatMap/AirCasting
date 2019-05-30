@@ -4,7 +4,7 @@ $popup-background-color: #f7f7f7;
   animation: show-up 0.4s ease;
   background: $popup-background-color;
   border-radius: $basic-radius;
-  box-shadow: $bottom-shadow-lighter;
+  box-shadow: $basic-shadow;
   color: $text-color;
   max-height: 80vh;
   overflow: auto;
@@ -54,7 +54,7 @@ $popup-background-color: #f7f7f7;
 
 .filter-popup-button {
   background: white;
-  box-shadow: 1px 1px 4px 0 rgba(160, 192, 290, 0.5);
+  box-shadow: $blue-shadow;
   border: none;
   color: $dark-blue;
   flex: 1 0 48%;
