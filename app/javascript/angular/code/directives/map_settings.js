@@ -10,24 +10,6 @@ export const mapSettings = () => {
       ]
     },
     {
-      featureType: "administrative.locality",
-      elementType: "all",
-      stylers: [
-        {
-          visibility: "simplified"
-        }
-      ]
-    },
-    {
-      featureType: "administrative.neighborhood",
-      elementType: "all",
-      stylers: [
-        {
-          visibility: "off"
-        }
-      ]
-    },
-    {
       featureType: "administrative.land_parcel",
       elementType: "labels",
       stylers: [
@@ -37,8 +19,23 @@ export const mapSettings = () => {
       ]
     },
     {
+      featureType: "administrative.locality",
+      stylers: [
+        {
+          visibility: "simplified"
+        }
+      ]
+    },
+    {
+      featureType: "administrative.neighborhood",
+      stylers: [
+        {
+          visibility: "off"
+        }
+      ]
+    },
+    {
       featureType: "landscape",
-      elementType: "all",
       stylers: [
         {
           color: "#f2f2f2"
@@ -47,10 +44,18 @@ export const mapSettings = () => {
     },
     {
       featureType: "landscape.man_made",
-      elementType: "all",
       stylers: [
         {
           visibility: "off"
+        }
+      ]
+    },
+    {
+      featureType: "landscape.man_made",
+      elementType: "geometry",
+      stylers: [
+        {
+          visibility: "simplified"
         }
       ]
     },
@@ -68,13 +73,15 @@ export const mapSettings = () => {
       elementType: "geometry.stroke",
       stylers: [
         {
+          color: "#c9c9c9"
+        },
+        {
           visibility: "on"
         }
       ]
     },
     {
       featureType: "landscape.natural",
-      elementType: "all",
       stylers: [
         {
           visibility: "simplified"
@@ -83,7 +90,6 @@ export const mapSettings = () => {
     },
     {
       featureType: "landscape.natural.landcover",
-      elementType: "all",
       stylers: [
         {
           visibility: "off"
@@ -92,7 +98,6 @@ export const mapSettings = () => {
     },
     {
       featureType: "landscape.natural.terrain",
-      elementType: "all",
       stylers: [
         {
           visibility: "simplified"
@@ -101,7 +106,6 @@ export const mapSettings = () => {
     },
     {
       featureType: "poi",
-      elementType: "all",
       stylers: [
         {
           visibility: "off"
@@ -119,7 +123,6 @@ export const mapSettings = () => {
     },
     {
       featureType: "poi.business",
-      elementType: "all",
       stylers: [
         {
           visibility: "off"
@@ -128,7 +131,6 @@ export const mapSettings = () => {
     },
     {
       featureType: "poi.park",
-      elementType: "all",
       stylers: [
         {
           visibility: "off"
@@ -137,7 +139,6 @@ export const mapSettings = () => {
     },
     {
       featureType: "road",
-      elementType: "all",
       stylers: [
         {
           saturation: -100
@@ -148,8 +149,16 @@ export const mapSettings = () => {
       ]
     },
     {
+      featureType: "road.arterial",
+      elementType: "labels.icon",
+      stylers: [
+        {
+          visibility: "off"
+        }
+      ]
+    },
+    {
       featureType: "road.highway",
-      elementType: "all",
       stylers: [
         {
           visibility: "simplified"
@@ -175,15 +184,6 @@ export const mapSettings = () => {
       ]
     },
     {
-      featureType: "road.arterial",
-      elementType: "labels.icon",
-      stylers: [
-        {
-          visibility: "off"
-        }
-      ]
-    },
-    {
       featureType: "road.local",
       elementType: "labels",
       stylers: [
@@ -194,7 +194,6 @@ export const mapSettings = () => {
     },
     {
       featureType: "transit",
-      elementType: "all",
       stylers: [
         {
           visibility: "off"
@@ -203,7 +202,6 @@ export const mapSettings = () => {
     },
     {
       featureType: "water",
-      elementType: "all",
       stylers: [
         {
           color: "#e0f1f9"
