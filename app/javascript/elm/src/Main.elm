@@ -847,7 +847,14 @@ viewShortType length index shortType =
 viewLoadMore : Int -> Int -> Html Msg
 viewLoadMore fetchableSessionsCount sessionCount =
     if sessionCount < fetchableSessionsCount then
-        li [] [ button [ Events.onClick LoadMoreSessions ] [ text "Load More..." ] ]
+        div [ class "more-sessions-button-container" ]
+            [ button
+                [ id "more-sessions-button"
+                , class "button button--primary action-button action-button--more-sessions"
+                , Events.onClick LoadMoreSessions
+                ]
+                [ text "more sessions →" ]
+            ]
 
     else
         text ""

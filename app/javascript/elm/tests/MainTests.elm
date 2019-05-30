@@ -487,7 +487,8 @@ viewTests =
                 }
                     |> view
                     |> Query.fromHtml
-                    |> Query.contains [ Html.text "Load More..." ]
+                    |> Query.findAll [ Slc.id "more-sessions-button" ]
+                    |> Query.count (Expect.equal 1)
         , fuzz (intRange 1 100) "with no selection and fetchableSessionsCount equal to current session list length load more button is not shown" <|
             \times ->
                 { defaultModel
@@ -497,14 +498,14 @@ viewTests =
                 }
                     |> view
                     |> Query.fromHtml
-                    |> Query.findAll [ Slc.text "Load More..." ]
+                    |> Query.findAll [ Slc.id "more-sessions-button" ]
                     |> Query.count (Expect.equal 0)
         , test "with no selection and 0 sessions in the model the load more button is not shown" <|
             \times ->
                 { defaultModel | sessions = [], selectedSession = NotAsked }
                     |> view
                     |> Query.fromHtml
-                    |> Query.findAll [ Slc.text "Load More..." ]
+                    |> Query.findAll [ Slc.id "more-sessions-button" ]
                     |> Query.count (Expect.equal 0)
         , test "with selection graph is shown" <|
             \_ ->

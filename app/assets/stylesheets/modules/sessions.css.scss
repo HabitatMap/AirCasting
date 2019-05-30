@@ -23,6 +23,12 @@
   box-shadow: $bottom-shadow-lighter;
 }
 
+.more-sessions-button-container {
+  @include flexbox();
+  @include align-items(center);
+  padding: 0 24px 0 18px;
+}
+
 .session-header-container {
   @include flexbox();
   @include flex-direction(row);
