@@ -57,6 +57,8 @@ export const MobileSessionsMapCtrl = (
       location: "",
       tags: "",
       usernames: "",
+      gridResolution: 31,
+      crowdMap: false,
       timeFrom: oneYearAgo,
       timeTo: endOfToday
     };
