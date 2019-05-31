@@ -1,5 +1,5 @@
 import _ from "underscore";
-import { keysToLowerCase } from "../utils.js";
+import { keysToLowerCase } from "../../../javascript/utils.js";
 
 export const sessionsUtils = (
   params,

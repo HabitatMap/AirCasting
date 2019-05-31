@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import sinon from "sinon";
-import { findLocation, clearLocation } from "../code/filtersUtils";
+import { findLocation, clearLocation } from "../../javascript/filtersUtils";
 
 test("findLocation asks google maps to pan to the given location", t => {
   const goToAddress = sinon.spy();
