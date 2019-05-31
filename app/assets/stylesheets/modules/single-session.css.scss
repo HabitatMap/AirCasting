@@ -20,12 +20,12 @@
 }
 
 .single-session-info {
-  min-width: 215px; // temporary, this will all be flexbox
-  width: 20%;
+  flex: 0 0 228px;
+  padding-right: 16px;
 }
 
 .single-session-graph {
-  width: 80%;
+  flex: 1;
 }
 
 .single-session-name {
