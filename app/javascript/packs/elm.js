@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tags: "",
         usernames: "",
         crowdMap: false,
-        gridResolution: 25,
+        gridResolution: 31, // this translates to grid cell size: 20; formula: f(x) = 51 - x
         isIndoor: false,
         isStreaming: true,
         sensorId: "Particulate Matter-airbeam2-pm2.5 (µg/m³)",
