@@ -141,16 +141,6 @@ describe MobileSession do
 
       expect(MobileSession.filter(:usernames => 'foo bar, biz').to_a).to eq([session_1])
     end
-
-
-    it "#filter when time range is the whole day it does not call local_minutes_range" do
-      from = Time.strptime(Utils::FIRST_MINUTE_OF_DAY.to_s, '%s')
-      to = Time.strptime(Utils::LAST_MINUTE_OF_DAY.to_s, '%s')
-
-      expect(Session).not_to receive(:local_minutes_range).with(from, to)
-
-      MobileSession.filter(:time_from => from, :time_to => to)
-    end
   end
 
   describe '#set_url_token' do
