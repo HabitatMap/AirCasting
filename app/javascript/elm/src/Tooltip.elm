@@ -61,7 +61,7 @@ tagsFilter =
 
 
 crowdMap =
-    TooltipText "The CrowdMap averages together all the measurements from all the sessions listed on the sessions list and displays these averages as colored grid cells. The color of each grid cell corresponds to the average intensity of all the measurements recorded in that area. Click on a grid cell to view the underlying data. Increase the CrowdMap resolution to reduce the size of the CrowdMap grid cells. Reduce the CrowdMap resolution to increase the size of the CrowdMap grid cells."
+    TooltipText "The CrowdMap averages together all the measurements from all the sessions listed on the sessions list and displays these averages as colored grid cells. The color of each grid cell corresponds to the average intensity of all the measurements recorded in that area. Click on a grid cell to view the underlying data."
 
 
 typeToggleFilter =
