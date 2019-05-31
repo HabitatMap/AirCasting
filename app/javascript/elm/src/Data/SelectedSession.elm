@@ -147,6 +147,7 @@ view session heatMapThresholds linkIcon toMsg =
                         [ div [ class "single-session-avg-color", class <| Data.Session.classByValue (Just average) heatMapThresholds ] []
                         , span [] [ text "avg. " ]
                         , span [ class "single-session-avg" ] [ text <| String.fromInt <| round average ]
+                        , span [] [ text " µg/m³" ]
                         ]
                     , div [ class "session-numbers-container" ]
                         [ div [ class "single-min-max-container" ]
