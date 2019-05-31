@@ -1,5 +1,8 @@
-import { removeMarker, drawCustomMarker } from "./_map.js";
-import * as assets from "../../../../assets";
+import {
+  removeMarker,
+  drawCustomMarker
+} from "../angular/code/services/google/_map.js";
+import * as assets from "../assets";
 
 let items = [];
 

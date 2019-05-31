@@ -1,5 +1,5 @@
 import _ from "underscore";
-import * as FiltersUtils from "../filtersUtils";
+import * as FiltersUtils from "../../../javascript/filtersUtils";
 
 export const FixedSessionsMapCtrl = (
   $scope,

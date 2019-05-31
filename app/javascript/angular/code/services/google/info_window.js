@@ -1,4 +1,4 @@
-import constants from "../../constants";
+import constants from "../../../../javascript/constants";
 
 angular.module("google").factory("infoWindow", [
   "map",

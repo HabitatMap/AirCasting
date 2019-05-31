@@ -1,7 +1,7 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
 import { mobileSessions } from "../code/services/_mobile_sessions";
-import * as Clusterer from "../code/clusterer";
+import * as Clusterer from "../../javascript/clusterer";
 import sinon from "sinon";
 
 test("fetch with no sessions ids in params passes empty array to sessionsDownloader", t => {

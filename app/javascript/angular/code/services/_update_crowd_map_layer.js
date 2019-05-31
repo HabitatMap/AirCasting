@@ -1,5 +1,5 @@
 import _ from "underscore";
-import constants from "../constants";
+import constants from "../../../javascript/constants";
 
 export const updateCrowdMapLayer = (
   map,

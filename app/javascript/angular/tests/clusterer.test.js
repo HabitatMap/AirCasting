@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { clusterer, distanceBetweenInPixels } from "../code/clusterer";
+import { clusterer, distanceBetweenInPixels } from "../../javascript/clusterer";
 
 test("return array of objects that should be clustered", t => {
   const object1 = "obj1";

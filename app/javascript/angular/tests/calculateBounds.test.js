@@ -1,5 +1,5 @@
 import test from "blue-tape";
-import { calculateBounds } from "../code/calculateBounds";
+import { calculateBounds } from "../../javascript/calculateBounds";
 
 test("with no selected sensors it returns null", t => {
   const sensors = { anySelected: () => null };

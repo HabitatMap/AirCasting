@@ -1,7 +1,7 @@
 import _ from "underscore";
-import constants from "../constants";
-import * as Session from "../values/session";
-import { calculateBounds } from "../calculateBounds";
+import constants from "../../../javascript/constants";
+import * as Session from "../../../javascript/values/session";
+import { calculateBounds } from "../../../javascript/calculateBounds";
 
 export const fixedSessions = (
   params,

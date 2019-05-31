@@ -1,4 +1,4 @@
-import { keysToLowerCase } from "../utils.js";
+import { keysToLowerCase } from "../../../javascript/utils.js";
 
 angular.module("aircasting").factory("sessionsDownloader", [
   "$rootScope",

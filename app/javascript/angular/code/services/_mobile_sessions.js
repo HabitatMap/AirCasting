@@ -1,7 +1,7 @@
 import _ from "underscore";
-import * as Session from "../values/session";
-import { clusterer } from "../clusterer";
-import { calculateBounds } from "../calculateBounds";
+import * as Session from "../../../javascript/values/session";
+import { clusterer } from "../../../javascript/clusterer";
+import { calculateBounds } from "../../../javascript/calculateBounds";
 
 export const mobileSessions = (
   params,

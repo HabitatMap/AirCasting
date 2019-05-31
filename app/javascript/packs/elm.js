@@ -5,7 +5,7 @@ import resetIcon from "../../assets/images/reset-icon.svg";
 import resetIconWhite from "../../assets/images/reset-icon-white.svg";
 import tooltipIcon from "../../assets/images/tooltip-icon.svg";
 import "nouislider";
-import * as graph from "../angular/code/services/graph";
+import * as graph from "../javascript/graph";
 import tippy from "tippy.js";
 import "../../assets/stylesheets/main.scss";
 import "tippy.js/themes/light-border.css";
