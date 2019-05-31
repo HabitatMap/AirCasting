@@ -102,9 +102,7 @@ export const MobileSessionsMapCtrl = (
 
       elmApp.ports.toggleCrowdMap.subscribe(crowdMap => {
         params.updateData({ crowdMap });
-        $scope.sessions.fetch({
-          amount: params.paramsData["fetchedSessionsCount"]
-        });
+        sessions.toggleCrowdMapView();
       });
 
       elmApp.ports.updateResolution.subscribe(gridResolution => {
