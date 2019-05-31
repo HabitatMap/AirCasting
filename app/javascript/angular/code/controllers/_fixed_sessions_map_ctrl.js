@@ -100,7 +100,7 @@ export const FixedSessionsMapCtrl = (
       });
 
       map.onPanOrZoom(() => {
-        FiltersUtils.clearLocation(elmApp.ports.locationCleared, params);
+        FiltersUtils.clearLocation(elmApp.ports.locationCleared.send, params);
       });
 
       FiltersUtils.setupAutocomplete(
