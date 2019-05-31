@@ -101,6 +101,19 @@ const plotOptions = {
   }
 };
 
+const scrollbarOptions = {
+  barBackgroundColor: "#D5D4D4",
+  barBorderRadius: 7,
+  barBorderWidth: 0,
+  buttonBackgroundColor: "#eee",
+  buttonBorderWidth: 0,
+  buttonBorderRadius: 7,
+  height: 15,
+  rifleColor: "#D5D4D4",
+  trackBackgroundColor: "none",
+  trackBorderWidth: 0
+};
+
 const buildXAxis = xAxis => ({
   labels: {
     style: {
@@ -228,5 +241,5 @@ export const buildOptions = ({
   }),
   xAxis: buildXAxis(xAxis),
   yAxis: buildYAxis({ low, high, ticks }),
-  scrollbar
+  scrollbar: { ...scrollbar, ...scrollbarOptions }
 });
