@@ -18,8 +18,6 @@ test("it updates defaults", t => {
     location: "",
     tags: "",
     usernames: "",
-    gridResolution: 25,
-    crowdMap: false,
     timeFrom: moment()
       .utc()
       .startOf("day")
