@@ -140,7 +140,7 @@ init flags url key =
         , tags = LabelsInput.init flags.tags
         , profiles = LabelsInput.init flags.profiles
         , isCrowdMapOn = flags.isCrowdMapOn
-        , crowdMapResolution = flags.crowdMapResolution
+        , crowdMapResolution = 51 - flags.crowdMapResolution
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , isIndoor = flags.isIndoor
         , sensors = sensors
@@ -223,6 +223,8 @@ type Msg
     | FetchSessions
     | HighlightSessionMarker (Maybe Location)
     | GraphRangeSelected (List Float)
+    | DecreaseResolution
+    | IncreaseResolution
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -262,7 +264,7 @@ update msg model =
             ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap (not model.isCrowdMapOn) )
 
         UpdateCrowdMapResolution resolution ->
-            ( { model | crowdMapResolution = resolution }, Ports.updateResolution resolution )
+            ( { model | crowdMapResolution = resolution }, Ports.updateResolution (51 - resolution) )
 
         UpdateTimeRange value ->
             let
@@ -504,6 +506,12 @@ update msg model =
 
         GraphRangeSelected measurements ->
             ( { model | selectedSession = SelectedSession.updateRange model.selectedSession measurements }, Cmd.none )
+
+        DecreaseResolution ->
+            ( { model | crowdMapResolution = model.crowdMapResolution - 1 }, Ports.updateResolution (51 - model.crowdMapResolution - 1) )
+
+        IncreaseResolution ->
+            ( { model | crowdMapResolution = model.crowdMapResolution + 1 }, Ports.updateResolution (51 - model.crowdMapResolution + 1) )
 
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
@@ -992,7 +1000,7 @@ viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon 
     div [ classList [ ( "disabled-area", RemoteData.isSuccess selectedSession ) ] ]
         [ viewCrowdMapToggle isCrowdMapOn tooltipIcon
         , if isCrowdMapOn then
-            viewCrowdMapSlider (String.fromInt crowdMapResolution)
+            viewCrowdMapSlider crowdMapResolution
 
           else
             text ""
@@ -1009,24 +1017,22 @@ viewCrowdMapToggle isCrowdMapOn tooltipIcon =
         ]
 
 
-viewCrowdMapSlider : String -> Html Msg
+viewCrowdMapSlider : Int -> Html Msg
 viewCrowdMapSlider resolution =
     div [ id "crowd-map-slider" ]
-        [ label [] [ text <| "grid cell size: " ++ (String.fromInt <| 51 - (Maybe.withDefault 26 <| String.toInt resolution)) ]
-
-        -- size 40 to 1 maps to resolution 11 to 50
+        [ label [] [ text <| "grid cell size: " ++ String.fromInt resolution ]
         , div [ class "crowd-map-slider-container" ]
-            [ span [ class "minus" ] [ text "-" ]
+            [ span [ class "minus", Events.onClick DecreaseResolution ] [ text "-" ]
             , input
                 [ class "crowd-map-slider"
                 , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateCrowdMapResolution)
-                , value resolution
-                , max "50"
-                , min "11"
+                , value (String.fromInt resolution)
+                , max "40"
+                , min "1"
                 , type_ "range"
                 ]
                 []
-            , span [ class "plus" ] [ text "+" ]
+            , span [ class "plus", Events.onClick IncreaseResolution ] [ text "+" ]
             ]
         ]
 
