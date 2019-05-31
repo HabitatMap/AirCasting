@@ -137,7 +137,7 @@ export const findLocation = (location, params, map) => {
   map.goToAddress(location);
 };
 
-export const clearLocation = (elmAction, params) => {
-  elmAction.send(null);
+export const clearLocation = (callback, params) => {
+  callback(null);
   params.update({ data: { location: "" } });
 };
