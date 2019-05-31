@@ -24,15 +24,18 @@ export const map = (
     init: function(element, options) {
       this.mapObj = googleMaps.init(element, options);
       this.markers = $window.__markers;
-      this.listen("idle", this.saveViewport);
-      this.listen(
+      this.addListener("idle", this.saveViewport);
+      this.addListener(
         "visible_changed",
         function() {
           $rootScope.$digest();
         },
         this.mapObj.getStreetView()
       );
-      this.listen("maptypeid_changed", _(this.onMapTypeIdChanged).bind(this));
+      this.addListener(
+        "maptypeid_changed",
+        _(this.onMapTypeIdChanged).bind(this)
+      );
       rectangles.init(this.mapObj);
     },
 
@@ -148,9 +151,9 @@ export const map = (
       digester();
     },
 
-    listen: function(name, callback, diffmap) {
+    addListener: function(name, callback, diffmap) {
       const cb = _(callback).bind(this);
-      return googleMaps.listen(diffmap || this.mapObj, name, cb);
+      return googleMaps.addListener(diffmap || this.mapObj, name, cb);
     },
 
     unregisterAll: function() {
@@ -169,7 +172,7 @@ export const map = (
       var self = this;
       rectangles.draw(data, thresholds);
       _(rectangles.get()).each(function(rectangle) {
-        self.listen(
+        self.addListener(
           "click",
           function() {
             clickCallback({
@@ -258,7 +261,7 @@ export const map = (
         options
       );
 
-      googleMaps.listen(markerClusterer, "clusterclick", onClick);
+      googleMaps.addListener(markerClusterer, "clusterclick", onClick);
       this.clusterer = markerClusterer;
     },
 

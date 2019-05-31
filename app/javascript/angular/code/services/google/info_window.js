@@ -10,7 +10,7 @@ angular.module("google").factory("infoWindow", [
   function(map, $http, $compile, $rootScope, versioner, $timeout) {
     var InfoWindow = function() {
       this.popup = new google.maps.InfoWindow();
-      map.listen("zoom_changed", _(this.hide).bind(this));
+      map.addListener("zoom_changed", _(this.hide).bind(this));
     };
 
     const FIXED_INFO_WINDOW_PATH = "/partials/fixed_info_window.html";
