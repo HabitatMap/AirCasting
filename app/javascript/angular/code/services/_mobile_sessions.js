@@ -81,6 +81,16 @@ export const mobileSessions = (
       sessionsUtils.updateCrowdMapLayer(this.sessionIds());
     },
 
+    toggleCrowdMapView: function() {
+      if (params.isCrowdMapOn()) {
+        drawSession.clear(this.sessions);
+        sessionsUtils.updateCrowdMapLayer(this.sessionIds());
+      } else {
+        map.clearRectangles();
+        this.drawSessionsInLocation();
+      }
+    },
+
     deselectSession: function(id) {
       const session = this.find(id);
       if (!session) return;
