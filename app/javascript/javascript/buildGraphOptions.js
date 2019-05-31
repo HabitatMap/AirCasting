@@ -24,28 +24,55 @@ const navigator = {
 };
 
 const buildRangeSelector = ({ buttons, selected }) => ({
-  height: 23,
-  buttonSpacing: 5,
+  height: 40,
+  buttonSpacing: 15,
+
   buttonTheme: {
-    width: 50,
-    height: 15,
-    stroke: "#999999",
+    fill: "none",
+    width: 63,
+    padding: 2,
+    stroke: "rgba(149, 149, 149, 0.3)",
     "stroke-width": 1,
+    r: 12,
+
     style: {
-      fontFamily: "Arial, sans-serif",
-      marginTop: 100
+      color: "#000",
+      boxShadow: "1px 1px 4px 0 rgba(149, 149, 149, 0.3)",
+      fontFamily: '"PT Sans", Arial, sans-serif',
+      height: 20,
+      width: 63
     },
 
     states: {
+      hover: {
+        fill: "none",
+        style: {
+          color: "#000"
+        }
+      },
+
       select: {
-        fill: "#D5E9FF"
+        fill: "#09a7f0",
+        style: {
+          color: "white",
+          fontWeight: "bold"
+        }
+      },
+
+      disabled: {
+        style: {
+          color: "#a3a0a4",
+          cursor: "default"
+        }
       }
     }
   },
 
   labelStyle: {
+    color: "#000",
     fontWeight: "normal",
-    fontFamily: "Arial, sans-serif"
+    fontFamily: '"PT Sans", Arial, sans-serif',
+    textTransform: "lowercase"
   },
 
   buttons,
@@ -78,7 +105,7 @@ const buildXAxis = xAxis => ({
   labels: {
     style: {
       color: "#000",
-      fontFamily: "Arial, sans-serif"
+      fontFamily: '"PT Sans", Arial, sans-serif'
     }
   },
   minRange: 10000,
@@ -94,7 +121,7 @@ const buildYAxis = ({ low, high, ticks }) => ({
   labels: {
     style: {
       color: "#000",
-      fontFamily: "Arial, sans-serif"
+      fontFamily: '"PT Sans", Arial, sans-serif'
     }
   },
   gridLineWidth: 0,
