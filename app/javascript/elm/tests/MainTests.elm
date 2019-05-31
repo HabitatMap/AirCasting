@@ -519,7 +519,7 @@ viewTests =
                 { defaultModel | selectedSession = Success defaultSelectedSession }
                     |> view
                     |> Query.fromHtml
-                    |> Query.find [ Slc.tag "button", Slc.containing [ Slc.text "X" ] ]
+                    |> Query.find [ Slc.tag "button", Slc.containing [ Slc.text "×" ] ]
                     |> Event.simulate Event.click
                     |> Event.expect DeselectSession
         , fuzz3 string string string "with selection the session title username and sensorName are shown" <|

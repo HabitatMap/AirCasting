@@ -1,4 +1,5 @@
 .toggle-button {
+  @include appearance(none);
   background-color: $dark-blue;
   border: 1px solid $dark-grey;
   color: $dark-grey;
@@ -6,9 +7,6 @@
   font-size: $small-font;
   padding: 7px 0;
   width: 50%;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
 
   &:first-of-type {
     border-radius: $input-radius 0 0 $input-radius;
