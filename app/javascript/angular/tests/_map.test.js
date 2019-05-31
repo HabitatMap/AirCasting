@@ -53,7 +53,7 @@ test("goToAddress with successful geocoding calls fitBounds", t => {
 test("goToAddress when calling fitBounds removes callbacks from the map", t => {
   const geocoder = mockGeocoder();
   const googleMaps = mockGoogleMaps({ successfulGeocoding: true });
-  googleMaps.listen("bounds_changed", () => {});
+  googleMaps.addListener("bounds_changed", () => {});
 
   t.true(googleMaps.hasCallbacks());
 
@@ -69,7 +69,7 @@ test("goToAddress when calling fitBounds removes callbacks from the map", t => {
 test("goToAddress re-adds callbacks from the map after calling fitBounds", t => {
   const geocoder = mockGeocoder();
   const googleMaps = mockGoogleMaps({ successfulGeocoding: true });
-  googleMaps.listen("bounds_changed", () => {});
+  googleMaps.addListener("bounds_changed", () => {});
 
   const service = _map({ geocoder, googleMaps });
 
@@ -139,7 +139,7 @@ test("fitBounds with coord 200 north and 200 east calls fitBounds with a specifi
 
 test("fitBounds when calling fitBounds removes callbacks from the map", t => {
   const googleMaps = mockGoogleMaps();
-  googleMaps.listen("bounds_changed", () => {});
+  googleMaps.addListener("bounds_changed", () => {});
 
   t.true(googleMaps.hasCallbacks());
 
@@ -159,7 +159,7 @@ test("fitBounds when calling fitBounds removes callbacks from the map", t => {
 
 test("fitBounds re-adds callbacks from the map after calling fitBounds", t => {
   const googleMaps = mockGoogleMaps();
-  googleMaps.listen("bounds_changed", () => {});
+  googleMaps.addListener("bounds_changed", () => {});
 
   t.true(googleMaps.hasCallbacks());
 
@@ -261,7 +261,7 @@ test("drawRectangles sets a listener with a callback with bounds excluding other
   };
   const rectangles = { get: () => [rectangle] };
   const googleMaps = {
-    listen: (x, y, mapCallback) => {
+    addListener: (x, y, mapCallback) => {
       mapCallback();
     }
   };
@@ -279,7 +279,7 @@ test("drawRectangles sets a listener on rectangle click", t => {
   const rectangle = { a: null };
   const rectangles = { get: () => [rectangle] };
   const mapListen = sinon.spy();
-  const googleMaps = { listen: mapListen };
+  const googleMaps = { addListener: mapListen };
   const service = _map({ rectangles, googleMaps });
 
   service.drawRectangles({}, {}, () => {});
@@ -339,7 +339,7 @@ const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
     },
     wasCalled: () => count === 1,
     wasFitBoundsCalledWith: arg => deepEqual(arg, calls[calls.length - 1]),
-    listen: event => {
+    addListener: event => {
       callbacks += 1;
     },
     hasCallbacks: () => callbacks > 0,
