@@ -25,6 +25,9 @@ export const map = (
       this.mapObj = googleMaps.init(element, options);
       this.markers = $window.__markers;
       this.addListener("idle", this.saveViewport);
+      googleMaps.addListenerOnce(this.mapObj, "idle", () =>
+        $rootScope.$broadcast("googleMapsReady")
+      );
       this.addListener(
         "visible_changed",
         function() {

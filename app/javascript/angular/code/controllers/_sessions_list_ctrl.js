@@ -13,7 +13,6 @@ export const SessionsListCtrl = (
   map
 ) => {
   let sessions;
-  let firstLoad = true;
   let highlightedSessionMarker = null;
   const elmApp = $window.__elmApp;
   const CANNOT_SELECT_MULTIPLE_SESSIONS = "You can't select multiple sessions";
@@ -41,19 +40,14 @@ export const SessionsListCtrl = (
 
   $scope.$watch(
     "params.get('map')",
-    ({ hasChangedProgrammatically }) => {
+    (newValue, oldValue) => {
       console.log("watch - params.get('map')");
-      if (sessionsUtils.isSessionSelected() && !firstLoad) return;
+      if (newValue === oldValue) return; // on angular $watch init
+      if (sessionsUtils.isSessionSelected()) return;
       // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically as undefined
-      if (hasChangedProgrammatically === undefined) return;
+      if (newValue.hasChangedProgrammatically === undefined) return;
 
-      if (firstLoad) {
-        sessions.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
-        firstLoad = false;
-        return;
-      }
-
-      if (hasChangedProgrammatically) {
+      if (newValue.hasChangedProgrammatically) {
         //triggered when deselecting a session
         sessions.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
         return;
@@ -61,7 +55,8 @@ export const SessionsListCtrl = (
 
       if (!params.get("data").isSearchAsIMoveOn) {
         sessionsUtils.refreshMapView(sessions);
-        if (!hasChangedProgrammatically) elmApp.ports.mapMoved.send(null);
+        if (!newValue.hasChangedProgrammatically)
+          elmApp.ports.mapMoved.send(null);
         return;
       }
 
@@ -99,6 +94,12 @@ export const SessionsListCtrl = (
     },
     true
   );
+
+  $scope.$on("googleMapsReady", function() {
+    sessions.fetch({
+      amount: params.paramsData["fetchedSessionsCount"]
+    });
+  });
 
   $scope.$on("markerSelected", function(event, data) {
     $scope.toggleSession(

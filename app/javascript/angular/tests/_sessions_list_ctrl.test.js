@@ -2,7 +2,7 @@ import test from "blue-tape";
 import { mock } from "./helpers";
 import { SessionsListCtrl } from "../code/controllers/_sessions_list_ctrl";
 
-test("with no sessions selected when params.map changes it calls sessions.fetch", t => {
+test("with no sessions selected and isSearchAsIMoveOn true when params.map changes it calls sessions.fetch", t => {
   const callbacks = [];
   const $scope = {
     $watch: (str, callback) =>
@@ -11,7 +11,10 @@ test("with no sessions selected when params.map changes it calls sessions.fetch"
   const sessions = {
     ...mock("fetch")
   };
-  _SessionsListCtrl({ $scope, sessions });
+  const params = {
+    get: () => ({ isSearchAsIMoveOn: true })
+  };
+  _SessionsListCtrl({ $scope, sessions, params });
 
   callbacks.forEach(callback =>
     callback({ hasChangedProgrammatically: false })
@@ -40,7 +43,13 @@ test("with session selected when params.map changes it does not call sessions.fe
   t.end();
 });
 
-const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
+const _SessionsListCtrl = ({
+  map,
+  $scope,
+  updateCrowdMapLayer,
+  sessions,
+  params
+}) => {
   const _sessions = { reSelectAllSessions: () => {}, ...sessions };
   const _$scope = {
     sessions: _sessions,
@@ -49,7 +58,12 @@ const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
     $on: () => {},
     ...$scope
   };
-  const params = { get: () => ({}), update: () => {}, paramsData: {} };
+  const _params = {
+    get: () => ({}),
+    update: () => {},
+    paramsData: {},
+    ...params
+  };
   const _map = {
     onPanOrZoom: () => {},
     ...map
@@ -62,7 +76,7 @@ const _SessionsListCtrl = ({ map, $scope, updateCrowdMapLayer, sessions }) => {
 
   return SessionsListCtrl(
     _$scope,
-    params,
+    _params,
     null,
     null,
     {},

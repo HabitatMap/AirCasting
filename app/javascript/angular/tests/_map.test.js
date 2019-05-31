@@ -342,6 +342,7 @@ const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
     addListener: event => {
       callbacks += 1;
     },
+    addListenerOnce: () => {},
     hasCallbacks: () => callbacks > 0,
     unlistenPanOrZoom: () => {
       callbacks -= 1;
