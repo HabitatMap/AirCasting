@@ -8,7 +8,7 @@ angular.module("google").factory("note", [
   function($http, $compile, $rootScope, $timeout, versioner, map) {
     var Note = function() {
       this.popup = new google.maps.InfoWindow();
-      map.listen("zoom_changed", _(this.hide).bind(this));
+      map.addListener("zoom_changed", _(this.hide).bind(this));
     };
     Note.prototype = {
       get: function() {

@@ -41,8 +41,11 @@ angular.module("google").factory("googleMaps", [
         onPanOrZoomHandle = mapObj.addListener("bounds_changed", callback);
       },
 
-      listen: (obj, name, callback) =>
+      addListener: (obj, name, callback) =>
         google.maps.event.addListener(obj, name, callback),
+
+      addListenerOnce: (obj, name, callback) =>
+        google.maps.event.addListenerOnce(obj, name, callback),
 
       latLng: (lat, lng) => new google.maps.LatLng(lat, lng),
 
