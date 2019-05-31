@@ -3,3 +3,9 @@
   display: block;
   overflow: hidden;
 }
+
+@mixin appearance($appearance) {
+  appearance: $appearance;
+  -moz-appearance: $appearance;
+  -webkit-appearance: $appearance;
+}

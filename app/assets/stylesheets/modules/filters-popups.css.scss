@@ -32,6 +32,7 @@ $popup-background-color: #f7f7f7;
 }
 
 .filter-popup__toggle-more-button {
+  @include appearance(none);
   background: $popup-background-color;
   border: none;
   border-top: 1px solid $separator-color;
@@ -41,7 +42,6 @@ $popup-background-color: #f7f7f7;
   padding-top: 12px;
   text-align: right;
   width: 100%;
-  -webkit-appearance: none;
 
   &:hover {
     text-decoration: underline;
@@ -75,11 +75,11 @@ $popup-background-color: #f7f7f7;
 }
 
 .filter-popup-secondary-button {
+  @include appearance(none);
   background: none;
   border: none;
   flex: 1 0 50%;
   font-size: $tiny-font;
   padding: 12px;
   text-align: left;
-  -webkit-appearance: none;
 }
