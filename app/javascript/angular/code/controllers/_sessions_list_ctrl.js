@@ -192,5 +192,13 @@ const selectedStream = sensorName => session => ({
 const formatSessionForElm = s => ({
   ...s,
   shortTypes: s.shortTypes.map(({ name, type }) => ({ name, type_: type })),
-  average: s.average || null
+  average: nullOrValue(s.average)
 });
+
+const nullOrValue = value => {
+  if (value === undefined) {
+    return null;
+  } else {
+    return value;
+  }
+};
