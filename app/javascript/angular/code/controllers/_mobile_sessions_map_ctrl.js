@@ -1,6 +1,6 @@
 import _ from "underscore";
 import moment from "moment";
-import * as FiltersUtils from "../filtersUtils";
+import * as FiltersUtils from "../../../javascript/filtersUtils";
 
 const endOfToday = moment()
   .utc()
