@@ -29,7 +29,12 @@ Endpoints
 | q[north]       | number, -90..90   |               |
 | q[south]       | number, -90..90   |               |
 
-Where time_from and time_to are seconds since epoch.
+How to select the time range:
+- `time_from` and `time_to` should be passed as seconds since epoch.
+- They should be expressed in UTC.
+- Date and time of the day are separate filters. This means that selecting `q[time_from]=1559372400` and `q[time_to]=1559559600` which corresponds to June 1, 2019 **7 AM** - June 3, 2019 **11 AM** will return sessions that were recording in the morning during these 3 days.
+- To see all session from that period use June 1, 2019 12:00:00 AM - June 3, 2019 11:59:59 PM.
+- Every session that has at least one measurement in the selected time range will be included in the results.
 
 ### Example request
 
@@ -200,7 +205,11 @@ To get multiple average values for polygons in a region. You need to pass a list
 | measurement_type| text              |               |
 | session_ids     | list number       | empty list    |
 
-Where time_from and time_to are seconds since epoch.
+How to select the time range:
+- `time_from` and `time_to` should be passed as seconds since epoch.
+- They should be expressed in UTC.
+- Date and time of the day are separate filters. This means that selecting `q[time_from]=1559372400` and `q[time_to]=1559559600` which corresponds to June 1, 2019 **7 AM** - June 3, 2019 **11 AM** will return measurements recorded in the morning during these 3 days.
+- To see all measurements from that period use June 1, 2019 12:00:00 AM - June 3, 2019 11:59:59 PM.
 
 ### Example request
 
