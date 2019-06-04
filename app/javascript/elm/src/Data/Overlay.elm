@@ -37,14 +37,8 @@ init isIndoor =
 update : Operation -> Model -> Model
 update operation model =
     case ( operation, model ) of
-        ( AddOverlay overlay, Overlays [] ) ->
-            Overlays [ overlay ]
-
         ( AddOverlay overlay, Overlays overlays ) ->
             Overlays <| overlay :: overlays
-
-        ( RemoveOverlay overlay, Overlays [] ) ->
-            none
 
         ( RemoveOverlay overlay, Overlays overlays ) ->
             Overlays <| List.filter ((/=) overlay) overlays
