@@ -500,6 +500,7 @@ const _fixedSessions = ({
     onSingleSessionFetchWithoutCrowdMap: (x, y, callback) => callback(),
     isSessionSelected: () => false,
     selectedSession: () => {},
+    selectedSessionId: () => 1,
     ...sessionsUtils
   };
   const $http = { get: () => ({ success: callback => callback() }) };

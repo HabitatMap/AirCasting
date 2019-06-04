@@ -116,23 +116,14 @@ export const SessionsListCtrl = (
     }
     var session = sessions.find(sessionId);
     if (sessions.isSelected(session)) {
-      params.update({ selectedSessionIds: [] });
+      sessions.deselectSession();
       callback(null);
     } else if ($scope.canSelectSession(sessionId)) {
-      params.update({ selectedSessionIds: [sessionId] });
+      sessions.selectSession(sessionId);
       $scope.markerSelected.set(true);
       callback(sessionId);
     }
   };
-
-  $scope.$watch(
-    "params.get('selectedSessionIds')",
-    function(newIds, oldIds) {
-      console.log("watch - params.get('selectedSessionIds')");
-      sessions.sessionsChanged(newIds, oldIds);
-    },
-    true
-  );
 
   $scope.setDefaults();
 
