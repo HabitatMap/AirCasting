@@ -43,7 +43,12 @@ export const daterangepickerConfig = (timeFrom, timeTo) => ({
   }
 });
 
-export const setupTimeRangeFilter = (callback, timeFrom, timeTo) => {
+export const setupTimeRangeFilter = (
+  onTimeRangeChanged,
+  timeFrom,
+  timeTo,
+  onIsVisibleChange
+) => {
   if (document.getElementById("time-range")) {
     $("#time-range").daterangepicker(
       daterangepickerConfig(timeFrom, timeTo),
@@ -51,11 +56,22 @@ export const setupTimeRangeFilter = (callback, timeFrom, timeTo) => {
         timeFrom = timeFrom.utcOffset(0, true).unix();
         timeTo = timeTo.utcOffset(0, true).unix();
 
-        callback(timeFrom, timeTo);
+        onTimeRangeChanged(timeFrom, timeTo);
       }
     );
+
+    $("#time-range").on("show.daterangepicker", () => onIsVisibleChange(true));
+    $("#time-range").on("hide.daterangepicker", () => onIsVisibleChange(false));
   } else {
-    window.setTimeout(setupTimeRangeFilter(callback, timeFrom, timeTo), 100);
+    window.setTimeout(
+      setupTimeRangeFilter(
+        onTimeRangeChanged,
+        timeFrom,
+        timeTo,
+        onIsVisibleChange
+      ),
+      100
+    );
   }
 };
 

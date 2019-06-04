@@ -6,6 +6,7 @@ import Browser.Events
 import Browser.Navigation
 import Data.GraphData exposing (GraphData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
+import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
 import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
@@ -40,7 +41,6 @@ type alias Model =
     , sessions : List Session
     , fetchableSessionsCount : Int
     , selectedSession : WebData SelectedSession
-    , isHttping : Bool
     , popup : Popup.Popup
     , isPopupExtended : Bool
     , sensors : List Sensor
@@ -61,6 +61,7 @@ type alias Model =
     , isStreaming : Bool
     , isSearchAsIMoveOn : Bool
     , wasMapMoved : Bool
+    , overlay : Overlay.Model
     }
 
 
@@ -70,7 +71,6 @@ defaultModel =
     , key = Nothing
     , sessions = []
     , fetchableSessionsCount = 0
-    , isHttping = False
     , popup = Popup.None
     , isPopupExtended = False
     , sensors = []
@@ -92,6 +92,7 @@ defaultModel =
     , heatMapThresholds = NotAsked
     , isSearchAsIMoveOn = False
     , wasMapMoved = False
+    , overlay = Overlay.none
     }
 
 
@@ -155,6 +156,7 @@ init flags url key =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
                 |> Maybe.withDefault defaultModel.heatMapThresholds
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
+        , overlay = Overlay.init flags.isIndoor
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -223,6 +225,7 @@ type Msg
     | FetchSessions
     | HighlightSessionMarker (Maybe Location)
     | GraphRangeSelected (List Float)
+    | UpdateIsShowingTimeRangeFilter Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -281,10 +284,10 @@ update msg model =
             ( model, Ports.showCopyLinkTooltip tooltipId )
 
         ShowPopup items itemType selectedItem ->
-            ( { model | popup = Popup.SelectFrom items itemType selectedItem, isPopupExtended = False }, Cmd.none )
+            ( { model | popup = Popup.SelectFrom items itemType selectedItem, isPopupExtended = False, overlay = Overlay.update (AddOverlay PopupOverlay) model.overlay }, Cmd.none )
 
         ClosePopup ->
-            ( { model | popup = Popup.None }, Cmd.none )
+            ( { model | popup = Popup.None, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay }, Cmd.none )
 
         TogglePopupState ->
             ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
@@ -346,7 +349,15 @@ update msg model =
             ( model, Ports.loadMoreSessions () )
 
         UpdateIsHttping isHttpingNow ->
-            ( { model | isHttping = isHttpingNow }, Cmd.none )
+            let
+                overlay =
+                    if isHttpingNow then
+                        AddOverlay HttpingOverlay
+
+                    else
+                        RemoveOverlay HttpingOverlay
+            in
+            ( { model | overlay = Overlay.update overlay model.overlay }, Cmd.none )
 
         ToggleIndoor ->
             let
@@ -354,12 +365,12 @@ update msg model =
                     deselectSession model
             in
             if sudModel.isIndoor then
-                ( { sudModel | isIndoor = False }
+                ( { sudModel | isIndoor = False, overlay = Overlay.update (RemoveOverlay IndoorOverlay) model.overlay }
                 , Cmd.batch [ Ports.toggleIndoor False, subCmd ]
                 )
 
             else
-                ( { sudModel | isIndoor = True, profiles = LabelsInput.empty }
+                ( { sudModel | isIndoor = True, profiles = LabelsInput.empty, overlay = Overlay.update (AddOverlay IndoorOverlay) model.overlay }
                 , Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [], subCmd ]
                 )
 
@@ -505,6 +516,17 @@ update msg model =
         GraphRangeSelected measurements ->
             ( { model | selectedSession = SelectedSession.updateRange model.selectedSession measurements }, Cmd.none )
 
+        UpdateIsShowingTimeRangeFilter isShown ->
+            let
+                overlay =
+                    if isShown then
+                        AddOverlay TimeFrameOverlay
+
+                    else
+                        RemoveOverlay TimeFrameOverlay
+            in
+            ( { model | overlay = Overlay.update overlay model.overlay }, Cmd.none )
+
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
 updateHeatMapExtreme model str updateExtreme =
@@ -639,28 +661,9 @@ view model =
                     ]
                 , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup
                 , div [ class "maps-content-container" ]
-                    [ if model.isHttping then
-                        div [ class "overlay" ]
-                            [ div [ class "spinner" ] []
-                            ]
-
-                      else
-                        case model.popup of
-                            Popup.None ->
-                                text ""
-
-                            _ ->
-                                div [ class "overlay" ] []
+                    [ Overlay.view model.overlay
                     , div [ class "map-container" ]
-                        [ if model.isIndoor && not model.isHttping then
-                            div []
-                                [ div [ class "overlay overlay--indoor" ] []
-                                , div [ class "overlay-info" ] [ p [] [ text "Indoor sessions aren't mapped." ] ]
-                                ]
-
-                          else
-                            text ""
-                        , case model.selectedSession of
+                        [ case model.selectedSession of
                             Success _ ->
                                 text ""
 
@@ -1100,4 +1103,5 @@ subscriptions _ =
         , Ports.updateHeatMapThresholdsFromAngular UpdateHeatMapThresholdsFromAngular
         , Ports.mapMoved (always MapMoved)
         , Ports.graphRangeSelected GraphRangeSelected
+        , Ports.isShowingTimeRangeFilter UpdateIsShowingTimeRangeFilter
         ]
