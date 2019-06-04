@@ -896,7 +896,7 @@ viewFilters model =
 
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
-    form [ class "filters__form" ]
+    div [ class "filters__div" ]
         [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
@@ -909,7 +909,7 @@ viewMobileFilters model =
 
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
-    form [ class "filters__form" ]
+    div [ class "filters__div" ]
         [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
