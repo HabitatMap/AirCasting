@@ -199,19 +199,18 @@ export const map = (
       return newMarker;
     },
 
-    drawCustomMarker: function({
+    drawMarkerWithoutLabel: function({
       object,
       content,
       colorClass,
-      callback,
-      type
+      callback
     }) {
       const customMarker = buildCustomMarker({
         object,
         content,
         colorClass,
         callback,
-        type
+        type: "marker"
       });
 
       customMarker.setMap(this.get());
@@ -220,8 +219,23 @@ export const map = (
       return customMarker;
     },
 
-    drawHighlightMarker: function(position) {
-      const highlightMarker = this.drawMarker({
+    drawMarkerWithLabel: function({ object, content, colorClass, callback }) {
+      const customMarker = buildCustomMarker({
+        object,
+        content,
+        colorClass,
+        callback,
+        type: "data-marker"
+      });
+
+      customMarker.setMap(this.get());
+      this.markers.push(customMarker);
+
+      return customMarker;
+    },
+
+    drawPulsatingMarker: function(position) {
+      const pulsatingSessionMarker = this.drawMarker({
         position: position,
         icon: {
           // anchor formula: margin + (scaledSize / 2) = 24
@@ -232,9 +246,9 @@ export const map = (
           url: assets.pulsingLocationMarkerPath
         }
       });
-      highlightMarker.setAnimation(true);
+      pulsatingSessionMarker.setAnimation(true);
 
-      return highlightMarker;
+      return pulsatingSessionMarker;
     },
 
     clusterMarkers: function(onClick) {
@@ -317,7 +331,7 @@ export const removeMarker = function(marker) {
   marker.setMap(null);
 };
 
-export const drawCustomMarker = ({ position }) => {
+export const drawTraceMarker = ({ position }) => {
   const customMarker = buildCustomMarker({
     object: { latLng: new google.maps.LatLng(position) },
     colorClass: "trace",

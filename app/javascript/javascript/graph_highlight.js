@@ -1,6 +1,6 @@
 import {
   removeMarker,
-  drawCustomMarker
+  drawTraceMarker
 } from "../angular/code/services/google/_map.js";
 import * as assets from "../assets";
 
@@ -17,7 +17,7 @@ export const show = points => {
   hide();
   points.forEach(point => {
     items.push({
-      marker: drawCustomMarker({
+      marker: drawTraceMarker({
         position: { lat: point.latitude, lng: point.longitude }
       }),
       point: point
