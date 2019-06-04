@@ -55,10 +55,6 @@ export const fixedSessions = (
       sessionsUtils.onSessionsFetchError(data);
     },
 
-    sessionsChanged: function(newIds, oldIds) {
-      sessionsUtils.sessionsChanged(this, newIds, oldIds);
-    },
-
     onSessionsFetch: function(fetchableSessionsCount) {
       this.drawSessionsInLocation();
       if (fetchableSessionsCount) {
@@ -69,12 +65,13 @@ export const fixedSessions = (
       }
     },
 
-    deselectSession: function(id) {
-      var session = this.find(id);
+    deselectSession: function() {
+      var session = this.find(sessionsUtils.selectedSessionId());
       if (!session) return;
       session.loaded = false;
       session.alreadySelected = false;
       params.update({ prevMapPosition: {} });
+      params.update({ selectedSessionIds: [] });
       map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
     },
 
@@ -96,6 +93,7 @@ export const fixedSessions = (
           );
         }
       };
+      params.update({ selectedSessionIds: [id] });
       this._selectSession(id, fitBounds);
     },
 

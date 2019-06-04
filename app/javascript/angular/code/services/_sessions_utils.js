@@ -8,17 +8,6 @@ export const sessionsUtils = (
   flash,
   updateCrowdMapLayer
 ) => ({
-  sessionsChanged: function(self, newIds, oldIds) {
-    _(newIds)
-      .chain()
-      .difference(oldIds)
-      .each(_(self.selectSession).bind(self));
-    _(oldIds)
-      .chain()
-      .difference(newIds)
-      .each(_(self.deselectSession).bind(self));
-  },
-
   get: function(self) {
     return _.uniq(self.sessions, "id");
   },
