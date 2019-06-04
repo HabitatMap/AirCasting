@@ -5,6 +5,7 @@ port module Ports exposing
     , findLocation
     , graphRangeSelected
     , highlightSessionMarker
+    , isShowingTimeRangeFilter
     , loadMoreSessions
     , locationCleared
     , mapMoved
@@ -117,3 +118,6 @@ port highlightSessionMarker : Maybe Location -> Cmd a
 
 
 port graphRangeSelected : (List Float -> msg) -> Sub msg
+
+
+port isShowingTimeRangeFilter : (Bool -> msg) -> Sub msg

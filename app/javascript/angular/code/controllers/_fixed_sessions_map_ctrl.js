@@ -153,7 +153,8 @@ export const FixedSessionsMapCtrl = (
         FiltersUtils.setupTimeRangeFilter(
           onTimeRangeChanged,
           params.get("data").timeFrom,
-          params.get("data").timeTo
+          params.get("data").timeTo,
+          elmApp.ports.isShowingTimeRangeFilter.send
         );
       }
 
@@ -172,7 +173,8 @@ export const FixedSessionsMapCtrl = (
           FiltersUtils.setupTimeRangeFilter(
             onTimeRangeChanged,
             FiltersUtils.oneYearAgo(),
-            FiltersUtils.endOfToday()
+            FiltersUtils.endOfToday(),
+            elmApp.ports.isShowingTimeRangeFilter.send
           );
 
           onTimeRangeChanged(
