@@ -408,7 +408,7 @@ update msg model =
                     , Cmd.batch
                         [ Ports.toggleSession { deselected = Nothing, selected = Just id }
                         , SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
-                        , Ports.highlightSessionMarker Nothing
+                        , Ports.pulseSessionMarker Nothing
                         ]
                     )
 
@@ -423,7 +423,7 @@ update msg model =
                         , Cmd.batch
                             [ Ports.toggleSession { deselected = Just selectedSession.id, selected = Just id }
                             , SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
-                            , Ports.highlightSessionMarker Nothing
+                            , Ports.pulseSessionMarker Nothing
                             ]
                         )
 
@@ -511,7 +511,7 @@ update msg model =
             ( model, Ports.fetchSessions () )
 
         HighlightSessionMarker location ->
-            ( model, Ports.highlightSessionMarker location )
+            ( model, Ports.pulseSessionMarker location )
 
         GraphRangeSelected measurements ->
             ( { model | selectedSession = SelectedSession.updateRange model.selectedSession measurements }, Cmd.none )

@@ -13,7 +13,7 @@ export const SessionsListCtrl = (
   map
 ) => {
   let sessions;
-  let highlightedSessionMarker = null;
+  let pulsatingSessionMarker = null;
   const elmApp = $window.__elmApp;
   const CANNOT_SELECT_MULTIPLE_SESSIONS = "You can't select multiple sessions";
 
@@ -164,13 +164,13 @@ export const SessionsListCtrl = (
         sessions.fetch();
       });
 
-      elmApp.ports.highlightSessionMarker.subscribe(location => {
+      elmApp.ports.pulseSessionMarker.subscribe(location => {
         if (location === null) {
-          highlightedSessionMarker.setMap(null);
+          pulsatingSessionMarker.setMap(null);
           return;
         }
 
-        highlightedSessionMarker = map.drawHighlightMarker(location);
+        pulsatingSessionMarker = map.drawPulsatingMarker(location);
       });
     });
   }

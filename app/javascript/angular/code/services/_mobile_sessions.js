@@ -178,11 +178,10 @@ export const mobileSessions = (
       const callback = id => () =>
         $rootScope.$broadcast("markerSelected", { session_id: id });
 
-      const marker = map.drawCustomMarker({
+      const marker = map.drawMarkerWithoutLabel({
         object: { latLng },
         colorClass: heatLevel,
-        callback: callback(Session.id(session)),
-        type: "marker"
+        callback: callback(Session.id(session))
       });
       session.markers.push(marker);
     },
@@ -199,12 +198,11 @@ export const mobileSessions = (
       const callback = id => () =>
         $rootScope.$broadcast("markerSelected", { session_id: id });
 
-      const marker = map.drawCustomMarker({
+      const marker = map.drawMarkerWithLabel({
         object: { latLng },
         content: content,
         colorClass: heatLevel,
-        callback: callback(Session.id(session)),
-        type: "data-marker"
+        callback: callback(Session.id(session))
       });
       session.markers.push(marker);
     },

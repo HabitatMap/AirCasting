@@ -140,12 +140,12 @@ export const fixedSessions = (
       const sessions = this.get();
 
       if (!sensors.anySelected() || !params.get("data").isStreaming) {
-        sessions.forEach(session => this.drawDefaultMarkers(session));
+        sessions.forEach(session => this.drawMarkersWithoutLabel(session));
         return;
       }
 
       sessions.forEach(session =>
-        this.drawColorCodedMarkers(session, sensors.selectedSensorName())
+        this.drawMarkersWithLabel(session, sensors.selectedSensorName())
       );
 
       map.clusterMarkers(
@@ -153,7 +153,7 @@ export const fixedSessions = (
       );
     },
 
-    drawColorCodedMarkers: function(session, selectedSensor) {
+    drawMarkersWithLabel: function(session, selectedSensor) {
       drawSession.undoDraw(session);
       session.markers = [];
 
@@ -166,7 +166,7 @@ export const fixedSessions = (
       const callback = id => () =>
         $rootScope.$broadcast("markerSelected", { session_id: id });
 
-      const marker = map.drawCustomMarker({
+      const marker = map.drawMarkerWithLabel({
         object: {
           latLng,
           id: Session.id(session),
@@ -174,13 +174,12 @@ export const fixedSessions = (
         },
         content: content,
         colorClass: heatLevel,
-        callback: callback(Session.id(session)),
-        type: "data-marker"
+        callback: callback(Session.id(session))
       });
       session.markers.push(marker);
     },
 
-    drawDefaultMarkers: function(session) {
+    drawMarkersWithoutLabel: function(session) {
       drawSession.undoDraw(session);
       session.markers = [];
 
@@ -188,11 +187,10 @@ export const fixedSessions = (
       const callback = id => () =>
         $rootScope.$broadcast("markerSelected", { session_id: id });
 
-      const customMarker = map.drawCustomMarker({
+      const customMarker = map.drawMarkerWithoutLabel({
         object: { latLng },
         colorClass: "default",
-        callback: callback(Session.id(session)),
-        type: "marker"
+        callback: callback(Session.id(session))
       });
       session.markers.push(customMarker);
     },
