@@ -283,19 +283,19 @@ export const map = (
       this.markers = [];
     },
 
-    drawLine: function(data) {
-      var points = _(data).map(function(latLngObj) {
-        return new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
-      });
+    drawLine: function(points) {
+      const path = points.map(
+        point => new google.maps.LatLng(point.latitude, point.longitude)
+      );
       var lineOptions = {
         map: this.get(),
-        path: points,
+        path,
         strokeColor: "#09a7f0",
+        strokeOpacity: 0.2,
         geodesic: false
       };
 
-      var line = new google.maps.Polyline(lineOptions);
-      return line;
+      return new google.maps.Polyline(lineOptions);
     },
 
     clearRectangles: function() {
