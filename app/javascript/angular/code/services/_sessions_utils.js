@@ -57,7 +57,7 @@ export const sessionsUtils = (
   onSingleSessionFetchWithoutCrowdMap: function(session, data, callback) {
     createSessionData(session, data);
     session.loaded = true;
-    callback();
+    callback(session);
   },
   refreshMapView: function(sessions) {
     if (sessions.type === "MobileSessions") {
