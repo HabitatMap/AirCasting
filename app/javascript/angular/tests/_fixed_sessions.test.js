@@ -325,7 +325,7 @@ test("drawSessionsInLocation doesnt draw markers for indoor sessions", t => {
 });
 
 test("drawSessionsInLocation draws default marker when no sensor selected", t => {
-  const map = mock("drawCustomMarker");
+  const map = mock("drawMarkerWithoutLabel");
   const session = { latitude: 1, longitude: 2 };
   const sensors = { anySelected: () => false };
 
@@ -340,7 +340,7 @@ test("drawSessionsInLocation draws default marker when no sensor selected", t =>
 });
 
 test("drawSessionsInLocation draws default marker for sessions that are not streaming currently", t => {
-  const map = mock("drawCustomMarker");
+  const map = mock("drawMarkerWithoutLabel");
   const session = { latitude: 1, longitude: 2 };
   const data = buildData({ isStreaming: false });
 
@@ -355,7 +355,7 @@ test("drawSessionsInLocation draws default marker for sessions that are not stre
 });
 
 test("drawSessionsInLocation draws colorcoded marker for currently streaming sessions when sensor selected", t => {
-  const map = mock("drawCustomMarker");
+  const map = mock("drawMarkerWithLabel");
   const session = {
     id: 123,
     latitude: 1,

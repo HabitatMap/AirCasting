@@ -9,8 +9,12 @@
   color: transparent;
   cursor: pointer;
 
-  &.measurement {
-    background-color: pink;
+  &.trace {
+    background-color: $blue;
+    width: 24px;
+    height: 24px;
+    left: -12px;
+    top: -12px;
   }
 
   &.default {

@@ -4,12 +4,12 @@ port module Ports exposing
     , fetchSessions
     , findLocation
     , graphRangeSelected
-    , highlightSessionMarker
     , isShowingTimeRangeFilter
     , loadMoreSessions
     , locationCleared
     , mapMoved
     , profileSelected
+    , pulseSessionMarker
     , refreshTimeRange
     , selectSensorId
     , showCopyLinkTooltip
@@ -114,7 +114,7 @@ port mapMoved : (() -> msg) -> Sub msg
 port fetchSessions : () -> Cmd a
 
 
-port highlightSessionMarker : Maybe Location -> Cmd a
+port pulseSessionMarker : Maybe Location -> Cmd a
 
 
 port graphRangeSelected : (List Float -> msg) -> Sub msg

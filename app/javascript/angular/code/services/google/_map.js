@@ -199,19 +199,18 @@ export const map = (
       return newMarker;
     },
 
-    drawCustomMarker: function({
+    drawMarkerWithoutLabel: function({
       object,
       content,
       colorClass,
-      callback,
-      type
+      callback
     }) {
       const customMarker = buildCustomMarker({
         object,
         content,
         colorClass,
         callback,
-        type
+        type: "marker"
       });
 
       customMarker.setMap(this.get());
@@ -220,8 +219,23 @@ export const map = (
       return customMarker;
     },
 
-    drawHighlightMarker: function(position) {
-      const highlightMarker = this.drawMarker({
+    drawMarkerWithLabel: function({ object, content, colorClass, callback }) {
+      const customMarker = buildCustomMarker({
+        object,
+        content,
+        colorClass,
+        callback,
+        type: "data-marker"
+      });
+
+      customMarker.setMap(this.get());
+      this.markers.push(customMarker);
+
+      return customMarker;
+    },
+
+    drawPulsatingMarker: function(position) {
+      const pulsatingSessionMarker = this.drawMarker({
         position: position,
         icon: {
           // anchor formula: margin + (scaledSize / 2) = 24
@@ -232,9 +246,9 @@ export const map = (
           url: assets.pulsingLocationMarkerPath
         }
       });
-      highlightMarker.setAnimation(true);
+      pulsatingSessionMarker.setAnimation(true);
 
-      return highlightMarker;
+      return pulsatingSessionMarker;
     },
 
     clusterMarkers: function(onClick) {
@@ -283,19 +297,19 @@ export const map = (
       this.markers = [];
     },
 
-    drawLine: function(data) {
-      var points = _(data).map(function(latLngObj) {
-        return new google.maps.LatLng(latLngObj.latitude, latLngObj.longitude);
-      });
+    drawLine: function(points) {
+      const path = points.map(
+        point => new google.maps.LatLng(point.latitude, point.longitude)
+      );
       var lineOptions = {
         map: this.get(),
-        path: points,
+        path,
         strokeColor: "#09a7f0",
+        strokeOpacity: 0.2,
         geodesic: false
       };
 
-      var line = new google.maps.Polyline(lineOptions);
-      return line;
+      return new google.maps.Polyline(lineOptions);
     },
 
     clearRectangles: function() {
@@ -317,10 +331,10 @@ export const removeMarker = function(marker) {
   marker.setMap(null);
 };
 
-export const drawCustomMarker = ({ position }) => {
+export const drawTraceMarker = ({ position }) => {
   const customMarker = buildCustomMarker({
     object: { latLng: new google.maps.LatLng(position) },
-    colorClass: "measurement",
+    colorClass: "trace",
     type: "marker"
   });
 
