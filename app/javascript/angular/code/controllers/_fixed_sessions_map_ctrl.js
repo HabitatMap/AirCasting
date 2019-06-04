@@ -79,7 +79,7 @@ export const FixedSessionsMapCtrl = (
       const elmApp = window.__elmApp;
 
       elmApp.ports.selectSensorId.subscribe(sensorId => {
-        params.update({ selectedSessionIds: [] });
+        $scope.sessions.deselectSession();
         params.update({ data: { sensorId } });
         $scope.sessions.fetch();
       });

@@ -60,10 +60,6 @@ export const mobileSessions = (
       sessionsUtils.onSessionsFetchError(data);
     },
 
-    sessionsChanged: function(newIds, oldIds) {
-      sessionsUtils.sessionsChanged(this, newIds, oldIds);
-    },
-
     onSessionsFetch: function(fetchableSessionsCount) {
       if (!params.isCrowdMapOn()) {
         this.drawSessionsInLocation();
@@ -91,12 +87,13 @@ export const mobileSessions = (
       }
     },
 
-    deselectSession: function(id) {
-      const session = this.find(id);
+    deselectSession: function() {
+      const session = this.find(sessionsUtils.selectedSessionId());
       if (!session) return;
       session.loaded = false;
       session.alreadySelected = false;
       params.update({ prevMapPosition: {} });
+      params.update({ selectedSessionIds: [] });
       drawSession.undoDraw(session, prevMapPosition);
     },
 
@@ -118,6 +115,7 @@ export const mobileSessions = (
         );
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       };
+      params.update({ selectedSessionIds: [id] });
       this._selectSession(id, callback);
     },
 
