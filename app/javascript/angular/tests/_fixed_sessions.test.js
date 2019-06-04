@@ -210,7 +210,7 @@ test("fetch passes map corner coordinates to sessionsDownloader", t => {
 
 test("selectSession with indoor session after successfully fetching calls map.fitBoundsWithBottomPadding", t => {
   const map = mock("fitBoundsWithBottomPadding");
-  const sessionsUtils = { find: () => ({ is_indoor: false }) };
+  const sessionsUtils = { selectedSession: () => ({ is_indoor: false }) };
   const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
 
@@ -223,7 +223,7 @@ test("selectSession with indoor session after successfully fetching calls map.fi
 
 test("selectSession with outdoor session after successfully fetching does not call map.fitBounds", t => {
   const map = mock("fitBounds");
-  const sessionsUtils = { find: () => ({ is_indoor: true }) };
+  const sessionsUtils = { selectedSession: () => ({ is_indoor: true }) };
   const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
 
@@ -236,7 +236,7 @@ test("selectSession with outdoor session after successfully fetching does not ca
 
 test("deselectSession with existing session calls fitBounds", t => {
   const map = mock("fitBounds");
-  const sessionsUtils = { find: () => ({ id: 1 }) };
+  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils });
 
   fixedSessionsService.deselectSession(1);
@@ -248,7 +248,7 @@ test("deselectSession with existing session calls fitBounds", t => {
 
 test("deselectSession with non-existing session does not call drawSession.undoDraw", t => {
   const map = mock("fitBounds");
-  const sessionsUtils = { find: () => null };
+  const sessionsUtils = { selectedSession: () => null };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils });
 
   fixedSessionsService.deselectSession(1);
@@ -271,7 +271,7 @@ test("deselectSession calls fitBounds with the bounds saved before selecting the
     getZoom: () => zoom,
     ...mock("fitBounds")
   };
-  const sessionsUtils = { find: () => ({ id: 1 }) };
+  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
   const sensors = { sensors: { 1: { sensor_name: "sensor_name" } } };
   const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
   fixedSessionsService.selectSession(1);
@@ -292,7 +292,7 @@ test("deselectSession with no previously selected sessions calls fitBounds with 
     west: -123.65885018980651
   };
   const zoom = 10;
-  const sessionsUtils = { find: () => ({ id: 1 }) };
+  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
   const mapPosition = { bounds, zoom };
   const map = {
     getBounds: () => bounds,
@@ -497,7 +497,8 @@ const _fixedSessions = ({
     find: () => ({}),
     onSingleSessionFetch: (x, y, callback) => callback(),
     get: self => self.sessions,
-    onSingleSessionFetchWithoutCrowdMap: (x, y, callback) => callback(),
+    onSingleSessionFetchWithoutCrowdMap: (session, y, callback) =>
+      callback(session),
     isSessionSelected: () => false,
     selectedSession: () => {},
     selectedSessionId: () => 1,

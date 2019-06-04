@@ -88,17 +88,16 @@ export const mobileSessions = (
     },
 
     deselectSession: function() {
-      const session = this.find(sessionsUtils.selectedSessionId());
+      const session = sessionsUtils.selectedSession(this);
       if (!session) return;
       session.loaded = false;
-      session.alreadySelected = false;
       params.update({ prevMapPosition: {} });
       params.update({ selectedSessionIds: [] });
       drawSession.undoDraw(session, prevMapPosition);
     },
 
     selectSession: function(id) {
-      const callback = (session, selectedSession) => data => {
+      const callback = session => data => {
         drawSession.clear(this.sessions);
         prevMapPosition = {
           bounds: map.getBounds(),
@@ -111,7 +110,7 @@ export const mobileSessions = (
         const draw = () =>
           drawSession.drawMobileSession(session, drawSessionStartingMarker);
         map.fitBoundsWithBottomPadding(
-          calculateBounds(sensors, selectedSession, map.getZoom())
+          calculateBounds(sensors, session, map.getZoom())
         );
         sessionsUtils.onSingleSessionFetch(session, data, draw);
       };
@@ -211,19 +210,18 @@ export const mobileSessions = (
     },
 
     _selectSession: function(id, callback) {
-      var session = this.find(id);
-      if (!session || session.alreadySelected) return;
+      const session = sessionsUtils.selectedSession(this);
+      if (!session) return;
       var sensorId = sensors.selectedId();
       var sensor = sensors.sensors[sensorId] || {};
       var sensorName = sensor.sensor_name;
       if (!sensorName) return;
-      session.alreadySelected = true;
       $http
         .get("/api/mobile/sessions2/" + id, {
           cache: true,
           params: { sensor_name: sensorName }
         })
-        .success(callback(session, sessionsUtils.selectedSession(this)));
+        .success(callback(session));
     },
 
     fetch: function(values = {}) {
