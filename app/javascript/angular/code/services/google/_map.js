@@ -320,7 +320,7 @@ export const removeMarker = function(marker) {
 export const drawCustomMarker = ({ position }) => {
   const customMarker = buildCustomMarker({
     object: { latLng: new google.maps.LatLng(position) },
-    colorClass: "measurement",
+    colorClass: "trace",
     type: "marker"
   });
 
