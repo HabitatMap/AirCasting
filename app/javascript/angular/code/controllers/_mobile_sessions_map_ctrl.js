@@ -115,7 +115,7 @@ export const MobileSessionsMapCtrl = (
       });
 
       map.onPanOrZoom(() => {
-        FiltersUtils.clearLocation(elmApp.ports.locationCleared, params);
+        FiltersUtils.clearLocation(elmApp.ports.locationCleared.send, params);
       });
 
       FiltersUtils.setupAutocomplete(
@@ -150,14 +150,16 @@ export const MobileSessionsMapCtrl = (
       FiltersUtils.setupTimeRangeFilter(
         onTimeRangeChanged,
         params.get("data").timeFrom,
-        params.get("data").timeTo
+        params.get("data").timeTo,
+        elmApp.ports.isShowingTimeRangeFilter.send
       );
 
       elmApp.ports.refreshTimeRange.subscribe(() => {
         FiltersUtils.setupTimeRangeFilter(
           onTimeRangeChanged,
           oneYearAgo,
-          endOfToday
+          endOfToday,
+          elmApp.ports.isShowingTimeRangeFilter.send
         );
 
         onTimeRangeChanged(oneYearAgo, endOfToday);
