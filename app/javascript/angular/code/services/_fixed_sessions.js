@@ -78,7 +78,7 @@ export const fixedSessions = (
           };
           params.update({ prevMapPosition: prevMapPosition });
           map.fitBoundsWithBottomPadding(calculateBounds(sensors, sessionData));
-          this.drawMarkersWithLabel(sessionData, sensors.selectedSensorName());
+          this.drawSelectedSession(sessionData);
         }
       };
       params.update({ selectedSessionIds: [id] });
@@ -86,14 +86,22 @@ export const fixedSessions = (
     },
 
     reSelectSession: function(id) {
-      const noop = sessionData => {
+      const callback = sessionData => {
         if (!sessionData.is_indoor) {
-          this.drawMarkersWithLabel(sessionData, sensors.selectedSensorName());
+          map.fitBoundsWithBottomPadding(calculateBounds(sensors, sessionData));
+          this.drawSelectedSession(sessionData);
         }
       };
-      this._selectSession(id, noop);
+      this._selectSession(id, callback);
     },
 
+    drawSelectedSession: function(sessionData) {
+      if (params.isStreaming()) {
+        this.drawMarkersWithLabel(sessionData, sensors.selectedSensorName());
+      } else {
+        this.drawMarkersWithoutLabel(sessionData);
+      }
+    },
     _selectSession: function(id, callback) {
       var sensorId = sensors.selectedId();
       var sensor = sensors.sensors[sensorId] || {};
