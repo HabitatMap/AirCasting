@@ -60,6 +60,7 @@ Rails.application.routes.draw do
 
     namespace :fixed do
       get "sessions/:id" => "sessions#show"
+      get "sessions2/:id" => "sessions#show2"
 
       namespace :dormant do
         get "sessions" => "sessions#index"
