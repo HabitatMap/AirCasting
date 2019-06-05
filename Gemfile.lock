@@ -50,8 +50,6 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    activesupport-json_encoder (1.1.0)
-      activesupport (>= 4.1.0, < 5.0)
     acts-as-taggable-on (4.0.0)
       activerecord (>= 4.0)
     addressable (2.6.0)
@@ -445,7 +443,6 @@ DEPENDENCIES
   a9n
   activeadmin
   activerecord-import (~> 0.28)
-  activesupport-json_encoder
   acts-as-taggable-on (~> 4)
   awesome_print
   better_errors
