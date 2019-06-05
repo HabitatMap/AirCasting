@@ -61,7 +61,16 @@ module AirCasting
 
       end
     end
+  end
+end
 
-    ActiveSupport.encode_big_decimal_as_string = false
+# Monkey patch BigDecimal#as_json to return floats and not strings.
+# This should be removed so that Rails returns BigDecimals as strings.
+# At the moment it's not possible because the mobile and webapp rely on
+# bigints being floats (and not strings).
+# See https://github.com/rails/rails/issues/25017
+class BigDecimal
+  def as_json(*)
+    to_f
   end
 end
