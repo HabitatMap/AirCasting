@@ -209,20 +209,6 @@ test("fetch keeps the previous sessions list if offset does not equal 0", t => {
   t.end();
 });
 
-test("selectSession after successfully fetching calls sessionsUtils.onSingleSessionFetch", t => {
-  const sessionsUtils = mock("onSingleSessionFetch");
-  const mobileSessionsService = _mobileSessions({
-    sessionsUtils,
-    sensors: { sensors: { 123: { sensor_name: "sensor_name" } } }
-  });
-
-  mobileSessionsService.selectSession(123);
-
-  t.true(sessionsUtils.wasCalled());
-
-  t.end();
-});
-
 test("selectSession after successfully fetching calls drawSession.drawMobileSession", t => {
   const drawSession = mock("drawMobileSession");
   const mobileSessionsService = _mobileSessions({
@@ -250,19 +236,19 @@ test("selectSession after successfully fetching undraws all sessions", t => {
   t.end();
 });
 
-test("selectSession after successfully fetching calls drawSession.drawMobileSession with selected session", t => {
+test("selectSession after successfully fetching calls drawSession.drawMobileSession with fetched data", t => {
   const drawSession = mock("drawMobileSession");
-  const session = { id: 1 };
-  const sessionsUtils = { selectedSession: () => session };
+  const data = { id: 1, streams: {} };
+  const $http = { get: () => ({ success: callback => callback(data) }) };
   const mobileSessionsService = _mobileSessions({
     drawSession,
     sensors,
-    sessionsUtils
+    $http
   });
 
   mobileSessionsService.selectSession(1);
 
-  t.true(drawSession.wasCalledWith(session));
+  t.true(drawSession.wasCalledWith(data));
 
   t.end();
 });
@@ -279,22 +265,6 @@ test("selectSession after successfully fetching calls map.fitBoundsWithBottomPad
   t.true(map.wasCalled());
 
   t.end();
-});
-
-test("reSelectSession after successfully fetching calls sessionsUtils.onSingleSessionFetch", t => {
-  const sessionsUtils = mock("onSingleSessionFetch");
-  const mobileSessionsService = _mobileSessions({
-    sessionsUtils,
-    sensors: { sensors: { 123: { sensor_name: "sensor_name" } } }
-  });
-
-  mobileSessionsService.reSelectSession(123);
-
-  setTimeout(() => {
-    t.true(sessionsUtils.wasCalled());
-
-    t.end();
-  }, 0);
 });
 
 test("reSelectSession after successfully fetching calls drawSession.drawMobileSession", t => {
@@ -327,9 +297,9 @@ test("reSelectSession after successfully fetching does not call map.fitBounds", 
   t.end();
 });
 
-test("deselectSession with existing session calls drawSession.undoDraw", t => {
+test("deselectSession when session selected calls drawSession.undoDraw", t => {
   const drawSession = mock("undoDraw");
-  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
+  const sessionsUtils = { isSessionSelected: () => true };
   const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils });
 
   mobileSessionsService.deselectSession(1);
@@ -339,9 +309,9 @@ test("deselectSession with existing session calls drawSession.undoDraw", t => {
   t.end();
 });
 
-test("deselectSession with non-existing session does not call drawSession.undoDraw", t => {
+test("deselectSession when session not selected does not call drawSession.undoDraw", t => {
   const drawSession = mock("undoDraw");
-  const sessionsUtils = { selectedSession: () => null };
+  const sessionsUtils = { isSessionSelected: () => false };
   const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils });
 
   mobileSessionsService.deselectSession(1);
@@ -358,46 +328,22 @@ test("deselectSession calls drawSession.undoDraw with the position saved before 
     south: 24.367113787533707,
     west: -123.65885018980651
   };
-  const zoom = 10;
-  const map = { getBounds: () => bounds, getZoom: () => zoom };
+  const prevMapPosition = { getBounds: () => bounds, getZoom: () => 10 };
+  const params = {
+    get: () => prevMapPosition
+  };
   const drawSession = mock("undoDraw");
-  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
+  const sessionsUtils = { isSessionSelected: () => true };
   const mobileSessionsService = _mobileSessions({
     drawSession,
     sessionsUtils,
-    map,
+    params,
     sensors: { sensors: { 2: { sensor_name: "sensor_name" } } }
   });
-  mobileSessionsService.selectSession(1);
 
-  mobileSessionsService.deselectSession(1);
+  mobileSessionsService.deselectSession();
 
-  t.true(drawSession.wasCalledWith2({ bounds, zoom }));
-
-  t.end();
-});
-
-test("deselectSession with no previously selected sessions calls drawSession.undoDraw with initial map position", t => {
-  const bounds = {
-    east: -68.06802987730651,
-    north: 47.98992183263727,
-    south: 24.367113787533707,
-    west: -123.65885018980651
-  };
-  const zoom = 10;
-  const drawSession = mock("undoDraw");
-  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
-  const mapPosition = { bounds, zoom };
-  const map = { getBounds: () => bounds, getZoom: () => zoom };
-  const mobileSessionsService = _mobileSessions({
-    drawSession,
-    sessionsUtils,
-    map
-  });
-
-  mobileSessionsService.deselectSession(1);
-
-  t.true(drawSession.wasCalledWith2(mapPosition));
+  t.true(drawSession.wasCalledWith2(prevMapPosition));
 
   t.end();
 });
@@ -478,15 +424,15 @@ test("when no sensor is selected drawSessionsInLocation doesnt call map.drawCust
   t.end();
 });
 
-test("redrawSelectedSession call drawSession.drawMobileSession with selected session", t => {
+test("redrawSelectedSession call drawSession.drawMobileSession with selected session data", t => {
   const drawSession = mock("drawMobileSession");
-  const session = { id: 1 };
-  const sessionsUtils = { find: () => session };
+  const data = { id: 1 };
 
-  const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils });
-  mobileSessionsService.redrawSelectedSession(1);
+  const mobileSessionsService = _mobileSessions({ drawSession });
+  mobileSessionsService.selectedSession = data;
+  mobileSessionsService.redrawSelectedSession();
 
-  t.true(drawSession.wasCalledWith(session));
+  t.true(drawSession.wasCalledWith(data));
 
   t.end();
 });
@@ -507,19 +453,24 @@ const _mobileSessions = ({
   sessionIds = [],
   map,
   sessionsUtils,
-  sensors
+  sensors,
+  $http,
+  params
 }) => {
   const $rootScope = { $new: () => ({}) };
-  const params = {
+  const _params = {
     get: what => {
       if (what === "data") {
         return data || buildData();
+      } else if (what == "prevMapPosition") {
+        return {};
       } else {
         throw new Error(`unexpected param ${what}`);
       }
     },
     update: () => {},
-    selectedSessionIds: () => sessionIds
+    selectedSessionIds: () => sessionIds,
+    ...params
   };
   const _map = {
     getBounds: () => ({}),
@@ -547,18 +498,21 @@ const _mobileSessions = ({
   };
   const _sessionsUtils = {
     find: () => ({}),
-    onSingleSessionFetch: (x, y, callback) => callback(),
     isSessionSelected: () => false,
     selectedSession: () => ({}),
     selectedSessionId: () => 1,
+    updateCrowdMapLayer: () => {},
     ...sessionsUtils
   };
-  const $http = { get: () => ({ success: callback => callback() }) };
+  const _$http = {
+    get: () => ({ success: callback => callback({ streams: {} }) }),
+    ...$http
+  };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
   return mobileSessions(
-    params,
-    $http,
+    _params,
+    _$http,
     _map,
     _sensors,
     $rootScope,

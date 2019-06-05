@@ -80,7 +80,7 @@ export const MobileSessionsMapCtrl = (
       if ($scope.params.isCrowdMapOn() && !sessionsUtils.isSessionSelected()) {
         sessionsUtils.updateCrowdMapLayer(mobileSessions.sessionIds());
       } else if (sessionsUtils.isSessionSelected()) {
-        mobileSessions.redrawSelectedSession(sessionsUtils.selectedSessionId());
+        mobileSessions.redrawSelectedSession();
       } else {
         $scope.sessions.drawSessionsInLocation();
       }

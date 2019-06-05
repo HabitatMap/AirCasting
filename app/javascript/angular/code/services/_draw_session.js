@@ -12,13 +12,19 @@ const locationMarkersByLevel = {
 export const drawSession = (sensors, map, heat, note, empty) => {
   var DrawSession = function() {};
 
+  let drawnObjects = { markers: [] };
+
   DrawSession.prototype = {
     drawMobileSession: function(session, drawSessionStartingMarker) {
-      if (!session || !session.loaded || !sensors.anySelected()) {
+      if (!session || !sensors.anySelected()) {
         return;
       }
 
-      drawSessionStartingMarker(session, sensors.selectedSensorName());
+      const startingMarker = drawSessionStartingMarker(
+        session,
+        sensors.selectedSensorName()
+      );
+      drawnObjects.markers.push(startingMarker);
 
       var suffix = " " + sensors.anySelected().unit_symbol;
       var points = [];
@@ -32,14 +38,14 @@ export const drawSession = (sensors, map, heat, note, empty) => {
           suffix
         );
 
-        session.markers.push(marker);
+        drawnObjects.markers.push(marker);
         points.push(measurement);
       });
 
       (session.notes || []).forEach(function(noteItem, idx) {
-        session.noteDrawings.push(note.drawNote(noteItem, idx));
+        drawnObjects.noteDrawings.push(note.drawNote(noteItem, idx));
       });
-      session.lines.push(map.drawLine(points));
+      drawnObjects.lines.push(map.drawLine(points));
     },
 
     undoDraw: function(session, mapPosition) {
@@ -48,15 +54,20 @@ export const drawSession = (sensors, map, heat, note, empty) => {
       });
       session.markers = [];
 
-      (session.lines || []).forEach(function(line) {
+      (drawnObjects.markers || []).forEach(function(marker) {
+        removeMarker(marker);
+      });
+      drawnObjects.markers = [];
+
+      (drawnObjects.lines || []).forEach(function(line) {
         removeMarker(line);
       });
-      session.lines = [];
+      drawnObjects.lines = [];
 
-      (session.noteDrawings || []).forEach(function(noteItem) {
+      (drawnObjects.noteDrawings || []).forEach(function(noteItem) {
         removeMarker(noteItem);
       });
-      session.noteDrawings = [];
+      drawnObjects.noteDrawings = [];
 
       if (mapPosition) {
         map.fitBounds(mapPosition.bounds, mapPosition.zoom);
