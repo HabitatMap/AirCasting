@@ -22,7 +22,7 @@ describe Api::Realtime::MeasurementsController do
   describe 'POST #create' do
     subject { post :create, data: data }
 
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { FactoryBot.create(:user) }
     let(:session_uuid) { '36cfd811-dc1b-430f-a647-bfc88921bf4c' }
 
     let(:data) do
@@ -39,7 +39,7 @@ describe Api::Realtime::MeasurementsController do
     before { sign_in(user) }
 
     context 'when the session with requested `uuid` and `user` exists' do
-      before { FactoryGirl.create(:fixed_session, user: user, uuid: session_uuid) }
+      before { FactoryBot.create(:fixed_session, user: user, uuid: session_uuid) }
 
       it 'returns `success`' do
         subject
@@ -63,7 +63,7 @@ describe Api::Realtime::MeasurementsController do
     end
 
     context 'when the session with requested `uuid` does not exist' do
-      before { FactoryGirl.create(:fixed_session, user: user, uuid: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx') }
+      before { FactoryBot.create(:fixed_session, user: user, uuid: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx') }
 
       it 'returns `bad request`' do
         subject

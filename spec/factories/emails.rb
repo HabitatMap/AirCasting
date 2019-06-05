@@ -16,7 +16,7 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-FactoryGirl.define do
+FactoryBot.define do
   sequence :email do |n|
     "email#{n}@factory.com"
   end

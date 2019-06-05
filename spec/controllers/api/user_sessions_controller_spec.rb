@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Api::UserSessionsController do
-  let(:user) { FactoryGirl.create(:user) }
+  let(:user) { FactoryBot.create(:user) }
 
   before { sign_in(user) }
   before { allow(controller).to receive(:current_user) { user } }
@@ -67,10 +67,10 @@ describe Api::UserSessionsController do
   end
 
   describe "#show" do
-    let(:stream) { FactoryGirl.create(:stream) }
+    let(:stream) { FactoryBot.create(:stream) }
 
     context "getting own session" do
-      let(:session) { FactoryGirl.create(:mobile_session, :user => user, :streams => [stream], :tag_list => "hello world") }
+      let(:session) { FactoryBot.create(:mobile_session, :user => user, :streams => [stream], :tag_list => "hello world") }
 
       it "should respond with ok" do
         get :show, :id => session.id, :format => :json
@@ -99,8 +99,8 @@ describe Api::UserSessionsController do
     end
 
     context "session has notes with photos" do
-      let(:note) { FactoryGirl.create(:note, :photo => File.new(Rails.root + "spec" + "fixtures" + "test.jpg")) }
-      let(:session) { FactoryGirl.create(:mobile_session, :user => user, :notes => [note]) }
+      let(:note) { FactoryBot.create(:note, :photo => File.new(Rails.root + "spec" + "fixtures" + "test.jpg")) }
+      let(:session) { FactoryBot.create(:mobile_session, :user => user, :notes => [note]) }
 
       it "should provide paths to note photos" do
         get :show, :id => session.id, :format => :json
@@ -110,7 +110,7 @@ describe Api::UserSessionsController do
     end
 
     context "getting other user's session" do
-      let(:session) { FactoryGirl.create(:mobile_session) }
+      let(:session) { FactoryBot.create(:mobile_session) }
 
       it "should respond with not found" do
         get :show, :id => session.id, :format => :json
