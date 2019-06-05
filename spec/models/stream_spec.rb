@@ -19,8 +19,8 @@
 require 'rails_helper'
 
 describe Stream do
-  let(:stream) { FactoryGirl.create(:stream) }
-  let!(:measurement) { FactoryGirl.create(:measurement, :stream => stream) }
+  let(:stream) { FactoryBot.create(:stream) }
+  let!(:measurement) { FactoryBot.create(:measurement, :stream => stream) }
 
   describe "#build_measurements!" do
     let(:measurement_data) { double("measurement data") }
@@ -55,14 +55,14 @@ describe Stream do
 
   describe "#sensors" do
     before { Stream.destroy_all }
-    let!(:stream1) { FactoryGirl.create(:stream, :unit_symbol => "%", :sensor_name => "s1", :measurement_type => "m1") }
-    let!(:stream2) { FactoryGirl.create(:stream, :unit_symbol => "%", :sensor_name => "s2", :measurement_type => "m2") }
-    let!(:stream3) { FactoryGirl.create(:stream, :unit_symbol => "%", :sensor_name => "s1", :measurement_type => "m1") }
+    let!(:stream1) { FactoryBot.create(:stream, :unit_symbol => "%", :sensor_name => "s1", :measurement_type => "m1") }
+    let!(:stream2) { FactoryBot.create(:stream, :unit_symbol => "%", :sensor_name => "s2", :measurement_type => "m2") }
+    let!(:stream3) { FactoryBot.create(:stream, :unit_symbol => "%", :sensor_name => "s1", :measurement_type => "m1") }
 
     subject { Stream.sensors }
 
     it "should return all sensors" do
-      thresholds = FactoryGirl.attributes_for(:stream).select { |k,v| k =~ /^threshold/ }
+      thresholds = FactoryBot.attributes_for(:stream).select { |k,v| k =~ /^threshold/ }
       expect(subject).to include({ :id => nil, :unit_symbol => "%", :sensor_name => "s1", :measurement_type => "m1", :session_count => 2 }.merge(thresholds))
       expect(subject).to include({ :id => nil, :unit_symbol => "%", :sensor_name => "s2", :measurement_type => "m2", :session_count => 1 }.merge(thresholds))
     end
@@ -90,12 +90,12 @@ describe Stream do
   end
 
   describe "scope" do
-    let(:user) { FactoryGirl.create(:user) }
-    let(:user2) { FactoryGirl.create(:user) }
-    let(:session) { FactoryGirl.create(:mobile_session, :user => user) }
-    let(:session2) { FactoryGirl.create(:mobile_session, :user => user2) }
-    let(:stream) { FactoryGirl.create(:stream, :sensor_name => "Sensor1", :session => session) }
-    let(:stream2) { FactoryGirl.create(:stream, :sensor_name => "Sensor2", :session => session2) }
+    let(:user) { FactoryBot.create(:user) }
+    let(:user2) { FactoryBot.create(:user) }
+    let(:session) { FactoryBot.create(:mobile_session, :user => user) }
+    let(:session2) { FactoryBot.create(:mobile_session, :user => user2) }
+    let(:stream) { FactoryBot.create(:stream, :sensor_name => "Sensor1", :session => session) }
+    let(:stream2) { FactoryBot.create(:stream, :sensor_name => "Sensor2", :session => session2) }
 
     describe "#with_sensor" do
       it "returns sensor with specified name" do

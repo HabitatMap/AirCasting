@@ -20,11 +20,11 @@ require 'rails_helper'
 
 describe Measurement do
   describe "scopes" do
-    let(:session) { FactoryGirl.create(:mobile_session) }
-    let(:stream) { FactoryGirl.create(:stream, :session => session) }
-    let(:stream2) { FactoryGirl.create(:stream, :session => session) }
-    let(:measurement) { FactoryGirl.create(:measurement, :stream => stream) }
-    let(:measurement2) { FactoryGirl.create(:measurement, :stream => stream2) }
+    let(:session) { FactoryBot.create(:mobile_session) }
+    let(:stream) { FactoryBot.create(:stream, :session => session) }
+    let(:stream2) { FactoryBot.create(:stream, :session => session) }
+    let(:measurement) { FactoryBot.create(:measurement, :stream => stream) }
+    let(:measurement2) { FactoryBot.create(:measurement, :stream => stream2) }
 
     describe "#with_tags" do
       it "returns all measurements belonging to stream id after since_date ordered by time" do
@@ -77,7 +77,7 @@ describe Measurement do
     end
 
     describe "#in_rectangle" do
-      let(:measurement) { FactoryGirl.create(:measurement, :longitude => 0, :latitude => 0) }
+      let(:measurement) { FactoryBot.create(:measurement, :longitude => 0, :latitude => 0) }
 
       it "does not return measurement not in range" do
         data = {:north => 10, :south => 5, :east => 10, :west => 5}

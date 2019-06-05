@@ -28,17 +28,17 @@ describe MobileSession do
       from = time.hour * 60 + time.min
       to = (time.hour + 1) * 60 + time.min
 
-      session = FactoryGirl.create(
+      session = FactoryBot.create(
         :mobile_session,
         :start_time_local => time - 1.minute,
         :end_time_local => time + 1.minute
       )
-      session1 = FactoryGirl.create(
+      session1 = FactoryBot.create(
         :mobile_session,
         :start_time_local => time - 2.minute,
         :end_time_local => time - 1.minute
       )
-      session2 = FactoryGirl.create(
+      session2 = FactoryBot.create(
         :mobile_session,
         :start_time_local => time + 61.minute,
         :end_time_local => time + 71.minute
@@ -49,10 +49,10 @@ describe MobileSession do
   end
 
   describe "#as_json" do
-    let(:stream) { FactoryGirl.create(:stream) }
-    let(:m1) { FactoryGirl.create(:measurement, :stream => stream) }
-    let(:m1) { FactoryGirl.create(:measurement, :stream => stream) }
-    let(:session) { FactoryGirl.create(:mobile_session, :streams => [stream]) }
+    let(:stream) { FactoryBot.create(:stream) }
+    let(:m1) { FactoryBot.create(:measurement, :stream => stream) }
+    let(:m1) { FactoryBot.create(:measurement, :stream => stream) }
+    let(:session) { FactoryBot.create(:mobile_session, :streams => [stream]) }
 
     subject { session.as_json(:methods => [:measurements]) }
 
@@ -69,7 +69,7 @@ describe MobileSession do
   end
 
   describe '.create' do
-    let(:session) { FactoryGirl.build(:mobile_session) }
+    let(:session) { FactoryBot.build(:mobile_session) }
 
     it 'should call set_url_token' do
       expect(session).to receive(:set_url_token)
@@ -78,8 +78,8 @@ describe MobileSession do
   end
 
   describe "#destroy" do
-    let(:stream) { FactoryGirl.create(:stream) }
-    let(:session) { FactoryGirl.create(:mobile_session, :streams => [stream]) }
+    let(:stream) { FactoryBot.create(:stream) }
+    let(:session) { FactoryBot.create(:mobile_session, :streams => [stream]) }
 
     it "should destroy streams" do
       session.reload.destroy
@@ -122,7 +122,7 @@ describe MobileSession do
       now = Time.now
       plus_one_hour = (now + 1.hour)
       plus_two_hours = (now + 2.hours)
-      session = FactoryGirl.create(
+      session = FactoryBot.create(
         :mobile_session,
         :start_time_local => now,
         :end_time_local => now + 1.second
@@ -166,8 +166,8 @@ describe MobileSession do
   end
 
   describe "#sync" do
-    let(:session) { FactoryGirl.create(:mobile_session) }
-    let!(:note) { FactoryGirl.create(:note, :session => session) }
+    let(:session) { FactoryBot.create(:mobile_session) }
+    let!(:note) { FactoryBot.create(:note, :session => session) }
     let(:data) { { :tag_list => "some tag or other", :notes => [] } }
 
     before { session.reload.sync(data) }
@@ -203,7 +203,7 @@ describe MobileSession do
 
   describe "#start_time_local" do
     it "keeps local time info" do
-      session = FactoryGirl.build(:mobile_session)
+      session = FactoryBot.build(:mobile_session)
       session.start_time_local = time_in_us
 
       session.save
@@ -215,7 +215,7 @@ describe MobileSession do
 
   describe "#end_time_local" do
     it "keeps local time info" do
-      session = FactoryGirl.build(:mobile_session)
+      session = FactoryBot.build(:mobile_session)
       session.end_time_local = time_in_us
       session.save
       session.reload

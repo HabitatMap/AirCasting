@@ -28,7 +28,7 @@ end
 
 describe Api::UsersController do
   describe "#show" do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { FactoryBot.create(:user) }
 
     before do
       sign_in user
@@ -39,7 +39,7 @@ describe Api::UsersController do
   end
 
   describe "#create" do
-    let!(:user) { FactoryGirl.build(:user) }
+    let!(:user) { FactoryBot.build(:user) }
     let(:attrs) { { :lolz => "rotfl" } }
 
     before do

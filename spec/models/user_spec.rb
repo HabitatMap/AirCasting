@@ -19,7 +19,7 @@
 require 'rails_helper'
 
 describe User do
-  let(:user) { FactoryGirl.create(:user) }
+  let(:user) { FactoryBot.create(:user) }
   subject { user }
 
   describe "#before_save" do
@@ -39,14 +39,14 @@ describe User do
   end
 
   describe "#sync" do
-    let(:session1) { FactoryGirl.create(:mobile_session, :user => user) }
-    let(:session2) { FactoryGirl.create(:mobile_session, :user => user, :notes => [note1, note2]) }
-    let(:session4) { FactoryGirl.create(:mobile_session, :user => user, :notes => [note3]) }
-    let(:session5) { FactoryGirl.create(:mobile_session, :user => user) }
-    let(:note1) { FactoryGirl.create(:note, :number => 1, :text => "Old text") }
-    let(:note2) { FactoryGirl.create(:note, :number => 2, :text => "Old text") }
+    let(:session1) { FactoryBot.create(:mobile_session, :user => user) }
+    let(:session2) { FactoryBot.create(:mobile_session, :user => user, :notes => [note1, note2]) }
+    let(:session4) { FactoryBot.create(:mobile_session, :user => user, :notes => [note3]) }
+    let(:session5) { FactoryBot.create(:mobile_session, :user => user) }
+    let(:note1) { FactoryBot.create(:note, :number => 1, :text => "Old text") }
+    let(:note2) { FactoryBot.create(:note, :number => 2, :text => "Old text") }
 
-    let(:note3) { FactoryGirl.create(:note, :number => 3, :text => "Old text") }
+    let(:note3) { FactoryBot.create(:note, :number => 3, :text => "Old text") }
 
     let(:data) do
       [

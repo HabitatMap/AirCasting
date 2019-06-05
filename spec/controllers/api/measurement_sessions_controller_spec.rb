@@ -20,7 +20,7 @@ require 'rails_helper'
 
 shared_examples_for "session creation" do
   let(:session) { double("session", :notes => [note]) }
-  let(:note) { FactoryGirl.create(:note, :photo => photo, :number => 10) }
+  let(:note) { FactoryBot.create(:note, :photo => photo, :number => 10) }
   let(:photo) { File.new(Rails.root + "spec" + "fixtures" + "test.jpg") }
   let(:photos) { :some_files }
 
@@ -48,13 +48,13 @@ shared_examples_for "session creation" do
 end
 
 describe Api::MeasurementSessionsController do
-  let(:user) { FactoryGirl.create(:user) }
+  let(:user) { FactoryBot.create(:user) }
 
   before { sign_in user }
 
   describe "GET 'show_multiple'" do
-    let(:session1) { FactoryGirl.create(:mobile_session) }
-    let(:session2) { FactoryGirl.create(:mobile_session) }
+    let(:session1) { FactoryBot.create(:mobile_session) }
+    let(:session2) { FactoryBot.create(:mobile_session) }
 
     before do
       get :show_multiple, q: { session_ids: [session1.id, session2.id] }, format: :json

@@ -16,16 +16,16 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-# Read about factories at http://github.com/thoughtbot/factory_girl
+# Read about factories at http://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :mobile_session do
     user
     sequence(:uuid) { |n| "uuid-#{n}" }
     title { "Another session" }
     tag_list { "boring quiet" }
-    contribute true
-    notes_attributes { [FactoryGirl.attributes_for(:note, :session => nil)] }
+    contribute { true }
+    notes_attributes { [FactoryBot.attributes_for(:note, :session => nil)] }
     start_time {Time.now}
     end_time {Time.now + 1.minute}
     start_time_local {Time.now}

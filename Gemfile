@@ -57,7 +57,7 @@ end
 group :test, :development do
   gem 'shoulda-matchers'
   gem 'spork', '~> 0.9.0', :require => false
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
 end
 
 group :test do
