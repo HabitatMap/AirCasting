@@ -23,7 +23,6 @@ gem 'rb-gsl', '1.16.0.6'
 gem 'rubyzip', '>= 1.0.0'
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs', '3.0.12'
-gem 'sinatra', require: false
 gem 'thin', '~> 1.6', '>= 1.6.4'
 gem 'test-unit', '~> 3.0'
 gem 'a9n'
