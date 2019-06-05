@@ -28,7 +28,6 @@ class Api::ToMobileSessionsArray
         title: session.title,
         start_time_local: session.start_time_local,
         end_time_local: session.end_time_local,
-        title: session.title,
         type: session.type,
         username: session.user.username,
         streams: session.streams.reduce({}) do |acc, stream|
