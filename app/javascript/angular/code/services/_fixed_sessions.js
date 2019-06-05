@@ -2,6 +2,7 @@ import _ from "underscore";
 import constants from "../../../javascript/constants";
 import * as Session from "../../../javascript/values/session";
 import { calculateBounds } from "../../../javascript/calculateBounds";
+import { prepareSessionData } from "./_sessions_utils";
 
 export const fixedSessions = (
   params,
@@ -66,29 +67,22 @@ export const fixedSessions = (
     },
 
     deselectSession: function() {
-      var session = sessionsUtils.selectedSession(this);
-      if (!session) return;
-      session.loaded = false;
+      if (!sessionsUtils.isSessionSelected()) return;
       params.update({ prevMapPosition: {} });
       params.update({ selectedSessionIds: [] });
-      map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
+      drawSession.undoDraw({}, prevMapPosition);
     },
 
     selectSession: function(id) {
-      const fitBounds = session => {
-        if (!session.is_indoor) {
+      const fitBounds = sessionData => {
+        if (!sessionData.is_indoor) {
           prevMapPosition = {
             bounds: map.getBounds(),
             zoom: map.getZoom()
           };
           params.update({ prevMapPosition: prevMapPosition });
-          map.fitBoundsWithBottomPadding(
-            calculateBounds(
-              sensors,
-              sessionsUtils.selectedSession(this),
-              map.getZoom()
-            )
-          );
+          map.fitBoundsWithBottomPadding(calculateBounds(sensors, sessionData));
+          this.drawMarkersWithLabel(sessionData, sensors.selectedSensorName());
         }
       };
       params.update({ selectedSessionIds: [id] });
@@ -96,13 +90,15 @@ export const fixedSessions = (
     },
 
     reSelectSession: function(id) {
-      const noop = _ => {};
+      const noop = sessionData => {
+        if (!sessionData.is_indoor) {
+          this.drawMarkersWithLabel(sessionData, sensors.selectedSensorName());
+        }
+      };
       this._selectSession(id, noop);
     },
 
     _selectSession: function(id, callback) {
-      const session = sessionsUtils.selectedSession(this);
-      if (!session) return;
       var sensorId = sensors.selectedId();
       var sensor = sensors.sensors[sensorId] || {};
       var sensorName = sensor.sensor_name;
@@ -113,11 +109,7 @@ export const fixedSessions = (
           params: { sensor_id: sensorName }
         })
         .success(function(data) {
-          sessionsUtils.onSingleSessionFetchWithoutCrowdMap(
-            session,
-            data,
-            callback
-          );
+          callback(prepareSessionData(data));
         });
     },
 

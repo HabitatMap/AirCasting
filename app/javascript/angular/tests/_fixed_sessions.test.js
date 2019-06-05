@@ -208,11 +208,15 @@ test("fetch passes map corner coordinates to sessionsDownloader", t => {
   t.end();
 });
 
-test("selectSession with indoor session after successfully fetching calls map.fitBoundsWithBottomPadding", t => {
+test("selectSession with outdoor session after successfully fetching calls map.fitBoundsWithBottomPadding", t => {
   const map = mock("fitBoundsWithBottomPadding");
-  const sessionsUtils = { selectedSession: () => ({ is_indoor: false }) };
+  const $http = {
+    get: () => ({
+      success: callback => callback({ is_indoor: false, streams: {} })
+    })
+  };
   const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
-  const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
+  const fixedSessionsService = _fixedSessions({ map, $http, sensors });
 
   fixedSessionsService.selectSession(123);
 
@@ -221,7 +225,7 @@ test("selectSession with indoor session after successfully fetching calls map.fi
   t.end();
 });
 
-test("selectSession with outdoor session after successfully fetching does not call map.fitBounds", t => {
+test("selectSession with indoor session after successfully fetching does not call map.fitBounds", t => {
   const map = mock("fitBounds");
   const sessionsUtils = { selectedSession: () => ({ is_indoor: true }) };
   const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
@@ -458,7 +462,8 @@ const _fixedSessions = ({
   sessionIds = [],
   map,
   sessionsUtils,
-  sensors
+  sensors,
+  $http
 }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
@@ -495,21 +500,21 @@ const _fixedSessions = ({
   };
   const _sessionsUtils = {
     find: () => ({}),
-    onSingleSessionFetch: (x, y, callback) => callback(),
     get: self => self.sessions,
-    onSingleSessionFetchWithoutCrowdMap: (session, y, callback) =>
-      callback(session),
     isSessionSelected: () => false,
     selectedSession: () => {},
     selectedSessionId: () => 1,
     ...sessionsUtils
   };
-  const $http = { get: () => ({ success: callback => callback() }) };
+  const _$http = {
+    get: () => ({ success: callback => callback({ streams: {} }) }),
+    ...$http
+  };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
   return fixedSessions(
     params,
-    $http,
+    _$http,
     _map,
     _sensors,
     $rootScope,
