@@ -65,8 +65,7 @@ export const SessionsListCtrl = (
     true
   );
 
-  $scope.canSelectSession = function(sessionId) {
-    const session = sessions.find(sessionId);
+  $scope.canSelectSession = function() {
     if (sessionsUtils.isSessionSelected()) {
       flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
       return false;

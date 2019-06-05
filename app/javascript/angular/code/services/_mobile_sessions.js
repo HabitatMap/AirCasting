@@ -46,10 +46,6 @@ export const mobileSessions = (
       return sessionsUtils.allSessionIds(this);
     },
 
-    find: function(id) {
-      return sessionsUtils.find(this, id);
-    },
-
     get: function() {
       return sessionsUtils.get(this);
     },
