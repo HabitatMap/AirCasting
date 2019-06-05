@@ -17,7 +17,7 @@ gem 'paperclip', '4.1.1'
 gem 'progress', require: false
 gem 'pry-rails'
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails', '4.2.11'
+gem 'rails', '4.2.11.1'
 gem 'rake', '10.0.3'
 gem 'rb-gsl', '1.16.0.6'
 gem 'rubyzip', '>= 1.0.0'
