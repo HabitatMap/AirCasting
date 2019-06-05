@@ -100,9 +100,9 @@ export const fixedSessions = (
       var sensorName = sensor.sensor_name;
       if (!sensorName) return;
       $http
-        .get("/api/realtime/sessions/" + id, {
+        .get("/api/fixed/sessions2/" + id, {
           cache: true,
-          params: { sensor_id: sensorName }
+          params: { sensor_name: sensorName }
         })
         .success(function(data) {
           callback(prepareSessionData(data));
