@@ -475,7 +475,8 @@ const _fixedSessions = ({
       }
     },
     update: () => {},
-    selectedSessionIds: () => sessionIds
+    selectedSessionIds: () => sessionIds,
+    isStreaming: () => false
   };
   const _map = {
     getBounds: () => ({}),
