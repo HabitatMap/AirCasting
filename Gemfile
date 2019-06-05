@@ -49,7 +49,6 @@ group :development do
   gem 'capistrano3-unicorn', require: false
   gem 'pry-byebug'
   gem 'awesome_print'
-  gem 'quiet_assets'
   gem 'rubycritic', require: false
 end
 
