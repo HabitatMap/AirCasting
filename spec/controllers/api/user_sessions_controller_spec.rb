@@ -79,12 +79,28 @@ describe Api::UserSessionsController do
 
       it "should return a location for the session" do
         get :show, :id => session.id, :format => :json
-        expect(json_response).to include jsonized(:location => short_session_url(session))
+        expect(json_response).to include ({ location: short_session_url(session) }.as_json)
       end
 
       it "should contain notes" do
         get :show, :id => session.id, :format => :json
-        expect(json_response["notes"].first).to include jsonized(session.notes.first)
+
+        expect(json_response["notes"].first).to eq({
+          created_at: session.notes.first.created_at,
+          date: session.notes.first.date,
+          id: session.notes.first.id,
+          latitude: session.notes.first.latitude,
+          longitude: session.notes.first.longitude,
+          number: session.notes.first.number,
+          photo_content_type: nil,
+          photo_file_name: nil,
+          photo_file_size: nil,
+          photo_location: nil,
+          photo_updated_at: nil,
+          session_id: session.id,
+          text: session.notes.first.text,
+          updated_at: session.notes.first.updated_at
+        }.as_json)
       end
 
       it "should contain a tag list" do
