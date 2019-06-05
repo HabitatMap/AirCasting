@@ -253,7 +253,7 @@ test("selectSession after successfully fetching undraws all sessions", t => {
 test("selectSession after successfully fetching calls drawSession.drawMobileSession with selected session", t => {
   const drawSession = mock("drawMobileSession");
   const session = { id: 1 };
-  const sessionsUtils = { find: () => session };
+  const sessionsUtils = { selectedSession: () => session };
   const mobileSessionsService = _mobileSessions({
     drawSession,
     sensors,
@@ -329,7 +329,7 @@ test("reSelectSession after successfully fetching does not call map.fitBounds", 
 
 test("deselectSession with existing session calls drawSession.undoDraw", t => {
   const drawSession = mock("undoDraw");
-  const sessionsUtils = { find: () => ({ id: 1 }) };
+  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
   const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils });
 
   mobileSessionsService.deselectSession(1);
@@ -341,7 +341,7 @@ test("deselectSession with existing session calls drawSession.undoDraw", t => {
 
 test("deselectSession with non-existing session does not call drawSession.undoDraw", t => {
   const drawSession = mock("undoDraw");
-  const sessionsUtils = { find: () => null };
+  const sessionsUtils = { selectedSession: () => null };
   const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils });
 
   mobileSessionsService.deselectSession(1);
@@ -361,7 +361,7 @@ test("deselectSession calls drawSession.undoDraw with the position saved before 
   const zoom = 10;
   const map = { getBounds: () => bounds, getZoom: () => zoom };
   const drawSession = mock("undoDraw");
-  const sessionsUtils = { find: () => ({ id: 1 }) };
+  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
   const mobileSessionsService = _mobileSessions({
     drawSession,
     sessionsUtils,
@@ -386,7 +386,7 @@ test("deselectSession with no previously selected sessions calls drawSession.und
   };
   const zoom = 10;
   const drawSession = mock("undoDraw");
-  const sessionsUtils = { find: () => ({ id: 1 }) };
+  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
   const mapPosition = { bounds, zoom };
   const map = { getBounds: () => bounds, getZoom: () => zoom };
   const mobileSessionsService = _mobileSessions({
@@ -549,7 +549,8 @@ const _mobileSessions = ({
     find: () => ({}),
     onSingleSessionFetch: (x, y, callback) => callback(),
     isSessionSelected: () => false,
-    selectedSession: () => {},
+    selectedSession: () => ({}),
+    selectedSessionId: () => 1,
     ...sessionsUtils
   };
   const $http = { get: () => ({ success: callback => callback() }) };

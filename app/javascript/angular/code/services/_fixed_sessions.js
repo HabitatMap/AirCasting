@@ -55,10 +55,6 @@ export const fixedSessions = (
       sessionsUtils.onSessionsFetchError(data);
     },
 
-    sessionsChanged: function(newIds, oldIds) {
-      sessionsUtils.sessionsChanged(this, newIds, oldIds);
-    },
-
     onSessionsFetch: function(fetchableSessionsCount) {
       this.drawSessionsInLocation();
       if (fetchableSessionsCount) {
@@ -69,18 +65,17 @@ export const fixedSessions = (
       }
     },
 
-    deselectSession: function(id) {
-      var session = this.find(id);
+    deselectSession: function() {
+      var session = sessionsUtils.selectedSession(this);
       if (!session) return;
       session.loaded = false;
-      session.alreadySelected = false;
       params.update({ prevMapPosition: {} });
+      params.update({ selectedSessionIds: [] });
       map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
     },
 
     selectSession: function(id) {
-      const session = this.find(id);
-      const fitBounds = () => {
+      const fitBounds = session => {
         if (!session.is_indoor) {
           prevMapPosition = {
             bounds: map.getBounds(),
@@ -96,22 +91,22 @@ export const fixedSessions = (
           );
         }
       };
+      params.update({ selectedSessionIds: [id] });
       this._selectSession(id, fitBounds);
     },
 
     reSelectSession: function(id) {
-      const noop = () => {};
+      const noop = _ => {};
       this._selectSession(id, noop);
     },
 
     _selectSession: function(id, callback) {
-      var session = this.find(id);
-      if (!session || session.alreadySelected) return;
+      const session = sessionsUtils.selectedSession(this);
+      if (!session) return;
       var sensorId = sensors.selectedId();
       var sensor = sensors.sensors[sensorId] || {};
       var sensorName = sensor.sensor_name;
       if (!sensorName) return;
-      session.alreadySelected = true;
       $http
         .get("/api/realtime/sessions/" + id, {
           cache: true,
