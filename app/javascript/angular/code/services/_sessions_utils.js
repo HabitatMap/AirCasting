@@ -25,12 +25,6 @@ export const sessionsUtils = (
     flash.set(errorMsg);
   },
 
-  find: function(self, id) {
-    return _(self.sessions || []).detect(function(session) {
-      return session.id === id;
-    });
-  },
-
   isSelected: function(self, session) {
     return this.selectedSessionId() === session.id;
   },
@@ -41,10 +35,6 @@ export const sessionsUtils = (
 
   selectedSessionId: function() {
     return params.selectedSessionIds()[0];
-  },
-
-  selectedSession: function(self) {
-    return this.find(self, this.selectedSessionId());
   },
 
   refreshMapView: function(sessions) {
