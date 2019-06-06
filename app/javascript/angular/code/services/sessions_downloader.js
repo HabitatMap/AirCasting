@@ -76,6 +76,4 @@ angular.module("aircasting").factory("sessionsDownloader", [
 
 const setDefaultSessionAttributes = session => {
   session.markers = [];
-  session.lines = [];
-  session.noteDrawings = [];
 };
