@@ -22,7 +22,7 @@ shared_examples_for "session creation" do
   let(:session) { double("session", :notes => [note]) }
   let(:note) { FactoryBot.create(:note, :photo => photo, :number => 10) }
   let(:photo) { File.new(Rails.root + "spec" + "fixtures" + "test.jpg") }
-  let(:photos) { :some_files }
+  let(:photos) { "some_files" }
 
   context "when session creation fails" do
     let(:create_result) { nil }
@@ -71,14 +71,14 @@ describe Api::MeasurementSessionsController do
     let(:data) { {type: "MobileSession"} }
 
     before do
-      expect(ActiveSupport::JSON).to receive(:decode).with(:session).and_return(data)
-      expect(SessionBuilder).to receive(:new).with(data, :some_files, user).and_return(builder)
+      expect(ActiveSupport::JSON).to receive(:decode).with("session").and_return(data)
+      expect(SessionBuilder).to receive(:new).with(data, "some_files", user).and_return(builder)
       expect(builder).to receive(:build!).and_return(create_result)
     end
 
     context "when the session is sent without compression" do
       before do
-        post :create, format: :json, params: { session: :session, compression: false, photos: photos }
+        post :create, format: :json, params: { session: "session", compression: false, photos: photos }
       end
 
       it_should_behave_like "session creation"
@@ -86,10 +86,10 @@ describe Api::MeasurementSessionsController do
 
     context "when the session is sent compressed" do
       before do
-        expect(Base64).to receive(:decode64).with(:zipped_and_encoded).and_return(:zipped)
-        expect(AirCasting::GZip).to receive(:inflate).with(:zipped).and_return(:session)
+        expect(Base64).to receive(:decode64).with("zipped_and_encoded").and_return("zipped")
+        expect(AirCasting::GZip).to receive("inflate").with("zipped").and_return("session")
 
-        post :create, format: :json, params: { session: :zipped_and_encoded, compression: true, photos: photos }
+        post :create, format: :json, params: { session: "zipped_and_encoded", compression: true, photos: photos }
       end
 
       it_should_behave_like "session creation"
