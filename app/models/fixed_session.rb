@@ -1,20 +1,4 @@
-# AirCasting - Share your Air!
-# Copyright (C) 2011-2012 HabitatMap, Inc.
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# You can contact the authors by email at <info@habitatmap.org>
+include Rails.application.routes.url_helpers
 
 class FixedSession < Session
   validates :is_indoor, inclusion: { in: [true, false] }
@@ -103,5 +87,27 @@ class FixedSession < Session
 
   def fixed?
     true
+  end
+
+  def generate_link(stream)
+    data =
+      { sensorId: stream.sensor_id,
+        usernames: user.username,
+        isIndoor: is_indoor,
+        isStreaming: is_steaming,
+        heat: { highest: stream.threshold_very_high,
+                high: stream.threshold_high,
+                mid: stream.threshold_medium,
+                low: stream.threshold_low,
+                lowest: stream.threshold_very_low },
+      }
+
+    fixed_map_path(:anchor => "?selectedSessionIds=#{[id].to_json}&data=#{data.to_json}")
+  end
+
+  private
+
+  def is_steaming
+    last_measurement_at > (Time.current - 1.hour)
   end
 end
