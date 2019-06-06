@@ -8,22 +8,24 @@ describe Api::Fixed::Dormant::SessionsController do
       create_active_session_and_stream!(user: user, session_time: session_time)
       dormant_session, dormant_stream = create_dormant_session_and_stream!(user: user, session_time: session_time)
 
-      get :index, q: {
-        time_from: session_time.to_datetime.strftime("%Q").to_i / 1000 - 1,
-        time_to: session_time.to_datetime.strftime("%Q").to_i / 1000 + 1,
-        tags: "",
-        usernames: "",
-        session_ids: [],
-        west: dormant_session.longitude - 1,
-        east: dormant_session.longitude + 1,
-        south: dormant_session.latitude - 1,
-        north: dormant_session.latitude + 1,
-        limit: 2,
-        offset: 0,
-        sensor_name: dormant_stream.sensor_name,
-        measurement_type: dormant_stream.measurement_type,
-        unit_symbol: dormant_stream.unit_symbol
-      }.to_json
+      get :index, params: {
+        q: {
+          time_from: session_time.to_datetime.strftime("%Q").to_i / 1000 - 1,
+          time_to: session_time.to_datetime.strftime("%Q").to_i / 1000 + 1,
+          tags: "",
+          usernames: "",
+          session_ids: [],
+          west: dormant_session.longitude - 1,
+          east: dormant_session.longitude + 1,
+          south: dormant_session.latitude - 1,
+          north: dormant_session.latitude + 1,
+          limit: 2,
+          offset: 0,
+          sensor_name: dormant_stream.sensor_name,
+          measurement_type: dormant_stream.measurement_type,
+          unit_symbol: dormant_stream.unit_symbol
+        }.to_json
+      }
 
       expected = {
         "fetchableSessionsCount" => 1,

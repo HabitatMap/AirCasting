@@ -26,7 +26,7 @@ describe Api::AveragesController do
     expect(AverageInfo).to receive(:new).with(expected).and_return(info)
     expect(info).to receive(:as_json).and_return(result)
 
-    get :index, q: q, format: :json
+    get :index, params: { q: q }, format: :json
 
     expect(response.body).to eq(result.to_json)
   end
