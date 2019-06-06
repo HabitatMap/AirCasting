@@ -14,7 +14,8 @@ Rails.application.routes.draw do
   get 'mobile_map' => 'maps#index'
   get 'fixed_map' => 'maps#index'
 
-  get 's/:url_token' => 'measurement_sessions#show', :as => :short_session
+  get 's/:url_token' => 'measurement_sessions#show', constraints: { query_string: /.+/ }, :as => :short_session
+  get 's/:url_token' => 'measurement_sessions#show_old'   # suporrts mobile apps relesed before 06.2019
 
   namespace :api do
     namespace :v2 do
