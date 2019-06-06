@@ -88,20 +88,20 @@ describe MobileSession do
     end
   end
 
-  describe '.filter' do
+  describe '.filter_' do
     before { MobileSession.destroy_all }
 
     it 'should exclude not contributed sessions' do
       session1 = create_session_with_streams_and_measurements!
       session2 = create_session_with_streams_and_measurements!(contribute: false)
 
-      expect(MobileSession.filter.to_a).to eq([session1])
+      expect(MobileSession.filter_.to_a).to eq([session1])
     end
 
     it 'should include explicitly requested but not contributed sessions' do
       session =  create_session_with_streams_and_measurements!(id: 1, contribute: false)
 
-      expect(MobileSession.filter(:session_ids => [1]).to_a).to eq([session])
+      expect(MobileSession.filter_(:session_ids => [1]).to_a).to eq([session])
     end
 
     it "#filter includes sessions overlapping the time range" do
@@ -113,7 +113,7 @@ describe MobileSession do
         end_time_local: now + 3.hours
       )
 
-      actual = MobileSession.filter(:time_from => plus_one_hour, :time_to => plus_two_hours).to_a
+      actual = MobileSession.filter_(:time_from => plus_one_hour, :time_to => plus_two_hours).to_a
 
       expect(actual).to eq([session])
     end
@@ -128,7 +128,7 @@ describe MobileSession do
         :end_time_local => now + 1.second
       )
 
-      actual = MobileSession.filter(:time_from => plus_one_hour, :time_to => plus_two_hours).to_a
+      actual = MobileSession.filter_(:time_from => plus_one_hour, :time_to => plus_two_hours).to_a
 
       expect(actual).to eq([])
     end
@@ -139,7 +139,7 @@ describe MobileSession do
       session_1 = create_session_with_streams_and_measurements!(user: user_1)
       session_2 = create_session_with_streams_and_measurements!(user: user_2)
 
-      expect(MobileSession.filter(:usernames => 'foo bar, biz').to_a).to eq([session_1])
+      expect(MobileSession.filter_(:usernames => 'foo bar, biz').to_a).to eq([session_1])
     end
   end
 

@@ -59,7 +59,7 @@ class Session < ApplicationRecord
     end
   }
 
-  def self.filter(data={})
+  def self.filter_(data={})
     sessions = order("sessions.created_at DESC")
     .where("contribute = true OR sessions.id in (?)", data[:session_ids])
     .joins(:user)
