@@ -198,7 +198,7 @@ GEM
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     gsl (2.1.0.3)
-    haml (5.0.4)
+    haml (5.1.1)
       temple (>= 0.8.0)
       tilt
     has_scope (0.7.2)
@@ -394,7 +394,7 @@ GEM
     sshkit (1.18.0)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
-    temple (0.8.0)
+    temple (0.8.1)
     test-unit (3.2.9)
       power_assert
     thin (1.7.2)
@@ -495,4 +495,4 @@ DEPENDENCIES
   yui-compressor
 
 BUNDLED WITH
-   1.17.1
+   1.17.2
