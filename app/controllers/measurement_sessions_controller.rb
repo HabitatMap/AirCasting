@@ -26,10 +26,15 @@ class MeasurementSessionsController < ApplicationController
     sensorId = "Temperature-airbeam2-f (F)"
 
     if (session.type == "FixedSession")
-      data = { sensorId: sensorId, isIndoor: session.is_indoor, isStreaming: (session.last_measurement_at > Time.current - 1.hour) }
+      data =
+        { sensorId: sensorId,
+          isIndoor: session.is_indoor,
+          isStreaming: (session.last_measurement_at > Time.current - 1.hour),
+          usernames: session.user.username
+        }
       redirect_to fixed_map_path(:anchor => "?selectedSessionIds=#{selected_session_ids.to_json}&data=#{data.to_json}")
     else
-      data = { sensorId: sensorId }
+      data = { sensorId: sensorId, usernames: session.user.username, }
       redirect_to map_path(:anchor => "?selectedSessionIds=#{selected_session_ids.to_json}&data=#{data.to_json}")
     end
   end
