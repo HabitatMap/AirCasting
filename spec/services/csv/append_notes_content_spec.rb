@@ -4,8 +4,8 @@ describe Csv::AppendNotesContent do
   let(:subject) { described_class.new(host: "http://expample.com/") }
   let(:lines) { [] }
   let(:date) { DateTime.new(2018,8,20,11,16,44) }
-  let(:latitude) { BigDecimal.new("40.68038924") }
-  let(:longitude) { BigDecimal.new("-73.97631499") }
+  let(:latitude) { BigDecimal("40.68038924") }
+  let(:longitude) { BigDecimal("-73.97631499") }
   let(:photo_url_regexp) { /http:\/\/expample.com\/\/system\/.+jpg\?\d+$/ }
 
   it "appends correct headers" do
