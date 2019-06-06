@@ -21,16 +21,10 @@ module Aircasting
 
     def self.included(base)
       base.class_eval do
-
         let(:json_response) do
           JSON.parse(response.body.to_s)
         end
-
-        def jsonized(thing, opts = {})
-          JSON.parse(thing.to_json(opts))
-        end
       end
     end
-
   end
 end

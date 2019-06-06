@@ -30,8 +30,8 @@ describe Csv::ExportSessionsToCsv do
     )
     measurement = create_measurement!(
       time: DateTime.new(2018,8,20,11,16,44),
-      latitude: BigDecimal.new("40.68038924"),
-      longitude: BigDecimal.new("-73.97631499"),
+      latitude: BigDecimal("40.68038924"),
+      longitude: BigDecimal("-73.97631499"),
       value: 77.0,
       milliseconds: 234,
       stream: stream
@@ -56,8 +56,8 @@ describe Csv::ExportSessionsToCsv do
     note = Note.create!(
       text: "Example Note",
       date: DateTime.new(2018,8,20,11,16,44),
-      latitude: BigDecimal.new("40.68038924"),
-      longitude: BigDecimal.new("-73.97631499"),
+      latitude: BigDecimal("40.68038924"),
+      longitude: BigDecimal("-73.97631499"),
       photo: File.new("#{Rails.root}/spec/fixtures/test.jpg"),
       session: session,
     )

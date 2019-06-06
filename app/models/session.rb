@@ -18,7 +18,7 @@
 
 require_dependency 'aircasting/username_param'
 
-class Session < ActiveRecord::Base
+class Session < ApplicationRecord
   self.skip_time_zone_conversion_for_attributes = [:start_time_local, :end_time_local]
   include AirCasting::FilterRange
 
@@ -59,7 +59,7 @@ class Session < ActiveRecord::Base
     end
   }
 
-  def self.filter(data={})
+  def self.filter_(data={})
     sessions = order("sessions.created_at DESC")
     .where("contribute = true OR sessions.id in (?)", data[:session_ids])
     .joins(:user)

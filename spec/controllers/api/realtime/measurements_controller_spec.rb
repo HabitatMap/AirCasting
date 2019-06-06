@@ -20,7 +20,7 @@ require 'rails_helper'
 
 describe Api::Realtime::MeasurementsController do
   describe 'POST #create' do
-    subject { post :create, data: data }
+    subject { post :create, params: { data: data } }
 
     let(:user) { FactoryBot.create(:user) }
     let(:session_uuid) { '36cfd811-dc1b-430f-a647-bfc88921bf4c' }

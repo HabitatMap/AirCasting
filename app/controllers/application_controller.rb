@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
   ].each do |clazz, text, status|
     rescue_from clazz do |exception|
       respond_to do |format|
-        format.any { render :text => text, :status => status }
+        format.any { render plain: text, status: status }
       end
     end
   end
@@ -47,9 +47,9 @@ class ApplicationController < ActionController::Base
   protected
 
   def configure_permitted_parameters
-    added_attrs = [:login, :authentication_token, :email, :password, :password_confirmation, :remember_me, :username]
-    devise_parameter_sanitizer.for(:sign_in) { |u| u.permit(*added_attrs) }
-    devise_parameter_sanitizer.for(:sign_up) { |u| u.permit(*added_attrs) }
-    devise_parameter_sanitizer.for(:account_update) { |u| u.permit(*added_attrs) }
+    attrs = [:login, :authentication_token, :email, :password, :password_confirmation, :remember_me, :username]
+    devise_parameter_sanitizer.permit(:sign_in, keys: attrs)
+    devise_parameter_sanitizer.permit(:sign_up, keys: attrs)
+    devise_parameter_sanitizer.permit(:account_update, keys: attrs)
   end
 end

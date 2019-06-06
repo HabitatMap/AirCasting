@@ -17,22 +17,24 @@ describe Api::Mobile::SessionsController do
       )
       measurement = create_measurement!(stream: stream)
 
-      get :index, q: {
-        time_from: session_time.to_datetime.strftime("%Q").to_i / 1000 - 1,
-        time_to: session_time.to_datetime.strftime("%Q").to_i / 1000 + 1,
-        tags: "",
-        usernames: "",
-        session_ids: [],
-        west: session.longitude - 1,
-        east: session.longitude + 1,
-        south: session.latitude - 1,
-        north: session.latitude + 1,
-        limit: 1,
-        offset: 0,
-        sensor_name: stream.sensor_name,
-        measurement_type: stream.measurement_type,
-        unit_symbol: stream.unit_symbol
-      }.to_json
+      get :index, params: {
+        q: {
+          time_from: session_time.to_datetime.strftime("%Q").to_i / 1000 - 1,
+          time_to: session_time.to_datetime.strftime("%Q").to_i / 1000 + 1,
+          tags: "",
+          usernames: "",
+          session_ids: [],
+          west: session.longitude - 1,
+          east: session.longitude + 1,
+          south: session.latitude - 1,
+          north: session.latitude + 1,
+          limit: 1,
+          offset: 0,
+          sensor_name: stream.sensor_name,
+          measurement_type: stream.measurement_type,
+          unit_symbol: stream.unit_symbol
+        }.to_json
+      }
 
       expected = {
         "fetchableSessionsCount" => 1,
@@ -86,7 +88,7 @@ describe Api::Mobile::SessionsController do
       stream = create_stream!(session: session, sensor_name: sensor_name)
       create_stream!(session: session, sensor_name: "yet another-sensor-name")
 
-      get :show, id: session.id, sensor_name: sensor_name
+      get :show, params: { id: session.id, sensor_name: sensor_name }
 
       expected = {
         "title" => session.title,
@@ -112,8 +114,13 @@ describe Api::Mobile::SessionsController do
       measurement1 = create_measurement!(stream: stream)
       measurement2 = create_measurement!(stream: stream)
       note = create_note!(session: session)
+      # For whatever reasons w/o the reloads date on notes and times on measurements
+      # are off by one second.
+      note.reload
+      measurement1.reload
+      measurement2.reload
 
-      get :show2, id: session.id, sensor_name: sensor_name
+      get :show2, params: { id: session.id, sensor_name: sensor_name }
 
       expected = {
         "title" => session.title,

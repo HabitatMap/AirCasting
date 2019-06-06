@@ -47,8 +47,8 @@ describe Api::UsersController do
       allow(user).to receive_messages(:save => success)
 
       post :create,
-           :user => attrs,
-           :format => :json
+           params: { user: attrs },
+           format: :json
     end
 
     context 'when user creation succeeds' do

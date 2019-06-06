@@ -16,7 +16,7 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-class Stream < ActiveRecord::Base
+class Stream < ApplicationRecord
   belongs_to :session
 
   has_many :measurements, :dependent => :delete_all

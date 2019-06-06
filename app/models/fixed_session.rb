@@ -33,7 +33,7 @@ class FixedSession < Session
     .offset(offset)
     .limit(limit)
     .with_user_and_streams
-    .filter(data)
+    .filter_(data)
     .as_json(
       only: filtered_json_fields,
       methods: [:username, :streams]
@@ -47,7 +47,7 @@ class FixedSession < Session
   def self.filtered_streaming_json(data)
     streaming
     .with_user_and_streams
-    .filter(data)
+    .filter_(data)
     .as_json(
       only: filtered_json_fields,
       methods: [:username, :streams, :last_hour_average]

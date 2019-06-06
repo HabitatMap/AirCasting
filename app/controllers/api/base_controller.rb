@@ -22,7 +22,7 @@ module Api
 
     respond_to :json
 
-    skip_before_filter :verify_authenticity_token
+    skip_before_action :verify_authenticity_token
 
     # TokenAuthenticatable was removed from Devise in 3.1
     # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6

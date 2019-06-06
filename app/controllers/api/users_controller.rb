@@ -20,8 +20,8 @@ module Api
   class UsersController < BaseController
     # TokenAuthenticatable was removed from Devise in 3.1
     # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
-    before_filter :authenticate_user_from_token!, :except => :create
-    before_filter :authenticate_user!, :except => :create
+    before_action :authenticate_user_from_token!, :except => :create
+    before_action :authenticate_user!, :except => :create
 
     respond_to :json
 
@@ -30,7 +30,7 @@ module Api
     end
 
     def create
-      user = User.new(user_params)
+      user = User.new(user_params.to_unsafe_hash)
 
       if user.save
         respond_with user, :location => api_user_url

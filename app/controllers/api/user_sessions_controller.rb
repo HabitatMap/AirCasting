@@ -1,13 +1,13 @@
 class Api::UserSessionsController < Api::BaseController
   # TokenAuthenticatable was removed from Devise in 3.1
   # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
-  before_filter :authenticate_user_from_token!
-  before_filter :authenticate_user!
+  before_action :authenticate_user_from_token!
+  before_action :authenticate_user!
 
   respond_to :json
 
   def sync
-    form = Api::JsonForm.new(json: "{ \"data\": #{params[:data]} }", schema: Api::UserSessions::Schema, struct: Api::UserSessions::Struct)
+    form = Api::JsonForm.new(json: "{ \"data\": #{params.to_unsafe_hash[:data]} }", schema: Api::UserSessions::Schema, struct: Api::UserSessions::Struct)
     result = Api::ToUserSessionsHash.new(form: form).call(current_user)
 
     if result.success?

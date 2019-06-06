@@ -21,8 +21,8 @@ module Api
     class MeasurementsController < BaseController
       # TokenAuthenticatable was removed from Devise in 3.1
       # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
-      before_filter :authenticate_user_from_token!, only: :create
-      before_filter :authenticate_user!, only: :create
+      before_action :authenticate_user_from_token!, only: :create
+      before_action :authenticate_user!, only: :create
 
       respond_to :json
 
@@ -40,9 +40,9 @@ module Api
         result = RealtimeMeasurementBuilder.new(session_uuid, stream_data, current_user).build!
 
         if result
-          render :nothing => true, :status => :ok
+          head :ok
         else
-          render :nothing => true, :status => :bad_request
+          head :bad_request
         end
       end
     end

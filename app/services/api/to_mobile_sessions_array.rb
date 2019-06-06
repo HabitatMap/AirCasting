@@ -8,7 +8,7 @@ class Api::ToMobileSessionsArray
 
     Success.new(
       sessions: filtered,
-      fetchableSessionsCount: MobileSession.filter(data).count
+      fetchableSessionsCount: MobileSession.filter_(data).count
     )
   end
 
@@ -20,8 +20,7 @@ class Api::ToMobileSessionsArray
     sessions = MobileSession
     .offset(offset)
     .limit(limit)
-    .with_user_and_streams
-    .filter(data)
+    .with_user_and_streams.filter_(data)
     .map do |session|
       {
         id: session.id,
@@ -62,7 +61,7 @@ class Api::ToMobileSessionsArray
   end
 
   def data
-    # `Session.filter` checks for the presence of `is_indoor`.
+    # `Session.filter_` checks for the presence of `is_indoor`.
     # In this case, `is_indoor` is always `nil` therefore
     # `form.to_h[:is_indoor]` fails. For now, we can pass
     # a vanilla Ruby hash with `form.to_h.to_h`.

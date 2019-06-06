@@ -20,19 +20,19 @@ module Api
   class MeasurementSessionsController < BaseController
     # TokenAuthenticatable was removed from Devise in 3.1
     # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
-    before_filter :authenticate_user_from_token!, :only => :create
-    before_filter :authenticate_user!, :only => :create
+    before_action :authenticate_user_from_token!, :only => :create
+    before_action :authenticate_user!, :only => :create
 
     respond_to :json
 
     def show_multiple
-      data = decoded_query_data(params[:q])
+      data = decoded_query_data(params.to_unsafe_hash[:q])
 
       respond_with sessions: MobileSession.selected_sessions_json(data)
     end
 
     def create
-      if params[:compression]
+      if ActiveModel::Type::Boolean.new.cast(params[:compression])
         decoded = Base64.decode64(params[:session])
         unzipped = AirCasting::GZip.inflate(decoded)
       else
@@ -48,7 +48,7 @@ module Api
       if session
         render :json => session_json(session), :status => :ok
       else
-        render :nothing => true, :status => :bad_request
+        head :bad_request
       end
     end
 
