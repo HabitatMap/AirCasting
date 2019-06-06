@@ -1,7 +1,7 @@
 class Outliers::CalculateCentroid
   def call(measurements)
     lng_lat = sum_coordinates(measurements)
-    average(lng_lat, BigDecimal.new(measurements.size))
+    average(lng_lat, BigDecimal(measurements.size))
   end
 
   private
