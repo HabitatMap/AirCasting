@@ -1,4 +1,4 @@
-require File.expand_path('../boot', __FILE__)
+require_relative 'boot'
 
 require 'rails/all'
 
@@ -31,9 +31,6 @@ module AirCasting
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
-    # Do not swallow errors in after_commit/after_rollback callbacks.
-    config.active_record.raise_in_transactional_callbacks = true
-
     # App host
     config.action_mailer.default_url_options = { :host => A9n.host_ }
     config.action_controller.default_url_options = { :host => A9n.host_ }
@@ -44,23 +41,6 @@ module AirCasting
     config.active_record.include_root_in_json = false
 
     config.log_tags = [:uuid]
-
-    config.middleware.insert_before 0, "Rack::Cors", debug: false, logger: (-> { Rails.logger } ) do
-      allow do
-        origins '*'
-
-        resource '/api/*',
-          headers: :any,
-          methods: [:get, :post, :patch, :delete, :put, :options, :head],
-          max_age: 0
-
-        resource '/autocomplete/*',
-          headers: :any,
-          methods: [:get, :post, :patch, :delete, :put, :options, :head],
-          max_age: 0
-
-      end
-    end
   end
 end
 

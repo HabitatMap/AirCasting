@@ -1,5 +1,5 @@
 require_dependency 'regression_calculator'
-class Regression < ActiveRecord::Base
+class Regression < ApplicationRecord
   DEGREE = 4
 
   belongs_to :user

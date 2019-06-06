@@ -17,7 +17,7 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 # This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
+# The data can then be loaded with the bin/rails db:seed (or created alongside the db with db:setup).
 #
 # Examples:
 #
