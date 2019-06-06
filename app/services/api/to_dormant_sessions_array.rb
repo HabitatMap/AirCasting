@@ -8,7 +8,7 @@ class Api::ToDormantSessionsArray
 
     Success.new(
       sessions: FixedSession.all_dormant(data, limit, offset),
-      fetchableSessionsCount: FixedSession.dormant.filter(data).count
+      fetchableSessionsCount: FixedSession.dormant.filter_(data).count
     )
   end
 
@@ -22,7 +22,7 @@ class Api::ToDormantSessionsArray
     # `is_indoor` in `nil` if accessed with `form.to_h[:is_indoor]`, the
     # library raises. The solutions are:
     #   - Using `form.is_indoor`; this in not viable at the moment cause
-    #     the code that is accessing the struct (Session.filter) is used
+    #     the code that is accessing the struct (Session.filter_) is used
     #     by other callers that are passing a vanilla Ruby hash.
     #   - Passing a vanilla Ruby hash with `form.to_h.to_h`
     form.to_h.to_h
