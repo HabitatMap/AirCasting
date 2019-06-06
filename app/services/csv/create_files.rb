@@ -63,7 +63,7 @@ class Csv::CreateMeasurementsFile
 
   def call(data)
     session_title = data.measurements.first["session_title"] || ""
-    filename = "#{session_title.parameterize('_')}_#{data.session_id}__"
+    filename = "#{session_title.parameterize(separator: '_')}_#{data.session_id}__"
     file = Tempfile.new([filename, ".csv"])
     csv = CSV.generate { |csv| @append_measurements_content.call(csv, data) }
     file.write(csv)
@@ -79,7 +79,7 @@ class Csv::CreateNotesFile
 
   def call(notes, session_title, session_id)
     session_title = session_title || ""
-    filename = "notes_from_#{session_title.parameterize('_')}_#{session_id}__"
+    filename = "notes_from_#{session_title.parameterize(separator: '_')}_#{session_id}__"
     file = Tempfile.new([filename, ".csv"])
     csv = CSV.generate { |csv| @append_notes_content.call(csv, notes) }
     file.write(csv)
