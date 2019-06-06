@@ -31,10 +31,10 @@ describe Measurement do
         now = DateTime.current
         stream = create_stream!(session: create_session!)
         measurement1 = create_measurement!(stream: stream, time: now)
-        measurement2 = create_measurement!(stream: stream, time: now + 2.second)
-        measurement3 = create_measurement!(stream: stream, time: now + 1.second)
+        measurement2 = create_measurement!(stream: stream, time: now + 20.seconds)
+        measurement3 = create_measurement!(stream: stream, time: now + 10.seconds)
 
-        actual = Measurement.since(stream_id: stream.id, since_date: now)
+        actual = Measurement.since(stream_id: stream.id, since_date: now + 5.seconds)
 
         expect(actual).to eq([measurement3, measurement2])
       end
