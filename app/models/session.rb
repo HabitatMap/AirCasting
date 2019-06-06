@@ -23,9 +23,9 @@ class Session < ApplicationRecord
   include AirCasting::FilterRange
 
   belongs_to :user
+  has_many :streams, :inverse_of => :session, :dependent => :destroy
   has_many :measurements, :through => :streams, :inverse_of => :session
   has_many :notes, :inverse_of => :session, :dependent => :destroy
-  has_many :streams, :inverse_of => :session, :dependent => :destroy
 
   validates :user, :uuid, :url_token, :presence => true
   validates :start_time, :presence => true
