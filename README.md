@@ -34,8 +34,8 @@ brew install mysql@5.7
 ### App (any OS)
 
 ```bash
-rvm install 2.4.6
-rvm use 2.4.6
+rvm install 2.6.3
+rvm use 2.6.3
 gem install bundler
 git clone git://github.com/HabitatMap/AirCasting.git
 cd aircasting
