@@ -40,9 +40,9 @@ module Api
         result = RealtimeMeasurementBuilder.new(session_uuid, stream_data, current_user).build!
 
         if result
-          render :nothing => true, :status => :ok
+          head :ok
         else
-          render :nothing => true, :status => :bad_request
+          head :bad_request
         end
       end
     end

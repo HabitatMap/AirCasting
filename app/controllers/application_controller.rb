@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
   ].each do |clazz, text, status|
     rescue_from clazz do |exception|
       respond_to do |format|
-        format.any { render :text => text, :status => status }
+        format.any { render plain: text, status: status }
       end
     end
   end
