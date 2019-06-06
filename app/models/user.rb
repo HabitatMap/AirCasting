@@ -81,10 +81,10 @@ class User < ApplicationRecord
       end
     end
 
-    # Apparently NOT IN doesn't work if uuids is empty
-    uuids = data.map { |x| x[:uuid] } + [""]
+
+    uuids = data.map { |x| x[:uuid] }
     download = sessions
-      .where(["uuid NOT IN (?)", uuids])
+      .where.not(uuid: uuids)
       .select { |session| (session.streams.count != 0) && (session.streams.all? { |stream| stream.measurements.count != 0 }) }
       .map(&:id)
 
