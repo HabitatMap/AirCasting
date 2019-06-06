@@ -114,6 +114,11 @@ describe Api::Mobile::SessionsController do
       measurement1 = create_measurement!(stream: stream)
       measurement2 = create_measurement!(stream: stream)
       note = create_note!(session: session)
+      # For whatever reasons w/o the reloads date on notes and times on measurements
+      # are off by one second.
+      note.reload
+      measurement1.reload
+      measurement2.reload
 
       get :show2, params: { id: session.id, sensor_name: sensor_name }
 
