@@ -9,7 +9,7 @@ describe Api::Fixed::SessionsController do
       end_time_local = DateTime.new(2001, 11, 4, 5, 6)
       sensor_name = "sensor-name"
       user = create_user!(username: username)
-      session = create_fixed_session!({ user: user, title: title, start_time_local: start_time_local, end_time_local: end_time_local })
+      session = create_fixed_session!(user: user, title: title, start_time_local: start_time_local, end_time_local: end_time_local)
       create_stream!(session: session, sensor_name: "another-sensor-name")
       stream = create_stream!(session: session, sensor_name: sensor_name)
       create_stream!(session: session, sensor_name: "yet another-sensor-name")

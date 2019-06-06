@@ -79,7 +79,7 @@ describe Api::UserSessionsController do
 
       it "should return a location for the session" do
         get :show, params: { id: session.id }, format: :json
-        expect(json_response).to include ({ location: short_session_url(session) }.as_json)
+        expect(json_response).to include ({ location: short_session_url(session, :host => A9n.host) }.as_json)
       end
 
       it "should contain notes" do
@@ -136,7 +136,7 @@ describe Api::UserSessionsController do
   end
 
   private
-  
+
   def session_data(attributes)
     "[
     {\"calibration\":0,
