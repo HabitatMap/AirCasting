@@ -13,7 +13,7 @@ describe Api::MeasurementsController do
         value = 1.0
         create_measurement!(stream: stream, value: value, latitude: latitude, longitude: longitude, time: time)
 
-        get :index, stream_id: stream.id
+        get :index, params: { stream_id: stream.id }
 
         expected = [{
           "latitude" => latitude,
@@ -41,7 +41,7 @@ describe Api::MeasurementsController do
         create_measurement!(stream: stream, value: value, latitude: latitude, longitude: longitude, time: time)
         create_measurement!(stream: stream, value: value + 2, latitude: latitude + 2, longitude: longitude + 2, time: time + 2)
 
-        get :index, stream_id: stream.id, start_time: (time - 1).to_datetime.strftime("%Q").to_i, end_time: (time + 1).to_datetime.strftime("%Q").to_i
+        get :index, params: { stream_id: stream.id, start_time: (time - 1).to_datetime.strftime("%Q").to_i, end_time: (time + 1).to_datetime.strftime("%Q").to_i }
 
         expected = [{
           "latitude" => latitude,

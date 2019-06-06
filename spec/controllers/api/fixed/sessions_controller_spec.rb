@@ -14,7 +14,7 @@ describe Api::Fixed::SessionsController do
       stream = create_stream!(session: session, sensor_name: sensor_name)
       create_stream!(session: session, sensor_name: "yet another-sensor-name")
 
-      get :show, id: session.id, sensor_name: sensor_name
+      get :show, params: { id: session.id, sensor_name: sensor_name }
 
       expected = {
         "title" => title,

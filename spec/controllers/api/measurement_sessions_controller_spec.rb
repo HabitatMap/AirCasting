@@ -57,7 +57,7 @@ describe Api::MeasurementSessionsController do
     let(:session2) { FactoryBot.create(:mobile_session) }
 
     before do
-      get :show_multiple, q: { session_ids: [session1.id, session2.id] }, format: :json
+      get :show_multiple, params: { q: { session_ids: [session1.id, session2.id] } }, format: :json
     end
 
     it { expect(response.status).to eq 200 }
@@ -78,7 +78,7 @@ describe Api::MeasurementSessionsController do
 
     context "when the session is sent without compression" do
       before do
-        post :create, :format => :json, :session => :session, :compression => false, :photos => photos
+        post :create, format: :json, params: { session: :session, compression: false, photos: photos }
       end
 
       it_should_behave_like "session creation"
@@ -89,7 +89,7 @@ describe Api::MeasurementSessionsController do
         expect(Base64).to receive(:decode64).with(:zipped_and_encoded).and_return(:zipped)
         expect(AirCasting::GZip).to receive(:inflate).with(:zipped).and_return(:session)
 
-        post :create, :format => :json, :session => :zipped_and_encoded, :compression => true, :photos => photos
+        post :create, format: :json, params: { session: :zipped_and_encoded, compression: true, photos: photos }
       end
 
       it_should_behave_like "session creation"
