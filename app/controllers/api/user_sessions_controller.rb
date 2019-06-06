@@ -7,7 +7,7 @@ class Api::UserSessionsController < Api::BaseController
   respond_to :json
 
   def sync
-    form = Api::JsonForm.new(json: "{ \"data\": #{params[:data]} }", schema: Api::UserSessions::Schema, struct: Api::UserSessions::Struct)
+    form = Api::JsonForm.new(json: "{ \"data\": #{params.to_unsafe_hash[:data]} }", schema: Api::UserSessions::Schema, struct: Api::UserSessions::Struct)
     result = Api::ToUserSessionsHash.new(form: form).call(current_user)
 
     if result.success?

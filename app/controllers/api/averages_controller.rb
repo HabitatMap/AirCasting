@@ -31,7 +31,7 @@ module Api
       if params[:q].is_a?(String)
         data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
       else
-        data = params[:q].symbolize_keys
+        data = params.to_unsafe_hash[:q].symbolize_keys
       end
       FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
       INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }

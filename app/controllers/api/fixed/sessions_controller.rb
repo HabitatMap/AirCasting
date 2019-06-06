@@ -3,7 +3,7 @@ module Api
     respond_to :json
 
     def show
-      form = Api::ParamsForm.new(params: params, schema: Api::Session::Schema, struct: Api::Session::Struct)
+      form = Api::ParamsForm.new(params: params.to_unsafe_hash, schema: Api::Session::Schema, struct: Api::Session::Struct)
       result = Api::ToSessionHash.new(model: FixedSession).call(form: form)
 
       if result.success?
