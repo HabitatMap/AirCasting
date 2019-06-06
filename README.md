@@ -45,7 +45,7 @@ cp config/database.yml.example config/database.yml
 cp config/configuration.yml.example config/configuration.yml
 # fill proper configuration in config/configuration.yml
 bundle install
-bundle exec rake db:create db:migrate
+bin/rails db:create db:migrate
 bundle exec foreman start
 yarn install
 # visit http://localhost:3000
@@ -60,7 +60,7 @@ Go to https://bitly.com/ create an account and log in. To generate the token go 
 **run tests**
 
 ```bash
-RAILS_ENV=test bundle exec rake db:create db:migrate
+RAILS_ENV=test bin/rails db:create db:migrate
 bundle exec rspec
 yarn test
 yarn run elm-test app/javascript/elm/tests

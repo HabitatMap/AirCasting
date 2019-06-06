@@ -16,7 +16,7 @@
 #
 # You can contact the authors by email at <info@habitatmap.org>
 
-class Note < ActiveRecord::Base
+class Note < ApplicationRecord
   self.skip_time_zone_conversion_for_attributes = [:date]
 
   belongs_to :session

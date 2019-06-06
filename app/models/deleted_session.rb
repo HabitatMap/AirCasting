@@ -1,3 +1,3 @@
-class DeletedSession < ActiveRecord::Base
+class DeletedSession < ApplicationRecord
   belongs_to :user
 end
