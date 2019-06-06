@@ -5,7 +5,7 @@ module Api
     end
 
     def show
-      form = Api::JsonForm.new(json: params[:q], schema: Api::FixedRegion::Schema, struct: Api::FixedRegion::Struct)
+      form = Api::JsonForm.new(json: params.to_unsafe_hash[:q], schema: Api::FixedRegion::Schema, struct: Api::FixedRegion::Struct)
       result = Api::CalculateFixedRegionInfo.new.call(form)
 
       if result.success?

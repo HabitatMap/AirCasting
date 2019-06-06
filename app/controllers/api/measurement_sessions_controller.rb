@@ -26,7 +26,7 @@ module Api
     respond_to :json
 
     def show_multiple
-      data = decoded_query_data(params[:q])
+      data = decoded_query_data(params.to_unsafe_hash[:q])
 
       respond_with sessions: MobileSession.selected_sessions_json(data)
     end
@@ -48,7 +48,7 @@ module Api
       if session
         render :json => session_json(session), :status => :ok
       else
-        render :nothing => true, :status => :bad_request
+        head :bad_request
       end
     end
 

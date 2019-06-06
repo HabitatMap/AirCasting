@@ -30,7 +30,7 @@ module Api
     end
 
     def create
-      user = User.new(user_params)
+      user = User.new(user_params.to_unsafe_hash)
 
       if user.save
         respond_with user, :location => api_user_url
