@@ -12,7 +12,7 @@ const locationMarkersByLevel = {
 export const drawSession = (sensors, map, heat, note, empty) => {
   var DrawSession = function() {};
 
-  let drawnObjects = { markers: [] };
+  const drawnObjects = { markers: [], lines: [], noteDrawings: [] };
 
   DrawSession.prototype = {
     drawMobileSession: function(session, drawSessionStartingMarker) {
@@ -49,22 +49,22 @@ export const drawSession = (sensors, map, heat, note, empty) => {
     },
 
     undoDraw: function(session, mapPosition) {
-      (session.markers || []).forEach(function(marker) {
+      (session.markers || []).forEach(marker => {
         removeMarker(marker);
       });
       session.markers = [];
 
-      (drawnObjects.markers || []).forEach(function(marker) {
+      (drawnObjects.markers || []).forEach(marker => {
         removeMarker(marker);
       });
       drawnObjects.markers = [];
 
-      (drawnObjects.lines || []).forEach(function(line) {
+      (drawnObjects.lines || []).forEach(line => {
         removeMarker(line);
       });
       drawnObjects.lines = [];
 
-      (drawnObjects.noteDrawings || []).forEach(function(noteItem) {
+      (drawnObjects.noteDrawings || []).forEach(noteItem => {
         removeMarker(noteItem);
       });
       drawnObjects.noteDrawings = [];
