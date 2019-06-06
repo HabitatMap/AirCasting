@@ -1,8 +1,8 @@
 class Api::UserSessionsController < Api::BaseController
   # TokenAuthenticatable was removed from Devise in 3.1
   # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
-  before_filter :authenticate_user_from_token!
-  before_filter :authenticate_user!
+  before_action :authenticate_user_from_token!
+  before_action :authenticate_user!
 
   respond_to :json
 

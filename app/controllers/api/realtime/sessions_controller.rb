@@ -25,8 +25,8 @@ module Api
 
       # TokenAuthenticatable was removed from Devise in 3.1
       # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
-      before_filter :authenticate_user_from_token!, only: :create
-      before_filter :authenticate_user!, only: :create
+      before_action :authenticate_user_from_token!, only: :create
+      before_action :authenticate_user!, only: :create
 
       respond_to :json
 

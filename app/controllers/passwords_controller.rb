@@ -17,5 +17,5 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class PasswordsController < Devise::PasswordsController
-  skip_before_filter :require_no_authentication
+  skip_before_action :require_no_authentication
 end
