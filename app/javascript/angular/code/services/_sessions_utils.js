@@ -25,12 +25,6 @@ export const sessionsUtils = (
     flash.set(errorMsg);
   },
 
-  find: function(self, id) {
-    return _(self.sessions || []).detect(function(session) {
-      return session.id === id;
-    });
-  },
-
   isSelected: function(self, session) {
     return this.selectedSessionId() === session.id;
   },
@@ -43,22 +37,6 @@ export const sessionsUtils = (
     return params.selectedSessionIds()[0];
   },
 
-  selectedSession: function(self) {
-    return this.find(self, this.selectedSessionId());
-  },
-
-  onSingleSessionFetch: function(session, data, callback) {
-    createSessionData(session, data);
-    session.loaded = true;
-    callback();
-    this.updateCrowdMapLayer();
-  },
-
-  onSingleSessionFetchWithoutCrowdMap: function(session, data, callback) {
-    createSessionData(session, data);
-    session.loaded = true;
-    callback(session);
-  },
   refreshMapView: function(sessions) {
     if (sessions.type === "MobileSessions") {
       sessions.onSessionsFetchWithCrowdMapLayerUpdate();
@@ -70,9 +48,7 @@ export const sessionsUtils = (
   }
 });
 
-const createSessionData = (session, data) => {
-  const streams = keysToLowerCase(data.streams);
-  delete data.streams;
-  _(session).extend(data);
-  _(session.streams).extend(streams);
+export const prepareSessionData = data => {
+  data.streams = keysToLowerCase(data.streams);
+  return data;
 };

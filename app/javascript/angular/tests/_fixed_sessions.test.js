@@ -208,11 +208,15 @@ test("fetch passes map corner coordinates to sessionsDownloader", t => {
   t.end();
 });
 
-test("selectSession with indoor session after successfully fetching calls map.fitBoundsWithBottomPadding", t => {
+test("selectSession with outdoor session after successfully fetching calls map.fitBoundsWithBottomPadding", t => {
   const map = mock("fitBoundsWithBottomPadding");
-  const sessionsUtils = { selectedSession: () => ({ is_indoor: false }) };
+  const $http = {
+    get: () => ({
+      success: callback => callback({ is_indoor: false, streams: {} })
+    })
+  };
   const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
-  const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
+  const fixedSessionsService = _fixedSessions({ map, $http, sensors });
 
   fixedSessionsService.selectSession(123);
 
@@ -221,7 +225,7 @@ test("selectSession with indoor session after successfully fetching calls map.fi
   t.end();
 });
 
-test("selectSession with outdoor session after successfully fetching does not call map.fitBounds", t => {
+test("selectSession with indoor session after successfully fetching does not call map.fitBounds", t => {
   const map = mock("fitBounds");
   const sessionsUtils = { selectedSession: () => ({ is_indoor: true }) };
   const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
@@ -234,31 +238,32 @@ test("selectSession with outdoor session after successfully fetching does not ca
   t.end();
 });
 
-test("deselectSession with existing session calls fitBounds", t => {
-  const map = mock("fitBounds");
-  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
-  const fixedSessionsService = _fixedSessions({ map, sessionsUtils });
+test("deselectSession with existing session calls drawSession.undoDraw", t => {
+  const drawSession = mock("undoDraw");
+  const sessionsUtils = { isSessionSelected: () => true };
+  const fixedSessionsService = _fixedSessions({ drawSession, sessionsUtils });
 
   fixedSessionsService.deselectSession(1);
 
-  t.true(map.wasCalled());
+  t.true(drawSession.wasCalled());
 
   t.end();
 });
 
 test("deselectSession with non-existing session does not call drawSession.undoDraw", t => {
-  const map = mock("fitBounds");
-  const sessionsUtils = { selectedSession: () => null };
-  const fixedSessionsService = _fixedSessions({ map, sessionsUtils });
+  const drawSession = mock("undoDraw");
+  const sessionsUtils = { isSessionSelected: () => false };
+  const fixedSessionsService = _fixedSessions({ drawSession, sessionsUtils });
 
   fixedSessionsService.deselectSession(1);
 
-  t.false(map.wasCalled());
+  t.false(drawSession.wasCalled());
 
   t.end();
 });
 
-test("deselectSession calls fitBounds with the bounds saved before selecting the session", t => {
+test("deselectSession calls undoDraw with the bounds saved before selecting the session", t => {
+  const drawSession = mock("undoDraw");
   const bounds = {
     east: -68.06802987730651,
     north: 47.98992183263727,
@@ -271,40 +276,24 @@ test("deselectSession calls fitBounds with the bounds saved before selecting the
     getZoom: () => zoom,
     ...mock("fitBounds")
   };
-  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
-  const sensors = { sensors: { 1: { sensor_name: "sensor_name" } } };
-  const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
+  const sessionsUtils = {
+    isSessionSelected: () => true
+  };
+  const sensors = {
+    sensors: { 1: { sensor_name: "sensor_name" } },
+    selectedId: () => 1
+  };
+  const fixedSessionsService = _fixedSessions({
+    drawSession,
+    map,
+    sessionsUtils,
+    sensors
+  });
   fixedSessionsService.selectSession(1);
 
   fixedSessionsService.deselectSession(1);
 
-  t.true(map.wasCalledWith(bounds));
-  t.true(map.wasCalledWith2(zoom));
-
-  t.end();
-});
-
-test("deselectSession with no previously selected sessions calls fitBounds with initial map position", t => {
-  const bounds = {
-    east: -68.06802987730651,
-    north: 47.98992183263727,
-    south: 24.367113787533707,
-    west: -123.65885018980651
-  };
-  const zoom = 10;
-  const sessionsUtils = { selectedSession: () => ({ id: 1 }) };
-  const mapPosition = { bounds, zoom };
-  const map = {
-    getBounds: () => bounds,
-    getZoom: () => zoom,
-    ...mock("fitBounds")
-  };
-  const fixedSessionsService = _fixedSessions({ map, sessionsUtils });
-
-  fixedSessionsService.deselectSession(1);
-
-  t.true(map.wasCalledWith(mapPosition.bounds));
-  t.true(map.wasCalledWith2(mapPosition.zoom));
+  t.true(drawSession.wasCalledWith2({ bounds: bounds, zoom: zoom }));
 
   t.end();
 });
@@ -458,19 +447,23 @@ const _fixedSessions = ({
   sessionIds = [],
   map,
   sessionsUtils,
-  sensors
+  sensors,
+  $http
 }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
     get: what => {
       if (what === "data") {
         return data || buildData();
+      } else if (what == "prevMapPosition") {
+        return {};
       } else {
         throw new Error(`unexpected param ${what}`);
       }
     },
     update: () => {},
-    selectedSessionIds: () => sessionIds
+    selectedSessionIds: () => sessionIds,
+    isStreaming: () => false
   };
   const _map = {
     getBounds: () => ({}),
@@ -479,6 +472,8 @@ const _fixedSessions = ({
     drawCustomMarker: () => {},
     removeAllMarkers: () => {},
     clusterMarkers: () => {},
+    drawMarkerWithoutLabel: () => {},
+    fitBoundsWithBottomPadding: () => {},
     ...map
   };
   const _sensors = {
@@ -495,21 +490,21 @@ const _fixedSessions = ({
   };
   const _sessionsUtils = {
     find: () => ({}),
-    onSingleSessionFetch: (x, y, callback) => callback(),
     get: self => self.sessions,
-    onSingleSessionFetchWithoutCrowdMap: (session, y, callback) =>
-      callback(session),
     isSessionSelected: () => false,
     selectedSession: () => {},
     selectedSessionId: () => 1,
     ...sessionsUtils
   };
-  const $http = { get: () => ({ success: callback => callback() }) };
+  const _$http = {
+    get: () => ({ success: callback => callback({ streams: {} }) }),
+    ...$http
+  };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
   return fixedSessions(
     params,
-    $http,
+    _$http,
     _map,
     _sensors,
     $rootScope,

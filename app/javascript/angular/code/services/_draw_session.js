@@ -12,13 +12,19 @@ const locationMarkersByLevel = {
 export const drawSession = (sensors, map, heat, note, empty) => {
   var DrawSession = function() {};
 
+  const drawnObjects = { markers: [], lines: [], noteDrawings: [] };
+
   DrawSession.prototype = {
     drawMobileSession: function(session, drawSessionStartingMarker) {
-      if (!session || !session.loaded || !sensors.anySelected()) {
+      if (!session || !sensors.anySelected()) {
         return;
       }
 
-      drawSessionStartingMarker(session, sensors.selectedSensorName());
+      const startingMarker = drawSessionStartingMarker(
+        session,
+        sensors.selectedSensorName()
+      );
+      drawnObjects.markers.push(startingMarker);
 
       var suffix = " " + sensors.anySelected().unit_symbol;
       var points = [];
@@ -32,31 +38,36 @@ export const drawSession = (sensors, map, heat, note, empty) => {
           suffix
         );
 
-        session.markers.push(marker);
+        drawnObjects.markers.push(marker);
         points.push(measurement);
       });
 
       (session.notes || []).forEach(function(noteItem, idx) {
-        session.noteDrawings.push(note.drawNote(noteItem, idx));
+        drawnObjects.noteDrawings.push(note.drawNote(noteItem, idx));
       });
-      session.lines.push(map.drawLine(points));
+      drawnObjects.lines.push(map.drawLine(points));
     },
 
     undoDraw: function(session, mapPosition) {
-      (session.markers || []).forEach(function(marker) {
+      (session.markers || []).forEach(marker => {
         removeMarker(marker);
       });
       session.markers = [];
 
-      (session.lines || []).forEach(function(line) {
+      (drawnObjects.markers || []).forEach(marker => {
+        removeMarker(marker);
+      });
+      drawnObjects.markers = [];
+
+      (drawnObjects.lines || []).forEach(line => {
         removeMarker(line);
       });
-      session.lines = [];
+      drawnObjects.lines = [];
 
-      (session.noteDrawings || []).forEach(function(noteItem) {
+      (drawnObjects.noteDrawings || []).forEach(noteItem => {
         removeMarker(noteItem);
       });
-      session.noteDrawings = [];
+      drawnObjects.noteDrawings = [];
 
       if (mapPosition) {
         map.fitBounds(mapPosition.bounds, mapPosition.zoom);

@@ -2,21 +2,17 @@ import test from "blue-tape";
 import { mock } from "./helpers";
 import { drawSession } from "../code/services/_draw_session.js";
 
-test("undoDraw removes all session elements from the map", t => {
+test("undoDraw removes all session markers", t => {
   const marker = mock("setMap");
   const session = {
-    markers: [marker],
-    lines: [marker],
-    noteDrawings: [marker]
+    markers: [marker]
   };
   const drawSessionStub = _drawSession({});
 
   drawSessionStub.undoDraw(session);
 
-  t.true(marker.wasCalledNTimes(3));
+  t.true(marker.wasCalled());
   t.deepEqual(session.markers, []);
-  t.deepEqual(session.lines, []);
-  t.deepEqual(session.noteDrawings, []);
 
   t.end();
 });
@@ -24,7 +20,6 @@ test("undoDraw removes all session elements from the map", t => {
 const measurement = { value: 1, latitude: 2, longitude: 3 };
 const selectedSensor = { anySelected: () => ({ sensor_name: "sensorName" }) };
 const loadedSession = {
-  loaded: true,
   markers: [],
   lines: [],
   streams: { sensorName: { unit_symbol: "unit", measurements: [measurement] } }

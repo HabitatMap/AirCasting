@@ -281,4 +281,8 @@ class Session < ApplicationRecord
   def note_numbers(session_data)
     session_data[:notes].map{ |note| note[:number] }
   end
+
+  def generate_link
+    raise NotImplementedError, "subclass did not define #generate_link"
+  end
 end

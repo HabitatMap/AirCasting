@@ -12,5 +12,17 @@ module Api
         render json: result.errors, status: :bad_request
       end
     end
+
+    def show2
+      form = Api::ParamsForm.new(params: params, schema: Api::Session::Schema, struct: Api::Session::Struct)
+      result = Api::ToFixedSessionHash.new(form: form).call
+
+      if result.success?
+        render json: result.value, status: :ok
+      else
+        render json: result.errors, status: :bad_request
+      end
+    end
+
   end
 end

@@ -65,8 +65,7 @@ export const SessionsListCtrl = (
     true
   );
 
-  $scope.canSelectSession = function(sessionId) {
-    const session = sessions.find(sessionId);
+  $scope.canSelectSession = function() {
     if (sessionsUtils.isSessionSelected()) {
       flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
       return false;
@@ -96,6 +95,7 @@ export const SessionsListCtrl = (
   );
 
   $scope.$on("googleMapsReady", function() {
+    if (sessionsUtils.isSessionSelected()) return;
     sessions.fetch({
       amount: params.paramsData["fetchedSessionsCount"]
     });
@@ -114,8 +114,7 @@ export const SessionsListCtrl = (
       flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
       return;
     }
-    var session = sessions.find(sessionId);
-    if (sessions.isSelected(session)) {
+    if (sessionsUtils.selectedSessionId() === sessionId) {
       sessions.deselectSession();
       callback(null);
     } else if ($scope.canSelectSession(sessionId)) {

@@ -2,6 +2,7 @@ import _ from "underscore";
 import constants from "../../../javascript/constants";
 import * as Session from "../../../javascript/values/session";
 import { calculateBounds } from "../../../javascript/calculateBounds";
+import { prepareSessionData } from "./_sessions_utils";
 
 export const fixedSessions = (
   params,
@@ -39,10 +40,6 @@ export const fixedSessions = (
       return sessionsUtils.allSessionIds(this);
     },
 
-    find: function(id) {
-      return sessionsUtils.find(this, id);
-    },
-
     get: function() {
       return sessionsUtils.get(this);
     },
@@ -66,29 +63,22 @@ export const fixedSessions = (
     },
 
     deselectSession: function() {
-      var session = sessionsUtils.selectedSession(this);
-      if (!session) return;
-      session.loaded = false;
+      if (!sessionsUtils.isSessionSelected()) return;
       params.update({ prevMapPosition: {} });
       params.update({ selectedSessionIds: [] });
-      map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
+      drawSession.undoDraw({}, prevMapPosition);
     },
 
     selectSession: function(id) {
-      const fitBounds = session => {
-        if (!session.is_indoor) {
+      const fitBounds = sessionData => {
+        if (!sessionData.is_indoor) {
           prevMapPosition = {
             bounds: map.getBounds(),
             zoom: map.getZoom()
           };
           params.update({ prevMapPosition: prevMapPosition });
-          map.fitBoundsWithBottomPadding(
-            calculateBounds(
-              sensors,
-              sessionsUtils.selectedSession(this),
-              map.getZoom()
-            )
-          );
+          map.fitBoundsWithBottomPadding(calculateBounds(sensors, sessionData));
+          this.drawSelectedSession(sessionData);
         }
       };
       params.update({ selectedSessionIds: [id] });
@@ -96,28 +86,34 @@ export const fixedSessions = (
     },
 
     reSelectSession: function(id) {
-      const noop = _ => {};
-      this._selectSession(id, noop);
+      const callback = sessionData => {
+        if (!sessionData.is_indoor) {
+          map.fitBoundsWithBottomPadding(calculateBounds(sensors, sessionData));
+          this.drawSelectedSession(sessionData);
+        }
+      };
+      this._selectSession(id, callback);
     },
 
+    drawSelectedSession: function(sessionData) {
+      if (params.isStreaming()) {
+        this.drawMarkersWithLabel(sessionData, sensors.selectedSensorName());
+      } else {
+        this.drawMarkersWithoutLabel(sessionData);
+      }
+    },
     _selectSession: function(id, callback) {
-      const session = sessionsUtils.selectedSession(this);
-      if (!session) return;
       var sensorId = sensors.selectedId();
       var sensor = sensors.sensors[sensorId] || {};
       var sensorName = sensor.sensor_name;
       if (!sensorName) return;
       $http
-        .get("/api/realtime/sessions/" + id, {
+        .get("/api/fixed/sessions2/" + id, {
           cache: true,
-          params: { sensor_id: sensorName }
+          params: { sensor_name: sensorName }
         })
         .success(function(data) {
-          sessionsUtils.onSingleSessionFetchWithoutCrowdMap(
-            session,
-            data,
-            callback
-          );
+          callback(prepareSessionData(data));
         });
     },
 
