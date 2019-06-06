@@ -32,7 +32,7 @@ module Api
     end
 
     def create
-      if params[:compression]
+      if ActiveModel::Type::Boolean.new.cast(params[:compression])
         decoded = Base64.decode64(params[:session])
         unzipped = AirCasting::GZip.inflate(decoded)
       else
