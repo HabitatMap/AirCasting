@@ -14,7 +14,7 @@ module Api
     end
 
     def show2
-      form = Api::ParamsForm.new(params: params, schema: Api::Session::Schema, struct: Api::Session::Struct)
+      form = Api::ParamsForm.new(params: params.to_unsafe_hash, schema: Api::Session::Schema, struct: Api::Session::Struct)
       result = Api::ToFixedSessionHash.new(form: form).call
 
       if result.success?
