@@ -61,7 +61,7 @@ class Session < ApplicationRecord
 
   def self.filter_(data={})
     sessions = order("sessions.created_at DESC")
-    .where("contribute = true OR sessions.id in (?)", data[:session_ids])
+    .where(contribute: true)
     .joins(:user)
 
     tags = data[:tags].to_s.split(/[\s,]/)
@@ -122,15 +122,6 @@ class Session < ApplicationRecord
       (:time_from BETWEEN start_time_local AND end_time_local)",
       :time_from => time_from, :time_to => time_to)
       .local_minutes_range(Utils.minutes_of_day(time_from), Utils.minutes_of_day(time_to))
-  end
-
-  def self.selected_sessions_json(data)
-    where("id IN (?)", data[:session_ids])
-    .with_user_and_streams
-    .as_json(
-      only: filtered_json_fields,
-      methods: session_methods
-    )
   end
 
   def self.session_methods

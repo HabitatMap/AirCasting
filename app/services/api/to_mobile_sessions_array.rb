@@ -20,7 +20,8 @@ class Api::ToMobileSessionsArray
     sessions = MobileSession
     .offset(offset)
     .limit(limit)
-    .with_user_and_streams.filter_(data)
+    .with_user_and_streams
+    .filter_(data)
     .map do |session|
       {
         id: session.id,
