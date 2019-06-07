@@ -1,4 +1,4 @@
-class RemoveIndexesFromMeasurements < ActiveRecord::Migration
+class RemoveIndexesFromMeasurements < ActiveRecord::Migration[4.2]
   def up
     remove_index :measurements, :latitude if index_exists?(:measurements, :latitude)
     remove_index :measurements, :longitude if index_exists?(:measurements, :longitude)

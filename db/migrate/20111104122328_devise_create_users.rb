@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class DeviseCreateUsers < ActiveRecord::Migration
+class DeviseCreateUsers < ActiveRecord::Migration[4.2]
   def self.up
     create_table(:users) do |t|
       ## Database authenticatable

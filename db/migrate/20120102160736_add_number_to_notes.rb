@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class AddNumberToNotes < ActiveRecord::Migration
+class AddNumberToNotes < ActiveRecord::Migration[4.2]
   def change
     add_column :notes, :number, :integer
   end

@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class AddOffsetToSession < ActiveRecord::Migration
+class AddOffsetToSession < ActiveRecord::Migration[4.2]
   def change
     add_column :sessions, :offset_60_db, :integer
   end

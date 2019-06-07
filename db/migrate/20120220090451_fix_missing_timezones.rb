@@ -1,4 +1,4 @@
-class FixMissingTimezones < ActiveRecord::Migration
+class FixMissingTimezones < ActiveRecord::Migration[4.2]
   MINUTES_IN_HOUR = 60
   SECONDS_IN_MINUTE = 60
 

@@ -1,4 +1,4 @@
-class AddStartingLongitudeAndLatitudeToStreams < ActiveRecord::Migration
+class AddStartingLongitudeAndLatitudeToStreams < ActiveRecord::Migration[4.2]
   def up
     unless column_exists?(:streams, :start_longitude)
       add_column :streams, :start_longitude, :decimal, :precision => 12, :scale => 9

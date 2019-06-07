@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class AddIndexOnMeasurements < ActiveRecord::Migration
+class AddIndexOnMeasurements < ActiveRecord::Migration[4.2]
   def change
     change_table :measurements do |t|
       t.index :latitude

@@ -1,4 +1,4 @@
-class AddLocalStartAndEndTime < ActiveRecord::Migration
+class AddLocalStartAndEndTime < ActiveRecord::Migration[4.2]
   def up
     add_column :sessions, :local_start_time, :datetime
     add_column :sessions, :local_end_time, :datetime

@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class CreateRegions < ActiveRecord::Migration
+class CreateRegions < ActiveRecord::Migration[4.2]
   def change
     create_table :regions do |t|
       t.timestamps

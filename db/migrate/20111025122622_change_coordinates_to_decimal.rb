@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class ChangeCoordinatesToDecimal < ActiveRecord::Migration
+class ChangeCoordinatesToDecimal < ActiveRecord::Migration[4.2]
   def up
     change_table :measurements do |t|
       t.change :latitude, :decimal, :precision => 12, :scale => 9

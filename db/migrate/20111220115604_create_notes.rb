@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class CreateNotes < ActiveRecord::Migration
+class CreateNotes < ActiveRecord::Migration[4.2]
   def change
     create_table :notes do |t|
       t.timestamps

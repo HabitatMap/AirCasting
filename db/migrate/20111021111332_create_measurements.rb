@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class CreateMeasurements < ActiveRecord::Migration
+class CreateMeasurements < ActiveRecord::Migration[4.2]
   def change
     create_table :measurements do |t|
       t.float :value

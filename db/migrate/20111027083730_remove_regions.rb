@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class RemoveRegions < ActiveRecord::Migration
+class RemoveRegions < ActiveRecord::Migration[4.2]
   def up
     drop_table :regions
   end
