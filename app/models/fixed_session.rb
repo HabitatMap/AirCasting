@@ -1,5 +1,3 @@
-include Rails.application.routes.url_helpers
-
 class FixedSession < Session
   validates :is_indoor, inclusion: { in: [true, false] }
   validates :latitude, :longitude, presence: true
@@ -89,7 +87,7 @@ class FixedSession < Session
                 lowest: stream.threshold_very_low },
       }
 
-    fixed_map_path(:anchor => "?selectedSessionIds=#{[id].to_json}&data=#{data.to_json}")
+    Rails.application.routes.url_helpers.fixed_map_path(:anchor => "?selectedSessionIds=#{[id].to_json}&data=#{data.to_json}")
   end
 
   private

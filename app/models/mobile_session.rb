@@ -1,5 +1,3 @@
-include Rails.application.routes.url_helpers
-
 class MobileSession < Session
   def as_synchronizable(stream_measurements)
     as_json(methods: [:streams], stream_measurements: stream_measurements)
@@ -24,6 +22,6 @@ class MobileSession < Session
                 lowest: stream.threshold_very_low },
       }
 
-    mobile_map_path(:anchor => "?selectedSessionIds=#{[id].to_json}&data=#{data.to_json}")
+    Rails.application.routes.url_helpers.mobile_map_path(:anchor => "?selectedSessionIds=#{[id].to_json}&data=#{data.to_json}")
   end
 end
