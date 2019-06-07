@@ -38,7 +38,7 @@ describe Api::Fixed::SessionsController do
       stream = create_stream!(session: session, sensor_name: sensor_name)
       create_measurements!({stream: stream, value: 1})
 
-      get :show2, id: session.id, sensor_name: sensor_name
+      get :show2, params: { id: session.id, sensor_name: sensor_name }
 
       expected = {
         "title" => session.title,
