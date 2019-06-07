@@ -98,12 +98,6 @@ describe MobileSession do
       expect(MobileSession.filter_.to_a).to eq([session1])
     end
 
-    it 'should include explicitly requested but not contributed sessions' do
-      session =  create_session_with_streams_and_measurements!(id: 1, contribute: false)
-
-      expect(MobileSession.filter_(:session_ids => [1]).to_a).to eq([session])
-    end
-
     it "#filter includes sessions overlapping the time range" do
       now = Time.now
       plus_one_hour = (now + 1.hour)

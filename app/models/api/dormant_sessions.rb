@@ -14,7 +14,6 @@ module Api::DormantSessions
     required(:unit_symbol).filled(:str?)
     required(:tags)
     required(:usernames)
-    required(:session_ids).each(:str?)
     optional(:is_indoor).filled(:bool?)
     optional(:west).filled(:float?)
     optional(:east).filled(:float?)
@@ -34,7 +33,6 @@ module Api::DormantSessions
     attribute :unit_symbol, Types::Strict::String
     attribute :tags, Types::Strict::String
     attribute :usernames, Types::Strict::String
-    attribute :session_ids, Types::Strict::Array.of(Types::Coercible::Integer)
     attribute :is_indoor, Types::Bool.meta(omittable: true)
     attribute :west, Types::Coercible::Float.meta(omittable: true)
     attribute :east, Types::Coercible::Float.meta(omittable: true)

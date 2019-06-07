@@ -14,7 +14,6 @@ module Api::MobileSessions
     required(:unit_symbol).filled(:str?)
     required(:tags)
     required(:usernames)
-    required(:session_ids).each(:str?)
     required(:west).filled(:float?)
     required(:east).filled(:float?)
     required(:south).filled(:float?)
@@ -33,7 +32,6 @@ module Api::MobileSessions
     attribute :unit_symbol, Types::Strict::String
     attribute :tags, Types::Strict::String
     attribute :usernames, Types::Strict::String
-    attribute :session_ids, Types::Strict::Array.of(Types::Coercible::Integer)
     attribute :west, Types::Coercible::Float
     attribute :east, Types::Coercible::Float
     attribute :south, Types::Coercible::Float

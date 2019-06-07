@@ -25,12 +25,6 @@ module Api
 
     respond_to :json
 
-    def show_multiple
-      data = decoded_query_data(params.to_unsafe_hash[:q])
-
-      respond_with sessions: MobileSession.selected_sessions_json(data)
-    end
-
     def create
       if ActiveModel::Type::Boolean.new.cast(params[:compression])
         decoded = Base64.decode64(params[:session])

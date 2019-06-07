@@ -58,12 +58,6 @@ module Api
         respond_with response
       end
 
-      def show_multiple
-        data = decoded_query_data(params[:q])
-
-        respond_with sessions: FixedSession.selected_sessions_json(data)
-      end
-
       def create
         if params[:compression]
           decoded = Base64.decode64(params[:session])

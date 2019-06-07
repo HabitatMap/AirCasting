@@ -34,8 +34,6 @@ Rails.application.routes.draw do
       end
     end
 
-    get 'multiple_sessions' =>'measurement_sessions#show_multiple'
-
     resources :averages, only: [:index]
     resources :thresholds, only: [:show], id: /.*/
     resources :regressions, only: [:create, :index, :destroy]
@@ -54,7 +52,6 @@ Rails.application.routes.draw do
     resources :sensors, only: [:index]
 
     namespace :realtime do
-      get 'multiple_sessions'   => 'sessions#show_multiple'
       get 'streaming_sessions'  => 'sessions#index_streaming'
       get 'sync_measurements'   => 'sessions#sync_measurements'
       resources :sessions, only: [:create, :show]

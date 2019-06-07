@@ -192,6 +192,7 @@ export const fixedSessions = (
     },
 
     fetch: function(values = {}) {
+      if (sessionsUtils.isSessionSelected()) return;
       const limit = values.amount || 50;
       const offset = values.fetchedSessionsCount || 0;
 
@@ -203,8 +204,7 @@ export const fixedSessions = (
         time_from: data.timeFrom,
         time_to: data.timeTo,
         tags: data.tags,
-        usernames: data.usernames,
-        session_ids: params.selectedSessionIds()
+        usernames: data.usernames
       };
 
       if (data.isIndoor) {
@@ -230,19 +230,12 @@ export const fixedSessions = (
 
       drawSession.clear(this.sessions);
 
-      if (sessionsUtils.isSessionSelected()) {
-        this.downloadSessions("/api/realtime/multiple_sessions.json", reqData);
-      } else {
-        if (offset === 0) this.sessions = [];
+      if (offset === 0) this.sessions = [];
 
-        if (data.isStreaming) {
-          this.downloadSessions(
-            "/api/realtime/streaming_sessions.json",
-            reqData
-          );
-        } else {
-          this.downloadSessions("/api/fixed/dormant/sessions.json", reqData);
-        }
+      if (data.isStreaming) {
+        this.downloadSessions("/api/realtime/streaming_sessions.json", reqData);
+      } else {
+        this.downloadSessions("/api/fixed/dormant/sessions.json", reqData);
       }
     }
   };
