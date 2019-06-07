@@ -43,7 +43,7 @@ test("goToAddress with successful geocoding calls fitBounds", t => {
   const googleMaps = mockGoogleMaps({ successfulGeocoding: true });
   const service = _map({ geocoder, googleMaps });
 
-  service.goToAddress("new york");
+  service.goToAddress("new york", () => {});
 
   t.true(googleMaps.wasCalled());
 
@@ -59,7 +59,7 @@ test("goToAddress when calling fitBounds removes callbacks from the map", t => {
 
   const service = _map({ geocoder, googleMaps });
 
-  service.goToAddress("new york");
+  service.goToAddress("new york", () => {});
 
   t.false(googleMaps.hasCallbacks());
 
@@ -73,7 +73,7 @@ test("goToAddress re-adds callbacks from the map after calling fitBounds", t => 
 
   const service = _map({ geocoder, googleMaps });
 
-  service.goToAddress("new york");
+  service.goToAddress("new york", () => {});
 
   setTimeout(() => {
     t.true(googleMaps.hasCallbacks());
