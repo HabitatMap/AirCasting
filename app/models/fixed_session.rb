@@ -18,10 +18,6 @@ class FixedSession < Session
     .limit(limit)
     .with_user_and_streams
     .filter_(data)
-    .as_json(
-      only: filtered_json_fields,
-      methods: [:username, :streams]
-    )
   end
 
   def self.filtered_json_fields
