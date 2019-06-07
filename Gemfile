@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem 'responders', '~> 2.0'
 gem 'activeadmin'
 gem 'activerecord-import', '~> 0.28'
-gem 'acts-as-taggable-on', '~> 4'
+gem 'acts-as-taggable-on', '~> 5'
 gem 'colored', require: false
 gem 'devise', '~> 4.4.3'
 gem "foreman"
