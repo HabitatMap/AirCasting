@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class AddColumnsToSession < ActiveRecord::Migration
+class AddColumnsToSession < ActiveRecord::Migration[4.2]
   def change
     add_column :sessions, :title, :text
     add_column :sessions, :description, :text

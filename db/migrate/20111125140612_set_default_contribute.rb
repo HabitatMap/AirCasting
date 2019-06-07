@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class SetDefaultContribute < ActiveRecord::Migration
+class SetDefaultContribute < ActiveRecord::Migration[4.2]
   def up
     Session.update_all(contribute: true)
   end

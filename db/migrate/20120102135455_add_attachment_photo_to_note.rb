@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class AddAttachmentPhotoToNote < ActiveRecord::Migration
+class AddAttachmentPhotoToNote < ActiveRecord::Migration[4.2]
   def self.up
     add_column :notes, :photo_file_name, :string
     add_column :notes, :photo_content_type, :string

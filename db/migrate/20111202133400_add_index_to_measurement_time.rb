@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class AddIndexToMeasurementTime < ActiveRecord::Migration
+class AddIndexToMeasurementTime < ActiveRecord::Migration[4.2]
   def change
     add_index :measurements, :time
   end

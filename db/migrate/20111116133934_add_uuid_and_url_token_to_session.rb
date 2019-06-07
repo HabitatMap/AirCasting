@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class AddUuidAndUrlTokenToSession < ActiveRecord::Migration
+class AddUuidAndUrlTokenToSession < ActiveRecord::Migration[4.2]
   def change
     add_column :sessions, :uuid, :string, :size => 36
     add_index :sessions, :uuid

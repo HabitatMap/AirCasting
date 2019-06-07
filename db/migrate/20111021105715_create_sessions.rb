@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class CreateSessions < ActiveRecord::Migration
+class CreateSessions < ActiveRecord::Migration[4.2]
   def change
     create_table :sessions do |t|
       t.timestamps

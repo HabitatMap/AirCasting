@@ -1,4 +1,4 @@
-class AddPackageNameToStream < ActiveRecord::Migration
+class AddPackageNameToStream < ActiveRecord::Migration[4.2]
   def change
     change_table :measurements do |t|
       t.references :stream

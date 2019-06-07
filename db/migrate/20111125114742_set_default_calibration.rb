@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class SetDefaultCalibration < ActiveRecord::Migration
+class SetDefaultCalibration < ActiveRecord::Migration[4.2]
   def up
     Session.update_all(:calibration => 80)
   end

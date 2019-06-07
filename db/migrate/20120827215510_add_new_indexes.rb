@@ -1,4 +1,4 @@
-class AddNewIndexes < ActiveRecord::Migration
+class AddNewIndexes < ActiveRecord::Migration[4.2]
   def up
     add_index :measurements, [ :longitude, :latitude ]
     add_index :measurements, :stream_id

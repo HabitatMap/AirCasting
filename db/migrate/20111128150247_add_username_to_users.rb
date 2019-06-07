@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class AddUsernameToUsers < ActiveRecord::Migration
+class AddUsernameToUsers < ActiveRecord::Migration[4.2]
   def change
     add_column :users, :username, :string
   end

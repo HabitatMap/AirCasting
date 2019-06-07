@@ -1,4 +1,4 @@
-class CreateStreams < ActiveRecord::Migration
+class CreateStreams < ActiveRecord::Migration[4.2]
   def change
   	create_table :streams do |t|
       t.string :sensor_name

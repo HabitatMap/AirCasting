@@ -1,4 +1,4 @@
-class CreateRegressions < ActiveRecord::Migration
+class CreateRegressions < ActiveRecord::Migration[4.2]
   def change
     create_table :regressions do |t|
       t.datetime :created_at, :null => false

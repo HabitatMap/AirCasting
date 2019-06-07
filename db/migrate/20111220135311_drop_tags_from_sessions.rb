@@ -16,7 +16,7 @@
 # 
 # You can contact the authors by email at <info@habitatmap.org>
 
-class DropTagsFromSessions < ActiveRecord::Migration
+class DropTagsFromSessions < ActiveRecord::Migration[4.2]
   def up
     remove_column :sessions, :tags
   end

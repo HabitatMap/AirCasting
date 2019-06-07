@@ -1,4 +1,4 @@
-class AddNullTrueToTimestamps < ActiveRecord::Migration
+class AddNullTrueToTimestamps < ActiveRecord::Migration[4.2]
   def change
     change_column :notes, :created_at, :datetime, null: true
     change_column :notes, :updated_at, :datetime, null: true

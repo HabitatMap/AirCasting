@@ -1,4 +1,4 @@
-class CalibrateSessions < ActiveRecord::Migration
+class CalibrateSessions < ActiveRecord::Migration[4.2]
   CALIBRATE = "(value + (calibration - 60 + offset_60_db)) / (calibration - 60 + offset_60_db) * (calibration - 60) + 60"
 
   def up
