@@ -52,20 +52,6 @@ describe Api::MeasurementSessionsController do
 
   before { sign_in user }
 
-  describe "GET 'show_multiple'" do
-    let(:session1) { FactoryBot.create(:mobile_session) }
-    let(:session2) { FactoryBot.create(:mobile_session) }
-
-    before do
-      get :show_multiple, params: { q: { session_ids: [session1.id, session2.id] } }, format: :json
-    end
-
-    it { expect(response.status).to eq 200 }
-    it 'returns multiple sessions' do
-      expect(response.body).to eq ({ sessions: MobileSession.selected_sessions_json(session_ids: [session1.id, session2.id]) }).to_json
-    end
-  end
-
   describe "POST 'create'" do
     let(:builder) { double }
     let(:data) { {type: "MobileSession"} }

@@ -6,36 +6,17 @@ import {
 } from "../code/services/_fixed_sessions";
 import sinon from "sinon";
 
-test("fetch with no sessions ids in params passes empty array to sessionsDownloader", t => {
+test("fetch with no sessions ids in params doesn't call sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
-  const data = buildData();
-  const sessionIds = [];
+  const sessionsUtils = { isSessionSelected: () => true };
   const fixedSessionsService = _fixedSessions({
     sessionsDownloaderCalls,
-    data,
-    sessionIds
+    sessionsUtils
   });
 
   fixedSessionsService.fetch();
 
-  t.deepEqual(sessionsDownloaderCalls[0].session_ids, sessionIds);
-
-  t.end();
-});
-
-test("fetch with sessions ids in params passes them to sessionsDownloader", t => {
-  const sessionsDownloaderCalls = [];
-  const data = buildData();
-  const sessionIds = [1, 2, 3];
-  const fixedSessionsService = _fixedSessions({
-    sessionsDownloaderCalls,
-    data,
-    sessionIds
-  });
-
-  fixedSessionsService.fetch();
-
-  t.deepEqual(sessionsDownloaderCalls[0].session_ids, sessionIds);
+  t.deepEqual(sessionsDownloaderCalls, []);
 
   t.end();
 });

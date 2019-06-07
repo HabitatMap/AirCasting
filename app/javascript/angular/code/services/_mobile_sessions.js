@@ -230,6 +230,7 @@ export const mobileSessions = (
     },
 
     fetch: function(values = {}) {
+      if (sessionsUtils.isSessionSelected()) return;
       const limit = values.amount || 50;
       const offset = values.fetchedSessionsCount || 0;
 
@@ -240,8 +241,7 @@ export const mobileSessions = (
         time_from: data.timeFrom,
         time_to: data.timeTo,
         tags: data.tags,
-        usernames: data.usernames,
-        session_ids: params.selectedSessionIds()
+        usernames: data.usernames
       };
 
       _(reqData).extend({
@@ -263,27 +263,16 @@ export const mobileSessions = (
 
       drawSession.clear(this.sessions);
 
-      if (sessionsUtils.isSessionSelected()) {
-        sessionsDownloader(
-          "/api/multiple_sessions.json",
-          reqData,
-          this.sessions,
-          params,
-          _(this.onSessionsFetch).bind(this),
-          _(this.onSessionsFetchError).bind(this)
-        );
-      } else {
-        if (offset === 0) this.sessions = [];
+      if (offset === 0) this.sessions = [];
 
-        sessionsDownloader(
-          "/api/mobile/sessions.json",
-          reqData,
-          this.sessions,
-          params,
-          _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this),
-          _(this.onSessionsFetchError).bind(this)
-        );
-      }
+      sessionsDownloader(
+        "/api/mobile/sessions.json",
+        reqData,
+        this.sessions,
+        params,
+        _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this),
+        _(this.onSessionsFetchError).bind(this)
+      );
     }
   };
   return new MobileSessions();
