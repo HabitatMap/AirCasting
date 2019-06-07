@@ -65,7 +65,7 @@ module.exports = function(api) {
           async: false
         }
       ],
-      "istanbul"
+      !isProductionEnv && "istanbul"
     ].filter(Boolean)
   };
 };
