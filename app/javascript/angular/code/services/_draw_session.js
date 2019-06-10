@@ -42,9 +42,7 @@ export const drawSession = (sensors, map, heat, note, empty) => {
         points.push(measurement);
       });
 
-      (session.notes || []).forEach(function(noteItem, idx) {
-        drawnObjects.noteDrawings.push(note.drawNote(noteItem, idx));
-      });
+      drawnObjects.notes = note.drawNotes(session.notes || []);
       drawnObjects.lines.push(map.drawLine(points));
     },
 
