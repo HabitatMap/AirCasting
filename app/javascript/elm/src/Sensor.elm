@@ -108,8 +108,7 @@ parameters sensors =
     let
         othersParameters =
             sensors
-                |> List.map .parameter
-                |> List.map String.trim
+                |> List.map (String.trim << .parameter)
                 |> Set.fromList
                 |> Set.toList
                 |> List.filter (\sensor -> not (List.member sensor (Dict.keys mainSensors)))
@@ -125,7 +124,7 @@ labelsForParameter sensors sensorId =
             sensors
                 |> List.filter (\sensor -> sensor.parameter == parameterForId sensors sensorId)
                 |> List.map toLabel
-                |> List.sort
+                |> List.sortWith NaturalOrdering.compare
 
         mainLabels_ =
             mainSensors
