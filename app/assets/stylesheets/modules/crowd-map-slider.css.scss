@@ -14,8 +14,8 @@ $thumb-width: 20px;
 $track-height: 2px;
 
 input[type="range"] {
+  @include appearance(none);
   height: $track-height;
-  -webkit-appearance: none;
   margin: 0 5px;
 }
 
@@ -28,12 +28,12 @@ input[type="range"]::-moz-focus-outer {
 }
 
 input[type="range"]::-webkit-slider-thumb {
+  @include appearance(none);
   height: $thumb-height;
   width: $thumb-width;
   border-radius: $thumb-radius;
   background: $blue;
   cursor: pointer;
-  -webkit-appearance: none;
   margin-top: ($track-height / 2) - ($thumb-height / 2);
 }
 

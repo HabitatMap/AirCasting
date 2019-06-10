@@ -32,3 +32,18 @@
   margin: 0 auto;
   padding: 5px 15px;
 }
+
+.close-button {
+  @include appearance(none);
+  font-weight: $font-stack-regular;
+  background: transparent;
+  border: none;
+}
+
+.close-button--session {
+  font-size: 32px;
+  line-height: 0;
+  position: absolute;
+  right: 10px;
+  top: 28px;
+}

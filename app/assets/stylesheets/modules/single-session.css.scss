@@ -5,26 +5,27 @@
 }
 
 .single-session-container {
-  width: 95%;
-  margin: 0 auto $margin-default auto;
-  overflow: hidden;
+  @include align-items(flex-start);
   @include flexbox();
   @include flex-direction(row);
-  @include align-items(flex-start);
   @include justify-content(space-between);
   background-color: white;
-  padding: 16px 16px 0 16px;
   border-radius: $basic-radius;
   box-shadow: $lighter-shadow;
+  margin: 0 auto $margin-default auto;
+  overflow: hidden;
+  padding: 16px 16px 0 16px;
+  position: relative;
+  width: 95%;
 }
 
 .single-session-info {
-  min-width: 215px; // temporary, this will all be flexbox
-  width: 20%;
+  flex: 0 0 228px;
+  padding-right: 16px;
 }
 
 .single-session-graph {
-  width: 80%;
+  flex: 1;
 }
 
 .single-session-name {

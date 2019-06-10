@@ -781,7 +781,7 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon =
             [ class "single-session-graph", id "graph-box" ]
             [ div [ id "graph" ] []
             ]
-        , div [ class "single-session-close" ] [ button [ Events.onClick DeselectSession ] [ text "X" ] ]
+        , button [ class "close-button close-button--session", Events.onClick DeselectSession ] [ text "×" ]
         ]
 
 
