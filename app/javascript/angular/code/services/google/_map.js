@@ -68,7 +68,7 @@ export const map = (
       googleMaps.listenPanOrZoom(this.mapObj, callback);
     },
 
-    goToAddress: function(address, callback2) {
+    goToAddress: function(address) {
       if (!address) return;
 
       const callback = (results, status) => {
@@ -76,7 +76,6 @@ export const map = (
 
         const latLngBounds = results[0].geometry.viewport;
         this._fitBoundsWithoutPanOrZoomCallback(latLngBounds);
-        callback2();
       };
 
       geocoder.get(address, callback);

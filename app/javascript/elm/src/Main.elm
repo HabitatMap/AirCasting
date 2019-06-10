@@ -239,7 +239,7 @@ update msg model =
                 ( sudModel, subCmd ) =
                     deselectSession model
             in
-            ( { sudModel | location = location }, Cmd.batch [ subCmd, Ports.goToLocation location ] )
+            ( { sudModel | location = location }, Cmd.batch [ subCmd, Ports.findLocation location ] )
 
         TagsLabels subMsg ->
             let

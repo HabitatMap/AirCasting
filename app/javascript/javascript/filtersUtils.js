@@ -148,9 +148,9 @@ const updateTooltipContent = (link, tooltip) => {
   });
 };
 
-export const goToLocation = ({ location, params, map, callback }) => {
+export const findLocation = (location, params, map) => {
   params.update({ data: { location: location } });
-  map.goToAddress(location, callback);
+  map.goToAddress(location);
 };
 
 export const clearLocation = (callback, params) => {
