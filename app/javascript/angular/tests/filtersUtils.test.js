@@ -1,26 +1,26 @@
 import test from "blue-tape";
 import sinon from "sinon";
-import { goToLocation, clearLocation } from "../../javascript/filtersUtils";
+import { findLocation, clearLocation } from "../../javascript/filtersUtils";
 
-test("goToLocation asks google maps to pan to the given location", t => {
+test("findLocation asks google maps to pan to the given location", t => {
   const goToAddress = sinon.spy();
   const map = { goToAddress };
   const params = { update: () => {} };
   const location = "krakow";
 
-  goToLocation({ location, params, map });
+  findLocation(location, params, map);
 
   sinon.assert.calledWith(goToAddress, location);
 
   t.end();
 });
 
-test("goToLocation adds the new location to the params", t => {
+test("findLocation adds the new location to the params", t => {
   const update = sinon.spy();
   const map = { goToAddress: () => {} };
   const params = { update };
 
-  goToLocation({ location: "krakow", params, map });
+  findLocation("krakow", params, map);
 
   sinon.assert.calledWith(update, { data: { location: "krakow" } });
 
