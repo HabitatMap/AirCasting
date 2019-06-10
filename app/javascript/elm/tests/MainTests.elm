@@ -120,19 +120,6 @@ locationFilter =
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "location" ]
                     |> Query.has [ Slc.attribute <| value locationValue ]
-        , test "when Enter key is pressed SubmitLocation is triggered" <|
-            \_ ->
-                let
-                    enterKeydownEvent : Encode.Value
-                    enterKeydownEvent =
-                        Encode.object [ ( "keyCode", Encode.int 13 ) ]
-                in
-                defaultModel
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.id "location" ]
-                    |> Event.simulate (Event.custom "keydown" enterKeydownEvent)
-                    |> Event.expect SubmitLocation
         , test "is disabled when showing indoor sessions" <|
             \_ ->
                 { defaultModel | isIndoor = True }
