@@ -754,6 +754,10 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
 
 viewSessionsOrSelectedSession : Model -> Html Msg
 viewSessionsOrSelectedSession model =
+    let
+        sensorUnit =
+            Maybe.withDefault "" <| Sensor.unitForSensorId model.selectedSensorId model.sensors
+    in
     div
         [ attribute "ng-controller"
             (if model.page == Mobile then
@@ -770,10 +774,10 @@ viewSessionsOrSelectedSession model =
                         viewSessions model.fetchableSessionsCount model.sessions model.heatMapThresholds
 
                     Success session ->
-                        viewSelectedSession model.heatMapThresholds (Just session) model.linkIcon
+                        viewSelectedSession model.heatMapThresholds (Just session) model.linkIcon sensorUnit
 
                     Loading ->
-                        viewSelectedSession model.heatMapThresholds Nothing model.linkIcon
+                        viewSelectedSession model.heatMapThresholds Nothing model.linkIcon sensorUnit
 
                     Failure _ ->
                         div [] [ text "error!" ]
@@ -782,8 +786,8 @@ viewSessionsOrSelectedSession model =
         ]
 
 
-viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> Html Msg
-viewSelectedSession heatMapThresholds maybeSession linkIcon =
+viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> String -> Html Msg
+viewSelectedSession heatMapThresholds maybeSession linkIcon sensorUnit =
     div [ class "single-session-container" ]
         [ div [ class "single-session-info" ]
             (case maybeSession of
@@ -791,7 +795,7 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon =
                     [ text "loading" ]
 
                 Just session ->
-                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ]
+                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip sensorUnit ]
             )
         , div
             [ class "single-session-graph", id "graph-box" ]

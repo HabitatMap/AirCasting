@@ -117,8 +117,8 @@ updateRange result measurements =
             result
 
 
-view : SelectedSession -> WebData HeatMapThresholds -> Path -> (String -> msg) -> Html msg
-view session heatMapThresholds linkIcon toMsg =
+view : SelectedSession -> WebData HeatMapThresholds -> Path -> (String -> msg) -> String -> Html msg
+view session heatMapThresholds linkIcon toMsg sensorUnit =
     let
         tooltipId =
             "graph-copy-link-tooltip"
@@ -147,7 +147,7 @@ view session heatMapThresholds linkIcon toMsg =
                         [ div [ class "single-session-avg-color", class <| Data.Session.classByValue (Just average) heatMapThresholds ] []
                         , span [] [ text "avg. " ]
                         , span [ class "single-session-avg" ] [ text <| String.fromInt <| round average ]
-                        , span [] [ text " µg/m³" ]
+                        , span [] [ text <| " " ++ sensorUnit ]
                         ]
                     , div [ class "session-numbers-container" ]
                         [ div [ class "single-min-max-container" ]
