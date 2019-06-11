@@ -625,98 +625,100 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app" ]
-        [ nav [ class "nav" ]
-            [ div [ class "nav-logo" ]
-                [ img [ src model.logoNav, alt "Aircasting Logo" ] [] ]
-            , ul []
-                [ li [ class "" ]
-                    [ a [ href "/" ]
-                        [ text "Home" ]
-                    ]
-                , li [ class "" ]
-                    [ a [ href "/about" ]
-                        [ text "About" ]
-                    ]
-                , li [ class "active" ]
-                    [ a [ href "/map" ]
-                        [ text "Maps" ]
-                    ]
-                , li []
-                    [ a [ href "http://www.takingspace.org/", rel "noreferrer", target "_blank" ]
-                        [ text "Blog" ]
-                    ]
-                , li [ class "" ]
-                    [ a [ href "/donate" ]
-                        [ text "Donate" ]
-                    ]
+        [ viewNav model.logoNav
+        , viewMain model
+        ]
+
+
+viewNav : String -> Html msg
+viewNav logoNav =
+    nav [ class "nav" ]
+        [ div [ class "nav-logo" ]
+            [ img [ src logoNav, alt "Aircasting Logo" ] [] ]
+        , ul []
+            [ li [ class "" ]
+                [ a [ href "/" ]
+                    [ text "Home" ]
+                ]
+            , li [ class "" ]
+                [ a [ href "/about" ]
+                    [ text "About" ]
+                ]
+            , li [ class "active" ]
+                [ a [ href "/map" ]
+                    [ text "Maps" ]
+                ]
+            , li []
+                [ a [ href "http://www.takingspace.org/", rel "noreferrer", target "_blank" ]
+                    [ text "Blog" ]
+                ]
+            , li [ class "" ]
+                [ a [ href "/donate" ]
+                    [ text "Donate" ]
                 ]
             ]
-        , main_
-            []
-            [ div [ class "maps-page-container" ]
-                [ div [ class "filters" ]
-                    [ viewSessionTypeNav model
-                    , viewFilters model
-                    , viewFiltersButtons model.selectedSession model.sessions model.linkIcon
-                    ]
-                , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup
-                , div [ class "maps-content-container" ]
-                    [ Overlay.view model.overlay
-                    , div [ class "map-container" ]
-                        [ case model.selectedSession of
-                            Success _ ->
-                                text ""
+        ]
 
-                            _ ->
-                                viewSearchAsIMove model.wasMapMoved model.isSearchAsIMoveOn model.resetIconWhite
-                        , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
-                            []
-                        , div
-                            [ attribute "ng-controller"
-                                (if model.page == Mobile then
-                                    "MobileSessionsMapCtrl"
 
-                                 else
-                                    "FixedSessionsMapCtrl"
-                                )
-                            ]
-                            [ div [ class "sessions" ]
-                                [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ]
-                                    (viewSessionsOrSelectedSession model.fetchableSessionsCount model.selectedSession model.sessions model.heatMapThresholds model.linkIcon)
-                                ]
-                            ]
+viewMain : Model -> Html Msg
+viewMain model =
+    main_
+        []
+        [ div [ class "maps-page-container" ]
+            [ div [ class "filters" ]
+                [ viewSessionTypeNav model
+                , viewFilters model
+                , viewFiltersButtons model.selectedSession model.sessions model.linkIcon
+                ]
+            , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup
+            , viewMap model
+            ]
+        ]
+
+
+viewMap : Model -> Html Msg
+viewMap model =
+    div [ class "maps-content-container" ]
+        [ Overlay.view model.overlay
+        , div [ class "map-container" ]
+            [ viewSearchAsIMove model
+            , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
+                []
+            , viewSessionsOrSelectedSession model
+            ]
+        , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "") model.resetIcon
+        ]
+
+
+viewSearchAsIMove : Model -> Html Msg
+viewSearchAsIMove model =
+    case model.selectedSession of
+        Success _ ->
+            text ""
+
+        _ ->
+            div [ class "search-control" ]
+                [ if model.wasMapMoved then
+                    button
+                        [ class "button button--primary search-control__button"
+                        , Events.onClick FetchSessions
                         ]
-                    , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "") model.resetIcon
-                    ]
-                ]
-            ]
-        ]
+                        [ text "Redo Search in Map"
+                        , img [ src <| Path.toString model.resetIcon, alt "Reset icon" ] []
+                        ]
 
-
-viewSearchAsIMove : Bool -> Bool -> Path -> Html Msg
-viewSearchAsIMove wasMapMoved isSearchAsIMoveOn resetIcon =
-    div [ class "search-control" ]
-        [ if wasMapMoved then
-            button
-                [ class "button button--primary search-control__button"
-                , Events.onClick FetchSessions
+                  else
+                    div [ class "search-control__switch" ]
+                        [ input
+                            [ id "checkbox-search-as-i-move"
+                            , type_ "checkbox"
+                            , checked model.isSearchAsIMoveOn
+                            , Events.onClick ToggleIsSearchOn
+                            ]
+                            []
+                        , label [ for "checkbox-search-as-i-move" ] [ text "Redo search when map is moved" ]
+                        ]
                 ]
-                [ text "Redo Search in Map"
-                , img [ src <| Path.toString resetIcon, alt "Reset icon" ] []
-                ]
-
-          else
-            div [ class "search-control__switch" ]
-                [ input
-                    [ id "checkbox-search-as-i-move"
-                    , type_ "checkbox"
-                    , checked isSearchAsIMoveOn
-                    , Events.onClick ToggleIsSearchOn
-                    ]
-                    []
-                , label [ for "checkbox-search-as-i-move" ] [ text "Redo search when map is moved" ]
-                ]
-        ]
 
 
 viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Html Msg
@@ -750,20 +752,34 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         ]
 
 
-viewSessionsOrSelectedSession : Int -> WebData SelectedSession -> List Session -> WebData HeatMapThresholds -> Path -> List (Html Msg)
-viewSessionsOrSelectedSession fetchableSessionsCount selectedSession sessions heatMapThresholds linkIcon =
-    case selectedSession of
-        NotAsked ->
-            [ viewSessions fetchableSessionsCount sessions heatMapThresholds ]
+viewSessionsOrSelectedSession : Model -> Html Msg
+viewSessionsOrSelectedSession model =
+    div
+        [ attribute "ng-controller"
+            (if model.page == Mobile then
+                "MobileSessionsMapCtrl"
 
-        Success session ->
-            [ viewSelectedSession heatMapThresholds (Just session) linkIcon ]
+             else
+                "FixedSessionsMapCtrl"
+            )
+        ]
+        [ div [ class "sessions" ]
+            [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ]
+                [ case model.selectedSession of
+                    NotAsked ->
+                        viewSessions model.fetchableSessionsCount model.sessions model.heatMapThresholds
 
-        Loading ->
-            [ viewSelectedSession heatMapThresholds Nothing linkIcon ]
+                    Success session ->
+                        viewSelectedSession model.heatMapThresholds (Just session) model.linkIcon
 
-        Failure _ ->
-            [ div [] [ text "error!" ] ]
+                    Loading ->
+                        viewSelectedSession model.heatMapThresholds Nothing model.linkIcon
+
+                    Failure _ ->
+                        div [] [ text "error!" ]
+                ]
+            ]
+        ]
 
 
 viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> Html Msg
