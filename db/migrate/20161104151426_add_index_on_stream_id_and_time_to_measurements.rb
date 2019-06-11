@@ -1,5 +1,5 @@
 class AddIndexOnStreamIdAndTimeToMeasurements < ActiveRecord::Migration[4.2]
   def change
-    add_index :measurements, [:stream_id, :time]
+    add_index :measurements, %i[stream_id time]
   end
 end

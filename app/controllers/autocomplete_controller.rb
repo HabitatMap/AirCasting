@@ -17,21 +17,25 @@
 # You can contact the authors by email at <info@habitatmap.org>
 
 class AutocompleteController < ApplicationController
-
   def tags
     q = params[:q]
-    render :json => [] unless q.present?
+    render json: [] unless q.present?
 
-    query = Session.where(:contribute => true).tag_counts.where(["tags.name LIKE ?", "#{q}%"]).limit(params[:limit])
-    render :json => query.map(&:name)
-
+    query =
+      Session.where(contribute: true).tag_counts.where(
+        ['tags.name LIKE ?', "#{q}%"]
+      )
+        .limit(params[:limit])
+    render json: query.map(&:name)
   end
 
   def usernames
     q = params[:q]
-    render :json => [] unless q.present?
+    render json: [] unless q.present?
 
-    names = User.select("username").where("username LIKE ?", "#{q}%").order(:username).map(&:username)
-    render :json => names
+    names =
+      User.select('username').where('username LIKE ?', "#{q}%").order(:username)
+        .map(&:username)
+    render json: names
   end
 end

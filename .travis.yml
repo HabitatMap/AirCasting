@@ -33,7 +33,7 @@ before_script:
 - mysql -e 'create database aircasting_test;'
 - RAILS_ENV=test bundle exec rake db:migrate
 script:
-- yarn prettier --check "**/*.{scss,js}"
+- yarn prettier --check "**/*.{scss,js,rb}"
 - yarn test
 - yarn run elm-test app/javascript/elm/tests
 - yarn run elm-format --validate app/javascript/elm/

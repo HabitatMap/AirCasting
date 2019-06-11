@@ -19,14 +19,16 @@
 class AuthFailureApp < ActionController::Base
   def show
     respond_to do |format|
-      format.json { render :nothing => true, :status => :unauthorized }
-      format.html { redirect_to Rails.application.routes.url_helpers.new_user_session_path }
+      format.json { render nothing: true, status: :unauthorized }
+      format.html do
+        redirect_to Rails.application.routes.url_helpers.new_user_session_path
+      end
     end
   end
 
   def sync
     respond_to do |format|
-      format.json { render :nothing => true, :status => :unauthorized }
+      format.json { render nothing: true, status: :unauthorized }
     end
   end
 

@@ -6,10 +6,11 @@ module Api::Links
     include Dry::Types.module
   end
 
-  Schema = Dry::Validation.Schema do
-    required(:url_token).filled(:str?)
-    required(:sensor_name).filled(:str?)
-  end
+  Schema =
+    Dry::Validation.Schema do
+      required(:url_token).filled(:str?)
+      required(:sensor_name).filled(:str?)
+    end
 
   class Struct < Dry::Struct
     transform_keys(&:to_sym)

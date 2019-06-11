@@ -6,51 +6,53 @@ module Api::UserSessions
     include Dry::Types.module
   end
 
-  StreamSchema = Dry::Validation.Schema do
-    required(:deleted).filled(:bool?)
-    required(:average_value).filled(:float?)
-    required(:measurement_type).filled(:str?)
-  end
-
-  Schema = Dry::Validation.Schema do
-    configure do
-      def self.messages
-        super.merge(en: { errors: { valid_streams: 'streams is not valid' } })
-      end
+  StreamSchema =
+    Dry::Validation.Schema do
+      required(:deleted).filled(:bool?)
+      required(:average_value).filled(:float?)
+      required(:measurement_type).filled(:str?)
     end
 
-    required(:data).each do
-      schema do
-        required(:uuid).filled(:str?)
-        required(:deleted).filled(:bool?)
-        required(:tag_list)
-        required(:title)
-        required(:calibration).filled(:int?)
-        required(:contribute).filled(:bool?)
-        required(:drawable).filled(:int?)
-        required(:start_time).filled(:str?)
-        required(:end_time).filled(:str?)
-        required(:is_indoor).filled(:bool?)
-        required(:latitude).filled(:float?)
-        required(:longitude).filled(:float?)
-        required(:type).filled(:str?)
-        required(:notes).each do
-          schema do
-            required(:number).filled(:int?)
-            required(:latitude).filled(:float?)
-            required(:longitude).filled(:float?)
-            required(:date).filled(:str?)
-            required(:text).filled(:str?)
-          end
+  Schema =
+    Dry::Validation.Schema do
+      configure do
+        def self.messages
+          super.merge(en: { errors: { valid_streams: 'streams is not valid' } })
         end
-        validate(valid_streams: :streams) do |stream|
-          stream.all? do |sensor_name, stream_data|
-            StreamSchema.call(stream_data).success?
+      end
+
+      required(:data).each do
+        schema do
+          required(:uuid).filled(:str?)
+          required(:deleted).filled(:bool?)
+          required(:tag_list)
+          required(:title)
+          required(:calibration).filled(:int?)
+          required(:contribute).filled(:bool?)
+          required(:drawable).filled(:int?)
+          required(:start_time).filled(:str?)
+          required(:end_time).filled(:str?)
+          required(:is_indoor).filled(:bool?)
+          required(:latitude).filled(:float?)
+          required(:longitude).filled(:float?)
+          required(:type).filled(:str?)
+          required(:notes).each do
+            schema do
+              required(:number).filled(:int?)
+              required(:latitude).filled(:float?)
+              required(:longitude).filled(:float?)
+              required(:date).filled(:str?)
+              required(:text).filled(:str?)
+            end
+          end
+          validate(valid_streams: :streams) do |stream|
+            stream.all? do |sensor_name, stream_data|
+              StreamSchema.call(stream_data).success?
+            end
           end
         end
       end
     end
-  end
 
   class Struct < Dry::Struct
     attribute :data, Types::Array do

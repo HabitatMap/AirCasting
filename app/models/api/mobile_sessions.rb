@@ -6,21 +6,22 @@ module Api::MobileSessions
     include Dry::Types.module
   end
 
-  Schema = Dry::Validation.Schema do
-    required(:time_from).filled(:time?)
-    required(:time_to).filled(:time?)
-    required(:sensor_name).filled(:str?)
-    required(:measurement_type).filled(:str?)
-    required(:unit_symbol).filled(:str?)
-    required(:tags)
-    required(:usernames)
-    required(:west).filled(:float?)
-    required(:east).filled(:float?)
-    required(:south).filled(:float?)
-    required(:north).filled(:float?)
-    required(:limit).filled(:int?)
-    required(:offset).filled(:int?)
-  end
+  Schema =
+    Dry::Validation.Schema do
+      required(:time_from).filled(:time?)
+      required(:time_to).filled(:time?)
+      required(:sensor_name).filled(:str?)
+      required(:measurement_type).filled(:str?)
+      required(:unit_symbol).filled(:str?)
+      required(:tags)
+      required(:usernames)
+      required(:west).filled(:float?)
+      required(:east).filled(:float?)
+      required(:south).filled(:float?)
+      required(:north).filled(:float?)
+      required(:limit).filled(:int?)
+      required(:offset).filled(:int?)
+    end
 
   class Struct < Dry::Struct
     transform_keys(&:to_sym)

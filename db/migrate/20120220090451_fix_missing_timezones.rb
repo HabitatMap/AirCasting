@@ -4,10 +4,11 @@ class FixMissingTimezones < ActiveRecord::Migration[4.2]
 
   def up
     Session.transaction do
-      Session.all.select {|s| !s.timezone_offset}.each do |session|
+      Session.all.select { |s| !s.timezone_offset }.each do |session|
         unless session.measurements.empty?
           # Guess the timezone from the location.
-          timezone_offset = (session.measurements.first.longitude / 15).to_i * MINUTES_IN_HOUR
+          timezone_offset =
+            (session.measurements.first.longitude / 15).to_i * MINUTES_IN_HOUR
           seconds = timezone_offset * SECONDS_IN_MINUTE
 
           session.measurements.each do |measurement|
@@ -34,6 +35,5 @@ class FixMissingTimezones < ActiveRecord::Migration[4.2]
     end
   end
 
-  def down
-  end
+  def down; end
 end
