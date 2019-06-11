@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190606141905) do
+ActiveRecord::Schema.define(version: 2019_06_11_091153) do
 
-  create_table "deleted_sessions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "deleted_sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "uuid"
@@ -21,19 +21,19 @@ ActiveRecord::Schema.define(version: 20190606141905) do
     t.index ["uuid", "user_id"], name: "index_deleted_sessions_on_uuid_and_user_id"
   end
 
-  create_table "measurements", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.float "value", limit: 24
+  create_table "measurements", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.float "value"
     t.decimal "latitude", precision: 12, scale: 9
     t.decimal "longitude", precision: 12, scale: 9
     t.datetime "time"
     t.integer "timezone_offset"
     t.integer "stream_id"
     t.integer "milliseconds", default: 0
-    t.float "measured_value", limit: 24
+    t.float "measured_value"
     t.index ["stream_id", "time"], name: "index_measurements_on_stream_id_and_time"
   end
 
-  create_table "notes", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "notes", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "date"
@@ -49,7 +49,7 @@ ActiveRecord::Schema.define(version: 20190606141905) do
     t.index ["session_id"], name: "index_notes_on_session_id"
   end
 
-  create_table "regressions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "regressions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "sensor_package_name"
@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(version: 20190606141905) do
     t.integer "user_id"
   end
 
-  create_table "sessions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer "user_id"
@@ -95,19 +95,18 @@ ActiveRecord::Schema.define(version: 20190606141905) do
     t.decimal "latitude", precision: 12, scale: 9
     t.decimal "longitude", precision: 12, scale: 9
     t.datetime "last_measurement_at"
-    t.integer "measurements_received_count", default: 0
     t.index ["contribute"], name: "index_sessions_on_contribute"
     t.index ["end_time"], name: "index_sessions_on_end_time"
-    t.index ["end_time_local"], name: "index_sessions_on_local_end_time"
+    t.index ["end_time_local"], name: "index_sessions_on_end_time_local"
     t.index ["last_measurement_at"], name: "index_sessions_on_last_measurement_at"
     t.index ["start_time"], name: "index_sessions_on_start_time"
-    t.index ["start_time_local"], name: "index_sessions_on_local_start_time"
+    t.index ["start_time_local"], name: "index_sessions_on_start_time_local"
     t.index ["url_token"], name: "index_sessions_on_url_token"
     t.index ["user_id"], name: "index_sessions_on_user_id"
     t.index ["uuid"], name: "index_sessions_on_uuid"
   end
 
-  create_table "streams", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "streams", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "sensor_name"
     t.string "unit_name"
     t.string "measurement_type"
@@ -125,7 +124,7 @@ ActiveRecord::Schema.define(version: 20190606141905) do
     t.decimal "max_latitude", precision: 12, scale: 9
     t.decimal "min_longitude", precision: 12, scale: 9
     t.decimal "max_longitude", precision: 12, scale: 9
-    t.float "average_value", limit: 24
+    t.float "average_value"
     t.decimal "start_longitude", precision: 12, scale: 9
     t.decimal "start_latitude", precision: 12, scale: 9
     t.index ["max_latitude"], name: "index_streams_on_max_latitude"
@@ -137,12 +136,12 @@ ActiveRecord::Schema.define(version: 20190606141905) do
     t.index ["session_id"], name: "index_streams_on_session_id"
   end
 
-  create_table "taggings", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "taggings", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "tag_id"
-    t.integer "taggable_id"
     t.string "taggable_type"
-    t.integer "tagger_id"
+    t.integer "taggable_id"
     t.string "tagger_type"
+    t.integer "tagger_id"
     t.string "context"
     t.datetime "created_at"
     t.index ["context"], name: "index_taggings_on_context"
@@ -156,12 +155,13 @@ ActiveRecord::Schema.define(version: 20190606141905) do
     t.index ["tagger_id"], name: "index_taggings_on_tagger_id"
   end
 
-  create_table "tags", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "tags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", collation: "utf8_bin"
     t.integer "taggings_count", default: 0
+    t.index ["name"], name: "index_tags_on_name"
   end
 
-  create_table "users", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", limit: 128, default: "", null: false
     t.string "reset_password_token"
@@ -178,7 +178,6 @@ ActiveRecord::Schema.define(version: 20190606141905) do
     t.string "username"
     t.boolean "send_emails"
     t.boolean "admin", default: false
-    t.string "gcm_token"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
