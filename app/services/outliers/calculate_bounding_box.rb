@@ -5,15 +5,15 @@ class Outliers::CalculateBoundingBox
   # If detected outliers are more than 5% of the measurements calculate the bounding box including the outliers
   THRESHOLD = 0.05
   NIL_BOUNDING_BOX = {
-    min_latitude: nil,
-    max_latitude: nil,
-    min_longitude: nil,
-    max_longitude: nil
+    min_latitude: nil, max_latitude: nil, min_longitude: nil, max_longitude: nil
   }
 
   def initialize(
     calculate_centroid = Outliers::CalculateCentroid.new,
-    calculate_bounding_boxes = Outliers::CalculateBoundingBoxes.new(MAX_DISTANCE, Outliers::CalculateDistance.new),
+    calculate_bounding_boxes = Outliers::CalculateBoundingBoxes.new(
+      MAX_DISTANCE,
+      Outliers::CalculateDistance.new
+    ),
     select_bounding_box = Outliers::SelectBoundingBox.new(THRESHOLD)
   )
     @calculate_centroid = calculate_centroid

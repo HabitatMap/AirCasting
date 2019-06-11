@@ -51,7 +51,8 @@ module Api
 
     def photo_location(note)
       if note.photo_exists?
-        "http://" + request.host + ":" + request.port.to_s + note.photo.url(:medium)
+        'http://' + request.host + ':' + request.port.to_s +
+          note.photo.url(:medium)
       end
     end
   end

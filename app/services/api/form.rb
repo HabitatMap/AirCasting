@@ -14,7 +14,7 @@ class Api::Form
   end
 
   def to_h
-    raise "#to_h should not be called if form is invalid" if invalid?
+    raise '#to_h should not be called if form is invalid' if invalid?
 
     @struct.new(validated_params.to_h)
   end

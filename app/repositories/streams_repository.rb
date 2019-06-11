@@ -7,8 +7,10 @@ class StreamsRepository
     Stream.find_by_id(id)
   end
 
-  def calc_bounding_box!(stream, calculate_bounding_box = Outliers::CalculateBoundingBox.new)
-    measurements = stream.measurements.select([:latitude, :longitude])
+  def calc_bounding_box!(
+    stream, calculate_bounding_box = Outliers::CalculateBoundingBox.new
+  )
+    measurements = stream.measurements.select(%i[latitude longitude])
     bounding_box = calculate_bounding_box.call(measurements)
     stream.min_latitude = bounding_box.fetch(:min_latitude)
     stream.max_latitude = bounding_box.fetch(:max_latitude)

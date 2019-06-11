@@ -16,30 +16,32 @@
 # role :web, %w{deploy@example.com}
 # role :db,  %w{deploy@example.com}
 
-
 # Extended Server Syntax
 # ======================
 # This can be used to drop a more detailed server definition into the
 # server list. The second argument is a, or duck-types, Hash and is
 # used to set extended properties on the server.
 
-server ENV.fetch("SERVER", 'aircasting.org'), user: 'aircasting', roles: %w{web app}
+server ENV.fetch('SERVER', 'aircasting.org'),
+       user: 'aircasting', roles: %w[web app]
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, '/home/aircasting/application'
-set :rails_env, "production"
+set :rails_env, 'production'
 
-set :branch, ENV.fetch("BRANCH", "master")
+set :branch, ENV.fetch('BRANCH', 'master')
 set :keep_releases, 3
 
 set :rbenv_type, :system
-set :rbenv_ruby, "2.6.3"
+set :rbenv_ruby, '2.6.3'
 #set :default_env, { path: "~/.rbenv/shims:~/.rbenv/bin:$PATH" }
 #set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{fetch(:rbenv_path)}/bin/rbenv exec"
 
-set :default_env, {
-    path: '/usr/local/rbenv/plugins/ruby-build/bin:/usr/local/rbenv/shims:/usr/local/rbenv/bin:$PATH',
-    rbenv_root: '/usr/local/rbenv'
-}
+set :default_env,
+    {
+      path:
+        '/usr/local/rbenv/plugins/ruby-build/bin:/usr/local/rbenv/shims:/usr/local/rbenv/bin:$PATH',
+      rbenv_root: '/usr/local/rbenv'
+    }
 set :rbenv_roles, :all
 set :rbenv_ruby_dir, '/usr/local/rbenv/versions/2.6.3'
 set :rbenv_custom_path, '/usr/local/rbenv'
@@ -47,8 +49,11 @@ set :rbenv_path, '/usr/local/rbenv'
 
 # Ensure this is matches /etc/init.d/sidekiq
 # and config/sidekiq.yml
-set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{fetch(:rbenv_path)}/bin/rbenv exec"
-set :rbenv_map_bins, %w(rake gem bundle ruby rails sidekiq sidekiqctl)
+set :rbenv_prefix,
+    "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{
+      fetch(:rbenv_path)
+    }/bin/rbenv exec"
+set :rbenv_map_bins, %w[rake gem bundle ruby rails sidekiq sidekiqctl]
 #set :sidekiq_pid,     File.join(shared_path, 'pids', 'sidekiq.pid')
 #set :sidekiq_log,     File.join(shared_path, 'log', 'sidekiq.log')
 #set :sidekiq_config,  File.join(shared_path, 'config', 'sidekiq.yml')
@@ -67,13 +72,13 @@ end
 namespace :deploy do
   task :restart_sidekiq do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
-      execute "sudo systemctl restart sidekiq"
+      execute 'sudo systemctl restart sidekiq'
     end
   end
 end
 
-after "deploy:published", "deploy:restart_app_server"
-after "deploy:published", "deploy:restart_sidekiq"
+after 'deploy:published', 'deploy:restart_app_server'
+after 'deploy:published', 'deploy:restart_sidekiq'
 
 # Custom SSH Options
 # ==================

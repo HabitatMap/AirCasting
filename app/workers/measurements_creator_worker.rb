@@ -4,7 +4,11 @@ class MeasurementsCreatorWorker
 
   def perform(stream_id, measurements_attributes)
     stream = streams_repository.find(stream_id)
-    measurements_creator.call(stream: stream, measurements_attributes: measurements_attributes, jid: self.jid)
+    measurements_creator.call(
+      stream: stream,
+      measurements_attributes: measurements_attributes,
+      jid: self.jid
+    )
   end
 
   private

@@ -19,85 +19,109 @@
 class Stream < ApplicationRecord
   belongs_to :session
 
-  has_many :measurements, :dependent => :delete_all
+  has_many :measurements, dependent: :delete_all
 
-  delegate :size, :to => :measurements
+  delegate :size, to: :measurements
 
   validates :sensor_name,
-     :sensor_package_name,
-     :unit_name,
-     :measurement_type,
-     :measurement_short_type,
-     :unit_symbol,
-     :threshold_very_low,
-     :threshold_low,
-     :threshold_medium,
-     :threshold_high,
-     :threshold_very_high, :presence => true
+            :sensor_package_name,
+            :unit_name,
+            :measurement_type,
+            :measurement_short_type,
+            :unit_symbol,
+            :threshold_very_low,
+            :threshold_low,
+            :threshold_medium,
+            :threshold_high,
+            :threshold_very_high,
+            presence: true
 
   attr_accessor :deleted
 
-  scope(:in_rectangle, lambda do |data|
-    latitude_operator = data[:south] < data[:north] ? 'AND' : 'OR'
-    longitude_operator = data[:west] < data[:east] ? 'AND' : 'OR'
+  scope(
+    :in_rectangle,
+    lambda do |data|
+      latitude_operator = data[:south] < data[:north] ? 'AND' : 'OR'
+      longitude_operator = data[:west] < data[:east] ? 'AND' : 'OR'
 
-    where(
-      "(:south >= min_latitude AND :south <= max_latitude) " \
-      "OR " \
-      "(:north >= min_latitude AND :north <= max_latitude) " \
-      "OR " \
-      "(min_latitude >= :south #{latitude_operator} min_latitude <= :north) " \
-      "OR " \
-      "(max_latitude >= :south #{latitude_operator} max_latitude <= :north)",
-      :south => data[:south], :north => data[:north]
-    ).
-    where(
-      "(:west >= min_longitude AND :west <= max_longitude) " \
-      "OR " \
-      "(:east >= min_longitude AND :east <= max_longitude) " \
-      "OR " \
-      "(min_longitude >= :west #{longitude_operator} min_longitude <= :east) " \
-      "OR " \
-      "(max_longitude >= :west #{longitude_operator} max_longitude <= :east)",
-      :west => data[:west], :east => data[:east]
-    )
-  end)
+      where(
+        '(:south >= min_latitude AND :south <= max_latitude) ' \
+          'OR ' \
+          '(:north >= min_latitude AND :north <= max_latitude) ' \
+          'OR ' \
+          "(min_latitude >= :south #{
+            latitude_operator
+          } min_latitude <= :north) " \
+          'OR ' \
+          "(max_latitude >= :south #{
+            latitude_operator
+          } max_latitude <= :north)",
+        south: data[:south], north: data[:north]
+      )
+        .where(
+        '(:west >= min_longitude AND :west <= max_longitude) ' \
+          'OR ' \
+          '(:east >= min_longitude AND :east <= max_longitude) ' \
+          'OR ' \
+          "(min_longitude >= :west #{
+            longitude_operator
+          } min_longitude <= :east) " \
+          'OR ' \
+          "(max_longitude >= :west #{
+            longitude_operator
+          } max_longitude <= :east)",
+        west: data[:west], east: data[:east]
+      )
+    end
+  )
 
-  scope(:with_tags, lambda do |tags|
-    if tags.present?
-      session_ids = Session.tagged_with(tags).where('sessions.id IS NOT NULL').pluck('DISTINCT sessions.id')
-      if session_ids.present?
-        where(session_id: session_ids)
+  scope(
+    :with_tags,
+    lambda do |tags|
+      if tags.present?
+        session_ids =
+          Session.tagged_with(tags).where('sessions.id IS NOT NULL').pluck(
+            'DISTINCT sessions.id'
+          )
+        where(session_id: session_ids) if session_ids.present?
       end
     end
-  end)
+  )
 
-  scope(:with_sensor, lambda do |sensor_name|
-    where(:sensor_name => sensor_name)
-  end)
+  scope(:with_sensor, ->(sensor_name) { where(sensor_name: sensor_name) })
 
-  scope(:with_unit_symbol, lambda do |unit_symbol|
-    where(:unit_symbol => unit_symbol) if unit_symbol.present?
-  end)
+  scope(
+    :with_unit_symbol,
+    ->(unit_symbol) { where(unit_symbol: unit_symbol) if unit_symbol.present? }
+  )
 
-  scope(:with_measurement_type, lambda do |measurement_type|
-    where(:measurement_type => measurement_type)
-  end)
+  scope(
+    :with_measurement_type,
+    ->(measurement_type) { where(measurement_type: measurement_type) }
+  )
 
-  scope(:only_contributed, lambda do
-    joins(:session).where("sessions.contribute = ?", true)
-  end)
+  scope(
+    :only_contributed,
+    -> { joins(:session).where('sessions.contribute = ?', true) }
+  )
 
-  scope(:belong_to_mobile_sessions, lambda do
-    joins(:session).where("sessions.type = ?", "MobileSession")
-  end)
+  scope(
+    :belong_to_mobile_sessions,
+    -> { joins(:session).where('sessions.type = ?', 'MobileSession') }
+  )
 
-  scope(:with_usernames, lambda do |usernames|
-    if usernames.present?
-      user_ids = User.select("users.id").where("users.username IN (?)", usernames).map(&:id)
-      joins(:session).where(:sessions => {:user_id => user_ids})
+  scope(
+    :with_usernames,
+    lambda do |usernames|
+      if usernames.present?
+        user_ids =
+          User.select('users.id').where('users.username IN (?)', usernames).map(
+            &:id
+          )
+        joins(:session).where(sessions: { user_id: user_ids })
+      end
     end
-  end)
+  )
 
   def sensor_id
     "#{measurement_type}-#{sensor_name.downcase} (#{unit_symbol})"
@@ -125,49 +149,74 @@ class Stream < ApplicationRecord
 
   def build_measurements!(data = [], jid = nil)
     time1 = Time.current
-    measurements = data.map do |measurement_data|
-      m = Measurement.new(measurement_data)
-      m.stream = self
-      m
-    end
+    measurements =
+      data.map do |measurement_data|
+        m = Measurement.new(measurement_data)
+        m.stream = self
+        m
+      end
     time2 = Time.current
-    Sidekiq.logger.info "build_measurements: map in #{(time2 - time1).round(3)}" if jid
+    if jid
+      Sidekiq.logger.info "build_measurements: map in #{
+                            (time2 - time1).round(3)
+                          }"
+    end
 
     ActiveRecord::Base.transaction do
       result = Measurement.import measurements
-      raise "Measurement import failed!" unless result.failed_instances.empty?
+      raise 'Measurement import failed!' unless result.failed_instances.empty?
     end
     time3 = Time.current
-    Sidekiq.logger.info "build_measurements: import in #{(time3 - time2).round(3)}" if jid
+    if jid
+      Sidekiq.logger.info "build_measurements: import in #{
+                            (time3 - time2).round(3)
+                          }"
+    end
 
-    Stream.update_counters(self.id, { :measurements_count => measurements.size })
+    Stream.update_counters(self.id, { measurements_count: measurements.size })
     time4 = Time.current
-    Sidekiq.logger.info "build_measurements: update_counters in #{(time4 - time3).round(3)}" if jid
+    if jid
+      Sidekiq.logger.info "build_measurements: update_counters in #{
+                            (time4 - time3).round(3)
+                          }"
+    end
   end
 
   def self.sensors
-    joins(:session).
-      where("sessions.contribute" => true).
-      select(:sensor_name, :measurement_type, "MIN(threshold_very_low) as threshold_very_low", "MIN(threshold_low) as threshold_low", :unit_symbol,
-           "MIN(threshold_medium) as threshold_medium", "MAX(threshold_high) as threshold_high", "MAX(threshold_very_high) as threshold_very_high", "count(*) as session_count").
-      group(:sensor_name, :measurement_type, :unit_symbol).
-      map { |stream| stream.attributes.symbolize_keys }
+    joins(:session).where('sessions.contribute' => true).select(
+      :sensor_name,
+      :measurement_type,
+      'MIN(threshold_very_low) as threshold_very_low',
+      'MIN(threshold_low) as threshold_low',
+      :unit_symbol,
+      'MIN(threshold_medium) as threshold_medium',
+      'MAX(threshold_high) as threshold_high',
+      'MAX(threshold_very_high) as threshold_very_high',
+      'count(*) as session_count'
+    )
+      .group(:sensor_name, :measurement_type, :unit_symbol)
+      .map { |stream| stream.attributes.symbolize_keys }
   end
 
   def self.thresholds(sensor_name, unit_symbol)
-    select("CONCAT_WS('-', threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high) as thresholds, COUNT(*) as thresholds_count").
-    where(:sensor_name => sensor_name, :unit_symbol => unit_symbol).
-    order("thresholds_count DESC").
-    group(:thresholds).first.thresholds.split("-")
+    select(
+      "CONCAT_WS('-', threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high) as thresholds, COUNT(*) as thresholds_count"
+    )
+      .where(sensor_name: sensor_name, unit_symbol: unit_symbol)
+      .order('thresholds_count DESC')
+      .group(:thresholds)
+      .first
+      .thresholds
+      .split('-')
   end
 
-  def as_json(opts=nil)
+  def as_json(opts = nil)
     opts ||= {}
 
     methods = opts[:methods] || []
-    methods += [:size]
+    methods += %i[size]
 
-    super(opts.merge(:methods => methods))
+    super(opts.merge(methods: methods))
   end
 
   def after_measurements_created
@@ -182,9 +231,7 @@ class Stream < ApplicationRecord
   end
 
   def has_bounds?
-    max_latitude.present? &&
-    min_latitude.present? &&
-    max_longitude.present? &&
-    min_longitude.present?
+    max_latitude.present? && min_latitude.present? && max_longitude.present? &&
+      min_longitude.present?
   end
 end

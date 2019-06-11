@@ -7,7 +7,8 @@ class AsyncMeasurementsCreator
   end
 
   def call(stream:, measurements_attributes:)
-    queue = measurements_attributes.size < MEASUREMENTS_THRESHOLD ? :default : :slow
+    queue =
+      measurements_attributes.size < MEASUREMENTS_THRESHOLD ? :default : :slow
     create(stream.id, measurements_attributes, queue)
   end
 
@@ -15,9 +16,10 @@ class AsyncMeasurementsCreator
 
   def create(stream_id, measurements_attributes, queue)
     measurements_attributes.each_slice(SLICE_SIZE) do |attributes|
-      @measurements_creator_worker
-        .set(queue: queue)
-        .perform_async(stream_id, attributes)
+      @measurements_creator_worker.set(queue: queue).perform_async(
+        stream_id,
+        attributes
+      )
     end
   end
 end

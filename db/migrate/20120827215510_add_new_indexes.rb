@@ -1,6 +1,6 @@
 class AddNewIndexes < ActiveRecord::Migration[4.2]
   def up
-    add_index :measurements, [ :longitude, :latitude ]
+    add_index :measurements, %i[longitude latitude]
     add_index :measurements, :stream_id
     add_index :notes, :session_id
     add_index :tags, :name
@@ -8,7 +8,7 @@ class AddNewIndexes < ActiveRecord::Migration[4.2]
   end
 
   def down
-    remove_index :measurements, [ :longitude, :latitude ]
+    remove_index :measurements, %i[longitude latitude]
     remove_index :measurements, :stream_id
     remove_index :notes, :session_id
     remove_index :tags, :name

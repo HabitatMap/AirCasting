@@ -59,7 +59,7 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
-  Paperclip.options[:command_path] = "/user/bin"
+  Paperclip.options[:command_path] = '/user/bin'
 
   config.sass.inline_source_maps = true
   config.sass.line_comments = true

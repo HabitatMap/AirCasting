@@ -17,6 +17,6 @@ class Outliers::CalculateCentroid
   end
 
   def zero
-    "0".to_d
+    '0'.to_d
   end
 end

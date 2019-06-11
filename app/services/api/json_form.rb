@@ -2,7 +2,7 @@ class Api::JsonForm < Api::Form
   include AirCasting::DeepSymbolize
 
   def initialize(json:, schema:, struct:)
-    @json = json || "{}"
+    @json = json || '{}'
     super(schema: schema, struct: struct)
   end
 

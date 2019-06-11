@@ -21,7 +21,7 @@ module Api
     class SessionsController < BaseController
       require 'uri'
 
-      INT_Q_ATTRS = [:time_from, :time_to, :day_from, :day_to, :limit, :offset]
+      INT_Q_ATTRS = %i[time_from time_to day_from day_to limit offset]
 
       # TokenAuthenticatable was removed from Devise in 3.1
       # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
@@ -38,22 +38,23 @@ module Api
         data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
         sessions = FixedSession.filtered_streaming_json(data)
 
-        respond_with sessions: sessions,
-                     fetchableSessionsCount: sessions.count
+        respond_with sessions: sessions, fetchableSessionsCount: sessions.count
       end
 
       def show
         session = FixedSession.find(params[:id])
 
-        respond_with session, sensor_id: params[:sensor_id], methods: [:notes]
+        respond_with session, sensor_id: params[:sensor_id], methods: %i[notes]
       end
 
       def sync_measurements
         session = FixedSession.find_by_uuid(params[:uuid]) or raise NotFound
-        last_measurement_sync = URI.decode(params[:last_measurement_sync]).to_datetime
+        last_measurement_sync =
+          URI.decode(params[:last_measurement_sync]).to_datetime
         stream_measurements = true
 
-        response = session.as_synchronizable(stream_measurements, last_measurement_sync)
+        response =
+          session.as_synchronizable(stream_measurements, last_measurement_sync)
 
         respond_with response
       end
@@ -92,12 +93,10 @@ module Api
       def session_json(session)
         {
           location: short_session_url(session, host: A9n.host_),
-          notes: session.notes.map do |note|
-            {
-              number: note.number,
-              photo_location: photo_location(note)
-            }
-          end
+          notes:
+            session.notes.map do |note|
+              { number: note.number, photo_location: photo_location(note) }
+            end
         }
       end
     end

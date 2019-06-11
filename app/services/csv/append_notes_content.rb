@@ -9,28 +9,34 @@ class Csv::AppendNotesContent
   end
 
   private
+
   attr_reader :host
 
   def append_headings(csv)
-    csv << %w(Note Time Latitude Longitude Photo_Url)
+    csv << %w[Note Time Latitude Longitude Photo_Url]
   end
 
   def append_notes(csv, notes)
-    notes.each do |note|
-      append_note(csv, note)
-    end
+    notes.each { |note| append_note(csv, note) }
   end
 
   def append_note(csv, note)
-    csv << [note.text, format_time(note.date), note.latitude, note.longitude, format_url(note)]
+    csv <<
+      [
+        note.text,
+        format_time(note.date),
+        note.latitude,
+        note.longitude,
+        format_url(note)
+      ]
   end
 
   def format_time(date)
-    date.strftime("%FT%T")
+    date.strftime('%FT%T')
   end
 
   def format_url(note)
-    return "No photo was attached" unless note.photo_file_name
+    return 'No photo was attached' unless note.photo_file_name
 
     host + note.photo.url
   end

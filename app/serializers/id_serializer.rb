@@ -6,8 +6,6 @@ class IdSerializer
   end
 
   def as_json(*args)
-    {
-      id: record.id
-    }
+    { id: record.id }
   end
 end

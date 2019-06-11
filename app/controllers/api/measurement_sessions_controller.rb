@@ -20,8 +20,8 @@ module Api
   class MeasurementSessionsController < BaseController
     # TokenAuthenticatable was removed from Devise in 3.1
     # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
-    before_action :authenticate_user_from_token!, :only => :create
-    before_action :authenticate_user!, :only => :create
+    before_action :authenticate_user_from_token!, only: :create
+    before_action :authenticate_user!, only: :create
 
     respond_to :json
 
@@ -40,7 +40,7 @@ module Api
       session = SessionBuilder.new(data, photos, current_user).build!
 
       if session
-        render :json => session_json(session), :status => :ok
+        render json: session_json(session), status: :ok
       else
         head :bad_request
       end
@@ -53,7 +53,10 @@ module Api
         zip_path = service.call(params[:session_ids])
         zip_file = File.read(zip_path)
         zip_filename = File.basename(zip_path)
-        send_data zip_file, type: Mime::ZIP, filename: zip_filename,  disposition: "attachment"
+        send_data zip_file,
+                  type: Mime::ZIP,
+                  filename: zip_filename,
+                  disposition: 'attachment'
       ensure
         service.clean
       end
@@ -73,13 +76,11 @@ module Api
 
     def session_json(session)
       {
-        :location => short_session_url(session, :host => A9n.host_),
-        :notes => session.notes.map do |note|
-          {
-            :number => note.number,
-            :photo_location => photo_location(note)
-          }
-        end
+        location: short_session_url(session, host: A9n.host_),
+        notes:
+          session.notes.map do |note|
+            { number: note.number, photo_location: photo_location(note) }
+          end
       }
     end
   end

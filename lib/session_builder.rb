@@ -8,15 +8,14 @@ class SessionBuilder
   end
 
   def build!
-    Session.transaction do
-      session = build_session!
-    end
+    Session.transaction { session = build_session! }
   end
 
   def build_session!
     data = @session_data.clone
 
-    data[:notes_attributes] = SessionBuilder.prepare_notes(data.delete(:notes), @photos)
+    data[:notes_attributes] =
+      SessionBuilder.prepare_notes(data.delete(:notes), @photos)
     data[:tag_list] = SessionBuilder.normalize_tags(data[:tag_list])
     data[:user] = @user
     stream_data = data.delete(:streams)
@@ -24,7 +23,7 @@ class SessionBuilder
     data = build_local_start_and_end_time(data)
 
     begin
-      allowed = Session.attribute_names + ["notes_attributes", "tag_list", "user"]
+      allowed = Session.attribute_names + %w[notes_attributes tag_list user]
       filtered = data.select { |k, _| allowed.include?(k.to_s) }
       session = Session.create!(filtered)
     rescue ActiveRecord::RecordInvalid => invalid
@@ -35,7 +34,7 @@ class SessionBuilder
     end
 
     stream_data.values.each do |a_stream|
-      a_stream.merge!(:session => session)
+      a_stream.merge!(session: session)
       Stream.build!(a_stream)
     end
 
@@ -49,9 +48,7 @@ class SessionBuilder
   end
 
   def self.prepare_notes(note_data, photos)
-    note_data.zip(photos).map do |datum, photo|
-      datum.merge(:photo => photo)
-    end
+    note_data.zip(photos).map { |datum, photo| datum.merge(photo: photo) }
   end
 
   def self.normalize_tags(tags)

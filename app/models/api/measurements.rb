@@ -6,11 +6,12 @@ module Api::Measurements
     include Dry::Types.module
   end
 
-  Schema = Dry::Validation.Schema do
-    required(:stream_id).filled(:str?)
-    optional(:start_time).filled(:str?)
-    optional(:end_time).filled(:str?)
-  end
+  Schema =
+    Dry::Validation.Schema do
+      required(:stream_id).filled(:str?)
+      optional(:start_time).filled(:str?)
+      optional(:end_time).filled(:str?)
+    end
 
   class Struct < Dry::Struct
     transform_keys(&:to_sym)

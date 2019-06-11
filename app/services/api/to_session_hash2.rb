@@ -6,11 +6,15 @@ class Api::ToSessionHash2
   def call
     return Failure.new(form.errors) if form.invalid?
 
-    session = MobileSession.includes({ streams: :measurements }, :notes, :user).find(id)
+    session =
+      MobileSession.includes({ streams: :measurements }, :notes, :user).find(id)
     stream = session.streams.where(sensor_name: sensor_name).first!
     average = stream.measurements.average(:value)
     user = session.user
-    measurements = stream.measurements.map { |m| m.as_json(only: [:time, :value, :latitude, :longitude]) }
+    measurements =
+      stream.measurements.map do |m|
+        m.as_json(only: %i[time value latitude longitude])
+      end
     notes = session.notes.map(&:as_json)
 
     Success.new(
@@ -71,7 +75,7 @@ class Api::ToSessionHash2
   attr_reader :form
 
   def format_time(time)
-    time.strftime("%FT%T.000Z")
+    time.strftime('%FT%T.000Z')
   end
 
   def id
