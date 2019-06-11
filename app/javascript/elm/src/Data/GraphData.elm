@@ -20,5 +20,5 @@ type alias GraphData =
         { start : Int
         , end : Int
         }
-    , streamId : Int
+    , streamIds : List Int
     }

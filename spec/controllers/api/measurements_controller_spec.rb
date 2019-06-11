@@ -19,7 +19,7 @@ describe Api::MeasurementsController do
           time: time
         )
 
-        get :index, params: { stream_id: stream.id }
+        get :index, params: { stream_ids: "#{stream.id}" }
 
         expected = [
           {
@@ -69,7 +69,7 @@ describe Api::MeasurementsController do
 
         get :index,
             params: {
-              stream_id: stream.id,
+              stream_ids: "#{stream.id}",
               start_time: (time - 1).to_datetime.strftime('%Q').to_i,
               end_time: (time + 1).to_datetime.strftime('%Q').to_i
             }

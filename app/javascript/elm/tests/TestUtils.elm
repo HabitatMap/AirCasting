@@ -77,7 +77,7 @@ defaultSelectedSession =
     , startTime = Time.millisToPosix 0
     , endTime = Time.millisToPosix 0
     , id = 123
-    , streamId = 123
+    , streamIds = [ 123 ]
     , selectedMeasurements = []
     }
 

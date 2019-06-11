@@ -19,7 +19,7 @@ class Api::ToSessionHash
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
       id: session.id,
-      streamId: session.streams.first.id
+      streamIds: session.streams.map(&:id)
     )
   end
 

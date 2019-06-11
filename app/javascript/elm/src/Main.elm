@@ -591,7 +591,7 @@ toGraphParams thresholds selectedSession sensors selectedSensorId =
     { sensor = { parameter = parameter, unit = unit }
     , heat = { threshold1 = threshold1, threshold5 = threshold5, levels = levels }
     , times = SelectedSession.times selectedSession
-    , streamId = SelectedSession.toStreamId selectedSession
+    , streamIds = SelectedSession.toStreamIds selectedSession
     }
 
 
