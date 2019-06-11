@@ -3,7 +3,12 @@ module Api
     respond_to :json
 
     def show
-      form = Api::ParamsForm.new(params: params.to_unsafe_hash, schema: Api::Session::Schema, struct: Api::Session::Struct)
+      form =
+        Api::ParamsForm.new(
+          params: params.to_unsafe_hash,
+          schema: Api::Session::Schema,
+          struct: Api::Session::Struct
+        )
       result = Api::ToSessionHash.new(model: FixedSession).call(form: form)
 
       if result.success?
@@ -14,7 +19,12 @@ module Api
     end
 
     def show2
-      form = Api::ParamsForm.new(params: params.to_unsafe_hash, schema: Api::Session::Schema, struct: Api::Session::Struct)
+      form =
+        Api::ParamsForm.new(
+          params: params.to_unsafe_hash,
+          schema: Api::Session::Schema,
+          struct: Api::Session::Struct
+        )
       result = Api::ToFixedSessionHash.new(form: form).call
 
       if result.success?
@@ -23,6 +33,5 @@ module Api
         render json: result.errors, status: :bad_request
       end
     end
-
   end
 end

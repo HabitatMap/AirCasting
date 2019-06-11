@@ -9,9 +9,13 @@ class MeasurementsCreator
 
   def call(stream, measurements_attributes)
     if measurements_attributes.one?
-      @sync_measurements_creator.call(stream: stream, measurements_attributes: measurements_attributes)
+      @sync_measurements_creator.call(
+        stream: stream, measurements_attributes: measurements_attributes
+      )
     else
-      @async_measurements_creator.call(stream: stream, measurements_attributes: measurements_attributes)
+      @async_measurements_creator.call(
+        stream: stream, measurements_attributes: measurements_attributes
+      )
     end
   end
 end

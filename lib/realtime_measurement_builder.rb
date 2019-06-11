@@ -15,11 +15,12 @@ class RealtimeMeasurementBuilder
     return false unless session
 
     stream_data.values.each do |a_stream|
-      a_stream.merge!(:session_id => session.id)
+      a_stream.merge!(session_id: session.id)
       stream = Stream.build_or_update!(a_stream)
     end
   end
 
   private
+
   attr_reader :session_uuid, :stream_data, :user
 end

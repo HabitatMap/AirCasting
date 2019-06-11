@@ -6,7 +6,7 @@ class Api::ToUserSessionsHash
   def call(user)
     return Failure.new(form.errors) if form.invalid?
 
-    Success.new(user.sync(form.to_h.data.map { |datum| datum.to_h }))
+    Success.new(user.sync(form.to_h.data.map(&:to_h)))
   end
 
   private

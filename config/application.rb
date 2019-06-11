@@ -36,15 +36,18 @@ module AirCasting
     # config.i18n.default_locale = :de
 
     # App host
-    config.action_mailer.default_url_options = { :host => A9n.host_ }
-    config.action_controller.default_url_options = { :host => A9n.host_ }
+    config.action_mailer.default_url_options = { host: A9n.host_ }
+    config.action_controller.default_url_options = { host: A9n.host_ }
 
     # Wrap fields with errors with spans
-    config.action_view.field_error_proc = Proc.new { |html_tag, instance| %(<span class="fieldWithErrors">#{html_tag}</span>).html_safe }
+    config.action_view.field_error_proc =
+      Proc.new do |html_tag, instance|
+        "<span class=\"fieldWithErrors\">#{html_tag}</span>".html_safe
+      end
 
     config.active_record.include_root_in_json = false
 
-    config.log_tags = [:uuid]
+    config.log_tags = %i[uuid]
   end
 end
 

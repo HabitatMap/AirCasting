@@ -6,10 +6,11 @@ class Api::ToSessionHash
   def call(form:)
     return Failure.new(form.errors) if form.invalid?
 
-    session = @model
-      .includes(:streams)
-      .where(id: form.to_h[:id], streams: { sensor_name: form.to_h[:sensor_name]})
-      .first!
+    session =
+      @model.includes(:streams).where(
+        id: form.to_h[:id], streams: { sensor_name: form.to_h[:sensor_name] }
+      )
+        .first!
 
     Success.new(
       title: session.title,
@@ -25,6 +26,6 @@ class Api::ToSessionHash
   private
 
   def format_time(time)
-    time.to_datetime.strftime("%Q").to_i
+    time.to_datetime.strftime('%Q').to_i
   end
 end

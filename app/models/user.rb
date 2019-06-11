@@ -1,14 +1,18 @@
 class User < ApplicationRecord
   # Include default devise modules. Others available are:
   #   :encryptable, :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :database_authenticatable, :registerable, :recoverable, :rememberable,
-         :trackable, :validatable
+  devise :database_authenticatable,
+         :registerable,
+         :recoverable,
+         :rememberable,
+         :trackable,
+         :validatable
 
-  has_many :sessions, :inverse_of => :user
-  has_many :mobile_sessions, :inverse_of => :user
-  has_many :fixed_sessions, :inverse_of => :user
-  has_many :streams, :through => :sessions
-  has_many :measurements, :through => :streams
+  has_many :sessions, inverse_of: :user
+  has_many :mobile_sessions, inverse_of: :user
+  has_many :fixed_sessions, inverse_of: :user
+  has_many :streams, through: :sessions
+  has_many :measurements, through: :streams
   has_many :regressions
 
   # Virtual attribute for devise
@@ -17,8 +21,8 @@ class User < ApplicationRecord
   before_create :ensure_authentication_token
   before_save :chomp_username_attribute!
 
-  validates :username, :presence => true
-  validates_uniqueness_of :username, :case_sensitive => false
+  validates :username, presence: true
+  validates_uniqueness_of :username, case_sensitive: false
   validates_uniqueness_of :email, case_sensitive: false
 
   # TokenAuthenticatable was removed from Devise in 3.1
@@ -30,7 +34,7 @@ class User < ApplicationRecord
   end
 
   def as_json(*args)
-    super(:only => [:id, :email, :username, :authentication_token])
+    super(only: %i[id email username authentication_token])
   end
 
   # Inspired by Devise wiki
@@ -41,10 +45,14 @@ class User < ApplicationRecord
     # login if coming from mobile || email if coming from web
     login = conditions.delete(:login) || conditions.fetch(:email)
 
-    where([
-      "authentication_token = :token OR " + "lower(username) = :value OR " + "lower(email) = :value",
-      { :value => login.downcase, :token => login }
-    ]).first
+    where(
+      [
+        'authentication_token = :token OR ' + 'lower(username) = :value OR ' +
+          'lower(email) = :value',
+        { value: login.downcase, token: login }
+      ]
+    )
+      .first
   end
 
   # Inspired by Devise wiki
@@ -60,15 +68,19 @@ class User < ApplicationRecord
 
     data.each do |session_data|
       uuid = session_data[:uuid]
-      already_deleted_session = DeletedSession.where(:uuid => uuid, :user_id => self.id).first
+      already_deleted_session =
+        DeletedSession.where(uuid: uuid, user_id: self.id).first
+
       if already_deleted_session
         deleted << already_deleted_session[:uuid]
       else
         session = sessions.find_by_uuid(uuid)
+
         if session
           if session_data[:deleted]
             session.destroy
-            already_deleted_session = DeletedSession.where(:uuid => uuid, :user_id => self.id).first
+            already_deleted_session =
+              DeletedSession.where(uuid: uuid, user_id: self.id).first
             deleted << already_deleted_session[:uuid]
           else
             session.sync(session_data)
@@ -81,14 +93,14 @@ class User < ApplicationRecord
       end
     end
 
-
     uuids = data.map { |x| x[:uuid] }
-    download = sessions
-      .where.not(uuid: uuids)
-      .select { |session| (session.streams.count != 0) && (session.streams.all? { |stream| stream.measurements.count != 0 }) }
-      .map(&:id)
+    download =
+      sessions.where.not(uuid: uuids).select do |session|
+        (session.streams.count != 0) &&
+          (session.streams.all? { |stream| stream.measurements.count != 0 })
+      end.map(&:id)
 
-    { :upload => upload, :download => download, :deleted => deleted }
+    { upload: upload, download: download, deleted: deleted }
   end
 
   def admin?
@@ -96,6 +108,7 @@ class User < ApplicationRecord
   end
 
   private
+
   def chomp_username_attribute!
     self.username.chomp!
   end

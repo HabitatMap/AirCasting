@@ -15,11 +15,7 @@ class RegressionCalculator
   private
 
   def measurement_value(measurement)
-    if measurement.measured_value
-      measurement.measured_value
-    else
-      measurement.value
-    end
+    measurement.measured_value ? measurement.measured_value : measurement.value
   end
 
   def align_timestamps(target, ref)

@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Api::V2::Data::SessionsController do
-  describe "GET last" do
+  describe 'GET last' do
     it 'returns id' do
       FactoryBot.create(:mobile_session)
 

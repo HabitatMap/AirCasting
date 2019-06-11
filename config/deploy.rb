@@ -2,10 +2,10 @@
 lock '3.11.0'
 
 set :application, 'aircasting'
-set :repo_url, "git@github.com:HabitatMap/AirCasting.git"
+set :repo_url, 'git@github.com:HabitatMap/AirCasting.git'
 
 set :deploy_via, :remote_cache
-set :ssh_options, { :forward_agent => true }
+set :ssh_options, { forward_agent: true }
 
 # Default branch is :master
 # ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }.call
@@ -24,8 +24,22 @@ set :scm, :git
 
 # Default value for :linked_files is []
 # set :linked_files, fetch(:linked_files, []).push('config/database.yml')
-set :linked_dirs,  fetch(:linked_dirs, []).push('public/assets', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system')
-set :linked_files, fetch(:linked_files, []).push('config/database.yml', 'config/secrets.yml', 'newrelic.yml', 'config/configuration.yml')
+set :linked_dirs,
+    fetch(:linked_dirs, []).push(
+      'public/assets',
+      'log',
+      'tmp/pids',
+      'tmp/cache',
+      'tmp/sockets',
+      'public/system'
+    )
+set :linked_files,
+    fetch(:linked_files, []).push(
+      'config/database.yml',
+      'config/secrets.yml',
+      'newrelic.yml',
+      'config/configuration.yml'
+    )
 
 # Default value for linked_dirs is []
 # set :linked_dirs, fetch(:linked_dirs, []).push('bin', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system')
@@ -55,7 +69,7 @@ def processes_pids
   sidekiq_roles = Array(fetch(:sidekiq_role))
   sidekiq_roles.each do |role|
     next unless host.roles.include?(role)
-    processes = fetch(:"#{ role }_processes") || fetch(:sidekiq_processes)
+    processes = fetch(:"#{role}_processes") || fetch(:sidekiq_processes)
     processes.times do |idx|
       post_fix = idx > 0 ? "-#{idx}" : ''
       pids.push fetch(:sidekiq_pid).gsub(/\.pid$/, "#{post_fix}.pid")

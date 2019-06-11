@@ -55,7 +55,7 @@ class Api::ToFixedSessionHash
           threshold_very_high: stream.threshold_very_high,
           threshold_very_low: stream.threshold_very_low,
           unit_name: stream.unit_name,
-          unit_symbol: stream.unit_symbol,
+          unit_symbol: stream.unit_symbol
         }
       }
     )
@@ -67,12 +67,15 @@ class Api::ToFixedSessionHash
 
   def last_hour_average(stream)
     last_measurement_time = stream.measurements.last.time
-    measurements = stream.measurements.where(time: last_measurement_time - 1.hour..last_measurement_time)
+    measurements =
+      stream.measurements.where(
+        time: last_measurement_time - 1.hour..last_measurement_time
+      )
     measurements.average(:value)
   end
 
   def format_time(time)
-    time.strftime("%FT%T.000Z")
+    time.strftime('%FT%T.000Z')
   end
 
   def id

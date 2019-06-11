@@ -18,19 +18,19 @@
 
 require 'rails_helper'
 
-shared_examples_for "session creation" do
-  let(:session) { double("session", :notes => [note]) }
-  let(:note) { FactoryBot.create(:note, :photo => photo, :number => 10) }
-  let(:photo) { File.new(Rails.root + "spec" + "fixtures" + "test.jpg") }
-  let(:photos) { "some_files" }
+shared_examples_for 'session creation' do
+  let(:session) { double('session', notes: [note]) }
+  let(:note) { FactoryBot.create(:note, photo: photo, number: 10) }
+  let(:photo) { File.new(Rails.root + 'spec' + 'fixtures' + 'test.jpg') }
+  let(:photos) { 'some_files' }
 
-  context "when session creation fails" do
+  context 'when session creation fails' do
     let(:create_result) { nil }
 
     it { is_expected.to respond_with(:bad_request) }
   end
 
-  context "when session creation succeeds" do
+  context 'when session creation succeeds' do
     let(:create_result) { session }
 
     it { is_expected.to respond_with(:ok) }
@@ -40,8 +40,11 @@ shared_examples_for "session creation" do
     end
 
     it 'returns JSON with locations of note photos' do
-      expect(json_response["notes"].first).to eq(
-        { "photo_location" => "http://test.host:80" + note.photo.url(:medium), "number" => note.number }
+      expect(json_response['notes'].first).to eq(
+        {
+          'photo_location' => 'http://test.host:80' + note.photo.url(:medium),
+          'number' => note.number
+        }
       )
     end
   end
@@ -54,31 +57,41 @@ describe Api::MeasurementSessionsController do
 
   describe "POST 'create'" do
     let(:builder) { double }
-    let(:data) { {type: "MobileSession"} }
+    let(:data) { { type: 'MobileSession' } }
 
     before do
-      expect(ActiveSupport::JSON).to receive(:decode).with("session").and_return(data)
-      expect(SessionBuilder).to receive(:new).with(data, "some_files", user).and_return(builder)
+      expect(ActiveSupport::JSON).to receive(:decode).with('session')
+        .and_return(data)
+      expect(SessionBuilder).to receive(:new).with(data, 'some_files', user)
+        .and_return(builder)
       expect(builder).to receive(:build!).and_return(create_result)
     end
 
-    context "when the session is sent without compression" do
+    context 'when the session is sent without compression' do
       before do
-        post :create, format: :json, params: { session: "session", compression: false, photos: photos }
+        post :create,
+             format: :json,
+             params: { session: 'session', compression: false, photos: photos }
       end
 
-      it_should_behave_like "session creation"
+      it_should_behave_like 'session creation'
     end
 
-    context "when the session is sent compressed" do
+    context 'when the session is sent compressed' do
       before do
-        expect(Base64).to receive(:decode64).with("zipped_and_encoded").and_return("zipped")
-        expect(AirCasting::GZip).to receive("inflate").with("zipped").and_return("session")
+        expect(Base64).to receive(:decode64).with('zipped_and_encoded')
+          .and_return('zipped')
+        expect(AirCasting::GZip).to receive('inflate').with('zipped')
+          .and_return('session')
 
-        post :create, format: :json, params: { session: "zipped_and_encoded", compression: true, photos: photos }
+        post :create,
+             format: :json,
+             params: {
+               session: 'zipped_and_encoded', compression: true, photos: photos
+             }
       end
 
-      it_should_behave_like "session creation"
+      it_should_behave_like 'session creation'
     end
   end
 end

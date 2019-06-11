@@ -7,7 +7,12 @@ class Api::UserSessionsController < Api::BaseController
   respond_to :json
 
   def sync
-    form = Api::JsonForm.new(json: "{ \"data\": #{params.to_unsafe_hash[:data]} }", schema: Api::UserSessions::Schema, struct: Api::UserSessions::Struct)
+    form =
+      Api::JsonForm.new(
+        json: "{ \"data\": #{params.to_unsafe_hash[:data]} }",
+        schema: Api::UserSessions::Schema,
+        struct: Api::UserSessions::Struct
+      )
     result = Api::ToUserSessionsHash.new(form: form).call(current_user)
 
     if result.success?
@@ -18,14 +23,21 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def show
-    session = (current_user.sessions.find_by_id(params[:id]) or current_user.sessions.find_by_uuid(params[:uuid])) or raise NotFound
+    session =
+      (
+        current_user.sessions.find_by_id(params[:id]) or
+          current_user.sessions.find_by_uuid(params[:uuid])
+      ) or
+      raise NotFound
 
-    stream_measurements = params[:stream_measurements] == "true"
+    stream_measurements = params[:stream_measurements] == 'true'
 
-    response = session.as_synchronizable(stream_measurements).
-      merge("location" => short_session_url(session, :host => A9n.host_)).
-      merge("tag_list" => session.tag_list.join(" ")).
-      merge("notes" => prepare_notes(session.notes))
+    response =
+      session.as_synchronizable(stream_measurements).merge(
+        'location' => short_session_url(session, host: A9n.host_)
+      )
+        .merge('tag_list' => session.tag_list.join(' '))
+        .merge('notes' => prepare_notes(session.notes))
 
     respond_with Oj.dump(response, mode: :compat, use_as_json: true)
   end
@@ -36,9 +48,9 @@ class Api::UserSessionsController < Api::BaseController
     a_session = current_user.sessions.find_by_uuid(data[:uuid])
     if a_session
       a_session.destroy
-      render :json => {:success => true}
+      render json: { success: true }
     else
-      render :json => {:success => false, :no_such_session => true }
+      render json: { success: false, no_such_session: true }
     end
   end
 
@@ -46,18 +58,20 @@ class Api::UserSessionsController < Api::BaseController
     session_data = decode_and_deep_symbolize(params)
 
     a_session = current_user.mobile_sessions.find_by_uuid(session_data[:uuid])
+
     if a_session
       (session_data[:streams] || []).each do |key, stream_data|
         if stream_data[:deleted]
           a_session.streams.where(
-              :sensor_package_name => stream_data[:sensor_package_name],
-              :sensor_name => stream_data[:sensor_name]
-          ).each(&:destroy)
+            sensor_package_name: stream_data[:sensor_package_name],
+            sensor_name: stream_data[:sensor_name]
+          )
+            .each(&:destroy)
         end
       end
-      render :json => {:success => true}
+      render json: { success: true }
     else
-      render :json => {:success => false, :no_such_session => true }
+      render json: { success: false, no_such_session: true }
     end
   end
 
@@ -77,7 +91,7 @@ class Api::UserSessionsController < Api::BaseController
 
   def prepare_notes(notes)
     notes.map do |note|
-      note.as_json.merge(:photo_location => photo_location(note))
+      note.as_json.merge(photo_location: photo_location(note))
     end
   end
 end

@@ -1,12 +1,15 @@
-require "zip"
+require 'zip'
 
 class Csv::ExportSessionsToCsv
-  def initialize(create_csv_files = Csv::CreateFiles.new, create_zip_file = Csv::CreateZipFile.new)
+  def initialize(
+    create_csv_files = Csv::CreateFiles.new,
+    create_zip_file = Csv::CreateZipFile.new
+  )
     @create_csv_files = create_csv_files
     @create_zip_file = create_zip_file
-    @files_to_zip = [Tempfile.new(".keep")] # the zip file needs to contain at least one file, otherwise it cannot be opened
+    @files_to_zip = [Tempfile.new('.keep')] # the zip file needs to contain at least one file, otherwise it cannot be opened
     filename = "sessions_#{Time.current.to_formatted_s(:number)}"
-    @zip_file = Tempfile.new([ filename, ".zip" ])
+    @zip_file = Tempfile.new([filename, '.zip'])
   end
 
   def call(session_ids)

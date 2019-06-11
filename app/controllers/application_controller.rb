@@ -29,13 +29,11 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   [
-    [NotFound, "404 Not Found", :not_found],
-    [NotAcceptable, "406 Not Acceptable", :not_acceptable]
+    [NotFound, '404 Not Found', :not_found],
+    [NotAcceptable, '406 Not Acceptable', :not_acceptable]
   ].each do |clazz, text, status|
     rescue_from clazz do |exception|
-      respond_to do |format|
-        format.any { render plain: text, status: status }
-      end
+      respond_to { |format| format.any { render plain: text, status: status } }
     end
   end
 
@@ -47,7 +45,15 @@ class ApplicationController < ActionController::Base
   protected
 
   def configure_permitted_parameters
-    attrs = [:login, :authentication_token, :email, :password, :password_confirmation, :remember_me, :username]
+    attrs = %i[
+      login
+      authentication_token
+      email
+      password
+      password_confirmation
+      remember_me
+      username
+    ]
     devise_parameter_sanitizer.permit(:sign_in, keys: attrs)
     devise_parameter_sanitizer.permit(:sign_up, keys: attrs)
     devise_parameter_sanitizer.permit(:account_update, keys: attrs)

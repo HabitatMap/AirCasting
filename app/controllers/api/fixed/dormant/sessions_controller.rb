@@ -5,11 +5,17 @@ module Api
         respond_to :json
 
         def index
-          q = ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
-          q[:time_from] = Time.strptime(q[:time_from].to_s, "%s")
-          q[:time_to] = Time.strptime(q[:time_to].to_s, "%s")
+          q =
+            ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
+          q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')
+          q[:time_to] = Time.strptime(q[:time_to].to_s, '%s')
 
-          form = Api::ParamsForm.new(params: q, schema: Api::DormantSessions::Schema, struct: Api::DormantSessions::Struct)
+          form =
+            Api::ParamsForm.new(
+              params: q,
+              schema: Api::DormantSessions::Schema,
+              struct: Api::DormantSessions::Struct
+            )
 
           result = Api::ToDormantSessionsArray.new(form: form).call
 
