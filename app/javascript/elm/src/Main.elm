@@ -1062,6 +1062,7 @@ viewLocationFilter location isIndoor tooltipIcon =
             , type_ "text"
             , name "location"
             , disabled isIndoor
+            , attribute "autocomplete" "off"
             , Events.onInput UpdateLocationInput
             , onEnter SubmitLocation
             ]
