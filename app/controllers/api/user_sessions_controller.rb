@@ -23,9 +23,9 @@ class Api::UserSessionsController < Api::BaseController
     stream_measurements = params[:stream_measurements] == "true"
 
     response = session.as_synchronizable(stream_measurements).
-      merge(:location => short_session_url(session, :host => A9n.host_)).
-      merge(:tag_list => session.tag_list.join(" ")).
-      merge(:notes => prepare_notes(session.notes))
+      merge("location" => short_session_url(session, :host => A9n.host_)).
+      merge("tag_list" => session.tag_list.join(" ")).
+      merge("notes" => prepare_notes(session.notes))
 
     respond_with Oj.dump(response, mode: :compat, use_as_json: true)
   end
