@@ -35,6 +35,7 @@ type alias SelectedSession =
     , id : Int
     , streamIds : List Int
     , selectedMeasurements : List Float
+    , sensorUnit : String
     }
 
 
@@ -61,7 +62,7 @@ millisToPosixDecoder =
 
 decoder : Decoder SelectedSession
 decoder =
-    Decode.succeed toSelectedSession
+    Decode.succeed SelectedSession
         |> required "title" Decode.string
         |> required "username" Decode.string
         |> required "sensorName" Decode.string
@@ -70,19 +71,7 @@ decoder =
         |> required "id" Decode.int
         |> required "streamIds" (Decode.list Decode.int)
         |> hardcoded []
-
-
-toSelectedSession : String -> String -> String -> Posix -> Posix -> Int -> List Int -> List Float -> SelectedSession
-toSelectedSession title username sensorName startTime endTime sessionId streamIds selectedMeasurements =
-    { title = title
-    , username = username
-    , sensorName = sensorName
-    , startTime = startTime
-    , endTime = endTime
-    , id = sessionId
-    , streamIds = streamIds
-    , selectedMeasurements = selectedMeasurements
-    }
+        |> required "sensorUnit" Decode.string
 
 
 fetch : List Sensor -> String -> Page -> Int -> (Result Http.Error SelectedSession -> msg) -> Cmd msg
@@ -147,7 +136,7 @@ view session heatMapThresholds linkIcon toMsg =
                         [ div [ class "single-session-avg-color", class <| Data.Session.classByValue (Just average) heatMapThresholds ] []
                         , span [] [ text "avg. " ]
                         , span [ class "single-session-avg" ] [ text <| String.fromInt <| round average ]
-                        , span [] [ text " µg/m³" ]
+                        , span [] [ text <| " " ++ session.sensorUnit ]
                         ]
                     , div [ class "session-numbers-container" ]
                         [ div [ class "single-min-max-container" ]

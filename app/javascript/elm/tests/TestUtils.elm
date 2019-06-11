@@ -79,6 +79,7 @@ defaultSelectedSession =
     , id = 123
     , streamIds = [ 123 ]
     , selectedMeasurements = []
+    , sensorUnit = "sensorUnit"
     }
 
 

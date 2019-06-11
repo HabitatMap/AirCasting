@@ -106,7 +106,8 @@ describe Api::Mobile::SessionsController do
         'startTime' => 970_365_780_000,
         'endTime' => 1_004_850_360_000,
         'id' => session.id,
-        'streamIds' => [stream.id]
+        'streamIds' => [stream.id],
+        'sensorUnit' => stream.unit_symbol
       }
       expect(json_response).to eq(expected)
     end

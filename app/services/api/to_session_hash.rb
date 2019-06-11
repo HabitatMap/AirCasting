@@ -19,7 +19,8 @@ class Api::ToSessionHash
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
       id: session.id,
-      streamIds: session.streams.map(&:id)
+      streamIds: session.streams.map(&:id),
+      sensorUnit: session.streams.first.unit_symbol
     )
   end
 
