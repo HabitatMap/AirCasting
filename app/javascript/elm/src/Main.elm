@@ -192,7 +192,7 @@ fetchHeatMapThresholds sensors selectedSensorId =
 
 type Msg
     = UpdateLocationInput String
-    | SubmitLocation String
+    | SubmitLocation
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | ToggleCrowdMap
@@ -234,12 +234,12 @@ update msg model =
         UpdateLocationInput newLocation ->
             ( { model | location = newLocation }, Cmd.none )
 
-        SubmitLocation location ->
+        SubmitLocation ->
             let
                 ( sudModel, subCmd ) =
                     deselectSession model
             in
-            ( { sudModel | location = location }, Cmd.batch [ subCmd, Ports.findLocation location ] )
+            ( sudModel, Cmd.batch [ subCmd, Ports.findLocation sudModel.location ] )
 
         TagsLabels subMsg ->
             let
@@ -1062,13 +1062,27 @@ viewLocationFilter location isIndoor tooltipIcon =
             , type_ "text"
             , name "location"
             , disabled isIndoor
+            , attribute "autocomplete" "off"
             , Events.onInput UpdateLocationInput
-            , onChange SubmitLocation
+            , onEnter SubmitLocation
             ]
             []
         , label [ for "location" ] [ text "location:" ]
         , Tooltip.view Tooltip.locationFilter tooltipIcon
         ]
+
+
+onEnter : msg -> Html.Attribute msg
+onEnter msg =
+    let
+        isEnter code =
+            if code == 13 then
+                Decode.succeed msg
+
+            else
+                Decode.fail "not ENTER"
+    in
+    Events.on "keydown" (Decode.andThen isEnter Events.keyCode)
 
 
 onChange : (String -> msg) -> Html.Attribute msg
