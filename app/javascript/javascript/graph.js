@@ -15,21 +15,21 @@ export const fetchAndDrawFixed = showStatsCallback => ({
   sensor,
   heat,
   times,
-  streamId
+  streamIds
 }) => {
   // render empty graph with loading message
   drawFixed({
     measurements: [],
     sensor,
     heat,
-    afterSetExtremes: afterSetExtremes({ streamId, times })
+    afterSetExtremes: afterSetExtremes({ streamIds, times })
   });
 
   const pageStartTime = times.end - 24 * 60 * 60 * 1000;
 
   http
     .get("/api/measurements.json", {
-      stream_id: streamId,
+      stream_ids: streamIds,
       start_time: pageStartTime,
       end_time: times.end
     })
@@ -44,7 +44,7 @@ export const fetchAndDrawFixed = showStatsCallback => ({
         sensor,
         heat,
         afterSetExtremes: afterSetExtremes({
-          streamId,
+          streamIds,
           times,
           showStatsCallback
         })
@@ -56,14 +56,14 @@ export const fetchAndDrawMobile = showStatsCallback => ({
   sensor,
   heat,
   times,
-  streamId
+  streamIds
 }) => {
   // render empty graph with loading message
   drawMobile({ measurements: [], sensor, heat, showStatsCallback });
 
   http
     .get("/api/measurements.json", {
-      stream_id: streamId
+      stream_ids: streamIds
     })
     .then(measurements => {
       measurements = measurementsToTime(measurements);
@@ -94,12 +94,12 @@ const onMouseOverMultiple = (start, end) => {
   graphHighlight.show([points[pointNum]]);
 };
 
-const afterSetExtremes = ({ streamId, times, showStatsCallback }) => e => {
+const afterSetExtremes = ({ streamIds, times, showStatsCallback }) => e => {
   chart.showLoading("Loading data from server...");
 
   http
     .get("/api/measurements.json", {
-      stream_id: streamId,
+      stream_ids: streamIds,
       start_time: Math.round(e.min),
       end_time: Math.round(e.max)
     })

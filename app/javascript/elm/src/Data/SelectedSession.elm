@@ -4,7 +4,7 @@ module Data.SelectedSession exposing
     , fetch
     , times
     , toId
-    , toStreamId
+    , toStreamIds
     , updateRange
     , view
     )
@@ -33,7 +33,7 @@ type alias SelectedSession =
     , startTime : Posix
     , endTime : Posix
     , id : Int
-    , streamId : Int
+    , streamIds : List Int
     , selectedMeasurements : List Float
     }
 
@@ -43,9 +43,9 @@ times { startTime, endTime } =
     { start = Time.posixToMillis startTime, end = Time.posixToMillis endTime }
 
 
-toStreamId : SelectedSession -> Int
-toStreamId { streamId } =
-    streamId
+toStreamIds : SelectedSession -> List Int
+toStreamIds { streamIds } =
+    streamIds
 
 
 toId : SelectedSession -> Int
@@ -68,19 +68,19 @@ decoder =
         |> required "startTime" millisToPosixDecoder
         |> required "endTime" millisToPosixDecoder
         |> required "id" Decode.int
-        |> required "streamId" Decode.int
+        |> required "streamIds" (Decode.list Decode.int)
         |> hardcoded []
 
 
-toSelectedSession : String -> String -> String -> Posix -> Posix -> Int -> Int -> List Float -> SelectedSession
-toSelectedSession title username sensorName startTime endTime sessionId streamId selectedMeasurements =
+toSelectedSession : String -> String -> String -> Posix -> Posix -> Int -> List Int -> List Float -> SelectedSession
+toSelectedSession title username sensorName startTime endTime sessionId streamIds selectedMeasurements =
     { title = title
     , username = username
     , sensorName = sensorName
     , startTime = startTime
     , endTime = endTime
     , id = sessionId
-    , streamId = streamId
+    , streamIds = streamIds
     , selectedMeasurements = selectedMeasurements
     }
 
