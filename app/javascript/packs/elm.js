@@ -180,8 +180,8 @@ const setupHeatMap = () => {
   }
 };
 
-const draw = fnc => ({ times, streamId, heat, sensor }) =>
-  window.requestAnimationFrame(() => fnc({ sensor, heat, times, streamId }));
+const draw = fnc => ({ times, streamIds, heat, sensor }) =>
+  window.requestAnimationFrame(() => fnc({ sensor, heat, times, streamIds }));
 
 const toValues = noUiSlider => ({
   threshold1: noUiSlider.options.range.min,
