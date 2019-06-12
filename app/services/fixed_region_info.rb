@@ -1,11 +1,12 @@
 class FixedRegionInfo
   def call(data)
     streams_ids = streams_ids(data)
+    stats = calculate_stats(streams_ids)
 
-     {
-      average: calculate_average(streams_ids).to_f,
+    {
+      average: stats[:average],
       number_of_contributors: number_of_contributors(streams_ids),
-      number_of_samples: number_of_samples(streams_ids),
+      number_of_samples: stats[:count],
       number_of_instruments: streams_ids.count,
     }
   end
@@ -18,17 +19,16 @@ class FixedRegionInfo
       where(sensor_name: data[:sensor_name], session_id: data[:session_ids])
   end
 
-  def calculate_average(streams_ids)
-    streams_ids.reduce(0) do |acc, stream_id|
-      acc + one_hour_average(stream_id, end_time(stream_id))
-    end / streams_ids.length
-  end
+  def calculate_stats(streams_ids)
+    streams_ids.reduce({average: 0, count: 0}) do |acc, stream_id|
+      end_time = end_time(stream_id)
 
-  def one_hour_average(stream_id, end_time)
-    Measurement.
-      with_streams(stream_id).
-      where(time: (end_time - 1.hour)..end_time).
-      average(:value) || 0
+      stats = Measurement.with_streams(stream_id).where(time: (end_time - 1.hour)..end_time).select("AVG(value) as average, count(*) as count").first
+
+      acc[:average] += stats.average.fdiv(streams_ids.length)
+      acc[:count] += stats.count
+      acc
+    end
   end
 
   def number_of_contributors(streams_ids)
@@ -39,15 +39,7 @@ class FixedRegionInfo
       count
   end
 
-  def number_of_samples(streams_ids)
-     streams_ids.reduce(0) do |acc, stream_id|
-      end_time = end_time(stream_id)
-
-      acc + Measurement.with_streams(stream_id).where(time: (end_time - 1.hour)..end_time).count
-    end
-  end
-
   def end_time(stream_id)
-    Measurement.with_streams(stream_id).select("MAX(time) as last_time").first.last_time
+    Measurement.with_streams(stream_id).maximum(:time)
   end
 end
