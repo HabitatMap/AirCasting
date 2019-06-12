@@ -21,7 +21,11 @@ module Api
     respond_to :json
 
     def index
-      respond_with Stream.sensors
+      cache_control =
+        ["max-age=#{8.hours}", 'public', 'must_revalidate'].join(', ')
+      response.headers['Cache-Control'] = cache_control
+
+      render json: Stream.sensors
     end
   end
 end
