@@ -6,7 +6,6 @@ angular
     "$scope",
     "params",
     "sensors",
-    "flash",
     "$window",
     "drawSession",
     "markerSelected",

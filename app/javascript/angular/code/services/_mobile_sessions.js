@@ -54,10 +54,6 @@ export const mobileSessions = (
       return sessionsUtils.isSelected(this, session);
     },
 
-    onSessionsFetchError: function(data) {
-      sessionsUtils.onSessionsFetchError(data);
-    },
-
     onSessionsFetch: function(fetchableSessionsCount) {
       if (!params.isCrowdMapOn()) {
         this.drawSessionsInLocation();
@@ -270,8 +266,7 @@ export const mobileSessions = (
         reqData,
         this.sessions,
         params,
-        _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this),
-        _(this.onSessionsFetchError).bind(this)
+        _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this)
       );
     }
   };
