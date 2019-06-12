@@ -25,6 +25,11 @@ main {
   z-index: 0;
 }
 
+strong,
+b {
+  font-weight: $font-stack-bold;
+}
+
 [ng-cloak],
 .ng-cloak {
   display: none;

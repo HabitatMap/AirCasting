@@ -1,0 +1,50 @@
+// gm popup overrides - the topmost container
+.gm-style-iw.gm-style-iw-c {
+  box-shadow: $basic-shadow;
+  padding-top: 15px;
+}
+
+.gm-ui-hover-effect {
+  top: 0;
+  right: 0;
+}
+
+.info-window {
+  font-family: "PT Sans", sans-serif;
+
+  hr {
+    border: 1px solid $separator-color-light;
+    border-width: 1px 0 0 0;
+  }
+
+  p {
+    padding: 0;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.info-window__sensor {
+  font-size: $small-font;
+  font-weight: bold;
+}
+
+.info-window__list {
+  font-size: $tiny-font;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    line-height: 1.5;
+  }
+}
+
+.info-window__link {
+  color: $blue;
+  cursor: pointer;
+  display: block;
+  font-size: $tiny-font;
+  font-weight: $font-stack-bold;
+  margin-top: 10px;
+}
