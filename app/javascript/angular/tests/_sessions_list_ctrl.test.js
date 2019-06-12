@@ -80,7 +80,6 @@ const _SessionsListCtrl = ({
     null,
     {},
     null,
-    null,
     _sessionsUtils,
     _map
   );

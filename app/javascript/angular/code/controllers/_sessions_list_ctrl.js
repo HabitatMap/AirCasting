@@ -7,7 +7,6 @@ export const SessionsListCtrl = (
   sensors,
   $window,
   drawSession,
-  markerSelected,
   sessionsUtils,
   map
 ) => {
@@ -19,7 +18,6 @@ export const SessionsListCtrl = (
     $scope.params = params;
     $scope.$window = $window;
     $scope.sensors = sensors;
-    $scope.markerSelected = markerSelected;
     $window.sessions = sessions = $scope.sessions;
     $scope.sessionsForList = [];
 
@@ -95,7 +93,6 @@ export const SessionsListCtrl = (
       callback(null);
     } else {
       sessions.selectSession(sessionId);
-      $scope.markerSelected.set(true);
       callback(sessionId);
     }
   };
