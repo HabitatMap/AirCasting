@@ -78,7 +78,6 @@ const _SessionsListCtrl = ({
     _$scope,
     _params,
     null,
-    null,
     {},
     null,
     null,

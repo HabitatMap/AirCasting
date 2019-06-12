@@ -5,7 +5,6 @@ export const updateCrowdMapLayer = (
   map,
   $http,
   buildQueryParamsForCrowdMapLayer,
-  flash,
   params,
   utils,
   infoWindow,
@@ -29,12 +28,9 @@ export const updateCrowdMapLayer = (
 
     $http
       .get("/api/averages", { cache: true, params: { q } })
-      .error(onError(flash))
       .success(onAveragesFetch($window, map, params, utils, _onRectangleClick));
   }
 });
-
-const onError = flash => () => flash.set("There was an error, sorry");
 
 const onAveragesFetch = (
   $window,

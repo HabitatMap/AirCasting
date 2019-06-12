@@ -14,18 +14,6 @@ test("when crowd map layer is off it clears rectangles", t => {
   t.end();
 });
 
-test("when the request for the averages fails it flashes an error", t => {
-  const flash = mock("set");
-  const $http = mockHttp({ shouldFail: true });
-  const service = _updateCrowdMapLayer({ $http, flash });
-
-  service.call();
-
-  t.true(flash.wasCalledWith("There was an error, sorry"));
-
-  t.end();
-});
-
 test("it delegates building the query param to a service passing it the session ids", t => {
   const calls = [];
   const buildQueryParamsForCrowdMapLayer = {
@@ -168,7 +156,6 @@ const _updateCrowdMapLayer = ({
   params,
   map,
   $http,
-  flash,
   buildQueryParamsForCrowdMapLayer,
   $window,
   infoWindow,
@@ -199,7 +186,6 @@ const _updateCrowdMapLayer = ({
     _map,
     $http,
     _buildQueryParamsForCrowdMapLayer,
-    flash,
     _params,
     utils,
     infoWindow,

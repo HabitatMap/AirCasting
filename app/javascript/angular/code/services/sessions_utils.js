@@ -6,7 +6,6 @@ angular
     "params",
     "sensors",
     "$timeout",
-    "flash",
     "updateCrowdMapLayer",
     sessionsUtils
   ]);

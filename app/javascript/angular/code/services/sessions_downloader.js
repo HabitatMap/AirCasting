@@ -12,24 +12,22 @@ angular.module("aircasting").factory("sessionsDownloader", [
       reqData,
       sessions,
       params,
-      refreshSessionsCallback,
-      errorCallback
+      refreshSessionsCallback
     ) {
       var successCallback = function(data) {
         preprocessData(data.sessions, sessions, params);
         refreshSessionsCallback(data.fetchableSessionsCount);
       };
-      fetchPage(url, reqData, successCallback, errorCallback);
+      fetchPage(url, reqData, successCallback);
     };
 
-    var fetchPage = function(url, reqData, success, error) {
+    var fetchPage = function(url, reqData, success) {
       $http
         .get(url, {
           cache: true,
           params: { q: reqData }
         })
-        .success(success)
-        .error(error);
+        .success(success);
     };
 
     var preprocessData = function(data, sessions, params) {
