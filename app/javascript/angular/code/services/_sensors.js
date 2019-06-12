@@ -14,7 +14,7 @@ const DEFAULT_SENSOR_ID = buildSensorId({
   unit_symbol: "µg/m³"
 });
 
-export const sensors = (params, heat, $http) => {
+export const sensors = params => {
   var Sensors = function() {
     this.sensors = {};
     this.defaultSensorId = DEFAULT_SENSOR_ID;

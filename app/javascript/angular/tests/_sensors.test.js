@@ -97,14 +97,12 @@ test("selectedId with sensor id in the url returns the correct sensor id", t => 
   t.end();
 });
 
-const _sensors = ({ params, $http, heat }) => {
-  const _$http = { ...$http };
+const _sensors = ({ params }) => {
   const _params = {
     get: () => ({ sensorId: null }),
     update: () => {},
     ...params
   };
-  const _heat = { ...heat };
 
-  return sensors(_params, _heat, _$http);
+  return sensors(_params);
 };
