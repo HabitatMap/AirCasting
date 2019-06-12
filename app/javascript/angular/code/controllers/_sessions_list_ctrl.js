@@ -5,7 +5,6 @@ export const SessionsListCtrl = (
   $scope,
   params,
   sensors,
-  flash,
   $window,
   drawSession,
   markerSelected,
@@ -15,7 +14,6 @@ export const SessionsListCtrl = (
   let sessions;
   let pulsatingSessionMarker = null;
   const elmApp = $window.__elmApp;
-  const CANNOT_SELECT_MULTIPLE_SESSIONS = "You can't select multiple sessions";
 
   $scope.setDefaults = function() {
     $scope.params = params;
@@ -27,15 +25,6 @@ export const SessionsListCtrl = (
 
     if (sessionsUtils.isSessionSelected())
       sessions.reSelectSession(sessionsUtils.selectedSessionId());
-  };
-
-  $scope.isSessionDisabled = function(sessionId) {
-    // disabled if there is another selected session and it is not the selected session
-    // when refactoring to a radio button this should always be false
-    return (
-      !(sessionsUtils.selectedSessionId() === sessionId) &&
-      sessionsUtils.isSessionSelected()
-    );
   };
 
   $scope.$watch(
@@ -64,15 +53,6 @@ export const SessionsListCtrl = (
     },
     true
   );
-
-  $scope.canSelectSession = function() {
-    if (sessionsUtils.isSessionSelected()) {
-      flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
-      return false;
-    } else {
-      return true;
-    }
-  };
 
   $scope.newSessionsForList = function() {
     return $scope.sessions
@@ -110,14 +90,10 @@ export const SessionsListCtrl = (
   });
 
   $scope.toggleSession = function(sessionId, callback) {
-    if (this.isSessionDisabled(sessionId)) {
-      flash.set(CANNOT_SELECT_MULTIPLE_SESSIONS);
-      return;
-    }
     if (sessionsUtils.selectedSessionId() === sessionId) {
       sessions.deselectSession();
       callback(null);
-    } else if ($scope.canSelectSession(sessionId)) {
+    } else {
       sessions.selectSession(sessionId);
       $scope.markerSelected.set(true);
       callback(sessionId);

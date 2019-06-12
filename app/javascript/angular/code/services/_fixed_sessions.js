@@ -48,10 +48,6 @@ export const fixedSessions = (
       return sessionsUtils.isSelected(this, session);
     },
 
-    onSessionsFetchError: function(data) {
-      sessionsUtils.onSessionsFetchError(data);
-    },
-
     onSessionsFetch: function(fetchableSessionsCount) {
       this.drawSessionsInLocation();
       if (fetchableSessionsCount) {
@@ -123,8 +119,7 @@ export const fixedSessions = (
         reqData,
         this.sessions,
         params,
-        _(this.onSessionsFetch).bind(this),
-        _(this.onSessionsFetchError).bind(this)
+        _(this.onSessionsFetch).bind(this)
       );
     },
 

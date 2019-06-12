@@ -5,7 +5,6 @@ export const sessionsUtils = (
   params,
   sensors,
   $timeout,
-  flash,
   updateCrowdMapLayer
 ) => ({
   get: function(self) {
@@ -18,11 +17,6 @@ export const sessionsUtils = (
 
   updateCrowdMapLayer: function(sessionIds) {
     updateCrowdMapLayer.call(sessionIds);
-  },
-
-  onSessionsFetchError: function(data) {
-    var errorMsg = data.error || "There was an error, sorry";
-    flash.set(errorMsg);
   },
 
   isSelected: function(self, session) {

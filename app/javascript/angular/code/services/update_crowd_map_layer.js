@@ -6,7 +6,6 @@ angular
     "map",
     "$http",
     "buildQueryParamsForCrowdMapLayer",
-    "flash",
     "params",
     "utils",
     "infoWindow",
