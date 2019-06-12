@@ -1,7 +1,7 @@
 import { Elm } from "../elm/src/Main.elm";
 import logoNav from "../../assets/images/aircasting-logo-nav.svg";
 import linkIcon from "../../assets/images/link-icon.svg";
-import resetIcon from "../../assets/images/reset-icon.svg";
+import resetIconBlack from "../../assets/images/reset-icon-black.svg";
 import resetIconWhite from "../../assets/images/reset-icon-white.svg";
 import tooltipIcon from "../../assets/images/tooltip-icon.svg";
 import "nouislider";
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isIndoor: data.isIndoor,
         logoNav,
         linkIcon,
-        resetIcon,
+        resetIconBlack,
         resetIconWhite,
         tooltipIcon,
         heatMapThresholdValues,

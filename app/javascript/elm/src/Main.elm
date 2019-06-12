@@ -54,7 +54,7 @@ type alias Model =
     , isIndoor : Bool
     , logoNav : String
     , linkIcon : Path
-    , resetIcon : Path
+    , resetIconBlack : Path
     , resetIconWhite : Path
     , tooltipIcon : Path
     , heatMapThresholds : WebData HeatMapThresholds
@@ -86,7 +86,7 @@ defaultModel =
     , selectedSession = NotAsked
     , logoNav = ""
     , linkIcon = Path.empty
-    , resetIcon = Path.empty
+    , resetIconBlack = Path.empty
     , resetIconWhite = Path.empty
     , tooltipIcon = Path.empty
     , heatMapThresholds = NotAsked
@@ -110,7 +110,7 @@ type alias Flags =
     , selectedSensorId : String
     , logoNav : String
     , linkIcon : String
-    , resetIcon : String
+    , resetIconBlack : String
     , resetIconWhite : String
     , tooltipIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
@@ -149,7 +149,7 @@ init flags url key =
         , selectedSensorId = flags.selectedSensorId
         , logoNav = flags.logoNav
         , linkIcon = Path.fromString flags.linkIcon
-        , resetIcon = Path.fromString flags.resetIcon
+        , resetIconBlack = Path.fromString flags.resetIconBlack
         , resetIconWhite = Path.fromString flags.resetIconWhite
         , tooltipIcon = Path.fromString flags.tooltipIcon
         , heatMapThresholds =
@@ -686,7 +686,7 @@ viewMap model =
                 []
             , viewSessionsOrSelectedSession model
             ]
-        , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "") model.resetIcon
+        , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "") model.resetIconBlack
         ]
 
 
@@ -704,7 +704,7 @@ viewSearchAsIMove model =
                         , Events.onClick FetchSessions
                         ]
                         [ text "Redo Search in Map"
-                        , img [ src <| Path.toString model.resetIcon, alt "Reset icon" ] []
+                        , img [ src <| Path.toString model.resetIconWhite, alt "Reset icon" ] []
                         ]
 
                   else
