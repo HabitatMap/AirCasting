@@ -8,7 +8,6 @@ angular
     "sensors",
     "$window",
     "drawSession",
-    "markerSelected",
     "sessionsUtils",
     "map",
     SessionsListCtrl
