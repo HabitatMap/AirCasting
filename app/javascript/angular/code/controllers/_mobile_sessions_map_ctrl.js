@@ -19,7 +19,6 @@ export const MobileSessionsMapCtrl = (
   sensors,
   mobileSessions,
   versioner,
-  functionBlocker,
   $window,
   infoWindow,
   sessionsUtils
@@ -32,11 +31,6 @@ export const MobileSessionsMapCtrl = (
     $scope.sensors = sensors;
     $scope.sessions = mobileSessions;
     $scope.$window = $window;
-
-    functionBlocker.block(
-      "sessionHeat",
-      !_(params.get("selectedSessionIds")).isEmpty()
-    );
 
     map.clearRectangles();
     infoWindow.hide();

@@ -41,7 +41,6 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, sensors, params }) => {
     fetchHeatLevels: () => {},
     ...sensors
   };
-  const functionBlocker = { block: () => {} };
   const _params = { get: () => ({}), updateFromDefaults: () => {}, ...params };
   const infoWindow = { hide: () => {} };
   const _map = {
@@ -61,7 +60,6 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, sensors, params }) => {
     _sensors,
     null,
     null,
-    functionBlocker,
     _$window,
     infoWindow
   );
