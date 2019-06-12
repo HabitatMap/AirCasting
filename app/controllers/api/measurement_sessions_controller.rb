@@ -53,8 +53,9 @@ module Api
         zip_path = service.call(params[:session_ids])
         zip_file = File.read(zip_path)
         zip_filename = File.basename(zip_path)
+
         send_data zip_file,
-                  type: Mime::ZIP,
+                  type: Mime.fetch(:zip),
                   filename: zip_filename,
                   disposition: 'attachment'
       ensure
