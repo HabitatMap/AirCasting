@@ -74,7 +74,9 @@ class Session < ApplicationRecord
 
   def self.filter_(data = {})
     sessions =
-      order('sessions.created_at DESC').where(contribute: true).joins(:user)
+      order('sessions.start_time_local DESC').where(contribute: true).joins(
+        :user
+      )
 
     tags = data[:tags].to_s.split(/[\s,]/)
     sessions = sessions.tagged_with(tags, any: true) if tags.present?
