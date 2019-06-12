@@ -1,6 +1,7 @@
 import _ from "underscore";
 import { removeMarker } from "./google/_map.js";
 import * as assets from "../../../assets";
+import { drawNotes, initialize } from "./google/note";
 
 const locationMarkersByLevel = {
   1: assets.locationMarker1Path,
@@ -9,7 +10,7 @@ const locationMarkersByLevel = {
   4: assets.locationMarker4Path
 };
 
-export const drawSession = (sensors, map, heat, note, empty) => {
+export const drawSession = (sensors, map, heat, empty) => {
   var DrawSession = function() {};
 
   const drawnObjects = { markers: [], lines: [], noteDrawings: [] };
@@ -41,10 +42,7 @@ export const drawSession = (sensors, map, heat, note, empty) => {
         drawnObjects.markers.push(marker);
         points.push(measurement);
       });
-
-      (session.notes || []).forEach(function(noteItem, idx) {
-        drawnObjects.noteDrawings.push(note.drawNote(noteItem, idx));
-      });
+      drawnObjects.notes = drawNotes(session.notes || [], map);
       drawnObjects.lines.push(map.drawLine(points));
     },
 
