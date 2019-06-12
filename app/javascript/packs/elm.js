@@ -24,6 +24,10 @@ if (!Object.values) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // This request is cached in the browser so it should not delay the application too much.
+  // The best way to handle this would be to have the application load the sensors at the
+  // same time it is loading the ui.
+  // That way the user would not see a blank page until the sensors are loaded.
   fetch("/api/sensors.json")
     .then(x => x.json())
     .then(sensors => {
