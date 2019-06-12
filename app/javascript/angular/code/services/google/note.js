@@ -1,54 +1,72 @@
-angular.module("google").factory("note", [
-  "$http",
-  "$compile",
-  "$rootScope",
-  "$timeout",
-  "versioner",
-  "map",
-  function($http, $compile, $rootScope, $timeout, versioner, map) {
-    var Note = function() {
-      this.popup = new google.maps.InfoWindow();
-      map.addListener("zoom_changed", _(this.hide).bind(this));
-    };
-    Note.prototype = {
-      get: function() {
-        return this.popup;
-      },
-      show: function(note, idx, relatedMarker) {
-        this.popup.open(map.get(), relatedMarker);
-        this.data = note;
-        this.idx = idx;
-        var self = this;
-        var url = versioner.path("/partials/note.html");
-        var element = $(
-          '<div class="note-window"><div ng-include="\'' +
-            url +
-            "'\"></div></div>"
-        );
-        $timeout(function() {
-          $compile(element[0])($rootScope);
-          self.popup.setContent(element[0]);
-        });
-      },
-      hide: function() {
-        this.popup.close();
-      },
-      drawNote: function(item, idx) {
-        var self = this;
-        var marker = map.drawMarker({
-          position: { lat: item.latitude, lng: item.longitude },
-          title: item.text,
-          icon: "/assets/marker_note.png",
-          zIndex: 200000
-        });
+import { createObserver } from "../../../../createObserver.js";
 
-        google.maps.event.addListener(marker, "click", function() {
-          self.show(item, idx, marker);
-        });
-        return marker;
-      }
-    };
+let noteMarkers = [];
 
-    return new Note();
+var popup = new google.maps.InfoWindow();
+
+google.maps.event.addListener(popup, "domready", () => {
+  document
+    .getElementById("testId")
+    .addEventListener("click", event => console.warn(event));
+});
+
+export function drawNotes(notes, map) {
+  noteMarkers = [];
+  notes.forEach(note => {
+    noteMarkers.push(drawNote(note, notes.length, map));
+  });
+  return noteMarkers;
+}
+
+function drawNote(note, notesCount, map) {
+  var marker = map.drawMarker({
+    position: { lat: note.latitude, lng: note.longitude },
+    title: note.text,
+    icon: "/assets/marker_note.png",
+    zIndex: 200000
+  });
+
+  google.maps.event.addListener(marker, "click", function() {
+    show(note, marker, notesCount, map);
+  });
+  return marker;
+}
+
+function show(note, relatedMarker, notesCount, map) {
+  popup.open(map.get(), relatedMarker);
+
+  popup.setContent(createHtml(note, notesCount));
+}
+
+function createHtml(note, total) {
+  const date = moment(note.date, "YYYY-MM-DDTHH:mm:ss").format(
+    "MM/DD/YYYY, HH:mm:ss"
+  );
+
+  let photoHtml = "";
+  if (note.photo) {
+    photoHtml = `<a href=${note.photo} visibility=hidden lightbox>
+     <div class="photo">
+        <img src=${note.photo_thumbnail} />
+      </div>
+    </a>`;
   }
-]);
+
+  const html =
+    `<div class="note-window">
+      <div class="header">
+        <span class="date">${date}</span>
+        <div class="right">` +
+    `<button id="testId"> < </button>` +
+    `<span class=number>${note.number} of ${total}</span>
+          <button> > </button>
+        </div>
+      </div>
+      <div class="content">` +
+    photoHtml +
+    `<p>${note.text}</p>
+      </div>
+    </div>`;
+
+  return html;
+}
