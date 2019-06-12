@@ -212,6 +212,11 @@ const buildTooltip = ({
   }
 });
 
+const credits = {
+  enabled: true,
+  position: { align: "right", verticalAlign: "bottom", x: -5, y: -1 }
+};
+
 export const buildOptions = ({
   renderTo,
   buttons,
@@ -241,5 +246,6 @@ export const buildOptions = ({
   }),
   xAxis: buildXAxis(xAxis),
   yAxis: buildYAxis({ low, high, ticks }),
-  scrollbar: { ...scrollbar, ...scrollbarOptions }
+  scrollbar: { ...scrollbar, ...scrollbarOptions },
+  credits
 });
