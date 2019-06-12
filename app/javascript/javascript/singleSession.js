@@ -22,19 +22,22 @@ export const measurementsToTimeWithExtremes = ({ measurements, times }) => {
   };
 };
 
-export const measurementsToTime = measurements =>
-  measurements.reduce((acc, measurement) => {
+export const measurementsToTime = measurements => {
+  // Using a .reduce makes the code too slow
+  const res = {};
+
+  measurements.forEach(measurement => {
     const x = moment(measurement.time, "YYYY-MM-DDTHH:mm:ss")
       .utcOffset(0, true)
       .valueOf();
 
-    return {
-      ...acc,
-      [x]: {
-        x,
-        y: measurement.value,
-        latitude: measurement.latitude,
-        longitude: measurement.longitude
-      }
+    res[x] = {
+      x,
+      y: measurement.value,
+      latitude: measurement.latitude,
+      longitude: measurement.longitude
     };
-  }, {});
+  });
+
+  return res;
+};
