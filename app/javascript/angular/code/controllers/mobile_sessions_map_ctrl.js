@@ -9,7 +9,6 @@ angular
     "sensors",
     "mobileSessions",
     "versioner",
-    "functionBlocker",
     "$window",
     "infoWindow",
     "sessionsUtils",

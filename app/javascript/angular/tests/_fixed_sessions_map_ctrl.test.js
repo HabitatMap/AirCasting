@@ -41,7 +41,6 @@ const _FixedSessionsMapCtrl = ({ callback, params, sensors }) => {
     fetchHeatLevels: () => {},
     ...sensors
   };
-  const functionBlocker = { block: () => {} };
   const _params = { get: () => ({}), updateFromDefaults: () => {}, ...params };
   const rectangles = { clear: () => {} };
   const infoWindow = { hide: () => {} };
@@ -61,7 +60,6 @@ const _FixedSessionsMapCtrl = ({ callback, params, sensors }) => {
     _sensors,
     null,
     null,
-    functionBlocker,
     $window,
     infoWindow
   );

@@ -9,7 +9,6 @@ export const FixedSessionsMapCtrl = (
   sensors,
   fixedSessions,
   versioner,
-  functionBlocker,
   $window,
   infoWindow,
   $http
@@ -22,11 +21,6 @@ export const FixedSessionsMapCtrl = (
     $scope.sensors = sensors;
     $scope.sessions = fixedSessions;
     $scope.$window = $window;
-
-    functionBlocker.block(
-      "sessionHeat",
-      !_(params.get("selectedSessionIds")).isEmpty()
-    );
 
     map.clearRectangles();
     infoWindow.hide();
