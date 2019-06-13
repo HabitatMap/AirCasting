@@ -30,7 +30,7 @@ class AverageInfo
 
   def measurements
     @measurements ||=
-      Measurement.select(
+      Measurement.unscoped.select(
         'AVG(value) AS avg, ' +
           "ROUND(longitude / #{grid_x}, 0) AS middle_x, " +
           "ROUND(latitude / #{grid_y}, 0) AS middle_y "
