@@ -24,7 +24,7 @@ const navigator = {
 };
 
 const buildRangeSelector = ({ buttons, selected }) => ({
-  height: 30,
+  height: 32,
   buttonSpacing: 15,
 
   buttonTheme: {
@@ -214,7 +214,7 @@ const buildTooltip = ({
 
 const credits = {
   enabled: true,
-  position: { align: "right", verticalAlign: "top", x: -4, y: 40 }
+  position: { align: "right", verticalAlign: "top", x: -4, y: 32 }
 };
 
 export const buildOptions = ({
