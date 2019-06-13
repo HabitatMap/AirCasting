@@ -785,7 +785,7 @@ viewSessionsOrSelectedSession model =
 viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> Html Msg
 viewSelectedSession heatMapThresholds maybeSession linkIcon =
     div [ class "single-session-container" ]
-        [ div [ class "single-session-info" ]
+        [ div [ class "single-session__aside" ]
             (case maybeSession of
                 Nothing ->
                     [ text "loading" ]
@@ -794,10 +794,10 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon =
                     [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ]
             )
         , div
-            [ class "single-session-graph", id "graph-box" ]
+            [ class "single-session__graph", id "graph-box" ]
             [ div [ id "graph" ] []
             ]
-        , button [ class "close-button close-button--session", Events.onClick DeselectSession ] [ text "×" ]
+        , button [ class "close-button single-session__close-button", Events.onClick DeselectSession ] [ text "×" ]
         ]
 
 
@@ -915,7 +915,7 @@ viewFilters model =
 
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
-    div [ class "filters__div" ]
+    div [ class "filters-container" ]
         [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
@@ -928,7 +928,7 @@ viewMobileFilters model =
 
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
-    div [ class "filters__div" ]
+    div [ class "filters-container" ]
         [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon

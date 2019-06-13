@@ -2,7 +2,7 @@ import Highcharts from "highcharts/highstock";
 
 const buildChart = ({ renderTo }) => ({
   renderTo,
-  height: 200,
+  height: 230,
   spacingTop: 5,
   spacingBottom: 5,
   spacingRight: 0,
@@ -24,7 +24,7 @@ const navigator = {
 };
 
 const buildRangeSelector = ({ buttons, selected }) => ({
-  height: 40,
+  height: 32,
   buttonSpacing: 15,
 
   buttonTheme: {
@@ -45,9 +45,9 @@ const buildRangeSelector = ({ buttons, selected }) => ({
 
     states: {
       hover: {
-        fill: "none",
+        fill: "#09a7f0",
         style: {
-          color: "#000"
+          color: "white"
         }
       },
 
@@ -108,7 +108,7 @@ const scrollbarOptions = {
   buttonBackgroundColor: "#eee",
   buttonBorderWidth: 0,
   buttonBorderRadius: 7,
-  height: 15,
+  height: 10,
   rifleColor: "#D5D4D4",
   trackBackgroundColor: "none",
   trackBorderWidth: 0
@@ -214,7 +214,7 @@ const buildTooltip = ({
 
 const credits = {
   enabled: true,
-  position: { align: "right", verticalAlign: "top", x: -4, y: 40 }
+  position: { align: "right", verticalAlign: "top", x: -4, y: 32 }
 };
 
 export const buildOptions = ({
