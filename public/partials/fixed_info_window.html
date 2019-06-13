@@ -1,5 +1,6 @@
 <div ng-controller="InfoWindowCtrl">
   <h1 class="info-window__sensor">{{sensors.selected().label}}</h1>
+  <div ng-class="class()"></div>
   <p class="info-window__avg">avg. <strong>{{infoWindow.data.average | number:0 }}</strong> {{sensors.selected().unit_symbol }}</p>
   <hr>
   <ul class="info-window__list">

@@ -99,6 +99,24 @@ export const heat = ($rootScope, params) => {
       return (
         value < this.getValue("lowest") || value > this.getValue("highest")
       );
+    },
+    classByValue: function(value) {
+      switch (this.getLevel(Math.round(value))) {
+        case 1:
+          return "green-bg";
+
+        case 2:
+          return "yellow-bg";
+
+        case 3:
+          return "orange-bg";
+
+        case 4:
+          return "red-bg";
+
+        default:
+          return "grey-bg";
+      }
     }
   };
 
