@@ -97,6 +97,14 @@
   float: left;
 }
 
+.single-session__close-button {
+  font-size: 32px;
+  line-height: 0;
+  position: absolute;
+  right: 10px;
+  top: 28px;
+}
+
 .single-session__placeholder {
   height: 57px;
 }
