@@ -7,5 +7,6 @@ angular
     "sensors",
     "infoWindow",
     "map",
+    "heat",
     InfoWindowCtrl
   ]);
