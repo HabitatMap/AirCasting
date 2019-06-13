@@ -18,19 +18,19 @@ const drawNote = (data, map) => {
   });
 
   notes.push({ data, marker });
-  const idx = notes.length - 1;
+  const index = notes.length - 1;
   google.maps.event.addListener(marker, "click", () => {
-    show(idx);
+    show(index);
   });
 };
 
-const show = idx => {
-  popup.open(window.__map, notes[idx].marker);
-  popup.setContent(createHtml(idx));
+const show = index => {
+  popup.open(window.__map, notes[index].marker);
+  popup.setContent(createHtml(index));
 };
 
-const createHtml = idx => {
-  const data = notes[idx].data;
+const createHtml = index => {
+  const data = notes[index].data;
   const date = moment(data.date, "YYYY-MM-DDTHH:mm:ss").format(
     "MM/DD/YYYY, HH:mm:ss"
   );
@@ -49,9 +49,9 @@ const createHtml = idx => {
       <div class="header">
         <span class="date">${date}</span>
         <div class="right">
-          <button class="switchNote" id=${idx - 1}> < </button>
+          <button class="switchNote" id=${index - 1}> < </button>
           <span class=number>${data.number} of ${notes.length}</span>
-          <button class="switchNote" id=${idx + 1}> > </button>
+          <button class="switchNote" id=${index + 1}> > </button>
         </div>
       </div>
     <div class="content">` +
@@ -62,29 +62,22 @@ const createHtml = idx => {
   );
 };
 
-const numberToIndex = number => number - 1;
-
 if (process.env.NODE_ENV !== "test") {
   google.maps.event.addListener(popup, "domready", () => {
     google.maps.event.addListener(window.__map, "zoom_changed", () =>
       popup.close()
     );
 
-    const switchNoteButtonsObj = document.getElementsByClassName("switchNote");
+    Array.from(document.getElementsByClassName("switchNote")).forEach(
+      button => {
+        button.addEventListener("click", () => {
+          let index = parseInt(button.id);
+          if (index < 0) index += notes.length;
+          if (index >= notes.length) index -= notes.length;
 
-    const switchNoteButtons = [
-      switchNoteButtonsObj[0],
-      switchNoteButtonsObj[1]
-    ];
-
-    switchNoteButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        let idx = parseInt(button.id);
-        if (idx < 0) idx += notes.length;
-        if (idx >= notes.length) idx -= notes.length;
-
-        show(idx);
-      });
-    });
+          show(index);
+        });
+      }
+    );
   });
 }
