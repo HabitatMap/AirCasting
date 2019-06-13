@@ -107,6 +107,29 @@ class Measurement < ApplicationRecord
   )
 
   scope(
+    :with_time2,
+    lambda do |data|
+      day_range(data[:day_from], data[:day_to]).time_range(
+        data[:time_from],
+        data[:time_to]
+      )
+        .year_range(
+        Date.new(data[:year_from].to_i),
+        Date.new(data[:year_to].to_i + 1) - 1
+      )
+    end
+  )
+  prepare_range(
+    :time_range,
+    '(EXTRACT(HOUR FROM time) * 60 + EXTRACT(MINUTE FROM time))'
+  )
+  prepare_range(
+    :day_range,
+    '(DAYOFYEAR(DATE_ADD(time, INTERVAL (YEAR(NOW()) - YEAR(time)) YEAR)))'
+  )
+  prepare_range(:year_range, :time)
+
+  scope(
     :minutes_range,
     lambda do |minutes_from, minutes_to|
       unless Utils.whole_day?(minutes_from, minutes_to)
