@@ -35,6 +35,7 @@
 
 .close-button {
   @include appearance(none);
+  cursor: pointer;
   font-weight: $font-stack-regular;
   background: transparent;
   border: none;
