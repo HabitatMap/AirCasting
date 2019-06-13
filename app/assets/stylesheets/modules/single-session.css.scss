@@ -36,7 +36,9 @@
 
 .single-session__name {
   display: -webkit-box;
+  /* autoprefixer: off */
   -webkit-box-orient: vertical;
+  /* autoprefixer: on */
   -webkit-line-clamp: 2;
   font-size: $medium-font;
   max-height: 3em; // for browsers that don't support clamp, including Firefox <= 67 - still trims but with no ellipsis (...)
