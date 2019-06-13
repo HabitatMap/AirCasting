@@ -1,7 +1,7 @@
 import _ from "underscore";
 import { removeMarker } from "./google/_map.js";
 import * as assets from "../../../assets";
-import { drawNotes, initialize } from "./google/note";
+import { drawNotes } from "../../../javascript/note";
 
 const locationMarkersByLevel = {
   1: assets.locationMarker1Path,
@@ -42,7 +42,8 @@ export const drawSession = (sensors, map, heat, empty) => {
         drawnObjects.markers.push(marker);
         points.push(measurement);
       });
-      drawnObjects.notes = drawNotes(session.notes || [], map);
+
+      drawnObjects.noteDrawings = drawNotes(session.notes || [], map);
       drawnObjects.lines.push(map.drawLine(points));
     },
 
