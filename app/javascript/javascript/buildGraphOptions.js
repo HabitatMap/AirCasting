@@ -214,7 +214,7 @@ const buildTooltip = ({
 
 const credits = {
   enabled: true,
-  position: { align: "right", verticalAlign: "bottom", x: -5, y: -1 }
+  position: { align: "right", verticalAlign: "top", x: -4, y: 40 }
 };
 
 export const buildOptions = ({
