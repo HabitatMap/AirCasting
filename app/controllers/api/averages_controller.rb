@@ -35,9 +35,10 @@ module Api
       ]
 
       if params[:q].is_a?(String)
-        data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
+        data =
+          ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
       else
-        data = params[:q].symbolize_keys
+        data = params.to_unsafe_hash[:q].symbolize_keys
       end
       FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
       int_q_attrs.each { |key| data[key] = data[key].to_i if data.key?(key) }
@@ -60,7 +61,8 @@ module Api
       int_q_attrs = %i[time_from time_to grid_size_x grid_size_y]
 
       if params[:q].is_a?(String)
-        data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
+        data =
+          ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
       else
         data = params.to_unsafe_hash[:q].symbolize_keys
       end
