@@ -13,7 +13,7 @@ const locationMarkersByLevel = {
 export const drawSession = (sensors, map, heat, empty) => {
   var DrawSession = function() {};
 
-  const drawnObjects = { markers: [], lines: [], noteDrawings: [] };
+  let drawnObjects = [];
 
   DrawSession.prototype = {
     drawMobileSession: function(session, drawSessionStartingMarker) {
@@ -25,7 +25,7 @@ export const drawSession = (sensors, map, heat, empty) => {
         session,
         sensors.selectedSensorName()
       );
-      drawnObjects.markers.push(startingMarker);
+      drawnObjects.push(startingMarker);
 
       var suffix = " " + sensors.anySelected().unit_symbol;
       var points = [];
@@ -39,12 +39,12 @@ export const drawSession = (sensors, map, heat, empty) => {
           suffix
         );
 
-        drawnObjects.markers.push(marker);
+        drawnObjects.push(marker);
         points.push(measurement);
       });
 
-      drawnObjects.noteDrawings = drawNotes(session.notes || [], map);
-      drawnObjects.lines.push(map.drawLine(points));
+      drawnObjects = drawnObjects.concat(drawNotes(session.notes || [], map));
+      drawnObjects.push(map.drawLine(points));
     },
 
     undoDraw: function(session, mapPosition) {
@@ -53,20 +53,10 @@ export const drawSession = (sensors, map, heat, empty) => {
       });
       session.markers = [];
 
-      (drawnObjects.markers || []).forEach(marker => {
+      drawnObjects.forEach(marker => {
         removeMarker(marker);
       });
-      drawnObjects.markers = [];
-
-      (drawnObjects.lines || []).forEach(line => {
-        removeMarker(line);
-      });
-      drawnObjects.lines = [];
-
-      (drawnObjects.noteDrawings || []).forEach(noteItem => {
-        removeMarker(noteItem);
-      });
-      drawnObjects.noteDrawings = [];
+      drawnObjects = [];
 
       if (mapPosition) {
         map.fitBounds(mapPosition.bounds, mapPosition.zoom);
