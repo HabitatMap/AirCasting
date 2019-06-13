@@ -5,51 +5,63 @@
 }
 
 .single-session-container {
-  @include align-items(flex-start);
   @include flexbox();
   @include flex-direction(row);
-  @include justify-content(space-between);
   background-color: white;
   border-radius: $basic-radius;
   box-shadow: $lighter-shadow;
   margin: 0 auto $margin-default auto;
   overflow: hidden;
-  padding: 16px 16px 0 16px;
+  padding: 16px;
   position: relative;
   width: 95%;
 }
 
-.single-session-info {
-  flex: 0 0 228px;
+.single-session__aside {
+  display: flex;
   padding-right: 16px;
 }
 
-.single-session-graph {
+.single-session__graph {
   flex: 1;
+  height: 226px;
 }
 
-.single-session-name {
+.single-session__info {
+  @include flexbox();
+  flex-direction: column;
+  justify-content: space-between;
+  width: 215px;
+}
+
+.single-session__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-size: $medium-font;
+  max-height: 3em; // for browsers that don't support clamp, including Firefox <= 67 - still trims but with no ellipsis (...)
+  overflow: hidden;
+  word-break: break-word;
 }
 
-.single-session-username {
+.single-session__username {
   font-size: $small-font;
 }
 
-.single-session-max {
+.single-session__max {
   font-size: $tiny-font;
 }
 
-.single-session-avg {
+.single-session__avg {
   font-size: $medium-font;
 }
 
-.single-session-sensor {
+.single-session__sensor {
   font-size: $tiny-font;
   margin-bottom: 16px;
 }
 
-.single-session-date {
+.single-session__date {
   font-size: $tiny-font;
 }
 
@@ -59,11 +71,11 @@
   @include align-items(center);
 }
 
-.single-min-max-container {
+.session-min-max-container {
   padding: 6px 15px 6px 0;
 }
 
-.single-session-color {
+.single-session__color {
   min-width: 6px;
   min-height: 6px;
   max-width: 6px;
@@ -74,7 +86,7 @@
   float: left;
 }
 
-.single-session-avg-color {
+.single-session__avg-color {
   min-width: 9px;
   min-height: 9px;
   max-width: 9px;
@@ -85,6 +97,15 @@
   float: left;
 }
 
-.single-session-placeholder {
+.single-session__placeholder {
   height: 57px;
+}
+
+.highcharts-scrollbar-thumb {
+  cursor: pointer;
+}
+
+.highcharts-scrollbar-arrow,
+.highcharts-scrollbar-button {
+  cursor: pointer;
 }
