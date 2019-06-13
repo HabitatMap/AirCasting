@@ -3,6 +3,7 @@ import * as Session from "../../../javascript/values/session";
 import { clusterer } from "../../../javascript/clusterer";
 import { calculateBounds } from "../../../javascript/calculateBounds";
 import { prepareSessionData } from "./_sessions_utils";
+import { clearMap } from "../../../javascript/mapsUtils";
 
 export const mobileSessions = (
   params,
@@ -72,6 +73,7 @@ export const mobileSessions = (
     },
 
     toggleCrowdMapView: function() {
+      clearMap();
       if (params.isCrowdMapOn()) {
         drawSession.clear(this.sessions);
         sessionsUtils.updateCrowdMapLayer(this.sessionIds());
@@ -172,7 +174,6 @@ export const mobileSessions = (
     },
 
     drawSessionWithoutLabel: function(session, selectedSensor) {
-      drawSession.undoDraw(session);
       session.markers = [];
 
       const heatLevel = heat.levelName(
@@ -191,7 +192,6 @@ export const mobileSessions = (
     },
 
     drawSessionWithLabel: function(session, selectedSensor) {
-      drawSession.undoDraw(session);
       session.markers = [];
 
       const content = Session.averageValueAndUnit(session, selectedSensor);
@@ -257,7 +257,7 @@ export const mobileSessions = (
         });
       }
 
-      drawSession.clear(this.sessions);
+      clearMap();
 
       if (offset === 0) this.sessions = [];
 

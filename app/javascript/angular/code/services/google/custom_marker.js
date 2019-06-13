@@ -88,5 +88,15 @@ export function buildCustomMarker({
 
   CustomMarker.prototype.value = () => object.value;
 
-  return new CustomMarker({ object, content, colorClass, callback, type });
+  let marker = new CustomMarker({
+    object,
+    content,
+    colorClass,
+    callback,
+    type
+  });
+
+  window.__map.markers.push(marker);
+
+  return marker;
 }

@@ -2,6 +2,7 @@ import _ from "underscore";
 import { removeMarker } from "./google/_map.js";
 import * as assets from "../../../assets";
 import { drawNotes } from "../../../javascript/note";
+import { clearMap } from "../../../javascript/mapsUtils";
 
 const locationMarkersByLevel = {
   1: assets.locationMarker1Path,
@@ -13,7 +14,7 @@ const locationMarkersByLevel = {
 export const drawSession = (sensors, map, heat, empty) => {
   var DrawSession = function() {};
 
-  let drawnObjects = [];
+  let lines = [];
 
   DrawSession.prototype = {
     drawMobileSession: function(session, drawSessionStartingMarker) {
@@ -25,7 +26,6 @@ export const drawSession = (sensors, map, heat, empty) => {
         session,
         sensors.selectedSensorName()
       );
-      drawnObjects.push(startingMarker);
 
       var suffix = " " + sensors.anySelected().unit_symbol;
       var points = [];
@@ -39,24 +39,20 @@ export const drawSession = (sensors, map, heat, empty) => {
           suffix
         );
 
-        drawnObjects.push(marker);
         points.push(measurement);
       });
 
-      drawnObjects = drawnObjects.concat(drawNotes(session.notes || [], map));
-      drawnObjects.push(map.drawLine(points));
+      drawNotes(session.notes || [], map);
+      lines.push(map.drawLine(points));
     },
 
     undoDraw: function(session, mapPosition) {
-      (session.markers || []).forEach(marker => {
-        removeMarker(marker);
-      });
-      session.markers = [];
+      clearMap();
 
-      drawnObjects.forEach(marker => {
-        removeMarker(marker);
+      lines.forEach(line => {
+        removeMarker(line);
       });
-      drawnObjects = [];
+      lines = [];
 
       if (mapPosition) {
         map.fitBounds(mapPosition.bounds, mapPosition.zoom);
