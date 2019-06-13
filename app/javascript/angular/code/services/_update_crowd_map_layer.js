@@ -27,7 +27,7 @@ export const updateCrowdMapLayer = (
     );
 
     $http
-      .get("/api/averages", { cache: true, params: { q } })
+      .get("/api/averages2", { cache: true, params: { q } })
       .success(onAveragesFetch($window, map, params, utils, _onRectangleClick));
   }
 });

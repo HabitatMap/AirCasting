@@ -29,7 +29,9 @@ class AverageInfo
   end
 
   def measurements
-    @measurements ||=
+    return @measurements if @measurements
+
+    measurements =
       Measurement.unscoped.select(
         'AVG(value) AS avg, ' +
           "ROUND(longitude / #{grid_x}, 0) AS middle_x, " +
@@ -41,6 +43,13 @@ class AverageInfo
         .in_rectangle(data)
         .with_time(data)
         .belonging_to_sessions_with_ids(data[:session_ids])
+
+    if data[:session_ids].any?
+      measurements =
+        measurements.belonging_to_sessions_with_ids(data[:session_ids])
+    end
+
+    @measurements = measurements
   end
 
   def stream_ids
