@@ -33,7 +33,8 @@ Rails.application.routes.draw do
       collection { get :export }
     end
 
-    resources :averages, only: %i[index]
+    get 'averages' => 'averages#index'
+    get 'averages2' => 'averages#index2'
     resources :thresholds, only: %i[show], id: /.*/
     resources :regressions, only: %i[create index destroy]
     resource :region, only: %i[show], controller: 'mobile_regions'
