@@ -112,47 +112,49 @@ view session heatMapThresholds linkIcon toMsg =
         tooltipId =
             "graph-copy-link-tooltip"
     in
-    div []
-        [ p [ class "single-session-name" ] [ text session.title ]
-        , p [ class "single-session-username" ] [ text session.username ]
-        , p [ class "single-session-sensor" ] [ text session.sensorName ]
-        , case session.selectedMeasurements of
-            [] ->
-                div [ class "single-session-placeholder" ] []
+    div [ class "single-session__info" ]
+        [ div []
+            [ p [ class "single-session__name" ] [ text session.title ]
+            , p [ class "single-session__username" ] [ text session.username ]
+            , p [ class "single-session__sensor" ] [ text session.sensorName ]
+            , case session.selectedMeasurements of
+                [] ->
+                    div [ class "single-session__placeholder" ] []
 
-            measurements ->
-                let
-                    min =
-                        List.minimum measurements |> Maybe.withDefault -1
+                measurements ->
+                    let
+                        min =
+                            List.minimum measurements |> Maybe.withDefault -1
 
-                    max =
-                        List.maximum measurements |> Maybe.withDefault -1
+                        max =
+                            List.maximum measurements |> Maybe.withDefault -1
 
-                    average =
-                        List.sum measurements / toFloat (List.length measurements)
-                in
-                div []
-                    [ div []
-                        [ div [ class "single-session-avg-color", class <| Data.Session.classByValue (Just average) heatMapThresholds ] []
-                        , span [] [ text "avg. " ]
-                        , span [ class "single-session-avg" ] [ text <| String.fromInt <| round average ]
-                        , span [] [ text <| " " ++ session.sensorUnit ]
-                        ]
-                    , div [ class "session-numbers-container" ]
-                        [ div [ class "single-min-max-container" ]
-                            [ div [ class "single-session-color", class <| Data.Session.classByValue (Just min) heatMapThresholds ] []
-                            , span [] [ text "min. " ]
-                            , span [ class "single-session-min" ] [ text <| String.fromFloat min ]
+                        average =
+                            List.sum measurements / toFloat (List.length measurements)
+                    in
+                    div []
+                        [ div []
+                            [ div [ class "single-session__avg-color", class <| Data.Session.classByValue (Just average) heatMapThresholds ] []
+                            , span [] [ text "avg. " ]
+                            , span [ class "single-session__avg" ] [ text <| String.fromInt <| round average ]
+                            , span [] [ text <| " " ++ session.sensorUnit ]
                             ]
-                        , div [ class "single-min-max-container" ]
-                            [ div [ class "single-session-color", class <| Data.Session.classByValue (Just max) heatMapThresholds ] []
-                            , span [] [ text "max. " ]
-                            , span [ class "single-session-max" ] [ text <| String.fromFloat max ]
+                        , div [ class "session-numbers-container" ]
+                            [ div [ class "session-min-max-container" ]
+                                [ div [ class "single-session__color", class <| Data.Session.classByValue (Just min) heatMapThresholds ] []
+                                , span [] [ text "min. " ]
+                                , span [ class "single-session__min" ] [ text <| String.fromFloat min ]
+                                ]
+                            , div [ class "session-min-max-container" ]
+                                [ div [ class "single-session__color", class <| Data.Session.classByValue (Just max) heatMapThresholds ] []
+                                , span [] [ text "max. " ]
+                                , span [ class "single-session__max" ] [ text <| String.fromFloat max ]
+                                ]
                             ]
                         ]
-                    ]
-        , span [ class "single-session-date" ] [ text <| Times.format session.startTime session.endTime ]
-        , div [ class "action-buttons " ]
+            , span [ class "single-session__date" ] [ text <| Times.format session.startTime session.endTime ]
+            ]
+        , div [ class "action-buttons" ]
             [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink [ session ] ] [ text "export session" ]
             , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| toMsg tooltipId, id tooltipId ] [ img [ src (Path.toString linkIcon), alt "Link icon" ] [] ]
             ]
