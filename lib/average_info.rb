@@ -41,15 +41,15 @@ class AverageInfo
         .group('middle_x')
         .group('middle_y')
         .in_rectangle(data)
-        .with_time(data)
-        .belonging_to_sessions_with_ids(data[:session_ids])
 
     if data[:session_ids].any?
-      measurements =
-        measurements.belonging_to_sessions_with_ids(data[:session_ids])
+      @measurements =
+        measurements.with_time(data).belonging_to_sessions_with_ids(
+          data[:session_ids]
+        )
+    else
+      @measurements = measurements.with_time2(data)
     end
-
-    @measurements = measurements
   end
 
   def stream_ids
