@@ -30,17 +30,12 @@ const buildRangeSelector = ({ buttons, selected }) => ({
   buttonTheme: {
     fill: "none",
     width: 48,
-    padding: 2,
+    r: 12,
     stroke: "rgba(149, 149, 149, 0.3)",
     "stroke-width": 1,
-    r: 12,
 
     style: {
-      color: "#000",
-      boxShadow: "1px 1px 4px 0 rgba(149, 149, 149, 0.3)",
-      fontFamily: '"PT Sans", Arial, sans-serif',
-      height: 20,
-      width: 63
+      fontFamily: '"PT Sans", Arial, sans-serif'
     },
 
     states: {
