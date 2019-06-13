@@ -66,6 +66,10 @@ const numberToIndex = number => number - 1;
 
 if (process.env.NODE_ENV !== "test") {
   google.maps.event.addListener(popup, "domready", () => {
+    google.maps.event.addListener(window.__map, "zoom_changed", () =>
+      popup.close()
+    );
+
     const switchNoteButtonsObj = document.getElementsByClassName("switchNote");
 
     const switchNoteButtons = [
