@@ -29,7 +29,7 @@ const buildRangeSelector = ({ buttons, selected }) => ({
 
   buttonTheme: {
     fill: "none",
-    width: 63,
+    width: 48,
     padding: 2,
     stroke: "rgba(149, 149, 149, 0.3)",
     "stroke-width": 1,
