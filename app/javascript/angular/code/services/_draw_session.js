@@ -14,8 +14,6 @@ const locationMarkersByLevel = {
 export const drawSession = (sensors, map, heat, empty) => {
   var DrawSession = function() {};
 
-  let lines = [];
-
   DrawSession.prototype = {
     drawMobileSession: function(session, drawSessionStartingMarker) {
       if (!session || !sensors.anySelected()) {
@@ -43,16 +41,11 @@ export const drawSession = (sensors, map, heat, empty) => {
       });
 
       drawNotes(session.notes || [], map);
-      lines.push(map.drawLine(points));
+      window.__map.polygons.push(map.drawLine(points));
     },
 
     undoDraw: function(session, mapPosition) {
       clearMap();
-
-      lines.forEach(line => {
-        removeMarker(line);
-      });
-      lines = [];
 
       if (mapPosition) {
         map.fitBounds(mapPosition.bounds, mapPosition.zoom);

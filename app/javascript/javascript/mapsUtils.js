@@ -8,9 +8,16 @@ export const pixelsToLength = (pixels, zoom) => pixels * Math.pow(2, -zoom);
 export const clearMap = () => {
   window.__map.clearMarkers();
   window.__map.clearInfoWindows();
+  window.__map.clearPolygons();
 
   // clear polylines
   // clear crowd map
+};
+google.maps.Map.prototype.polygons = new Array();
+
+google.maps.Map.prototype.clearPolygons = function() {
+  this.polygons.forEach(polygon => polygon.setMap(null));
+  this.polygons = new Array();
 };
 
 // InfoWindows
