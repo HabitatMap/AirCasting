@@ -111,11 +111,9 @@
   height: 57px;
 }
 
-.highcharts-scrollbar-thumb {
-  cursor: pointer;
-}
-
+.highcharts-scrollbar-thumb,
 .highcharts-scrollbar-arrow,
-.highcharts-scrollbar-button {
+.highcharts-scrollbar-button,
+.highcharts-button-box {
   cursor: pointer;
 }
