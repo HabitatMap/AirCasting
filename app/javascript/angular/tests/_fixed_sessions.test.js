@@ -140,18 +140,6 @@ test("fetch with missing timeTo value in params does not call downloadSessions",
   t.end();
 });
 
-test("fetch with time calls drawSession.clear", t => {
-  const drawSession = mock("clear");
-  const data = buildData({ time: {} });
-  const fixedSessionsService = _fixedSessions({ data, drawSession });
-
-  fixedSessionsService.fetch();
-
-  t.true(drawSession.wasCalled());
-
-  t.end();
-});
-
 test("fetch with time calls downloadSessions", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ time: {} });
@@ -219,32 +207,7 @@ test("selectSession with indoor session after successfully fetching does not cal
   t.end();
 });
 
-test("deselectSession with existing session calls drawSession.undoDraw", t => {
-  const drawSession = mock("undoDraw");
-  const sessionsUtils = { isSessionSelected: () => true };
-  const fixedSessionsService = _fixedSessions({ drawSession, sessionsUtils });
-
-  fixedSessionsService.deselectSession(1);
-
-  t.true(drawSession.wasCalled());
-
-  t.end();
-});
-
-test("deselectSession with non-existing session does not call drawSession.undoDraw", t => {
-  const drawSession = mock("undoDraw");
-  const sessionsUtils = { isSessionSelected: () => false };
-  const fixedSessionsService = _fixedSessions({ drawSession, sessionsUtils });
-
-  fixedSessionsService.deselectSession(1);
-
-  t.false(drawSession.wasCalled());
-
-  t.end();
-});
-
-test("deselectSession calls undoDraw with the bounds saved before selecting the session", t => {
-  const drawSession = mock("undoDraw");
+test("deselectSession calls fitBounds with the bounds saved before selecting the session", t => {
   const bounds = {
     east: -68.06802987730651,
     north: 47.98992183263727,
@@ -265,7 +228,6 @@ test("deselectSession calls undoDraw with the bounds saved before selecting the 
     selectedId: () => 1
   };
   const fixedSessionsService = _fixedSessions({
-    drawSession,
     map,
     sessionsUtils,
     sensors
@@ -274,7 +236,8 @@ test("deselectSession calls undoDraw with the bounds saved before selecting the 
 
   fixedSessionsService.deselectSession(1);
 
-  t.true(drawSession.wasCalledWith2({ bounds: bounds, zoom: zoom }));
+  t.true(map.wasCalledWith(bounds));
+  t.true(map.wasCalledWith2(zoom));
 
   t.end();
 });
@@ -359,18 +322,6 @@ test("drawSessionsInLocation calls map.clusterMarkers for currently streaming se
   fixedSessionsService.drawSessionsInLocation();
 
   sinon.assert.called(clusterMarkers);
-
-  t.end();
-});
-
-test("drawSessionsInLocation removes previous markers", t => {
-  const removeAllMarkers = sinon.spy();
-  const map = { removeAllMarkers };
-  const fixedSessionsService = _fixedSessions({ map });
-
-  fixedSessionsService.drawSessionsInLocation();
-
-  sinon.assert.called(removeAllMarkers);
 
   t.end();
 });
@@ -465,7 +416,7 @@ const _fixedSessions = ({
     selectedSensorName: () => "sensorName",
     ...sensors
   };
-  const _drawSession = drawSession || { clear: () => {}, undoDraw: () => {} };
+  const _drawSession = { ...drawSession };
   const sessionsDownloader = (_, arg) => {
     sessionsDownloaderCalls.push(arg);
   };

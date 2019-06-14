@@ -2,18 +2,6 @@ import test from "blue-tape";
 import { mock } from "./helpers";
 import { updateCrowdMapLayer } from "../code/services/_update_crowd_map_layer";
 
-test("when crowd map layer is off it clears rectangles", t => {
-  const params = { isCrowdMapOn: () => false };
-  const map = mock("clearRectangles");
-  const service = _updateCrowdMapLayer({ params, map });
-
-  service.call();
-
-  t.true(map.wasCalled());
-
-  t.end();
-});
-
 test("it delegates building the query param to a service passing it the session ids", t => {
   const calls = [];
   const buildQueryParamsForCrowdMapLayer = {
