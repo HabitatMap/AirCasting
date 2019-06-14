@@ -12,11 +12,14 @@ export const clearMap = () => {
 };
 
 // Polygons
-google.maps.Map.prototype.polygons = new Array();
+google.maps.Map.prototype.polylines = new Array();
+google.maps.Map.prototype.rectangles = new Array();
 
 google.maps.Map.prototype.clearPolygons = function() {
-  this.polygons.forEach(polygon => polygon.setMap(null));
-  this.polygons = new Array();
+  this.polylines.forEach(polyline => polyline.setMap(null));
+  this.polylines = new Array();
+  this.rectangles.forEach(rectangle => rectangle.setMap(null));
+  this.rectangles = new Array();
 };
 
 // InfoWindows

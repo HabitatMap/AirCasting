@@ -1,6 +1,5 @@
 angular.module("google").factory("rectangles", function() {
   var Rectangles = function() {
-    this.rectangles = [];
     this.colors = [null, "#2DA641", "#F9DC2E", "#F57F22", "#F4001C"];
   };
   Rectangles.prototype = {
@@ -8,10 +7,7 @@ angular.module("google").factory("rectangles", function() {
       this.googleMap = googleMap;
     },
     get: function() {
-      return this.rectangles;
-    },
-    getData: function() {
-      return _(this.rectangles).pluck("data");
+      return window.__map.rectangles;
     },
     position: function(region) {
       var lat = (region.south + region.north) / 2;
@@ -36,7 +32,7 @@ angular.module("google").factory("rectangles", function() {
           };
           rectangle = new google.maps.Rectangle(rectOptions);
           rectangle.data = data;
-          window.__map.polygons.push(rectangle);
+          window.__map.rectangles.push(rectangle);
         }
       });
     },
