@@ -1,5 +1,6 @@
 import _ from "underscore";
 import constants from "../../../javascript/constants";
+import { clearMap } from "../../../javascript/mapsUtils";
 
 export const updateCrowdMapLayer = (
   map,
@@ -12,7 +13,7 @@ export const updateCrowdMapLayer = (
   $window
 ) => ({
   call: sessionIds => {
-    map.clearRectangles();
+    clearMap();
     if (!params.isCrowdMapOn()) return;
 
     const bounds = map.getBounds();

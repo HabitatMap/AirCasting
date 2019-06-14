@@ -1,6 +1,7 @@
 import _ from "underscore";
 import moment from "moment";
 import * as FiltersUtils from "../../../javascript/filtersUtils";
+import { clearMap } from "../../../javascript/mapsUtils";
 
 const endOfToday = moment()
   .utc()
@@ -32,10 +33,8 @@ export const MobileSessionsMapCtrl = (
     $scope.sessions = mobileSessions;
     $scope.$window = $window;
 
-    map.clearRectangles();
-    infoWindow.hide();
-    map.unregisterAll();
-    map.removeAllMarkers();
+    clearMap();
+    map.unregisterAll(); //todo
 
     if (process.env.NODE_ENV !== "test") {
       $($window).resize(function() {

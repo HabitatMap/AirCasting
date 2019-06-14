@@ -9,10 +9,9 @@ export const clearMap = () => {
   window.__map.clearMarkers();
   window.__map.clearInfoWindows();
   window.__map.clearPolygons();
-
-  // clear polylines
-  // clear crowd map
 };
+
+// Polygons
 google.maps.Map.prototype.polygons = new Array();
 
 google.maps.Map.prototype.clearPolygons = function() {

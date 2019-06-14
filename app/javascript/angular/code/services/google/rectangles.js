@@ -21,7 +21,6 @@ angular.module("google").factory("rectangles", function() {
     draw: function(rectangles, thresholds) {
       var rectOptions, rectangle, color;
       var self = this;
-      this.clear();
       _(rectangles).each(function(data) {
         color = self.getColor(thresholds, data.value);
         if (color) {
@@ -37,7 +36,7 @@ angular.module("google").factory("rectangles", function() {
           };
           rectangle = new google.maps.Rectangle(rectOptions);
           rectangle.data = data;
-          self.rectangles.push(rectangle);
+          window.__map.polygons.push(rectangle);
         }
       });
     },
@@ -51,12 +50,6 @@ angular.module("google").factory("rectangles", function() {
       });
 
       return this.colors[_(levels).indexOf(level)];
-    },
-    clear: function() {
-      _(this.rectangles).each(function(rectangle) {
-        rectangle.setMap(null);
-      });
-      this.rectangles = [];
     }
   };
 

@@ -75,10 +75,8 @@ export const mobileSessions = (
     toggleCrowdMapView: function() {
       clearMap();
       if (params.isCrowdMapOn()) {
-        drawSession.clear(this.sessions);
         sessionsUtils.updateCrowdMapLayer(this.sessionIds());
       } else {
-        map.clearRectangles();
         this.drawSessionsInLocation();
       }
     },

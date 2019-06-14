@@ -312,10 +312,6 @@ export const map = (
       return new google.maps.Polyline(lineOptions);
     },
 
-    clearRectangles: function() {
-      rectangles.clear();
-    },
-
     fromLatLngToPoint: function(latLng) {
       return googleMaps.fromLatLngToPoint(this.mapObj, latLng);
     }
