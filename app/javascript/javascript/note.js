@@ -37,7 +37,7 @@ const createHtml = index => {
 
   let photoHtml = "";
   if (data.photo) {
-    photoHtml = `<a href=${data.photo} visibility=hidden lightbox>
+    photoHtml = `<a href=${data.photo} visibility=hidden lightbox target="_blank">
      <div class="photo">
         <img src=${data.photo_thumbnail} />
       </div>
