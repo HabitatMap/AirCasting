@@ -1,8 +1,8 @@
 <div ng-controller="InfoWindowCtrl" >
+  <h1 class="info-window__heading">{{ sensors.selected().label}}</h1>
+  <p class="info-window__avg">avg. <strong>{{ infoWindow.data.average | number:0 }}</strong> {{ sensors.selected().unit_symbol }}</p>
+  <hr>
   <ul class="info-window__list">
-    <li>{{ sensors.selected().label}}</li>
-    <li>avg. <strong>{{ infoWindow.data.average | number:0 }}</strong> {{ sensors.selected().unit_symbol }}</li>
-    <hr>
     <li>{{ infoWindow.data.number_of_samples }} measurements</li>
     <li>{{ infoWindow.data.number_of_contributors }} contributors</li>
   </ul>
