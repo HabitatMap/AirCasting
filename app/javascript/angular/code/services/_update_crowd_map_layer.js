@@ -13,8 +13,8 @@ export const updateCrowdMapLayer = (
   $window
 ) => ({
   call: sessionIds => {
-    clearMap();
     if (!params.isCrowdMapOn()) return;
+    clearMap();
 
     const bounds = map.getBounds();
     const q = buildQueryParamsForCrowdMapLayer.call(sessionIds, bounds);

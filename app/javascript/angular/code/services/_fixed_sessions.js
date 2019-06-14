@@ -3,6 +3,7 @@ import constants from "../../../javascript/constants";
 import * as Session from "../../../javascript/values/session";
 import { calculateBounds } from "../../../javascript/calculateBounds";
 import { prepareSessionData } from "./_sessions_utils";
+import { clearMap } from "../../../javascript/mapsUtils";
 
 export const fixedSessions = (
   params,
@@ -62,7 +63,8 @@ export const fixedSessions = (
       if (!sessionsUtils.isSessionSelected()) return;
       params.update({ prevMapPosition: {} });
       params.update({ selectedSessionIds: [] });
-      drawSession.undoDraw({}, prevMapPosition);
+      clearMap();
+      map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
     },
 
     selectSession: function(id) {
@@ -124,8 +126,7 @@ export const fixedSessions = (
     },
 
     drawSessionsInLocation: function() {
-      map.removeAllMarkers();
-
+      clearMap();
       if (params.get("data").isIndoor) return;
 
       const sessions = this.get();
@@ -145,9 +146,6 @@ export const fixedSessions = (
     },
 
     drawMarkersWithLabel: function(session, selectedSensor) {
-      drawSession.undoDraw(session);
-      session.markers = [];
-
       const content = Session.lastHourAverageValueAndUnit(
         session,
         selectedSensor
@@ -167,13 +165,9 @@ export const fixedSessions = (
         colorClass: heatLevel,
         callback: callback(Session.id(session))
       });
-      session.markers.push(marker);
     },
 
     drawMarkersWithoutLabel: function(session) {
-      drawSession.undoDraw(session);
-      session.markers = [];
-
       const latLng = Session.latLng(session);
       const callback = id => () =>
         $rootScope.$broadcast("markerSelected", { session_id: id });
@@ -183,7 +177,6 @@ export const fixedSessions = (
         colorClass: "default",
         callback: callback(Session.id(session))
       });
-      session.markers.push(customMarker);
     },
 
     fetch: function(values = {}) {
@@ -222,8 +215,7 @@ export const fixedSessions = (
           unit_symbol: sensors.selected().unit_symbol
         });
       }
-
-      drawSession.clear(this.sessions);
+      clearMap();
 
       if (offset === 0) this.sessions = [];
 

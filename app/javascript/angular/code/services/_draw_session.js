@@ -1,8 +1,6 @@
 import _ from "underscore";
-import { removeMarker } from "./google/_map.js";
 import * as assets from "../../../assets";
 import { drawNotes } from "../../../javascript/note";
-import { clearMap } from "../../../javascript/mapsUtils";
 
 const locationMarkersByLevel = {
   1: assets.locationMarker1Path,
@@ -41,19 +39,7 @@ export const drawSession = (sensors, map, heat, empty) => {
       });
 
       drawNotes(session.notes || [], map);
-      window.__map.polygons.push(map.drawLine(points));
-    },
-
-    undoDraw: function(session, mapPosition) {
-      clearMap();
-
-      if (mapPosition) {
-        map.fitBounds(mapPosition.bounds, mapPosition.zoom);
-      }
-    },
-
-    clear: function(sessions) {
-      _(sessions).each(_(this.undoDraw).bind(this));
+      window.__map.polylines.push(map.drawLine(points));
     },
 
     measurementsForSensor: function(session, sensor_name) {

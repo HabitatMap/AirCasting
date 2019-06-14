@@ -34,7 +34,7 @@ export const MobileSessionsMapCtrl = (
     $scope.$window = $window;
 
     clearMap();
-    map.unregisterAll(); //todo
+    map.unregisterAll();
 
     if (process.env.NODE_ENV !== "test") {
       $($window).resize(function() {

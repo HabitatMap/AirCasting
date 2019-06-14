@@ -88,7 +88,7 @@ export function buildCustomMarker({
 
   CustomMarker.prototype.value = () => object.value;
 
-  let marker = new CustomMarker({
+  const marker = new CustomMarker({
     object,
     content,
     colorClass,
