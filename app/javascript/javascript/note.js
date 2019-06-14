@@ -37,27 +37,34 @@ const createHtml = index => {
 
   let photoHtml = "";
   if (data.photo) {
-    photoHtml = `<a href=${data.photo} visibility=hidden lightbox target="_blank">
-     <div class="photo">
-        <img src=${data.photo_thumbnail} />
-      </div>
+    photoHtml = `<a class="note__photo" href=${data.photo} visibility=hidden lightbox target="_blank">
+      <img src=${data.photo_thumbnail} />
     </a>`;
   }
 
   return (
-    `<div class="note-window">
-      <div class="header">
-        <span class="date">${date}</span>
-        <div class="right">
-          <button class="switchNote" id=${index - 1}> < </button>
-          <span class=number>${data.number} of ${notes.length}</span>
-          <button class="switchNote" id=${index + 1}> > </button>
-        </div>
+    `<div class="note info-window">
+      <div class="note__date">
+        ${date}
       </div>
-    <div class="content">` +
+      <hr>
+      <div class="note__content">` +
     photoHtml +
     `<p>${data.text}</p>
       </div>
+      <div class="note-pagination">
+          <button class="note-pagination__arrow note-pagination__arrow--prev switchNote" id=${index -
+            1}>
+            <
+          </button>
+          <span class="note-pagination__page">
+            ${data.number} of ${notes.length}
+          </span>
+          <button class="note-pagination__arrow note-pagination__arrow--next switchNote" id=${index +
+            1}>
+            >
+          </button>
+        </div>
     </div>`
   );
 };

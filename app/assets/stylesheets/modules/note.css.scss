@@ -1,0 +1,53 @@
+.note {
+  min-width: 100px;
+  max-width: 200px;
+}
+
+.note__date {
+  padding-right: 5px;
+}
+
+.note__content {
+  margin-top: 8px;
+
+  p {
+    font-size: $tiny-font;
+    margin-bottom: 12px;
+  }
+}
+
+.note__photo {
+  display: block;
+  line-height: 1;
+  margin: 2px 0 5px;
+
+  img {
+    max-width: 100%;
+  }
+}
+
+.note-pagination {
+  line-height: 1;
+  text-align: center;
+}
+
+.note-pagination__arrow {
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $blue;
+  font-weight: $font-stack-bold;
+}
+
+.note-pagination__arrow--prev {
+  float: left;
+  padding-left: 0;
+  padding-right: 10px;
+}
+
+.note-pagination__arrow--next {
+  float: right;
+  padding-right: 0;
+  padding-left: 10px;
+}
