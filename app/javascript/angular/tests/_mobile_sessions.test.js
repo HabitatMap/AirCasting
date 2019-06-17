@@ -81,18 +81,6 @@ test("fetch with missing timeTo value in params does not call downloadSessions",
   t.end();
 });
 
-test("fetch with time calls drawSession.clear", t => {
-  const drawSession = mock("clear");
-  const data = buildData({ time: {} });
-  const mobileSessionsService = _mobileSessions({ data, drawSession });
-
-  mobileSessionsService.fetch();
-
-  t.true(drawSession.wasCalled());
-
-  t.end();
-});
-
 test("fetch with time calls downloadSessions", t => {
   const sessionsDownloaderCalls = [];
   const data = buildData({ time: {} });
@@ -204,19 +192,6 @@ test("selectSession after successfully fetching calls drawSession.drawMobileSess
   t.end();
 });
 
-test("selectSession after successfully fetching undraws all sessions", t => {
-  const drawSession = mock("clear");
-  const sessions = [];
-  const mobileSessionsService = _mobileSessions({ drawSession, sensors });
-  mobileSessionsService.sessions = sessions;
-
-  mobileSessionsService.selectSession(1);
-
-  t.true(drawSession.wasCalledWith(sessions));
-
-  t.end();
-});
-
 test("selectSession after successfully fetching calls drawSession.drawMobileSession with fetched data", t => {
   const drawSession = mock("drawMobileSession");
   const data = { id: 1, streams: {} };
@@ -274,57 +249,6 @@ test("reSelectSession after successfully fetching does not call map.fitBounds", 
   mobileSessionsService.reSelectSession(123);
 
   t.false(map.wasCalled());
-
-  t.end();
-});
-
-test("deselectSession when session selected calls drawSession.undoDraw", t => {
-  const drawSession = mock("undoDraw");
-  const sessionsUtils = { isSessionSelected: () => true };
-  const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils });
-
-  mobileSessionsService.deselectSession(1);
-
-  t.true(drawSession.wasCalled());
-
-  t.end();
-});
-
-test("deselectSession when session not selected does not call drawSession.undoDraw", t => {
-  const drawSession = mock("undoDraw");
-  const sessionsUtils = { isSessionSelected: () => false };
-  const mobileSessionsService = _mobileSessions({ drawSession, sessionsUtils });
-
-  mobileSessionsService.deselectSession(1);
-
-  t.false(drawSession.wasCalled());
-
-  t.end();
-});
-
-test("deselectSession calls drawSession.undoDraw with the position saved before selecting the session", t => {
-  const bounds = {
-    east: -68.06802987730651,
-    north: 47.98992183263727,
-    south: 24.367113787533707,
-    west: -123.65885018980651
-  };
-  const prevMapPosition = { getBounds: () => bounds, getZoom: () => 10 };
-  const params = {
-    get: () => prevMapPosition
-  };
-  const drawSession = mock("undoDraw");
-  const sessionsUtils = { isSessionSelected: () => true };
-  const mobileSessionsService = _mobileSessions({
-    drawSession,
-    sessionsUtils,
-    params,
-    sensors: { sensors: { 2: { sensor_name: "sensor_name" } } }
-  });
-
-  mobileSessionsService.deselectSession();
-
-  t.true(drawSession.wasCalledWith2(prevMapPosition));
 
   t.end();
 });
@@ -471,7 +395,6 @@ const _mobileSessions = ({
   const _drawSession = {
     clear: () => {},
     drawMobileSession: () => {},
-    undoDraw: () => {},
     ...drawSession
   };
   const sessionsDownloader = (_, arg) => {

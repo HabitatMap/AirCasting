@@ -214,33 +214,6 @@ test("when map was change programatically saveViewport calls params update with 
   t.end();
 });
 
-test("removeAllMarkers removes all markers", t => {
-  let markers = [{ setMap: _ => {} }];
-  const service = _map({});
-  service.markers = markers;
-
-  service.removeAllMarkers();
-
-  const actual = service.markers;
-
-  const expected = [];
-  t.deepEqual(actual, expected);
-
-  t.end();
-});
-
-test("removeAllMarkers clears the clustering", t => {
-  const clearMarkers = sinon.spy();
-  const service = _map({});
-  service.clusterer = { clearMarkers };
-
-  service.removeAllMarkers();
-
-  sinon.assert.called(clearMarkers);
-
-  t.end();
-});
-
 test("drawRectangles calls rectangle.draw with data and thresholds", t => {
   const draw = sinon.spy();
   const rectangles = { draw };

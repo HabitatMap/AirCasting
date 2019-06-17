@@ -1,5 +1,6 @@
 import _ from "underscore";
 import * as FiltersUtils from "../../../javascript/filtersUtils";
+import { clearMap } from "../../../javascript/mapsUtils";
 
 export const FixedSessionsMapCtrl = (
   $scope,
@@ -22,10 +23,8 @@ export const FixedSessionsMapCtrl = (
     $scope.sessions = fixedSessions;
     $scope.$window = $window;
 
-    map.clearRectangles();
-    infoWindow.hide();
+    clearMap();
     map.unregisterAll();
-    map.removeAllMarkers();
 
     if (process.env.NODE_ENV !== "test") {
       $($window).resize(function() {

@@ -1,5 +1,4 @@
 import _ from "underscore";
-import { removeMarker } from "./google/_map.js";
 import * as assets from "../../../assets";
 import { drawNotes } from "../../../javascript/note";
 
@@ -13,8 +12,6 @@ const locationMarkersByLevel = {
 export const drawSession = (sensors, map, heat, empty) => {
   var DrawSession = function() {};
 
-  let drawnObjects = [];
-
   DrawSession.prototype = {
     drawMobileSession: function(session, drawSessionStartingMarker) {
       if (!session || !sensors.anySelected()) {
@@ -25,7 +22,6 @@ export const drawSession = (sensors, map, heat, empty) => {
         session,
         sensors.selectedSensorName()
       );
-      drawnObjects.push(startingMarker);
 
       var suffix = " " + sensors.anySelected().unit_symbol;
       var points = [];
@@ -39,32 +35,11 @@ export const drawSession = (sensors, map, heat, empty) => {
           suffix
         );
 
-        drawnObjects.push(marker);
         points.push(measurement);
       });
 
-      drawnObjects = drawnObjects.concat(drawNotes(session.notes || [], map));
-      drawnObjects.push(map.drawLine(points));
-    },
-
-    undoDraw: function(session, mapPosition) {
-      (session.markers || []).forEach(marker => {
-        removeMarker(marker);
-      });
-      session.markers = [];
-
-      drawnObjects.forEach(marker => {
-        removeMarker(marker);
-      });
-      drawnObjects = [];
-
-      if (mapPosition) {
-        map.fitBounds(mapPosition.bounds, mapPosition.zoom);
-      }
-    },
-
-    clear: function(sessions) {
-      _(sessions).each(_(this.undoDraw).bind(this));
+      drawNotes(session.notes || [], map);
+      window.__map.polylines.push(map.drawLine(points));
     },
 
     measurementsForSensor: function(session, sensor_name) {

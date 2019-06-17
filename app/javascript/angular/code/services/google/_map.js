@@ -16,14 +16,14 @@ export const map = (
 ) => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
   let hasChangedProgrammatically = false;
-  $window.__markers = [];
+  $window.__traceMarkers = [];
 
   var Map = function() {};
 
   Map.prototype = {
     init: function(element, options) {
       this.mapObj = googleMaps.init(element, options);
-      this.markers = $window.__markers;
+      this.traceMarkers = $window.__traceMarkers;
       this.addListener("idle", this.saveViewport);
       googleMaps.addListenerOnce(this.mapObj, "idle", () =>
         $rootScope.$broadcast("googleMapsReady")
@@ -194,7 +194,6 @@ export const map = (
       var newMarker = new google.maps.Marker({ position, title, zIndex, icon });
 
       newMarker.setMap(this.get());
-      this.markers.push(newMarker);
 
       return newMarker;
     },
@@ -214,7 +213,6 @@ export const map = (
       });
 
       customMarker.setMap(this.get());
-      this.markers.push(customMarker);
 
       return customMarker;
     },
@@ -229,7 +227,6 @@ export const map = (
       });
 
       customMarker.setMap(this.get());
-      this.markers.push(customMarker);
 
       return customMarker;
     },
@@ -274,7 +271,7 @@ export const map = (
 
       const markerClusterer = new MarkerClusterer(
         this.mapObj,
-        this.markers,
+        window.__map.markers,
         options
       );
 
@@ -290,13 +287,6 @@ export const map = (
       googleMaps.fitBounds(this.mapObj, this.selectedCluster.bounds_);
     },
 
-    removeAllMarkers: function() {
-      if (this.clusterer) this.clusterer.clearMarkers();
-
-      (this.markers || []).forEach(marker => marker.setMap(null));
-      this.markers = [];
-    },
-
     drawLine: function(points) {
       const path = points.map(
         point => new google.maps.LatLng(point.latitude, point.longitude)
@@ -310,10 +300,6 @@ export const map = (
       };
 
       return new google.maps.Polyline(lineOptions);
-    },
-
-    clearRectangles: function() {
-      rectangles.clear();
     },
 
     fromLatLngToPoint: function(latLng) {
@@ -339,7 +325,7 @@ export const drawTraceMarker = ({ position }) => {
   });
 
   customMarker.setMap(window.__map);
-  window.__markers.push(customMarker);
+  window.__traceMarkers.push(customMarker);
 
   return customMarker;
 };

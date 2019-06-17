@@ -57,8 +57,6 @@ angular.module("aircasting").factory("sessionsDownloader", [
             return shortType.name.toLowerCase();
           })
           .value();
-
-        setDefaultSessionAttributes(session);
       });
       sessions.push.apply(sessions, data);
       sessions = orderBy(sessions, "end_time_local");
@@ -71,7 +69,3 @@ angular.module("aircasting").factory("sessionsDownloader", [
     return fetch;
   }
 ]);
-
-const setDefaultSessionAttributes = session => {
-  session.markers = [];
-};

@@ -3,6 +3,7 @@ import * as Session from "../../../javascript/values/session";
 import { clusterer } from "../../../javascript/clusterer";
 import { calculateBounds } from "../../../javascript/calculateBounds";
 import { prepareSessionData } from "./_sessions_utils";
+import { clearMap } from "../../../javascript/mapsUtils";
 
 export const mobileSessions = (
   params,
@@ -72,11 +73,10 @@ export const mobileSessions = (
     },
 
     toggleCrowdMapView: function() {
+      clearMap();
       if (params.isCrowdMapOn()) {
-        drawSession.clear(this.sessions);
         sessionsUtils.updateCrowdMapLayer(this.sessionIds());
       } else {
-        map.clearRectangles();
         this.drawSessionsInLocation();
       }
     },
@@ -86,13 +86,14 @@ export const mobileSessions = (
       this.selectedSession = {};
       params.update({ prevMapPosition: {} });
       params.update({ selectedSessionIds: [] });
-      drawSession.undoDraw({}, prevMapPosition);
+      clearMap();
+      map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
     },
 
     selectSession: function(id) {
       const callback = rawData => {
         this.selectedSession = prepareSessionData(rawData);
-        drawSession.clear(this.sessions);
+        clearMap();
         prevMapPosition = {
           bounds: map.getBounds(),
           zoom: map.getZoom()
@@ -109,8 +110,6 @@ export const mobileSessions = (
           this.selectedSession,
           drawSessionStartingMarker
         );
-
-        sessionsUtils.updateCrowdMapLayer();
       };
 
       params.update({ selectedSessionIds: [id] });
@@ -132,13 +131,12 @@ export const mobileSessions = (
           this.selectedSession,
           drawSessionStartingMarker
         );
-
-        sessionsUtils.updateCrowdMapLayer();
       };
       this._selectSession(id, callback);
     },
 
     redrawSelectedSession: function() {
+      clearMap();
       const drawSessionStartingMarker = (selectedSession, sensorName) =>
         this.drawSessionWithLabel(selectedSession, sensorName);
 
@@ -150,6 +148,7 @@ export const mobileSessions = (
 
     drawSessionsInLocation: function() {
       if (!sensors.anySelected()) return;
+      clearMap();
 
       const sessions = this.get();
       const sessionsToCluster = [];
@@ -172,9 +171,6 @@ export const mobileSessions = (
     },
 
     drawSessionWithoutLabel: function(session, selectedSensor) {
-      drawSession.undoDraw(session);
-      session.markers = [];
-
       const heatLevel = heat.levelName(
         Session.roundedAverage(session, selectedSensor)
       );
@@ -187,13 +183,9 @@ export const mobileSessions = (
         colorClass: heatLevel,
         callback: callback(Session.id(session))
       });
-      session.markers.push(marker);
     },
 
     drawSessionWithLabel: function(session, selectedSensor) {
-      drawSession.undoDraw(session);
-      session.markers = [];
-
       const content = Session.averageValueAndUnit(session, selectedSensor);
       const heatLevel = heat.levelName(
         Session.roundedAverage(session, selectedSensor)
@@ -208,7 +200,6 @@ export const mobileSessions = (
         colorClass: heatLevel,
         callback: callback(Session.id(session))
       });
-      session.markers.push(marker);
       return marker;
     },
 
@@ -257,7 +248,7 @@ export const mobileSessions = (
         });
       }
 
-      drawSession.clear(this.sessions);
+      clearMap();
 
       if (offset === 0) this.sessions = [];
 
