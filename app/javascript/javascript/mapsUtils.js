@@ -6,11 +6,10 @@ export const lengthToPixels = (length, zoom) => {
 export const pixelsToLength = (pixels, zoom) => pixels * Math.pow(2, -zoom);
 
 export const clearMap = () => {
-  if (process.env.NODE_ENV !== "test") {
-    window.__map.clearMarkers();
-    window.__map.clearInfoWindows();
-    window.__map.clearPolygons();
-  }
+  if (process.env.NODE_ENV === "test") return;
+  window.__map.clearMarkers();
+  window.__map.clearInfoWindows();
+  window.__map.clearPolygons();
 };
 
 if (process.env.NODE_ENV !== "test") {
