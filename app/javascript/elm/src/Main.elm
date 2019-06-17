@@ -936,13 +936,13 @@ viewFixedFilters model =
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
         , div [ class "filters__toggle-group" ]
-            [ label [] [ text "type" ]
+            [ label [] [ text "placement" ]
             , Tooltip.view Tooltip.typeToggleFilter model.tooltipIcon
             , viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
             , viewToggleButton "indoor" model.isIndoor ToggleIndoor
             ]
         , div [ class "filters__toggle-group" ]
-            [ label [] [ text "streaming" ]
+            [ label [] [ text "status" ]
             , Tooltip.view Tooltip.streamingToggleFilter model.tooltipIcon
             , viewToggleButton "active" model.isStreaming ToggleStreaming
             , viewToggleButton "dormant" (not model.isStreaming) ToggleStreaming
