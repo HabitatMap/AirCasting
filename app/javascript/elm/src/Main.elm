@@ -240,9 +240,7 @@ type Msg
     | SetScrollPosition
     | NoOp
     | Timeout Int
-    | UpdateResolution
-    | MaybeIncreaseResolution
-    | MaybeDecreaseResolution
+    | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -574,30 +572,28 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        UpdateResolution ->
-            ( model, Ports.updateResolution (51 - BoundedInteger.getValue model.crowdMapResolution) )
-
         Timeout int ->
             if int == model.debouncingCounter then
-                update UpdateResolution { model | debouncingCounter = 0 }
+                ( { model | debouncingCounter = 0 }, Ports.updateResolution (51 - BoundedInteger.getValue model.crowdMapResolution) )
 
             else
                 ( model, Cmd.none )
 
-        MaybeIncreaseResolution ->
-            debounce BoundedInteger.addOne model
-
-        MaybeDecreaseResolution ->
-            debounce BoundedInteger.subOne model
+        MaybeUpdateResolution updateResolution ->
+            debounce updateResolution model
 
 
-debounce : (BoundedInteger -> BoundedInteger) -> Model -> ( Model, Cmd Msg )
-debounce updateResolution model =
+type alias Debouncable a =
+    { a | debouncingCounter : Int, crowdMapResolution : BoundedInteger }
+
+
+debounce : (BoundedInteger -> BoundedInteger) -> Debouncable a -> ( Debouncable a, Cmd Msg )
+debounce updateResolution debouncable =
     let
         newCounter =
-            model.debouncingCounter + 1
+            debouncable.debouncingCounter + 1
     in
-    ( { model | crowdMapResolution = updateResolution model.crowdMapResolution, debouncingCounter = newCounter }
+    ( { debouncable | crowdMapResolution = updateResolution debouncable.crowdMapResolution, debouncingCounter = newCounter }
     , Process.sleep 1000 |> Task.perform (\_ -> Timeout newCounter)
     )
 
@@ -1127,7 +1123,7 @@ viewCrowdMapSlider boundedInteger =
     div [ id "crowd-map-slider" ]
         [ label [] [ text <| "grid cell size: " ++ String.fromInt (BoundedInteger.getValue boundedInteger) ]
         , div [ class "crowd-map-slider-container" ]
-            [ span [ class "minus", Events.onClick MaybeDecreaseResolution ] [ text "-" ]
+            [ span [ class "minus", Events.onClick (MaybeUpdateResolution BoundedInteger.subOne) ] [ text "-" ]
             , input
                 [ class "crowd-map-slider"
                 , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateCrowdMapResolution)
@@ -1137,7 +1133,7 @@ viewCrowdMapSlider boundedInteger =
                 , type_ "range"
                 ]
                 []
-            , span [ class "plus", Events.onClick MaybeIncreaseResolution ] [ text "+" ]
+            , span [ class "plus", Events.onClick (MaybeUpdateResolution BoundedInteger.addOne) ] [ text "+" ]
             ]
         ]
 

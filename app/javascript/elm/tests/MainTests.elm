@@ -358,7 +358,7 @@ crowdMapArea =
                     |> Tuple.first
                     |> .crowdMapResolution
                     |> Expect.equal (BoundedInteger.build (LowerBound 1) (UpperBound 40) (Value 40))
-         , test "'off' is selected by default" <|
+        , test "'off' is selected by default" <|
             \_ ->
                 defaultModel
                     |> view
@@ -375,8 +375,13 @@ crowdMapArea =
                     |> Event.expect ToggleCrowdMap
         , test "slider has a description with current crowd map grid cell size" <|
             \_ ->
-                { defaultModel | isCrowdMapOn = True, crowdMapResolution = BoundedInteger.build (LowerBound 1)
-                (UpperBound 40) (Value 40) }
+                { defaultModel
+                    | isCrowdMapOn = True
+                    , crowdMapResolution =
+                        BoundedInteger.build (LowerBound 1)
+                            (UpperBound 40)
+                            (Value 40)
+                }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| id "crowd-map-slider" ]
@@ -396,8 +401,13 @@ crowdMapArea =
             \resolution ->
                 let
                     model =
-                        { defaultModel | isCrowdMapOn = True, crowdMapResolution = BoundedInteger.build (LowerBound 1)
-                        (UpperBound 40) (Value resolution)}
+                        { defaultModel
+                            | isCrowdMapOn = True
+                            , crowdMapResolution =
+                                BoundedInteger.build (LowerBound 1)
+                                    (UpperBound 40)
+                                    (Value resolution)
+                        }
                 in
                 model
                     |> view
