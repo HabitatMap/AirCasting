@@ -30,7 +30,6 @@
     "@babel/register": "^7.4.4",
     "@istanbuljs/nyc-config-babel": "^2.1.1",
     "@prettier/plugin-ruby": "^0.12.3",
-    "babel-plugin-elm": "^0.1.3",
     "babel-plugin-istanbul": "^5.1.1",
     "blue-tape": "^1.0.0",
     "elm-format": "^0.8.1",
