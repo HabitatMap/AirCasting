@@ -233,6 +233,7 @@ type Msg
     | GraphRangeSelected (List Float)
     | UpdateIsShowingTimeRangeFilter Bool
     | SaveScrollPosition Float
+    | SetScrollPosition
     | NoOp
 
 
@@ -549,31 +550,11 @@ update msg model =
             in
             ( { model | overlay = Overlay.update overlay model.overlay }, Cmd.none )
 
+        SetScrollPosition ->
+            ( model, setScrollPosition model.scrollPosition )
+
         NoOp ->
             ( model, Cmd.none )
-
-
-getScrollPosition : Cmd Msg
-getScrollPosition =
-    Dom.getViewportOf "sessions-container"
-        |> Task.attempt
-            (\result ->
-                let
-                    scrollPosition =
-                        case result of
-                            Ok viewport ->
-                                viewport.viewport.x
-
-                            Err err ->
-                                0
-                in
-                SaveScrollPosition scrollPosition
-            )
-
-
-setScrollPosition : Float -> Cmd Msg
-setScrollPosition value =
-    Dom.setViewportOf "sessions-container" value 0 |> Task.attempt (\_ -> NoOp)
 
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
@@ -654,12 +635,29 @@ deselectSession selectable =
             ( { selectable | selectedSession = NotAsked }
             , Cmd.batch
                 [ Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing }
-                , setScrollPosition selectable.scrollPosition
+                , Ports.observeSessionsList ()
                 ]
             )
 
         _ ->
             ( selectable, Cmd.none )
+
+
+getScrollPosition : Cmd Msg
+getScrollPosition =
+    Dom.getViewportOf "sessions-container"
+        |> Task.attempt
+            (\result ->
+                result
+                    |> Result.map (\viewport -> viewport.viewport.x)
+                    |> Result.withDefault 0
+                    |> SaveScrollPosition
+            )
+
+
+setScrollPosition : Float -> Cmd Msg
+setScrollPosition value =
+    Dom.setViewportOf "sessions-container" value 0 |> Task.attempt (\_ -> NoOp)
 
 
 
@@ -1172,4 +1170,5 @@ subscriptions _ =
         , Ports.mapMoved (always MapMoved)
         , Ports.graphRangeSelected GraphRangeSelected
         , Ports.isShowingTimeRangeFilter UpdateIsShowingTimeRangeFilter
+        , Ports.setScroll (always SetScrollPosition)
         ]

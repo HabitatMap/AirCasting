@@ -182,6 +182,15 @@ const setupHeatMap = () => {
     window.__elmApp.ports.drawMobile.subscribe(
       draw(graph.fetchAndDrawMobile(callback))
     );
+
+    window.__elmApp.ports.observeSessionsList.subscribe(() => {
+      createObserver({
+        selector: ".sessions-container",
+        onMount: () => {
+          window.__elmApp.ports.setScroll.send(null);
+        }
+      });
+    });
   }
 };
 
