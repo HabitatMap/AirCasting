@@ -5,9 +5,7 @@ angular
   .controller("SessionsListCtrl", [
     "$scope",
     "params",
-    "sensors",
     "$window",
-    "drawSession",
     "sessionsUtils",
     "map",
     SessionsListCtrl

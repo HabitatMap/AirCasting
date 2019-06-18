@@ -4,6 +4,7 @@ import { clusterer } from "../../../javascript/clusterer";
 import { calculateBounds } from "../../../javascript/calculateBounds";
 import { prepareSessionData } from "./_sessions_utils";
 import { clearMap } from "../../../javascript/mapsUtils";
+import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
 
 export const mobileSessions = (
   params,
@@ -68,6 +69,14 @@ export const mobileSessions = (
     },
 
     onSessionsFetchWithCrowdMapLayerUpdate: function(fetchableSessionsCount) {
+      $window.__elmApp.ports.updateSessions.send(
+        sessionsInfoForElm(
+          this.sessions,
+          fetchableSessionsCount || this.fetchableSessionsCount,
+          sensors.selectedSensorName()
+        )
+      );
+
       this.onSessionsFetch(fetchableSessionsCount);
       sessionsUtils.updateCrowdMapLayer(this.sessionIds());
     },

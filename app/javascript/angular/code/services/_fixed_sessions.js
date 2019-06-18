@@ -4,6 +4,7 @@ import * as Session from "../../../javascript/values/session";
 import { calculateBounds } from "../../../javascript/calculateBounds";
 import { prepareSessionData } from "./_sessions_utils";
 import { clearMap } from "../../../javascript/mapsUtils";
+import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
 
 export const fixedSessions = (
   params,
@@ -50,6 +51,14 @@ export const fixedSessions = (
     },
 
     onSessionsFetch: function(fetchableSessionsCount) {
+      $window.__elmApp.ports.updateSessions.send(
+        sessionsInfoForElm(
+          this.sessions,
+          fetchableSessionsCount || this.fetchableSessionsCount,
+          sensors.selectedSensorName()
+        )
+      );
+
       this.drawSessionsInLocation();
       if (fetchableSessionsCount) {
         this.fetchableSessionsCount = fetchableSessionsCount;

@@ -4,9 +4,7 @@ import { formatSessionForList } from "../../../javascript/values/session";
 export const SessionsListCtrl = (
   $scope,
   params,
-  sensors,
   $window,
-  drawSession,
   sessionsUtils,
   map
 ) => {
@@ -17,9 +15,7 @@ export const SessionsListCtrl = (
   $scope.setDefaults = function() {
     $scope.params = params;
     $scope.$window = $window;
-    $scope.sensors = sensors;
     $window.sessions = sessions = $scope.sessions;
-    $scope.sessionsForList = [];
 
     if (sessionsUtils.isSessionSelected())
       sessions.reSelectSession(sessionsUtils.selectedSessionId());
@@ -48,26 +44,6 @@ export const SessionsListCtrl = (
       }
 
       sessions.fetch();
-    },
-    true
-  );
-
-  $scope.newSessionsForList = function() {
-    return $scope.sessions
-      .get()
-      .map(selectedStream(sensors.selectedSensorName()))
-      .map(formatSessionForList);
-  };
-
-  $scope.$watch(
-    "newSessionsForList()",
-    function(newSessions, oldSessions) {
-      console.log("newSessionsForList()", newSessions, oldSessions);
-      $scope.sessionsForList = newSessions;
-      elmApp.ports.updateSessions.send({
-        fetched: newSessions.map(formatSessionForElm),
-        fetchableSessionsCount: $scope.sessions.fetchableSessionsCount
-      });
     },
     true
   );
@@ -145,24 +121,5 @@ export const SessionsListCtrl = (
         pulsatingSessionMarker = map.drawPulsatingMarker(location);
       });
     });
-  }
-};
-
-const selectedStream = sensorName => session => ({
-  ...session,
-  selectedStream: session.streams[sensorName]
-});
-
-const formatSessionForElm = s => ({
-  ...s,
-  shortTypes: s.shortTypes.map(({ name, type }) => ({ name, type_: type })),
-  average: nullOrValue(s.average)
-});
-
-const nullOrValue = value => {
-  if (value === undefined) {
-    return null;
-  } else {
-    return value;
   }
 };
