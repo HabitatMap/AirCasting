@@ -119,6 +119,7 @@ type alias Flags =
     , tooltipIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     , isSearchAsIMoveOn : Bool
+    , scrollPosition : Float
     }
 
 
@@ -161,6 +162,7 @@ init flags url key =
                 |> Maybe.withDefault defaultModel.heatMapThresholds
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = Overlay.init flags.isIndoor
+        , scrollPosition = flags.scrollPosition
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -448,7 +450,7 @@ update msg model =
                     ( model, Cmd.none )
 
         SaveScrollPosition position ->
-            ( { model | scrollPosition = position }, Cmd.none )
+            ( { model | scrollPosition = position }, Ports.saveScrollPosition position )
 
         GotSession response ->
             case ( model.heatMapThresholds, response ) of

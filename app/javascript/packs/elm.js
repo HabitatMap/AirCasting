@@ -94,7 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
         tooltipIcon,
         heatMapThresholdValues,
         isStreaming: data.isStreaming,
-        isSearchAsIMoveOn: data.isSearchAsIMoveOn
+        isSearchAsIMoveOn: data.isSearchAsIMoveOn,
+        scrollPosition: params.scroll || 0
       };
 
       console.warn(flags);

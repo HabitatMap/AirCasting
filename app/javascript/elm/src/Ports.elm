@@ -11,6 +11,7 @@ port module Ports exposing
     , profileSelected
     , pulseSessionMarker
     , refreshTimeRange
+    , saveScrollPosition
     , selectSensorId
     , showCopyLinkTooltip
     , tagSelected
@@ -121,3 +122,6 @@ port graphRangeSelected : (List Float -> msg) -> Sub msg
 
 
 port isShowingTimeRangeFilter : (Bool -> msg) -> Sub msg
+
+
+port saveScrollPosition : Float -> Cmd a
