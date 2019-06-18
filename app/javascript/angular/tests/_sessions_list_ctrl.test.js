@@ -74,13 +74,5 @@ const _SessionsListCtrl = ({
   };
   const _sessionsUtils = { isSessionSelected: () => false };
 
-  return SessionsListCtrl(
-    _$scope,
-    _params,
-    null,
-    {},
-    null,
-    _sessionsUtils,
-    _map
-  );
+  return SessionsListCtrl(_$scope, _params, {}, _sessionsUtils, _map);
 };
