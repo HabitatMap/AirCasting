@@ -82,4 +82,7 @@ $popup-background-color: #f7f7f7;
   font-size: $tiny-font;
   padding: 12px;
   text-align: left;
+  word-break: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
 }
