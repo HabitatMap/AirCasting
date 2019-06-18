@@ -5,6 +5,7 @@ import Browser exposing (..)
 import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation
+import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
 import Data.GraphData exposing (GraphData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
@@ -23,6 +24,7 @@ import LabelsInput
 import Maybe exposing (..)
 import Popup
 import Ports
+import Process
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import String exposing (fromInt)
@@ -51,7 +53,7 @@ type alias Model =
     , tags : LabelsInput.Model
     , profiles : LabelsInput.Model
     , isCrowdMapOn : Bool
-    , crowdMapResolution : Int
+    , crowdMapResolution : BoundedInteger
     , timeRange : TimeRange
     , isIndoor : Bool
     , logoNav : String
@@ -65,6 +67,7 @@ type alias Model =
     , wasMapMoved : Bool
     , overlay : Overlay.Model
     , scrollPosition : Float
+    , debouncingCounter : Int
     }
 
 
@@ -82,7 +85,7 @@ defaultModel =
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
     , isCrowdMapOn = False
-    , crowdMapResolution = 25
+    , crowdMapResolution = BoundedInteger.build (LowerBound 1) (UpperBound 40) (Value 20)
     , timeRange = TimeRange.defaultTimeRange
     , isIndoor = False
     , isStreaming = True
@@ -97,6 +100,7 @@ defaultModel =
     , wasMapMoved = False
     , overlay = Overlay.none
     , scrollPosition = 0
+    , debouncingCounter = 0
     }
 
 
@@ -146,7 +150,7 @@ init flags url key =
         , tags = LabelsInput.init flags.tags
         , profiles = LabelsInput.init flags.profiles
         , isCrowdMapOn = flags.isCrowdMapOn
-        , crowdMapResolution = flags.crowdMapResolution
+        , crowdMapResolution = BoundedInteger.build (LowerBound 1) (UpperBound 40) (Value <| 51 - flags.crowdMapResolution)
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , isIndoor = flags.isIndoor
         , sensors = sensors
@@ -235,6 +239,10 @@ type Msg
     | SaveScrollPosition Float
     | SetScrollPosition
     | NoOp
+    | Timeout Int
+    | UpdateResolution
+    | MaybeIncreaseResolution
+    | MaybeDecreaseResolution
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -274,7 +282,17 @@ update msg model =
             ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap (not model.isCrowdMapOn) )
 
         UpdateCrowdMapResolution resolution ->
-            ( { model | crowdMapResolution = resolution }, Ports.updateResolution resolution )
+            let
+                updatedResolution =
+                    BoundedInteger.setValue resolution model.crowdMapResolution
+            in
+            ( { model | crowdMapResolution = updatedResolution }
+            , Ports.updateResolution
+                (51
+                    - BoundedInteger.getValue
+                        updatedResolution
+                )
+            )
 
         UpdateTimeRange value ->
             let
@@ -555,6 +573,33 @@ update msg model =
 
         NoOp ->
             ( model, Cmd.none )
+
+        UpdateResolution ->
+            ( model, Ports.updateResolution (51 - BoundedInteger.getValue model.crowdMapResolution) )
+
+        Timeout int ->
+            if int == model.debouncingCounter then
+                update UpdateResolution { model | debouncingCounter = 0 }
+
+            else
+                ( model, Cmd.none )
+
+        MaybeIncreaseResolution ->
+            debounce BoundedInteger.addOne model
+
+        MaybeDecreaseResolution ->
+            debounce BoundedInteger.subOne model
+
+
+debounce : (BoundedInteger -> BoundedInteger) -> Model -> ( Model, Cmd Msg )
+debounce updateResolution model =
+    let
+        newCounter =
+            model.debouncingCounter + 1
+    in
+    ( { model | crowdMapResolution = updateResolution model.crowdMapResolution, debouncingCounter = newCounter }
+    , Process.sleep 1000 |> Task.perform (\_ -> Timeout newCounter)
+    )
 
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
@@ -1055,12 +1100,12 @@ viewSensorFilter sensors selectedSensorId tooltipIcon =
         ]
 
 
-viewCrowdMapOptions : Bool -> Int -> WebData SelectedSession -> Path -> Html Msg
+viewCrowdMapOptions : Bool -> BoundedInteger -> WebData SelectedSession -> Path -> Html Msg
 viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon =
     div [ classList [ ( "disabled-area", RemoteData.isSuccess selectedSession ) ] ]
         [ viewCrowdMapToggle isCrowdMapOn tooltipIcon
         , if isCrowdMapOn then
-            viewCrowdMapSlider (String.fromInt crowdMapResolution)
+            viewCrowdMapSlider crowdMapResolution
 
           else
             text ""
@@ -1077,24 +1122,22 @@ viewCrowdMapToggle isCrowdMapOn tooltipIcon =
         ]
 
 
-viewCrowdMapSlider : String -> Html Msg
-viewCrowdMapSlider resolution =
+viewCrowdMapSlider : BoundedInteger -> Html Msg
+viewCrowdMapSlider boundedInteger =
     div [ id "crowd-map-slider" ]
-        [ label [] [ text <| "grid cell size: " ++ (String.fromInt <| 51 - (Maybe.withDefault 31 <| String.toInt resolution)) ]
-
-        -- size 40 to 1 maps to resolution 11 to 50
+        [ label [] [ text <| "grid cell size: " ++ String.fromInt (BoundedInteger.getValue boundedInteger) ]
         , div [ class "crowd-map-slider-container" ]
-            [ span [ class "minus" ] [ text "-" ]
+            [ span [ class "minus", Events.onClick MaybeDecreaseResolution ] [ text "-" ]
             , input
                 [ class "crowd-map-slider"
-                , onChange (String.toInt >> Maybe.withDefault 31 >> UpdateCrowdMapResolution)
-                , value resolution
-                , max "50"
-                , min "11"
+                , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateCrowdMapResolution)
+                , value (String.fromInt (BoundedInteger.getValue boundedInteger))
+                , max <| String.fromInt (BoundedInteger.getUpperBound boundedInteger)
+                , min <| String.fromInt (BoundedInteger.getLowerBound boundedInteger)
                 , type_ "range"
                 ]
                 []
-            , span [ class "plus" ] [ text "+" ]
+            , span [ class "plus", Events.onClick MaybeIncreaseResolution ] [ text "+" ]
             ]
         ]
 
