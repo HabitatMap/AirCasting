@@ -8,10 +8,13 @@ port module Ports exposing
     , loadMoreSessions
     , locationCleared
     , mapMoved
+    , observeSessionsList
     , profileSelected
     , pulseSessionMarker
     , refreshTimeRange
+    , saveScrollPosition
     , selectSensorId
+    , setScroll
     , showCopyLinkTooltip
     , tagSelected
     , timeRangeSelected
@@ -121,3 +124,12 @@ port graphRangeSelected : (List Float -> msg) -> Sub msg
 
 
 port isShowingTimeRangeFilter : (Bool -> msg) -> Sub msg
+
+
+port saveScrollPosition : Float -> Cmd a
+
+
+port setScroll : (() -> msg) -> Sub msg
+
+
+port observeSessionsList : () -> Cmd a

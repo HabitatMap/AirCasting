@@ -2,6 +2,7 @@ module Main exposing (Msg(..), defaultModel, update, view)
 
 import Api
 import Browser exposing (..)
+import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation
 import Data.GraphData exposing (GraphData)
@@ -25,6 +26,7 @@ import Ports
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import String exposing (fromInt)
+import Task
 import Time exposing (Posix)
 import TimeRange exposing (TimeRange)
 import Tooltip
@@ -62,6 +64,7 @@ type alias Model =
     , isSearchAsIMoveOn : Bool
     , wasMapMoved : Bool
     , overlay : Overlay.Model
+    , scrollPosition : Float
     }
 
 
@@ -93,6 +96,7 @@ defaultModel =
     , isSearchAsIMoveOn = False
     , wasMapMoved = False
     , overlay = Overlay.none
+    , scrollPosition = 0
     }
 
 
@@ -115,6 +119,7 @@ type alias Flags =
     , tooltipIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     , isSearchAsIMoveOn : Bool
+    , scrollPosition : Float
     }
 
 
@@ -157,6 +162,7 @@ init flags url key =
                 |> Maybe.withDefault defaultModel.heatMapThresholds
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = Overlay.init flags.isIndoor
+        , scrollPosition = flags.scrollPosition
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -226,6 +232,9 @@ type Msg
     | HighlightSessionMarker (Maybe Location)
     | GraphRangeSelected (List Float)
     | UpdateIsShowingTimeRangeFilter Bool
+    | SaveScrollPosition Float
+    | SetScrollPosition
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -393,10 +402,20 @@ update msg model =
                         ( { model | selectedSession = NotAsked }, Cmd.none )
 
                     else
-                        ( model, SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession) )
+                        ( model
+                        , Cmd.batch
+                            [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
+                            , getScrollPosition
+                            ]
+                        )
 
                 ( _, Just id ) ->
-                    ( model, SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession) )
+                    ( model
+                    , Cmd.batch
+                        [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
+                        , getScrollPosition
+                        ]
+                    )
 
                 ( _, Nothing ) ->
                     ( { model | selectedSession = NotAsked }, Cmd.none )
@@ -409,6 +428,7 @@ update msg model =
                         [ Ports.toggleSession { deselected = Nothing, selected = Just id }
                         , SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                         , Ports.pulseSessionMarker Nothing
+                        , getScrollPosition
                         ]
                     )
 
@@ -429,6 +449,9 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        SaveScrollPosition position ->
+            ( { model | scrollPosition = position }, Ports.saveScrollPosition position )
 
         GotSession response ->
             case ( model.heatMapThresholds, response ) of
@@ -527,6 +550,12 @@ update msg model =
             in
             ( { model | overlay = Overlay.update overlay model.overlay }, Cmd.none )
 
+        SetScrollPosition ->
+            ( model, setScrollPosition model.scrollPosition )
+
+        NoOp ->
+            ( model, Cmd.none )
+
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
 updateHeatMapExtreme model str updateExtreme =
@@ -596,7 +625,7 @@ toGraphParams thresholds selectedSession sensors selectedSensorId =
 
 
 type alias Selectable a =
-    { a | selectedSession : WebData SelectedSession }
+    { a | selectedSession : WebData SelectedSession, scrollPosition : Float }
 
 
 deselectSession : Selectable a -> ( Selectable a, Cmd Msg )
@@ -604,11 +633,31 @@ deselectSession selectable =
     case selectable.selectedSession of
         Success selectedSession ->
             ( { selectable | selectedSession = NotAsked }
-            , Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing }
+            , Cmd.batch
+                [ Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing }
+                , Ports.observeSessionsList ()
+                ]
             )
 
         _ ->
             ( selectable, Cmd.none )
+
+
+getScrollPosition : Cmd Msg
+getScrollPosition =
+    Dom.getViewportOf "sessions-container"
+        |> Task.attempt
+            (\result ->
+                result
+                    |> Result.map (\viewport -> viewport.viewport.x)
+                    |> Result.withDefault 0
+                    |> SaveScrollPosition
+            )
+
+
+setScrollPosition : Float -> Cmd Msg
+setScrollPosition value =
+    Dom.setViewportOf "sessions-container" value 0 |> Task.attempt (\_ -> NoOp)
 
 
 
@@ -844,7 +893,7 @@ viewSessions fetchableSessionsCount sessions heatMapThresholds =
                 [ text "Sessions" ]
             , span [ class "sessions-number" ]
                 [ text ("showing " ++ sessionsCount ++ " of " ++ String.fromInt fetchableSessionsCount ++ " results") ]
-            , div [ class "sessions-container" ]
+            , div [ class "sessions-container", id "sessions-container" ]
                 (List.map (viewSessionCard heatMapThresholds) sessions ++ [ viewLoadMore fetchableSessionsCount (List.length sessions) ])
             ]
 
@@ -1121,4 +1170,5 @@ subscriptions _ =
         , Ports.mapMoved (always MapMoved)
         , Ports.graphRangeSelected GraphRangeSelected
         , Ports.isShowingTimeRangeFilter UpdateIsShowingTimeRangeFilter
+        , Ports.setScroll (always SetScrollPosition)
         ]

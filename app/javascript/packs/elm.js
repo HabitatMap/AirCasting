@@ -94,7 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
         tooltipIcon,
         heatMapThresholdValues,
         isStreaming: data.isStreaming,
-        isSearchAsIMoveOn: data.isSearchAsIMoveOn
+        isSearchAsIMoveOn: data.isSearchAsIMoveOn,
+        scrollPosition: params.scroll || 0
       };
 
       console.warn(flags);
@@ -181,6 +182,15 @@ const setupHeatMap = () => {
     window.__elmApp.ports.drawMobile.subscribe(
       draw(graph.fetchAndDrawMobile(callback))
     );
+
+    window.__elmApp.ports.observeSessionsList.subscribe(() => {
+      createObserver({
+        selector: ".sessions-container",
+        onMount: () => {
+          window.__elmApp.ports.setScroll.send(null);
+        }
+      });
+    });
   }
 };
 

@@ -120,6 +120,11 @@ export const SessionsListCtrl = (
 
         pulsatingSessionMarker = map.drawPulsatingMarker(location);
       });
+
+      elmApp.ports.saveScrollPosition.subscribe(value => {
+        params.update({ scroll: value });
+        $scope.$apply();
+      });
     });
   }
 };

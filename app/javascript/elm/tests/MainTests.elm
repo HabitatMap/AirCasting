@@ -761,19 +761,6 @@ updateTests =
                     |> update DeselectSession
                     |> Tuple.first
                     |> Expect.equal expected
-        , fuzz int "DeselectSession tells javascript what to deselect" <|
-            \id ->
-                let
-                    model =
-                        { defaultModel | selectedSession = Success <| { defaultSelectedSession | id = id } }
-
-                    expected =
-                        Ports.toggleSession { deselected = Just id, selected = Nothing }
-                in
-                model
-                    |> update DeselectSession
-                    |> Tuple.second
-                    |> Expect.equal expected
         , fuzz int "with Nothing ToggleSessionSelectionFromAngular deselects the selected id" <|
             \id ->
                 let
