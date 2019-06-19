@@ -14,7 +14,7 @@ import Data.Path as Path exposing (Path)
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
 import Data.Times as Times
-import Html exposing (Html, a, button, dd, div, dl, dt, form, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
+import Html exposing (Html, a, button, div, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events
@@ -29,7 +29,6 @@ import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import String exposing (fromInt)
 import Task
-import Time exposing (Posix)
 import TimeRange exposing (TimeRange)
 import Tooltip
 import Url exposing (Url)
@@ -937,20 +936,6 @@ viewSessions fetchableSessionsCount sessions heatMapThresholds =
             , div [ class "sessions-container", id "sessions-container" ]
                 (List.map (viewSessionCard heatMapThresholds) sessions ++ [ viewLoadMore fetchableSessionsCount (List.length sessions) ])
             ]
-
-
-viewShortType : Int -> Int -> ShortType -> Html msg
-viewShortType length index shortType =
-    span [ class shortType.type_ ]
-        [ text shortType.name
-        , span []
-            [ if index == length - 1 then
-                text ""
-
-              else
-                text "/"
-            ]
-        ]
 
 
 viewLoadMore : Int -> Int -> Html Msg

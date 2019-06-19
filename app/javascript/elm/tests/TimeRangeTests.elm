@@ -1,6 +1,5 @@
 module TimeRangeTests exposing (all)
 
-import Data.Path as Path exposing (Path)
 import Expect
 import Fuzz exposing (bool, int)
 import Html.Attributes exposing (disabled)

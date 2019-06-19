@@ -1,7 +1,7 @@
 module SensorTests exposing (all)
 
 import Expect
-import Fuzz exposing (int, list, string)
+import Fuzz exposing (int, string)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Result exposing (Result(..))

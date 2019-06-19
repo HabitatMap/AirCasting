@@ -21,7 +21,9 @@ import Url
 
 
 type alias Threshold =
-    { default : Int, value : Int }
+    { default : Int
+    , value : Int
+    }
 
 
 type alias HeatMapThresholds =

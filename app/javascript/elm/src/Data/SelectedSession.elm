@@ -10,7 +10,7 @@ module Data.SelectedSession exposing
     )
 
 import Api
-import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds)
+import Data.HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.Session
@@ -20,7 +20,7 @@ import Html.Attributes exposing (alt, class, href, id, src, target)
 import Html.Events as Events
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
-import Json.Decode.Pipeline exposing (custom, hardcoded, required)
+import Json.Decode.Pipeline exposing (hardcoded, required)
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import Time exposing (Posix)

@@ -1,6 +1,6 @@
 module Popup exposing (Popup(..), clickWithoutDefault, view)
 
-import Html exposing (Html, button, div, li, text, ul)
+import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, classList, id)
 import Html.Events as Events
 import Json.Decode as Decode

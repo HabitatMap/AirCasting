@@ -1,6 +1,5 @@
 module LabelsInputTests exposing (all)
 
-import Data.Path as Path exposing (Path)
 import Fuzz exposing (bool, string)
 import Html.Attributes exposing (disabled, type_, value)
 import LabelsInput

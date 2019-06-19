@@ -15,7 +15,7 @@ module Tooltip exposing
     )
 
 import Data.Path as Path exposing (Path)
-import Html exposing (Html, div, img, span, text)
+import Html exposing (Html, div, img)
 import Html.Attributes exposing (alt, attribute, src)
 
 

@@ -1,7 +1,7 @@
 module TimeRange exposing (TimeRange(..), defaultTimeRange, update, view)
 
 import Data.Path as Path exposing (Path)
-import Html exposing (Html, button, div, h4, img, input, label, text)
+import Html exposing (Html, button, div, img, input, label, text)
 import Html.Attributes exposing (alt, attribute, class, disabled, for, id, name, placeholder, src, type_)
 import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events

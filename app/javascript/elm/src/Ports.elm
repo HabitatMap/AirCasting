@@ -35,7 +35,7 @@ port module Ports exposing
 
 import Data.GraphData exposing (GraphData)
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
-import Data.Session exposing (Location, Session)
+import Data.Session exposing (Location)
 import Json.Encode as Encode
 
 

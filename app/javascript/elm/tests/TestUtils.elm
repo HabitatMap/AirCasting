@@ -12,7 +12,6 @@ import Data.Path as Path exposing (Path)
 import Data.SelectedSession exposing (SelectedSession)
 import Data.Session exposing (Session, ShortType)
 import Json.Encode as Encode
-import Sensor exposing (Sensor)
 import Time
 
 

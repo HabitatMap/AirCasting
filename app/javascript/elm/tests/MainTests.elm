@@ -3,9 +3,9 @@ module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, 
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
 import Data.Page exposing (Page(..))
 import Expect
-import Fuzz exposing (bool, float, int, intRange, list, string)
+import Fuzz exposing (bool, int, intRange, list, string)
 import Html exposing (text)
-import Html.Attributes exposing (checked, class, disabled, for, href, id, value)
+import Html.Attributes exposing (checked, class, disabled, id, value)
 import Html.Attributes.Aria exposing (ariaLabel)
 import Iso8601
 import Json.Encode as Encode
@@ -521,7 +521,7 @@ viewTests =
                     |> Query.findAll [ Slc.id "more-sessions-button" ]
                     |> Query.count (Expect.equal 0)
         , test "with no selection and 0 sessions in the model the load more button is not shown" <|
-            \times ->
+            \_ ->
                 { defaultModel | sessions = [], selectedSession = NotAsked }
                     |> view
                     |> Query.fromHtml
@@ -758,8 +758,8 @@ updateTests =
                     |> Tuple.first
                     |> .fetchableSessionsCount
                     |> Expect.equal count
-        , fuzz int "LoadMoreSessions delegates to javascript" <|
-            \id ->
+        , test "LoadMoreSessions delegates to javascript" <|
+            \_ ->
                 let
                     model =
                         { defaultModel | sessions = [], selectedSession = NotAsked }

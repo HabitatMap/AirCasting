@@ -1,10 +1,8 @@
 module Data.HeatMapThresholdsTests exposing (suite)
 
-import Data.HeatMapThresholds exposing (HeatMapThresholds, Threshold, extremes, toValues, updateMaximum, updateMinimum)
+import Data.HeatMapThresholds exposing (HeatMapThresholds, Threshold, toValues, updateMaximum, updateMinimum)
 import Expect
-import Fuzz exposing (int, list, string)
-import Json.Encode as Encode
-import Sensor exposing (..)
+import Fuzz exposing (int)
 import Test exposing (..)
 
 
