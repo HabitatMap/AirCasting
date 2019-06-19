@@ -121,14 +121,12 @@ input[type="range"]:focus::-ms-fill-upper {
 
     &.minus {
       margin-top: -1px;
+      cursor: pointer;
     }
 
     &.plus {
       margin-top: 2px;
+      cursor: pointer;
     }
   }
-}
-
-.crowd-map-slider {
-  direction: rtl;
 }

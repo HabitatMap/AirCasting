@@ -1,5 +1,6 @@
 module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, tagsArea, timeFilter, toggleIndoorFilter, toggleStreamingFilter, updateTests, viewTests)
 
+import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
 import Data.Page exposing (Page(..))
 import Expect
 import Fuzz exposing (bool, float, int, intRange, list, string)
@@ -343,13 +344,20 @@ crowdMapArea =
                     |> Tuple.first
                     |> .isCrowdMapOn
                     |> Expect.equal (not onOffValue)
-        , fuzz int "UpdateCrowdMapResolution changes the value of model.crowdMapResolution" <|
+        , fuzz (intRange 1 39) "UpdateCrowdMapResolution changes the value of model.crowdMapResolution" <|
             \resolution ->
-                { defaultModel | crowdMapResolution = resolution }
-                    |> update (UpdateCrowdMapResolution resolution)
+                { defaultModel | crowdMapResolution = BoundedInteger.build (LowerBound 1) (UpperBound 40) (Value resolution) }
+                    |> update (UpdateCrowdMapResolution (resolution + 1))
                     |> Tuple.first
                     |> .crowdMapResolution
-                    |> Expect.equal resolution
+                    |> Expect.equal (BoundedInteger.build (LowerBound 1) (UpperBound 40) (Value (resolution + 1)))
+        , test "UpdateCrowdMapResolution doesn't change the value if it's higher than upper bound" <|
+            \_ ->
+                { defaultModel | crowdMapResolution = BoundedInteger.build (LowerBound 1) (UpperBound 40) (Value 40) }
+                    |> update (UpdateCrowdMapResolution 41)
+                    |> Tuple.first
+                    |> .crowdMapResolution
+                    |> Expect.equal (BoundedInteger.build (LowerBound 1) (UpperBound 40) (Value 40))
         , test "'off' is selected by default" <|
             \_ ->
                 defaultModel
@@ -367,7 +375,13 @@ crowdMapArea =
                     |> Event.expect ToggleCrowdMap
         , test "slider has a description with current crowd map grid cell size" <|
             \_ ->
-                { defaultModel | isCrowdMapOn = True, crowdMapResolution = 11 }
+                { defaultModel
+                    | isCrowdMapOn = True
+                    , crowdMapResolution =
+                        BoundedInteger.build (LowerBound 1)
+                            (UpperBound 40)
+                            (Value 40)
+                }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| id "crowd-map-slider" ]
@@ -375,19 +389,25 @@ crowdMapArea =
                         [ text "grid cell size: 40" ]
 
         -- resolution 11 maps to size 40
-        , test "slider default value is 25" <|
+        , test "slider default value is 20" <|
             \_ ->
                 { defaultModel | isCrowdMapOn = True }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| class "crowd-map-slider" ]
                     |> Query.has
-                        [ Slc.attribute <| value "25" ]
+                        [ Slc.attribute <| value "20" ]
         , fuzz int "slider value depends on model.crowdMapResolution" <|
             \resolution ->
                 let
                     model =
-                        { defaultModel | isCrowdMapOn = True, crowdMapResolution = resolution }
+                        { defaultModel
+                            | isCrowdMapOn = True
+                            , crowdMapResolution =
+                                BoundedInteger.build (LowerBound 1)
+                                    (UpperBound 40)
+                                    (Value resolution)
+                        }
                 in
                 model
                     |> view
