@@ -1,29 +1,29 @@
-%h2 Support AirCasting > > > Donate to HabitatMap
+%section
+  %h1{ class: 'donate-heading' } Support AirCasting > > > Donate to HabitatMap
 
-%p
-  HabitatMap is a non-profit environmental health justice organization whose goal is to raise
-  awareness about the impact the environment has on human health. We build tools to support
-  grassroots environmental organizing, including <a href="http://habitatmap.org/">HabitatMap.org</a> - our community mapping
-  platform - and AirCasting. Your tax-deductible donation will be used to improve the AirCasting
-  platform and expand the AirCasting community. Support our work by donating through PayPal
+  %p
+    HabitatMap is a non-profit environmental health justice organization whose goal is to raise
+    awareness about the impact the environment has on human health. We build tools to support
+    grassroots environmental organizing, including <a href="http://habitatmap.org/">HabitatMap.org</a> - our community mapping
+    platform - and AirCasting. Your tax-deductible donation will be used to improve the AirCasting
+    platform and expand the AirCasting community. Support our work by donating through PayPal
 
-%div.paypal_button
-  <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-  <input type="hidden" name="cmd" value="_s-xclick">
-  <input type="hidden" name="hosted_button_id" value="2434TVWCZCLM6">
-  <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-  <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-  </form>
+  %div.paypal_button
+    %form{ action: "https://www.paypal.com/cgi-bin/webscr", method: "post" }
+      %input{ type: "hidden", name: "cmd", value: "_s-xclick" }
+      %input{ type: "hidden", name: "hosted_button_id", value: "2434TVWCZCLM6" }
+      %input{ type: "image", src: "https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif", border: "0", name: "submit", alt: "PayPal - The safer, easier way to pay online!" }
+      %img{ alt: "", border: "0", src: "https://www.paypalobjects.com/en_US/i/scr/pixel.gif", width: "1", height: "1" }
 
-%p.address
-  or mail your contribution to:
-  %br
-  HabitatMap
-  %br
-  Attn: Development Department
-  %br
-  34A St Marks Ave
-  %br
-  Brooklyn, NY 11217
-  %br
-  HabitatMap is a not-for-profit 501(c)(3) charitable organization.
+  %p or mail your contribution to:
+
+  %p
+    HabitatMap
+    %br
+    Attn: Development Department
+    %br
+    34A St Marks Ave
+    %br
+    Brooklyn, NY 11217
+    %br
+    HabitatMap is a not-for-profit 501(c)(3) charitable organization.

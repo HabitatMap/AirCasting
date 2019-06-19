@@ -1,0 +1,55 @@
+/*
+ * This is a manifest file that'll automatically include all the stylesheets available in this directory
+ * and any sub-directories. You're free to add application-wide styles to this file and they'll appear at
+ * the top of the compiled file, but it's generally better to create a new file per style scope.
+ *= require_self
+*/
+
+@import url("https://fonts.googleapis.com/css?family=PT+Sans:400,700");
+
+@import "./config/normalize";
+@import "./config/variables";
+@import "./config/flexbox";
+
+@import "./global/forms";
+@import "./global/global";
+
+@import "./modules/site-nav";
+
+body {
+  background: white;
+  color: black;
+  font-family: "PT Sans", sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+p {
+  margin-bottom: 1.25em;
+}
+
+a {
+  color: $blue;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+footer,
+section,
+.about-page {
+  margin: 0 auto;
+  max-width: 650px;
+}
+
+li {
+  margin-bottom: 0.5em;
+}
+
+.donate-heading {
+  font-size: 1.75em;
+}
