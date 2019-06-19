@@ -25,7 +25,6 @@ const initAngular = () => {
   require("angular-cookies");
   window._ = require("underscore");
   window._.str = require("underscore.string");
-  require("../angular/libs/jquery.lightbox-0.5");
   require("../angular/code/aircasting");
 
   var req = require.context("../angular/code/services", true, /\.js$/);

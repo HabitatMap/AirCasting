@@ -4310,6 +4310,10 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
+luminous-lightbox@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/luminous-lightbox/-/luminous-lightbox-2.3.2.tgz#e012ad71e5a7158da7675af17aee6ae665b12d23"
+
 make-dir@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-1.3.0.tgz#79c1033b80515bd6d24ec9933e860ca75ee27f0c"

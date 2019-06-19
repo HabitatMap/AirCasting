@@ -1,4 +1,5 @@
 import { lengthToPixels, pixelsToLength } from "./mapsUtils";
+import { Luminous } from "luminous-lightbox";
 
 let notes = [];
 if (process.env.NODE_ENV !== "test") {
@@ -42,7 +43,7 @@ const createHtml = index => {
 
   let photoHtml = "";
   if (data.photo) {
-    photoHtml = `<a class="note__photo" id="note__photo" href=${data.photo} visibility=hidden target="_blank">
+    photoHtml = `<a class="note__photo" id="note__photo" href=${data.photo}>
       <img src=${data.photo_thumbnail} />
     </a>`;
   }
@@ -82,7 +83,10 @@ if (process.env.NODE_ENV !== "test") {
 
     const photo = document.getElementById("note__photo");
     if (photo) {
-      $(photo).lightBox();
+      const options = {
+        injectBaseStyles: false
+      };
+      new Luminous(photo, options);
     }
 
     Array.from(document.getElementsByClassName("switchNote")).forEach(

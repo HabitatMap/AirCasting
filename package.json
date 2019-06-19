@@ -18,6 +18,7 @@
     "highcharts": "~7.1.0",
     "jquery": "2.1.0",
     "jquery-migrate": "1.4.1",
+    "luminous-lightbox": "^2.3.2",
     "moment": "~2.15.2",
     "nouislider": "^13.1.4",
     "resolve-url-loader": "^3.1.0",
