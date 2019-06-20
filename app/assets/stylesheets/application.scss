@@ -17,6 +17,12 @@
 @import "./modules/footer";
 @import "./modules/site-nav";
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   background: white;
   color: black;
