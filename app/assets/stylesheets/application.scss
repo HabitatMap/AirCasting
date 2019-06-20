@@ -38,10 +38,6 @@ p {
   margin-bottom: 1.25em;
 }
 
-img {
-  max-width: 100%;
-}
-
 a {
   color: $blue;
 
@@ -52,6 +48,10 @@ a {
 
 main {
   padding-top: 20px;
+
+  img {
+    max-width: 100%;
+  }
 }
 
 section,
