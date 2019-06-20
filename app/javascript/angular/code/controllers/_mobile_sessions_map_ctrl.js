@@ -53,7 +53,14 @@ export const MobileSessionsMapCtrl = (
       gridResolution: 31,
       crowdMap: false,
       timeFrom: oneYearAgo,
-      timeTo: endOfToday
+      timeTo: endOfToday,
+      heat: {
+        lowest: 0,
+        low: 12,
+        mid: 35,
+        high: 55,
+        highest: 150
+      }
     };
 
     params.updateFromDefaults(defaults);
