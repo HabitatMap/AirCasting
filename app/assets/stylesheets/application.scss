@@ -7,14 +7,21 @@
 
 @import url("https://fonts.googleapis.com/css?family=PT+Sans:400,700");
 
+@import "./config/flexbox";
 @import "./config/normalize";
 @import "./config/variables";
-@import "./config/flexbox";
 
 @import "./global/forms";
 @import "./global/global";
 
+@import "./modules/footer";
 @import "./modules/site-nav";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 body {
   background: white;
@@ -39,8 +46,17 @@ a {
   }
 }
 
-footer,
+main {
+  min-height: 66vh;
+  padding-top: 20px;
+
+  img {
+    max-width: 100%;
+  }
+}
+
 section,
+.footer-content,
 .about-page {
   margin: 0 auto;
   max-width: 650px;
@@ -52,4 +68,10 @@ li {
 
 .donate-heading {
   font-size: 1.75em;
+}
+
+@media screen and (max-width: 650px) {
+  .text-container {
+    padding: 0 12px;
+  }
 }

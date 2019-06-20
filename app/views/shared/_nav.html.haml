@@ -1,7 +1,6 @@
 %nav.nav
   .nav-logo
     =image_tag ('aircasting-logo-nav.svg')
-  %a{:class => "menu-button", :href => "#menu", :title => "Menu"}
   %ul
     %li{:class => request.path == '/' ? 'active' : ''}
       = link_to 'Home', '/'
