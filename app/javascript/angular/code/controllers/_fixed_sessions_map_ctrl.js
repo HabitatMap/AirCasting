@@ -43,7 +43,14 @@ export const FixedSessionsMapCtrl = (
       tags: "",
       usernames: "",
       timeFrom: FiltersUtils.oneYearAgo(),
-      timeTo: FiltersUtils.endOfToday()
+      timeTo: FiltersUtils.endOfToday(),
+      heat: {
+        lowest: 0,
+        low: 12,
+        mid: 35,
+        high: 55,
+        highest: 150
+      }
     };
 
     params.updateFromDefaults(defaults);

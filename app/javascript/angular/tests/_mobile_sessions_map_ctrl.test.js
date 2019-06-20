@@ -28,7 +28,14 @@ test("it updates defaults", t => {
     timeTo: moment()
       .utc()
       .endOf("day")
-      .format("X")
+      .format("X"),
+    heat: {
+      lowest: 0,
+      low: 12,
+      mid: 35,
+      high: 55,
+      highest: 150
+    }
   };
   t.deepEqual(defaults, expected);
 
