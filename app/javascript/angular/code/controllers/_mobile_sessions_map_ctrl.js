@@ -102,6 +102,8 @@ export const MobileSessionsMapCtrl = (
 
       elmApp.ports.toggleCrowdMap.subscribe(crowdMap => {
         params.updateData({ crowdMap });
+        $scope.$apply();
+
         $scope.sessions.toggleCrowdMapView();
       });
 
