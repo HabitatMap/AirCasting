@@ -17,6 +17,7 @@ input[type="range"] {
   @include appearance(none);
   height: $track-height;
   margin: 0 5px;
+  width: 100%;
 }
 
 input[type="range"]:focus {
