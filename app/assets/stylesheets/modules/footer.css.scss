@@ -1,8 +1,12 @@
 .footer {
   box-shadow: 0 -5px 3px -4px rgba(51, 51, 51, 0.2);
   font-size: $small-font;
-  margin-top: 80px;
+  margin-top: 6vh;
   padding: 40px 0;
+
+  @media screen and (orientation: landscape) {
+    margin-top: 40px;
+  }
 }
 
 .footer-content {
