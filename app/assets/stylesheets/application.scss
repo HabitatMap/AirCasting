@@ -62,3 +62,9 @@ li {
 .donate-heading {
   font-size: 1.75em;
 }
+
+@media screen and (max-width: 650px) {
+  .text-container {
+    padding: 0 12px;
+  }
+}
