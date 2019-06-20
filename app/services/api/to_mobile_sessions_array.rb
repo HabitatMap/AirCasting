@@ -8,7 +8,7 @@ class Api::ToMobileSessionsArray
 
     Success.new(
       sessions: filtered,
-      fetchableSessionsCount: MobileSession.filter_(data).count
+      fetchableSessionsCount: MobileSession.filter_(data).count(:all)
     )
   end
 

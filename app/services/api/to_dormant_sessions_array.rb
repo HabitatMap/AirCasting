@@ -50,7 +50,8 @@ class Api::ToDormantSessionsArray
               end
           }
         end,
-      fetchableSessionsCount: FixedSession.dormant.filter_(data).distinct.count
+      fetchableSessionsCount:
+        FixedSession.dormant.filter_(data).distinct.count(:all)
     )
   end
 
