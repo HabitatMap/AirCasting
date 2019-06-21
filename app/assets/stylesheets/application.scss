@@ -39,7 +39,7 @@ p {
 }
 
 a {
-  color: $blue;
+  color: darken($blue, 12%);
 
   &:hover {
     text-decoration: underline;
