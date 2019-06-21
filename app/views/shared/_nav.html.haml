@@ -1,7 +1,7 @@
 %nav.nav
   .nav-logo
-    = link_to '/' do
-      = image_tag ('aircasting-logo-nav.svg')
+    = link_to '/', 'aria-label' => 'homepage' do
+      = image_tag 'aircasting-logo-nav.svg', alt: 'Aircasting logo'
   %ul
     %li{ class: request.path == '/' ? 'active' : '' }
       = link_to 'Home', '/', class: 'nav__link'
