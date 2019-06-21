@@ -5,7 +5,7 @@
     </p>
   </div>
 
-  <%= image_tag('aircasting_howitworks.jpg', class: 'howitworks') %>
+  <%= image_tag('aircasting_howitworks.jpg', class: 'howitworks', alt: 'Infographic showing how Aircasting works') %>
 </section>
 
 <section>
@@ -17,8 +17,8 @@
     </p>
   </div>
 
-  <%= link_to 'http://www.takingspace.org/aircasting/airbeam/' do %>
-    <%= image_tag('aircasting-airbeam2.jpg') %>
+  <%= link_to 'http://www.takingspace.org/aircasting/airbeam/', 'aria-label': 'Airbeam' do %>
+    <%= image_tag('aircasting-airbeam2.jpg', alt: 'Airbeam') %>
   <% end %>
 
   <div class="text-container">
@@ -30,7 +30,7 @@
   </div>
 
   <%= link_to "https://play.google.com/store/apps/details?id=pl.llp.aircasting&hl=en", 'aria-label' => 'aircasting app' do %>
-    <%= image_tag('AirCastingAndroidApp.jpg') %>
+    <%= image_tag('AirCastingAndroidApp.jpg', alt: 'Aircasting Android app screenshots' ) %>
   <% end %>
 </section>
 
@@ -44,7 +44,7 @@
   </div>
 
   <%= link_to 'http://www.instructables.com/id/AirCasting-LiteBeam/', 'aria-label' => 'Aircasting light beam instructables' do %>
-    <%= image_tag('LuminescentAccessories.jpg') %>
+    <%= image_tag('LuminescentAccessories.jpg', alt: 'Luminescent accessories') %>
   <% end %>
 </section>
 

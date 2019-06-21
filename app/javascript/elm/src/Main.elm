@@ -833,6 +833,7 @@ viewHeatMapInput : String -> Int -> String -> (String -> Msg) -> Html Msg
 viewHeatMapInput text_ value_ sensorUnit toMsg =
     div [ class "heatmap-input" ]
         [ p [] [ text text_ ]
+        , label [ class "visuallyhidden", for <| "heatmap-" ++ text_ ] [ text <| "Heatmap " ++ text_ ++ " value" ]
         , input
             [ id <| "heatmap-" ++ text_
             , type_ "text"

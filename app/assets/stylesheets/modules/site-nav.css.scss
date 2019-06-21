@@ -32,17 +32,17 @@
 }
 
 .nav__link {
+  color: $text-color;
   display: inline-block;
   line-height: $nav-height;
   width: auto;
-  color: #b0b0b0;
   text-transform: lowercase;
   font-weight: $font-stack-regular;
   font-size: $small-font;
   margin-right: 65px;
 
   li.active & {
+    color: $dark-blue;
     font-weight: $font-stack-bold;
-    color: $text-color;
   }
 }
