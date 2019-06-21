@@ -1,17 +1,22 @@
+import { lengthToPixels, pixelsToLength } from "./mapsUtils";
+
 let notes = [];
 if (process.env.NODE_ENV !== "test") {
   var popup = new google.maps.InfoWindow();
 }
 
-export const drawNotes = (notesData, map) => {
+export const drawNotes = (notesData, map, sessionMarker) => {
   notes = [];
-  notesData.forEach(noteData => drawNote(noteData, map));
+  notesData.forEach(noteData => drawNote(noteData, map, sessionMarker));
   return notes.map(note => note.marker);
 };
 
-const drawNote = (data, map) => {
+const drawNote = (data, map, sessionMarker) => {
   const marker = map.drawMarker({
-    position: { lat: data.latitude, lng: data.longitude },
+    position: {
+      lat: adjustedLatitude(data, sessionMarker),
+      lng: data.longitude
+    },
     title: data.text,
     icon: "/assets/marker_note.png",
     zIndex: 200000
@@ -93,3 +98,39 @@ if (process.env.NODE_ENV !== "test") {
     );
   });
 }
+
+const adjustedLatitude = (note, marker) => {
+  const notePoint = window.__map.getProjection().fromLatLngToPoint({
+    lat: () => note.latitude,
+    lng: () => note.longitude
+  });
+  const markerPoint = window.__map.getProjection().fromLatLngToPoint(marker);
+
+  if (noteIsHidden(notePoint, markerPoint)) {
+    const adjustedPosition = window.__map.getProjection().fromPointToLatLng({
+      y:
+        notePoint.y -
+        pixelsToLength(5, window.__map.getZoom()) -
+        (notePoint.y - markerPoint.y),
+      x: notePoint.x
+      // Longitude increases as point.y coordinate decreases. That's why we subtract form notePoint.y to move the note up, so that it's above the marker.
+    });
+
+    return adjustedPosition.lat();
+  }
+  return note.latitude;
+};
+
+const noteIsHidden = (notePoint, markerPoint) => {
+  const horizontalDistance = lengthToPixels(
+    Math.abs(notePoint.x - markerPoint.x),
+    window.__map.getZoom()
+  );
+
+  const verticalDistance = lengthToPixels(
+    Math.abs(notePoint.y - markerPoint.y),
+    window.__map.getZoom()
+  );
+
+  return horizontalDistance < 40 && verticalDistance < 5;
+};

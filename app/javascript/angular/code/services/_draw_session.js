@@ -1,6 +1,7 @@
 import _ from "underscore";
 import * as assets from "../../../assets";
 import { drawNotes } from "../../../javascript/note";
+import * as Session from "../../../javascript/values/session";
 
 const locationMarkersByLevel = {
   1: assets.locationMarker1Path,
@@ -38,7 +39,11 @@ export const drawSession = (sensors, map, heat, empty) => {
         points.push(measurement);
       });
 
-      drawNotes(session.notes || [], map);
+      drawNotes(
+        session.notes || [],
+        map,
+        Session.startingLatLng(session, sensors.selectedSensorName())
+      );
       window.__map.polylines.push(map.drawLine(points));
     },
 
