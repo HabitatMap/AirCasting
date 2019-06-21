@@ -1,5 +1,6 @@
 .footer {
   box-shadow: 0 -5px 3px -4px rgba(51, 51, 51, 0.2);
+  color: $text-color;
   font-size: $small-font;
   margin-top: 6vh;
   padding: 40px 0;
@@ -27,6 +28,10 @@
   border: 1px solid $shadow-color;
   width: 100%;
   margin-bottom: 12px;
+}
+
+.footer__submit {
+  background-color: #eee;
 }
 
 .social-links {
