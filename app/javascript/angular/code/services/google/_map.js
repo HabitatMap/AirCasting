@@ -276,7 +276,7 @@ export const map = (
       );
 
       googleMaps.addListener(markerClusterer, "clusterclick", onClick);
-      this.clusterer = markerClusterer;
+      window.__map.clusterers.push(markerClusterer);
     },
 
     setSelectedCluster: function(cluster) {

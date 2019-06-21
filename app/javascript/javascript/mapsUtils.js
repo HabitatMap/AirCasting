@@ -13,15 +13,18 @@ export const clearMap = () => {
 };
 
 if (process.env.NODE_ENV !== "test") {
-  // Polygons
+  // Objects
   google.maps.Map.prototype.polylines = new Array();
   google.maps.Map.prototype.rectangles = new Array();
+  google.maps.Map.prototype.clusterers = new Array();
 
   google.maps.Map.prototype.clearPolygons = function() {
     this.polylines.forEach(polyline => polyline.setMap(null));
     this.polylines = new Array();
     this.rectangles.forEach(rectangle => rectangle.setMap(null));
     this.rectangles = new Array();
+    this.clusterers.forEach(clusterer => clusterer.clearMarkers());
+    this.clusterers = new Array();
   };
 
   // InfoWindows

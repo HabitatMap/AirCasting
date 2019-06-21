@@ -149,7 +149,6 @@ export const fixedSessions = (
         this.drawMarkersWithLabel(session, sensors.selectedSensorName())
       );
 
-      if (map.clusterer) map.clusterer.clearMarkers();
       map.clusterMarkers(
         showClusterInfo(sensors.selectedSensorName(), map, infoWindow)
       );
