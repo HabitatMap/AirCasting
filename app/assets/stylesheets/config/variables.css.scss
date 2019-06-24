@@ -57,6 +57,17 @@ $medium-font: 18px;
 $font-stack-regular: 400;
 $font-stack-bold: 700;
 
+// z-index stack for elements on top of the map
+
+$sessions-z-index: 4;
+$heatmap-z-index: $sessions-z-index;
+
+$full-overlay-z-index: $sessions-z-index + 1;
+$partial-overlay-z-index: $heatmap-z-index - 1;
+
+$overlay-info-z-index: $full-overlay-z-index + 1;
+$popup-z-index: $full-overlay-z-index + 1;
+
 // other
 $basic-radius: 8px;
 $input-radius: 6px;
