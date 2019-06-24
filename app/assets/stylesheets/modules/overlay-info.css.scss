@@ -5,7 +5,7 @@ $overlay-info-width: 500px;
   font-size: $medium-font;
   font-weight: $font-stack-bold;
   position: relative;
-  z-index: 4; // overlay has z-index 3
+  z-index: $overlay-info-z-index;
 
   p {
     position: absolute;

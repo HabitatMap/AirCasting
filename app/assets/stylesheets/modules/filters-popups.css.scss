@@ -13,7 +13,7 @@ $popup-background-color: #f7f7f7;
   left: calc(#{$filters-width} + 2rem);
   top: 8rem;
   width: 310px;
-  z-index: 8;
+  z-index: $popup-z-index;
 }
 
 .filter-popup__list {

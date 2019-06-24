@@ -4,11 +4,11 @@
   top: 0;
   min-width: 100%;
   height: 100%;
-  z-index: 5;
+  z-index: $full-overlay-z-index;
   background-color: white;
   opacity: 0.6;
 
   &.overlay--indoor {
-    z-index: 3; // session cards and info are on top of overlay
+    z-index: $partial-overlay-z-index;
   }
 }
