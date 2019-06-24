@@ -49,15 +49,19 @@ module TestUtils
       threshold_low: 60,
       threshold_medium: 70,
       threshold_high: 80,
-      threshold_very_high: 100
+      threshold_very_high: 100,
+      min_latitude: attributes.fetch(:min_latitude, 1),
+      max_latitude: attributes.fetch(:max_latitude, 1),
+      min_longitude: attributes.fetch(:min_longitude, 1),
+      max_longitude: attributes.fetch(:max_longitude, 1)
     )
   end
 
   def create_measurement!(attributes = {})
     Measurement.create!(
       time: attributes.fetch(:time, DateTime.current),
-      latitude: attributes.fetch(:latitude, 123),
-      longitude: attributes.fetch(:longitude, 123),
+      latitude: attributes.fetch(:latitude, 1),
+      longitude: attributes.fetch(:longitude, 1),
       value: attributes.fetch(:value, 123),
       milliseconds: attributes.fetch(:milliseconds, 123),
       stream: attributes.fetch(:stream, create_stream!)
