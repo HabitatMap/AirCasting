@@ -64,5 +64,8 @@ $input-radius: 6px;
 //*********************
 
 // old variables
+
+// TODO: This writes over the "real" $text-color above but I'm leaving it because it seems like it was working for us so far.
+// Don't want to introduce changes here now but will look into it after the release.
+
 $text-color: #757575;
-$right-hud-width: 320px;
