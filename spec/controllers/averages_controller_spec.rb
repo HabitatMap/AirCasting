@@ -50,9 +50,9 @@ describe Api::AveragesController do
       day_from: 0,
       day_to: 365,
       time_from: 0,
-      time_to: 2359,
-      year_from: 2010,
-      year_to: 2050,
+      time_to: 2_359,
+      year_from: 2_010,
+      year_to: 2_050,
       session_ids: []
     }
     result = [{}, {}]
@@ -64,5 +64,4 @@ describe Api::AveragesController do
 
     expect(response.body).to eq(result.to_json)
   end
-
 end
