@@ -19,10 +19,8 @@
 */
 
 // mobile site nav
-window.addEventListener("load", function() {
-  document
-    .querySelector(".js-menu-button")
-    .addEventListener("click", function() {
-      document.querySelector("header").classList.toggle("menu-collapsed");
-    });
+window.addEventListener("load", () => {
+  document.querySelector(".js-menu-button").addEventListener("click", () => {
+    document.querySelector("header").classList.toggle("menu-collapsed");
+  });
 });
