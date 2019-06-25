@@ -1,15 +1,20 @@
-%nav.nav
-  .nav__logo
+%header.menu-collapsed
+  .logo
     = link_to '/', 'aria-label' => 'homepage' do
       = image_tag 'aircasting-logo-nav.svg', alt: 'Aircasting logo'
-  %ul
-    %li{ class: request.path == '/' ? 'active' : '' }
-      = link_to 'Home', '/', class: 'nav__link'
-    %li{ class: request.path.start_with?(about_path) ? 'active' : '' }
-      = link_to 'About', about_path, class: 'nav__link'
-    %li
-      = link_to 'Maps', map_path, class: 'nav__link'
-    %li
-      = link_to 'Blog', 'http://www.takingspace.org/', target: '_blank', rel: 'noreferrer', class: 'nav__link'
-    %li{ class: request.path.start_with?(donate_path) ? 'active' : '' }
-      = link_to 'Donate', donate_path, class: 'nav__link'
+
+  %nav#menu.nav{ role: 'navigation' }
+    %ul
+      %li{ class: request.path == '/' ? 'active' : '' }
+        = link_to 'Home', '/', class: 'nav__link'
+      %li{ class: request.path.start_with?(about_path) ? 'active' : '' }
+        = link_to 'About', about_path, class: 'nav__link'
+      %li
+        = link_to 'Maps', map_path, class: 'nav__link'
+      %li
+        = link_to 'Blog', 'http://www.takingspace.org/', target: '_blank', rel: 'noreferrer', class: 'nav__link'
+      %li{ class: request.path.start_with?(donate_path) ? 'active' : '' }
+        = link_to 'Donate', donate_path, class: 'nav__link'
+
+  = button_tag class: 'nav__menu-button js-menu-button', title: 'Menu', type: 'button', 'aria-label' => 'Menu' do
+    = image_tag 'menu-icon.svg', alt: 'Menu icon'

@@ -17,3 +17,10 @@
 
   You can contact the authors by email at <info@habitatmap.org>
 */
+
+// mobile site nav
+window.addEventListener("load", () => {
+  document.querySelector(".js-menu-button").addEventListener("click", e => {
+    document.querySelector("header").classList.toggle("menu-collapsed");
+  });
+});
