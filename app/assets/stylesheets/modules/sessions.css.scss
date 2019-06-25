@@ -3,11 +3,14 @@
   @include flex-direction(row);
   width: calc(100vw - #{$filters-width});
   overflow-x: hidden;
-  padding-bottom: $scrollbar-height;
 }
+
 .sessions-container:hover {
-  overflow-x: scroll;
-  padding-bottom: 0;
+  overflow-x: auto;
+}
+
+.sessions-list {
+  height: $sessions-list-height;
 }
 
 .sessions {
