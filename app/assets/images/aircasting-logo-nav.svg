@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="91px" height="22px" viewBox="0 0 91 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="105px" height="22px" viewBox="0 0 105 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
     <title>Group</title>
     <desc>Created with Sketch.</desc>
@@ -8,7 +8,7 @@
     </defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="Group">
-            <text id="AirCasting" font-family="PTSans-Bold, PT Sans" font-size="14" font-weight="bold" fill="#09A7F0">
+            <text id="AirCasting" font-family="PTSans-Bold, PT Sans, sans-serif" font-size="14" font-weight="bold" fill="#09A7F0">
                 <tspan x="30" y="19">AirCasting</tspan>
             </text>
             <g id="AirCastingLogoVector-(1)">
