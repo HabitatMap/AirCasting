@@ -1,40 +1,93 @@
-.nav {
-  margin: 0;
-  min-width: 100%;
-  max-width: 100%;
-  height: $nav-height;
-  background-color: white;
-  @include flexbox();
-  z-index: 5;
-  position: relative;
-  box-shadow: 1px 1px 2px 0 rgba(51, 51, 51, 0.2);
+$breakpoint: 780px;
 
-  ul {
-    padding: 0 10px 0 4px;
-    margin: 0 0 0 $filters-width;
+header {
+  @include flexbox();
+  background-color: white;
+  box-shadow: 1px 1px 2px 0 rgba(51, 51, 51, 0.2);
+  margin: 0;
+  position: relative;
+
+  &.menu-collapsed {
+    height: $nav-height;
+    overflow: hidden;
   }
 
-  ul li {
-    display: inline-block;
-    text-align: left;
+  @media screen and (min-width: $breakpoint) {
+    height: $nav-height;
   }
 }
 
-.nav-logo {
+.logo {
   padding-left: 24px;
   position: absolute;
   top: 11px;
 }
 
+.nav {
+  @media screen and (min-width: $breakpoint) {
+    position: relative;
+  }
+
+  ul {
+    margin: 0 0 0 $filters-width;
+    padding: 0 10px 0 4px;
+
+    @media screen and (max-width: 667px) {
+      height: 100vh;
+    }
+
+    @media screen and (max-width: $breakpoint - 1px) {
+      margin: 0;
+      padding: 50px 0 20px;
+    }
+  }
+
+  ul li {
+    display: inline-block;
+    text-align: left;
+
+    @media screen and (max-width: $breakpoint - 1px) {
+      display: block;
+    }
+  }
+
+  @media screen and (max-width: $breakpoint - 1px) {
+    width: 100%;
+  }
+}
+
+.nav__menu-button {
+  @include appearance(none);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: block;
+  padding-right: 24px;
+  position: absolute;
+  text-decoration: none;
+  top: 16px;
+  right: 0;
+
+  @media screen and (min-width: 780px) {
+    display: none;
+    background: none;
+  }
+}
+
 .nav__link {
   color: $text-color;
   display: inline-block;
-  line-height: $nav-height;
-  width: auto;
-  text-transform: lowercase;
-  font-weight: $font-stack-regular;
   font-size: $small-font;
+  font-weight: $font-stack-regular;
+  line-height: $nav-height;
+  text-transform: lowercase;
   margin-right: 65px;
+
+  @media screen and (max-width: $breakpoint - 1px) {
+    display: block;
+    margin: 0;
+    text-align: center;
+  }
 
   li.active & {
     color: $dark-blue;

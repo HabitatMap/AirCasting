@@ -14,9 +14,9 @@ import Data.Path as Path exposing (Path)
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
 import Data.Times as Times
-import Html exposing (Html, a, button, div, h2, h3, img, input, label, li, main_, nav, p, span, text, ul)
-import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, type_, value)
-import Html.Attributes.Aria exposing (ariaLabel)
+import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, li, main_, nav, p, span, text, ul)
+import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, title, type_, value)
+import Html.Attributes.Aria exposing (ariaLabel, role)
 import Html.Events as Events
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
@@ -57,6 +57,7 @@ type alias Model =
     , isIndoor : Bool
     , logoNav : String
     , linkIcon : Path
+    , menuIcon : Path
     , resetIconBlack : Path
     , resetIconWhite : Path
     , tooltipIcon : Path
@@ -67,6 +68,7 @@ type alias Model =
     , overlay : Overlay.Model
     , scrollPosition : Float
     , debouncingCounter : Int
+    , isNavExpanded : Bool
     }
 
 
@@ -91,6 +93,7 @@ defaultModel =
     , selectedSession = NotAsked
     , logoNav = ""
     , linkIcon = Path.empty
+    , menuIcon = Path.empty
     , resetIconBlack = Path.empty
     , resetIconWhite = Path.empty
     , tooltipIcon = Path.empty
@@ -100,6 +103,7 @@ defaultModel =
     , overlay = Overlay.none
     , scrollPosition = 0
     , debouncingCounter = 0
+    , isNavExpanded = False
     }
 
 
@@ -117,6 +121,7 @@ type alias Flags =
     , selectedSensorId : String
     , logoNav : String
     , linkIcon : String
+    , menuIcon : String
     , resetIconBlack : String
     , resetIconWhite : String
     , tooltipIcon : String
@@ -157,6 +162,7 @@ init flags url key =
         , selectedSensorId = flags.selectedSensorId
         , logoNav = flags.logoNav
         , linkIcon = Path.fromString flags.linkIcon
+        , menuIcon = Path.fromString flags.menuIcon
         , resetIconBlack = Path.fromString flags.resetIconBlack
         , resetIconWhite = Path.fromString flags.resetIconWhite
         , tooltipIcon = Path.fromString flags.tooltipIcon
@@ -240,6 +246,7 @@ type Msg
     | NoOp
     | Timeout Int
     | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
+    | ToggleNavExpanded
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -581,6 +588,9 @@ update msg model =
         MaybeUpdateResolution updateResolution ->
             debounce updateResolution model
 
+        ToggleNavExpanded ->
+            ( { model | isNavExpanded = not model.isNavExpanded }, Cmd.none )
+
 
 type alias Debouncable a =
     { a | debouncingCounter : Int, crowdMapResolution : BoundedInteger }
@@ -714,40 +724,58 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app" ]
-        [ viewNav model.logoNav
+        [ viewNav model.logoNav model.menuIcon model.isNavExpanded
         , viewMain model
         ]
 
 
-viewNav : String -> Html msg
-viewNav logoNav =
-    nav [ class "nav" ]
-        [ div [ class "nav-logo" ]
-            [ a [ href "/" ]
+viewNav : String -> Path -> Bool -> Html Msg
+viewNav logoNav menuIcon isNavExpanded =
+    header [ classList [ ( "menu-collapsed", not isNavExpanded ) ] ]
+        [ div [ class "logo" ]
+            [ a
+                [ ariaLabel "Homepage"
+                , href "/"
+                ]
                 [ img [ src logoNav, alt "Aircasting Logo" ] []
                 ]
             ]
-        , ul []
-            [ li []
-                [ a [ class "nav__link", href "/" ]
-                    [ text "Home" ]
+        , nav
+            [ class "nav"
+            , id "menu"
+            , role "navigation"
+            ]
+            [ ul []
+                [ li []
+                    [ a [ class "nav__link", href "/" ]
+                        [ text "Home" ]
+                    ]
+                , li []
+                    [ a [ class "nav__link", href "/about" ]
+                        [ text "About" ]
+                    ]
+                , li [ class "active" ]
+                    [ a [ class "nav__link", href "/map" ]
+                        [ text "Maps" ]
+                    ]
+                , li []
+                    [ a [ class "nav__link", href "http://www.takingspace.org/", rel "noreferrer", target "_blank" ]
+                        [ text "Blog" ]
+                    ]
+                , li []
+                    [ a [ class "nav__link", href "/donate" ]
+                        [ text "Donate" ]
+                    ]
                 ]
-            , li []
-                [ a [ class "nav__link", href "/about" ]
-                    [ text "About" ]
-                ]
-            , li [ class "active" ]
-                [ a [ class "nav__link", href "/map" ]
-                    [ text "Maps" ]
-                ]
-            , li []
-                [ a [ class "nav__link", href "http://www.takingspace.org/", rel "noreferrer", target "_blank" ]
-                    [ text "Blog" ]
-                ]
-            , li []
-                [ a [ class "nav__link", href "/donate" ]
-                    [ text "Donate" ]
-                ]
+            ]
+        , button
+            [ class "nav__menu-button"
+            , title "Menu"
+            , type_ "button"
+            , ariaLabel "Menu"
+            , Events.onClick ToggleNavExpanded
+            ]
+            [ img [ src <| Path.toString menuIcon, alt "Menu icon" ] []
             ]
         ]
 
