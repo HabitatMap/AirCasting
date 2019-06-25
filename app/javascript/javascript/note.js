@@ -63,7 +63,7 @@ const createHtml = index => {
             <
           </button>
           <span class="note-pagination__page">
-            ${data.number} of ${notes.length}
+            ${index + 1} of ${notes.length}
           </span>
           <button class="note-pagination__arrow note-pagination__arrow--next switchNote" id=${index +
             1}>
