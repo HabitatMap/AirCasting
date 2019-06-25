@@ -68,12 +68,6 @@ header {
   top: 16px;
   right: 0;
 
-  &:hover,
-  &:focus,
-  &:active {
-    text-decoration: none;
-  }
-
   @media screen and (min-width: 780px) {
     display: none;
     background: none;
