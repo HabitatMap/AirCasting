@@ -84,7 +84,7 @@ module Api
         if query.is_a?(String)
           ActiveSupport::JSON.decode(query).symbolize_keys
         elsif query
-          query.symbolize_keys
+          query.to_unsafe_hash.symbolize_keys
         else
           {}
         end
