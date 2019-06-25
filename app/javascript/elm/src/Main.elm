@@ -932,7 +932,7 @@ viewSessions fetchableSessionsCount sessions heatMapThresholds =
         text ""
 
     else
-        div []
+        div [ class "sessions-list" ]
             [ h2 [ class "sessions-header" ]
                 [ text "Sessions" ]
             , span [ class "sessions-number" ]
