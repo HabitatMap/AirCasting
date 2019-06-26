@@ -56,13 +56,6 @@
   padding: 0 24px 0 18px;
 }
 
-.session-header-container {
-  @include flexbox();
-  @include flex-direction(row);
-  @include justify-content(flex-start);
-  @include align-items(flex-start);
-}
-
 .sessions-header {
   display: inline-block;
   font-size: $medium-font;
