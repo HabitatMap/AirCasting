@@ -1,15 +1,15 @@
 .first-band {
-  fill: $green;
+  fill: var(--green);
 }
 
 .second-band {
-  fill: $yellow;
+  fill: var(--yellow);
 }
 
 .third-band {
-  fill: $orange;
+  fill: var(--orange);
 }
 
 .fourth-band {
-  fill: $red;
+  fill: var(--red);
 }
