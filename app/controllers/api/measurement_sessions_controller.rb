@@ -50,7 +50,7 @@ module Api
       service = Csv::ExportSessionsToCsv.new
 
       begin
-        zip_path = service.call(params[:session_ids])
+        zip_path = service.call(params[:session_ids] || [])
         zip_file = File.read(zip_path)
         zip_filename = File.basename(zip_path)
 
