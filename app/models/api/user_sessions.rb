@@ -57,7 +57,7 @@ module Api::UserSessions
   class Struct < Dry::Struct
     attribute :data, Types::Array do
       attribute :uuid, Types::Strict::String
-      attribute :title, Types::Strict::String
+      attribute :title, Types::Strict::String.default('')
       attribute :deleted, Types::Strict::Bool
       attribute :tag_list, Types::Strict::String
       attribute :calibration, Types::Strict::Integer
