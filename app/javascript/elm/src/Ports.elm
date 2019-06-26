@@ -24,6 +24,7 @@ port module Ports exposing
     , toggleSession
     , toggleSessionSelection
     , toggleStreaming
+    , toggleTheme
     , updateHeatMapThresholds
     , updateHeatMapThresholdsFromAngular
     , updateIsHttping
@@ -133,3 +134,6 @@ port setScroll : (() -> msg) -> Sub msg
 
 
 port observeSessionsList : () -> Cmd a
+
+
+port toggleTheme : Bool -> Cmd a

@@ -69,6 +69,7 @@ type alias Model =
     , scrollPosition : Float
     , debouncingCounter : Int
     , isNavExpanded : Bool
+    , isCustomThemeOn : Bool
     }
 
 
@@ -104,6 +105,7 @@ defaultModel =
     , scrollPosition = 0
     , debouncingCounter = 0
     , isNavExpanded = False
+    , isCustomThemeOn = False
     }
 
 
@@ -247,6 +249,7 @@ type Msg
     | Timeout Int
     | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
     | ToggleNavExpanded
+    | ToggleTheme
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -591,6 +594,13 @@ update msg model =
         ToggleNavExpanded ->
             ( { model | isNavExpanded = not model.isNavExpanded }, Cmd.none )
 
+        ToggleTheme ->
+            let
+                newTheme =
+                    not model.isCustomThemeOn
+            in
+            ( { model | isCustomThemeOn = newTheme }, Ports.toggleTheme newTheme )
+
 
 type alias Debouncable a =
     { a | debouncingCounter : Int, crowdMapResolution : BoundedInteger }
@@ -854,6 +864,11 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon =
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
         , button [ ariaLabel "Reset heatmap", class "reset-heatmap-button", Events.onClick ResetHeatMapToDefaults ]
             [ img [ src <| Path.toString resetIcon, alt "Reset icon" ] [] ]
+        , button
+            [ ariaLabel "Switch colours"
+            , Events.onClick ToggleTheme
+            ]
+            [ text "X" ]
         ]
 
 
