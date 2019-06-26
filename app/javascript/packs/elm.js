@@ -106,6 +106,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setupHeatMap();
 
+      window.__elmApp.ports.toggleTheme.subscribe(isCustomThemeOn => {
+        toggleTheme(isCustomThemeOn);
+      });
+
       setupTooltips();
     });
 });
@@ -231,3 +235,22 @@ createObserver({
   selector: ".sessions-container",
   onMount: setupHorizontalWheelScroll
 });
+
+const toggleTheme = isCustomThemeOn => {
+  let green = "#96d788",
+    yellow = "#ffd960",
+    orange = "#fca443",
+    red = "#e95f5f";
+
+  if (isCustomThemeOn) {
+    green = "#81dbcb";
+    yellow = "#4ebcd5";
+    orange = "#2a70b8";
+    red = "#19237e";
+  }
+
+  document.querySelector("body").style.setProperty("--green", green);
+  document.querySelector("body").style.setProperty("--yellow", yellow);
+  document.querySelector("body").style.setProperty("--orange", orange);
+  document.querySelector("body").style.setProperty("--red", red);
+};
