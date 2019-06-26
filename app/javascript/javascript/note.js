@@ -43,8 +43,8 @@ const createHtml = index => {
 
   let photoHtml = "";
   if (data.photo) {
-    photoHtml = `<a class="note__photo" id="note__photo" href=${data.photo}>
-      <img src=${data.photo_thumbnail} />
+    photoHtml = `<a class="note__photo js-thumbnail" href=${data.photo}>
+      <img src=${data.photo_thumbnail} alt="Photo thumbnail" />
     </a>`;
   }
 
@@ -81,12 +81,9 @@ if (process.env.NODE_ENV !== "test") {
       popup.close()
     );
 
-    const photo = document.getElementById("note__photo");
+    const photo = document.querySelector(".js-thumbnail");
     if (photo) {
-      const options = {
-        injectBaseStyles: false
-      };
-      new Luminous(photo, options);
+      new Luminous(photo);
     }
 
     Array.from(document.getElementsByClassName("switchNote")).forEach(
