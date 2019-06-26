@@ -994,15 +994,13 @@ viewSessionCard heatMapThresholds session =
         , Events.onMouseEnter <| HighlightSessionMarker (Just session.location)
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]
-        [ div [ class "session-header-container" ]
-            [ div
-                [ class "session-color"
-                , class <| Data.Session.classByValue session.average heatMapThresholds
-                ]
-                []
-            , h3 [ class "session-name" ]
-                [ text session.title ]
+        [ div
+            [ class "session-color"
+            , class <| Data.Session.classByValue session.average heatMapThresholds
             ]
+            []
+        , h3 [ class "session-name" ]
+            [ text session.title ]
         , p [ class "session-owner" ]
             [ text session.username ]
         , span [ class "session-dates" ]
