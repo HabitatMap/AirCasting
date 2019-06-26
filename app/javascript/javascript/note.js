@@ -1,4 +1,5 @@
 import { lengthToPixels, pixelsToLength } from "./mapsUtils";
+import * as basicLightbox from "basiclightbox";
 
 let notes = [];
 if (process.env.NODE_ENV !== "test") {
@@ -14,7 +15,7 @@ export const drawNotes = (notesData, map, sessionMarker) => {
 const drawNote = (data, map, sessionMarker) => {
   const marker = map.drawMarker({
     position: {
-      lat: adjustedLatitude(data, sessionMarker),
+      lat: data.latitude,
       lng: data.longitude
     },
     title: data.text,
@@ -42,10 +43,11 @@ const createHtml = index => {
 
   let photoHtml = "";
 
+  data.photo = "http://placeimg.com/640/480/any"; // TODO tmp, remove
+  data.photo_thumbnail = "http://placeimg.com/480/360/any"; // TODO tmp, remove
+
   if (data.photo) {
-    photoHtml = `<a class="note__photo" id="note__photo" href=${data.photo} visibility=hidden target="_blank">
-      <img src=${data.photo_thumbnail} />
-    </a>`;
+    photoHtml = `<a class="note__photo-thumbnail"><img src=${data.photo_thumbnail} alt="Note photo thumbnail" /></a>`;
   }
 
   return (
@@ -81,9 +83,12 @@ if (process.env.NODE_ENV !== "test") {
       popup.close()
     );
 
-    const photo = document.getElementById("note__photo");
-    // if (photo) {
-    // }
+    const thumbnail = document.querySelector(".note__photo-thumbnail");
+    debugger;
+
+    if (thumbnail) {
+      thumbnail.onclick = () => {};
+    }
 
     Array.from(document.getElementsByClassName("switchNote")).forEach(
       button => {
