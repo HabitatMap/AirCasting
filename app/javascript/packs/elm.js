@@ -13,7 +13,7 @@ import "tippy.js/themes/light-border.css";
 import { createObserver } from "../createObserver.js";
 import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
 import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
-import "../../assets/stylesheets/vendor/jquery.lightbox-0.5.css";
+import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
 
 if (window.NodeList && !NodeList.prototype.forEach) {
