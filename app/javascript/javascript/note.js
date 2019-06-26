@@ -41,6 +41,7 @@ const createHtml = index => {
   );
 
   let photoHtml = "";
+
   if (data.photo) {
     photoHtml = `<a class="note__photo" id="note__photo" href=${data.photo} visibility=hidden target="_blank">
       <img src=${data.photo_thumbnail} />
@@ -81,9 +82,8 @@ if (process.env.NODE_ENV !== "test") {
     );
 
     const photo = document.getElementById("note__photo");
-    if (photo) {
-      $(photo).lightBox();
-    }
+    // if (photo) {
+    // }
 
     Array.from(document.getElementsByClassName("switchNote")).forEach(
       button => {
