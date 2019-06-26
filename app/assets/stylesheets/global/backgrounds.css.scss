@@ -3,33 +3,17 @@
 }
 
 .green-bg {
-  background: $green;
+  background: var(--green);
 }
 
 .yellow-bg {
-  background: $yellow;
+  background: var(--yellow);
 }
 
 .orange-bg {
-  background: $orange;
+  background: var(--orange);
 }
 
 .red-bg {
-  background: $red;
-}
-
-.heat-lvl1-bg {
-  background: $heat-lvl1;
-}
-
-.heat-lvl2-bg {
-  background: $heat-lvl2;
-}
-
-.heat-lvl3-bg {
-  background: $heat-lvl3;
-}
-
-.heat-lvl4-bg {
-  background: $heat-lvl4;
+  background: var(--red);
 }

@@ -9,15 +9,17 @@ $text-color: #383b41;
 
 // heatmap colors
 $grey: lighten($dark-grey, 20%);
+
+:root {
+  --green: #96d788;
+  --yellow: #ffd960;
+  --orange: #fca443;
+  --red: #e95f5f;
+}
 $green: #96d788;
 $yellow: #ffd960;
 $orange: #fca443;
 $red: #e95f5f;
-
-$heat-lvl1: #81dbcb;
-$heat-lvl2: #4ebcd5;
-$heat-lvl3: #2a70b8;
-$heat-lvl4: #19237e;
 
 // ui colors
 $brand-primary: $blue;
