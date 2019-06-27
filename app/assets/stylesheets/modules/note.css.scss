@@ -26,6 +26,12 @@
   }
 }
 
+// extends luminous lightbox close button styles
+.lum-lightbox .lum-close-button {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
 .note-pagination {
   line-height: 1;
   text-align: center;
