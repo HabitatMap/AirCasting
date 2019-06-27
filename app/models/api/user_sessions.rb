@@ -25,8 +25,8 @@ module Api::UserSessions
         schema do
           required(:uuid).filled(:str?)
           required(:deleted).filled(:bool?)
-          required(:tag_list)
-          required(:title)
+          optional(:tag_list)
+          optional(:title)
           required(:calibration).filled(:int?)
           required(:contribute).filled(:bool?)
           required(:drawable).filled(:int?)
@@ -59,7 +59,7 @@ module Api::UserSessions
       attribute :uuid, Types::Strict::String
       attribute :title, Types::Strict::String.default('')
       attribute :deleted, Types::Strict::Bool
-      attribute :tag_list, Types::Strict::String
+      attribute :tag_list, Types::Strict::String.default('')
       attribute :calibration, Types::Strict::Integer
       attribute :contribute, Types::Strict::Bool
       attribute :drawable, Types::Strict::Integer
