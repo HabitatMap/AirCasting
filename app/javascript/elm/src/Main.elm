@@ -55,7 +55,7 @@ type alias Model =
     , crowdMapResolution : BoundedInteger
     , timeRange : TimeRange
     , isIndoor : Bool
-    , logoNav : String
+    , navLogo : Path
     , linkIcon : Path
     , menuIcon : Path
     , resetIconBlack : Path
@@ -91,7 +91,7 @@ defaultModel =
     , isIndoor = False
     , isStreaming = True
     , selectedSession = NotAsked
-    , logoNav = ""
+    , navLogo = Path.empty
     , linkIcon = Path.empty
     , menuIcon = Path.empty
     , resetIconBlack = Path.empty
@@ -119,7 +119,7 @@ type alias Flags =
     , selectedSessionId : Maybe Int
     , sensors : Encode.Value
     , selectedSensorId : String
-    , logoNav : String
+    , navLogo : String
     , linkIcon : String
     , menuIcon : String
     , resetIconBlack : String
@@ -160,7 +160,7 @@ init flags url key =
         , sensors = sensors
         , isStreaming = flags.isStreaming
         , selectedSensorId = flags.selectedSensorId
-        , logoNav = flags.logoNav
+        , navLogo = Path.fromString flags.navLogo
         , linkIcon = Path.fromString flags.linkIcon
         , menuIcon = Path.fromString flags.menuIcon
         , resetIconBlack = Path.fromString flags.resetIconBlack
@@ -724,20 +724,20 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app" ]
-        [ viewNav model.logoNav model.menuIcon model.isNavExpanded
+        [ viewNav model.navLogo model.menuIcon model.isNavExpanded
         , viewMain model
         ]
 
 
-viewNav : String -> Path -> Bool -> Html Msg
-viewNav logoNav menuIcon isNavExpanded =
+viewNav : Path -> Path -> Bool -> Html Msg
+viewNav navLogo menuIcon isNavExpanded =
     header [ classList [ ( "menu-collapsed", not isNavExpanded ) ] ]
         [ div [ class "logo" ]
             [ a
                 [ ariaLabel "Homepage"
                 , href "/"
                 ]
-                [ img [ src logoNav, alt "Aircasting Logo" ] []
+                [ img [ src (Path.toString navLogo), alt "Aircasting Logo" ] []
                 ]
             ]
         , nav
