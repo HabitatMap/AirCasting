@@ -10,13 +10,13 @@
 }
 
 .filters-container {
-  padding: 12px 12px 60px 12px; // bottom space holds action buttons
+  padding: $margin-default $margin-default 60px $margin-default; // bottom space holds action buttons
 }
 
 .filters__actions {
   bottom: 0;
   left: 0;
-  padding: 12px 12px 15px 12px;
+  padding: $margin-default $margin-default 15px $margin-default;
   position: absolute;
 }
 
@@ -49,8 +49,16 @@
   opacity: 0.4;
 }
 
-// autocomplete dropdown
+// extends autocomplete dropdown
 .ui-menu {
   max-height: 20vh;
+  max-width: $filters-width - 2 * $margin-default;
   overflow: auto;
+}
+
+.ui-menu-item a.ui-state-hover {
+  background: none;
+  border: none;
+  text-decoration: underline !important;
+  margin: 0 !important;
 }
