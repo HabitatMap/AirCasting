@@ -38,7 +38,8 @@ set :linked_files,
       'config/database.yml',
       'config/secrets.yml',
       'newrelic.yml',
-      'config/configuration.yml'
+      'config/configuration.yml',
+      'public/robots.txt'
     )
 
 # Default value for linked_dirs is []
