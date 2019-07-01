@@ -25,11 +25,12 @@ header {
 
 .nav {
   @media screen and (min-width: $breakpoint) {
+    margin: 0 0 0 $filters-width;
     position: relative;
   }
 
   ul {
-    margin: 0 0 0 $filters-width;
+    margin: 0;
     padding: 0 10px 0 4px;
 
     @media screen and (max-width: 667px) {
