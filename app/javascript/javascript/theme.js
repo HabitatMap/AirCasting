@@ -12,16 +12,16 @@ export const applyTheme = () => {
 const updateHtmlVariables = () => {
   document
     .querySelector("body")
-    .style.setProperty("--green", themeColours().level1);
+    .style.setProperty("--level1-colour", themeColours().level1);
   document
     .querySelector("body")
-    .style.setProperty("--yellow", themeColours().level2);
+    .style.setProperty("--level2-colour", themeColours().level2);
   document
     .querySelector("body")
-    .style.setProperty("--orange", themeColours().level3);
+    .style.setProperty("--level3-colour", themeColours().level3);
   document
     .querySelector("body")
-    .style.setProperty("--red", themeColours().level4);
+    .style.setProperty("--level4-colour", themeColours().level4);
 };
 
 const updateFixedClusters = () => {

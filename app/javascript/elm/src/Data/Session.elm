@@ -67,16 +67,16 @@ classByValue average heatMapThresholds =
                     "grey-bg"
 
                 Range2 ->
-                    "green-bg"
+                    "level1-bg"
 
                 Range3 ->
-                    "yellow-bg"
+                    "level2-bg"
 
                 Range4 ->
-                    "orange-bg"
+                    "level3-bg"
 
                 Range5 ->
-                    "red-bg"
+                    "level4-bg"
 
                 Range6 ->
                     "grey-bg"

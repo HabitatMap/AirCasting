@@ -152,7 +152,7 @@ const setupHeatMap = () => {
     });
 
     var connect = node.querySelectorAll(".noUi-connect");
-    var classes = ["green-bg", "yellow-bg", "orange-bg", "red-bg"];
+    var classes = ["level1-bg", "level2-bg", "level3-bg", "level4-bg"];
     for (var i = 0; i < connect.length; i++) {
       connect[i].classList.add(classes[i]);
     }

@@ -103,16 +103,16 @@ export const heat = ($rootScope, params) => {
     classByValue: function(value) {
       switch (this.getLevel(Math.round(value))) {
         case 1:
-          return "green-bg";
+          return "level1-bg";
 
         case 2:
-          return "yellow-bg";
+          return "level2-bg";
 
         case 3:
-          return "orange-bg";
+          return "level3-bg";
 
         case 4:
-          return "red-bg";
+          return "level4-bg";
 
         default:
           return "grey-bg";

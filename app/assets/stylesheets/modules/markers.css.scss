@@ -24,19 +24,19 @@
   }
 
   &.highest {
-    @extend .red-bg;
+    @extend .level4-bg;
   }
 
   &.high {
-    @extend .orange-bg;
+    @extend .level3-bg;
   }
 
   &.mid {
-    @extend .yellow-bg;
+    @extend .level2-bg;
   }
 
   &.low {
-    @extend .green-bg;
+    @extend .level1-bg;
   }
 }
 
