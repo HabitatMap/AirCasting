@@ -289,7 +289,11 @@ update msg model =
             ( subModel2, Cmd.batch [ subCmd1, subCmd2 ] )
 
         ToggleCrowdMap isCrowdmapOn ->
-            ( { model | isCrowdMapOn = isCrowdmapOn }, Ports.toggleCrowdMap isCrowdmapOn )
+            if model.isCrowdMapOn == isCrowdmapOn then
+                ( model, Cmd.none )
+
+            else
+                ( { model | isCrowdMapOn = isCrowdmapOn }, Ports.toggleCrowdMap isCrowdmapOn )
 
         UpdateCrowdMapResolution resolution ->
             let
@@ -401,7 +405,10 @@ update msg model =
                 ( subModel, subCmd ) =
                     deselectSession model
             in
-            if isIndoor then
+            if subModel.isIndoor == isIndoor then
+                ( subModel, Cmd.none )
+
+            else if isIndoor then
                 ( { subModel | isIndoor = True, profiles = LabelsInput.empty, overlay = Overlay.update (AddOverlay IndoorOverlay) model.overlay }
                 , Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [], subCmd ]
                 )
@@ -416,9 +423,13 @@ update msg model =
                 ( subModel, subCmd ) =
                     deselectSession model
             in
-            ( { subModel | status = status }
-            , Cmd.batch [ Ports.toggleActive (status == Active), subCmd ]
-            )
+            if subModel.status == status then
+                ( subModel, Cmd.none )
+
+            else
+                ( { subModel | status = status }
+                , Cmd.batch [ Ports.toggleActive (status == Active), subCmd ]
+                )
 
         DeselectSession ->
             deselectSession model
