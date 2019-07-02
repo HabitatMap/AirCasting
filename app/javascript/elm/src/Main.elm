@@ -13,6 +13,7 @@ import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
+import Data.Status exposing (Status(..))
 import Data.Times as Times
 import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, title, type_, value)
@@ -62,13 +63,13 @@ type alias Model =
     , resetIconWhite : Path
     , tooltipIcon : Path
     , heatMapThresholds : WebData HeatMapThresholds
-    , isStreaming : Bool
     , isSearchAsIMoveOn : Bool
     , wasMapMoved : Bool
     , overlay : Overlay.Model
     , scrollPosition : Float
     , debouncingCounter : Int
     , isNavExpanded : Bool
+    , status : Status
     }
 
 
@@ -89,7 +90,6 @@ defaultModel =
     , crowdMapResolution = BoundedInteger.build (LowerBound 1) (UpperBound 40) (Value 20)
     , timeRange = TimeRange.defaultTimeRange
     , isIndoor = False
-    , isStreaming = True
     , selectedSession = NotAsked
     , navLogo = Path.empty
     , linkIcon = Path.empty
@@ -104,6 +104,7 @@ defaultModel =
     , scrollPosition = 0
     , debouncingCounter = 0
     , isNavExpanded = False
+    , status = Active
     }
 
 
@@ -114,8 +115,8 @@ type alias Flags =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : Encode.Value
+    , isActive : Bool
     , isIndoor : Bool
-    , isStreaming : Bool
     , selectedSessionId : Maybe Int
     , sensors : Encode.Value
     , selectedSensorId : String
@@ -158,7 +159,6 @@ init flags url key =
         , timeRange = TimeRange.update defaultModel.timeRange flags.timeRange
         , isIndoor = flags.isIndoor
         , sensors = sensors
-        , isStreaming = flags.isStreaming
         , selectedSensorId = flags.selectedSensorId
         , navLogo = Path.fromString flags.navLogo
         , linkIcon = Path.fromString flags.linkIcon
@@ -172,6 +172,12 @@ init flags url key =
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = Overlay.init flags.isIndoor
         , scrollPosition = flags.scrollPosition
+        , status =
+            if flags.isActive then
+                Active
+
+            else
+                Dormant
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -225,7 +231,7 @@ type Msg
     | LoadMoreSessions
     | UpdateIsHttping Bool
     | ToggleIndoor
-    | ToggleStreaming
+    | ToggleStatus
     | DeselectSession
     | ToggleSessionSelectionFromAngular (Maybe Int)
     | ToggleSessionSelection Int
@@ -405,13 +411,21 @@ update msg model =
                 , Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [], subCmd ]
                 )
 
-        ToggleStreaming ->
+        ToggleStatus ->
             let
                 ( subModel, subCmd ) =
                     deselectSession model
+
+                newStatus =
+                    case model.status of
+                        Active ->
+                            Dormant
+
+                        Dormant ->
+                            Active
             in
-            ( { subModel | isStreaming = not subModel.isStreaming }
-            , Cmd.batch [ Ports.toggleStreaming (not subModel.isStreaming), subCmd ]
+            ( { subModel | status = newStatus }
+            , Cmd.batch [ Ports.toggleActive (newStatus == Active), subCmd ]
             )
 
         DeselectSession ->
@@ -1024,7 +1038,7 @@ viewMobileFilters model =
         [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
-        , TimeRange.view RefreshTimeRange False model.tooltipIcon model.resetIconWhite
+        , TimeRange.view RefreshTimeRange Dormant model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
         , viewCrowdMapOptions model.isCrowdMapOn model.crowdMapResolution model.selectedSession model.tooltipIcon
@@ -1037,7 +1051,7 @@ viewFixedFilters model =
         [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
-        , TimeRange.view RefreshTimeRange model.isStreaming model.tooltipIcon model.resetIconWhite
+        , TimeRange.view RefreshTimeRange model.status model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
         , div [ class "filters__toggle-group" ]
@@ -1048,9 +1062,9 @@ viewFixedFilters model =
             ]
         , div [ class "filters__toggle-group" ]
             [ label [] [ text "status:" ]
-            , Tooltip.view Tooltip.streamingToggleFilter model.tooltipIcon
-            , viewToggleButton "active" model.isStreaming ToggleStreaming
-            , viewToggleButton "dormant" (not model.isStreaming) ToggleStreaming
+            , Tooltip.view Tooltip.activeToggleFilter model.tooltipIcon
+            , viewToggleButton "active" (model.status == Active) ToggleStatus
+            , viewToggleButton "dormant" (model.status == Dormant) ToggleStatus
             ]
         ]
 
