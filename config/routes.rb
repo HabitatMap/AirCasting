@@ -65,6 +65,10 @@ Rails.application.routes.draw do
       namespace :dormant do
         get 'sessions' => 'sessions#index'
       end
+
+      namespace :active do
+        get 'sessions' => 'sessions#index_active'
+      end
     end
 
     namespace :mobile do
