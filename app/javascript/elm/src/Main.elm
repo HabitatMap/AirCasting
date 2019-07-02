@@ -185,7 +185,6 @@ init flags url key =
 
             Just values ->
                 Ports.updateHeatMapThresholds values
-        , Ports.toggleTheme flags.customTheme
         ]
     )
 

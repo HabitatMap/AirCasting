@@ -35,7 +35,8 @@ test("it updates defaults", t => {
       mid: 35,
       high: 55,
       highest: 150
-    }
+    },
+    customTheme: false
   };
   t.deepEqual(defaults, expected);
 

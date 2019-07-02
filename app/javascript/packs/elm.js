@@ -15,7 +15,7 @@ import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
 import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
-import * as assets from "../assets";
+import { applyTheme } from "../javascript/theme";
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
@@ -108,9 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setupHeatMap();
 
-      window.__elmApp.ports.toggleTheme.subscribe(isCustomThemeOn => {
-        toggleTheme(isCustomThemeOn);
-      });
+      applyTheme();
 
       setupTooltips();
     });
@@ -237,30 +235,3 @@ createObserver({
   selector: ".sessions-container",
   onMount: setupHorizontalWheelScroll
 });
-
-const toggleTheme = isCustomThemeOn => {
-  let green = "#96d788",
-    yellow = "#ffd960",
-    orange = "#fca443",
-    red = "#e95f5f";
-
-  if (isCustomThemeOn) {
-    green = "#81dbcb";
-    yellow = "#4ebcd5";
-    orange = "#2a70b8";
-    red = "#19237e";
-  }
-
-  document.querySelector("body").style.setProperty("--green", green);
-  document.querySelector("body").style.setProperty("--yellow", yellow);
-  document.querySelector("body").style.setProperty("--orange", orange);
-  document.querySelector("body").style.setProperty("--red", red);
-
-  window.__map.clusterers[0].setStyles([
-    { url: assets.clusterTheme2Level1Path, height: 30, width: 30 },
-    { url: assets.clusterTheme2Level2Path, height: 30, width: 30 },
-    { url: assets.clusterTheme2Level3Path, height: 30, width: 30 },
-    { url: assets.clusterTheme2Level4Path, height: 30, width: 30 }
-  ]);
-  window.__map.clusterers[0].repaint();
-};
