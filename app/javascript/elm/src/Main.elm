@@ -115,6 +115,7 @@ type alias Flags =
     , isCrowdMapOn : Bool
     , crowdMapResolution : Int
     , timeRange : Encode.Value
+    , isActive : Bool
     , isIndoor : Bool
     , selectedSessionId : Maybe Int
     , sensors : Encode.Value
@@ -171,7 +172,12 @@ init flags url key =
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = Overlay.init flags.isIndoor
         , scrollPosition = flags.scrollPosition
-        , status = Active
+        , status =
+            if flags.isActive then
+                Active
+
+            else
+                Dormant
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
