@@ -130,6 +130,7 @@ type alias Flags =
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     , isSearchAsIMoveOn : Bool
     , scrollPosition : Float
+    , customTheme : Bool
     }
 
 
@@ -174,6 +175,7 @@ init flags url key =
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = Overlay.init flags.isIndoor
         , scrollPosition = flags.scrollPosition
+        , isCustomThemeOn = flags.customTheme
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -183,6 +185,7 @@ init flags url key =
 
             Just values ->
                 Ports.updateHeatMapThresholds values
+        , Ports.toggleTheme flags.customTheme
         ]
     )
 

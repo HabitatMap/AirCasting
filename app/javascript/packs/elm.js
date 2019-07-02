@@ -98,7 +98,8 @@ document.addEventListener("DOMContentLoaded", () => {
         heatMapThresholdValues,
         isStreaming: data.isStreaming,
         isSearchAsIMoveOn: data.isSearchAsIMoveOn,
-        scrollPosition: params.scroll || 0
+        scrollPosition: params.scroll || 0,
+        customTheme: params.customTheme || false
       };
 
       console.warn(flags);
