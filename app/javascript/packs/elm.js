@@ -15,6 +15,7 @@ import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
 import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
+import * as assets from "../assets";
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
@@ -253,4 +254,12 @@ const toggleTheme = isCustomThemeOn => {
   document.querySelector("body").style.setProperty("--yellow", yellow);
   document.querySelector("body").style.setProperty("--orange", orange);
   document.querySelector("body").style.setProperty("--red", red);
+
+  window.__map.clusterers[0].setStyles([
+    { url: assets.clusterTheme2Level1Path, height: 30, width: 30 },
+    { url: assets.clusterTheme2Level2Path, height: 30, width: 30 },
+    { url: assets.clusterTheme2Level3Path, height: 30, width: 30 },
+    { url: assets.clusterTheme2Level4Path, height: 30, width: 30 }
+  ]);
+  window.__map.clusterers[0].repaint();
 };

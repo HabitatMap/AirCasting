@@ -2,6 +2,7 @@ import _ from "underscore";
 import { buildCustomMarker } from "./custom_marker";
 import MarkerClusterer from "@google/markerclustererplus";
 import * as assets from "../../../../assets";
+import * as Theme from "../../../../javascript/theme";
 
 export const map = (
   params,
@@ -250,12 +251,7 @@ export const map = (
 
     clusterMarkers: function(onClick) {
       const options = {
-        styles: [
-          { url: assets.marker1Path, height: 30, width: 30 },
-          { url: assets.marker2Path, height: 30, width: 30 },
-          { url: assets.marker3Path, height: 30, width: 30 },
-          { url: assets.marker4Path, height: 30, width: 30 }
-        ],
+        styles: Theme.fixedClusterStyles(),
         zoomOnClick: false,
         gridSize: 20,
         maxZoom: 21,

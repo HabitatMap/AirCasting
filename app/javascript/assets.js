@@ -3,22 +3,42 @@ export const pulsingLocationMarkerPath =
     ? ""
     : require("../assets/images/pulsing_location_marker.svg");
 
-export const marker1Path =
+export const clusterTheme1Level1Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/marker1.svg");
+    : require("../assets/images/cluster-theme1-level1.svg");
 
-export const marker2Path =
+export const clusterTheme1Level2Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/marker2.svg");
+    : require("../assets/images/cluster-theme1-level2.svg");
 
-export const marker3Path =
+export const clusterTheme1Level3Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/marker3.svg");
+    : require("../assets/images/cluster-theme1-level3.svg");
 
-export const marker4Path =
+export const clusterTheme1Level4Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/marker4.svg");
+    : require("../assets/images/cluster-theme1-level4.svg");
+
+export const clusterTheme2Level1Path =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/cluster-theme2-level1.svg");
+
+export const clusterTheme2Level2Path =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/cluster-theme2-level2.svg");
+
+export const clusterTheme2Level3Path =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/cluster-theme2-level3.svg");
+
+export const clusterTheme2Level4Path =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/cluster-theme2-level4.svg");
