@@ -1,15 +1,34 @@
-.first-band {
-  fill: var(--level1-colour);
-}
+.theme1 {
+  .first-band {
+    fill: $theme1-level1-colour;
+  }
 
-.second-band {
-  fill: var(--level2-colour);
-}
+  .second-band {
+    fill: $theme1-level2-colour;
+  }
 
-.third-band {
-  fill: var(--level3-colour);
-}
+  .third-band {
+    fill: $theme1-level3-colour;
+  }
 
-.fourth-band {
-  fill: var(--level4-colour);
+  .fourth-band {
+    fill: $theme1-level4-colour;
+  }
+}
+.theme2 {
+  .first-band {
+    fill: $theme2-level1-colour;
+  }
+
+  .second-band {
+    fill: $theme2-level2-colour;
+  }
+
+  .third-band {
+    fill: $theme2-level3-colour;
+  }
+
+  .fourth-band {
+    fill: $theme2-level4-colour;
+  }
 }

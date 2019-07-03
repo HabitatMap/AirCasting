@@ -28,6 +28,7 @@ import Process
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import String exposing (fromInt)
+import Tagged exposing (Tagged)
 import Task
 import TimeRange exposing (TimeRange)
 import Tooltip
@@ -69,8 +70,12 @@ type alias Model =
     , scrollPosition : Float
     , debouncingCounter : Int
     , isNavExpanded : Bool
-    , isCustomThemeOn : Bool
+    , isCustomThemeOn : Tagged Theme Bool
     }
+
+
+type Theme
+    = Theme
 
 
 defaultModel : Model
@@ -105,7 +110,7 @@ defaultModel =
     , scrollPosition = 0
     , debouncingCounter = 0
     , isNavExpanded = False
-    , isCustomThemeOn = False
+    , isCustomThemeOn = Tagged.tag False
     }
 
 
@@ -175,7 +180,7 @@ init flags url key =
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = Overlay.init flags.isIndoor
         , scrollPosition = flags.scrollPosition
-        , isCustomThemeOn = flags.customTheme
+        , isCustomThemeOn = Tagged.tag flags.customTheme
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -598,10 +603,10 @@ update msg model =
 
         ToggleTheme ->
             let
-                newTheme =
-                    not model.isCustomThemeOn
+                isCustomThemeOn =
+                    Tagged.map not model.isCustomThemeOn
             in
-            ( { model | isCustomThemeOn = newTheme }, Ports.toggleTheme newTheme )
+            ( { model | isCustomThemeOn = isCustomThemeOn }, Ports.toggleTheme (Tagged.untag isCustomThemeOn) )
 
 
 type alias Debouncable a =
@@ -735,7 +740,16 @@ viewDocument model =
 
 view : Model -> Html Msg
 view model =
-    div [ id "elm-app" ]
+    let
+        themeClass =
+            case Tagged.untag model.isCustomThemeOn of
+                True ->
+                    "theme2"
+
+                False ->
+                    "theme1"
+    in
+    div [ id "elm-app", class themeClass ]
         [ viewNav model.navLogo model.menuIcon model.isNavExpanded
         , viewMain model
         ]

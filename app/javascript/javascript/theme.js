@@ -1,27 +1,10 @@
 import * as assets from "../assets";
 
 export const applyTheme = () => {
-  updateHtmlVariables();
-
   if (window.__map) {
     updateFixedClusters();
     updateRectangles();
   }
-};
-
-const updateHtmlVariables = () => {
-  document
-    .querySelector("body")
-    .style.setProperty("--level1-colour", themeColours().level1);
-  document
-    .querySelector("body")
-    .style.setProperty("--level2-colour", themeColours().level2);
-  document
-    .querySelector("body")
-    .style.setProperty("--level3-colour", themeColours().level3);
-  document
-    .querySelector("body")
-    .style.setProperty("--level4-colour", themeColours().level4);
 };
 
 const updateFixedClusters = () => {
@@ -38,24 +21,6 @@ const updateRectangles = function() {
         fillColor: getColor(heatLevels(), rectangle.data.value)
       });
     });
-  }
-};
-
-const themeColours = () => {
-  if (params().customTheme) {
-    return {
-      level1: "#81dbcb",
-      level2: "#4ebcd5",
-      level3: "#2a70b8",
-      level4: "#19237e"
-    };
-  } else {
-    return {
-      level1: "#96d788",
-      level2: "#ffd960",
-      level3: "#fca443",
-      level4: "#e95f5f"
-    };
   }
 };
 

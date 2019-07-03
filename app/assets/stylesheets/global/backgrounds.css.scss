@@ -2,18 +2,38 @@
   background: $grey;
 }
 
-.level1-bg {
-  background: var(--level1-colour);
+.theme1 {
+  .level1-bg {
+    background: $theme1-level1-colour;
+  }
+
+  .level2-bg {
+    background: $theme1-level2-colour;
+  }
+
+  .level3-bg {
+    background: $theme1-level3-colour;
+  }
+
+  .level4-bg {
+    background: $theme1-level4-colour;
+  }
 }
 
-.level2-bg {
-  background: var(--level2-colour);
-}
+.theme2 {
+  .level1-bg {
+    background: $theme2-level1-colour;
+  }
 
-.level3-bg {
-  background: var(--level3-colour);
-}
+  .level2-bg {
+    background: $theme2-level2-colour;
+  }
 
-.level4-bg {
-  background: var(--level4-colour);
+  .level3-bg {
+    background: $theme2-level3-colour;
+  }
+
+  .level4-bg {
+    background: $theme2-level4-colour;
+  }
 }

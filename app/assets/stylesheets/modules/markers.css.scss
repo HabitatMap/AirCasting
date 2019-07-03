@@ -40,32 +40,69 @@
   }
 }
 
-.data-marker {
-  background: white;
-  border-radius: 15px;
-  box-sizing: border-box;
-  cursor: pointer;
-  font-size: 12px;
-  padding: 0 5px 0 18px;
-  position: absolute;
-  line-height: 18px;
-  left: -10px;
-  top: -11px;
+.theme1 {
+  .data-marker {
+    background: white;
+    border-radius: 15px;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0 5px 0 18px;
+    position: absolute;
+    line-height: 18px;
+    left: -10px;
+    top: -11px;
 
-  &.highest {
-    border: 1px solid $red;
+    &.highest {
+      border: 1px solid $theme1-level4-colour;
+    }
+
+    &.high {
+      border: 1px solid $theme1-level3-colour;
+    }
+
+    &.mid {
+      border: 1px solid $theme1-level2-colour;
+    }
+
+    &.low {
+      border: 1px solid $theme1-level1-colour;
+    }
   }
 
-  &.high {
-    border: 1px solid $orange;
+  &.default {
+    border: 1px solid $grey;
   }
+}
 
-  &.mid {
-    border: 1px solid $yellow;
-  }
+.theme2 {
+  .data-marker {
+    background: white;
+    border-radius: 15px;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0 5px 0 18px;
+    position: absolute;
+    line-height: 18px;
+    left: -10px;
+    top: -11px;
 
-  &.low {
-    border: 1px solid $green;
+    &.highest {
+      border: 1px solid $theme2-level4-colour;
+    }
+
+    &.high {
+      border: 1px solid $theme2-level3-colour;
+    }
+
+    &.mid {
+      border: 1px solid $theme2-level2-colour;
+    }
+
+    &.low {
+      border: 1px solid $theme2-level1-colour;
+    }
   }
 
   &.default {
@@ -85,19 +122,19 @@
 }
 
 .data-marker.highest::before {
-  background: $red;
+  @extend .level4-bg;
 }
 
 .data-marker.high::before {
-  background: $orange;
+  @extend .level3-bg;
 }
 
 .data-marker.mid::before {
-  background: $yellow;
+  @extend .level2-bg;
 }
 
 .data-marker.low::before {
-  background: $green;
+  @extend .level1-bg;
 }
 
 .data-marker.default::before {
@@ -129,24 +166,47 @@
   @include halo($grey);
 }
 
-.data-marker.highest::after,
-.marker.highest::after {
-  @include halo($red);
-}
+.theme1 {
+  .data-marker.highest::after,
+  .marker.highest::after {
+    @include halo($theme1-level4-colour);
+  }
 
-.data-marker.high::after,
-.marker.high::after {
-  @include halo($orange);
-}
+  .data-marker.high::after,
+  .marker.high::after {
+    @include halo($theme1-level3-colour);
+  }
 
-.data-marker.mid::after,
-.marker.mid::after {
-  @include halo($yellow);
-}
+  .data-marker.mid::after,
+  .marker.mid::after {
+    @include halo($theme1-level2-colour);
+  }
 
-.data-marker.low::after,
-.marker.low::after {
-  @include halo($green);
+  .data-marker.low::after,
+  .marker.low::after {
+    @include halo($theme1-level1-colour);
+  }
+}
+.theme2 {
+  .data-marker.highest::after,
+  .marker.highest::after {
+    @include halo($theme2-level4-colour);
+  }
+
+  .data-marker.high::after,
+  .marker.high::after {
+    @include halo($theme2-level3-colour);
+  }
+
+  .data-marker.mid::after,
+  .marker.mid::after {
+    @include halo($theme2-level2-colour);
+  }
+
+  .data-marker.low::after,
+  .marker.low::after {
+    @include halo($theme2-level1-colour);
+  }
 }
 
 .marker-container {

@@ -9,17 +9,17 @@ $text-color: #383b41;
 
 // heatmap colors
 $grey: lighten($dark-grey, 20%);
-
-:root {
-  --level1-colour: #96d788;
-  --level2-colour: #ffd960;
-  --level3-colour: #fca443;
-  --level4-colour: #e95f5f;
-}
-$green: #96d788;
-$yellow: #ffd960;
-$orange: #fca443;
 $red: #e95f5f;
+
+$theme2-level1-colour: #81dbcb;
+$theme2-level2-colour: #4ebcd5;
+$theme2-level3-colour: #2a70b8;
+$theme2-level4-colour: #19237e;
+
+$theme1-level1-colour: #96d788;
+$theme1-level2-colour: #ffd960;
+$theme1-level3-colour: #fca443;
+$theme1-level4-colour: #e95f5f;
 
 // ui colors
 $brand-primary: $blue;
