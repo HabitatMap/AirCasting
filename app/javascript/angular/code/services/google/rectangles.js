@@ -1,4 +1,4 @@
-import { rectanglesStyles } from "../../../../javascript/theme";
+import { rectangleColour } from "../../../../javascript/theme";
 
 angular.module("google").factory("rectangles", function() {
   var Rectangles = function() {};
@@ -14,11 +14,11 @@ angular.module("google").factory("rectangles", function() {
       var lng = (region.east + region.west) / 2;
       return new google.maps.LatLng(lat, lng);
     },
-    draw: function(rectangles, thresholds) {
+    draw: function(rectangles) {
       var rectOptions, rectangle, color;
       var self = this;
       _(rectangles).each(function(data) {
-        color = self.getColor(thresholds, data.value);
+        color = rectangleColour(data.value);
         if (color) {
           rectOptions = {
             strokeWeight: 0,
@@ -35,18 +35,6 @@ angular.module("google").factory("rectangles", function() {
           window.__map.rectangles.push(rectangle);
         }
       });
-    },
-
-    getColor: function(levels, value) {
-      if (levels.length === 0) {
-        return;
-      }
-      var level = _(levels).detect(function(l) {
-        return value < l;
-      });
-      console.warn(rectanglesStyles());
-
-      return rectanglesStyles()[_(levels).indexOf(level)];
     }
   };
 

@@ -14,16 +14,6 @@ const updateFixedClusters = () => {
   }
 };
 
-const updateRectangles = function() {
-  if (window.__map.rectangles) {
-    window.__map.rectangles.forEach(rectangle => {
-      rectangle.setOptions({
-        fillColor: getColor(heatLevels(), rectangle.data.value)
-      });
-    });
-  }
-};
-
 export const fixedClusterStyles = () => {
   if (params().customTheme) {
     return [
@@ -42,7 +32,17 @@ export const fixedClusterStyles = () => {
   }
 };
 
-export const rectanglesStyles = () => {
+const updateRectangles = () => {
+  if (window.__map.rectangles) {
+    window.__map.rectangles.forEach(rectangle => {
+      rectangle.setOptions({
+        fillColor: rectangleColour(rectangle.data.value)
+      });
+    });
+  }
+};
+
+const rectanglesStyles = () => {
   if (params().customTheme) {
     return [null, "#81dbcb", "#4ebcd5", "#2a70b8", "#19237e"];
   } else {
@@ -50,15 +50,11 @@ export const rectanglesStyles = () => {
   }
 };
 
-const getColor = function(levels, value) {
-  if (levels.length === 0) {
-    return;
-  }
-  var level = _(levels).detect(function(l) {
-    return value < l;
-  });
+export const rectangleColour = value => {
+  const levels = heatLevels();
+  const level = _(levels).detect(level => value < level);
 
-  return rectanglesStyles()[_(levels).indexOf(level)];
+  return rectanglesStyles()[levels.indexOf(level)];
 };
 
 const heatLevels = () => {
