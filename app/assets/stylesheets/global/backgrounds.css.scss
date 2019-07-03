@@ -2,38 +2,18 @@
   background: $grey;
 }
 
-.theme1 {
-  .level1-bg {
-    background: $theme1-level1-colour;
-  }
-
-  .level2-bg {
-    background: $theme1-level2-colour;
-  }
-
-  .level3-bg {
-    background: $theme1-level3-colour;
-  }
-
-  .level4-bg {
-    background: $theme1-level4-colour;
-  }
+.level1-bg {
+  background: rgba(var(--level1-colour), 1);
 }
 
-.theme2 {
-  .level1-bg {
-    background: $theme2-level1-colour;
-  }
+.level2-bg {
+  background: rgba(var(--level2-colour), 1);
+}
 
-  .level2-bg {
-    background: $theme2-level2-colour;
-  }
+.level3-bg {
+  background: rgba(var(--level3-colour), 1);
+}
 
-  .level3-bg {
-    background: $theme2-level3-colour;
-  }
-
-  .level4-bg {
-    background: $theme2-level4-colour;
-  }
+.level4-bg {
+  background: rgba(var(--level4-colour), 1);
 }

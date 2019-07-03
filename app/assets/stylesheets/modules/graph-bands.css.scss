@@ -1,34 +1,15 @@
-.theme1 {
-  .first-band {
-    fill: $theme1-level1-colour;
-  }
-
-  .second-band {
-    fill: $theme1-level2-colour;
-  }
-
-  .third-band {
-    fill: $theme1-level3-colour;
-  }
-
-  .fourth-band {
-    fill: $theme1-level4-colour;
-  }
+.first-band {
+  fill: rgba(var(--level1-colour), 1);
 }
-.theme2 {
-  .first-band {
-    fill: $theme2-level1-colour;
-  }
 
-  .second-band {
-    fill: $theme2-level2-colour;
-  }
+.second-band {
+  fill: rgba(var(--level2-colour), 1);
+}
 
-  .third-band {
-    fill: $theme2-level3-colour;
-  }
+.third-band {
+  fill: rgba(var(--level3-colour), 1);
+}
 
-  .fourth-band {
-    fill: $theme2-level4-colour;
-  }
+.fourth-band {
+  fill: rgba(var(--level4-colour), 1);
 }

@@ -11,15 +11,26 @@ $text-color: #383b41;
 $grey: lighten($dark-grey, 20%);
 $red: #e95f5f;
 
-$theme2-level1-colour: #81dbcb;
-$theme2-level2-colour: #4ebcd5;
-$theme2-level3-colour: #2a70b8;
-$theme2-level4-colour: #19237e;
+.root {
+  --level1-colour: 150, 215, 136;
+  --level2-colour: 255, 217, 96;
+  --level3-colour: 252, 164, 67;
+  --level4-colour: 233, 95, 95;
+}
 
-$theme1-level1-colour: #96d788;
-$theme1-level2-colour: #ffd960;
-$theme1-level3-colour: #fca443;
-$theme1-level4-colour: #e95f5f;
+.theme2 {
+  --level1-colour: 129, 219, 203;
+  --level2-colour: 78, 188, 213;
+  --level3-colour: 42, 112, 184;
+  --level4-colour: 25, 35, 126;
+}
+
+.theme1 {
+  --level1-colour: 150, 215, 136;
+  --level2-colour: 255, 217, 96;
+  --level3-colour: 252, 164, 67;
+  --level4-colour: 233, 95, 95;
+}
 
 // ui colors
 $brand-primary: $blue;
