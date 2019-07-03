@@ -288,12 +288,12 @@ update msg model =
             in
             ( subModel2, Cmd.batch [ subCmd1, subCmd2 ] )
 
-        ToggleCrowdMap isCrowdmapOn ->
-            if model.isCrowdMapOn == isCrowdmapOn then
+        ToggleCrowdMap newValue ->
+            if model.isCrowdMapOn == newValue then
                 ( model, Cmd.none )
 
             else
-                ( { model | isCrowdMapOn = isCrowdmapOn }, Ports.toggleCrowdMap isCrowdmapOn )
+                ( { model | isCrowdMapOn = newValue }, Ports.toggleCrowdMap newValue )
 
         UpdateCrowdMapResolution resolution ->
             let
@@ -400,15 +400,15 @@ update msg model =
             in
             ( { model | overlay = Overlay.update overlay model.overlay }, Cmd.none )
 
-        ToggleIndoor isIndoor ->
+        ToggleIndoor newValue ->
             let
                 ( subModel, subCmd ) =
                     deselectSession model
             in
-            if subModel.isIndoor == isIndoor then
+            if subModel.isIndoor == newValue then
                 ( subModel, Cmd.none )
 
-            else if isIndoor then
+            else if newValue then
                 ( { subModel | isIndoor = True, profiles = LabelsInput.empty, overlay = Overlay.update (AddOverlay IndoorOverlay) model.overlay }
                 , Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [], subCmd ]
                 )
@@ -418,17 +418,17 @@ update msg model =
                 , Cmd.batch [ Ports.toggleIndoor False, subCmd ]
                 )
 
-        ToggleStatus status ->
+        ToggleStatus newStatus ->
             let
                 ( subModel, subCmd ) =
                     deselectSession model
             in
-            if subModel.status == status then
+            if subModel.status == newStatus then
                 ( subModel, Cmd.none )
 
             else
-                ( { subModel | status = status }
-                , Cmd.batch [ Ports.toggleActive (status == Active), subCmd ]
+                ( { subModel | status = newStatus }
+                , Cmd.batch [ Ports.toggleActive (newStatus == Active), subCmd ]
                 )
 
         DeselectSession ->
