@@ -61,6 +61,7 @@ type alias Model =
     , menuIcon : Path
     , resetIconBlack : Path
     , resetIconWhite : Path
+    , themeSwitchIconBlue : Path
     , themeSwitchIconDefault : Path
     , tooltipIcon : Path
     , heatMapThresholds : WebData HeatMapThresholds
@@ -103,6 +104,7 @@ defaultModel =
     , menuIcon = Path.empty
     , resetIconBlack = Path.empty
     , resetIconWhite = Path.empty
+    , themeSwitchIconBlue = Path.empty
     , themeSwitchIconDefault = Path.empty
     , tooltipIcon = Path.empty
     , heatMapThresholds = NotAsked
@@ -133,6 +135,7 @@ type alias Flags =
     , menuIcon : String
     , resetIconBlack : String
     , resetIconWhite : String
+    , themeSwitchIconBlue : String
     , themeSwitchIconDefault : String
     , tooltipIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
@@ -176,6 +179,7 @@ init flags url key =
         , menuIcon = Path.fromString flags.menuIcon
         , resetIconBlack = Path.fromString flags.resetIconBlack
         , resetIconWhite = Path.fromString flags.resetIconWhite
+        , themeSwitchIconBlue = Path.fromString flags.themeSwitchIconBlue
         , themeSwitchIconDefault = Path.fromString flags.themeSwitchIconDefault
         , tooltipIcon = Path.fromString flags.tooltipIcon
         , heatMapThresholds =
@@ -836,7 +840,7 @@ viewMap model =
                 []
             , viewSessionsOrSelectedSession model
             ]
-        , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "") model.resetIconBlack model.themeSwitchIconDefault
+        , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "") model.resetIconBlack model.themeSwitchIconDefault model.themeSwitchIconBlue model.isCustomThemeOn
         ]
 
 
@@ -871,12 +875,19 @@ viewSearchAsIMove model =
                 ]
 
 
-viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Path -> Html Msg
-viewHeatMap heatMapThresholds sensorUnit resetIcon themeSwitchIconDefault =
+viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Path -> Path -> Tagged Theme Bool -> Html Msg
+viewHeatMap heatMapThresholds sensorUnit resetIcon themeSwitchIconDefault themeSwitchIconBlue isCustomThemeOn =
     let
         ( threshold1, threshold5 ) =
             RemoteData.map HeatMapThresholds.extremes heatMapThresholds
                 |> RemoteData.withDefault ( 0, 0 )
+
+        themeSwitchIcon =
+            if Tagged.untag isCustomThemeOn then
+                themeSwitchIconDefault
+
+            else
+                themeSwitchIconBlue
     in
     div [ class "heatmap" ]
         [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum
@@ -893,7 +904,7 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon themeSwitchIconDefault =
             , class "heatmap-button"
             , Events.onClick ToggleTheme
             ]
-            [ img [ src <| Path.toString themeSwitchIconDefault, alt "Switch theme icon" ] [] ]
+            [ img [ src <| Path.toString themeSwitchIcon, alt "Switch theme icon" ] [] ]
         ]
 
 
