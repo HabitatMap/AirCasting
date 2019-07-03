@@ -4,6 +4,7 @@ import linkIcon from "../../assets/images/link-icon.svg";
 import menuIcon from "../../assets/images/menu-icon.svg";
 import resetIconBlack from "../../assets/images/reset-icon-black.svg";
 import resetIconWhite from "../../assets/images/reset-icon-white.svg";
+import themeSwitchIconDefault from "../../assets/images/theme-switch-icon-default.svg";
 import tooltipIcon from "../../assets/images/tooltip-icon.svg";
 import "nouislider";
 import * as graph from "../javascript/graph";
@@ -94,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
         menuIcon,
         resetIconBlack,
         resetIconWhite,
+        themeSwitchIconDefault,
         tooltipIcon,
         heatMapThresholdValues,
         isStreaming: data.isStreaming,
