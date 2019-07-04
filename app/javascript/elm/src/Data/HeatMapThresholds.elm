@@ -49,8 +49,7 @@ type Range
     | Range2
     | Range3
     | Range4
-    | Range5
-    | Range6
+    | Default
 
 
 updateThresholdValue : Int -> Threshold -> Threshold
@@ -81,22 +80,22 @@ fromValues { threshold1, threshold2, threshold3, threshold4, threshold5 } =
 rangeFor : Int -> HeatMapThresholds -> Range
 rangeFor i thresholds =
     if i < thresholds.threshold1.value then
-        Range1
+        Default
 
     else if i <= thresholds.threshold2.value then
-        Range2
+        Range1
 
     else if i <= thresholds.threshold3.value then
-        Range3
+        Range2
 
     else if i <= thresholds.threshold4.value then
-        Range4
+        Range3
 
     else if i <= thresholds.threshold5.value then
-        Range5
+        Range4
 
     else
-        Range6
+        Default
 
 
 toDefaults : HeatMapThresholds -> HeatMapThresholds

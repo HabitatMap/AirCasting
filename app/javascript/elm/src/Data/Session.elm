@@ -64,21 +64,18 @@ classByValue average heatMapThresholds =
         ( Just avg, Success thresholds ) ->
             case HeatMapThresholds.rangeFor (round avg) thresholds of
                 Range1 ->
-                    "grey-bg"
-
-                Range2 ->
                     "level1-bg"
 
-                Range3 ->
+                Range2 ->
                     "level2-bg"
 
-                Range4 ->
+                Range3 ->
                     "level3-bg"
 
-                Range5 ->
+                Range4 ->
                     "level4-bg"
 
-                Range6 ->
+                Default ->
                     "grey-bg"
 
         ( _, _ ) ->
