@@ -13,6 +13,7 @@ import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
+import Data.Theme as Theme exposing (Theme)
 import Data.Times as Times
 import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, title, type_, value)
@@ -28,6 +29,7 @@ import Process
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import String exposing (fromInt)
+import Tagged exposing (Tagged)
 import Task
 import TimeRange exposing (TimeRange)
 import Tooltip
@@ -60,6 +62,7 @@ type alias Model =
     , menuIcon : Path
     , resetIconBlack : Path
     , resetIconWhite : Path
+    , themeIcons : Theme.Icons
     , tooltipIcon : Path
     , heatMapThresholds : WebData HeatMapThresholds
     , isStreaming : Bool
@@ -69,6 +72,7 @@ type alias Model =
     , scrollPosition : Float
     , debouncingCounter : Int
     , isNavExpanded : Bool
+    , theme : Theme
     }
 
 
@@ -96,6 +100,7 @@ defaultModel =
     , menuIcon = Path.empty
     , resetIconBlack = Path.empty
     , resetIconWhite = Path.empty
+    , themeIcons = Theme.emptyIcons
     , tooltipIcon = Path.empty
     , heatMapThresholds = NotAsked
     , isSearchAsIMoveOn = False
@@ -104,6 +109,7 @@ defaultModel =
     , scrollPosition = 0
     , debouncingCounter = 0
     , isNavExpanded = False
+    , theme = Theme.default
     }
 
 
@@ -124,10 +130,13 @@ type alias Flags =
     , menuIcon : String
     , resetIconBlack : String
     , resetIconWhite : String
+    , themeSwitchIconBlue : String
+    , themeSwitchIconDefault : String
     , tooltipIcon : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     , isSearchAsIMoveOn : Bool
     , scrollPosition : Float
+    , theme : String
     }
 
 
@@ -165,6 +174,7 @@ init flags url key =
         , menuIcon = Path.fromString flags.menuIcon
         , resetIconBlack = Path.fromString flags.resetIconBlack
         , resetIconWhite = Path.fromString flags.resetIconWhite
+        , themeIcons = Theme.toIcons flags.themeSwitchIconDefault flags.themeSwitchIconBlue
         , tooltipIcon = Path.fromString flags.tooltipIcon
         , heatMapThresholds =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
@@ -172,6 +182,7 @@ init flags url key =
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = Overlay.init flags.isIndoor
         , scrollPosition = flags.scrollPosition
+        , theme = Theme.toTheme flags.theme
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -247,6 +258,7 @@ type Msg
     | Timeout Int
     | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
     | ToggleNavExpanded
+    | ToggleTheme
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -591,6 +603,13 @@ update msg model =
         ToggleNavExpanded ->
             ( { model | isNavExpanded = not model.isNavExpanded }, Cmd.none )
 
+        ToggleTheme ->
+            let
+                newTheme =
+                    Theme.toggle model.theme
+            in
+            ( { model | theme = newTheme }, Ports.toggleTheme (Theme.toString newTheme) )
+
 
 type alias Debouncable a =
     { a | debouncingCounter : Int, crowdMapResolution : BoundedInteger }
@@ -723,7 +742,7 @@ viewDocument model =
 
 view : Model -> Html Msg
 view model =
-    div [ id "elm-app" ]
+    div [ id "elm-app", class (Theme.toString model.theme) ]
         [ viewNav model.navLogo model.menuIcon model.isNavExpanded
         , viewMain model
         ]
@@ -806,7 +825,12 @@ viewMap model =
                 []
             , viewSessionsOrSelectedSession model
             ]
-        , viewHeatMap model.heatMapThresholds (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "") model.resetIconBlack
+        , viewHeatMap
+            model.heatMapThresholds
+            (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "")
+            model.resetIconBlack
+            model.themeIcons
+            model.theme
         ]
 
 
@@ -841,8 +865,8 @@ viewSearchAsIMove model =
                 ]
 
 
-viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Html Msg
-viewHeatMap heatMapThresholds sensorUnit resetIcon =
+viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Theme.Icons -> Theme -> Html Msg
+viewHeatMap heatMapThresholds sensorUnit resetIcon icons theme =
     let
         ( threshold1, threshold5 ) =
             RemoteData.map HeatMapThresholds.extremes heatMapThresholds
@@ -852,8 +876,18 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon =
         [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum
         , div [ id "heatmap", class "heatmap-slider" ] []
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
-        , button [ ariaLabel "Reset heatmap", class "reset-heatmap-button", Events.onClick ResetHeatMapToDefaults ]
+        , button
+            [ ariaLabel "Reset heatmap"
+            , class "heatmap-button"
+            , Events.onClick ResetHeatMapToDefaults
+            ]
             [ img [ src <| Path.toString resetIcon, alt "Reset icon" ] [] ]
+        , button
+            [ ariaLabel "Switch colours"
+            , class "heatmap-button"
+            , Events.onClick ToggleTheme
+            ]
+            [ img [ src <| Path.toString (Theme.getIcon theme icons), alt "Switch theme icon" ] [] ]
         ]
 
 

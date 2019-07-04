@@ -6,18 +6,31 @@ $grey-text: #a3a0a4;
 $separator-color: #cbcaca;
 $separator-color-light: rgba(203, 202, 202, 0.6);
 $text-color: #383b41;
+$error-red: #e95f5f;
 
 // heatmap colors
 $grey: lighten($dark-grey, 20%);
-$green: #96d788;
-$yellow: #ffd960;
-$orange: #fca443;
-$red: #e95f5f;
 
-$heat-lvl1: #81dbcb;
-$heat-lvl2: #4ebcd5;
-$heat-lvl3: #2a70b8;
-$heat-lvl4: #19237e;
+.root {
+  --level1-colour: 150, 215, 136;
+  --level2-colour: 255, 217, 96;
+  --level3-colour: 252, 164, 67;
+  --level4-colour: 233, 95, 95;
+}
+
+.default {
+  --level1-colour: 150, 215, 136;
+  --level2-colour: 255, 217, 96;
+  --level3-colour: 252, 164, 67;
+  --level4-colour: 233, 95, 95;
+}
+
+.blue {
+  --level1-colour: 129, 219, 203;
+  --level2-colour: 78, 188, 213;
+  --level3-colour: 42, 112, 184;
+  --level4-colour: 25, 35, 126;
+}
 
 // ui colors
 $brand-primary: $blue;

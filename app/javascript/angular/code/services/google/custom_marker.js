@@ -18,6 +18,7 @@ export function buildCustomMarker({
     marker.classList.add(type);
     marker.classList.add(colorClass);
     marker.innerText = content;
+    marker.title = object.title || "";
     marker.addEventListener("click", callback);
 
     this.markerContainer = document.createElement("div");

@@ -8,6 +8,7 @@
   top: -6px;
   color: transparent;
   cursor: pointer;
+  z-index: -2;
 
   &.trace {
     background-color: $blue;
@@ -15,6 +16,7 @@
     height: 16px;
     left: -8px;
     top: -8px;
+    z-index: 1;
   }
 
   &.default {
@@ -22,19 +24,19 @@
   }
 
   &.highest {
-    @extend .red-bg;
+    @extend .level4-bg;
   }
 
   &.high {
-    @extend .orange-bg;
+    @extend .level3-bg;
   }
 
   &.mid {
-    @extend .yellow-bg;
+    @extend .level2-bg;
   }
 
   &.low {
-    @extend .green-bg;
+    @extend .level1-bg;
   }
 }
 
@@ -51,19 +53,19 @@
   top: -11px;
 
   &.highest {
-    border: 1px solid $red;
+    border: 1px solid rgba(var(--level4-colour), 1);
   }
 
   &.high {
-    border: 1px solid $orange;
+    border: 1px solid rgba(var(--level3-colour), 1);
   }
 
   &.mid {
-    border: 1px solid $yellow;
+    border: 1px solid rgba(var(--level2-colour), 1);
   }
 
   &.low {
-    border: 1px solid $green;
+    border: 1px solid rgba(var(--level1-colour), 1);
   }
 
   &.default {
@@ -83,19 +85,19 @@
 }
 
 .data-marker.highest::before {
-  background: $red;
+  @extend .level4-bg;
 }
 
 .data-marker.high::before {
-  background: $orange;
+  @extend .level3-bg;
 }
 
 .data-marker.mid::before {
-  background: $yellow;
+  @extend .level2-bg;
 }
 
 .data-marker.low::before {
-  background: $green;
+  @extend .level1-bg;
 }
 
 .data-marker.default::before {
@@ -117,8 +119,8 @@
 @mixin halo($color) {
   background-image: radial-gradient(
     circle at 50%,
-    transparentize($color, 0.25) 10px,
-    transparentize($color, 0.5) 45%,
+    rgba($color, 0.75) 10px,
+    rgba($color, 0.5) 45%,
     rgba(255, 255, 255, 0) 70%
   );
 }
@@ -129,22 +131,22 @@
 
 .data-marker.highest::after,
 .marker.highest::after {
-  @include halo($red);
+  @include halo(var(--level4-colour));
 }
 
 .data-marker.high::after,
 .marker.high::after {
-  @include halo($orange);
+  @include halo(var(--level3-colour));
 }
 
 .data-marker.mid::after,
 .marker.mid::after {
-  @include halo($yellow);
+  @include halo(var(--level2-colour));
 }
 
 .data-marker.low::after,
 .marker.low::after {
-  @include halo($green);
+  @include halo(var(--level1-colour));
 }
 
 .marker-container {

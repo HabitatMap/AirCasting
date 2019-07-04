@@ -1,15 +1,15 @@
 .first-band {
-  fill: $green;
+  fill: rgba(var(--level1-colour), 1);
 }
 
 .second-band {
-  fill: $yellow;
+  fill: rgba(var(--level2-colour), 1);
 }
 
 .third-band {
-  fill: $orange;
+  fill: rgba(var(--level3-colour), 1);
 }
 
 .fourth-band {
-  fill: $red;
+  fill: rgba(var(--level4-colour), 1);
 }

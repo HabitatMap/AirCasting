@@ -4,6 +4,8 @@ import linkIcon from "../../assets/images/link-icon.svg";
 import menuIcon from "../../assets/images/menu-icon.svg";
 import resetIconBlack from "../../assets/images/reset-icon-black.svg";
 import resetIconWhite from "../../assets/images/reset-icon-white.svg";
+import themeSwitchIconBlue from "../../assets/images/theme-switch-icon-blue.svg";
+import themeSwitchIconDefault from "../../assets/images/theme-switch-icon-default.svg";
 import tooltipIcon from "../../assets/images/tooltip-icon.svg";
 import "nouislider";
 import * as graph from "../javascript/graph";
@@ -15,6 +17,7 @@ import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
 import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
+import { applyTheme } from "../javascript/theme";
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
@@ -93,11 +96,14 @@ document.addEventListener("DOMContentLoaded", () => {
         menuIcon,
         resetIconBlack,
         resetIconWhite,
+        themeSwitchIconBlue,
+        themeSwitchIconDefault,
         tooltipIcon,
         heatMapThresholdValues,
         isStreaming: data.isStreaming,
         isSearchAsIMoveOn: data.isSearchAsIMoveOn,
-        scrollPosition: params.scroll || 0
+        scrollPosition: params.scroll || 0,
+        theme: params.theme || "default"
       };
 
       console.warn(flags);
@@ -148,7 +154,7 @@ const setupHeatMap = () => {
     });
 
     var connect = node.querySelectorAll(".noUi-connect");
-    var classes = ["green-bg", "yellow-bg", "orange-bg", "red-bg"];
+    var classes = ["level1-bg", "level2-bg", "level3-bg", "level4-bg"];
     for (var i = 0; i < connect.length; i++) {
       connect[i].classList.add(classes[i]);
     }

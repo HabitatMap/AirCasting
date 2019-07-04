@@ -14,6 +14,7 @@
       "elm/url": "1.0.0",
       "elm-community/html-extra": "3.1.0",
       "fapian/elm-html-aria": "1.4.0",
+      "joneshf/elm-tagged": "2.1.1",
       "krisajenkins/remotedata": "6.0.1",
       "mcordova47/elm-natural-ordering": "1.0.5",
       "rtfeldman/elm-iso8601-date-strings": "1.1.3"

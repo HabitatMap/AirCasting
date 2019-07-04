@@ -2,6 +2,7 @@ import _ from "underscore";
 import moment from "moment";
 import * as FiltersUtils from "../../../javascript/filtersUtils";
 import { clearMap } from "../../../javascript/mapsUtils";
+import { applyTheme } from "../../../javascript/theme";
 
 const endOfToday = moment()
   .utc()
@@ -60,7 +61,8 @@ export const MobileSessionsMapCtrl = (
         mid: 35,
         high: 55,
         highest: 150
-      }
+      },
+      theme: "default"
     };
 
     params.updateFromDefaults(defaults);
@@ -173,6 +175,12 @@ export const MobileSessionsMapCtrl = (
         const currentUrl = encodeURIComponent(window.location.href);
 
         FiltersUtils.fetchShortUrl(tooltipId, currentUrl);
+      });
+
+      elmApp.ports.toggleTheme.subscribe(theme => {
+        params.update({ theme: theme });
+        $scope.$apply();
+        applyTheme();
       });
     });
   }

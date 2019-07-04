@@ -2,34 +2,18 @@
   background: $grey;
 }
 
-.green-bg {
-  background: $green;
+.level1-bg {
+  background: rgba(var(--level1-colour), 1);
 }
 
-.yellow-bg {
-  background: $yellow;
+.level2-bg {
+  background: rgba(var(--level2-colour), 1);
 }
 
-.orange-bg {
-  background: $orange;
+.level3-bg {
+  background: rgba(var(--level3-colour), 1);
 }
 
-.red-bg {
-  background: $red;
-}
-
-.heat-lvl1-bg {
-  background: $heat-lvl1;
-}
-
-.heat-lvl2-bg {
-  background: $heat-lvl2;
-}
-
-.heat-lvl3-bg {
-  background: $heat-lvl3;
-}
-
-.heat-lvl4-bg {
-  background: $heat-lvl4;
+.level4-bg {
+  background: rgba(var(--level4-colour), 1);
 }

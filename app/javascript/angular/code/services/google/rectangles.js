@@ -1,7 +1,7 @@
+import { rectangleColour } from "../../../../javascript/theme";
+
 angular.module("google").factory("rectangles", function() {
-  var Rectangles = function() {
-    this.colors = [null, "#2DA641", "#F9DC2E", "#F57F22", "#F4001C"];
-  };
+  var Rectangles = function() {};
   Rectangles.prototype = {
     init: function(googleMap) {
       this.googleMap = googleMap;
@@ -14,16 +14,16 @@ angular.module("google").factory("rectangles", function() {
       var lng = (region.east + region.west) / 2;
       return new google.maps.LatLng(lat, lng);
     },
-    draw: function(rectangles, thresholds) {
+    draw: function(rectangles) {
       var rectOptions, rectangle, color;
       var self = this;
       _(rectangles).each(function(data) {
-        color = self.getColor(thresholds, data.value);
+        color = rectangleColour(data.value);
         if (color) {
           rectOptions = {
             strokeWeight: 0,
             fillColor: color,
-            fillOpacity: 0.35,
+            fillOpacity: 0.6,
             map: self.googleMap,
             bounds: new google.maps.LatLngBounds(
               new google.maps.LatLng(data.south, data.west),
@@ -35,17 +35,6 @@ angular.module("google").factory("rectangles", function() {
           window.__map.rectangles.push(rectangle);
         }
       });
-    },
-
-    getColor: function(levels, value) {
-      if (levels.length === 0) {
-        return;
-      }
-      var level = _(levels).detect(function(l) {
-        return value < l;
-      });
-
-      return this.colors[_(levels).indexOf(level)];
     }
   };
 

@@ -1,6 +1,7 @@
 import _ from "underscore";
 import * as FiltersUtils from "../../../javascript/filtersUtils";
 import { clearMap } from "../../../javascript/mapsUtils";
+import { applyTheme } from "../../../javascript/theme";
 
 export const FixedSessionsMapCtrl = (
   $scope,
@@ -50,7 +51,8 @@ export const FixedSessionsMapCtrl = (
         mid: 35,
         high: 55,
         highest: 150
-      }
+      },
+      theme: "default"
     };
 
     params.updateFromDefaults(defaults);
@@ -190,6 +192,12 @@ export const FixedSessionsMapCtrl = (
         const currentUrl = encodeURIComponent(window.location.href);
 
         FiltersUtils.fetchShortUrl(tooltipId, currentUrl);
+      });
+
+      elmApp.ports.toggleTheme.subscribe(theme => {
+        params.update({ theme: theme });
+        $scope.$apply();
+        applyTheme();
       });
     });
   }
