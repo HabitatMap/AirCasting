@@ -1,5 +1,6 @@
 module Tooltip exposing
     ( TooltipText
+    , activeToggleFilter
     , crowdMap
     , fixedTab
     , locationFilter
@@ -7,7 +8,6 @@ module Tooltip exposing
     , parameterFilter
     , profilesFilter
     , sensorFilter
-    , streamingToggleFilter
     , tagsFilter
     , timeRangeFilter
     , typeToggleFilter
@@ -68,5 +68,5 @@ typeToggleFilter =
     TooltipText "Outdoor sessions are recorded by instruments located outdoors. Indoor measurements are recorded by instruments located indoors. Indoor sessions do not include geocoordinates and are therefore not geolocated on the map."
 
 
-streamingToggleFilter =
+activeToggleFilter =
     TooltipText "Fixed sessions that have submitted a measurement in the past hour are considered active. Fixed sessions that have not submitted measurements in the past hour are considered dormant."

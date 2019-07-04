@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
         crowdMap: false,
         gridResolution: 31, // this translates to grid cell size: 20; formula: f(x) = 51 - x
         isIndoor: false,
-        isStreaming: true,
+        isActive: true,
         sensorId: "Particulate Matter-airbeam2-pm2.5 (µg/m³)",
         isSearchAsIMoveOn: false
       };
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
         themeSwitchIconDefault,
         tooltipIcon,
         heatMapThresholdValues,
-        isStreaming: data.isStreaming,
+        isActive: data.isActive,
         isSearchAsIMoveOn: data.isSearchAsIMoveOn,
         scrollPosition: params.scroll || 0,
         theme: params.theme || "default"
