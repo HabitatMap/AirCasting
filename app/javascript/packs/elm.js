@@ -112,8 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setupHeatMap();
 
-      applyTheme();
-
       setupTooltips();
     });
 });
