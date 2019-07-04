@@ -272,10 +272,10 @@ test("drawSessionsInLocation draws default marker when no sensor selected", t =>
   t.end();
 });
 
-test("drawSessionsInLocation draws default marker for sessions that aren't active", t => {
+test("drawSessionsInLocation draws default marker for sessions that are not streaming currently", t => {
   const map = mock("drawMarkerWithoutLabel");
   const session = { latitude: 1, longitude: 2 };
-  const data = buildData({ isActive: false });
+  const data = buildData({ isStreaming: false });
 
   const fixedSessionsService = _fixedSessions({ data, map });
   fixedSessionsService.sessions = [session];
@@ -287,7 +287,7 @@ test("drawSessionsInLocation draws default marker for sessions that aren't activ
   t.end();
 });
 
-test("drawSessionsInLocation draws colorcoded marker for active sessions when sensor selected", t => {
+test("drawSessionsInLocation draws colorcoded marker for currently streaming sessions when sensor selected", t => {
   const map = mock("drawMarkerWithLabel");
   const session = {
     id: 123,
@@ -300,7 +300,7 @@ test("drawSessionsInLocation draws colorcoded marker for active sessions when se
     anySelected: () => true,
     selectedSensorName: () => "sensorName"
   };
-  const data = buildData({ isActive: true });
+  const data = buildData({ isStreaming: true });
 
   const fixedSessionsService = _fixedSessions({ data, map, sensors });
   fixedSessionsService.sessions = [session];
@@ -312,11 +312,11 @@ test("drawSessionsInLocation draws colorcoded marker for active sessions when se
   t.end();
 });
 
-test("drawSessionsInLocation calls map.clusterMarkers for active sessions when sensor selected", t => {
+test("drawSessionsInLocation calls map.clusterMarkers for currently streaming sessions when sensor selected", t => {
   const clusterMarkers = sinon.spy();
   const map = { clusterMarkers };
   const sensors = { anySelected: () => true };
-  const data = buildData({ isActive: true });
+  const data = buildData({ isStreaming: true });
   const fixedSessionsService = _fixedSessions({ data, map, sensors });
 
   fixedSessionsService.drawSessionsInLocation();
@@ -395,7 +395,7 @@ const _fixedSessions = ({
     },
     update: () => {},
     selectedSessionIds: () => sessionIds,
-    isActive: () => false
+    isStreaming: () => false
   };
   const _map = {
     getBounds: () => ({}),

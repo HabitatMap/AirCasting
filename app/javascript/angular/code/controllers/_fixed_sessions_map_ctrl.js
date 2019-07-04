@@ -39,7 +39,7 @@ export const FixedSessionsMapCtrl = (
       sensorId,
       location: "",
       isIndoor: false,
-      isActive: true,
+      isStreaming: true,
       tags: "",
       usernames: "",
       timeFrom: FiltersUtils.oneYearAgo(),
@@ -93,8 +93,8 @@ export const FixedSessionsMapCtrl = (
         $scope.sessions.fetch();
       });
 
-      elmApp.ports.toggleActive.subscribe(isActive => {
-        params.update({ data: { isActive } });
+      elmApp.ports.toggleStreaming.subscribe(isStreaming => {
+        params.update({ data: { isStreaming } });
         resetTimeRangeFilter();
         $scope.sessions.fetch();
       });
@@ -131,18 +131,21 @@ export const FixedSessionsMapCtrl = (
         $scope.sessions.fetch();
       };
 
-      const setupActiveTimeRangeFilter = (timeFrom, timeTo) => {
+      const setupStreamingTimeRangeFilter = (timeFrom, timeTo) => {
         if (document.getElementById("time-range")) {
           $("#time-range").daterangepicker(
             FiltersUtils.daterangepickerConfig(timeFrom, timeTo)
           );
         } else {
-          window.setTimeout(setupActiveTimeRangeFilter(timeFrom, timeTo), 100);
+          window.setTimeout(
+            setupStreamingTimeRangeFilter(timeFrom, timeTo),
+            100
+          );
         }
       };
 
-      if (params.get("data").isActive) {
-        setupActiveTimeRangeFilter(
+      if (params.get("data").isStreaming) {
+        setupStreamingTimeRangeFilter(
           FiltersUtils.oneHourAgo(),
           FiltersUtils.presentMoment()
         );
@@ -160,8 +163,8 @@ export const FixedSessionsMapCtrl = (
       });
 
       const resetTimeRangeFilter = () => {
-        if (params.get("data").isActive) {
-          setupActiveTimeRangeFilter(
+        if (params.get("data").isStreaming) {
+          setupStreamingTimeRangeFilter(
             FiltersUtils.oneHourAgo(),
             FiltersUtils.presentMoment()
           );

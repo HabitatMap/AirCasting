@@ -1,8 +1,7 @@
-module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, tagsArea, timeFilter, toggleIndoorFilter, toggleStatusFilter, updateTests, viewTests)
+module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, tagsArea, timeFilter, toggleIndoorFilter, toggleStreamingFilter, updateTests, viewTests)
 
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
 import Data.Page exposing (Page(..))
-import Data.Status exposing (Status(..))
 import Expect
 import Fuzz exposing (bool, int, intRange, list, string)
 import Html exposing (text)
@@ -167,23 +166,16 @@ timeFilter =
                     |> update (UpdateTimeRange value)
                     |> Tuple.first
                     |> Expect.equal expected
-        , test "disabled for active fixed sessions" <|
-            \_ ->
-                { defaultModel | status = Active, page = Fixed }
+        , fuzz bool "is enabled for dormant and disabled for active Fixed sessions" <|
+            \isStreaming ->
+                { defaultModel | isStreaming = isStreaming, page = Fixed }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "time-range" ]
-                    |> Query.has [ Slc.attribute <| disabled True ]
-        , test "is enabled for dormant fixed sessions" <|
-            \_ ->
-                { defaultModel | status = Dormant, page = Fixed }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.id "time-range" ]
-                    |> Query.has [ Slc.attribute <| disabled False ]
-        , test "is always enabled for mobile sessions" <|
-            \_ ->
-                { defaultModel | status = Active, page = Mobile }
+                    |> Query.has [ Slc.attribute <| disabled isStreaming ]
+        , fuzz bool "is always enabled for Mobile sessions" <|
+            \isStreaming ->
+                { defaultModel | isStreaming = isStreaming, page = Mobile }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "time-range" ]
@@ -464,8 +456,8 @@ toggleIndoorFilter =
         ]
 
 
-toggleStatusFilter : Test
-toggleStatusFilter =
+toggleStreamingFilter : Test
+toggleStreamingFilter =
     describe "active/dormant filter tests:"
         [ test "toggle is displayed" <|
             \_ ->
@@ -483,14 +475,14 @@ toggleStatusFilter =
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "active" ]
                     |> Query.has [ Slc.attribute <| class "toggle-button--pressed" ]
-        , test "clicking dormant button triggers ToggleStatus" <|
+        , test "clicking dormant button triggers ToggleStreaming" <|
             \_ ->
                 { defaultModel | page = Fixed }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "dormant" ]
                     |> Event.simulate Event.click
-                    |> Event.expect ToggleStatus
+                    |> Event.expect ToggleStreaming
         ]
 
 

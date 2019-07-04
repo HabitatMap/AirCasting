@@ -6,7 +6,7 @@ Every response is returned in JSON format.
 
 Endpoints
 
-- GET `/api/fixed/active/sessions.json` -> fixed active sessions
+- GET `/api/realtime/streaming_sessions.json` -> streaming fixed sessions
 - GET `/api/fixed/dormant/sessions.json` -> fixed dormant sessions
 - GET `/api/mobile/sessions.json` -> mobile sessions
 

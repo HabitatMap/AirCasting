@@ -6,8 +6,8 @@ export const formatSessionForList = session => ({
   endTime: session.endTime,
   shortTypes: session.shortTypes,
   // `stream.average_value` for mobile sessions
-  // `session.last_hour_average` for active fixed sessions
-  // dormant fixed sessions do not have average
+  // `session.last_hour_average` for streaming fixed sessions
+  // non-streaming fixed sessions do not have average
   // The `hasOwnProperty` check is needed because 0 is falsy in JS
   average:
     session.type === "MobileSession"

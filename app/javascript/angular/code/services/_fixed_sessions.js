@@ -103,7 +103,7 @@ export const fixedSessions = (
     },
 
     drawSelectedSession: function(sessionData) {
-      if (params.isActive()) {
+      if (params.isStreaming()) {
         this.drawMarkersWithLabel(sessionData, sensors.selectedSensorName());
       } else {
         this.drawMarkersWithoutLabel(sessionData);
@@ -140,7 +140,7 @@ export const fixedSessions = (
 
       const sessions = this.get();
 
-      if (!sensors.anySelected() || !params.get("data").isActive) {
+      if (!sensors.anySelected() || !params.get("data").isStreaming) {
         sessions.forEach(session => this.drawMarkersWithoutLabel(session));
         return;
       }
@@ -228,8 +228,8 @@ export const fixedSessions = (
 
       if (offset === 0) this.sessions = [];
 
-      if (data.isActive) {
-        this.downloadSessions("/api/fixed/active/sessions.json", reqData);
+      if (data.isStreaming) {
+        this.downloadSessions("/api/realtime/streaming_sessions.json", reqData);
       } else {
         this.downloadSessions("/api/fixed/dormant/sessions.json", reqData);
       }
