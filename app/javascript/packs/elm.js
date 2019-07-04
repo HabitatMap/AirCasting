@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isStreaming: data.isStreaming,
         isSearchAsIMoveOn: data.isSearchAsIMoveOn,
         scrollPosition: params.scroll || 0,
-        customTheme: params.customTheme || false
+        theme: params.theme || "default"
       };
 
       console.warn(flags);

@@ -15,7 +15,7 @@ const updateFixedClusters = () => {
 };
 
 export const fixedClusterStyles = () => {
-  if (params().customTheme) {
+  if (params().theme === "blue") {
     return [
       { url: assets.clusterTheme2Level1Path, height: 30, width: 30 },
       { url: assets.clusterTheme2Level2Path, height: 30, width: 30 },
@@ -43,7 +43,7 @@ const updateRectangles = () => {
 };
 
 const rectanglesStyles = () => {
-  if (params().customTheme) {
+  if (params().theme === "blue") {
     return [null, "#81dbcb", "#4ebcd5", "#2a70b8", "#19237e"];
   } else {
     return [null, "#96d788", "#ffd960", "#fca443", "#e95f5f"];

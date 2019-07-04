@@ -136,4 +136,4 @@ port setScroll : (() -> msg) -> Sub msg
 port observeSessionsList : () -> Cmd a
 
 
-port toggleTheme : Bool -> Cmd a
+port toggleTheme : String -> Cmd a

@@ -62,7 +62,7 @@ export const MobileSessionsMapCtrl = (
         high: 55,
         highest: 150
       },
-      customTheme: false
+      theme: "default"
     };
 
     params.updateFromDefaults(defaults);
@@ -177,8 +177,8 @@ export const MobileSessionsMapCtrl = (
         FiltersUtils.fetchShortUrl(tooltipId, currentUrl);
       });
 
-      elmApp.ports.toggleTheme.subscribe(isCustomThemeOn => {
-        params.update({ customTheme: isCustomThemeOn });
+      elmApp.ports.toggleTheme.subscribe(theme => {
+        params.update({ theme: theme });
         $scope.$apply();
         applyTheme();
       });
