@@ -216,7 +216,7 @@ type Msg
     | SubmitLocation
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
-    | ToggleCrowdMap Bool
+    | ToggleCrowdMap
     | UpdateCrowdMapResolution Int
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
@@ -230,8 +230,8 @@ type Msg
     | UpdateSessions Encode.Value
     | LoadMoreSessions
     | UpdateIsHttping Bool
-    | ToggleIndoor Bool
-    | ToggleStatus Status
+    | ToggleIndoor
+    | ToggleStatus
     | DeselectSession
     | ToggleSessionSelectionFromAngular (Maybe Int)
     | ToggleSessionSelection Int
@@ -288,12 +288,8 @@ update msg model =
             in
             ( subModel2, Cmd.batch [ subCmd1, subCmd2 ] )
 
-        ToggleCrowdMap newValue ->
-            if model.isCrowdMapOn == newValue then
-                ( model, Cmd.none )
-
-            else
-                ( { model | isCrowdMapOn = newValue }, Ports.toggleCrowdMap newValue )
+        ToggleCrowdMap ->
+            ( { model | isCrowdMapOn = not model.isCrowdMapOn }, Ports.toggleCrowdMap (not model.isCrowdMapOn) )
 
         UpdateCrowdMapResolution resolution ->
             let
@@ -400,36 +396,37 @@ update msg model =
             in
             ( { model | overlay = Overlay.update overlay model.overlay }, Cmd.none )
 
-        ToggleIndoor newValue ->
+        ToggleIndoor ->
             let
                 ( subModel, subCmd ) =
                     deselectSession model
             in
-            if subModel.isIndoor == newValue then
-                ( subModel, Cmd.none )
-
-            else if newValue then
-                ( { subModel | isIndoor = True, profiles = LabelsInput.empty, overlay = Overlay.update (AddOverlay IndoorOverlay) model.overlay }
-                , Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [], subCmd ]
-                )
-
-            else
+            if subModel.isIndoor then
                 ( { subModel | isIndoor = False, overlay = Overlay.update (RemoveOverlay IndoorOverlay) model.overlay }
                 , Cmd.batch [ Ports.toggleIndoor False, subCmd ]
                 )
 
-        ToggleStatus newStatus ->
+            else
+                ( { subModel | isIndoor = True, profiles = LabelsInput.empty, overlay = Overlay.update (AddOverlay IndoorOverlay) model.overlay }
+                , Cmd.batch [ Ports.toggleIndoor True, Ports.updateProfiles [], subCmd ]
+                )
+
+        ToggleStatus ->
             let
                 ( subModel, subCmd ) =
                     deselectSession model
-            in
-            if subModel.status == newStatus then
-                ( subModel, Cmd.none )
 
-            else
-                ( { subModel | status = newStatus }
-                , Cmd.batch [ Ports.toggleActive (newStatus == Active), subCmd ]
-                )
+                newStatus =
+                    case model.status of
+                        Active ->
+                            Dormant
+
+                        Dormant ->
+                            Active
+            in
+            ( { subModel | status = newStatus }
+            , Cmd.batch [ Ports.toggleActive (newStatus == Active), subCmd ]
+            )
 
         DeselectSession ->
             deselectSession model
@@ -1060,14 +1057,14 @@ viewFixedFilters model =
         , div [ class "filters__toggle-group" ]
             [ label [] [ text "placement:" ]
             , Tooltip.view Tooltip.typeToggleFilter model.tooltipIcon
-            , viewToggleButton "outdoor" (not model.isIndoor) (ToggleIndoor False)
-            , viewToggleButton "indoor" model.isIndoor (ToggleIndoor True)
+            , viewToggleButton "outdoor" (not model.isIndoor) ToggleIndoor
+            , viewToggleButton "indoor" model.isIndoor ToggleIndoor
             ]
         , div [ class "filters__toggle-group" ]
             [ label [] [ text "status:" ]
             , Tooltip.view Tooltip.activeToggleFilter model.tooltipIcon
-            , viewToggleButton "active" (model.status == Active) (ToggleStatus Active)
-            , viewToggleButton "dormant" (model.status == Dormant) (ToggleStatus Dormant)
+            , viewToggleButton "active" (model.status == Active) ToggleStatus
+            , viewToggleButton "dormant" (model.status == Dormant) ToggleStatus
             ]
         ]
 
@@ -1144,8 +1141,8 @@ viewCrowdMapToggle : Bool -> Path -> Html Msg
 viewCrowdMapToggle isCrowdMapOn tooltipIcon =
     div [ class "filters__toggle-group" ]
         [ label [] [ text "CrowdMap:" ]
-        , viewToggleButton "off" (not isCrowdMapOn) (ToggleCrowdMap False)
-        , viewToggleButton "on" isCrowdMapOn (ToggleCrowdMap True)
+        , viewToggleButton "off" (not isCrowdMapOn) ToggleCrowdMap
+        , viewToggleButton "on" isCrowdMapOn ToggleCrowdMap
         , Tooltip.view Tooltip.crowdMap tooltipIcon
         ]
 

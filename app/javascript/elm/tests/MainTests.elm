@@ -348,7 +348,7 @@ crowdMapArea =
         [ fuzz bool "ToggleCrowdMap toggles the value of model.isCrowdMapOn" <|
             \onOffValue ->
                 { defaultModel | isCrowdMapOn = onOffValue }
-                    |> update (ToggleCrowdMap (not onOffValue))
+                    |> update ToggleCrowdMap
                     |> Tuple.first
                     |> .isCrowdMapOn
                     |> Expect.equal (not onOffValue)
@@ -380,7 +380,7 @@ crowdMapArea =
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "on" ]
                     |> Event.simulate Event.click
-                    |> Event.expect (ToggleCrowdMap True)
+                    |> Event.expect ToggleCrowdMap
         , test "slider has a description with current crowd map grid cell size" <|
             \_ ->
                 { defaultModel
@@ -460,7 +460,7 @@ toggleIndoorFilter =
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "indoor" ]
                     |> Event.simulate Event.click
-                    |> Event.expect (ToggleIndoor True)
+                    |> Event.expect ToggleIndoor
         ]
 
 
@@ -490,7 +490,7 @@ toggleStatusFilter =
                     |> Query.fromHtml
                     |> Query.find [ Slc.attribute <| ariaLabel "dormant" ]
                     |> Event.simulate Event.click
-                    |> Event.expect (ToggleStatus Dormant)
+                    |> Event.expect ToggleStatus
         ]
 
 
