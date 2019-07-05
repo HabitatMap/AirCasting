@@ -1,6 +1,6 @@
 module Api
   module Fixed
-    module Dormant
+    module Active
       class SessionsController < BaseController
         respond_to :json
 
@@ -17,7 +17,7 @@ module Api
               struct: Api::FixedSessions::Struct
             )
 
-          result = Api::ToDormantSessionsArray.new(form: form).call
+          result = Api::ToActiveSessionsArray.new(form: form).call
 
           if result.success?
             render json: result.value, status: :ok

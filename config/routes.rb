@@ -52,7 +52,6 @@ Rails.application.routes.draw do
     resources :sensors, only: %i[index]
 
     namespace :realtime do
-      get 'streaming_sessions' => 'sessions#index_active' # legacy API - supports mobile apps relesed before 07.2019
       get 'sync_measurements' => 'sessions#sync_measurements'
       resources :sessions, only: %i[create show]
       resources :measurements, only: :create
@@ -67,7 +66,7 @@ Rails.application.routes.draw do
       end
 
       namespace :active do
-        get 'sessions' => 'sessions#index_active'
+        get 'sessions' => 'sessions#index'
       end
     end
 

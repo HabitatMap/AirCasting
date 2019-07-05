@@ -21,25 +21,12 @@ module Api
     class SessionsController < BaseController
       require 'uri'
 
-      INT_Q_ATTRS = %i[time_from time_to day_from day_to limit offset]
-
       # TokenAuthenticatable was removed from Devise in 3.1
       # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
       before_action :authenticate_user_from_token!, only: :create
       before_action :authenticate_user!, only: :create
 
       respond_to :json
-
-      def index_active
-        data = decoded_query_data(params[:q])
-        INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }
-
-        data[:time_from] = Time.strptime(data[:time_from].to_s, '%s')
-        data[:time_to] = Time.strptime(data[:time_to].to_s, '%s')
-        sessions = FixedSession.filtered_active_json(data)
-
-        respond_with sessions: sessions, fetchableSessionsCount: sessions.count
-      end
 
       def show
         session = FixedSession.find(params[:id])
@@ -80,16 +67,6 @@ module Api
       end
 
       private
-
-      def decoded_query_data(query)
-        if query.is_a?(String)
-          ActiveSupport::JSON.decode(query).symbolize_keys
-        elsif query
-          query.to_unsafe_hash.symbolize_keys
-        else
-          {}
-        end
-      end
 
       def session_json(session)
         {

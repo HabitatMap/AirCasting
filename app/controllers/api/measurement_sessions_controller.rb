@@ -65,16 +65,6 @@ module Api
 
     private
 
-    def decoded_query_data(query)
-      if query.is_a?(String)
-        ActiveSupport::JSON.decode(query).symbolize_keys
-      elsif query
-        query.symbolize_keys
-      else
-        {}
-      end
-    end
-
     def session_json(session)
       {
         location: short_session_url(session, host: A9n.host_),
