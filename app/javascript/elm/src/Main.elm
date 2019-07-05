@@ -13,7 +13,7 @@ import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
-import Data.Status exposing (Status(..))
+import Data.Status as Status exposing (Status(..))
 import Data.Theme as Theme exposing (Theme)
 import Data.Times as Times
 import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, li, main_, nav, p, span, text, ul)
@@ -110,7 +110,7 @@ defaultModel =
     , debouncingCounter = 0
     , isNavExpanded = False
     , theme = Theme.default
-    , status = Active
+    , status = Status.default
     }
 
 
@@ -183,12 +183,7 @@ init flags url key =
         , overlay = Overlay.init flags.isIndoor
         , scrollPosition = flags.scrollPosition
         , theme = Theme.toTheme flags.theme
-        , status =
-            if flags.isActive then
-                Active
-
-            else
-                Dormant
+        , status = Status.toStatus flags.isActive
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -429,15 +424,10 @@ update msg model =
                     deselectSession model
 
                 newStatus =
-                    case model.status of
-                        Active ->
-                            Dormant
-
-                        Dormant ->
-                            Active
+                    Status.toggle model.status
             in
             ( { subModel | status = newStatus }
-            , Cmd.batch [ Ports.toggleActive (newStatus == Active), subCmd ]
+            , Cmd.batch [ Ports.toggleActive (Status.toBool newStatus), subCmd ]
             )
 
         DeselectSession ->
