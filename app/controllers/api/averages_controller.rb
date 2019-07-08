@@ -1,4 +1,4 @@
-require_dependency 'average_info'
+require_dependency 'crowdmap_averages'
 
 module Api
   class AveragesController < BaseController
@@ -20,9 +20,7 @@ module Api
       data[:time_from] = data[:time_from] || Time.new(2_010).to_i
       data[:time_to] = data[:time_to] || Time.new(2_100).end_of_year.to_i
 
-      data[:session_ids] ||= []
-
-      respond_with AverageInfo.new(data)
+      respond_with CrowdmapAverages::ForMobile.new(data).as_json
     end
 
     def index2
@@ -33,7 +31,7 @@ module Api
 
       data[:session_ids] ||= []
 
-      respond_with AverageInfo.new(data)
+      respond_with CrowdmapAverages::ForWeb.new(data).as_json
     end
 
     private
