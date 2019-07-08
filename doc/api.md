@@ -235,9 +235,7 @@ See [parameters description](#parameters-description)
   http://aircasting.org/api/fixed/dormant/sessions.json?q={"time_from":1543622400,"time_to":1546300740,"tags":"","usernames":"HabitatMap","sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
   ```
 
-````
-
-- encoded request
+* encoded request
 
   ```
   curl http://aircasting.org/api/fixed/dormant/sessions.json?q=%7B%22time_from%22%3A1543622400%2C%22time_to%22%3A1546300740%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D
@@ -245,7 +243,7 @@ See [parameters description](#parameters-description)
 
   See [how to encode URLs](#how-to-encode-urls)
 
-- response
+* response
 
   ```json
   {
@@ -398,28 +396,28 @@ GET `/api/measurements.json`
 
 - request
 
-```
-curl http://aircasting.org/api/measurements.json/?end_time=2281550369000&start_time=0&stream_ids=1
-```
+  ```
+  curl http://aircasting.org/api/measurements.json/?end_time=2281550369000&start_time=0&stream_ids=1
+  ```
 
 - response
 
-```json
-[
-  {
-    "time": "2011-12-16T22:23:02Z",
-    "value": 58.2103,
-    "latitude": 50.05822535,
-    "longitude": 19.926092562
-  },
-  {
-    "time": "2011-12-16T22:23:03Z",
-    "value": 58.977,
-    "latitude": 50.05822535,
-    "longitude": 19.926092562
-  }
-]
-```
+  ```json
+  [
+    {
+      "time": "2011-12-16T22:23:02Z",
+      "value": 58.2103,
+      "latitude": 50.05822535,
+      "longitude": 19.926092562
+    },
+    {
+      "time": "2011-12-16T22:23:03Z",
+      "value": 58.977,
+      "latitude": 50.05822535,
+      "longitude": 19.926092562
+    }
+  ]
+  ```
 
 # Averages
 
@@ -515,21 +513,23 @@ GET `/api/region`
 
 See [parameters description](#parameters-description)
 
-**Example request**
+**Example**
 
-```
-curl 'http://aircasting.org/api/region.json?q=%7B%22west%22:-84.6942497702206,%22east%22:-84.04024011948529,%22south%22:37.68000734867853,%22north%22:38.28288746625739,%22time_from%22:0,%22time_to%22:1552648992,%22grid_size_x%22:85.47297297297297,%22grid_size_y%22:25,%22tags%22:%22%22,%22usernames%22:%22%22,%22sensor_name%22:%22AirBeam2-PM2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B57488,57487,57469,57468,57333,57331,57326,57321,57319,57299,57073,56976,56975,56974,56965,56898,56797,56792,56714,56711,56297,56271,56183,55885,55851,55850,55849,55819,55487,55485,55482,55481,55398,55377,55376,55375,55374,55364,55363,55332,55268,55266,55239,55196,55016,55007,54914,54910,54909,54907%5D%7D'
-```
+- request
 
-**Example response**
+  ```
+  curl 'http://aircasting.org/api/region.json?q=%7B%22west%22:-84.6942497702206,%22east%22:-84.04024011948529,%22south%22:37.68000734867853,%22north%22:38.28288746625739,%22time_from%22:0,%22time_to%22:1552648992,%22grid_size_x%22:85.47297297297297,%22grid_size_y%22:25,%22tags%22:%22%22,%22usernames%22:%22%22,%22sensor_name%22:%22AirBeam2-PM2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B57488,57487,57469,57468,57333,57331,57326,57321,57319,57299,57073,56976,56975,56974,56965,56898,56797,56792,56714,56711,56297,56271,56183,55885,55851,55850,55849,55819,55487,55485,55482,55481,55398,55377,55376,55375,55374,55364,55363,55332,55268,55266,55239,55196,55016,55007,54914,54910,54909,54907%5D%7D'
+  ```
 
-```json
-{
-  "average": "3.050341895701678",
-  "number_of_contributors": 1,
-  "number_of_samples": 379359
-}
-```
+- response
+
+  ```json
+  {
+    "average": "3.050341895701678",
+    "number_of_contributors": 1,
+    "number_of_samples": 379359
+  }
+  ```
 
 # Last Session
 
@@ -590,8 +590,3 @@ encode the JSON part:
 then you can use the URL with curl command:
 
 `curl http://example.com\?q\=%7B%22name%22%3A%22value%22%7D`
-
-```
-
-```
-````
