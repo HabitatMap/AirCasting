@@ -40,8 +40,6 @@ const createHtml = index => {
   const date = moment(data.date, "YYYY-MM-DDTHH:mm:ss").format(
     "MM/DD/YYYY, HH:mm:ss"
   );
-  data.photo = "http://placeimg.com/640/480/any";
-  data.photo_thumbnail = "http://placeimg.com/480/360/any";
   let photoHtml = "";
   if (data.photo) {
     photoHtml = `<a class="note__photo js-thumbnail" href=${data.photo}>
