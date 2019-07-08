@@ -18,12 +18,12 @@ port module Ports exposing
     , showCopyLinkTooltip
     , tagSelected
     , timeRangeSelected
+    , toggleActive
     , toggleCrowdMap
     , toggleIndoor
     , toggleIsSearchOn
     , toggleSession
     , toggleSessionSelection
-    , toggleStreaming
     , toggleTheme
     , updateHeatMapThresholds
     , updateHeatMapThresholdsFromAngular
@@ -64,7 +64,7 @@ port toggleCrowdMap : Bool -> Cmd a
 port toggleIndoor : Bool -> Cmd a
 
 
-port toggleStreaming : Bool -> Cmd a
+port toggleActive : Bool -> Cmd a
 
 
 port updateResolution : Int -> Cmd a

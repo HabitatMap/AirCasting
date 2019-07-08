@@ -2,7 +2,7 @@ class FixedSession < Session
   validates :is_indoor, inclusion: { in: [true, false] }
   validates :latitude, :longitude, presence: true
 
-  def self.streaming
+  def self.active
     where('last_measurement_at > ?', Time.current - 1.hour)
   end
 
@@ -10,19 +10,12 @@ class FixedSession < Session
     where('last_measurement_at <= ?', Time.current - 1.hour)
   end
 
+  def self.all_active(data)
+    active.with_user_and_streams.filter_(data)
+  end
+
   def self.all_dormant(data, limit, offset)
     dormant.offset(offset).limit(limit).with_user_and_streams.filter_(data)
-  end
-
-  def self.filtered_json_fields
-    %i[id title start_time_local end_time_local is_indoor latitude longitude]
-  end
-
-  def self.filtered_streaming_json(data)
-    streaming.with_user_and_streams.filter_(data).as_json(
-      only: filtered_json_fields,
-      methods: %i[username streams last_hour_average]
-    )
   end
 
   def after_measurements_created
@@ -77,7 +70,7 @@ class FixedSession < Session
       sensorId: stream.sensor_id,
       usernames: user.username,
       isIndoor: is_indoor,
-      isStreaming: is_steaming,
+      isActive: is_active,
       heat: {
         highest: stream.threshold_very_high,
         high: stream.threshold_high,
@@ -94,7 +87,7 @@ class FixedSession < Session
 
   private
 
-  def is_steaming
+  def is_active
     last_measurement_at > (Time.current - 1.hour)
   end
 end

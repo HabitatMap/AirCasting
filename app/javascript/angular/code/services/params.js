@@ -50,8 +50,8 @@ angular.module("aircasting").factory("params", [
       selectedSessionIds: function() {
         return this.paramsData["selectedSessionIds"] || [];
       },
-      isStreaming: function() {
-        return this.paramsData.data.isStreaming || false;
+      isActive: function() {
+        return this.paramsData.data.isActive || false;
       }
     };
     return new Params();

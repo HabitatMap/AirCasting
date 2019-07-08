@@ -1,7 +1,7 @@
 require 'dry-validation'
 require 'dry-struct'
 
-module Api::DormantSessions
+module Api::FixedSessions
   module Types
     include Dry::Types.module
   end

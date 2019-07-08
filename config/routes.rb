@@ -18,7 +18,7 @@ Rails.application.routes.draw do
   get 's/:url_token' => 'measurement_sessions#show',
       constraints: { query_string: /.+/ },
       as: :short_session
-  get 's/:url_token' => 'measurement_sessions#show_old' # supports mobile apps relesed before 06.2019
+  get 's/:url_token' => 'measurement_sessions#show_old' # legacy API - supports mobile apps relesed before 06.2019
 
   namespace :api do
     namespace :v2 do
@@ -52,7 +52,6 @@ Rails.application.routes.draw do
     resources :sensors, only: %i[index]
 
     namespace :realtime do
-      get 'streaming_sessions' => 'sessions#index_streaming'
       get 'sync_measurements' => 'sessions#sync_measurements'
       resources :sessions, only: %i[create show]
       resources :measurements, only: :create
@@ -63,6 +62,10 @@ Rails.application.routes.draw do
       get 'sessions2/:id' => 'sessions#show2'
 
       namespace :dormant do
+        get 'sessions' => 'sessions#index'
+      end
+
+      namespace :active do
         get 'sessions' => 'sessions#index'
       end
     end
