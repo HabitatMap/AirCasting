@@ -1,4 +1,5 @@
 import * as assets from "../assets";
+import { BLUE_THEME } from "./constants";
 
 export const applyTheme = () => {
   updateFixedClusters();
@@ -12,7 +13,7 @@ const updateFixedClusters = () => {
 };
 
 export const fixedClusterStyles = () => {
-  if (params().theme === "blue") {
+  if (params().theme === BLUE_THEME) {
     return [
       { url: assets.clusterTheme2Level1Path, height: 30, width: 30 },
       { url: assets.clusterTheme2Level2Path, height: 30, width: 30 },
@@ -39,7 +40,7 @@ const updateRectangles = () => {
 };
 
 const rectanglesStyles = () => {
-  if (params().theme === "blue") {
+  if (params().theme === BLUE_THEME) {
     // empty strings correspond to values outside of heat levels range
     // and this rectangles are not drawn
     return ["", "#81dbcb", "#4ebcd5", "#2a70b8", "#19237e", ""];

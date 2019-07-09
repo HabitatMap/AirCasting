@@ -2,6 +2,7 @@ import test from "blue-tape";
 import { mock } from "./helpers";
 import { MobileSessionsMapCtrl } from "../code/controllers/_mobile_sessions_map_ctrl";
 import moment from "moment";
+import { DEFAULT_THEME } from "../../javascript/constants";
 
 test("it updates defaults", t => {
   let defaults = {};
@@ -36,7 +37,7 @@ test("it updates defaults", t => {
       high: 55,
       highest: 150
     },
-    theme: "default"
+    theme: DEFAULT_THEME
   };
   t.deepEqual(defaults, expected);
 

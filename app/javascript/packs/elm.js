@@ -18,6 +18,7 @@ import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
 import { applyTheme } from "../javascript/theme";
+import { DEFAULT_THEME } from "../javascript/constants";
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
@@ -103,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isActive: data.isActive,
         isSearchAsIMoveOn: data.isSearchAsIMoveOn,
         scrollPosition: params.scroll || 0,
-        theme: params.theme || "default"
+        theme: params.theme || DEFAULT_THEME
       };
 
       console.warn(flags);

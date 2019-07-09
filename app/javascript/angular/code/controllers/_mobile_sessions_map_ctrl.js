@@ -3,6 +3,7 @@ import moment from "moment";
 import * as FiltersUtils from "../../../javascript/filtersUtils";
 import { clearMap } from "../../../javascript/mapsUtils";
 import { applyTheme } from "../../../javascript/theme";
+import { DEFAULT_THEME } from "../../../javascript/constants";
 
 const endOfToday = moment()
   .utc()
@@ -62,7 +63,7 @@ export const MobileSessionsMapCtrl = (
         high: 55,
         highest: 150
       },
-      theme: "default"
+      theme: DEFAULT_THEME
     };
 
     params.updateFromDefaults(defaults);
