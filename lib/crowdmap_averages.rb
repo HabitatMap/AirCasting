@@ -10,6 +10,8 @@ module CrowdmapAverages
       @data = data
     end
 
+    private
+
     def averages_from_measurements(selected_measurements)
       selected_measurements.map do |measurement|
         {
@@ -34,8 +36,6 @@ module CrowdmapAverages
         .group('middle_y')
         .in_rectangle(data)
     end
-
-    private
 
     def streams
       Stream.belong_to_mobile_sessions.only_contributed.with_measurement_type(
@@ -78,6 +78,8 @@ module CrowdmapAverages
       web_averages
     end
 
+    private
+
     def web_averages
       averages_from_measurements(measurements_from_sessions)
     end
@@ -93,6 +95,8 @@ module CrowdmapAverages
     def as_json(options = nil)
       mobile_averages
     end
+
+    private
 
     def mobile_averages
       averages_from_measurements(measurements_from_period)
