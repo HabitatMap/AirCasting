@@ -413,7 +413,7 @@ update msg model =
                     deselectSession model
             in
             if subModel.isIndoor == newValue then
-                ( subModel, Cmd.none )
+                ( model, Cmd.none )
 
             else if newValue then
                 ( { subModel | isIndoor = True, profiles = LabelsInput.empty, overlay = Overlay.update (AddOverlay IndoorOverlay) model.overlay }
@@ -431,7 +431,7 @@ update msg model =
                     deselectSession model
             in
             if subModel.status == newStatus then
-                ( subModel, Cmd.none )
+                ( model, Cmd.none )
 
             else
                 ( { subModel | status = newStatus }
