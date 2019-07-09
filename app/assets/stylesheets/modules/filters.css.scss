@@ -2,11 +2,14 @@
   background: $brand-secondary;
   box-shadow: 1px 1px 6px 0 rgba(51, 51, 51, 0.5);
   color: white;
-  min-height: calc(100vh - #{$nav-height});
-  min-width: $filters-width;
   position: relative;
-  width: $filters-width;
-  z-index: $heatmap-z-index + 1;
+  z-index: $popup-z-index;
+
+  @media screen and (min-width: $ipad-portrait) {
+    min-height: calc(100vh - #{$nav-height});
+    min-width: $filters-width;
+    width: $filters-width;
+  }
 }
 
 .filters-container {
@@ -61,4 +64,10 @@
   border: none;
   text-decoration: underline !important;
   margin: 0 !important;
+}
+
+@media screen and (max-width: $mobile) {
+  .filters {
+    width: 100vw;
+  }
 }

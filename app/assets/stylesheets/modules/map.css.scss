@@ -1,13 +1,18 @@
 .maps-page-container {
-  @include flexbox();
-  @include justify-content(space-between);
+  @media screen and (min-width: $ipad-portrait) {
+    @include flexbox();
+    @include justify-content(space-between);
+  }
 }
 
 .maps-content-container {
-  @include flexbox();
-  @include flex-direction(column);
-  @include justify-content(space-between);
   position: relative;
+
+  @media screen and (min-width: $ipad-portrait) {
+    @include flexbox();
+    @include flex-direction(column);
+    @include justify-content(space-between);
+  }
 }
 
 .map-container {
@@ -21,6 +26,11 @@
 }
 
 .map {
-  height: 100%;
-  width: calc(100vw - #{$filters-width});
+  height: 100vh;
+  width: 100vw;
+
+  @media screen and (min-width: $ipad-portrait) {
+    height: 100%;
+    width: calc(100vw - #{$filters-width});
+  }
 }
