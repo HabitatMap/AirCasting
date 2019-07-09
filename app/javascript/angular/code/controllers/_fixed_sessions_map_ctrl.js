@@ -2,6 +2,7 @@ import _ from "underscore";
 import * as FiltersUtils from "../../../javascript/filtersUtils";
 import { clearMap } from "../../../javascript/mapsUtils";
 import { applyTheme } from "../../../javascript/theme";
+import { DEFAULT_THEME } from "../../../javascript/constants";
 
 export const FixedSessionsMapCtrl = (
   $scope,
@@ -52,7 +53,7 @@ export const FixedSessionsMapCtrl = (
         high: 55,
         highest: 150
       },
-      theme: "default"
+      theme: DEFAULT_THEME
     };
 
     params.updateFromDefaults(defaults);
