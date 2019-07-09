@@ -366,13 +366,6 @@ crowdMapArea =
                     |> Tuple.first
                     |> .crowdMapResolution
                     |> Expect.equal (BoundedInteger.build (LowerBound 1) (UpperBound 40) (Value 40))
-        , test "'off' is selected by default" <|
-            \_ ->
-                defaultModel
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| ariaLabel "off" ]
-                    |> Query.has [ Slc.attribute <| class "toggle-button--pressed" ]
         , test "toggling sends ToggleCrowdMap message" <|
             \_ ->
                 defaultModel
@@ -446,13 +439,6 @@ toggleIndoorFilter =
                         [ Query.has [ Slc.attribute <| ariaLabel "indoor" ]
                         , Query.has [ Slc.attribute <| ariaLabel "outdoor" ]
                         ]
-        , test "outdoor is selected by default" <|
-            \_ ->
-                { defaultModel | page = Fixed }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| ariaLabel "outdoor" ]
-                    |> Query.has [ Slc.attribute <| class "toggle-button--pressed" ]
         , test "toggling triggers ToggleIndoor" <|
             \_ ->
                 { defaultModel | page = Fixed }
@@ -476,13 +462,6 @@ toggleStatusFilter =
                         [ Query.has [ Slc.attribute <| ariaLabel "active" ]
                         , Query.has [ Slc.attribute <| ariaLabel "dormant" ]
                         ]
-        , test "active is selected by default" <|
-            \_ ->
-                { defaultModel | page = Fixed }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.attribute <| ariaLabel "active" ]
-                    |> Query.has [ Slc.attribute <| class "toggle-button--pressed" ]
         , test "clicking dormant button triggers ToggleStatus" <|
             \_ ->
                 { defaultModel | page = Fixed }
