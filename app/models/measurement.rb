@@ -109,14 +109,10 @@ class Measurement < ApplicationRecord
   scope(
     :with_time2,
     lambda do |data|
-      day_range(data[:day_from], data[:day_to]).time_range(
-        data[:time_from],
-        data[:time_to]
-      )
-        .year_range(
-        Date.new(data[:year_from].to_i),
-        Date.new(data[:year_to].to_i + 1) - 1
-      )
+      time_from = Time.strptime(data[:time_from].to_s, '%s')
+      time_to = Time.strptime(data[:time_to].to_s, '%s')
+
+      where(time: time_from..time_to)
     end
   )
   prepare_range(

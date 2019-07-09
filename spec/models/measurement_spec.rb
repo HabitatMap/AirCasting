@@ -134,6 +134,65 @@ describe Measurement do
       end
     end
 
+    describe '#with_time2' do
+      it 'returns measurements that are in the range' do
+        measurement = create_measurement!(time: Time.new(2_010, 1, 2))
+
+        data = {
+          time_from: Time.new(2_010, 1, 1).to_i,
+          time_to: Time.new(2_010, 1, 3).to_i
+        }
+
+        expect(Measurement.with_time2(data)).to include measurement
+      end
+
+      it 'returns measurements on the date boundaries' do
+        measurement = create_measurement!(time: Time.new(2_010, 1, 1))
+        measurement2 = create_measurement!(time: Time.new(2_010, 1, 3))
+
+        data = {
+          time_from: Time.new(2_010, 1, 1).to_i,
+          time_to: Time.new(2_010, 1, 3).to_i
+        }
+
+        expect(Measurement.with_time2(data)).to include measurement,
+                measurement2
+      end
+
+      it 'does not return measurements outside time boundaries' do
+        measurement = create_measurement!(time: Time.new(2_010, 1, 1, 1, 3))
+
+        data = {
+          time_from: Time.new(2_010, 1, 1, 1, 1).to_i,
+          time_to: Time.new(2_010, 1, 1, 1, 2).to_i
+        }
+
+        expect(Measurement.with_time2(data)).not_to include measurement
+      end
+
+      it 'does not return measurements that are not in the range' do
+        measurement = create_measurement!(time: Time.new(2_010, 1, 1))
+
+        data = {
+          time_from: Time.new(2_010, 1, 2).to_i,
+          time_to: Time.new(2_010, 1, 3).to_i
+        }
+
+        expect(Measurement.with_time2(data)).not_to include measurement
+      end
+
+      it 'returns measurements that are not in the time range but they are in the date range' do
+        measurement = create_measurement!(time: Time.new(2_010, 1, 2, 1, 1))
+
+        data = {
+          time_from: Time.new(2_010, 1, 1, 1, 3).to_i,
+          time_to: Time.new(2_010, 1, 3, 1, 4).to_i
+        }
+
+        expect(Measurement.with_time2(data)).to include measurement
+      end
+    end
+
     describe '#belonging_to_sessions_with_ids' do
       it 'returns measurements belonging to the sessions with the passed ids' do
         session1 = create_session!
