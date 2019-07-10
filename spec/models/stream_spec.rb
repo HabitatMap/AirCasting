@@ -57,7 +57,9 @@ describe Stream do
       it 'should cause an error' do
         expect {
           stream.build_measurements!([measurement_data])
-        }.to raise_error('Measurement import failed!')
+        }.to raise_error(
+          'Measurement import failed! Failed instances: [1, 2, 3]'
+        )
       end
     end
   end
