@@ -17,7 +17,7 @@ module Api
     def index
       data = prepareData(params)
 
-      data[:time_from] = data[:time_from] || Time.new(2_010).to_i
+      data[:time_from] = data[:time_from] || 1.year.ago.to_i
       data[:time_to] = data[:time_to] || Time.new(2_100).end_of_year.to_i
 
       respond_with CrowdmapAverages::ForMobile.new(data).as_json

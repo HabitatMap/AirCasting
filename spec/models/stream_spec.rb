@@ -57,13 +57,9 @@ describe Stream do
       it 'should cause an error' do
         expect {
           stream.build_measurements!([measurement_data])
-<<<<<<< 69a3434acb87956ada8df1d9173202ecc07ad242
         }.to raise_error(
           'Measurement import failed! Failed instances: [1, 2, 3]'
         )
-=======
-        }.to raise_error('Measurement import failed! Failed instances: [1, 2, 3]')
->>>>>>> refactor: fix the test checking error messages
       end
     end
   end
