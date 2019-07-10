@@ -103,3 +103,14 @@ module TestUtils
     )
   end
 end
+
+def create_note!(attributes = {})
+  Note.create!(
+    text: 'text',
+    date: DateTime.current,
+    latitude: 123,
+    longitude: 123,
+    session: attributes.fetch(:session),
+    number: rand(100_000)
+  )
+end

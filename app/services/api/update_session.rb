@@ -1,0 +1,25 @@
+class Api::UpdateSession
+  def initialize(form:)
+    @form = form
+  end
+
+  def call(user)
+    return Failure.new(form.errors) if form.invalid?
+
+    session = Session.find_by_uuid(data[:uuid])
+
+    unless session
+      return Failure.new("Session with uuid: #{data[:uuid]} doesn't exist")
+    end
+
+    Success.new(session.sync(data))
+  end
+
+  private
+
+  attr_reader :form
+
+  def data
+    form.to_h.to_h
+  end
+end

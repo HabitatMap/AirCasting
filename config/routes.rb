@@ -43,6 +43,8 @@ Rails.application.routes.draw do
       resources :sessions, only: %i[show], controller: 'user_sessions' do
         collection do
           post :sync
+          post :sync2
+          post :update_session
           post :delete_session
           post :delete_session_streams
         end

@@ -62,6 +62,30 @@ class User < ApplicationRecord
     record
   end
 
+  def sync2(sessions_data)
+    uuids_to_delete = uuids(sessions_data.select { |datum| datum[:deleted] })
+    delete_sessions(uuids_to_delete)
+
+    deleted = uuids(DeletedSession.where(user: self))
+    present_in_mobile_app =
+      uuids(sessions_data.select { |datum| !datum[:deleted] })
+    present_in_db = uuids(sessions)
+
+    {
+      upload: present_in_mobile_app - (present_in_db + deleted),
+      download: present_in_db - (present_in_mobile_app + deleted),
+      deleted: deleted & uuids(sessions_data)
+    }
+  end
+
+  def delete_sessions(uuids)
+    uuids.map { |uuid| sessions.find_by_uuid(uuid) }.compact.each(&:destroy)
+  end
+
+  def uuids(sessions)
+    sessions.map { |session| session[:uuid] }
+  end
+
   def sync(data)
     upload = []
     deleted = []
