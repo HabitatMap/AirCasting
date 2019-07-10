@@ -10,7 +10,8 @@ class Api::JsonForm < Api::Form
 
   def parsed_params
     @parsed_params ||= deep_symbolize(ActiveSupport::JSON.decode(@json))
-  rescue JSON::ParserError
-    raise Errors::Api::CouldNotParseJsonParams
+  rescue JSON::ParserError => e
+    raise Errors::Api::CouldNotParseJsonParams,
+          "Error message: #{e}. Received json params: #{@json}"
   end
 end
