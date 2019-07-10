@@ -726,7 +726,7 @@ deselectSession selectable =
 
 getScrollPosition : Cmd Msg
 getScrollPosition =
-    Dom.getViewportOf "sessions-container"
+    Dom.getViewportOf "session-cards-container"
         |> Task.attempt
             (\result ->
                 result
@@ -738,7 +738,7 @@ getScrollPosition =
 
 setScrollPosition : Float -> Cmd Msg
 setScrollPosition value =
-    Dom.setViewportOf "sessions-container" value 0 |> Task.attempt (\_ -> NoOp)
+    Dom.setViewportOf "session-cards-container" value 0 |> Task.attempt (\_ -> NoOp)
 
 
 
@@ -930,21 +930,19 @@ viewSessionsOrSelectedSession model =
                 "FixedSessionsMapCtrl"
             )
         ]
-        [ div [ class "sessions" ]
-            [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ]
-                [ case model.selectedSession of
-                    NotAsked ->
-                        viewSessions model.fetchableSessionsCount model.sessions model.heatMapThresholds
+        [ div [ class "sessions", attribute "ng-controller" "SessionsListCtrl" ]
+            [ case model.selectedSession of
+                NotAsked ->
+                    viewSessions model.fetchableSessionsCount model.sessions model.heatMapThresholds
 
-                    Success session ->
-                        viewSelectedSession model.heatMapThresholds (Just session) model.linkIcon
+                Success session ->
+                    viewSelectedSession model.heatMapThresholds (Just session) model.linkIcon
 
-                    Loading ->
-                        viewSelectedSession model.heatMapThresholds Nothing model.linkIcon
+                Loading ->
+                    viewSelectedSession model.heatMapThresholds Nothing model.linkIcon
 
-                    Failure _ ->
-                        div [] [ text "error!" ]
-                ]
+                Failure _ ->
+                    div [] [ text "error!" ]
             ]
         ]
 
@@ -1006,12 +1004,12 @@ viewSessions fetchableSessionsCount sessions heatMapThresholds =
         text ""
 
     else
-        div [ class "sessions-list" ]
-            [ h2 [ class "sessions-header" ]
+        div [ class "session-list" ]
+            [ h2 [ class "session-list__header" ]
                 [ text "Sessions" ]
-            , span [ class "sessions-number" ]
+            , span [ class "session-list__number" ]
                 [ text ("showing " ++ sessionsCount ++ " of " ++ String.fromInt fetchableSessionsCount ++ " results") ]
-            , div [ class "sessions-container", id "sessions-container" ]
+            , div [ class "session-cards-container", id "session-cards-container" ]
                 (List.map (viewSessionCard heatMapThresholds) sessions ++ [ viewLoadMore fetchableSessionsCount (List.length sessions) ])
             ]
 
@@ -1035,21 +1033,21 @@ viewLoadMore fetchableSessionsCount sessionCount =
 viewSessionCard : WebData HeatMapThresholds -> Session -> Html Msg
 viewSessionCard heatMapThresholds session =
     div
-        [ class "session"
+        [ class "session-card"
         , Events.onClick <| ToggleSessionSelection session.id
         , Events.onMouseEnter <| HighlightSessionMarker (Just session.location)
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]
         [ div
-            [ class "session-color"
+            [ class "session-card__color"
             , class <| Data.Session.classByValue session.average heatMapThresholds
             ]
             []
-        , h3 [ class "session-name" ]
+        , h3 [ class "session-card__name" ]
             [ text session.title ]
-        , p [ class "session-owner" ]
+        , p [ class "session-card__owner" ]
             [ text session.username ]
-        , span [ class "session-dates" ]
+        , span [ class "session-card__dates" ]
             [ text <| Times.format session.startTime session.endTime ]
         ]
 

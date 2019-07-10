@@ -1,9 +1,3 @@
-.single-session {
-  min-width: calc(100vw - #{$filters-width});
-  max-width: calc(100vw - #{$filters-width});
-  position: relative;
-}
-
 .single-session-container {
   @include flexbox();
   @include flex-direction(row);

@@ -194,7 +194,7 @@ const setupHeatMap = () => {
 
     window.__elmApp.ports.observeSessionsList.subscribe(() => {
       createObserver({
-        selector: ".sessions-container",
+        selector: ".session-cards-container",
         onMount: () => {
           window.__elmApp.ports.setScroll.send(null);
         }
@@ -235,6 +235,6 @@ const setupHorizontalWheelScroll = node => {
 };
 
 createObserver({
-  selector: ".sessions-container",
+  selector: ".session-cards-container",
   onMount: setupHorizontalWheelScroll
 });
