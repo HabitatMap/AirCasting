@@ -7,6 +7,21 @@ $search-control-width: 300px;
   top: 6px;
   width: $search-control-width;
   z-index: 1;
+
+  @media screen and (max-width: 850px) {
+    right: 6px;
+    width: auto;
+  }
+}
+
+.gm-bundled-control {
+  @media screen and (max-width: 850px) {
+    top: 75px !important;
+
+    & ~ .gmnoprint {
+      top: 40px !important;
+    }
+  }
 }
 
 .search-control__switch {
@@ -15,7 +30,11 @@ $search-control-width: 300px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 1px;
   display: inline-block;
   height: 25px;
-  padding: 4px 25px 3px 10px;
+  padding-left: 10px;
+
+  @media screen and (max-width: 850px) {
+    height: 30px;
+  }
 }
 
 .search-control__button {
@@ -31,9 +50,26 @@ $search-control-width: 300px;
   img {
     padding-left: $input-padding;
   }
+
+  @media screen and (max-width: 850px) {
+    font-size: 14px;
+    height: 30px;
+    line-height: 30px;
+    width: 153px;
+  }
 }
 
 label[for="checkbox-search-as-i-move"] {
+  cursor: pointer;
+  display: inline-block;
   font-size: 13px;
   font-weight: $font-stack-regular;
+  line-height: 18px;
+  padding: 4px 25px 3px 0;
+
+  @media screen and (max-width: 850px) {
+    font-size: 14px;
+    padding-right: 16px;
+    padding-top: 6px;
+  }
 }
