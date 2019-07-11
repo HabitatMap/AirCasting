@@ -29,7 +29,7 @@ class Api::UserSessionsController < Api::BaseController
         schema: Api::UserSessions2::Schema,
         struct: Api::UserSessions2::Struct
       )
-    result = Api::ToUserSessionsHash2.new(form: form).call(current_user)
+    result = Api::ToUserSessionsHash2.new(form: form, user: current_user).call
 
     if result.success?
       render json: result.value, status: :ok
@@ -45,7 +45,7 @@ class Api::UserSessionsController < Api::BaseController
         schema: Api::UserSession::Schema,
         struct: Api::UserSession::Struct
       )
-    result = Api::UpdateSession.new(form: form).call(current_user)
+    result = Api::UpdateSession.new(form: form).call
 
     if result.success?
       render json: result.value, status: :ok

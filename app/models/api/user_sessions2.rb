@@ -12,6 +12,7 @@ module Api::UserSessions2
         schema do
           required(:uuid).filled(:str?)
           required(:deleted).filled(:bool?)
+          required(:version).filled(:int?)
         end
       end
     end
@@ -20,6 +21,7 @@ module Api::UserSessions2
     attribute :data, Types::Array do
       attribute :uuid, Types::Strict::String
       attribute :deleted, Types::Strict::Bool
+      attribute :version, Types::Strict::Integer
     end
   end
 end

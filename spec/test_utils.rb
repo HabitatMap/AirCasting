@@ -32,6 +32,7 @@ module TestUtils
       longitude: 1.0,
       latitude: 1.0,
       is_indoor: false,
+      version: attributes.fetch(:version, 1),
       contribute: attributes.fetch(:contribute, true)
     )
   end

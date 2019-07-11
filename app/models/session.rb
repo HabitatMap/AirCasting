@@ -229,6 +229,7 @@ class Session < ApplicationRecord
     transaction do
       self.title = session_data[:title]
       self.tag_list = session_data[:tag_list]
+      self.version = self.version + 1
       self.save!
 
       (session_data[:streams] || []).each do |key, stream_data|

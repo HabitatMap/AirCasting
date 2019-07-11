@@ -3,7 +3,7 @@ class Api::UpdateSession
     @form = form
   end
 
-  def call(user)
+  def call
     return Failure.new(form.errors) if form.invalid?
 
     session = Session.find_by_uuid(data[:uuid])

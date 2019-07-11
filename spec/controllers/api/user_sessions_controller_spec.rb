@@ -251,12 +251,26 @@ describe Api::UserSessionsController do
       expect(session.notes).to eq([])
     end
 
-    it 'creates new notes'
+    it 'bumps session version' do
+      session = create_session!({ version: 1 })
+      post :update_session,
+           params: {
+             data: {
+               uuid: session.uuid,
+               title: session.title,
+               tag_list: session.tag_list.to_s,
+               notes: [],
+               streams: {}
+             }.to_json
+           }
+      session.reload
+      expect(session.version).to eq(2)
+    end
   end
 
   describe '#sync2' do
     it "returns session for upload when it's not present in the db" do
-      post :sync2, format: :json, params: { data: session_data(uuid: 'abc') }
+      post :sync2, format: :json, params: { data: session_data2(uuid: 'abc') }
 
       expected = { 'download' => [], 'upload' => %w[abc], 'deleted' => [] }
 
@@ -267,7 +281,7 @@ describe Api::UserSessionsController do
       session = create_session!(user: user, uuid: 'abc')
       session.destroy
 
-      post :sync2, format: :json, params: { data: session_data(uuid: 'abc') }
+      post :sync2, format: :json, params: { data: session_data2(uuid: 'abc') }
 
       expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
 
@@ -279,7 +293,7 @@ describe Api::UserSessionsController do
 
       post :sync2,
            format: :json,
-           params: { data: session_data(uuid: 'abc', deleted: true) }
+           params: { data: session_data2(uuid: 'abc', deleted: true) }
 
       expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
 
@@ -288,31 +302,45 @@ describe Api::UserSessionsController do
     end
 
     it "returns session for download when present it's in the db, but not in the mobile app" do
-      session = create_session!(user: user,  uuid: 'abc')
+      session = create_session!(user: user, uuid: 'abc')
       stream = create_stream!(session: session)
       create_measurements!(stream: stream)
 
       post :sync2, format: :json, params: { data: '[]' }
 
-      expected = { 'download' => %w[abc] , 'upload' => [], 'deleted' => [] }
+      expected = { 'download' => %w[abc], 'upload' => [], 'deleted' => [] }
 
       expect(json_response).to eq(expected)
     end
 
-    xit "return session for download if newer version is in the db" do
-      session = create_session!(user: user,  uuid: 'abc', version: 2)
+    it 'return session for download if newer version is in the db' do
+      session = create_session!(user: user, uuid: 'abc', version: 2)
       stream = create_stream!(session: session)
       create_measurements!(stream: stream)
 
-      post :sync2, format: :json, params: { data: session_data(uuid: 'abc', version: 1) }
+      post :sync2,
+           format: :json,
+           params: { data: session_data2(uuid: 'abc', version: 1) }
 
-      expected = { 'download' => %w[abc] , 'upload' => [], 'deleted' => [] }
+      expected = { 'download' => %w[abc], 'upload' => [], 'deleted' => [] }
 
       expect(json_response).to eq(expected)
     end
   end
 
   private
+
+  def session_data2(attributes)
+    "[
+    {  \"deleted\":#{
+      attributes.fetch(:deleted, false)
+    },
+      \"uuid\":\"#{attributes.fetch(:uuid, 'uuid')}\",
+      \"version\":#{
+      attributes.fetch(:version, 1)
+    }}
+    ]"
+  end
 
   def session_data(attributes)
     "[
