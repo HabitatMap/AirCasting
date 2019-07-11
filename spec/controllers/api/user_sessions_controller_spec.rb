@@ -298,6 +298,18 @@ describe Api::UserSessionsController do
 
       expect(json_response).to eq(expected)
     end
+
+    xit "return session for download if newer version is in the db" do
+      session = create_session!(user: user,  uuid: 'abc', version: 2)
+      stream = create_stream!(session: session)
+      create_measurements!(stream: stream)
+
+      post :sync2, format: :json, params: { data: session_data(uuid: 'abc', version: 1) }
+
+      expected = { 'download' => %w[abc] , 'upload' => [], 'deleted' => [] }
+
+      expect(json_response).to eq(expected)
+    end
   end
 
   private
