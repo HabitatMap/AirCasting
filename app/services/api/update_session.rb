@@ -12,7 +12,11 @@ class Api::UpdateSession
       return Failure.new("Session with uuid: #{data[:uuid]} doesn't exist")
     end
 
-    Success.new(session.sync(data))
+    session.sync(data)
+
+    session.reload
+
+    Success.new(session)
   end
 
   private

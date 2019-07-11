@@ -251,7 +251,7 @@ describe Api::UserSessionsController do
       expect(session.notes).to eq([])
     end
 
-    it 'bumps session version' do
+    it 'returns bumped session version' do
       session = create_session!({ version: 1 })
       post :update_session,
            params: {
@@ -263,8 +263,10 @@ describe Api::UserSessionsController do
                streams: {}
              }.to_json
            }
+
       session.reload
-      expect(session.version).to eq(2)
+
+      expect(json_response).to include({ version: 2 }.as_json)
     end
   end
 
