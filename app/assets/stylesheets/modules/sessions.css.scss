@@ -13,10 +13,14 @@
 .session-cards-container {
   @include flexbox();
   @include flex-direction(row);
-  overflow: hidden;
+  overflow: auto;
 
-  &:hover {
-    overflow: auto;
+  @media (hover: hover) {
+    overflow: hidden;
+
+    &:hover {
+      overflow: auto;
+    }
   }
 }
 
