@@ -26,17 +26,28 @@ class Api::ToUserSessionsHash2
     form.to_h.data
   end
 
-  def delete_sessions(session)
-    session.map { |session| user.sessions.find_by_uuid(session.uuid) }.compact
-      .each(&:destroy)
+  def delete_sessions(sessions)
+    user.sessions.where(uuid: sessions.map(&:uuid)).destroy_all
   end
 
   def deleted
     DeletedSession.where(user: user, uuid: data.map(&:uuid)).map(&:uuid)
   end
 
+  def new_in_mobile_app
+    uuids_present_in_mobile_app - uuids_present_in_db - deleted
+  end
+
+  def uuids_present_in_mobile_app
+    uuids_present_in_mobile_app ||= present_in_mobile_app.map(&:uuid)
+  end
+
   def present_in_mobile_app
-    data.select { |datum| !datum.deleted }
+    present_in_mobile_app ||= data.select { |datum| !datum.deleted }
+  end
+
+  def uuids_present_in_db
+    uuids_present_in_db ||= present_in_db.map(&:uuid)
   end
 
   def present_in_db
@@ -44,23 +55,19 @@ class Api::ToUserSessionsHash2
   end
 
   def new_in_db
-    present_in_db.map(&:uuid) - present_in_mobile_app.map(&:uuid)
-  end
-
-  def old_in_db
-    present_in_db.select do |ses|
-      present_in_mobile_app.map(&:uuid).include?(ses.uuid)
-    end
+    uuids_present_in_db - uuids_present_in_mobile_app
   end
 
   def outdated
-    old_in_db.select do |ses|
-      ses.version >
-        present_in_mobile_app.detect { |ses2| ses2.uuid == ses.uuid }.version
+    present_in_db.select do |session_in_db|
+      if uuids_present_in_mobile_app.exclude?(session_in_db.uuid)
+        false
+      else
+        session_in_db.version >
+          present_in_mobile_app.detect do |sessio_in_mobile_app|
+            sessio_in_mobile_app.uuid == session_in_db.uuid
+          end.version
+      end
     end.map(&:uuid)
-  end
-
-  def new_in_mobile_app
-    present_in_mobile_app.map(&:uuid) - (present_in_db.map(&:uuid) + deleted)
   end
 end
