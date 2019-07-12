@@ -9,7 +9,6 @@ Bundler.require(*Rails.groups)
 A9n.root = File.expand_path('../..', __FILE__)
 A9n.load
 
-require_relative '../lib/aircasting/auth_failure_app'
 require_relative '../lib/aircasting/gzip'
 require_relative '../lib/aircasting/filter_range'
 require_relative '../lib/session_builder'
