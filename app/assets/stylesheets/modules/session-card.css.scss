@@ -8,6 +8,10 @@
   padding: $margin-default;
   position: relative;
 
+  &:last-child {
+    margin-right: $margin-default;
+  }
+
   &::before {
     content: " ";
     position: absolute;

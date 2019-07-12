@@ -2,31 +2,27 @@
   position: absolute;
   bottom: 0;
   left: 0;
+  width: 100%;
   z-index: $sessions-z-index;
-  min-width: 100%;
-
-  @media screen and (min-width: $ipad-portrait) {
-    min-width: calc(100vw - #{$filters-width});
-    max-width: calc(100vw - #{$filters-width});
-  }
-}
-
-.session-cards-container {
-  @include flexbox();
-  @include flex-direction(row);
-  overflow-x: hidden;
-
-  &:hover {
-    overflow-x: auto;
-  }
 
   @media screen and (min-width: $ipad-portrait) {
     width: calc(100vw - #{$filters-width});
   }
 }
 
+.session-cards-container {
+  @include flexbox();
+  @include flex-direction(row);
+  overflow: hidden;
+
+  &:hover {
+    overflow: auto;
+  }
+}
+
 .session-list {
   height: $sessions-list-height;
+  padding-right: $margin-default;
 }
 
 .session-list__header {
@@ -45,7 +41,7 @@
 .more-sessions-button-container {
   @include flexbox();
   @include align-items(center);
-  padding: 0 24px 0 18px;
+  padding: 0 $margin-default 0 18px;
 
   @media screen and (max-width: $mobile) {
     padding-left: 10px;
