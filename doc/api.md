@@ -423,7 +423,7 @@ GET `/api/measurements.json`
 
 **Endpoint**
 
-GET `/api/averages`
+GET `/api/averages2`
 
 To get multiple average values for polygons in a region. You need to pass a list of session ids otherwise nothing will be returned.
 
@@ -451,11 +451,14 @@ See [parameters description](#parameters-description)
 **Example**
 
 - request
-
+  ```json
+   http://aircasting.org/api/averages2.json?q={"west":-74.56264303613284,"east":-73.41594503808597,"south":40.48145815185845,"north":40.82735151191054,"time_from":"1531612800","time_to":"1563235199","grid_size_x":113.78612716763006,"grid_size_y":31,"tags":"","usernames":"HabitatMap","sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³","session_ids":[94192,94178,91439,90868,90850,90837,89516,89490,78011,78010,77712,76780,76770,75193,71641,67139,67096,64047,64042,64031]}
   ```
-  curl 'http://aircasting.org/api/averages.json?q=%7B%22west%22:-123.50830115625001,%22east%22:-67.91748084375001,%22south%22:30.334954095062294,%22north%22:43.29320049354096,%22time_from%22:0,%22time_to%22:1552648992,%22grid_size_x%22:85.47297297297297,%22grid_size_y%22:25,%22tags%22:%22%22,%22usernames%22:%22%22,%22sensor_name%22:%22AirBeam2-PM2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B57488,57487,57469,57468,57333,57331,57326,57321,57319,57299,57073,56976,56975,56974,56965,56898,56797,56792,56714,56711,56297,56271,56183,55885,55851,55850,55849,55819,55487,55485,55482,55481,55398,55377,55376,55375,55374,55364,55363,55332,55268,55266,55239,55196,55016,55007,54914,54910,54909,54907%5D%7D'
-  ```
 
+- encoded request
+  ```
+  curl  http://aircasting.org/api/averages2.json?q=%7B%22west%22:-74.56264303613284,%22east%22:-73.41594503808597,%22south%22:40.48145815185845,%22north%22:40.82735151191054,%22time_from%22:%221531612800%22,%22time_to%22:%221563235199%22,%22grid_size_x%22:113.78612716763006,%22grid_size_y%22:31,%22tags%22:%22%22,%22usernames%22:%22HabitatMap%22,%22sensor_name%22:%22airbeam2-pm2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B94192,94178,91439,90868,90850,90837,89516,89490,78011,78010,77712,76780,76770,75193,71641,67139,67096,64047,64042,64031%5D%7D
+  ```
 - response
 
   ```json
@@ -473,13 +476,6 @@ See [parameters description](#parameters-description)
       "east": -105.24249284163766,
       "south": 39.9775113186084,
       "north": 39.99638198715625
-    },
-    {
-      "value": 18.60066334891042,
-      "west": -105.26734642360522,
-      "east": -105.24249284163766,
-      "south": 39.99638198715625,
-      "north": 40.015252655704096
     }
   ]
   ```
@@ -529,7 +525,11 @@ See [parameters description](#parameters-description)
 - response
 
   ```json
-  {"average":7.47753927860146,"number_of_contributors":1,"number_of_samples":4519}
+  {
+    "average":7.47753927860146,
+    "number_of_contributors":1,
+    "number_of_samples":4519
+  }
   ```
 
 # Last Session
