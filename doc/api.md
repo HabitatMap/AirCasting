@@ -516,19 +516,20 @@ See [parameters description](#parameters-description)
 **Example**
 
 - request
-
+  ```json
+  http://aircasting.org/api/region.json?q={"west":-73.98231641381187,"east":-73.97216864391766,"south":40.68332674082153,"north":40.69643137175753,"time_from":"1531612800","time_to":"1563235199","grid_size_x":113.78612716763006,"grid_size_y":31,"tags":"","usernames":"HabitatMap","sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³","session_ids":[94192,94178,91439,90868,90850,90837,89516,89490,78011,78010,77712,76780,76770,75193,71641,67139,67096,64047,64042,64031]}
   ```
-  curl 'http://aircasting.org/api/region.json?q=%7B%22west%22:-84.6942497702206,%22east%22:-84.04024011948529,%22south%22:37.68000734867853,%22north%22:38.28288746625739,%22time_from%22:0,%22time_to%22:1552648992,%22grid_size_x%22:85.47297297297297,%22grid_size_y%22:25,%22tags%22:%22%22,%22usernames%22:%22%22,%22sensor_name%22:%22AirBeam2-PM2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B57488,57487,57469,57468,57333,57331,57326,57321,57319,57299,57073,56976,56975,56974,56965,56898,56797,56792,56714,56711,56297,56271,56183,55885,55851,55850,55849,55819,55487,55485,55482,55481,55398,55377,55376,55375,55374,55364,55363,55332,55268,55266,55239,55196,55016,55007,54914,54910,54909,54907%5D%7D'
+- encoded request 
   ```
+  curl http://aircasting.org/api/region.json\?q\=%7B%22west%22%3A-73.98231641381187%2C%22east%22%3A-73.97216864391766%2C%22south%22%3A40.68332674082153%2C%22north%22%3A40.69643137175753%2C%22time_from%22%3A%221531612800%22%2C%22time_to%22%3A%221563235199%22%2C%22grid_size_x%22%3A113.78612716763006%2C%22grid_%20%20%20%20size_y%22%3A31%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%2C%22session_ids%22%3A%5B94192%2C94178%2C91439%2C90868%2C90850%2C90837%2C89516%2C89490%2C78011%2C78010%2C77712%2C76780%2C76770%2C%20%20%20%2075193%2C71641%2C67139%2C67096%2C64047%2C64042%2C64031%5D%7D
+  ```
+  
+  See [how to encode URLs](#how-to-encode-urls)
 
 - response
 
   ```json
-  {
-    "average": "3.050341895701678",
-    "number_of_contributors": 1,
-    "number_of_samples": 379359
-  }
+  {"average":7.47753927860146,"number_of_contributors":1,"number_of_samples":4519}
   ```
 
 # Last Session
