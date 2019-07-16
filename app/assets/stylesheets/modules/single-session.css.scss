@@ -9,11 +9,25 @@
   padding: 16px;
   position: relative;
   width: 95%;
+
+  @media screen and (max-width: $mobile) {
+    @include flex-direction(column);
+    border-radius: 0;
+    box-shadow: 0px -12px 12px $shadow-color-delicate;
+    margin-bottom: -$margin-default; // removes space needed in session list to show Google attribution
+    width: 100%;
+  }
 }
 
 .single-session__aside {
   display: flex;
   padding-right: 16px;
+
+  @media screen and (max-width: $ipad-portrait) {
+    @include flex-direction(row);
+    margin-bottom: 3 * $margin-default;
+    padding-right: 0;
+  }
 }
 
 .single-session__graph {
