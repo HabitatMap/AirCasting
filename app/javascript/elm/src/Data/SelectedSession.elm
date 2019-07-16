@@ -113,10 +113,12 @@ view session heatMapThresholds linkIcon toMsg =
             "graph-copy-link-tooltip"
     in
     div [ class "single-session__info" ]
-        [ div []
-            [ p [ class "single-session__name" ] [ text session.title ]
-            , p [ class "single-session__username" ] [ text session.username ]
-            , p [ class "single-session__sensor" ] [ text session.sensorName ]
+        [ div [ class "session-data" ]
+            [ div [ class "session-data__left" ]
+                [ p [ class "single-session__name" ] [ text session.title ]
+                , p [ class "single-session__username" ] [ text session.username ]
+                , p [ class "single-session__sensor" ] [ text session.sensorName ]
+                ]
             , case session.selectedMeasurements of
                 [] ->
                     div [ class "single-session__placeholder" ] []
@@ -132,7 +134,7 @@ view session heatMapThresholds linkIcon toMsg =
                         average =
                             List.sum measurements / toFloat (List.length measurements)
                     in
-                    div []
+                    div [ class "session-data__right" ]
                         [ div []
                             [ div [ class "single-session__avg-color", class <| Data.Session.classByValue (Just average) heatMapThresholds ] []
                             , span [] [ text "avg. " ]
@@ -151,8 +153,9 @@ view session heatMapThresholds linkIcon toMsg =
                                 , span [ class "single-session__max" ] [ text <| String.fromFloat max ]
                                 ]
                             ]
+                        , div [ class "single-session__date" ]
+                            [ text <| Times.format session.startTime session.endTime ]
                         ]
-            , span [ class "single-session__date" ] [ text <| Times.format session.startTime session.endTime ]
             ]
         , div [ class "action-buttons" ]
             [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink [ session ] ] [ text "export session" ]

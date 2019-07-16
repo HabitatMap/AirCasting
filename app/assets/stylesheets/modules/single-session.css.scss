@@ -23,9 +23,9 @@
   display: flex;
   padding-right: 16px;
 
-  @media screen and (max-width: $ipad-portrait) {
+  @media screen and (max-width: $mobile) {
     @include flex-direction(row);
-    margin-bottom: 3 * $margin-default;
+    margin-bottom: $margin-default;
     padding-right: 0;
   }
 }
@@ -40,6 +40,29 @@
   flex-direction: column;
   justify-content: space-between;
   width: 215px;
+
+  @media screen and (max-width: $mobile) {
+    width: 100%;
+  }
+}
+
+.session-data {
+  @media screen and (max-width: $mobile) {
+    display: flex;
+  }
+}
+
+.session-data__left,
+.session-data__right {
+  @media screen and (max-width: $mobile) {
+    flex: 1 0 160px;
+  }
+}
+
+.session-data__right {
+  @media screen and (max-width: $mobile) {
+    line-height: 1.25;
+  }
 }
 
 .single-session__name {
@@ -51,6 +74,10 @@
   max-height: 3em; // for browsers that don't support clamp, including Firefox <= 67 - still trims but with no ellipsis (...)
   overflow: hidden;
   word-break: break-word;
+
+  @media screen and (max-width: $mobile) {
+    line-height: 1.5rem;
+  }
 }
 
 .single-session__username {
