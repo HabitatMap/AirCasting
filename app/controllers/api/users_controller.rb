@@ -22,6 +22,10 @@ module Api
     end
 
     def settings
+      puts params
+
+      UserMailer.with(user: current_user, sessions: []).session_stopped_email.deliver_now
+
       form =
         Api::JsonForm.new(
           json: params.to_unsafe_hash[:data],

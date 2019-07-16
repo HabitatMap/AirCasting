@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>Hello <%= @user.username %></h1>
+    <p>
+      Some of your sessions stopped:
+      <ul>
+        <% sessions.each do |session| %>
+          <li> title:  <% session.title %> </li>
+        <% end %>
+      </ul>
+    </p>
+  </body>
+</html>
