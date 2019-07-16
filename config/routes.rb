@@ -50,6 +50,7 @@ Rails.application.routes.draw do
         end
       end
       get 'sessions/:uuid' => 'user_sessions#show'
+      post 'settings', to: 'users#settings'
     end
     resources :sensors, only: %i[index]
 

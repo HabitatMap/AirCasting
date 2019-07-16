@@ -100,7 +100,8 @@ module TestUtils
       id: attributes.fetch(:id, rand(100_000)),
       username: attributes.fetch(:username, "username#{rand}"),
       email: "email#{rand}@example.com",
-      password: 'password'
+      password: 'password',
+      session_stopped_alert: attributes.fetch(:session_stopped_alert, false)
     )
   end
 end
