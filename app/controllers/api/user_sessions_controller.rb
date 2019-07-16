@@ -22,6 +22,38 @@ class Api::UserSessionsController < Api::BaseController
     end
   end
 
+  def sync_with_versioning
+    form =
+      Api::JsonForm.new(
+        json: "{ \"data\": #{params.to_unsafe_hash[:data]} }",
+        schema: Api::UserSessions2::Schema,
+        struct: Api::UserSessions2::Struct
+      )
+    result = Api::ToUserSessionsHash2.new(form: form, user: current_user).call
+
+    if result.success?
+      render json: result.value, status: :ok
+    else
+      render json: result.errors, status: :bad_request
+    end
+  end
+
+  def update_session
+    form =
+      Api::JsonForm.new(
+        json: params.to_unsafe_hash[:data],
+        schema: Api::UserSession::Schema,
+        struct: Api::UserSession::Struct
+      )
+    result = Api::UpdateSession.new(form: form).call
+
+    if result.success?
+      render json: result.value, status: :ok
+    else
+      render json: result.errors, status: :bad_request
+    end
+  end
+
   def show
     session =
       (

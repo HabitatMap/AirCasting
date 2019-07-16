@@ -32,6 +32,7 @@ module TestUtils
       longitude: 1.0,
       latitude: 1.0,
       is_indoor: false,
+      version: attributes.fetch(:version, 1),
       contribute: attributes.fetch(:contribute, true)
     )
   end
@@ -102,4 +103,15 @@ module TestUtils
       password: 'password'
     )
   end
+end
+
+def create_note!(attributes = {})
+  Note.create!(
+    text: 'text',
+    date: DateTime.current,
+    latitude: 123,
+    longitude: 123,
+    session: attributes.fetch(:session),
+    number: rand(100_000)
+  )
 end

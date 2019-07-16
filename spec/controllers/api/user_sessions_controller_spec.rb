@@ -165,7 +165,184 @@ describe Api::UserSessionsController do
     end
   end
 
+  describe '#update_session' do
+    it 'updates session title and tag list' do
+      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      new_title = 'new title'
+      new_tag_list = 'newtag'
+
+      post :update_session,
+           params: {
+             data: {
+               uuid: session.uuid,
+               title: new_title,
+               tag_list: new_tag_list,
+               notes: [],
+               streams: {}
+             }.to_json
+           }
+      session.reload
+
+      expect(session.title).to eq(new_title)
+      expect(session.tag_list).to eq([new_tag_list])
+    end
+
+    it 'deletes streams marked for deletion' do
+      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      stream = create_stream!(session: session)
+
+      post :update_session,
+           params: {
+             data: {
+               uuid: session.uuid,
+               title: session.title,
+               tag_list: session.tag_list.to_s,
+               notes: [],
+               streams: {
+                 ignored_key: {
+                   sensor_package_name: stream.sensor_package_name,
+                   sensor_name: stream.sensor_name,
+                   deleted: true
+                 }
+               }
+             }.to_json
+           }
+      session.reload
+
+      expect(session.streams).to eq([])
+    end
+
+    it "updates note's text" do
+      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      note = create_note!(session: session)
+      new_text = 'new text'
+
+      post :update_session,
+           params: {
+             data: {
+               uuid: session.uuid,
+               title: session.title,
+               tag_list: session.tag_list.to_s,
+               notes: [{ number: note.number, text: new_text }],
+               streams: {}
+             }.to_json
+           }
+
+      expected = session.notes.first
+
+      expect(expected.text).to eq(new_text)
+    end
+
+    it 'deletes notes that are not present in the mobile app' do
+      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      note = create_note!(session: session)
+
+      post :update_session,
+           params: {
+             data: {
+               uuid: session.uuid,
+               title: session.title,
+               tag_list: session.tag_list.to_s,
+               notes: [],
+               streams: {}
+             }.to_json
+           }
+
+      expect(session.notes).to eq([])
+    end
+
+    it 'returns bumped session version' do
+      session = create_session!(version: 1)
+      post :update_session,
+           params: {
+             data: {
+               uuid: session.uuid,
+               title: session.title,
+               tag_list: session.tag_list.to_s,
+               notes: [],
+               streams: {}
+             }.to_json
+           }
+
+      session.reload
+
+      expect(json_response).to include({ version: 2 }.as_json)
+    end
+  end
+
+  describe '#sync_with_versioning' do
+    it "returns session for upload when it's not present in the db" do
+      post :sync_with_versioning,
+           format: :json, params: { data: session_data2(uuid: 'abc') }
+
+      expected = { 'download' => [], 'upload' => %w[abc], 'deleted' => [] }
+
+      expect(json_response).to eq(expected)
+    end
+
+    it "returns session as deleted when it's already deleted in the db" do
+      session = create_session!(user: user, uuid: 'abc')
+      session.destroy
+
+      post :sync_with_versioning,
+           format: :json, params: { data: session_data2(uuid: 'abc') }
+
+      expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
+
+      expect(json_response).to eq(expected)
+    end
+
+    it 'deletes a session and returns it as deleted if it was mark for deletion' do
+      session = create_session!(user: user, uuid: 'abc')
+
+      post :sync_with_versioning,
+           format: :json,
+           params: { data: session_data2(uuid: 'abc', deleted: true) }
+
+      expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
+
+      expect(user.sessions.count).to eq(0)
+      expect(json_response).to eq(expected)
+    end
+
+    it "returns session for download when present it's in the db, but not in the mobile app" do
+      session = create_session!(user: user, uuid: 'abc')
+      stream = create_stream!(session: session)
+      create_measurements!(stream: stream)
+
+      post :sync_with_versioning, format: :json, params: { data: '[]' }
+
+      expected = { 'download' => %w[abc], 'upload' => [], 'deleted' => [] }
+
+      expect(json_response).to eq(expected)
+    end
+
+    it 'return session for download if newer version is in the db' do
+      session = create_session!(user: user, uuid: 'abc', version: 2)
+      stream = create_stream!(session: session)
+      create_measurements!(stream: stream)
+
+      post :sync_with_versioning,
+           format: :json,
+           params: { data: session_data2(uuid: 'abc', version: 1) }
+
+      expected = { 'download' => %w[abc], 'upload' => [], 'deleted' => [] }
+
+      expect(json_response).to eq(expected)
+    end
+  end
+
   private
+
+  def session_data2(attributes)
+    [
+      {
+        deleted: attributes.fetch(:deleted, false),
+        uuid: attributes.fetch(:uuid, 'uuid'),
+        version: attributes.fetch(:version, 1)
+      }
+    ].to_json
+  end
 
   def session_data(attributes)
     "[

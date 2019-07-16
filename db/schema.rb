@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_11_091153) do
+ActiveRecord::Schema.define(version: 2019_07_16_095427) do
 
   create_table "deleted_sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -95,6 +95,7 @@ ActiveRecord::Schema.define(version: 2019_06_11_091153) do
     t.decimal "latitude", precision: 12, scale: 9
     t.decimal "longitude", precision: 12, scale: 9
     t.datetime "last_measurement_at"
+    t.integer "version", default: 1
     t.index ["contribute"], name: "index_sessions_on_contribute"
     t.index ["end_time"], name: "index_sessions_on_end_time"
     t.index ["end_time_local"], name: "index_sessions_on_end_time_local"
@@ -138,10 +139,10 @@ ActiveRecord::Schema.define(version: 2019_06_11_091153) do
 
   create_table "taggings", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "tag_id"
-    t.string "taggable_type"
     t.integer "taggable_id"
-    t.string "tagger_type"
+    t.string "taggable_type"
     t.integer "tagger_id"
+    t.string "tagger_type"
     t.string "context"
     t.datetime "created_at"
     t.index ["context"], name: "index_taggings_on_context"
