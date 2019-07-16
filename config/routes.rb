@@ -50,6 +50,8 @@ Rails.application.routes.draw do
         end
       end
       get 'sessions/:uuid' => 'user_sessions#show'
+      post 'toggle_streaming_alert' => 'users#settings' # legacy API - supports mobile apps released before 07.2019
+      post 'settings', to: 'users#settings'
     end
     resources :sensors, only: %i[index]
 
