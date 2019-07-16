@@ -167,7 +167,7 @@ describe Api::UserSessionsController do
 
   describe '#update_session' do
     it 'updates session title and tag list' do
-      session = create_session!(title: 'old title', tag_list: 'oldtag' )
+      session = create_session!(title: 'old title', tag_list: 'oldtag')
       new_title = 'new title'
       new_tag_list = 'newtag'
 
@@ -188,8 +188,8 @@ describe Api::UserSessionsController do
     end
 
     it 'deletes streams marked for deletion' do
-      session = create_session!( title: 'old title', tag_list: 'oldtag' )
-      stream = create_stream!( session: session )
+      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      stream = create_stream!(session: session)
 
       post :update_session,
            params: {
@@ -213,8 +213,8 @@ describe Api::UserSessionsController do
     end
 
     it "updates note's text" do
-      session = create_session!( title: 'old title', tag_list: 'oldtag' )
-      note = create_note!( session: session )
+      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      note = create_note!(session: session)
       new_text = 'new text'
 
       post :update_session,
@@ -234,8 +234,8 @@ describe Api::UserSessionsController do
     end
 
     it 'deletes notes that are not present in the mobile app' do
-      session = create_session!( title: 'old title', tag_list: 'oldtag' )
-      note = create_note!( session: session )
+      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      note = create_note!(session: session)
 
       post :update_session,
            params: {
@@ -252,7 +252,7 @@ describe Api::UserSessionsController do
     end
 
     it 'returns bumped session version' do
-      session = create_session!( version: 1 )
+      session = create_session!(version: 1)
       post :update_session,
            params: {
              data: {
@@ -270,9 +270,10 @@ describe Api::UserSessionsController do
     end
   end
 
-  describe '#sync2' do
+  describe '#sync_with_versioning' do
     it "returns session for upload when it's not present in the db" do
-      post :sync2, format: :json, params: { data: session_data2(uuid: 'abc') }
+      post :sync_with_versioning,
+           format: :json, params: { data: session_data2(uuid: 'abc') }
 
       expected = { 'download' => [], 'upload' => %w[abc], 'deleted' => [] }
 
@@ -283,7 +284,8 @@ describe Api::UserSessionsController do
       session = create_session!(user: user, uuid: 'abc')
       session.destroy
 
-      post :sync2, format: :json, params: { data: session_data2(uuid: 'abc') }
+      post :sync_with_versioning,
+           format: :json, params: { data: session_data2(uuid: 'abc') }
 
       expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
 
@@ -293,7 +295,7 @@ describe Api::UserSessionsController do
     it 'deletes a session and returns it as deleted if it was mark for deletion' do
       session = create_session!(user: user, uuid: 'abc')
 
-      post :sync2,
+      post :sync_with_versioning,
            format: :json,
            params: { data: session_data2(uuid: 'abc', deleted: true) }
 
@@ -308,7 +310,7 @@ describe Api::UserSessionsController do
       stream = create_stream!(session: session)
       create_measurements!(stream: stream)
 
-      post :sync2, format: :json, params: { data: '[]' }
+      post :sync_with_versioning, format: :json, params: { data: '[]' }
 
       expected = { 'download' => %w[abc], 'upload' => [], 'deleted' => [] }
 
@@ -320,7 +322,7 @@ describe Api::UserSessionsController do
       stream = create_stream!(session: session)
       create_measurements!(stream: stream)
 
-      post :sync2,
+      post :sync_with_versioning,
            format: :json,
            params: { data: session_data2(uuid: 'abc', version: 1) }
 
@@ -333,10 +335,13 @@ describe Api::UserSessionsController do
   private
 
   def session_data2(attributes)
-    [{  deleted: attributes.fetch(:deleted, false),
-      uuid: attributes.fetch(:uuid, 'uuid'),
-      version: attributes.fetch(:version, 1)
-    }].to_json
+    [
+      {
+        deleted: attributes.fetch(:deleted, false),
+        uuid: attributes.fetch(:uuid, 'uuid'),
+        version: attributes.fetch(:version, 1)
+      }
+    ].to_json
   end
 
   def session_data(attributes)

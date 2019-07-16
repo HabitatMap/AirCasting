@@ -22,7 +22,7 @@ class Api::UserSessionsController < Api::BaseController
     end
   end
 
-  def sync2
+  def sync_with_versioning
     form =
       Api::JsonForm.new(
         json: "{ \"data\": #{params.to_unsafe_hash[:data]} }",

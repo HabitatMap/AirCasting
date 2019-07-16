@@ -62,10 +62,10 @@ class Api::ToUserSessionsHash2
     present_in_database.select do |session_in_database|
       uuids_present_in_params.include?(session_in_database.uuid)
     end.select do |session_in_database|
-        session_in_database.version >
-          present_in_params.detect do |session_in_params|
-            session_in_params.uuid == session_in_database.uuid
-          end.version
+      session_in_database.version >
+        present_in_params.find do |session_in_params|
+          session_in_params.uuid == session_in_database.uuid
+        end.version
     end.pluck(:uuid)
   end
 end

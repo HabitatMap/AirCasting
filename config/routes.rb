@@ -43,7 +43,7 @@ Rails.application.routes.draw do
       resources :sessions, only: %i[show], controller: 'user_sessions' do
         collection do
           post :sync # legacy API - supports mobile apps relesed before 07.2019
-          post :sync2
+          post :sync_with_versioning
           post :update_session
           post :delete_session
           post :delete_session_streams
