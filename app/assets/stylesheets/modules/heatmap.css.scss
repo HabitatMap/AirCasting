@@ -2,16 +2,26 @@
   @include flexbox;
   @include align-items(center);
   @include justify-content(space-between);
-  max-width: calc(100vw - #{$filters-width});
-  min-width: calc(100vw - #{$filters-width});
+  width: calc(100vw - #{$filters-width});
   padding: 0 18px;
   z-index: $heatmap-z-index;
+
+  @media screen and (max-width: $mobile) {
+    display: block;
+    height: 60px;
+    padding-top: 32px;
+    width: 100vw;
+  }
 }
 
 .heatmap-slider {
   flex: 1 1 80%;
   height: 3px;
   margin: 0 14px;
+
+  @media screen and (max-width: $mobile) {
+    margin: 0;
+  }
 }
 
 .heatmap-input {
@@ -27,6 +37,10 @@
     margin: 0 4px;
     width: 54px;
     text-align: center;
+  }
+
+  @media screen and (max-width: $mobile) {
+    display: none;
   }
 }
 
@@ -130,9 +144,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 /* Styling;
  * Giving the connect element a border radius causes issues with using transform: scale
  */
-.noUi-target {
-  background: #fafafa;
-}
+
 .noUi-connects {
   border-radius: 3px;
 }
@@ -241,6 +253,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
   text-align: center;
   white-space: nowrap;
 }
+
 .noUi-horizontal .noUi-tooltip {
   -webkit-transform: translate(-50%, 0);
   transform: translate(-50%, 0);
