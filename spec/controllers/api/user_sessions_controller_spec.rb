@@ -167,7 +167,7 @@ describe Api::UserSessionsController do
 
   describe '#update_session' do
     it 'updates session title and tag list' do
-      session = create_session!({ title: 'old title', tag_list: 'oldtag' })
+      session = create_session!(title: 'old title', tag_list: 'oldtag' )
       new_title = 'new title'
       new_tag_list = 'newtag'
 
@@ -188,8 +188,8 @@ describe Api::UserSessionsController do
     end
 
     it 'deletes streams marked for deletion' do
-      session = create_session!({ title: 'old title', tag_list: 'oldtag' })
-      stream = create_stream!({ session: session })
+      session = create_session!( title: 'old title', tag_list: 'oldtag' )
+      stream = create_stream!( session: session )
 
       post :update_session,
            params: {
@@ -199,7 +199,7 @@ describe Api::UserSessionsController do
                tag_list: session.tag_list.to_s,
                notes: [],
                streams: {
-                 whatever: {
+                 ignored_key: {
                    sensor_package_name: stream.sensor_package_name,
                    sensor_name: stream.sensor_name,
                    deleted: true
@@ -213,8 +213,8 @@ describe Api::UserSessionsController do
     end
 
     it "updates note's text" do
-      session = create_session!({ title: 'old title', tag_list: 'oldtag' })
-      note = create_note!({ session: session })
+      session = create_session!( title: 'old title', tag_list: 'oldtag' )
+      note = create_note!( session: session )
       new_text = 'new text'
 
       post :update_session,
@@ -234,8 +234,8 @@ describe Api::UserSessionsController do
     end
 
     it 'deletes notes that are not present in the mobile app' do
-      session = create_session!({ title: 'old title', tag_list: 'oldtag' })
-      note = create_note!({ session: session })
+      session = create_session!( title: 'old title', tag_list: 'oldtag' )
+      note = create_note!( session: session )
 
       post :update_session,
            params: {
@@ -252,7 +252,7 @@ describe Api::UserSessionsController do
     end
 
     it 'returns bumped session version' do
-      session = create_session!({ version: 1 })
+      session = create_session!( version: 1 )
       post :update_session,
            params: {
              data: {
@@ -333,15 +333,10 @@ describe Api::UserSessionsController do
   private
 
   def session_data2(attributes)
-    "[
-    {  \"deleted\":#{
-      attributes.fetch(:deleted, false)
-    },
-      \"uuid\":\"#{attributes.fetch(:uuid, 'uuid')}\",
-      \"version\":#{
-      attributes.fetch(:version, 1)
-    }}
-    ]"
+    [{  deleted: attributes.fetch(:deleted, false),
+      uuid: attributes.fetch(:uuid, 'uuid'),
+      version: attributes.fetch(:version, 1)
+    }].to_json
   end
 
   def session_data(attributes)

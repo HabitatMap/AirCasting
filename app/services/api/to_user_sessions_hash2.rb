@@ -11,8 +11,8 @@ class Api::ToUserSessionsHash2
 
     Success.new(
       {
-        upload: new_in_mobile_app,
-        download: new_in_db + outdated,
+        upload: new_in_params,
+        download: new_in_database + outdated,
         deleted: deleted
       }
     )
@@ -27,47 +27,45 @@ class Api::ToUserSessionsHash2
   end
 
   def delete_sessions(sessions)
-    user.sessions.where(uuid: sessions.map(&:uuid)).destroy_all
+    user.sessions.where(uuid: sessions.pluck(:uuid)).destroy_all
   end
 
   def deleted
-    DeletedSession.where(user: user, uuid: data.map(&:uuid)).map(&:uuid)
+    DeletedSession.where(user: user, uuid: data.pluck(:uuid)).pluck(:uuid)
   end
 
-  def new_in_mobile_app
-    uuids_present_in_mobile_app - uuids_present_in_db - deleted
+  def new_in_params
+    uuids_present_in_params - uuids_present_in_database - deleted
   end
 
-  def uuids_present_in_mobile_app
-    uuids_present_in_mobile_app ||= present_in_mobile_app.map(&:uuid)
+  def uuids_present_in_params
+    @uuids_present_in_params ||= present_in_params.pluck(:uuid)
   end
 
-  def present_in_mobile_app
-    present_in_mobile_app ||= data.select { |datum| !datum.deleted }
+  def present_in_params
+    @present_in_params ||= data.select { |datum| !datum.deleted }
   end
 
-  def uuids_present_in_db
-    uuids_present_in_db ||= present_in_db.map(&:uuid)
+  def uuids_present_in_database
+    @uuids_present_in_database ||= present_in_database.pluck(:uuid)
   end
 
-  def present_in_db
+  def present_in_database
     user.sessions.select(:uuid, :version)
   end
 
-  def new_in_db
-    uuids_present_in_db - uuids_present_in_mobile_app
+  def new_in_database
+    uuids_present_in_database - uuids_present_in_params
   end
 
   def outdated
-    present_in_db.select do |session_in_db|
-      if uuids_present_in_mobile_app.exclude?(session_in_db.uuid)
-        false
-      else
-        session_in_db.version >
-          present_in_mobile_app.detect do |sessio_in_mobile_app|
-            sessio_in_mobile_app.uuid == session_in_db.uuid
+    present_in_database.select do |session_in_database|
+      uuids_present_in_params.include?(session_in_database.uuid)
+    end.select do |session_in_database|
+        session_in_database.version >
+          present_in_params.detect do |session_in_params|
+            session_in_params.uuid == session_in_database.uuid
           end.version
-      end
-    end.map(&:uuid)
+    end.pluck(:uuid)
   end
 end
