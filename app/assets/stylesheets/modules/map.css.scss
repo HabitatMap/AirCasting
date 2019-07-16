@@ -26,8 +26,12 @@
 }
 
 .map {
-  height: 100vh;
+  min-height: 400px;
   width: 100vw;
+
+  @media screen and (orientation: portrait) {
+    height: calc(100vh - #{$heatmap-height-mobile});
+  }
 
   @media screen and (min-width: $ipad-portrait) {
     height: 100%;
