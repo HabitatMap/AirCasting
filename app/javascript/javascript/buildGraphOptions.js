@@ -213,6 +213,22 @@ const credits = {
   position: { align: "right", verticalAlign: "top", x: -4, y: 32 }
 };
 
+const responsive = {
+  rules: [
+    {
+      condition: {
+        maxWidth: 767
+      },
+      chartOptions: {
+        height: 100,
+        rangeSelector: {
+          enabled: false
+        }
+      }
+    }
+  ]
+};
+
 export const buildOptions = ({
   renderTo,
   buttons,
@@ -243,5 +259,6 @@ export const buildOptions = ({
   xAxis: buildXAxis(xAxis),
   yAxis: buildYAxis({ low, high, ticks }),
   scrollbar: { ...scrollbar, ...scrollbarOptions },
-  credits
+  credits,
+  responsive
 });
