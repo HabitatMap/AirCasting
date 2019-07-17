@@ -51,9 +51,11 @@ header {
   ul li {
     display: inline-block;
     text-align: left;
+    margin-bottom: 0;
 
     @media screen and (max-width: $breakpoint - 1px) {
       display: block;
+      margin-bottom: 0.5rem;
     }
   }
 
@@ -94,6 +96,10 @@ header {
     display: block;
     margin: 0;
     text-align: center;
+  }
+
+  &:hover {
+    text-decoration: underline;
   }
 
   li.active & {
