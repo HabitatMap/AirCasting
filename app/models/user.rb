@@ -34,7 +34,9 @@ class User < ApplicationRecord
   end
 
   def as_json(*args)
-    super(only: %i[id email username authentication_token])
+    super(
+      only: %i[id email username authentication_token session_stopped_alert]
+    )
   end
 
   # Inspired by Devise wiki
