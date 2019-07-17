@@ -8,8 +8,8 @@
     <p>
       Some of your sessions stopped:
       <ul>
-        <% sessions.each do |session| %>
-          <li> title:  <% session.title %> </li>
+        <% @sessions.each do |session| %>
+          <li> <%= session.title %> </li>
         <% end %>
       </ul>
     </p>

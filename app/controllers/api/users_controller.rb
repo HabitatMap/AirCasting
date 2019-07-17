@@ -24,7 +24,7 @@ module Api
     def settings
       puts params
 
-      UserMailer.with(user: current_user, sessions: []).session_stopped_email.deliver_now
+      UserMailer.with(user: current_user).session_stopped_email.deliver_now
 
       form =
         Api::JsonForm.new(
