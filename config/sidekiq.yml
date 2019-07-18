@@ -6,3 +6,8 @@
 :queues:
   - [default, 8]
   - [slow, 2]
+
+:schedule:
+  session_stopped_alerts:
+    every: '30m'
+    class: SessionStoppedAlertsWorker

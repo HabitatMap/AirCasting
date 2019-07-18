@@ -33,7 +33,9 @@ module TestUtils
       latitude: 1.0,
       is_indoor: false,
       version: attributes.fetch(:version, 1),
-      contribute: attributes.fetch(:contribute, true)
+      contribute: attributes.fetch(:contribute, true),
+      last_measurement_at:
+        attributes.fetch(:last_measurement_at, DateTime.current)
     )
   end
 
@@ -99,7 +101,7 @@ module TestUtils
     User.create!(
       id: attributes.fetch(:id, rand(100_000)),
       username: attributes.fetch(:username, "username#{rand}"),
-      email: "email#{rand}@example.com",
+      email: attributes.fetch(:email, "email#{rand}@example.com"),
       password: 'password',
       session_stopped_alert: attributes.fetch(:session_stopped_alert, false)
     )
