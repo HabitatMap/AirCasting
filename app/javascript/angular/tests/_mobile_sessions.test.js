@@ -129,7 +129,7 @@ test("fetch called without arguments assigns default values", t => {
 
   mobileSessionsService.fetch();
 
-  t.deepEqual(sessionsDownloaderCalls[0].limit, 50);
+  t.deepEqual(sessionsDownloaderCalls[0].limit, 100);
   t.deepEqual(sessionsDownloaderCalls[0].offset, 0);
 
   t.end();
@@ -142,11 +142,11 @@ test("fetch called with values passes them to session downloader", t => {
   });
 
   mobileSessionsService.fetch({
-    amount: 100,
+    amount: 101,
     fetchedSessionsCount: 50
   });
 
-  t.deepEqual(sessionsDownloaderCalls[0].limit, 100);
+  t.deepEqual(sessionsDownloaderCalls[0].limit, 101);
   t.deepEqual(sessionsDownloaderCalls[0].offset, 50);
 
   t.end();

@@ -190,7 +190,7 @@ export const fixedSessions = (
 
     fetch: function(values = {}) {
       if (sessionsUtils.isSessionSelected()) return;
-      const limit = values.amount || 50;
+      const limit = values.amount || 100;
       const offset = values.fetchedSessionsCount || 0;
 
       const data = params.get("data");
