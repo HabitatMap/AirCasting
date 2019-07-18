@@ -2,8 +2,9 @@
   @include flexbox;
   @include align-items(center);
   @include justify-content(space-between);
-  width: calc(100vw - #{$filters-width});
+  box-shadow: $footer-shadow;
   padding: 0 18px;
+  width: calc(100vw - #{$filters-width});
   z-index: $heatmap-z-index;
 
   @media screen and (max-width: $mobile) {

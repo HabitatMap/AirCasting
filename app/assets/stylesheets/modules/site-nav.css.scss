@@ -3,14 +3,10 @@ $breakpoint: 780px;
 header {
   @include flexbox();
   background-color: white;
-  box-shadow: 1px 1px 2px 0 rgba(51, 51, 51, 0.2);
+  box-shadow: 1px 1px 2px 0 $shadow-color-dark;
   margin: 0;
   position: relative;
   z-index: 999;
-
-  #elm-app & {
-    box-shadow: none;
-  }
 
   &.menu-collapsed {
     height: $nav-height;

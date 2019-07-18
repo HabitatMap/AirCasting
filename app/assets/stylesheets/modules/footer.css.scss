@@ -1,5 +1,5 @@
 .footer {
-  box-shadow: 0 -5px 3px -4px rgba(51, 51, 51, 0.2);
+  box-shadow: $footer-shadow;
   color: $text-color;
   font-size: $small-font;
   margin-top: 6vh;
