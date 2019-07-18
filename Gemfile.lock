@@ -175,6 +175,8 @@ GEM
     equalizer (0.0.11)
     erubi (1.8.0)
     erubis (2.7.0)
+    et-orbi (1.2.1)
+      tzinfo
     eventmachine (1.2.7)
     execjs (2.7.0)
     factory_bot (5.0.2)
@@ -197,6 +199,9 @@ GEM
     formtastic (3.1.5)
       actionpack (>= 3.2.13)
     formtastic_i18n (0.6.0)
+    fugit (1.2.3)
+      et-orbi (~> 1.1, >= 1.1.8)
+      raabro (~> 1.1)
     geocoder (1.5.0)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
@@ -280,6 +285,7 @@ GEM
     pry-rails (0.3.9)
       pry (>= 0.10.4)
     public_suffix (3.0.3)
+    raabro (1.1.6)
     rack (2.0.7)
     rack-cors (1.0.2)
     rack-protection (1.5.5)
@@ -367,6 +373,8 @@ GEM
       tty-which (~> 0.3.0)
       virtus (~> 1.0)
     rubyzip (1.2.2)
+    rufus-scheduler (3.6.0)
+      fugit (~> 1.1, >= 1.1.6)
     sass (3.7.4)
       sass-listen (~> 4.0.0)
     sass-listen (4.0.0)
@@ -389,6 +397,11 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
+    sidekiq-scheduler (3.0.0)
+      redis (>= 3, < 5)
+      rufus-scheduler (~> 3.2)
+      sidekiq (>= 3)
+      tilt (>= 1.4.0)
     sidekiq-unique-jobs (3.0.12)
       sidekiq (>= 2.6)
     spork (0.9.2)
@@ -496,6 +509,7 @@ DEPENDENCIES
   sassc-rails
   shoulda-matchers
   sidekiq
+  sidekiq-scheduler
   sidekiq-unique-jobs (= 3.0.12)
   spork (~> 0.9.0)
   test-unit (~> 3.0)
