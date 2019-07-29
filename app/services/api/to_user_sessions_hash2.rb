@@ -51,7 +51,16 @@ class Api::ToUserSessionsHash2
   end
 
   def present_in_database
-    user.sessions.select(:uuid, :version)
+    user.sessions.reduce([]) do |acc, session|
+      if (session.streams.count != 0) &&
+         (session.streams.all? { |stream| stream.measurements.count != 0 })
+        acc.push(
+          OpenStruct.new({ uuid: session.uuid, version: session.version })
+        )
+      end
+
+      acc
+    end
   end
 
   def new_in_database
