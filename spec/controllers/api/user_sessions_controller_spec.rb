@@ -15,6 +15,12 @@ describe Api::UserSessionsController do
       expect(json_response).to eq(expected)
     end
 
+    it "doesn't crush when to data provided in the params" do
+      post :sync, format: :json, params: {}
+
+      expect(response).to have_http_status(200)
+    end
+
     it "returns session as deleted when it's already deleted in the db" do
       session = create_session!(user: user, uuid: 'abc')
       session.destroy
