@@ -9,7 +9,7 @@ class Api::UserSessionsController < Api::BaseController
   def sync
     form =
       Api::JsonForm.new(
-        json: "{ \"data\": #{params.to_unsafe_hash[:data]} }",
+        json: to_json_data(params),
         schema: Api::UserSessions::Schema,
         struct: Api::UserSessions::Struct
       )
@@ -25,7 +25,7 @@ class Api::UserSessionsController < Api::BaseController
   def sync_with_versioning
     form =
       Api::JsonForm.new(
-        json: "{ \"data\": #{params.to_unsafe_hash[:data]} }",
+        json: to_json_data(params),
         schema: Api::UserSessions2::Schema,
         struct: Api::UserSessions2::Struct
       )
@@ -125,5 +125,9 @@ class Api::UserSessionsController < Api::BaseController
     notes.map do |note|
       note.as_json.merge(photo_location: photo_location(note))
     end
+  end
+
+  def to_json_data(params)
+    "{ \"data\": #{params.to_unsafe_hash[:data] || []} }"
   end
 end
