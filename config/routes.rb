@@ -1,4 +1,6 @@
 require 'sidekiq/web'
+require 'sidekiq-scheduler/web'
+
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
@@ -50,6 +52,7 @@ Rails.application.routes.draw do
         end
       end
       get 'sessions/:uuid' => 'user_sessions#show'
+      post 'settings', to: 'users#settings'
     end
     resources :sensors, only: %i[index]
 
