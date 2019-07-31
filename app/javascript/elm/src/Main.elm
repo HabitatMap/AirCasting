@@ -263,7 +263,6 @@ type Msg
     | SaveScrollPosition Float
     | SetScrollPosition
     | NoOp
-    | NoOp2 (Result Http.Error ())
     | Timeout Int
     | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
     | ToggleNavExpanded
@@ -348,7 +347,7 @@ update msg model =
         ExportSessions emailFormResult ->
             case emailFormResult of
                 Ok emailForm ->
-                    ( model, ExportSessions.exportCmd emailForm model.sessions NoOp2 )
+                    ( model, ExportSessions.exportCmd emailForm model.sessions ClosePopup )
 
                 Err errors ->
                     ( { model | emailForm = ExportSessions.updateErrors model.emailForm errors }, Cmd.none )
@@ -622,9 +621,6 @@ update msg model =
             ( model, setScrollPosition model.scrollPosition )
 
         NoOp ->
-            ( model, Cmd.none )
-
-        NoOp2 _ ->
             ( model, Cmd.none )
 
         Timeout int ->
