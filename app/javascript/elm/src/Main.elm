@@ -1,11 +1,12 @@
 module Main exposing (Msg(..), defaultModel, update, view)
 
+import Api
 import Browser exposing (..)
 import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
-import Data.ExportSessions as ExportSessions
+import Data.EmailForm as EmailForm
 import Data.GraphData exposing (GraphData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
@@ -76,7 +77,7 @@ type alias Model =
     , isNavExpanded : Bool
     , theme : Theme
     , status : Status
-    , emailForm : ExportSessions.EmailForm
+    , emailForm : EmailForm.EmailForm
     }
 
 
@@ -114,7 +115,7 @@ defaultModel =
     , isNavExpanded = False
     , theme = Theme.default
     , status = Status.default
-    , emailForm = ExportSessions.defaultEmailForm
+    , emailForm = EmailForm.defaultEmailForm
     }
 
 
@@ -233,8 +234,8 @@ type Msg
     | ShowCopyLinkTooltip String
     | ShowPopup ( List String, List String ) String String
     | ShowExportPopup
-    | ExportSessions (Result (List String) (Valid ExportSessions.EmailForm))
-    | UpdateEmail String
+    | ExportSessions (Result (List String) (Valid EmailForm.EmailForm))
+    | UpdateEmailFormValue String
     | SelectSensorId String
     | ClosePopup
     | TogglePopupState
@@ -342,18 +343,23 @@ update msg model =
             ( { model | popup = Popup.SelectFrom items itemType selectedItem, isPopupExtended = False, overlay = Overlay.update (AddOverlay PopupOverlay) model.overlay }, Cmd.none )
 
         ShowExportPopup ->
-            ( { model | popup = Popup.Export }, Cmd.none )
+            ( { model | popup = Popup.EmailForm }, Cmd.none )
 
         ExportSessions emailFormResult ->
             case emailFormResult of
                 Ok emailForm ->
-                    ( model, ExportSessions.exportCmd emailForm model.sessions ClosePopup )
+                    ( model
+                    , Http.get
+                        { url = Api.exportLink (EmailForm.toEmail emailForm) model.sessions
+                        , expect = Http.expectWhatever (\_ -> ClosePopup)
+                        }
+                    )
 
                 Err errors ->
-                    ( { model | emailForm = ExportSessions.updateErrors model.emailForm errors }, Cmd.none )
+                    ( { model | emailForm = EmailForm.updateErrors model.emailForm errors }, Cmd.none )
 
-        UpdateEmail emailForm ->
-            ( { model | emailForm = ExportSessions.updateFormValue emailForm }, Cmd.none )
+        UpdateEmailFormValue emailForm ->
+            ( { model | emailForm = EmailForm.updateFormValue emailForm }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay }, Cmd.none )
@@ -842,7 +848,7 @@ viewMain model =
                 , viewFilters model
                 , viewFiltersButtons model.selectedSession model.sessions model.linkIcon
                 ]
-            , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup (ExportSessions.view model.emailForm ExportSessions NoOp UpdateEmail)
+            , Popup.view (EmailForm.view model.emailForm ExportSessions NoOp UpdateEmailFormValue) TogglePopupState SelectSensorId model.isPopupExtended model.popup
             , viewMap model
             ]
         ]

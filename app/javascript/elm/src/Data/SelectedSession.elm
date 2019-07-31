@@ -9,7 +9,7 @@ module Data.SelectedSession exposing
     , view
     )
 
-import Data.ExportSessions as ExportSessions
+import Data.EmailForm as EmailForm
 import Data.HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
@@ -156,7 +156,7 @@ view session heatMapThresholds linkIcon toMsg showExportPopup =
             , span [ class "single-session__date" ] [ text <| Times.format session.startTime session.endTime ]
             ]
         , div [ class "action-buttons" ]
-            [ button [ class "button button--primary action-button action-button--export", target "_blank", Popup.clickWithoutDefault showExportPopup ] [ text "export session" ]
+            [ button [ class "button button--primary action-button action-button--export", Popup.clickWithoutDefault showExportPopup ] [ text "export session" ]
             , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| toMsg tooltipId, id tooltipId ] [ img [ src (Path.toString linkIcon), alt "Link icon" ] [] ]
             ]
         ]
