@@ -14,21 +14,24 @@ $search-control-width: 300px;
   }
 }
 
+// Zoom and street view controls
 .gm-bundled-control {
-  // Zoom and street view controls
-  right: 35px !important;
-
-  & ~ .gmnoprint {
-    // Map type controls
-    right: 10px !important;
-  }
-
   // Move controls below "Redo search" button on mobile
   @media screen and (max-width: $wider-mobile) {
     top: 75px !important;
 
+    // Map type controls
     & ~ .gmnoprint {
       top: 40px !important;
+    }
+  }
+
+  // Move controls left to make room for scroll wider screens
+  @media screen and (min-width: $wider-mobile + 1px) {
+    right: 35px !important;
+
+    & ~ .gmnoprint {
+      right: 10px !important;
     }
   }
 }
@@ -43,7 +46,6 @@ $search-control-width: 300px;
 
   @media screen and (max-width: $wider-mobile) {
     height: 30px;
-    margin-right: 10px;
   }
 }
 
@@ -65,7 +67,6 @@ $search-control-width: 300px;
     font-size: 14px;
     height: 30px;
     line-height: 30px;
-    margin-right: 10px;
     width: 153px;
   }
 }
