@@ -29,10 +29,15 @@ module Api
     end
 
     def export
-      session_ids = params[:session_ids] || []
-      email = params[:email] || ""
+      form = Api::ParamsForm.new(params: params.to_unsafe_hash, schema: Api::ExportSessions::Schema, struct: Api::ExportSessions::Struct)
 
-      ExportSessionsWorker.perform_async(session_ids, email)
+      result = Api::ScheduleSessionsExport.new(form: form).call
+
+      if result.success?
+        render json: result.value, status: :ok
+      else
+        render json: result.errors, status: :bad_request
+      end
     end
 
     private
