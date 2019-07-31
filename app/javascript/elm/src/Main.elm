@@ -979,7 +979,7 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon =
                     [ text "loading" ]
 
                 Just session ->
-                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ]
+                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ShowExportPopup ]
             )
         , div
             [ class "single-session__graph", id "graph-box" ]
