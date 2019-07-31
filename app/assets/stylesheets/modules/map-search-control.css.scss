@@ -15,6 +15,15 @@ $search-control-width: 300px;
 }
 
 .gm-bundled-control {
+  // Zoom and street view controls
+  right: 35px !important;
+
+  & ~ .gmnoprint {
+    // Map type controls
+    right: 10px !important;
+  }
+
+  // Move controls below "Redo search" button on mobile
   @media screen and (max-width: 850px) {
     top: 75px !important;
 
@@ -34,6 +43,7 @@ $search-control-width: 300px;
 
   @media screen and (max-width: 850px) {
     height: 30px;
+    margin-right: 10px;
   }
 }
 
@@ -55,6 +65,7 @@ $search-control-width: 300px;
     font-size: 14px;
     height: 30px;
     line-height: 30px;
+    margin-right: 10px;
     width: 153px;
   }
 }
