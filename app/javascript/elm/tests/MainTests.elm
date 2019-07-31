@@ -573,7 +573,7 @@ viewTests =
                             |> Result.withDefault (Time.millisToPosix 0)
 
                     selectedSession =
-                        { defaultSelectedSession | startTime = start, endTime = end }
+                        { defaultSelectedSession | startTime = start, endTime = end, selectedMeasurements = [ 1, 4 ] }
                 in
                 { defaultModel | selectedSession = Success selectedSession }
                     |> view
