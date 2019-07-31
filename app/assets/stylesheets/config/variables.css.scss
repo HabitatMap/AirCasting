@@ -87,6 +87,7 @@ $popup-z-index: $full-overlay-z-index + 1;
 // breakpoints
 $ipad-portrait: 768px;
 $mobile: $ipad-portrait - 1px;
+$wider-mobile: 850px;
 
 // other
 $basic-radius: 8px;

@@ -8,7 +8,7 @@ $search-control-width: 300px;
   width: $search-control-width;
   z-index: 1;
 
-  @media screen and (max-width: 850px) {
+  @media screen and (max-width: $wider-mobile) {
     right: 6px;
     width: auto;
   }
@@ -24,7 +24,7 @@ $search-control-width: 300px;
   }
 
   // Move controls below "Redo search" button on mobile
-  @media screen and (max-width: 850px) {
+  @media screen and (max-width: $wider-mobile) {
     top: 75px !important;
 
     & ~ .gmnoprint {
@@ -41,7 +41,7 @@ $search-control-width: 300px;
   height: 25px;
   padding-left: 10px;
 
-  @media screen and (max-width: 850px) {
+  @media screen and (max-width: $wider-mobile) {
     height: 30px;
     margin-right: 10px;
   }
@@ -61,7 +61,7 @@ $search-control-width: 300px;
     padding-left: $input-padding;
   }
 
-  @media screen and (max-width: 850px) {
+  @media screen and (max-width: $wider-mobile) {
     font-size: 14px;
     height: 30px;
     line-height: 30px;
@@ -78,7 +78,7 @@ label[for="checkbox-search-as-i-move"] {
   line-height: 18px;
   padding: 4px 25px 3px 0;
 
-  @media screen and (max-width: 850px) {
+  @media screen and (max-width: $wider-mobile) {
     font-size: 14px;
     padding-right: 16px;
     padding-top: 6px;
