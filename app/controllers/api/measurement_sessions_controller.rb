@@ -33,9 +33,12 @@ module Api
     def export
       GoogleAnalytics.new.register_event('Measurement Sessions#export')
 
-      session_ids = params[:session_ids] || []
-      email = params[:email] || ""
-      form = Api::ParamsForm.new(params: params.to_unsafe_hash, schema: Api::ExportSessions::Schema, struct: Api::ExportSessions::Struct)
+      form =
+        Api::ParamsForm.new(
+          params: params.to_unsafe_hash,
+          schema: Api::ExportSessions::Schema,
+          struct: Api::ExportSessions::Struct
+        )
 
       result = Api::ScheduleSessionsExport.new(form: form).call
 

@@ -16,6 +16,7 @@ module Api::ExportSessions
     transform_keys(&:to_sym)
 
     attribute :email, Types::Strict::String
-    attribute :session_ids, Types::Strict::Array.of(Types::Strict::String).default([])
+    attribute :session_ids,
+              Types::Strict::Array.of(Types::Strict::String).default([])
   end
 end

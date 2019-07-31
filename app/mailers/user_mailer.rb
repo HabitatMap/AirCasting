@@ -9,6 +9,6 @@ class UserMailer < ApplicationMailer
   def export_sessions
     attachments[params[:zip_filename]] = params[:zip_file]
 
-    mail(to: params[:email], subject: "Exported Sessions")
+    mail(to: params[:email], subject: 'Exported Sessions')
   end
 end
