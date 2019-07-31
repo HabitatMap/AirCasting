@@ -33,20 +33,10 @@ module Api
     def export
       GoogleAnalytics.new.register_event('Measurement Sessions#export')
 
-      service = Csv::ExportSessionsToCsv.new
+      session_ids = params[:session_ids] || []
+      email = params[:email] || ""
 
-      begin
-        zip_path = service.call(params[:session_ids] || [])
-        zip_file = File.read(zip_path)
-        zip_filename = File.basename(zip_path)
-
-        send_data zip_file,
-                  type: Mime.fetch(:zip),
-                  filename: zip_filename,
-                  disposition: 'attachment'
-      ensure
-        service.clean
-      end
+      ExportSessionsWorker.perform_async(session_ids, email)
     end
 
     private
