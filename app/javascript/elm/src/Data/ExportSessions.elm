@@ -52,17 +52,20 @@ exportPath =
 
 
 url : List { session | id : Int } -> Valid EmailForm -> String
-url sessions email =
+url sessions emailForm =
     let
         sessionIds =
             String.join "&" << List.map ((++) "session_ids[]=" << String.fromInt << .id)
     in
-    exportPath ++ "?" ++ sessionIds sessions ++ "&" ++ "email=" ++ (fromValid email |> .value)
+    exportPath ++ "?" ++ sessionIds sessions ++ "&" ++ "email=" ++ (fromValid emailForm |> .value)
 
 
-exportCmd : Valid EmailForm -> List { session | id : Int } -> (Result Http.Error () -> msg) -> Cmd msg
-exportCmd email sessions onSuccess =
-    Http.get { url = url sessions email, expect = Http.expectWhatever onSuccess }
+exportCmd : Valid EmailForm -> List { session | id : Int } -> msg -> Cmd msg
+exportCmd emailForm sessions afterRequest =
+    Http.get
+        { url = url sessions emailForm
+        , expect = Http.expectWhatever (\_ -> afterRequest)
+        }
 
 
 exportLink : List { session | id : Int } -> String -> String
