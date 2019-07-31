@@ -8,7 +8,7 @@ import Json.Decode as Decode
 
 type Popup
     = SelectFrom ( List String, List String ) String String
-    | Export
+    | EmailForm
     | None
 
 
@@ -17,8 +17,8 @@ type PopupPart
     | OtherPart
 
 
-view : msg -> (String -> msg) -> Bool -> Popup -> Html msg -> Html msg
-view toggle onSelect isPopupExtended popup viewExportSessions =
+view : Html msg -> msg -> (String -> msg) -> Bool -> Popup -> Html msg
+view viewEmailForm toggle onSelect isPopupExtended popup =
     case popup of
         SelectFrom ( main, others ) itemType selectedItem ->
             case ( List.isEmpty main, List.isEmpty others ) of
@@ -47,8 +47,8 @@ view toggle onSelect isPopupExtended popup viewExportSessions =
                             togglePopupStateButton ("more " ++ itemType) toggle
                         ]
 
-        Export ->
-            viewExportSessions
+        EmailForm ->
+            viewEmailForm
 
         None ->
             text ""

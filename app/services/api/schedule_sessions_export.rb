@@ -8,7 +8,7 @@ class Api::ScheduleSessionsExport
 
     ExportSessionsWorker.perform_async(data.session_ids, data.email)
 
-    Success.new("Export scheduled successfully.")
+    Success.new('Export scheduled successfully.')
   end
 
   private
