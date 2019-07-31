@@ -4,6 +4,7 @@
 :logfile: ./log/sidekiq.log
 :concurrency: 25
 :queues:
+  - [critical, 8]
   - [default, 8]
   - [slow, 2]
 
@@ -11,3 +12,4 @@
   session_stopped_alerts:
     every: '30m'
     class: SessionStoppedAlertsWorker
+    queue: critical
