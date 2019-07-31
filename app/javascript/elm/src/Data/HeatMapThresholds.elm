@@ -115,12 +115,30 @@ extremes { threshold1, threshold5 } =
 
 updateMinimum : Int -> HeatMapThresholds -> HeatMapThresholds
 updateMinimum value heatMapThresholds =
-    { heatMapThresholds | threshold1 = updateThresholdValue value heatMapThresholds.threshold1 }
+    if value + 4 > heatMapThresholds.threshold5.value then
+        { threshold1 = updateThresholdValue value heatMapThresholds.threshold1
+        , threshold2 = updateThresholdValue (value + 1) heatMapThresholds.threshold2
+        , threshold3 = updateThresholdValue (value + 2) heatMapThresholds.threshold3
+        , threshold4 = updateThresholdValue (value + 3) heatMapThresholds.threshold4
+        , threshold5 = updateThresholdValue (value + 4) heatMapThresholds.threshold5
+        }
+
+    else
+        { heatMapThresholds | threshold1 = updateThresholdValue value heatMapThresholds.threshold1 }
 
 
 updateMaximum : Int -> HeatMapThresholds -> HeatMapThresholds
 updateMaximum value heatMapThresholds =
-    { heatMapThresholds | threshold5 = updateThresholdValue value heatMapThresholds.threshold5 }
+    if heatMapThresholds.threshold1.value > value - 4 then
+        { threshold1 = updateThresholdValue (value - 4) heatMapThresholds.threshold1
+        , threshold2 = updateThresholdValue (value - 3) heatMapThresholds.threshold2
+        , threshold3 = updateThresholdValue (value - 2) heatMapThresholds.threshold3
+        , threshold4 = updateThresholdValue (value - 1) heatMapThresholds.threshold4
+        , threshold5 = updateThresholdValue value heatMapThresholds.threshold5
+        }
+
+    else
+        { heatMapThresholds | threshold5 = updateThresholdValue value heatMapThresholds.threshold5 }
 
 
 updateFromValues : HeatMapThresholdValues -> HeatMapThresholds -> HeatMapThresholds

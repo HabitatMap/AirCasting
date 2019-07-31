@@ -2,40 +2,44 @@ module Data.HeatMapThresholdsTests exposing (suite)
 
 import Data.HeatMapThresholds exposing (HeatMapThresholds, Threshold, toValues, updateMaximum, updateMinimum)
 import Expect
-import Fuzz exposing (int)
 import Test exposing (..)
-
-
-defaultThreshold : Threshold
-defaultThreshold =
-    { value = 1, default = 2 }
 
 
 thresholds : HeatMapThresholds
 thresholds =
-    { threshold1 = defaultThreshold
-    , threshold2 = defaultThreshold
-    , threshold3 = defaultThreshold
-    , threshold4 = defaultThreshold
-    , threshold5 = defaultThreshold
+    { threshold1 = { value = 1, default = 2 }
+    , threshold2 = { value = 2, default = 2 }
+    , threshold3 = { value = 3, default = 2 }
+    , threshold4 = { value = 4, default = 2 }
+    , threshold5 = { value = 5, default = 2 }
     }
 
 
 suite : Test
 suite =
     describe "Data.HeatMapThresholds"
-        [ fuzz2 int int "updateMinimum, updateMaximum and extremes" <|
-            \threshold1 threshold5 ->
-                let
-                    values =
-                        toValues thresholds
-
-                    expected =
-                        { values | threshold1 = threshold1, threshold5 = threshold5 }
-                in
+        [ test "updateMinimum adjusts other thresholds if they are smaller than the new value" <|
+            \_ ->
                 thresholds
-                    |> updateMinimum threshold1
-                    |> updateMaximum threshold5
+                    |> updateMinimum 6
                     |> toValues
-                    |> Expect.equal expected
+                    |> Expect.equal
+                        { threshold1 = 6
+                        , threshold2 = 7
+                        , threshold3 = 8
+                        , threshold4 = 9
+                        , threshold5 = 10
+                        }
+        , test "updateMaximum adjusts other thresholds if they are bigger than the new value" <|
+            \_ ->
+                thresholds
+                    |> updateMaximum 4
+                    |> toValues
+                    |> Expect.equal
+                        { threshold1 = 0
+                        , threshold2 = 1
+                        , threshold3 = 2
+                        , threshold4 = 3
+                        , threshold5 = 4
+                        }
         ]

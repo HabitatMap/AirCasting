@@ -781,9 +781,15 @@ updateTests =
                     |> update (ToggleSessionSelectionFromAngular Nothing)
                     |> Tuple.first
                     |> Expect.equal expected
-        , fuzz2 int int "with valid int and loaded heatMapThresholds UpdateHeatMapMinimum updates the minimum" <|
-            \oldMin newMin ->
+        , test "with valid int and loaded heatMapThresholds UpdateHeatMapMinimum updates the minimum" <|
+            \_ ->
                 let
+                    oldMin =
+                        0
+
+                    newMin =
+                        -5
+
                     int =
                         String.fromInt newMin
 
@@ -797,9 +803,15 @@ updateTests =
                     |> update (UpdateHeatMapMinimum int)
                     |> Tuple.first
                     |> Expect.equal expected
-        , fuzz2 int int "with valid int and loaded heatMapThresholds UpdateHeatMapMaximum updates the maximum" <|
-            \oldMax newMax ->
+        , test "with valid int and loaded heatMapThresholds UpdateHeatMapMaximum updates the maximum" <|
+            \_ ->
                 let
+                    oldMax =
+                        10
+
+                    newMax =
+                        5
+
                     int =
                         String.fromInt newMax
 
