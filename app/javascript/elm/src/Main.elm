@@ -1,11 +1,11 @@
 module Main exposing (Msg(..), defaultModel, update, view)
 
-import Api
 import Browser exposing (..)
 import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
+import Data.ExportSessions as ExportSessions
 import Data.GraphData exposing (GraphData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
@@ -20,6 +20,7 @@ import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, l
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, title, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel, role)
 import Html.Events as Events
+import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
 import LabelsInput
@@ -35,6 +36,7 @@ import Task
 import TimeRange exposing (TimeRange)
 import Tooltip
 import Url exposing (Url)
+import Validate exposing (Valid)
 
 
 
@@ -74,6 +76,7 @@ type alias Model =
     , isNavExpanded : Bool
     , theme : Theme
     , status : Status
+    , emailForm : ExportSessions.EmailForm
     }
 
 
@@ -111,6 +114,7 @@ defaultModel =
     , isNavExpanded = False
     , theme = Theme.default
     , status = Status.default
+    , emailForm = ExportSessions.defaultEmailForm
     }
 
 
@@ -228,6 +232,9 @@ type Msg
     | RefreshTimeRange
     | ShowCopyLinkTooltip String
     | ShowPopup ( List String, List String ) String String
+    | ShowExportPopup
+    | ExportSessions (Result (List String) (Valid ExportSessions.EmailForm))
+    | UpdateEmail String
     | SelectSensorId String
     | ClosePopup
     | TogglePopupState
@@ -256,6 +263,7 @@ type Msg
     | SaveScrollPosition Float
     | SetScrollPosition
     | NoOp
+    | NoOp2 (Result Http.Error ())
     | Timeout Int
     | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
     | ToggleNavExpanded
@@ -333,6 +341,20 @@ update msg model =
 
         ShowPopup items itemType selectedItem ->
             ( { model | popup = Popup.SelectFrom items itemType selectedItem, isPopupExtended = False, overlay = Overlay.update (AddOverlay PopupOverlay) model.overlay }, Cmd.none )
+
+        ShowExportPopup ->
+            ( { model | popup = Popup.Export }, Cmd.none )
+
+        ExportSessions emailFormResult ->
+            case emailFormResult of
+                Ok emailForm ->
+                    ( model, ExportSessions.exportCmd emailForm model.sessions NoOp2 )
+
+                Err errors ->
+                    ( { model | emailForm = ExportSessions.updateErrors model.emailForm errors }, Cmd.none )
+
+        UpdateEmail emailForm ->
+            ( { model | emailForm = ExportSessions.updateFormValue emailForm }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay }, Cmd.none )
@@ -602,6 +624,9 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
+        NoOp2 _ ->
+            ( model, Cmd.none )
+
         Timeout int ->
             if int == model.debouncingCounter then
                 ( { model | debouncingCounter = 0 }, Ports.updateResolution (51 - BoundedInteger.getValue model.crowdMapResolution) )
@@ -821,7 +846,7 @@ viewMain model =
                 , viewFilters model
                 , viewFiltersButtons model.selectedSession model.sessions model.linkIcon
                 ]
-            , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup
+            , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup (ExportSessions.view model.emailForm ExportSessions NoOp UpdateEmail)
             , viewMap model
             ]
         ]
@@ -977,7 +1002,7 @@ viewFiltersButtons selectedSession sessions linkIcon =
                     "copy-link-tooltip"
             in
             div [ class "filters__actions action-buttons" ]
-                [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
+                [ button [ class "button button--primary action-button action-button--export", Popup.clickWithoutDefault ShowExportPopup ] [ text "export sessions" ]
                 , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
                     [ img [ src <| Path.toString linkIcon, alt "Link icon" ] [] ]
                 ]
