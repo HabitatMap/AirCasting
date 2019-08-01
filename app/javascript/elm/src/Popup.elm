@@ -1,4 +1,4 @@
-module Popup exposing (Popup(..), clickWithoutDefault, view)
+module Popup exposing (Popup(..), PopupStatus(..), clickWithoutDefault, isParameterPopupShown, isSensorPopupShown, view)
 
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, classList, id)
@@ -14,6 +14,12 @@ type Popup
 type PopupPart
     = MainPart
     | OtherPart
+
+
+type PopupStatus
+    = ParameterPopupShown
+    | SensorPopupShown
+    | PopupHidden
 
 
 view : msg -> (String -> msg) -> Bool -> Popup -> Html msg
@@ -96,3 +102,29 @@ preventDefault msg =
     , stopPropagation = True
     , preventDefault = True
     }
+
+
+isParameterPopupShown : PopupStatus -> Bool
+isParameterPopupShown popupStatus =
+    case popupStatus of
+        ParameterPopupShown ->
+            True
+
+        SensorPopupShown ->
+            False
+
+        PopupHidden ->
+            False
+
+
+isSensorPopupShown : PopupStatus -> Bool
+isSensorPopupShown popupStatus =
+    case popupStatus of
+        ParameterPopupShown ->
+            False
+
+        SensorPopupShown ->
+            True
+
+        PopupHidden ->
+            False

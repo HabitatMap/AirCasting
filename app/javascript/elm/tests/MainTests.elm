@@ -88,7 +88,7 @@ parameterSensorFilter =
         , test "when ShowPopup is triggered popup is shown" <|
             \_ ->
                 defaultModel
-                    |> update (ShowPopup ( [], [] ) "" "")
+                    |> update (ShowPopup ( [], [] ) "" "" Popup.ParameterPopupShown)
                     |> Tuple.first
                     |> view
                     |> Query.fromHtml
