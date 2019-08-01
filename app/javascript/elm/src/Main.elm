@@ -346,11 +346,20 @@ update msg model =
             ( { model | popup = Popup.EmailForm }, Cmd.none )
 
         ExportSessions emailFormResult ->
+            let
+                toExport =
+                    case model.selectedSession of
+                        Success session ->
+                            [ { id = session.id } ]
+
+                        _ ->
+                            List.map (\session -> { id = session.id }) model.sessions
+            in
             case emailFormResult of
                 Ok emailForm ->
                     ( model
                     , Http.get
-                        { url = Api.exportLink (EmailForm.toEmail emailForm) model.sessions
+                        { url = Api.exportLink (EmailForm.toEmail emailForm) toExport
                         , expect = Http.expectWhatever (\_ -> ClosePopup)
                         }
                     )
