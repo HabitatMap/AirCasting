@@ -1081,6 +1081,7 @@ viewFixedFilters model =
     div [ class "filters-container" ]
         [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupExtended model.popup model.popupStatus
         , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupExtended model.popup model.popupStatus
+        , viewLocationFilter model.location model.isIndoor model.tooltipIcon
         , TimeRange.view RefreshTimeRange model.status model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
