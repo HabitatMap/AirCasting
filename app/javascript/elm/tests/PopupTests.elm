@@ -24,27 +24,23 @@ popups =
                     itemsHtml =
                         List.map (\item -> Slc.containing [ Slc.text item ]) items
                 in
-                Popup.SelectFrom ( items, [] ) "" ""
-                    |> view Toggle Select False
+                viewListPopup Toggle Select False ( items, [] ) "" ""
                     |> Query.fromHtml
                     |> Query.has [ Slc.all itemsHtml ]
         , fuzz3 string (list string) (list string) "popup shows only main items when not extended" <|
             \mainItem mainItems otherItems ->
-                Popup.SelectFrom ( mainItem :: mainItems, otherItems ) "" ""
-                    |> view Toggle Select False
+                viewListPopup Toggle Select False ( mainItem :: mainItems, otherItems ) "" ""
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.class "test-filter-popup-button" ]
                     |> Query.count (Expect.equal (List.length mainItems + 1))
         , test "if there are no others items popup doesn't have a toggle popup button" <|
             \_ ->
-                Popup.SelectFrom ( [], [] ) "" ""
-                    |> view Toggle Select False
+                viewListPopup Toggle Select False ( [], [] ) "" ""
                     |> Query.fromHtml
                     |> Query.hasNot [ Slc.id "toggle-popup-button" ]
         , test "if there are others items popup has a button that triggers TogglePopupState" <|
             \_ ->
-                Popup.SelectFrom ( [ "" ], [ "item" ] ) "" ""
-                    |> view Toggle Select False
+                viewListPopup Toggle Select False ( [ "" ], [ "item" ] ) "" ""
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "toggle-popup-button" ]
                     |> Event.simulate Event.click
@@ -55,23 +51,20 @@ popups =
                     numberOfItems =
                         List.length mainItems + List.length otherItems
                 in
-                Popup.SelectFrom ( mainItems, otherItems ) "" ""
-                    |> view Toggle Select True
+                viewListPopup Toggle Select True ( mainItems, otherItems ) "" ""
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.class "test-filter-popup-button" ]
                     |> Query.count (Expect.equal numberOfItems)
         , test "clicking on an item executes select function" <|
             \_ ->
-                Popup.SelectFrom ( [ "item" ], [] ) "" ""
-                    |> view Toggle Select False
+                viewListPopup Toggle Select False ( [ "item" ], [] ) "" ""
                     |> Query.fromHtml
                     |> Query.find [ Slc.tag "button", Slc.containing [ Slc.text "item" ] ]
                     |> Event.simulate Event.click
                     |> Event.expect (Select "item")
         , fuzz string "when item is selected it is marked as active" <|
             \mainItem ->
-                Popup.SelectFrom ( [ mainItem ], [] ) "" mainItem
-                    |> view Toggle Select False
+                viewListPopup Toggle Select False ( [ mainItem ], [] ) "" mainItem
                     |> Query.fromHtml
                     |> Query.findAll [ Slc.class "active" ]
                     |> Query.count (Expect.equal 1)

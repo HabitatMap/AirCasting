@@ -48,8 +48,7 @@ type alias Model =
     , fetchableSessionsCount : Int
     , selectedSession : WebData SelectedSession
     , popup : Popup.Popup
-    , isPopupExtended : Bool
-    , popupStatus : Popup.PopupStatus
+    , isPopupListExpanded : Bool
     , sensors : List Sensor
     , selectedSensorId : String
     , location : String
@@ -85,8 +84,7 @@ defaultModel =
     , sessions = []
     , fetchableSessionsCount = 0
     , popup = Popup.None
-    , isPopupExtended = False
-    , popupStatus = Popup.PopupHidden
+    , isPopupListExpanded = False
     , sensors = []
     , selectedSensorId = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
     , location = ""
@@ -229,7 +227,7 @@ type Msg
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
     | ShowCopyLinkTooltip String
-    | ShowPopup ( List String, List String ) String String Popup.PopupStatus
+    | ShowListPopup Popup.Popup
     | SelectSensorId String
     | ClosePopup
     | TogglePopupState
@@ -333,14 +331,14 @@ update msg model =
         ShowCopyLinkTooltip tooltipId ->
             ( model, Ports.showCopyLinkTooltip tooltipId )
 
-        ShowPopup items itemType selectedItem popupStatus ->
-            ( { model | popup = Popup.SelectFrom items itemType selectedItem, isPopupExtended = False, overlay = Overlay.update (AddOverlay PopupOverlay) model.overlay, popupStatus = popupStatus }, Cmd.none )
+        ShowListPopup popup ->
+            ( { model | popup = popup, isPopupListExpanded = False, overlay = Overlay.update (AddOverlay PopupOverlay) model.overlay }, Cmd.none )
 
         ClosePopup ->
-            ( { model | popup = Popup.None, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay, popupStatus = Popup.PopupHidden }, Cmd.none )
+            ( { model | popup = Popup.None, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay }, Cmd.none )
 
         TogglePopupState ->
-            ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
+            ( { model | isPopupListExpanded = not model.isPopupListExpanded }, Cmd.none )
 
         SelectSensorId value ->
             let
@@ -1066,8 +1064,8 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     div [ class "filters-container" ]
-        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupExtended model.popup model.popupStatus
-        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupExtended model.popup model.popupStatus
+        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
+        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
         , TimeRange.view RefreshTimeRange Dormant model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter model.tooltipIcon
@@ -1079,8 +1077,8 @@ viewMobileFilters model =
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     div [ class "filters-container" ]
-        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupExtended model.popup model.popupStatus
-        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupExtended model.popup model.popupStatus
+        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
+        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
         , TimeRange.view RefreshTimeRange model.status model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
@@ -1116,8 +1114,8 @@ viewToggleButton label isPressed callback =
         [ text label ]
 
 
-viewParameterFilter : List Sensor -> String -> Path -> Bool -> Popup.Popup -> Popup.PopupStatus -> Html Msg
-viewParameterFilter sensors selectedSensorId tooltipIcon isPopupExtended popup popupStatus =
+viewParameterFilter : List Sensor -> String -> Path -> Bool -> Popup.Popup -> Html Msg
+viewParameterFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup =
     div [ class "filters__input-group" ]
         [ input
             [ id "parameter"
@@ -1126,28 +1124,19 @@ viewParameterFilter sensors selectedSensorId tooltipIcon isPopupExtended popup p
             , placeholder "parameter"
             , type_ "text"
             , name "parameter"
-            , Popup.clickWithoutDefault (ShowPopup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId) Popup.ParameterPopupShown)
+            , Popup.clickWithoutDefault (ShowListPopup Popup.ParameterList)
             , value (Sensor.parameterForId sensors selectedSensorId)
             , autocomplete False
             ]
             []
         , label [ for "parameter" ] [ text "parameter:" ]
         , Tooltip.view Tooltip.parameterFilter tooltipIcon
-        , viewParameterPopup isPopupExtended popup popupStatus
+        , viewListPopup Popup.isParameterPopupShown isPopupListExpanded popup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId)
         ]
 
 
-viewParameterPopup : Bool -> Popup.Popup -> Popup.PopupStatus -> Html Msg
-viewParameterPopup isPopupExtended popup popupStatus =
-    if Popup.isParameterPopupShown popupStatus then
-        Popup.view TogglePopupState SelectSensorId isPopupExtended popup
-
-    else
-        text ""
-
-
-viewSensorFilter : List Sensor -> String -> Path -> Bool -> Popup.Popup -> Popup.PopupStatus -> Html Msg
-viewSensorFilter sensors selectedSensorId tooltipIcon isPopupExtended popup popupStatus =
+viewSensorFilter : List Sensor -> String -> Path -> Bool -> Popup.Popup -> Html Msg
+viewSensorFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup =
     div [ class "filters__input-group" ]
         [ input
             [ id "sensor"
@@ -1156,21 +1145,21 @@ viewSensorFilter sensors selectedSensorId tooltipIcon isPopupExtended popup popu
             , placeholder "sensor"
             , type_ "text"
             , name "sensor"
-            , Popup.clickWithoutDefault (ShowPopup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId) Popup.SensorPopupShown)
+            , Popup.clickWithoutDefault (ShowListPopup Popup.SensorList)
             , value (Sensor.sensorLabelForId sensors selectedSensorId)
             , autocomplete False
             ]
             []
         , label [ for "sensor" ] [ text "sensor:" ]
         , Tooltip.view Tooltip.sensorFilter tooltipIcon
-        , viewSensorPopup isPopupExtended popup popupStatus
+        , viewListPopup Popup.isSensorPopupShown isPopupListExpanded popup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId)
         ]
 
 
-viewSensorPopup : Bool -> Popup.Popup -> Popup.PopupStatus -> Html Msg
-viewSensorPopup isPopupExtended popup popupStatus =
-    if Popup.isSensorPopupShown popupStatus then
-        Popup.view TogglePopupState SelectSensorId isPopupExtended popup
+viewListPopup : (Popup.Popup -> Bool) -> Bool -> Popup.Popup -> ( List String, List String ) -> String -> String -> Html Msg
+viewListPopup isShown isPopupListExpanded popup items itemType selectedItem =
+    if isShown popup then
+        Popup.viewListPopup TogglePopupState SelectSensorId isPopupListExpanded items itemType selectedItem
 
     else
         text ""

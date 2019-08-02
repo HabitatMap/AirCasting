@@ -1,4 +1,4 @@
-module Popup exposing (Popup(..), PopupStatus(..), clickWithoutDefault, isParameterPopupShown, isSensorPopupShown, view)
+module Popup exposing (Popup(..), clickWithoutDefault, isParameterPopupShown, isSensorPopupShown, viewListPopup)
 
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, classList, id)
@@ -7,7 +7,8 @@ import Json.Decode as Decode
 
 
 type Popup
-    = SelectFrom ( List String, List String ) String String
+    = ParameterList
+    | SensorList
     | None
 
 
@@ -16,44 +17,33 @@ type PopupPart
     | OtherPart
 
 
-type PopupStatus
-    = ParameterPopupShown
-    | SensorPopupShown
-    | PopupHidden
+viewListPopup : msg -> (String -> msg) -> Bool -> ( List String, List String ) -> String -> String -> Html msg
+viewListPopup toggle onSelect isListExpanded ( main, others ) itemType selectedItem =
+    case ( List.isEmpty main, List.isEmpty others ) of
+        ( True, _ ) ->
+            div [ id "popup", class "filter-popup" ]
+                [ selectableItems MainPart others onSelect selectedItem ]
 
+        ( False, True ) ->
+            div [ id "popup", class "filter-popup" ]
+                [ selectableItems MainPart main onSelect selectedItem
+                ]
 
-view : msg -> (String -> msg) -> Bool -> Popup -> Html msg
-view toggle onSelect isPopupExtended popup =
-    case popup of
-        SelectFrom ( main, others ) itemType selectedItem ->
-            case ( List.isEmpty main, List.isEmpty others ) of
-                ( True, _ ) ->
-                    div [ id "popup", class "filter-popup" ]
-                        [ selectableItems MainPart others onSelect selectedItem ]
+        ( False, False ) ->
+            div [ id "popup", class "filter-popup" ]
+                [ selectableItems MainPart main onSelect selectedItem
+                , if List.isEmpty others then
+                    text ""
 
-                ( False, True ) ->
-                    div [ id "popup", class "filter-popup" ]
-                        [ selectableItems MainPart main onSelect selectedItem
+                  else if isListExpanded then
+                    div [ class "filter-popup__more" ]
+                        [ selectableItems OtherPart others onSelect selectedItem
+                        , togglePopupStateButton ("fewer " ++ itemType) toggle
                         ]
 
-                ( False, False ) ->
-                    div [ id "popup", class "filter-popup" ]
-                        [ selectableItems MainPart main onSelect selectedItem
-                        , if List.isEmpty others then
-                            text ""
-
-                          else if isPopupExtended then
-                            div [ class "filter-popup__more" ]
-                                [ selectableItems OtherPart others onSelect selectedItem
-                                , togglePopupStateButton ("fewer " ++ itemType) toggle
-                                ]
-
-                          else
-                            togglePopupStateButton ("more " ++ itemType) toggle
-                        ]
-
-        None ->
-            text ""
+                  else
+                    togglePopupStateButton ("more " ++ itemType) toggle
+                ]
 
 
 togglePopupStateButton : String -> msg -> Html msg
@@ -104,27 +94,21 @@ preventDefault msg =
     }
 
 
-isParameterPopupShown : PopupStatus -> Bool
-isParameterPopupShown popupStatus =
-    case popupStatus of
-        ParameterPopupShown ->
+isParameterPopupShown : Popup -> Bool
+isParameterPopupShown popup =
+    case popup of
+        ParameterList ->
             True
 
-        SensorPopupShown ->
-            False
-
-        PopupHidden ->
+        _ ->
             False
 
 
-isSensorPopupShown : PopupStatus -> Bool
-isSensorPopupShown popupStatus =
-    case popupStatus of
-        ParameterPopupShown ->
-            False
-
-        SensorPopupShown ->
+isSensorPopupShown : Popup -> Bool
+isSensorPopupShown popup =
+    case popup of
+        SensorList ->
             True
 
-        PopupHidden ->
+        _ ->
             False
