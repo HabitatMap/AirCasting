@@ -261,6 +261,7 @@ type Msg
     | UpdateHeatMapMinimum String
     | UpdateHeatMapMaximum String
     | ResetHeatMapToDefaults
+    | FitHeatMap
     | UpdateHeatMapThresholdsFromAngular HeatMapThresholdValues
     | ToggleIsSearchOn
     | MapMoved
@@ -584,6 +585,20 @@ update msg model =
                     let
                         newThresholds =
                             HeatMapThresholds.toDefaults thresholds
+                    in
+                    ( { model | heatMapThresholds = Success newThresholds }
+                    , Ports.updateHeatMapThresholds <| HeatMapThresholds.toValues newThresholds
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        FitHeatMap ->
+            case ( model.heatMapThresholds, model.selectedSession ) of
+                ( Success thresholds, Success session ) ->
+                    let
+                        newThresholds =
+                            HeatMapThresholds.fitThresholds (SelectedSession.measurementBounds session) thresholds
                     in
                     ( { model | heatMapThresholds = Success newThresholds }
                     , Ports.updateHeatMapThresholds <| HeatMapThresholds.toValues newThresholds
@@ -941,6 +956,7 @@ viewMap model =
             model.resetIconBlack
             model.themeIcons
             model.theme
+            model.selectedSession
         ]
 
 
@@ -975,8 +991,8 @@ viewSearchAsIMove model =
                 ]
 
 
-viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Theme.Icons -> Theme -> Html Msg
-viewHeatMap heatMapThresholds sensorUnit resetIcon icons theme =
+viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Theme.Icons -> Theme -> WebData SelectedSession -> Html Msg
+viewHeatMap heatMapThresholds sensorUnit resetIcon icons theme selectedSession =
     let
         ( threshold1, threshold5 ) =
             RemoteData.map HeatMapThresholds.extremes heatMapThresholds
@@ -986,6 +1002,17 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon icons theme =
         [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum
         , div [ id "heatmap", class "heatmap-slider" ] []
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
+        , case selectedSession of
+            Success session ->
+                button
+                    [ ariaLabel "Fit heatmap scale"
+                    , class "heatmap-button"
+                    , Events.onClick <| FitHeatMap
+                    ]
+                    [ text "☆" ]
+
+            _ ->
+                text ""
         , button
             [ ariaLabel "Reset heatmap"
             , class "heatmap-button"

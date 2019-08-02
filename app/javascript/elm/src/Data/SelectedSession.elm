@@ -2,6 +2,7 @@ module Data.SelectedSession exposing
     ( SelectedSession
     , decoder
     , fetch
+    , measurementBounds
     , times
     , toId
     , toStreamIds
@@ -53,6 +54,23 @@ toStreamIds { streamIds } =
 toId : SelectedSession -> Int
 toId { id } =
     id
+
+
+measurementBounds : SelectedSession -> Maybe { min : Float, max : Float }
+measurementBounds session =
+    let
+        maybeMin =
+            List.minimum session.selectedMeasurements
+
+        maybeMax =
+            List.maximum session.selectedMeasurements
+    in
+    case ( maybeMin, maybeMax ) of
+        ( Just min, Just max ) ->
+            Just { min = min, max = max }
+
+        _ ->
+            Nothing
 
 
 millisToPosixDecoder : Decoder Posix

@@ -5,6 +5,7 @@ module Data.HeatMapThresholds exposing
     , Threshold
     , extremes
     , fetch
+    , fitThresholds
     , fromValues
     , rangeFor
     , toDefaults
@@ -106,6 +107,54 @@ toDefaults heatMapThresholds =
     , threshold4 = resetThresholdValueToDefault heatMapThresholds.threshold4
     , threshold5 = resetThresholdValueToDefault heatMapThresholds.threshold5
     }
+
+
+fitThresholds : Maybe { min : Float, max : Float } -> HeatMapThresholds -> HeatMapThresholds
+fitThresholds maybeBounds heatMapThresholds =
+    case maybeBounds of
+        Just bounds ->
+            let
+                min =
+                    floor bounds.min
+
+                max =
+                    ceiling bounds.max
+
+                step =
+                    (max - min) // 4 |> biggest 1
+
+                threshold2 =
+                    min + step
+
+                threshold3 =
+                    threshold2 + step
+
+                threshold4 =
+                    threshold3 + step
+
+                threshold5 =
+                    threshold4 + step |> biggest max
+            in
+            updateFromValues
+                { threshold1 = min
+                , threshold2 = threshold2
+                , threshold3 = threshold3
+                , threshold4 = threshold4
+                , threshold5 = threshold5
+                }
+                heatMapThresholds
+
+        Nothing ->
+            heatMapThresholds
+
+
+biggest : Int -> Int -> Int
+biggest x y =
+    if x > y then
+        x
+
+    else
+        y
 
 
 extremes : HeatMapThresholds -> ( Int, Int )
