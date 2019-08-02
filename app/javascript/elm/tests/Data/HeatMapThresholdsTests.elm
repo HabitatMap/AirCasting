@@ -1,6 +1,6 @@
 module Data.HeatMapThresholdsTests exposing (suite)
 
-import Data.HeatMapThresholds exposing (HeatMapThresholds, Threshold, toValues, updateMaximum, updateMinimum)
+import Data.HeatMapThresholds exposing (HeatMapThresholds, Threshold, fitThresholds, toValues, updateMaximum, updateMinimum)
 import Expect
 import Test exposing (..)
 
@@ -41,5 +41,53 @@ suite =
                         , threshold3 = 2
                         , threshold4 = 3
                         , threshold5 = 4
+                        }
+        , test "fitThresholds sets the thresholds evenly between bounds" <|
+            \_ ->
+                let
+                    bounds =
+                        Just { min = 0.0, max = 40.0 }
+                in
+                thresholds
+                    |> fitThresholds bounds
+                    |> toValues
+                    |> Expect.equal
+                        { threshold1 = 0
+                        , threshold2 = 10
+                        , threshold3 = 20
+                        , threshold4 = 30
+                        , threshold5 = 40
+                        }
+        , test "fitThresholds sets the thresholds 1 point apart if the diff between bounds < 4" <|
+            \_ ->
+                let
+                    bounds =
+                        Just { min = 0.0, max = 3.0 }
+                in
+                thresholds
+                    |> fitThresholds bounds
+                    |> toValues
+                    |> Expect.equal
+                        { threshold1 = 0
+                        , threshold2 = 1
+                        , threshold3 = 2
+                        , threshold4 = 3
+                        , threshold5 = 4
+                        }
+        , test "fitThresholds sets the uppper threshold always bigger than max bound and bootom threshold always smaller than min bound" <|
+            \_ ->
+                let
+                    bounds =
+                        Just { min = 0.9, max = 40.1 }
+                in
+                thresholds
+                    |> fitThresholds bounds
+                    |> toValues
+                    |> Expect.equal
+                        { threshold1 = 0
+                        , threshold2 = 10
+                        , threshold3 = 20
+                        , threshold4 = 30
+                        , threshold5 = 41
                         }
         ]
