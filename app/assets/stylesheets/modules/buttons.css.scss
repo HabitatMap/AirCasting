@@ -33,6 +33,12 @@
   padding: 5px 15px;
 }
 
+.email-export-button {
+  display: inline-block;
+  margin-left: 12px;
+  padding: 7px 35px;
+}
+
 .close-button {
   @include appearance(none);
   cursor: pointer;
