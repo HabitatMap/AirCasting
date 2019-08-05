@@ -1,6 +1,6 @@
 module Data.EmailForm exposing (EmailForm, defaultEmailForm, toEmail, updateErrors, updateFormValue, view)
 
-import Html exposing (Html, button, form, input, text)
+import Html exposing (Html, button, form, input, p, text)
 import Html.Attributes exposing (class, placeholder, value)
 import Html.Events as Events
 import Popup
@@ -22,8 +22,8 @@ emailValidator =
 
 view : EmailForm -> (Result (List String) (Valid EmailForm) -> msg) -> msg -> (String -> msg) -> Html msg
 view emailForm onSubmit noOp updateValue =
-    form [ class "filter-popup" ]
-        [ text "Exported sessions will be emailed within minutes. The email may end up in your spam folder."
+    form [ class "tippy-tooltip light-border-theme filter-popup email-popup" ]
+        [ p [] [ text "Exported sessions will be emailed within minutes. The email may end up in your spam folder." ]
         , input
             [ placeholder "email"
             , Popup.clickWithoutDefault noOp
@@ -32,7 +32,11 @@ view emailForm onSubmit noOp updateValue =
             ]
             []
         , text (String.join " " emailForm.errors)
-        , button [ Popup.clickWithoutDefault <| onSubmit (validate emailValidator emailForm) ] [ text "export" ]
+        , button
+            [ class "button button--primary email-export-button"
+            , Popup.clickWithoutDefault <| onSubmit (validate emailValidator emailForm)
+            ]
+            [ text "export" ]
         ]
 
 
