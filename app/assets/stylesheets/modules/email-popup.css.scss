@@ -1,0 +1,15 @@
+.email-popup {
+  &.tippy-tooltip.light-border-theme {
+    color: initial;
+  }
+}
+
+.email-popup__error-message {
+  font-size: $tiny-font;
+  margin-bottom: 8px;
+}
+
+.email-popup__input {
+  min-width: 12em;
+  max-width: 100%;
+}

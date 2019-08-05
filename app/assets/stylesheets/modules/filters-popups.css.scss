@@ -16,11 +16,6 @@ $popup-background-color: #f7f7f7;
   z-index: $popup-z-index;
 }
 
-// TODO: temporary, fix after merging with responsive popups
-.tippy-tooltip.light-border-theme.email-popup {
-  color: initial;
-}
-
 .filter-popup__list {
   @include flexbox();
   @include flex-direction(row);

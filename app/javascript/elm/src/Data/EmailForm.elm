@@ -25,13 +25,14 @@ view emailForm onSubmit noOp updateValue =
     form [ class "tippy-tooltip light-border-theme filter-popup email-popup" ]
         [ p [] [ text "Exported sessions will be emailed within minutes. The email may end up in your spam folder." ]
         , input
-            [ placeholder "email"
+            [ class "email-popup__input"
+            , placeholder "email"
             , Popup.clickWithoutDefault noOp
             , value emailForm.value
             , Events.onInput updateValue
             ]
             []
-        , text (String.join " " emailForm.errors)
+        , p [ class "email-popup__error-message" ] [ text (String.join " " emailForm.errors) ]
         , button
             [ class "button button--primary email-export-button"
             , Popup.clickWithoutDefault <| onSubmit (validate emailValidator emailForm)
