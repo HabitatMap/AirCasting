@@ -1,11 +1,12 @@
 .email-popup {
-  max-width: 230px;
+  max-width: 227px;
   z-index: $popup-z-index;
 
   &.tippy-tooltip.light-border-theme {
     color: initial;
     position: absolute;
     bottom: 56px;
+    left: 11px;
   }
 }
 
@@ -20,6 +21,5 @@
 }
 
 .email-popup__input {
-  min-width: 12em;
-  max-width: 100%;
+  width: 100%;
 }
