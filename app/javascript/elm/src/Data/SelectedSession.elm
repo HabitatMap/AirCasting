@@ -107,8 +107,8 @@ updateRange result measurements =
             result
 
 
-view : SelectedSession -> WebData HeatMapThresholds -> Path -> (String -> msg) -> msg -> Html msg
-view session heatMapThresholds linkIcon toMsg showExportPopup =
+view : SelectedSession -> WebData HeatMapThresholds -> Path -> (String -> msg) -> msg -> Popup.Popup -> Html msg -> Html msg
+view session heatMapThresholds linkIcon toMsg showExportPopup popup emailForm =
     let
         tooltipId =
             "graph-copy-link-tooltip"
@@ -161,5 +161,10 @@ view session heatMapThresholds linkIcon toMsg showExportPopup =
         , div [ class "action-buttons" ]
             [ button [ class "button button--primary action-button action-button--export", Popup.clickWithoutDefault showExportPopup ] [ text "export session" ]
             , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| toMsg tooltipId, id tooltipId ] [ img [ src (Path.toString linkIcon), alt "Link icon" ] [] ]
+            , if Popup.isEmailFormPopupShown popup then
+                Popup.viewEmailForm emailForm
+
+              else
+                text ""
             ]
         ]

@@ -855,13 +855,8 @@ viewMain model =
             [ div [ class "filters" ]
                 [ viewSessionTypeNav model
                 , viewFilters model
-                , viewFiltersButtons model.selectedSession model.sessions model.linkIcon
+                , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm
                 ]
-            , if Popup.isEmailFormPopupShown model.popup then
-                Popup.viewEmailForm (EmailForm.view model.emailForm ExportSessions NoOp UpdateEmailFormValue)
-
-              else
-                text ""
             , viewMap model
             ]
         ]
@@ -976,10 +971,10 @@ viewSessionsOrSelectedSession model =
                     viewSessions model.fetchableSessionsCount model.sessions model.heatMapThresholds
 
                 Success session ->
-                    viewSelectedSession model.heatMapThresholds (Just session) model.linkIcon
+                    viewSelectedSession model.heatMapThresholds (Just session) model.linkIcon model.popup (EmailForm.view model.emailForm ExportSessions NoOp UpdateEmailFormValue)
 
                 Loading ->
-                    viewSelectedSession model.heatMapThresholds Nothing model.linkIcon
+                    viewSelectedSession model.heatMapThresholds Nothing model.linkIcon model.popup (EmailForm.view model.emailForm ExportSessions NoOp UpdateEmailFormValue)
 
                 Failure _ ->
                     div [] [ text "error!" ]
@@ -987,8 +982,8 @@ viewSessionsOrSelectedSession model =
         ]
 
 
-viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> Html Msg
-viewSelectedSession heatMapThresholds maybeSession linkIcon =
+viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> Popup.Popup -> Html Msg -> Html Msg
+viewSelectedSession heatMapThresholds maybeSession linkIcon popup emailForm =
     div [ class "single-session-container" ]
         [ div [ class "single-session__aside" ]
             (case maybeSession of
@@ -996,7 +991,7 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon =
                     [ text "loading" ]
 
                 Just session ->
-                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ShowExportPopup ]
+                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ShowExportPopup popup emailForm ]
             )
         , div
             [ class "single-session__graph", id "graph-box" ]
@@ -1006,8 +1001,8 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon =
         ]
 
 
-viewFiltersButtons : WebData SelectedSession -> List Session -> Path -> Html Msg
-viewFiltersButtons selectedSession sessions linkIcon =
+viewFiltersButtons : WebData SelectedSession -> List Session -> Path -> Popup.Popup -> EmailForm.EmailForm -> Html Msg
+viewFiltersButtons selectedSession sessions linkIcon popup emailForm =
     case selectedSession of
         NotAsked ->
             let
@@ -1018,6 +1013,11 @@ viewFiltersButtons selectedSession sessions linkIcon =
                 [ button [ class "button button--primary action-button action-button--export", Popup.clickWithoutDefault ShowExportPopup ] [ text "export sessions" ]
                 , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
                     [ img [ src <| Path.toString linkIcon, alt "Link icon" ] [] ]
+                , if Popup.isEmailFormPopupShown popup then
+                    Popup.viewEmailForm (EmailForm.view emailForm ExportSessions NoOp UpdateEmailFormValue)
+
+                  else
+                    text ""
                 ]
 
         _ ->
