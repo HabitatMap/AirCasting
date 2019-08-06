@@ -25,6 +25,7 @@ port module Ports exposing
     , toggleSession
     , toggleSessionSelection
     , toggleTheme
+    , updateGraphYAxis
     , updateHeatMapThresholds
     , updateHeatMapThresholdsFromAngular
     , updateIsHttping
@@ -34,7 +35,7 @@ port module Ports exposing
     , updateTags
     )
 
-import Data.GraphData exposing (GraphData)
+import Data.GraphData exposing (GraphData, GraphHeatData)
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
 import Data.Session exposing (Location)
 import Json.Encode as Encode
@@ -137,3 +138,6 @@ port observeSessionsList : () -> Cmd a
 
 
 port toggleTheme : String -> Cmd a
+
+
+port updateGraphYAxis : GraphHeatData -> Cmd a

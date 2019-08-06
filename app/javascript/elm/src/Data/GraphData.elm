@@ -1,4 +1,4 @@
-module Data.GraphData exposing (GraphData)
+module Data.GraphData exposing (GraphData, GraphHeatData)
 
 
 type alias GraphData =
@@ -6,19 +6,22 @@ type alias GraphData =
         { parameter : String
         , unit : String
         }
-    , heat :
-        { threshold1 : Int
-        , threshold5 : Int
-        , levels :
-            List
-                { from : Int
-                , to : Int
-                , className : String
-                }
-        }
+    , heat : GraphHeatData
     , times :
         { start : Int
         , end : Int
         }
     , streamIds : List Int
+    }
+
+
+type alias GraphHeatData =
+    { threshold1 : Int
+    , threshold5 : Int
+    , levels :
+        List
+            { from : Int
+            , to : Int
+            , className : String
+            }
     }
