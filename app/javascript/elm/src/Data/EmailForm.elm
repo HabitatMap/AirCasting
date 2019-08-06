@@ -39,7 +39,7 @@ view emailForm onSubmit noOp updateValue =
             [ class "button button--primary email-popup__button"
             , Popup.clickWithoutDefault <| onSubmit (validate emailValidator emailForm)
             ]
-            [ text "Export" ]
+            [ text "export" ]
         ]
 
 

@@ -135,7 +135,7 @@ const updateTooltipContent = (link, tooltip) => {
       class='button button--primary copy-link-button'
       data-clipboard-text=${link}
     >
-      Copy
+      copy
     </button>
   `;
 
