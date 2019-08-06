@@ -22,7 +22,7 @@ emailValidator =
 
 view : EmailForm -> (Result (List String) (Valid EmailForm) -> msg) -> msg -> (String -> msg) -> Html msg
 view emailForm onSubmit noOp updateValue =
-    form [ class "tippy-tooltip light-border-theme filter-popup email-popup" ]
+    form [ class "tippy-tooltip light-border-theme email-popup" ]
         [ p [] [ text "Exported sessions will be emailed within minutes. The email may end up in your spam folder." ]
         , input
             [ class "email-popup__input"
@@ -34,10 +34,10 @@ view emailForm onSubmit noOp updateValue =
             []
         , p [ class "email-popup__error-message" ] [ text (String.join " " emailForm.errors) ]
         , button
-            [ class "button button--primary email-export-button"
+            [ class "button button--primary email-popup__button"
             , Popup.clickWithoutDefault <| onSubmit (validate emailValidator emailForm)
             ]
-            [ text "export" ]
+            [ text "Export" ]
         ]
 
 

@@ -1,7 +1,17 @@
 .email-popup {
+  max-width: 230px;
+  z-index: $popup-z-index;
+
   &.tippy-tooltip.light-border-theme {
     color: initial;
+    position: absolute;
+    bottom: 56px;
   }
+}
+
+.email-popup__button {
+  display: block;
+  padding: 5px 15px;
 }
 
 .email-popup__error-message {
