@@ -33,8 +33,9 @@ view emailForm onSubmit noOp updateValue =
             []
         , if emailForm.errors == [] then
             text ""
+
           else
-             p [ class "email-popup__error-message" ] [ text (String.join " " emailForm.errors) ]
+            p [ class "email-popup__error-message" ] [ text (String.join " " emailForm.errors) ]
         , button
             [ class "button button--primary email-popup__button"
             , Popup.clickWithoutDefault <| onSubmit (validate emailValidator emailForm)
