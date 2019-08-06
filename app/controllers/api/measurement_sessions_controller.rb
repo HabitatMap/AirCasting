@@ -1,21 +1,3 @@
-# AirCasting - Share your Air!
-# Copyright (C) 2011-2012 HabitatMap, Inc.
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# You can contact the authors by email at <info@habitatmap.org>
-
 module Api
   class MeasurementSessionsController < BaseController
     # TokenAuthenticatable was removed from Devise in 3.1
@@ -47,19 +29,19 @@ module Api
     end
 
     def export
-      service = Csv::ExportSessionsToCsv.new
+      form =
+        Api::ParamsForm.new(
+          params: params.to_unsafe_hash,
+          schema: Api::ExportSessions::Schema,
+          struct: Api::ExportSessions::Struct
+        )
 
-      begin
-        zip_path = service.call(params[:session_ids] || [])
-        zip_file = File.read(zip_path)
-        zip_filename = File.basename(zip_path)
+      result = Api::ScheduleSessionsExport.new(form: form).call
 
-        send_data zip_file,
-                  type: Mime.fetch(:zip),
-                  filename: zip_filename,
-                  disposition: 'attachment'
-      ensure
-        service.clean
+      if result.success?
+        render json: result.value, status: :ok
+      else
+        render json: result.errors, status: :bad_request
       end
     end
 

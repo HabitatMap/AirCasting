@@ -6,6 +6,7 @@ import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
+import Data.EmailForm as EmailForm
 import Data.GraphData exposing (GraphData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
@@ -20,6 +21,7 @@ import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, l
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, title, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel, role)
 import Html.Events as Events
+import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
 import LabelsInput
@@ -35,6 +37,7 @@ import Task
 import TimeRange exposing (TimeRange)
 import Tooltip
 import Url exposing (Url)
+import Validate exposing (Valid)
 
 
 
@@ -74,6 +77,7 @@ type alias Model =
     , isNavExpanded : Bool
     , theme : Theme
     , status : Status
+    , emailForm : EmailForm.EmailForm
     }
 
 
@@ -111,6 +115,7 @@ defaultModel =
     , isNavExpanded = False
     , theme = Theme.default
     , status = Status.default
+    , emailForm = EmailForm.defaultEmailForm
     }
 
 
@@ -228,6 +233,9 @@ type Msg
     | RefreshTimeRange
     | ShowCopyLinkTooltip String
     | ShowListPopup Popup.Popup
+    | ShowExportPopup
+    | ExportSessions (Result (List String) (Valid EmailForm.EmailForm))
+    | UpdateEmailFormValue String
     | SelectSensorId String
     | ClosePopup
     | TogglePopupState
@@ -333,6 +341,34 @@ update msg model =
 
         ShowListPopup popup ->
             ( { model | popup = popup, isPopupListExpanded = False, overlay = Overlay.update (AddOverlay PopupOverlay) model.overlay }, Cmd.none )
+
+        ShowExportPopup ->
+            ( { model | popup = Popup.EmailForm }, Cmd.none )
+
+        ExportSessions emailFormResult ->
+            let
+                toExport =
+                    case model.selectedSession of
+                        Success session ->
+                            [ { id = session.id } ]
+
+                        _ ->
+                            List.map (\session -> { id = session.id }) model.sessions
+            in
+            case emailFormResult of
+                Ok emailForm ->
+                    ( model
+                    , Http.get
+                        { url = Api.exportLink (EmailForm.toEmail emailForm) toExport
+                        , expect = Http.expectWhatever (\_ -> ClosePopup)
+                        }
+                    )
+
+                Err errors ->
+                    ( { model | emailForm = EmailForm.updateErrors model.emailForm errors }, Cmd.none )
+
+        UpdateEmailFormValue emailForm ->
+            ( { model | emailForm = EmailForm.updateFormValue emailForm }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay }, Cmd.none )
@@ -821,6 +857,11 @@ viewMain model =
                 , viewFilters model
                 , viewFiltersButtons model.selectedSession model.sessions model.linkIcon
                 ]
+            , if Popup.isEmailFormPopupShown model.popup then
+                Popup.viewEmailForm (EmailForm.view model.emailForm ExportSessions NoOp UpdateEmailFormValue)
+
+              else
+                text ""
             , viewMap model
             ]
         ]
@@ -955,7 +996,7 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon =
                     [ text "loading" ]
 
                 Just session ->
-                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ]
+                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ShowExportPopup ]
             )
         , div
             [ class "single-session__graph", id "graph-box" ]
@@ -974,7 +1015,7 @@ viewFiltersButtons selectedSession sessions linkIcon =
                     "copy-link-tooltip"
             in
             div [ class "filters__actions action-buttons" ]
-                [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
+                [ button [ class "button button--primary action-button action-button--export", Popup.clickWithoutDefault ShowExportPopup ] [ text "export sessions" ]
                 , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
                     [ img [ src <| Path.toString linkIcon, alt "Link icon" ] [] ]
                 ]

@@ -1,4 +1,4 @@
-module Popup exposing (Popup(..), clickWithoutDefault, isParameterPopupShown, isSensorPopupShown, viewListPopup)
+module Popup exposing (Popup(..), clickWithoutDefault, isEmailFormPopupShown, isParameterPopupShown, isSensorPopupShown, viewEmailForm, viewListPopup)
 
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, classList, id)
@@ -9,6 +9,7 @@ import Json.Decode as Decode
 type Popup
     = ParameterList
     | SensorList
+    | EmailForm
     | None
 
 
@@ -44,6 +45,11 @@ viewListPopup toggle onSelect isListExpanded ( main, others ) itemType selectedI
                   else
                     togglePopupStateButton ("more " ++ itemType) toggle
                 ]
+
+
+viewEmailForm : Html msg -> Html msg
+viewEmailForm emailForm =
+    emailForm
 
 
 togglePopupStateButton : String -> msg -> Html msg
@@ -108,6 +114,16 @@ isSensorPopupShown : Popup -> Bool
 isSensorPopupShown popup =
     case popup of
         SensorList ->
+            True
+
+        _ ->
+            False
+
+
+isEmailFormPopupShown : Popup -> Bool
+isEmailFormPopupShown popup =
+    case popup of
+        EmailForm ->
             True
 
         _ ->
