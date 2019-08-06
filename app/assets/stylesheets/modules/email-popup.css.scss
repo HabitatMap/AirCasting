@@ -1,4 +1,5 @@
 .email-popup {
+  animation: show-up 125ms ease;
   max-width: 227px;
   z-index: $popup-z-index;
 
