@@ -74,7 +74,7 @@ suite =
                         , threshold4 = 3
                         , threshold5 = 4
                         }
-        , test "fitThresholds sets the uppper threshold always bigger than max bound and bootom threshold always smaller than min bound" <|
+        , test "fitThresholds sets the upper threshold always bigger than max bound and bottom threshold always smaller than min bound" <|
             \_ ->
                 let
                     bounds =

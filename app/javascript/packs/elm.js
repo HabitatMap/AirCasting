@@ -198,6 +198,10 @@ const setupHeatMap = () => {
       draw(graph.fetchAndDrawMobile(callback))
     );
 
+    window.__elmApp.ports.updateGraphYAxis.subscribe(heat => {
+      graph.updateYAxis(heat);
+    });
+
     window.__elmApp.ports.observeSessionsList.subscribe(() => {
       createObserver({
         selector: ".session-cards-container",

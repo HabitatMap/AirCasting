@@ -191,9 +191,6 @@ const draw = ({
 }) => {
   const low = heat.threshold1;
   const high = heat.threshold5;
-  const tick = Math.round((high - low) / 4);
-  const ticks = [low, low + tick, low + 2 * tick, high - tick, high];
-
   const series = [
     {
       name: sensor.parameter,
@@ -209,7 +206,7 @@ const draw = ({
     xAxis,
     low,
     high,
-    ticks,
+    ticks: buildTicks(low, high),
     scrollbar,
     measurementType: sensor.parameter,
     unitSymbol: sensor.unit,
@@ -262,3 +259,25 @@ const getValuesInRange = (data, min, max) =>
   data
     .filter(dataPoint => dataPoint.x >= min && dataPoint.x <= max)
     .map(dataPoint => dataPoint.y);
+
+export const updateYAxis = heat => {
+  const min = heat.threshold1;
+  const max = heat.threshold5;
+  const options = {
+    yAxis: {
+      plotBands: heat.levels,
+      min: min,
+      max: max,
+      tickPositions: buildTicks(min, max)
+    }
+  };
+
+  if (chart) {
+    chart.update(options);
+  }
+};
+
+const buildTicks = (low, high) => {
+  const tick = Math.round((high - low) / 4);
+  return [low, low + tick, low + 2 * tick, high - tick, high];
+};
