@@ -23,8 +23,7 @@ emailValidator =
 view : EmailForm -> (Result (List String) (Valid EmailForm) -> msg) -> msg -> (String -> msg) -> Html msg
 view emailForm onSubmit noOp updateValue =
     form [ class "tippy-tooltip light-border-theme email-popup" ]
-        [ p [] [ text "Exported sessions will be emailed within minutes. The email may end up in your spam folder." ]
-        , input
+        [ input
             [ class "email-popup__input"
             , placeholder "email"
             , Popup.clickWithoutDefault noOp

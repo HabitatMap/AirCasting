@@ -1,6 +1,6 @@
 .email-popup {
   animation: show-up 125ms ease;
-  max-width: 227px;
+  width: 200px;
   z-index: $popup-z-index;
 
   &.tippy-tooltip.light-border-theme {
@@ -13,6 +13,7 @@
 
 .email-popup__button {
   display: block;
+  margin: 0 auto;
   padding: 5px 15px;
 }
 
