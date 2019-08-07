@@ -7,6 +7,7 @@ module Api
     before_action :authenticate_user!, only: %i[create destroy]
 
     def create
+      GoogleAnalytics.new.register_event('Regressions#create')
       session = current_user.sessions.find_by_uuid!(params[:session_uuid])
       ref = session.streams.where(JSON.parse(params[:reference])).first
       target = session.streams.where(JSON.parse(params[:target])).first
@@ -15,11 +16,13 @@ module Api
     end
 
     def index
+      GoogleAnalytics.new.register_event('Regressions#index')
       respond_with Regression.all_with_owner(current_user),
                    methods: %i[is_owner]
     end
 
     def destroy
+      GoogleAnalytics.new.register_event('Regressions#destroy')
       regression = current_user.regressions.find(params[:id])
       regression.destroy
       respond_with regression
