@@ -62,6 +62,7 @@ type alias Model =
     , timeRange : TimeRange
     , isIndoor : Bool
     , navLogo : Path
+    , filterIcon : Path
     , linkIcon : Path
     , menuIcon : Path
     , resetIconBlack : Path
@@ -74,6 +75,7 @@ type alias Model =
     , overlay : Overlay.Model
     , scrollPosition : Float
     , debouncingCounter : Int
+    , areFiltersExpanded : Bool
     , isNavExpanded : Bool
     , theme : Theme
     , status : Status
@@ -100,6 +102,7 @@ defaultModel =
     , isIndoor = False
     , selectedSession = NotAsked
     , navLogo = Path.empty
+    , filterIcon = Path.empty
     , linkIcon = Path.empty
     , menuIcon = Path.empty
     , resetIconBlack = Path.empty
@@ -112,6 +115,7 @@ defaultModel =
     , overlay = Overlay.none
     , scrollPosition = 0
     , debouncingCounter = 0
+    , areFiltersExpanded = False
     , isNavExpanded = False
     , theme = Theme.default
     , status = Status.default
@@ -132,6 +136,7 @@ type alias Flags =
     , sensors : Encode.Value
     , selectedSensorId : String
     , navLogo : String
+    , filterIcon : String
     , linkIcon : String
     , menuIcon : String
     , resetIconBlack : String
@@ -175,6 +180,7 @@ init flags url key =
         , sensors = sensors
         , selectedSensorId = flags.selectedSensorId
         , navLogo = Path.fromString flags.navLogo
+        , filterIcon = Path.fromString flags.filterIcon
         , linkIcon = Path.fromString flags.linkIcon
         , menuIcon = Path.fromString flags.menuIcon
         , resetIconBlack = Path.fromString flags.resetIconBlack
@@ -267,6 +273,7 @@ type Msg
     | Timeout Int
     | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
     | ToggleNavExpanded
+    | ToggleFiltersExpanded
     | ToggleTheme
 
 
@@ -648,6 +655,9 @@ update msg model =
         MaybeUpdateResolution updateResolution ->
             debounce updateResolution model
 
+        ToggleFiltersExpanded ->
+            ( { model | areFiltersExpanded = not model.areFiltersExpanded }, Cmd.none )
+
         ToggleNavExpanded ->
             ( { model | isNavExpanded = not model.isNavExpanded }, Cmd.none )
 
@@ -791,14 +801,16 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ viewNav model.navLogo model.menuIcon model.isNavExpanded
+        [ viewNav model.navLogo model.filterIcon model.menuIcon model.areFiltersExpanded model.isNavExpanded
         , viewMain model
         ]
 
 
-viewNav : Path -> Path -> Bool -> Html Msg
-viewNav navLogo menuIcon isNavExpanded =
-    header [ classList [ ( "menu-collapsed", not isNavExpanded ) ] ]
+viewNav : Path -> Path -> Path -> Bool -> Bool -> Html Msg
+viewNav navLogo filterIcon menuIcon areFiltersExpanded isNavExpanded =
+    header
+        [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
+        ]
         [ div [ class "logo" ]
             [ a
                 [ ariaLabel "Homepage"
@@ -836,6 +848,15 @@ viewNav navLogo menuIcon isNavExpanded =
                 ]
             ]
         , button
+            [ class "nav__menu-button nav__menu-button--filter"
+            , title "Filters"
+            , type_ "button"
+            , ariaLabel "Filters"
+            , Events.onClick ToggleFiltersExpanded
+            ]
+            [ img [ src <| Path.toString filterIcon, alt "Filter icon" ] []
+            ]
+        , button
             [ class "nav__menu-button"
             , title "Menu"
             , type_ "button"
@@ -852,7 +873,12 @@ viewMain model =
     main_
         []
         [ div [ class "maps-page-container" ]
-            [ div [ class "filters" ]
+            [ div
+                [ classList
+                    [ ( "filters", True )
+                    , ( "filters--collapsed", not model.areFiltersExpanded )
+                    ]
+                ]
                 [ viewSessionTypeNav model
                 , viewFilters model
                 , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm

@@ -23,6 +23,10 @@
 .heatmap {
   background: white;
   flex: 1 0 $heatmap-height;
+
+  @media screen and (max-width: $mobile) {
+    position: absolute;
+  }
 }
 
 .map {

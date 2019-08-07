@@ -1,13 +1,23 @@
 .filters {
   background: $brand-secondary;
-  box-shadow: 1px 1px 6px 0 rgba(51, 51, 51, 0.5);
   color: white;
+  min-height: calc(100vh - #{$nav-height});
   position: relative;
   z-index: $popup-z-index;
 
+  @media screen and (max-width: $mobile) {
+    min-height: 100%;
+    position: absolute;
+    transition: transform 200ms ease;
+    width: 100vw;
+
+    &.filters--collapsed {
+      @include transform(translateX(-100%));
+    }
+  }
+
   @media screen and (min-width: $ipad-portrait) {
-    min-height: calc(100vh - #{$nav-height});
-    min-width: $filters-width;
+    box-shadow: 1px 1px 6px 0 rgba(51, 51, 51, 0.5);
     width: $filters-width;
   }
 }
@@ -64,10 +74,4 @@
   border: none;
   text-decoration: underline !important;
   margin: 0 !important;
-}
-
-@media screen and (max-width: $mobile) {
-  .filters {
-    width: 100vw;
-  }
 }

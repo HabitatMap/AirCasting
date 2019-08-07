@@ -79,6 +79,14 @@ header {
   }
 }
 
+.nav__menu-button--filter {
+  right: 30px;
+
+  > img {
+    height: 17px;
+  }
+}
+
 .nav__link {
   color: $text-color;
   display: inline-block;

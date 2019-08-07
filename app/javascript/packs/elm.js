@@ -1,6 +1,7 @@
 import { Elm } from "../elm/src/Main.elm";
 import navLogo from "../../assets/images/aircasting-logo-nav.svg";
 import linkIcon from "../../assets/images/link-icon.svg";
+import filterIcon from "../../assets/images/filter-icon.svg";
 import menuIcon from "../../assets/images/menu-icon.svg";
 import resetIconBlack from "../../assets/images/reset-icon-black.svg";
 import resetIconWhite from "../../assets/images/reset-icon-white.svg";
@@ -93,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         isIndoor: data.isIndoor,
         navLogo,
+        filterIcon,
         linkIcon,
         menuIcon,
         resetIconBlack,

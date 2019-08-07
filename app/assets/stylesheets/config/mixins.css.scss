@@ -9,3 +9,9 @@
   -moz-appearance: $appearance;
   -webkit-appearance: $appearance;
 }
+
+@mixin transform($property) {
+  transform: $property;
+  -ms-transform: $property;
+  -webkit-transform: $property;
+}
