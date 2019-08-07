@@ -19,7 +19,7 @@ class MeasurementSessionsController < ApplicationController
   end
 
   def show_old
-    GoogleAnalytics.new.register_event('Measurement Sessions#show_old')
+    Api::GoogleAnalytics.new.register_event('Measurement Sessions#show_old')
 
     # supports legacy mobile apps relesed before 06.2019
     session = Session.find_by_url_token(params.to_unsafe_hash[:url_token]) or
