@@ -236,11 +236,9 @@ export const map = (
       const pulsatingSessionMarker = this.drawMarker({
         position: position,
         icon: {
-          // anchor formula: margin + (scaledSize / 2) = 24
-          // but we had to add +1 to the second anchor value based on visual feedback
-          anchor: new google.maps.Point(24, 25),
-          size: new google.maps.Size(60, 60),
-          scaledSize: new google.maps.Size(12, 12),
+          // in order to place the center of the marker in the provided position
+          //  anchor = (marker-width/2, marker-height/2) = (50/2, 50/2) = (25, 25)
+          anchor: new google.maps.Point(25, 25),
           url: assets.pulsingLocationMarkerPath
         }
       });
