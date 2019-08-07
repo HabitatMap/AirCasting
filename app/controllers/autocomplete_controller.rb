@@ -18,6 +18,7 @@
 
 class AutocompleteController < ApplicationController
   def tags
+    GoogleAnalytics.new.register_event('Autocomplete#tags')
     q = params[:q]
     render json: [] unless q.present?
 
@@ -30,6 +31,7 @@ class AutocompleteController < ApplicationController
   end
 
   def usernames
+    GoogleAnalytics.new.register_event('Autocomplete#usernames')
     q = params[:q]
     render json: [] unless q.present?
 

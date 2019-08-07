@@ -15,6 +15,8 @@ module Api
     ]
 
     def index
+      GoogleAnalytics.new.register_event('Averages#index')
+
       data = prepareData(params)
 
       data[:time_from] = data[:time_from] || 1.year.ago.to_i
@@ -24,6 +26,8 @@ module Api
     end
 
     def index2
+      GoogleAnalytics.new.register_event('Averages#index2')
+
       data = prepareData(params)
 
       data[:time_from] = data[:time_from] || Time.new(2_010).to_i

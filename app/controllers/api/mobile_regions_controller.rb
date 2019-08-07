@@ -4,6 +4,7 @@ module Api
     INT_Q_ATTRS = %i[time_from time_to grid_size_x grid_size_y]
 
     def show
+      GoogleAnalytics.new.register_event('Mobile regions#show')
       data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
       data[:session_ids] ||= []
 
