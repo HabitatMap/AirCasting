@@ -250,7 +250,7 @@ type Msg
     | ToggleIsSearchOn
     | MapMoved
     | FetchSessions
-    | HighlightSessionMarker (Maybe Location)
+    | HighlightSessionMarker (Maybe Session)
     | GraphRangeSelected (List Float)
     | UpdateIsShowingTimeRangeFilter Bool
     | SaveScrollPosition Float
@@ -579,8 +579,15 @@ update msg model =
         FetchSessions ->
             ( model, Ports.fetchSessions () )
 
-        HighlightSessionMarker location ->
-            ( model, Ports.pulseSessionMarker location )
+        HighlightSessionMarker maybeSession ->
+            ( model
+            , Ports.pulseSessionMarker <|
+                Maybe.map
+                    (\session ->
+                        { location = session.location, id = session.id }
+                    )
+                    maybeSession
+            )
 
         GraphRangeSelected measurements ->
             ( { model | selectedSession = SelectedSession.updateRange model.selectedSession measurements }, Cmd.none )
@@ -1037,7 +1044,7 @@ viewSessionCard heatMapThresholds session =
     div
         [ class "session"
         , Events.onClick <| ToggleSessionSelection session.id
-        , Events.onMouseEnter <| HighlightSessionMarker (Just session.location)
+        , Events.onMouseEnter <| HighlightSessionMarker (Just session)
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]
         [ div
