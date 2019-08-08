@@ -13,6 +13,20 @@ header {
     overflow: hidden;
   }
 
+  @media screen and (max-width: $breakpoint - 1px) {
+    &:not(.menu-collapsed) {
+      box-shadow: none;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      width: 100%;
+    }
+
+    &:not(.menu-collapsed) + main {
+      display: none;
+    }
+  }
+
   @media screen and (min-width: $breakpoint) {
     height: $nav-height;
   }
@@ -33,10 +47,6 @@ header {
   ul {
     margin: 0;
     padding: 0 10px 0 4px;
-
-    @media screen and (max-width: 667px) {
-      min-height: calc(100vh - $nav-height);
-    }
 
     @media screen and (max-width: $breakpoint - 1px) {
       margin: 0;
