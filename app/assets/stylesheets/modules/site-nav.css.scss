@@ -35,7 +35,7 @@ header {
     padding: 0 10px 0 4px;
 
     @media screen and (max-width: 667px) {
-      height: 100vh;
+      min-height: 100vh;
     }
 
     @media screen and (max-width: $breakpoint - 1px) {
