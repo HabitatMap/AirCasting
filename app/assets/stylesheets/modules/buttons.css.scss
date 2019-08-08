@@ -33,6 +33,11 @@
   padding: 5px 15px;
 }
 
+.email-export-button {
+  display: block;
+  padding: 5px 15px;
+}
+
 .close-button {
   @include appearance(none);
   cursor: pointer;

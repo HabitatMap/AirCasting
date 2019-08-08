@@ -12,9 +12,9 @@ development:
 staging:
   <<: *defaults
   host: aircasting.demo.llp.pl
-  mailer_from: "Aircasting <noreply@aircasting.demo.llp.pl>"
+  mailer_from: "AirCasting <noreply@aircasting.demo.llp.pl>"
 
 production:
   <<: *defaults
   host: aircasting.org
-  mailer_from: "Aircasting <noreply@aircasting.org>"
+  mailer_from: "AirCasting <noreply@aircasting.org>"

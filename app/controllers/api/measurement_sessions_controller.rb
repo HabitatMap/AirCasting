@@ -33,19 +33,19 @@ module Api
     def export
       GoogleAnalytics.new.register_event('Measurement Sessions#export')
 
-      service = Csv::ExportSessionsToCsv.new
+      form =
+        Api::ParamsForm.new(
+          params: params.to_unsafe_hash,
+          schema: Api::ExportSessions::Schema,
+          struct: Api::ExportSessions::Struct
+        )
 
-      begin
-        zip_path = service.call(params[:session_ids] || [])
-        zip_file = File.read(zip_path)
-        zip_filename = File.basename(zip_path)
+      result = Api::ScheduleSessionsExport.new(form: form).call
 
-        send_data zip_file,
-                  type: Mime.fetch(:zip),
-                  filename: zip_filename,
-                  disposition: 'attachment'
-      ensure
-        service.clean
+      if result.success?
+        render json: result.value, status: :ok
+      else
+        render json: result.errors, status: :bad_request
       end
     end
 

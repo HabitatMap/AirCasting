@@ -9,7 +9,7 @@ module Data.SelectedSession exposing
     , view
     )
 
-import Api
+import Data.EmailForm as EmailForm
 import Data.HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
@@ -21,6 +21,7 @@ import Html.Events as Events
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Decode.Pipeline exposing (hardcoded, required)
+import Popup
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import Time exposing (Posix)
@@ -106,8 +107,8 @@ updateRange result measurements =
             result
 
 
-view : SelectedSession -> WebData HeatMapThresholds -> Path -> (String -> msg) -> Html msg
-view session heatMapThresholds linkIcon toMsg =
+view : SelectedSession -> WebData HeatMapThresholds -> Path -> (String -> msg) -> msg -> Html msg
+view session heatMapThresholds linkIcon toMsg showExportPopup =
     let
         tooltipId =
             "graph-copy-link-tooltip"
@@ -155,7 +156,7 @@ view session heatMapThresholds linkIcon toMsg =
             , span [ class "single-session__date" ] [ text <| Times.format session.startTime session.endTime ]
             ]
         , div [ class "action-buttons" ]
-            [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink [ session ] ] [ text "export session" ]
+            [ button [ class "button button--primary action-button action-button--export", Popup.clickWithoutDefault showExportPopup ] [ text "export session" ]
             , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| toMsg tooltipId, id tooltipId ] [ img [ src (Path.toString linkIcon), alt "Link icon" ] [] ]
             ]
         ]
