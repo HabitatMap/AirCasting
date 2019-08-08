@@ -656,10 +656,10 @@ update msg model =
             debounce updateResolution model
 
         ToggleFiltersExpanded ->
-            ( { model | areFiltersExpanded = not model.areFiltersExpanded }, Cmd.none )
+            ( { model | areFiltersExpanded = not model.areFiltersExpanded, isNavExpanded = False }, Cmd.none )
 
         ToggleNavExpanded ->
-            ( { model | isNavExpanded = not model.isNavExpanded }, Cmd.none )
+            ( { model | isNavExpanded = not model.isNavExpanded, areFiltersExpanded = False }, Cmd.none )
 
         ToggleTheme ->
             let
