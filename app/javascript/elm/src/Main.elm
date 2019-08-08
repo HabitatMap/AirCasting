@@ -364,10 +364,10 @@ update msg model =
             in
             case emailFormResult of
                 Ok emailForm ->
-                    ( model
+                    ( { model | emailForm = EmailForm.addFlash model.emailForm "Exported sessions will be emailed within minutes. The email may end up in your spam folder." }
                     , Http.get
                         { url = Api.exportLink (EmailForm.toEmail emailForm) toExport
-                        , expect = Http.expectWhatever (\_ -> ClosePopup)
+                        , expect = Http.expectWhatever (\_ -> NoOp)
                         }
                     )
 
