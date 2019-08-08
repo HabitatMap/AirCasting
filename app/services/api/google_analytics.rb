@@ -8,7 +8,7 @@ module Api
         HTTParty.post(
           'https://www.google-analytics.com/collect',
           body:
-            "v=1&t=event&tid=UA-27599231-1&cid=#{
+            "v=1&t=event&tid=UA-27599231-2&cid=#{
               URI.encode(client_id)
             }&ec=Endpoint%20Hits&ea=#{event_action}"
         )
