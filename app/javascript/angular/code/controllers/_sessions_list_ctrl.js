@@ -118,13 +118,15 @@ export const SessionsListCtrl = (
           return;
         }
 
-        const cluster = window.__map.clusterers[0].clusters_.find(cluster =>
-          cluster.markers_.some(marker => marker.objectId() === session.id)
-        );
+        if (window.__map.clusterers[0]) {
+          const cluster = window.__map.clusterers[0].clusters_.find(cluster =>
+            cluster.markers_.some(marker => marker.objectId() === session.id)
+          );
 
-        if (cluster) {
-          pulsatingSessionMarker = map.drawPulsatingMarker(cluster.center_);
-          return;
+          if (cluster) {
+            pulsatingSessionMarker = map.drawPulsatingMarker(cluster.center_);
+            return;
+          }
         }
 
         pulsatingSessionMarker = map.drawPulsatingMarker(session.location);
