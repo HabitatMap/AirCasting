@@ -18,7 +18,7 @@ import Data.Status as Status exposing (Status(..))
 import Data.Theme as Theme exposing (Theme)
 import Data.Times as Times
 import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, li, main_, nav, p, span, text, ul)
-import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, title, type_, value)
+import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, title, type_, value, readonly)
 import Html.Attributes.Aria exposing (ariaLabel, role)
 import Html.Events as Events
 import Http
@@ -1210,6 +1210,7 @@ viewParameterFilter sensors selectedSensorId tooltipIcon isPopupListExpanded pop
             , Popup.clickWithoutDefault (ShowListPopup Popup.ParameterList)
             , value (Sensor.parameterForId sensors selectedSensorId)
             , autocomplete False
+            , readonly True
             ]
             []
         , label [ for "parameter" ] [ text "parameter:" ]
@@ -1231,6 +1232,7 @@ viewSensorFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup 
             , Popup.clickWithoutDefault (ShowListPopup Popup.SensorList)
             , value (Sensor.sensorLabelForId sensors selectedSensorId)
             , autocomplete False
+            , readonly True
             ]
             []
         , label [ for "sensor" ] [ text "sensor:" ]
