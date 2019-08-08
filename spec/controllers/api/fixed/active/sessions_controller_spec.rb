@@ -140,7 +140,7 @@ describe Api::Fixed::Active::SessionsController do
       start_time_local: time,
       end_time: DateTime.current,
       end_time_local: time,
-      is_indoor: true,
+      is_indoor: false,
       latitude: latitude,
       longitude: longitude,
       contribute: contribute,

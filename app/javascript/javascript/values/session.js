@@ -1,6 +1,6 @@
 export const formatSessionForList = session => ({
   title: session.title || "unnamed",
-  username: session.is_indoor ? "anonymous" : session.username,
+  username: session.username,
   id: session.id,
   startTime: session.startTime,
   endTime: session.endTime,

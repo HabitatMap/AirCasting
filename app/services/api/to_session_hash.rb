@@ -14,7 +14,7 @@ class Api::ToSessionHash
 
     Success.new(
       title: session.title,
-      username: session.user.username,
+      username: session.is_indoor ? 'anonymous' : session.user.username,
       sensorName: session.streams.first.sensor_name,
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
