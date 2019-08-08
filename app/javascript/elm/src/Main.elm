@@ -244,6 +244,7 @@ type Msg
     | UpdateEmailFormValue String
     | SelectSensorId String
     | ClosePopup
+    | CloseEmailForm
     | TogglePopupState
     | UrlChange Url
     | UrlRequest Browser.UrlRequest
@@ -364,11 +365,14 @@ update msg model =
             in
             case emailFormResult of
                 Ok emailForm ->
-                    ( { model | emailForm = EmailForm.addFlash model.emailForm "Exported sessions will be emailed within minutes. The email may end up in your spam folder." }
-                    , Http.get
-                        { url = Api.exportLink (EmailForm.toEmail emailForm) toExport
-                        , expect = Http.expectWhatever (\_ -> NoOp)
-                        }
+                    ( { model | emailForm = EmailForm.addFlashMessage model.emailForm "Exported sessions will be emailed within minutes. The email may end up in your spam folder." }
+                    , Cmd.batch
+                        [ Http.get
+                            { url = Api.exportLink (EmailForm.toEmail emailForm) toExport
+                            , expect = Http.expectWhatever (\_ -> NoOp)
+                            }
+                        , Process.sleep 3000 |> Task.perform (always CloseEmailForm)
+                        ]
                     )
 
                 Err errors ->
@@ -379,6 +383,9 @@ update msg model =
 
         ClosePopup ->
             ( { model | popup = Popup.None, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay }, Cmd.none )
+
+        CloseEmailForm ->
+            ( { model | popup = Popup.None, emailForm = EmailForm.clearFlash model.emailForm }, Cmd.none )
 
         TogglePopupState ->
             ( { model | isPopupListExpanded = not model.isPopupListExpanded }, Cmd.none )
