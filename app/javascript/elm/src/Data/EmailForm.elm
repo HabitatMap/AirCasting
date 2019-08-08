@@ -26,7 +26,7 @@ view emailForm onSubmit noOp updateValue =
         [ p [] [ text "Exported sessions will be emailed within minutes. The email may end up in your spam folder." ]
         , input
             [ class "email-popup__input"
-            , placeholder "email"
+            , placeholder "email address"
             , Popup.clickWithoutDefault noOp
             , value emailForm.value
             , Events.onInput updateValue
