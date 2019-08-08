@@ -272,8 +272,9 @@ type Msg
     | NoOp
     | Timeout Int
     | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
-    | ToggleNavExpanded
     | ToggleFiltersExpanded
+    | CloseFilters
+    | ToggleNavExpanded
     | ToggleTheme
 
 
@@ -658,6 +659,9 @@ update msg model =
         ToggleFiltersExpanded ->
             ( { model | areFiltersExpanded = not model.areFiltersExpanded, isNavExpanded = False }, Cmd.none )
 
+        CloseFilters ->
+            ( { model | areFiltersExpanded = False }, Cmd.none )
+
         ToggleNavExpanded ->
             ( { model | isNavExpanded = not model.isNavExpanded, areFiltersExpanded = False }, Cmd.none )
 
@@ -882,6 +886,11 @@ viewMain model =
                 [ viewSessionTypeNav model
                 , viewFilters model
                 , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm
+                , button
+                    [ class "show-results-button"
+                    , Events.onClick CloseFilters
+                    ]
+                    [ text "show results" ]
                 ]
             , viewMap model
             ]

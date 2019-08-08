@@ -2,7 +2,9 @@
   @include flexbox;
   @include align-items(center);
   @include justify-content(space-between);
+  background: white;
   box-shadow: $footer-shadow;
+  flex: 1 0 $heatmap-height;
   padding: 0 18px;
   width: calc(100vw - #{$filters-width});
   z-index: $heatmap-z-index;

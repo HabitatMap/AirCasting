@@ -23,7 +23,7 @@
 }
 
 .filters-container {
-  padding: $margin-default $margin-default 60px $margin-default; // bottom space holds action buttons
+  padding: $margin-default;
 }
 
 .filters__actions {
@@ -31,6 +31,10 @@
   left: 0;
   padding: $margin-default $margin-default 15px $margin-default;
   position: absolute;
+
+  @media screen and (max-width: $mobile) {
+    display: none;
+  }
 }
 
 .filters__input-group {
