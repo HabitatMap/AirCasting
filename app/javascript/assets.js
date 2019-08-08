@@ -1,7 +1,7 @@
 export const pulsingLocationMarkerPath =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_location_marker.svg");
+    : require("../assets/images/pulsing_location_marker_v2.svg");
 
 export const clusterTheme1Level1Path =
   process.env.NODE_ENV === "test"
