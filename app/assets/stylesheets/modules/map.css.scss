@@ -1,3 +1,5 @@
+$min-map-height: 400px;
+
 .maps-page-container {
   @media screen and (min-width: $ipad-portrait) {
     @include flexbox();
@@ -16,17 +18,19 @@
 }
 
 .map-container {
-  position: relative;
   flex: 1 1 100%;
+  min-height: $min-map-height;
+  position: relative;
+
+  @media screen and (orientation: portrait) {
+    height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height});
+  }
 }
 
 .map {
-  min-height: 600px;
+  height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height});
+  min-height: $min-map-height;
   width: 100vw;
-
-  @media screen and (orientation: portrait) {
-    height: calc(100vh - #{$heatmap-height-mobile});
-  }
 
   @media screen and (min-width: $ipad-portrait) {
     height: 100%;
