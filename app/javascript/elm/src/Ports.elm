@@ -118,7 +118,7 @@ port mapMoved : (() -> msg) -> Sub msg
 port fetchSessions : () -> Cmd a
 
 
-port pulseSessionMarker : Maybe { id : Int, location : Location } -> Cmd a
+port pulseSessionMarker : Maybe Location -> Cmd a
 
 
 port graphRangeSelected : (List Float -> msg) -> Sub msg
