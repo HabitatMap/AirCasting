@@ -1,20 +1,30 @@
 .session-type-nav {
   @include flexbox();
   @include justify-content(space-between);
+  list-style-type: none;
+  margin: 0;
+  padding-left: 0;
   width: 100%;
 }
 
 .session-type-nav__item {
   background-color: $brand-primary;
   border: none;
-  color: white;
-  font-weight: $font-stack-bold;
-  font-size: $small-font;
   padding: $margin-default;
   position: relative;
   text-align: left;
   width: 50%;
   z-index: 1;
+
+  a {
+    color: white;
+    display: inline-block;
+    font-weight: $font-stack-bold;
+    font-size: $small-font;
+    margin: -$margin-default 0 -1 * $margin-default -1 * $margin-default;
+    width: 94px;
+    padding: $margin-default;
+  }
 
   &.selected {
     background-color: $brand-secondary;
@@ -22,7 +32,9 @@
   }
 
   [data-tippy-content] {
-    position: static;
-    float: right;
+    position: absolute;
+    top: 14px;
+    right: $margin-default;
+    padding: $margin-default $margin-default $margin-default 8px;
   }
 }

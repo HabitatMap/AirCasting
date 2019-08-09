@@ -1068,11 +1068,18 @@ viewFiltersButtons selectedSession sessions linkIcon popup emailForm =
 
 viewSessionTypeNav : Model -> Html Msg
 viewSessionTypeNav model =
-    div [ class "session-type-nav" ]
-        [ a [ href "/mobile_map", classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
-            [ text "mobile", Tooltip.view Tooltip.mobileTab model.tooltipIcon ]
-        , a [ href "/fixed_map", classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
-            [ text "fixed", Tooltip.view Tooltip.fixedTab model.tooltipIcon ]
+    ul [ class "session-type-nav" ]
+        [ li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
+            [ a [ href "/mobile_map" ]
+                [ text "mobile" ]
+            , Tooltip.view Tooltip.mobileTab model.tooltipIcon
+            ]
+        , li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
+            [ a
+                [ href "/fixed_map" ]
+                [ text "fixed" ]
+            , Tooltip.view Tooltip.fixedTab model.tooltipIcon
+            ]
         ]
 
 
