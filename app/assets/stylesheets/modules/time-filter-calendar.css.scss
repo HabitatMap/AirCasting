@@ -1,17 +1,22 @@
 .daterangepicker {
   animation: show-up 0.4s ease;
   background-color: white;
-  box-shadow: $basic-shadow;
-  border-radius: $basic-radius;
   color: inherit;
   display: none;
-  margin-top: -23px;
-  margin-left: calc(#{$filters-width});
+  margin-top: 0;
   max-width: none;
   padding: 0;
   position: absolute;
-  width: 278px;
+  width: 100%;
   z-index: 3001;
+
+  @media screen and (min-width: $ipad-portrait) {
+    border-radius: $basic-radius;
+    box-shadow: $basic-shadow;
+    margin-left: calc(#{$filters-width});
+    margin-top: -23px;
+    width: 278px;
+  }
 }
 
 .daterangepicker.single .daterangepicker .ranges,
@@ -37,7 +42,10 @@
 
 .daterangepicker .drp-calendar {
   display: none;
-  max-width: 270px;
+
+  @media screen and (min-width: $ipad-portrait) {
+    max-width: 270px;
+  }
 }
 
 .daterangepicker .drp-calendar.left,
@@ -383,8 +391,11 @@
 
 .time-container {
   float: left;
-  max-width: 240px;
   padding: 28px 24px 12px 24px;
+
+  @media screen and (min-width: $ipad-portrait) {
+    max-width: 240px;
+  }
 
   .drp-calendar.left.time-calendar {
     padding: 16px 0;
