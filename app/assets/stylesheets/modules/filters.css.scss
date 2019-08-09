@@ -3,7 +3,7 @@
   color: white;
   min-height: calc(100vh - #{$nav-height});
   position: relative;
-  z-index: $popup-z-index;
+  z-index: $filters-z-index;
 
   @media screen and (max-width: $mobile) {
     position: absolute;

@@ -82,7 +82,8 @@ $full-overlay-z-index: $sessions-z-index + 1;
 $partial-overlay-z-index: $heatmap-z-index - 1;
 
 $overlay-info-z-index: $full-overlay-z-index + 1;
-$popup-z-index: $full-overlay-z-index + 1;
+$filters-z-index: $overlay-info-z-index + 1;
+$popup-z-index: $filters-z-index + 1;
 
 // breakpoints
 $ipad-portrait: 768px;
