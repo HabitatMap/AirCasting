@@ -17,9 +17,15 @@ header {
     &:not(.menu-collapsed) {
       box-shadow: none;
       height: 100vh;
-      position: absolute;
+      position: fixed;
       top: 0;
       width: 100%;
+
+      @media screen and (max-height: 360px) and (orientation: landscape) {
+        ul li {
+          margin-bottom: 0.25em;
+        }
+      }
     }
 
     &:not(.menu-collapsed) + main {
