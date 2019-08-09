@@ -119,16 +119,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+const baseOptionsForTooltips = {
+  arrow: true,
+  theme: "light-border"
+};
+
+const desktopOptionsForTooltips = {
+  placement: "right"
+};
+
+const mobileOptionsForTooltips = {
+  placement: "bottom"
+};
+
 const setupTooltips = () => {
   const nodes = document.querySelectorAll("[data-tippy-content]");
   if (nodes.length === 0) {
     setTimeout(setupTooltips, 100);
+  } else if (window.innerWidth < 768) {
+    tippy(nodes, { ...baseOptionsForTooltips, ...mobileOptionsForTooltips });
   } else {
-    tippy(nodes, {
-      placement: "right",
-      arrow: true,
-      theme: "light-border"
-    });
+    tippy(nodes, { ...baseOptionsForTooltips, ...desktopOptionsForTooltips });
   }
 };
 
