@@ -3,6 +3,7 @@ import * as FiltersUtils from "../../../javascript/filtersUtils";
 import { clearMap } from "../../../javascript/mapsUtils";
 import { applyTheme } from "../../../javascript/theme";
 import { DEFAULT_THEME } from "../../../javascript/constants";
+import { getParams } from "../../../javascript/params";
 
 export const FixedSessionsMapCtrl = (
   $scope,
@@ -109,13 +110,33 @@ export const FixedSessionsMapCtrl = (
       FiltersUtils.setupAutocomplete(
         selectedValue => elmApp.ports.profileSelected.send(selectedValue),
         "profile-names",
-        "/autocomplete/usernames"
+        "/autocomplete/usernames",
+        () => {}
       );
+
+      const createTagsFilterParams = () => {
+        const bounds = map.getBounds();
+        const data = getParams().data;
+
+        return {
+          west: bounds.west,
+          east: bounds.east,
+          south: bounds.south,
+          north: bounds.north,
+          time_from: data.timeFrom,
+          time_to: data.timeTo,
+          usernames: data.usernames,
+          sensor_name: sensors.selected().sensor_name,
+          unit_symbol: sensors.selected().unit_symbol,
+          is_indoor: data.isIndoor
+        };
+      };
 
       FiltersUtils.setupAutocomplete(
         selectedValue => elmApp.ports.tagSelected.send(selectedValue),
         "tags",
-        "/autocomplete/tags"
+        "api/fixed/autocomplete/tags",
+        createTagsFilterParams
       );
 
       elmApp.ports.updateTags.subscribe(tags => {

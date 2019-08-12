@@ -28,26 +28,27 @@ module TestUtils
       start_time_local: attributes.fetch(:start_time_local, DateTime.current),
       end_time: DateTime.current,
       end_time_local: attributes.fetch(:end_time_local, DateTime.current),
-      type: 'MobileSession',
+      type: attributes.fetch(:type, 'MobileSession'),
       longitude: 1.0,
       latitude: 1.0,
-      is_indoor: false,
+      is_indoor: attributes.fetch(:is_indoor, false),
       version: attributes.fetch(:version, 1),
       contribute: attributes.fetch(:contribute, true),
       last_measurement_at:
-        attributes.fetch(:last_measurement_at, DateTime.current)
+        attributes.fetch(:last_measurement_at, DateTime.current),
+      tag_list: attributes.fetch(:tag_list, [])
     )
   end
 
   def create_stream!(attributes = {})
     Stream.create!(
       sensor_package_name: 'AirBeam2:00189610719F',
-      sensor_name: 'AirBeam2-F',
+      sensor_name: attributes.fetch(:sensor_name, 'AirBeam2-F'),
       measurement_type: 'Temperature',
       unit_name: 'Fahrenheit',
       session: attributes.fetch(:session, create_session!),
-      measurement_short_type: 'dB',
-      unit_symbol: 'dB',
+      measurement_short_type: 'F',
+      unit_symbol: attributes.fetch(:unit_symbol, 'F'),
       threshold_very_low: 20,
       threshold_low: 60,
       threshold_medium: 70,
