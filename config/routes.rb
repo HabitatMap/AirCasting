@@ -65,6 +65,7 @@ Rails.application.routes.draw do
     namespace :fixed do
       get 'sessions/:id' => 'sessions#show'
       get 'sessions2/:id' => 'sessions#show2'
+      get 'autocomplete/tags' => 'autocomplete#tags'
 
       namespace :dormant do
         get 'sessions' => 'sessions#index'
@@ -79,15 +80,15 @@ Rails.application.routes.draw do
       get 'sessions' => 'sessions#index'
       get 'sessions/:id' => 'sessions#show'
       get 'sessions2/:id' => 'sessions#show2'
+      get 'autocomplete/tags' => 'autocomplete#tags'
     end
 
     get 'measurements' => 'measurements#index'
 
     resources :short_url, only: %i[index]
-  end
 
-  get 'autocomplete/tags' => 'autocomplete#tags'
-  get 'autocomplete/usernames' => 'autocomplete#usernames'
+    get 'autocomplete/usernames' => 'autocomplete#usernames'
+  end
 
   get 'about' => 'static_pages#about'
   get 'donate' => 'static_pages#donate'
