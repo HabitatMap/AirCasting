@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Api::Mobile::AutocompleteController do
+describe Api::Fixed::AutocompleteController do
   describe '#tags' do
     it 'Returns tags available in the given filters settings' do
       create_tagged_session!(tag: 'tag-correct')
@@ -29,6 +29,8 @@ describe Api::Mobile::AutocompleteController do
       get :tags,
           params: {
             q: {
+              is_indoor: false,
+              is_active: true,
               input: 'tag',
               sensor_name: 'AirBeam2-F',
               measurement_type: 'Temperature',
@@ -57,6 +59,8 @@ describe Api::Mobile::AutocompleteController do
       get :tags,
           params: {
             q: {
+              is_indoor: false,
+              is_active: true,
               input: 'tag',
               sensor_name: 'AirBeam2-F',
               measurement_type: 'Temperature',
@@ -75,17 +79,79 @@ describe Api::Mobile::AutocompleteController do
 
       expect(json_response).to eq(expected)
     end
+
+    it 'Returns tags that belong to outdoor sessions when outdoor is selected' do
+      create_tagged_session!(tag: 'tag-correct')
+      create_tagged_session!(tag: 'tag-indoor', is_indoor: true)
+
+      get :tags,
+          params: {
+            q: {
+              input: 'tag',
+              is_indoor: false,
+              is_active: true,
+              sensor_name: 'AirBeam2-F',
+              measurement_type: 'Temperature',
+              unit_symbol: 'F',
+              north: 10,
+              south: 0,
+              west: 0,
+              east: 10,
+              time_from: Time.new(2_018).to_i,
+              time_to: Time.new(2_019).to_i,
+              usernames: ''
+            }
+          }
+
+      expected = %w[tag-correct]
+
+      expect(json_response).to eq(expected)
+    end
+
+    it 'Returns tags that belong to dormant sessions when dormant is selected' do
+      create_tagged_session!(
+        tag: 'tag-dormant', last_measurement_at: DateTime.current - 2.hour
+      )
+      create_tagged_session!(tag: 'tag-active')
+
+      get :tags,
+          params: {
+            q: {
+              input: 'tag',
+              is_indoor: false,
+              is_active: false,
+              sensor_name: 'AirBeam2-F',
+              measurement_type: 'Temperature',
+              unit_symbol: 'F',
+              north: 10,
+              south: 0,
+              west: 0,
+              east: 10,
+              time_from: Time.new(2_018).to_i,
+              time_to: Time.new(2_019).to_i,
+              usernames: ''
+            }
+          }
+
+      expected = %w[tag-dormant]
+
+      expect(json_response).to eq(expected)
+    end
   end
 
   def create_tagged_session!(attr)
     session =
       create_session!(
         {
+          type: 'FixedSession',
+          is_indoor: attr.fetch(:is_indoor, false),
           tag_list: [attr.fetch(:tag)],
           contribute: attr.fetch(:contribute, true),
           start_time_local: attr.fetch(:start_time_local, Time.new(2_018, 2)),
           end_time_local: attr.fetch(:end_time_local, Time.new(2_018, 3)),
-          user: attr.fetch(:user, create_user!)
+          user: attr.fetch(:user, create_user!),
+          last_measurement_at:
+            attr.fetch(:last_measurement_at, DateTime.current)
         }
       )
 

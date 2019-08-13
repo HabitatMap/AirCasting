@@ -110,7 +110,7 @@ export const FixedSessionsMapCtrl = (
       FiltersUtils.setupAutocomplete(
         selectedValue => elmApp.ports.profileSelected.send(selectedValue),
         "profile-names",
-        "/autocomplete/usernames",
+        "api/autocomplete/usernames",
         () => {}
       );
 
@@ -128,7 +128,8 @@ export const FixedSessionsMapCtrl = (
           usernames: data.usernames,
           sensor_name: sensors.selected().sensor_name,
           unit_symbol: sensors.selected().unit_symbol,
-          is_indoor: data.isIndoor
+          is_indoor: data.isIndoor,
+          is_active: data.isActive
         };
       };
 

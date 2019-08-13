@@ -18,7 +18,8 @@ module Api::FixedTagsParams
       required(:east).filled(:str?)
       required(:south).filled(:str?)
       required(:north).filled(:str?)
-      required(:is_indoor)
+      required(:is_indoor).filled(:str?)
+      required(:is_active).filled(:str?)
     end
 
   class Struct < Dry::Struct
@@ -34,6 +35,7 @@ module Api::FixedTagsParams
     attribute :east, Types::Coercible::Float
     attribute :south, Types::Coercible::Float
     attribute :north, Types::Coercible::Float
-    attribute :is_indoor, Types::Bool
+    attribute :is_indoor, Types::Params::Bool
+    attribute :is_active, Types::Params::Bool
   end
 end

@@ -7,7 +7,9 @@ class Api::ToFixedTags
     return Failure.new(form.errors) if form.invalid?
 
     sessions =
-      FixedSession.with_user_and_streams.order('sessions.start_time_local DESC')
+      (data[:is_active] ? FixedSession.active : FixedSession.dormant)
+        .with_user_and_streams
+        .order('sessions.start_time_local DESC')
         .where(contribute: true)
         .where(is_indoor: data[:is_indoor])
         .joins(:streams)
