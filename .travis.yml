@@ -1,5 +1,6 @@
 sudo: false
 language: ruby
+dist: trusty
 before_install:
 - openssl aes-256-cbc -K $encrypted_9f37634381c1_key -iv $encrypted_9f37634381c1_iv
   -in keys.tar.gz.enc -out keys.tar.gz -d
