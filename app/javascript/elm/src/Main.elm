@@ -63,6 +63,7 @@ type alias Model =
     , isIndoor : Bool
     , navLogo : Path
     , filterIcon : Path
+    , fitToScaleIcon : Path
     , linkIcon : Path
     , menuIcon : Path
     , resetIconBlack : Path
@@ -103,6 +104,7 @@ defaultModel =
     , selectedSession = NotAsked
     , navLogo = Path.empty
     , filterIcon = Path.empty
+    , fitToScaleIcon = Path.empty
     , linkIcon = Path.empty
     , menuIcon = Path.empty
     , resetIconBlack = Path.empty
@@ -137,6 +139,7 @@ type alias Flags =
     , selectedSensorId : String
     , navLogo : String
     , filterIcon : String
+    , fitToScaleIcon : String
     , linkIcon : String
     , menuIcon : String
     , resetIconBlack : String
@@ -181,6 +184,7 @@ init flags url key =
         , selectedSensorId = flags.selectedSensorId
         , navLogo = Path.fromString flags.navLogo
         , filterIcon = Path.fromString flags.filterIcon
+        , fitToScaleIcon = Path.fromString flags.fitToScaleIcon
         , linkIcon = Path.fromString flags.linkIcon
         , menuIcon = Path.fromString flags.menuIcon
         , resetIconBlack = Path.fromString flags.resetIconBlack
@@ -959,6 +963,7 @@ viewMap model =
         , viewHeatMap
             model.heatMapThresholds
             (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "")
+            model.fitToScaleIcon
             model.resetIconBlack
             model.themeIcons
             model.theme
@@ -997,8 +1002,8 @@ viewSearchAsIMove model =
                 ]
 
 
-viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Theme.Icons -> Theme -> WebData SelectedSession -> Html Msg
-viewHeatMap heatMapThresholds sensorUnit resetIcon icons theme selectedSession =
+viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Path -> Theme.Icons -> Theme -> WebData SelectedSession -> Html Msg
+viewHeatMap heatMapThresholds sensorUnit fitToScaleIcon resetIcon icons theme selectedSession =
     let
         ( threshold1, threshold5 ) =
             RemoteData.map HeatMapThresholds.extremes heatMapThresholds
@@ -1015,7 +1020,7 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon icons theme selectedSession =
                     , class "heatmap-button"
                     , Events.onClick <| FitHeatMap
                     ]
-                    [ text "↕" ]
+                    [ img [ src <| Path.toString fitToScaleIcon, alt "Fit to scale icon" ] [] ]
 
             _ ->
                 text ""
