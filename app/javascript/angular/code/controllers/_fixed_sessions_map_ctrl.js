@@ -217,7 +217,7 @@ export const FixedSessionsMapCtrl = (
       elmApp.ports.toggleTheme.subscribe(theme => {
         params.update({ theme: theme });
         $scope.$apply();
-        applyTheme();
+        applyTheme(() => {});
       });
     });
   }

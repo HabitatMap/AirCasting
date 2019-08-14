@@ -1,14 +1,7 @@
 import _ from "underscore";
-import * as assets from "../../../assets";
 import { drawNotes } from "../../../javascript/note";
 import * as Session from "../../../javascript/values/session";
-
-const locationMarkersByLevel = {
-  1: assets.locationMarker1Path,
-  2: assets.locationMarker2Path,
-  3: assets.locationMarker3Path,
-  4: assets.locationMarker4Path
-};
+import { locationMarkersByLevel } from "../../../javascript/theme";
 
 export const drawSession = (sensors, map, heat, empty) => {
   var DrawSession = function() {};
@@ -85,7 +78,7 @@ const createMeasurementMarker = (measurement, idx, heat, map, suffix) => {
     icon: {
       anchor: new google.maps.Point(6, 6),
       size: new google.maps.Size(12, 12),
-      url: locationMarkersByLevel[level]
+      url: locationMarkersByLevel()[level]
     }
   });
 

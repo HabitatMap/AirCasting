@@ -17,7 +17,6 @@ import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
 import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
-import { applyTheme } from "../javascript/theme";
 import { DEFAULT_THEME } from "../javascript/constants";
 import { getParams } from "../javascript/params";
 

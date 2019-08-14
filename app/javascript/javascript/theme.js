@@ -2,9 +2,10 @@ import * as assets from "../assets";
 import { BLUE_THEME } from "./constants";
 import { getParams } from "./params";
 
-export const applyTheme = () => {
+export const applyTheme = callback => {
   updateFixedClusters();
   updateRectangles();
+  callback();
 };
 
 const updateFixedClusters = () => {
@@ -28,6 +29,24 @@ export const fixedClusterStyles = () => {
       { url: assets.clusterTheme1Level3Path, height: 30, width: 30 },
       { url: assets.clusterTheme1Level4Path, height: 30, width: 30 }
     ];
+  }
+};
+
+export const locationMarkersByLevel = () => {
+  if (getParams().theme === BLUE_THEME) {
+    return {
+      1: assets.locationMarkerTheme2Level1Path,
+      2: assets.locationMarkerTheme2Level2Path,
+      3: assets.locationMarkerTheme2Level3Path,
+      4: assets.locationMarkerTheme2Level4Path
+    };
+  } else {
+    return {
+      1: assets.locationMarkerTheme1Level1Path,
+      2: assets.locationMarkerTheme1Level2Path,
+      3: assets.locationMarkerTheme1Level3Path,
+      4: assets.locationMarkerTheme1Level4Path
+    };
   }
 };
 
