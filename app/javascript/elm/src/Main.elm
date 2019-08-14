@@ -1015,7 +1015,7 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon icons theme selectedSession =
                     , class "heatmap-button"
                     , Events.onClick <| FitHeatMap
                     ]
-                    [ text "☆" ]
+                    [ text "↕" ]
 
             _ ->
                 text ""

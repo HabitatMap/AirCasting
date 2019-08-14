@@ -10,6 +10,10 @@
   margin: 0 0 3px 12px;
   width: 25px;
 
+  // For the temporary placeholder until we have a proper icon
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 23px;
+
   &:first-of-type {
     margin-left: 20px;
   }
