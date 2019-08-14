@@ -8,7 +8,6 @@
   top: -6px;
   color: transparent;
   cursor: pointer;
-  z-index: -2;
 
   &.trace {
     background-color: $blue;
@@ -16,7 +15,6 @@
     height: 16px;
     left: -8px;
     top: -8px;
-    z-index: 1;
   }
 
   &.default {

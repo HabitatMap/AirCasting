@@ -201,7 +201,11 @@ export const MobileSessionsMapCtrl = (
       elmApp.ports.toggleTheme.subscribe(theme => {
         params.update({ theme: theme });
         $scope.$apply();
-        applyTheme();
+        applyTheme(() => {
+          if (params.selectedSessionIds().length !== 0) {
+            sessions.redrawSelectedSession();
+          }
+        });
       });
     });
   }
