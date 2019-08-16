@@ -1178,6 +1178,7 @@ viewSessionCard : WebData HeatMapThresholds -> Session -> Html Msg
 viewSessionCard heatMapThresholds session =
     div
         [ class "session-card"
+        , class <| Data.Session.classByValue session.average heatMapThresholds
         , Events.onClick <| ToggleSessionSelection session.id
         , Events.onMouseEnter <| HighlightSessionMarker (Just (Markers.toSessionMarkerData session.location session.id session.average heatMapThresholds))
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
