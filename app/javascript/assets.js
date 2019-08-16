@@ -38,15 +38,42 @@ export const locationMarkerTheme2Level4Path =
     ? ""
     : require("../assets/images/location_marker_theme2_level4.svg");
 
-export const locationMarkerPath =
+export const pulsingMarkerTheme1Level1Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/location_marker.svg");
+    : require("../assets/images/pulsing_marker_theme1_level1.svg");
 
-export const pulsingLocationMarkerPath =
+export const pulsingMarkerTheme1Level2Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_location_marker_v2.svg");
+    : require("../assets/images/pulsing_marker_theme1_level2.svg");
+export const pulsingMarkerTheme1Level3Path =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/pulsing_marker_theme1_level3.svg");
+
+export const pulsingMarkerTheme1Level4Path =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/pulsing_marker_theme1_level4.svg");
+
+export const pulsingMarkerTheme2Level1Path =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/pulsing_marker_theme2_level1.svg");
+export const pulsingMarkerTheme2Level2Path =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/pulsing_marker_theme2_level2.svg");
+export const pulsingMarkerTheme2Level3Path =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/pulsing_marker_theme2_level3.svg");
+export const pulsingMarkerTheme2Level4Path =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/pulsing_marker_theme2_level4.svg");
+
 
 export const clusterTheme1Level1Path =
   process.env.NODE_ENV === "test"

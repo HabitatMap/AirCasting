@@ -153,7 +153,7 @@
   width: 100px;
 }
 
-img[src*="pulsing_location_marker"] {
+img[src*="pulsing_marker"] {
   animation: pulse 0.7s infinite alternate;
   -webkit-animation: pulse 0.7s infinite alternate;
   transform-origin: center;
