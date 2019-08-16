@@ -47,7 +47,8 @@ export const locationMarkersByLevel = () => {
       3: assets.locationMarkerTheme1Level3Path,
       4: assets.locationMarkerTheme1Level4Path
     };
-}}
+  }
+};
 
 export const pulsingMarkerStyles = () => {
   if (getParams().theme === BLUE_THEME) {

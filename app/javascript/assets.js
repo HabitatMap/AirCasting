@@ -74,7 +74,6 @@ export const pulsingMarkerTheme2Level4Path =
     ? ""
     : require("../assets/images/pulsing_marker_theme2_level4.svg");
 
-
 export const clusterTheme1Level1Path =
   process.env.NODE_ENV === "test"
     ? ""

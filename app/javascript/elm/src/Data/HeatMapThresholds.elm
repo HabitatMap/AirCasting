@@ -8,6 +8,7 @@ module Data.HeatMapThresholds exposing
     , fitThresholds
     , fromValues
     , rangeFor
+    , rangeIntFor
     , toDefaults
     , toValues
     , updateFromValues
@@ -17,6 +18,7 @@ module Data.HeatMapThresholds exposing
 
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
+import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import Url
 
@@ -97,6 +99,32 @@ rangeFor i thresholds =
 
     else
         Default
+
+
+rangeIntFor : Maybe Int -> WebData HeatMapThresholds -> Int
+rangeIntFor maybeValue webDataThresholds =
+    case ( maybeValue, webDataThresholds ) of
+        ( Just value, Success thresholds ) ->
+            if value < thresholds.threshold1.value then
+                0
+
+            else if value <= thresholds.threshold2.value then
+                1
+
+            else if value <= thresholds.threshold3.value then
+                2
+
+            else if value <= thresholds.threshold4.value then
+                3
+
+            else if value <= thresholds.threshold5.value then
+                4
+
+            else
+                0
+
+        ( _, _ ) ->
+            0
 
 
 toDefaults : HeatMapThresholds -> HeatMapThresholds

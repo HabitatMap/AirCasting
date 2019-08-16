@@ -9,6 +9,7 @@ import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBoun
 import Data.EmailForm as EmailForm
 import Data.GraphData exposing (GraphData, GraphHeatData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
+import Data.Markers as Markers
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
 import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
@@ -270,7 +271,7 @@ type Msg
     | ToggleIsSearchOn
     | MapMoved
     | FetchSessions
-    | HighlightSessionMarker (Maybe Session)
+    | HighlightSessionMarker (Maybe Markers.SessionMarkerData)
     | GraphRangeSelected (List Float)
     | UpdateIsShowingTimeRangeFilter Bool
     | SaveScrollPosition Float
@@ -649,14 +650,9 @@ update msg model =
         FetchSessions ->
             ( model, Ports.fetchSessions () )
 
-        HighlightSessionMarker maybeSession ->
+        HighlightSessionMarker sessionMarkerData ->
             ( model
-            , Ports.pulseSessionMarker <|
-                Maybe.map
-                    (\session ->
-                        { location = session.location, id = session.id }
-                    )
-                    maybeSession
+            , Ports.pulseSessionMarker <| sessionMarkerData
             )
 
         GraphRangeSelected measurements ->
@@ -1183,7 +1179,7 @@ viewSessionCard heatMapThresholds session =
     div
         [ class "session-card"
         , Events.onClick <| ToggleSessionSelection session.id
-        , Events.onMouseEnter <| HighlightSessionMarker (Just session)
+        , Events.onMouseEnter <| HighlightSessionMarker (Just (Markers.toSessionMarkerData session.location session.id session.average heatMapThresholds))
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]
         [ div
