@@ -357,7 +357,7 @@ update msg model =
             ( { model | popup = popup, isPopupListExpanded = False, overlay = Overlay.update (AddOverlay PopupOverlay) model.overlay }, Cmd.none )
 
         ShowExportPopup ->
-            ( { model | popup = Popup.EmailForm }, Cmd.none )
+            ( { model | popup = Popup.EmailForm, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay }, Cmd.none )
 
         ExportSessions emailFormResult ->
             let
