@@ -26,23 +26,23 @@
     border-radius: 12px;
     opacity: 0;
     transition: opacity 300ms;
-    @include session-card-halo($blue)
+    @include session-card-halo($grey);
   }
 
   &.level1-bg::before {
-    @include session-card-halo(var(--level1-colour))
+    @include session-card-halo(var(--level1-colour));
   }
 
   &.level2-bg::before {
-    @include session-card-halo(var(--level2-colour))
+    @include session-card-halo(var(--level2-colour));
   }
 
   &.level3-bg::before {
-    @include session-card-halo(var(--level3-colour))
+    @include session-card-halo(var(--level3-colour));
   }
 
   &.level4-bg::before {
-    @include session-card-halo(var(--level4-colour))
+    @include session-card-halo(var(--level4-colour));
   }
 
   &:hover::before {
