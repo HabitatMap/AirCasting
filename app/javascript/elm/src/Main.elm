@@ -1115,7 +1115,7 @@ viewFiltersButtons selectedSession sessions linkIcon popup emailForm =
                 , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
                     [ img [ src <| Path.toString linkIcon, alt "Link icon" ] [] ]
                 , if Popup.isEmailFormPopupShown popup then
-                    Popup.viewEmailForm (EmailForm.view emailForm ExportSessions NoOp UpdateEmailFormValue)
+                    EmailForm.view emailForm ExportSessions NoOp UpdateEmailFormValue
 
                   else
                     text ""

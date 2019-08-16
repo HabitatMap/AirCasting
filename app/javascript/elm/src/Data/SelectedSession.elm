@@ -180,7 +180,7 @@ view session heatMapThresholds linkIcon toMsg showExportPopup popup emailForm =
             [ button [ class "button button--primary action-button action-button--export", Popup.clickWithoutDefault showExportPopup ] [ text "export session" ]
             , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| toMsg tooltipId, id tooltipId ] [ img [ src (Path.toString linkIcon), alt "Link icon" ] [] ]
             , if Popup.isEmailFormPopupShown popup then
-                Popup.viewEmailForm emailForm
+                emailForm
 
               else
                 text ""
