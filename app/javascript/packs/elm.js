@@ -1,6 +1,7 @@
 import { Elm } from "../elm/src/Main.elm";
 import navLogo from "../../assets/images/aircasting-logo-nav.svg";
 import linkIcon from "../../assets/images/link-icon.svg";
+import filterIcon from "../../assets/images/filter-icon.svg";
 import menuIcon from "../../assets/images/menu-icon.svg";
 import resetIconBlack from "../../assets/images/reset-icon-black.svg";
 import resetIconWhite from "../../assets/images/reset-icon-white.svg";
@@ -86,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         isIndoor: data.isIndoor,
         navLogo,
+        filterIcon,
         linkIcon,
         menuIcon,
         resetIconBlack,
@@ -110,16 +112,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+const baseOptionsForTooltips = {
+  arrow: true,
+  theme: "light-border"
+};
+
+const desktopOptionsForTooltips = {
+  placement: "right"
+};
+
+const mobileOptionsForTooltips = {
+  placement: "bottom"
+};
+
 const setupTooltips = () => {
   const nodes = document.querySelectorAll("[data-tippy-content]");
   if (nodes.length === 0) {
     setTimeout(setupTooltips, 100);
+  } else if (window.innerWidth < 768) {
+    tippy(nodes, { ...baseOptionsForTooltips, ...mobileOptionsForTooltips });
   } else {
-    tippy(nodes, {
-      placement: "right",
-      arrow: true,
-      theme: "light-border"
-    });
+    tippy(nodes, { ...baseOptionsForTooltips, ...desktopOptionsForTooltips });
   }
 };
 
@@ -187,7 +200,7 @@ const setupHeatMap = () => {
 
     window.__elmApp.ports.observeSessionsList.subscribe(() => {
       createObserver({
-        selector: ".sessions-container",
+        selector: ".session-cards-container",
         onMount: () => {
           window.__elmApp.ports.setScroll.send(null);
         }
@@ -228,6 +241,6 @@ const setupHorizontalWheelScroll = node => {
 };
 
 createObserver({
-  selector: ".sessions-container",
+  selector: ".session-cards-container",
   onMount: setupHorizontalWheelScroll
 });

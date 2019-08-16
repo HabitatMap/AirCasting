@@ -1,0 +1,28 @@
+.email-popup {
+  animation: show-up 125ms ease;
+  width: 200px;
+  z-index: $popup-z-index;
+
+  &.tippy-tooltip.light-border-theme {
+    color: initial;
+    position: absolute;
+    bottom: 56px;
+    left: 11px;
+  }
+}
+
+.email-popup__button {
+  display: block;
+  font-weight: $font-stack-bold;
+  margin: 0 auto;
+  padding: 5px 15px;
+}
+
+.email-popup__error-message {
+  font-size: $tiny-font;
+  margin-bottom: 8px;
+}
+
+.email-popup__input {
+  width: 100%;
+}

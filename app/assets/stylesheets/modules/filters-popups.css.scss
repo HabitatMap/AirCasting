@@ -11,9 +11,16 @@ $popup-background-color: #f7f7f7;
   padding: $margin-default;
   position: absolute;
   left: calc(#{$filters-width} + 2rem);
-  top: 8rem;
+  top: 0;
   width: 310px;
   z-index: $popup-z-index;
+
+  @media screen and (max-width: $mobile) {
+    border-radius: $input-radius;
+    left: 0;
+    top: 3.4rem;
+    width: calc(100vw - 2 * #{$margin-default});
+  }
 }
 
 .filter-popup__list {
@@ -61,7 +68,7 @@ $popup-background-color: #f7f7f7;
   font-size: $tiny-font;
   font-weight: $font-stack-regular;
   padding: 8px 12px;
-  margin-bottom: 12px;
+  margin-bottom: $margin-default;
 
   &.active {
     background: $blue;
@@ -80,7 +87,7 @@ $popup-background-color: #f7f7f7;
   border: none;
   flex: 1 0 50%;
   font-size: $tiny-font;
-  padding: 12px;
+  padding: $margin-default;
   text-align: left;
   word-break: break-word;
   word-wrap: break-word;

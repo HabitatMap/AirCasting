@@ -6,6 +6,7 @@ import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
+import Data.EmailForm as EmailForm
 import Data.GraphData exposing (GraphData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
@@ -17,9 +18,10 @@ import Data.Status as Status exposing (Status(..))
 import Data.Theme as Theme exposing (Theme)
 import Data.Times as Times
 import Html exposing (Html, a, button, div, h2, h3, header, iframe, img, input, label, li, main_, nav, node, p, span, text, ul)
-import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, rel, src, target, title, type_, value)
+import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, rel, src, target, title, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel, role)
 import Html.Events as Events
+import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
 import LabelsInput
@@ -35,6 +37,7 @@ import Task
 import TimeRange exposing (TimeRange)
 import Tooltip
 import Url exposing (Url)
+import Validate exposing (Valid)
 
 
 
@@ -48,7 +51,7 @@ type alias Model =
     , fetchableSessionsCount : Int
     , selectedSession : WebData SelectedSession
     , popup : Popup.Popup
-    , isPopupExtended : Bool
+    , isPopupListExpanded : Bool
     , sensors : List Sensor
     , selectedSensorId : String
     , location : String
@@ -59,6 +62,7 @@ type alias Model =
     , timeRange : TimeRange
     , isIndoor : Bool
     , navLogo : Path
+    , filterIcon : Path
     , linkIcon : Path
     , menuIcon : Path
     , resetIconBlack : Path
@@ -71,9 +75,11 @@ type alias Model =
     , overlay : Overlay.Model
     , scrollPosition : Float
     , debouncingCounter : Int
+    , areFiltersExpanded : Bool
     , isNavExpanded : Bool
     , theme : Theme
     , status : Status
+    , emailForm : EmailForm.EmailForm
     }
 
 
@@ -84,7 +90,7 @@ defaultModel =
     , sessions = []
     , fetchableSessionsCount = 0
     , popup = Popup.None
-    , isPopupExtended = False
+    , isPopupListExpanded = False
     , sensors = []
     , selectedSensorId = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
     , location = ""
@@ -96,6 +102,7 @@ defaultModel =
     , isIndoor = False
     , selectedSession = NotAsked
     , navLogo = Path.empty
+    , filterIcon = Path.empty
     , linkIcon = Path.empty
     , menuIcon = Path.empty
     , resetIconBlack = Path.empty
@@ -108,9 +115,11 @@ defaultModel =
     , overlay = Overlay.none
     , scrollPosition = 0
     , debouncingCounter = 0
+    , areFiltersExpanded = False
     , isNavExpanded = False
     , theme = Theme.default
     , status = Status.default
+    , emailForm = EmailForm.defaultEmailForm
     }
 
 
@@ -127,6 +136,7 @@ type alias Flags =
     , sensors : Encode.Value
     , selectedSensorId : String
     , navLogo : String
+    , filterIcon : String
     , linkIcon : String
     , menuIcon : String
     , resetIconBlack : String
@@ -170,6 +180,7 @@ init flags url key =
         , sensors = sensors
         , selectedSensorId = flags.selectedSensorId
         , navLogo = Path.fromString flags.navLogo
+        , filterIcon = Path.fromString flags.filterIcon
         , linkIcon = Path.fromString flags.linkIcon
         , menuIcon = Path.fromString flags.menuIcon
         , resetIconBlack = Path.fromString flags.resetIconBlack
@@ -227,9 +238,13 @@ type Msg
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
     | ShowCopyLinkTooltip String
-    | ShowPopup ( List String, List String ) String String
+    | ShowListPopup Popup.Popup
+    | ShowExportPopup
+    | ExportSessions (Result (List String) (Valid EmailForm.EmailForm))
+    | UpdateEmailFormValue String
     | SelectSensorId String
     | ClosePopup
+    | CloseEmailForm
     | TogglePopupState
     | UrlChange Url
     | UrlRequest Browser.UrlRequest
@@ -258,6 +273,8 @@ type Msg
     | NoOp
     | Timeout Int
     | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
+    | ToggleFiltersExpanded
+    | CloseFilters
     | ToggleNavExpanded
     | ToggleTheme
 
@@ -331,14 +348,48 @@ update msg model =
         ShowCopyLinkTooltip tooltipId ->
             ( model, Ports.showCopyLinkTooltip tooltipId )
 
-        ShowPopup items itemType selectedItem ->
-            ( { model | popup = Popup.SelectFrom items itemType selectedItem, isPopupExtended = False, overlay = Overlay.update (AddOverlay PopupOverlay) model.overlay }, Cmd.none )
+        ShowListPopup popup ->
+            ( { model | popup = popup, isPopupListExpanded = False, overlay = Overlay.update (AddOverlay PopupOverlay) model.overlay }, Cmd.none )
+
+        ShowExportPopup ->
+            ( { model | popup = Popup.EmailForm }, Cmd.none )
+
+        ExportSessions emailFormResult ->
+            let
+                toExport =
+                    case model.selectedSession of
+                        Success session ->
+                            [ { id = session.id } ]
+
+                        _ ->
+                            List.map (\session -> { id = session.id }) model.sessions
+            in
+            case emailFormResult of
+                Ok emailForm ->
+                    ( { model | emailForm = EmailForm.addFlashMessage model.emailForm "Exported sessions will be emailed within minutes. The email may end up in your spam folder." }
+                    , Cmd.batch
+                        [ Http.get
+                            { url = Api.exportLink (EmailForm.toEmail emailForm) toExport
+                            , expect = Http.expectWhatever (\_ -> NoOp)
+                            }
+                        , Process.sleep 3000 |> Task.perform (always CloseEmailForm)
+                        ]
+                    )
+
+                Err errors ->
+                    ( { model | emailForm = EmailForm.updateErrors model.emailForm errors }, Cmd.none )
+
+        UpdateEmailFormValue emailForm ->
+            ( { model | emailForm = EmailForm.updateFormValue emailForm }, Cmd.none )
 
         ClosePopup ->
             ( { model | popup = Popup.None, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay }, Cmd.none )
 
+        CloseEmailForm ->
+            ( { model | popup = Popup.None, emailForm = EmailForm.clearFlash model.emailForm }, Cmd.none )
+
         TogglePopupState ->
-            ( { model | isPopupExtended = not model.isPopupExtended }, Cmd.none )
+            ( { model | isPopupListExpanded = not model.isPopupListExpanded }, Cmd.none )
 
         SelectSensorId value ->
             let
@@ -619,8 +670,14 @@ update msg model =
         MaybeUpdateResolution updateResolution ->
             debounce updateResolution model
 
+        ToggleFiltersExpanded ->
+            ( { model | areFiltersExpanded = not model.areFiltersExpanded, isNavExpanded = False }, Cmd.none )
+
+        CloseFilters ->
+            ( { model | areFiltersExpanded = False }, Cmd.none )
+
         ToggleNavExpanded ->
-            ( { model | isNavExpanded = not model.isNavExpanded }, Cmd.none )
+            ( { model | isNavExpanded = not model.isNavExpanded, areFiltersExpanded = False }, Cmd.none )
 
         ToggleTheme ->
             let
@@ -733,7 +790,7 @@ deselectSession selectable =
 
 getScrollPosition : Cmd Msg
 getScrollPosition =
-    Dom.getViewportOf "sessions-container"
+    Dom.getViewportOf "session-cards-container"
         |> Task.attempt
             (\result ->
                 result
@@ -745,7 +802,7 @@ getScrollPosition =
 
 setScrollPosition : Float -> Cmd Msg
 setScrollPosition value =
-    Dom.setViewportOf "sessions-container" value 0 |> Task.attempt (\_ -> NoOp)
+    Dom.setViewportOf "session-cards-container" value 0 |> Task.attempt (\_ -> NoOp)
 
 
 
@@ -762,7 +819,7 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ viewNav model.navLogo model.menuIcon model.isNavExpanded
+        [ viewNav model.navLogo model.filterIcon model.menuIcon model.areFiltersExpanded model.isNavExpanded
         , viewMain model
         , snippetGoogleTagManager
         ]
@@ -781,9 +838,11 @@ snippetGoogleTagManager =
         ]
 
 
-viewNav : Path -> Path -> Bool -> Html Msg
-viewNav navLogo menuIcon isNavExpanded =
-    header [ classList [ ( "menu-collapsed", not isNavExpanded ) ] ]
+viewNav : Path -> Path -> Path -> Bool -> Bool -> Html Msg
+viewNav navLogo filterIcon menuIcon areFiltersExpanded isNavExpanded =
+    header
+        [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
+        ]
         [ div [ class "logo" ]
             [ a
                 [ ariaLabel "Homepage"
@@ -821,6 +880,15 @@ viewNav navLogo menuIcon isNavExpanded =
                 ]
             ]
         , button
+            [ class "nav__menu-button nav__menu-button--filter"
+            , title "Filters"
+            , type_ "button"
+            , ariaLabel "Filters"
+            , Events.onClick ToggleFiltersExpanded
+            ]
+            [ img [ src <| Path.toString filterIcon, alt "Filter icon" ] []
+            ]
+        , button
             [ class "nav__menu-button"
             , title "Menu"
             , type_ "button"
@@ -837,12 +905,21 @@ viewMain model =
     main_
         []
         [ div [ class "maps-page-container" ]
-            [ div [ class "filters" ]
+            [ div
+                [ classList
+                    [ ( "filters", True )
+                    , ( "filters--collapsed", not model.areFiltersExpanded )
+                    ]
+                ]
                 [ viewSessionTypeNav model
                 , viewFilters model
-                , viewFiltersButtons model.selectedSession model.sessions model.linkIcon
+                , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm
+                , button
+                    [ class "show-results-button"
+                    , Events.onClick CloseFilters
+                    ]
+                    [ text "show results" ]
                 ]
-            , Popup.view TogglePopupState SelectSensorId model.isPopupExtended model.popup
             , viewMap model
             ]
         ]
@@ -951,27 +1028,25 @@ viewSessionsOrSelectedSession model =
                 "FixedSessionsMapCtrl"
             )
         ]
-        [ div [ class "sessions" ]
-            [ div [ class "single-session", attribute "ng-controller" "SessionsListCtrl" ]
-                [ case model.selectedSession of
-                    NotAsked ->
-                        viewSessions model.fetchableSessionsCount model.sessions model.heatMapThresholds
+        [ div [ class "sessions", attribute "ng-controller" "SessionsListCtrl" ]
+            [ case model.selectedSession of
+                NotAsked ->
+                    viewSessions model.fetchableSessionsCount model.sessions model.heatMapThresholds
 
-                    Success session ->
-                        viewSelectedSession model.heatMapThresholds (Just session) model.linkIcon
+                Success session ->
+                    viewSelectedSession model.heatMapThresholds (Just session) model.linkIcon model.popup (EmailForm.view model.emailForm ExportSessions NoOp UpdateEmailFormValue)
 
-                    Loading ->
-                        viewSelectedSession model.heatMapThresholds Nothing model.linkIcon
+                Loading ->
+                    viewSelectedSession model.heatMapThresholds Nothing model.linkIcon model.popup (EmailForm.view model.emailForm ExportSessions NoOp UpdateEmailFormValue)
 
-                    Failure _ ->
-                        div [] [ text "error!" ]
-                ]
+                Failure _ ->
+                    div [] [ text "error!" ]
             ]
         ]
 
 
-viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> Html Msg
-viewSelectedSession heatMapThresholds maybeSession linkIcon =
+viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> Popup.Popup -> Html Msg -> Html Msg
+viewSelectedSession heatMapThresholds maybeSession linkIcon popup emailForm =
     div [ class "single-session-container" ]
         [ div [ class "single-session__aside" ]
             (case maybeSession of
@@ -979,7 +1054,7 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon =
                     [ text "loading" ]
 
                 Just session ->
-                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ]
+                    [ SelectedSession.view session heatMapThresholds linkIcon ShowCopyLinkTooltip ShowExportPopup popup emailForm ]
             )
         , div
             [ class "single-session__graph", id "graph-box" ]
@@ -989,8 +1064,8 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon =
         ]
 
 
-viewFiltersButtons : WebData SelectedSession -> List Session -> Path -> Html Msg
-viewFiltersButtons selectedSession sessions linkIcon =
+viewFiltersButtons : WebData SelectedSession -> List Session -> Path -> Popup.Popup -> EmailForm.EmailForm -> Html Msg
+viewFiltersButtons selectedSession sessions linkIcon popup emailForm =
     case selectedSession of
         NotAsked ->
             let
@@ -998,9 +1073,14 @@ viewFiltersButtons selectedSession sessions linkIcon =
                     "copy-link-tooltip"
             in
             div [ class "filters__actions action-buttons" ]
-                [ a [ class "button button--primary action-button action-button--export", target "_blank", href <| Api.exportLink sessions ] [ text "export sessions" ]
+                [ button [ class "button button--primary action-button action-button--export", Popup.clickWithoutDefault ShowExportPopup ] [ text "export sessions" ]
                 , button [ class "button button--primary action-button action-button--copy-link", Events.onClick <| ShowCopyLinkTooltip tooltipId, id tooltipId ]
                     [ img [ src <| Path.toString linkIcon, alt "Link icon" ] [] ]
+                , if Popup.isEmailFormPopupShown popup then
+                    Popup.viewEmailForm (EmailForm.view emailForm ExportSessions NoOp UpdateEmailFormValue)
+
+                  else
+                    text ""
                 ]
 
         _ ->
@@ -1009,11 +1089,18 @@ viewFiltersButtons selectedSession sessions linkIcon =
 
 viewSessionTypeNav : Model -> Html Msg
 viewSessionTypeNav model =
-    div [ class "session-type-nav" ]
-        [ a [ href "/mobile_map", classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
-            [ text "mobile", Tooltip.view Tooltip.mobileTab model.tooltipIcon ]
-        , a [ href "/fixed_map", classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
-            [ text "fixed", Tooltip.view Tooltip.fixedTab model.tooltipIcon ]
+    ul [ class "session-type-nav" ]
+        [ li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
+            [ a [ href "/mobile_map" ]
+                [ text "mobile" ]
+            , Tooltip.view Tooltip.mobileTab model.tooltipIcon
+            ]
+        , li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
+            [ a
+                [ href "/fixed_map" ]
+                [ text "fixed" ]
+            , Tooltip.view Tooltip.fixedTab model.tooltipIcon
+            ]
         ]
 
 
@@ -1027,12 +1114,12 @@ viewSessions fetchableSessionsCount sessions heatMapThresholds =
         text ""
 
     else
-        div [ class "sessions-list" ]
-            [ h2 [ class "sessions-header" ]
+        div [ class "session-list" ]
+            [ h2 [ class "session-list__header" ]
                 [ text "Sessions" ]
-            , span [ class "sessions-number" ]
+            , span [ class "session-list__number" ]
                 [ text ("showing " ++ sessionsCount ++ " of " ++ String.fromInt fetchableSessionsCount ++ " results") ]
-            , div [ class "sessions-container", id "sessions-container" ]
+            , div [ class "session-cards-container", id "session-cards-container" ]
                 (List.map (viewSessionCard heatMapThresholds) sessions ++ [ viewLoadMore fetchableSessionsCount (List.length sessions) ])
             ]
 
@@ -1056,21 +1143,21 @@ viewLoadMore fetchableSessionsCount sessionCount =
 viewSessionCard : WebData HeatMapThresholds -> Session -> Html Msg
 viewSessionCard heatMapThresholds session =
     div
-        [ class "session"
+        [ class "session-card"
         , Events.onClick <| ToggleSessionSelection session.id
         , Events.onMouseEnter <| HighlightSessionMarker (Just session)
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]
         [ div
-            [ class "session-color"
+            [ class "session-card__color"
             , class <| Data.Session.classByValue session.average heatMapThresholds
             ]
             []
-        , h3 [ class "session-name" ]
+        , h3 [ class "session-card__name" ]
             [ text session.title ]
-        , p [ class "session-owner" ]
+        , p [ class "session-card__owner" ]
             [ text session.username ]
-        , span [ class "session-dates" ]
+        , span [ class "session-card__dates" ]
             [ text <| Times.format session.startTime session.endTime ]
         ]
 
@@ -1088,8 +1175,8 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     div [ class "filters-container" ]
-        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
-        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
+        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
+        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
         , TimeRange.view RefreshTimeRange Dormant model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter model.tooltipIcon
@@ -1101,8 +1188,8 @@ viewMobileFilters model =
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     div [ class "filters-container" ]
-        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon
-        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon
+        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
+        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
         , TimeRange.view RefreshTimeRange model.status model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
@@ -1138,8 +1225,8 @@ viewToggleButton label isPressed callback =
         [ text label ]
 
 
-viewParameterFilter : List Sensor -> String -> Path -> Html Msg
-viewParameterFilter sensors selectedSensorId tooltipIcon =
+viewParameterFilter : List Sensor -> String -> Path -> Bool -> Popup.Popup -> Html Msg
+viewParameterFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup =
     div [ class "filters__input-group" ]
         [ input
             [ id "parameter"
@@ -1148,18 +1235,20 @@ viewParameterFilter sensors selectedSensorId tooltipIcon =
             , placeholder "parameter"
             , type_ "text"
             , name "parameter"
-            , Popup.clickWithoutDefault (ShowPopup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId))
+            , Popup.clickWithoutDefault (ShowListPopup Popup.ParameterList)
             , value (Sensor.parameterForId sensors selectedSensorId)
             , autocomplete False
+            , readonly True
             ]
             []
         , label [ for "parameter" ] [ text "parameter:" ]
         , Tooltip.view Tooltip.parameterFilter tooltipIcon
+        , viewListPopup Popup.isParameterPopupShown isPopupListExpanded popup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId)
         ]
 
 
-viewSensorFilter : List Sensor -> String -> Path -> Html Msg
-viewSensorFilter sensors selectedSensorId tooltipIcon =
+viewSensorFilter : List Sensor -> String -> Path -> Bool -> Popup.Popup -> Html Msg
+viewSensorFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup =
     div [ class "filters__input-group" ]
         [ input
             [ id "sensor"
@@ -1168,14 +1257,25 @@ viewSensorFilter sensors selectedSensorId tooltipIcon =
             , placeholder "sensor"
             , type_ "text"
             , name "sensor"
-            , Popup.clickWithoutDefault (ShowPopup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId))
+            , Popup.clickWithoutDefault (ShowListPopup Popup.SensorList)
             , value (Sensor.sensorLabelForId sensors selectedSensorId)
             , autocomplete False
+            , readonly True
             ]
             []
         , label [ for "sensor" ] [ text "sensor:" ]
         , Tooltip.view Tooltip.sensorFilter tooltipIcon
+        , viewListPopup Popup.isSensorPopupShown isPopupListExpanded popup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId)
         ]
+
+
+viewListPopup : (Popup.Popup -> Bool) -> Bool -> Popup.Popup -> ( List String, List String ) -> String -> String -> Html Msg
+viewListPopup isShown isPopupListExpanded popup items itemType selectedItem =
+    if isShown popup then
+        Popup.viewListPopup TogglePopupState SelectSensorId isPopupListExpanded items itemType selectedItem
+
+    else
+        text ""
 
 
 viewCrowdMapOptions : Bool -> BoundedInteger -> WebData SelectedSession -> Path -> Html Msg

@@ -1,4 +1,4 @@
-module Popup exposing (Popup(..), clickWithoutDefault, view)
+module Popup exposing (Popup(..), clickWithoutDefault, isEmailFormPopupShown, isParameterPopupShown, isSensorPopupShown, viewEmailForm, viewListPopup)
 
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class, classList, id)
@@ -7,7 +7,9 @@ import Json.Decode as Decode
 
 
 type Popup
-    = SelectFrom ( List String, List String ) String String
+    = ParameterList
+    | SensorList
+    | EmailForm
     | None
 
 
@@ -16,38 +18,38 @@ type PopupPart
     | OtherPart
 
 
-view : msg -> (String -> msg) -> Bool -> Popup -> Html msg
-view toggle onSelect isPopupExtended popup =
-    case popup of
-        SelectFrom ( main, others ) itemType selectedItem ->
-            case ( List.isEmpty main, List.isEmpty others ) of
-                ( True, _ ) ->
-                    div [ id "popup", class "filter-popup" ]
-                        [ selectableItems MainPart others onSelect selectedItem ]
+viewListPopup : msg -> (String -> msg) -> Bool -> ( List String, List String ) -> String -> String -> Html msg
+viewListPopup toggle onSelect isListExpanded ( main, others ) itemType selectedItem =
+    case ( List.isEmpty main, List.isEmpty others ) of
+        ( True, _ ) ->
+            div [ id "popup", class "filter-popup" ]
+                [ selectableItems MainPart others onSelect selectedItem ]
 
-                ( False, True ) ->
-                    div [ id "popup", class "filter-popup" ]
-                        [ selectableItems MainPart main onSelect selectedItem
+        ( False, True ) ->
+            div [ id "popup", class "filter-popup" ]
+                [ selectableItems MainPart main onSelect selectedItem
+                ]
+
+        ( False, False ) ->
+            div [ id "popup", class "filter-popup" ]
+                [ selectableItems MainPart main onSelect selectedItem
+                , if List.isEmpty others then
+                    text ""
+
+                  else if isListExpanded then
+                    div [ class "filter-popup__more" ]
+                        [ selectableItems OtherPart others onSelect selectedItem
+                        , togglePopupStateButton ("fewer " ++ itemType) toggle
                         ]
 
-                ( False, False ) ->
-                    div [ id "popup", class "filter-popup" ]
-                        [ selectableItems MainPart main onSelect selectedItem
-                        , if List.isEmpty others then
-                            text ""
+                  else
+                    togglePopupStateButton ("more " ++ itemType) toggle
+                ]
 
-                          else if isPopupExtended then
-                            div [ class "filter-popup__more" ]
-                                [ selectableItems OtherPart others onSelect selectedItem
-                                , togglePopupStateButton ("fewer " ++ itemType) toggle
-                                ]
 
-                          else
-                            togglePopupStateButton ("more " ++ itemType) toggle
-                        ]
-
-        None ->
-            text ""
+viewEmailForm : Html msg -> Html msg
+viewEmailForm emailForm =
+    emailForm
 
 
 togglePopupStateButton : String -> msg -> Html msg
@@ -96,3 +98,33 @@ preventDefault msg =
     , stopPropagation = True
     , preventDefault = True
     }
+
+
+isParameterPopupShown : Popup -> Bool
+isParameterPopupShown popup =
+    case popup of
+        ParameterList ->
+            True
+
+        _ ->
+            False
+
+
+isSensorPopupShown : Popup -> Bool
+isSensorPopupShown popup =
+    case popup of
+        SensorList ->
+            True
+
+        _ ->
+            False
+
+
+isEmailFormPopupShown : Popup -> Bool
+isEmailFormPopupShown popup =
+    case popup of
+        EmailForm ->
+            True
+
+        _ ->
+            False

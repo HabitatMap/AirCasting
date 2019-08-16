@@ -1,26 +1,35 @@
 .maps-page-container {
-  @include flexbox();
-  @include justify-content(space-between);
+  @media screen and (min-width: $ipad-portrait) {
+    @include flexbox();
+    @include justify-content(space-between);
+  }
 }
 
 .maps-content-container {
-  @include flexbox();
-  @include flex-direction(column);
-  @include justify-content(space-between);
   position: relative;
+
+  @media screen and (min-width: $ipad-portrait) {
+    @include flexbox();
+    @include flex-direction(column);
+    @include justify-content(space-between);
+  }
 }
 
 .map-container {
-  position: relative;
   flex: 1 1 100%;
-}
+  position: relative;
 
-.heatmap {
-  background: white;
-  flex: 1 0 $heatmap-height;
+  @media screen and (orientation: portrait) {
+    height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height});
+  }
 }
 
 .map {
-  height: 100%;
-  width: calc(100vw - #{$filters-width});
+  height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height});
+  width: 100vw;
+
+  @media screen and (min-width: $ipad-portrait) {
+    height: 100%;
+    width: calc(100vw - #{$filters-width});
+  }
 }

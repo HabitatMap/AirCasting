@@ -30,7 +30,7 @@ popups =
     describe "Popup tests: "
         [ test "when ClosePopup is triggered the popup is hidden" <|
             \_ ->
-                { defaultModel | popup = Popup.SelectFrom ( [], [] ) "" "" }
+                { defaultModel | popup = Popup.SensorList }
                     |> update ClosePopup
                     |> Tuple.first
                     |> view
@@ -41,7 +41,7 @@ popups =
                 defaultModel
                     |> update TogglePopupState
                     |> Tuple.first
-                    |> .isPopupExtended
+                    |> .isPopupListExpanded
                     |> Expect.equal True
         ]
 
@@ -85,10 +85,10 @@ parameterSensorFilter =
                     |> Query.fromHtml
                     |> Query.find [ Slc.id "sensor" ]
                     |> Query.has [ Slc.attribute <| value "Sensor (unit)" ]
-        , test "when ShowPopup is triggered popup is shown" <|
+        , test "when ShowListPopup is triggered popup is shown" <|
             \_ ->
                 defaultModel
-                    |> update (ShowPopup ( [], [] ) "" "")
+                    |> update (ShowListPopup Popup.SensorList)
                     |> Tuple.first
                     |> view
                     |> Query.fromHtml
@@ -573,7 +573,7 @@ viewTests =
                             |> Result.withDefault (Time.millisToPosix 0)
 
                     selectedSession =
-                        { defaultSelectedSession | startTime = start, endTime = end }
+                        { defaultSelectedSession | startTime = start, endTime = end, selectedMeasurements = [ 1, 4 ] }
                 in
                 { defaultModel | selectedSession = Success selectedSession }
                     |> view

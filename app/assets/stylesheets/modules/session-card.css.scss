@@ -1,0 +1,61 @@
+.session-card {
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: $lighter-shadow;
+  margin: $margin-default 0 5px $margin-default;
+  min-width: 220px;
+  padding: $margin-default;
+  position: relative;
+
+  &:last-child {
+    margin-right: $margin-default;
+  }
+
+  &::before {
+    content: " ";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 12px;
+    box-shadow: 0px 1px 5px 0px $blue;
+    opacity: 0;
+    transition: opacity 300ms;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+.session-card__color {
+  height: 12px;
+  width: 12px;
+  border-radius: 12px;
+  margin-right: 10px;
+  margin-top: 5px;
+  float: left;
+}
+
+.session-card__name {
+  font-size: 16px;
+  font-weight: $font-stack-regular;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-card__owner {
+  font-size: $small-font;
+  margin: 2px 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-card__dates {
+  font-size: $tiny-font;
+  margin-right: 3px;
+}

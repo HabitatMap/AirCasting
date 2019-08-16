@@ -1,16 +1,28 @@
 .filters {
   background: $brand-secondary;
-  box-shadow: 1px 1px 6px 0 rgba(51, 51, 51, 0.5);
   color: white;
   min-height: calc(100vh - #{$nav-height});
-  min-width: $filters-width;
   position: relative;
-  width: $filters-width;
-  z-index: $heatmap-z-index + 1;
+  z-index: $filters-z-index;
+
+  @media screen and (max-width: $mobile) {
+    position: absolute;
+    transition: transform 200ms ease;
+    width: 100vw;
+
+    &.filters--collapsed {
+      @include transform(translateX(-100%));
+    }
+  }
+
+  @media screen and (min-width: $ipad-portrait) {
+    box-shadow: 1px 1px 6px 0 rgba(51, 51, 51, 0.5);
+    width: $filters-width;
+  }
 }
 
 .filters-container {
-  padding: $margin-default $margin-default 60px $margin-default; // bottom space holds action buttons
+  padding: $margin-default $margin-default 50px $margin-default;
 }
 
 .filters__actions {
@@ -18,6 +30,10 @@
   left: 0;
   padding: $margin-default $margin-default 15px $margin-default;
   position: absolute;
+
+  @media screen and (max-width: $mobile) {
+    display: none;
+  }
 }
 
 .filters__input-group {

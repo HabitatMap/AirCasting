@@ -2,7 +2,7 @@ module ApiTests exposing (suite)
 
 import Api
 import Expect
-import Fuzz exposing (int)
+import Fuzz exposing (int, string)
 import Test exposing (..)
 import TestUtils exposing (defaultSession)
 
@@ -10,22 +10,22 @@ import TestUtils exposing (defaultSession)
 suite : Test
 suite =
     describe "Api: "
-        [ fuzz int "with 1 session exportLink generates the correct link" <|
-            \id ->
+        [ fuzz2 int string "with 1 session exportLink generates the correct link" <|
+            \id email ->
                 let
                     expected =
-                        Api.exportPath ++ "?session_ids[]=" ++ String.fromInt id
+                        Api.exportPath ++ "?session_ids[]=" ++ String.fromInt id ++ "&email=" ++ email
                 in
                 [ { defaultSession | id = id } ]
-                    |> Api.exportLink
+                    |> Api.exportLink email
                     |> Expect.equal expected
-        , fuzz int "with 2 sessions exportLink generates the correct link" <|
-            \id ->
+        , fuzz2 int string "with 2 sessions exportLink generates the correct link" <|
+            \id email ->
                 let
                     expected =
-                        Api.exportPath ++ "?session_ids[]=" ++ String.fromInt id ++ "&session_ids[]=" ++ String.fromInt (id + 1)
+                        Api.exportPath ++ "?session_ids[]=" ++ String.fromInt id ++ "&session_ids[]=" ++ String.fromInt (id + 1) ++ "&email=" ++ email
                 in
                 [ { defaultSession | id = id }, { defaultSession | id = id + 1 } ]
-                    |> Api.exportLink
+                    |> Api.exportLink email
                     |> Expect.equal expected
         ]
