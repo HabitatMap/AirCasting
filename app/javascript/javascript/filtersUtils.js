@@ -74,21 +74,44 @@ export const setupTimeRangeFilter = (
     );
   }
 };
-export const setupAutocomplete = (callback, id, path, createParams) => {
-  if (document.getElementById(id)) {
-    $(`#${id}`).autocomplete({
+export const setupTagsAutocomplete = (callback, path, createParams) => {
+  if (document.getElementById("tags")) {
+    $(`#tags`)
+      .autocomplete({
+        source: function(request, response) {
+          const data = {
+            q: { input: request.term, ...createParams() }
+          };
+          $.getJSON(path, data, response);
+        },
+        select: function(event, ui) {
+          callback(ui.item.value);
+        },
+        minLength: 0
+      })
+      .focus(function() {
+        $(this).autocomplete("search");
+      });
+  } else {
+    window.setTimeout(setupAutocomplete(callback, path), 100);
+  }
+};
+
+export const setupProfileNamesAutocomplete = callback => {
+  if (document.getElementById("profile-names")) {
+    $(`#profile-names`).autocomplete({
       source: function(request, response) {
         const data = {
-          q: { input: request.term, ...createParams() }
+          q: { input: request.term }
         };
-        $.getJSON(path, data, response);
+        $.getJSON("api/autocomplete/usernames", data, response);
       },
       select: function(event, ui) {
         callback(ui.item.value);
       }
     });
   } else {
-    window.setTimeout(setupAutocomplete(callback, id, path), 100);
+    window.setTimeout(setupAutocomplete(callback), 100);
   }
 };
 

@@ -124,11 +124,8 @@ export const MobileSessionsMapCtrl = (
         FiltersUtils.clearLocation(elmApp.ports.locationCleared.send, params);
       });
 
-      FiltersUtils.setupAutocomplete(
-        selectedValue => elmApp.ports.profileSelected.send(selectedValue),
-        "profile-names",
-        "api/autocomplete/usernames",
-        () => {}
+      FiltersUtils.setupProfileNamesAutocomplete(selectedValue =>
+        elmApp.ports.profileSelected.send(selectedValue)
       );
 
       const createTagsFilterParams = () => {
@@ -148,9 +145,8 @@ export const MobileSessionsMapCtrl = (
         };
       };
 
-      FiltersUtils.setupAutocomplete(
+      FiltersUtils.setupTagsAutocomplete(
         selectedValue => elmApp.ports.tagSelected.send(selectedValue),
-        "tags",
         "api/mobile/autocomplete/tags",
         createTagsFilterParams
       );

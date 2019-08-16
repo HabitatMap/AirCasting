@@ -8,7 +8,7 @@ module Api::MobileTagsParams
 
   Schema =
     Dry::Validation.Schema do
-      required(:input).filled(:str?)
+      required(:input)
       required(:time_from).filled(:time?)
       required(:time_to).filled(:time?)
       required(:sensor_name).filled(:str?)

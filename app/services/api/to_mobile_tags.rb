@@ -27,7 +27,7 @@ class Api::ToMobileTags
 
     tags = sessions2.tag_counts.where(['tags.name LIKE ?', "#{data[:input]}%"])
 
-    Success.new(tags.map(&:name))
+    Success.new(tags.map(&:name).sort_by { |word| words_first(word) })
   end
 
   private
@@ -36,5 +36,9 @@ class Api::ToMobileTags
 
   def data
     form.to_h
+  end
+
+  def words_first(str)
+    str[0] =~ /[[:alpha:]]/ ? '0' + str.downcase : '1' + str.downcase
   end
 end
