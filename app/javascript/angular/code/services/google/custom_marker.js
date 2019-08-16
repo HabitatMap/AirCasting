@@ -1,3 +1,5 @@
+let zIndex = 10000;
+
 export function buildCustomMarker({
   object,
   content,
@@ -88,6 +90,11 @@ export function buildCustomMarker({
 
   CustomMarker.prototype.value = () => object.value;
 
+  CustomMarker.prototype.moveOnTop = function(index) {
+    this.markerContainer.style.zIndex = zIndex;
+    zIndex = zIndex + 1;
+  };
+
   const marker = new CustomMarker({
     object,
     content,
@@ -96,7 +103,7 @@ export function buildCustomMarker({
     type
   });
 
-  window.__map.markers.push(marker);
+  window.__map.customMarkers.push(marker);
 
   return marker;
 }

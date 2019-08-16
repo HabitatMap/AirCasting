@@ -188,7 +188,7 @@ export const mobileSessions = (
         $rootScope.$broadcast("markerSelected", { session_id: id });
 
       const marker = map.drawMarkerWithoutLabel({
-        object: { latLng },
+        object: { latLng, id: session.id },
         colorClass: heatLevel,
         callback: callback(Session.id(session))
       });

@@ -134,6 +134,13 @@ export const SessionsListCtrl = (
           }
         }
 
+        window.__map.customMarkers.forEach(marker => {
+          if (marker.objectId() === sessionMarkerData.id) {
+            marker.moveOnTop();
+            return;
+          }
+        });
+
         pulsatingSessionMarker = map.drawPulsatingMarker(
           sessionMarkerData.location,
           sessionMarkerData.heatLevel
