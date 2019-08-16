@@ -3,6 +3,7 @@ module Api
     respond_to :json
 
     def index
+      GoogleAnalytics.new.register_event('Mobile sessions#index')
       q = ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
       q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')
       q[:time_to] = Time.strptime(q[:time_to].to_s, '%s')
@@ -23,6 +24,7 @@ module Api
     end
 
     def show
+      GoogleAnalytics.new.register_event('Mobile sessions#show')
       form =
         Api::ParamsForm.new(
           params: params.to_unsafe_hash,
@@ -39,6 +41,7 @@ module Api
     end
 
     def show2
+      GoogleAnalytics.new.register_event('Mobile sessions#show2')
       form =
         Api::ParamsForm.new(
           params: params.to_unsafe_hash,

@@ -25,23 +25,9 @@ test("when title is present it uses it", t => {
   t.end();
 });
 
-test("when session is indoor it uses anonymous as username", t => {
-  const session = {
-    is_indoor: true,
-    selectedStream: {}
-  };
-
-  const actual = Session.formatSessionForList(session);
-
-  t.deepEqual(actual.username, "anonymous");
-
-  t.end();
-});
-
-test("when session is outdoor it uses its username", t => {
+test("when returns a username", t => {
   const username = "user1234";
   const session = {
-    is_indoor: false,
     username,
     selectedStream: {}
   };

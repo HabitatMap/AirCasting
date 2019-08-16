@@ -19,7 +19,7 @@ class Api::ToActiveSessionsArray
             latitude: session.latitude,
             longitude: session.longitude,
             type: session.type,
-            username: session.user.username,
+            username: session.is_indoor ? 'anonymous' : session.user.username,
             streams:
               session.streams.reduce({}) do |acc, stream|
                 acc.merge(

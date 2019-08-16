@@ -1,9 +1,11 @@
 import * as assets from "../assets";
 import { BLUE_THEME } from "./constants";
+import { getParams } from "./params";
 
-export const applyTheme = () => {
+export const applyTheme = callback => {
   updateFixedClusters();
   updateRectangles();
+  callback();
 };
 
 const updateFixedClusters = () => {
@@ -13,7 +15,7 @@ const updateFixedClusters = () => {
 };
 
 export const fixedClusterStyles = () => {
-  if (params().theme === BLUE_THEME) {
+  if (getParams().theme === BLUE_THEME) {
     return [
       { url: assets.clusterTheme2Level1Path, height: 30, width: 30 },
       { url: assets.clusterTheme2Level2Path, height: 30, width: 30 },
@@ -30,6 +32,24 @@ export const fixedClusterStyles = () => {
   }
 };
 
+export const locationMarkersByLevel = () => {
+  if (getParams().theme === BLUE_THEME) {
+    return {
+      1: assets.locationMarkerTheme2Level1Path,
+      2: assets.locationMarkerTheme2Level2Path,
+      3: assets.locationMarkerTheme2Level3Path,
+      4: assets.locationMarkerTheme2Level4Path
+    };
+  } else {
+    return {
+      1: assets.locationMarkerTheme1Level1Path,
+      2: assets.locationMarkerTheme1Level2Path,
+      3: assets.locationMarkerTheme1Level3Path,
+      4: assets.locationMarkerTheme1Level4Path
+    };
+  }
+};
+
 const updateRectangles = () => {
   if (!window.__map.rectangles) return;
   window.__map.rectangles.forEach(rectangle => {
@@ -40,7 +60,7 @@ const updateRectangles = () => {
 };
 
 const rectanglesStyles = () => {
-  if (params().theme === BLUE_THEME) {
+  if (getParams().theme === BLUE_THEME) {
     // empty strings correspond to values outside of heat levels range
     // and this rectangles are not drawn
     return ["", "#81dbcb", "#4ebcd5", "#2a70b8", "#19237e", ""];
@@ -56,15 +76,5 @@ export const rectangleColour = value => {
 };
 
 const heatLevels = () => {
-  return Object.values(params().data.heat).sort((a, b) => a - b);
+  return Object.values(getParams().data.heat).sort((a, b) => a - b);
 };
-
-const params = () =>
-  window.location.hash
-    .slice(2)
-    .split("&")
-    .filter(x => x.length !== 0)
-    .map(x => x.split("="))
-    .map(([k, v]) => [k, decodeURIComponent(v)])
-    .map(([k, v]) => [k, JSON.parse(v)])
-    .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});

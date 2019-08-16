@@ -112,13 +112,24 @@ export const SessionsListCtrl = (
         sessions.fetch();
       });
 
-      elmApp.ports.pulseSessionMarker.subscribe(location => {
-        if (location === null) {
+      elmApp.ports.pulseSessionMarker.subscribe(session => {
+        if (session === null) {
           pulsatingSessionMarker.setMap(null);
           return;
         }
 
-        pulsatingSessionMarker = map.drawPulsatingMarker(location);
+        if (window.__map.clusterers[0]) {
+          const cluster = window.__map.clusterers[0].clusters_.find(cluster =>
+            cluster.markers_.some(marker => marker.objectId() === session.id)
+          );
+
+          if (cluster) {
+            pulsatingSessionMarker = map.drawPulsatingMarker(cluster.center_);
+            return;
+          }
+        }
+
+        pulsatingSessionMarker = map.drawPulsatingMarker(session.location);
       });
 
       elmApp.ports.saveScrollPosition.subscribe(value => {

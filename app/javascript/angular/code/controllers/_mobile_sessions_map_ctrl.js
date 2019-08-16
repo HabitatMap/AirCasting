@@ -4,6 +4,7 @@ import * as FiltersUtils from "../../../javascript/filtersUtils";
 import { clearMap } from "../../../javascript/mapsUtils";
 import { applyTheme } from "../../../javascript/theme";
 import { DEFAULT_THEME } from "../../../javascript/constants";
+import { getParams } from "../../../javascript/params";
 
 const endOfToday = moment()
   .utc()
@@ -126,13 +127,32 @@ export const MobileSessionsMapCtrl = (
       FiltersUtils.setupAutocomplete(
         selectedValue => elmApp.ports.profileSelected.send(selectedValue),
         "profile-names",
-        "/autocomplete/usernames"
+        "api/autocomplete/usernames",
+        () => {}
       );
+
+      const createTagsFilterParams = () => {
+        const bounds = map.getBounds();
+        const data = getParams().data;
+
+        return {
+          west: bounds.west,
+          east: bounds.east,
+          south: bounds.south,
+          north: bounds.north,
+          time_from: data.timeFrom,
+          time_to: data.timeTo,
+          usernames: data.usernames,
+          sensor_name: sensors.selected().sensor_name,
+          unit_symbol: sensors.selected().unit_symbol
+        };
+      };
 
       FiltersUtils.setupAutocomplete(
         selectedValue => elmApp.ports.tagSelected.send(selectedValue),
         "tags",
-        "/autocomplete/tags"
+        "api/mobile/autocomplete/tags",
+        createTagsFilterParams
       );
 
       elmApp.ports.updateTags.subscribe(tags => {
@@ -181,7 +201,11 @@ export const MobileSessionsMapCtrl = (
       elmApp.ports.toggleTheme.subscribe(theme => {
         params.update({ theme: theme });
         $scope.$apply();
-        applyTheme();
+        applyTheme(() => {
+          if (params.selectedSessionIds().length !== 0) {
+            sessions.redrawSelectedSession();
+          }
+        });
       });
     });
   }

@@ -17,7 +17,7 @@ import Data.Session exposing (..)
 import Data.Status as Status exposing (Status(..))
 import Data.Theme as Theme exposing (Theme)
 import Data.Times as Times
-import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, li, main_, nav, p, span, text, ul)
+import Html exposing (Html, a, button, div, h2, h3, header, iframe, img, input, label, li, main_, nav, node, p, span, text, ul)
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, rel, src, target, title, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel, role)
 import Html.Events as Events
@@ -265,7 +265,7 @@ type Msg
     | ToggleIsSearchOn
     | MapMoved
     | FetchSessions
-    | HighlightSessionMarker (Maybe Location)
+    | HighlightSessionMarker (Maybe Session)
     | GraphRangeSelected (List Float)
     | UpdateIsShowingTimeRangeFilter Bool
     | SaveScrollPosition Float
@@ -630,8 +630,15 @@ update msg model =
         FetchSessions ->
             ( model, Ports.fetchSessions () )
 
-        HighlightSessionMarker location ->
-            ( model, Ports.pulseSessionMarker location )
+        HighlightSessionMarker maybeSession ->
+            ( model
+            , Ports.pulseSessionMarker <|
+                Maybe.map
+                    (\session ->
+                        { location = session.location, id = session.id }
+                    )
+                    maybeSession
+            )
 
         GraphRangeSelected measurements ->
             ( { model | selectedSession = SelectedSession.updateRange model.selectedSession measurements }, Cmd.none )
@@ -814,6 +821,20 @@ view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
         [ viewNav model.navLogo model.filterIcon model.menuIcon model.areFiltersExpanded model.isNavExpanded
         , viewMain model
+        , snippetGoogleTagManager
+        ]
+
+
+snippetGoogleTagManager =
+    node "noscript"
+        []
+        [ iframe
+            [ attribute "height" "0"
+            , src "https://www.googletagmanager.com/ns.html?id=GTM-T948MNX"
+            , attribute "style" "display:none;visibility:hidden"
+            , attribute "width" "0"
+            ]
+            []
         ]
 
 
@@ -1124,7 +1145,7 @@ viewSessionCard heatMapThresholds session =
     div
         [ class "session-card"
         , Events.onClick <| ToggleSessionSelection session.id
-        , Events.onMouseEnter <| HighlightSessionMarker (Just session.location)
+        , Events.onMouseEnter <| HighlightSessionMarker (Just session)
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]
         [ div

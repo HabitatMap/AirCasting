@@ -8,6 +8,8 @@ module Api
     respond_to :json
 
     def create
+      GoogleAnalytics.new.register_event('Measurement Sessions#create')
+
       if ActiveModel::Type::Boolean.new.cast(params[:compression])
         decoded = Base64.decode64(params[:session])
         unzipped = AirCasting::GZip.inflate(decoded)
@@ -29,6 +31,8 @@ module Api
     end
 
     def export
+      GoogleAnalytics.new.register_event('Measurement Sessions#export')
+
       form =
         Api::ParamsForm.new(
           params: params.to_unsafe_hash,

@@ -18,8 +18,8 @@ import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
 import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
-import { applyTheme } from "../javascript/theme";
 import { DEFAULT_THEME } from "../javascript/constants";
+import { getParams } from "../javascript/params";
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
@@ -39,14 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(sensors => {
       window.__sensors = sensors;
 
-      const params = window.location.hash
-        .slice(2)
-        .split("&")
-        .filter(x => x.length !== 0)
-        .map(x => x.split("="))
-        .map(([k, v]) => [k, decodeURIComponent(v)])
-        .map(([k, v]) => [k, JSON.parse(v)])
-        .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
+      const params = getParams();
 
       const defaultData = {
         location: "",

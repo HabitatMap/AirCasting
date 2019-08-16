@@ -5,6 +5,7 @@ module Api
     end
 
     def show
+      GoogleAnalytics.new.register_event('Fixed regions#show')
       form =
         Api::JsonForm.new(
           json: params.to_unsafe_hash[:q],

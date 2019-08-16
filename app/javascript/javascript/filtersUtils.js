@@ -74,12 +74,13 @@ export const setupTimeRangeFilter = (
     );
   }
 };
-
-export const setupAutocomplete = (callback, id, path) => {
+export const setupAutocomplete = (callback, id, path, createParams) => {
   if (document.getElementById(id)) {
     $(`#${id}`).autocomplete({
       source: function(request, response) {
-        const data = { q: request.term, limit: 10 };
+        const data = {
+          q: { input: request.term, ...createParams() }
+        };
         $.getJSON(path, data, response);
       },
       select: function(event, ui) {
