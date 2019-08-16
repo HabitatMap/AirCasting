@@ -268,7 +268,7 @@ export const map = (
 
       const markerClusterer = new MarkerClusterer(
         this.mapObj,
-        window.__map.markers,
+        window.__map.customMarkers,
         options
       );
 
