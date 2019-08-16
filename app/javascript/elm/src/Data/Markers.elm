@@ -6,7 +6,10 @@ import RemoteData exposing (WebData)
 
 
 type alias SessionMarkerData =
-    { id : Int, location : Location, heatLevel : Int }
+    { id : Int
+    , location : Location
+    , heatLevel : Int
+    }
 
 
 toSessionMarkerData : Location -> Int -> Maybe Float -> WebData HeatMapThresholds -> SessionMarkerData

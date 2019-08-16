@@ -92,7 +92,7 @@ export function buildCustomMarker({
 
   CustomMarker.prototype.moveOnTop = function(index) {
     this.markerContainer.style.zIndex = zIndex;
-    zIndex = zIndex + 1;
+    zIndex += 1;
   };
 
   const marker = new CustomMarker({

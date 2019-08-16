@@ -9,7 +9,7 @@ import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBoun
 import Data.EmailForm as EmailForm
 import Data.GraphData exposing (GraphData, GraphHeatData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
-import Data.Markers as Markers
+import Data.Markers as Markers exposing (SessionMarkerData)
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
 import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
@@ -271,7 +271,7 @@ type Msg
     | ToggleIsSearchOn
     | MapMoved
     | FetchSessions
-    | HighlightSessionMarker (Maybe Markers.SessionMarkerData)
+    | HighlightSessionMarker (Maybe SessionMarkerData)
     | GraphRangeSelected (List Float)
     | UpdateIsShowingTimeRangeFilter Bool
     | SaveScrollPosition Float
