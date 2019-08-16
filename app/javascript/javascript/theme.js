@@ -53,6 +53,7 @@ export const locationMarkersByLevel = () => {
 export const pulsingMarkerStyles = () => {
   if (getParams().theme === BLUE_THEME) {
     return {
+      0: assets.pulsingMarkerDefaultLevelPath,
       1: assets.pulsingMarkerTheme2Level1Path,
       2: assets.pulsingMarkerTheme2Level2Path,
       3: assets.pulsingMarkerTheme2Level3Path,
@@ -60,6 +61,7 @@ export const pulsingMarkerStyles = () => {
     };
   } else {
     return {
+      0: assets.pulsingMarkerDefaultLevelPath,
       1: assets.pulsingMarkerTheme1Level1Path,
       2: assets.pulsingMarkerTheme1Level2Path,
       3: assets.pulsingMarkerTheme1Level3Path,

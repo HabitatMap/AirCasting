@@ -38,6 +38,11 @@ export const locationMarkerTheme2Level4Path =
     ? ""
     : require("../assets/images/location_marker_theme2_level4.svg");
 
+export const pulsingMarkerDefaultLevelPath =
+  process.env.NODE_ENV === "test"
+    ? ""
+    : require("../assets/images/pulsing_marker_default_level.svg");
+
 export const pulsingMarkerTheme1Level1Path =
   process.env.NODE_ENV === "test"
     ? ""
