@@ -1,5 +1,6 @@
 import { Elm } from "../elm/src/Main.elm";
 import navLogo from "../../assets/images/aircasting-logo-nav.svg";
+import fitScaleIcon from "../../assets/images/fit-scale-icon.svg";
 import linkIcon from "../../assets/images/link-icon.svg";
 import filterIcon from "../../assets/images/filter-icon.svg";
 import menuIcon from "../../assets/images/menu-icon.svg";
@@ -88,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isIndoor: data.isIndoor,
         navLogo,
         filterIcon,
+        fitScaleIcon,
         linkIcon,
         menuIcon,
         resetIconBlack,
@@ -197,6 +199,10 @@ const setupHeatMap = () => {
     window.__elmApp.ports.drawMobile.subscribe(
       draw(graph.fetchAndDrawMobile(callback))
     );
+
+    window.__elmApp.ports.updateGraphYAxis.subscribe(heat => {
+      graph.updateYAxis(heat);
+    });
 
     window.__elmApp.ports.observeSessionsList.subscribe(() => {
       createObserver({

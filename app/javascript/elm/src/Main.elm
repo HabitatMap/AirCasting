@@ -7,7 +7,7 @@ import Browser.Events
 import Browser.Navigation
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
 import Data.EmailForm as EmailForm
-import Data.GraphData exposing (GraphData)
+import Data.GraphData exposing (GraphData, GraphHeatData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
 import Data.Page exposing (Page(..))
@@ -63,6 +63,7 @@ type alias Model =
     , isIndoor : Bool
     , navLogo : Path
     , filterIcon : Path
+    , fitScaleIcon : Path
     , linkIcon : Path
     , menuIcon : Path
     , resetIconBlack : Path
@@ -103,6 +104,7 @@ defaultModel =
     , selectedSession = NotAsked
     , navLogo = Path.empty
     , filterIcon = Path.empty
+    , fitScaleIcon = Path.empty
     , linkIcon = Path.empty
     , menuIcon = Path.empty
     , resetIconBlack = Path.empty
@@ -137,6 +139,7 @@ type alias Flags =
     , selectedSensorId : String
     , navLogo : String
     , filterIcon : String
+    , fitScaleIcon : String
     , linkIcon : String
     , menuIcon : String
     , resetIconBlack : String
@@ -181,6 +184,7 @@ init flags url key =
         , selectedSensorId = flags.selectedSensorId
         , navLogo = Path.fromString flags.navLogo
         , filterIcon = Path.fromString flags.filterIcon
+        , fitScaleIcon = Path.fromString flags.fitScaleIcon
         , linkIcon = Path.fromString flags.linkIcon
         , menuIcon = Path.fromString flags.menuIcon
         , resetIconBlack = Path.fromString flags.resetIconBlack
@@ -261,6 +265,7 @@ type Msg
     | UpdateHeatMapMinimum String
     | UpdateHeatMapMaximum String
     | ResetHeatMapToDefaults
+    | FitHeatMap
     | UpdateHeatMapThresholdsFromAngular HeatMapThresholdValues
     | ToggleIsSearchOn
     | MapMoved
@@ -592,6 +597,20 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        FitHeatMap ->
+            case ( model.heatMapThresholds, model.selectedSession ) of
+                ( Success thresholds, Success session ) ->
+                    let
+                        newThresholds =
+                            HeatMapThresholds.fitThresholds (SelectedSession.measurementBounds session) thresholds
+                    in
+                    ( { model | heatMapThresholds = Success newThresholds }
+                    , Ports.updateHeatMapThresholds <| HeatMapThresholds.toValues newThresholds
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
         UpdateHeatMapThresholdsFromAngular values ->
             let
                 updateThresholdsInModel thresholds =
@@ -609,7 +628,7 @@ update msg model =
                     ( updateThresholdsInModel thresholds
                     , Cmd.batch
                         [ updateThresholdsCmd thresholds
-                        , graphDrawCmd (HeatMapThresholds.updateFromValues values thresholds) session model.sensors model.selectedSensorId model.page
+                        , Ports.updateGraphYAxis <| toGraphHeatParams (HeatMapThresholds.updateFromValues values thresholds)
                         ]
                     )
 
@@ -746,6 +765,22 @@ graphDrawCmd thresholds session sensors selectedSensorId page =
 toGraphParams : HeatMapThresholds -> SelectedSession -> List Sensor -> String -> GraphData
 toGraphParams thresholds selectedSession sensors selectedSensorId =
     let
+        parameter =
+            Sensor.parameterForId sensors selectedSensorId
+
+        unit =
+            Sensor.unitForSensorId selectedSensorId sensors |> Maybe.withDefault ""
+    in
+    { sensor = { parameter = parameter, unit = unit }
+    , heat = toGraphHeatParams thresholds
+    , times = SelectedSession.times selectedSession
+    , streamIds = SelectedSession.toStreamIds selectedSession
+    }
+
+
+toGraphHeatParams : HeatMapThresholds -> GraphHeatData
+toGraphHeatParams thresholds =
+    let
         { threshold1, threshold2, threshold3, threshold4, threshold5 } =
             HeatMapThresholds.toValues thresholds
 
@@ -755,18 +790,8 @@ toGraphParams thresholds selectedSession sensors selectedSensorId =
             , { from = threshold3, to = threshold4, className = "third-band" }
             , { from = threshold4, to = threshold5, className = "fourth-band" }
             ]
-
-        parameter =
-            Sensor.parameterForId sensors selectedSensorId
-
-        unit =
-            Sensor.unitForSensorId selectedSensorId sensors |> Maybe.withDefault ""
     in
-    { sensor = { parameter = parameter, unit = unit }
-    , heat = { threshold1 = threshold1, threshold5 = threshold5, levels = levels }
-    , times = SelectedSession.times selectedSession
-    , streamIds = SelectedSession.toStreamIds selectedSession
-    }
+    { threshold1 = threshold1, threshold5 = threshold5, levels = levels }
 
 
 type alias Selectable a =
@@ -938,9 +963,11 @@ viewMap model =
         , viewHeatMap
             model.heatMapThresholds
             (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "")
+            model.fitScaleIcon
             model.resetIconBlack
             model.themeIcons
             model.theme
+            model.selectedSession
         ]
 
 
@@ -975,8 +1002,8 @@ viewSearchAsIMove model =
                 ]
 
 
-viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Theme.Icons -> Theme -> Html Msg
-viewHeatMap heatMapThresholds sensorUnit resetIcon icons theme =
+viewHeatMap : WebData HeatMapThresholds -> String -> Path -> Path -> Theme.Icons -> Theme -> WebData SelectedSession -> Html Msg
+viewHeatMap heatMapThresholds sensorUnit fitScaleIcon resetIcon icons theme selectedSession =
     let
         ( threshold1, threshold5 ) =
             RemoteData.map HeatMapThresholds.extremes heatMapThresholds
@@ -986,6 +1013,17 @@ viewHeatMap heatMapThresholds sensorUnit resetIcon icons theme =
         [ viewHeatMapInput "min" threshold1 sensorUnit UpdateHeatMapMinimum
         , div [ id "heatmap", class "heatmap-slider" ] []
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
+        , case selectedSession of
+            Success session ->
+                button
+                    [ ariaLabel "Fit scale to stream measurements"
+                    , class "heatmap-button"
+                    , Events.onClick <| FitHeatMap
+                    ]
+                    [ img [ src <| Path.toString fitScaleIcon, alt "Fit scale to stream measurements icon" ] [] ]
+
+            _ ->
+                text ""
         , button
             [ ariaLabel "Reset heatmap"
             , class "heatmap-button"
