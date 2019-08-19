@@ -10,6 +10,7 @@ $error-red: #e95f5f;
 
 // heatmap colors
 $grey: lighten($dark-grey, 20%);
+// this grey is also hardcoded in pulsing_marker_default_level.svg, make sure to change both
 
 .root {
   --level1-colour: 150, 215, 136;

@@ -2,7 +2,10 @@ import _ from "underscore";
 import { buildCustomMarker } from "./custom_marker";
 import MarkerClusterer from "@google/markerclustererplus";
 import * as assets from "../../../../assets";
-import { fixedClusterStyles } from "../../../../javascript/theme";
+import {
+  fixedClusterStyles,
+  pulsingMarkerStyles
+} from "../../../../javascript/theme";
 
 export const map = (
   params,
@@ -232,14 +235,14 @@ export const map = (
       return customMarker;
     },
 
-    drawPulsatingMarker: function(position) {
+    drawPulsatingMarker: function(position, level) {
       const pulsatingSessionMarker = this.drawMarker({
         position: position,
         icon: {
           // in order to place the center of the marker in the provided position
-          //  anchor = (marker-width/2, marker-height/2) = (50/2, 50/2) = (25, 25)
+          // anchor = (marker-width/2, marker-height/2) = (50/2, 50/2) = (25, 25)
           anchor: new google.maps.Point(25, 25),
-          url: assets.pulsingLocationMarkerPath
+          url: pulsingMarkerStyles()[level]
         }
       });
       pulsatingSessionMarker.setAnimation(true);
@@ -265,7 +268,7 @@ export const map = (
 
       const markerClusterer = new MarkerClusterer(
         this.mapObj,
-        window.__map.markers,
+        window.__map.customMarkers,
         options
       );
 

@@ -112,24 +112,39 @@ export const SessionsListCtrl = (
         sessions.fetch();
       });
 
-      elmApp.ports.pulseSessionMarker.subscribe(session => {
-        if (session === null) {
+      elmApp.ports.pulseSessionMarker.subscribe(sessionMarkerData => {
+        if (sessionMarkerData === null) {
           pulsatingSessionMarker.setMap(null);
           return;
         }
 
         if (window.__map.clusterers[0]) {
           const cluster = window.__map.clusterers[0].clusters_.find(cluster =>
-            cluster.markers_.some(marker => marker.objectId() === session.id)
+            cluster.markers_.some(
+              marker => marker.objectId() === sessionMarkerData.id
+            )
           );
 
           if (cluster) {
-            pulsatingSessionMarker = map.drawPulsatingMarker(cluster.center_);
+            pulsatingSessionMarker = map.drawPulsatingMarker(
+              cluster.center_,
+              sessionMarkerData.heatLevel
+            );
             return;
           }
         }
 
-        pulsatingSessionMarker = map.drawPulsatingMarker(session.location);
+        window.__map.customMarkers.forEach(marker => {
+          if (marker.objectId() === sessionMarkerData.id) {
+            marker.moveOnTop();
+            return;
+          }
+        });
+
+        pulsatingSessionMarker = map.drawPulsatingMarker(
+          sessionMarkerData.location,
+          sessionMarkerData.heatLevel
+        );
       });
 
       elmApp.ports.saveScrollPosition.subscribe(value => {

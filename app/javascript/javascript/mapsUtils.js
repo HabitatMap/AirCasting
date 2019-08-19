@@ -47,10 +47,13 @@ if (process.env.NODE_ENV !== "test") {
 
   // Markers
   google.maps.Map.prototype.markers = new Array();
+  google.maps.Map.prototype.customMarkers = new Array();
 
   google.maps.Map.prototype.clearMarkers = function() {
     this.markers.forEach(marker => marker.setMap(null));
     this.markers = new Array();
+    this.customMarkers.forEach(marker => marker.setMap(null));
+    this.customMarkers = new Array();
   };
 
   google.maps.Marker.prototype._setMap = google.maps.Marker.prototype.setMap;

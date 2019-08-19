@@ -50,6 +50,26 @@ export const locationMarkersByLevel = () => {
   }
 };
 
+export const pulsingMarkerStyles = () => {
+  if (getParams().theme === BLUE_THEME) {
+    return {
+      0: assets.pulsingMarkerDefaultLevelPath,
+      1: assets.pulsingMarkerTheme2Level1Path,
+      2: assets.pulsingMarkerTheme2Level2Path,
+      3: assets.pulsingMarkerTheme2Level3Path,
+      4: assets.pulsingMarkerTheme2Level4Path
+    };
+  } else {
+    return {
+      0: assets.pulsingMarkerDefaultLevelPath,
+      1: assets.pulsingMarkerTheme1Level1Path,
+      2: assets.pulsingMarkerTheme1Level2Path,
+      3: assets.pulsingMarkerTheme1Level3Path,
+      4: assets.pulsingMarkerTheme1Level4Path
+    };
+  }
+};
+
 const updateRectangles = () => {
   if (!window.__map.rectangles) return;
   window.__map.rectangles.forEach(rectangle => {

@@ -37,7 +37,7 @@ port module Ports exposing
 
 import Data.GraphData exposing (GraphData, GraphHeatData)
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
-import Data.Session exposing (Location)
+import Data.Markers exposing (SessionMarkerData)
 import Json.Encode as Encode
 
 
@@ -119,7 +119,7 @@ port mapMoved : (() -> msg) -> Sub msg
 port fetchSessions : () -> Cmd a
 
 
-port pulseSessionMarker : Maybe { id : Int, location : Location } -> Cmd a
+port pulseSessionMarker : Maybe SessionMarkerData -> Cmd a
 
 
 port graphRangeSelected : (List Float -> msg) -> Sub msg
