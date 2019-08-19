@@ -2,6 +2,20 @@ import * as assets from "../assets";
 import { BLUE_THEME } from "./constants";
 import { getParams } from "./params";
 
+// heatmap colors
+// the same colors are used in css and in svgs
+const green = "#96d788"; // rgb(150, 215, 136)
+const yellow = "#ffd960"; // rgb(255, 217, 96)
+const orange = "#fca443"; // rgb(252, 164, 67)
+const red = "#e95f5f"; // rgb(233, 95, 95)
+const grey = "#a0a2ad";
+
+// heatmap colors - blue theme
+const teal = "#81dbcb"; // rgb(129, 219, 203)
+const lightBlue = "#4ebcd5"; // rgb(78, 188, 213)
+const grayBlue = "#2a70b8"; // rgb(42, 112, 184)
+const indigo = "#19237e"; // rgb(25, 35, 126)
+
 export const applyTheme = callback => {
   updateFixedClusters();
   updateRectangles();
@@ -83,9 +97,9 @@ const rectanglesStyles = () => {
   if (getParams().theme === BLUE_THEME) {
     // empty strings correspond to values outside of heat levels range
     // and this rectangles are not drawn
-    return ["", "#81dbcb", "#4ebcd5", "#2a70b8", "#19237e", ""];
+    return ["", teal, lightBlue, grayBlue, indigo, ""];
   } else {
-    return ["", "#96d788", "#ffd960", "#fca443", "#e95f5f", ""];
+    return ["", green, yellow, orange, red, ""];
   }
 };
 
