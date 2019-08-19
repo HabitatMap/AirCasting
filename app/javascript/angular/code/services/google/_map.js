@@ -1,7 +1,6 @@
 import _ from "underscore";
 import { buildCustomMarker } from "./custom_marker";
 import MarkerClusterer from "@google/markerclustererplus";
-import * as assets from "../../../../assets";
 import {
   fixedClusterStyles,
   pulsingMarkerStyles
@@ -241,7 +240,7 @@ export const map = (
         icon: {
           // in order to place the center of the marker in the provided position
           // anchor = (marker-width/2, marker-height/2) = (50/2, 50/2) = (25, 25)
-          anchor: new google.maps.Point(25, 25),
+          anchor: new google.maps.Point(24, 24),
           url: pulsingMarkerStyles()[level]
         }
       });

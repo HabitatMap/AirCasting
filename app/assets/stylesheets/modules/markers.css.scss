@@ -153,7 +153,7 @@
   width: 100px;
 }
 
-img[src*="pulsing_marker"] {
+img[src*="marker-transparent"] {
   animation: pulse 0.7s infinite alternate;
   -webkit-animation: pulse 0.7s infinite alternate;
   transform-origin: center;
@@ -161,7 +161,7 @@ img[src*="pulsing_marker"] {
 }
 
 /* Animations */
-keyframes pulse {
+@keyframes pulse {
   to {
     transform: scale(4);
     -webkit-transform: scale(4);

@@ -1,5 +1,4 @@
 import _ from "underscore";
-import { formatSessionForList } from "../../../javascript/values/session";
 
 export const SessionsListCtrl = (
   $scope,
