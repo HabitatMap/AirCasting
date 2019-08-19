@@ -93,7 +93,7 @@ export const setupTagsAutocomplete = (callback, path, createParams) => {
         $(this).autocomplete("search");
       });
   } else {
-    window.setTimeout(setupAutocomplete(callback, path), 100);
+    window.setTimeout(setupTagsAutocomplete(callback, path), 100);
   }
 };
 
@@ -111,7 +111,7 @@ export const setupProfileNamesAutocomplete = callback => {
       }
     });
   } else {
-    window.setTimeout(setupAutocomplete(callback), 100);
+    window.setTimeout(setupProfileNamesAutocomplete(callback), 100);
   }
 };
 
