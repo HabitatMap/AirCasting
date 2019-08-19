@@ -1,7 +1,6 @@
 import _ from "underscore";
 import { buildCustomMarker } from "./custom_marker";
 import MarkerClusterer from "@google/markerclustererplus";
-import * as assets from "../../../../assets";
 import {
   fixedClusterStyles,
   pulsingMarkerStyles
