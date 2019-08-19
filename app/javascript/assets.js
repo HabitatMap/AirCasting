@@ -1,42 +1,42 @@
 export const locationMarkerTheme1Level1Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/location_marker_theme1_level1.svg");
+    : require("../assets/images/markers/marker-green.svg");
 
 export const locationMarkerTheme1Level2Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/location_marker_theme1_level2.svg");
+    : require("../assets/images/markers/marker-yellow.svg");
 
 export const locationMarkerTheme1Level3Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/location_marker_theme1_level3.svg");
+    : require("../assets/images/markers/marker-orange.svg");
 
 export const locationMarkerTheme1Level4Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/location_marker_theme1_level4.svg");
+    : require("../assets/images/markers/marker-red.svg");
 
 export const locationMarkerTheme2Level1Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/location_marker_theme2_level1.svg");
+    : require("../assets/images/markers/marker-teal.svg");
 
 export const locationMarkerTheme2Level2Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/location_marker_theme2_level2.svg");
+    : require("../assets/images/markers/marker-light-blue.svg");
 
 export const locationMarkerTheme2Level3Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/location_marker_theme2_level3.svg");
+    : require("../assets/images/markers/marker-gray-blue.svg");
 
 export const locationMarkerTheme2Level4Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/location_marker_theme2_level4.svg");
+    : require("../assets/images/markers/marker-indigo.svg");
 
 export const pulsingMarkerDefaultLevelPath =
   process.env.NODE_ENV === "test"
