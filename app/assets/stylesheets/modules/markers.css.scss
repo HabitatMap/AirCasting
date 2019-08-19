@@ -161,7 +161,7 @@ img[src*="pulsing_marker"] {
 }
 
 /* Animations */
-keyframes pulse {
+@keyframes pulse {
   to {
     transform: scale(4);
     -webkit-transform: scale(4);
