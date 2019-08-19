@@ -6,11 +6,19 @@ $grey-text: #a3a0a4;
 $separator-color: #cbcaca;
 $separator-color-light: rgba(203, 202, 202, 0.6);
 $text-color: #383b41;
-$error-red: #e95f5f;
 
 // heatmap colors
-$grey: lighten($dark-grey, 20%);
-// this grey is also hardcoded in pulsing_marker_default_level.svg, make sure to change both
+$green: #96d788; // rgb(150, 215, 136)
+$yellow: #ffd960; // rgb(255, 217, 96)
+$orange: #fca443; // rgb(252, 164, 67)
+$red: #e95f5f; // rgb(233, 95, 95)
+$grey: lighten($dark-grey, 20%); // #a0a2ad
+
+// heatmap colors - blue theme
+$teal: #81dbcb; // rgb(129, 219, 203)
+$light-blue: #4ebcd5; // rgb(78, 188, 213)
+$gray-blue: #2a70b8; // rgb(42, 112, 184)
+$indigo: #19237e; // rgb(25, 35, 126)
 
 .root {
   --level1-colour: 150, 215, 136;

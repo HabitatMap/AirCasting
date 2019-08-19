@@ -41,43 +41,43 @@ export const locationMarkerTheme2Level4Path =
 export const pulsingMarkerDefaultLevelPath =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_marker_default_level.svg");
+    : require("../assets/images/markers/marker-transparent-gray.svg");
 
 export const pulsingMarkerTheme1Level1Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_marker_theme1_level1.svg");
+    : require("../assets/images/markers/marker-transparent-green.svg");
 
 export const pulsingMarkerTheme1Level2Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_marker_theme1_level2.svg");
+    : require("../assets/images/markers/marker-transparent-yellow.svg");
 export const pulsingMarkerTheme1Level3Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_marker_theme1_level3.svg");
+    : require("../assets/images/markers/marker-transparent-orange.svg");
 
 export const pulsingMarkerTheme1Level4Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_marker_theme1_level4.svg");
+    : require("../assets/images/markers/marker-transparent-red.svg");
 
 export const pulsingMarkerTheme2Level1Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_marker_theme2_level1.svg");
+    : require("../assets/images/markers/marker-transparent-teal.svg");
 export const pulsingMarkerTheme2Level2Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_marker_theme2_level2.svg");
+    : require("../assets/images/markers/marker-transparent-light-blue.svg");
 export const pulsingMarkerTheme2Level3Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_marker_theme2_level3.svg");
+    : require("../assets/images/markers/marker-transparent-gray-blue.svg");
 export const pulsingMarkerTheme2Level4Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/pulsing_marker_theme2_level4.svg");
+    : require("../assets/images/markers/marker-transparent-indigo.svg");
 
 export const clusterTheme1Level1Path =
   process.env.NODE_ENV === "test"
