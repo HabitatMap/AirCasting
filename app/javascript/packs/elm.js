@@ -41,7 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
       window.__sensors = sensors;
 
       const defaultParams = {
-        areFiltersExpanded: false
+        areFiltersExpanded: false,
+        scroll: 0,
+        theme: DEFAULT_THEME,
       }
       
       const params = {  ...defaultParams, ...getParams() };
@@ -104,8 +106,8 @@ document.addEventListener("DOMContentLoaded", () => {
         heatMapThresholdValues,
         isActive: data.isActive,
         isSearchAsIMoveOn: data.isSearchAsIMoveOn,
-        scrollPosition: params.scroll || 0,
-        theme: params.theme || DEFAULT_THEME,
+        scrollPosition: params.scroll,
+        theme: params.theme,
         areFiltersExpanded: params.areFiltersExpanded
       };
 
