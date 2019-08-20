@@ -47,8 +47,8 @@
   padding: 0 5px 0 18px;
   position: absolute;
   line-height: 18px;
-  left: -10px;
-  top: -11px;
+  left: -11px;
+  top: -10px;
 
   &.highest {
     border: 1px solid rgba(var(--level4-colour), 1);
@@ -109,7 +109,7 @@
   width: 45px;
   height: 45px;
   position: absolute;
-  left: -14px;
+  left: -13px;
   top: -14px;
   z-index: -1;
 }
