@@ -40,7 +40,11 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(sensors => {
       window.__sensors = sensors;
 
-      const params = getParams();
+      const defaultParams = {
+        areFiltersExpanded: false
+      }
+      
+      const params = {  ...defaultParams, ...getParams() };
 
       const defaultData = {
         location: "",
@@ -51,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isIndoor: false,
         isActive: true,
         sensorId: "Particulate Matter-airbeam2-pm2.5 (µg/m³)",
-        isSearchAsIMoveOn: false
+        isSearchAsIMoveOn: false,
       };
 
       const data = { ...defaultData, ...params.data };
@@ -101,7 +105,8 @@ document.addEventListener("DOMContentLoaded", () => {
         isActive: data.isActive,
         isSearchAsIMoveOn: data.isSearchAsIMoveOn,
         scrollPosition: params.scroll || 0,
-        theme: params.theme || DEFAULT_THEME
+        theme: params.theme || DEFAULT_THEME,
+        areFiltersExpanded: params.areFiltersExpanded
       };
 
       console.warn(flags);

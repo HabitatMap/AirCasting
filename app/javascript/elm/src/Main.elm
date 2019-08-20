@@ -152,6 +152,7 @@ type alias Flags =
     , isSearchAsIMoveOn : Bool
     , scrollPosition : Float
     , theme : String
+    , areFiltersExpanded : Bool
     }
 
 
@@ -200,6 +201,7 @@ init flags url key =
         , scrollPosition = flags.scrollPosition
         , theme = Theme.toTheme flags.theme
         , status = Status.toStatus flags.isActive
+        , areFiltersExpanded = flags.areFiltersExpanded
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -840,7 +842,7 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ viewNav model.navLogo model.filterIcon model.menuIcon model.areFiltersExpanded model.isNavExpanded
+        [ viewNav model.navLogo model.filterIcon model.menuIcon model.isNavExpanded
         , viewMain model
         , snippetGoogleTagManager
         ]
@@ -859,8 +861,8 @@ snippetGoogleTagManager =
         ]
 
 
-viewNav : Path -> Path -> Path -> Bool -> Bool -> Html Msg
-viewNav navLogo filterIcon menuIcon areFiltersExpanded isNavExpanded =
+viewNav : Path -> Path -> Path -> Bool -> Html Msg
+viewNav navLogo filterIcon menuIcon isNavExpanded =
     header
         [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
         ]
@@ -1125,13 +1127,13 @@ viewSessionTypeNav : Model -> Html Msg
 viewSessionTypeNav model =
     ul [ class "session-type-nav" ]
         [ li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
-            [ a [ href "/mobile_map" ]
+            [ a [ href "/mobile_map#?areFiltersExpanded=true" ]
                 [ text "mobile" ]
             , Tooltip.view Tooltip.mobileTab model.tooltipIcon
             ]
         , li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
             [ a
-                [ href "/fixed_map" ]
+                [ href "/fixed_map#?areFiltersExpanded=true" ]
                 [ text "fixed" ]
             , Tooltip.view Tooltip.fixedTab model.tooltipIcon
             ]
