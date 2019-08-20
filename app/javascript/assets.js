@@ -82,39 +82,39 @@ export const pulsingMarkerTheme2Level4Path =
 export const clusterTheme1Level1Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/cluster-theme1-level1.svg");
+    : require("../assets/images/markers/marker-cluster-green.svg");
 
 export const clusterTheme1Level2Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/cluster-theme1-level2.svg");
+    : require("../assets/images/markers/marker-cluster-yellow.svg");
 
 export const clusterTheme1Level3Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/cluster-theme1-level3.svg");
+    : require("../assets/images/markers/marker-cluster-orange.svg");
 
 export const clusterTheme1Level4Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/cluster-theme1-level4.svg");
+    : require("../assets/images/markers/marker-cluster-red.svg");
 
 export const clusterTheme2Level1Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/cluster-theme2-level1.svg");
+    : require("../assets/images/markers/marker-cluster-teal.svg");
 
 export const clusterTheme2Level2Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/cluster-theme2-level2.svg");
+    : require("../assets/images/markers/marker-cluster-light-blue.svg");
 
 export const clusterTheme2Level3Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/cluster-theme2-level3.svg");
+    : require("../assets/images/markers/marker-cluster-gray-blue.svg");
 
 export const clusterTheme2Level4Path =
   process.env.NODE_ENV === "test"
     ? ""
-    : require("../assets/images/cluster-theme2-level4.svg");
+    : require("../assets/images/markers/marker-cluster-indigo.svg");
