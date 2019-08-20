@@ -22,7 +22,7 @@ export const fetchAndDrawFixed = showStatsCallback => ({
     measurements: [],
     sensor,
     heat,
-    afterSetExtremes: afterSetExtremes({ streamIds, times })
+    afterSetExtremes: () => {}
   });
 
   const pageStartTime = times.end - 24 * 60 * 60 * 1000;
@@ -95,6 +95,8 @@ const onMouseOverMultiple = (start, end) => {
 };
 
 const afterSetExtremes = ({ streamIds, times, showStatsCallback }) => e => {
+  // responsive rules trigger afterSetExtremes before the chart is created, so we need to skip it:
+  if (!chart || Object.keys(chart).length === 0) return;
   chart.showLoading("Loading data from server...");
 
   http
