@@ -43,10 +43,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const defaultParams = {
         areFiltersExpanded: false,
         scroll: 0,
-        theme: DEFAULT_THEME,
-      }
-      
-      const params = {  ...defaultParams, ...getParams() };
+        theme: DEFAULT_THEME
+      };
+
+      const params = { ...defaultParams, ...getParams() };
 
       const defaultData = {
         location: "",
@@ -57,13 +57,10 @@ document.addEventListener("DOMContentLoaded", () => {
         isIndoor: false,
         isActive: true,
         sensorId: "Particulate Matter-airbeam2-pm2.5 (µg/m³)",
-        isSearchAsIMoveOn: false,
+        isSearchAsIMoveOn: false
       };
 
       const data = { ...defaultData, ...params.data };
-
-      console.warn(params);
-      console.warn(data);
 
       const heatMapThresholdValues = data.heat
         ? {
@@ -110,8 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
         theme: params.theme,
         areFiltersExpanded: params.areFiltersExpanded
       };
-
-      console.warn(flags);
 
       window.__elmApp = Elm.Main.init({ flags });
 
