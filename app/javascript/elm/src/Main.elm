@@ -1127,13 +1127,13 @@ viewSessionTypeNav : Model -> Html Msg
 viewSessionTypeNav model =
     ul [ class "session-type-nav" ]
         [ li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
-            [ a [ href "/mobile_map#?areFiltersExpanded=true" ]
+            [ a [ href ("/mobile_map#?areFiltersExpanded=true&theme=\"" ++ Theme.toString model.theme ++ "\"") ]
                 [ text "mobile" ]
             , Tooltip.view Tooltip.mobileTab model.tooltipIcon
             ]
         , li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
             [ a
-                [ href "/fixed_map#?areFiltersExpanded=true" ]
+                [ href ("/fixed_map#?areFiltersExpanded=true&theme=\"" ++ Theme.toString model.theme ++ "\"") ]
                 [ text "fixed" ]
             , Tooltip.view Tooltip.fixedTab model.tooltipIcon
             ]
