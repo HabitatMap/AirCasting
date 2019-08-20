@@ -38,6 +38,7 @@ import Task
 import TimeRange exposing (TimeRange)
 import Tooltip
 import Url exposing (Url)
+import Url.Builder
 import Validate exposing (Valid)
 
 
@@ -1127,13 +1128,26 @@ viewSessionTypeNav : Model -> Html Msg
 viewSessionTypeNav model =
     ul [ class "session-type-nav" ]
         [ li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
-            [ a [ href ("/mobile_map#?areFiltersExpanded=true&theme=\"" ++ Theme.toString model.theme ++ "\"") ]
+            [ a
+                [ href
+                    (Url.Builder.absolute [ "mobile_map#" ]
+                        [ Url.Builder.string "areFiltersExpanded" "true"
+                        , Url.Builder.string "theme" (Theme.toString model.theme)
+                        ]
+                    )
+                ]
                 [ text "mobile" ]
             , Tooltip.view Tooltip.mobileTab model.tooltipIcon
             ]
         , li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
             [ a
-                [ href ("/fixed_map#?areFiltersExpanded=true&theme=\"" ++ Theme.toString model.theme ++ "\"") ]
+                [ href
+                    (Url.Builder.absolute [ "fixed_map#" ]
+                        [ Url.Builder.string "areFiltersExpanded" "true"
+                        , Url.Builder.string "theme" (Theme.toString model.theme)
+                        ]
+                    )
+                ]
                 [ text "fixed" ]
             , Tooltip.view Tooltip.fixedTab model.tooltipIcon
             ]
