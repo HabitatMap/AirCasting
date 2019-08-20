@@ -1016,7 +1016,13 @@ viewHeatMap heatMapThresholds sensorUnit fitScaleIcon resetIcon icons theme sele
                     , class "heatmap-button"
                     , Events.onClick <| FitHeatMap
                     ]
-                    [ img [ src <| Path.toString fitScaleIcon, alt "Fit scale to stream measurements icon" ] [] ]
+                    [ img
+                        [ src <| Path.toString fitScaleIcon
+                        , alt "Fit scale to stream measurements icon"
+                        , class "fit-scale-icon"
+                        ]
+                        []
+                    ]
 
             _ ->
                 text ""
