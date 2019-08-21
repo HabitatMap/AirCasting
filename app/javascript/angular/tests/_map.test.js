@@ -211,15 +211,12 @@ test("zoomToSelectedCluster calls fitBounds with current map object and bound of
   t.end();
 });
 
-const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
+const mockGoogleMaps = () => {
   let count = 0;
   let callbacks = 0;
-  const geocoding =
-    successfulGeocoding === undefined ? true : successfulGeocoding;
   const calls = [];
 
   return {
-    wasGeocodingSuccessful: () => geocoding,
     fitBounds: (_, arg) => {
       calls.push(arg);
       count += 1;
@@ -256,7 +253,7 @@ const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
   };
 };
 
-const _map = ({ geocoder, googleMaps, params, rectangles }) => {
+const _map = ({ googleMaps, params, rectangles }) => {
   const digester = () => {};
   const _rectangles = {
     init: () => {},
@@ -272,7 +269,6 @@ const _map = ({ geocoder, googleMaps, params, rectangles }) => {
     null,
     digester,
     _rectangles,
-    geocoder,
     googleMaps,
     null,
     $window

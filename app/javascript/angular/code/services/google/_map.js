@@ -12,7 +12,6 @@ export const map = (
   $rootScope,
   digester,
   rectangles,
-  geocoder,
   googleMaps,
   heat,
   $window

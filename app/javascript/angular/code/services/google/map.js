@@ -8,7 +8,6 @@ angular
     "$rootScope",
     "digester",
     "rectangles",
-    "geocoder",
     "googleMaps",
     "heat",
     "$window",
