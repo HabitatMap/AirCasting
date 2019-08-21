@@ -20,6 +20,7 @@ export const map = (
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
   let hasChangedProgrammatically = false;
   $window.__traceMarkers = [];
+  const elmApp = $window.__elmApp;
 
   var Map = function() {};
 
@@ -42,6 +43,19 @@ export const map = (
         "maptypeid_changed",
         _(this.onMapTypeIdChanged).bind(this)
       );
+
+      if (process.env.NODE_ENV !== "test") {
+        const locationInput = document.getElementById("location");
+        const autocomplete = new google.maps.places.Autocomplete(locationInput);
+        autocomplete.bindTo("bounds", this.mapObj);
+
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          this._goToAddress(place);
+          elmApp.ports.locationUpdated.send(place.formatted_address);
+        });
+      }
+
       rectangles.init(this.mapObj);
     },
 
@@ -71,17 +85,24 @@ export const map = (
       googleMaps.listenPanOrZoom(this.mapObj, callback);
     },
 
-    goToAddress: function(address) {
-      if (!address) return;
+    _goToAddress: function(place) {
+      if (!place.geometry) {
+        // User entered the name of a Place that was not suggested and
+        // pressed the Enter key, or the Place Details request failed.
+        console.log("No details available for input: '" + place.name + "'");
+        return;
+      }
 
-      const callback = (results, status) => {
-        if (!googleMaps.wasGeocodingSuccessful(status)) return;
-
-        const latLngBounds = results[0].geometry.viewport;
-        this._fitBoundsWithoutPanOrZoomCallback(latLngBounds);
-      };
-
-      geocoder.get(address, callback);
+      // If the place has a geometry, then present it on a map.
+      if (place.geometry.viewport) {
+        this._fitBoundsWithoutPanOrZoomCallback(place.geometry.viewport);
+      } else {
+        const fnc = () => {
+          this.mapObj.setCenter(place.geometry.location);
+          this.mapObj.setZoom(17); // Why 17? Because it looks good
+        };
+        this._withoutPanOrZoomCallback(fnc);
+      }
     },
 
     saveViewport: function() {

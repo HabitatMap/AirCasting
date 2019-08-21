@@ -116,10 +116,6 @@ export const MobileSessionsMapCtrl = (
         sessionsUtils.updateCrowdMapLayer($scope.sessions.allSessionIds());
       });
 
-      elmApp.ports.findLocation.subscribe(location => {
-        FiltersUtils.findLocation(location, params, map);
-      });
-
       map.onPanOrZoom(() => {
         FiltersUtils.clearLocation(elmApp.ports.locationCleared.send, params);
       });

@@ -88,10 +88,6 @@ export const FixedSessionsMapCtrl = (
         $scope.sessions.fetch();
       });
 
-      elmApp.ports.findLocation.subscribe(location => {
-        FiltersUtils.findLocation(location, params, map);
-      });
-
       elmApp.ports.toggleIndoor.subscribe(isIndoor => {
         params.update({ data: { isIndoor: isIndoor } });
         $scope.sessions.fetch();

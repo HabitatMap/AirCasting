@@ -4,84 +4,6 @@ import { mock } from "./helpers";
 import { map } from "../code/services/google/_map.js";
 import sinon from "sinon";
 
-test("goToAddress with no address it does not decode", t => {
-  const geocoder = mock("get");
-  const service = _map({ geocoder });
-
-  service.goToAddress();
-
-  t.false(geocoder.wasCalled());
-
-  t.end();
-});
-
-test("goToAddress with address it decodes", t => {
-  const geocoder = mock("get");
-  const service = _map({ geocoder });
-
-  service.goToAddress("new york");
-
-  t.true(geocoder.wasCalled());
-
-  t.end();
-});
-
-test("goToAddress with unsuccessful geocoding does not call fitBounds", t => {
-  const geocoder = mockGeocoder();
-  const googleMaps = mockGoogleMaps({ successfulGeocoding: false });
-  const service = _map({ geocoder, googleMaps });
-
-  service.goToAddress("new york");
-
-  t.false(googleMaps.wasCalled());
-
-  t.end();
-});
-
-test("goToAddress with successful geocoding calls fitBounds", t => {
-  const geocoder = mockGeocoder();
-  const googleMaps = mockGoogleMaps({ successfulGeocoding: true });
-  const service = _map({ geocoder, googleMaps });
-
-  service.goToAddress("new york");
-
-  t.true(googleMaps.wasCalled());
-
-  t.end();
-});
-
-test("goToAddress when calling fitBounds removes callbacks from the map", t => {
-  const geocoder = mockGeocoder();
-  const googleMaps = mockGoogleMaps({ successfulGeocoding: true });
-  googleMaps.addListener("bounds_changed", () => {});
-
-  t.true(googleMaps.hasCallbacks());
-
-  const service = _map({ geocoder, googleMaps });
-
-  service.goToAddress("new york");
-
-  t.false(googleMaps.hasCallbacks());
-
-  t.end();
-});
-
-test("goToAddress re-adds callbacks from the map after calling fitBounds", t => {
-  const geocoder = mockGeocoder();
-  const googleMaps = mockGoogleMaps({ successfulGeocoding: true });
-  googleMaps.addListener("bounds_changed", () => {});
-
-  const service = _map({ geocoder, googleMaps });
-
-  service.goToAddress("new york");
-
-  setTimeout(() => {
-    t.true(googleMaps.hasCallbacks());
-
-    t.end();
-  }, 0);
-});
-
 test("onPanOrZoom", t => {
   const googleMaps = mockGoogleMaps();
   const service = _map({ googleMaps });
@@ -287,10 +209,6 @@ test("zoomToSelectedCluster calls fitBounds with current map object and bound of
   sinon.assert.calledWith(fitBounds, mapObj, bounds);
 
   t.end();
-});
-
-const mockGeocoder = () => ({
-  get: (_, callback) => callback([{ geometry: { getBounds: null } }])
 });
 
 const mockGoogleMaps = ({ successfulGeocoding } = {}) => {
