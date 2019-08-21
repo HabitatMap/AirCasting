@@ -52,33 +52,6 @@ export const fetchAndDrawFixed = showStatsCallback => ({
     });
 };
 
-export const fetchAndDrawMobile = showStatsCallback => ({
-  sensor,
-  heat,
-  times,
-  streamIds
-}) => {
-  // render empty graph with loading message
-  drawMobile({ measurements: [], sensor, heat, showStatsCallback });
-
-  http
-    .get("/api/measurements.json", {
-      stream_ids: streamIds
-    })
-    .then(measurements => {
-      measurements = measurementsToTime(measurements);
-
-      showStatsCallback(filterMeasurements(measurements));
-
-      drawMobile({
-        measurements,
-        sensor,
-        heat,
-        showStatsCallback
-      });
-    });
-};
-
 const onMouseOverSingle = point => graphHighlight.show([point]);
 
 const onMouseOverMultiple = (start, end) => {
@@ -132,12 +105,9 @@ const fixedButtons = [[hr1, hrs12, hrs24, wk1, mth1, all], 2];
 
 const mobileButtons = [[min1, min5, min30, hr1, hrs12, all], 4];
 
-export const drawMobile = ({
-  measurements,
-  sensor,
-  heat,
-  showStatsCallback
-}) => {
+export const drawMobile = ({ yellow, sensor, heat, showStatsCallback }) => {
+  const measurements = measurementsToTime(yellow);
+  showStatsCallback(filterMeasurements(measurements));
   const [buttons, selectedButton] = mobileButtons;
   const scrollbar = {};
   const xAxis = {

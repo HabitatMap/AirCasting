@@ -1,5 +1,7 @@
 module Data.GraphData exposing (GraphData, GraphHeatData)
 
+import Data.SelectedSession exposing (Measurement)
+
 
 type alias GraphData =
     { sensor :
@@ -12,6 +14,7 @@ type alias GraphData =
         , end : Int
         }
     , streamIds : List Int
+    , measurements : List Measurement
     }
 
 

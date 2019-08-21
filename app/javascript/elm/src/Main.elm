@@ -758,6 +758,7 @@ toGraphParams thresholds selectedSession sensors selectedSensorId =
     , heat = toGraphHeatParams thresholds
     , times = SelectedSession.times selectedSession
     , streamIds = SelectedSession.toStreamIds selectedSession
+    , measurements = selectedSession.measurements
     }
 
 

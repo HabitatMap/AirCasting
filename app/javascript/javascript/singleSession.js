@@ -27,12 +27,8 @@ export const measurementsToTime = measurements => {
   const res = {};
 
   measurements.forEach(measurement => {
-    const x = moment(measurement.time, "YYYY-MM-DDTHH:mm:ss")
-      .utcOffset(0, true)
-      .valueOf();
-
-    res[x] = {
-      x,
+    res[measurement.time] = {
+      x: measurement.time,
       y: measurement.value,
       latitude: measurement.latitude,
       longitude: measurement.longitude

@@ -195,7 +195,7 @@ const setupHeatMap = () => {
     );
 
     window.__elmApp.ports.drawMobile.subscribe(
-      draw(graph.fetchAndDrawMobile(callback))
+      draw(graph.drawMobile, callback)
     );
 
     window.__elmApp.ports.updateGraphYAxis.subscribe(heat => {
@@ -217,8 +217,16 @@ const setupHeatMap = () => {
   }
 };
 
-const draw = fnc => ({ times, streamIds, heat, sensor }) =>
-  window.requestAnimationFrame(() => fnc({ sensor, heat, times, streamIds }));
+const draw = (fnc, callback) => ({
+  times,
+  streamIds,
+  heat,
+  sensor,
+  measurements
+}) =>
+  window.requestAnimationFrame(() =>
+    fnc({ sensor, heat, showStatsCallback: callback, yellow: measurements })
+  );
 
 const toValues = noUiSlider => ({
   threshold1: noUiSlider.options.range.min,
