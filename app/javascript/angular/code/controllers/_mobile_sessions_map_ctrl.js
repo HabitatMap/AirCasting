@@ -63,7 +63,7 @@ export const MobileSessionsMapCtrl = (
         mid: 35,
         high: 55,
         highest: 150
-      },
+      }
     };
 
     params.updateFromDefaults(defaults);

@@ -33,3 +33,13 @@ export const isJSON = text => {
     return false;
   }
 };
+
+export const updateParam = param => {
+  const query_string = window.location.hash.slice(2);
+
+  let search_params = new URLSearchParams(query_string);
+
+  search_params.set(param.key, param.value);
+
+  window.location.hash = "#?" + search_params.toString();
+};

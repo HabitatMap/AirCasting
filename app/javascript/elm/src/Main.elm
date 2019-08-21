@@ -153,7 +153,7 @@ type alias Flags =
     , isSearchAsIMoveOn : Bool
     , scrollPosition : Float
     , theme : String
-    , areFiltersExpanded : Bool
+    , keepFiltersExpanded : Bool
     }
 
 
@@ -202,7 +202,7 @@ init flags url key =
         , scrollPosition = flags.scrollPosition
         , theme = Theme.toTheme flags.theme
         , status = Status.toStatus flags.isActive
-        , areFiltersExpanded = flags.areFiltersExpanded
+        , areFiltersExpanded = flags.keepFiltersExpanded
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -689,10 +689,10 @@ update msg model =
             debounce updateResolution model
 
         ToggleFiltersExpanded ->
-            ( { model | areFiltersExpanded = not model.areFiltersExpanded, isNavExpanded = False }, Cmd.none )
+            ( { model | areFiltersExpanded = not model.areFiltersExpanded, isNavExpanded = False }, Ports.updateParams { key = "keepFiltersExpanded", value = False } )
 
         CloseFilters ->
-            ( { model | areFiltersExpanded = False }, Cmd.none )
+            ( { model | areFiltersExpanded = False }, Ports.updateParams { key = "keepFiltersExpanded", value = False } )
 
         ToggleNavExpanded ->
             ( { model | isNavExpanded = not model.isNavExpanded, areFiltersExpanded = False }, Cmd.none )
@@ -1131,7 +1131,7 @@ viewSessionTypeNav model =
             [ a
                 [ href
                     (Url.Builder.absolute [ "mobile_map#" ]
-                        [ Url.Builder.string "areFiltersExpanded" "true"
+                        [ Url.Builder.string "keepFiltersExpanded" "true"
                         , Url.Builder.string "theme" (Theme.toString model.theme)
                         ]
                     )
@@ -1143,7 +1143,7 @@ viewSessionTypeNav model =
             [ a
                 [ href
                     (Url.Builder.absolute [ "fixed_map#" ]
-                        [ Url.Builder.string "areFiltersExpanded" "true"
+                        [ Url.Builder.string "keepFiltersExpanded" "true"
                         , Url.Builder.string "theme" (Theme.toString model.theme)
                         ]
                     )

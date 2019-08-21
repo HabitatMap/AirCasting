@@ -29,6 +29,7 @@ port module Ports exposing
     , updateHeatMapThresholds
     , updateHeatMapThresholdsFromAngular
     , updateIsHttping
+    , updateParams
     , updateProfiles
     , updateResolution
     , updateSessions
@@ -141,3 +142,6 @@ port toggleTheme : String -> Cmd a
 
 
 port updateGraphYAxis : GraphHeatData -> Cmd a
+
+
+port updateParams : { key : String, value : Bool } -> Cmd a

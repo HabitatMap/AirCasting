@@ -20,7 +20,7 @@ import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
 import { DEFAULT_THEME } from "../javascript/constants";
-import { getParams } from "../javascript/params";
+import { getParams, updateParam } from "../javascript/params";
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
       window.__sensors = sensors;
 
       const defaultParams = {
-        areFiltersExpanded: false,
+        keepFiltersExpanded: false,
         scroll: 0,
         theme: DEFAULT_THEME
       };
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isSearchAsIMoveOn: data.isSearchAsIMoveOn,
         scrollPosition: params.scroll,
         theme: params.theme,
-        areFiltersExpanded: params.areFiltersExpanded
+        keepFiltersExpanded: params.keepFiltersExpanded
       };
 
       window.__elmApp = Elm.Main.init({ flags });
@@ -213,6 +213,10 @@ const setupHeatMap = () => {
           window.__elmApp.ports.setScroll.send(null);
         }
       });
+    });
+
+    window.__elmApp.ports.updateParams.subscribe(param => {
+      updateParam(param);
     });
   }
 };
