@@ -38,6 +38,7 @@ import Task
 import TimeRange exposing (TimeRange)
 import Tooltip
 import Url exposing (Url)
+import Url.Builder
 import Validate exposing (Valid)
 
 
@@ -152,6 +153,7 @@ type alias Flags =
     , isSearchAsIMoveOn : Bool
     , scrollPosition : Float
     , theme : String
+    , keepFiltersExpanded : Bool
     }
 
 
@@ -200,6 +202,7 @@ init flags url key =
         , scrollPosition = flags.scrollPosition
         , theme = Theme.toTheme flags.theme
         , status = Status.toStatus flags.isActive
+        , areFiltersExpanded = flags.keepFiltersExpanded
       }
     , Cmd.batch
         [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
@@ -686,10 +689,10 @@ update msg model =
             debounce updateResolution model
 
         ToggleFiltersExpanded ->
-            ( { model | areFiltersExpanded = not model.areFiltersExpanded, isNavExpanded = False }, Cmd.none )
+            ( { model | areFiltersExpanded = not model.areFiltersExpanded, isNavExpanded = False }, Ports.updateParams { key = "keepFiltersExpanded", value = False } )
 
         CloseFilters ->
-            ( { model | areFiltersExpanded = False }, Cmd.none )
+            ( { model | areFiltersExpanded = False }, Ports.updateParams { key = "keepFiltersExpanded", value = False } )
 
         ToggleNavExpanded ->
             ( { model | isNavExpanded = not model.isNavExpanded, areFiltersExpanded = False }, Cmd.none )
@@ -840,7 +843,7 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ viewNav model.navLogo model.filterIcon model.menuIcon model.areFiltersExpanded model.isNavExpanded
+        [ viewNav model.navLogo model.filterIcon model.menuIcon model.isNavExpanded
         , viewMain model
         , snippetGoogleTagManager
         ]
@@ -859,8 +862,8 @@ snippetGoogleTagManager =
         ]
 
 
-viewNav : Path -> Path -> Path -> Bool -> Bool -> Html Msg
-viewNav navLogo filterIcon menuIcon areFiltersExpanded isNavExpanded =
+viewNav : Path -> Path -> Path -> Bool -> Html Msg
+viewNav navLogo filterIcon menuIcon isNavExpanded =
     header
         [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
         ]
@@ -1125,13 +1128,26 @@ viewSessionTypeNav : Model -> Html Msg
 viewSessionTypeNav model =
     ul [ class "session-type-nav" ]
         [ li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Mobile ) ] ]
-            [ a [ href "/mobile_map" ]
+            [ a
+                [ href
+                    (Url.Builder.absolute [ "mobile_map#" ]
+                        [ Url.Builder.string "keepFiltersExpanded" "true"
+                        , Url.Builder.string "theme" (Theme.toString model.theme)
+                        ]
+                    )
+                ]
                 [ text "mobile" ]
             , Tooltip.view Tooltip.mobileTab model.tooltipIcon
             ]
         , li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
             [ a
-                [ href "/fixed_map" ]
+                [ href
+                    (Url.Builder.absolute [ "fixed_map#" ]
+                        [ Url.Builder.string "keepFiltersExpanded" "true"
+                        , Url.Builder.string "theme" (Theme.toString model.theme)
+                        ]
+                    )
+                ]
                 [ text "fixed" ]
             , Tooltip.view Tooltip.fixedTab model.tooltipIcon
             ]

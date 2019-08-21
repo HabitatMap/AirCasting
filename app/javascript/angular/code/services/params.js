@@ -1,3 +1,5 @@
+import { isJSON } from "../../../javascript/params";
+
 angular.module("aircasting").factory("params", [
   "$location",
   "$rootScope",
@@ -15,7 +17,11 @@ angular.module("aircasting").factory("params", [
       init: function(searchData) {
         console.log("watch - $location.search()");
         _(searchData || {}).each(function(value, key) {
-          searchData[key] = angular.fromJson(value);
+          if (isJSON(value)) {
+            searchData[key] = angular.fromJson(value);
+          } else {
+            searchData[key] = value;
+          }
         });
         if (angular.equals(this.paramsData, searchData)) {
           return;

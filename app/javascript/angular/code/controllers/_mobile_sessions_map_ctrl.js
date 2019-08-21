@@ -63,8 +63,7 @@ export const MobileSessionsMapCtrl = (
         mid: 35,
         high: 55,
         highest: 150
-      },
-      theme: DEFAULT_THEME
+      }
     };
 
     params.updateFromDefaults(defaults);
