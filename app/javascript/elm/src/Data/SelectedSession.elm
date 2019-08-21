@@ -1,5 +1,6 @@
 module Data.SelectedSession exposing
-    ( SelectedSession
+    ( Measurement
+    , SelectedSession
     , decoder
     , fetch
     , measurementBounds
@@ -32,6 +33,7 @@ type alias SelectedSession =
     { title : String
     , username : String
     , sensorName : String
+    , measurements : List Measurement
     , startTime : Posix
     , endTime : Posix
     , id : Int
@@ -39,6 +41,22 @@ type alias SelectedSession =
     , selectedMeasurements : List Float
     , sensorUnit : String
     }
+
+
+type alias Measurement =
+    { value : Float
+    , time : Int
+    , latitude : Float
+    , longitude : Float
+    }
+
+
+measurementDecoder =
+    Decode.succeed Measurement
+        |> required "value" Decode.float
+        |> required "time" Decode.int
+        |> required "latitude" Decode.float
+        |> required "longitude" Decode.float
 
 
 times : SelectedSession -> { start : Int, end : Int }
@@ -85,6 +103,7 @@ decoder =
         |> required "title" Decode.string
         |> required "username" Decode.string
         |> required "sensorName" Decode.string
+        |> required "measurements" (Decode.list measurementDecoder)
         |> required "startTime" millisToPosixDecoder
         |> required "endTime" millisToPosixDecoder
         |> required "id" Decode.int
