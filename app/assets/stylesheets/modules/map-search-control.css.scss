@@ -37,9 +37,9 @@ $search-control-width: 300px;
 }
 
 .search-control__switch {
-  background: white;
-  border-radius: 2px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 1px;
+  background: $dark-blue;
+  border-radius: $input-radius;
+  color: white;
   display: inline-block;
   height: 25px;
   padding-left: 10px;
@@ -50,7 +50,7 @@ $search-control-width: 300px;
 }
 
 .search-control__button {
-  border-radius: 4px;
+  border-radius: $input-radius;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 1px;
   font-size: 13px;
   font-weight: bold;
@@ -75,7 +75,7 @@ label[for="checkbox-search-as-i-move"] {
   cursor: pointer;
   display: inline-block;
   font-size: 13px;
-  font-weight: $font-stack-regular;
+  font-weight: $font-stack-bold;
   line-height: 18px;
   padding: 4px 25px 3px 0;
 
