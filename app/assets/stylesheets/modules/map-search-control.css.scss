@@ -8,25 +8,25 @@ $search-control-width: 300px;
   width: $search-control-width;
   z-index: 1;
 
-  @media screen and (max-width: $wider-mobile) {
+  @media screen and (min-width: $ipad-portrait) and (max-width: $wider-mobile) {
     right: 6px;
     width: auto;
   }
 }
 
-// Zoom and street view controls
+// Hide map controls on mobile
 .gm-bundled-control {
-  // Move controls below "Redo search" button on mobile
-  @media screen and (max-width: $wider-mobile) {
-    top: 75px !important;
+  // Zoom and street view controls
+  @media screen and (max-width: $mobile) {
+    display: none;
 
-    // Map type controls
     & ~ .gmnoprint {
-      top: 40px !important;
+      // Map type controls
+      display: none;
     }
   }
 
-  // Move controls left to make room for scroll wider screens
+  // Move controls left to make room for scroll on wider screens
   @media screen and (min-width: $wider-mobile + 1px) {
     right: 35px !important;
 
