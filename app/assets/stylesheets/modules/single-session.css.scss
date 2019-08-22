@@ -150,6 +150,12 @@
   position: absolute;
   right: 0;
   top: 5px;
+
+  @media screen and (max-width: $mobile) {
+    font-size: 42px;
+    top: 0;
+    z-index: 2;
+  }
 }
 
 .single-session__placeholder {
