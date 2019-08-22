@@ -1,14 +1,15 @@
 class Api::ToSessionHash
-  def initialize(model:)
+  def initialize(model:, form:)
     @model = model
+    @form = form
   end
 
-  def call(form:)
+  def call()
     return Failure.new(form.errors) if form.invalid?
 
     session =
-      @model.includes(streams: [:measurements]).where(
-        id: form.to_h[:id], streams: { sensor_name: form.to_h[:sensor_name] }
+      @model.includes(:streams).where(
+        id: data.id, streams: { sensor_name: data.sensor_name }
       )
         .first!
 
@@ -16,7 +17,7 @@ class Api::ToSessionHash
       title: session.title,
       username: session.is_indoor ? 'anonymous' : session.user.username,
       sensorName: session.streams.first.sensor_name,
-      measurements: measurements(session),
+      measurements: measurements(session, data.measurements_limit),
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
       id: session.id,
@@ -27,13 +28,26 @@ class Api::ToSessionHash
 
   private
 
+  attr_reader :form
+
+  def data
+    form.to_h
+  end
+
   def format_time(time)
     time.to_datetime.strftime('%Q').to_i
   end
 
-  def measurements(session)
-    @measurements ||= session.streams.first.measurements.map { |m|
-      {value: m.value, time: format_time(m.time), longitude: m.longitude, latitude: m.latitude}
-    }
+  def measurements(session, limit = nil)
+    @measurements ||=
+      session.streams.first.measurements.reorder(time: :desc).limit(limit)
+        .map do |m|
+        {
+          value: m.value,
+          time: format_time(m.time),
+          longitude: m.longitude,
+          latitude: m.latitude
+        }
+      end.reverse
   end
 end

@@ -27,6 +27,7 @@ import Popup
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import Time exposing (Posix)
+import Url.Builder
 
 
 type alias SelectedSession =
@@ -123,10 +124,16 @@ fetch sensors sensorId page id toCmd =
             Http.get
                 { url =
                     if page == Mobile then
-                        "/api/mobile/sessions/" ++ String.fromInt id ++ ".json?sensor_name=" ++ sensorName
+                        Url.Builder.absolute
+                            [ "api", "mobile", "sessions", String.fromInt id ++ ".json" ]
+                            [ Url.Builder.string "sensor_name" sensorName ]
 
                     else
-                        "/api/fixed/sessions/" ++ String.fromInt id ++ ".json?sensor_name=" ++ sensorName
+                        Url.Builder.absolute
+                            [ "api", "fixed", "sessions", String.fromInt id ++ ".json" ]
+                            [ Url.Builder.string "sensor_name" sensorName
+                            , Url.Builder.int "measurements_limit" 1440
+                            ]
                 , expect = Http.expectJson toCmd decoder
                 }
 

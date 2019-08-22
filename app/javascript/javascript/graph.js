@@ -11,47 +11,6 @@ let measurementsByTime = {};
 let chart = null;
 const RENDER_TO_ID = "graph";
 
-export const fetchAndDrawFixed = showStatsCallback => ({
-  sensor,
-  heat,
-  times,
-  streamIds
-}) => {
-  // render empty graph with loading message
-  drawFixed({
-    measurements: [],
-    sensor,
-    heat,
-    afterSetExtremes: () => {}
-  });
-
-  const pageStartTime = times.end - 24 * 60 * 60 * 1000;
-
-  http
-    .get("/api/measurements.json", {
-      stream_ids: streamIds,
-      start_time: pageStartTime,
-      end_time: times.end
-    })
-    .then(measurements => {
-      showStatsCallback(getValues(measurements));
-
-      drawFixed({
-        measurements: measurementsToTimeWithExtremes({
-          measurements,
-          times
-        }),
-        sensor,
-        heat,
-        afterSetExtremes: afterSetExtremes({
-          streamIds,
-          times,
-          showStatsCallback
-        })
-      });
-    });
-};
-
 const onMouseOverSingle = point => graphHighlight.show([point]);
 
 const onMouseOverMultiple = (start, end) => {
@@ -130,9 +89,22 @@ export const drawMobile = ({ yellow, sensor, heat, showStatsCallback }) => {
   });
 };
 
-const drawFixed = ({ measurements, sensor, heat, afterSetExtremes }) => {
+export const drawFixed = ({
+  yellow,
+  sensor,
+  heat,
+  times,
+  showStatsCallback
+}) => {
+  const measurements = measurementsToTimeWithExtremes({
+    measurements: yellow,
+    times
+  });
+  showStatsCallback(getValues(yellow));
   const [buttons, selectedButton] = fixedButtons;
   const scrollbar = { liveRedraw: false };
+
+  const afterSetExtremes = () => {};
 
   const xAxis = {
     events: {
@@ -140,6 +112,7 @@ const drawFixed = ({ measurements, sensor, heat, afterSetExtremes }) => {
     },
     ordinal: false
   };
+  console.warn(measurements);
 
   draw({
     buttons,

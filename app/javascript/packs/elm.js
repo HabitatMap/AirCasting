@@ -190,9 +190,7 @@ const setupHeatMap = () => {
 
     const callback = window.__elmApp.ports.graphRangeSelected.send;
 
-    window.__elmApp.ports.drawFixed.subscribe(
-      draw(graph.fetchAndDrawFixed(callback))
-    );
+    window.__elmApp.ports.drawFixed.subscribe(draw(graph.drawFixed, callback));
 
     window.__elmApp.ports.drawMobile.subscribe(
       draw(graph.drawMobile, callback)
@@ -225,7 +223,13 @@ const draw = (fnc, callback) => ({
   measurements
 }) =>
   window.requestAnimationFrame(() =>
-    fnc({ sensor, heat, showStatsCallback: callback, yellow: measurements })
+    fnc({
+      sensor,
+      heat,
+      times,
+      showStatsCallback: callback,
+      yellow: measurements
+    })
   );
 
 const toValues = noUiSlider => ({
