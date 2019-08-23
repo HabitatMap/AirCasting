@@ -26,30 +26,6 @@ const onMouseOverMultiple = (start, end) => {
   graphHighlight.show([points[pointNum]]);
 };
 
-const afterSetExtremes = ({ streamIds, times, showStatsCallback }) => e => {
-  // responsive rules trigger afterSetExtremes before the chart is created, so we need to skip it:
-  if (!chart || Object.keys(chart).length === 0) return;
-  chart.showLoading("Loading data from server...");
-
-  http
-    .get("/api/measurements.json", {
-      stream_ids: streamIds,
-      start_time: Math.round(e.min),
-      end_time: Math.round(e.max)
-    })
-    .then(measurements => {
-      const dataByTime = measurementsToTimeWithExtremes({
-        measurements,
-        times
-      });
-      measurementsByTime = dataByTime;
-      showStatsCallback(getValues(measurements));
-      chart.series[0].setData(Object.values(dataByTime), false);
-      chart.redraw();
-      chart.hideLoading();
-    });
-};
-
 const min1 = { count: 1, type: "minute", text: "1min" };
 const min5 = { count: 5, type: "minute", text: "5min" };
 const min30 = { count: 30, type: "minute", text: "30min" };
@@ -66,15 +42,16 @@ const mobileButtons = [[min1, min5, min30, hr1, hrs12, all], 4];
 
 export const drawMobile = ({ yellow, sensor, heat, showStatsCallback }) => {
   const measurements = measurementsToTime(yellow);
-  showStatsCallback(filterMeasurements(measurements));
   const [buttons, selectedButton] = mobileButtons;
+  showStatsCallback(calculateBounds(yellow, selectedButton));
   const scrollbar = {};
   const xAxis = {
     events: {
       afterSetExtremes: event => {
-        showStatsCallback(
-          getValuesInRange(Object.values(measurements), event.min, event.max)
-        );
+        showStatsCallback({
+          min: Math.floor(event.min),
+          max: Math.ceil(event.max)
+        });
       }
     }
   };
@@ -89,6 +66,18 @@ export const drawMobile = ({ yellow, sensor, heat, showStatsCallback }) => {
   });
 };
 
+const calculateBounds = (measurements, selectedButton) => {
+  const max = Math.max(...measurements.map(m => m.time));
+  let min = Math.min(...measurements.map(m => m.time));
+
+  if (selectedButton.type !== "all") {
+    min = moment(max)
+      .subtract(selectedButton.count, selectedButton.type)
+      .valueOf();
+  }
+  return { max, min };
+};
+
 export const drawFixed = ({
   yellow,
   sensor,
@@ -100,19 +89,21 @@ export const drawFixed = ({
     measurements: yellow,
     times
   });
-  showStatsCallback(getValues(yellow));
   const [buttons, selectedButton] = fixedButtons;
+  showStatsCallback(calculateBounds(yellow, selectedButton));
   const scrollbar = { liveRedraw: false };
-
-  const afterSetExtremes = () => {};
 
   const xAxis = {
     events: {
-      afterSetExtremes
+      afterSetExtremes: event => {
+        showStatsCallback({
+          min: Math.floor(event.min),
+          max: Math.ceil(event.max)
+        });
+      }
     },
     ordinal: false
   };
-  console.warn(measurements);
 
   draw({
     buttons,
@@ -181,29 +172,6 @@ const draw = ({
     .getElementById(RENDER_TO_ID)
     .addEventListener("mouseleave", graphHighlight.hide);
 };
-
-const getValues = data => data.map(m => m.value);
-
-const filterMeasurements = measurementsByTime => {
-  const measurements = Object.values(measurementsByTime);
-  const selectedTimeRange = mobileButtons[0][mobileButtons[1]];
-
-  if (selectedTimeRange.type === "all") {
-    return measurements.map(measurement => measurement.y);
-  } else {
-    const max = Math.max(...measurements.map(measurement => measurement.x));
-    const min = moment(max)
-      .subtract(selectedTimeRange.count, selectedTimeRange.type)
-      .valueOf();
-
-    return getValuesInRange(measurements, min, max);
-  }
-};
-
-const getValuesInRange = (data, min, max) =>
-  data
-    .filter(dataPoint => dataPoint.x >= min && dataPoint.x <= max)
-    .map(dataPoint => dataPoint.y);
 
 export const updateYAxis = heat => {
   const min = heat.threshold1;

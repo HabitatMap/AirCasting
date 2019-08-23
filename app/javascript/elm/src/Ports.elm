@@ -123,7 +123,7 @@ port fetchSessions : () -> Cmd a
 port pulseSessionMarker : Maybe SessionMarkerData -> Cmd a
 
 
-port graphRangeSelected : (List Float -> msg) -> Sub msg
+port graphRangeSelected : ({ max : Int, min : Int } -> msg) -> Sub msg
 
 
 port isShowingTimeRangeFilter : (Bool -> msg) -> Sub msg

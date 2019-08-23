@@ -266,7 +266,7 @@ type Msg
     | MapMoved
     | FetchSessions
     | HighlightSessionMarker (Maybe SessionMarkerData)
-    | GraphRangeSelected (List Float)
+    | GraphRangeSelected { min : Int, max : Int }
     | UpdateIsShowingTimeRangeFilter Bool
     | SaveScrollPosition Float
     | SetScrollPosition
@@ -642,8 +642,8 @@ update msg model =
             , Ports.pulseSessionMarker <| sessionMarkerData
             )
 
-        GraphRangeSelected measurements ->
-            ( { model | selectedSession = SelectedSession.updateRange model.selectedSession measurements }, Cmd.none )
+        GraphRangeSelected times ->
+            ( { model | selectedSession = SelectedSession.updateRange model.selectedSession times }, Cmd.none )
 
         UpdateIsShowingTimeRangeFilter isShown ->
             let

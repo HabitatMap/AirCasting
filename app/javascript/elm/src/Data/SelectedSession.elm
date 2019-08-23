@@ -141,10 +141,15 @@ fetch sensors sensorId page id toCmd =
             Cmd.none
 
 
-updateRange : WebData SelectedSession -> List Float -> WebData SelectedSession
-updateRange result measurements =
+updateRange : WebData SelectedSession -> { min : Int, max : Int } -> WebData SelectedSession
+updateRange result selectedRange =
     case result of
         Success session ->
+            let
+                measurements =
+                    List.filter (\measurement -> measurement.time >= selectedRange.min && measurement.time <= selectedRange.max) session.measurements
+                        |> List.map (\measurement -> measurement.value)
+            in
             Success { session | selectedMeasurements = measurements }
 
         _ ->
