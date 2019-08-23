@@ -12,9 +12,6 @@ angular.module("google").factory("googleMaps", [
       init: (element, options) =>
         (window.__map = new google.maps.Map(element, options)),
 
-      wasGeocodingSuccessful: status =>
-        status === google.maps.GeocoderStatus.OK,
-
       fitBounds: (mapObj, viewport) => mapObj.fitBounds(viewport),
 
       fitBoundsWithBottomPadding: (mapObj, viewport) =>

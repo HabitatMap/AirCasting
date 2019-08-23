@@ -172,11 +172,6 @@ const updateTooltipContent = (link, tooltip) => {
   });
 };
 
-export const findLocation = (location, params, map) => {
-  params.update({ data: { location: location } });
-  map.goToAddress(location);
-};
-
 export const clearLocation = (callback, params) => {
   callback(null);
   params.update({ data: { location: "" } });

@@ -238,7 +238,6 @@ fetchHeatMapThresholds sensors selectedSensorId =
 
 type Msg
     = UpdateLocationInput String
-    | SubmitLocation
     | TagsLabels LabelsInput.Msg
     | ProfileLabels LabelsInput.Msg
     | ToggleCrowdMap Bool
@@ -293,13 +292,6 @@ update msg model =
     case msg of
         UpdateLocationInput newLocation ->
             ( { model | location = newLocation }, Cmd.none )
-
-        SubmitLocation ->
-            let
-                ( subModel, subCmd ) =
-                    deselectSession model
-            in
-            ( subModel, Cmd.batch [ subCmd, Ports.findLocation subModel.location ] )
 
         TagsLabels subMsg ->
             let
@@ -1383,9 +1375,6 @@ viewLocationFilter location isIndoor tooltipIcon =
             , type_ "text"
             , name "location"
             , disabled isIndoor
-            , attribute "autocomplete" "off"
-            , Events.onInput UpdateLocationInput
-            , onEnter SubmitLocation
             ]
             []
         , label [ for "location" ] [ text "location:" ]
@@ -1434,6 +1423,7 @@ subscriptions _ =
         , Sub.map TagsLabels <| LabelsInput.subscriptions Ports.tagSelected
         , Ports.timeRangeSelected UpdateTimeRange
         , Ports.locationCleared (always (UpdateLocationInput ""))
+        , Ports.locationUpdated UpdateLocationInput
         , Browser.Events.onClick (Decode.succeed ClosePopup)
         , Ports.updateSessions UpdateSessions
         , Ports.updateIsHttping UpdateIsHttping

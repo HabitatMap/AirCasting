@@ -2,11 +2,11 @@ port module Ports exposing
     ( drawFixed
     , drawMobile
     , fetchSessions
-    , findLocation
     , graphRangeSelected
     , isShowingTimeRangeFilter
     , loadMoreSessions
     , locationCleared
+    , locationUpdated
     , mapMoved
     , observeSessionsList
     , profileSelected
@@ -54,7 +54,7 @@ port timeRangeSelected : (Encode.Value -> msg) -> Sub msg
 port locationCleared : (() -> msg) -> Sub msg
 
 
-port findLocation : String -> Cmd a
+port locationUpdated : (String -> msg) -> Sub msg
 
 
 port showCopyLinkTooltip : String -> Cmd a
