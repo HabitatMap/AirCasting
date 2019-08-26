@@ -63,9 +63,6 @@ export const fixedSessions = (
       if (fetchableSessionsCount) {
         this.fetchableSessionsCount = fetchableSessionsCount;
       }
-      if (sessionsUtils.isSessionSelected()) {
-        this.reSelectSession(sessionsUtils.selectedSessionId());
-      }
     },
 
     deselectSession: function() {
@@ -84,22 +81,12 @@ export const fixedSessions = (
             zoom: map.getZoom()
           };
           params.update({ prevMapPosition: prevMapPosition });
-          map.fitBoundsWithBottomPadding(calculateBounds(sensors, sessionData));
+          map.fitBoundsWithBottomPadding(calculateBounds(sessionData));
           this.drawSelectedSession(sessionData);
         }
       };
       params.update({ selectedSessionIds: [id] });
       this._selectSession(id, fitBounds);
-    },
-
-    reSelectSession: function(id) {
-      const callback = sessionData => {
-        if (!sessionData.is_indoor) {
-          map.fitBoundsWithBottomPadding(calculateBounds(sensors, sessionData));
-          this.drawSelectedSession(sessionData);
-        }
-      };
-      this._selectSession(id, callback);
     },
 
     drawSelectedSession: function(sessionData) {

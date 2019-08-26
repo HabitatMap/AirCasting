@@ -12,12 +12,9 @@ export const drawSession = (sensors, map, heat, empty) => {
         return;
       }
 
-      const startingMarker = drawSessionStartingMarker(
-        session,
-        sensors.selectedSensorName()
-      );
+      const startingMarker = drawSessionStartingMarker(session);
 
-      var suffix = " " + sensors.anySelected().unit_symbol;
+      var suffix = " " + session.unit_symbol;
       var points = [];
 
       this.measurements(session).forEach(function(measurement, idx) {
@@ -32,32 +29,15 @@ export const drawSession = (sensors, map, heat, empty) => {
         points.push(measurement);
       });
 
-      drawNotes(
-        session.notes || [],
-        map,
-        Session.startingLatLng(session, sensors.selectedSensorName())
-      );
+      drawNotes(session.notes || [], map, Session.startingLatLng(session));
       window.__map.polylines.push(map.drawLine(points));
-    },
-
-    measurementsForSensor: function(session, sensor_name) {
-      if (!session.streams[sensor_name]) {
-        return empty.array;
-      }
-      return session.streams[sensor_name].measurements;
     },
 
     measurements: function(session) {
       if (!session) {
         return empty.array;
       }
-      if (!sensors.anySelected()) {
-        return empty.array;
-      }
-      return this.measurementsForSensor(
-        session,
-        sensors.anySelected().sensor_name
-      );
+      return session.stream.measurements;
     }
   };
   return new DrawSession();

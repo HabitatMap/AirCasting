@@ -22,7 +22,7 @@ export const formatSessionForList = session => ({
 });
 
 const average = (session, selectedSensor) =>
-  session.streams[selectedSensor].average_value;
+  (session.stream || session.streams[selectedSensor]).average_value;
 
 const lastHourAverage = session => session.last_hour_average;
 
@@ -50,10 +50,10 @@ export const latLng = session => {
 };
 
 const startingLat = (session, selectedSensor) =>
-  session.streams[selectedSensor].start_latitude;
+  (session.stream || session.streams[selectedSensor]).start_latitude;
 
 const startingLng = (session, selectedSensor) =>
-  session.streams[selectedSensor].start_longitude;
+  (session.stream || session.streams[selectedSensor]).start_longitude;
 
 export const roundedAverage = (session, selectedSensor) =>
   Math.round(average(session, selectedSensor));
@@ -62,4 +62,4 @@ export const lastHourRoundedAverage = session =>
   Math.round(lastHourAverage(session));
 
 const selectedSensorUnit = (session, selectedSensor) =>
-  session.streams[selectedSensor].unit_symbol;
+  (session.stream || session.streams[selectedSensor]).unit_symbol;

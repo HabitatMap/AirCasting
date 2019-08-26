@@ -15,9 +15,6 @@ export const SessionsListCtrl = (
     $scope.params = params;
     $scope.$window = $window;
     $window.sessions = sessions = $scope.sessions;
-
-    if (sessionsUtils.isSessionSelected())
-      sessions.reSelectSession(sessionsUtils.selectedSessionId());
   };
 
   $scope.$watch(
@@ -64,8 +61,7 @@ export const SessionsListCtrl = (
   });
 
   $scope.toggleSession = function(session) {
-    debugger;
-    if (sessionsUtils.selectedSessionId() === session.id) {
+    if (sessionsUtils.selectedSessionId() === session) {
       sessions.deselectSession();
     } else {
       sessions.selectSession(session);
@@ -77,7 +73,6 @@ export const SessionsListCtrl = (
   if (process.env.NODE_ENV !== "test") {
     angular.element(document).ready(() => {
       elmApp.ports.toggleSession.subscribe(({ selected, deselected }) => {
-        debugger;
         if (deselected) $scope.toggleSession(deselected);
         if (selected) $scope.toggleSession(selected);
         $scope.$apply();

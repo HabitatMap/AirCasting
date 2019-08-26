@@ -223,36 +223,6 @@ test("selectSession after successfully fetching calls map.fitBoundsWithBottomPad
   t.end();
 });
 
-test("reSelectSession after successfully fetching calls drawSession.drawMobileSession", t => {
-  const drawSession = mock("drawMobileSession");
-  const mobileSessionsService = _mobileSessions({
-    drawSession,
-    sensors: { sensors: { 123: { sensor_name: "sensor_name" } } }
-  });
-
-  mobileSessionsService.reSelectSession(123);
-
-  setTimeout(() => {
-    t.true(drawSession.wasCalled());
-
-    t.end();
-  }, 0);
-});
-
-test("reSelectSession after successfully fetching does not call map.fitBounds", t => {
-  const map = mock("fitBounds");
-  const mobileSessionsService = _mobileSessions({
-    map,
-    sensors: { sensors: { 123: { sensor_name: "sensor_name" } } }
-  });
-
-  mobileSessionsService.reSelectSession(123);
-
-  t.false(map.wasCalled());
-
-  t.end();
-});
-
 test("when sensor is selected drawSessionsInLocation calls map.drawCustomMarker to draw marker with label", t => {
   const map = mock("drawMarkerWithLabel");
   const session = { streams: { sensorName: { unit_symbol: "unit" } } };

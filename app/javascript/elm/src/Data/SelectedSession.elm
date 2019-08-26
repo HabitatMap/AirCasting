@@ -57,42 +57,36 @@ type alias SelectedSession =
 type alias SelectedSessionForAngular =
     { id : Int
     , notes : List Note
-    , streams :
-        { x :
-            { average_value : Float
-            , max_latitude : Float
-            , max_longitude : Float
-            , measurements : List Measurement
-            , min_latitude : Float
-            , min_longitude : Float
-            , start_latitude : Float
-            , start_longitude : Float
-            , unit_symbol : String
-            }
+    , stream :
+        { average_value : Float
+        , max_latitude : Float
+        , max_longitude : Float
+        , measurements : List Measurement
+        , min_latitude : Float
+        , min_longitude : Float
+        , sensor_name : String
+        , start_latitude : Float
+        , start_longitude : Float
+        , unit_symbol : String
         }
     }
 
 
 formatForAngular : SelectedSession -> SelectedSessionForAngular
-formatForAngular maybeSession =
-    let
-        x =
-            session.sensorName
-    in
+formatForAngular session =
     { id = session.id
     , notes = session.notes
-    , streams =
-        { x =
-            { average_value = session.averageValue
-            , max_latitude = session.maxLatitude
-            , max_longitude = session.maxLongitude
-            , min_latitude = session.minLatitude
-            , min_longitude = session.minLongitude
-            , start_latitude = session.startLatitude
-            , start_longitude = session.startLongitude
-            , measurements = session.measurements
-            , unit_symbol = session.sensorUnit
-            }
+    , stream =
+        { average_value = session.averageValue
+        , max_latitude = session.maxLatitude
+        , max_longitude = session.maxLongitude
+        , min_latitude = session.minLatitude
+        , min_longitude = session.minLongitude
+        , start_latitude = session.startLatitude
+        , start_longitude = session.startLongitude
+        , measurements = session.measurements
+        , unit_symbol = session.sensorUnit
+        , sensor_name = session.sensorName
         }
     }
 
