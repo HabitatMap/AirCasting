@@ -14,13 +14,14 @@
     margin-left: 20px;
   }
 
+  &:not(:first-of-type) {
+    img {
+      width: 11px;
+    }
+  }
+
   img {
     height: 25px;
-    width: 11px;
-
-    &.fit-scale-icon {
-      width: 16px;
-    }
   }
 
   @media screen and (max-width: $mobile) {
