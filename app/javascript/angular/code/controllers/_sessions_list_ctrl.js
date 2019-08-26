@@ -67,6 +67,7 @@ export const SessionsListCtrl = (
       elmApp.ports.selectSession.subscribe(session => {
         sessions.selectSession(session);
       });
+
       elmApp.ports.deselectSession.subscribe(() => {
         sessions.deselectSession();
       });

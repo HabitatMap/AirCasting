@@ -12,17 +12,28 @@ class Api::ToFixedSessionHash
         id: data.id, streams: { sensor_name: data.sensor_name }
       )
         .first!
+    stream = session.streams.first
+    notes = session.notes.map(&:as_json)
 
     Success.new(
       title: session.title,
       username: session.is_indoor ? 'anonymous' : session.user.username,
-      sensorName: session.streams.first.sensor_name,
-      measurements: measurements(session, data.measurements_limit),
+      sensorName: stream.sensor_name,
+      measurements: measurements(stream, data.measurements_limit),
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
       id: session.id,
       streamIds: session.streams.map(&:id),
-      sensorUnit: session.streams.first.unit_symbol
+      sensorUnit: stream.unit_symbol,
+      latitude: session.latitude,
+      longitude: session.longitude,
+      maxLatitude: stream.max_latitude,
+      maxLongitude: stream.max_longitude,
+      minLatitude: stream.min_latitude,
+      minLongitude: stream.min_longitude,
+      notes: notes,
+      isIndoor: session.is_indoor,
+      lastHourAverage: last_hour_average(stream),
     )
   end
 
@@ -38,9 +49,18 @@ class Api::ToFixedSessionHash
     time.to_datetime.strftime('%Q').to_i
   end
 
-  def measurements(session, limit = nil)
+  def last_hour_average(stream)
+    last_measurement_time = stream.measurements.last.time
+    measurements =
+      stream.measurements.where(
+        time: last_measurement_time - 1.hour..last_measurement_time
+      )
+    measurements.average(:value)
+  end
+
+  def measurements(stream, limit = nil)
     @measurements ||=
-      session.streams.first.measurements.reorder(time: :desc).limit(limit)
+      stream.measurements.reorder(time: :desc).limit(limit)
         .map do |m|
         {
           value: m.value,

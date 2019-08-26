@@ -19,7 +19,7 @@ class Api::ToMobileSessionHash
       title: session.title,
       username: session.is_indoor ? 'anonymous' : session.user.username,
       sensorName: stream.sensor_name,
-      measurements: measurements(session, data.measurements_limit),
+      measurements: measurements(stream, data.measurements_limit),
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
       id: session.id,
@@ -48,9 +48,9 @@ class Api::ToMobileSessionHash
     time.to_datetime.strftime('%Q').to_i
   end
 
-  def measurements(session, limit = nil)
+  def measurements(stream, limit = nil)
     @measurements ||=
-      session.streams.first.measurements.reorder(time: :desc).limit(limit)
+      stream.measurements
         .map do |m|
         {
           value: m.value,

@@ -24,7 +24,7 @@ import Html.Attributes exposing (alt, class, href, id, src, target)
 import Html.Events as Events
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
-import Json.Decode.Pipeline exposing (hardcoded, required)
+import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Popup
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
@@ -44,6 +44,8 @@ type alias SelectedSession =
     , selectedMeasurements : List Float
     , sensorUnit : String
     , averageValue : Float
+    , latitude : Float
+    , longitude : Float
     , maxLatitude : Float
     , maxLongitude : Float
     , minLatitude : Float
@@ -51,6 +53,8 @@ type alias SelectedSession =
     , startLatitude : Float
     , startLongitude : Float
     , notes : List Note
+    , isIndoor : Bool
+    , lastHourAverage : Float
     }
 
 
@@ -69,6 +73,10 @@ type alias SelectedSessionForAngular =
         , start_longitude : Float
         , unit_symbol : String
         }
+    , is_indoor : Bool
+    , last_hour_average : Float
+    , latitude : Float
+    , longitude : Float
     }
 
 
@@ -88,6 +96,10 @@ formatForAngular session =
         , unit_symbol = session.sensorUnit
         , sensor_name = session.sensorName
         }
+    , is_indoor = session.isIndoor
+    , last_hour_average = session.lastHourAverage
+    , latitude = session.latitude
+    , longitude = session.longitude
     }
 
 
@@ -167,14 +179,18 @@ decoder =
         |> required "streamIds" (Decode.list Decode.int)
         |> hardcoded []
         |> required "sensorUnit" Decode.string
-        |> required "averageValue" Decode.float
+        |> optional "averageValue" Decode.float 0
+        |> optional "latitude" Decode.float 0
+        |> optional "longitude" Decode.float 0
         |> required "maxLatitude" Decode.float
         |> required "maxLongitude" Decode.float
         |> required "minLatitude" Decode.float
         |> required "minLongitude" Decode.float
-        |> required "startLatitude" Decode.float
-        |> required "startLongitude" Decode.float
+        |> optional "startLatitude" Decode.float 0
+        |> optional "startLongitude" Decode.float 0
         |> required "notes" (Decode.list noteDecoder)
+        |> optional "isIndoor" Decode.bool False
+        |> optional "lastHourAverage" Decode.float 0
 
 
 fetch : List Sensor -> String -> Page -> Int -> (Result Http.Error SelectedSession -> msg) -> Cmd msg
