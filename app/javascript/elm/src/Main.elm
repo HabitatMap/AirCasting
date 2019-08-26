@@ -64,7 +64,6 @@ type alias Model =
     , timeRange : TimeRange
     , isIndoor : Bool
     , navLogo : Path
-    , filterIcon : Path
     , fitScaleIcon : Path
     , linkIcon : Path
     , menuIcon : Path
@@ -105,7 +104,6 @@ defaultModel =
     , isIndoor = False
     , selectedSession = NotAsked
     , navLogo = Path.empty
-    , filterIcon = Path.empty
     , fitScaleIcon = Path.empty
     , linkIcon = Path.empty
     , menuIcon = Path.empty
@@ -140,7 +138,6 @@ type alias Flags =
     , sensors : Encode.Value
     , selectedSensorId : String
     , navLogo : String
-    , filterIcon : String
     , fitScaleIcon : String
     , linkIcon : String
     , menuIcon : String
@@ -186,7 +183,6 @@ init flags url key =
         , sensors = sensors
         , selectedSensorId = flags.selectedSensorId
         , navLogo = Path.fromString flags.navLogo
-        , filterIcon = Path.fromString flags.filterIcon
         , fitScaleIcon = Path.fromString flags.fitScaleIcon
         , linkIcon = Path.fromString flags.linkIcon
         , menuIcon = Path.fromString flags.menuIcon
@@ -835,7 +831,7 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ viewNav model.navLogo model.filterIcon model.menuIcon model.isNavExpanded
+        [ viewNav model.navLogo model.menuIcon model.isNavExpanded
         , viewMain model
         , snippetGoogleTagManager
         ]
@@ -854,8 +850,8 @@ snippetGoogleTagManager =
         ]
 
 
-viewNav : Path -> Path -> Path -> Bool -> Html Msg
-viewNav navLogo filterIcon menuIcon isNavExpanded =
+viewNav : Path -> Path -> Bool -> Html Msg
+viewNav navLogo menuIcon isNavExpanded =
     header
         [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
         ]
@@ -902,8 +898,7 @@ viewNav navLogo filterIcon menuIcon isNavExpanded =
             , ariaLabel "Filters"
             , Events.onClick ToggleFiltersExpanded
             ]
-            [ img [ src <| Path.toString filterIcon, alt "Filter icon" ] []
-            ]
+            []
         , button
             [ class "nav__menu-button nav__menu-button--hamburger"
             , title "Menu"

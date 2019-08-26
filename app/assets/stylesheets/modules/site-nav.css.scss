@@ -92,9 +92,12 @@ header {
   cursor: pointer;
   background: none;
   display: block;
+  height: 50px;
   outline: none;
   position: absolute;
+  top: 0;
   text-decoration: none;
+  width: 50px;
 
   @media screen and (min-width: $ipad-portrait) {
     display: none;
@@ -102,19 +105,11 @@ header {
 }
 
 .nav__menu-button--hamburger {
-  height: 50px;
   left: 0;
-  top: 0;
-  width: 50px;
 }
 
 .nav__menu-button--filter {
-  right: 24px;
-  top: 16px;
-
-  > img {
-    height: 17px;
-  }
+  right: 0;
 }
 
 .nav__link {
