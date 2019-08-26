@@ -39,6 +39,7 @@ port module Ports exposing
 import Data.GraphData exposing (GraphData, GraphHeatData)
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
 import Data.Markers exposing (SessionMarkerData)
+import Data.SelectedSession exposing (SelectedSessionForAngular)
 import Json.Encode as Encode
 
 
@@ -78,7 +79,7 @@ port selectSensorId : String -> Cmd a
 port updateSessions : (Encode.Value -> msg) -> Sub msg
 
 
-port toggleSession : { deselected : Maybe Int, selected : Maybe Int } -> Cmd msg
+port toggleSession : { deselected : Maybe Int, selected : Maybe SelectedSessionForAngular } -> Cmd msg
 
 
 port loadMoreSessions : () -> Cmd msg

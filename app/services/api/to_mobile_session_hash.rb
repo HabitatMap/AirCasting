@@ -12,7 +12,7 @@ class Api::ToMobileSessionHash
         id: data.id, streams: { sensor_name: data.sensor_name }
       )
         .first!
-    stream = session.stream.first
+    stream = session.streams.first
     notes = session.notes.map(&:as_json)
 
     Success.new(

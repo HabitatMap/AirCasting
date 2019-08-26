@@ -489,13 +489,18 @@ update msg model =
             case ( model.selectedSession, maybeId ) of
                 ( Success session, Just id ) ->
                     if SelectedSession.toId session == id then
-                        ( { model | selectedSession = NotAsked }, Cmd.none )
+                        deselectSession model
 
                     else
-                        ( model
+                        let
+                            ( subModel, subCmd ) =
+                                deselectSession model
+                        in
+                        ( subModel
                         , Cmd.batch
                             [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                             , getScrollPosition
+                            , subCmd
                             ]
                         )
 
@@ -515,27 +520,11 @@ update msg model =
                 NotAsked ->
                     ( model
                     , Cmd.batch
-                        [ Ports.toggleSession { deselected = Nothing, selected = Just id }
-                        , SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
+                        [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                         , Ports.pulseSessionMarker Nothing
                         , getScrollPosition
                         ]
                     )
-
-                Success selectedSession ->
-                    if selectedSession.id == id then
-                        ( { model | selectedSession = NotAsked }
-                        , Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing }
-                        )
-
-                    else
-                        ( { model | selectedSession = NotAsked }
-                        , Cmd.batch
-                            [ Ports.toggleSession { deselected = Just selectedSession.id, selected = Just id }
-                            , SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
-                            , Ports.pulseSessionMarker Nothing
-                            ]
-                        )
 
                 _ ->
                     ( model, Cmd.none )
@@ -547,7 +536,10 @@ update msg model =
             case ( model.heatMapThresholds, response ) of
                 ( Success thresholds, Success selectedSession ) ->
                     ( { model | selectedSession = response }
-                    , graphDrawCmd thresholds selectedSession model.sensors model.selectedSensorId model.page
+                    , Cmd.batch
+                        [ graphDrawCmd thresholds selectedSession model.sensors model.selectedSensorId model.page
+                        , Ports.toggleSession { deselected = Nothing, selected = Just (SelectedSession.formatForAngular selectedSession) }
+                        ]
                     )
 
                 _ ->
