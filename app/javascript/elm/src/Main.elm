@@ -1008,7 +1008,7 @@ viewHeatMap heatMapThresholds sensorUnit fitScaleIcon resetIcon icons theme sele
             Success session ->
                 button
                     [ ariaLabel "Fit scale to stream measurements"
-                    , class "heatmap-button"
+                    , class "heatmap-button heatmap-button--fit-scale"
                     , Events.onClick <| FitHeatMap
                     ]
                     [ img
