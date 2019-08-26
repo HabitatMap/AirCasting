@@ -1,5 +1,6 @@
 port module Ports exposing
-    ( drawFixed
+    ( deselectSession
+    , drawFixed
     , drawMobile
     , fetchSessions
     , graphRangeSelected
@@ -14,6 +15,7 @@ port module Ports exposing
     , refreshTimeRange
     , saveScrollPosition
     , selectSensorId
+    , selectSession
     , setScroll
     , showCopyLinkTooltip
     , tagSelected
@@ -22,7 +24,6 @@ port module Ports exposing
     , toggleCrowdMap
     , toggleIndoor
     , toggleIsSearchOn
-    , toggleSession
     , toggleSessionSelection
     , toggleTheme
     , updateGraphYAxis
@@ -79,7 +80,10 @@ port selectSensorId : String -> Cmd a
 port updateSessions : (Encode.Value -> msg) -> Sub msg
 
 
-port toggleSession : { deselected : Maybe Int, selected : Maybe SelectedSessionForAngular } -> Cmd msg
+port selectSession : SelectedSessionForAngular -> Cmd msg
+
+
+port deselectSession : () -> Cmd msg
 
 
 port loadMoreSessions : () -> Cmd msg

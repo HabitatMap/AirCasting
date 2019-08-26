@@ -543,7 +543,7 @@ update msg model =
                     ( { model | selectedSession = response }
                     , Cmd.batch
                         [ graphDrawCmd thresholds selectedSession model.sensors model.selectedSensorId model.page
-                        , Ports.toggleSession { deselected = Nothing, selected = Just (SelectedSession.formatForAngular selectedSession) }
+                        , Ports.selectSession (SelectedSession.formatForAngular selectedSession)
                         ]
                     )
 
@@ -788,7 +788,7 @@ deselectSession selectable =
         Success selectedSession ->
             ( { selectable | selectedSession = NotAsked }
             , Cmd.batch
-                [ Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing }
+                [ Ports.deselectSession ()
                 , Ports.observeSessionsList ()
                 ]
             )

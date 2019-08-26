@@ -60,22 +60,15 @@ export const SessionsListCtrl = (
     }
   });
 
-  $scope.toggleSession = function(session) {
-    if (sessionsUtils.selectedSessionId() === session) {
-      sessions.deselectSession();
-    } else {
-      sessions.selectSession(session);
-    }
-  };
-
   $scope.setDefaults();
 
   if (process.env.NODE_ENV !== "test") {
     angular.element(document).ready(() => {
-      elmApp.ports.toggleSession.subscribe(({ selected, deselected }) => {
-        if (deselected) $scope.toggleSession(deselected);
-        if (selected) $scope.toggleSession(selected);
-        $scope.$apply();
+      elmApp.ports.selectSession.subscribe(session => {
+        sessions.selectSession(session);
+      });
+      elmApp.ports.deselectSession.subscribe(() => {
+        sessions.deselectSession();
       });
 
       elmApp.ports.loadMoreSessions.subscribe(() => {
