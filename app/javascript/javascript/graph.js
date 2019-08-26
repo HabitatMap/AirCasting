@@ -40,15 +40,16 @@ const fixedButtons = [[hr1, hrs12, hrs24, wk1, mth1, all], 2];
 
 const mobileButtons = [[min1, min5, min30, hr1, hrs12, all], 4];
 
-export const drawMobile = ({ yellow, sensor, heat, showStatsCallback }) => {
-  const measurements = measurementsToTime(yellow);
+export const drawMobile = ({ measurements, sensor, heat }) => {
   const [buttons, selectedButton] = mobileButtons;
-  showStatsCallback(calculateBounds(yellow, selectedButton));
+  window.__elmApp.ports.graphRangeSelected.send(
+    calculateBounds(measurements, selectedButton)
+  );
   const scrollbar = {};
   const xAxis = {
     events: {
       afterSetExtremes: event => {
-        showStatsCallback({
+        window.__elmApp.ports.graphRangeSelected.send({
           min: Math.floor(event.min),
           max: Math.ceil(event.max)
         });
@@ -60,7 +61,7 @@ export const drawMobile = ({ yellow, sensor, heat, showStatsCallback }) => {
     selectedButton,
     scrollbar,
     xAxis,
-    measurements,
+    measurements: measurementsToTime(measurements),
     sensor,
     heat
   });
@@ -78,25 +79,17 @@ const calculateBounds = (measurements, selectedButton) => {
   return { max, min };
 };
 
-export const drawFixed = ({
-  yellow,
-  sensor,
-  heat,
-  times,
-  showStatsCallback
-}) => {
-  const measurements = measurementsToTimeWithExtremes({
-    measurements: yellow,
-    times
-  });
+export const drawFixed = ({ measurements, sensor, heat, times }) => {
   const [buttons, selectedButton] = fixedButtons;
-  showStatsCallback(calculateBounds(yellow, selectedButton));
+  window.__elmApp.ports.graphRangeSelected(
+    calculateBounds(measurements, selectedButton)
+  );
   const scrollbar = { liveRedraw: false };
 
   const xAxis = {
     events: {
       afterSetExtremes: event => {
-        showStatsCallback({
+        window.__elmApp.ports.graphRangeSelected({
           min: Math.floor(event.min),
           max: Math.ceil(event.max)
         });
@@ -110,7 +103,10 @@ export const drawFixed = ({
     selectedButton,
     scrollbar,
     xAxis,
-    measurements,
+    measurements: measurementsToTimeWithExtremes({
+      measurements: measurements,
+      times
+    }),
     sensor,
     heat
   });

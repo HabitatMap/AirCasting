@@ -58,6 +58,6 @@ class Api::ToMobileSessionHash
           longitude: m.longitude,
           latitude: m.latitude
         }
-      end.reverse
+      end
   end
 end

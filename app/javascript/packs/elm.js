@@ -188,13 +188,9 @@ const setupHeatMap = () => {
       );
     });
 
-    const callback = window.__elmApp.ports.graphRangeSelected.send;
+    window.__elmApp.ports.drawFixed.subscribe(draw(graph.drawFixed));
 
-    window.__elmApp.ports.drawFixed.subscribe(draw(graph.drawFixed, callback));
-
-    window.__elmApp.ports.drawMobile.subscribe(
-      draw(graph.drawMobile, callback)
-    );
+    window.__elmApp.ports.drawMobile.subscribe(draw(graph.drawMobile));
 
     window.__elmApp.ports.updateGraphYAxis.subscribe(heat => {
       graph.updateYAxis(heat);
@@ -215,20 +211,13 @@ const setupHeatMap = () => {
   }
 };
 
-const draw = (fnc, callback) => ({
-  times,
-  streamIds,
-  heat,
-  sensor,
-  measurements
-}) =>
+const draw = fnc => ({ times, streamIds, heat, sensor, measurements }) =>
   window.requestAnimationFrame(() =>
     fnc({
       sensor,
       heat,
       times,
-      showStatsCallback: callback,
-      yellow: measurements
+      measurements
     })
   );
 
