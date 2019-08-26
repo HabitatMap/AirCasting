@@ -1,6 +1,6 @@
 header {
   @include flexbox();
-  background-color: white;
+  background-color: $dark-blue;
   box-shadow: 1px 1px 2px 0 $shadow-color-dark;
   margin: 0;
   position: relative;
@@ -9,6 +9,7 @@ header {
   &.menu-collapsed {
     height: $nav-height;
     overflow: hidden;
+    background-color: white;
   }
 
   @media screen and (max-width: $mobile) {
@@ -40,6 +41,17 @@ header {
   padding-left: 24px;
   position: absolute;
   top: 11px;
+
+  @media screen and (max-width: $mobile) {
+    display: none;
+
+    .menu-collapsed & {
+      display: block;
+      padding-left: 0;
+      text-align: center;
+      width: 100%;
+    }
+  }
 }
 
 .nav {
@@ -76,25 +88,29 @@ header {
 
 .nav__menu-button {
   @include appearance(none);
-  background: none;
   border: none;
   cursor: pointer;
+  background: none;
   display: block;
   outline: none;
-  padding-right: 24px;
   position: absolute;
   text-decoration: none;
-  top: 16px;
-  right: 0;
 
   @media screen and (min-width: $ipad-portrait) {
     display: none;
-    background: none;
   }
 }
 
+.nav__menu-button--hamburger {
+  height: 50px;
+  left: 0;
+  top: 0;
+  width: 50px;
+}
+
 .nav__menu-button--filter {
-  right: 30px;
+  right: 24px;
+  top: 16px;
 
   > img {
     height: 17px;
@@ -111,9 +127,13 @@ header {
   margin-right: 65px;
 
   @media screen and (max-width: $mobile) {
+    color: white;
     display: block;
+    font-size: 18px;
+    font-weight: $font-stack-bold;
     margin: 0;
     text-align: center;
+    text-transform: capitalize;
   }
 
   &:hover {
@@ -121,7 +141,9 @@ header {
   }
 
   li.active & {
-    color: $dark-blue;
-    font-weight: $font-stack-bold;
+    @media screen and (min-width: $ipad-portrait) {
+      color: $dark-blue;
+      font-weight: $font-stack-bold;
+    }
   }
 }

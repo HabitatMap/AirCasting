@@ -905,14 +905,13 @@ viewNav navLogo filterIcon menuIcon isNavExpanded =
             [ img [ src <| Path.toString filterIcon, alt "Filter icon" ] []
             ]
         , button
-            [ class "nav__menu-button"
+            [ class "nav__menu-button nav__menu-button--hamburger"
             , title "Menu"
             , type_ "button"
             , ariaLabel "Menu"
             , Events.onClick ToggleNavExpanded
             ]
-            [ img [ src <| Path.toString menuIcon, alt "Menu icon" ] []
-            ]
+            []
         ]
 
 
