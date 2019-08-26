@@ -215,7 +215,11 @@ fetchSelectedSession sensors maybeId selectedSensorId page =
             Cmd.none
 
         Just id ->
-            SelectedSession.fetch sensors selectedSensorId page id (RemoteData.fromResult >> GotSession)
+            Process.sleep 500
+                |> Task.perform
+                    (\_ ->
+                        ExecCmd (SelectedSession.fetch sensors selectedSensorId page id (RemoteData.fromResult >> GotSession))
+                    )
 
 
 fetchHeatMapThresholds : List Sensor -> String -> Cmd Msg
@@ -254,7 +258,7 @@ type Msg
     | ToggleStatus Status
     | DeselectSession
     | ToggleSessionSelectionFromAngular (Maybe Int)
-    | ToggleSessionSelection Int
+    | SelectSession Int
     | GotSession (WebData SelectedSession)
     | UpdateHeatMapThresholds (WebData HeatMapThresholds)
     | UpdateHeatMapMinimum String
@@ -277,6 +281,7 @@ type Msg
     | CloseFilters
     | ToggleNavExpanded
     | ToggleTheme
+    | ExecCmd (Cmd Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -515,7 +520,7 @@ update msg model =
                 ( _, Nothing ) ->
                     ( { model | selectedSession = NotAsked }, Cmd.none )
 
-        ToggleSessionSelection id ->
+        SelectSession id ->
             case model.selectedSession of
                 NotAsked ->
                     ( model
@@ -679,6 +684,9 @@ update msg model =
                     Theme.toggle model.theme
             in
             ( { model | theme = newTheme }, Ports.toggleTheme (Theme.toString newTheme) )
+
+        ExecCmd cmd ->
+            ( model, cmd )
 
 
 type alias Debouncable a =
@@ -1188,7 +1196,7 @@ viewSessionCard heatMapThresholds session =
     div
         [ class "session-card"
         , class <| Data.Session.classByValue session.average heatMapThresholds
-        , Events.onClick <| ToggleSessionSelection session.id
+        , Events.onClick <| SelectSession session.id
         , Events.onMouseEnter <| HighlightSessionMarker (Just (Markers.toSessionMarkerData session.location session.id session.average heatMapThresholds))
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]

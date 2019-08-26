@@ -192,19 +192,17 @@ test("selectSession after successfully fetching calls drawSession.drawMobileSess
   t.end();
 });
 
-test("selectSession after successfully fetching calls drawSession.drawMobileSession with fetched data", t => {
+test("selectSession calls drawSession.drawMobileSession with fetched data", t => {
   const drawSession = mock("drawMobileSession");
-  const data = { id: 1, streams: {} };
-  const $http = { get: () => ({ success: callback => callback(data) }) };
+  const session = { id: 1, stream: {} };
   const mobileSessionsService = _mobileSessions({
     drawSession,
-    sensors,
-    $http
+    sensors
   });
 
-  mobileSessionsService.selectSession(1);
+  mobileSessionsService.selectSession(session);
 
-  t.true(drawSession.wasCalledWith(data));
+  t.true(drawSession.wasCalledWith(session));
 
   t.end();
 });

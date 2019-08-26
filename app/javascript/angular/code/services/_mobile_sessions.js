@@ -98,7 +98,6 @@ export const mobileSessions = (
     selectSession: function(session) {
       params.update({ selectedSessionIds: [session.id] });
 
-      console.warn(session);
       this.selectedSession = session;
       clearMap();
       prevMapPosition = {

@@ -619,46 +619,7 @@ viewTests =
 updateTests : Test
 updateTests =
     describe "update"
-        [ fuzz int "when passed the selected session ToggleSessionSelection deselects it" <|
-            \id ->
-                let
-                    model =
-                        { defaultModel | selectedSession = Success <| { defaultSelectedSession | id = id } }
-
-                    expected =
-                        { model | selectedSession = NotAsked }
-                in
-                model
-                    |> update (ToggleSessionSelection id)
-                    |> Tuple.first
-                    |> Expect.equal expected
-        , fuzz int "when passed another session ToggleSessionSelection deselects the selected session" <|
-            \id ->
-                let
-                    model =
-                        { defaultModel | selectedSession = Success <| { defaultSelectedSession | id = id } }
-
-                    expected =
-                        { model | selectedSession = NotAsked }
-                in
-                model
-                    |> update (ToggleSessionSelection (id + 1))
-                    |> Tuple.first
-                    |> Expect.equal expected
-        , fuzz int "when session was selected ToggleSessionSelection tells javascript what was deselected" <|
-            \id ->
-                let
-                    model =
-                        { defaultModel | selectedSession = Success <| { defaultSelectedSession | id = id } }
-
-                    expected =
-                        Ports.toggleSession { selected = Nothing, deselected = Just id }
-                in
-                model
-                    |> update (ToggleSessionSelection id)
-                    |> Tuple.second
-                    |> Expect.equal expected
-        , fuzz int "UpdateSessions decodes the encoded value and replaces sessions in the model" <|
+        [ fuzz int "UpdateSessions decodes the encoded value and replaces sessions in the model" <|
             \id ->
                 let
                     model =
