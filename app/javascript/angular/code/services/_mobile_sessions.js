@@ -99,30 +99,43 @@ export const mobileSessions = (
       map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
     },
 
-    selectSession: function(id) {
-      const callback = rawData => {
-        this.selectedSession = prepareSessionData(rawData);
-        clearMap();
-        prevMapPosition = {
-          bounds: map.getBounds(),
-          zoom: map.getZoom()
-        };
-        params.update({ prevMapPosition: prevMapPosition });
+    _selectSession: function(id, callback) {
+      var sensorId = sensors.selectedId();
+      var sensor = sensors.sensors[sensorId] || {};
+      var sensorName = sensor.sensor_name;
+      if (!sensorName) return;
+      $http
+        .get("/api/mobile/sessions2/" + id, {
+          cache: true,
+          params: { sensor_name: sensorName }
+        })
+        .success(callback);
+    },
 
-        map.fitBoundsWithBottomPadding(
-          calculateBounds(sensors, this.selectedSession)
-        );
+    selectSession: function(session) {
+      params.update({ selectedSessionIds: [session.id] });
 
-        const drawSessionStartingMarker = (selectedSession, sensorName) =>
-          this.drawSessionWithLabel(selectedSession, sensorName);
-        drawSession.drawMobileSession(
-          this.selectedSession,
-          drawSessionStartingMarker
-        );
+      console.warn(session);
+      this.selectedSession = prepareSessionData(session);
+      clearMap();
+      prevMapPosition = {
+        bounds: map.getBounds(),
+        zoom: map.getZoom()
       };
+      params.update({ prevMapPosition: prevMapPosition });
 
-      params.update({ selectedSessionIds: [id] });
-      this._selectSession(id, callback);
+      map.fitBoundsWithBottomPadding(
+        calculateBounds(sensors, this.selectedSession)
+      );
+
+      const drawSessionStartingMarker = (selectedSession, sensorName) =>
+        this.drawSessionWithLabel(selectedSession, sensorName);
+      drawSession.drawMobileSession(
+        this.selectedSession,
+        drawSessionStartingMarker
+      );
+
+      // this._selectSession(id, callback);
     },
 
     // this is called when refreshing a page with selected session
@@ -210,19 +223,6 @@ export const mobileSessions = (
         callback: callback(Session.id(session))
       });
       return marker;
-    },
-
-    _selectSession: function(id, callback) {
-      var sensorId = sensors.selectedId();
-      var sensor = sensors.sensors[sensorId] || {};
-      var sensorName = sensor.sensor_name;
-      if (!sensorName) return;
-      $http
-        .get("/api/mobile/sessions2/" + id, {
-          cache: true,
-          params: { sensor_name: sensorName }
-        })
-        .success(callback);
     },
 
     fetch: function(values = {}) {

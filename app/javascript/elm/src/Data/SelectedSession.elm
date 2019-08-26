@@ -1,8 +1,10 @@
 module Data.SelectedSession exposing
     ( Measurement
     , SelectedSession
+    , SelectedSessionForAngular
     , decoder
     , fetch
+    , formatForAngular
     , measurementBounds
     , times
     , toId
@@ -41,6 +43,57 @@ type alias SelectedSession =
     , streamIds : List Int
     , selectedMeasurements : List Float
     , sensorUnit : String
+    , averageValue : Float
+    , maxLatitude : Float
+    , maxLongitude : Float
+    , minLatitude : Float
+    , minLongitude : Float
+    , startLatitude : Float
+    , startLongitude : Float
+    , notes : List Note
+    }
+
+
+type alias SelectedSessionForAngular =
+    { id : Int
+    , notes : List Note
+    , streams :
+        { x :
+            { average_value : Float
+            , max_latitude : Float
+            , max_longitude : Float
+            , measurements : List Measurement
+            , min_latitude : Float
+            , min_longitude : Float
+            , start_latitude : Float
+            , start_longitude : Float
+            , unit_symbol : String
+            }
+        }
+    }
+
+
+formatForAngular : SelectedSession -> SelectedSessionForAngular
+formatForAngular maybeSession =
+    let
+        x =
+            session.sensorName
+    in
+    { id = session.id
+    , notes = session.notes
+    , streams =
+        { x =
+            { average_value = session.averageValue
+            , max_latitude = session.maxLatitude
+            , max_longitude = session.maxLongitude
+            , min_latitude = session.minLatitude
+            , min_longitude = session.minLongitude
+            , start_latitude = session.startLatitude
+            , start_longitude = session.startLongitude
+            , measurements = session.measurements
+            , unit_symbol = session.sensorUnit
+            }
+        }
     }
 
 
@@ -52,12 +105,21 @@ type alias Measurement =
     }
 
 
+type alias Note =
+    { title : String }
+
+
 measurementDecoder =
     Decode.succeed Measurement
         |> required "value" Decode.float
         |> required "time" Decode.int
         |> required "latitude" Decode.float
         |> required "longitude" Decode.float
+
+
+noteDecoder =
+    Decode.succeed Note
+        |> required "title" Decode.string
 
 
 times : SelectedSession -> { start : Int, end : Int }
@@ -111,6 +173,14 @@ decoder =
         |> required "streamIds" (Decode.list Decode.int)
         |> hardcoded []
         |> required "sensorUnit" Decode.string
+        |> required "averageValue" Decode.float
+        |> required "maxLatitude" Decode.float
+        |> required "maxLongitude" Decode.float
+        |> required "minLatitude" Decode.float
+        |> required "minLongitude" Decode.float
+        |> required "startLatitude" Decode.float
+        |> required "startLongitude" Decode.float
+        |> required "notes" (Decode.list noteDecoder)
 
 
 fetch : List Sensor -> String -> Page -> Int -> (Result Http.Error SelectedSession -> msg) -> Cmd msg

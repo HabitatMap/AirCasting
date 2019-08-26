@@ -1,4 +1,4 @@
-class Api::ToSessionHash
+class Api::ToMobileSessionHash
   def initialize(model:, form:)
     @model = model
     @form = form
@@ -12,17 +12,27 @@ class Api::ToSessionHash
         id: data.id, streams: { sensor_name: data.sensor_name }
       )
         .first!
+    stream = session.stream.first
+    notes = session.notes.map(&:as_json)
 
     Success.new(
       title: session.title,
       username: session.is_indoor ? 'anonymous' : session.user.username,
-      sensorName: session.streams.first.sensor_name,
+      sensorName: stream.sensor_name,
       measurements: measurements(session, data.measurements_limit),
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
       id: session.id,
       streamIds: session.streams.map(&:id),
-      sensorUnit: session.streams.first.unit_symbol
+      sensorUnit: stream.unit_symbol,
+      averageValue: stream.average_value,
+      maxLatitude: stream.max_latitude,
+      maxLongitude: stream.max_longitude,
+      minLatitude: stream.min_latitude,
+      minLongitude: stream.min_longitude,
+      startLatitude: stream.start_latitude,
+      startLongitude: stream.start_longitude,
+      notes: notes
     )
   end
 
