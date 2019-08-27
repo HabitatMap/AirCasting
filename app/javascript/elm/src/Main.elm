@@ -7,13 +7,14 @@ import Browser.Events
 import Browser.Navigation
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
 import Data.EmailForm as EmailForm
-import Data.GraphData exposing (GraphData, GraphHeatData)
+import Data.GraphData exposing (GraphData, GraphHeatData, GraphTimeRange)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Markers as Markers exposing (SessionMarkerData)
+import Data.Measurements exposing (Measurement)
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
 import Data.Page as Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
-import Data.SelectedSession as SelectedSession exposing (Measurement, SelectedSession)
+import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
 import Data.Status as Status exposing (Status(..))
 import Data.Theme as Theme exposing (Theme)
@@ -271,7 +272,7 @@ type Msg
     | MapMoved
     | FetchSessions
     | HighlightSessionMarker (Maybe SessionMarkerData)
-    | GraphRangeSelected { start : Int, end : Int }
+    | GraphRangeSelected GraphTimeRange
     | UpdateIsShowingTimeRangeFilter Bool
     | SaveScrollPosition Float
     | SetScrollPosition

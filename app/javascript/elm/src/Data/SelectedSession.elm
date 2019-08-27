@@ -1,6 +1,5 @@
 module Data.SelectedSession exposing
-    ( Measurement
-    , SelectedSession
+    ( SelectedSession
     , SelectedSessionForAngular
     , fetch
     , fetchMeasurements
@@ -14,7 +13,9 @@ module Data.SelectedSession exposing
     )
 
 import Data.EmailForm as EmailForm
+import Data.GraphData exposing (GraphTimeRange)
 import Data.HeatMapThresholds exposing (HeatMapThresholds)
+import Data.Measurements exposing (Measurement)
 import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.Session
@@ -37,12 +38,12 @@ type alias SelectedSession =
     , username : String
     , sensorName : String
     , measurements : List Measurement
-    , fetchedStartTime : Maybe Int
+    , fetchedStartTime : Maybe Float
     , startTime : Posix
     , endTime : Posix
     , id : Int
     , streamId : Int
-    , selectedTimeRange : { start : Int, end : Int }
+    , selectedTimeRange : GraphTimeRange
     , sensorUnit : String
     , averageValue : Float
     , latitude : Float
@@ -101,14 +102,6 @@ formatForAngular session =
     , last_hour_average = session.lastHourAverage
     , latitude = session.latitude
     , longitude = session.longitude
-    }
-
-
-type alias Measurement =
-    { value : Float
-    , time : Int
-    , latitude : Float
-    , longitude : Float
     }
 
 
@@ -220,10 +213,10 @@ fetch sensors sensorId page id toCmd =
 
 updateFetchedTimeRange : SelectedSession -> SelectedSession
 updateFetchedTimeRange session =
-    { session | fetchedStartTime = session.measurements |> List.map .time |> List.minimum }
+    { session | fetchedStartTime = session.measurements |> List.map .time |> List.minimum |> Maybe.map toFloat }
 
 
-fetchMeasurements : SelectedSession -> { start : Int, end : Int } -> (Result Http.Error (List Measurement) -> msg) -> Cmd msg
+fetchMeasurements : SelectedSession -> GraphTimeRange -> (Result Http.Error (List Measurement) -> msg) -> Cmd msg
 fetchMeasurements session timeBounds toCmd =
     let
         newStartTime =
@@ -241,15 +234,15 @@ fetchMeasurements session timeBounds toCmd =
                 Cmd.none
 
 
-fetchMeasurementsCall : Int -> (Result Http.Error (List Measurement) -> msg) -> Int -> Int -> Cmd msg
+fetchMeasurementsCall : Int -> (Result Http.Error (List Measurement) -> msg) -> Float -> Float -> Cmd msg
 fetchMeasurementsCall streamId toCmd startTime endTime =
     Http.get
         { url =
             Url.Builder.absolute
                 [ "api", "measurements" ]
                 [ Url.Builder.string "stream_ids" (String.fromInt streamId)
-                , Url.Builder.int "start_time" startTime
-                , Url.Builder.int "end_time" endTime
+                , Url.Builder.string "start_time" (String.fromFloat startTime)
+                , Url.Builder.string "end_time" (String.fromFloat endTime)
                 ]
         , expect = Http.expectJson toCmd (Decode.list measurementDecoder)
         }
@@ -262,9 +255,10 @@ updateMeasurements measurements session =
     }
 
 
+selectedMeasurements : List Measurement -> GraphTimeRange -> List Float
 selectedMeasurements allMeasurements selectedTimeRange =
     allMeasurements
-        |> List.filter (\measurement -> measurement.time >= selectedTimeRange.start && measurement.time <= selectedTimeRange.end)
+        |> List.filter (\measurement -> toFloat measurement.time >= selectedTimeRange.start && toFloat measurement.time <= selectedTimeRange.end)
         |> List.map (\measurement -> measurement.value)
 
 

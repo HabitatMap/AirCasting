@@ -48,12 +48,7 @@ export const drawMobile = ({ measurements, sensor, heat }) => {
   const scrollbar = {};
   const xAxis = {
     events: {
-      afterSetExtremes: event => {
-        window.__elmApp.ports.graphRangeSelected.send({
-          start: Math.floor(event.min),
-          end: Math.ceil(event.max)
-        });
-      }
+      afterSetExtremes
     }
   };
   draw({
@@ -79,18 +74,20 @@ const calculateBounds = (measurements, selectedButton) => {
   return { end, start };
 };
 
+const afterSetExtremes = event => {
+  window.__elmApp.ports.graphRangeSelected.send({
+    start: event.min,
+    end: event.max
+  });
+};
+
 export const drawFixed = ({ measurements, sensor, heat, times }) => {
   const [buttons, selectedButton] = fixedButtons;
   const scrollbar = { liveRedraw: false };
 
   const xAxis = {
     events: {
-      afterSetExtremes: event => {
-        window.__elmApp.ports.graphRangeSelected.send({
-          start: Math.floor(event.min),
-          end: Math.ceil(event.max)
-        });
-      }
+      afterSetExtremes
     },
     ordinal: false
   };

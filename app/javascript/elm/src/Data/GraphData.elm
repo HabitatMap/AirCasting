@@ -1,6 +1,6 @@
-module Data.GraphData exposing (GraphData, GraphHeatData)
+module Data.GraphData exposing (GraphData, GraphHeatData, GraphTimeRange)
 
-import Data.SelectedSession exposing (Measurement)
+import Data.Measurements exposing (Measurement)
 
 
 type alias GraphData =
@@ -26,4 +26,10 @@ type alias GraphHeatData =
             , to : Int
             , className : String
             }
+    }
+
+
+type alias GraphTimeRange =
+    { start : Float
+    , end : Float
     }

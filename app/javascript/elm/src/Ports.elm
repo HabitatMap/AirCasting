@@ -38,10 +38,11 @@ port module Ports exposing
     , updateTags
     )
 
-import Data.GraphData exposing (GraphData, GraphHeatData)
+import Data.GraphData exposing (GraphData, GraphHeatData, GraphTimeRange)
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
 import Data.Markers exposing (SessionMarkerData)
-import Data.SelectedSession exposing (Measurement, SelectedSessionForAngular)
+import Data.Measurements exposing (Measurement)
+import Data.SelectedSession exposing (SelectedSessionForAngular)
 import Json.Encode as Encode
 
 
@@ -129,7 +130,7 @@ port fetchSessions : () -> Cmd a
 port pulseSessionMarker : Maybe SessionMarkerData -> Cmd a
 
 
-port graphRangeSelected : ({ start : Int, end : Int } -> msg) -> Sub msg
+port graphRangeSelected : (GraphTimeRange -> msg) -> Sub msg
 
 
 port isShowingTimeRangeFilter : (Bool -> msg) -> Sub msg
