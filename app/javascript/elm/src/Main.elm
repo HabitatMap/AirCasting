@@ -851,15 +851,7 @@ viewNav navLogo isNavExpanded sensors selectedSensorId page =
     header
         [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
         ]
-        [ div [ class "logo u--hide-on-mobile" ]
-            [ a
-                [ ariaLabel "Homepage"
-                , href "/"
-                ]
-                [ img [ src (Path.toString navLogo), alt "Aircasting Logo" ] []
-                ]
-            ]
-        , div [ class "filters-info u--show-on-mobile" ]
+        [ div [ class "filters-info u--show-on-mobile" ]
             [ p
                 [ class "filters-info__session-type" ]
                 [ text (Page.toString page)
@@ -869,6 +861,14 @@ viewNav navLogo isNavExpanded sensors selectedSensorId page =
                 [ text (Sensor.parameterForId sensors selectedSensorId)
                 , text " - "
                 , text (Sensor.sensorLabelForId sensors selectedSensorId)
+                ]
+            ]
+        , div [ class "logo" ]
+            [ a
+                [ ariaLabel "Homepage"
+                , href "/"
+                ]
+                [ img [ src (Path.toString navLogo), alt "Aircasting Logo" ] []
                 ]
             ]
         , nav
