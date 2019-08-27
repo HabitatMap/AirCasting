@@ -27,6 +27,8 @@ const onMouseOverMultiple = (start, end) => {
 };
 
 const afterSetExtremes = event => {
+  // responsive rules trigger afterSetExtremes before the chart is created, so we need to skip it:
+  if (!chart || Object.keys(chart).length === 0) return;
   chart.showLoading("Loading data from server...");
   window.__elmApp.ports.graphRangeSelected.send({
     start: event.min,
