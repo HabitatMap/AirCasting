@@ -26,6 +26,13 @@ const onMouseOverMultiple = (start, end) => {
   graphHighlight.show([points[pointNum]]);
 };
 
+const afterSetExtremes = event => {
+  window.__elmApp.ports.graphRangeSelected.send({
+    start: event.min,
+    end: event.max
+  });
+};
+
 const min1 = { count: 1, type: "minute", text: "1min" };
 const min5 = { count: 5, type: "minute", text: "5min" };
 const min30 = { count: 30, type: "minute", text: "30min" };
@@ -43,7 +50,7 @@ const mobileButtons = [[min1, min5, min30, hr1, hrs12, all], 4];
 export const drawMobile = ({ measurements, sensor, heat }) => {
   const [buttons, selectedButton] = mobileButtons;
   window.__elmApp.ports.graphRangeSelected.send(
-    calculateBounds(measurements, buttons[selectedButton])
+    calculateTimeRange(measurements, buttons[selectedButton])
   );
   const scrollbar = {};
   const xAxis = {
@@ -62,7 +69,7 @@ export const drawMobile = ({ measurements, sensor, heat }) => {
   });
 };
 
-const calculateBounds = (measurements, selectedButton) => {
+const calculateTimeRange = (measurements, selectedButton) => {
   const end = Math.max(...measurements.map(m => m.time));
   let start = Math.min(...measurements.map(m => m.time));
 
@@ -74,17 +81,10 @@ const calculateBounds = (measurements, selectedButton) => {
   return { end, start };
 };
 
-const afterSetExtremes = event => {
-  window.__elmApp.ports.graphRangeSelected.send({
-    start: event.min,
-    end: event.max
-  });
-};
-
 export const drawFixed = ({ measurements, sensor, heat, times }) => {
   const [buttons, selectedButton] = fixedButtons;
   window.__elmApp.ports.graphRangeSelected.send(
-    calculateBounds(measurements, buttons[selectedButton])
+    calculateTimeRange(measurements, buttons[selectedButton])
   );
   const scrollbar = { liveRedraw: false };
 

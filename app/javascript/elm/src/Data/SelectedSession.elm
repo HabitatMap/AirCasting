@@ -227,15 +227,15 @@ updateFetchedTimeRange session =
     { session | fetchedStartTime = session.measurements |> List.map .time |> List.minimum |> Maybe.map toFloat }
 
 
-fetchMeasurements : SelectedSession -> GraphTimeRange -> (Result Http.Error (List Measurement) -> msg) -> Cmd msg
-fetchMeasurements session timeBounds toCmd =
+fetchMeasurements : SelectedSession -> (Result Http.Error (List Measurement) -> msg) -> Cmd msg
+fetchMeasurements session toCmd =
     let
         newStartTime =
-            timeBounds.start
+            session.selectedTimeRange.start
     in
     case session.fetchedStartTime of
         Nothing ->
-            fetchMeasurementsCall session.streamId toCmd newStartTime timeBounds.end
+            fetchMeasurementsCall session.streamId toCmd newStartTime session.selectedTimeRange.end
 
         Just fetchedStartTime ->
             if newStartTime < fetchedStartTime then

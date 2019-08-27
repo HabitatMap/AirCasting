@@ -503,7 +503,7 @@ update msg model =
                             ( subModel, subCmd ) =
                                 deselectSession model
                         in
-                        ( subModel
+                        ( { subModel | overlay = Overlay.update (AddOverlay HttpingOverlay) model.overlay }
                         , Cmd.batch
                             [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                             , getScrollPosition
@@ -512,7 +512,7 @@ update msg model =
                         )
 
                 ( _, Just id ) ->
-                    ( model
+                    ( { model | overlay = Overlay.update (AddOverlay HttpingOverlay) model.overlay }
                     , Cmd.batch
                         [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                         , getScrollPosition
@@ -526,7 +526,6 @@ update msg model =
             case model.selectedSession of
                 NotAsked ->
                     ( { model | overlay = Overlay.update (AddOverlay HttpingOverlay) model.overlay }
-                      -- ( model
                     , Cmd.batch
                         [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                         , Ports.pulseSessionMarker Nothing
@@ -671,7 +670,7 @@ update msg model =
                             { session | selectedTimeRange = times }
                     in
                     ( { model | selectedSession = Success newSession }
-                    , SelectedSession.fetchMeasurements session times (RemoteData.fromResult >> GotMeasurements)
+                    , SelectedSession.fetchMeasurements newSession (RemoteData.fromResult >> GotMeasurements)
                     )
 
                 _ ->

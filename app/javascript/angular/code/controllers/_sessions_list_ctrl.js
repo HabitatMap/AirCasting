@@ -51,7 +51,6 @@ export const SessionsListCtrl = (
     });
   });
 
-  // ToggleSessionSelectionFromAngular
   $scope.$on("markerSelected", function(event, data) {
     if (sessionsUtils.selectedSessionId() === data.session_id) {
       elmApp.ports.toggleSessionSelection.send(null);
