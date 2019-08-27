@@ -167,6 +167,14 @@ init flags url key =
             flags.sensors
                 |> Decode.decodeValue (Decode.list Sensor.decoder)
                 |> Result.withDefault []
+
+        overlay =
+            case flags.selectedSessionId of
+                Nothing ->
+                    Overlay.init flags.isIndoor
+
+                Just id ->
+                    Overlay.update (AddOverlay HttpingOverlay) (Overlay.init flags.isIndoor)
     in
     ( { defaultModel
         | page = page
@@ -191,7 +199,7 @@ init flags url key =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
                 |> Maybe.withDefault defaultModel.heatMapThresholds
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
-        , overlay = Overlay.init flags.isIndoor
+        , overlay = overlay
         , scrollPosition = flags.scrollPosition
         , theme = Theme.toTheme flags.theme
         , status = Status.toStatus flags.isActive
