@@ -863,6 +863,7 @@ viewNav navLogo isNavExpanded sensors selectedSensorId page =
             [ p
                 [ class "filters-info__session-type" ]
                 [ text (Page.toString page)
+                , text " sessions"
                 ]
             , p []
                 [ text (Sensor.parameterForId sensors selectedSensorId)
