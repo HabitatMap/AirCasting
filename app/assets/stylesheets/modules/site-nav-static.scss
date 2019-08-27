@@ -1,7 +1,7 @@
 .nav__menu-button--hamburger {
-  background: url("icons/menu-icon-white.svg") center no-repeat;
+  background: url(asset-path("icons/menu-icon-white.svg")) center no-repeat;
 
   .menu-collapsed & {
-    background-image: url("icons/menu-icon.svg");
+    background-image: url(asset-path("icons/menu-icon.svg"));
   }
 }
