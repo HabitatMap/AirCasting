@@ -661,7 +661,13 @@ update msg model =
         GraphRangeSelected times ->
             case model.selectedSession of
                 Success session ->
-                    ( model, SelectedSession.fetchMeasurements session times (RemoteData.fromResult >> GotMeasurements) )
+                    let
+                        newSession =
+                            { session | selectedTimeRange = times }
+                    in
+                    ( { model | selectedSession = Success newSession }
+                    , SelectedSession.fetchMeasurements session times (RemoteData.fromResult >> GotMeasurements)
+                    )
 
                 _ ->
                     ( model, Cmd.none )

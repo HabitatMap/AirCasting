@@ -42,7 +42,7 @@ type alias SelectedSession =
     , endTime : Posix
     , id : Int
     , streamId : Int
-    , selectedMeasurements : List Float
+    , selectedTimeRange : { start : Int, end : Int }
     , sensorUnit : String
     , averageValue : Float
     , latitude : Float
@@ -143,10 +143,10 @@ measurementBounds : SelectedSession -> Maybe { min : Float, max : Float }
 measurementBounds session =
     let
         maybeMin =
-            List.minimum session.selectedMeasurements
+            List.minimum (selectedMeasurements session.measurements session.selectedTimeRange)
 
         maybeMax =
-            List.maximum session.selectedMeasurements
+            List.maximum (selectedMeasurements session.measurements session.selectedTimeRange)
     in
     case ( maybeMin, maybeMax ) of
         ( Just min, Just max ) ->
@@ -174,7 +174,7 @@ decoder =
         |> required "endTime" millisToPosixDecoder
         |> required "id" Decode.int
         |> required "streamId" Decode.int
-        |> hardcoded []
+        |> hardcoded { start = 0, end = 0 }
         |> required "sensorUnit" Decode.string
         |> optional "averageValue" Decode.float 0
         |> optional "latitude" Decode.float 0
@@ -216,21 +216,6 @@ fetch sensors sensorId page id toCmd =
 
         Nothing ->
             Cmd.none
-
-
-updateRange : WebData SelectedSession -> { start : Int, end : Int } -> WebData SelectedSession
-updateRange result selectedRange =
-    case result of
-        Success session ->
-            let
-                measurements =
-                    List.filter (\measurement -> measurement.time >= selectedRange.start && measurement.time <= selectedRange.end) session.measurements
-                        |> List.map (\measurement -> measurement.value)
-            in
-            Success { session | selectedMeasurements = measurements }
-
-        _ ->
-            result
 
 
 updateFetchedTimeRange : SelectedSession -> SelectedSession
@@ -277,11 +262,20 @@ updateMeasurements measurements session =
     }
 
 
+selectedMeasurements allMeasurements selectedTimeRange =
+    allMeasurements
+        |> List.filter (\measurement -> measurement.time >= selectedTimeRange.start && measurement.time <= selectedTimeRange.end)
+        |> List.map (\measurement -> measurement.value)
+
+
 view : SelectedSession -> WebData HeatMapThresholds -> Path -> (String -> msg) -> msg -> Popup.Popup -> Html msg -> Html msg
 view session heatMapThresholds linkIcon toMsg showExportPopup popup emailForm =
     let
         tooltipId =
             "graph-copy-link-tooltip"
+
+        measurements =
+            selectedMeasurements session.measurements session.selectedTimeRange
     in
     div [ class "single-session__info" ]
         [ div [ class "session-data" ]
@@ -290,11 +284,11 @@ view session heatMapThresholds linkIcon toMsg showExportPopup popup emailForm =
                 , p [ class "single-session__username" ] [ text session.username ]
                 , p [ class "single-session__sensor" ] [ text session.sensorName ]
                 ]
-            , case session.selectedMeasurements of
+            , case measurements of
                 [] ->
                     div [ class "single-session__placeholder" ] []
 
-                measurements ->
+                _ ->
                     let
                         min =
                             List.minimum measurements |> Maybe.withDefault -1
