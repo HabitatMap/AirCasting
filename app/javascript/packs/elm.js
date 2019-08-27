@@ -195,6 +195,9 @@ const setupHeatMap = () => {
     window.__elmApp.ports.updateGraphYAxis.subscribe(heat => {
       graph.updateYAxis(heat);
     });
+    window.__elmApp.ports.updateGraphData.subscribe(data => {
+      graph.updateGraphData(data);
+    });
 
     window.__elmApp.ports.observeSessionsList.subscribe(() => {
       createObserver({

@@ -563,7 +563,10 @@ update msg model =
                             SelectedSession.updateMeasurements measurements session
                     in
                     ( { model | selectedSession = Success updatedSession }
-                    , graphDrawCmd thresholds updatedSession model.sensors model.selectedSensorId model.page
+                    , Ports.updateGraphData
+                        { measurements = updatedSession.measurements
+                        , times = SelectedSession.times updatedSession
+                        }
                     )
 
                 _ ->

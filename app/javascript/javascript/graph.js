@@ -101,7 +101,7 @@ export const drawFixed = ({ measurements, sensor, heat, times }) => {
     scrollbar,
     xAxis,
     measurements: measurementsToTimeWithExtremes({
-      measurements: measurements,
+      measurements,
       times
     }),
     sensor,
@@ -176,6 +176,26 @@ export const updateYAxis = heat => {
       max: max,
       tickPositions: buildTicks(min, max)
     }
+  };
+
+  if (chart) {
+    chart.update(options);
+  }
+};
+
+export const updateGraphData = data => {
+  const measurements = measurementsToTimeWithExtremes({
+    measurements: data.measurements,
+    times: data.times
+  });
+  measurementsByTime = measurements;
+
+  const options = {
+    series: [
+      {
+        data: Object.values(measurements)
+      }
+    ]
   };
 
   if (chart) {

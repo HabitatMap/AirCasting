@@ -26,6 +26,7 @@ port module Ports exposing
     , toggleIsSearchOn
     , toggleSessionSelection
     , toggleTheme
+    , updateGraphData
     , updateGraphYAxis
     , updateHeatMapThresholds
     , updateHeatMapThresholdsFromAngular
@@ -40,7 +41,7 @@ port module Ports exposing
 import Data.GraphData exposing (GraphData, GraphHeatData)
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
 import Data.Markers exposing (SessionMarkerData)
-import Data.SelectedSession exposing (SelectedSessionForAngular)
+import Data.SelectedSession exposing (Measurement, SelectedSessionForAngular)
 import Json.Encode as Encode
 
 
@@ -147,6 +148,9 @@ port toggleTheme : String -> Cmd a
 
 
 port updateGraphYAxis : GraphHeatData -> Cmd a
+
+
+port updateGraphData : { measurements : List Measurement, times : { start : Int, end : Int } } -> Cmd a
 
 
 port updateParams : { key : String, value : Bool } -> Cmd a
