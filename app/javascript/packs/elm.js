@@ -2,7 +2,6 @@ import { Elm } from "../elm/src/Main.elm";
 import navLogo from "../../assets/images/aircasting-logo-nav.svg";
 import fitScaleIcon from "../../assets/images/icons/fit-scale-icon.svg";
 import linkIcon from "../../assets/images/icons/link-icon.svg";
-import menuIcon from "../../assets/images/icons/menu-icon.svg";
 import resetIconBlack from "../../assets/images/icons/reset-icon-black.svg";
 import resetIconWhite from "../../assets/images/icons/reset-icon-white.svg";
 import themeSwitchIconBlue from "../../assets/images/icons/theme-switch-icon-blue.svg";
@@ -92,7 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
         navLogo,
         fitScaleIcon,
         linkIcon,
-        menuIcon,
         resetIconBlack,
         resetIconWhite,
         themeSwitchIconBlue,

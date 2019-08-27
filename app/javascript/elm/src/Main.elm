@@ -66,7 +66,6 @@ type alias Model =
     , navLogo : Path
     , fitScaleIcon : Path
     , linkIcon : Path
-    , menuIcon : Path
     , resetIconBlack : Path
     , resetIconWhite : Path
     , themeIcons : Theme.Icons
@@ -106,7 +105,6 @@ defaultModel =
     , navLogo = Path.empty
     , fitScaleIcon = Path.empty
     , linkIcon = Path.empty
-    , menuIcon = Path.empty
     , resetIconBlack = Path.empty
     , resetIconWhite = Path.empty
     , themeIcons = Theme.emptyIcons
@@ -140,7 +138,6 @@ type alias Flags =
     , navLogo : String
     , fitScaleIcon : String
     , linkIcon : String
-    , menuIcon : String
     , resetIconBlack : String
     , resetIconWhite : String
     , themeSwitchIconBlue : String
@@ -185,7 +182,6 @@ init flags url key =
         , navLogo = Path.fromString flags.navLogo
         , fitScaleIcon = Path.fromString flags.fitScaleIcon
         , linkIcon = Path.fromString flags.linkIcon
-        , menuIcon = Path.fromString flags.menuIcon
         , resetIconBlack = Path.fromString flags.resetIconBlack
         , resetIconWhite = Path.fromString flags.resetIconWhite
         , themeIcons = Theme.toIcons flags.themeSwitchIconDefault flags.themeSwitchIconBlue
@@ -831,7 +827,7 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ viewNav model.navLogo model.menuIcon model.isNavExpanded
+        [ viewNav model.navLogo model.isNavExpanded
         , viewMain model
         , snippetGoogleTagManager
         ]
@@ -850,8 +846,8 @@ snippetGoogleTagManager =
         ]
 
 
-viewNav : Path -> Path -> Bool -> Html Msg
-viewNav navLogo menuIcon isNavExpanded =
+viewNav : Path -> Bool -> Html Msg
+viewNav navLogo isNavExpanded =
     header
         [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
         ]
