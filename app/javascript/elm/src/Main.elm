@@ -11,7 +11,7 @@ import Data.GraphData exposing (GraphData, GraphHeatData)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Markers as Markers exposing (SessionMarkerData)
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
-import Data.Page exposing (Page(..))
+import Data.Page as Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
 import Data.Session exposing (..)
@@ -827,7 +827,7 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId
+        [ viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
         , viewMain model
         , snippetGoogleTagManager
         ]
@@ -846,8 +846,8 @@ snippetGoogleTagManager =
         ]
 
 
-viewNav : Path -> Bool -> List Sensor -> String -> Html Msg
-viewNav navLogo isNavExpanded sensors selectedSensorId =
+viewNav : Path -> Bool -> List Sensor -> String -> Page -> Html Msg
+viewNav navLogo isNavExpanded sensors selectedSensorId page =
     header
         [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
         ]
@@ -862,7 +862,7 @@ viewNav navLogo isNavExpanded sensors selectedSensorId =
         , div [ class "filters-info u--show-on-mobile" ]
             [ p
                 [ class "filters-info__session-type" ]
-                [ text "Fixed sessions"
+                [ text (Page.toString page)
                 ]
             , p []
                 [ text (Sensor.parameterForId sensors selectedSensorId)
