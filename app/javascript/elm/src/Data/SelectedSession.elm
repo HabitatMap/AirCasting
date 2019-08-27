@@ -15,7 +15,8 @@ module Data.SelectedSession exposing
 import Data.EmailForm as EmailForm
 import Data.GraphData exposing (GraphTimeRange)
 import Data.HeatMapThresholds exposing (HeatMapThresholds)
-import Data.Measurements exposing (Measurement)
+import Data.Measurements as Measurements exposing (Measurement)
+import Data.Note as Note exposing (Note)
 import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.Session
@@ -105,34 +106,6 @@ formatForAngular session =
     }
 
 
-type alias Note =
-    { text : String
-    , longitude : Float
-    , latitude : Float
-    , date : String
-    , photo : Maybe String
-    , photo_thumbnail : Maybe String
-    }
-
-
-measurementDecoder =
-    Decode.succeed Measurement
-        |> required "value" Decode.float
-        |> required "time" Decode.int
-        |> required "latitude" Decode.float
-        |> required "longitude" Decode.float
-
-
-noteDecoder =
-    Decode.succeed Note
-        |> required "text" Decode.string
-        |> required "longitude" Decode.float
-        |> required "latitude" Decode.float
-        |> required "date" Decode.string
-        |> optional "photo" (Decode.map Just Decode.string) Nothing
-        |> optional "photo_thumbnail" (Decode.map Just Decode.string) Nothing
-
-
 times : SelectedSession -> { start : Int, end : Int }
 times { startTime, endTime } =
     { start = Time.posixToMillis startTime, end = Time.posixToMillis endTime }
@@ -172,7 +145,7 @@ decoder =
         |> required "title" Decode.string
         |> required "username" Decode.string
         |> required "sensorName" Decode.string
-        |> required "measurements" (Decode.list measurementDecoder)
+        |> required "measurements" (Decode.list Measurements.decoder)
         |> hardcoded Nothing
         |> required "startTime" millisToPosixDecoder
         |> required "endTime" millisToPosixDecoder
@@ -189,7 +162,7 @@ decoder =
         |> required "minLongitude" Decode.float
         |> optional "startLatitude" Decode.float 0
         |> optional "startLongitude" Decode.float 0
-        |> required "notes" (Decode.list noteDecoder)
+        |> required "notes" (Decode.list Note.decoder)
         |> optional "isIndoor" Decode.bool False
         |> optional "lastHourAverage" Decode.float 0
 
@@ -235,28 +208,14 @@ fetchMeasurements session toCmd =
     in
     case session.fetchedStartTime of
         Nothing ->
-            fetchMeasurementsCall session.streamId toCmd newStartTime session.selectedTimeRange.end
+            Measurements.fetch session.streamId toCmd newStartTime session.selectedTimeRange.end
 
         Just fetchedStartTime ->
             if newStartTime < fetchedStartTime then
-                fetchMeasurementsCall session.streamId toCmd newStartTime fetchedStartTime
+                Measurements.fetch session.streamId toCmd newStartTime fetchedStartTime
 
             else
                 Cmd.none
-
-
-fetchMeasurementsCall : Int -> (Result Http.Error (List Measurement) -> msg) -> Float -> Float -> Cmd msg
-fetchMeasurementsCall streamId toCmd startTime endTime =
-    Http.get
-        { url =
-            Url.Builder.absolute
-                [ "api", "measurements" ]
-                [ Url.Builder.string "stream_ids" (String.fromInt streamId)
-                , Url.Builder.string "start_time" (String.fromFloat startTime)
-                , Url.Builder.string "end_time" (String.fromFloat endTime)
-                ]
-        , expect = Http.expectJson toCmd (Decode.list measurementDecoder)
-        }
 
 
 updateMeasurements : List Measurement -> SelectedSession -> SelectedSession

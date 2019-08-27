@@ -48,7 +48,7 @@ class Api::ToMobileSessionHash
     time.to_datetime.strftime('%Q').to_i
   end
 
-  def measurements(stream, limit = nil)
+  def measurements(stream)
     @measurements ||=
       stream.measurements.map do |m|
         {
