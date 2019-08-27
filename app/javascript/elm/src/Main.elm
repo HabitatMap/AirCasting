@@ -670,7 +670,7 @@ update msg model =
                             { session | selectedTimeRange = times }
                     in
                     ( { model | selectedSession = Success newSession }
-                    , SelectedSession.fetchMeasurements newSession (RemoteData.fromResult >> GotMeasurements)
+                    , SelectedSession.fetchMeasurements newSession (RemoteData.fromResult >> GotMeasurements) Ports.updateGraphData
                     )
 
                 _ ->

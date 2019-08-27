@@ -13,7 +13,7 @@ module Data.SelectedSession exposing
     )
 
 import Data.EmailForm as EmailForm
-import Data.GraphData exposing (GraphTimeRange)
+import Data.GraphData exposing (GraphMeasurementsData, GraphTimeRange)
 import Data.HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Measurements as Measurements exposing (Measurement)
 import Data.Note as Note exposing (Note)
@@ -200,8 +200,8 @@ updateFetchedTimeRange session =
     { session | fetchedStartTime = session.measurements |> List.map .time |> List.minimum |> Maybe.map toFloat }
 
 
-fetchMeasurements : SelectedSession -> (Result Http.Error (List Measurement) -> msg) -> Cmd msg
-fetchMeasurements session toCmd =
+fetchMeasurements : SelectedSession -> (Result Http.Error (List Measurement) -> msg) -> (GraphMeasurementsData -> Cmd msg) -> Cmd msg
+fetchMeasurements session toCmd cmd =
     let
         newStartTime =
             session.selectedTimeRange.start
@@ -215,7 +215,10 @@ fetchMeasurements session toCmd =
                 Measurements.fetch session.streamId toCmd newStartTime fetchedStartTime
 
             else
-                Cmd.none
+                cmd
+                    { measurements = session.measurements
+                    , times = times session
+                    }
 
 
 updateMeasurements : List Measurement -> SelectedSession -> SelectedSession
@@ -223,6 +226,7 @@ updateMeasurements measurements session =
     { session
         | measurements = List.append measurements session.measurements
     }
+        |> updateFetchedTimeRange
 
 
 selectedMeasurements : List Measurement -> GraphTimeRange -> List Float

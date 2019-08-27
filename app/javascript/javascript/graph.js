@@ -27,6 +27,7 @@ const onMouseOverMultiple = (start, end) => {
 };
 
 const afterSetExtremes = event => {
+  chart.showLoading("Loading data from server...");
   window.__elmApp.ports.graphRangeSelected.send({
     start: event.min,
     end: event.max
@@ -184,6 +185,7 @@ export const updateYAxis = heat => {
 };
 
 export const updateGraphData = data => {
+  chart.hideLoading();
   const measurements = measurementsToTimeWithExtremes({
     measurements: data.measurements,
     times: data.times

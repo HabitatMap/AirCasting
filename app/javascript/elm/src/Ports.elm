@@ -38,7 +38,7 @@ port module Ports exposing
     , updateTags
     )
 
-import Data.GraphData exposing (GraphData, GraphHeatData, GraphTimeRange)
+import Data.GraphData exposing (GraphData, GraphHeatData, GraphMeasurementsData, GraphTimeRange)
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
 import Data.Markers exposing (SessionMarkerData)
 import Data.Measurements exposing (Measurement)
@@ -151,7 +151,7 @@ port toggleTheme : String -> Cmd a
 port updateGraphYAxis : GraphHeatData -> Cmd a
 
 
-port updateGraphData : { measurements : List Measurement, times : { start : Int, end : Int } } -> Cmd a
+port updateGraphData : GraphMeasurementsData -> Cmd a
 
 
 port updateParams : { key : String, value : Bool } -> Cmd a

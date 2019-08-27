@@ -19,7 +19,7 @@ class Api::ToMobileSessionHash
       title: session.title,
       username: session.is_indoor ? 'anonymous' : session.user.username,
       sensorName: stream.sensor_name,
-      measurements: measurements(stream, data.measurements_limit),
+      measurements: measurements(stream),
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
       id: session.id,

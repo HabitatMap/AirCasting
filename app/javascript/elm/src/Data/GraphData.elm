@@ -1,4 +1,4 @@
-module Data.GraphData exposing (GraphData, GraphHeatData, GraphTimeRange)
+module Data.GraphData exposing (GraphData, GraphHeatData, GraphMeasurementsData, GraphTimeRange)
 
 import Data.Measurements exposing (Measurement)
 
@@ -26,6 +26,15 @@ type alias GraphHeatData =
             , to : Int
             , className : String
             }
+    }
+
+
+type alias GraphMeasurementsData =
+    { measurements : List Measurement
+    , times :
+        { start : Int
+        , end : Int
+        }
     }
 
 
