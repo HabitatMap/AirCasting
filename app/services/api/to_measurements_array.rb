@@ -32,7 +32,7 @@ class Api::ToMeasurementsArray
 
   def to_hash(measurement)
     {
-      time: measurement.time.to_i * 1000,
+      time: measurement.time.to_i * 1_000,
       value: measurement.value,
       latitude: measurement.latitude,
       longitude: measurement.longitude

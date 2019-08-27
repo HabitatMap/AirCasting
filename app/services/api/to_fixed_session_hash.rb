@@ -33,7 +33,7 @@ class Api::ToFixedSessionHash
       minLongitude: stream.min_longitude,
       notes: notes,
       isIndoor: session.is_indoor,
-      lastHourAverage: last_hour_average(stream),
+      lastHourAverage: last_hour_average(stream)
     )
   end
 
@@ -60,8 +60,7 @@ class Api::ToFixedSessionHash
 
   def measurements(stream, limit = nil)
     @measurements ||=
-      stream.measurements.reorder(time: :desc).limit(limit)
-        .map do |m|
+      stream.measurements.reorder(time: :desc).limit(limit).map do |m|
         {
           value: m.value,
           time: format_time(m.time),

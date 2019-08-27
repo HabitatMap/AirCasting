@@ -525,39 +525,6 @@ viewTests =
                     |> view
                     |> Query.fromHtml
                     |> Query.has [ Slc.all expected ]
-        , test "with selection the session rounded average min and max are shown" <|
-            \_ ->
-                let
-                    selectedSession =
-                        { defaultSelectedSession
-                            | selectedMeasurements = [ 1, 4 ]
-                        }
-
-                    expected =
-                        List.map (\x -> Slc.containing [ Slc.text x ]) [ String.fromInt <| 3, String.fromFloat 1, String.fromFloat 4 ]
-                in
-                { defaultModel | selectedSession = Success selectedSession }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.has [ Slc.all expected ]
-        , test "with selection the session startTime and endTime is shown" <|
-            \_ ->
-                let
-                    start =
-                        Iso8601.toTime "2010-12-31T09:08:00.000Z"
-                            |> Result.withDefault (Time.millisToPosix 0)
-
-                    end =
-                        Iso8601.toTime "2011-12-31T13:22:00.000Z"
-                            |> Result.withDefault (Time.millisToPosix 0)
-
-                    selectedSession =
-                        { defaultSelectedSession | startTime = start, endTime = end, selectedMeasurements = [ 1, 4 ] }
-                in
-                { defaultModel | selectedSession = Success selectedSession }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.contains [ text "12/31/10 09:08 - 12/31/11 13:22" ]
         , fuzz string "when heatmap minimum input changes UpdateHeatMapMinimum is triggered" <|
             \min ->
                 defaultModel

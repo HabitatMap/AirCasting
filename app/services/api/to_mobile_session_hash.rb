@@ -50,8 +50,7 @@ class Api::ToMobileSessionHash
 
   def measurements(stream, limit = nil)
     @measurements ||=
-      stream.measurements
-        .map do |m|
+      stream.measurements.map do |m|
         {
           value: m.value,
           time: format_time(m.time),

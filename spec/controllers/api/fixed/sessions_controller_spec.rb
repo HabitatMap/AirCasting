@@ -19,6 +19,7 @@ describe Api::Fixed::SessionsController do
       create_stream!(session: session, sensor_name: 'another-sensor-name')
       stream = create_stream!(session: session, sensor_name: sensor_name)
       create_stream!(session: session, sensor_name: 'yet another-sensor-name')
+      create_measurement!(stream: stream, time: start_time_local)
 
       get :show, params: { id: session.id, sensor_name: sensor_name }
 
@@ -29,8 +30,25 @@ describe Api::Fixed::SessionsController do
         'startTime' => 970_365_780_000,
         'endTime' => 1_004_850_360_000,
         'id' => session.id,
-        'streamIds' => [stream.id],
-        'sensorUnit' => stream.unit_symbol
+        'streamId' => stream.id,
+        'isIndoor' => false,
+        'lastHourAverage' => 123.0,
+        'latitude' => 123.0,
+        'longitude' => 123.0,
+        'maxLatitude' => 1.0,
+        'maxLongitude' => 1.0,
+        'measurements' => [
+          {
+            'latitude' => 1.0,
+            'longitude' => 1.0,
+            'time' => start_time_local.to_i * 1_000,
+            'value' => 123.0
+          }
+        ],
+        'minLatitude' => 1.0,
+        'minLongitude' => 1.0,
+        'notes' => [],
+        'sensorUnit' => 'F'
       }
       expect(json_response).to eq(expected)
     end
@@ -102,12 +120,6 @@ describe Api::Fixed::SessionsController do
 
   private
 
-  def create_user!(username:)
-    User.create!(
-      username: username, email: 'email@example.com', password: 'password'
-    )
-  end
-
   def create_fixed_session!(attr)
     FixedSession.create!(
       title: attr.fetch(:title, 'title'),
@@ -122,23 +134,6 @@ describe Api::Fixed::SessionsController do
       is_indoor: false,
       latitude: 123,
       longitude: 123
-    )
-  end
-
-  def create_stream!(session:, sensor_name:)
-    Stream.create!(
-      sensor_package_name: 'abc',
-      sensor_name: sensor_name,
-      measurement_type: 'abc',
-      unit_name: 'abc',
-      session: session,
-      measurement_short_type: 'dB',
-      unit_symbol: 'dB',
-      threshold_very_low: 20,
-      threshold_low: 60,
-      threshold_medium: 70,
-      threshold_high: 80,
-      threshold_very_high: 100
     )
   end
 

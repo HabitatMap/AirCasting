@@ -83,6 +83,9 @@ const afterSetExtremes = event => {
 
 export const drawFixed = ({ measurements, sensor, heat, times }) => {
   const [buttons, selectedButton] = fixedButtons;
+  window.__elmApp.ports.graphRangeSelected.send(
+    calculateBounds(measurements, buttons[selectedButton])
+  );
   const scrollbar = { liveRedraw: false };
 
   const xAxis = {
