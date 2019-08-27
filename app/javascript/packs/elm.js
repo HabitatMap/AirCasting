@@ -211,7 +211,7 @@ const setupHeatMap = () => {
   }
 };
 
-const draw = fnc => ({ times, streamIds, heat, sensor, measurements }) =>
+const draw = fnc => ({ times, heat, sensor, measurements }) =>
   window.requestAnimationFrame(() =>
     fnc({
       sensor,

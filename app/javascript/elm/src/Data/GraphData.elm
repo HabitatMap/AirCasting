@@ -13,7 +13,6 @@ type alias GraphData =
         { start : Int
         , end : Int
         }
-    , streamIds : List Int
     , measurements : List Measurement
     }
 

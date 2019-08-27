@@ -50,8 +50,8 @@ export const drawMobile = ({ measurements, sensor, heat }) => {
     events: {
       afterSetExtremes: event => {
         window.__elmApp.ports.graphRangeSelected.send({
-          min: Math.floor(event.min),
-          max: Math.ceil(event.max)
+          start: Math.floor(event.min),
+          end: Math.ceil(event.max)
         });
       }
     }
@@ -68,30 +68,27 @@ export const drawMobile = ({ measurements, sensor, heat }) => {
 };
 
 const calculateBounds = (measurements, selectedButton) => {
-  const max = Math.max(...measurements.map(m => m.time));
-  let min = Math.min(...measurements.map(m => m.time));
+  const end = Math.max(...measurements.map(m => m.time));
+  let start = Math.min(...measurements.map(m => m.time));
 
   if (selectedButton.type !== "all") {
-    min = moment(max)
+    start = moment(end)
       .subtract(selectedButton.count, selectedButton.type)
       .valueOf();
   }
-  return { max, min };
+  return { end, start };
 };
 
 export const drawFixed = ({ measurements, sensor, heat, times }) => {
   const [buttons, selectedButton] = fixedButtons;
-  window.__elmApp.ports.graphRangeSelected(
-    calculateBounds(measurements, selectedButton)
-  );
   const scrollbar = { liveRedraw: false };
 
   const xAxis = {
     events: {
       afterSetExtremes: event => {
-        window.__elmApp.ports.graphRangeSelected({
-          min: Math.floor(event.min),
-          max: Math.ceil(event.max)
+        window.__elmApp.ports.graphRangeSelected.send({
+          start: Math.floor(event.min),
+          end: Math.ceil(event.max)
         });
       }
     },

@@ -23,7 +23,7 @@ class Api::ToMobileSessionHash
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
       id: session.id,
-      streamIds: session.streams.map(&:id),
+      streamId: stream.id,
       sensorUnit: stream.unit_symbol,
       averageValue: stream.average_value,
       maxLatitude: stream.max_latitude,

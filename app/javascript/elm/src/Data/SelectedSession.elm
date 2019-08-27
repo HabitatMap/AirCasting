@@ -2,14 +2,14 @@ module Data.SelectedSession exposing
     ( Measurement
     , SelectedSession
     , SelectedSessionForAngular
-    , decoder
     , fetch
+    , fetchMeasurements
     , formatForAngular
     , measurementBounds
     , times
     , toId
-    , toStreamIds
-    , updateRange
+    , updateFetchedTimeRange
+    , updateMeasurements
     , view
     )
 
@@ -37,10 +37,11 @@ type alias SelectedSession =
     , username : String
     , sensorName : String
     , measurements : List Measurement
+    , fetchedStartTime : Maybe Int
     , startTime : Posix
     , endTime : Posix
     , id : Int
-    , streamIds : List Int
+    , streamId : Int
     , selectedMeasurements : List Float
     , sensorUnit : String
     , averageValue : Float
@@ -133,11 +134,6 @@ times { startTime, endTime } =
     { start = Time.posixToMillis startTime, end = Time.posixToMillis endTime }
 
 
-toStreamIds : SelectedSession -> List Int
-toStreamIds { streamIds } =
-    streamIds
-
-
 toId : SelectedSession -> Int
 toId { id } =
     id
@@ -173,10 +169,11 @@ decoder =
         |> required "username" Decode.string
         |> required "sensorName" Decode.string
         |> required "measurements" (Decode.list measurementDecoder)
+        |> hardcoded Nothing
         |> required "startTime" millisToPosixDecoder
         |> required "endTime" millisToPosixDecoder
         |> required "id" Decode.int
-        |> required "streamIds" (Decode.list Decode.int)
+        |> required "streamId" Decode.int
         |> hardcoded []
         |> required "sensorUnit" Decode.string
         |> optional "averageValue" Decode.float 0
@@ -221,19 +218,63 @@ fetch sensors sensorId page id toCmd =
             Cmd.none
 
 
-updateRange : WebData SelectedSession -> { min : Int, max : Int } -> WebData SelectedSession
+updateRange : WebData SelectedSession -> { start : Int, end : Int } -> WebData SelectedSession
 updateRange result selectedRange =
     case result of
         Success session ->
             let
                 measurements =
-                    List.filter (\measurement -> measurement.time >= selectedRange.min && measurement.time <= selectedRange.max) session.measurements
+                    List.filter (\measurement -> measurement.time >= selectedRange.start && measurement.time <= selectedRange.end) session.measurements
                         |> List.map (\measurement -> measurement.value)
             in
             Success { session | selectedMeasurements = measurements }
 
         _ ->
             result
+
+
+updateFetchedTimeRange : SelectedSession -> SelectedSession
+updateFetchedTimeRange session =
+    { session | fetchedStartTime = session.measurements |> List.map .time |> List.minimum }
+
+
+fetchMeasurements : SelectedSession -> { start : Int, end : Int } -> (Result Http.Error (List Measurement) -> msg) -> Cmd msg
+fetchMeasurements session timeBounds toCmd =
+    let
+        newStartTime =
+            timeBounds.start
+    in
+    case session.fetchedStartTime of
+        Nothing ->
+            fetchMeasurementsCall session.streamId toCmd newStartTime timeBounds.end
+
+        Just fetchedStartTime ->
+            if newStartTime < fetchedStartTime then
+                fetchMeasurementsCall session.streamId toCmd newStartTime fetchedStartTime
+
+            else
+                Cmd.none
+
+
+fetchMeasurementsCall : Int -> (Result Http.Error (List Measurement) -> msg) -> Int -> Int -> Cmd msg
+fetchMeasurementsCall streamId toCmd startTime endTime =
+    Http.get
+        { url =
+            Url.Builder.absolute
+                [ "api", "measurements" ]
+                [ Url.Builder.string "stream_ids" (String.fromInt streamId)
+                , Url.Builder.int "start_time" startTime
+                , Url.Builder.int "end_time" endTime
+                ]
+        , expect = Http.expectJson toCmd (Decode.list measurementDecoder)
+        }
+
+
+updateMeasurements : List Measurement -> SelectedSession -> SelectedSession
+updateMeasurements measurements session =
+    { session
+        | measurements = List.append measurements session.measurements
+    }
 
 
 view : SelectedSession -> WebData HeatMapThresholds -> Path -> (String -> msg) -> msg -> Popup.Popup -> Html msg -> Html msg

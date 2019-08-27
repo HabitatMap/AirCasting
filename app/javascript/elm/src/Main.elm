@@ -13,7 +13,7 @@ import Data.Markers as Markers exposing (SessionMarkerData)
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
 import Data.Page as Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
-import Data.SelectedSession as SelectedSession exposing (SelectedSession)
+import Data.SelectedSession as SelectedSession exposing (Measurement, SelectedSession)
 import Data.Session exposing (..)
 import Data.Status as Status exposing (Status(..))
 import Data.Theme as Theme exposing (Theme)
@@ -260,6 +260,7 @@ type Msg
     | ToggleSessionSelectionFromAngular (Maybe Int)
     | SelectSession Int
     | GotSession (WebData SelectedSession)
+    | GotMeasurements (WebData (List Measurement))
     | UpdateHeatMapThresholds (WebData HeatMapThresholds)
     | UpdateHeatMapMinimum String
     | UpdateHeatMapMaximum String
@@ -270,7 +271,7 @@ type Msg
     | MapMoved
     | FetchSessions
     | HighlightSessionMarker (Maybe SessionMarkerData)
-    | GraphRangeSelected { min : Int, max : Int }
+    | GraphRangeSelected { start : Int, end : Int }
     | UpdateIsShowingTimeRangeFilter Bool
     | SaveScrollPosition Float
     | SetScrollPosition
@@ -540,15 +541,33 @@ update msg model =
         GotSession response ->
             case ( model.heatMapThresholds, response ) of
                 ( Success thresholds, Success selectedSession ) ->
-                    ( { model | selectedSession = response }
+                    let
+                        newSession =
+                            SelectedSession.updateFetchedTimeRange selectedSession
+                    in
+                    ( { model | selectedSession = Success newSession }
                     , Cmd.batch
-                        [ graphDrawCmd thresholds selectedSession model.sensors model.selectedSensorId model.page
-                        , Ports.selectSession (SelectedSession.formatForAngular selectedSession)
+                        [ graphDrawCmd thresholds newSession model.sensors model.selectedSensorId model.page
+                        , Ports.selectSession (SelectedSession.formatForAngular newSession)
                         ]
                     )
 
                 _ ->
                     ( { model | selectedSession = response }, Cmd.none )
+
+        GotMeasurements response ->
+            case ( model.heatMapThresholds, model.selectedSession, response ) of
+                ( Success thresholds, Success session, Success measurements ) ->
+                    let
+                        updatedSession =
+                            SelectedSession.updateMeasurements measurements session
+                    in
+                    ( { model | selectedSession = Success updatedSession }
+                    , graphDrawCmd thresholds updatedSession model.sensors model.selectedSensorId model.page
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         UpdateHeatMapThresholds heatMapThresholds ->
             let
@@ -640,7 +659,12 @@ update msg model =
             )
 
         GraphRangeSelected times ->
-            ( { model | selectedSession = SelectedSession.updateRange model.selectedSession times }, Cmd.none )
+            case model.selectedSession of
+                Success session ->
+                    ( model, SelectedSession.fetchMeasurements session times (RemoteData.fromResult >> GotMeasurements) )
+
+                _ ->
+                    ( model, Cmd.none )
 
         UpdateIsShowingTimeRangeFilter isShown ->
             let
@@ -757,7 +781,6 @@ toGraphParams thresholds selectedSession sensors selectedSensorId =
     { sensor = { parameter = parameter, unit = unit }
     , heat = toGraphHeatParams thresholds
     , times = SelectedSession.times selectedSession
-    , streamIds = SelectedSession.toStreamIds selectedSession
     , measurements = selectedSession.measurements
     }
 
