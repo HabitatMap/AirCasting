@@ -106,7 +106,13 @@ formatForAngular session =
 
 
 type alias Note =
-    { title : String }
+    { text : String
+    , longitude : Float
+    , latitude : Float
+    , date : String
+    , photo : Maybe String
+    , photo_thumbnail : Maybe String
+    }
 
 
 measurementDecoder =
@@ -119,7 +125,12 @@ measurementDecoder =
 
 noteDecoder =
     Decode.succeed Note
-        |> required "title" Decode.string
+        |> required "text" Decode.string
+        |> required "longitude" Decode.float
+        |> required "latitude" Decode.float
+        |> required "date" Decode.string
+        |> optional "photo" (Decode.map Just Decode.string) Nothing
+        |> optional "photo_thumbnail" (Decode.map Just Decode.string) Nothing
 
 
 times : SelectedSession -> { start : Int, end : Int }

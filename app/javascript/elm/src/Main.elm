@@ -525,7 +525,8 @@ update msg model =
         SelectSession id ->
             case model.selectedSession of
                 NotAsked ->
-                    ( model
+                    ( { model | overlay = Overlay.update (AddOverlay HttpingOverlay) model.overlay }
+                      -- ( model
                     , Cmd.batch
                         [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                         , Ports.pulseSessionMarker Nothing
@@ -546,7 +547,7 @@ update msg model =
                         newSession =
                             SelectedSession.updateFetchedTimeRange selectedSession
                     in
-                    ( { model | selectedSession = Success newSession }
+                    ( { model | selectedSession = Success newSession, overlay = Overlay.update (RemoveOverlay HttpingOverlay) model.overlay }
                     , Cmd.batch
                         [ graphDrawCmd thresholds newSession model.sensors model.selectedSensorId model.page
                         , Ports.selectSession (SelectedSession.formatForAngular newSession)
@@ -554,7 +555,7 @@ update msg model =
                     )
 
                 _ ->
-                    ( { model | selectedSession = response }, Cmd.none )
+                    ( { model | selectedSession = response, overlay = Overlay.update (RemoveOverlay HttpingOverlay) model.overlay }, Cmd.none )
 
         GotMeasurements response ->
             case ( model.heatMapThresholds, model.selectedSession, response ) of
