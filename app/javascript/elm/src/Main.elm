@@ -851,13 +851,20 @@ viewNav navLogo isNavExpanded =
     header
         [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
         ]
-        [ div [ class "logo" ]
+        [ div [ class "logo u--hide-on-mobile" ]
             [ a
                 [ ariaLabel "Homepage"
                 , href "/"
                 ]
                 [ img [ src (Path.toString navLogo), alt "Aircasting Logo" ] []
                 ]
+            ]
+        , div [ class "filters-info u--show-on-mobile" ]
+            [ p
+                [ class "filters-info__session-type" ]
+                [ text "Fixed sessions"
+                ]
+            , p [] [ text "particulate matter - AirBeam2-PM2.5 (µg/m³)" ]
             ]
         , nav
             [ class "nav"

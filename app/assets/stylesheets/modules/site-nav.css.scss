@@ -41,17 +41,6 @@ header {
   padding-left: 24px;
   position: absolute;
   top: 11px;
-
-  @media screen and (max-width: $mobile) {
-    display: none;
-
-    .menu-collapsed & {
-      display: block;
-      padding-left: 0;
-      text-align: center;
-      width: 100%;
-    }
-  }
 }
 
 .nav {

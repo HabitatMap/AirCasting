@@ -1,0 +1,11 @@
+.u--hide-on-mobile {
+  @media screen and (max-width: $mobile) {
+    display: none;
+  }
+}
+
+.u--show-on-mobile {
+  @media screen and (min-width: $ipad-portrait) {
+    display: none;
+  }
+}
