@@ -827,7 +827,7 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ viewNav model.navLogo model.isNavExpanded
+        [ viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId
         , viewMain model
         , snippetGoogleTagManager
         ]
@@ -846,8 +846,8 @@ snippetGoogleTagManager =
         ]
 
 
-viewNav : Path -> Bool -> Html Msg
-viewNav navLogo isNavExpanded =
+viewNav : Path -> Bool -> List Sensor -> String -> Html Msg
+viewNav navLogo isNavExpanded sensors selectedSensorId =
     header
         [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
         ]
@@ -864,7 +864,11 @@ viewNav navLogo isNavExpanded =
                 [ class "filters-info__session-type" ]
                 [ text "Fixed sessions"
                 ]
-            , p [] [ text "particulate matter - AirBeam2-PM2.5 (µg/m³)" ]
+            , p []
+                [ text (Sensor.parameterForId sensors selectedSensorId)
+                , text " - "
+                , text (Sensor.sensorLabelForId sensors selectedSensorId)
+                ]
             ]
         , nav
             [ class "nav"
