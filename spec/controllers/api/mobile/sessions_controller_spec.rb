@@ -108,7 +108,6 @@ describe Api::Mobile::SessionsController do
         'id' => session.id,
         'streamId' => stream.id,
         'sensorUnit' => stream.unit_symbol,
-        'sensorUnit' => stream.unit_symbol,
         'maxLatitude' => 123.0,
         'maxLongitude' => 123.0,
         'measurements' => [],

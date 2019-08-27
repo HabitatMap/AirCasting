@@ -96,14 +96,17 @@ export const mobileSessions = (
     },
 
     selectSession: function(session) {
+      if (params.selectedSessionIds().length === 0) {
+        clearMap();
+        prevMapPosition = {
+          bounds: map.getBounds(),
+          zoom: map.getZoom()
+        };
+      }
       params.update({ selectedSessionIds: [session.id] });
 
       this.selectedSession = session;
-      clearMap();
-      prevMapPosition = {
-        bounds: map.getBounds(),
-        zoom: map.getZoom()
-      };
+
       params.update({ prevMapPosition: prevMapPosition });
 
       map.fitBoundsWithBottomPadding(calculateBounds(session));
