@@ -43,7 +43,7 @@ const mobileButtons = [[min1, min5, min30, hr1, hrs12, all], 4];
 export const drawMobile = ({ measurements, sensor, heat }) => {
   const [buttons, selectedButton] = mobileButtons;
   window.__elmApp.ports.graphRangeSelected.send(
-    calculateBounds(measurements, selectedButton)
+    calculateBounds(measurements, buttons[selectedButton])
   );
   const scrollbar = {};
   const xAxis = {
