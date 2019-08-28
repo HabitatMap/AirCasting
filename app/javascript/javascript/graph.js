@@ -187,22 +187,26 @@ export const updateYAxis = heat => {
 };
 
 export const updateGraphData = data => {
-  chart.hideLoading();
-  const measurements = measurementsToTimeWithExtremes({
-    measurements: data.measurements,
-    times: data.times
-  });
-  measurementsByTime = measurements;
-
-  const options = {
-    series: [
-      {
-        data: Object.values(measurements)
-      }
-    ]
-  };
-
   if (chart) {
+    chart.hideLoading();
+    const measurements = measurementsToTimeWithExtremes({
+      measurements: data.measurements,
+      times: data.times
+    });
+    measurementsByTime = measurements;
+
+    const options = {
+      series: [
+        {
+          data: Object.values(measurements)
+        }
+      ],
+      xAxis: {
+        max: chart.xAxis[0].getExtremes().max,
+        min: chart.xAxis[0].getExtremes().min
+      }
+    };
+
     chart.update(options);
   }
 };
