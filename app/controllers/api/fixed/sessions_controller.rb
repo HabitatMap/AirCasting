@@ -11,7 +11,7 @@ module Api
           schema: Api::Session::Schema,
           struct: Api::Session::Struct
         )
-      result = Api::ToSessionHash.new(model: FixedSession).call(form: form)
+      result = Api::ToFixedSessionHash.new(model: FixedSession, form: form).call
 
       if result.success?
         render json: result.value, status: :ok
@@ -28,7 +28,7 @@ module Api
           schema: Api::Session::Schema,
           struct: Api::Session::Struct
         )
-      result = Api::ToFixedSessionHash.new(form: form).call
+      result = Api::ToFixedSessionHash2.new(form: form).call
 
       if result.success?
         render json: result.value, status: :ok

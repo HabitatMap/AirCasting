@@ -1,5 +1,6 @@
 port module Ports exposing
-    ( drawFixed
+    ( deselectSession
+    , drawFixed
     , drawMobile
     , fetchSessions
     , graphRangeSelected
@@ -14,6 +15,7 @@ port module Ports exposing
     , refreshTimeRange
     , saveScrollPosition
     , selectSensorId
+    , selectSession
     , setScroll
     , showCopyLinkTooltip
     , tagSelected
@@ -22,9 +24,9 @@ port module Ports exposing
     , toggleCrowdMap
     , toggleIndoor
     , toggleIsSearchOn
-    , toggleSession
     , toggleSessionSelection
     , toggleTheme
+    , updateGraphData
     , updateGraphYAxis
     , updateHeatMapThresholds
     , updateHeatMapThresholdsFromAngular
@@ -36,9 +38,11 @@ port module Ports exposing
     , updateTags
     )
 
-import Data.GraphData exposing (GraphData, GraphHeatData)
+import Data.GraphData exposing (GraphData, GraphHeatData, GraphMeasurementsData, GraphTimeRange)
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
 import Data.Markers exposing (SessionMarkerData)
+import Data.Measurements exposing (Measurement)
+import Data.SelectedSession exposing (SelectedSessionForAngular)
 import Json.Encode as Encode
 
 
@@ -78,7 +82,10 @@ port selectSensorId : String -> Cmd a
 port updateSessions : (Encode.Value -> msg) -> Sub msg
 
 
-port toggleSession : { deselected : Maybe Int, selected : Maybe Int } -> Cmd msg
+port selectSession : SelectedSessionForAngular -> Cmd msg
+
+
+port deselectSession : () -> Cmd msg
 
 
 port loadMoreSessions : () -> Cmd msg
@@ -123,7 +130,7 @@ port fetchSessions : () -> Cmd a
 port pulseSessionMarker : Maybe SessionMarkerData -> Cmd a
 
 
-port graphRangeSelected : (List Float -> msg) -> Sub msg
+port graphRangeSelected : (GraphTimeRange -> msg) -> Sub msg
 
 
 port isShowingTimeRangeFilter : (Bool -> msg) -> Sub msg
@@ -142,6 +149,9 @@ port toggleTheme : String -> Cmd a
 
 
 port updateGraphYAxis : GraphHeatData -> Cmd a
+
+
+port updateGraphData : GraphMeasurementsData -> Cmd a
 
 
 port updateParams : { key : String, value : Bool } -> Cmd a

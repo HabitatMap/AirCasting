@@ -15,9 +15,6 @@ export const SessionsListCtrl = (
     $scope.params = params;
     $scope.$window = $window;
     $window.sessions = sessions = $scope.sessions;
-
-    if (sessionsUtils.isSessionSelected())
-      sessions.reSelectSession(sessionsUtils.selectedSessionId());
   };
 
   $scope.$watch(
@@ -55,31 +52,23 @@ export const SessionsListCtrl = (
   });
 
   $scope.$on("markerSelected", function(event, data) {
-    $scope.toggleSession(
-      data.session_id,
-      elmApp.ports.toggleSessionSelection.send
-    );
-    $scope.$apply();
-  });
-
-  $scope.toggleSession = function(sessionId, callback) {
-    if (sessionsUtils.selectedSessionId() === sessionId) {
-      sessions.deselectSession();
-      callback(null);
+    if (sessionsUtils.selectedSessionId() === data.session_id) {
+      elmApp.ports.toggleSessionSelection.send(null);
     } else {
-      sessions.selectSession(sessionId);
-      callback(sessionId);
+      elmApp.ports.toggleSessionSelection.send(data.session_id);
     }
-  };
+  });
 
   $scope.setDefaults();
 
   if (process.env.NODE_ENV !== "test") {
     angular.element(document).ready(() => {
-      elmApp.ports.toggleSession.subscribe(({ selected, deselected }) => {
-        if (deselected) $scope.toggleSession(deselected, () => {});
-        if (selected) $scope.toggleSession(selected, () => {});
-        $scope.$apply();
+      elmApp.ports.selectSession.subscribe(session => {
+        sessions.selectSession(session);
+      });
+
+      elmApp.ports.deselectSession.subscribe(() => {
+        sessions.deselectSession();
       });
 
       elmApp.ports.loadMoreSessions.subscribe(() => {

@@ -1,17 +1,22 @@
 module Data.SelectedSession exposing
     ( SelectedSession
-    , decoder
+    , SelectedSessionForAngular
     , fetch
+    , fetchMeasurements
+    , formatForAngular
     , measurementBounds
     , times
     , toId
-    , toStreamIds
-    , updateRange
+    , updateFetchedTimeRange
+    , updateMeasurements
     , view
     )
 
 import Data.EmailForm as EmailForm
+import Data.GraphData exposing (GraphMeasurementsData, GraphTimeRange)
 import Data.HeatMapThresholds exposing (HeatMapThresholds)
+import Data.Measurements as Measurements exposing (Measurement)
+import Data.Note as Note exposing (Note)
 import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.Session
@@ -21,34 +26,89 @@ import Html.Attributes exposing (alt, class, href, id, src, target)
 import Html.Events as Events
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
-import Json.Decode.Pipeline exposing (hardcoded, required)
+import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Popup
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import Time exposing (Posix)
+import Url.Builder
 
 
 type alias SelectedSession =
     { title : String
     , username : String
     , sensorName : String
+    , measurements : List Measurement
+    , fetchedStartTime : Maybe Float
     , startTime : Posix
     , endTime : Posix
     , id : Int
-    , streamIds : List Int
-    , selectedMeasurements : List Float
+    , streamId : Int
+    , selectedTimeRange : GraphTimeRange
     , sensorUnit : String
+    , averageValue : Float
+    , latitude : Float
+    , longitude : Float
+    , maxLatitude : Float
+    , maxLongitude : Float
+    , minLatitude : Float
+    , minLongitude : Float
+    , startLatitude : Float
+    , startLongitude : Float
+    , notes : List Note
+    , isIndoor : Bool
+    , lastHourAverage : Float
+    }
+
+
+type alias SelectedSessionForAngular =
+    { id : Int
+    , notes : List Note
+    , stream :
+        { average_value : Float
+        , max_latitude : Float
+        , max_longitude : Float
+        , measurements : List Measurement
+        , min_latitude : Float
+        , min_longitude : Float
+        , sensor_name : String
+        , start_latitude : Float
+        , start_longitude : Float
+        , unit_symbol : String
+        }
+    , is_indoor : Bool
+    , last_hour_average : Float
+    , latitude : Float
+    , longitude : Float
+    }
+
+
+formatForAngular : SelectedSession -> SelectedSessionForAngular
+formatForAngular session =
+    { id = session.id
+    , notes = session.notes
+    , stream =
+        { average_value = session.averageValue
+        , max_latitude = session.maxLatitude
+        , max_longitude = session.maxLongitude
+        , min_latitude = session.minLatitude
+        , min_longitude = session.minLongitude
+        , start_latitude = session.startLatitude
+        , start_longitude = session.startLongitude
+        , measurements = session.measurements
+        , unit_symbol = session.sensorUnit
+        , sensor_name = session.sensorName
+        }
+    , is_indoor = session.isIndoor
+    , last_hour_average = session.lastHourAverage
+    , latitude = session.latitude
+    , longitude = session.longitude
     }
 
 
 times : SelectedSession -> { start : Int, end : Int }
 times { startTime, endTime } =
     { start = Time.posixToMillis startTime, end = Time.posixToMillis endTime }
-
-
-toStreamIds : SelectedSession -> List Int
-toStreamIds { streamIds } =
-    streamIds
 
 
 toId : SelectedSession -> Int
@@ -60,10 +120,10 @@ measurementBounds : SelectedSession -> Maybe { min : Float, max : Float }
 measurementBounds session =
     let
         maybeMin =
-            List.minimum session.selectedMeasurements
+            List.minimum (selectedMeasurements session.measurements session.selectedTimeRange)
 
         maybeMax =
-            List.maximum session.selectedMeasurements
+            List.maximum (selectedMeasurements session.measurements session.selectedTimeRange)
     in
     case ( maybeMin, maybeMax ) of
         ( Just min, Just max ) ->
@@ -85,12 +145,26 @@ decoder =
         |> required "title" Decode.string
         |> required "username" Decode.string
         |> required "sensorName" Decode.string
+        |> required "measurements" (Decode.list Measurements.decoder)
+        |> hardcoded Nothing
         |> required "startTime" millisToPosixDecoder
         |> required "endTime" millisToPosixDecoder
         |> required "id" Decode.int
-        |> required "streamIds" (Decode.list Decode.int)
-        |> hardcoded []
+        |> required "streamId" Decode.int
+        |> hardcoded { start = 0, end = 0 }
         |> required "sensorUnit" Decode.string
+        |> optional "averageValue" Decode.float 0
+        |> optional "latitude" Decode.float 0
+        |> optional "longitude" Decode.float 0
+        |> required "maxLatitude" Decode.float
+        |> required "maxLongitude" Decode.float
+        |> required "minLatitude" Decode.float
+        |> required "minLongitude" Decode.float
+        |> optional "startLatitude" Decode.float 0
+        |> optional "startLongitude" Decode.float 0
+        |> required "notes" (Decode.list Note.decoder)
+        |> optional "isIndoor" Decode.bool False
+        |> optional "lastHourAverage" Decode.float 0
 
 
 fetch : List Sensor -> String -> Page -> Int -> (Result Http.Error SelectedSession -> msg) -> Cmd msg
@@ -104,10 +178,16 @@ fetch sensors sensorId page id toCmd =
             Http.get
                 { url =
                     if page == Mobile then
-                        "/api/mobile/sessions/" ++ String.fromInt id ++ ".json?sensor_name=" ++ sensorName
+                        Url.Builder.absolute
+                            [ "api", "mobile", "sessions", String.fromInt id ++ ".json" ]
+                            [ Url.Builder.string "sensor_name" sensorName ]
 
                     else
-                        "/api/fixed/sessions/" ++ String.fromInt id ++ ".json?sensor_name=" ++ sensorName
+                        Url.Builder.absolute
+                            [ "api", "fixed", "sessions", String.fromInt id ++ ".json" ]
+                            [ Url.Builder.string "sensor_name" sensorName
+                            , Url.Builder.int "measurements_limit" 1440
+                            ]
                 , expect = Http.expectJson toCmd decoder
                 }
 
@@ -115,14 +195,45 @@ fetch sensors sensorId page id toCmd =
             Cmd.none
 
 
-updateRange : WebData SelectedSession -> List Float -> WebData SelectedSession
-updateRange result measurements =
-    case result of
-        Success session ->
-            Success { session | selectedMeasurements = measurements }
+updateFetchedTimeRange : SelectedSession -> SelectedSession
+updateFetchedTimeRange session =
+    { session | fetchedStartTime = session.measurements |> List.map .time |> List.minimum |> Maybe.map toFloat }
 
-        _ ->
-            result
+
+fetchMeasurements : SelectedSession -> (Result Http.Error (List Measurement) -> msg) -> (GraphMeasurementsData -> Cmd msg) -> Cmd msg
+fetchMeasurements session toCmd cmd =
+    let
+        newStartTime =
+            session.selectedTimeRange.start
+    in
+    case session.fetchedStartTime of
+        Nothing ->
+            Measurements.fetch session.streamId toCmd newStartTime session.selectedTimeRange.end
+
+        Just fetchedStartTime ->
+            if newStartTime < fetchedStartTime then
+                Measurements.fetch session.streamId toCmd newStartTime fetchedStartTime
+
+            else
+                cmd
+                    { measurements = session.measurements
+                    , times = times session
+                    }
+
+
+updateMeasurements : List Measurement -> SelectedSession -> SelectedSession
+updateMeasurements measurements session =
+    { session
+        | measurements = List.append measurements session.measurements
+    }
+        |> updateFetchedTimeRange
+
+
+selectedMeasurements : List Measurement -> GraphTimeRange -> List Float
+selectedMeasurements allMeasurements selectedTimeRange =
+    allMeasurements
+        |> List.filter (\measurement -> toFloat measurement.time >= selectedTimeRange.start && toFloat measurement.time <= selectedTimeRange.end)
+        |> List.map (\measurement -> measurement.value)
 
 
 view : SelectedSession -> WebData HeatMapThresholds -> Path -> (String -> msg) -> msg -> Popup.Popup -> Html msg -> Html msg
@@ -130,6 +241,9 @@ view session heatMapThresholds linkIcon toMsg showExportPopup popup emailForm =
     let
         tooltipId =
             "graph-copy-link-tooltip"
+
+        measurements =
+            selectedMeasurements session.measurements session.selectedTimeRange
     in
     div [ class "single-session__info" ]
         [ div [ class "session-data" ]
@@ -138,11 +252,11 @@ view session heatMapThresholds linkIcon toMsg showExportPopup popup emailForm =
                 , p [ class "single-session__username" ] [ text session.username ]
                 , p [ class "single-session__sensor" ] [ text session.sensorName ]
                 ]
-            , case session.selectedMeasurements of
+            , case measurements of
                 [] ->
                     div [ class "single-session__placeholder" ] []
 
-                measurements ->
+                _ ->
                     let
                         min =
                             List.minimum measurements |> Maybe.withDefault -1

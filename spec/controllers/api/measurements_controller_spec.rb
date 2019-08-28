@@ -25,7 +25,7 @@ describe Api::MeasurementsController do
           {
             'latitude' => latitude,
             'longitude' => longitude,
-            'time' => '2000-10-01T02:03:04Z',
+            'time' => 970_365_784_000,
             'value' => value
           }
         ]
@@ -78,7 +78,7 @@ describe Api::MeasurementsController do
           {
             'latitude' => latitude,
             'longitude' => longitude,
-            'time' => '2000-10-01T02:03:04Z',
+            'time' => 970_365_784_000,
             'value' => value
           }
         ]

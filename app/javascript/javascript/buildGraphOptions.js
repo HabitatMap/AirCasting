@@ -10,7 +10,12 @@ const buildChart = ({ renderTo }) => ({
   marginBottom: 15,
   marginRight: 5,
   marginLeft: 5,
-  zoomType: "x"
+  zoomType: "x",
+  resetZoomButton: {
+    theme: {
+      display: "none"
+    }
+  }
 });
 
 const labels = {

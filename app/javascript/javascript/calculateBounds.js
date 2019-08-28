@@ -1,8 +1,5 @@
-export const calculateBounds = (sensors, selectedSession) => {
-  const sensor = sensors.anySelected();
-  if (!sensor) return;
-
-  const stream = selectedSession.streams[sensor.sensor_name];
+export const calculateBounds = selectedSession => {
+  const stream = selectedSession.stream;
   if (stream) {
     return {
       north: stream.max_latitude,

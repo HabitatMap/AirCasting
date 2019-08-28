@@ -31,7 +31,8 @@ module Api
           schema: Api::Session::Schema,
           struct: Api::Session::Struct
         )
-      result = Api::ToSessionHash.new(model: MobileSession).call(form: form)
+      result =
+        Api::ToMobileSessionHash.new(model: MobileSession, form: form).call
 
       if result.success?
         render json: result.value, status: :ok

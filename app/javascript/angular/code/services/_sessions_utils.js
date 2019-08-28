@@ -41,8 +41,3 @@ export const sessionsUtils = (
     }
   }
 });
-
-export const prepareSessionData = data => {
-  data.streams = keysToLowerCase(data.streams);
-  return data;
-};

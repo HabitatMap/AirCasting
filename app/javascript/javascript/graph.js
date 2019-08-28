@@ -11,74 +11,6 @@ let measurementsByTime = {};
 let chart = null;
 const RENDER_TO_ID = "graph";
 
-export const fetchAndDrawFixed = showStatsCallback => ({
-  sensor,
-  heat,
-  times,
-  streamIds
-}) => {
-  // render empty graph with loading message
-  drawFixed({
-    measurements: [],
-    sensor,
-    heat,
-    afterSetExtremes: () => {}
-  });
-
-  const pageStartTime = times.end - 24 * 60 * 60 * 1000;
-
-  http
-    .get("/api/measurements.json", {
-      stream_ids: streamIds,
-      start_time: pageStartTime,
-      end_time: times.end
-    })
-    .then(measurements => {
-      showStatsCallback(getValues(measurements));
-
-      drawFixed({
-        measurements: measurementsToTimeWithExtremes({
-          measurements,
-          times
-        }),
-        sensor,
-        heat,
-        afterSetExtremes: afterSetExtremes({
-          streamIds,
-          times,
-          showStatsCallback
-        })
-      });
-    });
-};
-
-export const fetchAndDrawMobile = showStatsCallback => ({
-  sensor,
-  heat,
-  times,
-  streamIds
-}) => {
-  // render empty graph with loading message
-  drawMobile({ measurements: [], sensor, heat, showStatsCallback });
-
-  http
-    .get("/api/measurements.json", {
-      stream_ids: streamIds
-    })
-    .then(measurements => {
-      measurements = measurementsToTime(measurements);
-
-      showStatsCallback(filterMeasurements(measurements));
-
-      drawMobile({
-        measurements,
-        sensor,
-        heat,
-        showStatsCallback
-      });
-    });
-};
-
 const onMouseOverSingle = point => graphHighlight.show([point]);
 
 const onMouseOverMultiple = (start, end) => {
@@ -94,28 +26,14 @@ const onMouseOverMultiple = (start, end) => {
   graphHighlight.show([points[pointNum]]);
 };
 
-const afterSetExtremes = ({ streamIds, times, showStatsCallback }) => e => {
+const afterSetExtremes = event => {
   // responsive rules trigger afterSetExtremes before the chart is created, so we need to skip it:
   if (!chart || Object.keys(chart).length === 0) return;
   chart.showLoading("Loading data from server...");
-
-  http
-    .get("/api/measurements.json", {
-      stream_ids: streamIds,
-      start_time: Math.round(e.min),
-      end_time: Math.round(e.max)
-    })
-    .then(measurements => {
-      const dataByTime = measurementsToTimeWithExtremes({
-        measurements,
-        times
-      });
-      measurementsByTime = dataByTime;
-      showStatsCallback(getValues(measurements));
-      chart.series[0].setData(Object.values(dataByTime), false);
-      chart.redraw();
-      chart.hideLoading();
-    });
+  window.__elmApp.ports.graphRangeSelected.send({
+    start: event.min,
+    end: event.max
+  });
 };
 
 const min1 = { count: 1, type: "minute", text: "1min" };
@@ -132,21 +50,15 @@ const fixedButtons = [[hr1, hrs12, hrs24, wk1, mth1, all], 2];
 
 const mobileButtons = [[min1, min5, min30, hr1, hrs12, all], 4];
 
-export const drawMobile = ({
-  measurements,
-  sensor,
-  heat,
-  showStatsCallback
-}) => {
+export const drawMobile = ({ measurements, sensor, heat }) => {
   const [buttons, selectedButton] = mobileButtons;
+  window.__elmApp.ports.graphRangeSelected.send(
+    calculateTimeRange(measurements, buttons[selectedButton])
+  );
   const scrollbar = {};
   const xAxis = {
     events: {
-      afterSetExtremes: event => {
-        showStatsCallback(
-          getValuesInRange(Object.values(measurements), event.min, event.max)
-        );
-      }
+      afterSetExtremes
     }
   };
   draw({
@@ -154,14 +66,29 @@ export const drawMobile = ({
     selectedButton,
     scrollbar,
     xAxis,
-    measurements,
+    measurements: measurementsToTime(measurements),
     sensor,
     heat
   });
 };
 
-const drawFixed = ({ measurements, sensor, heat, afterSetExtremes }) => {
+const calculateTimeRange = (measurements, selectedButton) => {
+  const end = Math.max(...measurements.map(m => m.time));
+  let start = Math.min(...measurements.map(m => m.time));
+
+  if (selectedButton.type !== "all") {
+    start = moment(end)
+      .subtract(selectedButton.count, selectedButton.type)
+      .valueOf();
+  }
+  return { end, start };
+};
+
+export const drawFixed = ({ measurements, sensor, heat, times }) => {
   const [buttons, selectedButton] = fixedButtons;
+  window.__elmApp.ports.graphRangeSelected.send(
+    calculateTimeRange(measurements, buttons[selectedButton])
+  );
   const scrollbar = { liveRedraw: false };
 
   const xAxis = {
@@ -176,7 +103,10 @@ const drawFixed = ({ measurements, sensor, heat, afterSetExtremes }) => {
     selectedButton,
     scrollbar,
     xAxis,
-    measurements,
+    measurements: measurementsToTimeWithExtremes({
+      measurements,
+      times
+    }),
     sensor,
     heat
   });
@@ -239,29 +169,6 @@ const draw = ({
     .addEventListener("mouseleave", graphHighlight.hide);
 };
 
-const getValues = data => data.map(m => m.value);
-
-const filterMeasurements = measurementsByTime => {
-  const measurements = Object.values(measurementsByTime);
-  const selectedTimeRange = mobileButtons[0][mobileButtons[1]];
-
-  if (selectedTimeRange.type === "all") {
-    return measurements.map(measurement => measurement.y);
-  } else {
-    const max = Math.max(...measurements.map(measurement => measurement.x));
-    const min = moment(max)
-      .subtract(selectedTimeRange.count, selectedTimeRange.type)
-      .valueOf();
-
-    return getValuesInRange(measurements, min, max);
-  }
-};
-
-const getValuesInRange = (data, min, max) =>
-  data
-    .filter(dataPoint => dataPoint.x >= min && dataPoint.x <= max)
-    .map(dataPoint => dataPoint.y);
-
 export const updateYAxis = heat => {
   const min = heat.threshold1;
   const max = heat.threshold5;
@@ -275,6 +182,31 @@ export const updateYAxis = heat => {
   };
 
   if (chart) {
+    chart.update(options);
+  }
+};
+
+export const updateGraphData = data => {
+  if (chart) {
+    chart.hideLoading();
+    const measurements = measurementsToTimeWithExtremes({
+      measurements: data.measurements,
+      times: data.times
+    });
+    measurementsByTime = measurements;
+
+    const options = {
+      series: [
+        {
+          data: Object.values(measurements)
+        }
+      ],
+      xAxis: {
+        max: chart.xAxis[0].getExtremes().max,
+        min: chart.xAxis[0].getExtremes().min
+      }
+    };
+
     chart.update(options);
   }
 };

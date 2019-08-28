@@ -1,4 +1,6 @@
-module Data.GraphData exposing (GraphData, GraphHeatData)
+module Data.GraphData exposing (GraphData, GraphHeatData, GraphMeasurementsData, GraphTimeRange)
+
+import Data.Measurements exposing (Measurement)
 
 
 type alias GraphData =
@@ -11,7 +13,7 @@ type alias GraphData =
         { start : Int
         , end : Int
         }
-    , streamIds : List Int
+    , measurements : List Measurement
     }
 
 
@@ -24,4 +26,19 @@ type alias GraphHeatData =
             , to : Int
             , className : String
             }
+    }
+
+
+type alias GraphMeasurementsData =
+    { measurements : List Measurement
+    , times :
+        { start : Int
+        , end : Int
+        }
+    }
+
+
+type alias GraphTimeRange =
+    { start : Float
+    , end : Float
     }

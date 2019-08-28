@@ -73,12 +73,26 @@ defaultSelectedSession =
     { title = "title"
     , username = "username"
     , sensorName = "sensor-name"
+    , measurements = []
+    , fetchedStartTime = Nothing
     , startTime = Time.millisToPosix 0
     , endTime = Time.millisToPosix 0
     , id = 123
-    , streamIds = [ 123 ]
-    , selectedMeasurements = []
+    , streamId = 123
+    , selectedTimeRange = { start = 0.0, end = 0.0 }
     , sensorUnit = "sensorUnit"
+    , averageValue = 0
+    , longitude = 0
+    , latitude = 0
+    , maxLatitude = 0
+    , maxLongitude = 0
+    , minLatitude = 0
+    , minLongitude = 0
+    , startLatitude = 0
+    , startLongitude = 0
+    , notes = []
+    , isIndoor = False
+    , lastHourAverage = 0
     }
 
 

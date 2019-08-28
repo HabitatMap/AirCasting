@@ -7,9 +7,10 @@ import Browser.Events
 import Browser.Navigation
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
 import Data.EmailForm as EmailForm
-import Data.GraphData exposing (GraphData, GraphHeatData)
+import Data.GraphData exposing (GraphData, GraphHeatData, GraphTimeRange)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Markers as Markers exposing (SessionMarkerData)
+import Data.Measurements exposing (Measurement)
 import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
 import Data.Page as Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
@@ -166,6 +167,14 @@ init flags url key =
             flags.sensors
                 |> Decode.decodeValue (Decode.list Sensor.decoder)
                 |> Result.withDefault []
+
+        overlay =
+            case flags.selectedSessionId of
+                Nothing ->
+                    Overlay.init flags.isIndoor
+
+                Just id ->
+                    Overlay.update (AddOverlay HttpingOverlay) (Overlay.init flags.isIndoor)
     in
     ( { defaultModel
         | page = page
@@ -190,7 +199,7 @@ init flags url key =
             Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
                 |> Maybe.withDefault defaultModel.heatMapThresholds
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
-        , overlay = Overlay.init flags.isIndoor
+        , overlay = overlay
         , scrollPosition = flags.scrollPosition
         , theme = Theme.toTheme flags.theme
         , status = Status.toStatus flags.isActive
@@ -215,7 +224,11 @@ fetchSelectedSession sensors maybeId selectedSensorId page =
             Cmd.none
 
         Just id ->
-            SelectedSession.fetch sensors selectedSensorId page id (RemoteData.fromResult >> GotSession)
+            Process.sleep 500
+                |> Task.perform
+                    (\_ ->
+                        ExecCmd (SelectedSession.fetch sensors selectedSensorId page id (RemoteData.fromResult >> GotSession))
+                    )
 
 
 fetchHeatMapThresholds : List Sensor -> String -> Cmd Msg
@@ -254,8 +267,9 @@ type Msg
     | ToggleStatus Status
     | DeselectSession
     | ToggleSessionSelectionFromAngular (Maybe Int)
-    | ToggleSessionSelection Int
+    | SelectSession Int
     | GotSession (WebData SelectedSession)
+    | GotMeasurements (WebData (List Measurement))
     | UpdateHeatMapThresholds (WebData HeatMapThresholds)
     | UpdateHeatMapMinimum String
     | UpdateHeatMapMaximum String
@@ -266,7 +280,7 @@ type Msg
     | MapMoved
     | FetchSessions
     | HighlightSessionMarker (Maybe SessionMarkerData)
-    | GraphRangeSelected (List Float)
+    | GraphRangeSelected GraphTimeRange
     | UpdateIsShowingTimeRangeFilter Bool
     | SaveScrollPosition Float
     | SetScrollPosition
@@ -277,6 +291,7 @@ type Msg
     | CloseFilters
     | ToggleNavExpanded
     | ToggleTheme
+    | ExecCmd (Cmd Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -489,18 +504,23 @@ update msg model =
             case ( model.selectedSession, maybeId ) of
                 ( Success session, Just id ) ->
                     if SelectedSession.toId session == id then
-                        ( { model | selectedSession = NotAsked }, Cmd.none )
+                        deselectSession model
 
                     else
-                        ( model
+                        let
+                            ( subModel, subCmd ) =
+                                deselectSession model
+                        in
+                        ( { subModel | overlay = Overlay.update (AddOverlay HttpingOverlay) model.overlay }
                         , Cmd.batch
                             [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                             , getScrollPosition
+                            , subCmd
                             ]
                         )
 
                 ( _, Just id ) ->
-                    ( model
+                    ( { model | overlay = Overlay.update (AddOverlay HttpingOverlay) model.overlay }
                     , Cmd.batch
                         [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                         , getScrollPosition
@@ -510,32 +530,16 @@ update msg model =
                 ( _, Nothing ) ->
                     ( { model | selectedSession = NotAsked }, Cmd.none )
 
-        ToggleSessionSelection id ->
+        SelectSession id ->
             case model.selectedSession of
                 NotAsked ->
-                    ( model
+                    ( { model | overlay = Overlay.update (AddOverlay HttpingOverlay) model.overlay }
                     , Cmd.batch
-                        [ Ports.toggleSession { deselected = Nothing, selected = Just id }
-                        , SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
+                        [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
                         , Ports.pulseSessionMarker Nothing
                         , getScrollPosition
                         ]
                     )
-
-                Success selectedSession ->
-                    if selectedSession.id == id then
-                        ( { model | selectedSession = NotAsked }
-                        , Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing }
-                        )
-
-                    else
-                        ( { model | selectedSession = NotAsked }
-                        , Cmd.batch
-                            [ Ports.toggleSession { deselected = Just selectedSession.id, selected = Just id }
-                            , SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
-                            , Ports.pulseSessionMarker Nothing
-                            ]
-                        )
 
                 _ ->
                     ( model, Cmd.none )
@@ -546,12 +550,36 @@ update msg model =
         GotSession response ->
             case ( model.heatMapThresholds, response ) of
                 ( Success thresholds, Success selectedSession ) ->
-                    ( { model | selectedSession = response }
-                    , graphDrawCmd thresholds selectedSession model.sensors model.selectedSensorId model.page
+                    let
+                        newSession =
+                            SelectedSession.updateFetchedTimeRange selectedSession
+                    in
+                    ( { model | selectedSession = Success newSession, overlay = Overlay.update (RemoveOverlay HttpingOverlay) model.overlay }
+                    , Cmd.batch
+                        [ graphDrawCmd thresholds newSession model.sensors model.selectedSensorId model.page
+                        , Ports.selectSession (SelectedSession.formatForAngular newSession)
+                        ]
                     )
 
                 _ ->
-                    ( { model | selectedSession = response }, Cmd.none )
+                    ( { model | selectedSession = response, overlay = Overlay.update (RemoveOverlay HttpingOverlay) model.overlay }, Cmd.none )
+
+        GotMeasurements response ->
+            case ( model.heatMapThresholds, model.selectedSession, response ) of
+                ( Success thresholds, Success session, Success measurements ) ->
+                    let
+                        updatedSession =
+                            SelectedSession.updateMeasurements measurements session
+                    in
+                    ( { model | selectedSession = Success updatedSession }
+                    , Ports.updateGraphData
+                        { measurements = updatedSession.measurements
+                        , times = SelectedSession.times updatedSession
+                        }
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         UpdateHeatMapThresholds heatMapThresholds ->
             let
@@ -642,8 +670,19 @@ update msg model =
             , Ports.pulseSessionMarker <| sessionMarkerData
             )
 
-        GraphRangeSelected measurements ->
-            ( { model | selectedSession = SelectedSession.updateRange model.selectedSession measurements }, Cmd.none )
+        GraphRangeSelected times ->
+            case model.selectedSession of
+                Success session ->
+                    let
+                        newSession =
+                            { session | selectedTimeRange = times }
+                    in
+                    ( { model | selectedSession = Success newSession }
+                    , SelectedSession.fetchMeasurements newSession (RemoteData.fromResult >> GotMeasurements) Ports.updateGraphData
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         UpdateIsShowingTimeRangeFilter isShown ->
             let
@@ -687,6 +726,9 @@ update msg model =
                     Theme.toggle model.theme
             in
             ( { model | theme = newTheme }, Ports.toggleTheme (Theme.toString newTheme) )
+
+        ExecCmd cmd ->
+            ( model, cmd )
 
 
 type alias Debouncable a =
@@ -757,7 +799,7 @@ toGraphParams thresholds selectedSession sensors selectedSensorId =
     { sensor = { parameter = parameter, unit = unit }
     , heat = toGraphHeatParams thresholds
     , times = SelectedSession.times selectedSession
-    , streamIds = SelectedSession.toStreamIds selectedSession
+    , measurements = selectedSession.measurements
     }
 
 
@@ -787,7 +829,7 @@ deselectSession selectable =
         Success selectedSession ->
             ( { selectable | selectedSession = NotAsked }
             , Cmd.batch
-                [ Ports.toggleSession { deselected = Just selectedSession.id, selected = Nothing }
+                [ Ports.deselectSession ()
                 , Ports.observeSessionsList ()
                 ]
             )
@@ -1195,7 +1237,7 @@ viewSessionCard heatMapThresholds session =
     div
         [ class "session-card"
         , class <| Data.Session.classByValue session.average heatMapThresholds
-        , Events.onClick <| ToggleSessionSelection session.id
+        , Events.onClick <| SelectSession session.id
         , Events.onMouseEnter <| HighlightSessionMarker (Just (Markers.toSessionMarkerData session.location session.id session.average heatMapThresholds))
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]

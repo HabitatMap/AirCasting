@@ -2,7 +2,6 @@ import _ from "underscore";
 import constants from "../../../javascript/constants";
 import * as Session from "../../../javascript/values/session";
 import { calculateBounds } from "../../../javascript/calculateBounds";
-import { prepareSessionData } from "./_sessions_utils";
 import { clearMap } from "../../../javascript/mapsUtils";
 import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
 
@@ -63,9 +62,6 @@ export const fixedSessions = (
       if (fetchableSessionsCount) {
         this.fetchableSessionsCount = fetchableSessionsCount;
       }
-      if (sessionsUtils.isSessionSelected()) {
-        this.reSelectSession(sessionsUtils.selectedSessionId());
-      }
     },
 
     deselectSession: function() {
@@ -76,52 +72,26 @@ export const fixedSessions = (
       map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
     },
 
-    selectSession: function(id) {
-      const fitBounds = sessionData => {
-        if (!sessionData.is_indoor) {
-          prevMapPosition = {
-            bounds: map.getBounds(),
-            zoom: map.getZoom()
-          };
-          params.update({ prevMapPosition: prevMapPosition });
-          map.fitBoundsWithBottomPadding(calculateBounds(sensors, sessionData));
-          this.drawSelectedSession(sessionData);
-        }
-      };
-      params.update({ selectedSessionIds: [id] });
-      this._selectSession(id, fitBounds);
-    },
+    selectSession: function(session) {
+      params.update({ selectedSessionIds: [session.id] });
 
-    reSelectSession: function(id) {
-      const callback = sessionData => {
-        if (!sessionData.is_indoor) {
-          map.fitBoundsWithBottomPadding(calculateBounds(sensors, sessionData));
-          this.drawSelectedSession(sessionData);
-        }
-      };
-      this._selectSession(id, callback);
-    },
-
-    drawSelectedSession: function(sessionData) {
-      if (params.isActive()) {
-        this.drawMarkersWithLabel(sessionData, sensors.selectedSensorName());
-      } else {
-        this.drawMarkersWithoutLabel(sessionData);
+      if (!session.is_indoor) {
+        prevMapPosition = {
+          bounds: map.getBounds(),
+          zoom: map.getZoom()
+        };
+        params.update({ prevMapPosition: prevMapPosition });
+        map.fitBoundsWithBottomPadding(calculateBounds(session));
+        this.drawSelectedSession(session);
       }
     },
-    _selectSession: function(id, callback) {
-      var sensorId = sensors.selectedId();
-      var sensor = sensors.sensors[sensorId] || {};
-      var sensorName = sensor.sensor_name;
-      if (!sensorName) return;
-      $http
-        .get("/api/fixed/sessions2/" + id, {
-          cache: true,
-          params: { sensor_name: sensorName }
-        })
-        .success(function(data) {
-          callback(prepareSessionData(data));
-        });
+
+    drawSelectedSession: function(session) {
+      if (params.isActive()) {
+        this.drawMarkersWithLabel(session);
+      } else {
+        this.drawMarkersWithoutLabel(session);
+      }
     },
 
     downloadSessions: function(url, reqData) {

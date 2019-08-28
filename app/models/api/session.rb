@@ -10,6 +10,7 @@ module Api::Session
     Dry::Validation.Schema do
       required(:id).filled(:str?)
       required(:sensor_name).filled(:str?)
+      optional(:measurements_limit).filled(:str?)
     end
 
   class Struct < Dry::Struct
@@ -17,5 +18,7 @@ module Api::Session
 
     attribute :id, Types::Coercible::Integer
     attribute :sensor_name, Types::Strict::String
+    attribute :measurements_limit,
+              Types::Coercible::Integer.meta(omittable: true)
   end
 end

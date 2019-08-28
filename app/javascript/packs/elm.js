@@ -188,18 +188,15 @@ const setupHeatMap = () => {
       );
     });
 
-    const callback = window.__elmApp.ports.graphRangeSelected.send;
+    window.__elmApp.ports.drawFixed.subscribe(draw(graph.drawFixed));
 
-    window.__elmApp.ports.drawFixed.subscribe(
-      draw(graph.fetchAndDrawFixed(callback))
-    );
-
-    window.__elmApp.ports.drawMobile.subscribe(
-      draw(graph.fetchAndDrawMobile(callback))
-    );
+    window.__elmApp.ports.drawMobile.subscribe(draw(graph.drawMobile));
 
     window.__elmApp.ports.updateGraphYAxis.subscribe(heat => {
       graph.updateYAxis(heat);
+    });
+    window.__elmApp.ports.updateGraphData.subscribe(data => {
+      graph.updateGraphData(data);
     });
 
     window.__elmApp.ports.observeSessionsList.subscribe(() => {
@@ -217,8 +214,15 @@ const setupHeatMap = () => {
   }
 };
 
-const draw = fnc => ({ times, streamIds, heat, sensor }) =>
-  window.requestAnimationFrame(() => fnc({ sensor, heat, times, streamIds }));
+const draw = fnc => ({ times, heat, sensor, measurements }) =>
+  window.requestAnimationFrame(() =>
+    fnc({
+      sensor,
+      heat,
+      times,
+      measurements
+    })
+  );
 
 const toValues = noUiSlider => ({
   threshold1: noUiSlider.options.range.min,

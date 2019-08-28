@@ -192,19 +192,17 @@ test("selectSession after successfully fetching calls drawSession.drawMobileSess
   t.end();
 });
 
-test("selectSession after successfully fetching calls drawSession.drawMobileSession with fetched data", t => {
+test("selectSession calls drawSession.drawMobileSession with fetched data", t => {
   const drawSession = mock("drawMobileSession");
-  const data = { id: 1, streams: {} };
-  const $http = { get: () => ({ success: callback => callback(data) }) };
+  const session = { id: 1, stream: {} };
   const mobileSessionsService = _mobileSessions({
     drawSession,
-    sensors,
-    $http
+    sensors
   });
 
-  mobileSessionsService.selectSession(1);
+  mobileSessionsService.selectSession(session);
 
-  t.true(drawSession.wasCalledWith(data));
+  t.true(drawSession.wasCalledWith(session));
 
   t.end();
 });
@@ -219,36 +217,6 @@ test("selectSession after successfully fetching calls map.fitBoundsWithBottomPad
   mobileSessionsService.selectSession(123);
 
   t.true(map.wasCalled());
-
-  t.end();
-});
-
-test("reSelectSession after successfully fetching calls drawSession.drawMobileSession", t => {
-  const drawSession = mock("drawMobileSession");
-  const mobileSessionsService = _mobileSessions({
-    drawSession,
-    sensors: { sensors: { 123: { sensor_name: "sensor_name" } } }
-  });
-
-  mobileSessionsService.reSelectSession(123);
-
-  setTimeout(() => {
-    t.true(drawSession.wasCalled());
-
-    t.end();
-  }, 0);
-});
-
-test("reSelectSession after successfully fetching does not call map.fitBounds", t => {
-  const map = mock("fitBounds");
-  const mobileSessionsService = _mobileSessions({
-    map,
-    sensors: { sensors: { 123: { sensor_name: "sensor_name" } } }
-  });
-
-  mobileSessionsService.reSelectSession(123);
-
-  t.false(map.wasCalled());
 
   t.end();
 });

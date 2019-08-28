@@ -106,8 +106,17 @@ describe Api::Mobile::SessionsController do
         'startTime' => 970_365_780_000,
         'endTime' => 1_004_850_360_000,
         'id' => session.id,
-        'streamIds' => [stream.id],
-        'sensorUnit' => stream.unit_symbol
+        'streamId' => stream.id,
+        'sensorUnit' => stream.unit_symbol,
+        'maxLatitude' => 123.0,
+        'maxLongitude' => 123.0,
+        'measurements' => [],
+        'minLatitude' => 123.0,
+        'minLongitude' => 123.0,
+        'notes' => [],
+        'averageValue' => 1.23,
+        'startLatitude' => 123.0,
+        'startLongitude' => 123.0
       }
       expect(json_response).to eq(expected)
     end

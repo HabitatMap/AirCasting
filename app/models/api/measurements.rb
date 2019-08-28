@@ -17,7 +17,7 @@ module Api::Measurements
     transform_keys(&:to_sym)
 
     attribute :stream_ids, Types::Strict::String
-    attribute :start_time, Types::Coercible::Integer.default(0)
-    attribute :end_time, Types::Coercible::Integer.default(0)
+    attribute :start_time, Types::Coercible::Float.default(0.0)
+    attribute :end_time, Types::Coercible::Float.default(0.0)
   end
 end
