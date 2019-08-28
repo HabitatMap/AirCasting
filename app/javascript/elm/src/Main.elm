@@ -898,7 +898,10 @@ viewNav navLogo isNavExpanded sensors selectedSensorId page =
     header
         [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
         ]
-        [ div [ class "filters-info u--show-on-mobile" ]
+        [ div
+            [ class "filters-info u--show-on-mobile"
+            , Events.onClick ToggleFiltersExpanded
+            ]
             [ p
                 [ class "filters-info__session-type" ]
                 [ text (Page.toString page)
