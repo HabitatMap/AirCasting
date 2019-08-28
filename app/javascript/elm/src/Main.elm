@@ -283,7 +283,12 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateLocationInput newLocation ->
-            ( { model | location = newLocation }, Ports.fetchSessions () )
+            case newLocation of
+                "" ->
+                    ( { model | location = newLocation }, Cmd.none )
+
+                _ ->
+                    ( { model | location = newLocation }, Ports.fetchSessions () )
 
         TagsLabels subMsg ->
             let
