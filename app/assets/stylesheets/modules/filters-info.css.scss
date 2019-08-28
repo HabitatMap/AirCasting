@@ -1,0 +1,12 @@
+.filters-info {
+  color: $dark-blue;
+  line-height: 1.1;
+  padding: 9px;
+  position: absolute;
+  left: 50px;
+}
+
+.filters-info__session-type {
+  font-size: 17px;
+  font-weight: $font-stack-bold;
+}

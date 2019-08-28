@@ -5,6 +5,7 @@
 @import "./config/mixins";
 @import "./config/typography";
 @import "./config/variables";
+@import "./config/utilities";
 
 @import "./global/backgrounds";
 @import "./global/global";
@@ -15,6 +16,7 @@
 @import "./modules/crowd-map-slider";
 @import "./modules/email-popup";
 @import "./modules/filters";
+@import "./modules/filters-info";
 @import "./modules/filters-popups";
 @import "./modules/graph-bands";
 @import "./modules/heatmap";

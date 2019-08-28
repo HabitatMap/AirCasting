@@ -51,6 +51,10 @@ header {
       text-align: center;
       width: 100%;
     }
+
+    .filters-info + & {
+      display: none;
+    }
   }
 }
 
