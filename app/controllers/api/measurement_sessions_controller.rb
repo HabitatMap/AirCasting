@@ -49,6 +49,25 @@ module Api
       end
     end
 
+    def export_by_uuid
+      GoogleAnalytics.new.register_event('Measurement Sessions#export')
+
+      form =
+        Api::ParamsForm.new(
+          params: params.to_unsafe_hash,
+          schema: Api::ExportSessionByUuid::Schema,
+          struct: Api::ExportSessionByUuid::Struct
+        )
+
+      result = Api::ScheduleSessionsExportByUuid.new(form: form).call
+
+      if result.success?
+        render json: result.value, status: :ok
+      else
+        render json: result.errors, status: :bad_request
+      end
+    end
+
     private
 
     def session_json(session)
