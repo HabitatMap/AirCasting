@@ -32,7 +32,10 @@ Rails.application.routes.draw do
     end
 
     resources :measurement_sessions, path: 'sessions', only: %i[create] do
-      collection { get :export }
+      collection do
+        get :export
+        get :export_by_uuid
+      end
     end
 
     get 'averages' => 'averages#index'
