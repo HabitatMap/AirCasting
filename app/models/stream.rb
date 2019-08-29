@@ -136,6 +136,19 @@ class Stream < ApplicationRecord
 
   def self.build_or_update!(data = {})
     measurements_attributes = data.delete(:measurements)
+    data[:sensor_package_name] =
+      data[:sensor_package_name].encode(
+        'UTF-8',
+        'binary',
+        invalid: :replace, undef: :replace, replace: ''
+      )
+    data[:unit_symbol] =
+      data[:unit_symbol].encode(
+        'UTF-8',
+        'binary',
+        invalid: :replace, undef: :replace, replace: ''
+      )
+
     stream = where(data).first_or_initialize
     latitude = measurements_attributes.first.fetch(:latitude)
     longitude = measurements_attributes.first.fetch(:longitude)

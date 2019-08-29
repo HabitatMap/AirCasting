@@ -176,4 +176,31 @@ describe Stream do
       end
     end
   end
+
+  describe '#build_or_update' do
+    it "doesn't crash on invalid UTF-8 characters" do
+      create_session!(id: 1)
+      data = {
+        measurement_type: 'Sound Level',
+        sensor_package_name: "invalid\255",
+        sensor_name: 'Phone Microphone',
+        measurement_short_type: 'dB',
+        unit_symbol: 'dB',
+        threshold_high: 80,
+        threshold_low: 60,
+        threshold_medium: 70,
+        threshold_very_high: 100,
+        threshold_very_low: 20,
+        unit_name: 'decibels',
+        session_id: 1,
+        measurements: [
+          { longitude: 1, latitude: 1, value: 1, time: DateTime.current }
+        ]
+      }
+
+      stream = Stream.build_or_update!(data)
+
+      expect(stream.sensor_package_name).to eq('invalid')
+    end
+  end
 end
