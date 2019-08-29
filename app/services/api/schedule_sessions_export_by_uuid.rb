@@ -12,7 +12,7 @@ class Api::ScheduleSessionsExportByUuid
         { error: "Session with uuid: #{data[:uuid]} doesn't exist" }
       )
     end
-    ExportSessionsWorker.perform_async([session.id], data.email)
+    ExportSessionsWorker.perform_async([session.id], email)
 
     Success.new({ success_message: 'Export scheduled successfully.' })
   end
@@ -23,5 +23,9 @@ class Api::ScheduleSessionsExportByUuid
 
   def data
     form.to_h
+  end
+
+  def email
+    URI.decode(data.email)
   end
 end
