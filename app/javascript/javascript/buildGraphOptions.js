@@ -112,7 +112,8 @@ const scrollbarOptions = {
   height: 10,
   rifleColor: "#D5D4D4",
   trackBackgroundColor: "none",
-  trackBorderWidth: 0
+  trackBorderWidth: 0,
+  showFull: false
 };
 
 const buildXAxis = xAxis => ({
