@@ -14,11 +14,9 @@ input {
 
   &[disabled] {
     opacity: 0.4;
-    transition: opacity 0.5s;
 
     & + label {
       opacity: 0.4;
-      transition: opacity 0.5s;
     }
   }
 }

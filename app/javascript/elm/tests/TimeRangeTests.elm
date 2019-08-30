@@ -4,6 +4,7 @@ import Data.Status exposing (Status(..))
 import Expect
 import Fuzz exposing (bool, int)
 import Html.Attributes exposing (disabled)
+import Html.Attributes.Aria exposing (ariaLabel)
 import Json.Encode as Encode
 import Test exposing (..)
 import Test.Html.Event as Event
@@ -50,11 +51,11 @@ all =
                 in
                 TimeRange.update TimeRange.defaultTimeRange value
                     |> Expect.equal expected
-        , test "viewTimeFilter has a button" <|
+        , test "viewTimeFilter has a reset time frame button" <|
             \_ ->
                 TimeRange.view Msg Active defaultIcon defaultIcon
                     |> Query.fromHtml
-                    |> Query.find [ tag "button" ]
+                    |> Query.find [ attribute <| ariaLabel "Reset time frame" ]
                     |> Event.simulate Event.click
                     |> Event.expect Msg
         ]

@@ -21,27 +21,31 @@ export const presentMoment = () =>
     .format("X");
 
 export const oneHourAgo = () =>
-  moment()
+  moment
     .utc()
     .subtract(1, "hour")
     .format("X");
+
+const humanTime = time =>
+  moment
+    .unix(time)
+    .utc()
+    .format("MM/DD/YY HH:mm");
 
 export const daterangepickerConfig = (timeFrom, timeTo) => ({
   linkedCalendars: false,
   timePicker: true,
   timePicker24Hour: true,
-  startDate: moment
-    .unix(timeFrom)
-    .utc()
-    .format("MM/DD/YY HH:mm"),
-  endDate: moment
-    .unix(timeTo)
-    .utc()
-    .format("MM/DD/YY HH:mm"),
+  startDate: humanTime(timeFrom),
+  endDate: humanTime(timeTo),
   locale: {
     format: "MM/DD/YY HH:mm"
   }
 });
+
+export const setTimerangeButtonText = (timeFrom, timeTo) => {
+  $("#time-range-button").html(humanTime(timeFrom) + " - " + humanTime(timeTo));
+};
 
 export const setupTimeRangeFilter = (
   onTimeRangeChanged,
@@ -49,7 +53,10 @@ export const setupTimeRangeFilter = (
   timeTo,
   onIsVisibleChange
 ) => {
-  if (document.getElementById("time-range")) {
+  if (
+    document.getElementById("time-range") &&
+    document.getElementById("time-range-button")
+  ) {
     $("#time-range").daterangepicker(
       daterangepickerConfig(timeFrom, timeTo),
       function(timeFrom, timeTo) {
@@ -62,6 +69,18 @@ export const setupTimeRangeFilter = (
 
     $("#time-range").on("show.daterangepicker", () => onIsVisibleChange(true));
     $("#time-range").on("hide.daterangepicker", () => onIsVisibleChange(false));
+
+    $("#time-range-button").daterangepicker(
+      daterangepickerConfig(timeFrom, timeTo),
+      function(timeFrom, timeTo) {
+        onTimeRangeChanged(
+          timeFrom.utcOffset(0, true).unix(),
+          timeTo.utcOffset(0, true).unix()
+        );
+      }
+    );
+
+    setTimerangeButtonText(timeFrom, timeTo);
   } else {
     window.setTimeout(
       setupTimeRangeFilter(

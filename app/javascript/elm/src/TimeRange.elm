@@ -59,12 +59,16 @@ view refreshTimeRange status tooltipIcon resetIcon =
         [ input
             [ id "time-range"
             , attribute "autocomplete" "off"
-            , class "input-dark"
-            , class "input-filters"
-            , class "input-time"
-            , placeholder "time frame"
-            , type_ "text"
+            , class "input-dark input-filters input-time"
             , name "time-range"
+            , disabled (status == Active)
+            ]
+            []
+        , button
+            [ id "time-range-button"
+            , attribute "autocomplete" "off"
+            , class "input-dark input-filters input-time button--input"
+            , name "time-range-button"
             , disabled (status == Active)
             ]
             []

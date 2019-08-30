@@ -15,6 +15,24 @@
   color: white;
 }
 
+.button--input {
+  border: none;
+  border-radius: $input-radius;
+  font-size: $small-font;
+  line-height: 2.2;
+  padding: 0 7px;
+  text-align: left;
+  transition: opacity 0.5s;
+
+  &[disabled] {
+    opacity: 0.4;
+
+    & + label {
+      opacity: 0.4;
+    }
+  }
+}
+
 .time-frame-button {
   font-size: $tiny-font;
   font-weight: $font-stack-bold;

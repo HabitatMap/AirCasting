@@ -78,3 +78,15 @@
   text-decoration: underline !important;
   margin: 0 !important;
 }
+
+@media screen and (max-width: $mobile) {
+  [name="time-range"] {
+    display: none;
+  }
+}
+
+@media screen and (min-width: $ipad-portrait) {
+  [name="time-range-button"] {
+    display: none;
+  }
+}
