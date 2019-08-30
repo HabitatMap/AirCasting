@@ -46,6 +46,22 @@ const createHtml = index => {
       <img src=${data.photo_thumbnail} alt="Photo thumbnail" />
     </a>`;
   }
+  let paginationHtml = "";
+  if (notes.length > 1) {
+    paginationHtml = `<div class="note-pagination">
+        <button class="note-pagination__arrow note-pagination__arrow--prev switchNote" id=${index -
+          1}>
+          <
+        </button>
+        <span class="note-pagination__page">
+          ${index + 1} of ${notes.length}
+        </span>
+        <button class="note-pagination__arrow note-pagination__arrow--next switchNote" id=${index +
+          1}>
+          >
+        </button>
+      </div>`;
+  }
 
   return (
     `<div class="note info-window">
@@ -56,21 +72,9 @@ const createHtml = index => {
       <div class="note__content">` +
     photoHtml +
     `<p>${data.text}</p>
-      </div>
-      <div class="note-pagination">
-          <button class="note-pagination__arrow note-pagination__arrow--prev switchNote" id=${index -
-            1}>
-            <
-          </button>
-          <span class="note-pagination__page">
-            ${index + 1} of ${notes.length}
-          </span>
-          <button class="note-pagination__arrow note-pagination__arrow--next switchNote" id=${index +
-            1}>
-            >
-          </button>
-        </div>
-    </div>`
+      </div>` +
+    paginationHtml +
+    `</div>`
   );
 };
 
