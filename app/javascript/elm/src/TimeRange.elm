@@ -72,8 +72,25 @@ view refreshTimeRange status tooltipIcon resetIcon =
             , disabled (status == Active)
             ]
             []
-        , label [ for "time-range" ] [ text "time frame:" ]
+        , label
+            [ class "u--hide-on-mobile"
+            , for "time-range"
+            ]
+            [ text "time frame:" ]
+        , label
+            [ class "u--show-on-mobile"
+            ]
+            [ text "time frame:" ]
         , Tooltip.view Tooltip.timeRangeFilter tooltipIcon
-        , button [ ariaLabel "Reset time frame", class "refresh-timerange-button", Events.onClick refreshTimeRange ]
-            [ img [ src (Path.toString resetIcon), alt "Reset icon" ] [] ]
+        , button
+            [ ariaLabel "Reset time frame"
+            , class "refresh-timerange-button"
+            , Events.onClick refreshTimeRange
+            ]
+            [ img
+                [ src (Path.toString resetIcon)
+                , alt "Reset icon"
+                ]
+                []
+            ]
         ]
