@@ -80,6 +80,25 @@ export const setupTimeRangeFilter = (
       }
     );
 
+    // update value of the default time range input when setting date via button
+    $("#time-range-button").on("apply.daterangepicker", (_, mobilePicker) => {
+      const newStartDate = mobilePicker.startDate;
+      const newEndDate = mobilePicker.endDate;
+
+      const desktopPicker = $("#time-range").data("daterangepicker");
+      desktopPicker.setStartDate(newStartDate);
+      desktopPicker.setEndDate(newEndDate);
+    });
+
+    $("#time-range").on("apply.daterangepicker", (_, desktopPicker) => {
+      const newStartDate = desktopPicker.startDate;
+      const newEndDate = desktopPicker.endDate;
+
+      const mobilePicker = $("#time-range-button").data("daterangepicker");
+      mobilePicker.setStartDate(newStartDate);
+      mobilePicker.setEndDate(newEndDate);
+    });
+
     setTimerangeButtonText(timeFrom, timeTo);
   } else {
     window.setTimeout(
