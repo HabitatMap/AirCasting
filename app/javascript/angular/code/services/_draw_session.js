@@ -4,7 +4,7 @@ import * as Session from "../../../javascript/values/session";
 import { locationMarkersByLevel } from "../../../javascript/theme";
 
 export const drawSession = (sensors, map, heat, empty) => {
-  var DrawSession = function() {};
+  let DrawSession = function() {};
 
   DrawSession.prototype = {
     drawMobileSession: function(session, drawSessionStartingMarker) {
@@ -12,20 +12,13 @@ export const drawSession = (sensors, map, heat, empty) => {
         return;
       }
 
-      const startingMarker = drawSessionStartingMarker(session);
+      drawSessionStartingMarker(session);
 
-      var suffix = " " + session.unit_symbol;
-      var points = [];
+      const suffix = " " + session.unit_symbol;
+      let points = [];
 
       this.measurements(session).forEach(function(measurement, idx) {
-        const marker = createMeasurementMarker(
-          measurement,
-          idx,
-          heat,
-          map,
-          suffix
-        );
-
+        createMeasurementMarker(measurement, idx, heat, map, suffix);
         points.push(measurement);
       });
 
@@ -40,6 +33,7 @@ export const drawSession = (sensors, map, heat, empty) => {
       return session.stream.measurements;
     }
   };
+
   return new DrawSession();
 };
 

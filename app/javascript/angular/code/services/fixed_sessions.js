@@ -4,12 +4,10 @@ angular
   .module("aircasting")
   .factory("fixedSessions", [
     "params",
-    "$http",
     "map",
     "sensors",
     "$rootScope",
     "sessionsDownloader",
-    "drawSession",
     "sessionsUtils",
     "$window",
     "heat",

@@ -50,8 +50,6 @@ const _FixedSessionsMapCtrl = ({ callback, params, sensors }) => {
     ...sensors
   };
   const _params = { get: () => ({}), updateFromDefaults: () => {}, ...params };
-  const rectangles = { clear: () => {} };
-  const infoWindow = { hide: () => {} };
   const _$scope = { $watch: () => {} };
   const _map = {
     unregisterAll: () => {},
@@ -63,12 +61,10 @@ const _FixedSessionsMapCtrl = ({ callback, params, sensors }) => {
   return FixedSessionsMapCtrl(
     _$scope,
     _params,
-    null,
     _map,
     _sensors,
     null,
     null,
-    $window,
-    infoWindow
+    $window
   );
 };

@@ -7,12 +7,10 @@ import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
 
 export const fixedSessions = (
   params,
-  $http,
   map,
   sensors,
   $rootScope,
   sessionsDownloader,
-  drawSession,
   sessionsUtils,
   $window,
   heat,

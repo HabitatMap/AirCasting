@@ -2,20 +2,16 @@ import _ from "underscore";
 import * as FiltersUtils from "../../../javascript/filtersUtils";
 import { clearMap } from "../../../javascript/mapsUtils";
 import { applyTheme } from "../../../javascript/theme";
-import { DEFAULT_THEME } from "../../../javascript/constants";
 import { getParams } from "../../../javascript/params";
 
 export const FixedSessionsMapCtrl = (
   $scope,
   params,
-  heat,
   map,
   sensors,
   fixedSessions,
   versioner,
-  $window,
-  infoWindow,
-  $http
+  $window
 ) => {
   sensors.setSensors($window.__sensors);
 

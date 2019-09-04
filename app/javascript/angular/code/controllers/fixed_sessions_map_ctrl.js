@@ -5,13 +5,10 @@ angular
   .controller("FixedSessionsMapCtrl", [
     "$scope",
     "params",
-    "heat",
     "map",
     "sensors",
     "fixedSessions",
     "versioner",
     "$window",
-    "infoWindow",
-    "$http",
     FixedSessionsMapCtrl
   ]);
