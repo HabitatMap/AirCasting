@@ -23,6 +23,7 @@ import Html exposing (Html, a, button, div, h2, h3, header, iframe, img, input, 
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, rel, src, target, title, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel, role)
 import Html.Events as Events
+import Html.Lazy exposing (lazy5)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
@@ -1276,8 +1277,8 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     div [ class "filters-container" ]
-        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
-        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
+        [ lazy5 viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
+        , lazy5 viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
         , TimeRange.view RefreshTimeRange Dormant model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter model.tooltipIcon
@@ -1289,8 +1290,8 @@ viewMobileFilters model =
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     div [ class "filters-container" ]
-        [ viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
-        , viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
+        [ lazy5 viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
+        , lazy5 viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor model.tooltipIcon
         , TimeRange.view RefreshTimeRange model.status model.tooltipIcon model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
