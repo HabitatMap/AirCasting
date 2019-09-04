@@ -158,7 +158,7 @@ export const MobileSessionsMapCtrl = (
 
       const onTimeRangeChanged = (timeFrom, timeTo) => {
         elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
-
+        FiltersUtils.setTimerangeButtonText(timeFrom, timeTo);
         params.update({ data: { timeFrom, timeTo } });
         $scope.sessions.fetch();
       };

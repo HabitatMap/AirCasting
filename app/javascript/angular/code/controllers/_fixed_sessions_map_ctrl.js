@@ -143,14 +143,23 @@ export const FixedSessionsMapCtrl = (
 
       const onTimeRangeChanged = (timeFrom, timeTo) => {
         elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
+        FiltersUtils.setTimerangeButtonText(timeFrom, timeTo);
         params.update({ data: { timeFrom, timeTo } });
         $scope.sessions.fetch();
       };
 
       const setupActiveTimeRangeFilter = (timeFrom, timeTo) => {
-        if (document.getElementById("time-range")) {
+        if (
+          document.getElementById("time-range") &&
+          document.getElementById("time-range-button")
+        ) {
           $("#time-range").daterangepicker(
             FiltersUtils.daterangepickerConfig(timeFrom, timeTo)
+          );
+
+          $("#time-range-button").daterangepicker(
+            FiltersUtils.daterangepickerConfig(timeFrom, timeTo),
+            FiltersUtils.setTimerangeButtonText(timeFrom, timeTo)
           );
         } else {
           window.setTimeout(setupActiveTimeRangeFilter(timeFrom, timeTo), 100);
@@ -189,7 +198,6 @@ export const FixedSessionsMapCtrl = (
             FiltersUtils.endOfToday(),
             elmApp.ports.isShowingTimeRangeFilter.send
           );
-
           onTimeRangeChanged(
             FiltersUtils.oneYearAgo(),
             FiltersUtils.endOfToday()

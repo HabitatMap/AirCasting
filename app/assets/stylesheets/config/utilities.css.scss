@@ -3,3 +3,9 @@
     display: none;
   }
 }
+
+.u--hide-on-mobile {
+  @media screen and (max-width: $mobile) {
+    display: none;
+  }
+}

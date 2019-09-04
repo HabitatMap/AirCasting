@@ -59,17 +59,38 @@ view refreshTimeRange status tooltipIcon resetIcon =
         [ input
             [ id "time-range"
             , attribute "autocomplete" "off"
-            , class "input-dark"
-            , class "input-filters"
-            , class "input-time"
-            , placeholder "time frame"
-            , type_ "text"
+            , class "input-dark input-filters input-time"
             , name "time-range"
             , disabled (status == Active)
             ]
             []
-        , label [ for "time-range" ] [ text "time frame:" ]
+        , button
+            [ id "time-range-button"
+            , attribute "autocomplete" "off"
+            , class "input-dark input-filters input-time button--input"
+            , name "time-range-button"
+            , disabled (status == Active)
+            ]
+            []
+        , label
+            [ class "u--hide-on-mobile"
+            , for "time-range"
+            ]
+            [ text "time frame:" ]
+        , label
+            [ class "u--show-on-mobile"
+            ]
+            [ text "time frame:" ]
         , Tooltip.view Tooltip.timeRangeFilter tooltipIcon
-        , button [ ariaLabel "Reset time frame", class "refresh-timerange-button", Events.onClick refreshTimeRange ]
-            [ img [ src (Path.toString resetIcon), alt "Reset icon" ] [] ]
+        , button
+            [ ariaLabel "Reset time frame"
+            , class "refresh-timerange-button"
+            , Events.onClick refreshTimeRange
+            ]
+            [ img
+                [ src (Path.toString resetIcon)
+                , alt "Reset icon"
+                ]
+                []
+            ]
         ]
