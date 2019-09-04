@@ -6,16 +6,6 @@ import { applyTheme } from "../../../javascript/theme";
 import { DEFAULT_THEME } from "../../../javascript/constants";
 import { getParams } from "../../../javascript/params";
 
-const endOfToday = moment()
-  .utc()
-  .endOf("day")
-  .format("X");
-const oneYearAgo = moment()
-  .utc()
-  .startOf("day")
-  .subtract(1, "year")
-  .format("X");
-
 export const MobileSessionsMapCtrl = (
   $scope,
   params,
@@ -55,8 +45,8 @@ export const MobileSessionsMapCtrl = (
       usernames: "",
       gridResolution: 31,
       crowdMap: false,
-      timeFrom: oneYearAgo,
-      timeTo: endOfToday,
+      timeFrom: FiltersUtils.oneYearAgo(),
+      timeTo: FiltersUtils.endOfToday(),
       heat: {
         lowest: 0,
         low: 12,
@@ -173,12 +163,15 @@ export const MobileSessionsMapCtrl = (
       elmApp.ports.refreshTimeRange.subscribe(() => {
         FiltersUtils.setupTimeRangeFilter(
           onTimeRangeChanged,
-          oneYearAgo,
-          endOfToday,
+          FiltersUtils.oneYearAgo(),
+          FiltersUtils.endOfToday(),
           elmApp.ports.isShowingTimeRangeFilter.send
         );
 
-        onTimeRangeChanged(oneYearAgo, endOfToday);
+        onTimeRangeChanged(
+          FiltersUtils.oneYearAgo(),
+          FiltersUtils.endOfToday()
+        );
       });
 
       FiltersUtils.setupClipboard();
