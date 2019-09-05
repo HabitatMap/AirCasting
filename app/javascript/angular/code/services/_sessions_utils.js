@@ -1,12 +1,6 @@
 import _ from "underscore";
-import { keysToLowerCase } from "../../../javascript/utils.js";
 
-export const sessionsUtils = (
-  params,
-  sensors,
-  $timeout,
-  updateCrowdMapLayer
-) => ({
+export const sessionsUtils = (params, updateCrowdMapLayer) => ({
   get: function(self) {
     return _.uniq(self.sessions, "id");
   },

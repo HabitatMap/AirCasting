@@ -179,13 +179,8 @@ test("fetch passes map corner coordinates to sessionsDownloader", t => {
 
 test("selectSession with outdoor session after successfully fetching calls map.fitBoundsWithBottomPadding", t => {
   const map = mock("fitBoundsWithBottomPadding");
-  const $http = {
-    get: () => ({
-      success: callback => callback({ is_indoor: false, streams: {} })
-    })
-  };
   const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
-  const fixedSessionsService = _fixedSessions({ map, $http, sensors });
+  const fixedSessionsService = _fixedSessions({ map, sensors });
 
   fixedSessionsService.selectSession(123);
 
@@ -375,12 +370,10 @@ const buildData = obj => ({
 const _fixedSessions = ({
   sessionsDownloaderCalls = [],
   data,
-  drawSession,
   sessionIds = [],
   map,
   sessionsUtils,
-  sensors,
-  $http
+  sensors
 }) => {
   const $rootScope = { $new: () => ({}) };
   const params = {
@@ -416,7 +409,6 @@ const _fixedSessions = ({
     selectedSensorName: () => "sensorName",
     ...sensors
   };
-  const _drawSession = { ...drawSession };
   const sessionsDownloader = (_, arg) => {
     sessionsDownloaderCalls.push(arg);
   };
@@ -428,20 +420,14 @@ const _fixedSessions = ({
     selectedSessionId: () => 1,
     ...sessionsUtils
   };
-  const _$http = {
-    get: () => ({ success: callback => callback({ streams: {} }) }),
-    ...$http
-  };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
   return fixedSessions(
     params,
-    _$http,
     _map,
     _sensors,
     $rootScope,
     sessionsDownloader,
-    _drawSession,
     _sessionsUtils,
     null,
     _heat

@@ -4,7 +4,6 @@ angular
   .module("aircasting")
   .factory("mobileSessions", [
     "params",
-    "$http",
     "map",
     "sensors",
     "$rootScope",

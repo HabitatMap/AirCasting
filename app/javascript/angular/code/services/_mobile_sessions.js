@@ -7,7 +7,6 @@ import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
 
 export const mobileSessions = (
   params,
-  $http,
   map,
   sensors,
   $rootScope,
@@ -35,8 +34,6 @@ export const mobileSessions = (
       zoom: map.getZoom()
     };
   }
-
-  const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 3000;
 
   MobileSessions.prototype = {
     sessionIds: function() {

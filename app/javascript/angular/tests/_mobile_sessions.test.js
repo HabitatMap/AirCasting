@@ -327,7 +327,6 @@ const _mobileSessions = ({
   map,
   sessionsUtils,
   sensors,
-  $http,
   params
 }) => {
   const $rootScope = { $new: () => ({}) };
@@ -376,15 +375,10 @@ const _mobileSessions = ({
     updateCrowdMapLayer: () => {},
     ...sessionsUtils
   };
-  const _$http = {
-    get: () => ({ success: callback => callback({ streams: {} }) }),
-    ...$http
-  };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
   return mobileSessions(
     _params,
-    _$http,
     _map,
     _sensors,
     $rootScope,
