@@ -26,11 +26,8 @@ export const SessionsListCtrl = (
       // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically as undefined
       if (newValue.hasChangedProgrammatically === undefined) return;
 
-      if (newValue.hasChangedProgrammatically) {
-        //triggered when deselecting a session
-        sessions.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
-        return;
-      }
+      //triggered when deselecting a session or panning to info window
+      if (newValue.hasChangedProgrammatically) return;
 
       if (!params.get("data").isSearchAsIMoveOn) {
         sessionsUtils.refreshMapView(sessions);

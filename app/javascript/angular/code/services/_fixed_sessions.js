@@ -68,6 +68,7 @@ export const fixedSessions = (
       params.update({ selectedSessionIds: [] });
       clearMap();
       map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
+      this.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
     },
 
     selectSession: function(session) {
