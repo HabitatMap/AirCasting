@@ -1,7 +1,7 @@
 import _ from "underscore";
 import moment from "moment";
 import * as FiltersUtils from "../../../javascript/filtersUtils";
-import { clearMap } from "../../../javascript/mapsUtils";
+import { clearMap } from "../../../javascript/clearMap";
 import { applyTheme } from "../../../javascript/theme";
 import { DEFAULT_THEME } from "../../../javascript/constants";
 import { getParams } from "../../../javascript/params";

@@ -1,6 +1,6 @@
 import _ from "underscore";
 import * as FiltersUtils from "../../../javascript/filtersUtils";
-import { clearMap } from "../../../javascript/mapsUtils";
+import { clearMap } from "../../../javascript/clearMap";
 import { applyTheme } from "../../../javascript/theme";
 import { getParams } from "../../../javascript/params";
 

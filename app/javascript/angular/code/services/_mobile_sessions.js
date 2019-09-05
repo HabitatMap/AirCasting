@@ -2,7 +2,7 @@ import _ from "underscore";
 import * as Session from "../../../javascript/values/session";
 import { clusterer } from "../../../javascript/clusterer";
 import { calculateBounds } from "../../../javascript/calculateBounds";
-import { clearMap } from "../../../javascript/mapsUtils";
+import { clearMap } from "../../../javascript/clearMap";
 import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
 
 export const mobileSessions = (
