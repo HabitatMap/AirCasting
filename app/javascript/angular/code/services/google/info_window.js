@@ -2,7 +2,8 @@ import constants from "../../../../javascript/constants";
 import {
   savePosition,
   mapObj,
-  getSavedPosition
+  getSavedPosition,
+  setHasChangedProgrammatically
 } from "../../../../javascript/mapsUtils";
 
 angular.module("google").factory("infoWindow", [
@@ -31,7 +32,7 @@ angular.module("google").factory("infoWindow", [
 
         this.popup.setContent("fetching...");
         this.popup.setPosition(position);
-        map.setHasChangedProgrammatically(true);
+        setHasChangedProgrammatically(true);
         this.popup.open(mapObj());
         const htmlPath =
           sessionType === constants.fixedSession
@@ -55,7 +56,7 @@ angular.module("google").factory("infoWindow", [
         );
         $compile(element[0])($rootScope);
         this.popup.setContent(element[0]);
-        map.setHasChangedProgrammatically(true);
+        setHasChangedProgrammatically(true);
         this.popup.open(mapObj());
         google.maps.event.addListener(this.popup, "closeclick", function() {
           map.fitBounds(getSavedPosition().bounds, getSavedPosition().zoom);

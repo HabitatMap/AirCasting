@@ -1,4 +1,12 @@
 let prevMapPosition = {};
+let hasChangedProgrammatically = false;
+
+export const setHasChangedProgrammatically = value => {
+  hasChangedProgrammatically = value;
+};
+
+export const getHasChangedProgrammatically = () => hasChangedProgrammatically;
+
 export const lengthToPixels = (length, zoom) => {
   const pixelSize = Math.pow(2, -zoom);
   return length / pixelSize;
