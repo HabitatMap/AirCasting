@@ -57,6 +57,9 @@ export const map = (
 
       rectangles.init(this.mapObj);
     },
+    setHasChangedProgrammatically: function(value) {
+      hasChangedProgrammatically = value;
+    },
 
     get: function() {
       return this.mapObj;
@@ -113,6 +116,7 @@ export const map = (
       $cookieStore.put("vp_lat", lat);
       $cookieStore.put("vp_lng", lng);
       $cookieStore.put("vp_mapType", mapType);
+      console.warn("saving viewport");
       params.update({
         map: {
           zoom: zoom,
