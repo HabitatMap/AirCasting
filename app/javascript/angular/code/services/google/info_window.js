@@ -32,8 +32,10 @@ angular.module("google").factory("infoWindow", [
 
         this.popup.setContent("fetching...");
         this.popup.setPosition(position);
-        setHasChangedProgrammatically(true);
+
+        this.popup.setOptions({ disableAutoPan: true });
         this.popup.open(mapObj());
+
         const htmlPath =
           sessionType === constants.fixedSession
             ? FIXED_INFO_WINDOW_PATH
@@ -55,9 +57,13 @@ angular.module("google").factory("infoWindow", [
             "'\"></div></div>"
         );
         $compile(element[0])($rootScope);
+
         this.popup.setContent(element[0]);
         setHasChangedProgrammatically(true);
+
+        this.popup.setOptions({ disableAutoPan: false });
         this.popup.open(mapObj());
+
         google.maps.event.addListener(this.popup, "closeclick", function() {
           map.fitBounds(getSavedPosition().bounds, getSavedPosition().zoom);
         });
