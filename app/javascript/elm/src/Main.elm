@@ -875,9 +875,9 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
+        [ snippetGoogleTagManager
+        , viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
         , viewMain model
-        , snippetGoogleTagManager
         ]
 
 
