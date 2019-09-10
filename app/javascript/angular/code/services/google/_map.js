@@ -5,6 +5,10 @@ import {
   fixedClusterStyles,
   pulsingMarkerStyles
 } from "../../../../javascript/theme";
+import {
+  setHasChangedProgrammatically,
+  getHasChangedProgrammatically
+} from "../../../../javascript/mapsUtils";
 
 export const map = (
   params,
@@ -17,7 +21,7 @@ export const map = (
   $window
 ) => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
-  let hasChangedProgrammatically = false;
+  setHasChangedProgrammatically(false);
   $window.__traceMarkers = [];
   const elmApp = $window.__elmApp;
 
@@ -119,10 +123,10 @@ export const map = (
           lat: lat,
           lng: lng,
           mapType: mapType,
-          hasChangedProgrammatically
+          hasChangedProgrammatically: getHasChangedProgrammatically()
         }
       });
-      hasChangedProgrammatically = false;
+      setHasChangedProgrammatically(false);
       digester();
     },
 
@@ -150,7 +154,7 @@ export const map = (
           : googleMaps.latLng(bounds.north, bounds.east);
       const southwest = googleMaps.latLng(bounds.south, bounds.west);
       const latLngBounds = googleMaps.latLngBounds(southwest, northeast);
-      hasChangedProgrammatically = true;
+      setHasChangedProgrammatically(true);
       this._withoutPanOrZoomCallback(fnc(latLngBounds, zoom));
     },
 

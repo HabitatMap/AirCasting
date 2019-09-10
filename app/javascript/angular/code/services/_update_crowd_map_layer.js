@@ -1,6 +1,6 @@
 import _ from "underscore";
 import constants from "../../../javascript/constants";
-import { clearMap } from "../../../javascript/mapsUtils";
+import { clearMap } from "../../../javascript/clearMap";
 
 export const updateCrowdMapLayer = (
   map,

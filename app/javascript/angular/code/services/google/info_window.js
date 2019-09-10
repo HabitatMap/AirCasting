@@ -1,4 +1,12 @@
 import constants from "../../../../javascript/constants";
+import {
+  savePosition,
+  mapObj,
+  getSavedPosition,
+  setHasChangedProgrammatically
+} from "../../../../javascript/mapsUtils";
+
+let first = true;
 
 angular.module("google").factory("infoWindow", [
   "map",
@@ -22,9 +30,14 @@ angular.module("google").factory("infoWindow", [
       },
 
       show: function(url, data, position, sessionType) {
+        if (first) savePosition();
+        first = false;
+
         this.popup.setContent("fetching...");
         this.popup.setPosition(position);
-        this.popup.open(map.get());
+        this.popup.setOptions({ disableAutoPan: true });
+        this.popup.open(mapObj());
+
         const htmlPath =
           sessionType === constants.fixedSession
             ? FIXED_INFO_WINDOW_PATH
@@ -46,11 +59,22 @@ angular.module("google").factory("infoWindow", [
             "'\"></div></div>"
         );
         $compile(element[0])($rootScope);
+
         this.popup.setContent(element[0]);
+        setHasChangedProgrammatically(true);
+
+        this.popup.setOptions({ disableAutoPan: false });
+        this.popup.open(mapObj());
+
+        google.maps.event.addListener(this.popup, "closeclick", function() {
+          map.fitBounds(getSavedPosition().bounds, getSavedPosition().zoom);
+          first = true;
+        });
       },
 
       hide: function() {
         this.popup.close();
+        first = true;
       }
     };
 

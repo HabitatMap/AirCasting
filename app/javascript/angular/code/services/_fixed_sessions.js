@@ -2,7 +2,7 @@ import _ from "underscore";
 import constants from "../../../javascript/constants";
 import * as Session from "../../../javascript/values/session";
 import { calculateBounds } from "../../../javascript/calculateBounds";
-import { clearMap } from "../../../javascript/mapsUtils";
+import { clearMap } from "../../../javascript/clearMap";
 import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
 
 export const fixedSessions = (
@@ -68,6 +68,7 @@ export const fixedSessions = (
       params.update({ selectedSessionIds: [] });
       clearMap();
       map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
+      this.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
     },
 
     selectSession: function(session) {

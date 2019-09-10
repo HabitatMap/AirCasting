@@ -388,7 +388,8 @@ const _fixedSessions = ({
     },
     update: () => {},
     selectedSessionIds: () => sessionIds,
-    isActive: () => false
+    isActive: () => false,
+    paramsData: {}
   };
   const _map = {
     getBounds: () => ({}),
