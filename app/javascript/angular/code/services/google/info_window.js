@@ -6,6 +6,8 @@ import {
   setHasChangedProgrammatically
 } from "../../../../javascript/mapsUtils";
 
+let first = true;
+
 angular.module("google").factory("infoWindow", [
   "map",
   "$http",
@@ -28,11 +30,11 @@ angular.module("google").factory("infoWindow", [
       },
 
       show: function(url, data, position, sessionType) {
-        if (first_popup(this.popup)) savePosition();
+        if (first) savePosition();
+        first = false;
 
         this.popup.setContent("fetching...");
         this.popup.setPosition(position);
-
         this.popup.setOptions({ disableAutoPan: true });
         this.popup.open(mapObj());
 
@@ -66,16 +68,16 @@ angular.module("google").factory("infoWindow", [
 
         google.maps.event.addListener(this.popup, "closeclick", function() {
           map.fitBounds(getSavedPosition().bounds, getSavedPosition().zoom);
+          first = true;
         });
       },
 
       hide: function() {
         this.popup.close();
+        first = true;
       }
     };
 
     return new InfoWindow();
   }
 ]);
-
-const first_popup = popup => popup.content === undefined;
