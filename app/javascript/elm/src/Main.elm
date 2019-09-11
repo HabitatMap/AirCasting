@@ -196,9 +196,6 @@ init flags url key =
         , resetIconWhite = Path.fromString flags.resetIconWhite
         , themeIcons = Theme.toIcons flags.themeSwitchIconDefault flags.themeSwitchIconBlue
         , tooltipIcon = Path.fromString flags.tooltipIcon
-        , heatMapThresholds =
-            Maybe.map (Success << HeatMapThresholds.fromValues) flags.heatMapThresholdValues
-                |> Maybe.withDefault defaultModel.heatMapThresholds
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = overlay
         , scrollPosition = flags.scrollPosition
@@ -213,7 +210,7 @@ init flags url key =
                 fetchHeatMapThresholds sensors flags.selectedSensorId
 
             Just values ->
-                Ports.updateHeatMapThresholds values
+                fetchHeatMapThresholdDefaults sensors flags.selectedSensorId values
         ]
     )
 
@@ -235,6 +232,12 @@ fetchSelectedSession sensors maybeId selectedSensorId page =
 fetchHeatMapThresholds : List Sensor -> String -> Cmd Msg
 fetchHeatMapThresholds sensors selectedSensorId =
     HeatMapThresholds.fetch sensors selectedSensorId (RemoteData.fromResult >> UpdateHeatMapThresholds)
+        |> Maybe.withDefault Cmd.none
+
+
+fetchHeatMapThresholdDefaults : List Sensor -> String -> HeatMapThresholdValues -> Cmd Msg
+fetchHeatMapThresholdDefaults sensors selectedSensorId heatMapThresholdsValues =
+    HeatMapThresholds.fetchDefaults sensors selectedSensorId (RemoteData.fromResult >> UpdateHeatMapThresholds) heatMapThresholdsValues
         |> Maybe.withDefault Cmd.none
 
 
