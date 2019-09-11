@@ -5,6 +5,7 @@ module Data.HeatMapThresholds exposing
     , Threshold
     , extremes
     , fetch
+    , fetchDefaults
     , fitThresholds
     , fromValues
     , rangeFor
@@ -231,6 +232,11 @@ updateFromValues values heatMapThresholds =
 
 fetch : List Sensor -> String -> (Result Http.Error HeatMapThresholds -> msg) -> Maybe (Cmd msg)
 fetch sensors sensorId toCmd =
+    fetch_ (decoder toHeatMapThresholds) sensors sensorId toCmd
+
+
+fetch_ : Decoder HeatMapThresholds -> List Sensor -> String -> (Result Http.Error HeatMapThresholds -> msg) -> Maybe (Cmd msg)
+fetch_ decoder_ sensors sensorId toCmd =
     let
         maybeSensorName =
             Sensor.nameForSensorId sensorId sensors
@@ -238,13 +244,18 @@ fetch sensors sensorId toCmd =
         maybeUnit =
             Sensor.unitForSensorId sensorId sensors
 
-        fetch_ sensorName unit =
+        http_request sensorName unit =
             Http.get
                 { url = "/api/thresholds/" ++ sensorName ++ "?unit_symbol=" ++ Url.percentEncode unit
-                , expect = Http.expectJson toCmd decoder
+                , expect = Http.expectJson toCmd decoder_
                 }
     in
-    Maybe.map2 fetch_ maybeSensorName maybeUnit
+    Maybe.map2 http_request maybeSensorName maybeUnit
+
+
+fetchDefaults : List Sensor -> String -> (Result Http.Error HeatMapThresholds -> msg) -> HeatMapThresholdValues -> Maybe (Cmd msg)
+fetchDefaults sensors sensorId toCmd heatMapThresholdValues =
+    fetch_ (decoder (toHeatMapThresholdsWithDefaults heatMapThresholdValues)) sensors sensorId toCmd
 
 
 maybeIntDecoder : Maybe Int -> Decoder Int
@@ -264,9 +275,9 @@ intAsStringDecoder =
         |> Decode.andThen maybeIntDecoder
 
 
-decoder : Decoder HeatMapThresholds
-decoder =
-    Decode.map5 toHeatMapThresholds
+decoder : (Int -> Int -> Int -> Int -> Int -> HeatMapThresholds) -> Decoder HeatMapThresholds
+decoder yellow =
+    Decode.map5 yellow
         (Decode.index 0 intAsStringDecoder)
         (Decode.index 1 intAsStringDecoder)
         (Decode.index 2 intAsStringDecoder)
@@ -282,3 +293,13 @@ toHeatMapThresholds t1 t2 t3 t4 t5 =
         { value = t3, default = t3 }
         { value = t4, default = t4 }
         { value = t5, default = t5 }
+
+
+toHeatMapThresholdsWithDefaults : HeatMapThresholdValues -> Int -> Int -> Int -> Int -> Int -> HeatMapThresholds
+toHeatMapThresholdsWithDefaults values t1 t2 t3 t4 t5 =
+    HeatMapThresholds
+        { value = values.threshold1, default = t1 }
+        { value = values.threshold2, default = t2 }
+        { value = values.threshold3, default = t3 }
+        { value = values.threshold4, default = t4 }
+        { value = values.threshold5, default = t5 }
