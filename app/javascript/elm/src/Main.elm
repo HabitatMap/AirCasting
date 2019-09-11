@@ -871,17 +871,9 @@ setScrollPosition value =
 viewDocument : Model -> Browser.Document Msg
 viewDocument model =
     { title = "AirCasting"
-    , body = [ view model ]
+    , body = [ snippetGoogleTagManager 
+    ,  view model ]
     }
-
-
-view : Model -> Html Msg
-view model =
-    div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ snippetGoogleTagManager
-        , viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
-        , viewMain model
-        ]
 
 
 snippetGoogleTagManager =
@@ -894,6 +886,14 @@ snippetGoogleTagManager =
             , attribute "width" "0"
             ]
             []
+        ]
+
+
+view : Model -> Html Msg
+view model =
+    div [ id "elm-app", class (Theme.toString model.theme) ]
+        [ viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
+        , viewMain model
         ]
 
 
