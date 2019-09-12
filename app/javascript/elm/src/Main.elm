@@ -23,7 +23,7 @@ import Html exposing (Html, a, button, div, h2, h3, header, iframe, img, input, 
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, rel, src, target, title, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel, role)
 import Html.Events as Events
-import Html.Lazy exposing (lazy5)
+import Html.Lazy exposing (lazy5, lazy7, lazy8)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
@@ -881,7 +881,7 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
+        [ lazy5 viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
         , viewMain model
         ]
 
@@ -1007,9 +1007,10 @@ viewMap model =
             [ viewSearchAsIMove model
             , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
                 []
-            , viewSessionsOrSelectedSession model
+            , lazy8 viewSessionsOrSelectedSession model.page model.selectedSession model.fetchableSessionsCount model.sessions model.heatMapThresholds model.linkIcon model.popup model.emailForm
             ]
-        , viewHeatMap
+        , lazy7
+            viewHeatMap
             model.heatMapThresholds
             (Sensor.unitForSensorId model.selectedSensorId model.sensors |> Maybe.withDefault "")
             model.fitScaleIcon
@@ -1110,11 +1111,14 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         ]
 
 
-viewSessionsOrSelectedSession : Model -> Html Msg
-viewSessionsOrSelectedSession model =
+
+viewSessionsOrSelectedSession : Page -> WebData SelectedSession -> Int -> List Session -> WebData HeatMapThresholds -> Path-> Popup.Popup -> EmailForm.EmailForm -> Html Msg
+
+
+viewSessionsOrSelectedSession page selectedSession fetchableSessionsCount sessions heatMapThresholds linkIcon popup emailForm =
     div
         [ attribute "ng-controller"
-            (if model.page == Mobile then
+            (if page == Mobile then
                 "MobileSessionsMapCtrl"
 
              else
@@ -1122,15 +1126,15 @@ viewSessionsOrSelectedSession model =
             )
         ]
         [ div [ class "sessions", attribute "ng-controller" "SessionsListCtrl" ]
-            [ case model.selectedSession of
+            [ case selectedSession of
                 NotAsked ->
-                    viewSessions model.fetchableSessionsCount model.sessions model.heatMapThresholds
+                    viewSessions fetchableSessionsCount sessions heatMapThresholds
 
                 Success session ->
-                    viewSelectedSession model.heatMapThresholds (Just session) model.linkIcon model.popup (EmailForm.view model.emailForm ExportSessions NoOp UpdateEmailFormValue)
+                    viewSelectedSession heatMapThresholds (Just session) linkIcon popup (EmailForm.view emailForm ExportSessions NoOp UpdateEmailFormValue)
 
                 Loading ->
-                    viewSelectedSession model.heatMapThresholds Nothing model.linkIcon model.popup (EmailForm.view model.emailForm ExportSessions NoOp UpdateEmailFormValue)
+                    viewSelectedSession heatMapThresholds Nothing linkIcon popup (EmailForm.view emailForm ExportSessions NoOp UpdateEmailFormValue)
 
                 Failure _ ->
                     div [] [ text "error!" ]
