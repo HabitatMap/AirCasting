@@ -1111,10 +1111,7 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         ]
 
 
-
-viewSessionsOrSelectedSession : Page -> WebData SelectedSession -> Int -> List Session -> WebData HeatMapThresholds -> Path-> Popup.Popup -> EmailForm.EmailForm -> Html Msg
-
-
+viewSessionsOrSelectedSession : Page -> WebData SelectedSession -> Int -> List Session -> WebData HeatMapThresholds -> Path -> Popup.Popup -> EmailForm.EmailForm -> Html Msg
 viewSessionsOrSelectedSession page selectedSession fetchableSessionsCount sessions heatMapThresholds linkIcon popup emailForm =
     div
         [ attribute "ng-controller"
