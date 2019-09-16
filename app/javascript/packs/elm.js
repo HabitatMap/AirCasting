@@ -19,6 +19,8 @@ import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
 import { DEFAULT_THEME } from "../javascript/constants";
 import { getParams, updateParam } from "../javascript/params";
+import { get } from "../javascript/http";
+import constants from "../javascript/constants";
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
@@ -29,87 +31,90 @@ if (!Object.values) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  const session_type =
+    window.location.pathname === constants.fixedMapRoute
+      ? "FixedSession"
+      : "MobileSession";
+
   // This request is cached in the browser so it should not delay the application too much.
   // The best way to handle this would be to have the application load the sensors at the
   // same time it is loading the ui.
   // That way the user would not see a blank page until the sensors are loaded.
-  fetch("/api/sensors.json")
-    .then(x => x.json())
-    .then(sensors => {
-      window.__sensors = sensors;
+  get("/api/sensors", { session_type: session_type }).then(sensors => {
+    window.__sensors = sensors;
 
-      const defaultParams = {
-        keepFiltersExpanded: false,
-        scroll: 0,
-        theme: DEFAULT_THEME
-      };
+    const defaultParams = {
+      keepFiltersExpanded: false,
+      scroll: 0,
+      theme: DEFAULT_THEME
+    };
 
-      const params = { ...defaultParams, ...getParams() };
+    const params = { ...defaultParams, ...getParams() };
 
-      const defaultData = {
-        location: "",
-        tags: "",
-        usernames: "",
-        crowdMap: false,
-        gridResolution: 31, // this translates to grid cell size: 20; formula: f(x) = 51 - x
-        isIndoor: false,
-        isActive: true,
-        sensorId: "Particulate Matter-airbeam2-pm2.5 (µg/m³)",
-        isSearchAsIMoveOn: false
-      };
+    const defaultData = {
+      location: "",
+      tags: "",
+      usernames: "",
+      crowdMap: false,
+      gridResolution: 31, // this translates to grid cell size: 20; formula: f(x) = 51 - x
+      isIndoor: false,
+      isActive: true,
+      sensorId: "Particulate Matter-airbeam2-pm2.5 (µg/m³)",
+      isSearchAsIMoveOn: false
+    };
 
-      const data = { ...defaultData, ...params.data };
+    const data = { ...defaultData, ...params.data };
 
-      const heatMapThresholdValues = data.heat
-        ? {
-            threshold1: data.heat.lowest,
-            threshold2: data.heat.low,
-            threshold3: data.heat.mid,
-            threshold4: data.heat.high,
-            threshold5: data.heat.highest
-          }
-        : null;
+    const heatMapThresholdValues = data.heat
+      ? {
+          threshold1: data.heat.lowest,
+          threshold2: data.heat.low,
+          threshold3: data.heat.mid,
+          threshold4: data.heat.high,
+          threshold5: data.heat.highest
+        }
+      : null;
 
-      const flags = {
-        sensors: window.__sensors,
-        selectedSensorId: data.sensorId,
-        location: data.location,
-        isCrowdMapOn: data.crowdMap,
-        crowdMapResolution: data.gridResolution,
-        tags: data.tags.split(", ").filter(tag => tag !== ""),
-        profiles: data.usernames.split(", ").filter(tag => tag !== ""),
-        selectedSessionId: params.selectedSessionIds
+    const flags = {
+      sensors: window.__sensors,
+      selectedSensorId: data.sensorId,
+      location: data.location,
+      isCrowdMapOn: data.crowdMap,
+      crowdMapResolution: data.gridResolution,
+      tags: data.tags.split(", ").filter(tag => tag !== ""),
+      profiles: data.usernames.split(", ").filter(tag => tag !== ""),
+      selectedSessionId: params.selectedSessionIds
+        ? params.selectedSessionIds[0]
           ? params.selectedSessionIds[0]
-            ? params.selectedSessionIds[0]
-            : null
-          : null,
-        timeRange: {
-          timeFrom: data.timeFrom,
-          timeTo: data.timeTo
-        },
-        isIndoor: data.isIndoor,
-        navLogo,
-        fitScaleIcon,
-        linkIcon,
-        resetIconBlack,
-        resetIconWhite,
-        themeSwitchIconBlue,
-        themeSwitchIconDefault,
-        tooltipIcon,
-        heatMapThresholdValues,
-        isActive: data.isActive,
-        isSearchAsIMoveOn: data.isSearchAsIMoveOn,
-        scrollPosition: params.scroll,
-        theme: params.theme,
-        keepFiltersExpanded: params.keepFiltersExpanded
-      };
+          : null
+        : null,
+      timeRange: {
+        timeFrom: data.timeFrom,
+        timeTo: data.timeTo
+      },
+      isIndoor: data.isIndoor,
+      navLogo,
+      fitScaleIcon,
+      linkIcon,
+      resetIconBlack,
+      resetIconWhite,
+      themeSwitchIconBlue,
+      themeSwitchIconDefault,
+      tooltipIcon,
+      heatMapThresholdValues,
+      isActive: data.isActive,
+      isSearchAsIMoveOn: data.isSearchAsIMoveOn,
+      scrollPosition: params.scroll,
+      theme: params.theme,
+      keepFiltersExpanded: params.keepFiltersExpanded
+    };
 
-      window.__elmApp = Elm.Main.init({ flags });
+    window.__elmApp = Elm.Main.init({ flags });
 
-      setupHeatMap();
+    setupHeatMap();
 
-      setupTooltips();
-    });
+    setupTooltips();
+  });
 });
 
 const baseOptionsForTooltips = {

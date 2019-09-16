@@ -48,7 +48,6 @@ mainSensors =
         ]
 
 
-
 type alias Sensor =
     { name : String
     , parameter : String
