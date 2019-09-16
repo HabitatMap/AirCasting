@@ -64,57 +64,6 @@ describe Stream do
     end
   end
 
-  describe '#sensors' do
-    before { Stream.destroy_all }
-    let!(:stream1) do
-      FactoryBot.create(
-        :stream,
-        unit_symbol: '%', sensor_name: 's1', measurement_type: 'm1'
-      )
-    end
-    let!(:stream2) do
-      FactoryBot.create(
-        :stream,
-        unit_symbol: '%', sensor_name: 's2', measurement_type: 'm2'
-      )
-    end
-    let!(:stream3) do
-      FactoryBot.create(
-        :stream,
-        unit_symbol: '%', sensor_name: 's1', measurement_type: 'm1'
-      )
-    end
-
-    subject { Stream.sensors }
-
-    it 'should return all sensors' do
-      thresholds =
-        FactoryBot.attributes_for(:stream).select { |k, v| k =~ /^threshold/ }
-      expect(subject).to include(
-        {
-          id: nil,
-          unit_symbol: '%',
-          sensor_name: 's1',
-          measurement_type: 'm1',
-          session_count: 2
-        }.merge(thresholds)
-      )
-      expect(subject).to include(
-        {
-          id: nil,
-          unit_symbol: '%',
-          sensor_name: 's2',
-          measurement_type: 'm2',
-          session_count: 1
-        }.merge(thresholds)
-      )
-    end
-
-    it 'should return unique sensors' do
-      expect(subject.size).to eq(2)
-    end
-  end
-
   describe '#destroy' do
     it 'should destroy measurements' do
       stream.reload.destroy

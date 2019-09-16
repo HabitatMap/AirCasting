@@ -167,22 +167,6 @@ class Stream < ApplicationRecord
     Stream.update_counters(self.id, { measurements_count: measurements.size })
   end
 
-  def self.sensors
-    joins(:session).where('sessions.contribute' => true).select(
-      :sensor_name,
-      :measurement_type,
-      'MIN(threshold_very_low) as threshold_very_low',
-      'MIN(threshold_low) as threshold_low',
-      :unit_symbol,
-      'MIN(threshold_medium) as threshold_medium',
-      'MAX(threshold_high) as threshold_high',
-      'MAX(threshold_very_high) as threshold_very_high',
-      'count(*) as session_count'
-    )
-      .group(:sensor_name, :measurement_type, :unit_symbol)
-      .map { |stream| stream.attributes.symbolize_keys }
-  end
-
   def self.thresholds(sensor_name, unit_symbol)
     select(
       "CONCAT_WS('-', threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high) as thresholds, COUNT(*) as thresholds_count"
