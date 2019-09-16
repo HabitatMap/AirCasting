@@ -285,18 +285,6 @@ test("teardown", t => {
   t.end();
 });
 
-test("when no sensor is selected drawSessionsInLocation doesnt call map.drawCustomMarker", t => {
-  const map = mock("drawCustomMarker");
-  const sensors = { anySelected: () => false };
-  const mobileSessionsService = _mobileSessions({ map, sensors });
-
-  mobileSessionsService.drawSessionsInLocation();
-
-  t.false(map.wasCalled());
-
-  t.end();
-});
-
 test("redrawSelectedSession call drawSession.drawMobileSession with selected session data", t => {
   const drawSession = mock("drawMobileSession");
   const data = { id: 1 };

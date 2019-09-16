@@ -8,7 +8,7 @@ export const drawSession = (sensors, map, heat, empty) => {
 
   DrawSession.prototype = {
     drawMobileSession: function(session, drawSessionStartingMarker) {
-      if (!session || !sensors.anySelected()) {
+      if (!session) {
         return;
       }
 
