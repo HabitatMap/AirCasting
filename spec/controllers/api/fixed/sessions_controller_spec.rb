@@ -125,8 +125,6 @@ describe Api::Fixed::SessionsController do
       title: attr.fetch(:title, 'title'),
       user: attr.fetch(:user),
       uuid: SecureRandom.uuid,
-      calibration: 100,
-      offset_60_db: 0,
       start_time: DateTime.current,
       start_time_local: attr.fetch(:start_time_local, DateTime.current),
       end_time: DateTime.current,

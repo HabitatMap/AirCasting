@@ -134,8 +134,6 @@ describe Api::Fixed::Active::SessionsController do
       title: 'title',
       user: user,
       uuid: SecureRandom.uuid,
-      calibration: 100,
-      offset_60_db: 0,
       start_time: DateTime.current,
       start_time_local: time,
       end_time: DateTime.current,
