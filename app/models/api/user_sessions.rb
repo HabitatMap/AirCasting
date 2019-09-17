@@ -27,7 +27,6 @@ module Api::UserSessions
           required(:deleted).filled(:bool?)
           optional(:tag_list)
           optional(:title)
-          required(:calibration).filled(:int?)
           required(:contribute).filled(:bool?)
           required(:drawable).filled(:int?)
           required(:start_time).filled(:str?)
@@ -60,7 +59,6 @@ module Api::UserSessions
       attribute :title, Types::Strict::String.default('')
       attribute :deleted, Types::Strict::Bool
       attribute :tag_list, Types::Strict::String.default('')
-      attribute :calibration, Types::Strict::Integer
       attribute :contribute, Types::Strict::Bool
       attribute :drawable, Types::Strict::Integer
       attribute :end_time, Types::Strict::String

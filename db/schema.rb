@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_16_115122) do
+ActiveRecord::Schema.define(version: 2019_09_17_070820) do
 
   create_table "deleted_sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -76,18 +76,12 @@ ActiveRecord::Schema.define(version: 2019_07_16_115122) do
     t.string "uuid"
     t.string "url_token"
     t.text "title"
-    t.text "description"
-    t.integer "calibration"
     t.boolean "contribute"
     t.string "data_type"
     t.string "instrument"
-    t.string "phone_model"
-    t.string "os_version"
-    t.integer "offset_60_db"
     t.datetime "start_time"
     t.datetime "end_time"
     t.integer "measurements_count"
-    t.integer "timezone_offset"
     t.datetime "start_time_local"
     t.datetime "end_time_local"
     t.string "type", null: false
