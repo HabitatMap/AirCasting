@@ -1,31 +1,60 @@
-# AirCasting - Share your Air!
-# Copyright (C) 2011-2012 HabitatMap, Inc.
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# You can contact the authors by email at <info@habitatmap.org>
-
 require 'rails_helper'
 
 describe Api::SensorsController do
   describe 'GET #index' do
-    it 'should delegate to stream' do
-      expect(Stream).to receive(:sensors).and_return({ some: :result })
+    it 'returns a list of sensors that have sessions of given type' do
+      mobile_session = create_session!(type: 'MobileSession')
+      fixed_session = create_session!(type: 'FixedSession')
+      create_stream!(session: mobile_session, sensor_name: 'mobile_sensor')
+      create_stream!(session: fixed_session, sensor_name: 'fixed_sensor')
+      create_stream!(
+        session: mobile_session, sensor_name: 'mobile_and_fixed_sensor'
+      )
+      create_stream!(
+        session: fixed_session, sensor_name: 'mobile_and_fixed_sensor'
+      )
 
-      get :index, format: :json
+      get :index, params: { session_type: 'MobileSession' }
 
-      expect(json_response).to eq({ 'some' => 'result' })
+      expected = [
+        {
+          'id' => nil,
+          'measurement_type' => 'Temperature',
+          'sensor_name' => 'mobile_and_fixed_sensor',
+          'session_count' => 1,
+          'unit_symbol' => 'F'
+        },
+        {
+          'id' => nil,
+          'measurement_type' => 'Temperature',
+          'sensor_name' => 'mobile_sensor',
+          'session_count' => 1,
+          'unit_symbol' => 'F'
+        }
+      ]
+
+      expect(json_response).to eq(expected)
+    end
+
+    it 'doesnt return duplicated' do
+      session1 = create_session!(type: 'MobileSession')
+      create_stream!(session: session1, sensor_name: 'one_sensor')
+      session2 = create_session!(type: 'MobileSession')
+      create_stream!(session: session2, sensor_name: 'one_sensor')
+
+      get :index, params: { session_type: 'MobileSession' }
+
+      expected = [
+        {
+          'id' => nil,
+          'measurement_type' => 'Temperature',
+          'sensor_name' => 'one_sensor',
+          'session_count' => 2,
+          'unit_symbol' => 'F'
+        }
+      ]
+
+      expect(json_response).to eq(expected)
     end
   end
 end

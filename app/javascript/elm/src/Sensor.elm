@@ -48,16 +48,6 @@ mainSensors =
         ]
 
 
-
-{-
-   { parameter = "Particulate Matter"
-   , name = "AirBeam2-PM2.5"
-   , session_count = 24
-   , unit = "µg/m³"
-   }
--}
-
-
 type alias Sensor =
     { name : String
     , parameter : String

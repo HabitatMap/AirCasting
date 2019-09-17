@@ -126,7 +126,6 @@ export const mobileSessions = (
     },
 
     drawSessionsInLocation: function() {
-      if (!sensors.anySelected()) return;
       clearMap();
 
       const sessions = this.get();

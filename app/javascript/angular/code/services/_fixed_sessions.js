@@ -109,7 +109,7 @@ export const fixedSessions = (
 
       const sessions = this.get();
 
-      if (!sensors.anySelected() || !params.get("data").isActive) {
+      if (!params.get("data").isActive) {
         sessions.forEach(session => this.drawMarkersWithoutLabel(session));
         return;
       }
