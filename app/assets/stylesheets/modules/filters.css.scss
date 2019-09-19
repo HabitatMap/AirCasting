@@ -11,7 +11,7 @@
     width: 100vw;
 
     &.filters--collapsed {
-      @include transform(translateX(-100%));
+      @include transform(translateX(100%));
     }
   }
 
