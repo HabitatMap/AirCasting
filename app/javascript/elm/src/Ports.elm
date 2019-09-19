@@ -17,6 +17,7 @@ port module Ports exposing
     , selectSensorId
     , selectSession
     , setScroll
+    , setZoom
     , showCopyLinkTooltip
     , tagSelected
     , timeRangeSelected
@@ -155,3 +156,6 @@ port updateGraphData : GraphMeasurementsData -> Cmd a
 
 
 port updateParams : { key : String, value : Bool } -> Cmd a
+
+
+port setZoom : Int -> Cmd a

@@ -83,6 +83,7 @@ type alias Model =
     , theme : Theme
     , status : Status
     , emailForm : EmailForm.EmailForm
+    , zoomLevel : BoundedInteger
     }
 
 
@@ -122,6 +123,7 @@ defaultModel =
     , theme = Theme.default
     , status = Status.default
     , emailForm = EmailForm.defaultEmailForm
+    , zoomLevel = BoundedInteger.build (LowerBound 1) (UpperBound 20) (Value 10)
     }
 
 
@@ -251,6 +253,7 @@ type Msg
     | ProfileLabels LabelsInput.Msg
     | ToggleCrowdMap Bool
     | UpdateCrowdMapResolution Int
+    | UpdateZoomLevel Int
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
     | ShowCopyLinkTooltip String
@@ -289,8 +292,9 @@ type Msg
     | SaveScrollPosition Float
     | SetScrollPosition
     | NoOp
-    | Timeout Int
+    | DebounceTimeout Int (Int -> Cmd Msg) Int
     | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
+    | MaybeUpdateZoomLevel (BoundedInteger -> BoundedInteger)
     | ToggleFiltersExpanded
     | CloseFilters
     | ToggleNavExpanded
@@ -347,6 +351,15 @@ update msg model =
                     - BoundedInteger.getValue
                         updatedResolution
                 )
+            )
+
+        UpdateZoomLevel int ->
+            let
+                updatedInt =
+                    BoundedInteger.setValue int model.zoomLevel
+            in
+            ( { model | zoomLevel = updatedInt }
+            , Ports.setZoom (BoundedInteger.getValue updatedInt)
             )
 
         UpdateTimeRange value ->
@@ -710,15 +723,18 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        Timeout int ->
-            if int == model.debouncingCounter then
-                ( { model | debouncingCounter = 0 }, Ports.updateResolution (51 - BoundedInteger.getValue model.crowdMapResolution) )
+        DebounceTimeout counterValue portName value->
+            if counterValue == model.debouncingCounter then
+                ( { model | debouncingCounter = 0 }, portName value )
 
             else
                 ( model, Cmd.none )
 
-        MaybeUpdateResolution updateResolution ->
-            debounce updateResolution model
+        MaybeUpdateResolution updateBoundedInteger ->
+            debounceResolution updateBoundedInteger model
+
+        MaybeUpdateZoomLevel updateBoundedInteger ->
+            debounceZoomLevel updateBoundedInteger model
 
         ToggleFiltersExpanded ->
             ( { model | areFiltersExpanded = not model.areFiltersExpanded, isNavExpanded = False }, Ports.updateParams { key = "keepFiltersExpanded", value = False } )
@@ -741,19 +757,31 @@ update msg model =
 
 
 type alias Debouncable a =
-    { a | debouncingCounter : Int, crowdMapResolution : BoundedInteger }
+    { a | debouncingCounter : Int, crowdMapResolution : BoundedInteger, zoomLevel : BoundedInteger }
 
 
-debounce : (BoundedInteger -> BoundedInteger) -> Debouncable a -> ( Debouncable a, Cmd Msg )
-debounce updateResolution debouncable =
+debounceZoomLevel : (BoundedInteger -> BoundedInteger) -> Debouncable a -> ( Debouncable a, Cmd Msg )
+debounceZoomLevel updateBoundedInteger debouncable =
     let
         newCounter =
             debouncable.debouncingCounter + 1
+        newValue = updateBoundedInteger debouncable.zoomLevel
     in
-    ( { debouncable | crowdMapResolution = updateResolution debouncable.crowdMapResolution, debouncingCounter = newCounter }
-    , Process.sleep 1000 |> Task.perform (\_ -> Timeout newCounter)
+    ( { debouncable | zoomLevel = newValue, debouncingCounter = newCounter }
+    , Process.sleep 1000 |> Task.perform (\_ -> DebounceTimeout newCounter Ports.setZoom (BoundedInteger.getValue newValue))
     )
 
+
+debounceResolution : (BoundedInteger -> BoundedInteger) -> Debouncable a -> ( Debouncable a, Cmd Msg )
+debounceResolution updateBoundedInteger debouncable =
+    let
+        newCounter =
+            debouncable.debouncingCounter + 1
+        newValue = updateBoundedInteger debouncable.crowdMapResolution
+    in
+    ( { debouncable | crowdMapResolution =  newValue, debouncingCounter = newCounter }
+    , Process.sleep 1000 |> Task.perform (\_ -> DebounceTimeout newCounter Ports.updateResolution (51 - BoundedInteger.getValue newValue))
+    )
 
 updateHeatMapExtreme : Model -> String -> (Int -> HeatMapThresholds -> HeatMapThresholds) -> ( Model, Cmd Msg )
 updateHeatMapExtreme model str updateExtreme =
@@ -1005,6 +1033,7 @@ viewMap model =
         [ Overlay.view model.overlay
         , div [ class "map-container" ]
             [ viewSearchAsIMove model
+            , viewSlider model.zoomLevel MaybeUpdateZoomLevel UpdateZoomLevel "zoom"
             , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
                 []
             , lazy8 viewSessionsOrSelectedSession model.page model.selectedSession model.fetchableSessionsCount model.sessions model.heatMapThresholds model.linkIcon model.popup model.emailForm
@@ -1412,21 +1441,24 @@ viewCrowdMapSlider : BoundedInteger -> Html Msg
 viewCrowdMapSlider boundedInteger =
     div [ id "crowd-map-slider" ]
         [ label [] [ text <| "grid cell size: " ++ String.fromInt (BoundedInteger.getValue boundedInteger) ]
-        , div [ class "crowd-map-slider-container" ]
-            [ span [ class "minus", Events.onClick (MaybeUpdateResolution BoundedInteger.subOne) ] [ text "-" ]
-            , input
-                [ class "crowd-map-slider"
-                , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateCrowdMapResolution)
-                , value (String.fromInt (BoundedInteger.getValue boundedInteger))
-                , max <| String.fromInt (BoundedInteger.getUpperBound boundedInteger)
-                , min <| String.fromInt (BoundedInteger.getLowerBound boundedInteger)
-                , type_ "range"
-                ]
-                []
-            , span [ class "plus", Events.onClick (MaybeUpdateResolution BoundedInteger.addOne) ] [ text "+" ]
-            ]
+        , viewSlider boundedInteger MaybeUpdateResolution UpdateCrowdMapResolution "crowd-map"
         ]
 
+viewSlider : BoundedInteger -> ((BoundedInteger -> BoundedInteger) -> Msg) -> (Int -> Msg) -> String -> Html Msg
+viewSlider boundedInteger maybeUpdateMsg updateMsg className=
+    div [ class (className ++ "-slider-container") ]
+        [ span [ class "minus", Events.onClick (maybeUpdateMsg BoundedInteger.subOne) ] [ text "-" ]
+        , input
+            [ class (className ++ "-slider")
+            , onChange (String.toInt >> Maybe.withDefault 25 >> updateMsg)
+            , value (String.fromInt (BoundedInteger.getValue boundedInteger))
+            , max <| String.fromInt (BoundedInteger.getUpperBound boundedInteger)
+            , min <| String.fromInt (BoundedInteger.getLowerBound boundedInteger)
+            , type_ "range"
+            ]
+            []
+        , span [ class "plus", Events.onClick (maybeUpdateMsg BoundedInteger.addOne) ] [ text "+" ]
+        ]
 
 viewLocationFilter : String -> Bool -> Path -> Html Msg
 viewLocationFilter location isIndoor tooltipIcon =
