@@ -42,10 +42,7 @@ angular.module("aircasting").directive("googlemap", function() {
         },
         styles: MapSettings.mapSettings(),
         zoom: parseInt(zoom, 10),
-        zoomControl: true,
-        zoomControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_TOP
-        }
+        zoomControl: false
       };
       map.init(element[0], options);
     }
