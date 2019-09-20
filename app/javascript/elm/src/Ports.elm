@@ -160,4 +160,6 @@ port updateParams : { key : String, value : Bool } -> Cmd a
 
 
 port setZoom : Int -> Cmd a
-port zoomChanged : (Int ->msg) -> Sub msg
+
+
+port zoomChanged : (Int -> msg) -> Sub msg

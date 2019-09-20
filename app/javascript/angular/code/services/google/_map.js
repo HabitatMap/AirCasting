@@ -31,7 +31,7 @@ export const map = (
   Map.prototype = {
     init: function(element, options) {
       this.mapObj = googleMaps.init(element, options);
-      onMapInit();
+      if (process.env.NODE_ENV !== "test") onMapInit();
       this.traceMarkers = $window.__traceMarkers;
       this.addListener("idle", this.saveViewport);
       googleMaps.addListenerOnce(this.mapObj, "idle", () =>
