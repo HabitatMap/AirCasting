@@ -21,7 +21,6 @@ import { DEFAULT_THEME } from "../javascript/constants";
 import { getParams, updateParam } from "../javascript/params";
 import { get } from "../javascript/http";
 import constants from "../javascript/constants";
-import { setupZoomSlider } from "../javascript/zoom";
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
@@ -114,7 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setupHeatMap();
     setupTooltips();
-    setupZoomSlider();
   });
 });
 

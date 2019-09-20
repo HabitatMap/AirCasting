@@ -123,7 +123,7 @@ defaultModel =
     , theme = Theme.default
     , status = Status.default
     , emailForm = EmailForm.defaultEmailForm
-    , zoomLevel = BoundedInteger.build (LowerBound 1) (UpperBound 20) (Value 10)
+    , zoomLevel = BoundedInteger.build (LowerBound 3) (UpperBound 22) (Value 5)
     }
 
 
@@ -300,6 +300,7 @@ type Msg
     | ToggleNavExpanded
     | ToggleTheme
     | ExecCmd (Cmd Msg)
+    | SaveZoomValue Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -353,14 +354,17 @@ update msg model =
                 )
             )
 
-        UpdateZoomLevel int ->
+        UpdateZoomLevel zoomLevel ->
             let
                 updatedInt =
-                    BoundedInteger.setValue int model.zoomLevel
+                    BoundedInteger.setValue zoomLevel model.zoomLevel
             in
             ( { model | zoomLevel = updatedInt }
             , Ports.setZoom (BoundedInteger.getValue updatedInt)
             )
+
+        SaveZoomValue zoomLevel ->
+            ({model| zoomLevel = BoundedInteger.setValue zoomLevel model.zoomLevel},Cmd.none)
 
         UpdateTimeRange value ->
             let
@@ -768,7 +772,7 @@ debounceZoomLevel updateBoundedInteger debouncable =
         newValue = updateBoundedInteger debouncable.zoomLevel
     in
     ( { debouncable | zoomLevel = newValue, debouncingCounter = newCounter }
-    , Process.sleep 1000 |> Task.perform (\_ -> DebounceTimeout newCounter Ports.setZoom (BoundedInteger.getValue newValue))
+    , Process.sleep 100 |> Task.perform (\_ -> DebounceTimeout newCounter Ports.setZoom (BoundedInteger.getValue newValue))
     )
 
 
@@ -1530,4 +1534,5 @@ subscriptions _ =
         , Ports.graphRangeSelected GraphRangeSelected
         , Ports.isShowingTimeRangeFilter UpdateIsShowingTimeRangeFilter
         , Ports.setScroll (always SetScrollPosition)
+        , Ports.zoomChanged SaveZoomValue
         ]
