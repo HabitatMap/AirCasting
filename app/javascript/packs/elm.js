@@ -248,8 +248,8 @@ const toExtremes = ({ threshold1, threshold5 }) => [threshold1, threshold5];
 const setupHorizontalWheelScroll = node => {
   const callback = event => {
     // The "wheel" event is triggered by both a mouse wheel and a trackpad.
-    // Only when `deltaX` is 0 the scroll is coming from a mouse wheel (or from trackpad that is scrolled perfectly in the horizontal line).
-    // if the trackpad is scrolled vertical or at an angle then deltaY !== 0
+    // Only when `deltaX` is 0 the scroll is coming from a mouse wheel (or from trackpad that is scrolled perfectly on the vertical axis).
+    // If the trackpad is scrolled vertically or at an angle then deltaY !== 0.
     if (Math.abs(event.deltaX) !== 0) return;
     event.preventDefault();
     const scrollBy = Math.sign(event.deltaY) * 180;
