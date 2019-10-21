@@ -45,9 +45,9 @@ cp config/database.yml.example config/database.yml
 cp config/configuration.yml.example config/configuration.yml
 # fill proper configuration in config/configuration.yml
 bundle install
+yarn install
 bin/rails db:create db:migrate
 bundle exec foreman start
-yarn install
 # visit http://localhost:3000
 ```
 
@@ -122,6 +122,28 @@ If you run into the error `ld: library not found for -l-lpthread` while installi
 If you run into errors while installing mysql2 with exit code 2 try installing from [this source](https://dev.mysql.com/downloads/mysql/5.7.html#downloads).
 
 If you run into problems with db:migrate related to passwords make sure that you change the root password to `''`. To do that open `/your/path/to/mysql -uroot -p` provide the temporary password you were given during installation, then execute `set password = password('');`.
+
+### Node
+If `yarn install` is failing for you and you see a something like the following, you may be using a version of node >= v12 with which the `elm-webpack-loader` isn't working https://github.com/elm-community/elm-webpack-loader/issues/170. Try using an older version of node, e.g. `v10.16.3`, should work.
+
+```
+error /Users/jul/Projects/AirCasting/node_modules/elm-webpack-loader/node_modules/elm: Command failed.
+Exit code: 1
+Command: binwrap-install
+Arguments: 
+Directory: /Users/jul/Projects/AirCasting/node_modules/elm-webpack-loader/node_modules/elm
+Output:
+fs.js:27
+const { Math, Object } = primordials;
+                         ^
+
+ReferenceError: primordials is not defined
+```
+
+### No sidekiq pid file / no `public/packs/manifest.js` file
+`No such file or directory @ rb_sysopen - /Users/username/Projects/AirCasting/tmp/pids/sidekiq.pid` - create folder `mkdir tmp/pids` and rerun `bundle exec foreman start`. 
+If you see an error that `public/packs/manifest.js` can't be found, this is a related error which should go away once the pid file is successfully created and the manifest file generated after that.
+
 
 ## Contribute
 
