@@ -44,7 +44,6 @@ config/rails_best_practices.yml
 /elm-stuff
 /node_modules
 /public/webpack
-yarn-error.log
 pids/
 .byebug_history
 repl-temp-*
@@ -53,14 +52,8 @@ build/
 /public/packs
 /public/packs-test
 yarn-debug.log*
+yarn-error.log
 .yarn-integrity
 
 .nyc_output/
 coverage/
-
-/public/packs
-/public/packs-test
-/node_modules
-/yarn-error.log
-yarn-debug.log*
-.yarn-integrity
