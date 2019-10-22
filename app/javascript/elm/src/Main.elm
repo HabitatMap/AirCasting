@@ -1050,10 +1050,10 @@ viewZoomSlider boundedInteger =
     in
     div [ class "zoom-slider-container" ]
         [ span
-            [ class "minus"
-            , Events.onClick (updateOnClick BoundedInteger.subOne)
+            [ class "zoom__plus"
+            , Events.onClick (updateOnClick BoundedInteger.addOne)
             ]
-            [ text "-" ]
+            [ text "+" ]
         , input
             [ class "zoom-slider"
             , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateZoomLevel)
@@ -1064,10 +1064,10 @@ viewZoomSlider boundedInteger =
             ]
             []
         , span
-            [ class "plus"
-            , Events.onClick (updateOnClick BoundedInteger.addOne)
+            [ class "zoom__minus"
+            , Events.onClick (updateOnClick BoundedInteger.subOne)
             ]
-            [ text "+" ]
+            [ text "-" ]
         ]
 
 
