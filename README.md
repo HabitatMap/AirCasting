@@ -37,7 +37,7 @@ brew install mysql@5.7
 rvm install 2.6.3
 rvm use 2.6.3
 gem install bundler
-git clone git://github.com/HabitatMap/AirCasting.git
+git clone git@github.com:HabitatMap/AirCasting.git
 cd aircasting
 cp config/database.yml.example config/database.yml
 # `socket:` in `config/database.yml` should be equal to the path from
