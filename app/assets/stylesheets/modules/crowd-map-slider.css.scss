@@ -138,10 +138,9 @@ input[type="range"]:focus::-ms-fill-upper {
 
 .zoom-slider-container {
   right: 1rem;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-78px);
   height: 156px;
+  position: absolute;
+  top: 6rem;
   width: 28px;
   z-index: 1;
 }
