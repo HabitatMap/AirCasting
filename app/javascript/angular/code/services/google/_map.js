@@ -7,7 +7,8 @@ import {
 } from "../../../../javascript/theme";
 import {
   setHasChangedProgrammatically,
-  getHasChangedProgrammatically
+  getHasChangedProgrammatically,
+  onMapInit
 } from "../../../../javascript/mapsUtils";
 
 export const map = (
@@ -30,6 +31,7 @@ export const map = (
   Map.prototype = {
     init: function(element, options) {
       this.mapObj = googleMaps.init(element, options);
+      if (process.env.NODE_ENV !== "test") onMapInit();
       this.traceMarkers = $window.__traceMarkers;
       this.addListener("idle", this.saveViewport);
       googleMaps.addListenerOnce(this.mapObj, "idle", () =>

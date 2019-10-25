@@ -17,6 +17,7 @@ port module Ports exposing
     , selectSensorId
     , selectSession
     , setScroll
+    , setZoom
     , showCopyLinkTooltip
     , tagSelected
     , timeRangeSelected
@@ -36,6 +37,7 @@ port module Ports exposing
     , updateResolution
     , updateSessions
     , updateTags
+    , zoomChanged
     )
 
 import Data.GraphData exposing (GraphData, GraphHeatData, GraphMeasurementsData, GraphTimeRange)
@@ -155,3 +157,9 @@ port updateGraphData : GraphMeasurementsData -> Cmd a
 
 
 port updateParams : { key : String, value : Bool } -> Cmd a
+
+
+port setZoom : Int -> Cmd a
+
+
+port zoomChanged : (Int -> msg) -> Sub msg

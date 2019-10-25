@@ -1,3 +1,5 @@
+import { setupZoomSlider } from "./zoom";
+
 let prevMapPosition = {};
 let hasChangedProgrammatically = false;
 
@@ -37,4 +39,10 @@ const getBounds = () => {
   } else {
     return {};
   }
+};
+
+export const onMapInit = () => {
+  google.maps.event.addListenerOnce(mapObj(), "idle", function() {
+    setupZoomSlider();
+  });
 };

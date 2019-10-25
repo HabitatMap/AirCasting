@@ -83,6 +83,7 @@ type alias Model =
     , theme : Theme
     , status : Status
     , emailForm : EmailForm.EmailForm
+    , zoomLevel : BoundedInteger
     }
 
 
@@ -122,6 +123,7 @@ defaultModel =
     , theme = Theme.default
     , status = Status.default
     , emailForm = EmailForm.defaultEmailForm
+    , zoomLevel = BoundedInteger.build (LowerBound 3) (UpperBound 22) (Value 5)
     }
 
 
@@ -251,6 +253,7 @@ type Msg
     | ProfileLabels LabelsInput.Msg
     | ToggleCrowdMap Bool
     | UpdateCrowdMapResolution Int
+    | UpdateZoomLevel Int
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
     | ShowCopyLinkTooltip String
@@ -296,6 +299,7 @@ type Msg
     | ToggleNavExpanded
     | ToggleTheme
     | ExecCmd (Cmd Msg)
+    | SaveZoomValue Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -348,6 +352,18 @@ update msg model =
                         updatedResolution
                 )
             )
+
+        UpdateZoomLevel zoomLevel ->
+            let
+                updatedInt =
+                    BoundedInteger.setValue zoomLevel model.zoomLevel
+            in
+            ( { model | zoomLevel = updatedInt }
+            , Ports.setZoom (BoundedInteger.getValue updatedInt)
+            )
+
+        SaveZoomValue zoomLevel ->
+            ( { model | zoomLevel = BoundedInteger.setValue zoomLevel model.zoomLevel }, Cmd.none )
 
         UpdateTimeRange value ->
             let
@@ -1005,6 +1021,7 @@ viewMap model =
         [ Overlay.view model.overlay
         , div [ class "map-container" ]
             [ viewSearchAsIMove model
+            , viewZoomSlider model.zoomLevel
             , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
                 []
             , lazy8 viewSessionsOrSelectedSession model.page model.selectedSession model.fetchableSessionsCount model.sessions model.heatMapThresholds model.linkIcon model.popup model.emailForm
@@ -1018,6 +1035,39 @@ viewMap model =
             model.themeIcons
             model.theme
             model.selectedSession
+        ]
+
+
+viewZoomSlider : BoundedInteger -> Html Msg
+viewZoomSlider boundedInteger =
+    let
+        updateOnClick : (BoundedInteger -> BoundedInteger) -> Msg
+        updateOnClick updateValue =
+            boundedInteger
+                |> updateValue
+                |> BoundedInteger.getValue
+                |> UpdateZoomLevel
+    in
+    div [ class "zoom-slider-container" ]
+        [ span
+            [ class "zoom__plus"
+            , Events.onClick (updateOnClick BoundedInteger.addOne)
+            ]
+            [ text "+" ]
+        , input
+            [ class "zoom-slider"
+            , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateZoomLevel)
+            , value (String.fromInt (BoundedInteger.getValue boundedInteger))
+            , max <| String.fromInt (BoundedInteger.getUpperBound boundedInteger)
+            , min <| String.fromInt (BoundedInteger.getLowerBound boundedInteger)
+            , type_ "range"
+            ]
+            []
+        , span
+            [ class "zoom__minus"
+            , Events.onClick (updateOnClick BoundedInteger.subOne)
+            ]
+            [ text "-" ]
         ]
 
 
@@ -1498,4 +1548,5 @@ subscriptions _ =
         , Ports.graphRangeSelected GraphRangeSelected
         , Ports.isShowingTimeRangeFilter UpdateIsShowingTimeRangeFilter
         , Ports.setScroll (always SetScrollPosition)
+        , Ports.zoomChanged SaveZoomValue
         ]

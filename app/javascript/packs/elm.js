@@ -112,7 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.__elmApp = Elm.Main.init({ flags });
 
     setupHeatMap();
-
     setupTooltips();
   });
 });
