@@ -2,7 +2,7 @@
 :verbose: false
 :pidfile: ./tmp/pids/sidekiq.pid
 :logfile: ./log/sidekiq.log
-:concurrency: 15
+:concurrency: 25
 :queues:
   - [critical, 8]
   - [default, 8]
@@ -10,6 +10,6 @@
 
 :schedule:
   session_stopped_alerts:
-    every: "30m"
+    every: '30m'
     class: SessionStoppedAlertsWorker
     queue: critical
