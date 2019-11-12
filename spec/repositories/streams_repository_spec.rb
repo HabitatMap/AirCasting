@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe StreamsRepository do
-  it '#calc_bounding_box! recalculates the bounding box and saves to database' do
+  it '#calculate_bounding_box! recalculates the bounding box and saves to database' do
     stream =
       create_stream!(
         { min_latitude: 1, max_latitude: 2, min_longitude: 3, max_longitude: 4 }
@@ -16,7 +16,10 @@ describe StreamsRepository do
       { min_latitude: 5, max_latitude: 6, min_longitude: 7, max_longitude: 8 }
     }
 
-    StreamsRepository.new.calc_bounding_box!(stream, calculate_bounding_box)
+    StreamsRepository.new.calculate_bounding_box!(
+      stream,
+      calculate_bounding_box
+    )
     actual = StreamsRepository.new.find(stream.id)
 
     expect(actual.min_latitude).to eq(5)
