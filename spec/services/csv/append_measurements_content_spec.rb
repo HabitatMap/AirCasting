@@ -141,6 +141,57 @@ describe Csv::AppendMeasurementsContent do
     expect(lines[-1]).to eq(expected_2)
   end
 
+  it 'with one stream and two measurements with the same timestamp and coordinates it ignores all but the first value' do
+    amount_of_streams = 1
+    session_title = 'Example Session'
+    sensor_name = 'AirBeam2-F'
+    milliseconds = 111
+    measurement_timestamp = "2018-08-20T14:13:51.#{milliseconds}"
+    latitude = BigDecimal('1.1')
+    longitude = BigDecimal('2.2')
+    measurement_value_1 = 77.0
+    measurement_value_2 = 76.0
+    measurement_time = Time.new(2_018, 8, 20, 14, 13, 51)
+
+    measurements = [
+      build_measurement(
+        'measurement_time' => measurement_time,
+        'measurement_milliseconds' => milliseconds,
+        'measurement_latitude' => latitude,
+        'measurement_longitude' => longitude,
+        'measurement_value' => measurement_value_1,
+        'stream_sensor_name' => sensor_name,
+        'session_title' => session_title
+      ),
+      build_measurement(
+        'measurement_time' => measurement_time,
+        'measurement_milliseconds' => milliseconds,
+        'measurement_latitude' => latitude,
+        'measurement_longitude' => longitude,
+        'measurement_value' => measurement_value_2,
+        'stream_sensor_name' => sensor_name,
+        'session_title' => session_title
+      )
+    ]
+
+    stream_parameters = build_stream_parameters('sensor_names' => [sensor_name])
+    data =
+      build_data(amount_of_streams, measurements, 'abc', 123, stream_parameters)
+    lines = []
+
+    result = @subject.call(lines, data)
+
+    expected = [
+      1,
+      session_title,
+      measurement_timestamp,
+      latitude,
+      longitude,
+      measurement_value_1
+    ]
+    expect(lines[-1]).to eq(expected)
+  end
+
   it 'with two streams appends the headers for two stream' do
     amount_of_streams = 2
     data =
