@@ -6,6 +6,18 @@
   animation: #{$str};
 }
 
+@mixin button-color($text-color, $border-color, $bg-color, $bg-color-hover) {
+  background: $bg-color;
+  border-color: $border-color;
+  color: $text-color;
+
+  &:hover,
+  &:focus {
+    background: $bg-color-hover;
+    color: $bg-color;
+  }
+}
+
 @mixin clearfix {
   clear: both;
   display: block;
