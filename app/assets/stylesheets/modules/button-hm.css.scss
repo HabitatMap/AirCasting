@@ -1,0 +1,16 @@
+$button-font-size: 1.1rem;
+
+.hm-button {
+  border-width: 1px;
+  border-style: solid;
+  display: inline-block;
+  font-family: $bold-font;
+  font-size: $button-font-size;
+  height: 50px;
+  padding: 0.8rem 1.2rem;
+  text-align: center;
+}
+
+.hm-button--small {
+  height: 43px;
+}
