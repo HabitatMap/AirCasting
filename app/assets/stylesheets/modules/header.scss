@@ -247,3 +247,124 @@ $header-z-index: 999;
   margin: 0;
   padding: 0;
 }
+
+// Brand logo
+
+.logo--hm {
+  width: 8rem;
+  display: none;
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: block;
+  }
+}
+
+.logo--hm-monogram {
+  width: 1.3rem;
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: none;
+  }
+}
+
+// APPLY AC THEME
+
+$header-link-color-ac: $blue;
+$header-link-color-white: $white;
+
+.logo--hm,
+.logo--hm-monogram,
+.icon-search {
+  fill: #00b2ef;
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      fill: $white !important;
+    }
+  }
+}
+
+// Header background themes
+
+.header {
+  background-color: $white;
+
+  @media screen and (max-width: $tablet-max) {
+    &.header--nav-expanded,
+    .header--nav-expanded & {
+      background-color: $gray;
+    }
+  }
+}
+
+// Main navigation links themes
+
+.nav-list__link {
+  color: $header-link-color-ac;
+
+  &[data-current="current page"] {
+    opacity: 0.5;
+  }
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      color: $white !important;
+    }
+  }
+}
+
+.nav-list__link--search {
+  line-height: 1;
+}
+
+// Subnavigation links themes
+
+.subnav-list__link {
+  background-color: $blue;
+  color: $white;
+
+  &:hover,
+  &:focus {
+    color: rgba($white, 0.5);
+  }
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      background: none;
+      color: $white;
+
+      &:hover,
+      &:focus {
+        color: rgba($white, 0.5);
+      }
+    }
+  }
+}
+
+// Header Button themes
+
+.header__button {
+  @include button-color(
+    $header-link-color-ac,
+    $header-link-color-ac,
+    $white,
+    $header-link-color-ac
+  );
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      @include button-color(
+        $header-link-color-white,
+        $header-link-color-white,
+        $gray,
+        $header-link-color-white
+      );
+    }
+  }
+}
+
+// Icon for mobile nav themes
+
+.icon-nav-open {
+  stroke: $blue;
+}
