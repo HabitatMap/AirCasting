@@ -1126,7 +1126,7 @@ viewNav navLogo isNavExpanded sensors selectedSensorId page =
                     ]
                 , a [ class "nav-list__link nav-list__link--donate u--capitalized", href "/donate" ]
                     [ text "Donate" ]
-                , a [ class "button button--small header__button", href "/airbeam/buy-it-now" ]
+                , a [ class "hm-button button--small header__button", href "/airbeam/buy-it-now" ]
                     [ text "Get Airbeam" ]
                 ]
             ]
