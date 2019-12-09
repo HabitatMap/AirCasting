@@ -908,7 +908,7 @@ viewDocument model =
 view2 : Model -> Html Msg
 view2 model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ lazy5 viewNav2 model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
+        [ lazy5 viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
         , viewMain model
         ]
 
