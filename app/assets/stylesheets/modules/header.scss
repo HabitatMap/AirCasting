@@ -1,0 +1,249 @@
+$header-font-size-desktop: 1.125rem;
+$header-z-index: 999;
+
+.header {
+  @include transition(all 0.5s ease);
+  font-family: $bold-font;
+  font-size: $base-font-size2;
+  padding: 2rem 0 0.9rem;
+  //   position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: $header-z-index;
+
+  &.sticky {
+    padding: 1rem 0 0.5rem;
+  }
+
+  @media screen and (max-width: $tablet-max) {
+    height: 6.5rem;
+
+    &.header--nav-expanded {
+      height: 100%;
+      overflow-y: auto;
+      position: fixed;
+      width: 100%;
+    }
+  }
+
+  @media screen and (min-width: $small-desktop-min) {
+    @include flexbox;
+    @include justify-content(space-between);
+    font-size: $header-font-size-desktop;
+    height: auto;
+  }
+}
+
+.header__brand {
+  height: 3.5rem;
+  @media screen and (max-width: $small-desktop-max) {
+    @include flexbox;
+    @include justify-content(space-between);
+    @include align-items(center);
+    padding-right: $u-space-small;
+  }
+}
+
+.header__logo {
+  padding-left: $u-space-small;
+  margin-right: $u-space-small;
+  min-width: 10.3rem;
+
+  @media screen and (min-width: $desktop-min) {
+    height: 3.75rem;
+  }
+
+  @media screen and (min-width: $desktop-min) {
+    margin-right: 0;
+    padding-left: $u-space-default;
+    width: 15vw;
+  }
+
+  @media screen and (min-width: $large-desktop-min) {
+    width: 21vw;
+  }
+}
+
+.icon-nav-open {
+  .header--nav-expanded & {
+    display: none;
+  }
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: none;
+  }
+}
+
+.icon-nav-close {
+  display: none;
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      display: block;
+    }
+  }
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: none;
+  }
+}
+
+.nav {
+  padding: 0 $u-space-small;
+  display: none;
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      @include animation("slide-down 1s ease 1");
+      display: block;
+      margin-top: $u-space-default;
+    }
+  }
+
+  @media screen and (min-width: $small-desktop-min) {
+    @include flexbox;
+    @include justify-content(space-between);
+    @include align-items(center);
+    @include flex(1);
+    padding: 0;
+    padding-right: $u-space-small;
+  }
+
+  @media screen and (min-width: $desktop-min) {
+    padding-right: $u-space-default;
+  }
+}
+
+.nav-main {
+  @include flex(0 1 40rem);
+}
+
+.nav-sub {
+  @include flexbox;
+  @include justify-content(space-between);
+  @include align-items(center);
+  @include flex(0 0 17rem);
+  border-top: 1px solid $white;
+  padding-top: $u-space-small;
+  position: relative;
+
+  @media screen and (min-width: $small-desktop-min) {
+    padding: 0;
+    margin-left: $u-space-small;
+    border: none;
+  }
+}
+
+.nav-list {
+  @media screen and (min-width: $small-desktop-min) {
+    @include flexbox;
+    @include justify-content(space-between);
+  }
+}
+
+.nav-list__link {
+  display: block;
+  padding: $u-space-tiny 0;
+
+  &.nav-list__link--donate {
+    border: none;
+    display: inline-block;
+  }
+
+  &:hover,
+  &:focus {
+    opacity: 0.5;
+  }
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: inline-block;
+    padding: $u-space-tiny;
+    vertical-align: middle;
+  }
+}
+
+.subnav-list {
+  @include transition(all 0.25s ease);
+  min-width: 14rem;
+  z-index: $header-z-index; // needed in AC
+
+  @media screen and (max-width: $tablet-max) {
+    padding: 0.5rem 0 1rem;
+  }
+
+  @media screen and (min-width: $small-desktop-min) {
+    opacity: 0;
+    left: 0;
+    padding: 0.5rem 0 0;
+    position: absolute;
+    pointer-events: none;
+    top: 100%;
+  }
+}
+
+.nav-list__element {
+  position: relative;
+
+  &:hover {
+    .subnav-list {
+      @media screen and (min-width: $small-desktop-min) {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+  }
+
+  @media screen and (max-width: $tablet-max) {
+    border-top: 1px solid $white;
+  }
+}
+
+.subnav-list__element {
+  margin-bottom: 4px;
+
+  @media screen and (min-width: $small-desktop-min) {
+    max-width: 0px;
+    overflow: hidden;
+
+    .nav-list__element:hover & {
+      @include transition(max-width 0.5s ease-in-out);
+      max-width: 10rem;
+
+      @for $i from 2 through 6 {
+        &:nth-child(#{$i}) {
+          transition-delay: 150ms * $i;
+        }
+      }
+    }
+  }
+}
+
+.subnav-list__link {
+  display: inline-block;
+  padding: 0.5rem;
+  white-space: nowrap;
+
+  @media screen and (max-width: $tablet-max) {
+    font-size: $base-font-size1;
+    padding: 0.25rem 0;
+  }
+}
+
+.header__button {
+  font-size: $base-font-size-2;
+  margin-left: $u-space-small;
+  text-transform: uppercase;
+}
+
+.header__nav-toggle-button {
+  @include appearance(none);
+  background: none;
+}
+
+// Basic config for list required for the header to work in AC
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
