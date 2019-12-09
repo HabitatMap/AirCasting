@@ -884,8 +884,8 @@ setScrollPosition value =
 ---- VIEW ----
 
 
-viewDocument : Model -> Browser.Document Msg
-viewDocument model =
+viewDocument2 : Model -> Browser.Document Msg
+viewDocument2 model =
     { title = "AirCasting"
     , body =
         [ snippetGoogleTagManager
@@ -894,11 +894,29 @@ viewDocument model =
     }
 
 
+viewDocument : Model -> Browser.Document Msg
+viewDocument model =
+    { title = "AirCasting"
+    , body =
+        [ snippetGoogleTagManager
+        , lazy5 viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
+        , view model
+        ]
+    }
+
+
+view2 : Model -> Html Msg
+view2 model =
+    div [ id "elm-app", class (Theme.toString model.theme) ]
+        [ lazy5 viewNav2 model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
+        , viewMain model
+        ]
+
+
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ lazy5 viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
-        , viewMain model
+        [ viewMain model
         ]
 
 
@@ -917,6 +935,206 @@ snippetGoogleTagManager =
 
 viewNav : Path -> Bool -> List Sensor -> String -> Page -> Html Msg
 viewNav navLogo isNavExpanded sensors selectedSensorId page =
+    header [ class "header", id "js-header" ]
+        [ div [ class "header__brand" ]
+            [ div [ class "logo header__logo" ]
+                [ a [ href "/" ]
+                    [ Html.node "svg"
+                        [ class "logo--hm", attribute "enable-background" "new 0 0 130 56", attribute "viewbox" "0 0 130 56", attribute "xmlns" "http://www.w3.org/2000/svg", attribute "xmlns:xlink" "http://www.w3.org/1999/xlink" ]
+                        [ node "mask"
+                            [ attribute "height" "21", id "a", attribute "maskUnits" "userSpaceOnUse", attribute "width" "4.5", attribute "x" "86.3", attribute "y" ".4" ]
+                            [ Html.node "path"
+                                [ attribute "clip-rule" "evenodd", attribute "d" "m0 55.1h129.9v-54.7h-129.9z", attribute "fill" "#fff", attribute "fill-rule" "evenodd" ]
+                                []
+                            ]
+                        , node "mask"
+                            [ attribute "height" "18.8", id "b", attribute "maskUnits" "userSpaceOnUse", attribute "width" "10.6", attribute "x" "92.5", attribute "y" "2.8" ]
+                            [ Html.node "path"
+                                [ attribute "clip-rule" "evenodd", attribute "d" "m0 55.1h129.9v-54.7h-129.9z", attribute "fill" "#fff", attribute "fill-rule" "evenodd" ]
+                                []
+                            ]
+                        , node "mask"
+                            [ attribute "height" "15.2", id "c", attribute "maskUnits" "userSpaceOnUse", attribute "width" "14.4", attribute "x" "104.5", attribute "y" "6.5" ]
+                            [ Html.node "path"
+                                [ attribute "clip-rule" "evenodd", attribute "d" "m0 55.1h129.9v-54.7h-129.9z", attribute "fill" "#fff", attribute "fill-rule" "evenodd" ]
+                                []
+                            ]
+                        , node "mask"
+                            [ attribute "height" "18.8", id "d", attribute "maskUnits" "userSpaceOnUse", attribute "width" "10.6", attribute "x" "119.3", attribute "y" "2.8" ]
+                            [ Html.node "path"
+                                [ attribute "clip-rule" "evenodd", attribute "d" "m0 55.1h129.9v-54.7h-129.9z", attribute "fill" "#fff", attribute "fill-rule" "evenodd" ]
+                                []
+                            ]
+                        , node "mask"
+                            [ attribute "height" "20.4", id "e", attribute "maskUnits" "userSpaceOnUse", attribute "width" "21.9", attribute "x" "33.7", attribute "y" "28.9" ]
+                            [ Html.node "path"
+                                [ attribute "clip-rule" "evenodd", attribute "d" "m0 55.1h129.9v-54.7h-129.9z", attribute "fill" "#fff", attribute "fill-rule" "evenodd" ]
+                                []
+                            ]
+                        , node "mask"
+                            [ attribute "height" "15.2", id "f", attribute "maskUnits" "userSpaceOnUse", attribute "width" "14.4", attribute "x" "58.5", attribute "y" "34.4" ]
+                            [ Html.node "path"
+                                [ attribute "clip-rule" "evenodd", attribute "d" "m0 55.1h129.9v-54.7h-129.9z", attribute "fill" "#fff", attribute "fill-rule" "evenodd" ]
+                                []
+                            ]
+                        , node "mask"
+                            [ attribute "height" "20.7", id "g", attribute "maskUnits" "userSpaceOnUse", attribute "width" "14.7", attribute "x" "75", attribute "y" "34.4" ]
+                            [ Html.node "path"
+                                [ attribute "clip-rule" "evenodd", attribute "d" "m0 55.1h129.9v-54.7h-129.9z", attribute "fill" "#fff", attribute "fill-rule" "evenodd" ]
+                                []
+                            ]
+                        , node "mask"
+                            [ attribute "height" "29.8", id "h", attribute "maskUnits" "userSpaceOnUse", attribute "width" "20.5", attribute "x" "0", attribute "y" "19.4" ]
+                            [ Html.node "path"
+                                [ attribute "clip-rule" "evenodd", attribute "d" "m0 55.1h129.9v-54.7h-129.9z", attribute "fill" "#fff", attribute "fill-rule" "evenodd" ]
+                                []
+                            ]
+                        , Html.node "g"
+                            [ attribute "clip-rule" "evenodd", attribute "fill-rule" "evenodd" ]
+                            [ Html.node "path"
+                                [ attribute "d" "m49 1v20h-3.5v-8.4h-7.9v8.4h-3.6v-20h3.5v8.2h7.9v-8.2z" ]
+                                []
+                            , Html.node "path"
+                                [ attribute "d" "m62.1 15.1-3.2.3c-1.3.1-2.3.7-2.3 1.8 0 1.2.9 1.6 2.1 1.6 1.6 0 3.5-.8 3.5-3.1v-.6zm5.1 3.5v2.8h-1.6c-1.4 0-2.4-.4-2.9-1.7-1 1.3-2.5 2-4.8 2-2.9 0-5.1-1.4-5.1-4.3 0-2.8 2.1-4.2 4.8-4.4l4.5-.5v-.6c0-1.6-1-2.4-2.4-2.4-1.6 0-2.4.9-2.6 2.2h-3.7c.3-3 2.6-5.2 6.3-5.2 3.4 0 6.1 1.7 6.1 5.6v5.3c0 .8.3 1.1 1 1.1z" ]
+                                []
+                            , Html.node "path"
+                                [ attribute "d" "m80.3 14.1c0-2.6-1.5-4.3-3.7-4.3s-3.6 1.7-3.6 4.3 1.4 4.4 3.6 4.4c2.2-.1 3.7-1.8 3.7-4.4m3.7 0c0 4.6-2.9 7.6-6.8 7.6-2.3 0-3.6-1.1-4.3-2h-.3l-.3 1.7h-3v-20.7h3.7v7.5c.8-.9 2.2-1.7 4.2-1.7 3.8 0 6.8 2.8 6.8 7.6" ]
+                                []
+                            , Html.node "path"
+                                [ attribute "d" "m86.8 21.4h3.7v-14.6h-3.7zm-.5-18.7c0-1.3 1.1-2.3 2.3-2.3s2.2 1 2.2 2.3c0 1.2-1 2.2-2.2 2.2s-2.3-1-2.3-2.2z", attribute "mask" "url(#a)" ]
+                                []
+                            , Html.node "path"
+                                [ attribute "d" "m95.6 17.4v-7.6h-3.1v-3h1c1.8 0 2.5-.6 2.5-2.2v-1.8h3.4v4h3.8v2.9h-3.8v7.2c0 .8.2 1.8 1.9 1.8.4 0 1-.1 1.4-.2v2.8c-.6.1-1.5.3-2.5.3-4.1.1-4.6-2.6-4.6-4.2", attribute "mask" "url(#b)" ]
+                                []
+                            , Html.node "path"
+                                [ attribute "d" "m113.8 15.1-3.2.3c-1.3.1-2.3.7-2.3 1.8 0 1.2.9 1.6 2.1 1.6 1.6 0 3.5-.8 3.5-3.1v-.6zm5.1 3.5v2.8h-1.6c-1.4 0-2.4-.4-2.9-1.7-1 1.3-2.5 2-4.8 2-2.9 0-5.1-1.4-5.1-4.3 0-2.8 2.1-4.2 4.8-4.4l4.5-.5v-.6c0-1.6-1-2.4-2.4-2.4-1.6 0-2.4.9-2.6 2.2h-3.7c.3-3 2.6-5.2 6.3-5.2 3.4 0 6.1 1.7 6.1 5.6v5.3c0 .8.3 1.1 1 1.1z", attribute "mask" "url(#c)" ]
+                                []
+                            , Html.node "path"
+                                [ attribute "d" "m122.4 17.4v-7.6h-3.1v-3h1c1.8 0 2.5-.6 2.5-2.2v-1.8h3.4v4h3.8v2.9h-3.8v7.2c0 .8.2 1.8 1.9 1.8.4 0 1-.1 1.4-.2v2.8c-.6.1-1.5.3-2.5.3-4.1.1-4.6-2.6-4.6-4.2", attribute "mask" "url(#d)" ]
+                                []
+                            , Html.node "path"
+                                [ attribute "d" "m55.6 49.3h-3.7v-13.6h-.2l-5 11.2h-3.8l-5.1-11.2h-.2v13.6h-3.7v-20.4h4.7l6.2 14h.2l6.1-14h4.7z", attribute "mask" "url(#e)" ]
+                                []
+                            , Html.node "path"
+                                [ attribute "d" "m67.8 42.9-3.2.3c-1.3.1-2.3.7-2.3 1.8 0 1.2.9 1.6 2.1 1.6 1.6 0 3.5-.8 3.5-3.1v-.6zm5.1 3.6v2.8h-1.6c-1.4 0-2.4-.4-2.9-1.7-1 1.3-2.5 2-4.8 2-2.9 0-5.1-1.4-5.1-4.3 0-2.8 2.1-4.2 4.8-4.4l4.5-.5v-.6c0-1.6-1-2.4-2.4-2.4-1.6 0-2.4.9-2.6 2.2h-3.7c.3-3 2.6-5.2 6.3-5.2 3.4 0 6.1 1.7 6.1 5.6v5.3c0 .8.3 1.1 1 1.1z", attribute "mask" "url(#f)" ]
+                                []
+                            , Html.node "path"
+                                [ attribute "d" "m86 42c0-2.6-1.5-4.4-3.7-4.4s-3.6 1.7-3.6 4.4c0 2.6 1.4 4.3 3.6 4.3s3.7-1.7 3.7-4.3m3.7 0c0 4.8-3 7.5-6.8 7.5-2 0-3.4-.8-4.2-1.7v7.2h-3.7v-20.3h3l.3 1.7h.3c.7-.9 2.1-2 4.3-2 3.9 0 6.8 3 6.8 7.6", attribute "mask" "url(#g)" ]
+                                []
+                            , Html.node "path"
+                                [ attribute "d" "m12.3 27.8c-3.1 0-4.9 1.3-6.1 2.9h-.3v-11.3h-5.9v29.8h5.9 4.8l-4.1-7.5c-.5-.8-.7-1.7-.7-2.7 0-2.7 2.2-4.9 4.9-4.9s4.9 2.2 4.9 4.9c0 1-.3 1.9-.8 2.7l-4.1 7.5h4.4 5.3v-12.8c0-5.5-3.2-8.6-8.2-8.6", attribute "mask" "url(#h)" ]
+                                []
+                            ]
+                        ]
+                    , Html.node "svg"
+                        [ class "logo--hm-monogram", attribute "enable-background" "new 0 0 21 31", attribute "viewbox" "0 0 21 31", attribute "xmlns" "http://www.w3.org/2000/svg" ]
+                        [ Html.node "path"
+                            [ attribute "clip-rule" "evenodd", attribute "d" "m12.3 8.8c-3.1 0-4.9 1.3-6.1 2.9h-.3v-11.3h-5.9v29.8h5.9 4.8l-4.1-7.5c-.5-.8-.7-1.7-.7-2.7 0-2.7 2.2-4.9 4.9-4.9s4.9 2.2 4.9 4.9c0 1-.3 1.9-.8 2.7l-4.1 7.5h4.4 5.3v-12.8c0-5.5-3.2-8.6-8.2-8.6", attribute "fill-rule" "evenodd" ]
+                            []
+                        ]
+                    ]
+                ]
+            , button [ class "header__nav-toggle-button js--toggle-nav" ]
+                [ Html.node "svg"
+                    [ class "icon-nav-open", attribute "height" "21", attribute "viewbox" "0 0 25 21", attribute "width" "25", attribute "xmlns" "http://www.w3.org/2000/svg" ]
+                    [ Html.node "g"
+                        [ attribute "fill" "none", attribute "fill-rule" "evenodd", attribute "stroke-linecap" "square", attribute "stroke-width" "2", attribute "transform" "translate(1)" ]
+                        [ Html.node "path"
+                            [ attribute "d" "m23 1h-22.73035714" ]
+                            []
+                        , Html.node "path"
+                            [ attribute "d" "m23 10.5h-22.73035714" ]
+                            []
+                        , Html.node "path"
+                            [ attribute "d" "m23 20h-22.73035714" ]
+                            []
+                        ]
+                    ]
+                , Html.node "svg"
+                    [ class "icon-nav-close", attribute "height" "20", attribute "viewbox" "0 0 20 20", attribute "width" "20", attribute "xmlns" "http://www.w3.org/2000/svg" ]
+                    [ Html.node "g"
+                        [ attribute "fill" "none", attribute "fill-rule" "evenodd", attribute "stroke" "#fff", attribute "stroke-linecap" "square", attribute "stroke-width" "2", attribute "transform" "translate(.865179 1)" ]
+                        [ Html.node "path"
+                            [ attribute "d" "m21 9h-22.73035714", attribute "transform" "matrix(-.70710678 .70710678 -.70710678 -.70710678 22.581475 8.646447)" ]
+                            []
+                        , Html.node "path"
+                            [ attribute "d" "m21.1348214 8.5h-22.73035711", attribute "transform" "matrix(.70710678 .70710678 -.70710678 .70710678 8.832381 -4.323255)" ]
+                            []
+                        ]
+                    ]
+                ]
+            ]
+        , nav [ class "nav" ]
+            [ div [ class "nav-main" ]
+                [ ul [ class "nav-list" ]
+                    [ li [ class "nav-list__element" ]
+                        [ a [ class "nav-list__link", href "/airbeam" ]
+                            [ text "AirBeam" ]
+                        , ul [ class "subnav-list" ]
+                            [ li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href "/airbeam/how-it-works" ]
+                                    [ text "How it Works" ]
+                                ]
+                            , li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href "/airbeam/FAQ" ]
+                                    [ text "FAQ" ]
+                                ]
+                            , li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href "/airbeam/users-guide" ]
+                                    [ text "User's Guide" ]
+                                ]
+                            , li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href "/airbeam/buy-it-now" ]
+                                    [ text "Buy it Now" ]
+                                ]
+                            ]
+                        ]
+                    , li [ class "nav-list__element" ]
+                        [ a [ class "nav-list__link", attribute "data-current" "current page", href "/aircasting" ]
+                            [ text "AirCasting" ]
+                        , ul [ class "subnav-list" ]
+                            [ li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href "https://play.google.com/store/apps/details?id=pl.llp.aircasting&hl=en_US" ]
+                                    [ text "Aircasting App" ]
+                                ]
+                            ]
+                        ]
+                    , li [ class "nav-list__element" ]
+                        [ a [ class "nav-list__link", href "/about" ]
+                            [ text "About Habitatmap" ]
+                        , ul [ class "subnav-list" ]
+                            [ li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href "/about/history" ]
+                                    [ text "History & People" ]
+                                ]
+                            ]
+                        ]
+                    , li [ class "nav-list__element" ]
+                        [ a [ class "nav-list__link", href "/blog" ]
+                            [ text "TakingSpace Blog" ]
+                        ]
+                    ]
+                ]
+            , div [ class "nav-sub" ]
+                [ a [ class "nav-list__link nav-list__link--search", href "/search" ]
+                    [ Html.node "svg"
+                        [ class "js--search-open icon-search", attribute "height" "38", attribute "viewbox" "0 0 35 38", attribute "width" "35", attribute "xmlns" "http://www.w3.org/2000/svg" ]
+                        [ Html.node "path"
+                            [ attribute "d" "m18.7141827 21.4071377-15.7141827 15.7141826-2.12132034-2.1213203 15.29482644-15.2948264c-2.2543839-2.0143638-3.6735061-4.9440418-3.6735061-8.2051736 0-6.07513225 4.9248678-11 11-11s11 4.92486775 11 11c0 6.0751322-4.9248678 11-11 11-1.7152911 0-3.3388837-.3926076-4.7858173-1.0928623zm4.7858173-1.9071377c4.418278 0 8-3.581722 8-8s-3.581722-8-8-8-8 3.581722-8 8 3.581722 8 8 8z" ]
+                            []
+                        ]
+                    ]
+                , a [ class "nav-list__link nav-list__link--donate u--capitalized", href "/donate" ]
+                    [ text "Donate" ]
+                , a [ class "button button--small header__button", href "/airbeam/buy-it-now" ]
+                    [ text "Get Airbeam" ]
+                ]
+            ]
+        ]
+
+
+viewNav2 : Path -> Bool -> List Sensor -> String -> Page -> Html Msg
+viewNav2 navLogo isNavExpanded sensors selectedSensorId page =
     header
         [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
         ]
