@@ -30,6 +30,17 @@ if (!Object.values) {
   Object.values = obj => Object.keys(obj).map(key => obj[key]);
 }
 
+createObserver({
+  selector: ".js--toggle-nav",
+  onMount: () => {
+    const menuToggleButton = document.querySelector(".js--toggle-nav");
+    menuToggleButton.addEventListener("click", () => {
+      const header = document.querySelector(".header");
+      header.classList.toggle("header--nav-expanded");
+    });
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   const session_type =
     window.location.pathname === constants.fixedMapRoute
