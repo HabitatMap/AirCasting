@@ -944,10 +944,33 @@ viewNav navLogo isNavExpanded sensors selectedSensorId page =
                     , Svgs.logoMonogram
                     ]
                 ]
+            , div
+                [ class "filters-info u--show-on-mobile"
+                , Events.onClick ToggleFiltersExpanded
+                ]
+                [ p
+                    [ class "filters-info__session-type" ]
+                    [ text (Page.toString page)
+                    , text " sessions"
+                    ]
+                , p []
+                    [ text (Sensor.parameterForId sensors selectedSensorId)
+                    , text " - "
+                    , text (Sensor.sensorLabelForId sensors selectedSensorId)
+                    ]
+                ]
             , button [ class "header__nav-toggle-button js--toggle-nav" ]
                 [ Svgs.navOpen
                 , Svgs.navClose
                 ]
+            , button
+                [ class "nav__menu-button nav__menu-button--filter"
+                , title "Filters"
+                , type_ "button"
+                , ariaLabel "Filters"
+                , Events.onClick ToggleFiltersExpanded
+                ]
+                []
             ]
         , nav [ class "nav" ]
             [ div [ class "nav-main" ]
