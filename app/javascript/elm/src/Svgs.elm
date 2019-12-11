@@ -1,4 +1,4 @@
-module Svgs exposing (..)
+module Svgs exposing (logo, logoMonogram, navClose, navOpen, search)
 
 import Svg
 import Svg.Attributes exposing (..)
