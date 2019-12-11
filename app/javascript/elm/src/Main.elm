@@ -1029,6 +1029,8 @@ viewNav navLogo isNavExpanded sensors selectedSensorId page =
                     ]
                 , a [ class "nav-list__link nav-list__link--donate u--capitalized", href "/donate" ]
                     [ text "Donate" ]
+                , a [ class "nav-list__link nav-list__link--donate u--capitalized", href "https://play.google.com/store/apps/details?id=pl.llp.aircasting&hl=en_US", target "_blank" ]
+                    [ text "Download app" ]
                 , a [ class "hm-button button--small header__button", href "/airbeam/buy-it-now" ]
                     [ text "Get Airbeam" ]
                 ]
