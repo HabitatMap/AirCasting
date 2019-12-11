@@ -1,9 +1,13 @@
 .filters-info {
-  color: $dark-blue;
+  color: $blue;
   line-height: 1.1;
   padding: 9px;
   position: absolute;
   left: 50px;
+
+  .header--nav-expanded & {
+    color: $white;
+  }
 }
 
 .filters-info__session-type {
