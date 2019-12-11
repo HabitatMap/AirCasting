@@ -108,6 +108,11 @@ $header-z-index: 999;
   }
 }
 
+.nav__menu-button--filter {
+  background: url("../../images/icons/filter-icon.svg") center / auto no-repeat;
+  right: 0;
+}
+
 .nav {
   padding: 0 $u-space-small;
   display: none;
