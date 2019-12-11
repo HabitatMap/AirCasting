@@ -106,7 +106,7 @@ logoMonogram =
 navOpen =
     Svg.svg
         [ class "icon-nav-open", height "21", viewBox "0 0 25 21", width "25" ]
-        [ Svg.node "path"
+        [ Svg.g
             [ fill "none", fillRule "evenodd", strokeLinecap "square", strokeWidth "2", transform "translate(1)" ]
             [ Svg.node "path"
                 [ d "m23 1h-22.73035714" ]
@@ -124,7 +124,7 @@ navOpen =
 navClose =
     Svg.svg
         [ class "icon-nav-close", height "20", viewBox "0 0 20 20", width "20" ]
-        [ Svg.node "path"
+        [ Svg.g
             [ fill "none", fillRule "evenodd", stroke "#fff", strokeLinecap "square", strokeWidth "2", transform "translate(.865179 1)" ]
             [ Svg.node "path"
                 [ d "m21 9h-22.73035714", transform "matrix(-.70710678 .70710678 -.70710678 -.70710678 22.581475 8.646447)" ]
