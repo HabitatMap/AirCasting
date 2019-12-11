@@ -88,6 +88,24 @@ $header-z-index: 999;
   }
 }
 
+.nav__menu-button {
+  @include appearance(none);
+  border: none;
+  cursor: pointer;
+  background: none;
+  display: block;
+  height: 50px;
+  outline: none;
+  position: absolute;
+  top: 0;
+  text-decoration: none;
+  width: 50px;
+
+  @media screen and (min-width: $ipad-portrait) {
+    display: none;
+  }
+}
+
 .nav {
   padding: 0 $u-space-small;
   display: none;
@@ -238,6 +256,11 @@ $header-z-index: 999;
 .header__nav-toggle-button {
   @include appearance(none);
   background: none;
+  border: 0;
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: none;
+  }
 }
 
 // Basic config for list required for the header to work in AC
