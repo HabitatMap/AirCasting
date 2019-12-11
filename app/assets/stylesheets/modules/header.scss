@@ -357,7 +357,7 @@ $header-link-color-white: $white;
   }
 }
 
-// Header background themes
+// Header background
 
 .header {
   background-color: $white;
@@ -370,7 +370,7 @@ $header-link-color-white: $white;
   }
 }
 
-// Main navigation links themes
+// Main navigation links
 
 .nav-list__link {
   color: $header-link-color-ac;
@@ -390,7 +390,7 @@ $header-link-color-white: $white;
   line-height: 1;
 }
 
-// Subnavigation links themes
+// Subnavigation links
 
 .subnav-list__link {
   background-color: $blue;
@@ -414,7 +414,7 @@ $header-link-color-white: $white;
   }
 }
 
-// Header Button themes
+// Header button
 
 .header__button {
   @include button-color(
@@ -436,7 +436,7 @@ $header-link-color-white: $white;
   }
 }
 
-// Icon for mobile nav themes
+// Hamburger icon
 
 .icon-nav-open {
   stroke: $blue;
