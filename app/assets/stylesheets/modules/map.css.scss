@@ -1,4 +1,7 @@
 .maps-page-container {
+  overflow: hidden;
+  position: relative;
+
   @media screen and (min-width: $ipad-portrait) {
     @include flexbox();
     @include justify-content(space-between);
