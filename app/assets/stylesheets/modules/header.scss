@@ -271,6 +271,16 @@ $header-z-index: 999;
   padding: 0;
 }
 
+.subnav-list {
+  list-style: none;
+  padding: 0.5rem 0 1rem;
+}
+
+.subnav-list__element {
+  margin-bottom: 4px;
+  padding: 0;
+}
+
 // Brand logo
 
 .logo--hm {
