@@ -940,9 +940,11 @@ viewNav navLogo isNavExpanded sensors selectedSensorId page =
         [ div [ class "header__brand" ]
             [ div [ class "logo header__logo" ]
                 [ a [ href "/" ]
-                    [ Svgs.logo
-                    , Svgs.logoMonogram
-                    ]
+                    [ Svgs.logo ]
+                ]
+            , button [ class "header__toggle-button js--toggle-nav" ]
+                [ Svgs.navOpen
+                , Svgs.navClose
                 ]
             , div
                 [ class "filters-info u--show-on-mobile"
@@ -959,12 +961,8 @@ viewNav navLogo isNavExpanded sensors selectedSensorId page =
                     , text (Sensor.sensorLabelForId sensors selectedSensorId)
                     ]
                 ]
-            , button [ class "header__nav-toggle-button js--toggle-nav" ]
-                [ Svgs.navOpen
-                , Svgs.navClose
-                ]
             , button
-                [ class "nav__menu-button nav__menu-button--filter"
+                [ class "header__filter-button"
                 , title "Filters"
                 , type_ "button"
                 , ariaLabel "Filters"

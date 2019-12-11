@@ -6,7 +6,6 @@ $header-z-index: 999;
   font-family: $bold-font;
   font-size: $base-font-size2;
   padding: 2rem 0 0.9rem;
-  //   position: fixed;
   top: 0;
   width: 100%;
   z-index: $header-z-index;
@@ -16,7 +15,7 @@ $header-z-index: 999;
   }
 
   @media screen and (max-width: $tablet-max) {
-    height: 6.5rem;
+    padding: 0.5rem 0;
 
     &.header--nav-expanded {
       height: 100%;
@@ -36,11 +35,13 @@ $header-z-index: 999;
 
 .header__brand {
   height: 3.5rem;
-  @media screen and (max-width: $small-desktop-max) {
+
+  @media screen and (max-width: $tablet-max) {
     @include flexbox;
     @include justify-content(space-between);
     @include align-items(center);
-    padding-right: $u-space-small;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 
@@ -48,6 +49,10 @@ $header-z-index: 999;
   padding-left: $u-space-small;
   margin-right: $u-space-small;
   min-width: 10.3rem;
+
+  @media screen and (max-width: $tablet-max) {
+    display: none;
+  }
 
   @media screen and (min-width: $desktop-min) {
     height: 3.75rem;
@@ -61,6 +66,28 @@ $header-z-index: 999;
 
   @media screen and (min-width: $large-desktop-min) {
     width: 21vw;
+  }
+}
+
+.header__filter-button {
+  @include appearance(none);
+  border: none;
+  cursor: pointer;
+  background: url("../../images/icons/filter-icon.svg") center / auto no-repeat;
+  display: block;
+  height: 22px;
+  outline: none;
+  text-decoration: none;
+  width: 27px;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  .header--nav-expanded & {
+    display: none;
+  }
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: none;
   }
 }
 
@@ -88,31 +115,6 @@ $header-z-index: 999;
   }
 }
 
-.nav__menu-button {
-  @include appearance(none);
-  border: none;
-  cursor: pointer;
-  background: none;
-  display: block;
-  height: 50px;
-  outline: none;
-  position: absolute;
-  top: 0;
-  text-decoration: none;
-  width: 50px;
-  outline: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-
-  @media screen and (min-width: $small-desktop-min) {
-    display: none;
-  }
-}
-
-.nav__menu-button--filter {
-  background: url("../../images/icons/filter-icon.svg") center / auto no-repeat;
-  right: 0;
-}
-
 .nav {
   padding: 0 $u-space-small;
   display: none;
@@ -136,6 +138,26 @@ $header-z-index: 999;
 
   @media screen and (min-width: $desktop-min) {
     padding-right: $u-space-default;
+  }
+}
+
+.nav__menu-button {
+  @include appearance(none);
+  border: none;
+  cursor: pointer;
+  background: none;
+  display: block;
+  height: 50px;
+  outline: none;
+  position: absolute;
+  top: 0;
+  text-decoration: none;
+  width: 50px;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: none;
   }
 }
 
@@ -273,12 +295,13 @@ $header-z-index: 999;
   text-transform: uppercase;
 }
 
-.header__nav-toggle-button {
+.header__toggle-button {
   @include appearance(none);
   background: none;
   border: 0;
   outline: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  padding: 0;
 
   @media screen and (min-width: $small-desktop-min) {
     display: none;
