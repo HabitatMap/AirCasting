@@ -9,3 +9,8 @@
     display: none;
   }
 }
+
+.u--capitalized {
+  font-size: $base-font-size-2;
+  text-transform: uppercase;
+}
