@@ -103,7 +103,7 @@ $header-z-index: 999;
   outline: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 
-  @media screen and (min-width: $ipad-portrait) {
+  @media screen and (min-width: $small-desktop-min) {
     display: none;
   }
 }
