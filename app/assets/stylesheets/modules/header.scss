@@ -147,6 +147,15 @@ $header-z-index: 999;
   padding-top: $u-space-small;
   position: relative;
 
+  @media screen and (max-width: $large-mobile-min) {
+    @include flex-wrap(wrap);
+
+    .hm-button {
+      margin: 1rem auto;
+      width: 100%;
+    }
+  }
+
   @media screen and (min-width: $small-desktop-min) {
     padding: 0;
     margin-left: $u-space-small;
@@ -164,6 +173,10 @@ $header-z-index: 999;
 .nav-list__link {
   display: block;
   padding: $u-space-tiny 0;
+
+  .nav-sub & {
+    padding: $u-space-tiny;
+  }
 
   &.nav-list__link--donate {
     border: none;
@@ -278,11 +291,6 @@ $header-z-index: 999;
 .subnav-list {
   list-style: none;
   padding: 0.5rem 0 1rem;
-}
-
-.subnav-list__element {
-  margin-bottom: 4px;
-  padding: 0;
 }
 
 // Brand logo
