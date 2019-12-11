@@ -16,3 +16,10 @@ p {
 }
 
 @import url("https://fonts.googleapis.com/css?family=PT+Sans:400,700");
+
+@font-face {
+  font-family: "Moderat-Bold";
+  src: url("/assets/fonts/Moderat-Bold.eot");
+  src: url("/assets/fonts/Moderat-Bold.woff2") format("woff2"),
+    url("/assets/fonts/Moderat-Bold.woff") format("woff");
+}
