@@ -955,7 +955,7 @@ viewNav navLogo isNavExpanded sensors selectedSensorId page =
                     [ text (Page.toString page)
                     , text " sessions"
                     ]
-                , p []
+                , p [ class "filters-info__parameter-sensor" ]
                     [ text (Sensor.parameterForId sensors selectedSensorId)
                     , text " - "
                     , text (Sensor.sensorLabelForId sensors selectedSensorId)

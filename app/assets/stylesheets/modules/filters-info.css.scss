@@ -1,6 +1,6 @@
 .filters-info {
   color: $blue;
-  line-height: 1.1;
+  line-height: 1.4;
   padding: 0 9px;
   position: absolute;
   left: 68px;
@@ -13,4 +13,9 @@
 .filters-info__session-type {
   font-size: 17px;
   font-weight: $font-stack-bold;
+}
+
+.filters-info__parameter-sensor {
+  font-family: $body-font;
+  font-size: 14px;
 }
