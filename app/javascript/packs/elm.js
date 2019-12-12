@@ -1,5 +1,4 @@
 import { Elm } from "../elm/src/Main.elm";
-import navLogo from "../../assets/images/aircasting-logo-nav.svg";
 import fitScaleIcon from "../../assets/images/icons/fit-scale-icon.svg";
 import linkIcon from "../../assets/images/icons/link-icon.svg";
 import resetIconBlack from "../../assets/images/icons/reset-icon-black.svg";
@@ -104,7 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
         timeTo: data.timeTo
       },
       isIndoor: data.isIndoor,
-      navLogo,
       fitScaleIcon,
       linkIcon,
       resetIconBlack,
