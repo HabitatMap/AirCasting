@@ -19,6 +19,9 @@
 @import "./modules/site-nav";
 @import "./modules/site-nav-static";
 
+@import "./config/animations";
+@import "./modules/spinner";
+
 *,
 *::before,
 *::after {
