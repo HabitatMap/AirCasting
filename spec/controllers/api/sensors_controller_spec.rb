@@ -33,7 +33,7 @@ describe Api::SensorsController do
         }
       ]
 
-      expect(json_response).to eq(expected)
+      expect(json_response).to match_array(expected)
     end
 
     it 'doesnt return duplicated' do
