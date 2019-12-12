@@ -1,7 +1,6 @@
 [![Build Status](https://travis-ci.org/HabitatMap/AirCasting.svg?branch=master)](https://travis-ci.org/HabitatMap/AirCasting)
 [![Code Climate](https://codeclimate.com/github/HabitatMap/AirCasting/badges/gpa.svg)](https://codeclimate.com/github/HabitatMap/AirCasting)
 
-
 # AirCasting - Share your Air!
 
 ## About
@@ -30,6 +29,7 @@ brew install gsl
 brew install imagemagick
 brew install redis
 brew install mysql@5.7
+# install node 12.x
 ```
 
 ### App (any OS)
@@ -124,27 +124,10 @@ If you run into errors while installing mysql2 with exit code 2 try installing f
 
 If you run into problems with db:migrate related to passwords make sure that you change the root password to `''`. To do that open `/your/path/to/mysql -uroot -p` provide the temporary password you were given during installation, then execute `set password = password('');`.
 
-### Node
-If `yarn install` is failing for you and you see a something like the following, you may be using a version of node >= v12 with which the `elm-webpack-loader` isn't working https://github.com/elm-community/elm-webpack-loader/issues/170. Try using an older version of node, e.g. `v10.16.3`, should work.
-
-```
-error /Users/jul/Projects/AirCasting/node_modules/elm-webpack-loader/node_modules/elm: Command failed.
-Exit code: 1
-Command: binwrap-install
-Arguments: 
-Directory: /Users/jul/Projects/AirCasting/node_modules/elm-webpack-loader/node_modules/elm
-Output:
-fs.js:27
-const { Math, Object } = primordials;
-                         ^
-
-ReferenceError: primordials is not defined
-```
-
 ### No sidekiq pid file / no `public/packs/manifest.js` file
-`No such file or directory @ rb_sysopen - /Users/username/Projects/AirCasting/tmp/pids/sidekiq.pid` - create folder `mkdir tmp/pids` and rerun `bundle exec foreman start`. 
-If you see an error that `public/packs/manifest.js` can't be found, this is a related error which should go away once the pid file is successfully created and the manifest file generated after that.
 
+`No such file or directory @ rb_sysopen - /Users/username/Projects/AirCasting/tmp/pids/sidekiq.pid` - create folder `mkdir tmp/pids` and rerun `bundle exec foreman start`.
+If you see an error that `public/packs/manifest.js` can't be found, this is a related error which should go away once the pid file is successfully created and the manifest file generated after that.
 
 ## Contribute
 
