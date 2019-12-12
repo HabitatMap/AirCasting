@@ -10,7 +10,7 @@
   "dependencies": {
     "@google/markerclustererplus": "^2.1.11",
     "@rails/webpacker": "^4.0.7",
-    "angular": "1.2.29",
+    "angular": "1.7.9",
     "angular-cookies": "1.2.29",
     "clipboard": "^2.0.4",
     "core-js": "3",
