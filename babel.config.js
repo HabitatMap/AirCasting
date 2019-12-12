@@ -31,7 +31,8 @@ module.exports = function(api) {
           forceAllTransforms: true,
           useBuiltIns: "entry",
           modules: false,
-          exclude: ["transform-typeof-symbol"]
+          exclude: ["transform-typeof-symbol"],
+          corejs: 3
         }
       ]
     ].filter(Boolean),
