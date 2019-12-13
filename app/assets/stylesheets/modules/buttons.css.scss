@@ -63,7 +63,7 @@
 .show-results-button {
   display: none;
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
     @include appearance(none);
     background-color: $brand-primary;
     border: none;

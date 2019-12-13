@@ -5,6 +5,7 @@ $header-z-index: 999;
   @include transition(all 0.5s ease);
   font-family: $bold-font;
   font-size: $base-font-size2;
+  height: $nav-height-mobile;
   padding: 2rem 0 0.9rem;
   top: 0;
   width: 100%;

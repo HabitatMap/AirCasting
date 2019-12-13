@@ -9,7 +9,7 @@
   width: calc(100vw - #{$filters-width});
   z-index: $heatmap-z-index;
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
     display: block;
     height: 60px;
     padding-top: 32px;
@@ -22,7 +22,7 @@
   height: 3px;
   margin: 0 14px;
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
     margin: 0;
   }
 }
@@ -42,7 +42,7 @@
     text-align: center;
   }
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
     display: none;
   }
 }

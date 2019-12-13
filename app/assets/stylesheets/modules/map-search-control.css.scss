@@ -7,17 +7,12 @@ $search-control-width: 300px;
   top: 6px;
   width: $search-control-width;
   z-index: 1;
-
-  @media screen and (min-width: $ipad-portrait) and (max-width: $wider-mobile) {
-    right: 6px;
-    width: auto;
-  }
 }
 
 // Hide map controls on mobile
 .gm-bundled-control {
   // Zoom and street view controls
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
     display: none;
 
     & ~ .gmnoprint {

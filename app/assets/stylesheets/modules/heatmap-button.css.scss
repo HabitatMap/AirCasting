@@ -24,7 +24,7 @@
     height: 25px;
   }
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
     display: none;
   }
 }

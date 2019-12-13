@@ -10,7 +10,7 @@
   width: 100%;
   z-index: 3001;
 
-  @media screen and (min-width: $ipad-portrait) {
+  @media screen and (min-width: $small-desktop-min) {
     border-radius: $basic-radius;
     box-shadow: $basic-shadow;
     margin-left: calc(#{$filters-width});
@@ -43,7 +43,7 @@
 .daterangepicker .drp-calendar {
   display: none;
 
-  @media screen and (min-width: $ipad-portrait) {
+  @media screen and (min-width: $small-desktop-min) {
     max-width: 270px;
   }
 }
@@ -393,7 +393,7 @@
   float: left;
   padding: 28px 24px 12px 24px;
 
-  @media screen and (min-width: $ipad-portrait) {
+  @media screen and (min-width: $small-desktop-min) {
     max-width: 240px;
   }
 

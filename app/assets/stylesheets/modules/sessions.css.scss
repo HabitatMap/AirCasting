@@ -6,7 +6,7 @@
   width: 100%;
   z-index: $sessions-z-index;
 
-  @media screen and (min-width: $ipad-portrait) {
+  @media screen and (min-width: $tablet-max) {
     width: calc(100vw - #{$filters-width});
   }
 }
@@ -40,7 +40,7 @@
   @include align-items(center);
   padding: 0 $margin-default 0 18px;
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
     padding-left: 10px;
   }
 }

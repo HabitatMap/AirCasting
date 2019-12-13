@@ -5,7 +5,8 @@
   position: relative;
   z-index: $filters-z-index;
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
+    min-height: calc(100vh - #{$nav-height-mobile});
     position: absolute;
     transition: transform 200ms ease;
     width: 100vw;
@@ -15,7 +16,7 @@
     }
   }
 
-  @media screen and (min-width: $ipad-portrait) {
+  @media screen and (min-width: $small-desktop-min) {
     box-shadow: 1px 1px 6px 0 rgba(51, 51, 51, 0.5);
     width: $filters-width;
   }
@@ -31,7 +32,7 @@
   padding: $margin-default $margin-default 15px $margin-default;
   position: absolute;
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
     display: none;
   }
 }
@@ -79,13 +80,13 @@
   margin: 0 !important;
 }
 
-@media screen and (max-width: $mobile) {
+@media screen and (max-width: $tablet-max) {
   [name="time-range"] {
     display: none;
   }
 }
 
-@media screen and (min-width: $ipad-portrait) {
+@media screen and (min-width: $small-desktop-min) {
   [name="time-range-button"] {
     display: none;
   }

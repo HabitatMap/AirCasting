@@ -140,9 +140,13 @@ input[type="range"]:focus::-ms-fill-upper {
   right: 1rem;
   height: 156px;
   position: absolute;
-  top: 6rem;
+  top: 2rem;
   width: 28px;
   z-index: 1;
+
+  @media screen and (min-width: $small-desktop-min) {
+    top: 6rem;
+  }
 }
 
 .zoom__plus,
