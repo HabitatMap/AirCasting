@@ -6,6 +6,7 @@ import resetIconWhite from "../../assets/images/icons/reset-icon-white.svg";
 import themeSwitchIconBlue from "../../assets/images/icons/theme-switch-icon-blue.svg";
 import themeSwitchIconDefault from "../../assets/images/icons/theme-switch-icon-default.svg";
 import tooltipIcon from "../../assets/images/icons/tooltip-icon.svg";
+import navLogo from "../../assets/images/aircasting-logo-nav";
 import "nouislider";
 import * as graph from "../javascript/graph";
 import tippy from "tippy.js";
@@ -110,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
       themeSwitchIconBlue,
       themeSwitchIconDefault,
       tooltipIcon,
+      navLogo,
       heatMapThresholdValues,
       isActive: data.isActive,
       isSearchAsIMoveOn: data.isSearchAsIMoveOn,

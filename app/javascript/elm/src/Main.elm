@@ -24,7 +24,7 @@ import Html exposing (Html, a, button, div, h2, h3, header, iframe, img, input, 
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, rel, src, target, title, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel, role)
 import Html.Events as Events
-import Html.Lazy exposing (lazy3, lazy5, lazy7, lazy8)
+import Html.Lazy exposing (lazy3, lazy4, lazy5, lazy7, lazy8)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
@@ -72,6 +72,7 @@ type alias Model =
     , resetIconWhite : Path
     , themeIcons : Theme.Icons
     , tooltipIcon : Path
+    , navLogo : Path
     , heatMapThresholds : WebData HeatMapThresholds
     , isSearchAsIMoveOn : Bool
     , wasMapMoved : Bool
@@ -111,6 +112,7 @@ defaultModel =
     , resetIconWhite = Path.empty
     , themeIcons = Theme.emptyIcons
     , tooltipIcon = Path.empty
+    , navLogo = Path.empty
     , heatMapThresholds = NotAsked
     , isSearchAsIMoveOn = False
     , wasMapMoved = False
@@ -145,6 +147,7 @@ type alias Flags =
     , themeSwitchIconBlue : String
     , themeSwitchIconDefault : String
     , tooltipIcon : String
+    , navLogo : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     , isSearchAsIMoveOn : Bool
     , scrollPosition : Float
@@ -195,6 +198,7 @@ init flags url key =
         , resetIconWhite = Path.fromString flags.resetIconWhite
         , themeIcons = Theme.toIcons flags.themeSwitchIconDefault flags.themeSwitchIconBlue
         , tooltipIcon = Path.fromString flags.tooltipIcon
+        , navLogo = Path.fromString flags.navLogo
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = overlay
         , scrollPosition = flags.scrollPosition
@@ -886,7 +890,7 @@ viewDocument model =
     { title = "AirCasting"
     , body =
         [ snippetGoogleTagManager
-        , lazy3 viewNav model.sensors model.selectedSensorId model.page
+        , lazy4 viewNav model.navLogo model.sensors model.selectedSensorId model.page
         , view model
         ]
     }
@@ -912,12 +916,17 @@ snippetGoogleTagManager =
         ]
 
 
-viewNav : List Sensor -> String -> Page -> Html Msg
-viewNav sensors selectedSensorId page =
+viewNav : Path -> List Sensor -> String -> Page -> Html Msg
+viewNav navLogo sensors selectedSensorId page =
     header [ class "header", id "js-header" ]
         [ div [ class "header__brand" ]
-            [ div [ class "logo header__logo" ]
-                [ a [ href ExternalUrl.habitatMap ] [ Svgs.logo ]
+            [ div [ class "header__logo" ]
+                [ a
+                    [ ariaLabel "Homepage"
+                    , href "/"
+                    ]
+                    [ img [ src (Path.toString navLogo), alt "Aircasting Logo" ] []
+                    ]
                 ]
             , button [ class "header__toggle-button js--toggle-nav" ]
                 [ Svgs.navOpen
