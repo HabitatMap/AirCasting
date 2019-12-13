@@ -15,7 +15,7 @@ $popup-background-color: #f7f7f7;
   width: 310px;
   z-index: $popup-z-index;
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
     border-radius: $input-radius;
     left: 0;
     top: 3.4rem;

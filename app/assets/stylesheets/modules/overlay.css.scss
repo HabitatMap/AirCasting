@@ -12,7 +12,7 @@
     z-index: $partial-overlay-z-index;
     height: calc(100% - #{$heatmap-height});
 
-    @media screen and (max-width: $mobile) {
+    @media screen and (max-width: $tablet-max) {
       height: calc(100% - #{$heatmap-height-mobile});
     }
   }

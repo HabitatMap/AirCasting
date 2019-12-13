@@ -2,7 +2,7 @@
   overflow: hidden;
   position: relative;
 
-  @media screen and (min-width: $ipad-portrait) {
+  @media screen and (min-width: $small-desktop-min) {
     @include flexbox();
     @include justify-content(space-between);
   }
@@ -11,7 +11,7 @@
 .maps-content-container {
   position: relative;
 
-  @media screen and (min-width: $ipad-portrait) {
+  @media screen and (min-width: $small-desktop-min) {
     @include flexbox();
     @include flex-direction(column);
     @include justify-content(space-between);
@@ -23,15 +23,15 @@
   position: relative;
 
   @media screen and (orientation: portrait) {
-    height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height});
+    height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height-mobile});
   }
 }
 
 .map {
-  height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height});
+  height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height-mobile});
   width: 100vw;
 
-  @media screen and (min-width: $ipad-portrait) {
+  @media screen and (min-width: $small-desktop-min) {
     height: 100%;
     width: calc(100vw - #{$filters-width});
   }
