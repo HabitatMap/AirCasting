@@ -35,12 +35,11 @@ $header-z-index: 999;
 }
 
 .header__brand {
-  height: 3.5rem;
-
   @media screen and (max-width: $tablet-max) {
     @include flexbox;
     @include justify-content(space-between);
     @include align-items(center);
+    height: 3.5rem;
     padding-left: 1rem;
     padding-right: 1rem;
   }
@@ -48,25 +47,22 @@ $header-z-index: 999;
 
 .header__logo {
   padding-left: $u-space-small;
-  margin-right: $u-space-small;
-  min-width: 10.3rem;
+  margin-right: 2rem;
+  width: 160px;
+  position: relative;
+  bottom: 3px;
+
+  img {
+    max-width: 100%;
+  }
 
   @media screen and (max-width: $tablet-max) {
     display: none;
   }
 
   @media screen and (min-width: $desktop-min) {
-    height: 3.75rem;
-  }
-
-  @media screen and (min-width: $desktop-min) {
-    margin-right: 0;
     padding-left: $u-space-default;
-    width: 15vw;
-  }
-
-  @media screen and (min-width: $large-desktop-min) {
-    width: 21vw;
+    width: 200px;
   }
 }
 
