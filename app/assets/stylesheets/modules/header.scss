@@ -5,13 +5,14 @@ $header-z-index: 999;
   @include transition(all 0.5s ease);
   font-family: $bold-font;
   font-size: $base-font-size2;
-  height: $nav-height-mobile;
+  height: $nav-height;
   padding: 1rem 0 0.5rem;
   top: 0;
   width: 100%;
   z-index: $header-z-index;
 
   @media screen and (max-width: $tablet-max) {
+    height: $nav-height-mobile;
     padding: 0.5rem 0;
 
     &.header--nav-expanded {
@@ -125,6 +126,7 @@ $header-z-index: 999;
     @include justify-content(space-between);
     @include align-items(center);
     @include flex(1);
+    height: 56px;
     padding: 0;
     padding-right: $u-space-small;
   }
@@ -218,7 +220,7 @@ $header-z-index: 999;
 .subnav-list {
   @include transition(all 0.25s ease);
   min-width: 14rem;
-  z-index: $header-z-index; // needed in AC
+  z-index: $header-z-index;
 
   @media screen and (max-width: $tablet-max) {
     padding: 0.5rem 0 1rem;
@@ -284,6 +286,7 @@ $header-z-index: 999;
 
 .header__button {
   font-size: $base-font-size-2;
+  line-height: 16px;
   margin-left: $u-space-small;
   text-transform: uppercase;
 }
