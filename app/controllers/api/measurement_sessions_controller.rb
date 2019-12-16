@@ -21,6 +21,10 @@ module Api
       data = deep_symbolize ActiveSupport::JSON.decode(unzipped)
       data[:type] = 'MobileSession' # backward compatibility
 
+      if data[:streams].values.any? { |stream| stream[:measurements].empty? }
+        return render json: ['missing measurements'], status: :bad_request
+      end
+
       session = SessionBuilder.new(data, photos, current_user).build!
 
       if session
