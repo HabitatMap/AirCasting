@@ -43,16 +43,27 @@ $header-z-index: 999;
 }
 
 .header__logo {
-  padding-left: $u-space-small;
   margin-right: 2rem;
-  width: 160px;
+  padding-left: $u-space-small;
 
   img {
     max-width: 100%;
   }
 
   @media screen and (max-width: $tablet-max) {
+    padding-left: 0;
+    padding-right: 20px;
+    margin: 0 auto;
     display: none;
+
+    .header--nav-expanded & {
+      display: block;
+    }
+  }
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: block;
+    width: 160px;
   }
 
   @media screen and (min-width: $desktop-min) {
@@ -326,11 +337,11 @@ $header-z-index: 999;
   }
 }
 
-.logo--hm-monogram {
-  width: 1.3rem;
+.logo--hm-vertical {
+  margin-top: 6px;
 
-  @media screen and (min-width: $small-desktop-min) {
-    display: none;
+  .header--nav-expanded & {
+    fill: $white;
   }
 }
 
@@ -340,7 +351,6 @@ $header-link-color-ac: $blue;
 $header-link-color-white: $white;
 
 .logo--hm,
-.logo--hm-monogram,
 .icon-search {
   fill: #00b2ef;
 
