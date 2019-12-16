@@ -123,6 +123,8 @@ $header-z-index: 999;
   display: none;
 
   @media screen and (max-width: $tablet-max) {
+    line-height: 1.22;
+
     .header--nav-expanded & {
       @include animation("slide-down 1s ease 1");
       display: block;
