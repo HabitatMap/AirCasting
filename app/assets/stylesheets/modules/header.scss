@@ -175,7 +175,7 @@ $header-z-index: 999;
   @include flexbox;
   @include justify-content(space-between);
   @include align-items(center);
-  @include flex(0 0 24rem);
+  @include flex(0 0 25rem);
   border-top: 1px solid $white;
   padding-top: $u-space-small;
   position: relative;
@@ -206,10 +206,6 @@ $header-z-index: 999;
 .nav-list__link {
   display: block;
   padding: $u-space-tiny 0;
-
-  .nav-sub & {
-    padding: $u-space-tiny;
-  }
 
   &.nav-list__link--donate {
     border: none;
@@ -293,6 +289,12 @@ $header-z-index: 999;
     font-size: $base-font-size1;
     padding: 0.25rem 0;
   }
+}
+
+.icon-search {
+  width: 1.5rem;
+  cursor: pointer;
+  margin-right: 0.5rem;
 }
 
 .header__button {
