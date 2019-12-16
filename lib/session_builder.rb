@@ -27,8 +27,9 @@ class SessionBuilder
       session = Session.create!(filtered)
 
       stream_data.values.each do |a_stream|
-        a_stream.merge!(session: session)
         measurements = a_stream.delete(:measurements)
+        next unless measurements.any?
+        a_stream.merge!(session: session)
         stream = Stream.create!(a_stream)
         jobs.push([stream, measurements])
       end
