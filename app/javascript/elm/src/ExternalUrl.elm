@@ -1,4 +1,4 @@
-module ExternalUrl exposing (about, airbeam, airbeamBuy, airbeamFaq, airbeamHowItWorks, airbeamUserStories, airbeamUsersGuide, aircasting, android, blog, donate, habitatMap, history, search)
+module ExternalUrl exposing (about, airbeam, airbeamBuy, airbeamFaq, airbeamHowItWorks, airbeamUserStories, airbeamUsersGuide, aircasting, android, blog, donate, habitatMap, history, press, search)
 
 
 habitatMap =
@@ -13,6 +13,10 @@ android =
 -- top level
 
 
+about =
+    habitatMap ++ "/about"
+
+
 airbeam =
     habitatMap ++ "/airbeam"
 
@@ -25,16 +29,16 @@ blog =
     habitatMap ++ "/blog"
 
 
-search =
-    habitatMap ++ "/search"
-
-
 donate =
     habitatMap ++ "/donate"
 
 
-about =
-    habitatMap ++ "/about"
+press =
+    habitatMap ++ "/about/press"
+
+
+search =
+    habitatMap ++ "/search"
 
 
 
