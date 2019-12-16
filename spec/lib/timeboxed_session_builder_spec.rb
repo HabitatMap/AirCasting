@@ -20,60 +20,9 @@ require 'rails_helper'
 require './lib/session_builder'
 
 describe SessionBuilder do
-  let(:session_data) do
-    {
-      some: :data,
-      notes: :note_data,
-      tag_list: :denormalized_tags,
-      streams: { some_stream: { some: :data } }
-    }
-  end
-  let(:session) { double('session', id: :session_id) }
   let(:user) { double('user') }
   let(:photos) { double('photos') }
-
   subject { SessionBuilder.new(session_data, photos, user) }
-
-  before do
-    ::Stream = double('Stream') unless Module.const_defined?(:Stream)
-    ::Session = double('Session') unless Module.const_defined?(:Session)
-  end
-
-  describe '#build!' do
-    before { expect(Session).to receive(:transaction).and_yield }
-
-    it 'should build all the parts' do
-      expect(subject).to receive(:build_session!).and_return(session)
-
-      expect(subject.build!).to eq(session)
-    end
-  end
-
-  describe '#build_session!' do
-    it 'should process the data' do
-      expect(SessionBuilder).to receive(:prepare_notes).with(:note_data, photos)
-        .and_return(:prepared_notes)
-      expect(SessionBuilder).to receive(:normalize_tags).with(
-        :denormalized_tags
-      )
-        .and_return(:normalized_tags)
-      data = {
-        some: :data,
-        notes_attributes: :prepared_notes,
-        tag_list: :normalized_tags,
-        user: user
-      }
-      expect(subject).to receive(:build_local_start_and_end_time).and_return(
-        data
-      )
-      expect(Session).to receive(:create!).with(data.reject { |k| k == :some })
-        .and_return(session)
-
-      expect(Stream).to receive(:build!).with(some: :data, session: session)
-
-      expect(subject.build_session!).to eq(session)
-    end
-  end
 
   describe '.prepare_notes' do
     it 'should match the photos' do
