@@ -923,7 +923,7 @@ viewNav navLogo sensors selectedSensorId page =
             [ div [ class "header__logo" ]
                 [ a
                     [ ariaLabel "Homepage"
-                    , href "/"
+                    , href ExternalUrl.aircasting
                     ]
                     [ img [ src (Path.toString navLogo), alt "Aircasting Logo" ] []
                     ]
@@ -986,7 +986,7 @@ viewNav navLogo sensors selectedSensorId page =
                             ]
                         ]
                     , li [ class "nav-list__element" ]
-                        [ a [ class "nav-list__link", attribute "data-current" "current page", href "/map" ]
+                        [ a [ class "nav-list__link", attribute "data-current" "current page", href ExternalUrl.aircasting ]
                             [ text "AirCasting" ]
                         , ul [ class "subnav-list" ]
                             [ li [ class "subnav-list__element" ]

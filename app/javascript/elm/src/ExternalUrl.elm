@@ -1,4 +1,4 @@
-module ExternalUrl exposing (about, airbeam, airbeamBuy, airbeamFaq, airbeamHowItWorks, airbeamUserStories, airbeamUsersGuide, android, blog, donate, habitatMap, history, search)
+module ExternalUrl exposing (about, airbeam, airbeamBuy, airbeamFaq, airbeamHowItWorks, airbeamUserStories, airbeamUsersGuide, aircasting, android, blog, donate, habitatMap, history, search)
 
 
 habitatMap =
@@ -15,6 +15,10 @@ android =
 
 airbeam =
     habitatMap ++ "/airbeam"
+
+
+aircasting =
+    habitatMap ++ "/aircasting"
 
 
 blog =
