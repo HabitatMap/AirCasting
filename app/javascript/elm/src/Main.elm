@@ -920,17 +920,24 @@ viewNav : Path -> List Sensor -> String -> Page -> Html Msg
 viewNav navLogo sensors selectedSensorId page =
     header [ class "header", id "js-header" ]
         [ div [ class "header__brand" ]
-            [ div [ class "header__logo" ]
+            [ button [ class "header__toggle-button js--toggle-nav" ]
+                [ Svgs.navOpen
+                , Svgs.navClose
+                ]
+            , div [ class "header__logo" ]
                 [ a
-                    [ ariaLabel "Homepage"
+                    [ ariaLabel "AirCasting Page"
                     , href ExternalUrl.aircasting
+                    , class "u--hide-on-mobile"
                     ]
                     [ img [ src (Path.toString navLogo), alt "Aircasting Logo" ] []
                     ]
-                ]
-            , button [ class "header__toggle-button js--toggle-nav" ]
-                [ Svgs.navOpen
-                , Svgs.navClose
+                , a
+                    [ ariaLabel "Homepage"
+                    , href ExternalUrl.habitatMap
+                    , class "u--show-on-mobile"
+                    ]
+                    [ Svgs.logoHabitatMap ]
                 ]
             , div
                 [ class "filters-info u--show-on-mobile"
