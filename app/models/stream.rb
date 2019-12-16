@@ -109,13 +109,6 @@ class Stream < ApplicationRecord
     "#{measurement_type}-#{sensor_name.downcase} (#{unit_symbol})"
   end
 
-  def self.build!(data = {})
-    measurements = data.delete(:measurements)
-    stream = create!(data)
-    MeasurementsCreator.new.call(stream, measurements)
-    stream
-  end
-
   def self.build_or_update!(data = {})
     measurements_attributes = data.delete(:measurements)
     stream = where(data).first_or_initialize
