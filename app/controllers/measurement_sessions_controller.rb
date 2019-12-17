@@ -1,6 +1,4 @@
 class MeasurementSessionsController < ApplicationController
-  layout 'map'
-
   def show
     Api::GoogleAnalytics.new.register_event('Measurement Sessions#show')
     form =
