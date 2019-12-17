@@ -889,8 +889,7 @@ viewDocument : Model -> Browser.Document Msg
 viewDocument model =
     { title = "AirCasting"
     , body =
-        [ snippetGoogleTagManager
-        , lazy4 viewNav model.navLogo model.sensors model.selectedSensorId model.page
+        [ lazy4 viewNav model.navLogo model.sensors model.selectedSensorId model.page
         , view model
         ]
     }
@@ -900,19 +899,6 @@ view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
         [ viewMain model
-        ]
-
-
-snippetGoogleTagManager =
-    node "noscript"
-        []
-        [ iframe
-            [ attribute "height" "0"
-            , src "https://www.googletagmanager.com/ns.html?id=GTM-T948MNX"
-            , attribute "style" "display:none;visibility:hidden"
-            , attribute "width" "0"
-            ]
-            []
         ]
 
 
