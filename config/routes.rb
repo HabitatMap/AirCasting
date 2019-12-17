@@ -92,9 +92,4 @@ Rails.application.routes.draw do
 
     get 'autocomplete/usernames' => 'autocomplete#usernames'
   end
-
-  get 'about' => 'static_pages#about'
-  get 'donate' => 'static_pages#donate'
-
-  root to: 'home#index'
 end

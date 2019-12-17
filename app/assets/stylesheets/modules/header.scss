@@ -147,26 +147,6 @@ $header-z-index: 999;
   }
 }
 
-.nav__menu-button {
-  @include appearance(none);
-  border: none;
-  cursor: pointer;
-  background: none;
-  display: block;
-  height: 50px;
-  outline: none;
-  position: absolute;
-  top: 0;
-  text-decoration: none;
-  width: 50px;
-  outline: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-
-  @media screen and (min-width: $small-desktop-min) {
-    display: none;
-  }
-}
-
 .nav-main {
   @include flex(0 1 40rem);
 }
