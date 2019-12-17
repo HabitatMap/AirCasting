@@ -997,7 +997,7 @@ viewNav navLogo sensors selectedSensorId page =
                             [ text "AirCasting" ]
                         , ul [ class "subnav-list" ]
                             [ li [ class "subnav-list__element" ]
-                                [ a [ class "subnav-list__link", href "/mobile_map" ]
+                                [ a [ class "subnav-list__link", href "/map" ]
                                     [ text "AirCasting Maps" ]
                                 ]
                             , li [ class "subnav-list__element" ]
