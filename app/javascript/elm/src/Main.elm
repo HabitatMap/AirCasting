@@ -1008,7 +1008,7 @@ viewNav navLogo sensors selectedSensorId page =
                         ]
                     , li [ class "nav-list__element" ]
                         [ a [ class "nav-list__link", href ExternalUrl.about ]
-                            [ text "About Habitatmap" ]
+                            [ text "About HabitatMap" ]
                         , ul [ class "subnav-list" ]
                             [ li [ class "subnav-list__element" ]
                                 [ a [ class "subnav-list__link", href ExternalUrl.history ]
