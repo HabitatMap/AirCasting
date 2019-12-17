@@ -8,12 +8,13 @@
 }
 
 .session-type-nav__item {
-  background-color: $brand-primary;
+  background-color: $ac-brand;
   border: none;
   padding: $margin-default;
   position: relative;
   text-align: left;
   width: 50%;
+  text-transform: uppercase;
   z-index: 1;
 
   a {
@@ -27,7 +28,7 @@
   }
 
   &.selected {
-    background-color: $brand-secondary;
+    background-color: $gray-dark;
     z-index: 2;
   }
 
