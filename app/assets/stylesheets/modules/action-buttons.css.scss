@@ -9,11 +9,10 @@
   font-size: $small-font;
   font-weight: $font-stack-bold;
   height: 33px;
-  text-transform: lowercase;
+  text-transform: capitalize;
 }
 
 .action-button--export {
-  line-height: 33px;
   width: 170px;
 }
 
