@@ -1,26 +1,8 @@
 // color
 $white: #ffffff;
-$light: #f5f5f5;
-$teal-very-light: #eff4f4;
-$teal-light: #e4eced;
-$teal: #33c4b2;
-$green: #1ea73f;
-$cyan: #6abad2;
-$blue-light: #7fd8f7;
-$blue: #00b2ef;
-$blue-dark: #3c70b3;
-$blue-very-dark: #1a2679;
 $gray: #818181;
-$gray-medium: #727272;
 $gray-dark: #474c55;
 $gray-input: rgb(121, 125, 130);
-
-$ac-brand: $blue;
-$hm-brand: $green;
-$text-color: $gray-medium;
-$text-color-negative: $white;
-$link-color: $blue;
-$link-hover-color: $blue-light;
 
 // viewport breakpoints
 $large-desktop-min: 1920px;
@@ -43,7 +25,6 @@ $u-space-huge: 10rem;
 // fonts
 $bold-font: "Moderat-Bold", sans-serif;
 $body-font: "Muli", sans-serif;
-$quote-font: "IBM Plex Serif", serif;
 
 // typographic defaults
 $base-font-size-2: 0.812rem; // 13px
@@ -53,7 +34,3 @@ $base-font-size1: 1.187rem; // 19px
 $base-font-size2: 1.5rem; // 24px
 $base-font-size3: 1.75rem; // 28px
 $base-font-size4: 2.75rem; // 44px
-
-//other
-$narrow-content: 18.75rem;
-$medium-content: 47rem;

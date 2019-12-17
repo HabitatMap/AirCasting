@@ -46,14 +46,14 @@ const buildRangeSelector = ({ buttons, selected }) => ({
     states: {
       hover: {
         cursor: "pointer",
-        fill: "#09a7f0",
+        fill: "#00b2ef",
         style: {
           color: "white"
         }
       },
 
       select: {
-        fill: "#09a7f0",
+        fill: "#00b2ef",
         style: {
           color: "white",
           fontWeight: "bold"
@@ -86,9 +86,9 @@ const plotOptions = {
     lineColor: "#FFFFFF",
     turboThreshold: 9999999, //above that graph will not display,
     marker: {
-      fillColor: "#09a7f0",
+      fillColor: "#00b2ef",
       lineWidth: 0,
-      lineColor: "#09a7f0"
+      lineColor: "#00b2ef"
     },
 
     dataGrouping: {
