@@ -1,6 +1,7 @@
 .filters {
-  background: $brand-secondary;
+  background: $gray-dark;
   color: white;
+  font-family: $bold-font;
   min-height: calc(100vh - #{$nav-height});
   position: relative;
   z-index: $filters-z-index;

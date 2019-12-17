@@ -1,6 +1,8 @@
 label {
   font-size: $tiny-font;
   font-weight: bold;
+  margin-bottom: 4px;
+  text-transform: capitalize;
   transition: opacity 0.5s;
 }
 
@@ -30,11 +32,12 @@ input[type="checkbox"] {
 }
 
 .input-dark {
-  background-color: $input-bg;
-  color: white;
+  background-color: $gray-input;
+  color: $white;
 
   &::placeholder {
-    color: #a0a3b2;
+    color: transparentize($color: $white, $amount: 0.5);
+    text-transform: capitalize;
   }
 }
 

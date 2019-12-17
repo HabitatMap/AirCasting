@@ -1,11 +1,12 @@
 .toggle-button {
   @include appearance(none);
-  background-color: $dark-blue;
-  border: 1px solid $dark-grey;
-  color: #cecece;
+  background-color: $gray-dark;
+  border: 1px solid $gray-input;
+  color: $white;
   cursor: pointer;
   font-size: $small-font;
   padding: 7px 0;
+  text-transform: capitalize;
   width: 50%;
 
   &:first-of-type {
@@ -18,6 +19,6 @@
 }
 
 .toggle-button--pressed {
-  background-color: $dark-grey;
+  background-color: $gray-input;
   color: white;
 }
