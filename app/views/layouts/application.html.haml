@@ -1,20 +1,12 @@
 !!! 5
-%html(lang="en")
+%html(lang="en" ng-app="aircasting")
   %head
     %meta(name='viewport' content='width=device-width, initial-scale=1')
     %meta(name='description' content='AirCasting is an open-source, end-to-end solution for collecting, displaying, and sharing health and environmental data.')
     %title AirCasting
-    = stylesheet_link_tag  "application"
-    = favicon_link_tag "favicon.png"
+    = render partial: 'shared/gtm'
     = csrf_meta_tags
-    = render :partial => 'shared/gtm'
-    = render :partial => 'shared/fb_logo'
 
-  %body(id="home")
-    = render :partial => 'shared/nav'
-    = render :partial => 'shared/noscript_gtm'
-    %main
-      = yield
-    = render partial: 'shared/footer'
-
-  = javascript_include_tag "application"
+  %body
+    = render partial: 'shared/noscript_gtm'
+    = yield
