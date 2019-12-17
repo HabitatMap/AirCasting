@@ -16,3 +16,11 @@ p {
 }
 
 @import url("https://fonts.googleapis.com/css?family=PT+Sans:400,700");
+@import url("https://fonts.googleapis.com/css?family=Muli&display=swap");
+
+@font-face {
+  font-family: "Moderat-Bold";
+  src: url("../../fonts/Moderat-Bold.eot");
+  src: url("../../fonts/Moderat-Bold.woff2") format("woff2"),
+    url("../../fonts/Moderat-Bold.woff") format("woff");
+}

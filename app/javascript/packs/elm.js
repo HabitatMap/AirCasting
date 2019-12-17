@@ -1,5 +1,4 @@
 import { Elm } from "../elm/src/Main.elm";
-import navLogo from "../../assets/images/aircasting-logo-nav.svg";
 import fitScaleIcon from "../../assets/images/icons/fit-scale-icon.svg";
 import linkIcon from "../../assets/images/icons/link-icon.svg";
 import resetIconBlack from "../../assets/images/icons/reset-icon-black.svg";
@@ -7,6 +6,7 @@ import resetIconWhite from "../../assets/images/icons/reset-icon-white.svg";
 import themeSwitchIconBlue from "../../assets/images/icons/theme-switch-icon-blue.svg";
 import themeSwitchIconDefault from "../../assets/images/icons/theme-switch-icon-default.svg";
 import tooltipIcon from "../../assets/images/icons/tooltip-icon.svg";
+import navLogo from "../../assets/images/aircasting-logo-nav";
 import "nouislider";
 import * as graph from "../javascript/graph";
 import tippy from "tippy.js";
@@ -29,6 +29,17 @@ if (window.NodeList && !NodeList.prototype.forEach) {
 if (!Object.values) {
   Object.values = obj => Object.keys(obj).map(key => obj[key]);
 }
+
+createObserver({
+  selector: ".js--toggle-nav",
+  onMount: () => {
+    const menuToggleButton = document.querySelector(".js--toggle-nav");
+    menuToggleButton.addEventListener("click", () => {
+      const header = document.querySelector(".header");
+      header.classList.toggle("header--nav-expanded");
+    });
+  }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   const session_type =
@@ -93,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
         timeTo: data.timeTo
       },
       isIndoor: data.isIndoor,
-      navLogo,
       fitScaleIcon,
       linkIcon,
       resetIconBlack,
@@ -101,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
       themeSwitchIconBlue,
       themeSwitchIconDefault,
       tooltipIcon,
+      navLogo,
       heatMapThresholdValues,
       isActive: data.isActive,
       isSearchAsIMoveOn: data.isSearchAsIMoveOn,

@@ -6,7 +6,7 @@ import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
-import Data.EmailForm as EmailForm
+import Data.EmailForm as EmailForm exposing (EmailForm)
 import Data.GraphData exposing (GraphData, GraphHeatData, GraphTimeRange)
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
 import Data.Markers as Markers exposing (SessionMarkerData)
@@ -19,23 +19,24 @@ import Data.Session exposing (..)
 import Data.Status as Status exposing (Status(..))
 import Data.Theme as Theme exposing (Theme)
 import Data.Times as Times
+import ExternalUrl
 import Html exposing (Html, a, button, div, h2, h3, header, iframe, img, input, label, li, main_, nav, node, p, span, text, ul)
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, rel, src, target, title, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel, role)
 import Html.Events as Events
-import Html.Lazy exposing (lazy5, lazy7, lazy8)
+import Html.Lazy exposing (lazy3, lazy4, lazy5, lazy7, lazy8)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
 import LabelsInput
 import Maybe exposing (..)
-import Popup
+import Popup exposing (Popup)
 import Ports
 import Process
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
 import String exposing (fromInt)
-import Tagged exposing (Tagged)
+import Svgs
 import Task
 import TimeRange exposing (TimeRange)
 import Tooltip
@@ -54,7 +55,7 @@ type alias Model =
     , sessions : List Session
     , fetchableSessionsCount : Int
     , selectedSession : WebData SelectedSession
-    , popup : Popup.Popup
+    , popup : Popup
     , isPopupListExpanded : Bool
     , sensors : List Sensor
     , selectedSensorId : String
@@ -65,13 +66,13 @@ type alias Model =
     , crowdMapResolution : BoundedInteger
     , timeRange : TimeRange
     , isIndoor : Bool
-    , navLogo : Path
     , fitScaleIcon : Path
     , linkIcon : Path
     , resetIconBlack : Path
     , resetIconWhite : Path
     , themeIcons : Theme.Icons
     , tooltipIcon : Path
+    , navLogo : Path
     , heatMapThresholds : WebData HeatMapThresholds
     , isSearchAsIMoveOn : Bool
     , wasMapMoved : Bool
@@ -82,7 +83,7 @@ type alias Model =
     , isNavExpanded : Bool
     , theme : Theme
     , status : Status
-    , emailForm : EmailForm.EmailForm
+    , emailForm : EmailForm
     , zoomLevel : BoundedInteger
     }
 
@@ -105,13 +106,13 @@ defaultModel =
     , timeRange = TimeRange.defaultTimeRange
     , isIndoor = False
     , selectedSession = NotAsked
-    , navLogo = Path.empty
     , fitScaleIcon = Path.empty
     , linkIcon = Path.empty
     , resetIconBlack = Path.empty
     , resetIconWhite = Path.empty
     , themeIcons = Theme.emptyIcons
     , tooltipIcon = Path.empty
+    , navLogo = Path.empty
     , heatMapThresholds = NotAsked
     , isSearchAsIMoveOn = False
     , wasMapMoved = False
@@ -139,7 +140,6 @@ type alias Flags =
     , selectedSessionId : Maybe Int
     , sensors : Encode.Value
     , selectedSensorId : String
-    , navLogo : String
     , fitScaleIcon : String
     , linkIcon : String
     , resetIconBlack : String
@@ -147,6 +147,7 @@ type alias Flags =
     , themeSwitchIconBlue : String
     , themeSwitchIconDefault : String
     , tooltipIcon : String
+    , navLogo : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     , isSearchAsIMoveOn : Bool
     , scrollPosition : Float
@@ -191,13 +192,13 @@ init flags url key =
         , isIndoor = flags.isIndoor
         , sensors = sensors
         , selectedSensorId = flags.selectedSensorId
-        , navLogo = Path.fromString flags.navLogo
         , fitScaleIcon = Path.fromString flags.fitScaleIcon
         , linkIcon = Path.fromString flags.linkIcon
         , resetIconBlack = Path.fromString flags.resetIconBlack
         , resetIconWhite = Path.fromString flags.resetIconWhite
         , themeIcons = Theme.toIcons flags.themeSwitchIconDefault flags.themeSwitchIconBlue
         , tooltipIcon = Path.fromString flags.tooltipIcon
+        , navLogo = Path.fromString flags.navLogo
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = overlay
         , scrollPosition = flags.scrollPosition
@@ -257,9 +258,9 @@ type Msg
     | UpdateTimeRange Encode.Value
     | RefreshTimeRange
     | ShowCopyLinkTooltip String
-    | ShowListPopup Popup.Popup
+    | ShowListPopup Popup
     | ShowExportPopup
-    | ExportSessions (Result (List String) (Valid EmailForm.EmailForm))
+    | ExportSessions (Result (List String) (Valid EmailForm))
     | UpdateEmailFormValue String
     | SelectSensorId String
     | ClosePopup
@@ -889,6 +890,7 @@ viewDocument model =
     { title = "AirCasting"
     , body =
         [ snippetGoogleTagManager
+        , lazy4 viewNav model.navLogo model.sensors model.selectedSensorId model.page
         , view model
         ]
     }
@@ -897,8 +899,7 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div [ id "elm-app", class (Theme.toString model.theme) ]
-        [ lazy5 viewNav model.navLogo model.isNavExpanded model.sensors model.selectedSensorId model.page
-        , viewMain model
+        [ viewMain model
         ]
 
 
@@ -915,78 +916,124 @@ snippetGoogleTagManager =
         ]
 
 
-viewNav : Path -> Bool -> List Sensor -> String -> Page -> Html Msg
-viewNav navLogo isNavExpanded sensors selectedSensorId page =
-    header
-        [ classList [ ( "menu-collapsed", not isNavExpanded ) ]
-        ]
-        [ div
-            [ class "filters-info u--show-on-mobile"
-            , Events.onClick ToggleFiltersExpanded
-            ]
-            [ p
-                [ class "filters-info__session-type" ]
-                [ text (Page.toString page)
-                , text " sessions"
+viewNav : Path -> List Sensor -> String -> Page -> Html Msg
+viewNav navLogo sensors selectedSensorId page =
+    header [ class "header", id "js-header" ]
+        [ div [ class "header__brand" ]
+            [ button [ class "header__toggle-button js--toggle-nav" ]
+                [ Svgs.navOpen
+                , Svgs.navClose
                 ]
-            , p []
-                [ text (Sensor.parameterForId sensors selectedSensorId)
-                , text " - "
-                , text (Sensor.sensorLabelForId sensors selectedSensorId)
+            , div [ class "header__logo" ]
+                [ a
+                    [ ariaLabel "AirCasting Page"
+                    , href ExternalUrl.aircasting
+                    , class "u--hide-on-mobile"
+                    ]
+                    [ img [ src (Path.toString navLogo), alt "Aircasting Logo" ] []
+                    ]
+                , a
+                    [ ariaLabel "Homepage"
+                    , href ExternalUrl.habitatMap
+                    , class "u--show-on-mobile"
+                    ]
+                    [ Svgs.logoHabitatMap ]
                 ]
-            ]
-        , div [ class "logo" ]
-            [ a
-                [ ariaLabel "Homepage"
-                , href "/"
+            , div
+                [ class "filters-info u--show-on-mobile"
+                , Events.onClick ToggleFiltersExpanded
                 ]
-                [ img [ src (Path.toString navLogo), alt "Aircasting Logo" ] []
-                ]
-            ]
-        , nav
-            [ class "nav"
-            , id "menu"
-            , role "navigation"
-            ]
-            [ ul []
-                [ li []
-                    [ a [ class "nav__link", href "/" ]
-                        [ text "Home" ]
+                [ p
+                    [ class "filters-info__session-type" ]
+                    [ text (Page.toString page)
+                    , text " sessions"
                     ]
-                , li []
-                    [ a [ class "nav__link", href "/about" ]
-                        [ text "About" ]
-                    ]
-                , li [ class "active" ]
-                    [ a [ class "nav__link", href "/map" ]
-                        [ text "Maps" ]
-                    ]
-                , li []
-                    [ a [ class "nav__link", href "http://www.takingspace.org/", rel "noreferrer", target "_blank" ]
-                        [ text "Blog" ]
-                    ]
-                , li []
-                    [ a [ class "nav__link", href "/donate" ]
-                        [ text "Donate" ]
+                , p [ class "filters-info__parameter-sensor" ]
+                    [ text (Sensor.parameterForId sensors selectedSensorId)
+                    , text " - "
+                    , text (Sensor.sensorLabelForId sensors selectedSensorId)
                     ]
                 ]
+            , button
+                [ class "header__filter-button"
+                , title "Filters"
+                , type_ "button"
+                , ariaLabel "Filters"
+                , Events.onClick ToggleFiltersExpanded
+                ]
+                []
             ]
-        , button
-            [ class "nav__menu-button nav__menu-button--filter"
-            , title "Filters"
-            , type_ "button"
-            , ariaLabel "Filters"
-            , Events.onClick ToggleFiltersExpanded
+        , nav [ class "nav" ]
+            [ div [ class "nav-main" ]
+                [ ul [ class "nav-list" ]
+                    [ li [ class "nav-list__element" ]
+                        [ a [ class "nav-list__link", href ExternalUrl.airbeam ]
+                            [ text "AirBeam" ]
+                        , ul [ class "subnav-list" ]
+                            [ li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href ExternalUrl.airbeamUserStories ]
+                                    [ text "User Stories" ]
+                                ]
+                            , li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href ExternalUrl.airbeamHowItWorks ]
+                                    [ text "How it Works" ]
+                                ]
+                            , li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href ExternalUrl.airbeamFaq ]
+                                    [ text "FAQ" ]
+                                ]
+                            , li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href ExternalUrl.airbeamUsersGuide ]
+                                    [ text "User's Guide" ]
+                                ]
+                            , li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href ExternalUrl.airbeamBuy ]
+                                    [ text "Buy it Now" ]
+                                ]
+                            ]
+                        ]
+                    , li [ class "nav-list__element" ]
+                        [ a [ class "nav-list__link", attribute "data-current" "current page", href ExternalUrl.aircasting ]
+                            [ text "AirCasting" ]
+                        , ul [ class "subnav-list" ]
+                            [ li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href ExternalUrl.android, target "_blank" ]
+                                    [ text "Aircasting App" ]
+                                ]
+                            ]
+                        ]
+                    , li [ class "nav-list__element" ]
+                        [ a [ class "nav-list__link", href ExternalUrl.about ]
+                            [ text "About Habitatmap" ]
+                        , ul [ class "subnav-list" ]
+                            [ li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href ExternalUrl.history ]
+                                    [ text "History & People" ]
+                                ]
+                            , li [ class "subnav-list__element" ]
+                                [ a [ class "subnav-list__link", href ExternalUrl.press ]
+                                    [ text "Press" ]
+                                ]
+                            ]
+                        ]
+                    , li [ class "nav-list__element" ]
+                        [ a [ class "nav-list__link", href ExternalUrl.blog ]
+                            [ text "TakingSpace Blog" ]
+                        ]
+                    ]
+                ]
+            , div [ class "nav-sub" ]
+                [ a [ class "nav-list__link nav-list__link--search", href ExternalUrl.search ]
+                    [ Svgs.search
+                    ]
+                , a [ class "nav-list__link nav-list__link--donate u--capitalized", href ExternalUrl.donate ]
+                    [ text "Donate" ]
+                , a [ class "nav-list__link nav-list__link--donate u--capitalized", href ExternalUrl.android, target "_blank" ]
+                    [ text "Download app" ]
+                , a [ class "hm-button hm-button--small header__button", href ExternalUrl.airbeamBuy ]
+                    [ text "Get Airbeam" ]
+                ]
             ]
-            []
-        , button
-            [ class "nav__menu-button nav__menu-button--hamburger"
-            , title "Menu"
-            , type_ "button"
-            , ariaLabel "Menu"
-            , Events.onClick ToggleNavExpanded
-            ]
-            []
         ]
 
 
@@ -1161,7 +1208,7 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         ]
 
 
-viewSessionsOrSelectedSession : Page -> WebData SelectedSession -> Int -> List Session -> WebData HeatMapThresholds -> Path -> Popup.Popup -> EmailForm.EmailForm -> Html Msg
+viewSessionsOrSelectedSession : Page -> WebData SelectedSession -> Int -> List Session -> WebData HeatMapThresholds -> Path -> Popup -> EmailForm -> Html Msg
 viewSessionsOrSelectedSession page selectedSession fetchableSessionsCount sessions heatMapThresholds linkIcon popup emailForm =
     div
         [ attribute "ng-controller"
@@ -1189,7 +1236,7 @@ viewSessionsOrSelectedSession page selectedSession fetchableSessionsCount sessio
         ]
 
 
-viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> Popup.Popup -> Html Msg -> Html Msg
+viewSelectedSession : WebData HeatMapThresholds -> Maybe SelectedSession -> Path -> Popup -> Html Msg -> Html Msg
 viewSelectedSession heatMapThresholds maybeSession linkIcon popup emailForm =
     div [ class "single-session-container" ]
         [ div [ class "single-session__aside" ]
@@ -1208,7 +1255,7 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon popup emailForm =
         ]
 
 
-viewFiltersButtons : WebData SelectedSession -> List Session -> Path -> Popup.Popup -> EmailForm.EmailForm -> Html Msg
+viewFiltersButtons : WebData SelectedSession -> List Session -> Path -> Popup -> EmailForm -> Html Msg
 viewFiltersButtons selectedSession sessions linkIcon popup emailForm =
     case selectedSession of
         NotAsked ->
@@ -1383,7 +1430,7 @@ viewToggleButton label isPressed callback =
         [ text label ]
 
 
-viewParameterFilter : List Sensor -> String -> Path -> Bool -> Popup.Popup -> Html Msg
+viewParameterFilter : List Sensor -> String -> Path -> Bool -> Popup -> Html Msg
 viewParameterFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup =
     div [ class "filters__input-group" ]
         [ input
@@ -1405,7 +1452,7 @@ viewParameterFilter sensors selectedSensorId tooltipIcon isPopupListExpanded pop
         ]
 
 
-viewSensorFilter : List Sensor -> String -> Path -> Bool -> Popup.Popup -> Html Msg
+viewSensorFilter : List Sensor -> String -> Path -> Bool -> Popup -> Html Msg
 viewSensorFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup =
     div [ class "filters__input-group" ]
         [ input
@@ -1427,7 +1474,7 @@ viewSensorFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup 
         ]
 
 
-viewListPopup : (Popup.Popup -> Bool) -> Bool -> Popup.Popup -> ( List String, List String ) -> String -> String -> Html Msg
+viewListPopup : (Popup -> Bool) -> Bool -> Popup -> ( List String, List String ) -> String -> String -> Html Msg
 viewListPopup isShown isPopupListExpanded popup items itemType selectedItem =
     if isShown popup then
         Popup.viewListPopup TogglePopupState SelectSensorId isPopupListExpanded items itemType selectedItem

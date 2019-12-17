@@ -1,11 +1,16 @@
 .u--show-on-mobile {
-  @media screen and (min-width: $ipad-portrait) {
+  @media screen and (min-width: $small-desktop-min) {
     display: none;
   }
 }
 
 .u--hide-on-mobile {
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: $tablet-max) {
     display: none;
   }
+}
+
+.u--capitalized {
+  font-size: $base-font-size-2;
+  text-transform: uppercase;
 }

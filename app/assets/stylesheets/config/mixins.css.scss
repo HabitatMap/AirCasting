@@ -1,3 +1,23 @@
+@mixin animation($str) {
+  -webkit-animation: #{$str};
+  -moz-animation: #{$str};
+  -ms-animation: #{$str};
+  -o-animation: #{$str};
+  animation: #{$str};
+}
+
+@mixin button-color($text-color, $border-color, $bg-color, $bg-color-hover) {
+  background: $bg-color;
+  border-color: $border-color;
+  color: $text-color;
+
+  &:hover,
+  &:focus {
+    background: $bg-color-hover;
+    color: $bg-color;
+  }
+}
+
 @mixin clearfix {
   clear: both;
   display: block;
@@ -8,6 +28,13 @@
   appearance: $appearance;
   -moz-appearance: $appearance;
   -webkit-appearance: $appearance;
+}
+
+@mixin transition($transition) {
+  -moz-transition: $transition;
+  -o-transition: $transition;
+  -webkit-transition: $transition;
+  transition: $transition;
 }
 
 @mixin transform($property) {

@@ -12,11 +12,11 @@ $overlay-info-width: 500px;
     top: 40vh;
     text-align: center;
 
-    @media screen and (min-width: $ipad-portrait) {
+    @media screen and (min-width: $small-desktop-min) {
       left: calc(50vw - #{$overlay-info-width/2});
     }
 
-    @media screen and (max-width: $mobile) {
+    @media screen and (max-width: $tablet-max) {
       width: 100%;
     }
   }
