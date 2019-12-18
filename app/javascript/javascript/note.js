@@ -20,7 +20,11 @@ const drawNote = (data, map, sessionMarker) => {
       lng: data.longitude
     },
     title: data.text,
-    icon: markerNote,
+    icon: {
+      anchor: new google.maps.Point(6, 6),
+      size: new google.maps.Size(12, 12),
+      url: markerNote
+    },
     zIndex: 200000
   });
 
