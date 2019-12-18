@@ -1,6 +1,6 @@
 import { lengthToPixels, pixelsToLength } from "./mapsUtils";
 import { Luminous } from "luminous-lightbox";
-import markerNote from "../../../app/assets/images/marker_note.png";
+import markerNote from "../../../app/assets/images/marker_note.svg";
 
 let notes = [];
 if (process.env.NODE_ENV !== "test") {
