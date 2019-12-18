@@ -1391,13 +1391,13 @@ viewFixedFilters model =
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
         , div [ class "filters__toggle-group" ]
-            [ label [ class "label" ] [ text "placement:" ]
+            [ label [ class "label label--filters" ] [ text "placement:" ]
             , Tooltip.view Tooltip.typeToggleFilter model.tooltipIcon
             , viewToggleButton "outdoor" (not model.isIndoor) (ToggleIndoor False)
             , viewToggleButton "indoor" model.isIndoor (ToggleIndoor True)
             ]
         , div [ class "filters__toggle-group" ]
-            [ label [ class "label" ] [ text "status:" ]
+            [ label [ class "label label--filters" ] [ text "status:" ]
             , Tooltip.view Tooltip.activeToggleFilter model.tooltipIcon
             , viewToggleButton "active" (model.status == Active) (ToggleStatus Active)
             , viewToggleButton "dormant" (model.status == Dormant) (ToggleStatus Dormant)
@@ -1436,7 +1436,7 @@ viewParameterFilter sensors selectedSensorId tooltipIcon isPopupListExpanded pop
             , readonly True
             ]
             []
-        , label [ class "label", for "parameter" ] [ text "parameter:" ]
+        , label [ class "label label--filters", for "parameter" ] [ text "parameter:" ]
         , Tooltip.view Tooltip.parameterFilter tooltipIcon
         , viewListPopup Popup.isParameterPopupShown isPopupListExpanded popup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId)
         ]
@@ -1457,7 +1457,7 @@ viewSensorFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup 
             , readonly True
             ]
             []
-        , label [ class "label", for "sensor" ] [ text "sensor:" ]
+        , label [ class "label label--filters", for "sensor" ] [ text "sensor:" ]
         , Tooltip.view Tooltip.sensorFilter tooltipIcon
         , viewListPopup Popup.isSensorPopupShown isPopupListExpanded popup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId)
         ]
@@ -1487,7 +1487,7 @@ viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon 
 viewCrowdMapToggle : Bool -> Path -> Html Msg
 viewCrowdMapToggle isCrowdMapOn tooltipIcon =
     div [ class "filters__toggle-group" ]
-        [ label [ class "label" ] [ text "CrowdMap:" ]
+        [ label [ class "label label--filters" ] [ text "CrowdMap:" ]
         , viewToggleButton "off" (not isCrowdMapOn) (ToggleCrowdMap False)
         , viewToggleButton "on" isCrowdMapOn (ToggleCrowdMap True)
         , Tooltip.view Tooltip.crowdMap tooltipIcon
@@ -1497,7 +1497,7 @@ viewCrowdMapToggle isCrowdMapOn tooltipIcon =
 viewCrowdMapSlider : BoundedInteger -> Html Msg
 viewCrowdMapSlider boundedInteger =
     div [ id "crowd-map-slider" ]
-        [ label [ class "label" ] [ text <| "grid cell size: " ++ String.fromInt (BoundedInteger.getValue boundedInteger) ]
+        [ label [ class "label label--filters" ] [ text <| "grid cell size: " ++ String.fromInt (BoundedInteger.getValue boundedInteger) ]
         , div [ class "crowd-map-slider-container" ]
             [ span [ class "minus", Events.onClick (MaybeUpdateResolution BoundedInteger.subOne) ] [ text "-" ]
             , input
@@ -1527,7 +1527,7 @@ viewLocationFilter location isIndoor tooltipIcon =
             , disabled isIndoor
             ]
             []
-        , label [ class "label", for "location" ] [ text "location:" ]
+        , label [ class "label label--filters", for "location" ] [ text "location:" ]
         , Tooltip.view Tooltip.locationFilter tooltipIcon
         ]
 

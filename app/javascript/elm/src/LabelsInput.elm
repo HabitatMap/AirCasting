@@ -91,7 +91,7 @@ view model text_ inputId placeholderText isDisabled tooltipText tooltipIcon =
             , disabled isDisabled
             ]
             []
-        , label [ class "label", for inputId ] [ text text_ ]
+        , label [ class "label label--filters", for inputId ] [ text text_ ]
         , Tooltip.view tooltipText tooltipIcon
         ]
 
