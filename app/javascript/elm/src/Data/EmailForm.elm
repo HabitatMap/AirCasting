@@ -30,7 +30,7 @@ view emailForm onSubmit noOp updateValue =
             Nothing ->
                 div []
                     [ input
-                        [ class "email-popup__input"
+                        [ class "input email-popup__input"
                         , placeholder "email address"
                         , Popup.clickWithoutDefault noOp
                         , value emailForm.value

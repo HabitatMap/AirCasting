@@ -1,12 +1,4 @@
-label {
-  font-size: $tiny-font;
-  font-weight: bold;
-  margin-bottom: 4px;
-  text-transform: capitalize;
-  transition: opacity 0.5s;
-}
-
-input {
+.input {
   border: none;
   border-radius: $input-radius;
   font-size: $small-font;
@@ -31,7 +23,7 @@ input[type="checkbox"] {
   }
 }
 
-.input-dark {
+.input--dark {
   background-color: $gray-input;
   color: $white;
 
@@ -41,6 +33,10 @@ input[type="checkbox"] {
   }
 }
 
-.input-filters {
+.input--filters {
   margin-bottom: 24px;
+}
+
+.input--time {
+  letter-spacing: -0.4px;
 }

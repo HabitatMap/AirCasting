@@ -81,8 +81,7 @@ view model text_ inputId placeholderText isDisabled tooltipText tooltipIcon =
         [ div [ class "tag-container" ] (List.map viewLabel <| asList model)
         , input
             [ id inputId
-            , class "input-dark"
-            , class "input-filters"
+            , class "input input--dark input--filters"
             , placeholder placeholderText
             , type_ "text"
             , name inputId
@@ -92,7 +91,7 @@ view model text_ inputId placeholderText isDisabled tooltipText tooltipIcon =
             , disabled isDisabled
             ]
             []
-        , label [ for inputId ] [ text text_ ]
+        , label [ class "label", for inputId ] [ text text_ ]
         , Tooltip.view tooltipText tooltipIcon
         ]
 

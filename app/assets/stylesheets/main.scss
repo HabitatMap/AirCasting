@@ -9,7 +9,6 @@
 
 @import "./global/backgrounds";
 @import "./global/global";
-@import "./global/forms";
 
 @import "./modules/action-buttons";
 @import "./modules/button-hm";
@@ -24,10 +23,12 @@
 @import "./modules/heatmap";
 @import "./modules/heatmap-button";
 @import "./modules/info-window";
-@import "./modules/note";
+@import "./modules/input";
+@import "./modules/label";
 @import "./modules/map";
 @import "./modules/map-search-control";
 @import "./modules/markers";
+@import "./modules/note";
 @import "./modules/overlay";
 @import "./modules/overlay-info";
 @import "./modules/refresh-timerange-button";
