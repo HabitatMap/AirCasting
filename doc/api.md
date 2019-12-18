@@ -60,11 +60,11 @@ See [parameters description](#parameters-description)
 
 - request
   ```json
-  http://aircasting.org/api/mobile/sessions.json?q={"time_from":1533081600,"time_to":1535759940,"tags":"","usernames":"HabitatMap","west":-73.96594349649638,"east":-73.9480263402769,"south":40.70849431072799,"north":40.713585287529995,"limit":1,"offset":0,"sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
+  http://aircasting.habitatmap.org/api/mobile/sessions.json?q={"time_from":1533081600,"time_to":1535759940,"tags":"","usernames":"HabitatMap","west":-73.96594349649638,"east":-73.9480263402769,"south":40.70849431072799,"north":40.713585287529995,"limit":1,"offset":0,"sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
   ```
 - encoded request
   ```
-  curl http://aircasting.org/api/mobile/sessions.json?q=%7B%22time_from%22%3A1533081600%2C%22time_to%22%3A1535759940%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22west%22%3A-73.96594349649638%2C%22east%22%3A-73.9480263402769%2C%22south%22%3A40.70849431072799%2C%22north%22%3A40.713585287529995%2C%22limit%22%3A1%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D
+  curl http://aircasting.habitatmap.org/api/mobile/sessions.json?q=%7B%22time_from%22%3A1533081600%2C%22time_to%22%3A1535759940%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22west%22%3A-73.96594349649638%2C%22east%22%3A-73.9480263402769%2C%22south%22%3A40.70849431072799%2C%22north%22%3A40.713585287529995%2C%22limit%22%3A1%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D
   ```
   See [how to encode URLs](#how-to-encode-urls)
 - response
@@ -142,12 +142,12 @@ See [parameters description](#parameters-description)
 
 - request
   ```json
-  http://aircasting.org/api/fixed/active/sessions.json?q={"time_from":"1531008000","time_to":"1562630399","tags":"","usernames":"","west":-73.9766655034307,"east":-73.97618605856928,"south":40.68019783151002,"north":40.680367168382396,"limit":50,"offset":0,"sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
+  http://aircasting.habitatmap.org/api/fixed/active/sessions.json?q={"time_from":"1531008000","time_to":"1562630399","tags":"","usernames":"","west":-73.9766655034307,"east":-73.97618605856928,"south":40.68019783151002,"north":40.680367168382396,"limit":50,"offset":0,"sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
   ```
 - encoded request
 
   ```
-  curl http://aircasting.org/api/fixed/active/sessions.json?q=%7B%22time_from%22%3A%221531008000%22%2C%22time_to%22%3A%221562630399%22%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22%22%2C%22west%22%3A-73.9766655034307%2C%22east%22%3A-73.97618605856928%2C%22south%22%3A40.68019783151002%2C%22north%22%3A40.680367168382396%2C%22limit%22%3A50%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D
+  curl http://aircasting.habitatmap.org/api/fixed/active/sessions.json?q=%7B%22time_from%22%3A%221531008000%22%2C%22time_to%22%3A%221562630399%22%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22%22%2C%22west%22%3A-73.9766655034307%2C%22east%22%3A-73.97618605856928%2C%22south%22%3A40.68019783151002%2C%22north%22%3A40.680367168382396%2C%22limit%22%3A50%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D
   ```
 
   See [how to encode URLs](#how-to-encode-urls)
@@ -232,13 +232,13 @@ See [parameters description](#parameters-description)
 - request
 
   ```json
-  http://aircasting.org/api/fixed/dormant/sessions.json?q={"time_from":1543622400,"time_to":1546300740,"tags":"","usernames":"HabitatMap","sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
+  http://aircasting.habitatmap.org/api/fixed/dormant/sessions.json?q={"time_from":1543622400,"time_to":1546300740,"tags":"","usernames":"HabitatMap","sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
   ```
 
 * encoded request
 
   ```
-  curl http://aircasting.org/api/fixed/dormant/sessions.json?q=%7B%22time_from%22%3A1543622400%2C%22time_to%22%3A1546300740%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D
+  curl http://aircasting.habitatmap.org/api/fixed/dormant/sessions.json?q=%7B%22time_from%22%3A1543622400%2C%22time_to%22%3A1546300740%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D
   ```
 
   See [how to encode URLs](#how-to-encode-urls)
@@ -310,7 +310,7 @@ GET `/api/mobile/sessions2/:id`
 - request
 
   ```
-  curl http://aircasting.org/api/mobile/sessions2/94192.json?sensor_name=AirBeam2-PM2.5
+  curl http://aircasting.habitatmap.org/api/mobile/sessions2/94192.json?sensor_name=AirBeam2-PM2.5
   ```
 
 - response
@@ -397,7 +397,7 @@ GET `/api/measurements.json`
 - request
 
   ```
-  curl http://aircasting.org/api/measurements.json/?end_time=2281550369000&start_time=0&stream_ids=1
+  curl http://aircasting.habitatmap.org/api/measurements.json/?end_time=2281550369000&start_time=0&stream_ids=1
   ```
 
 - response
@@ -451,13 +451,14 @@ See [parameters description](#parameters-description)
 **Example**
 
 - request
+
   ```json
-   http://aircasting.org/api/averages2.json?q={"west":-74.56264303613284,"east":-73.41594503808597,"south":40.48145815185845,"north":40.82735151191054,"time_from":"1531612800","time_to":"1563235199","grid_size_x":113.78612716763006,"grid_size_y":31,"tags":"","usernames":"HabitatMap","sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³","session_ids":[94192,94178,91439,90868,90850,90837,89516,89490,78011,78010,77712,76780,76770,75193,71641,67139,67096,64047,64042,64031]}
+   http://aircasting.habitatmap.org/api/averages2.json?q={"west":-74.56264303613284,"east":-73.41594503808597,"south":40.48145815185845,"north":40.82735151191054,"time_from":"1531612800","time_to":"1563235199","grid_size_x":113.78612716763006,"grid_size_y":31,"tags":"","usernames":"HabitatMap","sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³","session_ids":[94192,94178,91439,90868,90850,90837,89516,89490,78011,78010,77712,76780,76770,75193,71641,67139,67096,64047,64042,64031]}
   ```
 
 - encoded request
   ```
-  curl  http://aircasting.org/api/averages2.json?q=%7B%22west%22:-74.56264303613284,%22east%22:-73.41594503808597,%22south%22:40.48145815185845,%22north%22:40.82735151191054,%22time_from%22:%221531612800%22,%22time_to%22:%221563235199%22,%22grid_size_x%22:113.78612716763006,%22grid_size_y%22:31,%22tags%22:%22%22,%22usernames%22:%22HabitatMap%22,%22sensor_name%22:%22airbeam2-pm2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B94192,94178,91439,90868,90850,90837,89516,89490,78011,78010,77712,76780,76770,75193,71641,67139,67096,64047,64042,64031%5D%7D
+  curl  http://aircasting.habitatmap.org/api/averages2.json?q=%7B%22west%22:-74.56264303613284,%22east%22:-73.41594503808597,%22south%22:40.48145815185845,%22north%22:40.82735151191054,%22time_from%22:%221531612800%22,%22time_to%22:%221563235199%22,%22grid_size_x%22:113.78612716763006,%22grid_size_y%22:31,%22tags%22:%22%22,%22usernames%22:%22HabitatMap%22,%22sensor_name%22:%22airbeam2-pm2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B94192,94178,91439,90868,90850,90837,89516,89490,78011,78010,77712,76780,76770,75193,71641,67139,67096,64047,64042,64031%5D%7D
   ```
 - response
 
@@ -513,22 +514,23 @@ See [parameters description](#parameters-description)
 
 - request
   ```json
-  http://aircasting.org/api/region.json?q={"west":-73.98231641381187,"east":-73.97216864391766,"south":40.68332674082153,"north":40.69643137175753,"time_from":"1531612800","time_to":"1563235199","grid_size_x":113.78612716763006,"grid_size_y":31,"tags":"","usernames":"HabitatMap","sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³","session_ids":[94192,94178,91439,90868,90850,90837,89516,89490,78011,78010,77712,76780,76770,75193,71641,67139,67096,64047,64042,64031]}
+  http://aircasting.habitatmap.org/api/region.json?q={"west":-73.98231641381187,"east":-73.97216864391766,"south":40.68332674082153,"north":40.69643137175753,"time_from":"1531612800","time_to":"1563235199","grid_size_x":113.78612716763006,"grid_size_y":31,"tags":"","usernames":"HabitatMap","sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³","session_ids":[94192,94178,91439,90868,90850,90837,89516,89490,78011,78010,77712,76780,76770,75193,71641,67139,67096,64047,64042,64031]}
   ```
-- encoded request 
+- encoded request
+
   ```
-  curl http://aircasting.org/api/region.json\?q\=%7B%22west%22%3A-73.98231641381187%2C%22east%22%3A-73.97216864391766%2C%22south%22%3A40.68332674082153%2C%22north%22%3A40.69643137175753%2C%22time_from%22%3A%221531612800%22%2C%22time_to%22%3A%221563235199%22%2C%22grid_size_x%22%3A113.78612716763006%2C%22grid_%20%20%20%20size_y%22%3A31%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%2C%22session_ids%22%3A%5B94192%2C94178%2C91439%2C90868%2C90850%2C90837%2C89516%2C89490%2C78011%2C78010%2C77712%2C76780%2C76770%2C%20%20%20%2075193%2C71641%2C67139%2C67096%2C64047%2C64042%2C64031%5D%7D
+  curl http://aircasting.habitatmap.org/api/region.json\?q\=%7B%22west%22%3A-73.98231641381187%2C%22east%22%3A-73.97216864391766%2C%22south%22%3A40.68332674082153%2C%22north%22%3A40.69643137175753%2C%22time_from%22%3A%221531612800%22%2C%22time_to%22%3A%221563235199%22%2C%22grid_size_x%22%3A113.78612716763006%2C%22grid_%20%20%20%20size_y%22%3A31%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%2C%22session_ids%22%3A%5B94192%2C94178%2C91439%2C90868%2C90850%2C90837%2C89516%2C89490%2C78011%2C78010%2C77712%2C76780%2C76770%2C%20%20%20%2075193%2C71641%2C67139%2C67096%2C64047%2C64042%2C64031%5D%7D
   ```
-  
+
   See [how to encode URLs](#how-to-encode-urls)
 
 - response
 
   ```json
   {
-    "average":7.47753927860146,
-    "number_of_contributors":1,
-    "number_of_samples":4519
+    "average": 7.47753927860146,
+    "number_of_contributors": 1,
+    "number_of_samples": 4519
   }
   ```
 
@@ -543,7 +545,7 @@ GET `/api/v2/data/sessions/last`
 - request
 
   ```
-  curl http://aircasting.org/api/v2/data/sessions/last.json
+  curl http://aircasting.habitatmap.org/api/v2/data/sessions/last.json
   ```
 
 - response

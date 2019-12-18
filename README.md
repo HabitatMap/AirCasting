@@ -5,13 +5,13 @@
 
 ## About
 
-This is the AirCasting project - the project aims to build a platform for gathering, visualization and sharing of environmental data. To learn more about the platform visit [aircasting.org](http://aircasting.org).
+This is the AirCasting project - the project aims to build a platform for gathering, visualization and sharing of environmental data. To learn more about the platform visit [aircasting.habitatmap.org](http://aircasting.habitatmap.org).
 
 ## Developing
 
 ### Branching strategy
 
-- `master` is stable code, which automatically deployes to `aircasting.org`. If you're setting up your own copy of Aircasting use this branch.
+- `master` is stable code, which automatically deployes to `aircasting.habitatmap.org`. If you're setting up your own copy of Aircasting use this branch.
 
 ### Prerequisite: Debian / Ubuntu
 
