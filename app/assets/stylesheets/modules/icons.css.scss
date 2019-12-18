@@ -1,0 +1,38 @@
+.icon-nav-open {
+  stroke: $blue;
+
+  .header--nav-expanded & {
+    display: none;
+  }
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: none;
+  }
+}
+
+.icon-nav-close {
+  display: none;
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      display: block;
+    }
+  }
+
+  @media screen and (min-width: $small-desktop-min) {
+    display: none;
+  }
+}
+
+.icon-search {
+  cursor: pointer;
+  fill: $blue;
+  margin-right: 0.5rem;
+  width: 1.5rem;
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      fill: $white;
+    }
+  }
+}

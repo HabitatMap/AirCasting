@@ -923,7 +923,7 @@ viewNav navLogo sensors selectedSensorId page =
                     , href ExternalUrl.habitatMap
                     , class "u--show-on-mobile"
                     ]
-                    [ Svgs.logoHabitatMap ]
+                    [ Svgs.habitatMapLogo ]
                 ]
             , div
                 [ class "filters-info u--show-on-mobile"
@@ -950,7 +950,7 @@ viewNav navLogo sensors selectedSensorId page =
                 []
             ]
         , nav [ class "nav" ]
-            [ div [ class "nav-main" ]
+            [ div [ class "nav__main" ]
                 [ ul [ class "nav-list" ]
                     [ li [ class "nav-list__element" ]
                         [ a [ class "nav-list__link", href ExternalUrl.airbeam ]
@@ -1012,13 +1012,13 @@ viewNav navLogo sensors selectedSensorId page =
                         ]
                     ]
                 ]
-            , div [ class "nav-sub" ]
+            , div [ class "nav__sub" ]
                 [ a [ class "nav-list__link nav-list__link--search", href ExternalUrl.search ]
                     [ Svgs.search
                     ]
-                , a [ class "nav-list__link nav-list__link--donate u--capitalized", href ExternalUrl.donate ]
+                , a [ class "nav-list__link u--capitalized", href ExternalUrl.donate ]
                     [ text "Donate" ]
-                , a [ class "nav-list__link nav-list__link--donate u--capitalized", href ExternalUrl.android, target "_blank" ]
+                , a [ class "nav-list__link u--capitalized", href ExternalUrl.android, target "_blank" ]
                     [ text "Download app" ]
                 , a [ class "hm-button hm-button--small header__button", href ExternalUrl.airbeamBuy ]
                     [ text "Get Airbeam" ]
