@@ -9,14 +9,6 @@
   padding: 7px 0;
   text-transform: capitalize;
   width: 50%;
-
-  &:first-of-type {
-    border-radius: $input-radius 0 0 $input-radius;
-  }
-
-  &:last-of-type {
-    border-radius: 0 $input-radius $input-radius 0;
-  }
 }
 
 .toggle-button--pressed {
