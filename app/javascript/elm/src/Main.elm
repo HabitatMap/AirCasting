@@ -20,11 +20,11 @@ import Data.Status as Status exposing (Status(..))
 import Data.Theme as Theme exposing (Theme)
 import Data.Times as Times
 import ExternalUrl
-import Html exposing (Html, a, button, div, h2, h3, header, iframe, img, input, label, li, main_, nav, node, p, span, text, ul)
-import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, rel, src, target, title, type_, value)
-import Html.Attributes.Aria exposing (ariaLabel, role)
+import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, li, main_, nav, p, span, text, ul)
+import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, src, target, title, type_, value)
+import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events
-import Html.Lazy exposing (lazy3, lazy4, lazy5, lazy7, lazy8)
+import Html.Lazy exposing (lazy4, lazy7, lazy8)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode

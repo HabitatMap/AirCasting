@@ -1,6 +1,5 @@
 module LabelsInput exposing (Model, Msg(..), empty, fromList, init, subscriptions, update, view, withCandidate)
 
-import Data.Path exposing (Path)
 import Html exposing (Html, button, div, input, label, text)
 import Html.Attributes exposing (class, disabled, for, id, name, placeholder, type_, value)
 import Html.Events as Events
