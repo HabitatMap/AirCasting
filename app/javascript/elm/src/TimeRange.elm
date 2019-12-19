@@ -73,12 +73,12 @@ view refreshTimeRange status tooltipIcon resetIcon =
             ]
             []
         , label
-            [ class "label u--hide-on-mobile"
+            [ class "label label--filters u--hide-on-mobile"
             , for "time-range"
             ]
             [ text "time frame:" ]
         , label
-            [ class "label u--show-on-mobile"
+            [ class "label label--filters u--show-on-mobile"
             ]
             [ text "time frame:" ]
         , Tooltip.view Tooltip.timeRangeFilter tooltipIcon
