@@ -53,8 +53,8 @@ timeRangeDecoder =
         (Decode.field "timeTo" Decode.int)
 
 
-view : msg -> Status -> Path -> Path -> Html msg
-view refreshTimeRange status tooltipIcon resetIcon =
+view : msg -> Status -> Path -> Html msg
+view refreshTimeRange status resetIcon =
     div [ class "filters__input-group" ]
         [ input
             [ id "time-range"
@@ -81,7 +81,7 @@ view refreshTimeRange status tooltipIcon resetIcon =
             [ class "label label--filters u--show-on-mobile"
             ]
             [ text "time frame:" ]
-        , Tooltip.view Tooltip.timeRangeFilter tooltipIcon
+        , Tooltip.view Tooltip.timeRangeFilter
         , button
             [ ariaLabel "Reset time frame"
             , class "refresh-timerange-button"

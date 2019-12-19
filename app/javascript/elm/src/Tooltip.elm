@@ -14,17 +14,16 @@ module Tooltip exposing
     , view
     )
 
-import Data.Path as Path exposing (Path)
-import Html exposing (Html, div, img, span, text)
-import Html.Attributes exposing (alt, attribute, class, src)
+import Html exposing (Html, div, span, text)
+import Html.Attributes exposing (attribute, class)
 
 
 type TooltipText
     = TooltipText String
 
 
-view : TooltipText -> Path -> Html msg
-view (TooltipText tooltipText) tooltipIcon =
+view : TooltipText -> Html msg
+view (TooltipText tooltipText) =
     div [ attribute "data-tippy-content" tooltipText ] [ span [ class "tooltip-icon" ] [ text "?" ] ]
 
 
