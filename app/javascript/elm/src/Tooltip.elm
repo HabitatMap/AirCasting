@@ -15,8 +15,8 @@ module Tooltip exposing
     )
 
 import Data.Path as Path exposing (Path)
-import Html exposing (Html, div, img)
-import Html.Attributes exposing (alt, attribute, src)
+import Html exposing (Html, div, img, span, text)
+import Html.Attributes exposing (alt, attribute, class, src)
 
 
 type TooltipText
@@ -25,7 +25,7 @@ type TooltipText
 
 view : TooltipText -> Path -> Html msg
 view (TooltipText tooltipText) tooltipIcon =
-    div [ attribute "data-tippy-content" tooltipText ] [ img [ src (Path.toString tooltipIcon), alt "Tooltip icon" ] [] ]
+    div [ attribute "data-tippy-content" tooltipText ] [ span [ class "tooltip-icon" ] [ text "?" ] ]
 
 
 mobileTab =
