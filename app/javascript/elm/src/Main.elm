@@ -20,11 +20,11 @@ import Data.Status as Status exposing (Status(..))
 import Data.Theme as Theme exposing (Theme)
 import Data.Times as Times
 import ExternalUrl
-import Html exposing (Html, a, button, div, h2, h3, header, iframe, img, input, label, li, main_, nav, node, p, span, text, ul)
-import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, rel, src, target, title, type_, value)
-import Html.Attributes.Aria exposing (ariaLabel, role)
+import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, li, main_, nav, p, span, text, ul)
+import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, src, target, title, type_, value)
+import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events
-import Html.Lazy exposing (lazy3, lazy4, lazy5, lazy7, lazy8)
+import Html.Lazy exposing (lazy4, lazy7, lazy8)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
@@ -71,7 +71,6 @@ type alias Model =
     , resetIconBlack : Path
     , resetIconWhite : Path
     , themeIcons : Theme.Icons
-    , tooltipIcon : Path
     , navLogo : Path
     , heatMapThresholds : WebData HeatMapThresholds
     , isSearchAsIMoveOn : Bool
@@ -111,7 +110,6 @@ defaultModel =
     , resetIconBlack = Path.empty
     , resetIconWhite = Path.empty
     , themeIcons = Theme.emptyIcons
-    , tooltipIcon = Path.empty
     , navLogo = Path.empty
     , heatMapThresholds = NotAsked
     , isSearchAsIMoveOn = False
@@ -146,7 +144,6 @@ type alias Flags =
     , resetIconWhite : String
     , themeSwitchIconBlue : String
     , themeSwitchIconDefault : String
-    , tooltipIcon : String
     , navLogo : String
     , heatMapThresholdValues : Maybe HeatMapThresholdValues
     , isSearchAsIMoveOn : Bool
@@ -197,7 +194,6 @@ init flags url key =
         , resetIconBlack = Path.fromString flags.resetIconBlack
         , resetIconWhite = Path.fromString flags.resetIconWhite
         , themeIcons = Theme.toIcons flags.themeSwitchIconDefault flags.themeSwitchIconBlue
-        , tooltipIcon = Path.fromString flags.tooltipIcon
         , navLogo = Path.fromString flags.navLogo
         , isSearchAsIMoveOn = flags.isSearchAsIMoveOn
         , overlay = overlay
@@ -1282,7 +1278,7 @@ viewSessionTypeNav model =
                     )
                 ]
                 [ text "mobile" ]
-            , Tooltip.view Tooltip.mobileTab model.tooltipIcon
+            , Tooltip.view Tooltip.mobileTab
             ]
         , li [ classList [ ( "session-type-nav__item", True ), ( "selected", model.page == Fixed ) ] ]
             [ a
@@ -1294,7 +1290,7 @@ viewSessionTypeNav model =
                     )
                 ]
                 [ text "fixed" ]
-            , Tooltip.view Tooltip.fixedTab model.tooltipIcon
+            , Tooltip.view Tooltip.fixedTab
             ]
         ]
 
@@ -1371,34 +1367,34 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     div [ class "filters-container" ]
-        [ lazy5 viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
-        , lazy5 viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
-        , viewLocationFilter model.location model.isIndoor model.tooltipIcon
-        , TimeRange.view RefreshTimeRange Dormant model.tooltipIcon model.resetIconWhite
-        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter model.tooltipIcon
-        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
-        , viewCrowdMapOptions model.isCrowdMapOn model.crowdMapResolution model.selectedSession model.tooltipIcon
+        [ lazy4 viewParameterFilter model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
+        , lazy4 viewSensorFilter model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
+        , viewLocationFilter model.location model.isIndoor
+        , TimeRange.view RefreshTimeRange Dormant model.resetIconWhite
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter
+        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter
+        , viewCrowdMapOptions model.isCrowdMapOn model.crowdMapResolution model.selectedSession
         ]
 
 
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     div [ class "filters-container" ]
-        [ lazy5 viewParameterFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
-        , lazy5 viewSensorFilter model.sensors model.selectedSensorId model.tooltipIcon model.isPopupListExpanded model.popup
-        , viewLocationFilter model.location model.isIndoor model.tooltipIcon
-        , TimeRange.view RefreshTimeRange model.status model.tooltipIcon model.resetIconWhite
-        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
-        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
+        [ lazy4 viewParameterFilter model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
+        , lazy4 viewSensorFilter model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
+        , viewLocationFilter model.location model.isIndoor
+        , TimeRange.view RefreshTimeRange model.status model.resetIconWhite
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter
+        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter
         , div [ class "filters__toggle-group" ]
             [ label [ class "label label--filters" ] [ text "placement:" ]
-            , Tooltip.view Tooltip.typeToggleFilter model.tooltipIcon
+            , Tooltip.view Tooltip.typeToggleFilter
             , viewToggleButton "outdoor" (not model.isIndoor) (ToggleIndoor False)
             , viewToggleButton "indoor" model.isIndoor (ToggleIndoor True)
             ]
         , div [ class "filters__toggle-group" ]
             [ label [ class "label label--filters" ] [ text "status:" ]
-            , Tooltip.view Tooltip.activeToggleFilter model.tooltipIcon
+            , Tooltip.view Tooltip.activeToggleFilter
             , viewToggleButton "active" (model.status == Active) (ToggleStatus Active)
             , viewToggleButton "dormant" (model.status == Dormant) (ToggleStatus Dormant)
             ]
@@ -1421,8 +1417,8 @@ viewToggleButton label isPressed callback =
         [ text label ]
 
 
-viewParameterFilter : List Sensor -> String -> Path -> Bool -> Popup -> Html Msg
-viewParameterFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup =
+viewParameterFilter : List Sensor -> String -> Bool -> Popup -> Html Msg
+viewParameterFilter sensors selectedSensorId isPopupListExpanded popup =
     div [ class "filters__input-group" ]
         [ input
             [ id "parameter"
@@ -1437,13 +1433,13 @@ viewParameterFilter sensors selectedSensorId tooltipIcon isPopupListExpanded pop
             ]
             []
         , label [ class "label label--filters", for "parameter" ] [ text "parameter:" ]
-        , Tooltip.view Tooltip.parameterFilter tooltipIcon
+        , Tooltip.view Tooltip.sensorFilter
         , viewListPopup Popup.isParameterPopupShown isPopupListExpanded popup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId)
         ]
 
 
-viewSensorFilter : List Sensor -> String -> Path -> Bool -> Popup -> Html Msg
-viewSensorFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup =
+viewSensorFilter : List Sensor -> String -> Bool -> Popup -> Html Msg
+viewSensorFilter sensors selectedSensorId isPopupListExpanded popup =
     div [ class "filters__input-group" ]
         [ input
             [ id "sensor"
@@ -1458,7 +1454,7 @@ viewSensorFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup 
             ]
             []
         , label [ class "label label--filters", for "sensor" ] [ text "sensor:" ]
-        , Tooltip.view Tooltip.sensorFilter tooltipIcon
+        , Tooltip.view Tooltip.sensorFilter
         , viewListPopup Popup.isSensorPopupShown isPopupListExpanded popup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId)
         ]
 
@@ -1472,10 +1468,10 @@ viewListPopup isShown isPopupListExpanded popup items itemType selectedItem =
         text ""
 
 
-viewCrowdMapOptions : Bool -> BoundedInteger -> WebData SelectedSession -> Path -> Html Msg
-viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon =
+viewCrowdMapOptions : Bool -> BoundedInteger -> WebData SelectedSession -> Html Msg
+viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession =
     div [ classList [ ( "disabled-area", RemoteData.isSuccess selectedSession ) ] ]
-        [ viewCrowdMapToggle isCrowdMapOn tooltipIcon
+        [ viewCrowdMapToggle isCrowdMapOn
         , if isCrowdMapOn then
             viewCrowdMapSlider crowdMapResolution
 
@@ -1484,13 +1480,13 @@ viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon 
         ]
 
 
-viewCrowdMapToggle : Bool -> Path -> Html Msg
-viewCrowdMapToggle isCrowdMapOn tooltipIcon =
+viewCrowdMapToggle : Bool -> Html Msg
+viewCrowdMapToggle isCrowdMapOn =
     div [ class "filters__toggle-group" ]
         [ label [ class "label label--filters" ] [ text "CrowdMap:" ]
         , viewToggleButton "off" (not isCrowdMapOn) (ToggleCrowdMap False)
         , viewToggleButton "on" isCrowdMapOn (ToggleCrowdMap True)
-        , Tooltip.view Tooltip.crowdMap tooltipIcon
+        , Tooltip.view Tooltip.crowdMap
         ]
 
 
@@ -1514,8 +1510,8 @@ viewCrowdMapSlider boundedInteger =
         ]
 
 
-viewLocationFilter : String -> Bool -> Path -> Html Msg
-viewLocationFilter location isIndoor tooltipIcon =
+viewLocationFilter : String -> Bool -> Html Msg
+viewLocationFilter location isIndoor =
     div [ class "filters__input-group" ]
         [ input
             [ id "location"
@@ -1528,7 +1524,7 @@ viewLocationFilter location isIndoor tooltipIcon =
             ]
             []
         , label [ class "label label--filters", for "location" ] [ text "location:" ]
-        , Tooltip.view Tooltip.locationFilter tooltipIcon
+        , Tooltip.view Tooltip.locationFilter
         ]
 
 

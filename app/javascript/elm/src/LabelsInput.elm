@@ -1,6 +1,5 @@
 module LabelsInput exposing (Model, Msg(..), empty, fromList, init, subscriptions, update, view, withCandidate)
 
-import Data.Path exposing (Path)
 import Html exposing (Html, button, div, input, label, text)
 import Html.Attributes exposing (class, disabled, for, id, name, placeholder, type_, value)
 import Html.Events as Events
@@ -75,8 +74,8 @@ update msg model toCmd =
 -- VIEW
 
 
-view : Model -> String -> String -> String -> Bool -> TooltipText -> Path -> Html Msg
-view model text_ inputId placeholderText isDisabled tooltipText tooltipIcon =
+view : Model -> String -> String -> String -> Bool -> TooltipText -> Html Msg
+view model text_ inputId placeholderText isDisabled tooltipText =
     div [ class "filters__input-group" ]
         [ div [ class "tag-container" ] (List.map viewLabel <| asList model)
         , input
@@ -92,7 +91,7 @@ view model text_ inputId placeholderText isDisabled tooltipText tooltipIcon =
             ]
             []
         , label [ class "label label--filters", for inputId ] [ text text_ ]
-        , Tooltip.view tooltipText tooltipIcon
+        , Tooltip.view tooltipText
         ]
 
 

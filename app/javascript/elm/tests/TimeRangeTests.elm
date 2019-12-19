@@ -23,7 +23,7 @@ all =
     describe "TimeRange"
         [ test ".view has an input field" <|
             \_ ->
-                TimeRange.view (\_ -> ()) Active defaultIcon defaultIcon
+                TimeRange.view (\_ -> ()) Active defaultIcon
                     |> Query.fromHtml
                     |> Query.has [ tag "input" ]
         , fuzz2 int int ".update returns updated TimeRange if value has correct format" <|
@@ -53,7 +53,7 @@ all =
                     |> Expect.equal expected
         , test "viewTimeFilter has a reset time frame button" <|
             \_ ->
-                TimeRange.view Msg Active defaultIcon defaultIcon
+                TimeRange.view Msg Active defaultIcon
                     |> Query.fromHtml
                     |> Query.find [ attribute <| ariaLabel "Reset time frame" ]
                     |> Event.simulate Event.click
