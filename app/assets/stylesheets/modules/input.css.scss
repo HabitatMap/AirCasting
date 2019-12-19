@@ -1,10 +1,4 @@
-label {
-  font-size: $tiny-font;
-  font-weight: bold;
-  transition: opacity 0.5s;
-}
-
-input {
+.input {
   border: none;
   border-radius: $input-radius;
   font-size: $small-font;
@@ -29,15 +23,21 @@ input[type="checkbox"] {
   }
 }
 
-.input-dark {
-  background-color: $input-bg;
-  color: white;
+.input--dark {
+  background-color: $gray-input;
+  color: $white;
 
   &::placeholder {
-    color: #a0a3b2;
+    color: transparentize($color: $white, $amount: 0.5);
+    text-transform: capitalize;
   }
 }
 
-.input-filters {
-  margin-bottom: 24px;
+.input--filters {
+  border-radius: 0;
+  margin-bottom: 20px;
+}
+
+.input--time {
+  letter-spacing: -0.4px;
 }

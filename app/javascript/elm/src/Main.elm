@@ -1189,6 +1189,7 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         , label [ class "visuallyhidden", for <| "heatmap-" ++ text_ ] [ text <| "Heatmap " ++ text_ ++ " value" ]
         , input
             [ id <| "heatmap-" ++ text_
+            , class "input"
             , type_ "text"
             , value <| String.fromInt value_
             , onChange toMsg
@@ -1390,13 +1391,13 @@ viewFixedFilters model =
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter model.tooltipIcon
         , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter model.tooltipIcon
         , div [ class "filters__toggle-group" ]
-            [ label [] [ text "placement:" ]
+            [ label [ class "label label--filters" ] [ text "placement:" ]
             , Tooltip.view Tooltip.typeToggleFilter model.tooltipIcon
             , viewToggleButton "outdoor" (not model.isIndoor) (ToggleIndoor False)
             , viewToggleButton "indoor" model.isIndoor (ToggleIndoor True)
             ]
         , div [ class "filters__toggle-group" ]
-            [ label [] [ text "status:" ]
+            [ label [ class "label label--filters" ] [ text "status:" ]
             , Tooltip.view Tooltip.activeToggleFilter model.tooltipIcon
             , viewToggleButton "active" (model.status == Active) (ToggleStatus Active)
             , viewToggleButton "dormant" (model.status == Dormant) (ToggleStatus Dormant)
@@ -1408,7 +1409,7 @@ viewToggleButton : String -> Bool -> Msg -> Html Msg
 viewToggleButton label isPressed callback =
     button
         [ type_ "button"
-        , class "input-filters"
+        , class "input input--filters"
         , if isPressed then
             class "toggle-button toggle-button--pressed"
 
@@ -1425,8 +1426,7 @@ viewParameterFilter sensors selectedSensorId tooltipIcon isPopupListExpanded pop
     div [ class "filters__input-group" ]
         [ input
             [ id "parameter"
-            , class "input-dark"
-            , class "input-filters"
+            , class "input input--dark input--filters"
             , placeholder "parameter"
             , type_ "text"
             , name "parameter"
@@ -1436,7 +1436,7 @@ viewParameterFilter sensors selectedSensorId tooltipIcon isPopupListExpanded pop
             , readonly True
             ]
             []
-        , label [ for "parameter" ] [ text "parameter:" ]
+        , label [ class "label label--filters", for "parameter" ] [ text "parameter:" ]
         , Tooltip.view Tooltip.parameterFilter tooltipIcon
         , viewListPopup Popup.isParameterPopupShown isPopupListExpanded popup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId)
         ]
@@ -1447,8 +1447,7 @@ viewSensorFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup 
     div [ class "filters__input-group" ]
         [ input
             [ id "sensor"
-            , class "input-dark"
-            , class "input-filters"
+            , class "input input--dark input--filters"
             , placeholder "sensor"
             , type_ "text"
             , name "sensor"
@@ -1458,7 +1457,7 @@ viewSensorFilter sensors selectedSensorId tooltipIcon isPopupListExpanded popup 
             , readonly True
             ]
             []
-        , label [ for "sensor" ] [ text "sensor:" ]
+        , label [ class "label label--filters", for "sensor" ] [ text "sensor:" ]
         , Tooltip.view Tooltip.sensorFilter tooltipIcon
         , viewListPopup Popup.isSensorPopupShown isPopupListExpanded popup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId)
         ]
@@ -1488,7 +1487,7 @@ viewCrowdMapOptions isCrowdMapOn crowdMapResolution selectedSession tooltipIcon 
 viewCrowdMapToggle : Bool -> Path -> Html Msg
 viewCrowdMapToggle isCrowdMapOn tooltipIcon =
     div [ class "filters__toggle-group" ]
-        [ label [] [ text "CrowdMap:" ]
+        [ label [ class "label label--filters" ] [ text "CrowdMap:" ]
         , viewToggleButton "off" (not isCrowdMapOn) (ToggleCrowdMap False)
         , viewToggleButton "on" isCrowdMapOn (ToggleCrowdMap True)
         , Tooltip.view Tooltip.crowdMap tooltipIcon
@@ -1498,7 +1497,7 @@ viewCrowdMapToggle isCrowdMapOn tooltipIcon =
 viewCrowdMapSlider : BoundedInteger -> Html Msg
 viewCrowdMapSlider boundedInteger =
     div [ id "crowd-map-slider" ]
-        [ label [] [ text <| "grid cell size: " ++ String.fromInt (BoundedInteger.getValue boundedInteger) ]
+        [ label [ class "label label--filters" ] [ text <| "grid cell size: " ++ String.fromInt (BoundedInteger.getValue boundedInteger) ]
         , div [ class "crowd-map-slider-container" ]
             [ span [ class "minus", Events.onClick (MaybeUpdateResolution BoundedInteger.subOne) ] [ text "-" ]
             , input
@@ -1521,15 +1520,14 @@ viewLocationFilter location isIndoor tooltipIcon =
         [ input
             [ id "location"
             , value location
-            , class "input-dark"
-            , class "input-filters"
+            , class "input input--dark input--filters"
             , placeholder "location"
             , type_ "text"
             , name "location"
             , disabled isIndoor
             ]
             []
-        , label [ for "location" ] [ text "location:" ]
+        , label [ class "label label--filters", for "location" ] [ text "location:" ]
         , Tooltip.view Tooltip.locationFilter tooltipIcon
         ]
 

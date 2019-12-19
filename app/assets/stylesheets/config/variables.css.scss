@@ -1,11 +1,17 @@
 // colors
-$blue: #09a7f0;
+$blue: #00b2ef;
 $dark-grey: #6b6d7c;
 $dark-blue: #242a3f;
 $grey-text: #a3a0a4;
 $separator-color: #cbcaca;
 $separator-color-light: rgba(203, 202, 202, 0.6);
-$text-color: #383b41;
+$text-color: #757575;
+
+// colors - from HM
+$white: #ffffff;
+$gray: #818181;
+$gray-dark: #474c55;
+$gray-input: rgb(121, 125, 130);
 
 // heatmap colors
 // the same colors are used in marker svgs and theme.js
@@ -77,6 +83,13 @@ $action-container-height: 60px;
 $input-padding: 7px;
 $margin-default: 12px;
 
+// spacing - from HM
+$u-space-tiny: 0.5rem;
+$u-space-small: 1.5rem;
+$u-space-default: 3rem;
+$u-space-big: 6rem;
+$u-space-huge: 10rem;
+
 // typography
 $tiny-font: 12px;
 $small-font: 14px;
@@ -84,6 +97,19 @@ $medium-font: 18px;
 
 $font-stack-regular: 400;
 $font-stack-bold: 700;
+
+// typographic defaults - from HM
+$base-font-size-2: 0.812rem; // 13px
+$base-font-size-1: 0.875rem; // 14px
+$base-font-size: 16px;
+$base-font-size1: 1.187rem; // 19px
+$base-font-size2: 1.5rem; // 24px
+$base-font-size3: 1.75rem; // 28px
+$base-font-size4: 2.75rem; // 44px
+
+// fonts - from HM
+$bold-font: "Moderat-Bold", sans-serif;
+$body-font: "Muli", sans-serif;
 
 // z-index stack for elements on top of the map
 $sessions-z-index: 4;
@@ -97,19 +123,17 @@ $filters-z-index: $overlay-info-z-index + 1;
 $popup-z-index: $filters-z-index + 1;
 
 // breakpoints
-$ipad-portrait: 768px;
-$mobile: $ipad-portrait - 1px;
-$wider-mobile: 850px;
+$large-desktop-min: 1920px;
+$desktop-max: $large-desktop-min - 1px;
+$desktop-min: 1366px;
+$small-desktop-max: $desktop-min - 1px;
+$small-desktop-min: 1025px;
+$tablet-max: $small-desktop-min - 1px;
+$tablet-min: 768px;
+$large-mobile-max: $tablet-min - 1px;
+$large-mobile-min: 480px;
+$wider-mobile: 850px; // specific to maps
 
 // other
 $basic-radius: 8px;
 $input-radius: 6px;
-
-//*********************
-
-// old variables
-
-// TODO: This writes over the "real" $text-color above but I'm leaving it because it seems like it was working for us so far.
-// Don't want to introduce changes here now but will look into it after the release.
-
-$text-color: #757575;

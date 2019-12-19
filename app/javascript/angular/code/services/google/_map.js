@@ -316,7 +316,7 @@ export const map = (
       var lineOptions = {
         map: this.get(),
         path,
-        strokeColor: "#09a7f0",
+        strokeColor: "#00b2ef",
         strokeOpacity: 0.2,
         geodesic: false
       };

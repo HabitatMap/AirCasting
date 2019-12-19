@@ -191,7 +191,7 @@ export const fetchShortUrl = (tooltipId, currentUrl) => {
 
 const updateTooltipContent = (link, tooltip) => {
   const content = `
-    <input value=${link}></input>
+    <input class="input" value=${link}></input>
     <button
       id='copy-link-button'
       class='button button--primary copy-link-button'
