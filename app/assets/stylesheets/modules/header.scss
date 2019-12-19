@@ -1,8 +1,8 @@
 $header-font-size-desktop: 1.125rem;
-$header-z-index: 999;
 
 .header {
   @include transition(all 0.5s ease);
+  background-color: $white;
   font-family: $bold-font;
   font-size: $base-font-size2;
   height: $nav-height;
@@ -16,6 +16,7 @@ $header-z-index: 999;
     padding: 0.5rem 0;
 
     &.header--nav-expanded {
+      background-color: $gray;
       height: 100%;
       overflow-y: auto;
       position: fixed;
@@ -95,6 +96,8 @@ $header-z-index: 999;
 }
 
 .icon-nav-open {
+  stroke: $blue;
+
   .header--nav-expanded & {
     display: none;
   }
@@ -162,11 +165,6 @@ $header-z-index: 999;
 
   @media screen and (max-width: $large-mobile-min) {
     @include flex-wrap(wrap);
-
-    .hm-button {
-      margin: 1rem auto;
-      width: 100%;
-    }
   }
 
   @media screen and (min-width: $small-desktop-min) {
@@ -184,12 +182,18 @@ $header-z-index: 999;
 }
 
 .nav-list__link {
+  color: $blue;
   display: block;
   padding: $u-space-tiny 0;
 
-  &.nav-list__link--donate {
-    border: none;
-    display: inline-block;
+  &[data-current="current page"] {
+    opacity: 0.5;
+  }
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      color: $white;
+    }
   }
 
   &:hover,
@@ -201,6 +205,27 @@ $header-z-index: 999;
     display: inline-block;
     padding: $u-space-tiny;
     vertical-align: middle;
+  }
+}
+
+.nav-list__link--search {
+  line-height: 1;
+}
+
+.nav-list__element {
+  position: relative;
+
+  &:hover {
+    .subnav-list {
+      @media screen and (min-width: $small-desktop-min) {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+  }
+
+  @media screen and (max-width: $tablet-max) {
+    border-top: 1px solid $white;
   }
 }
 
@@ -220,23 +245,6 @@ $header-z-index: 999;
     position: absolute;
     pointer-events: none;
     top: 100%;
-  }
-}
-
-.nav-list__element {
-  position: relative;
-
-  &:hover {
-    .subnav-list {
-      @media screen and (min-width: $small-desktop-min) {
-        opacity: 1;
-        pointer-events: auto;
-      }
-    }
-  }
-
-  @media screen and (max-width: $tablet-max) {
-    border-top: 1px solid $white;
   }
 }
 
@@ -260,28 +268,73 @@ $header-z-index: 999;
   }
 }
 
+// Subnavigation links
+
 .subnav-list__link {
+  background-color: $blue;
+  color: $white;
   display: inline-block;
   padding: 0.5rem;
   white-space: nowrap;
 
+  &:hover,
+  &:focus {
+    color: rgba($white, 0.5);
+  }
+
   @media screen and (max-width: $tablet-max) {
     font-size: $base-font-size1;
     padding: 0.25rem 0;
+
+    .header--nav-expanded & {
+      background: none;
+      color: $white;
+
+      &:hover,
+      &:focus {
+        color: rgba($white, 0.5);
+      }
+    }
   }
 }
 
 .icon-search {
-  width: 1.5rem;
   cursor: pointer;
+  fill: $blue;
   margin-right: 0.5rem;
+  width: 1.5rem;
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      fill: $white;
+    }
+  }
 }
 
 .header__button {
+  @include button-color($blue, $blue, $white, $blue);
+  border-width: 1px;
+  border-style: solid;
+  display: inline-block;
   font-size: $base-font-size-2;
-  line-height: 16px;
+  font-family: $bold-font;
+  height: 43px;
+  line-height: 1.1rem;
   margin-left: $u-space-small;
+  padding: 0.8rem 1.2rem;
+  text-align: center;
   text-transform: uppercase;
+
+  @media screen and (max-width: $large-mobile-min) {
+    margin: 1rem auto;
+    width: 100%;
+  }
+
+  @media screen and (max-width: $tablet-max) {
+    .header--nav-expanded & {
+      @include button-color($white, $white, $gray, $white);
+    }
+  }
 }
 
 .header__toggle-button {
@@ -297,135 +350,24 @@ $header-z-index: 999;
   }
 }
 
-// Basic config for list required for the header to work in AC
-
-.nav-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.subnav-list {
-  list-style: none;
-  padding: 0.5rem 0 1rem;
-}
-
-// Brand logo
-
-.logo--hm {
-  width: 8rem;
-  display: none;
-
-  @media screen and (min-width: $small-desktop-min) {
-    display: block;
-  }
-}
-
-.logo--hm-vertical {
-  margin-top: 6px;
+.header__filter-button {
+  @include appearance(none);
+  border: none;
+  cursor: pointer;
+  background: url("../../images/icons/filter-icon.svg") center / auto no-repeat;
+  display: block;
+  height: 22px;
+  outline: none;
+  text-decoration: none;
+  width: 27px;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 
   .header--nav-expanded & {
-    fill: $white;
-  }
-}
-
-// APPLY AC THEME
-
-$header-link-color-ac: $blue;
-$header-link-color-white: $white;
-
-.logo--hm,
-.icon-search {
-  fill: #00b2ef;
-
-  @media screen and (max-width: $tablet-max) {
-    .header--nav-expanded & {
-      fill: $white !important;
-    }
-  }
-}
-
-// Header background
-
-.header {
-  background-color: $white;
-
-  @media screen and (max-width: $tablet-max) {
-    &.header--nav-expanded,
-    .header--nav-expanded & {
-      background-color: $gray;
-    }
-  }
-}
-
-// Main navigation links
-
-.nav-list__link {
-  color: $header-link-color-ac;
-
-  &[data-current="current page"] {
-    opacity: 0.5;
+    display: none;
   }
 
-  @media screen and (max-width: $tablet-max) {
-    .header--nav-expanded & {
-      color: $white !important;
-    }
+  @media screen and (min-width: $small-desktop-min) {
+    display: none;
   }
-}
-
-.nav-list__link--search {
-  line-height: 1;
-}
-
-// Subnavigation links
-
-.subnav-list__link {
-  background-color: $blue;
-  color: $white;
-
-  &:hover,
-  &:focus {
-    color: rgba($white, 0.5);
-  }
-
-  @media screen and (max-width: $tablet-max) {
-    .header--nav-expanded & {
-      background: none;
-      color: $white;
-
-      &:hover,
-      &:focus {
-        color: rgba($white, 0.5);
-      }
-    }
-  }
-}
-
-// Header button
-
-.header__button {
-  @include button-color(
-    $header-link-color-ac,
-    $header-link-color-ac,
-    $white,
-    $header-link-color-ac
-  );
-
-  @media screen and (max-width: $tablet-max) {
-    .header--nav-expanded & {
-      @include button-color(
-        $header-link-color-white,
-        $header-link-color-white,
-        $gray,
-        $header-link-color-white
-      );
-    }
-  }
-}
-
-// Hamburger icon
-
-.icon-nav-open {
-  stroke: $blue;
 }

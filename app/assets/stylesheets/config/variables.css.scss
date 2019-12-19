@@ -111,6 +111,9 @@ $base-font-size4: 2.75rem; // 44px
 $bold-font: "Moderat-Bold", sans-serif;
 $body-font: "Muli", sans-serif;
 
+// z-index
+$header-z-index: 999;
+
 // z-index stack for elements on top of the map
 $sessions-z-index: 4;
 $heatmap-z-index: $sessions-z-index;
