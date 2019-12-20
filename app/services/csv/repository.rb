@@ -24,9 +24,9 @@ FROM sessions
 INNER JOIN streams ON streams.session_id = sessions.id
 WHERE sessions.id = "#{
       session_id
-    }" AND streams.sensor_package_name = "#{
-      sensor_package_name
-    }"
+    }" AND streams.sensor_package_name = '#{
+      sensor_package_name.gsub("'", "''")
+    }'
 GROUP BY streams.sensor_name, streams.sensor_package_name, streams.measurement_type, streams.unit_name
 ORDER BY streams.sensor_name ASC
     SQL
@@ -48,9 +48,9 @@ INNER JOIN measurements
 ON measurements.stream_id = streams.id
 WHERE sessions.id = "#{
       session_id
-    }" AND streams.sensor_package_name = "#{
-      sensor_package_name
-    }"
+    }" AND streams.sensor_package_name = '#{
+      sensor_package_name.gsub("'", "''")
+    }'
 ORDER BY measurements.time, measurements.milliseconds, streams.sensor_name ASC
     SQL
 
