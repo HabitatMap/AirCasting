@@ -20,13 +20,13 @@ class Csv::Repository
   def find_streams(session_id, sensor_package_name)
     sql = <<-SQL
 SELECT streams.sensor_name, streams.sensor_package_name, streams.measurement_type, streams.unit_name
-FROM `sessions`
-INNER JOIN `streams` ON `streams`.`session_id` = `sessions`.`id`
+FROM sessions
+INNER JOIN streams ON streams.session_id = sessions.id
 WHERE sessions.id = "#{
       session_id
-    }" AND streams.sensor_package_name = "#{
-      sensor_package_name
-    }"
+    }" AND streams.sensor_package_name = '#{
+      sensor_package_name.gsub("'", "''")
+    }'
 GROUP BY streams.sensor_name, streams.sensor_package_name, streams.measurement_type, streams.unit_name
 ORDER BY streams.sensor_name ASC
     SQL
@@ -41,16 +41,16 @@ SELECT streams.sensor_package_name as stream_sensor_package_name, streams.sensor
        sessions.title as session_title, measurements.time as measurement_time,
        measurements.milliseconds as measurement_milliseconds, measurements.latitude as measurement_latitude,
        measurements.longitude as measurement_longitude, measurements.value as measurement_value
-FROM `sessions`
-INNER JOIN `streams`
-ON `streams`.`session_id`= `sessions`.`id`
-INNER JOIN `measurements`
-ON `measurements`.`stream_id` = `streams`.`id`
+FROM sessions
+INNER JOIN streams
+ON streams.session_id= sessions.id
+INNER JOIN measurements
+ON measurements.stream_id = streams.id
 WHERE sessions.id = "#{
       session_id
-    }" AND streams.sensor_package_name = "#{
-      sensor_package_name
-    }"
+    }" AND streams.sensor_package_name = '#{
+      sensor_package_name.gsub("'", "''")
+    }'
 ORDER BY measurements.time, measurements.milliseconds, streams.sensor_name ASC
     SQL
 
@@ -60,9 +60,9 @@ ORDER BY measurements.time, measurements.milliseconds, streams.sensor_name ASC
   def find_sensor_package_names(session_id)
     sql = <<-SQL
 SELECT streams.sensor_package_name as stream_sensor_package_name
-FROM `sessions`
-INNER JOIN `streams`
-ON `streams`.`session_id`= `sessions`.`id`
+FROM sessions
+INNER JOIN streams
+ON streams.session_id= sessions.id
 WHERE sessions.id = "#{
       session_id
     }"
@@ -82,7 +82,7 @@ ORDER BY streams.sensor_package_name
   def find_session_title(session_id)
     sql = <<-SQL
 SELECT sessions.title
-FROM `sessions`
+FROM sessions
 WHERE sessions.id= "#{session_id}"
     SQL
 
