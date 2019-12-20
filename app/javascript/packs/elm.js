@@ -260,7 +260,7 @@ const setupHorizontalWheelScroll = node => {
     // If the trackpad is scrolled vertically or at an angle then deltaY !== 0.
     if (Math.abs(event.deltaX) !== 0) return;
     event.preventDefault();
-    const scrollBy = Math.sign(event.deltaY) * 180;
+    const scrollBy = Math.sign(event.deltaY) * 100;
     node.scroll(node.scrollLeft + scrollBy, 0);
   };
 
