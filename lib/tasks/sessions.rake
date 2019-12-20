@@ -21,5 +21,37 @@ namespace :sessions do
       puts "#{sum - idx} streams left"
     end
   end
-end
 
+  desc "Export mobile session aggregated data to CSV"
+  task :export_mobile_sessions => [:environment] do
+    CSV.open("data-#{SecureRandom.uuid}.csv", "wb") do |csv|
+      csv << [
+        "stream id",
+        "start time",
+        "end time",
+        "amount of measurements",
+        "min latitude",
+        "max latitude",
+        "min longitude",
+        "max longitude"
+      ]
+      streams = Stream.joins(:session).where(sessions: { type: "MobileSession" }).includes(:session)
+      puts "Processing #{streams.count} streams."
+      streams.find_each do |stream|
+        csv << [
+          stream.id,
+          stream.session.start_time.strftime("%Y-%m-%dT%H:%M:%S"),
+          stream.session.end_time.strftime("%Y-%m-%dT%H:%M:%S"),
+          stream.measurements.count,
+          stream.min_latitude,
+          stream.max_latitude,
+          stream.min_longitude,
+          stream.max_longitude
+        ]
+        putc "."
+      end
+      puts
+      puts "Done!"
+    end
+  end
+end
