@@ -4,7 +4,7 @@ require 'uri'
 module Api
   class GoogleAnalytics
     def register_event(event_action)
-      if A9n.host_ == 'aircasting.habitatmap.org'
+      if A9n.analytics_enabled == 'true'
         HTTParty.post(
           'https://www.google-analytics.com/collect',
           body:
