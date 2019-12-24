@@ -32,7 +32,7 @@ module AirCasting
                   timezone_offset: 0,
                   milliseconds: 141,
                   measured_value: 60.06220481546737,
-                  value: 60.06220481546737
+                  value: i % 60
                 }
               end,
             sensor_package_name: 'Builtin',
