@@ -1,121 +1,152 @@
-module TestUtils
-  def create_session_with_streams_and_measurements!(attributes = {})
-    session =
-      create_session!(
-        id: attributes.fetch(:id, rand(1_000_000)),
-        contribute: attributes.fetch(:contribute, true),
-        start_time_local: attributes.fetch(:start_time_local, DateTime.current),
-        end_time_local: attributes.fetch(:end_time_local, DateTime.current),
-        user: attributes.fetch(:user, create_user!)
-      )
-    stream = create_stream!(session: session)
-    create_measurements!(
-      stream: stream,
-      value: attributes.fetch(:value, 1),
-      count: attributes.fetch(:count, 1)
-    )
-
-    session
-  end
-
-  def create_session!(attributes = {})
-    Session.create!(
-      id: attributes.fetch(:id, rand(1_000_000)),
-      title: attributes.fetch(:title, 'Example Session'),
-      user: attributes.fetch(:user, create_user!),
-      uuid: attributes.fetch(:uuid, "uuid#{rand}"),
-      start_time: DateTime.current,
-      start_time_local: attributes.fetch(:start_time_local, DateTime.current),
-      end_time: DateTime.current,
-      end_time_local: attributes.fetch(:end_time_local, DateTime.current),
-      type: attributes.fetch(:type, 'MobileSession'),
-      longitude: 1.0,
-      latitude: 1.0,
-      is_indoor: attributes.fetch(:is_indoor, false),
-      version: attributes.fetch(:version, 1),
+def create_session_with_streams_and_measurements!(attributes = {})
+  session =
+    create_session!(
+      id: attributes.fetch(:id, random_int),
       contribute: attributes.fetch(:contribute, true),
-      last_measurement_at:
-        attributes.fetch(:last_measurement_at, DateTime.current),
-      tag_list: attributes.fetch(:tag_list, [])
+      start_time_local: attributes.fetch(:start_time_local, DateTime.current),
+      end_time_local: attributes.fetch(:end_time_local, DateTime.current),
+      user: attributes.fetch(:user) { create_user! }
     )
-  end
+  stream = create_stream!(session: session)
+  create_measurements!(
+    stream: stream,
+    value: attributes.fetch(:value, 1),
+    count: attributes.fetch(:count, 1)
+  )
 
-  def create_stream!(attributes = {})
-    Stream.create!(
-      sensor_package_name: 'AirBeam2:00189610719F',
-      sensor_name: attributes.fetch(:sensor_name, 'AirBeam2-F'),
-      measurement_type: 'Temperature',
-      unit_name: 'Fahrenheit',
-      session: attributes.fetch(:session, create_session!),
-      measurement_short_type: 'F',
-      unit_symbol: attributes.fetch(:unit_symbol, 'F'),
-      threshold_very_low: 20,
-      threshold_low: 60,
-      threshold_medium: 70,
-      threshold_high: 80,
-      threshold_very_high: 100,
-      min_latitude: attributes.fetch(:min_latitude, 1),
-      max_latitude: attributes.fetch(:max_latitude, 1),
-      min_longitude: attributes.fetch(:min_longitude, 1),
-      max_longitude: attributes.fetch(:max_longitude, 1)
-    )
-  end
+  session
+end
 
-  def create_measurement!(attributes = {})
+def create_session!(attributes = {})
+  Session.create!(
+    id: attributes.fetch(:id, rand(1_000_000)),
+    title: attributes.fetch(:title, 'Example Session'),
+    user: attributes.fetch(:user) { create_user! },
+    uuid: attributes.fetch(:uuid, "uuid#{rand}"),
+    start_time: DateTime.current,
+    start_time_local: attributes.fetch(:start_time_local, DateTime.current),
+    end_time: DateTime.current,
+    end_time_local: attributes.fetch(:end_time_local, DateTime.current),
+    type: attributes.fetch(:type, 'MobileSession'),
+    longitude: 1.0,
+    latitude: 1.0,
+    is_indoor: attributes.fetch(:is_indoor, false),
+    version: attributes.fetch(:version, 1),
+    contribute: attributes.fetch(:contribute, true),
+    last_measurement_at:
+      attributes.fetch(:last_measurement_at, DateTime.current),
+    tag_list: attributes.fetch(:tag_list, [])
+  )
+end
+
+def create_stream!(attributes = {})
+  Stream.create!(
+    sensor_package_name: 'AirBeam2:00189610719F',
+    sensor_name: attributes.fetch(:sensor_name, 'AirBeam2-F'),
+    measurement_type: 'Temperature',
+    unit_name: 'Fahrenheit',
+    session: attributes.fetch(:session) { create_session! },
+    measurement_short_type: 'F',
+    unit_symbol: attributes.fetch(:unit_symbol, 'F'),
+    threshold_very_low: 20,
+    threshold_low: 60,
+    threshold_medium: 70,
+    threshold_high: 80,
+    threshold_very_high: 100,
+    min_latitude: attributes.fetch(:min_latitude, 1),
+    max_latitude: attributes.fetch(:max_latitude, 1),
+    min_longitude: attributes.fetch(:min_longitude, 1),
+    max_longitude: attributes.fetch(:max_longitude, 1),
+    average_value: attributes.fetch(:average_value, 1.23)
+  )
+end
+
+def create_measurement!(attributes = {})
+  Measurement.create!(
+    time: attributes.fetch(:time, DateTime.current),
+    latitude: attributes.fetch(:latitude, 1),
+    longitude: attributes.fetch(:longitude, 1),
+    value: attributes.fetch(:value, 123),
+    milliseconds: attributes.fetch(:milliseconds, 123),
+    stream: attributes.fetch(:stream) { create_stream! }
+  )
+end
+
+def create_measurements!(attributes)
+  attributes.fetch(:count, 1).times do |n|
     Measurement.create!(
-      time: attributes.fetch(:time, DateTime.current),
-      latitude: attributes.fetch(:latitude, 1),
-      longitude: attributes.fetch(:longitude, 1),
-      value: attributes.fetch(:value, 123),
-      milliseconds: attributes.fetch(:milliseconds, 123),
-      stream: attributes.fetch(:stream, create_stream!)
-    )
-  end
-
-  def create_measurements!(attributes)
-    attributes.fetch(:count, 1).times do |n|
-      Measurement.create!(
-        time: Time.current - n.minutes,
-        latitude: 1,
-        longitude: 1,
-        value: attributes.fetch(:value, 1),
-        milliseconds: 0,
-        stream: attributes.fetch(:stream)
-      )
-    end
-  end
-
-  def create_old_measurements!(attributes)
-    60.times do |n|
-      Measurement.create!(
-        time: Time.current - (61 + n).minutes,
-        latitude: 1,
-        longitude: 1,
-        value: attributes.fetch(:value),
-        milliseconds: 0,
-        stream: attributes.fetch(:stream)
-      )
-    end
-  end
-
-  def create_user!(attributes = {})
-    User.create!(
-      id: attributes.fetch(:id, rand(100_000)),
-      username: attributes.fetch(:username, "username#{rand}"),
-      email: attributes.fetch(:email, "email#{rand}@example.com"),
-      password: 'password',
-      session_stopped_alert: attributes.fetch(:session_stopped_alert, false)
+      time: Time.current - n.minutes,
+      latitude: random_float,
+      longitude: random_float,
+      value: attributes.fetch(:value, random_float),
+      milliseconds: random_int,
+      stream: attributes.fetch(:stream)
     )
   end
 end
 
+def create_old_measurements!(attributes)
+  60.times do |n|
+    Measurement.create!(
+      time: Time.current - (61 + n).minutes,
+      latitude: random_float,
+      longitude: random_float,
+      value: attributes.fetch(:value),
+      milliseconds: random_int,
+      stream: attributes.fetch(:stream)
+    )
+  end
+end
+
+def create_user!(attributes = {})
+  User.create!(
+    id: attributes.fetch(:id, random_int),
+    username: attributes.fetch(:username, random_string),
+    email: attributes.fetch(:email, random_email),
+    password: random_string,
+    session_stopped_alert: attributes.fetch(:session_stopped_alert, random_bool)
+  )
+end
+
 def create_note!(attributes = {})
   Note.create!(
-    text: 'text',
-    date: DateTime.current,
-    latitude: 123,
-    longitude: 123,
+    text: random_string,
+    date: random_date_time,
+    latitude: random_float,
+    longitude: random_float,
     session: attributes.fetch(:session),
-    number: rand(100_000)
+    number: random_int
   )
+end
+
+def create_mobile_session!
+  create_session!(type: 'MobileSession')
+end
+
+def create_fixed_session!
+  create_session!(type: 'FixedSession')
+end
+
+def random_int
+  rand(100_000)
+end
+
+def random_float
+  rand * 100
+end
+
+def random_string
+  SecureRandom.alphanumeric
+end
+
+def random_bool
+  [true, false].sample
+end
+
+def random_email
+  "#{random_string.downcase}@example.com"
+end
+
+def random_date_time
+  DateTime.current + random_int.days - random_int.days
 end

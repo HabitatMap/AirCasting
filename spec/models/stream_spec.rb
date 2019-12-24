@@ -1,10 +1,9 @@
 require 'rails_helper'
 
 describe Stream do
-  let(:stream) { FactoryBot.create(:stream) }
-  let!(:measurement) { FactoryBot.create(:measurement, stream: stream) }
-
   describe '#build_measurements!' do
+    let(:stream) { FactoryBot.create(:stream) }
+    let(:measurement) { FactoryBot.create(:measurement, stream: stream) }
     let(:measurement_data) { double('measurement data') }
 
     before do
@@ -46,20 +45,14 @@ describe Stream do
     end
   end
 
-  describe '#destroy' do
-    it 'should destroy measurements' do
-      stream.reload.destroy
-
-      expect(Measurement.exists?(measurement.id)).to be(false)
-    end
-  end
-
   describe '.as_json' do
-    subject { stream.as_json(methods: %i[measurements]) }
-
     it 'should include stream size and measurements' do
-      expect(subject['size']).not_to be_nil
-      expect(subject['measurements']).not_to be_nil
+      stream = FactoryBot.create(:stream)
+
+      actual = stream.as_json(methods: %i[measurements])
+
+      expect(actual['size']).not_to be_nil
+      expect(actual['measurements']).not_to be_nil
     end
   end
 
@@ -104,6 +97,19 @@ describe Stream do
             Stream.with_usernames([user.username, user2.username])
           ).to include stream, stream2
         end
+      end
+    end
+
+    describe '#belong_to_mobile_sessions' do
+      it 'returns only mobile streams' do
+        mobile_session = create_mobile_session!
+        mobile_stream = create_stream!(session: mobile_session)
+        fixed_session = create_fixed_session!
+        fixed_stream = create_stream!(session: fixed_session)
+
+        expect(Stream.belong_to_mobile_sessions).to contain_exactly(
+          mobile_stream
+        )
       end
     end
   end
