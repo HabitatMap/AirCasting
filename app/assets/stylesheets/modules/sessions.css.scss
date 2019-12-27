@@ -6,7 +6,7 @@
   width: 100%;
   z-index: $sessions-z-index;
 
-  @media screen and (min-width: $tablet-max) {
+  @media screen and (min-width: $small-desktop-min) {
     width: calc(100vw - #{$filters-width});
   }
 }
