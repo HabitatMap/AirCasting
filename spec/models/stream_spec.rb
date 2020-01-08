@@ -100,16 +100,14 @@ describe Stream do
       end
     end
 
-    describe '#belong_to_mobile_sessions' do
+    describe '#mobile' do
       it 'returns only mobile streams' do
         mobile_session = create_mobile_session!
         mobile_stream = create_stream!(session: mobile_session)
         fixed_session = create_fixed_session!
-        fixed_stream = create_stream!(session: fixed_session)
+        create_stream!(session: fixed_session)
 
-        expect(Stream.belong_to_mobile_sessions).to contain_exactly(
-          mobile_stream
-        )
+        expect(Stream.mobile).to contain_exactly(mobile_stream)
       end
     end
   end

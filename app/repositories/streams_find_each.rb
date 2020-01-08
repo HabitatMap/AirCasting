@@ -1,5 +1,5 @@
 class StreamsFindEach
-  def initialize(streams: Stream.belong_to_mobile_sessions)
+  def initialize(streams: Stream.mobile)
     @streams = streams
   end
 

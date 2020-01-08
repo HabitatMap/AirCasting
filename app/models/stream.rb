@@ -87,10 +87,7 @@ class Stream < ApplicationRecord
     -> { joins(:session).where('sessions.contribute = ?', true) }
   )
 
-  scope(
-    :belong_to_mobile_sessions,
-    -> { joins(:session).where('sessions.type = ?', 'MobileSession') }
-  )
+  scope(:mobile, -> { joins(:session).merge(Session.mobile) })
 
   scope(
     :with_usernames,
