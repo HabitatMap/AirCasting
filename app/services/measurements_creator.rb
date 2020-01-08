@@ -8,7 +8,7 @@ class MeasurementsCreator
   end
 
   def call(stream, measurements_attributes)
-    if measurements_attributes.one?
+    if stream.fixed?
       @sync_measurements_creator.call(
         stream: stream, measurements_attributes: measurements_attributes
       )
