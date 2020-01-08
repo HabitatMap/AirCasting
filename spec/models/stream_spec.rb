@@ -111,4 +111,18 @@ describe Stream do
       end
     end
   end
+
+  describe '#fixed?' do
+    it 'with a fixed stream it returns true' do
+      fixed_stream = create_stream!(session: create_fixed_session!)
+
+      expect(fixed_stream.fixed?).to eq(true)
+    end
+
+    it 'with a mobile stream it returns false' do
+      mobile_stream = create_stream!(session: create_mobile_session!)
+
+      expect(mobile_stream.fixed?).to eq(false)
+    end
+  end
 end

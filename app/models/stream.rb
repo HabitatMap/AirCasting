@@ -102,6 +102,10 @@ class Stream < ApplicationRecord
     end
   )
 
+  def fixed?
+    session.fixed?
+  end
+
   def sensor_id
     "#{measurement_type}-#{sensor_name.downcase} (#{unit_symbol})"
   end
