@@ -71,4 +71,9 @@ namespace :fix do
       end
     end
   end
+
+  desc "Average long mobile streams"
+  task :average_long_mobile_streams => :environment do
+    AverageStreams.new.call
+  end
 end
