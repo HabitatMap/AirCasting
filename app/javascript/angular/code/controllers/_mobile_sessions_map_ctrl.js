@@ -59,28 +59,6 @@ export const MobileSessionsMapCtrl = (
     params.updateFromDefaults(defaults);
   };
 
-  $scope.$watch(
-    "params.get('data').heat",
-    function(newValue, oldValue) {
-      console.log(
-        "watch - params.get('data').heat - ",
-        newValue,
-        " - ",
-        oldValue
-      );
-      if (newValue === oldValue) return;
-
-      if ($scope.params.isCrowdMapOn() && !sessionsUtils.isSessionSelected()) {
-        sessionsUtils.updateCrowdMapLayer(mobileSessions.sessionIds());
-      } else if (sessionsUtils.isSessionSelected()) {
-        mobileSessions.redrawSelectedSession();
-      } else {
-        $scope.sessions.drawSessionsInLocation();
-      }
-    },
-    true
-  );
-
   $scope.setDefaults();
 
   if (process.env.NODE_ENV !== "test") {

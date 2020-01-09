@@ -103,6 +103,10 @@ export const fixedSessions = (
       );
     },
 
+    redrawSelectedSession: function() {
+      this.drawSessionsInLocation();
+    },
+
     drawSessionsInLocation: function() {
       clearMap();
       if (params.get("data").isIndoor) return;

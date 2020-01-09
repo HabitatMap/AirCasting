@@ -55,22 +55,6 @@ export const FixedSessionsMapCtrl = (
     params.updateFromDefaults(defaults);
   };
 
-  $scope.$watch(
-    "params.get('data').heat",
-    function(newValue, oldValue) {
-      console.log(
-        "watch - params.get('data').heat - ",
-        newValue,
-        " - ",
-        oldValue
-      );
-      if (newValue != oldValue) {
-        $scope.sessions.drawSessionsInLocation();
-      }
-    },
-    true
-  );
-
   $scope.setDefaults();
 
   if (process.env.NODE_ENV !== "test") {

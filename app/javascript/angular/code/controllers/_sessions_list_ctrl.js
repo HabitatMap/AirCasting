@@ -85,6 +85,14 @@ export const SessionsListCtrl = (
           };
           params.update({ data: { heat } });
           $scope.$apply();
+
+          if (params.isCrowdMapOn() && !sessionsUtils.isSessionSelected()) {
+            sessionsUtils.updateCrowdMapLayer(sessions.sessionIds());
+          } else if (sessionsUtils.isSessionSelected()) {
+            sessions.redrawSelectedSession();
+          } else {
+            sessions.drawSessionsInLocation();
+          }
         }
       );
 
