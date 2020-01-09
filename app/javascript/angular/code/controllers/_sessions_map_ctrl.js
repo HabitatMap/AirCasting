@@ -1,17 +1,17 @@
-import _ from "underscore";
 import * as FiltersUtils from "../../../javascript/filtersUtils";
 import { clearMap } from "../../../javascript/clearMap";
 import { applyTheme } from "../../../javascript/theme";
 import { getParams } from "../../../javascript/params";
 
-export const FixedSessionsMapCtrl = (
+export const SessionsMapCtrl = (
   $scope,
   params,
   map,
   sensors,
-  fixedSessions,
+  sessions,
   versioner,
-  $window
+  $window,
+  sessionsUtils
 ) => {
   sensors.setSensors($window.__sensors);
 
@@ -19,7 +19,7 @@ export const FixedSessionsMapCtrl = (
     $scope.versioner = versioner;
     $scope.params = params;
     $scope.sensors = sensors;
-    $scope.sessions = fixedSessions;
+    $scope.sessions = sessions;
     $scope.$window = $window;
 
     clearMap();
@@ -37,8 +37,6 @@ export const FixedSessionsMapCtrl = (
     const defaults = {
       sensorId,
       location: "",
-      isIndoor: false,
-      isActive: true,
       tags: "",
       usernames: "",
       timeFrom: FiltersUtils.oneYearAgo(),
@@ -52,7 +50,11 @@ export const FixedSessionsMapCtrl = (
       }
     };
 
-    params.updateFromDefaults(defaults);
+    const defs = sessions.isMobile()
+      ? { ...defaults, gridResolution: 31, crowdMap: false }
+      : { ...defaults, isIndoor: false, isActive: true };
+
+    params.updateFromDefaults(defs);
   };
 
   $scope.setDefaults();
@@ -62,20 +64,9 @@ export const FixedSessionsMapCtrl = (
       const elmApp = window.__elmApp;
 
       elmApp.ports.selectSensorId.subscribe(sensorId => {
-        $scope.sessions.deselectSession();
+        sessions.deselectSession();
         params.update({ data: { sensorId } });
-        $scope.sessions.fetch();
-      });
-
-      elmApp.ports.toggleIndoor.subscribe(isIndoor => {
-        params.update({ data: { isIndoor: isIndoor } });
-        $scope.sessions.fetch();
-      });
-
-      elmApp.ports.toggleActive.subscribe(isActive => {
-        params.update({ data: { isActive } });
-        resetTimeRangeFilter();
-        $scope.sessions.fetch();
+        sessions.fetch();
       });
 
       map.onPanOrZoom(() => {
@@ -89,8 +80,7 @@ export const FixedSessionsMapCtrl = (
       const createTagsFilterParams = () => {
         const bounds = map.getBounds();
         const data = getParams().data;
-
-        return {
+        const obj = {
           west: bounds.west,
           east: bounds.east,
           south: bounds.south,
@@ -99,35 +89,61 @@ export const FixedSessionsMapCtrl = (
           time_to: data.timeTo,
           usernames: data.usernames,
           sensor_name: sensors.selected().sensor_name,
-          unit_symbol: sensors.selected().unit_symbol,
-          is_indoor: data.isIndoor,
-          is_active: data.isActive
+          unit_symbol: sensors.selected().unit_symbol
         };
+
+        return sessions.isMobile()
+          ? obj
+          : { ...obj, is_indoor: data.isIndoor, is_active: data.isActive };
       };
 
       FiltersUtils.setupTagsAutocomplete(
         selectedValue => elmApp.ports.tagSelected.send(selectedValue),
-        "api/fixed/autocomplete/tags",
+        sessions.isMobile()
+          ? "api/mobile/autocomplete/tags"
+          : "api/fixed/autocomplete/tags",
         createTagsFilterParams
       );
 
       elmApp.ports.updateTags.subscribe(tags => {
         params.update({ data: { tags: tags.join(", ") } });
-        $scope.sessions.fetch();
+        sessions.fetch();
       });
 
       elmApp.ports.updateProfiles.subscribe(profiles => {
         params.update({ data: { usernames: profiles.join(", ") } });
-        $scope.sessions.fetch();
+        sessions.fetch();
       });
 
       const onTimeRangeChanged = (timeFrom, timeTo) => {
         elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
         FiltersUtils.setTimerangeButtonText(timeFrom, timeTo);
         params.update({ data: { timeFrom, timeTo } });
-        $scope.sessions.fetch();
+        sessions.fetch();
       };
 
+      FiltersUtils.setupClipboard();
+
+      elmApp.ports.showCopyLinkTooltip.subscribe(tooltipId => {
+        const currentUrl = encodeURIComponent(window.location.href);
+
+        FiltersUtils.fetchShortUrl(tooltipId, currentUrl);
+      });
+
+      elmApp.ports.toggleTheme.subscribe(theme => {
+        const cb = sessions.isMobile()
+          ? () => {
+              if (params.selectedSessionIds().length !== 0) {
+                sessions.redrawSelectedSession();
+              }
+            }
+          : () => {};
+        params.update({ theme: theme });
+        $scope.$apply();
+        applyTheme(cb);
+      });
+
+      // fixed tab
       const setupActiveTimeRangeFilter = (timeFrom, timeTo) => {
         if (
           document.getElementById("time-range") &&
@@ -147,11 +163,13 @@ export const FixedSessionsMapCtrl = (
       };
 
       if (params.get("data").isActive) {
+        // fixed tab
         setupActiveTimeRangeFilter(
           FiltersUtils.oneHourAgo(),
           FiltersUtils.presentMoment()
         );
       } else {
+        // fixed or mobile tab
         FiltersUtils.setupTimeRangeFilter(
           onTimeRangeChanged,
           params.get("data").timeFrom,
@@ -160,18 +178,17 @@ export const FixedSessionsMapCtrl = (
         );
       }
 
-      elmApp.ports.refreshTimeRange.subscribe(() => {
-        resetTimeRangeFilter();
-      });
-
+      // fixed or mobile tab
       const resetTimeRangeFilter = () => {
         if (params.get("data").isActive) {
+          // fixed tab
           setupActiveTimeRangeFilter(
             FiltersUtils.oneHourAgo(),
             FiltersUtils.presentMoment()
           );
-          $scope.sessions.fetch();
+          sessions.fetch();
         } else {
+          // fixed or mobile tab
           FiltersUtils.setupTimeRangeFilter(
             onTimeRangeChanged,
             FiltersUtils.oneYearAgo(),
@@ -185,18 +202,35 @@ export const FixedSessionsMapCtrl = (
         }
       };
 
-      FiltersUtils.setupClipboard();
-
-      elmApp.ports.showCopyLinkTooltip.subscribe(tooltipId => {
-        const currentUrl = encodeURIComponent(window.location.href);
-
-        FiltersUtils.fetchShortUrl(tooltipId, currentUrl);
+      elmApp.ports.refreshTimeRange.subscribe(() => {
+        resetTimeRangeFilter();
       });
 
-      elmApp.ports.toggleTheme.subscribe(theme => {
-        params.update({ theme: theme });
+      // mobile tab
+      elmApp.ports.toggleCrowdMap.subscribe(crowdMap => {
+        params.updateData({ crowdMap });
         $scope.$apply();
-        applyTheme(() => {});
+
+        sessions.toggleCrowdMapView();
+      });
+
+      // mobile tab
+      elmApp.ports.updateResolution.subscribe(gridResolution => {
+        params.updateData({ gridResolution });
+        sessionsUtils.updateCrowdMapLayer(sessions.allSessionIds());
+      });
+
+      // fixed tab
+      elmApp.ports.toggleIndoor.subscribe(isIndoor => {
+        params.update({ data: { isIndoor: isIndoor } });
+        sessions.fetch();
+      });
+
+      // fixed tab
+      elmApp.ports.toggleActive.subscribe(isActive => {
+        params.update({ data: { isActive } });
+        resetTimeRangeFilter();
+        sessions.fetch();
       });
     });
   }

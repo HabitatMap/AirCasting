@@ -36,6 +36,8 @@ export const mobileSessions = (
   }
 
   MobileSessions.prototype = {
+    isMobile: () => true,
+
     sessionIds: function() {
       return this.sessions.map(x => x.id);
     },

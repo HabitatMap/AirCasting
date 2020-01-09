@@ -35,6 +35,8 @@ export const fixedSessions = (
   }
 
   FixedSessions.prototype = {
+    isMobile: () => false,
+
     allSessionIds: function() {
       return sessionsUtils.allSessionIds(this);
     },

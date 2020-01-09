@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { MobileSessionsMapCtrl } from "../code/controllers/_mobile_sessions_map_ctrl";
+import { SessionsMapCtrl } from "../code/controllers/_sessions_map_ctrl";
 import moment from "moment";
 import { DEFAULT_THEME } from "../../javascript/constants";
 
@@ -12,15 +12,13 @@ test("it updates defaults", t => {
     updateFromDefaults: opts => (defaults = opts)
   };
 
-  _MobileSessionsMapCtrl({ params });
+  _SessionsMapCtrl({ params });
 
   const expected = {
     sensorId,
     location: "",
     tags: "",
     usernames: "",
-    gridResolution: 31,
-    crowdMap: false,
     timeFrom: moment()
       .utc()
       .startOf("day")
@@ -36,21 +34,22 @@ test("it updates defaults", t => {
       mid: 35,
       high: 55,
       highest: 150
-    }
+    },
+    gridResolution: 31,
+    crowdMap: false
   };
   t.deepEqual(defaults, expected);
 
   t.end();
 });
 
-const _MobileSessionsMapCtrl = ({ $scope, map, callback, sensors, params }) => {
+const _SessionsMapCtrl = ({ $scope, map, callback, sensors, params }) => {
   const _sensors = {
     setSensors: () => {},
     fetchHeatLevels: () => {},
     ...sensors
   };
   const _params = { get: () => ({}), updateFromDefaults: () => {}, ...params };
-  const infoWindow = { hide: () => {} };
   const _map = {
     goToAddress: () => {},
     unregisterAll: () => {},
@@ -60,15 +59,15 @@ const _MobileSessionsMapCtrl = ({ $scope, map, callback, sensors, params }) => {
   };
   const _$scope = { $watch: () => {}, ...$scope };
   const _$window = {};
+  const sessions = { isMobile: () => true };
 
-  return MobileSessionsMapCtrl(
+  return SessionsMapCtrl(
     _$scope,
     _params,
     _map,
     _sensors,
+    sessions,
     null,
-    null,
-    _$window,
-    infoWindow
+    _$window
   );
 };

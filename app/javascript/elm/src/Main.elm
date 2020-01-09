@@ -1203,13 +1203,7 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
 viewSessionsOrSelectedSession : Page -> WebData SelectedSession -> Int -> List Session -> WebData HeatMapThresholds -> Path -> Popup -> EmailForm -> Html Msg
 viewSessionsOrSelectedSession page selectedSession fetchableSessionsCount sessions heatMapThresholds linkIcon popup emailForm =
     div
-        [ attribute "ng-controller"
-            (if page == Mobile then
-                "MobileSessionsMapCtrl"
-
-             else
-                "FixedSessionsMapCtrl"
-            )
+        [ attribute "ng-controller" "SessionsMapCtrl"
         ]
         [ div [ class "sessions", attribute "ng-controller" "SessionsListCtrl" ]
             [ case selectedSession of

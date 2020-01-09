@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { FixedSessionsMapCtrl } from "../code/controllers/_fixed_sessions_map_ctrl";
+import { SessionsMapCtrl } from "../code/controllers/_sessions_map_ctrl";
 import moment from "moment";
 import { DEFAULT_THEME } from "../../javascript/constants";
 
@@ -12,13 +12,11 @@ test("it updates defaults", t => {
     updateFromDefaults: opts => (defaults = opts)
   };
 
-  _FixedSessionsMapCtrl({ params });
+  _SessionsMapCtrl({ params });
 
   const expected = {
     sensorId,
     location: "",
-    isIndoor: false,
-    isActive: true,
     tags: "",
     usernames: "",
     timeFrom: moment()
@@ -36,14 +34,16 @@ test("it updates defaults", t => {
       mid: 35,
       high: 55,
       highest: 150
-    }
+    },
+    isIndoor: false,
+    isActive: true
   };
   t.deepEqual(defaults, expected);
 
   t.end();
 });
 
-const _FixedSessionsMapCtrl = ({ callback, params, sensors }) => {
+const _SessionsMapCtrl = ({ callback, params, sensors }) => {
   const _sensors = {
     setSensors: () => {},
     fetchHeatLevels: () => {},
@@ -57,13 +57,14 @@ const _FixedSessionsMapCtrl = ({ callback, params, sensors }) => {
     removeAllMarkers: () => {}
   };
   const $window = {};
+  const sessions = { isMobile: () => false };
 
-  return FixedSessionsMapCtrl(
+  return SessionsMapCtrl(
     _$scope,
     _params,
     _map,
     _sensors,
-    null,
+    sessions,
     null,
     $window
   );
