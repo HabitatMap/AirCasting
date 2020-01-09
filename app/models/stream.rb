@@ -87,10 +87,7 @@ class Stream < ApplicationRecord
     -> { joins(:session).where('sessions.contribute = ?', true) }
   )
 
-  scope(
-    :belong_to_mobile_sessions,
-    -> { joins(:session).where('sessions.type = ?', 'MobileSession') }
-  )
+  scope(:mobile, -> { joins(:session).merge(Session.mobile) })
 
   scope(
     :with_usernames,
@@ -104,6 +101,10 @@ class Stream < ApplicationRecord
       end
     end
   )
+
+  def fixed?
+    session.fixed?
+  end
 
   def sensor_id
     "#{measurement_type}-#{sensor_name.downcase} (#{unit_symbol})"

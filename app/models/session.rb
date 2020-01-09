@@ -54,6 +54,8 @@ class Session < ApplicationRecord
           end
         }
 
+  scope :mobile, -> { where('sessions.type = ?', 'MobileSession') }
+
   def self.filter_(data = {})
     sessions =
       order('sessions.start_time_local DESC').where(contribute: true).joins(
