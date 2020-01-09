@@ -123,21 +123,13 @@ class Stream < ApplicationRecord
     stream
   end
 
-  def build_measurements!(data = [], jid = nil)
-    time1 = Time.current
+  def build_measurements!(data = [])
     measurements =
       data.map do |measurement_data|
         m = Measurement.new(measurement_data)
         m.stream = self
         m
       end
-    time2 = Time.current
-    if jid
-      Sidekiq.logger.info "build_measurements: map in #{
-                            (time2 - time1).round(3)
-                          }"
-    end
-
     ActiveRecord::Base.transaction do
       result = Measurement.import measurements
       unless result.failed_instances.empty?
@@ -146,21 +138,7 @@ class Stream < ApplicationRecord
               }"
       end
     end
-
-    time3 = Time.current
-    if jid
-      Sidekiq.logger.info "build_measurements: import in #{
-                            (time3 - time2).round(3)
-                          }"
-    end
-
     Stream.update_counters(self.id, { measurements_count: measurements.size })
-    time4 = Time.current
-    if jid
-      Sidekiq.logger.info "build_measurements: update_counters in #{
-                            (time4 - time3).round(3)
-                          }"
-    end
   end
 
   def self.thresholds(sensor_name, unit_symbol)
