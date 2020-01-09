@@ -74,6 +74,6 @@ namespace :fix do
 
   desc "Average long mobile streams"
   task :average_long_mobile_streams => :environment do
-    AverageStreams.new.call
+    AverageStreams.new(logger: ActiveSupport::Logger.new(STDOUT)).call
   end
 end
