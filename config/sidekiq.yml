@@ -2,7 +2,7 @@
 :verbose: false
 :pidfile: ./tmp/pids/sidekiq.pid
 :logfile: ./log/sidekiq.log
-:concurrency: 25
+:concurrency: 15
 :queues:
   - [critical, 8]
   - [default, 8]
