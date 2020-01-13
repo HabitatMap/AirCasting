@@ -14,7 +14,6 @@ angular
     "map",
     "sensors",
     sessions,
-    "versioner",
     "$window",
     "sessionsUtils",
     SessionsMapCtrl

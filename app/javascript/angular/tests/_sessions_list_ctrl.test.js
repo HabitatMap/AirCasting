@@ -74,7 +74,6 @@ const _SessionsMapCtrl = ({ $scope, sessions, params }) => {
     _map,
     _sensors,
     _sessions,
-    null,
     $window,
     _sessionsUtils
   );

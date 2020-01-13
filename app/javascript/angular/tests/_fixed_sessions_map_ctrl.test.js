@@ -55,13 +55,5 @@ const _SessionsMapCtrl = ({ params }) => {
   const $window = {};
   const sessions = { isMobile: () => false };
 
-  return SessionsMapCtrl(
-    _$scope,
-    _params,
-    _map,
-    _sensors,
-    sessions,
-    null,
-    $window
-  );
+  return SessionsMapCtrl(_$scope, _params, _map, _sensors, sessions, $window);
 };

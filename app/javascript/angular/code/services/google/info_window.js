@@ -13,9 +13,8 @@ angular.module("google").factory("infoWindow", [
   "$http",
   "$compile",
   "$rootScope",
-  "versioner",
   "$timeout",
-  function(map, $http, $compile, $rootScope, versioner, $timeout) {
+  function(map, $http, $compile, $rootScope, $timeout) {
     var InfoWindow = function() {
       this.popup = new google.maps.InfoWindow();
       map.addListener("zoom_changed", _(this.hide).bind(this));
@@ -52,10 +51,9 @@ angular.module("google").factory("infoWindow", [
 
       onShowData: function(data, htmlPath) {
         this.data = data;
-        var url = versioner.path(htmlPath);
         var element = $(
           '<div class="info-window"><div ng-include="\'' +
-            url +
+            htmlPath +
             "'\"></div></div>"
         );
         $compile(element[0])($rootScope);

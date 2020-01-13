@@ -9,7 +9,6 @@ export const SessionsMapCtrl = (
   map,
   sensors,
   sessions,
-  versioner,
   $window,
   sessionsUtils
 ) => {
@@ -18,7 +17,6 @@ export const SessionsMapCtrl = (
   sensors.setSensors($window.__sensors);
 
   $scope.setDefaults = function() {
-    $scope.versioner = versioner;
     $scope.params = params;
     $scope.sensors = sensors;
     $scope.sessions = sessions;
