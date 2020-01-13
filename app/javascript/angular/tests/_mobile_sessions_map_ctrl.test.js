@@ -43,21 +43,15 @@ test("it updates defaults", t => {
   t.end();
 });
 
-const _SessionsMapCtrl = ({ $scope, map, callback, sensors, params }) => {
+const _SessionsMapCtrl = ({ params }) => {
   const _sensors = {
-    setSensors: () => {},
-    fetchHeatLevels: () => {},
-    ...sensors
+    setSensors: () => {}
   };
   const _params = { get: () => ({}), updateFromDefaults: () => {}, ...params };
   const _map = {
-    goToAddress: () => {},
-    unregisterAll: () => {},
-    removeAllMarkers: () => {},
-    clearRectangles: () => {},
-    ...map
+    unregisterAll: () => {}
   };
-  const _$scope = { $watch: () => {}, ...$scope };
+  const _$scope = { $watch: () => {}, $on: () => {} };
   const _$window = {};
   const sessions = { isMobile: () => true };
 

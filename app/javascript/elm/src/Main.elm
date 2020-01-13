@@ -1205,7 +1205,7 @@ viewSessionsOrSelectedSession page selectedSession fetchableSessionsCount sessio
     div
         [ attribute "ng-controller" "SessionsMapCtrl"
         ]
-        [ div [ class "sessions", attribute "ng-controller" "SessionsListCtrl" ]
+        [ div [ class "sessions" ]
             [ case selectedSession of
                 NotAsked ->
                     viewSessions fetchableSessionsCount sessions heatMapThresholds
