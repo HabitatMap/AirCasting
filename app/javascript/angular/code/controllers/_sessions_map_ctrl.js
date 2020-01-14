@@ -16,7 +16,7 @@ export const SessionsMapCtrl = (
   const elmApp = $window.__elmApp;
   sensors.setSensors($window.__sensors);
 
-  $scope.setDefaults = function() {
+  function setDefaults() {
     $scope.params = params;
     $scope.sensors = sensors;
     $scope.sessions = sessions;
@@ -55,7 +55,7 @@ export const SessionsMapCtrl = (
       : { ...defaults, isIndoor: false, isActive: true };
 
     params.updateFromDefaults(defs);
-  };
+  }
 
   $scope.$watch(
     "params.get('map')",
@@ -96,7 +96,7 @@ export const SessionsMapCtrl = (
     }
   });
 
-  $scope.setDefaults();
+  setDefaults();
 
   if (process.env.NODE_ENV !== "test") {
     angular.element(document).ready(function() {
