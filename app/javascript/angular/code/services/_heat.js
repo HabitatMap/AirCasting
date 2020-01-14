@@ -1,4 +1,4 @@
-export const heat = ($rootScope, params) => {
+export const heat = params => {
   var Heat = function() {};
 
   Heat.prototype = {

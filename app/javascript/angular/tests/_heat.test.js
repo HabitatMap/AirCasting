@@ -128,7 +128,6 @@ const _heat = () => {
       heat: { lowest: 0, low: 10, mid: 50, high: 100, highest: 150 }
     })
   };
-  const $rootScope = { $new: () => ({ $watch: () => {} }) };
 
-  return heat($rootScope, params);
+  return heat(params);
 };
