@@ -11,7 +11,6 @@ export const fixedSessions = (
   sensors,
   $rootScope,
   sessionsDownloader,
-  sessionsUtils,
   $window,
   heat,
   infoWindow
@@ -25,7 +24,7 @@ export const fixedSessions = (
   };
 
   let prevMapPosition = {};
-  if (sessionsUtils.isSessionSelected()) {
+  if (params.isSessionSelected()) {
     prevMapPosition = params.get("prevMapPosition");
   } else {
     prevMapPosition = {
@@ -38,15 +37,15 @@ export const fixedSessions = (
     isMobile: () => false,
 
     allSessionIds: function() {
-      return sessionsUtils.allSessionIds(this);
+      return _(this.get()).pluck("id");
     },
 
     get: function() {
-      return sessionsUtils.get(this);
+      return _.uniq(this.sessions, "id");
     },
 
     isSelected: function(session) {
-      return sessionsUtils.isSelected(this, session);
+      return params.selectedSessionId() === session.id;
     },
 
     onSessionsFetch: function(fetchableSessionsCount) {
@@ -65,7 +64,7 @@ export const fixedSessions = (
     },
 
     deselectSession: function() {
-      if (!sessionsUtils.isSessionSelected()) return;
+      if (!params.isSessionSelected()) return;
       params.update({ prevMapPosition: {} });
       params.update({ selectedSessionIds: [] });
       clearMap();
@@ -164,7 +163,7 @@ export const fixedSessions = (
     },
 
     fetch: function(values = {}) {
-      if (sessionsUtils.isSessionSelected()) return;
+      if (params.isSessionSelected()) return;
       const limit = values.amount || 100;
       const offset = values.fetchedSessionsCount || 0;
 

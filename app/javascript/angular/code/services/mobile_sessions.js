@@ -9,8 +9,8 @@ angular
     "$rootScope",
     "sessionsDownloader",
     "drawSession",
-    "sessionsUtils",
     "heat",
     "$window",
+    "updateCrowdMapLayer",
     mobileSessions
   ]);

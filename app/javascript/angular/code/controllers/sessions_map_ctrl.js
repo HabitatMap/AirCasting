@@ -15,6 +15,6 @@ angular
     "sensors",
     sessions,
     "$window",
-    "sessionsUtils",
+    "updateCrowdMapLayer",
     SessionsMapCtrl
   ]);

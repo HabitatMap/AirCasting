@@ -12,9 +12,9 @@ export const mobileSessions = (
   $rootScope,
   sessionsDownloader,
   drawSession,
-  sessionsUtils,
   heat,
-  $window
+  $window,
+  updateCrowdMapLayer
 ) => {
   var MobileSessions = function() {
     this.sessions = [];
@@ -26,7 +26,7 @@ export const mobileSessions = (
   };
 
   let prevMapPosition = {};
-  if (sessionsUtils.isSessionSelected()) {
+  if (params.isSessionSelected()) {
     prevMapPosition = params.get("prevMapPosition");
   } else {
     prevMapPosition = {
@@ -43,15 +43,15 @@ export const mobileSessions = (
     },
 
     allSessionIds: function() {
-      return sessionsUtils.allSessionIds(this);
+      return _(this.get()).pluck("id");
     },
 
     get: function() {
-      return sessionsUtils.get(this);
+      return _.uniq(this.sessions, "id");
     },
 
     isSelected: function(session) {
-      return sessionsUtils.isSelected(this, session);
+      return params.selectedSessionId() === session.id;
     },
 
     onSessionsFetch: function(fetchableSessionsCount) {
@@ -73,20 +73,20 @@ export const mobileSessions = (
       );
 
       this.onSessionsFetch(fetchableSessionsCount);
-      sessionsUtils.updateCrowdMapLayer(this.sessionIds());
+      updateCrowdMapLayer.call(this.sessionIds());
     },
 
     toggleCrowdMapView: function() {
       clearMap();
       if (params.isCrowdMapOn()) {
-        sessionsUtils.updateCrowdMapLayer(this.sessionIds());
+        updateCrowdMapLayer.call(this.sessionIds());
       } else {
         this.drawSessionsInLocation();
       }
     },
 
     deselectSession: function() {
-      if (!sessionsUtils.isSessionSelected()) return;
+      if (!params.isSessionSelected()) return;
       this.selectedSession = {};
       params.update({ prevMapPosition: {} });
       params.update({ selectedSessionIds: [] });
@@ -184,7 +184,7 @@ export const mobileSessions = (
     },
 
     fetch: function(values = {}) {
-      if (sessionsUtils.isSessionSelected()) return;
+      if (params.isSessionSelected()) return;
       const limit = values.amount || 100;
       const offset = values.fetchedSessionsCount || 0;
 

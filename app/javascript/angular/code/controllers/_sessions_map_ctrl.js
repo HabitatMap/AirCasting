@@ -10,7 +10,7 @@ export const SessionsMapCtrl = (
   sensors,
   sessions,
   $window,
-  sessionsUtils
+  updateCrowdMapLayer
 ) => {
   let pulsatingSessionMarker = null;
   const elmApp = $window.__elmApp;
@@ -62,7 +62,7 @@ export const SessionsMapCtrl = (
     (newValue, oldValue) => {
       console.log("watch - params.get('map')");
       if (newValue === oldValue) return; // on angular $watch init
-      if (sessionsUtils.isSessionSelected()) return;
+      if (params.isSessionSelected()) return;
       // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically as undefined
       if (newValue.hasChangedProgrammatically === undefined) return;
 
@@ -70,7 +70,13 @@ export const SessionsMapCtrl = (
       if (newValue.hasChangedProgrammatically) return;
 
       if (!params.get("data").isSearchAsIMoveOn) {
-        sessionsUtils.refreshMapView(sessions);
+        if (sessions.type === "MobileSessions") {
+          sessions.onSessionsFetchWithCrowdMapLayerUpdate();
+        } else if (sessions.type === "FixedSessions") {
+          sessions.onSessionsFetch();
+        } else {
+          console.warn("Incorrect sessions type");
+        }
         if (!newValue.hasChangedProgrammatically)
           elmApp.ports.mapMoved.send(null);
         return;
@@ -82,14 +88,14 @@ export const SessionsMapCtrl = (
   );
 
   $scope.$on("googleMapsReady", function() {
-    if (sessionsUtils.isSessionSelected()) return;
+    if (params.isSessionSelected()) return;
     sessions.fetch({
       amount: params.paramsData["fetchedSessionsCount"]
     });
   });
 
   $scope.$on("markerSelected", function(event, data) {
-    if (sessionsUtils.selectedSessionId() === data.session_id) {
+    if (params.selectedSessionId() === data.session_id) {
       elmApp.ports.toggleSessionSelection.send(null);
     } else {
       elmApp.ports.toggleSessionSelection.send(data.session_id);
@@ -126,9 +132,9 @@ export const SessionsMapCtrl = (
           params.update({ data: { heat } });
           $scope.$apply();
 
-          if (params.isCrowdMapOn() && !sessionsUtils.isSessionSelected()) {
-            sessionsUtils.updateCrowdMapLayer(sessions.sessionIds());
-          } else if (sessionsUtils.isSessionSelected()) {
+          if (params.isCrowdMapOn() && !params.isSessionSelected()) {
+            updateCrowdMapLayer.call(sessions.sessionIds());
+          } else if (params.isSessionSelected()) {
             sessions.redrawSelectedSession();
           } else {
             sessions.drawSessionsInLocation();
@@ -339,7 +345,7 @@ export const SessionsMapCtrl = (
       // mobile tab
       elmApp.ports.updateResolution.subscribe(gridResolution => {
         params.updateData({ gridResolution });
-        sessionsUtils.updateCrowdMapLayer(sessions.allSessionIds());
+        updateCrowdMapLayer.call(sessions.allSessionIds());
       });
 
       // fixed tab

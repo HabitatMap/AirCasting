@@ -6,10 +6,10 @@ import sinon from "sinon";
 
 test("fetch with no sessions ids in params doesn't call sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
-  const sessionsUtils = { isSessionSelected: () => true };
+  const params = { isSessionSelected: () => true };
   const mobileSessionsService = _mobileSessions({
     sessionsDownloaderCalls,
-    sessionsUtils
+    params
   });
 
   mobileSessionsService.fetch();
@@ -224,8 +224,6 @@ test("selectSession after successfully fetching calls map.fitBoundsWithBottomPad
 test("when sensor is selected drawSessionsInLocation calls map.drawCustomMarker to draw marker with label", t => {
   const map = mock("drawMarkerWithLabel");
   const session = { streams: { sensorName: { unit_symbol: "unit" } } };
-  const sessions = [session];
-  const sessionsUtils = { get: () => sessions };
   const sensors = {
     anySelected: () => true,
     selectedSensorName: () => "sensorName"
@@ -233,9 +231,9 @@ test("when sensor is selected drawSessionsInLocation calls map.drawCustomMarker 
 
   const mobileSessionsService = _mobileSessions({
     map,
-    sensors,
-    sessionsUtils
+    sensors
   });
+  mobileSessionsService.sessions = [session];
 
   mobileSessionsService.drawSessionsInLocation();
 
@@ -259,7 +257,6 @@ test("when sensor is selected and sessions are located near each other drawSessi
     }
   };
   const sessions = [session1, session2];
-  const sessionsUtils = { get: () => sessions };
   const sensors = {
     anySelected: () => true,
     selectedSensorName: () => "sensorName"
@@ -269,7 +266,6 @@ test("when sensor is selected and sessions are located near each other drawSessi
   const mobileSessionsService = _mobileSessions({
     map,
     sensors,
-    sessionsUtils,
     clusterer
   });
 
@@ -313,7 +309,6 @@ const _mobileSessions = ({
   drawSession,
   sessionIds = [],
   map,
-  sessionsUtils,
   sensors,
   params
 }) => {
@@ -330,6 +325,8 @@ const _mobileSessions = ({
     },
     update: () => {},
     selectedSessionIds: () => sessionIds,
+    isSessionSelected: () => false,
+    selectedSessionId: () => 1,
     ...params
   };
   const _map = {
@@ -355,14 +352,6 @@ const _mobileSessions = ({
   const sessionsDownloader = (_, arg) => {
     sessionsDownloaderCalls.push(arg);
   };
-  const _sessionsUtils = {
-    find: () => ({}),
-    isSessionSelected: () => false,
-    selectedSession: () => ({}),
-    selectedSessionId: () => 1,
-    updateCrowdMapLayer: () => {},
-    ...sessionsUtils
-  };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
   return mobileSessions(
@@ -372,7 +361,6 @@ const _mobileSessions = ({
     $rootScope,
     sessionsDownloader,
     _drawSession,
-    _sessionsUtils,
     _heat
   );
 };

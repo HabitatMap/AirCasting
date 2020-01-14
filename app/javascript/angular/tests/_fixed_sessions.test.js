@@ -8,10 +8,10 @@ import sinon from "sinon";
 
 test("fetch with no sessions ids in params doesn't call sessionsDownloader", t => {
   const sessionsDownloaderCalls = [];
-  const sessionsUtils = { isSessionSelected: () => true };
+  const params = { isSessionSelected: () => true };
   const fixedSessionsService = _fixedSessions({
     sessionsDownloaderCalls,
-    sessionsUtils
+    params
   });
 
   fixedSessionsService.fetch();
@@ -191,9 +191,8 @@ test("selectSession with outdoor session after successfully fetching calls map.f
 
 test("selectSession with indoor session after successfully fetching does not call map.fitBounds", t => {
   const map = mock("fitBounds");
-  const sessionsUtils = { selectedSession: () => ({ is_indoor: true }) };
   const sensors = { sensors: { 123: { sensor_name: "sensor_name" } } };
-  const fixedSessionsService = _fixedSessions({ map, sessionsUtils, sensors });
+  const fixedSessionsService = _fixedSessions({ map, sensors });
 
   fixedSessionsService.selectSession(123);
 
@@ -215,7 +214,7 @@ test("deselectSession calls fitBounds with the bounds saved before selecting the
     getZoom: () => zoom,
     ...mock("fitBounds")
   };
-  const sessionsUtils = {
+  const params = {
     isSessionSelected: () => true
   };
   const sensors = {
@@ -224,8 +223,8 @@ test("deselectSession calls fitBounds with the bounds saved before selecting the
   };
   const fixedSessionsService = _fixedSessions({
     map,
-    sessionsUtils,
-    sensors
+    sensors,
+    params
   });
   fixedSessionsService.selectSession(1);
 
@@ -372,11 +371,11 @@ const _fixedSessions = ({
   data,
   sessionIds = [],
   map,
-  sessionsUtils,
-  sensors
+  sensors,
+  params
 }) => {
   const $rootScope = { $new: () => ({}) };
-  const params = {
+  const _params = {
     get: what => {
       if (what === "data") {
         return data || buildData();
@@ -389,7 +388,10 @@ const _fixedSessions = ({
     update: () => {},
     selectedSessionIds: () => sessionIds,
     isActive: () => false,
-    paramsData: {}
+    paramsData: {},
+    isSessionSelected: () => false,
+    selectedSessionId: () => 1,
+    ...params
   };
   const _map = {
     getBounds: () => ({}),
@@ -413,23 +415,14 @@ const _fixedSessions = ({
   const sessionsDownloader = (_, arg) => {
     sessionsDownloaderCalls.push(arg);
   };
-  const _sessionsUtils = {
-    find: () => ({}),
-    get: self => self.sessions,
-    isSessionSelected: () => false,
-    selectedSession: () => {},
-    selectedSessionId: () => 1,
-    ...sessionsUtils
-  };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
   return fixedSessions(
-    params,
+    _params,
     _map,
     _sensors,
     $rootScope,
     sessionsDownloader,
-    _sessionsUtils,
     null,
     _heat
   );

@@ -58,6 +58,9 @@ angular.module("aircasting").factory("params", [
       },
       isActive: function() {
         return this.paramsData.data.isActive || false;
+      },
+      isSessionSelected: function() {
+        return this.selectedSessionIds().length === 1;
       }
     };
     return new Params();

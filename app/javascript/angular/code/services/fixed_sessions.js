@@ -8,7 +8,6 @@ angular
     "sensors",
     "$rootScope",
     "sessionsDownloader",
-    "sessionsUtils",
     "$window",
     "heat",
     "infoWindow",

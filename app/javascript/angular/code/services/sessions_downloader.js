@@ -5,8 +5,7 @@ angular.module("aircasting").factory("sessionsDownloader", [
   "$http",
   "$timeout",
   "orderByFilter",
-  "sessionsUtils",
-  function($rootScope, $http, $timeout, orderBy, sessionsUtils) {
+  function($rootScope, $http, $timeout, orderBy) {
     var fetch = function(
       url,
       reqData,
@@ -61,7 +60,7 @@ angular.module("aircasting").factory("sessionsDownloader", [
       sessions.push.apply(sessions, data);
       sessions = orderBy(sessions, "end_time_local");
 
-      if (!sessionsUtils.isSessionSelected()) {
+      if (!params.isSessionSelected()) {
         params.update({ fetchedSessionsCount: sessions.length });
       }
     };

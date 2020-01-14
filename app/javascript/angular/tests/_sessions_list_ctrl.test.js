@@ -61,20 +61,12 @@ const _SessionsMapCtrl = ({ $scope, sessions, params }) => {
   const _params = {
     get: () => ({}),
     updateFromDefaults: () => {},
+    isSessionSelected: () => false,
     ...params
   };
   const _map = {
     unregisterAll: () => {}
   };
-  const _sessionsUtils = { isSessionSelected: () => false };
 
-  return SessionsMapCtrl(
-    _$scope,
-    _params,
-    _map,
-    _sensors,
-    _sessions,
-    $window,
-    _sessionsUtils
-  );
+  return SessionsMapCtrl(_$scope, _params, _map, _sensors, _sessions, $window);
 };
