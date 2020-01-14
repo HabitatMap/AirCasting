@@ -11,11 +11,9 @@ angular.module("aircasting").factory("params", [
       this.init($location.search());
       this.startupData = angular.copy(this.paramsData);
       this.scope.$location = $location;
-      this.scope.$watch("$location.search()", _(this.init).bind(this));
     };
     Params.prototype = {
       init: function(searchData) {
-        console.log("watch - $location.search()");
         _(searchData || {}).each(function(value, key) {
           if (isJSON(value)) {
             searchData[key] = angular.fromJson(value);
@@ -43,6 +41,7 @@ angular.module("aircasting").factory("params", [
           newData[key] = angular.toJson(value);
         });
         $location.search(newData);
+        this.init(newData);
       },
       updateFromDefaults: function(defaults) {
         this.update({ data: { ...defaults, ...this.paramsData.data } });
