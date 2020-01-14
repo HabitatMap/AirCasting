@@ -66,6 +66,15 @@ $search-control-width: 300px;
   }
 }
 
+input[id="checkbox-search-as-i-move"] {
+  height: 25px;
+  vertical-align: top;
+
+  @media screen and (max-width: $wider-mobile) {
+    height: 30px;
+  }
+}
+
 label[for="checkbox-search-as-i-move"] {
   cursor: pointer;
   display: inline-block;
