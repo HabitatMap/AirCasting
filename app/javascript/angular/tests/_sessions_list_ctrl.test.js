@@ -5,8 +5,8 @@ import { SessionsMapCtrl } from "../code/controllers/_sessions_map_ctrl";
 test("with no sessions selected and isSearchAsIMoveOn true when params.map changes it calls sessions.fetch", t => {
   const callbacks = [];
   const $scope = {
-    $watch: (str, callback) =>
-      str.includes("map") ? callbacks.push(callback) : null
+    $on: (str, callback) =>
+      str === "googleMapsChanged" ? callbacks.push(callback) : null
   };
   const sessions = {
     ...mock("fetch")
@@ -17,7 +17,7 @@ test("with no sessions selected and isSearchAsIMoveOn true when params.map chang
   _SessionsMapCtrl({ $scope, sessions, params });
 
   callbacks.forEach(callback =>
-    callback({ hasChangedProgrammatically: false })
+    callback(null, { hasChangedProgrammatically: false })
   );
 
   t.true(sessions.wasCalled());
@@ -28,15 +28,15 @@ test("with no sessions selected and isSearchAsIMoveOn true when params.map chang
 test("with session selected when params.map changes it does not call sessions.fetch", t => {
   const callbacks = [];
   const $scope = {
-    $watch: (str, callback) =>
-      str.includes("map") ? callbacks.push(callback) : null
+    $on: (str, callback) =>
+      str === "googleMapsChanged" ? callbacks.push(callback) : null
   };
   const sessions = {
     ...mock("fetch")
   };
   _SessionsMapCtrl({ $scope, sessions });
 
-  callbacks.forEach(callback => callback({}));
+  callbacks.forEach(callback => callback(null, {}));
 
   t.false(sessions.wasCalled());
 
@@ -54,7 +54,6 @@ const _SessionsMapCtrl = ({ $scope, sessions, params }) => {
   };
   const _$scope = {
     setDefaults: () => {},
-    $watch: () => {},
     $on: () => {},
     ...$scope
   };

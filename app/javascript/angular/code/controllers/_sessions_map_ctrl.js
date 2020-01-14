@@ -57,35 +57,30 @@ export const SessionsMapCtrl = (
     params.updateFromDefaults(defs);
   }
 
-  $scope.$watch(
-    "params.get('map')",
-    (newValue, oldValue) => {
-      console.log("watch - params.get('map')");
-      if (newValue === oldValue) return; // on angular $watch init
-      if (params.isSessionSelected()) return;
-      // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically as undefined
-      if (newValue.hasChangedProgrammatically === undefined) return;
+  $scope.$on("googleMapsChanged", function(_, newValue) {
+    if (params.isSessionSelected()) return;
+    // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically as undefined
+    if (newValue.hasChangedProgrammatically === undefined) return;
 
-      //triggered when deselecting a session or panning to info window
-      if (newValue.hasChangedProgrammatically) return;
+    // triggered when deselecting a session or panning to info window
+    if (newValue.hasChangedProgrammatically) return;
 
-      if (!params.get("data").isSearchAsIMoveOn) {
-        if (sessions.type === "MobileSessions") {
-          sessions.onSessionsFetchWithCrowdMapLayerUpdate();
-        } else if (sessions.type === "FixedSessions") {
-          sessions.onSessionsFetch();
-        } else {
-          console.warn("Incorrect sessions type");
-        }
-        if (!newValue.hasChangedProgrammatically)
-          elmApp.ports.mapMoved.send(null);
-        return;
+    if (!params.get("data").isSearchAsIMoveOn) {
+      if (sessions.type === "MobileSessions") {
+        sessions.onSessionsFetchWithCrowdMapLayerUpdate();
+      } else if (sessions.type === "FixedSessions") {
+        sessions.onSessionsFetch();
+      } else {
+        console.warn("Incorrect sessions type");
       }
+      if (!newValue.hasChangedProgrammatically) {
+        elmApp.ports.mapMoved.send(null);
+      }
+      return;
+    }
 
-      sessions.fetch();
-    },
-    true
-  );
+    sessions.fetch();
+  });
 
   $scope.$on("googleMapsReady", function() {
     if (params.isSessionSelected()) return;

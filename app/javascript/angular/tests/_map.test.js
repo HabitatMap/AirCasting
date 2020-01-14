@@ -263,10 +263,11 @@ const _map = ({ googleMaps, params, rectangles }) => {
   };
   const $cookieStore = { put: () => {} };
   const $window = {};
+  const $rootScope = { $broadcast: () => {} };
   return map(
     params,
     $cookieStore,
-    null,
+    $rootScope,
     digester,
     _rectangles,
     googleMaps,

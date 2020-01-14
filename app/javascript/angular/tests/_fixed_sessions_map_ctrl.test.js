@@ -48,7 +48,7 @@ const _SessionsMapCtrl = ({ params }) => {
     setSensors: () => {}
   };
   const _params = { get: () => ({}), updateFromDefaults: () => {}, ...params };
-  const _$scope = { $watch: () => {}, $on: () => {} };
+  const _$scope = { $on: () => {} };
   const _map = {
     unregisterAll: () => {}
   };

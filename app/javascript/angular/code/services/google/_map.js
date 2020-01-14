@@ -119,7 +119,7 @@ export const map = (
       $cookieStore.put("vp_lat", lat);
       $cookieStore.put("vp_lng", lng);
       $cookieStore.put("vp_mapType", mapType);
-      params.update({
+      const newParams = {
         map: {
           zoom: zoom,
           lat: lat,
@@ -127,9 +127,11 @@ export const map = (
           mapType: mapType,
           hasChangedProgrammatically: getHasChangedProgrammatically()
         }
-      });
+      };
+      params.update(newParams);
       setHasChangedProgrammatically(false);
       digester();
+      $rootScope.$broadcast("googleMapsChanged", newParams.map);
     },
 
     fitBounds: function(bounds, zoom) {

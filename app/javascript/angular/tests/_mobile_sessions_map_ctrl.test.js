@@ -51,7 +51,7 @@ const _SessionsMapCtrl = ({ params }) => {
   const _map = {
     unregisterAll: () => {}
   };
-  const _$scope = { $watch: () => {}, $on: () => {} };
+  const _$scope = { $on: () => {} };
   const _$window = {};
   const sessions = { isMobile: () => true };
 
