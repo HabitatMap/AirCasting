@@ -1,6 +1,7 @@
 .note {
   min-width: 100px;
   max-width: 200px;
+  padding: 6px 6px 0 6px;
 }
 
 .note__date {
@@ -33,8 +34,15 @@
 }
 
 .note-pagination {
+  display: inline-block;
   line-height: 1;
   text-align: center;
+  width: 100%;
+}
+
+.note-pagination__page {
+  display: inline-block;
+  padding: 10px 0 0;
 }
 
 .note-pagination__arrow {
@@ -43,17 +51,16 @@
   border: none;
   cursor: pointer;
   color: $blue;
+  font-size: 20px;
   font-weight: $font-stack-bold;
+  line-height: 13px;
+  padding: 10px;
 }
 
 .note-pagination__arrow--prev {
   float: left;
-  padding-left: 0;
-  padding-right: 10px;
 }
 
 .note-pagination__arrow--next {
   float: right;
-  padding-right: 0;
-  padding-left: 10px;
 }
