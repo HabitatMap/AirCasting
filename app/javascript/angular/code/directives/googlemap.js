@@ -1,4 +1,4 @@
-import * as MapSettings from "../directives/map_settings";
+import * as MapSettings from "../../../javascript/mapSettings";
 
 angular.module("aircasting").directive("googlemap", function() {
   return {
