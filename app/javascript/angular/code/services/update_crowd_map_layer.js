@@ -7,7 +7,6 @@ angular
     "$http",
     "params",
     "utils",
-    "infoWindow",
     "$window",
     updateCrowdMapLayer
   ]);

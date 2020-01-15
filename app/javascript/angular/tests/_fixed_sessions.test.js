@@ -351,7 +351,7 @@ test("showClusterInfo returns a callback that calls infoWindow.show with correct
 
   callback(cluster);
 
-  sinon.assert.calledWith(show, "/api/fixed_region", {
+  sinon.assert.calledWith(show, "/api/fixed_region.json", {
     q: { session_ids: [1], sensor_name: "Sensor Name" }
   });
 
@@ -417,7 +417,7 @@ const _fixedSessions = ({
   };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
-  return fixedSessionsTest(_heat, _sensors)(
+  return fixedSessionsTest(_heat, null, _sensors)(
     _params,
     _map,
     $rootScope,

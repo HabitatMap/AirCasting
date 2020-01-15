@@ -5,15 +5,13 @@ import * as build from "../../../javascript/buildQueryParamsForCrowdMapLayer";
 const buildQueryParamsForCrowdMapLayer_ =
   build.buildQueryParamsForCrowdMapLayer;
 import rectangles_ from "../../../javascript/rectangles";
+import infoWindow_ from "../../../javascript/infoWindow";
 
-const updateCrowdMapLayer_ = (buildQueryParamsForCrowdMapLayer, rectangles) => (
-  map,
-  $http,
-  params,
-  utils,
+const updateCrowdMapLayer_ = (
+  buildQueryParamsForCrowdMapLayer,
   infoWindow,
-  $window
-) => ({
+  rectangles
+) => (map, $http, params, utils, $window) => ({
   call: sessionIds => {
     if (!params.isCrowdMapOn()) return;
     clearMap();
@@ -54,17 +52,25 @@ const onRectangleClick = (
   buildQueryParamsForCrowdMapLayer
 ) => rectangleData => {
   infoWindow.show(
-    "/api/region",
+    "/api/region.json",
     { q: buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData) },
-    rectangles.position(rectangleData)
+    rectangles.position(rectangleData),
+    constants.mobileSession
   );
 };
 
 export const updateCrowdMapLayer = updateCrowdMapLayer_(
   buildQueryParamsForCrowdMapLayer_,
+  infoWindow_,
   rectangles_
 );
 export const updateCrowdMapLayerTest = (
   buildQueryParamsForCrowdMapLayer,
+  infoWindow,
   rectangles
-) => updateCrowdMapLayer_(buildQueryParamsForCrowdMapLayer, rectangles);
+) =>
+  updateCrowdMapLayer_(
+    buildQueryParamsForCrowdMapLayer,
+    infoWindow,
+    rectangles
+  );

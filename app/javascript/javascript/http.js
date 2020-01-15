@@ -5,3 +5,8 @@ export const get = (url, params) => {
 
   return fetch(url + "?" + query).then(x => x.json());
 };
+
+export const getQ = (url, params) =>
+  fetch(url + "?" + "q=" + encodeURIComponent(JSON.stringify(params))).then(x =>
+    x.json()
+  );

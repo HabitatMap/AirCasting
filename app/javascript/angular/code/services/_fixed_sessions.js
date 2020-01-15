@@ -6,14 +6,14 @@ import { clearMap } from "../../../javascript/clearMap";
 import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
 import heat_ from "../../../javascript/heat";
 import sensors_ from "../../../javascript/sensors";
+import infoWindow_ from "../../../javascript/infoWindow";
 
-const fixedSessions_ = (heat, sensors) => (
+const fixedSessions_ = (heat, infoWindow, sensors) => (
   params,
   map,
   $rootScope,
   sessionsDownloader,
-  $window,
-  infoWindow
+  $window
 ) => {
   var FixedSessions = function() {
     this.sessions = [];
@@ -223,13 +223,13 @@ export const showClusterInfo = (sensorName, map, infoWindow) => cluster => {
   };
 
   infoWindow.show(
-    "/api/fixed_region",
+    "/api/fixed_region.json",
     data,
     cluster.getCenter(),
     constants.fixedSession
   );
 };
 
-export const fixedSessions = fixedSessions_(heat_, sensors_);
-export const fixedSessionsTest = (heat, sensors) =>
-  fixedSessions_(heat, sensors);
+export const fixedSessions = fixedSessions_(heat_, infoWindow_, sensors_);
+export const fixedSessionsTest = (heat, infoWindow, sensors) =>
+  fixedSessions_(heat, infoWindow, sensors);
