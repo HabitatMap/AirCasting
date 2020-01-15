@@ -92,6 +92,7 @@ view model text_ inputId placeholderText isDisabled tooltipText =
             []
         , label [ class "label label--filters", for inputId ] [ text text_ ]
         , Tooltip.view tooltipText
+        , div [ class "autocomplete-spinner" ] []
         ]
 
 

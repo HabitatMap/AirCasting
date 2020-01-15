@@ -1,0 +1,22 @@
+// Replaces JQuery autocomplete spinner
+
+.ui-autocomplete-loading ~ .autocomplete-spinner {
+  background-image: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  right: 21px;
+  top: 32px;
+  z-index: 100000;
+
+  &:after {
+    content: " ";
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    margin: 1px;
+    border-radius: 50%;
+    border: 2px solid $white;
+    border-color: $white transparent $white transparent;
+    animation: spinning 1.2s linear infinite;
+  }
+}
