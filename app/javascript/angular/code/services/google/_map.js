@@ -1,5 +1,5 @@
 import _ from "underscore";
-import { buildCustomMarker } from "./custom_marker";
+import { buildCustomMarker } from "../../../../javascript/customMarker";
 import MarkerClusterer from "@google/markerclustererplus";
 import {
   fixedClusterStyles,
