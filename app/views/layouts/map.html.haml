@@ -8,10 +8,10 @@
     = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}&libraries=places", async: true
     = javascript_pack_tag "elm", defer: true
     = javascript_pack_tag "application", async: true
-    = favicon_link_tag "favicon.png"
     = render partial: 'shared/fb_logo'
     = render partial: 'shared/gtm'
     = csrf_meta_tags
+    = render partial: "shared/favicon"
 
   %body
     = render partial: 'shared/noscript_gtm'
