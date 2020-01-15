@@ -5,11 +5,11 @@ import { calculateBounds } from "../../../javascript/calculateBounds";
 import { clearMap } from "../../../javascript/clearMap";
 import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
 import heat_ from "../../../javascript/heat";
+import sensors_ from "../../../javascript/sensors";
 
-const mobileSessions_ = heat => (
+const mobileSessions_ = (heat, sensors) => (
   params,
   map,
-  sensors,
   $rootScope,
   sessionsDownloader,
   drawSession,
@@ -233,6 +233,7 @@ const mobileSessions_ = heat => (
 
 const isNotIn = arr => x => !arr.includes(x);
 
-export const mobileSessionsTest = heat => mobileSessions_(heat);
+export const mobileSessionsTest = (heat, sensors) =>
+  mobileSessions_(heat, sensors);
 
-export const mobileSessions = mobileSessions_(heat_);
+export const mobileSessions = mobileSessions_(heat_, sensors_);

@@ -5,7 +5,6 @@ angular
   .factory("mobileSessions", [
     "params",
     "map",
-    "sensors",
     "$rootScope",
     "sessionsDownloader",
     "drawSession",

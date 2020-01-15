@@ -1,11 +1,11 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
 import sinon from "sinon";
-import { sensors } from "../code/services/_sensors";
+import { sensors } from "../../javascript/sensors";
 
 test("selected with no sensor id in the url returns the default sensor with added id, label, select_label", t => {
   const params = {
-    get: () => ({ sensorId: null })
+    sensorId: null
   };
   const service = _sensors({ params });
   const defaultSensor = {
@@ -29,7 +29,7 @@ test("selected with no sensor id in the url returns the default sensor with adde
 
 test("selected with sensor id in the url returns the correct sensor with added id, label, select_label", t => {
   const params = {
-    get: () => ({ sensorId: "Humidity-airbeam2-rh (%)" })
+    sensorId: "Humidity-airbeam2-rh (%)"
   };
   const service = _sensors({ params });
   const sensor = {
@@ -53,7 +53,7 @@ test("selected with sensor id in the url returns the correct sensor with added i
 
 test("selectedId with no sensor id in the url returns the default sensor id", t => {
   const params = {
-    get: () => ({ sensorId: null })
+    sensorId: null
   };
   const service = _sensors({ params });
   const defaultSensor = {
@@ -74,7 +74,7 @@ test("selectedId with no sensor id in the url returns the default sensor id", t 
 
 test("selectedId with sensor id in the url returns the correct sensor id", t => {
   const params = {
-    get: () => ({ sensorId: "Humidity-airbeam2-rh (%)" })
+    sensorId: "Humidity-airbeam2-rh (%)"
   };
   const service = _sensors({ params });
   const sensor = {
@@ -94,11 +94,12 @@ test("selectedId with sensor id in the url returns the correct sensor id", t => 
 });
 
 const _sensors = ({ params }) => {
-  const _params = {
-    get: () => ({ sensorId: null }),
-    update: () => {},
-    ...params
-  };
+  const _params = () => ({
+    data: {
+      sensorId: null,
+      ...params
+    }
+  });
 
   return sensors(_params);
 };

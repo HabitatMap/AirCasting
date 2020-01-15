@@ -6,7 +6,7 @@ test("zoomIn calls map.zoomToSelectedCluster", t => {
   const zoomToSelectedCluster = sinon.spy();
   const map = { zoomToSelectedCluster };
   const scope = {};
-  const service = InfoWindowCtrl(scope, null, null, map);
+  const service = InfoWindowCtrl(scope, null, map);
 
   scope.zoomIn();
 

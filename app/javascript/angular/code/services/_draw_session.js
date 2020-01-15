@@ -4,7 +4,7 @@ import * as Session from "../../../javascript/values/session";
 import { locationMarkersByLevel } from "../../../javascript/theme";
 import heat from "../../../javascript/heat";
 
-export const drawSession = (sensors, map) => {
+export const drawSession = map => {
   let DrawSession = function() {};
 
   DrawSession.prototype = {

@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { SessionsMapCtrl } from "../code/controllers/_sessions_map_ctrl";
+import { SessionsMapCtrlTest } from "../code/controllers/_sessions_map_ctrl";
 import moment from "moment";
 import { DEFAULT_THEME } from "../../javascript/constants";
 
@@ -55,5 +55,11 @@ const _SessionsMapCtrl = ({ params }) => {
   const $window = {};
   const sessions = { isMobile: () => false };
 
-  return SessionsMapCtrl(_$scope, _params, _map, _sensors, sessions, $window);
+  return SessionsMapCtrlTest(_sensors)(
+    _$scope,
+    _params,
+    _map,
+    sessions,
+    $window
+  );
 };

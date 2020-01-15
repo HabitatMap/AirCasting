@@ -12,7 +12,6 @@ angular
     "$scope",
     "params",
     "map",
-    "sensors",
     sessions,
     "$window",
     "updateCrowdMapLayer",

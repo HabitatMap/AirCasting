@@ -2,12 +2,12 @@ import * as FiltersUtils from "../../../javascript/filtersUtils";
 import { clearMap } from "../../../javascript/clearMap";
 import { applyTheme } from "../../../javascript/theme";
 import { getParams } from "../../../javascript/params";
+import sensors_ from "../../../javascript/sensors";
 
-export const SessionsMapCtrl = (
+const SessionsMapCtrl_ = sensors => (
   $scope,
   params,
   map,
-  sensors,
   sessions,
   $window,
   updateCrowdMapLayer
@@ -189,6 +189,7 @@ export const SessionsMapCtrl = (
       elmApp.ports.selectSensorId.subscribe(sensorId => {
         sessions.deselectSession();
         params.update({ data: { sensorId } });
+        $scope.$apply();
         sessions.fetch();
       });
 
@@ -358,3 +359,7 @@ export const SessionsMapCtrl = (
     });
   }
 };
+
+export const SessionsMapCtrl = SessionsMapCtrl_(sensors_);
+
+export const SessionsMapCtrlTest = sensors => SessionsMapCtrl_(sensors);

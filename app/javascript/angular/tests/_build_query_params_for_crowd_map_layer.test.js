@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { buildQueryParamsForCrowdMapLayer } from "../code/services/_build_query_params_for_crowd_map_layer";
+import { buildQueryParamsForCrowdMapLayerTest } from "../code/services/_build_query_params_for_crowd_map_layer";
 
 test("when no sensor is selected it returns false", t => {
   const sensors = {
@@ -104,7 +104,7 @@ test("when everything is present it returns params for averages", t => {
   const utils = {
     gridSizeX: x => grid_size_x
   };
-  const service = buildQueryParamsForCrowdMapLayer(sensors, params, utils);
+  const service = _buildQueryParamsForCrowdMapLayer({ sensors, params, utils });
   const sessionIds = [3, 4];
   const bounds = { west, east, north, south };
 
@@ -133,7 +133,7 @@ test("when everything is present it returns params for averages", t => {
   t.end();
 });
 
-const _buildQueryParamsForCrowdMapLayer = ({ sensors, params }) => {
+const _buildQueryParamsForCrowdMapLayer = ({ sensors, params, utils }) => {
   const sensor_name = "sensor_name";
   const measurement_type = "measurement_type";
   const unit_symbol = "unit_symbol";
@@ -161,9 +161,10 @@ const _buildQueryParamsForCrowdMapLayer = ({ sensors, params }) => {
     ...params
   };
   const grid_size_x = 12;
-  const utils = {
-    gridSizeX: x => grid_size_x
+  const _utils = {
+    gridSizeX: x => grid_size_x,
+    ...utils
   };
 
-  return buildQueryParamsForCrowdMapLayer(_sensors, _params, utils);
+  return buildQueryParamsForCrowdMapLayerTest(_sensors)(_params, _utils);
 };

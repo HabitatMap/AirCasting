@@ -354,10 +354,9 @@ const _mobileSessions = ({
   };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
-  return mobileSessionsTest(_heat)(
+  return mobileSessionsTest(_heat, _sensors)(
     _params,
     _map,
-    _sensors,
     $rootScope,
     sessionsDownloader,
     _drawSession

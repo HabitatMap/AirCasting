@@ -1,4 +1,5 @@
 import _ from "underscore";
+import { getParams } from "./params";
 
 const buildSensorId = sensor =>
   sensor.measurement_type +
@@ -34,11 +35,11 @@ export const sensors = params => {
     },
 
     selected: function() {
-      return this.sensors[params.get("data").sensorId || DEFAULT_SENSOR_ID];
+      return this.sensors[params().data.sensorId || DEFAULT_SENSOR_ID];
     },
 
     selectedId: function() {
-      return params.get("data").sensorId || DEFAULT_SENSOR_ID;
+      return params().data.sensorId || DEFAULT_SENSOR_ID;
     },
 
     selectedSensorName: function() {
@@ -49,3 +50,5 @@ export const sensors = params => {
   };
   return new Sensors();
 };
+
+export default sensors(getParams);

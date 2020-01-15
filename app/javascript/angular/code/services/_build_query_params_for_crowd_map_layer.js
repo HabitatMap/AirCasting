@@ -1,4 +1,6 @@
-export const buildQueryParamsForCrowdMapLayer = (sensors, params, utils) => ({
+import sensors_ from "../../../javascript/sensors";
+
+const buildQueryParamsForCrowdMapLayer_ = sensors => (params, utils) => ({
   call: (sessionIds, bounds) => {
     if (!sensors.selected()) return false;
     if (!hasTruthyValues(bounds)) return false;
@@ -27,3 +29,10 @@ export const buildQueryParamsForCrowdMapLayer = (sensors, params, utils) => ({
 });
 
 const hasTruthyValues = obj => Object.values(obj).every(x => !!x);
+
+export const buildQueryParamsForCrowdMapLayer = buildQueryParamsForCrowdMapLayer_(
+  sensors_
+);
+
+export const buildQueryParamsForCrowdMapLayerTest = sensors =>
+  buildQueryParamsForCrowdMapLayer_(sensors);

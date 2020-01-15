@@ -4,7 +4,6 @@ angular
   .module("aircasting")
   .controller("InfoWindowCtrl", [
     "$scope",
-    "sensors",
     "infoWindow",
     "map",
     InfoWindowCtrl

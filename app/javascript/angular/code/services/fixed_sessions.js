@@ -5,7 +5,6 @@ angular
   .factory("fixedSessions", [
     "params",
     "map",
-    "sensors",
     "$rootScope",
     "sessionsDownloader",
     "$window",

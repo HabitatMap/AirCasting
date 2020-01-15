@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { SessionsMapCtrl } from "../code/controllers/_sessions_map_ctrl";
+import { SessionsMapCtrlTest } from "../code/controllers/_sessions_map_ctrl";
 
 test("with no sessions selected and isSearchAsIMoveOn true when params.map changes it calls sessions.fetch", t => {
   const callbacks = [];
@@ -67,5 +67,11 @@ const _SessionsMapCtrl = ({ $scope, sessions, params }) => {
     unregisterAll: () => {}
   };
 
-  return SessionsMapCtrl(_$scope, _params, _map, _sensors, _sessions, $window);
+  return SessionsMapCtrlTest(_sensors)(
+    _$scope,
+    _params,
+    _map,
+    _sessions,
+    $window
+  );
 };

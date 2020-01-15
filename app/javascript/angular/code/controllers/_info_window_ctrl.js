@@ -1,6 +1,7 @@
 import heat from "../../../javascript/heat";
+import sensors from "../../../javascript/sensors";
 
-export const InfoWindowCtrl = ($scope, sensors, infoWindow, map) => {
+export const InfoWindowCtrl = ($scope, infoWindow, map) => {
   $scope.sensors = sensors;
   $scope.infoWindow = infoWindow;
 
