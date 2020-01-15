@@ -1,11 +1,13 @@
 import _ from "underscore";
 import constants from "../../../javascript/constants";
 import { clearMap } from "../../../javascript/clearMap";
+import * as build from "../../../javascript/buildQueryParamsForCrowdMapLayer";
+const buildQueryParamsForCrowdMapLayer_ =
+  build.buildQueryParamsForCrowdMapLayer;
 
-export const updateCrowdMapLayer = (
+const updateCrowdMapLayer_ = buildQueryParamsForCrowdMapLayer => (
   map,
   $http,
-  buildQueryParamsForCrowdMapLayer,
   params,
   utils,
   infoWindow,
@@ -57,3 +59,9 @@ const onRectangleClick = (
     rectangles.position(rectangleData)
   );
 };
+
+export const updateCrowdMapLayer = updateCrowdMapLayer_(
+  buildQueryParamsForCrowdMapLayer_
+);
+export const updateCrowdMapLayerTest = buildQueryParamsForCrowdMapLayer =>
+  updateCrowdMapLayer_(buildQueryParamsForCrowdMapLayer);

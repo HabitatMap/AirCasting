@@ -1,5 +1,3 @@
-import _str from "underscore.string";
-
 angular.module("aircasting").factory("utils", [
   "$window",
   function($window) {
@@ -22,9 +20,6 @@ angular.module("aircasting").factory("utils", [
           }
         });
         return obj1;
-      },
-      gridSizeX: function(x) {
-        return (_str.toNumber(x) * $($window).width()) / $($window).height();
       },
       heats: function(heat) {
         return _(heat)

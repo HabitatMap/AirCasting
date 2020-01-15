@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { updateCrowdMapLayer } from "../code/services/_update_crowd_map_layer";
+import { updateCrowdMapLayerTest } from "../code/services/_update_crowd_map_layer";
 
 test("it delegates building the query param to a service passing it the session ids", t => {
   const calls = [];
@@ -170,10 +170,9 @@ const _updateCrowdMapLayer = ({
     position: () => {}
   };
 
-  return updateCrowdMapLayer(
+  return updateCrowdMapLayerTest(_buildQueryParamsForCrowdMapLayer)(
     _map,
     $http,
-    _buildQueryParamsForCrowdMapLayer,
     _params,
     utils,
     infoWindow,

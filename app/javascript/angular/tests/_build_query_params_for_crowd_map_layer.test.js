@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { buildQueryParamsForCrowdMapLayerTest } from "../code/services/_build_query_params_for_crowd_map_layer";
+import { buildQueryParamsForCrowdMapLayerTest } from "../../javascript/buildQueryParamsForCrowdMapLayer";
 
 test("when no sensor is selected it returns false", t => {
   const sensors = {
@@ -91,20 +91,19 @@ test("when everything is present it returns params for averages", t => {
   const tags = [1];
   const usernames = [2];
   const params = {
-    get: () => ({
-      timeFrom: timeFrom,
-      timeTo: timeTo,
-      heat: {},
-      gridResolution,
-      tags,
-      usernames
-    })
+    timeFrom: timeFrom,
+    timeTo: timeTo,
+    heat: {},
+    gridResolution,
+    tags,
+    usernames
   };
   const grid_size_x = 12;
-  const utils = {
-    gridSizeX: x => grid_size_x
-  };
-  const service = _buildQueryParamsForCrowdMapLayer({ sensors, params, utils });
+  const service = _buildQueryParamsForCrowdMapLayer({
+    sensors,
+    params,
+    grid_size_x
+  });
   const sessionIds = [3, 4];
   const bounds = { west, east, north, south };
 
@@ -133,7 +132,11 @@ test("when everything is present it returns params for averages", t => {
   t.end();
 });
 
-const _buildQueryParamsForCrowdMapLayer = ({ sensors, params, utils }) => {
+const _buildQueryParamsForCrowdMapLayer = ({
+  sensors,
+  params,
+  grid_size_x
+}) => {
   const sensor_name = "sensor_name";
   const measurement_type = "measurement_type";
   const unit_symbol = "unit_symbol";
@@ -150,21 +153,17 @@ const _buildQueryParamsForCrowdMapLayer = ({ sensors, params, utils }) => {
   const gridResolution = 11;
   const tags = [1];
   const usernames = [2];
-  const _params = {
-    get: () => ({
-      time: { timeFrom, timeTo, dayFrom, dayTo, yearFrom, yearTo },
+  const _params = () => ({
+    data: {
+      time: { timeFrom, timeTo },
       heat: {},
       gridResolution,
       tags,
-      usernames
-    }),
-    ...params
-  };
-  const grid_size_x = 12;
-  const _utils = {
-    gridSizeX: x => grid_size_x,
-    ...utils
-  };
+      usernames,
+      ...params
+    }
+  });
+  const _grid_size_x = x => grid_size_x || 12;
 
-  return buildQueryParamsForCrowdMapLayerTest(_sensors)(_params, _utils);
+  return buildQueryParamsForCrowdMapLayerTest(_grid_size_x, _params, _sensors);
 };

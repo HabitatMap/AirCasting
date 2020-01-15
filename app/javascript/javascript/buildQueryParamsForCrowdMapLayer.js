@@ -1,10 +1,12 @@
-import sensors_ from "../../../javascript/sensors";
+import _str from "underscore.string";
+import sensors_ from "./sensors";
+import { getParams } from "./params";
 
-const buildQueryParamsForCrowdMapLayer_ = sensors => (params, utils) => ({
+const buildQueryParamsForCrowdMapLayer_ = (gridSizeX, params, sensors) => ({
   call: (sessionIds, bounds) => {
     if (!sensors.selected()) return false;
     if (!hasTruthyValues(bounds)) return false;
-    const data = params.get("data");
+    const data = params().data;
     if (!data.timeFrom || !data.timeTo) return false;
     if (!data.heat) return false;
     if (!data.gridResolution) return false;
@@ -16,7 +18,7 @@ const buildQueryParamsForCrowdMapLayer_ = sensors => (params, utils) => ({
       north: bounds.north,
       time_from: data.timeFrom,
       time_to: data.timeTo,
-      grid_size_x: utils.gridSizeX(data.gridResolution),
+      grid_size_x: gridSizeX(data.gridResolution),
       grid_size_y: data.gridResolution,
       tags: data.tags,
       usernames: data.usernames,
@@ -30,9 +32,28 @@ const buildQueryParamsForCrowdMapLayer_ = sensors => (params, utils) => ({
 
 const hasTruthyValues = obj => Object.values(obj).every(x => !!x);
 
+const gridSizeX_ = x => {
+  const width =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
+
+  const height =
+    window.innerHeight ||
+    document.documentElement.clientHeight ||
+    document.body.clientHeight;
+
+  return (_str.toNumber(x) * width) / height;
+};
+
 export const buildQueryParamsForCrowdMapLayer = buildQueryParamsForCrowdMapLayer_(
+  gridSizeX_,
+  getParams,
   sensors_
 );
 
-export const buildQueryParamsForCrowdMapLayerTest = sensors =>
-  buildQueryParamsForCrowdMapLayer_(sensors);
+export const buildQueryParamsForCrowdMapLayerTest = (
+  gridSizeX,
+  params,
+  sensors
+) => buildQueryParamsForCrowdMapLayer_(gridSizeX, params, sensors);

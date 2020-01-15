@@ -341,6 +341,7 @@ const SessionsMapCtrl_ = sensors => (
       // mobile tab
       elmApp.ports.updateResolution.subscribe(gridResolution => {
         params.updateData({ gridResolution });
+        $scope.$apply();
         updateCrowdMapLayer.call(sessions.allSessionIds());
       });
 

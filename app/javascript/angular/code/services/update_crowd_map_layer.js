@@ -5,7 +5,6 @@ angular
   .factory("updateCrowdMapLayer", [
     "map",
     "$http",
-    "buildQueryParamsForCrowdMapLayer",
     "params",
     "utils",
     "infoWindow",
