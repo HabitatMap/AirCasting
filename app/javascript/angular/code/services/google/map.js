@@ -7,7 +7,6 @@ angular
     "$cookieStore",
     "$rootScope",
     "digester",
-    "rectangles",
     "googleMaps",
     "$window",
     map

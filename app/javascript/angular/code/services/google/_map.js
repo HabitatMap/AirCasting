@@ -11,13 +11,13 @@ import {
   onMapInit
 } from "../../../../javascript/mapsUtils";
 import heat from "../../../../javascript/heat";
+import rectangles_ from "../../../../javascript/rectangles";
 
-export const map = (
+export const map_ = rectangles => (
   params,
   $cookieStore,
   $rootScope,
   digester,
-  rectangles,
   googleMaps,
   $window
 ) => {
@@ -353,3 +353,7 @@ export const drawTraceMarker = ({ position }) => {
 
   return customMarker;
 };
+
+export const map = map_(rectangles_);
+
+export const mapTest = rectangles => map_(rectangles);

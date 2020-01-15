@@ -8,7 +8,6 @@ angular
     "params",
     "utils",
     "infoWindow",
-    "rectangles",
     "$window",
     updateCrowdMapLayer
   ]);

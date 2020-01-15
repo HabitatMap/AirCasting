@@ -4,14 +4,14 @@ import { clearMap } from "../../../javascript/clearMap";
 import * as build from "../../../javascript/buildQueryParamsForCrowdMapLayer";
 const buildQueryParamsForCrowdMapLayer_ =
   build.buildQueryParamsForCrowdMapLayer;
+import rectangles_ from "../../../javascript/rectangles";
 
-const updateCrowdMapLayer_ = buildQueryParamsForCrowdMapLayer => (
+const updateCrowdMapLayer_ = (buildQueryParamsForCrowdMapLayer, rectangles) => (
   map,
   $http,
   params,
   utils,
   infoWindow,
-  rectangles,
   $window
 ) => ({
   call: sessionIds => {
@@ -61,7 +61,10 @@ const onRectangleClick = (
 };
 
 export const updateCrowdMapLayer = updateCrowdMapLayer_(
-  buildQueryParamsForCrowdMapLayer_
+  buildQueryParamsForCrowdMapLayer_,
+  rectangles_
 );
-export const updateCrowdMapLayerTest = buildQueryParamsForCrowdMapLayer =>
-  updateCrowdMapLayer_(buildQueryParamsForCrowdMapLayer);
+export const updateCrowdMapLayerTest = (
+  buildQueryParamsForCrowdMapLayer,
+  rectangles
+) => updateCrowdMapLayer_(buildQueryParamsForCrowdMapLayer, rectangles);
