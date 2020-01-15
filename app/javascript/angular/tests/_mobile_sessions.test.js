@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { mobileSessions } from "../code/services/_mobile_sessions";
+import { mobileSessionsTest } from "../code/services/_mobile_sessions";
 import * as Clusterer from "../../javascript/clusterer";
 import sinon from "sinon";
 
@@ -354,13 +354,12 @@ const _mobileSessions = ({
   };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
-  return mobileSessions(
+  return mobileSessionsTest(_heat)(
     _params,
     _map,
     _sensors,
     $rootScope,
     sessionsDownloader,
-    _drawSession,
-    _heat
+    _drawSession
   );
 };

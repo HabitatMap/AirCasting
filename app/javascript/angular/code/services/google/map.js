@@ -9,7 +9,6 @@ angular
     "digester",
     "rectangles",
     "googleMaps",
-    "heat",
     "$window",
     map
   ]);

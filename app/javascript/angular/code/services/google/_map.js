@@ -10,6 +10,7 @@ import {
   getHasChangedProgrammatically,
   onMapInit
 } from "../../../../javascript/mapsUtils";
+import heat from "../../../../javascript/heat";
 
 export const map = (
   params,
@@ -18,7 +19,6 @@ export const map = (
   digester,
   rectangles,
   googleMaps,
-  heat,
   $window
 ) => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;

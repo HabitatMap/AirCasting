@@ -9,7 +9,6 @@ angular
     "$rootScope",
     "sessionsDownloader",
     "$window",
-    "heat",
     "infoWindow",
     fixedSessions
   ]);

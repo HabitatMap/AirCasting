@@ -1,9 +1,11 @@
+import { getParams } from "./params";
+
 export const heat = params => {
   var Heat = function() {};
 
   Heat.prototype = {
     getValue: function(name) {
-      return (params.get("data").heat || {})[name];
+      return (params().data.heat || {})[name];
     },
 
     getLevel: function(value) {
@@ -66,3 +68,5 @@ export const heat = params => {
 
   return new Heat();
 };
+
+export default heat(getParams);

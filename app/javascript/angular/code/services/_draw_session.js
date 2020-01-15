@@ -2,8 +2,9 @@ import _ from "underscore";
 import { drawNotes } from "../../../javascript/note";
 import * as Session from "../../../javascript/values/session";
 import { locationMarkersByLevel } from "../../../javascript/theme";
+import heat from "../../../javascript/heat";
 
-export const drawSession = (sensors, map, heat) => {
+export const drawSession = (sensors, map) => {
   let DrawSession = function() {};
 
   DrawSession.prototype = {
@@ -18,7 +19,7 @@ export const drawSession = (sensors, map, heat) => {
       let points = [];
 
       this.measurements(session).forEach(function(measurement, idx) {
-        createMeasurementMarker(measurement, idx, heat, map, suffix);
+        createMeasurementMarker(measurement, idx, map, suffix);
         points.push(measurement);
       });
 
@@ -37,13 +38,13 @@ export const drawSession = (sensors, map, heat) => {
   return new DrawSession();
 };
 
-const calculateHeatLevel = (heat, value) => heat.getLevel(value);
+const calculateHeatLevel = value => heat.getLevel(value);
 
-const createMeasurementMarker = (measurement, idx, heat, map, suffix) => {
+const createMeasurementMarker = (measurement, idx, map, suffix) => {
   const roundedValue = Math.round(measurement.value);
   if (heat.outsideOfScope(roundedValue)) return;
 
-  const level = calculateHeatLevel(heat, roundedValue);
+  const level = calculateHeatLevel(roundedValue);
 
   const marker = map.drawMarker({
     position: { lat: measurement.latitude, lng: measurement.longitude },

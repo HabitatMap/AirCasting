@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { heat } from "../code/services/_heat";
+import { heat } from "../../javascript/heat";
 
 test("outsideOfScope return true when value outside of scope", t => {
   const heatStub = _heat();
@@ -123,11 +123,9 @@ test("levelName returns default when heat level outside of scope", t => {
 });
 
 const _heat = () => {
-  const params = {
-    get: () => ({
-      heat: { lowest: 0, low: 10, mid: 50, high: 100, highest: 150 }
-    })
-  };
+  const params = () => ({
+    data: { heat: { lowest: 0, low: 10, mid: 50, high: 100, highest: 150 } }
+  });
 
   return heat(params);
 };

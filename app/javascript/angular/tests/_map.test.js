@@ -271,7 +271,6 @@ const _map = ({ googleMaps, params, rectangles }) => {
     digester,
     _rectangles,
     googleMaps,
-    null,
     $window
   );
 };

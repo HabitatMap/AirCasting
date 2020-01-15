@@ -4,15 +4,15 @@ import * as Session from "../../../javascript/values/session";
 import { calculateBounds } from "../../../javascript/calculateBounds";
 import { clearMap } from "../../../javascript/clearMap";
 import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
+import heat_ from "../../../javascript/heat";
 
-export const fixedSessions = (
+const fixedSessions_ = heat => (
   params,
   map,
   sensors,
   $rootScope,
   sessionsDownloader,
   $window,
-  heat,
   infoWindow
 ) => {
   var FixedSessions = function() {
@@ -229,3 +229,6 @@ export const showClusterInfo = (sensorName, map, infoWindow) => cluster => {
     constants.fixedSession
   );
 };
+
+export const fixedSessions = fixedSessions_(heat_);
+export const fixedSessionsTest = heat => fixedSessions_(heat);

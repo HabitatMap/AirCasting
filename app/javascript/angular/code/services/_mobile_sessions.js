@@ -4,15 +4,15 @@ import { clusterer } from "../../../javascript/clusterer";
 import { calculateBounds } from "../../../javascript/calculateBounds";
 import { clearMap } from "../../../javascript/clearMap";
 import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
+import heat_ from "../../../javascript/heat";
 
-export const mobileSessions = (
+const mobileSessions_ = heat => (
   params,
   map,
   sensors,
   $rootScope,
   sessionsDownloader,
   drawSession,
-  heat,
   $window,
   updateCrowdMapLayer
 ) => {
@@ -232,3 +232,7 @@ export const mobileSessions = (
 };
 
 const isNotIn = arr => x => !arr.includes(x);
+
+export const mobileSessionsTest = heat => mobileSessions_(heat);
+
+export const mobileSessions = mobileSessions_(heat_);

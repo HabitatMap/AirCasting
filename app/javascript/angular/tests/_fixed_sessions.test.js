@@ -1,7 +1,7 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
 import {
-  fixedSessions,
+  fixedSessionsTest,
   showClusterInfo
 } from "../code/services/_fixed_sessions";
 import sinon from "sinon";
@@ -417,13 +417,11 @@ const _fixedSessions = ({
   };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
-  return fixedSessions(
+  return fixedSessionsTest(_heat)(
     _params,
     _map,
     _sensors,
     $rootScope,
-    sessionsDownloader,
-    null,
-    _heat
+    sessionsDownloader
   );
 };
