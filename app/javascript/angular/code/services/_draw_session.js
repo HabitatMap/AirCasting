@@ -3,7 +3,7 @@ import { drawNotes } from "../../../javascript/note";
 import * as Session from "../../../javascript/values/session";
 import { locationMarkersByLevel } from "../../../javascript/theme";
 
-export const drawSession = (sensors, map, heat, empty) => {
+export const drawSession = (sensors, map, heat) => {
   let DrawSession = function() {};
 
   DrawSession.prototype = {
@@ -28,7 +28,7 @@ export const drawSession = (sensors, map, heat, empty) => {
 
     measurements: function(session) {
       if (!session) {
-        return empty.array;
+        return [];
       }
       return session.stream.measurements;
     }
