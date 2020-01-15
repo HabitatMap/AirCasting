@@ -1,0 +1,18 @@
+// gm popup overrides. gm popup is used for notes and info windows on the map.
+
+// the topmost popup container
+.gm-style-iw.gm-style-iw-c {
+  box-shadow: $basic-shadow;
+  padding-top: 15px;
+}
+
+// close button
+.gm-ui-hover-effect {
+  top: 0 !important;
+  right: 0 !important;
+
+  img {
+    height: 18px !important;
+    width: 18px !important;
+  }
+}
