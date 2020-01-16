@@ -2,14 +2,11 @@ import { isJSON } from "../../../javascript/params";
 
 angular.module("aircasting").factory("params", [
   "$location",
-  "$rootScope",
   "utils",
-  function($location, $rootScope, utils) {
+  function($location, utils) {
     var Params = function() {
-      this.scope = $rootScope.$new();
       //set init params
       this.init($location.search());
-      this.scope.$location = $location;
       window.__params = this;
     };
     Params.prototype = {
