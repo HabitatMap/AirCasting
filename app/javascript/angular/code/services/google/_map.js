@@ -13,6 +13,7 @@ import {
 import heat from "../../../../javascript/heat";
 import rectangles_ from "../../../../javascript/rectangles";
 import googleMaps_ from "./google_maps";
+import pubsub from "../../../../javascript/pubsub";
 
 const map_ = (googleMaps, rectangles, $window) => $rootScope => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
@@ -31,14 +32,7 @@ const map_ = (googleMaps, rectangles, $window) => $rootScope => {
       this.traceMarkers = $window.__traceMarkers;
       this.addListener("idle", this.saveViewport);
       googleMaps.addListenerOnce(this.mapObj, "idle", () =>
-        $rootScope.$broadcast("googleMapsReady")
-      );
-      this.addListener(
-        "visible_changed",
-        function() {
-          $rootScope.$digest();
-        },
-        this.mapObj.getStreetView()
+        pubsub.publish("googleMapsReady")
       );
       this.addListener(
         "maptypeid_changed",
@@ -139,7 +133,7 @@ const map_ = (googleMaps, rectangles, $window) => $rootScope => {
       };
       params.update(newParams);
       setHasChangedProgrammatically(false);
-      $rootScope.$broadcast("googleMapsChanged", newParams.map);
+      pubsub.publish("googleMapsChanged", newParams.map);
     },
 
     fitBounds: function(bounds, zoom) {

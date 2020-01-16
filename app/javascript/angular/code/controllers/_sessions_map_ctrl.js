@@ -3,8 +3,9 @@ import { clearMap } from "../../../javascript/clearMap";
 import { applyTheme } from "../../../javascript/theme";
 import { getParams } from "../../../javascript/params";
 import sensors_ from "../../../javascript/sensors";
+import pubsub_ from "../../../javascript/pubsub";
 
-const SessionsMapCtrl_ = sensors => (
+const SessionsMapCtrl_ = (pubsub, sensors) => (
   $scope,
   params,
   map,
@@ -57,7 +58,7 @@ const SessionsMapCtrl_ = sensors => (
     params.updateFromDefaults(defs);
   }
 
-  $scope.$on("googleMapsChanged", function(_, newValue) {
+  pubsub.subscribe("googleMapsChanged", function(newValue) {
     if (params.isSessionSelected()) return;
     // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically as undefined
     if (newValue.hasChangedProgrammatically === undefined) return;
@@ -82,14 +83,14 @@ const SessionsMapCtrl_ = sensors => (
     sessions.fetch();
   });
 
-  $scope.$on("googleMapsReady", function() {
+  pubsub.subscribe("googleMapsReady", function() {
     if (params.isSessionSelected()) return;
     sessions.fetch({
       amount: params.paramsData["fetchedSessionsCount"]
     });
   });
 
-  $scope.$on("markerSelected", function(event, data) {
+  pubsub.subscribe("markerSelected", function(data) {
     if (params.selectedSessionId() === data.session_id) {
       elmApp.ports.toggleSessionSelection.send(null);
     } else {
@@ -361,6 +362,7 @@ const SessionsMapCtrl_ = sensors => (
   }
 };
 
-export const SessionsMapCtrl = SessionsMapCtrl_(sensors_);
+export const SessionsMapCtrl = SessionsMapCtrl_(pubsub_, sensors_);
 
-export const SessionsMapCtrlTest = sensors => SessionsMapCtrl_(sensors);
+export const SessionsMapCtrlTest = (pubsub, sensors) =>
+  SessionsMapCtrl_(pubsub, sensors);

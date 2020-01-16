@@ -4,8 +4,8 @@ import { SessionsMapCtrlTest } from "../code/controllers/_sessions_map_ctrl";
 
 test("with no sessions selected and isSearchAsIMoveOn true when params.map changes it calls sessions.fetch", t => {
   const callbacks = [];
-  const $scope = {
-    $on: (str, callback) =>
+  const pubsub = {
+    subscribe: (str, callback) =>
       str === "googleMapsChanged" ? callbacks.push(callback) : null
   };
   const sessions = {
@@ -14,10 +14,10 @@ test("with no sessions selected and isSearchAsIMoveOn true when params.map chang
   const params = {
     get: () => ({ isSearchAsIMoveOn: true })
   };
-  _SessionsMapCtrl({ $scope, sessions, params });
+  _SessionsMapCtrl({ pubsub, sessions, params });
 
   callbacks.forEach(callback =>
-    callback(null, { hasChangedProgrammatically: false })
+    callback({ hasChangedProgrammatically: false })
   );
 
   t.true(sessions.wasCalled());
@@ -27,23 +27,23 @@ test("with no sessions selected and isSearchAsIMoveOn true when params.map chang
 
 test("with session selected when params.map changes it does not call sessions.fetch", t => {
   const callbacks = [];
-  const $scope = {
-    $on: (str, callback) =>
+  const pubsub = {
+    pubsub: (str, callback) =>
       str === "googleMapsChanged" ? callbacks.push(callback) : null
   };
   const sessions = {
     ...mock("fetch")
   };
-  _SessionsMapCtrl({ $scope, sessions });
+  _SessionsMapCtrl({ pubsub, sessions });
 
-  callbacks.forEach(callback => callback(null, {}));
+  callbacks.forEach(callback => callback({}));
 
   t.false(sessions.wasCalled());
 
   t.end();
 });
 
-const _SessionsMapCtrl = ({ $scope, sessions, params }) => {
+const _SessionsMapCtrl = ({ sessions, params, pubsub }) => {
   const _sensors = {
     setSensors: () => {}
   };
@@ -54,8 +54,7 @@ const _SessionsMapCtrl = ({ $scope, sessions, params }) => {
   };
   const _$scope = {
     setDefaults: () => {},
-    $on: () => {},
-    ...$scope
+    $on: () => {}
   };
   const _params = {
     get: () => ({}),
@@ -66,8 +65,12 @@ const _SessionsMapCtrl = ({ $scope, sessions, params }) => {
   const _map = {
     unregisterAll: () => {}
   };
+  const _pubsub = {
+    subscribe: () => {},
+    ...pubsub
+  };
 
-  return SessionsMapCtrlTest(_sensors)(
+  return SessionsMapCtrlTest(_pubsub, _sensors)(
     _$scope,
     _params,
     _map,

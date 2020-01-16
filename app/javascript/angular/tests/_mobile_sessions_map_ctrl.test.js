@@ -54,8 +54,11 @@ const _SessionsMapCtrl = ({ params }) => {
   const _$scope = { $on: () => {} };
   const _$window = {};
   const sessions = { isMobile: () => true };
+  const _pubsub = {
+    subscribe: () => {}
+  };
 
-  return SessionsMapCtrlTest(_sensors)(
+  return SessionsMapCtrlTest(_pubsub, _sensors)(
     _$scope,
     _params,
     _map,
