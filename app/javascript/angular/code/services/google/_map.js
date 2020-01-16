@@ -14,6 +14,7 @@ import heat from "../../../../javascript/heat";
 import rectangles_ from "../../../../javascript/rectangles";
 import googleMaps_ from "./google_maps";
 import pubsub from "../../../../javascript/pubsub";
+import * as Cookies from "../../../../javascript/cookies";
 
 const map_ = (googleMaps, rectangles, $window) => $rootScope => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
@@ -59,18 +60,6 @@ const map_ = (googleMaps, rectangles, $window) => $rootScope => {
       return this.mapObj;
     },
 
-    getMapCookie: function(name) {
-      if (process.env.NODE_ENV === "test") return;
-      return JSON.parse(
-        decodeURIComponent(document.cookie)
-          .split(";")
-          .map(x => x.trim())
-          .map(x => x.split("="))
-          .map(xs => xs.map(x => decodeURIComponent(x)))
-          .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {})[name]
-      );
-    },
-
     getBounds: function() {
       var bounds = this.mapObj.getBounds();
       if (bounds) {
@@ -114,13 +103,10 @@ const map_ = (googleMaps, rectangles, $window) => $rootScope => {
       var lat = this.mapObj.getCenter().lat();
       var lng = this.mapObj.getCenter().lng();
       var mapType = this.mapObj.getMapTypeId();
-      const setCookie = (name, value) =>
-        (document.cookie =
-          encodeURIComponent(name) + "=" + encodeURIComponent(value));
       if (process.env.NODE_ENV !== "test") {
-        setCookie("vp_zoom", zoom);
-        setCookie("vp_lat", lat);
-        setCookie("vp_lng", lng);
+        Cookies.set("vp_zoom", zoom);
+        Cookies.set("vp_lat", lat);
+        Cookies.set("vp_lng", lng);
       }
       const newParams = {
         map: {

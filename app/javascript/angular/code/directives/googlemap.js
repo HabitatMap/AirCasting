@@ -1,21 +1,22 @@
 import * as MapSettings from "../../../javascript/mapSettings";
+import * as Cookies from "../../../javascript/cookies";
+import { getParams } from "../../../javascript/params";
+
+const UNITED_STATES = {
+  lat: 37.09024,
+  lng: -95.712891,
+  zoom: 5
+};
 
 angular.module("aircasting").directive("googlemap", function() {
   return {
     link: function(scope, element) {
-      // United States
-      const point = {
-        lat: 37.09024,
-        lng: -95.712891,
-        zoom: 5
-      };
-
       const map = scope.map;
-      const params = scope.params.get("map") || {};
-      const lat = params.lat || map.getMapCookie("vp_lat") || point.lat;
-      const lng = params.lng || map.getMapCookie("vp_lng") || point.lng;
+      const params = getParams().map || {};
+      const lat = params.lat || Cookies.get("vp_lat") || UNITED_STATES.lat;
+      const lng = params.lng || Cookies.get("vp_lng") || UNITED_STATES.lng;
       const latlng = new google.maps.LatLng(lat, lng);
-      const zoom = params.zoom || map.getMapCookie("vp_zoom") || point.zoom;
+      const zoom = params.zoom || Cookies.get("vp_zoom") || UNITED_STATES.zoom;
       const mapType = params.mapType || google.maps.MapTypeId.roadmap;
       const minZoom = 3;
 
