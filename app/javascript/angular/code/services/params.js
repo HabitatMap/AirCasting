@@ -5,7 +5,6 @@ angular.module("aircasting").factory("params", [
   "utils",
   function($location, utils) {
     var Params = function() {
-      //set init params
       this.init($location.search());
       window.__params = this;
     };
