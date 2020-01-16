@@ -130,7 +130,6 @@ export const map_ = rectangles => (
         setCookie("vp_zoom", zoom);
         setCookie("vp_lat", lat);
         setCookie("vp_lng", lng);
-        setCookie("vp_mapType", mapType);
       }
       const newParams = {
         map: {
@@ -195,7 +194,6 @@ export const map_ = rectangles => (
     onMapTypeIdChanged: function() {
       var mapType = this.mapObj.getMapTypeId();
       params.update({ map: { mapType: mapType } });
-      digester();
     },
 
     addListener: function(name, callback, diffmap) {
