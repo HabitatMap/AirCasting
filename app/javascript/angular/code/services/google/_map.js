@@ -12,8 +12,9 @@ import {
 } from "../../../../javascript/mapsUtils";
 import heat from "../../../../javascript/heat";
 import rectangles_ from "../../../../javascript/rectangles";
+import googleMaps_ from "./google_maps";
 
-export const map_ = rectangles => (params, $rootScope, googleMaps, $window) => {
+const map_ = (googleMaps, rectangles, $window) => (params, $rootScope) => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
   setHasChangedProgrammatically(false);
   $window.__traceMarkers = [];
@@ -358,6 +359,11 @@ export const drawTraceMarker = ({ position }) => {
   return customMarker;
 };
 
-export const map = map_(rectangles_);
+export const map = map_(
+  googleMaps_,
+  rectangles_,
+  process.env.NODE_ENV === "test" ? {} : window
+);
 
-export const mapTest = rectangles => map_(rectangles);
+export const mapTest = (googleMaps, rectangles, window) =>
+  map_(googleMaps, rectangles, window);

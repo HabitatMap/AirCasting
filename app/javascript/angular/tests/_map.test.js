@@ -262,5 +262,5 @@ const _map = ({ googleMaps, params, rectangles }) => {
   };
   const $window = {};
   const $rootScope = { $broadcast: () => {} };
-  return mapTest(_rectangles)(params, $rootScope, googleMaps, $window);
+  return mapTest(googleMaps, _rectangles, $window)(params, $rootScope);
 };
