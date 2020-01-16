@@ -9,7 +9,6 @@ angular.module("aircasting").factory("params", [
       this.scope = $rootScope.$new();
       //set init params
       this.init($location.search());
-      this.startupData = angular.copy(this.paramsData);
       this.scope.$location = $location;
       window.__params = this;
     };
