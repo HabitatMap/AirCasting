@@ -4,7 +4,6 @@ angular
   .module("google")
   .factory("map", [
     "params",
-    "$cookieStore",
     "$rootScope",
     "digester",
     "googleMaps",

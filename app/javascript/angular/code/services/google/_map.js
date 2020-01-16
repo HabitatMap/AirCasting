@@ -15,7 +15,6 @@ import rectangles_ from "../../../../javascript/rectangles";
 
 export const map_ = rectangles => (
   params,
-  $cookieStore,
   $rootScope,
   digester,
   googleMaps,
@@ -70,7 +69,15 @@ export const map_ = rectangles => (
     },
 
     getMapCookie: function(name) {
-      return $cookieStore.get(name);
+      if (process.env.NODE_ENV === "test") return;
+      return JSON.parse(
+        decodeURIComponent(document.cookie)
+          .split(";")
+          .map(x => x.trim())
+          .map(x => x.split("="))
+          .map(xs => xs.map(x => decodeURIComponent(x)))
+          .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {})[name]
+      );
     },
 
     getBounds: function() {
@@ -116,10 +123,15 @@ export const map_ = rectangles => (
       var lat = this.mapObj.getCenter().lat();
       var lng = this.mapObj.getCenter().lng();
       var mapType = this.mapObj.getMapTypeId();
-      $cookieStore.put("vp_zoom", zoom);
-      $cookieStore.put("vp_lat", lat);
-      $cookieStore.put("vp_lng", lng);
-      $cookieStore.put("vp_mapType", mapType);
+      const setCookie = (name, value) =>
+        (document.cookie =
+          encodeURIComponent(name) + "=" + encodeURIComponent(value));
+      if (process.env.NODE_ENV !== "test") {
+        setCookie("vp_zoom", zoom);
+        setCookie("vp_lat", lat);
+        setCookie("vp_lng", lng);
+        setCookie("vp_mapType", mapType);
+      }
       const newParams = {
         map: {
           zoom: zoom,

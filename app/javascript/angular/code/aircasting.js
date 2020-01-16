@@ -1,5 +1,5 @@
 angular.module("google", []);
-angular.module("aircasting", ["ngCookies", "google"]);
+angular.module("aircasting", ["google"]);
 
 angular.module("aircasting").config([
   "$httpProvider",

@@ -261,12 +261,10 @@ const _map = ({ googleMaps, params, rectangles }) => {
     draw: () => {},
     ...rectangles
   };
-  const $cookieStore = { put: () => {} };
   const $window = {};
   const $rootScope = { $broadcast: () => {} };
   return mapTest(_rectangles)(
     params,
-    $cookieStore,
     $rootScope,
     digester,
     googleMaps,

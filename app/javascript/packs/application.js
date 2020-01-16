@@ -22,7 +22,6 @@ const initAngular = () => {
   require("../angular/libs/jquery_ui/jquery.ui.dialog");
   require("../angular/libs/jquery_ui/jquery.ui.daterangepicker");
   require("angular");
-  require("angular-cookies");
   window._ = require("underscore");
   require("../angular/code/aircasting");
 
