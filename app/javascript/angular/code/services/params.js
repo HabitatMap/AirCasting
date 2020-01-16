@@ -11,6 +11,7 @@ angular.module("aircasting").factory("params", [
       this.init($location.search());
       this.startupData = angular.copy(this.paramsData);
       this.scope.$location = $location;
+      window.__params = this;
     };
     Params.prototype = {
       init: function(searchData) {

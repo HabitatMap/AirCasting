@@ -260,7 +260,7 @@ const _map = ({ googleMaps, params, rectangles }) => {
     draw: () => {},
     ...rectangles
   };
-  const $window = {};
+  const $window = { __params: params || {} };
   const $rootScope = { $broadcast: () => {} };
-  return mapTest(googleMaps, _rectangles, $window)(params, $rootScope);
+  return mapTest(googleMaps, _rectangles, $window)($rootScope);
 };

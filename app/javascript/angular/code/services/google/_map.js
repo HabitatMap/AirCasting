@@ -14,16 +14,18 @@ import heat from "../../../../javascript/heat";
 import rectangles_ from "../../../../javascript/rectangles";
 import googleMaps_ from "./google_maps";
 
-const map_ = (googleMaps, rectangles, $window) => (params, $rootScope) => {
+const map_ = (googleMaps, rectangles, $window) => $rootScope => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
   setHasChangedProgrammatically(false);
   $window.__traceMarkers = [];
   const elmApp = $window.__elmApp;
+  let params;
 
   var Map = function() {};
 
   Map.prototype = {
     init: function(element, options) {
+      params = $window.__params;
       this.mapObj = googleMaps.init(element, options);
       if (process.env.NODE_ENV !== "test") onMapInit();
       this.traceMarkers = $window.__traceMarkers;
