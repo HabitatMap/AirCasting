@@ -1,11 +1,9 @@
 import { keysToLowerCase } from "../../../javascript/utils.js";
 
 angular.module("aircasting").factory("sessionsDownloader", [
-  "$rootScope",
   "$http",
-  "$timeout",
   "orderByFilter",
-  function($rootScope, $http, $timeout, orderBy) {
+  function($http, orderBy) {
     var fetch = function(
       url,
       reqData,
