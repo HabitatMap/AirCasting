@@ -24,7 +24,6 @@ const initAngular = () => {
   require("angular");
   require("angular-cookies");
   window._ = require("underscore");
-  window._.str = require("underscore.string");
   require("../angular/code/aircasting");
 
   var req = require.context("../angular/code/services", true, /\.js$/);
@@ -43,4 +42,5 @@ const initAngular = () => {
   });
 };
 
+initAngular();
 initAngular();

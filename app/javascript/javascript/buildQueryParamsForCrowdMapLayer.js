@@ -1,4 +1,3 @@
-import _str from "underscore.string";
 import sensors_ from "./sensors";
 import { getParams } from "./params";
 
@@ -43,7 +42,7 @@ const gridSizeX_ = x => {
     document.documentElement.clientHeight ||
     document.body.clientHeight;
 
-  return (_str.toNumber(x) * width) / height;
+  return (Math.round(x) * width) / height;
 };
 
 export const buildQueryParamsForCrowdMapLayer = buildQueryParamsForCrowdMapLayer_(
