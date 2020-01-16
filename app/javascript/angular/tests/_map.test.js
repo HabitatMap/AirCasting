@@ -254,7 +254,6 @@ const mockGoogleMaps = () => {
 };
 
 const _map = ({ googleMaps, params, rectangles }) => {
-  const digester = () => {};
   const _rectangles = {
     init: () => {},
     get: () => {},
@@ -263,11 +262,5 @@ const _map = ({ googleMaps, params, rectangles }) => {
   };
   const $window = {};
   const $rootScope = { $broadcast: () => {} };
-  return mapTest(_rectangles)(
-    params,
-    $rootScope,
-    digester,
-    googleMaps,
-    $window
-  );
+  return mapTest(_rectangles)(params, $rootScope, googleMaps, $window);
 };

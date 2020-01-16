@@ -13,13 +13,7 @@ import {
 import heat from "../../../../javascript/heat";
 import rectangles_ from "../../../../javascript/rectangles";
 
-export const map_ = rectangles => (
-  params,
-  $rootScope,
-  digester,
-  googleMaps,
-  $window
-) => {
+export const map_ = rectangles => (params, $rootScope, googleMaps, $window) => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
   setHasChangedProgrammatically(false);
   $window.__traceMarkers = [];
@@ -142,7 +136,6 @@ export const map_ = rectangles => (
       };
       params.update(newParams);
       setHasChangedProgrammatically(false);
-      digester();
       $rootScope.$broadcast("googleMapsChanged", newParams.map);
     },
 
