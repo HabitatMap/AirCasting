@@ -1,6 +1,10 @@
+/ Favicons
 = favicon_link_tag "favicon.ico"
 = favicon_link_tag "apple-touch-icon.png", rel: "apple-touch-icon", type: "image/png", sizes: "180x180"
 = favicon_link_tag "favicon-32x32.png", rel: "icon", type: "image/png", sizes: "32x32"
-= favicon_link_tag "favicon-16x16.png", rel: "icon", type: "image/png", sizes: "16x16"\
-%a{ href: "/site.webmanifest", rel: "manifest" }
-%a{ href: "/safari-pinned-tab.svg", rel: "mask-icon", color: "#00b2ef" }
+= favicon_link_tag "favicon-16x16.png", rel: "icon", type: "image/png", sizes: "16x16"
+%link{href: "/site.webmanifest", rel: "manifest"}
+%link{color: "#00b2ef", href: "/safari-pinned-tab.svg", rel: "mask-icon"}
+%meta{content: "#00b2ef", name: "msapplication-TileColor"}
+%meta{content: "#ffffff", name: "theme-color"}
+/ End Favicons
