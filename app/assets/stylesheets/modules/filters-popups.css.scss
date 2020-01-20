@@ -1,8 +1,6 @@
-$popup-background-color: #f7f7f7;
-
 .filter-popup {
   animation: show-up 0.4s ease;
-  background: $popup-background-color;
+  background: $white;
   border-radius: $basic-radius;
   box-shadow: $basic-shadow;
   max-height: 80vh;
@@ -39,7 +37,7 @@ $popup-background-color: #f7f7f7;
 
 .filter-popup__toggle-more-button {
   @include appearance(none);
-  background: $popup-background-color;
+  background: none;
   border: none;
   border-top: 1px solid $separator-color;
   color: $gray-dark;
@@ -61,7 +59,7 @@ $popup-background-color: #f7f7f7;
 
 .filter-popup-button {
   background: white;
-  box-shadow: $lighter-shadow;
+  box-shadow: $basic-shadow;
   border: none;
   border-radius: 0;
   color: $gray-dark;
