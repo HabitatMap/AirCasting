@@ -25,11 +25,6 @@ angular.module("aircasting").factory("params", [
       get: function(name, defaultValue) {
         return this.paramsData[name] || defaultValue || {};
       },
-      getWithout: function(name, exception) {
-        var result = angular.copy(this.get(name));
-        delete result[exception];
-        return result;
-      },
       update: function(newParams) {
         const newData = deepMerge(
           deepClone(this.paramsData || {}),
