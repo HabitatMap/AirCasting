@@ -6,12 +6,13 @@ const buildQueryParamsForCrowdMapLayer_ =
   build.buildQueryParamsForCrowdMapLayer;
 import rectangles_ from "../../../javascript/rectangles";
 import infoWindow_ from "../../../javascript/infoWindow";
+import heat from "../../../javascript/heat";
 
 const updateCrowdMapLayer_ = (
   buildQueryParamsForCrowdMapLayer,
   infoWindow,
   rectangles
-) => (map, $http, params, utils, $window) => ({
+) => (map, $http, params, $window) => ({
   call: sessionIds => {
     if (!params.isCrowdMapOn()) return;
     clearMap();
@@ -29,19 +30,13 @@ const updateCrowdMapLayer_ = (
 
     $http
       .get("/api/averages2", { cache: true, params: { q } })
-      .success(onAveragesFetch($window, map, params, utils, _onRectangleClick));
+      .success(onAveragesFetch($window, map, params, _onRectangleClick));
   }
 });
 
-const onAveragesFetch = (
-  $window,
-  map,
-  params,
-  utils,
-  _onRectangleClick
-) => data => {
+const onAveragesFetch = ($window, map, params, _onRectangleClick) => data => {
   if ($window.location.pathname !== constants.mobileMapRoute) return;
-  const heats = utils.heats(params.get("data").heat);
+  const heats = heat.heats(params.get("data").heat);
   map.drawRectangles(data, heats, _onRectangleClick);
 };
 

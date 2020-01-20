@@ -163,9 +163,6 @@ const _updateCrowdMapLayer = ({
     get: () => ({}),
     ...params
   };
-  const utils = {
-    heats: x => x
-  };
   const _rectangles = {
     position: () => {}
   };
@@ -174,5 +171,5 @@ const _updateCrowdMapLayer = ({
     _buildQueryParamsForCrowdMapLayer,
     infoWindow,
     _rectangles
-  )(_map, $http, _params, utils, $window);
+  )(_map, $http, _params, $window);
 };

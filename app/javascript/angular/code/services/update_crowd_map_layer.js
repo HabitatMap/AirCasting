@@ -6,7 +6,6 @@ angular
     "map",
     "$http",
     "params",
-    "utils",
     "$window",
     updateCrowdMapLayer
   ]);

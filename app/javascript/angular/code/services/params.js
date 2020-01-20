@@ -1,9 +1,9 @@
 import { isJSON } from "../../../javascript/params";
+import deepEqual from "fast-deep-equal";
 
 angular.module("aircasting").factory("params", [
   "$location",
-  "utils",
-  function($location, utils) {
+  function($location) {
     var Params = function() {
       this.init($location.search());
       window.__params = this;
@@ -31,7 +31,10 @@ angular.module("aircasting").factory("params", [
         return result;
       },
       update: function(newParams) {
-        var newData = utils.merge(this.paramsData || {}, newParams);
+        const newData = deepMerge(
+          deepClone(this.paramsData || {}),
+          deepClone(newParams)
+        );
         this.paramsData = angular.copy(newData);
         _(newData).each(function(value, key) {
           newData[key] = angular.toJson(value);
@@ -43,7 +46,11 @@ angular.module("aircasting").factory("params", [
         this.update({ data: { ...defaults, ...this.paramsData.data } });
       },
       updateData: function(newData) {
-        this.update({ data: utils.merge(this.paramsData.data || {}, newData) });
+        const newD = deepMerge(
+          deepClone(this.paramsData || {}),
+          deepClone(newData)
+        );
+        this.update({ data: newD });
       },
       isCrowdMapOn: function() {
         return this.paramsData.data.crowdMap;
@@ -61,3 +68,25 @@ angular.module("aircasting").factory("params", [
     return new Params();
   }
 ]);
+
+const deepClone = x => JSON.parse(JSON.stringify(x));
+const deepMerge = (...objects) => {
+  const isObject = obj => obj && typeof obj === "object";
+
+  return objects.reduce((prev, obj) => {
+    Object.keys(obj).forEach(key => {
+      const pVal = prev[key];
+      const oVal = obj[key];
+
+      if (Array.isArray(pVal) && Array.isArray(oVal)) {
+        prev[key] = oVal; //pVal.concat(...oVal);
+      } else if (isObject(pVal) && isObject(oVal)) {
+        prev[key] = deepMerge(pVal, oVal);
+      } else {
+        prev[key] = oVal;
+      }
+    });
+
+    return prev;
+  }, {});
+};

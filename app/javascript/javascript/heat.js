@@ -1,4 +1,5 @@
 import { getParams } from "./params";
+import _ from "underscore";
 
 export const heat = params => {
   var Heat = function() {};
@@ -63,6 +64,16 @@ export const heat = params => {
         default:
           return "grey-bg";
       }
+    },
+
+    heats: function(heat) {
+      return _(heat)
+        .chain()
+        .values()
+        .sortBy(function(i) {
+          return i;
+        })
+        .value();
     }
   };
 
