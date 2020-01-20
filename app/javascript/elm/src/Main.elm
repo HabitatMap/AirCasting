@@ -1433,7 +1433,7 @@ viewParameterFilter sensors selectedSensorId isPopupListExpanded popup =
             ]
             []
         , label [ class "label label--filters", for "parameter" ] [ text "parameter:" ]
-        , Tooltip.view Tooltip.sensorFilter
+        , Tooltip.view Tooltip.parameterFilter
         , viewListPopup Popup.isParameterPopupShown isPopupListExpanded popup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId)
         ]
 
