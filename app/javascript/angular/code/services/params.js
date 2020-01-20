@@ -1,5 +1,4 @@
 import { isJSON } from "../../../javascript/params";
-import deepEqual from "fast-deep-equal";
 
 angular.module("aircasting").factory("params", [
   "$location",
@@ -17,9 +16,6 @@ angular.module("aircasting").factory("params", [
             searchData[key] = value;
           }
         });
-        if (angular.equals(this.paramsData, searchData)) {
-          return;
-        }
         this.paramsData = searchData || {};
       },
       get: function(name, defaultValue) {
