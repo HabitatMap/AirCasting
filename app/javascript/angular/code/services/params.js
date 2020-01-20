@@ -1,10 +1,9 @@
-import { isJSON } from "../../../javascript/params";
+import { isJSON, getParams2, updateParams } from "../../../javascript/params";
 
 angular.module("aircasting").factory("params", [
-  "$location",
-  function($location) {
+  function() {
     var Params = function() {
-      this.init($location.search());
+      this.init(getParams2());
       window.__params = this;
     };
     Params.prototype = {
@@ -30,7 +29,8 @@ angular.module("aircasting").factory("params", [
         _(newData).each(function(value, key) {
           newData[key] = JSON.stringify(value);
         });
-        $location.search(newData);
+
+        updateParams(newData);
         this.init(newData);
       },
       updateFromDefaults: function(defaults) {
