@@ -30,7 +30,7 @@ angular.module("aircasting").factory("params", [
           deepClone(this.paramsData || {}),
           deepClone(newParams)
         );
-        this.paramsData = angular.copy(newData);
+        this.paramsData = deepClone(newData);
         _(newData).each(function(value, key) {
           newData[key] = angular.toJson(value);
         });
