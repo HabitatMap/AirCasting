@@ -20,3 +20,17 @@
   border-color: $brand-primary transparent $brand-primary transparent;
   animation: spinning 1.2s linear infinite;
 }
+
+.spinner-big {
+  width: 92px;
+  height: 92px;
+  top: 40%;
+}
+
+.spinner-big:after {
+  width: 92px;
+  height: 92px;
+  border: 8px solid $gray-dark;
+  border-color: $gray-dark transparent $gray-dark transparent;
+  animation: spinning 1.2s linear infinite;
+}
