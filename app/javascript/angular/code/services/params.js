@@ -11,7 +11,7 @@ angular.module("aircasting").factory("params", [
       init: function(searchData) {
         _(searchData || {}).each(function(value, key) {
           if (isJSON(value)) {
-            searchData[key] = angular.fromJson(value);
+            searchData[key] = JSON.parse(value);
           } else {
             searchData[key] = value;
           }
@@ -28,7 +28,7 @@ angular.module("aircasting").factory("params", [
         );
         this.paramsData = deepClone(newData);
         _(newData).each(function(value, key) {
-          newData[key] = angular.toJson(value);
+          newData[key] = JSON.stringify(value);
         });
         $location.search(newData);
         this.init(newData);
