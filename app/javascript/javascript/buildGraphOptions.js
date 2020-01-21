@@ -223,14 +223,30 @@ const responsive = {
   rules: [
     {
       condition: {
+        maxWidth: 480
+      },
+      chartOptions: {
+        rangeSelector: {
+          height: 30,
+          buttonSpacing: 8,
+
+          buttonTheme: {
+            fill: "none",
+            width: 33,
+            r: 10,
+            stroke: "rgba(149, 149, 149, 0.3)",
+            "stroke-width": 1
+          }
+        }
+      }
+    },
+    {
+      condition: {
         maxWidth: 767
       },
       chartOptions: {
         chart: {
           height: 170
-        },
-        rangeSelector: {
-          enabled: false
         }
       }
     }
