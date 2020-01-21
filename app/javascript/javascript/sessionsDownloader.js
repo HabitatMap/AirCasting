@@ -1,6 +1,7 @@
 import { keysToLowerCase } from "./utils";
 import moment from "moment";
 import { getQ } from "./http";
+import _ from "underscore";
 
 const sessionsDownloader = () => {
   var fetch = function(

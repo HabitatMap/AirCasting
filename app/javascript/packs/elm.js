@@ -6,7 +6,6 @@ require("../angular/libs/jquery_ui/jquery.ui.position");
 require("../angular/libs/jquery_ui/jquery.ui.slider");
 require("../angular/libs/jquery_ui/jquery.ui.autocomplete");
 require("../angular/libs/jquery_ui/jquery.ui.daterangepicker");
-window._ = require("underscore");
 import { Elm } from "../elm/src/Main.elm";
 import fitScaleIcon from "../../assets/images/icons/fit-scale-icon.svg";
 import linkIcon from "../../assets/images/icons/link-icon.svg";

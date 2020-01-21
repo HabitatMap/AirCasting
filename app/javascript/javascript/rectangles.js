@@ -1,4 +1,5 @@
 import { rectangleColour } from "./theme";
+import _ from "underscore";
 
 export default {
   init: function(googleMap) {
