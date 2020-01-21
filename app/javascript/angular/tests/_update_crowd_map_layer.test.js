@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { updateCrowdMapLayerTest } from "../code/services/_update_crowd_map_layer";
+import { updateCrowdMapLayerTest } from "../../javascript/updateCrowdMapLayer";
 
 test("it delegates building the query param to a service passing it the session ids", t => {
   const calls = [];
@@ -126,18 +126,16 @@ test("when the request for the averages succeeds and the app is on the mobile ta
 });
 
 const mockHttp = ({ shouldFail }) => {
-  const success = callback => {
-    shouldFail ? null : callback();
-    return { error: x => x };
-  };
-  const error = callback => {
-    shouldFail ? callback() : null;
-    return { success };
-  };
-  const get = { error, success };
-  return {
-    get: () => get
-  };
+  const getQ = () => ({
+    then: callback => {
+      if (shouldFail) {
+        return { catch: cb => cb() };
+      } else {
+        callback();
+      }
+    }
+  });
+  return { getQ };
 };
 
 const _updateCrowdMapLayer = ({
@@ -169,9 +167,11 @@ const _updateCrowdMapLayer = ({
 
   return updateCrowdMapLayerTest(
     _buildQueryParamsForCrowdMapLayer,
+    $http,
     infoWindow,
     _map,
     _params,
-    _rectangles
-  )($http, $window);
+    _rectangles,
+    $window
+  );
 };

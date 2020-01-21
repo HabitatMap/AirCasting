@@ -12,6 +12,5 @@ angular
     "$scope",
     sessions,
     "$window",
-    "updateCrowdMapLayer",
     SessionsMapCtrl
   ]);

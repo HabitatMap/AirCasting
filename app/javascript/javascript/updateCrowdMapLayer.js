@@ -1,22 +1,25 @@
 import _ from "underscore";
-import constants from "../../../javascript/constants";
-import { clearMap } from "../../../javascript/clearMap";
-import * as build from "../../../javascript/buildQueryParamsForCrowdMapLayer";
+import constants from "./constants";
+import { clearMap } from "./clearMap";
+import * as build from "./buildQueryParamsForCrowdMapLayer";
 const buildQueryParamsForCrowdMapLayer_ =
   build.buildQueryParamsForCrowdMapLayer;
-import rectangles_ from "../../../javascript/rectangles";
-import infoWindow_ from "../../../javascript/infoWindow";
-import heat from "../../../javascript/heat";
-import params_ from "../../../javascript/params2";
-import map_ from "../../../javascript/map";
+import rectangles_ from "./rectangles";
+import infoWindow_ from "./infoWindow";
+import heat from "./heat";
+import params_ from "./params2";
+import map_ from "./map";
+import * as http from "./http";
 
 const updateCrowdMapLayer_ = (
   buildQueryParamsForCrowdMapLayer,
+  http,
   infoWindow,
   map,
   params,
-  rectangles
-) => ($http, $window) => ({
+  rectangles,
+  $window
+) => ({
   call: sessionIds => {
     if (!params.isCrowdMapOn()) return;
     clearMap();
@@ -32,9 +35,9 @@ const updateCrowdMapLayer_ = (
       buildQueryParamsForCrowdMapLayer
     );
 
-    $http
-      .get("/api/averages2", { cache: true, params: { q } })
-      .success(onAveragesFetch($window, map, params, _onRectangleClick));
+    http
+      .getQ("/api/averages2.json", q)
+      .then(onAveragesFetch($window, map, params, _onRectangleClick));
   }
 });
 
@@ -58,24 +61,31 @@ const onRectangleClick = (
   );
 };
 
-export const updateCrowdMapLayer = updateCrowdMapLayer_(
+export default updateCrowdMapLayer_(
   buildQueryParamsForCrowdMapLayer_,
+  http,
   infoWindow_,
   map_,
   params_,
-  rectangles_
+  rectangles_,
+  process.env.NODE_ENV === "test" ? {} : window
 );
+
 export const updateCrowdMapLayerTest = (
   buildQueryParamsForCrowdMapLayer,
+  http,
   infoWindow,
   map,
   params,
-  rectangles
+  rectangles,
+  window
 ) =>
   updateCrowdMapLayer_(
     buildQueryParamsForCrowdMapLayer,
+    http,
     infoWindow,
     map,
     params,
-    rectangles
+    rectangles,
+    window
   );

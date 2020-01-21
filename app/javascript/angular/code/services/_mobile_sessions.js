@@ -10,6 +10,7 @@ import params_ from "../../../javascript/params2";
 import map_ from "../../../javascript/map";
 import drawSession_ from "../../../javascript/drawSession";
 import sessionsDownloader_ from "../../../javascript/sessionsDownloader";
+import updateCrowdMapLayer_ from "../../../javascript/updateCrowdMapLayer";
 
 const mobileSessions_ = (
   drawSession,
@@ -17,8 +18,9 @@ const mobileSessions_ = (
   map,
   params,
   sensors,
-  sessionsDownloader
-) => ($rootScope, $window, updateCrowdMapLayer) => {
+  sessionsDownloader,
+  updateCrowdMapLayer
+) => ($rootScope, $window) => {
   var MobileSessions = function() {
     this.sessions = [];
     this.scope = $rootScope.$new();
@@ -242,9 +244,18 @@ export const mobileSessionsTest = (
   map,
   params,
   sensors,
-  sessionsDownloader
+  sessionsDownloader,
+  updateCrowdMapLayer
 ) =>
-  mobileSessions_(drawSession, heat, map, params, sensors, sessionsDownloader);
+  mobileSessions_(
+    drawSession,
+    heat,
+    map,
+    params,
+    sensors,
+    sessionsDownloader,
+    updateCrowdMapLayer
+  );
 
 export const mobileSessions = mobileSessions_(
   drawSession_,
@@ -252,5 +263,6 @@ export const mobileSessions = mobileSessions_(
   map_,
   params_,
   sensors_,
-  sessionsDownloader_
+  sessionsDownloader_,
+  updateCrowdMapLayer_
 );

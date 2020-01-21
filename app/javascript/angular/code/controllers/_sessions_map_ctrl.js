@@ -6,13 +6,15 @@ import sensors_ from "../../../javascript/sensors";
 import pubsub_ from "../../../javascript/pubsub";
 import params_ from "../../../javascript/params2";
 import map_ from "../../../javascript/map";
+import updateCrowdMapLayer_ from "../../../javascript/updateCrowdMapLayer";
 
-const SessionsMapCtrl_ = (map, params, pubsub, sensors) => (
-  $scope,
-  sessions,
-  $window,
+const SessionsMapCtrl_ = (
+  map,
+  params,
+  pubsub,
+  sensors,
   updateCrowdMapLayer
-) => {
+) => ($scope, sessions, $window) => {
   let pulsatingSessionMarker = null;
   const elmApp = $window.__elmApp;
   sensors.setSensors($window.__sensors);
@@ -366,8 +368,14 @@ export const SessionsMapCtrl = SessionsMapCtrl_(
   map_,
   params_,
   pubsub_,
-  sensors_
+  sensors_,
+  updateCrowdMapLayer_
 );
 
-export const SessionsMapCtrlTest = (map, params, pubsub, sensors) =>
-  SessionsMapCtrl_(map, params, pubsub, sensors);
+export const SessionsMapCtrlTest = (
+  map,
+  params,
+  pubsub,
+  sensors,
+  updateCrowdMapLayer
+) => SessionsMapCtrl_(map, params, pubsub, sensors, updateCrowdMapLayer);
