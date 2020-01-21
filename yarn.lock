@@ -4010,13 +4010,10 @@ istanbul@^0.4.5:
     which "^1.1.1"
     wordwrap "^1.0.0"
 
-jquery-migrate@1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/jquery-migrate/-/jquery-migrate-1.4.1.tgz#85152f3ec99a95625f4f7d0bcf62e9b8638f5a76"
-
-jquery@2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-2.1.0.tgz#1c9a8c971d2b53dae10d72e16cbb5a1df16a4ace"
+jquery@3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.4.1.tgz#714f1f8d9dde4bdfa55764ba37ef214630d80ef2"
+  integrity sha512-36+AdBzCL+y6qjw5Tx7HgzeGCzC81MDDgaUP8ld2zhx58HdqXGoBd+tHdrBMiyjGQs0Hxs/MLZTu/eHNJJuWPw==
 
 js-base64@^2.1.8:
   version "2.5.1"

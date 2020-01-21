@@ -1,5 +1,4 @@
 window.jQuery = window.$ = require("jquery");
-require("jquery-migrate");
 window.moment = require("moment");
 require("../angular/libs/jquery_ui/jquery.ui.core");
 require("../angular/libs/jquery_ui/jquery.ui.widget");
@@ -7,7 +6,6 @@ require("../angular/libs/jquery_ui/jquery.ui.mouse");
 require("../angular/libs/jquery_ui/jquery.ui.position");
 require("../angular/libs/jquery_ui/jquery.ui.slider");
 require("../angular/libs/jquery_ui/jquery.ui.autocomplete");
-require("../angular/libs/jquery_ui/jquery.ui.dialog");
 require("../angular/libs/jquery_ui/jquery.ui.daterangepicker");
 window._ = require("underscore");
 import { Elm } from "../elm/src/Main.elm";
