@@ -4,10 +4,10 @@ import { applyTheme } from "../../../javascript/theme";
 import { getParams } from "../../../javascript/params";
 import sensors_ from "../../../javascript/sensors";
 import pubsub_ from "../../../javascript/pubsub";
+import params_ from "../../../javascript/params2";
 
-const SessionsMapCtrl_ = (pubsub, sensors) => (
+const SessionsMapCtrl_ = (params, pubsub, sensors) => (
   $scope,
-  params,
   map,
   sessions,
   $window,
@@ -362,7 +362,7 @@ const SessionsMapCtrl_ = (pubsub, sensors) => (
   }
 };
 
-export const SessionsMapCtrl = SessionsMapCtrl_(pubsub_, sensors_);
+export const SessionsMapCtrl = SessionsMapCtrl_(params_, pubsub_, sensors_);
 
-export const SessionsMapCtrlTest = (pubsub, sensors) =>
-  SessionsMapCtrl_(pubsub, sensors);
+export const SessionsMapCtrlTest = (params, pubsub, sensors) =>
+  SessionsMapCtrl_(params, pubsub, sensors);

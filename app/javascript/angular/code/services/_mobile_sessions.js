@@ -6,9 +6,9 @@ import { clearMap } from "../../../javascript/clearMap";
 import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
 import heat_ from "../../../javascript/heat";
 import sensors_ from "../../../javascript/sensors";
+import params_ from "../../../javascript/params2";
 
-const mobileSessions_ = (heat, sensors) => (
-  params,
+const mobileSessions_ = (heat, params, sensors) => (
   map,
   $rootScope,
   sessionsDownloader,
@@ -233,7 +233,7 @@ const mobileSessions_ = (heat, sensors) => (
 
 const isNotIn = arr => x => !arr.includes(x);
 
-export const mobileSessionsTest = (heat, sensors) =>
-  mobileSessions_(heat, sensors);
+export const mobileSessionsTest = (heat, params, sensors) =>
+  mobileSessions_(heat, params, sensors);
 
-export const mobileSessions = mobileSessions_(heat_, sensors_);
+export const mobileSessions = mobileSessions_(heat_, params_, sensors_);

@@ -7,12 +7,14 @@ const buildQueryParamsForCrowdMapLayer_ =
 import rectangles_ from "../../../javascript/rectangles";
 import infoWindow_ from "../../../javascript/infoWindow";
 import heat from "../../../javascript/heat";
+import params_ from "../../../javascript/params2";
 
 const updateCrowdMapLayer_ = (
   buildQueryParamsForCrowdMapLayer,
   infoWindow,
+  params,
   rectangles
-) => (map, $http, params, $window) => ({
+) => (map, $http, $window) => ({
   call: sessionIds => {
     if (!params.isCrowdMapOn()) return;
     clearMap();
@@ -57,15 +59,18 @@ const onRectangleClick = (
 export const updateCrowdMapLayer = updateCrowdMapLayer_(
   buildQueryParamsForCrowdMapLayer_,
   infoWindow_,
+  params_,
   rectangles_
 );
 export const updateCrowdMapLayerTest = (
   buildQueryParamsForCrowdMapLayer,
   infoWindow,
+  params,
   rectangles
 ) =>
   updateCrowdMapLayer_(
     buildQueryParamsForCrowdMapLayer,
     infoWindow,
+    params,
     rectangles
   );

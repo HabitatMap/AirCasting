@@ -1,6 +1,5 @@
-function MapCtrl($scope, map, params) {
+function MapCtrl($scope, map) {
   $scope.map = map;
-  $scope.params = params;
 }
-MapCtrl.$inject = ["$scope", "map", "params"];
+MapCtrl.$inject = ["$scope", "map"];
 angular.module("aircasting").controller("MapCtrl", MapCtrl);

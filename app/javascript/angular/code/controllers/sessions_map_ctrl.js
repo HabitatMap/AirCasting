@@ -10,7 +10,6 @@ angular
   .module("aircasting")
   .controller("SessionsMapCtrl", [
     "$scope",
-    "params",
     "map",
     sessions,
     "$window",

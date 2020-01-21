@@ -417,8 +417,7 @@ const _fixedSessions = ({
   };
   const _heat = { levelName: () => "mid", outsideOfScope: () => false };
 
-  return fixedSessionsTest(_heat, null, _sensors)(
-    _params,
+  return fixedSessionsTest(_heat, null, _params, _sensors)(
     _map,
     $rootScope,
     sessionsDownloader

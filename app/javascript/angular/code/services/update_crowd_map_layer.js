@@ -5,7 +5,6 @@ angular
   .factory("updateCrowdMapLayer", [
     "map",
     "$http",
-    "params",
     "$window",
     updateCrowdMapLayer
   ]);
