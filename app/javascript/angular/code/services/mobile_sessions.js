@@ -5,7 +5,6 @@ angular
   .factory("mobileSessions", [
     "$rootScope",
     "sessionsDownloader",
-    "drawSession",
     "$window",
     "updateCrowdMapLayer",
     mobileSessions

@@ -1,9 +1,10 @@
 import _ from "underscore";
-import { drawNotes } from "../../../javascript/note";
-import * as Session from "../../../javascript/values/session";
-import { locationMarkersByLevel } from "../../../javascript/theme";
-import heat from "../../../javascript/heat";
-import map from "../../../javascript/map";
+const note = process.env.NODE_ENV === "test" ? "" : require("./note");
+const drawNotes = note.drawNotes;
+import * as Session from "./values/session";
+import { locationMarkersByLevel } from "./theme";
+import heat from "./heat";
+import map from "./map";
 
 export const drawSession = () => {
   let DrawSession = function() {};
@@ -60,3 +61,5 @@ const createMeasurementMarker = (measurement, idx, map, suffix) => {
 
   return marker;
 };
+
+export default drawSession;

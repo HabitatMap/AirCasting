@@ -8,11 +8,11 @@ import heat_ from "../../../javascript/heat";
 import sensors_ from "../../../javascript/sensors";
 import params_ from "../../../javascript/params2";
 import map_ from "../../../javascript/map";
+import drawSession_ from "../../../javascript/drawSession";
 
-const mobileSessions_ = (heat, map, params, sensors) => (
+const mobileSessions_ = (drawSession, heat, map, params, sensors) => (
   $rootScope,
   sessionsDownloader,
-  drawSession,
   $window,
   updateCrowdMapLayer
 ) => {
@@ -233,7 +233,13 @@ const mobileSessions_ = (heat, map, params, sensors) => (
 
 const isNotIn = arr => x => !arr.includes(x);
 
-export const mobileSessionsTest = (heat, map, params, sensors) =>
-  mobileSessions_(heat, map, params, sensors);
+export const mobileSessionsTest = (drawSession, heat, map, params, sensors) =>
+  mobileSessions_(drawSession, heat, map, params, sensors);
 
-export const mobileSessions = mobileSessions_(heat_, map_, params_, sensors_);
+export const mobileSessions = mobileSessions_(
+  drawSession_,
+  heat_,
+  map_,
+  params_,
+  sensors_
+);
