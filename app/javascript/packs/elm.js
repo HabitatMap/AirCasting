@@ -1,5 +1,4 @@
 window.jQuery = window.$ = require("jquery");
-window.moment = require("moment");
 require("../angular/libs/jquery_ui/jquery.ui.core");
 require("../angular/libs/jquery_ui/jquery.ui.widget");
 require("../angular/libs/jquery_ui/jquery.ui.mouse");
