@@ -9,6 +9,7 @@ import heat from "./heat";
 import sensors from "./sensors";
 import { getQ } from "./http";
 import _ from "underscore";
+import map from "./map";
 
 let first = true;
 
@@ -78,21 +79,16 @@ const infoWindow = () => {
       this.popup.open(mapObj());
 
       google.maps.event.addListener(this.popup, "closeclick", function() {
-        window.__mapNG.fitBounds(
-          getSavedPosition().bounds,
-          getSavedPosition().zoom
-        );
+        map.fitBounds(getSavedPosition().bounds, getSavedPosition().zoom);
         first = true;
       });
 
       document.getElementById("info-window__link") &&
         document
           .getElementById("info-window__link")
-          .addEventListener("click", () =>
-            window.__mapNG.zoomToSelectedCluster()
-          );
+          .addEventListener("click", () => map.zoomToSelectedCluster());
 
-      window.__mapNG.addListener("zoom_changed", _(this.hide).bind(this));
+      map.addListener("zoom_changed", _(this.hide).bind(this));
     },
 
     hide: function() {

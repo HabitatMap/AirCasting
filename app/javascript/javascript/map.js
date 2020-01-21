@@ -46,7 +46,6 @@ const map_ = (googleMaps, params, rectangles, $window) => {
           this._goToAddress(place);
           elmApp.ports.locationUpdated.send(place.formatted_address);
         });
-        window.__mapNG = this;
       }
 
       rectangles.init(this.mapObj);
