@@ -21,13 +21,13 @@
   animation: spinning 1.2s linear infinite;
 }
 
-.spinner-big {
+.spinner--big {
   width: 92px;
   height: 92px;
   top: 40%;
 }
 
-.spinner-big:after {
+.spinner--big:after {
   width: 92px;
   height: 92px;
   border: 8px solid $gray-dark;
