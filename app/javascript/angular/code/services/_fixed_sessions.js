@@ -9,12 +9,16 @@ import sensors_ from "../../../javascript/sensors";
 import infoWindow_ from "../../../javascript/infoWindow";
 import params_ from "../../../javascript/params2";
 import map_ from "../../../javascript/map";
+import sessionsDownloader_ from "../../../javascript/sessionsDownloader";
 
-const fixedSessions_ = (heat, infoWindow, map, params, sensors) => (
-  $rootScope,
-  sessionsDownloader,
-  $window
-) => {
+const fixedSessions_ = (
+  heat,
+  infoWindow,
+  map,
+  params,
+  sensors,
+  sessionsDownloader
+) => ($rootScope, $window) => {
   var FixedSessions = function() {
     this.sessions = [];
     this.scope = $rootScope.$new();
@@ -235,7 +239,14 @@ export const fixedSessions = fixedSessions_(
   infoWindow_,
   map_,
   params_,
-  sensors_
+  sensors_,
+  sessionsDownloader_
 );
-export const fixedSessionsTest = (heat, infoWindow, map, params, sensors) =>
-  fixedSessions_(heat, infoWindow, map, params, sensors);
+export const fixedSessionsTest = (
+  heat,
+  infoWindow,
+  map,
+  params,
+  sensors,
+  sessionsDownloader
+) => fixedSessions_(heat, infoWindow, map, params, sensors, sessionsDownloader);

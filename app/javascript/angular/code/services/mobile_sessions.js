@@ -4,7 +4,6 @@ angular
   .module("aircasting")
   .factory("mobileSessions", [
     "$rootScope",
-    "sessionsDownloader",
     "$window",
     "updateCrowdMapLayer",
     mobileSessions
