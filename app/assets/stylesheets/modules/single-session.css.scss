@@ -68,7 +68,17 @@
   }
 }
 
+.session-data__left {
+  @media screen and (max-width: $tablet-max) {
+    padding-right: 5px;
+  }
+}
+
 .session-data__right {
+  @media screen and (max-width: $tablet-max) {
+    padding-left: 5px;
+  }
+
   @media screen and (min-width: $small-desktop-min) {
     line-height: 1.6;
   }
