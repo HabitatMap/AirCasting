@@ -5,10 +5,10 @@ import { getParams } from "../../../javascript/params";
 import sensors_ from "../../../javascript/sensors";
 import pubsub_ from "../../../javascript/pubsub";
 import params_ from "../../../javascript/params2";
+import map_ from "../../../javascript/map";
 
-const SessionsMapCtrl_ = (params, pubsub, sensors) => (
+const SessionsMapCtrl_ = (map, params, pubsub, sensors) => (
   $scope,
-  map,
   sessions,
   $window,
   updateCrowdMapLayer
@@ -362,7 +362,12 @@ const SessionsMapCtrl_ = (params, pubsub, sensors) => (
   }
 };
 
-export const SessionsMapCtrl = SessionsMapCtrl_(params_, pubsub_, sensors_);
+export const SessionsMapCtrl = SessionsMapCtrl_(
+  map_,
+  params_,
+  pubsub_,
+  sensors_
+);
 
-export const SessionsMapCtrlTest = (params, pubsub, sensors) =>
-  SessionsMapCtrl_(params, pubsub, sensors);
+export const SessionsMapCtrlTest = (map, params, pubsub, sensors) =>
+  SessionsMapCtrl_(map, params, pubsub, sensors);

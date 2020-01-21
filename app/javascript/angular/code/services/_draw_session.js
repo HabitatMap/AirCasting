@@ -3,8 +3,9 @@ import { drawNotes } from "../../../javascript/note";
 import * as Session from "../../../javascript/values/session";
 import { locationMarkersByLevel } from "../../../javascript/theme";
 import heat from "../../../javascript/heat";
+import map from "../../../javascript/map";
 
-export const drawSession = map => {
+export const drawSession = () => {
   let DrawSession = function() {};
 
   DrawSession.prototype = {

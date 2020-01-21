@@ -1,7 +1,4 @@
-import {
-  removeMarker,
-  drawTraceMarker
-} from "../angular/code/services/google/_map.js";
+import { removeMarker, drawTraceMarker } from "./map";
 import * as assets from "../assets";
 
 let items = [];

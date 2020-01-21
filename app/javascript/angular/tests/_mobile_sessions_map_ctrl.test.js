@@ -58,9 +58,8 @@ const _SessionsMapCtrl = ({ params }) => {
     subscribe: () => {}
   };
 
-  return SessionsMapCtrlTest(_params, _pubsub, _sensors)(
+  return SessionsMapCtrlTest(_map, _params, _pubsub, _sensors)(
     _$scope,
-    _map,
     sessions,
     _$window
   );

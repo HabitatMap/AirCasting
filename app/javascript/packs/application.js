@@ -7,6 +7,10 @@
 // To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
 // layout file, like app/views/layouts/application.html.erb
 
+import { init } from "../javascript/googleMapsInit";
+
+init();
+
 const initAngular = () => {
   if (!document.getElementById("elm-app")) return setTimeout(initAngular, 100);
 
@@ -41,5 +45,4 @@ const initAngular = () => {
   });
 };
 
-initAngular();
 initAngular();

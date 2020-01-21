@@ -1,7 +1,7 @@
 import test from "blue-tape";
 import deepEqual from "fast-deep-equal";
 import { mock } from "./helpers";
-import { mapTest } from "../code/services/google/_map.js";
+import { mapTest } from "../../javascript/map";
 import sinon from "sinon";
 
 test("onPanOrZoom", t => {
@@ -261,6 +261,5 @@ const _map = ({ googleMaps, params, rectangles }) => {
     ...rectangles
   };
   const $window = {};
-  const $rootScope = { $broadcast: () => {} };
-  return mapTest(googleMaps, params || {}, _rectangles, $window)($rootScope);
+  return mapTest(googleMaps, params || {}, _rectangles, $window);
 };

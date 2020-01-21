@@ -10,7 +10,6 @@ angular
   .module("aircasting")
   .controller("SessionsMapCtrl", [
     "$scope",
-    "map",
     sessions,
     "$window",
     "updateCrowdMapLayer",

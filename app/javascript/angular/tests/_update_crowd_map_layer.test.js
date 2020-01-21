@@ -170,7 +170,8 @@ const _updateCrowdMapLayer = ({
   return updateCrowdMapLayerTest(
     _buildQueryParamsForCrowdMapLayer,
     infoWindow,
+    _map,
     _params,
     _rectangles
-  )(_map, $http, $window);
+  )($http, $window);
 };

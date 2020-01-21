@@ -1,23 +1,20 @@
 import _ from "underscore";
-import { buildCustomMarker } from "../../../../javascript/customMarker";
+import { buildCustomMarker } from "./customMarker";
 import MarkerClusterer from "@google/markerclustererplus";
-import {
-  fixedClusterStyles,
-  pulsingMarkerStyles
-} from "../../../../javascript/theme";
+import { fixedClusterStyles, pulsingMarkerStyles } from "./theme";
 import {
   setHasChangedProgrammatically,
   getHasChangedProgrammatically,
   onMapInit
-} from "../../../../javascript/mapsUtils";
-import heat from "../../../../javascript/heat";
-import rectangles_ from "../../../../javascript/rectangles";
-import googleMaps_ from "../../../../javascript/googleMaps";
-import pubsub from "../../../../javascript/pubsub";
-import * as Cookies from "../../../../javascript/cookies";
-import params_ from "../../../../javascript/params2";
+} from "./mapsUtils";
+import heat from "./heat";
+import rectangles_ from "./rectangles";
+import googleMaps_ from "./googleMaps";
+import pubsub from "./pubsub";
+import * as Cookies from "./cookies";
+import params_ from "./params2";
 
-const map_ = (googleMaps, params, rectangles, $window) => $rootScope => {
+const map_ = (googleMaps, params, rectangles, $window) => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
   setHasChangedProgrammatically(false);
   $window.__traceMarkers = [];
@@ -340,7 +337,7 @@ export const drawTraceMarker = ({ position }) => {
   return customMarker;
 };
 
-export const map = map_(
+export default map_(
   googleMaps_,
   params_,
   rectangles_,

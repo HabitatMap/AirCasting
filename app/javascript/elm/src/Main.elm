@@ -1060,7 +1060,7 @@ viewMap model =
         , div [ class "map-container" ]
             [ viewSearchAsIMove model
             , viewZoomSlider model.zoomLevel
-            , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
+            , div [ class "map", id "map11" ]
                 []
             , lazy8 viewSessionsOrSelectedSession model.page model.selectedSession model.fetchableSessionsCount model.sessions model.heatMapThresholds model.linkIcon model.popup model.emailForm
             ]
