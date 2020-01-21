@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { SessionsMapCtrlTest } from "../code/controllers/_sessions_map_ctrl";
+import { SessionsMapCtrlTest } from "../../javascript/sessionsMap";
 import moment from "moment";
 import { DEFAULT_THEME } from "../../javascript/constants";
 
@@ -58,8 +58,13 @@ const _SessionsMapCtrl = ({ params }) => {
     subscribe: () => {}
   };
 
-  return SessionsMapCtrlTest(_map, _params, pubsub, _sensors, sessions)(
-    _$scope,
+  return SessionsMapCtrlTest(
+    _map,
+    _params,
+    pubsub,
+    _sensors,
+    sessions,
+    null,
     $window
   );
 };

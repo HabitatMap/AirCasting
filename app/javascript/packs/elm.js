@@ -1,3 +1,15 @@
+window.jQuery = window.$ = require("jquery");
+require("jquery-migrate");
+window.moment = require("moment");
+require("../angular/libs/jquery_ui/jquery.ui.core");
+require("../angular/libs/jquery_ui/jquery.ui.widget");
+require("../angular/libs/jquery_ui/jquery.ui.mouse");
+require("../angular/libs/jquery_ui/jquery.ui.position");
+require("../angular/libs/jquery_ui/jquery.ui.slider");
+require("../angular/libs/jquery_ui/jquery.ui.autocomplete");
+require("../angular/libs/jquery_ui/jquery.ui.dialog");
+require("../angular/libs/jquery_ui/jquery.ui.daterangepicker");
+window._ = require("underscore");
 import { Elm } from "../elm/src/Main.elm";
 import fitScaleIcon from "../../assets/images/icons/fit-scale-icon.svg";
 import linkIcon from "../../assets/images/icons/link-icon.svg";
@@ -20,6 +32,9 @@ import { DEFAULT_THEME } from "../javascript/constants";
 import { getParams, updateParam } from "../javascript/params";
 import { get } from "../javascript/http";
 import constants from "../javascript/constants";
+import { init } from "../javascript/googleMapsInit";
+init();
+setTimeout(() => require("../javascript/sessionsMap"), 10000);
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
