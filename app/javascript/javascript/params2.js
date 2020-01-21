@@ -1,10 +1,10 @@
 import { isJSON, getParams2, updateParams } from "./params";
+import _ from "underscore";
 
 const params = () => {
   var Params = function() {
     if (process.env.NODE_ENV !== "test") {
       this.init(getParams2());
-      window.__params = this;
     }
   };
   Params.prototype = {

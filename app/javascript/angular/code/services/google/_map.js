@@ -15,19 +15,18 @@ import rectangles_ from "../../../../javascript/rectangles";
 import googleMaps_ from "./google_maps";
 import pubsub from "../../../../javascript/pubsub";
 import * as Cookies from "../../../../javascript/cookies";
+import params_ from "../../../../javascript/params2";
 
-const map_ = (googleMaps, rectangles, $window) => $rootScope => {
+const map_ = (googleMaps, params, rectangles, $window) => $rootScope => {
   const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
   setHasChangedProgrammatically(false);
   $window.__traceMarkers = [];
   const elmApp = $window.__elmApp;
-  let params;
 
   var Map = function() {};
 
   Map.prototype = {
     init: function(element, options) {
-      params = $window.__params;
       this.mapObj = googleMaps.init(element, options);
       if (process.env.NODE_ENV !== "test") onMapInit();
       this.traceMarkers = $window.__traceMarkers;
@@ -343,9 +342,10 @@ export const drawTraceMarker = ({ position }) => {
 
 export const map = map_(
   googleMaps_,
+  params_,
   rectangles_,
   process.env.NODE_ENV === "test" ? {} : window
 );
 
-export const mapTest = (googleMaps, rectangles, window) =>
-  map_(googleMaps, rectangles, window);
+export const mapTest = (googleMaps, params, rectangles, window) =>
+  map_(googleMaps, params, rectangles, window);
