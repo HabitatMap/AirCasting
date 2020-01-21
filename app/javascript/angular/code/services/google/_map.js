@@ -12,7 +12,7 @@ import {
 } from "../../../../javascript/mapsUtils";
 import heat from "../../../../javascript/heat";
 import rectangles_ from "../../../../javascript/rectangles";
-import googleMaps_ from "./google_maps";
+import googleMaps_ from "../../../../javascript/googleMaps";
 import pubsub from "../../../../javascript/pubsub";
 import * as Cookies from "../../../../javascript/cookies";
 import params_ from "../../../../javascript/params2";
