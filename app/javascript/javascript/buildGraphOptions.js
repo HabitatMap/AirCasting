@@ -226,7 +226,9 @@ const responsive = {
         maxWidth: 767
       },
       chartOptions: {
-        height: 100,
+        chart: {
+          height: 170
+        },
         rangeSelector: {
           enabled: false
         }
