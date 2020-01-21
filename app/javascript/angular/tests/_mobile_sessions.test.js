@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import { mock } from "./helpers";
-import { mobileSessionsTest } from "../code/services/_mobile_sessions";
+import { mobileSessionsTest } from "../../javascript/mobileSessions";
 import * as Clusterer from "../../javascript/clusterer";
 import sinon from "sinon";
 
@@ -312,7 +312,6 @@ const _mobileSessions = ({
   sensors,
   params
 }) => {
-  const $rootScope = { $new: () => ({}) };
   const _params = {
     get: what => {
       if (what === "data") {
@@ -361,5 +360,5 @@ const _mobileSessions = ({
     _params,
     _sensors,
     sessionsDownloader
-  )($rootScope);
+  );
 };

@@ -1,16 +1,5 @@
-import { SessionsMapCtrl } from "./_sessions_map_ctrl";
-import constants from "../../../javascript/constants";
-
-const sessions =
-  window.location.pathname === constants.mobileMapRoute
-    ? "mobileSessions"
-    : "fixedSessions";
+import SessionsMapCtrl from "./_sessions_map_ctrl";
 
 angular
   .module("aircasting")
-  .controller("SessionsMapCtrl", [
-    "$scope",
-    sessions,
-    "$window",
-    SessionsMapCtrl
-  ]);
+  .controller("SessionsMapCtrl", ["$scope", "$window", SessionsMapCtrl]);

@@ -1,15 +1,16 @@
 import _ from "underscore";
-import constants from "../../../javascript/constants";
-import * as Session from "../../../javascript/values/session";
-import { calculateBounds } from "../../../javascript/calculateBounds";
-import { clearMap } from "../../../javascript/clearMap";
-import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
-import heat_ from "../../../javascript/heat";
-import sensors_ from "../../../javascript/sensors";
-import infoWindow_ from "../../../javascript/infoWindow";
-import params_ from "../../../javascript/params2";
-import map_ from "../../../javascript/map";
-import sessionsDownloader_ from "../../../javascript/sessionsDownloader";
+import constants from "./constants";
+import * as Session from "./values/session";
+import { calculateBounds } from "./calculateBounds";
+import { clearMap } from "./clearMap";
+import { sessionsInfoForElm } from "./sessionListUtils";
+import heat_ from "./heat";
+import sensors_ from "./sensors";
+import infoWindow_ from "./infoWindow";
+import params_ from "./params2";
+import map_ from "./map";
+import sessionsDownloader_ from "./sessionsDownloader";
+import pubsub from "./pubsub";
 
 const fixedSessions_ = (
   heat,
@@ -17,15 +18,16 @@ const fixedSessions_ = (
   map,
   params,
   sensors,
-  sessionsDownloader
-) => ($rootScope, $window) => {
+  sessionsDownloader,
+  skip
+) => {
   var FixedSessions = function() {
     this.sessions = [];
-    this.scope = $rootScope.$new();
-    this.scope.params = params;
     this.fetchableSessionsCount = 0;
     this.type = "FixedSessions";
   };
+
+  if (skip) return;
 
   let prevMapPosition = {};
   if (params.isSessionSelected()) {
@@ -53,7 +55,7 @@ const fixedSessions_ = (
     },
 
     onSessionsFetch: function(fetchableSessionsCount) {
-      $window.__elmApp.ports.updateSessions.send(
+      window.__elmApp.ports.updateSessions.send(
         sessionsInfoForElm(
           this.sessions,
           fetchableSessionsCount || this.fetchableSessionsCount,
@@ -140,7 +142,7 @@ const fixedSessions_ = (
       const heatLevel = heat.levelName(Session.lastHourRoundedAverage(session));
       const latLng = Session.latLng(session);
       const callback = id => () =>
-        $rootScope.$broadcast("markerSelected", { session_id: id });
+        pubsub.publish("markerSelected", { session_id: id });
 
       const marker = map.drawMarkerWithLabel({
         object: {
@@ -157,7 +159,7 @@ const fixedSessions_ = (
     drawMarkersWithoutLabel: function(session) {
       const latLng = Session.latLng(session);
       const callback = id => () =>
-        $rootScope.$broadcast("markerSelected", { session_id: id });
+        pubsub.publish("markerSelected", { session_id: id });
 
       const customMarker = map.drawMarkerWithoutLabel({
         object: { latLng },
@@ -234,13 +236,14 @@ export const showClusterInfo = (sensorName, map, infoWindow) => cluster => {
   );
 };
 
-export const fixedSessions = fixedSessions_(
+export default fixedSessions_(
   heat_,
   infoWindow_,
   map_,
   params_,
   sensors_,
-  sessionsDownloader_
+  sessionsDownloader_,
+  process.env.NODE_ENV === "test"
 );
 export const fixedSessionsTest = (
   heat,
@@ -249,4 +252,13 @@ export const fixedSessionsTest = (
   params,
   sensors,
   sessionsDownloader
-) => fixedSessions_(heat, infoWindow, map, params, sensors, sessionsDownloader);
+) =>
+  fixedSessions_(
+    heat,
+    infoWindow,
+    map,
+    params,
+    sensors,
+    sessionsDownloader,
+    false
+  );

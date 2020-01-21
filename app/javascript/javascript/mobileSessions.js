@@ -1,16 +1,17 @@
 import _ from "underscore";
-import * as Session from "../../../javascript/values/session";
-import { clusterer } from "../../../javascript/clusterer";
-import { calculateBounds } from "../../../javascript/calculateBounds";
-import { clearMap } from "../../../javascript/clearMap";
-import { sessionsInfoForElm } from "../../../javascript/sessionListUtils";
-import heat_ from "../../../javascript/heat";
-import sensors_ from "../../../javascript/sensors";
-import params_ from "../../../javascript/params2";
-import map_ from "../../../javascript/map";
-import drawSession_ from "../../../javascript/drawSession";
-import sessionsDownloader_ from "../../../javascript/sessionsDownloader";
-import updateCrowdMapLayer_ from "../../../javascript/updateCrowdMapLayer";
+import * as Session from "./values/session";
+import { clusterer } from "./clusterer";
+import { calculateBounds } from "./calculateBounds";
+import { clearMap } from "./clearMap";
+import { sessionsInfoForElm } from "./sessionListUtils";
+import heat_ from "./heat";
+import sensors_ from "./sensors";
+import params_ from "./params2";
+import map_ from "./map";
+import drawSession_ from "./drawSession";
+import sessionsDownloader_ from "./sessionsDownloader";
+import updateCrowdMapLayer_ from "./updateCrowdMapLayer";
+import pubsub from "./pubsub";
 
 const mobileSessions_ = (
   drawSession,
@@ -19,16 +20,17 @@ const mobileSessions_ = (
   params,
   sensors,
   sessionsDownloader,
-  updateCrowdMapLayer
-) => ($rootScope, $window) => {
+  updateCrowdMapLayer,
+  skip
+) => {
   var MobileSessions = function() {
     this.sessions = [];
-    this.scope = $rootScope.$new();
-    this.scope.params = params;
     this.fetchableSessionsCount = 0;
     this.type = "MobileSessions";
     this.selectedSession = {};
   };
+
+  if (skip) return;
 
   let prevMapPosition = {};
   if (params.isSessionSelected()) {
@@ -69,7 +71,7 @@ const mobileSessions_ = (
     },
 
     onSessionsFetchWithCrowdMapLayerUpdate: function(fetchableSessionsCount) {
-      $window.__elmApp.ports.updateSessions.send(
+      window.__elmApp.ports.updateSessions.send(
         sessionsInfoForElm(
           this.sessions,
           fetchableSessionsCount || this.fetchableSessionsCount,
@@ -161,7 +163,7 @@ const mobileSessions_ = (
       );
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = id => () =>
-        $rootScope.$broadcast("markerSelected", { session_id: id });
+        pubsub.publish("markerSelected", { session_id: id });
 
       const marker = map.drawMarkerWithoutLabel({
         object: { latLng, id: session.id },
@@ -177,7 +179,7 @@ const mobileSessions_ = (
       );
       const latLng = Session.startingLatLng(session, selectedSensor);
       const callback = id => () =>
-        $rootScope.$broadcast("markerSelected", { session_id: id });
+        pubsub.publish("markerSelected", { session_id: id });
 
       const marker = map.drawMarkerWithLabel({
         object: { latLng },
@@ -254,15 +256,17 @@ export const mobileSessionsTest = (
     params,
     sensors,
     sessionsDownloader,
-    updateCrowdMapLayer
+    updateCrowdMapLayer,
+    false
   );
 
-export const mobileSessions = mobileSessions_(
+export default mobileSessions_(
   drawSession_,
   heat_,
   map_,
   params_,
   sensors_,
   sessionsDownloader_,
-  updateCrowdMapLayer_
+  updateCrowdMapLayer_,
+  process.env.NODE_ENV === "test"
 );

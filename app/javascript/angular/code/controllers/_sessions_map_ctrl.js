@@ -7,14 +7,22 @@ import pubsub_ from "../../../javascript/pubsub";
 import params_ from "../../../javascript/params2";
 import map_ from "../../../javascript/map";
 import updateCrowdMapLayer_ from "../../../javascript/updateCrowdMapLayer";
+import constants from "../../../javascript/constants";
+const sessions_ =
+  process.env.NODE_ENV === "test"
+    ? {}
+    : window.location.pathname === constants.mobileMapRoute
+    ? require("../../../javascript/mobileSessions")
+    : require("../../../javascript/fixedSessions");
 
 const SessionsMapCtrl_ = (
   map,
   params,
   pubsub,
   sensors,
+  sessions,
   updateCrowdMapLayer
-) => ($scope, sessions, $window) => {
+) => ($scope, $window) => {
   let pulsatingSessionMarker = null;
   const elmApp = $window.__elmApp;
   sensors.setSensors($window.__sensors);
@@ -364,11 +372,12 @@ const SessionsMapCtrl_ = (
   }
 };
 
-export const SessionsMapCtrl = SessionsMapCtrl_(
+export default SessionsMapCtrl_(
   map_,
   params_,
   pubsub_,
   sensors_,
+  sessions_.default,
   updateCrowdMapLayer_
 );
 
@@ -377,5 +386,7 @@ export const SessionsMapCtrlTest = (
   params,
   pubsub,
   sensors,
+  sessions,
   updateCrowdMapLayer
-) => SessionsMapCtrl_(map, params, pubsub, sensors, updateCrowdMapLayer);
+) =>
+  SessionsMapCtrl_(map, params, pubsub, sensors, sessions, updateCrowdMapLayer);

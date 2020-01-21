@@ -3,7 +3,7 @@ import { mock } from "./helpers";
 import {
   fixedSessionsTest,
   showClusterInfo
-} from "../code/services/_fixed_sessions";
+} from "../../javascript/fixedSessions";
 import sinon from "sinon";
 
 test("fetch with no sessions ids in params doesn't call sessionsDownloader", t => {
@@ -374,7 +374,6 @@ const _fixedSessions = ({
   sensors,
   params
 }) => {
-  const $rootScope = { $new: () => ({}) };
   const _params = {
     get: what => {
       if (what === "data") {
@@ -424,5 +423,5 @@ const _fixedSessions = ({
     _params,
     _sensors,
     sessionsDownloader
-  )($rootScope);
+  );
 };
