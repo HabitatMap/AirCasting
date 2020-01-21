@@ -1,11 +1,8 @@
-$popup-background-color: #f7f7f7;
-
 .filter-popup {
   animation: show-up 0.4s ease;
-  background: $popup-background-color;
+  background: $white;
   border-radius: $basic-radius;
   box-shadow: $basic-shadow;
-  color: $text-color;
   max-height: 80vh;
   overflow: auto;
   padding: $margin-default;
@@ -40,9 +37,10 @@ $popup-background-color: #f7f7f7;
 
 .filter-popup__toggle-more-button {
   @include appearance(none);
-  background: $popup-background-color;
+  background: none;
   border: none;
   border-top: 1px solid $separator-color;
+  color: $gray-dark;
   cursor: pointer;
   font-size: $tiny-font;
   margin-top: 8px;
@@ -61,19 +59,19 @@ $popup-background-color: #f7f7f7;
 
 .filter-popup-button {
   background: white;
-  box-shadow: $blue-shadow;
+  box-shadow: $basic-shadow;
   border: none;
-  color: $dark-blue;
+  border-radius: 0;
+  color: $gray-dark;
   flex: 1 0 48%;
+  font-family: $bold-font;
   font-size: $tiny-font;
-  font-weight: $font-stack-regular;
   padding: 8px 12px;
   margin-bottom: $margin-default;
 
   &.active {
     background: $blue;
     color: white;
-    font-weight: $font-stack-bold;
   }
 
   &:nth-child(2n) {
@@ -85,6 +83,7 @@ $popup-background-color: #f7f7f7;
   @include appearance(none);
   background: none;
   border: none;
+  color: $gray-dark;
   flex: 1 0 50%;
   font-size: $tiny-font;
   padding: $margin-default;
@@ -92,4 +91,8 @@ $popup-background-color: #f7f7f7;
   word-break: break-word;
   word-wrap: break-word;
   hyphens: auto;
+
+  &.active {
+    color: $blue;
+  }
 }
