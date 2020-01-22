@@ -43,7 +43,7 @@ export default (() => {
       autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
         this._goToAddress(place);
-        elmApp.ports.locationUpdated.send(place.formatted_address);
+        window.__elmApp.ports.locationUpdated.send(place.formatted_address);
       });
 
       rectangles.init(this.mapObj);
