@@ -1,11 +1,8 @@
-window.jQuery = window.$ = require("jquery");
-require("../angular/libs/jquery_ui/jquery.ui.core");
-require("../angular/libs/jquery_ui/jquery.ui.widget");
-require("../angular/libs/jquery_ui/jquery.ui.mouse");
-require("../angular/libs/jquery_ui/jquery.ui.position");
-require("../angular/libs/jquery_ui/jquery.ui.slider");
-require("../angular/libs/jquery_ui/jquery.ui.autocomplete");
-require("../angular/libs/jquery_ui/jquery.ui.daterangepicker");
+import $ from "jquery";
+window.jQuery = window.$ = $;
+import "jquery-ui/ui/widgets/autocomplete";
+import "../jquery.ui.daterangepicker";
+import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
 import { Elm } from "../elm/src/Main.elm";
 import fitScaleIcon from "../../assets/images/icons/fit-scale-icon.svg";
 import linkIcon from "../../assets/images/icons/link-icon.svg";
@@ -20,8 +17,6 @@ import tippy from "tippy.js";
 import "../../assets/stylesheets/main.scss";
 import "tippy.js/themes/light-border.css";
 import { createObserver } from "../createObserver.js";
-import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
-import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
 import { DEFAULT_THEME } from "../javascript/constants";
