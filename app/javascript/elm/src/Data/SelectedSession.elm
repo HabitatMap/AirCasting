@@ -1,9 +1,9 @@
 module Data.SelectedSession exposing
     ( SelectedSession
-    , SelectedSessionForAngular
+    , SelectedSessionForJavaScript
     , fetch
     , fetchMeasurements
-    , formatForAngular
+    , formatForJavaScript
     , measurementBounds
     , times
     , toId
@@ -61,7 +61,7 @@ type alias SelectedSession =
     }
 
 
-type alias SelectedSessionForAngular =
+type alias SelectedSessionForJavaScript =
     { id : Int
     , notes : List Note
     , stream :
@@ -83,8 +83,8 @@ type alias SelectedSessionForAngular =
     }
 
 
-formatForAngular : SelectedSession -> SelectedSessionForAngular
-formatForAngular session =
+formatForJavaScript : SelectedSession -> SelectedSessionForJavaScript
+formatForJavaScript session =
     { id = session.id
     , notes = session.notes
     , stream =

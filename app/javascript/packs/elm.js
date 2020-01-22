@@ -190,7 +190,7 @@ const setupHeatMap = () => {
     }
 
     node.noUiSlider.on("end", ([threshold2, threshold3, threshold4]) => {
-      window.__elmApp.ports.updateHeatMapThresholdsFromAngular.send(
+      window.__elmApp.ports.updateHeatMapThresholdsFromJavaScript.send(
         toValues(node.noUiSlider)
       );
     });
@@ -206,7 +206,7 @@ const setupHeatMap = () => {
       console.log("heatmap updated", Object.values(toValues(node.noUiSlider)));
 
       // changing extremes could have changed middle values
-      window.__elmApp.ports.updateHeatMapThresholdsFromAngular.send(
+      window.__elmApp.ports.updateHeatMapThresholdsFromJavaScript.send(
         toValues(node.noUiSlider)
       );
     });
