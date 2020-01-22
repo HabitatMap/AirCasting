@@ -1,4 +1,5 @@
 let counter = 0;
+const cache = {};
 
 const update = by => {
   counter += by;
@@ -16,12 +17,19 @@ export const get = (url, params) => {
 };
 
 export const getQ = (url, params) => {
-  update(+1);
+  const encodedParams = encodeURIComponent(JSON.stringify(params));
+  const cached = cache[encodedParams];
+  if (cached) return Promise.resolve(cached);
 
-  return fetch(url + "?" + "q=" + encodeURIComponent(JSON.stringify(params)))
+  update(+1);
+  return fetch(url + "?" + "q=" + encodedParams)
     .then(x => {
-      update(-1);
       return x.json();
+    })
+    .then(x => {
+      cache[encodedParams] = x;
+      update(-1);
+      return x;
     })
     .catch(() => {
       update(-1);
