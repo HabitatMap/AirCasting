@@ -4,30 +4,20 @@ import * as Session from "./session";
 import { calculateBounds } from "./calculateBounds";
 import { clearMap } from "./clearMap";
 import { sessionsInfoForElm } from "./sessionListUtils";
-import heat_ from "./heat";
-import sensors_ from "./sensors";
-import infoWindow_ from "./infoWindow";
-import params_ from "./params2";
-import map_ from "./map";
-import sessionsDownloader_ from "./sessionsDownloader";
+import heat from "./heat";
+import sensors from "./sensors";
+import infoWindow from "./infoWindow";
+import params from "./params2";
+import map from "./map";
+import sessionsDownloader from "./sessionsDownloader";
 import pubsub from "./pubsub";
 
-const fixedSessions_ = (
-  heat,
-  infoWindow,
-  map,
-  params,
-  sensors,
-  sessionsDownloader,
-  skip
-) => {
+export default (() => {
   var FixedSessions = function() {
     this.sessions = [];
     this.fetchableSessionsCount = 0;
     this.type = "FixedSessions";
   };
-
-  if (skip) return;
 
   let prevMapPosition = {};
   if (params.isSessionSelected()) {
@@ -105,7 +95,6 @@ const fixedSessions_ = (
         url,
         reqData,
         this.sessions,
-        params,
         _(this.onSessionsFetch).bind(this)
       );
     },
@@ -129,9 +118,7 @@ const fixedSessions_ = (
         this.drawMarkersWithLabel(session, sensors.selectedSensorName())
       );
 
-      map.clusterMarkers(
-        showClusterInfo(sensors.selectedSensorName(), map, infoWindow)
-      );
+      map.clusterMarkers(showClusterInfo(sensors.selectedSensorName()));
     },
 
     drawMarkersWithLabel: function(session, selectedSensor) {
@@ -216,9 +203,9 @@ const fixedSessions_ = (
     }
   };
   return new FixedSessions();
-};
+})();
 
-export const showClusterInfo = (sensorName, map, infoWindow) => cluster => {
+export const showClusterInfo = sensorName => cluster => {
   map.setSelectedCluster(cluster);
 
   const data = {
@@ -235,30 +222,3 @@ export const showClusterInfo = (sensorName, map, infoWindow) => cluster => {
     constants.fixedSession
   );
 };
-
-export default fixedSessions_(
-  heat_,
-  infoWindow_,
-  map_,
-  params_,
-  sensors_,
-  sessionsDownloader_,
-  process.env.NODE_ENV === "test"
-);
-export const fixedSessionsTest = (
-  heat,
-  infoWindow,
-  map,
-  params,
-  sensors,
-  sessionsDownloader
-) =>
-  fixedSessions_(
-    heat,
-    infoWindow,
-    map,
-    params,
-    sensors,
-    sessionsDownloader,
-    false
-  );

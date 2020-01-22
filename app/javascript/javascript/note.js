@@ -4,9 +4,7 @@ import markerNote from "../../../app/assets/images/marker_note.svg";
 import moment from "moment";
 
 let notes = [];
-if (process.env.NODE_ENV !== "test") {
-  var popup = new google.maps.InfoWindow();
-}
+var popup = new google.maps.InfoWindow();
 
 export const drawNotes = (notesData, map, sessionMarker) => {
   notes = [];
@@ -80,30 +78,26 @@ const createHtml = index => {
   );
 };
 
-if (process.env.NODE_ENV !== "test") {
-  google.maps.event.addListener(popup, "domready", () => {
-    google.maps.event.addListener(window.__map, "zoom_changed", () =>
-      popup.close()
-    );
+google.maps.event.addListener(popup, "domready", () => {
+  google.maps.event.addListener(window.__map, "zoom_changed", () =>
+    popup.close()
+  );
 
-    const photo = document.querySelector(".js-thumbnail");
-    if (photo) {
-      new Luminous(photo);
-    }
+  const photo = document.querySelector(".js-thumbnail");
+  if (photo) {
+    new Luminous(photo);
+  }
 
-    Array.from(document.getElementsByClassName("switchNote")).forEach(
-      button => {
-        button.addEventListener("click", () => {
-          let index = parseInt(button.id);
-          if (index < 0) index += notes.length;
-          if (index >= notes.length) index -= notes.length;
+  Array.from(document.getElementsByClassName("switchNote")).forEach(button => {
+    button.addEventListener("click", () => {
+      let index = parseInt(button.id);
+      if (index < 0) index += notes.length;
+      if (index >= notes.length) index -= notes.length;
 
-          show(index);
-        });
-      }
-    );
+      show(index);
+    });
   });
-}
+});
 
 const adjustedLatitude = (note, marker) => {
   const notePoint = window.__map.getProjection().fromLatLngToPoint({

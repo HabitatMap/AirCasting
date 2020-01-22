@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "license": "GNU Affero General Public License",
   "scripts": {
-    "test": "NODE_ENV=test blue-tape -r @babel/register app/javascript/angular/tests/**/*.test.js",
-    "coverage": "NODE_ENV=test nyc --require @babel/register blue-tape app/javascript/angular/tests/**/*.test.js",
-    "coverage:lcov": "NODE_ENV=test nyc --require @babel/register --reporter=lcov blue-tape app/javascript/angular/tests/**/*.test.js"
+    "test": "NODE_ENV=test blue-tape -r @babel/register app/javascript/javascript/tests/**/*.test.js",
+    "coverage": "NODE_ENV=test nyc --require @babel/register blue-tape app/javascript/javascript/tests/**/*.test.js",
+    "coverage:lcov": "NODE_ENV=test nyc --require @babel/register --reporter=lcov blue-tape app/javascript/javascript/tests/**/*.test.js"
   },
   "dependencies": {
     "@google/markerclustererplus": "^2.1.11",
@@ -35,7 +35,6 @@
     "elm-hot-loader": "^0.5.4",
     "elm-hot-webpack-loader": "^1.0.2",
     "elm-test": "^0.19.0-rev4",
-    "fast-deep-equal": "^2.0.1",
     "istanbul": "^0.4.5",
     "nyc": "^13.3.0",
     "prettier": "^1.18.2",

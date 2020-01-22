@@ -8,25 +8,25 @@ import {
   onMapInit
 } from "./mapsUtils";
 import heat from "./heat";
-import rectangles_ from "./rectangles";
-import googleMaps_ from "./googleMaps";
+import rectangles from "./rectangles";
+import googleMaps from "./googleMaps";
 import pubsub from "./pubsub";
 import * as Cookies from "./cookies";
-import params_ from "./params2";
+import params from "./params2";
 
-const map_ = (googleMaps, params, rectangles, $window) => {
-  const TIMEOUT_DELAY = process.env.NODE_ENV === "test" ? 0 : 1000;
+export default (() => {
+  const TIMEOUT_DELAY = 1000;
   setHasChangedProgrammatically(false);
-  $window.__traceMarkers = [];
-  const elmApp = $window.__elmApp;
+  window.__traceMarkers = [];
+  const elmApp = window.__elmApp;
 
   var Map = function() {};
 
   Map.prototype = {
     init: function(element, options) {
       this.mapObj = googleMaps.init(element, options);
-      if (process.env.NODE_ENV !== "test") onMapInit();
-      this.traceMarkers = $window.__traceMarkers;
+      onMapInit();
+      this.traceMarkers = window.__traceMarkers;
       this.addListener("idle", this.saveViewport);
       googleMaps.addListenerOnce(this.mapObj, "idle", () =>
         pubsub.publish("googleMapsReady")
@@ -36,17 +36,15 @@ const map_ = (googleMaps, params, rectangles, $window) => {
         _(this.onMapTypeIdChanged).bind(this)
       );
 
-      if (process.env.NODE_ENV !== "test") {
-        const locationInput = document.getElementById("location");
-        const autocomplete = new google.maps.places.Autocomplete(locationInput);
-        autocomplete.bindTo("bounds", this.mapObj);
+      const locationInput = document.getElementById("location");
+      const autocomplete = new google.maps.places.Autocomplete(locationInput);
+      autocomplete.bindTo("bounds", this.mapObj);
 
-        autocomplete.addListener("place_changed", () => {
-          const place = autocomplete.getPlace();
-          this._goToAddress(place);
-          elmApp.ports.locationUpdated.send(place.formatted_address);
-        });
-      }
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        this._goToAddress(place);
+        elmApp.ports.locationUpdated.send(place.formatted_address);
+      });
 
       rectangles.init(this.mapObj);
     },
@@ -98,11 +96,9 @@ const map_ = (googleMaps, params, rectangles, $window) => {
       var lat = this.mapObj.getCenter().lat();
       var lng = this.mapObj.getCenter().lng();
       var mapType = this.mapObj.getMapTypeId();
-      if (process.env.NODE_ENV !== "test") {
-        Cookies.set("vp_zoom", zoom);
-        Cookies.set("vp_lat", lat);
-        Cookies.set("vp_lng", lng);
-      }
+      Cookies.set("vp_zoom", zoom);
+      Cookies.set("vp_lat", lat);
+      Cookies.set("vp_lng", lng);
       const newParams = {
         map: {
           zoom: zoom,
@@ -314,7 +310,7 @@ const map_ = (googleMaps, params, rectangles, $window) => {
   };
 
   return new Map();
-};
+})();
 
 export const removeMarker = function(marker) {
   if (!marker) {
@@ -335,13 +331,3 @@ export const drawTraceMarker = ({ position }) => {
 
   return customMarker;
 };
-
-export default map_(
-  googleMaps_,
-  params_,
-  rectangles_,
-  process.env.NODE_ENV === "test" ? {} : window
-);
-
-export const mapTest = (googleMaps, params, rectangles, window) =>
-  map_(googleMaps, params, rectangles, window);

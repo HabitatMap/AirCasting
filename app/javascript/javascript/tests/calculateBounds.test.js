@@ -1,5 +1,5 @@
 import test from "blue-tape";
-import { calculateBounds } from "../../javascript/calculateBounds";
+import { calculateBounds } from "../calculateBounds";
 
 test("returns the correct bounds", t => {
   const session = {

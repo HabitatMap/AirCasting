@@ -2,34 +2,21 @@ import * as FiltersUtils from "./filtersUtils";
 import { clearMap } from "./clearMap";
 import { applyTheme } from "./theme";
 import { getParams } from "./params";
-import sensors_ from "./sensors";
-import pubsub_ from "./pubsub";
-import params_ from "./params2";
-import map_ from "./map";
-import updateCrowdMapLayer_ from "./updateCrowdMapLayer";
+import sensors from "./sensors";
+import pubsub from "./pubsub";
+import params from "./params2";
+import map from "./map";
+import updateCrowdMapLayer from "./updateCrowdMapLayer";
 import constants from "./constants";
-const sessions_ =
-  process.env.NODE_ENV === "test"
-    ? {}
-    : window.location.pathname === constants.mobileMapRoute
-    ? require("./mobileSessions")
-    : require("./fixedSessions");
+const sessions =
+  window.location.pathname === constants.mobileMapRoute
+    ? require("./mobileSessions").default
+    : require("./fixedSessions").default;
 
-const SessionsMapCtrl_ = (
-  map,
-  params,
-  pubsub,
-  sensors,
-  sessions,
-  updateCrowdMapLayer,
-  $window,
-  skip
-) => () => {
-  if (skip) return;
-
+export default (() => {
   let pulsatingSessionMarker = null;
-  const elmApp = $window.__elmApp;
-  sensors.setSensors($window.__sensors);
+  const elmApp = window.__elmApp;
+  sensors.setSensors(window.__sensors);
 
   function setDefaults() {
     clearMap();
@@ -103,286 +90,250 @@ const SessionsMapCtrl_ = (
     }
   });
 
-  if (process.env.NODE_ENV !== "test") {
-    elmApp.ports.selectSession.subscribe(session => {
-      sessions.selectSession(session);
+  elmApp.ports.selectSession.subscribe(session => {
+    sessions.selectSession(session);
+  });
+
+  elmApp.ports.deselectSession.subscribe(() => {
+    sessions.deselectSession();
+  });
+
+  elmApp.ports.loadMoreSessions.subscribe(() => {
+    sessions.fetch({
+      fetchedSessionsCount: sessions.sessions.length
     });
+  });
 
-    elmApp.ports.deselectSession.subscribe(() => {
-      sessions.deselectSession();
-    });
+  elmApp.ports.updateHeatMapThresholds.subscribe(
+    ({ threshold1, threshold2, threshold3, threshold4, threshold5 }) => {
+      const heat = {
+        lowest: threshold1,
+        low: threshold2,
+        mid: threshold3,
+        high: threshold4,
+        highest: threshold5
+      };
+      params.update({ data: { heat } });
 
-    elmApp.ports.loadMoreSessions.subscribe(() => {
-      sessions.fetch({
-        fetchedSessionsCount: sessions.sessions.length
-      });
-    });
-
-    elmApp.ports.updateHeatMapThresholds.subscribe(
-      ({ threshold1, threshold2, threshold3, threshold4, threshold5 }) => {
-        const heat = {
-          lowest: threshold1,
-          low: threshold2,
-          mid: threshold3,
-          high: threshold4,
-          highest: threshold5
-        };
-        params.update({ data: { heat } });
-
-        if (params.isCrowdMapOn() && !params.isSessionSelected()) {
-          updateCrowdMapLayer.call(sessions.sessionIds());
-        } else if (params.isSessionSelected()) {
-          sessions.redrawSelectedSession();
-        } else {
-          sessions.drawSessionsInLocation();
-        }
+      if (params.isCrowdMapOn() && !params.isSessionSelected()) {
+        updateCrowdMapLayer.call(sessions.sessionIds());
+      } else if (params.isSessionSelected()) {
+        sessions.redrawSelectedSession();
+      } else {
+        sessions.drawSessionsInLocation();
       }
-    );
+    }
+  );
 
-    elmApp.ports.toggleIsSearchOn.subscribe(isSearchAsIMoveOn => {
-      params.update({ data: { isSearchAsIMoveOn: isSearchAsIMoveOn } });
-    });
+  elmApp.ports.toggleIsSearchOn.subscribe(isSearchAsIMoveOn => {
+    params.update({ data: { isSearchAsIMoveOn: isSearchAsIMoveOn } });
+  });
 
-    elmApp.ports.fetchSessions.subscribe(() => {
-      sessions.fetch();
-    });
+  elmApp.ports.fetchSessions.subscribe(() => {
+    sessions.fetch();
+  });
 
-    elmApp.ports.pulseSessionMarker.subscribe(sessionMarkerData => {
-      if (sessionMarkerData === null) {
-        pulsatingSessionMarker.setMap(null);
+  elmApp.ports.pulseSessionMarker.subscribe(sessionMarkerData => {
+    if (sessionMarkerData === null) {
+      pulsatingSessionMarker.setMap(null);
+      return;
+    }
+
+    if (window.__map.clusterers[0]) {
+      const cluster = window.__map.clusterers[0].clusters_.find(cluster =>
+        cluster.markers_.some(
+          marker => marker.objectId() === sessionMarkerData.id
+        )
+      );
+
+      if (cluster) {
+        pulsatingSessionMarker = map.drawPulsatingMarker(
+          cluster.center_,
+          sessionMarkerData.heatLevel
+        );
         return;
       }
+    }
 
-      if (window.__map.clusterers[0]) {
-        const cluster = window.__map.clusterers[0].clusters_.find(cluster =>
-          cluster.markers_.some(
-            marker => marker.objectId() === sessionMarkerData.id
-          )
-        );
-
-        if (cluster) {
-          pulsatingSessionMarker = map.drawPulsatingMarker(
-            cluster.center_,
-            sessionMarkerData.heatLevel
-          );
-          return;
-        }
+    window.__map.customMarkers.forEach(marker => {
+      if (marker.objectId() === sessionMarkerData.id) {
+        marker.moveOnTop();
+        return;
       }
-
-      window.__map.customMarkers.forEach(marker => {
-        if (marker.objectId() === sessionMarkerData.id) {
-          marker.moveOnTop();
-          return;
-        }
-      });
-
-      pulsatingSessionMarker = map.drawPulsatingMarker(
-        sessionMarkerData.location,
-        sessionMarkerData.heatLevel
-      );
     });
 
-    elmApp.ports.saveScrollPosition.subscribe(value => {
-      params.update({ scroll: value });
-    });
-
-    elmApp.ports.selectSensorId.subscribe(sensorId => {
-      sessions.deselectSession();
-      params.update({ data: { sensorId } });
-      sessions.fetch();
-    });
-
-    map.onPanOrZoom(() => {
-      FiltersUtils.clearLocation(elmApp.ports.locationCleared.send, params);
-    });
-
-    FiltersUtils.setupProfileNamesAutocomplete(selectedValue =>
-      elmApp.ports.profileSelected.send(selectedValue)
+    pulsatingSessionMarker = map.drawPulsatingMarker(
+      sessionMarkerData.location,
+      sessionMarkerData.heatLevel
     );
+  });
 
-    const createTagsFilterParams = () => {
-      const bounds = map.getBounds();
-      const data = getParams().data;
-      const obj = {
-        west: bounds.west,
-        east: bounds.east,
-        south: bounds.south,
-        north: bounds.north,
-        time_from: data.timeFrom,
-        time_to: data.timeTo,
-        usernames: data.usernames,
-        sensor_name: sensors.selected().sensor_name,
-        unit_symbol: sensors.selected().unit_symbol
-      };
+  elmApp.ports.saveScrollPosition.subscribe(value => {
+    params.update({ scroll: value });
+  });
 
-      return sessions.isMobile()
-        ? obj
-        : { ...obj, is_indoor: data.isIndoor, is_active: data.isActive };
+  elmApp.ports.selectSensorId.subscribe(sensorId => {
+    sessions.deselectSession();
+    params.update({ data: { sensorId } });
+    sessions.fetch();
+  });
+
+  map.onPanOrZoom(() => {
+    FiltersUtils.clearLocation(elmApp.ports.locationCleared.send, params);
+  });
+
+  FiltersUtils.setupProfileNamesAutocomplete(selectedValue =>
+    elmApp.ports.profileSelected.send(selectedValue)
+  );
+
+  const createTagsFilterParams = () => {
+    const bounds = map.getBounds();
+    const data = getParams().data;
+    const obj = {
+      west: bounds.west,
+      east: bounds.east,
+      south: bounds.south,
+      north: bounds.north,
+      time_from: data.timeFrom,
+      time_to: data.timeTo,
+      usernames: data.usernames,
+      sensor_name: sensors.selected().sensor_name,
+      unit_symbol: sensors.selected().unit_symbol
     };
 
-    FiltersUtils.setupTagsAutocomplete(
-      selectedValue => elmApp.ports.tagSelected.send(selectedValue),
-      sessions.isMobile()
-        ? "api/mobile/autocomplete/tags"
-        : "api/fixed/autocomplete/tags",
-      createTagsFilterParams
-    );
+    return sessions.isMobile()
+      ? obj
+      : { ...obj, is_indoor: data.isIndoor, is_active: data.isActive };
+  };
 
-    elmApp.ports.updateTags.subscribe(tags => {
-      params.update({ data: { tags: tags.join(", ") } });
-      sessions.fetch();
-    });
+  FiltersUtils.setupTagsAutocomplete(
+    selectedValue => elmApp.ports.tagSelected.send(selectedValue),
+    sessions.isMobile()
+      ? "api/mobile/autocomplete/tags"
+      : "api/fixed/autocomplete/tags",
+    createTagsFilterParams
+  );
 
-    elmApp.ports.updateProfiles.subscribe(profiles => {
-      params.update({ data: { usernames: profiles.join(", ") } });
-      sessions.fetch();
-    });
+  elmApp.ports.updateTags.subscribe(tags => {
+    params.update({ data: { tags: tags.join(", ") } });
+    sessions.fetch();
+  });
 
-    const onTimeRangeChanged = (timeFrom, timeTo) => {
-      elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
-      FiltersUtils.setTimerangeButtonText(timeFrom, timeTo);
-      params.update({ data: { timeFrom, timeTo } });
-      sessions.fetch();
-    };
+  elmApp.ports.updateProfiles.subscribe(profiles => {
+    params.update({ data: { usernames: profiles.join(", ") } });
+    sessions.fetch();
+  });
 
-    FiltersUtils.setupClipboard();
+  const onTimeRangeChanged = (timeFrom, timeTo) => {
+    elmApp.ports.timeRangeSelected.send({ timeFrom, timeTo });
+    FiltersUtils.setTimerangeButtonText(timeFrom, timeTo);
+    params.update({ data: { timeFrom, timeTo } });
+    sessions.fetch();
+  };
 
-    elmApp.ports.showCopyLinkTooltip.subscribe(tooltipId => {
-      const currentUrl = encodeURIComponent(window.location.href);
+  FiltersUtils.setupClipboard();
 
-      FiltersUtils.fetchShortUrl(tooltipId, currentUrl);
-    });
+  elmApp.ports.showCopyLinkTooltip.subscribe(tooltipId => {
+    const currentUrl = encodeURIComponent(window.location.href);
 
-    elmApp.ports.toggleTheme.subscribe(theme => {
-      const cb = sessions.isMobile()
-        ? () => {
-            if (params.selectedSessionIds().length !== 0) {
-              sessions.redrawSelectedSession();
-            }
+    FiltersUtils.fetchShortUrl(tooltipId, currentUrl);
+  });
+
+  elmApp.ports.toggleTheme.subscribe(theme => {
+    const cb = sessions.isMobile()
+      ? () => {
+          if (params.selectedSessionIds().length !== 0) {
+            sessions.redrawSelectedSession();
           }
-        : () => {};
-      params.update({ theme: theme });
-      applyTheme(cb);
-    });
+        }
+      : () => {};
+    params.update({ theme: theme });
+    applyTheme(cb);
+  });
 
+  // fixed tab
+  const setupActiveTimeRangeFilter = (timeFrom, timeTo) => {
+    if (
+      document.getElementById("time-range") &&
+      document.getElementById("time-range-button")
+    ) {
+      $("#time-range").daterangepicker(
+        FiltersUtils.daterangepickerConfig(timeFrom, timeTo)
+      );
+
+      $("#time-range-button").daterangepicker(
+        FiltersUtils.daterangepickerConfig(timeFrom, timeTo),
+        FiltersUtils.setTimerangeButtonText(timeFrom, timeTo)
+      );
+    } else {
+      window.setTimeout(setupActiveTimeRangeFilter(timeFrom, timeTo), 100);
+    }
+  };
+
+  if (params.get("data").isActive) {
     // fixed tab
-    const setupActiveTimeRangeFilter = (timeFrom, timeTo) => {
-      if (
-        document.getElementById("time-range") &&
-        document.getElementById("time-range-button")
-      ) {
-        $("#time-range").daterangepicker(
-          FiltersUtils.daterangepickerConfig(timeFrom, timeTo)
-        );
+    setupActiveTimeRangeFilter(
+      FiltersUtils.oneHourAgo(),
+      FiltersUtils.presentMoment()
+    );
+  } else {
+    // fixed or mobile tab
+    FiltersUtils.setupTimeRangeFilter(
+      onTimeRangeChanged,
+      params.get("data").timeFrom,
+      params.get("data").timeTo,
+      elmApp.ports.isShowingTimeRangeFilter.send
+    );
+  }
 
-        $("#time-range-button").daterangepicker(
-          FiltersUtils.daterangepickerConfig(timeFrom, timeTo),
-          FiltersUtils.setTimerangeButtonText(timeFrom, timeTo)
-        );
-      } else {
-        window.setTimeout(setupActiveTimeRangeFilter(timeFrom, timeTo), 100);
-      }
-    };
-
+  // fixed or mobile tab
+  const resetTimeRangeFilter = () => {
     if (params.get("data").isActive) {
       // fixed tab
       setupActiveTimeRangeFilter(
         FiltersUtils.oneHourAgo(),
         FiltersUtils.presentMoment()
       );
+      sessions.fetch();
     } else {
       // fixed or mobile tab
       FiltersUtils.setupTimeRangeFilter(
         onTimeRangeChanged,
-        params.get("data").timeFrom,
-        params.get("data").timeTo,
+        FiltersUtils.oneYearAgo(),
+        FiltersUtils.endOfToday(),
         elmApp.ports.isShowingTimeRangeFilter.send
       );
+      onTimeRangeChanged(FiltersUtils.oneYearAgo(), FiltersUtils.endOfToday());
     }
+  };
 
-    // fixed or mobile tab
-    const resetTimeRangeFilter = () => {
-      if (params.get("data").isActive) {
-        // fixed tab
-        setupActiveTimeRangeFilter(
-          FiltersUtils.oneHourAgo(),
-          FiltersUtils.presentMoment()
-        );
-        sessions.fetch();
-      } else {
-        // fixed or mobile tab
-        FiltersUtils.setupTimeRangeFilter(
-          onTimeRangeChanged,
-          FiltersUtils.oneYearAgo(),
-          FiltersUtils.endOfToday(),
-          elmApp.ports.isShowingTimeRangeFilter.send
-        );
-        onTimeRangeChanged(
-          FiltersUtils.oneYearAgo(),
-          FiltersUtils.endOfToday()
-        );
-      }
-    };
+  elmApp.ports.refreshTimeRange.subscribe(() => {
+    resetTimeRangeFilter();
+  });
 
-    elmApp.ports.refreshTimeRange.subscribe(() => {
-      resetTimeRangeFilter();
-    });
+  // mobile tab
+  elmApp.ports.toggleCrowdMap.subscribe(crowdMap => {
+    params.updateData({ crowdMap });
 
-    // mobile tab
-    elmApp.ports.toggleCrowdMap.subscribe(crowdMap => {
-      params.updateData({ crowdMap });
+    sessions.toggleCrowdMapView();
+  });
 
-      sessions.toggleCrowdMapView();
-    });
+  // mobile tab
+  elmApp.ports.updateResolution.subscribe(gridResolution => {
+    params.updateData({ gridResolution });
+    updateCrowdMapLayer.call(sessions.allSessionIds());
+  });
 
-    // mobile tab
-    elmApp.ports.updateResolution.subscribe(gridResolution => {
-      params.updateData({ gridResolution });
-      updateCrowdMapLayer.call(sessions.allSessionIds());
-    });
+  // fixed tab
+  elmApp.ports.toggleIndoor.subscribe(isIndoor => {
+    params.update({ data: { isIndoor: isIndoor } });
+    sessions.fetch();
+  });
 
-    // fixed tab
-    elmApp.ports.toggleIndoor.subscribe(isIndoor => {
-      params.update({ data: { isIndoor: isIndoor } });
-      sessions.fetch();
-    });
-
-    // fixed tab
-    elmApp.ports.toggleActive.subscribe(isActive => {
-      params.update({ data: { isActive } });
-      resetTimeRangeFilter();
-      sessions.fetch();
-    });
-  }
-};
-
-export default SessionsMapCtrl_(
-  map_,
-  params_,
-  pubsub_,
-  sensors_,
-  sessions_.default,
-  updateCrowdMapLayer_,
-  process.env.NODE_ENV === "test" ? {} : window,
-  process.env.NODE_ENV === "test"
-)();
-
-export const SessionsMapCtrlTest = (
-  map,
-  params,
-  pubsub,
-  sensors,
-  sessions,
-  updateCrowdMapLayer,
-  window
-) =>
-  SessionsMapCtrl_(
-    map,
-    params,
-    pubsub,
-    sensors,
-    sessions,
-    updateCrowdMapLayer,
-    window,
-    false
-  )();
+  // fixed tab
+  elmApp.ports.toggleActive.subscribe(isActive => {
+    params.update({ data: { isActive } });
+    resetTimeRangeFilter();
+    sessions.fetch();
+  });
+})();

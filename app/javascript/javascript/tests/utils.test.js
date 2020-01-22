@@ -1,5 +1,5 @@
 import test from "blue-tape";
-import { keysToLowerCase } from "../../javascript/utils";
+import { keysToLowerCase } from "../utils";
 
 test("keysToLowerCase changes object keys to lower case", t => {
   const value = 1;

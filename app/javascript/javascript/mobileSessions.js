@@ -4,33 +4,22 @@ import { clusterer } from "./clusterer";
 import { calculateBounds } from "./calculateBounds";
 import { clearMap } from "./clearMap";
 import { sessionsInfoForElm } from "./sessionListUtils";
-import heat_ from "./heat";
-import sensors_ from "./sensors";
-import params_ from "./params2";
-import map_ from "./map";
-import drawSession_ from "./drawSession";
-import sessionsDownloader_ from "./sessionsDownloader";
-import updateCrowdMapLayer_ from "./updateCrowdMapLayer";
+import heat from "./heat";
+import sensors from "./sensors";
+import params from "./params2";
+import map from "./map";
+import drawSession from "./drawSession";
+import sessionsDownloader from "./sessionsDownloader";
+import updateCrowdMapLayer from "./updateCrowdMapLayer";
 import pubsub from "./pubsub";
 
-const mobileSessions_ = (
-  drawSession,
-  heat,
-  map,
-  params,
-  sensors,
-  sessionsDownloader,
-  updateCrowdMapLayer,
-  skip
-) => {
+export default (() => {
   var MobileSessions = function() {
     this.sessions = [];
     this.fetchableSessionsCount = 0;
     this.type = "MobileSessions";
     this.selectedSession = {};
   };
-
-  if (skip) return;
 
   let prevMapPosition = {};
   if (params.isSessionSelected()) {
@@ -230,43 +219,11 @@ const mobileSessions_ = (
         "/api/mobile/sessions.json",
         reqData,
         this.sessions,
-        params,
         _(this.onSessionsFetchWithCrowdMapLayerUpdate).bind(this)
       );
     }
   };
   return new MobileSessions();
-};
+})();
 
 const isNotIn = arr => x => !arr.includes(x);
-
-export const mobileSessionsTest = (
-  drawSession,
-  heat,
-  map,
-  params,
-  sensors,
-  sessionsDownloader,
-  updateCrowdMapLayer
-) =>
-  mobileSessions_(
-    drawSession,
-    heat,
-    map,
-    params,
-    sensors,
-    sessionsDownloader,
-    updateCrowdMapLayer,
-    false
-  );
-
-export default mobileSessions_(
-  drawSession_,
-  heat_,
-  map_,
-  params_,
-  sensors_,
-  sessionsDownloader_,
-  updateCrowdMapLayer_,
-  process.env.NODE_ENV === "test"
-);

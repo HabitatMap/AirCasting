@@ -2,17 +2,17 @@ import { keysToLowerCase } from "./utils";
 import moment from "moment";
 import { getQ } from "./http";
 import _ from "underscore";
+import params from "./params2";
 
 const sessionsDownloader = () => {
   var fetch = function(
     url,
     reqData,
     sessions,
-    params,
     refreshSessionsCallback
   ) {
     var successCallback = function(data) {
-      preprocessData(data.sessions, sessions, params);
+      preprocessData(data.sessions, sessions);
       refreshSessionsCallback(data.fetchableSessionsCount);
     };
     fetchPage(url, reqData, successCallback);
@@ -22,7 +22,7 @@ const sessionsDownloader = () => {
     getQ(url, reqData).then(success);
   };
 
-  var preprocessData = function(data, sessions, params) {
+  var preprocessData = function(data, sessions) {
     var times;
 
     _(data).each(function(session) {

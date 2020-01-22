@@ -3,9 +3,7 @@ import _ from "underscore";
 
 const params = () => {
   var Params = function() {
-    if (process.env.NODE_ENV !== "test") {
-      this.init(getParams2());
-    }
+    this.init(getParams2());
   };
   Params.prototype = {
     init: function(searchData) {

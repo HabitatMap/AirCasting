@@ -1,6 +1,5 @@
 import _ from "underscore";
-const note = process.env.NODE_ENV === "test" ? "" : require("./note");
-const drawNotes = note.drawNotes;
+import { drawNotes } from "./note";
 import * as Session from "./session";
 import { locationMarkersByLevel } from "./theme";
 import heat from "./heat";

@@ -1,5 +1,5 @@
 import test from "blue-tape";
-import * as Session from "../../javascript/session";
+import * as Session from "../session";
 
 test("when title is missing it defaults to unnamed", t => {
   const session = { selectedStream: {} };

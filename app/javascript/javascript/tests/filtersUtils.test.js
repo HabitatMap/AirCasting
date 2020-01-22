@@ -1,6 +1,6 @@
 import test from "blue-tape";
 import sinon from "sinon";
-import { clearLocation } from "../../javascript/filtersUtils";
+import { clearLocation } from "../filtersUtils";
 
 test("clearLocation informs elm that location field should be cleared", t => {
   const params = { update: () => {} };
