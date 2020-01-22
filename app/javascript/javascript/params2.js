@@ -48,6 +48,9 @@ const params = () => {
     selectedSessionIds: function() {
       return this.paramsData["selectedSessionIds"] || [];
     },
+    selectedSessionId: function() {
+      return this.selectedSessionIds()[0];
+    },
     isActive: function() {
       return this.paramsData.data.isActive || false;
     },
