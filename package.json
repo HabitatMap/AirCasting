@@ -1,7 +1,7 @@
 {
   "name": "aircasting",
   "version": "0.0.1",
-  "license": "GNU Affero General Public License",
+  "license": "https://github.com/HabitatMap/AirCasting/blob/master/LICENSE",
   "scripts": {
     "test": "NODE_ENV=test blue-tape -r @babel/register app/javascript/javascript/tests/**/*.test.js",
     "coverage": "NODE_ENV=test nyc --require @babel/register blue-tape app/javascript/javascript/tests/**/*.test.js",
