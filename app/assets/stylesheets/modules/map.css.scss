@@ -21,6 +21,7 @@
 .map-container {
   flex: 1 1 100%;
   position: relative;
+  min-height: 500px;
 
   @media screen and (orientation: portrait) {
     height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height-mobile});
