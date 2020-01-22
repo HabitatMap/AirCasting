@@ -47,7 +47,7 @@ const all = { type: "all", text: "All" };
 
 const fixedButtons = [[hr1, hrs12, hrs24, wk1, mth1, all], 2];
 
-const mobileButtons = [[min1, min5, min30, hr1, hrs12, all], 4];
+const mobileButtons = [[min1, min5, min30, hr1, hrs12, all], 5];
 
 export const drawMobile = ({ measurements, sensor, heat }) => {
   const [buttons, selectedButton] = mobileButtons;

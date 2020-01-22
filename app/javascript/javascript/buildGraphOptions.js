@@ -223,12 +223,43 @@ const responsive = {
   rules: [
     {
       condition: {
-        maxWidth: 767
+        maxWidth: 480
       },
       chartOptions: {
-        height: 100,
         rangeSelector: {
+          height: 30,
+          buttonSpacing: 8,
+
+          buttonTheme: {
+            fill: "none",
+            width: 33,
+            r: 10,
+            stroke: "rgba(149, 149, 149, 0.3)",
+            "stroke-width": 1
+          }
+        }
+      }
+    },
+    {
+      condition: {
+        maxWidth: 550
+      },
+      chartOptions: {
+        chart: {
+          height: 170
+        }
+      }
+    },
+    {
+      condition: {
+        maxWidth: 700
+      },
+      chartOptions: {
+        scrollbar: {
           enabled: false
+        },
+        credits: {
+          position: { align: "right", verticalAlign: "bottom", x: -4, y: -10 }
         }
       }
     }
