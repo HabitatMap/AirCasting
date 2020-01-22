@@ -12,12 +12,12 @@
   @media screen and (max-width: $tablet-max) {
     display: block;
     height: $heatmap-height-mobile;
-    padding: 25px 16px 0;
+    padding: 28px 16px 0;
     width: 100vw;
   }
 
   @media screen and (max-width: $large-mobile-max) {
-    padding: 25px 10px 0;
+    padding: 28px 10px 0;
   }
 }
 
