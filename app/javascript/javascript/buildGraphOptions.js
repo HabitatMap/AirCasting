@@ -257,6 +257,9 @@ const responsive = {
       chartOptions: {
         scrollbar: {
           enabled: false
+        },
+        credits: {
+          position: { align: "right", verticalAlign: "bottom", x: -4, y: -10 }
         }
       }
     }
