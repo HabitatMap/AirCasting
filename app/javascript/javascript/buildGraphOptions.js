@@ -242,11 +242,21 @@ const responsive = {
     },
     {
       condition: {
-        maxWidth: 767
+        maxWidth: 550
       },
       chartOptions: {
         chart: {
           height: 170
+        }
+      }
+    },
+    {
+      condition: {
+        maxWidth: 700
+      },
+      chartOptions: {
+        scrollbar: {
+          enabled: false
         }
       }
     }
