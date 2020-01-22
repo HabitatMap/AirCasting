@@ -61,4 +61,4 @@ const createMeasurementMarker = (measurement, idx, map, suffix) => {
   return marker;
 };
 
-export default drawSession;
+export default drawSession();

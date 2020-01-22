@@ -550,7 +550,12 @@ update msg model =
                     )
 
                 ( _, Nothing ) ->
-                    ( { model | selectedSession = NotAsked }, Cmd.none )
+                    ( { model | selectedSession = NotAsked }
+                    , Cmd.batch
+                        [ Ports.deselectSession ()
+                        , Ports.observeSessionsList ()
+                        ]
+                    )
 
         SelectSession id ->
             case model.selectedSession of
