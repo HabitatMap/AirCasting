@@ -10,7 +10,7 @@ export const drawSession = () => {
 
   DrawSession.prototype = {
     drawMobileSession: function(session, drawSessionStartingMarker) {
-      if (!session) {
+      if (!session || _.isEmpty(session)) {
         return;
       }
 
