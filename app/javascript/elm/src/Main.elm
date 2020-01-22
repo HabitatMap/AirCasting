@@ -1027,7 +1027,12 @@ viewMain : Model -> Html Msg
 viewMain model =
     main_
         []
-        [ div [ class "maps-page-container" ]
+        [ div
+            [ classList
+                [ ( "maps-page-container", True )
+                , ( "with-filters-collapsed", not model.areFiltersExpanded )
+                ]
+            ]
             [ div
                 [ classList
                     [ ( "filters", True )

@@ -6,6 +6,12 @@
     @include flexbox();
     @include justify-content(space-between);
   }
+
+  @media screen and (max-width: $tablet-max) {
+    &.with-filters-collapsed {
+      overflow-y: hidden;
+    }
+  }
 }
 
 .maps-content-container {
@@ -20,8 +26,8 @@
 
 .map-container {
   flex: 1 1 100%;
-  position: relative;
   min-height: 500px;
+  position: relative;
 
   @media screen and (orientation: portrait) {
     height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height-mobile});
@@ -30,6 +36,7 @@
 
 .map {
   height: calc(100vh - #{$heatmap-height-mobile} - #{$nav-height-mobile});
+  min-height: 500px;
   width: 100vw;
 
   @media screen and (min-width: $small-desktop-min) {
