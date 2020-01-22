@@ -5,12 +5,7 @@ import _ from "underscore";
 import params from "./params2";
 
 const sessionsDownloader = () => {
-  var fetch = function(
-    url,
-    reqData,
-    sessions,
-    refreshSessionsCallback
-  ) {
+  var fetch = function(url, reqData, sessions, refreshSessionsCallback) {
     var successCallback = function(data) {
       preprocessData(data.sessions, sessions);
       refreshSessionsCallback(data.fetchableSessionsCount);
