@@ -25,7 +25,11 @@ import { get } from "../javascript/http";
 import constants from "../javascript/constants";
 import { init } from "../javascript/googleMapsInit";
 init();
-setTimeout(() => require("../javascript/sessionsMap"), 10000);
+
+import pubsub from "../javascript/pubsub";
+pubsub.subscribe("googleMapsReady", function() {
+  require("../javascript/sessionsMap");
+});
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
