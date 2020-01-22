@@ -1,6 +1,6 @@
 import _ from "underscore";
 import constants from "./constants";
-import * as Session from "./values/session";
+import * as Session from "./session";
 import { calculateBounds } from "./calculateBounds";
 import { clearMap } from "./clearMap";
 import { sessionsInfoForElm } from "./sessionListUtils";

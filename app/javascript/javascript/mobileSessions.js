@@ -1,5 +1,5 @@
 import _ from "underscore";
-import * as Session from "./values/session";
+import * as Session from "./session";
 import { clusterer } from "./clusterer";
 import { calculateBounds } from "./calculateBounds";
 import { clearMap } from "./clearMap";

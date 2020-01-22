@@ -1,4 +1,4 @@
-import { formatSessionForList } from "./values/session";
+import { formatSessionForList } from "./session";
 
 export const sessionsInfoForElm = (sessions, count, sensorName) => ({
   fetched: sessions
