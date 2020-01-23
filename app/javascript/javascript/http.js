@@ -18,7 +18,8 @@ export const get = (url, params) => {
 
 export const getQ = (url, params) => {
   const encodedParams = encodeURIComponent(JSON.stringify(params));
-  const cached = cache[encodedParams];
+  const cacheKey = url + encodedParams;
+  const cached = cache[cacheKey];
   if (cached) return Promise.resolve(cached);
 
   update(+1);
@@ -27,7 +28,7 @@ export const getQ = (url, params) => {
       return x.json();
     })
     .then(x => {
-      cache[encodedParams] = x;
+      cache[cacheKey] = x;
       update(-1);
       return x;
     })
