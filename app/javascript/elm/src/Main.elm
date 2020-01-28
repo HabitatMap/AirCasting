@@ -1101,8 +1101,8 @@ viewZoomSlider boundedInteger =
             [ class "zoom-slider"
             , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateZoomLevel)
             , value (String.fromInt (BoundedInteger.getValue boundedInteger))
-            , max <| String.fromInt (BoundedInteger.getUpperBound boundedInteger)
-            , min <| String.fromInt (BoundedInteger.getLowerBound boundedInteger)
+            , Html.Attributes.max <| String.fromInt (BoundedInteger.getUpperBound boundedInteger)
+            , Html.Attributes.min <| String.fromInt (BoundedInteger.getLowerBound boundedInteger)
             , type_ "range"
             ]
             []
@@ -1503,8 +1503,8 @@ viewCrowdMapSlider boundedInteger =
                 [ class "crowd-map-slider"
                 , onChange (String.toInt >> Maybe.withDefault 25 >> UpdateCrowdMapResolution)
                 , value (String.fromInt (BoundedInteger.getValue boundedInteger))
-                , max <| String.fromInt (BoundedInteger.getUpperBound boundedInteger)
-                , min <| String.fromInt (BoundedInteger.getLowerBound boundedInteger)
+                , Html.Attributes.max <| String.fromInt (BoundedInteger.getUpperBound boundedInteger)
+                , Html.Attributes.min <| String.fromInt (BoundedInteger.getLowerBound boundedInteger)
                 , type_ "range"
                 ]
                 []
