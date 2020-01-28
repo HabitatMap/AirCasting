@@ -1,3 +1,8 @@
+import $ from "jquery";
+window.jQuery = window.$ = $;
+import "jquery-ui/ui/widgets/autocomplete";
+import "../jquery.ui.daterangepicker";
+import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
 import { Elm } from "../elm/src/Main.elm";
 import fitScaleIcon from "../../assets/images/icons/fit-scale-icon.svg";
 import linkIcon from "../../assets/images/icons/link-icon.svg";
@@ -12,14 +17,19 @@ import tippy from "tippy.js";
 import "../../assets/stylesheets/main.scss";
 import "tippy.js/themes/light-border.css";
 import { createObserver } from "../createObserver.js";
-import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
-import "../../assets/stylesheets/vendor/jquery.autocomplete.css";
 import "../../../node_modules/luminous-lightbox/dist/luminous-basic.css";
 import "whatwg-fetch"; // fetch is missing in some browsers (eg IE11)
 import { DEFAULT_THEME } from "../javascript/constants";
 import { getParams, updateParam } from "../javascript/params";
 import { get } from "../javascript/http";
 import constants from "../javascript/constants";
+import { init } from "../javascript/googleMapsInit";
+init();
+
+import pubsub from "../javascript/pubsub";
+pubsub.subscribe("googleMapsReady", function() {
+  require("../javascript/sessionsMap");
+});
 
 if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
@@ -180,7 +190,7 @@ const setupHeatMap = () => {
     }
 
     node.noUiSlider.on("end", ([threshold2, threshold3, threshold4]) => {
-      window.__elmApp.ports.updateHeatMapThresholdsFromAngular.send(
+      window.__elmApp.ports.updateHeatMapThresholdsFromJavaScript.send(
         toValues(node.noUiSlider)
       );
     });
@@ -196,7 +206,7 @@ const setupHeatMap = () => {
       console.log("heatmap updated", Object.values(toValues(node.noUiSlider)));
 
       // changing extremes could have changed middle values
-      window.__elmApp.ports.updateHeatMapThresholdsFromAngular.send(
+      window.__elmApp.ports.updateHeatMapThresholdsFromJavaScript.send(
         toValues(node.noUiSlider)
       );
     });

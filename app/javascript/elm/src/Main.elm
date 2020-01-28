@@ -270,7 +270,7 @@ type Msg
     | ToggleIndoor Bool
     | ToggleStatus Status
     | DeselectSession
-    | ToggleSessionSelectionFromAngular (Maybe Int)
+    | ToggleSessionSelectionFromJavaScript (Maybe Int)
     | SelectSession Int
     | GotSession (WebData SelectedSession)
     | GotMeasurements (WebData (List Measurement))
@@ -279,7 +279,7 @@ type Msg
     | UpdateHeatMapMaximum String
     | ResetHeatMapToDefaults
     | FitHeatMap
-    | UpdateHeatMapThresholdsFromAngular HeatMapThresholdValues
+    | UpdateHeatMapThresholdsFromJavaScript HeatMapThresholdValues
     | ToggleIsSearchOn
     | MapMoved
     | FetchSessions
@@ -522,7 +522,7 @@ update msg model =
         DeselectSession ->
             deselectSession model
 
-        ToggleSessionSelectionFromAngular maybeId ->
+        ToggleSessionSelectionFromJavaScript maybeId ->
             case ( model.selectedSession, maybeId ) of
                 ( Success session, Just id ) ->
                     if SelectedSession.toId session == id then
@@ -550,7 +550,12 @@ update msg model =
                     )
 
                 ( _, Nothing ) ->
-                    ( { model | selectedSession = NotAsked }, Cmd.none )
+                    ( { model | selectedSession = NotAsked }
+                    , Cmd.batch
+                        [ Ports.deselectSession ()
+                        , Ports.observeSessionsList ()
+                        ]
+                    )
 
         SelectSession id ->
             case model.selectedSession of
@@ -579,7 +584,7 @@ update msg model =
                     ( { model | selectedSession = Success newSession, overlay = Overlay.update (RemoveOverlay HttpingOverlay) model.overlay }
                     , Cmd.batch
                         [ graphDrawCmd thresholds newSession model.sensors model.selectedSensorId model.page
-                        , Ports.selectSession (SelectedSession.formatForAngular newSession)
+                        , Ports.selectSession (SelectedSession.formatForJavaScript newSession)
                         ]
                     )
 
@@ -649,7 +654,7 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        UpdateHeatMapThresholdsFromAngular values ->
+        UpdateHeatMapThresholdsFromJavaScript values ->
             let
                 updateThresholdsInModel thresholds =
                     { model | heatMapThresholds = Success <| HeatMapThresholds.updateFromValues values thresholds }
@@ -1060,7 +1065,7 @@ viewMap model =
         , div [ class "map-container" ]
             [ viewSearchAsIMove model
             , viewZoomSlider model.zoomLevel
-            , div [ class "map", id "map11", attribute "ng-controller" "MapCtrl", attribute "googlemap" "" ]
+            , div [ class "map", id "map11" ]
                 []
             , lazy8 viewSessionsOrSelectedSession model.page model.selectedSession model.fetchableSessionsCount model.sessions model.heatMapThresholds model.linkIcon model.popup model.emailForm
             ]
@@ -1203,15 +1208,8 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
 viewSessionsOrSelectedSession : Page -> WebData SelectedSession -> Int -> List Session -> WebData HeatMapThresholds -> Path -> Popup -> EmailForm -> Html Msg
 viewSessionsOrSelectedSession page selectedSession fetchableSessionsCount sessions heatMapThresholds linkIcon popup emailForm =
     div
-        [ attribute "ng-controller"
-            (if page == Mobile then
-                "MobileSessionsMapCtrl"
-
-             else
-                "FixedSessionsMapCtrl"
-            )
-        ]
-        [ div [ class "sessions", attribute "ng-controller" "SessionsListCtrl" ]
+        []
+        [ div [ class "sessions" ]
             [ case selectedSession of
                 NotAsked ->
                     viewSessions fetchableSessionsCount sessions heatMapThresholds
@@ -1578,8 +1576,8 @@ subscriptions _ =
         , Browser.Events.onClick (Decode.succeed ClosePopup)
         , Ports.updateSessions UpdateSessions
         , Ports.updateIsHttping UpdateIsHttping
-        , Ports.toggleSessionSelection ToggleSessionSelectionFromAngular
-        , Ports.updateHeatMapThresholdsFromAngular UpdateHeatMapThresholdsFromAngular
+        , Ports.toggleSessionSelection ToggleSessionSelectionFromJavaScript
+        , Ports.updateHeatMapThresholdsFromJavaScript UpdateHeatMapThresholdsFromJavaScript
         , Ports.mapMoved (always MapMoved)
         , Ports.graphRangeSelected GraphRangeSelected
         , Ports.isShowingTimeRangeFilter UpdateIsShowingTimeRangeFilter

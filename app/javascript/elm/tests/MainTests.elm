@@ -675,7 +675,7 @@ updateTests =
                     |> update DeselectSession
                     |> Tuple.first
                     |> Expect.equal expected
-        , fuzz int "with Nothing ToggleSessionSelectionFromAngular deselects the selected id" <|
+        , fuzz int "with Nothing ToggleSessionSelectionFromJavaScript deselects the selected id" <|
             \id ->
                 let
                     model =
@@ -685,7 +685,7 @@ updateTests =
                         { model | selectedSession = NotAsked }
                 in
                 model
-                    |> update (ToggleSessionSelectionFromAngular Nothing)
+                    |> update (ToggleSessionSelectionFromJavaScript Nothing)
                     |> Tuple.first
                     |> Expect.equal expected
         , test "with valid int and loaded heatMapThresholds UpdateHeatMapMinimum updates the minimum" <|

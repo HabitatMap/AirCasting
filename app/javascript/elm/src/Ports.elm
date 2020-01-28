@@ -30,7 +30,7 @@ port module Ports exposing
     , updateGraphData
     , updateGraphYAxis
     , updateHeatMapThresholds
-    , updateHeatMapThresholdsFromAngular
+    , updateHeatMapThresholdsFromJavaScript
     , updateIsHttping
     , updateParams
     , updateProfiles
@@ -44,7 +44,7 @@ import Data.GraphData exposing (GraphData, GraphHeatData, GraphMeasurementsData,
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
 import Data.Markers exposing (SessionMarkerData)
 import Data.Measurements exposing (Measurement)
-import Data.SelectedSession exposing (SelectedSessionForAngular)
+import Data.SelectedSession exposing (SelectedSessionForJavaScript)
 import Json.Encode as Encode
 
 
@@ -84,7 +84,7 @@ port selectSensorId : String -> Cmd a
 port updateSessions : (Encode.Value -> msg) -> Sub msg
 
 
-port selectSession : SelectedSessionForAngular -> Cmd msg
+port selectSession : SelectedSessionForJavaScript -> Cmd msg
 
 
 port deselectSession : () -> Cmd msg
@@ -111,7 +111,7 @@ port refreshTimeRange : () -> Cmd a
 port updateHeatMapThresholds : HeatMapThresholdValues -> Cmd a
 
 
-port updateHeatMapThresholdsFromAngular : (HeatMapThresholdValues -> msg) -> Sub msg
+port updateHeatMapThresholdsFromJavaScript : (HeatMapThresholdValues -> msg) -> Sub msg
 
 
 port drawMobile : GraphData -> Cmd a

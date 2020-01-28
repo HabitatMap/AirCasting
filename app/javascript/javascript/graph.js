@@ -1,6 +1,7 @@
 import Highcharts from "highcharts/highstock";
+import moment from "moment";
 import { buildOptions } from "./buildGraphOptions";
-import * as graphHighlight from "./graph_highlight";
+import * as graphHighlight from "./graphHighlight";
 import {
   measurementsToTime,
   measurementsToTimeWithExtremes
