@@ -48,7 +48,7 @@ const sessionsDownloader = () => {
     sessions.push.apply(sessions, data);
 
     sessions = sessions.sort((a, b) =>
-      a.end_time_local.localeCompare(b.end_time_local)
+      b.end_time_local.localeCompare(a.end_time_local)
     );
 
     if (!params.isSessionSelected()) {
