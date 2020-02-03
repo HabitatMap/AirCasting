@@ -68,4 +68,4 @@ typeToggleFilter =
 
 
 activeToggleFilter =
-    TooltipText "Fixed sessions that have submitted a measurement in the past hour are considered active. Fixed sessions that have not submitted measurements in the past hour are considered dormant."
+    TooltipText "Fixed sessions that have submitted a measurement in the past 4 hours are considered active. Fixed sessions that have not submitted measurements in the past 4 hours are considered dormant."

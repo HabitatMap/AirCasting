@@ -34,6 +34,7 @@ gem 'dry-struct'
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'sidekiq-scheduler'
 gem 'httparty'
+gem 'aws-sdk', '~> 3', require: false
 
 group :development do
   gem 'web-console', '~> 2.0'

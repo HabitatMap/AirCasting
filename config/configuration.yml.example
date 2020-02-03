@@ -9,3 +9,5 @@ defaults:
   honeybadger_api_key: REPLACEME
   honeybadger_env: REPLACEME
   analytics_enabled: "false"
+  aws_access_key_id: REPLACEME
+  aws_secret_access_key: REPLACEME
