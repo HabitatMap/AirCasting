@@ -68,7 +68,7 @@
   max-height: 20vh;
   max-width: $filters-width - 2 * $margin-default;
   overflow: auto;
-  z-index: 8;
+  z-index: $popup-z-index;
 }
 
 .ui-menu-item a.ui-state-hover {
