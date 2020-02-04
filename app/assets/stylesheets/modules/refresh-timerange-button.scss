@@ -6,7 +6,7 @@
   margin: -$input-padding 0;
   padding: $input-padding;
   position: absolute;
-  bottom: calc(24px + #{$input-padding});
+  bottom: 27.8px; // button height
   right: 0;
 
   img:-moz-loading {
