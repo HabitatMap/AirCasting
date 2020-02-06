@@ -303,8 +303,8 @@ export default (() => {
         FiltersUtils.endOfToday(),
         elmApp.ports.isShowingTimeRangeFilter.send
       );
-      onTimeRangeChanged(FiltersUtils.oneYearAgo(), FiltersUtils.endOfToday());
     }
+    onTimeRangeChanged(FiltersUtils.oneYearAgo(), FiltersUtils.endOfToday());
   };
 
   elmApp.ports.refreshTimeRange.subscribe(() => {
