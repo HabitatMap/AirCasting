@@ -110,7 +110,9 @@ describe Api::Fixed::AutocompleteController do
 
     it 'Returns tags that belong to dormant sessions when dormant is selected' do
       create_tagged_session!(
-        tag: 'tag-dormant', last_measurement_at: DateTime.current - 2.hour
+        tag: 'tag-dormant',
+        last_measurement_at:
+          DateTime.current - (FixedSession::ACTIVE_FOR + 1.second)
       )
       create_tagged_session!(tag: 'tag-active')
 

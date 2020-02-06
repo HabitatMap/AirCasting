@@ -31,7 +31,7 @@ class Api::ToFixedSessionHash2
       url_token: session.url_token,
       user_id: user.id,
       uuid: session.uuid,
-      last_hour_average: last_hour_average(stream),
+      last_hour_average: stream.last_hour_average,
       streams: {
         stream.sensor_name => {
           average_value: stream.average_value,
@@ -64,15 +64,6 @@ class Api::ToFixedSessionHash2
   private
 
   attr_reader :form
-
-  def last_hour_average(stream)
-    last_measurement_time = stream.measurements.last.time
-    measurements =
-      stream.measurements.where(
-        time: last_measurement_time - 1.hour..last_measurement_time
-      )
-    measurements.average(:value)
-  end
 
   def format_time(time)
     time.strftime('%FT%T.000Z')

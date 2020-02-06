@@ -177,4 +177,12 @@ class Stream < ApplicationRecord
     max_latitude.present? && min_latitude.present? && max_longitude.present? &&
       min_longitude.present?
   end
+
+  def last_hour_average
+    last_measurement_time = measurements.last.time
+    measurements.where(
+      time: last_measurement_time - 1.hour..last_measurement_time
+    )
+      .average(:value)
+  end
 end
