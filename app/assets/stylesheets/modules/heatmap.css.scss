@@ -3,12 +3,12 @@
   @include align-items(center);
   @include justify-content(space-between);
   background: white;
-  box-shadow: $footer-shadow;
+  box-shadow: $heatmap-shadow;
   flex: 1 0 $heatmap-height;
   padding: 0 18px;
+  position: relative;
   width: calc(100vw - #{$filters-width});
   z-index: $heatmap-z-index;
-  position: relative;
 
   @media screen and (max-width: $tablet-max) {
     display: block;
