@@ -8,6 +8,7 @@
   padding: 0 18px;
   width: calc(100vw - #{$filters-width});
   z-index: $heatmap-z-index;
+  position: relative;
 
   @media screen and (max-width: $tablet-max) {
     display: block;
