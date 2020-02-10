@@ -3,10 +3,12 @@ $header-font-size-desktop: 1.125rem;
 .header {
   @include transition(all 0.5s ease);
   background-color: $white;
+  box-shadow: $header-shadow;
   font-family: $bold-font;
   font-size: $base-font-size2;
   height: $nav-height;
   padding: 1rem 0 0.5rem;
+  position: relative;
   top: 0;
   width: 100%;
   z-index: $header-z-index;
