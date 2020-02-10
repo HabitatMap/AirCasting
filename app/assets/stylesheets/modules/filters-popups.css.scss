@@ -16,6 +16,7 @@
     border-radius: $input-radius;
     left: 0;
     top: 3.4rem;
+    max-height: 60vh;
     width: calc(100vw - 2 * #{$margin-default});
   }
 }
