@@ -5,21 +5,27 @@
 // The same for the empty point at the end.
 export const measurementsToTimeWithExtremes = ({ measurements, times }) => {
   const { start, end } = times;
-  return {
+  const ms = {
     [start]: {
       x: start,
       y: null,
       latitude: null,
       longitude: null
     },
-    ...measurementsToTime(measurements),
-    [end]: {
-      x: end,
-      y: null,
-      latitude: null,
-      longitude: null
-    }
+    ...measurementsToTime(measurements)
   };
+
+  return ms.hasOwnProperty(end)
+    ? ms
+    : {
+        ...ms,
+        [end]: {
+          x: end,
+          y: null,
+          latitude: null,
+          longitude: null
+        }
+      };
 };
 
 export const measurementsToTime = measurements => {
