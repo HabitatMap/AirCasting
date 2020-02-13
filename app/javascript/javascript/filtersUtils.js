@@ -15,17 +15,6 @@ export const oneYearAgo = () =>
     .subtract(1, "year")
     .format("X");
 
-export const presentMoment = () =>
-  moment()
-    .utc()
-    .format("X");
-
-export const oneHourAgo = () =>
-  moment
-    .utc()
-    .subtract(1, "hour")
-    .format("X");
-
 const humanTime = time =>
   moment
     .unix(time)

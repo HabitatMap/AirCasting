@@ -270,40 +270,20 @@ export default (() => {
     }
   };
 
-  if (params.get("data").isActive) {
-    // fixed tab
-    setupActiveTimeRangeFilter(
-      FiltersUtils.oneHourAgo(),
-      FiltersUtils.presentMoment()
-    );
-  } else {
-    // fixed or mobile tab
+  FiltersUtils.setupTimeRangeFilter(
+    onTimeRangeChanged,
+    params.get("data").timeFrom,
+    params.get("data").timeTo,
+    elmApp.ports.isShowingTimeRangeFilter.send
+  );
+
+  const resetTimeRangeFilter = () => {
     FiltersUtils.setupTimeRangeFilter(
       onTimeRangeChanged,
-      params.get("data").timeFrom,
-      params.get("data").timeTo,
+      FiltersUtils.oneYearAgo(),
+      FiltersUtils.endOfToday(),
       elmApp.ports.isShowingTimeRangeFilter.send
     );
-  }
-
-  // fixed or mobile tab
-  const resetTimeRangeFilter = () => {
-    if (params.get("data").isActive) {
-      // fixed tab
-      setupActiveTimeRangeFilter(
-        FiltersUtils.oneHourAgo(),
-        FiltersUtils.presentMoment()
-      );
-      sessions.fetch();
-    } else {
-      // fixed or mobile tab
-      FiltersUtils.setupTimeRangeFilter(
-        onTimeRangeChanged,
-        FiltersUtils.oneYearAgo(),
-        FiltersUtils.endOfToday(),
-        elmApp.ports.isShowingTimeRangeFilter.send
-      );
-    }
     onTimeRangeChanged(FiltersUtils.oneYearAgo(), FiltersUtils.endOfToday());
   };
 

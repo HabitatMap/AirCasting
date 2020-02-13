@@ -1,9 +1,8 @@
 module TimeRange exposing (TimeRange(..), defaultTimeRange, update, view)
 
 import Data.Path as Path exposing (Path)
-import Data.Status exposing (Status(..))
 import Html exposing (Html, button, div, img, input, label, text)
-import Html.Attributes exposing (alt, attribute, class, disabled, for, id, name, src)
+import Html.Attributes exposing (alt, attribute, class, for, id, name, src)
 import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events
 import Json.Decode as Decode
@@ -53,15 +52,14 @@ timeRangeDecoder =
         (Decode.field "timeTo" Decode.int)
 
 
-view : msg -> Status -> Path -> Html msg
-view refreshTimeRange status resetIcon =
+view : msg -> Path -> Html msg
+view refreshTimeRange resetIcon =
     div [ class "filters__input-group" ]
         [ input
             [ id "time-range"
             , attribute "autocomplete" "off"
             , class "input input--dark input--filters input--time"
             , name "time-range"
-            , disabled (status == Active)
             ]
             []
         , button
@@ -69,7 +67,6 @@ view refreshTimeRange status resetIcon =
             , attribute "autocomplete" "off"
             , class "input input--dark input--filters input--time button--input"
             , name "time-range-button"
-            , disabled (status == Active)
             ]
             []
         , label
