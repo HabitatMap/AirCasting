@@ -113,7 +113,7 @@ all =
                 []
                     |> idForParameterOrLabel "Temperature" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-        , test "labelsForParameter returns labels divided into main and others" <|
+        , test "labelsForParameter returns labels divided into main and others excluding from main sensors with session_count == 0" <|
             \_ ->
                 "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
                     |> labelsForParameter sensorsWithPriority
@@ -122,7 +122,6 @@ all =
                           , "AirBeam2-PM1 (µg/m³)"
                           , "AirBeam2-PM10 (µg/m³)"
                           , "AirBeam-PM (µg/m³)"
-                          , "OpenAQ-PM2.5 (µg/m³)"
                           ]
                         , [ "Other Label (µg/m³)" ]
                         )

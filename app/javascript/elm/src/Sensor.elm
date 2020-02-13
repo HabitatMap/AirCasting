@@ -118,9 +118,17 @@ labelsForParameter sensors sensorId =
                 |> List.sortWith NaturalOrdering.compare
 
         mainLabels_ =
+            let
+                allLabelsWithSessions =
+                    sensors |> List.filter (\s -> s.session_count > 0) |> List.map toLabel
+
+                labelHasSessions label =
+                    List.member label allLabelsWithSessions
+            in
             mainSensors
                 |> Dict.get (parameterForId sensors sensorId)
                 |> Maybe.withDefault []
+                |> List.filter labelHasSessions
 
         othersLabels_ =
             List.filter (\label -> not (List.member label mainLabels_)) allLabels
