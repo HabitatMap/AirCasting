@@ -28,8 +28,8 @@ def create_session!(attributes = {})
     end_time: DateTime.current,
     end_time_local: attributes.fetch(:end_time_local, DateTime.current),
     type: attributes.fetch(:type, 'MobileSession'),
-    longitude: 1.0,
-    latitude: 1.0,
+    latitude: attributes.fetch(:latitude, 1.0),
+    longitude: attributes.fetch(:longitude, 1.0),
     is_indoor: attributes.fetch(:is_indoor, false),
     version: attributes.fetch(:version, 1),
     contribute: attributes.fetch(:contribute, true),
@@ -57,7 +57,9 @@ def create_stream!(attributes = {})
     max_latitude: attributes.fetch(:max_latitude, 1),
     min_longitude: attributes.fetch(:min_longitude, 1),
     max_longitude: attributes.fetch(:max_longitude, 1),
-    average_value: attributes.fetch(:average_value, 1.23)
+    average_value: attributes.fetch(:average_value, 1.23),
+    start_latitude: attributes.fetch(:start_latitude, 1),
+    start_longitude: attributes.fetch(:start_longitude, 1)
   )
 end
 
@@ -135,6 +137,10 @@ def random_float
   rand * 100
 end
 
+def random_big_decimal
+  random_float.to_d.round(9)
+end
+
 def random_string
   SecureRandom.alphanumeric
 end
@@ -149,4 +155,42 @@ end
 
 def random_date_time
   DateTime.current + random_int.days - random_int.days
+end
+
+def build_open_aq_measurement(opts = {})
+  OpenAq::Measurement.new(
+    sensor_name: opts.fetch(:sensor_name, 'pm25'),
+    value: random_float,
+    latitude: opts.fetch(:latitude, random_big_decimal),
+    longitude: opts.fetch(:longitude, random_big_decimal),
+    time_local: random_date_time.change(usec: 0),
+    time_utc: opts.fetch(:time_utc, random_date_time).change(usec: 0),
+    location: random_string,
+    city: random_string,
+    country: opts.fetch(:country, random_string),
+    unit: opts.fetch(:unit, random_string)
+  )
+end
+
+def build_open_aq_stream(opts = {})
+  OpenAq::Stream.new(
+    sensor_name: opts.fetch(:sensor_name),
+    latitude: random_big_decimal,
+    longitude: random_big_decimal
+  )
+end
+
+def build_open_aq_measurement(opts = {})
+  OpenAq::Measurement.new(
+    sensor_name: opts.fetch(:sensor_name, 'pm25'),
+    value: random_float,
+    latitude: opts.fetch(:latitude, random_big_decimal),
+    longitude: opts.fetch(:longitude, random_big_decimal),
+    time_local: random_date_time.change(usec: 0),
+    time_utc: opts.fetch(:time_utc, random_date_time).change(usec: 0),
+    location: random_string,
+    city: random_string,
+    country: opts.fetch(:country, random_string),
+    unit: opts.fetch(:unit, random_string)
+  )
 end

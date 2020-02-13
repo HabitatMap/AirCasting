@@ -122,6 +122,7 @@ all =
                           , "AirBeam2-PM1 (µg/m³)"
                           , "AirBeam2-PM10 (µg/m³)"
                           , "AirBeam-PM (µg/m³)"
+                          , "OpenAQ-PM2.5 (µg/m³)"
                           ]
                         , [ "Other Label (µg/m³)" ]
                         )

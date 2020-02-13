@@ -112,7 +112,8 @@ describe Api::Fixed::Active::SessionsController do
         time: session_time,
         latitude: latitude,
         longitude: longitude,
-        last_measurement_at: DateTime.current - 2.hour
+        last_measurement_at:
+          DateTime.current - (FixedSession::ACTIVE_FOR + 1.second)
       )
     stream =
       create_stream!(session: session, latitude: latitude, longitude: longitude)

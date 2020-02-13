@@ -33,7 +33,7 @@ class Api::ToFixedSessionHash
       minLongitude: stream.min_longitude,
       notes: notes,
       isIndoor: session.is_indoor,
-      lastHourAverage: last_hour_average(stream)
+      lastHourAverage: stream.last_hour_average
     )
   end
 
@@ -47,15 +47,6 @@ class Api::ToFixedSessionHash
 
   def format_time(time)
     time.to_datetime.strftime('%Q').to_i
-  end
-
-  def last_hour_average(stream)
-    last_measurement_time = stream.measurements.last.time
-    measurements =
-      stream.measurements.where(
-        time: last_measurement_time - 1.hour..last_measurement_time
-      )
-    measurements.average(:value)
   end
 
   def measurements(stream, limit = nil)

@@ -13,3 +13,10 @@
     every: '30m'
     class: SessionStoppedAlertsWorker
     queue: critical
+
+:schedule:
+  open_aq_import_measurements:
+    every: '5m'
+    class: OpenAqImportMeasurementsWorker
+    queue: slow
+    enabled: <%= A9n.sidekiq_open_aq_import_measurements_enabled %>

@@ -1,13 +1,15 @@
 class FixedSession < Session
+  ACTIVE_FOR = 4.hour
+
   validates :is_indoor, inclusion: { in: [true, false] }
   validates :latitude, :longitude, presence: true
 
   def self.active
-    where('last_measurement_at > ?', Time.current - 1.hour)
+    where('last_measurement_at > ?', Time.current - ACTIVE_FOR)
   end
 
   def self.dormant
-    where('last_measurement_at <= ?', Time.current - 1.hour)
+    where('last_measurement_at <= ?', Time.current - ACTIVE_FOR)
   end
 
   def self.all_active(data)
@@ -33,13 +35,7 @@ class FixedSession < Session
   def last_hour_average
     stream = self.streams.length >= 1 ? self.streams.first : nil
     return unless stream
-
-    last_measurement_time = stream.measurements.last.time
-    measurements =
-      stream.measurements.where(
-        time: last_measurement_time - 1.hour..last_measurement_time
-      )
-    measurements.average(:value)
+    stream.last_hour_average
   end
 
   def as_synchronizable(
@@ -88,6 +84,6 @@ class FixedSession < Session
   private
 
   def is_active
-    last_measurement_at > (Time.current - 1.hour)
+    last_measurement_at > (Time.current - ACTIVE_FOR)
   end
 end
