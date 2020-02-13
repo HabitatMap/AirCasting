@@ -53,7 +53,7 @@ type alias Sensor =
     { name : String
     , parameter : String
     , unit : String
-    , session_count : Int
+    , sessionCount : Int
     }
 
 
@@ -120,7 +120,7 @@ labelsForParameter sensors sensorId =
         mainLabels_ =
             let
                 allLabelsWithSessions =
-                    sensors |> List.filter (\s -> s.session_count > 0) |> List.map toLabel
+                    sensors |> List.filter (\s -> s.sessionCount > 0) |> List.map toLabel
 
                 labelHasSessions label =
                     List.member label allLabelsWithSessions
@@ -152,7 +152,7 @@ idForParameterOrLabel parameterOrLabel oldSensorId sensors =
         maybeByParameter =
             sensors
                 |> List.filter (\sensor -> sensor.parameter == parameterOrLabel)
-                |> List.sortBy .session_count
+                |> List.sortBy .sessionCount
                 |> List.reverse
                 |> List.head
                 |> Maybe.map toId

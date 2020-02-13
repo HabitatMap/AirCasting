@@ -56,7 +56,7 @@ parameterSensorFilter =
                         { parameter = "parameter"
                         , name = "Sensor"
                         , unit = "unit"
-                        , session_count = 1
+                        , sessionCount = 1
                         }
                 in
                 { defaultModel
@@ -74,7 +74,7 @@ parameterSensorFilter =
                         { parameter = "parameter"
                         , name = "Sensor"
                         , unit = "unit"
-                        , session_count = 1
+                        , sessionCount = 1
                         }
                 in
                 { defaultModel
@@ -562,7 +562,7 @@ viewTests =
                         { parameter = parameter
                         , name = name
                         , unit = unit
-                        , session_count = 123
+                        , sessionCount = 123
                         }
 
                     selectedSensorId =

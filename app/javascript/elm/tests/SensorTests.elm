@@ -27,7 +27,7 @@ all =
                         { parameter = "parameter"
                         , name = "Sensor"
                         , unit = "unit"
-                        , session_count = 1
+                        , sessionCount = 1
                         }
                 in
                 encodedValue
@@ -53,12 +53,12 @@ all =
                 [ { parameter = "Particulate Matter"
                   , name = "Other Label"
                   , unit = "µg/m³"
-                  , session_count = 1
+                  , sessionCount = 1
                   }
                 , { parameter = "Particulate Matter"
                   , name = "AirBeam2-PM2.5"
                   , unit = "µg/m³"
-                  , session_count = 0
+                  , sessionCount = 0
                   }
                 ]
                     |> idForParameterOrLabel "Particulate Matter" "parameter2-sensor3 (unit)"
@@ -68,12 +68,12 @@ all =
                 [ { parameter = "Humidity"
                   , name = "Other Label"
                   , unit = "%"
-                  , session_count = 1
+                  , sessionCount = 1
                   }
                 , { parameter = "Humidity"
                   , name = "AirBeam2-RH"
                   , unit = "%"
-                  , session_count = 0
+                  , sessionCount = 0
                   }
                 ]
                     |> idForParameterOrLabel "Humidity" "parameter2-sensor3 (unit)"
@@ -83,12 +83,12 @@ all =
                 [ { parameter = "Sound Level"
                   , name = "Other Label"
                   , unit = "dB"
-                  , session_count = 1
+                  , sessionCount = 1
                   }
                 , { parameter = "Sound Level"
                   , name = "Phone Microphone"
                   , unit = "dB"
-                  , session_count = 0
+                  , sessionCount = 0
                   }
                 ]
                     |> idForParameterOrLabel "Sound Level" "parameter2-sensor3 (unit)"
@@ -98,12 +98,12 @@ all =
                 [ { parameter = "Temperature"
                   , name = "Other Label"
                   , unit = "F"
-                  , session_count = 1
+                  , sessionCount = 1
                   }
                 , { parameter = "Temperature"
                   , name = "AirBeam2-F"
                   , unit = "F"
-                  , session_count = 0
+                  , sessionCount = 0
                   }
                 ]
                     |> idForParameterOrLabel "Temperature" "parameter2-sensor3 (unit)"
@@ -113,7 +113,7 @@ all =
                 []
                     |> idForParameterOrLabel "Temperature" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-        , test "labelsForParameter returns labels divided into main and others excluding from main sensors with session_count == 0" <|
+        , test "labelsForParameter returns labels divided into main and others excluding from main sensors with sessionCount == 0" <|
             \_ ->
                 "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
                     |> labelsForParameter sensorsWithPriority
@@ -157,7 +157,7 @@ sensor =
     { parameter = "parameter"
     , name = "Sensor"
     , unit = "unit"
-    , session_count = 1
+    , sessionCount = 1
     }
 
 
@@ -166,17 +166,17 @@ sensors =
     [ { parameter = "parameter"
       , name = "Sensor"
       , unit = "unit"
-      , session_count = 1
+      , sessionCount = 1
       }
     , { parameter = "parameter"
       , name = "Sensor2"
       , unit = "unit"
-      , session_count = 2
+      , sessionCount = 2
       }
     , { parameter = "parameter2"
       , name = "Sensor3"
       , unit = "unit"
-      , session_count = 1
+      , sessionCount = 1
       }
     ]
 
@@ -186,26 +186,26 @@ sensorsWithPriority =
     [ { parameter = "Particulate Matter"
       , name = "AirBeam2-PM2.5"
       , unit = "µg/m³"
-      , session_count = 1
+      , sessionCount = 1
       }
     , { parameter = "Particulate Matter"
       , name = "AirBeam2-PM1"
       , unit = "µg/m³"
-      , session_count = 1
+      , sessionCount = 1
       }
     , { parameter = "Particulate Matter"
       , name = "AirBeam2-PM10"
       , unit = "µg/m³"
-      , session_count = 1
+      , sessionCount = 1
       }
     , { parameter = "Particulate Matter"
       , name = "AirBeam-PM"
       , unit = "µg/m³"
-      , session_count = 1
+      , sessionCount = 1
       }
     , { parameter = "Particulate Matter"
       , name = "Other Label"
       , unit = "µg/m³"
-      , session_count = 1
+      , sessionCount = 1
       }
     ]
