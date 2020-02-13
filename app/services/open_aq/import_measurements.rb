@@ -3,7 +3,7 @@ require 'aws-sdk-s3'
 
 module OpenAq
   SQS_REGION = 'us-east-1'
-  QUEUE_NAME = 'openaq'
+  QUEUE_NAME = A9n.open_aq_sqs_queue_name
   Message = Struct.new(:body, :receipt_handle, keyword_init: true)
 
   class ImportMeasurements

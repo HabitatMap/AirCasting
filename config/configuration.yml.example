@@ -11,3 +11,5 @@ defaults:
   analytics_enabled: "false"
   aws_access_key_id: REPLACEME
   aws_secret_access_key: REPLACEME
+  sidekiq_open_aq_import_measurements_enabled: false
+  open_aq_sqs_queue_name: "openaq-test"

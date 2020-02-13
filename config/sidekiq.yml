@@ -19,3 +19,4 @@
     every: '5m'
     class: OpenAqImportMeasurementsWorker
     queue: slow
+    enabled: <%= A9n.sidekiq_open_aq_import_measurements_enabled %>
