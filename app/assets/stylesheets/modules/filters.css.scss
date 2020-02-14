@@ -2,29 +2,44 @@
   background: $gray-dark;
   color: white;
   font-family: $bold-font;
-  min-height: calc(100vh - #{$nav-height});
+  height: 0;
   position: relative;
   z-index: $filters-z-index;
 
   @media screen and (max-width: $tablet-max) {
-    min-height: calc(100vh - #{$nav-height-mobile});
-    position: absolute;
+    @include transform(translateX(100%));
+    height: 0;
     transition: transform 200ms ease;
+    overflow: hidden;
     width: 100vw;
 
-    &.filters--collapsed {
-      @include transform(translateX(100%));
+    &.filters--expanded {
+      @include transform(translateX(0%));
+      height: calc(100vh - #{$nav-height-mobile});
+      overflow-y: auto;
+      position: absolute;
     }
   }
 
   @media screen and (min-width: $small-desktop-min) {
     box-shadow: 1px 1px 6px 0 rgba(51, 51, 51, 0.5);
+    min-height: calc(100vh - #{$nav-height});
     width: $filters-width;
   }
 }
 
-.filters-container {
-  padding: $margin-default $margin-default 50px $margin-default;
+.filters-form-container {
+  @include flexbox;
+  @include flex-direction(column);
+
+  .filters--expanded & {
+    height: calc(100% - #{$nav-height-mobile} - #{$session-type-nav-height});
+  }
+}
+
+.filters__form {
+  @include flex-grow(1);
+  padding: $margin-default;
 }
 
 .filters__actions {
