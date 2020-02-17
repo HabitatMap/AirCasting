@@ -60,12 +60,6 @@ export const isJSON = text => {
   }
 };
 
-export const updateParam = param => {
-  const query_string = window.location.hash.slice(2);
-
-  let search_params = new URLSearchParams(query_string);
-
-  search_params.set(param.key, param.value);
-
-  window.location.hash = "#?" + search_params.toString();
-};
+export const updateParam = param =>
+  (window.location.hash =
+    window.location.hash + "&" + param.key + "=" + param.value);
