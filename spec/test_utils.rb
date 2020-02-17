@@ -179,18 +179,3 @@ def build_open_aq_stream(opts = {})
     longitude: random_big_decimal
   )
 end
-
-def build_open_aq_measurement(opts = {})
-  OpenAq::Measurement.new(
-    sensor_name: opts.fetch(:sensor_name, 'pm25'),
-    value: random_float,
-    latitude: opts.fetch(:latitude, random_big_decimal),
-    longitude: opts.fetch(:longitude, random_big_decimal),
-    time_local: random_date_time.change(usec: 0),
-    time_utc: opts.fetch(:time_utc, random_date_time).change(usec: 0),
-    location: random_string,
-    city: random_string,
-    country: opts.fetch(:country, random_string),
-    unit: opts.fetch(:unit, random_string)
-  )
-end
