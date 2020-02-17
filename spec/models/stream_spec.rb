@@ -132,7 +132,6 @@ describe Stream do
       now = DateTime.current
       create_measurement!(stream: stream, value: 1, time: now)
       create_measurement!(stream: stream, value: 2, time: now - 1.second)
-      create_measurement!(stream: stream, value: 3, time: now - 1.hour)
 
       actual = stream.last_hour_average
 
