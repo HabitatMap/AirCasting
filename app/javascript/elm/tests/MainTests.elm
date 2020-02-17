@@ -146,27 +146,6 @@ timeFilter =
                     |> update (UpdateTimeRange value)
                     |> Tuple.first
                     |> Expect.equal expected
-        , test "disabled for active fixed sessions" <|
-            \_ ->
-                { defaultModel | status = Active, page = Fixed }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.id "time-range" ]
-                    |> Query.has [ Slc.attribute <| disabled True ]
-        , test "is enabled for dormant fixed sessions" <|
-            \_ ->
-                { defaultModel | status = Dormant, page = Fixed }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.id "time-range" ]
-                    |> Query.has [ Slc.attribute <| disabled False ]
-        , test "is always enabled for mobile sessions" <|
-            \_ ->
-                { defaultModel | status = Active, page = Mobile }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ Slc.id "time-range" ]
-                    |> Query.has [ Slc.attribute <| disabled False ]
         ]
 
 
