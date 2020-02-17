@@ -181,7 +181,7 @@ class Stream < ApplicationRecord
   def last_hour_average
     last_measurement_time = measurements.last.time
     measurements.where(
-      time: last_measurement_time - 1.hour..last_measurement_time
+      time: (DateTime.current - 1.hour + 1.second)..last_measurement_time
     )
       .average(:value)
   end
