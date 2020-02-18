@@ -37,7 +37,7 @@ const params = () => {
     },
     updateData: function(newData) {
       const newD = deepMerge(
-        deepClone(this.paramsData || {}),
+        deepClone(this.paramsData.data || {}),
         deepClone(newData)
       );
       this.update({ data: newD });
