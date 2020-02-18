@@ -62,7 +62,6 @@ export default (() => {
       if (sessions.type === "MobileSessions") {
         sessions.onSessionsFetchWithCrowdMapLayerUpdate();
       } else if (sessions.type === "FixedSessions") {
-        sessions.onSessionsFetch();
       } else {
         console.warn("Incorrect sessions type");
       }
