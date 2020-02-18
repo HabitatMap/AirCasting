@@ -160,7 +160,7 @@ end
 def build_open_aq_measurement(opts = {})
   OpenAq::Measurement.new(
     sensor_name: opts.fetch(:sensor_name, 'pm25'),
-    value: random_float,
+    value: opts.fetch(:value, random_float),
     latitude: opts.fetch(:latitude, random_big_decimal),
     longitude: opts.fetch(:longitude, random_big_decimal),
     time_local: random_date_time.change(usec: 0),

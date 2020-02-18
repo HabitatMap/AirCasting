@@ -12,6 +12,19 @@ module OpenAq
       threshold_high: 55,
       threshold_very_high: 150,
       sensor_package_name: 'OpenAQ-PM2.5'
+    },
+    'o3' => {
+      sensor_name: 'OpenAQ-O3',
+      unit_name: 'parts per billion',
+      measurement_type: 'Ozone',
+      measurement_short_type: 'O3',
+      unit_symbol: 'ppb',
+      threshold_very_low: 0,
+      threshold_low: 59,
+      threshold_medium: 75,
+      threshold_high: 95,
+      threshold_very_high: 115,
+      sensor_package_name: 'OpenAQ-O3'
     }
   }
 

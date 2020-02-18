@@ -29,6 +29,7 @@ defaultSensorIdByParameter =
         , ( "Humidity", "Humidity-airbeam2-rh (%)" )
         , ( "Sound Level", "Sound Level-phone microphone (dB)" )
         , ( "Temperature", "Temperature-airbeam2-f (F)" )
+        , ( "Ozone", "Ozone-openaq-o3 (ppb)" )
         ]
 
 
@@ -46,6 +47,7 @@ mainSensors =
         , ( "Humidity", [ "AirBeam2-RH (%)", "AirBeam-RH (%)" ] )
         , ( "Temperature", [ "AirBeam2-F (F)", "AirBeam-F (F)" ] )
         , ( "Sound Level", [ "Phone Microphone (dB)" ] )
+        , ( "Ozone", [ "OpenAQ-O3 (ppb)" ] )
         ]
 
 

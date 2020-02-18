@@ -1,7 +1,9 @@
 class OpenAq::FilterMeasurements
-  SENSOR_NAME = 'pm25'
+  SENSOR_NAMES = %w[pm25 o3]
 
   def call(measurements:)
-    measurements.filter { |measurement| measurement.sensor_name == SENSOR_NAME }
+    measurements.filter do |measurement|
+      SENSOR_NAMES.include?(measurement.sensor_name)
+    end
   end
 end
