@@ -16,6 +16,6 @@
 
 :schedule:
   open_aq_import_measurements:
-    every: '10m'
+    every: '5m'
     class: OpenAqImportMeasurementsWorker
     queue: slow
