@@ -1,5 +1,6 @@
 import _ from "underscore";
 import { getParams } from "./params";
+import constants from "./constants";
 
 const buildSensorId = sensor =>
   sensor.measurement_type +
@@ -9,19 +10,26 @@ const buildSensorId = sensor =>
   sensor.unit_symbol +
   ")";
 
-const DEFAULT_SENSOR_ID = buildSensorId({
-  measurement_type: "Particulate Matter",
-  sensor_name: "AirBeam2-PM2.5",
-  unit_symbol: "µg/m³"
-});
-
 export const sensors = params => {
   var Sensors = function() {
     this.sensors = {};
-    this.defaultSensorId = DEFAULT_SENSOR_ID;
   };
 
   Sensors.prototype = {
+    defaultSensorId: function() {
+      return window.location.pathname === constants.mobileMapRoute
+        ? buildSensorId({
+            measurement_type: "Particulate Matter",
+            sensor_name: "AirBeam2-PM2.5",
+            unit_symbol: "µg/m³"
+          })
+        : buildSensorId({
+            measurement_type: "Particulate Matter",
+            sensor_name: "OpenAQ-PM2.5",
+            unit_symbol: "µg/m³"
+          });
+    },
+
     setSensors: function(data) {
       var sensors = {};
       _(data).each(function(sensor) {
@@ -35,11 +43,11 @@ export const sensors = params => {
     },
 
     selected: function() {
-      return this.sensors[params().data.sensorId || DEFAULT_SENSOR_ID];
+      return this.sensors[params().data.sensorId || defaultSensorId()];
     },
 
     selectedId: function() {
-      return params().data.sensorId || DEFAULT_SENSOR_ID;
+      return params().data.sensorId || defaultSensorId();
     },
 
     selectedSensorName: function() {

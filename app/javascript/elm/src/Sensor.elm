@@ -11,42 +11,69 @@ module Sensor exposing
     , unitForSensorId
     )
 
+import Data.Page exposing (Page(..))
 import Dict
 import Json.Decode as Decode exposing (Decoder(..))
 import NaturalOrdering
 import Set
 
 
-defaultSensorId : String
-defaultSensorId =
+mobileDefaultSensorId : String
+mobileDefaultSensorId =
     "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
 
 
-defaultSensorIdByParameter : Dict.Dict String String
-defaultSensorIdByParameter =
-    Dict.fromList
-        [ ( "Particulate Matter", defaultSensorId )
-        , ( "Humidity", "Humidity-airbeam2-rh (%)" )
-        , ( "Sound Level", "Sound Level-phone microphone (dB)" )
-        , ( "Temperature", "Temperature-airbeam2-f (F)" )
-        ]
+fixedDefaultSensorId : String
+fixedDefaultSensorId =
+    "Particulate Matter-openaq-pm2.5 (µg/m³)"
 
 
-mainSensors : Dict.Dict String (List String)
-mainSensors =
-    Dict.fromList
-        [ ( "Particulate Matter"
-          , [ "AirBeam2-PM2.5 (µg/m³)"
-            , "AirBeam2-PM1 (µg/m³)"
-            , "AirBeam2-PM10 (µg/m³)"
-            , "AirBeam-PM (µg/m³)"
-            , "OpenAQ-PM2.5 (µg/m³)"
-            ]
-          )
-        , ( "Humidity", [ "AirBeam2-RH (%)", "AirBeam-RH (%)" ] )
-        , ( "Temperature", [ "AirBeam2-F (F)", "AirBeam-F (F)" ] )
-        , ( "Sound Level", [ "Phone Microphone (dB)" ] )
-        ]
+defaultSensorIdByParameter : Page -> Dict.Dict String String
+defaultSensorIdByParameter page =
+    let
+        common =
+            Dict.fromList
+                [ ( "Humidity", "Humidity-airbeam2-rh (%)" )
+                , ( "Sound Level", "Sound Level-phone microphone (dB)" )
+                , ( "Temperature", "Temperature-airbeam2-f (F)" )
+                ]
+    in
+    case page of
+        Mobile ->
+            common
+                |> Dict.insert "Particulate Matter" mobileDefaultSensorId
+
+        Fixed ->
+            common
+                |> Dict.insert "Particulate Matter" fixedDefaultSensorId
+                |> Dict.insert "Ozone" "Ozone-openaq-o3 (ppb)"
+
+
+mainSensors : Page -> Dict.Dict String (List String)
+mainSensors page =
+    let
+        common =
+            Dict.fromList
+                [ ( "Particulate Matter"
+                  , [ "AirBeam2-PM2.5 (µg/m³)"
+                    , "AirBeam2-PM1 (µg/m³)"
+                    , "AirBeam2-PM10 (µg/m³)"
+                    , "AirBeam-PM (µg/m³)"
+                    ]
+                  )
+                , ( "Humidity", [ "AirBeam2-RH (%)", "AirBeam-RH (%)" ] )
+                , ( "Temperature", [ "AirBeam2-F (F)", "AirBeam-F (F)" ] )
+                , ( "Sound Level", [ "Phone Microphone (dB)" ] )
+                ]
+    in
+    case page of
+        Mobile ->
+            common
+
+        Fixed ->
+            common
+                |> Dict.insert "Ozone" [ "OpenAQ-O3 (ppb)" ]
+                |> Dict.update "Particulate Matter" (Maybe.map (\labels -> labels ++ [ "OpenAQ-PM2.5 (µg/m³)" ]))
 
 
 type alias Sensor =
@@ -94,22 +121,22 @@ parameterForId sensors sensorId =
         |> Maybe.withDefault ""
 
 
-parameters : List Sensor -> ( List String, List String )
-parameters sensors =
+parameters : Page -> List Sensor -> ( List String, List String )
+parameters page sensors =
     let
         othersParameters =
             sensors
                 |> List.map (String.trim << .parameter)
                 |> Set.fromList
                 |> Set.toList
-                |> List.filter (\sensor -> not (List.member sensor (Dict.keys mainSensors)))
+                |> List.filter (\sensor -> not (List.member sensor (Dict.keys <| mainSensors page)))
                 |> List.sortWith NaturalOrdering.compare
     in
-    ( Dict.keys mainSensors, othersParameters )
+    ( Dict.keys <| mainSensors page, othersParameters )
 
 
-labelsForParameter : List Sensor -> String -> ( List String, List String )
-labelsForParameter sensors sensorId =
+labelsForParameter : Page -> List Sensor -> String -> ( List String, List String )
+labelsForParameter page sensors sensorId =
     let
         allLabels =
             sensors
@@ -118,17 +145,9 @@ labelsForParameter sensors sensorId =
                 |> List.sortWith NaturalOrdering.compare
 
         mainLabels_ =
-            let
-                allLabelsWithSessions =
-                    sensors |> List.filter (\s -> s.sessionCount > 0) |> List.map toLabel
-
-                labelHasSessions label =
-                    List.member label allLabelsWithSessions
-            in
-            mainSensors
+            mainSensors page
                 |> Dict.get (parameterForId sensors sensorId)
                 |> Maybe.withDefault []
-                |> List.filter labelHasSessions
 
         othersLabels_ =
             List.filter (\label -> not (List.member label mainLabels_)) allLabels
@@ -136,8 +155,8 @@ labelsForParameter sensors sensorId =
     ( mainLabels_, othersLabels_ )
 
 
-idForParameterOrLabel : String -> String -> List Sensor -> String
-idForParameterOrLabel parameterOrLabel oldSensorId sensors =
+idForParameterOrLabel : Page -> String -> String -> List Sensor -> String
+idForParameterOrLabel page parameterOrLabel oldSensorId sensors =
     let
         byId id =
             sensors
@@ -146,7 +165,8 @@ idForParameterOrLabel parameterOrLabel oldSensorId sensors =
                 |> Maybe.map toId
 
         maybeDefault =
-            Dict.get parameterOrLabel defaultSensorIdByParameter
+            defaultSensorIdByParameter page
+                |> Dict.get parameterOrLabel
                 |> Maybe.andThen byId
 
         maybeByParameter =
@@ -173,8 +193,13 @@ idForParameterOrLabel parameterOrLabel oldSensorId sensors =
         ( _, _, Just byLabel ) ->
             byLabel
 
-        _ ->
-            defaultSensorId
+        ( _, _, _ ) ->
+            case page of
+                Mobile ->
+                    mobileDefaultSensorId
+
+                Fixed ->
+                    fixedDefaultSensorId
 
 
 nameForSensorId : String -> List Sensor -> Maybe String

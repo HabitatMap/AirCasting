@@ -24,7 +24,7 @@ import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, l
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, src, target, title, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events
-import Html.Lazy exposing (lazy4, lazy7, lazy8)
+import Html.Lazy exposing (lazy4, lazy5, lazy7, lazy8)
 import Http
 import Json.Decode as Decode exposing (Decoder(..))
 import Json.Encode as Encode
@@ -427,7 +427,7 @@ update msg model =
                     deselectSession model
 
                 selectedSensorId =
-                    Sensor.idForParameterOrLabel value subModel.selectedSensorId subModel.sensors
+                    Sensor.idForParameterOrLabel subModel.page value subModel.selectedSensorId subModel.sensors
             in
             ( { subModel | selectedSensorId = selectedSensorId }
             , Cmd.batch
@@ -1370,8 +1370,8 @@ viewFilters model =
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
     div [ class "filters-container" ]
-        [ lazy4 viewParameterFilter model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
-        , lazy4 viewSensorFilter model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
+        [ lazy5 viewParameterFilter model.page model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
+        , lazy5 viewSensorFilter model.page model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor
         , TimeRange.view RefreshTimeRange model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter
@@ -1383,8 +1383,8 @@ viewMobileFilters model =
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
     div [ class "filters-container" ]
-        [ lazy4 viewParameterFilter model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
-        , lazy4 viewSensorFilter model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
+        [ lazy5 viewParameterFilter model.page model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
+        , lazy5 viewSensorFilter model.page model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor
         , TimeRange.view RefreshTimeRange model.resetIconWhite
         , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter
@@ -1420,8 +1420,8 @@ viewToggleButton label isPressed callback =
         [ text label ]
 
 
-viewParameterFilter : List Sensor -> String -> Bool -> Popup -> Html Msg
-viewParameterFilter sensors selectedSensorId isPopupListExpanded popup =
+viewParameterFilter : Page -> List Sensor -> String -> Bool -> Popup -> Html Msg
+viewParameterFilter page sensors selectedSensorId isPopupListExpanded popup =
     div [ class "filters__input-group" ]
         [ input
             [ id "parameter"
@@ -1437,12 +1437,12 @@ viewParameterFilter sensors selectedSensorId isPopupListExpanded popup =
             []
         , label [ class "label label--filters", for "parameter" ] [ text "parameter:" ]
         , Tooltip.view Tooltip.parameterFilter
-        , viewListPopup Popup.isParameterPopupShown isPopupListExpanded popup (Sensor.parameters sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId)
+        , viewListPopup Popup.isParameterPopupShown isPopupListExpanded popup (Sensor.parameters page sensors) "parameters" (Sensor.parameterForId sensors selectedSensorId)
         ]
 
 
-viewSensorFilter : List Sensor -> String -> Bool -> Popup -> Html Msg
-viewSensorFilter sensors selectedSensorId isPopupListExpanded popup =
+viewSensorFilter : Page -> List Sensor -> String -> Bool -> Popup -> Html Msg
+viewSensorFilter page sensors selectedSensorId isPopupListExpanded popup =
     div [ class "filters__input-group" ]
         [ input
             [ id "sensor"
@@ -1458,7 +1458,7 @@ viewSensorFilter sensors selectedSensorId isPopupListExpanded popup =
             []
         , label [ class "label label--filters", for "sensor" ] [ text "sensor:" ]
         , Tooltip.view Tooltip.sensorFilter
-        , viewListPopup Popup.isSensorPopupShown isPopupListExpanded popup (Sensor.labelsForParameter sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId)
+        , viewListPopup Popup.isSensorPopupShown isPopupListExpanded popup (Sensor.labelsForParameter page sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId)
         ]
 
 
