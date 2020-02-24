@@ -1,12 +1,18 @@
 module SensorTests exposing (all)
 
+import Data.Page exposing (Page(..))
 import Expect
-import Fuzz exposing (int, string)
+import Fuzz exposing (Fuzzer, constant, int, oneOf, string)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Result exposing (Result(..))
 import Sensor exposing (..)
 import Test exposing (..)
+
+
+pageFuzzer : Fuzzer Page
+pageFuzzer =
+    oneOf [ constant Mobile, constant Fixed ]
 
 
 all : Test
@@ -33,22 +39,22 @@ all =
                 encodedValue
                     |> Decode.decodeValue decoder
                     |> Expect.equal (Ok expected)
-        , test "idForParameterOrLabel finds sensorId for parameter" <|
-            \_ ->
+        , fuzz pageFuzzer "idForParameterOrLabel finds sensorId for parameter" <|
+            \page ->
                 sensors
-                    |> idForParameterOrLabel "parameter2" "parameter-sensor (unit)"
+                    |> idForParameterOrLabel page "parameter2" "parameter-sensor (unit)"
                     |> Expect.equal "parameter2-sensor3 (unit)"
-        , test "idForParameterOrLabel finds sensorId for sensor label" <|
-            \_ ->
+        , fuzz pageFuzzer "idForParameterOrLabel finds sensorId for sensor label" <|
+            \page ->
                 sensors
-                    |> idForParameterOrLabel "Sensor2 (unit)" "parameter-sensor (unit)"
+                    |> idForParameterOrLabel page "Sensor2 (unit)" "parameter-sensor (unit)"
                     |> Expect.equal "parameter-sensor2 (unit)"
-        , test "idForParameterOrLabel finds sensorId with highest sessions count for parameter" <|
-            \_ ->
+        , fuzz pageFuzzer "idForParameterOrLabel finds sensorId with highest sessions count for parameter" <|
+            \page ->
                 sensors
-                    |> idForParameterOrLabel "parameter" "parameter2-sensor3 (unit)"
+                    |> idForParameterOrLabel page "parameter" "parameter2-sensor3 (unit)"
                     |> Expect.equal "parameter-sensor2 (unit)"
-        , test "idForParameterOrLabel always finds airbeam2-pm2.5 for Particulate Matter" <|
+        , test "when on mobile page idForParameterOrLabel always finds airbeam2-pm2.5 for Particulate Matter" <|
             \_ ->
                 [ { parameter = "Particulate Matter"
                   , name = "Other Label"
@@ -61,10 +67,10 @@ all =
                   , sessionCount = 0
                   }
                 ]
-                    |> idForParameterOrLabel "Particulate Matter" "parameter2-sensor3 (unit)"
+                    |> idForParameterOrLabel Mobile "Particulate Matter" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-        , test "idForParameterOrLabel always finds airbeam2-rh for Humidity" <|
-            \_ ->
+        , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam2-rh for Humidity" <|
+            \page ->
                 [ { parameter = "Humidity"
                   , name = "Other Label"
                   , unit = "%"
@@ -76,10 +82,10 @@ all =
                   , sessionCount = 0
                   }
                 ]
-                    |> idForParameterOrLabel "Humidity" "parameter2-sensor3 (unit)"
+                    |> idForParameterOrLabel page "Humidity" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Humidity-airbeam2-rh (%)"
-        , test "idForParameterOrLabel always finds phone microphone for Sound Levels" <|
-            \_ ->
+        , fuzz pageFuzzer "idForParameterOrLabel always finds phone microphone for Sound Levels" <|
+            \page ->
                 [ { parameter = "Sound Level"
                   , name = "Other Label"
                   , unit = "dB"
@@ -91,10 +97,10 @@ all =
                   , sessionCount = 0
                   }
                 ]
-                    |> idForParameterOrLabel "Sound Level" "parameter2-sensor3 (unit)"
+                    |> idForParameterOrLabel page "Sound Level" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Sound Level-phone microphone (dB)"
-        , test "idForParameterOrLabel always finds airbeam2-f for Temperature" <|
-            \_ ->
+        , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam2-f for Temperature" <|
+            \page ->
                 [ { parameter = "Temperature"
                   , name = "Other Label"
                   , unit = "F"
@@ -106,24 +112,95 @@ all =
                   , sessionCount = 0
                   }
                 ]
-                    |> idForParameterOrLabel "Temperature" "parameter2-sensor3 (unit)"
+                    |> idForParameterOrLabel page "Temperature" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Temperature-airbeam2-f (F)"
-        , test "when the default is missing idForParameterOrLabel returns airbeam2-pm2.5" <|
+        , test "when on mobile page and the default is missing idForParameterOrLabel returns airbeam2-pm2.5" <|
             \_ ->
                 []
-                    |> idForParameterOrLabel "Temperature" "parameter2-sensor3 (unit)"
+                    |> idForParameterOrLabel Mobile "Temperature" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-        , test "labelsForParameter returns labels divided into main and others excluding from main sensors with sessionCount == 0" <|
+        , test "labelsForParameter returns labels divided into main and others" <|
             \_ ->
+                let
+                    sensors_ =
+                        [ { parameter = "Particulate Matter"
+                          , name = "AirBeam2-PM2.5"
+                          , unit = "µg/m³"
+                          , sessionCount = 1
+                          }
+                        , { parameter = "Particulate Matter"
+                          , name = "AirBeam2-PM1"
+                          , unit = "µg/m³"
+                          , sessionCount = 1
+                          }
+                        , { parameter = "Particulate Matter"
+                          , name = "AirBeam2-PM10"
+                          , unit = "µg/m³"
+                          , sessionCount = 1
+                          }
+                        , { parameter = "Particulate Matter"
+                          , name = "AirBeam-PM"
+                          , unit = "µg/m³"
+                          , sessionCount = 1
+                          }
+                        , { parameter = "Particulate Matter"
+                          , name = "OpenAQ-PM2.5"
+                          , unit = "µg/m³"
+                          , sessionCount = 1
+                          }
+                        ]
+                in
                 "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-                    |> labelsForParameter sensorsWithPriority
+                    |> labelsForParameter Fixed sensors_
+                    |> Expect.equal
+                        ( [ "AirBeam2-PM2.5 (µg/m³)"
+                          , "AirBeam2-PM1 (µg/m³)"
+                          , "AirBeam2-PM10 (µg/m³)"
+                          , "AirBeam-PM (µg/m³)"
+                          , "OpenAQ-PM2.5 (µg/m³)"
+                          ]
+                        , []
+                        )
+        , test "labelsForParameter for mobile considers OpenAQ as not main" <|
+            \_ ->
+                let
+                    sensors_ =
+                        [ { parameter = "Particulate Matter"
+                          , name = "AirBeam2-PM2.5"
+                          , unit = "µg/m³"
+                          , sessionCount = 1
+                          }
+                        , { parameter = "Particulate Matter"
+                          , name = "AirBeam2-PM1"
+                          , unit = "µg/m³"
+                          , sessionCount = 1
+                          }
+                        , { parameter = "Particulate Matter"
+                          , name = "AirBeam2-PM10"
+                          , unit = "µg/m³"
+                          , sessionCount = 1
+                          }
+                        , { parameter = "Particulate Matter"
+                          , name = "AirBeam-PM"
+                          , unit = "µg/m³"
+                          , sessionCount = 1
+                          }
+                        , { parameter = "Particulate Matter"
+                          , name = "OpenAQ-PM2.5"
+                          , unit = "µg/m³"
+                          , sessionCount = 1
+                          }
+                        ]
+                in
+                "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
+                    |> labelsForParameter Mobile sensors_
                     |> Expect.equal
                         ( [ "AirBeam2-PM2.5 (µg/m³)"
                           , "AirBeam2-PM1 (µg/m³)"
                           , "AirBeam2-PM10 (µg/m³)"
                           , "AirBeam-PM (µg/m³)"
                           ]
-                        , [ "Other Label (µg/m³)" ]
+                        , [ "OpenAQ-PM2.5 (µg/m³)" ]
                         )
         , test "nameForSensorId returns the name given the sensorId" <|
             \_ ->
@@ -176,36 +253,6 @@ sensors =
     , { parameter = "parameter2"
       , name = "Sensor3"
       , unit = "unit"
-      , sessionCount = 1
-      }
-    ]
-
-
-sensorsWithPriority : List Sensor
-sensorsWithPriority =
-    [ { parameter = "Particulate Matter"
-      , name = "AirBeam2-PM2.5"
-      , unit = "µg/m³"
-      , sessionCount = 1
-      }
-    , { parameter = "Particulate Matter"
-      , name = "AirBeam2-PM1"
-      , unit = "µg/m³"
-      , sessionCount = 1
-      }
-    , { parameter = "Particulate Matter"
-      , name = "AirBeam2-PM10"
-      , unit = "µg/m³"
-      , sessionCount = 1
-      }
-    , { parameter = "Particulate Matter"
-      , name = "AirBeam-PM"
-      , unit = "µg/m³"
-      , sessionCount = 1
-      }
-    , { parameter = "Particulate Matter"
-      , name = "Other Label"
-      , unit = "µg/m³"
       , sessionCount = 1
       }
     ]

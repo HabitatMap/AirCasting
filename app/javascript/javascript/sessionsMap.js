@@ -22,7 +22,7 @@ export default (() => {
     clearMap();
     map.unregisterAll();
 
-    const sensorId = params.get("data", { sensorId: sensors.defaultSensorId })
+    const sensorId = params.get("data", { sensorId: sensors.defaultSensorId() })
       .sensorId;
 
     const defaults = {

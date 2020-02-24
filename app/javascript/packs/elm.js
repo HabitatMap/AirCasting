@@ -25,6 +25,7 @@ import { get } from "../javascript/http";
 import constants from "../javascript/constants";
 import { init } from "../javascript/googleMapsInit";
 init();
+import sensors from "../javascript/sensors";
 
 import pubsub from "../javascript/pubsub";
 pubsub.subscribe("googleMapsReady", function() {
@@ -60,8 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // The best way to handle this would be to have the application load the sensors at the
   // same time it is loading the ui.
   // That way the user would not see a blank page until the sensors are loaded.
-  get("/api/sensors", { session_type: session_type }).then(sensors => {
-    window.__sensors = sensors;
+  get("/api/sensors", { session_type: session_type }).then(sensors_ => {
+    window.__sensors = sensors_;
 
     const defaultParams = {
       keepFiltersExpanded: false,
@@ -79,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gridResolution: 31, // this translates to grid cell size: 20; formula: f(x) = 51 - x
       isIndoor: false,
       isActive: true,
-      sensorId: "Particulate Matter-airbeam2-pm2.5 (µg/m³)",
+      sensorId: sensors.defaultSensorId(),
       isSearchAsIMoveOn: false
     };
 
