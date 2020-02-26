@@ -11,7 +11,7 @@ const googleMaps = () => {
     init: (element, options) =>
       (window.__map = new google.maps.Map(element, options)),
 
-    fitBounds: (mapObj, viewport) => mapObj.fitBounds(viewport),
+    fitBounds: (mapObj, viewport) => mapObj.fitBounds(viewport, 0),
 
     fitBoundsWithBottomPadding: (mapObj, viewport) =>
       mapObj.fitBounds(viewport, {
