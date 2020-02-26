@@ -76,7 +76,7 @@ const infoWindow = () => {
       this.popup.setOptions({ disableAutoPan: false });
       this.popup.open(mapObj());
 
-      google.maps.event.addListener(this.popup, "closeclick", function() {
+      google.maps.event.addListenerOnce(this.popup, "closeclick", function() {
         map.fitBounds(getSavedPosition().bounds, getSavedPosition().zoom);
         first = true;
       });
