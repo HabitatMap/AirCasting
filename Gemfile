@@ -32,7 +32,7 @@ gem 'webpacker'
 gem 'dry-validation'
 gem 'dry-struct'
 gem 'bootsnap', '>= 1.1.0', require: false
-gem 'sidekiq-scheduler'
+gem 'sidekiq-scheduler', '< 4'
 gem 'httparty'
 gem 'aws-sdk', '~> 3', require: false
 
