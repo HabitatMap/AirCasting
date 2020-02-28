@@ -65,6 +65,7 @@
 
   @media screen and (max-width: $tablet-max) {
     @include appearance(none);
+    @include flex(0 0 auto);
     background-color: $brand-primary;
     border: none;
     color: white;
@@ -73,8 +74,6 @@
     font-size: $medium-font;
     height: 50px;
     width: 100%;
-    position: fixed;
-    bottom: 0;
     text-transform: capitalize;
   }
 }

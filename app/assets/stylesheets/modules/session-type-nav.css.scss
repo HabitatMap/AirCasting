@@ -1,6 +1,7 @@
 .session-type-nav {
   @include flexbox();
   @include justify-content(space-between);
+  height: $session-type-nav-height;
   list-style-type: none;
   margin: 0;
   padding-left: 0;

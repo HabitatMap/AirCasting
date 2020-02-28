@@ -1041,17 +1041,19 @@ viewMain model =
             [ div
                 [ classList
                     [ ( "filters", True )
-                    , ( "filters--collapsed", not model.areFiltersExpanded )
+                    , ( "filters--expanded", model.areFiltersExpanded )
                     ]
                 ]
                 [ viewSessionTypeNav model
-                , viewFilters model
-                , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm
-                , button
-                    [ class "show-results-button"
-                    , Events.onClick CloseFilters
+                , div [ class "filters-form-container" ]
+                    [ viewFilters model
+                    , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm
+                    , button
+                        [ class "show-results-button"
+                        , Events.onClick CloseFilters
+                        ]
+                        [ text "show results" ]
                     ]
-                    [ text "show results" ]
                 ]
             , viewMap model
             ]
@@ -1369,7 +1371,7 @@ viewFilters model =
 
 viewMobileFilters : Model -> Html Msg
 viewMobileFilters model =
-    div [ class "filters-container" ]
+    div [ class "filters__form" ]
         [ lazy5 viewParameterFilter model.page model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
         , lazy5 viewSensorFilter model.page model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor
@@ -1382,7 +1384,7 @@ viewMobileFilters model =
 
 viewFixedFilters : Model -> Html Msg
 viewFixedFilters model =
-    div [ class "filters-container" ]
+    div [ class "filters__form" ]
         [ lazy5 viewParameterFilter model.page model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
         , lazy5 viewSensorFilter model.page model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor
