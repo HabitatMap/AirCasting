@@ -42,6 +42,14 @@ $header-font-size-desktop: 1.125rem;
     height: 3.5rem;
     padding-left: 1rem;
     padding-right: 1rem;
+
+    &.header__brand--filters {
+      height: auto;
+      background: $white;
+      color: $blue;
+      padding-top: 1.25em;
+      padding-bottom: 1.25em;
+    }
   }
 }
 
@@ -130,6 +138,10 @@ $header-font-size-desktop: 1.125rem;
   outline: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   padding: 0;
+
+  .filters--mobile & {
+    width: 27px;
+  }
 
   @media screen and (min-width: $small-desktop-min) {
     display: none;
