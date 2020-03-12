@@ -74,13 +74,13 @@ update msg model toCmd =
 -- VIEW
 
 
-view : Model -> String -> String -> String -> Bool -> TooltipText -> Html Msg
-view model text_ inputId placeholderText isDisabled tooltipText =
+view : Model -> String -> String -> String -> String -> Bool -> TooltipText -> Html Msg
+view model text_ inputId jsClass placeholderText isDisabled tooltipText =
     div [ class "filters__input-group" ]
         [ div [ class "tag-container" ] (List.map viewLabel <| asList model)
         , input
             [ id inputId
-            , class "input input--dark input--filters"
+            , class (String.append jsClass " input input--dark input--filters")
             , placeholder placeholderText
             , type_ "text"
             , name inputId

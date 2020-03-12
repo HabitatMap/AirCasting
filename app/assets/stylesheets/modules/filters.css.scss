@@ -17,7 +17,7 @@ $filter-actions-height: 60px;
   width: 100vw;
   top: 0;
   position: fixed;
-  z-index: $header-z-index + 1;
+  z-index: $mobile-filters-z-index;
 
   &.filters--expanded {
     @include transition(all 0.5s ease);
@@ -112,6 +112,11 @@ $filter-actions-height: 60px;
   max-width: $filters-width - 2 * $margin-default;
   overflow: auto;
   z-index: $popup-z-index;
+
+  .filters--expanded ~ & {
+    max-width: 100%;
+    z-index: $mobile-filters-z-index;
+  }
 }
 
 .ui-menu-item a.ui-state-hover {

@@ -112,9 +112,6 @@ $bold-font: "Moderat-Bold", sans-serif;
 $body-font: "Muli", sans-serif;
 
 // z-index
-$header-z-index: 999;
-
-// z-index stack for elements on top of the map
 $sessions-z-index: 4;
 $heatmap-z-index: $sessions-z-index;
 
@@ -124,6 +121,9 @@ $partial-overlay-z-index: $heatmap-z-index - 1;
 $overlay-info-z-index: $full-overlay-z-index + 1;
 $filters-z-index: $overlay-info-z-index + 1;
 $popup-z-index: $filters-z-index + 1;
+
+$header-z-index: 999;
+$mobile-filters-z-index: $header-z-index + 1;
 
 // breakpoints
 $large-desktop-min: 1920px;
