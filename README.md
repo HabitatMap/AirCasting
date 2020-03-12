@@ -11,7 +11,7 @@ This is the AirCasting project - the project aims to build a platform for gather
 
 ### Branching strategy
 
-- `master` is stable code, which automatically deployes to `aircasting.habitatmap.org`. If you're setting up your own copy of Aircasting use this branch.
+- `master` is stable code, which automatically deploys to `aircasting.habitatmap.org`. If you're setting up your own copy of Aircasting use this branch.
 
 ### Prerequisite: Debian / Ubuntu
 
