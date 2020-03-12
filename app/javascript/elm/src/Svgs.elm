@@ -66,7 +66,7 @@ navClose =
     Svg.svg
         [ class "icon-nav-close", height "20", viewBox "0 0 20 20", width "20" ]
         [ Svg.g
-            [ fill "none", fillRule "evenodd", strokeLinecap "square", strokeWidth "2", transform "translate(.865179 1)" ]
+            [ fill "none", fillRule "evenodd", stroke "#fff", strokeLinecap "square", strokeWidth "2", transform "translate(.865179 1)" ]
             [ Svg.node "path"
                 [ d "m21 9h-22.73035714", transform "matrix(-.70710678 .70710678 -.70710678 -.70710678 22.581475 8.646447)" ]
                 []
