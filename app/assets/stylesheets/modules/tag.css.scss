@@ -16,13 +16,14 @@
   font-weight: $font-stack-regular;
   margin-right: 10px;
   margin-top: 10px;
-  padding: 3px 8px;
+  padding: 3px 0 3px 8px;
 }
 
 .tag-close {
-  background: url("../../images/icons/close-icon.svg") no-repeat right center;
+  background: url("../../images/icons/close-icon.svg") no-repeat 8px center;
   border: none;
-  padding: 0 0 0 16px;
+  margin: -12px 0;
+  padding: 12px;
   width: 8px;
   height: 8px;
   vertical-align: middle;
