@@ -58,14 +58,14 @@ view refreshTimeRange resetIcon =
         [ input
             [ id "time-range"
             , attribute "autocomplete" "off"
-            , class "input input--dark input--filters input--time"
+            , class "input input--dark input--filters input--time js--time-range"
             , name "time-range"
             ]
             []
         , button
             [ id "time-range-button"
             , attribute "autocomplete" "off"
-            , class "input input--dark input--filters input--time button--input"
+            , class "input input--dark input--filters input--time button--input js--time-range-button"
             , name "time-range-button"
             ]
             []

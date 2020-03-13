@@ -33,7 +33,9 @@ export const daterangepickerConfig = (timeFrom, timeTo) => ({
 });
 
 export const setTimerangeButtonText = (timeFrom, timeTo) => {
-  $("#time-range-button").html(humanTime(timeFrom) + " - " + humanTime(timeTo));
+  $(".js--time-range-button").html(
+    humanTime(timeFrom) + " - " + humanTime(timeTo)
+  );
 };
 
 export const setupTimeRangeFilter = (
@@ -46,7 +48,7 @@ export const setupTimeRangeFilter = (
     document.getElementById("time-range") &&
     document.getElementById("time-range-button")
   ) {
-    $("#time-range").daterangepicker(
+    $(".js--time-range").daterangepicker(
       daterangepickerConfig(timeFrom, timeTo),
       function(timeFrom, timeTo) {
         timeFrom = timeFrom.utcOffset(0, true).unix();
@@ -56,10 +58,14 @@ export const setupTimeRangeFilter = (
       }
     );
 
-    $("#time-range").on("show.daterangepicker", () => onIsVisibleChange(true));
-    $("#time-range").on("hide.daterangepicker", () => onIsVisibleChange(false));
+    $(".js--time-range").on("show.daterangepicker", () =>
+      onIsVisibleChange(true)
+    );
+    $(".js--time-range").on("hide.daterangepicker", () =>
+      onIsVisibleChange(false)
+    );
 
-    $("#time-range-button").daterangepicker(
+    $(".js--time-range-button").daterangepicker(
       daterangepickerConfig(timeFrom, timeTo),
       function(timeFrom, timeTo) {
         onTimeRangeChanged(
@@ -70,20 +76,23 @@ export const setupTimeRangeFilter = (
     );
 
     // update value of the default time range input when setting date via button
-    $("#time-range-button").on("apply.daterangepicker", (_, mobilePicker) => {
-      const newStartDate = mobilePicker.startDate;
-      const newEndDate = mobilePicker.endDate;
+    $(".js--time-range-button").on(
+      "apply.daterangepicker",
+      (_, mobilePicker) => {
+        const newStartDate = mobilePicker.startDate;
+        const newEndDate = mobilePicker.endDate;
 
-      const desktopPicker = $("#time-range").data("daterangepicker");
-      desktopPicker.setStartDate(newStartDate);
-      desktopPicker.setEndDate(newEndDate);
-    });
+        const desktopPicker = $(".js--time-range").data("daterangepicker");
+        desktopPicker.setStartDate(newStartDate);
+        desktopPicker.setEndDate(newEndDate);
+      }
+    );
 
-    $("#time-range").on("apply.daterangepicker", (_, desktopPicker) => {
+    $(".js--time-range").on("apply.daterangepicker", (_, desktopPicker) => {
       const newStartDate = desktopPicker.startDate;
       const newEndDate = desktopPicker.endDate;
 
-      const mobilePicker = $("#time-range-button").data("daterangepicker");
+      const mobilePicker = $(".js--time-range-button").data("daterangepicker");
       mobilePicker.setStartDate(newStartDate);
       mobilePicker.setEndDate(newEndDate);
     });
