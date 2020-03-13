@@ -1416,8 +1416,8 @@ viewMobileFilters model =
         , lazy5 viewSensorFilter model.page model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor
         , TimeRange.view RefreshTimeRange model.resetIconWhite
-        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" False Tooltip.profilesFilter
-        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "js--profile-names-input" "+ add profile name" False Tooltip.profilesFilter
+        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "js--tags-input" "+ add tag" False Tooltip.tagsFilter
         , viewCrowdMapOptions model.isCrowdMapOn model.crowdMapResolution model.selectedSession
         ]
 
@@ -1429,8 +1429,8 @@ viewFixedFilters model =
         , lazy5 viewSensorFilter model.page model.sensors model.selectedSensorId model.isPopupListExpanded model.popup
         , viewLocationFilter model.location model.isIndoor
         , TimeRange.view RefreshTimeRange model.resetIconWhite
-        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "+ add profile name" model.isIndoor Tooltip.profilesFilter
-        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "+ add tag" False Tooltip.tagsFilter
+        , Html.map ProfileLabels <| LabelsInput.view model.profiles "profile names:" "profile-names" "js--profile-names-input" "+ add profile name" model.isIndoor Tooltip.profilesFilter
+        , Html.map TagsLabels <| LabelsInput.view model.tags "tags:" "tags" "js--tags-input" "+ add tag" False Tooltip.tagsFilter
         , div [ class "filters__toggle-group" ]
             [ label [ class "label label--filters" ] [ text "placement:" ]
             , Tooltip.view Tooltip.typeToggleFilter

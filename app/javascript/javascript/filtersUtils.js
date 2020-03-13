@@ -103,7 +103,7 @@ export const setupTimeRangeFilter = (
 };
 export const setupTagsAutocomplete = (callback, path, createParams) => {
   if (document.getElementById("tags")) {
-    $(`#tags`)
+    $(".js--tags-input")
       .autocomplete({
         source: function(request, response) {
           const data = {
@@ -126,7 +126,7 @@ export const setupTagsAutocomplete = (callback, path, createParams) => {
 
 export const setupProfileNamesAutocomplete = callback => {
   if (document.getElementById("profile-names")) {
-    $(`#profile-names`).autocomplete({
+    $(".js--profile-names-input").autocomplete({
       source: function(request, response) {
         const data = {
           q: { input: request.term }
