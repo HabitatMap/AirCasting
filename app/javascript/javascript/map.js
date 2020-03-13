@@ -36,15 +36,20 @@ export default (() => {
         _(this.onMapTypeIdChanged).bind(this)
       );
 
-      const locationInput = document.getElementById("location");
-      const autocomplete = new google.maps.places.Autocomplete(locationInput);
-      autocomplete.bindTo("bounds", this.mapObj);
+      const locationInputs = document.querySelectorAll(".js--location");
 
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        this._goToAddress(place);
-        window.__elmApp.ports.locationUpdated.send(place.formatted_address);
-      });
+      for (var i = 0; i < locationInputs.length; i++) {
+        const autocomplete = new google.maps.places.Autocomplete(
+          locationInputs[i]
+        );
+        autocomplete.bindTo("bounds", this.mapObj);
+
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          this._goToAddress(place);
+          window.__elmApp.ports.locationUpdated.send(place.formatted_address);
+        });
+      }
 
       rectangles.init(this.mapObj);
     },
