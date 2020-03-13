@@ -1561,7 +1561,7 @@ viewLocationFilter location isIndoor =
         [ input
             [ id "location"
             , value location
-            , class "input input--dark input--filters"
+            , class "input input--dark input--filters js--location"
             , placeholder "location"
             , type_ "text"
             , name "location"
