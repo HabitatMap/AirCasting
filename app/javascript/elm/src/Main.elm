@@ -891,6 +891,7 @@ viewDocument model =
     { title = "AirCasting"
     , body =
         [ lazy4 viewNav model.navLogo model.sensors model.selectedSensorId model.page
+        , viewFiltersForPhone model
         , view model
         ]
     }
@@ -1038,25 +1039,64 @@ viewMain model =
                 , ( "with-filters-collapsed", not model.areFiltersExpanded )
                 ]
             ]
-            [ div
-                [ classList
-                    [ ( "filters", True )
-                    , ( "filters--expanded", model.areFiltersExpanded )
-                    ]
-                ]
-                [ viewSessionTypeNav model
-                , div [ class "filters-form-container" ]
-                    [ viewFilters model
-                    , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm
-                    , button
-                        [ class "show-results-button"
-                        , Events.onClick CloseFilters
-                        ]
-                        [ text "show results" ]
-                    ]
-                ]
+            [ viewFiltersForDesktop model
             , viewMap model
             ]
+        ]
+
+
+viewFiltersForPhone : Model -> Html Msg
+viewFiltersForPhone model =
+    div
+        [ classList
+            [ ( "filters filters--mobile", True )
+            , ( "filters--expanded", model.areFiltersExpanded )
+            ]
+        ]
+        [ div [ class "header__brand header__brand--filters" ]
+            [ div [ class "nav-icon-placeholder" ] []
+            , div
+                [ class "filters-info u--show-on-mobile"
+                , Events.onClick ToggleFiltersExpanded
+                ]
+                [ p
+                    [ class "filters-info__session-type" ]
+                    [ text (Page.toString model.page)
+                    , text " sessions"
+                    ]
+                , p [ class "filters-info__parameter-sensor" ]
+                    [ text (Sensor.parameterForId model.sensors model.selectedSensorId)
+                    , text " - "
+                    , text (Sensor.sensorLabelForId model.sensors model.selectedSensorId)
+                    ]
+                ]
+            , button
+                [ class "header__toggle-button"
+                , title "Close filters"
+                , type_ "button"
+                , ariaLabel "Close filters"
+                , Events.onClick ToggleFiltersExpanded
+                ]
+                [ Svgs.navClose ]
+            ]
+        , viewSessionTypeNav model
+        , viewFilters model
+        , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm
+        , button
+            [ class "show-results-button"
+            , Events.onClick CloseFilters
+            ]
+            [ text "show results" ]
+        ]
+
+
+viewFiltersForDesktop : Model -> Html Msg
+viewFiltersForDesktop model =
+    div
+        [ class "filters filters--desktop" ]
+        [ viewSessionTypeNav model
+        , viewFilters model
+        , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm
         ]
 
 

@@ -12,6 +12,12 @@
 
 .icon-nav-close {
   display: none;
+  stroke: $white;
+
+  .header__brand--filters & {
+    display: initial;
+    stroke: $blue;
+  }
 
   @media screen and (max-width: $tablet-max) {
     .header--nav-expanded & {
