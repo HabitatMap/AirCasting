@@ -19,6 +19,18 @@ describe OpenAq::ParseFiles do
     expect(actual).to eq([])
   end
 
+  it 'rounds latitude and longitude to 9 decimal digits' do
+    ten_decimal_digits = BigDecimal("0.1234567891")
+    measurement = build_open_aq_measurement(latitude: ten_decimal_digits, longitude: ten_decimal_digits)
+    files = [build_file([measurement])]
+
+    actual = subject.call(files: files)
+
+    nine_decimal_digits = BigDecimal("0.123456789")
+    expect(actual.map(&:latitude)).to eq([nine_decimal_digits])
+    expect(actual.map(&:longitude)).to eq([nine_decimal_digits])
+  end
+
   private
 
   def build_file(measurements)

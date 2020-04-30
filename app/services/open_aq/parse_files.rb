@@ -30,6 +30,6 @@ class OpenAq::ParseFiles
   end
 
   def to_big_decimal(number)
-    BigDecimal(number.to_s)
+    BigDecimal(number.to_s).round(9)
   end
 end
