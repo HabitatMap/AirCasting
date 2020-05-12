@@ -37,7 +37,7 @@ set :linked_files,
     fetch(:linked_files, []).push(
       'config/database.yml',
       'config/secrets.yml',
-      'newrelic.yml',
+      'config/newrelic.yml',
       'config/configuration.yml',
       'public/robots.txt'
     )
