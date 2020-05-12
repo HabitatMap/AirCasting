@@ -2,9 +2,9 @@
 :verbose: false
 :concurrency: 15
 :queues:
-  - [critical, 8]
-  - [default, 8]
-  - [slow, 2]
+  - [critical, 4]
+  - [default, 4]
+  - [slow, 1]
 
 :schedule:
   session_stopped_alerts:
