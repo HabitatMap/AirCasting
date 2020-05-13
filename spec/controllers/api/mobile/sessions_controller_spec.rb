@@ -117,13 +117,13 @@ describe Api::Mobile::SessionsController do
             'value' => measurement1.value,
             'time' => format_time_to_i(measurement1.time),
             'longitude' => measurement1.longitude,
-            'latitude' => measurement1.latitude,
+            'latitude' => measurement1.latitude
           },
           {
             'value' => measurement2.value,
             'time' => format_time_to_i(measurement2.time),
             'longitude' => measurement2.longitude,
-            'latitude' => measurement2.latitude,
+            'latitude' => measurement2.latitude
           }
         ],
         'minLatitude' => 123.0,

@@ -57,7 +57,7 @@ class Api::ToMobileSessionHash
             value: record_fields[0],
             time: format_time(record_fields[1]),
             longitude: record_fields[2],
-            latitude: record_fields[3],
+            latitude: record_fields[3]
           }
         end
       end
