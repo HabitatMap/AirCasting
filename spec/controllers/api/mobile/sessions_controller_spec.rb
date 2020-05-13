@@ -82,7 +82,7 @@ describe Api::Mobile::SessionsController do
   end
 
   describe '#show' do
-    it 'returns session json' do
+    it 'returns session json including measurements' do
       start_time_local = DateTime.new(2_000, 10, 1, 2, 3)
       end_time_local = DateTime.new(2_001, 11, 4, 5, 6)
       sensor_name = 'sensor-name'
@@ -96,6 +96,8 @@ describe Api::Mobile::SessionsController do
       create_stream!(session: session, sensor_name: 'another-sensor-name')
       stream = create_stream!(session: session, sensor_name: sensor_name)
       create_stream!(session: session, sensor_name: 'yet another-sensor-name')
+      measurement1 = create_measurement!(stream: stream)
+      measurement2 = create_measurement!(stream: stream)
 
       get :show, params: { id: session.id, sensor_name: sensor_name }
 
@@ -110,7 +112,20 @@ describe Api::Mobile::SessionsController do
         'sensorUnit' => stream.unit_symbol,
         'maxLatitude' => 123.0,
         'maxLongitude' => 123.0,
-        'measurements' => [],
+        'measurements' => [
+          {
+            'value' => measurement1.value,
+            'time' => format_time_to_i(measurement1.time),
+            'longitude' => measurement1.longitude,
+            'latitude' => measurement1.latitude,
+          },
+          {
+            'value' => measurement2.value,
+            'time' => format_time_to_i(measurement2.time),
+            'longitude' => measurement2.longitude,
+            'latitude' => measurement2.latitude,
+          }
+        ],
         'minLatitude' => 123.0,
         'minLongitude' => 123.0,
         'notes' => [],
@@ -299,5 +314,9 @@ describe Api::Mobile::SessionsController do
 
   def format_time(time)
     time.strftime('%FT%T.000Z')
+  end
+
+  def format_time_to_i(time)
+    time.to_datetime.strftime('%Q').to_i
   end
 end
