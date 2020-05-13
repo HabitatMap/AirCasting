@@ -10,16 +10,27 @@ class Api::ToSessionHash2
     stream = session.streams.where(sensor_name: sensor_name).first!
     average = stream.measurements.average(:value)
     user = session.user
+    notes = session.notes.map(&:as_json)
+    #measurements =
+      #begin
+        #fields = %i[time value latitude longitude]
+        #records = []
+        #stream.measurements.select(:id, *fields).find_in_batches(
+          #batch_size: 10_000
+        #) { |group| records += group.map { |m| m.as_json(only: fields) } }
+        #records
+      #end
     measurements =
       begin
         fields = %i[time value latitude longitude]
-        records = []
-        stream.measurements.select(:id, *fields).find_in_batches(
-          batch_size: 10_000
-        ) { |group| records += group.map { |m| m.as_json(only: fields) } }
-        records
+        stream.measurements.pluck(*fields).map do |record_fields|
+          hash = {}
+          fields.each_with_index do |field, index|
+            hash[field] = record_fields[index]
+          end
+          hash
+        end
       end
-    notes = session.notes.map(&:as_json)
 
     Success.new(
       title: session.title,
