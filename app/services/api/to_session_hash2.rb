@@ -14,7 +14,7 @@ class Api::ToSessionHash2
     measurements =
       begin
         records = []
-        stream.measurements.find_in_batches do |group|
+        stream.measurements.find_in_batches(batch_size: 10_000) do |group|
           records +=
             group.map { |m| m.as_json(only: %i[time value latitude longitude]) }
         end
