@@ -12,8 +12,14 @@ class Api::ToSessionHash2
     average = stream.measurements.average(:value)
     user = session.user
     measurements =
-      stream.measurements.map do |m|
-        m.as_json(only: %i[time value latitude longitude])
+      begin
+        records = []
+        stream.measurements.find_in_batches do |group|
+          records += group.map do |m|
+            m.as_json(only: %i[time value latitude longitude])
+          end
+        end
+        records
       end
     notes = session.notes.map(&:as_json)
 
