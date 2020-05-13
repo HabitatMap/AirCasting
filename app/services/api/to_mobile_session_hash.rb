@@ -50,13 +50,16 @@ class Api::ToMobileSessionHash
 
   def measurements(stream)
     @measurements ||=
-      stream.measurements.map do |m|
-        {
-          value: m.value,
-          time: format_time(m.time),
-          longitude: m.longitude,
-          latitude: m.latitude
-        }
+      begin
+        fields = %i[value time longitude latitude]
+        stream.measurements.pluck(*fields).map do |record_fields|
+          {
+            value: record_fields[0],
+            time: format_time(record_fields[1]),
+            longitude: record_fields[2],
+            latitude: record_fields[3],
+          }
+        end
       end
   end
 end
