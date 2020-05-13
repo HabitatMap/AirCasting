@@ -7,7 +7,7 @@ class Api::ToSessionHash2
     return Failure.new(form.errors) if form.invalid?
 
     session =
-      MobileSession.includes({ streams: :measurements }, :notes, :user).find(id)
+      MobileSession.includes(:streams, :notes, :user).find(id)
     stream = session.streams.where(sensor_name: sensor_name).first!
     average = stream.measurements.average(:value)
     user = session.user
