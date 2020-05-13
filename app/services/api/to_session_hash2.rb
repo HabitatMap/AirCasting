@@ -13,11 +13,11 @@ class Api::ToSessionHash2
     user = session.user
     measurements =
       begin
+        fields = %i[time value latitude longitude]
         records = []
-        stream.measurements.find_in_batches(batch_size: 10_000) do |group|
-          records +=
-            group.map { |m| m.as_json(only: %i[time value latitude longitude]) }
-        end
+        stream.measurements.select(:id, *fields).find_in_batches(
+          batch_size: 10_000
+        ) { |group| records += group.map { |m| m.as_json(only: fields) } }
         records
       end
     notes = session.notes.map(&:as_json)
