@@ -20,7 +20,7 @@ Rails.application.routes.draw do
   get 's/:url_token' => 'measurement_sessions#show',
       constraints: { query_string: /.+/ },
       as: :short_session
-  get 's/:url_token' => 'measurement_sessions#show_old' # legacy API - supports mobile apps relesed before 06.2019
+  get 's/:url_token' => 'measurement_sessions#show_old' # legacy API - supports mobile apps released before 06.2019
 
   namespace :api do
     namespace :v2 do
