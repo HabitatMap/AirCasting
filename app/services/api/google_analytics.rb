@@ -1,6 +1,3 @@
-require 'httparty'
-require 'uri'
-
 module Api
   class GoogleAnalytics
     def register_event(event_action)
