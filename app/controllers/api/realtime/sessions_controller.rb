@@ -11,14 +11,16 @@ module Api
       respond_to :json
 
       def show
-        GoogleAnalytics.new.register_event('Realtime sessions#show')
+        GoogleAnalyticsWorker::RegisterEvent.async_call(
+          'Realtime sessions#show'
+        )
         session = FixedSession.find(params[:id])
 
         respond_with session, sensor_id: params[:sensor_id], methods: %i[notes]
       end
 
       def sync_measurements
-        GoogleAnalytics.new.register_event(
+        GoogleAnalyticsWorker::RegisterEvent.async_call(
           'Realtime sessions#sync_measurements'
         )
         session = FixedSession.find_by_uuid(params[:uuid]) or raise NotFound
@@ -34,7 +36,9 @@ module Api
       end
 
       def create
-        GoogleAnalytics.new.register_event('Realtime sessions#create')
+        GoogleAnalyticsWorker::RegisterEvent.async_call(
+          'Realtime sessions#create'
+        )
         if params[:compression]
           decoded = Base64.decode64(params[:session])
           unzipped = AirCasting::GZip.inflate(decoded)

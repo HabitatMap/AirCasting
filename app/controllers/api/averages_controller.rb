@@ -15,7 +15,7 @@ module Api
     ]
 
     def index
-      GoogleAnalytics.new.register_event('Averages#index')
+      GoogleAnalyticsWorker::RegisterEvent.async_call('Averages#index')
 
       data = prepareData(params)
 
@@ -26,7 +26,7 @@ module Api
     end
 
     def index2
-      GoogleAnalytics.new.register_event('Averages#index2')
+      GoogleAnalyticsWorker::RegisterEvent.async_call('Averages#index2')
 
       data = prepareData(params)
 

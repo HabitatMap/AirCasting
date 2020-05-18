@@ -3,7 +3,7 @@ module Api
     module Data
       class SessionsController < ActionController::Base
         def last
-          GoogleAnalytics.new.register_event('Sessions#last')
+          GoogleAnalyticsWorker::RegisterEvent.async_call('Sessions#last')
 
           render json: IdSerializer.new(::Session.last)
         end
