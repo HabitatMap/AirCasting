@@ -1,7 +1,7 @@
 module Api
   class Fixed::AutocompleteController < ApplicationController
     def tags
-      Api::GoogleAnalytics.new.register_event('Autocomplete Fixed#tags')
+      GoogleAnalyticsWorker::RegisterEvent.async_call('Autocomplete Fixed#tags')
       q = params.to_unsafe_hash[:q].symbolize_keys
 
       q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')

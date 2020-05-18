@@ -1,6 +1,6 @@
 class MeasurementSessionsController < ApplicationController
   def show
-    Api::GoogleAnalytics.new.register_event('Measurement Sessions#show')
+    GoogleAnalyticsWorker::RegisterEvent.async_call('Measurement Sessions#show')
     form =
       Api::ParamsForm.new(
         params: params.to_unsafe_hash,
@@ -17,7 +17,7 @@ class MeasurementSessionsController < ApplicationController
   end
 
   def show_old
-    Api::GoogleAnalytics.new.register_event('Measurement Sessions#show_old')
+    GoogleAnalyticsWorker::RegisterEvent.async_call('Measurement Sessions#show_old')
 
     # supports legacy mobile apps relesed before 06.2019
     session = Session.find_by_url_token(params.to_unsafe_hash[:url_token]) or

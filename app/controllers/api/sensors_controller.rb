@@ -1,7 +1,7 @@
 module Api
   class SensorsController < BaseController
     def index
-      GoogleAnalytics.new.register_event('Sensors#index')
+      GoogleAnalyticsWorker::RegisterEvent.async_call('Sensors#index')
 
       form =
         Api::ParamsForm.new(

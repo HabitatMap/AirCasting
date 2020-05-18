@@ -5,7 +5,7 @@ module Api
         respond_to :json
 
         def index
-          GoogleAnalytics.new.register_event('Fixed dormant sessions#index')
+          GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed dormant sessions#index')
           q =
             ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
           q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')

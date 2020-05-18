@@ -3,7 +3,7 @@ module Api
     respond_to :json
 
     def show
-      GoogleAnalytics.new.register_event('Fixed Sessions#show')
+      GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed Sessions#show')
 
       form =
         Api::ParamsForm.new(
@@ -21,7 +21,7 @@ module Api
     end
 
     def show2
-      GoogleAnalytics.new.register_event('Fixed Sessions#show2')
+      GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed Sessions#show2')
       form =
         Api::ParamsForm.new(
           params: params.to_unsafe_hash,

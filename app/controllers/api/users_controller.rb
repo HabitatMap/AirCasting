@@ -8,12 +8,12 @@ module Api
     respond_to :json
 
     def show
-      GoogleAnalytics.new.register_event('User#show')
+      GoogleAnalyticsWorker::RegisterEvent.async_call('User#show')
       respond_with current_user
     end
 
     def create
-      GoogleAnalytics.new.register_event('User#create')
+      GoogleAnalyticsWorker::RegisterEvent.async_call('User#create')
       user = User.new(user_params.to_unsafe_hash)
 
       if user.save
@@ -24,7 +24,7 @@ module Api
     end
 
     def settings
-      GoogleAnalytics.new.register_event('User#settings')
+      GoogleAnalyticsWorker::RegisterEvent.async_call('User#settings')
       form =
         Api::JsonForm.new(
           json: params.to_unsafe_hash[:data],
