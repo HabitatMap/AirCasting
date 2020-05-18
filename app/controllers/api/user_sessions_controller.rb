@@ -24,7 +24,9 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def sync_with_versioning
-    GoogleAnalyticsWorker::RegisterEvent.async_call('User Sessions#sync with versioning')
+    GoogleAnalyticsWorker::RegisterEvent.async_call(
+      'User Sessions#sync with versioning'
+    )
     form =
       Api::JsonForm.new(
         json: to_json_data(params),
@@ -41,7 +43,9 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def update_session
-    GoogleAnalyticsWorker::RegisterEvent.async_call('User Sessions#update session')
+    GoogleAnalyticsWorker::RegisterEvent.async_call(
+      'User Sessions#update session'
+    )
     form =
       Api::JsonForm.new(
         json: params.to_unsafe_hash[:data],
@@ -58,7 +62,9 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def show
-    GoogleAnalyticsWorker::RegisterEvent.async_call("User Sessions#show_#{params[:id] ? 'id' : 'uuid'}")
+    GoogleAnalyticsWorker::RegisterEvent.async_call(
+      "User Sessions#show_#{params[:id] ? 'id' : 'uuid'}"
+    )
 
     session =
       (
@@ -80,7 +86,9 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def delete_session
-    GoogleAnalyticsWorker::RegisterEvent.async_call('User Sessions#delete session')
+    GoogleAnalyticsWorker::RegisterEvent.async_call(
+      'User Sessions#delete session'
+    )
     data = decode_and_deep_symbolize(params)
 
     a_session = current_user.sessions.find_by_uuid(data[:uuid])
@@ -93,7 +101,9 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def delete_session_streams
-    GoogleAnalyticsWorker::RegisterEvent.async_call('User Sessions#delete session streams')
+    GoogleAnalyticsWorker::RegisterEvent.async_call(
+      'User Sessions#delete session streams'
+    )
     session_data = decode_and_deep_symbolize(params)
 
     a_session = current_user.mobile_sessions.find_by_uuid(session_data[:uuid])

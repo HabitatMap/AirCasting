@@ -5,9 +5,7 @@ module GoogleAnalyticsWorker
     sidekiq_options queue: :critical
 
     def self.async_call(event_action)
-      if A9n.analytics_enabled == 'true'
-        perform_async(event_action)
-      end
+      perform_async(event_action) if A9n.analytics_enabled == 'true'
     end
 
     def perform(event_action)

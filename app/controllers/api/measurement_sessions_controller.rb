@@ -8,7 +8,9 @@ module Api
     respond_to :json
 
     def create
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Measurement Sessions#create')
+      GoogleAnalyticsWorker::RegisterEvent.async_call(
+        'Measurement Sessions#create'
+      )
 
       if ActiveModel::Type::Boolean.new.cast(params[:compression])
         decoded = Base64.decode64(params[:session])
@@ -31,7 +33,9 @@ module Api
     end
 
     def export
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Measurement Sessions#export')
+      GoogleAnalyticsWorker::RegisterEvent.async_call(
+        'Measurement Sessions#export'
+      )
 
       form =
         Api::ParamsForm.new(
@@ -50,7 +54,9 @@ module Api
     end
 
     def export_by_uuid
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Measurement Sessions#export')
+      GoogleAnalyticsWorker::RegisterEvent.async_call(
+        'Measurement Sessions#export'
+      )
 
       form =
         Api::ParamsForm.new(
