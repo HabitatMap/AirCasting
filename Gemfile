@@ -35,6 +35,8 @@ gem 'bootsnap', '>= 1.1.0', require: false
 gem 'sidekiq-scheduler', '< 4'
 gem 'httparty'
 gem 'aws-sdk', '~> 3', require: false
+gem 'unicorn'
+gem 'unicorn-worker-killer'
 
 group :development do
   gem 'web-console', '~> 2.0'
@@ -67,6 +69,4 @@ end
 
 group :production do
   gem 'rainbows'
-  gem 'unicorn'
-  gem 'unicorn-worker-killer'
 end
