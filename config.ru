@@ -1,6 +1,6 @@
 # This file is used by Rack-based servers to start the application.
 
-if Rails.env.production? || true
+if Rails.env.production?
   # https://github.com/kzk/unicorn-worker-killer
   require 'unicorn/worker_killer'
   # Max memory size (RSS) per worker
