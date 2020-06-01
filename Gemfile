@@ -68,4 +68,5 @@ end
 group :production do
   gem 'rainbows'
   gem 'unicorn'
+  gem 'unicorn-worker-killer'
 end
