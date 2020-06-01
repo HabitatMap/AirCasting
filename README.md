@@ -49,7 +49,7 @@ bundle install
 yarn install
 bin/rails db:create db:migrate
 bundle exec foreman start
-# visit http://localhost:5000
+# visit http://localhost:3000/mobile_map
 ```
 
 ### Obtaining a bitly access token
