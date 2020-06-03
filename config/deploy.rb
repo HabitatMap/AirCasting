@@ -42,6 +42,8 @@ set :linked_files,
       'public/robots.txt'
     )
 
+set :whenever_identifier, -> { "#{fetch(:application)}_#{fetch(:stage)}" }
+
 # Default value for linked_dirs is []
 # set :linked_dirs, fetch(:linked_dirs, []).push('bin', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system')
 

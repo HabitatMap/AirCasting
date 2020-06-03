@@ -37,6 +37,7 @@ gem 'httparty'
 gem 'aws-sdk', '~> 3', require: false
 gem 'unicorn'
 gem 'unicorn-worker-killer'
+gem 'whenever', require: false
 
 group :development do
   gem 'web-console', '~> 2.0'
