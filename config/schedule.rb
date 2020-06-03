@@ -19,7 +19,7 @@
 
 # Learn more: http://github.com/javan/whenever
 
-every 1.day, roles: %i[web] do
+every 1.minute, roles: %i[web] do
   # restart sidekiq every day to save RAM
   # because sidekiq can take over 7GB RAM when not restarted for long time
   command 'sudo systemctl restart sidekiq'
