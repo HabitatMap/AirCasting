@@ -4,6 +4,9 @@ require 'capistrano/setup'
 # Include default deployment tasks
 require 'capistrano/deploy'
 
+# https://github.com/javan/whenever
+require 'whenever/capistrano'
+
 require 'capistrano/scm/git'
 install_plugin Capistrano::SCM::Git
 
@@ -26,9 +29,6 @@ require 'capistrano/rails/assets'
 require 'capistrano/rails/migrations'
 # require 'capistrano/sidekiq'
 # require 'capistrano/passenger'
-
-# https://github.com/javan/whenever
-require 'whenever/capistrano'
 
 # Load custom tasks from `lib/capistrano/tasks' if you have any defined
 Dir.glob('lib/capistrano/tasks/*.rake').each { |r| import r }

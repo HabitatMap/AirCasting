@@ -7,6 +7,11 @@ set :repo_url, 'git@github.com:HabitatMap/AirCasting.git'
 set :deploy_via, :remote_cache
 set :ssh_options, { forward_agent: true }
 
+set :whenever_identifier, -> { "#{fetch(:application)}_#{fetch(:stage)}" }
+# fix problem with whenever not started during deployment
+# https://github.com/javan/whenever/issues/612
+set :whenever_roles, :all
+
 # Default branch is :master
 # ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }.call
 
@@ -38,8 +43,6 @@ set :linked_files,
       'config/configuration.yml',
       'public/robots.txt'
     )
-
-set :whenever_identifier, -> { "#{fetch(:application)}_#{fetch(:stage)}" }
 
 # Default value for linked_dirs is []
 # set :linked_dirs, fetch(:linked_dirs, []).push('bin', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system')
