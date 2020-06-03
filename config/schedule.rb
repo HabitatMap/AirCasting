@@ -22,5 +22,5 @@
 every 1.day do
   # restart sidekiq every day to save RAM
   # because sidekiq can take over 7GB RAM when not restarted for long time
-  command 'service sidekiq restart'
+  command 'sudo systemctl restart sidekiq'
 end
