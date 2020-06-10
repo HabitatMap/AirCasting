@@ -1238,7 +1238,7 @@ GEM
       gsl
     rb-inotify (0.10.0)
       ffi (~> 1.0)
-    redis (4.1.4)
+    redis (4.2.0)
     reek (4.8.2)
       codeclimate-engine-rb (~> 0.4.0)
       parser (>= 2.5.0.0, < 2.6)
