@@ -7,7 +7,7 @@ gem 'acts-as-taggable-on'
 gem 'colored', require: false
 gem 'devise', '~> 4.4.3'
 gem "foreman"
-gem 'geocoder', '~> 1.2'
+gem 'geocoder', '~> 1.6'
 gem 'haml'
 gem 'honeybadger', '~> 2.0'
 gem 'mysql2'
