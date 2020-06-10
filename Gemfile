@@ -5,7 +5,7 @@ gem 'activeadmin'
 gem 'activerecord-import', '~> 0.28'
 gem 'acts-as-taggable-on'
 gem 'colored', require: false
-gem 'devise', '~> 4.4.3'
+gem 'devise', '~> 4.7.1'
 gem "foreman"
 gem 'geocoder', '~> 1.2'
 gem 'haml'
