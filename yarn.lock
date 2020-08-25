@@ -3379,9 +3379,10 @@ hex-color-regex@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
 
-highcharts@~7.1.0:
-  version "7.1.1"
-  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-7.1.1.tgz#8c4433e39d5e7dbdc064685d9548181a35e12c19"
+highcharts@~7.2.2:
+  version "7.2.2"
+  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-7.2.2.tgz#94d6bae545d7f0fbf49615b28640f5fdbf99d11e"
+  integrity sha512-jRKujQuPKHLgGQd2sByBI9K5m56CInm2augVZnBYqdmyoU88hcI62uuAXHvxC3FW8YY0FJ74A1uw6sxrcmcmvg==
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
