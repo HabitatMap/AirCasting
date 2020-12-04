@@ -5,8 +5,8 @@
     %meta(name='description' content='AirCasting map showing health and environmental data like air quality, temperature, humidity, sound levels and more.')
     %title AirCasting
     = stylesheet_pack_tag "elm", defer: true
-    = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}&libraries=places&v=3.41&callback=initMap", defer: true
     = javascript_pack_tag "elm", defer: true
+    = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}&libraries=places&v=3.41&callback=initMap", defer: true
     = render partial: 'shared/fb_logo'
     = render partial: 'shared/gtm'
     = csrf_meta_tags

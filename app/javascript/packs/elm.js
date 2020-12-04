@@ -24,7 +24,7 @@ import { getParams, updateParam } from "../javascript/params";
 import { get } from "../javascript/http";
 import constants from "../javascript/constants";
 import { init } from "../javascript/googleMapsInit";
-init();
+window.initMap = init;
 import sensors from "../javascript/sensors";
 
 import pubsub from "../javascript/pubsub";
