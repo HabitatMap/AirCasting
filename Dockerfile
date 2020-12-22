@@ -1,7 +1,11 @@
 FROM ruby:2.6.2
 
 RUN apt-get update && \
-    apt-get install -y libgsl-dev nano apt-transport-https mariadb-client dos2unix
+    apt-get install -y  libgsl-dev nano apt-transport-https mariadb-client \
+                        build-essential openssl libreadline6-dev curl git-core zlib1g zlib1g-dev \
+                        libssl-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf \
+                        libc6-dev ncurses-dev automake libtool bison subversion pkg-config \
+                        imagemagick libgsl0-dev
 
 #Install NodeJS (needed for YARN)
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
@@ -16,8 +20,10 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
 COPY . /app
 WORKDIR /app
 
-RUN bundle install -j10 && \
-    yarn install --production=false && \
-    find . -type f -print0 | xargs -0 dos2unix
+RUN gem install bundler && \
+    bundle install -j10 && \
+    bundle update sassc-rails && \
+    yarn install && \
+    yarn upgrade
 
 ENTRYPOINT ["/app/docker-scripts/entrypoint.sh"]

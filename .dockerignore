@@ -2,3 +2,8 @@
 docker-compose.yml
 .dockerignore
 Dockerfile
+node_modules
+tmp
+elm-stuff
+.idea
+log
