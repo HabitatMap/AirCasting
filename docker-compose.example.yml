@@ -1,4 +1,6 @@
 version: "2"
+volumes:
+  aircasting-db-volume:
 services:
   aircasting:
     image: gaunitz/aircasting:latest
@@ -25,6 +27,8 @@ services:
       MYSQL_DATABASE: aircasting_production
       MYSQL_USER: aircasting-user
       MYSQL_PASSWORD: aircasting-user-password
+    volumes:
+    - aircasting-db-volume:/var/lib/mysql
   aircasting-redis:
     image: redis:6.0.9
 #    ports:

@@ -92,10 +92,10 @@ source ./setenv.sh
 
 ### Docker
 #### Quickstart
-Replace environment settings and ports in `docker-compose.yml` as needed. _Ports of Redis and MariaDB do not have to be forwarded to the host, but can be useful for debugging._
-
-##### Start up AirCasting server, MariaDB and Redis Server
+Start up AirCasting server, MariaDB and Redis Server
 ```bash
+cp docker-compose.example.yml docker-compose.yml
+# Replace settings in docker-compose.yml as needed
 docker-compose up -d
 # visit http://localhost:3000/mobile_map
 ```
@@ -108,6 +108,7 @@ docker build -t aircasting .
 
 #### Build AirCasting image locally using docker-compose (also starts up stack)
 ```bash
+cp docker-compose.build.example.yml docker-compose.build.yml
 docker-compose -f docker.compose.build.yml up -d --build
 ```
 
