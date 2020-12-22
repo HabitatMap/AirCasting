@@ -1,10 +1,9 @@
 version: "2"
-volumes:
-  aircasting-db-data:
-    driver: local
 services:
   aircasting:
-    image: devdocker.wifa.uni-leipzig.de:5000/de4l/aircasting
+    image: gaunitz/aircasting:latest
+    ports:
+      - 3000:3000
     environment:
       RAILS_SERVE_STATIC_FILES: 'true'
       RAILS_LOG_TO_STDOUT: 'true'
@@ -15,39 +14,21 @@ services:
       MYSQL_PASSWORD: root-password
       MYSQL_HOST: aircasting-db
       REDIS_URL: redis://aircasting-redis:6379/1
-    labels:
-      project: de4l
-      io.rancher.container.pull_image: always
+      RAILS_DISABLE_MAILER: 'true'
   aircasting-db:
     image: mariadb:10.5.4
     restart: unless-stopped
+#    ports:
+#      - 3001:3306
     environment:
       MYSQL_ROOT_PASSWORD: root-password
       MYSQL_DATABASE: aircasting_production
       MYSQL_USER: aircasting-user
       MYSQL_PASSWORD: aircasting-user-password
-    volumes_from:
-      - aircasting-db-volume
-    labels:
-      project: de4l
-      io.rancher.sidekicks: aircasting-db-volume
-      io.rancher.container.hostname_override: container_name
-      io.rancher.container.pull_image: always
-  aircasting-db-volume:
-    image: rawmind/alpine-volume:0.0.2-1
-    environment:
-      SERVICE_GID: '1000'
-      SERVICE_UID: '1000'
-      SERVICE_VOLUME: /var/lib/mysql
-    network_mode: none
-    volumes:
-      - aircasting-db-data:/var/lib/mysql
-    labels:
-      io.rancher.container.start_once: 'true'
-      io.rancher.container.hostname_override: container_name
-      io.rancher.container.pull_image: always
   aircasting-redis:
     image: redis:6.0.9
+#    ports:
+#      - 3002:6379
     labels:
       project: de4l
       io.rancher.container.hostname_override: container_name

@@ -52,6 +52,65 @@ bundle exec foreman start
 # visit http://localhost:3000/mobile_map
 ```
 
+### Using environment variables for local configuration
+Instead of editing the configuration files, environment variables can be used to configure aircasting server.
+```bash
+cp config/database.yml.external config/database.yml
+cp config/configuration.yml.external config/configuration.yml
+cp setenv.sh.example setenv.sh
+# Edit values in setenv.sh
+source ./setenv.sh
+```
+
+#### Settings
+| Variable                 | Description                         | Default Value                                                                                                                    | Affected config file |
+|--------------------------|-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|----------------------|
+| RAILS_ENV                | Rails environment (e.g. production) | -                                                                                                                                |                      |
+| RAILS_SERVE_STATIC_FILES | Serve web application and API       | -                                                                                                                                |                      |
+| RAILS_LOG_TO_STDOUT      | Log to console                      | -                                                                                                                                |                      |
+| MYSQL_DATABASE           | MySQL / MariaDB Database            | aircasting_production,   aircasting_development or aircasting_test<br>_(according to environment)_                               | database.yml         |
+| MYSQL_USER               | MySQL / MariaDB User                | root                                                                                                                             | database.yml         |
+| MYSQL_PASSWORD           | MySQL / MariaDB Password            | [empty string]                                                                                                                   | database.yml         |
+| MYSQL_HOST               | MySQL / MariaDB Server Host         | localhost                                                                                                                        | database.yml         |
+| MYSQL_PORT               | MySQL / MariaDB Server Port         | 3306                                                                                                                             | database.yml         |
+| GOOGLE_MAPS_API_KEY      | API Key for Google Maps JS          | -                                                                                                                                | configuration.yml    |
+| BITLY_TOKEN              | Bitly Token                         | -                                                                                                                                | configuration.yml    |
+| HONEYBADGER_API_KEY      | Honeybadger API Key                 | -                                                                                                                                | configuration.yml    |
+| HONEYBADGER_ENV          | Honeybadger ENV                     | -                                                                                                                                | configuration.yml    |
+| ANALYTICS_ENABLED        | Enable Google Analytics             | false                                                                                                                            | configuration.yml    |
+| AWS_ACCESS_KEY           | AWS Access Key ID                   | -                                                                                                                                | configuration.yml    |
+| AWS_SECRET_KEY           | AWS Secret Access Key               | -                                                                                                                                | configuration.yml    |
+| OPEN_AQ_SQS_QUEUE_NAME   | Open AQ queue name                  | openaq-test                                                                                                                      | configuration.yml    |
+| OPEN_AQ_IMPORT_ENABLED   | Enable Open AQ Import               | false                                                                                                                            | configuration.yml    |
+| AC_URL                   | AirCasting server url               | http://localhost:3000/                                                                                                           | configuration.yml    |
+| AC_HOST                  | AirCasting server host              | localhost:3000                                                                                                                   | configuration.yml    |
+| MAILER_FROM              | From email address                  | noreply@localhost                                                                                                                | configuration.yml    |
+| MAILER_ATTACHMENT_SECRET | Attachement secret                  | some long and random string                                                                                                      | configuration.yml    |
+| RAILS_SECRET_KEY_BASE    | Rails secret key base               | 5431cc4af51b53bbd2ea9ea292a261b7b9a1722573bfc43e8297f79bb289e2ad14e41c08528d397f04b3276727d19a10d48d517d1267d4206ca320d17bcefdea | configuration.yml    |
+| REDIS_URL                | Redis URL                           | redis://localhost:6379/1                                                                                                         | cable.yml            |
+
+
+### Docker
+#### Quickstart
+Replace environment settings and ports in `docker-compose.yml` as needed. _Ports of Redis and MariaDB do not have to be forwarded to the host, but can be useful for debugging._
+
+##### Start up AirCasting server, MariaDB and Redis Server
+```bash
+docker-compose up -d
+# visit http://localhost:3000/mobile_map
+```
+
+#### Build AirCasting image locally
+
+```bash
+docker build -t aircasting .
+```
+
+#### Build AirCasting image locally using docker-compose (also starts up stack)
+```bash
+docker-compose -f docker.compose.build.yml up -d --build
+```
+
 ### Obtaining a bitly access token
 
 Go to https://bitly.com/ create an account and log in. To generate the token go to Settings -> Advanced settings -> For Developers -> OAuth -> Generic Access Token.

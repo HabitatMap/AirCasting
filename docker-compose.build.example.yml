@@ -19,8 +19,8 @@ services:
   aircasting-db:
     image: mariadb:10.5.4
     restart: unless-stopped
-    ports:
-      - 3001:3306
+#    ports:
+#      - 3001:3306
     environment:
       MYSQL_ROOT_PASSWORD: root-password
       MYSQL_DATABASE: aircasting_production
@@ -28,8 +28,8 @@ services:
       MYSQL_PASSWORD: aircasting-user-password
   aircasting-redis:
     image: redis:6.0.9
-    ports:
-      - 3002:6379
+#    ports:
+#      - 3002:6379
     labels:
       project: de4l
       io.rancher.container.hostname_override: container_name
