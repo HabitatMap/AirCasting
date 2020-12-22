@@ -1,0 +1,15 @@
+defaults:
+  google_maps_api_key: <%= ENV["GOOGLE_MAPS_API_KEY"]%>
+  bitly_access_token: <%= ENV["BITLY_TOKEN"] %>
+  host: <%= ENV.fetch("AC_URL") { "http://localhost:3000/" } %>
+  host_: <%= ENV.fetch("AC_HOST") { "localhost:3000" } %>
+  mailer_from: <%= ENV.fetch("MAILER_FROM") { "noreply@localhost" } %>
+  attachment_secret: <%= ENV.fetch("MAILER_ATTACHMENT_SECRET") { "some long and random string" } %>
+  rails_secret_key_base: <%= ENV.fetch("RAILS_SECRET_KEY_BASE") { "5431cc4af51b53bbd2ea9ea292a261b7b9a1722573bfc43e8297f79bb289e2ad14e41c08528d397f04b3276727d19a10d48d517d1267d4206ca320d17bcefdea" } %>
+  honeybadger_api_key: <%= ENV["HONEYBADGER_API_KEY"] %>
+  honeybadger_env: <%= ENV["HONEYBADGER_ENV"] %>
+  analytics_enabled: <%= ENV.fetch("ANALYTICS_ENABLED") { "false" } %>
+  aws_access_key_id: <%= ENV["AWS_ACCESS_KEY"] %>
+  aws_secret_access_key: <%= ENV["AWS_SECRET_KEY"] %>
+  sidekiq_open_aq_import_measurements_enabled: <%= ENV.fetch("OPEN_AQ_IMPORT_ENABLED") { "false" } %>
+  open_aq_sqs_queue_name: <%= ENV.fetch("OPEN_AQ_SQS_QUEUE_NAME") { "openaq-test" } %>
