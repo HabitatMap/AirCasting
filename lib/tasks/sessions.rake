@@ -33,7 +33,10 @@ namespace :sessions do
         "min latitude",
         "max latitude",
         "min longitude",
-        "max longitude"
+        "max longitude",
+        "average",
+        "unit of measurement",
+        "measurement type"
       ]
       streams = Stream.joins(:session).where(sessions: { type: "MobileSession" }).includes(:session)
       puts "Processing #{streams.count} streams."
@@ -46,7 +49,10 @@ namespace :sessions do
           stream.min_latitude,
           stream.max_latitude,
           stream.min_longitude,
-          stream.max_longitude
+          stream.max_longitude,
+          stream.average_value,
+          stream.unit_symbol,
+          stream.measurement_type
         ]
         putc "."
       end
