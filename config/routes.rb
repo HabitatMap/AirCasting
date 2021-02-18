@@ -63,7 +63,9 @@ Rails.application.routes.draw do
     namespace :realtime do
       get 'sync_measurements' => 'sessions#sync_measurements'
       resources :sessions, only: %i[create show]
-      resources :measurements, only: :create
+      resources :measurements, only: :create do
+        collection { post :create_async }
+      end
     end
 
     namespace :fixed do
