@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+export MYSQL_DATABASE=aircasting-dev
+export MYSQL_USER=root
+export MYSQL_PASSWORD=root-password
+export MYSQL_HOST=127.0.0.1
+export MYSQL_PORT=3001
+export RAILS_ENV=production
+export REDIS_URL=redis://localhost:3002/1
+export RAILS_SERVE_STATIC_FILES=true
+export RAILS_LOG_TO_STDOUT=true
+
+export GOOGLE_MAPS_API_KEY
+export BITLY_TOKEN
+export HONEYBADGER_API_KEY
+export HONEYBADGER_ENV
+export ANALYTICS_ENABLED
+export AWS_ACCESS_KEY
+export AWS_SECRET_KEY
+export OPEN_AQ_SQS_QUEUE_NAME
+export OPEN_AQ_IMPORT_ENABLED
+export AC_URL
+export AC_HOST
+export MAILER_FROM
+export MAILER_ATTACHMENT_SECRET
+export RAILS_SECRET_KEY_BASE

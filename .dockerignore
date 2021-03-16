@@ -1,0 +1,11 @@
+# Created by .ignore support plugin (hsz.mobi)
+docker-compose.yml
+docker-compose.build.yml
+docker-compose.rancher.yml
+.dockerignore
+Dockerfile
+node_modules
+tmp
+elm-stuff
+.idea
+log
