@@ -69,7 +69,7 @@ all =
                 ]
                     |> idForParameterOrLabel Mobile "Particulate Matter" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Particulate Matter-airbeam3-pm2.5 (µg/m³)"
-        , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam2-rh for Humidity" <|
+        , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam3-rh for Humidity" <|
             \page ->
                 [ { parameter = "Humidity"
                   , name = "Other Label"
@@ -77,13 +77,13 @@ all =
                   , sessionCount = 1
                   }
                 , { parameter = "Humidity"
-                  , name = "AirBeam2-RH"
+                  , name = "AirBeam3-RH"
                   , unit = "%"
                   , sessionCount = 0
                   }
                 ]
                     |> idForParameterOrLabel page "Humidity" "parameter2-sensor3 (unit)"
-                    |> Expect.equal "Humidity-airbeam2-rh (%)"
+                    |> Expect.equal "Humidity-airbeam3-rh (%)"
         , fuzz pageFuzzer "idForParameterOrLabel always finds phone microphone for Sound Levels" <|
             \page ->
                 [ { parameter = "Sound Level"
@@ -99,7 +99,7 @@ all =
                 ]
                     |> idForParameterOrLabel page "Sound Level" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Sound Level-phone microphone (dB)"
-        , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam2-f for Temperature" <|
+        , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam3-f for Temperature" <|
             \page ->
                 [ { parameter = "Temperature"
                   , name = "Other Label"
@@ -107,13 +107,13 @@ all =
                   , sessionCount = 1
                   }
                 , { parameter = "Temperature"
-                  , name = "AirBeam2-F"
+                  , name = "AirBeam3-F"
                   , unit = "F"
                   , sessionCount = 0
                   }
                 ]
                     |> idForParameterOrLabel page "Temperature" "parameter2-sensor3 (unit)"
-                    |> Expect.equal "Temperature-airbeam2-f (F)"
+                    |> Expect.equal "Temperature-airbeam3-f (F)"
         , test "when on mobile page and the default is missing idForParameterOrLabel returns airbeam3-pm2.5" <|
             \_ ->
                 []
