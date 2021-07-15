@@ -133,8 +133,8 @@ all =
                 "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
                     |> labelsForParameter Fixed sensors_
                     |> Expect.equal
-                        ( [ "AirBeam3-PM1 (µg/m³)"
-                          , "AirBeam3-PM2.5 (µg/m³)"
+                        ( [ "AirBeam3-PM2.5 (µg/m³)"
+                          , "AirBeam3-PM1 (µg/m³)"
                           , "AirBeam3-PM10 (µg/m³)"
                           , "AirBeam2-PM2.5 (µg/m³)"
                           , "AirBeam2-PM1 (µg/m³)"
@@ -163,8 +163,8 @@ all =
                 "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
                     |> labelsForParameter Mobile sensors_
                     |> Expect.equal
-                        ( [ "AirBeam3-PM1 (µg/m³)"
-                          , "AirBeam3-PM2.5 (µg/m³)"
+                        ( [ "AirBeam3-PM2.5 (µg/m³)"
+                          , "AirBeam3-PM1 (µg/m³)"
                           , "AirBeam3-PM10 (µg/m³)"
                           , "AirBeam2-PM2.5 (µg/m³)"
                           , "AirBeam2-PM1 (µg/m³)"
