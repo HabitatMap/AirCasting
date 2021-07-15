@@ -18,15 +18,16 @@ class Api::ToSensorsArray
   end
 
   def sensors(session_type)
-    Stream.joins(:session).where('sessions.contribute' => true).where(
-      'sessions.type' => session_type
-    )
+    Stream
+      .joins(:session)
+      .where('sessions.contribute' => true)
+      .where('sessions.type' => session_type)
       .select(
-      :sensor_name,
-      :measurement_type,
-      :unit_symbol,
-      'count(*) as session_count'
-    )
+        :sensor_name,
+        :measurement_type,
+        :unit_symbol,
+        'count(*) as session_count'
+      )
       .group(:sensor_name, :measurement_type, :unit_symbol)
       .map { |stream| stream.attributes.symbolize_keys }
   end

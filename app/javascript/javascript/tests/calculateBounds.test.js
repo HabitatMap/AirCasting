@@ -1,14 +1,14 @@
 import test from "blue-tape";
 import { calculateBounds } from "../calculateBounds";
 
-test("returns the correct bounds", t => {
+test("returns the correct bounds", (t) => {
   const session = {
     stream: {
       min_latitude: 1,
       max_latitude: 3,
       min_longitude: 1,
-      max_longitude: 3
-    }
+      max_longitude: 3,
+    },
   };
 
   const actual = calculateBounds(session);
@@ -19,7 +19,7 @@ test("returns the correct bounds", t => {
   t.end();
 });
 
-test("if the session has no stream returns infinities", t => {
+test("if the session has no stream returns infinities", (t) => {
   const session = {};
   const actual = calculateBounds(session);
 
@@ -27,7 +27,7 @@ test("if the session has no stream returns infinities", t => {
     north: -Infinity,
     east: -Infinity,
     south: Infinity,
-    west: Infinity
+    west: Infinity,
   };
   t.deepEqual(actual, expected);
 

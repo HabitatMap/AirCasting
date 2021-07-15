@@ -16,7 +16,7 @@ const lightBlue = "#4ebcd5"; // rgb(78, 188, 213)
 const grayBlue = "#2a70b8"; // rgb(42, 112, 184)
 const indigo = "#19237e"; // rgb(25, 35, 126)
 
-export const applyTheme = callback => {
+export const applyTheme = (callback) => {
   updateFixedClusters();
   updateRectangles();
   callback();
@@ -34,14 +34,14 @@ export const fixedClusterStyles = () => {
       { url: assets.clusterTheme2Level1Path, height: 30, width: 30 },
       { url: assets.clusterTheme2Level2Path, height: 30, width: 30 },
       { url: assets.clusterTheme2Level3Path, height: 30, width: 30 },
-      { url: assets.clusterTheme2Level4Path, height: 30, width: 30 }
+      { url: assets.clusterTheme2Level4Path, height: 30, width: 30 },
     ];
   } else {
     return [
       { url: assets.clusterTheme1Level1Path, height: 30, width: 30 },
       { url: assets.clusterTheme1Level2Path, height: 30, width: 30 },
       { url: assets.clusterTheme1Level3Path, height: 30, width: 30 },
-      { url: assets.clusterTheme1Level4Path, height: 30, width: 30 }
+      { url: assets.clusterTheme1Level4Path, height: 30, width: 30 },
     ];
   }
 };
@@ -52,14 +52,14 @@ export const locationMarkersByLevel = () => {
       1: assets.locationMarkerTheme2Level1Path,
       2: assets.locationMarkerTheme2Level2Path,
       3: assets.locationMarkerTheme2Level3Path,
-      4: assets.locationMarkerTheme2Level4Path
+      4: assets.locationMarkerTheme2Level4Path,
     };
   } else {
     return {
       1: assets.locationMarkerTheme1Level1Path,
       2: assets.locationMarkerTheme1Level2Path,
       3: assets.locationMarkerTheme1Level3Path,
-      4: assets.locationMarkerTheme1Level4Path
+      4: assets.locationMarkerTheme1Level4Path,
     };
   }
 };
@@ -71,7 +71,7 @@ export const pulsingMarkerStyles = () => {
       1: assets.pulsingMarkerTheme2Level1Path,
       2: assets.pulsingMarkerTheme2Level2Path,
       3: assets.pulsingMarkerTheme2Level3Path,
-      4: assets.pulsingMarkerTheme2Level4Path
+      4: assets.pulsingMarkerTheme2Level4Path,
     };
   } else {
     return {
@@ -79,16 +79,16 @@ export const pulsingMarkerStyles = () => {
       1: assets.pulsingMarkerTheme1Level1Path,
       2: assets.pulsingMarkerTheme1Level2Path,
       3: assets.pulsingMarkerTheme1Level3Path,
-      4: assets.pulsingMarkerTheme1Level4Path
+      4: assets.pulsingMarkerTheme1Level4Path,
     };
   }
 };
 
 const updateRectangles = () => {
   if (!window.__map.rectangles) return;
-  window.__map.rectangles.forEach(rectangle => {
+  window.__map.rectangles.forEach((rectangle) => {
     rectangle.setOptions({
-      fillColor: rectangleColour(rectangle.data.value)
+      fillColor: rectangleColour(rectangle.data.value),
     });
   });
 };
@@ -103,8 +103,8 @@ const rectanglesStyles = () => {
   }
 };
 
-export const rectangleColour = value => {
-  const levelIndex = heatLevels().findIndex(level => value <= level);
+export const rectangleColour = (value) => {
+  const levelIndex = heatLevels().findIndex((level) => value <= level);
 
   return rectanglesStyles()[levelIndex];
 };

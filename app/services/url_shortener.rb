@@ -8,7 +8,9 @@ class UrlShortener
       http.post(
         url: 'https://api-ssl.bitly.com/v4/shorten',
         token: A9n.bitly_access_token,
-        body: { 'long_url' => link }
+        body: {
+          'long_url' => link
+        }
       )
 
     if result.success?

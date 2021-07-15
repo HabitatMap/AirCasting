@@ -1,17 +1,17 @@
 let counter = 0;
 const cache = {};
 
-const update = by => {
+const update = (by) => {
   counter += by;
   window.__elmApp.ports.updateIsHttping.send(counter !== 0);
 };
 
 export const get = (url, params) => {
   const query = Object.keys(params)
-    .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k]))
+    .map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(params[k]))
     .join("&");
 
-  return fetch(url + "?" + query).then(x => {
+  return fetch(url + "?" + query).then((x) => {
     return x.json();
   });
 };
@@ -24,10 +24,10 @@ export const getQ = (url, params) => {
 
   update(+1);
   return fetch(url + "?" + "q=" + encodedParams)
-    .then(x => {
+    .then((x) => {
       return x.json();
     })
-    .then(x => {
+    .then((x) => {
       cache[cacheKey] = x;
       update(-1);
       return x;

@@ -8,9 +8,9 @@ class Api::ToMobileSessionHash
     return Failure.new(form.errors) if form.invalid?
 
     session =
-      @model.includes(:streams).where(
-        id: data.id, streams: { sensor_name: data.sensor_name }
-      )
+      @model
+        .includes(:streams)
+        .where(id: data.id, streams: { sensor_name: data.sensor_name })
         .first!
     stream = session.streams.first
     notes = session.notes.map(&:as_json)
@@ -52,14 +52,17 @@ class Api::ToMobileSessionHash
     @measurements ||=
       begin
         fields = %i[value time longitude latitude]
-        stream.measurements.pluck(*fields).map do |record_fields|
-          {
-            value: record_fields[0],
-            time: format_time(record_fields[1]),
-            longitude: record_fields[2],
-            latitude: record_fields[3]
-          }
-        end
+        stream
+          .measurements
+          .pluck(*fields)
+          .map do |record_fields|
+            {
+              value: record_fields[0],
+              time: format_time(record_fields[1]),
+              longitude: record_fields[2],
+              latitude: record_fields[3]
+            }
+          end
       end
   end
 end

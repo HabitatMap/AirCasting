@@ -21,9 +21,9 @@ class Api::ToMeasurementsArray
     start_time = Time.at(form.to_h[:start_time] / 1_000)
     end_time = Time.at(form.to_h[:end_time] / 1_000)
 
-    Measurement.with_streams(form.to_h[:stream_ids].split(',')).where(
-      time: start_time..end_time
-    )
+    Measurement
+      .with_streams(form.to_h[:stream_ids].split(','))
+      .where(time: start_time..end_time)
   end
 
   def all

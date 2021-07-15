@@ -8,19 +8,19 @@ var popup = new google.maps.InfoWindow();
 
 export const drawNotes = (notesData, map, sessionMarker) => {
   notes = [];
-  notesData.forEach(noteData => drawNote(noteData, map, sessionMarker));
-  return notes.map(note => note.marker);
+  notesData.forEach((noteData) => drawNote(noteData, map, sessionMarker));
+  return notes.map((note) => note.marker);
 };
 
 const drawNote = (data, map, sessionMarker) => {
   const marker = map.drawMarker({
     position: {
       lat: adjustedLatitude(data, sessionMarker),
-      lng: data.longitude
+      lng: data.longitude,
     },
     title: data.text,
     icon: markerNote,
-    zIndex: 200000
+    zIndex: 200000,
   });
 
   notes.push({ data, marker });
@@ -30,12 +30,12 @@ const drawNote = (data, map, sessionMarker) => {
   });
 };
 
-const show = index => {
+const show = (index) => {
   popup.open(window.__map, notes[index].marker);
   popup.setContent(createHtml(index));
 };
 
-const createHtml = index => {
+const createHtml = (index) => {
   const data = notes[index].data;
   const date = moment(data.date, "YYYY-MM-DDTHH:mm:ss").format(
     "MM/DD/YYYY, HH:mm:ss"
@@ -49,15 +49,17 @@ const createHtml = index => {
   let paginationHtml = "";
   if (notes.length > 1) {
     paginationHtml = `<div class="note-pagination">
-        <button class="note-pagination__arrow note-pagination__arrow--prev switchNote" id=${index -
-          1}>
+        <button class="note-pagination__arrow note-pagination__arrow--prev switchNote" id=${
+          index - 1
+        }>
           <
         </button>
         <span class="note-pagination__page">
           ${index + 1} of ${notes.length}
         </span>
-        <button class="note-pagination__arrow note-pagination__arrow--next switchNote" id=${index +
-          1}>
+        <button class="note-pagination__arrow note-pagination__arrow--next switchNote" id=${
+          index + 1
+        }>
           >
         </button>
       </div>`;
@@ -88,21 +90,23 @@ google.maps.event.addListener(popup, "domready", () => {
     new Luminous(photo);
   }
 
-  Array.from(document.getElementsByClassName("switchNote")).forEach(button => {
-    button.addEventListener("click", () => {
-      let index = parseInt(button.id);
-      if (index < 0) index += notes.length;
-      if (index >= notes.length) index -= notes.length;
+  Array.from(document.getElementsByClassName("switchNote")).forEach(
+    (button) => {
+      button.addEventListener("click", () => {
+        let index = parseInt(button.id);
+        if (index < 0) index += notes.length;
+        if (index >= notes.length) index -= notes.length;
 
-      show(index);
-    });
-  });
+        show(index);
+      });
+    }
+  );
 });
 
 const adjustedLatitude = (note, marker) => {
   const notePoint = window.__map.getProjection().fromLatLngToPoint({
     lat: () => note.latitude,
-    lng: () => note.longitude
+    lng: () => note.longitude,
   });
   const markerPoint = window.__map.getProjection().fromLatLngToPoint(marker);
 
@@ -112,7 +116,7 @@ const adjustedLatitude = (note, marker) => {
         notePoint.y -
         pixelsToLength(5, window.__map.getZoom()) -
         (notePoint.y - markerPoint.y),
-      x: notePoint.x
+      x: notePoint.x,
       // Longitude increases as point.y coordinate decreases. That's why we subtract form notePoint.y to move the note up, so that it's above the marker.
     });
 

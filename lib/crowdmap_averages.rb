@@ -25,11 +25,13 @@ module CrowdmapAverages
     end
 
     def measurements_in_viewport
-      Measurement.unscoped.select(
-        'AVG(value) AS avg, ' +
-          "ROUND(measurements.longitude / #{grid_x}, 0) AS middle_x, " +
-          "ROUND(measurements.latitude / #{grid_y}, 0) AS middle_y "
-      )
+      Measurement
+        .unscoped
+        .select(
+          'AVG(value) AS avg, ' +
+            "ROUND(measurements.longitude / #{grid_x}, 0) AS middle_x, " +
+            "ROUND(measurements.latitude / #{grid_y}, 0) AS middle_y "
+        )
         .joins(:stream)
         .merge(streams)
         .group('middle_x')
@@ -38,9 +40,10 @@ module CrowdmapAverages
     end
 
     def streams
-      Stream.mobile.only_contributed.with_measurement_type(
-        data[:measurement_type]
-      )
+      Stream
+        .mobile
+        .only_contributed
+        .with_measurement_type(data[:measurement_type])
         .with_sensor(data[:sensor_name])
         .with_unit_symbol(data[:unit_symbol])
         .in_rectangle(data)
@@ -85,9 +88,9 @@ module CrowdmapAverages
     end
 
     def measurements_from_sessions
-      measurements_in_viewport.with_time(data).belonging_to_sessions_with_ids(
-        data[:session_ids]
-      )
+      measurements_in_viewport
+        .with_time(data)
+        .belonging_to_sessions_with_ids(data[:session_ids])
     end
   end
 

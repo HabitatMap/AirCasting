@@ -1,4 +1,4 @@
-export const formatSessionForList = session => ({
+export const formatSessionForList = (session) => ({
   title: session.title || "unnamed",
   username: session.username,
   id: session.id,
@@ -17,14 +17,14 @@ export const formatSessionForList = session => ({
   // for fixed sessions location is constant so and stored on the session directly
   location: {
     lat: session.selectedStream.start_latitude || session.latitude,
-    lng: session.selectedStream.start_longitude || session.longitude
-  }
+    lng: session.selectedStream.start_longitude || session.longitude,
+  },
 });
 
 const average = (session, selectedSensor) =>
   (session.stream || session.streams[selectedSensor]).average_value;
 
-const lastHourAverage = session => session.last_hour_average;
+const lastHourAverage = (session) => session.last_hour_average;
 
 export const averageValueAndUnit = (session, selectedSensor) =>
   roundedAverage(session, selectedSensor) +
@@ -36,16 +36,16 @@ export const lastHourAverageValueAndUnit = (session, selectedSensor) =>
   " " +
   selectedSensorUnit(session, selectedSensor);
 
-export const id = session => session.id;
+export const id = (session) => session.id;
 
 export const startingLatLng = (session, selectedSensor) => {
   return {
     lat: () => startingLat(session, selectedSensor),
-    lng: () => startingLng(session, selectedSensor)
+    lng: () => startingLng(session, selectedSensor),
   };
 };
 
-export const latLng = session => {
+export const latLng = (session) => {
   return { lat: () => session.latitude, lng: () => session.longitude };
 };
 
@@ -58,7 +58,7 @@ const startingLng = (session, selectedSensor) =>
 export const roundedAverage = (session, selectedSensor) =>
   Math.round(average(session, selectedSensor));
 
-export const lastHourRoundedAverage = session =>
+export const lastHourRoundedAverage = (session) =>
   Math.round(lastHourAverage(session));
 
 const selectedSensorUnit = (session, selectedSensor) =>

@@ -6,7 +6,7 @@ import map from "./map";
 const UNITED_STATES = {
   lat: 37.09024,
   lng: -95.712891,
-  zoom: 5
+  zoom: 5,
 };
 
 export const init = () => {
@@ -35,17 +35,17 @@ export const init = () => {
         google.maps.MapTypeId.ROADMAP,
         google.maps.MapTypeId.SATELLITE,
         google.maps.MapTypeId.TERRAIN,
-        google.maps.MapTypeId.HYBRID
-      ]
+        google.maps.MapTypeId.HYBRID,
+      ],
     },
     panControl: false,
     streetViewControl: true,
     streetViewControlOptions: {
-      position: google.maps.ControlPosition.RIGHT_TOP
+      position: google.maps.ControlPosition.RIGHT_TOP,
     },
     styles: MapSettings.mapSettings(),
     zoom: parseInt(zoom, 10),
-    zoomControl: false
+    zoomControl: false,
   };
   map.init(element, options);
 };

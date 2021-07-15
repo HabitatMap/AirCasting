@@ -44,6 +44,7 @@ class User < ApplicationRecord
   # https://github.com/plataformatec/devise/wiki/How-To:-Allow-users-to-sign_in-using-their-username-or-email-address
   def self.find_for_database_authentication(conditions)
     conditions = conditions.dup
+
     # login if coming from mobile || email if coming from web
     login = conditions.delete(:login) || conditions.fetch(:email)
 
@@ -53,8 +54,7 @@ class User < ApplicationRecord
           'lower(email) = :value',
         { value: login.downcase, token: login }
       ]
-    )
-      .first
+    ).first
   end
 
   # Inspired by Devise wiki
@@ -87,7 +87,8 @@ class User < ApplicationRecord
           else
             session.sync(session_data)
           end
-        elsif !session && !session_data[:deleted] # session hasn't been yet uploaded by the mobile app
+        elsif !session && !session_data[:deleted]
+          # session hasn't been yet uploaded by the mobile app
           upload << uuid
         else
           # session was not found && session_data[:deleted] == true
@@ -97,10 +98,13 @@ class User < ApplicationRecord
 
     uuids = data.map { |x| x[:uuid] }
     download =
-      sessions.where.not(uuid: uuids).select do |session|
-        (session.streams.count != 0) &&
-          (session.streams.all? { |stream| stream.measurements.count != 0 })
-      end.map(&:id)
+      sessions
+        .where.not(uuid: uuids)
+        .select do |session|
+          (session.streams.count != 0) &&
+            (session.streams.all? { |stream| stream.measurements.count != 0 })
+        end
+        .map(&:id)
 
     { upload: upload, download: download, deleted: deleted }
   end

@@ -4,20 +4,20 @@ import * as assets from "../assets";
 let items = [];
 
 export const hide = () => {
-  items.forEach(item => {
+  items.forEach((item) => {
     removeMarker(item.marker);
   });
   items = [];
 };
 
-export const show = points => {
+export const show = (points) => {
   hide();
-  points.forEach(point => {
+  points.forEach((point) => {
     items.push({
       marker: drawTraceMarker({
-        position: { lat: point.latitude, lng: point.longitude }
+        position: { lat: point.latitude, lng: point.longitude },
       }),
-      point: point
+      point: point,
     });
   });
 };

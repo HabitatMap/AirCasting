@@ -52,7 +52,8 @@ describe Api::Realtime::MeasurementsController do
       before do
         FactoryBot.create(
           :fixed_session,
-          user: user, uuid: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+          user: user,
+          uuid: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
         )
       end
 

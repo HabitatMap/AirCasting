@@ -13,7 +13,7 @@ import sessionsDownloader from "./sessionsDownloader";
 import pubsub from "./pubsub";
 
 export default (() => {
-  var FixedSessions = function() {
+  var FixedSessions = function () {
     this.sessions = [];
     this.fetchableSessionsCount = 0;
     this.type = "FixedSessions";
@@ -25,26 +25,26 @@ export default (() => {
   } else {
     prevMapPosition = {
       bounds: map.getBounds(),
-      zoom: map.getZoom()
+      zoom: map.getZoom(),
     };
   }
 
   FixedSessions.prototype = {
     isMobile: () => false,
 
-    allSessionIds: function() {
+    allSessionIds: function () {
       return _(this.get()).pluck("id");
     },
 
-    get: function() {
+    get: function () {
       return _.uniq(this.sessions, "id");
     },
 
-    isSelected: function(session) {
+    isSelected: function (session) {
       return params.selectedSessionId() === session.id;
     },
 
-    onSessionsFetch: function(fetchableSessionsCount) {
+    onSessionsFetch: function (fetchableSessionsCount) {
       window.__elmApp.ports.updateSessions.send(
         sessionsInfoForElm(
           this.sessions,
@@ -59,7 +59,7 @@ export default (() => {
       }
     },
 
-    deselectSession: function() {
+    deselectSession: function () {
       if (!params.isSessionSelected()) return;
       params.update({ prevMapPosition: {} });
       params.update({ selectedSessionIds: [] });
@@ -68,13 +68,13 @@ export default (() => {
       this.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
     },
 
-    selectSession: function(session) {
+    selectSession: function (session) {
       params.update({ selectedSessionIds: [session.id] });
 
       if (!session.is_indoor) {
         prevMapPosition = {
           bounds: map.getBounds(),
-          zoom: map.getZoom()
+          zoom: map.getZoom(),
         };
         params.update({ prevMapPosition: prevMapPosition });
         map.fitBoundsWithBottomPadding(calculateBounds(session));
@@ -82,7 +82,7 @@ export default (() => {
       }
     },
 
-    drawSelectedSession: function(session) {
+    drawSelectedSession: function (session) {
       if (params.isActive()) {
         this.drawMarkersWithLabel(session);
       } else {
@@ -90,7 +90,7 @@ export default (() => {
       }
     },
 
-    downloadSessions: function(url, reqData) {
+    downloadSessions: function (url, reqData) {
       sessionsDownloader(
         url,
         reqData,
@@ -99,63 +99,63 @@ export default (() => {
       );
     },
 
-    redrawSelectedSession: function() {
+    redrawSelectedSession: function () {
       this.drawSessionsInLocation();
     },
 
-    drawSessionsInLocation: function() {
+    drawSessionsInLocation: function () {
       clearMap();
       if (params.get("data").isIndoor) return;
 
       const sessions = this.get();
 
       if (!params.get("data").isActive) {
-        sessions.forEach(session => this.drawMarkersWithoutLabel(session));
+        sessions.forEach((session) => this.drawMarkersWithoutLabel(session));
         return;
       }
 
-      sessions.forEach(session =>
+      sessions.forEach((session) =>
         this.drawMarkersWithLabel(session, sensors.selectedSensorName())
       );
 
       map.clusterMarkers(showClusterInfo(sensors.selectedSensorName()));
     },
 
-    drawMarkersWithLabel: function(session, selectedSensor) {
+    drawMarkersWithLabel: function (session, selectedSensor) {
       const content = Session.lastHourAverageValueAndUnit(
         session,
         selectedSensor
       );
       const heatLevel = heat.levelName(Session.lastHourRoundedAverage(session));
       const latLng = Session.latLng(session);
-      const callback = id => () =>
+      const callback = (id) => () =>
         pubsub.publish("markerSelected", { session_id: id });
 
       const marker = map.drawMarkerWithLabel({
         object: {
           latLng,
           id: Session.id(session),
-          value: Session.lastHourRoundedAverage(session)
+          value: Session.lastHourRoundedAverage(session),
         },
         content: content,
         colorClass: heatLevel,
-        callback: callback(Session.id(session))
+        callback: callback(Session.id(session)),
       });
     },
 
-    drawMarkersWithoutLabel: function(session) {
+    drawMarkersWithoutLabel: function (session) {
       const latLng = Session.latLng(session);
-      const callback = id => () =>
+      const callback = (id) => () =>
         pubsub.publish("markerSelected", { session_id: id });
 
       const customMarker = map.drawMarkerWithoutLabel({
         object: { latLng },
         colorClass: "default",
-        callback: callback(Session.id(session))
+        callback: callback(Session.id(session)),
       });
     },
 
-    fetch: function(values = {}) {
+    fetch: function (values = {}) {
       if (params.isSessionSelected()) return;
       const limit = values.amount || 100;
       const offset = values.fetchedSessionsCount || 0;
@@ -168,7 +168,7 @@ export default (() => {
         time_from: data.timeFrom,
         time_to: data.timeTo,
         tags: data.tags,
-        usernames: data.usernames
+        usernames: data.usernames,
       };
 
       if (data.isIndoor) {
@@ -180,7 +180,7 @@ export default (() => {
           south: map.getBounds().south,
           north: map.getBounds().north,
           limit,
-          offset
+          offset,
         });
       }
 
@@ -188,7 +188,7 @@ export default (() => {
         _(reqData).extend({
           sensor_name: sensors.selected().sensor_name,
           measurement_type: sensors.selected().measurement_type,
-          unit_symbol: sensors.selected().unit_symbol
+          unit_symbol: sensors.selected().unit_symbol,
         });
       }
       clearMap();
@@ -200,19 +200,19 @@ export default (() => {
       } else {
         this.downloadSessions("/api/fixed/dormant/sessions.json", reqData);
       }
-    }
+    },
   };
   return new FixedSessions();
 })();
 
-export const showClusterInfo = sensorName => cluster => {
+export const showClusterInfo = (sensorName) => (cluster) => {
   map.setSelectedCluster(cluster);
 
   const data = {
     q: {
-      session_ids: cluster.getMarkers().map(marker => marker.objectId()),
-      sensor_name: sensorName
-    }
+      session_ids: cluster.getMarkers().map((marker) => marker.objectId()),
+      sensor_name: sensorName,
+    },
   };
 
   infoWindow.show(

@@ -12,7 +12,8 @@ module AirCasting
                   else
                     where(
                       "#{field} >= :low OR #{field} <= :high",
-                      low: low, high: high
+                      low: low,
+                      high: high
                     )
                   end
                 end

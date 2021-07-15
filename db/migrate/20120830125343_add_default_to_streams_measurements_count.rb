@@ -3,6 +3,7 @@ class AddDefaultToStreamsMeasurementsCount < ActiveRecord::Migration[4.2]
     change_column :streams,
                   :measurements_count,
                   :integer,
-                  null: false, default: 0
+                  null: false,
+                  default: 0
   end
 end

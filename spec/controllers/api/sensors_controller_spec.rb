@@ -8,10 +8,12 @@ describe Api::SensorsController do
       create_stream!(session: mobile_session, sensor_name: 'mobile_sensor')
       create_stream!(session: fixed_session, sensor_name: 'fixed_sensor')
       create_stream!(
-        session: mobile_session, sensor_name: 'mobile_and_fixed_sensor'
+        session: mobile_session,
+        sensor_name: 'mobile_and_fixed_sensor'
       )
       create_stream!(
-        session: fixed_session, sensor_name: 'mobile_and_fixed_sensor'
+        session: fixed_session,
+        sensor_name: 'mobile_and_fixed_sensor'
       )
 
       get :index, params: { session_type: 'MobileSession' }

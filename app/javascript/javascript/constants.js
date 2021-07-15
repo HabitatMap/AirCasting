@@ -2,7 +2,7 @@ export default {
   fixedMapRoute: "/fixed_map",
   mobileMapRoute: "/mobile_map",
   fixedSession: "Fixed",
-  mobileSession: "Mobile"
+  mobileSession: "Mobile",
 };
 
 export const DEFAULT_THEME = "default";

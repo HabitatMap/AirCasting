@@ -75,16 +75,18 @@ def create_measurement!(attributes = {})
 end
 
 def create_measurements!(attributes)
-  attributes.fetch(:count, 1).times do |n|
-    Measurement.create!(
-      time: Time.current - n.minutes,
-      latitude: random_float,
-      longitude: random_float,
-      value: attributes.fetch(:value, random_float),
-      milliseconds: random_int,
-      stream: attributes.fetch(:stream)
-    )
-  end
+  attributes
+    .fetch(:count, 1)
+    .times do |n|
+      Measurement.create!(
+        time: Time.current - n.minutes,
+        latitude: random_float,
+        longitude: random_float,
+        value: attributes.fetch(:value, random_float),
+        milliseconds: random_int,
+        stream: attributes.fetch(:stream)
+      )
+    end
 end
 
 def create_old_measurements!(attributes)

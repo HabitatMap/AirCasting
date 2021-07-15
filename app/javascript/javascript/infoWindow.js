@@ -3,7 +3,7 @@ import {
   savePosition,
   mapObj,
   getSavedPosition,
-  setHasChangedProgrammatically
+  setHasChangedProgrammatically,
 } from "./mapsUtils";
 import heat from "./heat";
 import sensors from "./sensors";
@@ -14,16 +14,16 @@ import map from "./map";
 let first = true;
 
 const infoWindow = () => {
-  var InfoWindow = function() {
+  var InfoWindow = function () {
     this.popup = new google.maps.InfoWindow();
   };
 
   InfoWindow.prototype = {
-    get: function() {
+    get: function () {
       return this.popup;
     },
 
-    show: function(url, data, position, sessionType) {
+    show: function (url, data, position, sessionType) {
       if (first) savePosition();
       first = false;
 
@@ -32,10 +32,10 @@ const infoWindow = () => {
       this.popup.setOptions({ disableAutoPan: true });
       this.popup.open(mapObj());
 
-      getQ(url, data.q).then(data => this.onShowData(data, sessionType));
+      getQ(url, data.q).then((data) => this.onShowData(data, sessionType));
     },
 
-    onShowData: function(data, sessionType) {
+    onShowData: function (data, sessionType) {
       const html =
         sessionType === constants.fixedSession
           ? `
@@ -76,7 +76,7 @@ const infoWindow = () => {
       this.popup.setOptions({ disableAutoPan: false });
       this.popup.open(mapObj());
 
-      google.maps.event.addListenerOnce(this.popup, "closeclick", function() {
+      google.maps.event.addListenerOnce(this.popup, "closeclick", function () {
         map.fitBounds(getSavedPosition().bounds, getSavedPosition().zoom);
         first = true;
       });
@@ -89,10 +89,10 @@ const infoWindow = () => {
       map.addListener("zoom_changed", _(this.hide).bind(this));
     },
 
-    hide: function() {
+    hide: function () {
       this.popup.close();
       first = true;
-    }
+    },
   };
 
   return new InfoWindow();

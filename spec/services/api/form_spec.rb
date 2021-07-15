@@ -31,7 +31,7 @@ describe Api::ParamsForm do
 
     context 'when required param is present' do
       it 'returns true' do
-        params = { "name": 'name' }
+        params = { 'name': 'name' }
         schema = Test::Schema
         struct = Test::Struct
 
@@ -59,7 +59,7 @@ describe Api::ParamsForm do
 
     context 'required param is present' do
       it 'returns no errors' do
-        params = { "name": 'name' }
+        params = { 'name': 'name' }
         schema = Test::Schema
         struct = Test::Struct
 
@@ -74,7 +74,7 @@ describe Api::ParamsForm do
   describe '#to_h' do
     context 'required param is present' do
       it 'returns no errors' do
-        params = { "name": 'name' }
+        params = { 'name': 'name' }
         schema = Test::Schema
         struct = Test::Struct
 

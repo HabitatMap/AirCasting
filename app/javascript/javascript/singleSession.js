@@ -10,9 +10,9 @@ export const measurementsToTimeWithExtremes = ({ measurements, times }) => {
       x: start,
       y: null,
       latitude: null,
-      longitude: null
+      longitude: null,
     },
-    ...measurementsToTime(measurements)
+    ...measurementsToTime(measurements),
   };
 
   return ms.hasOwnProperty(end)
@@ -23,21 +23,21 @@ export const measurementsToTimeWithExtremes = ({ measurements, times }) => {
           x: end,
           y: null,
           latitude: null,
-          longitude: null
-        }
+          longitude: null,
+        },
       };
 };
 
-export const measurementsToTime = measurements => {
+export const measurementsToTime = (measurements) => {
   // Using a .reduce makes the code too slow
   const res = {};
 
-  measurements.forEach(measurement => {
+  measurements.forEach((measurement) => {
     res[measurement.time] = {
       x: measurement.time,
       y: measurement.value,
       latitude: measurement.latitude,
-      longitude: measurement.longitude
+      longitude: measurement.longitude,
     };
   });
 

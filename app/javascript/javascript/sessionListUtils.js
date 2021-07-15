@@ -5,21 +5,21 @@ export const sessionsInfoForElm = (sessions, count, sensorName) => ({
     .map(selectedStream(sensorName))
     .map(formatSessionForList)
     .map(formatSessionForElm),
-  fetchableSessionsCount: count
+  fetchableSessionsCount: count,
 });
 
-const selectedStream = sensorName => session => ({
+const selectedStream = (sensorName) => (session) => ({
   ...session,
-  selectedStream: session.streams[sensorName]
+  selectedStream: session.streams[sensorName],
 });
 
-const formatSessionForElm = s => ({
+const formatSessionForElm = (s) => ({
   ...s,
   shortTypes: s.shortTypes.map(({ name, type }) => ({ name, type_: type })),
-  average: nullOrValue(s.average)
+  average: nullOrValue(s.average),
 });
 
-const nullOrValue = value => {
+const nullOrValue = (value) => {
   if (value === undefined) {
     return null;
   } else {

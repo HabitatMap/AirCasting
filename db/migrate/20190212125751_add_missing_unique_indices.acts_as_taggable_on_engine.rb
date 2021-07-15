@@ -15,7 +15,8 @@ class AddMissingUniqueIndices < ActiveRecord::Migration[4.2]
                 tagger_id
                 tagger_type
               ],
-              unique: true, name: 'taggings_idx'
+              unique: true,
+              name: 'taggings_idx'
   end
 
   def self.down

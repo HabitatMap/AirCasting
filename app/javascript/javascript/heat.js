@@ -1,15 +1,15 @@
 import { getParams } from "./params";
 import _ from "underscore";
 
-export const heat = params => {
-  var Heat = function() {};
+export const heat = (params) => {
+  var Heat = function () {};
 
   Heat.prototype = {
-    getValue: function(name) {
+    getValue: function (name) {
       return (params().data.heat || {})[name];
     },
 
-    getLevel: function(value) {
+    getLevel: function (value) {
       if (value < this.getValue("lowest")) {
         return null;
       } else if (value <= this.getValue("low")) {
@@ -25,7 +25,7 @@ export const heat = params => {
       }
     },
 
-    levelName: function(value) {
+    levelName: function (value) {
       if (value < this.getValue("lowest")) {
         return "default";
       } else if (value <= this.getValue("low")) {
@@ -41,13 +41,13 @@ export const heat = params => {
       }
     },
 
-    outsideOfScope: function(value) {
+    outsideOfScope: function (value) {
       return (
         value < this.getValue("lowest") || value > this.getValue("highest")
       );
     },
 
-    classByValue: function(value) {
+    classByValue: function (value) {
       switch (this.getLevel(Math.round(value))) {
         case 1:
           return "level1-bg";
@@ -66,15 +66,15 @@ export const heat = params => {
       }
     },
 
-    heats: function(heat) {
+    heats: function (heat) {
       return _(heat)
         .chain()
         .values()
-        .sortBy(function(i) {
+        .sortBy(function (i) {
           return i;
         })
         .value();
-    }
+    },
   };
 
   return new Heat();

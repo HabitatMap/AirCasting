@@ -38,9 +38,9 @@ class Stream < ApplicationRecord
           "(max_latitude >= :south #{
             latitude_operator
           } max_latitude <= :north)",
-        south: data[:south], north: data[:north]
-      )
-        .where(
+        south: data[:south],
+        north: data[:north]
+      ).where(
         '(:west >= min_longitude AND :west <= max_longitude) ' \
           'OR ' \
           '(:east >= min_longitude AND :east <= max_longitude) ' \
@@ -52,7 +52,8 @@ class Stream < ApplicationRecord
           "(max_longitude >= :west #{
             longitude_operator
           } max_longitude <= :east)",
-        west: data[:west], east: data[:east]
+        west: data[:west],
+        east: data[:east]
       )
     end
   )
@@ -62,9 +63,10 @@ class Stream < ApplicationRecord
     lambda do |tags|
       if tags.present?
         session_ids =
-          Session.tagged_with(tags).where('sessions.id IS NOT NULL').pluck(
-            'DISTINCT sessions.id'
-          )
+          Session
+            .tagged_with(tags)
+            .where('sessions.id IS NOT NULL')
+            .pluck('DISTINCT sessions.id')
         where(session_id: session_ids) if session_ids.present?
       end
     end
@@ -94,9 +96,10 @@ class Stream < ApplicationRecord
     lambda do |usernames|
       if usernames.present?
         user_ids =
-          User.select('users.id').where('users.username IN (?)', usernames).map(
-            &:id
-          )
+          User
+            .select('users.id')
+            .where('users.username IN (?)', usernames)
+            .map(&:id)
         joins(:session).where(sessions: { user_id: user_ids })
       end
     end
@@ -143,8 +146,8 @@ class Stream < ApplicationRecord
 
   def self.thresholds(sensor_name, unit_symbol)
     select(
-      "CONCAT_WS('-', threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high) as thresholds, COUNT(*) as thresholds_count"
-    )
+        "CONCAT_WS('-', threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high) as thresholds, COUNT(*) as thresholds_count"
+      )
       .where(sensor_name: sensor_name, unit_symbol: unit_symbol)
       .order('thresholds_count DESC')
       .group(:thresholds)
@@ -180,9 +183,8 @@ class Stream < ApplicationRecord
 
   def last_hour_average
     last_measurement_time = measurements.last.time
-    measurements.where(
-      time: last_measurement_time - 1.hour..last_measurement_time
-    )
+    measurements
+      .where(time: last_measurement_time - 1.hour..last_measurement_time)
       .average(:value)
   end
 end

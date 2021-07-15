@@ -38,12 +38,15 @@ module OpenAq
     end
 
     def call
-      @client.receive_message(max_number_of_messages: 1).messages
+      @client
+        .receive_message(max_number_of_messages: 1)
+        .messages
         .map do |message|
-        OpenAq::Message.new(
-          body: message.body, receipt_handle: message.receipt_handle
-        )
-      end
+          OpenAq::Message.new(
+            body: message.body,
+            receipt_handle: message.receipt_handle
+          )
+        end
     end
   end
 
@@ -62,13 +65,15 @@ module OpenAq
   class SqsClient
     def receive_message(max_number_of_messages:)
       client.receive_message(
-        queue_url: queue_url, max_number_of_messages: max_number_of_messages
+        queue_url: queue_url,
+        max_number_of_messages: max_number_of_messages
       )
     end
 
     def delete_message(receipt_handle:)
       client.delete_message(
-        queue_url: queue_url, receipt_handle: receipt_handle
+        queue_url: queue_url,
+        receipt_handle: receipt_handle
       )
     end
 
@@ -91,11 +96,12 @@ module OpenAq
   class FetchFiles
     def call(s3_objects:)
       s3_objects.map do |s3_object|
-        Aws::S3::Client.new(
-          region: s3_object.region,
-          access_key_id: A9n.aws_access_key_id,
-          secret_access_key: A9n.aws_secret_access_key
-        )
+        Aws::S3::Client
+          .new(
+            region: s3_object.region,
+            access_key_id: A9n.aws_access_key_id,
+            secret_access_key: A9n.aws_secret_access_key
+          )
           .get_object(bucket: s3_object.bucket, key: s3_object.key)
           .body
           .read

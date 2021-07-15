@@ -14,13 +14,16 @@ class Api::ToSessionHash2
     measurements =
       begin
         fields = %i[time value latitude longitude]
-        stream.measurements.pluck(*fields).map do |record_fields|
-          hash = {}
-          fields.each_with_index do |field, index|
-            hash[field] = record_fields[index]
+        stream
+          .measurements
+          .pluck(*fields)
+          .map do |record_fields|
+            hash = {}
+            fields.each_with_index do |field, index|
+              hash[field] = record_fields[index]
+            end
+            hash
           end
-          hash
-        end
       end
 
     Success.new(

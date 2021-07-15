@@ -1,7 +1,7 @@
 let prevMapPosition = {};
 let hasChangedProgrammatically = false;
 
-export const setHasChangedProgrammatically = value => {
+export const setHasChangedProgrammatically = (value) => {
   hasChangedProgrammatically = value;
 };
 
@@ -17,7 +17,7 @@ export const pixelsToLength = (pixels, zoom) => pixels * Math.pow(2, -zoom);
 export const savePosition = () => {
   prevMapPosition = {
     bounds: getBounds(),
-    zoom: window.__map.getZoom()
+    zoom: window.__map.getZoom(),
   };
 };
 
@@ -32,7 +32,7 @@ const getBounds = () => {
       west: bounds.getSouthWest().lng(),
       east: bounds.getNorthEast().lng(),
       south: bounds.getSouthWest().lat(),
-      north: bounds.getNorthEast().lat()
+      north: bounds.getNorthEast().lat(),
     };
   } else {
     return {};
@@ -40,10 +40,10 @@ const getBounds = () => {
 };
 
 export const onMapInit = () => {
-  google.maps.event.addListenerOnce(mapObj(), "idle", function() {
+  google.maps.event.addListenerOnce(mapObj(), "idle", function () {
     window.__elmApp.ports.zoomChanged.send(window.__map.getZoom());
 
-    window.__elmApp.ports.setZoom.subscribe(level => {
+    window.__elmApp.ports.setZoom.subscribe((level) => {
       window.__map.setZoom(level);
     });
 

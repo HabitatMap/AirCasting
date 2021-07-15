@@ -12,8 +12,7 @@ describe AverageStreams do
     AverageStreams.new(
       rules:
         AveragingRules.add(threshold: measurements.size + 1, window: random_int)
-    )
-      .call
+    ).call
 
     expect(Measurement.count).to eq(measurements.size)
     expect(stream.attributes).to eq(Stream.first.attributes)
@@ -33,8 +32,7 @@ describe AverageStreams do
     AverageStreams.new(
       rules:
         AveragingRules.add(threshold: measurements.size, window: random_int)
-    )
-      .call
+    ).call
 
     expect(Measurement.count).to eq(measurements.size)
     expect(stream.attributes).to eq(Stream.first.attributes)
@@ -50,16 +48,24 @@ describe AverageStreams do
       create_measurement!(stream: stream, value: 1, time: DateTime.current)
     middle_2 =
       create_measurement!(
-        stream: stream, value: 4, time: DateTime.current + 3.days
+        stream: stream,
+        value: 4,
+        time: DateTime.current + 3.days
       )
     create_measurement!(
-      stream: stream, value: 2, time: DateTime.current + 1.day
+      stream: stream,
+      value: 2,
+      time: DateTime.current + 1.day
     )
     create_measurement!(
-      stream: stream, value: 0, time: DateTime.current - 1.day
+      stream: stream,
+      value: 0,
+      time: DateTime.current - 1.day
     )
     create_measurement!(
-      stream: stream, value: 3, time: DateTime.current + 2.days
+      stream: stream,
+      value: 3,
+      time: DateTime.current + 2.days
     )
 
     AverageStreams.new(rules: AveragingRules.add(threshold: 2, window: 3)).call
@@ -80,8 +86,7 @@ describe AverageStreams do
 
     AverageStreams.new(
       rules: AveragingRules.add(threshold: 1, window: random_int)
-    )
-      .call
+    ).call
 
     expect(Stream.all.map(&:average_value)).to eq([1.5])
   end
@@ -93,8 +98,7 @@ describe AverageStreams do
 
     AverageStreams.new(
       rules: AveragingRules.add(threshold: 2, window: random_int)
-    )
-      .call
+    ).call
 
     expect(Stream.all.map(&:average_value)).to eq([stream.average_value])
   end
@@ -107,8 +111,7 @@ describe AverageStreams do
     AverageStreams.new(
       rules:
         AveragingRules.add(threshold: 1, window: 2).add(threshold: 2, window: 3)
-    )
-      .call
+    ).call
 
     expect(Measurement.count).to eq(1)
   end
@@ -119,10 +122,14 @@ describe AverageStreams do
     middle =
       create_measurement!(stream: stream, value: 1, time: DateTime.current)
     create_measurement!(
-      stream: stream, value: 2, time: DateTime.current + 1.day
+      stream: stream,
+      value: 2,
+      time: DateTime.current + 1.day
     )
     create_measurement!(
-      stream: stream, value: 0, time: DateTime.current - 1.day
+      stream: stream,
+      value: 0,
+      time: DateTime.current - 1.day
     )
 
     AverageStreams.new(rules: AveragingRules.add(threshold: 1, window: 4)).call
@@ -161,8 +168,7 @@ describe AverageStreams do
     AverageStreams.new(
       rules: AveragingRules.add(threshold: 1, window: 2),
       streams_find_each: streams_find_each
-    )
-      .call
+    ).call
 
     expect(stream_1.measurements.count).to eq(1)
     expect(stream_2.measurements.count).to eq(2)

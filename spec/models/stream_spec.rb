@@ -7,12 +7,11 @@ describe Stream do
     let(:measurement_data) { double('measurement data') }
 
     before do
-      expect(Measurement).to receive(:new).with(measurement_data).and_return(
-        measurement
-      )
-      expect(measurement).to receive(:stream=).with(any_args) { |x|
-        x.id == stream.id
-      }
+      expect(Measurement).to receive(:new)
+        .with(measurement_data)
+        .and_return(measurement)
+      expect(measurement).to receive(:stream=)
+        .with(any_args) { |x| x.id == stream.id }
       expect(Measurement).to receive(:import).with(any_args) do |measurements|
         expect(measurements).to include measurement
         import_result

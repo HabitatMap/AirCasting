@@ -21,14 +21,13 @@ class Csv::AppendNotesContent
   end
 
   def append_note(csv, note)
-    csv <<
-      [
-        note.text,
-        format_time(note.date),
-        note.latitude,
-        note.longitude,
-        format_url(note)
-      ]
+    csv << [
+      note.text,
+      format_time(note.date),
+      note.latitude,
+      note.longitude,
+      format_url(note)
+    ]
   end
 
   def format_time(date)

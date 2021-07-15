@@ -37,7 +37,9 @@ describe Api::UserSessionsController do
 
       post :sync,
            format: :json,
-           params: { data: session_data(uuid: 'abc', deleted: true) }
+           params: {
+             data: session_data(uuid: 'abc', deleted: true)
+           }
 
       expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
 
@@ -60,7 +62,10 @@ describe Api::UserSessionsController do
     it "syncs the session data if it's present in db and wasn't mark for deletion" do
       session =
         create_session!(
-          user: user, uuid: 'abc', title: 'old title', tag_list: 'old'
+          user: user,
+          uuid: 'abc',
+          title: 'old title',
+          tag_list: 'old'
         )
       stream = create_stream!(session: session)
       create_measurements!(stream: stream)
@@ -70,7 +75,9 @@ describe Api::UserSessionsController do
            params: {
              data:
                session_data(
-                 uuid: 'abc', title: 'new title', tag_list: 'new other'
+                 uuid: 'abc',
+                 title: 'new title',
+                 tag_list: 'new other'
                )
            }
 
@@ -91,7 +98,9 @@ describe Api::UserSessionsController do
       let(:session) do
         FactoryBot.create(
           :mobile_session,
-          user: user, streams: [stream], tag_list: 'hello world'
+          user: user,
+          streams: [stream],
+          tag_list: 'hello world'
         )
       end
 
@@ -279,7 +288,10 @@ describe Api::UserSessionsController do
   describe '#sync_with_versioning' do
     it "returns session for upload when it's not present in the db" do
       post :sync_with_versioning,
-           format: :json, params: { data: session_data2(uuid: 'abc') }
+           format: :json,
+           params: {
+             data: session_data2(uuid: 'abc')
+           }
 
       expected = { 'download' => [], 'upload' => %w[abc], 'deleted' => [] }
 
@@ -291,7 +303,10 @@ describe Api::UserSessionsController do
       session.destroy
 
       post :sync_with_versioning,
-           format: :json, params: { data: session_data2(uuid: 'abc') }
+           format: :json,
+           params: {
+             data: session_data2(uuid: 'abc')
+           }
 
       expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
 
@@ -303,7 +318,9 @@ describe Api::UserSessionsController do
 
       post :sync_with_versioning,
            format: :json,
-           params: { data: session_data2(uuid: 'abc', deleted: true) }
+           params: {
+             data: session_data2(uuid: 'abc', deleted: true)
+           }
 
       expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
 
@@ -330,7 +347,9 @@ describe Api::UserSessionsController do
 
       post :sync_with_versioning,
            format: :json,
-           params: { data: session_data2(uuid: 'abc', version: 1) }
+           params: {
+             data: session_data2(uuid: 'abc', version: 1)
+           }
 
       expected = { 'download' => %w[abc], 'upload' => [], 'deleted' => [] }
 
@@ -360,9 +379,7 @@ describe Api::UserSessionsController do
       \"latitude\":0.0,
       \"location\":\"http://localhost/s/4oefo\",
       \"longitude\":0.0,
-      \"deleted\":#{
-      attributes.fetch(:deleted, false)
-    },
+      \"deleted\":#{attributes.fetch(:deleted, false)},
       \"notes\":[],
       \"start_time\":\"2019-05-24T11:37:16\",
       \"streams\":{\"Phone Microphone\"
@@ -381,16 +398,10 @@ describe Api::UserSessionsController do
           \"threshold_very_low\":20,
           \"unit_name\":\"decibels\"}
         },
-      \"tag_list\":\"#{
-      attributes.fetch(:tag_list, '')
-    }\",
-      \"title\":\"#{
-      attributes.fetch(:title, 'title')
-    }\",
+      \"tag_list\":\"#{attributes.fetch(:tag_list, '')}\",
+      \"title\":\"#{attributes.fetch(:title, 'title')}\",
       \"type\":\"MobileSession\",
-      \"uuid\":\"#{
-      attributes.fetch(:uuid, 'uuid')
-    }\"}
+      \"uuid\":\"#{attributes.fetch(:uuid, 'uuid')}\"}
     ]"
   end
 end

@@ -5,7 +5,8 @@ describe Session do
     it 'returns sessions that started and ended in the range' do
       session =
         create_session(
-          start_time: Time.new(2_010, 1, 2), end_time: Time.new(2_010, 1, 3)
+          start_time: Time.new(2_010, 1, 2),
+          end_time: Time.new(2_010, 1, 3)
         )
 
       actual =
@@ -21,7 +22,8 @@ describe Session do
     it 'returns sessions that started in the range and ended after the range' do
       session =
         create_session(
-          start_time: Time.new(2_010, 1, 2), end_time: Time.new(2_010, 1, 4)
+          start_time: Time.new(2_010, 1, 2),
+          end_time: Time.new(2_010, 1, 4)
         )
 
       actual =
@@ -37,7 +39,8 @@ describe Session do
     it 'returns sessions that started before the range and ended in the range' do
       session =
         create_session(
-          start_time: Time.new(2_010, 1, 1), end_time: Time.new(2_010, 1, 3)
+          start_time: Time.new(2_010, 1, 1),
+          end_time: Time.new(2_010, 1, 3)
         )
 
       actual =
@@ -53,7 +56,8 @@ describe Session do
     it 'returns sessions that started before the range and ended after the range' do
       session =
         create_session(
-          start_time: Time.new(2_010, 1, 1), end_time: Time.new(2_010, 1, 4)
+          start_time: Time.new(2_010, 1, 1),
+          end_time: Time.new(2_010, 1, 4)
         )
 
       actual =
@@ -69,7 +73,8 @@ describe Session do
     it 'does not return sessions that dont overlap with the range' do
       session =
         create_session(
-          start_time: Time.new(2_010, 1, 1), end_time: Time.new(2_010, 1, 2)
+          start_time: Time.new(2_010, 1, 1),
+          end_time: Time.new(2_010, 1, 2)
         )
 
       actual =

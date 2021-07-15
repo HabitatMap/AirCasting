@@ -14,9 +14,9 @@ class FixedRegionInfo
   private
 
   def streams_ids(data)
-    Stream.select('id').where(
-      sensor_name: data[:sensor_name], session_id: data[:session_ids]
-    )
+    Stream
+      .select('id')
+      .where(sensor_name: data[:sensor_name], session_id: data[:session_ids])
   end
 
   def calculate_stats(streams_ids)
@@ -24,9 +24,9 @@ class FixedRegionInfo
       end_time = end_time(stream_id)
 
       stats =
-        Measurement.with_streams(stream_id).where(
-          time: (end_time - 1.hour)..end_time
-        )
+        Measurement
+          .with_streams(stream_id)
+          .where(time: (end_time - 1.hour)..end_time)
           .select('AVG(value) as average, count(*) as count')
           .first
 
@@ -37,9 +37,10 @@ class FixedRegionInfo
   end
 
   def number_of_contributors(streams_ids)
-    Measurement.with_streams(streams_ids).joins(:session).select(
-      'DISTINCT user_id'
-    )
+    Measurement
+      .with_streams(streams_ids)
+      .joins(:session)
+      .select('DISTINCT user_id')
       .count
   end
 

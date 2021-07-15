@@ -39,7 +39,8 @@ class FixedSession < Session
   end
 
   def as_synchronizable(
-    stream_measurements = false, last_measurement_sync = nil
+    stream_measurements = false,
+    last_measurement_sync = nil
   )
     as_json(
       methods: %i[streams],

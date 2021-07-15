@@ -2,24 +2,12 @@ import Clipboard from "clipboard";
 import moment from "moment";
 import tippy from "tippy.js";
 
-export const endOfToday = () =>
-  moment()
-    .utc()
-    .endOf("day")
-    .format("X");
+export const endOfToday = () => moment().utc().endOf("day").format("X");
 
 export const oneYearAgo = () =>
-  moment()
-    .utc()
-    .startOf("day")
-    .subtract(1, "year")
-    .format("X");
+  moment().utc().startOf("day").subtract(1, "year").format("X");
 
-const humanTime = time =>
-  moment
-    .unix(time)
-    .utc()
-    .format("MM/DD/YY HH:mm");
+const humanTime = (time) => moment.unix(time).utc().format("MM/DD/YY HH:mm");
 
 export const daterangepickerConfig = (timeFrom, timeTo) => ({
   linkedCalendars: false,
@@ -28,8 +16,8 @@ export const daterangepickerConfig = (timeFrom, timeTo) => ({
   startDate: humanTime(timeFrom),
   endDate: humanTime(timeTo),
   locale: {
-    format: "MM/DD/YY HH:mm"
-  }
+    format: "MM/DD/YY HH:mm",
+  },
 });
 
 export const setTimerangeButtonText = (timeFrom, timeTo) => {
@@ -50,7 +38,7 @@ export const setupTimeRangeFilter = (
   ) {
     $(".js--time-range").daterangepicker(
       daterangepickerConfig(timeFrom, timeTo),
-      function(timeFrom, timeTo) {
+      function (timeFrom, timeTo) {
         timeFrom = timeFrom.utcOffset(0, true).unix();
         timeTo = timeTo.utcOffset(0, true).unix();
 
@@ -67,7 +55,7 @@ export const setupTimeRangeFilter = (
 
     $(".js--time-range-button").daterangepicker(
       daterangepickerConfig(timeFrom, timeTo),
-      function(timeFrom, timeTo) {
+      function (timeFrom, timeTo) {
         onTimeRangeChanged(
           timeFrom.utcOffset(0, true).unix(),
           timeTo.utcOffset(0, true).unix()
@@ -114,18 +102,18 @@ export const setupTagsAutocomplete = (callback, path, createParams) => {
   if (document.getElementById("tags")) {
     $(".js--tags-input")
       .autocomplete({
-        source: function(request, response) {
+        source: function (request, response) {
           const data = {
-            q: { input: request.term, ...createParams() }
+            q: { input: request.term, ...createParams() },
           };
           $.getJSON(path, data, response);
         },
-        select: function(event, ui) {
+        select: function (event, ui) {
           callback(ui.item.value);
         },
-        minLength: 0
+        minLength: 0,
       })
-      .focus(function() {
+      .focus(function () {
         $(this).autocomplete("search");
       });
   } else {
@@ -133,18 +121,18 @@ export const setupTagsAutocomplete = (callback, path, createParams) => {
   }
 };
 
-export const setupProfileNamesAutocomplete = callback => {
+export const setupProfileNamesAutocomplete = (callback) => {
   if (document.getElementById("profile-names")) {
     $(".js--profile-names-input").autocomplete({
-      source: function(request, response) {
+      source: function (request, response) {
         const data = {
-          q: { input: request.term }
+          q: { input: request.term },
         };
         $.getJSON("api/autocomplete/usernames", data, response);
       },
-      select: function(event, ui) {
+      select: function (event, ui) {
         callback(ui.item.value);
-      }
+      },
     });
   } else {
     window.setTimeout(setupProfileNamesAutocomplete(callback), 100);
@@ -158,14 +146,14 @@ export const setupClipboard = () => {
 const tooltipInstance = (() => {
   let instance;
 
-  return tooltipId => {
+  return (tooltipId) => {
     const oldInstance = instance;
     instance =
       tippy(`#${tooltipId}`, {
         animateFill: false,
         interactive: true,
         theme: "light-border",
-        trigger: "manual"
+        trigger: "manual",
       })[0] || oldInstance;
 
     return instance;
@@ -179,9 +167,9 @@ export const fetchShortUrl = (tooltipId, currentUrl) => {
   tooltip.show();
 
   fetch("api/short_url?longUrl=" + currentUrl)
-    .then(response => response.json())
-    .then(json => updateTooltipContent(json.short_url, tooltip))
-    .catch(err => {
+    .then((response) => response.json())
+    .then((json) => updateTooltipContent(json.short_url, tooltip))
+    .catch((err) => {
       console.warn("Couldn't fetch shorten url: ", err);
       updateTooltipContent(currentUrl, tooltip);
     });

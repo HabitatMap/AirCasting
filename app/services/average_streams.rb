@@ -1,8 +1,8 @@
 class AverageStreams
   def initialize(
-    rules: AveragingRules.add(threshold: 14_400, window: 5).add(
-      threshold: 32_400, window: 60
-    ),
+    rules: AveragingRules
+      .add(threshold: 14_400, window: 5)
+      .add(threshold: 32_400, window: 60),
     streams_find_each: StreamsFindEach.new,
     streams_repository: StreamsRepository.new,
     logger: Rails.logger
@@ -46,7 +46,10 @@ class AverageStreams
   # cannot use `find_each` or similar because they do not guarantee ordering
   def measurements_windows(all_ids, window)
     all_ids.each_slice(query_window_from(window)) do |ids|
-      Measurement.where(id: ids).order('time ASC').each_slice(window)
+      Measurement
+        .where(id: ids)
+        .order('time ASC')
+        .each_slice(window)
         .each { |measurement| yield measurement }
     end
   end

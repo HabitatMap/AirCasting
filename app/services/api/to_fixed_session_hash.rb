@@ -8,9 +8,9 @@ class Api::ToFixedSessionHash
     return Failure.new(form.errors) if form.invalid?
 
     session =
-      @model.includes(:streams).where(
-        id: data.id, streams: { sensor_name: data.sensor_name }
-      )
+      @model
+        .includes(:streams)
+        .where(id: data.id, streams: { sensor_name: data.sensor_name })
         .first!
     stream = session.streams.first
     notes = session.notes.map(&:as_json)
@@ -51,13 +51,18 @@ class Api::ToFixedSessionHash
 
   def measurements(stream, limit = nil)
     @measurements ||=
-      stream.measurements.reorder(time: :desc).limit(limit).map do |m|
-        {
-          value: m.value,
-          time: format_time(m.time),
-          longitude: m.longitude,
-          latitude: m.latitude
-        }
-      end.reverse
+      stream
+        .measurements
+        .reorder(time: :desc)
+        .limit(limit)
+        .map do |m|
+          {
+            value: m.value,
+            time: format_time(m.time),
+            longitude: m.longitude,
+            latitude: m.latitude
+          }
+        end
+        .reverse
   end
 end

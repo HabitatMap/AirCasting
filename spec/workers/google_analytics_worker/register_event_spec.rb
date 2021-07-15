@@ -11,7 +11,8 @@ describe GoogleAnalyticsWorker::RegisterEvent do
 
       it 'schedules async job' do
         result = double
-        expect(described_class).to receive(:perform_async).with(event_action)
+        expect(described_class).to receive(:perform_async)
+          .with(event_action)
           .and_return(result)
 
         expect(subject).to eq result

@@ -13,10 +13,12 @@ describe Api::Mobile::AutocompleteController do
         max_longitude: 16
       )
       create_tagged_session!(
-        tag: 'tag-different-sensor-name', sensor_name: 'different'
+        tag: 'tag-different-sensor-name',
+        sensor_name: 'different'
       )
       create_tagged_session!(
-        tag: 'tag-different-unit-symbol', unit_symbol: 'different'
+        tag: 'tag-different-unit-symbol',
+        unit_symbol: 'different'
       )
       create_tagged_session!(tag: 'tag-no-measurements', measurements: false)
       create_tagged_session!(

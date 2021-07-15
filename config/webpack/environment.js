@@ -8,12 +8,12 @@ environment.loaders.delete("nodeModules");
 environment.plugins.append(
   "nouislider",
   new webpack.ProvidePlugin({
-    noUiSlider: "nouislider"
+    noUiSlider: "nouislider",
   })
 );
 
 environment.loaders.get("sass").use.splice(-1, 0, {
-  loader: "resolve-url-loader"
+  loader: "resolve-url-loader",
 });
 
 environment.loaders.prepend("elm", elm);

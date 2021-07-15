@@ -6,9 +6,7 @@ class CalibrateSessions < ActiveRecord::Migration[4.2]
     execute <<-SQL
  			update measurements m
  			LEFT JOIN sessions s on s.id = m.session_id
- 			set value = #{
-      CALIBRATE
-    }
+ 			set value = #{CALIBRATE}
  		SQL
   end
 

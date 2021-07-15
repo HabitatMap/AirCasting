@@ -13,19 +13,19 @@ const buildChart = ({ renderTo }) => ({
   zoomType: "x",
   resetZoomButton: {
     theme: {
-      display: "none"
-    }
-  }
+      display: "none",
+    },
+  },
 });
 
 const labels = {
   style: {
-    fontFamily: "Arial,sans-serif"
-  }
+    fontFamily: "Arial,sans-serif",
+  },
 };
 
 const navigator = {
-  enabled: false
+  enabled: false,
 };
 
 const buildRangeSelector = ({ buttons, selected }) => ({
@@ -40,7 +40,7 @@ const buildRangeSelector = ({ buttons, selected }) => ({
     "stroke-width": 1,
 
     style: {
-      fontFamily: '"PT Sans", Arial, sans-serif'
+      fontFamily: '"PT Sans", Arial, sans-serif',
     },
 
     states: {
@@ -48,37 +48,37 @@ const buildRangeSelector = ({ buttons, selected }) => ({
         cursor: "pointer",
         fill: "#00b2ef",
         style: {
-          color: "white"
-        }
+          color: "white",
+        },
       },
 
       select: {
         fill: "#00b2ef",
         style: {
           color: "white",
-          fontWeight: "bold"
-        }
+          fontWeight: "bold",
+        },
       },
 
       disabled: {
         style: {
           color: "#a3a0a4",
-          cursor: "default"
-        }
-      }
-    }
+          cursor: "default",
+        },
+      },
+    },
   },
 
   labelStyle: {
     color: "#000",
     fontWeight: "normal",
     fontFamily: '"PT Sans", Arial, sans-serif',
-    textTransform: "lowercase"
+    textTransform: "lowercase",
   },
 
   buttons,
   inputEnabled: false,
-  selected
+  selected,
 });
 
 const plotOptions = {
@@ -88,7 +88,7 @@ const plotOptions = {
     marker: {
       fillColor: "#00b2ef",
       lineWidth: 0,
-      lineColor: "#00b2ef"
+      lineColor: "#00b2ef",
     },
 
     dataGrouping: {
@@ -96,10 +96,10 @@ const plotOptions = {
       units: [
         ["millisecond", []],
         ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
-        ["minute", [1, 2, 3, 4, 5]]
-      ]
-    }
-  }
+        ["minute", [1, 2, 3, 4, 5]],
+      ],
+    },
+  },
 };
 
 const scrollbarOptions = {
@@ -113,18 +113,18 @@ const scrollbarOptions = {
   rifleColor: "#D5D4D4",
   trackBackgroundColor: "none",
   trackBorderWidth: 0,
-  showFull: false
+  showFull: false,
 };
 
-const buildXAxis = xAxis => ({
+const buildXAxis = (xAxis) => ({
   labels: {
     style: {
       color: "#000",
-      fontFamily: '"PT Sans", Arial, sans-serif'
-    }
+      fontFamily: '"PT Sans", Arial, sans-serif',
+    },
   },
   minRange: 10000,
-  ...xAxis
+  ...xAxis,
 });
 
 const buildYAxis = ({ low, high, ticks }) => ({
@@ -136,21 +136,21 @@ const buildYAxis = ({ low, high, ticks }) => ({
   labels: {
     style: {
       color: "#000",
-      fontFamily: '"PT Sans", Arial, sans-serif'
-    }
+      fontFamily: '"PT Sans", Arial, sans-serif',
+    },
   },
   gridLineWidth: 0,
   minPadding: 0,
-  tickPositions: ticks
+  tickPositions: ticks,
 });
 
 const formatter = ({
   measurementType,
   unitSymbol,
   onMouseOverSingle,
-  onMouseOverMultiple
+  onMouseOverMultiple,
 }) =>
-  function() {
+  function () {
     var pointData = this.points[0];
     var series = pointData.series;
     var s = "<span>" + Highcharts.dateFormat("%m/%d/%Y", this.x) + " ";
@@ -165,7 +165,7 @@ const formatter = ({
       s += Highcharts.dateFormat("%H:%M:%S", this.x) + "</span>";
       onMouseOverSingle({
         latitude: parseFloat(pointData.point.latitude),
-        longitude: parseFloat(pointData.point.longitude)
+        longitude: parseFloat(pointData.point.longitude),
       });
     }
     s +=
@@ -182,11 +182,11 @@ const buildTooltip = ({
   measurementType,
   unitSymbol,
   onMouseOverSingle,
-  onMouseOverMultiple
+  onMouseOverMultiple,
 }) => ({
   style: {
     color: "#000000",
-    fontFamily: "Arial,sans-serif"
+    fontFamily: "Arial,sans-serif",
   },
 
   borderWidth: 0,
@@ -194,9 +194,9 @@ const buildTooltip = ({
     measurementType,
     unitSymbol,
     onMouseOverSingle,
-    onMouseOverMultiple
+    onMouseOverMultiple,
   }),
-  positioner: function(labelWidth, labelHeight, point) {
+  positioner: function (labelWidth, labelHeight, point) {
     const pointerWidth = 10;
     const tooltipX = Math.min(
       Math.max(0, point.plotX - (labelWidth - pointerWidth) / 2), // (extreme left, middle)
@@ -211,19 +211,19 @@ const buildTooltip = ({
     }
 
     return { x: tooltipX, y: tooltipY };
-  }
+  },
 });
 
 const credits = {
   enabled: true,
-  position: { align: "right", verticalAlign: "top", x: -4, y: 32 }
+  position: { align: "right", verticalAlign: "top", x: -4, y: 32 },
 };
 
 const responsive = {
   rules: [
     {
       condition: {
-        maxWidth: 480
+        maxWidth: 480,
       },
       chartOptions: {
         rangeSelector: {
@@ -235,35 +235,35 @@ const responsive = {
             width: 33,
             r: 10,
             stroke: "rgba(149, 149, 149, 0.3)",
-            "stroke-width": 1
-          }
-        }
-      }
+            "stroke-width": 1,
+          },
+        },
+      },
     },
     {
       condition: {
-        maxWidth: 550
+        maxWidth: 550,
       },
       chartOptions: {
         chart: {
-          height: 170
-        }
-      }
+          height: 170,
+        },
+      },
     },
     {
       condition: {
-        maxWidth: 700
+        maxWidth: 700,
       },
       chartOptions: {
         scrollbar: {
-          enabled: false
+          enabled: false,
         },
         credits: {
-          position: { align: "right", verticalAlign: "bottom", x: -4, y: -10 }
-        }
-      }
-    }
-  ]
+          position: { align: "right", verticalAlign: "bottom", x: -4, y: -10 },
+        },
+      },
+    },
+  ],
 };
 
 export const buildOptions = ({
@@ -279,7 +279,7 @@ export const buildOptions = ({
   measurementType,
   unitSymbol,
   onMouseOverSingle,
-  onMouseOverMultiple
+  onMouseOverMultiple,
 }) => ({
   chart: buildChart({ renderTo }),
   labels,
@@ -291,11 +291,11 @@ export const buildOptions = ({
     measurementType,
     unitSymbol,
     onMouseOverSingle,
-    onMouseOverMultiple
+    onMouseOverMultiple,
   }),
   xAxis: buildXAxis(xAxis),
   yAxis: buildYAxis({ low, high, ticks }),
   scrollbar: { ...scrollbar, ...scrollbarOptions },
   credits,
-  responsive
+  responsive,
 });

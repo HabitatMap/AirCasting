@@ -11,7 +11,8 @@ describe MeasurementsCreator do
     measurement_attributes = [{}]
 
     expect(sync_measurements_creator).to receive(:call).with(
-      stream: stream, measurements_attributes: measurement_attributes
+      stream: stream,
+      measurements_attributes: measurement_attributes
     )
 
     subject.call(stream, measurement_attributes)
@@ -26,9 +27,8 @@ describe MeasurementsCreator do
     stream = Stream.new(session: MobileSession.new)
     measurement_attributes = [{}]
 
-    expect(async_measurements_creator).to receive(:call).with(
-      stream: stream, measurements_attributes: measurement_attributes
-    )
+    expect(async_measurements_creator).to receive(:call)
+      .with(stream: stream, measurements_attributes: measurement_attributes)
       .once
 
     subject.call(stream, measurement_attributes)

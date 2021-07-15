@@ -15,7 +15,10 @@ class Regression < ApplicationRecord
   end
 
   def self.build_for_streams(
-    target, reference, degree = DEGREE, calculator = RegressionCalculator
+    target,
+    reference,
+    degree = DEGREE,
+    calculator = RegressionCalculator
   )
     coeffs =
       calculator.new(target.measurements, reference.measurements).run(degree)
@@ -44,13 +47,16 @@ class Regression < ApplicationRecord
   end
 
   def self.create_for_streams(
-    target, reference, user, degree = DEGREE, calculator = RegressionCalculator
+    target,
+    reference,
+    user,
+    degree = DEGREE,
+    calculator = RegressionCalculator
   )
     where(
       sensor_name: target.sensor_name,
       sensor_package_name: target.sensor_package_name
-    )
-      .destroy_all
+    ).destroy_all
     reg = build_for_streams(target, reference, degree, calculator)
     reg.user = user
     reg.save

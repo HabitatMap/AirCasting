@@ -33,7 +33,9 @@ class Measurement < ApplicationRecord
         sessions_ids = Session.select('sessions.id').tagged_with(tags).map(&:id)
         if sessions_ids.present?
           joins(:stream).where(
-            streams: { session_id: sessions_ids.compact.uniq }
+            streams: {
+              session_id: sessions_ids.compact.uniq
+            }
           )
         end
       end
@@ -45,19 +47,18 @@ class Measurement < ApplicationRecord
   scope(
     :last_24_hours,
     lambda do |stream_ids|
-      with_streams(stream_ids).order('time DESC').limit(
-        FIXED_MEASUREMENTS_IN_A_DAY
-      )
+      with_streams(stream_ids)
+        .order('time DESC')
+        .limit(FIXED_MEASUREMENTS_IN_A_DAY)
     end
   )
 
   scope(
     :since,
     lambda do |data|
-      with_streams(data[:stream_id]).order('time DESC').where(
-        'time > ?',
-        data[:since_date]
-      )
+      with_streams(data[:stream_id])
+        .order('time DESC')
+        .where('time > ?', data[:since_date])
     end
   )
 
@@ -77,14 +78,12 @@ class Measurement < ApplicationRecord
       time_from = Time.strptime(data[:time_from].to_s, '%s')
       time_to = Time.strptime(data[:time_to].to_s, '%s')
 
-      where('DATE(time) >= ?', time_from.beginning_of_day).where(
-        'DATE(time) <= ?',
-        time_to.end_of_day
-      )
+      where('DATE(time) >= ?', time_from.beginning_of_day)
+        .where('DATE(time) <= ?', time_to.end_of_day)
         .minutes_range(
-        Utils.minutes_of_day(time_from),
-        Utils.minutes_of_day(time_to)
-      )
+          Utils.minutes_of_day(time_from),
+          Utils.minutes_of_day(time_to)
+        )
     end
   )
 
@@ -111,9 +110,10 @@ class Measurement < ApplicationRecord
     :minutes_range,
     lambda do |minutes_from, minutes_to|
       unless Utils.whole_day?(minutes_from, minutes_to)
-        field_in_minutes = lambda do |field|
-          "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{field}))"
-        end
+        field_in_minutes =
+          lambda do |field|
+            "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{field}))"
+          end
 
         where("#{field_in_minutes.call('time')} >= ?", minutes_from).where(
           "#{field_in_minutes.call('time')} <= ?",

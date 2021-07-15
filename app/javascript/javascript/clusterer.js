@@ -7,13 +7,15 @@ const reducer = (objs, map) => (acc, obj) =>
   isClose(obj, objs, map) ? [...acc, obj.object] : acc;
 
 const isClose = (obj, objs, map) =>
-  objs.filter(isNot(obj)).some(otherObj => objectsTooClose(obj, otherObj, map));
+  objs
+    .filter(isNot(obj))
+    .some((otherObj) => objectsTooClose(obj, otherObj, map));
 
 const objectsTooClose = (obj, otherObj, map) => {
   const distance = distanceBetweenInPixels(
     obj.latLng,
     otherObj.latLng,
-    latLng => map.fromLatLngToPoint(latLng),
+    (latLng) => map.fromLatLngToPoint(latLng),
     map.getZoom()
   );
   return distance < DISTANCE_THRESHOLD;
@@ -36,4 +38,4 @@ export const distanceBetweenInPixels = (
 const distance = (point1, point2) =>
   Math.sqrt((point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2);
 
-const isNot = x => y => x !== y;
+const isNot = (x) => (y) => x !== y;

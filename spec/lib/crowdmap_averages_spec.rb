@@ -39,20 +39,28 @@ describe CrowdmapAverages::ForMobile do
     session1 = create_session!(id: 1, user: user)
     stream = create_stream!(session: session1)
     create_measurement!(
-      stream: stream, time: Time.new(2_010, 1, 1, 1, 1), value: 1
+      stream: stream,
+      time: Time.new(2_010, 1, 1, 1, 1),
+      value: 1
     )
     session2 = create_session!(id: 2, user: user)
     stream2 = create_stream!(session: session2)
     create_measurement!(
-      stream: stream2, time: Time.new(2_010, 1, 3, 1, 1), value: 2
+      stream: stream2,
+      time: Time.new(2_010, 1, 3, 1, 1),
+      value: 2
     )
     stream3 = create_stream!(session: session2)
     create_measurement!(
-      stream: stream3, time: Time.new(2_010, 1, 1, 1, 3), value: 2
+      stream: stream3,
+      time: Time.new(2_010, 1, 1, 1, 3),
+      value: 2
     )
     stream4 = create_stream!(session: session2)
     create_measurement!(
-      stream: stream4, time: Time.new(2_011, 1, 3, 1, 1), value: 3
+      stream: stream4,
+      time: Time.new(2_011, 1, 3, 1, 1),
+      value: 3
     )
 
     data = {

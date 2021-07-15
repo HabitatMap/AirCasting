@@ -6,10 +6,10 @@ import heat from "./heat";
 import map from "./map";
 
 export const drawSession = () => {
-  let DrawSession = function() {};
+  let DrawSession = function () {};
 
   DrawSession.prototype = {
-    drawMobileSession: function(session, drawSessionStartingMarker) {
+    drawMobileSession: function (session, drawSessionStartingMarker) {
       if (!session || _.isEmpty(session)) {
         return;
       }
@@ -19,7 +19,7 @@ export const drawSession = () => {
       const suffix = " " + session.unit_symbol;
       let points = [];
 
-      this.measurements(session).forEach(function(measurement, idx) {
+      this.measurements(session).forEach(function (measurement, idx) {
         createMeasurementMarker(measurement, idx, map, suffix);
         points.push(measurement);
       });
@@ -28,18 +28,18 @@ export const drawSession = () => {
       window.__map.polylines.push(map.drawLine(points));
     },
 
-    measurements: function(session) {
+    measurements: function (session) {
       if (!session) {
         return [];
       }
       return session.stream.measurements;
-    }
+    },
   };
 
   return new DrawSession();
 };
 
-const calculateHeatLevel = value => heat.getLevel(value);
+const calculateHeatLevel = (value) => heat.getLevel(value);
 
 const createMeasurementMarker = (measurement, idx, map, suffix) => {
   const roundedValue = Math.round(measurement.value);
@@ -54,8 +54,8 @@ const createMeasurementMarker = (measurement, idx, map, suffix) => {
     icon: {
       anchor: new google.maps.Point(6, 6),
       size: new google.maps.Size(12, 12),
-      url: locationMarkersByLevel()[level]
-    }
+      url: locationMarkersByLevel()[level],
+    },
   });
 
   return marker;

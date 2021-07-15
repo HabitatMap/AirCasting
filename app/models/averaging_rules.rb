@@ -12,8 +12,9 @@ class AveragingRules
   end
 
   def window_size(total:)
-    @rules.filter do |threshold, _|
-      total > threshold
-    end.max { |(t1, _), (t2, _)| t1 <=> t2 }&.second
+    @rules
+      .filter { |threshold, _| total > threshold }
+      .max { |(t1, _), (t2, _)| t1 <=> t2 }
+      &.second
   end
 end

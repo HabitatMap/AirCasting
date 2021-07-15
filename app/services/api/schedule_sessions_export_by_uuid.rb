@@ -8,8 +8,10 @@ class Api::ScheduleSessionsExportByUuid
 
     session = ::Session.find_by_uuid(data.uuid)
     unless session
-      return Failure.new(
-        { error: "Session with uuid: #{data[:uuid]} doesn't exist" }
+      return(
+        Failure.new(
+          { error: "Session with uuid: #{data[:uuid]} doesn't exist" }
+        )
       )
     end
     ExportSessionsWorker.perform_async([session.id], email)

@@ -11,7 +11,10 @@ class Note < ApplicationRecord
 
   has_attached_file :photo,
                     {
-                      styles: { thumbnail: '100x100', medium: '600x600' },
+                      styles: {
+                        thumbnail: '100x100',
+                        medium: '600x600'
+                      },
                       url: '/system/:hash.:extension',
                       path: ':rails_root/public/system/:hash.:extension',
                       hash_secret: A9n.attachment_secret
