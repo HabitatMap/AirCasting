@@ -23,7 +23,7 @@ gem 'rb-gsl', '1.16.0.6'
 gem 'rubyzip', '>= 1.0.0'
 gem 'sidekiq', '< 7'
 gem 'sidekiq-unique-jobs', '< 7'
-gem 'thin', '~> 1.6', '>= 1.6.4'
+gem 'thin'
 gem 'test-unit', '~> 3.0'
 gem 'a9n'
 gem 'uglifier'
@@ -40,7 +40,7 @@ gem 'unicorn-worker-killer'
 gem 'whenever', require: false
 
 group :development do
-  gem 'web-console', '~> 2.0'
+  gem 'web-console'
   gem 'yui-compressor'
   gem 'better_errors'
   gem 'binding_of_caller'
@@ -59,13 +59,12 @@ end
 
 group :test, :development do
   gem 'shoulda-matchers'
-  gem 'spork', '~> 0.9.0', :require => false
   gem 'factory_bot_rails'
 end
 
 group :test do
   gem 'capybara'
-  gem 'rspec-rails', '~> 3.8.0'
+  gem 'rspec-rails'
 end
 
 group :production do

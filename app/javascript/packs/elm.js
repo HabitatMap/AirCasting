@@ -2,7 +2,7 @@ import $ from "jquery";
 window.jQuery = window.$ = $;
 import "jquery-ui/ui/widgets/autocomplete";
 import "../jquery.ui.daterangepicker";
-import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom.css";
+import "../../assets/stylesheets/vendor/jquery-ui-1.8.17.custom";
 import { Elm } from "../elm/src/Main.elm";
 import fitScaleIcon from "../../assets/images/icons/fit-scale-icon.svg";
 import linkIcon from "../../assets/images/icons/link-icon.svg";
