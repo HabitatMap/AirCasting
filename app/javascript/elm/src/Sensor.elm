@@ -34,9 +34,9 @@ defaultSensorIdByParameter page =
     let
         common =
             Dict.fromList
-                [ ( "Humidity", "Humidity-airbeam2-rh (%)" )
+                [ ( "Humidity", "Humidity-airbeam3-rh (%)" )
                 , ( "Sound Level", "Sound Level-phone microphone (dB)" )
-                , ( "Temperature", "Temperature-airbeam2-f (F)" )
+                , ( "Temperature", "Temperature-airbeam3-f (F)" )
                 ]
     in
     case page of
