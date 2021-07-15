@@ -1,10 +1,10 @@
 class OpenAq::ParseFiles
   def call(files:)
-    files.flat_map { |file| file.split("\n") }.map do |line|
-      JSON.parse(line)
-    end.filter { |hash| hash.key?('coordinates') }.map do |hash|
-      measurement(hash)
-    end
+    files
+      .flat_map { |file| file.split("\n") }
+      .map { |line| JSON.parse(line) }
+      .filter { |hash| hash.key?('coordinates') }
+      .map { |hash| measurement(hash) }
   end
 
   private

@@ -24,14 +24,14 @@ const buildQueryParamsForCrowdMapLayer_ = (gridSizeX, params, sensors) => ({
       sensor_name: sensors.selected().sensor_name,
       measurement_type: sensors.selected().measurement_type,
       unit_symbol: sensors.selected().unit_symbol,
-      session_ids: sessionIds
+      session_ids: sessionIds,
     };
-  }
+  },
 });
 
-const hasTruthyValues = obj => Object.values(obj).every(x => !!x);
+const hasTruthyValues = (obj) => Object.values(obj).every((x) => !!x);
 
-const gridSizeX_ = x => {
+const gridSizeX_ = (x) => {
   const width =
     window.innerWidth ||
     document.documentElement.clientWidth ||
@@ -45,11 +45,8 @@ const gridSizeX_ = x => {
   return (Math.round(x) * width) / height;
 };
 
-export const buildQueryParamsForCrowdMapLayer = buildQueryParamsForCrowdMapLayer_(
-  gridSizeX_,
-  getParams,
-  sensors_
-);
+export const buildQueryParamsForCrowdMapLayer =
+  buildQueryParamsForCrowdMapLayer_(gridSizeX_, getParams, sensors_);
 
 export const buildQueryParamsForCrowdMapLayerTest = (
   gridSizeX,

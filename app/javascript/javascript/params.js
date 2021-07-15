@@ -2,8 +2,8 @@ export const getParams = () =>
   window.location.hash
     .slice(2)
     .split("&")
-    .filter(x => x.length !== 0)
-    .map(x => x.split("="))
+    .filter((x) => x.length !== 0)
+    .map((x) => x.split("="))
     .map(([k, v]) => [k, decodeURIComponent(v)])
     .map(([k, v]) => [k, parseIfJSON(v)])
     .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
@@ -12,19 +12,19 @@ export const getParams2 = () =>
   window.location.hash
     .slice(2)
     .split("&")
-    .filter(x => x.length !== 0)
-    .map(x => x.split("="))
+    .filter((x) => x.length !== 0)
+    .map((x) => x.split("="))
     .map(([k, v]) => [k, decodeURIComponent(v)])
     .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
 
-export const updateParams = obj => {
+export const updateParams = (obj) => {
   const hash =
     "?" +
     Object.keys(obj)
       .reduce((acc, k) => {
         return [
           ...acc,
-          encodeURIComponent(k) + "=" + encodeURIComponent(obj[k])
+          encodeURIComponent(k) + "=" + encodeURIComponent(obj[k]),
         ];
       }, [])
       .join("&")
@@ -34,7 +34,7 @@ export const updateParams = obj => {
   window.location.hash = hash;
 };
 
-const parseIfJSON = value => {
+const parseIfJSON = (value) => {
   if (isJSON(value)) {
     return JSON.parse(value);
   } else {
@@ -42,7 +42,7 @@ const parseIfJSON = value => {
   }
 };
 
-export const isJSON = text => {
+export const isJSON = (text) => {
   if (
     /^[\],:{}\s]*$/.test(
       text
@@ -60,6 +60,6 @@ export const isJSON = text => {
   }
 };
 
-export const updateParam = param =>
+export const updateParam = (param) =>
   (window.location.hash =
     window.location.hash + "&" + param.key + "=" + param.value);

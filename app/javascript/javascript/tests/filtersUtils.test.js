@@ -2,7 +2,7 @@ import test from "blue-tape";
 import sinon from "sinon";
 import { clearLocation } from "../filtersUtils";
 
-test("clearLocation informs elm that location field should be cleared", t => {
+test("clearLocation informs elm that location field should be cleared", (t) => {
   const params = { update: () => {} };
   const callback = sinon.spy();
 
@@ -13,7 +13,7 @@ test("clearLocation informs elm that location field should be cleared", t => {
   t.end();
 });
 
-test("clearLocation changes location in the params to empty string", t => {
+test("clearLocation changes location in the params to empty string", (t) => {
   const update = sinon.spy();
   const params = { update };
   const callback = () => {};

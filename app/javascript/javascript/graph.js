@@ -4,14 +4,14 @@ import { buildOptions } from "./buildGraphOptions";
 import * as graphHighlight from "./graphHighlight";
 import {
   measurementsToTime,
-  measurementsToTimeWithExtremes
+  measurementsToTimeWithExtremes,
 } from "./singleSession";
 
 let measurementsByTime = {};
 let chart = null;
 const RENDER_TO_ID = "graph";
 
-const onMouseOverSingle = point => graphHighlight.show([point]);
+const onMouseOverSingle = (point) => graphHighlight.show([point]);
 
 const onMouseOverMultiple = (start, end) => {
   var startSec = start;
@@ -26,13 +26,13 @@ const onMouseOverMultiple = (start, end) => {
   graphHighlight.show([points[pointNum]]);
 };
 
-const afterSetExtremes = event => {
+const afterSetExtremes = (event) => {
   // responsive rules trigger afterSetExtremes before the chart is created, so we need to skip it:
   if (!chart || Object.keys(chart).length === 0) return;
   chart.showLoading("Loading data from server...");
   window.__elmApp.ports.graphRangeSelected.send({
     start: event.min,
-    end: event.max
+    end: event.max,
   });
 };
 
@@ -58,8 +58,8 @@ export const drawMobile = ({ measurements, sensor, heat }) => {
   const scrollbar = {};
   const xAxis = {
     events: {
-      afterSetExtremes
-    }
+      afterSetExtremes,
+    },
   };
   draw({
     buttons,
@@ -68,13 +68,13 @@ export const drawMobile = ({ measurements, sensor, heat }) => {
     xAxis,
     measurements: measurementsToTime(measurements),
     sensor,
-    heat
+    heat,
   });
 };
 
 const calculateTimeRange = (measurements, selectedButton) => {
-  const end = Math.max(...measurements.map(m => m.time));
-  let start = Math.min(...measurements.map(m => m.time));
+  const end = Math.max(...measurements.map((m) => m.time));
+  let start = Math.min(...measurements.map((m) => m.time));
 
   if (selectedButton.type !== "all") {
     start = moment(end)
@@ -93,9 +93,9 @@ export const drawFixed = ({ measurements, sensor, heat, times }) => {
 
   const xAxis = {
     events: {
-      afterSetExtremes
+      afterSetExtremes,
     },
-    ordinal: false
+    ordinal: false,
   };
 
   draw({
@@ -105,10 +105,10 @@ export const drawFixed = ({ measurements, sensor, heat, times }) => {
     xAxis,
     measurements: measurementsToTimeWithExtremes({
       measurements,
-      times
+      times,
     }),
     sensor,
-    heat
+    heat,
   });
 };
 
@@ -119,15 +119,15 @@ const draw = ({
   xAxis,
   measurements,
   sensor,
-  heat
+  heat,
 }) => {
   const low = heat.threshold1;
   const high = heat.threshold5;
   const series = [
     {
       name: sensor.parameter,
-      data: Object.values(measurements)
-    }
+      data: Object.values(measurements),
+    },
   ];
 
   const options = buildOptions({
@@ -143,14 +143,14 @@ const draw = ({
     measurementType: sensor.parameter,
     unitSymbol: sensor.unit,
     onMouseOverSingle,
-    onMouseOverMultiple
+    onMouseOverMultiple,
   });
 
-  heat.levels.forEach(level => {
+  heat.levels.forEach((level) => {
     options.yAxis.plotBands.push({
       from: level.from,
       to: level.to,
-      className: level.className
+      className: level.className,
     });
   });
   //TODO:
@@ -169,7 +169,7 @@ const draw = ({
     .addEventListener("mouseleave", graphHighlight.hide);
 };
 
-export const updateYAxis = heat => {
+export const updateYAxis = (heat) => {
   const min = heat.threshold1;
   const max = heat.threshold5;
   const options = {
@@ -177,8 +177,8 @@ export const updateYAxis = heat => {
       plotBands: heat.levels,
       min: min,
       max: max,
-      tickPositions: buildTicks(min, max)
-    }
+      tickPositions: buildTicks(min, max),
+    },
   };
 
   if (chart) {
@@ -186,25 +186,25 @@ export const updateYAxis = heat => {
   }
 };
 
-export const updateGraphData = data => {
+export const updateGraphData = (data) => {
   if (chart) {
     chart.hideLoading();
     const measurements = measurementsToTimeWithExtremes({
       measurements: data.measurements,
-      times: data.times
+      times: data.times,
     });
     measurementsByTime = measurements;
 
     const options = {
       series: [
         {
-          data: Object.values(measurements)
-        }
+          data: Object.values(measurements),
+        },
       ],
       xAxis: {
         max: chart.xAxis[0].getExtremes().max,
-        min: chart.xAxis[0].getExtremes().min
-      }
+        min: chart.xAxis[0].getExtremes().min,
+      },
     };
 
     chart.update(options);

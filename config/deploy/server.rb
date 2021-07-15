@@ -23,7 +23,8 @@
 # used to set extended properties on the server.
 
 server ENV.fetch('SERVER', 'aircasting.habitatmap.org'),
-       user: 'aircasting', roles: %w[web app]
+       user: 'aircasting',
+       roles: %w[web app]
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, '/home/aircasting/application'
 set :rails_env, 'production'

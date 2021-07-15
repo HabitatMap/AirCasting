@@ -27,8 +27,7 @@ module Api
             session_uuid,
             stream_data,
             current_user
-          )
-            .build!
+          ).build!
 
         if result
           head :ok

@@ -31,11 +31,12 @@ class Session < ApplicationRecord
   scope :local_minutes_range,
         lambda { |minutes_from, minutes_to|
           unless Utils.whole_day?(minutes_from, minutes_to)
-            field_in_minutes = lambda { |field|
-              "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{
-                field
-              }))"
-            }
+            field_in_minutes =
+              lambda { |field|
+                "(EXTRACT(HOUR FROM #{field}) * 60 + EXTRACT(MINUTE FROM #{
+                  field
+                }))"
+              }
 
             where "
         (#{
@@ -50,7 +51,8 @@ class Session < ApplicationRecord
                     field_in_minutes.call('start_time_local')
                   } AND #{field_in_minutes.call('end_time_local')})
       ",
-                  minutes_from: minutes_from, minutes_to: minutes_to
+                  minutes_from: minutes_from,
+                  minutes_to: minutes_to
           end
         }
 
@@ -58,9 +60,9 @@ class Session < ApplicationRecord
 
   def self.filter_(data = {})
     sessions =
-      order('sessions.start_time_local DESC').where(contribute: true).joins(
-        :user
-      )
+      order('sessions.start_time_local DESC')
+        .where(contribute: true)
+        .joins(:user)
 
     tags = data[:tags].to_s.split(/[\s,]/)
     sessions = sessions.tagged_with(tags, any: true) if tags.present?
@@ -117,18 +119,20 @@ class Session < ApplicationRecord
   end
 
   def self.filter_by_time_range(sessions, time_from, time_to)
-    sessions.where(
-      '(start_time_local BETWEEN :time_from AND :time_to)
+    sessions
+      .where(
+        '(start_time_local BETWEEN :time_from AND :time_to)
       OR
       (end_time_local BETWEEN :time_from AND :time_to)
       OR
       (:time_from BETWEEN start_time_local AND end_time_local)',
-      time_from: time_from, time_to: time_to
-    )
+        time_from: time_from,
+        time_to: time_to
+      )
       .local_minutes_range(
-      Utils.minutes_of_day(time_from),
-      Utils.minutes_of_day(time_to)
-    )
+        Utils.minutes_of_day(time_from),
+        Utils.minutes_of_day(time_to)
+      )
   end
 
   def self.session_methods
@@ -182,7 +186,9 @@ class Session < ApplicationRecord
           map_of_streams[stream.sensor_name] =
             stream.as_json(
               include: {
-                measurements: { only: %i[time value latitude longitude] }
+                measurements: {
+                  only: %i[time value latitude longitude]
+                }
               }
             )
         end
@@ -209,10 +215,11 @@ class Session < ApplicationRecord
 
       (session_data[:streams] || []).each do |key, stream_data|
         if stream_data[:deleted]
-          streams.where(
-            sensor_package_name: stream_data[:sensor_package_name],
-            sensor_name: stream_data[:sensor_name]
-          )
+          streams
+            .where(
+              sensor_package_name: stream_data[:sensor_package_name],
+              sensor_name: stream_data[:sensor_name]
+            )
             .each(&:destroy)
         end
       end
@@ -262,7 +269,9 @@ class Session < ApplicationRecord
   end
 
   def direction(min_or_max, longitude_or_latitude)
-    measurements.select("#{min_or_max}(#{longitude_or_latitude}) AS val").to_a
+    measurements
+      .select("#{min_or_max}(#{longitude_or_latitude}) AS val")
+      .to_a
       .first
       .val
       .to_f

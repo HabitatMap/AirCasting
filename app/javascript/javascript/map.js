@@ -5,7 +5,7 @@ import { fixedClusterStyles, pulsingMarkerStyles } from "./theme";
 import {
   setHasChangedProgrammatically,
   getHasChangedProgrammatically,
-  onMapInit
+  onMapInit,
 } from "./mapsUtils";
 import heat from "./heat";
 import rectangles from "./rectangles";
@@ -20,10 +20,10 @@ export default (() => {
   window.__traceMarkers = [];
   const elmApp = window.__elmApp;
 
-  var Map = function() {};
+  var Map = function () {};
 
   Map.prototype = {
-    init: function(element, options) {
+    init: function (element, options) {
       this.mapObj = googleMaps.init(element, options);
       onMapInit();
       this.traceMarkers = window.__traceMarkers;
@@ -54,29 +54,29 @@ export default (() => {
       rectangles.init(this.mapObj);
     },
 
-    get: function() {
+    get: function () {
       return this.mapObj;
     },
 
-    getBounds: function() {
+    getBounds: function () {
       var bounds = this.mapObj.getBounds();
       if (bounds) {
         return {
           west: bounds.getSouthWest().lng(),
           east: bounds.getNorthEast().lng(),
           south: bounds.getSouthWest().lat(),
-          north: bounds.getNorthEast().lat()
+          north: bounds.getNorthEast().lat(),
         };
       } else {
         return {};
       }
     },
 
-    onPanOrZoom: function(callback) {
+    onPanOrZoom: function (callback) {
       googleMaps.listenPanOrZoom(this.mapObj, callback);
     },
 
-    _goToAddress: function(place) {
+    _goToAddress: function (place) {
       if (!place.geometry) {
         // User entered the name of a Place that was not suggested and
         // pressed the Enter key, or the Place Details request failed.
@@ -96,7 +96,7 @@ export default (() => {
       }
     },
 
-    saveViewport: function() {
+    saveViewport: function () {
       var zoom = this.getZoom();
       var lat = this.mapObj.getCenter().lat();
       var lng = this.mapObj.getCenter().lng();
@@ -110,21 +110,21 @@ export default (() => {
           lat: lat,
           lng: lng,
           mapType: mapType,
-          hasChangedProgrammatically: getHasChangedProgrammatically()
-        }
+          hasChangedProgrammatically: getHasChangedProgrammatically(),
+        },
       };
       params.update(newParams);
       setHasChangedProgrammatically(false);
       pubsub.publish("googleMapsChanged", newParams.map);
     },
 
-    fitBounds: function(bounds, zoom) {
+    fitBounds: function (bounds, zoom) {
       const fnc = (latLngBounds, zoom) => () =>
         this._fitBoundsWithoutPanOrZoomCallback(latLngBounds, zoom);
       this._fitBounds(bounds, zoom, fnc);
     },
 
-    fitBoundsWithBottomPadding: function(bounds, zoom) {
+    fitBoundsWithBottomPadding: function (bounds, zoom) {
       const fnc = (latLngBounds, zoom) => () => {
         googleMaps.fitBoundsWithBottomPadding(this.mapObj, latLngBounds);
         if (zoom) this.mapObj.setZoom(zoom);
@@ -132,7 +132,7 @@ export default (() => {
       this._fitBounds(bounds, zoom, fnc);
     },
 
-    _fitBounds: function(bounds, zoom, fnc) {
+    _fitBounds: function (bounds, zoom, fnc) {
       if (!bounds) return;
       if (!(bounds.north && bounds.east && bounds.south && bounds.west)) return;
 
@@ -146,7 +146,7 @@ export default (() => {
       this._withoutPanOrZoomCallback(fnc(latLngBounds, zoom));
     },
 
-    _fitBoundsWithoutPanOrZoomCallback: function(latLngBounds, zoom) {
+    _fitBoundsWithoutPanOrZoomCallback: function (latLngBounds, zoom) {
       const fnc = () => {
         googleMaps.fitBounds(this.mapObj, latLngBounds);
         if (zoom) this.mapObj.setZoom(zoom);
@@ -154,7 +154,7 @@ export default (() => {
       this._withoutPanOrZoomCallback(fnc);
     },
 
-    _withoutPanOrZoomCallback: function(fnc) {
+    _withoutPanOrZoomCallback: function (fnc) {
       googleMaps.unlistenPanOrZoom(this.mapObj);
       fnc();
       setTimeout(
@@ -163,40 +163,40 @@ export default (() => {
       );
     },
 
-    onMapTypeIdChanged: function() {
+    onMapTypeIdChanged: function () {
       var mapType = this.mapObj.getMapTypeId();
       params.update({ map: { mapType: mapType } });
     },
 
-    addListener: function(name, callback, diffmap) {
+    addListener: function (name, callback, diffmap) {
       const cb = _(callback).bind(this);
       return googleMaps.addListener(diffmap || this.mapObj, name, cb);
     },
 
-    unregisterAll: function() {
+    unregisterAll: function () {
       googleMaps.unlistenPanOrZoom(this.mapObj);
     },
 
-    setZoom: function(zoom) {
+    setZoom: function (zoom) {
       return this.mapObj.setZoom(zoom);
     },
 
-    getZoom: function(zoom) {
+    getZoom: function (zoom) {
       return this.mapObj.getZoom();
     },
 
-    drawRectangles: function(data, thresholds, clickCallback) {
+    drawRectangles: function (data, thresholds, clickCallback) {
       var self = this;
       rectangles.draw(data, thresholds);
-      _(rectangles.get()).each(function(rectangle) {
+      _(rectangles.get()).each(function (rectangle) {
         self.addListener(
           "click",
-          function() {
+          function () {
             clickCallback({
               north: rectangle.data.north,
               south: rectangle.data.south,
               west: rectangle.data.west,
-              east: rectangle.data.east
+              east: rectangle.data.east,
             });
           },
           rectangle
@@ -204,7 +204,7 @@ export default (() => {
       });
     },
 
-    drawMarker: function({ position, title, zIndex, icon }) {
+    drawMarker: function ({ position, title, zIndex, icon }) {
       var newMarker = new google.maps.Marker({ position, title, zIndex, icon });
 
       newMarker.setMap(this.get());
@@ -212,18 +212,18 @@ export default (() => {
       return newMarker;
     },
 
-    drawMarkerWithoutLabel: function({
+    drawMarkerWithoutLabel: function ({
       object,
       content,
       colorClass,
-      callback
+      callback,
     }) {
       const customMarker = buildCustomMarker({
         object,
         content,
         colorClass,
         callback,
-        type: "marker"
+        type: "marker",
       });
 
       customMarker.setMap(this.get());
@@ -231,13 +231,13 @@ export default (() => {
       return customMarker;
     },
 
-    drawMarkerWithLabel: function({ object, content, colorClass, callback }) {
+    drawMarkerWithLabel: function ({ object, content, colorClass, callback }) {
       const customMarker = buildCustomMarker({
         object,
         content,
         colorClass,
         callback,
-        type: "data-marker"
+        type: "data-marker",
       });
 
       customMarker.setMap(this.get());
@@ -245,35 +245,35 @@ export default (() => {
       return customMarker;
     },
 
-    drawPulsatingMarker: function(position, level) {
+    drawPulsatingMarker: function (position, level) {
       const pulsatingSessionMarker = this.drawMarker({
         position: position,
         icon: {
           // in order to place the center of the marker in the provided position
           // anchor = (marker-width/2, marker-height/2) = (50/2, 50/2) = (25, 25)
           anchor: new google.maps.Point(24, 24),
-          url: pulsingMarkerStyles()[level]
-        }
+          url: pulsingMarkerStyles()[level],
+        },
       });
       pulsatingSessionMarker.setAnimation(true);
 
       return pulsatingSessionMarker;
     },
 
-    clusterMarkers: function(onClick) {
+    clusterMarkers: function (onClick) {
       const options = {
         styles: fixedClusterStyles(),
         zoomOnClick: false,
         gridSize: 20,
         maxZoom: 21,
-        calculator: markers => {
+        calculator: (markers) => {
           // calculator returns an index value that is used to select the corresponding style from the styles array by: styles[index -1]
           // documented at: https://htmlpreview.github.io/?https://github.com/googlemaps/v3-utility-library/blob/master/markerclustererplus/docs/reference.html
           const average =
             markers.reduce((sum, marker) => sum + marker.value(), 0) /
             markers.length;
           return { text: "", index: heat.getLevel(Math.round(average)) };
-        }
+        },
       };
 
       const markerClusterer = new MarkerClusterer(
@@ -286,38 +286,38 @@ export default (() => {
       window.__map.clusterers.push(markerClusterer);
     },
 
-    setSelectedCluster: function(cluster) {
+    setSelectedCluster: function (cluster) {
       this.selectedCluster = cluster;
     },
 
-    zoomToSelectedCluster: function() {
+    zoomToSelectedCluster: function () {
       googleMaps.fitBounds(this.mapObj, this.selectedCluster.bounds_);
     },
 
-    drawLine: function(points) {
+    drawLine: function (points) {
       const path = points.map(
-        point => new google.maps.LatLng(point.latitude, point.longitude)
+        (point) => new google.maps.LatLng(point.latitude, point.longitude)
       );
       var lineOptions = {
         map: this.get(),
         path,
         strokeColor: "#00b2ef",
         strokeOpacity: 0.2,
-        geodesic: false
+        geodesic: false,
       };
 
       return new google.maps.Polyline(lineOptions);
     },
 
-    fromLatLngToPoint: function(latLng) {
+    fromLatLngToPoint: function (latLng) {
       return googleMaps.fromLatLngToPoint(this.mapObj, latLng);
-    }
+    },
   };
 
   return new Map();
 })();
 
-export const removeMarker = function(marker) {
+export const removeMarker = function (marker) {
   if (!marker) {
     return;
   }
@@ -328,7 +328,7 @@ export const drawTraceMarker = ({ position }) => {
   const customMarker = buildCustomMarker({
     object: { latLng: new google.maps.LatLng(position) },
     colorClass: "trace",
-    type: "marker"
+    type: "marker",
   });
 
   customMarker.setMap(window.__map);

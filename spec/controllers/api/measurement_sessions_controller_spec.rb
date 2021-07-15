@@ -42,9 +42,11 @@ describe Api::MeasurementSessionsController do
     let(:data) { { type: 'MobileSession' } }
 
     before do
-      expect(ActiveSupport::JSON).to receive(:decode).with('session')
+      expect(ActiveSupport::JSON).to receive(:decode)
+        .with('session')
         .and_return(data)
-      expect(SessionBuilder).to receive(:new).with(data, 'some_files', user)
+      expect(SessionBuilder).to receive(:new)
+        .with(data, 'some_files', user)
         .and_return(builder)
       expect(builder).to receive(:build!).and_return(create_result)
     end
@@ -53,7 +55,11 @@ describe Api::MeasurementSessionsController do
       before do
         post :create,
              format: :json,
-             params: { session: 'session', compression: false, photos: photos }
+             params: {
+               session: 'session',
+               compression: false,
+               photos: photos
+             }
       end
 
       it_should_behave_like 'session creation'
@@ -61,15 +67,19 @@ describe Api::MeasurementSessionsController do
 
     context 'when the session is sent compressed' do
       before do
-        expect(Base64).to receive(:decode64).with('zipped_and_encoded')
+        expect(Base64).to receive(:decode64)
+          .with('zipped_and_encoded')
           .and_return('zipped')
-        expect(AirCasting::GZip).to receive('inflate').with('zipped')
+        expect(AirCasting::GZip).to receive('inflate')
+          .with('zipped')
           .and_return('session')
 
         post :create,
              format: :json,
              params: {
-               session: 'zipped_and_encoded', compression: true, photos: photos
+               session: 'zipped_and_encoded',
+               compression: true,
+               photos: photos
              }
       end
 

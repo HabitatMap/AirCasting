@@ -23,22 +23,15 @@ describe Outliers::CalculateBoundingBox do
     calculate_centroid = double
     expect(calculate_centroid).to receive(:call).with(measurements) { centroid }
     calculate_bounding_boxes = double
-    expect(calculate_bounding_boxes).to receive(:call).with(
-      centroid,
-      measurements
-    ) { bounding_boxes }
+    expect(calculate_bounding_boxes).to receive(:call)
+      .with(centroid, measurements) { bounding_boxes }
     select_bounding_box = double
-    expect(select_bounding_box).to receive(:call).with(
-      measurements.size,
-      bounding_boxes
-    ) { bounding_box }
+    expect(select_bounding_box).to receive(:call)
+      .with(measurements.size, bounding_boxes) { bounding_box }
 
     actual =
-      Outliers::CalculateBoundingBox.new(
-        calculate_centroid,
-        calculate_bounding_boxes,
-        select_bounding_box
-      )
+      Outliers::CalculateBoundingBox
+        .new(calculate_centroid, calculate_bounding_boxes, select_bounding_box)
         .call(measurements)
 
     expect(actual).to eq(bounding_box)

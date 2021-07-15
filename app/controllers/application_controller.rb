@@ -1,5 +1,7 @@
-class NotFound < StandardError; end
-class NotAcceptable < StandardError; end
+class NotFound < StandardError
+end
+class NotAcceptable < StandardError
+end
 
 class ApplicationController < ActionController::Base
   respond_to :html, :json

@@ -8,7 +8,8 @@ describe Api::Fixed::Dormant::SessionsController do
       create_active_session_and_stream!(user: user, session_time: session_time)
       dormant_session, dormant_stream =
         create_dormant_session_and_stream!(
-          user: user, session_time: session_time
+          user: user,
+          session_time: session_time
         )
 
       get :index,
@@ -123,12 +124,19 @@ describe Api::Fixed::Dormant::SessionsController do
 
   def create_user!
     User.create!(
-      username: 'username', email: 'email@example.com', password: 'password'
+      username: 'username',
+      email: 'email@example.com',
+      password: 'password'
     )
   end
 
   def create_fixed_session!(
-    user:, time:, contribute:, latitude:, longitude:, last_measurement_at:
+    user:,
+    time:,
+    contribute:,
+    latitude:,
+    longitude:,
+    last_measurement_at:
   )
     FixedSession.create!(
       title: 'title',

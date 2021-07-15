@@ -5,14 +5,14 @@ export function buildCustomMarker({
   content,
   colorClass,
   callback,
-  type
+  type,
 }) {
-  const CustomMarker = function({
+  const CustomMarker = function ({
     object,
     content,
     colorClass,
     callback,
-    type
+    type,
   }) {
     this.position = object.latLng;
 
@@ -31,17 +31,17 @@ export function buildCustomMarker({
 
   CustomMarker.prototype = Object.create(google.maps.OverlayView.prototype);
 
-  CustomMarker.prototype.onAdd = function() {
+  CustomMarker.prototype.onAdd = function () {
     this.getPanes().overlayMouseTarget.appendChild(this.markerContainer);
   };
 
-  CustomMarker.prototype.onRemove = function() {
+  CustomMarker.prototype.onRemove = function () {
     if (this.markerContainer.parentElement) {
       this.markerContainer.parentElement.removeChild(this.markerContainer);
     }
   };
 
-  CustomMarker.prototype.draw = function() {
+  CustomMarker.prototype.draw = function () {
     var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
 
     var display =
@@ -58,7 +58,7 @@ export function buildCustomMarker({
     }
   };
 
-  CustomMarker.prototype.stopEventPropagation = function() {
+  CustomMarker.prototype.stopEventPropagation = function () {
     var markerContainer = this.markerContainer;
 
     [
@@ -68,19 +68,19 @@ export function buildCustomMarker({
       "wheel",
       "mousedown",
       "touchstart",
-      "pointerdown"
-    ].forEach(function(event) {
-      markerContainer.addEventListener(event, function(e) {
+      "pointerdown",
+    ].forEach(function (event) {
+      markerContainer.addEventListener(event, function (e) {
         e.stopPropagation();
       });
     });
   };
 
   // getPosition and getDraggable are required markers methods for google/markerclustererplus library
-  CustomMarker.prototype.getPosition = function() {
+  CustomMarker.prototype.getPosition = function () {
     return new google.maps.LatLng({
       lat: this.position.lat(),
-      lng: this.position.lng()
+      lng: this.position.lng(),
     });
   };
 
@@ -90,7 +90,7 @@ export function buildCustomMarker({
 
   CustomMarker.prototype.value = () => object.value;
 
-  CustomMarker.prototype.moveOnTop = function(index) {
+  CustomMarker.prototype.moveOnTop = function (index) {
     this.markerContainer.style.zIndex = zIndex;
     zIndex += 1;
   };
@@ -100,7 +100,7 @@ export function buildCustomMarker({
     content,
     colorClass,
     callback,
-    type
+    type,
   });
 
   window.__map.customMarkers.push(marker);

@@ -28,19 +28,21 @@ class OpenAq::SaveMeasurements
     longitude = stream.longitude
 
     sessions =
-      Session.includes(:streams).where(
-        latitude: latitude,
-        longitude: longitude,
-        streams: {
-          min_latitude: latitude,
-          max_latitude: latitude,
-          min_longitude: longitude,
-          max_longitude: longitude,
-          start_latitude: latitude,
-          start_longitude: longitude,
-          sensor_name: stream.sensor_name
-        }
-      )
+      Session
+        .includes(:streams)
+        .where(
+          latitude: latitude,
+          longitude: longitude,
+          streams: {
+            min_latitude: latitude,
+            max_latitude: latitude,
+            min_longitude: longitude,
+            max_longitude: longitude,
+            start_latitude: latitude,
+            start_longitude: longitude,
+            sensor_name: stream.sensor_name
+          }
+        )
 
     if sessions.count > 1
       Rails.logger.error sessions.inspect

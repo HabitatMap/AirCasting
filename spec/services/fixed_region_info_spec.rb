@@ -6,15 +6,22 @@ describe FixedRegionInfo do
     user2 = create_user!(id: 2)
     session1 =
       create_session_with_streams_and_measurements!(
-        id: 1, value: 1, user: user1, count: 60
+        id: 1,
+        value: 1,
+        user: user1,
+        count: 60
       )
     session2 =
       create_session_with_streams_and_measurements!(
-        id: 2, value: 2, user: user2, count: 60
+        id: 2,
+        value: 2,
+        user: user2,
+        count: 60
       )
 
     data = {
-      session_ids: [session1.id, session2.id], sensor_name: 'AirBeam2-F'
+      session_ids: [session1.id, session2.id],
+      sensor_name: 'AirBeam2-F'
     }
 
     region_info = FixedRegionInfo.new.call(data)
@@ -30,7 +37,10 @@ describe FixedRegionInfo do
     user2 = create_user!(id: 2)
     session1 =
       create_session_with_streams_and_measurements!(
-        id: 1, value: 1, user: user1, count: 60
+        id: 1,
+        value: 1,
+        user: user1,
+        count: 60
       )
     session2 = create_session!(id: 2, user: user2)
     stream = create_stream!(session: session2)
@@ -38,7 +48,8 @@ describe FixedRegionInfo do
     create_old_measurements!(value: 20, stream: stream)
 
     data = {
-      session_ids: [session1.id, session2.id], sensor_name: 'AirBeam2-F'
+      session_ids: [session1.id, session2.id],
+      sensor_name: 'AirBeam2-F'
     }
 
     region_info = FixedRegionInfo.new.call(data)

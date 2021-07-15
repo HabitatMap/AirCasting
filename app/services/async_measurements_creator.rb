@@ -21,17 +21,15 @@ class AsyncMeasurementsCreator
 
   def create_measurements_jobs(stream_id, measurements_attributes, queue)
     measurements_attributes.each_slice(SLICE_SIZE) do |attributes|
-      @measurements_creator_worker.set(queue: queue).perform_async(
-        stream_id,
-        attributes
-      )
+      @measurements_creator_worker
+        .set(queue: queue)
+        .perform_async(stream_id, attributes)
     end
   end
 
   def create_stream_values_job(stream_id, measurements_attributes, queue)
-    @stream_values_worker.set(queue: queue).perform_async(
-      stream_id,
-      measurements_attributes
-    )
+    @stream_values_worker
+      .set(queue: queue)
+      .perform_async(stream_id, measurements_attributes)
   end
 end

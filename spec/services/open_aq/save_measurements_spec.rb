@@ -8,9 +8,8 @@ describe OpenAq::SaveMeasurements do
         build_open_aq_stream(sensor_name: 'pm25') => [build_open_aq_measurement]
       }
 
-      expect { subject.call(streams: streams) }.to change {
-        Session.count
-      }.from(0)
+      expect { subject.call(streams: streams) }.to change { Session.count }
+        .from(0)
         .to(1)
     end
 
@@ -20,9 +19,8 @@ describe OpenAq::SaveMeasurements do
         build_open_aq_stream(sensor_name: 'pm25') => [build_open_aq_measurement]
       }
 
-      expect { subject.call(streams: streams) }.to change { Stream.count }.from(
-        0
-      )
+      expect { subject.call(streams: streams) }.to change { Stream.count }
+        .from(0)
         .to(1)
     end
 
@@ -32,9 +30,8 @@ describe OpenAq::SaveMeasurements do
         build_open_aq_stream(sensor_name: 'pm25') => [build_open_aq_measurement]
       }
 
-      expect { subject.call(streams: streams) }.to change {
-        Measurement.count
-      }.from(0)
+      expect { subject.call(streams: streams) }.to change { Measurement.count }
+        .from(0)
         .to(1)
     end
   end

@@ -57,7 +57,10 @@ module AirCasting
 
       HTTParty.post(
         "#{server}/api/sessions",
-        headers: { 'Authorization' => "Basic #{token}" }, body: data
+        headers: {
+          'Authorization' => "Basic #{token}"
+        },
+        body: data
       )
     end
 

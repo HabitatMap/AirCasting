@@ -13,11 +13,14 @@ class SessionsController < Devise::SessionsController
     if resource.admin?
       redirect_to admin_root_path
     else
-      return render json: {
-               success: true,
-               redirect:
-                 stored_location_for(scope) || after_sign_in_path_for(resource)
-             }
+      return(
+        render json: {
+                 success: true,
+                 redirect:
+                   stored_location_for(scope) ||
+                     after_sign_in_path_for(resource)
+               }
+      )
     end
   end
 

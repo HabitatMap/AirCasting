@@ -10,9 +10,8 @@ class ExportSessionsWorker
       zip_file = File.read(zip_path)
       zip_filename = File.basename(zip_path)
 
-      UserMailer.with(
-        email: email, zip_file: zip_file, zip_filename: zip_filename
-      )
+      UserMailer
+        .with(email: email, zip_file: zip_file, zip_filename: zip_filename)
         .export_sessions
         .deliver_now
     ensure

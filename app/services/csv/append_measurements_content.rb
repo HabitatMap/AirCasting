@@ -111,9 +111,7 @@ class Csv::AppendMeasurements
       ),
       measurement['measurement_latitude'],
       measurement['measurement_longitude']
-    ] +
-      Array.new(columns_before, nil) +
-      [measurement['measurement_value']]
+    ] + Array.new(columns_before, nil) + [measurement['measurement_value']]
   end
 
   def format_time(time, milliseconds)

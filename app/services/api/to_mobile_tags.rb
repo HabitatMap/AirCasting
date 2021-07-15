@@ -7,9 +7,9 @@ class Api::ToMobileTags
     return Failure.new(form.errors) if form.invalid?
 
     sessions =
-      MobileSession.with_user_and_streams.order(
-        'sessions.start_time_local DESC'
-      )
+      MobileSession
+        .with_user_and_streams
+        .order('sessions.start_time_local DESC')
         .where(contribute: true)
         .joins(:streams)
         .where(streams: { sensor_name: data[:sensor_name] })

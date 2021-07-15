@@ -55,7 +55,9 @@ describe Api::UsersController do
     it 'changes session stopped alert setting' do
       post :settings,
            format: :json,
-           params: { data: { session_stopped_alert: true }.to_json }
+           params: {
+             data: { session_stopped_alert: true }.to_json
+           }
 
       expect(json_response).to eq(
         { 'action' => 'session_stopped_alert was set to true' }.as_json

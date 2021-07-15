@@ -12,37 +12,37 @@
 const DEFAULT_ROOT_ELEMENT = document;
 const DEFAULT_OBSERVER_CONFIG = { childList: true, subtree: true };
 
-export const createObserver = config => {
+export const createObserver = (config) => {
   const {
     observerConfig = DEFAULT_OBSERVER_CONFIG,
     rootElement = DEFAULT_ROOT_ELEMENT,
     selector,
     onMount,
-    onUnmount
+    onUnmount,
   } = config;
 
-  const observer = new MutationObserver(mutations => {
-    mutations.forEach(mutation => {
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
       // Handle added nodes
       if (onMount) {
-        mutation.addedNodes.forEach(addedNode => {
+        mutation.addedNodes.forEach((addedNode) => {
           const matchingElements = getMatchingElementsFromTree(
             addedNode,
             selector
           );
           if (matchingElements.length < 1) return;
-          matchingElements.forEach(node => onMount(node));
+          matchingElements.forEach((node) => onMount(node));
         });
       }
       // Handle removed nodes
       if (onUnmount) {
-        mutation.removedNodes.forEach(removedNode => {
+        mutation.removedNodes.forEach((removedNode) => {
           const matchingElements = getMatchingElementsFromTree(
             removedNode,
             selector
           );
           if (matchingElements.length < 1) return;
-          matchingElements.forEach(node => onUnmount(node));
+          matchingElements.forEach((node) => onUnmount(node));
         });
       }
     });

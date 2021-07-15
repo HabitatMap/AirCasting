@@ -28,7 +28,7 @@ window.initMap = init;
 import sensors from "../javascript/sensors";
 
 import pubsub from "../javascript/pubsub";
-pubsub.subscribe("googleMapsReady", function() {
+pubsub.subscribe("googleMapsReady", function () {
   require("../javascript/sessionsMap");
 });
 
@@ -37,7 +37,7 @@ if (window.NodeList && !NodeList.prototype.forEach) {
 }
 
 if (!Object.values) {
-  Object.values = obj => Object.keys(obj).map(key => obj[key]);
+  Object.values = (obj) => Object.keys(obj).map((key) => obj[key]);
 }
 
 createObserver({
@@ -48,7 +48,7 @@ createObserver({
       const header = document.querySelector(".header");
       header.classList.toggle("header--nav-expanded");
     });
-  }
+  },
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -61,13 +61,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // The best way to handle this would be to have the application load the sensors at the
   // same time it is loading the ui.
   // That way the user would not see a blank page until the sensors are loaded.
-  get("/api/sensors", { session_type: session_type }).then(sensors_ => {
+  get("/api/sensors", { session_type: session_type }).then((sensors_) => {
     window.__sensors = sensors_;
 
     const defaultParams = {
       keepFiltersExpanded: false,
       scroll: 0,
-      theme: DEFAULT_THEME
+      theme: DEFAULT_THEME,
     };
 
     const params = { ...defaultParams, ...getParams() };
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isIndoor: false,
       isActive: true,
       sensorId: sensors.defaultSensorId(),
-      isSearchAsIMoveOn: false
+      isSearchAsIMoveOn: false,
     };
 
     const data = { ...defaultData, ...params.data };
@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
           threshold2: data.heat.low,
           threshold3: data.heat.mid,
           threshold4: data.heat.high,
-          threshold5: data.heat.highest
+          threshold5: data.heat.highest,
         }
       : null;
 
@@ -102,8 +102,8 @@ document.addEventListener("DOMContentLoaded", () => {
       location: data.location,
       isCrowdMapOn: data.crowdMap,
       crowdMapResolution: data.gridResolution,
-      tags: data.tags.split(", ").filter(tag => tag !== ""),
-      profiles: data.usernames.split(", ").filter(tag => tag !== ""),
+      tags: data.tags.split(", ").filter((tag) => tag !== ""),
+      profiles: data.usernames.split(", ").filter((tag) => tag !== ""),
       selectedSessionId: params.selectedSessionIds
         ? params.selectedSessionIds[0]
           ? params.selectedSessionIds[0]
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : null,
       timeRange: {
         timeFrom: data.timeFrom,
-        timeTo: data.timeTo
+        timeTo: data.timeTo,
       },
       isIndoor: data.isIndoor,
       fitScaleIcon,
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isSearchAsIMoveOn: data.isSearchAsIMoveOn,
       scrollPosition: params.scroll,
       theme: params.theme,
-      keepFiltersExpanded: params.keepFiltersExpanded
+      keepFiltersExpanded: params.keepFiltersExpanded,
     };
 
     window.__elmApp = Elm.Main.init({ flags });
@@ -138,15 +138,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const baseOptionsForTooltips = {
   arrow: true,
-  theme: "light-border"
+  theme: "light-border",
 };
 
 const desktopOptionsForTooltips = {
-  placement: "right"
+  placement: "right",
 };
 
 const mobileOptionsForTooltips = {
-  placement: "bottom"
+  placement: "bottom",
 };
 
 const setupTooltips = () => {
@@ -170,18 +170,18 @@ const setupHeatMap = () => {
       step: 1,
       range: {
         min: 0,
-        max: 100
+        max: 100,
       },
       tooltips: true,
       ariaFormat: {
-        to: x => Math.round(x),
-        from: Number
+        to: (x) => Math.round(x),
+        from: Number,
       },
       format: {
-        to: x => Math.round(x),
-        from: Number
+        to: (x) => Math.round(x),
+        from: Number,
       },
-      connect: [true, true, true, true]
+      connect: [true, true, true, true],
     });
 
     var connect = node.querySelectorAll(".noUi-connect");
@@ -196,11 +196,11 @@ const setupHeatMap = () => {
       );
     });
 
-    window.__elmApp.ports.updateHeatMapThresholds.subscribe(thresholds => {
+    window.__elmApp.ports.updateHeatMapThresholds.subscribe((thresholds) => {
       console.log("heatmap from elm", Object.values(thresholds));
       const [min, max] = toExtremes(thresholds);
       node.noUiSlider.updateOptions({
-        range: { min, max }
+        range: { min, max },
       });
       node.noUiSlider.set(toMiddleValues(thresholds));
 
@@ -216,10 +216,10 @@ const setupHeatMap = () => {
 
     window.__elmApp.ports.drawMobile.subscribe(draw(graph.drawMobile));
 
-    window.__elmApp.ports.updateGraphYAxis.subscribe(heat => {
+    window.__elmApp.ports.updateGraphYAxis.subscribe((heat) => {
       graph.updateYAxis(heat);
     });
-    window.__elmApp.ports.updateGraphData.subscribe(data => {
+    window.__elmApp.ports.updateGraphData.subscribe((data) => {
       graph.updateGraphData(data);
     });
 
@@ -228,44 +228,46 @@ const setupHeatMap = () => {
         selector: ".session-cards-container",
         onMount: () => {
           window.__elmApp.ports.setScroll.send(null);
-        }
+        },
       });
     });
 
-    window.__elmApp.ports.updateParams.subscribe(param => {
+    window.__elmApp.ports.updateParams.subscribe((param) => {
       updateParam(param);
     });
   }
 };
 
-const draw = fnc => ({ times, heat, sensor, measurements }) =>
-  window.requestAnimationFrame(() =>
-    fnc({
-      sensor,
-      heat,
-      times,
-      measurements
-    })
-  );
+const draw =
+  (fnc) =>
+  ({ times, heat, sensor, measurements }) =>
+    window.requestAnimationFrame(() =>
+      fnc({
+        sensor,
+        heat,
+        times,
+        measurements,
+      })
+    );
 
-const toValues = noUiSlider => ({
+const toValues = (noUiSlider) => ({
   threshold1: noUiSlider.options.range.min,
   threshold2: noUiSlider.get()[0],
   threshold3: noUiSlider.get()[1],
   threshold4: noUiSlider.get()[2],
-  threshold5: noUiSlider.options.range.max
+  threshold5: noUiSlider.options.range.max,
 });
 
 const toMiddleValues = ({ threshold2, threshold3, threshold4 }) => [
   threshold2,
   threshold3,
-  threshold4
+  threshold4,
 ];
 
 const toExtremes = ({ threshold1, threshold5 }) => [threshold1, threshold5];
 
-const setupHorizontalWheelScroll = node => {
-  const callback = event => {
+const setupHorizontalWheelScroll = (node) => {
+  const callback = (event) => {
     // The "wheel" event is triggered by both a mouse wheel and a trackpad.
     // Only when `deltaX` is 0 the scroll is coming from a mouse wheel (or from trackpad that is scrolled perfectly on the vertical axis).
     // If the trackpad is scrolled vertically or at an angle then deltaY !== 0.
@@ -280,5 +282,5 @@ const setupHorizontalWheelScroll = node => {
 
 createObserver({
   selector: ".session-cards-container",
-  onMount: setupHorizontalWheelScroll
+  onMount: setupHorizontalWheelScroll,
 });

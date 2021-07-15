@@ -12,18 +12,24 @@ describe OpenAq::ParseMessages do
 
   def build_s3_object
     OpenAq::S3Object.new(
-      bucket: random_string, key: random_string, region: random_string
+      bucket: random_string,
+      key: random_string,
+      region: random_string
     )
   end
 
   def build_message(s3_object)
     message = {
-      "Records": [
+      'Records': [
         {
-          "awsRegion": "#{s3_object.region}",
-          "s3": {
-            "bucket": { "name": "#{s3_object.bucket}" },
-            "object": { "key": "#{s3_object.key}" }
+          'awsRegion': "#{s3_object.region}",
+          's3': {
+            'bucket': {
+              'name': "#{s3_object.bucket}"
+            },
+            'object': {
+              'key': "#{s3_object.key}"
+            }
           }
         }
       ]

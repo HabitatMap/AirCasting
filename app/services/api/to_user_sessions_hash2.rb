@@ -51,16 +51,18 @@ class Api::ToUserSessionsHash2
   end
 
   def present_in_database
-    user.sessions.reduce([]) do |acc, session|
-      if (session.streams.count != 0) &&
-         (session.streams.all? { |stream| stream.measurements.count != 0 })
-        acc.push(
-          OpenStruct.new({ uuid: session.uuid, version: session.version })
-        )
-      end
+    user
+      .sessions
+      .reduce([]) do |acc, session|
+        if (session.streams.count != 0) &&
+             (session.streams.all? { |stream| stream.measurements.count != 0 })
+          acc.push(
+            OpenStruct.new({ uuid: session.uuid, version: session.version })
+          )
+        end
 
-      acc
-    end
+        acc
+      end
   end
 
   def new_in_database
@@ -68,13 +70,16 @@ class Api::ToUserSessionsHash2
   end
 
   def outdated
-    present_in_database.select do |session_in_database|
-      uuids_present_in_params.include?(session_in_database.uuid)
-    end.select do |session_in_database|
-      session_in_database.version >
-        present_in_params.find do |session_in_params|
-          session_in_params.uuid == session_in_database.uuid
-        end.version
-    end.pluck(:uuid)
+    present_in_database
+      .select do |session_in_database|
+        uuids_present_in_params.include?(session_in_database.uuid)
+      end
+      .select do |session_in_database|
+        session_in_database.version >
+          present_in_params.find do |session_in_params|
+            session_in_params.uuid == session_in_database.uuid
+          end.version
+      end
+      .pluck(:uuid)
   end
 end

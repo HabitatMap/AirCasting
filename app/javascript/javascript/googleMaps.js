@@ -4,7 +4,7 @@ const googleMaps = () => {
   let onPanOrZoomHandle;
   let onPanOrZoomCallback = () => {};
 
-  const unlistenPanOrZoom = mapObj =>
+  const unlistenPanOrZoom = (mapObj) =>
     google.maps.event.clearListeners(mapObj, "bounds_changed");
 
   return {
@@ -18,12 +18,12 @@ const googleMaps = () => {
         bottom: SELECTED_SESSION_DIV_HEIGHT,
         top: 0,
         left: 0,
-        right: 0
+        right: 0,
       }),
 
     unlistenPanOrZoom,
 
-    relistenPanOrZoom: mapObj => {
+    relistenPanOrZoom: (mapObj) => {
       unlistenPanOrZoom(mapObj);
       onPanOrZoomHandle = mapObj.addListener(
         "bounds_changed",
@@ -48,7 +48,7 @@ const googleMaps = () => {
     latLngBounds: (lat, lng) => new google.maps.LatLngBounds(lat, lng),
 
     fromLatLngToPoint: (mapObj, latLng) =>
-      mapObj.getProjection().fromLatLngToPoint(latLng)
+      mapObj.getProjection().fromLatLngToPoint(latLng),
   };
 };
 

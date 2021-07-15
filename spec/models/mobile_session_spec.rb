@@ -13,17 +13,20 @@ describe MobileSession do
       session =
         FactoryBot.create(
           :mobile_session,
-          start_time_local: time - 1.minute, end_time_local: time + 1.minute
+          start_time_local: time - 1.minute,
+          end_time_local: time + 1.minute
         )
       session1 =
         FactoryBot.create(
           :mobile_session,
-          start_time_local: time - 2.minute, end_time_local: time - 1.minute
+          start_time_local: time - 2.minute,
+          end_time_local: time - 1.minute
         )
       session2 =
         FactoryBot.create(
           :mobile_session,
-          start_time_local: time + 61.minute, end_time_local: time + 71.minute
+          start_time_local: time + 61.minute,
+          end_time_local: time + 71.minute
         )
 
       expect(MobileSession.local_minutes_range(from, to).to_a).to eq([session])
@@ -87,7 +90,8 @@ describe MobileSession do
       plus_two_hours = (now + 2.hours)
       session =
         create_session_with_streams_and_measurements!(
-          start_time_local: now, end_time_local: now + 3.hours
+          start_time_local: now,
+          end_time_local: now + 3.hours
         )
 
       actual =
@@ -104,7 +108,8 @@ describe MobileSession do
       session =
         FactoryBot.create(
           :mobile_session,
-          start_time_local: now, end_time_local: now + 1.second
+          start_time_local: now,
+          end_time_local: now + 1.second
         )
 
       actual =

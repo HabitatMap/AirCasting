@@ -15,9 +15,8 @@ describe SessionStoppedAlertsWorker do
 
     subject.perform
 
-    expect { subject.perform }.to change {
-      ActionMailer::Base.deliveries.count
-    }.by(1)
+    expect { subject.perform }.to change { ActionMailer::Base.deliveries.count }
+      .by(1)
     expect(ActionMailer::Base.deliveries.first.to).to eq(
       %w[useremail@example.com]
     )

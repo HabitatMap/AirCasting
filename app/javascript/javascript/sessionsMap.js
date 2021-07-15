@@ -22,8 +22,9 @@ export default (() => {
     clearMap();
     map.unregisterAll();
 
-    const sensorId = params.get("data", { sensorId: sensors.defaultSensorId() })
-      .sensorId;
+    const sensorId = params.get("data", {
+      sensorId: sensors.defaultSensorId(),
+    }).sensorId;
 
     const defaults = {
       sensorId,
@@ -37,8 +38,8 @@ export default (() => {
         low: 12,
         mid: 35,
         high: 55,
-        highest: 150
-      }
+        highest: 150,
+      },
     };
 
     const defs = sessions.isMobile()
@@ -50,7 +51,7 @@ export default (() => {
 
   setDefaults();
 
-  pubsub.subscribe("googleMapsChanged", function(newValue) {
+  pubsub.subscribe("googleMapsChanged", function (newValue) {
     if (params.isSessionSelected()) return;
     // when loading the page for the first time sometimes the watch is triggered twice, first time with hasChangedProgrammatically as undefined
     if (newValue.hasChangedProgrammatically === undefined) return;
@@ -74,14 +75,14 @@ export default (() => {
     sessions.fetch();
   });
 
-  pubsub.subscribe("googleMapsReady", function() {
+  pubsub.subscribe("googleMapsReady", function () {
     if (params.isSessionSelected()) return;
     sessions.fetch({
-      amount: params.paramsData["fetchedSessionsCount"]
+      amount: params.paramsData["fetchedSessionsCount"],
     });
   });
 
-  pubsub.subscribe("markerSelected", function(data) {
+  pubsub.subscribe("markerSelected", function (data) {
     if (params.selectedSessionId() === data.session_id) {
       elmApp.ports.toggleSessionSelection.send(null);
     } else {
@@ -89,7 +90,7 @@ export default (() => {
     }
   });
 
-  elmApp.ports.selectSession.subscribe(session => {
+  elmApp.ports.selectSession.subscribe((session) => {
     sessions.selectSession(session);
   });
 
@@ -99,7 +100,7 @@ export default (() => {
 
   elmApp.ports.loadMoreSessions.subscribe(() => {
     sessions.fetch({
-      fetchedSessionsCount: sessions.sessions.length
+      fetchedSessionsCount: sessions.sessions.length,
     });
   });
 
@@ -110,7 +111,7 @@ export default (() => {
         low: threshold2,
         mid: threshold3,
         high: threshold4,
-        highest: threshold5
+        highest: threshold5,
       };
       params.update({ data: { heat } });
 
@@ -124,7 +125,7 @@ export default (() => {
     }
   );
 
-  elmApp.ports.toggleIsSearchOn.subscribe(isSearchAsIMoveOn => {
+  elmApp.ports.toggleIsSearchOn.subscribe((isSearchAsIMoveOn) => {
     params.update({ data: { isSearchAsIMoveOn: isSearchAsIMoveOn } });
   });
 
@@ -132,16 +133,16 @@ export default (() => {
     sessions.fetch();
   });
 
-  elmApp.ports.pulseSessionMarker.subscribe(sessionMarkerData => {
+  elmApp.ports.pulseSessionMarker.subscribe((sessionMarkerData) => {
     if (sessionMarkerData === null) {
       pulsatingSessionMarker.setMap(null);
       return;
     }
 
     if (window.__map.clusterers[0]) {
-      const cluster = window.__map.clusterers[0].clusters_.find(cluster =>
+      const cluster = window.__map.clusterers[0].clusters_.find((cluster) =>
         cluster.markers_.some(
-          marker => marker.objectId() === sessionMarkerData.id
+          (marker) => marker.objectId() === sessionMarkerData.id
         )
       );
 
@@ -154,7 +155,7 @@ export default (() => {
       }
     }
 
-    window.__map.customMarkers.forEach(marker => {
+    window.__map.customMarkers.forEach((marker) => {
       if (marker.objectId() === sessionMarkerData.id) {
         marker.moveOnTop();
         return;
@@ -167,11 +168,11 @@ export default (() => {
     );
   });
 
-  elmApp.ports.saveScrollPosition.subscribe(value => {
+  elmApp.ports.saveScrollPosition.subscribe((value) => {
     params.update({ scroll: value });
   });
 
-  elmApp.ports.selectSensorId.subscribe(sensorId => {
+  elmApp.ports.selectSensorId.subscribe((sensorId) => {
     sessions.deselectSession();
     params.update({ data: { sensorId } });
     sessions.fetch();
@@ -181,7 +182,7 @@ export default (() => {
     FiltersUtils.clearLocation(elmApp.ports.locationCleared.send, params);
   });
 
-  FiltersUtils.setupProfileNamesAutocomplete(selectedValue =>
+  FiltersUtils.setupProfileNamesAutocomplete((selectedValue) =>
     elmApp.ports.profileSelected.send(selectedValue)
   );
 
@@ -197,7 +198,7 @@ export default (() => {
       time_to: data.timeTo,
       usernames: data.usernames,
       sensor_name: sensors.selected().sensor_name,
-      unit_symbol: sensors.selected().unit_symbol
+      unit_symbol: sensors.selected().unit_symbol,
     };
 
     return sessions.isMobile()
@@ -206,19 +207,19 @@ export default (() => {
   };
 
   FiltersUtils.setupTagsAutocomplete(
-    selectedValue => elmApp.ports.tagSelected.send(selectedValue),
+    (selectedValue) => elmApp.ports.tagSelected.send(selectedValue),
     sessions.isMobile()
       ? "api/mobile/autocomplete/tags"
       : "api/fixed/autocomplete/tags",
     createTagsFilterParams
   );
 
-  elmApp.ports.updateTags.subscribe(tags => {
+  elmApp.ports.updateTags.subscribe((tags) => {
     params.update({ data: { tags: tags.join(", ") } });
     sessions.fetch();
   });
 
-  elmApp.ports.updateProfiles.subscribe(profiles => {
+  elmApp.ports.updateProfiles.subscribe((profiles) => {
     params.update({ data: { usernames: profiles.join(", ") } });
     sessions.fetch();
   });
@@ -232,13 +233,13 @@ export default (() => {
 
   FiltersUtils.setupClipboard();
 
-  elmApp.ports.showCopyLinkTooltip.subscribe(tooltipId => {
+  elmApp.ports.showCopyLinkTooltip.subscribe((tooltipId) => {
     const currentUrl = encodeURIComponent(window.location.href);
 
     FiltersUtils.fetchShortUrl(tooltipId, currentUrl);
   });
 
-  elmApp.ports.toggleTheme.subscribe(theme => {
+  elmApp.ports.toggleTheme.subscribe((theme) => {
     const cb = sessions.isMobile()
       ? () => {
           if (params.selectedSessionIds().length !== 0) {
@@ -291,26 +292,26 @@ export default (() => {
   });
 
   // mobile tab
-  elmApp.ports.toggleCrowdMap.subscribe(crowdMap => {
+  elmApp.ports.toggleCrowdMap.subscribe((crowdMap) => {
     params.updateData({ crowdMap });
 
     sessions.toggleCrowdMapView();
   });
 
   // mobile tab
-  elmApp.ports.updateResolution.subscribe(gridResolution => {
+  elmApp.ports.updateResolution.subscribe((gridResolution) => {
     params.updateData({ gridResolution });
     updateCrowdMapLayer.call(sessions.allSessionIds());
   });
 
   // fixed tab
-  elmApp.ports.toggleIndoor.subscribe(isIndoor => {
+  elmApp.ports.toggleIndoor.subscribe((isIndoor) => {
     params.update({ data: { isIndoor: isIndoor } });
     sessions.fetch();
   });
 
   // fixed tab
-  elmApp.ports.toggleActive.subscribe(isActive => {
+  elmApp.ports.toggleActive.subscribe((isActive) => {
     params.update({ data: { isActive } });
     resetTimeRangeFilter();
     sessions.fetch();

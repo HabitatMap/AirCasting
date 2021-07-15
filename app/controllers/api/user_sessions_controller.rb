@@ -70,15 +70,14 @@ class Api::UserSessionsController < Api::BaseController
       (
         current_user.sessions.find_by_id(params[:id]) or
           current_user.sessions.find_by_uuid(params[:uuid])
-      ) or
-      raise NotFound
+      ) or raise NotFound
 
     stream_measurements = params[:stream_measurements] == 'true'
 
     response =
-      session.as_synchronizable(stream_measurements).merge(
-        'location' => short_session_url(session, host: A9n.host_)
-      )
+      session
+        .as_synchronizable(stream_measurements)
+        .merge('location' => short_session_url(session, host: A9n.host_))
         .merge('tag_list' => session.tag_list.join(' '))
         .merge('notes' => prepare_notes(session.notes))
 
@@ -111,10 +110,12 @@ class Api::UserSessionsController < Api::BaseController
     if a_session
       (session_data[:streams] || []).each do |key, stream_data|
         if stream_data[:deleted]
-          a_session.streams.where(
-            sensor_package_name: stream_data[:sensor_package_name],
-            sensor_name: stream_data[:sensor_name]
-          )
+          a_session
+            .streams
+            .where(
+              sensor_package_name: stream_data[:sensor_package_name],
+              sensor_name: stream_data[:sensor_name]
+            )
             .each(&:destroy)
         end
       end

@@ -53,9 +53,9 @@ module OpenAq
       private
 
       def assign_defaults(sensor_name)
-        DEFAULTS_BY_SENSOR_NAME.fetch(sensor_name).each do |key, value|
-          self[key] = value
-        end
+        DEFAULTS_BY_SENSOR_NAME
+          .fetch(sensor_name)
+          .each { |key, value| self[key] = value }
       end
     end
 end

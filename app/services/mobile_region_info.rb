@@ -2,9 +2,10 @@ class MobileRegionInfo
   def initialize(data)
     usernames = data[:usernames].to_s.split(/\s*,\s*/)
     @streams =
-      Stream.mobile.only_contributed.with_measurement_type(
-        data[:measurement_type]
-      )
+      Stream
+        .mobile
+        .only_contributed
+        .with_measurement_type(data[:measurement_type])
         .with_sensor(data[:sensor_name])
         .with_unit_symbol(data[:unit_symbol])
         .in_rectangle(data)
@@ -13,7 +14,10 @@ class MobileRegionInfo
     stream_ids = @streams.map(&:id)
     tags = data[:tags].to_s.split(/[\s,]/)
     @measurements =
-      Measurement.with_tags(tags).with_streams(stream_ids).in_rectangle(data)
+      Measurement
+        .with_tags(tags)
+        .with_streams(stream_ids)
+        .in_rectangle(data)
         .with_time(data)
         .belonging_to_sessions_with_ids(data[:session_ids])
   end

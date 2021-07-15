@@ -10,7 +10,7 @@ import map from "./map";
 import * as http from "./http";
 
 export default {
-  call: sessionIds => {
+  call: (sessionIds) => {
     if (!params.isCrowdMapOn()) return;
     clearMap();
 
@@ -23,16 +23,16 @@ export default {
     http
       .getQ("/api/averages2.json", q)
       .then(onAveragesFetch(_onRectangleClick));
-  }
+  },
 };
 
-const onAveragesFetch = _onRectangleClick => data => {
+const onAveragesFetch = (_onRectangleClick) => (data) => {
   if (window.location.pathname !== constants.mobileMapRoute) return;
   const heats = heat.heats(params.get("data").heat);
   map.drawRectangles(data, heats, _onRectangleClick);
 };
 
-const onRectangleClick = sessionIds => rectangleData => {
+const onRectangleClick = (sessionIds) => (rectangleData) => {
   infoWindow.show(
     "/api/region.json",
     { q: buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData) },

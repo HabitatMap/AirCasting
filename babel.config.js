@@ -1,4 +1,4 @@
-module.exports = function(api) {
+module.exports = function (api) {
   var validEnv = ["development", "test", "production"];
   var currentEnv = api.env();
   var isDevelopmentEnv = api.env("development");
@@ -21,9 +21,9 @@ module.exports = function(api) {
         require("@babel/preset-env").default,
         {
           targets: {
-            node: "current"
-          }
-        }
+            node: "current",
+          },
+        },
       ],
       (isProductionEnv || isDevelopmentEnv) && [
         require("@babel/preset-env").default,
@@ -32,9 +32,9 @@ module.exports = function(api) {
           useBuiltIns: "entry",
           modules: false,
           exclude: ["transform-typeof-symbol"],
-          corejs: 3
-        }
-      ]
+          corejs: 3,
+        },
+      ],
     ].filter(Boolean),
     plugins: [
       require("babel-plugin-macros"),
@@ -44,29 +44,29 @@ module.exports = function(api) {
       [
         require("@babel/plugin-proposal-class-properties").default,
         {
-          loose: true
-        }
+          loose: true,
+        },
       ],
       [
         require("@babel/plugin-proposal-object-rest-spread").default,
         {
-          useBuiltIns: true
-        }
+          useBuiltIns: true,
+        },
       ],
       [
         require("@babel/plugin-transform-runtime").default,
         {
           helpers: false,
-          regenerator: true
-        }
+          regenerator: true,
+        },
       ],
       [
         require("@babel/plugin-transform-regenerator").default,
         {
-          async: false
-        }
+          async: false,
+        },
       ],
-      !isProductionEnv && "istanbul"
-    ].filter(Boolean)
+      !isProductionEnv && "istanbul",
+    ].filter(Boolean),
   };
 };

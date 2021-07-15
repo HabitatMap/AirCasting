@@ -148,6 +148,7 @@ describe Api::Mobile::SessionsController do
       measurement1 = create_measurement!(stream: stream)
       measurement2 = create_measurement!(stream: stream)
       note = create_note!(session: session)
+
       # For whatever reasons w/o the reloads date on notes and times on measurements
       # are off by one second.
       note.reload
@@ -244,12 +245,16 @@ describe Api::Mobile::SessionsController do
 
   def create_user!
     User.create!(
-      username: 'username', email: 'email@example.com', password: 'password'
+      username: 'username',
+      email: 'email@example.com',
+      password: 'password'
     )
   end
 
   def create_mobile_session!(
-    user:, start_time_local: DateTime.current, end_time_local: DateTime.current
+    user:,
+    start_time_local: DateTime.current,
+    end_time_local: DateTime.current
   )
     MobileSession.create!(
       title: 'title',
@@ -266,7 +271,10 @@ describe Api::Mobile::SessionsController do
   end
 
   def create_stream!(
-    session:, sensor_name: 'sensor_name', latitude: 123, longitude: 123
+    session:,
+    sensor_name: 'sensor_name',
+    latitude: 123,
+    longitude: 123
   )
     Stream.create!(
       sensor_package_name: 'abc',

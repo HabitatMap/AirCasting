@@ -14,8 +14,7 @@ class Csv::CreateFiles
   def call(session_ids)
     session_ids.flat_map do |session_id|
       csv_measurements_files_for(session_id)
-    end +
-      session_ids.flat_map { |session_id| csv_notes_files_for(session_id) }
+    end + session_ids.flat_map { |session_id| csv_notes_files_for(session_id) }
   end
 
   private

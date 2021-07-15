@@ -1,14 +1,18 @@
 class Csv::Repository
   def find_stream_parameters(session_id, sensor_package_name)
     hash = {
-      'sensor_names' => [], 'measurement_types' => [], 'measurement_units' => []
+      'sensor_names' => [],
+      'measurement_types' => [],
+      'measurement_units' => []
     }
 
-    find_streams(session_id, sensor_package_name).to_hash.each do |h|
-      hash['sensor_names'].push(h['sensor_name'])
-      hash['measurement_types'].push(h['measurement_type'])
-      hash['measurement_units'].push(h['unit_name'])
-    end
+    find_streams(session_id, sensor_package_name)
+      .to_hash
+      .each do |h|
+        hash['sensor_names'].push(h['sensor_name'])
+        hash['measurement_types'].push(h['measurement_type'])
+        hash['measurement_units'].push(h['unit_name'])
+      end
 
     hash
   end
@@ -24,9 +28,7 @@ FROM sessions
 INNER JOIN streams ON streams.session_id = sessions.id
 WHERE sessions.id = "#{
       session_id
-    }" AND streams.sensor_package_name = '#{
-      sensor_package_name.gsub("'", "''")
-    }'
+    }" AND streams.sensor_package_name = '#{sensor_package_name.gsub("'", "''")}'
 GROUP BY streams.sensor_name, streams.sensor_package_name, streams.measurement_type, streams.unit_name
 ORDER BY streams.sensor_name ASC
     SQL
@@ -48,9 +50,7 @@ INNER JOIN measurements
 ON measurements.stream_id = streams.id
 WHERE sessions.id = "#{
       session_id
-    }" AND streams.sensor_package_name = '#{
-      sensor_package_name.gsub("'", "''")
-    }'
+    }" AND streams.sensor_package_name = '#{sensor_package_name.gsub("'", "''")}'
 ORDER BY measurements.time, measurements.milliseconds, streams.sensor_name ASC
     SQL
 
@@ -63,16 +63,16 @@ SELECT streams.sensor_package_name as stream_sensor_package_name
 FROM sessions
 INNER JOIN streams
 ON streams.session_id= sessions.id
-WHERE sessions.id = "#{
-      session_id
-    }"
+WHERE sessions.id = "#{session_id}"
 GROUP BY streams.sensor_package_name
 ORDER BY streams.sensor_package_name
     SQL
 
-    ActiveRecord::Base.connection.exec_query(sql).to_hash.map do |h|
-      h['stream_sensor_package_name']
-    end
+    ActiveRecord::Base
+      .connection
+      .exec_query(sql)
+      .to_hash
+      .map { |h| h['stream_sensor_package_name'] }
   end
 
   def find_notes(session_id)

@@ -10,7 +10,9 @@ describe DeepSymbolize do
         'some' => 'data',
         'nested' => {
           'nested_key' => 'nested_val',
-          'nested_hash' => { 'deep_key' => 'deep_value' },
+          'nested_hash' => {
+            'deep_key' => 'deep_value'
+          },
           'array' => [{ 'key' => 'val' }]
         }
       }

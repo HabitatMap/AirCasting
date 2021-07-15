@@ -38,7 +38,11 @@ describe SessionBuilder do
         some: :data,
         notes: :note_data,
         tag_list: :denormalized_tags,
-        streams: { some_stream: { some: :data } }
+        streams: {
+          some_stream: {
+            some: :data
+          }
+        }
       }
     end
 

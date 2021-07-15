@@ -23,7 +23,8 @@ describe OpenAq::ParseFiles do
     ten_decimal_digits = BigDecimal('0.1234567891')
     measurement =
       build_open_aq_measurement(
-        latitude: ten_decimal_digits, longitude: ten_decimal_digits
+        latitude: ten_decimal_digits,
+        longitude: ten_decimal_digits
       )
     files = [build_file([measurement])]
 
@@ -41,26 +42,28 @@ describe OpenAq::ParseFiles do
   end
 
   def build_file_with_no_coordinates
-    build_lines([build_open_aq_measurement]).map do |hash|
-      hash.filter { |k, v| k == 'coordinates' }
-    end.map(&:to_json)
+    build_lines([build_open_aq_measurement])
+      .map { |hash| hash.filter { |k, v| k == 'coordinates' } }
+      .map(&:to_json)
       .join("\n")
   end
 
   def build_lines(measurements)
     measurements.map do |measurement|
       {
-        "date": {
-          "utc": measurement.time_utc, "local": measurement.time_local
+        'date': {
+          'utc': measurement.time_utc,
+          'local': measurement.time_local
         },
-        "parameter": measurement.sensor_name,
-        "value": measurement.value,
-        "unit": measurement.unit,
-        "location": measurement.location,
-        "city": measurement.city,
-        "country": measurement.country,
-        "coordinates": {
-          "latitude": measurement.latitude, "longitude": measurement.longitude
+        'parameter': measurement.sensor_name,
+        'value': measurement.value,
+        'unit': measurement.unit,
+        'location': measurement.location,
+        'city': measurement.city,
+        'country': measurement.country,
+        'coordinates': {
+          'latitude': measurement.latitude,
+          'longitude': measurement.longitude
         }
       }
     end

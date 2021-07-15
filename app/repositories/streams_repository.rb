@@ -8,7 +8,8 @@ class StreamsRepository
   end
 
   def calculate_bounding_box!(
-    stream, calculator = Outliers::CalculateBoundingBox.new
+    stream,
+    calculator = Outliers::CalculateBoundingBox.new
   )
     measurements = stream.measurements.select(%i[latitude longitude])
     calculate_bounding_box(stream, measurements, calculator)
@@ -16,7 +17,9 @@ class StreamsRepository
   end
 
   def calculate_bounding_box(
-    stream, measurements, calculator = Outliers::CalculateBoundingBox.new
+    stream,
+    measurements,
+    calculator = Outliers::CalculateBoundingBox.new
   )
     bounding_box = calculator.call(measurements)
     stream.min_latitude = bounding_box.fetch(:min_latitude)
