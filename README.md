@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/HabitatMap/AirCasting.svg?branch=master)](https://travis-ci.org/HabitatMap/AirCasting)
+[![Build Status](https://travis-ci.com/HabitatMap/AirCasting.svg?branch=master)](https://travis-ci.org/HabitatMap/AirCasting)
 [![Code Climate](https://codeclimate.com/github/HabitatMap/AirCasting/badges/gpa.svg)](https://codeclimate.com/github/HabitatMap/AirCasting)
 
 # AirCasting - Share your Air!
@@ -36,6 +36,8 @@ bundle exec foreman start
 open http://localhost:5000/mobile_map
 ```
 
+If `foreman` does not work, start the single processes manually: `./Procfile`.
+
 ## Tests
 
 ```bash
@@ -47,10 +49,22 @@ yarn elm-test app/javascript/elm/tests
 
 ## Formatting
 
+Check:
+
 ```bash
 yarn run elm-format --validate app/javascript/elm
+
+yarn prettier --check "**/*.{scss,js,rb}"
+```
+
+Update:
+
+```bash
+yarn run elm-format app/javascript/elm
+
 yarn prettier --write app/assets/stylesheets/path/to/your/file.scss
 yarn prettier --write app/javascript/path/to/your/file.js
+yarn prettier --write app/path/to/your/file.rb
 ```
 
 Best to add elm-format and prettier to your editor to do this for you on save.
