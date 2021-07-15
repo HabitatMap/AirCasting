@@ -1,4 +1,4 @@
-rails: bundle exec rails server
+rails: bin/rails server
 webpack: bin/webpack-dev-server
-sidekiq: bundle exec sidekiq
+sidekiq: bin/sidekiq
 redis: redis-server /usr/local/etc/redis.conf
