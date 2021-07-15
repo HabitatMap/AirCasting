@@ -1,5 +1,5 @@
 class FixedSession < Session
-  ACTIVE_FOR = 4.hour
+  ACTIVE_FOR = 24.hour
 
   validates :is_indoor, inclusion: { in: [true, false] }
   validates :latitude, :longitude, presence: true
