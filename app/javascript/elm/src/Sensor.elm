@@ -56,8 +56,8 @@ mainSensors page =
         common =
             Dict.fromList
                 [ ( "Particulate Matter"
-                  , [ "AirBeam3-PM1 (µg/m³)"
-                    , "AirBeam3-PM2.5 (µg/m³)"
+                  , [ "AirBeam3-PM2.5 (µg/m³)"
+                    , "AirBeam3-PM1 (µg/m³)"
                     , "AirBeam3-PM10 (µg/m³)"
                     , "AirBeam2-PM2.5 (µg/m³)"
                     , "AirBeam2-PM1 (µg/m³)"
