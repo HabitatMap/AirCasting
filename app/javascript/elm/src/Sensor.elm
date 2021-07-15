@@ -63,7 +63,6 @@ mainSensors page =
                   )
                 , ( "Humidity", [ "AirBeam2-RH (%)", "AirBeam-RH (%)" ] )
                 , ( "Temperature", [ "AirBeam2-F (F)", "AirBeam-F (F)" ] )
-                , ( "Sound Level", [ "Phone Microphone (dB)" ] )
                 ]
     in
     case page of
