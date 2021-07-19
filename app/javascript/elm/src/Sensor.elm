@@ -3,7 +3,6 @@ module Sensor exposing
     , decoder
     , idForParameterOrLabel
     , labelsForParameter
-    , mobileDefaultSensorId
     , nameForSensorId
     , parameterForId
     , parameters
@@ -21,7 +20,7 @@ import Set
 
 mobileDefaultSensorId : String
 mobileDefaultSensorId =
-    "Particulate Matter-airbeam3-pm2.5 (µg/m³)"
+    "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
 
 
 fixedDefaultSensorId : String

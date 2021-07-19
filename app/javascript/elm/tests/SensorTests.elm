@@ -54,7 +54,7 @@ all =
                 sensors
                     |> idForParameterOrLabel page "parameter" "parameter2-sensor3 (unit)"
                     |> Expect.equal "parameter-sensor2 (unit)"
-        , test "when on mobile page idForParameterOrLabel always finds airbeam3-pm2.5 for Particulate Matter" <|
+        , test "when on mobile page idForParameterOrLabel always finds airbeam2-pm2.5 for Particulate Matter" <|
             \_ ->
                 [ { parameter = "Particulate Matter"
                   , name = "Other Label"
@@ -62,13 +62,13 @@ all =
                   , sessionCount = 1
                   }
                 , { parameter = "Particulate Matter"
-                  , name = "AirBeam3-PM2.5"
+                  , name = "AirBeam2-PM2.5"
                   , unit = "µg/m³"
                   , sessionCount = 0
                   }
                 ]
                     |> idForParameterOrLabel Mobile "Particulate Matter" "parameter2-sensor3 (unit)"
-                    |> Expect.equal "Particulate Matter-airbeam3-pm2.5 (µg/m³)"
+                    |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
         , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam2-rh for Humidity" <|
             \page ->
                 [ { parameter = "Humidity"
@@ -114,11 +114,11 @@ all =
                 ]
                     |> idForParameterOrLabel page "Temperature" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Temperature-airbeam2-f (F)"
-        , test "when on mobile page and the default is missing idForParameterOrLabel returns airbeam3-pm2.5" <|
+        , test "when on mobile page and the default is missing idForParameterOrLabel returns airbeam2-pm2.5" <|
             \_ ->
                 []
                     |> idForParameterOrLabel Mobile "Temperature" "parameter2-sensor3 (unit)"
-                    |> Expect.equal "Particulate Matter-airbeam3-pm2.5 (µg/m³)"
+                    |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
         , test "labelsForParameter returns labels divided into main (always included) and others" <|
             \_ ->
                 let

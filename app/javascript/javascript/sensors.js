@@ -20,7 +20,7 @@ export const sensors = (params) => {
       return window.location.pathname === constants.mobileMapRoute
         ? buildSensorId({
             measurement_type: "Particulate Matter",
-            sensor_name: "AirBeam3-PM2.5",
+            sensor_name: "AirBeam2-PM2.5",
             unit_symbol: "µg/m³",
           })
         : buildSensorId({
