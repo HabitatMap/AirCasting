@@ -119,7 +119,7 @@ all =
                 []
                     |> idForParameterOrLabel Mobile "Temperature" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-        , test "labelsForParameter returns labels divided into main and others" <|
+        , test "labelsForParameter returns labels divided into main (always included) and others" <|
             \_ ->
                 let
                     sensors_ =
@@ -128,32 +128,15 @@ all =
                           , unit = "µg/m³"
                           , sessionCount = 1
                           }
-                        , { parameter = "Particulate Matter"
-                          , name = "AirBeam2-PM1"
-                          , unit = "µg/m³"
-                          , sessionCount = 1
-                          }
-                        , { parameter = "Particulate Matter"
-                          , name = "AirBeam2-PM10"
-                          , unit = "µg/m³"
-                          , sessionCount = 1
-                          }
-                        , { parameter = "Particulate Matter"
-                          , name = "AirBeam-PM"
-                          , unit = "µg/m³"
-                          , sessionCount = 1
-                          }
-                        , { parameter = "Particulate Matter"
-                          , name = "OpenAQ-PM2.5"
-                          , unit = "µg/m³"
-                          , sessionCount = 1
-                          }
                         ]
                 in
                 "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
                     |> labelsForParameter Fixed sensors_
                     |> Expect.equal
-                        ( [ "AirBeam2-PM2.5 (µg/m³)"
+                        ( [ "AirBeam3-PM2.5 (µg/m³)"
+                          , "AirBeam3-PM1 (µg/m³)"
+                          , "AirBeam3-PM10 (µg/m³)"
+                          , "AirBeam2-PM2.5 (µg/m³)"
                           , "AirBeam2-PM1 (µg/m³)"
                           , "AirBeam2-PM10 (µg/m³)"
                           , "AirBeam-PM (µg/m³)"
@@ -171,21 +154,6 @@ all =
                           , sessionCount = 1
                           }
                         , { parameter = "Particulate Matter"
-                          , name = "AirBeam2-PM1"
-                          , unit = "µg/m³"
-                          , sessionCount = 1
-                          }
-                        , { parameter = "Particulate Matter"
-                          , name = "AirBeam2-PM10"
-                          , unit = "µg/m³"
-                          , sessionCount = 1
-                          }
-                        , { parameter = "Particulate Matter"
-                          , name = "AirBeam-PM"
-                          , unit = "µg/m³"
-                          , sessionCount = 1
-                          }
-                        , { parameter = "Particulate Matter"
                           , name = "OpenAQ-PM2.5"
                           , unit = "µg/m³"
                           , sessionCount = 1
@@ -195,7 +163,10 @@ all =
                 "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
                     |> labelsForParameter Mobile sensors_
                     |> Expect.equal
-                        ( [ "AirBeam2-PM2.5 (µg/m³)"
+                        ( [ "AirBeam3-PM2.5 (µg/m³)"
+                          , "AirBeam3-PM1 (µg/m³)"
+                          , "AirBeam3-PM10 (µg/m³)"
+                          , "AirBeam2-PM2.5 (µg/m³)"
                           , "AirBeam2-PM1 (µg/m³)"
                           , "AirBeam2-PM10 (µg/m³)"
                           , "AirBeam-PM (µg/m³)"

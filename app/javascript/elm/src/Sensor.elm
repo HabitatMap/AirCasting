@@ -55,20 +55,33 @@ mainSensors page =
         common =
             Dict.fromList
                 [ ( "Particulate Matter"
-                  , [ "AirBeam2-PM2.5 (µg/m³)"
+                  , [ "AirBeam3-PM2.5 (µg/m³)"
+                    , "AirBeam3-PM1 (µg/m³)"
+                    , "AirBeam3-PM10 (µg/m³)"
+                    , "AirBeam2-PM2.5 (µg/m³)"
                     , "AirBeam2-PM1 (µg/m³)"
                     , "AirBeam2-PM10 (µg/m³)"
                     , "AirBeam-PM (µg/m³)"
                     ]
                   )
-                , ( "Humidity", [ "AirBeam2-RH (%)", "AirBeam-RH (%)" ] )
-                , ( "Temperature", [ "AirBeam2-F (F)", "AirBeam-F (F)" ] )
-                , ( "Sound Level", [ "Phone Microphone (dB)" ] )
+                , ( "Humidity"
+                  , [ "AirBeam3-RH (%)"
+                    , "AirBeam2-RH (%)"
+                    , "AirBeam-RH (%)"
+                    ]
+                  )
+                , ( "Temperature"
+                  , [ "AirBeam3-F (F)"
+                    , "AirBeam2-F (F)"
+                    , "AirBeam-F (F)"
+                    ]
+                  )
                 ]
     in
     case page of
         Mobile ->
             common
+                |> Dict.insert "Sound Level" [ "Phone Microphone (dB)" ]
 
         Fixed ->
             common
