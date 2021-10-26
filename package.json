@@ -16,7 +16,7 @@
     "elm-webpack-loader": "^8.0.0",
     "highcharts": "~7.1.0",
     "jquery": "3.4.1",
-    "jquery-ui": "^1.12.1",
+    "jquery-ui": "^1.13.0",
     "luminous-lightbox": "^2.3.2",
     "moment": "~2.15.2",
     "nouislider": "^13.1.4",
