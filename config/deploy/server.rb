@@ -33,7 +33,7 @@ set :branch, ENV.fetch('BRANCH', 'master')
 set :keep_releases, 3
 
 set :rbenv_type, :system
-set :rbenv_ruby, '2.6.3'
+set :rbenv_ruby, '2.7.4'
 #set :default_env, { path: "~/.rbenv/shims:~/.rbenv/bin:$PATH" }
 #set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{fetch(:rbenv_path)}/bin/rbenv exec"
 
@@ -44,7 +44,7 @@ set :default_env,
       rbenv_root: '/usr/local/rbenv'
     }
 set :rbenv_roles, :all
-set :rbenv_ruby_dir, '/usr/local/rbenv/versions/2.6.3'
+set :rbenv_ruby_dir, '/usr/local/rbenv/versions/2.7.4'
 set :rbenv_custom_path, '/usr/local/rbenv'
 set :rbenv_path, '/usr/local/rbenv'
 
