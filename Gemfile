@@ -8,7 +8,7 @@ gem 'acts-as-taggable-on'
 gem 'aws-sdk', '~> 3', require: false
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'colored', require: false
-gem 'devise', '~> 4.4.3'
+gem 'devise'
 gem 'dry-struct'
 gem 'dry-validation'
 gem 'geocoder', '~> 1.2'
