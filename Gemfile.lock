@@ -1104,7 +1104,7 @@ GEM
     has_scope (0.7.2)
       actionpack (>= 4.1)
       activesupport (>= 4.1)
-    honeybadger (2.7.2)
+    honeybadger (4.9.0)
     httparty (0.20.0)
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
@@ -1156,7 +1156,7 @@ GEM
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (5.1.0)
-    newrelic_rpm (3.18.1.330)
+    newrelic_rpm (8.1.0)
     nio4r (2.5.7)
     nokogiri (1.11.7)
       mini_portile2 (~> 2.5.0)
@@ -1387,10 +1387,10 @@ DEPENDENCIES
   foreman
   geocoder (~> 1.2)
   haml
-  honeybadger (~> 2.0)
+  honeybadger
   httparty
   mysql2
-  newrelic_rpm (~> 3.14, >= 3.14.0.305)
+  newrelic_rpm
   oj
   paperclip (= 4.1.1)
   progress
