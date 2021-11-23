@@ -1,8 +1,17 @@
 class OpenAq::ParseFiles
+  def initialize(logger: Sidekiq.logger)
+    @logger = logger
+  end
+
   def call(files:)
     files
       .flat_map { |file| file.split("\n") }
-      .map { |line| JSON.parse(line) }
+      .map do |line|
+        JSON.parse(line)
+      rescue JSON::ParserError => e
+        @logger.error(e)
+        {}
+      end
       .filter { |hash| hash.key?('coordinates') }
       .map { |hash| measurement(hash) }
   end

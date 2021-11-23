@@ -35,6 +35,21 @@ describe OpenAq::ParseFiles do
     expect(actual.map(&:longitude)).to eq([nine_decimal_digits])
   end
 
+  it 'filters out invalid JSON lines' do
+    measurement1 = build_open_aq_measurement
+    measurement2 = build_open_aq_measurement
+    file =
+      [
+        build_line(measurement1).to_json,
+        build_line(build_open_aq_measurement).to_json[0..-10],
+        build_line(measurement2).to_json
+      ].shuffle.join("\n")
+
+    actual = subject.call(files: [file])
+
+    expect(actual).to match_array([measurement1, measurement2])
+  end
+
   private
 
   def build_file(measurements)
@@ -49,23 +64,25 @@ describe OpenAq::ParseFiles do
   end
 
   def build_lines(measurements)
-    measurements.map do |measurement|
-      {
-        'date': {
-          'utc': measurement.time_utc,
-          'local': measurement.time_local
-        },
-        'parameter': measurement.sensor_name,
-        'value': measurement.value,
-        'unit': measurement.unit,
-        'location': measurement.location,
-        'city': measurement.city,
-        'country': measurement.country,
-        'coordinates': {
-          'latitude': measurement.latitude,
-          'longitude': measurement.longitude
-        }
+    measurements.map { |measurement| build_line(measurement) }
+  end
+
+  def build_line(measurement)
+    {
+      'date': {
+        'utc': measurement.time_utc,
+        'local': measurement.time_local
+      },
+      'parameter': measurement.sensor_name,
+      'value': measurement.value,
+      'unit': measurement.unit,
+      'location': measurement.location,
+      'city': measurement.city,
+      'country': measurement.country,
+      'coordinates': {
+        'latitude': measurement.latitude,
+        'longitude': measurement.longitude
       }
-    end
+    }
   end
 end
