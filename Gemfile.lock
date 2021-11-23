@@ -1401,7 +1401,7 @@ DEPENDENCIES
   rainbows
   rake
   rb-gsl (= 1.16.0.6)
-  responders (~> 2.0)
+  responders
   rspec-rails
   rubycritic
   rubyzip (>= 1.0.0)
