@@ -22,7 +22,7 @@ gem 'paperclip', '4.1.1'
 gem 'progress', require: false
 gem 'pry-rails'
 gem 'rack-cors'
-gem 'rails', '~> 5.2.6'
+gem 'rails', '~> 6.0.4'
 gem 'rake'
 gem 'rb-gsl', '1.16.0.6'
 gem 'responders'
@@ -49,6 +49,7 @@ group :development do
   gem 'capistrano-rvm', require: false
   gem 'capistrano-sidekiq', require: false
   gem 'capistrano3-unicorn', require: false
+  gem 'listen'
   gem 'pry-byebug'
   gem 'rubycritic', require: false
   gem 'web-console'

@@ -2,17 +2,17 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `rails
+# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_17_070820) do
+ActiveRecord::Schema.define(version: 2021_11_24_141959) do
 
-  create_table "deleted_sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "deleted_sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "uuid"
@@ -21,7 +21,7 @@ ActiveRecord::Schema.define(version: 2019_09_17_070820) do
     t.index ["uuid", "user_id"], name: "index_deleted_sessions_on_uuid_and_user_id"
   end
 
-  create_table "measurements", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "measurements", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.float "value"
     t.decimal "latitude", precision: 12, scale: 9
     t.decimal "longitude", precision: 12, scale: 9
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 2019_09_17_070820) do
     t.index ["stream_id", "time"], name: "index_measurements_on_stream_id_and_time"
   end
 
-  create_table "notes", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "notes", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "date"
@@ -49,7 +49,7 @@ ActiveRecord::Schema.define(version: 2019_09_17_070820) do
     t.index ["session_id"], name: "index_notes_on_session_id"
   end
 
-  create_table "regressions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "regressions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "sensor_package_name"
@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(version: 2019_09_17_070820) do
     t.integer "user_id"
   end
 
-  create_table "sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer "user_id"
@@ -101,7 +101,7 @@ ActiveRecord::Schema.define(version: 2019_09_17_070820) do
     t.index ["uuid"], name: "index_sessions_on_uuid"
   end
 
-  create_table "streams", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "streams", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "sensor_name"
     t.string "unit_name"
     t.string "measurement_type"
@@ -131,7 +131,7 @@ ActiveRecord::Schema.define(version: 2019_09_17_070820) do
     t.index ["session_id"], name: "index_streams_on_session_id"
   end
 
-  create_table "taggings", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "taggings", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.integer "tag_id"
     t.string "taggable_type"
     t.integer "taggable_id"
@@ -150,13 +150,13 @@ ActiveRecord::Schema.define(version: 2019_09_17_070820) do
     t.index ["tagger_id"], name: "index_taggings_on_tagger_id"
   end
 
-  create_table "tags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "tags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "name", collation: "utf8_bin"
     t.integer "taggings_count", default: 0
     t.index ["name"], name: "index_tags_on_name"
   end
 
-  create_table "users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", limit: 128, default: "", null: false
     t.string "reset_password_token"
