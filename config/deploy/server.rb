@@ -34,7 +34,8 @@ set :keep_releases, 3
 
 set :rbenv_type, :system
 ruby_version =
-  File.read(File.join(File.dirname(__FILE__), '..', '..', '.ruby-version')).chomp
+  File.read(File.join(File.dirname(__FILE__), '..', '..', '.ruby-version'))
+    .chomp
 set :rbenv_ruby, ruby_version
 #set :default_env, { path: "~/.rbenv/shims:~/.rbenv/bin:$PATH" }
 #set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{fetch(:rbenv_path)}/bin/rbenv exec"
