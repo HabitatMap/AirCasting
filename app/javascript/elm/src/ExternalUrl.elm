@@ -1,4 +1,4 @@
-module ExternalUrl exposing (about, airbeam, airbeamBuy, airbeamFaq, airbeamHowItWorks, airbeamUserStories, airbeamUsersGuide, aircasting, android, blog, donate, habitatMap, history, press, search)
+module ExternalUrl exposing (about, airbeam, airbeamBuy, airbeamFaq, airbeamHowItWorks, airbeamUserStories, airbeamUsersGuide, aircasting, android, blog, donate, habitatMap, history, iOS, press, search)
 
 
 habitatMap =
@@ -7,6 +7,10 @@ habitatMap =
 
 android =
     "https://play.google.com/store/apps/details?id=pl.llp.aircasting&hl=en_US"
+
+
+iOS =
+    "https://apps.apple.com/us/app/aircasting/id1587685281#?platform=iphone"
 
 
 
