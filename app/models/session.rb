@@ -17,8 +17,8 @@ class Session < ApplicationRecord
   validates :start_time_local, presence: true
   validates :end_time, presence: true
   validates :end_time_local, presence: true
-  validates :url_token, :uuid, uniqueness: true
   validates :type, presence: :true
+  validates :url_token, :uuid, uniqueness: { case_sensitive: false }
 
   accepts_nested_attributes_for :notes, :streams
 
@@ -228,7 +228,7 @@ class Session < ApplicationRecord
 
       session_data[:notes].each do |note_data|
         if note = notes.find_by_number(note_data[:number])
-          note.update_attributes(note_data)
+          note.update(note_data)
         else
           note = Note.new(note_data)
           note.session = self

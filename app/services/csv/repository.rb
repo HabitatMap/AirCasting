@@ -7,7 +7,7 @@ class Csv::Repository
     }
 
     find_streams(session_id, sensor_package_name)
-      .to_hash
+      .to_a
       .each do |h|
         hash['sensor_names'].push(h['sensor_name'])
         hash['measurement_types'].push(h['measurement_type'])
@@ -54,7 +54,7 @@ WHERE sessions.id = "#{
 ORDER BY measurements.time, measurements.milliseconds, streams.sensor_name ASC
     SQL
 
-    ActiveRecord::Base.connection.exec_query(sql).to_hash
+    ActiveRecord::Base.connection.exec_query(sql).to_a
   end
 
   def find_sensor_package_names(session_id)
@@ -71,7 +71,7 @@ ORDER BY streams.sensor_package_name
     ActiveRecord::Base
       .connection
       .exec_query(sql)
-      .to_hash
+      .to_a
       .map { |h| h['stream_sensor_package_name'] }
   end
 
@@ -86,6 +86,6 @@ FROM sessions
 WHERE sessions.id= "#{session_id}"
     SQL
 
-    ActiveRecord::Base.connection.exec_query(sql).to_hash.first['title']
+    ActiveRecord::Base.connection.exec_query(sql).to_a.first['title']
   end
 end
