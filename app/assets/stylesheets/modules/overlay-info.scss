@@ -13,7 +13,7 @@ $overlay-info-width: 500px;
     text-align: center;
 
     @media screen and (min-width: $small-desktop-min) {
-      left: calc(50vw - #{$overlay-info-width/2});
+      left: calc(50vw - #{$overlay-info-width * 0.5});
     }
 
     @media screen and (max-width: $tablet-max) {

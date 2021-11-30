@@ -2,7 +2,7 @@ $search-control-width: 300px;
 
 .search-control {
   position: absolute;
-  right: calc(50% - #{$search-control-width/2});
+  right: calc(50% - #{$search-control-width * 0.5});
   text-align: center;
   top: 6px;
   width: $search-control-width;
