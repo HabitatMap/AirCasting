@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem "foreman"
 gem 'a9n'
 gem 'activeadmin'
-gem 'activerecord-import', '~> 0.28'
+gem 'activerecord-import'
 gem 'acts-as-taggable-on'
 gem 'aws-sdk', '~> 3', require: false
 gem 'bootsnap', '>= 1.1.0', require: false
@@ -22,7 +22,7 @@ gem 'paperclip', '4.1.1'
 gem 'progress', require: false
 gem 'pry-rails'
 gem 'rack-cors'
-gem 'rails', '~> 6.0.4'
+gem 'rails'
 gem 'rake'
 gem 'rb-gsl', '1.16.0.6'
 gem 'responders'

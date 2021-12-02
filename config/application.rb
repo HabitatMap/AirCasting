@@ -1,6 +1,6 @@
-require_relative 'boot'
+require_relative "boot"
 
-require 'rails/all'
+require "rails/all"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -20,26 +20,18 @@ require_relative '../lib/aircasting/time_to_local_in_utc'
 module AirCasting
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.0
+    config.load_defaults 6.1
 
-    # Settings in config/environments/* take precedence over those specified here.
-    # Application configuration can go into files in config/initializers
-    # -- all .rb files in that directory are automatically loaded after loading
-    # the framework and any gems in your application.
+    # Configuration for the application, engines, and railties goes here.
+    #
+    # These settings can be overridden in specific environments using the files
+    # in config/environments, which are processed later.
+    #
+    # config.time_zone = "Central Time (US & Canada)"
+    # config.eager_load_paths << Rails.root.join("extras")
 
-    # App host
     config.action_mailer.default_url_options = { host: A9n.host_ }
     config.action_controller.default_url_options = { host: A9n.host_ }
-
-    # Wrap fields with errors with spans
-    config.action_view.field_error_proc =
-      Proc.new do |html_tag, instance|
-        "<span class=\"fieldWithErrors\">#{html_tag}</span>".html_safe
-      end
-
-    config.active_record.include_root_in_json = false
-
-    config.log_tags = %i[uuid]
   end
 end
 
