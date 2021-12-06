@@ -1,7 +1,7 @@
 module Data.EmailForm exposing (EmailForm, addFlashMessage, clearFlash, defaultEmailForm, toEmail, updateErrors, updateFormValue, view)
 
 import Html exposing (Html, button, div, form, input, p, text)
-import Html.Attributes exposing (class, placeholder, value)
+import Html.Attributes exposing (class, placeholder, value, attribute)
 import Html.Events as Events
 import Popup
 import Validate exposing (Valid, Validator, fromValid, ifInvalidEmail, validate)
@@ -22,7 +22,7 @@ emailValidator =
 
 view : EmailForm -> (Result (List String) (Valid EmailForm) -> msg) -> msg -> (String -> msg) -> Html msg
 view emailForm onSubmit noOp updateValue =
-    form [ class "tippy-tooltip light-border-theme email-popup" ]
+    form [ class "email-popup tippy-box tippy-content", attribute "data-theme" "light-border"]
         [ case emailForm.flash of
             Just flashMessage ->
                 text flashMessage

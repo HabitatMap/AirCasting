@@ -21,7 +21,7 @@
     "moment": "~2.15.2",
     "nouislider": "^13.1.4",
     "resolve-url-loader": "^4.0.0",
-    "tippy.js": "^4.2.0",
+    "tippy.js": "^6.3.7",
     "underscore": "~1.8.3",
     "whatwg-fetch": "^3.0.0"
   },

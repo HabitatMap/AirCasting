@@ -150,7 +150,8 @@ const tooltipInstance = (() => {
     const oldInstance = instance;
     instance =
       tippy(`#${tooltipId}`, {
-        animateFill: false,
+        appendTo: document.body,
+        allowHTML: true,
         interactive: true,
         theme: "light-border",
         trigger: "manual",

@@ -14,6 +14,7 @@ import navLogo from "../../assets/images/aircasting-logo-nav";
 import "nouislider";
 import * as graph from "../javascript/graph";
 import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css";
 import "../../assets/stylesheets/main.scss";
 import "tippy.js/themes/light-border.css";
 import { createObserver } from "../createObserver.js";

@@ -1,10 +1,10 @@
 .email-popup {
   animation: show-up 125ms ease;
+  padding: .3125rem .5625rem;
   width: 200px;
   z-index: $popup-z-index;
 
-  &.tippy-tooltip.light-border-theme {
-    color: initial;
+  &.tippy-box {
     position: absolute;
     bottom: 56px;
     left: 11px;
