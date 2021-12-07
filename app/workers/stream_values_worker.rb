@@ -4,6 +4,9 @@ class StreamValuesWorker
 
   def perform(stream_id, measurements_attributes)
     stream = streams_repository.find(stream_id)
+    measurements_attributes = measurements_attributes.select do |params|
+      params['value'].present? && params['longitude'].present? && params['latitude'].present?
+    end
     calculate_bounding_box(stream, measurements_attributes)
     calculate_average_value!(stream, measurements_attributes)
     add_start_coordinates!(stream, measurements_attributes)
