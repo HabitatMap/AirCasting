@@ -2,45 +2,37 @@ require 'rails_helper'
 
 describe Stream do
   describe '#build_measurements!' do
-    let(:stream) { FactoryBot.create(:stream) }
-    let(:measurement) { FactoryBot.create(:measurement, stream: stream) }
-    let(:measurement_data) { double('measurement data') }
+    it 'with valid data it imports the measurements' do
+      stream = FactoryBot.create(:stream)
+      data = [1, 2, 3].sample.times.map { FactoryBot.attributes_for(:measurement) }
 
-    before do
-      expect(Measurement).to receive(:new)
-        .with(measurement_data)
-        .and_return(measurement)
-      expect(measurement).to receive(:stream=)
-        .with(any_args) { |x| x.id == stream.id }
-      expect(Measurement).to receive(:import).with(any_args) do |measurements|
-        expect(measurements).to include measurement
-        import_result
-      end
+      expect do
+        stream.build_measurements!(data)
+      end.to change { Measurement.count }.from(0).to(data.size)
     end
 
-    context 'the measurements are valid' do
-      let(:import_result) { double(failed_instances: []) }
-
-      it 'should import the measurements' do
-        expect(Stream).to receive(:update_counters).with(
-          stream.id,
-          measurements_count: 1
-        )
-
-        stream.build_measurements!([measurement_data])
+    it 'skips invalid measurements' do
+      stream = FactoryBot.create(:stream)
+      valid_data = [1, 2, 3].sample.times.map { FactoryBot.attributes_for(:measurement) }
+      invalid_data = valid_data.map do |params|
+        required_fields = [:value, :longitude, :latitude, :time]
+        invalid_params = required_fields.map { |field| { field => nil } }
+        params.merge(invalid_params.sample)
       end
+      data = (valid_data + invalid_data).shuffle
+
+      expect do
+        stream.build_measurements!(data)
+      end.to change { Measurement.count }.from(0).to(valid_data.size)
     end
 
-    context 'the measurements are invalid' do
-      let(:import_result) { double(failed_instances: [1, 2, 3]) }
+    it 'with valid data it updates Stream#measurements_count' do
+      stream = FactoryBot.create(:stream)
+      data = [1, 2, 3].sample.times.map { FactoryBot.attributes_for(:measurement) }
 
-      it 'should cause an error' do
-        expect {
-          stream.build_measurements!([measurement_data])
-        }.to raise_error(
-          'Measurement import failed! Failed instances: [1, 2, 3]'
-        )
-      end
+      expect do
+        stream.build_measurements!(data)
+      end.to change { stream.reload.measurements_count }.from(0).to(data.size)
     end
   end
 

@@ -127,21 +127,12 @@ class Stream < ApplicationRecord
   end
 
   def build_measurements!(data = [])
-    measurements =
-      data.map do |measurement_data|
-        m = Measurement.new(measurement_data)
-        m.stream = self
-        m
-      end
-    ActiveRecord::Base.transaction do
-      result = Measurement.import measurements
-      unless result.failed_instances.empty?
-        raise "Measurement import failed! Failed instances: #{
-                result.failed_instances
-              }"
-      end
+    measurements = data.map { |params| Measurement.new(params.merge(stream: self)) }
+    result = Measurement.import measurements
+    if result.failed_instances.any?
+      Rails.logger.warn "Measurement.import failed for: #{result.failed_instances}"
     end
-    Stream.update_counters(self.id, { measurements_count: measurements.size })
+    Stream.update_counters(self.id, measurements_count: measurements.size - result.failed_instances.size)
   end
 
   def self.thresholds(sensor_name, unit_symbol)
