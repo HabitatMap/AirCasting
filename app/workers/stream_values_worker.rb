@@ -4,19 +4,10 @@ class StreamValuesWorker
 
   def perform(stream_id, measurements_attributes)
     stream = streams_repository.find(stream_id)
-    time1 = Time.current
     calculate_bounding_box(stream, measurements_attributes)
-    time2 = Time.current
-    Sidekiq.logger.info "calc_bounding_box! in #{(time2 - time1).round(3)}"
     calculate_average_value!(stream, measurements_attributes)
-    time3 = Time.current
-    Sidekiq.logger.info "calc_average_value! in #{(time3 - time2).round(3)}"
     add_start_coordinates!(stream, measurements_attributes)
-    time4 = Time.current
-    Sidekiq.logger.info "add_start_coordinates! in #{(time4 - time3).round(3)}"
     stream.save!
-    time5 = Time.current
-    Sidekiq.logger.info "save! in #{(time5 - time4).round(3)}"
   end
 
   private
