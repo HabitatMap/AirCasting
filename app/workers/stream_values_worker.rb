@@ -7,6 +7,7 @@ class StreamValuesWorker
     measurements_attributes = measurements_attributes.select do |params|
       params['value'].present? && params['longitude'].present? && params['latitude'].present?
     end
+    return if measurements_attributes.empty?
     calculate_bounding_box(stream, measurements_attributes)
     calculate_average_value!(stream, measurements_attributes)
     add_start_coordinates!(stream, measurements_attributes)
@@ -27,8 +28,7 @@ class StreamValuesWorker
 
   def calculate_average_value!(stream, measurements_attributes)
     stream.average_value =
-      measurements_attributes.sum { |m| m['value'] } /
-        measurements_attributes.size
+      measurements_attributes.sum { |m| m['value'] } / measurements_attributes.size
   end
 
   def calculate_bounding_box(stream, measurements_attributes)

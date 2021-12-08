@@ -36,6 +36,20 @@ describe StreamValuesWorker do
     expect(stream.reload.average_value).to eq(valid_data['value'])
   end
 
+  it 'with 0 valid measurements it goes through' do
+    stream = FactoryBot.create(:stream)
+    valid_data = FactoryBot
+      .attributes_for(:measurement, value: random_int)
+      .transform_keys(&:to_s)
+    invalid_data = valid_data.yield_self do |params|
+      required_fields = [:longitude, :latitude, :value].map(&:to_s)
+      invalid_params = required_fields.map { |field| { field => nil } }
+      params.merge(invalid_params.sample)
+    end
+
+    subject.perform(stream.id, [invalid_data])
+  end
+
   it 'updates start_longitude and start_latitude with only valid measurements' do
     stream = FactoryBot.create(:stream)
     valid_data = FactoryBot
