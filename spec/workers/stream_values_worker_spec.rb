@@ -4,7 +4,7 @@ describe StreamValuesWorker do
   it 'updates bounding_box with only valid measurements' do
     stream = FactoryBot.create(:stream)
     valid_data = FactoryBot
-      .attributes_for(:measurement, latitude: random_big_decimal, longitude: random_big_decimal)
+      .attributes_for(:measurement, latitude: random_small_int, longitude: random_small_int)
       .transform_keys(&:to_s)
     invalid_data = valid_data.yield_self do |params|
       required_fields = [:longitude, :latitude, :value].map(&:to_s)
@@ -23,7 +23,7 @@ describe StreamValuesWorker do
   it 'updates average_value with only valid measurements' do
     stream = FactoryBot.create(:stream)
     valid_data = FactoryBot
-      .attributes_for(:measurement, value: random_int)
+      .attributes_for(:measurement, value: random_small_int)
       .transform_keys(&:to_s)
     invalid_data = valid_data.yield_self do |params|
       required_fields = [:longitude, :latitude, :value].map(&:to_s)
@@ -39,7 +39,7 @@ describe StreamValuesWorker do
   it 'with 0 valid measurements it goes through' do
     stream = FactoryBot.create(:stream)
     valid_data = FactoryBot
-      .attributes_for(:measurement, value: random_int)
+      .attributes_for(:measurement, value: random_small_int)
       .transform_keys(&:to_s)
     invalid_data = valid_data.yield_self do |params|
       required_fields = [:longitude, :latitude, :value].map(&:to_s)
@@ -53,7 +53,7 @@ describe StreamValuesWorker do
   it 'updates start_longitude and start_latitude with only valid measurements' do
     stream = FactoryBot.create(:stream)
     valid_data = FactoryBot
-      .attributes_for(:measurement, latitude: random_big_decimal, longitude: random_big_decimal)
+      .attributes_for(:measurement, latitude: random_small_int, longitude: random_small_int)
       .transform_keys(&:to_s)
     invalid_data = valid_data.yield_self do |params|
       required_fields = [:longitude, :latitude, :value].map(&:to_s)

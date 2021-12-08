@@ -135,6 +135,10 @@ def random_int
   rand(100_000)
 end
 
+def random_small_int
+  rand(100)
+end
+
 def random_float
   rand * 100
 end
