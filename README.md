@@ -32,7 +32,7 @@ Go to https://bitly.com/ create an account and log in. To generate the token go 
 ```bash
 rvm use
 nvm use
-bundle exec foreman start
+bin/foreman start
 open http://localhost:5000/mobile_map
 ```
 
