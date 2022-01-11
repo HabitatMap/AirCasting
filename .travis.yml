@@ -14,7 +14,7 @@ before_install:
 - ssh-add ./keys/container_deploy_key
 - echo -e "Host aircasting.org\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - chmod +x ./bin/deploy.sh
-- gem install bundler -v '2.2.31'
+- gem install bundler -v '2.3.4'
 cache:
   bundler: true
   directories:
