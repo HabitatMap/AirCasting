@@ -32,6 +32,7 @@ Go to https://bitly.com/ create an account and log in. To generate the token go 
 ```bash
 rvm use
 nvm use
+# make sure redis is running (brew info redis)
 bin/foreman start
 open http://localhost:5000/mobile_map
 ```
