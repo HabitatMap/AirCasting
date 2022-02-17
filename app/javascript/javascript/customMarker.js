@@ -42,7 +42,10 @@ export function buildCustomMarker({
   };
 
   CustomMarker.prototype.draw = function () {
-    var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
+    var divPosition = this.getProjection().fromLatLngToDivPixel({
+      lat: this.position.lat(),
+      lng: this.position.lng(),
+    });
 
     var display =
       Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000
