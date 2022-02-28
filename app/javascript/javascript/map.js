@@ -310,7 +310,7 @@ export default (() => {
     },
 
     fromLatLngToPoint: function (latLng) {
-      return googleMaps.fromLatLngToPoint(this.mapObj, latLng);
+      return googleMaps.fromLatLngToPoint(this.mapObj, { lat: latLng.lat(), lng: latLng.lng() });
     },
   };
 
