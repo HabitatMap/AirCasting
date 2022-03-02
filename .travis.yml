@@ -2,7 +2,7 @@ sudo: false
 language: ruby
 rvm:
   - 2.7.0
-dist: trusty
+dist: bionic
 before_install:
 - openssl aes-256-cbc -K $encrypted_9f37634381c1_key -iv $encrypted_9f37634381c1_iv
   -in keys.tar.gz.enc -out keys.tar.gz -d
@@ -21,6 +21,8 @@ cache:
   - node_modules
   - vendor/bundle
   yarn: true
+services:
+  - mysql
 addons:
   apt:
     packages:
