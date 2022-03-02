@@ -140,15 +140,15 @@ export default (() => {
     }
 
     if (window.__map.clusterers[0]) {
-      const cluster = window.__map.clusterers[0].clusters_.find((cluster) =>
-        cluster.markers_.some(
+      const cluster = window.__map.clusterers[0].clusters.find((cluster) =>
+        cluster.markers.some(
           (marker) => marker.objectId() === sessionMarkerData.id
         )
       );
 
       if (cluster) {
         pulsatingSessionMarker = map.drawPulsatingMarker(
-          cluster.center_,
+          cluster.position,
           sessionMarkerData.heatLevel
         );
         return;

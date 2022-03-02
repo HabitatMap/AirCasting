@@ -24,25 +24,27 @@ export const applyTheme = (callback) => {
 
 const updateFixedClusters = () => {
   if (!window.__map.clusterers[0]) return;
-  window.__map.clusterers[0].setStyles(fixedClusterStyles());
-  window.__map.clusterers[0].repaint();
+  // Force a rerender of the clusters
+  const marker = new google.maps.Marker({ position: { lat: 12345, lng: 12345 } });
+  window.__map.clusterers[0].addMarker(marker);
+  window.__map.clusterers[0].removeMarker(marker, true);
 };
 
-export const fixedClusterStyles = () => {
+export const fixedClusterStyles = index => {
   if (getParams().theme === BLUE_THEME) {
     return [
-      { url: assets.clusterTheme2Level1Path, height: 30, width: 30 },
-      { url: assets.clusterTheme2Level2Path, height: 30, width: 30 },
-      { url: assets.clusterTheme2Level3Path, height: 30, width: 30 },
-      { url: assets.clusterTheme2Level4Path, height: 30, width: 30 },
-    ];
+      { url: assets.clusterTheme2Level1Path, anchor: new google.maps.Point(15, 15) },
+      { url: assets.clusterTheme2Level2Path, anchor: new google.maps.Point(15, 15) },
+      { url: assets.clusterTheme2Level3Path, anchor: new google.maps.Point(15, 15) },
+      { url: assets.clusterTheme2Level4Path, anchor: new google.maps.Point(15, 15) },
+    ][index];
   } else {
     return [
-      { url: assets.clusterTheme1Level1Path, height: 30, width: 30 },
-      { url: assets.clusterTheme1Level2Path, height: 30, width: 30 },
-      { url: assets.clusterTheme1Level3Path, height: 30, width: 30 },
-      { url: assets.clusterTheme1Level4Path, height: 30, width: 30 },
-    ];
+      { url: assets.clusterTheme1Level1Path, anchor: new google.maps.Point(15, 15) },
+      { url: assets.clusterTheme1Level2Path, anchor: new google.maps.Point(15, 15) },
+      { url: assets.clusterTheme1Level3Path, anchor: new google.maps.Point(15, 15) },
+      { url: assets.clusterTheme1Level4Path, anchor: new google.maps.Point(15, 15) },
+    ][index];
   }
 };
 

@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "@babel/core": "^7.16.0",
-    "@google/markerclustererplus": "^2.1.11",
+    "@babel/plugin-transform-runtime": "^7.16.7",
+    "@babel/preset-env": "^7.16.7",
+    "@googlemaps/markerclusterer": "^1.0.25",
     "@rails/webpacker": "^5.4.0",
     "babel-loader": "^8.2.3",
     "clipboard": "^2.0.4",
@@ -26,9 +28,7 @@
     "resolve-url-loader": "^4.0.0",
     "tippy.js": "^6.3.7",
     "underscore": "^1.13.2",
-    "whatwg-fetch": "^3.0.0",
-    "@babel/plugin-transform-runtime": "^7.16.7",
-    "@babel/preset-env": "^7.16.7"
+    "whatwg-fetch": "^3.0.0"
   },
   "devDependencies": {
     "@babel/register": "^7.16.0",

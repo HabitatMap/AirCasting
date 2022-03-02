@@ -1,6 +1,6 @@
 import _ from "underscore";
 import { buildCustomMarker } from "./customMarker";
-import MarkerClusterer from "@google/markerclustererplus";
+import { MarkerClusterer, SuperClusterAlgorithm } from "@googlemaps/markerclusterer";
 import { fixedClusterStyles, pulsingMarkerStyles } from "./theme";
 import {
   setHasChangedProgrammatically,
@@ -18,7 +18,6 @@ export default (() => {
   const TIMEOUT_DELAY = 1000;
   setHasChangedProgrammatically(false);
   window.__traceMarkers = [];
-  const elmApp = window.__elmApp;
 
   var Map = function () {};
 
@@ -260,29 +259,24 @@ export default (() => {
       return pulsatingSessionMarker;
     },
 
-    clusterMarkers: function (onClick) {
-      const options = {
-        styles: fixedClusterStyles(),
-        zoomOnClick: false,
-        gridSize: 20,
-        maxZoom: 21,
-        calculator: (markers) => {
-          // calculator returns an index value that is used to select the corresponding style from the styles array by: styles[index -1]
-          // documented at: https://htmlpreview.github.io/?https://github.com/googlemaps/v3-utility-library/blob/master/markerclustererplus/docs/reference.html
-          const average =
-            markers.reduce((sum, marker) => sum + marker.value(), 0) /
-            markers.length;
-          return { text: "", index: heat.getLevel(Math.round(average)) };
-        },
+    clusterMarkers: function (onClusterClick) {
+      const render = ({ position, markers }) => {
+        const average =
+          markers.reduce((sum, marker) => sum + marker.value(), 0) /
+          markers.length;
+        const index = heat.getLevel(Math.round(average)) - 1
+        const icon = fixedClusterStyles(index) || fixedClusterStyles(0);
+        return new google.maps.Marker({ position, icon });
       };
 
-      const markerClusterer = new MarkerClusterer(
-        this.mapObj,
-        window.__map.customMarkers,
-        options
-      );
+      const markerClusterer = new MarkerClusterer({
+        map: this.mapObj,
+        markers: window.__map.customMarkers,
+        algorithm: new SuperClusterAlgorithm({ maxZoom: 21, radius: 40 }),
+        onClusterClick,
+        renderer: { render },
+      });
 
-      googleMaps.addListener(markerClusterer, "clusterclick", onClick);
       window.__map.clusterers.push(markerClusterer);
     },
 
@@ -291,7 +285,7 @@ export default (() => {
     },
 
     zoomToSelectedCluster: function () {
-      googleMaps.fitBounds(this.mapObj, this.selectedCluster.bounds_);
+      googleMaps.fitBounds(this.mapObj, this.selectedCluster.bounds);
     },
 
     drawLine: function (points) {

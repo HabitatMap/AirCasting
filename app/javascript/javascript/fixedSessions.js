@@ -205,18 +205,18 @@ export default (() => {
   return new FixedSessions();
 })();
 
-export const showClusterInfo = (sensorName) => (cluster) => {
+export const showClusterInfo = (sensorName) => (_event, cluster) => {
   map.setSelectedCluster(cluster);
 
   const params = {
-    session_ids: cluster.getMarkers().map((marker) => marker.objectId()),
+    session_ids: cluster.markers.map((marker) => marker.objectId()),
     sensor_name: sensorName,
   };
 
   infoWindow.show({
     url: "/api/fixed_region.json",
     params,
-    position: cluster.getCenter(),
+    position: cluster.position,
     sessionType: constants.fixedSession,
   });
 };
