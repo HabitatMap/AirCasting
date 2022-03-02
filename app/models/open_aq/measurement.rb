@@ -18,6 +18,14 @@ module OpenAq
         convert_ppm_to_ppb(kwargs[:value]) if kwargs[:unit] == 'ppm'
       end
 
+      def build_stream
+        OpenAq::Stream.new(
+          latitude: latitude,
+          longitude: longitude,
+          sensor_name: sensor_name
+        )
+      end
+
       private
 
       def convert_ppm_to_ppb(value)
