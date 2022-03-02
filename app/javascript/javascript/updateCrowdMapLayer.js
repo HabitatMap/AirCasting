@@ -33,10 +33,10 @@ const onAveragesFetch = (_onRectangleClick) => (data) => {
 };
 
 const onRectangleClick = (sessionIds) => (rectangleData) => {
-  infoWindow.show(
-    "/api/region.json",
-    { q: buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData) },
-    rectangles.position(rectangleData),
-    constants.mobileSession
-  );
+  infoWindow.show({
+    url: "/api/region.json",
+    params: buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData),
+    position: rectangles.position(rectangleData),
+    sessionType: constants.mobileSession,
+  });
 };

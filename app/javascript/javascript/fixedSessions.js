@@ -208,17 +208,15 @@ export default (() => {
 export const showClusterInfo = (sensorName) => (cluster) => {
   map.setSelectedCluster(cluster);
 
-  const data = {
-    q: {
-      session_ids: cluster.getMarkers().map((marker) => marker.objectId()),
-      sensor_name: sensorName,
-    },
+  const params = {
+    session_ids: cluster.getMarkers().map((marker) => marker.objectId()),
+    sensor_name: sensorName,
   };
 
-  infoWindow.show(
-    "/api/fixed_region.json",
-    data,
-    cluster.getCenter(),
-    constants.fixedSession
-  );
+  infoWindow.show({
+    url: "/api/fixed_region.json",
+    params,
+    position: cluster.getCenter(),
+    sessionType: constants.fixedSession,
+  });
 };
