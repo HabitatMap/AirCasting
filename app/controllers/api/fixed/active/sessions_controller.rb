@@ -5,22 +5,8 @@ module Api
         respond_to :json
 
         def index
-          GoogleAnalyticsWorker::RegisterEvent.async_call(
-            'Fixed active sessions#index'
-          )
-          q =
-            ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
-          q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')
-          q[:time_to] = Time.strptime(q[:time_to].to_s, '%s')
-
-          form =
-            Api::ParamsForm.new(
-              params: q,
-              schema: Api::FixedSessions::Schema,
-              struct: Api::FixedSessions::Struct
-            )
-
-          result = Api::ToActiveSessionsArray.new(form: form).call
+          GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed active sessions#index')
+          result = Api::ToActiveSessionsJson.new(form: form).call
 
           if result.success?
             # Gzip the response since we are sending a ton of data.
@@ -30,6 +16,20 @@ module Api
             render json: result.errors, status: :bad_request
           end
         end
+
+        private
+
+        def form
+          q = ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
+          q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')
+          q[:time_to] = Time.strptime(q[:time_to].to_s, '%s')
+
+          Api::ParamsForm.new(
+            params: q,
+            schema: Api::FixedSessions::Schema,
+            struct: Api::FixedSessions::Struct
+          )
+         end
       end
     end
   end

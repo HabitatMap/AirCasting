@@ -40,38 +40,18 @@ describe Api::Fixed::Active::SessionsController do
             'id' => active_session.id,
             'end_time_local' => '2000-10-01T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
-            'last_hour_average' => active_session.measurements.last.value,
+            'last_hour_average' => active_stream.average_value,
             'is_indoor' => active_session.is_indoor,
             'latitude' => active_session.latitude,
             'longitude' => active_session.longitude,
             'title' => active_session.title,
-            'type' => 'FixedSession',
             'username' => user.username,
             'streams' => {
               active_stream.sensor_name => {
-                'average_value' => nil,
-                'id' => active_stream.id,
-                'max_latitude' => active_stream.max_latitude,
-                'max_longitude' => active_stream.max_longitude,
-                'measurement_short_type' =>
-                  active_stream.measurement_short_type,
-                'measurement_type' => active_stream.measurement_type,
-                'measurements_count' => 1,
-                'min_latitude' => active_stream.min_latitude,
-                'min_longitude' => active_stream.min_longitude,
+                'average_value' => active_stream.average_value,
+                'measurement_short_type' => active_stream.measurement_short_type,
                 'sensor_name' => active_stream.sensor_name,
-                'sensor_package_name' => active_stream.sensor_package_name,
-                'session_id' => active_session.id,
-                'size' => 1,
-                'start_latitude' => active_stream.start_latitude,
-                'start_longitude' => active_stream.start_longitude,
-                'threshold_high' => active_stream.threshold_high,
-                'threshold_low' => active_stream.threshold_low,
-                'threshold_medium' => active_stream.threshold_medium,
-                'threshold_very_high' => active_stream.threshold_very_high,
-                'threshold_very_low' => active_stream.threshold_very_low,
-                'unit_name' => active_stream.unit_name,
-                'unit_symbol' => active_stream.unit_symbol
+                'unit_symbol' => active_stream.unit_symbol,
               }
             }
           }
