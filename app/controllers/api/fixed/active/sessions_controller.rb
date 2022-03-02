@@ -23,6 +23,8 @@ module Api
           result = Api::ToActiveSessionsArray.new(form: form).call
 
           if result.success?
+            # Gzip the response since we are sending a ton of data.
+            request.env['HTTP_ACCEPT_ENCODING'] = 'gzip'
             render json: result.value, status: :ok
           else
             render json: result.errors, status: :bad_request

@@ -32,6 +32,8 @@ module AirCasting
 
     config.action_mailer.default_url_options = { host: A9n.host_ }
     config.action_controller.default_url_options = { host: A9n.host_ }
+
+    config.middleware.use Rack::Deflater
   end
 end
 
