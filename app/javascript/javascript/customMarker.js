@@ -1,112 +1,127 @@
-let zIndex = 10000;
+// `customMarkerClass` has two responsibilities:
+//   - create `Custom` after google.maps.OverlayView is loaded in the browser
+//   - cache `Custom` so that it's not recreated for every custom marker
+const customMarkerClass = () => {
+  let klass;
+  let zIndex = 10000;
 
-export function buildCustomMarker({
-  object,
-  content,
-  colorClass,
-  callback,
-  type,
-}) {
-  const CustomMarker = function ({
-    object,
-    content,
-    colorClass,
-    callback,
-    type,
-  }) {
-    this.position = object.latLng;
+  return (() => {
+    if (!!klass) return klass;
 
-    const marker = document.createElement("div");
-    marker.classList.add(type);
-    marker.classList.add(colorClass);
-    marker.innerText = content;
-    marker.addEventListener("click", callback);
+    // OverlayView: https://developers.google.com/maps/documentation/javascript/customoverlays
+    klass = class Custom extends google.maps.OverlayView {
+      constructor({ object, content, colorClass, callback, type }) {
+        super();
+        this.object = object;
+        this.content = content;
+        this.colorClass = colorClass;
+        this.callback = callback;
+        this.type = type;
+      }
 
-    this.markerContainer = document.createElement("div");
-    this.markerContainer.classList.add("marker-container");
-    this.markerContainer.appendChild(marker);
+      onAdd() {
+        const marker = document.createElement("div");
+        marker.classList.add(this.type);
+        marker.classList.add(this.colorClass);
+        marker.innerText = this.content;
+        marker.addEventListener("click", this.callback);
 
-    this.stopEventPropagation();
-  };
+        this.markerContainer = document.createElement("div");
+        this.markerContainer.classList.add("marker-container");
+        this.markerContainer.appendChild(marker);
 
-  CustomMarker.prototype = Object.create(google.maps.OverlayView.prototype);
+        this.getPanes().overlayMouseTarget.appendChild(this.markerContainer);
+      }
 
-  CustomMarker.prototype.onAdd = function () {
-    this.getPanes().overlayMouseTarget.appendChild(this.markerContainer);
-  };
+      draw() {
+        var divPosition = this.getProjection().fromLatLngToDivPixel(this.getPosition());
 
-  CustomMarker.prototype.onRemove = function () {
-    if (this.markerContainer.parentElement) {
-      this.markerContainer.parentElement.removeChild(this.markerContainer);
+        var display =
+          Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000
+            ? "block"
+            : "none";
+
+        if (display === "block") {
+          this.markerContainer.style.left = divPosition.x + "px";
+          this.markerContainer.style.top = divPosition.y + "px";
+        }
+        if (this.markerContainer.style.display !== display) {
+          this.markerContainer.style.display = display;
+        }
+      }
+
+      onRemove() {
+        if (this.markerContainer) {
+          this.markerContainer.parentNode.removeChild(this.markerContainer);
+          delete this.markerContainer;
+        }
+      }
+
+      hide() {
+        if (this.markerContainer) {
+          this.markerContainer.style.visibility = "hidden";
+        }
+      }
+
+      show() {
+        if (this.markerContainer) {
+          this.markerContainer.style.visibility = "visible";
+        }
+      }
+
+      toggle() {
+        if (this.markerContainer) {
+          if (this.markerContainer.style.visibility === "hidden") {
+            this.show();
+          } else {
+            this.hide();
+          }
+        }
+      }
+
+      toggleDOM(map) {
+        if (this.getMap()) {
+          this.setMap(null);
+        } else {
+          this.setMap(map);
+        }
+      }
+
+      getPosition() {
+        return new google.maps.LatLng({
+          lat: this.object.latLng.lat(),
+          lng: this.object.latLng.lng(),
+        });
+      }
+
+      getVisible() {
+        return true;
+      }
+
+      getDraggable() {
+        return false;
+      }
+
+      value() {
+        return this.object.value;
+      }
+
+      objectId() {
+        return this.object.id;
+      }
+
+      moveOnTop(index) {
+        this.markerContainer.style.zIndex = zIndex;
+        zIndex += 1;
+      };
     }
-  };
 
-  CustomMarker.prototype.draw = function () {
-    var divPosition = this.getProjection().fromLatLngToDivPixel({
-      lat: this.position.lat(),
-      lng: this.position.lng(),
-    });
+    return klass;
+  })()
+}
 
-    var display =
-      Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000
-        ? "block"
-        : "none";
-
-    if (display === "block") {
-      this.markerContainer.style.left = divPosition.x + "px";
-      this.markerContainer.style.top = divPosition.y + "px";
-    }
-    if (this.markerContainer.style.display !== display) {
-      this.markerContainer.style.display = display;
-    }
-  };
-
-  CustomMarker.prototype.stopEventPropagation = function () {
-    var markerContainer = this.markerContainer;
-
-    [
-      "click",
-      "dblclick",
-      "contextmenu",
-      "wheel",
-      "mousedown",
-      "touchstart",
-      "pointerdown",
-    ].forEach(function (event) {
-      markerContainer.addEventListener(event, function (e) {
-        e.stopPropagation();
-      });
-    });
-  };
-
-  // getPosition and getDraggable are required markers methods for google/markerclustererplus library
-  CustomMarker.prototype.getPosition = function () {
-    return new google.maps.LatLng({
-      lat: this.position.lat(),
-      lng: this.position.lng(),
-    });
-  };
-
-  CustomMarker.prototype.getDraggable = () => {};
-
-  CustomMarker.prototype.objectId = () => object.id;
-
-  CustomMarker.prototype.value = () => object.value;
-
-  CustomMarker.prototype.moveOnTop = function (index) {
-    this.markerContainer.style.zIndex = zIndex;
-    zIndex += 1;
-  };
-
-  const marker = new CustomMarker({
-    object,
-    content,
-    colorClass,
-    callback,
-    type,
-  });
-
+export function buildCustomMarker({ object, content, colorClass, callback, type }) {
+  const marker = new (customMarkerClass())({ object, content, colorClass, callback, type });
   window.__map.customMarkers.push(marker);
-
   return marker;
 }
