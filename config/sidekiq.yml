@@ -12,7 +12,6 @@
     class: SessionStoppedAlertsWorker
     queue: critical
 
-:schedule:
   open_aq_import_measurements:
     every: '2m'
     class: OpenAqImportMeasurementsWorker
