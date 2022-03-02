@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 
-gem "foreman"
 gem 'a9n'
 gem 'activeadmin'
 gem 'activerecord-import'
