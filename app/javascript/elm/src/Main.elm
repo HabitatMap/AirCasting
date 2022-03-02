@@ -382,7 +382,18 @@ update msg model =
             ( { model | popup = popup, isPopupListExpanded = False, overlay = Overlay.update (AddOverlay PopupOverlay) model.overlay }, Cmd.none )
 
         ShowExportPopup ->
-            ( { model | popup = Popup.EmailForm, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay }, Cmd.none )
+            let
+                limit =
+                    100
+
+                message =
+                    "You can't export more than " ++ String.fromInt limit ++ " sessions at a time. Use the time frame filter to chunk your exports or use our API."
+            in
+            if List.length model.sessions > limit then
+                ( { model | popup = Popup.EmailForm, emailForm = EmailForm.addFlashMessage model.emailForm message }, Process.sleep 5000 |> Task.perform (always CloseEmailForm) )
+
+            else
+                ( { model | popup = Popup.EmailForm, overlay = Overlay.update (RemoveOverlay PopupOverlay) model.overlay }, Cmd.none )
 
         ExportSessions emailFormResult ->
             let
