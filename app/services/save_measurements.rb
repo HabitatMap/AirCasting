@@ -4,98 +4,32 @@ class SaveMeasurements
   end
 
   def call(streams:)
-    streams.each do |stream, measurements|
-      persisted_session, persisted_stream = find_session_and_stream!(stream)
-      if persisted_session && persisted_stream
-        FixedSession.transaction do
-          update_session!(persisted_session, measurements)
-          create_measurements!(persisted_stream, measurements)
-        end
-      else
-        FixedSession.transaction do
-          persisted_session = create_session!(stream, measurements)
-          persisted_stream = create_stream!(persisted_session, stream)
-          create_measurements!(persisted_stream, measurements)
-        end
-      end
-    end
+    FixedSession.transaction { save(streams) }
   end
 
   private
 
-  def find_session_and_stream!(stream)
-    latitude = stream.latitude
-    longitude = stream.longitude
+  def save(streams)
+    persisted_streams = Stream
+      .select(:id, :min_latitude, :min_longitude, :sensor_name, :session_id)
+      .joins(:session)
+      .where(session: { user_id: user_id })
+      .load
 
-    sessions =
-      Session
-        .includes(:streams)
-        .where(
-          latitude: latitude,
-          longitude: longitude,
-          streams: {
-            min_latitude: latitude,
-            max_latitude: latitude,
-            min_longitude: longitude,
-            max_longitude: longitude,
-            start_latitude: latitude,
-            start_longitude: longitude,
-            sensor_name: stream.sensor_name
-          }
-        )
-
-    if sessions.count > 1
-      Rails.logger.error sessions.inspect
-      raise 'more than one session found'
+    persisted_streams_hash = persisted_streams.each_with_object({}) do |stream, acc|
+      acc[[stream.min_latitude, stream.min_longitude, stream.sensor_name]] = [stream.session_id, stream.id]
     end
 
-    return [] if sessions.none?
-
-    if sessions.first!.streams.count > 1
-      Rails.logger.error sessions.first!.streams.inspect
-      raise 'more than one stream found'
+    old_pairs, new_pairs = streams.to_a.partition do |stream, _measurements|
+      persisted_streams_hash.key?([stream.latitude, stream.longitude, stream.sensor_name])
     end
 
-    [sessions.first!, sessions.first!.streams.first!]
-  end
+    new_sessions = new_pairs.map do |stream, measurements|
+      uuid = SecureRandom.uuid
+      last = first = measurements.first
 
-  def update_session!(persisted_session, measurements)
-    first = measurements.first
-    last = measurements.last
-
-    if persisted_session.start_time > first.time_local
-      persisted_session.start_time = first.time_local
-    end
-
-    if persisted_session.start_time_local > first.time_local
-      persisted_session.start_time_local = first.time_local
-    end
-
-    if persisted_session.end_time < last.time_local
-      persisted_session.end_time = last.time_local
-    end
-
-    if persisted_session.end_time_local < last.time_local
-      persisted_session.end_time_local = last.time_local
-    end
-
-    if persisted_session.last_measurement_at < last.time_utc
-      persisted_session.last_measurement_at = last.time_utc
-    end
-
-    unless persisted_session.save
-      Rails.logger.error persisted_session.errors.full_messages
-      raise 'could not update session'
-    end
-  end
-
-  def create_session!(stream, measurements)
-    first = measurements.first
-    last = measurements.last
-
-    persisted_session =
       FixedSession.new(
-        user_id: @user.id,
+        user_id: user_id,
         title: [last.location, last.city].join(', '),
         contribute: true,
         start_time: first.time_local,
@@ -108,19 +42,48 @@ class SaveMeasurements
         longitude: stream.longitude,
         data_type: nil,
         instrument: nil,
-        uuid: SecureRandom.uuid
+        uuid: uuid,
+        url_token: uuid
       )
-
-    unless persisted_session.save
-      Rails.logger.error persisted_session.errors.full_messages
-      raise 'could not create session'
     end
+    FixedSession.import new_sessions
+    last_id = FixedSession.last.id
+    ids = ((last_id - new_sessions.size + 1)..last_id).to_a
 
-    persisted_session
-  end
+    old_sessions = old_pairs.each_with_object({}) do |(stream, measurements), acc|
+      session_id = persisted_streams_hash[[stream.latitude, stream.longitude, stream.sensor_name]].first
+      first = last = measurements.first
+      # sort
+      acc[session_id] = {
+        "id" => session_id,
+        "end_time" => last.time_local,
+        "end_time_local" => last.time_local,
+        "last_measurement_at" => last.time_utc,
+      }
+    end
+    to_load = FixedSession.where(id: old_sessions.keys).map do |s|
+      s.attributes.reject { |k, v| k == "tag_list" }.merge(old_sessions.fetch(s.id))
+    end
+    FixedSession.import to_load, on_duplicate_key_update: [:end_time, :end_time_local, :last_measurement_at]
 
-  def create_stream!(persisted_session, stream)
-    persisted_stream =
+    old_streams = old_pairs.each_with_object({}) do |(stream, measurements), acc|
+      stream_id = persisted_streams_hash[[stream.latitude, stream.longitude, stream.sensor_name]].last
+      first = last = measurements.first
+      # sort
+      acc[stream_id] = {
+        "id" => stream_id,
+        "average_value" => last.value,
+        "measurements_count" => measurements.size,
+      }
+    end
+    to_load = Stream.where(id: old_streams.keys).map do |s|
+      to_merge = old_streams.fetch(s.id)
+      persisted = s.attributes
+      persisted.merge(to_merge).merge("measurements_count" => to_merge.fetch("measurements_count") + persisted.fetch("measurements_count"))
+    end
+    Stream.import to_load, on_duplicate_key_update: [:average_value, :measurements_count]
+
+    new_streams = new_pairs.map.with_index do |(stream, measurements), i|
       Stream.new(
         sensor_name: stream.sensor_name,
         unit_name: stream.unit_name,
@@ -139,45 +102,55 @@ class SaveMeasurements
         max_longitude: stream.longitude,
         start_latitude: stream.latitude,
         start_longitude: stream.longitude,
-        session: persisted_session
+        session_id: ids[i],
+        measurements_count: measurements.size,
+        average_value: measurements.last.value
       )
-
-    unless persisted_stream.save
-      Rails.logger.error persisted_stream.errors.full_messages
-      raise 'could not create stream'
     end
+    Stream.import new_streams
+    last_id = Stream.last.id
+    ids = ((last_id - new_streams.size + 1)..last_id).to_a
+    raise "wat?" if new_sessions.size != new_streams.size
 
-    persisted_stream
+    measurements =
+      new_pairs.each_with_object([]).with_index do |((stream, measurements), acc), i|
+        measurements.each do |measurement|
+          acc <<
+          Measurement.new(
+            value: measurement.value,
+            latitude: measurement.latitude,
+            longitude: measurement.longitude,
+            time: measurement.time_local,
+            timezone_offset: nil,
+            milliseconds: 0,
+            measured_value: measurement.value,
+            stream_id: ids[i]
+          )
+        end
+      end
+    result = Measurement.import measurements
+    news = measurements.size
+
+    measurements =
+      old_pairs.each_with_object([]).with_index do |((stream, measurements), acc), i|
+        measurements.each do |measurement|
+          acc <<
+          Measurement.new(
+            value: measurement.value,
+            latitude: measurement.latitude,
+            longitude: measurement.longitude,
+            time: measurement.time_local,
+            timezone_offset: nil,
+            milliseconds: 0,
+            measured_value: measurement.value,
+            stream_id: persisted_streams_hash[[stream.latitude, stream.longitude, stream.sensor_name]].last
+          )
+        end
+      end
+    result = Measurement.import measurements
   end
 
-  def create_measurements!(persisted_stream, measurements)
-    measurements.each do |measurement|
-      associated_measurements =
-        persisted_stream.measurements.where(time: measurement.time_local)
-
-      if associated_measurements.count > 1
-        Rails.logger.error associated_measurements.inspect
-        raise 'more than one measurement found'
-      end
-
-      next if associated_measurements.one?
-
-      measurement =
-        Measurement.new(
-          value: measurement.value,
-          latitude: measurement.latitude,
-          longitude: measurement.longitude,
-          time: measurement.time_local,
-          timezone_offset: nil,
-          milliseconds: 0,
-          measured_value: measurement.value,
-          stream: persisted_stream
-        )
-
-      unless measurement.save
-        Rails.logger.error measurement.errors.full_messages
-        raise 'could not create measurement'
-      end
-    end
+  def user_id
+    @user_id ||= @user.id
   end
 end

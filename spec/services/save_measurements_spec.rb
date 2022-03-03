@@ -40,7 +40,7 @@ describe SaveMeasurements do
     it 'does not create a new session' do
       stream = build_open_aq_stream(sensor_name: 'pm25')
       persisted_session =
-        create_session!(latitude: stream.latitude, longitude: stream.longitude, type: 'FixedSession')
+        create_session!(latitude: stream.latitude, longitude: stream.longitude, type: 'FixedSession', user: user)
       persisted_stream =
         create_stream!(
           min_latitude: stream.latitude,
@@ -61,7 +61,7 @@ describe SaveMeasurements do
     it 'does not create a new stream' do
       stream = build_open_aq_stream(sensor_name: 'pm25')
       persisted_session =
-        create_session!(latitude: stream.latitude, longitude: stream.longitude, type: 'FixedSession')
+        create_session!(latitude: stream.latitude, longitude: stream.longitude, type: 'FixedSession', user: user)
       persisted_stream =
         create_stream!(
           min_latitude: stream.latitude,
