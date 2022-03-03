@@ -1347,6 +1347,7 @@ GEM
     thread_safe (0.3.6)
     thwait (0.1.0)
     tilt (2.0.9)
+    timezone_finder (1.5.7)
     tty-which (0.4.2)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
@@ -1437,6 +1438,7 @@ DEPENDENCIES
   sidekiq-unique-jobs (< 7)
   test-unit (~> 3.0)
   thin
+  timezone_finder
   uglifier
   unicorn
   unicorn-worker-killer

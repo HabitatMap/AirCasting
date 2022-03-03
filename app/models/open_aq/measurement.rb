@@ -18,6 +18,10 @@ module OpenAq
         convert_ppm_to_ppb(kwargs[:value]) if kwargs[:unit] == 'ppm'
       end
 
+      def title
+        [location, city].join(', ')
+      end
+
       def build_stream
         OpenAq::Stream.new(
           latitude: latitude,
