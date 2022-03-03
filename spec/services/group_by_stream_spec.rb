@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe OpenAq::GroupByStream do
+describe GroupByStream do
   it 'groups measurements by stream' do
     measurement1 = build_open_aq_measurement
     measurement2 = build_open_aq_measurement

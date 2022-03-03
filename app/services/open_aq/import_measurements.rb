@@ -26,7 +26,7 @@ module OpenAq
       files = @fetch_files.call(s3_objects: s3_objects)
       measurements = OpenAq::ParseFiles.new.call(files: files)
       filtered = OpenAq::FilterMeasurements.new.call(measurements: measurements)
-      streams = OpenAq::GroupByStream.new.call(measurements: filtered)
+      streams = GroupByStream.new.call(measurements: filtered)
       @save_measurements.call(streams: streams)
       @delete_messages.call(receipt_handles: messages.map(&:receipt_handle))
     end

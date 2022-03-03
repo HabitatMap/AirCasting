@@ -1,4 +1,4 @@
-class OpenAq::GroupByStream
+class GroupByStream
   def call(measurements:)
     measurements
       .each_with_object({}) do |measurement, acc|
