@@ -1,4 +1,8 @@
-class OpenAq::SaveMeasurements
+class SaveMeasurements
+  def initialize(user:)
+    @user = user
+  end
+
   def call(streams:)
     streams.each do |stream, measurements|
       persisted_session, persisted_stream = find_session_and_stream!(stream)
@@ -18,10 +22,6 @@ class OpenAq::SaveMeasurements
   end
 
   private
-
-  def user
-    @user ||= User.where(username: 'OpenAQ').first!
-  end
 
   def find_session_and_stream!(stream)
     latitude = stream.latitude
@@ -95,7 +95,7 @@ class OpenAq::SaveMeasurements
 
     persisted_session =
       FixedSession.new(
-        user_id: user.id,
+        user_id: @user.id,
         title: [last.location, last.city].join(', '),
         contribute: true,
         start_time: first.time_local,
