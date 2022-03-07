@@ -31,7 +31,7 @@ class Api::ToFixedSessionHash2
       url_token: session.url_token,
       user_id: user.id,
       uuid: session.uuid,
-      last_hour_average: stream.last_hour_average,
+      last_measurement_value: stream.average_value,
       streams: {
         stream.sensor_name => {
           average_value: stream.average_value,

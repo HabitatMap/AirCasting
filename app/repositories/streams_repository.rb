@@ -29,6 +29,9 @@ class StreamsRepository
   end
 
   def calculate_average_value!(stream)
+    if stream.fixed?
+      raise "average_value for fixed streams should be the last measurement value"
+    end
     stream.average_value = stream.measurements.average(:value)
     stream.save!
   end

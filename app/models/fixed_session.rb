@@ -32,12 +32,6 @@ class FixedSession < Session
     self.save!
   end
 
-  def last_hour_average
-    stream = self.streams.length >= 1 ? self.streams.first : nil
-    return unless stream
-    stream.last_hour_average
-  end
-
   def as_synchronizable(
     stream_measurements = false,
     last_measurement_sync = nil

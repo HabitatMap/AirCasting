@@ -6,18 +6,30 @@ describe Api::Realtime::MeasurementsController do
 
     let(:user) { FactoryBot.create(:user) }
     let(:session_uuid) { '36cfd811-dc1b-430f-a647-bfc88921bf4c' }
-
+    let(:value) { 1.23 }
     let(:data) do
-      "
-        {\"measurement_type\":\"Sound Level\",\"measurements\":[{\"longitude\":25.4356212,\"latitude\":56.4523456,
-        \"time\":\"2016-05-11T17:09:02\",\"milliseconds\":925,\"measured_value\":59.15683475380729,
-        \"value\":59.15683475380729}],\"sensor_package_name\":\"Builtin\",\"sensor_name\":\"Phone Microphone\",
-        \"session_uuid\":\"#{
-        session_uuid
-      }\",\"measurement_short_type\":\"dB\",\"unit_symbol\":\"dB\",\"threshold_high\":80,
-        \"threshold_low\":60,\"threshold_medium\":70,\"threshold_very_high\":100,\"threshold_very_low\":20,
-        \"unit_name\":\"decibels\"}
-      "
+      {
+        measurement_type: "Sound Level",
+        measurements: [{
+          longitude: 25.4356212,
+          latitude: 56.4523456,
+          time: "2016-05-11T17:09:02",
+          milliseconds: 925,
+          measured_value: 59.15683475380729,
+          value: value
+        }],
+        sensor_package_name: "Builtin",
+        sensor_name: "Phone Microphone",
+        session_uuid: session_uuid,
+        measurement_short_type: "dB",
+        unit_symbol: "dB",
+        threshold_high: 80,
+        threshold_low: 60,
+        threshold_medium: 70,
+        threshold_very_high: 100,
+        threshold_very_low: 20,
+        unit_name: "decibels"
+      }.to_json
     end
 
     before { sign_in(user) }
@@ -40,6 +52,12 @@ describe Api::Realtime::MeasurementsController do
           'min_longitude' => 25.4356212,
           'max_longitude' => 25.4356212
         )
+      end
+
+      it 'updates stream.average_value' do
+        subject
+
+        expect(Stream.first.average_value).to eq(value)
       end
 
       it 'creates measurement' do

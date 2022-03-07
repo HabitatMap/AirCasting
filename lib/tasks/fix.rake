@@ -23,7 +23,7 @@ namespace :fix do
   desc "Recalculate stream bounding box and average value"
   task :calculate_stream_bounding_box_and_average_value => :environment do
     streams_repository = StreamsRepository.new
-    Stream.find_each do |stream|
+    Stream.mobile.find_each do |stream|
       streams_repository.calculate_bounding_box!(stream)
       streams_repository.calculate_average_value!(stream)
     end

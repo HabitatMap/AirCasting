@@ -92,7 +92,7 @@ defaultSelectedSession =
     , startLongitude = 0
     , notes = []
     , isIndoor = False
-    , lastHourAverage = 0
+    , lastMeasurementValue = 0
     }
 
 

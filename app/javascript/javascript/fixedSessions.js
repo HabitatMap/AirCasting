@@ -122,11 +122,11 @@ export default (() => {
     },
 
     drawMarkersWithLabel: function (session, selectedSensor) {
-      const content = Session.lastHourAverageValueAndUnit(
+      const content = Session.lastMeasurementValueAndUnit(
         session,
         selectedSensor
       );
-      const heatLevel = heat.levelName(Session.lastHourRoundedAverage(session));
+      const heatLevel = heat.levelName(Session.lastMeasurementRoundedValue(session));
       const latLng = Session.latLng(session);
       const callback = (id) => () =>
         pubsub.publish("markerSelected", { session_id: id });
@@ -135,7 +135,7 @@ export default (() => {
         object: {
           latLng,
           id: Session.id(session),
-          value: Session.lastHourRoundedAverage(session),
+          value: Session.lastMeasurementRoundedValue(session),
         },
         content: content,
         colorClass: heatLevel,

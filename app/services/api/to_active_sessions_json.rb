@@ -34,7 +34,7 @@ class Api::ToActiveSessionsJson
               'title', formatted_sessions.title,
               'start_time_local', formatted_sessions.start_time_local,
               'end_time_local', formatted_sessions.end_time_local,
-              'last_hour_average', formatted_sessions.last_hour_average,
+              'last_measurement_value', formatted_sessions.last_measurement_value,
               'is_indoor', formatted_sessions.is_indoor,
               'latitude', formatted_sessions.latitude,
               'longitude', formatted_sessions.longitude,
@@ -44,7 +44,6 @@ class Api::ToActiveSessionsJson
                   JSON_OBJECT(
                     streams.sensor_name,
                     JSON_OBJECT(
-                      'average_value', streams.average_value,
                       'sensor_name', streams.sensor_name,
                       'measurement_short_type', streams.measurement_short_type,
                       'unit_symbol', streams.unit_symbol
@@ -71,7 +70,7 @@ class Api::ToActiveSessionsJson
       'sessions.title',
       'DATE_FORMAT(sessions.start_time_local, "%Y-%m-%dT%H:%i:%s.000Z") AS start_time_local',
       'DATE_FORMAT(sessions.end_time_local, "%Y-%m-%dT%H:%i:%s.000Z") AS end_time_local',
-      '(SELECT streams.average_value WHERE streams.session_id = sessions.id) AS last_hour_average',
+      '(SELECT streams.average_value WHERE streams.session_id = sessions.id) AS last_measurement_value',
       '(CASE WHEN sessions.is_indoor = 1 THEN cast(TRUE as json) ELSE cast(FALSE as json) END) AS is_indoor',
       'sessions.latitude',
       'sessions.longitude',

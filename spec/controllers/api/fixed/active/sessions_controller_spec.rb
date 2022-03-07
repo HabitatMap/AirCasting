@@ -40,7 +40,7 @@ describe Api::Fixed::Active::SessionsController do
             'id' => active_session.id,
             'end_time_local' => '2000-10-01T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
-            'last_hour_average' => active_stream.average_value,
+            'last_measurement_value' => active_stream.average_value,
             'is_indoor' => active_session.is_indoor,
             'latitude' => active_session.latitude,
             'longitude' => active_session.longitude,
@@ -48,7 +48,6 @@ describe Api::Fixed::Active::SessionsController do
             'username' => user.username,
             'streams' => {
               active_stream.sensor_name => {
-                'average_value' => active_stream.average_value,
                 'measurement_short_type' => active_stream.measurement_short_type,
                 'sensor_name' => active_stream.sensor_name,
                 'unit_symbol' => active_stream.unit_symbol,

@@ -121,6 +121,7 @@ class Stream < ApplicationRecord
     longitude = measurements_attributes.first.fetch(:longitude)
 
     stream.set_bounding_box(latitude, longitude) unless stream.has_bounds?
+    stream.average_value = measurements_attributes.last.fetch(:value)
     stream.save!
 
     MeasurementsCreator.new.call(stream, measurements_attributes)
@@ -171,12 +172,5 @@ class Stream < ApplicationRecord
   def has_bounds?
     max_latitude.present? && min_latitude.present? && max_longitude.present? &&
       min_longitude.present?
-  end
-
-  def last_hour_average
-    last_measurement_time = measurements.last.time
-    measurements
-      .where(time: last_measurement_time - 1.hour..last_measurement_time)
-      .average(:value)
   end
 end

@@ -116,17 +116,4 @@ describe Stream do
       expect(mobile_stream.fixed?).to eq(false)
     end
   end
-
-  describe '#last_hour_average' do
-    it 'calculates the average out of the measurements recorded in the last hour' do
-      stream = create_stream!(session: create_fixed_session!)
-      now = DateTime.current
-      create_measurement!(stream: stream, value: 1, time: now)
-      create_measurement!(stream: stream, value: 2, time: now - 1.second)
-
-      actual = stream.last_hour_average
-
-      expect(actual).to eq(1.5)
-    end
-  end
 end

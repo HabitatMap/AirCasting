@@ -32,7 +32,7 @@ describe Api::Fixed::SessionsController do
         'id' => session.id,
         'streamId' => stream.id,
         'isIndoor' => false,
-        'lastHourAverage' => 123.0,
+        'lastMeasurementValue' => stream.average_value,
         'latitude' => 123.0,
         'longitude' => 123.0,
         'maxLatitude' => 1.0,
@@ -86,7 +86,7 @@ describe Api::Fixed::SessionsController do
         'url_token' => session.url_token,
         'user_id' => user.id,
         'uuid' => session.uuid,
-        'last_hour_average' => 1.0,
+        'last_measurement_value' => stream.average_value,
         'streams' => {
           stream.sensor_name => {
             'average_value' => stream.average_value,

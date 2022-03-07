@@ -57,7 +57,7 @@ type alias SelectedSession =
     , startLongitude : Float
     , notes : List Note
     , isIndoor : Bool
-    , lastHourAverage : Float
+    , lastMeasurementValue : Float
     }
 
 
@@ -77,7 +77,7 @@ type alias SelectedSessionForJavaScript =
         , unit_symbol : String
         }
     , is_indoor : Bool
-    , last_hour_average : Float
+    , last_measurement_value : Float
     , latitude : Float
     , longitude : Float
     }
@@ -100,7 +100,7 @@ formatForJavaScript session =
         , sensor_name = session.sensorName
         }
     , is_indoor = session.isIndoor
-    , last_hour_average = session.lastHourAverage
+    , last_measurement_value = session.lastMeasurementValue
     , latitude = session.latitude
     , longitude = session.longitude
     }
@@ -164,7 +164,7 @@ decoder =
         |> optional "startLongitude" Decode.float 0
         |> required "notes" (Decode.list Note.decoder)
         |> optional "isIndoor" Decode.bool False
-        |> optional "lastHourAverage" Decode.float 0
+        |> optional "lastMeasurementValue" Decode.float 0
 
 
 fetch : List Sensor -> String -> Page -> Int -> (Result Http.Error SelectedSession -> msg) -> Cmd msg

@@ -33,7 +33,7 @@ class Api::ToFixedSessionHash
       minLongitude: stream.min_longitude,
       notes: notes,
       isIndoor: session.is_indoor,
-      lastHourAverage: stream.last_hour_average
+      lastMeasurementValue: stream.average_value
     )
   end
 
