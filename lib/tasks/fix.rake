@@ -76,4 +76,12 @@ namespace :fix do
   task :average_long_mobile_streams => :environment do
     AverageStreams.new(logger: ActiveSupport::Logger.new(STDOUT)).call
   end
+
+  desc "Set average_value for fixed streams to their last measurement value"
+  task :recalculate_average_value_for_fixed_streams => :environment do
+    Stream.fixed.find_each do |stream|
+      stream.update!(average_value: stream.measurements.order('time ASC').last&.value)
+      putc '.'
+    end
+  end
 end

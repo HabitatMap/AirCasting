@@ -57,6 +57,7 @@ class Session < ApplicationRecord
         }
 
   scope :mobile, -> { where('sessions.type = ?', 'MobileSession') }
+  scope :fixed, -> { where('sessions.type = ?', 'FixedSession') }
 
   def self.filter_(data = {})
     sessions =

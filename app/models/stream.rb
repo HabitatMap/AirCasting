@@ -90,6 +90,7 @@ class Stream < ApplicationRecord
   )
 
   scope(:mobile, -> { joins(:session).merge(Session.mobile) })
+  scope(:fixed, -> { joins(:session).merge(Session.fixed) })
 
   scope(
     :with_usernames,
