@@ -2,6 +2,7 @@ require 'rails_helper'
 
 describe SessionStoppedAlertsWorker do
   it 'sends email alerts to users whose sessions stopped streaming in the last 30 minutes' do
+    allow(A9n).to receive(:sidekiq_session_stopped_alerts_enabled).and_return(true)
     allow(Time).to receive(:current).and_return(Time.parse('2010-01-01'))
     user =
       create_user!(session_stopped_alert: true, email: 'useremail@example.com')
