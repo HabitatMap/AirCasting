@@ -15,3 +15,4 @@ defaults:
   open_aq_sqs_queue_name: "openaq-test"
   purple_air_api_key: REPLACEME
   sidekiq_purple_air_import_measurements_enabled: false
+  sidekiq_session_stopped_alerts_enabled: false

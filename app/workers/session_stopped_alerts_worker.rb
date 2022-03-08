@@ -4,6 +4,8 @@ class SessionStoppedAlertsWorker
   include Sidekiq::Worker
 
   def perform
+    return unless A9n.sidekiq_session_stopped_alerts_enabled
+
     Session
       .where(
         'last_measurement_at BETWEEN ? AND ?',
