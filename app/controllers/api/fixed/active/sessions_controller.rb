@@ -6,6 +6,17 @@ module Api
 
         def index
           GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed active sessions#index')
+          result = Api::ToActiveSessionsArray.new(form: form).call
+
+          if result.success?
+            render json: result.value, status: :ok
+          else
+            render json: result.errors, status: :bad_request
+          end
+        end
+
+        def index2
+          GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed active sessions#index2')
           result = Api::ToActiveSessionsJson.new(form: form).call
 
           if result.success?

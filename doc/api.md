@@ -162,6 +162,93 @@ See [parameters description](#parameters-description)
         "title": "HabitatMap HQ - Cellular",
         "start_time_local": "2018-12-04T11:23:51.000Z",
         "end_time_local": "2019-07-08T07:18:15.000Z",
+        "last_hour_average": 5.32786885245902,
+        "is_indoor": false,
+        "latitude": 40.6802825,
+        "longitude": -73.976425781,
+        "type": "FixedSession",
+        "username": "HabitatMap",
+        "streams": {
+          "AirBeam2-PM2.5": {
+            "average_value": null,
+            "id": 257428,
+            "max_latitude": 40.6802825,
+            "max_longitude": -73.976425781,
+            "measurement_short_type": "PM",
+            "measurement_type": "Particulate Matter",
+            "measurements_count": 300222,
+            "min_latitude": 40.6802825,
+            "min_longitude": -73.976425781,
+            "sensor_name": "AirBeam2-PM2.5",
+            "sensor_package_name": "Airbeam2-001896038A92",
+            "session_id": 73984,
+            "size": 300222,
+            "start_latitude": 40.6802825,
+            "start_longitude": -73.976425781,
+            "threshold_high": 55,
+            "threshold_low": 12,
+            "threshold_medium": 35,
+            "threshold_very_high": 150,
+            "threshold_very_low": 0,
+            "unit_name": "microgram per cubic meter",
+            "unit_symbol": "µg/m³"
+          }
+        }
+      }
+    ],
+    "fetchableSessionsCount": 1
+  }
+  ```
+
+**Endpoint**
+
+GET `/api/fixed/active/sessions2.json`
+
+**Parameters**
+
+| name                | type              | required | default behaviour                                                        |
+| :------------------ | :---------------- | :------- | :----------------------------------------------------------------------- |
+| q[time_from]        | number            | yes      | N/A                                                                      |
+| q[time_to]          | number            | yes      | N/A                                                                      |
+| q[sensor_name]      | text              | yes      | N/A                                                                      |
+| q[measurement_type] | text              | yes      | N/A                                                                      |
+| q[unit_symbol]      | text              | yes      | N/A                                                                      |
+| q[tags]             | text              | yes      | N/A                                                                      |
+| q[usernames]        | text              | yes      | N/A                                                                      |
+| q[is_indoor]        | bool              | no       | returns sessions of any placement                                        |
+| q[west]             | number, -180..180 | no       | returns sessions from all location unless all 4 coordinates are provided |
+| q[east]             | number, -180..180 | no       | returns sessions from all location unless all 4 coordinates are provided |
+| q[south]            | number, -90..90   | no       | returns sessions from all location unless all 4 coordinates are provided |
+| q[north]            | number, -90..90   | no       | returns sessions from all location unless all 4 coordinates are provided |
+| q[limit]            | number            | no       | returns all sessions                                                     |
+| q[offset]           | number            | no       | starts at the beginning                                                  |
+
+See [parameters description](#parameters-description)
+
+**Example**
+
+- request
+  ```json
+  http://aircasting.habitatmap.org/api/fixed/active/sessions.json?q={"time_from":"1531008000","time_to":"1562630399","tags":"","usernames":"","west":-73.9766655034307,"east":-73.97618605856928,"south":40.68019783151002,"north":40.680367168382396,"limit":50,"offset":0,"sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
+  ```
+- encoded request
+
+  ```
+  curl http://aircasting.habitatmap.org/api/fixed/active/sessions.json?q=%7B%22time_from%22%3A%221531008000%22%2C%22time_to%22%3A%221562630399%22%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22%22%2C%22west%22%3A-73.9766655034307%2C%22east%22%3A-73.97618605856928%2C%22south%22%3A40.68019783151002%2C%22north%22%3A40.680367168382396%2C%22limit%22%3A50%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D
+  ```
+
+  See [how to encode URLs](#how-to-encode-urls)
+
+- response
+
+  ```json
+  {
+    "sessions": [
+      {
+        "id": 73984,
+        "title": "HabitatMap HQ - Cellular",
+        "start_time_local": "2018-12-04T11:23:51.000Z",
+        "end_time_local": "2019-07-08T07:18:15.000Z",
         "last_measurement_value": 5.32786885245902,
         "is_indoor": false,
         "latitude": 40.6802825,

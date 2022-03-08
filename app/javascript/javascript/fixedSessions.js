@@ -196,7 +196,7 @@ export default (() => {
       if (offset === 0) this.sessions = [];
 
       if (data.isActive) {
-        this.downloadSessions("/api/fixed/active/sessions.json", reqData);
+        this.downloadSessions("/api/fixed/active/sessions2.json", reqData);
       } else {
         this.downloadSessions("/api/fixed/dormant/sessions.json", reqData);
       }

@@ -82,6 +82,7 @@ Rails.application.routes.draw do
 
       namespace :active do
         get 'sessions' => 'sessions#index'
+        get 'sessions2' => 'sessions#index2'
       end
     end
 
