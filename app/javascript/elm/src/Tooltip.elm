@@ -32,7 +32,7 @@ mobileTab =
 
 
 fixedTab =
-    TooltipText "The fixed tab displays measurements from fixed sessions. When recording fixed sessions, measurements are created and timestamped once per minute and geocoordinates are fixed to a set location. The most recent measurement is displayed inside the session map markers."
+    TooltipText "The fixed tab displays measurements from fixed sessions. When recording fixed sessions, geocoordinates are fixed to a set location. The most recent measurement is displayed inside the session map markers."
 
 
 parameterFilter =
