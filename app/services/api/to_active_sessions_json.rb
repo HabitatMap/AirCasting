@@ -52,9 +52,7 @@ class Api::ToActiveSessionsJson
                 FROM
                   streams
                 WHERE
-                  streams.session_id = formatted_sessions.id
-                LIMIT
-                  1
+                  streams.id = formatted_sessions.stream_id
               )
             )),
           'fetchableSessionsCount', (#{sessions.select('COUNT(DISTINCT sessions.id)').to_sql})
@@ -74,7 +72,8 @@ class Api::ToActiveSessionsJson
       '(CASE WHEN sessions.is_indoor = 1 THEN cast(TRUE as json) ELSE cast(FALSE as json) END) AS is_indoor',
       'sessions.latitude',
       'sessions.longitude',
-      'users.username'
+      'users.username',
+      'streams.id AS stream_id',
     ])
   end
 
