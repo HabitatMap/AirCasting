@@ -3,35 +3,41 @@ require 'rails_helper'
 describe Api::Fixed::Active::SessionsController do
   describe '#index' do
     it 'returns active sessions json' do
-      user = create_user!
       session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
-      create_dormant_session_and_stream!(user: user, session_time: session_time)
-      active_session, active_stream =
-        create_active_session_and_stream!(
-          user: user,
-          session_time: session_time
-        )
+      active_session = create_fixed_session!(contribute: true, time: session_time, last_measurement_at: DateTime.current)
+      active_stream = create_stream!(session: active_session, latitude: active_session.latitude, longitude: active_session.longitude)
+      create_measurement!(stream: active_stream)
+      dormant_session = create_fixed_session!(
+        user: active_session.user,
+        contribute: true,
+        time: session_time,
+        last_measurement_at: DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
+        latitude: active_session.latitude,
+        longitude: active_session.longitude
+      )
+      dormant_stream = create_stream!(session: dormant_session, latitude: active_session.latitude, longitude: active_session.longitude)
+      create_measurement!(stream: dormant_stream)
 
       get :index,
-          params: {
-            q: {
-              time_from:
-                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
-              tags: '',
-              usernames: '',
-              session_ids: [],
-              west: active_session.longitude - 1,
-              east: active_session.longitude + 1,
-              south: active_session.latitude - 1,
-              north: active_session.latitude + 1,
-              limit: 2,
-              offset: 0,
-              sensor_name: active_stream.sensor_name,
-              measurement_type: active_stream.measurement_type,
-              unit_symbol: active_stream.unit_symbol
-            }.to_json
-          }
+        params: {
+          q: {
+            time_from:
+            session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+            time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+            tags: '',
+            usernames: '',
+            session_ids: [],
+            west: active_session.longitude - 1,
+            east: active_session.longitude + 1,
+            south: active_session.latitude - 1,
+            north: active_session.latitude + 1,
+            limit: 2,
+            offset: 0,
+            sensor_name: active_stream.sensor_name,
+            measurement_type: active_stream.measurement_type,
+            unit_symbol: active_stream.unit_symbol
+          }.to_json
+        }
 
       expected = {
         'fetchableSessionsCount' => 1,
@@ -46,7 +52,7 @@ describe Api::Fixed::Active::SessionsController do
             'longitude' => active_session.longitude,
             'title' => active_session.title,
             'type' => 'FixedSession',
-            'username' => user.username,
+            'username' => active_session.user.username,
             'streams' => {
               active_stream.sensor_name => {
                 'measurement_short_type' => active_stream.measurement_short_type,
@@ -83,35 +89,41 @@ describe Api::Fixed::Active::SessionsController do
 
   describe '#index2' do
     it 'returns active sessions json' do
-      user = create_user!
       session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
-      create_dormant_session_and_stream!(user: user, session_time: session_time)
-      active_session, active_stream =
-        create_active_session_and_stream!(
-          user: user,
-          session_time: session_time
-        )
+      active_session = create_fixed_session!(contribute: true, time: session_time, last_measurement_at: DateTime.current)
+      active_stream = create_stream!(session: active_session, latitude: active_session.latitude, longitude: active_session.longitude)
+      create_measurement!(stream: active_stream)
+      dormant_session = create_fixed_session!(
+        user: active_session.user,
+        contribute: true,
+        time: session_time,
+        last_measurement_at: DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
+        latitude: active_session.latitude,
+        longitude: active_session.longitude
+      )
+      dormant_stream = create_stream!(session: dormant_session, latitude: active_session.latitude, longitude: active_session.longitude)
+      create_measurement!(stream: dormant_stream)
 
       get :index2,
-          params: {
-            q: {
-              time_from:
-                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
-              tags: '',
-              usernames: '',
-              session_ids: [],
-              west: active_session.longitude - 1,
-              east: active_session.longitude + 1,
-              south: active_session.latitude - 1,
-              north: active_session.latitude + 1,
-              limit: 2,
-              offset: 0,
-              sensor_name: active_stream.sensor_name,
-              measurement_type: active_stream.measurement_type,
-              unit_symbol: active_stream.unit_symbol
-            }.to_json
-          }
+        params: {
+          q: {
+            time_from:
+            session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+            time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+            tags: '',
+            usernames: '',
+            session_ids: [],
+            west: active_session.longitude - 1,
+            east: active_session.longitude + 1,
+            south: active_session.latitude - 1,
+            north: active_session.latitude + 1,
+            limit: 2,
+            offset: 0,
+            sensor_name: active_stream.sensor_name,
+            measurement_type: active_stream.measurement_type,
+            unit_symbol: active_stream.unit_symbol
+          }.to_json
+        }
 
       expected = {
         'fetchableSessionsCount' => 1,
@@ -125,7 +137,7 @@ describe Api::Fixed::Active::SessionsController do
             'latitude' => active_session.latitude,
             'longitude' => active_session.longitude,
             'title' => active_session.title,
-            'username' => user.username,
+            'username' => active_session.user.username,
             'streams' => {
               active_stream.sensor_name => {
                 'measurement_short_type' => active_stream.measurement_short_type,
@@ -139,48 +151,66 @@ describe Api::Fixed::Active::SessionsController do
 
       expect(json_response).to eq(expected)
     end
+
+    it 'with multiple streams it picks the correct stream' do
+      session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session = create_fixed_session!(contribute: true, time: session_time, last_measurement_at: DateTime.current)
+      stream_1 = create_stream!(sensor_name: "aaa", session: session, latitude: session.latitude, longitude: session.longitude)
+      create_measurement!(stream: stream_1)
+      stream_2 = create_stream!(sensor_name: "bbb", session: session, latitude: session.latitude, longitude: session.longitude)
+      create_measurement!(stream: stream_2)
+      queried_stream = [stream_1, stream_2].sample
+
+      get :index2,
+        params: {
+          q: {
+            time_from:
+            session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+            time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+            tags: '',
+            usernames: '',
+            session_ids: [],
+            west: session.longitude - 1,
+            east: session.longitude + 1,
+            south: session.latitude - 1,
+            north: session.latitude + 1,
+            limit: 2,
+            offset: 0,
+            sensor_name: queried_stream.sensor_name,
+            measurement_type: queried_stream.measurement_type,
+            unit_symbol: queried_stream.unit_symbol
+          }.to_json
+        }
+
+      expected = {
+        'fetchableSessionsCount' => 1,
+        'sessions' => [
+          {
+            'id' => session.id,
+            'end_time_local' => '2000-10-01T02:03:04.000Z',
+            'start_time_local' => '2000-10-01T02:03:04.000Z',
+            'last_measurement_value' => queried_stream.average_value,
+            'is_indoor' => session.is_indoor,
+            'latitude' => session.latitude,
+            'longitude' => session.longitude,
+            'title' => session.title,
+            'username' => session.user.username,
+            'streams' => {
+              queried_stream.sensor_name => {
+                'measurement_short_type' => queried_stream.measurement_short_type,
+                'sensor_name' => queried_stream.sensor_name,
+                'unit_symbol' => queried_stream.unit_symbol
+              }
+            }
+          }
+        ]
+      }
+
+      expect(json_response).to eq(expected)
+    end
   end
 
   private
-
-  def create_active_session_and_stream!(user:, session_time:)
-    latitude = 123
-    longitude = 234
-    session =
-      create_fixed_session!(
-        user: user,
-        contribute: true,
-        time: session_time,
-        latitude: latitude,
-        longitude: longitude,
-        last_measurement_at: DateTime.current
-      )
-    stream =
-      create_stream!(session: session, latitude: latitude, longitude: longitude)
-    create_measurement!(stream: stream)
-
-    [session, stream]
-  end
-
-  def create_dormant_session_and_stream!(user:, session_time:)
-    latitude = 123
-    longitude = 234
-    session =
-      create_fixed_session!(
-        user: user,
-        contribute: true,
-        time: session_time,
-        latitude: latitude,
-        longitude: longitude,
-        last_measurement_at:
-          DateTime.current - (FixedSession::ACTIVE_FOR + 1.second)
-      )
-    stream =
-      create_stream!(session: session, latitude: latitude, longitude: longitude)
-    create_measurement!(stream: stream)
-
-    [session, stream]
-  end
 
   def create_user!
     User.create!(
@@ -191,11 +221,11 @@ describe Api::Fixed::Active::SessionsController do
   end
 
   def create_fixed_session!(
-    user:,
+    user: create_user!,
     time:,
     contribute:,
-    latitude:,
-    longitude:,
+    latitude: 123,
+    longitude: 123,
     last_measurement_at:
   )
     FixedSession.create!(
@@ -214,10 +244,10 @@ describe Api::Fixed::Active::SessionsController do
     )
   end
 
-  def create_stream!(session:, latitude:, longitude:)
+  def create_stream!(session:, latitude:, longitude:, sensor_name: 'AirBeam2-F')
     Stream.create!(
       session: session,
-      sensor_name: 'AirBeam2-F',
+      sensor_name: sensor_name,
       measurement_short_type: 'F',
       measurement_type: 'Temperature',
       sensor_package_name: 'Airbeam2-0018961071B4',
