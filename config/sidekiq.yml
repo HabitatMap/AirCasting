@@ -18,6 +18,6 @@
     queue: slow
 
   purple_air_import_measurements:
-    every: '11m'
+    every: '10m'
     class: PurpleAirImportMeasurementsWorker
     queue: slow
