@@ -10,7 +10,7 @@ module OpenAq
     def initialize(
       fetch_messages: OpenAq::FetchMessages.new,
       fetch_files: OpenAq::FetchFiles.new,
-      save_measurements: OpenAq::SaveMeasurements.new(user: User.where(username: 'OpenAQ').first!),
+      save_measurements: SaveMeasurements.new(user: User.where(username: 'OpenAQ').first!),
       delete_messages: OpenAq::DeleteMessages.new
     )
       @fetch_messages = fetch_messages
