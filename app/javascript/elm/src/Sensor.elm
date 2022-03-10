@@ -86,7 +86,10 @@ mainSensors page =
         Fixed ->
             common
                 |> Dict.insert "Ozone" [ "OpenAQ-O3 (ppb)" ]
-                |> Dict.update "Particulate Matter" (Maybe.map (\labels -> labels ++ [ "OpenAQ-PM2.5 (µg/m³)" ]))
+                |> Dict.update "Particulate Matter"
+                    (Maybe.map
+                        (\labels -> labels ++ [ "OpenAQ-PM2.5 (µg/m³)", "PurpleAir-PM2.5 (µg/m³)" ])
+                    )
 
 
 type alias Sensor =
