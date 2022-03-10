@@ -27,7 +27,7 @@ class Api::ToActiveSessionsJson
   def sql
     <<~SQL
       SELECT
-        JSON_OBJECT(
+        COALESCE(JSON_OBJECT(
           'sessions', JSON_ARRAYAGG(
             JSON_OBJECT(
               'id', formatted_sessions.id,
@@ -56,7 +56,7 @@ class Api::ToActiveSessionsJson
               )
             )),
           'fetchableSessionsCount', (#{sessions.select('COUNT(DISTINCT sessions.id)').to_sql})
-        )
+        ), JSON_OBJECT('sessions', JSON_ARRAY(), 'fetchableSessionsCount', 0))
       FROM
         (#{formatted_sessions.to_sql}) AS formatted_sessions
     SQL
