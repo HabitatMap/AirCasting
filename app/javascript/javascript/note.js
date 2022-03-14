@@ -108,7 +108,10 @@ const adjustedLatitude = (note, marker) => {
     lat: note.latitude,
     lng: note.longitude,
   });
-  const markerPoint = window.__map.getProjection().fromLatLngToPoint(marker);
+  const markerPoint = window.__map.getProjection().fromLatLngToPoint({
+    lat: marker.lat(),
+    lng: marker.lng(),
+  });
 
   if (noteIsHidden(notePoint, markerPoint)) {
     const adjustedPosition = window.__map.getProjection().fromPointToLatLng({
