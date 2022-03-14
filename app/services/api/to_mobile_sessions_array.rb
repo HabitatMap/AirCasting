@@ -17,29 +17,7 @@ class Api::ToMobileSessionsArray
   attr_reader :form
 
   def filtered
-    sessions =
-      MobileSession
-        .with_user_and_streams
-        .order('sessions.start_time_local DESC')
-        .where(contribute: true)
-        .joins(:streams)
-        .merge(Stream.in_rectangle(data))
-        .where(streams: { sensor_name: data[:sensor_name] })
-        .where(streams: { unit_symbol: data[:unit_symbol] })
-        .where('streams.measurements_count > 0')
-
-    sessions2 =
-      Session.filter_by_time_range(sessions, data[:time_from], data[:time_to])
-
-    tags = data[:tags].to_s.split(/[\s,]/)
-    sessions2 = sessions2.tagged_with(tags, any: true) if tags.present?
-
-    usernames = AirCasting::UsernameParam.split(data[:usernames])
-    if usernames.present?
-      sessions2 = sessions2.joins(:user).where(users: { username: usernames })
-    end
-
-    sessions2
+    MobileSession.with_user_and_streams.filter_(data)
   end
 
   def to_mobile_sessions_array(sessions)
