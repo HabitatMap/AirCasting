@@ -105,8 +105,8 @@ google.maps.event.addListener(popup, "domready", () => {
 
 const adjustedLatitude = (note, marker) => {
   const notePoint = window.__map.getProjection().fromLatLngToPoint({
-    lat: () => note.latitude,
-    lng: () => note.longitude,
+    lat: note.latitude,
+    lng: note.longitude,
   });
   const markerPoint = window.__map.getProjection().fromLatLngToPoint(marker);
 
