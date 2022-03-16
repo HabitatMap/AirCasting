@@ -1,25 +1,15 @@
 class Api::ToFixedSessionHash
-  def initialize(model:, form:)
-    @model = model
-    @form = form
+  def initialize(measurements_limit:, stream:)
+    @measurements_limit = measurements_limit
+    @stream = stream
   end
 
-  def call()
-    return Failure.new(form.errors) if form.invalid?
-
-    session =
-      @model
-        .includes(:streams)
-        .where(id: data.id, streams: { sensor_name: data.sensor_name })
-        .first!
-    stream = session.streams.first
-    notes = session.notes.map(&:as_json)
-
-    Success.new(
+  def call
+    {
       title: session.title,
       username: session.is_indoor ? 'anonymous' : session.user.username,
       sensorName: stream.sensor_name,
-      measurements: measurements(stream, data.measurements_limit),
+      measurements: measurements(stream, measurements_limit),
       startTime: format_time(session.start_time_local),
       endTime: format_time(session.end_time_local),
       id: session.id,
@@ -31,18 +21,22 @@ class Api::ToFixedSessionHash
       maxLongitude: stream.max_longitude,
       minLatitude: stream.min_latitude,
       minLongitude: stream.min_longitude,
-      notes: notes,
+      notes: notes.map(&:as_json),
       isIndoor: session.is_indoor,
       lastMeasurementValue: stream.average_value
-    )
+    }
   end
 
   private
 
-  attr_reader :form
+  attr_reader :stream, :measurements_limit
 
-  def data
-    form.to_h
+  def session
+    @session ||= stream.session
+  end
+
+  def notes
+    @notes ||= session.notes
   end
 
   def format_time(time)

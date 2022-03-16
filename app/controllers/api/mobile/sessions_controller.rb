@@ -25,37 +25,40 @@ module Api
 
     def show
       GoogleAnalyticsWorker::RegisterEvent.async_call('Mobile sessions#show')
-      form =
-        Api::ParamsForm.new(
-          params: params.to_unsafe_hash,
-          schema: Api::Session::Schema,
-          struct: Api::Session::Struct
-        )
-      result =
-        Api::ToMobileSessionHash.new(model: MobileSession, form: form).call
 
-      if result.success?
-        render json: result.value, status: :ok
+      if show_form.invalid?
+        render json: show_form.errors, status: :bad_request
       else
-        render json: result.errors, status: :bad_request
+        hash = Api::ToMobileSessionHash.new(stream: stream).call
+        render json: hash, status: :ok
       end
     end
 
     def show2
       GoogleAnalyticsWorker::RegisterEvent.async_call('Mobile sessions#show2')
-      form =
-        Api::ParamsForm.new(
-          params: params.to_unsafe_hash,
-          schema: Api::Session::Schema,
-          struct: Api::Session::Struct
-        )
-      result = Api::ToSessionHash2.new(form: form).call
 
-      if result.success?
-        render json: result.value, status: :ok
+      if show_form.invalid?
+        render json: show_form.errors, status: :bad_request
       else
-        render json: result.errors, status: :bad_request
+        hash = Api::ToSessionHash2.new(stream: stream).call
+        render json: hash, status: :ok
       end
+    end
+
+    private
+
+    def stream
+      @stream ||= Stream
+        .joins(:session)
+        .find_by!(sensor_name: show_form.to_h.sensor_name, sessions: { id: show_form.to_h.id })
+    end
+
+    def show_form
+      @show_form ||= Api::ParamsForm.new(
+        params: params.to_unsafe_hash,
+        schema: Api::Session::Schema,
+        struct: Api::Session::Struct
+      )
     end
   end
 end

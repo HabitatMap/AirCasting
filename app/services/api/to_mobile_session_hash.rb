@@ -1,21 +1,10 @@
 class Api::ToMobileSessionHash
-  def initialize(model:, form:)
-    @model = model
-    @form = form
+  def initialize(stream:)
+    @stream = stream
   end
 
-  def call()
-    return Failure.new(form.errors) if form.invalid?
-
-    session =
-      @model
-        .includes(:streams)
-        .where(id: data.id, streams: { sensor_name: data.sensor_name })
-        .first!
-    stream = session.streams.first
-    notes = session.notes.map(&:as_json)
-
-    Success.new(
+  def call
+    {
       title: session.title,
       username: session.is_indoor ? 'anonymous' : session.user.username,
       sensorName: stream.sensor_name,
@@ -32,16 +21,20 @@ class Api::ToMobileSessionHash
       minLongitude: stream.min_longitude,
       startLatitude: stream.start_latitude,
       startLongitude: stream.start_longitude,
-      notes: notes
-    )
+      notes: notes.map(&:as_json),
+    }
   end
 
   private
 
-  attr_reader :form
+  attr_reader :stream
 
-  def data
-    form.to_h
+  def session
+    @session ||= stream.session
+  end
+
+  def notes
+    @notes ||= session.notes
   end
 
   def format_time(time)
