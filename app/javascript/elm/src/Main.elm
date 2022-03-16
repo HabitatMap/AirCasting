@@ -221,7 +221,7 @@ fetchSelectedStream maybeId page =
             Cmd.none
 
         Just id ->
-            Process.sleep 500
+            Process.sleep 1000
                 |> Task.perform
                     (\_ ->
                         ExecCmd (SelectedSession.fetch page id (RemoteData.fromResult >> GotSession))
