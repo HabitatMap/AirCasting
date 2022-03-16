@@ -2,15 +2,9 @@ import { formatSessionForList } from "./session";
 
 export const sessionsInfoForElm = (sessions, count, sensorName) => ({
   fetched: sessions
-    .map(selectedStream(sensorName))
     .map(formatSessionForList)
     .map(formatSessionForElm),
   fetchableSessionsCount: count,
-});
-
-const selectedStream = (sensorName) => (session) => ({
-  ...session,
-  selectedStream: session.streams[sensorName],
 });
 
 const formatSessionForElm = (s) => ({

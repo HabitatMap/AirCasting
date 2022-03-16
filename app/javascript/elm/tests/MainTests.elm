@@ -576,6 +576,7 @@ updateTests =
 
                     newSession =
                         { id = id + 1
+                        , streamId = id + 2
                         , title = "title"
                         , startTime = Time.millisToPosix 0
                         , endTime = Time.millisToPosix 0
@@ -592,6 +593,7 @@ updateTests =
                                     [ Encode.object
                                         [ ( "title", Encode.string "title" )
                                         , ( "id", Encode.int <| id + 1 )
+                                        , ( "streamId", Encode.int <| id + 2 )
                                         , ( "startTime", Encode.int 0 )
                                         , ( "endTime", Encode.int 0 )
                                         , ( "username", Encode.string "username" )

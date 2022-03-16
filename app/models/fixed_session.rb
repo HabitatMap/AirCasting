@@ -64,7 +64,7 @@ class FixedSession < Session
     }
 
     Rails.application.routes.url_helpers.fixed_map_path(
-      anchor: "?selectedSessionIds=#{[id].to_json}&data=#{data.to_json}"
+      anchor: "?selectedStreamId=#{stream.id}&data=#{data.to_json}"
     )
   end
 

@@ -39,6 +39,7 @@ defaultSession =
     , shortTypes = defaultShortTypes
     , average = Nothing
     , location = defaultLocation
+    , streamId = 123
     }
 
 

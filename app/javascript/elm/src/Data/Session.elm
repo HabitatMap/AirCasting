@@ -2,6 +2,7 @@ module Data.Session exposing (Location, Session, ShortType, classByValue, decode
 
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds, Range(..))
 import Json.Decode as Decode exposing (Decoder(..))
+import Json.Decode.Pipeline exposing (required)
 import Maybe exposing (Maybe)
 import RemoteData exposing (RemoteData(..), WebData)
 import Time exposing (Posix)
@@ -28,20 +29,22 @@ type alias Session =
     , shortTypes : List ShortType
     , average : Maybe Float
     , location : Location
+    , streamId : Int
     }
 
 
 decoder : Decoder Session
 decoder =
-    Decode.map8 Session
-        (Decode.field "title" Decode.string)
-        (Decode.field "id" Decode.int)
-        (Decode.field "startTime" Decode.int |> Decode.map Time.millisToPosix)
-        (Decode.field "endTime" Decode.int |> Decode.map Time.millisToPosix)
-        (Decode.field "username" Decode.string)
-        (Decode.field "shortTypes" <| Decode.list shortTypeDecoder)
-        (Decode.field "average" <| Decode.nullable Decode.float)
-        (Decode.field "location" locationDecoder)
+    Decode.succeed Session
+        |> required "title" Decode.string
+        |> required "id" Decode.int
+        |> required "startTime" (Decode.int |> Decode.map Time.millisToPosix)
+        |> required "endTime" (Decode.int |> Decode.map Time.millisToPosix)
+        |> required "username" Decode.string
+        |> required "shortTypes" (Decode.list shortTypeDecoder)
+        |> required "average" (Decode.nullable Decode.float)
+        |> required "location" locationDecoder
+        |> required "streamId" Decode.int
 
 
 shortTypeDecoder : Decoder ShortType
