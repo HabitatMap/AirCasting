@@ -12,14 +12,6 @@ class FixedSession < Session
     where('last_measurement_at <= ?', Time.current - ACTIVE_FOR)
   end
 
-  def self.all_active(data)
-    active.with_user_and_streams.filter_(data)
-  end
-
-  def self.all_dormant(data, limit, offset)
-    dormant.offset(offset).limit(limit).with_user_and_streams.filter_(data)
-  end
-
   def after_measurements_created
     update_end_time!
   end
@@ -72,7 +64,7 @@ class FixedSession < Session
     }
 
     Rails.application.routes.url_helpers.fixed_map_path(
-      anchor: "?selectedSessionIds=#{[id].to_json}&data=#{data.to_json}"
+      anchor: "?selectedStreamId=#{stream.id}&data=#{data.to_json}"
     )
   end
 

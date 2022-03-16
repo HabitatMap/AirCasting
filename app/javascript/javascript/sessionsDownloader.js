@@ -19,6 +19,8 @@ const sessionsDownloader = () => {
 
   var preprocessData = function (data, sessions) {
     var times;
+    // data is cached so better not mutate it
+    data = JSON.parse(JSON.stringify(data));
 
     _(data).each(function (session) {
       if (session.start_time_local && session.end_time_local) {
@@ -50,6 +52,8 @@ const sessionsDownloader = () => {
     if (!params.isSessionSelected()) {
       params.update({ fetchedSessionsCount: sessions.length });
     }
+
+    sessions.forEach((session) => session.stream = Object.values(session.streams)[0])
   };
 
   return fetch;

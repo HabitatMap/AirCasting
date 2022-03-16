@@ -46,7 +46,8 @@ class Api::ToActiveSessionsJson
                     JSON_OBJECT(
                       'sensor_name', streams.sensor_name,
                       'measurement_short_type', streams.measurement_short_type,
-                      'unit_symbol', streams.unit_symbol
+                      'unit_symbol', streams.unit_symbol,
+                      'id', streams.id
                     )
                   )
                 FROM

@@ -47,7 +47,7 @@ export default (() => {
     },
 
     isSelected: function (session) {
-      return params.selectedSessionId() === session.id;
+      return params.selectedStreamId() === session.stream.id;
     },
 
     onSessionsFetch: function (fetchableSessionsCount) {
@@ -61,11 +61,7 @@ export default (() => {
 
     onSessionsFetchWithCrowdMapLayerUpdate: function (fetchableSessionsCount) {
       window.__elmApp.ports.updateSessions.send(
-        sessionsInfoForElm(
-          this.sessions,
-          fetchableSessionsCount || this.fetchableSessionsCount,
-          sensors.selectedSensorName()
-        )
+        sessionsInfoForElm(this.sessions, fetchableSessionsCount || this.fetchableSessionsCount)
       );
 
       this.onSessionsFetch(fetchableSessionsCount);
@@ -85,21 +81,21 @@ export default (() => {
       if (!params.isSessionSelected()) return;
       this.selectedSession = {};
       params.update({ prevMapPosition: {} });
-      params.update({ selectedSessionIds: [] });
+      params.update({ selectedStreamId: null });
       clearMap();
       map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
       this.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
     },
 
     selectSession: function (session) {
-      if (params.selectedSessionIds().length === 0) {
+      if (!params.selectedStreamId()) {
         clearMap();
         prevMapPosition = {
           bounds: map.getBounds(),
           zoom: map.getZoom(),
         };
       }
-      params.update({ selectedSessionIds: [session.id] });
+      params.update({ selectedStreamId: session.stream.id });
 
       this.selectedSession = session;
 
@@ -130,7 +126,7 @@ export default (() => {
       const sessionsToCluster = [];
       sessions.forEach((session) => {
         sessionsToCluster.push({
-          latLng: Session.startingLatLng(session, sensors.selectedSensorName()),
+          latLng: Session.startingLatLng(session),
           object: session,
         });
       });
@@ -138,43 +134,39 @@ export default (() => {
       const clusteredSessions = clusterer(sessionsToCluster, map);
       const lonelySessions = sessions.filter(isNotIn(clusteredSessions));
 
-      clusteredSessions.forEach((session) => {
-        this.drawSessionWithoutLabel(session, sensors.selectedSensorName());
-      });
+      clusteredSessions.forEach((session) => this.drawSessionWithoutLabel(session));
       lonelySessions.forEach((session) => {
-        this.drawSessionWithLabel(session, sensors.selectedSensorName());
+        this.drawSessionWithLabel(session);
       });
     },
 
-    drawSessionWithoutLabel: function (session, selectedSensor) {
+    drawSessionWithoutLabel: function (session) {
       const heatLevel = heat.levelName(
-        Session.roundedAverage(session, selectedSensor)
+        Session.roundedAverage(session)
       );
-      const latLng = Session.startingLatLng(session, selectedSensor);
-      const callback = (id) => () =>
-        pubsub.publish("markerSelected", { session_id: id });
+      const latLng = Session.startingLatLng(session);
+      const callback = (streamId) => () => pubsub.publish("markerSelected", { streamId });
 
-      const marker = map.drawMarkerWithoutLabel({
+      map.drawMarkerWithoutLabel({
         object: { latLng, id: session.id },
         colorClass: heatLevel,
-        callback: callback(Session.id(session)),
+        callback: callback(Session.streamId(session)),
       });
     },
 
-    drawSessionWithLabel: function (session, selectedSensor) {
-      const content = Session.averageValueAndUnit(session, selectedSensor);
+    drawSessionWithLabel: function (session) {
+      const content = Session.averageValueAndUnit(session);
       const heatLevel = heat.levelName(
-        Session.roundedAverage(session, selectedSensor)
+        Session.roundedAverage(session)
       );
-      const latLng = Session.startingLatLng(session, selectedSensor);
-      const callback = (id) => () =>
-        pubsub.publish("markerSelected", { session_id: id });
+      const latLng = Session.startingLatLng(session);
+      const callback = (streamId) => () => pubsub.publish("markerSelected", { streamId });
 
       const marker = map.drawMarkerWithLabel({
         object: { latLng },
         content: content,
         colorClass: heatLevel,
-        callback: callback(Session.id(session)),
+        callback: callback(Session.streamId(session)),
       });
       return marker;
     },

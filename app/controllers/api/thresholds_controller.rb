@@ -4,7 +4,17 @@ module Api
 
     def show
       GoogleAnalyticsWorker::RegisterEvent.async_call('Thresholds#show')
-      render json: Stream.thresholds(params[:id], params[:unit_symbol])
+      render json: Stream.thresholds(id, unit_symbol)
+    end
+
+    private
+
+    def id
+      @id ||= params.fetch(:id)
+    end
+
+    def unit_symbol
+      @unit_symbol ||= params.fetch(:unit_symbol)
     end
   end
 end

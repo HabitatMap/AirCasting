@@ -105,11 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
       crowdMapResolution: data.gridResolution,
       tags: data.tags.split(", ").filter((tag) => tag !== ""),
       profiles: data.usernames.split(", ").filter((tag) => tag !== ""),
-      selectedSessionId: params.selectedSessionIds
-        ? params.selectedSessionIds[0]
-          ? params.selectedSessionIds[0]
-          : null
-        : null,
+      selectedStreamId: params.selectedStreamId || null,
       timeRange: {
         timeFrom: data.timeFrom,
         timeTo: data.timeTo,

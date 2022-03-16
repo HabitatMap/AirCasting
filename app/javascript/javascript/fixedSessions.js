@@ -41,16 +41,12 @@ export default (() => {
     },
 
     isSelected: function (session) {
-      return params.selectedSessionId() === session.id;
+      return params.selectedStreamId() === session.stream.id;
     },
 
     onSessionsFetch: function (fetchableSessionsCount) {
       window.__elmApp.ports.updateSessions.send(
-        sessionsInfoForElm(
-          this.sessions,
-          fetchableSessionsCount || this.fetchableSessionsCount,
-          sensors.selectedSensorName()
-        )
+        sessionsInfoForElm(this.sessions, fetchableSessionsCount || this.fetchableSessionsCount)
       );
 
       this.drawSessionsInLocation();
@@ -62,14 +58,14 @@ export default (() => {
     deselectSession: function () {
       if (!params.isSessionSelected()) return;
       params.update({ prevMapPosition: {} });
-      params.update({ selectedSessionIds: [] });
+      params.update({ selectedStreamId: null });
       clearMap();
       map.fitBounds(prevMapPosition.bounds, prevMapPosition.zoom);
       this.fetch({ amount: params.paramsData["fetchedSessionsCount"] });
     },
 
     selectSession: function (session) {
-      params.update({ selectedSessionIds: [session.id] });
+      params.update({ selectedStreamId: session.stream.id });
 
       if (!session.is_indoor) {
         prevMapPosition = {
@@ -114,24 +110,17 @@ export default (() => {
         return;
       }
 
-      sessions.forEach((session) =>
-        this.drawMarkersWithLabel(session, sensors.selectedSensorName())
-      );
-
+      sessions.forEach((session) => this.drawMarkersWithLabel(session));
       map.clusterMarkers(showClusterInfo(sensors.selectedSensorName()));
     },
 
-    drawMarkersWithLabel: function (session, selectedSensor) {
-      const content = Session.lastMeasurementValueAndUnit(
-        session,
-        selectedSensor
-      );
+    drawMarkersWithLabel: function (session) {
+      const content = Session.lastMeasurementValueAndUnit(session);
       const heatLevel = heat.levelName(Session.lastMeasurementRoundedValue(session));
       const latLng = Session.latLng(session);
-      const callback = (id) => () =>
-        pubsub.publish("markerSelected", { session_id: id });
+      const callback = (streamId) => () => pubsub.publish("markerSelected", { streamId });
 
-      const marker = map.drawMarkerWithLabel({
+      map.drawMarkerWithLabel({
         object: {
           latLng,
           id: Session.id(session),
@@ -139,19 +128,18 @@ export default (() => {
         },
         content: content,
         colorClass: heatLevel,
-        callback: callback(Session.id(session)),
+        callback: callback(Session.streamId(session)),
       });
     },
 
     drawMarkersWithoutLabel: function (session) {
       const latLng = Session.latLng(session);
-      const callback = (id) => () =>
-        pubsub.publish("markerSelected", { session_id: id });
+      const callback = (streamId) => () => pubsub.publish("markerSelected", { streamId });
 
-      const customMarker = map.drawMarkerWithoutLabel({
+      map.drawMarkerWithoutLabel({
         object: { latLng },
         colorClass: "default",
-        callback: callback(Session.id(session)),
+        callback: callback(Session.streamId(session)),
       });
     },
 

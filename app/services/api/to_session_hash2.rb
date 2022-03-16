@@ -1,34 +1,12 @@
 class Api::ToSessionHash2
-  def initialize(form:)
-    @form = form
+  def initialize(stream:)
+    @stream = stream
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
-
-    session = MobileSession.includes(:streams, :notes, :user).find(id)
-    stream = session.streams.where(sensor_name: sensor_name).first!
-    average = stream.measurements.average(:value)
-    user = session.user
-    notes = session.notes.map(&:as_json)
-    measurements =
-      begin
-        fields = %i[time value latitude longitude]
-        stream
-          .measurements
-          .pluck(*fields)
-          .map do |record_fields|
-            hash = {}
-            fields.each_with_index do |field, index|
-              hash[field] = record_fields[index]
-            end
-            hash
-          end
-      end
-
-    Success.new(
+    {
       title: session.title,
-      average: average,
+      average: stream.measurements.average(:value),
       id: session.id,
       contribute: session.contribute,
       created_at: format_time(session.created_at),
@@ -48,7 +26,7 @@ class Api::ToSessionHash2
       url_token: session.url_token,
       user_id: user.id,
       uuid: session.uuid,
-      notes: notes,
+      notes: notes.map(&:as_json),
       streams: {
         stream.sensor_name => {
           average_value: stream.average_value,
@@ -76,22 +54,43 @@ class Api::ToSessionHash2
           measurements: measurements
         }
       }
-    )
+    }
   end
 
   private
 
-  attr_reader :form
+  attr_reader :stream
+
+  def session
+    @session ||= stream.session
+  end
+
+  def user
+    @user ||= session.user
+  end
+
+  def notes
+    @notes ||= session.notes
+  end
+
+  def measurements
+    @measurements ||=
+      begin
+        fields = %i[time value latitude longitude]
+        stream
+          .measurements
+          .pluck(*fields)
+          .map do |record_fields|
+            hash = {}
+            fields.each_with_index do |field, index|
+              hash[field] = record_fields[index]
+            end
+            hash
+          end
+      end
+  end
 
   def format_time(time)
     time.strftime('%FT%T.000Z')
-  end
-
-  def id
-    form.to_h.id
-  end
-
-  def sensor_name
-    form.to_h.sensor_name
   end
 end

@@ -83,8 +83,7 @@ class Session < ApplicationRecord
 
     sensor_name = data[:sensor_name]
     if sensor_name.present?
-      sessions =
-        sessions.joins(:streams).where(streams: { sensor_name: sensor_name })
+      sessions = sessions.joins(:streams).where(streams: { sensor_name: Sensor.sensor_name(sensor_name) })
     end
 
     unit_symbol = data[:unit_symbol]

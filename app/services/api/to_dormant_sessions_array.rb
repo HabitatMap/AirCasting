@@ -9,7 +9,11 @@ class Api::ToDormantSessionsArray
     Success.new(
       sessions:
         FixedSession
-          .all_dormant(data, limit, offset)
+          .dormant
+          .offset(offset)
+          .limit(limit)
+          .with_user_and_streams
+          .filter_(data)
           .map do |session|
             {
               id: session.id,

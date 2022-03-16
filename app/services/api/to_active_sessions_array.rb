@@ -9,7 +9,9 @@ class Api::ToActiveSessionsArray
     Success.new(
       sessions:
         FixedSession
-          .all_active(data)
+          .active
+          .with_user_and_streams
+          .filter_(data)
           .map do |session|
             {
               id: session.id,

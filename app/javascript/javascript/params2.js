@@ -45,17 +45,14 @@ const params = () => {
     isCrowdMapOn: function () {
       return this.paramsData.data.crowdMap;
     },
-    selectedSessionIds: function () {
-      return this.paramsData["selectedSessionIds"] || [];
-    },
-    selectedSessionId: function () {
-      return this.selectedSessionIds()[0];
+    selectedStreamId: function() {
+      return this.paramsData["selectedStreamId"] || null;
     },
     isActive: function () {
       return this.paramsData.data.isActive || false;
     },
     isSessionSelected: function () {
-      return this.selectedSessionIds().length === 1;
+      return !!this.selectedStreamId();
     },
   };
   return new Params();

@@ -96,7 +96,7 @@ defaultModel =
     , popup = Popup.None
     , isPopupListExpanded = False
     , sensors = []
-    , selectedSensorId = "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
+    , selectedSensorId = "Particulate Matter-airbeam-pm2.5 (µg/m³)"
     , location = ""
     , tags = LabelsInput.empty
     , profiles = LabelsInput.empty
@@ -135,7 +135,7 @@ type alias Flags =
     , timeRange : Encode.Value
     , isActive : Bool
     , isIndoor : Bool
-    , selectedSessionId : Maybe Int
+    , selectedStreamId : Maybe Int
     , sensors : Encode.Value
     , selectedSensorId : String
     , fitScaleIcon : String
@@ -170,7 +170,7 @@ init flags url key =
                 |> Result.withDefault []
 
         overlay =
-            case flags.selectedSessionId of
+            case flags.selectedStreamId of
                 Nothing ->
                     Overlay.init flags.isIndoor
 
@@ -203,7 +203,7 @@ init flags url key =
         , areFiltersExpanded = flags.keepFiltersExpanded
       }
     , Cmd.batch
-        [ fetchSelectedSession sensors flags.selectedSessionId flags.selectedSensorId page
+        [ fetchSelectedStream flags.selectedStreamId page
         , case flags.heatMapThresholdValues of
             Nothing ->
                 fetchHeatMapThresholds sensors flags.selectedSensorId
@@ -214,17 +214,17 @@ init flags url key =
     )
 
 
-fetchSelectedSession : List Sensor -> Maybe Int -> String -> Page -> Cmd Msg
-fetchSelectedSession sensors maybeId selectedSensorId page =
+fetchSelectedStream : Maybe Int -> Page -> Cmd Msg
+fetchSelectedStream maybeId page =
     case maybeId of
         Nothing ->
             Cmd.none
 
         Just id ->
-            Process.sleep 500
+            Process.sleep 1000
                 |> Task.perform
                     (\_ ->
-                        ExecCmd (SelectedSession.fetch sensors selectedSensorId page id (RemoteData.fromResult >> GotSession))
+                        ExecCmd (SelectedSession.fetch page id (RemoteData.fromResult >> GotSession))
                     )
 
 
@@ -533,10 +533,10 @@ update msg model =
         DeselectSession ->
             deselectSession model
 
-        ToggleSessionSelectionFromJavaScript maybeId ->
-            case ( model.selectedSession, maybeId ) of
-                ( Success session, Just id ) ->
-                    if SelectedSession.toId session == id then
+        ToggleSessionSelectionFromJavaScript maybeStreamId ->
+            case ( model.selectedSession, maybeStreamId ) of
+                ( Success session, Just streamId ) ->
+                    if SelectedSession.toStreamId session == streamId then
                         deselectSession model
 
                     else
@@ -546,16 +546,16 @@ update msg model =
                         in
                         ( { subModel | overlay = Overlay.update (AddOverlay HttpingOverlay) model.overlay }
                         , Cmd.batch
-                            [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
+                            [ SelectedSession.fetch model.page streamId (RemoteData.fromResult >> GotSession)
                             , getScrollPosition
                             , subCmd
                             ]
                         )
 
-                ( _, Just id ) ->
+                ( _, Just streamId ) ->
                     ( { model | overlay = Overlay.update (AddOverlay HttpingOverlay) model.overlay }
                     , Cmd.batch
-                        [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
+                        [ SelectedSession.fetch model.page streamId (RemoteData.fromResult >> GotSession)
                         , getScrollPosition
                         ]
                     )
@@ -568,12 +568,12 @@ update msg model =
                         ]
                     )
 
-        SelectSession id ->
+        SelectSession streamId ->
             case model.selectedSession of
                 NotAsked ->
                     ( { model | overlay = Overlay.update (AddOverlay HttpingOverlay) model.overlay }
                     , Cmd.batch
-                        [ SelectedSession.fetch model.sensors model.selectedSensorId model.page id (RemoteData.fromResult >> GotSession)
+                        [ SelectedSession.fetch model.page streamId (RemoteData.fromResult >> GotSession)
                         , Ports.pulseSessionMarker Nothing
                         , getScrollPosition
                         ]
@@ -1396,7 +1396,7 @@ viewSessionCard heatMapThresholds session =
     div
         [ class "session-card"
         , class <| Data.Session.classByValue session.average heatMapThresholds
-        , Events.onClick <| SelectSession session.id
+        , Events.onClick <| SelectSession session.streamId
         , Events.onMouseEnter <| HighlightSessionMarker (Just (Markers.toSessionMarkerData session.location session.id session.average heatMapThresholds))
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]

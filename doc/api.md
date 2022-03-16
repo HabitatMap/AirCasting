@@ -258,7 +258,8 @@ See [parameters description](#parameters-description)
           "AirBeam2-PM2.5": {
             "measurement_short_type": "PM",
             "sensor_name": "AirBeam2-PM2.5",
-            "unit_symbol": "µg/m³"
+            "unit_symbol": "µg/m³",
+            "id": 123
           }
         }
       }

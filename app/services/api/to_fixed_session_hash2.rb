@@ -1,16 +1,10 @@
 class Api::ToFixedSessionHash2
-  def initialize(form:)
-    @form = form
+  def initialize(stream:)
+    @stream = stream
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
-
-    session = FixedSession.includes(:streams).find(id)
-    stream = session.streams.where(sensor_name: sensor_name).first!
-    user = session.user
-
-    Success.new(
+    {
       title: session.title,
       id: session.id,
       contribute: session.contribute,
@@ -58,22 +52,22 @@ class Api::ToFixedSessionHash2
           unit_symbol: stream.unit_symbol
         }
       }
-    )
+    }
   end
 
   private
 
-  attr_reader :form
+  attr_reader :stream
+
+  def session
+    @session ||= stream.session
+  end
+
+  def user
+    @user ||= session.user
+  end
 
   def format_time(time)
     time.strftime('%FT%T.000Z')
-  end
-
-  def id
-    form.to_h.id
-  end
-
-  def sensor_name
-    form.to_h.sensor_name
   end
 end

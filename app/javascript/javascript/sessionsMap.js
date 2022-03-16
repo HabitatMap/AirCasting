@@ -83,10 +83,10 @@ export default (() => {
   });
 
   pubsub.subscribe("markerSelected", function (data) {
-    if (params.selectedSessionId() === data.session_id) {
+    if (params.selectedStreamId() === data.streamId) {
       elmApp.ports.toggleSessionSelection.send(null);
     } else {
-      elmApp.ports.toggleSessionSelection.send(data.session_id);
+      elmApp.ports.toggleSessionSelection.send(data.streamId);
     }
   });
 
@@ -242,7 +242,7 @@ export default (() => {
   elmApp.ports.toggleTheme.subscribe((theme) => {
     const cb = sessions.isMobile()
       ? () => {
-          if (params.selectedSessionIds().length !== 0) {
+          if (!!params.selectedStreamId()) {
             sessions.redrawSelectedSession();
           }
         }

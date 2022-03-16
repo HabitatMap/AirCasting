@@ -142,7 +142,8 @@ describe Api::Fixed::Active::SessionsController do
               active_stream.sensor_name => {
                 'measurement_short_type' => active_stream.measurement_short_type,
                 'sensor_name' => active_stream.sensor_name,
-                'unit_symbol' => active_stream.unit_symbol
+                'unit_symbol' => active_stream.unit_symbol,
+                'id' => active_stream.id,
               }
             }
           }
@@ -199,7 +200,8 @@ describe Api::Fixed::Active::SessionsController do
               queried_stream.sensor_name => {
                 'measurement_short_type' => queried_stream.measurement_short_type,
                 'sensor_name' => queried_stream.sensor_name,
-                'unit_symbol' => queried_stream.unit_symbol
+                'unit_symbol' => queried_stream.unit_symbol,
+                'id' => queried_stream.id,
               }
             }
           }

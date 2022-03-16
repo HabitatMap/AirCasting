@@ -6,7 +6,7 @@ module Data.SelectedSession exposing
     , formatForJavaScript
     , measurementBounds
     , times
-    , toId
+    , toStreamId
     , updateFetchedTimeRange
     , updateMeasurements
     , view
@@ -75,6 +75,7 @@ type alias SelectedSessionForJavaScript =
         , start_latitude : Float
         , start_longitude : Float
         , unit_symbol : String
+        , id : Int
         }
     , is_indoor : Bool
     , last_measurement_value : Float
@@ -98,6 +99,7 @@ formatForJavaScript session =
         , measurements = session.measurements
         , unit_symbol = session.sensorUnit
         , sensor_name = session.sensorName
+        , id = session.streamId
         }
     , is_indoor = session.isIndoor
     , last_measurement_value = session.lastMeasurementValue
@@ -111,9 +113,9 @@ times { startTime, endTime } =
     { start = Time.posixToMillis startTime, end = Time.posixToMillis endTime }
 
 
-toId : SelectedSession -> Int
-toId { id } =
-    id
+toStreamId : SelectedSession -> Int
+toStreamId { streamId } =
+    streamId
 
 
 measurementBounds : SelectedSession -> Maybe { min : Float, max : Float }
@@ -167,32 +169,21 @@ decoder =
         |> optional "lastMeasurementValue" Decode.float 0
 
 
-fetch : List Sensor -> String -> Page -> Int -> (Result Http.Error SelectedSession -> msg) -> Cmd msg
-fetch sensors sensorId page id toCmd =
-    let
-        maybeSensorName =
-            Sensor.nameForSensorId sensorId sensors
-    in
-    case maybeSensorName of
-        Just sensorName ->
-            Http.get
-                { url =
-                    if page == Mobile then
-                        Url.Builder.absolute
-                            [ "api", "mobile", "sessions", String.fromInt id ++ ".json" ]
-                            [ Url.Builder.string "sensor_name" sensorName ]
+fetch : Page -> Int -> (Result Http.Error SelectedSession -> msg) -> Cmd msg
+fetch page streamId toCmd =
+    Http.get
+        { url =
+            if page == Mobile then
+                Url.Builder.absolute
+                    [ "api", "mobile", "streams", String.fromInt streamId ++ ".json" ]
+                    []
 
-                    else
-                        Url.Builder.absolute
-                            [ "api", "fixed", "sessions", String.fromInt id ++ ".json" ]
-                            [ Url.Builder.string "sensor_name" sensorName
-                            , Url.Builder.int "measurements_limit" 1440
-                            ]
-                , expect = Http.expectJson toCmd decoder
-                }
-
-        Nothing ->
-            Cmd.none
+            else
+                Url.Builder.absolute
+                    [ "api", "fixed", "streams", String.fromInt streamId ++ ".json" ]
+                    [ Url.Builder.int "measurements_limit" 1440 ]
+        , expect = Http.expectJson toCmd decoder
+        }
 
 
 updateFetchedTimeRange : SelectedSession -> SelectedSession

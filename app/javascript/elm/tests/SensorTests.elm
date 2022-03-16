@@ -54,7 +54,7 @@ all =
                 sensors
                     |> idForParameterOrLabel page "parameter" "parameter2-sensor3 (unit)"
                     |> Expect.equal "parameter-sensor2 (unit)"
-        , test "when on mobile page idForParameterOrLabel always finds airbeam2-pm2.5 for Particulate Matter" <|
+        , test "when on mobile page idForParameterOrLabel always finds airbeam-pm2.5 for Particulate Matter" <|
             \_ ->
                 [ { parameter = "Particulate Matter"
                   , name = "Other Label"
@@ -62,14 +62,14 @@ all =
                   , sessionCount = 1
                   }
                 , { parameter = "Particulate Matter"
-                  , name = "AirBeam2-PM2.5"
+                  , name = "AirBeam-PM2.5"
                   , unit = "µg/m³"
                   , sessionCount = 0
                   }
                 ]
                     |> idForParameterOrLabel Mobile "Particulate Matter" "parameter2-sensor3 (unit)"
-                    |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
-        , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam2-rh for Humidity" <|
+                    |> Expect.equal "Particulate Matter-airbeam-pm2.5 (µg/m³)"
+        , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam-rh for Humidity" <|
             \page ->
                 [ { parameter = "Humidity"
                   , name = "Other Label"
@@ -77,13 +77,13 @@ all =
                   , sessionCount = 1
                   }
                 , { parameter = "Humidity"
-                  , name = "AirBeam2-RH"
+                  , name = "AirBeam-RH"
                   , unit = "%"
                   , sessionCount = 0
                   }
                 ]
                     |> idForParameterOrLabel page "Humidity" "parameter2-sensor3 (unit)"
-                    |> Expect.equal "Humidity-airbeam2-rh (%)"
+                    |> Expect.equal "Humidity-airbeam-rh (%)"
         , fuzz pageFuzzer "idForParameterOrLabel always finds phone microphone for Sound Levels" <|
             \page ->
                 [ { parameter = "Sound Level"
@@ -99,7 +99,7 @@ all =
                 ]
                     |> idForParameterOrLabel page "Sound Level" "parameter2-sensor3 (unit)"
                     |> Expect.equal "Sound Level-phone microphone (dB)"
-        , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam2-f for Temperature" <|
+        , fuzz pageFuzzer "idForParameterOrLabel always finds airbeam-f for Temperature" <|
             \page ->
                 [ { parameter = "Temperature"
                   , name = "Other Label"
@@ -107,39 +107,35 @@ all =
                   , sessionCount = 1
                   }
                 , { parameter = "Temperature"
-                  , name = "AirBeam2-F"
+                  , name = "AirBeam-F"
                   , unit = "F"
                   , sessionCount = 0
                   }
                 ]
                     |> idForParameterOrLabel page "Temperature" "parameter2-sensor3 (unit)"
-                    |> Expect.equal "Temperature-airbeam2-f (F)"
-        , test "when on mobile page and the default is missing idForParameterOrLabel returns airbeam2-pm2.5" <|
+                    |> Expect.equal "Temperature-airbeam-f (F)"
+        , test "when on mobile page and the default is missing idForParameterOrLabel returns airbeam-pm2.5" <|
             \_ ->
                 []
                     |> idForParameterOrLabel Mobile "Temperature" "parameter2-sensor3 (unit)"
-                    |> Expect.equal "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
+                    |> Expect.equal "Particulate Matter-airbeam-pm2.5 (µg/m³)"
         , test "labelsForParameter returns labels divided into main (always included) and others" <|
             \_ ->
                 let
                     sensors_ =
                         [ { parameter = "Particulate Matter"
-                          , name = "AirBeam2-PM2.5"
+                          , name = "AirBeam-PM2.5"
                           , unit = "µg/m³"
                           , sessionCount = 1
                           }
                         ]
                 in
-                "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
+                "Particulate Matter-airbeam-pm2.5 (µg/m³)"
                     |> labelsForParameter Fixed sensors_
                     |> Expect.equal
-                        ( [ "AirBeam3-PM2.5 (µg/m³)"
-                          , "AirBeam3-PM1 (µg/m³)"
-                          , "AirBeam3-PM10 (µg/m³)"
-                          , "AirBeam2-PM2.5 (µg/m³)"
-                          , "AirBeam2-PM1 (µg/m³)"
-                          , "AirBeam2-PM10 (µg/m³)"
-                          , "AirBeam-PM (µg/m³)"
+                        ( [ "AirBeam-PM10 (µg/m³)"
+                          , "AirBeam-PM2.5 (µg/m³)"
+                          , "AirBeam-PM1 (µg/m³)"
                           , "OpenAQ-PM2.5 (µg/m³)"
                           , "PurpleAir-PM2.5 (µg/m³)"
                           ]
@@ -150,7 +146,7 @@ all =
                 let
                     sensors_ =
                         [ { parameter = "Particulate Matter"
-                          , name = "AirBeam2-PM2.5"
+                          , name = "AirBeam-PM2.5"
                           , unit = "µg/m³"
                           , sessionCount = 1
                           }
@@ -161,16 +157,12 @@ all =
                           }
                         ]
                 in
-                "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
+                "Particulate Matter-airbeam-pm2.5 (µg/m³)"
                     |> labelsForParameter Mobile sensors_
                     |> Expect.equal
-                        ( [ "AirBeam3-PM2.5 (µg/m³)"
-                          , "AirBeam3-PM1 (µg/m³)"
-                          , "AirBeam3-PM10 (µg/m³)"
-                          , "AirBeam2-PM2.5 (µg/m³)"
-                          , "AirBeam2-PM1 (µg/m³)"
-                          , "AirBeam2-PM10 (µg/m³)"
-                          , "AirBeam-PM (µg/m³)"
+                        ( [ "AirBeam-PM10 (µg/m³)"
+                          , "AirBeam-PM2.5 (µg/m³)"
+                          , "AirBeam-PM1 (µg/m³)"
                           ]
                         , [ "OpenAQ-PM2.5 (µg/m³)" ]
                         )
