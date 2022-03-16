@@ -141,7 +141,7 @@ class Stream < ApplicationRecord
     select(
         "CONCAT_WS('-', threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high) as thresholds, COUNT(*) as thresholds_count"
       )
-      .where(sensor_name: sensor_name, unit_symbol: unit_symbol)
+      .where(sensor_name: Sensor.sensor_name(sensor_name), unit_symbol: unit_symbol)
       .order('thresholds_count DESC')
       .group(:thresholds)
       .first

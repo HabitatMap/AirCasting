@@ -20,7 +20,7 @@ import Set
 
 mobileDefaultSensorId : String
 mobileDefaultSensorId =
-    "Particulate Matter-airbeam2-pm2.5 (µg/m³)"
+    "Particulate Matter-airbeam-pm2.5 (µg/m³)"
 
 
 fixedDefaultSensorId : String
@@ -33,9 +33,9 @@ defaultSensorIdByParameter page =
     let
         common =
             Dict.fromList
-                [ ( "Humidity", "Humidity-airbeam2-rh (%)" )
+                [ ( "Humidity", "Humidity-airbeam-rh (%)" )
                 , ( "Sound Level", "Sound Level-phone microphone (dB)" )
-                , ( "Temperature", "Temperature-airbeam2-f (F)" )
+                , ( "Temperature", "Temperature-airbeam-f (F)" )
                 ]
     in
     case page of
@@ -55,25 +55,17 @@ mainSensors page =
         common =
             Dict.fromList
                 [ ( "Particulate Matter"
-                  , [ "AirBeam3-PM2.5 (µg/m³)"
-                    , "AirBeam3-PM1 (µg/m³)"
-                    , "AirBeam3-PM10 (µg/m³)"
-                    , "AirBeam2-PM2.5 (µg/m³)"
-                    , "AirBeam2-PM1 (µg/m³)"
-                    , "AirBeam2-PM10 (µg/m³)"
-                    , "AirBeam-PM (µg/m³)"
+                  , [ "AirBeam-PM10 (µg/m³)"
+                    , "AirBeam-PM2.5 (µg/m³)"
+                    , "AirBeam-PM1 (µg/m³)"
                     ]
                   )
                 , ( "Humidity"
-                  , [ "AirBeam3-RH (%)"
-                    , "AirBeam2-RH (%)"
-                    , "AirBeam-RH (%)"
+                  , [ "AirBeam-RH (%)"
                     ]
                   )
                 , ( "Temperature"
-                  , [ "AirBeam3-F (F)"
-                    , "AirBeam2-F (F)"
-                    , "AirBeam-F (F)"
+                  , [ "AirBeam-F (F)"
                     ]
                   )
                 ]

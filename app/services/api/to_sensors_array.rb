@@ -6,7 +6,7 @@ class Api::ToSensorsArray
   def call
     return Failure.new(form.errors) if form.invalid?
 
-    Success.new(sensors(data.session_type))
+    Success.new(aggregated + sensors(data.session_type))
   end
 
   private
@@ -15,6 +15,18 @@ class Api::ToSensorsArray
 
   def data
     form.to_h
+  end
+
+  def aggregated
+    Sensor.aggregated.map do |sensor|
+      {
+        id: nil,
+        session_count: 0,
+        sensor_name: sensor.fetch(:sensor_name),
+        measurement_type: sensor.fetch(:measurement_type),
+        unit_symbol: sensor.fetch(:unit_symbol),
+      }
+    end
   end
 
   def sensors(session_type)

@@ -2,6 +2,16 @@ require 'rails_helper'
 
 describe Api::SensorsController do
   describe 'GET #index' do
+    it 'with no streams in database it returns aggregated AirBeam sensors' do
+      get :index, params: { session_type: ['MobileSession', 'FixedSession'].sample }
+
+      expect(
+        json_response.map { |sensor| sensor.fetch('sensor_name') }
+      ).to match_array(
+        Sensor.aggregated.map { |sensor| sensor.fetch(:sensor_name) }
+      )
+    end
+
     it 'returns a list of sensors that have sessions of given type' do
       mobile_session = create_session!(type: 'MobileSession')
       fixed_session = create_session!(type: 'FixedSession')
@@ -35,7 +45,7 @@ describe Api::SensorsController do
         }
       ]
 
-      expect(json_response).to match_array(expected)
+      expect(json_response).to include(*expected)
     end
 
     it 'doesnt return duplicated' do
@@ -56,7 +66,9 @@ describe Api::SensorsController do
         }
       ]
 
-      expect(json_response).to eq(expected)
+      expect(
+        json_response.filter { |sensor| sensor.fetch('sensor_name') == 'one_sensor' }
+      ).to eq(expected)
     end
   end
 end
