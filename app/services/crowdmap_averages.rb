@@ -84,13 +84,15 @@ module CrowdmapAverages
     private
 
     def web_averages
-      averages_from_measurements(measurements_from_sessions)
+      averages_from_measurements(measurements_from_streams)
     end
 
-    def measurements_from_sessions
-      measurements_in_viewport
-        .with_time(data)
-        .belonging_to_sessions_with_ids(data[:session_ids])
+    def measurements_from_streams
+      measurements_in_viewport.with_time(data)
+    end
+
+    def streams
+      Stream.where(id: data[:stream_ids])
     end
   end
 

@@ -2,7 +2,7 @@ import sensors_ from "./sensors";
 import { getParams } from "./params";
 
 const buildQueryParamsForCrowdMapLayer_ = (gridSizeX, params, sensors) => ({
-  call: (sessionIds, bounds) => {
+  call: (streamIds, bounds) => {
     if (!sensors.selected()) return false;
     if (!hasTruthyValues(bounds)) return false;
     const data = params().data;
@@ -24,7 +24,7 @@ const buildQueryParamsForCrowdMapLayer_ = (gridSizeX, params, sensors) => ({
       sensor_name: sensors.selected().sensor_name,
       measurement_type: sensors.selected().measurement_type,
       unit_symbol: sensors.selected().unit_symbol,
-      session_ids: sessionIds,
+      stream_ids: streamIds,
     };
   },
 });

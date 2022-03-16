@@ -57,15 +57,6 @@ test("lastMeasurementRoundedValue returns the last measurement rounded value", (
   t.end();
 });
 
-test("id returns session id", (t) => {
-  const session = { id: 1 };
-  const actual = Session.id(session);
-
-  t.deepEqual(actual, 1);
-
-  t.end();
-});
-
 test("startingLatLng returns starting latitude and longitude of selected sensor", (t) => {
   const session = { stream: { start_latitude: 1, start_longitude: 2 }};
   const actual = Session.startingLatLng(session);

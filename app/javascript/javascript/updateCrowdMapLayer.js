@@ -10,15 +10,15 @@ import map from "./map";
 import * as http from "./http";
 
 export default {
-  call: (sessionIds) => {
+  call: (streamIds) => {
     if (!params.isCrowdMapOn()) return;
     clearMap();
 
     const bounds = map.getBounds();
-    const q = buildQueryParamsForCrowdMapLayer.call(sessionIds, bounds);
+    const q = buildQueryParamsForCrowdMapLayer.call(streamIds, bounds);
     if (!q) return;
 
-    const _onRectangleClick = onRectangleClick(sessionIds);
+    const _onRectangleClick = onRectangleClick(streamIds);
 
     http
       .getQ("/api/averages2.json", q)
@@ -32,10 +32,10 @@ const onAveragesFetch = (_onRectangleClick) => (data) => {
   map.drawRectangles(data, heats, _onRectangleClick);
 };
 
-const onRectangleClick = (sessionIds) => (rectangleData) => {
+const onRectangleClick = (streamIds) => (rectangleData) => {
   infoWindow.show({
     url: "/api/region.json",
-    params: buildQueryParamsForCrowdMapLayer.call(sessionIds, rectangleData),
+    params: buildQueryParamsForCrowdMapLayer.call(streamIds, rectangleData),
     position: rectangles.position(rectangleData),
     sessionType: constants.mobileSession,
   });

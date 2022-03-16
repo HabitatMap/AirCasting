@@ -34,12 +34,8 @@ export default (() => {
   MobileSessions.prototype = {
     isMobile: () => true,
 
-    sessionIds: function () {
-      return this.sessions.map((x) => x.id);
-    },
-
-    allSessionIds: function () {
-      return _(this.get()).pluck("id");
+    streamIds: function () {
+      return this.sessions.map((x) => x.stream.id);
     },
 
     get: function () {
@@ -65,13 +61,13 @@ export default (() => {
       );
 
       this.onSessionsFetch(fetchableSessionsCount);
-      updateCrowdMapLayer.call(this.sessionIds());
+      updateCrowdMapLayer.call(this.streamIds());
     },
 
     toggleCrowdMapView: function () {
       clearMap();
       if (params.isCrowdMapOn()) {
-        updateCrowdMapLayer.call(this.sessionIds());
+        updateCrowdMapLayer.call(this.streamIds());
       } else {
         this.drawSessionsInLocation();
       }
@@ -148,7 +144,7 @@ export default (() => {
       const callback = (streamId) => () => pubsub.publish("markerSelected", { streamId });
 
       map.drawMarkerWithoutLabel({
-        object: { latLng, id: session.id },
+        object: { latLng, streamId: Session.streamId(session) },
         colorClass: heatLevel,
         callback: callback(Session.streamId(session)),
       });

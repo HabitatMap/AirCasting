@@ -5,8 +5,8 @@ module Api
 
     def show
       GoogleAnalyticsWorker::RegisterEvent.async_call('Mobile regions#show')
-      data = ActiveSupport::JSON.decode(params[:q]).symbolize_keys
-      data[:session_ids] ||= []
+      data = params.to_unsafe_hash
+      data[:stream_ids] ||= []
 
       FLOAT_Q_ATTRS.each { |key| data[key] = data[key].to_f if data.key?(key) }
       INT_Q_ATTRS.each { |key| data[key] = data[key].to_i if data.key?(key) }

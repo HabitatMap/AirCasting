@@ -7,6 +7,8 @@ import params from "./params2";
 const sessionsDownloader = () => {
   var fetch = function (url, reqData, sessions, refreshSessionsCallback) {
     var successCallback = function (data) {
+      // data is cached so better not mutate it
+      data = JSON.parse(JSON.stringify(data));
       preprocessData(data.sessions, sessions);
       refreshSessionsCallback(data.fetchableSessionsCount);
     };
@@ -19,8 +21,6 @@ const sessionsDownloader = () => {
 
   var preprocessData = function (data, sessions) {
     var times;
-    // data is cached so better not mutate it
-    data = JSON.parse(JSON.stringify(data));
 
     _(data).each(function (session) {
       if (session.start_time_local && session.end_time_local) {

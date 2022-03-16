@@ -1397,7 +1397,7 @@ viewSessionCard heatMapThresholds session =
         [ class "session-card"
         , class <| Data.Session.classByValue session.average heatMapThresholds
         , Events.onClick <| SelectSession session.streamId
-        , Events.onMouseEnter <| HighlightSessionMarker (Just (Markers.toSessionMarkerData session.location session.id session.average heatMapThresholds))
+        , Events.onMouseEnter <| HighlightSessionMarker (Just (Markers.toSessionMarkerData session.location session.streamId session.average heatMapThresholds))
         , Events.onMouseLeave <| HighlightSessionMarker Nothing
         ]
         [ div

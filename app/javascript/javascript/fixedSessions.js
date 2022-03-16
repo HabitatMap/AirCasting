@@ -32,10 +32,6 @@ export default (() => {
   FixedSessions.prototype = {
     isMobile: () => false,
 
-    allSessionIds: function () {
-      return _(this.get()).pluck("id");
-    },
-
     get: function () {
       return _.uniq(this.sessions, "id");
     },
@@ -123,7 +119,7 @@ export default (() => {
       map.drawMarkerWithLabel({
         object: {
           latLng,
-          id: Session.id(session),
+          streamId: Session.streamId(session),
           value: Session.lastMeasurementRoundedValue(session),
         },
         content: content,
@@ -197,8 +193,7 @@ export const showClusterInfo = (sensorName) => (_event, cluster) => {
   map.setSelectedCluster(cluster);
 
   const params = {
-    session_ids: cluster.markers.map((marker) => marker.objectId()),
-    sensor_name: sensorName,
+    stream_ids: cluster.markers.map((marker) => marker.streamId()),
   };
 
   infoWindow.show({

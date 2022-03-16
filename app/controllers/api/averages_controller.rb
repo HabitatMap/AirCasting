@@ -1,5 +1,3 @@
-require_dependency 'crowdmap_averages'
-
 module Api
   class AveragesController < BaseController
     FLOAT_Q_ATTRS = %i[north south east west]
@@ -33,7 +31,7 @@ module Api
       data[:time_from] = data[:time_from] || Time.new(2_010).to_i
       data[:time_to] = data[:time_to] || Time.new(2_100).end_of_year.to_i
 
-      data[:session_ids] ||= []
+      data[:stream_ids] ||= []
 
       respond_with CrowdmapAverages::ForWeb.new(data).as_json
     end

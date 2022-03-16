@@ -116,7 +116,7 @@ export default (() => {
       params.update({ data: { heat } });
 
       if (params.isCrowdMapOn() && !params.isSessionSelected()) {
-        updateCrowdMapLayer.call(sessions.sessionIds());
+        updateCrowdMapLayer.call(sessions.streamIds());
       } else if (params.isSessionSelected()) {
         sessions.redrawSelectedSession();
       } else {
@@ -142,7 +142,7 @@ export default (() => {
     if (window.__map.clusterers[0]) {
       const cluster = window.__map.clusterers[0].clusters.find((cluster) =>
         cluster.markers.some(
-          (marker) => marker.objectId() === sessionMarkerData.id
+          (marker) => marker.streamId() === sessionMarkerData.streamId
         )
       );
 
@@ -156,7 +156,7 @@ export default (() => {
     }
 
     window.__map.customMarkers.forEach((marker) => {
-      if (marker.objectId() === sessionMarkerData.id) {
+      if (marker.streamId() === sessionMarkerData.streamId) {
         marker.moveOnTop();
         return;
       }
@@ -301,7 +301,7 @@ export default (() => {
   // mobile tab
   elmApp.ports.updateResolution.subscribe((gridResolution) => {
     params.updateData({ gridResolution });
-    updateCrowdMapLayer.call(sessions.allSessionIds());
+    updateCrowdMapLayer.call(sessions.streamIds());
   });
 
   // fixed tab

@@ -6,19 +6,14 @@ module Api
 
     def show
       GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed regions#show')
-      form =
-        Api::JsonForm.new(
-          json: params.to_unsafe_hash[:q],
-          schema: Api::FixedRegion::Schema,
-          struct: Api::FixedRegion::Struct
-        )
-      result = Api::CalculateFixedRegionInfo.new.call(form)
+      hash = FixedRegionInfo.new.call(stream_ids)
+      render json: hash, status: :ok
+    end
 
-      if result.success?
-        render json: result.value, status: :ok
-      else
-        render json: result.errors, status: :bad_request
-      end
+    private
+
+    def stream_ids
+      @stream_ids ||= params.fetch(:stream_ids).split(",")
     end
   end
 end

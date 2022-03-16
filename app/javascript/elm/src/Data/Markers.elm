@@ -6,15 +6,15 @@ import RemoteData exposing (WebData)
 
 
 type alias SessionMarkerData =
-    { id : Int
+    { streamId : Int
     , location : Location
     , heatLevel : Int
     }
 
 
 toSessionMarkerData : Location -> Int -> Maybe Float -> WebData HeatMapThresholds -> SessionMarkerData
-toSessionMarkerData location id maybeAverage heatMapThresholds =
+toSessionMarkerData location streamId maybeAverage heatMapThresholds =
     { location = location
-    , id = id
+    , streamId = streamId
     , heatLevel = rangeIntFor (Maybe.map round maybeAverage) heatMapThresholds
     }

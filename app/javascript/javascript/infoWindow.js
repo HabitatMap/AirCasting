@@ -7,7 +7,7 @@ import {
 } from "./mapsUtils";
 import heat from "./heat";
 import sensors from "./sensors";
-import { getQ } from "./http";
+import { get } from "./http";
 import _ from "underscore";
 import map from "./map";
 
@@ -33,9 +33,9 @@ const infoWindow = () => {
       this.popup.open(mapObj());
 
       const promise =
-        params.session_ids.length > 100
+        params.stream_ids.length > 100
           ? Promise.resolve(null)
-          : getQ(url, params);
+          : get(url, params);
       promise.then((data) => this.onShowData(data, sessionType));
     },
 

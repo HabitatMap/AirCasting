@@ -89,19 +89,6 @@ def create_measurements!(attributes)
     end
 end
 
-def create_old_measurements!(attributes)
-  60.times do |n|
-    Measurement.create!(
-      time: Time.current - (61 + n).minutes,
-      latitude: random_float,
-      longitude: random_float,
-      value: attributes.fetch(:value),
-      milliseconds: random_int,
-      stream: attributes.fetch(:stream)
-    )
-  end
-end
-
 def create_user!(attributes = {})
   User.create!(
     id: attributes.fetch(:id, random_int),

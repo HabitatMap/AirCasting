@@ -106,8 +106,8 @@ const customMarkerClass = () => {
         return this.object.value;
       }
 
-      objectId() {
-        return this.object.id;
+      streamId() {
+        return this.object.streamId;
       }
 
       moveOnTop(index) {

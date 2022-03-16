@@ -33,8 +33,6 @@ export const lastMeasurementValueAndUnit = (session,) =>
   " " +
   selectedSensorUnit(session);
 
-export const id = (session) => session.id;
-
 export const streamId = (session) => session.stream.id;
 
 export const startingLatLng = (session) => {

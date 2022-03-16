@@ -1,18 +1,17 @@
 require 'rails_helper'
-require './lib/crowdmap_averages'
 
 describe CrowdmapAverages::ForWeb do
   it 'returns average for selected session ids when session_ids provided' do
     user = create_user!(username: 'name')
     session1 = create_session!(id: 1, user: user)
-    stream = create_stream!(session: session1)
-    create_measurement!(stream: stream, value: 1)
+    stream1 = create_stream!(session: session1)
+    create_measurement!(stream: stream1, value: 1)
     session2 = create_session!(id: 2, user: user)
     stream2 = create_stream!(session: session2)
     create_measurement!(stream: stream2, value: 2)
 
     data = {
-      session_ids: [session1.id, session2.id],
+      stream_ids: [stream1.id, stream2.id],
       sensor_name: 'AirBeam2-F',
       measurement_type: 'Temperature',
       unit_name: 'Fahrenheit',
