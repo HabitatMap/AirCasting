@@ -50,7 +50,7 @@ Rails.application.routes.draw do
     resources :regressions, only: %i[create index destroy]
     resource :region, only: %i[show], controller: 'mobile_regions'
     resource :fixed_region, only: %i[show]
-    resource :user, only: %i[show create] do
+    resource :user, only: %i[show create destroy] do
       resources :sessions, only: %i[show], controller: 'user_sessions' do
         collection do
           post :sync # legacy API - supports mobile apps released before 07.2019

@@ -46,6 +46,17 @@ describe Api::UsersController do
     end
   end
 
+  describe '#destroy' do
+    it 'changes session stopped alert setting' do
+      user = create_user!
+      sign_in(user)
+
+      expect {
+        delete :destroy, format: :json
+      }.to change { User.count }.from(1).to(0)
+    end
+  end
+
   describe '#settings' do
     let!(:user) { create_user!(session_stopped_alert: false) }
 
