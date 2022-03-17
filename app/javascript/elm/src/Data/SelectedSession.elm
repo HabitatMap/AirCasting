@@ -12,7 +12,6 @@ module Data.SelectedSession exposing
     , view
     )
 
-import Data.EmailForm as EmailForm
 import Data.GraphData exposing (GraphMeasurementsData, GraphTimeRange)
 import Data.HeatMapThresholds exposing (HeatMapThresholds)
 import Data.Measurements as Measurements exposing (Measurement)
@@ -21,15 +20,14 @@ import Data.Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.Session
 import Data.Times as Times
-import Html exposing (Html, a, button, div, img, p, span, text)
-import Html.Attributes exposing (alt, class, href, id, src, target)
+import Html exposing (Html, button, div, img, p, span, text)
+import Html.Attributes exposing (alt, class, id, src)
 import Html.Events as Events
 import Http
-import Json.Decode as Decode exposing (Decoder(..))
+import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Popup
-import RemoteData exposing (RemoteData(..), WebData)
-import Sensor exposing (Sensor)
+import RemoteData exposing (WebData)
 import Time exposing (Posix)
 import Url.Builder
 

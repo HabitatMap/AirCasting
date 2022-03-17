@@ -8,10 +8,10 @@ import Browser.Navigation
 import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
 import Data.EmailForm as EmailForm exposing (EmailForm)
 import Data.GraphData exposing (GraphData, GraphHeatData, GraphTimeRange)
-import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds, Range(..))
+import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholdValues, HeatMapThresholds)
 import Data.Markers as Markers exposing (SessionMarkerData)
 import Data.Measurements exposing (Measurement)
-import Data.Overlay as Overlay exposing (Operation(..), Overlay(..), none)
+import Data.Overlay as Overlay exposing (Operation(..), Overlay(..))
 import Data.Page as Page exposing (Page(..))
 import Data.Path as Path exposing (Path)
 import Data.SelectedSession as SelectedSession exposing (SelectedSession)
@@ -21,12 +21,12 @@ import Data.Theme as Theme exposing (Theme)
 import Data.Times as Times
 import ExternalUrl
 import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, li, main_, nav, p, span, text, ul)
-import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, max, min, name, placeholder, readonly, src, target, title, type_, value)
+import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, name, placeholder, readonly, src, target, title, type_, value)
 import Html.Attributes.Aria exposing (ariaLabel)
 import Html.Events as Events
-import Html.Lazy exposing (lazy4, lazy5, lazy7, lazy8)
+import Html.Lazy exposing (lazy4, lazy5, lazy7)
 import Http
-import Json.Decode as Decode exposing (Decoder(..))
+import Json.Decode as Decode
 import Json.Encode as Encode
 import LabelsInput
 import Maybe exposing (..)
@@ -35,7 +35,7 @@ import Ports
 import Process
 import RemoteData exposing (RemoteData(..), WebData)
 import Sensor exposing (Sensor)
-import String exposing (fromInt)
+import String
 import Svgs
 import Task
 import TimeRange exposing (TimeRange)
@@ -174,7 +174,7 @@ init flags url key =
                 Nothing ->
                     Overlay.init flags.isIndoor
 
-                Just id ->
+                Just _ ->
                     Overlay.update (AddOverlay HttpingOverlay) (Overlay.init flags.isIndoor)
     in
     ( { defaultModel
@@ -293,7 +293,6 @@ type Msg
     | MaybeUpdateResolution (BoundedInteger -> BoundedInteger)
     | ToggleFiltersExpanded
     | CloseFilters
-    | ToggleNavExpanded
     | ToggleTheme
     | ExecCmd (Cmd Msg)
     | SaveZoomValue Int
@@ -448,9 +447,9 @@ update msg model =
                 ]
             )
 
-        UrlChange url ->
+        UrlChange _ ->
             case model.key of
-                Just key ->
+                Just _ ->
                     ( model, Cmd.none )
 
                 Nothing ->
@@ -460,7 +459,7 @@ update msg model =
             case urlRequest of
                 Internal url ->
                     case model.key of
-                        Just key ->
+                        Just _ ->
                             ( model, Browser.Navigation.load (Url.toString url) )
 
                         Nothing ->
@@ -604,7 +603,7 @@ update msg model =
 
         GotMeasurements response ->
             case ( model.heatMapThresholds, model.selectedSession, response ) of
-                ( Success thresholds, Success session, Success measurements ) ->
+                ( Success _, Success session, Success measurements ) ->
                     let
                         updatedSession =
                             SelectedSession.updateMeasurements measurements session
@@ -678,7 +677,7 @@ update msg model =
                         Cmd.none
             in
             case ( model.heatMapThresholds, model.selectedSession ) of
-                ( Success thresholds, Success session ) ->
+                ( Success thresholds, Success _ ) ->
                     ( updateThresholdsInModel thresholds
                     , Cmd.batch
                         [ updateThresholdsCmd thresholds
@@ -755,9 +754,6 @@ update msg model =
         CloseFilters ->
             ( { model | areFiltersExpanded = False }, Ports.updateParams { key = "keepFiltersExpanded", value = False } )
 
-        ToggleNavExpanded ->
-            ( { model | isNavExpanded = not model.isNavExpanded, areFiltersExpanded = False }, Cmd.none )
-
         ToggleTheme ->
             let
                 newTheme =
@@ -792,7 +788,7 @@ updateHeatMapExtreme model str updateExtreme =
             , Ports.updateHeatMapThresholds <| HeatMapThresholds.toValues <| updateExtreme i thresholds
             )
 
-        ( _, _ ) ->
+        _ ->
             ( model, Cmd.none )
 
 
@@ -864,7 +860,7 @@ type alias Selectable a =
 deselectSession : Selectable a -> ( Selectable a, Cmd Msg )
 deselectSession selectable =
     case selectable.selectedSession of
-        Success selectedSession ->
+        Success _ ->
             ( { selectable | selectedSession = NotAsked }
             , Cmd.batch
                 [ Ports.deselectSession ()
@@ -1096,7 +1092,7 @@ viewFiltersForPhone model =
             ]
         , viewSessionTypeNav model
         , viewFilters model
-        , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm
+        , viewFiltersButtons model.selectedSession model.linkIcon model.popup model.emailForm
         , button
             [ class "show-results-button"
             , Events.onClick CloseFilters
@@ -1111,7 +1107,7 @@ viewFiltersForDesktop model =
         [ class "filters filters--desktop" ]
         [ viewSessionTypeNav model
         , viewFilters model
-        , viewFiltersButtons model.selectedSession model.sessions model.linkIcon model.popup model.emailForm
+        , viewFiltersButtons model.selectedSession model.linkIcon model.popup model.emailForm
         ]
 
 
@@ -1124,7 +1120,7 @@ viewMap model =
             , viewZoomSlider model.zoomLevel
             , div [ class "map", id "map11" ]
                 []
-            , lazy8 viewSessionsOrSelectedSession model.page model.selectedSession model.fetchableSessionsCount model.sessions model.heatMapThresholds model.linkIcon model.popup model.emailForm
+            , lazy7 viewSessionsOrSelectedSession model.selectedSession model.fetchableSessionsCount model.sessions model.heatMapThresholds model.linkIcon model.popup model.emailForm
             ]
         , lazy7
             viewHeatMap
@@ -1214,7 +1210,7 @@ viewHeatMap heatMapThresholds sensorUnit fitScaleIcon resetIcon icons theme sele
         , div [ id "heatmap", class "heatmap-slider" ] []
         , viewHeatMapInput "max" threshold5 sensorUnit UpdateHeatMapMaximum
         , case selectedSession of
-            Success session ->
+            Success _ ->
                 button
                     [ ariaLabel "Fit scale to stream measurements"
                     , class "heatmap-button heatmap-button--fit-scale"
@@ -1262,8 +1258,8 @@ viewHeatMapInput text_ value_ sensorUnit toMsg =
         ]
 
 
-viewSessionsOrSelectedSession : Page -> WebData SelectedSession -> Int -> List Session -> WebData HeatMapThresholds -> Path -> Popup -> EmailForm -> Html Msg
-viewSessionsOrSelectedSession page selectedSession fetchableSessionsCount sessions heatMapThresholds linkIcon popup emailForm =
+viewSessionsOrSelectedSession : WebData SelectedSession -> Int -> List Session -> WebData HeatMapThresholds -> Path -> Popup -> EmailForm -> Html Msg
+viewSessionsOrSelectedSession selectedSession fetchableSessionsCount sessions heatMapThresholds linkIcon popup emailForm =
     div
         []
         [ div [ class "sessions" ]
@@ -1302,8 +1298,8 @@ viewSelectedSession heatMapThresholds maybeSession linkIcon popup emailForm =
         ]
 
 
-viewFiltersButtons : WebData SelectedSession -> List Session -> Path -> Popup -> EmailForm -> Html Msg
-viewFiltersButtons selectedSession sessions linkIcon popup emailForm =
+viewFiltersButtons : WebData SelectedSession -> Path -> Popup -> EmailForm -> Html Msg
+viewFiltersButtons selectedSession linkIcon popup emailForm =
     case selectedSession of
         NotAsked ->
             let
@@ -1586,19 +1582,6 @@ viewLocationFilter location isIndoor =
         , label [ class "label label--filters", for "location" ] [ text "location:" ]
         , Tooltip.view Tooltip.locationFilter
         ]
-
-
-onEnter : msg -> Html.Attribute msg
-onEnter msg =
-    let
-        isEnter code =
-            if code == 13 then
-                Decode.succeed msg
-
-            else
-                Decode.fail "not ENTER"
-    in
-    Events.on "keydown" (Decode.andThen isEnter Events.keyCode)
 
 
 onChange : (String -> msg) -> Html.Attribute msg

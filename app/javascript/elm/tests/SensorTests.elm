@@ -2,7 +2,7 @@ module SensorTests exposing (all)
 
 import Data.Page exposing (Page(..))
 import Expect
-import Fuzz exposing (Fuzzer, constant, int, oneOf, string)
+import Fuzz exposing (Fuzzer, constant, oneOf)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Result exposing (Result(..))

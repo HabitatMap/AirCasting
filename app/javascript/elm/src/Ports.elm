@@ -43,7 +43,6 @@ port module Ports exposing
 import Data.GraphData exposing (GraphData, GraphHeatData, GraphMeasurementsData, GraphTimeRange)
 import Data.HeatMapThresholds exposing (HeatMapThresholdValues)
 import Data.Markers exposing (SessionMarkerData)
-import Data.Measurements exposing (Measurement)
 import Data.SelectedSession exposing (SelectedSessionForJavaScript)
 import Json.Encode as Encode
 

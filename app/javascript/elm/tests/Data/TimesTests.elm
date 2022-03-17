@@ -4,7 +4,6 @@ import Data.Times exposing (..)
 import Expect
 import Fuzz exposing (intRange)
 import Iso8601
-import Sensor exposing (..)
 import Test exposing (..)
 import Time
 

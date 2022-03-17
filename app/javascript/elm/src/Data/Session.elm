@@ -1,7 +1,7 @@
 module Data.Session exposing (Location, Session, ShortType, classByValue, decoder)
 
 import Data.HeatMapThresholds as HeatMapThresholds exposing (HeatMapThresholds, Range(..))
-import Json.Decode as Decode exposing (Decoder(..))
+import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (required)
 import Maybe exposing (Maybe)
 import RemoteData exposing (RemoteData(..), WebData)
@@ -81,5 +81,5 @@ classByValue average heatMapThresholds =
                 Default ->
                     "grey-bg"
 
-        ( _, _ ) ->
+        _ ->
             "grey-bg"

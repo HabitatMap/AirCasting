@@ -1,6 +1,6 @@
 module Data.Note exposing (Note, decoder)
 
-import Json.Decode as Decode exposing (Decoder(..))
+import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (optional, required)
 
 

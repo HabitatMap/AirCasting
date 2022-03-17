@@ -1,7 +1,7 @@
 module Data.Measurements exposing (Measurement, decoder, fetch)
 
 import Http
-import Json.Decode as Decode exposing (Decoder(..))
+import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (required)
 import Url.Builder
 

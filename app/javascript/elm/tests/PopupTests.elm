@@ -2,7 +2,6 @@ module PopupTests exposing (popups)
 
 import Expect
 import Fuzz exposing (list, string)
-import Html exposing (text)
 import Popup exposing (..)
 import Test exposing (..)
 import Test.Html.Event as Event

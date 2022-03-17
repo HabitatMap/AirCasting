@@ -1,6 +1,6 @@
 module Data.HeatMapThresholdsTests exposing (suite)
 
-import Data.HeatMapThresholds exposing (HeatMapThresholds, Threshold, fitThresholds, toValues, updateMaximum, updateMinimum)
+import Data.HeatMapThresholds exposing (HeatMapThresholds, fitThresholds, toValues, updateMaximum, updateMinimum)
 import Expect
 import Test exposing (..)
 

@@ -1,6 +1,6 @@
 module MainTests exposing (crowdMapArea, locationFilter, parameterSensorFilter, popups, profilesArea, tagsArea, timeFilter, toggleIndoorFilter, toggleStatusFilter, updateTests, viewTests)
 
-import Data.BoundedInteger as BoundedInteger exposing (BoundedInteger, LowerBound(..), UpperBound(..), Value(..))
+import Data.BoundedInteger as BoundedInteger exposing (LowerBound(..), UpperBound(..), Value(..))
 import Data.Page exposing (Page(..))
 import Data.Status exposing (Status(..))
 import Expect
@@ -8,7 +8,6 @@ import Fuzz exposing (bool, int, intRange, list, string)
 import Html exposing (text)
 import Html.Attributes exposing (checked, class, disabled, id, value)
 import Html.Attributes.Aria exposing (ariaLabel)
-import Iso8601
 import Json.Encode as Encode
 import LabelsInput
 import Main exposing (..)

@@ -1,4 +1,4 @@
-module Data.Status exposing (Status(..), default, toBool, toStatus, toggle)
+module Data.Status exposing (Status(..), default, toBool, toStatus)
 
 
 type Status
@@ -29,13 +29,3 @@ toBool status =
 
         Dormant ->
             False
-
-
-toggle : Status -> Status
-toggle status =
-    case status of
-        Active ->
-            Dormant
-
-        Dormant ->
-            Active

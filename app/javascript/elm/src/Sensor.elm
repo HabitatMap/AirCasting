@@ -13,7 +13,7 @@ module Sensor exposing
 
 import Data.Page exposing (Page(..))
 import Dict
-import Json.Decode as Decode exposing (Decoder(..))
+import Json.Decode as Decode exposing (Decoder)
 import NaturalOrdering
 import Set
 
@@ -201,7 +201,7 @@ idForParameterOrLabel page parameterOrLabel oldSensorId sensors =
         ( _, _, Just byLabel ) ->
             byLabel
 
-        ( _, _, _ ) ->
+        _ ->
             case page of
                 Mobile ->
                     mobileDefaultSensorId

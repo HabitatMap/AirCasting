@@ -1,15 +1,13 @@
 module TimeRangeTests exposing (all)
 
-import Data.Status exposing (Status(..))
 import Expect
-import Fuzz exposing (bool, int)
-import Html.Attributes exposing (disabled)
+import Fuzz exposing (int)
 import Html.Attributes.Aria exposing (ariaLabel)
 import Json.Encode as Encode
 import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (attribute, id, tag)
+import Test.Html.Selector exposing (attribute, tag)
 import TestUtils exposing (defaultIcon)
 import TimeRange
 
