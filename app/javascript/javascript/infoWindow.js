@@ -82,7 +82,7 @@ const infoWindow = () => {
                 <div class="info_window__avg-color ${heat.classByValue(
                   data.average
                 )}"></div>
-                <p class="info-window__avg">avg. <strong>${Math.round(
+                <p class="info-window__avg">last hr avg. <strong>${Math.round(
                   data.average
                 )}</strong> ${sensors.selected().unit_symbol}</p>
                 <hr>
