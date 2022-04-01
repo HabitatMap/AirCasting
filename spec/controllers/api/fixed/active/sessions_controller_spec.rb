@@ -44,6 +44,7 @@ describe Api::Fixed::Active::SessionsController do
         'sessions' => [
           {
             'id' => active_session.id,
+            'uuid' => active_session.uuid,
             'end_time_local' => '2000-10-01T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_hour_average' => active_session.measurements.last.value,
@@ -130,6 +131,7 @@ describe Api::Fixed::Active::SessionsController do
         'sessions' => [
           {
             'id' => active_session.id,
+            'uuid' => active_session.uuid,
             'end_time_local' => '2000-10-01T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => active_stream.average_value,
@@ -188,6 +190,7 @@ describe Api::Fixed::Active::SessionsController do
         'sessions' => [
           {
             'id' => session.id,
+            'uuid' => session.uuid,
             'end_time_local' => '2000-10-01T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => queried_stream.average_value,

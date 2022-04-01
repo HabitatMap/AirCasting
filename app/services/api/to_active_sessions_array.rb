@@ -15,6 +15,7 @@ class Api::ToActiveSessionsArray
           .map do |session|
             {
               id: session.id,
+              uuid: session.uuid,
               title: session.title,
               start_time_local: session.start_time_local,
               end_time_local: session.end_time_local,

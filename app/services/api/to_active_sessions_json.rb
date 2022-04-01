@@ -31,6 +31,7 @@ class Api::ToActiveSessionsJson
           'sessions', JSON_ARRAYAGG(
             JSON_OBJECT(
               'id', formatted_sessions.id,
+              'uuid', formatted_sessions.uuid,
               'title', formatted_sessions.title,
               'start_time_local', formatted_sessions.start_time_local,
               'end_time_local', formatted_sessions.end_time_local,
@@ -66,6 +67,7 @@ class Api::ToActiveSessionsJson
   def formatted_sessions
     sessions.select([
       'sessions.id',
+      'sessions.uuid',
       'sessions.title',
       'DATE_FORMAT(sessions.start_time_local, "%Y-%m-%dT%H:%i:%s.000Z") AS start_time_local',
       'DATE_FORMAT(sessions.end_time_local, "%Y-%m-%dT%H:%i:%s.000Z") AS end_time_local',
