@@ -23,7 +23,7 @@
     "jquery": "3.6.0",
     "jquery-ui": "^1.12.1",
     "luminous-lightbox": "^2.3.2",
-    "moment": "2.29.1",
+    "moment": "2.29.2",
     "nouislider": "^13.1.4",
     "resolve-url-loader": "^4.0.0",
     "tippy.js": "^6.3.7",
