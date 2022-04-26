@@ -17,6 +17,7 @@ Every response is returned in JSON format.
   - [Fixed Dormant](#fixed-dormant)
 - [Mobile Session with Stream and Measurements](#mobile-session-with-stream-and-measurements)
 - [Measurements](#measurements)
+- [Streams](#streams)
 - [Averages](#averages)
 - [Region](#region)
 - [Last Session](#last-session)
@@ -478,6 +479,62 @@ GET `/api/measurements.json`
       "longitude": 19.926092562
     }
   ]
+  ```
+
+# Streams
+
+**Endpoint**
+
+GET `/api/fixed/sessions/{sessionID}.json`
+
+ex. {sessionID} --> 1758913
+To get the measurements from the given stream. It will be using sessionID.
+
+**Parameters**
+
+| name               | type   | required | default value |
+| :----------------- | :----- | :------- | :------------ |
+| sensor_name        | number | yes      | N/A           |
+| measurements_limit | number | no       | N/A           |
+
+**Example**
+
+- request
+
+  ```json
+   http://aircasting.habitatmap.org/api/fixed/sessions/1758913.json?measurements_limit=14&sensor_name=airbeam3-pm2.5
+  ```
+
+- response
+
+  ```json
+  {
+    "title": "HabitatMap HQ",
+    "username": "HabitatMap",
+    "sensorName": "AirBeam3-PM2.5",
+    "measurements": [
+        {
+            "value": 0.0,
+            "time": 1650884234000,
+            "longitude": -73.976356946,
+            "latitude": 40.680268333
+        }
+    ],
+    "startTime": 1649068083000,
+    "endTime": 1650884234000,
+    "id": 1758913,
+    "streamId": 2207995,
+    "sensorUnit": "µg/m³",
+    "latitude": 40.680268333,
+    "longitude": -73.976356946,
+    "maxLatitude": 40.680268333,
+    "maxLongitude": -73.976356946,
+    "minLatitude": 40.680268333,
+    "minLongitude": -73.976356946,
+    "notes": [],
+    "isIndoor": false,
+    "lastMeasurementValue": 0.0
+  }
   ```
 
 # Averages
