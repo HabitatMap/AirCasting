@@ -8,7 +8,7 @@ class User < ApplicationRecord
          :trackable,
          :validatable
 
-  has_many :sessions, inverse_of: :user
+  has_many :sessions, inverse_of: :user, dependent: :destroy
   has_many :mobile_sessions, inverse_of: :user
   has_many :fixed_sessions, inverse_of: :user
   has_many :streams, through: :sessions
