@@ -1086,7 +1086,7 @@ GEM
     factory_bot_rails (6.2.0)
       factory_bot (~> 6.2.0)
       railties (>= 5.0.0)
-    ffi (1.11.1)
+    ffi (1.15.5)
     flay (2.12.1)
       erubis (~> 2.7.0)
       path_expander (~> 1.0)
