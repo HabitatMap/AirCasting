@@ -8,6 +8,10 @@ def system!(*args)
   system(*args) || abort("\n== Command #{args} failed ==")
 end
 
+def brew!(formula)
+  system! "brew ls --versions #{formula} > /dev/null || brew install #{formula}"
+end
+
 FileUtils.chdir APP_ROOT do
   # This script is a way to set up or update your development environment automatically.
   # This script is idempotent, so that you can run it at any time and get an expectable outcome.
@@ -27,11 +31,11 @@ FileUtils.chdir APP_ROOT do
 
   puts "\n== Copying sample files =="
   unless File.exist?('config/database.yml')
-    cp 'config/database.yml.sample', 'config/database.yml'
+    system!('cp config/database.yml.example config/database.yml')
   end
   unless File.exist?('config/configuration.yml')
     puts "\n== ⚠️  Make sure to copy in config/configuration.yml the correct secrets (e.g., Playing-Zone) ⚠️  =="
-    cp 'config/configuration.yml.example', 'config/configuration.yml'
+    system('cp config/configuration.yml.example config/configuration.yml')
   end
 
   puts "\n== Preparing database =="
