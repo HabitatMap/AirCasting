@@ -48,7 +48,15 @@ describe Api::Fixed::StreamsController do
         'minLatitude' => 1.0,
         'minLongitude' => 1.0,
         'notes' => [],
-        'sensorUnit' => 'F'
+        'sensorUnit' => 'F',
+        'threshold_very_low' => 20,
+        'threshold_low' => 60,
+        'threshold_medium' => 70,
+        'threshold_high' => 80,
+        'threshold_very_high' => 100,
+        'unit_name' => 'Fahrenheit',
+        'measurement_short_type' => 'F',
+        'measurement_type' => 'Temperature',
       }
       expect(json_response).to eq(expected)
     end
