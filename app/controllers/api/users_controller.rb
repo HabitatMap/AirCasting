@@ -24,9 +24,9 @@ module Api
     end
 
     def destroy
-     GoogleAnalyticsWorker::RegisterEvent.async_call('User#destroy')
-     current_user.destroy
-     head :no_content
+      GoogleAnalyticsWorker::RegisterEvent.async_call('User#destroy')
+      current_user.destroy
+      head :no_content
     end
 
     def settings

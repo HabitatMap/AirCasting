@@ -55,6 +55,24 @@ describe Api::UsersController do
         delete :destroy, format: :json
       }.to change { User.count }.from(1).to(0)
     end
+
+    it 'deletes all user sessions' do
+      user = create_user!
+      other_user = create_user!
+      sign_in(user)
+
+      session1 = create_session!(user: user)
+      session2 = create_session!(user: user)
+      session3 = create_session!(user: other_user)
+      stream = create_stream!(session: session1)
+      measurement = create_measurement!(stream: stream)
+
+      delete :destroy, format: :json
+
+      expect(Session.count).to eq 1
+      expect(Stream.count).to eq 0
+      expect(Measurement.count).to eq 0
+    end
   end
 
   describe '#settings' do
