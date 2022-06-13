@@ -533,7 +533,15 @@ To get the measurements from the given stream. It will be using sessionID.
     "minLongitude": -73.976356946,
     "notes": [],
     "isIndoor": false,
-    "lastMeasurementValue": 0.0
+    "lastMeasurementValue": 0.0,
+    "threshold_very_high": 100,
+    "threshold_high": 80,
+    "threshold_medium": 60,
+    "threshold_low": 40,
+    "threshold_very_low": 20,
+    "unit_name": "µg/m³",
+    "measurement_short_type": "PM",
+    "measurement_type": "Particulate Matter",
   }
   ```
 
