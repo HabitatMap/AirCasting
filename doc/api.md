@@ -481,7 +481,7 @@ GET `/api/measurements.json`
   ]
   ```
 
-# Streams
+# Single session stream
 
 **Endpoint**
 
@@ -542,6 +542,73 @@ To get the measurements from the given stream. It will be using sessionID.
     "unit_name": "µg/m³",
     "measurement_short_type": "PM",
     "measurement_type": "Particulate Matter",
+  }
+  ```
+
+# All session streams
+
+**Endpoint**
+
+GET `/api/fixed/sessions/{sessionID}/streams.json`
+
+ex. {sessionID} --> 1758913
+To get the measurements from all streams of the given session. It will be using sessionID.
+
+**Parameters**
+
+| name               | type   | required | default value |
+| :----------------- | :----- | :------- | :------------ |
+| measurements_limit | number | no       | N/A           |
+
+**Example**
+
+- request
+
+  ```json
+   http://aircasting.habitatmap.org/api/fixed/sessions/1758913/streams.json?measurements_limit=14
+  ```
+
+- response
+
+  ```json
+  {
+    "id": 1758913,
+    "start_time": 1649068083000,
+    "end_time": 1650884234000,
+    "title": "HabitatMap HQ",
+    "username": "HabitatMap",
+    "latitude": 40.680268333,
+    "longitude": -73.976356946,
+    "is_indoor": false,
+    "notes": [],
+    "streams": [
+      {
+        "sensor_name": "AirBeam3-PM2.5",
+        "stream_id": 2207995,
+        "sensor_unit": "µg/m³",
+        "max_latitude": 40.680268333,
+        "max_longitude": -73.976356946,
+        "min_latitude": 40.680268333,
+        "min_longitude": -73.976356946,
+        "last_measurement_value": 0.0,
+        "threshold_very_high": 100,
+        "threshold_high": 80,
+        "threshold_medium": 60,
+        "threshold_low": 40,
+        "threshold_very_low": 20,
+        "unit_name": "µg/m³",
+        "measurement_short_type": "PM",
+        "measurement_type": "Particulate Matter",
+        "measurements": [
+          {
+              "value": 0.0,
+              "time": 1650884234000,
+              "longitude": -73.976356946,
+              "latitude": 40.680268333
+          }
+        ],
+      },
+    ]
   }
   ```
 

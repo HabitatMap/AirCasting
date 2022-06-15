@@ -13,6 +13,12 @@ module Api
       end
     end
 
+    def show_all_streams
+      GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed Sessions#show_all_streams')
+      hash = Api::ToFixedSessionWithStreamsHash.new(session: session, measurements_limit: measurements_limit).call
+      render json: hash, status: :ok
+    end
+
     def show2
       GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed Sessions#show2')
 
@@ -38,6 +44,18 @@ module Api
         schema: Api::Session::Schema,
         struct: Api::Session::Struct
       )
+    end
+
+    def id
+      @id ||= params.fetch(:id)
+    end
+
+    def session
+      @session ||= ::Session.find(id)
+    end
+
+    def measurements_limit
+      @measurements_limit ||= params.fetch(:measurements_limit, nil)
     end
   end
 end
