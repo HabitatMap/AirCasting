@@ -53,7 +53,10 @@ class SessionBuilder
   end
 
   def self.prepare_notes(note_data, photos)
-    note_data.zip(photos).map { |datum, photo| datum.merge(photo: photo) }
+    note_data.zip(photos).map do |datum, photo|
+      base64_photo = "data:image/jpeg;base64,#{photo}"
+      datum.merge(photo: base64_photo)
+    end
   end
 
   def self.normalize_tags(tags)

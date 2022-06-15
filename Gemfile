@@ -17,7 +17,7 @@ gem 'httparty'
 gem 'mysql2'
 gem 'newrelic_rpm'
 gem 'oj'
-gem 'paperclip', '4.1.1'
+gem 'paperclip', '5.3.0'
 gem 'progress', require: false
 gem 'pry-rails'
 gem 'rack-cors'
