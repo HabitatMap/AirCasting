@@ -13,7 +13,7 @@ describe SessionBuilder do
           [{ note: :one }, { note: :two }],
           %i[photo1 photo2]
         )
-      ).to eq([{ note: :one, photo: :photo1 }, { note: :two, photo: :photo2 }])
+      ).to eq([{ note: :one, photo: "data:image/jpeg;base64,photo1" }, { note: :two, photo: "data:image/jpeg;base64,photo2" }])
     end
   end
 
