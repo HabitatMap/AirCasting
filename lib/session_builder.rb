@@ -53,8 +53,10 @@ class SessionBuilder
   end
 
   def self.prepare_notes(note_data, photos)
+    return note_data if photos.empty?
+
     note_data.zip(photos).map do |datum, photo|
-      base64_photo = "data:image/jpeg;base64,#{photo}"
+      base64_photo = photo.blank? ? "" : "data:image/jpeg;base64,#{photo}"
       datum.merge(photo: base64_photo)
     end
   end
