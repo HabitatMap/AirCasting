@@ -54,7 +54,7 @@ module Api
         if session
           render json: session_json(session), status: :ok
         else
-          head :bad_request
+          render nothing: true, status: :bad_request
         end
       end
 
