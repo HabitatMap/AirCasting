@@ -13,7 +13,7 @@ module PurpleAir
     sensor_index: SENSOR_INDEX,
     value: VALUE,
   }
-  ORDERED_FIELDS = [SENSOR_INDEX, NAME, VALUE, LATITUDE, LONGITUDE, LAST_SEEN]
+  ORDERED_FIELDS = [SENSOR_INDEX, LAST_SEEN, NAME, LATITUDE, LONGITUDE, VALUE]
 
   class ImportMeasurements
     def initialize(

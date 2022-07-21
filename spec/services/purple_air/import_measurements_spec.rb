@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 MEASUREMENTS_FIELDS = [
-# [SENSOR_INDEX, NAME, VALUE, LATITUDE, LONGITUDE, LAST_SEEN]
-  [129_737, 'HOPE-Jane', 27.9, 36.604595, -82.14892, 1_641_478_965],
-  [129_783, 'MV Clean Air Ambassador @ Liberty Bell High School', 10.7, 48.442444, -120.16977, 1_641_478_950],
-  [130_003, 'Silicon Nati Outside', 0.0, -36.74553, 141.94203, 1_641_478_967]
+  # [SENSOR_INDEX, LAST_SEEN, NAME, LATITUDE, LONGITUDE, VALUE]
+  [129_737, 1_641_478_965, 'HOPE-Jane', 36.604595, -82.14892, 27.9],
+  [129_783, 1_641_478_950, 'MV Clean Air Ambassador @ Liberty Bell High School', 10.7, 48.442444, -120.16977, ],
+  [130_003, 1_641_478_967, 'Silicon Nati Outside', -36.74553, 141.94203, 0.0],
 ]
 
 describe PurpleAir::ImportMeasurements do
@@ -13,8 +13,8 @@ describe PurpleAir::ImportMeasurements do
   it 'imports all the fields into a measurement' do
     time = Time.current.to_i
     measurement_fields =
-      [129_737, 'HOPE-Jane', 27.9, 36.604595, -82.14892, time]
-    # [SENSOR_INDEX, NAME, VALUE, LATITUDE, LONGITUDE, LAST_SEEN]
+      [129_737, time, 'HOPE-Jane', 36.604595, -82.14892, 27.9]
+    # [SENSOR_INDEX, LAST_SEEN, NAME, LATITUDE, LONGITUDE, VALUE]
 
     described_class.new(
       fetch_measurements: ->{ [measurement_fields] },
@@ -22,13 +22,13 @@ describe PurpleAir::ImportMeasurements do
     ).call
 
     [
-      [:value, measurement_fields[2]],
+      [:value, measurement_fields[5]],
       [:latitude, measurement_fields[3]],
       [:longitude, measurement_fields[4]],
       [:time, Time.at(time)],
       [:timezone_offset, nil],
       [:milliseconds, 0],
-      [:measured_value, measurement_fields[2]],
+      [:measured_value, measurement_fields[5]],
     ].each do |attribute, expected|
       expect(Measurement.first.public_send(attribute)).to eq(expected)
     end
@@ -37,8 +37,8 @@ describe PurpleAir::ImportMeasurements do
   it 'imports all the fields into a stream' do
     time = Time.current.to_i
     measurement_fields =
-      [129_737, 'HOPE-Jane', 27.9, 36.604595, -82.14892, time]
-    # [SENSOR_INDEX, NAME, VALUE, LATITUDE, LONGITUDE, LAST_SEEN]
+      [129_737, time, 'HOPE-Jane', 36.604595, -82.14892, 27.9]
+    # [SENSOR_INDEX, LAST_SEEN, NAME, LATITUDE, LONGITUDE, VALUE]
 
     described_class.new(
       fetch_measurements: ->{ [measurement_fields] }
@@ -70,8 +70,8 @@ describe PurpleAir::ImportMeasurements do
   it 'imports all the fields into a session' do
     time = Time.current.to_i
     measurement_fields =
-      [129_737, 'HOPE-Jane', 27.9, 36.604595, -82.14892, time]
-    # [SENSOR_INDEX, NAME, VALUE, LATITUDE, LONGITUDE, LAST_SEEN]
+      [129_737, time, 'HOPE-Jane', 36.604595, -82.14892, 27.9]
+    # [SENSOR_INDEX, LAST_SEEN, NAME, LATITUDE, LONGITUDE, VALUE]
 
     described_class.new(
       fetch_measurements: ->{ [measurement_fields] },
@@ -80,7 +80,7 @@ describe PurpleAir::ImportMeasurements do
 
     [
       [:user_id, user.id],
-      [:title, "#{measurement_fields[1]} (#{measurement_fields[0]})"],
+      [:title, "#{measurement_fields[2]} (#{measurement_fields[0]})"],
       [:contribute, true],
       [:start_time, Time.at(time)],
       [:end_time, Time.at(time)],
@@ -119,9 +119,9 @@ describe PurpleAir::ImportMeasurements do
     latitude = 36.604595
     longitude = -82.14892
     measurements_fields = [
-      [129_737, 'HOPE-Jane', 27.9, latitude, longitude, 1_641_478_965],
-      [129_783, 'MV Clean Air Ambassador @ Liberty Bell High School', 10.7, latitude, longitude, 1_641_478_950],
-    # [SENSOR_INDEX, NAME, VALUE, LATITUDE, LONGITUDE, LAST_SEEN]
+      [129_737, 1_641_478_965, 'HOPE-Jane', latitude, longitude, 27.9],
+      [129_783, 1_641_478_950, 'MV Clean Air Ambassador @ Liberty Bell High School', latitude, longitude, 10.7],
+    # [SENSOR_INDEX, LAST_SEEN, NAME, LATITUDE, LONGITUDE, VALUE]
     ]
 
     described_class.new(fetch_measurements: -> { measurements_fields }).call
@@ -136,9 +136,9 @@ describe PurpleAir::ImportMeasurements do
     latitude = 36.604595
     longitude = -82.14892
     measurements_fields = [
-      [129_737, 'HOPE-Jane', 27.9, latitude, longitude, 1_641_478_965],
-      [129_783, 'MV Clean Air Ambassador @ Liberty Bell High School', 10.7, latitude, longitude, 1_641_478_950],
-    # [SENSOR_INDEX, NAME, VALUE, LATITUDE, LONGITUDE, LAST_SEEN]
+      [129_737, 1_641_478_965, 'HOPE-Jane', latitude, longitude, 27.9],
+      [129_783, 1_641_478_950, 'MV Clean Air Ambassador @ Liberty Bell High School', latitude, longitude, 10.7],
+    # [SENSOR_INDEX, LAST_SEEN, NAME, LATITUDE, LONGITUDE, VALUE]
     ]
 
     described_class.new(fetch_measurements: -> { measurements_fields.take(1) }).call
@@ -165,9 +165,9 @@ describe PurpleAir::ImportMeasurements do
     name_1 = 'MV Clean Air Ambassador @ Liberty Bell High School'
     name_2 = 'HOPE-Jane'
     measurements_fields = [
-      [sensor_index, name_1, 10.7, latitude, longitude, start],
-      [sensor_index, name_2, 27.9, latitude, longitude, later],
-    # [SENSOR_INDEX, NAME, VALUE, LATITUDE, LONGITUDE, LAST_SEEN]
+      [sensor_index, start, name_1, latitude, longitude, start, 10.7],
+      [sensor_index, later, name_2, latitude, longitude, 27.9],
+    # [SENSOR_INDEX, LAST_SEEN, NAME, LATITUDE, LONGITUDE, VALUE]
     ]
 
     described_class.new(

@@ -14,14 +14,7 @@ FIELD_NAMES = {
   sensor_index: SENSOR_INDEX,
   value: VALUE,
 }
-ORDERED_FIELDS = [SENSOR_INDEX, NAME, VALUE, LATITUDE, LONGITUDE, LAST_SEEN]
-
-MEASUREMENTS_FIELDS = [
-# [SENSOR_INDEX, NAME, VALUE, LATITUDE, LONGITUDE, LAST_SEEN]
-  [129_737, 'HOPE-Jane', 27.9, 36.604595, -82.14892, 1_641_478_965],
-  [129_783, 'MV Clean Air Ambassador @ Liberty Bell High School', 10.7, 48.442444, -120.16977, 1_641_478_950],
-  [130_003, 'Silicon Nati Outside', 0.0, -36.74553, 141.94203, 1_641_478_967]
-]
+ORDERED_FIELDS = [SENSOR_INDEX, LAST_SEEN, NAME, LATITUDE, LONGITUDE, VALUE]
 
 describe PurpleAir::ParseFields do
   it 'parses measurements_fields' do
@@ -31,7 +24,7 @@ describe PurpleAir::ParseFields do
     time = Time.current.to_i
     sensor_index = 129_737
     name = 'HOPE-Jane'
-    measurements_fields = [[sensor_index, name, value, latitude, longitude, time]]
+    measurements_fields = [[sensor_index, time, name, latitude, longitude, value]]
 
     actual = described_class
       .new(
@@ -56,7 +49,7 @@ describe PurpleAir::ParseFields do
     time = Time.current.to_i
     sensor_index = 129_737
     name = 'HOPE-Jane'
-    measurements_fields = [[sensor_index, name, value, latitude, longitude, time]]
+    measurements_fields = [[sensor_index, time, name, latitude, longitude, value]]
     measurements_fields[0][(0..5).to_a.sample] = nil
 
     actual = described_class
@@ -73,7 +66,7 @@ describe PurpleAir::ParseFields do
   it 'skips invalid coordinates' do
     latitude = 1234
     longitude = 1234
-    measurements_fields = [[129_737, 'HOPE-Jane', 27.9, latitude, longitude, Time.current.to_i]]
+    measurements_fields = [[129_737, Time.current.to_i, 'HOPE-Jane', latitude, longitude, 27.9]]
 
     actual = described_class
       .new(
@@ -90,7 +83,7 @@ describe PurpleAir::ParseFields do
     latitude = 50.049683 # krakow
     longitude = 19.944544 # krakow
     utc_time = Time.current.to_i
-    measurements_fields = [[129_737, 'HOPE-Jane', 27.9, latitude, longitude, utc_time]]
+    measurements_fields = [[129_737, utc_time, 'HOPE-Jane', latitude, longitude, 27.9]]
 
     actual = described_class
       .new(
