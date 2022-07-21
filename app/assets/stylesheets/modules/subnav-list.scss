@@ -24,7 +24,6 @@
 
   @media screen and (min-width: $small-desktop-min) {
     max-width: 0px;
-    overflow: hidden;
 
     .nav-list__element:hover & {
       @include transition(max-width 0.5s ease-in-out);

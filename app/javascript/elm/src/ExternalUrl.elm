@@ -1,4 +1,4 @@
-module ExternalUrl exposing (about, airbeam, airbeamBuy, airbeamFaq, airbeamHowItWorks, airbeamUserStories, airbeamUsersGuide, aircasting, android, blog, donate, habitatMap, history, iOS, press, search)
+module ExternalUrl exposing (about, airbeam, airbeamBuy, airbeamFaq, airbeamHowItWorks, airbeamUserStories, airbeamUsersGuide, aircasting, android, blog, donate, habitatMap, history, iOS, actions, press, search)
 
 
 habitatMap =
@@ -12,6 +12,8 @@ android =
 iOS =
     "https://apps.apple.com/us/app/aircasting/id1587685281#?platform=iphone"
 
+actions =
+    "https://aircastingactions.org/"
 
 
 -- top level
