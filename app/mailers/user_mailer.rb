@@ -11,4 +11,14 @@ class UserMailer < ApplicationMailer
 
     mail(to: params[:email], subject: 'Exported AirCasting Sessions')
   end
+
+  def threshold_exceeded_email
+    user = params[:user]
+
+    @title = params[:title]
+    @sensor = params[:sensor]
+    @measurements = params[:measurements]
+
+    mail(to: user.email, subject: "Measurement value exceeded threshold for session: #{@title}, #{@sensor}")
+  end
 end

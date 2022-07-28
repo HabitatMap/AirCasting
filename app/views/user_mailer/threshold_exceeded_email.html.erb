@@ -1,0 +1,14 @@
+Following measurements exceeded threshold value for <%= @title %>, <%= @sensor %>:
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>Following measurements exceeded threshold value for <%= @title %>, <%= @sensor %>:</p>
+    <% @measurements.each do |m| %>
+      <p>Value: <%= m.value %>, time: <%= m.time %></p>
+    <% end %>
+  </body>
+</html>
