@@ -86,6 +86,9 @@ Rails.application.routes.draw do
         get 'sessions' => 'sessions#index'
         get 'sessions2' => 'sessions#index2'
       end
+
+      resources :threshold_alerts, only: %i[create]
+      post 'destroy_alert' => 'threshold_alerts#destroy_alert'
     end
 
     namespace :mobile do
