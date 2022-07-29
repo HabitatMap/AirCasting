@@ -12,6 +12,11 @@
     class: SessionStoppedAlertsWorker
     queue: critical
 
+  threshold_exceeded_alerts:
+    every: '10m'
+    class: 'ThresholdAlertsWorker'
+    queue: critical
+
   open_aq_import_measurements:
     every: '2m'
     class: OpenAqImportMeasurementsWorker
