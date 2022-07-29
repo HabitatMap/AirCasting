@@ -98,7 +98,7 @@ describe Api::UsersController do
       post :settings,
            format: :json,
            params: {
-             data: { session_stopped_alert: true }.to_json
+             data: { session_stopped_alert: true }
            }
 
       expect(json_response).to eq(
