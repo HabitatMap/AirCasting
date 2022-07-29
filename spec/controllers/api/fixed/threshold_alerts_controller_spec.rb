@@ -23,7 +23,7 @@ describe Api::Fixed::ThresholdAlertsController do
         session = create_session!(uuid: uuid, type: 'FixedSession')
         stream = create_stream!(session: session, sensor_name: 'PM2.5')
 
-        post :create, params: { data: params.to_json }, format: :json
+        post :create, params: { data: params }, format: :json
 
         expect(response.status).to eq 200
       end
@@ -44,7 +44,7 @@ describe Api::Fixed::ThresholdAlertsController do
         stream = create_stream!(session: session, sensor_name: 'PM2.5')
         errors = ['threshold_value must be filled', 'frequency must be filled']
 
-        post :create, params: { data: params.to_json }, format: :json
+        post :create, params: { data: params }, format: :json
 
         expect(response.status).to eq 400
         expect(response.body).to eq errors.to_json

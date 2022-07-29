@@ -7,8 +7,8 @@ module Api
 
       def create
         form =
-          Api::JsonForm.new(
-            json: params[:data],
+          Api::ParamsForm.new(
+            params: params.to_unsafe_hash[:data].symbolize_keys,
             schema: Api::ThresholdAlerts::Schema,
             struct: Api::ThresholdAlerts::Struct
           )
