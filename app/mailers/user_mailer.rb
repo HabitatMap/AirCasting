@@ -14,11 +14,9 @@ class UserMailer < ApplicationMailer
 
   def threshold_exceeded_email
     user = params[:user]
-
     @title = params[:title]
     @sensor = params[:sensor]
-    @measurements = params[:measurements]
 
-    mail(to: user.email, subject: "Measurement value exceeded threshold for session: #{@title}, #{@sensor}")
+    mail(to: user.email, subject: "#{@sensor} Threshold Exceeded")
   end
 end

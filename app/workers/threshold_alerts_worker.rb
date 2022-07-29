@@ -21,7 +21,6 @@ class ThresholdAlertsWorker
           user: session.user,
           title: session.title,
           sensor: stream.sensor_name,
-          measurements: measurements_above_threshold
         )
         .threshold_exceeded_email
         .deliver_now

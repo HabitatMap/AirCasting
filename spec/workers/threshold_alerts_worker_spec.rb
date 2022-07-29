@@ -19,7 +19,7 @@ describe ThresholdAlertsWorker do
       it 'sends alert email' do
         expect { subject.perform }.to change { ActionMailer::Base.deliveries.count }.by(1)
         expect(ActionMailer::Base.deliveries.first.to).to eq(%w[user@ex.com])
-        expect(ActionMailer::Base.deliveries.first.subject).to eq('Measurement value exceeded threshold for session: Session Title, PM2.5')
+        expect(ActionMailer::Base.deliveries.first.subject).to eq('PM2.5 Threshold Exceeded')
       end
     end
 
