@@ -46,8 +46,21 @@ describe Api::UsersController do
     end
   end
 
+  describe '#create with session_stopped_alert' do
+    let(:email) { 'sdfgv@dsfg.dfg' }
+    let(:attrs) { { username: 'sdfg', email: email, password: 'password', session_stopped_alert: true } }
+
+    it 'creates a user with alerts set to true' do
+      post :create, params: { user: attrs }, format: :json
+
+      user = User.last
+      expect(user.email).to eq email
+      expect(user.session_stopped_alert).to be true
+    end
+  end
+
   describe '#destroy' do
-    it 'changes session stopped alert setting' do
+    it 'deletes the user' do
       user = create_user!
       sign_in(user)
 
