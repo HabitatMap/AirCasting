@@ -14,6 +14,7 @@ class User < ApplicationRecord
   has_many :streams, through: :sessions
   has_many :measurements, through: :streams
   has_many :regressions
+  has_many :threshold_alerts, dependent: :destroy
 
   # Virtual attribute for devise
   attr_accessor :login

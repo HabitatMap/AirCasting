@@ -31,9 +31,11 @@ module Api
 
     def settings
       GoogleAnalyticsWorker::RegisterEvent.async_call('User#settings')
+      data = params.to_unsafe_hash[:data].deep_symbolize_keys
+      cast_data = cast_bool_params(data)
       form =
-        Api::JsonForm.new(
-          json: params.to_unsafe_hash[:data],
+        Api::ParamsForm.new(
+          params: cast_data,
           schema: Api::UserSettings::Schema,
           struct: Api::UserSettings::Struct
         )
@@ -48,6 +50,12 @@ module Api
 
     def user_params
       params.require(:user).permit!
+    end
+
+    def cast_bool_params(data)
+      data.transform_values do |v|
+        ActiveModel::Type::Boolean.new.cast(v) if ["true", "false"].include? v
+      end
     end
   end
 end
