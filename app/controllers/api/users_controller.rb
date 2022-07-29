@@ -54,7 +54,11 @@ module Api
 
     def cast_bool_params(data)
       data.transform_values do |v|
-        ActiveModel::Type::Boolean.new.cast(v) if ["true", "false"].include? v
+        if ["true", "false"].include? v
+          ActiveModel::Type::Boolean.new.cast(v)
+        else
+          v
+        end
       end
     end
   end
