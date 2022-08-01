@@ -24,6 +24,8 @@ class ThresholdAlertsWorker
         )
         .threshold_exceeded_email
         .deliver_now
+
+        alert.last_email_at = Time.current
       end
     end
   end
