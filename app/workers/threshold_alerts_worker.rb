@@ -11,7 +11,9 @@ class ThresholdAlertsWorker
 
       session = Session.joins(:streams).find_by_uuid(alert.session_uuid)
       stream = session.streams.select { |stream| stream.sensor_name == alert.sensor_name }.first
-      measurements = stream&.measurements.where('time > ?', alert.last_email_at).order('time ASC')
+
+      date_to_compare = alert.last_email_at || alert.created_at
+      measurements = stream&.measurements.where('time > ?', date_to_compare).order('time ASC')
 
       measurements_above_threshold = measurements.select { |m| m.value > alert.threshold_value }
 
