@@ -31,6 +31,8 @@ class ThresholdAlertsWorker
   private
 
   def was_recently_sent?(alert)
+    return false unless alert.last_email_at
+
     (alert.last_email_at + alert.frequency.hours) > Time.current
   end
 end
