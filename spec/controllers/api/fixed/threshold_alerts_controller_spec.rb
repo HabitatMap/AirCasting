@@ -1,13 +1,14 @@
 require 'rails_helper'
 
 describe Api::Fixed::ThresholdAlertsController do
-  describe '#create' do
-    let(:user) { FactoryBot.create(:user) }
-    let(:uuid)   { '123-0345' }
+  let(:user) { FactoryBot.create(:user) }
 
-    before do
-      sign_in user
-    end
+  before do
+    sign_in user
+  end
+
+  describe '#create' do
+    let(:uuid)   { '123-0345' }
 
     context 'with valid params' do
       let(:params) {
@@ -25,7 +26,9 @@ describe Api::Fixed::ThresholdAlertsController do
 
         post :create, params: { data: params }, format: :json
 
-        expect(response.status).to eq 200
+        alert = ThresholdAlert.last
+        expect(response.status).to eq 201
+        expect(response.body).to eq({id: alert.id}.to_json)
       end
     end
 
@@ -52,19 +55,45 @@ describe Api::Fixed::ThresholdAlertsController do
     end
   end
 
-  describe '#destroy_alert' do
-    let(:uuid)   { '1234-4567' }
-    let(:user)   { FactoryBot.create(:user) }
-    let(:params) { { session_uuid: uuid, sensor_name: 'PM2.5' } }
+  describe '#index' do
+    let!(:alert1) { FactoryBot.create(:threshold_alert, user: user, session_uuid: '1', sensor_name: 'PM2.5') }
+    let!(:alert2) { FactoryBot.create(:threshold_alert, user: user, session_uuid: '2', sensor_name: 'PM10') }
 
+    let(:expected_response) {
+      [
+        {
+          'id' => alert1.id,
+          'session_uuid' => '1',
+          'sensor_name' => 'PM2.5',
+          'frequency' => 1,
+          'threshold_value' => 10
+        },
+        {
+          'id' => alert2.id,
+          'session_uuid' => '2',
+          'sensor_name' => 'PM10',
+          'frequency' => 1,
+          'threshold_value' => 10
+        }
+      ]
+    }
+
+    it do
+      get :index
+
+      expect(json_response).to eq expected_response
+    end
+  end
+
+  describe '#destroy' do
     before do
       sign_in user
     end
 
     it do
-      alert = FactoryBot.create(:threshold_alert, user: user, session_uuid: uuid)
+      alert = FactoryBot.create(:threshold_alert, user: user)
 
-      expect { post :destroy_alert, params: { data: params } }
+      expect { delete :destroy, params: { id: alert.id } }
         .to change { ThresholdAlert.count }.from(1).to 0
     end
   end

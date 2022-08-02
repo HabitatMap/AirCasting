@@ -5,6 +5,13 @@ module Api
       before_action :authenticate_user!
       respond_to :json
 
+      def index
+        alerts = current_user.threshold_alerts
+        array = Api::ToThresholdAlertsArray.new(alerts: alerts).call
+
+        render json: array.to_json, status: :ok
+      end
+
       def create
         form =
           Api::ParamsForm.new(
@@ -15,15 +22,14 @@ module Api
         result = Api::CreateThresholdAlert.new(form: form, user: current_user).call
 
         if result.success?
-          render json: result.value, status: :ok
+          render json: { id: result.value }, status: :created
         else
           render json: result.errors, status: :bad_request
         end
       end
 
-      def destroy_alert
-        data = params[:data].to_unsafe_hash.symbolize_keys
-        alert = ThresholdAlert.where(session_uuid: data[:session_uuid], sensor_name: data[:sensor_name]).first
+      def destroy
+        alert = ThresholdAlert.find(params[:id])
         alert.destroy
 
         head :no_content

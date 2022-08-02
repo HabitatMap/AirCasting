@@ -87,7 +87,7 @@ Rails.application.routes.draw do
         get 'sessions2' => 'sessions#index2'
       end
 
-      resources :threshold_alerts, only: %i[create]
+      resources :threshold_alerts, only: %i[index create destroy]
       post 'destroy_alert' => 'threshold_alerts#destroy_alert'
     end
 

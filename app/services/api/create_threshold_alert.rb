@@ -18,9 +18,7 @@ module Api
         frequency:       data[:frequency]
       )
 
-      Success.new(
-        alert: alert
-      )
+      Success.new(alert.id)
     end
 
     private
