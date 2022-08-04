@@ -1500,8 +1500,13 @@ viewParameterFilter page sensors selectedSensorId isPopupListExpanded popup =
 
 viewSensorFilter : Page -> List Sensor -> String -> Bool -> Popup -> Html Msg
 viewSensorFilter page sensors selectedSensorId isPopupListExpanded popup =
+    let
+        sensorLabel : String
+        sensorLabel =
+            Sensor.sensorLabelForId sensors selectedSensorId
+    in
     div [ class "filters__input-group" ]
-        [ case Sensor.sensorLabelForId sensors selectedSensorId of
+        [ case sensorLabel of
             "PurpleAir-PM2.5 (µg/m³)" ->
                 div [ class "purpleair-link" ]
                     [ a [ href "https://www.purpleair.com", target "_blank" ] [ text "www.purpleair.com" ] ]
@@ -1515,14 +1520,14 @@ viewSensorFilter page sensors selectedSensorId isPopupListExpanded popup =
             , type_ "text"
             , name "sensor"
             , Popup.clickWithoutDefault (ShowListPopup Popup.SensorList)
-            , value (Sensor.sensorLabelForId sensors selectedSensorId)
+            , value sensorLabel
             , autocomplete False
             , readonly True
             ]
             []
         , label [ class "label label--filters", for "sensor" ] [ text "sensor:" ]
         , Tooltip.view Tooltip.sensorFilter
-        , viewListPopup Popup.isSensorPopupShown isPopupListExpanded popup (Sensor.labelsForParameter page sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId)
+        , viewListPopup Popup.isSensorPopupShown isPopupListExpanded popup (Sensor.labelsForParameter page sensors selectedSensorId) "sensors" sensorLabel
         ]
 
 
