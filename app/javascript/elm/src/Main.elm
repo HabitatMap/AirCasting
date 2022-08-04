@@ -19,6 +19,7 @@ import Data.Session exposing (..)
 import Data.Status as Status exposing (Status(..))
 import Data.Theme as Theme exposing (Theme)
 import Data.Times as Times
+import Debug
 import ExternalUrl
 import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, li, main_, nav, p, span, text, ul)
 import Html.Attributes exposing (alt, attribute, autocomplete, checked, class, classList, disabled, for, href, id, name, placeholder, readonly, src, target, title, type_, value)
@@ -1513,7 +1514,15 @@ viewSensorFilter page sensors selectedSensorId isPopupListExpanded popup =
             , readonly True
             ]
             []
-        , label [ class "label label--filters", for "sensor" ] [ text "sensor:" ]
+        , label [ class "label label--filters", for "sensor" ]
+            [ text <|
+                case Debug.log "sensor id" selectedSensorId of
+                    "Particulate Matter-airbeam-pm2.5 (µg/m³)" ->
+                        "olaboga"
+
+                    _ ->
+                        "sensor"
+            ]
         , Tooltip.view Tooltip.sensorFilter
         , viewListPopup Popup.isSensorPopupShown isPopupListExpanded popup (Sensor.labelsForParameter page sensors selectedSensorId) "sensors" (Sensor.sensorLabelForId sensors selectedSensorId)
         ]
