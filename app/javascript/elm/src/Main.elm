@@ -1501,7 +1501,14 @@ viewParameterFilter page sensors selectedSensorId isPopupListExpanded popup =
 viewSensorFilter : Page -> List Sensor -> String -> Bool -> Popup -> Html Msg
 viewSensorFilter page sensors selectedSensorId isPopupListExpanded popup =
     div [ class "filters__input-group" ]
-        [ input
+        [ case Sensor.sensorLabelForId sensors selectedSensorId of
+            "PurpleAir-PM2.5 (µg/m³)" ->
+                div [ class "purpleair-link" ]
+                    [ a [ href "https://www.purpleair.com", target "_blank" ] [ text "www.purpleair.com" ] ]
+
+            _ ->
+                text ""
+        , input
             [ id "sensor"
             , class "input input--dark input--filters"
             , placeholder "sensor"

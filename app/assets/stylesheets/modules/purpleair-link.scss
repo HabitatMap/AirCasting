@@ -1,0 +1,12 @@
+.purpleair-link {
+  margin-bottom: 24px;
+  order: -1;
+
+  & + input {
+    margin-bottom: 4px;
+  }
+
+  a {
+    color: $white;
+  }
+}
