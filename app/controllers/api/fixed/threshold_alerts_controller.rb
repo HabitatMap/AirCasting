@@ -29,10 +29,12 @@ module Api
       end
 
       def destroy
-        alert = ThresholdAlert.find(params[:id])
-        alert.destroy
+        alert = current_user.threshold_alerts.find(params[:id])
+        alert&.destroy
 
         head :no_content
+      rescue ActiveRecord::RecordNotFound
+        head :unauthorized
       end
 
       private

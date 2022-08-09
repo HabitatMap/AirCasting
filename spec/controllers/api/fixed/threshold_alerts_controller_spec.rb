@@ -116,11 +116,25 @@ describe Api::Fixed::ThresholdAlertsController do
       sign_in user
     end
 
-    it do
-      alert = FactoryBot.create(:threshold_alert, user: user)
+    context 'when alert belongs to user' do
+      it do
+        alert = FactoryBot.create(:threshold_alert, user: user)
 
-      expect { delete :destroy, params: { id: alert.id } }
-        .to change { ThresholdAlert.count }.from(1).to 0
+        expect { delete :destroy, params: { id: alert.id } }
+          .to change { ThresholdAlert.count }.from(1).to 0
+      end
+    end
+
+    context 'when alert belongs to another user' do
+      let(:another_user) { FactoryBot.create(:user) }
+
+      it do
+        alert = FactoryBot.create(:threshold_alert, user: another_user)
+
+        expect { delete :destroy, params: { id: alert.id } }
+          .not_to change { ThresholdAlert.count }
+        expect(response.status).to eq 401
+      end
     end
   end
 end
