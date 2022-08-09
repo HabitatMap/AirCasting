@@ -12,10 +12,12 @@ class ThresholdAlertsWorker
       session = Session.joins(:streams).find_by_uuid(alert.session_uuid)
       stream = session.streams.select { |stream| stream.sensor_name == alert.sensor_name }.first
 
-      date_to_compare = alert.last_email_at || alert.created_at
-      measurements = stream&.measurements.where('time > ?', date_to_compare).order('time ASC')
+      return unless stream
 
-      measurements_above_threshold = measurements.select { |m| m.value > alert.threshold_value }
+      date_to_compare = alert.last_email_at || alert.created_at
+      measurements = stream.measurements.where('time > ?', date_to_compare).order('time ASC')
+
+      measurements_above_threshold = measurements&.select { |m| m.value > alert.threshold_value }
 
       unless measurements_above_threshold.empty?
         UserMailer
