@@ -8,11 +8,16 @@ module Api
     def call
       return Failure.new(form.errors) if form.invalid?
 
-      session = FixedSession.joins(:streams).find_by_uuid(data[:session_uuid])
+      existing_alert = ThresholdAlert.where(
+        session_uuid: data[:session_uuid],
+        sensor_name: data[:sensor_name]
+      ).first
+
+      return Failure.new(['alert already exists']) if existing_alert
 
       alert = ThresholdAlert.create(
         user_id:         user.id,
-        session_uuid:    session.uuid,
+        session_uuid:    data[:session_uuid],
         sensor_name:     data[:sensor_name],
         threshold_value: data[:threshold_value],
         frequency:       data[:frequency]

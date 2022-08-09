@@ -53,6 +53,32 @@ describe Api::Fixed::ThresholdAlertsController do
         expect(response.body).to eq errors.to_json
       end
     end
+
+    context 'when alert already exists for stream' do
+      let(:params) {
+        {
+          sensor_name: "PM2.5",
+          session_uuid: "123-456",
+          threshold_value: 10,
+          frequency: 1
+        }
+      }
+      errors = ['alert already exists']
+
+      before do
+        sign_in user
+      end
+
+      it do
+        alert = FactoryBot.create(:threshold_alert,
+          session_uuid: "123-456", sensor_name: "PM2.5", user: user)
+
+        post :create, params: { data: params }, format: :json
+
+        expect(response.status).to eq 400
+        expect(response.body).to eq errors.to_json
+      end
+    end
   end
 
   describe '#index' do
