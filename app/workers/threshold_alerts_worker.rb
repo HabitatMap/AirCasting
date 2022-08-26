@@ -10,9 +10,10 @@ class ThresholdAlertsWorker
       next if was_recently_sent?(alert)
 
       session = Session.joins(:streams).find_by_uuid(alert.session_uuid)
-      stream = session.streams.select { |stream| stream.sensor_name == alert.sensor_name }.first
+      next unless session
 
-      return unless stream
+      stream = session.streams.select { |stream| stream.sensor_name == alert.sensor_name }.first
+      next unless stream
 
       date_to_compare = alert.last_email_at || alert.created_at
       measurements = stream.measurements.where('time > ?', date_to_compare).order('time ASC')
