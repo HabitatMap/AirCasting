@@ -7,13 +7,31 @@ class ThresholdAlertsWorker
     alerts = ThresholdAlert.all
 
     alerts.each do |alert|
-      next if was_recently_sent?(alert)
+      if was_recently_sent?(alert)
+        Rails.logger.tagged('TRSHLD') do
+          logger.info "Alert ##{alert.id} skipped, recently sent."
+        end
+        next
+      end
+      # next if was_recently_sent?(alert)
 
       session = Session.joins(:streams).find_by_uuid(alert.session_uuid)
-      next unless session
+      unless session
+        Rails.logger.tagged('TRSHLD') do
+          logger.info "Alert ##{alert.id} skipped, session with UUID ##{alert.session_uuid} not found."
+        end
+        next
+      end
+      # next unless session
 
       stream = session.streams.select { |stream| stream.sensor_name == alert.sensor_name }.first
-      next unless stream
+      unless stream
+        Rails.logger.tagged('TRSHLD') do
+          logger.info "Alert ##{alert.id} skipped, stream with alert's sensor name '#{alert.sensor_name}' not found."
+        end
+        next
+      end
+      # next unless stream
 
       date_to_compare = alert.last_email_at || alert.created_at
       measurements = stream.measurements.where('time > ?', date_to_compare).order('time ASC')
@@ -31,6 +49,10 @@ class ThresholdAlertsWorker
         .deliver_now
 
         alert.update(last_email_at: Time.current)
+      else
+        Rails.logger.tagged('TRSHLD') do
+          logger.info "Alert ##{alert.id} skipped, no measurements above threshold."
+        end
       end
     end
   end
