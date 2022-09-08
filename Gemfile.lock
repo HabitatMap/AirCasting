@@ -1312,6 +1312,8 @@ GEM
       rack (~> 2.0)
       rack-protection (>= 2.0.0)
       redis (>= 4.1.0)
+    sidekiq-failures (1.0.4)
+      sidekiq (>= 4.0.0)
     sidekiq-scheduler (3.0.1)
       e2mmap
       redis (>= 3, < 5)
@@ -1439,6 +1441,7 @@ DEPENDENCIES
   sassc-rails
   shoulda-matchers
   sidekiq (< 7)
+  sidekiq-failures
   sidekiq-scheduler (< 4)
   sidekiq-unique-jobs (< 7)
   test-unit (~> 3.0)
