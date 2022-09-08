@@ -8,27 +8,21 @@ class ThresholdAlertsWorker
 
     alerts.each do |alert|
       if was_recently_sent?(alert)
-        Rails.logger.tagged('TRSHLD') do
-          logger.info "Alert ##{alert.id} skipped, recently sent."
-        end
+        Rails.logger.info "TresholdAlert ##{alert.id} skipped, recently sent."
         next
       end
       # next if was_recently_sent?(alert)
 
       session = Session.joins(:streams).find_by_uuid(alert.session_uuid)
       unless session
-        Rails.logger.tagged('TRSHLD') do
-          logger.info "Alert ##{alert.id} skipped, session with UUID ##{alert.session_uuid} not found."
-        end
+        Rails.logger.info "TresholdAlert ##{alert.id} skipped, session with UUID ##{alert.session_uuid} not found."
         next
       end
       # next unless session
 
       stream = session.streams.select { |stream| stream.sensor_name == alert.sensor_name }.first
       unless stream
-        Rails.logger.tagged('TRSHLD') do
-          logger.info "Alert ##{alert.id} skipped, stream with alert's sensor name '#{alert.sensor_name}' not found."
-        end
+        Rails.logger.info "TresholdAlert ##{alert.id} skipped, stream with alert's sensor name '#{alert.sensor_name}' not found."
         next
       end
       # next unless stream
@@ -40,19 +34,17 @@ class ThresholdAlertsWorker
 
       unless measurements_above_threshold.empty?
         UserMailer
-        .with(
-          user: session.user,
-          title: session.title,
-          sensor: stream.sensor_name,
-        )
-        .threshold_exceeded_email
-        .deliver_now
+          .with(
+            user: session.user,
+            title: session.title,
+            sensor: stream.sensor_name,
+          )
+          .threshold_exceeded_email
+          .deliver_now
 
         alert.update(last_email_at: Time.current)
       else
-        Rails.logger.tagged('TRSHLD') do
-          logger.info "Alert ##{alert.id} skipped, no measurements above threshold."
-        end
+        Rails.logger.info "TresholdAlert ##{alert.id} skipped, no measurements above threshold."
       end
     end
   end
