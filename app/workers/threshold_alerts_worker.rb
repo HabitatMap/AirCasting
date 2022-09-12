@@ -5,30 +5,32 @@ class ThresholdAlertsWorker
 
   def perform
     alerts = ThresholdAlert.all
+    Sidekiq.logger.info "[TRSHLD] #{alerts.count} alerts found: #{alerts.inspect}"
 
     alerts.each do |alert|
       if was_recently_sent?(alert)
-        Rails.logger.info "TresholdAlert ##{alert.id} skipped, recently sent."
+        Sidekiq.logger.warn "[TRSHLD] Alert ##{alert.id} skipped, recently sent: #{alert.inspect}"
         next
       end
       # next if was_recently_sent?(alert)
 
       session = Session.joins(:streams).find_by_uuid(alert.session_uuid)
       unless session
-        Rails.logger.info "TresholdAlert ##{alert.id} skipped, session with UUID ##{alert.session_uuid} not found."
+        Sidekiq.logger.warn "[TRSHLD] Alert ##{alert.id} skipped, session with UUID ##{alert.session_uuid} not found: #{alert.inspect}"
         next
       end
       # next unless session
 
       stream = session.streams.select { |stream| stream.sensor_name == alert.sensor_name }.first
       unless stream
-        Rails.logger.info "TresholdAlert ##{alert.id} skipped, stream with alert's sensor name '#{alert.sensor_name}' not found."
+        Sidekiq.logger.warn "[TRSHLD] Alert ##{alert.id} skipped, stream with sensor name '#{alert.sensor_name}' not found: #{alert.inspect}"
         next
       end
       # next unless stream
 
       date_to_compare = alert.last_email_at || alert.created_at
       measurements = stream.measurements.where('time > ?', date_to_compare).order('time ASC')
+      Sidekiq.logger.info "[TRSHLD] Found #{measurements.count} measurements since #{date_to_compare}: #{measurements.inspect}"
 
       measurements_above_threshold = measurements&.select { |m| m.value > alert.threshold_value }
 
@@ -43,8 +45,9 @@ class ThresholdAlertsWorker
           .deliver_now
 
         alert.update(last_email_at: Time.current)
+        Sidekiq.logger.info("[TRSHLD] Alert ##{alert.id} sent: #{alert.inspect}")
       else
-        Rails.logger.info "TresholdAlert ##{alert.id} skipped, no measurements above threshold."
+        Sidekiq.logger.warn "[TRSHLD] Alert ##{alert.id} skipped, no measurements above threshold: #{alert.inspect}"
       end
     end
   end
