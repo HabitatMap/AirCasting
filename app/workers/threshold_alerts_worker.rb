@@ -30,7 +30,7 @@ class ThresholdAlertsWorker
 
       date_to_compare = alert.last_email_at || alert.created_at
       measurements = stream.measurements.where('time > ?', date_to_compare).order('time ASC')
-      Sidekiq.logger.info "[TRSHLD] Found #{measurements.count} measurements since #{date_to_compare}: #{measurements.inspect}"
+      Sidekiq.logger.info "[TRSHLD] Found #{measurements.count} measurements since #{date_to_compare}: #{measurements.inspect} for alert ##{alert.id}."
 
       measurements_above_threshold = measurements&.select { |m| m.value > alert.threshold_value }
 
@@ -47,7 +47,7 @@ class ThresholdAlertsWorker
         alert.update(last_email_at: Time.current)
         Sidekiq.logger.info("[TRSHLD] Alert ##{alert.id} sent: #{alert.inspect}")
       else
-        Sidekiq.logger.warn "[TRSHLD] Alert ##{alert.id} skipped, no measurements above threshold: #{alert.inspect}"
+        Sidekiq.logger.warn "[TRSHLD] Alert ##{alert.id} skipped, no new measurements above threshold: #{alert.inspect}"
       end
     end
   end
