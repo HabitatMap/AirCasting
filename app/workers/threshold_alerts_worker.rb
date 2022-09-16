@@ -28,7 +28,13 @@ class ThresholdAlertsWorker
       end
       # next unless stream
 
-      session_timezone = TimezoneFinder.create.timezone_at(lng: session.longitude, lat: session.latitude)
+      session_timezone =
+        begin
+          TimezoneFinder.create.timezone_at(lng: session.longitude, lat: session.latitude)
+        rescue RuntimeError => e
+          Sidekiq.logger.error "#{e}. Session ##{session.id} has invalid coordinates: latitude #{session.latitude}, longitude #{session.longitude}."
+          next
+        end
       timezone_offset = Time.new.in_time_zone(session_timezone).utc_offset
 
       date_to_compare = alert.last_email_at || alert.created_at # Those are in UTC
