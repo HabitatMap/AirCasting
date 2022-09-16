@@ -28,8 +28,13 @@ class ThresholdAlertsWorker
       end
       # next unless stream
 
-      date_to_compare = alert.last_email_at || alert.created_at
-      measurements = stream.measurements.where('time > ?', date_to_compare).order('time ASC')
+      session_timezone = TimezoneFinder.create.timezone_at(lng: session.longitude, lat: session.latitude)
+      timezone_offset = Time.new.in_time_zone(session_timezone).utc_offset
+
+      date_to_compare = alert.last_email_at || alert.created_at # Those are in UTC
+      date_to_compare_local = date_to_compare + timezone_offset
+
+      measurements = stream.measurements.where('time > ?', date_to_compare_local).order('time ASC') # Measurement#time is local
       Sidekiq.logger.info "[TRSHLD] Found #{measurements.count} measurements since #{date_to_compare}: #{measurements.inspect} for alert ##{alert.id}."
 
       measurements_above_threshold = measurements&.select { |m| m.value > alert.threshold_value }
