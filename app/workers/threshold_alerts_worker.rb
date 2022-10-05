@@ -42,7 +42,7 @@ class ThresholdAlertsWorker
             sensor: stream.sensor_name,
           )
           .threshold_exceeded_email
-          .deliver_now
+          .deliver_later
 
         alert.update(last_email_at: Time.current)
         Sidekiq.logger.info("[TRSHLD] Alert ##{alert.id} sent: #{alert.inspect}")

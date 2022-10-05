@@ -22,7 +22,7 @@ class SessionStoppedAlertsWorker
             time: session.last_measurement_at.strftime('%m/%d/%y %k:%M %Z')
           )
           .session_stopped_email
-          .deliver_now
+          .deliver_later
       end
   end
 end

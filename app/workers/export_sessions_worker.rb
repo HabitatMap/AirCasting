@@ -13,7 +13,7 @@ class ExportSessionsWorker
       UserMailer
         .with(email: email, zip_file: zip_file, zip_filename: zip_filename)
         .export_sessions
-        .deliver_now
+        .deliver_later
     ensure
       service.clean
     end
