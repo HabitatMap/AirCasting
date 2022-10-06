@@ -16,7 +16,8 @@ describe Api::Fixed::ThresholdAlertsController do
           sensor_name: 'PM2.5',
           session_uuid: uuid,
           threshold_value: 15.0,
-          frequency: 1
+          frequency: 1,
+          timezone_offset: -18000
         }
       }
 
@@ -38,14 +39,15 @@ describe Api::Fixed::ThresholdAlertsController do
           sensor_name: 'PM2.5',
           session_uuid: uuid,
           threshold_value: nil,
-          frequency: nil
+          frequency: nil,
+          timezone_offset: nil
         }
       }
 
       it 'returns errors' do
         session = create_session!(uuid: uuid, type: 'FixedSession')
         stream = create_stream!(session: session, sensor_name: 'PM2.5')
-        errors = ['threshold_value must be filled', 'frequency must be filled']
+        errors = ['threshold_value must be filled', 'frequency must be filled', 'timezone_offset must be filled']
 
         post :create, params: { data: params }, format: :json
 
@@ -60,7 +62,8 @@ describe Api::Fixed::ThresholdAlertsController do
           sensor_name: "PM2.5",
           session_uuid: "123-456",
           threshold_value: 10,
-          frequency: 1
+          frequency: 1,
+          timezone_offset: -18000
         }
       }
       errors = ['alert already exists']
@@ -92,14 +95,16 @@ describe Api::Fixed::ThresholdAlertsController do
           'session_uuid' => '1',
           'sensor_name' => 'PM2.5',
           'frequency' => 1,
-          'threshold_value' => 10
+          'threshold_value' => 10,
+          'timezone_offset' => -18000
         },
         {
           'id' => alert2.id,
           'session_uuid' => '2',
           'sensor_name' => 'PM10',
           'frequency' => 1,
-          'threshold_value' => 10
+          'threshold_value' => 10,
+          'timezone_offset' => -18000
         }
       ]
     }

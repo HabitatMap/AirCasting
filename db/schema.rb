@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_07_27_100546) do
+ActiveRecord::Schema.define(version: 2022_10_06_162918) do
 
   create_table "active_storage_attachments", charset: "utf8mb3", force: :cascade do |t|
     t.string "name", null: false
@@ -184,7 +184,7 @@ ActiveRecord::Schema.define(version: 2022_07_27_100546) do
     t.index ["name"], name: "index_tags_on_name"
   end
 
-  create_table "threshold_alerts", charset: "utf8", force: :cascade do |t|
+  create_table "threshold_alerts", charset: "utf8mb3", force: :cascade do |t|
     t.integer "user_id"
     t.string "session_uuid"
     t.string "sensor_name"
@@ -193,10 +193,11 @@ ActiveRecord::Schema.define(version: 2022_07_27_100546) do
     t.datetime "last_email_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "timezone_offset", default: 0
     t.index ["session_uuid", "sensor_name"], name: "index_threshold_alerts_on_session_uuid_and_sensor_name"
   end
 
-  create_table "users", id: :integer, charset: "utf8", force: :cascade do |t|
+  create_table "users", id: :integer, charset: "utf8mb3", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", limit: 128, default: "", null: false
     t.string "reset_password_token"

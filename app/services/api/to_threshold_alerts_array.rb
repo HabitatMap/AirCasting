@@ -11,7 +11,8 @@ module Api
           session_uuid:    alert.session_uuid,
           sensor_name:     alert.sensor_name,
           threshold_value: alert.threshold_value,
-          frequency:       alert.frequency
+          frequency:       alert.frequency,
+          timezone_offset: alert.timezone_offset
         }
       end
     end
