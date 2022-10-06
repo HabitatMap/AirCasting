@@ -1,8 +1,8 @@
 defaults:
   google_maps_api_key: REPLACEME
   bitly_access_token: REPLACEME
-  host: 'http://localhost:3000/'
-  host_: localhost:3000
+  host: 'http://localhost:5000/'
+  host_: localhost:5000
   mailer_from: noreply@localhost
   attachment_secret: "some long and random string"
   rails_secret_key_base: 5431cc4af51b53bbd2ea9ea292a261b7b9a1722573bfc43e8297f79bb289e2ad14e41c08528d397f04b3276727d19a10d48d517d1267d4206ca320d17bcefdea
