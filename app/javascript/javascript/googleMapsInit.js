@@ -47,5 +47,16 @@ export const init = () => {
     zoom: parseInt(zoom, 10),
     zoomControl: false,
   };
+
+  removeMapTypeControlOnMobile(options)
+
   map.init(element, options);
 };
+
+const removeMapTypeControlOnMobile = (options) => {
+  const width = window.innerWidth;
+  if(width < 580) {
+    options.mapTypeControl = false;
+    delete options.mapTypeControlOptions;
+  }
+}
