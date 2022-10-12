@@ -5,7 +5,8 @@ class Api::ToActiveSessionsJson
 
   def call
     return Failure.new(form.errors) if form.invalid?
-    Success.new(ActiveRecord::Base.connection.execute(sql).to_a[0][0])
+    query = data[:is_indoor] ? anonymyze(sql) : sql
+    Success.new(ActiveRecord::Base.connection.execute(query).to_a[0][0])
   end
 
   private
@@ -82,5 +83,9 @@ class Api::ToActiveSessionsJson
 
   def sessions
     @sessions ||= FixedSession.active.filter_(data)
+  end
+
+  def anonymyze(sql)
+    sql.gsub(/formatted_sessions\.username/, '\'anonymous\'')
   end
 end
