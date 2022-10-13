@@ -135,4 +135,10 @@ class Measurement < ApplicationRecord
     # temporary solution until columns are removed from schema
     super(options.merge(except: %i[timezone_offset]))
   end
+
+  def in_the_future?(current_time = Time.zone.now)
+    # due to a firmware bug in AirBeams some measurements come in with a future timestamp
+    # please refer to: https://trello.com/c/HjEIuSYU/1616-fixed-ab-future-timestamps-problem
+    self.time > current_time + 48.hours
+  end
 end

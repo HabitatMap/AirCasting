@@ -72,4 +72,6 @@ RSpec.configure do |config|
       with.library :rails
     end
   end
+
+  config.include ActiveSupport::Testing::TimeHelpers
 end
