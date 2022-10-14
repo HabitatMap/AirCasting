@@ -129,7 +129,9 @@ class Stream < ApplicationRecord
   end
 
   def build_measurements!(data = [])
-    measurements = data.map { |params| Measurement.new(params.merge(stream: self)) }
+    measurements = data.
+      map { |params| Measurement.new(params.merge(stream: self)) }.
+      reject { |measurement| measurement.in_the_future? }
     result = Measurement.import measurements
     if result.failed_instances.any?
       Rails.logger.warn "Measurement.import failed for: #{result.failed_instances}"
