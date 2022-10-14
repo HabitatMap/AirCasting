@@ -9,7 +9,7 @@ This is the AirCasting project - the project aims to build a platform for gather
 
 ## Deploy
 
-The `master` branch automatically deploys to `aircasting.habitatmap.org`.
+`SERVER=aircasting.habitatmap.org BRANCH=master bundle exec cap server deploy`
 
 ## Setup
 
