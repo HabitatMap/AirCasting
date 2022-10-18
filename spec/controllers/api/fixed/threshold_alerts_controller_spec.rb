@@ -3,23 +3,21 @@ require 'rails_helper'
 describe Api::Fixed::ThresholdAlertsController do
   let(:user) { FactoryBot.create(:user) }
 
-  before do
-    sign_in user
-  end
+  before { sign_in user }
 
   describe '#create' do
-    let(:uuid)   { '123-0345' }
+    let(:uuid) { '123-0345' }
 
     context 'with valid params' do
-      let(:params) {
+      let(:params) do
         {
           sensor_name: 'PM2.5',
           session_uuid: uuid,
           threshold_value: 15.0,
           frequency: 1,
-          timezone_offset: -18000
+          timezone_offset: -18_000,
         }
-      }
+      end
 
       it 'creates a record' do
         session = create_session!(uuid: uuid, type: 'FixedSession')
@@ -29,25 +27,29 @@ describe Api::Fixed::ThresholdAlertsController do
 
         alert = ThresholdAlert.last
         expect(response.status).to eq 201
-        expect(response.body).to eq({id: alert.id}.to_json)
+        expect(response.body).to eq({ id: alert.id }.to_json)
       end
     end
 
     context 'with invalid params' do
-      let(:params) {
+      let(:params) do
         {
           sensor_name: 'PM2.5',
           session_uuid: uuid,
           threshold_value: nil,
           frequency: nil,
-          timezone_offset: nil
+          timezone_offset: nil,
         }
-      }
+      end
 
       it 'returns errors' do
         session = create_session!(uuid: uuid, type: 'FixedSession')
         stream = create_stream!(session: session, sensor_name: 'PM2.5')
-        errors = ['threshold_value must be filled', 'frequency must be filled', 'timezone_offset must be filled']
+        errors = [
+          'threshold_value must be filled',
+          'frequency must be filled',
+          'timezone_offset must be filled',
+        ]
 
         post :create, params: { data: params }, format: :json
 
@@ -57,24 +59,27 @@ describe Api::Fixed::ThresholdAlertsController do
     end
 
     context 'when alert already exists for stream' do
-      let(:params) {
+      let(:params) do
         {
-          sensor_name: "PM2.5",
-          session_uuid: "123-456",
+          sensor_name: 'PM2.5',
+          session_uuid: '123-456',
           threshold_value: 10,
           frequency: 1,
-          timezone_offset: -18000
+          timezone_offset: -18_000,
         }
-      }
+      end
       errors = ['alert already exists']
 
-      before do
-        sign_in user
-      end
+      before { sign_in user }
 
       it do
-        alert = FactoryBot.create(:threshold_alert,
-          session_uuid: "123-456", sensor_name: "PM2.5", user: user)
+        alert =
+          FactoryBot.create(
+            :threshold_alert,
+            session_uuid: '123-456',
+            sensor_name: 'PM2.5',
+            user: user,
+          )
 
         post :create, params: { data: params }, format: :json
 
@@ -85,10 +90,24 @@ describe Api::Fixed::ThresholdAlertsController do
   end
 
   describe '#index' do
-    let!(:alert1) { FactoryBot.create(:threshold_alert, user: user, session_uuid: '1', sensor_name: 'PM2.5') }
-    let!(:alert2) { FactoryBot.create(:threshold_alert, user: user, session_uuid: '2', sensor_name: 'PM10') }
+    let!(:alert1) do
+      FactoryBot.create(
+        :threshold_alert,
+        user: user,
+        session_uuid: '1',
+        sensor_name: 'PM2.5',
+      )
+    end
+    let!(:alert2) do
+      FactoryBot.create(
+        :threshold_alert,
+        user: user,
+        session_uuid: '2',
+        sensor_name: 'PM10',
+      )
+    end
 
-    let(:expected_response) {
+    let(:expected_response) do
       [
         {
           'id' => alert1.id,
@@ -96,7 +115,7 @@ describe Api::Fixed::ThresholdAlertsController do
           'sensor_name' => 'PM2.5',
           'frequency' => 1,
           'threshold_value' => 10,
-          'timezone_offset' => -18000
+          'timezone_offset' => -18_000,
         },
         {
           'id' => alert2.id,
@@ -104,10 +123,10 @@ describe Api::Fixed::ThresholdAlertsController do
           'sensor_name' => 'PM10',
           'frequency' => 1,
           'threshold_value' => 10,
-          'timezone_offset' => -18000
-        }
+          'timezone_offset' => -18_000,
+        },
       ]
-    }
+    end
 
     it do
       get :index
@@ -117,16 +136,15 @@ describe Api::Fixed::ThresholdAlertsController do
   end
 
   describe '#destroy' do
-    before do
-      sign_in user
-    end
+    before { sign_in user }
 
     context 'when alert belongs to user' do
       it do
         alert = FactoryBot.create(:threshold_alert, user: user)
 
-        expect { delete :destroy, params: { id: alert.id } }
-          .to change { ThresholdAlert.count }.from(1).to 0
+        expect { delete :destroy, params: { id: alert.id } }.to change {
+          ThresholdAlert.count
+        }.from(1).to 0
       end
     end
 
@@ -136,8 +154,9 @@ describe Api::Fixed::ThresholdAlertsController do
       it do
         alert = FactoryBot.create(:threshold_alert, user: another_user)
 
-        expect { delete :destroy, params: { id: alert.id } }
-          .not_to change { ThresholdAlert.count }
+        expect { delete :destroy, params: { id: alert.id } }.not_to change {
+          ThresholdAlert.count
+        }
         expect(response.status).to eq 401
       end
     end

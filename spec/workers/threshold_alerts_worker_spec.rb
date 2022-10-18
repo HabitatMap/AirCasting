@@ -17,7 +17,7 @@ describe ThresholdAlertsWorker do
           threshold_value: 10,
           frequency: 1,
           last_email_at: Time.current - 70.minutes,
-          timezone_offset: -18000
+          timezone_offset: -18_000,
         )
       end
       let!(:measurement) do
@@ -41,7 +41,7 @@ describe ThresholdAlertsWorker do
           threshold_value: 10,
           frequency: 1,
           last_email_at: Time.current - 10.minutes,
-          timezone_offset: -18000
+          timezone_offset: -18_000,
         )
       end
       let!(:measurement) do
