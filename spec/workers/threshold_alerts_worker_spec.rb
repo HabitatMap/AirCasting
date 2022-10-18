@@ -6,6 +6,7 @@ describe ThresholdAlertsWorker do
   let(:user) { create_user!(email: 'user@ex.com') }
   let(:session) { create_session!(user: user, title: 'Session Title') }
   let(:stream) { create_stream!(session: session, sensor_name: 'PM2.5') }
+  let(:timezone_offset) { -18_000 }
 
   context 'when measurement exceeds threshold value' do
     context 'when time passed since last email > frequency' do
@@ -17,11 +18,11 @@ describe ThresholdAlertsWorker do
           threshold_value: 10,
           frequency: 1,
           last_email_at: Time.current - 70.minutes,
-          timezone_offset: -18_000,
+          timezone_offset: timezone_offset,
         )
       end
       let!(:measurement) do
-        create_measurement!(stream: stream, time: Time.current, value: 20)
+        create_measurement!(stream: stream, time: Time.current + timezone_offset, value: 20)
       end
 
       it 'sends alert email' do
@@ -45,7 +46,7 @@ describe ThresholdAlertsWorker do
         )
       end
       let!(:measurement) do
-        create_measurement!(stream: stream, time: Time.current, value: 20)
+        create_measurement!(stream: stream, time: Time.current + timezone_offset, value: 20)
       end
 
       it 'does not send alert email' do
