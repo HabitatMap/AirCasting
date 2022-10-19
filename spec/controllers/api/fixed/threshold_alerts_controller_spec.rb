@@ -2,6 +2,7 @@ require 'rails_helper'
 
 describe Api::Fixed::ThresholdAlertsController do
   let(:user) { FactoryBot.create(:user) }
+  let(:timezone_offset) { -18_000 }
 
   before { sign_in user }
 
@@ -15,7 +16,7 @@ describe Api::Fixed::ThresholdAlertsController do
           session_uuid: uuid,
           threshold_value: 15.0,
           frequency: 1,
-          timezone_offset: -18_000,
+          timezone_offset: timezone_offset,
         }
       end
 
@@ -65,7 +66,7 @@ describe Api::Fixed::ThresholdAlertsController do
           session_uuid: '123-456',
           threshold_value: 10,
           frequency: 1,
-          timezone_offset: -18_000,
+          timezone_offset: timezone_offset,
         }
       end
       errors = ['alert already exists']
@@ -79,6 +80,7 @@ describe Api::Fixed::ThresholdAlertsController do
             session_uuid: '123-456',
             sensor_name: 'PM2.5',
             user: user,
+            timezone_offset: timezone_offset,
           )
 
         post :create, params: { data: params }, format: :json
@@ -96,6 +98,7 @@ describe Api::Fixed::ThresholdAlertsController do
         user: user,
         session_uuid: '1',
         sensor_name: 'PM2.5',
+        timezone_offset: timezone_offset,
       )
     end
     let!(:alert2) do
@@ -104,6 +107,7 @@ describe Api::Fixed::ThresholdAlertsController do
         user: user,
         session_uuid: '2',
         sensor_name: 'PM10',
+        timezone_offset: timezone_offset,
       )
     end
 

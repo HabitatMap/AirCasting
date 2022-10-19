@@ -22,7 +22,11 @@ describe ThresholdAlertsWorker do
         )
       end
       let!(:measurement) do
-        create_measurement!(stream: stream, time: Time.current + timezone_offset, value: 20)
+        create_measurement!(
+          stream: stream,
+          time: Time.current + timezone_offset,
+          value: 20,
+        )
       end
 
       it 'sends alert email' do
@@ -42,11 +46,15 @@ describe ThresholdAlertsWorker do
           threshold_value: 10,
           frequency: 1,
           last_email_at: Time.current - 10.minutes,
-          timezone_offset: -18_000,
+          timezone_offset: timezone_offset,
         )
       end
       let!(:measurement) do
-        create_measurement!(stream: stream, time: Time.current + timezone_offset, value: 20)
+        create_measurement!(
+          stream: stream,
+          time: Time.current + timezone_offset,
+          value: 20,
+        )
       end
 
       it 'does not send alert email' do
