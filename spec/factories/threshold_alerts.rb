@@ -6,5 +6,6 @@ FactoryBot.define do
     threshold_value { 10 }
     frequency { 1 }
     last_email_at { 1.hour.ago }
+    timezone_offset { -18_000 }
   end
 end

@@ -20,7 +20,8 @@ module Api
         session_uuid:    data[:session_uuid],
         sensor_name:     data[:sensor_name],
         threshold_value: data[:threshold_value],
-        frequency:       data[:frequency]
+        frequency:       data[:frequency],
+        timezone_offset: data[:timezone_offset]
       )
 
       Success.new(alert.id)
