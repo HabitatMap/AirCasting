@@ -31,20 +31,21 @@ const updateFixedClusters = () => {
 };
 
 export const fixedClusterStyles = index => {
+  const i = Math.min(3, index)
   if (getParams().theme === BLUE_THEME) {
     return [
       { url: assets.clusterTheme2Level1Path, anchor: new google.maps.Point(15, 15) },
       { url: assets.clusterTheme2Level2Path, anchor: new google.maps.Point(15, 15) },
       { url: assets.clusterTheme2Level3Path, anchor: new google.maps.Point(15, 15) },
       { url: assets.clusterTheme2Level4Path, anchor: new google.maps.Point(15, 15) },
-    ][index];
+    ][i];
   } else {
     return [
       { url: assets.clusterTheme1Level1Path, anchor: new google.maps.Point(15, 15) },
       { url: assets.clusterTheme1Level2Path, anchor: new google.maps.Point(15, 15) },
       { url: assets.clusterTheme1Level3Path, anchor: new google.maps.Point(15, 15) },
       { url: assets.clusterTheme1Level4Path, anchor: new google.maps.Point(15, 15) },
-    ][index];
+    ][i];
   }
 };
 
