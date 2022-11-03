@@ -21,7 +21,7 @@ export const heat = (params) => {
       } else if (value <= this.getValue("highest")) {
         return 4;
       } else {
-        return null;
+        return 5;
       }
     },
 
