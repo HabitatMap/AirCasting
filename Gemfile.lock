@@ -1106,7 +1106,7 @@ GEM
     geocoder (1.7.2)
     get_process_mem (0.2.5)
       ffi (~> 1.0)
-    globalid (1.0.0)
+    globalid (1.0.1)
       activesupport (>= 5.0)
     gsl (2.1.0.3)
     haml (5.2.2)
@@ -1119,7 +1119,7 @@ GEM
     httparty (0.20.0)
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
-    i18n (1.10.0)
+    i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     inherited_resources (1.13.1)
@@ -1167,7 +1167,7 @@ GEM
       rake
     mini_mime (1.1.2)
     mini_portile2 (2.8.0)
-    minitest (5.15.0)
+    minitest (5.17.0)
     msgpack (1.4.2)
     multi_xml (0.6.0)
     mysql2 (0.5.3)
@@ -1387,7 +1387,7 @@ GEM
     xpath (3.2.0)
       nokogiri (~> 1.8)
     yui-compressor (0.12.0)
-    zeitwerk (2.5.4)
+    zeitwerk (2.6.6)
 
 PLATFORMS
   ruby
