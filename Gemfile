@@ -21,7 +21,7 @@ gem 'paperclip', '5.3.0'
 gem 'progress', require: false
 gem 'pry-rails'
 gem 'rack-cors'
-gem 'rails'
+gem 'rails', '~> 6.1.7'
 gem 'rake'
 gem 'rb-gsl', '1.16.0.6'
 gem 'responders'
