@@ -1,52 +1,39 @@
 .nav {
-  padding: 0 $u-space-small;
   display: none;
+  height: 100vh;
+  overflow: scroll;
+  padding: 0 $u-space-small;
 
-  @media screen and (max-width: $tablet-max) {
-    line-height: 1.22;
+  .header--nav-expanded & {
+    display: block;
 
-    .header--nav-expanded & {
+    @media screen and (max-width: $tablet-max) {
       @include animation("slide-down 1s ease 1");
-      display: block;
       margin-top: $u-space-default;
     }
-  }
 
-  @media screen and (min-width: $small-desktop-min) {
-    @include flexbox;
-    @include justify-content(space-between);
-    @include align-items(center);
-    @include flex(1);
-    height: 56px;
-    padding: 0;
-    padding-right: $u-space-small;
+    @media screen and (min-width: $small-desktop-min) {
+      @include animation("slide-left 300ms ease 1");
+      background-color: $brand-primary;
+      padding: 1.5rem 2rem;
+      position: absolute;
+      right: 0;
+      top: 0;
+      min-width: 22rem;
+    }
   }
-
-  @media screen and (min-width: $desktop-min) {
-    padding-right: $u-space-default;
-  }
-}
-
-.nav__main {
-  @include flex(0 1 40rem);
 }
 
 .nav__sub {
   @include flexbox;
   @include justify-content(space-between);
   @include align-items(center);
-  @include flex(0 0 25rem);
+  @include flex(0 0 17rem);
   border-top: 1px solid $white;
   padding-top: $u-space-small;
   position: relative;
 
-  @media screen and (max-width: $large-mobile-min) {
-    @include flex-wrap(wrap);
-  }
-
-  @media screen and (min-width: $small-desktop-min) {
-    padding: 0;
-    margin-left: $u-space-small;
-    border: none;
-  }
+  // @media screen and (max-width: $large-mobile-min) {
+  //   @include flex-wrap(wrap);
+  // }
 }

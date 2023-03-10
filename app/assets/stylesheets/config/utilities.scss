@@ -1,16 +1,28 @@
 .u--show-on-mobile {
   @media screen and (min-width: $small-desktop-min) {
-    display: none;
+    display: none !important;
   }
 }
 
 .u--hide-on-mobile {
   @media screen and (max-width: $tablet-max) {
-    display: none;
+    display: none !important;
   }
 }
 
 .u--capitalized {
   font-size: $base-font-size-2;
   text-transform: uppercase;
+}
+
+.u--tablet-max-hidden {
+  @media screen and (max-width: $tablet-max) {
+    display: none !important;
+  }
+}
+
+.u--desktop-hidden {
+  @media screen and (min-width: $small-desktop-min) {
+    display: none !important;
+  }
 }
