@@ -1,7 +1,7 @@
 class AverageStreams
   def initialize(
     rules: AveragingRules
-      .add(threshold: 14_400, window: 5)
+      .add(threshold: 7_200, window: 5)
       .add(threshold: 32_400, window: 60),
     streams_find_each: StreamsFindEach.new,
     streams_repository: StreamsRepository.new,
@@ -27,14 +27,14 @@ class AverageStreams
     window_size = @rules.window_size(total: ids.count)
     if window_size.nil?
       @logger.info(
-        "Stream ##{stream.id} having #{ids.size} measurements skipped."
+        "Stream ##{stream.id} having #{ids.size} measurements skipped.",
       )
       return :next
     end
     @logger.info(
       "Averaging stream ##{stream.id} having #{
         ids.size
-      } measurements with a window of #{window_size} size"
+      } measurements with a window of #{window_size} size",
     )
     Stream.transaction do
       measurements_windows(ids, window_size) do |window|
