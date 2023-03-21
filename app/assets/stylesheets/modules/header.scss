@@ -122,11 +122,6 @@
   text-align: center;
   text-transform: uppercase;
 
-  @media screen and (max-width: $large-mobile-min) {
-    margin: 1rem auto;
-    width: 100%;
-  }
-
   .header--nav-expanded .nav__sub & {
     @include button-color(
       $text-color: $white,

@@ -10,6 +10,7 @@
     @media screen and (max-width: $tablet-max) {
       @include animation("slide-down 1s ease 1");
       margin-top: $u-space-default;
+      overflow: visible;
     }
 
     @media screen and (min-width: $small-desktop-min) {
