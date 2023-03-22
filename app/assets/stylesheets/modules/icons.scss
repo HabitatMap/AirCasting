@@ -4,10 +4,6 @@
   .header--nav-expanded & {
     display: none;
   }
-
-  @media screen and (min-width: $small-desktop-min) {
-    display: none;
-  }
 }
 
 .icon-nav-close {
@@ -19,20 +15,14 @@
     stroke: $blue;
   }
 
-  @media screen and (max-width: $tablet-max) {
-    .header--nav-expanded & {
-      display: block;
-    }
-  }
-
-  @media screen and (min-width: $small-desktop-min) {
-    display: none;
+  .header--nav-expanded & {
+    display: block;
   }
 }
 
 .icon-search {
   cursor: pointer;
-  fill: $blue;
+  line-height: 1;
   margin-right: 0.5rem;
   width: 1.5rem;
 

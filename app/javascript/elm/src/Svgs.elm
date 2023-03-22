@@ -5,7 +5,7 @@ import Svg.Attributes exposing (..)
 
 
 habitatMapLogo =
-    Svg.svg [ class "habitatmap-logo", enableBackground "new 0 0 200 50", height "50", viewBox "0 0 200 50", width "200" ]
+    Svg.svg [ class "logo--hm-vertical", enableBackground "new 0 0 200 50", height "50", viewBox "0 0 200 50", width "200" ]
         [ Svg.g []
             [ Svg.node "path"
                 [ d "m58.011 15.459v19.234h-3.627v-8.106h-8.078v8.106h-3.627v-19.234h3.627v7.859h8.078v-7.859z" ]
@@ -64,7 +64,7 @@ navOpen =
 
 navClose =
     Svg.svg
-        [ class "icon-nav-close", height "20", viewBox "0 0 20 20", width "20" ]
+        [ class "icon-nav-close", height "20", viewBox "0 0 20 20", width "25" ]
         [ Svg.g
             [ fill "none", fillRule "evenodd", strokeLinecap "square", strokeWidth "2", transform "translate(.865179 1)" ]
             [ Svg.node "path"
@@ -83,6 +83,7 @@ search =
         , height "38"
         , viewBox "0 0 35 38"
         , width "35"
+        , fill "#fff"
         ]
         [ Svg.node "path"
             [ d "m18.7141827 21.4071377-15.7141827 15.7141826-2.12132034-2.1213203 15.29482644-15.2948264c-2.2543839-2.0143638-3.6735061-4.9440418-3.6735061-8.2051736 0-6.07513225 4.9248678-11 11-11s11 4.92486775 11 11c0 6.0751322-4.9248678 11-11 11-1.7152911 0-3.3388837-.3926076-4.7858173-1.0928623zm4.7858173-1.9071377c4.418278 0 8-3.581722 8-8s-3.581722-8-8-8-8 3.581722-8 8 3.581722 8 8 8z" ]

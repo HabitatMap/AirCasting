@@ -1,7 +1,4 @@
-$header-font-size-desktop: 1.125rem;
-
 .header {
-  @include transition(all 0.5s ease);
   background-color: $white;
   box-shadow: $header-shadow;
   font-family: $bold-font;
@@ -18,7 +15,7 @@ $header-font-size-desktop: 1.125rem;
     padding: 0.5rem 0;
 
     &.header--nav-expanded {
-      background-color: $gray;
+      background-color: $brand-primary;
       height: 100%;
       overflow-y: auto;
       position: fixed;
@@ -29,7 +26,6 @@ $header-font-size-desktop: 1.125rem;
   @media screen and (min-width: $small-desktop-min) {
     @include flexbox;
     @include justify-content(space-between);
-    font-size: $header-font-size-desktop;
     height: auto;
   }
 }
@@ -62,8 +58,7 @@ $header-font-size-desktop: 1.125rem;
   }
 
   @media screen and (max-width: $tablet-max) {
-    padding-left: 0;
-    padding-right: 20px;
+    padding-left: 25px; // hamburger icon width
     margin: 0 auto;
     display: none;
 
@@ -106,9 +101,17 @@ $header-font-size-desktop: 1.125rem;
 }
 
 .header__button {
-  @include button-color($blue, $blue, $white, $blue);
+  @include button-color(
+    $text-color: $gray-dark,
+    $border-color: $cta-color,
+    $bg-color: $cta-color,
+    $bg-color-hover: rgba($cta-color, 0.75),
+    $text-color-hover: $gray-dark
+  );
+
   border-width: 1px;
   border-style: solid;
+  border-radius: 0;
   display: inline-block;
   font-size: $base-font-size-2;
   font-family: $bold-font;
@@ -119,15 +122,14 @@ $header-font-size-desktop: 1.125rem;
   text-align: center;
   text-transform: uppercase;
 
-  @media screen and (max-width: $large-mobile-min) {
-    margin: 1rem auto;
-    width: 100%;
-  }
-
-  @media screen and (max-width: $tablet-max) {
-    .header--nav-expanded & {
-      @include button-color($white, $white, $gray, $white);
-    }
+  .header--nav-expanded .nav__sub & {
+    @include button-color(
+      $text-color: $white,
+      $border-color: $white,
+      $bg-color: none,
+      $bg-color-hover: $white,
+      $text-color-hover: $brand-primary
+    );
   }
 }
 
@@ -168,4 +170,48 @@ $header-font-size-desktop: 1.125rem;
   @media screen and (min-width: $small-desktop-min) {
     display: none;
   }
+}
+
+.header__nav-toggle-button {
+  @include appearance(none);
+  background: none;
+  border: 0;
+
+  @media screen and (min-width: $small-desktop-min) {
+    margin-left: $u-space-small;
+    margin-right: $u-space-small;
+    vertical-align: middle;
+  }
+
+  @media screen and (min-width: $desktop-min) {
+    margin-right: $u-space-default;
+  }
+}
+
+.logo--hm-vertical {
+  fill: $white !important;
+}
+
+.desktop-nav-header {
+  @include flexbox;
+  @include justify-content(space-between);
+  padding-bottom: $u-space-small;
+
+  &__close-button {
+    @include appearance(none);
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  .logo--hm-vertical {
+    display: inline-block;
+    position: relative;
+    left: -8px;
+    margin-top: 3px;
+  }
+}
+
+.hm-logo {
+  height: 58px; // quick fix for consistency with HM landing pages
 }

@@ -915,10 +915,14 @@ viewNav : Path -> List Sensor -> String -> Page -> Html Msg
 viewNav navLogo sensors selectedSensorId page =
     header [ class "header", id "js-header" ]
         [ div [ class "header__brand" ]
-            [ button [ class "header__toggle-button js--toggle-nav" ]
-                [ Svgs.navOpen
-                , Svgs.navClose
+            [ button
+                [ class "header__filter-button"
+                , title "Filters"
+                , type_ "button"
+                , ariaLabel "Filters"
+                , Events.onClick ToggleFiltersExpanded
                 ]
+                []
             , div [ class "header__logo" ]
                 [ a
                     [ ariaLabel "AirCasting Page"
@@ -949,18 +953,25 @@ viewNav navLogo sensors selectedSensorId page =
                     , text (Sensor.sensorLabelForId sensors selectedSensorId)
                     ]
                 ]
-            , button
-                [ class "header__filter-button"
-                , title "Filters"
-                , type_ "button"
-                , ariaLabel "Filters"
-                , Events.onClick ToggleFiltersExpanded
+            , button [ class "header__toggle-button js--toggle-nav u--desktop-hidden" ]
+                [ Svgs.navOpen
+                , Svgs.navClose
                 ]
-                []
             ]
         , nav [ class "nav" ]
             [ div [ class "nav__main" ]
-                [ ul [ class "nav-list" ]
+                [ div [ class "desktop-nav-header u--tablet-max-hidden" ]
+                    [ a
+                        [ href "https://www.habitatmap.org/"
+                        , class "hm-logo"
+                        ]
+                        [ Svgs.habitatMapLogo ]
+                    , button
+                        [ class "desktop-nav-header__close-button js--toggle-nav"
+                        ]
+                        [ Svgs.navClose ]
+                    ]
+                , ul [ class "nav-list" ]
                     [ li [ class "nav-list__element" ]
                         [ a [ class "nav-list__link", href ExternalUrl.airbeam ]
                             [ text "AirBeam" ]
@@ -1035,10 +1046,21 @@ viewNav navLogo sensors selectedSensorId page =
                     ]
                 , a [ class "nav-list__link u--capitalized", href ExternalUrl.donate ]
                     [ text "Donate" ]
-                , a [ class "nav-list__link u--capitalized", href ExternalUrl.android, target "_blank" ]
-                    [ text "Download app" ]
                 , a [ class "hm-button hm-button--small header__button", href ExternalUrl.airbeamBuy ]
                     [ text "Get Airbeam" ]
+                ]
+            ]
+        , div [ class "u--tablet-max-hidden" ]
+            [ a
+                [ href "https://www.habitatmap.org/airbeam/buy-it-now"
+                , class "button button--small header__button"
+                ]
+                [ text "Get AirBeam" ]
+            , button
+                [ class "header__nav-toggle-button js--toggle-nav"
+                ]
+                [ Svgs.navOpen
+                , Svgs.navClose
                 ]
             ]
         ]
@@ -1069,7 +1091,14 @@ viewFiltersForPhone model =
             ]
         ]
         [ div [ class "header__brand header__brand--filters" ]
-            [ div [ class "nav-icon-placeholder" ] []
+            [ button
+                [ class "header__toggle-button"
+                , title "Close filters"
+                , type_ "button"
+                , ariaLabel "Close filters"
+                , Events.onClick ToggleFiltersExpanded
+                ]
+                [ Svgs.navClose ]
             , div
                 [ class "filters-info u--show-on-mobile"
                 , Events.onClick ToggleFiltersExpanded
@@ -1085,14 +1114,7 @@ viewFiltersForPhone model =
                     , text (Sensor.sensorLabelForId model.sensors model.selectedSensorId)
                     ]
                 ]
-            , button
-                [ class "header__toggle-button"
-                , title "Close filters"
-                , type_ "button"
-                , ariaLabel "Close filters"
-                , Events.onClick ToggleFiltersExpanded
-                ]
-                [ Svgs.navClose ]
+            , div [ class "nav-icon-placeholder" ] []
             ]
         , viewSessionTypeNav model
         , viewFilters model

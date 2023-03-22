@@ -6,6 +6,7 @@ $grey-text: #a3a0a4;
 $separator-color: #cbcaca;
 $separator-color-light: rgba(203, 202, 202, 0.6);
 $text-color: #757575;
+$cta-color: #ffe651;
 
 // colors - from HM
 $white: #ffffff;
@@ -52,6 +53,7 @@ $indigo: #19237e; // rgb(25, 35, 126)
 $brand-primary: $blue;
 $brand-secondary: $dark-blue;
 $navy-font: #3e4970;
+$cta-color: #ffe651;
 
 $shadow-color: rgba(149, 149, 149, 0.5);
 $shadow-color-blue: rgba(160, 192, 290, 0.5);
@@ -140,3 +142,5 @@ $wider-mobile: 850px; // specific to maps
 // other
 $basic-radius: 8px;
 $input-radius: 6px;
+$nav-font-size-desktop: $base-font-size1;
+$subnav-font-size-desktop: $base-font-size;
