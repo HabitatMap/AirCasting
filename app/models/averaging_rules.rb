@@ -17,4 +17,8 @@ class AveragingRules
       .max { |(t1, _), (t2, _)| t1 <=> t2 }
       &.second
   end
+
+  def first_threshold
+    @rules.min { |(t1, _), (t2, _)| t1 <=> t2 }.first
+  end
 end
