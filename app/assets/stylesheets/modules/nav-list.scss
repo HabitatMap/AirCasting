@@ -14,10 +14,6 @@
   display: block;
   padding: $u-space-tiny 0;
 
-  &[data-current="current page"] {
-    opacity: 0.55;
-  }
-
   &:hover,
   &:focus {
     opacity: 0.75;

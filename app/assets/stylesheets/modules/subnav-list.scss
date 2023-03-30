@@ -17,6 +17,10 @@
   padding: 0.25rem 0;
   white-space: nowrap;
 
+  &[data-current="current page"] {
+    opacity: 0.55;
+  }
+
   &:hover,
   &:focus {
     color: rgba($white, 0.55);
