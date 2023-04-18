@@ -1,69 +1,80 @@
 class AverageStreams
   def initialize(
     rules: AveragingRules
-      .add(threshold: 14_400, window: 5)
+      .add(threshold: 7_200, window: 5)
       .add(threshold: 32_400, window: 60),
-    streams_find_each: StreamsFindEach.new,
-    streams_repository: StreamsRepository.new,
     logger: Rails.logger
   )
     @rules = rules
-    @streams_find_each = streams_find_each
-    @streams_repository = streams_repository
     @logger = logger
   end
 
   def call
-    @streams_find_each.call do |stream|
-      next if average_stream(stream) == :next
-      @streams_repository.calculate_average_value!(stream)
+    stream_ids_to_average.each do |stream_id|
+      measurement_ids_and_values = fetch_data_for_averaging(stream_id)
+      window_size = @rules.window_size(total: measurement_ids_and_values.size)
+
+      Stream.transaction do
+        @logger.info(
+          "Averaging stream ##{stream_id} having #{measurement_ids_and_values.size} measurements with a window of #{window_size} size",
+        )
+        average_measurements(measurement_ids_and_values, window_size)
+        update_stream(stream_id)
+      end
     end
   end
 
   private
 
-  def average_stream(stream)
-    ids = stream.measurements.order('time ASC').pluck(:id)
-    window_size = @rules.window_size(total: ids.count)
-    if window_size.nil?
-      @logger.info(
-        "Stream ##{stream.id} having #{ids.size} measurements skipped."
-      )
-      return :next
+  def stream_ids_to_average
+    Stream
+      .mobile
+      .where('streams.measurements_count > ?', @rules.first_threshold)
+      .pluck(:id)
+  end
+
+  def fetch_data_for_averaging(stream_id)
+    Measurement.where(stream_id: stream_id).order('time ASC').pluck(:id, :value)
+  end
+
+  # slice size should be divisible by all window sizes used for averaging
+  # for now it is a fixed value calculated for currently used window sizes (5 and 60)
+  def average_measurements(measurement_ids_and_values, window_size)
+    measurement_ids_and_values.each_slice(5040) do |batch_of_ids_and_values|
+      average_measurements_batch(batch_of_ids_and_values, window_size)
     end
-    @logger.info(
-      "Averaging stream ##{stream.id} having #{
-        ids.size
-      } measurements with a window of #{window_size} size"
+  end
+
+  def average_measurements_batch(batch_of_ids_and_values, window_size)
+    measurements_data_for_update, ids_to_delete =
+      calculate_averaged_data(batch_of_ids_and_values, window_size)
+
+    Measurement.upsert_all(measurements_data_for_update)
+    Measurement.delete(ids_to_delete)
+  end
+
+  def calculate_averaged_data(ids_and_values, window_size)
+    measurements_data_for_update = []
+    ids_to_delete = []
+
+    ids_and_values.each_slice(window_size) do |slice|
+      size = slice.size
+      middle_id = slice[size / 2][0]
+      ids_and_values_as_hash = slice.to_h
+      average_value = ids_and_values_as_hash.values.sum(0.0) / size
+
+      measurements_data_for_update << { id: middle_id, value: average_value }
+      ids_to_delete += (ids_and_values_as_hash.keys - [middle_id])
+    end
+
+    [measurements_data_for_update, ids_to_delete]
+  end
+
+  def update_stream(stream_id)
+    Stream.reset_counters(stream_id, :measurements)
+    Stream.update(
+      stream_id,
+      average_value: Measurement.where(stream_id: stream_id).average(:value),
     )
-    Stream.transaction do
-      measurements_windows(ids, window_size) do |window|
-        average_measurements(window)
-      end
-    end
-  end
-
-  # cannot use `find_each` or similar because they do not guarantee ordering
-  def measurements_windows(all_ids, window)
-    all_ids.each_slice(query_window_from(window)) do |ids|
-      Measurement
-        .where(id: ids)
-        .order('time ASC')
-        .each_slice(window)
-        .each { |measurement| yield measurement }
-    end
-  end
-
-  def average_measurements(measurements)
-    middle = measurements[measurements.size / 2]
-    average = measurements.map(&:value).reduce(:+) / measurements.size
-    middle.update!(value: average)
-    (measurements - [middle]).each(&:destroy!)
-  end
-
-  # returns number as close as 1_000 which is what `find_each` uses by default
-  def query_window_from(amount)
-    return amount if amount > 1_000
-    query_window_from(amount * 2)
   end
 end
