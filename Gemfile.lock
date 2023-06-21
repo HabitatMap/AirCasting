@@ -1686,7 +1686,7 @@ GEM
     rack (2.2.7)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
-    rack-proxy (0.6.5)
+    rack-proxy (0.7.6)
       rack
     rack-test (2.0.2)
       rack (>= 1.3)
@@ -1784,6 +1784,7 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
+    semantic_range (3.0.0)
     sexp_processor (4.16.0)
     shoulda-matchers (5.1.0)
       activesupport (>= 5.2.0)
@@ -1856,10 +1857,11 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webpacker (4.3.0)
-      activesupport (>= 4.2)
+    webpacker (5.4.4)
+      activesupport (>= 5.2)
       rack-proxy (>= 0.6.1)
-      railties (>= 4.2)
+      railties (>= 5.2)
+      semantic_range (>= 2.3.0)
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -1929,7 +1931,7 @@ DEPENDENCIES
   unicorn
   unicorn-worker-killer
   web-console
-  webpacker
+  webpacker (= 5.4.4)
   whenever
   yui-compressor
 
