@@ -1,17 +1,68 @@
-const baseConfig = require('./base')
+const path = require("path");
+const webpack = require("webpack");
+const elmLoader = require("./loaders/elm");
 
-module.exports = (_, argv) => {
-  let webpackConfig = baseConfig(argv.mode);
+// Extracts CSS into .css file
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+// Removes exported JavaScript files from CSS-only entries
+// in this example, entry.custom will create a corresponding empty custom.js file
+const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 
-  if (argv.mode === 'development') {
-    const devConfig = require('./development');
-    devConfig(webpackConfig);
-  }
+const mode =
+  process.env.NODE_ENV === "development" ? "development" : "production";
 
-  if (argv.mode === 'production') {
-    const prodConfig = require('./production');
-    prodConfig(webpackConfig);
-  }
+module.exports = {
+  mode: mode,
+  optimization: { moduleIds: "deterministic" },
+  devServer: {
+    host: "localhost",
+    port: 3035,
+    hot: true,
+    devMiddleware: {
+      publicPath: "/assets/",
+    },
+  },
+  entry: {
+    application: ["./app/javascript/packs/elm.js"],
+  },
+  output: {
+    filename: "[name].js",
+    sourceMapFilename: "[file].map",
+    path: path.resolve(__dirname, "..", "..", "app/assets/builds"),
+  },
+  module: {
+    rules: [
+      elmLoader,
+      {
+        test: /\.(?:sa|sc|c)ss$/i,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+      },
+      {
+        test: /\.(png|jpe?g|gif|eot|woff2|woff|ttf|svg)$/i,
+        use: "file-loader",
+      },
+    ],
+  },
 
-  return webpackConfig;
-}
+  plugins: [
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1,
+    }),
+    new RemoveEmptyScriptsPlugin(),
+    new MiniCssExtractPlugin(),
+  ],
+  resolve: {
+    extensions: [
+      ".elm",
+      ".js",
+      ".sass",
+      ".scss",
+      ".css",
+      ".png",
+      ".svg",
+      ".gif",
+      ".jpeg",
+      ".jpg",
+    ],
+  },
+};
