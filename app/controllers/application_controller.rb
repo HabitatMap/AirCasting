@@ -6,15 +6,13 @@ end
 class ApplicationController < ActionController::Base
   respond_to :html, :json
 
-  helper Webpacker::Helper
-
   protect_from_forgery with: :null_session
 
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   [
     [NotFound, '404 Not Found', :not_found],
-    [NotAcceptable, '406 Not Acceptable', :not_acceptable]
+    [NotAcceptable, '406 Not Acceptable', :not_acceptable],
   ].each do |clazz, text, status|
     rescue_from clazz do |exception|
       respond_to { |format| format.any { render plain: text, status: status } }
