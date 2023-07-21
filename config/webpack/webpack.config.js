@@ -4,6 +4,7 @@ const elmLoader = require("./loaders/elm");
 
 // Extracts CSS into .css file
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
 // Removes exported JavaScript files from CSS-only entries
 // in this example, entry.custom will create a corresponding empty custom.js file
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
@@ -47,15 +48,6 @@ module.exports = {
         test: /\.(?:sa|sc|c)ss$/i,
         use: [
           MiniCssExtractPlugin.loader,
-          // {
-          //   loader: "file-loader",
-          //   options: {
-          //     sourceMap: true, // Set this option to true to enable source maps for resolve-url-loader
-          //     name: "[name].[ext]", // You can customize the output filename here
-          //     outputPath: "assets/builds", // Output path for the assets (relative to output.path)
-          //     publicPath: "assets/builds", // Public URL path to the assets (relative to your HTML/stylesheet)
-          //   },
-          // },
           {
             loader: "css-loader",
             options: {
