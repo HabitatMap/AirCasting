@@ -14,16 +14,26 @@ const mode =
 module.exports = {
   mode: mode,
   optimization: { moduleIds: "deterministic" },
+  devtool:
+    mode === "production" ? "source-map" : "cheap-module-eval-source-map",
   devServer: {
+    https: false,
     host: "localhost",
     port: 3035,
     hot: true,
     devMiddleware: {
-      publicPath: "/assets/",
+      publicPath: "/assets/builds",
+    },
+    allowedHosts: "all",
+    headers: {
+      "Access-Control-Allow-Origin": "*",
     },
   },
   entry: {
-    application: ["./app/javascript/packs/elm.js"],
+    application: [
+      "./app/javascript/packs/elm.js",
+      "./app/assets/stylesheets/main.scss",
+    ],
   },
   output: {
     filename: "[name].js",
@@ -35,7 +45,37 @@ module.exports = {
       elmLoader,
       {
         test: /\.(?:sa|sc|c)ss$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: "file-loader",
+            options: {
+              sourceMap: true, // Set this option to true to enable source maps for resolve-url-loader
+              name: "[name].[ext]", // You can customize the output filename here
+              outputPath: "assets/builds", // Output path for the assets (relative to output.path)
+              publicPath: "assets/builds", // Public URL path to the assets (relative to your HTML/stylesheet)
+            },
+          },
+          {
+            loader: "css-loader",
+            options: {
+              sourceMap: true, // Set this option to true to enable source maps for resolve-url-loader
+            },
+          },
+
+          {
+            loader: "resolve-url-loader",
+            options: {
+              sourceMap: true, // Set this option to true to enable source maps for resolve-url-loader
+            },
+          },
+          {
+            loader: "sass-loader",
+            options: {
+              sourceMap: true, // Set this option to true to enable source maps for resolve-url-loader
+            },
+          },
+        ],
       },
       {
         test: /\.(png|jpe?g|gif|eot|woff2|woff|ttf|svg)$/i,
@@ -49,7 +89,10 @@ module.exports = {
       maxChunks: 1,
     }),
     new RemoveEmptyScriptsPlugin(),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
+      chunkFilename: "[id].css",
+    }),
   ],
   resolve: {
     extensions: [
@@ -63,6 +106,8 @@ module.exports = {
       ".gif",
       ".jpeg",
       ".jpg",
+      ".eot",
+      ".woff",
     ],
   },
 };
