@@ -18,13 +18,24 @@ module.exports = {
   devtool:
     mode === "production" ? "source-map" : "cheap-module-eval-source-map",
   devServer: {
+    onListening: function (devServer) {
+      if (!devServer) {
+        throw new Error("webpack-dev-server is not defined");
+      }
+
+      const port = devServer.server.address().port;
+      console.log("Listening on port:", port);
+    },
+    static: {
+      directory: path.join(__dirname, "public"),
+      publicPath: "/assets",
+    },
+    magicHtml: true,
+    client: { progress: true, logging: "info" },
     https: false,
     host: "localhost",
     port: 3035,
     hot: true,
-    devMiddleware: {
-      publicPath: "/assets/builds",
-    },
     allowedHosts: "all",
     headers: {
       "Access-Control-Allow-Origin": "*",
