@@ -72,7 +72,6 @@ const sharedWebpackConfig = (mode) => {
         ".js",
         ".jsx",
         ".ts",
-        ".tsx",
         ".js.ts",
         ".vue",
         ".sass",
