@@ -14,16 +14,17 @@ Rails.application.routes.draw do
   devise_for :users,
              controllers: {
                sessions: 'sessions',
-               passwords: 'passwords'
+               passwords: 'passwords',
              }
 
   get 'map', to: redirect('mobile_map', status: 302)
   get 'mobile_map' => 'maps#index'
   get 'fixed_map' => 'maps#index'
+  get 'calendar' => 'calendars#index'
 
   get 's/:url_token' => 'measurement_sessions#show',
       :constraints => {
-        query_string: /.+/
+        query_string: /.+/,
       },
       :as => :short_session
   get 's/:url_token' => 'measurement_sessions#show_old' # legacy API - supports mobile apps released before 06.2019
