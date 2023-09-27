@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   devise_for :users,
              controllers: {
                sessions: 'sessions',
-               passwords: 'passwords'
+               passwords: 'passwords',
              }
 
   get 'map', to: redirect('mobile_map', status: 302)
@@ -23,7 +23,7 @@ Rails.application.routes.draw do
 
   get 's/:url_token' => 'measurement_sessions#show',
       :constraints => {
-        query_string: /.+/
+        query_string: /.+/,
       },
       :as => :short_session
   get 's/:url_token' => 'measurement_sessions#show_old' # legacy API - supports mobile apps released before 06.2019
@@ -47,7 +47,6 @@ Rails.application.routes.draw do
     get 'averages' => 'averages#index'
     get 'averages2' => 'averages#index2'
     resources :thresholds, only: %i[show], id: /.*/
-    resources :regressions, only: %i[create index destroy]
     resource :region, only: %i[show], controller: 'mobile_regions'
     resource :fixed_region, only: %i[show]
     resource :user, only: %i[show create destroy] do
