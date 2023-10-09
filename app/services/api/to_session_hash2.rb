@@ -11,7 +11,6 @@ class Api::ToSessionHash2
       contribute: session.contribute,
       created_at: format_time(session.created_at),
       data_type: session.data_type,
-      end_time: format_time(session.end_time),
       end_time_local: format_time(session.end_time_local),
       instrument: session.instrument,
       is_indoor: session.is_indoor,
@@ -19,7 +18,6 @@ class Api::ToSessionHash2
       latitude: session.latitude,
       longitude: session.longitude,
       measurements_count: session.measurements_count,
-      start_time: format_time(session.start_time),
       start_time_local: format_time(session.start_time_local),
       type: session.type,
       updated_at: format_time(session.updated_at),
@@ -51,9 +49,9 @@ class Api::ToSessionHash2
           threshold_very_low: stream.threshold_very_low,
           unit_name: stream.unit_name,
           unit_symbol: stream.unit_symbol,
-          measurements: measurements
-        }
-      }
+          measurements: measurements,
+        },
+      },
     }
   end
 
