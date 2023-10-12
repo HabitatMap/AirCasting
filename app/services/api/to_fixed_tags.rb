@@ -26,6 +26,7 @@ class Api::ToFixedTags
       sessions2 = sessions2.joins(:user).where(users: { username: usernames })
     end
 
+    # tag_counts is a method from the gem acts-as-taggable-on and it does not work with postgresql
     tags = sessions2.tag_counts.where(['tags.name LIKE ?', "#{data[:input]}%"])
 
     Success.new(tags.map(&:name))

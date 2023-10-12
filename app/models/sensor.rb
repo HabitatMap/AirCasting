@@ -16,6 +16,6 @@ class Sensor
       'AirBeam-PM1'.downcase => ['AirBeam2-PM1', 'AirBeam3-PM1'],
       'AirBeam-RH'.downcase => ['AirBeam3-RH', 'AirBeam2-RH', 'AirBeam-RH'],
       'AirBeam-F'.downcase => ['AirBeam3-F', 'AirBeam2-F', 'AirBeam-F'],
-    }.fetch(sensor_name.downcase, sensor_name.downcase)
+    }.fetch(sensor_name, sensor_name)
   end
 end

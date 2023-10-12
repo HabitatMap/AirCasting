@@ -25,12 +25,13 @@ class Api::ToActiveSessionsJson
     form.to_h.to_h
   end
 
+  # those changes are for the migration but the whole query does not work yet
   def sql
     <<~SQL
       SELECT
-        COALESCE(JSON_OBJECT(
-          'sessions', JSON_ARRAYAGG(
-            JSON_OBJECT(
+        COALESCE(json_build_object(
+          'sessions', json_agg(
+            json_build_object(
               'id', formatted_sessions.id,
               'uuid', formatted_sessions.uuid,
               'title', formatted_sessions.title,
@@ -43,9 +44,11 @@ class Api::ToActiveSessionsJson
               'username', formatted_sessions.username,
               'streams', (
                 SELECT
-                  JSON_OBJECT(
+
+                json_build_object(
                     streams.sensor_name,
-                    JSON_OBJECT(
+
+                    json_build_object(
                       'sensor_name', streams.sensor_name,
                       'measurement_short_type', streams.measurement_short_type,
                       'unit_symbol', streams.unit_symbol,
@@ -59,7 +62,8 @@ class Api::ToActiveSessionsJson
               )
             )),
           'fetchableSessionsCount', (#{sessions.select('COUNT(DISTINCT sessions.id)').to_sql})
-        ), JSON_OBJECT('sessions', JSON_ARRAY(), 'fetchableSessionsCount', 0))
+        ),
+        json_build_object('sessions', JSON_ARRAY(), 'fetchableSessionsCount', 0))
       FROM
         (#{formatted_sessions.to_sql}) AS formatted_sessions
     SQL
@@ -70,10 +74,10 @@ class Api::ToActiveSessionsJson
       'sessions.id',
       'sessions.uuid',
       'sessions.title',
-      'DATE_FORMAT(sessions.start_time_local, "%Y-%m-%dT%H:%i:%s.000Z") AS start_time_local',
-      'DATE_FORMAT(sessions.end_time_local, "%Y-%m-%dT%H:%i:%s.000Z") AS end_time_local',
+      'TO_CHAR(sessions.start_time_local, \'YYYY-MM-DD"T"HH24:MI:SS.MSZ\') AS start_time_local',
+      'TO_CHAR(sessions.end_time_local, \'YYYY-MM-DD"T"HH24:MI:SS.MSZ\') AS end_time_local',
       '(SELECT streams.average_value WHERE streams.session_id = sessions.id) AS last_measurement_value',
-      '(CASE WHEN sessions.is_indoor = 1 THEN cast(TRUE as json) ELSE cast(FALSE as json) END) AS is_indoor',
+      'sessions.is_indoor AS is_indoor',
       'sessions.latitude',
       'sessions.longitude',
       'users.username',

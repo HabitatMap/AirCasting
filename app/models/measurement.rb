@@ -139,6 +139,7 @@ class Measurement < ApplicationRecord
   def in_the_future?(current_time = Time.zone.now)
     # due to a firmware bug in AirBeams some measurements come in with a future timestamp
     # please refer to: https://trello.com/c/HjEIuSYU/1616-fixed-ab-future-timestamps-problem
+    return false unless self.time
     self.time > current_time + 48.hours
   end
 end

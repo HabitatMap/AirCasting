@@ -26,9 +26,9 @@ class Csv::Repository
 SELECT streams.sensor_name, streams.sensor_package_name, streams.measurement_type, streams.unit_name
 FROM sessions
 INNER JOIN streams ON streams.session_id = sessions.id
-WHERE sessions.id = "#{
+WHERE sessions.id = '#{
       session_id
-    }" AND streams.sensor_package_name = '#{sensor_package_name.gsub("'", "''")}'
+    }' AND streams.sensor_package_name = '#{sensor_package_name.gsub("'", "''")}'
 GROUP BY streams.sensor_name, streams.sensor_package_name, streams.measurement_type, streams.unit_name
 ORDER BY streams.sensor_name ASC
     SQL
@@ -48,9 +48,9 @@ INNER JOIN streams
 ON streams.session_id= sessions.id
 INNER JOIN measurements
 ON measurements.stream_id = streams.id
-WHERE sessions.id = "#{
+WHERE sessions.id = '#{
       session_id
-    }" AND streams.sensor_package_name = '#{sensor_package_name.gsub("'", "''")}'
+    }' AND streams.sensor_package_name = '#{sensor_package_name.gsub("'", "''")}'
 ORDER BY measurements.time, measurements.milliseconds, streams.sensor_name ASC
     SQL
 
@@ -63,7 +63,7 @@ SELECT streams.sensor_package_name as stream_sensor_package_name
 FROM sessions
 INNER JOIN streams
 ON streams.session_id= sessions.id
-WHERE sessions.id = "#{session_id}"
+WHERE sessions.id = '#{session_id}'
 GROUP BY streams.sensor_package_name
 ORDER BY streams.sensor_package_name
     SQL
@@ -83,7 +83,7 @@ ORDER BY streams.sensor_package_name
     sql = <<-SQL
 SELECT sessions.title
 FROM sessions
-WHERE sessions.id= "#{session_id}"
+WHERE sessions.id= '#{session_id}'
     SQL
 
     ActiveRecord::Base.connection.exec_query(sql).to_a.first['title']
