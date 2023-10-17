@@ -166,8 +166,8 @@ describe Api::Mobile::SessionsController do
         'end_time_local' => format_time(session.end_time_local),
         'is_indoor' => session.is_indoor,
         'last_measurement_at' => nil,
-        'latitude' => session.latitude,
-        'longitude' => session.longitude,
+        'latitude' => session.latitude.to_f,
+        'longitude' => session.longitude.to_f,
         'start_time_local' => format_time(session.start_time_local),
         'type' => 'MobileSession',
         'updated_at' => format_time(session.updated_at),
@@ -176,11 +176,11 @@ describe Api::Mobile::SessionsController do
         'uuid' => session.uuid,
         'notes' => [
           {
-            'created_at' => format_time(note.created_at),
+            'created_at' => format_time_with_miliseconds(note.created_at),
             'date' => format_time(note.date),
             'id' => note.id,
-            'latitude' => note.latitude,
-            'longitude' => note.longitude,
+            'latitude' => note.latitude.to_f,
+            'longitude' => note.longitude.to_f,
             'number' => note.number,
             'photo_content_type' => note.photo_content_type,
             'photo_file_name' => note.photo_file_name,
@@ -188,26 +188,26 @@ describe Api::Mobile::SessionsController do
             'photo_updated_at' => note.photo_updated_at,
             'session_id' => session.id,
             'text' => note.text,
-            'updated_at' => format_time(note.updated_at),
-          },
+            'updated_at' => format_time_with_miliseconds(note.updated_at)
+          }
         ],
         'streams' => {
           stream.sensor_name => {
             'average_value' => stream.average_value,
             'id' => stream.id,
-            'max_latitude' => stream.max_latitude,
-            'max_longitude' => stream.max_longitude,
+            'max_latitude' => stream.max_latitude.to_f,
+            'max_longitude' => stream.max_longitude.to_f,
             'measurement_short_type' => stream.measurement_short_type,
             'measurement_type' => stream.measurement_type,
             'measurements_count' => 2,
-            'min_latitude' => stream.min_latitude,
-            'min_longitude' => stream.min_longitude,
+            'min_latitude' => stream.min_latitude.to_f,
+            'min_longitude' => stream.min_longitude.to_f,
             'sensor_name' => stream.sensor_name,
             'sensor_package_name' => stream.sensor_package_name,
             'session_id' => session.id,
             'size' => 2,
-            'start_latitude' => stream.start_latitude,
-            'start_longitude' => stream.start_longitude,
+            'start_latitude' => stream.start_latitude.to_f,
+            'start_longitude' => stream.start_longitude.to_f,
             'threshold_high' => stream.threshold_high,
             'threshold_low' => stream.threshold_low,
             'threshold_medium' => stream.threshold_medium,
@@ -218,19 +218,19 @@ describe Api::Mobile::SessionsController do
             'measurements' => [
               {
                 'value' => measurement1.value,
-                'latitude' => measurement1.latitude,
-                'longitude' => measurement1.longitude,
-                'time' => format_time(measurement1.time),
+                'latitude' => measurement1.latitude.to_f,
+                'longitude' => measurement1.longitude.to_f,
+                'time' => format_time(measurement1.time)
               },
               {
                 'value' => measurement2.value,
-                'latitude' => measurement2.latitude,
-                'longitude' => measurement2.longitude,
-                'time' => format_time(measurement2.time),
-              },
-            ],
-          },
-        },
+                'latitude' => measurement2.latitude.to_f,
+                'longitude' => measurement2.longitude.to_f,
+                'time' => format_time(measurement2.time)
+              }
+            ]
+          }
+        }
       }
       # here the lat/long are off cause the formatting in postgres changed and
       # the timestamps are off cause in postgres precision is a bit better
@@ -250,8 +250,8 @@ describe Api::Mobile::SessionsController do
 
   def create_mobile_session!(
     user:,
-    start_time_local: DateTime.current,
-    end_time_local: DateTime.current
+    start_time_local: DateTime.current.change(:usec => 0),
+    end_time_local: DateTime.current.change(:usec => 0)
   )
     MobileSession.create!(
       title: 'title',
@@ -296,7 +296,7 @@ describe Api::Mobile::SessionsController do
 
   def create_measurement!(stream:)
     Measurement.create!(
-      time: DateTime.current,
+      time: DateTime.current.change(:usec => 0),
       latitude: 123,
       longitude: 123,
       value: 1.0,
@@ -308,7 +308,7 @@ describe Api::Mobile::SessionsController do
   def create_note!(session:)
     Note.create!(
       text: 'text',
-      date: DateTime.current,
+      date: DateTime.current.change(:usec => 0),
       latitude: 123,
       longitude: 123,
       session: session,
@@ -321,5 +321,9 @@ describe Api::Mobile::SessionsController do
 
   def format_time_to_i(time)
     time.to_datetime.strftime('%Q').to_i
+  end
+
+  def format_time_with_miliseconds(time)
+    time.strftime('%FT%T.%LZ')
   end
 end

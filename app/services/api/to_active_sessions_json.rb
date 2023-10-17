@@ -5,8 +5,8 @@ class Api::ToActiveSessionsJson
 
   def call
     return Failure.new(form.errors) if form.invalid?
-    query = data[:is_indoor] ? anonymyze(sql) : sql
-    Success.new(ActiveRecord::Base.connection.execute(query).to_a[0][0])
+    result = data[:is_indoor] ? build_json_output(true) : build_json_output
+    Success.new(result)
   end
 
   private
@@ -26,47 +26,38 @@ class Api::ToActiveSessionsJson
   end
 
   # those changes are for the migration but the whole query does not work yet
-  def sql
-    <<~SQL
-      SELECT
-        COALESCE(json_build_object(
-          'sessions', json_agg(
-            json_build_object(
-              'id', formatted_sessions.id,
-              'uuid', formatted_sessions.uuid,
-              'title', formatted_sessions.title,
-              'start_time_local', formatted_sessions.start_time_local,
-              'end_time_local', formatted_sessions.end_time_local,
-              'last_measurement_value', formatted_sessions.last_measurement_value,
-              'is_indoor', formatted_sessions.is_indoor,
-              'latitude', formatted_sessions.latitude,
-              'longitude', formatted_sessions.longitude,
-              'username', formatted_sessions.username,
-              'streams', (
-                SELECT
+  def build_json_output(anonymous = false)
+    sessions = formatted_sessions
+    streams = Stream.where(session_id: sessions.pluck('sessions.id'))
 
-                json_build_object(
-                    streams.sensor_name,
+    sessions_array = sessions.map do |session|
+      related_stream = streams.find { |stream| stream.session_id == session.id }
+      {
+        'id' => session.id,
+        'uuid' => session.uuid,
+        'end_time_local' => session.end_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+        'start_time_local' => session.start_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+        'last_measurement_value' => related_stream&.average_value,
+        'is_indoor' => session.is_indoor,
+        'latitude' => session.latitude,
+        'longitude' => session.longitude,
+        'title' => session.title,
+        'username' => anonymous ? 'anonymous' : session.user.username,
+        'streams' => {
+          related_stream.sensor_name => {
+            'measurement_short_type' => related_stream.measurement_short_type,
+            'sensor_name' => related_stream.sensor_name,
+            'unit_symbol' => related_stream.unit_symbol,
+            'id' => related_stream.id,
+          }
+        }
+      }
+    end
 
-                    json_build_object(
-                      'sensor_name', streams.sensor_name,
-                      'measurement_short_type', streams.measurement_short_type,
-                      'unit_symbol', streams.unit_symbol,
-                      'id', streams.id
-                    )
-                  )
-                FROM
-                  streams
-                WHERE
-                  streams.id = formatted_sessions.stream_id
-              )
-            )),
-          'fetchableSessionsCount', (#{sessions.select('COUNT(DISTINCT sessions.id)').to_sql})
-        ),
-        json_build_object('sessions', JSON_ARRAY(), 'fetchableSessionsCount', 0))
-      FROM
-        (#{formatted_sessions.to_sql}) AS formatted_sessions
-    SQL
+    {
+      'fetchableSessionsCount' => sessions.length,
+      'sessions' => sessions_array
+    }
   end
 
   def formatted_sessions
@@ -74,22 +65,18 @@ class Api::ToActiveSessionsJson
       'sessions.id',
       'sessions.uuid',
       'sessions.title',
-      'TO_CHAR(sessions.start_time_local, \'YYYY-MM-DD"T"HH24:MI:SS.MSZ\') AS start_time_local',
-      'TO_CHAR(sessions.end_time_local, \'YYYY-MM-DD"T"HH24:MI:SS.MSZ\') AS end_time_local',
-      '(SELECT streams.average_value WHERE streams.session_id = sessions.id) AS last_measurement_value',
-      'sessions.is_indoor AS is_indoor',
+      'sessions.start_time_local',
+      'sessions.end_time_local',
+      '(SELECT average_value FROM streams WHERE streams.session_id = sessions.id LIMIT 1)',
+      'sessions.is_indoor',
       'sessions.latitude',
       'sessions.longitude',
       'users.username',
-      'streams.id AS stream_id',
+      'sessions.user_id',
     ])
   end
 
   def sessions
     @sessions ||= FixedSession.active.filter_(data)
-  end
-
-  def anonymyze(sql)
-    sql.gsub(/formatted_sessions\.username/, '\'anonymous\'')
   end
 end

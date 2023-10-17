@@ -18,9 +18,12 @@ class FixedRegionInfo
 
       stats =
         Measurement
+          .unscoped
           .with_streams(stream_id)
+          .reorder(nil)
           .where(time: (end_time - 1.hour)..end_time)
           .select('AVG(value) as average, count(*) as count')
+          .group(:stream_id)
           .first
 
       acc[:average] += stats.average.fdiv(stream_ids.length)

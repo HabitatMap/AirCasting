@@ -248,8 +248,8 @@ describe Api::Fixed::Active::SessionsController do
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => queried_stream.average_value,
             'is_indoor' => session.is_indoor,
-            'latitude' => session.latitude,
-            'longitude' => session.longitude,
+            'latitude' => session.latitude.to_f,
+            'longitude' => session.longitude.to_f,
             'title' => session.title,
             'username' => session.user.username,
             'streams' => {
