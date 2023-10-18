@@ -25,7 +25,8 @@ class Api::ToActiveSessionsJson
     form.to_h.to_h
   end
 
-  # those changes are for the migration but the whole query does not work yet
+  # this was changed from a mysql query to active record to work with postgres, but it might perform worse
+  # this should be tested in terms of performance and actual queries generated vs. old mysql implementation
   def build_json_output(anonymous = false)
     sessions = formatted_sessions
     streams = Stream.where(session_id: sessions.pluck('sessions.id'))

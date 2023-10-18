@@ -139,6 +139,7 @@ class Stream < ApplicationRecord
     Stream.update_counters(self.id, measurements_count: measurements.size - result.failed_instances.size)
   end
 
+  # this change for migration mysql->posgres needs to be tested
   def self.thresholds(sensor_name, unit_symbol)
     subquery = select(
         "ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-') as thresholds, COUNT(*) as thresholds_count"
