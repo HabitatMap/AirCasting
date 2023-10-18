@@ -11,6 +11,8 @@ class Measurement < ApplicationRecord
   has_one :user, through: :session
 
   validates :stream_id, :value, :longitude, :latitude, :time, presence: true
+  validate :time_in_the_future
+
 
   prepare_range(:longitude_range, 'measurements.longitude')
   prepare_range(:latitude_range, 'measurements.latitude')
@@ -136,10 +138,11 @@ class Measurement < ApplicationRecord
     super(options.merge(except: %i[timezone_offset]))
   end
 
-  def in_the_future?(current_time = Time.zone.now)
     # due to a firmware bug in AirBeams some measurements come in with a future timestamp
     # please refer to: https://trello.com/c/HjEIuSYU/1616-fixed-ab-future-timestamps-problem
-    return false unless self.time
-    self.time > current_time + 48.hours
+  def time_in_the_future
+    if self.time && self.time > 48.hours.from_now
+      errors.add(:time, 'time cannot be more than 48 hours in the future')
+    end
   end
 end
