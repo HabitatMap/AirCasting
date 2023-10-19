@@ -1,4 +1,4 @@
-import Highcharts from "highcharts/highstock";
+import Highcharts from "highcharts";
 
 const buildChart = ({ renderTo }) => ({
   renderTo,
