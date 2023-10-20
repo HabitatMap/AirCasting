@@ -29,6 +29,7 @@ set :whenever_roles, :all
 set :linked_dirs,
     fetch(:linked_dirs, []).push(
       'public/assets',
+      'public/packs',
       'log',
       'tmp/pids',
       'tmp/cache',
