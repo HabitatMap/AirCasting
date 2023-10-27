@@ -45,7 +45,6 @@ const buildRangeSelector = ({ buttons, selected }) => ({
 
     states: {
       hover: {
-        cursor: "pointer",
         fill: "#00b2ef",
         style: {
           color: "white",
