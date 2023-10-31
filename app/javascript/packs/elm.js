@@ -11,7 +11,7 @@ import resetIconWhite from "../../assets/images/icons/reset-icon-white.svg";
 import themeSwitchIconBlue from "../../assets/images/icons/theme-switch-icon-blue.svg";
 import themeSwitchIconDefault from "../../assets/images/icons/theme-switch-icon-default.svg";
 import navLogo from "../../assets/images/aircasting-logo-nav";
-import "nouislider";
+import noUiSlider from "nouislider";
 import * as graph from "../javascript/graph";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
