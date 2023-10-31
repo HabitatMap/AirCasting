@@ -7,6 +7,7 @@ const {
   additionalPaths,
   publicRootPath,
   publicOutputPath,
+  devServerPort,
 } = require("./config");
 const getRules = require("./rules");
 const getPlugins = require("./plugins");
@@ -48,6 +49,9 @@ const getModulePaths = () => {
 const sharedWebpackConfig = (mode) => {
   const isProduction = mode === "production";
   const hash = isProduction ? "-[contenthash]" : "";
+  const publicPath = isProduction
+    ? `/${publicOutputPath}/`
+    : `http://localhost:${devServerPort}/${publicOutputPath}/`;
 
   return {
     mode,
@@ -94,7 +98,7 @@ const sharedWebpackConfig = (mode) => {
       chunkFilename: `js/[name]${hash}.chunk.js`,
       hotUpdateChunkFilename: "js/[id].[fullhash].hot-update.js",
       path: resolve(process.cwd(), `${publicRootPath}/${publicOutputPath}`),
-      publicPath: `/${publicOutputPath}/`,
+      publicPath: publicPath,
     },
     plugins: getPlugins(isProduction),
   };
