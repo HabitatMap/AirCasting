@@ -6,7 +6,7 @@
     "test": "NODE_ENV=test blue-tape -r @babel/register app/javascript/javascript/tests/**/*.test.js",
     "coverage": "NODE_ENV=test nyc --require @babel/register blue-tape app/javascript/javascript/tests/**/*.test.js",
     "coverage:lcov": "NODE_ENV=test nyc --require @babel/register --reporter=lcov blue-tape app/javascript/javascript/tests/**/*.test.js",
-    "build": "webpack --config ./config/webpack/webpack.config.js --mode production --progress",
+    "build": "webpack --config ./config/webpack/webpack.config.js --mode production",
     "dev": "webpack serve --config ./config/webpack/webpack.config.js --mode development --progress"
   },
   "dependencies": {
@@ -42,6 +42,7 @@
     "resolve-url-loader": "^5.0.0",
     "sass": "^1.63.6",
     "sass-loader": "^13.3.2",
+    "style-loader": "^3.3.3",
     "styled-components": "^6.1.1",
     "tippy.js": "^6.3.7",
     "ts-loader": "^9.4.4",
@@ -57,7 +58,7 @@
     "@babel/register": "^7.16.0",
     "@istanbuljs/nyc-config-babel": "^3.0.0",
     "@prettier/plugin-ruby": "^2.0.0",
-    "@types/react": "^18.2.23",
+    "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.8",
     "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-macros": "^3.1.0",
