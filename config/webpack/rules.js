@@ -41,12 +41,12 @@ const getEsbuildLoader = (options) => {
 
 const getEsbuildRule = () => {
   return {
-    test: /\.(js|jsx|mjs)?(\.erb)?$/,
+    test: /\.(js|jsx)$/,
     include: [sourcePath, ...additionalPaths].map((path) =>
       resolve(process.cwd(), path)
     ),
     exclude: /node_modules/,
-    use: [getEsbuildLoader({ target: "es2016" })],
+    use: [getEsbuildLoader({ loader: "jsx", target: "es2016" })],
   };
 };
 
