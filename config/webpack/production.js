@@ -1,5 +1,30 @@
-process.env.NODE_ENV = process.env.NODE_ENV || "production";
+const { EsbuildPlugin } = require('esbuild-loader')
+const CompressionPlugin = require('compression-webpack-plugin')
 
-const environment = require("./environment");
+module.exports = (webpackConfig) => {
+  webpackConfig.devtool = 'source-map'
+  webpackConfig.stats = 'normal'
+  webpackConfig.bail = true
 
-module.exports = environment.toWebpackConfig();
+  webpackConfig.plugins.push(
+    new CompressionPlugin({
+      filename: '[path][base].gz[query]',
+      algorithm: 'gzip',
+      test: /\.(js|css|html|json|ico|svg|eot|otf|ttf|map)$/
+    })
+  )
+
+  const prodOptimization = {
+    minimize: true,
+    minimizer: [
+      new EsbuildPlugin({
+        target: 'es2015',
+        css: true  // Apply minification to CSS assets
+      })
+    ]
+  }
+
+  Object.assign(webpackConfig.optimization, prodOptimization);
+
+  return webpackConfig;
+}
