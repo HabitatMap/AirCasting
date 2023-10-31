@@ -6,6 +6,6 @@
     "jsx": "react",
     "esModuleInterop": true
   },
-  "include": ["app/javascript/react/**/*.ts", "app/javascript/react/**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "include": ["app/javascript/react", "app/javascript/@types/assets.d.ts"]
 }
