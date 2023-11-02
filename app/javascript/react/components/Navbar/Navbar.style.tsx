@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import { cta, theme, white } from "../../assets/styles/colors";
 
 const Header = styled.header`
+  background-color: ${white};
   display: flex;
   justify-content: space-between;
   align-items: center;

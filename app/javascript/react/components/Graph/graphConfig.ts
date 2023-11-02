@@ -1,7 +1,15 @@
-import Highcharts from "highcharts";
+import Highcharts, {
+  ChartOptions,
+  CreditsOptions,
+  NavigatorOptions,
+  PlotLineOptions,
+  PlotOptions,
+  ResponsiveOptions,
+  ScrollbarOptions,
+  SeriesLabelOptionsObject,
+} from "highcharts";
 
-const buildChart = ({ renderTo }) => ({
-  renderTo,
+const chart: ChartOptions = {
   height: 230,
   spacingTop: 5,
   spacingBottom: 5,
@@ -10,39 +18,69 @@ const buildChart = ({ renderTo }) => ({
   marginBottom: 22,
   marginRight: 5,
   marginLeft: 5,
-  zoomType: "x",
+  // TODO Somer error here
+  // zoomType: "x",
   resetZoomButton: {
     theme: {
       display: "none",
     },
   },
-});
+};
 
-const labels = {
+const labelsOptions: SeriesLabelOptionsObject = {
   style: {
     fontFamily: "Arial,sans-serif",
   },
 };
 
-const navigator = {
+const navigator: NavigatorOptions = {
   enabled: false,
 };
 
-const buildRangeSelector = ({ buttons, selected }) => ({
-  height: 32,
-  buttonSpacing: 15,
+export const plotOptions: PlotOptions = {
+  line: {
+    color: "#FFFFFF",
+    turboThreshold: 9999999, //above that graph will not display,
+    marker: {
+      fillColor: "#00b2ef",
+      lineWidth: 0,
+      lineColor: "#00b2ef",
+    },
 
+    dataGrouping: {
+      enabled: true,
+      units: [
+        ["millisecond", null],
+        ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
+        ["minute", [1, 2, 3, 4, 5]],
+      ],
+    },
+  },
+};
+
+const credits: CreditsOptions = {
+  enabled: true,
+  position: { align: "right", verticalAlign: "top", x: -4, y: 32 },
+};
+
+interface RangeSelectorOptions {
+  buttons: any[]; // Define a more specific type here if possible
+  selected: number;
+}
+
+const rangeSelectorConfig = ({ buttons, selected }: RangeSelectorOptions) => ({
+  height: 32,
+
+  buttonSpacing: 15,
   buttonTheme: {
     fill: "none",
     width: 48,
     r: 12,
     stroke: "rgba(149, 149, 149, 0.3)",
     "stroke-width": 1,
-
     style: {
       fontFamily: '"PT Sans", Arial, sans-serif',
     },
-
     states: {
       hover: {
         fill: "#00b2ef",
@@ -50,7 +88,6 @@ const buildRangeSelector = ({ buttons, selected }) => ({
           color: "white",
         },
       },
-
       select: {
         fill: "#00b2ef",
         style: {
@@ -58,7 +95,6 @@ const buildRangeSelector = ({ buttons, selected }) => ({
           fontWeight: "bold",
         },
       },
-
       disabled: {
         style: {
           color: "#a3a0a4",
@@ -80,28 +116,7 @@ const buildRangeSelector = ({ buttons, selected }) => ({
   selected,
 });
 
-const plotOptions = {
-  line: {
-    lineColor: "#FFFFFF",
-    turboThreshold: 9999999, //above that graph will not display,
-    marker: {
-      fillColor: "#00b2ef",
-      lineWidth: 0,
-      lineColor: "#00b2ef",
-    },
-
-    dataGrouping: {
-      enabled: true,
-      units: [
-        ["millisecond", []],
-        ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
-        ["minute", [1, 2, 3, 4, 5]],
-      ],
-    },
-  },
-};
-
-const scrollbarOptions = {
+const scrollbar: ScrollbarOptions = {
   barBackgroundColor: "#D5D4D4",
   barBorderRadius: 7,
   barBorderWidth: 0,
@@ -116,9 +131,10 @@ const scrollbarOptions = {
   trackBackgroundColor: "none",
   trackBorderWidth: 0,
   showFull: false,
+  liveRedraw: false,
 };
 
-const buildXAxis = (xAxis) => ({
+const buildXAxis = (xAxis: any) => ({
   labels: {
     style: {
       color: "#000",
@@ -126,10 +142,19 @@ const buildXAxis = (xAxis) => ({
     },
   },
   minRange: 10000,
-  ...xAxis,
+  ordinal: false,
+  events: {
+    // afterSetExtremes,
+  },
 });
 
-const buildYAxis = ({ low, high, ticks }) => ({
+interface YAxisOptions {
+  low: number;
+  high: number;
+  ticks: number[];
+}
+
+const buildYAxis = ({ low, high, ticks }: YAxisOptions) => ({
   min: low,
   max: high,
   startOnTick: true,
@@ -146,15 +171,27 @@ const buildYAxis = ({ low, high, ticks }) => ({
   tickPositions: ticks,
 });
 
+interface FormatterOptions {
+  measurementType: string;
+  unitSymbol: string;
+  onMouseOverSingle: (data: any) => void; // Define a more specific type here if possible
+  onMouseOverMultiple: (start: number, end: number) => void;
+}
+
+interface TooltipFormatterThisContext {
+  points: any[]; // Replace any with the actual type
+  x: number;
+  // any other properties you access via this
+}
+
 const formatter = ({
   measurementType,
   unitSymbol,
   onMouseOverSingle,
   onMouseOverMultiple,
-}) =>
-  function () {
+}: FormatterOptions) =>
+  function (this: TooltipFormatterThisContext) {
     var pointData = this.points[0];
-    debugger;
     var series = pointData.series;
     var s = "<span>" + Highcharts.dateFormat("%m/%d/%Y", this.x) + " ";
     if (series.hasGroupedData) {
@@ -181,12 +218,20 @@ const formatter = ({
     return s;
   };
 
-const buildTooltip = ({
+interface TooltipThisContext {
+  chart: {
+    plotWidth: number;
+    // Other properties and methods you might access go here
+  };
+  // Other properties and methods you might access go here
+}
+
+const tooltipConfig = ({
   measurementType,
   unitSymbol,
   onMouseOverSingle,
   onMouseOverMultiple,
-}) => ({
+}: FormatterOptions) => ({
   style: {
     color: "#000000",
     fontFamily: "Arial,sans-serif",
@@ -199,7 +244,12 @@ const buildTooltip = ({
     onMouseOverSingle,
     onMouseOverMultiple,
   }),
-  positioner: function (labelWidth, labelHeight, point) {
+  positioner: function (
+    this: TooltipThisContext,
+    labelWidth: number,
+    labelHeight: number,
+    point: { plotX: number; plotY: number }
+  ) {
     const pointerWidth = 10;
     const tooltipX = Math.min(
       Math.max(0, point.plotX - (labelWidth - pointerWidth) / 2), // (extreme left, middle)
@@ -217,12 +267,7 @@ const buildTooltip = ({
   },
 });
 
-const credits = {
-  enabled: true,
-  position: { align: "right", verticalAlign: "top", x: -4, y: 32 },
-};
-
-const responsive = {
+const responsive: ResponsiveOptions = {
   rules: [
     {
       condition: {
@@ -230,7 +275,8 @@ const responsive = {
       },
       chartOptions: {
         rangeSelector: {
-          height: 30,
+          // TODO some error here
+          // height: 30,
           buttonSpacing: 8,
 
           buttonTheme: {
@@ -269,36 +315,38 @@ const responsive = {
   ],
 };
 
-export const buildOptions = ({
-  renderTo,
-  buttons,
-  selectedButton,
-  series,
-  xAxis,
-  low,
-  high,
-  ticks,
-  scrollbar,
-  measurementType,
-  unitSymbol,
-  onMouseOverSingle,
-  onMouseOverMultiple,
-}) => ({
-  chart: buildChart({ renderTo }),
-  labels,
-  navigator,
-  rangeSelector: buildRangeSelector({ buttons, selected: selectedButton }),
-  series,
-  plotOptions,
-  tooltip: buildTooltip({
-    measurementType,
-    unitSymbol,
-    onMouseOverSingle,
-    onMouseOverMultiple,
-  }),
-  xAxis: buildXAxis(xAxis),
-  yAxis: buildYAxis({ low, high, ticks }),
-  scrollbar: { ...scrollbar, ...scrollbarOptions },
-  credits,
-  responsive,
-});
+// interface BuildOptionsParams {
+//   renderTo: string;
+//   buttons: any[]; // Define a more specific type here if possible
+//   selectedButton: number;
+//   series: any[]; // Define a more specific type here if possible
+//   xAxis: any;
+//   low: number;
+//   high: number;
+//   ticks: number[];
+//   scrollbar: any; // Define a more specific type here if possible
+//   measurementType: string;
+//   unitSymbol: string;
+//   onMouseOverSingle: (data: any) => void; // Define a more specific type here if possible
+//   onMouseOverMultiple: (start: number, end: number) => void;
+// }
+
+export const measurementGraphConfig: Highcharts.Options = {
+  // navigator,
+  // plotOptions,
+  // credits,
+  // labelsOptions,
+  // responsive,
+  // chart,
+  // scrollbar,
+  // rangeSelector: rangeSelectorConfig({ buttons, selected: selectedButton }),
+  // tooltip: tooltipConfig({
+  //   measurementType,
+  //   unitSymbol,
+  //   onMouseOverSingle,
+  //   onMouseOverMultiple,
+  // }),
+  // xAxis: buildXAxis(xAxis),
+  // yAxis: buildYAxis({ low, high, ticks }),
+  // // reconstruct or pass input config
+};
