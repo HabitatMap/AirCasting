@@ -26,7 +26,6 @@ bin/setup
 
 Go to https://bitly.com/ create an account and log in. To generate the token go to Settings -> Advanced settings -> For Developers -> OAuth -> Generic Access Token.
 
-
 ## Development
 
 ```bash
@@ -34,10 +33,15 @@ rvm use
 nvm use
 # make sure redis is running (brew info redis)
 foreman start
-open http://localhost:5000/mobile_map
+open http://localhost:3000/mobile_map
 ```
 
 If `foreman` does not work, start the single processes manually: `./Procfile`.
+
+```bash
+yarn dev
+rails s
+```
 
 ## Tests
 
