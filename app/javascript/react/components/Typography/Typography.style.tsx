@@ -35,4 +35,12 @@ const H6 = styled.h6<{ bold?: boolean; uppercase?: boolean }>`
   letter-spacing: ${(p) => (p.uppercase ? "0.1px" : "normal")};
 `;
 
-export { H1, H2, H3, H4, H5, H6 };
+const buttonText = css`
+  font-family: "Roboto";
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.14px;
+`;
+
+export { H1, H2, H3, H4, H5, H6, buttonText };
