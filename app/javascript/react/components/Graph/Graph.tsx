@@ -4,7 +4,6 @@ import HighchartsReact from "highcharts-react-official";
 // https://api.highcharts.com/highcharts/plotOptions
 
 import * as S from "./Graph.style";
-import { measurementGraphConfig } from "./graphConfig";
 import { graphGreen, graphOrange, graphRed, graphYellow } from "../../assets/styles/colors";
 
 const data = [
@@ -41,6 +40,9 @@ const options: Highcharts.Options = {
     align: "left",
   },
   xAxis: {
+    title: {
+      text: undefined,
+    },
     type: "datetime",
     labels: {
       overflow: "justify",
@@ -48,8 +50,10 @@ const options: Highcharts.Options = {
   },
   yAxis: {
     title: {
-      text: "Wind speed (m/s)",
+      text: undefined,
     },
+    opposite: true,
+    tickWidth: 1,
     minorGridLineWidth: 0,
     gridLineWidth: 0,
     plotBands: [
@@ -70,7 +74,7 @@ const options: Highcharts.Options = {
       },
       {
         from: 150,
-        to: 200,
+        to: 210,
         color: graphRed,
       }
     ],
@@ -83,7 +87,6 @@ const options: Highcharts.Options = {
       }
     }
   },
-
   series: [
     {
       type: "spline",
@@ -94,6 +97,9 @@ const options: Highcharts.Options = {
       },
     },
   ],
+  legend: {
+    enabled: false,
+  },
 };
 
 const Graph = (props: HighchartsReact.Props) => {
