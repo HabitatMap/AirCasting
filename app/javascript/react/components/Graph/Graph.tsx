@@ -1,9 +1,11 @@
 import React from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
+// https://api.highcharts.com/highcharts/plotOptions
 
 import * as S from "./Graph.style";
 import { measurementGraphConfig } from "./graphConfig";
+import { graphGreen, graphOrange, graphRed, graphYellow } from "../../assets/styles/colors";
 
 const data = [
   [1636381800000, 150.44],
@@ -30,7 +32,7 @@ const data = [
   [1638973800000, 175.08],
   [1639060200000, 174.56],
   [1639146600000, 179.45],
-  [1639405800000, 175.74],
+  [1639405800000, 100.74],
 ];
 
 const options: Highcharts.Options = {
@@ -52,118 +54,40 @@ const options: Highcharts.Options = {
     gridLineWidth: 0,
     plotBands: [
       {
-        // Light air
         from: 0,
+        to: 100,
+        color: graphGreen,
+      },
+      {
+        from: 100,
+        to: 130,
+        color: graphYellow,
+      },
+      {
+        from: 130,
         to: 150,
-        color: "rgba(68, 170, 213, 0.1)",
-        label: {
-          style: {
-            color: "#ff6060",
-          },
-        },
+        color: graphOrange,
       },
       {
-        // Light breeze
-        from: 1.5,
-        to: 3.3,
-        color: "rgba(0, 0, 0, 0)",
-        label: {
-          text: "Light breeze",
-          style: {
-            color: "#606060",
-          },
-        },
-      },
-      {
-        // Gentle breeze
-        from: 3.3,
-        to: 5.5,
-        color: "rgba(68, 170, 2, 0.1)",
-        label: {
-          text: "Gentle breeze",
-          style: {
-            color: "#606060",
-          },
-        },
-      },
-      {
-        // Moderate breeze
-        from: 5.5,
-        to: 8,
-        color: "rgba(100, 90, 200, 1)",
-        label: {
-          text: "Moderate breeze",
-          style: {
-            color: "#606060",
-          },
-        },
-      },
-      {
-        // Fresh breeze
-        from: 8,
-        to: 11,
-        color: "rgba(68, 170, 213, 0.1)",
-        label: {
-          text: "Fresh breeze",
-          style: {
-            color: "#606060",
-          },
-        },
-      },
-      {
-        // Strong breeze
-        from: 11,
-        to: 14,
-        color: "rgba(0, 0, 0, 0)",
-        label: {
-          text: "Strong breeze",
-          style: {
-            color: "#606060",
-          },
-        },
-      },
-      {
-        // Near Gale
-        from: 14,
-        to: 17,
-        color: "rgba(68, 170, 213, 0.1)",
-        label: {
-          text: "Near gale",
-          style: {
-            color: "#606060",
-          },
-        },
-      },
-      {
-        // Fresh Gale
-        from: 17,
-        to: 20.5,
-        color: "rgba(0, 0, 0, 0)",
-        label: {
-          text: "Fresh gale",
-          style: {
-            color: "#606060",
-          },
-        },
-      },
-      {
-        // Strong Gale
-        from: 20.5,
-        to: 24,
-        color: "rgba(68, 170, 213, 0.1)",
-        label: {
-          text: "Strong gale",
-          style: {
-            color: "#606060",
-          },
-        },
-      },
+        from: 150,
+        to: 200,
+        color: graphRed,
+      }
     ],
+  },
+  plotOptions: {
+    spline: {
+      lineWidth: 3,
+      marker: {
+        enabled: false
+      }
+    }
   },
 
   series: [
     {
-      type: "line",
+      type: "spline",
+      color: "white",
       data: data,
       tooltip: {
         valueDecimals: 2,
