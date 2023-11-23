@@ -33,10 +33,15 @@ rvm use
 nvm use
 # make sure redis is running (brew info redis)
 foreman start
-open http://localhost:5000/mobile_map
+open http://localhost:3000/mobile_map
 ```
 
 If `foreman` does not work, start the single processes manually: `./Procfile`.
+
+```bash
+yarn dev
+rails s
+```
 
 ## Tests
 
