@@ -11,11 +11,8 @@ const buttonGeneralStyles = css`
   gap: 10px;
 `;
 
-const Button = styled.button`
+const HeaderButton = styled.button`
   ${buttonGeneralStyles}
-`;
-
-const HeaderButton = styled(Button)`
   justify-content: flex-end;
   display: flex;
   border: 1px solid ${lightGray};
@@ -23,3 +20,9 @@ const HeaderButton = styled(Button)`
 `;
 
 export { HeaderButton };
+
+// const Button = styled.button`
+//   ${buttonGeneralStyles}
+// `;
+
+// const HeaderButton = styled(Button)`
