@@ -25,7 +25,7 @@ export const sensors = (params) => {
           })
         : buildSensorId({
             measurement_type: "Particulate Matter",
-            sensor_name: "OpenAQ-PM2.5",
+            sensor_name: "AirBeam-PM2.5",
             unit_symbol: "µg/m³",
           });
     },
