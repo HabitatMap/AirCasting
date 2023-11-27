@@ -16,11 +16,11 @@ const GlobalStyles = createGlobalStyle`
 
   body {
     box-sizing: border-box;
-    font-family: "Moderat-Bold";
+    font-family: 'Roboto';
+    line-height: 1;
   }
 
   H1, H2, H3, H4, H5, H6 {
-    font-family: 'Roboto';
     line-height: 1.2;
     color: ${darkGray};
   }
