@@ -2,7 +2,8 @@ const cta = "#ffe651";
 const theme = "#00b2ef";
 
 const white = "#fff";
-
 const darkGray = "#3E4449";
+const mint = "#81dbcb";
+const blue = "#00b3ef";
 
-export { cta, theme, white, darkGray };
+export { cta, theme, white, darkGray, mint, blue };
