@@ -1,6 +1,12 @@
 import styled, { css } from "styled-components";
-import { buttonText } from "../../assets/styles/Typography";
 import { lightGray } from "../../assets/styles/colors";
+
+const buttonText = css`
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.14px;
+`;
 
 const buttonGeneralStyles = css`
   ${buttonText}
@@ -20,9 +26,3 @@ const HeaderButton = styled.button`
 `;
 
 export { HeaderButton };
-
-// const Button = styled.button`
-//   ${buttonGeneralStyles}
-// `;
-
-// const HeaderButton = styled(Button)`
