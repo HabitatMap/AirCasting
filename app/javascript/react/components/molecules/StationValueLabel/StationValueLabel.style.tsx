@@ -10,8 +10,6 @@ const Container = styled.div`
     ),
     ${mint};
   display: flex;
-  flex-direction: row;
-  align-items: flex-end;
   justify-content: space-between;
   padding: 34px 20px;
   width: 290px;
@@ -25,7 +23,6 @@ const ImageContainer = styled.img`
 `;
 
 const TextContainer = styled.div`
-  flex: 1;
   display: flex;
   flex-direction: column;
   text-align: right;
@@ -40,6 +37,7 @@ const Label = styled.span`
 const Header = styled.span`
   font-size: 72px;
   font-weight: 600;
+  padding-bottom: 5px;
 `;
 
 export { Container, ImageContainer, TextContainer, Label, Header };
