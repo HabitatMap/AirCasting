@@ -4,7 +4,7 @@ import HighchartsReact from "highcharts-react-official";
 // https://api.highcharts.com/highcharts/plotOptions
 
 import * as S from "./Graph.style";
-import { graphGreen, graphOrange, graphRed, graphYellow } from "../../assets/styles/colors";
+import { graphGreen, graphOrange, graphRed, graphYellow, white, tickDarkGray, tickLightGray } from "../../assets/styles/colors";
 
 const data = [
   [1636381800000, 150.44],
@@ -43,6 +43,8 @@ const options: Highcharts.Options = {
     title: {
       text: undefined,
     },
+    tickColor: tickLightGray,
+    lineColor: white,
     type: "datetime",
     labels: {
       overflow: "justify",
@@ -52,6 +54,10 @@ const options: Highcharts.Options = {
     title: {
       text: undefined,
     },
+    endOnTick: false,
+    startOnTick: false,
+    tickColor: tickDarkGray,
+    lineColor: white,
     opposite: true,
     tickWidth: 1,
     minorGridLineWidth: 0,
@@ -90,7 +96,7 @@ const options: Highcharts.Options = {
   series: [
     {
       type: "spline",
-      color: "white",
+      color: white,
       data: data,
       tooltip: {
         valueDecimals: 2,

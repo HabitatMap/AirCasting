@@ -7,5 +7,7 @@ const graphRed = "#ff464c";
 const graphOrange = "#f99435";
 const graphYellow = "#fdd44f";
 const graphGreen = "#86d175";
+const tickDarkGray = "#7D858C";
+const tickLightGray = "#C0C9D1"
 
-export { cta, theme, white, darkGray, graphRed, graphOrange, graphYellow, graphGreen };
+export { cta, theme, white, darkGray, graphRed, graphOrange, graphYellow, graphGreen, tickDarkGray, tickLightGray };
