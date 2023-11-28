@@ -3,6 +3,8 @@ import React from "react";
 
 import { App } from "../react/App.tsx";
 
+import "../react/assets/styles/typography";
+
 const container = document.getElementById("calendar");
 const root = createRoot(container);
 
