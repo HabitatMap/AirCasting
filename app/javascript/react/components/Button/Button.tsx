@@ -1,6 +1,6 @@
 import React from "react";
 
-import * as S from "./Button.style";
+import { HeaderButton } from "./Button.style";
 
 interface ButtonProps {
   onClick: () => void;
@@ -8,7 +8,7 @@ interface ButtonProps {
 }
 
 const Button = ({ onClick, children }: ButtonProps) => (
-  <S.HeaderButton onClick={onClick}>{children}</S.HeaderButton>
+  <HeaderButton onClick={onClick}>{children}</HeaderButton>
 );
 
 export { Button };
