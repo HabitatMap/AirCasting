@@ -32,7 +32,7 @@ const H6 = styled.h6<{ bold?: boolean; uppercase?: boolean }>`
   font-weight: ${(p) => (p.bold ? "500" : "400")};
   font-size: 10px;
   text-transform: ${(p) => (p.uppercase ? "uppercase" : "none")};
-  letterspacing: ${(p) => (p.uppercase ? "0.1px" : "normal")};
+  letter-spacing: ${(p) => (p.uppercase ? "0.1px" : "normal")};
 `;
 
 export { H1, H2, H3, H4, H5, H6 };
