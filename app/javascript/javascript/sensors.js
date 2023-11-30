@@ -17,17 +17,11 @@ export const sensors = (params) => {
 
   Sensors.prototype = {
     defaultSensorId: function () {
-      return window.location.pathname === constants.mobileMapRoute
-        ? buildSensorId({
-            measurement_type: "Particulate Matter",
-            sensor_name: "AirBeam-PM2.5",
-            unit_symbol: "µg/m³",
-          })
-        : buildSensorId({
-            measurement_type: "Particulate Matter",
-            sensor_name: "OpenAQ-PM2.5",
-            unit_symbol: "µg/m³",
-          });
+       return buildSensorId({
+         measurement_type: "Particulate Matter",
+         sensor_name: "AirBeam-PM2.5",
+         unit_symbol: "µg/m³",
+      })
     },
 
     setSensors: function (data) {
