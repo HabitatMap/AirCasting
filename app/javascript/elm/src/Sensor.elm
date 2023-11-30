@@ -46,7 +46,6 @@ defaultSensorIdByParameter page =
         Fixed ->
             common
                 |> Dict.insert "Particulate Matter" fixedDefaultSensorId
-                |> Dict.insert "Ozone" "Ozone-openaq-o3 (ppb)"
 
 
 mainSensors : Page -> Dict.Dict String (List String)
@@ -77,11 +76,6 @@ mainSensors page =
 
         Fixed ->
             common
-                |> Dict.insert "Ozone" [ "OpenAQ-O3 (ppb)" ]
-                |> Dict.update "Particulate Matter"
-                    (Maybe.map
-                        (\labels -> labels ++ [ "OpenAQ-PM2.5 (µg/m³)", "PurpleAir-PM2.5 (µg/m³)" ])
-                    )
 
 
 type alias Sensor =

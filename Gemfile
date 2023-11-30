@@ -14,6 +14,7 @@ gem 'geocoder', '~> 1.2'
 gem 'haml'
 gem 'honeybadger'
 gem 'httparty'
+gem 'jsbundling-rails'
 gem 'mysql2'
 gem 'newrelic_rpm'
 gem 'oj'
@@ -37,7 +38,6 @@ gem 'timezone_finder'
 gem 'uglifier'
 gem 'unicorn'
 gem 'unicorn-worker-killer'
-gem 'webpacker', '5.4.4'
 gem 'whenever', require: false
 
 group :development do
