@@ -59,6 +59,9 @@ GEM
       activesupport (= 6.1.7.1)
     activerecord-import (1.3.0)
       activerecord (>= 4.2)
+    activerecord-postgis-adapter (7.1.1)
+      activerecord (~> 6.1)
+      rgeo-activerecord (~> 7.0.0)
     activestorage (6.1.7.1)
       actionpack (= 6.1.7.1)
       activejob (= 6.1.7.1)
@@ -1750,6 +1753,10 @@ GEM
     responders (3.0.1)
       actionpack (>= 5.0)
       railties (>= 5.0)
+    rgeo (3.0.0)
+    rgeo-activerecord (7.0.1)
+      activerecord (>= 5.0)
+      rgeo (>= 1.0.0)
     rspec-core (3.10.1)
       rspec-support (~> 3.10.0)
     rspec-expectations (3.10.1)
@@ -1882,6 +1889,7 @@ DEPENDENCIES
   a9n
   activeadmin
   activerecord-import
+  activerecord-postgis-adapter
   acts-as-taggable-on
   awesome_print
   aws-sdk (~> 3)
