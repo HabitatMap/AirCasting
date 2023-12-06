@@ -4,9 +4,16 @@ import HighchartsReact from "highcharts-react-official";
 // https://api.highcharts.com/highcharts/plotOptions
 
 import * as S from "./Graph.style";
-import { graphGreen, graphOrange, graphRed, graphYellow, white, tickDarkGray, tickLightGray } from "../../assets/styles/colors";
+import {
+  xAxisOption,
+  yAxisOption,
+  plotOption,
+  titleOption,
+  legendOption,
+  seriesOption,
+} from "./graphConfig";
 
-const data = [
+const mockedData = [
   [1636381800000, 150.44],
   [1636468200000, 150.81],
   [1636554600000, 147.92],
@@ -35,77 +42,12 @@ const data = [
 ];
 
 const options: Highcharts.Options = {
-  title: {
-    text: "Measurement graph",
-    align: "left",
-  },
-  xAxis: {
-    title: {
-      text: undefined,
-    },
-    tickColor: tickLightGray,
-    lineColor: white,
-    type: "datetime",
-    labels: {
-      overflow: "justify",
-    },
-  },
-  yAxis: {
-    title: {
-      text: undefined,
-    },
-    endOnTick: false,
-    startOnTick: false,
-    tickColor: tickDarkGray,
-    lineColor: white,
-    opposite: true,
-    tickWidth: 1,
-    minorGridLineWidth: 0,
-    gridLineWidth: 0,
-    plotBands: [
-      {
-        from: 0,
-        to: 100,
-        color: graphGreen,
-      },
-      {
-        from: 100,
-        to: 130,
-        color: graphYellow,
-      },
-      {
-        from: 130,
-        to: 150,
-        color: graphOrange,
-      },
-      {
-        from: 150,
-        to: 210,
-        color: graphRed,
-      }
-    ],
-  },
-  plotOptions: {
-    spline: {
-      lineWidth: 3,
-      marker: {
-        enabled: false
-      }
-    }
-  },
-  series: [
-    {
-      type: "spline",
-      color: white,
-      data: data,
-      tooltip: {
-        valueDecimals: 2,
-      },
-    },
-  ],
-  legend: {
-    enabled: false,
-  },
+  title: titleOption,
+  xAxis: xAxisOption,
+  yAxis: yAxisOption,
+  plotOptions: plotOption,
+  series: [seriesOption(mockedData)],
+  legend: legendOption,
 };
 
 const Graph = (props: HighchartsReact.Props) => {
