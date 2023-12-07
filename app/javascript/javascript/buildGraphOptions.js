@@ -154,7 +154,6 @@ const formatter = ({
 }) =>
   function () {
     var pointData = this.points[0];
-    debugger;
     var series = pointData.series;
     var s = "<span>" + Highcharts.dateFormat("%m/%d/%Y", this.x) + " ";
     if (series.hasGroupedData) {
