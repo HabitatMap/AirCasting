@@ -26,7 +26,7 @@
     "esbuild-loader": "^4.0.2",
     "highcharts": "~9.0.0",
     "jquery": "3.6.0",
-    "jquery-ui": "^1.12.1",
+    "jquery-ui": "^1.13.2",
     "luminous-lightbox": "^2.3.2",
     "mini-css-extract-plugin": "^2.7.6",
     "moment": "2.29.4",
