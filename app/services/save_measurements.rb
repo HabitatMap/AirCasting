@@ -48,8 +48,6 @@ class SaveMeasurements
           is_indoor: false,
           latitude: stream.latitude,
           longitude: stream.longitude,
-          data_type: nil,
-          instrument: nil,
           uuid: uuid,
           url_token: uuid,
         )

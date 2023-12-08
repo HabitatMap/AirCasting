@@ -5,13 +5,13 @@ def create_session_with_streams_and_measurements!(attributes = {})
       contribute: attributes.fetch(:contribute, true),
       start_time_local: attributes.fetch(:start_time_local, DateTime.current),
       end_time_local: attributes.fetch(:end_time_local, DateTime.current),
-      user: attributes.fetch(:user) { create_user! }
+      user: attributes.fetch(:user) { create_user! },
     )
   stream = create_stream!(session: session)
   create_measurements!(
     stream: stream,
     value: attributes.fetch(:value, 1),
-    count: attributes.fetch(:count, 1)
+    count: attributes.fetch(:count, 1),
   )
 
   session
@@ -23,9 +23,7 @@ def create_session!(attributes = {})
     title: attributes.fetch(:title, 'Example Session'),
     user: attributes.fetch(:user) { create_user! },
     uuid: attributes.fetch(:uuid, "uuid#{rand}"),
-    start_time: DateTime.current,
     start_time_local: attributes.fetch(:start_time_local, DateTime.current),
-    end_time: DateTime.current,
     end_time_local: attributes.fetch(:end_time_local, DateTime.current),
     type: attributes.fetch(:type, 'MobileSession'),
     latitude: attributes.fetch(:latitude, 1.0),
@@ -35,7 +33,7 @@ def create_session!(attributes = {})
     contribute: attributes.fetch(:contribute, true),
     last_measurement_at:
       attributes.fetch(:last_measurement_at, DateTime.current),
-    tag_list: attributes.fetch(:tag_list, [])
+    tag_list: attributes.fetch(:tag_list, []),
   )
 end
 
@@ -59,7 +57,7 @@ def create_stream!(attributes = {})
     max_longitude: attributes.fetch(:max_longitude, 1),
     average_value: attributes.fetch(:average_value, 1.23),
     start_latitude: attributes.fetch(:start_latitude, 1),
-    start_longitude: attributes.fetch(:start_longitude, 1)
+    start_longitude: attributes.fetch(:start_longitude, 1),
   )
 end
 
@@ -70,7 +68,7 @@ def create_measurement!(attributes = {})
     longitude: attributes.fetch(:longitude, 1),
     value: attributes.fetch(:value, 123),
     milliseconds: attributes.fetch(:milliseconds, 123),
-    stream: attributes.fetch(:stream) { create_stream! }
+    stream: attributes.fetch(:stream) { create_stream! },
   )
 end
 
@@ -84,7 +82,7 @@ def create_measurements!(attributes)
         longitude: random_float,
         value: attributes.fetch(:value, random_float),
         milliseconds: random_int,
-        stream: attributes.fetch(:stream)
+        stream: attributes.fetch(:stream),
       )
     end
 end
@@ -95,7 +93,8 @@ def create_user!(attributes = {})
     username: attributes.fetch(:username, random_string),
     email: attributes.fetch(:email, random_email),
     password: random_string,
-    session_stopped_alert: attributes.fetch(:session_stopped_alert, random_bool)
+    session_stopped_alert:
+      attributes.fetch(:session_stopped_alert, random_bool),
   )
 end
 
@@ -106,7 +105,7 @@ def create_note!(attributes = {})
     latitude: random_float,
     longitude: random_float,
     session: attributes.fetch(:session),
-    number: random_int
+    number: random_int,
   )
 end
 
@@ -161,7 +160,7 @@ def build_open_aq_measurement(opts = {})
     location: random_string,
     city: random_string,
     country: opts.fetch(:country, random_string),
-    unit: opts.fetch(:unit, random_string)
+    unit: opts.fetch(:unit, random_string),
   )
 end
 
@@ -169,6 +168,6 @@ def build_open_aq_stream(opts = {})
   OpenAq::Stream.new(
     sensor_name: opts.fetch(:sensor_name),
     latitude: random_big_decimal,
-    longitude: random_big_decimal
+    longitude: random_big_decimal,
   )
 end

@@ -14,7 +14,7 @@ describe Api::Fixed::StreamsController do
           user: user,
           title: title,
           start_time_local: start_time_local,
-          end_time_local: end_time_local
+          end_time_local: end_time_local,
         )
       create_stream!(session: session, sensor_name: 'another-sensor-name')
       stream = create_stream!(session: session, sensor_name: sensor_name)
@@ -42,8 +42,8 @@ describe Api::Fixed::StreamsController do
             'latitude' => 1.0,
             'longitude' => 1.0,
             'time' => start_time_local.to_i * 1_000,
-            'value' => 123.0
-          }
+            'value' => 123.0,
+          },
         ],
         'minLatitude' => 1.0,
         'minLongitude' => 1.0,
@@ -69,13 +69,11 @@ describe Api::Fixed::StreamsController do
       title: attr.fetch(:title, 'title'),
       user: attr.fetch(:user),
       uuid: SecureRandom.uuid,
-      start_time: DateTime.current,
       start_time_local: attr.fetch(:start_time_local, DateTime.current),
-      end_time: DateTime.current,
       end_time_local: attr.fetch(:end_time_local, DateTime.current),
       is_indoor: false,
       latitude: 123,
-      longitude: 123
+      longitude: 123,
     )
   end
 end

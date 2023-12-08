@@ -121,8 +121,6 @@ describe PurpleAir::ImportMeasurements do
       [:is_indoor, false],
       [:latitude, measurement_fields[3]],
       [:longitude, measurement_fields[4]],
-      [:data_type, nil],
-      [:instrument, nil],
     ].each do |attribute, expected|
       expect(Session.first.public_send(attribute)).to eq(expected)
     end

@@ -4,40 +4,57 @@ describe Api::Fixed::Active::SessionsController do
   describe '#index' do
     it 'returns active sessions json' do
       session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
-      active_session = create_fixed_session!(contribute: true, time: session_time, last_measurement_at: DateTime.current)
-      active_stream = create_stream!(session: active_session, latitude: active_session.latitude, longitude: active_session.longitude)
+      active_session =
+        create_fixed_session!(
+          contribute: true,
+          time: session_time,
+          last_measurement_at: DateTime.current,
+        )
+      active_stream =
+        create_stream!(
+          session: active_session,
+          latitude: active_session.latitude,
+          longitude: active_session.longitude,
+        )
       create_measurement!(stream: active_stream)
-      dormant_session = create_fixed_session!(
-        user: active_session.user,
-        contribute: true,
-        time: session_time,
-        last_measurement_at: DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
-        latitude: active_session.latitude,
-        longitude: active_session.longitude
-      )
-      dormant_stream = create_stream!(session: dormant_session, latitude: active_session.latitude, longitude: active_session.longitude)
+      dormant_session =
+        create_fixed_session!(
+          user: active_session.user,
+          contribute: true,
+          time: session_time,
+          last_measurement_at:
+            DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
+          latitude: active_session.latitude,
+          longitude: active_session.longitude,
+        )
+      dormant_stream =
+        create_stream!(
+          session: dormant_session,
+          latitude: active_session.latitude,
+          longitude: active_session.longitude,
+        )
       create_measurement!(stream: dormant_stream)
 
       get :index,
-        params: {
-          q: {
-            time_from:
-            session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-            time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
-            tags: '',
-            usernames: '',
-            session_ids: [],
-            west: active_session.longitude - 1,
-            east: active_session.longitude + 1,
-            south: active_session.latitude - 1,
-            north: active_session.latitude + 1,
-            limit: 2,
-            offset: 0,
-            sensor_name: active_stream.sensor_name,
-            measurement_type: active_stream.measurement_type,
-            unit_symbol: active_stream.unit_symbol
-          }.to_json
-        }
+          params: {
+            q: {
+              time_from:
+                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+              tags: '',
+              usernames: '',
+              session_ids: [],
+              west: active_session.longitude - 1,
+              east: active_session.longitude + 1,
+              south: active_session.latitude - 1,
+              north: active_session.latitude + 1,
+              limit: 2,
+              offset: 0,
+              sensor_name: active_stream.sensor_name,
+              measurement_type: active_stream.measurement_type,
+              unit_symbol: active_stream.unit_symbol,
+            }.to_json,
+          }
 
       expected = {
         'fetchableSessionsCount' => 1,
@@ -56,7 +73,8 @@ describe Api::Fixed::Active::SessionsController do
             'username' => active_session.user.username,
             'streams' => {
               active_stream.sensor_name => {
-                'measurement_short_type' => active_stream.measurement_short_type,
+                'measurement_short_type' =>
+                  active_stream.measurement_short_type,
                 'average_value' => nil,
                 'id' => active_stream.id,
                 'max_latitude' => active_stream.max_latitude,
@@ -77,11 +95,11 @@ describe Api::Fixed::Active::SessionsController do
                 'threshold_very_high' => active_stream.threshold_very_high,
                 'threshold_very_low' => active_stream.threshold_very_low,
                 'unit_name' => active_stream.unit_name,
-                'unit_symbol' => active_stream.unit_symbol
-              }
-            }
-          }
-        ]
+                'unit_symbol' => active_stream.unit_symbol,
+              },
+            },
+          },
+        ],
       }
 
       expect(json_response).to eq(expected)
@@ -91,40 +109,57 @@ describe Api::Fixed::Active::SessionsController do
   describe '#index2' do
     it 'returns active sessions json' do
       session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
-      active_session = create_fixed_session!(contribute: true, time: session_time, last_measurement_at: DateTime.current)
-      active_stream = create_stream!(session: active_session, latitude: active_session.latitude, longitude: active_session.longitude)
+      active_session =
+        create_fixed_session!(
+          contribute: true,
+          time: session_time,
+          last_measurement_at: DateTime.current,
+        )
+      active_stream =
+        create_stream!(
+          session: active_session,
+          latitude: active_session.latitude,
+          longitude: active_session.longitude,
+        )
       create_measurement!(stream: active_stream)
-      dormant_session = create_fixed_session!(
-        user: active_session.user,
-        contribute: true,
-        time: session_time,
-        last_measurement_at: DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
-        latitude: active_session.latitude,
-        longitude: active_session.longitude
-      )
-      dormant_stream = create_stream!(session: dormant_session, latitude: active_session.latitude, longitude: active_session.longitude)
+      dormant_session =
+        create_fixed_session!(
+          user: active_session.user,
+          contribute: true,
+          time: session_time,
+          last_measurement_at:
+            DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
+          latitude: active_session.latitude,
+          longitude: active_session.longitude,
+        )
+      dormant_stream =
+        create_stream!(
+          session: dormant_session,
+          latitude: active_session.latitude,
+          longitude: active_session.longitude,
+        )
       create_measurement!(stream: dormant_stream)
 
       get :index2,
-        params: {
-          q: {
-            time_from:
-            session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-            time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
-            tags: '',
-            usernames: '',
-            session_ids: [],
-            west: active_session.longitude - 1,
-            east: active_session.longitude + 1,
-            south: active_session.latitude - 1,
-            north: active_session.latitude + 1,
-            limit: 2,
-            offset: 0,
-            sensor_name: active_stream.sensor_name,
-            measurement_type: active_stream.measurement_type,
-            unit_symbol: active_stream.unit_symbol
-          }.to_json
-        }
+          params: {
+            q: {
+              time_from:
+                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+              tags: '',
+              usernames: '',
+              session_ids: [],
+              west: active_session.longitude - 1,
+              east: active_session.longitude + 1,
+              south: active_session.latitude - 1,
+              north: active_session.latitude + 1,
+              limit: 2,
+              offset: 0,
+              sensor_name: active_stream.sensor_name,
+              measurement_type: active_stream.measurement_type,
+              unit_symbol: active_stream.unit_symbol,
+            }.to_json,
+          }
 
       expected = {
         'fetchableSessionsCount' => 1,
@@ -142,14 +177,15 @@ describe Api::Fixed::Active::SessionsController do
             'username' => active_session.user.username,
             'streams' => {
               active_stream.sensor_name => {
-                'measurement_short_type' => active_stream.measurement_short_type,
+                'measurement_short_type' =>
+                  active_stream.measurement_short_type,
                 'sensor_name' => active_stream.sensor_name,
                 'unit_symbol' => active_stream.unit_symbol,
                 'id' => active_stream.id,
-              }
-            }
-          }
-        ]
+              },
+            },
+          },
+        ],
       }
 
       expect(json_response).to eq(expected)
@@ -157,33 +193,50 @@ describe Api::Fixed::Active::SessionsController do
 
     it 'with multiple streams it picks the correct stream' do
       session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
-      session = create_fixed_session!(contribute: true, time: session_time, last_measurement_at: DateTime.current)
-      stream_1 = create_stream!(sensor_name: "aaa", session: session, latitude: session.latitude, longitude: session.longitude)
+      session =
+        create_fixed_session!(
+          contribute: true,
+          time: session_time,
+          last_measurement_at: DateTime.current,
+        )
+      stream_1 =
+        create_stream!(
+          sensor_name: 'aaa',
+          session: session,
+          latitude: session.latitude,
+          longitude: session.longitude,
+        )
       create_measurement!(stream: stream_1)
-      stream_2 = create_stream!(sensor_name: "bbb", session: session, latitude: session.latitude, longitude: session.longitude)
+      stream_2 =
+        create_stream!(
+          sensor_name: 'bbb',
+          session: session,
+          latitude: session.latitude,
+          longitude: session.longitude,
+        )
       create_measurement!(stream: stream_2)
       queried_stream = [stream_1, stream_2].sample
 
       get :index2,
-        params: {
-          q: {
-            time_from:
-            session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-            time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
-            tags: '',
-            usernames: '',
-            session_ids: [],
-            west: session.longitude - 1,
-            east: session.longitude + 1,
-            south: session.latitude - 1,
-            north: session.latitude + 1,
-            limit: 2,
-            offset: 0,
-            sensor_name: queried_stream.sensor_name,
-            measurement_type: queried_stream.measurement_type,
-            unit_symbol: queried_stream.unit_symbol
-          }.to_json
-        }
+          params: {
+            q: {
+              time_from:
+                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+              tags: '',
+              usernames: '',
+              session_ids: [],
+              west: session.longitude - 1,
+              east: session.longitude + 1,
+              south: session.latitude - 1,
+              north: session.latitude + 1,
+              limit: 2,
+              offset: 0,
+              sensor_name: queried_stream.sensor_name,
+              measurement_type: queried_stream.measurement_type,
+              unit_symbol: queried_stream.unit_symbol,
+            }.to_json,
+          }
 
       expected = {
         'fetchableSessionsCount' => 1,
@@ -201,14 +254,15 @@ describe Api::Fixed::Active::SessionsController do
             'username' => session.user.username,
             'streams' => {
               queried_stream.sensor_name => {
-                'measurement_short_type' => queried_stream.measurement_short_type,
+                'measurement_short_type' =>
+                  queried_stream.measurement_short_type,
                 'sensor_name' => queried_stream.sensor_name,
                 'unit_symbol' => queried_stream.unit_symbol,
                 'id' => queried_stream.id,
-              }
-            }
-          }
-        ]
+              },
+            },
+          },
+        ],
       }
 
       expect(json_response).to eq(expected)
@@ -221,7 +275,7 @@ describe Api::Fixed::Active::SessionsController do
     User.create!(
       username: 'username',
       email: 'email@example.com',
-      password: 'password'
+      password: 'password',
     )
   end
 
@@ -237,15 +291,13 @@ describe Api::Fixed::Active::SessionsController do
       title: 'title',
       user: user,
       uuid: SecureRandom.uuid,
-      start_time: DateTime.current,
       start_time_local: time,
-      end_time: DateTime.current,
       end_time_local: time,
       is_indoor: false,
       latitude: latitude,
       longitude: longitude,
       contribute: contribute,
-      last_measurement_at: last_measurement_at
+      last_measurement_at: last_measurement_at,
     )
   end
 
@@ -268,7 +320,7 @@ describe Api::Fixed::Active::SessionsController do
       min_longitude: longitude,
       max_longitude: longitude,
       start_latitude: latitude,
-      start_longitude: longitude
+      start_longitude: longitude,
     )
   end
 
@@ -279,7 +331,7 @@ describe Api::Fixed::Active::SessionsController do
       longitude: 123,
       value: 123,
       milliseconds: 123,
-      stream: stream
+      stream: stream,
     )
   end
 end

@@ -9,7 +9,7 @@ describe Api::Fixed::Dormant::SessionsController do
       dormant_session, dormant_stream =
         create_dormant_session_and_stream!(
           user: user,
-          session_time: session_time
+          session_time: session_time,
         )
 
       get :index,
@@ -29,8 +29,8 @@ describe Api::Fixed::Dormant::SessionsController do
               offset: 0,
               sensor_name: dormant_stream.sensor_name,
               measurement_type: dormant_stream.measurement_type,
-              unit_symbol: dormant_stream.unit_symbol
-            }.to_json
+              unit_symbol: dormant_stream.unit_symbol,
+            }.to_json,
           }
 
       expected = {
@@ -70,11 +70,11 @@ describe Api::Fixed::Dormant::SessionsController do
                 'threshold_very_high' => dormant_stream.threshold_very_high,
                 'threshold_very_low' => dormant_stream.threshold_very_low,
                 'unit_name' => dormant_stream.unit_name,
-                'unit_symbol' => dormant_stream.unit_symbol
-              }
-            }
-          }
-        ]
+                'unit_symbol' => dormant_stream.unit_symbol,
+              },
+            },
+          },
+        ],
       }
 
       expect(json_response).to eq(expected)
@@ -93,7 +93,7 @@ describe Api::Fixed::Dormant::SessionsController do
         time: session_time,
         latitude: latitude,
         longitude: longitude,
-        last_measurement_at: DateTime.current
+        last_measurement_at: DateTime.current,
       )
     stream =
       create_stream!(session: session, latitude: latitude, longitude: longitude)
@@ -113,7 +113,7 @@ describe Api::Fixed::Dormant::SessionsController do
         latitude: latitude,
         longitude: longitude,
         last_measurement_at:
-          DateTime.current - (FixedSession::ACTIVE_FOR + 1.second)
+          DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
       )
     stream =
       create_stream!(session: session, latitude: latitude, longitude: longitude)
@@ -126,7 +126,7 @@ describe Api::Fixed::Dormant::SessionsController do
     User.create!(
       username: 'username',
       email: 'email@example.com',
-      password: 'password'
+      password: 'password',
     )
   end
 
@@ -142,15 +142,13 @@ describe Api::Fixed::Dormant::SessionsController do
       title: 'title',
       user: user,
       uuid: SecureRandom.uuid,
-      start_time: DateTime.current,
       start_time_local: time,
-      end_time: DateTime.current,
       end_time_local: time,
       is_indoor: false,
       latitude: latitude,
       longitude: longitude,
       contribute: contribute,
-      last_measurement_at: last_measurement_at
+      last_measurement_at: last_measurement_at,
     )
   end
 
@@ -173,7 +171,7 @@ describe Api::Fixed::Dormant::SessionsController do
       min_longitude: longitude,
       max_longitude: longitude,
       start_latitude: latitude,
-      start_longitude: longitude
+      start_longitude: longitude,
     )
   end
 
@@ -184,7 +182,7 @@ describe Api::Fixed::Dormant::SessionsController do
       longitude: 123,
       value: 123,
       milliseconds: 123,
-      stream: stream
+      stream: stream,
     )
   end
 end

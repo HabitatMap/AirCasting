@@ -198,7 +198,11 @@ class Session < ApplicationRecord
       end
     end
 
-    res.merge!('streams' => map_of_streams)
+    res.merge!(
+      'streams' => map_of_streams,
+      'start_time' => self.start_time_local,
+      'end_time' => self.end_time_local,
+    )
 
     res
   end
