@@ -3,10 +3,10 @@ import styled from "styled-components";
 
 import { Navbar } from "../components/Navbar/Navbar";
 import { Graph } from "../components/Graph";
-import { white } from "../assets/styles/colors";
+import { dirtyWhite, white } from "../assets/styles/colors";
 
 const PageLayout = styled.div`
-  background-color: #ededed;
+  background-color: ${dirtyWhite};
   height: 100vh;
   padding: 30px;
 `;

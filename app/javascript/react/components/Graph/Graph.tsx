@@ -1,21 +1,20 @@
 import React from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
-// https://api.highcharts.com/highcharts/plotOptions
 
 import * as S from "./Graph.style";
 import {
   xAxisOption,
   yAxisOption,
-  plotOption,
+  plotOptions,
   titleOption,
   legendOption,
   seriesOption,
 } from "./graphConfig";
 
 const mockedData = [
-  [1636381800000, 150.44],
-  [1636468200000, 150.81],
+  [1636329600000, 150.44],
+  [1636502400000, 150.81],
   [1636554600000, 147.92],
   [1636641000000, 147.87],
   [1636727400000, 149.99],
@@ -45,7 +44,7 @@ const options: Highcharts.Options = {
   title: titleOption,
   xAxis: xAxisOption,
   yAxis: yAxisOption,
-  plotOptions: plotOption,
+  plotOptions,
   series: [seriesOption(mockedData)],
   legend: legendOption,
 };

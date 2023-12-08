@@ -1,3 +1,4 @@
+// Refer to the docs if nedeed: https://api.highcharts.com/highcharts/plotOptions
 import {
   XAxisOptions,
   YAxisOptions,
@@ -7,24 +8,28 @@ import {
   SeriesOptionsType,
 } from "highcharts/highstock";
 import {
-  graphGreen,
-  graphOrange,
-  graphRed,
-  graphYellow,
+  green,
+  orange,
+  red,
+  yellow,
   white,
-  tickDarkGray,
-  tickLightGray,
+  darkGray,
+  lightGray,
 } from "../../assets/styles/colors";
 
 const xAxisOption: XAxisOptions = {
   title: {
     text: undefined,
   },
-  tickColor: tickLightGray,
+  tickColor: lightGray,
   lineColor: white,
   type: "datetime",
   labels: {
     overflow: "justify",
+  },
+  crosshair: {
+    color: white,
+    width: 2,
   },
 };
 
@@ -34,7 +39,7 @@ const yAxisOption: YAxisOptions = {
   },
   endOnTick: false,
   startOnTick: false,
-  tickColor: tickDarkGray,
+  tickColor: darkGray,
   lineColor: white,
   opposite: true,
   tickWidth: 1,
@@ -44,27 +49,27 @@ const yAxisOption: YAxisOptions = {
     {
       from: 0,
       to: 100,
-      color: graphGreen,
+      color: green,
     },
     {
       from: 100,
       to: 130,
-      color: graphYellow,
+      color: yellow,
     },
     {
       from: 130,
       to: 150,
-      color: graphOrange,
+      color: orange,
     },
     {
       from: 150,
       to: 210,
-      color: graphRed,
+      color: red,
     },
   ],
 };
 
-const plotOption: PlotOptions = {
+const plotOptions: PlotOptions = {
   spline: {
     lineWidth: 3,
     marker: {
@@ -94,7 +99,7 @@ const legendOption: LegendOptions = {
 export {
   xAxisOption,
   yAxisOption,
-  plotOption,
+  plotOptions,
   titleOption,
   legendOption,
   seriesOption,
