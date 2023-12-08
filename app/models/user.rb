@@ -13,7 +13,6 @@ class User < ApplicationRecord
   has_many :fixed_sessions, inverse_of: :user
   has_many :streams, through: :sessions
   has_many :measurements, through: :streams
-  has_many :regressions
   has_many :threshold_alerts, dependent: :destroy
 
   # Virtual attribute for devise
@@ -36,7 +35,7 @@ class User < ApplicationRecord
 
   def as_json(*args)
     super(
-      only: %i[id email username authentication_token session_stopped_alert]
+      only: %i[id email username authentication_token session_stopped_alert],
     )
   end
 
@@ -53,8 +52,8 @@ class User < ApplicationRecord
       [
         'authentication_token = :token OR ' + 'lower(username) = :value OR ' +
           'lower(email) = :value',
-        { value: login.downcase, token: login }
-      ]
+        { value: login.downcase, token: login },
+      ],
     ).first
   end
 

@@ -48,7 +48,6 @@ Rails.application.routes.draw do
     get 'averages' => 'averages#index'
     get 'averages2' => 'averages#index2'
     resources :thresholds, only: %i[show], id: /.*/
-    resources :regressions, only: %i[create index destroy]
     resource :region, only: %i[show], controller: 'mobile_regions'
     resource :fixed_region, only: %i[show]
     resource :user, only: %i[show create destroy] do

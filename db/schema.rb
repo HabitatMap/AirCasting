@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_10_06_162918) do
+ActiveRecord::Schema.define(version: 2023_09_27_102754) do
 
   create_table "active_storage_attachments", charset: "utf8mb3", force: :cascade do |t|
     t.string "name", null: false
@@ -75,26 +75,6 @@ ActiveRecord::Schema.define(version: 2022_10_06_162918) do
     t.datetime "photo_updated_at"
     t.integer "number"
     t.index ["session_id"], name: "index_notes_on_session_id"
-  end
-
-  create_table "regressions", id: :integer, charset: "utf8mb3", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "sensor_package_name"
-    t.string "measurement_type"
-    t.string "unit_name"
-    t.string "unit_symbol"
-    t.integer "threshold_very_low"
-    t.integer "threshold_low"
-    t.integer "threshold_medium"
-    t.integer "threshold_high"
-    t.integer "threshold_very_high"
-    t.text "coefficients"
-    t.string "sensor_name"
-    t.string "measurement_short_type"
-    t.string "reference_sensor_package_name"
-    t.string "reference_sensor_name"
-    t.integer "user_id"
   end
 
   create_table "sessions", id: :integer, charset: "utf8mb3", force: :cascade do |t|
@@ -179,7 +159,7 @@ ActiveRecord::Schema.define(version: 2022_10_06_162918) do
   end
 
   create_table "tags", id: :integer, charset: "utf8mb3", force: :cascade do |t|
-    t.string "name", collation: "utf8_bin"
+    t.string "name", collation: "utf8mb3_bin"
     t.integer "taggings_count", default: 0
     t.index ["name"], name: "index_tags_on_name"
   end
