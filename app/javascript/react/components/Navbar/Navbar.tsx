@@ -7,6 +7,7 @@ import iconNavClose from "../../assets/icons/iconNavClose.svg";
 import serchIcon from "../../assets/icons/searchIcon.svg";
 import { urls } from "../../const/urls";
 import * as S from "./Navbar.style";
+import { useTranslation } from "react-i18next";
 
 const NavItem = ({
   href,
@@ -30,68 +31,91 @@ const NavItem = ({
 
 const Navbar = () => {
   const [navMenuVisible, setNavMenuVisible] = useState(false);
+  const { t, i18n } = useTranslation();
 
   return (
     <S.Header>
       <a href="https://www.habitatmap.org/" aria-label="AirCasting page">
-        <S.AircastingLogo alt="Aircasting logo" src={logo} />
+        <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
       </a>
       <S.Container>
-        <S.BuyCTA href={urls.airbeamBuy}>get airbeam</S.BuyCTA>
+        <S.BuyCTA href={urls.airbeamBuy}>
+          {t("navbar.sections.getAirBeam")}
+        </S.BuyCTA>
         <nav>
           <S.MenuButton onClick={() => setNavMenuVisible(true)}>
-            <img src={hamburger} alt="Menu icon" aria-label="Open menu"></img>
+            <img
+              src={hamburger}
+              alt={t("navbar.altMenu")}
+              aria-label="Open menu"
+            ></img>
           </S.MenuButton>
         </nav>
       </S.Container>
       <S.NavList $isVisible={navMenuVisible}>
         <S.NavHeader>
           <a href={urls.habitatMap} aria-label="HabitatMap page">
-            <img src={habitatMapLogo} alt="Habitatmap logo" />
+            <img src={habitatMapLogo} alt={t("navbar.altHabitatLogo")} />
           </a>
           <S.Button onClick={() => setNavMenuVisible(false)}>
             <img
               src={iconNavClose}
-              aria-label="Close navigation menu"
-              alt="Close icon"
+              aria-label={t("navbar.altClose")}
+              alt={t("navbar.altClose")}
             />
           </S.Button>
         </S.NavHeader>
         <NavItem isNavTitle href={urls.airbeam}>
-          AirBeam
+          {t("navbar.sections.airBeam")}
         </NavItem>
         <S.SubNav>
-          <NavItem href={urls.airbeamUserStories}>User Stories</NavItem>
-          <NavItem href={urls.airbeamHowItWorks}>How it Works</NavItem>
-          <NavItem href={urls.airbeamFaq}>FAQ</NavItem>
-          <NavItem href={urls.airbeamUsersGuide}>User's Guide</NavItem>
-          <NavItem href={urls.airbeamBuy}>Buy it Now</NavItem>
+          <NavItem href={urls.airbeamUserStories}>
+            {t("navbar.sections.userStories")}
+          </NavItem>
+          <NavItem href={urls.airbeamHowItWorks}>
+            {t("navbar.sections.work")}
+          </NavItem>
+          <NavItem href={urls.airbeamFaq}>{t("navbar.sections.faq")}</NavItem>
+          <NavItem href={urls.airbeamUsersGuide}>
+            {t("navbar.sections.usersGuide")}
+          </NavItem>
+          <NavItem href={urls.airbeamBuy}>
+            {t("navbar.sections.buyNow")}
+          </NavItem>
         </S.SubNav>
         <NavItem isNavTitle href={urls.aircasting}>
-          AirCasting
+          {t("navbar.sections.airCasting")}
         </NavItem>
         <S.SubNav>
-          <NavItem href={urls.map}>AirCasting Maps</NavItem>
-          <NavItem href={urls.android}>Android App</NavItem>
-          <NavItem href={urls.iOS}>iOS App</NavItem>
-          <NavItem href={urls.actions}>AirCasting Actions</NavItem>
+          <NavItem href={urls.map}>{t("navbar.sections.maps")}</NavItem>
+          <NavItem href={urls.android}>
+            {t("navbar.sections.androidApp")}
+          </NavItem>
+          <NavItem href={urls.iOS}>{t("navbar.sections.iosApp")}</NavItem>
+          <NavItem href={urls.actions}>{t("navbar.sections.actions")}</NavItem>
         </S.SubNav>
         <NavItem isNavTitle href={urls.about}>
-          About HabitatMap
+          {t("navbar.sections.about")}
         </NavItem>
         <S.SubNav>
-          <NavItem href={urls.history}>History & People</NavItem>
-          <NavItem href={urls.press}>Press</NavItem>
+          <NavItem href={urls.history}>{t("navbar.sections.history")}</NavItem>
+          <NavItem href={urls.press}>{t("navbar.sections.press")}</NavItem>
         </S.SubNav>
         <NavItem isNavTitle isUnderline href={urls.blog}>
-          TakingSpace Blog
+          {t("navbar.sections.blog")}
         </NavItem>
         <S.BottomNavContainer>
           <a href={urls.search}>
-            <img src={serchIcon} alt="Search icon" aria-label="Open search" />
+            <img
+              src={serchIcon}
+              alt={t("navbar.altSearch")}
+              aria-label={t("navbar.altSearch")}
+            />
           </a>
-          <S.Link href={urls.donate}>Donate</S.Link>
-          <S.BuyCTA href={urls.airbeamBuy}>Get Airbeam</S.BuyCTA>
+          <S.Link href={urls.donate}>{t("navbar.sections.donate")}</S.Link>
+          <S.BuyCTA href={urls.airbeamBuy}>
+            {t("navbar.sections.getAirBeam")}
+          </S.BuyCTA>
         </S.BottomNavContainer>
       </S.NavList>
     </S.Header>

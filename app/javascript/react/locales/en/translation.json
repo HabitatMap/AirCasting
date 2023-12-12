@@ -1,0 +1,35 @@
+{
+  "main": {
+    "header": "Welcome to the app!"
+  },
+  "stationValue": {
+    "avgPlaceholder": "Avg for {{date}}",
+    "altLogo": "Broadcasting logo"
+  },
+  "navbar": {
+    "altLogo": "Aircasting logo",
+    "altMenu": "Menu icon",
+    "altHabitatLogo": "HabitatMap logo",
+    "altClose": "Close icon",
+    "altSearch": "Search icon",
+    "sections": {
+      "getAirBeam": "Get AirBeam",
+      "airBeam": "AirBeam",
+      "userStories": "User Stories",
+      "work": "How It Works",
+      "faq": "FAQ",
+      "usersGuide": "User's Guide",
+      "buyNow": "Buy it Now",
+      "airCasting": "AirCasting",
+      "maps": "AirCasting Maps",
+      "androidApp": "Android App",
+      "iosApp": "iOS App",
+      "actions": "AirCasting Actions",
+      "about": "About HabitatMap",
+      "history": "History & People",
+      "press": "Press",
+      "blog": "TakingSpace Blog",
+      "donate": "Donate"
+    }
+  }
+}

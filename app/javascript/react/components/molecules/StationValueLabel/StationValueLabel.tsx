@@ -11,18 +11,17 @@ interface StationValues {
 
 const StationValueLabel = ({ date, value, parameter }: StationValues) => {
   const { t, i18n } = useTranslation();
-  i18n.changeLanguage('en-US');
+
   return (
     <S.Container>
       <S.ImageContainer
         src={BroadCastLogo}
-        alt="Broadcasting logo"
+        alt={t("stationValue.altLogo")}
       ></S.ImageContainer>
       <S.TextContainer>
         <S.Label>
-        {t('Welcome to React": "Welcome to React and react-i18next"')}
+          {i18n.t('stationValue.avgPlaceholder',{ date: date })}
         </S.Label>
-        <S.Label>Avg for {date}</S.Label>
         <S.Header>{value}</S.Header>
         <S.Label>{parameter}</S.Label>
       </S.TextContainer>
