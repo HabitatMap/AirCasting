@@ -17,14 +17,20 @@ const StationDataContainer = styled.div`
   background: ${white};
 `;
 
+import * as S from "./CalendarPage.style";
+import { ThresholdConfigurator } from "../components/ThresholdConfigurator/ThresholdConfigurator";
+
 const CalendarPage = () => {
   return (
     <>
       <Navbar />
       <PageLayout>
-        <StationDataContainer>
-          <Graph />
-        </StationDataContainer>
+        <S.CalendarPageContainer>
+          <ThresholdConfigurator />
+          <StationDataContainer>
+            <Graph />
+          </StationDataContainer>
+        </S.CalendarPageContainer>
       </PageLayout>
     </>
   );
