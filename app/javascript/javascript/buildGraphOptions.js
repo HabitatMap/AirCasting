@@ -1,4 +1,4 @@
-import Highcharts from "highcharts/highstock";
+import Highcharts from "highcharts";
 
 const buildChart = ({ renderTo }) => ({
   renderTo,
@@ -7,7 +7,7 @@ const buildChart = ({ renderTo }) => ({
   spacingBottom: 5,
   spacingRight: 0,
   spacingLeft: 0,
-  marginBottom: 15,
+  marginBottom: 22,
   marginRight: 5,
   marginLeft: 5,
   zoomType: "x",
@@ -45,7 +45,6 @@ const buildRangeSelector = ({ buttons, selected }) => ({
 
     states: {
       hover: {
-        cursor: "pointer",
         fill: "#00b2ef",
         style: {
           color: "white",
@@ -106,10 +105,13 @@ const scrollbarOptions = {
   barBackgroundColor: "#D5D4D4",
   barBorderRadius: 7,
   barBorderWidth: 0,
+  buttonArrowColor: "#333333",
+  buttonBorderColor: "#cccccc",
+  buttonsEnabled: true,
   buttonBackgroundColor: "#eee",
   buttonBorderWidth: 0,
   buttonBorderRadius: 7,
-  height: 10,
+  height: 12,
   rifleColor: "#D5D4D4",
   trackBackgroundColor: "none",
   trackBorderWidth: 0,
