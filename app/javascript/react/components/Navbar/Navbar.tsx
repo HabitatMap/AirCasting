@@ -1,4 +1,5 @@
 import React, { ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import logo from "../../../../assets/images/aircasting-logo-nav.svg";
 import hamburger from "../../assets/icons/hamburger.svg";
@@ -7,7 +8,6 @@ import iconNavClose from "../../assets/icons/iconNavClose.svg";
 import serchIcon from "../../assets/icons/searchIcon.svg";
 import { urls } from "../../const/urls";
 import * as S from "./Navbar.style";
-import { useTranslation } from "react-i18next";
 
 const NavItem = ({
   href,
@@ -31,30 +31,36 @@ const NavItem = ({
 
 const Navbar = () => {
   const [navMenuVisible, setNavMenuVisible] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <S.Header>
-      <a href="https://www.habitatmap.org/" aria-label="AirCasting page">
+      <a
+        href={urls.habitatMap}
+        aria-label={t("navbar.sections.aircastingPage")}
+      >
         <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
       </a>
       <S.Container>
         <S.BuyCTA href={urls.airbeamBuy}>
-          {t("navbar.sections.getAirBeam")}
+          {t("navbar.sections.getAirbeam")}
         </S.BuyCTA>
         <nav>
           <S.MenuButton onClick={() => setNavMenuVisible(true)}>
             <img
               src={hamburger}
               alt={t("navbar.altMenu")}
-              aria-label="Open menu"
+              aria-label={t("navbar.sections.openMenu")}
             ></img>
           </S.MenuButton>
         </nav>
       </S.Container>
       <S.NavList $isVisible={navMenuVisible}>
         <S.NavHeader>
-          <a href={urls.habitatMap} aria-label="HabitatMap page">
+          <a
+            href={urls.habitatMap}
+            aria-label={t("navbar.sections.habitatMapPage")}
+          >
             <img src={habitatMapLogo} alt={t("navbar.altHabitatLogo")} />
           </a>
           <S.Button onClick={() => setNavMenuVisible(false)}>
@@ -66,7 +72,7 @@ const Navbar = () => {
           </S.Button>
         </S.NavHeader>
         <NavItem isNavTitle href={urls.airbeam}>
-          {t("navbar.sections.airBeam")}
+          {t("navbar.sections.airbeam")}
         </NavItem>
         <S.SubNav>
           <NavItem href={urls.airbeamUserStories}>
@@ -80,18 +86,18 @@ const Navbar = () => {
             {t("navbar.sections.usersGuide")}
           </NavItem>
           <NavItem href={urls.airbeamBuy}>
-            {t("navbar.sections.buyNow")}
+            {t("navbar.sections.airbeamBuyNow")}
           </NavItem>
         </S.SubNav>
         <NavItem isNavTitle href={urls.aircasting}>
-          {t("navbar.sections.airCasting")}
+          {t("navbar.sections.aircasting")}
         </NavItem>
         <S.SubNav>
           <NavItem href={urls.map}>{t("navbar.sections.maps")}</NavItem>
           <NavItem href={urls.android}>
             {t("navbar.sections.androidApp")}
           </NavItem>
-          <NavItem href={urls.iOS}>{t("navbar.sections.iosApp")}</NavItem>
+          <NavItem href={urls.iOS}>{t("navbar.sections.iOSApp")}</NavItem>
           <NavItem href={urls.actions}>{t("navbar.sections.actions")}</NavItem>
         </S.SubNav>
         <NavItem isNavTitle href={urls.about}>
@@ -114,7 +120,7 @@ const Navbar = () => {
           </a>
           <S.Link href={urls.donate}>{t("navbar.sections.donate")}</S.Link>
           <S.BuyCTA href={urls.airbeamBuy}>
-            {t("navbar.sections.getAirBeam")}
+            {t("navbar.sections.getAirbeam")}
           </S.BuyCTA>
         </S.BottomNavContainer>
       </S.NavList>

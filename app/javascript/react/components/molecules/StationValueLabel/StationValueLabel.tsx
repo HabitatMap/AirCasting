@@ -1,7 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import React from "react";
+
 import BroadCastLogo from "../../../assets/icons/broadCastLogo.svg";
 import * as S from "./StationValueLabel.style";
-import { useTranslation } from 'react-i18next';
 
 interface StationValues {
   date: string;
@@ -20,7 +21,7 @@ const StationValueLabel = ({ date, value, parameter }: StationValues) => {
       ></S.ImageContainer>
       <S.TextContainer>
         <S.Label>
-          {i18n.t('stationValue.avgPlaceholder',{ date: date })}
+          {i18n.t("stationValue.avgPlaceholder",{ date: date })}
         </S.Label>
         <S.Header>{value}</S.Header>
         <S.Label>{parameter}</S.Label>

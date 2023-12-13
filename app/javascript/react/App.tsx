@@ -1,7 +1,8 @@
 import React from "react";
+import './locales/i18n'
+
 import { CalendarPage } from "./pages/CalendarPage";
 import GlobalStyles from "./assets/styles/global-styles";
-import './locales/i18n'
 
 const App = () => {
   return (

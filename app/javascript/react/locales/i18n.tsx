@@ -1,5 +1,6 @@
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
+
 import enTranslation from "./en/translation.json";
 
 export const resources = {
@@ -8,9 +9,7 @@ export const resources = {
   },
 };
 
-i18next
-.use(initReactI18next)
-.init({
+i18next.use(initReactI18next).init({
   lng: "en",
   resources,
 });

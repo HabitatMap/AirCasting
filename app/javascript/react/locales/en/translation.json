@@ -13,23 +13,26 @@
     "altClose": "Close icon",
     "altSearch": "Search icon",
     "sections": {
-      "getAirBeam": "Get AirBeam",
-      "airBeam": "AirBeam",
+      "getAirbeam": "Get AirBeam",
+      "airbeam": "AirBeam",
       "userStories": "User Stories",
       "work": "How It Works",
       "faq": "FAQ",
       "usersGuide": "User's Guide",
-      "buyNow": "Buy it Now",
-      "airCasting": "AirCasting",
+      "airbeamBuyNow": "Buy it Now",
+      "aircasting": "AirCasting",
       "maps": "AirCasting Maps",
       "androidApp": "Android App",
-      "iosApp": "iOS App",
+      "iOSApp": "iOS App",
       "actions": "AirCasting Actions",
       "about": "About HabitatMap",
       "history": "History & People",
       "press": "Press",
       "blog": "TakingSpace Blog",
-      "donate": "Donate"
+      "donate": "Donate",
+      "aircastingPage": "AirCasting page",
+      "openMenu": "Open menu",
+      "habitatMapPage": "HabitatMap page"
     }
   }
 }
