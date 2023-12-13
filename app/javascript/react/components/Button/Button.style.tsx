@@ -17,4 +17,4 @@ const Button = styled.button`
   background-color: transparent;
 `;
 
-export { HeaderButton };
+export { Button };
