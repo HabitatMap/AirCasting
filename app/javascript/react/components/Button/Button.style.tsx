@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { lightGray } from "../../assets/styles/colors";
 
-const HeaderButton = styled.button`
+const Button = styled.button`
   font-weight: 400;
   text-transform: uppercase;
   font-size: 14px;
