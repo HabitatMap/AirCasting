@@ -3,6 +3,7 @@ const theme = "#00b2ef";
 
 const white = "#fff";
 const darkGray = "#3E4449";
+
 const lightGray = "#C0C9D1";
 const mint = "#81dbcb";
 const blue = "#00b3ef";
