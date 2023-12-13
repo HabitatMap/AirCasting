@@ -9,19 +9,20 @@ const ThresholdConfiguratorContainer = styled.div`
   height: 30px;
   background-color: #ededed;
   position: relative;
+  display: flex;
 `;
 
 interface ThresholdRangeProps {
   $start: number;
   $end: number;
+  $percentage: number;
   $color: string;
 }
 
 const ThresholdRange = styled.div<ThresholdRangeProps>`
-  position: absolute;
   background-color: ${(p) => p.$color};
-  left: ${(p) => p.$start};
   height: inherit;
+  width: ${(p) => `${p.$percentage}%`};
 `;
 
 const convertToPercentage = (arr: number[]): number[] => {
@@ -30,23 +31,31 @@ const convertToPercentage = (arr: number[]): number[] => {
   return scaledArr;
 };
 
+interface RangeProps {
+  start: number;
+  end: number;
+  percentage: number;
+}
+
 const ThresholdConfigurator = () => {
   const defaultThresholds = [0, 2, 10, 5, 3];
+  // TODO will be saved in redux
   const [thresholds, setThresholds] = useState(defaultThresholds);
-  const [ranges, setRanges] = useState<{ start: number; end: number }[]>([]);
+  //  TODO will be calculated in a selector based on state and just read here.
+  const [ranges, setRanges] = useState<RangeProps[]>([]);
 
   useEffect(() => {
     if (thresholds.length > 0) {
       const ascendingThresholds = thresholds.slice().sort((a, b) => a - b);
       const percentageThreasholds = convertToPercentage(ascendingThresholds);
 
-      const updatedRanges: { start: number; end: number }[] = [];
+      const updatedRanges: RangeProps[] = [];
       percentageThreasholds.forEach((value, index, array) => {
         if (index + 1 === array.length) {
           return true;
         }
-
-        const range = { start: value, end: array[index + 1] };
+        const percentage = array[index + 1] - value;
+        const range = { start: value, end: array[index + 1], percentage };
         updatedRanges.push(range);
       });
 
@@ -56,11 +65,12 @@ const ThresholdConfigurator = () => {
 
   return (
     <ThresholdConfiguratorContainer>
-      {ranges.map(({ start, end }, index) => (
+      {ranges.map(({ start, end, percentage }, index) => (
         <ThresholdRange
           $start={start}
           $end={end}
           $color={threasholdsColors[index]}
+          $percentage={percentage}
           key={index}
         />
       ))}
