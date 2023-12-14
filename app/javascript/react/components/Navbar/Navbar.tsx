@@ -42,7 +42,7 @@ const Navbar = () => {
         <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
       </a>
       <S.Container>
-        <S.BuyCTA href={urls.airbeamBuy}>
+        <S.BuyCTA href={urls.airbeamBuyNow}>
           {t("navbar.sections.getAirbeam")}
         </S.BuyCTA>
         <nav>
@@ -75,17 +75,17 @@ const Navbar = () => {
           {t("navbar.sections.airbeam")}
         </NavItem>
         <S.SubNav>
-          <NavItem href={urls.airbeamUserStories}>
+          <NavItem href={urls.userStories}>
             {t("navbar.sections.userStories")}
           </NavItem>
           <NavItem href={urls.airbeamHowItWorks}>
             {t("navbar.sections.work")}
           </NavItem>
-          <NavItem href={urls.airbeamFaq}>{t("navbar.sections.faq")}</NavItem>
-          <NavItem href={urls.airbeamUsersGuide}>
+          <NavItem href={urls.faq}>{t("navbar.sections.faq")}</NavItem>
+          <NavItem href={urls.usersGuide}>
             {t("navbar.sections.usersGuide")}
           </NavItem>
-          <NavItem href={urls.airbeamBuy}>
+          <NavItem href={urls.airbeamBuyNow}>
             {t("navbar.sections.airbeamBuyNow")}
           </NavItem>
         </S.SubNav>
@@ -119,7 +119,7 @@ const Navbar = () => {
             />
           </a>
           <S.Link href={urls.donate}>{t("navbar.sections.donate")}</S.Link>
-          <S.BuyCTA href={urls.airbeamBuy}>
+          <S.BuyCTA href={urls.airbeamBuyNow}>
             {t("navbar.sections.getAirbeam")}
           </S.BuyCTA>
         </S.BottomNavContainer>

@@ -16,11 +16,11 @@ const press = `${habitatMap}/about/press`;
 const search = `${habitatMap}/search`;
 
 // Airbeam
-const airbeamUserStories = `${airbeam}/user-stories`;
+const userStories = `${airbeam}/user-stories`;
 const airbeamHowItWorks = `${airbeam}/how-it-works`;
-const airbeamFaq = `${airbeam}/FAQ`;
-const airbeamUsersGuide = `${airbeam}/users-guide`;
-const airbeamBuy = `${airbeam}/buy-it-now`;
+const faq = `${airbeam}/FAQ`;
+const usersGuide = `${airbeam}/users-guide`;
+const airbeamBuyNow = `${airbeam}/buy-it-now`;
 
 const history = `${about}/history`;
 
@@ -37,10 +37,10 @@ export const urls = {
   donate,
   press,
   search,
-  airbeamUserStories,
+  userStories,
   airbeamHowItWorks,
-  airbeamFaq,
-  airbeamUsersGuide,
-  airbeamBuy,
+  faq,
+  usersGuide,
+  airbeamBuyNow,
   history,
 };
