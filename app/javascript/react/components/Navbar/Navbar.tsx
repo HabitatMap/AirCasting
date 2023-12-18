@@ -61,7 +61,7 @@ const Navbar = () => {
             href={urls.habitatMap}
             aria-label={t("navbar.sections.habitatMapPage")}
           >
-            <img src={habitatMapLogo} alt={t("navbar.altHabitatLogo")} />
+            <img src={habitatMapLogo} alt={t("navbar.altHabitatMapLogo")} />
           </a>
           <S.Button onClick={() => setNavMenuVisible(false)}>
             <img
@@ -79,7 +79,7 @@ const Navbar = () => {
             {t("navbar.sections.userStories")}
           </NavItem>
           <NavItem href={urls.airbeamHowItWorks}>
-            {t("navbar.sections.work")}
+            {t("navbar.sections.howItWorks")}
           </NavItem>
           <NavItem href={urls.faq}>{t("navbar.sections.faq")}</NavItem>
           <NavItem href={urls.usersGuide}>
