@@ -26,7 +26,6 @@ bin/setup
 
 Go to https://bitly.com/ create an account and log in. To generate the token go to Settings -> Advanced settings -> For Developers -> OAuth -> Generic Access Token.
 
-
 ## Development
 
 ```bash
@@ -69,6 +68,14 @@ yarn prettier --write app/path/to/your/file.rb
 ```
 
 Best to add elm-format and prettier to your editor to do this for you on save.
+
+## Feature flags
+
+We use Flipper as a feature flag solution. Feature flags are managed via Flipper Cloud Dashboard.
+Setup:
+
+1. Create an account on flippercloud.io and ask someone from the team to give you access to our organization.
+2. Copy token for an environment named `Your Environment` to `.env` file.
 
 ## API documentation
 
