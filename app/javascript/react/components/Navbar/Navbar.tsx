@@ -8,9 +8,6 @@ import serchIcon from "../../assets/icons/searchIcon.svg";
 import { urls } from "../../const/urls";
 import * as S from "./Navbar.style";
 
-import { useAppSelector, useAppDispatch } from '../../store/hooks'
-import { updateGivenIndex } from '../../store/thresholdSlice'
-
 const NavItem = ({
   href,
   isNavTitle,
@@ -33,8 +30,6 @@ const NavItem = ({
 
 const Navbar = () => {
   const [navMenuVisible, setNavMenuVisible] = useState(false);
-  const threshold = useAppSelector((state) => (state.threshold));
-  const dispatch = useAppDispatch()
 
   return (
     <S.Header>
@@ -44,10 +39,7 @@ const Navbar = () => {
       <S.Container>
         <S.BuyCTA href={urls.airbeamBuy}>get airbeam</S.BuyCTA>
         <nav>
-          <S.MenuButton onClick={() => {
-            console.log("DID TAP ME")
-            dispatch(updateGivenIndex({id: 2, value: 2}))
-          }}>
+        <S.MenuButton onClick={() => setNavMenuVisible(true)}>
             <img src={hamburger} alt="Menu icon" aria-label="Open menu"></img>
           </S.MenuButton>
         </nav>
