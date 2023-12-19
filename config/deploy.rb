@@ -33,7 +33,7 @@ set :linked_dirs,
       'tmp/pids',
       'tmp/cache',
       'tmp/sockets',
-      'public/system'
+      'public/system',
     )
 set :linked_files,
     fetch(:linked_files, []).push(
@@ -41,7 +41,8 @@ set :linked_files,
       'config/secrets.yml',
       'config/newrelic.yml',
       'config/configuration.yml',
-      'public/robots.txt'
+      'public/robots.txt',
+      '.env',
     )
 
 # Default value for linked_dirs is []

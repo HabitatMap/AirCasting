@@ -8,8 +8,11 @@ gem 'aws-sdk', '~> 3', require: false
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'colored', require: false
 gem 'devise'
+gem 'dotenv-rails'
 gem 'dry-struct'
 gem 'dry-validation'
+gem 'flipper'
+gem 'flipper-active_record'
 gem 'geocoder', '~> 1.2'
 gem 'haml'
 gem 'honeybadger'
