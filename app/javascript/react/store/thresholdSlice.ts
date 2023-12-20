@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+
 import type { RootState } from "./index";
 
 interface ThresholdState {
@@ -11,7 +12,7 @@ interface ThresholdState {
 }
 
 interface Threshold {
-  id: number;
+  name: keyof ThresholdState;
   value: number;
 }
 
@@ -27,22 +28,15 @@ export const thresholdSlice = createSlice({
   name: "threshold",
   initialState,
   reducers: {
-    updateAll: (state, action: PayloadAction<ThresholdState>) => {
-      state.th1 = action.payload.th1;
-      state.th2 = action.payload.th2;
-      state.th3 = action.payload.th3;
-      state.th4 = action.payload.th4;
-      state.th5 = action.payload.th5;
+    updateAll: (state,{ payload: { th1, th2, th3, th4, th5 } }: PayloadAction<ThresholdState>) => {
+      state.th1 = th1;
+      state.th2 = th2;
+      state.th3 = th3;
+      state.th4 = th4;
+      state.th5 = th5;
     },
-    updateGivenIndex: (state, action: PayloadAction<Threshold>) => {
-      const { id, value } = action.payload;
-      const key = `th${id}` as keyof ThresholdState;
-      console.log(key)
-      if (key in state) {
-        state[key] = value;
-      } else {
-        console.log("No update possible, the key is out of the range.");
-      }
+    updateGivenIndex: (state, { payload: { name, value }}: PayloadAction<Threshold>) => {
+      state[name] = value;
     },
   },
 });

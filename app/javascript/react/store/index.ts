@@ -1,4 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
+
 import thresholdReducer from "./thresholdSlice";
 
 const store = configureStore({
