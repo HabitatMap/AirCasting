@@ -11,11 +11,11 @@ class Sensor
 
   def self.sensor_name(sensor_name)
     {
-      'AirBeam-PM10'.downcase => ['AirBeam2-PM10', 'AirBeam3-PM10'],
-      'AirBeam-PM2.5'.downcase => ['AirBeam-PM', 'AirBeam2-PM2.5', 'AirBeam3-PM2.5'],
-      'AirBeam-PM1'.downcase => ['AirBeam2-PM1', 'AirBeam3-PM1'],
-      'AirBeam-RH'.downcase => ['AirBeam3-RH', 'AirBeam2-RH', 'AirBeam-RH'],
-      'AirBeam-F'.downcase => ['AirBeam3-F', 'AirBeam2-F', 'AirBeam-F'],
-    }.fetch(sensor_name.downcase, sensor_name)
+      'airbeam-pm10' => ['airbeam2-pm10', 'airbeam3-pm10'],
+      'airbeam-pm2.5' => ['airbeam-pm', 'airbeam2-pm2.5', 'airbeam3-pm2.5'],
+      'airbeam-pm1' => ['airbeam2-pm1', 'airbeam3-pm1'],
+      'airbeam-rh' => ['airbeam3-rh', 'airbeam2-rh', 'airbeam-rh'],
+      'airbeam-f' => ['airbeam3-f', 'airbeam2-f', 'airbeam-f'],
+    }.fetch(sensor_name, sensor_name)
   end
 end

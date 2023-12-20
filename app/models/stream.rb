@@ -140,12 +140,14 @@ class Stream < ApplicationRecord
 
   # this change for migration mysql->posgres needs to be tested
   def self.thresholds(sensor_name, unit_symbol)
+    normalized_sensor_names = Array(Sensor.sensor_name(sensor_name.downcase)).map(&:downcase)
+
     subquery = select(
-        "ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-') as thresholds, COUNT(*) as thresholds_count"
-      )
-      .where(sensor_name: Sensor.sensor_name(sensor_name), unit_symbol: unit_symbol)
-      .group("ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-')")
-      .to_sql
+      "ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-') as thresholds, COUNT(*) as thresholds_count"
+    )
+    .where('LOWER(sensor_name) IN (?) AND unit_symbol = ?', normalized_sensor_names, unit_symbol)
+    .group("ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-')")
+    .to_sql
 
     result = Stream.select("subquery.thresholds, subquery.thresholds_count")
       .from("(#{subquery}) as subquery")
