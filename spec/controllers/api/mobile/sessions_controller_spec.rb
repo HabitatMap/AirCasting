@@ -9,13 +9,13 @@ describe Api::Mobile::SessionsController do
         create_mobile_session!(
           user: user,
           start_time_local: session_time,
-          end_time_local: session_time
+          end_time_local: session_time,
         )
       stream =
         create_stream!(
           session: session,
           latitude: session.latitude,
-          longitude: session.longitude
+          longitude: session.longitude,
         )
       measurement = create_measurement!(stream: stream)
 
@@ -36,8 +36,8 @@ describe Api::Mobile::SessionsController do
               offset: 0,
               sensor_name: stream.sensor_name,
               measurement_type: stream.measurement_type,
-              unit_symbol: stream.unit_symbol
-            }.to_json
+              unit_symbol: stream.unit_symbol,
+            }.to_json,
           }
 
       expected = {
@@ -72,10 +72,10 @@ describe Api::Mobile::SessionsController do
               'threshold_very_high' => stream.threshold_very_high,
               'threshold_very_low' => stream.threshold_very_low,
               'unit_name' => stream.unit_name,
-              'unit_symbol' => stream.unit_symbol
-            }
-          }
-        ]
+              'unit_symbol' => stream.unit_symbol,
+            },
+          },
+        ],
       }
       expect(json_response).to eq(expected)
     end
@@ -91,7 +91,7 @@ describe Api::Mobile::SessionsController do
         create_mobile_session!(
           user: user,
           start_time_local: start_time_local,
-          end_time_local: end_time_local
+          end_time_local: end_time_local,
         )
       create_stream!(session: session, sensor_name: 'another-sensor-name')
       stream = create_stream!(session: session, sensor_name: sensor_name)
@@ -117,21 +117,21 @@ describe Api::Mobile::SessionsController do
             'value' => measurement1.value,
             'time' => format_time_to_i(measurement1.time),
             'longitude' => measurement1.longitude,
-            'latitude' => measurement1.latitude
+            'latitude' => measurement1.latitude,
           },
           {
             'value' => measurement2.value,
             'time' => format_time_to_i(measurement2.time),
             'longitude' => measurement2.longitude,
-            'latitude' => measurement2.latitude
-          }
+            'latitude' => measurement2.latitude,
+          },
         ],
         'minLatitude' => 123.0,
         'minLongitude' => 123.0,
         'notes' => [],
         'averageValue' => 1.23,
         'startLatitude' => 123.0,
-        'startLongitude' => 123.0
+        'startLongitude' => 123.0,
       }
       expect(json_response).to eq(expected)
     end
@@ -163,16 +163,11 @@ describe Api::Mobile::SessionsController do
         'id' => session.id,
         'contribute' => session.contribute,
         'created_at' => format_time(session.created_at),
-        'data_type' => nil,
-        'end_time' => format_time(session.end_time),
         'end_time_local' => format_time(session.end_time_local),
-        'instrument' => nil,
         'is_indoor' => session.is_indoor,
         'last_measurement_at' => nil,
         'latitude' => session.latitude,
         'longitude' => session.longitude,
-        'measurements_count' => nil,
-        'start_time' => format_time(session.start_time),
         'start_time_local' => format_time(session.start_time_local),
         'type' => 'MobileSession',
         'updated_at' => format_time(session.updated_at),
@@ -193,8 +188,8 @@ describe Api::Mobile::SessionsController do
             'photo_updated_at' => note.photo_updated_at,
             'session_id' => session.id,
             'text' => note.text,
-            'updated_at' => format_time(note.updated_at)
-          }
+            'updated_at' => format_time(note.updated_at),
+          },
         ],
         'streams' => {
           stream.sensor_name => {
@@ -225,17 +220,17 @@ describe Api::Mobile::SessionsController do
                 'value' => measurement1.value,
                 'latitude' => measurement1.latitude,
                 'longitude' => measurement1.longitude,
-                'time' => format_time(measurement1.time)
+                'time' => format_time(measurement1.time),
               },
               {
                 'value' => measurement2.value,
                 'latitude' => measurement2.latitude,
                 'longitude' => measurement2.longitude,
-                'time' => format_time(measurement2.time)
-              }
-            ]
-          }
-        }
+                'time' => format_time(measurement2.time),
+              },
+            ],
+          },
+        },
       }
       expect(json_response).to eq(expected)
     end
@@ -247,7 +242,7 @@ describe Api::Mobile::SessionsController do
     User.create!(
       username: 'username',
       email: 'email@example.com',
-      password: 'password'
+      password: 'password',
     )
   end
 
@@ -260,13 +255,11 @@ describe Api::Mobile::SessionsController do
       title: 'title',
       user: user,
       uuid: SecureRandom.uuid,
-      start_time: DateTime.current,
       start_time_local: start_time_local,
-      end_time: DateTime.current,
       end_time_local: end_time_local,
       latitude: 123,
       longitude: 123,
-      contribute: true
+      contribute: true,
     )
   end
 
@@ -295,7 +288,7 @@ describe Api::Mobile::SessionsController do
       min_latitude: latitude,
       max_latitude: latitude,
       min_longitude: longitude,
-      max_longitude: longitude
+      max_longitude: longitude,
     )
   end
 
@@ -306,7 +299,7 @@ describe Api::Mobile::SessionsController do
       longitude: 123,
       value: 1.0,
       milliseconds: 123,
-      stream: stream
+      stream: stream,
     )
   end
 
@@ -316,7 +309,7 @@ describe Api::Mobile::SessionsController do
       date: DateTime.current,
       latitude: 123,
       longitude: 123,
-      session: session
+      session: session,
     )
   end
 

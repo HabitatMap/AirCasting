@@ -101,11 +101,6 @@ ActiveRecord::Schema.define(version: 2023_12_19_084743) do
     t.string "url_token"
     t.text "title"
     t.boolean "contribute"
-    t.string "data_type"
-    t.string "instrument"
-    t.datetime "start_time"
-    t.datetime "end_time"
-    t.integer "measurements_count"
     t.datetime "start_time_local"
     t.datetime "end_time_local"
     t.string "type", null: false
@@ -115,10 +110,8 @@ ActiveRecord::Schema.define(version: 2023_12_19_084743) do
     t.datetime "last_measurement_at"
     t.integer "version", default: 1
     t.index ["contribute"], name: "index_sessions_on_contribute"
-    t.index ["end_time"], name: "index_sessions_on_end_time"
     t.index ["end_time_local"], name: "index_sessions_on_end_time_local"
     t.index ["last_measurement_at"], name: "index_sessions_on_last_measurement_at"
-    t.index ["start_time"], name: "index_sessions_on_start_time"
     t.index ["start_time_local"], name: "index_sessions_on_start_time_local"
     t.index ["url_token"], name: "index_sessions_on_url_token"
     t.index ["user_id"], name: "index_sessions_on_user_id"

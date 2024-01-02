@@ -14,19 +14,19 @@ describe MobileSession do
         FactoryBot.create(
           :mobile_session,
           start_time_local: time - 1.minute,
-          end_time_local: time + 1.minute
+          end_time_local: time + 1.minute,
         )
       session1 =
         FactoryBot.create(
           :mobile_session,
           start_time_local: time - 2.minute,
-          end_time_local: time - 1.minute
+          end_time_local: time - 1.minute,
         )
       session2 =
         FactoryBot.create(
           :mobile_session,
           start_time_local: time + 61.minute,
-          end_time_local: time + 71.minute
+          end_time_local: time + 71.minute,
         )
 
       expect(MobileSession.local_minutes_range(from, to).to_a).to eq([session])
@@ -91,7 +91,7 @@ describe MobileSession do
       session =
         create_session_with_streams_and_measurements!(
           start_time_local: now,
-          end_time_local: now + 3.hours
+          end_time_local: now + 3.hours,
         )
 
       actual =
@@ -109,7 +109,7 @@ describe MobileSession do
         FactoryBot.create(
           :mobile_session,
           start_time_local: now,
-          end_time_local: now + 1.second
+          end_time_local: now + 1.second,
         )
 
       actual =
@@ -126,7 +126,7 @@ describe MobileSession do
       session_2 = create_session_with_streams_and_measurements!(user: user_2)
 
       expect(MobileSession.filter_(usernames: 'foo bar, biz').to_a).to eq(
-        [session_1]
+        [session_1],
       )
     end
   end
@@ -169,26 +169,6 @@ describe MobileSession do
     end
   end
 
-  describe '#start_time' do
-    it 'keeps time info in UTC' do
-      session = MobileSession.new
-      time_in_utc = time_in_us.utc
-
-      session.start_time = time_in_us
-      expect(session.start_time.to_s).to eq(time_in_utc.to_s)
-    end
-  end
-
-  describe '#end_time' do
-    it 'keeps time info in UTC' do
-      session = MobileSession.new
-      time_in_utc = time_in_us.utc
-
-      session.end_time = time_in_us
-      expect(session.end_time.to_s).to eq(time_in_utc.to_s)
-    end
-  end
-
   describe '#start_time_local' do
     it 'keeps local time info' do
       session = FactoryBot.build(:mobile_session)
@@ -197,7 +177,7 @@ describe MobileSession do
       session.save
       session.reload
       expect(session.start_time_local.strftime('%FT%T')).to eq(
-        time_in_us.strftime('%FT%T')
+        time_in_us.strftime('%FT%T'),
       )
     end
   end
@@ -209,7 +189,7 @@ describe MobileSession do
       session.save
       session.reload
       expect(session.end_time_local.strftime('%FT%T')).to eq(
-        time_in_us.strftime('%FT%T')
+        time_in_us.strftime('%FT%T'),
       )
     end
   end
