@@ -34,5 +34,12 @@
       "openMenu": "Open menu",
       "habitatMapPage": "HabitatMap page"
     }
+  },
+  "calendarHeader": {
+    "stationPrefix": "Air Quality for Station",
+    "profile": "Profile",
+    "sensor": "Sensor",
+    "lastUpdate": "Last update"
+
   }
 }

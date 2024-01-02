@@ -8,9 +8,9 @@ import { CalendarStationHeader } from "./components/molecules/CalendarStationHea
 const App = () => {
   return (
     <>
+      <GlobalStyles />
       <CalendarStationHeader/>
-      {/* <GlobalStyles />
-      <CalendarPage /> */}
+      {/* <CalendarPage /> */}
     </>
   );
 };
