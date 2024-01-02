@@ -1,6 +1,6 @@
 const sizes = {
-  mobile: "600px",
-  desktop: "1024px",
+  mobile: "768px",
+  desktop: "769px",
 };
 
 const media = {
