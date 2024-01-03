@@ -30,9 +30,11 @@ class Api::ToActiveSessionsJson
   def build_json_output(anonymous = false)
     sessions = formatted_sessions
     streams = Stream.where(session_id: sessions.pluck('sessions.id'))
+    normalized_sensor_names = Array(Sensor.sensor_name(data[:sensor_name])).map(&:downcase)
+    selected_sensor_streams = streams.select { |stream| normalized_sensor_names.include? stream.sensor_name.downcase }
 
     sessions_array = sessions.map do |session|
-      related_stream = streams.find { |stream| stream.session_id == session.id }
+      related_stream = selected_sensor_streams.find { |stream| stream.session_id == session.id }
       {
         'id' => session.id,
         'uuid' => session.uuid,
