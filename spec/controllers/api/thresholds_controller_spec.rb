@@ -15,11 +15,9 @@ describe Api::ThresholdsController do
         stream.threshold_very_high,
       ].map(&:to_s))
     end
-    # with this change, the test passes (idk why yet), also
-    # the thresholds method in streams model needed to be adjusted to postgres
-    # but i think it works, look up stream.rb line 142
+
     it 'checks across all AirBeam versions' do
-      stream = create_stream!(sensor_name: 'AirBeam-PM2.5')
+      stream = create_stream!(sensor_name: 'AirBeam2-PM2.5')
 
       get :show, params: { id: 'AirBeam-PM2.5', unit_symbol: stream.unit_symbol }, format: :json
 

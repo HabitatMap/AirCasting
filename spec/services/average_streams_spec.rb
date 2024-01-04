@@ -44,6 +44,8 @@ describe AverageStreams do
     )
   end
 
+
+  # TODO: This test is failing but the code that's tested is not used currently, test is failing only because measurements are created 48+ hours in the future
   it 'with amount of measurements above the threshold measurements are averaged in groups of window size by keeping the middle measurement' do
     session = create_mobile_session!
     stream = create_stream!(session: session)
