@@ -16,8 +16,6 @@ class FixedRegionInfo
     stream_ids.reduce({ average: 0, count: 0 }) do |acc, stream_id|
       end_time = end_time(stream_id)
 
-      # this change is due to different default settings in postgresql and mysql
-      # but i'd like someone with more context to look at it
       stats =
         Measurement
           .unscoped

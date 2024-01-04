@@ -11,7 +11,7 @@ class Measurement < ApplicationRecord
   has_one :user, through: :session
 
   validates :stream_id, :value, :longitude, :latitude, :time, presence: true
-  validate :time_in_the_future
+  validate :time_not_in_the_future
 
 
   prepare_range(:longitude_range, 'measurements.longitude')
@@ -140,7 +140,7 @@ class Measurement < ApplicationRecord
 
     # due to a firmware bug in AirBeams some measurements come in with a future timestamp
     # please refer to: https://trello.com/c/HjEIuSYU/1616-fixed-ab-future-timestamps-problem
-  def time_in_the_future
+  def time_not_in_the_future
     if self.time && self.time > 48.hours.from_now
       errors.add(:time, 'time cannot be more than 48 hours in the future')
     end
