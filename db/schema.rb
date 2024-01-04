@@ -96,26 +96,6 @@ ActiveRecord::Schema.define(version: 2023_12_19_084743) do
     t.index ["session_id"], name: "index_notes_on_session_id"
   end
 
-  create_table "regressions", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "sensor_package_name"
-    t.string "measurement_type"
-    t.string "unit_name"
-    t.string "unit_symbol"
-    t.integer "threshold_very_low"
-    t.integer "threshold_low"
-    t.integer "threshold_medium"
-    t.integer "threshold_high"
-    t.integer "threshold_very_high"
-    t.text "coefficients"
-    t.string "sensor_name"
-    t.string "measurement_short_type"
-    t.string "reference_sensor_package_name"
-    t.string "reference_sensor_name"
-    t.integer "user_id"
-  end
-
   create_table "sessions", id: :serial, force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
