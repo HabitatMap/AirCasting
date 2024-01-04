@@ -13,9 +13,6 @@ describe Csv::ExportSessionsToCsv do
     Zip::File.open(zip_path) { |zip_file| expect(zip_file.size).to eq(1) }
   end
 
-  # here the problem was double quotes interpolations in the sql query
-  # see services/csv/repository.rb all the '#{session_id}' were "#{session_id}" and postgres was not happy
-
   it 'with one session with one stream and with one measurement the zip contains one empty dotfile and one file with the right CSV content and filename' do
     session = create_session!(title: 'Example Session')
     stream =

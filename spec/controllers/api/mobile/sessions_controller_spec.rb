@@ -227,13 +227,11 @@ describe Api::Mobile::SessionsController do
                 'latitude' => measurement2.latitude.to_f,
                 'longitude' => measurement2.longitude.to_f,
                 'time' => format_time(measurement2.time)
-              }
-            ]
-          }
-        }
+              },
+            ],
+          },
+        },
       }
-      # here the lat/long are off cause the formatting in postgres changed and
-      # the timestamps are off cause in postgres precision is a bit better
       expect(json_response).to eq(expected)
     end
   end

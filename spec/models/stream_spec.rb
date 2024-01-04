@@ -14,11 +14,6 @@ describe Stream do
         .to(data.size)
     end
 
-    # here this test was not passing, my first idea is that in postgres datetime can have null values
-    # so after transition the test case without time in a measurement was failing
-    # because the time was nil
-    # see mesurement model line 142 - this was added by me
-
     it 'skips invalid measurements' do
       stream = FactoryBot.create(:stream)
       valid_data =
