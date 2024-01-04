@@ -74,7 +74,6 @@ Rails.application.routes.draw do
     namespace :fixed do
       get 'sessions/:id' => 'sessions#show'
       get 'sessions/:id/streams' => 'sessions#show_all_streams'
-      get 'sessions2/:id' => 'sessions#show2'
       get 'streams/:id' => 'streams#show'
       get 'autocomplete/tags' => 'autocomplete#tags'
 

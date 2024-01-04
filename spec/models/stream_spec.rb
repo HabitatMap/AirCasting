@@ -4,35 +4,45 @@ describe Stream do
   describe '#build_measurements!' do
     it 'with valid data it imports the measurements' do
       stream = FactoryBot.create(:stream)
-      data = [1, 2, 3].sample.times.map { FactoryBot.attributes_for(:measurement) }
+      data =
+        [1, 2, 3].sample.times.map { FactoryBot.attributes_for(:measurement) }
 
-      expect do
-        stream.build_measurements!(data)
-      end.to change { Measurement.count }.from(0).to(data.size)
+      expect { stream.build_measurements!(data) }.to change {
+          Measurement.count
+        }
+        .from(0)
+        .to(data.size)
     end
 
     it 'skips invalid measurements' do
       stream = FactoryBot.create(:stream)
-      valid_data = [1, 2, 3].sample.times.map { FactoryBot.attributes_for(:measurement) }
-      invalid_data = valid_data.map do |params|
-        required_fields = [:value, :longitude, :latitude, :time]
-        invalid_params = required_fields.map { |field| { field => nil } }
-        params.merge(invalid_params.sample)
-      end
+      valid_data =
+        [1, 2, 3].sample.times.map { FactoryBot.attributes_for(:measurement) }
+      invalid_data =
+        valid_data.map do |params|
+          required_fields = %i[value longitude latitude time]
+          invalid_params = required_fields.map { |field| { field => nil } }
+          params.merge(invalid_params.sample)
+        end
       data = (valid_data + invalid_data).shuffle
 
-      expect do
-        stream.build_measurements!(data)
-      end.to change { Measurement.count }.from(0).to(valid_data.size)
+      expect { stream.build_measurements!(data) }.to change {
+          Measurement.count
+        }
+        .from(0)
+        .to(valid_data.size)
     end
 
     it 'with valid data it updates Stream#measurements_count' do
       stream = FactoryBot.create(:stream)
-      data = [1, 2, 3].sample.times.map { FactoryBot.attributes_for(:measurement) }
+      data =
+        [1, 2, 3].sample.times.map { FactoryBot.attributes_for(:measurement) }
 
-      expect do
-        stream.build_measurements!(data)
-      end.to change { stream.reload.measurements_count }.from(0).to(data.size)
+      expect { stream.build_measurements!(data) }.to change {
+          stream.reload.measurements_count
+        }
+        .from(0)
+        .to(data.size)
     end
   end
 
@@ -85,7 +95,7 @@ describe Stream do
       context 'multiple user names' do
         it 'returns all streams with those usernames' do
           expect(
-            Stream.with_usernames([user.username, user2.username])
+            Stream.with_usernames([user.username, user2.username]),
           ).to include stream, stream2
         end
       end
