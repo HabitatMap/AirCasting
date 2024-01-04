@@ -91,7 +91,7 @@ namespace :sessions do
         .find_each do |stream|
           csv << [
             stream.id,
-            stream.session.user.username,
+            stream.session.user&.username,
             stream.session.title,
             stream.session.uuid,
             stream.measurement_type,
