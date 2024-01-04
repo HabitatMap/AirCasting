@@ -13,7 +13,7 @@ const ActionButton = styled.button`
   transition: background-color 0.3s, box-shadow 0.3s;
   width: 42px;
   height: 42px;
-  margin: 5px;
+  margin-right: 5px;
 `;
 
 export { ActionButton };
