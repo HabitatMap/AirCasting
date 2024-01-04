@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_27_102754) do
+ActiveRecord::Schema.define(version: 2023_12_19_084743) do
 
   create_table "active_storage_attachments", charset: "utf8mb3", force: :cascade do |t|
     t.string "name", null: false
@@ -49,6 +49,22 @@ ActiveRecord::Schema.define(version: 2023_09_27_102754) do
     t.index ["uuid", "user_id"], name: "index_deleted_sessions_on_uuid_and_user_id"
   end
 
+  create_table "flipper_features", charset: "utf8mb3", force: :cascade do |t|
+    t.string "key", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["key"], name: "index_flipper_features_on_key", unique: true
+  end
+
+  create_table "flipper_gates", charset: "utf8mb3", force: :cascade do |t|
+    t.string "feature_key", null: false
+    t.string "key", null: false
+    t.text "value"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["feature_key", "key", "value"], name: "index_flipper_gates_on_feature_key_and_key_and_value", unique: true, length: { value: 255 }
+  end
+
   create_table "measurements", id: :integer, charset: "utf8mb3", force: :cascade do |t|
     t.float "value"
     t.decimal "latitude", precision: 12, scale: 9
@@ -85,11 +101,6 @@ ActiveRecord::Schema.define(version: 2023_09_27_102754) do
     t.string "url_token"
     t.text "title"
     t.boolean "contribute"
-    t.string "data_type"
-    t.string "instrument"
-    t.datetime "start_time"
-    t.datetime "end_time"
-    t.integer "measurements_count"
     t.datetime "start_time_local"
     t.datetime "end_time_local"
     t.string "type", null: false
@@ -99,10 +110,8 @@ ActiveRecord::Schema.define(version: 2023_09_27_102754) do
     t.datetime "last_measurement_at"
     t.integer "version", default: 1
     t.index ["contribute"], name: "index_sessions_on_contribute"
-    t.index ["end_time"], name: "index_sessions_on_end_time"
     t.index ["end_time_local"], name: "index_sessions_on_end_time_local"
     t.index ["last_measurement_at"], name: "index_sessions_on_last_measurement_at"
-    t.index ["start_time"], name: "index_sessions_on_start_time"
     t.index ["start_time_local"], name: "index_sessions_on_start_time_local"
     t.index ["url_token"], name: "index_sessions_on_url_token"
     t.index ["user_id"], name: "index_sessions_on_user_id"

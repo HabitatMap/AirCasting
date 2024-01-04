@@ -13,9 +13,7 @@ class Session < ApplicationRecord
   has_many :notes, inverse_of: :session, dependent: :destroy
 
   validates :user, :uuid, :url_token, presence: true
-  validates :start_time, presence: true
   validates :start_time_local, presence: true
-  validates :end_time, presence: true
   validates :end_time_local, presence: true
   validates :type, presence: :true
   validates :url_token, :uuid, uniqueness: { case_sensitive: false }
@@ -83,7 +81,10 @@ class Session < ApplicationRecord
 
     sensor_name = data[:sensor_name]
     if sensor_name.present?
-      sessions = sessions.joins(:streams).where(streams: { sensor_name: Sensor.sensor_name(sensor_name) })
+      sessions =
+        sessions
+          .joins(:streams)
+          .where(streams: { sensor_name: Sensor.sensor_name(sensor_name) })
     end
 
     unit_symbol = data[:unit_symbol]
@@ -127,11 +128,11 @@ class Session < ApplicationRecord
       OR
       (:time_from BETWEEN start_time_local AND end_time_local)',
         time_from: time_from,
-        time_to: time_to
+        time_to: time_to,
       )
       .local_minutes_range(
         Utils.minutes_of_day(time_from),
-        Utils.minutes_of_day(time_to)
+        Utils.minutes_of_day(time_to),
       )
   end
 
@@ -187,9 +188,9 @@ class Session < ApplicationRecord
             stream.as_json(
               include: {
                 measurements: {
-                  only: %i[time value latitude longitude]
-                }
-              }
+                  only: %i[time value latitude longitude],
+                },
+              },
             )
         end
       else
@@ -197,7 +198,11 @@ class Session < ApplicationRecord
       end
     end
 
-    res.merge!('streams' => map_of_streams)
+    res.merge!(
+      'streams' => map_of_streams,
+      'start_time' => self.start_time_local,
+      'end_time' => self.end_time_local,
+    )
 
     res
   end
@@ -218,7 +223,7 @@ class Session < ApplicationRecord
           streams
             .where(
               sensor_package_name: stream_data[:sensor_package_name],
-              sensor_name: stream_data[:sensor_name]
+              sensor_name: stream_data[:sensor_name],
             )
             .each(&:destroy)
         end

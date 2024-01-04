@@ -10,7 +10,8 @@ src: url("../fonts/Roboto-400.woff2") format("woff2");}
   font-weight: 500;
   font-style: normal;
   font-display: auto;
-src: url("../fonts/Roboto-500.woff2") format("woff2");}
+  src: url("../fonts/Roboto-500.woff2") format("woff2");
+}
 
 @font-face {
   font-family: "Roboto";

@@ -11,7 +11,7 @@ describe Api::Mobile::StreamsController do
         create_mobile_session!(
           user: user,
           start_time_local: start_time_local,
-          end_time_local: end_time_local
+          end_time_local: end_time_local,
         )
       create_stream!(session: session, sensor_name: 'another-sensor-name')
       stream = create_stream!(session: session, sensor_name: sensor_name)
@@ -37,21 +37,21 @@ describe Api::Mobile::StreamsController do
             'value' => measurement1.value,
             'time' => format_time_to_i(measurement1.time),
             'longitude' => measurement1.longitude,
-            'latitude' => measurement1.latitude
+            'latitude' => measurement1.latitude,
           },
           {
             'value' => measurement2.value,
             'time' => format_time_to_i(measurement2.time),
             'longitude' => measurement2.longitude,
-            'latitude' => measurement2.latitude
-          }
+            'latitude' => measurement2.latitude,
+          },
         ],
         'minLatitude' => 123.0,
         'minLongitude' => 123.0,
         'notes' => [],
         'averageValue' => 1.23,
         'startLatitude' => 123.0,
-        'startLongitude' => 123.0
+        'startLongitude' => 123.0,
       }
       expect(json_response).to eq(expected)
     end
@@ -63,7 +63,7 @@ describe Api::Mobile::StreamsController do
     User.create!(
       username: 'username',
       email: 'email@example.com',
-      password: 'password'
+      password: 'password',
     )
   end
 
@@ -76,13 +76,11 @@ describe Api::Mobile::StreamsController do
       title: 'title',
       user: user,
       uuid: SecureRandom.uuid,
-      start_time: DateTime.current,
       start_time_local: start_time_local,
-      end_time: DateTime.current,
       end_time_local: end_time_local,
       latitude: 123,
       longitude: 123,
-      contribute: true
+      contribute: true,
     )
   end
 
@@ -111,7 +109,7 @@ describe Api::Mobile::StreamsController do
       min_latitude: latitude,
       max_latitude: latitude,
       min_longitude: longitude,
-      max_longitude: longitude
+      max_longitude: longitude,
     )
   end
 
@@ -122,7 +120,7 @@ describe Api::Mobile::StreamsController do
       longitude: 123,
       value: 1.0,
       milliseconds: 123,
-      stream: stream
+      stream: stream,
     )
   end
 

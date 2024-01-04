@@ -17,8 +17,6 @@ class FixedSession < Session
   end
 
   def update_end_time!
-    # Measurement.time is a local time, so this are both local end times:
-    self.end_time = self.measurements.maximum('time')
     self.end_time_local = self.measurements.maximum('time')
     self.last_measurement_at = DateTime.current
     self.save!
@@ -31,7 +29,7 @@ class FixedSession < Session
     as_json(
       methods: %i[streams],
       stream_measurements: stream_measurements,
-      last_measurement_sync: last_measurement_sync
+      last_measurement_sync: last_measurement_sync,
     )
   end
 
@@ -59,12 +57,12 @@ class FixedSession < Session
         high: stream.threshold_high,
         mid: stream.threshold_medium,
         low: stream.threshold_low,
-        lowest: stream.threshold_very_low
-      }
+        lowest: stream.threshold_very_low,
+      },
     }
 
     Rails.application.routes.url_helpers.fixed_map_path(
-      anchor: "?selectedStreamId=#{stream.id}&data=#{data.to_json}"
+      anchor: "?selectedStreamId=#{stream.id}&data=#{data.to_json}",
     )
   end
 
