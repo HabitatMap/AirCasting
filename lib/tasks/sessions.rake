@@ -87,11 +87,12 @@ namespace :sessions do
 
       Stream
         .includes(session: :user)
+        .joins(session: :user)
         .where(sensor_name: %w[AirBeam-PM2.5 AirBeam2-PM2.5 AirBeam3-PM2.5])
         .find_each do |stream|
           csv << [
             stream.id,
-            stream.session.user&.username,
+            stream.session.user.username,
             stream.session.title,
             stream.session.uuid,
             stream.measurement_type,
