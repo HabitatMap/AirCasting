@@ -3,15 +3,15 @@ import { Provider } from "react-redux";
 
 import { CalendarPage } from "./pages/CalendarPage";
 import GlobalStyles from "./assets/styles/global-styles";
-import { CalendarStationHeader } from "./components/molecules/CalendarStationHeader/CalendarStationHeader";
+import "./locales/i18n";
+import store from "./store/index";
 
 const App = () => {
   return (
-    <>
+    <Provider store={store}>
       <GlobalStyles />
-      <CalendarStationHeader/>
-      {/* <CalendarPage /> */}
-    </>
+      <CalendarPage />
+    </Provider>
   );
 };
 
