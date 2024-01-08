@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { H1, H3, H4, H5 } from "../../Typography";
+import { H1, H3, H4 } from "../../Typography";
 import media from "../../../utils/media";
 
 const Container = styled.div`
@@ -20,6 +20,7 @@ const TextContainer = styled.div`
   flex-direction: column;
   text-align: left;
   padding-left: 21px;
+  gap: 10px;
 `;
 
 const BoldText = styled.div`
@@ -46,20 +47,15 @@ const Header = styled(H1)`
 `;
 
 const DataDescriptionText = styled(H4)`
-  padding-bottom: 6px;
-  line-height: 120%;
-
   @media ${media.desktop} {
     text-transform: uppercase;
   }
 `;
 
 const DataDescriptionValue = styled(H3)`
-
   @media ${media.mobile} {
     text-transform: uppercase;
     font-size: 14px;
-    line-height: 160%;
     font-weight: 500;
   }
 `;
@@ -75,9 +71,24 @@ const UpdateLabel = styled(H4)`
   }
 `
 
+const UpdateDateLabel = styled(H4)`
+  @media ${media.mobile} {
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+`
+
 const HorizontalContainer = styled.div`
   display: flex;
   flex-direction: row;
+  gap: 10px;
+  align-items: center;
+`;
+
+const HorizontalSpacingContainer = styled.div`
+display: flex;
+align-items: flex-end;
+gap: 70px;
 `;
 
 export {
@@ -91,4 +102,6 @@ export {
   DataDescriptionValue,
   HorizontalContainer,
   UpdateLabel,
+  UpdateDateLabel,
+  HorizontalSpacingContainer
 };
