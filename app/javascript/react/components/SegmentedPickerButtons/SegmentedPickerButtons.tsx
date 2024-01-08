@@ -20,8 +20,8 @@ const SegmentedPicker: React.FC<SegmentedPickerProps> = ({ options }) => {
           key={option}
           onClick={() => onOptionChange(option)}
           isSelected={option === selectedOption}
-          isFirst={index === 0}
-          isLast={index === options.length - 1}
+          index={index}
+          numberOfOptions={options.length}
         >
           <span>{option}</span>
         </S.SegmentedOption>

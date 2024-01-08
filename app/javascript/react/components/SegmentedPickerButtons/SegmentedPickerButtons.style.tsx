@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { blue, lightGray } from "../../assets/styles/colors";
+import { white, blue, lightGray } from "../../assets/styles/colors";
 
 const SegmentedPickerContainer = styled.div`
   position: relative;
@@ -11,26 +11,36 @@ const SegmentedPickerContainer = styled.div`
 
 interface SegmentedOptionProps {
   isSelected: boolean;
-  isFirst: boolean;
-  isLast: boolean;
+  index: number;
+  numberOfOptions: number;
 }
+
+interface BorderProps {
+  index: number;
+  numberOfOptions: number;
+}
+
+const getBorder = ({ index, numberOfOptions }: BorderProps) => {
+  const leftBorder = "5px 0 0 5px";
+  const rightBorder = "0px 5px 5px 0px";
+
+  if (index == numberOfOptions - 1) {
+    return rightBorder;
+  } else if (index == 0) {
+    return leftBorder;
+  }
+};
 
 const SegmentedOption = styled.div<SegmentedOptionProps>`
   padding: 8px 15px;
   margin: 2px;
   cursor: pointer;
   background-color: ${({ isSelected }) => (isSelected ? blue : "transparent")};
-  border-radius: ${({ isSelected, isFirst, isLast }) =>
-    isSelected
-      ? isFirst
-        ? "5px 0 0 5px"
-        : isLast
-        ? "0 5px 5px 0"
-        : "0px"
-      : "0px"};
-  color: ${({ isSelected }) => (isSelected ? blue : "#fff")};
+  border-radius: ${({ isSelected, index, numberOfOptions }) =>
+    isSelected && getBorder({ index, numberOfOptions })};
+  color: ${({ isSelected }) => (isSelected ? blue : white)};
   > span {
-    color: ${({ isSelected }) => (isSelected ? "#fff" : lightGray)};
+    color: ${({ isSelected }) => (isSelected ? white : lightGray)};
     text-transform: uppercase;
   }
 `;
