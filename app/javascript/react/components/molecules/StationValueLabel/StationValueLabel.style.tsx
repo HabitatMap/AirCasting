@@ -11,7 +11,6 @@ const Container = styled.div`
     ),
     ${mint};
   display: flex;
-  // justify-content: space-between;
   padding: 34px 20px;
   width: 290px;
   height: 180px;

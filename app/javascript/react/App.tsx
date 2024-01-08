@@ -11,8 +11,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <GlobalStyles />
-      <CalendarStationHeader/>
-      {/* <CalendarPage /> */}
+      <CalendarPage />
     </Provider>
   );
 };
