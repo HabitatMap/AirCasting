@@ -25,7 +25,6 @@ const CalendarPage = () => {
       <Navbar />
       <PageLayout>
         <StationDataContainer>
-          <SegmentedPicker options={["Day", "Week", "Month"]} />
           <Graph />
         </StationDataContainer>
       </PageLayout>
