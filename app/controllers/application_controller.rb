@@ -24,12 +24,6 @@ class ApplicationController < ActionController::Base
     redirect_to(new_user_session_path) && return unless current_user.admin?
   end
 
-  def render_not_found
-    render file: "#{Rails.root}/public/404.html",
-           layout: false,
-           status: :not_found
-  end
-
   protected
 
   def configure_permitted_parameters
