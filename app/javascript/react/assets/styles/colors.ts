@@ -12,6 +12,7 @@ const orange = "#f99435";
 const yellow = "#fdd44f";
 const green = "#86d175";
 const dirtyWhite = "#ededed";
+const backgroundGray = "#F4F6F9";
 
 export {
   cta,
@@ -26,4 +27,5 @@ export {
   mint,
   blue,
   dirtyWhite,
+  backgroundGray
 };
