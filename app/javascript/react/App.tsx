@@ -10,7 +10,8 @@ const App = () => {
   return (
     <Provider store={store}>
       <GlobalStyles />
-      <CalendarPage />
+      {/* <CalendarPage /> */}
+      <DayView/>
     </Provider>
   );
 };
