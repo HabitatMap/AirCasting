@@ -1,0 +1,38 @@
+import React from "react";
+import * as S from "./DayView.style";
+import { DayView } from "./DayView";
+
+interface WeekData {
+  value: number;
+  date: Date;
+}
+
+interface WeeklyColorRanges {
+  bottom: number;
+  lower: number;
+  middle: number;
+  higher: number;
+  top: number;
+}
+
+interface WeekViewProps {
+  weeklyData: WeekData[];
+  colorRanges: WeeklyColorRanges;
+}
+
+const WeekView = ({ weeklyData, colorRanges }: WeekViewProps) => {
+  return (
+    <S.HorizontalStack>
+      {weeklyData.map((dayData, index) => (
+        <DayView
+          key={index}
+          value={dayData.value}
+          date={dayData.date}
+          colorRanges={colorRanges}
+        />
+      ))}
+    </S.HorizontalStack>
+  );
+};
+
+export { WeekView };
