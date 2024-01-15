@@ -25,7 +25,7 @@ mobileDefaultSensorId =
 
 fixedDefaultSensorId : String
 fixedDefaultSensorId =
-    "Particulate Matter-openaq-pm2.5 (µg/m³)"
+    "Particulate Matter-airbeam-pm2.5 (µg/m³)"
 
 
 defaultSensorIdByParameter : Page -> Dict.Dict String String
