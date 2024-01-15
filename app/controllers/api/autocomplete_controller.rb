@@ -8,7 +8,7 @@ module Api
       names =
         User
           .select('username')
-          .where('username LIKE ?', "#{q[:input]}%")
+          .where('username ILIKE ?', "#{q[:input]}%")
           .order(:username)
           .map(&:username)
       render json: names
