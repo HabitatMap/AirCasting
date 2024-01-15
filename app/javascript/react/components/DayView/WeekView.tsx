@@ -28,6 +28,7 @@ const WeekView = ({ weeklyData, colorRanges }: WeekViewProps) => {
           key={index}
           value={dayData.value}
           date={dayData.date}
+          lastDay={weeklyData.length - 1 == index}
           colorRanges={colorRanges}
         />
       ))}
