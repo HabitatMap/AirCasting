@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import { H1, H3, H4 } from "../../Typography";
 import media from "../../../utils/media";
+import { bluredWhite, darkenGray } from "../../../assets/styles/colors";
 
 const Container = styled.div`
-  background: #f4f6f9;
+  background: ${bluredWhite};
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -15,7 +16,6 @@ const ImageContainer = styled.div`
 `;
 
 const TextContainer = styled.div`
-  color: #4c5660;
   display: flex;
   flex-direction: column;
   text-align: left;
@@ -23,13 +23,13 @@ const TextContainer = styled.div`
   gap: 10px;
 `;
 
-const BoldText = styled.div`
-  font-weight: 600;
-  display: inline;
-`;
-
 const Description = styled(H4)`
   padding-bottom: 10px;
+
+  @media ${media.desktop} {
+    color: ${darkenGray};
+    text-transform: uppercase;
+  }
 
   @media ${media.mobile} {
     font-size: 12px;
@@ -48,6 +48,7 @@ const Header = styled(H1)`
 
 const DataDescriptionText = styled(H4)`
   @media ${media.desktop} {
+    color: ${darkenGray};
     text-transform: uppercase;
   }
 `;
@@ -62,6 +63,7 @@ const DataDescriptionValue = styled(H3)`
 
 const UpdateLabel = styled(H4)`
   @media ${media.desktop} {
+    color: ${darkenGray};
     text-transform: uppercase;
   }
 
@@ -69,32 +71,51 @@ const UpdateLabel = styled(H4)`
     font-size: 12px;
     font-weight: 400;
   }
-`
+`;
+
+const UpdateFrequencyLabel = styled(H4)`
+  @media ${media.mobile} {
+    font-size: 12px;
+    font-weight: 400;
+  }
+`;
 
 const UpdateDateLabel = styled(H4)`
   @media ${media.mobile} {
     text-transform: uppercase;
     font-weight: 600;
+    flex: 1;
   }
-`
+`;
 
 const HorizontalContainer = styled.div`
   display: flex;
   flex-direction: row;
   gap: 10px;
   align-items: center;
+
+  @media ${media.mobile} {
+    align-items: flex-start;
+  }
 `;
 
 const HorizontalSpacingContainer = styled.div`
-display: flex;
-align-items: flex-end;
-gap: 70px;
+  display: flex;
+  align-items: flex-end;
+  gap: 70px;
+`;
+
+const RowContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: leading;
+  gap: 10px;
 `;
 
 export {
   Container,
   TextContainer,
-  BoldText,
   ImageContainer,
   Description,
   Header,
@@ -103,5 +124,7 @@ export {
   HorizontalContainer,
   UpdateLabel,
   UpdateDateLabel,
-  HorizontalSpacingContainer
+  HorizontalSpacingContainer,
+  UpdateFrequencyLabel,
+  RowContainer,
 };

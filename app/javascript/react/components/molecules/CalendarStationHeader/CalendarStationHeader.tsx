@@ -17,22 +17,28 @@ interface CalendarStation {
   profile: string;
   sensor: string;
   lastUpdate: string;
-  stationValues: StationValues
+  streamData: StreamData;
 }
 
-interface StationValues {
+interface StreamData {
   day: string;
   value: number;
   parameter: string;
 }
 
-const CalendarStationHeader = ({ stationName, profile, sensor, lastUpdate, stationValues}: CalendarStation) => {
-  const { t } = useTranslation();
+const CalendarStationHeader = ({
+  stationName,
+  profile,
+  sensor,
+  lastUpdate,
+  streamData,
+}: CalendarStation) => {
+  const { t, i18n } = useTranslation();
 
   const stationNameAndHeader = () => {
     return (
       <>
-        <S.Description>{t("calendarHeader.stationPrefix")}:</S.Description>
+        <S.Description>{t("calendarHeader.stationPrefix")}</S.Description>
         <S.Header>{stationName}</S.Header>
       </>
     );
@@ -61,14 +67,39 @@ const CalendarStationHeader = ({ stationName, profile, sensor, lastUpdate, stati
   const updateOccurance = () => {
     return (
       <>
-        <S.HorizontalContainer>
-          <S.UpdateLabel>Updates every 15 minutes</S.UpdateLabel>
-        </S.HorizontalContainer>
+        <MediaQuery query={media.desktop}>
+          <S.HorizontalContainer>
+            <S.RowContainer>
+              <S.UpdateLabel>
+                {t("calendarHeader.updateFrequencyTitle")}
+              </S.UpdateLabel>
+              <S.UpdateLabel>{t("calendarHeader.lastUpdate")}</S.UpdateLabel>
+            </S.RowContainer>
 
-        <S.HorizontalContainer>
-          <S.UpdateLabel>{t("calendarHeader.lastUpdate")}</S.UpdateLabel>
-          <S.UpdateDateLabel>{lastUpdate} (local time)</S.UpdateDateLabel>
-        </S.HorizontalContainer>
+            <S.RowContainer>
+              <S.UpdateFrequencyLabel>
+                {i18n.t("calendarHeader.updateFrequencyValue", { value: 15 })}
+              </S.UpdateFrequencyLabel>
+              <S.UpdateDateLabel>{lastUpdate} (local time)</S.UpdateDateLabel>
+            </S.RowContainer>
+          </S.HorizontalContainer>
+        </MediaQuery>
+
+        <MediaQuery query={media.mobile}>
+            <S.HorizontalContainer>
+              <S.UpdateLabel>
+                {t("calendarHeader.updateFrequencyTitle")}
+              </S.UpdateLabel>
+              <S.UpdateFrequencyLabel>
+                {i18n.t("calendarHeader.updateFrequencyValue", { value: 15 })}
+              </S.UpdateFrequencyLabel>
+            </S.HorizontalContainer>
+
+            <S.HorizontalContainer>
+              <S.UpdateLabel>{t("calendarHeader.lastUpdate")}</S.UpdateLabel>
+              <S.UpdateDateLabel>{lastUpdate} (local time)</S.UpdateDateLabel>
+            </S.HorizontalContainer>
+        </MediaQuery>
       </>
     );
   };
@@ -105,9 +136,9 @@ const CalendarStationHeader = ({ stationName, profile, sensor, lastUpdate, stati
     <S.Container>
       <S.ImageContainer>
         <StationValueLabel
-          date={stationValues.day}
-          value={stationValues.value}
-          parameter={stationValues.parameter}
+          date={streamData.day}
+          value={streamData.value}
+          parameter={streamData.parameter}
         />
       </S.ImageContainer>
 
@@ -122,15 +153,15 @@ const CalendarStationHeader = ({ stationName, profile, sensor, lastUpdate, stati
 
       <MediaQuery query={media.desktop}>
         <S.HorizontalSpacingContainer>
-        <S.TextContainer>
-          {stationNameAndHeader()}
-          {updateOccurance()}
-        </S.TextContainer>
+          <S.TextContainer>
+            {stationNameAndHeader()}
+            {updateOccurance()}
+          </S.TextContainer>
 
-        <S.TextContainer>
-          {profileAndSensor()}
-          {actionableButtons()}
-        </S.TextContainer>
+          <S.TextContainer>
+            {profileAndSensor()}
+            {actionableButtons()}
+          </S.TextContainer>
         </S.HorizontalSpacingContainer>
       </MediaQuery>
     </S.Container>

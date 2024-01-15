@@ -20,7 +20,7 @@ const Container = styled.div`
     flex-direction: column;
     width: 111px;
     height: 274px;
-    border-radius: 0px;
+    border-radius: 8px;
   }
 `;
 

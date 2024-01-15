@@ -39,7 +39,8 @@
     "stationPrefix": "Air Quality for Station",
     "profile": "Profile",
     "sensor": "Sensor",
-    "lastUpdate": "Last update"
-
+    "lastUpdate": "Last update",
+    "updateFrequencyTitle": "Updates every",
+    "updateFrequencyValue": "{{value}} minutes"
   }
 }
