@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 
-import { darkGray } from "./colors";
+import { grey400 } from "./colors";
 
 const GlobalStyles = createGlobalStyle`
   *,
@@ -23,7 +23,7 @@ const GlobalStyles = createGlobalStyle`
 
   H1, H2, H3, H4, H5, H6 {
     line-height: 1.2;
-    color: ${darkGray};
+    color: ${grey400};
   }
 `;
 

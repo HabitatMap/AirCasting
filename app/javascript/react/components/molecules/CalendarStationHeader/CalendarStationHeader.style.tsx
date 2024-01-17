@@ -1,21 +1,18 @@
 import styled from "styled-components";
 import { H1, H3, H4 } from "../../Typography";
 import media from "../../../utils/media";
-import { bluredWhite, darkenGray } from "../../../assets/styles/colors";
+import { grey100, grey300 } from "../../../assets/styles/colors";
 
 const Container = styled.div`
-  background: ${bluredWhite};
+  background: ${grey100};
   display: flex;
   flex-direction: row;
   align-items: center;
   width: 100%;
+  padding: 3.5rem;
 `;
 
-const ImageContainer = styled.div`
-  padding-left: 15px;
-`;
-
-const TextContainer = styled.div`
+const DetailsContainer = styled.div`
   display: flex;
   flex-direction: column;
   text-align: left;
@@ -23,11 +20,28 @@ const TextContainer = styled.div`
   gap: 10px;
 `;
 
+const MixContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+`;
+
+const ExtraContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  @media ${media.desktop} {
+    flex-direction: row;
+    text-transform: uppercase;
+  }
+`;
+
 const Description = styled(H4)`
   padding-bottom: 10px;
 
   @media ${media.desktop} {
-    color: ${darkenGray};
+    color: ${grey300};
     text-transform: uppercase;
   }
 
@@ -48,7 +62,7 @@ const Header = styled(H1)`
 
 const DataDescriptionText = styled(H4)`
   @media ${media.desktop} {
-    color: ${darkenGray};
+    color: ${grey300};
     text-transform: uppercase;
   }
 `;
@@ -63,7 +77,7 @@ const DataDescriptionValue = styled(H3)`
 
 const UpdateLabel = styled(H4)`
   @media ${media.desktop} {
-    color: ${darkenGray};
+    color: ${grey300};
     text-transform: uppercase;
   }
 
@@ -90,9 +104,9 @@ const UpdateDateLabel = styled(H4)`
 
 const HorizontalContainer = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 10px;
-  align-items: center;
+  align-items: left;
 
   @media ${media.mobile} {
     align-items: flex-start;
@@ -113,10 +127,27 @@ const RowContainer = styled.div`
   gap: 10px;
 `;
 
+const MobileButtons = styled.div`
+  display: flex;
+
+  @media ${media.desktop} {
+    display: none;
+  }
+`;
+
+const DesktopButtons = styled.div`
+  display: none;
+
+  @media ${media.desktop} {
+    display: flex;
+  }
+`;
+
 export {
   Container,
-  TextContainer,
-  ImageContainer,
+  MixContainer,
+  DetailsContainer,
+  ExtraContainer,
   Description,
   Header,
   DataDescriptionText,
@@ -127,4 +158,6 @@ export {
   HorizontalSpacingContainer,
   UpdateFrequencyLabel,
   RowContainer,
+  MobileButtons,
+  DesktopButtons
 };

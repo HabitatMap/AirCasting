@@ -7,21 +7,22 @@ import {
   LegendOptions,
   SeriesOptionsType,
 } from "highcharts/highstock";
+
 import {
   green,
   orange,
   red,
   yellow,
   white,
-  darkGray,
-  lightGray,
+  grey200,
+  grey400,
 } from "../../assets/styles/colors";
 
 const xAxisOption: XAxisOptions = {
   title: {
     text: undefined,
   },
-  tickColor: lightGray,
+  tickColor: grey200,
   lineColor: white,
   type: "datetime",
   labels: {
@@ -39,7 +40,7 @@ const yAxisOption: YAxisOptions = {
   },
   endOnTick: false,
   startOnTick: false,
-  tickColor: darkGray,
+  tickColor: grey400,
   lineColor: white,
   opposite: true,
   tickWidth: 1,
