@@ -8,7 +8,7 @@
 
 :schedule:
   session_stopped_alerts:
-    every: '30m'
+    every: '1m'
     class: SessionStoppedAlertsWorker
     queue: critical
 
