@@ -1,21 +1,18 @@
 import styled from "styled-components";
 import { H1, H3, H4 } from "../../Typography";
 import media from "../../../utils/media";
-import { bluredWhite, darkenGray } from "../../../assets/styles/colors";
+import { grey100, grey300 } from "../../../assets/styles/colors";
 
 const Container = styled.div`
-  background: ${bluredWhite};
+  background: ${grey100};
   display: flex;
   flex-direction: row;
   align-items: center;
   width: 100%;
+  padding: 3.5rem;
 `;
 
-const ImageContainer = styled.div`
-  padding-left: 15px;
-`;
-
-const TextContainer = styled.div`
+const DetailsContainer = styled.div`
   display: flex;
   flex-direction: column;
   text-align: left;
@@ -23,53 +20,65 @@ const TextContainer = styled.div`
   gap: 10px;
 `;
 
-const Description = styled(H4)`
+const Description = styled(H4)<{ $minor?: true }>`
   padding-bottom: 10px;
+  font-size: 12px;
+  font-weight: 500;
 
   @media ${media.desktop} {
-    color: ${darkenGray};
+    /* font-size: ; minor? */
+    color: ${grey300};
     text-transform: uppercase;
   }
+`;
 
-  @media ${media.mobile} {
-    font-size: 12px;
-    font-weight: 500;
+const MobileButtons = styled.div`
+  display: flex;
+
+  @media ${media.desktop} {
+    display: none;
+  }
+`;
+
+const DesktopButtons = styled.div`
+  display: none;
+
+  @media ${media.desktop} {
+    display: flex;
   }
 `;
 
 const Header = styled(H1)`
   padding-bottom: 10px;
+  flex-wrap: wrap;
+  font-size: 18px;
+  font-weight: 700;
 
-  @media ${media.mobile} {
-    font-size: 18px;
-    font-weight: 700;
-  }
-`;
-
-const DataDescriptionText = styled(H4)`
   @media ${media.desktop} {
-    color: ${darkenGray};
+    font-size: 28px;
+  }
+`;
+
+const Label = styled(H4)`
+  @media ${media.desktop} {
+    color: ${grey300};
     text-transform: uppercase;
   }
 `;
 
-const DataDescriptionValue = styled(H3)`
-  @media ${media.mobile} {
-    text-transform: uppercase;
-    font-size: 14px;
-    font-weight: 500;
-  }
+const Value = styled(H3)`
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 500;
 `;
 
 const UpdateLabel = styled(H4)`
-  @media ${media.desktop} {
-    color: ${darkenGray};
-    text-transform: uppercase;
-  }
+  font-size: 12px;
+  font-weight: 400;
 
-  @media ${media.mobile} {
-    font-size: 12px;
-    font-weight: 400;
+  @media ${media.desktop} {
+    color: ${grey300};
+    text-transform: uppercase;
   }
 `;
 
@@ -115,16 +124,17 @@ const RowContainer = styled.div`
 
 export {
   Container,
-  TextContainer,
-  ImageContainer,
+  DetailsContainer,
   Description,
   Header,
-  DataDescriptionText,
-  DataDescriptionValue,
+  Label,
+  Value,
   HorizontalContainer,
   UpdateLabel,
   UpdateDateLabel,
   HorizontalSpacingContainer,
   UpdateFrequencyLabel,
   RowContainer,
+  MobileButtons,
+  DesktopButtons,
 };
