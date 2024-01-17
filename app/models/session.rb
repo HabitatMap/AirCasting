@@ -83,8 +83,7 @@ class Session < ApplicationRecord
     if sensor_name.present?
       # this change in mysql->postgres affects performance, cause we need to compare lowercased strings
       # we can create a column with lowercased sensor_name and use it for comparison so its faster
-      normalized_sensor_names = Array(Sensor.sensor_name(sensor_name)).map(&:downcase)
-      sessions = sessions.joins(:streams).where('LOWER(streams.sensor_name) IN (?)', normalized_sensor_names)
+      sessions = sessions.joins(:streams).where('LOWER(streams.sensor_name) IN (?)', Sensor.sensor_name(sensor_name))
     end
 
     unit_symbol = data[:unit_symbol]
