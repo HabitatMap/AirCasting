@@ -9,8 +9,8 @@ class SessionStoppedAlertsWorker
     Session
       .where(
         'last_measurement_at BETWEEN ? AND ?',
-        Time.current - 1.minute,
-        Time.current - 3.minutes
+        Time.current - 3.minutes,
+        Time.current - 1.minutes
       )
       .joins(:user)
       .where(users: { session_stopped_alert: true })
