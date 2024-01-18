@@ -13,6 +13,11 @@ const yellow = "#fdd44f";
 const green = "#86d175";
 const dirtyWhite = "#ededed";
 
+const calendarGreen = "#96D788";
+const calendarYellow = "#FFD960";
+const calendarOrange = "#FCA443";
+const calendarRed = "#E95F5F";
+
 export {
   cta,
   theme,
@@ -26,4 +31,8 @@ export {
   mint,
   blue,
   dirtyWhite,
+  calendarGreen,
+  calendarYellow,
+  calendarOrange,
+  calendarRed,
 };
