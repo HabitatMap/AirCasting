@@ -41,6 +41,8 @@
     "sensor": "Sensor",
     "lastUpdate": "Last update",
     "updateFrequencyTitle": "Updates every",
-    "updateFrequencyValue": "{{value}} minutes"
+    "updateFrequencyValue": "{{value}} minutes",
+    "copyLink": "COPY LINK",
+    "exportSession": "EXPORT SESSION"
   }
 }

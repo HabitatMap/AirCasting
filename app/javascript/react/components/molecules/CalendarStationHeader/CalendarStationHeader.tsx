@@ -48,19 +48,19 @@ const CalendarStationProfileSensor: React.FC<{
   return (
     <>
       <S.HorizontalContainer>
-        <S.MixContainer>
+        <S.RowContainer>
           <S.DataDescriptionText>
             {t("calendarHeader.profile")}
           </S.DataDescriptionText>
           <S.DataDescriptionValue>{profile}</S.DataDescriptionValue>
-        </S.MixContainer>
+        </S.RowContainer>
 
-        <S.MixContainer>
+        <S.RowContainer>
           <S.DataDescriptionText>
             {t("calendarHeader.sensor")}
           </S.DataDescriptionText>
           <S.DataDescriptionValue>{sensor}</S.DataDescriptionValue>
-        </S.MixContainer>
+        </S.RowContainer>
       </S.HorizontalContainer>
     </>
   );
@@ -73,24 +73,26 @@ const CalendarUpdateOccurance: React.FC<{ lastUpdate: string }> = ({
 
   return (
     <S.HorizontalContainer>
-      <S.MixContainer>
+      <S.RowContainer>
         <S.UpdateLabel>
           {t("calendarHeader.updateFrequencyTitle")}
         </S.UpdateLabel>
         <S.UpdateFrequencyLabel>
           {i18n.t("calendarHeader.updateFrequencyValue", { value: 15 })}
         </S.UpdateFrequencyLabel>
-      </S.MixContainer>
+      </S.RowContainer>
 
-      <S.MixContainer>
+      <S.RowContainer>
         <S.UpdateLabel>{t("calendarHeader.lastUpdate")}</S.UpdateLabel>
         <S.UpdateDateLabel>{lastUpdate} (local time)</S.UpdateDateLabel>
-      </S.MixContainer>
+      </S.RowContainer>
     </S.HorizontalContainer>
   );
 };
 
 const CalendarActionButtons = () => {
+  const { t } = useTranslation();
+
   return (
     <>
       <S.MobileButtons>
@@ -104,10 +106,10 @@ const CalendarActionButtons = () => {
 
       <S.DesktopButtons>
         <Button onClick={() => {}}>
-          COPY LINK <img src={copyLink} />
+          {t("calendarHeader.copyLink")} <img src={copyLink} />
         </Button>
         <Button onClick={() => {}}>
-          EXPORT SESSION <img src={downloadImage} />
+          {t("calendarHeader.exportSession")} <img src={downloadImage} />
         </Button>
       </S.DesktopButtons>
     </>
@@ -122,25 +124,17 @@ const CalendarStationHeader = ({
   streamData,
 }: CalendarStation) => {
   return (
-    <S.Container>
+    <S.GridContainer>
       <StationValueLabel
         date={streamData.day}
         value={streamData.value}
         parameter={streamData.parameter}
       />
-
-      <S.DetailsContainer>
-        <S.ExtraContainer>
-          <CalendarHeaderName stationName={stationName} />
-          <CalendarStationProfileSensor profile={profile} sensor={sensor} />
-        </S.ExtraContainer>
-
-        <S.ExtraContainer>
-          <CalendarUpdateOccurance lastUpdate={lastUpdate} />
-          <CalendarActionButtons />
-        </S.ExtraContainer>
-      </S.DetailsContainer>
-    </S.Container>
+      <CalendarHeaderName stationName={stationName} />
+      <CalendarStationProfileSensor profile={profile} sensor={sensor} />
+      <CalendarUpdateOccurance lastUpdate={lastUpdate} />
+      <CalendarActionButtons />
+    </S.GridContainer>
   );
 };
 
