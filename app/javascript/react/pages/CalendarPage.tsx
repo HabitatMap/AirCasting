@@ -4,8 +4,8 @@ import styled from "styled-components";
 
 import { Navbar } from "../components/Navbar/Navbar";
 import { Graph } from "../components/Graph";
+import { CalendarHeatmap } from "../components/Calendar/Calendar";
 import { dirtyWhite, white } from "../assets/styles/colors";
-import SegmentedPicker from "../components/SegmentedPickerButtons/SegmentedPickerButtons";
 
 const PageLayout = styled.div`
   background-color: ${dirtyWhite};
@@ -25,6 +25,7 @@ const CalendarPage = () => {
       <Navbar />
       <PageLayout>
         <StationDataContainer>
+          <CalendarHeatmap />
           <Graph />
         </StationDataContainer>
       </PageLayout>

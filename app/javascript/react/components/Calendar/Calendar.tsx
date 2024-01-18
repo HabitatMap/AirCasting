@@ -17,112 +17,95 @@ heatmap(Highcharts);
 
 const CalendarHeatmap: React.FC = () => {
   const mockedData = [
-    {
-      date: "2023-07-01",
-      value: 19.1,
-    },
-    {
-      date: "2023-07-02",
-      value: 15.3,
-    },
-    {
-      date: "2023-07-03",
-      value: 16.4,
-    },
-    {
-      date: "2023-07-04",
-      value: 16.0,
-    },
-    {
-      date: "2023-07-05",
-      value: 17.9,
-    },
-    {
-      date: "2023-07-06",
-      value: 15.8,
-    },
-    {
-      date: "2023-07-07",
-      value: 21.1,
-    },
-    {
-      date: "2023-07-08",
-      value: 23.3,
-    },
-    {
-      date: "2023-07-09",
-      value: 24.8,
-    },
-    {
-      date: "2023-07-10",
-      value: 25.1,
-    },
-    {
-      date: "2023-07-11",
-      value: 18.2,
-    },
+    { date: "2023-07-01", value: 19.1 },
+    { date: "2023-07-02", value: 15.3 },
+    { date: "2023-07-03", value: 16.4 },
+    { date: "2023-07-05", value: 17.9 },
+    { date: "2023-07-06", value: 15.8 },
+    { date: "2023-07-07", value: 21.1 },
+    { date: "2023-07-08", value: 23.3 },
+    { date: "2023-07-10", value: 25.1 },
+    { date: "2023-07-11", value: 18.2 },
   ];
 
   const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  function generateChartData(data: string | any[]) {
-    const firstWeekday = new Date(data[0].date).getDay(),
-      monthLength = data.length,
-      lastElement = data[monthLength - 1].date,
-      lastWeekday = new Date(lastElement).getDay(),
-      lengthOfWeek = 6,
-      emptyTilesFirst = firstWeekday,
-      chartData = [];
-
-    for (let emptyDay = 0; emptyDay < emptyTilesFirst; emptyDay++) {
-      chartData.push({
-        x: emptyDay,
-        y: 5,
-        value: null,
-        date: null,
-        custom: {
-          empty: true,
-        },
-      });
-    }
-
-    for (let day = 1; day <= monthLength; day++) {
-      // Get date from the given data array
-      const date = data[day - 1].date;
-      // Offset by the number of empty tiles
-      const xCoordinate = (emptyTilesFirst + day - 1) % 7;
-      const yCoordinate = Math.floor((firstWeekday + day - 1) / 7);
-      const id = day;
-      // Get the corresponding measurement for the current day from the given
-      // array
-      const measurement = data[day - 1].value;
-
-      chartData.push({
-        x: xCoordinate,
-        y: 5 - yCoordinate,
-        value: measurement,
-        date: new Date(date).getTime(),
-        custom: {
-          monthDay: id,
-        },
-      });
-    }
-
-    // Fill in the missing values when dataset is looped through.
-    const emptyTilesLast = lengthOfWeek - lastWeekday;
-    for (let emptyDay = 1; emptyDay <= emptyTilesLast; emptyDay++) {
-      chartData.push({
-        x: (lastWeekday + emptyDay) % 7,
-        y: 0,
-        value: null,
-        date: null,
-        custom: {
-          empty: true,
-        },
-      });
-    }
-    return chartData;
+  interface ChartDataItem {
+    x: number;
+    y: number;
+    value?: number | null;
+    date?: number;
+    custom: {
+      empty: boolean;
+      monthDay: number;
+    };
   }
+
+  function generateChartDataItem(
+    day: number,
+    firstWeekday: number,
+    data: { date: string; value: number }
+  ): ChartDataItem {
+    const date = new Date(data.date);
+    const xCoordinate = (firstWeekday + day - 1) % 7;
+    const yCoordinate = Math.floor((firstWeekday + day - 1) / 7);
+    const dayNumber = day;
+
+    return {
+      x: xCoordinate,
+      y: 5 - yCoordinate,
+      value: data.value ? null : data.value,
+      date: date.getTime(),
+      custom: {
+        empty: data.value ? false : true,
+        monthDay: dayNumber,
+      },
+    };
+  }
+
+  function generateEmptyDataItem(
+    day: number,
+    firstWeekday: number
+  ): ChartDataItem {
+    return {
+      x: (firstWeekday + day - 1) % 7,
+      y: 5 - Math.floor((firstWeekday + day - 1) / 7),
+      custom: { empty: true, monthDay: day },
+    };
+  }
+
+  function generateChartData(
+    data: { date: string; value: number }[]
+  ): ChartDataItem[] {
+    const firstDayOfMonth = new Date(data[0].date);
+    const firstWeekday = firstDayOfMonth.getDay();
+    const monthLength = new Date(
+      firstDayOfMonth.getFullYear(),
+      firstDayOfMonth.getMonth() + 1,
+      0
+    ).getDate();
+    const lastElement = data[data.length - 1].date;
+    const lastWeekday = new Date(lastElement).getDay();
+    const lengthOfWeek = 6;
+
+    const emptyTilesFirst = firstWeekday;
+    const emptyTilesLast = lengthOfWeek - lastWeekday;
+
+    return Array.from({ length: monthLength }, (_, day) => {
+      const dataItem = data.find((item) => {
+        const itemDate = new Date(item.date);
+        return (
+          itemDate.getDate() === day + 1 &&
+          itemDate.getMonth() === firstDayOfMonth.getMonth()
+        );
+      });
+
+      return dataItem
+        ? generateChartDataItem(day + 1, firstWeekday, dataItem)
+        : generateEmptyDataItem(day + 1, firstWeekday);
+    });
+  }
+
   const chartData = generateChartData(mockedData);
 
   const options = {
@@ -210,6 +193,7 @@ const CalendarHeatmap: React.FC = () => {
       },
     ],
   };
+
   return (
     <div>
       <HighchartsReact highcharts={Highcharts} options={options} />
