@@ -11,18 +11,17 @@ const HorizontalContainer = styled.div`
 `;
 
 const RowContainer = styled.div`
-  display: flex;
   flex-direction: row;
-  gap: 4px;
+  gap: 8px;
 
   @media ${media.desktop} {
+    display: flex;
     align-items: flex-end;
   }
 `;
 
-const Description = styled(H4)`
+const Description = styled(H5)`
   padding-bottom: 10px;
-  font-size: 12px;
   font-weight: 500;
 
   @media ${media.desktop} {
@@ -39,49 +38,53 @@ const Header = styled(H3)`
 
   @media ${media.desktop} {
     font-size: 28px;
-    font-weight: 400;
+    font-weight: 600;
   }
 `;
 
-const DataDescriptionText = styled(H4)`
+const Subtitle = styled(H4)`
+  display: inline;
+  padding-right: 5px;
+
   @media ${media.desktop} {
+    display: block;
     color: ${grey300};
     text-transform: uppercase;
+    width: 120px;
   }
 `;
 
-const DataDescriptionValue = styled(H4)`
+const DataDescription = styled(H4)`
+  display: inline;
   font-weight: 500;
   text-transform: uppercase;
 
   @media ${media.desktop} {
+    display: block;
     text-transform: none;
     font-size: 18px;
     font-weight: 400;
   }
 `;
 
-const UpdateDateLabel = styled(H4)`
+const DateLabel = styled(H4)`
+  display: inline;
   font-weight: 600;
   text-transform: uppercase;
 
   @media ${media.desktop} {
+    display: block;
     text-transform: none;
     font-weight: 400;
   }
 `;
 
-const UpdateFrequencyLabel = styled(H5)`
-  @media ${media.desktop} {
-    font-size: 14px;
-  }
-`;
+const FrequencyLabel = styled(H5)`
+  display: inline;
 
-const UpdateLabel = styled(H5)`
   @media ${media.desktop} {
+    display: block;
     font-size: 14px;
-    color: ${grey300};
-    text-transform: uppercase;
   }
 `;
 
@@ -108,8 +111,7 @@ const GridContainer = styled.div`
   padding: 3.5rem;
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 5px;
+  grid-gap: 20px;
 
   > :nth-child(1) {
     grid-area: valueLabel;
@@ -134,9 +136,9 @@ const GridContainer = styled.div`
     "valueLabel actionButtons";
 
   @media ${media.desktop} {
-    grid-template-columns: 0.5fr 1fr 1fr;
+    grid-template-columns: 0.2fr 1fr 1fr;
     align-items: center;
-    column-gap: 20px;
+    column-gap: 70px;
 
     > :nth-child(1) {
       grid-area: valueLabel;
@@ -166,12 +168,11 @@ export {
   GridContainer,
   Description,
   Header,
-  DataDescriptionText,
-  DataDescriptionValue,
+  DataDescription,
   HorizontalContainer,
-  UpdateLabel,
-  UpdateDateLabel,
-  UpdateFrequencyLabel,
+  Subtitle,
+  DateLabel,
+  FrequencyLabel,
   MobileButtons,
   DesktopButtons,
 };

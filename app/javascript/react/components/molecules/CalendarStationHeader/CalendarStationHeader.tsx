@@ -49,17 +49,17 @@ const CalendarStationProfileSensor: React.FC<{
     <>
       <S.HorizontalContainer>
         <S.RowContainer>
-          <S.DataDescriptionText>
+          <S.Subtitle>
             {t("calendarHeader.profile")}
-          </S.DataDescriptionText>
-          <S.DataDescriptionValue>{profile}</S.DataDescriptionValue>
+          </S.Subtitle>
+          <S.DataDescription>{profile}</S.DataDescription>
         </S.RowContainer>
 
         <S.RowContainer>
-          <S.DataDescriptionText>
+          <S.Subtitle>
             {t("calendarHeader.sensor")}
-          </S.DataDescriptionText>
-          <S.DataDescriptionValue>{sensor}</S.DataDescriptionValue>
+          </S.Subtitle>
+          <S.DataDescription>{sensor}</S.DataDescription>
         </S.RowContainer>
       </S.HorizontalContainer>
     </>
@@ -74,17 +74,17 @@ const CalendarUpdateOccurance: React.FC<{ lastUpdate: string }> = ({
   return (
     <S.HorizontalContainer>
       <S.RowContainer>
-        <S.UpdateLabel>
+        <S.Subtitle>
           {t("calendarHeader.updateFrequencyTitle")}
-        </S.UpdateLabel>
-        <S.UpdateFrequencyLabel>
+        </S.Subtitle>
+        <S.FrequencyLabel>
           {i18n.t("calendarHeader.updateFrequencyValue", { value: 15 })}
-        </S.UpdateFrequencyLabel>
+        </S.FrequencyLabel>
       </S.RowContainer>
 
       <S.RowContainer>
-        <S.UpdateLabel>{t("calendarHeader.lastUpdate")}</S.UpdateLabel>
-        <S.UpdateDateLabel>{lastUpdate} (local time)</S.UpdateDateLabel>
+        <S.Subtitle>{t("calendarHeader.lastUpdate")}</S.Subtitle>
+        <S.DateLabel>{lastUpdate} (local time)</S.DateLabel>
       </S.RowContainer>
     </S.HorizontalContainer>
   );
