@@ -5,8 +5,8 @@ class Api::ToActiveSessionsJson
 
   def call
     return Failure.new(form.errors) if form.invalid?
-    query = data[:is_indoor] ? anonymyze(sql) : sql
-    Success.new(ActiveRecord::Base.connection.execute(query).to_a[0][0])
+    result = data[:is_indoor] ? build_json_output(true) : build_json_output
+    Success.new(result)
   end
 
   private
@@ -25,44 +25,41 @@ class Api::ToActiveSessionsJson
     form.to_h.to_h
   end
 
-  def sql
-    <<~SQL
-      SELECT
-        COALESCE(JSON_OBJECT(
-          'sessions', JSON_ARRAYAGG(
-            JSON_OBJECT(
-              'id', formatted_sessions.id,
-              'uuid', formatted_sessions.uuid,
-              'title', formatted_sessions.title,
-              'start_time_local', formatted_sessions.start_time_local,
-              'end_time_local', formatted_sessions.end_time_local,
-              'last_measurement_value', formatted_sessions.last_measurement_value,
-              'is_indoor', formatted_sessions.is_indoor,
-              'latitude', formatted_sessions.latitude,
-              'longitude', formatted_sessions.longitude,
-              'username', formatted_sessions.username,
-              'streams', (
-                SELECT
-                  JSON_OBJECT(
-                    streams.sensor_name,
-                    JSON_OBJECT(
-                      'sensor_name', streams.sensor_name,
-                      'measurement_short_type', streams.measurement_short_type,
-                      'unit_symbol', streams.unit_symbol,
-                      'id', streams.id
-                    )
-                  )
-                FROM
-                  streams
-                WHERE
-                  streams.id = formatted_sessions.stream_id
-              )
-            )),
-          'fetchableSessionsCount', (#{sessions.select('COUNT(DISTINCT sessions.id)').to_sql})
-        ), JSON_OBJECT('sessions', JSON_ARRAY(), 'fetchableSessionsCount', 0))
-      FROM
-        (#{formatted_sessions.to_sql}) AS formatted_sessions
-    SQL
+  # this was changed from a mysql query to active record to work with postgres, but it might perform worse
+  # this should be tested in terms of performance and actual queries generated vs. old mysql implementation
+  def build_json_output(anonymous = false)
+    sessions = formatted_sessions
+    streams = Stream.where(session_id: sessions.pluck('sessions.id'))
+    selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(data[:sensor_name]).include? stream.sensor_name.downcase }
+
+    sessions_array = sessions.map do |session|
+      related_stream = selected_sensor_streams.find { |stream| stream.session_id == session.id }
+      {
+        'id' => session.id,
+        'uuid' => session.uuid,
+        'end_time_local' => session.end_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+        'start_time_local' => session.start_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+        'last_measurement_value' => related_stream&.average_value,
+        'is_indoor' => session.is_indoor,
+        'latitude' => session.latitude,
+        'longitude' => session.longitude,
+        'title' => session.title,
+        'username' => anonymous ? 'anonymous' : session.user.username,
+        'streams' => {
+          related_stream.sensor_name => {
+            'measurement_short_type' => related_stream.measurement_short_type,
+            'sensor_name' => related_stream.sensor_name,
+            'unit_symbol' => related_stream.unit_symbol,
+            'id' => related_stream.id,
+          }
+        }
+      }
+    end
+
+    {
+      'fetchableSessionsCount' => sessions.length,
+      'sessions' => sessions_array
+    }
   end
 
   def formatted_sessions
@@ -70,22 +67,18 @@ class Api::ToActiveSessionsJson
       'sessions.id',
       'sessions.uuid',
       'sessions.title',
-      'DATE_FORMAT(sessions.start_time_local, "%Y-%m-%dT%H:%i:%s.000Z") AS start_time_local',
-      'DATE_FORMAT(sessions.end_time_local, "%Y-%m-%dT%H:%i:%s.000Z") AS end_time_local',
-      '(SELECT streams.average_value WHERE streams.session_id = sessions.id) AS last_measurement_value',
-      '(CASE WHEN sessions.is_indoor = 1 THEN cast(TRUE as json) ELSE cast(FALSE as json) END) AS is_indoor',
+      'sessions.start_time_local',
+      'sessions.end_time_local',
+      '(SELECT average_value FROM streams WHERE streams.session_id = sessions.id LIMIT 1)',
+      'sessions.is_indoor',
       'sessions.latitude',
       'sessions.longitude',
       'users.username',
-      'streams.id AS stream_id',
+      'sessions.user_id',
     ])
   end
 
   def sessions
     @sessions ||= FixedSession.active.filter_(data)
-  end
-
-  def anonymyze(sql)
-    sql.gsub(/formatted_sessions\.username/, '\'anonymous\'')
   end
 end

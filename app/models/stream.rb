@@ -130,8 +130,7 @@ class Stream < ApplicationRecord
 
   def build_measurements!(data = [])
     measurements = data.
-      map { |params| Measurement.new(params.merge(stream: self)) }.
-      reject { |measurement| measurement.in_the_future? }
+      map { |params| Measurement.new(params.merge(stream: self)) }
     result = Measurement.import measurements
     if result.failed_instances.any?
       Rails.logger.warn "Measurement.import failed for: #{result.failed_instances}"
@@ -139,16 +138,26 @@ class Stream < ApplicationRecord
     Stream.update_counters(self.id, measurements_count: measurements.size - result.failed_instances.size)
   end
 
+  # this change for migration mysql->posgres needs to be tested
   def self.thresholds(sensor_name, unit_symbol)
-    select(
-        "CONCAT_WS('-', threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high) as thresholds, COUNT(*) as thresholds_count"
-      )
-      .where(sensor_name: Sensor.sensor_name(sensor_name), unit_symbol: unit_symbol)
-      .order('thresholds_count DESC')
-      .group(:thresholds)
+
+    subquery = select(
+      "ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-') as thresholds, COUNT(*) as thresholds_count"
+    )
+    .where('LOWER(sensor_name) IN (?) AND unit_symbol = ?', Sensor.sensor_name(sensor_name), unit_symbol)
+    .group("ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-')")
+    .to_sql
+
+    result = Stream.select("subquery.thresholds, subquery.thresholds_count")
+      .from("(#{subquery}) as subquery")
+      .order('subquery.thresholds_count DESC')
       .first
-      .thresholds
-      .split('-')
+
+    if result
+      result.thresholds.split('-')
+    else
+      []
+    end
   end
 
   def as_json(opts = nil)

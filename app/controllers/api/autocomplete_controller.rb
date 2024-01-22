@@ -6,11 +6,10 @@ module Api
       render json: [] unless q.present?
 
       names =
-        User
-          .select('username')
-          .where('username LIKE ?', "#{q[:input]}%")
-          .order(:username)
-          .map(&:username)
+      User
+        .where('username ILIKE ?', "#{q[:input]}%")
+        .order(:username)
+        .pluck(:username)
       render json: names
     end
   end

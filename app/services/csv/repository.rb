@@ -22,36 +22,36 @@ class Csv::Repository
   end
 
   def find_streams(session_id, sensor_package_name)
+    sanitized_package_name = sensor_package_name.gsub("'", "''")
+
     sql = <<-SQL
-SELECT streams.sensor_name, streams.sensor_package_name, streams.measurement_type, streams.unit_name
-FROM sessions
-INNER JOIN streams ON streams.session_id = sessions.id
-WHERE sessions.id = "#{
-      session_id
-    }" AND streams.sensor_package_name = '#{sensor_package_name.gsub("'", "''")}'
-GROUP BY streams.sensor_name, streams.sensor_package_name, streams.measurement_type, streams.unit_name
-ORDER BY streams.sensor_name ASC
+      SELECT streams.sensor_name, streams.sensor_package_name, streams.measurement_type, streams.unit_name
+      FROM sessions
+      INNER JOIN streams ON streams.session_id = sessions.id
+      WHERE sessions.id = '#{session_id}'
+      AND streams.sensor_package_name = '#{sanitized_package_name}'
+      GROUP BY streams.sensor_name, streams.sensor_package_name, streams.measurement_type, streams.unit_name
+      ORDER BY streams.sensor_name ASC
     SQL
 
     ActiveRecord::Base.connection.exec_query(sql)
   end
 
   def find_measurements(session_id, sensor_package_name)
+    sanitized_package_name = sensor_package_name.gsub("'", "''")
+
     sql = <<-SQL
-SELECT streams.sensor_package_name as stream_sensor_package_name, streams.sensor_name as stream_sensor_name,
-       streams.measurement_type as stream_measurement_type, streams.unit_name as stream_unit_name,
-       sessions.title as session_title, measurements.time as measurement_time,
-       measurements.milliseconds as measurement_milliseconds, measurements.latitude as measurement_latitude,
-       measurements.longitude as measurement_longitude, measurements.value as measurement_value
-FROM sessions
-INNER JOIN streams
-ON streams.session_id= sessions.id
-INNER JOIN measurements
-ON measurements.stream_id = streams.id
-WHERE sessions.id = "#{
-      session_id
-    }" AND streams.sensor_package_name = '#{sensor_package_name.gsub("'", "''")}'
-ORDER BY measurements.time, measurements.milliseconds, streams.sensor_name ASC
+      SELECT streams.sensor_package_name as stream_sensor_package_name, streams.sensor_name as stream_sensor_name,
+      streams.measurement_type as stream_measurement_type, streams.unit_name as stream_unit_name,
+      sessions.title as session_title, measurements.time as measurement_time,
+      measurements.milliseconds as measurement_milliseconds, measurements.latitude as measurement_latitude,
+      measurements.longitude as measurement_longitude, measurements.value as measurement_value
+      FROM sessions
+      INNER JOIN streams ON streams.session_id = sessions.id
+      INNER JOIN measurements ON measurements.stream_id = streams.id
+      WHERE sessions.id = '#{session_id}'
+      AND streams.sensor_package_name = '#{sanitized_package_name}'
+      ORDER BY measurements.time, measurements.milliseconds, streams.sensor_name ASC
     SQL
 
     ActiveRecord::Base.connection.exec_query(sql).to_a
@@ -59,13 +59,12 @@ ORDER BY measurements.time, measurements.milliseconds, streams.sensor_name ASC
 
   def find_sensor_package_names(session_id)
     sql = <<-SQL
-SELECT streams.sensor_package_name as stream_sensor_package_name
-FROM sessions
-INNER JOIN streams
-ON streams.session_id= sessions.id
-WHERE sessions.id = "#{session_id}"
-GROUP BY streams.sensor_package_name
-ORDER BY streams.sensor_package_name
+      SELECT streams.sensor_package_name as stream_sensor_package_name
+      FROM sessions
+      INNER JOIN streams ON streams.session_id = sessions.id
+      WHERE sessions.id = '#{session_id}'
+      GROUP BY streams.sensor_package_name
+      ORDER BY streams.sensor_package_name
     SQL
 
     ActiveRecord::Base
@@ -81,9 +80,9 @@ ORDER BY streams.sensor_package_name
 
   def find_session_title(session_id)
     sql = <<-SQL
-SELECT sessions.title
-FROM sessions
-WHERE sessions.id= "#{session_id}"
+      SELECT sessions.title
+      FROM sessions
+      WHERE sessions.id = '#{session_id}'
     SQL
 
     ActiveRecord::Base.connection.exec_query(sql).to_a.first['title']

@@ -176,7 +176,7 @@ describe Api::Mobile::SessionsController do
         'uuid' => session.uuid,
         'notes' => [
           {
-            'created_at' => format_time(note.created_at),
+            'created_at' => format_time_with_miliseconds(note.created_at),
             'date' => format_time(note.date),
             'id' => note.id,
             'latitude' => note.latitude,
@@ -188,8 +188,8 @@ describe Api::Mobile::SessionsController do
             'photo_updated_at' => note.photo_updated_at,
             'session_id' => session.id,
             'text' => note.text,
-            'updated_at' => format_time(note.updated_at),
-          },
+            'updated_at' => format_time_with_miliseconds(note.updated_at)
+          }
         ],
         'streams' => {
           stream.sensor_name => {
@@ -220,13 +220,13 @@ describe Api::Mobile::SessionsController do
                 'value' => measurement1.value,
                 'latitude' => measurement1.latitude,
                 'longitude' => measurement1.longitude,
-                'time' => format_time(measurement1.time),
+                'time' => format_time(measurement1.time)
               },
               {
                 'value' => measurement2.value,
                 'latitude' => measurement2.latitude,
                 'longitude' => measurement2.longitude,
-                'time' => format_time(measurement2.time),
+                'time' => format_time(measurement2.time)
               },
             ],
           },
@@ -248,8 +248,8 @@ describe Api::Mobile::SessionsController do
 
   def create_mobile_session!(
     user:,
-    start_time_local: DateTime.current,
-    end_time_local: DateTime.current
+    start_time_local: DateTime.current.change(:usec => 0),
+    end_time_local: DateTime.current.change(:usec => 0)
   )
     MobileSession.create!(
       title: 'title',
@@ -294,7 +294,7 @@ describe Api::Mobile::SessionsController do
 
   def create_measurement!(stream:)
     Measurement.create!(
-      time: DateTime.current,
+      time: DateTime.current.change(:usec => 0),
       latitude: 123,
       longitude: 123,
       value: 1.0,
@@ -306,7 +306,7 @@ describe Api::Mobile::SessionsController do
   def create_note!(session:)
     Note.create!(
       text: 'text',
-      date: DateTime.current,
+      date: DateTime.current.change(:usec => 0),
       latitude: 123,
       longitude: 123,
       session: session,
@@ -319,5 +319,9 @@ describe Api::Mobile::SessionsController do
 
   def format_time_to_i(time)
     time.to_datetime.strftime('%Q').to_i
+  end
+
+  def format_time_with_miliseconds(time)
+    time.strftime('%FT%T.%LZ')
   end
 end

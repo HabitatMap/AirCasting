@@ -4,10 +4,11 @@ class CalibrateSessions < ActiveRecord::Migration[4.2]
 
   def up
     execute <<-SQL
- 			update measurements m
- 			LEFT JOIN sessions s on s.id = m.session_id
- 			set value = #{CALIBRATE}
- 		SQL
+      UPDATE measurements m
+      SET value = #{CALIBRATE}
+      FROM sessions s
+      WHERE s.id = m.session_id
+    SQL
   end
 
   def down; end

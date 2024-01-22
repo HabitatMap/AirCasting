@@ -81,10 +81,9 @@ class Session < ApplicationRecord
 
     sensor_name = data[:sensor_name]
     if sensor_name.present?
-      sessions =
-        sessions
-          .joins(:streams)
-          .where(streams: { sensor_name: Sensor.sensor_name(sensor_name) })
+      # this change in mysql->postgres affects performance, cause we need to compare lowercased strings
+      # we can create a column with lowercased sensor_name and use it for comparison so its faster
+      sessions = sessions.joins(:streams).where('LOWER(streams.sensor_name) IN (?)', Sensor.sensor_name(sensor_name))
     end
 
     unit_symbol = data[:unit_symbol]
