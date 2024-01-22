@@ -18,60 +18,37 @@ const Container = styled.div`
   height: 70px;
 `;
 
-const RangeInput = styled.input.attrs<{ thresholds: number[] }>((props) => ({
-  min: props.thresholds[0],
-  max: props.thresholds[4],
+const RangeInput = styled.input.attrs<{ $thresholds: number[] }>((props) => ({
+  min: props.$thresholds[0],
+  max: props.$thresholds[4],
 }))<{
   $firstThumbPos: number;
   $secondThumbPos: number;
   $thirdThumbPos: number;
   $sliderWidth: number;
-  thresholds: number[];
+  $thresholds: number[];
 }>`
   width: 100%;
   position: absolute;
   top: 0;
   height: 8px;
-
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
   cursor: pointer;
+  border-radius: 5px;
 
-  &::-webkit-slider-runnable-track {
+  &::-webkit-slider-runnable-track,
+  &::-moz-range-track,
+  &::-ms-track {
     appearance: none;
     -webkit-appearance: none;
     height: 5px;
     background: transparent;
-    border-radius: 5px;
   }
 
-  &::-moz-range-track {
-    appearance: none;
-    height: 5px;
-    background: transparent;
-    border-radius: 5px;
-  }
-
-  &::-ms-track {
-    appearance: none;
-    height: 5px;
-    background: transparent;
-    border-radius: 5px;
-  }
-
-  &::-webkit-slider-thumb {
-    appearance: none;
-    width: 0;
-    height: 0;
-  }
-
-  &::-moz-range-thumb {
-    appearance: none;
-    width: 0;
-    height: 0;
-  }
-
+  &::-webkit-slider-thumb,
+  &::-moz-range-thumb,
   &::-ms-thumb {
     appearance: none;
     width: 0;
@@ -115,10 +92,7 @@ const RangeInput = styled.input.attrs<{ thresholds: number[] }>((props) => ({
   }
 `;
 
-const NumberInput = styled.input.attrs(() => ({
-  type: "number",
-  inputMode: "numeric",
-}))<{ $marginLeft?: string }>`
+const NumberInput = styled.input.attrs(() => ({}))<{ $marginLeft?: string }>`
   font-family: Roboto;
   font-weight: 600;
   font-size: 1.4rem;
@@ -142,6 +116,7 @@ const NumberInput = styled.input.attrs(() => ({
   }
 
   input[type="number"] {
+    appearance: textfield;
     -moz-appearance: textfield;
   }
 
