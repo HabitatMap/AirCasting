@@ -41,6 +41,10 @@ const CalendarHeatmap: React.FC = () => {
     };
   }
 
+  function isEmptyTile(value: number | null): boolean {
+    return value === null;
+  }
+
   function generateChartDataItem(
     day: number,
     firstWeekday: number,
@@ -54,10 +58,10 @@ const CalendarHeatmap: React.FC = () => {
     return {
       x: xCoordinate,
       y: 5 - yCoordinate,
-      value: data.value ? null : data.value,
+      value: isEmptyTile(data.value) ? null : data.value,
       date: date.getTime(),
       custom: {
-        empty: data.value ? false : true,
+        empty: isEmptyTile(data.value),
         monthDay: dayNumber,
       },
     };
@@ -84,12 +88,6 @@ const CalendarHeatmap: React.FC = () => {
       firstDayOfMonth.getMonth() + 1,
       0
     ).getDate();
-    const lastElement = data[data.length - 1].date;
-    const lastWeekday = new Date(lastElement).getDay();
-    const lengthOfWeek = 6;
-
-    const emptyTilesFirst = firstWeekday;
-    const emptyTilesLast = lengthOfWeek - lastWeekday;
 
     return Array.from({ length: monthLength }, (_, day) => {
       const dataItem = data.find((item) => {
@@ -116,20 +114,14 @@ const CalendarHeatmap: React.FC = () => {
       landmarkVerbosity: "one",
     },
     tooltip: {
-      enabled: true,
-      outside: true,
-      zIndex: 20,
-      headerFormat: "",
-      pointFormat:
-        "{#unless point.custom.empty}{point.date:%A, %b %e, %Y}{/unless}",
-      nullFormat: "No data",
+      enabled: false,
     },
     xAxis: {
       categories: weekdays,
       opposite: true,
-      lineWidth: 26,
-      offset: 13,
-      lineColor: "rgba(27, 26, 37, 0.2)",
+      lineWidth: 50,
+      offset: 15,
+      lineColor: white,
       labels: {
         rotation: 0,
         y: 20,
@@ -154,15 +146,25 @@ const CalendarHeatmap: React.FC = () => {
     },
 
     colorAxis: {
-      min: 0,
+      min: -10000,
       stops: [
-        [0.2, calendarGreen],
+        [0, calendarGreen],
         [0.4, calendarYellow],
         [0.6, calendarOrange],
         [0.9, calendarRed],
       ],
       labels: {
         format: "PM2",
+      },
+    },
+
+    plotOptions: {
+      heatmap: {
+        states: {
+          hover: {
+            enabled: false,
+          },
+        },
       },
     },
 
