@@ -1,14 +1,14 @@
 import React from "react";
-
 import { useTranslation } from "react-i18next";
+
+import { StationValueLabel } from "../StationValueLabel";
 import { ActionButton } from "../../ActionButton/ActionButton.style";
 import { Button } from "../../Button/Button";
-import { StationValueLabel } from "../StationValueLabel";
-import * as S from "./CalendarStationHeader.style";
 import bellAlert from "../../../assets/icons/bellAlert.svg";
 import shareLink from "../../../assets/icons/shareLink.svg";
 import downloadImage from "../../../assets/icons/download.svg";
 import copyLink from "../../../assets/icons/copyLink.svg";
+import * as S from "./CalendarStationHeader.style";
 
 interface CalendarStation {
   stationName: string;
@@ -30,12 +30,10 @@ const CalendarHeaderName: React.FC<{ stationName: string }> = ({
   const { t } = useTranslation();
 
   return (
-    <>
-      <S.HorizontalContainer>
-        <S.Description>{t("calendarHeader.stationPrefix")}</S.Description>
-        <S.Header>{stationName}</S.Header>
-      </S.HorizontalContainer>
-    </>
+    <S.HorizontalContainer>
+      <S.Description>{t("calendarHeader.stationPrefix")}</S.Description>
+      <S.Header>{stationName}</S.Header>
+    </S.HorizontalContainer>
   );
 };
 
@@ -46,39 +44,31 @@ const CalendarStationProfileSensor: React.FC<{
   const { t } = useTranslation();
 
   return (
-    <>
-      <S.HorizontalContainer>
-        <S.RowContainer>
-          <S.Subtitle>
-            {t("calendarHeader.profile")}
-          </S.Subtitle>
-          <S.DataDescription>{profile}</S.DataDescription>
-        </S.RowContainer>
+    <S.HorizontalContainer>
+      <S.RowContainer>
+        <S.Subtitle>{t("calendarHeader.profile")}</S.Subtitle>
+        <S.DataDescription>{profile}</S.DataDescription>
+      </S.RowContainer>
 
-        <S.RowContainer>
-          <S.Subtitle>
-            {t("calendarHeader.sensor")}
-          </S.Subtitle>
-          <S.DataDescription>{sensor}</S.DataDescription>
-        </S.RowContainer>
-      </S.HorizontalContainer>
-    </>
+      <S.RowContainer>
+        <S.Subtitle>{t("calendarHeader.sensor")}</S.Subtitle>
+        <S.DataDescription>{sensor}</S.DataDescription>
+      </S.RowContainer>
+    </S.HorizontalContainer>
   );
 };
 
 const CalendarUpdateOccurance: React.FC<{ lastUpdate: string }> = ({
   lastUpdate,
 }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <S.HorizontalContainer>
       <S.RowContainer>
-        <S.Subtitle>
-          {t("calendarHeader.updateFrequencyTitle")}
-        </S.Subtitle>
+        <S.Subtitle>{t("calendarHeader.updateFrequencyTitle")}</S.Subtitle>
         <S.FrequencyLabel>
-          {i18n.t("calendarHeader.updateFrequencyValue", { value: 15 })}
+          {t("calendarHeader.updateFrequencyValue", { value: 15 })}
         </S.FrequencyLabel>
       </S.RowContainer>
 
@@ -96,19 +86,31 @@ const CalendarActionButtons = () => {
   return (
     <>
       <S.MobileButtons>
-        <ActionButton>
+        <ActionButton
+          onClick={() => {}}
+          aria-labelledby={t("calendarHeader.altAlert")}
+        >
           <img src={bellAlert} />
         </ActionButton>
-        <ActionButton>
+        <ActionButton
+          onClick={() => {}}
+          aria-labelledby={t("calendarHeader.altShareLink")}
+        >
           <img src={shareLink} />
         </ActionButton>
       </S.MobileButtons>
 
       <S.DesktopButtons>
-        <Button onClick={() => {}}>
+        <Button
+          onClick={() => {}}
+          aria-labelledby={t("calendarHeader.altShareLink")}
+        >
           {t("calendarHeader.copyLink")} <img src={copyLink} />
         </Button>
-        <Button onClick={() => {}}>
+        <Button
+          onClick={() => {}}
+          aria-labelledby={t("calendarHeader.altExportSession")}
+        >
           {t("calendarHeader.exportSession")} <img src={downloadImage} />
         </Button>
       </S.DesktopButtons>

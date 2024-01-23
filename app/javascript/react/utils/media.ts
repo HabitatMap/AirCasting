@@ -11,4 +11,4 @@ const media = {
   desktop: `(min-width: ${sizes.desktop})`,
 };
 
-export default media
+export default media;

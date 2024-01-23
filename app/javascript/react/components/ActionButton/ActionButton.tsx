@@ -7,8 +7,8 @@ interface ButtonProps {
   children: string | JSX.Element | (JSX.Element | string)[];
 }
 
-const ActionButton = ({ onClick, children }: ButtonProps) => (
-  <S.ActionButton onClick={onClick}>{children}</S.ActionButton>
+const ActionButton = ({ children, ...props }: ButtonProps) => (
+  <S.ActionButton {...props}>{children}</S.ActionButton>
 );
 
 export { ActionButton };
