@@ -1161,6 +1161,23 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.19.2.tgz#1205014625790c7ff0e471644a878a65d1e34ab0"
   integrity sha512-tcuhV7ncXBqbt/Ybf0IyrMcwVOAPDckMK9rXNHtF17UTK18OKLpg08glminN06pt2WCoALhXdLfSPbVvK/6fxw==
 
+"@fullcalendar/core@^6.1.10":
+  version "6.1.10"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/core/-/core-6.1.10.tgz#54eca62345243ec5b2f853102086da7200cd6f03"
+  integrity sha512-oTXGJSAGpCf1oY+CKp5qYjMHkJCPBkJ3SHitl63n8Q6xKeiwQ4EF6Au451euUovREwJpLmD1AyZrCnWmtB9AVg==
+  dependencies:
+    preact "~10.12.1"
+
+"@fullcalendar/daygrid@^6.1.10":
+  version "6.1.10"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/daygrid/-/daygrid-6.1.10.tgz#1012907ac02993e9896dda08502109a85ca8c308"
+  integrity sha512-Z4GRm1IyHKgxXFTWGcEI0nTsvYOIkpE0aMt3/o3ER2SZkF+hfwcDFhtj0c9+WhMjXFIWYeoTnA9rUOY7Zl/nxA==
+
+"@fullcalendar/react@^6.1.10":
+  version "6.1.10"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/react/-/react-6.1.10.tgz#f41d091be8516c9038485c6241fd74a4c13b7965"
+  integrity sha512-RVYevo5T4RUZzR8omlbnBwRCqVNJWKryzI0ZrFULyqIYggN6uPmMuB9GvbrTjDfKhsm438KQwwhJerg2lGh3xA==
+
 "@googlemaps/markerclusterer@^1.0.25":
   version "1.0.27"
   resolved "https://registry.yarnpkg.com/@googlemaps/markerclusterer/-/markerclusterer-1.0.27.tgz#2e85b579c48a50fa25e5768a74a6910cec3cd52e"
@@ -4971,6 +4988,11 @@ postcss@^8.2.14, postcss@^8.4.21:
     nanoid "^3.3.6"
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
+
+preact@~10.12.1:
+  version "10.12.1"
+  resolved "https://registry.yarnpkg.com/preact/-/preact-10.12.1.tgz#8f9cb5442f560e532729b7d23d42fd1161354a21"
+  integrity sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==
 
 prelude-ls@~1.1.2:
   version "1.1.2"
