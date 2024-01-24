@@ -25,7 +25,6 @@ const H4 = styled.h4<{ bold?: boolean }>`
 const H5 = styled.h5<{ bold?: boolean }>`
   font-weight: ${(p) => (p.bold ? "600" : "400")};
   font-size: 12px;
-  color: inherit
 `;
 
 const H6 = styled.h6<{ bold?: boolean; uppercase?: boolean }>`

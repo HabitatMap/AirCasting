@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { lightGray } from "../../assets/styles/colors";
+import { grey200 } from "../../assets/styles/colors";
 
 const Button = styled.button`
   font-weight: 400;
@@ -13,7 +13,7 @@ const Button = styled.button`
   gap: 10px;
   justify-content: flex-end;
   display: flex;
-  border: 1px solid ${lightGray};
+  border: 1px solid ${ grey200 };
   background-color: transparent;
 `;
 

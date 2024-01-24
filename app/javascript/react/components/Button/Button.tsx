@@ -7,8 +7,9 @@ interface ButtonProps {
   children: string | JSX.Element | (JSX.Element | string)[];
 }
 
-const Button = ({ onClick, children }: ButtonProps) => (
-  <S.Button onClick={onClick}>{children}</S.Button>
+const Button = ({ children, ...props }: ButtonProps) => (
+  <S.Button {...props}>{children}</S.Button>
 );
+
 
 export { Button };
