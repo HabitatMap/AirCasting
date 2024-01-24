@@ -33,7 +33,6 @@ export {
   darkMint,
   blue,
   dirtyWhite,
-  backgroundGray,
   cloudyBlue,
   eveningBlue
 };

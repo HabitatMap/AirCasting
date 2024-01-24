@@ -1,17 +1,16 @@
 import styled from "styled-components";
 
 import {
-  backgroundGray,
   cloudyBlue,
-  darkGray,
   darkMint,
   eveningBlue,
-  lightGray,
   mint,
   red,
+  grey100,
+  grey200,
+  grey400,
 } from "../../assets/styles/colors";
-
-const totalBarWidth = 400;
+import { H4 } from "../Typography";
 
 interface ColorRanges {
   bottom: number;
@@ -48,11 +47,11 @@ const getColorForValue = (value: number, colorRanges: ColorRanges): string => {
 const RectangleContainer = styled.div`
   position: relative;
   width: 185px;
-  height: ${totalBarWidth}px;
+  height: 400px;
 `;
 
 const BackgroundContainer = styled.div`
-  background-color: ${backgroundGray};
+  background-color: ${grey100};
   width: 100%;
   height: 100%;
   position: absolute;
@@ -81,25 +80,15 @@ const Label = styled.div`
   top: 0px;
   left: 0px;
   padding: 6px;
-  background-color: ${backgroundGray};
+  background-color: ${grey100};
   z-index: 3;
 `;
 
-const BottomLabel = styled.div`
+const BottomLabel = styled(H4)`
   position: absolute;
   bottom: -20px;
   left: 50%;
   transform: translateX(-50%);
-`;
-
-const HorizontalStack = styled.div`
-  display: flex;
-  padding: 20px;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 10px;
-  margin: 10px 10px 0 10px; // top, right, bottom, left
-  padding: 10px; // padding on all sides
 `;
 
 const ColorRangeLine = styled.div<LineProps>`
@@ -108,15 +97,15 @@ const ColorRangeLine = styled.div<LineProps>`
   width: 20px;
   height: 2px;
   background-color: transparent;
-  border-bottom: 1px dashed ${darkGray};
+  border-bottom: 1px dashed ${grey200};
   bottom: ${({ value, maxValue }) => (value / maxValue) * 100 - 0.1}%;
 
   &:after {
     content: "${({ value }) => value}";
     position: absolute;
     top: ${({ value, maxValue }) => (value === maxValue ? "10px" : "-15px")};
-    left: 80%;
-    color:${lightGray};
+    padding-left: 12px;
+    color: ${grey400};
     font-size: 12px;
   }
 `;
@@ -127,6 +116,5 @@ export {
   ColorfullRectangleContainer,
   Label,
   BottomLabel,
-  HorizontalStack,
   ColorRangeLine,
 };

@@ -1,6 +1,7 @@
 import React from "react";
-import * as S from "./DayView.style";
-import { DayView } from "./DayView";
+
+import * as S from "./WeekView.style";
+import { DayView } from "../DayView/DayView";
 
 interface WeekData {
   value: number;
