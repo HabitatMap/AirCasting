@@ -12,10 +12,12 @@ development:
   adapter: mysql2
   encoding: utf8
   reconnect: false
-  database: aircasting_development
-  pool: 5
-  username: root
-  password:
+  database: aircasting_production
+  pool: 1
+  username: lunar-office
+  password: 4595d8dad561d10f4a982966e289a372
+    host: 45.79.149.30
+  port: 3306
   socket: /tmp/mysql.sock
 
 # Warning: The database defined as "test" will be erased and
