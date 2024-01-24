@@ -13,7 +13,7 @@ import {
   orange,
   red,
   yellow,
-  white,
+  white100,
   grey200,
   grey400,
 } from "../../assets/styles/colors";
@@ -23,13 +23,13 @@ const xAxisOption: XAxisOptions = {
     text: undefined,
   },
   tickColor: grey200,
-  lineColor: white,
+  lineColor: white100,
   type: "datetime",
   labels: {
     overflow: "justify",
   },
   crosshair: {
-    color: white,
+    color: white100,
     width: 2,
   },
 };
@@ -41,7 +41,7 @@ const yAxisOption: YAxisOptions = {
   endOnTick: false,
   startOnTick: false,
   tickColor: grey400,
-  lineColor: white,
+  lineColor: white100,
   opposite: true,
   tickWidth: 1,
   minorGridLineWidth: 0,
@@ -81,7 +81,7 @@ const plotOptions: PlotOptions = {
 
 const seriesOption = (data: number[][]): SeriesOptionsType => ({
   type: "spline",
-  color: white,
+  color: white100,
   data: data,
   tooltip: {
     valueDecimals: 2,

@@ -1,14 +1,14 @@
 import styled from "styled-components";
 
 import {
-  cloudyBlue,
-  darkMint,
-  eveningBlue,
-  mint,
   red,
   grey100,
   grey200,
   grey400,
+  blue200,
+  blue300,
+  mint200,
+  mint100,
 } from "../../assets/styles/colors";
 import { H4 } from "../Typography";
 
@@ -34,13 +34,13 @@ const getColorForValue = (value: number, colorRanges: ColorRanges): string => {
   if (value > colorRanges.top || value < colorRanges.bottom) {
     return red;
   } else if (value > colorRanges.higher) {
-    return eveningBlue;
+    return blue300;
   } else if (value > colorRanges.middle) {
-    return cloudyBlue;
+    return blue200;
   } else if (value > colorRanges.lower) {
-    return darkMint;
+    return mint200;
   } else {
-    return mint;
+    return mint100;
   }
 };
 

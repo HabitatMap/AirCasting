@@ -1,15 +1,15 @@
 import styled from "styled-components";
-import { blue, mint } from "../../../assets/styles/colors";
+import { blue100, mint100 } from "../../../assets/styles/colors";
 import hexToRGBA from "../../../utils/hexToRGB";
 import media from "../../../utils/media";
 
 const Container = styled.div`
   background: linear-gradient(
       241deg,
-      ${hexToRGBA(blue, 0.4)} -2.4%,
-      ${hexToRGBA(blue, 0.0)} 94.94%
+      ${hexToRGBA(blue100, 0.4)} -2.4%,
+      ${hexToRGBA(blue100, 0.0)} 94.94%
     ),
-    ${mint};
+    ${mint100};
   display: flex;
   flex-direction: column;
   align-self: stretch;
