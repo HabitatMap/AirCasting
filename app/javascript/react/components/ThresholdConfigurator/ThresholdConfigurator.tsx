@@ -37,12 +37,12 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     if (sliderRef.current) {
       setSliderWidth(sliderRef.current.offsetWidth);
     }
-    const [min, first, second, third, max] = thresholds;
-    const firstThumb = calculateThumbPosition(first, min, max, sliderWidth);
-    const secondThumb = calculateThumbPosition(second, min, max, sliderWidth);
-    const thridThumb = calculateThumbPosition(third, min, max, sliderWidth);
+    const [min, low, middle, high, max] = thresholds;
+    const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
+    const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
+    const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
 
-    setThumbPositions([firstThumb, secondThumb, thridThumb]);
+    setThumbPositions([lowThumb, middleThumb, highThumb]);
   }, [thresholds, sliderWidth]);
 
   const handleInputChange = (index: number, value: string) => {
@@ -105,7 +105,8 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
       {thresholds.slice(1, -1).map((value, index) => (
         <React.Fragment key={index}>
           <S.RangeInput
-            $thresholds={thresholds}
+            $min={thresholds[0]}
+            $max={thresholds[4]}
             $firstThumbPos={thumbPositions[0]}
             $secondThumbPos={thumbPositions[1]}
             $thirdThumbPos={thumbPositions[2]}

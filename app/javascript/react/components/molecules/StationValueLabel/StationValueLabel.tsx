@@ -11,7 +11,7 @@ interface StationValues {
 }
 
 const StationValueLabel = ({ date, value, parameter }: StationValues) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <S.Container>
@@ -20,9 +20,7 @@ const StationValueLabel = ({ date, value, parameter }: StationValues) => {
         alt={t("stationValue.altLogo")}
       ></S.ImageContainer>
       <S.TextContainer>
-        <S.Label>
-          {i18n.t("stationValue.avgPlaceholder", { date: date })}
-        </S.Label>
+        <S.Label>{t("stationValue.avgPlaceholder", { date: date })}</S.Label>
         <S.Header>{value}</S.Header>
         <S.Label>{parameter}</S.Label>
       </S.TextContainer>

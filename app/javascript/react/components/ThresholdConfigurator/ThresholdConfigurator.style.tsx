@@ -1,42 +1,32 @@
 import styled from "styled-components";
 
-import {
-  grey100,
-  green,
-  grey300,
-  orange,
-  red,
-  yellow,
-  white,
-} from "../../assets/styles/colors";
+import * as colors from "../../assets/styles/colors";
 
 const Container = styled.div`
   margin: 50px;
-  background-color: ${white};
+  background-color: ${colors.white};
   position: relative;
   width: 90%;
   height: 70px;
 `;
 
-const RangeInput = styled.input.attrs<{ $thresholds: number[] }>((props) => ({
-  min: props.$thresholds[0],
-  max: props.$thresholds[4],
-}))<{
+const RangeInput = styled.input<{
+  $min: number;
+  $max: number;
   $firstThumbPos: number;
   $secondThumbPos: number;
   $thirdThumbPos: number;
   $sliderWidth: number;
-  $thresholds: number[];
 }>`
   width: 100%;
   position: absolute;
   top: 0;
   height: 8px;
+  background: transparent;
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
   cursor: pointer;
-  border-radius: 5px;
 
   &::-webkit-slider-runnable-track,
   &::-moz-range-track,
@@ -55,75 +45,62 @@ const RangeInput = styled.input.attrs<{ $thresholds: number[] }>((props) => ({
     height: 0;
   }
 
-  &:nth-child(2)::before {
-    content: "";
-    position: absolute;
-    height: 10px;
-    left: 0;
-    right: ${(props) => props.$sliderWidth - props.$firstThumbPos}px;
-    background: ${green};
-  }
-
-  &:nth-child(4)::before {
-    content: "";
-    position: absolute;
-    height: 10px;
-    left: ${(props) => props.$firstThumbPos}px;
-    right: ${(props) => props.$sliderWidth - props.$secondThumbPos}px;
-    background: ${yellow};
-  }
-
-  &:nth-child(6)::before {
-    content: "";
-    position: absolute;
-    height: 10px;
-    left: ${(props) => props.$secondThumbPos}px;
-    right: ${(props) => props.$sliderWidth - props.$thirdThumbPos}px;
-    background: ${orange};
-  }
-
+  &:nth-child(2)::before,
+  &:nth-child(4)::before,
+  &:nth-child(6)::before,
   &:nth-child(6)::after {
     content: "";
     position: absolute;
     height: 10px;
+  }
+
+  &:nth-child(2)::before {
+    left: 0;
+    right: ${(props) => props.$sliderWidth - props.$firstThumbPos}px;
+    background: ${colors.green};
+  }
+
+  &:nth-child(4)::before {
+    left: ${(props) => props.$firstThumbPos}px;
+    right: ${(props) => props.$sliderWidth - props.$secondThumbPos}px;
+    background: ${colors.yellow};
+  }
+
+  &:nth-child(6)::before {
+    left: ${(props) => props.$secondThumbPos}px;
+    right: ${(props) => props.$sliderWidth - props.$thirdThumbPos}px;
+    background: ${colors.orange};
+  }
+
+  &:nth-child(6)::after {
     left: ${(props) => props.$thirdThumbPos}px;
     right: 0;
-    background: ${red};
+    background: ${colors.red};
   }
 `;
 
-const NumberInput = styled.input.attrs(() => ({}))<{ $marginLeft?: string }>`
+const NumberInput = styled.input`
   font-family: Roboto;
   font-weight: 600;
   font-size: 1.4rem;
   text-align: center;
-  color: ${grey300};
+  color: ${colors.gray300};
   position: absolute;
   top: -10px;
   max-width: 50px;
   height: 32px;
-  margin-left: ${(p) => p.$marginLeft || "-25px"};
-  padding: 2px;
+  margin-left: -25px;
   border-radius: 5px;
-  border: 1px solid ${grey100};
+  border: 1px solid ${colors.gray100};
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   z-index: 5;
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grab;
 
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
-    margin: 0;
   }
-
-  input[type="number"] {
-    appearance: textfield;
-    -moz-appearance: textfield;
-  }
-
-  cursor: move; /* fallback if grab cursor is unsupported */
-  cursor: grab;
-  cursor: -moz-grab;
-  cursor: -webkit-grab;
 
   &:active {
     cursor: grabbing;
