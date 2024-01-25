@@ -6,6 +6,7 @@ import { Navbar } from "../components/Navbar/Navbar";
 import { Graph } from "../components/Graph";
 import { grey100, white } from "../assets/styles/colors";
 import { CalendarStationHeader } from "../components/molecules/CalendarStationHeader/CalendarStationHeader";
+import Month from "../components/Calendar/Month";
 
 const PageLayout = styled.div`
   background-color: ${grey100};
@@ -37,6 +38,7 @@ const CalendarPage = () => {
       />
       <PageLayout>
         <StationDataContainer>
+          <Month />
           <Graph />
         </StationDataContainer>
       </PageLayout>
