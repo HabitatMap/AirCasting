@@ -25,7 +25,6 @@ const RangeInput = styled.input<{
   background: transparent;
   -webkit-appearance: none;
   appearance: none;
-  background: transparent;
   cursor: pointer;
 
   &::-webkit-slider-runnable-track,

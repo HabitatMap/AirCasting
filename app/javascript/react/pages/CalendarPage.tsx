@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 import { ThresholdsConfigurator } from "../components/ThresholdConfigurator/ThresholdConfigurator";
 import { Navbar } from "../components/Navbar/Navbar";
@@ -6,9 +7,11 @@ import { Graph } from "../components/Graph";
 import { CalendarStationHeader } from "../components/molecules/CalendarStationHeader/CalendarStationHeader";
 
 import * as S from "./CalendarPage.style";
+import { selectThreshold } from "../store/thresholdSlice";
 
-const initialThresholds = [1, 20, 40, 60, 100];
 const CalendarPage = () => {
+  const initialThresholds = useSelector(selectThreshold);
+
   return (
     <>
       <Navbar />
