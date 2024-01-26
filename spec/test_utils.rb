@@ -77,6 +77,7 @@ def create_measurement!(attributes = {})
 end
 
 def create_measurements!(attributes)
+  measurements = []
   attributes
     .fetch(:count, 1)
     .times do |n|
@@ -93,6 +94,8 @@ def create_measurements!(attributes)
         location: "SRID=4326;POINT(#{lon} #{lat})",
       )
     end
+
+  measurements
 end
 
 def create_user!(attributes = {})
@@ -123,6 +126,14 @@ end
 
 def create_fixed_session!
   create_session!(type: 'FixedSession')
+end
+
+def create_stream_daily_average!(attributes = {})
+  StreamDailyAverage.create!(
+    date: attributes.fetch(:date, Date.current),
+    value: attributes.fetch(:value, random_float),
+    stream: attributes.fetch(:stream) { create_stream! },
+  )
 end
 
 def random_int

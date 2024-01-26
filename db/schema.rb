@@ -123,6 +123,15 @@ ActiveRecord::Schema.define(version: 2024_01_22_160230) do
     t.index ["uuid"], name: "index_sessions_on_uuid"
   end
 
+  create_table "stream_daily_averages", force: :cascade do |t|
+    t.bigint "stream_id", null: false
+    t.float "value", null: false
+    t.datetime "date", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["stream_id"], name: "index_stream_daily_averages_on_stream_id"
+  end
+
   create_table "streams", id: :serial, force: :cascade do |t|
     t.string "sensor_name"
     t.string "unit_name"
@@ -216,4 +225,5 @@ ActiveRecord::Schema.define(version: 2024_01_22_160230) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "stream_daily_averages", "streams"
 end
