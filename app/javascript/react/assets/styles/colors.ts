@@ -15,7 +15,6 @@ const blue300 = "#19237E";
 const red = "#ff464c";
 const orange = "#f99435";
 const yellow = "#fdd44f";
-
 const green = "#86d175";
 
 export {

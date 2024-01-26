@@ -1,50 +1,25 @@
 import React from "react";
 
+import { ThresholdsValues } from "../WeekView";
 import * as S from "./DayView.style";
-
-interface ColorRanges {
-  bottom: number;
-  lower: number;
-  middle: number;
-  higher: number;
-  top: number;
-}
 
 interface DayViewProps {
   value: number;
   date: Date;
-  lastDay: Boolean;
-  colorRanges: ColorRanges;
+  thresholdsValues: ThresholdsValues;
 }
 
-const DayView = ({ value, date, lastDay, colorRanges }: DayViewProps) => {
+const DayView = ({ value, date, thresholdsValues }: DayViewProps) => {
   return (
-    <S.RectangleContainer>
-      <S.Label>{value} (µg/m)</S.Label>
-
-      <S.BackgroundContainer>
-        {lastDay && (
-          <>
-            <S.ColorRangeLine
-              value={colorRanges.bottom}
-              maxValue={colorRanges.top}
-            />
-            <S.ColorRangeLine
-              value={colorRanges.middle}
-              maxValue={colorRanges.top}
-            />
-            <S.ColorRangeLine
-              value={colorRanges.top}
-              maxValue={colorRanges.top}
-            />
-          </>
-        )}
-      </S.BackgroundContainer>
-      <S.ColorfullRectangleContainer value={value} colorRanges={colorRanges} />
+    <S.Container>
+      <S.BackgroundBarContainer>
+        <S.ValueLabel>{value} (µg/m)</S.ValueLabel>
+        <S.ValueBar value={value} thresholdsValues={thresholdsValues} />
+      </S.BackgroundBarContainer>
       <S.BottomLabel>
         {date.getDate()} {date.toLocaleString("default", { month: "short" })}
       </S.BottomLabel>
-    </S.RectangleContainer>
+    </S.Container>
   );
 };
 

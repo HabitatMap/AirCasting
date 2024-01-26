@@ -2,17 +2,22 @@ import React from "react";
 
 import styled from "styled-components";
 
-import { Navbar } from "../components/Navbar/Navbar";
+import { Navbar } from "../components/Navbar";
 import { Graph } from "../components/Graph";
-import { grey100, white100 } from "../assets/styles/colors";
+import { white100 } from "../assets/styles/colors";
 import { CalendarStationHeader } from "../components/molecules/CalendarStationHeader/CalendarStationHeader";
 import { WeekView } from "../components/WeekView/WeekView";
-import { colorRanges, weeklyData } from "../components/WeekView/WeeklyMockData";
+import {
+  thresholdsValues,
+  weeklyData,
+} from "../components/WeekView/WeeklyMockData";
 
 const PageLayout = styled.div`
   background-color: ${white100};
   height: 100vh;
   padding: 30px;
+  display: flex;
+  justify-content: center;
 `;
 
 const StationDataContainer = styled.div`
@@ -26,22 +31,26 @@ const CalendarPage = () => {
   return (
     <>
       <Navbar />
-      <CalendarStationHeader
-        stationName="White Plains, New York-Northern New Jersey-London"
-        profile="Tim Cain"
-        sensor="Government Data USEPA"
-        lastUpdate="18:00, Sep 1 2023"
-        streamData={{
-          day: "Jun 12",
-          value: 12,
-          parameter: "PM2.5 µg/m",
-        }}
-      />
       <PageLayout>
         <StationDataContainer>
+          <CalendarStationHeader
+            stationName="White Plains, New York-Northern New Jersey-London"
+            profile="Tim Cain"
+            sensor="Government Data USEPA"
+            lastUpdate="18:00, Sep 1 2023"
+            streamData={{
+              day: "Jun 12",
+              value: 12,
+              parameter: "PM2.5 µg/m",
+            }}
+          />
+
+          <WeekView
+            weeklyData={weeklyData}
+            thresholdsValues={thresholdsValues}
+          />
           <Graph />
         </StationDataContainer>
-        <WeekView weeklyData={weeklyData} colorRanges={colorRanges} />
       </PageLayout>
     </>
   );
