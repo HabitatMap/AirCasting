@@ -11,8 +11,6 @@ const Container = styled.div`
 `;
 
 const RangeInput = styled.input<{
-  $min: number;
-  $max: number;
   $firstThumbPos: number;
   $secondThumbPos: number;
   $thirdThumbPos: number;

@@ -31,27 +31,27 @@ interface ThumbPositions extends Omit<Thresholds, "min" | "max"> {}
 const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   initialThresholds,
 }) => {
-  const [thresholds, setThresholds] = useState(initialThresholds);
-  const [sliderWidth, setSliderWidth] = useState(0);
+  const [thresholdValues, setThresholdValues] = useState(initialThresholds);
   const [thumbPositions, setThumbPositions] = useState<ThumbPositions>(
     {} as ThumbPositions
   );
+  const [sliderWidth, setSliderWidth] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (sliderRef.current) {
       setSliderWidth(sliderRef.current.offsetWidth);
     }
-    const { min, low, middle, high, max } = thresholds;
+    const { min, low, middle, high, max } = thresholdValues;
     const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
     const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
     const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
 
     setThumbPositions({ low: lowThumb, middle: middleThumb, high: highThumb });
-  }, [thresholds, sliderWidth]);
+  }, [thresholdValues, sliderWidth]);
 
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
-    setThresholds({ ...thresholds, [thresholdKey]: Number(value) });
+    setThresholdValues({ ...thresholdValues, [thresholdKey]: Number(value) });
   };
 
   const handleMouseMove =
@@ -59,18 +59,23 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     (moveEvent: globalThis.MouseEvent) => {
       const dx = moveEvent.clientX - startX;
       const newPercentage =
-        calculateThumbPercentage(startValue, thresholds.min, thresholds.max) +
+        calculateThumbPercentage(
+          startValue,
+          thresholdValues.min,
+          thresholdValues.max
+        ) +
         dx / sliderWidth;
       const newValue = Math.round(
-        thresholds.min + newPercentage * (thresholds.max - thresholds.min)
+        thresholdValues.min +
+          newPercentage * (thresholdValues.max - thresholdValues.min)
       );
 
-      setThresholds((prevThresholds) => {
+      setThresholdValues((prevThresholds) => {
         return {
           ...prevThresholds,
           [thresholdKey]: Math.min(
-            Math.max(newValue, thresholds.min),
-            thresholds.max
+            Math.max(newValue, thresholdValues.min),
+            thresholdValues.max
           ),
         };
       });
@@ -89,7 +94,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     (thresholdKey: keyof Thresholds) =>
     (event: React.MouseEvent<HTMLInputElement>) => {
       const startX = event.clientX;
-      const startValue = thresholds[thresholdKey];
+      const startValue = thresholdValues[thresholdKey];
       const moveHandler = handleMouseMove(thresholdKey, startX, startValue);
 
       document.addEventListener("mousemove", moveHandler as EventListener);
@@ -99,7 +104,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
       );
     };
 
-  const { min, max, ...thumbs } = thresholds;
+  const { min, max, ...thumbs } = thresholdValues;
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
 
   return (
@@ -112,8 +117,8 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
       {thumbData.map(([thresholdKey, value]) => (
         <React.Fragment key={thresholdKey}>
           <S.RangeInput
-            $min={min}
-            $max={max}
+            min={min}
+            max={max}
             $firstThumbPos={thumbPositions.low}
             $secondThumbPos={thumbPositions.middle}
             $thirdThumbPos={thumbPositions.high}
