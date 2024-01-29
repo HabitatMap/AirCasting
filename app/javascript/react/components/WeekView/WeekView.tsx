@@ -1,6 +1,7 @@
 import React from "react";
 
 import * as S from "./WeekView.style";
+import { ThresholdsValues } from "../../utils/ThresholdsValues";
 import { DayView } from "../DayView/DayView";
 
 interface WeekData {
@@ -8,32 +9,55 @@ interface WeekData {
   date: Date;
 }
 
-interface WeeklyColorRanges {
-  bottom: number;
-  lower: number;
-  middle: number;
-  higher: number;
-  top: number;
-}
-
 interface WeekViewProps {
   weeklyData: WeekData[];
-  colorRanges: WeeklyColorRanges;
+  thresholdsValues: ThresholdsValues;
 }
 
-const WeekView = ({ weeklyData, colorRanges }: WeekViewProps) => {
+interface ThresholdIndicatorProps {
+  values: number[];
+}
+
+const getThresholdLabelPosition = (value: number, maxValue: number): number =>
+  (value / maxValue) * 100;
+
+const ThresholdsIndicator = ({ values }: ThresholdIndicatorProps) => {
+  const maxValue = Math.max.apply(null, values);
+
   return (
-    <S.HorizontalStack>
-      {weeklyData.map((dayData, index) => (
-        <DayView
-          key={index}
-          value={dayData.value}
-          date={dayData.date}
-          lastDay={weeklyData.length - 1 == index}
-          colorRanges={colorRanges}
+    <S.ThresholdsLabelContainer>
+      {values.map((value) => (
+        <S.ThresholdLabel
+          $position={getThresholdLabelPosition(value, maxValue)}
+          $value={value}
+          $isMaxValue={value === maxValue}
         />
       ))}
-    </S.HorizontalStack>
+    </S.ThresholdsLabelContainer>
+  );
+};
+
+const WeekView = ({ weeklyData, thresholdsValues }: WeekViewProps) => {
+  return (
+    <S.Container>
+      <S.WeekContainer>
+        {weeklyData.map(({ value, date }, index) => (
+          <DayView
+            key={index}
+            value={value}
+            date={date}
+            thresholdsValues={thresholdsValues}
+          />
+        ))}
+      </S.WeekContainer>
+      <ThresholdsIndicator
+        values={[
+          thresholdsValues.min,
+          thresholdsValues.middle,
+          thresholdsValues.max,
+        ]}
+      />
+    </S.Container>
   );
 };
 

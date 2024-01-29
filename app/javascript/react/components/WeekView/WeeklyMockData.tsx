@@ -16,12 +16,13 @@ const weeklyData = [
   { value: 30, date: getDayAhead(6) },
 ];
 
-const colorRanges = {
-  bottom: 0,
-  lower: 40,
+const thresholdsValues = {
+  min: 0,
+  low: 40,
   middle: 60,
-  higher: 80,
-  top: 100,
+  high: 80,
+  max: 100,
 };
 
-export { weeklyData, colorRanges };
+
+export { weeklyData, thresholdsValues };

@@ -4,10 +4,10 @@ import styled from "styled-components";
 
 import { Navbar } from "../components/Navbar/Navbar";
 import { Graph } from "../components/Graph";
-import { grey100, white } from "../assets/styles/colors";
+import { white } from "../assets/styles/colors";
 import { CalendarStationHeader } from "../components/molecules/CalendarStationHeader/CalendarStationHeader";
 import { WeekView } from "../components/WeekView/WeekView";
-import { colorRanges, weeklyData } from "../components/WeekView/WeeklyMockData";
+import { thresholdsValues, weeklyData } from "../components/WeekView/WeeklyMockData";
 
 const PageLayout = styled.div`
   background-color: ${white};
@@ -41,7 +41,7 @@ const CalendarPage = () => {
         <StationDataContainer>
           <Graph />
         </StationDataContainer>
-        <WeekView weeklyData={weeklyData} colorRanges={colorRanges} />
+        <WeekView weeklyData={weeklyData} thresholdsValues={thresholdsValues} />
       </PageLayout>
     </>
   );

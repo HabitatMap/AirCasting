@@ -1,72 +1,59 @@
 import styled from "styled-components";
 
-import * as colors from "../../assets/styles/colors";
 import { H4 } from "../Typography";
+import { thresholdsValues } from "../WeekView/WeeklyMockData";
+import { ThresholdsValues } from "../../utils/ThresholdsValues";
+import * as colors from "../../assets/styles/colors";
 
-interface ColorRanges {
-  bottom: number;
-  lower: number;
-  middle: number;
-  higher: number;
-  top: number;
-}
-
-interface ColorfullRectangleProps {
+interface ValueBarProps {
   value: number;
-  colorRanges: ColorRanges;
+  thresholdsValues: ThresholdsValues;
 }
 
-interface LineProps {
-  value: number;
-  maxValue: number;
-}
+const COLORS_FOR_RANGES = [
+  { max: thresholdsValues.low, color: colors.green },
+  { max: thresholdsValues.middle, color: colors.yellow },
+  { max: thresholdsValues.high, color: colors.orange },
+  { max: thresholdsValues.max, color: colors.red },
+];
 
-const getColorForValue = (value: number, colorRanges: ColorRanges): string => {
-  if (value > colorRanges.top || value < colorRanges.bottom) {
-    return colors.grey200;
-  } else if (value > colorRanges.higher) {
-    return colors.red;
-  } else if (value > colorRanges.middle) {
-    return colors.red;
-  } else if (value > colorRanges.lower) {
-    return colors.yellow;
-  } else {
-    return colors.green;
+const getColorForValue = (value: number) => {
+  for (let range of COLORS_FOR_RANGES) {
+    if (value <= range.max) {
+      return range.color;
+    }
   }
+  return colors.red;
 };
 
-const RectangleContainer = styled.div`
+const calculateBarHeight = (
+  value: number,
+  { max }: ThresholdsValues
+): number => {
+  const definedPercentage = (value / max) * 100;
+  if (definedPercentage > 100) return 100;
+  return definedPercentage;
+};
+
+const Container = styled.div`
+  background-color: ${colors.grey100};
   position: relative;
   width: 185px;
   height: 400px;
 `;
 
-const BackgroundContainer = styled.div`
-  background-color: ${colors.grey100};
+const BackgroundBarContainer = styled.div<ValueBarProps>`
+  background-color: ${({ value }) => getColorForValue(value)};
   width: 100%;
-  height: 100%;
-  position: absolute;
-  bottom: 0;
-`;
-
-const ColorfullRectangleContainer = styled.div<ColorfullRectangleProps>`
-  background-color: ${({ value, colorRanges }) =>
-    getColorForValue(value, colorRanges)};
-  width: 100%;
-  height: ${({ value, colorRanges }) => {
-    const definedPercentage = (value / colorRanges.top) * 100;
-    if (definedPercentage > 100) {
-      return 100;
-    }
-    return definedPercentage;
-  }}%;
+  height: ${({ value, thresholdsValues }) =>
+    `${calculateBarHeight(value, thresholdsValues)}%`};
   position: absolute;
   bottom: 0;
   border-radius: 16px 16px 0 0;
   z-index: 2;
 `;
 
-const Label = styled.div`
+const TopLabel = styled.div`
   position: absolute;
   top: 0px;
   left: 0px;
@@ -82,30 +69,4 @@ const BottomLabel = styled(H4)`
   transform: translateX(-50%);
 `;
 
-const ColorRangeLine = styled.div<LineProps>`
-  position: absolute;
-  left: 100%;
-  width: 20px;
-  height: 2px;
-  background-color: transparent;
-  border-bottom: 1px dashed ${colors.grey200};
-  bottom: ${({ value, maxValue }) => (value / maxValue) * 100 - 0.1}%;
-
-  &:after {
-    content: "${({ value }) => value}";
-    position: absolute;
-    top: ${({ value, maxValue }) => (value === maxValue ? "10px" : "-15px")};
-    padding-left: 12px;
-    color: ${colors.grey400};
-    font-size: 12px;
-  }
-`;
-
-export {
-  BackgroundContainer,
-  RectangleContainer,
-  ColorfullRectangleContainer,
-  Label,
-  BottomLabel,
-  ColorRangeLine,
-};
+export { Container, BackgroundBarContainer, TopLabel, BottomLabel };
