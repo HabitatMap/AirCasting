@@ -30,20 +30,55 @@ const Month = () => {
   console.log(weeks);
 
   return (
-    <S.Month>
-      {weeks.map((week) => (
-        <S.Week>
-          {week.map((day) => (
-            <S.Day shouldColor={true} color={yellow} isCurrentMonth={true}>
-              <S.DayNumber shouldDisplay={true}>
-                {getDayNumber(day)}
-              </S.DayNumber>
-              <S.Value shouldDisplay={true}>100</S.Value>
-            </S.Day>
+    <>
+      <S.ThreeMonths>
+        <S.Month>
+          <S.MonthName>February</S.MonthName>
+          {weeks.map((week) => (
+            <S.Week>
+              {week.map((day) => (
+                <S.Day shouldColor={true} color={yellow} isCurrentMonth={true}>
+                  <S.DayNumber shouldDisplay={true}>
+                    {getDayNumber(day)}
+                  </S.DayNumber>
+                  <S.Value shouldDisplay={true}>100</S.Value>
+                </S.Day>
+              ))}
+            </S.Week>
           ))}
-        </S.Week>
-      ))}
-    </S.Month>
+        </S.Month>
+        <S.Month>
+          <S.MonthName>March</S.MonthName>
+          {weeks.map((week) => (
+            <S.Week>
+              {week.map((day) => (
+                <S.Day shouldColor={true} color={yellow} isCurrentMonth={true}>
+                  <S.DayNumber shouldDisplay={true}>
+                    {getDayNumber(day)}
+                  </S.DayNumber>
+                  <S.Value shouldDisplay={true}>100</S.Value>
+                </S.Day>
+              ))}
+            </S.Week>
+          ))}
+        </S.Month>
+        <S.Month>
+          <S.MonthName>April</S.MonthName>
+          {weeks.map((week) => (
+            <S.Week>
+              {week.map((day) => (
+                <S.Day shouldColor={true} color={yellow} isCurrentMonth={true}>
+                  <S.DayNumber shouldDisplay={true}>
+                    {getDayNumber(day)}
+                  </S.DayNumber>
+                  <S.Value shouldDisplay={true}>100</S.Value>
+                </S.Day>
+              ))}
+            </S.Week>
+          ))}
+        </S.Month>
+      </S.ThreeMonths>
+    </>
   );
 };
 
