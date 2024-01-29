@@ -1,26 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { Thresholds } from "../../types/thresholds";
+import {
+  calculateThumbPercentage,
+  calculateThumbPosition,
+} from "../../utils/thresholdThumbCalculations";
 import * as S from "./ThresholdConfigurator.style";
-
-const calculateThumbPercentage = (
-  value: number,
-  min: number,
-  max: number
-): number => {
-  const percentage = (value - min) / (max - min);
-  return percentage;
-};
-
-const calculateThumbPosition = (
-  value: number,
-  min: number,
-  max: number,
-  width: number
-): number => {
-  const percentage = calculateThumbPercentage(value, min, max);
-  return percentage * width;
-};
 
 interface ThresholdsConfiguratorProps {
   initialThresholds: Thresholds;

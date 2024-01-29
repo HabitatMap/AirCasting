@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import { ThresholdsConfigurator } from "../components/ThresholdConfigurator/ThresholdConfigurator";
+import { ThresholdsConfigurator } from "../components/ThresholdConfigurator";
 import { Navbar } from "../components/Navbar/Navbar";
 import { Graph } from "../components/Graph";
 import { CalendarStationHeader } from "../components/molecules/CalendarStationHeader/CalendarStationHeader";
