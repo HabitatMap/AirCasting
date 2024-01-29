@@ -9,9 +9,9 @@ unless session
     Session.create!(
       user: user,
       title: 'Krakow session',
-      start_time_local: Time.now - 4.months,
-      end_time_local: Time.now,
-      last_measurement_at: Time.now,
+      start_time_local: Time.current - 4.months,
+      end_time_local: Time.current,
+      last_measurement_at: Time.current,
       type: 'FixedSession',
       latitude: 50.04,
       longitude: 19.94,
@@ -50,8 +50,8 @@ unless session
   end
 
   time = s.start_time_local
-  now = Time.now
-  while time < now
+  current_date = Date.current
+  while time < current_date
     StreamDailyAverage.create!(stream: stream, date: time, value: 9.5)
     time = time + 1.day
   end

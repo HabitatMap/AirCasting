@@ -126,7 +126,7 @@ ActiveRecord::Schema.define(version: 2024_01_22_160230) do
   create_table "stream_daily_averages", force: :cascade do |t|
     t.bigint "stream_id", null: false
     t.float "value", null: false
-    t.datetime "date", null: false
+    t.date "date", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["stream_id"], name: "index_stream_daily_averages_on_stream_id"
