@@ -1,9 +1,9 @@
 import styled, { css } from "styled-components";
 
-import { cta, theme, white100 } from "../../assets/styles/colors";
+import { cta, theme, white } from "../../assets/styles/colors";
 
 const Header = styled.header`
-  background-color: ${white100};
+  background-color: ${white};
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -61,7 +61,7 @@ const NavList = styled.ul<{ $isVisible?: boolean }>`
 
 const SubNav = styled.ul`
   padding: 0.8rem 0 1.6rem 0;
-  border-bottom: 1px solid ${white100};
+  border-bottom: 1px solid ${white};
   list-style-type: none;
 `;
 
@@ -69,7 +69,7 @@ const NavHeader = styled.li`
   display: flex;
   justify-content: space-between;
   padding-bottom: 2.4rem;
-  border-bottom: 1px solid ${white100};
+  border-bottom: 1px solid ${white};
 `;
 
 const ListItem = styled.li<{ $isUnderline?: boolean }>`
@@ -77,7 +77,7 @@ const ListItem = styled.li<{ $isUnderline?: boolean }>`
 `;
 
 const SubNavTitleLink = styled.a`
-  color: ${white100};
+  color: ${white};
   font-size: 1.9rem;
   display: inline-block;
   padding: 0.8rem 0;

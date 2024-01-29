@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import { white100 } from "../../assets/styles/colors";
+import { white } from "../../assets/styles/colors";
 
 const ActionButton = styled.button`
-  background-color: ${white100};
+  background-color: ${white};
   border: none;
   border-radius: 10px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);

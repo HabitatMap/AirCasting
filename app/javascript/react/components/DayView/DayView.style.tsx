@@ -1,15 +1,6 @@
 import styled from "styled-components";
 
-import {
-  red,
-  grey100,
-  grey200,
-  grey400,
-  blue200,
-  blue300,
-  mint200,
-  mint100,
-} from "../../assets/styles/colors";
+import * as colors from "../../assets/styles/colors";
 import { H4 } from "../Typography";
 
 interface ColorRanges {
@@ -32,15 +23,15 @@ interface LineProps {
 
 const getColorForValue = (value: number, colorRanges: ColorRanges): string => {
   if (value > colorRanges.top || value < colorRanges.bottom) {
-    return red;
+    return colors.grey200;
   } else if (value > colorRanges.higher) {
-    return blue300;
+    return colors.red;
   } else if (value > colorRanges.middle) {
-    return blue200;
+    return colors.red;
   } else if (value > colorRanges.lower) {
-    return mint200;
+    return colors.yellow;
   } else {
-    return mint100;
+    return colors.green;
   }
 };
 
@@ -51,7 +42,7 @@ const RectangleContainer = styled.div`
 `;
 
 const BackgroundContainer = styled.div`
-  background-color: ${grey100};
+  background-color: ${colors.grey100};
   width: 100%;
   height: 100%;
   position: absolute;
@@ -80,7 +71,7 @@ const Label = styled.div`
   top: 0px;
   left: 0px;
   padding: 6px;
-  background-color: ${grey100};
+  background-color: ${colors.grey100};
   z-index: 3;
 `;
 
@@ -97,7 +88,7 @@ const ColorRangeLine = styled.div<LineProps>`
   width: 20px;
   height: 2px;
   background-color: transparent;
-  border-bottom: 1px dashed ${grey200};
+  border-bottom: 1px dashed ${colors.grey200};
   bottom: ${({ value, maxValue }) => (value / maxValue) * 100 - 0.1}%;
 
   &:after {
@@ -105,7 +96,7 @@ const ColorRangeLine = styled.div<LineProps>`
     position: absolute;
     top: ${({ value, maxValue }) => (value === maxValue ? "10px" : "-15px")};
     padding-left: 12px;
-    color: ${grey400};
+    color: ${colors.grey400};
     font-size: 12px;
   }
 `;

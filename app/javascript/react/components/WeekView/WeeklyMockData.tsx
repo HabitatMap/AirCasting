@@ -8,7 +8,7 @@ const getDayAhead = (ahead: number): Date => {
 
 const weeklyData = [
   { value: 25, date: today },
-  { value: 50, date: getDayAhead(1) },
+  { value: 90, date: getDayAhead(1) },
   { value: 80, date: getDayAhead(2) },
   { value: 2, date: getDayAhead(3) },
   { value: 60, date: getDayAhead(4) },
