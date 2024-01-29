@@ -16,11 +16,11 @@ describe MeasurementsRepository do
 
     it 'returns last 1440 measurements' do
       stream = create_stream!
-      create_measurements!({ stream: stream, count: 1141 })
+      create_measurements!({ stream: stream, count: 1441 })
 
       result = subject.from_last_24_hours(stream_id: stream.id)
 
-      expect(result.size).to eq(1140)
+      expect(result.size).to eq(1440)
     end
   end
 end
