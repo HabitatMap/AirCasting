@@ -2,10 +2,10 @@ const cta = "#ffe651";
 const theme = "#00b2ef";
 
 const white = "#fff";
-const grey100 = "#f4f6f9";
-const grey200 = "#C0C9D1";
-const grey300 = "#7D858C";
-const grey400 = "#3E4449";
+const gray100 = "#f4f6f9";
+const gray200 = "#C0C9D1";
+const gray300 = "#7D858C";
+const gray400 = "#3E4449";
 const mint = "#81dbcb";
 const blue = "#00b3ef";
 const red = "#ff464c";
@@ -17,10 +17,10 @@ export {
   cta,
   theme,
   white,
-  grey100,
-  grey200,
-  grey300,
-  grey400,
+  gray100,
+  gray200,
+  gray300,
+  gray400,
   red,
   orange,
   yellow,

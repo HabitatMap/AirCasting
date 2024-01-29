@@ -5,6 +5,8 @@ import * as S from "./Month.style";
 
 import { yellow } from "../../assets/styles/colors";
 
+const dayNames = ["SUN", "MON", "Tue", "WED", "THU", "FRI", "SAT"];
+
 const getFullWeeksOfMonth = (year: number, month: number) => {
   let start = moment([year, month]).startOf("month").startOf("week");
   let end = moment([year, month]).endOf("month").endOf("week");
@@ -34,6 +36,7 @@ const Month = () => {
       <S.ThreeMonths>
         <S.Month>
           <S.MonthName>February</S.MonthName>
+          <S.DayNames names={dayNames} />
           {weeks.map((week) => (
             <S.Week>
               {week.map((day) => (

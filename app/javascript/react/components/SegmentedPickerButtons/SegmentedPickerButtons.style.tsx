@@ -1,11 +1,11 @@
 import styled from "styled-components";
 
-import { white, blue, grey200 } from "../../assets/styles/colors";
+import { white, blue, gray200 } from "../../assets/styles/colors";
 
 const SegmentedPickerContainer = styled.div`
   position: relative;
   display: inline-flex;
-  border: 1px solid ${grey200};
+  border: 1px solid ${gray200};
   border-radius: 5px;
 `;
 
@@ -40,7 +40,7 @@ const SegmentedOption = styled.div<SegmentedOptionProps>`
     isSelected && getBorder({ index, numberOfOptions })};
   color: ${({ isSelected }) => (isSelected ? blue : white)};
   > span {
-    color: ${({ isSelected }) => (isSelected ? white : grey200)};
+    color: ${({ isSelected }) => (isSelected ? white : gray200)};
     text-transform: uppercase;
   }
 `;

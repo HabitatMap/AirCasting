@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { grey100, grey400 } from "../../assets/styles/colors";
+import { gray100, gray400 } from "../../assets/styles/colors";
 
 interface dayProps {
   color?: string;
@@ -30,7 +30,7 @@ const DayNumber = styled.label<labelProps>`
   font-size: 10px;
   text-align: end;
   display: ${(props) => (props.shouldDisplay ? "block" : "none")};
-  color: ${(props) => (props.isGrayedOut ? grey100 : grey400)};
+  color: ${(props) => (props.isGrayedOut ? gray100 : gray400)};
 `;
 
 const Value = styled.div<labelProps>`
@@ -72,4 +72,19 @@ const ThreeMonths = styled.div`
   gap: 40px;
 `;
 
-export { Day, DayNumber, Week, Value, Month, MonthName, ThreeMonths };
+interface DayNamesProps {
+  names: string[];
+}
+
+const DayNames = styled.div<DayNamesProps>`
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.14px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: gray400;
+`;
+
+export { Day, DayNumber, Week, Value, Month, MonthName, ThreeMonths, DayNames };

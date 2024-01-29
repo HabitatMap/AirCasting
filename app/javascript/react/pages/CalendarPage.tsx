@@ -4,12 +4,12 @@ import styled from "styled-components";
 
 import { Navbar } from "../components/Navbar/Navbar";
 import { Graph } from "../components/Graph";
-import { grey100, white } from "../assets/styles/colors";
+import { gray100, white } from "../assets/styles/colors";
 import { CalendarStationHeader } from "../components/molecules/CalendarStationHeader/CalendarStationHeader";
 import Month from "../components/Calendar/Month";
 
 const PageLayout = styled.div`
-  background-color: ${grey100};
+  background-color: ${gray100};
   height: 100vh;
   padding: 30px;
 `;
