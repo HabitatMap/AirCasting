@@ -67,10 +67,9 @@ class Measurement < ApplicationRecord
   scope(
     :in_rectangle,
     lambda do |data|
-      latitude_range(data[:south], data[:north]).longitude_range(
-        data[:west],
-        data[:east]
-      )
+      bounding_box = "ST_MakeEnvelope(#{data[:west]}, #{data[:south]}, #{data[:east]}, #{data[:north]}, 4326)"
+
+      where("ST_Intersects(location, #{bounding_box})")
     end
   )
 
