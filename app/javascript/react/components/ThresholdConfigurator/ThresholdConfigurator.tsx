@@ -42,26 +42,35 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const handleMouseMove =
     (thresholdKey: keyof Thresholds, startX: number, startValue: number) =>
     (moveEvent: globalThis.MouseEvent) => {
-      const dx = moveEvent.clientX - startX;
+      // How much the thumb has moved horizntally since drag started.
+      const displacement = moveEvent.clientX - startX;
+
+      // Threshold new percentage, based on thumb value when dragging started,
+      // the displacement and slider width.
       const newPercentage =
         calculateThumbPercentage(
           startValue,
           thresholdValues.min,
           thresholdValues.max
         ) +
-        dx / sliderWidth;
-      const newValue = Math.round(
+        displacement / sliderWidth;
+
+      // Threshold new value based on the threshold new percentage.
+      const newThresholdValue = Math.round(
         thresholdValues.min +
           newPercentage * (thresholdValues.max - thresholdValues.min)
+      );
+
+      // Ensure the value is within min and max bounds.
+      const newThresholdValueWithinBounds = Math.min(
+        Math.max(newThresholdValue, thresholdValues.min),
+        thresholdValues.max
       );
 
       setThresholdValues((prevThresholds) => {
         return {
           ...prevThresholds,
-          [thresholdKey]: Math.min(
-            Math.max(newValue, thresholdValues.min),
-            thresholdValues.max
-          ),
+          [thresholdKey]: newThresholdValueWithinBounds,
         };
       });
     };
