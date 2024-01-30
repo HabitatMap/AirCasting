@@ -1930,6 +1930,7 @@ DEPENDENCIES
   rake
   rb-gsl (= 1.16.0.6)
   responders
+  rgeo
   rspec-rails
   rubycritic
   rubyzip (>= 1.0.0)

@@ -10,10 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_19_084743) do
+ActiveRecord::Schema.define(version: 2024_01_22_160230) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "postgis"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -77,6 +78,7 @@ ActiveRecord::Schema.define(version: 2023_12_19_084743) do
     t.integer "stream_id"
     t.integer "milliseconds", default: 0
     t.float "measured_value"
+    t.geometry "location", limit: {:srid=>4326, :type=>"geometry"}
     t.index ["stream_id", "time"], name: "index_measurements_on_stream_id_and_time"
   end
 
