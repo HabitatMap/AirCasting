@@ -46,16 +46,13 @@ rails s
 ## Postgres setup
 
 ```bash
+brew install postgresql
 brew services start postgresql
 ```
 
 # In the database.yml change development configuration to:
 
-development:
-adapter: postgresql
-database: aircasting_development
 username: root
-password:
 
 ```bash
 psql -d postgres
@@ -67,11 +64,7 @@ CREATE ROLE postgres WITH CREATEDB CREATEROLE LOGIN;
 
 # In the database.yml change development configuration to:
 
-development:
-adapter: postgresql
-database: aircasting_development
 username: postgres
-password:
 
 ## Tests
 
