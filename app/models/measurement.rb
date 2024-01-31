@@ -10,7 +10,7 @@ class Measurement < ApplicationRecord
   has_one :session, through: :stream
   has_one :user, through: :session
 
-  validates :stream_id, :value, :longitude, :latitude, :time, presence: true
+  validates :stream_id, :value, :longitude, :latitude, :location, :time, presence: true
   validate :time_not_in_the_future
 
 
