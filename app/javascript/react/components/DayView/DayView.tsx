@@ -12,8 +12,13 @@ interface DayViewProps {
 const DayView = ({ value, date, thresholdsValues }: DayViewProps) => {
   return (
     <S.Container>
-      <S.TopLabel>{value} (µg/m)</S.TopLabel>
-      <S.BackgroundBarContainer value={value} thresholdsValues={thresholdsValues} />
+      <S.DesktopLabel>{value} (µg/m)</S.DesktopLabel>
+      <S.BackgroundBarContainer
+        value={value}
+        thresholdsValues={thresholdsValues}
+      >
+        <S.MobileLabel>{value}</S.MobileLabel>
+      </S.BackgroundBarContainer>
       <S.BottomLabel>
         {date.getDate()} {date.toLocaleString("default", { month: "short" })}
       </S.BottomLabel>

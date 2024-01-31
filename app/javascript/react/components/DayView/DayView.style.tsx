@@ -1,8 +1,9 @@
 import styled from "styled-components";
 
-import { H4 } from "../Typography";
+import { H6, H5 } from "../Typography";
 import { thresholdsValues } from "../WeekView/WeeklyMockData";
 import { ThresholdsValues } from "../../utils/ThresholdsValues";
+import media from "../../utils/media";
 import * as colors from "../../assets/styles/colors";
 
 interface ValueBarProps {
@@ -23,7 +24,7 @@ const getColorForValue = (value: number) => {
       return range.color;
     }
   }
-  return colors.red;
+  return colors.grey200;
 };
 
 const calculateBarHeight = (
@@ -38,8 +39,12 @@ const calculateBarHeight = (
 const Container = styled.div`
   background-color: ${colors.grey100};
   position: relative;
-  width: 185px;
-  height: 400px;
+  width: 30px;
+  height: 100%;
+
+  @media ${media.desktop} {
+    width: 185px;
+  }
 `;
 
 const BackgroundBarContainer = styled.div<ValueBarProps>`
@@ -49,24 +54,59 @@ const BackgroundBarContainer = styled.div<ValueBarProps>`
     `${calculateBarHeight(value, thresholdsValues)}%`};
   position: absolute;
   bottom: 0;
-  border-radius: 16px 16px 0 0;
   z-index: 2;
+
+  @media ${media.desktop} {
+    ${({ value }) =>
+      value < thresholdsValues.max ? "border-radius: 16px 16px 0 0;" : ""}
+  }
 `;
 
-const TopLabel = styled.div`
+const BottomLabel = styled(H6)`
   position: absolute;
-  top: 0px;
-  left: 0px;
-  padding: 6px;
-  background-color: ${colors.grey100};
-  z-index: 3;
-`;
-
-const BottomLabel = styled(H4)`
-  position: absolute;
-  bottom: -20px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) rotate(-41.5deg);
+  text-align: center;
+  white-space: nowrap;
+  font-weight: 600;
+  bottom: -20px;
+
+  @media ${media.desktop} {
+    display: flex;
+    transform: translateX(-50%) rotate(0deg);
+    font-size: 16px;
+    font-weight: 400;
+  }
 `;
 
-export { Container, BackgroundBarContainer, TopLabel, BottomLabel };
+const MobileLabel = styled(H6)`
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%) translateY(-5px);
+  z-index: 3;
+
+  @media ${media.desktop} {
+    display: none;
+  }
+`;
+
+const DesktopLabel = styled(H5)`
+  display: none;
+
+  @media ${media.desktop} {
+    display: flex;
+    position: absolute;
+    padding: 6px;
+    background-color: ${colors.grey100};
+    z-index: 3;
+  }
+`;
+
+export {
+  Container,
+  BackgroundBarContainer,
+  BottomLabel,
+  DesktopLabel,
+  MobileLabel,
+};

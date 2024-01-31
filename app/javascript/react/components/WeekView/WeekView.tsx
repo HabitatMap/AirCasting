@@ -1,8 +1,8 @@
 import React from "react";
 
-import * as S from "./WeekView.style";
 import { ThresholdsValues } from "../../utils/ThresholdsValues";
 import { DayView } from "../DayView/DayView";
+import * as S from "./WeekView.style";
 
 interface WeekData {
   value: number;
@@ -50,13 +50,26 @@ const WeekView = ({ weeklyData, thresholdsValues }: WeekViewProps) => {
           />
         ))}
       </S.WeekContainer>
-      <ThresholdsIndicator
-        values={[
-          thresholdsValues.min,
-          thresholdsValues.middle,
-          thresholdsValues.max,
-        ]}
-      />
+      <S.DesktopLabel>
+        <ThresholdsIndicator
+          values={[
+            thresholdsValues.min,
+            thresholdsValues.middle,
+            thresholdsValues.max,
+          ]}
+        />
+      </S.DesktopLabel>
+      <S.MobileLabel>
+        <ThresholdsIndicator
+          values={[
+            thresholdsValues.min,
+            thresholdsValues.low,
+            thresholdsValues.middle,
+            thresholdsValues.high,
+            thresholdsValues.max,
+          ]}
+        />
+      </S.MobileLabel>
     </S.Container>
   );
 };

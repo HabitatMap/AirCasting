@@ -1,24 +1,27 @@
 import styled from "styled-components";
 
 import { grey200, grey400 } from "../../assets/styles/colors";
+import media from "../../utils/media";
 
-const labelBorderWith = "1px";
+const labelBorderWidth = "1px";
 const labelLineHeight = "12px";
 
 const Container = styled.div`
   display: flex;
+  height: 285px;
   width: 100%;
-  height: 40vh;
   padding: 20px;
-  margin-bottom: 40px;
+
+  @media ${media.desktop} {
+    height: 430px;
+  }
 `;
 
 const WeekContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 10px;
   width: 100%;
+  height: 100%;
 `;
 
 const ThresholdLabel = styled.div<{
@@ -27,18 +30,30 @@ const ThresholdLabel = styled.div<{
   $isMaxValue: boolean;
 }>`
   position: absolute;
-  border-bottom: ${labelBorderWith} dashed ${grey200};
+  min-width: 30px;
+  text-align: right;
+
   ${({ $isMaxValue, $position }) =>
     $isMaxValue
-      ? `bottom: calc(${$position}% - ${labelLineHeight} - ${labelBorderWith});`
-      : `bottom: ${$position}%;`}
+      ? `
+          border-top: ${labelBorderWidth} dashed ${grey200};
+          bottom: calc(${$position}% - ${labelLineHeight} - ${labelBorderWidth});
+        `
+      : `
+          border-bottom: ${labelBorderWidth} dashed ${grey200};
+          bottom: ${$position}%;
+        `}
 
   &:after {
     content: "${({ $value }) => $value}";
-    padding-left: 10px;
     color: ${grey400};
-    font-size: 12px;
+    font-size: 10px;
+    font-weight: 700;
     line-height: ${labelLineHeight};
+
+    @media ${media.desktop} {
+      font-size: 12px;
+    }
   }
 `;
 
@@ -48,4 +63,25 @@ const ThresholdsLabelContainer = styled.div`
   width: 20px;
 `;
 
-export { Container, WeekContainer, ThresholdLabel, ThresholdsLabelContainer };
+const MobileLabel = styled.div`
+  @media ${media.desktop} {
+    display: none;
+  }
+`;
+
+const DesktopLabel = styled.div`
+  display: none;
+
+  @media ${media.desktop} {
+    display: flex;
+  }
+`;
+
+export {
+  Container,
+  WeekContainer,
+  ThresholdLabel,
+  ThresholdsLabelContainer,
+  MobileLabel,
+  DesktopLabel,
+};

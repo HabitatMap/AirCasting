@@ -24,5 +24,4 @@ const thresholdsValues = {
   max: 100,
 };
 
-
 export { weeklyData, thresholdsValues };
