@@ -14,15 +14,15 @@ import {
   red,
   yellow,
   white,
-  grey200,
-  grey400,
+  gray200,
+  gray400,
 } from "../../assets/styles/colors";
 
 const xAxisOption: XAxisOptions = {
   title: {
     text: undefined,
   },
-  tickColor: grey200,
+  tickColor: gray200,
   lineColor: white,
   type: "datetime",
   labels: {
@@ -40,7 +40,7 @@ const yAxisOption: YAxisOptions = {
   },
   endOnTick: false,
   startOnTick: false,
-  tickColor: grey400,
+  tickColor: gray400,
   lineColor: white,
   opposite: true,
   tickWidth: 1,

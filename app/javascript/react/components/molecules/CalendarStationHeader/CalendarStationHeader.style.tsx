@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 import { H3, H4, H5 } from "../../Typography";
 import media from "../../../utils/media";
-import { grey100, grey300 } from "../../../assets/styles/colors";
+import { gray100, gray300 } from "../../../assets/styles/colors";
 
 const HorizontalContainer = styled.div`
   display: flex;
@@ -26,7 +26,7 @@ const Description = styled(H5)`
   font-weight: 500;
 
   @media ${media.desktop} {
-    color: ${grey300};
+    color: ${gray300};
     text-transform: uppercase;
     font-size: 14px;
     font-weight: 400;
@@ -49,7 +49,7 @@ const Subtitle = styled(H4)`
 
   @media ${media.desktop} {
     display: block;
-    color: ${grey300};
+    color: ${gray300};
     text-transform: uppercase;
     width: 120px;
   }
@@ -108,7 +108,7 @@ const DesktopButtons = styled.div`
 `;
 
 const GridContainer = styled.div`
-  background: ${grey100};
+  background: ${gray100};
   padding: 3.5rem;
   display: grid;
   width: 100%;

@@ -1,47 +1,38 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
-import styled from "styled-components";
-
+import { ThresholdsConfigurator } from "../components/ThresholdConfigurator";
 import { Navbar } from "../components/Navbar/Navbar";
 import { Graph } from "../components/Graph";
-import { grey100, white } from "../assets/styles/colors";
 import { CalendarStationHeader } from "../components/molecules/CalendarStationHeader/CalendarStationHeader";
 
-const PageLayout = styled.div`
-  background-color: ${grey100};
-  height: 100vh;
-  padding: 30px;
-`;
-
-const StationDataContainer = styled.div`
-  box-shadow: 0px 5px 20px 2px rgba(0, 0, 0, 0.1);
-  background: ${white};
-  width: 90vw;
-  max-width: 1600px;
-`;
+import * as S from "./CalendarPage.style";
+import { selectThreshold } from "../store/thresholdSlice";
 
 const CalendarPage = () => {
+  const initialThresholds = useSelector(selectThreshold);
+
   return (
     <>
       <Navbar />
-      <CalendarStationHeader
-        stationName="White Plains, New York-Northern New Jersey-London"
-        profile="Tim Cain"
-        sensor="Government Data USEPA"
-        lastUpdate="18:00, Sep 1 2023"
-        streamData={{
-          day: "Jun 12",
-          value: 12,
-          parameter: "PM2.5 µg/m",
-        }}
-      />
-      <PageLayout>
-        <StationDataContainer>
+      <S.CalendarPageLayout>
+        <S.StationDataContainer>
+          <CalendarStationHeader
+            stationName="White Plains, New York-Northern New Jersey-London"
+            profile="Tim Cain"
+            sensor="Government Data USEPA"
+            lastUpdate="18:00, Sep 1 2023"
+            streamData={{
+              day: "Jun 12",
+              value: 12,
+              parameter: "PM2.5 µg/m",
+            }}
+          />
+          <ThresholdsConfigurator initialThresholds={initialThresholds} />
           <Graph />
-        </StationDataContainer>
-      </PageLayout>
+        </S.StationDataContainer>
+      </S.CalendarPageLayout>
     </>
   );
 };
-
 export { CalendarPage };
