@@ -41,14 +41,16 @@ const WeekView = ({ weeklyData, thresholdsValues }: WeekViewProps) => {
   return (
     <S.Container>
       <S.WeekContainer>
-        {weeklyData.map(({ value, date }, index) => (
-          <DayView
-            key={index}
-            value={value}
-            date={date}
-            thresholdsValues={thresholdsValues}
-          />
-        ))}
+        {weeklyData
+          .sort((a, b) => (a.date > b.date ? 1 : -1))
+          .map(({ value, date }, index) => (
+            <DayView
+              key={index}
+              value={value}
+              date={date}
+              thresholdsValues={thresholdsValues}
+            />
+          ))}
       </S.WeekContainer>
       <S.DesktopLabel>
         <ThresholdsIndicator

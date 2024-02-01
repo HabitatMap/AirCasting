@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { grey200, grey400 } from "../../assets/styles/colors";
+import { gray200, gray400 } from "../../assets/styles/colors";
 import media from "../../utils/media";
 
 const labelBorderWidth = "1px";
@@ -36,17 +36,17 @@ const ThresholdLabel = styled.div<{
   ${({ $isMaxValue, $position }) =>
     $isMaxValue
       ? `
-          border-top: ${labelBorderWidth} dashed ${grey200};
+          border-top: ${labelBorderWidth} dashed ${gray200};
           bottom: calc(${$position}% - ${labelLineHeight} - ${labelBorderWidth});
         `
       : `
-          border-bottom: ${labelBorderWidth} dashed ${grey200};
+          border-bottom: ${labelBorderWidth} dashed ${gray200};
           bottom: ${$position}%;
         `}
 
   &:after {
     content: "${({ $value }) => $value}";
-    color: ${grey400};
+    color: ${gray400};
     font-size: 10px;
     font-weight: 700;
     line-height: ${labelLineHeight};

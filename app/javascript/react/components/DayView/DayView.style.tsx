@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { H6, H5 } from "../Typography";
 import { thresholdsValues } from "../WeekView/WeeklyMockData";
 import { ThresholdsValues } from "../../utils/ThresholdsValues";
+import { getColorForValue } from "../../utils/ThresholdColors";
 import media from "../../utils/media";
 import * as colors from "../../assets/styles/colors";
 
@@ -10,22 +11,6 @@ interface ValueBarProps {
   value: number;
   thresholdsValues: ThresholdsValues;
 }
-
-const COLORS_FOR_RANGES = [
-  { max: thresholdsValues.low, color: colors.green },
-  { max: thresholdsValues.middle, color: colors.yellow },
-  { max: thresholdsValues.high, color: colors.orange },
-  { max: thresholdsValues.max, color: colors.red },
-];
-
-const getColorForValue = (value: number) => {
-  for (let range of COLORS_FOR_RANGES) {
-    if (value <= range.max) {
-      return range.color;
-    }
-  }
-  return colors.grey200;
-};
 
 const calculateBarHeight = (
   value: number,
@@ -37,7 +22,7 @@ const calculateBarHeight = (
 };
 
 const Container = styled.div`
-  background-color: ${colors.grey100};
+  background-color: ${colors.gray100};
   position: relative;
   width: 30px;
   height: 100%;
@@ -98,7 +83,7 @@ const DesktopLabel = styled(H5)`
     display: flex;
     position: absolute;
     padding: 6px;
-    background-color: ${colors.grey100};
+    background-color: ${colors.gray100};
     z-index: 3;
   }
 `;

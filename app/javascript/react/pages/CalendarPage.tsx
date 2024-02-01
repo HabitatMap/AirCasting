@@ -1,26 +1,11 @@
 import React from "react";
 
-import styled from "styled-components";
-
 import { Navbar } from "../components/Navbar/Navbar";
 import { Graph } from "../components/Graph";
-import { white } from "../assets/styles/colors";
 import { CalendarStationHeader } from "../components/molecules/CalendarStationHeader/CalendarStationHeader";
 import { WeekView } from "../components/WeekView/WeekView";
 import { thresholdsValues, weeklyData } from "../components/WeekView/WeeklyMockData";
-
-const PageLayout = styled.div`
-  background-color: ${white};
-  height: 100vh;
-  padding: 30px;
-`;
-
-const StationDataContainer = styled.div`
-  box-shadow: 0px 5px 20px 2px rgba(0, 0, 0, 0.1);
-  background: ${white};
-  width: 90vw;
-  max-width: 1600px;
-`;
+import * as S from "./CalendarPage.style";
 
 const CalendarPage = () => {
   return (
@@ -37,12 +22,12 @@ const CalendarPage = () => {
           parameter: "PM2.5 µg/m",
         }}
       />
-      <PageLayout>
-        <StationDataContainer>
+      <S.PageLayout>
+        <S.StationDataContainer>
           <Graph />
-        </StationDataContainer>
+        </S.StationDataContainer>
         <WeekView weeklyData={weeklyData} thresholdsValues={thresholdsValues} />
-      </PageLayout>
+      </S.PageLayout>
     </>
   );
 };
