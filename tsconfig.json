@@ -8,5 +8,5 @@
     "resolveJsonModule": true
   },
   "exclude": ["node_modules"],
-  "include": ["app/javascript/react", "app/javascript/@types/assets.d.ts"],
+  "include": ["app/javascript/react", "app/javascript/@types/assets.d.ts"]
 }

@@ -13,7 +13,7 @@ const Button = styled.button`
   gap: 10px;
   justify-content: flex-end;
   display: flex;
-  border: 1px solid ${ gray200 };
+  border: 1px solid ${gray200};
   background-color: transparent;
 `;
 

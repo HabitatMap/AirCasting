@@ -1,10 +1,12 @@
 import styled from "styled-components";
-import { white } from "../assets/styles/colors";
 
-const PageLayout = styled.div`
-  background-color: ${white};
-  height: 100vh;
+import { gray100, white } from "../assets/styles/colors";
+
+const CalendarPageLayout = styled.div`
+  display: flex;
   padding: 30px;
+  justify-content: center;
+  background-color: ${gray100};
 `;
 
 const StationDataContainer = styled.div`
@@ -12,7 +14,8 @@ const StationDataContainer = styled.div`
   background: ${white};
   width: 90vw;
   max-width: 1600px;
+  min-height: 100vh;
+  margin: 20px 10vw;
 `;
 
-
-export { PageLayout, StationDataContainer }
+export { StationDataContainer, CalendarPageLayout };
