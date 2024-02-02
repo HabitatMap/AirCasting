@@ -16,12 +16,4 @@ const weeklyData = [
   { value: 30, date: getDayBefore(6) },
 ];
 
-const thresholdsValues = {
-  min: 0,
-  low: 40,
-  middle: 50,
-  high: 80,
-  max: 100,
-};
-
-export { weeklyData, thresholdsValues };
+export { weeklyData };

@@ -1,20 +1,19 @@
 import styled from "styled-components";
 
 import { H6, H5 } from "../Typography";
-import { thresholdsValues } from "../WeekView/WeeklyMockData";
-import { ThresholdsValues } from "../../utils/ThresholdsValues";
-import { getColorForValue } from "../../utils/ThresholdColors";
+import { Thresholds } from "../../types/thresholds";
+import { getColorForValue } from "../../utils/thresholdColors";
 import media from "../../utils/media";
 import * as colors from "../../assets/styles/colors";
 
 interface ValueBarProps {
-  value: number;
-  thresholdsValues: ThresholdsValues;
+  $value: number;
+  $thresholdsValues: Thresholds;
 }
 
 const calculateBarHeight = (
   value: number,
-  { max }: ThresholdsValues
+  { max }: Thresholds
 ): number => {
   const definedPercentage = (value / max) * 100;
   if (definedPercentage > 100) return 100;
@@ -33,28 +32,27 @@ const Container = styled.div`
 `;
 
 const BackgroundBarContainer = styled.div<ValueBarProps>`
-  background-color: ${({ value }) => getColorForValue(value)};
+${(props) => getColorForValue(props.$value, props.$thresholdsValues) };
+  background-color: ${(props) => getColorForValue(props.$value, props.$thresholdsValues) };
   width: 100%;
-  height: ${({ value, thresholdsValues }) =>
-    `${calculateBarHeight(value, thresholdsValues)}%`};
+  height: ${(props) => `${calculateBarHeight(props.$value, props.$thresholdsValues)}%`};
   position: absolute;
   bottom: 0;
   z-index: 2;
 
   @media ${media.desktop} {
-    ${({ value }) =>
-      value < thresholdsValues.max ? "border-radius: 16px 16px 0 0;" : ""}
+    ${(props) => props.$value < props.$thresholdsValues.max ? "border-radius: 16px 16px 0 0;" : ""};
   }
 `;
 
 const BottomLabel = styled(H6)`
   position: absolute;
   left: 50%;
+  bottom: -20px;
   transform: translateX(-50%) rotate(-41.5deg);
   text-align: center;
   white-space: nowrap;
   font-weight: 600;
-  bottom: -20px;
 
   @media ${media.desktop} {
     display: flex;

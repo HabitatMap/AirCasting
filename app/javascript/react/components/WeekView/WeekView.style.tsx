@@ -22,6 +22,10 @@ const WeekContainer = styled.div`
   justify-content: space-between;
   width: 100%;
   height: 100%;
+
+  @media ${media.desktop} {
+    gap: 20px;
+  }
 `;
 
 const ThresholdLabel = styled.div<{

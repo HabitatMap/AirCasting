@@ -1,12 +1,12 @@
 import React from "react";
 
 import * as S from "./DayView.style";
-import { ThresholdsValues } from "../../utils/ThresholdsValues";
+import { Thresholds } from "../../types/thresholds";
 
 interface DayViewProps {
   value: number;
   date: Date;
-  thresholdsValues: ThresholdsValues;
+  thresholdsValues: Thresholds;
 }
 
 const DayView = ({ value, date, thresholdsValues }: DayViewProps) => {
@@ -14,8 +14,8 @@ const DayView = ({ value, date, thresholdsValues }: DayViewProps) => {
     <S.Container>
       <S.DesktopLabel>{value} (µg/m)</S.DesktopLabel>
       <S.BackgroundBarContainer
-        value={value}
-        thresholdsValues={thresholdsValues}
+        $value={value}
+        $thresholdsValues={thresholdsValues}
       >
         <S.MobileLabel>{value}</S.MobileLabel>
       </S.BackgroundBarContainer>

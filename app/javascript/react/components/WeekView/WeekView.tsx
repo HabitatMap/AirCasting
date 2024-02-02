@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ThresholdsValues } from "../../utils/ThresholdsValues";
+import { Thresholds } from "../../types/thresholds";
 import { DayView } from "../DayView/DayView";
 import * as S from "./WeekView.style";
 
@@ -11,7 +11,7 @@ interface WeekData {
 
 interface WeekViewProps {
   weeklyData: WeekData[];
-  thresholdsValues: ThresholdsValues;
+  thresholdsValues: Thresholds;
 }
 
 interface ThresholdIndicatorProps {
@@ -28,6 +28,7 @@ const ThresholdsIndicator = ({ values }: ThresholdIndicatorProps) => {
     <S.ThresholdsLabelContainer>
       {values.map((value) => (
         <S.ThresholdLabel
+          key={value}
           $position={getThresholdLabelPosition(value, maxValue)}
           $value={value}
           $isMaxValue={value === maxValue}
@@ -38,6 +39,8 @@ const ThresholdsIndicator = ({ values }: ThresholdIndicatorProps) => {
 };
 
 const WeekView = ({ weeklyData, thresholdsValues }: WeekViewProps) => {
+  const { min, low, middle, high, max } = thresholdsValues;
+
   return (
     <S.Container>
       <S.WeekContainer>
@@ -53,24 +56,10 @@ const WeekView = ({ weeklyData, thresholdsValues }: WeekViewProps) => {
           ))}
       </S.WeekContainer>
       <S.DesktopLabel>
-        <ThresholdsIndicator
-          values={[
-            thresholdsValues.min,
-            thresholdsValues.middle,
-            thresholdsValues.max,
-          ]}
-        />
+        <ThresholdsIndicator values={[min, middle, max]} />
       </S.DesktopLabel>
       <S.MobileLabel>
-        <ThresholdsIndicator
-          values={[
-            thresholdsValues.min,
-            thresholdsValues.low,
-            thresholdsValues.middle,
-            thresholdsValues.high,
-            thresholdsValues.max,
-          ]}
-        />
+        <ThresholdsIndicator values={[min, low, middle, high, max]} />
       </S.MobileLabel>
     </S.Container>
   );
