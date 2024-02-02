@@ -1,6 +1,7 @@
 const cta = "#FFE651";
 const theme = "#00B2EF";
-const white = "#fff";
+
+const white = "#FFF";
 const gray100 = "#F4F6F9";
 const gray200 = "#C0C9D1";
 const gray300 = "#7D858C";

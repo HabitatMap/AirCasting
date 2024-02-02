@@ -7,7 +7,7 @@ import { Threshold, Thresholds } from "../types/thresholds";
 interface ThresholdState extends Thresholds {}
 
 const initialState: ThresholdState = {
-  min: 10,
+  min: 0,
   low: 30,
   middle: 50,
   high: 80,

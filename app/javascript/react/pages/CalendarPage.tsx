@@ -8,7 +8,8 @@ import { CalendarStationHeader } from "../components/molecules/CalendarStationHe
 
 import * as S from "./CalendarPage.style";
 import { selectThreshold } from "../store/thresholdSlice";
-
+import { WeekView } from "../components/WeekView/WeekView";
+import { weeklyData } from "../components/WeekView/WeeklyMockData";
 const CalendarPage = () => {
   const initialThresholds = useSelector(selectThreshold);
 
@@ -30,6 +31,7 @@ const CalendarPage = () => {
           />
           <ThresholdsConfigurator initialThresholds={initialThresholds} />
           <Graph />
+          <WeekView weeklyData={weeklyData} thresholdsValues={initialThresholds}/>
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>
