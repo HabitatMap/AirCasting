@@ -9,6 +9,13 @@ This is the AirCasting project - the project aims to build a platform for gather
 
 ## Deploy
 
+To deploy to experimental server use the command:
+`SERVER=EXPERIMENTAL_SERVER_IP BRANCH=your-branch bundle exec cap server deploy`
+
+To deploy to staging server use the command:
+`SERVER=STAGING_SERVER_IP BRANCH=staging bundle exec cap server deploy`
+
+To deploy to production server use the command:
 `SERVER=aircasting.habitatmap.org BRANCH=master bundle exec cap server deploy`
 
 ## Setup
