@@ -23,6 +23,11 @@ ruby -v
 bin/setup
 ```
 
+### configuration.yml
+
+Set up access tokens to be able to access google maps and other services.
+Please contact development team for develompent credentials.
+
 ### Obtaining a bitly access token
 
 Go to https://bitly.com/ create an account and log in. To generate the token go to Settings -> Advanced settings -> For Developers -> OAuth -> Generic Access Token.
