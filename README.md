@@ -14,13 +14,13 @@ This is the AirCasting project - the project aims to build a platform for gather
 ## Setup
 
 ```bash
-ruby -v # should print the same version as in .ruby-version
+ruby -v
+# this command should print the same version as in .ruby-version
 # if it's not install and set the correct ruby version
 # using https://github.com/rbenv/rbenv
 
+# run:
 bin/setup
-
-
 ```
 
 ### Obtaining a bitly access token
