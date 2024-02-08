@@ -18,21 +18,35 @@ FileUtils.chdir APP_ROOT do
   # Add necessary setup steps to this file.
 
   puts '== Installing dependencies =='
-  system! 'gem install bundler --conservative'
-  system('bundle check') || system!('bundle install')
-  system! 'gem install foreman'
+  system! 'gem install bundler:2.3.4'
   brew!('gsl')
   brew!('imagemagick')
   brew!('redis')
-  brew!('mysql')
+  brew!('postgresql')
+  brew!('yarn')
+  brew!('node')
+  brew!('nvm')
+
+  system('bundle check') || system!('bundle install')
+  system! 'gem install foreman'
+
+  system! 'source ~/.nvm/nvm.sh && nvm install'\
+  system! 'source ~/.nvm/nvm.sh && nvm use'
 
   # Install JavaScript dependencies
-  system! 'bin/yarn'
+  system! 'yarn install'
 
   puts "\n== Copying sample files =="
-  unless File.exist?('config/database.yml')
-    system!('cp config/database.yml.example config/database.yml')
+  if File.exist?('config/database.yml.example') && !File.exist?('config/database.yml')
+    config_content = File.read('config/database.yml.example')
+
+    updated_config = config_content.gsub(/username: .*/, "username: #{ENV['USER']}")
+
+    File.open('config/database.yml', 'w') { |file| file.write(updated_config) }
+
+    puts '== Updated database.yml with the current system username (postgres installed through brew sets it up this way) =='
   end
+
   unless File.exist?('config/configuration.yml')
     puts "\n== ⚠️  Make sure to copy in config/configuration.yml the correct secrets (e.g., Playing-Zone) ⚠️  =="
     system('cp config/configuration.yml.example config/configuration.yml')
@@ -46,4 +60,6 @@ FileUtils.chdir APP_ROOT do
 
   puts "\n== Restarting application server =="
   system! 'bin/rails restart'
+
+  puts "\n== Done! Get back to the readme to see how to run the application =="
 end

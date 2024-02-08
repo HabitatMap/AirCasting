@@ -14,12 +14,13 @@ This is the AirCasting project - the project aims to build a platform for gather
 ## Setup
 
 ```bash
-rvm use # if using rvm
 ruby -v # should print the same version as in .ruby-version
-nvm use # if using nvm
-node -v # should print the same version as in .nvmrc
-# Start mysql
+# if it's not install and set the correct ruby version
+# using https://github.com/rbenv/rbenv
+
 bin/setup
+
+
 ```
 
 ### Obtaining a bitly access token
@@ -28,43 +29,19 @@ Go to https://bitly.com/ create an account and log in. To generate the token go 
 
 ## Development
 
-```bash
-rvm use
-nvm use
-# make sure redis is running (brew info redis)
-foreman start
-open http://localhost:3000/mobile_map
-```
-
-If `foreman` does not work, start the single processes manually: `./Procfile`.
+Start all 3 processes in separate terminal windows for full control.
 
 ```bash
+unset PORT && env RUBY_DEBUG_OPEN=true bin/rails server
 yarn dev
-rails s
+bin/sidekiq
 ```
 
-## Postgres setup
+If sidekiq can't find the correct bundler version run:
 
 ```bash
-brew install postgresql
-brew services start postgresql
+eval "$(rbenv init -)"
 ```
-
-# In the database.yml change development configuration to:
-
-username: root
-
-```bash
-psql -d postgres
-CREATE DATABASE aircasting_development;
-exit
-psql -d aircasting_development
-CREATE ROLE postgres WITH CREATEDB CREATEROLE LOGIN;
-```
-
-# In the database.yml change development configuration to:
-
-username: postgres
 
 ## Tests
 
