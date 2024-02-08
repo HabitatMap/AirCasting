@@ -25,7 +25,8 @@ bin/setup
 
 ### configuration.yml
 
-Set up access tokens to be able to access google maps and other services.
+Set up access tokens to be able to access Google Maps and other services.
+
 Please contact development team for develompent credentials.
 
 ### Obtaining a bitly access token
