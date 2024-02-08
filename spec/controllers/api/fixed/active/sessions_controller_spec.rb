@@ -332,6 +332,7 @@ describe Api::Fixed::Active::SessionsController do
       value: 123,
       milliseconds: 123,
       stream: stream,
+      location: "SRID=4326;POINT(123 123)",
     )
   end
 end
