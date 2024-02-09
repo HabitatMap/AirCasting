@@ -129,8 +129,19 @@ class Stream < ApplicationRecord
   end
 
   def build_measurements!(data = [])
-    measurements = data.
-      map { |params| Measurement.new(params.merge(stream: self)) }
+    factory = RGeo::Geographic.spherical_factory(srid: 4326)
+
+    measurements = data.map do |params|
+      location = factory.point(params[:longitude].to_f, params[:latitude].to_f)
+
+      Measurement.new(
+        params.merge(
+          stream: self,
+          location: location,
+        )
+      )
+    end
+
     result = Measurement.import measurements
     if result.failed_instances.any?
       Rails.logger.warn "Measurement.import failed for: #{result.failed_instances}"
