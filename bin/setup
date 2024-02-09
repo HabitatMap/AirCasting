@@ -24,14 +24,9 @@ FileUtils.chdir APP_ROOT do
   brew!('redis')
   brew!('postgresql')
   brew!('yarn')
-  brew!('node')
-  brew!('nvm')
 
   system('bundle check') || system!('bundle install')
   system! 'gem install foreman'
-
-  system! 'source ~/.nvm/nvm.sh && nvm install'\
-  system! 'source ~/.nvm/nvm.sh && nvm use'
 
   # Install JavaScript dependencies
   system! 'yarn install'

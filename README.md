@@ -19,6 +19,9 @@ ruby -v
 # if it's not install and set the correct ruby version
 # using https://github.com/rbenv/rbenv
 
+# please make sure you have installed and turned on a correct version of node
+# available in the `.nvmrc` file
+
 # run:
 bin/setup
 ```
