@@ -21,33 +21,50 @@ To deploy to production server use the command:
 ## Setup
 
 ```bash
-rvm use # if using rvm
-ruby -v # should print the same version as in .ruby-version
-nvm use # if using nvm
-node -v # should print the same version as in .nvmrc
-# Start mysql
+ruby -v
+# this command should print the same version as in .ruby-version
+# if it's not install and set the correct ruby version
+# using https://github.com/rbenv/rbenv
+
+# please make sure you have installed and turned on a correct version of node
+# available in the `.nvmrc` file
+
+# run:
 bin/setup
 ```
+
+### configuration.yml
+
+Set up access tokens to be able to access Google Maps and other services.
+
+Please contact development team for develompent credentials.
 
 ### Obtaining a bitly access token
 
 Go to https://bitly.com/ create an account and log in. To generate the token go to Settings -> Advanced settings -> For Developers -> OAuth -> Generic Access Token.
 
 ## Development
-
+Make sure that redis is running
 ```bash
-rvm use
-nvm use
-# make sure redis is running (brew info redis)
-foreman start
-open http://localhost:3000/mobile_map
+redis-server
 ```
 
-If `foreman` does not work, start the single processes manually: `./Procfile`.
+Start all 3 processes in separate terminal windows for full control.
 
 ```bash
+unset PORT && env RUBY_DEBUG_OPEN=true bin/rails server
+```
+```bash
 yarn dev
-rails s
+```
+```bash
+bin/sidekiq
+```
+
+If sidekiq can't find the correct bundler version run:
+
+```bash
+eval "$(rbenv init -)"
 ```
 
 ## Tests
