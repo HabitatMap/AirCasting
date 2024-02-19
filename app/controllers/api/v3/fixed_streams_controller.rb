@@ -2,12 +2,17 @@ module Api
   module V3
     class FixedStreamsController < BaseController
       def show
-        result = ::FixedStreams::ShowInteractor.new.call(stream_id: params[:id])
+        if Flipper.enabled?(:calendar)
+          result =
+            ::FixedStreams::ShowInteractor.new.call(stream_id: params[:id])
 
-        if result.success?
-          render json: result.value, status: :ok
+          if result.success?
+            render json: result.value, status: :ok
+          else
+            render json: result.errors, status: :bad_request
+          end
         else
-          render json: result.errors, status: :bad_request
+          head :not_found
         end
       end
     end
