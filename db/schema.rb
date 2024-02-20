@@ -78,7 +78,7 @@ ActiveRecord::Schema.define(version: 2024_01_22_160230) do
     t.integer "stream_id"
     t.integer "milliseconds", default: 0
     t.float "measured_value"
-    t.geometry "location", limit: {:srid=>4326, :type=>"geometry"}
+    t.geometry "location", limit: {:srid=>4326, :type=>"geometry"}, null: false
     t.index ["stream_id", "time"], name: "index_measurements_on_stream_id_and_time"
   end
 
