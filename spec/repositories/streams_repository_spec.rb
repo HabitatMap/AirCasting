@@ -1,10 +1,31 @@
 require 'rails_helper'
 
 describe StreamsRepository do
+  subject { described_class.new }
+
+  describe '#find_fixed_stream!' do
+    it 'returns stream with associated session and user' do
+      fixed_session = create_fixed_session!
+      fixed_stream = create_stream!({ session: fixed_session })
+      create_stream!
+
+      result = subject.find_fixed_stream!(id: fixed_stream.id)
+
+      expect(result).to eq(fixed_stream)
+      expect(result.association(:session).loaded?).to eq(true)
+      expect(result.session.association(:user).loaded?).to eq(true)
+    end
+  end
+
   it '#calculate_bounding_box! recalculates the bounding box and saves to database' do
     stream =
       create_stream!(
-        { min_latitude: 1, max_latitude: 2, min_longitude: 3, max_longitude: 4 }
+        {
+          min_latitude: 1,
+          max_latitude: 2,
+          min_longitude: 3,
+          max_longitude: 4,
+        },
       )
 
     create_measurement!({ latitude: 6, longitude: 7, stream: stream })
@@ -18,7 +39,7 @@ describe StreamsRepository do
 
     StreamsRepository.new.calculate_bounding_box!(
       stream,
-      calculate_bounding_box
+      calculate_bounding_box,
     )
     actual = StreamsRepository.new.find(stream.id)
 
@@ -36,16 +57,16 @@ describe StreamsRepository do
           time: Time.utc(2_018, 12, 1),
           latitude: 11,
           longitude: 12,
-          stream: stream
-        }
+          stream: stream,
+        },
       )
       create_measurement!(
         {
           time: Time.utc(2_018, 12, 2),
           latitude: 21,
           longitude: 22,
-          stream: stream
-        }
+          stream: stream,
+        },
       )
 
       subject.add_start_coordinates!(stream)

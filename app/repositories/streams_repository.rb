@@ -7,6 +7,14 @@ class StreamsRepository
     Stream.find_by_id(id)
   end
 
+  def find_fixed_stream!(id:)
+    Stream
+      .includes(session: :user)
+      .joins(:session)
+      .where('sessions.type = ?', 'FixedSession')
+      .find(id)
+  end
+
   def calculate_bounding_box!(
     stream,
     calculator = Outliers::CalculateBoundingBox.new
@@ -30,7 +38,7 @@ class StreamsRepository
 
   def calculate_average_value!(stream)
     if stream.fixed?
-      raise "average_value for fixed streams should be the last measurement value"
+      raise 'average_value for fixed streams should be the last measurement value'
     end
     stream.average_value = stream.measurements.average(:value)
     stream.save!

@@ -2,6 +2,7 @@ class Stream < ApplicationRecord
   belongs_to :session
 
   has_many :measurements, dependent: :delete_all
+  has_many :stream_daily_averages, dependent: :delete_all
 
   delegate :size, to: :measurements
 
@@ -23,11 +24,13 @@ class Stream < ApplicationRecord
   scope(
     :in_rectangle,
     lambda do |data|
-      window_box = "ST_MakeEnvelope(#{data[:west]}, #{data[:south]}, #{data[:east]}, #{data[:north]}, 4326)"
-      stream_box = "ST_MakeEnvelope(min_longitude, min_latitude, max_longitude, max_latitude, 4326)"
+      window_box =
+        "ST_MakeEnvelope(#{data[:west]}, #{data[:south]}, #{data[:east]}, #{data[:north]}, 4326)"
+      stream_box =
+        'ST_MakeEnvelope(min_longitude, min_latitude, max_longitude, max_latitude, 4326)'
 
       where("ST_Contains(#{window_box}, #{stream_box})")
-    end
+    end,
   )
 
   scope(
@@ -41,24 +44,24 @@ class Stream < ApplicationRecord
             .pluck('DISTINCT sessions.id')
         where(session_id: session_ids) if session_ids.present?
       end
-    end
+    end,
   )
 
   scope(:with_sensor, ->(sensor_name) { where(sensor_name: sensor_name) })
 
   scope(
     :with_unit_symbol,
-    ->(unit_symbol) { where(unit_symbol: unit_symbol) if unit_symbol.present? }
+    ->(unit_symbol) { where(unit_symbol: unit_symbol) if unit_symbol.present? },
   )
 
   scope(
     :with_measurement_type,
-    ->(measurement_type) { where(measurement_type: measurement_type) }
+    ->(measurement_type) { where(measurement_type: measurement_type) },
   )
 
   scope(
     :only_contributed,
-    -> { joins(:session).where('sessions.contribute = ?', true) }
+    -> { joins(:session).where('sessions.contribute = ?', true) },
   )
 
   scope(:mobile, -> { joins(:session).merge(Session.mobile) })
@@ -75,7 +78,7 @@ class Stream < ApplicationRecord
             .map(&:id)
         joins(:session).where(sessions: { user_id: user_ids })
       end
-    end
+    end,
   )
 
   def fixed?
@@ -103,44 +106,49 @@ class Stream < ApplicationRecord
   def build_measurements!(data = [])
     factory = RGeo::Geographic.spherical_factory(srid: 4326)
 
-    measurements = data.map do |params|
-      location = factory.point(params[:longitude].to_f, params[:latitude].to_f)
+    measurements =
+      data.map do |params|
+        location =
+          factory.point(params[:longitude].to_f, params[:latitude].to_f)
 
-      Measurement.new(
-        params.merge(
-          stream: self,
-          location: location,
-        )
-      )
-    end
+        Measurement.new(params.merge(stream: self, location: location))
+      end
 
     result = Measurement.import measurements
     if result.failed_instances.any?
-      Rails.logger.warn "Measurement.import failed for: #{result.failed_instances}"
+      Rails
+        .logger.warn "Measurement.import failed for: #{result.failed_instances}"
     end
-    Stream.update_counters(self.id, measurements_count: measurements.size - result.failed_instances.size)
+    Stream.update_counters(
+      self.id,
+      measurements_count: measurements.size - result.failed_instances.size,
+    )
   end
 
   # this change for migration mysql->posgres needs to be tested
   def self.thresholds(sensor_name, unit_symbol)
+    subquery =
+      select(
+          "ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-') as thresholds, COUNT(*) as thresholds_count",
+        )
+        .where(
+          'LOWER(sensor_name) IN (?) AND unit_symbol = ?',
+          Sensor.sensor_name(sensor_name),
+          unit_symbol,
+        )
+        .group(
+          "ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-')",
+        )
+        .to_sql
 
-    subquery = select(
-      "ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-') as thresholds, COUNT(*) as thresholds_count"
-    )
-    .where('LOWER(sensor_name) IN (?) AND unit_symbol = ?', Sensor.sensor_name(sensor_name), unit_symbol)
-    .group("ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-')")
-    .to_sql
+    result =
+      Stream
+        .select('subquery.thresholds, subquery.thresholds_count')
+        .from("(#{subquery}) as subquery")
+        .order('subquery.thresholds_count DESC')
+        .first
 
-    result = Stream.select("subquery.thresholds, subquery.thresholds_count")
-      .from("(#{subquery}) as subquery")
-      .order('subquery.thresholds_count DESC')
-      .first
-
-    if result
-      result.thresholds.split('-')
-    else
-      []
-    end
+    result ? result.thresholds.split('-') : []
   end
 
   def as_json(opts = nil)

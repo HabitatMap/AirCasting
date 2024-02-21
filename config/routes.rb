@@ -98,6 +98,10 @@ Rails.application.routes.draw do
       get 'autocomplete/tags' => 'autocomplete#tags'
     end
 
+    namespace :v3 do
+      resources :fixed_streams, only: %i[show]
+    end
+
     get 'measurements' => 'measurements#index'
 
     resources :short_url, only: %i[index]
