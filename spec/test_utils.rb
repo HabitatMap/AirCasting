@@ -62,17 +62,13 @@ def create_stream!(attributes = {})
 end
 
 def create_measurement!(attributes = {})
-  lat = attributes.fetch(:latitude, 1)
-  lon = attributes.fetch(:longitude, 1)
-
   Measurement.create!(
     time: attributes.fetch(:time, DateTime.current),
-    latitude: lat,
-    longitude: lon,
+    latitude: attributes.fetch(:latitude, 1),
+    longitude: attributes.fetch(:longitude, 1),
     value: attributes.fetch(:value, 123),
     milliseconds: attributes.fetch(:milliseconds, 123),
     stream: attributes.fetch(:stream) { create_stream! },
-    location: attributes.fetch(:location) { "SRID=4326;POINT(#{lon} #{lat})" },
   )
 end
 
@@ -80,17 +76,13 @@ def create_measurements!(attributes)
   attributes
     .fetch(:count, 1)
     .times do |n|
-      lat = random_float
-      lon = random_float
-
       Measurement.create!(
         time: Time.current - n.minutes,
-        latitude: lat,
-        longitude: lon,
+        latitude: random_float,
+        longitude: random_float,
         value: attributes.fetch(:value, random_float),
         milliseconds: random_int,
         stream: attributes.fetch(:stream),
-        location: "SRID=4326;POINT(#{lon} #{lat})",
       )
     end
 end

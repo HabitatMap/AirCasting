@@ -23,10 +23,38 @@ class Stream < ApplicationRecord
   scope(
     :in_rectangle,
     lambda do |data|
-      window_box = "ST_MakeEnvelope(#{data[:west]}, #{data[:south]}, #{data[:east]}, #{data[:north]}, 4326)"
-      stream_box = "ST_MakeEnvelope(min_longitude, min_latitude, max_longitude, max_latitude, 4326)"
+      latitude_operator = data[:south] < data[:north] ? 'AND' : 'OR'
+      longitude_operator = data[:west] < data[:east] ? 'AND' : 'OR'
 
-      where("ST_Contains(#{window_box}, #{stream_box})")
+      where(
+        '(:south >= min_latitude AND :south <= max_latitude) ' \
+          'OR ' \
+          '(:north >= min_latitude AND :north <= max_latitude) ' \
+          'OR ' \
+          "(min_latitude >= :south #{
+            latitude_operator
+          } min_latitude <= :north) " \
+          'OR ' \
+          "(max_latitude >= :south #{
+            latitude_operator
+          } max_latitude <= :north)",
+        south: data[:south],
+        north: data[:north]
+      ).where(
+        '(:west >= min_longitude AND :west <= max_longitude) ' \
+          'OR ' \
+          '(:east >= min_longitude AND :east <= max_longitude) ' \
+          'OR ' \
+          "(min_longitude >= :west #{
+            longitude_operator
+          } min_longitude <= :east) " \
+          'OR ' \
+          "(max_longitude >= :west #{
+            longitude_operator
+          } max_longitude <= :east)",
+        west: data[:west],
+        east: data[:east]
+      )
     end
   )
 
