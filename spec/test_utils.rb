@@ -84,15 +84,16 @@ def create_measurements!(attributes)
       lat = random_float
       lon = random_float
 
-      Measurement.create!(
-        time: Time.current - n.minutes,
-        latitude: lat,
-        longitude: lon,
-        value: attributes.fetch(:value, random_float),
-        milliseconds: random_int,
-        stream: attributes.fetch(:stream),
-        location: "SRID=4326;POINT(#{lon} #{lat})",
-      )
+      measurements <<
+        Measurement.create!(
+          time: Time.current - n.minutes,
+          latitude: lat,
+          longitude: lon,
+          value: attributes.fetch(:value, random_float),
+          milliseconds: random_int,
+          stream: attributes.fetch(:stream),
+          location: "SRID=4326;POINT(#{lon} #{lat})",
+        )
     end
 
   measurements

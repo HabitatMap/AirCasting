@@ -5,6 +5,8 @@ user =
 session = Session.find_by(user: user, title: 'Krakow session')
 
 unless session
+  latitude = 50.04
+  longitude = 19.94
   s =
     Session.create!(
       user: user,
@@ -13,8 +15,8 @@ unless session
       end_time_local: Time.current,
       last_measurement_at: Time.current,
       type: 'FixedSession',
-      latitude: 50.04,
-      longitude: 19.94,
+      latitude: latitude,
+      longitude: longitude,
       uuid: '123',
       is_indoor: false,
     )
@@ -38,13 +40,15 @@ unless session
     )
 
   time = s.start_time_local
+  factory = RGeo::Geographic.spherical_factory(srid: 4326)
   (1..20).each do |value|
     Measurement.create!(
       stream: stream,
       time: time,
       value: value,
-      latitude: 50.04,
-      longitude: 19.94,
+      latitude: latitude,
+      longitude: longitude,
+      location: factory.point(longitude, latitude),
     )
     time = time + 1.hour
   end
