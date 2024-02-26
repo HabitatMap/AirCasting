@@ -108,8 +108,9 @@ class Stream < ApplicationRecord
 
     measurements =
       data.map do |params|
+        params = params.deep_symbolize_keys
         location =
-          factory.point(params['longitude'].to_f, params['latitude'].to_f)
+          factory.point(params[:longitude].to_f, params[:latitude].to_f)
 
         Measurement.new(params.merge(stream: self, location: location))
       end
