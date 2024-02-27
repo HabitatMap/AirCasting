@@ -19,7 +19,7 @@ namespace :session_timezones do
 
   def timezone_name(finder, latitude, longitude)
     # exclude invalid lat/lon values from indoor/0,0 measurements
-    return 'UTC' if latitude.nil? || longitude.nil? || [0.0, 200.0].include?(latitude) || [0.0, 200.0].include?(longitude)
+    return 'UTC' if latitude.nil? || longitude.nil? || [0.0].include?(latitude) || [0.0].include?(longitude) || latitude.between?(-90, 90) || longitude.between?(-180, 180)
 
     timezone_name = finder.timezone_at(lat: latitude, lng: longitude)
     return 'UTC' unless timezone_name
