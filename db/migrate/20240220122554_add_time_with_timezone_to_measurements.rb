@@ -7,6 +7,6 @@ class AddTimeWithTimezoneToMeasurements < ActiveRecord::Migration[6.1]
   end
 
   def down
-    remove_column :your_table_name, :your_new_column_name
+    remove_column :measurements, :time_with_timezone
   end
 end
