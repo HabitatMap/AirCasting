@@ -28,3 +28,7 @@ every 1.day, at: '6:00 am', roles: %i[web] do
   # because sidekiq can take over 7GB RAM when not restarted for long time
   command 'sudo systemctl restart sidekiq'
 end
+
+every 5.minutes do
+  rake 'update_stream_daily_average_values'
+end
