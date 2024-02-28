@@ -12,4 +12,11 @@ class StreamDailyAveragesRepository
       .where(stream_id: stream_id)
       .where('date >= ? AND date <= ?', start_date, end_date)
   end
+
+  def create_or_update(stream_id:, date:, value:)
+    stream_daily_average =
+      StreamDailyAverage.find_or_initialize_by(stream_id: stream_id, date: date)
+
+    stream_daily_average.update(value: value)
+  end
 end
