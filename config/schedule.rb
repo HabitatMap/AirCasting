@@ -29,6 +29,6 @@ every 1.day, at: '6:00 am', roles: %i[web] do
   command 'sudo systemctl restart sidekiq'
 end
 
-every 5.minutes do
+every '30 * * * *' do
   rake 'update_stream_daily_average_values'
 end
