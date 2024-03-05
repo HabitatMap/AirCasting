@@ -1,13 +1,13 @@
 module StreamDailyAverages
-  class Interactor
+  class FixedActiveSessionsTraverser
     def initialize(
       fixed_sessions_repository: FixedSessionsRepository.new,
       timezone_finder: TimezoneFinder.create,
-      average_value_updater: AverageValueUpdater.new
+      stream_interactor: StreamInteractor.new
     )
       @fixed_sessions_repository = fixed_sessions_repository
       @timezone_finder = timezone_finder
-      @average_value_updater = average_value_updater
+      @stream_interactor = stream_interactor
     end
 
     def call
@@ -18,15 +18,13 @@ module StreamDailyAverages
             lat: session.latitude,
           )
         session.streams.map do |stream|
-          average_value_updater.call(stream_id: stream.id, time_zone: time_zone)
+          stream_interactor.call(stream_id: stream.id, time_zone: time_zone)
         end
       end
     end
 
     private
 
-    attr_reader :fixed_sessions_repository,
-                :timezone_finder,
-                :average_value_updater
+    attr_reader :fixed_sessions_repository, :timezone_finder, :stream_interactor
   end
 end
