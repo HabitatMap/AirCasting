@@ -4,11 +4,14 @@ class MeasurementsRepository
   end
 
   def stream_daily_average_value(stream_id:, beginning_of_day:)
+    end_of_day = beginning_of_day + 1.day
+
     Measurement
       .where(
-        'stream_id = ? AND time_with_time_zone >= ?',
+        'stream_id = ? AND time_with_time_zone >= ? AND time_with_time_zone < ?',
         stream_id,
         beginning_of_day,
+        end_of_day,
       )
       .average(:value)
   end
