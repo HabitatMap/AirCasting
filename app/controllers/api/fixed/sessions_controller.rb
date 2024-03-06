@@ -2,21 +2,6 @@ module Api
   class Fixed::SessionsController < BaseController
     respond_to :json
 
-    def show
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed Sessions#show')
-
-      if form.invalid?
-        render json: form.errors, status: :bad_request
-      else
-        hash =
-          Api::ToFixedSessionHash.new(
-            measurements_limit: form.to_h.measurements_limit,
-            stream: stream,
-          ).call
-        render json: hash, status: :ok
-      end
-    end
-
     def show_all_streams
       GoogleAnalyticsWorker::RegisterEvent.async_call(
         'Fixed Sessions#show_all_streams',
