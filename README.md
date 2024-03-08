@@ -44,7 +44,9 @@ Please contact development team for develompent credentials.
 Go to https://bitly.com/ create an account and log in. To generate the token go to Settings -> Advanced settings -> For Developers -> OAuth -> Generic Access Token.
 
 ## Development
+
 Make sure that redis is running
+
 ```bash
 redis-server
 ```
@@ -54,9 +56,11 @@ Start all 3 processes in separate terminal windows for full control.
 ```bash
 unset PORT && env RUBY_DEBUG_OPEN=true bin/rails server
 ```
+
 ```bash
 yarn dev
 ```
+
 ```bash
 bin/sidekiq
 ```

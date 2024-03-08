@@ -5,6 +5,7 @@ import { ThresholdsConfigurator } from "../components/ThresholdConfigurator";
 import { Navbar } from "../components/Navbar/Navbar";
 import { Graph } from "../components/Graph";
 import { CalendarStationHeader } from "../components/molecules/CalendarStationHeader/CalendarStationHeader";
+import Calendar from "../components/Calendar/Calendar";
 
 import * as S from "./CalendarPage.style";
 import { selectThreshold } from "../store/thresholdSlice";
@@ -30,8 +31,12 @@ const CalendarPage = () => {
             }}
           />
           <ThresholdsConfigurator initialThresholds={initialThresholds} />
+          <Calendar />
           <Graph />
-          <WeekView weeklyData={weeklyData} thresholdsValues={initialThresholds}/>
+          <WeekView
+            weeklyData={weeklyData}
+            thresholdsValues={initialThresholds}
+          />
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>
