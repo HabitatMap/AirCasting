@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { grey100, grey400 } from "../../assets/styles/colors";
+import { gray100, gray400 } from "../../assets/styles/colors";
 
 interface dayProps {
   $color?: string;
@@ -32,7 +32,7 @@ const DayNumber = styled.span<labelProps>`
   font-size: 10px;
   text-align: end;
   display: ${(props) => (props.$isVisible ? "block" : "none")};
-  color: ${(props) => (props.$isGrayedOut ? grey100 : grey400)};
+  color: ${(props) => (props.$isGrayedOut ? gray100 : gray400)};
 `;
 
 const Value = styled.div<labelProps>`
@@ -58,11 +58,11 @@ const Month = styled.div`
 const MonthName = styled.span`
   font-size: 24px;
   font-weight: 600;
-  color: ${grey400};
+  color: ${gray400};
   padding: 8px;
   line-height: 120%;
   text-align: center;
-  background-color: ${grey100};
+  background-color: ${gray100};
   border-radius: 10px;
 `;
 
