@@ -6,7 +6,7 @@ class AirNow::ImportMeasurements
     measurements = AirNow::ParseFiles.parse_hourly_data(hourly_data, locations)
     filtered_measurements = AirNow::FilterMeasurements.new(measurements).call
     normalized_measurements = AirNow::NormalizeMeasurements.new(filtered_measurements).call
-    saveable_measurements = AirNow::CreateSeveableObjects.new(normalized_measurements).call
+    saveable_measurements = AirNow::CreateSaveableObjects.new(normalized_measurements).call
     streams = GroupByStream.new.call(measurements: saveable_measurements)
     SaveMeasurements.new(user: User.where(username: 'AirNow').first!).call(streams: streams)
   end
