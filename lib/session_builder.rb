@@ -1,3 +1,5 @@
+require './lib/session_timezone_builder'
+
 class SessionBuilder
   attr_reader :user
 
