@@ -19,7 +19,7 @@ class AirNow::ImportMeasurements
 
   def hourly_data_endpoint
     # change the substracted hours after testing to a correct value depending on when it will be fired
-    current_utc = DateTime.now.new_offset(0) - 2.hour
+    current_utc = DateTime.now.new_offset(0) - 1.hour
     formatted_date = current_utc.strftime('%Y%m%d')
     formatted_hour = current_utc.strftime('%H')
     "https://s3-us-west-1.amazonaws.com//files.airnowtech.org/airnow/2024/#{formatted_date}/HourlyData_#{formatted_date}#{formatted_hour}.dat"
