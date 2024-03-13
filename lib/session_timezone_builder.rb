@@ -1,12 +1,11 @@
-class SessionTimezoneOffsetBuilder
+class SessionTimezoneBuilder
   def initialize(latitude:, longitude:)
     @latitude = latitude
     @longitude = longitude
   end
 
   def call
-    session_timezone = timezone_name(latitude, longitude)
-    Time.zone_offset(session_timezone)
+    timezone_name(latitude, longitude)
   end
 
   private
