@@ -6,7 +6,9 @@ class AirNow::CreateSaveableObjects
   def call
     measurements.map do |measurement|
       time_utc = convert_datetime(measurement[:time], measurement[:date])
-      time_local = time_utc + measurement[:timezone].to_i.hours
+      # airnow time is the start time of the measurement, so we add 1 hour to get the end time
+      end_time_utc = time_utc + 1.hour
+      time_local = end_time_utc + measurement[:timezone].to_i.hours
 
       AirNow::Measurement.new(
         sensor_name: measurement[:parameter],
@@ -14,7 +16,7 @@ class AirNow::CreateSaveableObjects
         latitude: measurement[:latitude],
         longitude: measurement[:longitude],
         time_local: time_local,
-        time_utc: time_utc,
+        time_utc: end_time_utc,
         location: measurement[:location],
         title: measurement[:location].force_encoding("ASCII-8BIT").encode("UTF-8", invalid: :replace, undef: :replace, replace: "?"),
       )
