@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_23_103934) do
+ActiveRecord::Schema.define(version: 2024_03_13_144943) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -120,6 +120,7 @@ ActiveRecord::Schema.define(version: 2024_02_23_103934) do
     t.decimal "longitude", precision: 12, scale: 9
     t.datetime "last_measurement_at"
     t.integer "version", default: 1
+    t.integer "timezone_offset", default: 0, null: false
     t.index ["contribute"], name: "index_sessions_on_contribute"
     t.index ["end_time_local"], name: "index_sessions_on_end_time_local"
     t.index ["last_measurement_at"], name: "index_sessions_on_last_measurement_at"
@@ -191,6 +192,12 @@ ActiveRecord::Schema.define(version: 2024_02_23_103934) do
     t.string "name"
     t.integer "taggings_count", default: 0
     t.index ["name"], name: "index_tags_on_name"
+  end
+
+  create_table "temp_session_offsets", id: :bigint, default: nil, force: :cascade do |t|
+    t.decimal "latitude"
+    t.decimal "longitude"
+    t.text "timezone"
   end
 
   create_table "threshold_alerts", force: :cascade do |t|
