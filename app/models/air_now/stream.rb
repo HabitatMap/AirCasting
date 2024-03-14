@@ -20,10 +20,10 @@ module AirNow
       measurement_short_type: 'NO2',
       unit_symbol: 'ppb',
       threshold_very_low: 0,
-      threshold_low: 50,
+      threshold_low: 53,
       threshold_medium: 100,
-      threshold_high: 150,
-      threshold_very_high: 200,
+      threshold_high: 360,
+      threshold_very_high: 649,
       sensor_package_name: 'AirNow-NO2'
     },
     'O3' => {
