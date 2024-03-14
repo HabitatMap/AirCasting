@@ -1,20 +1,17 @@
 require 'timezone_finder'
 
-namespace :session_timezones do
+namespace :sessions_timezone do
   task populate: :environment do
-    puts "Starting to populate session_timezones..."
+    puts "Starting to populate sessions timezones"
 
     finder = TimezoneFinder.create
 
     Session.find_each(batch_size: 1000) do |session|
-      timezone_name = timezone_name(finder, session.latitude, session.longitude)
-
-      ActiveRecord::Base.connection.execute(
-        "INSERT INTO session_timezones (session_id, timezone_name) VALUES (#{session.id}, '#{timezone_name}')"
-      )
+      timezone = timezone_name(finder, session.latitude, session.longitude)
+      session.update(timezone: timezone)
     end
 
-    puts "Finished populating session_timezones."
+    puts "Finished populating sessions timezones"
   end
 
   def timezone_name(finder, latitude, longitude)

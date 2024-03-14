@@ -120,7 +120,7 @@ ActiveRecord::Schema.define(version: 2024_03_13_144943) do
     t.decimal "longitude", precision: 12, scale: 9
     t.datetime "last_measurement_at"
     t.integer "version", default: 1
-    t.string "timezone_offset", default: "UTC", null: false
+    t.string "timezone", default: "UTC", null: false
     t.index ["contribute"], name: "index_sessions_on_contribute"
     t.index ["end_time_local"], name: "index_sessions_on_end_time_local"
     t.index ["last_measurement_at"], name: "index_sessions_on_last_measurement_at"

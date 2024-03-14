@@ -9,14 +9,11 @@ namespace :measurements do
     total_to_update = Measurement.where(time_with_time_zone: nil).count
     puts "Total measurements to update: #{total_to_update}"
 
-    ActiveRecord::Base.connection.execute("SELECT DISTINCT session_id FROM session_timezones").each do |row|
-      session_id = row['session_id']
-      timezone_info = ActiveRecord::Base.connection.execute("SELECT timezone_name FROM session_timezones WHERE session_id = #{session_id}")
-      next if timezone_info.count.zero?
+    Session.all do |session|
+      timezone_name = session.timezone
+      next if timezone_name.blank?
 
-      timezone_name = timezone_info.first['timezone_name']
-
-      Measurement.where(stream_id: Stream.select(:id).where(session_id: session_id), time_with_time_zone: nil).find_in_batches(batch_size: batch_size) do |batch|
+      Measurement.where(stream_id: Stream.select(:id).where(session_id: session.id), time_with_time_zone: nil).find_in_batches(batch_size: batch_size) do |batch|
         measurement_ids = batch.map(&:id)
 
         unless measurement_ids.empty?
