@@ -1474,6 +1474,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/humps@^2.0.6":
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/@types/humps/-/humps-2.0.6.tgz#a358688fe092e40b5f50261e0a55e2fa6d68cabe"
+  integrity sha512-Fagm1/a/1J9gDKzGdtlPmmTN5eSw/aaTzHtj740oSfo+MODsSY2WglxMmhTdOglC8nxqUhGGQ+5HfVtBvxo3Kg==
+
 "@types/json-schema@*", "@types/json-schema@^7.0.9":
   version "7.0.12"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.12.tgz#d70faba7039d5fca54c83c7dbab41051d2b6f6cb"
@@ -3630,6 +3635,11 @@ human-signals@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-2.1.0.tgz#dc91fcba42e4d06e4abaed33b3e7a3c02f514ea0"
   integrity sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==
+
+humps@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/humps/-/humps-2.0.1.tgz#dd02ea6081bd0568dc5d073184463957ba9ef9aa"
+  integrity sha512-E0eIbrFWUhwfXJmsbdjRQFQPrl5pTEoKlz163j1mTqqUnU9PgR4AgB8AIITzuB3vLBdxZXyZ9TDIrwB2OASz4g==
 
 i18@^0.0.6:
   version "0.0.6"
