@@ -1,46 +1,30 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
-import { StationValueLabel } from "../StationValueLabel";
+import bellAlert from "../../../assets/icons/bellAlert.svg";
+import copyLink from "../../../assets/icons/copyLink.svg";
+import downloadImage from "../../../assets/icons/download.svg";
+import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSlice";
+import shareLink from "../../../assets/icons/shareLink.svg";
+import { ValueLabel } from "../ValueLabel";
 import { ActionButton } from "../../ActionButton/ActionButton.style";
 import { Button } from "../../Button/Button";
-import bellAlert from "../../../assets/icons/bellAlert.svg";
-import shareLink from "../../../assets/icons/shareLink.svg";
-import downloadImage from "../../../assets/icons/download.svg";
-import copyLink from "../../../assets/icons/copyLink.svg";
-import * as S from "./CalendarStationHeader.style";
+import * as S from "./FixedStreamStationHeader.style";
+import { DataSource, StreamUpdate } from "../../../types/fixedStream";
 
-interface CalendarStation {
-  stationName: string;
-  profile: string;
-  sensor: string;
-  lastUpdate: string;
-  streamData: StreamData;
-}
-
-interface StreamData {
-  day: string;
-  value: number;
-  parameter: string;
-}
-
-const CalendarHeaderName: React.FC<{ stationName: string }> = ({
-  stationName,
-}) => {
+const StationName: React.FC<{ stationName: string }> = ({ stationName }) => {
   const { t } = useTranslation();
 
   return (
     <S.HorizontalContainer>
-      <S.Description>{t("calendarHeader.stationPrefix")}</S.Description>
-      <S.Header>{stationName}</S.Header>
+      <S.Label>{t("calendarHeader.stationLabel")}</S.Label>
+      <S.Heading>{stationName}</S.Heading>
     </S.HorizontalContainer>
   );
 };
 
-const CalendarStationProfileSensor: React.FC<{
-  profile: string;
-  sensor: string;
-}> = ({ profile, sensor }) => {
+const DataSource: React.FC<DataSource> = ({ profile, sensorName }) => {
   const { t } = useTranslation();
 
   return (
@@ -52,14 +36,15 @@ const CalendarStationProfileSensor: React.FC<{
 
       <S.RowContainer>
         <S.Subtitle>{t("calendarHeader.sensor")}</S.Subtitle>
-        <S.DataDescription>{sensor}</S.DataDescription>
+        <S.DataDescription>{sensorName}</S.DataDescription>
       </S.RowContainer>
     </S.HorizontalContainer>
   );
 };
 
-const CalendarUpdateOccurance: React.FC<{ lastUpdate: string }> = ({
+const StreamUpdate: React.FC<StreamUpdate> = ({
   lastUpdate,
+  updateFrequency,
 }) => {
   const { t } = useTranslation();
 
@@ -67,20 +52,18 @@ const CalendarUpdateOccurance: React.FC<{ lastUpdate: string }> = ({
     <S.HorizontalContainer>
       <S.RowContainer>
         <S.Subtitle>{t("calendarHeader.updateFrequencyTitle")}</S.Subtitle>
-        <S.FrequencyLabel>
-          {t("calendarHeader.updateFrequencyValue", { value: 15 })}
-        </S.FrequencyLabel>
+        <S.FrequencyLabel>{updateFrequency}</S.FrequencyLabel>
       </S.RowContainer>
 
       <S.RowContainer>
         <S.Subtitle>{t("calendarHeader.lastUpdate")}</S.Subtitle>
-        <S.DateLabel>{lastUpdate} (local time)</S.DateLabel>
+        <S.DateLabel>{lastUpdate}</S.DateLabel>
       </S.RowContainer>
     </S.HorizontalContainer>
   );
 };
 
-const CalendarActionButtons = () => {
+const StationActionButtons = () => {
   const { t } = useTranslation();
 
   return (
@@ -118,26 +101,31 @@ const CalendarActionButtons = () => {
   );
 };
 
-const CalendarStationHeader = ({
-  stationName,
-  profile,
-  sensor,
-  lastUpdate,
-  streamData,
-}: CalendarStation) => {
+const FixedStreamStationHeader = () => {
+  const {
+    unitSymbol,
+    title,
+    profile,
+    sensorName,
+    lastUpdate,
+    updateFrequency,
+    lastMeasurementValue,
+    lastMeasurementDateLabel,
+  } = useSelector(selectFixedStreamShortInfo);
+
   return (
     <S.GridContainer>
-      <StationValueLabel
-        date={streamData.day}
-        value={streamData.value}
-        parameter={streamData.parameter}
+      <ValueLabel
+        date={lastMeasurementDateLabel}
+        value={lastMeasurementValue}
+        unitSymbol={unitSymbol}
       />
-      <CalendarHeaderName stationName={stationName} />
-      <CalendarStationProfileSensor profile={profile} sensor={sensor} />
-      <CalendarUpdateOccurance lastUpdate={lastUpdate} />
-      <CalendarActionButtons />
+      <StationName stationName={title} />
+      <DataSource profile={profile} sensorName={sensorName} />
+      <StreamUpdate lastUpdate={lastUpdate} updateFrequency={updateFrequency} />
+      <StationActionButtons />
     </S.GridContainer>
   );
 };
 
-export { CalendarStationHeader };
+export { FixedStreamStationHeader };

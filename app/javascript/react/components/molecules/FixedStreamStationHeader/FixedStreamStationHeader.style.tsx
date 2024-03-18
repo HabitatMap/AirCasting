@@ -21,7 +21,7 @@ const RowContainer = styled.div`
   }
 `;
 
-const Description = styled(H5)`
+const Label = styled(H5)`
   padding-bottom: 10px;
   font-weight: 500;
 
@@ -33,7 +33,7 @@ const Description = styled(H5)`
   }
 `;
 
-const Header = styled(H3)`
+const Heading = styled(H3)`
   padding-bottom: 10px;
   font-weight: 700;
 
@@ -167,8 +167,8 @@ const GridContainer = styled.div`
 export {
   RowContainer,
   GridContainer,
-  Description,
-  Header,
+  Label,
+  Heading,
   DataDescription,
   HorizontalContainer,
   Subtitle,

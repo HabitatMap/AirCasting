@@ -2,15 +2,15 @@ import { useTranslation } from "react-i18next";
 import React from "react";
 
 import BroadCastLogo from "../../../assets/icons/broadCastLogo.svg";
-import * as S from "./StationValueLabel.style";
+import * as S from "./ValueLabel.style";
 
 interface StationValues {
   date: string;
   value: number;
-  parameter: string;
+  unitSymbol: string;
 }
 
-const StationValueLabel = ({ date, value, parameter }: StationValues) => {
+const ValueLabel = ({ date, value, unitSymbol }: StationValues) => {
   const { t } = useTranslation();
 
   return (
@@ -22,10 +22,10 @@ const StationValueLabel = ({ date, value, parameter }: StationValues) => {
       <S.TextContainer>
         <S.Label>{t("stationValue.avgPlaceholder", { date: date })}</S.Label>
         <S.Header>{value}</S.Header>
-        <S.Label>{parameter}</S.Label>
+        <S.Label>{unitSymbol}</S.Label>
       </S.TextContainer>
     </S.Container>
   );
 };
 
-export { StationValueLabel };
+export { ValueLabel };
