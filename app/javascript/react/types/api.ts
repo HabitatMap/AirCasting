@@ -7,7 +7,6 @@ const enum StatusEnum {
 
 interface Error {
   message?: string;
-  code?: string;
 }
 
 export { StatusEnum, Error };

@@ -1,7 +1,7 @@
 interface ApiEndpoints {
-  readonly getFixedStream: (id: number) => string;
+  readonly fetchFixedStreamById: (id: number) => string;
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
-  getFixedStream: (id) => `/fixed_streams/${id}`,
+  fetchFixedStreamById: (id) => `/fixed_streams/${id}`,
 };

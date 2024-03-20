@@ -1,6 +1,7 @@
 import { AxiosResponse } from "axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+import { getErrorMessage } from "../utils/getErrorMessage";
 import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
@@ -29,40 +30,45 @@ const initialState: FixedStreamState = {
   status: StatusEnum.Idle,
 };
 
-export const getFixedStreamData = createAsyncThunk(
-  "fixedStream/getData",
-  async (id: number, { rejectWithValue }) => {
-    try {
-      const response = (await apiClient.get(
-        API_ENDPOINTS.getFixedStream(id),
-        undefined
-      )) as AxiosResponse<FixedStream>;
-      return response.data;
-    } catch (error) {
-      console.log(error);
-
-      return rejectWithValue(error);
-    }
+export const fetchFixedStreamById = createAsyncThunk<
+  FixedStream,
+  number,
+  { rejectValue: { message: string } }
+>("fixedStream/getData", async (id: number, { rejectWithValue }) => {
+  try {
+    const response: AxiosResponse<FixedStream, Error> = await apiClient.get(
+      API_ENDPOINTS.fetchFixedStreamById(id)
+    );
+    return response.data;
+  } catch (error) {
+    const message = getErrorMessage(error);
+    return rejectWithValue({ message });
   }
-);
+});
 
 export const fixedStreamSlice = createSlice({
   name: "fixedStream",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(getFixedStreamData.fulfilled, (state, { payload }) => {
-      state.status = StatusEnum.Fulfilled;
+    builder.addCase(
+      fetchFixedStreamById.fulfilled,
+      (state, { payload: { stream, measurements, streamDailyAverages } }) => {
+        state.status = StatusEnum.Fulfilled;
 
-      if (payload) {
-        state.data = { ...payload };
+        if (stream && measurements && streamDailyAverages) {
+          state.data = { stream, measurements, streamDailyAverages };
+        }
       }
-    });
-    builder.addCase(getFixedStreamData.rejected, (state, { error }) => {
-      state.status = StatusEnum.Rejected;
-      state.error = { message: error.message, code: error.code };
-      state.data = initialState.data;
-    });
+    );
+    builder.addCase(
+      fetchFixedStreamById.rejected,
+      (state, { error: { message } }) => {
+        state.status = StatusEnum.Rejected;
+        state.error = { message };
+        state.data = initialState.data;
+      }
+    );
   },
 });
 
