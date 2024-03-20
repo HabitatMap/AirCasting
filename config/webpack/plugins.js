@@ -3,10 +3,12 @@ const { devServerPort } = require("./config");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const WebpackAssetsManifest = require("webpack-assets-manifest");
+const Dotenv = require("dotenv-webpack");
 
 module.exports = (isProduction) => {
   const devServerManifestPublicPath = `http://localhost:${devServerPort}/packs/`;
   const plugins = [
+    new Dotenv(),
     new WebpackAssetsManifest({
       output: "manifest.json",
       writeToDisk: true,
