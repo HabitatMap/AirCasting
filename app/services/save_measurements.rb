@@ -36,7 +36,7 @@ class SaveMeasurements
 
     sessions_to_create =
       pairs_to_create.map do |stream, measurements|
-        timezone = SessionTimezoneBuilder.new(stream.latitude, stream.longitude).call
+        time_zone = SessionTimezoneBuilder.new.call(stream.latitude, stream.longitude)
         uuid = SecureRandom.uuid
         first = measurements.first
         last = measurements.last
@@ -44,7 +44,7 @@ class SaveMeasurements
         FixedSession.new(
           user_id: @user.id,
           title: first.title,
-          timezone: timezone,
+          time_zone: time_zone,
           contribute: true,
           start_time_local: first.time_local,
           end_time_local: last.time_local,
