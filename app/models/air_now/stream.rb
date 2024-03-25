@@ -1,7 +1,7 @@
 module AirNow
   DEFAULTS_BY_SENSOR_NAME = {
     'PM2.5' => {
-      sensor_name: 'AirNow-PM2.5',
+      sensor_name: 'Government-PM2.5',
       unit_name: 'microgram per cubic meter',
       measurement_type: 'Particulate Matter',
       measurement_short_type: 'PM',
@@ -11,10 +11,10 @@ module AirNow
       threshold_medium: 35,
       threshold_high: 55,
       threshold_very_high: 150,
-      sensor_package_name: 'AirNow-PM2.5'
+      sensor_package_name: 'Government-PM2.5'
     },
     'NO2' => {
-      sensor_name: 'AirNow-NO2',
+      sensor_name: 'Government-NO2',
       unit_name: 'parts per billion',
       measurement_type: 'Nitrogen Dioxide',
       measurement_short_type: 'NO2',
@@ -24,10 +24,10 @@ module AirNow
       threshold_medium: 100,
       threshold_high: 360,
       threshold_very_high: 649,
-      sensor_package_name: 'AirNow-NO2'
+      sensor_package_name: 'Government-NO2'
     },
     'O3' => {
-      sensor_name: 'AirNow-O3',
+      sensor_name: 'Government-Ozone',
       unit_name: 'parts per billion',
       measurement_type: 'Ozone',
       measurement_short_type: 'O3',
@@ -37,7 +37,7 @@ module AirNow
       threshold_medium: 75,
       threshold_high: 95,
       threshold_very_high: 115,
-      sensor_package_name: 'AirNow-O3'
+      sensor_package_name: 'Government-Ozone'
     }
   }
 

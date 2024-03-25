@@ -8,7 +8,7 @@ class AirNow::ImportMeasurements
     normalized_measurements = AirNow::NormalizeMeasurements.new(filtered_measurements).call
     saveable_measurements = AirNow::CreateSaveableObjects.new(normalized_measurements).call
     streams = GroupByStream.new.call(measurements: saveable_measurements)
-    SaveMeasurements.new(user: User.where(username: 'AirNow').first!).call(streams: streams)
+    SaveMeasurements.new(user: User.where(username: 'US EPA AirNow').first!).call(streams: streams)
   end
 
   private
