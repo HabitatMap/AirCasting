@@ -1,7 +1,7 @@
 class AirNow::ImportMeasurements
   def call
-    locations_data = AirNow::DownloadFiles.new(locations_endpoint).fetch
-    hourly_data = AirNow::DownloadFiles.new(hourly_data_endpoint).fetch
+    locations_data = Http.new.get(locations_endpoint)
+    hourly_data = Http.new.get(hourly_data_endpoint)
     locations = AirNow::ParseFiles.parse_locations(locations_data)
     measurements = AirNow::ParseFiles.parse_hourly_data(hourly_data, locations)
     filtered_measurements = AirNow::FilterMeasurements.new(measurements).call

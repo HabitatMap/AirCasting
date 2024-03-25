@@ -30,6 +30,12 @@ class Http
     end
   end
 
+  def get(url)
+    uri = URI(url)
+    response = Net::HTTP.get(uri)
+    response
+  end
+
   private
 
   def successful?(res)
