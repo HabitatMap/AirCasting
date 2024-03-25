@@ -79,7 +79,7 @@ ActiveRecord::Schema.define(version: 2024_03_13_144943) do
     t.integer "milliseconds", default: 0
     t.float "measured_value"
     t.geometry "location", limit: {:srid=>4326, :type=>"geometry"}, null: false
-    t.datetime "time_with_time_zone"
+    t.datetime "time_with_timezone"
     t.index ["stream_id", "time"], name: "index_measurements_on_stream_id_and_time"
   end
 
@@ -99,11 +99,6 @@ ActiveRecord::Schema.define(version: 2024_03_13_144943) do
     t.index ["session_id"], name: "index_notes_on_session_id"
   end
 
-  create_table "session_timezones", force: :cascade do |t|
-    t.integer "session_id"
-    t.string "timezone_name"
-  end
-
   create_table "sessions", id: :serial, force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -120,7 +115,7 @@ ActiveRecord::Schema.define(version: 2024_03_13_144943) do
     t.decimal "longitude", precision: 12, scale: 9
     t.datetime "last_measurement_at"
     t.integer "version", default: 1
-    t.string "timezone", default: "UTC", null: false
+    t.string "time_zone", default: "UTC", null: false
     t.index ["contribute"], name: "index_sessions_on_contribute"
     t.index ["end_time_local"], name: "index_sessions_on_end_time_local"
     t.index ["last_measurement_at"], name: "index_sessions_on_last_measurement_at"
@@ -192,12 +187,6 @@ ActiveRecord::Schema.define(version: 2024_03_13_144943) do
     t.string "name"
     t.integer "taggings_count", default: 0
     t.index ["name"], name: "index_tags_on_name"
-  end
-
-  create_table "temp_session_offsets", id: :bigint, default: nil, force: :cascade do |t|
-    t.decimal "latitude"
-    t.decimal "longitude"
-    t.text "timezone"
   end
 
   create_table "threshold_alerts", force: :cascade do |t|
