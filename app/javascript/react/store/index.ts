@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import thresholdReducer from "./thresholdSlice";
+import fixedStreamReducer from "./fixedStreamSlice";
 
 const store = configureStore({
   reducer: {
     threshold: thresholdReducer,
+    fixedStream: fixedStreamReducer,
   },
 });
 
