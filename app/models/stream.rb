@@ -109,10 +109,21 @@ class Stream < ApplicationRecord
     measurements =
       data.map do |params|
         params = params.deep_symbolize_keys
+        longitude = params[:longitude].to_f
+        latitude = params[:latitude].to_f
         location =
           factory.point(params[:longitude].to_f, params[:latitude].to_f)
+        time_zone =
+          TimezoneFinder.create.timezone_at(lng: longitude, lat: latitude)
+        time_with_time_zone = params[:time].in_time_zone.change(zone: time_zone)
 
-        Measurement.new(params.merge(stream: self, location: location))
+        Measurement.new(
+          params.merge(
+            stream: self,
+            location: location,
+            time_with_time_zone: time_with_time_zone,
+          ),
+        )
       end
 
     result = Measurement.import measurements
