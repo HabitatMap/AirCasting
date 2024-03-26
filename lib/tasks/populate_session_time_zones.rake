@@ -1,8 +1,8 @@
 require 'timezone_finder'
 
-namespace :sessions_timezone do
+namespace :sessions_time_zones do
   task populate: :environment do
-    puts "Starting to populate sessions timezones"
+    puts "Starting to populate sessions time zones"
 
     finder = TimezoneFinder.create
 
@@ -11,6 +11,6 @@ namespace :sessions_timezone do
       session.update(time_zone: time_zone)
     end
 
-    puts "Finished populating sessions timezones"
+    puts "Finished populating sessions time zones"
   end
 end
