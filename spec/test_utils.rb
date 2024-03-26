@@ -34,6 +34,7 @@ def create_session!(attributes = {})
     last_measurement_at:
       attributes.fetch(:last_measurement_at, DateTime.current),
     tag_list: attributes.fetch(:tag_list, []),
+    timezone: attributes.fetch(:time_zone, 'UTC'),
   )
 end
 
@@ -69,6 +70,8 @@ def create_measurement!(attributes = {})
     time: attributes.fetch(:time, DateTime.current),
     latitude: lat,
     longitude: lon,
+    time_with_time_zone:
+      attributes.fetch(:time_with_time_zone, DateTime.current),
     value: attributes.fetch(:value, 123),
     milliseconds: attributes.fetch(:milliseconds, 123),
     stream: attributes.fetch(:stream) { create_stream! },

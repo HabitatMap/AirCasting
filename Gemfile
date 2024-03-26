@@ -70,6 +70,7 @@ end
 group :test do
   gem 'capybara'
   gem 'rspec-rails'
+  gem 'timecop'
 end
 
 group :production do

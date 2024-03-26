@@ -40,12 +40,14 @@ unless session
     )
 
   time = s.start_time_local
+  current_date = Date.current
   factory = RGeo::Geographic.spherical_factory(srid: 4326)
-  (1..20).each do |value|
+  while time < current_date
     Measurement.create!(
       stream: stream,
       time: time,
-      value: value,
+      time_with_time_zone: time.in_time_zone('Europe/Warsaw'),
+      value: (0..10).to_a.sample,
       latitude: latitude,
       longitude: longitude,
       location: factory.point(longitude, latitude),
@@ -53,10 +55,9 @@ unless session
     time = time + 1.hour
   end
 
-  time = s.start_time_local
-  current_date = Date.current
-  while time < current_date
-    StreamDailyAverage.create!(stream: stream, date: time, value: 9.5)
-    time = time + 1.day
-  end
+  # time = s.start_time_local
+  # while time < current_date
+  #   StreamDailyAverage.create!(stream: stream, date: time, value: 9.5)
+  #   time = time + 1.day
+  # end
 end

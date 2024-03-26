@@ -12,6 +12,10 @@ describe Stream do
         }
         .from(0)
         .to(data.size)
+
+      binding.pry
+
+      stream
     end
 
     it 'skips invalid measurements' do
@@ -43,6 +47,20 @@ describe Stream do
         }
         .from(0)
         .to(data.size)
+    end
+
+    it 'caluclates value for time with time zone' do
+      session = FactoryBot.create(:fixed_session)
+      stream = FactoryBot.create(:stream, session: session)
+      data = [FactoryBot.attributes_for(:measurement)]
+
+      stream.build_measurements!(data)
+
+      measurement = Measurement.last
+
+      # binding.pry
+
+      measurement
     end
   end
 
