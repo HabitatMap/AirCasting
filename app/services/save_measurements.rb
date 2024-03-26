@@ -1,5 +1,3 @@
-require './lib/session_timezone_builder'
-
 class SaveMeasurements
   def initialize(user:)
     @user = user
