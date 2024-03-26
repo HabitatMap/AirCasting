@@ -10,8 +10,8 @@ namespace :measurements do
     puts "Total measurements to update: #{total_to_update}"
 
     Session.all.each do |session|
-      timezone_name = session.timezone
-      next if timezone_name.blank?
+      time_zone_name = session.time_zone
+      next if time_zone_name.blank?
 
       Measurement.where(stream_id: Stream.select(:id).where(session_id: session.id), time_with_time_zone: nil).find_in_batches(batch_size: batch_size) do |batch|
         measurement_ids = batch.map(&:id)
@@ -19,7 +19,7 @@ namespace :measurements do
         unless measurement_ids.empty?
           sql = <<-SQL
             UPDATE measurements
-            SET time_with_time_zone = time at time zone '#{timezone_name}'
+            SET time_with_time_zone = time at time zone '#{time_zone_name}'
             WHERE id IN (#{measurement_ids.join(',')})
           SQL
 

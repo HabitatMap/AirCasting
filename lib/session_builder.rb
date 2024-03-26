@@ -1,5 +1,3 @@
-require './lib/session_timezone_builder'
-
 class SessionBuilder
   attr_reader :user
 
@@ -21,7 +19,7 @@ class SessionBuilder
     stream_data = data.delete(:streams)
 
     data = build_local_start_and_end_time(data)
-    data[:timezone] = TimeZoneBuilder.new.call(data[:latitude], data[:longitude])
+    data[:time_zone] = TimeZoneBuilder.new.call(data[:latitude], data[:longitude])
 
     allowed = Session.attribute_names + %w[notes_attributes tag_list user]
     filtered = data.select { |k, _| allowed.include?(k.to_s) }
