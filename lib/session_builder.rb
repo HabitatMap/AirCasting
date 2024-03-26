@@ -21,7 +21,7 @@ class SessionBuilder
     stream_data = data.delete(:streams)
 
     data = build_local_start_and_end_time(data)
-    data[:timezone] = SessionTimezoneBuilder.new.call(data[:latitude], data[:longitude])
+    data[:timezone] = TimeZoneBuilder.new.call(data[:latitude], data[:longitude])
 
     allowed = Session.attribute_names + %w[notes_attributes tag_list user]
     filtered = data.select { |k, _| allowed.include?(k.to_s) }

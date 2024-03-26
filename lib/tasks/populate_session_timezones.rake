@@ -7,7 +7,7 @@ namespace :sessions_timezone do
     finder = TimezoneFinder.create
 
     Session.find_each(batch_size: 1000) do |session|
-      timezone = SessionTimezoneBuilder.new.call(session.latitude, session.longitude)
+      timezone = TimeZoneBuilder.new.call(session.latitude, session.longitude)
       session.update(timezone: timezone)
     end
 

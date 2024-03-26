@@ -36,7 +36,7 @@ class SaveMeasurements
 
     sessions_to_create =
       pairs_to_create.map do |stream, measurements|
-        time_zone = SessionTimezoneBuilder.new.call(stream.latitude, stream.longitude)
+        time_zone = TimeZoneBuilder.new.call(stream.latitude, stream.longitude)
         uuid = SecureRandom.uuid
         first = measurements.first
         last = measurements.last

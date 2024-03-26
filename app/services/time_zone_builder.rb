@@ -1,4 +1,4 @@
-class SessionTimezoneBuilder
+class TimeZoneBuilder
   def initialize
     @timezone_finder = TimezoneFinder.create
   end
