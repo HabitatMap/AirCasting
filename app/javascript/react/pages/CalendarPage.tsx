@@ -3,10 +3,8 @@ import { useSelector } from "react-redux";
 
 import { selectThreshold } from "../store/thresholdSlice";
 import { ThresholdsConfigurator } from "../components/ThresholdConfigurator";
-import { Graph } from "../components/Graph";
-import { WeekView } from "../components/WeekView/WeekView";
-import { weeklyData } from "../components/WeekView/WeeklyMockData";
 import { FixedStreamStationHeader } from "../components/molecules/FixedStreamStationHeader";
+import Calendar from "../components/Calendar/Calendar";
 import { useAppDispatch } from "../store/hooks";
 import { fetchFixedStreamById } from "../store/fixedStreamSlice";
 import * as S from "./CalendarPage.style";
@@ -27,11 +25,7 @@ const CalendarPage = () => {
       <S.StationDataContainer>
         <FixedStreamStationHeader />
         <ThresholdsConfigurator initialThresholds={initialThresholds} />
-        <Graph />
-        <WeekView
-          weeklyData={weeklyData}
-          thresholdsValues={initialThresholds}
-        />
+        <Calendar />
       </S.StationDataContainer>
     </S.CalendarPageLayout>
   );
