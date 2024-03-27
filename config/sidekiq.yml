@@ -8,21 +8,26 @@
 
 :schedule:
   session_stopped_alerts:
-    every: '30m'
+    every: "30m"
     class: SessionStoppedAlertsWorker
     queue: critical
 
   threshold_exceeded_alerts:
-    every: '10m'
-    class: 'ThresholdAlertsWorker'
+    every: "10m"
+    class: "ThresholdAlertsWorker"
     queue: critical
 
   open_aq_import_measurements:
-    every: '2m'
+    every: "2m"
     class: OpenAqImportMeasurementsWorker
     queue: slow
 
   purple_air_import_measurements:
-    every: '10m'
+    every: "10m"
     class: PurpleAirImportMeasurementsWorker
+    queue: slow
+
+  airnow_import_measurements:
+    cron: "56 * * * *"
+    class: AirNowImportMeasurementsWorker
     queue: slow
