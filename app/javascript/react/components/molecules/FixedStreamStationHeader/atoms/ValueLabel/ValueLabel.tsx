@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import React from "react";
 
-import BroadCastLogo from "../../../assets/icons/broadCastLogo.svg";
+import BroadCastLogo from "../../../../../assets/icons/broadCastLogo.svg";
 import * as S from "./ValueLabel.style";
 
 interface StationValues {
