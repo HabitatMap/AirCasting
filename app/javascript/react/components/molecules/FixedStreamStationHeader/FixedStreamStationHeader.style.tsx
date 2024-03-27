@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { H3, H4, H5 } from "../../Typography";
+import { H4 } from "../../Typography";
 import media from "../../../utils/media";
 import { gray100, gray300 } from "../../../assets/styles/colors";
 
@@ -21,28 +21,6 @@ const RowContainer = styled.div`
   }
 `;
 
-const Description = styled(H5)`
-  padding-bottom: 10px;
-  font-weight: 500;
-
-  @media ${media.desktop} {
-    color: ${gray300};
-    text-transform: uppercase;
-    font-size: 14px;
-    font-weight: 400;
-  }
-`;
-
-const Header = styled(H3)`
-  padding-bottom: 10px;
-  font-weight: 700;
-
-  @media ${media.desktop} {
-    font-size: 28px;
-    font-weight: 600;
-  }
-`;
-
 const Subtitle = styled(H4)`
   display: inline;
   padding-right: 5px;
@@ -52,58 +30,6 @@ const Subtitle = styled(H4)`
     color: ${gray300};
     text-transform: uppercase;
     width: 120px;
-  }
-`;
-
-const DataDescription = styled(H4)`
-  display: inline;
-  font-weight: 500;
-  text-transform: uppercase;
-
-  @media ${media.desktop} {
-    display: block;
-    text-transform: none;
-    font-size: 18px;
-    font-weight: 400;
-  }
-`;
-
-const DateLabel = styled(H4)`
-  display: inline;
-  font-weight: 600;
-  text-transform: uppercase;
-
-  @media ${media.desktop} {
-    display: block;
-    text-transform: none;
-    font-weight: 400;
-  }
-`;
-
-const FrequencyLabel = styled(H5)`
-  display: inline;
-
-  @media ${media.desktop} {
-    display: block;
-    font-size: 14px;
-  }
-`;
-
-const MobileButtons = styled.div`
-  display: flex;
-  gap: 24px;
-
-  @media ${media.desktop} {
-    display: none;
-  }
-`;
-
-const DesktopButtons = styled.div`
-  display: none;
-
-  @media ${media.desktop} {
-    display: flex;
-    gap: 20px;
   }
 `;
 
@@ -164,16 +90,4 @@ const GridContainer = styled.div`
   }
 `;
 
-export {
-  RowContainer,
-  GridContainer,
-  Description,
-  Header,
-  DataDescription,
-  HorizontalContainer,
-  Subtitle,
-  DateLabel,
-  FrequencyLabel,
-  MobileButtons,
-  DesktopButtons,
-};
+export { RowContainer, GridContainer, HorizontalContainer, Subtitle };
