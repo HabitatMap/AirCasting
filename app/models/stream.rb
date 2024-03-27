@@ -90,6 +90,14 @@ class Stream < ApplicationRecord
   end
 
   def self.build_or_update!(data = {})
+    stream, measurements_attributes = save_stream(data)
+
+    MeasurementsCreator.new.call(stream, measurements_attributes)
+
+    stream
+  end
+
+  def self.save_stream(data = {})
     measurements_attributes = data.delete(:measurements)
     stream = where(data).first_or_initialize
     latitude = measurements_attributes.first.fetch(:latitude)
@@ -99,7 +107,17 @@ class Stream < ApplicationRecord
     stream.average_value = measurements_attributes.last.fetch(:value)
     stream.save!
 
-    MeasurementsCreator.new.call(stream, measurements_attributes)
+    [stream, measurements_attributes]
+  end
+
+  def self.build_or_update_async!(data = {})
+    stream, measurements_attributes = save_stream(data)
+
+    measurements_creator = AsyncMeasurementsCreator.new
+    measurements_creator.call(
+      stream: stream, measurements_attributes: measurements_attributes
+    )
+
     stream
   end
 
