@@ -8,6 +8,8 @@ const Calendar = () => {
     <>
       <S.ThreeMonths>
         <MonthView></MonthView>
+        <MonthView></MonthView>
+        <MonthView></MonthView>
       </S.ThreeMonths>
     </>
   );
