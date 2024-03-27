@@ -28,7 +28,6 @@ const StationActionButtons = () => {
           <img src={shareLink} />
         </ActionButton>
       </S.MobileButtons>
-
       <S.DesktopButtons>
         <Button
           onClick={() => {}}

@@ -21,7 +21,6 @@ const StreamUpdate: React.FC<StreamUpdate> = ({
         <Subtitle>{t("calendarHeader.updateFrequencyTitle")}</Subtitle>
         <S.FrequencyLabel>{updateFrequency}</S.FrequencyLabel>
       </RowContainer>
-
       <RowContainer>
         <Subtitle>{t("calendarHeader.lastUpdate")}</Subtitle>
         <S.DateLabel>{lastUpdate}</S.DateLabel>

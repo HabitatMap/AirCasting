@@ -18,7 +18,6 @@ const DataSource: React.FC<DataSource> = ({ profile, sensorName }) => {
         <Subtitle>{t("calendarHeader.profile")}</Subtitle>
         <S.DataDescription>{profile}</S.DataDescription>
       </RowContainer>
-
       <RowContainer>
         <Subtitle>{t("calendarHeader.sensor")}</Subtitle>
         <S.DataDescription>{sensorName}</S.DataDescription>

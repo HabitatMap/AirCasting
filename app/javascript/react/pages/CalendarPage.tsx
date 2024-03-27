@@ -11,12 +11,15 @@ import { useAppDispatch } from "../store/hooks";
 import { fetchFixedStreamById } from "../store/fixedStreamSlice";
 import * as S from "./CalendarPage.style";
 
+// TODO read it from params
+const STREAM_ID = 6018;
+
 const CalendarPage = () => {
   const initialThresholds = useSelector(selectThreshold);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(fetchFixedStreamById(6018));
+    dispatch(fetchFixedStreamById(STREAM_ID));
   }, []);
 
   return (
