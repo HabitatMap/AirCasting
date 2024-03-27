@@ -4,9 +4,7 @@ class AirNow::ImportMeasurements
     hourly_data = Http.new.get(hourly_data_endpoint)
     locations = AirNow::ParseFiles.parse_locations(locations_data)
     measurements = AirNow::ParseFiles.parse_hourly_data(hourly_data, locations)
-    filtered_measurements = AirNow::FilterMeasurements.new(measurements).call
-    normalized_measurements = AirNow::NormalizeMeasurements.new(filtered_measurements).call
-    saveable_measurements = AirNow::CreateSaveableObjects.new(normalized_measurements).call
+    saveable_measurements = AirNow::ProcessMeasurements.new(measurements).call
     streams = GroupByStream.new.call(measurements: saveable_measurements)
     SaveMeasurements.new(user: User.where(username: 'US EPA AirNow').first!).call(streams: streams)
   end
