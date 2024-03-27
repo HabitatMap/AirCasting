@@ -1,32 +1,31 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
+import { selectThreshold } from "../store/thresholdSlice";
 import { ThresholdsConfigurator } from "../components/ThresholdConfigurator";
 import { Graph } from "../components/Graph";
-import { CalendarStationHeader } from "../components/molecules/CalendarStationHeader/CalendarStationHeader";
-import { selectThreshold } from "../store/thresholdSlice";
 import { WeekView } from "../components/WeekView/WeekView";
 import { weeklyData } from "../components/WeekView/WeeklyMockData";
-
+import { FixedStreamStationHeader } from "../components/molecules/FixedStreamStationHeader";
+import { useAppDispatch } from "../store/hooks";
+import { fetchFixedStreamById } from "../store/fixedStreamSlice";
 import * as S from "./CalendarPage.style";
+
+// TODO read it from params
+const STREAM_ID = 6018;
 
 const CalendarPage = () => {
   const initialThresholds = useSelector(selectThreshold);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchFixedStreamById(STREAM_ID));
+  }, []);
 
   return (
     <S.CalendarPageLayout>
       <S.StationDataContainer>
-        <CalendarStationHeader
-          stationName="White Plains, New York-Northern New Jersey-London"
-          profile="Tim Cain"
-          sensor="Government Data USEPA"
-          lastUpdate="18:00, Sep 1 2023"
-          streamData={{
-            day: "Jun 12",
-            value: 12,
-            parameter: "PM2.5 µg/m",
-          }}
-        />
+        <FixedStreamStationHeader />
         <ThresholdsConfigurator initialThresholds={initialThresholds} />
         <Graph />
         <WeekView
