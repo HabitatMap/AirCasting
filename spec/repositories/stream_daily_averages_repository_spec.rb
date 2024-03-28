@@ -21,4 +21,47 @@ describe StreamDailyAveragesRepository do
       )
     end
   end
+
+  describe '#create_or_update' do
+    context 'stream_daily_average for given stream and date does not exist' do
+      it 'creates a new record' do
+        stream = create_stream!
+        current_date = Time.current.to_date
+
+        expect {
+          subject.create_or_update(
+            stream_id: stream.id,
+            date: current_date,
+            value: 10,
+          )
+        }.to change(StreamDailyAverage, :count).by(1)
+
+        stream_daily_average = StreamDailyAverage.first
+        expect(stream_daily_average.stream_id).to eq(stream.id)
+        expect(stream_daily_average.date).to eq(current_date)
+        expect(stream_daily_average.value).to eq(10)
+      end
+    end
+
+    context 'stream_daily_average for given stream and date exists' do
+      it 'updates value for an existing record' do
+        stream = create_stream!
+        current_date = Time.current.to_date
+        stream_daily_average =
+          create_stream_daily_average!(
+            { stream: stream, date: current_date, value: 20 },
+          )
+
+        expect {
+          subject.create_or_update(
+            stream_id: stream.id,
+            date: current_date,
+            value: 10,
+          )
+        }.to change(StreamDailyAverage, :count).by(0)
+
+        expect(stream_daily_average.reload.value).to eq(10)
+      end
+    end
+  end
 end
