@@ -9,9 +9,16 @@ import { getErrorMessage } from "../utils/getErrorMessage";
 import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
-import { FixedStream, FixedStreamShortInfo } from "../types/fixedStream";
+import {
+  CalendarMonthlyData,
+  FixedStream,
+  FixedStreamShortInfo,
+  StreamDailyAverage,
+} from "../types/fixedStream";
 import { RootState } from ".";
 import moment from "moment";
+import { getFullWeeksOfMonth } from "../utils/datesHelper";
+import { lastItemFromArray } from "../utils/lastArrayItem";
 
 interface FixedStreamState {
   data: FixedStream;
@@ -80,13 +87,18 @@ export const fixedStreamSlice = createSlice({
 const selectFixedStreamData = (state: RootState): FixedStream =>
   state.fixedStream.data;
 
+const selectLastDailyAverage = (
+  state: RootState
+): StreamDailyAverage | undefined => {
+  const { streamDailyAverages } = selectFixedStreamData(state);
+
+  return lastItemFromArray(streamDailyAverages);
+};
+
 const selectFixedStreamShortInfo = createSelector(
-  [selectFixedStreamData],
-  (fixedStreamData) => {
-    const { streamDailyAverages } = fixedStreamData;
-    const lastMeasurementIndex = streamDailyAverages.length - 1;
-    const { value: lastMeasurementValue, date } =
-      streamDailyAverages[lastMeasurementIndex] || {};
+  [selectFixedStreamData, selectLastDailyAverage],
+  (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
+    const { value: lastMeasurementValue, date } = lastDailyAverage || {};
     const lastMeasurementDateLabel = moment(date).format("MMM D");
 
     return {
@@ -97,5 +109,18 @@ const selectFixedStreamShortInfo = createSelector(
   }
 );
 
-export { selectFixedStreamData, selectFixedStreamShortInfo };
+const selectThreeMonthsDailyAverages = (
+  state: RootState
+): CalendarMonthlyData => {
+  const { streamDailyAverages } = selectFixedStreamData(state);
+
+  const monthData = getFullWeeksOfMonth(streamDailyAverages);
+  return monthData;
+};
+
+export {
+  selectFixedStreamData,
+  selectFixedStreamShortInfo,
+  selectThreeMonthsDailyAverages,
+};
 export default fixedStreamSlice.reducer;
