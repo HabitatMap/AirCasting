@@ -1,30 +1,27 @@
 import React from "react";
 
-import * as S from "./Calendar.style";
-import {
-  today,
-  getDayNumber,
-  getFullWeeksOfMonth,
-} from "../../utils/datesHelper";
+import { getDayNumber } from "../../utils/calendarDataUtil";
 import { yellow } from "../../assets/styles/colors";
+import { CalendarMonthlyData } from "../../types/fixedStream";
+import * as S from "./Calendar.style";
 
-const MonthView = () => {
-  const weeks = getFullWeeksOfMonth(today.year(), today.month());
-
+const MonthView = ({ weeks, monthName }: CalendarMonthlyData) => {
   return (
     <S.Month>
-      <S.MonthName>February</S.MonthName>
+      <S.MonthName>{monthName}</S.MonthName>
       {weeks.map((week) => (
-        <S.Week key={week[0]}>
+        <S.Week key={week[0].date}>
           {week.map((day) => (
             <S.Day
-              key={day}
+              key={day.date}
               $hasBackground={true}
               $color={yellow}
               $isCurrentMonth={true}
             >
-              <S.DayNumber $isVisible={true}>{getDayNumber(day)}</S.DayNumber>
-              <S.Value $isVisible={true}>100</S.Value>
+              <S.DayNumber $isVisible={true}>
+                {getDayNumber(day.date)}
+              </S.DayNumber>
+              <S.Value $isVisible={true}>{day.value}</S.Value>
             </S.Day>
           ))}
         </S.Week>

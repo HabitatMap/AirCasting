@@ -5,9 +5,9 @@ import BroadCastLogo from "../../../../../assets/icons/broadCastLogo.svg";
 import * as S from "./ValueLabel.style";
 
 interface StationValues {
-  date: string;
-  value: number;
   unitSymbol: string;
+  date?: string;
+  value?: number;
 }
 
 const ValueLabel = ({ date, value, unitSymbol }: StationValues) => {

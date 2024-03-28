@@ -1,17 +1,23 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 import * as S from "./Calendar.style";
 import MonthView from "./Month";
+import { selectLastThreeMonthsDailyAverages } from "../../store/fixedStreamSelectors";
 
 const Calendar = () => {
+  const threeMonthsData = useSelector(selectLastThreeMonthsDailyAverages);
+
   return (
-    <>
-      <S.ThreeMonths>
-        <MonthView></MonthView>
-        <MonthView></MonthView>
-        <MonthView></MonthView>
-      </S.ThreeMonths>
-    </>
+    threeMonthsData && (
+      <>
+        <S.ThreeMonths>
+          {threeMonthsData.map((month) => (
+            <MonthView key={month.monthName} {...month} />
+          ))}
+        </S.ThreeMonths>
+      </>
+    )
   );
 };
 
