@@ -112,9 +112,8 @@ class Stream < ApplicationRecord
         longitude = params[:longitude].to_f
         latitude = params[:latitude].to_f
         location =
-          factory.point(params[:longitude].to_f, params[:latitude].to_f)
-        time_zone =
-          TimezoneFinder.create.timezone_at(lng: longitude, lat: latitude)
+          factory.point(longitude, latitude)
+        time_zone = time_zone_at(latitude, longitude)
         time_with_time_zone = params[:time].in_time_zone.change(zone: time_zone)
 
         Measurement.new(
@@ -135,6 +134,14 @@ class Stream < ApplicationRecord
       self.id,
       measurements_count: measurements.size - result.failed_instances.size,
     )
+  end
+
+  def time_zone_at(lat, lng)
+    if lat.nil? || lng.nil? || lat.zero? || lng.zero? || lat > 90 || lat < -90 || lng > 180 || lng < -180
+      return 'UTC'
+    end
+
+    TimezoneFinder.create.timezone_at(lng: lng, lat: lat)
   end
 
   # this change for migration mysql->posgres needs to be tested
