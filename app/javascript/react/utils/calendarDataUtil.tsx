@@ -1,5 +1,5 @@
-import moment, { Moment } from "moment";
+import moment from "moment";
 
-const getDayNumber = (date: string) => moment(date).format("D");
+const getDayNumber = (date: string): string => moment(date).format("D");
 
 export { getDayNumber };
