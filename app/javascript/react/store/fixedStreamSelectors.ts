@@ -1,4 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
+import moment, { Moment } from "moment";
+
 import { lastItemFromArray } from "../utils/lastArrayItem";
 import {
   CalendarCellData,
@@ -8,7 +10,6 @@ import {
   StreamDailyAverage,
 } from "../types/fixedStream";
 import { RootState } from ".";
-import moment, { Moment } from "moment";
 
 const DAYS_IN_WEEK_COUNT = 7;
 
@@ -38,7 +39,7 @@ const prepareCalendarDataCell = (
   value: number | null
 ): CalendarCellData => {
   return {
-    date: date.format("YYYY-MM-DD"),
+    date: date.format("D"),
     value,
   };
 };
@@ -51,19 +52,23 @@ const getValueForDate = (
   return dailyAverage ? dailyAverage.value : null;
 };
 
-const getEarliestDayWithData = (
+const getLatestDataPointDate = (
   streamDailyAverages: StreamDailyAverage[]
 ): string | undefined => {
   const sortedAverages = sortStreamDailyAveragesByDate(streamDailyAverages);
-  const earliestDataPointDate = lastItemFromArray(sortedAverages)?.date;
+  const latestDataPointDate = lastItemFromArray(sortedAverages)?.date;
 
-  return earliestDataPointDate;
+  return latestDataPointDate;
 };
 
 const getMonthWeeksOfDailyAveragesForMonth = (
   month: Moment,
   streamDailyAverages: StreamDailyAverage[]
 ): CalendarMonthlyData => {
+  if (!month || !month.isValid() || !streamDailyAverages) {
+    throw new Error("Invalid inputs");
+  }
+
   const { firstDayOfMonthWeek, lastDayOfMonthWeek } =
     getMonthWeekBoundariesForDate(month);
   let currentDate = firstDayOfMonthWeek.clone();
@@ -72,10 +77,11 @@ const getMonthWeeksOfDailyAveragesForMonth = (
   while (currentDate <= lastDayOfMonthWeek) {
     let week = [];
     for (let i = 0; i < DAYS_IN_WEEK_COUNT; i++) {
-      const value = getValueForDate(
-        currentDate.format("YYYY-MM-DD"),
-        streamDailyAverages
-      );
+      const isCurrentMonth = currentDate.isSame(month, "month");
+
+      const value = isCurrentMonth
+        ? getValueForDate(currentDate.format("YYYY-MM-DD"), streamDailyAverages)
+        : null;
       const calendarCellData = prepareCalendarDataCell(currentDate, value);
 
       week.push(calendarCellData);
@@ -89,13 +95,19 @@ const getMonthWeeksOfDailyAveragesForMonth = (
   return { monthName, weeks };
 };
 
-const getFullWeeksOfThreeLastMonths = (
+const getFullWeeksOfThreeLatestMonths = (
   streamDailyAverages: StreamDailyAverage[]
 ): CalendarMonthlyData[] => {
-  const earliestMonth = moment(getEarliestDayWithData(streamDailyAverages));
-  const secondEarliestMonth = earliestMonth.clone().subtract(1, "months");
-  const thirdEarliestMonth = earliestMonth.clone().subtract(2, "month");
-  const threeMonths = [thirdEarliestMonth, secondEarliestMonth, earliestMonth];
+  const latestMonthWithData = moment(
+    getLatestDataPointDate(streamDailyAverages)
+  );
+  const secondLatestMonth = latestMonthWithData.clone().subtract(1, "months");
+  const thirdLatestMonth = latestMonthWithData.clone().subtract(2, "month");
+  const threeMonths = [
+    thirdLatestMonth,
+    secondLatestMonth,
+    latestMonthWithData,
+  ];
 
   const threeMonthsData = threeMonths.map((month) => {
     return getMonthWeeksOfDailyAveragesForMonth(month, streamDailyAverages);
@@ -129,17 +141,18 @@ const selectFixedStreamShortInfo = createSelector(
   }
 );
 
-const selectLastThreeMonthsDailyAverages = (
-  state: RootState
-): CalendarMonthlyData[] => {
-  const { streamDailyAverages } = selectFixedStreamData(state);
+const selectLatestThreeMonthsDailyAverages = createSelector(
+  selectFixedStreamData,
+  (fixedStreamData): CalendarMonthlyData[] => {
+    const { streamDailyAverages } = fixedStreamData;
 
-  const monthData = getFullWeeksOfThreeLastMonths(streamDailyAverages);
-  return monthData;
-};
+    const monthData = getFullWeeksOfThreeLatestMonths(streamDailyAverages);
+    return monthData;
+  }
+);
 
 export {
   selectFixedStreamData,
   selectFixedStreamShortInfo,
-  selectLastThreeMonthsDailyAverages,
+  selectLatestThreeMonthsDailyAverages,
 };

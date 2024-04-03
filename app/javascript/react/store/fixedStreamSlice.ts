@@ -1,9 +1,5 @@
 import { AxiosResponse } from "axios";
-import {
-  createAsyncThunk,
-  createSelector,
-  createSlice,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { apiClient } from "../api/apiClient";

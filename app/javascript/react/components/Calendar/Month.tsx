@@ -1,6 +1,5 @@
 import React from "react";
 
-import { getDayNumber } from "../../utils/calendarDataUtil";
 import { yellow } from "../../assets/styles/colors";
 import { CalendarMonthlyData } from "../../types/fixedStream";
 import * as S from "./Calendar.style";
@@ -18,9 +17,7 @@ const MonthView = ({ weeks, monthName }: CalendarMonthlyData) => {
               $color={yellow}
               $isCurrentMonth={true}
             >
-              <S.DayNumber $isVisible={true}>
-                {getDayNumber(day.date)}
-              </S.DayNumber>
+              <S.DayNumber $isVisible={true}>{day.date}</S.DayNumber>
               <S.Value $isVisible={true}>{day.value}</S.Value>
             </S.Day>
           ))}

@@ -1,12 +1,12 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import * as S from "./Calendar.style";
+import { selectLatestThreeMonthsDailyAverages } from "../../store/fixedStreamSelectors";
 import MonthView from "./Month";
-import { selectLastThreeMonthsDailyAverages } from "../../store/fixedStreamSelectors";
+import * as S from "./Calendar.style";
 
 const Calendar = () => {
-  const threeMonthsData = useSelector(selectLastThreeMonthsDailyAverages);
+  const threeMonthsData = useSelector(selectLatestThreeMonthsDailyAverages);
 
   return (
     threeMonthsData && (
