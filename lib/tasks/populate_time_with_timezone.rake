@@ -42,6 +42,7 @@ namespace :measurements do
             puts "Database maintenance completed."
             last_maintenance_at = total_processed
           end
+        end
     end
 
     puts "Finished populating time_with_time_zone for measurements."
