@@ -12,36 +12,35 @@ namespace :measurements do
     total_to_update = ActiveRecord::Base.connection.execute(total_to_update_sql).first['count'].to_i
     puts "Total measurements to update: #{total_to_update}"
 
-    Session.select('streams.id, sessions.time_zone')
+    Stream
       .distinct
-      .joins(streams: :measurements)
-      .where(measurements: { time_with_time_zone: nil }).each do |stream|
+      .joins(:session, :measurements)
+      .where(measurements: {time_with_time_zone: nil})
+      .pluck('streams.id, sessions.time_zone, streams.measurements_count')
+      .each do |stream_id, time_zone_name, measurements_count|
 
-        time_zone_name = stream.time_zone
-        next if time_zone_name.blank?
+      sql = <<-SQL
+        UPDATE measurements
+        SET time_with_time_zone = time AT TIME ZONE '#{time_zone_name}'
+        WHERE stream_id = '#{stream_id}' AND time_with_time_zone IS NULL
+      SQL
 
-          sql = <<-SQL
-            UPDATE measurements
-            SET time_with_time_zone = time AT TIME ZONE '#{time_zone_name}'
-            WHERE stream_id = '#{stream.id}' AND time_with_time_zone IS NULL
-            RETURNING id
-          SQL
+      ActiveRecord::Base.connection.execute(sql)
 
-          updated_rows = ActiveRecord::Base.connection.execute(sql)
+      total_processed += measurements_count
+      progress_percentage = (total_processed.to_f / total_to_update * 100).round(2)
+      puts "Processed #{total_processed} measurements so far (#{progress_percentage}% of total to update)."
 
-          total_processed += updated_rows.to_a.size
-          progress_percentage = (total_processed.to_f / total_to_update * 100).round(2)
-          puts "Processed #{total_processed} measurements so far (#{progress_percentage}% of total to update)."
+      sleep(sleep_time)
 
-          sleep(sleep_time)
-
-          if total_processed - last_maintenance_at >= maintenance_interval
-            puts "Performing database maintenance (VACUUM ANALYZE measurements)..."
-            ActiveRecord::Base.connection.execute("VACUUM ANALYZE measurements")
-            puts "Database maintenance completed."
-            last_maintenance_at = total_processed
-          end
+      if total_processed - last_maintenance_at >= maintenance_interval
+        puts "Performing database maintenance (VACUUM ANALYZE measurements)..."
+        ActiveRecord::Base.connection.execute("VACUUM ANALYZE measurements")
+        puts "Database maintenance completed."
+        last_maintenance_at = total_processed
+      end
     end
+
 
     puts "Finished populating time_with_time_zone for measurements."
   end
