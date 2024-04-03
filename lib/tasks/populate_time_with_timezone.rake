@@ -20,9 +20,6 @@ namespace :measurements do
         time_zone_name = session.time_zone
         next if time_zone_name.blank?
 
-        Measurement.where(stream_id: Stream.select(:id).where(session_id: session.id), time_with_time_zone: nil).find_in_batches(batch_size: batch_size) do |batch|
-          measurement_ids = batch.map(&:id)
-
         session.streams.each do |stream|
           sql = <<-SQL
             UPDATE measurements
@@ -45,7 +42,6 @@ namespace :measurements do
             puts "Database maintenance completed."
             last_maintenance_at = total_processed
           end
-      end
     end
 
     puts "Finished populating time_with_time_zone for measurements."
