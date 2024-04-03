@@ -4,12 +4,14 @@ namespace :measurements do
     sleep_time = 0.5
     total_processed = 0
     last_maintenance_at = 0
-    maintenance_interval = 200_000_000
+    maintenance_interval = 50_000_000
 
+    stream_ids_to_update = Measurement.where(time_with_time_zone: nil).select(:stream_id).distinct
+    session_ids_to_update = Stream.where(id: stream_ids_to_update).select(:session_id).distinct.pluck(:session_id)
     total_to_update = Measurement.where(time_with_time_zone: nil).count
     puts "Total measurements to update: #{total_to_update}"
 
-    Session.find_each(batch_size: 100) do |session|
+    Session.where(id: session_ids_to_update).find_each(batch_size: 100) do |session|
       time_zone_name = session.time_zone
       next if time_zone_name.blank?
 
