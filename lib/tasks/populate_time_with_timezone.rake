@@ -1,56 +1,50 @@
 namespace :measurements do
   task populate_time_with_time_zone: :environment do
-    batch_size = 50_000
     sleep_time = 0.5
     total_processed = 0
     last_maintenance_at = 0
     maintenance_interval = 50_000_000
 
-    stream_ids_to_update_sql = <<-SQL
-      SELECT DISTINCT stream_id FROM measurements WHERE time_with_time_zone IS NULL
-    SQL
-    stream_ids_to_update = ActiveRecord::Base.connection.execute(stream_ids_to_update_sql).map { |row| row['stream_id'] }
-
-    session_ids_to_update_sql = <<-SQL
-      SELECT DISTINCT session_id FROM streams WHERE id = ANY(ARRAY#{stream_ids_to_update})
-    SQL
-    session_ids_to_update = ActiveRecord::Base.connection.execute(session_ids_to_update_sql).map { |row| row['session_id'] }
-
     total_to_update_sql = <<-SQL
       SELECT COUNT(*) FROM measurements WHERE time_with_time_zone IS NULL
     SQL
+
     total_to_update = ActiveRecord::Base.connection.execute(total_to_update_sql).first['count'].to_i
     puts "Total measurements to update: #{total_to_update}"
 
-    Session.where(id: session_ids_to_update).find_each(batch_size: 100) do |session|
-      time_zone_name = session.time_zone
-      next if time_zone_name.blank?
+    Session.select('streams.id, sessions.time_zone')
+      .distinct
+      .joins(streams: :measurements)
+      .where(measurements: { time_with_time_zone:  nil }) do |session|
 
-      Measurement.where(stream_id: Stream.select(:id).where(session_id: session.id), time_with_time_zone: nil).find_in_batches(batch_size: batch_size) do |batch|
-        measurement_ids = batch.map(&:id)
+        time_zone_name = session.time_zone
+        next if time_zone_name.blank?
 
-        unless measurement_ids.empty?
+        Measurement.where(stream_id: Stream.select(:id).where(session_id: session.id), time_with_time_zone: nil).find_in_batches(batch_size: batch_size) do |batch|
+          measurement_ids = batch.map(&:id)
+
+        session.streams.each do |stream|
           sql = <<-SQL
             UPDATE measurements
-            SET time_with_time_zone = time at time zone '#{time_zone_name}'
-            WHERE id IN (#{measurement_ids.join(',')})
+            SET time_with_time_zone = time AT TIME ZONE '#{time_zone_name}'
+            WHERE stream_id = '#{stream.id}' AND time_with_time_zone IS NULL
+            RETURNING id
           SQL
 
-          ActiveRecord::Base.connection.execute(sql)
-        end
+          updated_rows = ActiveRecord::Base.connection.execute(sql)
 
-        total_processed += batch.size
-        progress_percentage = (total_processed.to_f / total_to_update * 100).round(2)
-        puts "Processed #{total_processed} measurements so far (#{progress_percentage}% of total to update)."
+          total_processed += updated_rows.to_a.size
+          progress_percentage = (total_processed.to_f / total_to_update * 100).round(2)
+          puts "Processed #{total_processed} measurements so far (#{progress_percentage}% of total to update)."
 
-        sleep(sleep_time)
+          sleep(sleep_time)
 
-        if total_processed - last_maintenance_at >= maintenance_interval
-          puts "Performing database maintenance (VACUUM ANALYZE measurements)..."
-          ActiveRecord::Base.connection.execute("VACUUM ANALYZE measurements")
-          puts "Database maintenance completed."
-          last_maintenance_at = total_processed
-        end
+          if total_processed - last_maintenance_at >= maintenance_interval
+            puts "Performing database maintenance (VACUUM ANALYZE measurements)..."
+            ActiveRecord::Base.connection.execute("VACUUM ANALYZE measurements")
+            puts "Database maintenance completed."
+            last_maintenance_at = total_processed
+          end
       end
     end
 
