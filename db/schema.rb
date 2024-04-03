@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_03_13_144943) do
+ActiveRecord::Schema.define(version: 2024_04_03_095648) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -97,6 +97,11 @@ ActiveRecord::Schema.define(version: 2024_03_13_144943) do
     t.datetime "photo_updated_at"
     t.integer "number"
     t.index ["session_id"], name: "index_notes_on_session_id"
+  end
+
+  create_table "session_timezones", force: :cascade do |t|
+    t.integer "session_id"
+    t.string "timezone_name"
   end
 
   create_table "sessions", id: :serial, force: :cascade do |t|
@@ -189,6 +194,12 @@ ActiveRecord::Schema.define(version: 2024_03_13_144943) do
     t.index ["name"], name: "index_tags_on_name"
   end
 
+  create_table "temp_session_offsets", id: :bigint, default: nil, force: :cascade do |t|
+    t.decimal "latitude"
+    t.decimal "longitude"
+    t.text "timezone"
+  end
+
   create_table "threshold_alerts", force: :cascade do |t|
     t.integer "user_id"
     t.string "session_uuid"
@@ -220,6 +231,8 @@ ActiveRecord::Schema.define(version: 2024_03_13_144943) do
     t.boolean "send_emails"
     t.boolean "admin", default: false
     t.boolean "session_stopped_alert", default: false
+    t.string "deletion_confirm_code"
+    t.datetime "deletion_code_valid_until"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
