@@ -15,12 +15,11 @@ namespace :measurements do
     Session.select('streams.id, sessions.time_zone')
       .distinct
       .joins(streams: :measurements)
-      .where(measurements: { time_with_time_zone:  nil }) do |session|
+      .where(measurements: { time_with_time_zone: nil }).each do |stream|
 
-        time_zone_name = session.time_zone
+        time_zone_name = stream.time_zone
         next if time_zone_name.blank?
 
-        session.streams.each do |stream|
           sql = <<-SQL
             UPDATE measurements
             SET time_with_time_zone = time AT TIME ZONE '#{time_zone_name}'
@@ -42,7 +41,6 @@ namespace :measurements do
             puts "Database maintenance completed."
             last_maintenance_at = total_processed
           end
-        end
     end
 
     puts "Finished populating time_with_time_zone for measurements."
