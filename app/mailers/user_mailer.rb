@@ -19,4 +19,9 @@ class UserMailer < ApplicationMailer
 
     mail(to: user.email, subject: "#{@sensor} Threshold Exceeded")
   end
+
+  def account_delete_email(email, code)
+    @code = code
+    mail(to: email, subject: 'Delete Account Confirmation')
+  end
 end
