@@ -6,9 +6,20 @@ namespace :measurements do
     last_maintenance_at = 0
     maintenance_interval = 50_000_000
 
-    stream_ids_to_update = Measurement.where(time_with_time_zone: nil).select(:stream_id).distinct
-    session_ids_to_update = Stream.where(id: stream_ids_to_update).select(:session_id).distinct.pluck(:session_id)
-    total_to_update = Measurement.where(time_with_time_zone: nil).count
+    stream_ids_to_update_sql = <<-SQL
+      SELECT DISTINCT stream_id FROM measurements WHERE time_with_time_zone IS NULL
+    SQL
+    stream_ids_to_update = ActiveRecord::Base.connection.execute(stream_ids_to_update_sql).map { |row| row['stream_id'] }
+
+    session_ids_to_update_sql = <<-SQL
+      SELECT DISTINCT session_id FROM streams WHERE id = ANY(ARRAY#{stream_ids_to_update})
+    SQL
+    session_ids_to_update = ActiveRecord::Base.connection.execute(session_ids_to_update_sql).map { |row| row['session_id'] }
+
+    total_to_update_sql = <<-SQL
+      SELECT COUNT(*) FROM measurements WHERE time_with_time_zone IS NULL
+    SQL
+    total_to_update = ActiveRecord::Base.connection.execute(total_to_update_sql).first['count'].to_i
     puts "Total measurements to update: #{total_to_update}"
 
     Session.where(id: session_ids_to_update).find_each(batch_size: 100) do |session|
