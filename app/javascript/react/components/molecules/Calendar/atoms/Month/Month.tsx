@@ -1,8 +1,8 @@
 import React from "react";
 
-import { CalendarMonthlyData } from "../../../../types/fixedStream";
-import { Day } from "./Day";
-import { DayNamesHeader } from "./DayNamesHeader";
+import { CalendarMonthlyData } from "../../../../../types/fixedStream";
+import { Day } from "../Day";
+import { DayNamesHeader } from "../DayNamesHeader";
 import * as S from "./Month.style";
 
 const Month = ({ monthName, dayNamesHeader, weeks }: CalendarMonthlyData) => {

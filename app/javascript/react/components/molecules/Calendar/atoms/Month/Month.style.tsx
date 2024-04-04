@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { gray100, gray400 } from "../../../../assets/styles/colors";
+import { gray100, gray400 } from "../../../../../assets/styles/colors";
 
 const DAY_GAP = "6px";
 

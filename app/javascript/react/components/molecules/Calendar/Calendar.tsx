@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 import { selectLatestThreeMonthsDailyAverages } from "../../../store/fixedStreamSelectors";
-import { Month } from "./atoms";
+import { Month } from "./atoms/Month";
 import * as S from "./Calendar.style";
 
 const Calendar = () => {
