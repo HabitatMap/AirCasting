@@ -6,14 +6,9 @@ import * as S from "./Day.style";
 
 interface DayProps extends CalendarCellData {}
 
-const Day = ({ date, value }: DayProps) => (
-  <S.Day
-    key={date}
-    $hasBackground={true}
-    $color={yellow}
-    $isCurrentMonth={true}
-  >
-    <S.DayNumber $isVisible={true}>{date}</S.DayNumber>
+const Day = ({ dayNumber, value }: DayProps) => (
+  <S.Day $hasBackground={true} $color={yellow} $isCurrentMonth={true}>
+    <S.DayNumber $isVisible={true}>{dayNumber}</S.DayNumber>
     <S.Value $isVisible={true}>{value}</S.Value>
   </S.Day>
 );

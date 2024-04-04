@@ -39,7 +39,8 @@ const prepareCalendarDataCell = (
   value: number | null
 ): CalendarCellData => {
   return {
-    date: date.format("D"),
+    date: date.format("YYYY-MM-DD"),
+    dayNumber: date.format("D"),
     value,
   };
 };
@@ -61,7 +62,7 @@ const getLatestDataPointDate = (
   return latestDataPointDate;
 };
 
-const getMonthWeeksOfDailyAveragesForMonth = (
+const getMonthWeeksOfDailyAveragesFor = (
   month: Moment,
   streamDailyAverages: StreamDailyAverage[]
 ): CalendarMonthlyData => {
@@ -93,6 +94,7 @@ const getMonthWeeksOfDailyAveragesForMonth = (
   const dayNamesHeader = weeks[0].map((day) =>
     moment(day.date).format("dddd").substring(0, 3)
   );
+
   const monthName = month.format("MMMM");
 
   return { monthName, dayNamesHeader, weeks };
@@ -101,19 +103,19 @@ const getMonthWeeksOfDailyAveragesForMonth = (
 const getFullWeeksOfThreeLatestMonths = (
   streamDailyAverages: StreamDailyAverage[]
 ): CalendarMonthlyData[] => {
-  const latestMonthWithData = moment(
-    getLatestDataPointDate(streamDailyAverages)
-  );
-  const secondLatestMonth = latestMonthWithData.clone().subtract(1, "months");
-  const thirdLatestMonth = latestMonthWithData.clone().subtract(2, "month");
+  const latestDateWithData = getLatestDataPointDate(streamDailyAverages);
+  const latestMomentWithData = moment(latestDateWithData);
+
+  const secondLatestMonth = latestMomentWithData.clone().subtract(1, "months");
+  const thirdLatestMonth = latestMomentWithData.clone().subtract(2, "month");
   const threeMonths = [
     thirdLatestMonth,
     secondLatestMonth,
-    latestMonthWithData,
+    latestMomentWithData,
   ];
 
   const threeMonthsData = threeMonths.map((month) => {
-    return getMonthWeeksOfDailyAveragesForMonth(month, streamDailyAverages);
+    return getMonthWeeksOfDailyAveragesFor(month, streamDailyAverages);
   });
 
   return threeMonthsData;

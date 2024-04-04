@@ -36,6 +36,7 @@ interface FixedStreamShortInfo extends FixedStreamStationInfo {
 
 interface CalendarCellData {
   date: string;
+  dayNumber: string;
   value: number | null;
 }
 
