@@ -34,4 +34,5 @@ const CalendarPage = () => {
     </S.CalendarPageLayout>
   );
 };
+
 export { CalendarPage };

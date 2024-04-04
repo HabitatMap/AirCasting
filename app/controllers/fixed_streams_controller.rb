@@ -1,9 +1,9 @@
-class CalendarsController < ApplicationController
+class FixedStreamsController < ApplicationController
   include ApplicationHelper
 
-  def index
+  def show
     if Flipper.enabled?(:calendar)
-      render layout: 'calendar'
+      render layout: 'fixed_stream'
     else
       render_not_found
     end

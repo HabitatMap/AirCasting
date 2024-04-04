@@ -20,7 +20,7 @@ Rails.application.routes.draw do
   get 'map', to: redirect('mobile_map', status: 302)
   get 'mobile_map' => 'maps#index'
   get 'fixed_map' => 'maps#index'
-  get 'calendar' => 'calendars#index'
+  get 'fixed_stream' => 'fixed_streams#show'
 
   get 's/:url_token' => 'measurement_sessions#show',
       :constraints => {
