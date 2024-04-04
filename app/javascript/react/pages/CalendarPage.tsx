@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { selectThreshold } from "../store/thresholdSlice";
@@ -9,15 +10,18 @@ import { useAppDispatch } from "../store/hooks";
 import { fetchFixedStreamById } from "../store/fixedStreamSlice";
 import * as S from "./CalendarPage.style";
 
-// TODO read it from params
-const STREAM_ID = 6018;
+const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
 const CalendarPage = () => {
+  const [searchParams] = useSearchParams();
+  const streamIdQuery = searchParams.get(STREAM_ID_QUERY_PARAMETER_NAME);
+  const streamId = streamIdQuery && Number(streamIdQuery);
+
   const initialThresholds = useSelector(selectThreshold);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(fetchFixedStreamById(STREAM_ID));
+    streamId && dispatch(fetchFixedStreamById(streamId));
   }, []);
 
   return (
