@@ -24,7 +24,7 @@ namespace :measurements do
         break
       end
 
-      Streams.where(id: stream_ids_to_update).find_each(batch_size: 100) do |stream|
+      Stream.where(id: stream_ids_to_update).find_each(batch_size: 100) do |stream|
         time_zone_name = Session.find(stream.session_id).time_zone
 
         Measurement.where(stream_id: stream.id, time_with_time_zone: nil).find_in_batches(batch_size: batch_size) do |batch|
