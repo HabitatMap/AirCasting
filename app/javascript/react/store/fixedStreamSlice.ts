@@ -1,17 +1,11 @@
 import { AxiosResponse } from "axios";
-import {
-  createAsyncThunk,
-  createSelector,
-  createSlice,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
-import { FixedStream, FixedStreamShortInfo } from "../types/fixedStream";
-import { RootState } from ".";
-import moment from "moment";
+import { FixedStream } from "../types/fixedStream";
 
 interface FixedStreamState {
   data: FixedStream;
@@ -77,25 +71,4 @@ export const fixedStreamSlice = createSlice({
   },
 });
 
-const selectFixedStreamData = (state: RootState): FixedStream =>
-  state.fixedStream.data;
-
-const selectFixedStreamShortInfo = createSelector(
-  [selectFixedStreamData],
-  (fixedStreamData) => {
-    const { streamDailyAverages } = fixedStreamData;
-    const lastMeasurementIndex = streamDailyAverages.length - 1;
-    const { value: lastMeasurementValue, date } =
-      streamDailyAverages[lastMeasurementIndex] || {};
-    const lastMeasurementDateLabel = moment(date).format("MMM D");
-
-    return {
-      ...fixedStreamData.stream,
-      lastMeasurementValue,
-      lastMeasurementDateLabel,
-    };
-  }
-);
-
-export { selectFixedStreamData, selectFixedStreamShortInfo };
 export default fixedStreamSlice.reducer;

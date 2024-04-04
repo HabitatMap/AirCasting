@@ -30,14 +30,27 @@ interface FixedStream {
 }
 
 interface FixedStreamShortInfo extends FixedStreamStationInfo {
-  lastMeasurementValue: Measurement["value"];
-  lastMeasurementDateLabel: string;
+  lastMeasurementValue: number | undefined;
+  lastMeasurementDateLabel: string | undefined;
+}
+
+interface CalendarCellData {
+  date: string;
+  value: number | null;
+}
+
+interface CalendarMonthlyData {
+  monthName: string;
+  weeks: CalendarCellData[][];
 }
 
 export type {
   StreamUpdate,
   DataSource,
   FixedStreamStationInfo,
+  StreamDailyAverage,
   FixedStream,
   FixedStreamShortInfo,
+  CalendarCellData,
+  CalendarMonthlyData,
 };

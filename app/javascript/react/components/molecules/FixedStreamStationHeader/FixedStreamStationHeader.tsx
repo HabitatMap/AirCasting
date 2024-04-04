@@ -6,7 +6,7 @@ import { StationName } from "./atoms/StationName";
 import { DataSource } from "./atoms/DataSource";
 import { StreamUpdate } from "./atoms/StreamUpdate";
 import { StationActionButtons } from "./atoms/StationActionButtons";
-import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSlice";
+import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
 import * as S from "./FixedStreamStationHeader.style";
 
 const FixedStreamStationHeader = () => {
