@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { gray100, gray400 } from "../../assets/styles/colors";
+import { gray100, gray400 } from "../../../../../assets/styles/colors";
 
 interface dayProps {
   $color?: string;
@@ -13,15 +13,16 @@ interface labelProps {
   $isGrayedOut?: boolean;
 }
 
-const DAY_GAP = "6px";
-
-const Day = styled.div<dayProps>`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+const CalendarCell = styled.div`
   width: 50px;
   height: 50px;
   padding: 4px;
+`;
+
+const Day = styled(CalendarCell)<dayProps>`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   //TODO: Ask Iwona about the opacity
   background-color: ${(props) =>
     props.$hasBackground ? props.color : "transparent"};
@@ -29,47 +30,19 @@ const Day = styled.div<dayProps>`
 `;
 
 const DayNumber = styled.span<labelProps>`
-  font-size: 10px;
+  font-size: 12px;
   text-align: end;
   display: ${(props) => (props.$isVisible ? "block" : "none")};
   color: ${(props) => (props.$isGrayedOut ? gray100 : gray400)};
+  opacity: 50%;
 `;
 
 const Value = styled.div<labelProps>`
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   text-align: start;
   display: ${(props) => (props.$isVisible ? "block" : "none")};
-`;
-
-const Week = styled.div`
-  display: flex;
-  gap: ${DAY_GAP};
-  width: 100%;
-  height: 100%;
-`;
-
-const Month = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${DAY_GAP};
-`;
-
-const MonthName = styled.span`
-  font-size: 24px;
-  font-weight: 600;
   color: ${gray400};
-  padding: 8px;
-  line-height: 120%;
-  text-align: center;
-  background-color: ${gray100};
-  border-radius: 10px;
 `;
 
-const ThreeMonths = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-`;
-
-export { Day, DayNumber, Week, Value, Month, MonthName, ThreeMonths };
+export { Day, DayNumber, Value, CalendarCell };

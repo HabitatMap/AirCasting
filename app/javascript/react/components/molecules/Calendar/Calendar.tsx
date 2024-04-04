@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import { selectLatestThreeMonthsDailyAverages } from "../../store/fixedStreamSelectors";
-import MonthView from "./Month";
+import { selectLatestThreeMonthsDailyAverages } from "../../../store/fixedStreamSelectors";
+import { Month } from "./atoms";
 import * as S from "./Calendar.style";
 
 const Calendar = () => {
@@ -13,7 +13,7 @@ const Calendar = () => {
       <>
         <S.ThreeMonths>
           {threeMonthsData.map((month) => (
-            <MonthView key={month.monthName} {...month} />
+            <Month key={month.monthName} {...month} />
           ))}
         </S.ThreeMonths>
       </>
@@ -21,4 +21,4 @@ const Calendar = () => {
   );
 };
 
-export default Calendar;
+export { Calendar };

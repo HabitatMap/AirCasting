@@ -41,6 +41,7 @@ interface CalendarCellData {
 
 interface CalendarMonthlyData {
   monthName: string;
+  dayNamesHeader: string[];
   weeks: CalendarCellData[][];
 }
 

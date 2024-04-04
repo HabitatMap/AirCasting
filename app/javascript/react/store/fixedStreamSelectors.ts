@@ -72,6 +72,7 @@ const getMonthWeeksOfDailyAveragesForMonth = (
   const { firstDayOfMonthWeek, lastDayOfMonthWeek } =
     getMonthWeekBoundariesForDate(month);
   let currentDate = firstDayOfMonthWeek.clone();
+
   let weeks = [];
 
   while (currentDate <= lastDayOfMonthWeek) {
@@ -89,10 +90,12 @@ const getMonthWeeksOfDailyAveragesForMonth = (
     }
     weeks.push(week);
   }
-
+  const dayNamesHeader = weeks[0].map((day) =>
+    moment(day.date).format("dddd").substring(0, 3)
+  );
   const monthName = month.format("MMMM");
 
-  return { monthName, weeks };
+  return { monthName, dayNamesHeader, weeks };
 };
 
 const getFullWeeksOfThreeLatestMonths = (
