@@ -36,11 +36,13 @@ interface FixedStreamShortInfo extends FixedStreamStationInfo {
 
 interface CalendarCellData {
   date: string;
+  dayNumber: string;
   value: number | null;
 }
 
 interface CalendarMonthlyData {
   monthName: string;
+  dayNamesHeader: string[];
   weeks: CalendarCellData[][];
 }
 
