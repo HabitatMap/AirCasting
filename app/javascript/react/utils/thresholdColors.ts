@@ -8,13 +8,19 @@ const COLORS_FOR_RANGES = (thresholdValues: Thresholds) => [
   { max: thresholdValues.max, color: colors.red },
 ];
 
-const getColorForValue = (value: number, thresholdValues: Thresholds) => {
+const getColorForValue = (
+  thresholdValues: Thresholds,
+  value: number | null
+) => {
+  const defaultColor = "transparent";
+  if (!value) return defaultColor;
+
   for (let range of COLORS_FOR_RANGES(thresholdValues)) {
     if (value <= range.max) {
       return range.color;
     }
   }
-  return colors.gray200;
+  return defaultColor;
 };
 
 export { getColorForValue };

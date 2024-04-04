@@ -11,10 +11,7 @@ interface ValueBarProps {
   $thresholdsValues: Thresholds;
 }
 
-const calculateBarHeight = (
-  value: number,
-  { max }: Thresholds
-): number => {
+const calculateBarHeight = (value: number, { max }: Thresholds): number => {
   const definedPercentage = (value / max) * 100;
   if (definedPercentage > 100) return 100;
   return definedPercentage;
@@ -32,16 +29,21 @@ const Container = styled.div`
 `;
 
 const BackgroundBarContainer = styled.div<ValueBarProps>`
-${(props) => getColorForValue(props.$value, props.$thresholdsValues) };
-  background-color: ${(props) => getColorForValue(props.$value, props.$thresholdsValues) };
+  ${(props) => getColorForValue(props.$thresholdsValues, props.$value)};
+  background-color: ${(props) =>
+    getColorForValue(props.$thresholdsValues, props.$value)};
   width: 100%;
-  height: ${(props) => `${calculateBarHeight(props.$value, props.$thresholdsValues)}%`};
+  height: ${(props) =>
+    `${calculateBarHeight(props.$value, props.$thresholdsValues)}%`};
   position: absolute;
   bottom: 0;
   z-index: 2;
 
   @media ${media.desktop} {
-    ${(props) => props.$value < props.$thresholdsValues.max ? "border-radius: 16px 16px 0 0;" : ""};
+    ${(props) =>
+      props.$value < props.$thresholdsValues.max
+        ? "border-radius: 16px 16px 0 0;"
+        : ""};
   }
 `;
 
