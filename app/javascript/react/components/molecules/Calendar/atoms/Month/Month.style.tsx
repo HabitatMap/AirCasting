@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 import { gray100, gray400 } from "../../../../../assets/styles/colors";
 
-const DAY_GAP = "6px";
+const DAY_GAP = "10px";
 
 const Week = styled.div`
   display: flex;

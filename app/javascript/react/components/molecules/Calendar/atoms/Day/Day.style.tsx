@@ -4,8 +4,6 @@ import { gray100, gray400 } from "../../../../../assets/styles/colors";
 
 interface DayProps {
   $color?: string;
-  $hasBackground: boolean;
-  $isCurrentMonth: boolean;
 }
 
 interface LabelProps {
@@ -24,8 +22,7 @@ const Day = styled(CalendarCell)<DayProps>`
   flex-direction: column;
   justify-content: space-between;
   //TODO: Ask Iwona about the opacity
-  background-color: ${(props) =>
-    props.$hasBackground ? props.color : "transparent"};
+  background-color: ${(props) => props.$color};
   border-radius: 5px;
 `;
 
