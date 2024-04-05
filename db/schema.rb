@@ -231,7 +231,7 @@ ActiveRecord::Schema.define(version: 2024_04_03_095648) do
     t.boolean "send_emails"
     t.boolean "admin", default: false
     t.boolean "session_stopped_alert", default: false
-    t.string "deletion_confirm_code"
+    t.string "deletion_confirmation_code"
     t.datetime "deletion_code_valid_until"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true

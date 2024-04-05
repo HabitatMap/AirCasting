@@ -62,8 +62,8 @@ Rails.application.routes.draw do
       end
       get 'sessions/:uuid' => 'user_sessions#show'
       post 'settings', to: 'users#settings'
-      post 'send_acc_delete_email', to: 'users#send_account_delete_email'
-      post 'delete_acc_with_confirmation', to: 'users#delete_account_with_confirmation_code'
+      post 'delete_account_send_code', to: 'delete_account#request_account_deletion'
+      post 'delete_account_confirm', to: 'delete_account#delete_account_with_confirmation_code'
     end
     resources :sensors, only: %i[index]
 

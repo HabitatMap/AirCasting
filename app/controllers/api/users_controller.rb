@@ -29,31 +29,6 @@ module Api
       head :no_content
     end
 
-    # todo:
-    # discuss endpoint names, expiration time, code length, email template content
-    # refactor
-    # create tests & anticipate edge cases
-
-    def send_account_delete_email
-      code = SecureRandom.hex(3)
-      expiration_time = 30.minutes.from_now
-      current_user.update(deletion_confirm_code: code, deletion_code_valid_until: expiration_time)
-
-      UserMailer.account_delete_email(current_user.email, code).deliver_now
-      head :ok
-    end
-
-    def delete_account_with_confirmation_code
-      user = User.find_by(deletion_confirm_code: params[:code])
-
-      if user && user.id == current_user.id && user.deletion_code_valid_until > Time.current
-        user.destroy
-        render json: { message: 'Account successfully deleted.' }, status: :ok
-      else
-        render json: { error: 'Invalid or expired confirmation code.' }, status: :unauthorized
-      end
-    end
-
     def settings
       GoogleAnalyticsWorker::RegisterEvent.async_call('User#settings')
       data = params.to_unsafe_hash[:data].deep_symbolize_keys
