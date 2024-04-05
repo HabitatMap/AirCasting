@@ -22,6 +22,6 @@ class UserMailer < ApplicationMailer
 
   def account_delete_email(email, code)
     @code = code
-    mail(to: email, subject: 'Delete Account Confirmation')
+    mail(to: email, subject: 'AirCasting Account Deletion Verification Code')
   end
 end
