@@ -57,6 +57,7 @@ mainSensors page =
                   , [ "AirBeam-PM10 (µg/m³)"
                     , "AirBeam-PM2.5 (µg/m³)"
                     , "AirBeam-PM1 (µg/m³)"
+                    , "Government-PM2.5"
                     ]
                   )
                 , ( "Humidity"
