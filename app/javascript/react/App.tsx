@@ -16,7 +16,7 @@ import { Navbar } from "./components/Navbar";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/calendar" element={<CalendarPage />} />
+      <Route path="/fixed_stream" element={<CalendarPage />} />
     </>
   )
 );
