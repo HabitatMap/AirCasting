@@ -21,6 +21,8 @@ const FixedStreamStationHeader = () => {
     lastMeasurementDateLabel,
   } = useSelector(selectFixedStreamShortInfo);
 
+  console.log(lastUpdate, "lastUpdate");
+
   return (
     <S.GridContainer>
       <ValueLabel
