@@ -37,7 +37,7 @@ defaultSensorIdByParameter page =
                 , ( "Sound Level", "Sound Level-phone microphone (dB)" )
                 , ( "Temperature", "Temperature-airbeam-f (F)" )
                 , ( "Ozone", "Ozone-government-ozone (ppb)" )
-                , ( "Nitrogen Dioxide", "Nitrogen Dioxide-government-no₂ (ppb)" )
+                , ( "Nitrogen Dioxide", "Nitrogen Dioxide-government-no2 (ppb)" )
                 ]
     in
     case page of
