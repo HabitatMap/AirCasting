@@ -57,7 +57,7 @@ mainSensors page =
                   , [ "AirBeam-PM10 (µg/m³)"
                     , "AirBeam-PM2.5 (µg/m³)"
                     , "AirBeam-PM1 (µg/m³)"
-                    , "Government-PM2.5"
+                    , "Government-PM2.5 (µg/m³)"
                     ]
                   )
                 , ( "Humidity"
@@ -66,6 +66,14 @@ mainSensors page =
                   )
                 , ( "Temperature"
                   , [ "AirBeam-F (F)"
+                    ]
+                  )
+                , ( "Ozone"
+                  , [ "Government-Ozone (ppb)"
+                    ]
+                  )
+                , ( "Nitrogen Dioxide"
+                  , [ "Government-NO₂ (ppb)"
                     ]
                   )
                 ]

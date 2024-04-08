@@ -16,7 +16,6 @@ class AirNow::ImportMeasurements
   end
 
   def hourly_data_endpoint
-    # change the substracted hours after testing to a correct value depending on when it will be fired
     current_utc = DateTime.now.new_offset(0) - 1.hour
     formatted_date = current_utc.strftime('%Y%m%d')
     formatted_hour = current_utc.strftime('%H')
