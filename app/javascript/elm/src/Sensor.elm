@@ -75,7 +75,7 @@ mainSensors page =
                     ]
                   )
                 , ( "Nitrogen Dioxide"
-                  , [ "Government-NO₂ (ppb)"
+                  , [ "Government-NO2 (ppb)"
                     ]
                   )
                 ]
