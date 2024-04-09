@@ -17,12 +17,6 @@ const StationActionButtons = () => {
       <S.MobileButtons>
         <ActionButton
           onClick={() => {}}
-          aria-labelledby={t("calendarHeader.altAlert")}
-        >
-          <img src={bellAlert} />
-        </ActionButton>
-        <ActionButton
-          onClick={() => {}}
           aria-labelledby={t("calendarHeader.altShareLink")}
         >
           <img src={shareLink} />
@@ -35,12 +29,15 @@ const StationActionButtons = () => {
         >
           {t("calendarHeader.copyLink")} <img src={copyLink} />
         </Button>
-        <Button
+        {
+          // In MVP we don't have this feature
+          /* <Button
           onClick={() => {}}
           aria-labelledby={t("calendarHeader.altExportSession")}
         >
           {t("calendarHeader.exportSession")} <img src={downloadImage} />
-        </Button>
+        </Button> */
+        }
       </S.DesktopButtons>
     </>
   );

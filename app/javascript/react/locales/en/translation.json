@@ -36,7 +36,7 @@
     }
   },
   "calendarHeader": {
-    "stationLabel": "Air Quality for Station",
+    "stationLabel": "Air Quality for Station:",
     "profile": "Profile:",
     "sensor": "Sensor:",
     "lastUpdate": "Last update:",
