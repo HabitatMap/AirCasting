@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { blue, green, mint } from "../../../../../assets/styles/colors";
+import { blue, green } from "../../../../../assets/styles/colors";
 import hexToRGBA from "../../../../../utils/hexToRGB";
 import media from "../../../../../utils/media";
 

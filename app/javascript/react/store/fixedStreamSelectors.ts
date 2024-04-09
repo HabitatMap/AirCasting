@@ -137,8 +137,7 @@ const selectFixedStreamShortInfo = createSelector(
   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
     const lastMeasurementDateLabel = moment(date).format("MMM D");
-    const formattedDate = moment(fixedStreamData.stream.lastUpdate).local().format("HH:mm, MMM D YYYY");
-    const lastUpdate = formattedDate + " (local time)";
+    const lastUpdate = moment(fixedStreamData.stream.lastUpdate).local().format("HH:mm, MMM D YYYY");
 
     return {
       ...fixedStreamData.stream,
