@@ -46,6 +46,8 @@
     "altAlert": "Be notified about new measurements",
     "altShareLink": "Get link to the session you are viewing",
     "altExportSession": "Export the session you are exploring",
-    "localTime": "{{lastUpdate}} (local time)"
+    "localTime": "{{lastUpdate}} (local time)",
+    "legend": "Measurements legend",
+    "calendar": "Measurements calendar"
   }
 }

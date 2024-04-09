@@ -1,6 +1,8 @@
 import styled from "styled-components";
 
 import { gray100, white } from "../../assets/styles/colors";
+import { H3 } from "../../components/Typography";
+import media from "../../utils/media";
 
 const CalendarPageLayout = styled.div`
   display: flex;
@@ -18,4 +20,14 @@ const StationDataContainer = styled.div`
   margin: 20px 10vw;
 `;
 
-export { StationDataContainer, CalendarPageLayout };
+const Heading = styled(H3)`
+  padding-bottom: 30px;
+  font-weight: 700;
+
+  @media ${media.desktop} {
+    font-size: 28px;
+    font-weight: 500;
+  }
+`;
+
+export { StationDataContainer, CalendarPageLayout, Heading };
