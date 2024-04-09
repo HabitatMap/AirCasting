@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
-import { H4, H5 } from "../../../../Typography";
+import { H5 } from "../../../../Typography";
 import media from "../../../../../utils/media";
 
-const DateLabel = styled(H4)`
+const DateLabel = styled(H5)`
   display: inline;
   font-weight: 600;
   text-transform: uppercase;
@@ -12,6 +12,7 @@ const DateLabel = styled(H4)`
     display: block;
     text-transform: none;
     font-weight: 400;
+    font-size: 14px;
   }
 `;
 

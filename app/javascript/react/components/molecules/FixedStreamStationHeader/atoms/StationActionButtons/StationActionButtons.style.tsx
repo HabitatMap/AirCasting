@@ -16,6 +16,7 @@ const DesktopButtons = styled.div`
 
   @media ${media.desktop} {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
   }
 `;

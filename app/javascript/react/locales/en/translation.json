@@ -37,9 +37,9 @@
   },
   "calendarHeader": {
     "stationLabel": "Air Quality for Station",
-    "profile": "Profile",
-    "sensor": "Sensor",
-    "lastUpdate": "Last update",
+    "profile": "Profile:",
+    "sensor": "Sensor:",
+    "lastUpdate": "Last update:",
     "updateFrequencyTitle": "Updates every",
     "copyLink": "COPY LINK",
     "exportSession": "EXPORT SESSION",
