@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { H4 } from "../../Typography";
+import { H5 } from "../../Typography";
 import media from "../../../utils/media";
 import { gray100, gray300 } from "../../../assets/styles/colors";
 
@@ -21,7 +21,7 @@ const RowContainer = styled.div`
   }
 `;
 
-const Subtitle = styled(H4)`
+const Subtitle = styled(H5)`
   display: inline;
   padding-right: 5px;
 
@@ -30,6 +30,7 @@ const Subtitle = styled(H4)`
     color: ${gray300};
     text-transform: uppercase;
     width: 120px;
+    font-size: 14px;
   }
 `;
 

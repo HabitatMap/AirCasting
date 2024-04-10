@@ -17,13 +17,7 @@ const StationActionButtons = () => {
       <S.MobileButtons>
         <ActionButton
           onClick={() => {}}
-          aria-labelledby={t("calendarHeader.altAlert")}
-        >
-          <img src={bellAlert} />
-        </ActionButton>
-        <ActionButton
-          onClick={() => {}}
-          aria-labelledby={t("calendarHeader.altShareLink")}
+          aria-label={t("calendarHeader.altShareLink")}
         >
           <img src={shareLink} />
         </ActionButton>
@@ -31,15 +25,9 @@ const StationActionButtons = () => {
       <S.DesktopButtons>
         <Button
           onClick={() => {}}
-          aria-labelledby={t("calendarHeader.altShareLink")}
+          aria-label={t("calendarHeader.altShareLink")}
         >
           {t("calendarHeader.copyLink")} <img src={copyLink} />
-        </Button>
-        <Button
-          onClick={() => {}}
-          aria-labelledby={t("calendarHeader.altExportSession")}
-        >
-          {t("calendarHeader.exportSession")} <img src={downloadImage} />
         </Button>
       </S.DesktopButtons>
     </>

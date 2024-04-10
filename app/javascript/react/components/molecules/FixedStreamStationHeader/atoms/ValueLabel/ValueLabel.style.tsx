@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { blue, mint } from "../../../../../assets/styles/colors";
+import { blue, green } from "../../../../../assets/styles/colors";
 import hexToRGBA from "../../../../../utils/hexToRGB";
 import media from "../../../../../utils/media";
 
@@ -9,7 +9,7 @@ const Container = styled.div`
       ${hexToRGBA(blue, 0.4)} -2.4%,
       ${hexToRGBA(blue, 0.0)} 94.94%
     ),
-    ${mint};
+    ${green};
   display: flex;
   flex-direction: column;
   align-self: stretch;

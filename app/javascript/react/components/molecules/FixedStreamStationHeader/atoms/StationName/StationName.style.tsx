@@ -7,10 +7,10 @@ import { gray300 } from "../../../../../assets/styles/colors";
 const Label = styled(H5)`
   padding-bottom: 10px;
   font-weight: 500;
+  text-transform: uppercase;
 
   @media ${media.desktop} {
     color: ${gray300};
-    text-transform: uppercase;
     font-size: 14px;
     font-weight: 400;
   }

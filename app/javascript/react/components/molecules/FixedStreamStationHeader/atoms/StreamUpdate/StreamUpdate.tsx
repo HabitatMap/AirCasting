@@ -23,7 +23,9 @@ const StreamUpdate: React.FC<StreamUpdate> = ({
       </RowContainer>
       <RowContainer>
         <Subtitle>{t("calendarHeader.lastUpdate")}</Subtitle>
-        <S.DateLabel>{lastUpdate}</S.DateLabel>
+        <S.DateLabel>
+          {t("calendarHeader.localTime", { lastUpdate: lastUpdate })}
+        </S.DateLabel>
       </RowContainer>
     </HorizontalContainer>
   );

@@ -36,15 +36,16 @@
     }
   },
   "calendarHeader": {
-    "stationLabel": "Air Quality for Station",
-    "profile": "Profile",
-    "sensor": "Sensor",
-    "lastUpdate": "Last update",
+    "stationLabel": "Air Quality for Station:",
+    "profile": "Profile:",
+    "sensor": "Sensor:",
+    "lastUpdate": "Last update:",
     "updateFrequencyTitle": "Updates every",
     "copyLink": "COPY LINK",
     "exportSession": "EXPORT SESSION",
     "altAlert": "Be notified about new measurements",
     "altShareLink": "Get link to the session you are viewing",
-    "altExportSession": "Export the session you are exploring"
+    "altExportSession": "Export the session you are exploring",
+    "localTime": "{{lastUpdate}} (local time)"
   }
 }
