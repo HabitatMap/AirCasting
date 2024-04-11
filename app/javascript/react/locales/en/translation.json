@@ -47,7 +47,7 @@
     "altShareLink": "Get link to the session you are viewing",
     "altExportSession": "Export the session you are exploring",
     "localTime": "{{lastUpdate}} (local time)",
-    "legend": "Measurements legend",
-    "calendar": "Measurements calendar"
+    "legendTitle": "Measurements legend",
+    "calendarTitle": "Measurements calendar"
   }
 }

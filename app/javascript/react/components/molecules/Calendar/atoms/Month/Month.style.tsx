@@ -14,24 +14,25 @@ const Week = styled.div`
 const Month = styled.div`
   display: flex;
   flex-direction: column;
+  width: 100%;
 `;
 
 const MonthName = styled.span`
   font-size: 24px;
   font-weight: 600;
   color: ${gray400};
-  padding: 8px;
+  padding: 0.5rem;
   line-height: 120%;
   text-align: center;
   background-color: ${gray100};
   border-radius: 10px;
+  margin-bottom: 2.5rem;
 `;
 
 const MonthContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${DAY_GAP};
-  padding: 24px 18px;
 `;
 
 export { Week, Month, MonthName, MonthContent };

@@ -12,8 +12,7 @@ interface LabelProps {
 }
 
 const CalendarCell = styled.div`
-  width: 50px;
-  height: 50px;
+  width: calc(100% / 7);
   padding: 4px;
 `;
 
@@ -35,11 +34,12 @@ const DayNumber = styled.span<LabelProps>`
 `;
 
 const Value = styled.div<LabelProps>`
-  font-size: 18px;
+  font-size: 0.8vw;
   font-weight: 600;
   text-align: start;
   display: ${(props) => (props.$isVisible ? "block" : "none")};
   color: ${gray400};
+  padding-top: 0.45rem;
 `;
 
 export { Day, DayNumber, Value, CalendarCell };
