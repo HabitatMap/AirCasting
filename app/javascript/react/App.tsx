@@ -7,15 +7,17 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import { CalendarPage } from "./pages/CalendarPage";
+import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { Navbar } from "./components/Navbar";
+import store from "./store/index";
 import GlobalStyles from "./assets/styles/global-styles";
 import "./locales/i18n";
-import store from "./store/index";
-import { Navbar } from "./components/Navbar";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
+      <Route path="*" element={<NotFoundPage />} />
       <Route path="/fixed_stream" element={<CalendarPage />} />
     </>
   )

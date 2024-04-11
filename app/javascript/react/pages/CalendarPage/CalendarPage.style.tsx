@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { gray100, white } from "../assets/styles/colors";
+import { gray100, white } from "../../assets/styles/colors";
 
 const CalendarPageLayout = styled.div`
   display: flex;

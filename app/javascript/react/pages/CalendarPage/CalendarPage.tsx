@@ -2,12 +2,12 @@ import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import { selectThreshold } from "../store/thresholdSlice";
-import { ThresholdsConfigurator } from "../components/ThresholdConfigurator";
-import { FixedStreamStationHeader } from "../components/molecules/FixedStreamStationHeader";
-import { Calendar } from "../components/molecules/Calendar";
-import { useAppDispatch } from "../store/hooks";
-import { fetchFixedStreamById } from "../store/fixedStreamSlice";
+import { selectThreshold } from "../../store/thresholdSlice";
+import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
+import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
+import { Calendar } from "../../components/molecules/Calendar";
+import { useAppDispatch } from "../../store/hooks";
+import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import * as S from "./CalendarPage.style";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
