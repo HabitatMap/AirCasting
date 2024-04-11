@@ -61,11 +61,11 @@ See [parameters description](#parameters-description)
 
 - request
   ```json
-  http://aircasting.habitatmap.org/api/mobile/sessions.json?q={"time_from":1533081600,"time_to":1535759940,"tags":"","usernames":"HabitatMap","west":-73.96594349649638,"east":-73.9480263402769,"south":40.70849431072799,"north":40.713585287529995,"limit":1,"offset":0,"sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
+  http://aircasting.habitatmap.org/api/mobile/sessions.json?q={"time_from":1533081600,"time_to":1535759940,"tags":"","usernames":"HabitatMap","west":-74.00000000,"east":-73.00000000,"south":40.00000000,"north":41.00000000,"limit":1,"offset":0,"sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
   ```
 - encoded request
   ```
-  curl http://aircasting.habitatmap.org/api/mobile/sessions.json?q=%7B%22time_from%22%3A1533081600%2C%22time_to%22%3A1535759940%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22west%22%3A-73.96594349649638%2C%22east%22%3A-73.9480263402769%2C%22south%22%3A40.70849431072799%2C%22north%22%3A40.713585287529995%2C%22limit%22%3A1%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D
+  curl http://aircasting.habitatmap.org/api/mobile/sessions.json?q=%7B%22time_from%22%3A1533081600%2C%22time_to%22%3A1535759940%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22west%22%3A-74.00000000%2C%22east%22%3A-73.00000000%2C%22south%22%3A40.00000000%2C%22north%22%3A41.00000000%2C%22limit%22%3A1%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D
   ```
   See [how to encode URLs](#how-to-encode-urls)
 - response
@@ -74,29 +74,29 @@ See [parameters description](#parameters-description)
   {
     "sessions": [
       {
-        "id": 64031,
-        "title": "Park slope to mid Town",
-        "start_time_local": "2018-08-28T10:49:12.000Z",
-        "end_time_local": "2018-08-28T11:27:12.000Z",
+        "id": 64047,
+        "title": "soho to Park slope",
+        "start_time_local": "2018-08-28T14:08:47.000Z",
+        "end_time_local": "2018-08-28T14:34:06.000Z",
         "type": "MobileSession",
         "username": "HabitatMap",
         "streams": {
           "AirBeam2-PM2.5": {
-            "average_value": 29.1188,
-            "id": 219554,
-            "max_latitude": 40.7643417,
-            "max_longitude": -73.9641916,
+            "average_value": 21.2783,
+            "id": 219614,
+            "max_latitude": 40.72111137,
+            "max_longitude": -73.97625898,
             "measurement_short_type": "PM",
             "measurement_type": "Particulate Matter",
-            "measurements_count": 2281,
-            "min_latitude": 40.67987167,
-            "min_longitude": -73.99464265,
+            "measurements_count": 1520,
+            "min_latitude": 40.68043272,
+            "min_longitude": -73.99912318,
             "sensor_name": "AirBeam2-PM2.5",
             "sensor_package_name": "AirBeam2:00189610719F",
-            "session_id": 64031,
-            "size": 2281,
-            "start_latitude": 40.68018754,
-            "start_longitude": -73.97637461,
+            "session_id": 64047,
+            "size": 1520,
+            "start_latitude": 40.72107652,
+            "start_longitude": -73.99801224,
             "threshold_high": 55,
             "threshold_low": 12,
             "threshold_medium": 35,
@@ -108,11 +108,13 @@ See [parameters description](#parameters-description)
         }
       }
     ],
-    "fetchableSessionsCount": 1
+    "fetchableSessionsCount": 2
   }
   ```
 
 ## Fixed Active
+
+Active sessions recorded data in the last 24h.
 
 **Endpoint**
 
@@ -128,6 +130,7 @@ GET `/api/fixed/active/sessions.json`
 | q[unit_symbol]      | text              | yes      | N/A                                                                      |
 | q[tags]             | text              | yes      | N/A                                                                      |
 | q[usernames]        | text              | yes      | N/A                                                                      |
+| q[measurement_type] | text              | yes      | N/A                                                                      |
 | q[is_indoor]        | bool              | no       | returns sessions of any placement                                        |
 | q[west]             | number, -180..180 | no       | returns sessions from all location unless all 4 coordinates are provided |
 | q[east]             | number, -180..180 | no       | returns sessions from all location unless all 4 coordinates are provided |
@@ -140,7 +143,7 @@ See [parameters description](#parameters-description)
 
 - request
   ```json
-  http://aircasting.habitatmap.org/api/fixed/active/sessions.json?q={"time_from":"1531008000","time_to":"1562630399","tags":"","usernames":"","west":-73.9766655034307,"east":-73.97618605856928,"south":40.68019783151002,"north":40.680367168382396,"sensor_name":"airbeam2-pm2.5","unit_symbol":"µg/m³"}
+  http://aircasting.habitatmap.org/api/fixed/active/sessions.json?q={"time_from":"1531008000","time_to":"1562630399","tags":"","usernames":"","west":-73.9766655034307,"east":-73.97618605856928,"south":40.68019783151002,"north":40.680367168382396,"sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
   ```
 - encoded request
 
@@ -211,6 +214,7 @@ GET `/api/fixed/active/sessions2.json`
 | q[unit_symbol]      | text              | yes      | N/A                                                                      |
 | q[tags]             | text              | yes      | N/A                                                                      |
 | q[usernames]        | text              | yes      | N/A                                                                      |
+| q[measurement_type] | text              | yes      | N/A                                                                      |
 | q[is_indoor]        | bool              | no       | returns sessions of any placement                                        |
 | q[west]             | number, -180..180 | no       | returns sessions from all location unless all 4 coordinates are provided |
 | q[east]             | number, -180..180 | no       | returns sessions from all location unless all 4 coordinates are provided |
@@ -223,7 +227,7 @@ See [parameters description](#parameters-description)
 
 - request
   ```json
-  http://aircasting.habitatmap.org/api/fixed/active/sessions.json?q={"time_from":"1531008000","time_to":"1562630399","tags":"","usernames":"","west":-73.9766655034307,"east":-73.97618605856928,"south":40.68019783151002,"north":40.680367168382396,"sensor_name":"airbeam2-pm2.5","unit_symbol":"µg/m³"}
+  http://aircasting.habitatmap.org/api/fixed/active/sessions2.json?q={"time_from":"1531008000","time_to":"1562630399","tags":"","usernames":"","west":-73.9766655034307,"east":-73.97618605856928,"south":40.68019783151002,"north":40.680367168382396,"sensor_name":"airbeam2-pm2.5","measurement_type":"Particulate Matter","unit_symbol":"µg/m³"}
   ```
 - encoded request
 
@@ -513,12 +517,12 @@ To get the measurements from the given stream. It will be using sessionID.
     "username": "HabitatMap",
     "sensorName": "AirBeam3-PM2.5",
     "measurements": [
-        {
-            "value": 0.0,
-            "time": 1650884234000,
-            "longitude": -73.976356946,
-            "latitude": 40.680268333
-        }
+      {
+        "value": 0.0,
+        "time": 1650884234000,
+        "longitude": -73.976356946,
+        "latitude": 40.680268333
+      }
     ],
     "startTime": 1649068083000,
     "endTime": 1650884234000,
@@ -541,7 +545,7 @@ To get the measurements from the given stream. It will be using sessionID.
     "threshold_very_low": 20,
     "unit_name": "µg/m³",
     "measurement_short_type": "PM",
-    "measurement_type": "Particulate Matter",
+    "measurement_type": "Particulate Matter"
   }
   ```
 
@@ -601,13 +605,13 @@ To get the measurements from all streams of the given session. It will be using 
         "measurement_type": "Particulate Matter",
         "measurements": [
           {
-              "value": 0.0,
-              "time": 1650884234000,
-              "longitude": -73.976356946,
-              "latitude": 40.680268333
+            "value": 0.0,
+            "time": 1650884234000,
+            "longitude": -73.976356946,
+            "latitude": 40.680268333
           }
-        ],
-      },
+        ]
+      }
     ]
   }
   ```
@@ -712,7 +716,7 @@ See [parameters description](#parameters-description)
 - encoded request
 
   ```
-  curl http://aircasting.habitatmap.org/api/region.json\?q\=%7B%22west%22%3A-73.98231641381187%2C%22east%22%3A-73.97216864391766%2C%22south%22%3A40.68332674082153%2C%22north%22%3A40.69643137175753%2C%22time_from%22%3A%221531612800%22%2C%22time_to%22%3A%221563235199%22%2C%22grid_size_x%22%3A113.78612716763006%2C%22grid_%20%20%20%20size_y%22%3A31%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%2C%stream_ids%22%3A%5B94192%2C94178%2C91439%2C90868%2C90850%2C90837%2C89516%2C89490%2C78011%2C78010%2C77712%2C76780%2C76770%2C%20%20%20%2075193%2C71641%2C67139%2C67096%2C64047%2C64042%2C64031%5D%7D
+  curl http://aircasting.habitatmap.org/api/region.json\?q\=%7B%22west%22%3A-73.98231641381187%2C%22east%22%3A-73.97216864391766%2C%22south%22%3A40.68332674082153%2C%22north%22%3A40.69643137175753%2C%22time_from%22%3A%221531612800%22%2C%22time_to%22%3A%221563235199%22%2C%22grid_size_x%22%3A113.78612716763006%2C%22grid_size_y%22%3A31%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22HabitatMap%22%2C%22sensor_name%22%3A%22airbeam2-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%2C%22stream_ids%22%3A%5B94192%2C94178%2C91439%2C90868%2C90850%2C90837%2C89516%2C89490%2C78011%2C78010%2C77712%2C76780%2C76770%2C75193%2C71641%2C67139%2C67096%2C64047%2C64042%2C64031%5D%7D
   ```
 
   See [how to encode URLs](#how-to-encode-urls)
