@@ -24,7 +24,7 @@ const Heading = styled(H3)`
   padding-bottom: 30px;
   font-weight: 700;
 
-  @media ${media.desktop} {
+  @media ${media.smallDesktop} {
     font-size: 28px;
     font-weight: 500;
   }
