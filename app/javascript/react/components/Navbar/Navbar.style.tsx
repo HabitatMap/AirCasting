@@ -2,13 +2,15 @@ import styled, { css } from "styled-components";
 
 import { cta, theme, white } from "../../assets/styles/colors";
 
+const NAVBAR_HEIGHT = "7.8rem";
+
 const Header = styled.header`
   background-color: ${white};
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 4.8rem;
-  height: 7.8rem;
+  height: ${NAVBAR_HEIGHT};
 `;
 
 const AircastingLogo = styled.img`
@@ -98,6 +100,7 @@ const BottomNavContainer = styled(Container)`
 `;
 
 export {
+  NAVBAR_HEIGHT,
   Header,
   AircastingLogo,
   Button,
