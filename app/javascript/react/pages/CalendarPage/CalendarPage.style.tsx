@@ -17,7 +17,11 @@ const StationDataContainer = styled.div`
   width: 90vw;
   max-width: 1600px;
   min-height: 100vh;
-  margin: 20px 10vw;
+  margin: 20px 0;
+
+  @media ${media.desktop} {
+    margin: 20px 5vw;
+  }
 `;
 
 const Heading = styled(H3)`

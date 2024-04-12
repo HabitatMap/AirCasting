@@ -24,7 +24,10 @@ const Day = styled(CalendarCell)<DayProps>`
   justify-content: space-between;
   //TODO: Ask Iwona about the opacity
   background-color: ${(props) => props.$color};
-  border-radius: 5px;
+
+  @media (${media.smallDesktop}) {
+    border-radius: 5px;
+  }
 `;
 
 const DayNumber = styled.span<LabelProps>`
