@@ -33,6 +33,7 @@ const DayNumber = styled.span<LabelProps>`
   display: ${(props) => (props.$isVisible ? "block" : "none")};
   color: ${(props) => (props.$isGrayedOut ? gray100 : gray400)};
   opacity: 50%;
+
   @media (${media.smallDesktop}) {
     font-size: 18px;
   }
@@ -48,6 +49,7 @@ const Value = styled.div<LabelProps>`
   display: ${(props) => (props.$isVisible ? "block" : "none")};
   color: ${gray400};
   padding-top: 11%;
+
   @media (${media.smallDesktop}) {
     font-size: 28px;
   }
