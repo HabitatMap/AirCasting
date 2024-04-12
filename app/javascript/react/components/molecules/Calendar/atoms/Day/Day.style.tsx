@@ -16,6 +16,9 @@ const CalendarCell = styled.div`
   width: calc(100% / 7);
   padding: 4px;
   aspect-ratio: 1;
+  @media (${media.desktop}) {
+    max-width: 50px;
+  }
 `;
 
 const Day = styled(CalendarCell)<DayProps>`
@@ -46,18 +49,21 @@ const DayNumber = styled.span<LabelProps>`
 `;
 
 const Value = styled.div<LabelProps>`
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   text-align: start;
   display: ${(props) => (props.$isVisible ? "block" : "none")};
   color: ${gray400};
   padding-top: 11%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   @media (${media.smallDesktop}) {
-    font-size: 28px;
+    font-size: 2.8vw;
   }
   @media (${media.desktop}) {
-    font-size: 16px;
+    font-size: 0.8vw;
   }
 `;
 

@@ -20,6 +20,9 @@ const Month = styled.div`
   @media (${media.smallDesktop}) {
     padding-bottom: 0;
   }
+  @media (${media.desktop}) {
+    width: 33.33%;
+  }
 `;
 
 const MonthName = styled.span`
