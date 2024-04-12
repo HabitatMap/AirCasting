@@ -8,7 +8,8 @@ import {
 } from "react-router-dom";
 
 import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
-import { NotFoundPage } from "./pages/NotFoundPage/NotFoundPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { MapPage } from "./pages/MapPage";
 import { Navbar } from "./components/Navbar";
 import store from "./store/index";
 import GlobalStyles from "./assets/styles/global-styles";
@@ -17,8 +18,9 @@ import "./locales/i18n";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
+      <Route path="/" element={<MapPage />} />
+      <Route path="/fixedStream" element={<CalendarPage />} />
       <Route path="*" element={<NotFoundPage />} />
-      <Route path="/fixed_stream" element={<CalendarPage />} />
     </>
   )
 );

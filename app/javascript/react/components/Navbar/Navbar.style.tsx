@@ -10,6 +10,8 @@ import {
 } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
+const NAVBAR_HEIGHT = "7.8rem";
+
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
@@ -19,7 +21,7 @@ const Header = styled.header`
 
   @media ${media.smallDesktop} {
     padding: 0 4.8rem;
-    height: 7.8rem;
+    height: ${NAVBAR_HEIGHT};
   }
 `;
 
@@ -188,6 +190,7 @@ const GoBack = styled.a`
 `;
 
 export {
+  NAVBAR_HEIGHT,
   Header,
   AircastingLogo,
   Button,
