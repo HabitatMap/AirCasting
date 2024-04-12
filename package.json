@@ -63,7 +63,7 @@
     "@istanbuljs/nyc-config-babel": "^3.0.0",
     "@prettier/plugin-ruby": "^2.0.0",
     "@testing-library/jest-dom": "^6.4.2",
-    "@testing-library/react": "^15.0.0",
+    "@testing-library/react": "^14.0.0",
     "@types/humps": "^2.0.6",
     "@types/jest": "^29.5.12",
     "@types/react": "^18.2.23",
