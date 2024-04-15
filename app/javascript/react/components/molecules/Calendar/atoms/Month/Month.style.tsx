@@ -31,7 +31,7 @@ const MonthName = styled.span`
   text-transform: uppercase;
   font-weight: 600;
   color: ${gray400};
-  padding: 0.5rem;
+  padding: 0.625rem;
   line-height: 120%;
   text-align: center;
   background-color: ${gray100};

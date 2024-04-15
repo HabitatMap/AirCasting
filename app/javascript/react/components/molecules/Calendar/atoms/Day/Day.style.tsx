@@ -27,6 +27,7 @@ const Day = styled(CalendarCell)<DayProps>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  text-align: center;
   //TODO: Ask Iwona about the opacity
   background-color: ${(props) => props.$color};
   width: 100%;
