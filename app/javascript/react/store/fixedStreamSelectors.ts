@@ -151,7 +151,6 @@ const selectFixedStreamShortInfo = createSelector(
 const selectLatestThreeMonthsDailyAverages = createSelector(
   selectFixedStreamData,
   (fixedStreamData): CalendarMonthlyData[] => {
-    console.log(fixedStreamData);
     const { streamDailyAverages } = fixedStreamData;
 
     const monthData = getFullWeeksOfThreeLatestMonths(streamDailyAverages);

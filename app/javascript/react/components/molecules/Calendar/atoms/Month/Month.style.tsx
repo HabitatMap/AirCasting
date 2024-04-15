@@ -19,6 +19,7 @@ const Month = styled.div`
   padding-bottom: 3rem;
   @media (${media.smallDesktop}) {
     padding-bottom: 0;
+    width: 33.33%;
   }
 `;
 
