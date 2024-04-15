@@ -29,6 +29,15 @@ module Api
       head :no_content
     end
 
+    def delete_account_with_confirmation_code
+      if confirmation_code_valid?
+        current_user.destroy
+        render_success_message('Account successfully deleted.')
+      else
+        render_error_message('Invalid or expired confirmation code.')
+      end
+    end
+
     def settings
       GoogleAnalyticsWorker::RegisterEvent.async_call('User#settings')
       data = params.to_unsafe_hash[:data].deep_symbolize_keys
@@ -60,6 +69,21 @@ module Api
           v
         end
       end
+    end
+
+    private
+
+    def confirmation_code_valid?
+      current_user.deletion_confirmation_code == params[:code] &&
+        current_user.deletion_code_valid_until.future?
+    end
+
+    def render_success_message(message)
+      render json: { message: message }, status: :ok
+    end
+
+    def render_error_message(error)
+      render json: { error: error }, status: :unauthorized
     end
   end
 end

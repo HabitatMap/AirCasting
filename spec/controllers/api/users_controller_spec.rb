@@ -88,6 +88,40 @@ describe Api::UsersController do
     end
   end
 
+  describe '#delete_account_with_confirmation_code' do
+    let(:user) { FactoryBot.create(:user) }
+
+    before do
+      sign_in(user)
+      allow(controller).to receive(:current_user).and_return(user)
+      user.update(deletion_confirmation_code: '1234', deletion_code_valid_until: 30.minutes.from_now)
+    end
+
+    context 'with a valid confirmation code' do
+      it 'successfully deletes the user account' do
+        expect { post :delete_account_with_confirmation_code, params: { code: '1234' }, format: :json }
+        .to change(User, :count).by(-1)
+        expect(response).to have_http_status(:ok)
+        expect(json_response['message']).to eq('Account successfully deleted.')
+      end
+    end
+
+    context 'with an invalid or expired confirmation code' do
+      it 'returns an error message when the code is wrong' do
+        post :delete_account_with_confirmation_code, params: { code: 'wrong_code' }, format: :json
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_response['error']).to eq('Invalid or expired confirmation code.')
+      end
+
+      it 'returns an error message when the code has expired' do
+        user.update(deletion_confirmation_code: '1234', deletion_code_valid_until: 1.minute.ago)
+        post :delete_account_with_confirmation_code, params: { code: '1234' }, format: :json
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_response['error']).to eq('Invalid or expired confirmation code.')
+      end
+    end
+  end
+
   describe '#settings' do
     let!(:user) { create_user!(session_stopped_alert: false) }
 
