@@ -9,7 +9,7 @@ namespace :measurements do
     total_to_update = Measurement.where(time_with_time_zone: nil).count
     puts "Total measurements to update: #{total_to_update}"
 
-    Session.find_each(batch_size: 100) do |session|
+    Session.all.each do |session|
       time_zone_name = session.time_zone
       next if time_zone_name.blank?
 
