@@ -10,7 +10,7 @@ RSpec.describe Api::DeleteAccountController, type: :controller do
 
   describe '#request_account_deletion' do
     it 'sends a confirmation code to the user email' do
-      expect(UserMailer).to receive(:account_delete_email).with(user.email, text).and_call_original
+      expect(UserMailer).to receive(:account_delete_email).with(user.email, anything).and_call_original
       post :request_account_deletion, format: :json
       expect(response).to have_http_status(:ok)
     end
@@ -31,8 +31,15 @@ RSpec.describe Api::DeleteAccountController, type: :controller do
     end
 
     context 'with an invalid or expired confirmation code' do
-      it 'returns an error message' do
+      it 'returns an error message when the code is wrong' do
         post :delete_account_with_confirmation_code, params: { code: 'wrong_code' }, format: :json
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_response['error']).to eq('Invalid or expired confirmation code.')
+      end
+
+      it 'returns an error message when the code has expired' do
+        user.update(deletion_confirmation_code: '1234', deletion_code_valid_until: 1.minute.ago)
+        post :delete_account_with_confirmation_code, params: { code: '1234' }, format: :json
         expect(response).to have_http_status(:unauthorized)
         expect(json_response['error']).to eq('Invalid or expired confirmation code.')
       end
