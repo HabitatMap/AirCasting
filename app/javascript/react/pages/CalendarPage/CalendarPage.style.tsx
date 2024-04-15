@@ -6,7 +6,7 @@ import media from "../../utils/media";
 
 const CalendarPageLayout = styled.div`
   display: flex;
-  padding: 30px;
+  padding: 15px;
   justify-content: center;
   background-color: ${gray100};
 `;

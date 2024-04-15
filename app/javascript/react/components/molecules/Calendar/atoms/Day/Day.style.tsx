@@ -13,12 +13,14 @@ interface LabelProps {
 }
 
 const CalendarCell = styled.div`
-  width: calc(100% / 7);
+  flex: 1 0 auto;
   padding: 4px;
   aspect-ratio: 1;
-  @media (${media.desktop}) {
-    max-width: 50px;
-  }
+  position: relative;
+  height: calc(100% - 9px);
+  width: calc(100% / 7 - 9px);
+  max-width: calc(100% / 7 - 9px);
+  min-width: 0;
 `;
 
 const Day = styled(CalendarCell)<DayProps>`
@@ -27,6 +29,7 @@ const Day = styled(CalendarCell)<DayProps>`
   justify-content: space-between;
   //TODO: Ask Iwona about the opacity
   background-color: ${(props) => props.$color};
+  width: 100%;
 
   @media (${media.smallDesktop}) {
     border-radius: 5px;
@@ -48,23 +51,32 @@ const DayNumber = styled.span<LabelProps>`
   }
 `;
 
-const Value = styled.div<LabelProps>`
-  font-size: 16px;
+const ValueContainer = styled.div<LabelProps>`
+  font-size: 2.8vw;
   font-weight: 600;
   text-align: start;
   display: ${(props) => (props.$isVisible ? "block" : "none")};
   color: ${gray400};
   padding-top: 11%;
-  white-space: nowrap;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
   overflow: hidden;
-  text-overflow: ellipsis;
 
   @media (${media.smallDesktop}) {
-    font-size: 2.8vw;
+    font-size: 3.2vw;
   }
   @media (${media.desktop}) {
-    font-size: 0.8vw;
+    font-size: 0.9vw;
   }
 `;
 
-export { Day, DayNumber, Value, CalendarCell };
+const Value = styled.div`
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export { Day, DayNumber, Value, CalendarCell, ValueContainer };

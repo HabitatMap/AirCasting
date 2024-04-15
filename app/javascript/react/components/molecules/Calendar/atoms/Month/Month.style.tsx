@@ -20,9 +20,6 @@ const Month = styled.div`
   @media (${media.smallDesktop}) {
     padding-bottom: 0;
   }
-  @media (${media.desktop}) {
-    width: 33.33%;
-  }
 `;
 
 const MonthName = styled.span`
@@ -48,7 +45,6 @@ const MonthName = styled.span`
 const MonthContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${DAY_GAP};
 `;
 
 export { Week, Month, MonthName, MonthContent };
