@@ -22,11 +22,11 @@ namespace :measurements do
 
       break if stream_ids_to_update.empty?
 
-      Stream.where(id: stream_ids_to_update).find_each(batch_size: 100) do |stream|
-        session = Session.find_by(id: stream.session_id)
-        next unless session
+      Stream.joins(:session)
+            .where(id: stream_ids_to_update)
+            .find_each(batch_size: 100) do |stream|
 
-        time_zone_name = session.time_zone
+        time_zone_name = stream.session.time_zone
 
         Measurement.where(stream_id: stream.id, time_with_time_zone: nil).find_in_batches(batch_size: batch_size) do |batch|
           measurement_ids = batch.map(&:id)
