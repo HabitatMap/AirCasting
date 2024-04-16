@@ -191,3 +191,23 @@ def build_open_aq_stream(opts = {})
     longitude: random_big_decimal,
   )
 end
+
+def build_air_now_stream(opts = {})
+  AirNow::Stream.new(
+    sensor_name: opts.fetch(:sensor_name),
+    latitude: random_big_decimal.to_f,
+    longitude: random_big_decimal.to_f,
+  )
+end
+
+def build_air_now_measurement(opts = {})
+  AirNow::Measurement.new(
+    sensor_name: opts.fetch(:sensor_name, 'pm25'),
+    value: opts.fetch(:value, random_float),
+    latitude: random_big_decimal,
+    longitude: random_big_decimal,
+    time_local: random_date_time.change(usec: 0),
+    time_utc: random_date_time.change(usec: 0),
+    location: opts.fetch(:location, random_string),
+  )
+end

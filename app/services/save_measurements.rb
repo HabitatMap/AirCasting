@@ -34,7 +34,6 @@ class SaveMeasurements
 
     pairs_without_session_duplicates = pairs_to_create.uniq do |stream, measurements|
       first = measurements.first
-      last = measurements.last
 
       "#{stream.latitude}-#{stream.longitude}-#{first.title}"
     end
