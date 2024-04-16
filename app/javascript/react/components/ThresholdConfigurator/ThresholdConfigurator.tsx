@@ -105,9 +105,9 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
 
   return (
-    <>
+    <S.Container>
       <Heading>{t("calendarHeader.legendTitle")}</Heading>
-      <S.Container ref={sliderRef}>
+      <S.InputContainer ref={sliderRef}>
         <S.NumberInput
           type="number"
           value={min}
@@ -151,14 +151,14 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           step={1}
           value={max}
           style={{
-            right: "-30px",
+            right: "-35px",
           }}
           // TODO debounce
           onChange={(e) => handleInputChange("max", e.target.value)}
           //TODO onBlur={() => setInputValue(value.toString())}
         />
-      </S.Container>
-    </>
+      </S.InputContainer>
+    </S.Container>
   );
 };
 

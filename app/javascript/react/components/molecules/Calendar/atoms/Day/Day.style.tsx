@@ -53,7 +53,7 @@ const DayNumber = styled.span<LabelProps>`
 `;
 
 const ValueContainer = styled.div<LabelProps>`
-  font-size: 2.8vw;
+  font-size: 3.8vw;
   font-weight: 600;
   text-align: start;
   display: ${(props) => (props.$isVisible ? "block" : "none")};

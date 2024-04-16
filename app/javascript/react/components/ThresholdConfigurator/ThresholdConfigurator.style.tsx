@@ -4,10 +4,28 @@ import * as colors from "../../assets/styles/colors";
 import media from "../../utils/media";
 
 const Container = styled.div`
-  background-color: ${colors.white};
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  background: ${colors.white};
+
+  @media (${media.desktop}) {
+    padding: 3.5rem 10rem;
+    margin-bottom: 0;
+  }
+`;
+
+const InputContainer = styled.div`
   position: relative;
-  width: 90%;
+  width: 100%;
   height: 70px;
+  padding-left: 1.5rem;
+
+  @media (${media.desktop}) {
+    width: 98%;
+    margin-top: 3rem;
+  }
 `;
 
 const RangeInput = styled.input<{
@@ -18,8 +36,9 @@ const RangeInput = styled.input<{
 }>`
   width: 100%;
   position: absolute;
-  top: 22px;
+  top: 10px;
   height: 8px;
+  left: 0;
   background: transparent;
   -webkit-appearance: none;
   appearance: none;
@@ -49,6 +68,8 @@ const RangeInput = styled.input<{
     content: "";
     position: absolute;
     height: 24px;
+    border-radius: 5px;
+    margin-right: 10px;
   }
 
   &:nth-child(2)::before {
@@ -77,6 +98,14 @@ const RangeInput = styled.input<{
 
   @media ${media.desktop} {
     top: 0;
+    left: 35px;
+
+    &::-webkit-slider-runnable-track,
+    &::-moz-range-track,
+    &::-ms-track {
+      height: 5px;
+    }
+
     &:nth-child(2)::before,
     &:nth-child(4)::before,
     &:nth-child(6)::before,
@@ -84,6 +113,7 @@ const RangeInput = styled.input<{
       content: "";
       position: absolute;
       height: 10px;
+      margin-right: 0;
     }
   }
 `;
@@ -95,10 +125,10 @@ const NumberInput = styled.input`
   text-align: center;
   color: ${colors.gray300};
   position: absolute;
-  top: 13px;
+  top: 0;
   max-width: 24px;
   height: 42px;
-  margin-left: -25px;
+  margin-left: -15px;
   border-radius: 5px;
   border: 1px solid ${colors.gray100};
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
@@ -116,14 +146,19 @@ const NumberInput = styled.input`
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
   }
+
+  &:nth-child(6)::after {
+    right: 0;
+  }
+
   @media ${media.desktop} {
-    font-size: 1.4rem;
     font-weight: 600;
+    font-size: 1.4rem;
     top: -10px;
     max-width: 50px;
     height: 32px;
-    margin-left: -25px;
+    margin-left: 0;
   }
 `;
 
-export { Container, RangeInput, NumberInput };
+export { Container, InputContainer, RangeInput, NumberInput };
