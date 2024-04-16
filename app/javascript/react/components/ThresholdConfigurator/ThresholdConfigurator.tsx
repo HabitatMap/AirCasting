@@ -150,9 +150,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           type="number"
           step={1}
           value={max}
-          style={{
-            right: "-35px",
-          }}
+          $isLast={true}
           // TODO debounce
           onChange={(e) => handleInputChange("max", e.target.value)}
           //TODO onBlur={() => setInputValue(value.toString())}

@@ -118,7 +118,9 @@ const RangeInput = styled.input<{
   }
 `;
 
-const NumberInput = styled.input`
+const NumberInput = styled.input<{
+  $isLast?: boolean;
+}>`
   font-family: Roboto;
   font-weight: 500;
   font-size: 1rem;
@@ -126,6 +128,7 @@ const NumberInput = styled.input`
   color: ${colors.gray300};
   position: absolute;
   top: 0;
+  right: ${(props) => (props.$isLast ? "0px" : "auto")};
   max-width: 24px;
   height: 42px;
   margin-left: -15px;
@@ -147,10 +150,6 @@ const NumberInput = styled.input`
     cursor: -webkit-grabbing;
   }
 
-  &:nth-child(6)::after {
-    right: 0;
-  }
-
   @media ${media.desktop} {
     font-weight: 600;
     font-size: 1.4rem;
@@ -158,6 +157,7 @@ const NumberInput = styled.input`
     max-width: 50px;
     height: 32px;
     margin-left: 0;
+    right: ${(props) => (props.$isLast ? "-35px" : "auto")};
   }
 `;
 
