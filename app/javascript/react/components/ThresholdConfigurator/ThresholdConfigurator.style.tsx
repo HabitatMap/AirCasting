@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
+import media from "../../utils/media";
 
 const Container = styled.div`
-  margin: 50px;
   background-color: ${colors.white};
   position: relative;
   width: 90%;
@@ -18,7 +18,7 @@ const RangeInput = styled.input<{
 }>`
   width: 100%;
   position: absolute;
-  top: 0;
+  top: 22px;
   height: 8px;
   background: transparent;
   -webkit-appearance: none;
@@ -30,7 +30,7 @@ const RangeInput = styled.input<{
   &::-ms-track {
     appearance: none;
     -webkit-appearance: none;
-    height: 5px;
+    height: 24px;
     background: transparent;
   }
 
@@ -48,7 +48,7 @@ const RangeInput = styled.input<{
   &:nth-child(6)::after {
     content: "";
     position: absolute;
-    height: 10px;
+    height: 24px;
   }
 
   &:nth-child(2)::before {
@@ -74,18 +74,30 @@ const RangeInput = styled.input<{
     right: 0;
     background: ${colors.red};
   }
+
+  @media ${media.desktop} {
+    top: 0;
+    &:nth-child(2)::before,
+    &:nth-child(4)::before,
+    &:nth-child(6)::before,
+    &:nth-child(6)::after {
+      content: "";
+      position: absolute;
+      height: 10px;
+    }
+  }
 `;
 
 const NumberInput = styled.input`
   font-family: Roboto;
-  font-weight: 600;
-  font-size: 1.4rem;
+  font-weight: 500;
+  font-size: 1rem;
   text-align: center;
   color: ${colors.gray300};
   position: absolute;
-  top: -10px;
-  max-width: 50px;
-  height: 32px;
+  top: 13px;
+  max-width: 24px;
+  height: 42px;
   margin-left: -25px;
   border-radius: 5px;
   border: 1px solid ${colors.gray100};
@@ -103,6 +115,14 @@ const NumberInput = styled.input`
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
+  }
+  @media ${media.desktop} {
+    font-size: 1.4rem;
+    font-weight: 600;
+    top: -10px;
+    max-width: 50px;
+    height: 32px;
+    margin-left: -25px;
   }
 `;
 
