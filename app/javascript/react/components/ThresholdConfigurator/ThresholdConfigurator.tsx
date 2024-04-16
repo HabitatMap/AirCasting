@@ -6,6 +6,8 @@ import {
   calculateThumbPosition,
 } from "../../utils/thresholdThumbCalculations";
 import * as S from "./ThresholdConfigurator.style";
+import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
+import { useTranslation } from "react-i18next";
 
 interface ThresholdsConfiguratorProps {
   initialThresholds: Thresholds;
@@ -22,6 +24,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   );
   const [sliderWidth, setSliderWidth] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (sliderRef.current) {
@@ -102,52 +105,60 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
 
   return (
-    <S.Container ref={sliderRef}>
-      <S.NumberInput
-        type="number"
-        value={min}
-        onChange={(e) => handleInputChange("min", e.target.value)}
-      />
-      {thumbData.map(([thresholdKey, value]) => (
-        <React.Fragment key={thresholdKey}>
-          <S.RangeInput
-            min={min}
-            max={max}
-            $firstThumbPos={thumbPositions.low}
-            $secondThumbPos={thumbPositions.middle}
-            $thirdThumbPos={thumbPositions.high}
-            $sliderWidth={sliderWidth}
-            type="range"
-            value={value}
-            onChange={(e) => handleInputChange(thresholdKey, e.target.value)}
-          />
-          <S.NumberInput
-            inputMode="numeric"
-            type="number"
-            value={value}
-            style={{
-              left: `${calculateThumbPosition(value, min, max, sliderWidth)}px`,
-            }}
-            // TODO debounce
-            onChange={(e) => handleInputChange(thresholdKey, e.target.value)}
-            onMouseDown={handleMouseDown(thresholdKey)}
-            //TODO Add touch event handlers if supporting touch devices
-          />
-        </React.Fragment>
-      ))}
-      <S.NumberInput
-        inputMode="numeric"
-        type="number"
-        step={1}
-        value={max}
-        style={{
-          right: "-30px",
-        }}
-        // TODO debounce
-        onChange={(e) => handleInputChange("max", e.target.value)}
-        //TODO onBlur={() => setInputValue(value.toString())}
-      />
-    </S.Container>
+    <>
+      <Heading>{t("calendarHeader.legendTitle")}</Heading>
+      <S.Container ref={sliderRef}>
+        <S.NumberInput
+          type="number"
+          value={min}
+          onChange={(e) => handleInputChange("min", e.target.value)}
+        />
+        {thumbData.map(([thresholdKey, value]) => (
+          <React.Fragment key={thresholdKey}>
+            <S.RangeInput
+              min={min}
+              max={max}
+              $firstThumbPos={thumbPositions.low}
+              $secondThumbPos={thumbPositions.middle}
+              $thirdThumbPos={thumbPositions.high}
+              $sliderWidth={sliderWidth}
+              type="range"
+              value={value}
+              onChange={(e) => handleInputChange(thresholdKey, e.target.value)}
+            />
+            <S.NumberInput
+              inputMode="numeric"
+              type="number"
+              value={value}
+              style={{
+                left: `${calculateThumbPosition(
+                  value,
+                  min,
+                  max,
+                  sliderWidth
+                )}px`,
+              }}
+              // TODO debounce
+              onChange={(e) => handleInputChange(thresholdKey, e.target.value)}
+              onMouseDown={handleMouseDown(thresholdKey)}
+              //TODO Add touch event handlers if supporting touch devices
+            />
+          </React.Fragment>
+        ))}
+        <S.NumberInput
+          inputMode="numeric"
+          type="number"
+          step={1}
+          value={max}
+          style={{
+            right: "-30px",
+          }}
+          // TODO debounce
+          onChange={(e) => handleInputChange("max", e.target.value)}
+          //TODO onBlur={() => setInputValue(value.toString())}
+        />
+      </S.Container>
+    </>
   );
 };
 

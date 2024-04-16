@@ -11,7 +11,9 @@ const Day = ({ dayNumber, value, date, ...thresholds }: DayProps) => {
   return (
     <S.Day $color={getColorForValue(thresholds, value)}>
       <S.DayNumber $isVisible={true}>{dayNumber}</S.DayNumber>
-      <S.Value $isVisible={true}>{value}</S.Value>
+      <S.ValueContainer $isVisible={true}>
+        <S.Value>{value}</S.Value>
+      </S.ValueContainer>
     </S.Day>
   );
 };

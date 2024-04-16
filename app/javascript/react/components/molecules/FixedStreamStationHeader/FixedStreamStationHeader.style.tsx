@@ -36,7 +36,7 @@ const Subtitle = styled(H5)`
 
 const GridContainer = styled.div`
   background: ${gray100};
-  padding: 3.5rem;
+  padding: 3.5rem 2rem;
   display: grid;
   width: 100%;
   grid-gap: 20px;
@@ -62,6 +62,10 @@ const GridContainer = styled.div`
     "valueLabel profileSensor"
     "valueLabel updateOccurance "
     "valueLabel actionButtons";
+
+  @media ${media.smallDesktop} {
+    padding: 3.5rem 10rem;
+  }
 
   @media ${media.desktop} {
     grid-template-columns: 0.2fr 1fr 1fr;
