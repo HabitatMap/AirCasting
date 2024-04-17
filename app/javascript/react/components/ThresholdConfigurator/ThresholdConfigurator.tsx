@@ -104,14 +104,30 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const { min, max, ...thumbs } = thresholdValues;
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <S.Container>
       <Heading>{t("calendarHeader.legendTitle")}</Heading>
       <S.InputContainer ref={sliderRef}>
         <S.NumberInput
+          inputMode="numeric"
           type="number"
           value={min}
           onChange={(e) => handleInputChange("min", e.target.value)}
+          readOnly
         />
         {thumbData.map(([thresholdKey, value]) => (
           <React.Fragment key={thresholdKey}>
@@ -138,6 +154,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                   sliderWidth
                 )}px`,
               }}
+              readOnly={isMobile}
               // TODO debounce
               onChange={(e) => handleInputChange(thresholdKey, e.target.value)}
               onMouseDown={handleMouseDown(thresholdKey)}
@@ -151,6 +168,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           step={1}
           value={max}
           $isLast={true}
+          readOnly
           // TODO debounce
           onChange={(e) => handleInputChange("max", e.target.value)}
           //TODO onBlur={() => setInputValue(value.toString())}

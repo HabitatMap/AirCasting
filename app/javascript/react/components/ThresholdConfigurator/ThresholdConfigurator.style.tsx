@@ -149,6 +149,9 @@ const NumberInput = styled.input<{
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
   }
+  &:disabled {
+    background-color: ${colors.white};
+  }
 
   @media ${media.desktop} {
     font-weight: 600;
