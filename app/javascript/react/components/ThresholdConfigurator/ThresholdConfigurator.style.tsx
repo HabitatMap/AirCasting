@@ -19,12 +19,13 @@ const Container = styled.div`
 const InputContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 70px;
+  height: 6rem;
   padding-left: 1.5rem;
 
   @media (${media.desktop}) {
     width: 98%;
     margin-top: 3rem;
+    padding-left: 0;
   }
 `;
 
@@ -36,8 +37,8 @@ const RangeInput = styled.input<{
 }>`
   width: 100%;
   position: absolute;
-  top: 10px;
-  height: 8px;
+  top: 13px;
+  height: 0.5rem;
   left: 0;
   background: transparent;
   -webkit-appearance: none;
@@ -49,7 +50,7 @@ const RangeInput = styled.input<{
   &::-ms-track {
     appearance: none;
     -webkit-appearance: none;
-    height: 24px;
+    height: 2.5rem;
     background: transparent;
   }
 
@@ -67,7 +68,7 @@ const RangeInput = styled.input<{
   &:nth-child(6)::after {
     content: "";
     position: absolute;
-    height: 24px;
+    height: 2.5rem;
     border-radius: 5px;
     margin-right: 10px;
   }
@@ -98,8 +99,8 @@ const RangeInput = styled.input<{
 
   @media ${media.desktop} {
     top: 0;
-    left: 35px;
-
+    height: 1.5rem;
+    left: 2.2rem;
     &::-webkit-slider-runnable-track,
     &::-moz-range-track,
     &::-ms-track {
@@ -129,8 +130,8 @@ const NumberInput = styled.input<{
   position: absolute;
   top: 0;
   right: ${(props) => (props.$isLast ? "0px" : "auto")};
-  max-width: 24px;
-  height: 42px;
+  max-width: 2.5rem;
+  height: 5rem;
   margin-left: -15px;
   border-radius: 5px;
   border: 1px solid ${colors.gray100};
@@ -157,10 +158,10 @@ const NumberInput = styled.input<{
     font-weight: 600;
     font-size: 1.4rem;
     top: -10px;
-    max-width: 50px;
-    height: 32px;
+    max-width: 5rem;
+    height: 3.2rem;
     margin-left: 0;
-    right: ${(props) => (props.$isLast ? "-35px" : "auto")};
+    right: ${(props) => (props.$isLast ? "-2.2rem" : "auto")};
   }
 `;
 

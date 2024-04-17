@@ -28,12 +28,12 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const { t } = useTranslation();
 
   const [isMobile, setIsMobile] = useState(
-    window.innerWidth < screenSizes.smallDesktop
+    window.innerWidth < screenSizes.mobile
   );
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < screenSizes.smallDesktop);
+      setIsMobile(window.innerWidth < screenSizes.mobile);
     };
 
     window.addEventListener("resize", handleResize);
