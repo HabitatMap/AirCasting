@@ -131,7 +131,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           value={min}
           onChange={(e) => handleInputChange("min", e.target.value)}
           readOnly
-          $isFirst={true}
+          $isFirst
         />
         {thumbData.map(([thresholdKey, value]) => (
           <React.Fragment key={thresholdKey}>
@@ -158,7 +158,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                   sliderWidth
                 )}px`,
               }}
-              readOnly={isMobile}
               // TODO debounce
               onChange={(e) => handleInputChange(thresholdKey, e.target.value)}
               onMouseDown={handleMouseDown(thresholdKey)}
@@ -171,7 +170,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           type="number"
           step={1}
           value={max}
-          $isLast={true}
+          $isLast
           readOnly
           // TODO debounce
           onChange={(e) => handleInputChange("max", e.target.value)}

@@ -36,7 +36,7 @@ const RangeInput = styled.input<{
 }>`
   width: 100%;
   position: absolute;
-  top: 10px;
+  top: 13px;
   height: 21px;
   left: 0;
   background: transparent;
@@ -125,14 +125,14 @@ const NumberInput = styled.input<{
 }>`
   font-family: Roboto;
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 1.2rem;
   text-align: center;
   color: ${colors.gray300};
   position: absolute;
   top: 0;
   right: ${(props) => (props.$isLast ? "0px" : "auto")};
-  max-width: 24px;
-  height: 42px;
+  max-width: 27px;
+  height: 50px;
   margin-left: -15px;
   border-radius: 5px;
   border: 1px solid ${colors.gray100};
