@@ -6,12 +6,14 @@ gem 'activerecord-import'
 gem 'activerecord-postgis-adapter'
 gem 'acts-as-taggable-on'
 gem 'aws-sdk', '~> 3', require: false
+gem 'bcrypt_pbkdf', require: false
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'colored', require: false
 gem 'devise'
 gem 'dotenv-rails'
 gem 'dry-struct'
 gem 'dry-validation'
+gem 'ed25519', require: false
 gem 'flipper'
 gem 'flipper-active_record'
 gem 'geocoder', '~> 1.2'
