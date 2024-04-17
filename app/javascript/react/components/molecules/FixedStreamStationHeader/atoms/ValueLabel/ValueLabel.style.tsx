@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { blue, green } from "../../../../../assets/styles/colors";
 import hexToRGBA from "../../../../../utils/hexToRGB";
-import media from "../../../../../utils/media";
+import { media } from "../../../../../utils/media";
 
 const Container = styled.div`
   background: linear-gradient(

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
-import media from "../../utils/media";
+import { media } from "../../utils/media";
 
 const Container = styled.div`
   display: flex;

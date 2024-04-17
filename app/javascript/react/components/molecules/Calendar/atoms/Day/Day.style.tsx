@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import { gray100, gray400 } from "../../../../../assets/styles/colors";
-import media from "../../../../../utils/media";
+import { media } from "../../../../../utils/media";
 
 interface DayProps {
   $color?: string;

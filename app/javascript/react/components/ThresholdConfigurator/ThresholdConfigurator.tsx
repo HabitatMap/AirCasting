@@ -8,6 +8,7 @@ import {
 import * as S from "./ThresholdConfigurator.style";
 import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
 import { useTranslation } from "react-i18next";
+import { screenSizes } from "../../utils/media";
 
 interface ThresholdsConfiguratorProps {
   initialThresholds: Thresholds;
@@ -25,6 +26,22 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const [sliderWidth, setSliderWidth] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
+
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < screenSizes.smallDesktop
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < screenSizes.smallDesktop);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (sliderRef.current) {
@@ -103,20 +120,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
   const { min, max, ...thumbs } = thresholdValues;
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
-
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
 
   return (
     <S.Container>
