@@ -7,16 +7,21 @@ namespace :measurements do
     maintenance_interval = 50_000_000
 
     total_to_update_sql = <<-SQL
-      SELECT COUNT(*) FROM measurements WHERE time_with_time_zone IS NULL
+      SELECT COUNT(*)
+      FROM measurements m
+      WHERE m.time_with_time_zone IS NULL
+      AND EXISTS (SELECT 1 FROM streams s WHERE s.id = m.stream_id)
     SQL
     total_to_update = ActiveRecord::Base.connection.execute(total_to_update_sql).first['count'].to_i
     puts "Total measurements to update: #{total_to_update}"
 
     loop do
       stream_ids_to_update_sql = <<-SQL
-        SELECT id FROM streams WHERE id IN (
-          SELECT DISTINCT stream_id FROM measurements WHERE time_with_time_zone IS NULL LIMIT #{batch_size}
-        )
+        SELECT DISTINCT m.stream_id
+        FROM measurements m
+        WHERE m.time_with_time_zone IS NULL
+        AND EXISTS (SELECT 1 FROM streams s WHERE s.id = m.stream_id)
+        LIMIT #{batch_size}
       SQL
       stream_ids_to_update = ActiveRecord::Base.connection.execute(stream_ids_to_update_sql).map { |row| row['id'] }
 
