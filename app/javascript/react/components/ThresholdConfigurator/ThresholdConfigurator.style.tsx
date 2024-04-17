@@ -121,6 +121,7 @@ const RangeInput = styled.input<{
 
 const NumberInput = styled.input<{
   $isLast?: boolean;
+  $isFirst?: boolean;
 }>`
   font-family: Roboto;
   font-weight: 500;
@@ -160,7 +161,7 @@ const NumberInput = styled.input<{
     top: -10px;
     max-width: 50px;
     height: 32px;
-    margin-left: -35px;
+    margin-left: ${(props) => (props.$isFirst ? "0" : "-25px")};
   }
 `;
 

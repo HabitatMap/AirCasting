@@ -131,6 +131,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           value={min}
           onChange={(e) => handleInputChange("min", e.target.value)}
           readOnly
+          $isFirst={true}
         />
         {thumbData.map(([thresholdKey, value]) => (
           <React.Fragment key={thresholdKey}>
