@@ -112,14 +112,11 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const handleTouchMove =
     (thresholdKey: keyof Thresholds, startX: number, startValue: number) =>
     (moveEvent: TouchEvent) => {
-      // Prevent default touch event behavior to avoid scrolling
       moveEvent.preventDefault();
 
-      // Get touch position
       const touch = moveEvent.touches[0];
       const displacement = touch.clientX - startX;
 
-      // Proceed with the same logic as mouse move
       handleMouseMove(
         thresholdKey,
         startX,
@@ -173,7 +170,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           value={min}
           onChange={(e) => handleInputChange("min", e.target.value)}
           $isFirst
-          readOnly={isMobile}
         />
         {thumbData.map(([thresholdKey, value]) => (
           <React.Fragment key={thresholdKey}>
@@ -216,7 +212,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           step={1}
           value={max}
           $isLast
-          readOnly={isMobile}
           // TODO debounce
           onChange={(e) => handleInputChange("max", e.target.value)}
           //TODO onBlur={() => setInputValue(value.toString())}
