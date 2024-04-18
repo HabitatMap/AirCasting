@@ -66,8 +66,6 @@ class FixedSession < Session
     )
   end
 
-  private
-
   def is_active
     last_measurement_at > (Time.current - ACTIVE_FOR)
   end

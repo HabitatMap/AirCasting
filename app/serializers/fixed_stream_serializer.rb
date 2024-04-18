@@ -12,6 +12,7 @@ class FixedStreamSerializer
 
   def serialized_stream(stream)
     {
+      active: stream.session.is_active,
       title: stream.session.title,
       profile: stream.session.username,
       sensor_name: stream.sensor_name,
@@ -31,7 +32,7 @@ class FixedStreamSerializer
     stream_daily_averages.map do |stream_daily_average|
       {
         date: stream_daily_average.date.strftime('%Y-%m-%d'),
-        value: stream_daily_average.value,
+        value: stream_daily_average.value.round,
       }
     end
   end

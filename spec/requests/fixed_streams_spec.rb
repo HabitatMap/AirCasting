@@ -18,6 +18,7 @@ describe 'GET api/v3/fixed_streams/:id' do
 
       expected_response = {
         stream: {
+          active: session.is_active,
           title: session.title,
           profile: session.username,
           sensor_name: stream.sensor_name,
@@ -32,11 +33,11 @@ describe 'GET api/v3/fixed_streams/:id' do
         stream_daily_averages: [
           {
             date: stream_daily_average_1.date.strftime('%Y-%m-%d'),
-            value: stream_daily_average_1.value,
+            value: stream_daily_average_1.value.round,
           },
           {
             date: stream_daily_average_2.date.strftime('%Y-%m-%d'),
-            value: stream_daily_average_2.value,
+            value: stream_daily_average_2.value.round,
           },
         ],
       }
