@@ -8,6 +8,7 @@ import {
 import * as S from "./ThresholdConfigurator.style";
 import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
 import { useTranslation } from "react-i18next";
+import { debounce } from "../../utils/debounce";
 
 import { screenSizes } from "../../utils/media";
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
@@ -22,6 +23,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   initialThresholds,
 }) => {
   const [thresholdValues, setThresholdValues] = useState(initialThresholds);
+  const [inputValues, setInputValues] = useState(initialThresholds);
   const [thumbPositions, setThumbPositions] = useState<ThumbPositions>(
     {} as ThumbPositions
   );
@@ -56,8 +58,16 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     setThumbPositions({ low: lowThumb, middle: middleThumb, high: highThumb });
   }, [thresholdValues, sliderWidth]);
 
+  const debouncedHandleInputChange = useRef(
+    debounce((newThresholds: Thresholds) => {
+      setThresholdValues(newThresholds);
+    }, 5000)
+  ).current;
+
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
-    setThresholdValues({ ...thresholdValues, [thresholdKey]: Number(value) });
+    const newInputValues = { ...inputValues, [thresholdKey]: Number(value) };
+    setInputValues(newInputValues); // Update input values immediately
+    debouncedHandleInputChange(newInputValues); // Debounce update of threshold values
   };
 
   const handleMouseMove =
