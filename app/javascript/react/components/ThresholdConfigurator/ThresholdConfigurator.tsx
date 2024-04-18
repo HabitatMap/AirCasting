@@ -8,6 +8,7 @@ import {
 import * as S from "./ThresholdConfigurator.style";
 import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
 import { useTranslation } from "react-i18next";
+
 import { screenSizes } from "../../utils/media";
 
 interface ThresholdsConfiguratorProps {
