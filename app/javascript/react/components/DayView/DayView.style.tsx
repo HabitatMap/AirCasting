@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { H6, H5 } from "../Typography";
 import { Thresholds } from "../../types/thresholds";
 import { getColorForValue } from "../../utils/thresholdColors";
-import media from "../../utils/media";
+import { media } from "../../utils/media";
 import * as colors from "../../assets/styles/colors";
 
 interface ValueBarProps {

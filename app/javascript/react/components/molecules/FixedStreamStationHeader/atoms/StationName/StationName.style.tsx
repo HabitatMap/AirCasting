@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import media from "../../../../../utils/media";
+import { media } from "../../../../../utils/media";
 import { H3, H5 } from "../../../../Typography";
 import { gray300 } from "../../../../../assets/styles/colors";
 

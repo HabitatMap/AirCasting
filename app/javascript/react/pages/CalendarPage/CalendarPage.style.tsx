@@ -1,20 +1,21 @@
 import styled from "styled-components";
 
-import { gray100, white } from "../../assets/styles/colors";
+import { gray100 } from "../../assets/styles/colors";
 import { H3 } from "../../components/Typography";
-import media from "../../utils/media";
+import { media } from "../../utils/media";
 
 const CalendarPageLayout = styled.div`
   display: flex;
-  padding: 15px;
   justify-content: center;
   background-color: ${gray100};
+
+  @media ${media.smallDesktop} {
+  padding: 15px;
 `;
 
 const StationDataContainer = styled.div`
   box-shadow: 0px 5px 20px 2px rgba(0, 0, 0, 0.1);
-  background: ${white};
-  width: 90vw;
+  width: 100vw;
   max-width: 1600px;
   min-height: 100vh;
   margin: 20px 0;
@@ -25,8 +26,9 @@ const StationDataContainer = styled.div`
 `;
 
 const Heading = styled(H3)`
-  padding-bottom: 30px;
+  padding-bottom: 20px;
   font-weight: 700;
+  font-size: 22px;
 
   @media ${media.smallDesktop} {
     font-size: 28px;

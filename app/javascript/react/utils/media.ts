@@ -7,10 +7,15 @@ const sizes = {
   desktop: "1024px",
 };
 
-const media = {
+export const media = {
   mobile: `(max-width: ${sizes.mobile})`,
   smallDesktop: `(min-width: ${sizes.smallDesktop})`,
   desktop: `(min-width: ${sizes.desktop})`,
 };
 
-export default media;
+
+export const screenSizes = {
+  mobile: 768,
+  smallDesktop: 769,
+  desktop: 1024,
+}

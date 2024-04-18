@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import { gray100, gray400 } from "../../../../../assets/styles/colors";
-import media from "../../../../../utils/media";
+import { media } from "../../../../../utils/media";
 
 interface DayProps {
   $color?: string;
@@ -53,7 +53,7 @@ const DayNumber = styled.span<LabelProps>`
 `;
 
 const ValueContainer = styled.div<LabelProps>`
-  font-size: 2.8vw;
+  font-size: 3.8vw;
   font-weight: 600;
   text-align: start;
   display: ${(props) => (props.$isVisible ? "block" : "none")};

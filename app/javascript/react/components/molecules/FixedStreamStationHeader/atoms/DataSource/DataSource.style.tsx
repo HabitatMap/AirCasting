@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import { H4 } from "../../../../Typography";
-import media from "../../../../../utils/media";
+import { media } from "../../../../../utils/media";
 
 const DataDescription = styled(H4)`
   display: inline;

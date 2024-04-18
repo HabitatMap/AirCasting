@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import { H5 } from "../../Typography";
-import media from "../../../utils/media";
+import { media } from "../../../utils/media";
 import { gray100, gray300 } from "../../../assets/styles/colors";
 
 const HorizontalContainer = styled.div`

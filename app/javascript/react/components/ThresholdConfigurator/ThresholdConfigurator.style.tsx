@@ -1,13 +1,31 @@
 import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
+import { media } from "../../utils/media";
 
 const Container = styled.div`
-  margin: 50px;
-  background-color: ${colors.white};
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  background: ${colors.white};
+
+  @media (${media.desktop}) {
+    padding: 3.5rem 10rem;
+    margin-bottom: 0;
+  }
+`;
+
+const InputContainer = styled.div`
   position: relative;
-  width: 90%;
+  width: 100%;
   height: 70px;
+  padding-left: 1.5rem;
+
+  @media (${media.desktop}) {
+    margin-top: 3rem;
+    padding-left: 0;
+  }
 `;
 
 const RangeInput = styled.input<{
@@ -18,8 +36,9 @@ const RangeInput = styled.input<{
 }>`
   width: 100%;
   position: absolute;
-  top: 0;
-  height: 8px;
+  top: 13px;
+  height: 21px;
+  left: 0;
   background: transparent;
   -webkit-appearance: none;
   appearance: none;
@@ -30,7 +49,7 @@ const RangeInput = styled.input<{
   &::-ms-track {
     appearance: none;
     -webkit-appearance: none;
-    height: 5px;
+    height: 24px;
     background: transparent;
   }
 
@@ -48,7 +67,9 @@ const RangeInput = styled.input<{
   &:nth-child(6)::after {
     content: "";
     position: absolute;
-    height: 10px;
+    height: 24px;
+    border-radius: 5px;
+    margin-right: 10px;
   }
 
   &:nth-child(2)::before {
@@ -74,19 +95,45 @@ const RangeInput = styled.input<{
     right: 0;
     background: ${colors.red};
   }
+
+  @media ${media.desktop} {
+    top: 0;
+    width: 100%;
+    height: 8px;
+
+    &::-webkit-slider-runnable-track,
+    &::-moz-range-track,
+    &::-ms-track {
+      height: 5px;
+    }
+
+    &:nth-child(2)::before,
+    &:nth-child(4)::before,
+    &:nth-child(6)::before,
+    &:nth-child(6)::after {
+      content: "";
+      position: absolute;
+      height: 10px;
+      margin-right: 0;
+    }
+  }
 `;
 
-const NumberInput = styled.input`
+const NumberInput = styled.input<{
+  $isLast?: boolean;
+  $isFirst?: boolean;
+}>`
   font-family: Roboto;
-  font-weight: 600;
-  font-size: 1.4rem;
+  font-weight: 500;
+  font-size: 1.2rem;
   text-align: center;
   color: ${colors.gray300};
   position: absolute;
-  top: -10px;
-  max-width: 50px;
-  height: 32px;
-  margin-left: -25px;
+  top: 0;
+  right: ${(props) => (props.$isLast ? "0px" : "auto")};
+  max-width: 27px;
+  height: 50px;
+  margin-left: -15px;
   border-radius: 5px;
   border: 1px solid ${colors.gray100};
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
@@ -104,6 +151,18 @@ const NumberInput = styled.input`
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
   }
+  &:disabled {
+    background-color: ${colors.white};
+  }
+
+  @media ${media.desktop} {
+    font-weight: 600;
+    font-size: 1.4rem;
+    top: -10px;
+    max-width: 50px;
+    height: 32px;
+    margin-left: ${(props) => (props.$isFirst ? "0" : "-25px")};
+  }
 `;
 
-export { Container, RangeInput, NumberInput };
+export { Container, InputContainer, RangeInput, NumberInput };

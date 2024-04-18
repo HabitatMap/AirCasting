@@ -9,6 +9,8 @@ import * as S from "./ThresholdConfigurator.style";
 import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
 import { useTranslation } from "react-i18next";
 
+import { screenSizes } from "../../utils/media";
+
 interface ThresholdsConfiguratorProps {
   initialThresholds: Thresholds;
 }
@@ -25,6 +27,21 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const [sliderWidth, setSliderWidth] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < screenSizes.mobile
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < screenSizes.mobile);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (sliderRef.current) {
@@ -79,12 +96,35 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     };
 
   const handleMouseUp =
-    (moveHandler: (moveEvent: globalThis.MouseEvent) => void) => () => {
-      document.removeEventListener("mousemove", moveHandler as EventListener);
+    (moveHandler: (moveEvent: globalThis.MouseEvent | TouchEvent) => void) =>
+    () => {
+      document.removeEventListener("mousemove", moveHandler);
+      document.removeEventListener("touchmove", moveHandler);
       document.removeEventListener(
         "mouseup",
         handleMouseUp(moveHandler) as EventListener
       );
+      document.removeEventListener(
+        "touchend",
+        handleMouseUp(moveHandler) as EventListener
+      );
+    };
+
+  const handleTouchMove =
+    (thresholdKey: keyof Thresholds, startX: number, startValue: number) =>
+    (moveEvent: TouchEvent) => {
+      moveEvent.preventDefault();
+
+      const touch = moveEvent.touches[0];
+      const displacement = touch.clientX - startX;
+
+      handleMouseMove(
+        thresholdKey,
+        startX,
+        startValue
+      )({
+        clientX: touch.clientX,
+      } as globalThis.MouseEvent);
     };
 
   const handleMouseDown =
@@ -97,7 +137,24 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
       document.addEventListener("mousemove", moveHandler as EventListener);
       document.addEventListener(
         "mouseup",
-        handleMouseUp(moveHandler) as EventListener
+        handleMouseUp(
+          moveHandler as (moveEvent: TouchEvent | MouseEvent) => void
+        ) as EventListener
+      );
+    };
+
+  const handleTouchStart =
+    (thresholdKey: keyof Thresholds) =>
+    (event: React.TouchEvent<HTMLInputElement>) => {
+      const startX = event.touches[0].clientX;
+      const startValue = thresholdValues[thresholdKey];
+      const moveHandler = handleTouchMove(thresholdKey, startX, startValue);
+      document.addEventListener("touchmove", moveHandler);
+      document.addEventListener(
+        "touchend",
+        handleMouseUp(
+          moveHandler as (moveEvent: TouchEvent | MouseEvent) => void
+        ) as EventListener
       );
     };
 
@@ -105,13 +162,15 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
 
   return (
-    <>
+    <S.Container>
       <Heading>{t("calendarHeader.legendTitle")}</Heading>
-      <S.Container ref={sliderRef}>
+      <S.InputContainer ref={sliderRef}>
         <S.NumberInput
+          inputMode="numeric"
           type="number"
           value={min}
           onChange={(e) => handleInputChange("min", e.target.value)}
+          $isFirst
         />
         {thumbData.map(([thresholdKey, value]) => (
           <React.Fragment key={thresholdKey}>
@@ -125,11 +184,13 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
               type="range"
               value={value}
               onChange={(e) => handleInputChange(thresholdKey, e.target.value)}
+              onTouchStart={handleTouchStart(thresholdKey)}
             />
             <S.NumberInput
               inputMode="numeric"
               type="number"
               value={value}
+              readOnly={isMobile}
               style={{
                 left: `${calculateThumbPosition(
                   value,
@@ -140,6 +201,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
               }}
               // TODO debounce
               onChange={(e) => handleInputChange(thresholdKey, e.target.value)}
+              onTouchStart={handleTouchStart(thresholdKey)}
               onMouseDown={handleMouseDown(thresholdKey)}
               //TODO Add touch event handlers if supporting touch devices
             />
@@ -150,15 +212,13 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           type="number"
           step={1}
           value={max}
-          style={{
-            right: "-30px",
-          }}
+          $isLast
           // TODO debounce
           onChange={(e) => handleInputChange("max", e.target.value)}
           //TODO onBlur={() => setInputValue(value.toString())}
         />
-      </S.Container>
-    </>
+      </S.InputContainer>
+    </S.Container>
   );
 };
 
