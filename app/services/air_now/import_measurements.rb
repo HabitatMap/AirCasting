@@ -16,8 +16,6 @@ class AirNow::ImportMeasurements
     saveable_measurements = process_measurements.new(measurements).call
     streams = GroupByStream.new.call(measurements: saveable_measurements)
     save_measurements.call(streams: streams)
-
-    binding.pry
   end
 
   private

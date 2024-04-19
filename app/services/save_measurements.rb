@@ -1,6 +1,7 @@
 class SaveMeasurements
-  def initialize(user:)
+  def initialize(user:, time_zone_finder: TimezoneFinder)
     @user = user
+    @time_zone_finder = time_zone_finder
   end
 
   def call(streams:)
@@ -9,12 +10,14 @@ class SaveMeasurements
 
   private
 
+  attr_reader :user, :time_zone_finder
+
   def save(streams)
     persisted_streams =
       Stream
         .select(:id, :min_latitude, :min_longitude, :sensor_name, :session_id)
         .joins(:session)
-        .where(session: { user_id: @user.id })
+        .where(session: { user_id: user.id })
         .load
 
     persisted_streams_hash =
@@ -45,7 +48,7 @@ class SaveMeasurements
         last = measurements.last
 
         FixedSession.new(
-          user_id: @user.id,
+          user_id: user.id,
           title: first.title,
           contribute: true,
           start_time_local: first.time_local,
@@ -186,6 +189,8 @@ class SaveMeasurements
       pairs_to_create
         .each_with_object([])
         .with_index do |((stream, measurements), acc), i|
+          time_zone = time_zone_at(stream.latitude, stream.longitude)
+
           measurements.each do |measurement|
             acc <<
               Measurement.new(
@@ -198,6 +203,7 @@ class SaveMeasurements
                 milliseconds: 0,
                 measured_value: measurement.value,
                 stream_id: stream_ids[i],
+                time_with_time_zone: measurement.time_local.in_time_zone.change(zone: time_zone)
               )
           end
         end
@@ -213,6 +219,7 @@ class SaveMeasurements
       pairs_to_append
         .each_with_object([])
         .with_index do |((stream, measurements), acc), i|
+          time_zone = time_zone_at(stream.latitude, stream.longitude)
           measurements.each do |measurement|
             acc <<
               Measurement.new(
@@ -228,6 +235,7 @@ class SaveMeasurements
                   persisted_streams_hash[
                     [stream.latitude, stream.longitude, stream.sensor_name]
                   ].last,
+                time_with_time_zone: measurement.time_local.in_time_zone.change(zone: time_zone)
               )
           end
         end
@@ -236,5 +244,13 @@ class SaveMeasurements
       Rails
         .logger.warn "Measurement.import failed for: #{import.failed_instances.inspect}"
     end
+  end
+
+  def time_zone_at(lat, lng)
+    if lat.nil? || lng.nil? || lat.zero? || lng.zero? || lat > 90 || lat < -90 || lng > 180 || lng < -180
+      return 'UTC'
+    end
+
+    time_zone_finder.create.timezone_at(lng: lng, lat: lat)
   end
 end
