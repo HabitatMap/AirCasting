@@ -1,5 +1,5 @@
 # files format:
-# locations id|parameter|aqsid|location|status|agency|agency_name|epa_region|latitude|longitude|elevation|timezone|country|state|county|city|site_address|site_setting|site_type|site_name|site_code|msa_code|csa_code|tribal_code|monitoring_agency
+# locations aqsid|parameter|site_code|site_name|status|agency_id|agency_name|epa_region|latitude|longitude|elevation|timezone|country|msa_code|msa_name|state_code|state_name|county_code|county_name
 # measurements date|time|aqsid|location|timezone|parameter|unit|value|attribution
 # documentation:
 # locations https://docs.airnowapi.org/docs/MonitoringSiteFactSheet.pdf
@@ -21,7 +21,7 @@ class AirNow::ParseFiles
 
   def self.parse_hourly_data(data, locations)
     data.split("\n").map do |line|
-      parts = line.split('|')
+      parts = line.split('|').map(&:strip)
 
       location = locations.find { |loc| parts[2] == (loc[:aqsid]) }
       next unless location

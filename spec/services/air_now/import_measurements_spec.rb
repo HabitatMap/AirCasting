@@ -1,5 +1,8 @@
 require 'rails_helper'
 
+# locations aqsid|parameter|site_code|site_name|status|agency_id|agency_name|epa_region|latitude|longitude|elevation|timezone|country|msa_code|msa_name|state_code|state_name|county_code|county_name
+# measurements date|time|aqsid|location|timezone|parameter|unit|value|attribution
+
 describe AirNow::ImportMeasurements do
   let!(:user) do
     User.create!(
@@ -52,5 +55,35 @@ describe AirNow::ImportMeasurements do
     ].each do |attribute, expected|
       expect(Session.first.public_send(attribute)).to eq(expected)
     end
+  end
+
+  it 'wont create measurement, stream, session for unwanted parameter' do
+    locations_data = '000020104|location-name|site-code|site-name|status|agency-id|agency-name|epa-region|44.941101|-105.837799|27.9|timezone|country|msa-code|msa-name|state-code|state-name|county-code|county-name'
+    measurements_data = '03/25/24|07:00|000020104|measurement-location|-4|SO2|PPB|0.3|attribution
+                         03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution'
+
+    described_class.new(
+      locations_data: locations_data,
+      hourly_data: measurements_data
+    ).call
+
+    expect(Measurement.count).to eq(1)
+    expect(Stream.count).to eq(1)
+    expect(Session.count).to eq(1)
+  end
+
+  it 'will create one session for multiple correct measurements and streams in the same location' do
+    locations_data = '000020104|location-name|site-code|site-name|status|agency-id|agency-name|epa-region|44.941101|-105.837799|27.9|timezone|country|msa-code|msa-name|state-code|state-name|county-code|county-name'
+    measurements_data = '03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution
+                         03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution'
+
+    described_class.new(
+      locations_data: locations_data,
+      hourly_data: measurements_data
+    ).call
+
+    expect(Measurement.count).to eq(2)
+    expect(Stream.count).to eq(2)
+    expect(Session.count).to eq(1)
   end
 end
