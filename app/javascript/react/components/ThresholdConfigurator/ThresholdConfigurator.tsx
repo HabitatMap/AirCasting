@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { debounce } from "../../utils/debounce";
+import { debounce } from "lodash";
 
 import { Thresholds } from "../../types/thresholds";
 import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
@@ -26,7 +26,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   initialThresholds,
 }) => {
   const [thresholdValues, setThresholdValues] = useState(initialThresholds);
-  const [inputValues, setInputValues] = useState(initialThresholds);
   const [thumbPositions, setThumbPositions] = useState<ThumbPositions>(
     {} as ThumbPositions
   );
