@@ -122,6 +122,8 @@ const RangeInput = styled.input<{
 const NumberInput = styled.input<{
   $isLast?: boolean;
   $isFirst?: boolean;
+  $hasError?: boolean;
+  $isActive?: boolean;
 }>`
   font-family: Roboto;
   font-weight: 500;
@@ -136,6 +138,9 @@ const NumberInput = styled.input<{
   margin-left: -15px;
   border-radius: 5px;
   border: 1px solid ${colors.gray100};
+
+  outline: none;
+
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   z-index: 5;
   cursor: move; /* fallback if grab cursor is unsupported */
@@ -155,6 +160,16 @@ const NumberInput = styled.input<{
     background-color: ${colors.white};
   }
 
+  &:focus-visible {
+    border-color: ${(props) =>
+      props.$hasError
+        ? colors.red
+        : props.$isActive
+        ? colors.blue
+        : colors.gray100};
+    outline-color: ${(props) => (props.$isActive ? colors.blue : "inherit")};
+  }
+
   @media ${media.desktop} {
     font-weight: 600;
     font-size: 1.4rem;
@@ -165,4 +180,19 @@ const NumberInput = styled.input<{
   }
 `;
 
-export { Container, InputContainer, RangeInput, NumberInput };
+const ErrorMessage = styled.p`
+  color: ${colors.red};
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1rem;
+  font-weight: bold;
+
+  @media ${media.desktop} {
+    font-size: 1.5rem;
+    top: 110%;
+  }
+`;
+
+export { Container, InputContainer, RangeInput, NumberInput, ErrorMessage };
