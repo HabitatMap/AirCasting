@@ -24,7 +24,7 @@ const StationActionButtons = () => {
       </S.MobileButtons>
       <S.DesktopButtons>
         <Button
-          onClick={() => {}}
+          onClick={copyCurrentURL}
           aria-label={t("calendarHeader.altShareLink")}
         >
           {t("calendarHeader.copyLink")} <img src={copyLink} />
@@ -32,6 +32,11 @@ const StationActionButtons = () => {
       </S.DesktopButtons>
     </>
   );
+};
+
+const copyCurrentURL = () => {
+  const currentURL = window.location.href;
+  navigator.clipboard.writeText(currentURL);
 };
 
 export { StationActionButtons };
