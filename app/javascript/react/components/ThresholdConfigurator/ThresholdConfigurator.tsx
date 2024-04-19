@@ -67,17 +67,33 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     // Parse the input value as a number
     const parsedValue = Number(value);
 
-    // Validate the input value against the min and max thresholds
-    if (!validateValue(parsedValue, thresholdValues.min, thresholdValues.max)) {
-      setErrorMessage(
-        `Value must be between ${thresholdValues.min} and ${thresholdValues.max}`
-      );
+    // Validate the input value based on the threshold key
+    if (thresholdKey === "min" || thresholdKey === "max") {
+      // Validate the input value against the overall range of possible values
+      if (!validateValue(parsedValue, -Infinity, Infinity)) {
+        setErrorMessage(`Value must be a valid number`);
+      } else {
+        setErrorMessage("");
+        setThresholdValues((prevValues) => ({
+          ...prevValues,
+          [thresholdKey]: parsedValue,
+        }));
+      }
     } else {
-      setErrorMessage("");
-      setThresholdValues((prevValues) => ({
-        ...prevValues,
-        [thresholdKey]: parsedValue,
-      }));
+      // For middle thresholds, validate against the min and max thresholds
+      if (
+        !validateValue(parsedValue, thresholdValues.min, thresholdValues.max)
+      ) {
+        setErrorMessage(
+          `Value must be between ${thresholdValues.min} and ${thresholdValues.max}`
+        );
+      } else {
+        setErrorMessage("");
+        setThresholdValues((prevValues) => ({
+          ...prevValues,
+          [thresholdKey]: parsedValue,
+        }));
+      }
     }
   };
 

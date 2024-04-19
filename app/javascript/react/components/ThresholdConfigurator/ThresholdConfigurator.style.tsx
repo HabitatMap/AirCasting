@@ -139,8 +139,6 @@ const NumberInput = styled.input<{
   border-radius: 5px;
   border: 1px solid ${colors.gray100};
 
-  outline: none;
-
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   z-index: 5;
   cursor: move; /* fallback if grab cursor is unsupported */
