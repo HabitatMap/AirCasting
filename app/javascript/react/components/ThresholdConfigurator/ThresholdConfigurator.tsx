@@ -59,13 +59,19 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     setThumbPositions({ low: lowThumb, middle: middleThumb, high: highThumb });
   }, [thresholdValues, sliderWidth]);
 
+  const validateValue = (newValue: number, min: number, max: number) => {
+    return newValue >= min && newValue <= max;
+  };
+
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
     // Parse the input value as a number
     const parsedValue = Number(value);
 
     // Validate the input value against the min and max thresholds
-    if (parsedValue < min || parsedValue > max) {
-      setErrorMessage(`Value must be between ${min} and ${max}`);
+    if (!validateValue(parsedValue, thresholdValues.min, thresholdValues.max)) {
+      setErrorMessage(
+        `Value must be between ${thresholdValues.min} and ${thresholdValues.max}`
+      );
     } else {
       setErrorMessage("");
       setThresholdValues((prevValues) => ({
@@ -174,6 +180,22 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
       );
     };
 
+  const handleOutsideClick = (event: MouseEvent) => {
+    if (
+      sliderRef.current &&
+      !sliderRef.current.contains(event.target as Node)
+    ) {
+      setErrorMessage("");
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleOutsideClick);
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
+
   const { min, max, ...thumbs } = thresholdValues;
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
 
@@ -212,7 +234,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                     readOnly={isMobile}
                     onFocus={() => setActiveInput("min" as unknown as null)}
                     onBlur={() => setActiveInput(null)}
-                    $isFirst
                     $hasError={errorMessage !== ""}
                     $isActive={activeInput === thresholdKey}
                     style={{
