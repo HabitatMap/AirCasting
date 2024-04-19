@@ -3,7 +3,7 @@ import {
   blue,
   green,
   gray100,
-  gray400,
+  gray300,
 } from "../../../../../assets/styles/colors";
 import hexToRGBA from "../../../../../utils/hexToRGB";
 import { media } from "../../../../../utils/media";
@@ -17,14 +17,14 @@ const Container = styled.div<ContainerProps>`
     props.isActive
       ? `linear-gradient(
       241deg,
-      ${hexToRGBA(gray100, 0.4)} -2.4%,
-      ${hexToRGBA(gray100, 0.0)} 94.94%
-    ), ${gray400}`
+      ${hexToRGBA(blue, 0.4)} -2.4%,
+      ${hexToRGBA(blue, 0.0)} 94.94%
+    ), ${green}`
       : `linear-gradient(
         241deg,
-        ${hexToRGBA(blue, 0.4)} -2.4%,
-        ${hexToRGBA(blue, 0.0)} 94.94%
-      ), ${green}`};
+        ${hexToRGBA(gray100, 0.4)} -2.4%,
+        ${hexToRGBA(gray100, 0.0)} 94.94%
+      ), ${gray300}`};
   display: flex;
   flex-direction: column;
   align-self: stretch;
