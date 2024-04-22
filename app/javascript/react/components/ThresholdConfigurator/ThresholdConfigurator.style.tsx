@@ -121,7 +121,6 @@ const RangeInput = styled.input<{
 
 const NumberInput = styled.input<{
   $isLast?: boolean;
-  $isFirst?: boolean;
   $hasError?: boolean;
   $isActive?: boolean;
 }>`
@@ -138,7 +137,6 @@ const NumberInput = styled.input<{
   margin-left: -15px;
   border-radius: 5px;
   border: 1px solid ${colors.gray100};
-
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   z-index: 5;
   cursor: move; /* fallback if grab cursor is unsupported */
@@ -175,7 +173,6 @@ const NumberInput = styled.input<{
     top: -10px;
     max-width: 50px;
     height: 32px;
-    margin-left: ${(props) => (props.$isFirst ? "0" : "-25px")};
   }
 `;
 

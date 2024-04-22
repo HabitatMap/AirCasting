@@ -63,13 +63,80 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     return newValue >= min && newValue <= max;
   };
 
+  const updateAdjacentThresholds = (
+    thresholdKey: keyof Thresholds,
+    newValue: number
+  ) => {
+    switch (thresholdKey) {
+      case "low":
+        if (
+          newValue >= thresholdValues.middle &&
+          thresholdValues.middle !== thresholdValues.max
+        ) {
+          setThresholdValues((prevValues) => ({
+            ...prevValues,
+            middle: Math.min(newValue + 1, thresholdValues.max),
+          }));
+        }
+        if (
+          newValue >= thresholdValues.high &&
+          thresholdValues.high !== thresholdValues.max
+        ) {
+          setThresholdValues((prevValues) => ({
+            ...prevValues,
+            high: Math.min(newValue + 2, thresholdValues.max),
+          }));
+        }
+        break;
+      case "middle":
+        if (
+          newValue <= thresholdValues.low &&
+          thresholdValues.low !== thresholdValues.min
+        ) {
+          setThresholdValues((prevValues) => ({
+            ...prevValues,
+            low: Math.max(newValue - 1, thresholdValues.min),
+          }));
+        }
+        if (
+          newValue > thresholdValues.high &&
+          thresholdValues.high !== thresholdValues.max
+        ) {
+          setThresholdValues((prevValues) => ({
+            ...prevValues,
+            high: Math.min(newValue + 1, thresholdValues.max),
+          }));
+        }
+        break;
+      case "high":
+        if (
+          newValue <= thresholdValues.middle &&
+          thresholdValues.middle !== thresholdValues.min
+        ) {
+          setThresholdValues((prevValues) => ({
+            ...prevValues,
+            middle: Math.max(newValue - 1, thresholdValues.min),
+          }));
+        }
+        if (
+          newValue <= thresholdValues.low &&
+          thresholdValues.low !== thresholdValues.min
+        ) {
+          setThresholdValues((prevValues) => ({
+            ...prevValues,
+            low: Math.max(newValue - 2, thresholdValues.min),
+          }));
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
-    // Parse the input value as a number
     const parsedValue = Number(value);
 
-    // Validate the input value based on the threshold key
     if (thresholdKey === "min" || thresholdKey === "max") {
-      // Validate the input value against the overall range of possible values
       if (!validateValue(parsedValue, -Infinity, Infinity)) {
         setErrorMessage(`Value must be a valid number`);
       } else {
@@ -80,7 +147,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
         }));
       }
     } else {
-      // For middle thresholds, validate against the min and max thresholds
       if (
         !validateValue(parsedValue, thresholdValues.min, thresholdValues.max)
       ) {
@@ -93,6 +159,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           ...prevValues,
           [thresholdKey]: parsedValue,
         }));
+        updateAdjacentThresholds(thresholdKey, parsedValue);
       }
     }
   };
@@ -100,11 +167,11 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const handleMouseMove =
     (thresholdKey: keyof Thresholds, startX: number, startValue: number) =>
     (moveEvent: globalThis.MouseEvent) => {
-      // How much the thumb has moved horizntally since drag started.
+      // How much the thumb has moved horizontally since drag started.
       const displacement = moveEvent.clientX - startX;
 
       // Threshold new percentage, based on thumb value when dragging started,
-      // the displacement and slider width.
+      // the displacement, and slider width.
       const newPercentage =
         calculateThumbPercentage(
           startValue,
@@ -114,7 +181,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
         displacement / sliderWidth;
 
       // Threshold new value based on the threshold new percentage.
-      const newThresholdValue = Math.round(
+      let newThresholdValue = Math.round(
         thresholdValues.min +
           newPercentage * (thresholdValues.max - thresholdValues.min)
       );
@@ -124,13 +191,72 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
         Math.max(newThresholdValue, thresholdValues.min),
         thresholdValues.max
       );
+      let updatedValues: Thresholds = { ...thresholdValues };
+      let currentValue = newThresholdValueWithinBounds;
 
-      setThresholdValues((prevThresholds) => {
-        return {
-          ...prevThresholds,
-          [thresholdKey]: newThresholdValueWithinBounds,
-        };
-      });
+      currentValue = Math.max(currentValue, thresholdValues.min);
+      currentValue = Math.min(currentValue, thresholdValues.max);
+
+      switch (thresholdKey) {
+        case "low":
+          if (
+            currentValue >= thresholdValues.middle &&
+            thresholdValues.middle !== thresholdValues.max
+          ) {
+            updatedValues.middle = Math.min(
+              currentValue + 1,
+              thresholdValues.max
+            );
+          }
+          if (
+            currentValue >= thresholdValues.high &&
+            thresholdValues.high !== thresholdValues.max
+          ) {
+            updatedValues.high = Math.min(
+              currentValue + 2,
+              thresholdValues.max
+            );
+          }
+          break;
+        case "middle":
+          if (
+            currentValue <= thresholdValues.low &&
+            thresholdValues.low !== thresholdValues.min
+          ) {
+            updatedValues.low = Math.max(currentValue - 1, thresholdValues.min);
+          }
+          if (
+            currentValue > thresholdValues.high &&
+            thresholdValues.high !== thresholdValues.max
+          ) {
+            updatedValues.high = Math.min(
+              currentValue + 1,
+              thresholdValues.max
+            );
+          }
+          break;
+        case "high":
+          if (
+            currentValue <= thresholdValues.middle &&
+            thresholdValues.middle !== thresholdValues.min
+          ) {
+            updatedValues.middle = Math.max(
+              currentValue - 1,
+              thresholdValues.min
+            );
+          }
+          if (
+            currentValue <= thresholdValues.low &&
+            thresholdValues.low !== thresholdValues.min
+          ) {
+            updatedValues.low = Math.max(currentValue - 2, thresholdValues.min);
+          }
+          break;
+      }
+
+      updatedValues[thresholdKey] = currentValue;
+
+      setThresholdValues(updatedValues);
     };
 
   const handleMouseUp =
@@ -154,7 +280,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
       moveEvent.preventDefault();
 
       const touch = moveEvent.touches[0];
-      const displacement = touch.clientX - startX;
 
       handleMouseMove(
         thresholdKey,
@@ -214,6 +339,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
   const { min, max, ...thumbs } = thresholdValues;
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
+  console.log(thumbPositions.low, thumbPositions.middle, thumbPositions.high);
 
   return (
     <S.Container>
@@ -227,7 +353,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                 type="number"
                 value={min}
                 onChange={(e) => handleInputChange("min", e.target.value)}
-                $isFirst
               />
               {thumbData.map(([thresholdKey, value]) => (
                 <React.Fragment key={thresholdKey}>
@@ -253,12 +378,17 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                     $hasError={errorMessage !== ""}
                     $isActive={activeInput === thresholdKey}
                     style={{
-                      left: `${calculateThumbPosition(
-                        value,
-                        min,
-                        max,
-                        sliderWidth
-                      )}px`,
+                      zIndex: 10,
+                      marginLeft: value === min ? "0px" : "-15px",
+                      left:
+                        value === max
+                          ? "98%"
+                          : `${calculateThumbPosition(
+                              value,
+                              min,
+                              max,
+                              sliderWidth
+                            )}px`,
                     }}
                     // TODO debounce
                     onChange={(e) => {
@@ -266,7 +396,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                     }}
                     onTouchStart={handleTouchStart(thresholdKey)}
                     onMouseDown={handleMouseDown(thresholdKey)}
-                    //TODO Add touch event handlers if supporting touch devices
                   />
                 </React.Fragment>
               ))}
