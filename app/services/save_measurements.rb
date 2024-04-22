@@ -219,7 +219,7 @@ class SaveMeasurements
       pairs_to_append
         .each_with_object([])
         .with_index do |((stream, measurements), acc), i|
-          time_zone = time_zone_at(stream.latitude, stream.longitude)
+          time_zone = time_zone_builder.call(stream.latitude, stream.longitude)
           measurements.each do |measurement|
             acc <<
               Measurement.new(

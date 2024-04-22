@@ -1,10 +1,10 @@
 class TimeZoneBuilder
   def initialize
-    @finder = TimezoneFinder.create
+    @finder = TimezoneFinder
   end
 
   def call(latitude, longitude)
-    time_zone_name(latitude, longitude)
+    time_zone_at(latitude, longitude)
   end
 
   private
@@ -16,6 +16,6 @@ class TimeZoneBuilder
       return 'UTC'
     end
 
-    time_zone_finder.create.timezone_at(lng: lng, lat: lat)
+    finder.create.timezone_at(lng: lng, lat: lat)
   end
 end

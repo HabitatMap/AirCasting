@@ -1,12 +1,8 @@
 class AirNow::ImportMeasurements
-  def initialize(
-    locations_data: Http.new.get(locations_endpoint),
-    hourly_data: Http.new.get(hourly_data_endpoint)
-  )
-    @locations_data = locations_data
-    @hourly_data = hourly_data
-    @save_measurements = SaveMeasurements.new(user: User.where(username: 'US EPA AirNow').first!)
+  def initialize
+    @locations_data, @hourly_data = AirNow::ImportData.new.call
     @parse_files = AirNow::ParseFiles
+    @save_measurements = SaveMeasurements.new(user: User.where(username: 'US EPA AirNow').first!)
     @process_measurements = AirNow::ProcessMeasurements
   end
 
@@ -21,15 +17,4 @@ class AirNow::ImportMeasurements
   private
 
   attr_reader :locations_data, :hourly_data, :save_measurements, :parse_files, :process_measurements
-
-  def locations_endpoint
-    'https://s3-us-west-1.amazonaws.com//files.airnowtech.org/airnow/today/monitoring_site_locations.dat'
-  end
-
-  def hourly_data_endpoint
-    current_utc = DateTime.now.new_offset(0) - 1.hour
-    formatted_date = current_utc.strftime('%Y%m%d')
-    formatted_hour = current_utc.strftime('%H')
-    "https://s3-us-west-1.amazonaws.com//files.airnowtech.org/airnow/2024/#{formatted_date}/HourlyData_#{formatted_date}#{formatted_hour}.dat"
-  end
 end
