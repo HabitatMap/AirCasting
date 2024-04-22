@@ -20,7 +20,7 @@ class AirNowImportMeasurementsWorker
   sidekiq_options lock: :until_executed, on_conflict: :log
 
   def perform
-    # return unless A9n.sidekiq_air_now_import_measurements_enabled
+    return unless A9n.sidekiq_air_now_import_measurements_enabled
 
     AirNow::ImportMeasurements.new.call
   end

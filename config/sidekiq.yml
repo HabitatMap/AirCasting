@@ -17,16 +17,6 @@
     class: "ThresholdAlertsWorker"
     queue: critical
 
-  open_aq_import_measurements:
-    every: "2m"
-    class: OpenAqImportMeasurementsWorker
-    queue: slow
-
-  purple_air_import_measurements:
-    every: "10m"
-    class: PurpleAirImportMeasurementsWorker
-    queue: slow
-
   airnow_import_measurements:
     cron: "56 * * * *"
     class: AirNowImportMeasurementsWorker
