@@ -9,7 +9,7 @@ class AirNow::ImportMeasurements
   def call
     locations = parse_files.parse_locations(locations_data)
     measurements = parse_files.parse_hourly_data(hourly_data, locations)
-    saveable_measurements = process_measurements.new(measurements).call
+    saveable_measurements = process_measurements.new.call(measurements)
     streams = GroupByStream.new.call(measurements: saveable_measurements)
     save_measurements.call(streams: streams)
   end

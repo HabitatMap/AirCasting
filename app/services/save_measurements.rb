@@ -1,7 +1,6 @@
 class SaveMeasurements
-  def initialize(user:, time_zone_builder: TimeZoneBuilder.new)
+  def initialize(user:)
     @user = user
-    @time_zone_builder = time_zone_builder
   end
 
   def call(streams:)
@@ -10,7 +9,7 @@ class SaveMeasurements
 
   private
 
-  attr_reader :user, :time_zone_builder
+  attr_reader :user
 
   def save(streams)
     persisted_streams =
@@ -189,7 +188,6 @@ class SaveMeasurements
       pairs_to_create
         .each_with_object([])
         .with_index do |((stream, measurements), acc), i|
-          time_zone = time_zone_builder.call(stream.latitude, stream.longitude)
 
           measurements.each do |measurement|
             acc <<
@@ -203,7 +201,7 @@ class SaveMeasurements
                 milliseconds: 0,
                 measured_value: measurement.value,
                 stream_id: stream_ids[i],
-                time_with_time_zone: measurement.time_local.in_time_zone.change(zone: time_zone)
+                time_with_time_zone: measurement.time_utc
               )
           end
         end
@@ -219,7 +217,6 @@ class SaveMeasurements
       pairs_to_append
         .each_with_object([])
         .with_index do |((stream, measurements), acc), i|
-          time_zone = time_zone_builder.call(stream.latitude, stream.longitude)
           measurements.each do |measurement|
             acc <<
               Measurement.new(
@@ -235,7 +232,7 @@ class SaveMeasurements
                   persisted_streams_hash[
                     [stream.latitude, stream.longitude, stream.sensor_name]
                   ].last,
-                time_with_time_zone: measurement.time_local.in_time_zone.change(zone: time_zone)
+                time_with_time_zone: measurement.time_utc
               )
           end
         end

@@ -1,27 +1,20 @@
 class AirNow::ProcessMeasurements
-  def initialize(measurements)
-    @measurements = measurements
-  end
+  def call(measurements)
+    measurements.each_with_object([]) do |measurement, processed_measurements|
+      next unless wanted_sensor_name?(measurement[:parameter])
 
-  def call
-    @measurements.each_with_object([]) do |measurement, processed_measurements|
-      next unless wanted_sensor_name?(measurement)
-
-      measurement[:parameter] = normalize_sensor_name(measurement)
       processed_measurements << create_saveable_object(measurement)
     end
   end
 
   private
 
-  attr_reader :measurements
-
-  def wanted_sensor_name?(measurement)
-    ['PM2.5', 'O3', 'NO2', 'OZONE'].include?(measurement[:parameter])
+  def wanted_sensor_name?(parameter)
+    ['PM2.5', 'O3', 'NO2', 'OZONE'].include?(parameter)
   end
 
-  def normalize_sensor_name(measurement)
-    measurement[:parameter] == 'OZONE' ? 'O3' : measurement[:parameter]
+  def normalize_sensor_name(parameter)
+    parameter == 'OZONE' ? 'O3' : parameter
   end
 
   def convert_datetime(time, date)
@@ -35,7 +28,7 @@ class AirNow::ProcessMeasurements
     time_local = end_time_utc + measurement[:timezone].to_i.hours
 
     AirNow::Measurement.new(
-      sensor_name: normalize_sensor_name(measurement),
+      sensor_name: normalize_sensor_name(measurement[:parameter]),
       value: measurement[:value],
       latitude: measurement[:latitude],
       longitude: measurement[:longitude],
