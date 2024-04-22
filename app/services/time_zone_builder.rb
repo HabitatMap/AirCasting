@@ -11,15 +11,11 @@ class TimeZoneBuilder
 
   attr_reader :finder
 
-  def time_zone_name(latitude, longitude)
-    # exclude invalid lat/lon values from indoor/0,0 sessions
-    return 'UTC' if latitude.nil? || longitude.nil?
-    return 'UTC' if [0.0].include?(latitude) && [0.0].include?(longitude)
-    return 'UTC' if !latitude.between?(-90, 90) || !longitude.between?(-180, 180)
+  def time_zone_at(lat, lng)
+    if lat.nil? || lng.nil? || lat.zero? || lng.zero? || lat > 90 || lat < -90 || lng > 180 || lng < -180
+      return 'UTC'
+    end
 
-    time_zone_name = finder.timezone_at(lat: latitude, lng: longitude)
-    return 'UTC' unless time_zone_name
-
-    time_zone_name
+    time_zone_finder.create.timezone_at(lng: lng, lat: lat)
   end
 end

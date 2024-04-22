@@ -1,7 +1,7 @@
 class SaveMeasurements
-  def initialize(user:, time_zone_finder: TimezoneFinder)
+  def initialize(user:, time_zone_builder: TimeZoneBuilder.new)
     @user = user
-    @time_zone_finder = time_zone_finder
+    @time_zone_builder = time_zone_builder
   end
 
   def call(streams:)
@@ -10,7 +10,7 @@ class SaveMeasurements
 
   private
 
-  attr_reader :user, :time_zone_finder
+  attr_reader :user, :time_zone_builder
 
   def save(streams)
     persisted_streams =
@@ -189,7 +189,7 @@ class SaveMeasurements
       pairs_to_create
         .each_with_object([])
         .with_index do |((stream, measurements), acc), i|
-          time_zone = time_zone_at(stream.latitude, stream.longitude)
+          time_zone = time_zone_builder.call(stream.latitude, stream.longitude)
 
           measurements.each do |measurement|
             acc <<
@@ -244,13 +244,5 @@ class SaveMeasurements
       Rails
         .logger.warn "Measurement.import failed for: #{import.failed_instances.inspect}"
     end
-  end
-
-  def time_zone_at(lat, lng)
-    if lat.nil? || lng.nil? || lat.zero? || lng.zero? || lat > 90 || lat < -90 || lng > 180 || lng < -180
-      return 'UTC'
-    end
-
-    time_zone_finder.create.timezone_at(lng: lng, lat: lat)
   end
 end
