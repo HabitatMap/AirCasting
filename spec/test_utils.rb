@@ -202,12 +202,12 @@ end
 
 def build_air_now_measurement(opts = {})
   AirNow::Measurement.new(
-    sensor_name: opts.fetch(:sensor_name, 'pm25'),
+    sensor_name: opts.fetch(:sensor_name, 'PM2.5'),
     value: opts.fetch(:value, random_float),
-    latitude: random_big_decimal,
-    longitude: random_big_decimal,
-    time_local: random_date_time.change(usec: 0),
-    time_utc: random_date_time.change(usec: 0),
+    latitude: opts.fetch(:latitude, random_big_decimal),
+    longitude: opts.fetch(:longitude, random_big_decimal),
+    time_local: opts.fetch(:time_local, random_date_time).change(usec: 0),
+    time_with_time_zone: opts.fetch(:time_with_time_zone, random_date_time).change(usec: 0),
     location: opts.fetch(:location, random_string),
   )
 end
