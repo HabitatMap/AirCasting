@@ -12,6 +12,12 @@ import * as S from "./StationActionButtons.style";
 const StationActionButtons = () => {
   const { t } = useTranslation();
 
+  const copyCurrentURL = () => {
+    const currentURL = window.location.href;
+    navigator.clipboard.writeText(currentURL);
+    alert("URL copied!");
+  };
+
   return (
     <>
       <S.MobileButtons>
@@ -27,16 +33,12 @@ const StationActionButtons = () => {
           onClick={copyCurrentURL}
           aria-label={t("calendarHeader.altShareLink")}
         >
-          {t("calendarHeader.copyLink")} <img src={copyLink} />
+          {t("calendarHeader.copyLink")}{" "}
+          <img src={copyLink} alt={t("Copy link")} />
         </Button>
       </S.DesktopButtons>
     </>
   );
-};
-
-const copyCurrentURL = () => {
-  const currentURL = window.location.href;
-  navigator.clipboard.writeText(currentURL);
 };
 
 export { StationActionButtons };
