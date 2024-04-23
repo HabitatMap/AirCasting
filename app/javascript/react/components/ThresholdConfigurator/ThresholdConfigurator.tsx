@@ -34,7 +34,8 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     window.innerWidth < screenSizes.mobile
   );
   const [errorMessage, setErrorMessage] = useState("");
-  const [activeInput, setActiveInput] = useState(null);
+  const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
+  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
     const handleResize = () => {
@@ -64,7 +65,15 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     return newValue >= min && newValue <= max;
   };
 
+  const debouncedHandleInputChange = debounce(
+    (thresholdKey: keyof Thresholds, value: string) => {
+      handleInputChange(thresholdKey, value);
+    },
+    300
+  );
+
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
+    setInputValue(value); // Update temporary input value
     const parsedValue = Number(value);
 
     if (thresholdKey === "min" || thresholdKey === "max") {
@@ -90,6 +99,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           ...prevValues,
           [thresholdKey]: parsedValue,
         }));
+
         updateAdjacentThresholds(
           thresholdKey,
           parsedValue,
@@ -100,6 +110,104 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     }
   };
 
+  const handleInputBlur = (thresholdKey: keyof Thresholds, value: string) => {
+    debouncedHandleInputChange(thresholdKey, value);
+  };
+
+  // const handleMouseMove =
+  //   (thresholdKey: keyof Thresholds, startX: number, startValue: number) =>
+  //   (moveEvent: globalThis.MouseEvent) => {
+  //     // How much the thumb has moved horizontally since drag started.
+  //     const displacement = moveEvent.clientX - startX;
+
+  //     // Threshold new percentage, based on thumb value when dragging started,
+  //     // the displacement, and slider width.
+  //     const newPercentage =
+  //       calculateThumbPercentage(
+  //         startValue,
+  //         thresholdValues.min,
+  //         thresholdValues.max
+  //       ) +
+  //       displacement / sliderWidth;
+
+  //     // Threshold new value based on the threshold new percentage.
+  //     let newThresholdValue = Math.round(
+  //       thresholdValues.min +
+  //         newPercentage * (thresholdValues.max - thresholdValues.min)
+  //     );
+
+  //     // Ensure the value is within min and max bounds.
+  //     const newThresholdValueWithinBounds = Math.min(
+  //       Math.max(newThresholdValue, thresholdValues.min),
+  //       thresholdValues.max
+  //     );
+  //     let updatedValues: Thresholds = { ...thresholdValues };
+  //     let currentValue = newThresholdValueWithinBounds;
+
+  //     currentValue = Math.max(currentValue, thresholdValues.min);
+  //     currentValue = Math.min(currentValue, thresholdValues.max);
+
+  //     switch (thresholdKey) {
+  //       case "low":
+  //         if (
+  //           currentValue >= thresholdValues.middle &&
+  //           thresholdValues.middle !== thresholdValues.max
+  //         ) {
+  //           updatedValues.middle = Math.min(
+  //             currentValue + 1,
+  //             thresholdValues.max
+  //           );
+  //         }
+  //         if (
+  //           currentValue >= thresholdValues.high &&
+  //           thresholdValues.high !== thresholdValues.max
+  //         ) {
+  //           updatedValues.high = Math.min(
+  //             currentValue + 2,
+  //             thresholdValues.max
+  //           );
+  //         }
+  //         break;
+  //       case "middle":
+  //         if (
+  //           currentValue <= thresholdValues.low &&
+  //           thresholdValues.low !== thresholdValues.min
+  //         ) {
+  //           updatedValues.low = Math.max(currentValue - 1, thresholdValues.min);
+  //         }
+  //         if (
+  //           currentValue > thresholdValues.high &&
+  //           thresholdValues.high !== thresholdValues.max
+  //         ) {
+  //           updatedValues.high = Math.min(
+  //             currentValue + 1,
+  //             thresholdValues.max
+  //           );
+  //         }
+  //         break;
+  //       case "high":
+  //         if (
+  //           currentValue <= thresholdValues.middle &&
+  //           thresholdValues.middle !== thresholdValues.min
+  //         ) {
+  //           updatedValues.middle = Math.max(
+  //             currentValue - 1,
+  //             thresholdValues.min
+  //           );
+  //         }
+  //         if (
+  //           currentValue <= thresholdValues.low &&
+  //           thresholdValues.low !== thresholdValues.min
+  //         ) {
+  //           updatedValues.low = Math.max(currentValue - 2, thresholdValues.min);
+  //         }
+  //         break;
+  //     }
+
+  //     updatedValues[thresholdKey] = currentValue;
+
+  //     setThresholdValues(updatedValues);
+  //   };
   const handleMouseMove =
     (thresholdKey: keyof Thresholds, startX: number, startValue: number) =>
     (moveEvent: globalThis.MouseEvent) => {
@@ -132,6 +240,9 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
       currentValue = Math.max(currentValue, thresholdValues.min);
       currentValue = Math.min(currentValue, thresholdValues.max);
+
+      // Update inputValue state
+      setInputValue(currentValue.toString());
 
       switch (thresholdKey) {
         case "low":
@@ -275,7 +386,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
   const { min, max, ...thumbs } = thresholdValues;
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
-  console.log(thumbPositions.low, thumbPositions.middle, thumbPositions.high);
 
   return (
     <S.Container>
@@ -301,16 +411,22 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                     $sliderWidth={sliderWidth}
                     type="range"
                     value={value}
-                    onChange={(e) => handleInputChange("min", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(thresholdKey, e.target.value)
+                    }
                     onTouchStart={handleTouchStart(thresholdKey)}
                   />
                   <S.NumberInput
                     inputMode="numeric"
                     type="number"
-                    value={value}
+                    value={
+                      activeInput === thresholdKey
+                        ? inputValue
+                        : value.toString()
+                    }
                     readOnly={isMobile}
-                    onFocus={() => setActiveInput("min" as unknown as null)}
-                    onBlur={() => setActiveInput(null)}
+                    onFocus={() => setActiveInput(thresholdKey)}
+                    onBlur={() => handleInputBlur(thresholdKey, inputValue)}
                     $hasError={errorMessage !== ""}
                     $isActive={activeInput === thresholdKey}
                     style={{
@@ -326,10 +442,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                               sliderWidth
                             )}px`,
                     }}
-                    // TODO debounce
-                    onChange={(e) => {
-                      handleInputChange(thresholdKey, e.target.value);
-                    }}
+                    onChange={(e) => setInputValue(e.target.value)}
                     onTouchStart={handleTouchStart(thresholdKey)}
                     onMouseDown={handleMouseDown(thresholdKey)}
                   />
@@ -341,11 +454,9 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                 step={1}
                 value={max}
                 $isLast
-                // TODO debounce
                 onChange={(e) => {
                   handleInputChange("max", e.target.value);
                 }}
-                //TODO onBlur={() => setInputValue(value.toString())}
               />
             </S.InputContainer>
             {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
