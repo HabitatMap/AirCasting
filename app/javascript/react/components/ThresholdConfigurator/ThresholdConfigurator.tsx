@@ -1,16 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Thresholds } from "../../types/thresholds";
 import {
   calculateThumbPercentage,
   calculateThumbPosition,
 } from "../../utils/thresholdThumbCalculations";
+import { screenSizes } from "../../utils/media";
+import { updateAdjacentThresholds } from "../../utils/tresholdsUpdateAdjacent";
 import * as S from "./ThresholdConfigurator.style";
 import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
-import { useTranslation } from "react-i18next";
 import { debounce } from "lodash";
 
-import { screenSizes } from "../../utils/media";
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 
 interface ThresholdsConfiguratorProps {
@@ -63,76 +64,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     return newValue >= min && newValue <= max;
   };
 
-  const updateAdjacentThresholds = (
-    thresholdKey: keyof Thresholds,
-    newValue: number
-  ) => {
-    switch (thresholdKey) {
-      case "low":
-        if (
-          newValue >= thresholdValues.middle &&
-          thresholdValues.middle !== thresholdValues.max
-        ) {
-          setThresholdValues((prevValues) => ({
-            ...prevValues,
-            middle: Math.min(newValue + 1, thresholdValues.max),
-          }));
-        }
-        if (
-          newValue >= thresholdValues.high &&
-          thresholdValues.high !== thresholdValues.max
-        ) {
-          setThresholdValues((prevValues) => ({
-            ...prevValues,
-            high: Math.min(newValue + 2, thresholdValues.max),
-          }));
-        }
-        break;
-      case "middle":
-        if (
-          newValue <= thresholdValues.low &&
-          thresholdValues.low !== thresholdValues.min
-        ) {
-          setThresholdValues((prevValues) => ({
-            ...prevValues,
-            low: Math.max(newValue - 1, thresholdValues.min),
-          }));
-        }
-        if (
-          newValue > thresholdValues.high &&
-          thresholdValues.high !== thresholdValues.max
-        ) {
-          setThresholdValues((prevValues) => ({
-            ...prevValues,
-            high: Math.min(newValue + 1, thresholdValues.max),
-          }));
-        }
-        break;
-      case "high":
-        if (
-          newValue <= thresholdValues.middle &&
-          thresholdValues.middle !== thresholdValues.min
-        ) {
-          setThresholdValues((prevValues) => ({
-            ...prevValues,
-            middle: Math.max(newValue - 1, thresholdValues.min),
-          }));
-        }
-        if (
-          newValue <= thresholdValues.low &&
-          thresholdValues.low !== thresholdValues.min
-        ) {
-          setThresholdValues((prevValues) => ({
-            ...prevValues,
-            low: Math.max(newValue - 2, thresholdValues.min),
-          }));
-        }
-        break;
-      default:
-        break;
-    }
-  };
-
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
     const parsedValue = Number(value);
 
@@ -159,7 +90,12 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           ...prevValues,
           [thresholdKey]: parsedValue,
         }));
-        updateAdjacentThresholds(thresholdKey, parsedValue);
+        updateAdjacentThresholds(
+          thresholdKey,
+          parsedValue,
+          setThresholdValues,
+          thresholdValues
+        );
       }
     }
   };
