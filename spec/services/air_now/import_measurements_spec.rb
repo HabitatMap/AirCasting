@@ -12,17 +12,20 @@ describe AirNow::ImportMeasurements do
     )
   end
 
+  let(:mock_import_data) { instance_double(AirNow::ImportData) }
+  let(:locations_data) { "000020104|location-name|site-code|site-name|status|agency-id|agency-name|epa-region|44.941101|-105.837799|27.9|timezone|country|msa-code|msa-name|state-code|state-name|county-code|county-name" }
+  let(:measurements_data) { "03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution" }
+
+  before do
+    allow(AirNow::ImportData).to receive(:new).and_return(mock_import_data)
+    allow(mock_import_data).to receive(:call).and_return([locations_data, measurements_data])
+  end
+
   it 'creates measurement, stream, session correctly for correct data' do
-    locations_data = '000020104|location-name|site-code|site-name|status|agency-id|agency-name|epa-region|44.941101|-105.837799|27.9|timezone|country|msa-code|msa-name|state-code|state-name|county-code|county-name'
-    measurements_data = '03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution'
+    described_class.new.call
 
     locations_array = locations_data.split('|')
     measurements_array = measurements_data.split('|')
-
-    described_class.new(
-      locations_data: locations_data,
-      hourly_data: measurements_data
-    ).call
 
     [
       [:value, measurements_array[7].to_f],
@@ -57,33 +60,39 @@ describe AirNow::ImportMeasurements do
     end
   end
 
-  it 'wont create measurement, stream, session for unwanted parameter' do
-    locations_data = '000020104|location-name|site-code|site-name|status|agency-id|agency-name|epa-region|44.941101|-105.837799|27.9|timezone|country|msa-code|msa-name|state-code|state-name|county-code|county-name'
-    measurements_data = '03/25/24|07:00|000020104|measurement-location|-4|SO2|PPB|0.3|attribution
-                         03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution'
+  context 'with unwanted parameters' do
+    let(:measurements_data) do
+      "03/25/24|07:00|000020104|measurement-location|-4|SO2|PPB|0.3|attribution\n" +
+      "03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution"
+    end
 
-    described_class.new(
-      locations_data: locations_data,
-      hourly_data: measurements_data
-    ).call
+    before do
+      allow(mock_import_data).to receive(:call).and_return([locations_data, measurements_data])
+      described_class.new.call
+    end
 
-    expect(Measurement.count).to eq(1)
-    expect(Stream.count).to eq(1)
-    expect(Session.count).to eq(1)
+    it 'does not create measurement, stream, session for unwanted parameter' do
+      expect(Measurement.count).to eq(1)
+      expect(Stream.count).to eq(1)
+      expect(Session.count).to eq(1)
+    end
   end
 
-  it 'will create one session for multiple correct measurements and streams in the same location' do
-    locations_data = '000020104|location-name|site-code|site-name|status|agency-id|agency-name|epa-region|44.941101|-105.837799|27.9|timezone|country|msa-code|msa-name|state-code|state-name|county-code|county-name'
-    measurements_data = '03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution
-                         03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution'
+  context 'with multiple correct measurements in the same location' do
+    let(:measurements_data) do
+      "03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution\n" +
+      "03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution"
+    end
 
-    described_class.new(
-      locations_data: locations_data,
-      hourly_data: measurements_data
-    ).call
+    before do
+      allow(mock_import_data).to receive(:call).and_return([locations_data, measurements_data])
+      described_class.new.call
+    end
 
-    expect(Measurement.count).to eq(2)
-    expect(Stream.count).to eq(2)
-    expect(Session.count).to eq(1)
+    it 'creates one session for multiple correct measurements and streams in the same location' do
+      expect(Measurement.count).to eq(2)
+      expect(Stream.count).to eq(2)
+      expect(Session.count).to eq(1)
+    end
   end
 end
