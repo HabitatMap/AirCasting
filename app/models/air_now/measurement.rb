@@ -7,7 +7,7 @@ module AirNow
       :latitude,
       :longitude,
       :time_local,
-      :time_utc,
+      :time_with_time_zone,
       :value,
       keyword_init: true
     ) do

@@ -30,7 +30,7 @@ class AirNow::ParseFiles
         date: parts[0],
         time: parts[1],
         location: location[:location],
-        timezone: parts[4],
+        time_zone: parts[4],
         parameter: parts[5],
         value: parts[7].to_f,
         latitude: location[:latitude],

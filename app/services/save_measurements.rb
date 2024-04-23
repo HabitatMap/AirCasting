@@ -52,7 +52,7 @@ class SaveMeasurements
           contribute: true,
           start_time_local: first.time_local,
           end_time_local: last.time_local,
-          last_measurement_at: last.time_utc,
+          last_measurement_at: last.time_with_time_zone,
           is_indoor: false,
           latitude: stream.latitude,
           longitude: stream.longitude,
@@ -80,7 +80,7 @@ class SaveMeasurements
         acc[session_id] = {
           'id' => session_id,
           'end_time_local' => last.time_local,
-          'last_measurement_at' => last.time_utc,
+          'last_measurement_at' => last.time_with_time_zone,
           'title' => last.title,
         }
       end
@@ -201,7 +201,7 @@ class SaveMeasurements
                 milliseconds: 0,
                 measured_value: measurement.value,
                 stream_id: stream_ids[i],
-                time_with_time_zone: measurement.time_utc
+                time_with_time_zone: measurement.time_with_time_zone
               )
           end
         end
@@ -232,7 +232,7 @@ class SaveMeasurements
                   persisted_streams_hash[
                     [stream.latitude, stream.longitude, stream.sensor_name]
                   ].last,
-                time_with_time_zone: measurement.time_utc
+                time_with_time_zone: measurement.time_with_time_zone
               )
           end
         end

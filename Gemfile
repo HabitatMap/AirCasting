@@ -45,6 +45,7 @@ gem 'timezone_finder'
 gem 'uglifier'
 gem 'unicorn'
 gem 'unicorn-worker-killer'
+gem 'vcr'
 gem 'whenever', require: false
 
 group :development do

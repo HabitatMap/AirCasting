@@ -1862,6 +1862,7 @@ GEM
     unicorn-worker-killer (0.4.5)
       get_process_mem (~> 0)
       unicorn (>= 4, < 7)
+    vcr (6.2.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -1950,6 +1951,7 @@ DEPENDENCIES
   uglifier
   unicorn
   unicorn-worker-killer
+  vcr
   web-console
   whenever
   yui-compressor

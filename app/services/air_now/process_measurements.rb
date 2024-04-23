@@ -17,15 +17,17 @@ class AirNow::ProcessMeasurements
     parameter == 'OZONE' ? 'O3' : parameter
   end
 
-  def convert_datetime(time, date)
+  def time_with_time_zone(time, date)
     full_year_date = Date.strptime(date, "%m/%d/%y").strftime("%Y-%m-%d")
-    Time.parse("#{full_year_date} #{time}")
+    time = Time.parse("#{full_year_date} #{time}")
+
+    # 1h added, cause we want the end time of the measurement and AirNow provides the start time
+    time + 1.hour
   end
 
   def create_saveable_object(measurement)
-    time_utc = convert_datetime(measurement[:time], measurement[:date])
-    end_time_utc = time_utc + 1.hour
-    time_local = end_time_utc + measurement[:timezone].to_i.hours
+    time_with_time_zone = time_with_time_zone(measurement[:time], measurement[:date])
+    time_local = time_with_time_zone + measurement[:time_zone].to_i.hours
 
     AirNow::Measurement.new(
       sensor_name: normalize_sensor_name(measurement[:parameter]),
@@ -33,7 +35,7 @@ class AirNow::ProcessMeasurements
       latitude: measurement[:latitude],
       longitude: measurement[:longitude],
       time_local: time_local,
-      time_utc: end_time_utc,
+      time_with_time_zone: time_with_time_zone,
       title: sanitize(measurement[:location]),
     )
   end
