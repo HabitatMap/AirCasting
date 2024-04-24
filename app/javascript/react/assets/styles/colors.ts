@@ -8,7 +8,6 @@ const gray300 = "#7D858C";
 const gray400 = "#3E4449";
 const mint = "#81DBCB";
 const blue = "#00B3EF";
-const deepBlue = "#19237E";
 const red = "#E95F5F";
 const orange = "#FCA443";
 const yellow = "#FFD960";
@@ -28,5 +27,4 @@ export {
   green,
   mint,
   blue,
-  deepBlue,
 };

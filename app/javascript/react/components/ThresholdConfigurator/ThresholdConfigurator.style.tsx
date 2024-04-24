@@ -163,8 +163,8 @@ const NumberInput = styled.input<{
         : props.$hasError
         ? colors.red
         : colors.gray100};
-    outline: 1px solid
-      ${(props) => (props.$isActive ? colors.deepBlue : "transparent")};
+    outline: 2px solid
+      ${(props) => (props.$isActive ? colors.gray100 : "transparent")};
   }
 
   @media ${media.desktop} {

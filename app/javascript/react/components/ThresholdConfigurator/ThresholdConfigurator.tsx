@@ -2,15 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Thresholds } from "../../types/thresholds";
-import {
-  calculateThumbPercentage,
-  calculateThumbPosition,
-} from "../../utils/thresholdThumbCalculations";
+import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
 import { screenSizes } from "../../utils/media";
-import { updateAdjacentThresholds } from "../../utils/tresholdsUpdateAdjacent";
+import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
+import {
+  handleMouseDown,
+  handleTouchStart,
+} from "../../utils/thresholdGestureHandlers";
 import * as S from "./ThresholdConfigurator.style";
 import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
-import { debounce } from "lodash";
 
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 
@@ -61,261 +61,22 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     setThumbPositions({ low: lowThumb, middle: middleThumb, high: highThumb });
   }, [thresholdValues, sliderWidth]);
 
-  const validateValue = (newValue: number, min: number, max: number) => {
-    return newValue >= min && newValue <= max;
-  };
-
-  const debouncedHandleInputChange = debounce(
-    (thresholdKey: keyof Thresholds, value: string) => {
-      handleInputChange(thresholdKey, value);
-    },
-    500
+  const {
+    handleInputChange,
+    handleInputBlur,
+    handleInputFocus,
+    handleInputKeyDown,
+    handleOutsideClick,
+  } = useThresholdHandlers(
+    setThresholdValues,
+    setInputValue,
+    setActiveInput,
+    setErrorMessage,
+    thresholdValues,
+    sliderRef,
+    activeInput,
+    inputValue
   );
-
-  const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
-    const trimmedValue = value.trim();
-    setInputValue(trimmedValue);
-
-    if (value.trim() !== "") {
-      setErrorMessage("");
-    }
-
-    if (trimmedValue === "") {
-      setErrorMessage(`Input cannot be empty`);
-      return;
-    }
-
-    setInputValue(trimmedValue);
-
-    const parsedValue = Number(trimmedValue);
-
-    if (thresholdKey === "min" || thresholdKey === "max") {
-      if (!validateValue(parsedValue, -Infinity, Infinity)) {
-        setErrorMessage(`Value must be a valid number`);
-      } else {
-        setErrorMessage("");
-        setThresholdValues((prevValues) => ({
-          ...prevValues,
-          [thresholdKey]: parsedValue,
-        }));
-      }
-    } else {
-      if (
-        !validateValue(parsedValue, thresholdValues.min, thresholdValues.max)
-      ) {
-        setErrorMessage(
-          `Value must be between ${thresholdValues.min} and ${thresholdValues.max}`
-        );
-      } else {
-        setErrorMessage("");
-        setThresholdValues((prevValues) => ({
-          ...prevValues,
-          [thresholdKey]: parsedValue,
-        }));
-
-        updateAdjacentThresholds(
-          thresholdKey,
-          parsedValue,
-          setThresholdValues,
-          thresholdValues
-        );
-      }
-    }
-  };
-
-  const handleInputBlur = (thresholdKey: keyof Thresholds, value: string) => {
-    const trimmedValue = value.trim();
-    if (trimmedValue === "") {
-      setErrorMessage(t("tresholdConfigurator.emptyInputMessage"));
-      return;
-    }
-
-    debouncedHandleInputChange(thresholdKey, trimmedValue);
-  };
-
-  const handleMouseMove =
-    (thresholdKey: keyof Thresholds, startX: number, startValue: number) =>
-    (moveEvent: globalThis.MouseEvent) => {
-      // How much the thumb has moved horizontally since drag started.
-      const displacement = moveEvent.clientX - startX;
-
-      // Threshold new percentage, based on thumb value when dragging started,
-      // the displacement, and slider width.
-      const newPercentage =
-        calculateThumbPercentage(
-          startValue,
-          thresholdValues.min,
-          thresholdValues.max
-        ) +
-        displacement / sliderWidth;
-
-      // Threshold new value based on the threshold new percentage.
-      let newThresholdValue = Math.round(
-        thresholdValues.min +
-          newPercentage * (thresholdValues.max - thresholdValues.min)
-      );
-
-      // Ensure the value is within min and max bounds.
-      const newThresholdValueWithinBounds = Math.min(
-        Math.max(newThresholdValue, thresholdValues.min),
-        thresholdValues.max
-      );
-      let updatedValues: Thresholds = { ...thresholdValues };
-      let currentValue = newThresholdValueWithinBounds;
-
-      currentValue = Math.max(currentValue, thresholdValues.min);
-      currentValue = Math.min(currentValue, thresholdValues.max);
-
-      setInputValue(currentValue.toString());
-
-      switch (thresholdKey) {
-        case "low":
-          if (
-            currentValue >= thresholdValues.middle &&
-            thresholdValues.middle !== thresholdValues.max
-          ) {
-            updatedValues.middle = Math.min(
-              currentValue + 1,
-              thresholdValues.max
-            );
-          }
-          if (
-            currentValue >= thresholdValues.high &&
-            thresholdValues.high !== thresholdValues.max
-          ) {
-            updatedValues.high = Math.min(
-              currentValue + 2,
-              thresholdValues.max
-            );
-          }
-          break;
-        case "middle":
-          if (
-            currentValue <= thresholdValues.low &&
-            thresholdValues.low !== thresholdValues.min
-          ) {
-            updatedValues.low = Math.max(currentValue - 1, thresholdValues.min);
-          }
-          if (
-            currentValue > thresholdValues.high &&
-            thresholdValues.high !== thresholdValues.max
-          ) {
-            updatedValues.high = Math.min(
-              currentValue + 1,
-              thresholdValues.max
-            );
-          }
-          break;
-        case "high":
-          if (
-            currentValue <= thresholdValues.middle &&
-            thresholdValues.middle !== thresholdValues.min
-          ) {
-            updatedValues.middle = Math.max(
-              currentValue - 1,
-              thresholdValues.min
-            );
-          }
-          if (
-            currentValue <= thresholdValues.low &&
-            thresholdValues.low !== thresholdValues.min
-          ) {
-            updatedValues.low = Math.max(currentValue - 2, thresholdValues.min);
-          }
-          break;
-      }
-
-      updatedValues[thresholdKey] = currentValue;
-
-      setThresholdValues(updatedValues);
-    };
-
-  const handleMouseUp =
-    (moveHandler: (moveEvent: globalThis.MouseEvent | TouchEvent) => void) =>
-    () => {
-      document.removeEventListener("mousemove", moveHandler);
-      document.removeEventListener("touchmove", moveHandler);
-      document.removeEventListener(
-        "mouseup",
-        handleMouseUp(moveHandler) as EventListener
-      );
-      document.removeEventListener(
-        "touchend",
-        handleMouseUp(moveHandler) as EventListener
-      );
-    };
-
-  const handleTouchMove =
-    (thresholdKey: keyof Thresholds, startX: number, startValue: number) =>
-    (moveEvent: TouchEvent) => {
-      moveEvent.preventDefault();
-
-      const touch = moveEvent.touches[0];
-
-      handleMouseMove(
-        thresholdKey,
-        startX,
-        startValue
-      )({
-        clientX: touch.clientX,
-      } as globalThis.MouseEvent);
-    };
-
-  const handleMouseDown =
-    (thresholdKey: keyof Thresholds) =>
-    (event: React.MouseEvent<HTMLInputElement>) => {
-      const startX = event.clientX;
-      const startValue = thresholdValues[thresholdKey];
-      const moveHandler = handleMouseMove(thresholdKey, startX, startValue);
-
-      document.addEventListener("mousemove", moveHandler as EventListener);
-      document.addEventListener(
-        "mouseup",
-        handleMouseUp(
-          moveHandler as (moveEvent: TouchEvent | MouseEvent) => void
-        ) as EventListener
-      );
-    };
-
-  const handleTouchStart =
-    (thresholdKey: keyof Thresholds) =>
-    (event: React.TouchEvent<HTMLInputElement>) => {
-      const startX = event.touches[0].clientX;
-      const startValue = thresholdValues[thresholdKey];
-      const moveHandler = handleTouchMove(thresholdKey, startX, startValue);
-      document.addEventListener("touchmove", moveHandler);
-      document.addEventListener(
-        "touchend",
-        handleMouseUp(
-          moveHandler as (moveEvent: TouchEvent | MouseEvent) => void
-        ) as EventListener
-      );
-    };
-
-  const handleOutsideClick = (event: MouseEvent) => {
-    if (
-      sliderRef.current &&
-      !sliderRef.current.contains(event.target as Node) &&
-      activeInput !== null &&
-      inputValue.trim() === ""
-    ) {
-      setErrorMessage(t("tresholdConfigurator.emptyInputMessage"));
-    }
-  };
-
-  const handleInputKeyDown =
-    (thresholdKey: keyof Thresholds) =>
-    (event: React.KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === "Enter") {
-        setInputValue(event.currentTarget.value);
-        handleInputChange(thresholdKey, event.currentTarget.value);
-      }
-    };
-
-  const handleFocus = (thresholdKey: keyof Thresholds) => {
-    setInputValue(thresholdValues[thresholdKey].toString());
-    setActiveInput(thresholdKey);
-  };
 
   useEffect(() => {
     document.addEventListener("click", handleOutsideClick);
@@ -354,7 +115,13 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                     onChange={(e) =>
                       handleInputChange(thresholdKey, e.target.value)
                     }
-                    onTouchStart={handleTouchStart(thresholdKey)}
+                    onTouchStart={handleTouchStart(
+                      thresholdKey,
+                      thresholdValues,
+                      sliderWidth,
+                      setThresholdValues,
+                      setInputValue
+                    )}
                   />
                   <S.NumberInput
                     inputMode="numeric"
@@ -365,7 +132,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                         : value.toString()
                     }
                     readOnly={isMobile}
-                    onFocus={() => handleFocus(thresholdKey)}
+                    onFocus={() => handleInputFocus(thresholdKey)}
                     onBlur={() => handleInputBlur(thresholdKey, inputValue)}
                     $hasError={errorMessage !== ""}
                     $isActive={activeInput === thresholdKey}
@@ -383,8 +150,20 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                             )}px`,
                     }}
                     onChange={(e) => setInputValue(e.target.value)}
-                    onTouchStart={handleTouchStart(thresholdKey)}
-                    onMouseDown={handleMouseDown(thresholdKey)}
+                    onTouchStart={handleTouchStart(
+                      thresholdKey,
+                      thresholdValues,
+                      sliderWidth,
+                      setThresholdValues,
+                      setInputValue
+                    )}
+                    onMouseDown={handleMouseDown(
+                      thresholdKey,
+                      thresholdValues,
+                      sliderWidth,
+                      setThresholdValues,
+                      setInputValue
+                    )}
                     onKeyDown={handleInputKeyDown(thresholdKey)}
                   />
                 </React.Fragment>
