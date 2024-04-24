@@ -1,4 +1,3 @@
-// thresholdHandlers.tsx
 import { useState } from "react";
 import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
@@ -112,13 +111,25 @@ export const useThresholdHandlers = (
   };
 
   const handleInputKeyDown =
-    (thresholdKey: keyof Thresholds) =>
-    (event: React.KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === "Enter") {
-        setInputValue(event.currentTarget.value);
-        handleInputChange(thresholdKey, event.currentTarget.value);
+  (thresholdKey: keyof Thresholds) =>
+  (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      setInputValue(event.currentTarget.value);
+      handleInputChange(thresholdKey, event.currentTarget.value);
+    } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+      event.preventDefault();
+      let newValue;
+      const step = event.shiftKey ? 10 : 1;
+
+      if (event.key === "ArrowUp") {
+        newValue = parseFloat(inputValue) + step;
+      } else {
+        newValue = parseFloat(inputValue) - step;
       }
-    };
+
+      handleInputChange(thresholdKey, newValue.toString());
+    }
+  };
 
   return {
     handleInputChange,
