@@ -92,7 +92,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
   return (
     <S.Container>
-<<<<<<< HEAD
       <HeaderToggle
         titleText={t("calendarHeader.legendTitle")}
         componentToToggle={
@@ -189,72 +188,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
           </>
         }
       />
-=======
-      <Heading>{t("calendarHeader.legendTitle")}</Heading>
-      <S.InputContainer ref={sliderRef}>
-        <S.NumberInput
-          inputMode="numeric"
-          type="number"
-          value={min}
-          onChange={(e) => handleInputChange("min", e.target.value)}
-        />
-        {thumbData.map(([thresholdKey, value]) => (
-          <React.Fragment key={thresholdKey}>
-            <S.RangeInput
-              min={min}
-              max={max}
-              $firstThumbPos={thumbPositions.low}
-              $secondThumbPos={thumbPositions.middle}
-              $thirdThumbPos={thumbPositions.high}
-              $sliderWidth={sliderWidth}
-              type="range"
-              value={value}
-              onChange={(e) => handleInputChange(thresholdKey, e.target.value)}
-              onTouchStart={handleTouchStart(thresholdKey)}
-            />
-            <S.NumberInput
-              inputMode="numeric"
-              type="number"
-              value={
-                activeInput === thresholdKey ? inputValue : value.toString()
-              }
-              readOnly={isMobile}
-              onFocus={() => setActiveInput(thresholdKey)}
-              onBlur={() => handleInputBlur(thresholdKey, inputValue)}
-              $hasError={errorMessage !== ""}
-              $isActive={activeInput === thresholdKey}
-              style={{
-                zIndex: 10,
-                marginLeft: value === min ? "0px" : "-15px",
-                left:
-                  value === max
-                    ? "98%"
-                    : `${calculateThumbPosition(
-                        value,
-                        min,
-                        max,
-                        sliderWidth
-                      )}px`,
-              }}
-              onChange={(e) => setInputValue(e.target.value)}
-              onTouchStart={handleTouchStart(thresholdKey)}
-              onMouseDown={handleMouseDown(thresholdKey)}
-            />
-          </React.Fragment>
-        ))}
-        <S.NumberInput
-          inputMode="numeric"
-          type="number"
-          step={1}
-          value={max}
-          $isLast
-          onChange={(e) => {
-            handleInputChange("max", e.target.value);
-          }}
-        />
-      </S.InputContainer>
-      {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
->>>>>>> 90949355 (Add proper debounce)
     </S.Container>
   );
 };

@@ -166,8 +166,13 @@ const NumberInput = styled.input<{
         : props.$hasError
         ? colors.red
         : colors.gray100};
+<<<<<<< HEAD
     outline: 2px solid
       ${(props) => (props.$isActive ? colors.gray100 : "transparent")};
+=======
+    outline: 1px solid
+      ${(props) => (props.$isActive ? colors.deepBlue : "transparent")};
+>>>>>>> a1002a4d (Fix inputs behaviours)
   }
 
   @media ${media.desktop} {
@@ -190,7 +195,7 @@ const ErrorMessage = styled.p`
 
   @media ${media.desktop} {
     font-size: 1.5rem;
-    top: 55%;
+    top: 65%;
   }
 `;
 

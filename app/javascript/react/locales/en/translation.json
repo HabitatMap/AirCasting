@@ -50,10 +50,16 @@
     "legendTitle": "Measurements legend",
     "calendarTitle": "Measurements calendar"
   },
+<<<<<<< HEAD
   "headerToggle": {
     "arrowIcon": "Arrow Icon" },
   "thresholdConfigurator": {
     "emptyInputMessage": "Please enter a valid number",
     "validValueMessage":  "Value must be between {{minValue}} and {{maxValue}}"
+=======
+  "tresholdConfigurator": {
+    "emptyInputMessage": "Please enter a valid number"
+
+>>>>>>> a1002a4d (Fix inputs behaviours)
   }
 }
