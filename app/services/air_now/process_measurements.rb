@@ -1,4 +1,8 @@
 class AirNow::ProcessMeasurements
+  def initialize(time_zone_finder: TimezoneFinder)
+    @time_zone_finder = time_zone_finder
+  end
+
   def call(measurements)
     measurements.each_with_object([]) do |measurement, processed_measurements|
       next unless wanted_sensor_name?(measurement[:parameter])
@@ -8,6 +12,8 @@ class AirNow::ProcessMeasurements
   end
 
   private
+
+  attr_reader :time_zone_finder
 
   def wanted_sensor_name?(parameter)
     ['PM2.5', 'O3', 'NO2', 'OZONE'].include?(parameter)
@@ -27,7 +33,9 @@ class AirNow::ProcessMeasurements
 
   def create_saveable_object(measurement)
     time_with_time_zone = time_with_time_zone(measurement[:time], measurement[:date])
-    time_local = time_with_time_zone + measurement[:time_zone].to_i.hours
+    time_zone = time_zone_finder.create.timezone_at(lng: measurement[:longitude], lat: measurement[:latitude])
+    utc_offset = time_with_time_zone.in_time_zone(time_zone).utc_offset
+    time_local = time_with_time_zone + utc_offset
 
     AirNow::Measurement.new(
       sensor_name: normalize_sensor_name(measurement[:parameter]),
