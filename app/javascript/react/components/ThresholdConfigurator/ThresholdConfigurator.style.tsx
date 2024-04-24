@@ -159,12 +159,12 @@ const NumberInput = styled.input<{
   &:focus-visible {
     border-color: ${(props) =>
       props.$isActive
-        ? colors.blue
+        ? "transparent"
         : props.$hasError
         ? colors.red
         : colors.gray100};
-    outline: 2px solid
-      ${(props) => (props.$isActive ? colors.blue : "transparent")};
+    outline: 1px solid
+      ${(props) => (props.$isActive ? colors.deepBlue : "transparent")};
   }
 
   @media ${media.desktop} {
@@ -187,7 +187,7 @@ const ErrorMessage = styled.p`
 
   @media ${media.desktop} {
     font-size: 1.5rem;
-    top: 55%;
+    top: 65%;
   }
 `;
 

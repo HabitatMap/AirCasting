@@ -50,7 +50,13 @@
     "legendTitle": "Measurements legend",
     "calendarTitle": "Measurements calendar"
   },
+<<<<<<< HEAD
   "headerToggle": {
     "arrowIcon": "Arrow Icon"
+=======
+  "tresholdConfigurator": {
+    "emptyInputMessage": "Please enter a valid number"
+
+>>>>>>> 60fa348a (Fix inputs behaviours)
   }
 }
