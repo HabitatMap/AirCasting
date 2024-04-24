@@ -9,17 +9,19 @@ class SaveMeasurements
 
   private
 
+  attr_reader :user
+
   def save(streams)
     persisted_streams =
       Stream
         .select(:id, :min_latitude, :min_longitude, :sensor_name, :session_id)
         .joins(:session)
-        .where(session: { user_id: @user.id })
+        .where(session: { user_id: user.id })
         .load
 
     persisted_streams_hash =
       persisted_streams.each_with_object({}) do |stream, acc|
-        acc[[stream.min_latitude, stream.min_longitude, stream.sensor_name]] = [
+        acc[[stream.min_latitude.to_f, stream.min_longitude.to_f, stream.sensor_name]] = [
           stream.session_id,
           stream.id,
         ]
@@ -32,19 +34,25 @@ class SaveMeasurements
         )
       end
 
+    pairs_without_session_duplicates = pairs_to_create.uniq do |stream, measurements|
+      first = measurements.first
+
+      "#{stream.latitude}-#{stream.longitude}-#{first.title}"
+    end
+
     sessions_to_create =
-      pairs_to_create.map do |stream, measurements|
+      pairs_without_session_duplicates.map do |stream, measurements|
         uuid = SecureRandom.uuid
         first = measurements.first
         last = measurements.last
 
         FixedSession.new(
-          user_id: @user.id,
+          user_id: user.id,
           title: first.title,
           contribute: true,
           start_time_local: first.time_local,
           end_time_local: last.time_local,
-          last_measurement_at: last.time_utc,
+          last_measurement_at: last.time_with_time_zone,
           is_indoor: false,
           latitude: stream.latitude,
           longitude: stream.longitude,
@@ -72,7 +80,7 @@ class SaveMeasurements
         acc[session_id] = {
           'id' => session_id,
           'end_time_local' => last.time_local,
-          'last_measurement_at' => last.time_utc,
+          'last_measurement_at' => last.time_with_time_zone,
           'title' => last.title,
         }
       end
@@ -135,8 +143,13 @@ class SaveMeasurements
         .logger.warn "Stream.import failed for: #{import.failed_instances.inspect}"
     end
 
+    created_sessions = Session.where(id: session_ids)
+
     new_streams =
-      pairs_to_create.map.with_index do |(stream, measurements), i|
+      pairs_to_create.map do |stream, measurements|
+        session = created_sessions
+          .where(latitude: stream.latitude, longitude: stream.longitude).first
+
         Stream.new(
           sensor_name: stream.sensor_name,
           unit_name: stream.unit_name,
@@ -155,7 +168,7 @@ class SaveMeasurements
           max_longitude: stream.longitude,
           start_latitude: stream.latitude,
           start_longitude: stream.longitude,
-          session_id: session_ids[i],
+          session_id: session.id,
           measurements_count: measurements.size,
           average_value: measurements.last.value,
         )
@@ -169,22 +182,26 @@ class SaveMeasurements
 
     # https://github.com/zdennis/activerecord-import/issues/422
     stream_ids = ((last_id - new_streams.size + 1)..last_id).to_a
+    factory = RGeo::Geographic.spherical_factory(srid: 4326)
 
     measurements =
       pairs_to_create
         .each_with_object([])
         .with_index do |((stream, measurements), acc), i|
+
           measurements.each do |measurement|
             acc <<
               Measurement.new(
                 value: measurement.value,
                 latitude: measurement.latitude,
                 longitude: measurement.longitude,
+                location: factory.point(measurement.latitude.to_f, measurement.longitude.to_f),
                 time: measurement.time_local,
                 timezone_offset: nil,
                 milliseconds: 0,
                 measured_value: measurement.value,
                 stream_id: stream_ids[i],
+                time_with_time_zone: measurement.time_with_time_zone
               )
           end
         end
@@ -193,6 +210,8 @@ class SaveMeasurements
       Rails
         .logger.warn "Measurement.import failed for: #{import.failed_instances.inspect}"
     end
+
+    factory = RGeo::Geographic.spherical_factory(srid: 4326)
 
     measurements =
       pairs_to_append
@@ -204,6 +223,7 @@ class SaveMeasurements
                 value: measurement.value,
                 latitude: measurement.latitude,
                 longitude: measurement.longitude,
+                location: factory.point(measurement.latitude.to_f, measurement.longitude.to_f),
                 time: measurement.time_local,
                 timezone_offset: nil,
                 milliseconds: 0,
@@ -212,6 +232,7 @@ class SaveMeasurements
                   persisted_streams_hash[
                     [stream.latitude, stream.longitude, stream.sensor_name]
                   ].last,
+                time_with_time_zone: measurement.time_with_time_zone
               )
           end
         end

@@ -1453,6 +1453,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     bcrypt (3.1.16)
     bcrypt_pbkdf (1.1.0)
+    bigdecimal (3.1.7)
     bindex (0.8.1)
     bootsnap (1.9.3)
       msgpack (~> 1.0)
@@ -1502,6 +1503,9 @@ GEM
     colored (1.2)
     concurrent-ruby (1.1.10)
     connection_pool (2.3.0)
+    crack (1.0.0)
+      bigdecimal
+      rexml
     crass (1.0.6)
     daemons (1.4.0)
     date (3.3.3)
@@ -1597,6 +1601,7 @@ GEM
     has_scope (0.8.0)
       actionpack (>= 5.2)
       activesupport (>= 5.2)
+    hashdiff (1.1.0)
     honeybadger (4.9.0)
     httparty (0.21.0)
       mini_mime (>= 1.0.0)
@@ -1755,6 +1760,7 @@ GEM
     responders (3.0.1)
       actionpack (>= 5.0)
       railties (>= 5.0)
+    rexml (3.2.6)
     rgeo (3.0.0)
     rgeo-activerecord (7.0.1)
       activerecord (>= 5.0)
@@ -1862,6 +1868,7 @@ GEM
     unicorn-worker-killer (0.4.5)
       get_process_mem (~> 0)
       unicorn (>= 4, < 7)
+    vcr (6.2.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -1874,6 +1881,10 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
+    webmock (3.23.0)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -1950,7 +1961,9 @@ DEPENDENCIES
   uglifier
   unicorn
   unicorn-worker-killer
+  vcr
   web-console
+  webmock
   whenever
   yui-compressor
 

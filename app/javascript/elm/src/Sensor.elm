@@ -76,6 +76,14 @@ mainSensors page =
 
         Fixed ->
             common
+                |> Dict.insert "Particulate Matter"
+                    [ "AirBeam-PM2.5 (µg/m³)"
+                    , "AirBeam-PM10 (µg/m³)"
+                    , "AirBeam-PM1 (µg/m³)"
+                    , "Government-PM2.5 (µg/m³)"
+                    ]
+                |> Dict.insert "Ozone" [ "Government-Ozone (ppb)" ]
+                |> Dict.insert "Nitrogen Dioxide" [ "Government-NO2 (ppb)" ]
 
 
 type alias Sensor =

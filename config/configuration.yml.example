@@ -16,3 +16,4 @@ defaults:
   purple_air_api_key: REPLACEME
   sidekiq_purple_air_import_measurements_enabled: false
   sidekiq_session_stopped_alerts_enabled: false
+  sidekiq_air_now_import_measurements_enabled: false

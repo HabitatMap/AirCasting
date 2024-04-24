@@ -6,6 +6,6 @@ class GroupByStream
         previous = acc.key?(key) ? acc[key] : []
         acc[key] = previous + [measurement]
       end
-      .transform_values { |values| values.sort_by(&:time_utc) }
+      .transform_values { |values| values.sort_by(&:time_with_time_zone) }
   end
 end
