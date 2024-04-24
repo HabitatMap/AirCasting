@@ -1,6 +1,6 @@
 class AirNow::ProcessMeasurements
-  def initialize(time_zone_finder: TimezoneFinder)
-    @time_zone_finder = time_zone_finder
+  def initialize
+    @time_zone_finder = TimeZoneFinderWrapper.instance
   end
 
   def call(measurements)
@@ -33,7 +33,7 @@ class AirNow::ProcessMeasurements
 
   def create_saveable_object(measurement)
     time_with_time_zone = time_with_time_zone(measurement[:time], measurement[:date])
-    time_zone = time_zone_finder.create.timezone_at(lng: measurement[:longitude], lat: measurement[:latitude])
+    time_zone = time_zone_finder.timezone_at(lng: measurement[:longitude], lat: measurement[:latitude])
     utc_offset = time_with_time_zone.in_time_zone(time_zone).utc_offset
     time_local = time_with_time_zone + utc_offset
 
