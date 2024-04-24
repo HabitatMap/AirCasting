@@ -36,7 +36,6 @@ defaultSensorIdByParameter page =
                 [ ( "Humidity", "Humidity-airbeam-rh (%)" )
                 , ( "Sound Level", "Sound Level-phone microphone (dB)" )
                 , ( "Temperature", "Temperature-airbeam-f (F)" )
-                , ( "Ozone", "Ozone-government-ozone (ppb)" )
                 , ( "Nitrogen Dioxide", "Nitrogen Dioxide-government-no2 (ppb)" )
                 ]
     in
@@ -59,7 +58,6 @@ mainSensors page =
                   , [ "AirBeam-PM10 (µg/m³)"
                     , "AirBeam-PM2.5 (µg/m³)"
                     , "AirBeam-PM1 (µg/m³)"
-                    , "Government-PM2.5 (µg/m³)"
                     ]
                   )
                 , ( "Humidity"
@@ -68,14 +66,6 @@ mainSensors page =
                   )
                 , ( "Temperature"
                   , [ "AirBeam-F (F)"
-                    ]
-                  )
-                , ( "Ozone"
-                  , [ "Government-Ozone (ppb)"
-                    ]
-                  )
-                , ( "Nitrogen Dioxide"
-                  , [ "Government-NO2 (ppb)"
                     ]
                   )
                 ]
@@ -87,6 +77,14 @@ mainSensors page =
 
         Fixed ->
             common
+                |> Dict.insert "Particulate Matter"
+                    [ "AirBeam-PM2.5 (µg/m³)"
+                    , "AirBeam-PM10 (µg/m³)"
+                    , "AirBeam-PM1 (µg/m³)"
+                    , "Government-PM2.5 (µg/m³)"
+                    ]
+                |> Dict.insert "Ozone" [ "Government-Ozone (ppb)" ]
+                |> Dict.insert "Nitrogen Dioxide" [ "Government-NO2 (ppb)" ]
 
 
 type alias Sensor =
