@@ -51,6 +51,7 @@
     "calendarTitle": "Measurements calendar"
   },
 <<<<<<< HEAD
+<<<<<<< HEAD
   "headerToggle": {
     "arrowIcon": "Arrow Icon" },
   "thresholdConfigurator": {
@@ -61,5 +62,10 @@
     "emptyInputMessage": "Please enter a valid number"
 
 >>>>>>> a1002a4d (Fix inputs behaviours)
+=======
+  "thresholdConfigurator": {
+    "emptyInputMessage": "Please enter a valid number",
+    "validValueMessage":  "Value must be between {{minValue}} and {{maxValue}}"
+>>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
   }
 }

@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+// thresholdHandlers.tsx
+import { useState } from "react";
+>>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
 import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
 
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
+<<<<<<< HEAD
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { useEffect } from "react";
+=======
+>>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
 
 interface Thresholds {
   min: number;
@@ -23,6 +31,7 @@ export const useThresholdHandlers = (
   activeInput: keyof Thresholds | null,
   inputValue: string
 ) => {
+<<<<<<< HEAD
   const inputDebounceTime = 300;
   const { t } = useTranslation();
 
@@ -55,6 +64,16 @@ export const useThresholdHandlers = (
     const trimmedValue = value.trim();
     if (trimmedValue === "") {
       setInputValue("");
+=======
+  const [inputDebounceTime] = useState(300);
+  const { t } = useTranslation();
+
+  const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
+    const trimmedValue = value.trim();
+    setInputValue(trimmedValue);
+
+    if (trimmedValue === "") {
+>>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
       return;
     }
@@ -64,6 +83,7 @@ export const useThresholdHandlers = (
     const parsedValue = Number(trimmedValue);
 
     if (thresholdKey === "min" || thresholdKey === "max") {
+<<<<<<< HEAD
       if (!isValueValid(parsedValue, -Infinity, Infinity)) {
         setErrorMessage(t("thresholdConfigurator.invalidMinMaxMessage"));
       } else {
@@ -72,6 +92,20 @@ export const useThresholdHandlers = (
     } else {
       if (
         !isValueValid(parsedValue, thresholdValues.min, thresholdValues.max)
+=======
+      if (!validateValue(parsedValue, -Infinity, Infinity)) {
+        setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
+      } else {
+        setErrorMessage("");
+        setThresholdValues((prevValues) => ({
+          ...prevValues,
+          [thresholdKey]: parsedValue,
+        }));
+      }
+    } else {
+      if (
+        !validateValue(parsedValue, thresholdValues.min, thresholdValues.max)
+>>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
       ) {
         setErrorMessage(
           t("thresholdConfigurator.validValueMessage", {
@@ -80,7 +114,15 @@ export const useThresholdHandlers = (
           })
         );
       } else {
+<<<<<<< HEAD
         clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
+=======
+        setErrorMessage("");
+        setThresholdValues((prevValues) => ({
+          ...prevValues,
+          [thresholdKey]: parsedValue,
+        }));
+>>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
 
         updateAdjacentThresholds(
           thresholdKey,
@@ -112,11 +154,23 @@ export const useThresholdHandlers = (
     setActiveInput(thresholdKey);
   };
 
+<<<<<<< HEAD
+=======
+  const validateValue = (newValue: number, min: number, max: number) => {
+    return newValue >= min && newValue <= max;
+  };
+
+>>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
   const handleOutsideClick = (event: MouseEvent) => {
     if (
       sliderRef.current &&
       !sliderRef.current.contains(event.target as Node) &&
+<<<<<<< HEAD
       activeInput !== null
+=======
+      activeInput !== null &&
+      inputValue.trim() === ""
+>>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
     ) {
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
     }
@@ -125,6 +179,7 @@ export const useThresholdHandlers = (
   const handleInputKeyDown =
     (thresholdKey: keyof Thresholds) =>
     (event: React.KeyboardEvent<HTMLInputElement>) => {
+<<<<<<< HEAD
       if (event.key === KeyboardKeys.Enter) {
         setInputValue(event.currentTarget.value);
         handleInputChange(thresholdKey, event.currentTarget.value);
@@ -140,6 +195,11 @@ export const useThresholdHandlers = (
         newValue = parseFloat(inputValue) + step * direction;
 
         handleInputChange(thresholdKey, newValue.toString());
+=======
+      if (event.key === "Enter") {
+        setInputValue(event.currentTarget.value);
+        handleInputChange(thresholdKey, event.currentTarget.value);
+>>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
       }
     };
 

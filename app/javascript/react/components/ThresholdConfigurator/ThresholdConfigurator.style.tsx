@@ -167,12 +167,17 @@ const NumberInput = styled.input<{
         ? colors.red
         : colors.gray100};
 <<<<<<< HEAD
+<<<<<<< HEAD
     outline: 2px solid
       ${(props) => (props.$isActive ? colors.gray100 : "transparent")};
 =======
     outline: 1px solid
       ${(props) => (props.$isActive ? colors.deepBlue : "transparent")};
 >>>>>>> a1002a4d (Fix inputs behaviours)
+=======
+    outline: 2px solid
+      ${(props) => (props.$isActive ? colors.gray100 : "transparent")};
+>>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
   }
 
   @media ${media.desktop} {
