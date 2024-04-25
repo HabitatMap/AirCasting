@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { screenSizes } from "../../../../utils/media";
+import { useTranslation } from "react-i18next";
+
 import { Container, RotatedIcon, Heading } from "./HeaderToggle.style";
+import { screenSizes } from "../../../../utils/media";
 import arrowIcon from "../../../../assets/icons/arrowIcon.svg";
 
 interface Props {
@@ -10,13 +12,11 @@ interface Props {
 
 const HeaderToggle: React.FC<Props> = ({ titleText, componentToToggle }) => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
-  const [isRotated, setIsRotated] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < screenSizes.mobile
   );
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
-    setIsRotated(!isRotated);
   };
 
   useEffect(() => {
@@ -29,18 +29,22 @@ const HeaderToggle: React.FC<Props> = ({ titleText, componentToToggle }) => {
     };
   }, []);
 
+  const { t } = useTranslation();
+
   return (
     <div>
       <Container>
-        {isMobile && (
-          <RotatedIcon
-            src={arrowIcon}
-            alt="Arrow Icon"
-            rotated={isRotated}
-            onClick={toggleVisibility}
-          />
-        )}
-        <Heading onClick={toggleVisibility}>{titleText}</Heading>
+        {(isMobile && (
+          <>
+            <RotatedIcon
+              src={arrowIcon}
+              alt={t("headerToggle.arrowIcon")}
+              rotated={!isVisible}
+              onClick={toggleVisibility}
+            />
+            <Heading onClick={toggleVisibility}>{titleText}</Heading>
+          </>
+        )) || <Heading>{titleText}</Heading>}
       </Container>
       {isVisible && componentToToggle}
     </div>

@@ -49,5 +49,8 @@
     "localTime": "{{lastUpdate}} (local time)",
     "legendTitle": "Measurements legend",
     "calendarTitle": "Measurements calendar"
+  },
+  "headerToggle": {
+    "arrowIcon": "Arrow Icon"
   }
 }
