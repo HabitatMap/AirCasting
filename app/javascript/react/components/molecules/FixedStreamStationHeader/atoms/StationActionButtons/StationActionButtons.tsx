@@ -14,8 +14,29 @@ const StationActionButtons = () => {
 
   const copyCurrentURL = () => {
     const currentURL = window.location.href;
-    navigator.clipboard.writeText(currentURL);
-    alert("URL copied!");
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      // Modern browsers supporting Clipboard API
+      navigator.clipboard
+        .writeText(currentURL)
+        .then(() => {
+          alert("URL copied!");
+        })
+        .catch((error) => {
+          console.error("Failed to copy URL: ", error);
+        });
+    } else {
+      // Fallback for browsers that do not support Clipboard API
+      const tempInput = document.createElement("input");
+      tempInput.style.position = "absolute";
+      tempInput.style.left = "-1000px";
+      tempInput.value = currentURL;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempInput);
+      alert("URL copied!");
+    }
   };
 
   return (
