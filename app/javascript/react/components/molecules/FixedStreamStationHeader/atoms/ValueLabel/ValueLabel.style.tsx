@@ -1,15 +1,30 @@
 import styled from "styled-components";
-import { blue, green } from "../../../../../assets/styles/colors";
+import {
+  blue,
+  green,
+  gray100,
+  gray300,
+} from "../../../../../assets/styles/colors";
 import hexToRGBA from "../../../../../utils/hexToRGB";
 import { media } from "../../../../../utils/media";
 
-const Container = styled.div`
-  background: linear-gradient(
+interface ContainerProps {
+  isActive?: boolean;
+}
+
+const Container = styled.div<ContainerProps>`
+  background: ${(props) =>
+    props.isActive
+      ? `linear-gradient(
       241deg,
       ${hexToRGBA(blue, 0.4)} -2.4%,
       ${hexToRGBA(blue, 0.0)} 94.94%
-    ),
-    ${green};
+    ), ${green}`
+      : `linear-gradient(
+        241deg,
+        ${hexToRGBA(gray100, 0.4)} -2.4%,
+        ${hexToRGBA(gray100, 0.0)} 94.94%
+      ), ${gray300}`};
   display: flex;
   flex-direction: column;
   align-self: stretch;

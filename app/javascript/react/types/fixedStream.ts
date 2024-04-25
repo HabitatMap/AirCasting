@@ -11,6 +11,7 @@ interface DataSource {
 interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   title: string;
   unitSymbol: string;
+  active: boolean; 
 }
 
 interface Measurement {

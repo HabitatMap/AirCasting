@@ -22,6 +22,7 @@ const initialState: FixedStreamState = {
       sensorName: "",
       unitSymbol: "",
       updateFrequency: "",
+      active: true,
     },
     measurements: [],
     streamDailyAverages: [],

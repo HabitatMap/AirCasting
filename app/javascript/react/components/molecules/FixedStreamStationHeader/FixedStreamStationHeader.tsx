@@ -19,6 +19,7 @@ const FixedStreamStationHeader = () => {
     updateFrequency,
     lastMeasurementValue,
     lastMeasurementDateLabel,
+    active,
   } = useSelector(selectFixedStreamShortInfo);
 
   return (
@@ -27,6 +28,7 @@ const FixedStreamStationHeader = () => {
         date={lastMeasurementDateLabel}
         value={lastMeasurementValue}
         unitSymbol={unitSymbol}
+        isActive={active}
       />
       <StationName stationName={title} />
       <DataSource profile={profile} sensorName={sensorName} />

@@ -8,13 +8,14 @@ interface StationValues {
   unitSymbol: string;
   date?: string;
   value?: number;
+  isActive?: boolean;
 }
 
-const ValueLabel = ({ date, value, unitSymbol }: StationValues) => {
+const ValueLabel = ({ date, value, unitSymbol, isActive }: StationValues) => {
   const { t } = useTranslation();
 
   return (
-    <S.Container>
+    <S.Container isActive={isActive}>
       <S.ImageContainer
         src={BroadCastLogo}
         alt={t("stationValue.altLogo")}
