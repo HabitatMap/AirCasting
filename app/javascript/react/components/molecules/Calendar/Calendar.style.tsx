@@ -14,6 +14,24 @@ const ThreeMonths = styled.div`
   }
 `;
 
+const MobileSwipe = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+
+  @media ${media.desktop} {
+    display: none;
+  }
+`;
+
+const DesktopSwipe = styled.div`
+  display: none;
+
+  @media ${media.desktop} {
+    display: flex;
+  }
+`;
+
 const CalendarContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -25,4 +43,4 @@ const CalendarContainer = styled.div`
   }
 `;
 
-export { ThreeMonths, CalendarContainer };
+export { ThreeMonths, CalendarContainer, MobileSwipe, DesktopSwipe };
