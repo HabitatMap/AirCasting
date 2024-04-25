@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
 
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
+import { KeyboardKeys } from "../types/keyboardKeys";
 
 interface Thresholds {
   min: number;
@@ -22,14 +22,25 @@ export const useThresholdHandlers = (
   activeInput: keyof Thresholds | null,
   inputValue: string
 ) => {
-  const [inputDebounceTime] = useState(300);
+  const inputDebounceTime = 300;
   const { t } = useTranslation();
+
+  const isValueValid = (newValue: number, min: number, max: number): boolean => {
+    return newValue >= min && newValue <= max;
+  };
+
+  const clearErrorAndUpdateThreshold = (thresholdKey: string, parsedValue: number) => {
+    setErrorMessage("");
+    setThresholdValues((prevValues) => ({
+      ...prevValues,
+      [thresholdKey]: parsedValue,
+    }));
+  };
 
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
     const trimmedValue = value.trim();
-    setInputValue(trimmedValue);
-
     if (trimmedValue === "") {
+      setInputValue("");
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
       return;
     }
@@ -39,18 +50,14 @@ export const useThresholdHandlers = (
     const parsedValue = Number(trimmedValue);
 
     if (thresholdKey === "min" || thresholdKey === "max") {
-      if (!validateValue(parsedValue, -Infinity, Infinity)) {
-        setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
+      if (!isValueValid(parsedValue, -Infinity, Infinity)) {
+        setErrorMessage(t("thresholdConfigurator.invalidMinMaxMessage"));
       } else {
-        setErrorMessage("");
-        setThresholdValues((prevValues) => ({
-          ...prevValues,
-          [thresholdKey]: parsedValue,
-        }));
+        clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
       }
     } else {
       if (
-        !validateValue(parsedValue, thresholdValues.min, thresholdValues.max)
+        !isValueValid(parsedValue, thresholdValues.min, thresholdValues.max)
       ) {
         setErrorMessage(
           t("thresholdConfigurator.validValueMessage", {
@@ -59,11 +66,7 @@ export const useThresholdHandlers = (
           })
         );
       } else {
-        setErrorMessage("");
-        setThresholdValues((prevValues) => ({
-          ...prevValues,
-          [thresholdKey]: parsedValue,
-        }));
+        clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
 
         updateAdjacentThresholds(
           thresholdKey,
@@ -95,41 +98,33 @@ export const useThresholdHandlers = (
     setActiveInput(thresholdKey);
   };
 
-  const validateValue = (newValue: number, min: number, max: number) => {
-    return newValue >= min && newValue <= max;
-  };
-
   const handleOutsideClick = (event: MouseEvent) => {
     if (
       sliderRef.current &&
       !sliderRef.current.contains(event.target as Node) &&
-      activeInput !== null &&
-      inputValue.trim() === ""
+      activeInput !== null
     ) {
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
     }
   };
 
   const handleInputKeyDown =
-  (thresholdKey: keyof Thresholds) =>
-  (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      setInputValue(event.currentTarget.value);
-      handleInputChange(thresholdKey, event.currentTarget.value);
-    } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-      event.preventDefault();
-      let newValue;
-      const step = event.shiftKey ? 10 : 1;
+    (thresholdKey: keyof Thresholds) =>
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === KeyboardKeys.Enter) {
+        setInputValue(event.currentTarget.value);
+        handleInputChange(thresholdKey, event.currentTarget.value);
+      } else if (event.key === KeyboardKeys.ArrowUp || event.key === KeyboardKeys.ArrowDown) {
+        event.preventDefault();
+        let newValue;
+        const step = event.shiftKey ? 10 : 1;
 
-      if (event.key === "ArrowUp") {
-        newValue = parseFloat(inputValue) + step;
-      } else {
-        newValue = parseFloat(inputValue) - step;
+        const direction = event.key === "ArrowUp" ? 1 : -1;
+        newValue = parseFloat(inputValue) + step * direction;
+
+        handleInputChange(thresholdKey, newValue.toString());
       }
-
-      handleInputChange(thresholdKey, newValue.toString());
-    }
-  };
+    };
 
   return {
     handleInputChange,

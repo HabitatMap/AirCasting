@@ -16,7 +16,6 @@ const StationActionButtons = () => {
     const currentURL = window.location.href;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      // Modern browsers supporting Clipboard API
       navigator.clipboard
         .writeText(currentURL)
         .then(() => {
@@ -36,6 +35,9 @@ const StationActionButtons = () => {
       document.execCommand("copy");
       document.body.removeChild(tempInput);
       alert("URL copied!");
+      tempInput.onerror = (e) => {
+        console.log(e.toString);
+      };
     }
   };
 
