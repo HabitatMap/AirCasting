@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { Container, RotatedIcon, Heading } from "./HeaderToggle.style";
 import { screenSizes } from "../../../../utils/media";
-import arrowIcon from "../../../../assets/icons/arrowIcon.svg";
+import headerArrowIcon from "../../../../assets/icons/headerArrowIcon.svg";
 
 interface Props {
   titleText: string;
@@ -37,7 +37,7 @@ const HeaderToggle: React.FC<Props> = ({ titleText, componentToToggle }) => {
         {(isMobile && (
           <>
             <RotatedIcon
-              src={arrowIcon}
+              src={headerArrowIcon}
               alt={t("headerToggle.arrowIcon")}
               rotated={!isVisible}
               onClick={toggleVisibility}
