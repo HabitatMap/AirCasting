@@ -5,6 +5,7 @@ import { white } from "../../../assets/styles/colors";
 const ThreeMonths = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 2rem;
   flex-wrap: wrap;
 

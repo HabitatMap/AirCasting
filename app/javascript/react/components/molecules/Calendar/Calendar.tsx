@@ -1,5 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../../store/hooks";
+import { fetchFixedStreamById } from '../../../store/fixedStreamSlice';
 
 import { selectLatestThreeMonthsDailyAverages } from "../../../store/fixedStreamSelectors";
 import { Month } from "./atoms/Month";
@@ -10,6 +12,7 @@ import HeaderToggle from "./HeaderToggle/HeaderToggle";
 const Calendar = () => {
   const threeMonthsData = useSelector(selectLatestThreeMonthsDailyAverages);
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
 
   return (
     threeMonthsData && (

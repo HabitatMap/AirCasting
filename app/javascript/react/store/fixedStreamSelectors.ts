@@ -105,8 +105,9 @@ const getFullWeeksOfThreeLatestMonths = (
 ): CalendarMonthlyData[] => {
   const latestDateWithData = getLatestDataPointDate(streamDailyAverages);
   const latestMomentWithData = moment(latestDateWithData);
+  console.log(latestMomentWithData)
 
-  const secondLatestMonth = latestMomentWithData.clone().subtract(1, "months");
+  const secondLatestMonth = latestMomentWithData.clone().subtract(1, "month");
   const thirdLatestMonth = latestMomentWithData.clone().subtract(2, "month");
   const threeMonths = [
     thirdLatestMonth,
