@@ -1,9 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import bellAlert from "../../../../../assets/icons/bellAlert.svg";
 import copyLink from "../../../../../assets/icons/copyLink.svg";
-import downloadImage from "../../../../../assets/icons/download.svg";
 import shareLink from "../../../../../assets/icons/shareLink.svg";
 import { Button } from "../../../../Button/Button";
 import { ActionButton } from "../../../../ActionButton/ActionButton";

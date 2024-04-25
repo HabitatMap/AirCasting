@@ -87,6 +87,13 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     };
   }, []);
 
+  const resetThresholds = () => {
+    setTimeout(() => {
+      setThresholdValues(initialThresholds);
+      setInputValue(""); // Reset inputValue state for all input fields
+    }, 5);
+  };
+
   const { min, max, ...thumbs } = thresholdValues;
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
 

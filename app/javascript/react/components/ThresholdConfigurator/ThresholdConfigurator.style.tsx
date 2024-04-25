@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
+import { Button } from "../Button/Button";
 
 const Container = styled.div`
   display: flex;
@@ -166,18 +167,8 @@ const NumberInput = styled.input<{
         : props.$hasError
         ? colors.red
         : colors.gray100};
-<<<<<<< HEAD
-<<<<<<< HEAD
     outline: 2px solid
       ${(props) => (props.$isActive ? colors.gray100 : "transparent")};
-=======
-    outline: 1px solid
-      ${(props) => (props.$isActive ? colors.deepBlue : "transparent")};
->>>>>>> a1002a4d (Fix inputs behaviours)
-=======
-    outline: 2px solid
-      ${(props) => (props.$isActive ? colors.gray100 : "transparent")};
->>>>>>> b1107419 (Refactor code and extract handlers into seperate file)
   }
 
   @media ${media.desktop} {
@@ -204,4 +195,24 @@ const ErrorMessage = styled.p`
   }
 `;
 
-export { Container, InputContainer, RangeInput, NumberInput, ErrorMessage };
+const HeaderContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const ResetButton = styled(Button)`
+  background: ${colors.gray100};
+  border: none;
+  color: ${colors.gray300};
+`;
+
+export {
+  Container,
+  InputContainer,
+  RangeInput,
+  NumberInput,
+  ErrorMessage,
+  HeaderContainer,
+  ResetButton,
+};
