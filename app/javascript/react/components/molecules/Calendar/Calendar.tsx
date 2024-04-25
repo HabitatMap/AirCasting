@@ -5,7 +5,7 @@ import { selectLatestThreeMonthsDailyAverages } from "../../../store/fixedStream
 import { Month } from "./atoms/Month";
 import * as S from "./Calendar.style";
 import { useTranslation } from "react-i18next";
-import HeaderToggle from "./HeaderToggle";
+import HeaderToggle from "./HeaderToggle/HeaderToggle";
 
 const Calendar = () => {
   const threeMonthsData = useSelector(selectLatestThreeMonthsDailyAverages);

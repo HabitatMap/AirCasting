@@ -10,7 +10,7 @@ import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
 import { useTranslation } from "react-i18next";
 
 import { screenSizes } from "../../utils/media";
-import HeaderToggle from "../molecules/Calendar/HeaderToggle";
+import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 
 interface ThresholdsConfiguratorProps {
   initialThresholds: Thresholds;
