@@ -11,8 +11,6 @@ import {
   handleTouchStart,
 } from "../../utils/thresholdGestureHandlers";
 import * as S from "./ThresholdConfigurator.style";
-import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
-import { act } from "@testing-library/react";
 
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 
@@ -101,6 +99,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     <S.Container>
       <HeaderToggle
         titleText={t("calendarHeader.legendTitle")}
+        resetThresholds={resetThresholds}
         componentToToggle={
           <>
             <S.InputContainer ref={sliderRef}>

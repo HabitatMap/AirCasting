@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Container, RotatedIcon, Heading } from "./HeaderToggle.style";
+import * as S from "./HeaderToggle.style";
 import { screenSizes } from "../../../../utils/media";
 import headerArrowIcon from "../../../../assets/icons/headerArrowIcon.svg";
+import returnArrow from "../../../../assets/icons/returnArrow.svg";
 
 interface Props {
   titleText: string;
   componentToToggle: JSX.Element;
+  resetThresholds?: () => void;
 }
 
-const HeaderToggle: React.FC<Props> = ({ titleText, componentToToggle }) => {
+const HeaderToggle: React.FC<Props> = ({
+  titleText,
+  componentToToggle,
+  resetThresholds,
+}) => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < screenSizes.mobile
@@ -33,19 +39,28 @@ const HeaderToggle: React.FC<Props> = ({ titleText, componentToToggle }) => {
 
   return (
     <div>
-      <Container>
+      <S.Container>
         {(isMobile && (
           <>
-            <RotatedIcon
+            <S.RotatedIcon
               src={headerArrowIcon}
               alt={t("headerToggle.arrowIcon")}
               rotated={!isVisible}
               onClick={toggleVisibility}
             />
-            <Heading onClick={toggleVisibility}>{titleText}</Heading>
+            <S.Heading onClick={toggleVisibility}>{titleText}</S.Heading>
           </>
-        )) || <Heading>{titleText}</Heading>}
-      </Container>
+        )) || <S.Heading>{titleText}</S.Heading>}
+        {resetThresholds && (
+          <S.ResetButton onClick={resetThresholds}>
+            {t("thresholdConfigurator.resetButton")}
+            <img
+              src={returnArrow}
+              alt={t("thresholdConfigurator.altResetButton")}
+            />
+          </S.ResetButton>
+        )}
+      </S.Container>
       {isVisible && componentToToggle}
     </div>
   );

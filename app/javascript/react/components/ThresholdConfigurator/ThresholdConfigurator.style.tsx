@@ -2,7 +2,6 @@ import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
-import { Button } from "../Button/Button";
 
 const Container = styled.div`
   display: flex;
@@ -201,12 +200,6 @@ const HeaderContainer = styled.div`
   justify-content: space-between;
 `;
 
-const ResetButton = styled(Button)`
-  background: ${colors.gray100};
-  border: none;
-  color: ${colors.gray300};
-`;
-
 export {
   Container,
   InputContainer,
@@ -214,5 +207,4 @@ export {
   NumberInput,
   ErrorMessage,
   HeaderContainer,
-  ResetButton,
 };
