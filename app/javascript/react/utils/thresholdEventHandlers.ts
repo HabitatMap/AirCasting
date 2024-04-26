@@ -149,5 +149,6 @@ export const useThresholdHandlers = (
     handleInputFocus,
     handleInputKeyDown,
     handleOutsideClick,
+    debouncedHandleInputChange
   };
 };

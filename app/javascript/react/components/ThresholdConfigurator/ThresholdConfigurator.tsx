@@ -67,6 +67,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     handleInputFocus,
     handleInputKeyDown,
     handleOutsideClick,
+    debouncedHandleInputChange,
   } = useThresholdHandlers(
     setThresholdValues,
     setInputValue,
@@ -86,10 +87,9 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   }, []);
 
   const resetThresholds = () => {
-    setTimeout(() => {
-      setThresholdValues(initialThresholds);
-      setInputValue(""); // Reset inputValue state for all input fields
-    }, 5);
+    debouncedHandleInputChange.cancel();
+    setInputValue("");
+    setThresholdValues(initialThresholds);
   };
 
   const { min, max, ...thumbs } = thresholdValues;
