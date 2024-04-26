@@ -56,6 +56,7 @@
     "emptyInputMessage": "Please enter a valid number",
     "validValueMessage":  "Value must be between {{minValue}} and {{maxValue}}",
     "resetButton": "Reset to default",
+    "resetButtonMobile": "Reset ranges",
     "altResetButton": "Reset the threshold values to default"
   }
 }

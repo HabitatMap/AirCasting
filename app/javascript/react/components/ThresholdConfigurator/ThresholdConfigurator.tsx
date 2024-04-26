@@ -11,7 +11,6 @@ import {
   handleTouchStart,
 } from "../../utils/thresholdGestureHandlers";
 import * as S from "./ThresholdConfigurator.style";
-
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 
 interface ThresholdsConfiguratorProps {

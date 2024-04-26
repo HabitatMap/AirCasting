@@ -21,6 +21,8 @@ const HeaderToggle: React.FC<Props> = ({
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < screenSizes.mobile
   );
+  const { t } = useTranslation();
+
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
   };
@@ -35,11 +37,36 @@ const HeaderToggle: React.FC<Props> = ({
     };
   }, []);
 
-  const { t } = useTranslation();
+  const displayResetButton = () => {
+    if (!resetThresholds) return null;
+
+    return (
+      <S.ResetButton onClick={resetThresholds} $isMobile={isMobile}>
+        {isMobile && (
+          <>
+            <img
+              src={returnArrow}
+              alt={t("thresholdConfigurator.altResetButton")}
+            />
+            {t("thresholdConfigurator.resetButtonMobile")}
+          </>
+        )}
+        {!isMobile && (
+          <>
+            {t("thresholdConfigurator.resetButton")}
+            <img
+              src={returnArrow}
+              alt={t("thresholdConfigurator.altResetButton")}
+            />
+          </>
+        )}
+      </S.ResetButton>
+    );
+  };
 
   return (
-    <div>
-      <S.Container>
+    <>
+      <S.Container $isMobile={isMobile}>
         {(isMobile && (
           <>
             <S.RotatedIcon
@@ -51,18 +78,11 @@ const HeaderToggle: React.FC<Props> = ({
             <S.Heading onClick={toggleVisibility}>{titleText}</S.Heading>
           </>
         )) || <S.Heading>{titleText}</S.Heading>}
-        {resetThresholds && (
-          <S.ResetButton onClick={resetThresholds}>
-            {t("thresholdConfigurator.resetButton")}
-            <img
-              src={returnArrow}
-              alt={t("thresholdConfigurator.altResetButton")}
-            />
-          </S.ResetButton>
-        )}
+        {!isMobile && displayResetButton()}
       </S.Container>
       {isVisible && componentToToggle}
-    </div>
+      {isMobile && displayResetButton()}
+    </>
   );
 };
 

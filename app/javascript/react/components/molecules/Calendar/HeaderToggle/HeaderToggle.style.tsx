@@ -4,7 +4,9 @@ import { H3 } from "../../../Typography";
 import { Button } from "../../../Button/Button.style";
 import * as colors from "../../../../assets/styles/colors";
 
-const Container = styled.div`
+const Container = styled.div<{
+  $isMobile: boolean;
+}>`
   display: flex;
   align-items: center;
   padding-bottom: 20px;
@@ -23,10 +25,14 @@ const Heading = styled(H3)`
   cursor: pointer;
 `;
 
-const ResetButton = styled(Button)`
+const ResetButton = styled(Button)<{
+  $isMobile: boolean;
+}>`
   background: ${colors.gray100};
   border: none;
   color: ${colors.gray300};
+  width: fit-content;
+  margin-left: ${({ $isMobile }) => ($isMobile ? "auto" : "0")};
 `;
 
 export { Container, RotatedIcon, Heading, ResetButton };
