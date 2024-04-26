@@ -1,6 +1,6 @@
 class AirNow::ProcessMeasurements
   def initialize
-    @time_zone_finder = TimeZoneFinderWrapper.instance
+    @time_zone_finder = TimezoneFinder.create
   end
 
   def call(measurements)
