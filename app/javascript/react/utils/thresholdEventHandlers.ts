@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 import { KeyboardKeys } from "../types/keyboardKeys";
+import { useEffect } from "react";
 
 interface Thresholds {
   min: number;
@@ -25,11 +26,24 @@ export const useThresholdHandlers = (
   const inputDebounceTime = 300;
   const { t } = useTranslation();
 
-  const isValueValid = (newValue: number, min: number, max: number): boolean => {
+  const isValueValid = (
+    newValue: number,
+    min: number,
+    max: number
+  ): boolean => {
     return newValue >= min && newValue <= max;
   };
 
-  const clearErrorAndUpdateThreshold = (thresholdKey: string, parsedValue: number) => {
+  useEffect(() => {
+    if (activeInput !== null) {
+      setInputValue(thresholdValues[activeInput].toString());
+    }
+  }, [activeInput, thresholdValues]);
+
+  const clearErrorAndUpdateThreshold = (
+    thresholdKey: string,
+    parsedValue: number
+  ) => {
     setErrorMessage("");
     setThresholdValues((prevValues) => ({
       ...prevValues,
@@ -114,12 +128,15 @@ export const useThresholdHandlers = (
       if (event.key === KeyboardKeys.Enter) {
         setInputValue(event.currentTarget.value);
         handleInputChange(thresholdKey, event.currentTarget.value);
-      } else if (event.key === KeyboardKeys.ArrowUp || event.key === KeyboardKeys.ArrowDown) {
+      } else if (
+        event.key === KeyboardKeys.ArrowUp ||
+        event.key === KeyboardKeys.ArrowDown
+      ) {
         event.preventDefault();
         let newValue;
         const step = event.shiftKey ? 10 : 1;
 
-        const direction = event.key === "ArrowUp" ? 1 : -1;
+        const direction = event.key === KeyboardKeys.ArrowUp ? 1 : -1;
         newValue = parseFloat(inputValue) + step * direction;
 
         handleInputChange(thresholdKey, newValue.toString());

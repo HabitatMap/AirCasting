@@ -11,6 +11,7 @@ import {
 } from "../../utils/thresholdGestureHandlers";
 import * as S from "./ThresholdConfigurator.style";
 import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
+import { act } from "@testing-library/react";
 
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 
@@ -120,7 +121,8 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                       thresholdValues,
                       sliderWidth,
                       setThresholdValues,
-                      setInputValue
+                      setInputValue,
+                      setErrorMessage
                     )}
                   />
                   <S.NumberInput
@@ -155,14 +157,16 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                       thresholdValues,
                       sliderWidth,
                       setThresholdValues,
-                      setInputValue
+                      setInputValue,
+                      setErrorMessage
                     )}
                     onMouseDown={handleMouseDown(
                       thresholdKey,
                       thresholdValues,
                       sliderWidth,
                       setThresholdValues,
-                      setInputValue
+                      setInputValue,
+                      setErrorMessage
                     )}
                     onKeyDown={handleInputKeyDown(thresholdKey)}
                   />
