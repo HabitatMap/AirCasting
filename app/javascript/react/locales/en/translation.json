@@ -50,19 +50,10 @@
     "legendTitle": "Measurements legend",
     "calendarTitle": "Measurements calendar"
   },
-<<<<<<< HEAD
-<<<<<<< HEAD
   "headerToggle": {
-    "arrowIcon": "Arrow Icon"
-=======
-  "tresholdConfigurator": {
-    "emptyInputMessage": "Please enter a valid number"
-
->>>>>>> 60fa348a (Fix inputs behaviours)
-=======
+    "arrowIcon": "Arrow Icon" },
   "thresholdConfigurator": {
     "emptyInputMessage": "Please enter a valid number",
     "validValueMessage":  "Value must be between {{minValue}} and {{maxValue}}"
->>>>>>> 60f771e0 (Refactor code and extract handlers into seperate file)
   }
 }
