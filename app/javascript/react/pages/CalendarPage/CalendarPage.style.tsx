@@ -10,7 +10,8 @@ const CalendarPageLayout = styled.div`
   background-color: ${gray100};
 
   @media ${media.smallDesktop} {
-  padding: 15px;
+    padding: 15px;
+  }
 `;
 
 const StationDataContainer = styled.div`

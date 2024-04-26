@@ -4,8 +4,8 @@ import { useSelector } from "react-redux";
 import { selectLatestThreeMonthsDailyAverages } from "../../../store/fixedStreamSelectors";
 import { Month } from "./atoms/Month";
 import * as S from "./Calendar.style";
-import { Heading } from "./../../../pages/CalendarPage/CalendarPage.style";
 import { useTranslation } from "react-i18next";
+import HeaderToggle from "./HeaderToggle/HeaderToggle";
 
 const Calendar = () => {
   const threeMonthsData = useSelector(selectLatestThreeMonthsDailyAverages);
@@ -14,12 +14,16 @@ const Calendar = () => {
   return (
     threeMonthsData && (
       <S.CalendarContainer>
-        <Heading>{t("calendarHeader.calendarTitle")}</Heading>
-        <S.ThreeMonths>
-          {threeMonthsData.map((month) => (
-            <Month key={month.monthName} {...month} />
-          ))}
-        </S.ThreeMonths>
+        <HeaderToggle
+          titleText={t("calendarHeader.calendarTitle")}
+          componentToToggle={
+            <S.ThreeMonths>
+              {threeMonthsData.map((month) => (
+                <Month key={month.monthName} {...month} />
+              ))}
+            </S.ThreeMonths>
+          }
+        />
       </S.CalendarContainer>
     )
   );
