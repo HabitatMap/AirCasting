@@ -51,7 +51,10 @@ export const useThresholdHandlers = (
     }));
   };
 
-  const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
+  const handleInputChange = (
+    thresholdKey: keyof Thresholds,
+    value: string,
+  ) => {
     const trimmedValue = value.trim();
     if (trimmedValue === "") {
       setInputValue("");
@@ -68,11 +71,10 @@ export const useThresholdHandlers = (
         setErrorMessage(t("thresholdConfigurator.invalidMinMaxMessage"));
       } else {
         clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
+        updateAdjacentThresholds(thresholdKey, parsedValue, setThresholdValues, thresholdValues);
       }
     } else {
-      if (
-        !isValueValid(parsedValue, thresholdValues.min, thresholdValues.max)
-      ) {
+      if (!isValueValid(parsedValue, thresholdValues.min, thresholdValues.max)) {
         setErrorMessage(
           t("thresholdConfigurator.validValueMessage", {
             minValue: thresholdValues.min,
@@ -81,16 +83,11 @@ export const useThresholdHandlers = (
         );
       } else {
         clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
-
-        updateAdjacentThresholds(
-          thresholdKey,
-          parsedValue,
-          setThresholdValues,
-          thresholdValues
-        );
+        updateAdjacentThresholds(thresholdKey, parsedValue, setThresholdValues, thresholdValues);
       }
     }
   };
+
 
   const debouncedHandleInputChange = debounce(
     handleInputChange,

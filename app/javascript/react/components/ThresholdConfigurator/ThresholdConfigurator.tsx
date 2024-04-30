@@ -10,8 +10,6 @@ import {
   handleTouchStart,
 } from "../../utils/thresholdGestureHandlers";
 import * as S from "./ThresholdConfigurator.style";
-import { Heading } from "../../pages/CalendarPage/CalendarPage.style";
-import { act } from "@testing-library/react";
 
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 
@@ -99,8 +97,11 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
               <S.NumberInput
                 inputMode="numeric"
                 type="number"
-                value={min}
-                onChange={(e) => handleInputChange("min", e.target.value)}
+                value={activeInput === "min" ? inputValue : min.toString()}
+                onFocus={() => handleInputFocus("min")}
+                onBlur={() => handleInputBlur("min", inputValue)}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleInputKeyDown("min")}
               />
               {thumbData.map(([thresholdKey, value]) => (
                 <React.Fragment key={thresholdKey}>
@@ -116,14 +117,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                     onChange={(e) =>
                       handleInputChange(thresholdKey, e.target.value)
                     }
-                    onTouchStart={handleTouchStart(
-                      thresholdKey,
-                      thresholdValues,
-                      sliderWidth,
-                      setThresholdValues,
-                      setInputValue,
-                      setErrorMessage
-                    )}
                   />
                   <S.NumberInput
                     inputMode="numeric"
@@ -176,11 +169,12 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                 inputMode="numeric"
                 type="number"
                 step={1}
-                value={max}
                 $isLast
-                onChange={(e) => {
-                  handleInputChange("max", e.target.value);
-                }}
+                value={activeInput === "max" ? inputValue : max.toString()}
+                onFocus={() => handleInputFocus("max")}
+                onBlur={() => handleInputBlur("max", inputValue)}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleInputKeyDown("max")}
               />
             </S.InputContainer>
             {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}

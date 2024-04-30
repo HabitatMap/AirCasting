@@ -1,4 +1,3 @@
-
 import { Thresholds } from "../types/thresholds";
 
 export const updateAdjacentThresholds = (
@@ -65,6 +64,35 @@ export const updateAdjacentThresholds = (
         setThresholdValues((prevValues) => ({
           ...prevValues,
           low: Math.max(newValue - 2, thresholdValues.min),
+        }));
+      }
+      break;
+    case "max":
+      if (
+        newValue < thresholdValues.low &&
+        thresholdValues.low !== thresholdValues.min
+      ) {
+        setThresholdValues((prevValues) => ({
+          ...prevValues,
+          low: newValue,
+        }));
+      }
+      if (
+        newValue < thresholdValues.middle &&
+        thresholdValues.middle !== thresholdValues.min
+      ) {
+        setThresholdValues((prevValues) => ({
+          ...prevValues,
+          middle: newValue,
+        }));
+      }
+      if (
+        newValue < thresholdValues.high &&
+        thresholdValues.high !== thresholdValues.min
+      ) {
+        setThresholdValues((prevValues) => ({
+          ...prevValues,
+          high: newValue,
         }));
       }
       break;
