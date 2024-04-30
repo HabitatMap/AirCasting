@@ -31,7 +31,12 @@ export const useThresholdHandlers = (
     min: number,
     max: number
   ): boolean => {
-    return newValue >= -Infinity && newValue <= Infinity && newValue >= min && newValue <= max;
+    return (
+      newValue >= -Infinity &&
+      newValue <= Infinity &&
+      newValue >= min &&
+      newValue <= max
+    );
   };
 
   useEffect(() => {
@@ -51,10 +56,7 @@ export const useThresholdHandlers = (
     }));
   };
 
-  const handleInputChange = (
-    thresholdKey: keyof Thresholds,
-    value: string,
-  ) => {
+  const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
     const trimmedValue = value.trim();
     if (trimmedValue === "") {
       setInputValue("");
@@ -68,20 +70,44 @@ export const useThresholdHandlers = (
 
     if (thresholdKey === "min" || thresholdKey === "max") {
       if (!isValueValid(parsedValue, -Infinity, Infinity)) {
-        setErrorMessage(t("thresholdConfigurator.invalidMinMaxMessage"));
+        setErrorMessage(
+          t("thresholdConfigurator.validValueMessage", {
+            minValue: thresholdValues.min,
+            maxValue: thresholdValues.max,
+          })
+        );
       } else {
-        if ((thresholdKey === "min" && parsedValue >= thresholdValues.max) ||
-            (thresholdKey === "max" && parsedValue <= thresholdValues.min)) {
-          setErrorMessage(t("thresholdConfigurator.invalidMinMaxOrderMessage"));
-        } else if (thresholdKey === "max" && parsedValue < thresholdValues.min) {
-          setErrorMessage(t("thresholdConfigurator.maxLessThanMinMessage"));
+        if (
+          (thresholdKey === "min" && parsedValue >= thresholdValues.max)
+        ) {
+          setErrorMessage(
+            t("thresholdConfigurator.minGreaterThanMaxMessage", {
+              maxValue: thresholdValues.max,
+            })
+          );
+        } else if (
+          thresholdKey === "max" &&
+          parsedValue <= thresholdValues.min
+        ) {
+          setErrorMessage(
+            t("thresholdConfigurator.maxLessThanMinMessage", {
+              minValue: thresholdValues.min,
+            })
+          );
         } else {
           clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
-          updateAdjacentThresholds(thresholdKey, parsedValue, setThresholdValues, thresholdValues);
+          updateAdjacentThresholds(
+            thresholdKey,
+            parsedValue,
+            setThresholdValues,
+            thresholdValues
+          );
         }
       }
     } else {
-      if (!isValueValid(parsedValue, thresholdValues.min, thresholdValues.max)) {
+      if (
+        !isValueValid(parsedValue, thresholdValues.min, thresholdValues.max)
+      ) {
         setErrorMessage(
           t("thresholdConfigurator.validValueMessage", {
             minValue: thresholdValues.min,
@@ -90,12 +116,15 @@ export const useThresholdHandlers = (
         );
       } else {
         clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
-        updateAdjacentThresholds(thresholdKey, parsedValue, setThresholdValues, thresholdValues);
+        updateAdjacentThresholds(
+          thresholdKey,
+          parsedValue,
+          setThresholdValues,
+          thresholdValues
+        );
       }
     }
   };
-
-
 
   const debouncedHandleInputChange = debounce(
     handleInputChange,
