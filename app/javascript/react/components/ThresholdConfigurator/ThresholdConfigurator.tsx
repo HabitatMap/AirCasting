@@ -90,7 +90,12 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   return (
     <S.Container>
       <HeaderToggle
-        titleText={t("calendarHeader.legendTitle")}
+        titleText={
+          <>
+            {t("calendarHeader.legendTitle")}
+            <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+          </>
+        }
         componentToToggle={
           <>
             <S.InputContainer ref={sliderRef}>
@@ -133,16 +138,19 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                     $isActive={activeInput === thresholdKey}
                     style={{
                       zIndex: 10,
-                      marginLeft: value === min ? "0px" : "-15px",
+                      marginLeft:
+                        value === min || value === max - 1 ? "0px" : "-15px",
                       left:
-                        value === max
-                          ? "98%"
+                        value === max || value === max - 1
+                          ? "auto"
                           : `${calculateThumbPosition(
                               value,
                               min,
                               max,
                               sliderWidth
                             )}px`,
+                      right:
+                        value === max || value === max - 1 ? "0px" : "auto",
                     }}
                     onChange={(e) => setInputValue(e.target.value)}
                     onTouchStart={handleTouchStart(

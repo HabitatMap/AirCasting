@@ -47,26 +47,34 @@ export const updateAdjacentThresholds = (
         }));
       }
       break;
-    case "high":
-      if (
-        newValue <= thresholdValues.middle &&
-        thresholdValues.middle !== thresholdValues.min
-      ) {
-        setThresholdValues((prevValues) => ({
-          ...prevValues,
-          middle: Math.max(newValue - 1, thresholdValues.min),
-        }));
-      }
-      if (
-        newValue <= thresholdValues.low &&
-        thresholdValues.low !== thresholdValues.min
-      ) {
-        setThresholdValues((prevValues) => ({
-          ...prevValues,
-          low: Math.max(newValue - 2, thresholdValues.min),
-        }));
-      }
-      break;
+      case "high":
+        if (
+          newValue <= thresholdValues.middle &&
+          thresholdValues.middle !== thresholdValues.min
+        ) {
+          setThresholdValues((prevValues) => ({
+            ...prevValues,
+            middle: Math.max(newValue - 1, thresholdValues.min),
+          }));
+        }
+        if (
+          newValue <= thresholdValues.low &&
+          thresholdValues.low !== thresholdValues.min
+        ) {
+          setThresholdValues((prevValues) => ({
+            ...prevValues,
+            low: Math.max(newValue - 2, thresholdValues.min),
+          }));
+        }
+        if (newValue >= thresholdValues.max) {
+          setThresholdValues((prevValues) => ({
+            ...prevValues,
+            max: newValue,
+            high: newValue - 1,
+          }));
+        }
+        break;
+
     case "max":
       if (
         newValue < thresholdValues.low &&

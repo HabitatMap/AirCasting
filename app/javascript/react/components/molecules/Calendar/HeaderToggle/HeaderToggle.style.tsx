@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { H3 } from "../../../Typography";
+import { media } from "../../../../utils/media";
 
 const Container = styled.div`
   display: flex;
@@ -17,6 +18,10 @@ const Heading = styled(H3)`
   font-weight: 700;
   font-size: 22px;
   cursor: pointer;
+
+  @media ${media.desktop} {
+    cursor: auto;
+  }
 `;
 
 export { Container, RotatedIcon, Heading };

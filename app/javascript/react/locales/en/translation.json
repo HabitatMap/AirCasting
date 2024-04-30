@@ -48,7 +48,8 @@
     "altExportSession": "Export the session you are exploring",
     "localTime": "{{lastUpdate}} (local time)",
     "legendTitle": "Measurements legend",
-    "calendarTitle": "Measurements calendar"
+    "calendarTitle": "Measurements calendar",
+    "measurementsUnits": "(in µg/m)"
   },
   "headerToggle": {
     "arrowIcon": "Arrow Icon" },

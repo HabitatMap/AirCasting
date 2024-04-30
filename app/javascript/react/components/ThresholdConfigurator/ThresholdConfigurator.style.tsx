@@ -126,7 +126,7 @@ const NumberInput = styled.input<{
 }>`
   font-family: Roboto;
   font-weight: 500;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   text-align: center;
   color: ${colors.gray300};
   position: absolute;
@@ -142,9 +142,12 @@ const NumberInput = styled.input<{
   cursor: move; /* fallback if grab cursor is unsupported */
   cursor: grab;
 
+  -moz-appearance: textfield;
+
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
+    margin: 0;
   }
 
   &:active {
@@ -169,9 +172,9 @@ const NumberInput = styled.input<{
 
   @media ${media.desktop} {
     font-weight: 600;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     top: -10px;
-    max-width: 50px;
+    max-width: 40px;
     height: 32px;
   }
 `;
@@ -187,8 +190,27 @@ const ErrorMessage = styled.p`
 
   @media ${media.desktop} {
     font-size: 1.5rem;
-    top: 65%;
+    top: 43%;
   }
 `;
 
-export { Container, InputContainer, RangeInput, NumberInput, ErrorMessage };
+const Units = styled.sup`
+  font-size: 1.2rem;
+  vertical-align: super;
+  position: relative;
+  top: -0.3rem;
+  right: -0.2rem;
+  weight: 400;
+  line-height: 1.6;
+  letter-spacing: 1%;
+  margin-left: 0.2rem;
+`;
+
+export {
+  Container,
+  InputContainer,
+  RangeInput,
+  NumberInput,
+  ErrorMessage,
+  Units,
+};
