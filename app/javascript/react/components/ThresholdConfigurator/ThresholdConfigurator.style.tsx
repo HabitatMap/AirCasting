@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
+import { Button } from "../Button/Button.style";
 
 const Container = styled.div`
   display: flex;

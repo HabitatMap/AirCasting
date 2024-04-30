@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 import { KeyboardKeys } from "../types/keyboardKeys";
-import { useEffect } from "react";
+import { SetStateAction, useEffect } from "react";
 
 interface Thresholds {
   min: number;
@@ -21,7 +21,8 @@ export const useThresholdHandlers = (
   thresholdValues: Thresholds,
   sliderRef: React.RefObject<HTMLDivElement>,
   activeInput: keyof Thresholds | null,
-  inputValue: string
+  inputValue: string,
+  initialThresholds: SetStateAction<Thresholds>
 ) => {
   const inputDebounceTime = 300;
   const { t } = useTranslation();
@@ -177,11 +178,18 @@ export const useThresholdHandlers = (
       }
     };
 
+    const resetThresholds = () => {
+      debouncedHandleInputChange.cancel();
+      setInputValue("");
+      setThresholdValues(initialThresholds);
+    };
+
   return {
     handleInputChange,
     handleInputBlur,
     handleInputFocus,
     handleInputKeyDown,
     handleOutsideClick,
+    resetThresholds,
   };
 };
