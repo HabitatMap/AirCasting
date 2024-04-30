@@ -8,6 +8,8 @@ import {
   FixedStream,
   FixedStreamShortInfo,
   StreamDailyAverage,
+  FixedStreamStationInfo,
+  Measurement,
 } from "../types/fixedStream";
 import { RootState } from ".";
 
@@ -58,7 +60,9 @@ const getLatestDataPointDate = (
 ): string | undefined => {
   const sortedAverages = sortStreamDailyAveragesByDate(streamDailyAverages);
   const latestDataPointDate = lastItemFromArray(sortedAverages)?.date;
-
+  console.log("FEE ----------- FEE")
+  console.log(streamDailyAverages)
+  console.log(latestDataPointDate)
   return latestDataPointDate;
 };
 
@@ -105,7 +109,7 @@ const getFullWeeksOfThreeLatestMonths = (
 ): CalendarMonthlyData[] => {
   const latestDateWithData = getLatestDataPointDate(streamDailyAverages);
   const latestMomentWithData = moment(latestDateWithData);
-  console.log(latestMomentWithData)
+  console.log(latestMomentWithData);
 
   const secondLatestMonth = latestMomentWithData.clone().subtract(1, "month");
   const thirdLatestMonth = latestMomentWithData.clone().subtract(2, "month");
@@ -125,6 +129,39 @@ const getFullWeeksOfThreeLatestMonths = (
 const selectFixedStreamData = (state: RootState): FixedStream =>
   state.fixedStream.data;
 
+
+const mockSelectFixedStreamData = (state: RootState): FixedStream => {
+  // Mock data for FixedStreamStationInfo
+  const mockStream: FixedStreamStationInfo = {
+    title: 'River Bend Station',
+    unitSymbol: 'm³/s',
+    lastUpdate: "",
+    updateFrequency: "",
+    profile: "",
+    sensorName: "string"
+    // Assuming properties from StreamUpdate and DataSource
+    // id: '001',  // Example property from possible StreamUpdate or DataSource
+  };
+
+  // Mock data for Measurement array with timestamps
+  const mockMeasurements: Measurement[] = [
+    { time: new Date('2024-01-10T00:00:00Z').getTime(), value: 150 },
+    { time: new Date('2024-01-10T12:00:00Z').getTime(), value: 155 }
+  ];
+
+  // Mock data for StreamDailyAverage array with formatted date strings
+  const mockStreamDailyAverages: StreamDailyAverage[] = [
+    { date: '2024-01-10', value: 152.5 }
+  ];
+
+  // Return the complete FixedStream mock data
+  return {
+    stream: mockStream,
+    measurements: mockMeasurements,
+    streamDailyAverages: mockStreamDailyAverages
+  };
+};
+
 const selectLastDailyAverage = (
   state: RootState
 ): StreamDailyAverage | undefined => {
@@ -138,9 +175,11 @@ const selectFixedStreamShortInfo = createSelector(
   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
     const lastMeasurementDateLabel = moment(date).format("MMM D");
-    const lastUpdate = moment(fixedStreamData.stream.lastUpdate).local().format("HH:mm MMM D YYYY");
     const active = fixedStreamData.stream.active;
-    const sessionId =fixedStreamData.stream.sessionId;
+    const sessionId = fixedStreamData.stream.sessionId;
+    const lastUpdate = moment(fixedStreamData.stream.lastUpdate)
+      .local()
+      .format("HH:mm, MMM D YYYY");
 
     return {
       ...fixedStreamData.stream,
@@ -163,8 +202,19 @@ const selectLatestThreeMonthsDailyAverages = createSelector(
   }
 );
 
+const selectThreeMonthsDailyAverage = createSelector(
+  mockSelectFixedStreamData,
+  (fixedStreamData): CalendarMonthlyData[] => {
+    const { streamDailyAverages } = fixedStreamData;
+
+    const monthData = getFullWeeksOfThreeLatestMonths(streamDailyAverages);
+    return monthData;
+  }
+);
+
 export {
   selectFixedStreamData,
   selectFixedStreamShortInfo,
   selectLatestThreeMonthsDailyAverages,
+  selectThreeMonthsDailyAverage,
 };

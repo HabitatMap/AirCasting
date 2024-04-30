@@ -57,4 +57,5 @@ export type {
   FixedStreamShortInfo,
   CalendarCellData,
   CalendarMonthlyData,
+  Measurement
 };
