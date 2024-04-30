@@ -6,7 +6,7 @@ import { screenSizes } from "../../../../utils/media";
 import headerArrowIcon from "../../../../assets/icons/headerArrowIcon.svg";
 
 interface Props {
-  titleText: string;
+  titleText: string | JSX.Element;
   componentToToggle: JSX.Element;
 }
 

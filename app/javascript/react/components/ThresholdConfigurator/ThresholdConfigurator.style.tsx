@@ -121,11 +121,12 @@ const RangeInput = styled.input<{
 
 const NumberInput = styled.input<{
   $isLast?: boolean;
-  $isFirst?: boolean;
+  $hasError?: boolean;
+  $isActive?: boolean;
 }>`
   font-family: Roboto;
   font-weight: 500;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   text-align: center;
   color: ${colors.gray300};
   position: absolute;
@@ -141,9 +142,12 @@ const NumberInput = styled.input<{
   cursor: move; /* fallback if grab cursor is unsupported */
   cursor: grab;
 
+  -moz-appearance: textfield;
+
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
+    margin: 0;
   }
 
   &:active {
@@ -155,14 +159,58 @@ const NumberInput = styled.input<{
     background-color: ${colors.white};
   }
 
+  &:focus-visible {
+    border-color: ${(props) =>
+      props.$isActive
+        ? "transparent"
+        : props.$hasError
+        ? colors.red
+        : colors.gray100};
+    outline: 2px solid
+      ${(props) => (props.$isActive ? colors.gray100 : "transparent")};
+  }
+
   @media ${media.desktop} {
     font-weight: 600;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     top: -10px;
-    max-width: 50px;
+    max-width: 40px;
     height: 32px;
-    margin-left: ${(props) => (props.$isFirst ? "0" : "-25px")};
   }
 `;
 
-export { Container, InputContainer, RangeInput, NumberInput };
+const ErrorMessage = styled.p`
+  color: ${colors.red};
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1rem;
+  font-weight: bold;
+
+  @media ${media.desktop} {
+    font-size: 1.5rem;
+    top: 43%;
+  }
+`;
+
+const Units = styled.sup`
+  font-size: 1.2rem;
+  vertical-align: super;
+  position: relative;
+  top: -0.3rem;
+  right: -0.2rem;
+  weight: 400;
+  line-height: 1.6;
+  letter-spacing: 1%;
+  margin-left: 0.2rem;
+`;
+
+export {
+  Container,
+  InputContainer,
+  RangeInput,
+  NumberInput,
+  ErrorMessage,
+  Units,
+};
