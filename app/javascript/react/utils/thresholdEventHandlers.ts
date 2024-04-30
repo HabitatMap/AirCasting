@@ -31,7 +31,7 @@ export const useThresholdHandlers = (
     min: number,
     max: number
   ): boolean => {
-    return newValue >= min && newValue <= max;
+    return newValue >= -Infinity && newValue <= Infinity && newValue >= min && newValue <= max;
   };
 
   useEffect(() => {
@@ -70,8 +70,15 @@ export const useThresholdHandlers = (
       if (!isValueValid(parsedValue, -Infinity, Infinity)) {
         setErrorMessage(t("thresholdConfigurator.invalidMinMaxMessage"));
       } else {
-        clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
-        updateAdjacentThresholds(thresholdKey, parsedValue, setThresholdValues, thresholdValues);
+        if ((thresholdKey === "min" && parsedValue >= thresholdValues.max) ||
+            (thresholdKey === "max" && parsedValue <= thresholdValues.min)) {
+          setErrorMessage(t("thresholdConfigurator.invalidMinMaxOrderMessage"));
+        } else if (thresholdKey === "max" && parsedValue < thresholdValues.min) {
+          setErrorMessage(t("thresholdConfigurator.maxLessThanMinMessage"));
+        } else {
+          clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
+          updateAdjacentThresholds(thresholdKey, parsedValue, setThresholdValues, thresholdValues);
+        }
       }
     } else {
       if (!isValueValid(parsedValue, thresholdValues.min, thresholdValues.max)) {
@@ -87,6 +94,7 @@ export const useThresholdHandlers = (
       }
     }
   };
+
 
 
   const debouncedHandleInputChange = debounce(
