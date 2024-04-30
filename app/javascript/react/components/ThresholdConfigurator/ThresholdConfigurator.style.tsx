@@ -191,7 +191,7 @@ const ErrorMessage = styled.p`
 
   @media ${media.desktop} {
     font-size: 1.5rem;
-    top: 43%;
+    top: 25vw;
   }
 `;
 
