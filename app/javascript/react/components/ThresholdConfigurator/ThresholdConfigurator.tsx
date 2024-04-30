@@ -19,6 +19,8 @@ interface ThresholdsConfiguratorProps {
 
 interface ThumbPositions extends Omit<Thresholds, "min" | "max"> {}
 
+const maxThresholdDifference = 1;
+
 const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   initialThresholds,
 }) => {
@@ -139,9 +141,11 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                     style={{
                       zIndex: 10,
                       marginLeft:
-                        value === min || value === max - 1 ? "0px" : "-15px",
+                        value === min || value === max - maxThresholdDifference
+                          ? "0px"
+                          : "-15px",
                       left:
-                        value === max || value === max - 1
+                        value === max || value === max - maxThresholdDifference
                           ? "auto"
                           : `${calculateThumbPosition(
                               value,
@@ -150,7 +154,9 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                               sliderWidth
                             )}px`,
                       right:
-                        value === max || value === max - 1 ? "0px" : "auto",
+                        value === max || value === max - maxThresholdDifference
+                          ? "0px"
+                          : "auto",
                     }}
                     onChange={(e) => setInputValue(e.target.value)}
                     onTouchStart={handleTouchStart(

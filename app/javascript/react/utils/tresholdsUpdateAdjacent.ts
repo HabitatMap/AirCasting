@@ -1,4 +1,8 @@
+import { min } from "moment";
 import { Thresholds } from "../types/thresholds";
+
+const minThresholdDifference = 1;
+const maxThresholdDifference = 2;
 
 export const updateAdjacentThresholds = (
   thresholdKey: keyof Thresholds,
@@ -14,7 +18,7 @@ export const updateAdjacentThresholds = (
       ) {
         setThresholdValues((prevValues) => ({
           ...prevValues,
-          middle: Math.min(newValue + 1, thresholdValues.max),
+          middle: Math.min(newValue + minThresholdDifference, thresholdValues.max),
         }));
       }
       if (
@@ -23,7 +27,7 @@ export const updateAdjacentThresholds = (
       ) {
         setThresholdValues((prevValues) => ({
           ...prevValues,
-          high: Math.min(newValue + 2, thresholdValues.max),
+          high: Math.min(newValue + maxThresholdDifference, thresholdValues.max),
         }));
       }
       break;
@@ -34,7 +38,7 @@ export const updateAdjacentThresholds = (
       ) {
         setThresholdValues((prevValues) => ({
           ...prevValues,
-          low: Math.max(newValue - 1, thresholdValues.min),
+          low: Math.max(newValue - minThresholdDifference, thresholdValues.min),
         }));
       }
       if (
@@ -43,7 +47,7 @@ export const updateAdjacentThresholds = (
       ) {
         setThresholdValues((prevValues) => ({
           ...prevValues,
-          high: Math.min(newValue + 1, thresholdValues.max),
+          high: Math.min(newValue + minThresholdDifference, thresholdValues.max),
         }));
       }
       break;
@@ -54,7 +58,7 @@ export const updateAdjacentThresholds = (
         ) {
           setThresholdValues((prevValues) => ({
             ...prevValues,
-            middle: Math.max(newValue - 1, thresholdValues.min),
+            middle: Math.max(newValue - minThresholdDifference, thresholdValues.min),
           }));
         }
         if (
@@ -63,14 +67,14 @@ export const updateAdjacentThresholds = (
         ) {
           setThresholdValues((prevValues) => ({
             ...prevValues,
-            low: Math.max(newValue - 2, thresholdValues.min),
+            low: Math.max(newValue - maxThresholdDifference, thresholdValues.min),
           }));
         }
         if (newValue >= thresholdValues.max) {
           setThresholdValues((prevValues) => ({
             ...prevValues,
             max: newValue,
-            high: newValue - 1,
+            high: newValue - minThresholdDifference,
           }));
         }
         break;
