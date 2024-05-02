@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import { selectThreeMonthsDailyAverage } from "../../../store/fixedStreamSelectors";
@@ -10,6 +10,9 @@ import { ScrollButton } from "../../ScrollButton/ScrollButton";
 import chevronRight from "../../../assets/icons/chevronRight.svg";
 import chevronLeft from "../../../assets/icons/chevronLeft.svg";
 
+import { useAppDispatch } from "../../../store/hooks";
+import { movingData, updateMovingStreamData } from "../../../store/movingCalendarStreamSlice";
+
 type ScrollButtonComponentProps = {
   direction: "left" | "right";
 };
@@ -17,6 +20,7 @@ type ScrollButtonComponentProps = {
 const ScrollButtonComponent: React.FC<ScrollButtonComponentProps> = ({
   direction,
 }) => {
+  const dispatch = useAppDispatch();
   const icon = direction === "left" ? chevronLeft : chevronRight;
   const altText =
     direction === "left"
@@ -25,7 +29,10 @@ const ScrollButtonComponent: React.FC<ScrollButtonComponentProps> = ({
 
   return (
     <ScrollButton 
-      onClick={()=>{}}>
+      onClick={()=>{
+        const movingData = [{date: '2023-02-05', value: 10}]
+        dispatch(updateMovingStreamData(movingData));
+      }}>
       <img src={icon} 
         alt={altText} />
     </ScrollButton>
@@ -34,7 +41,12 @@ const ScrollButtonComponent: React.FC<ScrollButtonComponentProps> = ({
 
 const Calendar = () => {
   const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
+  const mData = useSelector(movingData);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    console.log("rebuild")
+  }, [mData]);
 
   return (
     threeMonthsData && (

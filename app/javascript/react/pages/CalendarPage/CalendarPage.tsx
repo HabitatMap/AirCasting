@@ -5,7 +5,11 @@ import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { Calendar } from "../../components/molecules/Calendar";
 import { useAppDispatch } from "../../store/hooks";
-import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
+import {
+  fetchFixedStreamById,
+  selectFixedData,
+} from "../../store/fixedStreamSlice";
+import { updateMovingStreamData } from "../../store/movingCalendarStreamSlice";
 import * as S from "./CalendarPage.style";
 import { screenSizes } from "../../utils/media";
 
@@ -16,12 +20,16 @@ const CalendarPage = () => {
   const streamIdQuery = searchParams.get(STREAM_ID_QUERY_PARAMETER_NAME);
   const streamId = streamIdQuery && Number(streamIdQuery);
 
+  const initialThresholds = useSelector(selectThreshold);
+  const fixedStreamData = useSelector(selectFixedData);
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     streamId && dispatch(fetchFixedStreamById(streamId));
   }, []);
 
+<<<<<<< HEAD
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < screenSizes.mobile
   );
@@ -37,6 +45,26 @@ const CalendarPage = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+=======
+  useEffect(() => {
+    console.log(
+      "Fixed Stream Data Updated:",
+      fixedStreamData.streamDailyAverages
+    );
+    if (fixedStreamData && fixedStreamData.streamDailyAverages.length > 0) {
+      const movingData = fixedStreamData.streamDailyAverages.map(
+        ({ date, value }) => ({
+          date,
+          value,
+        })
+      );
+      console.log("Updating Moving Stream Data:", movingData);
+      dispatch(updateMovingStreamData(movingData));
+    } else {
+      console.log("No daily averages to process.");
+    }
+  }, [fixedStreamData, dispatch]);
+>>>>>>> ebe00fb6 (Working early version of calendar swipe.)
 
   return (
     <S.CalendarPageLayout>

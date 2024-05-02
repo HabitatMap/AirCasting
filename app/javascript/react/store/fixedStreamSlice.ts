@@ -6,6 +6,7 @@ import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
 import { FixedStream } from "../types/fixedStream";
+import type { RootState } from "./index";
 
 interface FixedStreamState {
   data: FixedStream;
@@ -27,6 +28,22 @@ const initialState: FixedStreamState = {
     },
     measurements: [],
     streamDailyAverages: [],
+  },
+  status: StatusEnum.Idle,
+};
+
+const dumpData: FixedStreamState = {
+  data: {
+    stream: {
+      title: "",
+      profile: "",
+      lastUpdate: "",
+      sensorName: "",
+      unitSymbol: "",
+      updateFrequency: "",
+    },
+    measurements: [],
+    streamDailyAverages: [{date: '2024-01-10', value: 1}],
   },
   status: StatusEnum.Idle,
 };
@@ -56,7 +73,7 @@ export const fixedStreamSlice = createSlice({
       fetchFixedStreamById.fulfilled,
       (state, { payload: { stream, measurements, streamDailyAverages } }) => {
         state.status = StatusEnum.Fulfilled;
-
+        console.log("BUUUUU JEST")
         if (stream && measurements && streamDailyAverages) {
           state.data = { stream, measurements, streamDailyAverages };
         }
@@ -65,12 +82,15 @@ export const fixedStreamSlice = createSlice({
     builder.addCase(
       fetchFixedStreamById.rejected,
       (state, { error: { message } }) => {
+        console.log("BUUUUU JEST :(")
         state.status = StatusEnum.Rejected;
         state.error = { message };
-        state.data = initialState.data;
+        state.data = dumpData.data;
+        console.log(state.data)
       }
     );
   },
 });
 
 export default fixedStreamSlice.reducer;
+export const selectFixedData = (state: RootState) => state.fixedStream.data;
