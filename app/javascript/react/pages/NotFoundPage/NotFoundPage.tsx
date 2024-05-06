@@ -1,21 +1,23 @@
+import { useTranslation } from "react-i18next";
 import React from "react";
+
 import {
-  NotFoundContainer,
-  NotFoundContent,
+  PageContainer,
+  ContentContainer,
   Title,
   Description,
 } from "./NotFoundPage.style";
 
 const NotFoundPage: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
-    <NotFoundContainer>
-      <NotFoundContent>
-        <Title>404 - Page Not Found</Title>
-        <Description>
-          Oops! The page you're looking for doesn't exist.
-        </Description>
-      </NotFoundContent>
-    </NotFoundContainer>
+    <PageContainer>
+      <ContentContainer>
+        <Title>{t("notFoundPage.header")}</Title>
+        <Description>{t("notFoundPage.message")} </Description>
+      </ContentContainer>
+    </PageContainer>
   );
 };
 
