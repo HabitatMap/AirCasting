@@ -58,8 +58,7 @@
     "validValueMessage":  "Value must be between {{minValue}} and {{maxValue}}",
     "maxLessThanMinMessage": "The maximum value should be higher than {{minValue}}",
     "minGreaterThanMaxMessage": "The minimum value should be lower than {{maxValue}}",
-    "resetButton": "Reset to default",
-    "resetButtonMobile": "Reset ranges",
+    "resetButton": "Reset legend",
     "altResetButton": "Reset the threshold values to default"
   }
 }

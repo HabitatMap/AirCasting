@@ -42,24 +42,13 @@ const HeaderToggle: React.FC<Props> = ({
 
     return (
       <S.ResetButton onClick={resetThresholds}>
-        {isMobile && (
-          <>
-            <img
-              src={returnArrow}
-              alt={t("thresholdConfigurator.altResetButton")}
-            />
-            {t("thresholdConfigurator.resetButtonMobile")}
-          </>
-        )}
-        {!isMobile && (
-          <>
-            {t("thresholdConfigurator.resetButton")}
-            <img
-              src={returnArrow}
-              alt={t("thresholdConfigurator.altResetButton")}
-            />
-          </>
-        )}
+        <>
+          {t("thresholdConfigurator.resetButton")}
+          <img
+            src={returnArrow}
+            alt={t("thresholdConfigurator.altResetButton")}
+          />
+        </>
       </S.ResetButton>
     );
   };
