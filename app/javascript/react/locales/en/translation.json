@@ -48,7 +48,16 @@
     "altExportSession": "Export the session you are exploring",
     "localTime": "{{lastUpdate}} (local time)",
     "legendTitle": "Measurements legend",
-    "calendarTitle": "Measurements calendar"
+    "calendarTitle": "Measurements calendar",
+    "measurementsUnits": "(in µg/m)"
+  },
+  "headerToggle": {
+    "arrowIcon": "Arrow Icon" },
+  "thresholdConfigurator": {
+    "emptyInputMessage": "Please enter a valid number",
+    "validValueMessage":  "Value must be between {{minValue}} and {{maxValue}}",
+    "maxLessThanMinMessage": "The maximum value should be higher than {{minValue}}",
+    "minGreaterThanMaxMessage": "The minimum value should be lower than {{maxValue}}"
   },
   "notFoundPage": {
     "header": "Page not found",
