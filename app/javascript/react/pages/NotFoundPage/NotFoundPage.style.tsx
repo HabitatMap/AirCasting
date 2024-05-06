@@ -13,7 +13,7 @@ const ContentContainer = styled.div`
 
 const Title = styled.h1`
   font-size: 3rem;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 `;
 
 const Description = styled.p`
