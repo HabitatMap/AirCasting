@@ -1,16 +1,47 @@
 import styled, { css } from "styled-components";
 
-import { cta, gray400, theme, white } from "../../assets/styles/colors";
+import {
+  cta,
+  darkBlue,
+  gray100,
+  gray200,
+  gray400,
+  theme,
+  white,
+} from "../../assets/styles/colors";
+import { media } from "../../utils/media";
 
 const Header = styled.header`
-  background-color: ${white};
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 4.8rem;
-  height: 7.8rem;
+  padding: 2rem;
+  background: ${gray100};
+
+  @media ${media.smallDesktop} {
+    padding: 0 4.8rem;
+    height: 7.8rem;
+  }
 `;
 
+const MobileContainer = styled.div`
+  display: flex;
+
+  @media ${media.smallDesktop} {
+    display: none;
+  }
+`;
+
+const DesktopContainer = styled.div`
+  display: none;
+
+  @media ${media.smallDesktop} {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+`;
 const AircastingLogo = styled.img`
   width: 152px;
   height: 43px;
@@ -22,9 +53,14 @@ const Button = styled.button`
 `;
 
 const MenuButton = styled(Button)`
-  padding: 0 0.6rem;
-  margin-left: 2.4rem;
+  padding: 1.2rem;
+  margin-left: 2rem;
   font-color: ${gray400};
+  background-color: ${white};
+  border-radius: 10px;
+  box-shadow: 0px 4px 4px 0px rgba(76, 86, 96, 0.1);
+  width: 48px;
+  height: 42px;
 `;
 
 const BuyCTA = styled.a`
@@ -39,6 +75,12 @@ const BuyCTA = styled.a`
   height: 42px;
   border-radius: 10px;
   gap: 8px;
+  text-decoration: none;
+  box-shadow: 0px 2px 2px 0px rgba(76, 86, 96, 0.15);
+
+  &:visited {
+    color: ${gray400};
+  }
 `;
 
 const Container = styled.div`
@@ -105,6 +147,18 @@ const BottomNavContainer = styled(Container)`
   padding-top: 2.4rem;
 `;
 
+const GoBack = styled.a`
+  text-transform: uppercase;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.3rem;
+  color: ${darkBlue};
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  line-height: 22px;
+`;
+
 export {
   Header,
   AircastingLogo,
@@ -120,4 +174,7 @@ export {
   NavItemLink,
   Link,
   BottomNavContainer,
+  MobileContainer,
+  DesktopContainer,
+  GoBack,
 };

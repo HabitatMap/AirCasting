@@ -13,6 +13,9 @@
     "altClose": "Close icon",
     "altSearch": "Search icon",
     "altAirbeam": "AirBeam icon",
+    "altGoBack": "Go back icon",
+    "goBack": "Back to map",
+    "mapPage": "Map page",
     "sections": {
       "getAirbeam": "Get AirBeam",
       "airbeam": "AirBeam",
