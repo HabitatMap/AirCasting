@@ -68,6 +68,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     handleInputFocus,
     handleInputKeyDown,
     handleOutsideClick,
+    resetThresholds,
   } = useThresholdHandlers(
     setThresholdValues,
     setInputValue,
@@ -76,7 +77,8 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     thresholdValues,
     sliderRef,
     activeInput,
-    inputValue
+    inputValue,
+    initialThresholds
   );
 
   useEffect(() => {
@@ -98,6 +100,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
             <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
           </>
         }
+        resetThresholds={resetThresholds}
         componentToToggle={
           <>
             <S.InputContainer ref={sliderRef}>
