@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe AirNow::ImportData, :vcr do
   describe '#call' do
-    it 'returns location and hourly data with correct structure and correct data' do
+    it 'returns location and hourly data with correct structure and correct data', vcr: { cassette_name: 'returns location and hourly data with correct structure and correct data' } do
       response = described_class.new.call
 
       locations_data, hourly_data = response
