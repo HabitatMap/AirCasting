@@ -39,6 +39,7 @@ export const thresholdSlice = createSlice({
   },
 });
 
+
 export const { updateAll, updateGivenIndex } = thresholdSlice.actions;
 export const selectThreshold = (state: RootState) => state.threshold;
 export default thresholdSlice.reducer;

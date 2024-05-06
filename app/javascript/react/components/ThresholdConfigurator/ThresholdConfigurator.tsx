@@ -12,6 +12,8 @@ import {
 import * as S from "./ThresholdConfigurator.style";
 
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
+import { updateAll } from "../../store/thresholdSlice";
+import { useDispatch } from "react-redux";
 
 interface ThresholdsConfiguratorProps {
   initialThresholds: Thresholds;
@@ -37,6 +39,15 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const updateStore = () => {
+      console.log("Update to ", thresholdValues);
+      dispatch(updateAll(thresholdValues));
+    };
+    updateStore();
+  }, [thresholdValues]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -61,10 +72,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
     setThumbPositions({ low: lowThumb, middle: middleThumb, high: highThumb });
   }, [thresholdValues, sliderWidth]);
-
-  useEffect(() => {
-    localStorage.setItem("thresholdValues", JSON.stringify(thresholdValues));
-  }, [thresholdValues]);
 
   const {
     handleInputChange,
