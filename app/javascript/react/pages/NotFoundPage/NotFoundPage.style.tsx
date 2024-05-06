@@ -1,12 +1,12 @@
 import styled from "styled-components";
 
-const NotFoundContainer = styled.div`
+const PageContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   height: 50vh;
 `;
-const NotFoundContent = styled.div`
+const ContentContainer = styled.div`
   text-align: center;
 `;
 const Title = styled.h1`
@@ -16,4 +16,4 @@ const Title = styled.h1`
 const Description = styled.p`
   font-size: 1.2rem;
 `;
-export { NotFoundContainer, NotFoundContent, Title, Description };
+export { PageContainer, ContentContainer, Title, Description };
