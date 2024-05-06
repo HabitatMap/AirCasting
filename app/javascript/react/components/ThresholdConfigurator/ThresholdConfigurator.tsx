@@ -35,6 +35,10 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     setThumbPositions({ low: lowThumb, middle: middleThumb, high: highThumb });
   }, [thresholdValues, sliderWidth]);
 
+  useEffect(() => {
+    localStorage.setItem("thresholdValues", JSON.stringify(thresholdValues));
+  }, [thresholdValues]);
+
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
     setThresholdValues({ ...thresholdValues, [thresholdKey]: Number(value) });
   };
