@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 
-import { cta, theme, white } from "../../assets/styles/colors";
+import { cta, gray400, theme, white } from "../../assets/styles/colors";
 
 const Header = styled.header`
   background-color: ${white};
@@ -24,13 +24,21 @@ const Button = styled.button`
 const MenuButton = styled(Button)`
   padding: 0 0.6rem;
   margin-left: 2.4rem;
+  font-color: ${gray400};
 `;
 
 const BuyCTA = styled.a`
   background-color: ${cta};
   text-transform: uppercase;
   font-weight: 400;
+  font-size: 1.2rem;
   padding: 1.3rem 2rem;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.14px;
+  height: 42px;
+  border-radius: 10px;
+  gap: 8px;
 `;
 
 const Container = styled.div`

@@ -6,6 +6,7 @@ import hamburger from "../../assets/icons/hamburger.svg";
 import habitatMapLogo from "../../assets/icons/habitatMapLogo.svg";
 import iconNavClose from "../../assets/icons/iconNavClose.svg";
 import serchIcon from "../../assets/icons/searchIcon.svg";
+import airbeamIcon from "../../assets/icons/airbeamIcon.svg";
 import { urls } from "../../const/urls";
 import * as S from "./Navbar.style";
 
@@ -44,6 +45,11 @@ const Navbar = () => {
       <S.Container>
         <S.BuyCTA href={urls.airbeamBuyNow}>
           {t("navbar.sections.getAirbeam")}
+          <img
+            src={airbeamIcon}
+            alt={t("navbar.altAirbeamIcon")}
+            aria-label={t("navbar.altAirbeamIcon")}
+          />
         </S.BuyCTA>
         <nav>
           <S.MenuButton onClick={() => setNavMenuVisible(true)}>
