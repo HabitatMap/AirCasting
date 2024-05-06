@@ -58,5 +58,9 @@
     "validValueMessage":  "Value must be between {{minValue}} and {{maxValue}}",
     "maxLessThanMinMessage": "The maximum value should be higher than {{minValue}}",
     "minGreaterThanMaxMessage": "The minimum value should be lower than {{maxValue}}"
+  },
+  "notFoundPage": {
+    "header": "Page not found",
+    "message": "The page you are looking for does not exist."
   }
 }

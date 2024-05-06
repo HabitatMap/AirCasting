@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 
 import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
-import { NotFoundPage } from "./pages/NotFoundPage";
+import { NotFoundPage } from "./pages/NotFoundPage/NotFoundPage";
 import { Navbar } from "./components/Navbar";
 import store from "./store/index";
 import GlobalStyles from "./assets/styles/global-styles";

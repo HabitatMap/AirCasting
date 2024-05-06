@@ -62,8 +62,10 @@ Rails.application.routes.draw do
       end
       get 'sessions/:uuid' => 'user_sessions#show'
       post 'settings', to: 'users#settings'
-      post 'delete_account_send_code', to: 'confirmation_code#request_account_deletion'
-      post 'delete_account_confirm', to: 'users#delete_account_with_confirmation_code'
+      post 'delete_account_send_code',
+           to: 'confirmation_code#request_account_deletion'
+      post 'delete_account_confirm',
+           to: 'users#delete_account_with_confirmation_code'
     end
     resources :sensors, only: %i[index]
 
@@ -110,4 +112,7 @@ Rails.application.routes.draw do
 
     get 'autocomplete/usernames' => 'autocomplete#usernames'
   end
+
+  #TO BE CHANGED when working on a new map#
+  get '*path', to: 'fixed_streams#show', via: :all
 end
