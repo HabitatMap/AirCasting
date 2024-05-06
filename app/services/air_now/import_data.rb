@@ -13,8 +13,17 @@ class AirNow::ImportData
       measurements_to_import = substract_cached_data(data, utc_time)
       hourly_data.concat(measurements_to_import)
 
+      # only for logging, delete berofe merge
+
       measurements_to_import_count = measurements_to_import.split("\n").size
-      Sidekiq.logger.info "AirNow: Imported data for #{utc_time}, added #{measurements_to_import_count} measurements"
+
+      measurements_with_wanted_sensors = measurements_to_import.split("\n").select do |line|
+        line.split('|')[5].in?(['PM2.5', 'O3', 'NO2', 'OZONE'])
+      end.size
+
+      Sidekiq.logger.info "AirNow: Imported data for #{utc_time}, added #{measurements_to_import_count} measurements, #{measurements_with_wanted_sensors} with wanted sensors."
+
+      # end of logging logic
     end
 
     locations_data = http_client.get(locations_endpoint)
