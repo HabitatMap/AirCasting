@@ -40,8 +40,9 @@ export const fetchNewMovingStream = createAsyncThunk<
         );
       return response.data;
     } catch (error) {
+      console.log("WELCOME TO THE UPDATE CALENDAR from API")
       const message = getErrorMessage(error);
-      return rejectWithValue({ message });
+      return rejectWithValue({ message: endDate });
     }
   }
 );
@@ -52,7 +53,7 @@ export const movingStreamSlice = createSlice({
     reducers: {
       updateMovingStreamData: (state, action: PayloadAction<MovingStreamDailyAverage[]>) => {
         console.log(action.payload)
-        console.log("GURU MOVING")
+        console.log("Updating calendar moving slice using input data")
         state.data = action.payload;
         state.status = StatusEnum.Fulfilled;
       }
@@ -62,10 +63,19 @@ export const movingStreamSlice = createSlice({
         state.status = StatusEnum.Fulfilled;
         state.data = payload.data;
       })
-      .addCase(fetchNewMovingStream.rejected, (state, { error }) => {
+      // .addCase(fetchNewMovingStream.rejected, (state, { error }) => {
+      //   state.status = StatusEnum.Rejected;
+      //   console.log("##", error.message)
+      //   state.error = { message: error.message };
+      //   state.data = [{date: error.message!, value: 10}]
+      //   // state.data = [];
+      // });
+      .addCase(fetchNewMovingStream.rejected, (state, action) => {
         state.status = StatusEnum.Rejected;
-        state.error = { message: error.message };
-        state.data = [];
+        console.log("## Rejected with message:", action.payload?.message);  // This will log the endDate
+        state.error = { message: action.payload?.message };  // Stores the endDate as error message
+        state.data = [{ date: action.payload?.message ?? "", value: 10 }];  // Uses endDate in the data array
+        // state.data = []; // Use this if you prefer to clear the data on error
       });
     },
   });

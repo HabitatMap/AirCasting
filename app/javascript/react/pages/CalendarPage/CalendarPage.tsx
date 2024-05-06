@@ -9,7 +9,7 @@ import {
   fetchFixedStreamById,
   selectFixedData,
 } from "../../store/fixedStreamSlice";
-import { updateMovingStreamData } from "../../store/movingCalendarStreamSlice";
+import { updateMovingStreamData, movingData } from "../../store/movingCalendarStreamSlice";
 import * as S from "./CalendarPage.style";
 import { screenSizes } from "../../utils/media";
 
@@ -22,6 +22,7 @@ const CalendarPage = () => {
 
   const initialThresholds = useSelector(selectThreshold);
   const fixedStreamData = useSelector(selectFixedData);
+  const mData = useSelector(movingData);
 
   const dispatch = useAppDispatch();
 
@@ -47,10 +48,6 @@ const CalendarPage = () => {
   }, []);
 =======
   useEffect(() => {
-    console.log(
-      "Fixed Stream Data Updated:",
-      fixedStreamData.streamDailyAverages
-    );
     if (fixedStreamData && fixedStreamData.streamDailyAverages.length > 0) {
       const movingData = fixedStreamData.streamDailyAverages.map(
         ({ date, value }) => ({
