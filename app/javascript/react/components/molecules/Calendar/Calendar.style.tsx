@@ -14,7 +14,7 @@ const ThreeMonths = styled.div`
   }
 `;
 
-const MobileSwipe = styled.div`
+const MobileSwipeContainer = styled.div`
   display: flex;
   justify-content: center;
   flex-direction: row;
@@ -24,7 +24,7 @@ const MobileSwipe = styled.div`
   }
 `;
 
-const DesktopSwipe = styled.div`
+const DesktopSwipeContainer = styled.div`
   display: none;
 
   @media ${media.desktop} {
@@ -43,4 +43,9 @@ const CalendarContainer = styled.div`
   }
 `;
 
-export { ThreeMonths, CalendarContainer, MobileSwipe, DesktopSwipe };
+export {
+  ThreeMonths,
+  CalendarContainer,
+  MobileSwipeContainer,
+  DesktopSwipeContainer,
+};

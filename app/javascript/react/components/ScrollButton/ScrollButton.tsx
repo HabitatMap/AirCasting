@@ -5,6 +5,7 @@ import * as S from "./ScrollButton.style";
 interface ButtonProps {
   onClick: () => void;
   children: string | JSX.Element | (JSX.Element | string)[];
+  disabled?: boolean;
 }
 
 const ScrollButton = ({ children, ...props }: ButtonProps) => (

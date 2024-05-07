@@ -36,7 +36,7 @@ export const fetchNewMovingStream = createAsyncThunk<
     try {
       const response: AxiosResponse<MovingCalendarStreamState, Error> =
         await apiClient.get(
-          API_ENDPOINTS.fetchMovingStreamPart(id, startDate, endDate)
+          API_ENDPOINTS.fetchPartoFMovingStream(id, startDate, endDate)
         );
       return response.data;
     } catch (error) {

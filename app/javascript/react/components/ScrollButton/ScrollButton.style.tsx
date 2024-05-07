@@ -16,6 +16,11 @@ const ScrollButton = styled.button`
     border: 1px solid ${gray200};
     background-color: white;
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;  // Change cursor to indicate the button is disabled
+  }
 `;
 
 export { ScrollButton };

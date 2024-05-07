@@ -9,7 +9,10 @@ import {
   fetchFixedStreamById,
   selectFixedData,
 } from "../../store/fixedStreamSlice";
-import { updateMovingStreamData, movingData } from "../../store/movingCalendarStreamSlice";
+import {
+  updateMovingStreamData,
+  movingData,
+} from "../../store/movingCalendarStreamSlice";
 import * as S from "./CalendarPage.style";
 import { screenSizes } from "../../utils/media";
 
@@ -22,18 +25,17 @@ const CalendarPage = () => {
 
   const initialThresholds = useSelector(selectThreshold);
   const fixedStreamData = useSelector(selectFixedData);
-  const mData = useSelector(movingData);
+  const movingCalendarData = useSelector(movingData);
 
   const dispatch = useAppDispatch();
+
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < screenSizes.mobile
+  );
 
   useEffect(() => {
     streamId && dispatch(fetchFixedStreamById(streamId));
   }, []);
-
-<<<<<<< HEAD
-  const [isMobile, setIsMobile] = useState(
-    window.innerWidth < screenSizes.mobile
-  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -46,29 +48,28 @@ const CalendarPage = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-=======
+
   useEffect(() => {
     if (fixedStreamData && fixedStreamData.streamDailyAverages.length > 0) {
-      const movingData = fixedStreamData.streamDailyAverages.map(
+      const newMovingCalendarData = fixedStreamData.streamDailyAverages.map(
         ({ date, value }) => ({
           date,
           value,
         })
       );
-      console.log("Updating Moving Stream Data:", movingData);
-      dispatch(updateMovingStreamData(movingData));
+      console.log("Updating Moving Calendar Data with initial:", movingData);
+      dispatch(updateMovingStreamData(newMovingCalendarData));
     } else {
       console.log("No daily averages to process.");
     }
   }, [fixedStreamData, dispatch]);
->>>>>>> ebe00fb6 (Working early version of calendar swipe.)
 
   return (
     <S.CalendarPageLayout>
       <S.StationDataContainer>
         <FixedStreamStationHeader />
         {!isMobile && <ThresholdsConfigurator />}
-        <Calendar />
+        {movingCalendarData.data.length > 0 && <Calendar />}
         {isMobile && <ThresholdsConfigurator />}
       </S.StationDataContainer>
     </S.CalendarPageLayout>
