@@ -8,10 +8,12 @@ const gray300 = "#7D858C";
 const gray400 = "#3E4449";
 const mint = "#81DBCB";
 const blue = "#00B3EF";
+const darkBlue = "#5C81A5";
 const red = "#E95F5F";
 const orange = "#FCA443";
 const yellow = "#FFD960";
 const green = "#96D788";
+
 
 export {
   cta,
@@ -27,4 +29,5 @@ export {
   green,
   mint,
   blue,
+  darkBlue,
 };

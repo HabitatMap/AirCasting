@@ -19,7 +19,7 @@ const StationDataContainer = styled.div`
   width: 100vw;
   max-width: 1600px;
   min-height: 100vh;
-  margin: 20px 0;
+  margin: 0;
 
   @media ${media.desktop} {
     margin: 20px 5vw;
