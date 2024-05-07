@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
@@ -7,6 +7,7 @@ import { Calendar } from "../../components/molecules/Calendar";
 import { useAppDispatch } from "../../store/hooks";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import * as S from "./CalendarPage.style";
+import { screenSizes } from "../../utils/media";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
@@ -21,12 +22,29 @@ const CalendarPage = () => {
     streamId && dispatch(fetchFixedStreamById(streamId));
   }, []);
 
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < screenSizes.mobile
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < screenSizes.mobile);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <S.CalendarPageLayout>
       <S.StationDataContainer>
         <FixedStreamStationHeader />
-        <ThresholdsConfigurator />
+        {!isMobile && <ThresholdsConfigurator />}
         <Calendar />
+        {isMobile && <ThresholdsConfigurator />}
       </S.StationDataContainer>
     </S.CalendarPageLayout>
   );

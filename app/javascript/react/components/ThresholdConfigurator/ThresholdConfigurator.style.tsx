@@ -26,6 +26,7 @@ const InputContainer = styled.div`
   @media (${media.desktop}) {
     margin-top: 3rem;
     padding-left: 0;
+    height: 30px;
   }
 `;
 
@@ -196,14 +197,13 @@ const ErrorMessage = styled.p`
 `;
 
 const Units = styled.sup`
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   vertical-align: super;
   position: relative;
   top: -0.3rem;
   right: -0.2rem;
-  weight: 400;
+  font-weight: 400;
   line-height: 1.6;
-  letter-spacing: 1%;
   margin-left: 0.2rem;
 `;
 

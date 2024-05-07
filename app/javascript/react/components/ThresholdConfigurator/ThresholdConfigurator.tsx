@@ -29,9 +29,6 @@ const ThresholdsConfigurator = () => {
   const [sliderWidth, setSliderWidth] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
-  const [isMobile, setIsMobile] = useState(
-    window.innerWidth < screenSizes.mobile
-  );
   const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState("");
@@ -44,9 +41,30 @@ const ThresholdsConfigurator = () => {
     updateThresholdValues();
   }, [thresholdValues]);
 
+  // useEffect(() => {
+  //   if (sliderRef.current) {
+  //     setSliderWidth(sliderRef.current.offsetWidth);
+  //   }
+  //   const { min, low, middle, high, max } = thresholdValues;
+  //   const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
+  //   const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
+  //   const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
+
+  //   setThumbPositions({ low: lowThumb, middle: middleThumb, high: highThumb });
+  // }, [thresholdValues, sliderWidth]);
+
   useEffect(() => {
+    const updateSliderWidth = () => {
+      if (sliderRef.current) {
+        setSliderWidth(sliderRef.current.offsetWidth);
+      }
+    };
+
+    updateSliderWidth();
+
     const handleResize = () => {
-      setIsMobile(window.innerWidth < screenSizes.mobile);
+      updateSliderWidth();
+      updateThumbPositions();
     };
 
     window.addEventListener("resize", handleResize);
@@ -57,16 +75,23 @@ const ThresholdsConfigurator = () => {
   }, []);
 
   useEffect(() => {
-    if (sliderRef.current) {
-      setSliderWidth(sliderRef.current.offsetWidth);
-    }
-    const { min, low, middle, high, max } = thresholdValues;
-    const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
-    const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
-    const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
-
-    setThumbPositions({ low: lowThumb, middle: middleThumb, high: highThumb });
+    updateThumbPositions();
   }, [thresholdValues, sliderWidth]);
+
+  const updateThumbPositions = () => {
+    if (sliderRef.current) {
+      const { min, low, middle, high, max } = thresholdValues;
+      const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
+      const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
+      const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
+
+      setThumbPositions({
+        low: lowThumb,
+        middle: middleThumb,
+        high: highThumb,
+      });
+    }
+  };
 
   const {
     handleInputChange,
@@ -141,7 +166,6 @@ const ThresholdsConfigurator = () => {
                         ? inputValue
                         : value.toString()
                     }
-                    readOnly={isMobile}
                     onFocus={() => handleInputFocus(thresholdKey)}
                     onBlur={() => handleInputBlur(thresholdKey, inputValue)}
                     $hasError={errorMessage !== ""}

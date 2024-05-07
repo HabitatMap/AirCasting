@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { H3 } from "../../../Typography";
+import { H1, H3 } from "../../../Typography";
 import { media } from "../../../../utils/media";
 import { Button } from "../../../Button/Button.style";
 import * as colors from "../../../../assets/styles/colors";
@@ -17,13 +17,14 @@ const RotatedIcon = styled.img<{ rotated: boolean }>`
   cursor: pointer;
 `;
 
-const Heading = styled(H3)`
-  font-weight: 700;
+const Heading = styled(H1)`
+  font-weight: 500;
   font-size: 22px;
   cursor: pointer;
 
   @media ${media.desktop} {
     cursor: auto;
+    font-size: 28px;
   }
 `;
 
