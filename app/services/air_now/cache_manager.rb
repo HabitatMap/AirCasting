@@ -16,12 +16,8 @@ class AirNow::CacheManager
 
       data_to_import.concat(hourly_data)
 
-      # logging into /home/aircasting/application/current/log/sidekiq.log
-
-      measurements_count = hourly_data.split("\n").count
-      Sidekiq.logger.info "AirNow: Imported data for #{cache_key}, added #{measurements_count} measurements."
-
-      # end of logging
+      # logging into /home/aircasting/application/current/log/sidekiq.log delete before merging
+      log(hourly_data, cache_key)
     end
 
     data_to_import
@@ -57,5 +53,11 @@ class AirNow::CacheManager
 
   def cache_expiry_time
     25.hours
+  end
+
+  def log(hourly_data, cache_key)
+    # delete before merging
+    measurements_count = hourly_data.split("\n").count
+    Sidekiq.logger.info "AirNow: Imported data for #{cache_key}, added #{measurements_count} measurements."
   end
 end
