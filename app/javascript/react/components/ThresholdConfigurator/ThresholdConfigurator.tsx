@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 
 import { Thresholds } from "../../types/thresholds";
 import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
@@ -9,11 +10,11 @@ import {
   handleMouseDown,
   handleTouchStart,
 } from "../../utils/thresholdGestureHandlers";
+import { selectThreshold, updateAll } from "../../store/thresholdSlice";
+import { useAppDispatch } from "../../store/hooks";
 import * as S from "./ThresholdConfigurator.style";
 
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
-import { selectThreshold, updateAll } from "../../store/thresholdSlice";
-import { useDispatch, useSelector } from "react-redux";
 
 interface ThumbPositions extends Omit<Thresholds, "min" | "max"> {}
 
@@ -34,7 +35,7 @@ const ThresholdsConfigurator = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState("");
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const updateThresholdValues = () => {
