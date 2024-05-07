@@ -613,6 +613,55 @@ See [parameters description](#parameters-description)
   ]
   ```
 
+# Region
+
+This will let you fetch the average measured value for a region of the map specified by the `east`, `west`, `north` and `south` parameters. Also pass the `measurement_type` and `sensor_name` parameters to specify the measurements you want the average of. You need to pass a list of stream ids otherwise nothing will be returned.
+
+**Endpoint**
+
+GET `/api/region`
+
+**Parameters**
+
+| name             | type              | default value |
+| :--------------- | :---------------- | :------------ |
+| time_from        | number            |               |
+| time_to          | number            |               |
+| grid_size_y      | number, 1..50     |               |
+| grid_size_x      | number, 1..50     |               |
+| tags             | text              |               |
+| usernames        | text              |               |
+| sensor_name      | text              |               |
+| unit_symbol      | text              |               |
+| east             | number, -180..180 |               |
+| west             | number, -180..180 |               |
+| north            | number, -90..90   |               |
+| south            | number, -90..90   |               |
+| measurement_type | text              |               |
+| stream_ids       | list number       | empty list    |
+
+See [parameters description](#parameters-description)
+
+**Example**
+
+- request
+
+  ```json
+
+  http://aircasting.habitatmap.org/api/region.json?west=-79.17133878069846&east=-79.17130272327499&south=35.472902640118186&north=35.47293458811813&time_from=1706832000&time_to=1715039940&grid_size_x=44.7361530715005&grid_size_y=31&tags=&usernames=&sensor_name=airbeam-pm2.5&measurement_type=Particulate%20Matter&unit_symbol=%C2%B5g%2Fm%C2%B3&stream_ids=2598790
+
+  ```
+
+- response
+
+  ```json
+  {
+    "average": 22.83333333333333,
+    "number_of_contributors": 1,
+    "number_of_samples": 6
+  }
+  ```
+
 # Last Session
 
 **Endpoint**
