@@ -1,4 +1,4 @@
-class DailyStreamsAveragesSerializer
+class StreamDailyAveragesSerializer
   def call(streams_daily_averages)
     streams_daily_averages.map do |stream_daily_average|
       {
