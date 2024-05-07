@@ -19,6 +19,7 @@ Every response is returned in JSON format.
 - [Measurements](#measurements)
 - [Streams](#streams)
 - [Averages](#averages)
+- [Region](#region)
 - [Last Session](#last-session)
 - [Parameters description](#parameters-description)
 - [FAQ](#faq)
