@@ -12,14 +12,14 @@ class AirNow::CacheManager
       end
 
       data_to_import.concat(hourly_data)
+
+      # only for logging purposes - delete before merge
+
+      measurement_count = data_to_import.split("\n").count
+      Sidekiq.logger.info "AirNow: Imported data for #{cache_key}, added #{measurements_count} measurements."
+
+      # end of logging
     end
-
-    # only for logging purposes - delete before merge
-
-    measurement_count = data_to_import.split("\n").count
-    Sidekiq.logger.info "AirNow: Imported data for #{cache_key}, added #{measurements_count} measurements."
-
-    # end of logging
 
     data_to_import
   end
@@ -40,7 +40,7 @@ class AirNow::CacheManager
     Rails.cache.read(cache_key)
   end
 
-  def substract_saved_data(hourly_data, saved_measurements_aqsids)
+  def substract_already_saved_data(hourly_data, saved_measurements_aqsids)
     hourly_data.split("\n").reject { |line| saved_measurements_aqsids.include?(line.split('|')[2]) }
   end
 end
