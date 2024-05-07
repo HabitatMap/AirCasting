@@ -12,21 +12,16 @@ import {
 import * as S from "./ThresholdConfigurator.style";
 
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
-import { updateAll } from "../../store/thresholdSlice";
-import { useDispatch } from "react-redux";
-
-interface ThresholdsConfiguratorProps {
-  initialThresholds: Thresholds;
-}
+import { selectThreshold, updateAll } from "../../store/thresholdSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 interface ThumbPositions extends Omit<Thresholds, "min" | "max"> {}
 
 const maxThresholdDifference = 1;
 
-const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
-  initialThresholds,
-}) => {
-  const [thresholdValues, setThresholdValues] = useState(initialThresholds);
+const ThresholdsConfigurator = () => {
+  const thresholdsState = useSelector(selectThreshold);
+  const [thresholdValues, setThresholdValues] = useState(thresholdsState);
   const [thumbPositions, setThumbPositions] = useState<ThumbPositions>(
     {} as ThumbPositions
   );
@@ -43,7 +38,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
   useEffect(() => {
     const updateThresholdValues = () => {
-      console.log("Update to ", thresholdValues);
       dispatch(updateAll(thresholdValues));
     };
     updateThresholdValues();
@@ -88,8 +82,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     thresholdValues,
     sliderRef,
     activeInput,
-    inputValue,
-    initialThresholds
+    inputValue
   );
 
   useEffect(() => {

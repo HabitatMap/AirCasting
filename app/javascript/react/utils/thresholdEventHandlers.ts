@@ -3,7 +3,10 @@ import { useTranslation } from "react-i18next";
 
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 import { KeyboardKeys } from "../types/keyboardKeys";
-import { SetStateAction, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { resetToInitialValues } from "../store/thresholdSlice";
+import { initialState } from "../store/thresholdSlice";
 
 interface Thresholds {
   min: number;
@@ -22,10 +25,10 @@ export const useThresholdHandlers = (
   sliderRef: React.RefObject<HTMLDivElement>,
   activeInput: keyof Thresholds | null,
   inputValue: string,
-  initialThresholds: SetStateAction<Thresholds>
 ) => {
   const inputDebounceTime = 300;
   const { t } = useTranslation();
+  const dispatch = useDispatch();
 
   const isValueValid = (
     newValue: number,
@@ -78,9 +81,7 @@ export const useThresholdHandlers = (
           })
         );
       } else {
-        if (
-          (thresholdKey === "min" && parsedValue >= thresholdValues.max)
-        ) {
+        if (thresholdKey === "min" && parsedValue >= thresholdValues.max) {
           setErrorMessage(
             t("thresholdConfigurator.minGreaterThanMaxMessage", {
               maxValue: thresholdValues.max,
@@ -178,11 +179,13 @@ export const useThresholdHandlers = (
       }
     };
 
-    const resetThresholds = () => {
-      debouncedHandleInputChange.cancel();
-      setInputValue("");
-      setThresholdValues(initialThresholds);
-    };
+  const resetThresholds = () => {
+    debouncedHandleInputChange.cancel();
+    dispatch(resetToInitialValues());
+    setThresholdValues(initialState);
+    setInputValue("");
+    setActiveInput(null);
+  };
 
   return {
     handleInputChange,
