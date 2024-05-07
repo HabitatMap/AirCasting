@@ -42,11 +42,11 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const updateStore = () => {
+    const updateThresholdValues = () => {
       console.log("Update to ", thresholdValues);
       dispatch(updateAll(thresholdValues));
     };
-    updateStore();
+    updateThresholdValues();
   }, [thresholdValues]);
 
   useEffect(() => {
