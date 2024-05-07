@@ -15,7 +15,7 @@ class AirNow::CacheManager
 
       # only for logging purposes - delete before merge
 
-      measurements_count = data_to_import.split("\n").count
+      measurements_count = hourly_data.split("\n").count
       Sidekiq.logger.info "AirNow: Imported data for #{cache_key}, added #{measurements_count} measurements."
 
       # end of logging
