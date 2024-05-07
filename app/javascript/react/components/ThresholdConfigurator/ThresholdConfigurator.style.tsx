@@ -38,86 +38,52 @@ const RangeInput = styled.input<{
 }>`
   width: 100%;
   position: absolute;
-  top: 13px;
-  height: 21px;
-  left: 0;
-  background: transparent;
+  top: 50%;
+  margin-left: -15px;
+  transform: translateY(-50%);
+  height: 9px;
   -webkit-appearance: none;
   appearance: none;
-  cursor: pointer;
-
-  &::-webkit-slider-runnable-track,
-  &::-moz-range-track,
-  &::-ms-track {
-    appearance: none;
-    -webkit-appearance: none;
-    height: 24px;
-    background: transparent;
-  }
+  background: linear-gradient(
+    to right,
+    ${colors.green} ${(props) => props.$firstThumbPos}px,
+    ${colors.yellow} ${(props) => props.$firstThumbPos}px,
+    ${colors.yellow} ${(props) => props.$secondThumbPos}px,
+    ${colors.orange} ${(props) => props.$secondThumbPos}px,
+    ${colors.orange} ${(props) => props.$thirdThumbPos}px,
+    ${colors.red} ${(props) => props.$thirdThumbPos}px,
+    ${colors.red} 100%
+  );
+  border-radius: 2px;
+  outline: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
 
   &::-webkit-slider-thumb,
   &::-moz-range-thumb,
   &::-ms-thumb {
     appearance: none;
-    width: 0;
-    height: 0;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border: 2px solid ${colors.gray300};
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
   }
 
-  &:nth-child(2)::before,
-  &:nth-child(4)::before,
-  &:nth-child(6)::before,
-  &:nth-child(6)::after {
-    content: "";
-    position: absolute;
-    height: 24px;
-    border-radius: 5px;
-    margin-right: 10px;
+  &::-webkit-slider-thumb:hover,
+  &::-moz-range-thumb:hover,
+  &::-ms-thumb:hover {
+    background: ${colors.gray300};
+    border-color: ${colors.gray300};
   }
 
-  &:nth-child(2)::before {
-    left: 0;
-    right: ${(props) => props.$sliderWidth - props.$firstThumbPos}px;
-    background: ${colors.green};
+  &::-moz-focus-outer {
+    border: 0;
   }
-
-  &:nth-child(4)::before {
-    left: ${(props) => props.$firstThumbPos}px;
-    right: ${(props) => props.$sliderWidth - props.$secondThumbPos}px;
-    background: ${colors.yellow};
-  }
-
-  &:nth-child(6)::before {
-    left: ${(props) => props.$secondThumbPos}px;
-    right: ${(props) => props.$sliderWidth - props.$thirdThumbPos}px;
-    background: ${colors.orange};
-  }
-
-  &:nth-child(6)::after {
-    left: ${(props) => props.$thirdThumbPos}px;
-    right: 0;
-    background: ${colors.red};
-  }
-
-  @media ${media.desktop} {
-    top: 0;
-    width: 100%;
-    height: 8px;
-
-    &::-webkit-slider-runnable-track,
-    &::-moz-range-track,
-    &::-ms-track {
-      height: 5px;
-    }
-
-    &:nth-child(2)::before,
-    &:nth-child(4)::before,
-    &:nth-child(6)::before,
-    &:nth-child(6)::after {
-      content: "";
-      position: absolute;
-      height: 10px;
-      margin-right: 0;
-    }
+  @media (${media.desktop}) {
+    margin-left: 0;
   }
 `;
 
@@ -132,7 +98,7 @@ const NumberInput = styled.input<{
   text-align: center;
   color: ${colors.gray300};
   position: absolute;
-  top: 0;
+  top: 10px;
   right: ${(props) => (props.$isLast ? "0px" : "auto")};
   max-width: 27px;
   height: 50px;
@@ -175,9 +141,9 @@ const NumberInput = styled.input<{
   @media ${media.desktop} {
     font-weight: 600;
     font-size: 1.5rem;
-    top: -10px;
     max-width: 40px;
     height: 32px;
+    top: -1px;
   }
 `;
 

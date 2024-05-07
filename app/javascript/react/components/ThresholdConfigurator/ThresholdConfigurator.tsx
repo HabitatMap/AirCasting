@@ -41,18 +41,6 @@ const ThresholdsConfigurator = () => {
     updateThresholdValues();
   }, [thresholdValues]);
 
-  // useEffect(() => {
-  //   if (sliderRef.current) {
-  //     setSliderWidth(sliderRef.current.offsetWidth);
-  //   }
-  //   const { min, low, middle, high, max } = thresholdValues;
-  //   const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
-  //   const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
-  //   const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
-
-  //   setThumbPositions({ low: lowThumb, middle: middleThumb, high: highThumb });
-  // }, [thresholdValues, sliderWidth]);
-
   useEffect(() => {
     const updateSliderWidth = () => {
       if (sliderRef.current) {
