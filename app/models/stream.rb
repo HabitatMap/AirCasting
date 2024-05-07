@@ -104,12 +104,12 @@ class Stream < ApplicationRecord
   end
 
   def build_measurements!(data = [])
+    data = data.map(&:deep_symbolize_keys)
     factory = RGeo::Geographic.spherical_factory(srid: 4326)
     time_zone = time_zone(data)
 
     measurements =
       data.map do |params|
-        params = params.deep_symbolize_keys
         longitude = params[:longitude].to_f
         latitude = params[:latitude].to_f
         location = factory.point(longitude, latitude)
