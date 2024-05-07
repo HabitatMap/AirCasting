@@ -4,7 +4,6 @@ import {
   cta,
   darkBlue,
   gray100,
-  gray200,
   gray400,
   theme,
   white,
@@ -78,7 +77,9 @@ const BuyCTA = styled.a`
   text-decoration: none;
   box-shadow: 0px 2px 2px 0px rgba(76, 86, 96, 0.15);
 
-  &:visited {
+  &:visited,
+  &:link,
+  &:active {
     color: ${gray400};
   }
 `;
