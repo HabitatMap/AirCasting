@@ -102,6 +102,7 @@ Rails.application.routes.draw do
     namespace :v3 do
       resources :fixed_streams, only: %i[show]
       get 'flipper_enabled/:feature_key' => 'flipper#enabled?'
+      get 'stream_daily_averages/:id' => 'stream_daily_averages#show'
     end
 
     get 'measurements' => 'measurements#index'
