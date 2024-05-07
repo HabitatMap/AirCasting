@@ -105,16 +105,16 @@ class Stream < ApplicationRecord
 
   def build_measurements!(data = [])
     factory = RGeo::Geographic.spherical_factory(srid: 4326)
+    time_zone = time_zone(data)
 
     measurements =
       data.map do |params|
         params = params.deep_symbolize_keys
         longitude = params[:longitude].to_f
         latitude = params[:latitude].to_f
-        location =
-          factory.point(longitude, latitude)
-        time_zone = time_zone_at(latitude, longitude)
-        time_with_time_zone = params[:time].in_time_zone.change(zone: time_zone)
+        location = factory.point(longitude, latitude)
+        time_with_time_zone =
+          params[:time].in_time_zone.change(zone: time_zone) if params[:time]
 
         Measurement.new(
           params.merge(
@@ -134,14 +134,6 @@ class Stream < ApplicationRecord
       self.id,
       measurements_count: measurements.size - result.failed_instances.size,
     )
-  end
-
-  def time_zone_at(lat, lng)
-    if lat.nil? || lng.nil? || lat.zero? || lng.zero? || lat > 90 || lat < -90 || lng > 180 || lng < -180
-      return 'UTC'
-    end
-
-    TimezoneFinder.create.timezone_at(lng: lng, lat: lat)
   end
 
   # this change for migration mysql->posgres needs to be tested
@@ -193,5 +185,14 @@ class Stream < ApplicationRecord
   def has_bounds?
     max_latitude.present? && min_latitude.present? && max_longitude.present? &&
       min_longitude.present?
+  end
+
+  private
+
+  def time_zone(data)
+    latitude = data.first[:latitude].to_f
+    longitude = data.first[:longitude].to_f
+
+    TimeZoneBuilder.new.call(latitude, longitude)
   end
 end

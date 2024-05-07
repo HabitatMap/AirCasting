@@ -6,6 +6,7 @@ FactoryBot.define do
     longitude { 50.1234 }
     latitude { 11.12 }
     time { Time.parse('2011-10-21T14:51:54Z') }
+    time_with_time_zone { Time.parse('2011-10-21T14:51:54Z') }
     stream
     location { "SRID=4326;POINT(#{longitude} #{latitude})" }
   end
