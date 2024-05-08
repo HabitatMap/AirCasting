@@ -94,14 +94,14 @@ const NumberInput = styled.input<{
   $isActive?: boolean;
 }>`
   font-family: Roboto;
-  font-weight: 500;
-  font-size: 1.5rem;
+  font-weight: 400;
+  font-size: 16px;
   text-align: center;
   color: ${colors.gray300};
   position: absolute;
   top: 10px;
   right: ${(props) => (props.$isLast ? "0px" : "auto")};
-  max-width: 27px;
+  max-width: 30px;
   height: 50px;
   margin-left: -15px;
   border-radius: 5px;
