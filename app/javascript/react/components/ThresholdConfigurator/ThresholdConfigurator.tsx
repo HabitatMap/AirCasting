@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 
 import { Thresholds } from "../../types/thresholds";
 import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
@@ -9,22 +10,19 @@ import {
   handleMouseDown,
   handleTouchStart,
 } from "../../utils/thresholdGestureHandlers";
+import { selectThreshold, updateAll } from "../../store/thresholdSlice";
+import { useAppDispatch } from "../../store/hooks";
 import * as S from "./ThresholdConfigurator.style";
 
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
-
-interface ThresholdsConfiguratorProps {
-  initialThresholds: Thresholds;
-}
 
 interface ThumbPositions extends Omit<Thresholds, "min" | "max"> {}
 
 const maxThresholdDifference = 1;
 
-const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
-  initialThresholds,
-}) => {
-  const [thresholdValues, setThresholdValues] = useState(initialThresholds);
+const ThresholdsConfigurator = () => {
+  const thresholdsState = useSelector(selectThreshold);
+  const [thresholdValues, setThresholdValues] = useState(thresholdsState);
   const [thumbPositions, setThumbPositions] = useState<ThumbPositions>(
     {} as ThumbPositions
   );
@@ -37,6 +35,14 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const updateThresholdValues = () => {
+      dispatch(updateAll(thresholdValues));
+    };
+    updateThresholdValues();
+  }, [thresholdValues]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -77,8 +83,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     thresholdValues,
     sliderRef,
     activeInput,
-    inputValue,
-    initialThresholds
+    inputValue
   );
 
   useEffect(() => {

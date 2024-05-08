@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useSelector } from "react-redux";
 
-import { selectThreshold } from "../../store/thresholdSlice";
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { Calendar } from "../../components/molecules/Calendar";
@@ -17,7 +15,6 @@ const CalendarPage = () => {
   const streamIdQuery = searchParams.get(STREAM_ID_QUERY_PARAMETER_NAME);
   const streamId = streamIdQuery && Number(streamIdQuery);
 
-  const initialThresholds = useSelector(selectThreshold);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -28,7 +25,7 @@ const CalendarPage = () => {
     <S.CalendarPageLayout>
       <S.StationDataContainer>
         <FixedStreamStationHeader />
-        <ThresholdsConfigurator initialThresholds={initialThresholds} />
+        <ThresholdsConfigurator />
         <Calendar />
       </S.StationDataContainer>
     </S.CalendarPageLayout>
