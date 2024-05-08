@@ -73,7 +73,6 @@ export const fixedStreamSlice = createSlice({
       fetchFixedStreamById.fulfilled,
       (state, { payload: { stream, measurements, streamDailyAverages } }) => {
         state.status = StatusEnum.Fulfilled;
-        console.log("BUUUUU JEST")
         if (stream && measurements && streamDailyAverages) {
           state.data = { stream, measurements, streamDailyAverages };
         }
@@ -82,11 +81,9 @@ export const fixedStreamSlice = createSlice({
     builder.addCase(
       fetchFixedStreamById.rejected,
       (state, { error: { message } }) => {
-        console.log("BUUUUU JEST :(")
         state.status = StatusEnum.Rejected;
         state.error = { message };
         state.data = dumpData.data;
-        console.log(state.data)
       }
     );
   },
