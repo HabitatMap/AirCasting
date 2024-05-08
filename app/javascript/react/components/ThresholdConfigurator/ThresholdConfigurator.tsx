@@ -160,13 +160,10 @@ const ThresholdsConfigurator = () => {
                     $isActive={activeInput === thresholdKey}
                     style={{
                       zIndex: 10,
-                      marginLeft:
+                      marginLeft: "-15px",
+                      left:
                         value === min || value === max - maxThresholdDifference
                           ? "0px"
-                          : "-15px",
-                      left:
-                        value === max || value === max - maxThresholdDifference
-                          ? "auto"
                           : `${calculateThumbPosition(
                               value,
                               min,
