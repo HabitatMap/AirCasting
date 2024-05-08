@@ -151,9 +151,8 @@ const NumberInput = styled.input<{
 const ErrorMessage = styled.p`
   color: ${colors.red};
   position: absolute;
-  top: 65%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-45px, 45px);
   font-size: 1rem;
   font-weight: bold;
 

@@ -18,11 +18,10 @@ const Label = styled(H5)`
 
 const Heading = styled(H1)`
   padding-bottom: 10px;
-  font-weight: 600;
+  font-weight: 500;
 
   @media ${media.desktop} {
     font-size: 28px;
-    font-weight: 500;
   }
 `;
 
