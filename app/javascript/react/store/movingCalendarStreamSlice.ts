@@ -40,7 +40,6 @@ export const fetchNewMovingStream = createAsyncThunk<
         );
       return response.data;
     } catch (error) {
-      console.log("WELCOME TO THE UPDATE CALENDAR from API")
       const message = getErrorMessage(error);
       return rejectWithValue({ message: endDate });
     }
@@ -52,8 +51,6 @@ export const movingStreamSlice = createSlice({
     initialState,
     reducers: {
       updateMovingStreamData: (state, action: PayloadAction<MovingStreamDailyAverage[]>) => {
-        console.log(action.payload)
-        console.log("Updating calendar moving slice using input data")
         state.data = action.payload;
         state.status = StatusEnum.Fulfilled;
       }

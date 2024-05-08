@@ -57,7 +57,6 @@ const CalendarPage = () => {
           value,
         })
       );
-      console.log("Updating Moving Calendar Data with initial:", movingData);
       dispatch(updateMovingStreamData(newMovingCalendarData));
     } else {
       console.log("No daily averages to process.");

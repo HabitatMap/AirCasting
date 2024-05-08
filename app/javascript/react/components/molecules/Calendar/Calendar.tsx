@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import moment, { Moment } from "moment";
 
-import { selectThreeMonthsDailyAverage } from "../../../store/fixedStreamSelectors";
+import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
 import { Month } from "./atoms/Month";
 import { Heading } from "./../../../pages/CalendarPage/CalendarPage.style";
 import { useTranslation } from "react-i18next";
@@ -13,33 +13,8 @@ import {
   movingData,
   fetchNewMovingStream,
 } from "../../../store/movingCalendarStreamSlice";
-import chevronRight from "../../../assets/icons/chevronRight.svg";
-import chevronLeft from "../../../assets/icons/chevronLeft.svg";
+import { ScrollCalendarButton } from "./atoms/ScrollCalendarButton/ScrollCalendarButton";
 import * as S from "./Calendar.style";
-
-type ScrollButtonComponentProps = {
-  direction: "left" | "right";
-  handleClick: () => void;
-  disabled?: boolean;
-};
-
-const ScrollButtonComponent: React.FC<ScrollButtonComponentProps> = ({
-  direction,
-  handleClick,
-  disabled = false,
-}) => {
-  const icon = direction === "left" ? chevronLeft : chevronRight;
-  const altText =
-    direction === "left"
-      ? "Move calendar page one step back"
-      : "Move calendar page one step forward";
-
-  return (
-    <ScrollButton onClick={handleClick} disabled={disabled}>
-      <img src={icon} alt={altText} />
-    </ScrollButton>
-  );
-};
 
 interface MovableCalendarData {
   zeroDate: string;
@@ -49,11 +24,12 @@ interface MovableCalendarData {
 }
 
 const Calendar = () => {
+  const SEEN_MONTHS_NUMBER = 3;
+
   const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
   const movingCalendarData = useSelector(movingData);
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const seenMonthsNumber = 3;
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [dateReference, setDateReference] = useState<MovableCalendarData>({
     zeroDate: "",
@@ -70,6 +46,20 @@ const Calendar = () => {
         triggerDirectionUpdate: prevState.triggerDirectionUpdate + 1,
       };
     });
+  };
+
+  const handleBackwardMovement = (dateMoment: moment.Moment) => {
+    const newEndMoment = dateMoment.date(1).subtract(1, "months");
+    setIsButtonDisabled(false);
+    return newEndMoment;
+  };
+
+  const handleForwardMovement = (dateMoment: moment.Moment) => {
+    const newEndMoment = dateMoment.date(1).add(1, "months");
+    const zeroDateMoment = moment(dateReference.zeroDate, "YYYY-MM-DD");
+    const shouldDisableButton = newEndMoment.isSameOrAfter(zeroDateMoment);
+    setIsButtonDisabled(shouldDisableButton);
+    return shouldDisableButton ? null : newEndMoment;
   };
 
   useEffect(() => {
@@ -90,22 +80,15 @@ const Calendar = () => {
 
     switch (dateReference.direction) {
       case -1:
-        newEndMoment = dateMoment.date(1).subtract(1, "months");
-        if (setIsButtonDisabled) {
-          setIsButtonDisabled(false);
-        }
+        newEndMoment = handleBackwardMovement(dateMoment);
         break;
       case 1:
-        newEndMoment = dateMoment.date(1).add(1, "months");
-
-        const zeroDateMoment = moment(dateReference.zeroDate, "YYYY-MM-DD");
-        const shouldDisableButton = newEndMoment.isSameOrAfter(zeroDateMoment);
-
-        if (shouldDisableButton) {
-          setIsButtonDisabled(shouldDisableButton);
+        const newEndForwardMoment = handleForwardMovement(dateMoment);
+        if (newEndForwardMoment !== null) {
+          newEndMoment = newEndForwardMoment;
+        } else {
           return;
         }
-
         break;
       default:
         console.error("Invalid direction value:", dateReference.direction);
@@ -115,16 +98,17 @@ const Calendar = () => {
     const newEndDate = newEndMoment.format("YYYY-MM-DD");
     const newStartDate = newEndMoment
       .date(1)
-      .subtract(seenMonthsNumber, "months")
+      .subtract(SEEN_MONTHS_NUMBER, "months")
       .format("YYYY-MM-DD");
 
     setDateReference((prevState) => ({
       ...prevState,
       currentData: newEndDate,
     }));
-    
+
     dispatch(
       fetchNewMovingStream({
+        // pass here proper STREAM ID
         id: 1,
         startDate: newStartDate,
         endDate: newEndDate,
@@ -154,11 +138,11 @@ const Calendar = () => {
           }
         />
         <S.MobileSwipeContainer>
-          <ScrollButtonComponent
+          <ScrollCalendarButton
             direction="left"
             handleClick={handleLeftClick}
           />
-          <ScrollButtonComponent
+          <ScrollCalendarButton
             disabled={isButtonDisabled}
             direction="right"
             handleClick={handleRightClick}
@@ -167,7 +151,7 @@ const Calendar = () => {
 
         <S.ThreeMonths>
           <S.DesktopSwipeContainer>
-            <ScrollButtonComponent
+            <ScrollCalendarButton
               direction="left"
               handleClick={handleLeftClick}
             />
@@ -176,7 +160,7 @@ const Calendar = () => {
             <Month key={month.monthName} {...month} />
           ))}
           <S.DesktopSwipeContainer>
-            <ScrollButtonComponent
+            <ScrollCalendarButton
               disabled={isButtonDisabled}
               direction="right"
               handleClick={handleRightClick}

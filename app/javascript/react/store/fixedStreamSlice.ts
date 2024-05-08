@@ -43,7 +43,7 @@ const dumpData: FixedStreamState = {
       updateFrequency: "",
     },
     measurements: [],
-    streamDailyAverages: [{date: '2024-01-10', value: 1}],
+    streamDailyAverages: [{date: '2024-05-10', value: 1}],
   },
   status: StatusEnum.Idle,
 };
