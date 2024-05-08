@@ -2,7 +2,6 @@ import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
-import { Button } from "../Button/Button.style";
 
 const Container = styled.div`
   display: flex;
@@ -22,11 +21,13 @@ const InputContainer = styled.div`
   width: 100%;
   height: 70px;
   padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
 
   @media (${media.desktop}) {
     margin-top: 3rem;
     padding-left: 0;
     height: 30px;
+    margin-bottom: 0;
   }
 `;
 
