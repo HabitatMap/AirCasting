@@ -4,10 +4,8 @@ import moment, { Moment } from "moment";
 
 import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
 import { Month } from "./atoms/Month";
-import { Heading } from "./../../../pages/CalendarPage/CalendarPage.style";
 import { useTranslation } from "react-i18next";
 import HeaderToggle from "./HeaderToggle/HeaderToggle";
-import { ScrollButton } from "../../ScrollButton/ScrollButton";
 import { useAppDispatch } from "../../../store/hooks";
 import {
   movingData,
@@ -130,43 +128,40 @@ const Calendar = () => {
         <HeaderToggle
           titleText={t("calendarHeader.calendarTitle")}
           componentToToggle={
-            <S.ThreeMonths>
-              {threeMonthsData.map((month) => (
-                <Month key={month.monthName} {...month} />
-              ))}
-            </S.ThreeMonths>
+            <>
+              <S.MobileSwipeContainer>
+                <ScrollCalendarButton
+                  direction="left"
+                  handleClick={handleLeftClick}
+                />
+                <ScrollCalendarButton
+                  disabled={isButtonDisabled}
+                  direction="right"
+                  handleClick={handleRightClick}
+                />
+              </S.MobileSwipeContainer>
+
+              <S.ThreeMonths>
+                <S.DesktopSwipeContainer>
+                  <ScrollCalendarButton
+                    direction="left"
+                    handleClick={handleLeftClick}
+                  />
+                </S.DesktopSwipeContainer>
+                {threeMonthsData.map((month) => (
+                  <Month key={month.monthName} {...month} />
+                ))}
+                <S.DesktopSwipeContainer>
+                  <ScrollCalendarButton
+                    disabled={isButtonDisabled}
+                    direction="right"
+                    handleClick={handleRightClick}
+                  />
+                </S.DesktopSwipeContainer>
+              </S.ThreeMonths>
+            </>
           }
         />
-        <S.MobileSwipeContainer>
-          <ScrollCalendarButton
-            direction="left"
-            handleClick={handleLeftClick}
-          />
-          <ScrollCalendarButton
-            disabled={isButtonDisabled}
-            direction="right"
-            handleClick={handleRightClick}
-          />
-        </S.MobileSwipeContainer>
-
-        <S.ThreeMonths>
-          <S.DesktopSwipeContainer>
-            <ScrollCalendarButton
-              direction="left"
-              handleClick={handleLeftClick}
-            />
-          </S.DesktopSwipeContainer>
-          {threeMonthsData.map((month) => (
-            <Month key={month.monthName} {...month} />
-          ))}
-          <S.DesktopSwipeContainer>
-            <ScrollCalendarButton
-              disabled={isButtonDisabled}
-              direction="right"
-              handleClick={handleRightClick}
-            />
-          </S.DesktopSwipeContainer>
-        </S.ThreeMonths>
       </S.CalendarContainer>
     )
   );

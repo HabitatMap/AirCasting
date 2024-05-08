@@ -41,9 +41,10 @@ const dumpData: FixedStreamState = {
       sensorName: "",
       unitSymbol: "",
       updateFrequency: "",
+      active: false,
     },
     measurements: [],
-    streamDailyAverages: [{date: '2024-05-10', value: 1}],
+    streamDailyAverages: [{ date: "2024-05-10", value: 1 }],
   },
   status: StatusEnum.Idle,
 };
@@ -76,6 +77,7 @@ export const fixedStreamSlice = createSlice({
         if (stream && measurements && streamDailyAverages) {
           state.data = { stream, measurements, streamDailyAverages };
         }
+        state.data = dumpData.data;
       }
     );
     builder.addCase(
