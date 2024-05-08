@@ -152,13 +152,13 @@ const ErrorMessage = styled.p`
   color: ${colors.red};
   position: absolute;
   left: 50%;
-  transform: translate(-45px, 45px);
-  font-size: 1rem;
+  transform: translate(-45px, 44px);
+  font-size: 1.2rem;
   font-weight: bold;
 
   @media ${media.desktop} {
     font-size: 1.5rem;
-    top: 25vw;
+    transform: translate(-45px, 14px);
   }
 `;
 
