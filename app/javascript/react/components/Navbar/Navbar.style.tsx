@@ -128,6 +128,9 @@ const NavHeader = styled.li`
 
 const ListItem = styled.li<{ $isUnderline?: boolean }>`
   border-bottom: ${(p) => (p.$isUnderline ? "1px solid white" : "none")};
+  &.active {
+    opacity: 0.5;
+  }
 `;
 
 const SubNavTitleLink = styled.a`
@@ -149,7 +152,22 @@ const Link = styled(NavItemLink)`
 `;
 
 const BottomNavContainer = styled(Container)`
-  padding-top: 2.4rem;
+  padding-top: 3.2rem;
+`;
+
+const BuyCTAWhite = styled(BuyCTA)`
+  background-color: transparent;
+  border: 1px solid ${white};
+  color: ${white};
+  border-radius: 0px;
+  font-weight: 600;
+  padding: 1.5rem 2rem;
+
+  &:visited,
+  &:link,
+  &:active {
+    color: ${white};
+  }
 `;
 
 const GoBack = styled.a`
@@ -182,4 +200,5 @@ export {
   MobileContainer,
   DesktopContainer,
   GoBack,
+  BuyCTAWhite,
 };

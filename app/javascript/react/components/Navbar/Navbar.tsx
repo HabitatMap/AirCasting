@@ -1,11 +1,12 @@
 import React, { ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 
 import logo from "../../../../assets/images/aircasting-logo-nav.svg";
 import hamburger from "../../assets/icons/hamburger.svg";
 import habitatMapLogo from "../../assets/icons/habitatMapLogo.svg";
 import iconNavClose from "../../assets/icons/iconNavClose.svg";
-import searchNavbarIcon from "../../assets/icons/searchNavbarIcon.svg";
+import searchIcon from "../../assets/icons/searchIcon.svg";
 import airbeamIcon from "../../assets/icons/airbeamIcon.svg";
 import goBackIcon from "../../assets/icons/goBackIcon.svg";
 import { urls } from "../../const/urls";
@@ -21,15 +22,20 @@ const NavItem = ({
   isNavTitle?: boolean;
   isUnderline?: boolean;
   children?: ReactNode;
-}) => (
-  <S.ListItem $isUnderline={isUnderline}>
-    {isNavTitle ? (
-      <S.SubNavTitleLink href={href}>{children}</S.SubNavTitleLink>
-    ) : (
-      <S.NavItemLink href={href}>{children}</S.NavItemLink>
-    )}
-  </S.ListItem>
-);
+}) => {
+  const location = useLocation();
+  const isActive = location.pathname === href;
+
+  return (
+    <S.ListItem $isUnderline={isUnderline} className={isActive ? "active" : ""}>
+      {isNavTitle ? (
+        <S.SubNavTitleLink href={href}>{children}</S.SubNavTitleLink>
+      ) : (
+        <S.NavItemLink href={href}>{children}</S.NavItemLink>
+      )}
+    </S.ListItem>
+  );
+};
 
 const Navbar = () => {
   const [navMenuVisible, setNavMenuVisible] = useState(false);
@@ -135,18 +141,18 @@ const Navbar = () => {
           <S.BottomNavContainer>
             <a href={urls.search}>
               <img
-                src={searchNavbarIcon}
+                src={searchIcon}
                 alt={t("navbar.altSearch")}
                 aria-label={t("navbar.altSearch")}
-                style={{ width: "35px" }}
+                style={{ width: "30px" }}
               />
             </a>
             <S.Link href={urls.donate} style={{ fontSize: "1.3rem" }}>
               {t("navbar.sections.donate")}
             </S.Link>
-            <S.BuyCTA href={urls.airbeamBuyNow}>
+            <S.BuyCTAWhite href={urls.airbeamBuyNow}>
               {t("navbar.sections.getAirbeam")}
-            </S.BuyCTA>
+            </S.BuyCTAWhite>
           </S.BottomNavContainer>
         </S.NavList>
       </S.DesktopContainer>
