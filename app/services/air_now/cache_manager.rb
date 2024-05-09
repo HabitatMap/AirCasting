@@ -7,11 +7,11 @@ class AirNow::CacheManager
 
     measurements_data.each do |hourly_data|
       cache_key = create_cache_key(hourly_data)
-      previously_cached_aqsids = cached_aqsids(cache_key)
-      cache_current_aqsids(hourly_data, cache_key)
+      previously_cached_measurements = cached_measurements_array(cache_key)
+      cache_current_measurements(hourly_data, cache_key)
 
-      if previously_cached_aqsids.present?
-        hourly_data = subtract_already_saved_data(hourly_data, previously_cached_aqsids).join("\n").to_s
+      if previously_cached_measurements.present?
+        hourly_data = subtract_already_saved_data(hourly_data, previously_cached_measurements).join("\n").to_s
       end
 
       data_to_import.concat(hourly_data)
@@ -30,25 +30,21 @@ class AirNow::CacheManager
     "air_now_#{date}_#{utc_time}"
   end
 
-  def cache_current_aqsids(hourly_data, cache_key)
-    aqsids = hourly_data_lines(hourly_data).map { |line| aqsid_from_line(line) }
-    Rails.cache.write(cache_key, aqsids, expires_in: cache_expiry_time)
+  def cache_current_measurements(hourly_data, cache_key)
+    measurements_array = measurements_array(hourly_data)
+    Rails.cache.write(cache_key, measurements_array, expires_in: cache_expiry_time)
   end
 
-  def hourly_data_lines(hourly_data)
+  def measurements_array(hourly_data)
     hourly_data.split("\n")
   end
 
-  def cached_aqsids(cache_key)
+  def cached_measurements_array(cache_key)
     Rails.cache.read(cache_key)
   end
 
-  def subtract_already_saved_data(hourly_data, saved_measurements_aqsids)
-    hourly_data_lines(hourly_data).reject { |line| saved_measurements_aqsids.include?(aqsid_from_line(line)) }
-  end
-
-  def aqsid_from_line(line)
-    line.split('|')[2]
+  def subtract_already_saved_data(hourly_data, saved_measurements)
+    hourly_data_lines(hourly_data).reject { |line| saved_measurements.include?(line) }
   end
 
   def cache_expiry_time
