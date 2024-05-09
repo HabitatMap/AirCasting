@@ -93,21 +93,23 @@ const Container = styled.div`
 const NavList = styled.ul<{ $isVisible?: boolean }>`
   background: ${theme};
   list-style-type: none;
-  display: none;
+  font-weight: 500;
+  font-family: Moderat-Bold, sans-serif;
   height: 100vh;
   padding: 2rem 3.2rem;
   min-width: 35.2rem;
-  position: absolute;
+  position: fixed;
   top: 0;
-  bottom: 0;
-  right: 0;
-  z-index: 1;
+  right: ${(p) => (p.$isVisible ? "0" : "-35.2rem")};
+  z-index: 99;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
 
   ${(p) =>
     p.$isVisible &&
     css`
-      display: inline-block;
-      animation: slide-left 0.3s ease 1;
+      right: 0;
+      transition: right 0.3s ease;
     `}
 `;
 
@@ -130,14 +132,16 @@ const ListItem = styled.li<{ $isUnderline?: boolean }>`
 
 const SubNavTitleLink = styled.a`
   color: ${white};
-  font-size: 1.9rem;
+  font-size: 1.8rem;
   display: inline-block;
-  padding: 0.8rem 0;
+  padding: 0.5rem 0;
+  text-decoration: none;
+  font-weight: 600;
 `;
 
 const NavItemLink = styled(SubNavTitleLink)`
-  font-size: 1.6rem;
-  padding: 0.4rem 0 0.8rem 0;
+  font-size: 1.5rem;
+  padding: 0.5rem 0;
 `;
 
 const Link = styled(NavItemLink)`

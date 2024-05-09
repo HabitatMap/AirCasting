@@ -5,7 +5,7 @@ import logo from "../../../../assets/images/aircasting-logo-nav.svg";
 import hamburger from "../../assets/icons/hamburger.svg";
 import habitatMapLogo from "../../assets/icons/habitatMapLogo.svg";
 import iconNavClose from "../../assets/icons/iconNavClose.svg";
-import serchIcon from "../../assets/icons/searchIcon.svg";
+import searchNavbarIcon from "../../assets/icons/searchNavbarIcon.svg";
 import airbeamIcon from "../../assets/icons/airbeamIcon.svg";
 import goBackIcon from "../../assets/icons/goBackIcon.svg";
 import { urls } from "../../const/urls";
@@ -135,12 +135,15 @@ const Navbar = () => {
           <S.BottomNavContainer>
             <a href={urls.search}>
               <img
-                src={serchIcon}
+                src={searchNavbarIcon}
                 alt={t("navbar.altSearch")}
                 aria-label={t("navbar.altSearch")}
+                style={{ width: "35px" }}
               />
             </a>
-            <S.Link href={urls.donate}>{t("navbar.sections.donate")}</S.Link>
+            <S.Link href={urls.donate} style={{ fontSize: "1.3rem" }}>
+              {t("navbar.sections.donate")}
+            </S.Link>
             <S.BuyCTA href={urls.airbeamBuyNow}>
               {t("navbar.sections.getAirbeam")}
             </S.BuyCTA>
