@@ -26,14 +26,14 @@ describe 'GET api/v3/stream_daily_averages' do
       }
     ]
 
-    get "/api/v3/stream_daily_averages/#{stream.id}?start_date=#{Date.current.prev_day}&end_date=#{Date.current}"
+    get "/api/v3/stream_daily_averages?stream_id=#{stream.id}&start_date=#{Date.current.prev_day}&end_date=#{Date.current}"
 
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)).to eq(expected_response.as_json)
   end
 
-  it 'returns not_found status' do
-    get '/api/v3/stream_daily_averages/1?start_date=2021-01-01&end_date=2021-01-02'
+  it 'returns an empty array where there is no data found' do
+    get '/api/v3/stream_daily_averages?stream_id=1&start_date=2021-01-01&end_date=2021-01-02'
 
     expect(JSON.parse(response.body)).to eq([])
   end

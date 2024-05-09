@@ -101,7 +101,7 @@ Rails.application.routes.draw do
 
     namespace :v3 do
       resources :fixed_streams, only: %i[show]
-      resources :stream_daily_averages, only: %i[show]
+      resources :stream_daily_averages, only: %i[index]
       get 'flipper_enabled/:feature_key' => 'flipper#enabled?'
     end
 
