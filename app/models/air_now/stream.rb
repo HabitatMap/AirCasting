@@ -57,6 +57,7 @@ module AirNow
       :threshold_high,
       :threshold_very_high,
       :sensor_package_name,
+      :time_zone,
       keyword_init: true
     ) do
       def initialize(**kwargs)
