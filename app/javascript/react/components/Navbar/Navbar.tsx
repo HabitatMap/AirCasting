@@ -16,26 +16,23 @@ const NavItem = ({
   href,
   isNavTitle,
   isUnderline,
+  isActive,
   children,
 }: {
   href: string;
   isNavTitle?: boolean;
   isUnderline?: boolean;
+  isActive?: boolean;
   children?: ReactNode;
-}) => {
-  const location = useLocation();
-  const isActive = location.pathname === href;
-
-  return (
-    <S.ListItem $isUnderline={isUnderline} className={isActive ? "active" : ""}>
-      {isNavTitle ? (
-        <S.SubNavTitleLink href={href}>{children}</S.SubNavTitleLink>
-      ) : (
-        <S.NavItemLink href={href}>{children}</S.NavItemLink>
-      )}
-    </S.ListItem>
-  );
-};
+}) => (
+  <S.ListItem $isUnderline={isUnderline} $isActive={isActive}>
+    {isNavTitle ? (
+      <S.SubNavTitleLink href={href}>{children}</S.SubNavTitleLink>
+    ) : (
+      <S.NavItemLink href={href}>{children}</S.NavItemLink>
+    )}
+  </S.ListItem>
+);
 
 const Navbar = () => {
   const [navMenuVisible, setNavMenuVisible] = useState(false);
@@ -95,47 +92,105 @@ const Navbar = () => {
               />
             </S.Button>
           </S.NavHeader>
-          <NavItem isNavTitle href={urls.airbeam}>
+          <NavItem
+            isNavTitle
+            href={urls.airbeam}
+            isActive={window.location.pathname === urls.airbeam}
+          >
             {t("navbar.sections.airbeam")}
           </NavItem>
           <S.SubNav>
-            <NavItem href={urls.userStories}>
+            <NavItem
+              href={urls.userStories}
+              isActive={window.location.pathname === urls.userStories}
+            >
               {t("navbar.sections.userStories")}
             </NavItem>
-            <NavItem href={urls.airbeamHowItWorks}>
+            <NavItem
+              href={urls.airbeamHowItWorks}
+              isActive={window.location.pathname === urls.airbeamHowItWorks}
+            >
               {t("navbar.sections.howItWorks")}
             </NavItem>
-            <NavItem href={urls.faq}>{t("navbar.sections.faq")}</NavItem>
-            <NavItem href={urls.usersGuide}>
+            <NavItem
+              href={urls.faq}
+              isActive={window.location.pathname === urls.faq}
+            >
+              {t("navbar.sections.faq")}
+            </NavItem>
+            <NavItem
+              href={urls.usersGuide}
+              isActive={window.location.pathname === urls.usersGuide}
+            >
               {t("navbar.sections.usersGuide")}
             </NavItem>
-            <NavItem href={urls.airbeamBuyNow}>
+            <NavItem
+              href={urls.airbeamBuyNow}
+              isActive={window.location.pathname === urls.airbeamBuyNow}
+            >
               {t("navbar.sections.airbeamBuyNow")}
             </NavItem>
           </S.SubNav>
-          <NavItem isNavTitle href={urls.aircasting}>
+          <NavItem
+            isNavTitle
+            href={urls.aircasting}
+            isActive={window.location.pathname === urls.aircasting}
+          >
             {t("navbar.sections.aircasting")}
           </NavItem>
           <S.SubNav>
-            <NavItem href={urls.map}>{t("navbar.sections.maps")}</NavItem>
-            <NavItem href={urls.android}>
+            <NavItem
+              href={urls.map}
+              isActive={window.location.pathname === urls.map}
+            >
+              {t("navbar.sections.maps")}
+            </NavItem>
+            <NavItem
+              href={urls.android}
+              isActive={window.location.pathname === urls.android}
+            >
               {t("navbar.sections.androidApp")}
             </NavItem>
-            <NavItem href={urls.iOS}>{t("navbar.sections.iOSApp")}</NavItem>
-            <NavItem href={urls.actions}>
+            <NavItem
+              href={urls.iOS}
+              isActive={window.location.pathname === urls.iOS}
+            >
+              {t("navbar.sections.iOSApp")}
+            </NavItem>
+            <NavItem
+              href={urls.actions}
+              isActive={window.location.pathname === urls.actions}
+            >
               {t("navbar.sections.actions")}
             </NavItem>
           </S.SubNav>
-          <NavItem isNavTitle href={urls.about}>
+          <NavItem
+            isNavTitle
+            href={urls.about}
+            isActive={window.location.pathname === urls.about}
+          >
             {t("navbar.sections.about")}
           </NavItem>
           <S.SubNav>
-            <NavItem href={urls.history}>
+            <NavItem
+              href={urls.history}
+              isActive={window.location.pathname === urls.history}
+            >
               {t("navbar.sections.history")}
             </NavItem>
-            <NavItem href={urls.press}>{t("navbar.sections.press")}</NavItem>
+            <NavItem
+              href={urls.press}
+              isActive={window.location.pathname === urls.press}
+            >
+              {t("navbar.sections.press")}
+            </NavItem>
           </S.SubNav>
-          <NavItem isNavTitle isUnderline href={urls.blog}>
+          <NavItem
+            isNavTitle
+            isUnderline
+            href={urls.blog}
+            isActive={window.location.pathname === urls.blog}
+          >
             {t("navbar.sections.blog")}
           </NavItem>
           <S.BottomNavContainer>
@@ -147,7 +202,7 @@ const Navbar = () => {
                 style={{ width: "30px" }}
               />
             </a>
-            <S.Link href={urls.donate} style={{ fontSize: "1.3rem" }}>
+            <S.Link href={urls.donate} style={{ fontSize: "1.2rem" }}>
               {t("navbar.sections.donate")}
             </S.Link>
             <S.BuyCTAWhite href={urls.airbeamBuyNow}>

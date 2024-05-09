@@ -126,11 +126,9 @@ const NavHeader = styled.li`
   border-bottom: 1px solid ${white};
 `;
 
-const ListItem = styled.li<{ $isUnderline?: boolean }>`
+const ListItem = styled.li<{ $isUnderline?: boolean; $isActive?: boolean }>`
   border-bottom: ${(p) => (p.$isUnderline ? "1px solid white" : "none")};
-  &.active {
-    opacity: 0.5;
-  }
+  opacity: ${(p) => (p.$isActive ? "0.5" : "1")};
 `;
 
 const SubNavTitleLink = styled.a`
@@ -161,7 +159,7 @@ const BuyCTAWhite = styled(BuyCTA)`
   color: ${white};
   border-radius: 0px;
   font-weight: 600;
-  padding: 1.5rem 2rem;
+  padding: 1.8rem 2rem;
 
   &:visited,
   &:link,
