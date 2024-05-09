@@ -24,6 +24,7 @@ const selectLastDailyAverage = (
 const selectFixedStreamShortInfo = createSelector(
   [selectFixedStreamData, selectLastDailyAverage],
   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
+    console.log(fixedStreamData)
     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
     const lastMeasurementDateLabel = moment(date).format("MMM D");
     const active = fixedStreamData.stream.active;
