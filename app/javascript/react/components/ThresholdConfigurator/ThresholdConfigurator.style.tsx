@@ -66,7 +66,7 @@ const RangeInput = styled.input<{
     appearance: none;
     width: 16px;
     height: 16px;
-    background: #fff;
+    background: ${colors.white};
     border: 2px solid ${colors.gray300};
     border-radius: 50%;
     cursor: pointer;

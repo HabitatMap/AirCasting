@@ -32,6 +32,7 @@ const ThresholdsConfigurator = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const [resizeTrigger, setResizeTrigger] = useState(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -51,8 +52,7 @@ const ThresholdsConfigurator = () => {
     updateSliderWidth();
 
     const handleResize = () => {
-      updateSliderWidth();
-      updateThumbPositions();
+      setTimeout(updateSliderWidth, 100);
     };
 
     window.addEventListener("resize", handleResize);
@@ -64,9 +64,11 @@ const ThresholdsConfigurator = () => {
 
   useEffect(() => {
     updateThumbPositions();
+    console.log(sliderWidth, "sliderWidth");
   }, [thresholdValues, sliderWidth]);
 
   const updateThumbPositions = () => {
+    console.log(thresholdValues, "thresholdValues");
     if (sliderRef.current) {
       const { min, low, middle, high, max } = thresholdValues;
       const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
