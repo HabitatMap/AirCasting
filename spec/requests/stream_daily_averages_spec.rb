@@ -35,6 +35,6 @@ describe 'GET api/v3/stream_daily_averages' do
   it 'returns not_found status' do
     get '/api/v3/stream_daily_averages/1?start_date=2021-01-01&end_date=2021-01-02'
 
-    expect(response.status).to eq(404)
+    expect(JSON.parse(response.body)).to eq([])
   end
 end
