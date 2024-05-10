@@ -8,6 +8,7 @@ module AirNow
       :longitude,
       :time_local,
       :time_with_time_zone,
+      :time_zone,
       :value,
       keyword_init: true
     ) do
@@ -16,6 +17,7 @@ module AirNow
           latitude: latitude,
           longitude: longitude,
           sensor_name: sensor_name,
+          time_zone: time_zone,
         )
       end
     end

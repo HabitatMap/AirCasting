@@ -58,6 +58,7 @@ class SaveMeasurements
           longitude: stream.longitude,
           uuid: uuid,
           url_token: uuid,
+          time_zone: stream.time_zone,
         )
       end
     import = FixedSession.import sessions_to_create

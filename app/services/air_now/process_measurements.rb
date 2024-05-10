@@ -45,6 +45,7 @@ class AirNow::ProcessMeasurements
       time_local: time_local,
       time_with_time_zone: time_with_time_zone,
       title: sanitize(measurement[:location]),
+      time_zone: time_zone,
     )
   end
 
