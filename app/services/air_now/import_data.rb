@@ -26,8 +26,7 @@ class AirNow::ImportData
   end
 
   def hourly_data_endpoint(utc_time)
-    formatted_date = utc_time.strftime('%Y%m%d')
-    formatted_hour = utc_time.strftime('%H')
-    "https://s3-us-west-1.amazonaws.com//files.airnowtech.org/airnow/today/HourlyData_#{formatted_date}#{formatted_hour}.dat"
+    formatted_time = utc_time.strftime('%Y%m%d%H')
+    "https://s3-us-west-1.amazonaws.com//files.airnowtech.org/airnow/today/HourlyData_#{formatted_time}.dat"
   end
 end

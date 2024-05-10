@@ -34,14 +34,8 @@ class SaveMeasurements
         )
       end
 
-    pairs_without_session_duplicates = pairs_to_create.uniq do |stream, measurements|
-      first = measurements.first
-
-      "#{stream.latitude}-#{stream.longitude}-#{first.title}"
-    end
-
     sessions_to_create =
-      pairs_without_session_duplicates.map do |stream, measurements|
+      pairs_to_create.map do |stream, measurements|
         uuid = SecureRandom.uuid
         first = measurements.first
         last = measurements.last
