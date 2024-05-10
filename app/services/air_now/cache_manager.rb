@@ -44,7 +44,7 @@ class AirNow::CacheManager
   end
 
   def subtract_already_saved_data(hourly_data, saved_measurements)
-    hourly_data_lines(hourly_data).reject { |line| saved_measurements.include?(line) }
+    measurements_array(hourly_data).reject { |line| saved_measurements.include?(line) }
   end
 
   def cache_expiry_time
