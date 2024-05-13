@@ -67,8 +67,10 @@ export const useThresholdHandlers = (
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
       return;
     }
-
-    setInputValue(trimmedValue);
+    if (activeInput === thresholdKey) {
+      setInputValue(trimmedValue);
+    }
+    // setInputValue(trimmedValue);
 
     const parsedValue = Number(trimmedValue);
 
@@ -102,7 +104,7 @@ export const useThresholdHandlers = (
             thresholdKey,
             parsedValue,
             setThresholdValues,
-            thresholdValues
+            thresholdValues,
           );
         }
       }
@@ -133,18 +135,6 @@ export const useThresholdHandlers = (
     inputDebounceTime
   );
 
-  // const handleInputBlur = (thresholdKey: keyof Thresholds, value: string) => {
-  //   const trimmedValue = value.trim();
-  //   if (trimmedValue === "") {
-  //     setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
-  //     return;
-  //   }
-
-  //   debouncedHandleInputChange(thresholdKey, trimmedValue);
-  // };
-
-
-
   const handleInputBlur = (thresholdKey: keyof Thresholds, value: string) => {
     const trimmedValue = value.trim();
     if (trimmedValue === "") {
@@ -152,11 +142,13 @@ export const useThresholdHandlers = (
       return;
     }
 
-    // Only update the threshold value if the input is currently active
-    if (activeInput === thresholdKey) {
-      debouncedHandleInputChange(thresholdKey, trimmedValue);
-    }
+    debouncedHandleInputChange(thresholdKey, trimmedValue);
   };
+
+  // const handleInputFocus = (thresholdKey: keyof Thresholds) => {
+  //   setInputValue(thresholdValues[thresholdKey].toString());
+  //   setActiveInput(thresholdKey);
+  // };
 
   const handleInputFocus = (inputKey: keyof Thresholds, value: string) => {
     if (activeInput !== inputKey) {

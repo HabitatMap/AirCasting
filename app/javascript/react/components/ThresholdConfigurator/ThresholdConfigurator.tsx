@@ -186,14 +186,16 @@ const ThresholdsConfigurator = () => {
                           : "auto",
                     }}
                     onChange={(e) => setInputValue(e.target.value)}
-                    onTouchStart={handleTouchStart(
-                      thresholdKey,
-                      thresholdValues,
-                      sliderWidth,
-                      setThresholdValues,
-                      setInputValue,
-                      setErrorMessage
-                    )}
+                    onTouchStart={(event: React.TouchEvent<HTMLInputElement>) =>
+                      handleTouchStart(
+                        thresholdKey,
+                        thresholdValues,
+                        sliderWidth,
+                        setThresholdValues,
+                        setInputValue,
+                        setErrorMessage
+                      )
+                    }
                     onMouseDown={handleMouseDown(
                       thresholdKey,
                       thresholdValues,
