@@ -4,12 +4,12 @@ class AirNow::ImportData
   end
 
   def call
-    current_utc = DateTime.now.new_offset(0).beginning_of_hour - 1.hour
+    current_utc = Time.current.beginning_of_hour - 1.hour
 
     hourly_data = []
 
-    (current_utc - 24.hours).step(current_utc, 1/24.0).each do |utc_time|
-      hourly_data << http_client.get(hourly_data_endpoint(utc_time))
+    24.times do |hour_offset|
+      hourly_data << http_client.get(hourly_data_endpoint(current_utc - hour_offset.hours))
     end
 
     locations_data = http_client.get(locations_endpoint)

@@ -141,10 +141,7 @@ class SaveMeasurements
     created_sessions = Session.where(id: session_ids)
 
     new_streams =
-      pairs_to_create.map do |stream, measurements|
-        session = created_sessions
-          .where(latitude: stream.latitude, longitude: stream.longitude).first
-
+      pairs_to_create.map.with_index do |(stream, measurements), i|
         Stream.new(
           sensor_name: stream.sensor_name,
           unit_name: stream.unit_name,
@@ -163,7 +160,7 @@ class SaveMeasurements
           max_longitude: stream.longitude,
           start_latitude: stream.latitude,
           start_longitude: stream.longitude,
-          session_id: session.id,
+          session_id: session_ids[i],
           measurements_count: measurements.size,
           average_value: measurements.last.value,
         )
