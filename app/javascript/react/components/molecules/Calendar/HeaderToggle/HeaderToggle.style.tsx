@@ -8,7 +8,9 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   padding-bottom: 20px;
-  justify-content: space-between;
+  @media ${media.smallDesktop} {
+    justify-content: space-between;
+  }
 `;
 
 const RotatedIcon = styled.img<{ rotated: boolean }>`

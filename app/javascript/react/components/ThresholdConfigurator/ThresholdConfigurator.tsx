@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 import { Thresholds } from "../../types/thresholds";
 import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
-import { screenSizes } from "../../utils/media";
+
 import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
 import {
   handleMouseDown,
@@ -32,7 +32,6 @@ const ThresholdsConfigurator = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState("");
-  const [resizeTrigger, setResizeTrigger] = useState(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -64,11 +63,15 @@ const ThresholdsConfigurator = () => {
 
   useEffect(() => {
     updateThumbPositions();
-    console.log(sliderWidth, "sliderWidth");
   }, [thresholdValues, sliderWidth]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setErrorMessage("");
+    }, 4000);
+  });
+
   const updateThumbPositions = () => {
-    console.log(thresholdValues, "thresholdValues");
     if (sliderRef.current) {
       const { min, low, middle, high, max } = thresholdValues;
       const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);

@@ -1,4 +1,3 @@
-import { min } from "moment";
 import { Thresholds } from "../types/thresholds";
 
 const minThresholdDifference = 1;
@@ -12,98 +11,42 @@ export const updateAdjacentThresholds = (
 ) => {
   switch (thresholdKey) {
     case "low":
-      if (
-        newValue >= thresholdValues.middle &&
-        thresholdValues.middle !== thresholdValues.max
-      ) {
+      // Update middle and high thresholds only if newValue is less than the max
+      if (newValue < thresholdValues.max) {
         setThresholdValues((prevValues) => ({
           ...prevValues,
-          middle: Math.min(newValue + minThresholdDifference, thresholdValues.max),
-        }));
-      }
-      if (
-        newValue >= thresholdValues.high &&
-        thresholdValues.high !== thresholdValues.max
-      ) {
-        setThresholdValues((prevValues) => ({
-          ...prevValues,
-          high: Math.min(newValue + maxThresholdDifference, thresholdValues.max),
+          middle: Math.min(newValue + minThresholdDifference, thresholdValues.middle),
+          high: Math.min(newValue + maxThresholdDifference, thresholdValues.high),
         }));
       }
       break;
     case "middle":
-      if (
-        newValue <= thresholdValues.low &&
-        thresholdValues.low !== thresholdValues.min
-      ) {
+      // Update low and high thresholds only if newValue is greater than the min and less than the max
+      if (newValue > thresholdValues.min && newValue < thresholdValues.max) {
         setThresholdValues((prevValues) => ({
           ...prevValues,
-          low: Math.max(newValue - minThresholdDifference, thresholdValues.min),
-        }));
-      }
-      if (
-        newValue > thresholdValues.high &&
-        thresholdValues.high !== thresholdValues.max
-      ) {
-        setThresholdValues((prevValues) => ({
-          ...prevValues,
-          high: Math.min(newValue + minThresholdDifference, thresholdValues.max),
+          low: Math.max(newValue - minThresholdDifference, thresholdValues.low),
+          high: Math.min(newValue + minThresholdDifference, thresholdValues.high),
         }));
       }
       break;
-      case "high":
-        if (
-          newValue <= thresholdValues.middle &&
-          thresholdValues.middle !== thresholdValues.min
-        ) {
-          setThresholdValues((prevValues) => ({
-            ...prevValues,
-            middle: Math.max(newValue - minThresholdDifference, thresholdValues.min),
-          }));
-        }
-        if (
-          newValue <= thresholdValues.low &&
-          thresholdValues.low !== thresholdValues.min
-        ) {
-          setThresholdValues((prevValues) => ({
-            ...prevValues,
-            low: Math.max(newValue - maxThresholdDifference, thresholdValues.min),
-          }));
-        }
-        if (newValue >= thresholdValues.max) {
-          setThresholdValues((prevValues) => ({
-            ...prevValues,
-            max: newValue,
-            high: newValue - minThresholdDifference,
-          }));
-        }
-        break;
-
+    case "high":
+      // Update low and middle thresholds only if newValue is greater than the min
+      if (newValue > thresholdValues.min) {
+        setThresholdValues((prevValues) => ({
+          ...prevValues,
+          low: Math.max(newValue - maxThresholdDifference, thresholdValues.low),
+          middle: Math.max(newValue - minThresholdDifference, thresholdValues.middle),
+        }));
+      }
+      break;
     case "max":
-      if (
-        newValue < thresholdValues.low &&
-        thresholdValues.low !== thresholdValues.min
-      ) {
+      // Update low, middle, and high thresholds if newValue is less than the current value
+      if (newValue < thresholdValues.low) {
         setThresholdValues((prevValues) => ({
           ...prevValues,
           low: newValue,
-        }));
-      }
-      if (
-        newValue < thresholdValues.middle &&
-        thresholdValues.middle !== thresholdValues.min
-      ) {
-        setThresholdValues((prevValues) => ({
-          ...prevValues,
           middle: newValue,
-        }));
-      }
-      if (
-        newValue < thresholdValues.high &&
-        thresholdValues.high !== thresholdValues.min
-      ) {
-        setThresholdValues((prevValues) => ({
-          ...prevValues,
           high: newValue,
         }));
       }

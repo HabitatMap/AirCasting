@@ -126,9 +126,10 @@ export const handleTouchMove = (
   thresholdValues: Thresholds,
   sliderWidth: number,
   setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
-  setInputValue: React.Dispatch<React.SetStateAction<string>>
+  setInputValue: React.Dispatch<React.SetStateAction<string>>,
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) => (moveEvent: TouchEvent) => {
-  moveEvent.preventDefault();
+  moveEvent.preventDefault(); // Prevent default touch event behavior
 
   const touch = moveEvent.touches[0];
 
@@ -183,6 +184,7 @@ export const handleTouchStart = (
   setInputValue: React.Dispatch<React.SetStateAction<string>>,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) => (event: React.TouchEvent<HTMLInputElement>) => {
+  event.preventDefault(); // Prevent default touch event behavior
 
   setErrorMessage("");
 
@@ -193,9 +195,10 @@ export const handleTouchStart = (
     startX,
     startValue,
     thresholdValues,
-  sliderWidth,
+    sliderWidth,
     setThresholdValues,
-    setInputValue
+    setInputValue,
+    setErrorMessage
   );
 
   setInputValue(startValue.toString());
