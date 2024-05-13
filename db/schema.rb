@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_03_095648) do
+ActiveRecord::Schema.define(version: 2024_05_13_144147) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -42,6 +42,16 @@ ActiveRecord::Schema.define(version: 2024_04_03_095648) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "default_thresholds", force: :cascade do |t|
+    t.integer "stream_id"
+    t.string "unit_symbol"
+    t.float "threshold_very_low"
+    t.float "threshold_low"
+    t.float "threshold_medium"
+    t.float "threshold_high"
+    t.float "threshold_very_high"
   end
 
   create_table "deleted_sessions", id: :serial, force: :cascade do |t|
