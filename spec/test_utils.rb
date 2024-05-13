@@ -193,22 +193,37 @@ def build_open_aq_stream(opts = {})
 end
 
 def build_air_now_stream(opts = {})
+  lat, lon, time_zone = latitude_longitude_time_zone(opts)
+
   AirNow::Stream.new(
     sensor_name: opts.fetch(:sensor_name),
-    latitude: random_big_decimal.to_f,
-    longitude: random_big_decimal.to_f,
+    latitude: lat,
+    longitude: lon,
+    time_zone: time_zone,
   )
 end
 
 def build_air_now_measurement(opts = {})
+  lat, lon, time_zone = latitude_longitude_time_zone(opts)
+
   AirNow::Measurement.new(
     sensor_name: opts.fetch(:sensor_name, 'PM2.5'),
     value: opts.fetch(:value, random_float),
-    latitude: opts.fetch(:latitude, random_big_decimal),
-    longitude: opts.fetch(:longitude, random_big_decimal),
+    latitude: lat,
+    longitude: lon,
     time_local: opts.fetch(:time_local, Time.current).change(usec: 0),
     time_with_time_zone:
       opts.fetch(:time_with_time_zone, Time.current).change(usec: 0),
     location: opts.fetch(:location, random_string),
+    time_zone: time_zone,
   )
+end
+
+def latitude_longitude_time_zone(opts = {})
+  lat = opts.fetch(:latitude, random_big_decimal.to_f)
+  lon = opts.fetch(:longitude, random_big_decimal.to_f)
+  time_zone = TimeZoneBuilder.new.call(lat, lon)
+  time_zone = time_zone ? time_zone : 'UTC'
+
+  [lat, lon, time_zone]
 end

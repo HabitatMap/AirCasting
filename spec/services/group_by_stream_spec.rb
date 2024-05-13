@@ -11,12 +11,14 @@ describe GroupByStream do
       AirNow::Stream.new(
         latitude: measurement1.latitude,
         longitude: measurement1.longitude,
-        sensor_name: measurement1.sensor_name
+        sensor_name: measurement1.sensor_name,
+        time_zone: measurement1.time_zone
       ) => [measurement1],
       AirNow::Stream.new(
         latitude: measurement2.latitude,
         longitude: measurement2.longitude,
-        sensor_name: measurement2.sensor_name
+        sensor_name: measurement2.sensor_name,
+        time_zone: measurement2.time_zone
       ) => [measurement2]
     }
     expect(actual).to eq(expected)
@@ -39,7 +41,8 @@ describe GroupByStream do
       AirNow::Stream.new(
         latitude: measurement2.latitude,
         longitude: measurement2.longitude,
-        sensor_name: measurement2.sensor_name
+        sensor_name: measurement2.sensor_name,
+        time_zone: measurement2.time_zone
       ) => [measurement2, measurement1]
     }
     expect(actual).to eq(expected)
