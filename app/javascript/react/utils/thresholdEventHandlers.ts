@@ -1,6 +1,6 @@
 import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
+import { SetStateAction, useEffect } from "react";
 
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 import { KeyboardKeys } from "../types/keyboardKeys";
@@ -49,6 +49,9 @@ export const useThresholdHandlers = (
     }
   }, [activeInput, thresholdValues]);
 
+
+
+
   const clearErrorAndUpdateThreshold = (
     thresholdKey: string,
     parsedValue: number
@@ -67,10 +70,7 @@ export const useThresholdHandlers = (
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
       return;
     }
-    if (activeInput === thresholdKey) {
-      setInputValue(trimmedValue);
-    }
-    // setInputValue(trimmedValue);
+    setInputValue(trimmedValue);
 
     const parsedValue = Number(trimmedValue);
 
@@ -130,31 +130,19 @@ export const useThresholdHandlers = (
     }
   };
 
-  const debouncedHandleInputChange = debounce(
-    handleInputChange,
-    inputDebounceTime
-  );
+  const debouncedHandleInputChange = debounce(handleInputChange, inputDebounceTime);
 
   const handleInputBlur = (thresholdKey: keyof Thresholds, value: string) => {
-    const trimmedValue = value.trim();
-    if (trimmedValue === "") {
-      setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
-      return;
-    }
-
-    debouncedHandleInputChange(thresholdKey, trimmedValue);
+    debouncedHandleInputChange.cancel();
   };
 
-  // const handleInputFocus = (thresholdKey: keyof Thresholds) => {
-  //   setInputValue(thresholdValues[thresholdKey].toString());
-  //   setActiveInput(thresholdKey);
-  // };
+  const handleInputFocus = (thresholdKey: keyof Thresholds) => {
 
-  const handleInputFocus = (inputKey: keyof Thresholds, value: string) => {
-    if (activeInput !== inputKey) {
-      setActiveInput(inputKey);
-      setInputValue(value);
-    }
+    debouncedHandleInputChange.cancel();
+    setInputValue(thresholdValues[thresholdKey].toString());
+    setActiveInput(thresholdKey);
+
+
   };
 
   const handleOutsideClick = (event: MouseEvent) => {
@@ -164,6 +152,7 @@ export const useThresholdHandlers = (
       activeInput !== null
     ) {
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
+      setActiveInput(null);
     }
   };
 
@@ -196,8 +185,13 @@ export const useThresholdHandlers = (
     setActiveInput(null);
   };
 
+  const onInputChange = (thresholdKey: keyof Thresholds, value: string) => {
+    setInputValue(value);  // Update input value immediately for responsive UI
+    handleInputChange(thresholdKey, value);  // Debounce state update
+  };
+
   return {
-    handleInputChange,
+    handleInputChange: onInputChange,
     handleInputBlur,
     handleInputFocus,
     handleInputKeyDown,
