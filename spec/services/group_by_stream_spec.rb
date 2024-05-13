@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe GroupByStream do
   it 'groups measurements by stream' do
-    measurement1 = build_air_now_measurement
-    measurement2 = build_air_now_measurement
+    measurement1 = build_air_now_measurement(latitude: 13.705488, longitude: 100.315622)
+    measurement2 = build_air_now_measurement(latitude: 13.800000, longitude: 100.400000)
 
     actual = subject.call(measurements: [measurement1, measurement2])
 

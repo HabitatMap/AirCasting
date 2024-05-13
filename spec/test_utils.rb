@@ -220,8 +220,8 @@ def build_air_now_measurement(opts = {})
 end
 
 def latitude_longitude_time_zone(opts = {})
-  lat = opts.fetch(:latitude, random_big_decimal.to_f)
-  lon = opts.fetch(:longitude, random_big_decimal.to_f)
+  lat = opts.fetch(:latitude, 13.705488)
+  lon = opts.fetch(:longitude, 100.315622)
   time_zone = TimeZoneBuilder.new.call(lat, lon)
   time_zone = time_zone ? time_zone : 'UTC'
 
