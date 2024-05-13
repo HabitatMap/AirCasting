@@ -223,7 +223,6 @@ def latitude_longitude_time_zone(opts = {})
   lat = opts.fetch(:latitude, 13.705488)
   lon = opts.fetch(:longitude, 100.315622)
   time_zone = TimeZoneBuilder.new.call(lat, lon)
-  time_zone = time_zone ? time_zone : 'UTC'
 
   [lat, lon, time_zone]
 end
