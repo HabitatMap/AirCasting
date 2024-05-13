@@ -133,12 +133,13 @@ export const useThresholdHandlers = (
   const debouncedHandleInputChange = debounce(handleInputChange, inputDebounceTime);
 
   const handleInputBlur = (thresholdKey: keyof Thresholds, value: string) => {
-    debouncedHandleInputChange.cancel();
+    debouncedHandleInputChange.flush();
   };
 
   const handleInputFocus = (thresholdKey: keyof Thresholds) => {
-
+    setInputValue('')
     debouncedHandleInputChange.cancel();
+
     setInputValue(thresholdValues[thresholdKey].toString());
     setActiveInput(thresholdKey);
 

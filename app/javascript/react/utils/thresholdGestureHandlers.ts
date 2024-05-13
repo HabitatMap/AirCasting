@@ -154,6 +154,10 @@ export const handleMouseDown = (
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) => (event: { clientX: any; }) => {
 
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+
   setErrorMessage("");
 
   const startX = event.clientX;
@@ -183,7 +187,9 @@ export const handleTouchStart = (
   setInputValue: React.Dispatch<React.SetStateAction<string>>,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) => (event: { touches: { clientX: any; }[]; }) => {
-
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
   setErrorMessage("");
 
   const startX = event.touches[0].clientX;
