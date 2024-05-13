@@ -129,7 +129,7 @@ export const handleTouchMove = (
   setInputValue: React.Dispatch<React.SetStateAction<string>>,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) => (moveEvent: TouchEvent) => {
-  moveEvent.preventDefault(); // Prevent default touch event behavior
+  moveEvent.preventDefault();
 
   const touch = moveEvent.touches[0];
 
@@ -184,7 +184,7 @@ export const handleTouchStart = (
   setInputValue: React.Dispatch<React.SetStateAction<string>>,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) => (event: React.TouchEvent<HTMLInputElement>) => {
-  event.preventDefault(); // Prevent default touch event behavior
+  event.preventDefault();
 
   setErrorMessage("");
 

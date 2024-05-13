@@ -154,11 +154,12 @@ const ThresholdsConfigurator = () => {
                   <S.NumberInput
                     inputMode="numeric"
                     type="number"
-                    value={
-                      activeInput === thresholdKey
-                        ? inputValue
-                        : value.toString()
-                    }
+                    // value={
+                    //   activeInput === thresholdKey
+                    //     ? inputValue
+                    //     : value.toString()
+                    // }
+                    value={value.toString()}
                     onFocus={() => handleInputFocus(thresholdKey)}
                     onBlur={() => handleInputBlur(thresholdKey, inputValue)}
                     $hasError={errorMessage !== ""}

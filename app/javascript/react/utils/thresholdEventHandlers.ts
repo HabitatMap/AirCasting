@@ -148,6 +148,8 @@ export const useThresholdHandlers = (
     setActiveInput(thresholdKey);
   };
 
+
+
   const handleOutsideClick = (event: MouseEvent) => {
     if (
       sliderRef.current &&
