@@ -23,4 +23,40 @@ describe MeasurementsRepository do
       expect(result.size).to eq(1440)
     end
   end
+
+  describe '#stream_daily_average_value' do
+    it 'returns avarage value of measurements for given stream and day' do
+      stream = create_stream!
+      beginning_of_day = Time.current.prev_day.beginning_of_day
+      measurement_1 =
+        create_measurement!(
+          { stream: stream, time_with_time_zone: beginning_of_day, value: 10 },
+        )
+      measurement_2 =
+        create_measurement!(
+          {
+            stream: stream,
+            time_with_time_zone: beginning_of_day + 1.hour,
+            value: 6,
+          },
+        )
+      create_measurement!(
+        {
+          stream: stream,
+          time_with_time_zone: beginning_of_day - 1.hour,
+          value: 50,
+        },
+      )
+      create_measurement!(time_with_time_zone: beginning_of_day)
+      expected_value = (measurement_1.value + measurement_2.value) / 2
+
+      result =
+        subject.stream_daily_average_value(
+          stream_id: stream.id,
+          beginning_of_day: beginning_of_day,
+        )
+
+      expect(result).to eq(expected_value)
+    end
+  end
 end
