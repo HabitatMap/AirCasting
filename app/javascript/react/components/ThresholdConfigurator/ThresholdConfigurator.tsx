@@ -131,7 +131,7 @@ const ThresholdsConfigurator = () => {
                 inputMode="numeric"
                 type="number"
                 value={activeInput === "min" ? inputValue : min.toString()}
-                onFocus={() => handleInputFocus("min")}
+                onFocus={() => handleInputFocus("min", min.toString())}
                 onBlur={() => handleInputBlur("min", inputValue)}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleInputKeyDown("min")}
@@ -154,13 +154,14 @@ const ThresholdsConfigurator = () => {
                   <S.NumberInput
                     inputMode="numeric"
                     type="number"
-                    // value={
-                    //   activeInput === thresholdKey
-                    //     ? inputValue
-                    //     : value.toString()
-                    // }
-                    value={value.toString()}
-                    onFocus={() => handleInputFocus(thresholdKey)}
+                    value={
+                      activeInput === thresholdKey
+                        ? inputValue
+                        : value.toString()
+                    }
+                    onFocus={() =>
+                      handleInputFocus(thresholdKey, value.toString())
+                    }
                     onBlur={() => handleInputBlur(thresholdKey, inputValue)}
                     $hasError={errorMessage !== ""}
                     $isActive={activeInput === thresholdKey}
@@ -211,7 +212,7 @@ const ThresholdsConfigurator = () => {
                 step={1}
                 $isLast
                 value={activeInput === "max" ? inputValue : max.toString()}
-                onFocus={() => handleInputFocus("max")}
+                onFocus={() => handleInputFocus("max", max.toString())}
                 onBlur={() => handleInputBlur("max", inputValue)}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleInputKeyDown("max")}

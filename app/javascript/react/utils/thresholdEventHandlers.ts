@@ -143,12 +143,17 @@ export const useThresholdHandlers = (
     debouncedHandleInputChange(thresholdKey, trimmedValue);
   };
 
-  const handleInputFocus = (thresholdKey: keyof Thresholds) => {
-    setInputValue(thresholdValues[thresholdKey].toString());
-    setActiveInput(thresholdKey);
+  // const handleInputFocus = (thresholdKey: keyof Thresholds) => {
+  //   setInputValue(thresholdValues[thresholdKey].toString());
+  //   setActiveInput(thresholdKey);
+  // };
+
+  const handleInputFocus = (inputKey: keyof Thresholds, value: string) => {
+    if (activeInput !== inputKey) {
+      setActiveInput(inputKey);
+      setInputValue(value);
+    }
   };
-
-
 
   const handleOutsideClick = (event: MouseEvent) => {
     if (
