@@ -131,6 +131,9 @@ export const handleTouchMove = (
 ) => (moveEvent: TouchEvent) => {
 
   const touch = moveEvent.touches[0];
+  const clientX = touch.clientX;
+
+  setInputValue(clientX.toString());
 
   handleMouseMove(
     thresholdKey,
@@ -194,6 +197,8 @@ export const handleTouchStart = (
 
   const startX = event.touches[0].clientX;
   const startValue = thresholdValues[thresholdKey];
+
+  setInputValue(startX.toString());
   const moveHandler = handleTouchMove(
     thresholdKey,
     startX,
