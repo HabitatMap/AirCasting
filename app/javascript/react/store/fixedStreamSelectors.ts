@@ -24,14 +24,11 @@ const selectLastDailyAverage = (
 const selectFixedStreamShortInfo = createSelector(
   [selectFixedStreamData, selectLastDailyAverage],
   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
-    console.log(fixedStreamData)
     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
     const lastMeasurementDateLabel = moment(date).format("MMM D");
+    const lastUpdate = moment(fixedStreamData.stream.lastUpdate).local().format("HH:mm MMM D YYYY");
     const active = fixedStreamData.stream.active;
-    const sessionId = fixedStreamData.stream.sessionId;
-    const lastUpdate = moment(fixedStreamData.stream.lastUpdate)
-      .local()
-      .format("HH:mm MMM D YYYY");
+    const { min, low, middle, high, max } = fixedStreamData.stream;
 
     return {
       ...fixedStreamData.stream,
@@ -39,7 +36,11 @@ const selectFixedStreamShortInfo = createSelector(
       lastMeasurementDateLabel,
       lastUpdate,
       active,
-      sessionId,
+      min,
+      low,
+      middle,
+      high,
+      max,
     };
   }
 );

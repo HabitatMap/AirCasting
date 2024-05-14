@@ -5,8 +5,9 @@ import { useEffect } from "react";
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { resetToInitialValues } from "../store/thresholdSlice";
-import { initialState } from "../store/thresholdSlice";
 import { useAppDispatch } from "../store/hooks";
+import { useSelector } from "react-redux";
+import { selectFixedStreamShortInfo } from "../store/fixedStreamSelectors";
 
 interface Thresholds {
   min: number;
@@ -24,12 +25,18 @@ export const useThresholdHandlers = (
   thresholdValues: Thresholds,
   sliderRef: React.RefObject<HTMLDivElement>,
   activeInput: keyof Thresholds | null,
-  inputValue: string,
+  inputValue: string
 ) => {
   const inputDebounceTime = 300;
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-
+  const {
+    min: initialMin,
+    low: initialLow,
+    middle: initialMiddle,
+    high: initialHigh,
+    max: initialMax,
+  } = useSelector(selectFixedStreamShortInfo);
   const isValueValid = (
     newValue: number,
     min: number,
@@ -48,9 +55,6 @@ export const useThresholdHandlers = (
       setInputValue(thresholdValues[activeInput].toString());
     }
   }, [activeInput, thresholdValues]);
-
-
-
 
   const clearErrorAndUpdateThreshold = (
     thresholdKey: string,
@@ -104,7 +108,7 @@ export const useThresholdHandlers = (
             thresholdKey,
             parsedValue,
             setThresholdValues,
-            thresholdValues,
+            thresholdValues
           );
         }
       }
@@ -130,20 +134,25 @@ export const useThresholdHandlers = (
     }
   };
 
-  const debouncedHandleInputChange = debounce(handleInputChange, inputDebounceTime);
+  const debouncedHandleInputChange = debounce(
+    handleInputChange,
+    inputDebounceTime
+  );
 
-    const handleInputBlur = (thresholdKey: keyof Thresholds, inputValue: string) => {
-      debouncedHandleInputChange.cancel();
-      handleInputChange(thresholdKey, inputValue);
-    };
-
+  const handleInputBlur = (
+    thresholdKey: keyof Thresholds,
+    inputValue: string
+  ) => {
+    debouncedHandleInputChange.flush();
+    setActiveInput(null);
+    handleInputChange(thresholdKey, inputValue);
+  };
 
   const handleInputFocus = (thresholdKey: keyof Thresholds) => {
     setInputValue(thresholdValues[thresholdKey].toString());
     setActiveInput(thresholdKey);
 
     debouncedHandleInputChange.cancel();
-
   };
 
   const handleOutsideClick = (event: MouseEvent) => {
@@ -179,8 +188,16 @@ export const useThresholdHandlers = (
 
   const resetThresholds = () => {
     debouncedHandleInputChange.cancel();
+
+    const initialThresholdsValues = {
+      min: initialMin,
+      low: initialLow,
+      middle: initialMiddle,
+      high: initialHigh,
+      max: initialMax,
+    };
     dispatch(resetToInitialValues());
-    setThresholdValues(initialState);
+    setThresholdValues(initialThresholdsValues);
     setInputValue("");
     setActiveInput(null);
   };

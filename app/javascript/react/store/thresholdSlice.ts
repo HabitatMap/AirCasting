@@ -8,10 +8,10 @@ interface ThresholdState extends Thresholds {}
 
 export const initialState: ThresholdState = {
   min: 0,
-  low: 30,
-  middle: 50,
-  high: 80,
-  max: 120,
+  low: 0,
+  middle: 0,
+  high:0,
+  max: 0,
 };
 
 export const thresholdSlice = createSlice({

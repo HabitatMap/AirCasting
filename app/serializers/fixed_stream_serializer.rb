@@ -23,11 +23,11 @@ class FixedStreamSerializer
       last_update: stream.session.last_measurement_at,
       start_time: stream.session.start_time_local,
       end_time: stream.session.end_time_local,
-      min: 20,
+      min: 0,
       low: 20,
-      middle: 20,
-      high: 20,
-      max: 20,
+      middle: 40,
+      high: 60,
+      max: 100,
     }
   end
 
