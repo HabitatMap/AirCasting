@@ -77,7 +77,6 @@ export const fixedStreamSlice = createSlice({
         if (stream && measurements && streamDailyAverages) {
           state.data = { stream, measurements, streamDailyAverages };
         }
-        state.data = dumpData.data;
       }
     );
     builder.addCase(
