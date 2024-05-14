@@ -19,6 +19,9 @@ interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   endTime: string;
   min: number,
   low: number;
+  middle: number;
+  high: number;
+  max: number;
 }
 
 interface Measurement {
