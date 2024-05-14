@@ -126,11 +126,14 @@ export const handleTouchMove = (
   thresholdValues: Thresholds,
   sliderWidth: number,
   setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
-  setInputValue: React.Dispatch<React.SetStateAction<string>>
+  setInputValue: React.Dispatch<React.SetStateAction<string>>,
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) => (moveEvent: TouchEvent) => {
-  moveEvent.preventDefault();
 
   const touch = moveEvent.touches[0];
+  const clientX = touch.clientX;
+
+  setInputValue(clientX.toString());
 
   handleMouseMove(
     thresholdKey,
@@ -152,7 +155,11 @@ export const handleMouseDown = (
   setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
   setInputValue: React.Dispatch<React.SetStateAction<string>>,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
-) => (event: React.MouseEvent<HTMLInputElement>) => {
+) => (event: { clientX: any; }) => {
+
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
 
   setErrorMessage("");
 
@@ -182,20 +189,25 @@ export const handleTouchStart = (
   setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
   setInputValue: React.Dispatch<React.SetStateAction<string>>,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
-) => (event: React.TouchEvent<HTMLInputElement>) => {
-
+) => (event: { touches: { clientX: any; }[]; }) => {
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
   setErrorMessage("");
 
   const startX = event.touches[0].clientX;
   const startValue = thresholdValues[thresholdKey];
+
+  setInputValue(startX.toString());
   const moveHandler = handleTouchMove(
     thresholdKey,
     startX,
     startValue,
     thresholdValues,
-  sliderWidth,
+    sliderWidth,
     setThresholdValues,
-    setInputValue
+    setInputValue,
+    setErrorMessage
   );
 
   setInputValue(startValue.toString());

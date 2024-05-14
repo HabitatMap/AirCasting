@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 import { Thresholds } from "../../types/thresholds";
 import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
-import { screenSizes } from "../../utils/media";
+
 import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
 import {
   handleMouseDown,
@@ -29,9 +29,6 @@ const ThresholdsConfigurator = () => {
   const [sliderWidth, setSliderWidth] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
-  const [isMobile, setIsMobile] = useState(
-    window.innerWidth < screenSizes.mobile
-  );
   const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState("");
@@ -45,8 +42,16 @@ const ThresholdsConfigurator = () => {
   }, [thresholdValues]);
 
   useEffect(() => {
+    const updateSliderWidth = () => {
+      if (sliderRef.current) {
+        setSliderWidth(sliderRef.current.offsetWidth);
+      }
+    };
+
+    updateSliderWidth();
+
     const handleResize = () => {
-      setIsMobile(window.innerWidth < screenSizes.mobile);
+      setTimeout(updateSliderWidth, 100);
     };
 
     window.addEventListener("resize", handleResize);
@@ -57,16 +62,29 @@ const ThresholdsConfigurator = () => {
   }, []);
 
   useEffect(() => {
-    if (sliderRef.current) {
-      setSliderWidth(sliderRef.current.offsetWidth);
-    }
-    const { min, low, middle, high, max } = thresholdValues;
-    const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
-    const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
-    const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
-
-    setThumbPositions({ low: lowThumb, middle: middleThumb, high: highThumb });
+    updateThumbPositions();
   }, [thresholdValues, sliderWidth]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setErrorMessage("");
+    }, 4000);
+  });
+
+  const updateThumbPositions = () => {
+    if (sliderRef.current) {
+      const { min, low, middle, high, max } = thresholdValues;
+      const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
+      const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
+      const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
+
+      setThumbPositions({
+        low: lowThumb,
+        middle: middleThumb,
+        high: highThumb,
+      });
+    }
+  };
 
   const {
     handleInputChange,
@@ -112,9 +130,10 @@ const ThresholdsConfigurator = () => {
               <S.NumberInput
                 inputMode="numeric"
                 type="number"
+                step={1}
                 value={activeInput === "min" ? inputValue : min.toString()}
                 onFocus={() => handleInputFocus("min")}
-                onBlur={() => handleInputBlur("min", inputValue)}
+                onBlur={() => handleInputBlur("min", inputValue)} // Pass the thresholdKey argument to handleInputBlur function
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleInputKeyDown("min")}
               />
@@ -141,10 +160,8 @@ const ThresholdsConfigurator = () => {
                         ? inputValue
                         : value.toString()
                     }
-                    readOnly={isMobile}
                     onFocus={() => handleInputFocus(thresholdKey)}
-                    onBlur={() => handleInputBlur(thresholdKey, inputValue)}
-                    $hasError={errorMessage !== ""}
+                    onBlur={(e) => handleInputBlur(thresholdKey, inputValue)}
                     $isActive={activeInput === thresholdKey}
                     style={{
                       zIndex: 10,
@@ -167,14 +184,16 @@ const ThresholdsConfigurator = () => {
                           : "auto",
                     }}
                     onChange={(e) => setInputValue(e.target.value)}
-                    onTouchStart={handleTouchStart(
-                      thresholdKey,
-                      thresholdValues,
-                      sliderWidth,
-                      setThresholdValues,
-                      setInputValue,
-                      setErrorMessage
-                    )}
+                    onTouchStart={(event: React.TouchEvent<HTMLInputElement>) =>
+                      handleTouchStart(
+                        thresholdKey,
+                        thresholdValues,
+                        sliderWidth,
+                        setThresholdValues,
+                        setInputValue,
+                        setErrorMessage
+                      )({ touches: [{ clientX: event.touches[0].clientX }] })
+                    }
                     onMouseDown={handleMouseDown(
                       thresholdKey,
                       thresholdValues,

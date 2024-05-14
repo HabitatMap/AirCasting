@@ -39,13 +39,14 @@ const GridContainer = styled.div`
   padding: 3.5rem 2rem;
   display: grid;
   width: 100%;
-  grid-gap: 20px;
+  grid-gap: 10px;
 
   > :nth-child(1) {
     grid-area: valueLabel;
   }
   > :nth-child(2) {
     grid-area: headerName;
+    align-self: center;
   }
   > :nth-child(3) {
     grid-area: profileSensor;

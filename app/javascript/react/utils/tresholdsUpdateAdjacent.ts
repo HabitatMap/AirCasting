@@ -1,4 +1,3 @@
-import { min } from "moment";
 import { Thresholds } from "../types/thresholds";
 
 const minThresholdDifference = 1;

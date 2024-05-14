@@ -1,12 +1,13 @@
 import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
+import { SetStateAction, useEffect } from "react";
 
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { resetToInitialValues } from "../store/thresholdSlice";
 import { initialState } from "../store/thresholdSlice";
 import { useAppDispatch } from "../store/hooks";
+import { Value } from "../components/molecules/Calendar/atoms/Day/Day.style";
 
 interface Thresholds {
   min: number;
@@ -49,6 +50,9 @@ export const useThresholdHandlers = (
     }
   }, [activeInput, thresholdValues]);
 
+
+
+
   const clearErrorAndUpdateThreshold = (
     thresholdKey: string,
     parsedValue: number
@@ -67,7 +71,6 @@ export const useThresholdHandlers = (
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
       return;
     }
-
     setInputValue(trimmedValue);
 
     const parsedValue = Number(trimmedValue);
@@ -102,7 +105,7 @@ export const useThresholdHandlers = (
             thresholdKey,
             parsedValue,
             setThresholdValues,
-            thresholdValues
+            thresholdValues,
           );
         }
       }
@@ -128,24 +131,21 @@ export const useThresholdHandlers = (
     }
   };
 
-  const debouncedHandleInputChange = debounce(
-    handleInputChange,
-    inputDebounceTime
-  );
+  const debouncedHandleInputChange = debounce(handleInputChange, inputDebounceTime);
 
-  const handleInputBlur = (thresholdKey: keyof Thresholds, value: string) => {
-    const trimmedValue = value.trim();
-    if (trimmedValue === "") {
-      setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
-      return;
-    }
+    const handleInputBlur = (thresholdKey: keyof Thresholds, inputValue: string) => {
+      debouncedHandleInputChange.flush();
+      setActiveInput(null);
+      handleInputChange(thresholdKey, inputValue);
+    };
 
-    debouncedHandleInputChange(thresholdKey, trimmedValue);
-  };
 
   const handleInputFocus = (thresholdKey: keyof Thresholds) => {
     setInputValue(thresholdValues[thresholdKey].toString());
     setActiveInput(thresholdKey);
+
+    debouncedHandleInputChange.cancel();
+
   };
 
   const handleOutsideClick = (event: MouseEvent) => {
@@ -155,6 +155,7 @@ export const useThresholdHandlers = (
       activeInput !== null
     ) {
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
+      setActiveInput(null);
     }
   };
 
@@ -187,8 +188,13 @@ export const useThresholdHandlers = (
     setActiveInput(null);
   };
 
+  const onInputChange = (thresholdKey: keyof Thresholds, value: string) => {
+    setInputValue(value);
+    handleInputChange(thresholdKey, value);
+  };
+
   return {
-    handleInputChange,
+    handleInputChange: onInputChange,
     handleInputBlur,
     handleInputFocus,
     handleInputKeyDown,
