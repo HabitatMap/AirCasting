@@ -1,0 +1,2 @@
+class DefaultThreshold < ApplicationRecord
+end
