@@ -7,6 +7,7 @@ import { KeyboardKeys } from "../types/keyboardKeys";
 import { resetToInitialValues } from "../store/thresholdSlice";
 import { initialState } from "../store/thresholdSlice";
 import { useAppDispatch } from "../store/hooks";
+import { Value } from "../components/molecules/Calendar/atoms/Day/Day.style";
 
 interface Thresholds {
   min: number;
@@ -132,10 +133,12 @@ export const useThresholdHandlers = (
 
   const debouncedHandleInputChange = debounce(handleInputChange, inputDebounceTime);
 
-  const handleInputBlur = () => {
-    debouncedHandleInputChange.flush();
-    setActiveInput(null);
-  };
+    const handleInputBlur = (thresholdKey: keyof Thresholds) => {
+      debouncedHandleInputChange.flush();
+      setActiveInput(null);
+      handleInputChange(thresholdKey, thresholdValues[thresholdKey].toString());
+    };
+
 
   const handleInputFocus = (thresholdKey: keyof Thresholds) => {
     setInputValue(thresholdValues[thresholdKey].toString());
