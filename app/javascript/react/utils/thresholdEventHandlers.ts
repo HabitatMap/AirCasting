@@ -132,17 +132,16 @@ export const useThresholdHandlers = (
 
   const debouncedHandleInputChange = debounce(handleInputChange, inputDebounceTime);
 
-  const handleInputBlur = (thresholdKey: keyof Thresholds, value: string) => {
+  const handleInputBlur = () => {
     debouncedHandleInputChange.flush();
+    setActiveInput(null);
   };
 
   const handleInputFocus = (thresholdKey: keyof Thresholds) => {
-    setInputValue('')
-    debouncedHandleInputChange.cancel();
-
     setInputValue(thresholdValues[thresholdKey].toString());
     setActiveInput(thresholdKey);
 
+    debouncedHandleInputChange.cancel();
 
   };
 
@@ -187,8 +186,8 @@ export const useThresholdHandlers = (
   };
 
   const onInputChange = (thresholdKey: keyof Thresholds, value: string) => {
-    setInputValue(value);  // Update input value immediately for responsive UI
-    handleInputChange(thresholdKey, value);  // Debounce state update
+    setInputValue(value);
+    handleInputChange(thresholdKey, value);
   };
 
   return {

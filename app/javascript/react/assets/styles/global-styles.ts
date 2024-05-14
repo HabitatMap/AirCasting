@@ -21,6 +21,13 @@ const GlobalStyles = createGlobalStyle`
     line-height: 1;
   }
 
+  html, body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+
   H1, H2, H3, H4, H5, H6 {
     line-height: 1.2;
     color: ${gray400};
