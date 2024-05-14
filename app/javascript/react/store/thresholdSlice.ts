@@ -10,7 +10,7 @@ export const initialState: ThresholdState = {
   min: 0,
   low: 0,
   middle: 0,
-  high:0,
+  high: 0,
   max: 0,
 };
 
