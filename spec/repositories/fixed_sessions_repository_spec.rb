@@ -36,6 +36,7 @@ describe FixedSessionsRepository do
       result = subject.active_with_streams
 
       expect(result.first.association(:streams).loaded?).to eq(true)
+      expect(result.first.association(:user).loaded?).to eq(true)
     end
   end
 end

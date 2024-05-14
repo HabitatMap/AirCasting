@@ -6,7 +6,7 @@ class MeasurementsRepository
   def stream_daily_average_value(stream_id:, time_with_time_zone:)
     Measurement
       .where(
-        'stream_id = ? AND time_with_time_zone >= ? AND time_with_time_zone < ?',
+        'stream_id = ? AND time_with_time_zone >= ? AND time_with_time_zone <= ?',
         stream_id,
         time_with_time_zone.beginning_of_day,
         time_with_time_zone.end_of_day,
