@@ -8,31 +8,35 @@ module StreamDailyAverages
       @stream_daily_averages_repository = stream_daily_averages_repository
     end
 
-    def call(stream_id:, beginning_of_day:)
-      value = average_value(stream_id, beginning_of_day)
+    def call(stream_id:, time_with_time_zone:)
+      value = average_value(stream_id, time_with_time_zone)
 
-      create_or_update_stream_daily_average(stream_id, beginning_of_day, value)
+      create_or_update_stream_daily_average(
+        stream_id,
+        time_with_time_zone,
+        value,
+      )
     end
 
     private
 
     attr_reader :measurements_repository, :stream_daily_averages_repository
 
-    def average_value(stream_id, beginning_of_day)
+    def average_value(stream_id, time_with_time_zone)
       measurements_repository.stream_daily_average_value(
         stream_id: stream_id,
-        beginning_of_day: beginning_of_day,
+        time_with_time_zone: time_with_time_zone,
       )
     end
 
     def create_or_update_stream_daily_average(
       stream_id,
-      beginning_of_day,
+      time_with_time_zone,
       value
     )
       stream_daily_averages_repository.create_or_update(
         stream_id: stream_id,
-        date: beginning_of_day.to_date,
+        date: time_with_time_zone.to_date,
         value: value,
       )
     end

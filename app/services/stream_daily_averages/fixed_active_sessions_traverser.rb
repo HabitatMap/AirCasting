@@ -14,6 +14,7 @@ module StreamDailyAverages
           stream_interactor.call(
             stream_id: stream.id,
             time_zone: session.time_zone,
+            is_air_now_stream: is_air_now_stream(session),
           )
         end
       end
@@ -22,5 +23,9 @@ module StreamDailyAverages
     private
 
     attr_reader :fixed_sessions_repository, :stream_interactor
+
+    def is_air_now_stream(session)
+      session.username == 'US EPA AirNow'
+    end
   end
 end
