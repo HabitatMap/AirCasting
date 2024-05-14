@@ -65,6 +65,8 @@ export const useThresholdHandlers = (
 
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
     const trimmedValue = value.trim();
+
+    console.log("trimmedValue", trimmedValue);
     if (trimmedValue === "") {
       setInputValue("");
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
@@ -133,7 +135,7 @@ export const useThresholdHandlers = (
   const debouncedHandleInputChange = debounce(handleInputChange, inputDebounceTime);
 
     const handleInputBlur = (thresholdKey: keyof Thresholds, inputValue: string) => {
-      debouncedHandleInputChange.flush();
+      debouncedHandleInputChange.cancel();
       setActiveInput(null);
       handleInputChange(thresholdKey, inputValue);
     };

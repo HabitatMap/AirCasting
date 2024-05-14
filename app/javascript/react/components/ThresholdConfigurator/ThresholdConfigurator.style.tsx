@@ -151,14 +151,17 @@ const NumberInput = styled.input<{
 const ErrorMessage = styled.p`
   color: ${colors.red};
   position: absolute;
+  top: 78%;
   left: 50%;
-  transform: translate(-45px, 44px);
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
   font-size: 1.2rem;
   font-weight: bold;
+  text-align: center;
 
   @media ${media.desktop} {
     font-size: 1.5rem;
-    transform: translate(-45px, 14px);
+    top: 49%;
   }
 `;
 
