@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
 import { FixedStream } from "../types/fixedStream";
 import type { RootState } from "./index";
+import { StreamDailyAverage } from "../types/movingStream";
 
 interface FixedStreamState {
   data: FixedStream;
@@ -75,7 +76,7 @@ export const fixedStreamSlice = createSlice({
       (state, { payload: { stream, measurements, streamDailyAverages } }) => {
         state.status = StatusEnum.Fulfilled;
         if (stream && measurements && streamDailyAverages) {
-          state.data = { stream, measurements, streamDailyAverages };
+          state.data = { stream, measurements, streamDailyAverages: [{ date: "2024-05-10", value: 1 }] };
         }
       }
     );
