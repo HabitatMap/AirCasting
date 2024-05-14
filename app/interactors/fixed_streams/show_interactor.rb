@@ -13,14 +13,14 @@ module FixedStreams
     end
 
     def call(stream_id:)
-      stream, measurements, stream_daily_averages, thresholds = fetch_data(stream_id)
+      stream, measurements, stream_daily_averages, default_thresholds = fetch_data(stream_id)
 
       serialize_data =
         fixed_stream_serializer.call(
           stream: stream,
           measurements: measurements,
           stream_daily_averages: stream_daily_averages,
-          thresholds: thresholds,
+          default_thresholds: default_thresholds,
         )
 
       Success.new(serialize_data)
@@ -41,9 +41,10 @@ module FixedStreams
         StreamDailyAveragesRepository.new.from_full_last_3_calendar_months(
           stream_id: stream_id,
         )
-      thresholds = StreamsRepository.new.thresholds(stream_id: stream_id)
+      default_thresholds =
+        DefaultThresholdsRepository.new.stream_thresholds(stream: stream)
 
-      [stream, measurements, stream_daily_averages, thresholds]
+      [stream, measurements, stream_daily_averages, default_thresholds]
     end
   end
 end
