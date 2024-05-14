@@ -1,13 +1,12 @@
 import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
-import { SetStateAction, useEffect } from "react";
+import { useEffect } from "react";
 
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { resetToInitialValues } from "../store/thresholdSlice";
 import { initialState } from "../store/thresholdSlice";
 import { useAppDispatch } from "../store/hooks";
-import { Value } from "../components/molecules/Calendar/atoms/Day/Day.style";
 
 interface Thresholds {
   min: number;
@@ -154,7 +153,6 @@ export const useThresholdHandlers = (
       !sliderRef.current.contains(event.target as Node) &&
       activeInput !== null
     ) {
-      setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));
       setActiveInput(null);
     }
   };

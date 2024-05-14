@@ -96,7 +96,7 @@ const NavList = styled.ul<{ $isVisible?: boolean }>`
   font-weight: 500;
   font-family: Moderat-Bold, sans-serif;
   height: 100vh;
-  padding: 2rem 3.2rem;
+  padding: 2.5rem 3.2rem;
   min-width: 35.2rem;
   position: fixed;
   top: 0;
@@ -133,11 +133,16 @@ const ListItem = styled.li<{ $isUnderline?: boolean; $isActive?: boolean }>`
 
 const SubNavTitleLink = styled.a`
   color: ${white};
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   display: inline-block;
   padding: 0.5rem 0;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 550;
+  letter-sapcing: 0.05rem;
+
+  &:hover {
+    opacity: 0.5;
+  }
 `;
 
 const NavItemLink = styled(SubNavTitleLink)`

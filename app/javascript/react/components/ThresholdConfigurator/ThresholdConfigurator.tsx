@@ -69,6 +69,7 @@ const ThresholdsConfigurator = () => {
     const timer = setTimeout(() => {
       setErrorMessage("");
     }, 4000);
+    return () => clearTimeout(timer);
   });
 
   const updateThumbPositions = () => {
@@ -133,7 +134,7 @@ const ThresholdsConfigurator = () => {
                 step={1}
                 value={activeInput === "min" ? inputValue : min.toString()}
                 onFocus={() => handleInputFocus("min")}
-                onBlur={() => handleInputBlur("min", inputValue)} // Pass the thresholdKey argument to handleInputBlur function
+                onBlur={() => handleInputBlur("min", inputValue)}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleInputKeyDown("min")}
               />
