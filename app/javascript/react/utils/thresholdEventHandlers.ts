@@ -136,7 +136,6 @@ export const useThresholdHandlers = (
 
     const handleInputBlur = (thresholdKey: keyof Thresholds, inputValue: string) => {
       debouncedHandleInputChange.cancel();
-      setActiveInput(null);
       handleInputChange(thresholdKey, inputValue);
     };
 
