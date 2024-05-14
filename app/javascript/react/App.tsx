@@ -19,7 +19,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/" element={<MapPage />} />
-      <Route path="/fixedStream" element={<CalendarPage />} />
+      <Route path="/fixed_stream" element={<CalendarPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </>
   )
