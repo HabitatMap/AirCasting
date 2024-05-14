@@ -133,7 +133,7 @@ const ThresholdsConfigurator = () => {
                 step={1}
                 value={activeInput === "min" ? inputValue : min.toString()}
                 onFocus={() => handleInputFocus("min")}
-                onBlur={() => handleInputBlur("min")} // Pass the thresholdKey argument to handleInputBlur function
+                onBlur={() => handleInputBlur("min", inputValue)} // Pass the thresholdKey argument to handleInputBlur function
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleInputKeyDown("min")}
               />
@@ -161,8 +161,7 @@ const ThresholdsConfigurator = () => {
                         : value.toString()
                     }
                     onFocus={() => handleInputFocus(thresholdKey)}
-                    onBlur={() => handleInputBlur(thresholdKey)}
-                    $hasError={errorMessage !== ""}
+                    onBlur={(e) => handleInputBlur(thresholdKey, inputValue)}
                     $isActive={activeInput === thresholdKey}
                     style={{
                       zIndex: 10,
@@ -214,7 +213,7 @@ const ThresholdsConfigurator = () => {
                 $isLast
                 value={activeInput === "max" ? inputValue : max.toString()}
                 onFocus={() => handleInputFocus("max")}
-                onBlur={() => handleInputBlur("max")}
+                onBlur={() => handleInputBlur("max", inputValue)}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleInputKeyDown("max")}
               />
