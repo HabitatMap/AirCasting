@@ -7,7 +7,7 @@ import {
   CalendarMonthlyData,
   StreamDailyAverage,
 } from "../types/movingStream";
-import { MovingStreamDailyAverage } from "../types/movingCalendarStream";
+import { StreamDailyAverage as MovingStreamDailyAverage } from "../types/StreamDailyAverage";
 import { RootState } from ".";
 
 const DAYS_IN_WEEK_COUNT = 7;

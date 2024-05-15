@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { MovingStreamDailyAverage } from "../types/movingCalendarStream";
+import { StreamDailyAverage } from "../types/StreamDailyAverage";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { apiClient } from "../api/apiClient";
@@ -9,13 +9,13 @@ import { Error, StatusEnum } from "../types/api";
 
 import type { RootState } from "./index";
 
-interface MovingCalendarStreamState {
-  data: MovingStreamDailyAverage[];
+interface CalendarStreamState {
+  data: StreamDailyAverage[];
   status: StatusEnum;
   error?: Error;
 }
 
-const initialState: MovingCalendarStreamState = {
+const initialState: CalendarStreamState = {
   data: [],
   status: StatusEnum.Idle,
 };
@@ -27,14 +27,14 @@ interface MovingStreamParams {
 }
 
 export const fetchNewMovingStream = createAsyncThunk<
-  MovingStreamDailyAverage[],
+  StreamDailyAverage[],
   MovingStreamParams,
   { rejectValue: { message: string } }
 >(
   "movingCalendarStream/getData",
   async ({ id, startDate, endDate }, { rejectWithValue }) => {
     try {
-      const response: AxiosResponse<MovingStreamDailyAverage[], Error> =
+      const response: AxiosResponse<StreamDailyAverage[], Error> =
         await apiClient.get(
           API_ENDPOINTS.fetchSelectedDataRangeOfStream(id, startDate, endDate)
         );
@@ -52,7 +52,7 @@ export const movingStreamSlice = createSlice({
   reducers: {
     updateMovingStreamData: (
       state,
-      action: PayloadAction<MovingStreamDailyAverage[]>
+      action: PayloadAction<StreamDailyAverage[]>
     ) => {
       state.data = action.payload;
       state.status = StatusEnum.Fulfilled;
