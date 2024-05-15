@@ -1,7 +1,8 @@
+# this is a rake task to create default thresholds for sensors that have more than 1000 occurrences - defaults created based on previous logic
+# (it's only a proposal, not a final solution)
 namespace :default_thresholds do
   task create: :environment do
     puts "Starting to create default thresholds"
-    # POC
 
     frequent_pairs = Stream
                       .select("sensor_name, unit_symbol, COUNT(*) as count")
