@@ -28,7 +28,7 @@ const StationDataContainer = styled.div`
 
 const Heading = styled(H3)`
   padding-bottom: 20px;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 22px;
 
   @media ${media.smallDesktop} {

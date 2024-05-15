@@ -4,6 +4,7 @@
   font-style: normal;
   font-display: auto;
   src: url("../fonts/Roboto-400.woff2") format("woff2");
+  unicode-range: U+000-5FF;
 }
 
 @font-face {
@@ -12,6 +13,7 @@
   font-style: normal;
   font-display: auto;
   src: url("../fonts/Roboto-500.woff2") format("woff2");
+  unicode-range: U+000-5FF;
 }
 
 @font-face {
@@ -20,4 +22,27 @@
   font-style: normal;
   font-display: auto;
   src: url("../fonts/Roboto-600.woff2") format("woff2");
+    unicode-range: U+000-5FF;
+}
+
+@font-face {
+  font-family: "Moderat";
+  font-weight: normal;
+  font-style: normal;
+  font-display: auto;
+  src: url("../fonts/Moderat-Regular.woff2") format("woff2"),
+  url("../fonts/Moderat-Regular.woff") format("woff"),
+  url("../fonts/Moderat-Regular.ttf") format("truetype");
+  ;
+}
+
+@font-face {
+  font-family: "Moderat";
+  font-weight: normal;
+  font-style: normal;
+  font-display: auto;
+  src: url("../fonts/Moderat-Bold.woff2") format("woff2"),
+  url("../fonts/Moderat-Bold.woff") format("woff"),
+  url("../fonts/Moderat-Bold.ttf") format("truetype");
+  ;
 }
