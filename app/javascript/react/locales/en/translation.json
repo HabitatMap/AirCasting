@@ -58,7 +58,7 @@
   "headerToggle": {
     "arrowIcon": "Arrow Icon" },
   "thresholdConfigurator": {
-    "emptyInputMessage": "Please  a valid number",
+    "emptyInputMessage": "Please enter a valid number",
     "validValueMessage":  "Value must be between {{minValue}} and {{maxValue}}",
     "maxLessThanMinMessage": "The maximum value should be higher than {{minValue}}",
     "minGreaterThanMaxMessage": "The minimum value should be lower than {{maxValue}}",
