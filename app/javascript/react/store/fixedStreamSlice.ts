@@ -32,23 +32,6 @@ const initialState: FixedStreamState = {
   status: StatusEnum.Idle,
 };
 
-const dumpData: FixedStreamState = {
-  data: {
-    stream: {
-      title: "",
-      profile: "",
-      lastUpdate: "",
-      sensorName: "",
-      unitSymbol: "",
-      updateFrequency: "",
-      active: false,
-    },
-    measurements: [],
-    streamDailyAverages: [{ date: "2024-05-10", value: 1 }],
-  },
-  status: StatusEnum.Idle,
-};
-
 export const fetchFixedStreamById = createAsyncThunk<
   FixedStream,
   number,
@@ -84,7 +67,7 @@ export const fixedStreamSlice = createSlice({
       (state, { error: { message } }) => {
         state.status = StatusEnum.Rejected;
         state.error = { message };
-        state.data = dumpData.data;
+        state.data = initialState.data;
       }
     );
   },
