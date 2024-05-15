@@ -32,6 +32,8 @@ const ThresholdsConfigurator = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const [isVisible, setIsVisible] = useState(true);
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -65,12 +67,12 @@ const ThresholdsConfigurator = () => {
     updateThumbPositions();
   }, [thresholdValues, sliderWidth]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setErrorMessage("");
-    }, 4000);
-    return () => clearTimeout(timer);
-  });
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setErrorMessage("");
+  //   }, 4000);
+  //   return () => clearTimeout(timer);
+  // });
 
   const updateThumbPositions = () => {
     if (sliderRef.current) {
@@ -117,6 +119,7 @@ const ThresholdsConfigurator = () => {
 
   return (
     <S.Container>
+      {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
       <HeaderToggle
         titleText={
           <>
@@ -219,7 +222,6 @@ const ThresholdsConfigurator = () => {
                 onKeyDown={handleInputKeyDown("max")}
               />
             </S.InputContainer>
-            {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
           </>
         }
       />
