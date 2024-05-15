@@ -65,8 +65,6 @@ export const useThresholdHandlers = (
 
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
     const trimmedValue = value.trim();
-
-    console.log("trimmedValue", trimmedValue);
     if (trimmedValue === "") {
       setInputValue("");
       setErrorMessage(t("thresholdConfigurator.emptyInputMessage"));

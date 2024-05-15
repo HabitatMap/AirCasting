@@ -25,17 +25,6 @@
     unicode-range: U+000-5FF;
 }
 
-/* @font-face {
-  font-family: "Moderat";
-  font-weight: normal;
-  font-style: normal;
-  font-display: auto;
-  src: url("../fonts/Moderat-Regular.woff2") format("woff2"),
-  url("../fonts/Moderat-Regular.woff") format("woff"),
-  url("../fonts/Moderat-Regular.ttf") format("truetype");
-  ;
-} */
-
 @font-face {
   font-family: "Moderat";
   font-weight: normal;

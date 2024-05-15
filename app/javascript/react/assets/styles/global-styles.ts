@@ -28,8 +28,7 @@ const GlobalStyles = createGlobalStyle`
     overflow: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale !important;
-text-rendering: optimizeLegibility;
-
+    text-rendering: optimizeLegibility;
   }
 
   H1, H2, H3, H4, H5, H6 {

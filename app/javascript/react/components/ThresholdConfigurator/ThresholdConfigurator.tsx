@@ -32,7 +32,6 @@ const ThresholdsConfigurator = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState("");
-  const [isVisible, setIsVisible] = useState(true);
 
   const dispatch = useAppDispatch();
 
