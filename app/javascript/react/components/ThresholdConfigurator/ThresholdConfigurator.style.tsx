@@ -154,13 +154,14 @@ const ErrorMessage = styled.p`
   position: absolute;
   top: 27%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -40%);
   font-size: 1.2rem;
   font-weight: bold;
   text-align: center;
 
   @media ${media.smallDesktop} {
     font-size: 1.5rem;
+    transform: translate(-50%, -50%);
     top: 30%;
   }
 `;

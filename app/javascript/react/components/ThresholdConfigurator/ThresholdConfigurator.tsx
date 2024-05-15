@@ -67,12 +67,12 @@ const ThresholdsConfigurator = () => {
     updateThumbPositions();
   }, [thresholdValues, sliderWidth]);
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setErrorMessage("");
-  //   }, 4000);
-  //   return () => clearTimeout(timer);
-  // });
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setErrorMessage("");
+    }, 4000);
+    return () => clearTimeout(timer);
+  });
 
   const updateThumbPositions = () => {
     if (sliderRef.current) {
