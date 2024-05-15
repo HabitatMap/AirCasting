@@ -34,14 +34,8 @@ class SaveMeasurements
         )
       end
 
-    pairs_without_session_duplicates = pairs_to_create.uniq do |stream, measurements|
-      first = measurements.first
-
-      "#{stream.latitude}-#{stream.longitude}-#{first.title}"
-    end
-
     sessions_to_create =
-      pairs_without_session_duplicates.map do |stream, measurements|
+      pairs_to_create.map do |stream, measurements|
         uuid = SecureRandom.uuid
         first = measurements.first
         last = measurements.last
@@ -52,7 +46,7 @@ class SaveMeasurements
           contribute: true,
           start_time_local: first.time_local,
           end_time_local: last.time_local,
-          last_measurement_at: last.time_with_time_zone,
+          last_measurement_at: last.time_local,
           is_indoor: false,
           latitude: stream.latitude,
           longitude: stream.longitude,
@@ -81,7 +75,7 @@ class SaveMeasurements
         acc[session_id] = {
           'id' => session_id,
           'end_time_local' => last.time_local,
-          'last_measurement_at' => last.time_with_time_zone,
+          'last_measurement_at' => last.time_local,
           'title' => last.title,
         }
       end
@@ -147,10 +141,7 @@ class SaveMeasurements
     created_sessions = Session.where(id: session_ids)
 
     new_streams =
-      pairs_to_create.map do |stream, measurements|
-        session = created_sessions
-          .where(latitude: stream.latitude, longitude: stream.longitude).first
-
+      pairs_to_create.map.with_index do |(stream, measurements), i|
         Stream.new(
           sensor_name: stream.sensor_name,
           unit_name: stream.unit_name,
@@ -169,7 +160,7 @@ class SaveMeasurements
           max_longitude: stream.longitude,
           start_latitude: stream.latitude,
           start_longitude: stream.longitude,
-          session_id: session.id,
+          session_id: session_ids[i],
           measurements_count: measurements.size,
           average_value: measurements.last.value,
         )

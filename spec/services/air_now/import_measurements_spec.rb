@@ -14,7 +14,7 @@ describe AirNow::ImportMeasurements do
 
   let(:mock_import_data) { instance_double(AirNow::ImportData) }
   let(:locations_data) { "000020104|location-name|site-code|site-name|status|agency-id|agency-name|epa-region|44.941101|-105.837799|27.9|timezone|country|msa-code|msa-name|state-code|state-name|county-code|county-name" }
-  let(:measurements_data) { "03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution" }
+  let(:measurements_data) { ["03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution"] }
 
   before do
     allow(AirNow::ImportData).to receive(:new).and_return(mock_import_data)
@@ -25,7 +25,7 @@ describe AirNow::ImportMeasurements do
     described_class.new.call
 
     locations_array = locations_data.split('|')
-    measurements_array = measurements_data.split('|')
+    measurements_array = measurements_data.first.split('|')
 
     [
       [:value, measurements_array[7].to_f],
@@ -62,8 +62,8 @@ describe AirNow::ImportMeasurements do
 
   context 'with unwanted parameters' do
     let(:measurements_data) do
-      "03/25/24|07:00|000020104|measurement-location|-4|SO2|PPB|0.3|attribution\n" +
-      "03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution"
+      ["03/25/24|07:00|000020104|measurement-location|-4|SO2|PPB|0.3|attribution\n" +
+      "03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution"]
     end
 
     before do
@@ -80,8 +80,8 @@ describe AirNow::ImportMeasurements do
 
   context 'with multiple correct measurements in the same location' do
     let(:measurements_data) do
-      "03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution\n" +
-      "03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution"
+      ["03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution\n" +
+      "03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution"]
     end
 
     before do
