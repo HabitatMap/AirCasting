@@ -93,7 +93,7 @@ const Container = styled.div`
 const NavList = styled.ul<{ $isVisible?: boolean }>`
   background: ${theme};
   list-style-type: none;
-  font-weight: 550;
+  font-weight: 400;
   font-family: Moderat, sans-serif;
   height: 100vh;
   padding: 2.5rem 3.2rem;
@@ -136,7 +136,7 @@ const SubNavTitleLink = styled.a`
   color: ${white};
   font-size: 1.8rem;
   display: inline-block;
-  padding: 0.53rem 0;
+  padding: 0.5rem 0;
   text-decoration: none;
   letter-sapcing: 0.5rem;
 
@@ -164,7 +164,7 @@ const BuyCTAWhite = styled(BuyCTA)`
   border: 1px solid ${white};
   color: ${white};
   border-radius: 0px;
-  font-weight: 600;
+  font-weight: 400;
   padding: 1.8rem 2rem;
   font-size: 1.3rem;
 
