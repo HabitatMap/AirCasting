@@ -46,7 +46,7 @@ class SaveMeasurements
           contribute: true,
           start_time_local: first.time_local,
           end_time_local: last.time_local,
-          last_measurement_at: last.time_with_time_zone,
+          last_measurement_at: last.time_local,
           is_indoor: false,
           latitude: stream.latitude,
           longitude: stream.longitude,
@@ -75,7 +75,7 @@ class SaveMeasurements
         acc[session_id] = {
           'id' => session_id,
           'end_time_local' => last.time_local,
-          'last_measurement_at' => last.time_with_time_zone,
+          'last_measurement_at' => last.time_local,
           'title' => last.title,
         }
       end
