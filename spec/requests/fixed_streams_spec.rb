@@ -82,6 +82,7 @@ describe 'GET api/v3/fixed_streams/:id' do
           active: session.is_active,
           title: session.title,
           profile: session.username,
+          session_id: session.id,
           sensor_name: stream.sensor_name,
           unit_symbol: stream.unit_symbol,
           update_frequency: '1 minute',
@@ -108,6 +109,13 @@ describe 'GET api/v3/fixed_streams/:id' do
             value: stream_daily_average_2.value.round,
           },
         ],
+        thresholds: {
+          min: stream.threshold_very_low,
+          low: stream.threshold_low,
+          middle: stream.threshold_medium,
+          high: stream.threshold_high,
+          max: stream.threshold_very_high,
+        },
       }
 
       expect(Flipper).to receive(:enabled?).with(:calendar).and_return(true)
