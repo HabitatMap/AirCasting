@@ -27,22 +27,18 @@ interface MovingStreamParams {
 }
 
 export const fetchNewMovingStream = createAsyncThunk<
-  MovingCalendarStreamState,
+  MovingStreamDailyAverage[],
   MovingStreamParams,
   { rejectValue: { message: string } }
 >(
   "movingCalendarStream/getData",
   async ({ id, startDate, endDate }, { rejectWithValue }) => {
     try {
-      const response: AxiosResponse<MovingCalendarStreamState, Error> =
+      const response: AxiosResponse<MovingStreamDailyAverage[], Error> =
         await apiClient.get(
           API_ENDPOINTS.fetchPartoFMovingStream(id, startDate, endDate)
         );
-      // return response.payload once api ready
-      return {
-        data: [{ date: endDate, value: 1 }],
-        status: StatusEnum.Fulfilled,
-      };
+      return response.data
     } catch (error) {
       const message = getErrorMessage(error);
       return rejectWithValue({ message });
@@ -66,7 +62,7 @@ export const movingStreamSlice = createSlice({
     builder
       .addCase(fetchNewMovingStream.fulfilled, (state, { payload }) => {
         state.status = StatusEnum.Fulfilled;
-        state.data = payload.data;
+        state.data = payload
       })
       .addCase(fetchNewMovingStream.rejected, (state, { error }) => {
         state.status = StatusEnum.Rejected;

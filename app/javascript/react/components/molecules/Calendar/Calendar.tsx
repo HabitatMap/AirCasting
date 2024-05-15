@@ -21,7 +21,11 @@ interface MovableCalendarData {
   triggerDirectionUpdate: number;
 }
 
-const Calendar = () => {
+interface CalendarProps {
+  streamId: number;
+}
+
+const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
   const SEEN_MONTHS_NUMBER = 3;
 
   const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
@@ -47,20 +51,26 @@ const Calendar = () => {
   };
 
   const handleBackwardMovement = (dateMoment: moment.Moment) => {
-    const newEndMoment = dateMoment.date(1).subtract(1, "months");
+    const newEndMoment = dateMoment.subtract(1, "months").endOf("month");
     setIsButtonDisabled(false);
     return newEndMoment;
   };
 
   const handleForwardMovement = (dateMoment: moment.Moment) => {
-    const newEndMoment = dateMoment.date(1).add(1, "months");
+    let newEndMoment = dateMoment.add(1, "months").endOf("month");
     const zeroDateMoment = moment(dateReference.zeroDate, "YYYY-MM-DD");
-    const shouldDisableButton = newEndMoment.isSameOrAfter(zeroDateMoment);
-    setIsButtonDisabled(shouldDisableButton);
-    return shouldDisableButton ? null : newEndMoment;
+    if (newEndMoment.isAfter(zeroDateMoment)) {
+      newEndMoment = zeroDateMoment;
+      setIsButtonDisabled(true);
+    }
+    return newEndMoment;
   };
 
   useEffect(() => {
+    // Disable forward button at first, becouse
+    // we present the newest months just after loading this page
+    setIsButtonDisabled(true);
+
     const lastElementIdx = movingCalendarData.data.length - 1;
     const endDate = movingCalendarData.data[lastElementIdx].date;
     setDateReference((prevState) => ({
@@ -81,12 +91,7 @@ const Calendar = () => {
         newEndMoment = handleBackwardMovement(dateMoment);
         break;
       case 1:
-        const newEndForwardMoment = handleForwardMovement(dateMoment);
-        if (newEndForwardMoment !== null) {
-          newEndMoment = newEndForwardMoment;
-        } else {
-          return;
-        }
+        newEndMoment = handleForwardMovement(dateMoment);
         break;
       default:
         console.error("Invalid direction value:", dateReference.direction);
@@ -94,9 +99,10 @@ const Calendar = () => {
     }
 
     const newEndDate = newEndMoment.format("YYYY-MM-DD");
+
     const newStartDate = newEndMoment
       .date(1)
-      .subtract(SEEN_MONTHS_NUMBER, "months")
+      .subtract(SEEN_MONTHS_NUMBER - 1, "months")
       .format("YYYY-MM-DD");
 
     setDateReference((prevState) => ({
@@ -104,14 +110,13 @@ const Calendar = () => {
       currentData: newEndDate,
     }));
 
-    dispatch(
-      fetchNewMovingStream({
-        // pass here proper STREAM ID
-        id: 1,
-        startDate: newStartDate,
-        endDate: newEndDate,
-      })
-    );
+      dispatch(
+        fetchNewMovingStream({
+          id: streamId,
+          startDate: newStartDate,
+          endDate: newEndDate,
+        })
+      );
   }, [dateReference.triggerDirectionUpdate]);
 
   const handleLeftClick = () => {

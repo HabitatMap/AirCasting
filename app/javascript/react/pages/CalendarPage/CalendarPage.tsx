@@ -57,7 +57,7 @@ const CalendarPage = () => {
           value,
         })
       );
-      console.log(newMovingCalendarData)
+      console.log(newMovingCalendarData);
       dispatch(updateMovingStreamData(newMovingCalendarData));
     } else {
       console.log("No daily averages to process.");
@@ -69,7 +69,9 @@ const CalendarPage = () => {
       <S.StationDataContainer>
         <FixedStreamStationHeader />
         {!isMobile && <ThresholdsConfigurator />}
-        {movingCalendarData.data.length > 0 && <Calendar />}
+        {movingCalendarData.data.length > 0 && streamId && (
+          <Calendar streamId={streamId} />
+        )}
         {isMobile && <ThresholdsConfigurator />}
       </S.StationDataContainer>
     </S.CalendarPageLayout>
