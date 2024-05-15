@@ -24,7 +24,6 @@ const NavItem = ({
   isActive?: boolean;
   children?: ReactNode;
 }) => {
-  console.log(isActive);
   return (
     <S.ListItem $isUnderline={isUnderline} $isActive={isActive}>
       {isNavTitle ? (
