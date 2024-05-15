@@ -167,22 +167,22 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
               </S.MobileSwipeContainer>
 
               <S.ThreeMonths>
-                <S.DesktopSwipeContainer>
+                <S.DesktopSwipeLeftContainer>
                   <ScrollCalendarButton
                     direction={MovesKeys.MOVE_BACKWARD}
                     handleClick={handleLeftClick}
                   />
-                </S.DesktopSwipeContainer>
+                </S.DesktopSwipeLeftContainer>
                 {threeMonthsData.map((month) => (
                   <Month key={month.monthName} {...month} />
                 ))}
-                <S.DesktopSwipeContainer>
+                <S.DesktopSwipeRightContainer>
                   <ScrollCalendarButton
                     disabled={isButtonDisabled}
                     direction={MovesKeys.MOVE_FORWARD}
                     handleClick={handleRightClick}
                   />
-                </S.DesktopSwipeContainer>
+                </S.DesktopSwipeRightContainer>
               </S.ThreeMonths>
             </>
           }

@@ -27,11 +27,27 @@ const MobileSwipeContainer = styled.div`
   }
 `;
 
-const DesktopSwipeContainer = styled.div`
+const DesktopSwipeLeftContainer = styled.div`
   display: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
 
-  @media ${media.desktop} {
+  @media (${media.desktop}) {
     display: flex;
+    left: 20px;
+  }
+`;
+
+const DesktopSwipeRightContainer = styled.div`
+  display: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  @media (${media.desktop}) {
+    display: flex;
+    right: 20px;
   }
 `;
 
@@ -49,6 +65,7 @@ const CalendarContainer = styled.div`
   flex-direction: column;
   padding: 1.5rem;
   background: ${white};
+  position: relative;
 
   @media (${media.desktop}) {
     padding: 3.5rem 10rem;
@@ -60,5 +77,6 @@ export {
   ThreeMonths,
   CalendarContainer,
   MobileSwipeContainer,
-  DesktopSwipeContainer,
+  DesktopSwipeLeftContainer,
+  DesktopSwipeRightContainer
 };

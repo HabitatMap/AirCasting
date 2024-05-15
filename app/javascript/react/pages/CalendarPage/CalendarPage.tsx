@@ -26,7 +26,6 @@ const CalendarPage = () => {
 
   const fixedStreamData = useSelector(selectFixedData);
   const movingCalendarData = useSelector(movingData);
-
   const dispatch = useAppDispatch();
 
   const [isMobile, setIsMobile] = useState(

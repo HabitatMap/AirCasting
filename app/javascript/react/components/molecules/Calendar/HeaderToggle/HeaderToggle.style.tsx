@@ -33,16 +33,17 @@ const Heading = styled(H1)`
 `;
 
 const DateField = styled(H3)`
-  display: flex;
-  align-items: center;
-  
-  span {
-    margin: 0 10px;
-  }
+  display: none;
 
   @media ${media.desktop} {
+    display: flex;
+    align-items: center;
     font-size: 16px;
     color: ${colors.gray300};
+    
+    span {
+      margin: 0 10px;
+    }
   }
 `;
 
