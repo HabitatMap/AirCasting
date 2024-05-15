@@ -50,18 +50,17 @@ const CalendarPage = () => {
   }, []);
 
   useEffect(() => {
-    if (fixedStreamData && fixedStreamData.streamDailyAverages.length > 0) {
-      const newMovingCalendarData = fixedStreamData.streamDailyAverages.map(
-        ({ date, value }) => ({
-          date,
-          value,
-        })
-      );
-      console.log(newMovingCalendarData);
-      dispatch(updateMovingStreamData(newMovingCalendarData));
-    } else {
+    if (!fixedStreamData?.streamDailyAverages?.length) {
       console.log("No daily averages to process.");
+      return;
     }
+    const newMovingCalendarData = fixedStreamData.streamDailyAverages.map(
+      ({ date, value }) => ({
+        date,
+        value,
+      })
+    );
+    dispatch(updateMovingStreamData(newMovingCalendarData));
   }, [fixedStreamData, dispatch]);
 
   return (

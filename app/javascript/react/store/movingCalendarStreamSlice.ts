@@ -36,7 +36,7 @@ export const fetchNewMovingStream = createAsyncThunk<
     try {
       const response: AxiosResponse<MovingStreamDailyAverage[], Error> =
         await apiClient.get(
-          API_ENDPOINTS.fetchPartoFMovingStream(id, startDate, endDate)
+          API_ENDPOINTS.fetchSelectedDataRangeOfStream(id, startDate, endDate)
         );
       return response.data
     } catch (error) {

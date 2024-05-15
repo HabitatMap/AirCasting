@@ -12,11 +12,12 @@ import {
   fetchNewMovingStream,
 } from "../../../store/movingCalendarStreamSlice";
 import { ScrollCalendarButton } from "./atoms/ScrollCalendarButton/ScrollCalendarButton";
+import { MovesKeys } from "../../../types/movesKeys";
 import * as S from "./Calendar.style";
 
 interface MovableCalendarData {
   zeroDate: string;
-  currentData: string;
+  currentDate: string;
   direction: number | undefined;
   triggerDirectionUpdate: number;
 }
@@ -35,12 +36,13 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [dateReference, setDateReference] = useState<MovableCalendarData>({
     zeroDate: "",
-    currentData: "",
+    currentDate
+: "",
     direction: undefined,
     triggerDirectionUpdate: 0,
   });
 
-  const updateMoveValue = (direction: 1 | -1) => {
+  const updateMoveValue = (direction: MovesKeys) => {
     setDateReference((prevState) => {
       return {
         ...prevState,
@@ -76,14 +78,17 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
     setDateReference((prevState) => ({
       ...prevState,
       zeroDate: endDate,
-      currentData: endDate,
+      currentDate
+  : endDate,
     }));
   }, []);
 
   useEffect(() => {
-    if (!dateReference.currentData) return;
+    if (!dateReference.currentDate
+  ) return;
 
-    const dateMoment = moment(dateReference.currentData, "YYYY-MM-DD");
+    const dateMoment = moment(dateReference.currentDate
+  , "YYYY-MM-DD");
     let newEndMoment: Moment;
 
     switch (dateReference.direction) {
@@ -107,7 +112,8 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
 
     setDateReference((prevState) => ({
       ...prevState,
-      currentData: newEndDate,
+      currentDate
+  : newEndDate,
     }));
 
       dispatch(
@@ -120,11 +126,11 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
   }, [dateReference.triggerDirectionUpdate]);
 
   const handleLeftClick = () => {
-    updateMoveValue(-1);
+    updateMoveValue(MovesKeys.MOVE_BACKWARD);
   };
 
   const handleRightClick = () => {
-    updateMoveValue(1);
+    updateMoveValue(MovesKeys.MOVE_FORWARD);
   };
 
   return (
@@ -136,12 +142,12 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
             <>
               <S.MobileSwipeContainer>
                 <ScrollCalendarButton
-                  direction="left"
+                  direction={MovesKeys.MOVE_BACKWARD}
                   handleClick={handleLeftClick}
                 />
                 <ScrollCalendarButton
                   disabled={isButtonDisabled}
-                  direction="right"
+                  direction={MovesKeys.MOVE_FORWARD}
                   handleClick={handleRightClick}
                 />
               </S.MobileSwipeContainer>
@@ -149,7 +155,7 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
               <S.ThreeMonths>
                 <S.DesktopSwipeContainer>
                   <ScrollCalendarButton
-                    direction="left"
+                    direction={MovesKeys.MOVE_BACKWARD}
                     handleClick={handleLeftClick}
                   />
                 </S.DesktopSwipeContainer>
@@ -159,7 +165,7 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
                 <S.DesktopSwipeContainer>
                   <ScrollCalendarButton
                     disabled={isButtonDisabled}
-                    direction="right"
+                    direction={MovesKeys.MOVE_FORWARD}
                     handleClick={handleRightClick}
                   />
                 </S.DesktopSwipeContainer>

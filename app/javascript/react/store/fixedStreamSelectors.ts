@@ -30,7 +30,7 @@ const selectFixedStreamShortInfo = createSelector(
     const sessionId = fixedStreamData.stream.sessionId;
     const lastUpdate = moment(fixedStreamData.stream.lastUpdate)
       .local()
-      .format("HH:mm, MMM D YYYY");
+      .format("HH:mm MMM D YYYY");
 
     return {
       ...fixedStreamData.stream,

@@ -1,11 +1,13 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { ScrollButton } from "../../../../ScrollButton/ScrollButton";
 import chevronRight from "../../../../../assets/icons/chevronRight.svg";
 import chevronLeft from "../../../../../assets/icons/chevronLeft.svg";
+import { MovesKeys } from "../../../../../types/movesKeys";
 
 type ScrollButtonComponentProps = {
-  direction: "left" | "right";
+  direction: MovesKeys;
   handleClick: () => void;
   disabled?: boolean;
 };
@@ -15,11 +17,13 @@ const ScrollCalendarButton: React.FC<ScrollButtonComponentProps> = ({
   handleClick,
   disabled = false,
 }) => {
-  const icon = direction === "left" ? chevronLeft : chevronRight;
+  const { t } = useTranslation();
+  const icon =
+    direction === MovesKeys.MOVE_BACKWARD ? chevronLeft : chevronRight;
   const altText =
-    direction === "left"
-      ? "Move calendar page one step back"
-      : "Move calendar page one step forward";
+    direction === MovesKeys.MOVE_BACKWARD
+      ? t("calendarPage.backScrollButton")
+      : t("calendarPage.forwardScrollButton");
 
   return (
     <ScrollButton onClick={handleClick} disabled={disabled}>
@@ -28,4 +32,4 @@ const ScrollCalendarButton: React.FC<ScrollButtonComponentProps> = ({
   );
 };
 
-export { ScrollCalendarButton }
+export { ScrollCalendarButton };
