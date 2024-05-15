@@ -102,6 +102,18 @@ def create_measurements!(attributes)
   measurements
 end
 
+def create_default_thresholds!(attributes = {})
+  DefaultThreshold.create!(
+    sensor_name: attributes.fetch(:sensor_name, 'PM2.5'),
+    unit_symbol: attributes.fetch(:unit_symbol, 'µg/m³'),
+    threshold_very_low: 11,
+    threshold_low: 55,
+    threshold_medium: 111,
+    threshold_high: 222,
+    threshold_very_high: 333,
+  )
+end
+
 def create_user!(attributes = {})
   User.create!(
     id: attributes.fetch(:id, random_int),

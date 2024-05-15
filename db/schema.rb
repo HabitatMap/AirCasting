@@ -45,7 +45,7 @@ ActiveRecord::Schema.define(version: 2024_05_13_144147) do
   end
 
   create_table "default_thresholds", force: :cascade do |t|
-    t.integer "sensor_name"
+    t.string "sensor_name"
     t.string "unit_symbol"
     t.float "threshold_very_low"
     t.float "threshold_low"
