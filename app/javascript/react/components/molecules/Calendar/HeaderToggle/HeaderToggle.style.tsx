@@ -25,8 +25,24 @@ const Heading = styled(H1)`
   cursor: pointer;
 
   @media ${media.desktop} {
+    display: flex;
+    width: 100%; 
     cursor: auto;
     font-size: 28px;
+  }
+`;
+
+const DateField = styled(H3)`
+  display: flex;
+  align-items: center;
+  
+  span {
+    margin: 0 10px;
+  }
+
+  @media ${media.desktop} {
+    font-size: 16px;
+    color: ${colors.gray300};
   }
 `;
 
@@ -41,4 +57,4 @@ const ResetButton = styled(Button)`
   }
 `;
 
-export { Container, RotatedIcon, Heading, ResetButton };
+export { DateField, Container, RotatedIcon, Heading, ResetButton };

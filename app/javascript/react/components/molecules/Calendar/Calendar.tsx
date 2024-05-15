@@ -17,7 +17,8 @@ import * as S from "./Calendar.style";
 
 interface MovableCalendarData {
   zeroDate: string;
-  currentDate: string;
+  currentStartDate: string;
+  currentEndDate: string;
   direction: number | undefined;
   triggerDirectionUpdate: number;
 }
@@ -36,8 +37,8 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [dateReference, setDateReference] = useState<MovableCalendarData>({
     zeroDate: "",
-    currentDate
-: "",
+    currentStartDate: "",
+    currentEndDate: "",
     direction: undefined,
     triggerDirectionUpdate: 0,
   });
@@ -75,20 +76,25 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
 
     const lastElementIdx = movingCalendarData.data.length - 1;
     const endDate = movingCalendarData.data[lastElementIdx].date;
+
+    const startMoment = moment(endDate, "YYYY-MM-DD");
+    const newStartDate = startMoment
+      .date(1)
+      .subtract(SEEN_MONTHS_NUMBER - 1, "months")
+      .format("YYYY-MM-DD");
+
     setDateReference((prevState) => ({
       ...prevState,
       zeroDate: endDate,
-      currentDate
-  : endDate,
+      currentStartDate: newStartDate,
+      currentEndDate: endDate,
     }));
   }, []);
 
   useEffect(() => {
-    if (!dateReference.currentDate
-  ) return;
+    if (!dateReference.currentEndDate) return;
 
-    const dateMoment = moment(dateReference.currentDate
-  , "YYYY-MM-DD");
+    const dateMoment = moment(dateReference.currentEndDate, "YYYY-MM-DD");
     let newEndMoment: Moment;
 
     switch (dateReference.direction) {
@@ -112,17 +118,17 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
 
     setDateReference((prevState) => ({
       ...prevState,
-      currentDate
-  : newEndDate,
+      currentStartDate: newStartDate,
+      currentEndDate: newEndDate,
     }));
 
-      dispatch(
-        fetchNewMovingStream({
-          id: streamId,
-          startDate: newStartDate,
-          endDate: newEndDate,
-        })
-      );
+    dispatch(
+      fetchNewMovingStream({
+        id: streamId,
+        startDate: newStartDate,
+        endDate: newEndDate,
+      })
+    );
   }, [dateReference.triggerDirectionUpdate]);
 
   const handleLeftClick = () => {
@@ -138,6 +144,8 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
       <S.CalendarContainer>
         <HeaderToggle
           titleText={t("calendarHeader.calendarTitle")}
+          startDate={dateReference.currentStartDate}
+          endDate={dateReference.currentEndDate}
           componentToToggle={
             <>
               <S.MobileSwipeContainer>
@@ -145,6 +153,12 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
                   direction={MovesKeys.MOVE_BACKWARD}
                   handleClick={handleLeftClick}
                 />
+                <S.DateField>
+                  <span>{dateReference.currentStartDate}</span>
+                  <span>-</span>
+                  <span>{dateReference.currentEndDate}</span>
+                </S.DateField>
+
                 <ScrollCalendarButton
                   disabled={isButtonDisabled}
                   direction={MovesKeys.MOVE_FORWARD}

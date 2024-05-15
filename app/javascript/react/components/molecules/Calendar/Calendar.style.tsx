@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { media } from "../../../utils/media";
 import { white } from "../../../assets/styles/colors";
+import { H3 } from "../../Typography";
 
 const ThreeMonths = styled.div`
   display: flex;
@@ -16,8 +17,10 @@ const ThreeMonths = styled.div`
 
 const MobileSwipeContainer = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   flex-direction: row;
+  padding: 20px 0;
 
   @media ${media.desktop} {
     display: none;
@@ -29,6 +32,15 @@ const DesktopSwipeContainer = styled.div`
 
   @media ${media.desktop} {
     display: flex;
+  }
+`;
+
+const DateField = styled(H3)`
+  display: flex;
+  align-items: center;
+
+  span {
+    margin: 0 10px;
   }
 `;
 
@@ -44,6 +56,7 @@ const CalendarContainer = styled.div`
 `;
 
 export {
+  DateField,
   ThreeMonths,
   CalendarContainer,
   MobileSwipeContainer,

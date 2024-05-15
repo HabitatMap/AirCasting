@@ -8,12 +8,16 @@ import returnArrow from "../../../../assets/icons/returnArrow.svg";
 
 interface Props {
   titleText: string | JSX.Element;
+  startDate?: string;
+  endDate?: string;
   componentToToggle: JSX.Element;
   resetThresholds?: () => void;
 }
 
 const HeaderToggle: React.FC<Props> = ({
   titleText,
+  startDate = "",
+  endDate = "",
   componentToToggle,
   resetThresholds,
 }) => {
@@ -66,7 +70,16 @@ const HeaderToggle: React.FC<Props> = ({
             />
             <S.Heading onClick={toggleVisibility}>{titleText}</S.Heading>
           </>
-        )) || <S.Heading>{titleText}</S.Heading>}
+        )) || (
+          <S.Heading>
+            {titleText}
+            <S.DateField>
+              <span>{startDate}</span>
+              <span>-</span>
+              <span>{endDate}</span>
+            </S.DateField>
+          </S.Heading>
+        )}
         {!isMobile && displayResetButton()}
       </S.Container>
       {isVisible && componentToToggle}
