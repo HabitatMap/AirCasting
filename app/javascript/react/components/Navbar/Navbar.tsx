@@ -1,6 +1,5 @@
 import React, { ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
 
 import logo from "../../../../assets/images/aircasting-logo-nav.svg";
 import hamburger from "../../assets/icons/hamburger.svg";
@@ -24,15 +23,17 @@ const NavItem = ({
   isUnderline?: boolean;
   isActive?: boolean;
   children?: ReactNode;
-}) => (
-  <S.ListItem $isUnderline={isUnderline} $isActive={isActive}>
-    {isNavTitle ? (
-      <S.SubNavTitleLink href={href}>{children}</S.SubNavTitleLink>
-    ) : (
-      <S.NavItemLink href={href}>{children}</S.NavItemLink>
-    )}
-  </S.ListItem>
-);
+}) => {
+  return (
+    <S.ListItem $isUnderline={isUnderline} $isActive={isActive}>
+      {isNavTitle ? (
+        <S.SubNavTitleLink href={href}>{children}</S.SubNavTitleLink>
+      ) : (
+        <S.NavItemLink href={href}>{children}</S.NavItemLink>
+      )}
+    </S.ListItem>
+  );
+};
 
 const Navbar = () => {
   const [navMenuVisible, setNavMenuVisible] = useState(false);

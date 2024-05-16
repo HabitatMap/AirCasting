@@ -93,10 +93,10 @@ const Container = styled.div`
 const NavList = styled.ul<{ $isVisible?: boolean }>`
   background: ${theme};
   list-style-type: none;
-  font-weight: 500;
-  font-family: Moderat-Bold, sans-serif;
+  font-weight: 400;
+  font-family: Moderat, sans-serif;
   height: 100vh;
-  padding: 2rem 3.2rem;
+  padding: 2.5rem 3.2rem;
   min-width: 35.2rem;
   position: fixed;
   top: 0;
@@ -104,6 +104,7 @@ const NavList = styled.ul<{ $isVisible?: boolean }>`
   z-index: 99;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
+  letter-spacing: 0.5px;
 
   ${(p) =>
     p.$isVisible &&
@@ -122,7 +123,7 @@ const SubNav = styled.ul`
 const NavHeader = styled.li`
   display: flex;
   justify-content: space-between;
-  padding-bottom: 2.4rem;
+  padding-bottom: 2.45rem;
   border-bottom: 1px solid ${white};
 `;
 
@@ -137,7 +138,11 @@ const SubNavTitleLink = styled.a`
   display: inline-block;
   padding: 0.5rem 0;
   text-decoration: none;
-  font-weight: 600;
+  letter-sapcing: 0.5rem;
+
+  &:hover {
+    opacity: 0.5;
+  }
 `;
 
 const NavItemLink = styled(SubNavTitleLink)`
@@ -147,6 +152,7 @@ const NavItemLink = styled(SubNavTitleLink)`
 
 const Link = styled(NavItemLink)`
   text-transform: uppercase;
+  font-size: 1.3rem;
 `;
 
 const BottomNavContainer = styled(Container)`
@@ -158,8 +164,9 @@ const BuyCTAWhite = styled(BuyCTA)`
   border: 1px solid ${white};
   color: ${white};
   border-radius: 0px;
-  font-weight: 600;
+  font-weight: 400;
   padding: 1.8rem 2rem;
+  font-size: 1.3rem;
 
   &:visited,
   &:link,

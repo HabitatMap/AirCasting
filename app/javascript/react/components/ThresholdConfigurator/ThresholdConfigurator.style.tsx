@@ -9,6 +9,7 @@ const Container = styled.div`
   padding: 1.5rem;
   margin-bottom: 3rem;
   background: ${colors.white};
+  position: relative;
 
   @media (${media.desktop}) {
     padding: 3.5rem 10rem;
@@ -151,14 +152,17 @@ const NumberInput = styled.input<{
 const ErrorMessage = styled.p`
   color: ${colors.red};
   position: absolute;
+  top: 27%;
   left: 50%;
-  transform: translate(-45px, 44px);
+  transform: translate(-50%, -40%);
   font-size: 1.2rem;
   font-weight: bold;
+  text-align: center;
 
-  @media ${media.desktop} {
+  @media ${media.smallDesktop} {
     font-size: 1.5rem;
-    transform: translate(-45px, 14px);
+    transform: translate(-50%, -50%);
+    top: 30%;
   }
 `;
 

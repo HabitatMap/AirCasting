@@ -26,6 +26,9 @@ const GlobalStyles = createGlobalStyle`
     width: 100%;
     height: 100%;
     overflow: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility;
   }
 
   H1, H2, H3, H4, H5, H6 {
