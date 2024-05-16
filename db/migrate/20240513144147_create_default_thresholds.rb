@@ -8,6 +8,9 @@ class CreateDefaultThresholds < ActiveRecord::Migration[6.1]
       t.float :threshold_medium
       t.float :threshold_high
       t.float :threshold_very_high
+      t.timestamps null: false
     end
+
+    add_index :default_thresholds, [:sensor_name, :unit_symbol]
   end
 end

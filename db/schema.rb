@@ -52,6 +52,9 @@ ActiveRecord::Schema.define(version: 2024_05_20_174314) do
     t.float "threshold_medium"
     t.float "threshold_high"
     t.float "threshold_very_high"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["sensor_name", "unit_symbol"], name: "index_default_thresholds_on_sensor_name_and_unit_symbol"
   end
 
   create_table "deleted_sessions", id: :serial, force: :cascade do |t|
@@ -107,11 +110,6 @@ ActiveRecord::Schema.define(version: 2024_05_20_174314) do
     t.datetime "photo_updated_at"
     t.integer "number"
     t.index ["session_id"], name: "index_notes_on_session_id"
-  end
-
-  create_table "session_timezones", force: :cascade do |t|
-    t.integer "session_id"
-    t.string "timezone_name"
   end
 
   create_table "sessions", id: :serial, force: :cascade do |t|
@@ -204,12 +202,6 @@ ActiveRecord::Schema.define(version: 2024_05_20_174314) do
     t.string "name"
     t.integer "taggings_count", default: 0
     t.index ["name"], name: "index_tags_on_name"
-  end
-
-  create_table "temp_session_offsets", id: :bigint, default: nil, force: :cascade do |t|
-    t.decimal "latitude"
-    t.decimal "longitude"
-    t.text "timezone"
   end
 
   create_table "threshold_alerts", force: :cascade do |t|
