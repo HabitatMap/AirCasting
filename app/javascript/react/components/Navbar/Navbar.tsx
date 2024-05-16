@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import logo from "../../../../assets/images/aircasting-logo-nav.svg";
@@ -10,6 +10,9 @@ import airbeamIcon from "../../assets/icons/airbeamIcon.svg";
 import goBackIcon from "../../assets/icons/goBackIcon.svg";
 import { urls } from "../../const/urls";
 import * as S from "./Navbar.style";
+import { LocationSearch } from "../LocationSearch";
+import { LatLngLiteral, Map } from "../../types/googleMaps";
+import { DEFAULT_MAP_CENTER } from "../../const/coordinates";
 
 const NavItem = ({
   href,
@@ -37,6 +40,8 @@ const NavItem = ({
 
 const Navbar = () => {
   const [navMenuVisible, setNavMenuVisible] = useState(false);
+  const [location, setLocation] = useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
+  const mapRef = useRef<Map>();
   const { t } = useTranslation();
 
   return (
@@ -52,12 +57,20 @@ const Navbar = () => {
         </S.GoBack>
       </S.MobileContainer>
       <S.DesktopContainer>
-        <a
-          href={urls.habitatMap}
-          aria-label={t("navbar.sections.aircastingPage")}
-        >
-          <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
-        </a>
+        <S.SearchContainer>
+          <a
+            href={urls.habitatMap}
+            aria-label={t("navbar.sections.aircastingPage")}
+          >
+            <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
+          </a>
+          <LocationSearch
+            setLocation={(position) => {
+              setLocation(position);
+              mapRef.current?.panTo(position);
+            }}
+          />
+        </S.SearchContainer>
         <S.Container>
           <S.BuyCTA href={urls.airbeamBuyNow}>
             {t("navbar.sections.getAirbeam")}

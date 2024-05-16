@@ -6,7 +6,9 @@ import usePlacesAutocomplete, {
 import { useCombobox } from "downshift";
 
 import { LatLngLiteral } from "../../types/googleMaps";
-import { Suggestion, SuggestionsList } from "./LocationSearch.style";
+import * as S from "./LocationSearch.style";
+import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
+import { SearchContainer } from "../Navbar/Navbar.style";
 
 interface LocationSearchProps {
   setLocation: (position: LatLngLiteral) => void;
@@ -63,28 +65,28 @@ const LocationSearch = ({ setLocation }: LocationSearchProps) => {
 
   return (
     <>
-      <div>
-        <input placeholder="Best book ever" {...getInputProps()} />
-        <button
+      <S.SearchContainer>
+        <S.SearchInput placeholder="Search for location" {...getInputProps()} />
+        <S.LocationSearchButton
           aria-label="toggle menu"
           type="button"
           {...getToggleButtonProps()}
         >
-          {isOpen ? <>&#8593;</> : <>&#8595;</>}
-        </button>
-      </div>
-      <SuggestionsList {...getMenuProps()}>
+          <img src={locationSearchIcon} alt="location search icon" />
+        </S.LocationSearchButton>
+      </S.SearchContainer>
+      <S.SuggestionsList {...getMenuProps()}>
         {isOpen &&
           items.map((item, index) => (
-            <Suggestion
+            <S.Suggestion
               key={item.place_id}
               $isHighlighted={highlightedIndex === index}
               {...getItemProps({ item, index })}
             >
               {item.description}
-            </Suggestion>
+            </S.Suggestion>
           ))}
-      </SuggestionsList>
+      </S.SuggestionsList>
     </>
   );
 };

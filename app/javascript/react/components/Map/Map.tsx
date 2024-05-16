@@ -44,14 +44,7 @@ const Map = () => {
 
   return (
     <>
-      <MapElementsContainer>
-        <LocationSearch
-          setLocation={(position) => {
-            setLocation(position);
-            mapRef.current?.panTo(position);
-          }}
-        />
-      </MapElementsContainer>
+      <MapElementsContainer></MapElementsContainer>
       <GoogleMap
         mapContainerStyle={containerStyle}
         zoom={DEFAULT_ZOOM}

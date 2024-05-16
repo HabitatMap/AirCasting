@@ -21,7 +21,6 @@ const Header = styled.header`
   z-index: 2;
 
   @media ${media.smallDesktop} {
-    padding: 0 4.8rem;
     height: ${NAVBAR_HEIGHT};
     position: fixed;
     width: 100%;
@@ -49,6 +48,18 @@ const DesktopContainer = styled.div`
     width: 100%;
   }
 `;
+
+const SearchContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
+  border-radius: 10px;
+  background-color: ${white};
+  padding: 1.6rem;
+  gap: 2rem;
+`;
+
 const AircastingLogo = styled.img`
   width: 152px;
   height: 43px;
@@ -215,4 +226,5 @@ export {
   DesktopContainer,
   GoBack,
   BuyCTAWhite,
+  SearchContainer,
 };

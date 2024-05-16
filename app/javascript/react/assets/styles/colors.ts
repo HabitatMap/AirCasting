@@ -15,7 +15,6 @@ const yellow = "#FFD960";
 const green = "#96D788";
 const black = "#000";
 
-
 export {
   cta,
   theme,
