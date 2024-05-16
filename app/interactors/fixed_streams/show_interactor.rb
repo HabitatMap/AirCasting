@@ -42,7 +42,7 @@ module FixedStreams
           stream_id: stream_id,
         )
       thresholds =
-        DefaultThresholdsRepository.new.stream_thresholds(stream: stream)
+        DefaultThresholdsRepository.new.find_for(stream: stream)
 
       [stream, measurements, stream_daily_averages, thresholds]
     end
