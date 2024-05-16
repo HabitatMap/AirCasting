@@ -4,7 +4,7 @@ import { NAVBAR_HEIGHT } from "../Navbar/Navbar.style";
 
 const containerStyle = {
   width: "100%",
-  height: `calc(100vh - ${NAVBAR_HEIGHT})`,
+  height: "100vh",
   display: "flex",
 };
 

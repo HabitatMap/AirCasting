@@ -17,11 +17,17 @@ const Header = styled.header`
   justify-content: space-between;
   align-items: center;
   padding: 2rem;
-  background: ${gray100};
+  background-color: transparent;
+  z-index: 2;
 
   @media ${media.smallDesktop} {
     padding: 0 4.8rem;
     height: ${NAVBAR_HEIGHT};
+    position: fixed;
+    width: 100%;
+    margin: 0 auto;
+    top: 0;
+    left: 0;
   }
 `;
 
