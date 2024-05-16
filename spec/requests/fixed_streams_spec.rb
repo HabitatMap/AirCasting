@@ -28,13 +28,13 @@ describe 'GET api/v3/fixed_streams/:id' do
           unit_symbol: stream.unit_symbol,
           update_frequency: '1 minute',
           last_update: stream.session.last_measurement_at,
-          start_time: session.end_time_local,
-          end_time: session.start_time_local,
-          min: stream.threshold_very_low.to_s,
-          low: stream.threshold_low.to_s,
-          middle: stream.threshold_medium.to_s,
-          high: stream.threshold_high.to_s,
-          max: stream.threshold_very_high.to_s,
+          thresholds: {
+            min: stream.threshold_very_low,
+            low: stream.threshold_low,
+            middle: stream.threshold_medium,
+            high: stream.threshold_high,
+            max: stream.threshold_very_high,
+          },
         },
         measurements: [
           { time: measurement_1.time.to_i * 1_000, value: measurement_1.value },
@@ -50,13 +50,6 @@ describe 'GET api/v3/fixed_streams/:id' do
             value: stream_daily_average_2.value.round,
           },
         ],
-        thresholds: {
-          min: stream.threshold_very_low,
-          low: stream.threshold_low,
-          middle: stream.threshold_medium,
-          high: stream.threshold_high,
-          max: stream.threshold_very_high,
-        },
       }
 
       expect(Flipper).to receive(:enabled?).with(:calendar).and_return(true)
@@ -94,6 +87,13 @@ describe 'GET api/v3/fixed_streams/:id' do
           unit_symbol: stream.unit_symbol,
           update_frequency: '1 minute',
           last_update: stream.session.last_measurement_at,
+          thresholds: {
+            min: default_thresholds.threshold_very_low,
+            low: default_thresholds.threshold_low,
+            middle: default_thresholds.threshold_medium,
+            high: default_thresholds.threshold_high,
+            max: default_thresholds.threshold_very_high,
+          },
         },
         measurements: [
           { time: measurement_1.time.to_i * 1_000, value: measurement_1.value },
@@ -109,13 +109,6 @@ describe 'GET api/v3/fixed_streams/:id' do
             value: stream_daily_average_2.value.round,
           },
         ],
-        thresholds: {
-          min: default_thresholds.threshold_very_low,
-          low: default_thresholds.threshold_low,
-          middle: default_thresholds.threshold_medium,
-          high: default_thresholds.threshold_high,
-          max: default_thresholds.threshold_very_high,
-        },
       }
 
       expect(Flipper).to receive(:enabled?).with(:calendar).and_return(true)
