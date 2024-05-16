@@ -5,6 +5,7 @@ import { gray100, gray200 } from "../../assets/styles/colors";
 const ScrollButton = styled.button`
   display: flex;
   align-items: center;
+  border: none;
   justify-content: center;
   width: 32px;
   height: 40px;

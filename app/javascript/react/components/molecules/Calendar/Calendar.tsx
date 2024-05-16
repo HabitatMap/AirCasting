@@ -14,12 +14,13 @@ import {
 import { ScrollCalendarButton } from "./atoms/ScrollCalendarButton/ScrollCalendarButton";
 import { MovesKeys } from "../../../types/movesKeys";
 import * as S from "./Calendar.style";
+import { StatusEnum } from "../../../types/api";
 
 interface MovableCalendarData {
   zeroDate: string;
   currentStartDate: string;
   currentEndDate: string;
-  direction: number | undefined;
+  direction: MovesKeys | undefined;
   triggerDirectionUpdate: number;
 }
 
@@ -34,7 +35,8 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
   const movingCalendarData = useSelector(movingData);
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [isRightButtonDisabled, setIsRightButtonDisabled] = useState(false);
+  const [isLeftButtonDisabled, setIsLeftButtonDisabled] = useState(false);
   const [dateReference, setDateReference] = useState<MovableCalendarData>({
     zeroDate: "",
     currentStartDate: "",
@@ -55,16 +57,16 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
 
   const handleBackwardMovement = (dateMoment: moment.Moment) => {
     const newEndMoment = dateMoment.subtract(1, "months").endOf("month");
-    setIsButtonDisabled(false);
+    setIsRightButtonDisabled(false);
     return newEndMoment;
   };
 
   const handleForwardMovement = (dateMoment: moment.Moment) => {
     let newEndMoment = dateMoment.add(1, "months").endOf("month");
-    const zeroDateMoment = moment(dateReference.zeroDate, "YYYY-MM-DD");
+    const zeroDateMoment = moment(dateReference.zeroDate, "DD/MM/YYYY");
     if (newEndMoment.isAfter(zeroDateMoment)) {
       newEndMoment = zeroDateMoment;
-      setIsButtonDisabled(true);
+      setIsRightButtonDisabled(true);
     }
     return newEndMoment;
   };
@@ -72,36 +74,45 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
   useEffect(() => {
     // Disable forward button at first, becouse
     // we present the newest months just after loading this page
-    setIsButtonDisabled(true);
+    setIsRightButtonDisabled(true);
 
     const lastElementIdx = movingCalendarData.data.length - 1;
     const endDate = movingCalendarData.data[lastElementIdx].date;
+    const processedEndDate = moment(endDate, "YYYY-MM-DD").format("DD/MM/YYYY");
 
     const startMoment = moment(endDate, "YYYY-MM-DD");
     const newStartDate = startMoment
       .date(1)
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
-      .format("YYYY-MM-DD");
+      .format("DD/MM/YYYY");
 
     setDateReference((prevState) => ({
       ...prevState,
-      zeroDate: endDate,
+      zeroDate: processedEndDate,
       currentStartDate: newStartDate,
-      currentEndDate: endDate,
+      currentEndDate: processedEndDate,
     }));
   }, []);
 
   useEffect(() => {
+    if (movingCalendarData.status === StatusEnum.NoData) {
+      setIsLeftButtonDisabled(true);
+    } else {
+      setIsLeftButtonDisabled(false);
+    }
+  }, [movingCalendarData.status]);
+
+  useEffect(() => {
     if (!dateReference.currentEndDate) return;
 
-    const dateMoment = moment(dateReference.currentEndDate, "YYYY-MM-DD");
+    const dateMoment = moment(dateReference.currentEndDate, "DD/MM/YYYY");
     let newEndMoment: Moment;
 
     switch (dateReference.direction) {
-      case -1:
+      case MovesKeys.MOVE_BACKWARD:
         newEndMoment = handleBackwardMovement(dateMoment);
         break;
-      case 1:
+      case MovesKeys.MOVE_FORWARD:
         newEndMoment = handleForwardMovement(dateMoment);
         break;
       default:
@@ -109,12 +120,12 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
         return;
     }
 
-    const newEndDate = newEndMoment.format("YYYY-MM-DD");
+    const newEndDate = newEndMoment.format("DD/MM/YYYY");
 
     const newStartDate = newEndMoment
       .date(1)
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
-      .format("YYYY-MM-DD");
+      .format("DD/MM/YYYY");
 
     setDateReference((prevState) => ({
       ...prevState,
@@ -122,11 +133,18 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
       currentEndDate: newEndDate,
     }));
 
+    const formattedStartDate = moment(newStartDate, "DD/MM/YYYY").format(
+      "YYYY-MM-DD"
+    );
+    const formattedEndDate = moment(newEndDate, "DD/MM/YYYY").format(
+      "YYYY-MM-DD"
+    );
+
     dispatch(
       fetchNewMovingStream({
         id: streamId,
-        startDate: newStartDate,
-        endDate: newEndDate,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
       })
     );
   }, [dateReference.triggerDirectionUpdate]);
@@ -150,6 +168,7 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
             <>
               <S.MobileSwipeContainer>
                 <ScrollCalendarButton
+                  disabled={isLeftButtonDisabled}
                   direction={MovesKeys.MOVE_BACKWARD}
                   handleClick={handleLeftClick}
                 />
@@ -160,7 +179,7 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
                 </S.DateField>
 
                 <ScrollCalendarButton
-                  disabled={isButtonDisabled}
+                  disabled={isRightButtonDisabled}
                   direction={MovesKeys.MOVE_FORWARD}
                   handleClick={handleRightClick}
                 />
@@ -169,6 +188,7 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
               <S.ThreeMonths>
                 <S.DesktopSwipeLeftContainer>
                   <ScrollCalendarButton
+                    disabled={isLeftButtonDisabled}
                     direction={MovesKeys.MOVE_BACKWARD}
                     handleClick={handleLeftClick}
                   />
@@ -178,7 +198,7 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
                 ))}
                 <S.DesktopSwipeRightContainer>
                   <ScrollCalendarButton
-                    disabled={isButtonDisabled}
+                    disabled={isRightButtonDisabled}
                     direction={MovesKeys.MOVE_FORWARD}
                     handleClick={handleRightClick}
                   />

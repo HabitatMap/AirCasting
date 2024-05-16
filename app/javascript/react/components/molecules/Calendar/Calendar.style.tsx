@@ -20,7 +20,7 @@ const MobileSwipeContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-direction: row;
-  padding: 20px 0;
+  padding: 1.5rem 0;
 
   @media ${media.desktop} {
     display: none;
@@ -35,7 +35,7 @@ const DesktopSwipeLeftContainer = styled.div`
 
   @media (${media.desktop}) {
     display: flex;
-    left: 20px;
+    left: 1.5rem;
   }
 `;
 
@@ -47,7 +47,7 @@ const DesktopSwipeRightContainer = styled.div`
 
   @media (${media.desktop}) {
     display: flex;
-    right: 20px;
+    right: 1.5rem;
   }
 `;
 
@@ -56,7 +56,7 @@ const DateField = styled(H3)`
   align-items: center;
 
   span {
-    margin: 0 10px;
+    margin: 0 1.5rem;
   }
 `;
 

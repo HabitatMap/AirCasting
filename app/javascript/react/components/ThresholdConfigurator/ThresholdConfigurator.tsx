@@ -121,10 +121,10 @@ const ThresholdsConfigurator = () => {
       {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
       <HeaderToggle
         titleText={
-          <>
+          <S.StyledContainer>
             {t("calendarHeader.legendTitle")}
             <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
-          </>
+          </S.StyledContainer>
         }
         resetThresholds={resetThresholds}
         componentToToggle={

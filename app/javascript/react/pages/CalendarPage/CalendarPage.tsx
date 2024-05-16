@@ -67,7 +67,7 @@ const CalendarPage = () => {
       <S.StationDataContainer>
         <FixedStreamStationHeader />
         {!isMobile && <ThresholdsConfigurator />}
-        {movingCalendarData.data.length > 0 && streamId && (
+        {movingCalendarData.data.length && streamId && (
           <Calendar streamId={streamId} />
         )}
         {isMobile && <ThresholdsConfigurator />}

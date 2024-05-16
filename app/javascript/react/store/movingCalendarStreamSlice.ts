@@ -61,8 +61,12 @@ export const movingStreamSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchNewMovingStream.fulfilled, (state, { payload }) => {
-        state.status = StatusEnum.Fulfilled;
-        state.data = payload
+        if (payload.length) {
+          state.status = StatusEnum.Fulfilled;
+          state.data = payload;
+        } else {
+          state.status = StatusEnum.NoData;
+        }
       })
       .addCase(fetchNewMovingStream.rejected, (state, { error }) => {
         state.status = StatusEnum.Rejected;

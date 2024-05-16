@@ -177,7 +177,12 @@ const Units = styled.sup`
   margin-left: 0.2rem;
 `;
 
+const StyledContainer = styled.div`
+  display: inline;
+`;
+
 export {
+  StyledContainer,
   Container,
   InputContainer,
   RangeInput,

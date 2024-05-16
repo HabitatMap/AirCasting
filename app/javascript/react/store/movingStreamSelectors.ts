@@ -10,18 +10,15 @@ import {
 import { StreamDailyAverage as MovingStreamDailyAverage } from "../types/StreamDailyAverage";
 import { RootState } from ".";
 
-const DAYS_IN_WEEK_COUNT = 7;
+const WEEKDAYS_COUNT = 7;
 
 const getMonthWeekBoundariesForDate = (
   date: Moment
 ): { firstDayOfMonthWeek: Moment; lastDayOfMonthWeek: Moment } => {
   const year = date.year();
   const month = date.month();
-  const firstDayOfMonthWeek = moment([year, month])
-    .startOf("month")
-    .startOf("week");
+  const firstDayOfMonthWeek = moment([year, month]).startOf("month").startOf("week");
   const lastDayOfMonthWeek = moment([year, month]).endOf("month").endOf("week");
-
   return { firstDayOfMonthWeek, lastDayOfMonthWeek };
 };
 
@@ -60,7 +57,7 @@ const getMonthWeeksOfDailyAveragesFor = (
 
   while (currentDate <= lastDayOfMonthWeek) {
     let week = [];
-    for (let i = 0; i < DAYS_IN_WEEK_COUNT; i++) {
+    for (let i = 0; i < WEEKDAYS_COUNT; i++) {
       const isCurrentMonth = currentDate.isSame(month, "month");
 
       const value = isCurrentMonth

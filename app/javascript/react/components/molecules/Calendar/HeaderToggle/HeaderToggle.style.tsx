@@ -8,8 +8,9 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   padding-bottom: 20px;
+  
   @media ${media.smallDesktop} {
-    justify-content: space-between;
+    justify-content: none;
   }
 `;
 
@@ -26,6 +27,7 @@ const Heading = styled(H1)`
 
   @media ${media.desktop} {
     display: flex;
+    justify-content: space-between;
     width: 100%; 
     cursor: auto;
     font-size: 28px;
@@ -42,12 +44,13 @@ const DateField = styled(H3)`
     color: ${colors.gray300};
     
     span {
-      margin: 0 10px;
+      margin: 0 0.6rem;
     }
   }
 `;
 
 const ResetButton = styled(Button)`
+  white-space: nowrap;       
   background: ${colors.gray100};
   border: none;
   color: ${colors.gray300};
