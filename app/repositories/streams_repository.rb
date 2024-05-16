@@ -51,17 +51,9 @@ class StreamsRepository
     stream.save!
   end
 
-  def thresholds(stream_id:)
-    stream = Stream.find(stream_id)
-    defult_thresholds = DefaultThresholds.find_by(stream_id: stream_id, unit_symbol: stream.unit_symbol)
-    source = default_thresholds || stream
-
-    {
-      threshold_very_low: source.threshold_very_low,
-      threshold_low: source.threshold_low,
-      threshold_medium: source.threshold_medium,
-      threshold_high: source.threshold_high,
-      threshold_very_high: source.threshold_very_high
-    }
+  def find_with_thresholds(id:)
+    stream = Stream.find(id)
+    default_thresholds = DefaultThreshold.find_by(sensor_name: stream&.sensor_name, unit_symbol: stream&.unit_symbol)
+    [stream, default_thresholds]
   end
 end
