@@ -19,7 +19,7 @@ class SessionBuilder
     stream_data = data.delete(:streams)
 
     data = build_local_start_and_end_time(data)
-    data[:time_zone] = TimeZoneFinderWrapper.instance.time_zone_at(data[:latitude], data[:longitude])
+    data[:time_zone] = TimeZoneFinderWrapper.instance.time_zone_at(lat: data[:latitude], lng: data[:longitude])
 
     allowed = Session.attribute_names + %w[notes_attributes tag_list user]
     filtered = data.select { |k, _| allowed.include?(k.to_s) }
