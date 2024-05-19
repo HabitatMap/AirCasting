@@ -1,16 +1,18 @@
 import styled from "styled-components";
+import { white } from "../../../assets/styles/colors";
 
-import { NAVBAR_HEIGHT } from "../Navbar/Navbar.style";
-
-const containerStyle = {
-  width: "100%",
-  height: "100vh",
-};
-
-const MapElementsContainer = styled.div`
+const ControlPanelsContainer = styled.div`
+  font-size: 1.5rem;
+  background: ${white};
   position: absolute;
-  z-index: 2;
+  top: 5%;
+  right: 30%;
+  cursor: auto;
   display: flex;
+  padding: 5px 16px 5px 16px;
+  gap: 10px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 4px 0px #4c56601a;
 `;
 
 const ToggleContainer = styled.div`
@@ -66,4 +68,11 @@ const Input = styled.input`
   }
 `;
 
-export { MapElementsContainer, containerStyle };
+export {
+  ControlPanelsContainer,
+  ToggleContainer,
+  SwitchLabel,
+  SwitchInput,
+  Slider,
+  Input,
+};
