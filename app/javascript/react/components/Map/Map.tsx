@@ -25,8 +25,8 @@ export type MapConfig = {
 
 const MAP_CONFIGS: MapConfig[] = [
   {
-    id: "light",
-    label: "Light",
+    id: "map",
+    label: "Map",
     mapId: "49ae42fed52588c3",
     mapTypeId: MapTypeId.ROADMAP,
   },
@@ -62,7 +62,7 @@ const Map = () => {
         scaleControl={true}
         style={containerStyle}
       >
-        <Markers points={trees} /> // Use the Markers component
+        <Markers points={trees} />
       </GoogleMap>
       <ControlPanel
         mapConfigs={MAP_CONFIGS}

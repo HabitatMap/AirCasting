@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { white } from "../../../assets/styles/colors";
+import { blue, gray400, white } from "../../../assets/styles/colors";
 
 const ControlPanelsContainer = styled.div`
   font-size: 1.5rem;
@@ -9,10 +9,10 @@ const ControlPanelsContainer = styled.div`
   right: 30%;
   cursor: auto;
   display: flex;
-  padding: 5px 16px 5px 16px;
+  padding: 1.5rem 2.5rem;
   gap: 10px;
   border-radius: 10px;
-  box-shadow: 2px 2px 4px 0px #4c56601a;
+  box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
 `;
 
 const ToggleContainer = styled.div`
@@ -21,17 +21,37 @@ const ToggleContainer = styled.div`
   font-size: 16px;
 `;
 
+const TerrainContainer = styled.div`
+  display: flex;
+  &:before {
+    content: "";
+    position: absolute;
+    right: 35%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: gray;
+    opacity: 0.4;
+  }
+`;
+
 const SwitchLabel = styled.label`
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 36px;
+  height: 18px;
 `;
 
 const SwitchInput = styled.input`
   opacity: 0;
-  width: 0;
-  height: 0;
+  width: 36px;
+  height: 18px;
+  z-index: 2;
+  position: relative;
+
+  &:checked + span:before {
+    transform: translateX(18px);
+  }
 `;
 
 const Slider = styled.span`
@@ -41,31 +61,34 @@ const Slider = styled.span`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: ${blue};
   transition: 0.4s;
-  border-radius: 34px;
+  border-radius: 30px;
+  z-index: 1;
 
   &:before {
     position: absolute;
     content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 1.5px;
+    padding: 8px 0;
+    background-color: ${white};
     transition: 0.4s;
-    border-radius: 50%;
+    border-radius: 30px;
   }
 `;
 
-const Input = styled.input`
-  &:checked + ${Slider} {
-    background-color: #2196f3;
-  }
+const Label = styled.span<{ isActive: boolean }>`
+  color: ${(props) => (props.isActive ? blue : gray400)};
+  margin: 0 1rem;
+`;
 
-  &:checked + ${Slider}:before {
-    transform: translateX(26px);
-  }
+const TerrainCheckbox = styled.input`
+  margin-left: 1rem;
+  z-index: 2;
+  position: relative;
 `;
 
 export {
@@ -74,5 +97,7 @@ export {
   SwitchLabel,
   SwitchInput,
   Slider,
-  Input,
+  Label,
+  TerrainContainer,
+  TerrainCheckbox,
 };

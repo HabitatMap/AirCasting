@@ -19,7 +19,7 @@ module.exports = (webpackConfig) => {
     port: devServerPort,
     hot: false,
     client: {
-      overlay: true,
+      overlay: false,
     },
     // Use gzip compression
     compress: true,
