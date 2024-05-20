@@ -38,7 +38,7 @@ export const fetchNewMovingStream = createAsyncThunk<
         await apiClient.get(
           API_ENDPOINTS.fetchSelectedDataRangeOfStream(id, startDate, endDate)
         );
-      return response.data
+      return response.data;
     } catch (error) {
       const message = getErrorMessage(error);
       return rejectWithValue({ message });
@@ -61,12 +61,8 @@ export const movingStreamSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchNewMovingStream.fulfilled, (state, { payload }) => {
-        if (payload.length) {
-          state.status = StatusEnum.Fulfilled;
-          state.data = payload;
-        } else {
-          state.status = StatusEnum.NoData;
-        }
+        state.status = StatusEnum.Fulfilled;
+        state.data = payload;
       })
       .addCase(fetchNewMovingStream.rejected, (state, { error }) => {
         state.status = StatusEnum.Rejected;

@@ -53,6 +53,7 @@ const CalendarPage = () => {
       console.log("No daily averages to process.");
       return;
     }
+    console.log(fixedStreamData.streamDailyAverages)
     const newMovingCalendarData = fixedStreamData.streamDailyAverages.map(
       ({ date, value }) => ({
         date,
