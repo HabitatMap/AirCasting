@@ -7,13 +7,14 @@ namespace :stream_daily_averages do
 
     FixedSession.find_each(batch_size: 100) do |session|
       puts "Processing session #{current_session += 1} of #{session_count} ( #{(current_session.to_f / session_count * 100).round(2)}%)"
-      current_session += 1
       streams = session.streams
 
       averages_created = 0
 
       streams.each do |stream|
         measurements = stream.measurements.order(:time_with_time_zone)
+
+        puts "Processing stream #{stream.id} with #{measurements.size} measurements"
         measurements.group_by { |m| m.time_with_time_zone.to_date }.each do |date, daily_measurements|
           daily_average = daily_measurements.map(&:value).sum.to_f / daily_measurements.size
           StreamDailyAverage.find_or_create_by(
