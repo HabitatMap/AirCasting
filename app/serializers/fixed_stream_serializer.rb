@@ -7,7 +7,7 @@ class FixedStreamSerializer
 
   def call(stream:, measurements:, stream_daily_averages:)
     {
-      stream: stream_serializer.call(stream, default_thresholds),
+      stream: stream_serializer.call(stream),
       measurements: measurements_serializer.call(measurements),
       stream_daily_averages:
         stream_daily_averages_serializer.call(stream_daily_averages),
