@@ -28,13 +28,6 @@ describe 'GET api/v3/fixed_streams/:id' do
           unit_symbol: stream.unit_symbol,
           update_frequency: '1 minute',
           last_update: stream.session.last_measurement_at,
-          thresholds: {
-            min: stream.threshold_very_low,
-            low: stream.threshold_low,
-            middle: stream.threshold_medium,
-            high: stream.threshold_high,
-            max: stream.threshold_very_high,
-          },
         },
         measurements: [
           { time: measurement_1.time.to_i * 1_000, value: measurement_1.value },
@@ -67,7 +60,6 @@ describe 'GET api/v3/fixed_streams/:id' do
       stream = create_stream!({ session: session })
       measurement_1 = create_measurement!({ stream: stream })
       measurement_2 = create_measurement!({ stream: stream })
-      default_thresholds = create_default_thresholds!({sensor_name: stream.sensor_name, unit_symbol: stream.unit_symbol})
       stream_daily_average_1 =
         create_stream_daily_average!(
           { stream: stream, date: Date.current, value: 10 },
@@ -87,13 +79,6 @@ describe 'GET api/v3/fixed_streams/:id' do
           unit_symbol: stream.unit_symbol,
           update_frequency: '1 minute',
           last_update: stream.session.last_measurement_at,
-          thresholds: {
-            min: default_thresholds.threshold_very_low,
-            low: default_thresholds.threshold_low,
-            middle: default_thresholds.threshold_medium,
-            high: default_thresholds.threshold_high,
-            max: default_thresholds.threshold_very_high,
-          },
         },
         measurements: [
           { time: measurement_1.time.to_i * 1_000, value: measurement_1.value },
