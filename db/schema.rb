@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_05_13_144147) do
+ActiveRecord::Schema.define(version: 2024_05_20_174314) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -155,6 +155,7 @@ ActiveRecord::Schema.define(version: 2024_05_13_144147) do
     t.float "average_value"
     t.decimal "start_longitude", precision: 12, scale: 9
     t.decimal "start_latitude", precision: 12, scale: 9
+    t.integer "threshold_set_id"
     t.index ["max_latitude"], name: "index_streams_on_max_latitude"
     t.index ["max_longitude"], name: "index_streams_on_max_longitude"
     t.index ["min_latitude"], name: "index_streams_on_min_latitude"
