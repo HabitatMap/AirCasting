@@ -193,6 +193,6 @@ class Stream < ApplicationRecord
     latitude = data.first[:latitude].to_f
     longitude = data.first[:longitude].to_f
 
-    TimeZoneBuilder.new.call(latitude, longitude)
+    TimeZoneFinderWrapper.instance.time_zone_at(lat: latitude, lng: longitude)
   end
 end
