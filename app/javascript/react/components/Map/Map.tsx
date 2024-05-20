@@ -5,8 +5,9 @@ import { Map as GoogleMap } from "@vis.gl/react-google-maps";
 import trees from "./trees";
 
 import { containerStyle } from "./Map.style";
-import { Markers } from "./Markers";
+
 import { ControlPanel } from "./ControlPanel/ControlPanel";
+import { Markers } from "./Markers/Markers";
 
 const MapTypeId = {
   HYBRID: "hybrid",
@@ -61,7 +62,7 @@ const Map = () => {
         scaleControl={true}
         style={containerStyle}
       >
-        <Markers points={trees} />
+        <Markers points={trees} /> // Use the Markers component
       </GoogleMap>
       <ControlPanel
         mapConfigs={MAP_CONFIGS}
