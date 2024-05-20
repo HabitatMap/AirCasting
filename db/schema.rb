@@ -44,19 +44,6 @@ ActiveRecord::Schema.define(version: 2024_05_13_144147) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "default_thresholds", force: :cascade do |t|
-    t.string "sensor_name"
-    t.string "unit_symbol"
-    t.float "threshold_very_low"
-    t.float "threshold_low"
-    t.float "threshold_medium"
-    t.float "threshold_high"
-    t.float "threshold_very_high"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["sensor_name", "unit_symbol"], name: "index_default_thresholds_on_sensor_name_and_unit_symbol"
-  end
-
   create_table "deleted_sessions", id: :serial, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -213,6 +200,20 @@ ActiveRecord::Schema.define(version: 2024_05_13_144147) do
     t.datetime "updated_at", precision: 6, null: false
     t.integer "timezone_offset", default: 0
     t.index ["session_uuid", "sensor_name"], name: "index_threshold_alerts_on_session_uuid_and_sensor_name"
+  end
+
+  create_table "threshold_sets", force: :cascade do |t|
+    t.string "sensor_name"
+    t.string "unit_symbol"
+    t.boolean "is_default"
+    t.float "threshold_very_low"
+    t.float "threshold_low"
+    t.float "threshold_medium"
+    t.float "threshold_high"
+    t.float "threshold_very_high"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["sensor_name", "unit_symbol"], name: "index_threshold_sets_on_sensor_name_and_unit_symbol"
   end
 
   create_table "users", id: :serial, force: :cascade do |t|

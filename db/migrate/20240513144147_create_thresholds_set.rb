@@ -1,8 +1,9 @@
-class CreateDefaultThresholds < ActiveRecord::Migration[6.1]
+class CreateThresholdsSet < ActiveRecord::Migration[6.1]
   def change
-    create_table :default_thresholds do |t|
+    create_table :threshold_sets do |t|
       t.string :sensor_name
       t.string :unit_symbol
+      t.boolean :is_default
       t.float :threshold_very_low
       t.float :threshold_low
       t.float :threshold_medium
@@ -11,6 +12,6 @@ class CreateDefaultThresholds < ActiveRecord::Migration[6.1]
       t.timestamps
     end
 
-    add_index :default_thresholds, [:sensor_name, :unit_symbol]
+    add_index :threshold_sets, [:sensor_name, :unit_symbol]
   end
 end
