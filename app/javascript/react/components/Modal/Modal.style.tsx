@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 import { white, blue, gray100 } from "../../assets/styles/colors";
 import { H3 } from "../Typography/Typography.style";
 import { Button } from "../Button/Button.style";
@@ -31,7 +32,7 @@ const ModalContent = styled.div`
   opacity: 1;
   border-radius: 8px;
   position: relative;
-  padding: 20px;
+  padding: 1.25rem;
   min-height: 20vh;
   min-width: 40vw;
 `;
@@ -44,14 +45,14 @@ const ModalText = styled(H3)`
 const ButtonsWrapper = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: 5px;
-  padding-top: 10px;
+  gap: 0.3125rem;
+  padding-top: 0.625rem;
 `;
 
 const FlexWrapper = styled.div`
   display: flex;
   align-items: center;
-  padding-bottom: 10px;
+  padding-bottom: 0.625rem;
 `;
 
 const ActionButton = styled(Button)`
@@ -77,10 +78,10 @@ const CancelButtonX = styled(Button)`
 
 const TextInput = styled.input`
   width: 100%;
-  padding: 10px;
+  padding: 0.625rem;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
 `;
 
 export {

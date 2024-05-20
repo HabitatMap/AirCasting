@@ -40,7 +40,6 @@ export const fetchFixedStreamById = createAsyncThunk<
     const response: AxiosResponse<FixedStream, Error> = await apiClient.get(
       API_ENDPOINTS.fetchFixedStreamById(id)
     );
-    console.log(response.data);
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);

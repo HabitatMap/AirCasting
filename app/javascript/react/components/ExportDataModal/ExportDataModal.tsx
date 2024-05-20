@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { exportSession } from "../../store/exportSessionSlice";
-import { useAppDispatch } from "../../store/hooks";
 import { useTranslation } from "react-i18next";
+
+import { useAppDispatch } from "../../store/hooks";
+import { exportSession } from "../../store/exportSessionSlice";
 import { Modal } from "../Modal";
-import { EmailInput, ConfirmationMessage } from "./ExportDataModa.style";
+import { EmailInput, ConfirmationMessage } from "./ExportDataModal.style";
 import downloadWhite from "../../assets/icons/downloadWhite.svg";
+import { red } from "../../assets/styles/colors";
 
 export interface ExportModalData {
   email: string;
@@ -55,7 +57,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
     if (confirmationMessage) {
       const timer = setTimeout(() => {
         onClose();
-      }, 4000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [confirmationMessage, onClose]);
@@ -97,10 +99,10 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
 
   return (
     <Modal
-      title="Export data to e-mail"
+      title={t("exportDataModal.title")}
       hasCloseButton={!confirmationMessage}
       hasActionButton={!confirmationMessage}
-      buttonName="Export data"
+      buttonName={t("exportDataModal.exportButton")}
       buttonHasIcon
       iconName={downloadWhite}
       handleActionButton={handleSubmit}
@@ -118,7 +120,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
               onChange={handleInputChange}
             />
           </div>
-          {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+          {errorMessage && <p style={{ color: red }}>{errorMessage}</p>}
         </form>
       )}
     </Modal>

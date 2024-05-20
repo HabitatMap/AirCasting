@@ -1,15 +1,20 @@
 import React from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
+
 import { TextInput } from "../Modal/Modal.style";
 
 interface ConfirmationMessageProps {
   message: string;
 }
+
 interface EmailInputProps {
   focusInputRef: React.RefObject<HTMLInputElement>;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
+
+const { t } = useTranslation();
 
 const EmailInput: React.FC<EmailInputProps> = ({
   focusInputRef,
@@ -23,7 +28,7 @@ const EmailInput: React.FC<EmailInputProps> = ({
       ref={focusInputRef}
       value={value}
       onChange={onChange}
-      placeholder="Enter your email"
+      placeholder={t("exportDataModal.emailPlaceholder")}
     />
   );
 };

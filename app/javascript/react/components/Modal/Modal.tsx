@@ -53,12 +53,10 @@ const Modal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     const modalElement = modalRef.current;
-    if (modalElement) {
-      if (isOpen) {
-        modalElement.showModal();
-      } else {
-        modalElement.close();
-      }
+    if (modalElement && isOpen) {
+      modalElement.showModal();
+    } else if (modalElement) {
+      modalElement.close();
     }
   }, [isOpen]);
 

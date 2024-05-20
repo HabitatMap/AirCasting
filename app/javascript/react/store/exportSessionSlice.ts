@@ -13,7 +13,7 @@ interface ExportSessionState {
   error?: Error;
 }
 
-export interface SessionData  {
+export interface SessionData {
   sessionId: "",
   email: "",
 };
@@ -48,18 +48,13 @@ export const exportSessionSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(exportSession.fulfilled, (state, action) => {
-      console.log(state.status)
       state.status = StatusEnum.Fulfilled;
-      console.log(state.status)
       state.data = action.payload;
     });
     builder.addCase(exportSession.rejected, (state, action) => {
       state.status = StatusEnum.Rejected;
-      if (action.payload) {
-        state.error = { message: action.payload.message };
-      } else {
-        state.error = { message: action.error.message || 'Unknown error' };
-      }
+      const errorMessage = action.payload?.message;
+      state.error = { message: errorMessage || 'Unknown error' };      
       state.data = initialState.data;
     });
   },

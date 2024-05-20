@@ -70,8 +70,11 @@
     "message": "The page you are looking for does not exist."
   },
   "exportDataModal": {
+    "title": "Export data to e-mail",
+    "exportButton": "Export data",
     "emailPlaceholder": "loremipsum@ac.com",
     "confirmationMessage": "Exported sessions will be emailed within minutes. The email may end up in your spam folder.",
     "invalidEmailMessage": "Please enter a valid email address."
+
   }
 }
