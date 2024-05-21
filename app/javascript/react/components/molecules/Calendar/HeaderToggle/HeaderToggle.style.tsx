@@ -7,7 +7,7 @@ import * as colors from "../../../../assets/styles/colors";
 const Container = styled.div`
   display: flex;
   align-items: center;
-  padding-bottom: 20px;
+  padding-bottom: 1.25rem;
   
   @media ${media.smallDesktop} {
     justify-content: none;

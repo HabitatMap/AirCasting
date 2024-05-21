@@ -10,9 +10,15 @@ import useCalendarHook from "./CalendarHook";
 
 interface CalendarProps {
   streamId: number;
+  minCalendarDate: string;
+  maxCalendarDate: string;
 }
 
-const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
+const Calendar: React.FC<CalendarProps> = ({
+  streamId,
+  minCalendarDate,
+  maxCalendarDate,
+}) => {
   const {
     threeMonthsData,
     dateReference,
@@ -20,9 +26,10 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
     isRightButtonDisabled,
     handleLeftClick,
     handleRightClick,
-  } = useCalendarHook(streamId);
+  } = useCalendarHook({ streamId, minCalendarDate, maxCalendarDate });
 
   const { t } = useTranslation();
+  const showError = isLeftButtonDisabled || isRightButtonDisabled;
 
   return (
     threeMonthsData && (
@@ -51,7 +58,11 @@ const Calendar: React.FC<CalendarProps> = ({ streamId }) => {
                   handleClick={handleRightClick}
                 />
               </S.MobileSwipeContainer>
-
+              <S.RedErrorMessage
+                style={{ visibility: showError ? "visible" : "hidden" }}
+              >
+                {showError && t("calendarPage.noDataMessage")}
+              </S.RedErrorMessage>
               <S.ThreeMonths>
                 <S.DesktopSwipeLeftContainer>
                   <ScrollCalendarButton

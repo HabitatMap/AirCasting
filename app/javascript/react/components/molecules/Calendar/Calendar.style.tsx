@@ -6,7 +6,6 @@ import { H3 } from "../../Typography";
 const ThreeMonths = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
   gap: 2rem;
   flex-wrap: wrap;
 
@@ -72,11 +71,20 @@ const CalendarContainer = styled.div`
   }
 `;
 
+const RedErrorMessage = styled.span`
+  color: red;
+  padding: 0 0 1rem 0;
+  min-height: 2rem;
+  display: block;
+  visibility: hidden;
+`;
+
 export {
   DateField,
   ThreeMonths,
   CalendarContainer,
   MobileSwipeContainer,
   DesktopSwipeLeftContainer,
-  DesktopSwipeRightContainer
+  DesktopSwipeRightContainer,
+  RedErrorMessage
 };

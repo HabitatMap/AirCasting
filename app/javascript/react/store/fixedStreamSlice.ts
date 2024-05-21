@@ -25,6 +25,8 @@ const initialState: FixedStreamState = {
       updateFrequency: "",
       active: true,
       sessionId: "",
+      startTime: "",
+      endTime: "",
     },
     measurements: [],
     streamDailyAverages: [],

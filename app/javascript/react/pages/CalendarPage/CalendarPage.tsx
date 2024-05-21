@@ -32,6 +32,12 @@ const CalendarPage = () => {
     window.innerWidth < screenSizes.mobile
   );
 
+  const calendarIsVisible =
+    movingCalendarData.data.length &&
+    streamId &&
+    fixedStreamData.stream.startTime &&
+    fixedStreamData.stream.endTime;
+
   useEffect(() => {
     streamId && dispatch(fetchFixedStreamById(streamId));
   }, []);
@@ -53,7 +59,7 @@ const CalendarPage = () => {
       console.log("No daily averages to process.");
       return;
     }
-    console.log(fixedStreamData.streamDailyAverages)
+    console.log(fixedStreamData.streamDailyAverages);
     const newMovingCalendarData = fixedStreamData.streamDailyAverages.map(
       ({ date, value }) => ({
         date,
@@ -68,8 +74,12 @@ const CalendarPage = () => {
       <S.StationDataContainer>
         <FixedStreamStationHeader />
         {!isMobile && <ThresholdsConfigurator />}
-        {movingCalendarData.data.length && streamId && (
-          <Calendar streamId={streamId} />
+        {calendarIsVisible && (
+          <Calendar
+            streamId={streamId}
+            minCalendarDate={fixedStreamData.stream.startTime}
+            maxCalendarDate={fixedStreamData.stream.endTime}
+          />
         )}
         {isMobile && <ThresholdsConfigurator />}
       </S.StationDataContainer>

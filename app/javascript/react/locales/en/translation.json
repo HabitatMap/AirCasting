@@ -78,6 +78,7 @@
   },
   "calendarPage": {
     "forwardScrollButton": "Move calendar page one step forward",
-    "backScrollButton": "Move calendar page one step back"
+    "backScrollButton": "Move calendar page one step back",
+    "noDataMessage": "There is no more data available at the moment"
   }
 }

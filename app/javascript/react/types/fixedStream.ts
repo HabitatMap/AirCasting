@@ -13,6 +13,8 @@ interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   title: string;
   unitSymbol: string;
   active: boolean;
+  startTime: string;
+  endTime: string;
 }
 
 interface Measurement {

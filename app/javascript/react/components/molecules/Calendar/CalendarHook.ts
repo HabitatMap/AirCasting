@@ -12,8 +12,6 @@ import {
 import { CalendarMonthlyData } from "../../../types/movingStream";
 
 interface MovableCalendarData {
-  maxEndDate: string;
-  maxStartDate: string;
   currentStartDate: string;
   currentEndDate: string;
   direction: MovesKeys | undefined;
@@ -29,7 +27,17 @@ interface CalendarControllerReturn {
   handleRightClick: () => void;
 }
 
-const useCalendarHook = (streamId: number): CalendarControllerReturn => {
+interface CalendarHookParams {
+  streamId: number;
+  minCalendarDate: string;
+  maxCalendarDate: string;
+}
+
+const useCalendarHook = ({
+  streamId,
+  minCalendarDate,
+  maxCalendarDate,
+}: CalendarHookParams): CalendarControllerReturn => {
   const SEEN_MONTHS_NUMBER = 3;
 
   const dispatch = useAppDispatch();
@@ -40,8 +48,6 @@ const useCalendarHook = (streamId: number): CalendarControllerReturn => {
   const [isLeftButtonDisabled, setIsLeftButtonDisabled] =
     useState<boolean>(false);
   const [dateReference, setDateReference] = useState<MovableCalendarData>({
-    maxEndDate: "",
-    maxStartDate: "",
     currentStartDate: "",
     currentEndDate: "",
     direction: undefined,
@@ -65,7 +71,7 @@ const useCalendarHook = (streamId: number): CalendarControllerReturn => {
   const handleForwardMovement = (dateMoment: moment.Moment) => {
     setIsLeftButtonDisabled(false);
     let newEndMoment = dateMoment.add(1, "months").endOf("month");
-    const maxEndDateMoment = moment(dateReference.maxEndDate, "DD/MM/YYYY");
+    const maxEndDateMoment = moment(maxCalendarDate, "YYYY-MM-DD");
     if (newEndMoment.isAfter(maxEndDateMoment)) {
       newEndMoment = maxEndDateMoment;
       setIsRightButtonDisabled(true);
@@ -74,19 +80,9 @@ const useCalendarHook = (streamId: number): CalendarControllerReturn => {
   };
 
   useEffect(() => {
-    // Disable forward button at first, becouse
-    // we present the newest months just after loading this page
-    setIsRightButtonDisabled(true);
-
     const lastElementIdx = movingCalendarData.data.length - 1;
     const maxEndDate = movingCalendarData.data[lastElementIdx].date;
     const processedMaxEndDate = moment(maxEndDate, "YYYY-MM-DD").format(
-      "DD/MM/YYYY"
-    );
-
-    const maxStartDate = movingCalendarData.data[0].date;
-    console.log("Saving...", movingCalendarData.data);
-    const processedMaxStartDate = moment(maxStartDate, "YYYY-MM-DD").format(
       "DD/MM/YYYY"
     );
 
@@ -98,8 +94,6 @@ const useCalendarHook = (streamId: number): CalendarControllerReturn => {
 
     setDateReference((prevState) => ({
       ...prevState,
-      maxStartDate: processedMaxStartDate,
-      maxEndDate: processedMaxEndDate,
       currentStartDate: newStartDate,
       currentEndDate: processedMaxEndDate,
     }));
@@ -129,12 +123,11 @@ const useCalendarHook = (streamId: number): CalendarControllerReturn => {
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
       .format("DD/MM/YYYY");
 
-    const maxStartDateMoment = moment(dateReference.maxStartDate, "DD/MM/YYYY");
-    const newStartDateMoment = moment(newStartDate, "DD/MM/YYYY");
+    const newStartDateMoment = moment(newStartDate, "DD/MM/YYYY").date(1);
+    const minCalendarMoment = moment(minCalendarDate, "YYYY-MM-DD").date(1);
 
-    console.log("^^^^", maxStartDateMoment, newStartDateMoment);
-    if (newStartDateMoment.isBefore(maxStartDateMoment)) {
-      setIsLeftButtonDisabled(true)
+    if (newStartDateMoment.isBefore(minCalendarMoment)) {
+      setIsLeftButtonDisabled(true);
       return;
     }
 
