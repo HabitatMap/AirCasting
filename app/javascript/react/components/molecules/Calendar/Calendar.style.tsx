@@ -34,7 +34,7 @@ const DesktopSwipeLeftContainer = styled.div`
 
   @media (${media.desktop}) {
     display: flex;
-    left: 1.5rem;
+    left: 3rem;
   }
 `;
 
@@ -46,7 +46,7 @@ const DesktopSwipeRightContainer = styled.div`
 
   @media (${media.desktop}) {
     display: flex;
-    right: 1.5rem;
+    right: 3rem;
   }
 `;
 
