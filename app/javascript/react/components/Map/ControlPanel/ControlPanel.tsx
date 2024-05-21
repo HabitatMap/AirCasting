@@ -6,22 +6,15 @@ import { useSelector } from "react-redux";
 import { setMapConfigId, setMapTypeId } from "../../../store/mapSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { RootState } from "../../../store";
-
-enum ViewMode {
-  MAP = "map",
-  SATELLITE = "satellite",
-  TERRAIN = "terrain",
-}
-
-const MAP_LABEL = "Map";
-const SATELLITE_LABEL = "Satellite";
-const TERRAIN_LABEL = "Terrain";
+import { ViewMode } from "../../../types/map";
+import { useTranslation } from "react-i18next";
 
 const ControlPanel = () => {
   const dispatch = useAppDispatch();
   const mapConfigId = useSelector((state: RootState) => state.map.mapConfigId);
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.MAP);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setViewMode(
@@ -54,7 +47,9 @@ const ControlPanel = () => {
   return (
     <S.ControlPanelsContainer>
       <S.ToggleContainer>
-        <S.Label isActive={viewMode === ViewMode.MAP}>{MAP_LABEL}</S.Label>
+        <S.Label isActive={viewMode === ViewMode.MAP}>
+          {t("map.mapLabel")}
+        </S.Label>
         <S.SwitchLabel>
           <S.SwitchInput
             type="checkbox"
@@ -64,13 +59,13 @@ const ControlPanel = () => {
           <S.Slider />
         </S.SwitchLabel>
         <S.Label isActive={viewMode === ViewMode.SATELLITE}>
-          {SATELLITE_LABEL}
+          {t("map.satelliteLabel")}
         </S.Label>
       </S.ToggleContainer>
 
       <S.TerrainContainer>
         <S.Label isActive={viewMode === ViewMode.TERRAIN}>
-          {TERRAIN_LABEL}
+          {t("map.terrainLabel")}
           <S.TerrainLabel>
             <S.TerrainCheckbox
               type="checkbox"

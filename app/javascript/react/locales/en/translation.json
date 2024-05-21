@@ -57,10 +57,11 @@
     "dataRange": "Data range"
   },
   "headerToggle": {
-    "arrowIcon": "Arrow Icon" },
+    "arrowIcon": "Arrow Icon"
+  },
   "thresholdConfigurator": {
     "emptyInputMessage": "Please enter a valid number",
-    "validValueMessage":  "Value must be between {{minValue}} and {{maxValue}}",
+    "validValueMessage": "Value must be between {{minValue}} and {{maxValue}}",
     "maxLessThanMinMessage": "The maximum value should be higher than {{minValue}}",
     "minGreaterThanMaxMessage": "The minimum value should be lower than {{maxValue}}",
     "resetButton": "Reset legend",
@@ -81,5 +82,10 @@
     "forwardScrollButton": "Move calendar page one step forward",
     "backScrollButton": "Move calendar page one step back",
     "noDataMessage": "There is no more data available at the moment"
+  },
+  "map": {
+    "mapLabel": "Map",
+    "satelliteLabel": "Satellite",
+    "terrainLabel": "Terrain"
   }
 }
