@@ -87,7 +87,8 @@
     "mapLabel": "Map",
     "satelliteLabel": "Satellite",
     "terrainLabel": "Terrain",
-    "mapTerrainLabel": "Map view  + Terrain",
-    "mapSatelliteLabel": "Satellite view"
+    "mapTerrainLabel": "Map view + Terrain",
+    "mapSatelliteLabel": "Satellite view",
+    "mapViewLabel": "Map view"
   }
 }
