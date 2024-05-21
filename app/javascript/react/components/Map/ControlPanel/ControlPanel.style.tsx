@@ -11,11 +11,11 @@ const ControlPanelsContainer = styled.div`
   font-size: 1.5rem;
   background: ${white};
   position: absolute;
-  top: 5%;
-  right: 30%;
+  top: 2%;
+  right: 35vh;
   cursor: auto;
   display: flex;
-  padding: 1.5rem 2.5rem;
+  padding: 1.5rem 1rem;
   gap: 10px;
   border-radius: 10px;
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
@@ -75,6 +75,9 @@ const Slider = styled.span`
 const Label = styled.span<{ isActive: boolean }>`
   color: ${(props) => (props.isActive ? blue : gray400)};
   margin: 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 `;
 
 const TerrainContainer = styled.div`
@@ -124,17 +127,17 @@ const RoundCheckbox = styled.span`
   border: 1px solid ${gray200};
 
   &:after {
-    content: "";
-    position: absolute;
-    display: none;
+    border: 2px solid ${blue};
+    border-top: none;
+    border-right: none;
     content: "";
     height: 6px;
+    left: 3px;
+    opacity: 0;
+    position: absolute;
+    top: 4px;
+    transform: rotate(-45deg);
     width: 12px;
-    left: 8px;
-    bottom: 12px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
   }
 `;
 

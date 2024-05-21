@@ -19,6 +19,7 @@ const Header = styled.header`
   padding: 2rem;
   background-color: transparent;
   z-index: 2;
+  wrap: wrap;
 
   @media ${media.smallDesktop} {
     height: ${NAVBAR_HEIGHT};
