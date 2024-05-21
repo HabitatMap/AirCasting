@@ -1,5 +1,4 @@
 import React from "react";
-import { useLoadScript } from "@react-google-maps/api";
 
 import { Map } from "../../components/Map";
 import { APIProvider } from "@vis.gl/react-google-maps";

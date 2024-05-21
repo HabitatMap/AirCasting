@@ -19,7 +19,7 @@ const Header = styled.header`
   padding: 2rem;
   background-color: transparent;
   z-index: 2;
-  wrap: wrap;
+  flex-wrap: wrap;
 
   @media ${media.smallDesktop} {
     height: ${NAVBAR_HEIGHT};
@@ -28,6 +28,8 @@ const Header = styled.header`
     margin: 0 auto;
     top: 0;
     left: 0;
+    display: flex;
+    flex-wrap: wrap;
   }
 `;
 

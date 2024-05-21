@@ -10,8 +10,6 @@ import {
 const ControlPanelsContainer = styled.div`
   font-size: 1.5rem;
   background: ${white};
-  position: absolute;
-  top: 2%;
   right: 35vh;
   cursor: auto;
   display: flex;

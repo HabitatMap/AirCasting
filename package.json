@@ -15,7 +15,6 @@
     "@babel/plugin-transform-runtime": "^7.16.7",
     "@babel/preset-env": "^7.16.7",
     "@googlemaps/markerclusterer": "2.5.3",
-    "@react-google-maps/api": "2.7.0",
     "@reduxjs/toolkit": "^2.0.1",
     "@vis.gl/react-google-maps": "^1.0.0",
     "axios": "^1.6.8",

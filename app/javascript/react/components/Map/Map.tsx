@@ -5,58 +5,21 @@ import { Map as GoogleMap } from "@vis.gl/react-google-maps";
 import trees from "./trees";
 
 import { containerStyle } from "./Map.style";
-
-import { ControlPanel } from "./ControlPanel/ControlPanel";
 import { Markers } from "./Markers/Markers";
-
-const MapTypeId = {
-  HYBRID: "hybrid",
-  ROADMAP: "roadmap",
-  SATELLITE: "satellite",
-  TERRAIN: "terrain",
-};
-export type MapConfig = {
-  id: string;
-  label: string;
-  mapId?: string;
-  mapTypeId?: string;
-  styles?: google.maps.MapTypeStyle[];
-};
-
-const MAP_CONFIGS: MapConfig[] = [
-  {
-    id: "map",
-    label: "Map",
-    mapId: "49ae42fed52588c3",
-    mapTypeId: MapTypeId.ROADMAP,
-  },
-  {
-    id: "satellite",
-    label: "Satellite",
-    mapTypeId: MapTypeId.SATELLITE,
-  },
-  {
-    id: "terrain",
-    label: "Terrain",
-    mapTypeId: MapTypeId.TERRAIN,
-  },
-];
+import { DEFAULT_ZOOM } from "../../const/coordinates";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 const Map = () => {
-  const [mapConfig, setMapConfig] = useState<MapConfig>(MAP_CONFIGS[0]);
+  const mapConfigId = useSelector((state: RootState) => state.map.mapConfigId);
+  const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
   return (
-    // <GoogleMap
-    //   zoom={DEFAULT_ZOOM}
-    //   center={DEFAULT_MAP_CENTER}
-    //   style={containerStyle}
-
-    // >
     <>
       <GoogleMap
-        mapId={mapConfig.mapId || null}
-        mapTypeId={mapConfig.mapTypeId}
+        mapId={mapConfigId || null}
+        mapTypeId={mapTypeId}
         defaultCenter={{ lat: 43.64, lng: -79.41 }}
-        defaultZoom={10}
+        defaultZoom={DEFAULT_ZOOM}
         gestureHandling={"greedy"}
         disableDefaultUI
         scaleControl={true}
@@ -64,13 +27,6 @@ const Map = () => {
       >
         <Markers points={trees} />
       </GoogleMap>
-      <ControlPanel
-        mapConfigs={MAP_CONFIGS}
-        mapConfigId={mapConfig.id}
-        onMapConfigIdChange={(id) =>
-          setMapConfig(MAP_CONFIGS.find((s) => s.id === id)!)
-        }
-      />
     </>
   );
 };

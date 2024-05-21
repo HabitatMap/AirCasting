@@ -13,6 +13,7 @@ import * as S from "./Navbar.style";
 import { LocationSearch } from "../LocationSearch";
 import { LatLngLiteral, Map } from "../../types/googleMaps";
 import { DEFAULT_MAP_CENTER } from "../../const/coordinates";
+import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 
 const NavItem = ({
   href,
@@ -71,6 +72,7 @@ const Navbar = () => {
             }}
           />
         </S.SearchContainer>
+        <ControlPanel />
         <S.Container>
           <S.BuyCTA href={urls.airbeamBuyNow}>
             {t("navbar.sections.getAirbeam")}
