@@ -118,6 +118,7 @@ const useCalendarHook = ({
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
       .format("DD/MM/YYYY");
 
+    console.log("First time first and last point identify: ", processedFirstDataPoint, processedMaxEndDate)
     setDateReference((prevState) => ({
       ...prevState,
       currentStartDate: newStartDate,
@@ -156,7 +157,7 @@ const useCalendarHook = ({
 
     console.log("Identify new min moment...", minCalendarMoment)
     console.log("Proposed new start date", newStartDateMoment)
-    
+
     if (newStartDateMoment.isBefore(minCalendarMoment)) {
       setIsLeftButtonDisabled(true);
       return;
