@@ -2,46 +2,48 @@ import * as React from "react";
 import * as S from "./ControlPanel.style";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-
 import { setMapConfigId, setMapTypeId } from "../../../store/mapSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { RootState } from "../../../store";
-import { ViewMode } from "../../../types/map";
+import { MapTypeId, ViewMode } from "../../../types/map";
 import { useTranslation } from "react-i18next";
 
-const ControlPanel = () => {
+const ControlPanel: React.FC = () => {
   const dispatch = useAppDispatch();
   const mapConfigId = useSelector((state: RootState) => state.map.mapConfigId);
 
-  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.MAP);
   const { t } = useTranslation();
 
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.MAP);
+
   useEffect(() => {
-    setViewMode(
-      mapConfigId === "satellite"
-        ? ViewMode.SATELLITE
-        : mapConfigId === "terrain"
-        ? ViewMode.TERRAIN
-        : ViewMode.MAP
-    );
+    if (mapConfigId === MapTypeId.SATELLITE) {
+      setViewMode(ViewMode.SATELLITE);
+    } else if (mapConfigId === MapTypeId.TERRAIN) {
+      setViewMode(ViewMode.TERRAIN);
+    } else {
+      setViewMode(ViewMode.MAP);
+    }
   }, [mapConfigId]);
 
   const toggleViewMode = () => {
     const newMode =
       viewMode === ViewMode.MAP ? ViewMode.SATELLITE : ViewMode.MAP;
-    const newMapConfigId = newMode === ViewMode.MAP ? "map" : "satellite";
+    const newMapConfigId =
+      newMode === ViewMode.MAP ? MapTypeId.ROADMAP : MapTypeId.SATELLITE;
     setViewMode(newMode);
     dispatch(setMapConfigId(newMapConfigId));
-    dispatch(setMapTypeId(newMode === ViewMode.MAP ? "roadmap" : "satellite"));
+    dispatch(setMapTypeId(newMapConfigId));
   };
 
   const toggleTerrainMode = () => {
-    const newMapConfigId = viewMode === ViewMode.TERRAIN ? "map" : "terrain";
-    setViewMode(ViewMode.TERRAIN);
-    dispatch(setMapConfigId(newMapConfigId));
-    dispatch(
-      setMapTypeId(newMapConfigId === "terrain" ? "terrain" : "roadmap")
+    const newMapConfigId =
+      viewMode === ViewMode.TERRAIN ? MapTypeId.ROADMAP : MapTypeId.TERRAIN;
+    setViewMode(
+      viewMode === ViewMode.TERRAIN ? ViewMode.MAP : ViewMode.TERRAIN
     );
+    dispatch(setMapConfigId(newMapConfigId));
+    dispatch(setMapTypeId(newMapConfigId));
   };
 
   return (
@@ -63,19 +65,21 @@ const ControlPanel = () => {
         </S.Label>
       </S.ToggleContainer>
 
-      <S.TerrainContainer>
-        <S.Label isActive={viewMode === ViewMode.TERRAIN}>
-          {t("map.terrainLabel")}
-          <S.TerrainLabel>
-            <S.TerrainCheckbox
-              type="checkbox"
-              onChange={toggleTerrainMode}
-              checked={viewMode === ViewMode.TERRAIN}
-            />
-            <S.RoundCheckbox />
-          </S.TerrainLabel>
-        </S.Label>
-      </S.TerrainContainer>
+      {viewMode === ViewMode.MAP && (
+        <S.TerrainContainer>
+          <S.Label isActive={(viewMode as ViewMode) === ViewMode.TERRAIN}>
+            {t("map.terrainLabel")}
+            <S.TerrainLabel>
+              <S.TerrainCheckbox
+                type="checkbox"
+                onChange={toggleTerrainMode}
+                checked={(viewMode as ViewMode) === ViewMode.TERRAIN}
+              />
+              <S.RoundCheckbox />
+            </S.TerrainLabel>
+          </S.Label>
+        </S.TerrainContainer>
+      )}
     </S.ControlPanelsContainer>
   );
 };
