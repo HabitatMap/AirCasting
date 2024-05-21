@@ -8,6 +8,8 @@ import iconNavClose from "../../assets/icons/iconNavClose.svg";
 import searchIcon from "../../assets/icons/searchIcon.svg";
 import airbeamIcon from "../../assets/icons/airbeamIcon.svg";
 import goBackIcon from "../../assets/icons/goBackIcon.svg";
+import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
+import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
 import * as S from "./Navbar.style";
 import { LocationSearch } from "../LocationSearch";
@@ -45,18 +47,51 @@ const Navbar = () => {
   const mapRef = useRef<Map>();
   const { t } = useTranslation();
 
+  const isMapPage = window.location.pathname === "/";
+
   return (
     <S.Header>
-      <S.MobileContainer>
-        <S.GoBack href={urls.map} aria-label={t("navbar.mapPage")}>
-          <img
-            src={goBackIcon}
-            alt={t("navbar.altGoBackIcon")}
-            aria-label={t("navbar.goBack")}
+      {isMapPage && (
+        <S.MobileHeaderContainer>
+          <S.MobileMenuContainer>
+            <a
+              href={urls.habitatMap}
+              aria-label={t("navbar.sections.aircastingPage")}
+            >
+              <img alt={t("navbar.altLogo")} src={airCastingLogoMobile} />
+            </a>
+            <nav>
+              <S.MenuButton onClick={() => setNavMenuVisible(true)}>
+                <img
+                  src={hamburgerMobile}
+                  alt={t("navbar.altMenu")}
+                  aria-label={t("navbar.sections.openMenu")}
+                />
+              </S.MenuButton>
+            </nav>
+          </S.MobileMenuContainer>
+          <LocationSearch
+            setLocation={(position) => {
+              setLocation(position);
+              mapRef.current?.panTo(position);
+            }}
+            isMapPage={isMapPage}
           />
-          {t("navbar.goBack")}
-        </S.GoBack>
-      </S.MobileContainer>
+          <ControlPanel />
+        </S.MobileHeaderContainer>
+      )}
+      {!isMapPage && (
+        <S.MobileContainer>
+          <S.GoBack href={urls.map} aria-label={t("navbar.mapPage")}>
+            <img
+              src={goBackIcon}
+              alt={t("navbar.altGoBackIcon")}
+              aria-label={t("navbar.goBack")}
+            />
+            {t("navbar.goBack")}
+          </S.GoBack>
+        </S.MobileContainer>
+      )}
       <S.DesktopContainer>
         <S.SearchContainer>
           <a
@@ -72,7 +107,7 @@ const Navbar = () => {
             }}
           />
         </S.SearchContainer>
-        <ControlPanel />
+        {isMapPage && <ControlPanel />}
         <S.Container>
           <S.BuyCTA href={urls.airbeamBuyNow}>
             {t("navbar.sections.getAirbeam")}

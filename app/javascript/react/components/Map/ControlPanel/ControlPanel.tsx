@@ -47,7 +47,7 @@ const ControlPanel: React.FC = () => {
   };
 
   return (
-    <S.ControlPanelsContainer>
+    <S.ControlPanelContainer>
       <S.ToggleContainer>
         <S.Label isActive={viewMode === ViewMode.MAP}>
           {t("map.mapLabel")}
@@ -80,7 +80,26 @@ const ControlPanel: React.FC = () => {
           </S.Label>
         </S.TerrainContainer>
       )}
-    </S.ControlPanelsContainer>
+      <S.SelectContainer>
+        <S.Select
+          value={viewMode === ViewMode.SATELLITE ? "satellite" : "map"}
+          onChange={(e: { target: { value: string } }) => {
+            if (e.target.value === "satellite") {
+              setViewMode(ViewMode.SATELLITE);
+            } else {
+              setViewMode(ViewMode.MAP);
+            }
+          }}
+        >
+          <S.SelectOption value="map">
+            {t("map.mapTerrainLabel")}{" "}
+          </S.SelectOption>
+          <S.SelectOption value="satellite">
+            {t("map.satelliteLabel")}
+          </S.SelectOption>
+        </S.Select>
+      </S.SelectContainer>
+    </S.ControlPanelContainer>
   );
 };
 

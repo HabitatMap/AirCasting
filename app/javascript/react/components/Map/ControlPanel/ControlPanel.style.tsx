@@ -3,26 +3,38 @@ import {
   blue,
   gray100,
   gray200,
+  gray300,
   gray400,
   white,
 } from "../../../assets/styles/colors";
+import { media } from "../../../utils/media";
 
-const ControlPanelsContainer = styled.div`
-  font-size: 1.5rem;
+const ControlPanelContainer = styled.div`
   background: ${white};
-  right: 35vh;
   cursor: auto;
   display: flex;
-  padding: 1.5rem 1rem;
-  gap: 10px;
-  border-radius: 10px;
-  box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
+  font-size: 1.2rem;
+  text-align: center;
+  box-shadow: 2px 2px 4px 0px #4c56601a;
+  border-radius: 5px;
+  gap: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  @media ${media.smallDesktop} {
+    font-size: 1.5rem;
+    padding: 1.5rem 1rem;
+    gap: 1rem;
+    border-radius: 10px;
+    box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
+  }
 `;
 
 const ToggleContainer = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 1.6rem;
+  display: none;
+  @media ${media.smallDesktop} {
+    display: flex;
+    align-items: center;
+    font-size: 1.6rem;
+  }
 `;
 
 const SwitchLabel = styled.label`
@@ -70,7 +82,7 @@ const Slider = styled.span`
   }
 `;
 
-const Label = styled.span<{ isActive: boolean }>`
+const Label = styled.span<{ isActive?: boolean }>`
   color: ${(props) => (props.isActive ? blue : gray400)};
   margin: 0 1rem;
   display: flex;
@@ -79,12 +91,15 @@ const Label = styled.span<{ isActive: boolean }>`
 `;
 
 const TerrainContainer = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 1.6rem;
-  margin-right: 10px;
-  position: relative;
-  border-left: 1px solid ${gray200};
+  display: none;
+  @media ${media.smallDesktop} {
+    display: flex;
+    align-items: center;
+    font-size: 1.6rem;
+    margin-right: 10px;
+    position: relative;
+    border-left: 1px solid ${gray200};
+  }
 `;
 
 const TerrainLabel = styled.label`
@@ -139,8 +154,26 @@ const RoundCheckbox = styled.span`
   }
 `;
 
+const SelectContainer = styled.div`
+  display: flex;
+
+  @media ${media.smallDesktop} {
+    display: none;
+  }
+`;
+
+const Select = styled.select`
+  background-color: ${white};
+  border: none;
+`;
+
+const SelectOption = styled.option`
+  background-color: ${white};
+  color: ${gray400};
+`;
+
 export {
-  ControlPanelsContainer,
+  ControlPanelContainer,
   ToggleContainer,
   SwitchLabel,
   SwitchInput,
@@ -150,4 +183,7 @@ export {
   TerrainCheckbox,
   TerrainLabel,
   RoundCheckbox,
+  SelectContainer,
+  Select,
+  SelectOption,
 };

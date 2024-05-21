@@ -16,10 +16,10 @@ const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2rem;
   background-color: transparent;
   z-index: 2;
   flex-wrap: wrap;
+  position: absolute;
 
   @media ${media.smallDesktop} {
     height: ${NAVBAR_HEIGHT};
@@ -59,7 +59,7 @@ const SearchContainer = styled.div`
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   border-radius: 10px;
   background-color: ${white};
-  padding: 1rem;
+  padding: 0.5rem;
   gap: 2rem;
 `;
 
@@ -74,14 +74,18 @@ const Button = styled.button`
 `;
 
 const MenuButton = styled(Button)`
-  padding: 1.2rem;
-  margin-left: 2rem;
-  font-color: ${gray400};
-  background-color: ${white};
-  border-radius: 10px;
-  box-shadow: 0px 4px 4px 0px rgba(76, 86, 96, 0.1);
-  width: 48px;
-  height: 42px;
+  background-color: transparent;
+
+  @media ${media.smallDesktop} {
+    background-color: ${white};
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px 0px rgba(76, 86, 96, 0.1);
+    font-color: ${gray400};
+    padding: 1.2rem;
+    margin-left: 2rem;
+    width: 48px;
+    height: 42px;
+  }
 `;
 
 const BuyCTA = styled.a`
@@ -209,6 +213,29 @@ const GoBack = styled.a`
   line-height: 22px;
 `;
 
+const MobileMenuContainer = styled.div`
+  width: 61px;
+  height: 32px;
+  box-shadow: 2px 2px 4px 0px #4c56601a;
+  border-radius: 10px;
+  background-color: ${white};
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const MobileHeaderContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  flex-wrap: wrap;
+  @media ${media.smallDesktop} {
+    display: none;
+  }
+`;
+
 export {
   NAVBAR_HEIGHT,
   Header,
@@ -230,4 +257,6 @@ export {
   GoBack,
   BuyCTAWhite,
   SearchContainer,
+  MobileMenuContainer,
+  MobileHeaderContainer,
 };

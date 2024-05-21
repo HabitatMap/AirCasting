@@ -12,11 +12,12 @@ import { SearchContainer } from "../Navbar/Navbar.style";
 
 interface LocationSearchProps {
   setLocation: (position: LatLngLiteral) => void;
+  isMapPage?: boolean;
 }
 
 type AutocompletePrediction = google.maps.places.AutocompletePrediction;
 
-const LocationSearch = ({ setLocation }: LocationSearchProps) => {
+const LocationSearch = ({ setLocation, isMapPage }: LocationSearchProps) => {
   const {
     setValue,
     suggestions: { status, data },
@@ -67,13 +68,15 @@ const LocationSearch = ({ setLocation }: LocationSearchProps) => {
     <>
       <S.SearchContainer>
         <S.SearchInput placeholder="Search for location" {...getInputProps()} />
-        <S.LocationSearchButton
-          aria-label="toggle menu"
-          type="button"
-          {...getToggleButtonProps()}
-        >
-          <img src={locationSearchIcon} alt="location search icon" />
-        </S.LocationSearchButton>
+        {!isMapPage && (
+          <S.LocationSearchButton
+            aria-label="toggle menu"
+            type="button"
+            {...getToggleButtonProps()}
+          >
+            <img src={locationSearchIcon} alt="location search icon" />
+          </S.LocationSearchButton>
+        )}
       </S.SearchContainer>
       {/* <S.SuggestionsList {...getMenuProps()}>
         {isOpen &&
