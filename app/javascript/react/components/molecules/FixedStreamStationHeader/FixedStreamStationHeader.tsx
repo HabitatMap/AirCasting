@@ -20,6 +20,7 @@ const FixedStreamStationHeader = () => {
     lastMeasurementValue,
     lastMeasurementDateLabel,
     active,
+    sessionId,
   } = useSelector(selectFixedStreamShortInfo);
 
   return (
@@ -33,7 +34,7 @@ const FixedStreamStationHeader = () => {
       <StationName stationName={title} />
       <DataSource profile={profile} sensorName={sensorName} />
       <StreamUpdate lastUpdate={lastUpdate} updateFrequency={updateFrequency} />
-      <StationActionButtons />
+      <StationActionButtons sessionId={sessionId} />
     </S.GridContainer>
   );
 };

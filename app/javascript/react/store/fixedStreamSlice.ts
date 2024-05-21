@@ -23,6 +23,7 @@ const initialState: FixedStreamState = {
       unitSymbol: "",
       updateFrequency: "",
       active: true,
+      sessionId: "",
     },
     measurements: [],
     streamDailyAverages: [],

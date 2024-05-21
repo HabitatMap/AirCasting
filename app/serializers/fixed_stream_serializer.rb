@@ -12,6 +12,8 @@ class FixedStreamSerializer
 
   def serialized_stream(stream)
     {
+      id: stream.id,
+      session_id: stream.session.id,
       active: stream.session.is_active,
       title: stream.session.title,
       profile: stream.session.username,

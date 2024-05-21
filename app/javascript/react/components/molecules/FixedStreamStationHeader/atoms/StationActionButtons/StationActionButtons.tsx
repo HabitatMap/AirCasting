@@ -1,13 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import copyLink from "../../../../../assets/icons/copyLink.svg";
 import shareLink from "../../../../../assets/icons/shareLink.svg";
+import downloadImage from "../../../../../assets/icons/download.svg";
 import { Button } from "../../../../Button/Button";
 import { ActionButton } from "../../../../ActionButton/ActionButton";
 import * as S from "./StationActionButtons.style";
+import { ExportDataModal } from "../../../../ExportDataModal";
 
-const StationActionButtons = () => {
+interface Props {
+  sessionId: string;
+}
+
+const StationActionButtons = ({ sessionId }: Props) => {
+  const [isExportModalOpen, setExportModalOpen] = useState<boolean>(false);
+
   const { t } = useTranslation();
 
   const copyCurrentURL = () => {
@@ -39,9 +47,23 @@ const StationActionButtons = () => {
     }
   };
 
+  const handleOpenExportModal = () => {
+    setExportModalOpen(true);
+  };
+
+  const handleCloseExportModal = () => {
+    setExportModalOpen(false);
+  };
+
   return (
     <>
       <S.MobileButtons>
+        <ActionButton
+          onClick={handleOpenExportModal}
+          aria-labelledby={t("calendarHeader.altExportSession")}
+        >
+          <img src={downloadImage} />
+        </ActionButton>
         <ActionButton
           onClick={() => {}}
           aria-label={t("calendarHeader.altShareLink")}
@@ -57,7 +79,19 @@ const StationActionButtons = () => {
           {t("calendarHeader.copyLink")}{" "}
           <img src={copyLink} alt={t("Copy link")} />
         </Button>
+        <Button
+          onClick={handleOpenExportModal}
+          aria-labelledby={t("calendarHeader.altExportSession")}
+        >
+          {t("calendarHeader.exportSession")} <img src={downloadImage} />
+        </Button>
       </S.DesktopButtons>
+      <ExportDataModal
+        sessionId={sessionId}
+        isOpen={isExportModalOpen}
+        onClose={handleCloseExportModal}
+        onSubmit={(formData) => {}}
+      />
     </>
   );
 };

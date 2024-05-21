@@ -9,9 +9,10 @@ interface DataSource {
 }
 
 interface FixedStreamStationInfo extends StreamUpdate, DataSource {
+  sessionId: string;
   title: string;
   unitSymbol: string;
-  active: boolean; 
+  active: boolean;
 }
 
 interface Measurement {
