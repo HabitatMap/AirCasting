@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import moment from "moment";
 
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
@@ -10,13 +11,13 @@ import {
   fetchFixedStreamById,
   selectFixedData,
 } from "../../store/fixedStreamSlice";
-import {
-  updateMovingStreamData,
-  movingData,
-} from "../../store/movingCalendarStreamSlice";
 import * as S from "./CalendarPage.style";
 import { screenSizes } from "../../utils/media";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
+import {
+  movingData,
+  fetchNewMovingStream,
+} from "../../store/movingCalendarStreamSlice";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
@@ -60,14 +61,26 @@ const CalendarPage = () => {
       console.log("No daily averages to process.");
       return;
     }
-    console.log(fixedStreamData.streamDailyAverages);
-    const newMovingCalendarData = fixedStreamData.streamDailyAverages.map(
-      ({ date, value }) => ({
-        date,
-        value,
-      })
+
+    const formattedEndMoment = moment(
+      fixedStreamData.stream.endTime,
+      "YYYY-MM-DD"
     );
-    dispatch(updateMovingStreamData(newMovingCalendarData));
+    const formattedEndDate = formattedEndMoment.format("YYYY-MM-DD");
+    const newStartDate = formattedEndMoment
+      .date(1)
+      .subtract(2, "months")
+      .format("YYYY-MM-DD");
+
+    if (streamId) {
+      dispatch(
+        fetchNewMovingStream({
+          id: streamId,
+          startDate: newStartDate,
+          endDate: formattedEndDate,
+        })
+      );
+    }
   }, [fixedStreamData, dispatch]);
 
   return (
@@ -81,7 +94,9 @@ const CalendarPage = () => {
             minCalendarDate={fixedStreamData.stream.startTime}
             maxCalendarDate={fixedStreamData.stream.endTime}
           />
-        ) : <EmptyCalendar/> }
+        ) : (
+          <EmptyCalendar />
+        )}
         {isMobile && <ThresholdsConfigurator />}
       </S.StationDataContainer>
     </S.CalendarPageLayout>
