@@ -28,8 +28,6 @@ const Header = styled.header`
     margin: 0 auto;
     top: 0;
     left: 0;
-    display: flex;
-    flex-wrap: wrap;
   }
 `;
 
@@ -49,6 +47,10 @@ const DesktopContainer = styled.div`
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    padding: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    flex-direction: flex-reverse;
   }
 `;
 

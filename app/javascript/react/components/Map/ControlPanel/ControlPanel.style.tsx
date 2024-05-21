@@ -165,11 +165,7 @@ const SelectContainer = styled.div`
 const Select = styled.select`
   background-color: ${white};
   border: none;
-`;
-
-const SelectOption = styled.option`
-  background-color: ${white};
-  color: ${gray400};
+  outline: none;
 `;
 
 export {
@@ -185,5 +181,4 @@ export {
   RoundCheckbox,
   SelectContainer,
   Select,
-  SelectOption,
 };

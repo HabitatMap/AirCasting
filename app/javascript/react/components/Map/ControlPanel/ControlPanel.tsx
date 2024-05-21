@@ -15,14 +15,18 @@ const ControlPanel: React.FC = () => {
   const { t } = useTranslation();
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.MAP);
+  const [isTerrainChecked, setIsTerrainChecked] = useState<boolean>(false);
 
   useEffect(() => {
     if (mapConfigId === MapTypeId.SATELLITE) {
       setViewMode(ViewMode.SATELLITE);
+      setIsTerrainChecked(false);
     } else if (mapConfigId === MapTypeId.TERRAIN) {
       setViewMode(ViewMode.TERRAIN);
+      setIsTerrainChecked(true);
     } else {
       setViewMode(ViewMode.MAP);
+      setIsTerrainChecked(false);
     }
   }, [mapConfigId]);
 
@@ -34,16 +38,37 @@ const ControlPanel: React.FC = () => {
     setViewMode(newMode);
     dispatch(setMapConfigId(newMapConfigId));
     dispatch(setMapTypeId(newMapConfigId));
+    setIsTerrainChecked(false); // Reset terrain when toggling view mode
   };
 
   const toggleTerrainMode = () => {
-    const newMapConfigId =
-      viewMode === ViewMode.TERRAIN ? MapTypeId.ROADMAP : MapTypeId.TERRAIN;
-    setViewMode(
-      viewMode === ViewMode.TERRAIN ? ViewMode.MAP : ViewMode.TERRAIN
-    );
+    const newMapConfigId = isTerrainChecked
+      ? MapTypeId.ROADMAP
+      : MapTypeId.TERRAIN;
+    setViewMode(ViewMode.MAP); // Keep viewMode as MAP when toggling terrain
+    setIsTerrainChecked(!isTerrainChecked);
     dispatch(setMapConfigId(newMapConfigId));
     dispatch(setMapTypeId(newMapConfigId));
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedMapTypeId = e.target.value as MapTypeId;
+    if (selectedMapTypeId === MapTypeId.SATELLITE) {
+      setViewMode(ViewMode.SATELLITE);
+      dispatch(setMapConfigId(MapTypeId.SATELLITE));
+      dispatch(setMapTypeId(MapTypeId.SATELLITE));
+      setIsTerrainChecked(false);
+    } else if (selectedMapTypeId === MapTypeId.TERRAIN) {
+      setViewMode(ViewMode.MAP);
+      setIsTerrainChecked(true);
+      dispatch(setMapConfigId(MapTypeId.TERRAIN));
+      dispatch(setMapTypeId(MapTypeId.TERRAIN));
+    } else {
+      setViewMode(ViewMode.MAP);
+      setIsTerrainChecked(false);
+      dispatch(setMapConfigId(MapTypeId.ROADMAP));
+      dispatch(setMapTypeId(MapTypeId.ROADMAP));
+    }
   };
 
   return (
@@ -65,38 +90,27 @@ const ControlPanel: React.FC = () => {
         </S.Label>
       </S.ToggleContainer>
 
-      {viewMode === ViewMode.MAP && (
+      {(viewMode === ViewMode.MAP || viewMode === ViewMode.TERRAIN) && (
         <S.TerrainContainer>
-          <S.Label isActive={(viewMode as ViewMode) === ViewMode.TERRAIN}>
+          <S.Label isActive={isTerrainChecked}>
             {t("map.terrainLabel")}
             <S.TerrainLabel>
               <S.TerrainCheckbox
                 type="checkbox"
                 onChange={toggleTerrainMode}
-                checked={(viewMode as ViewMode) === ViewMode.TERRAIN}
+                checked={isTerrainChecked}
               />
               <S.RoundCheckbox />
             </S.TerrainLabel>
           </S.Label>
         </S.TerrainContainer>
       )}
+
       <S.SelectContainer>
-        <S.Select
-          value={viewMode === ViewMode.SATELLITE ? "satellite" : "map"}
-          onChange={(e: { target: { value: string } }) => {
-            if (e.target.value === "satellite") {
-              setViewMode(ViewMode.SATELLITE);
-            } else {
-              setViewMode(ViewMode.MAP);
-            }
-          }}
-        >
-          <S.SelectOption value="map">
-            {t("map.mapTerrainLabel")}{" "}
-          </S.SelectOption>
-          <S.SelectOption value="satellite">
-            {t("map.satelliteLabel")}
-          </S.SelectOption>
+        <S.Select value={mapConfigId} onChange={handleSelectChange}>
+          <option value={MapTypeId.ROADMAP}>{t("map.mapLabel")}</option>
+          <option value={MapTypeId.SATELLITE}>{t("map.satelliteLabel")}</option>
+          <option value={MapTypeId.TERRAIN}>{t("map.terrainLabel")}</option>
         </S.Select>
       </S.SelectContainer>
     </S.ControlPanelContainer>
