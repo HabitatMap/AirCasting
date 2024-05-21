@@ -154,6 +154,9 @@ const useCalendarHook = ({
     const newStartDateMoment = moment(newStartDate, "DD/MM/YYYY").date(1);
     const minCalendarMoment = moment(minCalendarDate, "YYYY-MM-DD").date(1);
 
+    console.log("Identify new min moment...", minCalendarMoment)
+    console.log("Proposed new start date", newStartDateMoment)
+    
     if (newStartDateMoment.isBefore(minCalendarMoment)) {
       setIsLeftButtonDisabled(true);
       return;
