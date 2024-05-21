@@ -9,7 +9,7 @@ interface DataSource {
 }
 
 interface FixedStreamStationInfo extends StreamUpdate, DataSource {
-  sessionId: any;
+  sessionId: string;
   title: string;
   unitSymbol: string;
   active: boolean;

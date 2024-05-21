@@ -13,6 +13,7 @@ const red = "#E95F5F";
 const orange = "#FCA443";
 const yellow = "#FFD960";
 const green = "#96D788";
+const black = "#000";
 
 
 export {
@@ -30,4 +31,5 @@ export {
   mint,
   blue,
   darkBlue,
+  black
 };

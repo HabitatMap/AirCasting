@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { white, blue, gray100 } from "../../assets/styles/colors";
+import { white, blue, gray100, black } from "../../assets/styles/colors";
 import { H3 } from "../Typography/Typography.style";
 import { Button } from "../Button/Button.style";
 
@@ -38,8 +38,8 @@ const ModalContent = styled.div`
 `;
 
 const ModalText = styled(H3)`
-  size: 16px;
-  color: black;
+  font-size: 16px;
+  color: ${black};
 `;
 
 const ButtonsWrapper = styled.div`
@@ -64,13 +64,13 @@ const ActionButton = styled(Button)`
 
 const CancelButton = styled(Button)`
   background-color: ${gray100};
-  color: #000;
+  color: ${black};
   font-weight: 100;
   border: none;
 `;
 
 const CancelButtonX = styled(Button)`
-  color: #000;
+  color: black;
   font-weight: 100;
   font-size: 18px;
   border: none;
@@ -79,7 +79,7 @@ const CancelButtonX = styled(Button)`
 const TextInput = styled.input`
   width: 100%;
   padding: 0.625rem;
-  border: 1px solid #ccc;
+  border: 1px solid ${gray100};
   border-radius: 4px;
   margin-bottom: 0.625rem;
 `;

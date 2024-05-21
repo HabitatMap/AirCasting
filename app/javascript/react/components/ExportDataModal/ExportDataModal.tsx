@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch } from "../../store/hooks";
 import { exportSession } from "../../store/exportSessionSlice";
 import { Modal } from "../Modal";
-import { EmailInput, ConfirmationMessage } from "./ExportDataModal.style";
+import { EmailInput, RedErrorMessage } from "./EmailInput";
+import { ConfirmationMessage } from "./ConfirmationMessage";
 import downloadWhite from "../../assets/icons/downloadWhite.svg";
-import { red } from "../../assets/styles/colors";
 
 export interface ExportModalData {
   email: string;
@@ -37,6 +37,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
     null
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const EMAIL_FIELD = "email";
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
@@ -75,14 +76,6 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
       ...prevFormData,
       [name]: value,
     }));
-
-    if (name === "email") {
-      if (validateEmail(value)) {
-        setErrorMessage(null);
-      } else {
-        setErrorMessage(t("exportDataModal.invalidEmailMessage"));
-      }
-    }
   };
 
   const handleSubmit = (event: React.FormEvent): void => {
@@ -120,7 +113,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
               onChange={handleInputChange}
             />
           </div>
-          {errorMessage && <p style={{ color: red }}>{errorMessage}</p>}
+          {errorMessage && <RedErrorMessage>{errorMessage}</RedErrorMessage>}
         </form>
       )}
     </Modal>
