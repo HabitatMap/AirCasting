@@ -30,23 +30,36 @@ const ControlPanel = ({
     const mapConfig = mapConfigs.find((config) => config.id === mapConfigId);
     if (mapConfig) {
       setViewMode(
-        mapConfigId === "satellite" ? ViewMode.SATELLITE : ViewMode.MAP
+        mapConfigId === "satellite"
+          ? ViewMode.SATELLITE
+          : mapConfigId === "terrain"
+          ? ViewMode.TERRAIN
+          : ViewMode.MAP
       );
     }
   }, [mapConfigId, mapConfigs]);
 
   const toggleViewMode = () => {
-    const newMode =
-      viewMode === ViewMode.MAP ? ViewMode.SATELLITE : ViewMode.MAP;
-    const newMapConfigId = newMode === ViewMode.MAP ? "map" : "satellite";
-    setViewMode(newMode);
-    onMapConfigIdChange(newMapConfigId);
+    if (viewMode === ViewMode.TERRAIN) {
+      setViewMode(ViewMode.MAP);
+      onMapConfigIdChange("map");
+    } else {
+      const newMode =
+        viewMode === ViewMode.MAP ? ViewMode.SATELLITE : ViewMode.MAP;
+      const newMapConfigId = newMode === ViewMode.MAP ? "map" : "satellite";
+      setViewMode(newMode);
+      onMapConfigIdChange(newMapConfigId);
+    }
   };
 
   const toggleTerrainMode = () => {
-    const newMapConfigId = viewMode === ViewMode.TERRAIN ? "map" : "terrain";
-    setViewMode(ViewMode.TERRAIN);
-    onMapConfigIdChange(newMapConfigId);
+    if (viewMode === ViewMode.TERRAIN) {
+      setViewMode(ViewMode.MAP);
+      onMapConfigIdChange("map");
+    } else {
+      setViewMode(ViewMode.TERRAIN);
+      onMapConfigIdChange("terrain");
+    }
   };
 
   return (
@@ -66,19 +79,19 @@ const ControlPanel = ({
         </S.Label>
       </S.ToggleContainer>
 
-      {viewMode === ViewMode.MAP && (
-        <S.TerrainContainer>
-          <S.Label isActive={viewMode !== ViewMode.MAP}>
-            {TERRAIN_LABEL}
-
+      <S.TerrainContainer>
+        <S.Label isActive={viewMode === ViewMode.TERRAIN}>
+          {TERRAIN_LABEL}
+          <S.TerrainLabel>
             <S.TerrainCheckbox
               type="checkbox"
               onChange={toggleTerrainMode}
-              checked={viewMode === ViewMode.SATELLITE}
+              checked={viewMode === ViewMode.TERRAIN}
             />
-          </S.Label>
-        </S.TerrainContainer>
-      )}
+            <S.RoundCheckbox />
+          </S.TerrainLabel>
+        </S.Label>
+      </S.TerrainContainer>
     </S.ControlPanelsContainer>
   );
 };

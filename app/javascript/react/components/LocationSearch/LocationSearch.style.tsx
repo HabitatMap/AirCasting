@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { blue, gray200, white } from "../../assets/styles/colors";
+import { blue, white } from "../../assets/styles/colors";
 import searchIconGray from "../../assets/icons/searchIconGray.svg";
 
 interface SuggestionProps {
@@ -21,12 +21,13 @@ const SuggestionsList = styled.ul`
 const SearchInput = styled.input`
   width: 36.8rem;
   height: 4.2rem;
+  font-size: 1.6rem;
   padding: 0 1.6rem;
   border-radius: 50px;
   border: 1px solid rgba(198, 205, 211, 1);
-  background: ${white} url(${searchIconGray}) 16px center no-repeat; /* Adjust background position */
-  background-size: 20px; /* Set the size of the background image */
-  padding-left: 48px; /* Adjust padding to accommodate the icon */
+  background: ${white} url(${searchIconGray}) 16px center no-repeat;
+  background-size: 20px;
+  padding-left: 48px;
 `;
 
 const LocationSearchButton = styled.button`

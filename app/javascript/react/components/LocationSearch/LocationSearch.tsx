@@ -75,7 +75,7 @@ const LocationSearch = ({ setLocation }: LocationSearchProps) => {
           <img src={locationSearchIcon} alt="location search icon" />
         </S.LocationSearchButton>
       </S.SearchContainer>
-      <S.SuggestionsList {...getMenuProps()}>
+      {/* <S.SuggestionsList {...getMenuProps()}>
         {isOpen &&
           items.map((item, index) => (
             <S.Suggestion
@@ -86,7 +86,7 @@ const LocationSearch = ({ setLocation }: LocationSearchProps) => {
               {item.description}
             </S.Suggestion>
           ))}
-      </S.SuggestionsList>
+      </S.SuggestionsList> */}
     </>
   );
 };

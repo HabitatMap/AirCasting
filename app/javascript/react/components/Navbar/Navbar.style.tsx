@@ -56,7 +56,7 @@ const SearchContainer = styled.div`
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   border-radius: 10px;
   background-color: ${white};
-  padding: 1.6rem;
+  padding: 1rem;
   gap: 2rem;
 `;
 

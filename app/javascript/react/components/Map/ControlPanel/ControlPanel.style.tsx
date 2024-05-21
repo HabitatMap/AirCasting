@@ -1,5 +1,11 @@
 import styled from "styled-components";
-import { blue, gray400, white } from "../../../assets/styles/colors";
+import {
+  blue,
+  gray100,
+  gray200,
+  gray400,
+  white,
+} from "../../../assets/styles/colors";
 
 const ControlPanelsContainer = styled.div`
   font-size: 1.5rem;
@@ -18,21 +24,7 @@ const ControlPanelsContainer = styled.div`
 const ToggleContainer = styled.div`
   display: flex;
   align-items: center;
-  font-size: 16px;
-`;
-
-const TerrainContainer = styled.div`
-  display: flex;
-  &:before {
-    content: "";
-    position: absolute;
-    right: 35%;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: gray;
-    opacity: 0.4;
-  }
+  font-size: 1.6rem;
 `;
 
 const SwitchLabel = styled.label`
@@ -73,7 +65,7 @@ const Slider = styled.span`
     width: 14px;
     left: 2px;
     bottom: 1.5px;
-    padding: 8px 0;
+    padding: 0.8rem 0;
     background-color: ${white};
     transition: 0.4s;
     border-radius: 30px;
@@ -85,10 +77,65 @@ const Label = styled.span<{ isActive: boolean }>`
   margin: 0 1rem;
 `;
 
-const TerrainCheckbox = styled.input`
-  margin-left: 1rem;
-  z-index: 2;
+const TerrainContainer = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 1.6rem;
+  margin-right: 10px;
   position: relative;
+  border-left: 1px solid ${gray200};
+`;
+
+const TerrainLabel = styled.label`
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+`;
+
+const TerrainCheckbox = styled.input`
+  opacity: 0;
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  z-index: 2;
+  cursor: pointer;
+
+  &:checked + span {
+    background-color: ${white};
+    border-color: ${blue};
+  }
+
+  &:checked + span:after {
+    opacity: 1;
+  }
+`;
+
+const RoundCheckbox = styled.span`
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: ${gray100};
+  transition: 0.4s;
+  border-radius: 50%;
+  border: 1px solid ${gray200};
+
+  &:after {
+    content: "";
+    position: absolute;
+    display: none;
+    content: "";
+    height: 6px;
+    width: 12px;
+    left: 8px;
+    bottom: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
 `;
 
 export {
@@ -100,4 +147,6 @@ export {
   Label,
   TerrainContainer,
   TerrainCheckbox,
+  TerrainLabel,
+  RoundCheckbox,
 };
