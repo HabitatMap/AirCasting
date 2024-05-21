@@ -16,6 +16,7 @@ import {
 } from "../../store/movingCalendarStreamSlice";
 import * as S from "./CalendarPage.style";
 import { screenSizes } from "../../utils/media";
+import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
@@ -74,13 +75,13 @@ const CalendarPage = () => {
       <S.StationDataContainer>
         <FixedStreamStationHeader />
         {!isMobile && <ThresholdsConfigurator />}
-        {calendarIsVisible && (
+        {calendarIsVisible ? (
           <Calendar
             streamId={streamId}
             minCalendarDate={fixedStreamData.stream.startTime}
             maxCalendarDate={fixedStreamData.stream.endTime}
           />
-        )}
+        ) : <EmptyCalendar/> }
         {isMobile && <ThresholdsConfigurator />}
       </S.StationDataContainer>
     </S.CalendarPageLayout>

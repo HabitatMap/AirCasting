@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { Moment } from "moment";
 import moment from "moment";
+
 import { MovesKeys } from "../../../types/movesKeys";
 import { useAppDispatch } from "../../../store/hooks";
 import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
@@ -14,6 +15,8 @@ import { CalendarMonthlyData } from "../../../types/movingStream";
 interface MovableCalendarData {
   currentStartDate: string;
   currentEndDate: string;
+  firstVisibleDataPointDate: string;
+  lastVisibleDataPointDate: string;
   direction: MovesKeys | undefined;
   triggerDirectionUpdate: number;
 }
@@ -50,6 +53,8 @@ const useCalendarHook = ({
   const [dateReference, setDateReference] = useState<MovableCalendarData>({
     currentStartDate: "",
     currentEndDate: "",
+    firstVisibleDataPointDate: "",
+    lastVisibleDataPointDate: "",
     direction: undefined,
     triggerDirectionUpdate: 0,
   });
@@ -79,14 +84,35 @@ const useCalendarHook = ({
     return newEndMoment;
   };
 
-  useEffect(() => {
+  const getFormattedDateRange = () => {
     const lastElementIdx = movingCalendarData.data.length - 1;
     const maxEndDate = movingCalendarData.data[lastElementIdx].date;
     const processedMaxEndDate = moment(maxEndDate, "YYYY-MM-DD").format(
       "DD/MM/YYYY"
     );
 
-    const startMoment = moment(maxEndDate, "YYYY-MM-DD");
+    const firstElementIdx = 0;
+    const firstDataPoint = movingCalendarData.data[firstElementIdx].date;
+    const processedFirstDataPoint = moment(firstDataPoint, "YYYY-MM-DD").format(
+      "DD/MM/YYYY"
+    );
+
+    return {
+      firstDate: processedFirstDataPoint,
+      lastDate: processedMaxEndDate,
+      lastDateNoFormat: maxEndDate,
+    };
+  };
+
+  useEffect(() => {
+    const formattedDateRange = getFormattedDateRange();
+    const processedMaxEndDate = formattedDateRange.lastDate;
+    const processedFirstDataPoint = formattedDateRange.firstDate;
+
+    const startMoment = moment(
+      formattedDateRange.lastDateNoFormat,
+      "YYYY-MM-DD"
+    );
     const newStartDate = startMoment
       .date(1)
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
@@ -95,6 +121,8 @@ const useCalendarHook = ({
     setDateReference((prevState) => ({
       ...prevState,
       currentStartDate: newStartDate,
+      firstVisibleDataPointDate: processedFirstDataPoint,
+      lastVisibleDataPointDate: processedMaxEndDate,
       currentEndDate: processedMaxEndDate,
     }));
   }, []);
@@ -152,6 +180,18 @@ const useCalendarHook = ({
       })
     );
   }, [dateReference.triggerDirectionUpdate]);
+
+  useEffect(() => {
+    const formattedDateRange = getFormattedDateRange();
+    const processedMaxEndDate = formattedDateRange.lastDate;
+    const processedFirstDataPoint = formattedDateRange.firstDate;
+
+    setDateReference((prevState) => ({
+      ...prevState,
+      firstVisibleDataPointDate: processedFirstDataPoint,
+      lastVisibleDataPointDate: processedMaxEndDate,
+    }));
+  }, [movingCalendarData]);
 
   return {
     threeMonthsData,

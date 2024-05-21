@@ -36,8 +36,8 @@ const Calendar: React.FC<CalendarProps> = ({
       <S.CalendarContainer>
         <HeaderToggle
           titleText={t("calendarHeader.calendarTitle")}
-          startDate={dateReference.currentStartDate}
-          endDate={dateReference.currentEndDate}
+          startDate={dateReference.firstVisibleDataPointDate}
+          endDate={dateReference.lastVisibleDataPointDate}
           componentToToggle={
             <>
               <S.MobileSwipeContainer>
@@ -47,9 +47,9 @@ const Calendar: React.FC<CalendarProps> = ({
                   handleClick={handleLeftClick}
                 />
                 <S.DateField>
-                  <span>{dateReference.currentStartDate}</span>
+                  <span>{dateReference.firstVisibleDataPointDate}</span>
                   <span>-</span>
-                  <span>{dateReference.currentEndDate}</span>
+                  <span>{dateReference.lastVisibleDataPointDate}</span>
                 </S.DateField>
 
                 <ScrollCalendarButton
