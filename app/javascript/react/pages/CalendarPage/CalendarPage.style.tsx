@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { gray100, white } from "../../assets/styles/colors";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
+import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 
 const CalendarPageLayout = styled.div`
   display: flex;
@@ -10,7 +11,9 @@ const CalendarPageLayout = styled.div`
   background-color: ${gray100};
 
   @media ${media.smallDesktop} {
-    padding: 15px;
+    padding: 0.5rem 1.5rem;
+    position: relative;
+    top: ${NAVBAR_HEIGHT};
   }
 `;
 

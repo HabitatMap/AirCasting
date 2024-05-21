@@ -29,6 +29,7 @@ const GlobalStyles = createGlobalStyle`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale !important;
     text-rendering: optimizeLegibility;
+    background-color: #F4F6F9;
   }
 
   H1, H2, H3, H4, H5, H6 {

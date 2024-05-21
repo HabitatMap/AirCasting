@@ -23,7 +23,7 @@ const Header = styled.header`
 
   @media ${media.smallDesktop} {
     height: ${NAVBAR_HEIGHT};
-    position: fixed;
+    position: absolute;
     width: 100%;
     margin: 0 auto;
     top: 0;
