@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import * as S from "./Header.style";
+import * as S from "./Navbar.style";
 
 import { LatLngLiteral, Map } from "../../types/googleMaps";
 import { DEFAULT_MAP_CENTER } from "../../const/coordinates";
@@ -10,7 +10,7 @@ import DesktopHeader from "./DesktopHeader";
 import { MobileCalendarHeader, MobileHeader } from "./MobileHeader";
 import { urls } from "../../const/urls";
 
-const Header = () => {
+const Navbar = () => {
   const [navMenuVisible, setNavMenuVisible] = useState(false);
   const [location, setLocation] = useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
   const mapRef = useRef<Map>();
@@ -19,8 +19,6 @@ const Header = () => {
   const isMapPage = window.location.pathname === urls.reactMap;
 
   const toggleMenuVisibility = () => setNavMenuVisible(!navMenuVisible);
-
-  console.log(navMenuVisible, "test");
 
   return (
     <S.Header>
@@ -47,4 +45,4 @@ const Header = () => {
   );
 };
 
-export { Header };
+export { Navbar };

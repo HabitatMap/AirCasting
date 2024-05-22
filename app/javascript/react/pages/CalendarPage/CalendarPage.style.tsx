@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
-import { gray100, white } from "../../assets/styles/colors";
+import { gray100 } from "../../assets/styles/colors";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
-import { NAVBAR_HEIGHT } from "../../components/Header/Header.style";
+import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 
 const CalendarPageLayout = styled.div`
   display: flex;

@@ -3,7 +3,7 @@ import habitatMapLogo from "../../../assets/icons/habitatMapLogo.svg";
 import iconNavClose from "../../../assets/icons/iconNavClose.svg";
 import searchIcon from "../../../assets/icons/searchIcon.svg";
 import { urls } from "../../../const/urls";
-import * as S from "./Navbar.style";
+import * as S from "./NavList.style";
 import NavItem from "./NavItem";
 import { navItems } from "./navItemsList";
 

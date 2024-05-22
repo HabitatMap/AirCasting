@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import * as S from "./Navbar.style";
+import * as S from "./NavList.style";
 
 interface SubNavItem {
   href: string;

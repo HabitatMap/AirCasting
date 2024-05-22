@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 
 import { blue, darkBlue, theme, white } from "../../../assets/styles/colors";
-import { BuyCTA } from "../Header.style";
+import { BuyCTA } from "../Navbar.style";
 import { media } from "../../../utils/media";
 
 const AircastingLogo = styled.img`
@@ -40,12 +40,19 @@ const NavList = styled.ul<{ $isVisible?: boolean }>`
     p.$isVisible &&
     css`
       right: 0;
-      transition: right 0.3s ease;
+      opacity: 1;
+      transition: right 0.5s ease-out, opacity 0.5s ease-out;
     `}
 
   @media ${media.smallDesktop} {
     min-width: 35.2rem;
     width: auto;
+    ${(p) =>
+      p.$isVisible &&
+      css`
+        right: 0;
+        transition: right 0.3s ease;
+      `}
   }
 `;
 

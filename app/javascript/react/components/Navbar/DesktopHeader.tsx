@@ -3,11 +3,11 @@ import logo from "../../../../assets/images/aircasting-logo-nav.svg";
 import hamburger from "../../assets/icons/hamburger.svg";
 import airbeamIcon from "../../assets/icons/airbeamIcon.svg";
 import { urls } from "../../const/urls";
-import * as S from "./Header.style";
+import * as S from "./Navbar.style";
 import { LocationSearch } from "../LocationSearch";
 import { LatLngLiteral, Map } from "../../types/googleMaps";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
-import NavList from "./Navbar/NavList";
+import NavList from "./NavList/NavList";
 
 interface DesktopHeaderProps {
   isMapPage: boolean;

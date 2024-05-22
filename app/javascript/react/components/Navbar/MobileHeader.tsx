@@ -4,11 +4,11 @@ import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import goBackIcon from "../../assets/icons/goBackIcon.svg";
 import { urls } from "../../const/urls";
-import * as S from "./Header.style";
+import * as S from "./Navbar.style";
 import { LocationSearch } from "../LocationSearch";
 import { Map } from "../../types/googleMaps";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
-import NavList from "./Navbar/NavList";
+import NavList from "./NavList/NavList";
 
 export const MobileHeader = ({
   setLocation,
