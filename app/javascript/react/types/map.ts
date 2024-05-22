@@ -1,13 +1,16 @@
 const MapTypeId = {
   ROADMAP: 'roadmap',
   SATELLITE: 'satellite',
-  TERRAIN: 'terrain'
+  TERRAIN: 'terrain',
+  HYBRID: 'hybrid'
+
 };
 
 enum ViewMode {
   MAP = "map",
   SATELLITE = "satellite",
   TERRAIN = "terrain",
+  LABELS  = "labels"
 }
 
 
