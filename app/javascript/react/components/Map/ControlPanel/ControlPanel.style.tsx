@@ -5,6 +5,8 @@ import {
   gray200,
   gray300,
   gray400,
+  gray600,
+  gray800,
   white,
 } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
@@ -15,17 +17,16 @@ const ControlPanelContainer = styled.div`
   display: flex;
   font-size: 1.2rem;
   text-align: center;
-  box-shadow: 2px 2px 4px 0px #4c56601a;
+  box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   border-radius: 5px;
   gap: 0.4rem;
   padding: 0.4rem 0.5rem;
   @media ${media.smallDesktop} {
     font-size: 1.5rem;
-    padding: 1.5rem 1rem;
     gap: 1rem;
-    border-radius: 10px;
     box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
-  }
+    padding: 0;
+    border-radius: 1rem;
 `;
 
 const ToggleContainer = styled.div`
@@ -34,6 +35,7 @@ const ToggleContainer = styled.div`
     display: flex;
     align-items: center;
     font-size: 1.6rem;
+    padding: 1.5rem 1rem;
   }
 `;
 

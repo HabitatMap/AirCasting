@@ -10,7 +10,7 @@ import {
 import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { MapPage } from "./pages/MapPage";
-import { Navbar } from "./components/Navbar";
+import { Header } from "./components/Header";
 import store from "./store/index";
 import GlobalStyles from "./assets/styles/global-styles";
 import "./locales/i18n";
@@ -29,7 +29,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <GlobalStyles />
-      <Navbar />
+      <Header />
       <RouterProvider router={router}></RouterProvider>
     </Provider>
   );

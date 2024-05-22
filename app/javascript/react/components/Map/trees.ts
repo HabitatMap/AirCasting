@@ -1,5 +1,8 @@
 // Data source: https://open.toronto.ca/dataset/street-tree-data/
 
+
+//TODO Delete this mocked data and fetch the data from the API
+
 type RawTree = [string, number, number];
 
 type Tree = {

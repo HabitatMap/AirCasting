@@ -4,11 +4,11 @@ import usePlacesAutocomplete, {
   getLatLng,
 } from "use-places-autocomplete";
 import { useCombobox } from "downshift";
+import { useTranslation } from "react-i18next";
 
 import { LatLngLiteral } from "../../types/googleMaps";
 import * as S from "./LocationSearch.style";
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
-import { SearchContainer } from "../Navbar/Navbar.style";
 
 interface LocationSearchProps {
   setLocation: (position: LatLngLiteral) => void;
@@ -23,6 +23,8 @@ const LocationSearch = ({ setLocation, isMapPage }: LocationSearchProps) => {
     suggestions: { status, data },
     clearSuggestions,
   } = usePlacesAutocomplete();
+
+  const { t } = useTranslation();
 
   const handleSelect = async (item: AutocompletePrediction) => {
     if (!item) return;
@@ -63,22 +65,28 @@ const LocationSearch = ({ setLocation, isMapPage }: LocationSearchProps) => {
   useEffect(() => {
     status === "OK" && data.length && setItems(data);
   }, [data, status]);
+  {
+    t("map.mapSatelliteLabel");
+  }
 
   return (
     <>
       <S.SearchContainer>
-        <S.SearchInput placeholder="Search for location" {...getInputProps()} />
+        <S.SearchInput
+          placeholder={t("map.searchPlaceholder")}
+          {...getInputProps()}
+        />
         {!isMapPage && (
           <S.LocationSearchButton
-            aria-label="toggle menu"
+            aria-label={t("map.toggleMenu")}
             type="button"
             {...getToggleButtonProps()}
           >
-            <img src={locationSearchIcon} alt="location search icon" />
+            <img src={locationSearchIcon} alt={t("map.searchIcon")} />
           </S.LocationSearchButton>
         )}
       </S.SearchContainer>
-      {/* <S.SuggestionsList {...getMenuProps()}>
+      <S.SuggestionsList {...getMenuProps()}>
         {isOpen &&
           items.map((item, index) => (
             <S.Suggestion
@@ -89,7 +97,7 @@ const LocationSearch = ({ setLocation, isMapPage }: LocationSearchProps) => {
               {item.description}
             </S.Suggestion>
           ))}
-      </S.SuggestionsList> */}
+      </S.SuggestionsList>
     </>
   );
 };

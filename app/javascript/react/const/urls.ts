@@ -14,6 +14,7 @@ const blog = `${habitatMap}/blog`;
 const donate = `${habitatMap}/donate`;
 const press = `${habitatMap}/about/press`;
 const search = `${habitatMap}/search`;
+const reactMap = `/`;
 
 // Airbeam
 const userStories = `${airbeam}/user-stories`;
@@ -43,4 +44,5 @@ export const urls = {
   usersGuide,
   airbeamBuyNow,
   history,
+  reactMap,
 };

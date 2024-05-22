@@ -3,7 +3,9 @@ import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
 
-type Point = google.maps.LatLngLiteral & { key: string };
+import { LatLngLiteral } from "../../../types/googleMaps";
+
+type Point = LatLngLiteral & { key: string };
 type Props = { points: Point[] };
 
 const Markers = ({ points }: Props) => {

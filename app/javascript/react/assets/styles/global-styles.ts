@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 
-import { gray400 } from "./colors";
+import { gray100, gray400 } from "./colors";
 
 const GlobalStyles = createGlobalStyle`
   *,
@@ -29,7 +29,7 @@ const GlobalStyles = createGlobalStyle`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale !important;
     text-rendering: optimizeLegibility;
-    background-color: #F4F6F9;
+    background-color: ${gray100};
   }
 
   H1, H2, H3, H4, H5, H6 {

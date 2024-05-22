@@ -1,12 +1,13 @@
 import * as React from "react";
-import * as S from "./ControlPanel.style";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+
+import * as S from "./ControlPanel.style";
 import { setMapConfigId, setMapTypeId } from "../../../store/mapSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { RootState } from "../../../store";
 import { MapTypeId, ViewMode } from "../../../types/map";
-import { useTranslation } from "react-i18next";
 
 const ControlPanel: React.FC = () => {
   const dispatch = useAppDispatch();
