@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { gray100 } from "../../assets/styles/colors";
+import { gray100, white } from "../../assets/styles/colors";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
 
@@ -37,4 +37,8 @@ const Heading = styled(H3)`
   }
 `;
 
-export { StationDataContainer, CalendarPageLayout, Heading };
+export {
+  StationDataContainer,
+  CalendarPageLayout,
+  Heading,
+};

@@ -1,7 +1,7 @@
 import React from "react";
 
 import { getColorForValue } from "../../../../../utils/thresholdColors";
-import { CalendarCellData } from "../../../../../types/fixedStream";
+import { CalendarCellData } from "../../../../../types/movingStream";
 import { Thresholds } from "../../../../../types/thresholds";
 import * as S from "./Day.style";
 

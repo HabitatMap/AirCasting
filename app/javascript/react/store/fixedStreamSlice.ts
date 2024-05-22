@@ -6,6 +6,7 @@ import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
 import { FixedStream } from "../types/fixedStream";
+import type { RootState } from "./index";
 
 interface FixedStreamState {
   data: FixedStream;
@@ -58,7 +59,6 @@ export const fixedStreamSlice = createSlice({
       fetchFixedStreamById.fulfilled,
       (state, { payload: { stream, measurements, streamDailyAverages } }) => {
         state.status = StatusEnum.Fulfilled;
-
         if (stream && measurements && streamDailyAverages) {
           state.data = { stream, measurements, streamDailyAverages };
         }
@@ -76,3 +76,4 @@ export const fixedStreamSlice = createSlice({
 });
 
 export default fixedStreamSlice.reducer;
+export const selectFixedData = (state: RootState) => state.fixedStream.data;

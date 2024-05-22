@@ -76,6 +76,10 @@
     "emailPlaceholder": "loremipsum@ac.com",
     "confirmationMessage": "Exported sessions will be emailed within minutes. The email may end up in your spam folder.",
     "invalidEmailMessage": "Please enter a valid email address."
-
+  },
+  "calendarPage": {
+    "forwardScrollButton": "Move calendar page one step forward",
+    "backScrollButton": "Move calendar page one step back",
+    "noDataMessage": "There is no more data available at the moment"
   }
 }

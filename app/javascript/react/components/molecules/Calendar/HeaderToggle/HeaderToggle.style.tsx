@@ -7,9 +7,10 @@ import * as colors from "../../../../assets/styles/colors";
 const Container = styled.div`
   display: flex;
   align-items: center;
-  padding-bottom: 20px;
+  padding-bottom: 1.25rem;
+  
   @media ${media.smallDesktop} {
-    justify-content: space-between;
+    justify-content: none;
   }
 `;
 
@@ -25,12 +26,31 @@ const Heading = styled(H1)`
   cursor: pointer;
 
   @media ${media.desktop} {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; 
     cursor: auto;
     font-size: 28px;
   }
 `;
 
+const DateField = styled(H3)`
+  display: none;
+
+  @media ${media.desktop} {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: ${colors.gray300};
+    
+    span {
+      margin: 0 0.6rem;
+    }
+  }
+`;
+
 const ResetButton = styled(Button)`
+  white-space: nowrap;       
   background: ${colors.gray100};
   border: none;
   color: ${colors.gray300};
@@ -41,4 +61,4 @@ const ResetButton = styled(Button)`
   }
 `;
 
-export { Container, RotatedIcon, Heading, ResetButton };
+export { DateField, Container, RotatedIcon, Heading, ResetButton };

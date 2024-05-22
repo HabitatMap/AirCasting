@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import { CalendarMonthlyData } from "../../../../../types/fixedStream";
+import { CalendarMonthlyData } from "../../../../../types/movingStream";
 import { selectThreshold } from "../../../../../store/thresholdSlice";
 import { Day } from "../Day";
 import { DayNamesHeader } from "../DayNamesHeader";
