@@ -25,4 +25,17 @@ const FrequencyLabel = styled(H5)`
   }
 `;
 
-export { DateLabel, FrequencyLabel };
+const RangeLabel = styled(H5)`
+  display: inline;
+
+  .hyphen-padding {
+    padding: 0 8px;
+  }
+
+  @media ${media.desktop} {
+    display: block;
+    font-size: 14px;
+  }
+`;
+
+export { DateLabel, FrequencyLabel, RangeLabel };

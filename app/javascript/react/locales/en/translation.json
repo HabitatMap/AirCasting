@@ -53,7 +53,8 @@
     "localTime": "{{lastUpdate}} (local time)",
     "legendTitle": "Measurements legend",
     "calendarTitle": "Measurements calendar",
-    "measurementsUnits": "(µg/m³)"
+    "measurementsUnits": "(µg/m³)",
+    "dataRange": "Data range"
   },
   "headerToggle": {
     "arrowIcon": "Arrow Icon" },
