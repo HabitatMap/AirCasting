@@ -19,6 +19,10 @@ const initialExportModalData: ExportModalData = {
 interface ExportDataModalProps {
   sessionId: string;
   isOpen: boolean;
+  position: {
+    top: number;
+    left: number;
+  };
   onSubmit: (data: ExportModalData) => void;
   onClose: () => void;
 }
@@ -27,6 +31,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
   sessionId,
   onSubmit,
   isOpen,
+  position,
   onClose,
 }) => {
   const focusInputRef = useRef<HTMLInputElement | null>(null);
@@ -98,6 +103,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
       iconName={downloadWhite}
       handleActionButton={handleSubmit}
       isOpen={isOpen}
+      position={position}
       onClose={onClose}
     >
       {confirmationMessage ? (

@@ -7,7 +7,6 @@ import {
   FlexWrapper,
   ActionButton,
   CancelButtonX,
-  TextInput,
 } from "./ExportModal.style";
 import closeButton from "../../assets/icons/closeButton.svg";
 
@@ -19,6 +18,10 @@ interface ModalProps {
   buttonHasIcon: boolean;
   iconName: string;
   onClose?: () => void;
+  position: {
+    top: number;
+    left: number;
+  };
   children: React.ReactNode;
 }
 
@@ -30,21 +33,11 @@ const ExportModal: React.FC<ModalProps> = ({
   buttonHasIcon: hasIcon,
   iconName,
   onClose,
+  position,
   children,
 }) => {
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
-
-  const handleButtonClick = () => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setModalPosition({
-        top: rect.top - rect.height, // Adjust as needed
-        left: rect.left + rect.width / 2 - 20, // Adjust as needed
-      });
-    }
-  };
 
   const handleCloseModal = () => {
     onClose?.();
@@ -69,13 +62,10 @@ const ExportModal: React.FC<ModalProps> = ({
 
   return (
     <>
-      <button ref={buttonRef} onClick={handleButtonClick}>
-        Open Modal
-      </button>
       <ModalContainer
         isOpen={isOpen}
-        top={modalPosition.top}
-        left={modalPosition.left}
+        top={position.top}
+        left={position.left}
         onKeyDown={handleKeyDown}
       >
         <ModalContent>

@@ -15,6 +15,10 @@ interface Props {
 
 const StationActionButtons = ({ sessionId }: Props) => {
   const [isExportModalOpen, setExportModalOpen] = useState<boolean>(false);
+  const [modalPosition, setModalPosition] = useState<{
+    top: number;
+    left: number;
+  }>({ top: 0, left: 0 });
 
   const { t } = useTranslation();
 
@@ -47,7 +51,14 @@ const StationActionButtons = ({ sessionId }: Props) => {
     }
   };
 
-  const handleOpenExportModal = () => {
+  const handleOpenExportModal = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setModalPosition({
+      top: rect.top - rect.height,
+      left: rect.left + rect.width / 2,
+    });
     setExportModalOpen(true);
   };
 
@@ -90,6 +101,7 @@ const StationActionButtons = ({ sessionId }: Props) => {
         sessionId={sessionId}
         isOpen={isExportModalOpen}
         onClose={handleCloseExportModal}
+        position={modalPosition}
         onSubmit={(formData) => {}}
       />
     </>

@@ -32,14 +32,12 @@ const ModalContent = styled.div`
 
 const ButtonsWrapper = styled.div`
   display: flex;
-  justify-content: space-between;
-  gap: 0.3125rem;
+  justify-content: center;
   padding-top: 0.625rem;
 `;
 
 const FlexWrapper = styled.div`
   display: flex;
-  align-items: center;
   padding-bottom: 0.625rem;
 `;
 
