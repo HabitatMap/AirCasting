@@ -19,7 +19,7 @@ interface ModalProps {
   iconName: string;
   onClose?: () => void;
   position: {
-    top: number;
+    bottom: number;
     left: number;
   };
   children: React.ReactNode;
@@ -64,7 +64,7 @@ const ExportModal: React.FC<ModalProps> = ({
     <>
       <ModalContainer
         isOpen={isOpen}
-        top={position.top}
+        bottom={position.bottom}
         left={position.left}
         onKeyDown={handleKeyDown}
       >

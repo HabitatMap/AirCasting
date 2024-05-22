@@ -16,9 +16,9 @@ interface Props {
 const StationActionButtons = ({ sessionId }: Props) => {
   const [isExportModalOpen, setExportModalOpen] = useState<boolean>(false);
   const [modalPosition, setModalPosition] = useState<{
-    top: number;
+    bottom: number;
     left: number;
-  }>({ top: 0, left: 0 });
+  }>({ bottom: 0, left: 0 });
 
   const { t } = useTranslation();
 
@@ -55,9 +55,10 @@ const StationActionButtons = ({ sessionId }: Props) => {
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     const rect = event.currentTarget.getBoundingClientRect();
+    console.log(rect);
     setModalPosition({
-      top: rect.top - rect.height,
-      left: rect.left + rect.width / 2,
+      bottom: rect.top,
+      left: rect.left,
     });
     setExportModalOpen(true);
   };

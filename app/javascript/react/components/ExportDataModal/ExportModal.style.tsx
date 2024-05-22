@@ -4,7 +4,7 @@ import { Button } from "../Button/Button.style";
 
 interface ModalProps {
   isOpen: boolean;
-  top: number;
+  bottom: number;
   left: number;
   onKeyDown: React.KeyboardEventHandler<HTMLDialogElement>;
 }
@@ -13,8 +13,8 @@ const ModalContainer = styled.div<ModalProps>`
   display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
   justify-content: center;
   align-items: center;
-  position: absolute;
-  top: ${({ top }) => `${top}px`};
+  position: fixed;
+  bottom: ${({ bottom }) => `${bottom}px`};
   left: ${({ left }) => `${left}px`};
   z-index: 999;
 `;

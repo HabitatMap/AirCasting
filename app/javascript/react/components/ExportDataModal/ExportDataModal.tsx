@@ -20,7 +20,7 @@ interface ExportDataModalProps {
   sessionId: string;
   isOpen: boolean;
   position: {
-    top: number;
+    bottom: number;
     left: number;
   };
   onSubmit: (data: ExportModalData) => void;
