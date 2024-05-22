@@ -23,7 +23,7 @@ const ControlPanel: React.FC = () => {
         setIsTerrainChecked(false);
         break;
       case MapTypeId.TERRAIN:
-        setViewMode(ViewMode.TERRAIN);
+        setViewMode(ViewMode.MAP);
         setIsTerrainChecked(true);
         break;
       default:
@@ -32,18 +32,30 @@ const ControlPanel: React.FC = () => {
     }
   }, [mapConfigId]);
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedMapTypeId = e.target.value;
-    const newViewMode =
-      selectedMapTypeId === MapTypeId.TERRAIN
-        ? ViewMode.MAP
-        : ViewMode.SATELLITE;
-    const newIsTerrainChecked = selectedMapTypeId === MapTypeId.TERRAIN;
-
+  const handleViewModeChange = (newViewMode: ViewMode) => {
+    let selectedMapTypeId = MapTypeId.ROADMAP;
+    switch (newViewMode) {
+      case ViewMode.SATELLITE:
+        selectedMapTypeId = MapTypeId.SATELLITE;
+        break;
+      case ViewMode.MAP:
+        selectedMapTypeId = isTerrainChecked
+          ? MapTypeId.TERRAIN
+          : MapTypeId.ROADMAP;
+        break;
+    }
     setViewMode(newViewMode);
-    setIsTerrainChecked(newIsTerrainChecked);
     dispatch(setMapConfigId(selectedMapTypeId));
     dispatch(setMapTypeId(selectedMapTypeId));
+  };
+
+  const handleTerrainChange = (isChecked: boolean) => {
+    const newMapTypeId = isChecked ? MapTypeId.TERRAIN : MapTypeId.ROADMAP;
+    setIsTerrainChecked(isChecked);
+    if (viewMode === ViewMode.MAP) {
+      dispatch(setMapConfigId(newMapTypeId));
+      dispatch(setMapTypeId(newMapTypeId));
+    }
   };
 
   return (
@@ -57,14 +69,9 @@ const ControlPanel: React.FC = () => {
             type="checkbox"
             checked={viewMode === ViewMode.SATELLITE}
             onChange={() =>
-              handleSelectChange({
-                target: {
-                  value:
-                    viewMode === ViewMode.MAP
-                      ? MapTypeId.SATELLITE
-                      : MapTypeId.ROADMAP,
-                },
-              } as any)
+              handleViewModeChange(
+                viewMode === ViewMode.MAP ? ViewMode.SATELLITE : ViewMode.MAP
+              )
             }
           />
           <S.Slider />
@@ -74,23 +81,15 @@ const ControlPanel: React.FC = () => {
         </S.Label>
       </S.ToggleContainer>
 
-      {(viewMode === ViewMode.MAP || viewMode === ViewMode.TERRAIN) && (
+      {viewMode === ViewMode.MAP && (
         <S.TerrainContainer>
           <S.Label isActive={isTerrainChecked}>
             {t("map.terrainLabel")}
             <S.TerrainLabel>
               <S.TerrainCheckbox
                 type="checkbox"
-                onChange={() =>
-                  handleSelectChange({
-                    target: {
-                      value: isTerrainChecked
-                        ? MapTypeId.ROADMAP
-                        : MapTypeId.TERRAIN,
-                    },
-                  } as any)
-                }
                 checked={isTerrainChecked}
+                onChange={() => handleTerrainChange(!isTerrainChecked)}
               />
               <S.RoundCheckbox />
             </S.TerrainLabel>
@@ -99,7 +98,14 @@ const ControlPanel: React.FC = () => {
       )}
 
       <S.SelectContainer>
-        <S.Select value={mapConfigId} onChange={handleSelectChange}>
+        <S.Select
+          value={mapConfigId}
+          onChange={(e) => {
+            const selectedMapTypeId = e.target.value;
+            dispatch(setMapConfigId(selectedMapTypeId));
+            dispatch(setMapTypeId(selectedMapTypeId));
+          }}
+        >
           <option value={MapTypeId.ROADMAP}>{t("map.mapViewLabel")}</option>
           <option value={MapTypeId.SATELLITE}>
             {t("map.mapSatelliteLabel")}
