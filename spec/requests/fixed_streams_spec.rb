@@ -27,6 +27,8 @@ describe 'GET api/v3/fixed_streams/:id' do
           unit_symbol: stream.unit_symbol,
           update_frequency: '1 minute',
           last_update: stream.session.last_measurement_at,
+          start_time: session.end_time_local,
+          end_time: session.start_time_local,
         },
         measurements: [
           { time: measurement_1.time.to_i * 1_000, value: measurement_1.value },
