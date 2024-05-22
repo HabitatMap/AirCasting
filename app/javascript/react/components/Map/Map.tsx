@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { Map as GoogleMap } from "@vis.gl/react-google-maps";
 
@@ -6,7 +6,7 @@ import trees from "./trees";
 
 import { containerStyle } from "./Map.style";
 import { Markers } from "./Markers/Markers";
-import { DEFAULT_ZOOM } from "../../const/coordinates";
+import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 
@@ -18,7 +18,7 @@ const Map = () => {
       <GoogleMap
         mapId={mapConfigId || null}
         mapTypeId={mapTypeId}
-        defaultCenter={{ lat: 43.64, lng: -79.41 }}
+        defaultCenter={DEFAULT_MAP_CENTER}
         defaultZoom={DEFAULT_ZOOM}
         gestureHandling={"greedy"}
         disableDefaultUI
