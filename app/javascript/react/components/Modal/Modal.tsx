@@ -30,7 +30,7 @@ interface ModalProps {
 const Modal: React.FC<ModalProps> = ({
   isOpen,
   title,
-  hasCloseButton = true,
+  hasCloseButton = false,
   hasActionButton = true,
   handleActionButton,
   buttonName,

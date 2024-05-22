@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAppDispatch } from "../../store/hooks";
 import { exportSession } from "../../store/exportSessionSlice";
-import { Modal } from "../Modal";
+import { ExportModal } from "./ExportModal";
 import { EmailInput, RedErrorMessage } from "./EmailInput";
 import { ConfirmationMessage } from "./ConfirmationMessage";
 import downloadWhite from "../../assets/icons/downloadWhite.svg";
@@ -91,9 +91,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
   };
 
   return (
-    <Modal
-      title={t("exportDataModal.title")}
-      hasCloseButton={!confirmationMessage}
+    <ExportModal
       hasActionButton={!confirmationMessage}
       buttonName={t("exportDataModal.exportButton")}
       buttonHasIcon
@@ -116,7 +114,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
           {errorMessage && <RedErrorMessage>{errorMessage}</RedErrorMessage>}
         </form>
       )}
-    </Modal>
+    </ExportModal>
   );
 };
 
