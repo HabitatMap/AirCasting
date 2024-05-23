@@ -1,4 +1,4 @@
-namespace: daily_stream_averages do
+namespace :stream_daily_averages do
   task check: :environment do
     FixedSession.find_each do |fixed_session|
       fixed_session.streams.find_each do |stream|
