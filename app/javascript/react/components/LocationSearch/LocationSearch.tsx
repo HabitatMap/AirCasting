@@ -1,14 +1,14 @@
+import { useCombobox } from "downshift";
 import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
-import { useCombobox } from "downshift";
-import { useTranslation } from "react-i18next";
 
+import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
 import { LatLngLiteral } from "../../types/googleMaps";
 import * as S from "./LocationSearch.style";
-import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
 
 interface LocationSearchProps {
   setLocation: (position: LatLngLiteral) => void;
