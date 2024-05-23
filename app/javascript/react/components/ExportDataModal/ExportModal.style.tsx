@@ -26,7 +26,7 @@ const ModalContent = styled.div`
   position: relative;
   padding: 1rem;
   min-height: 10vh;
-  min-width: 20vw;
+  min-width: 11vw;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 `;
 

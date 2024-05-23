@@ -25,7 +25,7 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-const ExportModal: React.FC<ModalProps> = ({
+const DesktopExportModal: React.FC<ModalProps> = ({
   isOpen,
   hasActionButton = true,
   handleActionButton,
@@ -91,4 +91,4 @@ const ExportModal: React.FC<ModalProps> = ({
   );
 };
 
-export { ExportModal };
+export { DesktopExportModal };

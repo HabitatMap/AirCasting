@@ -51,14 +51,18 @@ const StationActionButtons = ({ sessionId }: Props) => {
     }
   };
 
-  const handleOpenExportModal = (
+  const handleOpenDesktopExportModal = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     const rect = event.currentTarget.getBoundingClientRect();
     setModalPosition({
-      bottom: window.innerHeight - rect.bottom - rect.height,
+      bottom: window.innerHeight - rect.bottom + rect.height,
       left: rect.left,
     });
+    setExportModalOpen(true);
+  };
+
+  const handleOpenMobileExportModal = () => {
     setExportModalOpen(true);
   };
 
@@ -70,7 +74,7 @@ const StationActionButtons = ({ sessionId }: Props) => {
     <>
       <S.MobileButtons>
         <ActionButton
-          onClick={handleOpenExportModal}
+          onClick={handleOpenMobileExportModal}
           aria-labelledby={t("calendarHeader.altExportSession")}
         >
           <img src={downloadImage} />
@@ -91,12 +95,13 @@ const StationActionButtons = ({ sessionId }: Props) => {
           <img src={copyLink} alt={t("Copy link")} />
         </Button>
         <Button
-          onClick={handleOpenExportModal}
+          onClick={handleOpenDesktopExportModal}
           aria-labelledby={t("calendarHeader.altExportSession")}
         >
           {t("calendarHeader.exportSession")} <img src={downloadImage} />
         </Button>
       </S.DesktopButtons>
+
       <ExportDataModal
         sessionId={sessionId}
         isOpen={isExportModalOpen}
