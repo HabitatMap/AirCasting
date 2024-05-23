@@ -89,11 +89,11 @@ describe Api::Fixed::Active::SessionsController do
                 'size' => 1,
                 'start_latitude' => active_stream.start_latitude,
                 'start_longitude' => active_stream.start_longitude,
-                'threshold_high' => active_stream.threshold_high,
-                'threshold_low' => active_stream.threshold_low,
-                'threshold_medium' => active_stream.threshold_medium,
-                'threshold_very_high' => active_stream.threshold_very_high,
-                'threshold_very_low' => active_stream.threshold_very_low,
+                'threshold_high' => active_stream.threshold_set.threshold_high,
+                'threshold_low' => active_stream.threshold_set.threshold_low,
+                'threshold_medium' => active_stream.threshold_set.threshold_medium,
+                'threshold_very_high' => active_stream.threshold_set.threshold_very_high,
+                'threshold_very_low' => active_stream.threshold_set.threshold_very_low,
                 'unit_name' => active_stream.unit_name,
                 'unit_symbol' => active_stream.unit_symbol,
               },
@@ -302,6 +302,16 @@ describe Api::Fixed::Active::SessionsController do
   end
 
   def create_stream!(session:, latitude:, longitude:, sensor_name: 'AirBeam2-F')
+    threshold_set = ThresholdSet.create!(
+      threshold_very_low: 20,
+      threshold_low: 60,
+      threshold_medium: 70,
+      threshold_high: 80,
+      threshold_very_high: 100,
+      unit_symbol: 'F',
+      sensor_name: sensor_name,
+    )
+
     Stream.create!(
       session: session,
       sensor_name: sensor_name,
@@ -310,11 +320,7 @@ describe Api::Fixed::Active::SessionsController do
       sensor_package_name: 'Airbeam2-0018961071B4',
       unit_name: 'fahrenheit',
       unit_symbol: 'F',
-      threshold_very_low: 20,
-      threshold_low: 60,
-      threshold_medium: 70,
-      threshold_high: 80,
-      threshold_very_high: 100,
+      threshold_set: threshold_set,
       min_latitude: latitude,
       max_latitude: latitude,
       min_longitude: longitude,
