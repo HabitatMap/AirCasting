@@ -13,7 +13,7 @@ const ModalContainer = styled.div<ModalProps>`
   display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
   justify-content: center;
   align-items: center;
-  position: fixed;
+  position: absolute;
   bottom: ${({ bottom }) => `${bottom}px`};
   left: ${({ left }) => `${left}px`};
   z-index: 999;

@@ -55,9 +55,8 @@ const StationActionButtons = ({ sessionId }: Props) => {
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    console.log(rect);
     setModalPosition({
-      bottom: rect.top,
+      bottom: window.innerHeight - rect.bottom - rect.height,
       left: rect.left,
     });
     setExportModalOpen(true);
