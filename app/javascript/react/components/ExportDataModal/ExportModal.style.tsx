@@ -1,6 +1,7 @@
 import styled from "styled-components";
-import { white, blue, gray100, black } from "../../assets/styles/colors";
+import { white, blue, gray100 } from "../../assets/styles/colors";
 import { Button } from "../Button/Button.style";
+import { media } from "../../utils/media";
 
 interface ModalProps {
   isOpen: boolean;
@@ -46,13 +47,32 @@ const ActionButton = styled(Button)`
   color: ${white};
   font-weight: 100;
   border: none;
+  @media ${media.desktop} {
+    height: 30px;
+    font-size: 1rem;
+    img {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
 `;
 
 const CancelButtonX = styled(Button)`
   color: black;
   font-weight: 100;
-  font-size: 18px;
   border: none;
+
+  @media ${media.desktop} {
+    display: flex;
+    align-items: center;
+    height: auto;
+    padding: 0;
+    cursor: pointer;
+    img {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
 `;
 
 const TextInput = styled.input`
