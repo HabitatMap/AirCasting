@@ -8,6 +8,7 @@ import { EmailInput, RedErrorMessage } from "./EmailInput";
 import { ConfirmationMessage } from "./ConfirmationMessage";
 import downloadWhite from "../../assets/icons/downloadWhite.svg";
 import { Modal } from "../Modal";
+import { screenSizes } from "../../utils/media";
 
 export interface ExportModalData {
   email: string;
@@ -43,7 +44,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
     null
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const isMobile = window.innerWidth <= 768;
+  const isMobile = window.innerWidth <= screenSizes.mobile;
   const EMAIL_FIELD = "email";
   const dispatch = useAppDispatch();
   const { t } = useTranslation();

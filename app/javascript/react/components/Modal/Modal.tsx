@@ -13,6 +13,7 @@ import {
   ModalText,
 } from "./Modal.style";
 import closeButton from "../../assets/icons/closeButton.svg";
+import { KeyboardKeys } from "../../types/keyboardKeys";
 
 interface ModalProps {
   isOpen: boolean;
@@ -46,7 +47,7 @@ const Modal: React.FC<ModalProps> = ({
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDialogElement>) => {
-    if (event.key === "Escape") {
+    if (event.key === KeyboardKeys.Escape) {
       handleCloseModal();
     }
   };
