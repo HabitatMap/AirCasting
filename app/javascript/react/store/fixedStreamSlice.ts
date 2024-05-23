@@ -27,6 +27,11 @@ const initialState: FixedStreamState = {
       sessionId: "",
       startTime: "",
       endTime: "",
+      min: 0,
+      low: 0,
+      middle: 0,
+      high: 0,
+      max: 0,
     },
     measurements: [],
     streamDailyAverages: [],
@@ -59,6 +64,7 @@ export const fixedStreamSlice = createSlice({
       fetchFixedStreamById.fulfilled,
       (state, { payload: { stream, measurements, streamDailyAverages } }) => {
         state.status = StatusEnum.Fulfilled;
+
         if (stream && measurements && streamDailyAverages) {
           state.data = { stream, measurements, streamDailyAverages };
         }

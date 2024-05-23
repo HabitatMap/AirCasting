@@ -15,12 +15,21 @@ import { useAppDispatch } from "../../store/hooks";
 import * as S from "./ThresholdConfigurator.style";
 
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 
 interface ThumbPositions extends Omit<Thresholds, "min" | "max"> {}
 
 const maxThresholdDifference = 1;
 
 const ThresholdsConfigurator = () => {
+  const {
+    min: initialMin,
+    low: initialLow,
+    middle: initialMiddle,
+    high: initialHigh,
+    max: initialMax,
+  } = useSelector(selectFixedStreamShortInfo);
+
   const thresholdsState = useSelector(selectThreshold);
   const [thresholdValues, setThresholdValues] = useState(thresholdsState);
   const [thumbPositions, setThumbPositions] = useState<ThumbPositions>(
@@ -34,6 +43,16 @@ const ThresholdsConfigurator = () => {
   const [inputValue, setInputValue] = useState("");
 
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    setThresholdValues({
+      min: initialMin,
+      low: initialLow,
+      middle: initialMiddle,
+      high: initialHigh,
+      max: initialMax,
+    });
+  }, [initialMin, initialLow, initialMiddle, initialHigh, initialMax]);
 
   useEffect(() => {
     const updateThresholdValues = () => {
