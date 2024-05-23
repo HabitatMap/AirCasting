@@ -8,11 +8,11 @@ describe Api::ThresholdsController do
       get :show, params: { id: 'AirBeam2-PM2.5', unit_symbol: stream.unit_symbol }, format: :json
 
       expect(json_response).to eq([
-        stream.threshold_very_low,
-        stream.threshold_low,
-        stream.threshold_medium,
-        stream.threshold_high,
-        stream.threshold_very_high,
+        stream.threshold_set.threshold_very_low,
+        stream.threshold_set.threshold_low,
+        stream.threshold_set.threshold_medium,
+        stream.threshold_set.threshold_high,
+        stream.threshold_set.threshold_very_high,
       ].map(&:to_s))
     end
 
@@ -22,11 +22,11 @@ describe Api::ThresholdsController do
       get :show, params: { id: 'AirBeam-PM2.5', unit_symbol: stream.unit_symbol }, format: :json
 
       expect(json_response).to eq([
-        stream.threshold_very_low,
-        stream.threshold_low,
-        stream.threshold_medium,
-        stream.threshold_high,
-        stream.threshold_very_high,
+        stream.threshold_set.threshold_very_low,
+        stream.threshold_set.threshold_low,
+        stream.threshold_set.threshold_medium,
+        stream.threshold_set.threshold_high,
+        stream.threshold_set.threshold_very_high,
       ].map(&:to_s))
     end
   end

@@ -38,6 +38,18 @@ def create_session!(attributes = {})
   )
 end
 
+def create_threshold_set!(attributes = {})
+  ThresholdSet.create!(
+    threshold_very_low: attributes.fetch(:threshold_very_low, 20),
+    threshold_low: attributes.fetch(:threshold_low, 60),
+    threshold_medium: attributes.fetch(:threshold_medium, 70),
+    threshold_high: attributes.fetch(:threshold_high, 80),
+    threshold_very_high: attributes.fetch(:threshold_very_high, 100),
+    unit_symbol: attributes.fetch(:unit_symbol, 'F'),
+    sensor_name: attributes.fetch(:sensor_name, 'AirBeam2-F'),
+  )
+end
+
 def create_stream!(attributes = {})
   Stream.create!(
     sensor_package_name: 'AirBeam2:00189610719F',
@@ -47,11 +59,7 @@ def create_stream!(attributes = {})
     session: attributes.fetch(:session) { create_session! },
     measurement_short_type: 'F',
     unit_symbol: attributes.fetch(:unit_symbol, 'F'),
-    threshold_very_low: 20,
-    threshold_low: 60,
-    threshold_medium: 70,
-    threshold_high: 80,
-    threshold_very_high: 100,
+    threshold_set: attributes.fetch(:threshold_set) { create_threshold_set!(sensor_name: attributes.fetch(:sensor_name, 'AirBeam2-F'), unit_symbol: attributes.fetch(:unit_symbol, 'F')) },
     min_latitude: attributes.fetch(:min_latitude, 1),
     max_latitude: attributes.fetch(:max_latitude, 1),
     min_longitude: attributes.fetch(:min_longitude, 1),

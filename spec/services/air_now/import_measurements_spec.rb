@@ -41,11 +41,6 @@ describe AirNow::ImportMeasurements do
       [:measurement_type, "Particulate Matter"],
       [:measurement_short_type, "PM"],
       [:unit_symbol, "µg/m³"],
-      [:threshold_very_low, 0],
-      [:threshold_low, 12],
-      [:threshold_medium, 35],
-      [:threshold_high, 55],
-      [:threshold_very_high, 150],
       [:sensor_package_name, "Government-PM2.5"],
     ].each do |attribute, expected|
       expect(Stream.first.public_send(attribute)).to eq(expected)

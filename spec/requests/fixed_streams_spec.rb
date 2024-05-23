@@ -86,6 +86,7 @@ describe 'GET api/v3/fixed_streams/:id' do
           unit_symbol: stream.unit_symbol,
           update_frequency: '1 minute',
           last_update: stream.session.last_measurement_at,
+<<<<<<< HEAD
           start_time: session.end_time_local,
           end_time: session.start_time_local,
           min: stream.threshold_very_low.to_s,
@@ -93,6 +94,15 @@ describe 'GET api/v3/fixed_streams/:id' do
           middle: stream.threshold_medium.to_s,
           high: stream.threshold_high.to_s,
           max: stream.threshold_very_high.to_s,
+=======
+          thresholds: {
+            high: stream.threshold_set.threshold_high,
+            max: stream.threshold_set.threshold_very_high,
+            middle: stream.threshold_set.threshold_medium,
+            low: stream.threshold_set.threshold_low,
+            min: stream.threshold_set.threshold_very_low,
+          },
+>>>>>>> d41e22b9 (specs adjusted)
         },
         measurements: [
           { time: measurement_1.time.to_i * 1_000, value: measurement_1.value },
