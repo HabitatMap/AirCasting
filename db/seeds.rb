@@ -21,6 +21,17 @@ unless session
       is_indoor: false,
     )
 
+  threshold_set =
+    ThresholdSet.create!(
+      threshold_very_low: 0,
+      threshold_low: 12,
+      threshold_medium: 35,
+      threshold_high: 55,
+      threshold_very_high: 150,
+      unit_symbol: 'µg/m³',
+      sensor_name: 'PurpleAir-PM2.5',
+    )
+
   stream =
     Stream.create!(
       session: s,
@@ -29,11 +40,7 @@ unless session
       measurement_type: 'Particulate Matter',
       measurement_short_type: 'PM',
       unit_symbol: 'µg/m³',
-      threshold_very_low: 0,
-      threshold_low: 12,
-      threshold_medium: 35,
-      threshold_high: 55,
-      threshold_very_high: 150,
+      threshold_set_id: threshold_set.id,
       sensor_package_name: 'PurpleAir-PM2.5',
       measurements_count: 20,
       average_value: 10.5,

@@ -46,11 +46,11 @@ class Api::ToDormantSessionsArray
                         size: stream.size,
                         start_latitude: stream.start_latitude,
                         start_longitude: stream.start_longitude,
-                        threshold_high: stream.threshold_high,
-                        threshold_low: stream.threshold_low,
-                        threshold_medium: stream.threshold_medium,
-                        threshold_very_high: stream.threshold_very_high,
-                        threshold_very_low: stream.threshold_very_low,
+                        threshold_high: stream.threshold_set.threshold_high,
+                        threshold_low: stream.threshold_set.threshold_low,
+                        threshold_medium: stream.threshold_set.threshold_medium,
+                        threshold_very_high: stream.threshold_set.threshold_very_high,
+                        threshold_very_low: stream.threshold_set.threshold_very_low,
                         unit_name: stream.unit_name,
                         unit_symbol: stream.unit_symbol
                       }

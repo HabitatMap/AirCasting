@@ -4,7 +4,7 @@ module Api
 
     def show
       GoogleAnalyticsWorker::RegisterEvent.async_call('Thresholds#show')
-      render json: Stream.thresholds(id, unit_symbol)
+      render json: ThresholdSetSerializer.new.call(Stream.thresholds(id, unit_symbol))
     end
 
     private

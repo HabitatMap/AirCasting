@@ -1,5 +1,6 @@
 class Stream < ApplicationRecord
   belongs_to :session
+  belongs_to :threshold_set
 
   has_many :measurements, dependent: :delete_all
   has_many :stream_daily_averages, dependent: :delete_all
@@ -12,11 +13,7 @@ class Stream < ApplicationRecord
             :measurement_type,
             :measurement_short_type,
             :unit_symbol,
-            :threshold_very_low,
-            :threshold_low,
-            :threshold_medium,
-            :threshold_high,
-            :threshold_very_high,
+            :threshold_set_id,
             presence: true
 
   attr_accessor :deleted
@@ -102,6 +99,7 @@ class Stream < ApplicationRecord
 
   def self.build_or_update!(data = {})
     measurements_attributes = data.delete(:measurements)
+    data = threshold_set_from_stream(data)
     stream = where(data).first_or_initialize
     latitude = measurements_attributes.first.fetch(:latitude)
     longitude = measurements_attributes.first.fetch(:longitude)
@@ -112,6 +110,27 @@ class Stream < ApplicationRecord
 
     MeasurementsCreator.new.call(stream, measurements_attributes)
     stream
+  end
+
+  def self.threshold_set_from_stream(data)
+    threshold_very_low = data.delete(:threshold_very_low)
+    threshold_low = data.delete(:threshold_low)
+    threshold_medium = data.delete(:threshold_medium)
+    threshold_high = data.delete(:threshold_high)
+    threshold_very_high = data.delete(:threshold_very_high)
+    sensor_name = data.fetch(:sensor_name)
+    unit_symbol = data.fetch(:unit_symbol)
+
+    threshold_set = ThresholdSet.find_or_create_by(
+      sensor_name: sensor_name,
+      unit_symbol: unit_symbol,
+      threshold_very_low: threshold_very_low,
+      threshold_low: threshold_low,
+      threshold_medium: threshold_medium,
+      threshold_high: threshold_high,
+      threshold_very_high: threshold_very_high,
+    )
+    data.merge(threshold_set_id: threshold_set.id)
   end
 
   def build_measurements!(data = [])
@@ -147,30 +166,36 @@ class Stream < ApplicationRecord
     )
   end
 
-  # this change for migration mysql->posgres needs to be tested
   def self.thresholds(sensor_name, unit_symbol)
-    subquery =
-      select(
-          "ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-') as thresholds, COUNT(*) as thresholds_count",
-        )
-        .where(
-          'LOWER(sensor_name) IN (?) AND unit_symbol = ?',
-          Sensor.sensor_name(sensor_name),
-          unit_symbol,
-        )
-        .group(
-          "ARRAY_TO_STRING(ARRAY[threshold_very_low, threshold_low, threshold_medium, threshold_high, threshold_very_high], '-')",
-        )
-        .to_sql
+    default = ThresholdSet.where(
+      sensor_name: sensor_name,
+      unit_symbol: unit_symbol,
+      is_default: true,
+    ).first
 
-    result =
-      Stream
-        .select('subquery.thresholds, subquery.thresholds_count')
-        .from("(#{subquery}) as subquery")
-        .order('subquery.thresholds_count DESC')
-        .first
+    return default if default
 
-    result ? result.thresholds.split('-') : []
+    sensor_name = Sensor.sensor_name(sensor_name.downcase)
+
+    sets = ThresholdSet.where(
+      'LOWER(sensor_name) IN (?) AND unit_symbol = ?',
+      sensor_name,
+      unit_symbol
+    )
+
+    return nil if sets.empty?
+
+    most_popular = sets.sort_by { |set|
+      [
+        set.threshold_very_low || 0,
+        set.threshold_low || 0,
+        set.threshold_medium || 0,
+        set.threshold_high || 0,
+        set.threshold_very_high || 0
+      ]
+    }.last
+
+    most_popular
   end
 
   def as_json(opts = nil)
