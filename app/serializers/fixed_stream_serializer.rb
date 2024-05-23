@@ -11,6 +11,8 @@ class FixedStreamSerializer
   private
 
   def serialized_stream(stream)
+    thresolds = Stream.thresholds(stream.sensor_name, stream.unit_symbol)
+
     {
       id: stream.id,
       session_id: stream.session.id,
@@ -21,13 +23,11 @@ class FixedStreamSerializer
       unit_symbol: stream.unit_symbol,
       update_frequency: '1 minute',
       last_update: stream.session.last_measurement_at,
-      start_time: stream.session.start_time_local,
-      end_time: stream.session.end_time_local,
-      min: 0,
-      low: 20,
-      middle: 40,
-      high: 60,
-      max: 100,
+      min: thresolds[0],
+      low: thresolds[1],
+      middle: thresolds[2],
+      high: thresolds[3],
+      max: thresolds[4],
     }
   end
 
