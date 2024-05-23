@@ -5,6 +5,8 @@ require 'sidekiq_unique_jobs/web'
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
+  root 'client_app#index'
+
   ActiveAdmin.routes(self)
 
   constraints AdminConstraint.new do
@@ -20,7 +22,6 @@ Rails.application.routes.draw do
   get 'map', to: redirect('mobile_map', status: 302)
   get 'mobile_map' => 'maps#index'
   get 'fixed_map' => 'maps#index'
-  get 'fixed_stream' => 'fixed_streams#show'
 
   get 's/:url_token' => 'measurement_sessions#show',
       :constraints => {
@@ -114,6 +115,5 @@ Rails.application.routes.draw do
     get 'autocomplete/usernames' => 'autocomplete#usernames'
   end
 
-  #TO BE CHANGED when working on a new map#
-  get '*path', to: 'fixed_streams#show', via: :all
+  get '*path', to: 'client_app#index', via: :all
 end

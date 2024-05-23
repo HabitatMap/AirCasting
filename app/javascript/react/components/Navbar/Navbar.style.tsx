@@ -1,25 +1,32 @@
 import styled, { css } from "styled-components";
 
 import {
+  blue,
   cta,
   darkBlue,
-  gray100,
   gray400,
-  theme,
   white,
 } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
+
+const NAVBAR_HEIGHT = "7.8rem";
 
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2rem;
-  background: ${gray100};
+  background-color: transparent;
+  z-index: 2;
+  flex-wrap: wrap;
+  position: absolute;
 
   @media ${media.smallDesktop} {
-    padding: 0 4.8rem;
-    height: 7.8rem;
+    height: ${NAVBAR_HEIGHT};
+    position: absolute;
+    width: 100%;
+    margin: 0 auto;
+    top: 0;
+    left: 0;
   }
 `;
 
@@ -39,8 +46,24 @@ const DesktopContainer = styled.div`
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    padding: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    flex-direction: flex-reverse;
   }
 `;
+
+const SearchContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
+  border-radius: 10px;
+  background-color: ${white};
+  padding: 1rem 1.5rem;
+  gap: 2rem;
+`;
+
 const AircastingLogo = styled.img`
   width: 152px;
   height: 43px;
@@ -52,14 +75,18 @@ const Button = styled.button`
 `;
 
 const MenuButton = styled(Button)`
-  padding: 1.2rem;
-  margin-left: 2rem;
-  font-color: ${gray400};
-  background-color: ${white};
-  border-radius: 10px;
-  box-shadow: 0px 4px 4px 0px rgba(76, 86, 96, 0.1);
-  width: 48px;
-  height: 42px;
+  background-color: transparent;
+
+  @media ${media.smallDesktop} {
+    background-color: ${white};
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px 0px rgba(76, 86, 96, 0.1);
+    font-color: ${gray400};
+    padding: 1.2rem;
+    margin-left: 2rem;
+    width: 48px;
+    height: 42px;
+  }
 `;
 
 const BuyCTA = styled.a`
@@ -90,71 +117,6 @@ const Container = styled.div`
   justify-content: space-between;
 `;
 
-const NavList = styled.ul<{ $isVisible?: boolean }>`
-  background: ${theme};
-  list-style-type: none;
-  font-weight: 400;
-  font-family: Moderat, sans-serif;
-  height: 100vh;
-  padding: 2.5rem 3.2rem;
-  min-width: 35.2rem;
-  position: fixed;
-  top: 0;
-  right: ${(p) => (p.$isVisible ? "0" : "-35.2rem")};
-  z-index: 99;
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
-  letter-spacing: 0.5px;
-
-  ${(p) =>
-    p.$isVisible &&
-    css`
-      right: 0;
-      transition: right 0.3s ease;
-    `}
-`;
-
-const SubNav = styled.ul`
-  padding: 0.8rem 0 1.6rem 0;
-  border-bottom: 1px solid ${white};
-  list-style-type: none;
-`;
-
-const NavHeader = styled.li`
-  display: flex;
-  justify-content: space-between;
-  padding-bottom: 2.45rem;
-  border-bottom: 1px solid ${white};
-`;
-
-const ListItem = styled.li<{ $isUnderline?: boolean; $isActive?: boolean }>`
-  border-bottom: ${(p) => (p.$isUnderline ? "1px solid white" : "none")};
-  opacity: ${(p) => (p.$isActive ? "0.5" : "1")};
-`;
-
-const SubNavTitleLink = styled.a`
-  color: ${white};
-  font-size: 1.8rem;
-  display: inline-block;
-  padding: 0.5rem 0;
-  text-decoration: none;
-  letter-sapcing: 0.5rem;
-
-  &:hover {
-    opacity: 0.5;
-  }
-`;
-
-const NavItemLink = styled(SubNavTitleLink)`
-  font-size: 1.5rem;
-  padding: 0.5rem 0;
-`;
-
-const Link = styled(NavItemLink)`
-  text-transform: uppercase;
-  font-size: 1.3rem;
-`;
-
 const BottomNavContainer = styled(Container)`
   padding-top: 3.2rem;
 `;
@@ -173,6 +135,11 @@ const BuyCTAWhite = styled(BuyCTA)`
   &:active {
     color: ${white};
   }
+
+  &:hover {
+    background-color: ${white};
+    color: ${blue};
+  }
 `;
 
 const GoBack = styled.a`
@@ -187,23 +154,43 @@ const GoBack = styled.a`
   line-height: 22px;
 `;
 
+const MobileMenuContainer = styled.div`
+  width: 61px;
+  height: 32px;
+  box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
+  border-radius: 10px;
+  background-color: ${white};
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const MobileHeaderContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  flex-wrap: wrap;
+  @media ${media.smallDesktop} {
+    display: none;
+  }
+`;
+
 export {
+  NAVBAR_HEIGHT,
   Header,
   AircastingLogo,
   Button,
   MenuButton,
   BuyCTA,
   Container,
-  NavList,
-  SubNav,
-  NavHeader,
-  ListItem,
-  SubNavTitleLink,
-  NavItemLink,
-  Link,
   BottomNavContainer,
   MobileContainer,
   DesktopContainer,
   GoBack,
   BuyCTAWhite,
+  SearchContainer,
+  MobileMenuContainer,
+  MobileHeaderContainer,
 };
