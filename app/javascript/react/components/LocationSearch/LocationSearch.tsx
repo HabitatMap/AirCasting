@@ -18,27 +18,17 @@ interface LocationSearchProps {
 type AutocompletePrediction = google.maps.places.AutocompletePrediction;
 
 const LocationSearch = ({ setLocation, isMapPage }: LocationSearchProps) => {
+  const [items, setItems] = React.useState<AutocompletePrediction[]>([]);
+  const [selectedItem, setSelectedItem] =
+    React.useState<AutocompletePrediction>();
+
+  const { t } = useTranslation();
+
   const {
     setValue,
     suggestions: { status, data },
     clearSuggestions,
   } = usePlacesAutocomplete();
-
-  const { t } = useTranslation();
-
-  const handleSelect = async (item: AutocompletePrediction) => {
-    if (!item) return;
-
-    setValue(item.description, false);
-    clearSuggestions();
-    const results = await getGeocode({ address: item.description });
-    const { lat, lng } = await getLatLng(results[0]);
-    setLocation({ lat, lng });
-  };
-
-  const [items, setItems] = React.useState<AutocompletePrediction[]>([]);
-  const [selectedItem, setSelectedItem] =
-    React.useState<AutocompletePrediction>();
 
   const {
     isOpen,
@@ -61,6 +51,16 @@ const LocationSearch = ({ setLocation, isMapPage }: LocationSearchProps) => {
       handleSelect(newSelectedItem);
     },
   });
+
+  const handleSelect = async (item: AutocompletePrediction) => {
+    if (!item) return;
+
+    setValue(item.description, false);
+    clearSuggestions();
+    const results = await getGeocode({ address: item.description });
+    const { lat, lng } = await getLatLng(results[0]);
+    setLocation({ lat, lng });
+  };
 
   useEffect(() => {
     status === "OK" && data.length && setItems(data);
