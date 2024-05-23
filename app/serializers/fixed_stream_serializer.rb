@@ -23,6 +23,8 @@ class FixedStreamSerializer
       unit_symbol: stream.unit_symbol,
       update_frequency: '1 minute',
       last_update: stream.session.last_measurement_at,
+      start_time: stream.session.start_time_local,
+      end_time: stream.session.end_time_local,
       min: thresolds[0],
       low: thresolds[1],
       middle: thresolds[2],
