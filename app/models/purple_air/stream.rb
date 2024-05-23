@@ -1,3 +1,4 @@
+# this model is no longer in use and can be deleted - PurpleAir data is no longer fetched
 module PurpleAir
   DEFAULTS = {
     measurement_short_type: 'PM',

@@ -53,11 +53,11 @@ class FixedSession < Session
       isIndoor: is_indoor,
       isActive: is_active,
       heat: {
-        highest: stream.threshold_very_high,
-        high: stream.threshold_high,
-        mid: stream.threshold_medium,
-        low: stream.threshold_low,
-        lowest: stream.threshold_very_low,
+        highest: stream.threshold_set.threshold_very_high,
+        high: stream.threshold_set.threshold_high,
+        mid: stream.threshold_set.threshold_medium,
+        low: stream.threshold_set.threshold_low,
+        lowest: stream.threshold_set.threshold_very_low,
       },
     }
 
