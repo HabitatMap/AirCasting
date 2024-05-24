@@ -3,7 +3,7 @@ import React from "react";
 import * as S from "./ActionButton.style";
 
 interface ButtonProps {
-  onClick: () => void;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   children: string | JSX.Element | (JSX.Element | string)[];
 }
 

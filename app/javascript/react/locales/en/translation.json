@@ -46,7 +46,7 @@
     "lastUpdate": "Last update",
     "updateFrequencyTitle": "Updates every",
     "copyLink": "COPY LINK",
-    "exportSession": "EXPORT SESSION",
+    "exportSession": "DOWNLOAD DATA",
     "altAlert": "Be notified about new measurements",
     "altShareLink": "Get link to the session you are viewing",
     "altExportSession": "Export the session you are exploring",
@@ -73,7 +73,7 @@
   },
   "exportDataModal": {
     "title": "Export data to e-mail",
-    "exportButton": "Export data",
+    "exportButton": "EMAIL DATA",
     "emailPlaceholder": "loremipsum@ac.com",
     "confirmationMessage": "Exported sessions will be emailed within minutes. The email may end up in your spam folder.",
     "invalidEmailMessage": "Please enter a valid email address."
