@@ -54,7 +54,7 @@ const SwitchInput = styled.input`
   position: relative;
 
   &:checked + span:before {
-    transform: translateX(18px);
+    transform: translateX(17px);
   }
 `;
 
@@ -75,12 +75,12 @@ const Slider = styled.span`
     content: "";
     height: 14px;
     width: 14px;
-    left: 2px;
-    bottom: 1.5px;
-    padding: 0.8rem 0;
+    left: 2.5px;
+    bottom: 2px;
+    padding: 0.7rem 0;
     background-color: ${white};
     transition: 0.4s;
-    border-radius: 30px;
+    border-radius: 50%;
   }
 `;
 
