@@ -1,3 +1,5 @@
+# WIP
+
 class SessionBuilder
   attr_reader :user
 
@@ -37,6 +39,7 @@ class SessionBuilder
     end
 
     jobs.each do |(stream, measurements)|
+      # measurements are not saved i think
       MeasurementsCreator.new.call(stream, measurements)
     end
 
