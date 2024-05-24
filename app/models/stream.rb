@@ -1,3 +1,5 @@
+# WIP
+
 class Stream < ApplicationRecord
   belongs_to :session
   belongs_to :threshold_set
@@ -109,6 +111,15 @@ class Stream < ApplicationRecord
     stream.save!
 
     MeasurementsCreator.new.call(stream, measurements_attributes)
+    stream
+  end
+
+  def self.build_with_threshold_set!(data = {})
+    data = threshold_set_from_stream(data)
+    allowed = Stream.attribute_names + %w[session]
+    filtered = data.select { |k, _| allowed.include?(k.to_s) }
+    stream = where(filtered).first_or_initialize
+    stream.save!
     stream
   end
 
