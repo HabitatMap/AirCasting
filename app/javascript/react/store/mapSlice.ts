@@ -1,19 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
+import { DEFAULT_MAP_CENTER } from "../const/coordinates";
 import { LatLngLiteral } from "../types/googleMaps";
 
 interface MapState {
   mapConfigId: string;
   mapTypeId: string;
   mapId: string;
-  location?: LatLngLiteral;
+  location: LatLngLiteral;
 }
 
 const initialState: MapState = {
   mapConfigId: MAP_CONFIGS[0].id,
   mapTypeId: MAP_CONFIGS[0].mapTypeId,
   mapId: MAP_CONFIGS[0].mapId || "",
+  location: DEFAULT_MAP_CENTER,
 };
 
 const mapSlice = createSlice({
