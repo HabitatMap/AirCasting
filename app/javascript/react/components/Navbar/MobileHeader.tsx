@@ -1,23 +1,21 @@
 import React from "react";
 
 import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
-import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import goBackIcon from "../../assets/icons/goBackIcon.svg";
+import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
-import * as S from "./Navbar.style";
-import { LocationSearch } from "../LocationSearch";
 import { Map } from "../../types/googleMaps";
+import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
+import * as S from "./Navbar.style";
 import NavList from "./NavList/NavList";
 
 export const MobileHeader = ({
-  setLocation,
   mapRef,
   toggleMenuVisibility,
   navMenuVisible,
   t,
 }: {
-  setLocation: Function;
   mapRef: React.RefObject<Map>;
   toggleMenuVisibility: () => void;
   navMenuVisible: boolean;

@@ -1,12 +1,13 @@
 import React from "react";
+
 import logo from "../../../../assets/images/aircasting-logo-nav.svg";
-import hamburger from "../../assets/icons/hamburger.svg";
 import airbeamIcon from "../../assets/icons/airbeamIcon.svg";
+import hamburger from "../../assets/icons/hamburger.svg";
 import { urls } from "../../const/urls";
-import * as S from "./Navbar.style";
-import { LocationSearch } from "../LocationSearch";
 import { LatLngLiteral, Map } from "../../types/googleMaps";
+import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
+import * as S from "./Navbar.style";
 import NavList from "./NavList/NavList";
 
 interface DesktopHeaderProps {
@@ -14,7 +15,6 @@ interface DesktopHeaderProps {
   navMenuVisible: boolean;
   toggleMenuVisibility: () => void;
   t: (key: string) => string;
-  setLocation: (location: LatLngLiteral) => void;
   mapRef: React.RefObject<Map>;
 }
 
@@ -23,7 +23,6 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   navMenuVisible,
   toggleMenuVisibility,
   t,
-  setLocation,
   mapRef,
 }) => (
   <S.DesktopContainer>
