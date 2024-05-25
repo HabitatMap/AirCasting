@@ -7,17 +7,18 @@ import usePlacesAutocomplete, {
 } from "use-places-autocomplete";
 
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
-import { LatLngLiteral } from "../../types/googleMaps";
+import { useAppDispatch } from "../../store/hooks";
+import { setLocation } from "../../store/mapSlice";
 import * as S from "./LocationSearch.style";
 
 interface LocationSearchProps {
-  setLocation: (position: LatLngLiteral) => void;
   isMapPage?: boolean;
 }
 
 type AutocompletePrediction = google.maps.places.AutocompletePrediction;
 
-const LocationSearch = ({ setLocation, isMapPage }: LocationSearchProps) => {
+const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
+  const dispatch = useAppDispatch();
   const [items, setItems] = React.useState<AutocompletePrediction[]>([]);
   const [selectedItem, setSelectedItem] =
     React.useState<AutocompletePrediction>();
@@ -59,7 +60,7 @@ const LocationSearch = ({ setLocation, isMapPage }: LocationSearchProps) => {
     clearSuggestions();
     const results = await getGeocode({ address: item.description });
     const { lat, lng } = await getLatLng(results[0]);
-    setLocation({ lat, lng });
+    dispatch(setLocation({ lat, lng }));
   };
 
   useEffect(() => {
