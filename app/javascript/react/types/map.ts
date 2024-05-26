@@ -3,7 +3,6 @@ const MapTypeId = {
   SATELLITE: 'satellite',
   TERRAIN: 'terrain',
   HYBRID: 'hybrid'
-
 };
 
 enum ViewMode {
@@ -13,5 +12,12 @@ enum ViewMode {
   LABELS  = "labels"
 }
 
+type MapConfig = {
+  id: string;
+  label: string;
+  mapId?: string;
+  mapTypeId: string;
+  styles?: google.maps.MapTypeStyle[];
+};
 
-export { MapTypeId, ViewMode}
+export { MapTypeId, ViewMode, MapConfig}

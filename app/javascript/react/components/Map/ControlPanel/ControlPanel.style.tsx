@@ -3,13 +3,11 @@ import {
   blue,
   gray100,
   gray200,
-  gray300,
   gray400,
-  gray600,
-  gray800,
   white,
 } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
+import chevronDown from "../../../assets/icons/chevronDown.svg";
 
 const ControlPanelContainer = styled.div`
   background: ${white};
@@ -168,6 +166,18 @@ const Select = styled.select`
   background-color: ${white};
   border: none;
   outline: none;
+  color: ${gray400};
+  padding: 0 1.2rem 0 0.5rem;
+
+  background: transparent;
+  background-image: url(${chevronDown});
+  background-repeat: no-repeat;
+  background-position-x: 100%;
+  background-position-y: 5px;
+
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
 `;
 
 export {
