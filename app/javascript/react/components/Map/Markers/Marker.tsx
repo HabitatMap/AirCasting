@@ -9,7 +9,7 @@ import {
 
 interface MarkerProps {
   color: string;
-  value: number;
+  value: string;
   isSelected?: boolean;
 }
 

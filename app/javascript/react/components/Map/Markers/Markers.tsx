@@ -51,7 +51,7 @@ const Markers = ({ points }: Props) => {
           ref={(marker) => setMarkerRef(marker, point.key)}
         >
           {/* top left corner of MarkerConteiner is the position-point of marker */}
-          <SingleMarker color="red" value={100} isSelected={false} />{" "}
+          <SingleMarker color="red" value={"1242 µg/m³"} isSelected={false} />{" "}
           {/* The props are MOCKED - change them!! */}
         </AdvancedMarker>
       ))}
