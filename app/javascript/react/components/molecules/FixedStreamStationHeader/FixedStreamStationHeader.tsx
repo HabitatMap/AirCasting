@@ -1,5 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import moment from "moment";
 
 import { ValueLabel } from "./atoms/ValueLabel";
 import { StationName } from "./atoms/StationName";
@@ -22,8 +23,10 @@ const FixedStreamStationHeader = () => {
     active,
     sessionId,
     startTime,
-    endTime
+    endTime,
   } = useSelector(selectFixedStreamShortInfo);
+
+  const streamEndTime: string = endTime ?? lastUpdate ?? moment().format("YYYY-MM-DD");
 
   return (
     <S.GridContainer>
@@ -39,7 +42,7 @@ const FixedStreamStationHeader = () => {
         lastUpdate={lastUpdate}
         updateFrequency={updateFrequency}
         startTime={startTime}
-        endTime={endTime}
+        endTime={streamEndTime}
       />
       <StationActionButtons sessionId={sessionId} />
     </S.GridContainer>

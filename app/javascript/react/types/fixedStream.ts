@@ -1,8 +1,8 @@
 interface StreamUpdate {
-  lastUpdate: string;
+  lastUpdate: string | null;
   updateFrequency: string;
   startTime: string;
-  endTime: string;
+  endTime: string | null;
 }
 
 interface DataSource {
@@ -15,8 +15,6 @@ interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   title: string;
   unitSymbol: string;
   active: boolean;
-  startTime: string;
-  endTime: string;
   min: number,
   low: number;
   middle: number;
