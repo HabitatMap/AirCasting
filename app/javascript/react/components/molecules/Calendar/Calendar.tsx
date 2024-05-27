@@ -29,8 +29,7 @@ const Calendar: React.FC<CalendarProps> = ({
   } = useCalendarHook({ streamId, minCalendarDate, maxCalendarDate });
 
   const { t } = useTranslation();
-  const showError = isLeftButtonDisabled || isRightButtonDisabled;
-
+  
   return (
     threeMonthsData && (
       <S.CalendarContainer>
@@ -58,11 +57,6 @@ const Calendar: React.FC<CalendarProps> = ({
                   handleClick={handleRightClick}
                 />
               </S.MobileSwipeContainer>
-              <S.RedErrorMessage
-                style={{ visibility: showError ? "visible" : "hidden" }}
-              >
-                {showError && t("calendarPage.noDataMessage")}
-              </S.RedErrorMessage>
               <S.ThreeMonths>
                 <S.DesktopSwipeLeftContainer>
                   <ScrollCalendarButton

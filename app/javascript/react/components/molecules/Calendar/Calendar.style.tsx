@@ -71,20 +71,11 @@ const CalendarContainer = styled.div`
   }
 `;
 
-const RedErrorMessage = styled.span`
-  color: red;
-  padding: 0 0 1rem 0;
-  min-height: 2rem;
-  display: block;
-  visibility: hidden;
-`;
-
 export {
   DateField,
   ThreeMonths,
   CalendarContainer,
   MobileSwipeContainer,
   DesktopSwipeLeftContainer,
-  DesktopSwipeRightContainer,
-  RedErrorMessage
+  DesktopSwipeRightContainer
 };
