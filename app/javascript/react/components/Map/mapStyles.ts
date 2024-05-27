@@ -1,10 +1,12 @@
+import { mapLabels, mapLandscape, mapStroke, mapWater, white } from "../../assets/styles/colors"
+
 export default [
     {
       featureType: "administrative",
       elementType: "labels.text.fill",
       stylers: [
         {
-          color: "#acacac",
+          color: mapLabels,
         },
       ],
     },
@@ -37,7 +39,7 @@ export default [
       featureType: "landscape",
       stylers: [
         {
-          color: "#f2f2f2",
+          color: mapLandscape,
         },
       ],
     },
@@ -72,7 +74,7 @@ export default [
       elementType: "geometry.stroke",
       stylers: [
         {
-          color: "#c9c9c9",
+          color: mapStroke,
         },
         {
           visibility: "on",
@@ -169,7 +171,7 @@ export default [
       elementType: "geometry.fill",
       stylers: [
         {
-          color: "#ffffff",
+          color: white,
         },
       ],
     },
@@ -203,7 +205,7 @@ export default [
       featureType: "water",
       stylers: [
         {
-          color: "#e0f1f9",
+          color: mapWater,
         },
         {
           visibility: "on",
