@@ -186,16 +186,13 @@ class Stream < ApplicationRecord
 
     return nil if sets.empty?
 
-    most_popular = sets.sort_by { |set|
-      [
-        set.threshold_very_low || 0,
-        set.threshold_low || 0,
-        set.threshold_medium || 0,
-        set.threshold_high || 0,
-        set.threshold_very_high || 0
-      ]
-    }.last
+    most_popular_threshold_set_id = Stream.where(threshold_set_id: sets.pluck(:id))
+                                      .group(:threshold_set_id)
+                                      .order('count_id DESC')
+                                      .count(:id)
+                                      .first&.first
 
+    most_popular = sets.find_by(id: most_popular_threshold_set_id) || sets.first
     most_popular
   end
 
