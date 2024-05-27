@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
-
 import { LatLngLiteral } from "../../../types/googleMaps";
+import { SingleMarker } from "./Marker";
 
 type Point = LatLngLiteral & { key: string };
 type Props = { points: Point[] };
@@ -50,7 +50,9 @@ const Markers = ({ points }: Props) => {
           key={point.key}
           ref={(marker) => setMarkerRef(marker, point.key)}
         >
-          <span className="tree">🌳</span>
+          {/* top left corner of MarkerConteiner is the position-point of marker */}
+          <SingleMarker color="red" value={100} isSelected={false} />{" "}
+          {/* The props are MOCKED - change them!! */}
         </AdvancedMarker>
       ))}
     </>

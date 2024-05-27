@@ -19,7 +19,8 @@ const Map = () => {
       <GoogleMap
         mapId={mapId || null}
         mapTypeId={mapTypeId}
-        defaultCenter={DEFAULT_MAP_CENTER}
+        // defaultCenter={DEFAULT_MAP_CENTER}
+        defaultCenter={{ lat: 43.64, lng: -79.41 }}
         defaultZoom={DEFAULT_ZOOM}
         gestureHandling={"greedy"}
         disableDefaultUI={true}
