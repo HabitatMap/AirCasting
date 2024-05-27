@@ -1,7 +1,8 @@
-# WIP
-
 require 'rails_helper'
 require './lib/session_builder'
+require 'sidekiq/testing'
+
+Sidekiq::Testing.inline!
 
 describe SessionBuilder do
   let(:user) { create_user! }
@@ -58,11 +59,10 @@ describe SessionBuilder do
   end
 
   it 'builds a session with streams and measurements' do
-    subject.build!
-
-    expect(Session.count).to eq(1)
-    expect(Stream.count).to eq(1)
-    expect(Measurement.count).to eq(2)
+    expect {
+      subject.build!
+    }.to change { Session.count }.by(1)
+      .and change { Stream.count }.by(1)
+      .and change { Measurement.count }.by(2)
   end
-
 end
