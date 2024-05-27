@@ -23,7 +23,7 @@ const ControlPanel: React.FC = () => {
       case MapTypeId.SATELLITE:
         setViewMode(ViewMode.SATELLITE);
         setIsTerrainChecked(false);
-        setIsLabelsChecked(false);
+        setIsLabelsChecked(true);
         break;
       case MapTypeId.HYBRID:
         setViewMode(ViewMode.SATELLITE);
@@ -46,14 +46,14 @@ const ControlPanel: React.FC = () => {
     let selectedMapTypeId = MapTypeId.ROADMAP;
     switch (newViewMode) {
       case ViewMode.SATELLITE:
-        selectedMapTypeId = isLabelsChecked
-          ? MapTypeId.HYBRID
-          : MapTypeId.SATELLITE;
+        selectedMapTypeId = MapTypeId.HYBRID;
+        setIsLabelsChecked(true);
         break;
       case ViewMode.MAP:
         selectedMapTypeId = isTerrainChecked
           ? MapTypeId.TERRAIN
           : MapTypeId.ROADMAP;
+        setIsLabelsChecked(false);
         break;
     }
     setViewMode(newViewMode);

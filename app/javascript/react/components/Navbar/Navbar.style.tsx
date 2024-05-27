@@ -76,6 +76,8 @@ const Button = styled.button`
 
 const MenuButton = styled(Button)`
   background-color: transparent;
+  display: flex;
+  align-items: center;
 
   @media ${media.smallDesktop} {
     background-color: ${white};
@@ -161,7 +163,7 @@ const MobileMenuContainer = styled.div`
   border-radius: 10px;
   background-color: ${white};
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly;
   align-items: center;
   cursor: pointer;
 `;

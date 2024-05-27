@@ -1,7 +1,7 @@
 const cta = "#FFE651";
 const theme = "#00B2EF";
 
-const white = "#FFF";
+const white = "#FFFFFF";
 const gray100 = "#F4F6F9";
 const gray200 = "#C0C9D1";
 const gray300 = "#7D858C";
@@ -18,6 +18,10 @@ const orange = "#FCA443";
 const yellow = "#FFD960";
 const green = "#96D788";
 const black = "#000";
+const mapLabels = "#acacac";
+const mapLandscape = "#f2f2f2";
+const mapStroke = "#c9c9c9";
+const mapWater = "#e0f1f9";
 
 export {
   cta,
@@ -38,5 +42,9 @@ export {
   mint,
   blue,
   darkBlue,
-  black
+  black,
+  mapLabels,
+  mapLandscape,
+  mapStroke,
+  mapWater,
 };
