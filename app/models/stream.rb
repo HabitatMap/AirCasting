@@ -1,5 +1,3 @@
-# WIP
-
 class Stream < ApplicationRecord
   belongs_to :session
   belongs_to :threshold_set
