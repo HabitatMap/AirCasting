@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { urls } from "../../const/urls";
 import DesktopHeader from "./DesktopHeader";
 import { MobileCalendarHeader, MobileHeader } from "./MobileHeader";
 import * as S from "./Navbar.style";
 
-const Navbar = () => {
+interface NavbarProps {
+  isMapPage: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
   const [navMenuVisible, setNavMenuVisible] = useState(false);
   const { t } = useTranslation();
-
-  const isMapPage = window.location.pathname === urls.reactMap;
 
   const toggleMenuVisibility = () => setNavMenuVisible(!navMenuVisible);
 

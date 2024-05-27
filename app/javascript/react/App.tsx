@@ -23,7 +23,7 @@ const router = createBrowserRouter(
         path="/"
         element={
           <MapPage>
-            <Navbar />
+            <Navbar isMapPage={true} />
           </MapPage>
         }
       />
@@ -31,7 +31,7 @@ const router = createBrowserRouter(
         path="/fixed_stream"
         element={
           <CalendarPage>
-            <Navbar />
+            <Navbar isMapPage={false} />
           </CalendarPage>
         }
       />
@@ -39,7 +39,7 @@ const router = createBrowserRouter(
         path="*"
         element={
           <NotFoundPage>
-            <Navbar />
+            <Navbar isMapPage={false} />
           </NotFoundPage>
         }
       />
