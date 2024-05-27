@@ -1,3 +1,5 @@
+import "./locales/i18n";
+
 import React from "react";
 import { Provider } from "react-redux";
 import {
@@ -7,20 +9,40 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
-import { NotFoundPage } from "./pages/NotFoundPage";
-import { MapPage } from "./pages/MapPage";
-import { Navbar } from "./components/Navbar";
-import store from "./store/index";
 import GlobalStyles from "./assets/styles/global-styles";
-import "./locales/i18n";
+import { Navbar } from "./components/Navbar";
+import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
+import { MapPage } from "./pages/MapPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import store from "./store/index";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/" element={<MapPage />} />
-      <Route path="/fixed_stream" element={<CalendarPage />} />
-      <Route path="*" element={<NotFoundPage />} />
+      <Route
+        path="/"
+        element={
+          <MapPage>
+            <Navbar />
+          </MapPage>
+        }
+      />
+      <Route
+        path="/fixed_stream"
+        element={
+          <CalendarPage>
+            <Navbar />
+          </CalendarPage>
+        }
+      />
+      <Route
+        path="*"
+        element={
+          <NotFoundPage>
+            <Navbar />
+          </NotFoundPage>
+        }
+      />
     </>
   )
 );
@@ -29,7 +51,6 @@ const App = () => {
   return (
     <Provider store={store}>
       <GlobalStyles />
-      <Navbar />
       <RouterProvider router={router}></RouterProvider>
     </Provider>
   );

@@ -1,10 +1,12 @@
 import { useCombobox } from "downshift";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
+
+import { useMap } from "@vis.gl/react-google-maps";
 
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
 import { useAppDispatch } from "../../store/hooks";
@@ -19,11 +21,12 @@ type AutocompletePrediction = google.maps.places.AutocompletePrediction;
 
 const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
   const dispatch = useAppDispatch();
-  const [items, setItems] = React.useState<AutocompletePrediction[]>([]);
+  const [items, setItems] = useState<AutocompletePrediction[]>([]);
   const [selectedItem, setSelectedItem] =
-    React.useState<AutocompletePrediction>();
-
+    useState<AutocompletePrediction | null>(null);
+  const [inputValue, setInputValue] = useState("");
   const { t } = useTranslation();
+  const map = useMap();
 
   const {
     setValue,
@@ -39,8 +42,9 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
     highlightedIndex,
     getItemProps,
   } = useCombobox({
-    onInputValueChange({ inputValue }) {
+    onInputValueChange: ({ inputValue }) => {
       setValue(inputValue);
+      setInputValue(inputValue);
     },
     items: data,
     itemToString(item) {
@@ -51,6 +55,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
       setSelectedItem(newSelectedItem);
       handleSelect(newSelectedItem);
     },
+    inputValue,
   });
 
   const handleSelect = async (item: AutocompletePrediction) => {
@@ -61,14 +66,12 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
     const results = await getGeocode({ address: item.description });
     const { lat, lng } = await getLatLng(results[0]);
     dispatch(setLocation({ lat, lng }));
+    map?.panTo({ lat, lng });
   };
 
   useEffect(() => {
     status === "OK" && data.length && setItems(data);
   }, [data, status]);
-  {
-    t("map.mapSatelliteLabel");
-  }
 
   return (
     <>

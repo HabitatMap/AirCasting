@@ -4,19 +4,16 @@ import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
 import goBackIcon from "../../assets/icons/goBackIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
-import { Map } from "../../types/googleMaps";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import * as S from "./Navbar.style";
 import NavList from "./NavList/NavList";
 
 export const MobileHeader = ({
-  mapRef,
   toggleMenuVisibility,
   navMenuVisible,
   t,
 }: {
-  mapRef: React.RefObject<Map>;
   toggleMenuVisibility: () => void;
   navMenuVisible: boolean;
   t: Function;
@@ -39,13 +36,7 @@ export const MobileHeader = ({
         </S.MenuButton>
       </nav>
     </S.MobileMenuContainer>
-    <LocationSearch
-      setLocation={(position) => {
-        setLocation(position);
-        mapRef.current?.panTo(position);
-      }}
-      isMapPage={true}
-    />
+    <LocationSearch isMapPage={true} />
     <ControlPanel />
     {navMenuVisible && (
       <NavList

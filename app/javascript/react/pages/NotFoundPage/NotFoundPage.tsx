@@ -1,23 +1,30 @@
-import { useTranslation } from "react-i18next";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
-  PageContainer,
   ContentContainer,
-  Title,
   Description,
+  PageContainer,
+  Title,
 } from "./NotFoundPage.style";
 
-const NotFoundPage: React.FC = () => {
+interface NotFoundPageProps {
+  children: React.ReactNode;
+}
+const NotFoundPage: React.FC<NotFoundPageProps> = ({ children }) => {
   const { t } = useTranslation();
 
   return (
-    <PageContainer>
-      <ContentContainer>
-        <Title>{t("notFoundPage.header")}</Title>
-        <Description>{t("notFoundPage.message")} </Description>
-      </ContentContainer>
-    </PageContainer>
+    <>
+      {children}
+
+      <PageContainer>
+        <ContentContainer>
+          <Title>{t("notFoundPage.header")}</Title>
+          <Description>{t("notFoundPage.message")} </Description>
+        </ContentContainer>
+      </PageContainer>
+    </>
   );
 };
 

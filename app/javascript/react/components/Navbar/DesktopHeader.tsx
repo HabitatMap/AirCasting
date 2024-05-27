@@ -4,7 +4,6 @@ import logo from "../../../../assets/images/aircasting-logo-nav.svg";
 import airbeamIcon from "../../assets/icons/airbeamIcon.svg";
 import hamburger from "../../assets/icons/hamburger.svg";
 import { urls } from "../../const/urls";
-import { LatLngLiteral, Map } from "../../types/googleMaps";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import * as S from "./Navbar.style";
@@ -15,7 +14,6 @@ interface DesktopHeaderProps {
   navMenuVisible: boolean;
   toggleMenuVisibility: () => void;
   t: (key: string) => string;
-  mapRef: React.RefObject<Map>;
 }
 
 const DesktopHeader: React.FC<DesktopHeaderProps> = ({
@@ -23,7 +21,6 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   navMenuVisible,
   toggleMenuVisibility,
   t,
-  mapRef,
 }) => (
   <S.DesktopContainer>
     {isMapPage ? (
@@ -36,12 +33,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
             <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
           </a>
 
-          <LocationSearch
-            setLocation={(position) => {
-              setLocation(position);
-              mapRef.current?.panTo(position);
-            }}
-          />
+          <LocationSearch />
         </S.SearchContainer>
         <ControlPanel />
       </>
