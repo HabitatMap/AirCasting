@@ -122,22 +122,14 @@ class Stream < ApplicationRecord
   end
 
   def self.threshold_set_from_stream(data)
-    threshold_very_low = data.delete(:threshold_very_low)
-    threshold_low = data.delete(:threshold_low)
-    threshold_medium = data.delete(:threshold_medium)
-    threshold_high = data.delete(:threshold_high)
-    threshold_very_high = data.delete(:threshold_very_high)
-    sensor_name = data.fetch(:sensor_name)
-    unit_symbol = data.fetch(:unit_symbol)
-
     threshold_set = ThresholdSet.find_or_create_by(
-      sensor_name: sensor_name,
-      unit_symbol: unit_symbol,
-      threshold_very_low: threshold_very_low,
-      threshold_low: threshold_low,
-      threshold_medium: threshold_medium,
-      threshold_high: threshold_high,
-      threshold_very_high: threshold_very_high,
+      sensor_name: data.fetch(:sensor_name),
+      unit_symbol: data.fetch(:unit_symbol),
+      threshold_very_low: data.delete(:threshold_very_low),
+      threshold_low: data.delete(:threshold_low),
+      threshold_medium: data.delete(:threshold_medium),
+      threshold_high: data.delete(:threshold_high),
+      threshold_very_high: data.delete(:threshold_very_high),
     )
     data.merge(threshold_set_id: threshold_set.id)
   end
