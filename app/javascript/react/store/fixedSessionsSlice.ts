@@ -39,7 +39,7 @@ interface SessionsState {
 }
 
 interface SessionsData {
-  q: string;
+  test: string;
 }
 
 const initialState: SessionsState = {
@@ -53,10 +53,10 @@ export const fetchSessions = createAsyncThunk<
   SessionsResponse,
   SessionsData,
   { rejectValue: string }
->("sessions/fetchSessions", async ({ q }, { rejectWithValue }) => {
+>("sessions/fetchSessions", async (sessionsData, { rejectWithValue }) => {
   try {
     const response: AxiosResponse<SessionsResponse, Error> = await oldApiClient.get(
-      API_ENDPOINTS.fetchSessions(q)
+      API_ENDPOINTS.fetchSessions(sessionsData.test)
     )
     return response.data;
   } catch (error) {
@@ -66,7 +66,7 @@ export const fetchSessions = createAsyncThunk<
 });
 
 export const fixedSessionsSlice = createSlice({
-  name: "sessions",
+  name: "fixedSessions",
   initialState,
   reducers: {},
   extraReducers: (builder) => {

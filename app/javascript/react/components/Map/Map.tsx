@@ -8,15 +8,17 @@ import trees from "./trees";
 import { containerStyle } from "./Map.style";
 import { Markers } from "./Markers/Markers";
 import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { fetchSessions } from "../../store/fixedSessionsSlice";
+import { useAppDispatch } from "../../store/hooks";
 
 const Map = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(fetchSessions({ q: "" }));
+    console.log("Starting fetching sessions");
+    dispatch(fetchSessions({ test: "test" }));
   }, []);
 
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
