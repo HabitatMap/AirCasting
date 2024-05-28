@@ -37,7 +37,7 @@ const SearchInput = styled.input`
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   background: ${white} url(${searchIconGray}) 12px center no-repeat;
   background-size: 16px;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   padding-left: 3.8rem;
 
   @media ${media.smallDesktop} {
