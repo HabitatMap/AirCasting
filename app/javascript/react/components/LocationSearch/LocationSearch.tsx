@@ -11,7 +11,10 @@ import { useMap } from "@vis.gl/react-google-maps";
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
 import { useAppDispatch } from "../../store/hooks";
 import { setLocation } from "../../store/mapSlice";
+import { determineZoomLevel } from "../../utils/determineZoomLevel";
 import * as S from "./LocationSearch.style";
+
+const OK_STATUS = "OK";
 
 interface LocationSearchProps {
   isMapPage?: boolean;
@@ -73,35 +76,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
     map?.panTo({ lat, lng });
   };
 
-  const determineZoomLevel = (results: google.maps.GeocoderResult[]) => {
-    const locationType = results[0].types[0];
-    switch (locationType) {
-      case "street_address":
-      case "premise":
-      case "subpremise":
-        return 18; // Very detailed zoom for addresses
-      case "route":
-      case "intersection":
-        return 17; // Slightly less detailed, for routes and intersections
-      case "neighborhood":
-      case "sublocality":
-      case "political":
-        return 15; // Neighborhood level zoom
-      case "locality":
-      case "postal_code":
-        return 13; // City level zoom
-      case "administrative_area_level_1":
-      case "administrative_area_level_2":
-        return 10; // State or province level zoom
-      case "country":
-        return 6; // Country level zoom
-      default:
-        return 10; // Default zoom level if type is unknown
-    }
-  };
-
   useEffect(() => {
-    status === "OK" && data.length && setItems(data);
+    status === OK_STATUS && data.length && setItems(data);
   }, [data, status]);
 
   return (

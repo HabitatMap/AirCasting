@@ -22,7 +22,7 @@ const SuggestionsList = styled.ul`
   list-style: none;
   left: 0;
   width: 100%;
-  z-index: 1000; /* Ensure it appears above other elements */
+  z-index: 1000;
 
   @media ${media.smallDesktop} {
     width: 103.5%;
