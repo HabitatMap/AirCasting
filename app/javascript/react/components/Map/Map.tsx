@@ -15,7 +15,38 @@ import trees from "./trees";
 const Map = () => {
   const dispatch = useAppDispatch();
 
+  const timeFrom = "1685145600";
+  const timeTo = "1716854399";
+  const tags = "";
+  const usernames = "";
+  const west = -116.63085975000001;
+  const east = -74.79492225000001;
+  const south = 29.22889024563508;
+  const north = 44.2137100866473;
+  const limit = 100;
+  const offset = 0;
+  const sensor_name = "airbeam-pm2.5";
+  const measurement_type = "Particulate Matter";
+  const unit_symbol = "µg/m³";
+
+  const filters = JSON.stringify({
+    time_from: timeFrom,
+    time_to: timeTo,
+    tags: tags,
+    usernames: usernames,
+    west: west,
+    east: east,
+    south: south,
+    north: north,
+    limit: limit,
+    offset: offset,
+    sensor_name: sensor_name,
+    measurement_type: measurement_type,
+    unit_symbol: unit_symbol,
+  });
+
   useEffect(() => {
+    console.log("filters", `${encodeURIComponent(filters)}`);
     dispatch(
       fetchSessions({
         filters:
