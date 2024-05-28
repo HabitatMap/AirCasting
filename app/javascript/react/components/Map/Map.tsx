@@ -15,14 +15,14 @@ import trees from "./trees";
 const Map = () => {
   const dispatch = useAppDispatch();
 
-  const timeFrom = "1685145600";
-  const timeTo = "1716854399";
+  const timeFrom = "1685232000";
+  const timeTo = "1716940799";
   const tags = "";
   const usernames = "";
-  const west = -116.63085975000001;
-  const east = -74.79492225000001;
-  const south = 29.22889024563508;
-  const north = 44.2137100866473;
+  const west = -127.13378943750001;
+  const east = -64.29199256250001;
+  const south = 24.507143507735677;
+  const north = 47.886881016621686;
   const limit = 100;
   const offset = 0;
   const sensor_name = "airbeam-pm2.5";
@@ -46,11 +46,9 @@ const Map = () => {
   });
 
   useEffect(() => {
-    console.log("filters", `${encodeURIComponent(filters)}`);
     dispatch(
       fetchSessions({
-        filters:
-          "%7B%22time_from%22%3A%221685232000%22%2C%22time_to%22%3A%221716940799%22%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22%22%2C%22west%22%3A-127.13378943750001%2C%22east%22%3A-64.29199256250001%2C%22south%22%3A24.507143507735677%2C%22north%22%3A47.886881016621686%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22airbeam-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D",
+        filters: filters,
       })
     );
   }, []);
