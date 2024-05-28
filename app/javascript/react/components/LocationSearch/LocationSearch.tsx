@@ -74,12 +74,30 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
   };
 
   const determineZoomLevel = (results: google.maps.GeocoderResult[]) => {
-    if (results[0].types.includes("locality")) {
-      return 12;
-    } else if (results[0].types.includes("country")) {
-      return 6;
+    const locationType = results[0].types[0];
+    switch (locationType) {
+      case "street_address":
+      case "premise":
+      case "subpremise":
+        return 18; // Very detailed zoom for addresses
+      case "route":
+      case "intersection":
+        return 17; // Slightly less detailed, for routes and intersections
+      case "neighborhood":
+      case "sublocality":
+      case "political":
+        return 15; // Neighborhood level zoom
+      case "locality":
+      case "postal_code":
+        return 13; // City level zoom
+      case "administrative_area_level_1":
+      case "administrative_area_level_2":
+        return 10; // State or province level zoom
+      case "country":
+        return 6; // Country level zoom
+      default:
+        return 10; // Default zoom level if type is unknown
     }
-    return 10;
   };
 
   useEffect(() => {
