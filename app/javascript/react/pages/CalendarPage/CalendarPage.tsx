@@ -68,6 +68,7 @@ const CalendarPage = () => {
       .subtract(2, "months")
       .format("YYYY-MM-DD");
 
+    console.log("Downloading first time - moving stream data. Start - End: ", newStartDate, formattedEndDate)
     if (streamId) {
       dispatch(
         fetchNewMovingStream({
