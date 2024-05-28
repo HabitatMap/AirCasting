@@ -25,7 +25,6 @@ const SelectedDataContainer = styled.div`
   border: 1px solid ${(props) => props.color};
   padding: 0.5rem 0.5rem 0.5rem 0.5rem;
   background-color: white;
-  /* box-shadow: 0.125rem 0.125rem 0.25rem 0 rgba(76, 86, 96, 0.1); */
   display: flex;
   align-items: center;
   gap: 0.25rem;
