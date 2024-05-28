@@ -89,19 +89,19 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
             <img src={locationSearchIcon} alt={t("map.searchIcon")} />
           </S.LocationSearchButton>
         )}
+        <S.SuggestionsList {...getMenuProps()}>
+          {isOpen &&
+            items.map((item, index) => (
+              <S.Suggestion
+                key={item.place_id}
+                $isHighlighted={highlightedIndex === index}
+                {...getItemProps({ item, index })}
+              >
+                {item.description}
+              </S.Suggestion>
+            ))}
+        </S.SuggestionsList>
       </S.SearchContainer>
-      <S.SuggestionsList {...getMenuProps()}>
-        {isOpen &&
-          items.map((item, index) => (
-            <S.Suggestion
-              key={item.place_id}
-              $isHighlighted={highlightedIndex === index}
-              {...getItemProps({ item, index })}
-            >
-              {item.description}
-            </S.Suggestion>
-          ))}
-      </S.SuggestionsList>
     </>
   );
 };

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
-import { blue, gray500, white } from "../../assets/styles/colors";
 import searchIconGray from "../../assets/icons/searchIconGray.svg";
+import { blue, gray500, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 interface SuggestionProps {
@@ -17,6 +17,16 @@ const Suggestion = styled.li<SuggestionProps>`
 
 const SuggestionsList = styled.ul`
   background-color: ${white};
+  position: absolute;
+  top: 100%;
+  list-style: none;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Ensure it appears above other elements */
+
+  @media ${media.smallDesktop} {
+    width: 103.5%;
+  }
 `;
 
 const SearchInput = styled.input`
@@ -51,6 +61,7 @@ const LocationSearchButton = styled.button`
 `;
 
 const SearchContainer = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
