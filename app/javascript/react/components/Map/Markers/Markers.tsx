@@ -3,7 +3,7 @@ import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
 import { LatLngLiteral } from "../../../types/googleMaps";
-import { SingleMarker } from "./Marker";
+import { SingleMarker } from "./SingleMarker";
 
 type Point = LatLngLiteral & { key: string };
 type Props = { points: Point[] };
@@ -12,7 +12,7 @@ const Markers = ({ points }: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [key: string]: Marker }>({});
   const clusterer = useRef<MarkerClusterer | null>(null);
-
+  const ZOOM_FOR_SELECTED_SESSION = 15;
   // Initialize MarkerClusterer
   useEffect(() => {
     if (!map) return;
@@ -42,6 +42,13 @@ const Markers = ({ points }: Props) => {
     });
   };
 
+  const centerMapOnMarker = (position: LatLngLiteral) => {
+    if (map) {
+      map.setCenter(position);
+      map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+    }
+  };
+
   return (
     <>
       {points.map((point) => (
@@ -50,8 +57,12 @@ const Markers = ({ points }: Props) => {
           key={point.key}
           ref={(marker) => setMarkerRef(marker, point.key)}
         >
-          {/* top left corner of MarkerConteiner is the position-point of marker */}
-          <SingleMarker color="red" value={"1242 µg/m³"} isSelected={false} />{" "}
+          <SingleMarker
+            color="red"
+            value={"1242 µg/m³"}
+            isSelected={false}
+            onClick={() => centerMapOnMarker(point)}
+          />{" "}
           {/* The props are MOCKED - change them!! */}
         </AdvancedMarker>
       ))}
