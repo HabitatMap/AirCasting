@@ -66,7 +66,20 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
     const results = await getGeocode({ address: item.description });
     const { lat, lng } = await getLatLng(results[0]);
     dispatch(setLocation({ lat, lng }));
+
+    const zoomLevel = determineZoomLevel(results);
+
+    map?.setZoom(zoomLevel);
     map?.panTo({ lat, lng });
+  };
+
+  const determineZoomLevel = (results: google.maps.GeocoderResult[]) => {
+    if (results[0].types.includes("locality")) {
+      return 12;
+    } else if (results[0].types.includes("country")) {
+      return 6;
+    }
+    return 10;
   };
 
   useEffect(() => {
