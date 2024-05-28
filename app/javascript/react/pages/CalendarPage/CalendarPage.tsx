@@ -37,8 +37,12 @@ const CalendarPage = () => {
   const calendarIsVisible =
     movingCalendarData.data.length &&
     streamId &&
-    fixedStreamData.stream.startTime &&
-    fixedStreamData.stream.endTime;
+    fixedStreamData.stream.startTime;
+
+  const streamEndTime: string =
+    fixedStreamData.stream.endTime ??
+    fixedStreamData.stream.lastUpdate ??
+    moment().format("YYYY-MM-DD");
 
   useEffect(() => {
     streamId && dispatch(fetchFixedStreamById(streamId));
@@ -57,15 +61,7 @@ const CalendarPage = () => {
   }, []);
 
   useEffect(() => {
-    if (!fixedStreamData?.streamDailyAverages?.length) {
-      console.log("No daily averages to process.");
-      return;
-    }
-
-    const formattedEndMoment = moment(
-      fixedStreamData.stream.endTime,
-      "YYYY-MM-DD"
-    );
+    const formattedEndMoment = moment(streamEndTime, "YYYY-MM-DD");
     const formattedEndDate = formattedEndMoment.format("YYYY-MM-DD");
     const newStartDate = formattedEndMoment
       .date(1)
@@ -92,7 +88,7 @@ const CalendarPage = () => {
           <Calendar
             streamId={streamId}
             minCalendarDate={fixedStreamData.stream.startTime}
-            maxCalendarDate={fixedStreamData.stream.endTime}
+            maxCalendarDate={streamEndTime}
           />
         ) : (
           <EmptyCalendar />
