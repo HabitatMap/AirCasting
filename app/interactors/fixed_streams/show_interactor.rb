@@ -13,14 +13,13 @@ module FixedStreams
     end
 
     def call(stream_id:)
-      stream, measurements, stream_daily_averages, default_thresholds = fetch_data(stream_id)
+      stream, measurements, stream_daily_average = fetch_data(stream_id)
 
       serialize_data =
         fixed_stream_serializer.call(
           stream: stream,
           measurements: measurements,
           stream_daily_averages: stream_daily_averages,
-          default_thresholds: default_thresholds,
         )
 
       Success.new(serialize_data)
