@@ -105,6 +105,7 @@ const useCalendarHook = ({
   };
 
   useEffect(() => {
+    console.log("On appear, all data considered for calendar: ", movingCalendarData)
     const formattedDateRange = getFormattedDateRange();
     const processedMaxEndDate = formattedDateRange.lastDate;
     const processedFirstDataPoint = formattedDateRange.firstDate;
@@ -118,7 +119,7 @@ const useCalendarHook = ({
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
       .format("DD/MM/YYYY");
 
-    console.log("First time first and last point identify: ", processedFirstDataPoint, processedMaxEndDate)
+    console.log("On appear, first and last point of viewed calendar identified: ", processedFirstDataPoint, processedMaxEndDate)
     setDateReference((prevState) => ({
       ...prevState,
       currentStartDate: newStartDate,
