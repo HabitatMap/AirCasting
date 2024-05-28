@@ -2,6 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { StatusEnum } from "../types/api";
+import { AxiosResponse } from "axios";
+import { oldApiClient } from "../api/apiClient";
 
 interface Session {
   id: number;
@@ -36,6 +38,10 @@ interface SessionsState {
   error?: string;
 }
 
+interface SessionsData {
+  q: string;
+}
+
 const initialState: SessionsState = {
   fetchableSessionsCount: 0,
   sessions: [],
@@ -45,11 +51,13 @@ const initialState: SessionsState = {
 
 export const fetchSessions = createAsyncThunk<
   SessionsResponse,
-  { q: string },
+  SessionsData,
   { rejectValue: string }
 >("sessions/fetchSessions", async ({ q }, { rejectWithValue }) => {
   try {
-    const response = await API_ENDPOINTS.fetchSessions(q);
+    const response: AxiosResponse<SessionsResponse, Error> = await oldApiClient.get(
+      API_ENDPOINTS.fetchSessions(q)
+    )
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);

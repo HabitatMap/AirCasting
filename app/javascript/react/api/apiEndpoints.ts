@@ -9,5 +9,5 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchFixedStreamById: (id) => `/fixed_streams/${id}`,
   exportSessionData: (sessionId, email) => `/sessions/export.json?session_ids[]=${sessionId}&email=${email}`,
   fetchSelectedDataRangeOfStream: (id, startDate, endDate) => `/stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
-  fetchSessions: (q) => `/fixed/active/sessions2.json`,
+  fetchSessions: (q) => `/fixed/active/sessions2`,
 };
