@@ -6,25 +6,25 @@ import { Button } from "../Button/Button.style";
 
 interface ModalProps {
   isOpen: boolean;
-  onClose: () => void;
-  hasIcon?: boolean;
+  position: {
+    bottom: number;
+    left: number;
+    top: number;
+    right: number;
+  };
+  onKeyDown: React.KeyboardEventHandler<HTMLDialogElement>;
 }
 
-const ModalContainer = styled.div<{
-  isOpen: boolean;
-  onKeyDown: React.KeyboardEventHandler<HTMLDialogElement>;
-}>`
+const ModalContainer = styled.div<ModalProps>`
   display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
   justify-content: center;
   align-items: center;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.9);
+  position: absolute;
+  top: ${({ position }) => `${position.top}px`};
+  right: ${({ position }) => `${position.right}px`};
+  bottom: ${({ position }) => `${position.bottom}px`};
+  left: ${({ position }) => `${position.left}px`};
   z-index: 999;
-  backdrop-filter: blur(5px);
 `;
 
 const ModalContent = styled.div`
@@ -33,8 +33,8 @@ const ModalContent = styled.div`
   border-radius: 8px;
   position: relative;
   padding: 1.25rem;
-  min-height: 20vh;
-  min-width: 40vw;
+  min-height: ${({ styles }) => `${styles.minHeight}vh`};
+  min-width: ${({ styles }) => `${styles.minHWight}vw`};
 `;
 
 const ModalText = styled(H3)`

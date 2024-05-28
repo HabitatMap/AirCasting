@@ -109,6 +109,8 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
       handleActionButton={handleSubmit}
       isOpen={isOpen}
       onClose={onClose}
+      position={{ top: 0, left: 0, bottom: 0, right: 0 }}
+      style={{ minHeight: 20, minWidth: 40 }}
     >
       {confirmationMessage ? (
         <ConfirmationMessage message={confirmationMessage} />

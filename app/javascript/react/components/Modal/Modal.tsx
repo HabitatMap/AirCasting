@@ -26,6 +26,17 @@ interface ModalProps {
   iconName: string;
   onClose?: () => void;
   children: React.ReactNode;
+  position: {
+    bottom: number;
+    left: number;
+    top: number;
+    right: number;
+  };
+  style?: {
+    minWidth: number;
+    minHeight: number;
+    borderRadius?: number;
+  };
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -38,6 +49,7 @@ const Modal: React.FC<ModalProps> = ({
   buttonHasIcon: hasIcon,
   iconName,
   onClose,
+  position,
   children,
 }) => {
   const modalRef = useRef<HTMLDialogElement | null>(null);
@@ -64,7 +76,11 @@ const Modal: React.FC<ModalProps> = ({
   const { t } = useTranslation();
 
   return (
-    <ModalContainer isOpen={isOpen} onKeyDown={handleKeyDown}>
+    <ModalContainer
+      isOpen={isOpen}
+      position={position}
+      onKeyDown={handleKeyDown}
+    >
       <ModalContent>
         <FlexWrapper>
           <CancelButtonX onClick={handleCloseModal}>

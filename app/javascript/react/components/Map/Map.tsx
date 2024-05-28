@@ -72,7 +72,31 @@ const Map = () => {
   });
 
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
-  const mapId = useSelector((state: RootState) => state.map.mapId);
+  const [isSessionDetailsModalOpen, setSessionDetailsModalOpen] =
+    useState<boolean>(false);
+  const [modalPosition, setModalPosition] = useState<{
+    bottom: number;
+    left: number;
+  }>({ bottom: 0, left: 0 });
+
+  const handleOpenDesktopSessionDetailsModal = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setModalPosition({
+      bottom: window.innerHeight - rect.bottom + rect.height + 1,
+      left: rect.left,
+    });
+    setSessionDetailsModalOpen(true);
+  };
+
+  const handleOpenSessionDetailstModal = () => {
+    setSessionDetailsModalOpen(true);
+  };
+
+  const handleCloseSessionDetailsModal = () => {
+    setSessionDetailsModalOpen(false);
+  };
 
   const onIdle = useCallback((event: MapEvent) => {
     const map = event.map;
@@ -91,7 +115,7 @@ const Map = () => {
   return (
     <>
       <GoogleMap
-        mapId={mapId || null}
+        mapId={"3808fe50f232092d" || null}
         mapTypeId={mapTypeId}
         defaultCenter={DEFAULT_MAP_CENTER}
         defaultZoom={DEFAULT_ZOOM}
@@ -104,6 +128,13 @@ const Map = () => {
       >
         <Markers sessions={mappedSessionsData} />
       </GoogleMap>
+      <SessionDetailsModal
+        sessionId="1"
+        // isOpen={isSessionDetailsModalOpen}
+        isOpen={true}
+        onClose={handleCloseSessionDetailsModal}
+        position={modalPosition}
+      />
     </>
   );
 };

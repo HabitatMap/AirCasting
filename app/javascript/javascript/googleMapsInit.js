@@ -43,7 +43,7 @@ export const init = () => {
     streetViewControlOptions: {
       position: google.maps.ControlPosition.RIGHT_TOP,
     },
-    styles: MapSettings.mapSettings(),
+    styles: .mapSettings(),
     zoom: parseInt(zoom, 10),
     zoomControl: false,
   };
