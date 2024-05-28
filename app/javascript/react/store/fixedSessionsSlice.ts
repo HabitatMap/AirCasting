@@ -65,7 +65,7 @@ export const fetchSessions = createAsyncThunk<
   }
 });
 
-export const sessionsSlice = createSlice({
+export const fixedSessionsSlice = createSlice({
   name: "sessions",
   initialState,
   reducers: {},
@@ -86,7 +86,7 @@ export const sessionsSlice = createSlice({
   },
 });
 
-export default sessionsSlice.reducer;
+export default fixedSessionsSlice.reducer;
 
 
 
