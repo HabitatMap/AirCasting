@@ -9,8 +9,8 @@ interface ModalProps {
   position: {
     bottom: number;
     left: number;
-    top: number;
-    right: number;
+    top?: number;
+    right?: number;
   };
   onKeyDown: React.KeyboardEventHandler<HTMLDialogElement>;
 }
@@ -20,22 +20,25 @@ const ModalContainer = styled.div<ModalProps>`
   justify-content: center;
   align-items: center;
   position: absolute;
-  top: ${({ position }) => `${position.top}px`};
-  right: ${({ position }) => `${position.right}px`};
-  bottom: ${({ position }) => `${position.bottom}px`};
-  left: ${({ position }) => `${position.left}px`};
+  top: ${({ position }) => `${position?.top}px` ?? "auto"};
+  right: ${({ position }) => `${position?.right}px` ?? "auto"};
+  left: ${({ position }) => `${position?.left}px` ?? "auto"};
+  bottom: ${({ position }) => `${position?.bottom}px` ?? "auto"};
   z-index: 999;
 `;
 
-const ModalContent = styled.div`
+const ModalContent = styled.div<{
+  $minHeight: number;
+  $minWidth: number;
+}>`
   background-color: ${white};
   opacity: 1;
   border-radius: 8px;
   position: relative;
   padding: 1.25rem;
-  min-height: ${({ styles }) => `${styles.minHeight}vh`};
-  min-width: ${({ styles }) => `${styles.minHWight}vw`};
-`;
+  min-height: ${({ $minHeight }) => `${$minHeight}vh`};
+  min-width:  ${({ $minWidth }) => `${$minWidth}vw`};
+}`;
 
 const ModalText = styled(H3)`
   font-size: 16px;

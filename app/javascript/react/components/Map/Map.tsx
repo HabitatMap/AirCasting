@@ -84,7 +84,7 @@ const Map = () => {
   ) => {
     const rect = event.currentTarget.getBoundingClientRect();
     setModalPosition({
-      bottom: window.innerHeight - rect.bottom + rect.height + 1,
+      bottom: window.innerHeight - rect.bottom + rect.height,
       left: rect.left,
     });
     setSessionDetailsModalOpen(true);
@@ -129,11 +129,14 @@ const Map = () => {
         <Markers sessions={mappedSessionsData} />
       </GoogleMap>
       <SessionDetailsModal
-        sessionId="1"
-        // isOpen={isSessionDetailsModalOpen}
+        streamId={1}
         isOpen={true}
         onClose={handleCloseSessionDetailsModal}
-        position={modalPosition}
+        position={{
+          bottom: modalPosition.bottom,
+          left: modalPosition.left,
+        }}
+        style={{ minWidth: 100, minHeight: 20 }}
       />
     </>
   );

@@ -12,7 +12,7 @@ import {
   CancelButtonX,
   ModalText,
 } from "./Modal.style";
-import closeButton from "../../assets/icons/closeButton.svg";
+import circleCloseIcon from "../../assets/icons/circleCloseIcon.svg";
 import { KeyboardKeys } from "../../types/keyboardKeys";
 
 interface ModalProps {
@@ -29,8 +29,8 @@ interface ModalProps {
   position: {
     bottom: number;
     left: number;
-    top: number;
-    right: number;
+    top?: number;
+    right?: number;
   };
   style?: {
     minWidth: number;
@@ -51,6 +51,7 @@ const Modal: React.FC<ModalProps> = ({
   onClose,
   position,
   children,
+  style = { minWidth: 40, minHeight: 20 },
 }) => {
   const modalRef = useRef<HTMLDialogElement | null>(null);
 
@@ -81,10 +82,10 @@ const Modal: React.FC<ModalProps> = ({
       position={position}
       onKeyDown={handleKeyDown}
     >
-      <ModalContent>
+      <ModalContent $minWidth={style.minWidth} $minHeight={style.minHeight}>
         <FlexWrapper>
           <CancelButtonX onClick={handleCloseModal}>
-            <img src={closeButton} alt={t("closeWhite.altCloseButton")} />
+            <img src={circleCloseIcon} alt={t("closeWhite.altCloseButton")} />
           </CancelButtonX>
           {title ? <ModalText>{title}</ModalText> : null}
         </FlexWrapper>
