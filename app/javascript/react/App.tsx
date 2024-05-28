@@ -30,7 +30,7 @@ const App = () => {
     <Provider store={store}>
       <GlobalStyles />
       <Navbar />
-      <RouterProvider router={router}></RouterProvider>
+      ;<RouterProvider router={router}></RouterProvider>
     </Provider>
   );
 };
