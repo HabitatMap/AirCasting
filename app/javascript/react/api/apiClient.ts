@@ -9,6 +9,10 @@ const exportSessionApiClient = axios.create({
   baseURL: process.env.EXPORT_SESSION_API_BASE_URL,
 });
 
+const oldApiClient = axios.create({
+  baseURL: process.env.EXPORT_SESSION_API_BASE_URL,
+});
+
 apiClient.interceptors.response.use((response: AxiosResponse) => {
   response.data = camelizeKeys(response.data);
 
@@ -21,4 +25,10 @@ exportSessionApiClient.interceptors.response.use((response: AxiosResponse) => {
   return response;
 });
 
-export { apiClient, exportSessionApiClient };
+oldApiClient.interceptors.response.use((response: AxiosResponse) => {
+  response.data = camelizeKeys(response.data);
+
+  return response;
+});
+
+export { apiClient, exportSessionApiClient, oldApiClient };
