@@ -18,7 +18,6 @@ describe 'GET api/v3/fixed_streams/:id' do
 
       expected_response = {
         stream: {
-          id: stream.id,
           session_id: session.id,
           active: session.is_active,
           title: session.title,
