@@ -6,6 +6,10 @@ import {
   MarkerCircle,
   MarkerText,
 } from "./SingleMarker.style";
+import {
+  SelectedShadowCircle,
+  SelectedDataContainer,
+} from "./SelectedMarker.style";
 
 interface MarkerProps {
   color: string;
@@ -15,17 +19,29 @@ interface MarkerProps {
 }
 
 const mockedColor = "#E95F5F";
-// Change name after removing google marker
-const SingleMarker = ({ color, value, onClick }: MarkerProps) => {
-  return (
-    <MarkerContainer onClick={onClick}>
-      <ShadowCircle color={mockedColor} />
-      <DataContainer>
-        <MarkerCircle color={mockedColor} />
-        <MarkerText> {value}</MarkerText>
-      </DataContainer>
-    </MarkerContainer>
-  );
+
+const SingleMarker = ({ color, value, isSelected, onClick }: MarkerProps) => {
+  if (isSelected) {
+    return (
+      <MarkerContainer onClick={onClick}>
+        <SelectedShadowCircle color={mockedColor} />
+        <SelectedDataContainer color={mockedColor}>
+          <MarkerCircle color={mockedColor} />
+          <MarkerText> {value}</MarkerText>
+        </SelectedDataContainer>
+      </MarkerContainer>
+    );
+  } else {
+    return (
+      <MarkerContainer onClick={onClick}>
+        <ShadowCircle color={mockedColor} />
+        <DataContainer>
+          <MarkerCircle color={mockedColor} />
+          <MarkerText> {value}</MarkerText>
+        </DataContainer>
+      </MarkerContainer>
+    );
+  }
 };
 
 export { SingleMarker };

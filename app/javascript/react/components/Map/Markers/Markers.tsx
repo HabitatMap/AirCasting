@@ -12,7 +12,11 @@ const Markers = ({ points }: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [key: string]: Marker }>({});
   const clusterer = useRef<MarkerClusterer | null>(null);
+  const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
+    null
+  );
   const ZOOM_FOR_SELECTED_SESSION = 15;
+
   // Initialize MarkerClusterer
   useEffect(() => {
     if (!map) return;
@@ -42,11 +46,12 @@ const Markers = ({ points }: Props) => {
     });
   };
 
-  const centerMapOnMarker = (position: LatLngLiteral) => {
+  const centerMapOnMarker = (position: LatLngLiteral, key: string) => {
     if (map) {
       map.setCenter(position);
       map.setZoom(ZOOM_FOR_SELECTED_SESSION);
     }
+    setSelectedMarkerKey(key === selectedMarkerKey ? null : key);
   };
 
   return (
@@ -60,10 +65,11 @@ const Markers = ({ points }: Props) => {
           <SingleMarker
             color="red"
             value={"1242 µg/m³"}
-            isSelected={false}
-            onClick={() => centerMapOnMarker(point)}
-          />{" "}
-          {/* The props are MOCKED - change them!! */}
+            isSelected={point.key === selectedMarkerKey}
+            onClick={() => {
+              centerMapOnMarker(point, point.key);
+            }}
+          />
         </AdvancedMarker>
       ))}
     </>
