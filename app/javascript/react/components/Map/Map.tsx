@@ -17,7 +17,6 @@ const Map = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    console.log("Starting fetching sessions");
     dispatch(fetchSessions({ test: "test" }));
   }, []);
 
