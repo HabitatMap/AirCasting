@@ -7,7 +7,7 @@ import {
   ModalContent,
   ButtonsWrapper,
   FlexWrapper,
-  ActionButton,
+  BlueButton,
   CancelButton,
   CancelButtonX,
   ModalText,
@@ -17,13 +17,13 @@ import { KeyboardKeys } from "../../types/keyboardKeys";
 
 interface ModalProps {
   isOpen: boolean;
-  title: string;
+  title?: string;
   hasCloseButton?: boolean;
   hasActionButton?: boolean;
   handleActionButton?: (event: React.FormEvent) => void;
   buttonName?: string;
-  buttonHasIcon: boolean;
-  iconName: string;
+  buttonHasIcon?: boolean;
+  iconName?: string;
   onClose?: () => void;
   children: React.ReactNode;
   position: {
@@ -95,12 +95,12 @@ const Modal: React.FC<ModalProps> = ({
             <CancelButton onClick={handleCloseModal}>Cancel</CancelButton>
           )}{" "}
           {hasActionButton && (
-            <ActionButton onClick={handleActionButton || (() => {})}>
+            <BlueButton onClick={handleActionButton || (() => {})}>
               {buttonName || ""}
               {hasIcon ? (
                 <img src={iconName} alt={t("{iconName}.altResetButton")} />
               ) : null}
-            </ActionButton>
+            </BlueButton>
           )}
         </ButtonsWrapper>
       </ModalContent>

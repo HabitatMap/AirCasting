@@ -30,10 +30,11 @@ const ModalContainer = styled.div<ModalProps>`
 const ModalContent = styled.div<{
   $minHeight: number;
   $minWidth: number;
+  $borderRadius?: number;
 }>`
   background-color: ${white};
   opacity: 1;
-  border-radius: 8px;
+  border-radius: ${({ $borderRadius }) => `${$borderRadius}px` ?? "8px"};
   position: relative;
   padding: 1.25rem;
   min-height: ${({ $minHeight }) => `${$minHeight}vh`};
@@ -58,11 +59,12 @@ const FlexWrapper = styled.div`
   padding-bottom: 0.625rem;
 `;
 
-const ActionButton = styled(Button)`
+const BlueButton = styled(Button)`
   background-color: ${blue};
   color: ${white};
   font-weight: 100;
   border: none;
+  width: fit-content;
 `;
 
 const CancelButton = styled(Button)`
@@ -92,7 +94,7 @@ export {
   ModalContent,
   ButtonsWrapper,
   FlexWrapper,
-  ActionButton,
+  BlueButton,
   CancelButton,
   CancelButtonX,
   TextInput,

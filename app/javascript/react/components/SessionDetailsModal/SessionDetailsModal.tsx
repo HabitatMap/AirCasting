@@ -1,20 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-
-import { useAppDispatch } from "../../store/hooks";
-import { exportSession } from "../../store/exportSessionSlice";
-
-import chartIcon from "../../assets/icons/chartIcon.svg";
-import { Modal } from "../Modal";
-import { screenSizes } from "../../utils/media";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { useSelector } from "react-redux";
 
+import { useAppDispatch } from "../../store/hooks";
+
+import { Modal } from "../Modal";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
-import { ActionButton } from "../ActionButton/ActionButton";
-import downloadImage from "../../assets/icons/download.svg";
-import shareLink from "../../assets/icons/shareLink.svg";
-import { copyCurrentURL } from "../../utils/copyCurrentUrl";
+
+import SessionInfo from "./SessionInfo";
+import { ExportDataModal } from "../ExportDataModal";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 
 interface SessionDetailsModalProps {
   streamId: number;
@@ -36,27 +31,32 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
   onClose,
 }) => {
   const focusInputRef = useRef<HTMLInputElement | null>(null);
-  const {
-    unitSymbol,
-    title,
-    profile,
-    sensorName,
-    lastUpdate,
-    updateFrequency,
-    lastMeasurementValue,
-    lastMeasurementDateLabel,
-    active,
-    sessionId,
-    startTime,
-    endTime,
-    min,
-    max,
-  } = useSelector(selectFixedStreamShortInfo);
-
-  const isMobile = window.innerWidth <= screenSizes.mobile;
-
+  const [isExportModalOpen, setExportModalOpen] = useState<boolean>(false);
+  const [modalPosition, setModalPosition] = useState<{
+    bottom: number;
+    left: number;
+  }>({ bottom: 0, left: 0 });
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
+  const { sessionId } = useSelector(selectFixedStreamShortInfo);
+
+  const handleOpenDesktopExportModal = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setModalPosition({
+      bottom: window.innerHeight - rect.bottom + rect.height + 1,
+      left: rect.left,
+    });
+    setExportModalOpen(true);
+  };
+
+  const handleOpenMobileExportModal = () => {
+    setExportModalOpen(true);
+  };
+
+  const handleCloseExportModal = () => {
+    setExportModalOpen(false);
+  };
 
   useEffect(() => {
     streamId && dispatch(fetchFixedStreamById(streamId));
@@ -75,37 +75,23 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
   return (
     <>
       <Modal
-        title={title}
-        buttonName={t("sessionDetailsModal.calendar")}
-        buttonHasIcon
-        iconName={chartIcon}
+        hasActionButton={false}
         isOpen={isOpen}
         onClose={onClose}
         position={position}
-        style={{ minWidth: 100, minHeight: 30 }}
+        style={{ minWidth: 100, minHeight: 30, borderRadius: 0 }}
       >
-        <div>Sesion name {title}</div>
-        <div>sensor name {sensorName}</div>
-        <div>average {lastMeasurementValue}</div>
-        <div>
-          {min}
-          {max}
-        </div>
-        <div>
-          {startTime}-{endTime}
-        </div>
-        <ActionButton
-          onClick={handleOpenMobileExportModal}
-          aria-labelledby={t("calendarHeader.altExportSession")}
-        >
-          <img src={downloadImage} />
-        </ActionButton>
-        <ActionButton
-          onClick={copyCurrentURL}
-          aria-label={t("calendarHeader.altShareLink")}
-        >
-          <img src={shareLink} />
-        </ActionButton>
+        <SessionInfo
+          streamId={streamId}
+          handleOpenDesktopExportModal={handleOpenDesktopExportModal}
+        />
+        <ExportDataModal
+          sessionId={sessionId}
+          isOpen={isExportModalOpen}
+          onClose={handleCloseExportModal}
+          position={modalPosition}
+          onSubmit={(formData) => {}}
+        />
       </Modal>
     </>
   );

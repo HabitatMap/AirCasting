@@ -97,6 +97,11 @@
   },
 
   "sessionDetailsModal": {
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "averageValue": "avg.",
+    "copyLink": "Copy link icon",
+    "chartIcon": "Chart icon",
+    "minValue": "min.",
+    "maxValue": "max."
   }
 }
