@@ -48,8 +48,8 @@ const StationActionButtons = ({ sessionId }: Props) => {
               {t("calendarHeader.exportSession")} <img src={downloadImage} />
             </Button>
           }
-          nested
           closeOnDocumentClick
+          position="top center"
         >
           <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
         </Popup>

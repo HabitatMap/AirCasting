@@ -21,14 +21,12 @@ const ModalContainer = styled.div<ModalProps>`
   z-index: 999;
 `;
 
-const ModalContent = styled(Popup)`
+const ModalContent = styled.div`
   background-color: ${white};
   opacity: 1;
   border-radius: 8px;
   position: relative;
-  padding: 1rem;
-  min-height: 10vh;
-  min-width: 11vw;
+  padding: 2rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 `;
 
