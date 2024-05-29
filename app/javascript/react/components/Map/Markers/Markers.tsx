@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
+
 import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
 import { LatLngLiteral } from "../../../types/googleMaps";
+
 import { SingleMarker } from "./SingleMarker";
 import { Session } from "./SessionType";
 
@@ -63,7 +65,7 @@ const Markers = ({ sessions }: Props) => {
           ref={(marker) => setMarkerRef(marker, session.point.key)}
         >
           <SingleMarker
-            color="red"
+            color="#E95F5F"
             value={`${session.lastMeasurementValue} µg/m³`}
             isSelected={session.point.key === selectedMarkerKey}
             onClick={() => {

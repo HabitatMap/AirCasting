@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import { Map as GoogleMap } from "@vis.gl/react-google-maps";
-import { LatLngLiteral } from "../../types/googleMaps";
 
 import mapStyles from "./mapStyles";
 import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
@@ -12,7 +11,6 @@ import { useAppDispatch } from "../../store/hooks";
 import { containerStyle } from "./Map.style";
 import { Markers } from "./Markers/Markers";
 import { selectSessionsData } from "../../store/fixedSessionsSelectors";
-import { use } from "i18next";
 import { Session } from "./Markers/SessionType";
 
 const Map = () => {

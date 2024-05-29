@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   MarkerContainer,
   ShadowCircle,
@@ -18,15 +19,13 @@ interface MarkerProps {
   onClick: () => void;
 }
 
-const mockedColor = "#E95F5F";
-
 const SingleMarker = ({ color, value, isSelected, onClick }: MarkerProps) => {
   if (isSelected) {
     return (
       <MarkerContainer onClick={onClick}>
-        <SelectedShadowCircle color={mockedColor} />
-        <SelectedDataContainer color={mockedColor}>
-          <MarkerCircle color={mockedColor} />
+        <SelectedShadowCircle color={color} />
+        <SelectedDataContainer color={color}>
+          <MarkerCircle color={color} />
           <MarkerText> {value}</MarkerText>
         </SelectedDataContainer>
       </MarkerContainer>
@@ -34,9 +33,9 @@ const SingleMarker = ({ color, value, isSelected, onClick }: MarkerProps) => {
   } else {
     return (
       <MarkerContainer onClick={onClick}>
-        <ShadowCircle color={mockedColor} />
+        <ShadowCircle color={color} />
         <DataContainer>
-          <MarkerCircle color={mockedColor} />
+          <MarkerCircle color={color} />
           <MarkerText> {value}</MarkerText>
         </DataContainer>
       </MarkerContainer>

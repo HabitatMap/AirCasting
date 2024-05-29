@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { gray100, gray400 } from "../../../assets/styles/colors";
+import { gray400 } from "../../../assets/styles/colors";
 import { H4 } from "../../Typography";
 
 interface MarkerProps {
