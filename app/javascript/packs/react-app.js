@@ -7,7 +7,7 @@ import { App } from "../react/App.tsx";
 import "../react/assets/styles/typography";
 
 Sentry.init({
-    environment: process.env.NODE_ENV === "production" ? "Producation" : "Testing",
+    environment: process.env.NODE_ENV === "production" ? "Producation" : "Development",
     dsn: process.env.SENTRY_DSN_KEY,
     integrations: [
       Sentry.browserTracingIntegration(),

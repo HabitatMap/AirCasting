@@ -55,6 +55,7 @@ const sharedWebpackConfig = (mode) => {
 
   return {
     mode,
+    devtool: "source-map",
     entry: getEntryObject(),
     optimization: {
       runtimeChunk: false,
