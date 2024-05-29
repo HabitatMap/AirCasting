@@ -3,29 +3,25 @@ import React from "react";
 import * as S from "./SessionDetailsModal.style";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import moment from "moment";
+
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import { selectThreshold } from "../../store/thresholdSlice";
+
 import chartIcon from "../../assets/icons/chartIcon.svg";
 import downloadImage from "../../assets/icons/download.svg";
 import shareLink from "../../assets/icons/shareLink.svg";
 import { copyCurrentURL } from "../../utils/copyCurrentUrl";
-import { useAppDispatch } from "../../store/hooks";
-import moment from "moment";
 import { getColorForValue } from "../../utils/thresholdColors";
-import { selectThreshold } from "../../store/thresholdSlice";
-import Popup from "reactjs-popup";
-import { ExportDataModal } from "../ExportDataModal";
+
+import { ExportDataModal } from "../Modals";
+import { CopyLinkModal } from "../Modals/CopyLinkModal";
 
 interface SessionInfoProps {
   streamId: number;
-  handleOpenDesktopExportModal: (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => void;
 }
 
-const SessionInfo: React.FC<SessionInfoProps> = ({
-  streamId,
-  handleOpenDesktopExportModal,
-}) => {
+const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
   const {
     unitSymbol,
     title,
@@ -78,19 +74,16 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
           {t("sessionDetailsModal.calendar")}
           <img src={chartIcon} alt={t("sessionDetailsModal.chartIcon")} />
         </S.BlueButton>
-        <S.Button
-          onClick={handleOpenDesktopExportModal}
-          aria-labelledby={t("calendarHeader.altExportSession")}
-        >
-          <img src={downloadImage} />
-        </S.Button>
-        <S.ShareLinkPopup
+        <S.SmallPopup
           trigger={
             <S.Button
               onClick={copyCurrentURL}
-              aria-label={t("calendarHeader.altShareLink")}
+              aria-labelledby={t("calendarHeader.altExportSession")}
             >
-              <img src={shareLink} alt={t("sessionDetailsModal.copyLink")} />
+              <img
+                src={downloadImage}
+                alt={t("calendarHeader.altExportSession")}
+              />
             </S.Button>
           }
           position="top center"
@@ -98,7 +91,22 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
           closeOnDocumentClick
         >
           <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
-        </S.ShareLinkPopup>
+        </S.SmallPopup>
+        <S.SmallPopup
+          trigger={
+            <S.Button
+              onClick={copyCurrentURL}
+              aria-label={t("copyLinkModal.altCopyLink")}
+            >
+              <img src={shareLink} alt={t("copyLinkModal.copyLink")} />
+            </S.Button>
+          }
+          position="top center"
+          nested
+          closeOnDocumentClick
+        >
+          <CopyLinkModal sessionId={sessionId} onSubmit={(formData) => {}} />
+        </S.SmallPopup>
       </S.ButtonsContainer>
     </S.InfoContainer>
   );

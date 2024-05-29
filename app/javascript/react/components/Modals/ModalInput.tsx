@@ -2,25 +2,29 @@ import React from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 
-import { TextInput } from "../Modal/Modal.style";
+import { TextInput } from "./Modals.style";
 
 interface EmailInputProps {
   focusInputRef: React.RefObject<HTMLInputElement>;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  name: string;
+  type: string;
 }
 
-const EmailInput: React.FC<EmailInputProps> = ({
+const ModalInput: React.FC<EmailInputProps> = ({
   focusInputRef,
   value,
   onChange,
+  name,
+  type,
 }) => {
-  const { t } = useTranslation(); // Move useTranslation inside the component
+  const { t } = useTranslation();
 
   return (
     <TextInput
-      type="email"
-      name="email"
+      type={type}
+      name={name}
       ref={focusInputRef}
       value={value}
       onChange={onChange}
@@ -33,4 +37,4 @@ const RedErrorMessage = styled.span`
   color: red;
 `;
 
-export { EmailInput, RedErrorMessage };
+export { ModalInput, RedErrorMessage };

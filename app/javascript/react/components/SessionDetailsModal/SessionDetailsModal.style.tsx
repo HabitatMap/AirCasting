@@ -142,7 +142,7 @@ const CancelButtonX = styled.button`
   background-color: transparent;
 `;
 
-const ShareLinkPopup = styled(Popup)`
+const SmallPopup = styled(Popup)`
   width: 100%;
   height: auto;
   z-index: 1200;
@@ -183,5 +183,5 @@ export {
   Button,
   BlueButton,
   CancelButtonX,
-  ShareLinkPopup,
+  SmallPopup,
 };

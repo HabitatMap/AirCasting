@@ -81,6 +81,7 @@ const TextInput = styled.input`
   border: 1px solid ${gray100};
   border-radius: 4px;
   margin-bottom: 0.625rem;
+  outline: none;
 `;
 
 const BlueButton = styled(Button)`

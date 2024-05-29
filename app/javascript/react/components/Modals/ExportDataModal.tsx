@@ -3,13 +3,11 @@ import { useTranslation } from "react-i18next";
 
 import { useAppDispatch } from "../../store/hooks";
 import { exportSession } from "../../store/exportSessionSlice";
-import { DesktopExportModal } from "./DesktopExportModal";
-import { EmailInput, RedErrorMessage } from "./EmailInput";
+import { ModalInput, RedErrorMessage } from "./ModalInput";
 import { ConfirmationMessage } from "./ConfirmationMessage";
 import downloadWhite from "../../assets/icons/downloadWhite.svg";
-import { Modal } from "../Modal";
 import { screenSizes } from "../../utils/media";
-import { BlueButton, FormWrapper } from "./ExportModal.style";
+import { BlueButton, FormWrapper } from "./Modals.style";
 
 export interface ExportModalData {
   email: string;
@@ -36,32 +34,8 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
     null
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const isMobile = window.innerWidth <= screenSizes.mobile;
-  const EMAIL_FIELD = "email";
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-
-  // useEffect(() => {
-  //   if (isOpen && focusInputRef.current) {
-  //     setTimeout(() => {
-  //       focusInputRef.current!.focus();
-  //     }, 0);
-  //   }
-  //   if (!isOpen) {
-  //     setFormState(initialExportModalData);
-  //     setConfirmationMessage(null);
-  //     setErrorMessage(null);
-  //   }
-  // }, [isOpen]);
-
-  // useEffect(() => {
-  //   if (confirmationMessage) {
-  //     const timer = setTimeout(() => {
-  //       onClose();
-  //     }, 5000);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [confirmationMessage, onClose]);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -97,10 +71,12 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
       ) : (
         <form onSubmit={handleSubmit}>
           <FormWrapper>
-            <EmailInput
+            <ModalInput
               focusInputRef={focusInputRef}
               value={formState.email}
               onChange={handleInputChange}
+              name="email"
+              type="email"
             />
             <BlueButton
               type="submit"

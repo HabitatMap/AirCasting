@@ -10,7 +10,8 @@ const MessageContainer = styled.div`
   text-align: center;
   display: flex;
   flex-wrap: wrap;
-  width: 17rem;
+  max-width: 17rem;
+  justify-content: center;
 `;
 
 const ConfirmationMessage: React.FC<ConfirmationMessageProps> = ({

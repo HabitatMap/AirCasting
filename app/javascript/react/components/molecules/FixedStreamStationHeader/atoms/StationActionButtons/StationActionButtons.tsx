@@ -7,7 +7,7 @@ import downloadImage from "../../../../../assets/icons/download.svg";
 import { Button } from "../../../../Button/Button";
 import { ActionButton } from "../../../../ActionButton/ActionButton";
 import * as S from "./StationActionButtons.style";
-import { ExportDataModal } from "../../../../ExportDataModal";
+import { ExportDataModal } from "../../../../Modals";
 import { copyCurrentURL } from "../../../../../utils/copyCurrentUrl";
 
 interface Props {

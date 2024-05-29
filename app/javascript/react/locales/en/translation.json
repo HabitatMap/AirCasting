@@ -103,5 +103,11 @@
     "chartIcon": "Chart icon",
     "minValue": "min.",
     "maxValue": "max."
+  },
+  "copyLinkModal": {
+   "copyLink": "Copy link",
+   "altCopyLink": "Copy the link to the session you are viewing",
+   "confirmationMessage": "Copied"
+
   }
 }
