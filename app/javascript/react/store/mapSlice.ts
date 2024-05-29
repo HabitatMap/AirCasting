@@ -14,7 +14,7 @@ interface MapState {
 const initialState: MapState = {
   mapConfigId: MAP_CONFIGS[0].id,
   mapTypeId: MAP_CONFIGS[0].mapTypeId,
-  mapId: MAP_CONFIGS[0].mapId || "",
+  mapId: "3808fe50f232092d",
   location: DEFAULT_MAP_CENTER,
 };
 
