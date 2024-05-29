@@ -64,6 +64,15 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
     setConfirmationMessage(t("exportDataModal.confirmationMessage"));
   };
 
+  useEffect(() => {
+    if (confirmationMessage) {
+      const timer = setTimeout(() => {
+        setConfirmationMessage(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [confirmationMessage]);
+
   return (
     <>
       {confirmationMessage ? (

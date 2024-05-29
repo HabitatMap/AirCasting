@@ -67,10 +67,16 @@ const ThresholdResetButton = styled(ResetButton)`
   border: none;
   color: ${colors.gray300};
   width: fit-content;
-  margin-top: 1rem;
+  margin-top: 3rem;
   @media ${media.desktop} {
     margin-left: 0;
   }
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 `;
 
 export {
@@ -80,4 +86,5 @@ export {
   Heading,
   ResetButton,
   ThresholdResetButton,
+  Wrapper,
 };

@@ -32,6 +32,15 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({
   );
   const { t } = useTranslation();
 
+  // useEffect(() => {
+  //   if (confirmationMessage) {
+  //     const timer = setTimeout(() => {
+  //       setConfirmationMessage(null);
+  //     }, 4000);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [confirmationMessage]);
+
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ): void => {

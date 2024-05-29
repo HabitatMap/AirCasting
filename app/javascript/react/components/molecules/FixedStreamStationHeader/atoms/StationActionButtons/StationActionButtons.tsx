@@ -16,38 +16,13 @@ interface Props {
 }
 
 const StationActionButtons = ({ sessionId }: Props) => {
-  const [isExportModalOpen, setExportModalOpen] = useState<boolean>(false);
-  const [modalPosition, setModalPosition] = useState<{
-    bottom: number;
-    left: number;
-  }>({ bottom: 0, left: 0 });
-
   const { t } = useTranslation();
-
-  const handleOpenDesktopExportModal = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    setModalPosition({
-      bottom: window.innerHeight - rect.bottom + rect.height + 1,
-      left: rect.left,
-    });
-    setExportModalOpen(true);
-  };
-
-  const handleOpenMobileExportModal = () => {
-    setExportModalOpen(true);
-  };
-
-  const handleCloseExportModal = () => {
-    setExportModalOpen(false);
-  };
 
   return (
     <>
       <S.MobileButtons>
         <ActionButton
-          onClick={handleOpenMobileExportModal}
+          onClick={() => {}}
           aria-labelledby={t("calendarHeader.altExportSession")}
         >
           <img src={downloadImage} />
@@ -69,10 +44,7 @@ const StationActionButtons = ({ sessionId }: Props) => {
         </Button>
         <Popup
           trigger={
-            <Button
-              onClick={handleOpenDesktopExportModal}
-              aria-labelledby={t("calendarHeader.altExportSession")}
-            >
+            <Button aria-labelledby={t("calendarHeader.altExportSession")}>
               {t("calendarHeader.exportSession")} <img src={downloadImage} />
             </Button>
           }

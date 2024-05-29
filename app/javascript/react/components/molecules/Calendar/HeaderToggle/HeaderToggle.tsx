@@ -57,12 +57,12 @@ const HeaderToggle = ({
   const displayMapPageResetButton = () => {
     if (!resetThresholds) return null;
     return (
-      <S.ResetButton onClick={resetThresholds}>
+      <S.ThresholdResetButton onClick={resetThresholds}>
         <img
           src={returnArrow}
           alt={t("thresholdConfigurator.altResetButton")}
         />
-      </S.ResetButton>
+      </S.ThresholdResetButton>
     );
   };
 
@@ -96,9 +96,14 @@ const HeaderToggle = ({
         </S.Container>
       )}
 
-      {isVisible && componentToToggle}
+      {isVisible && !isMapPage && componentToToggle}
       {isMobile && isVisible && displayResetButton()}
-      {isMapPage && displayMapPageResetButton()}
+      {isMapPage && (
+        <S.Wrapper>
+          {componentToToggle}
+          {displayMapPageResetButton()}
+        </S.Wrapper>
+      )}
     </>
   );
 };

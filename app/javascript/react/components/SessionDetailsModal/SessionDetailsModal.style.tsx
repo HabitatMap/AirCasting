@@ -135,6 +135,7 @@ const BlueButton = styled(Link)`
   display: flex;
   border: 1px solid ${gray200};
   text-decoration: none;
+  border: none;
 `;
 
 const CancelButtonX = styled.button`
@@ -159,8 +160,6 @@ const SmallPopup = styled(Popup)`
     border-radius: 8px;
     position: relative;
     padding: 1rem;
-    height: 300px
-    width: 400px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1200;
     display: flex;

@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { white, blue, gray100 } from "../../assets/styles/colors";
 import { Button } from "../Button/Button.style";
 import { media } from "../../utils/media";
+import Popup from "reactjs-popup";
 
 interface ModalProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ const ModalContainer = styled.div<ModalProps>`
   z-index: 999;
 `;
 
-const ModalContent = styled.div`
+const ModalContent = styled(Popup)`
   background-color: ${white};
   opacity: 1;
   border-radius: 8px;
@@ -92,7 +93,6 @@ const BlueButton = styled(Button)`
   width: fit-content;
   font-size: 1.6rem;
   height: 0.8rem;
-  outline: none;
 
   @media ${media.smallDesktop} {
     font-size: 1.1rem;
