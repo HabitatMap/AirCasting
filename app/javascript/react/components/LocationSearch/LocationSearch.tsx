@@ -1,10 +1,7 @@
 import { useCombobox } from "downshift";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import usePlacesAutocomplete, {
-  getGeocode,
-  getLatLng,
-} from "use-places-autocomplete";
+import usePlacesAutocomplete, { getGeocode, getLatLng } from "use-places-autocomplete";
 
 import { useMap } from "@vis.gl/react-google-maps";
 
@@ -81,6 +78,20 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
   useEffect(() => {
     status === OK_STATUS && data.length && setItems(data);
   }, [data, status]);
+
+  useEffect(() => {
+    console.log('map:', map);
+
+    if (map) {
+      const bounds = map.getBounds();
+      if (bounds) {
+        const ne = bounds.getNorthEast();
+        const sw = bounds.getSouthWest();
+        console.log('NorthEast:', ne.toString());
+        console.log('SouthWest:', sw.toString());
+      }
+    }
+  }, []);
 
   return (
     <S.SearchContainer>
