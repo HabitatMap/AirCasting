@@ -13,11 +13,27 @@ interface LogOptions {
   level?: LogLevel;
 }
 
+const convertToSeverityLevel = (level: LogLevel): Sentry.SeverityLevel => {
+  switch (level) {
+    case LogLevel.Info:
+      return "info";
+    case LogLevel.Warning:
+      return "warning";
+    case LogLevel.Error:
+      return "error";
+    case LogLevel.Debug:
+      return "debug";
+    case LogLevel.Fatal:
+      return "fatal";
+  }
+}
+
 export const logEvent = ({
   message,
   level = LogLevel.Info,
 }: LogOptions): void => {
-  Sentry.captureMessage(message, level);
+  const severityLevel = convertToSeverityLevel(level)
+  Sentry.captureMessage(message, severityLevel);
 };
 
 export const logError = (error: Error): void => {
