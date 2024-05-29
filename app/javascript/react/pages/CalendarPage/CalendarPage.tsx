@@ -72,7 +72,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       .subtract(2, "months")
       .format("YYYY-MM-DD");
 
-    console.log("Downloading first time - moving stream data. Start - End: ", newStartDate, formattedEndDate)
+    console.log(
+      "Downloading first time - moving stream data. Start - End: ",
+      newStartDate,
+      formattedEndDate
+    );
     if (streamId) {
       dispatch(
         fetchNewMovingStream({
@@ -85,25 +89,22 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   }, [fixedStreamData, dispatch]);
 
   return (
-    <>
-      {children}
-      <S.CalendarPageLayout>
-        <S.StationDataContainer>
-          <FixedStreamStationHeader />
-          {!isMobile && <ThresholdsConfigurator />}
-          {calendarIsVisible ? (
-            <Calendar
-              streamId={streamId}
-              minCalendarDate={fixedStreamData.stream.startTime}
-              maxCalendarDate={streamEndTime}
-            />
-          ) : (
-            <EmptyCalendar />
-          )}
-          {isMobile && <ThresholdsConfigurator />}
-        </S.StationDataContainer>
-      </S.CalendarPageLayout>
-    </>
+    <S.CalendarPageLayout>
+      <S.StationDataContainer>
+        <FixedStreamStationHeader />
+        {!isMobile && <ThresholdsConfigurator isMapPage={false} />}
+        {calendarIsVisible ? (
+          <Calendar
+            streamId={streamId}
+            minCalendarDate={fixedStreamData.stream.startTime}
+            maxCalendarDate={streamEndTime}
+          />
+        ) : (
+          <EmptyCalendar />
+        )}
+        {isMobile && <ThresholdsConfigurator isMapPage={false} />}
+      </S.StationDataContainer>
+    </S.CalendarPageLayout>
   );
 };
 

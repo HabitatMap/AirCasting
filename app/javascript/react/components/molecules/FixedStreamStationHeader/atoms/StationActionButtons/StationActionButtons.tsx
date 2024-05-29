@@ -9,6 +9,7 @@ import { ActionButton } from "../../../../ActionButton/ActionButton";
 import * as S from "./StationActionButtons.style";
 import { ExportDataModal } from "../../../../Modals";
 import { copyCurrentURL } from "../../../../../utils/copyCurrentUrl";
+import Popup from "reactjs-popup";
 
 interface Props {
   sessionId: string;
@@ -66,15 +67,21 @@ const StationActionButtons = ({ sessionId }: Props) => {
           {t("calendarHeader.copyLink")}{" "}
           <img src={copyLink} alt={t("Copy link")} />
         </Button>
-        <Button
-          onClick={handleOpenDesktopExportModal}
-          aria-labelledby={t("calendarHeader.altExportSession")}
+        <Popup
+          trigger={
+            <Button
+              onClick={handleOpenDesktopExportModal}
+              aria-labelledby={t("calendarHeader.altExportSession")}
+            >
+              {t("calendarHeader.exportSession")} <img src={downloadImage} />
+            </Button>
+          }
+          nested
+          closeOnDocumentClick
         >
-          {t("calendarHeader.exportSession")} <img src={downloadImage} />
-        </Button>
+          <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
+        </Popup>
       </S.DesktopButtons>
-
-      <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
     </>
   );
 };
