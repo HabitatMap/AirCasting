@@ -102,6 +102,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
         $displaySearchResults={displaySearchResults}
         {...getMenuProps()}
       >
+        <S.Hr $displaySearchResults={displaySearchResults} />
         {isOpen &&
           items.map((item, index) => (
             <S.Suggestion

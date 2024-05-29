@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import searchIconGray from "../../assets/icons/searchIconGray.svg";
-import { blue, gray500, white } from "../../assets/styles/colors";
+import { gray500, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 interface SuggestionProps {
@@ -13,6 +13,10 @@ interface SearchInputProps {
 }
 
 interface SuggestionsListProps {
+  $displaySearchResults?: boolean;
+}
+
+interface HrProps {
   $displaySearchResults?: boolean;
 }
 
@@ -37,7 +41,11 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
   z-index: 998;
 
   @media ${media.smallDesktop} {
-    width: 103.5%;
+    width: 103.6%;
+    padding: 10px 0 8px 8px;
+    border-radius: 0px 0px 10px 10px;
+    top: 100%;
+    z-index: 1;
   }
 `;
 
@@ -64,7 +72,8 @@ const SearchInput = styled.input<SearchInputProps>`
     font-size: 1.6rem;
     padding: 0 1.6rem;
     border-radius: 50px;
-    border: 1px solid ${gray500};
+    border: ${(p) =>
+      p.$displaySearchResults ? `none` : `1px solid ${gray500}`};
     background: ${white} url(${searchIconGray}) 16px center no-repeat;
     background-size: 20px;
     padding-left: 4.8rem;
@@ -87,10 +96,21 @@ const SearchContainer = styled.div`
   gap: 1rem;
 `;
 
+const Hr = styled.hr<HrProps>`
+  visibility: hidden;
+
+  @media ${media.smallDesktop} {
+    visibility: ${(p) => (p.$displaySearchResults ? `visible` : `hidden`)};
+    border-top: 1px solid ${gray500};
+    width: 97%;
+  }
+`;
+
 export {
   Suggestion,
   SuggestionsList,
   SearchInput,
   LocationSearchButton,
   SearchContainer,
+  Hr,
 };
