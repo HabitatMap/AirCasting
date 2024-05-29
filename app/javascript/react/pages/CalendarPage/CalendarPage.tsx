@@ -1,27 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useSelector } from "react-redux";
 import moment from "moment";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 
-import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
-import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { Calendar } from "../../components/molecules/Calendar";
-import { useAppDispatch } from "../../store/hooks";
+import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
+import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
+import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
 import {
   fetchFixedStreamById,
   selectFixedData,
 } from "../../store/fixedStreamSlice";
-import * as S from "./CalendarPage.style";
-import { screenSizes } from "../../utils/media";
-import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
+import { useAppDispatch } from "../../store/hooks";
 import {
-  movingData,
   fetchNewMovingStream,
+  movingData,
 } from "../../store/movingCalendarStreamSlice";
+import { screenSizes } from "../../utils/media";
+import * as S from "./CalendarPage.style";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
-const CalendarPage = () => {
+interface CalendarPageProps {
+  children: React.ReactNode;
+}
+
+const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const [searchParams] = useSearchParams();
   const streamIdQuery = searchParams.get(STREAM_ID_QUERY_PARAMETER_NAME);
   const streamId = streamIdQuery && Number(streamIdQuery);
@@ -81,22 +85,25 @@ const CalendarPage = () => {
   }, [fixedStreamData, dispatch]);
 
   return (
-    <S.CalendarPageLayout>
-      <S.StationDataContainer>
-        <FixedStreamStationHeader />
-        {!isMobile && <ThresholdsConfigurator />}
-        {calendarIsVisible ? (
-          <Calendar
-            streamId={streamId}
-            minCalendarDate={fixedStreamData.stream.startTime}
-            maxCalendarDate={streamEndTime}
-          />
-        ) : (
-          <EmptyCalendar />
-        )}
-        {isMobile && <ThresholdsConfigurator />}
-      </S.StationDataContainer>
-    </S.CalendarPageLayout>
+    <>
+      {children}
+      <S.CalendarPageLayout>
+        <S.StationDataContainer>
+          <FixedStreamStationHeader />
+          {!isMobile && <ThresholdsConfigurator />}
+          {calendarIsVisible ? (
+            <Calendar
+              streamId={streamId}
+              minCalendarDate={fixedStreamData.stream.startTime}
+              maxCalendarDate={streamEndTime}
+            />
+          ) : (
+            <EmptyCalendar />
+          )}
+          {isMobile && <ThresholdsConfigurator />}
+        </S.StationDataContainer>
+      </S.CalendarPageLayout>
+    </>
   );
 };
 

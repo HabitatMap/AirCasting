@@ -1,22 +1,17 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-import * as S from "./Navbar.style";
-
-import { LatLngLiteral, Map } from "../../types/googleMaps";
-import { DEFAULT_MAP_CENTER } from "../../const/coordinates";
 
 import DesktopHeader from "./DesktopHeader";
 import { MobileCalendarHeader, MobileHeader } from "./MobileHeader";
-import { urls } from "../../const/urls";
+import * as S from "./Navbar.style";
 
-const Navbar = () => {
+interface NavbarProps {
+  isMapPage: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
   const [navMenuVisible, setNavMenuVisible] = useState(false);
-  const [location, setLocation] = useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
-  const mapRef = useRef<Map>();
   const { t } = useTranslation();
-
-  const isMapPage = window.location.pathname === urls.reactMap;
 
   const toggleMenuVisibility = () => setNavMenuVisible(!navMenuVisible);
 
@@ -24,8 +19,6 @@ const Navbar = () => {
     <S.Header>
       {isMapPage ? (
         <MobileHeader
-          setLocation={setLocation}
-          mapRef={mapRef as React.RefObject<Map>}
           toggleMenuVisibility={toggleMenuVisibility}
           navMenuVisible={navMenuVisible}
           t={t}
@@ -38,8 +31,6 @@ const Navbar = () => {
         navMenuVisible={navMenuVisible}
         toggleMenuVisibility={toggleMenuVisibility}
         t={t}
-        setLocation={setLocation}
-        mapRef={mapRef as React.RefObject<Map>}
       />
     </S.Header>
   );
