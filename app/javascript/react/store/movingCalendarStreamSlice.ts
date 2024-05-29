@@ -55,6 +55,7 @@ export const movingStreamSlice = createSlice({
       .addCase(fetchNewMovingStream.fulfilled, (state, { payload }) => {
         state.status = StatusEnum.Fulfilled;
         state.data = payload;
+        state.data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       })
       .addCase(fetchNewMovingStream.rejected, (state, { error }) => {
         state.status = StatusEnum.Rejected;
