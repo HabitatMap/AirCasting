@@ -4,18 +4,18 @@ import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { SingleMarker } from "./SingleMarker";
+import { Session } from "./SessionType";
 
-type Point = LatLngLiteral & { key: string };
-type Props = { points: Point[] };
+type Props = { sessions: Session[] };
 
-const Markers = ({ points }: Props) => {
+const Markers = ({ sessions }: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [key: string]: Marker }>({});
   const clusterer = useRef<MarkerClusterer | null>(null);
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-  const ZOOM_FOR_SELECTED_SESSION = 15;
+  const ZOOM_FOR_SELECTED_SESSION = 12;
 
   // Initialize MarkerClusterer
   useEffect(() => {
@@ -56,18 +56,18 @@ const Markers = ({ points }: Props) => {
 
   return (
     <>
-      {points.map((point) => (
+      {sessions.map((session) => (
         <AdvancedMarker
-          position={point}
-          key={point.key}
-          ref={(marker) => setMarkerRef(marker, point.key)}
+          position={session.point}
+          key={session.point.key}
+          ref={(marker) => setMarkerRef(marker, session.point.key)}
         >
           <SingleMarker
             color="red"
-            value={"1242 µg/m³"}
-            isSelected={point.key === selectedMarkerKey}
+            value={`${session.lastMeasurementValue} µg/m³`}
+            isSelected={session.point.key === selectedMarkerKey}
             onClick={() => {
-              centerMapOnMarker(point, point.key);
+              centerMapOnMarker(session.point, session.point.key);
             }}
           />
         </AdvancedMarker>

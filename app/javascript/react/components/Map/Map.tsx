@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import { Map as GoogleMap } from "@vis.gl/react-google-maps";
+import { LatLngLiteral } from "../../types/googleMaps";
 
 import mapStyles from "./mapStyles";
 import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
@@ -10,22 +11,24 @@ import { fetchSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { containerStyle } from "./Map.style";
 import { Markers } from "./Markers/Markers";
-import trees from "./trees";
+import { selectSessionsData } from "../../store/fixedSessionsSelectors";
+import { use } from "i18next";
+import { Session } from "./Markers/SessionType";
 
 const Map = () => {
   const dispatch = useAppDispatch();
 
-  const timeFrom = "1685232000";
-  const timeTo = "1716940799";
+  const timeFrom = "1685318400";
+  const timeTo = "1717027199";
   const tags = "";
   const usernames = "";
-  const west = -127.13378943750001;
-  const east = -64.29199256250001;
+  const west = -132.4072269375;
+  const east = -59.018555062500006;
   const south = 24.507143507735677;
   const north = 47.886881016621686;
   const limit = 100;
   const offset = 0;
-  const sensor_name = "airbeam-pm2.5";
+  const sensor_name = "government-pm2.5";
   const measurement_type = "Particulate Matter";
   const unit_symbol = "µg/m³";
 
@@ -46,12 +49,23 @@ const Map = () => {
   });
 
   useEffect(() => {
-    dispatch(
-      fetchSessions({
-        filters: filters,
-      })
-    );
-  }, []);
+    dispatch(fetchSessions({ filters }));
+  }, [dispatch, filters]);
+
+  const sessionsData = useSelector(selectSessionsData);
+
+  const mappedSessionsData: Session[] = sessionsData.map((session) => {
+    console.log("Session:", session);
+    return {
+      id: session.id,
+      lastMeasurementValue: session.lastMeasurementValue,
+      point: {
+        lat: session.latitude,
+        lng: session.longitude,
+        key: session.key.toString(),
+      },
+    };
+  });
 
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
   const mapId = useSelector((state: RootState) => state.map.mapId);
@@ -61,8 +75,7 @@ const Map = () => {
       <GoogleMap
         mapId={mapId || null}
         mapTypeId={mapTypeId}
-        // defaultCenter={DEFAULT_MAP_CENTER}
-        defaultCenter={{ lat: 43.64, lng: -79.41 }}
+        defaultCenter={DEFAULT_MAP_CENTER}
         defaultZoom={DEFAULT_ZOOM}
         gestureHandling={"greedy"}
         disableDefaultUI={true}
@@ -70,7 +83,7 @@ const Map = () => {
         style={containerStyle}
         styles={mapStyles}
       >
-        <Markers points={trees} />
+        <Markers sessions={mappedSessionsData} />
       </GoogleMap>
     </>
   );

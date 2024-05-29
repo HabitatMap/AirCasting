@@ -8,19 +8,19 @@ import { oldApiClient } from "../api/apiClient";
 interface Session {
   id: number;
   uuid: string;
-  end_time_local: string;
-  start_time_local: string;
-  last_measurement_value: number;
-  is_indoor: boolean;
+  endTimeLocal: string;
+  startTimeLocal: string;
+  lastMeasurementValue: number;
+  isIndoor: boolean;
   latitude: number;
   longitude: number;
   title: string;
   username: string;
   streams: {
     [key: string]: {
-      measurement_short_type: string;
-      sensor_name: string;
-      unit_symbol: string;
+      measurementShortType: string;
+      sensorName: string;
+      unitSymbol: string;
       id: number;
     }
   }
