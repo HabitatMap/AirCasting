@@ -61,6 +61,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
     inputValue,
   });
 
+  const displaySearchResults = isOpen && items.length > 0;
+
   const handleSelect = async (item: AutocompletePrediction) => {
     if (!item) return;
 
@@ -85,6 +87,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
       <S.SearchContainer>
         <S.SearchInput
           placeholder={t("map.searchPlaceholder")}
+          $displaySearchResults={displaySearchResults}
           {...getInputProps()}
         />
         {!isMapPage && (
@@ -96,7 +99,10 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
             <img src={locationSearchIcon} alt={t("map.searchIcon")} />
           </S.LocationSearchButton>
         )}
-        <S.SuggestionsList {...getMenuProps()}>
+        <S.SuggestionsList
+          $displaySearchResults={displaySearchResults}
+          {...getMenuProps()}
+        >
           {isOpen &&
             items.map((item, index) => (
               <S.Suggestion
