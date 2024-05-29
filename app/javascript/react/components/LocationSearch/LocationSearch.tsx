@@ -83,39 +83,37 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
   }, [data, status]);
 
   return (
-    <>
-      <S.SearchContainer>
-        <S.SearchInput
-          placeholder={t("map.searchPlaceholder")}
-          $displaySearchResults={displaySearchResults}
-          {...getInputProps()}
-        />
-        {!isMapPage && (
-          <S.LocationSearchButton
-            aria-label={t("map.toggleMenu")}
-            type="button"
-            {...getToggleButtonProps()}
-          >
-            <img src={locationSearchIcon} alt={t("map.searchIcon")} />
-          </S.LocationSearchButton>
-        )}
-        <S.SuggestionsList
-          $displaySearchResults={displaySearchResults}
-          {...getMenuProps()}
+    <S.SearchContainer>
+      <S.SearchInput
+        placeholder={t("map.searchPlaceholder")}
+        $displaySearchResults={displaySearchResults}
+        {...getInputProps()}
+      />
+      {!isMapPage && (
+        <S.LocationSearchButton
+          aria-label={t("map.toggleMenu")}
+          type="button"
+          {...getToggleButtonProps()}
         >
-          {isOpen &&
-            items.map((item, index) => (
-              <S.Suggestion
-                key={item.place_id}
-                $isHighlighted={highlightedIndex === index}
-                {...getItemProps({ item, index })}
-              >
-                {item.description}
-              </S.Suggestion>
-            ))}
-        </S.SuggestionsList>
-      </S.SearchContainer>
-    </>
+          <img src={locationSearchIcon} alt={t("map.searchIcon")} />
+        </S.LocationSearchButton>
+      )}
+      <S.SuggestionsList
+        $displaySearchResults={displaySearchResults}
+        {...getMenuProps()}
+      >
+        {isOpen &&
+          items.map((item, index) => (
+            <S.Suggestion
+              key={item.place_id}
+              $isHighlighted={highlightedIndex === index}
+              {...getItemProps({ item, index })}
+            >
+              {item.description}
+            </S.Suggestion>
+          ))}
+      </S.SuggestionsList>
+    </S.SearchContainer>
   );
 };
 
