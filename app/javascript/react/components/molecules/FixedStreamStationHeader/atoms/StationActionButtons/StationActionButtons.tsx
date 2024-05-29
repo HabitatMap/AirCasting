@@ -74,13 +74,7 @@ const StationActionButtons = ({ sessionId }: Props) => {
         </Button>
       </S.DesktopButtons>
 
-      <ExportDataModal
-        sessionId={sessionId}
-        isOpen={isExportModalOpen}
-        onClose={handleCloseExportModal}
-        position={modalPosition}
-        onSubmit={(formData) => {}}
-      />
+      <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
     </>
   );
 };

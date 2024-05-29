@@ -10,10 +10,38 @@ import {
 } from "../../assets/styles/colors";
 import { ActionButton } from "../ActionButton/ActionButton.style";
 import { Link } from "react-router-dom";
+import Popup from "reactjs-popup";
 
 interface DotProps {
   $color?: string;
 }
+
+const SessionDetailsModal = styled(Popup)`
+  width: 100%;
+  height: 100%;
+
+  &-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  &-content {
+    width: 100%;
+    background-color: ${white};
+    padding: 1.25rem;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    max-height: 80vh;
+    overflow-y: auto;
+    margin: 0;
+  }
+`;
 
 const InfoContainer = styled.div`
   display: flex;
@@ -65,7 +93,7 @@ const SmallDot = styled.div<DotProps>`
 const ButtonsContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 const MinMaxValueContainer = styled.div`
@@ -109,7 +137,38 @@ const BlueButton = styled(Link)`
   text-decoration: none;
 `;
 
+const CancelButtonX = styled.button`
+  border: none;
+  background-color: transparent;
+`;
+
+const ShareLinkPopup = styled(Popup)`
+  width: 100%;
+  height: auto;
+  z-index: 1200;
+  display: flex;
+
+  &-overlay {
+    width: 100%;
+    height: auto;
+  }
+
+  &-content {
+    background-color: ${white};
+    opacity: 1;
+    border-radius: 8px;
+    position: relative;
+    padding: 1rem;
+    height: 300px
+    width: 400px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1200;
+    display: flex;
+  }
+`;
+
 export {
+  SessionDetailsModal,
   InfoContainer,
   SessionName,
   SensorName,
@@ -123,4 +182,6 @@ export {
   TimeRange,
   Button,
   BlueButton,
+  CancelButtonX,
+  ShareLinkPopup,
 };

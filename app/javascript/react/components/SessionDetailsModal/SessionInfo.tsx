@@ -12,6 +12,8 @@ import { useAppDispatch } from "../../store/hooks";
 import moment from "moment";
 import { getColorForValue } from "../../utils/thresholdColors";
 import { selectThreshold } from "../../store/thresholdSlice";
+import Popup from "reactjs-popup";
+import { ExportDataModal } from "../ExportDataModal";
 
 interface SessionInfoProps {
   streamId: number;
@@ -82,12 +84,21 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
         >
           <img src={downloadImage} />
         </S.Button>
-        <S.Button
-          onClick={copyCurrentURL}
-          aria-label={t("calendarHeader.altShareLink")}
+        <S.ShareLinkPopup
+          trigger={
+            <S.Button
+              onClick={copyCurrentURL}
+              aria-label={t("calendarHeader.altShareLink")}
+            >
+              <img src={shareLink} alt={t("sessionDetailsModal.copyLink")} />
+            </S.Button>
+          }
+          position="top center"
+          nested
+          closeOnDocumentClick
         >
-          <img src={shareLink} alt={t("sessionDetailsModal.copyLink")} />
-        </S.Button>
+          <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
+        </S.ShareLinkPopup>
       </S.ButtonsContainer>
     </S.InfoContainer>
   );

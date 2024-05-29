@@ -72,31 +72,6 @@ const Map = () => {
   });
 
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
-  const [isSessionDetailsModalOpen, setSessionDetailsModalOpen] =
-    useState<boolean>(false);
-  const [modalPosition, setModalPosition] = useState<{
-    bottom: number;
-    left: number;
-  }>({ bottom: 0, left: 0 });
-
-  const handleOpenDesktopSessionDetailsModal = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    setModalPosition({
-      bottom: window.innerHeight - rect.bottom + rect.height,
-      left: rect.left,
-    });
-    setSessionDetailsModalOpen(true);
-  };
-
-  const handleOpenSessionDetailstModal = () => {
-    setSessionDetailsModalOpen(true);
-  };
-
-  const handleCloseSessionDetailsModal = () => {
-    setSessionDetailsModalOpen(false);
-  };
 
   const onIdle = useCallback((event: MapEvent) => {
     const map = event.map;
@@ -128,16 +103,7 @@ const Map = () => {
       >
         <Markers sessions={mappedSessionsData} />
       </GoogleMap>
-      <SessionDetailsModal
-        streamId={1}
-        isOpen={true}
-        onClose={handleCloseSessionDetailsModal}
-        position={{
-          bottom: modalPosition.bottom,
-          left: modalPosition.left,
-        }}
-        style={{ minWidth: 100, minHeight: 20 }}
-      />
+      <SessionDetailsModal streamId={1} />
     </>
   );
 };

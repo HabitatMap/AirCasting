@@ -8,6 +8,9 @@ interface ConfirmationMessageProps {
 const MessageContainer = styled.div`
   margin-top: 1rem;
   text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  width: 17rem;
 `;
 
 const ConfirmationMessage: React.FC<ConfirmationMessageProps> = ({

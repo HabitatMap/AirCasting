@@ -83,6 +83,28 @@ const TextInput = styled.input`
   margin-bottom: 0.625rem;
 `;
 
+const BlueButton = styled(Button)`
+  background-color: ${blue};
+  color: ${white};
+  font-weight: 600;
+  border: none;
+  width: fit-content;
+  font-size: 1.6rem;
+  height: 0.8rem;
+  outline: none;
+
+  @media ${media.smallDesktop} {
+    font-size: 1.1rem;
+  }
+`;
+
+const FormWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+`;
+
 export {
   ModalContainer,
   ModalContent,
@@ -91,4 +113,6 @@ export {
   ActionButton,
   CancelButtonX,
   TextInput,
+  BlueButton,
+  FormWrapper,
 };

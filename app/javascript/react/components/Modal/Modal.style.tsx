@@ -32,11 +32,7 @@ const ModalContent = styled.div<{
   $minWidth: number;
   $borderRadius?: number;
 }>`
-  background-color: ${white};
-  opacity: 1;
-  border-radius: ${({ $borderRadius }) => `${$borderRadius}px` ?? "8px"};
-  position: relative;
-  padding: 1.25rem;
+0
   min-height: ${({ $minHeight }) => `${$minHeight}vh`};
   min-width:  ${({ $minWidth }) => `${$minWidth}vw`};
 }`;

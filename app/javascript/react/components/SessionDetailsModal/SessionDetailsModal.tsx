@@ -4,32 +4,28 @@ import { useSelector } from "react-redux";
 
 import { useAppDispatch } from "../../store/hooks";
 
-import { Modal } from "../Modal";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 
 import SessionInfo from "./SessionInfo";
 import { ExportDataModal } from "../ExportDataModal";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import * as S from "./SessionDetailsModal.style";
+import circleCloseIcon from "../../assets/icons/circleCloseIcon.svg";
+import type { PopupProps } from "reactjs-popup/dist/types";
 
 interface SessionDetailsModalProps {
   streamId: number;
-  isOpen: boolean;
-  position: {
-    bottom: number;
-    left: number;
-    top?: number;
-    right?: number;
-  };
-  style?: { minWidth: number; minHeight: number; borderRadius?: number };
-  onClose: () => void;
 }
 
-const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
-  isOpen,
-  position,
-  streamId,
-  onClose,
-}) => {
+type CustomPopupProps = {
+  children:
+    | React.ReactNode
+    | ((close: () => void, isOpen: boolean) => React.ReactNode);
+};
+
+const SessionDetailsModal: React.FC<
+  SessionDetailsModalProps & Omit<PopupProps, "children">
+> = ({ streamId }) => {
   const focusInputRef = useRef<HTMLInputElement | null>(null);
   const [isExportModalOpen, setExportModalOpen] = useState<boolean>(false);
   const [modalPosition, setModalPosition] = useState<{
@@ -37,63 +33,46 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
     left: number;
   }>({ bottom: 0, left: 0 });
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
   const { sessionId } = useSelector(selectFixedStreamShortInfo);
-
-  const handleOpenDesktopExportModal = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    setModalPosition({
-      bottom: window.innerHeight - rect.bottom + rect.height + 1,
-      left: rect.left,
-    });
-    setExportModalOpen(true);
-  };
-
-  const handleOpenMobileExportModal = () => {
-    setExportModalOpen(true);
-  };
-
-  const handleCloseExportModal = () => {
-    setExportModalOpen(false);
-  };
 
   useEffect(() => {
     streamId && dispatch(fetchFixedStreamById(streamId));
   }, []);
 
-  useEffect(() => {
-    if (isOpen && focusInputRef.current) {
-      setTimeout(() => {
-        focusInputRef.current!.focus();
-      }, 0);
-    }
-    if (!isOpen) {
-    }
-  }, [isOpen]);
+  // Workaround for the typescript error
+  const SessionModal: React.FC<
+    CustomPopupProps & Omit<PopupProps, "children">
+  > = (props) => {
+    return <S.SessionDetailsModal {...(props as PopupProps)} />;
+  };
 
   return (
-    <>
-      <Modal
-        hasActionButton={false}
-        isOpen={isOpen}
-        onClose={onClose}
-        position={position}
-        style={{ minWidth: 100, minHeight: 30, borderRadius: 0 }}
-      >
-        <SessionInfo
-          streamId={streamId}
-          handleOpenDesktopExportModal={handleOpenDesktopExportModal}
-        />
-        <ExportDataModal
-          sessionId={sessionId}
-          isOpen={isExportModalOpen}
-          onClose={handleCloseExportModal}
-          position={modalPosition}
-          onSubmit={(formData) => {}}
-        />
-      </Modal>
-    </>
+    <SessionModal
+      trigger={
+        <button
+          style={{ position: "absolute", top: "0", left: "0", zIndex: 1000 }}
+        >
+          Open Modal
+        </button>
+      }
+      modal
+      nested
+      overlayStyle={{ margin: 0 }}
+      contentStyle={{ margin: 0 }}
+    >
+      {(close) => (
+        <>
+          <S.CancelButtonX onClick={close}>
+            <img src={circleCloseIcon} alt={t("closeWhite.altCloseButton")} />
+          </S.CancelButtonX>
+          <SessionInfo
+            streamId={streamId}
+            handleOpenDesktopExportModal={() => setExportModalOpen(true)}
+          />
+        </>
+      )}
+    </SessionModal>
   );
 };
 

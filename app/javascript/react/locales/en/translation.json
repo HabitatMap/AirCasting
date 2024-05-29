@@ -74,7 +74,7 @@
   "exportDataModal": {
     "title": "Export data to e-mail",
     "exportButton": "EMAIL DATA",
-    "emailPlaceholder": "loremipsum@ac.com",
+    "emailPlaceholder": "Enter email address",
     "confirmationMessage": "Exported sessions will be emailed within minutes. The email may end up in your spam folder.",
     "invalidEmailMessage": "Please enter a valid email address."
   },
