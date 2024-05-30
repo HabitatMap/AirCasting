@@ -7,7 +7,7 @@ import { ModalInput, RedErrorMessage } from "./ModalInput";
 import { ConfirmationMessage } from "./ConfirmationMessage";
 import downloadWhite from "../../assets/icons/downloadWhite.svg";
 import { screenSizes } from "../../utils/media";
-import { BlueButton, FormWrapper, ModalContent } from "./Modals.style";
+import { BlueButton, FormWrapper } from "./Modals.style";
 
 export interface ExportModalData {
   email: string;
@@ -74,7 +74,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
   }, [confirmationMessage]);
 
   return (
-    <ModalContent>
+    <>
       {confirmationMessage ? (
         <ConfirmationMessage message={confirmationMessage} />
       ) : (
@@ -99,7 +99,7 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
           {errorMessage && <RedErrorMessage>{errorMessage}</RedErrorMessage>}
         </form>
       )}
-    </ModalContent>
+    </>
   );
 };
 

@@ -18,7 +18,6 @@ const DesktopButtons = styled.div`
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    position: relative;
   }
 `;
 

@@ -34,7 +34,7 @@ export const exportSession = createAsyncThunk<
     const response: AxiosResponse<SessionData, Error> = await exportSessionApiClient.get(
       API_ENDPOINTS.exportSessionData(sessionData.sessionId, sessionData.email)
     );
-    console.log(response.data);
+
     return response.data;
   } catch (error: Error | any) {
     const message = error.response?.data?.message || error.message;
@@ -54,7 +54,7 @@ export const exportSessionSlice = createSlice({
     builder.addCase(exportSession.rejected, (state, action) => {
       state.status = StatusEnum.Rejected;
       const errorMessage = action.payload?.message;
-      state.error = { message: errorMessage || 'Unknown error' };      
+      state.error = { message: errorMessage || 'Unknown error' };
       state.data = initialState.data;
     });
   },

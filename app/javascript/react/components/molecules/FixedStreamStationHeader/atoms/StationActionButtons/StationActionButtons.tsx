@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import copyLink from "../../../../../assets/icons/copyLink.svg";
 import shareLink from "../../../../../assets/icons/shareLink.svg";
 import downloadImage from "../../../../../assets/icons/download.svg";
-import { Button } from "../../../../Button/Button";
-import { ActionButton } from "../../../../ActionButton/ActionButton";
+import { Button } from "../../../../Button/Button.style";
+import { ActionButton } from "../../../../ActionButton/ActionButton.style";
 import * as S from "./StationActionButtons.style";
 import { ExportDataModal } from "../../../../Modals";
 import { copyCurrentURL } from "../../../../../utils/copyCurrentUrl";
-import Popup from "reactjs-popup";
+import { SmallPopup } from "../../../../SessionDetailsModal/SessionDetailsModal.style";
 
 interface Props {
   sessionId: string;
@@ -21,12 +21,21 @@ const StationActionButtons = ({ sessionId }: Props) => {
   return (
     <>
       <S.MobileButtons>
-        <ActionButton
-          onClick={() => {}}
-          aria-labelledby={t("calendarHeader.altExportSession")}
+        <SmallPopup
+          trigger={
+            <ActionButton
+              onClick={() => {}}
+              aria-labelledby={t("calendarHeader.altExportSession")}
+            >
+              <img src={downloadImage} />
+            </ActionButton>
+          }
+          closeOnDocumentClick
+          nested
+          position="top center"
         >
-          <img src={downloadImage} />
-        </ActionButton>
+          <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
+        </SmallPopup>
         <ActionButton
           onClick={copyCurrentURL}
           aria-label={t("calendarHeader.altShareLink")}
@@ -42,17 +51,18 @@ const StationActionButtons = ({ sessionId }: Props) => {
           {t("calendarHeader.copyLink")}{" "}
           <img src={copyLink} alt={t("Copy link")} />
         </Button>
-        <Popup
+        <SmallPopup
           trigger={
             <Button aria-labelledby={t("calendarHeader.altExportSession")}>
               {t("calendarHeader.exportSession")} <img src={downloadImage} />
             </Button>
           }
           closeOnDocumentClick
+          nested
           position="top center"
         >
           <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
-        </Popup>
+        </SmallPopup>
       </S.DesktopButtons>
     </>
   );

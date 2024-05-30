@@ -18,7 +18,6 @@ const getColorForValue = (
 
 
   for (let range of COLORS_FOR_RANGES(thresholdValues)) {
-    console.log(value);
     if (value <= range.max) {
       return range.color;
     }

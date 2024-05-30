@@ -18,7 +18,7 @@ import { ExportDataModal } from "../Modals";
 import { CopyLinkModal } from "../Modals/CopyLinkModal";
 
 interface SessionInfoProps {
-  streamId: number;
+  streamId: number | null;
 }
 
 const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
@@ -67,7 +67,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
         </div>
       </S.MinMaxValueContainer>
       <S.TimeRange>
-        {formattedTime(startTime)} - {formattedTime(endTime)}
+        {formattedTime(startTime ?? "")} - {formattedTime(endTime ?? "")}
       </S.TimeRange>
       <S.ButtonsContainer>
         <S.BlueButton to={`/fixed_stream?streamId=${streamId}`}>
@@ -76,10 +76,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
         </S.BlueButton>
         <S.SmallPopup
           trigger={
-            <S.Button
-              onClick={copyCurrentURL}
-              aria-labelledby={t("calendarHeader.altExportSession")}
-            >
+            <S.Button aria-labelledby={t("calendarHeader.altExportSession")}>
               <img
                 src={downloadImage}
                 alt={t("calendarHeader.altExportSession")}

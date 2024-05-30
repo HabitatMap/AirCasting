@@ -14,7 +14,8 @@ import type { PopupProps } from "reactjs-popup/dist/types";
 import { ThresholdsConfigurator } from "../ThresholdConfigurator";
 
 interface SessionDetailsModalProps {
-  streamId: number;
+  streamId: number | null;
+  onClose: () => void;
 }
 
 type CustomPopupProps = {
@@ -25,13 +26,15 @@ type CustomPopupProps = {
 
 const SessionDetailsModal: React.FC<
   SessionDetailsModalProps & Omit<PopupProps, "children">
-> = ({ streamId }) => {
+> = ({ streamId, onClose }) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
   useEffect(() => {
-    streamId && dispatch(fetchFixedStreamById(streamId));
-  }, []);
+    if (streamId) {
+      dispatch(fetchFixedStreamById(streamId));
+    }
+  }, [streamId, dispatch]);
 
   // Workaround for the typescript error
   const SessionModal: React.FC<
@@ -42,17 +45,12 @@ const SessionDetailsModal: React.FC<
 
   return (
     <SessionModal
-      trigger={
-        <button
-          style={{ position: "absolute", top: "0", left: "0", zIndex: 1000 }}
-        >
-          Open Modal
-        </button>
-      }
+      open={true}
       modal
       nested
       overlayStyle={{ margin: 0 }}
       contentStyle={{ margin: 0 }}
+      onClose={onClose}
     >
       {(close) => (
         <>

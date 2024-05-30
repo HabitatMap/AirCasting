@@ -36,6 +36,9 @@ const Map = () => {
     east: DEFAULT_MAP_BOUNDS.east,
     west: DEFAULT_MAP_BOUNDS.west,
   });
+  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
 
   const filters = JSON.stringify({
     time_from: timeFrom,
@@ -71,8 +74,6 @@ const Map = () => {
     };
   });
 
-  const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
-
   const onIdle = useCallback((event: MapEvent) => {
     const map = event.map;
     const bounds = map?.getBounds();
@@ -86,6 +87,19 @@ const Map = () => {
     const west = bounds.getSouthWest().lng();
     setMapBounds({ north, south, east, west });
   }, []);
+
+  const handleMarkerClick = (id: number) => {
+    setSelectedStreamId(id);
+    setModalOpen(false);
+    setTimeout(() => {
+      setModalOpen(true);
+    }, 0);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedStreamId(null);
+    setModalOpen(false);
+  };
 
   return (
     <>
@@ -101,9 +115,17 @@ const Map = () => {
         styles={mapStyles}
         onIdle={onIdle}
       >
-        <Markers sessions={mappedSessionsData} />
+        <Markers
+          sessions={mappedSessionsData}
+          onMarkerClick={handleMarkerClick}
+        />
       </GoogleMap>
-      <SessionDetailsModal streamId={1} />
+      {modalOpen && (
+        <SessionDetailsModal
+          streamId={selectedStreamId}
+          onClose={handleCloseModal}
+        />
+      )}
     </>
   );
 };

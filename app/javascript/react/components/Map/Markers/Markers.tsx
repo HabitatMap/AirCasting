@@ -6,9 +6,12 @@ import { LatLngLiteral } from "../../../types/googleMaps";
 import { SingleMarker } from "./SingleMarker/SingleMarker";
 import { Session } from "./SessionType";
 
-type Props = { sessions: Session[] };
+type Props = {
+  sessions: Session[];
+  onMarkerClick: (sessionId: number) => void;
+};
 
-const Markers = ({ sessions }: Props) => {
+const Markers = ({ sessions, onMarkerClick }: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [key: string]: Marker | null }>({});
   const clusterer = useRef<MarkerClusterer | null>(null);
@@ -71,6 +74,7 @@ const Markers = ({ sessions }: Props) => {
             isSelected={session.point.key === selectedMarkerKey}
             onClick={() => {
               centerMapOnMarker(session.point, session.point.key);
+              onMarkerClick(session.id);
             }}
           />
         </AdvancedMarker>

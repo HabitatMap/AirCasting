@@ -146,12 +146,8 @@ const CancelButtonX = styled.button`
 const SmallPopup = styled(Popup)`
   width: 100%;
   height: auto;
-  z-index: 1200;
-  display: flex;
 
   &-overlay {
-    width: 100%;
-    height: auto;
   }
 
   &-content {

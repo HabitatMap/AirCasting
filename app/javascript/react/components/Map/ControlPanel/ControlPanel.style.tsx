@@ -82,8 +82,8 @@ const Slider = styled.span`
   }
 `;
 
-const Label = styled.span<{ isActive?: boolean }>`
-  color: ${(props) => (props.isActive ? blue : gray400)};
+const Label = styled.span<{ $isActive?: boolean }>`
+  color: ${(props) => (props.$isActive ? blue : gray400)};
   margin: 0 1rem;
   display: flex;
   align-items: center;

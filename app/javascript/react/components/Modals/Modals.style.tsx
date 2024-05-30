@@ -11,16 +11,6 @@ interface ModalProps {
   onKeyDown: React.KeyboardEventHandler<HTMLDialogElement>;
 }
 
-const ModalContainer = styled.div<ModalProps>`
-  display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  bottom: ${({ bottom }) => `${bottom}px`};
-  left: ${({ left }) => `${left}px`};
-  z-index: 999;
-`;
-
 const ModalContent = styled.div`
   background-color: ${white};
   opacity: 1;
@@ -81,6 +71,7 @@ const TextInput = styled.input`
   border-radius: 4px;
   margin-bottom: 0.625rem;
   outline: none;
+  font-size: 1.6rem;
 `;
 
 const BlueButton = styled(Button)`
@@ -89,12 +80,8 @@ const BlueButton = styled(Button)`
   font-weight: 600;
   border: none;
   width: fit-content;
-  font-size: 1.6rem;
+  font-size: 1.1rem;
   height: 0.8rem;
-
-  @media ${media.smallDesktop} {
-    font-size: 1.1rem;
-  }
 `;
 
 const FormWrapper = styled.div`
@@ -105,7 +92,6 @@ const FormWrapper = styled.div`
 `;
 
 export {
-  ModalContainer,
   ModalContent,
   ButtonsWrapper,
   FlexWrapper,
