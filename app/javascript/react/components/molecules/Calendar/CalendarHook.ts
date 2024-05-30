@@ -11,6 +11,7 @@ import {
   fetchNewMovingStream,
 } from "../../../store/movingCalendarStreamSlice";
 import { CalendarMonthlyData } from "../../../types/movingStream";
+import { DateFormat } from "../../../types/dateFormat";
 
 interface MovableCalendarData {
   currentStartDate: string;
@@ -76,7 +77,7 @@ const useCalendarHook = ({
   const handleForwardMovement = (dateMoment: moment.Moment) => {
     setIsLeftButtonDisabled(false);
     let newEndMoment = dateMoment.add(1, "months").endOf("month");
-    const maxEndDateMoment = moment(maxCalendarDate, "YYYY-MM-DD");
+    const maxEndDateMoment = moment(maxCalendarDate, DateFormat.default);
     if (newEndMoment.isAfter(maxEndDateMoment)) {
       newEndMoment = maxEndDateMoment;
       setIsRightButtonDisabled(true);
@@ -87,14 +88,14 @@ const useCalendarHook = ({
   const getFormattedDateRange = () => {
     const lastElementIdx = movingCalendarData.data.length - 1;
     const maxEndDate = movingCalendarData.data[lastElementIdx].date;
-    const processedMaxEndDate = moment(maxEndDate, "YYYY-MM-DD").format(
-      "DD/MM/YYYY"
+    const processedMaxEndDate = moment(maxEndDate, DateFormat.default).format(
+      DateFormat.us
     );
 
     const firstElementIdx = 0;
     const firstDataPoint = movingCalendarData.data[firstElementIdx].date;
-    const processedFirstDataPoint = moment(firstDataPoint, "YYYY-MM-DD").format(
-      "DD/MM/YYYY"
+    const processedFirstDataPoint = moment(firstDataPoint, DateFormat.default).format(
+      DateFormat.us
     );
 
     return {
@@ -112,12 +113,12 @@ const useCalendarHook = ({
 
     const startMoment = moment(
       formattedDateRange.lastDateNoFormat,
-      "YYYY-MM-DD"
+      DateFormat.default
     );
     const newStartDate = startMoment
       .date(1)
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
-      .format("DD/MM/YYYY");
+      .format(DateFormat.us);
 
     console.log("On appear, first and last point of viewed calendar identified: ", processedFirstDataPoint, processedMaxEndDate)
     setDateReference((prevState) => ({
@@ -132,7 +133,7 @@ const useCalendarHook = ({
   useEffect(() => {
     if (!dateReference.currentEndDate) return;
 
-    const dateMoment = moment(dateReference.currentEndDate, "DD/MM/YYYY");
+    const dateMoment = moment(dateReference.currentEndDate, DateFormat.us);
     let newEndMoment: Moment;
 
     switch (dateReference.direction) {
@@ -147,14 +148,14 @@ const useCalendarHook = ({
         return;
     }
 
-    const newEndDate = newEndMoment.format("DD/MM/YYYY");
+    const newEndDate = newEndMoment.format(DateFormat.us);
     const newStartDate = newEndMoment
       .date(1)
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
-      .format("DD/MM/YYYY");
+      .format(DateFormat.us);
 
-    const newStartDateMoment = moment(newStartDate, "DD/MM/YYYY").date(1);
-    const minCalendarMoment = moment(minCalendarDate, "YYYY-MM-DD").date(1);
+    const newStartDateMoment = moment(newStartDate, DateFormat.us).date(1);
+    const minCalendarMoment = moment(minCalendarDate, DateFormat.default).date(1);
 
     console.log("Identify new min moment...", minCalendarMoment)
     console.log("Proposed new start date", newStartDateMoment)
@@ -170,11 +171,11 @@ const useCalendarHook = ({
       currentEndDate: newEndDate,
     }));
 
-    const formattedStartDate = moment(newStartDate, "DD/MM/YYYY").format(
-      "YYYY-MM-DD"
+    const formattedStartDate = moment(newStartDate, DateFormat.us).format(
+      DateFormat.default
     );
-    const formattedEndDate = moment(newEndDate, "DD/MM/YYYY").format(
-      "YYYY-MM-DD"
+    const formattedEndDate = moment(newEndDate, DateFormat.us).format(
+      DateFormat.default
     );
 
     dispatch(

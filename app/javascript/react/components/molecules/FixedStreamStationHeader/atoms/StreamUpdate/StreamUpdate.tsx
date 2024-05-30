@@ -9,6 +9,7 @@ import {
   Subtitle,
 } from "../../FixedStreamStationHeader.style";
 import * as S from "./StreamUpdate.style";
+import { DateFormat } from "../../../../../types/dateFormat";
 
 const StreamUpdate: React.FC<StreamUpdate> = ({
   lastUpdate,
@@ -19,17 +20,17 @@ const StreamUpdate: React.FC<StreamUpdate> = ({
   const { t } = useTranslation();
 
   const formatStartTime = () => {
-    const formatted = moment(startTime, "YYYY-MM-DD");
+    const formatted = moment(startTime, DateFormat.default);
     if (formatted.isValid()) {
-      return formatted.format("DD/MM/YYYY");
+      return formatted.format(DateFormat.us);
     }
     return "";
   };
 
   const formatEndTime = () => {
-    const formatted = moment(endTime, "YYYY-MM-DD");
+    const formatted = moment(endTime, DateFormat.default);
     if (formatted.isValid()) {
-      return formatted.format("DD/MM/YYYY");
+      return formatted.format(DateFormat.us);
     }
     return "";
   };
