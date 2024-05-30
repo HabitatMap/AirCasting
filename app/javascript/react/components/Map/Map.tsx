@@ -15,6 +15,7 @@ import { Markers } from "./Markers/Markers";
 import { selectSessionsData } from "../../store/fixedSessionsSelectors";
 import { Session } from "./Markers/SessionType";
 import { useAppDispatch } from "../../store/hooks";
+import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 
 const Map = () => {
   const dispatch = useAppDispatch();

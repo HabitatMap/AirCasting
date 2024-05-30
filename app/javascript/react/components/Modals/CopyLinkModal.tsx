@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-import { ModalInput } from "./ModalInput";
-import { ConfirmationMessage } from "./ConfirmationMessage";
+import { ModalInput } from "./atoms/ModalInput";
+import { ConfirmationMessage } from "./atoms/ConfirmationMessage";
 
 import { BlueButton, FormWrapper } from "./Modals.style";
 

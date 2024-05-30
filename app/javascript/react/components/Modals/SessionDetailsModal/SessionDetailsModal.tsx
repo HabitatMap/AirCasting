@@ -1,17 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
+import type { PopupProps } from "reactjs-popup/dist/types";
 
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch } from "../../../store/hooks";
 
-import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
+import { fetchFixedStreamById } from "../../../store/fixedStreamSlice";
 
 import SessionInfo from "./SessionInfo";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import * as S from "./SessionDetailsModal.style";
-import circleCloseIcon from "../../assets/icons/circleCloseIcon.svg";
-import type { PopupProps } from "reactjs-popup/dist/types";
-import { ThresholdsConfigurator } from "../ThresholdConfigurator";
+import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
+
+import { ThresholdsConfigurator } from "../../ThresholdConfigurator";
 
 interface SessionDetailsModalProps {
   streamId: number | null;

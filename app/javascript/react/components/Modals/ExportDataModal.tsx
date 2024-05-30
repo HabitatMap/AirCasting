@@ -3,10 +3,9 @@ import { useTranslation } from "react-i18next";
 
 import { useAppDispatch } from "../../store/hooks";
 import { exportSession } from "../../store/exportSessionSlice";
-import { ModalInput, RedErrorMessage } from "./ModalInput";
-import { ConfirmationMessage } from "./ConfirmationMessage";
+import { ModalInput, RedErrorMessage } from "./atoms/ModalInput";
+import { ConfirmationMessage } from "./atoms/ConfirmationMessage";
 import downloadWhite from "../../assets/icons/downloadWhite.svg";
-import { screenSizes } from "../../utils/media";
 import { BlueButton, FormWrapper } from "./Modals.style";
 
 export interface ExportModalData {

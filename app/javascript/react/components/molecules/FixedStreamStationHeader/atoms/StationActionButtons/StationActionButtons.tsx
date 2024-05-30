@@ -9,7 +9,7 @@ import { ActionButton } from "../../../../ActionButton/ActionButton.style";
 import * as S from "./StationActionButtons.style";
 import { ExportDataModal } from "../../../../Modals";
 import { copyCurrentURL } from "../../../../../utils/copyCurrentUrl";
-import { SmallPopup } from "../../../../SessionDetailsModal/SessionDetailsModal.style";
+import { SmallPopup } from "../../../../Modals/SessionDetailsModal/SessionDetailsModal.style";
 
 interface Props {
   sessionId: string;

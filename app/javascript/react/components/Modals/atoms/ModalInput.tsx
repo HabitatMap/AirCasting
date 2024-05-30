@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 
-import { TextInput } from "./Modals.style";
+import { TextInput } from "../Modals.style";
 
 interface EmailInputProps {
   focusInputRef: React.RefObject<HTMLInputElement>;

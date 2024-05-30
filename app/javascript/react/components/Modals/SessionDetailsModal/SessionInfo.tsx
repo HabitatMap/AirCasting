@@ -5,17 +5,17 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import moment from "moment";
 
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { selectThreshold } from "../../store/thresholdSlice";
+import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
+import { selectThreshold } from "../../../store/thresholdSlice";
 
-import chartIcon from "../../assets/icons/chartIcon.svg";
-import downloadImage from "../../assets/icons/download.svg";
-import shareLink from "../../assets/icons/shareLink.svg";
-import { copyCurrentURL } from "../../utils/copyCurrentUrl";
-import { getColorForValue } from "../../utils/thresholdColors";
+import chartIcon from "../../../assets/icons/chartIcon.svg";
+import downloadImage from "../../../assets/icons/download.svg";
+import shareLink from "../../../assets/icons/shareLink.svg";
+import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
+import { getColorForValue } from "../../../utils/thresholdColors";
 
-import { ExportDataModal } from "../Modals";
-import { CopyLinkModal } from "../Modals/CopyLinkModal";
+import { ExportDataModal } from "..";
+import { CopyLinkModal } from "../CopyLinkModal";
 
 interface SessionInfoProps {
   streamId: number | null;

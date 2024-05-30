@@ -2,7 +2,6 @@ import styled from "styled-components";
 import { white, blue, gray100 } from "../../assets/styles/colors";
 import { Button } from "../Button/Button.style";
 import { media } from "../../utils/media";
-import Popup from "reactjs-popup";
 
 interface ModalProps {
   isOpen: boolean;

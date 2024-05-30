@@ -1,14 +1,13 @@
 import styled from "styled-components";
-import { media } from "../../utils/media";
-import { H2 } from "../Typography";
+import { H2 } from "../../Typography";
 import {
   blue,
   gray100,
   gray200,
   gray300,
   white,
-} from "../../assets/styles/colors";
-import { ActionButton } from "../ActionButton/ActionButton.style";
+} from "../../../assets/styles/colors";
+import { ActionButton } from "../../ActionButton/ActionButton.style";
 import { Link } from "react-router-dom";
 import Popup from "reactjs-popup";
 
