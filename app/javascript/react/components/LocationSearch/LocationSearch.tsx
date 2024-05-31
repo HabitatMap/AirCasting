@@ -5,7 +5,6 @@ import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
-
 import { useMap } from "@vis.gl/react-google-maps";
 
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
@@ -79,34 +78,36 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
   };
 
   useEffect(() => {
-    status === OK_STATUS && data.length && setItems(data);
+    if (status === OK_STATUS && data.length) {
+      setItems(data);
+    }
   }, [data, status]);
 
-  const [bounds, setBounds] = useState(null);
+  const [bounds, setBounds] = useState<google.maps.LatLngBounds | null>(null);
 
-  const getMapBounds = useCallback(() => {
-    if (map) {
-      const currentBounds = map.getBounds();
-      if (currentBounds) {
-        const ne = currentBounds.getNorthEast();
-        const sw = currentBounds.getSouthWest();
-        console.log("NorthEast:", ne.toString());
-        console.log("SouthWest:", sw.toString());
-        setBounds(currentBounds);
-      }
-    }
-  }, [map]);
+  // const getMapBounds = useCallback(() => {
+  //   if (map) {
+  //     const currentBounds = map.getBounds();
+  //     if (currentBounds) {
+  //       const ne = currentBounds.getNorthEast();
+  //       const sw = currentBounds.getSouthWest();
+  //       console.log("NorthEast:", ne.toString());
+  //       console.log("SouthWest:", sw.toString());
+  //       setBounds(currentBounds);
+  //     }
+  //   }
+  // }, [map]);
 
-  useEffect(() => {
-    if (map) {
-      const listener = map.addListener("bounds_changed", getMapBounds);
-      getMapBounds();
+  // useEffect(() => {
+  //   if (map) {
+  //     const listener = map.addListener("bounds_changed", getMapBounds);
+  //     getMapBounds();
 
-      return () => {
-        google.maps.event.removeListener(listener);
-      };
-    }
-  }, [map, getMapBounds]);
+  //     return () => {
+  //       google.maps.event.removeListener(listener);
+  //     };
+  //   }
+  // }, [map, getMapBounds]);
 
   return (
     <S.SearchContainer>

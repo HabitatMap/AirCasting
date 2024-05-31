@@ -1,17 +1,16 @@
-import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
-
-import { Map as GoogleMap } from "@vis.gl/react-google-maps";
+import React, { useEffect, useState, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import mapStyles from "./mapStyles";
 import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
 import { RootState } from "../../store";
 import { fetchSessions } from "../../store/fixedSessionsSlice";
-import { useAppDispatch } from "../../store/hooks";
 import { containerStyle } from "./Map.style";
 import { Markers } from "./Markers/Markers";
 import { selectSessionsData } from "../../store/fixedSessionsSelectors";
 import { Session } from "./Markers/SessionType";
+import { useAppDispatch } from "../../store/hooks";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -20,25 +19,28 @@ const Map = () => {
   const timeTo = "1717027199";
   const tags = "";
   const usernames = "";
-  const west = -132.4072269375;
-  const east = -59.018555062500006;
-  const south = 24.507143507735677;
-  const north = 47.886881016621686;
   const limit = 100;
   const offset = 0;
   const sensor_name = "government-pm2.5";
   const measurement_type = "Particulate Matter";
   const unit_symbol = "µg/m³";
 
+  const [mapBounds, setMapBounds] = useState({
+    north: 47.886881016621686,
+    south: 24.507143507735677,
+    east: -59.018555062500006,
+    west: -132.4072269375,
+  });
+
   const filters = JSON.stringify({
     time_from: timeFrom,
     time_to: timeTo,
     tags: tags,
     usernames: usernames,
-    west: west,
-    east: east,
-    south: south,
-    north: north,
+    west: mapBounds.west,
+    east: mapBounds.east,
+    south: mapBounds.south,
+    north: mapBounds.north,
     limit: limit,
     offset: offset,
     sensor_name: sensor_name,
@@ -47,10 +49,13 @@ const Map = () => {
   });
 
   useEffect(() => {
+    console.log("Dispatch fetchSessions", filters);
     dispatch(fetchSessions({ filters }));
   }, [dispatch, filters]);
 
   const sessionsData = useSelector(selectSessionsData);
+
+  console.log("sessionsData:", sessionsData);
 
   const mappedSessionsData: Session[] = sessionsData.map((session) => {
     console.log("Session:", session);
@@ -68,6 +73,21 @@ const Map = () => {
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
   const mapId = useSelector((state: RootState) => state.map.mapId);
 
+  const onIdle = useCallback((event: MapEvent) => {
+    const map = event.map;
+    const bounds = map?.getBounds();
+    if (!bounds) {
+      console.log("Bounds not found");
+      return;
+    }
+    const north = bounds.getNorthEast().lat();
+    const south = bounds.getSouthWest().lat();
+    const east = bounds.getNorthEast().lng();
+    const west = bounds.getSouthWest().lng();
+    console.log("North:", north, "South:", south, "East:", east, "West:", west);
+    setMapBounds({ north, south, east, west });
+  }, []);
+
   return (
     <>
       <GoogleMap
@@ -80,6 +100,7 @@ const Map = () => {
         scaleControl={true}
         style={containerStyle}
         styles={mapStyles}
+        onIdle={onIdle}
       >
         <Markers sessions={mappedSessionsData} />
       </GoogleMap>
