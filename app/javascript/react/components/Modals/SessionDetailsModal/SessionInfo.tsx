@@ -44,31 +44,35 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
 
   return (
     <S.InfoContainer>
-      <S.SessionName>{title}</S.SessionName>
-      <S.SensorName>{sensorName}</S.SensorName>
-      <S.AverageValueContainer>
-        <S.AverageDot
-          $color={getColorForValue(thresholds, lastMeasurementValue || null)}
-        />
-        {t("sessionDetailsModal.averageValue")}
-        <S.AverageValue>{lastMeasurementValue}</S.AverageValue>
-        {unitSymbol}
-      </S.AverageValueContainer>
-      <S.MinMaxValueContainer>
-        <div>
-          <S.SmallDot $color={getColorForValue(thresholds, min)} />
-          {t("sessionDetailsModal.minValue")}
-          <S.Value>{min}</S.Value>
-        </div>
-        <div>
-          <S.SmallDot $color={getColorForValue(thresholds, max)} />
-          {t("sessionDetailsModal.maxValue")}
-          <S.Value>{max}</S.Value>
-        </div>
-      </S.MinMaxValueContainer>
-      <S.TimeRange>
-        {formattedTime(startTime ?? "")} - {formattedTime(endTime ?? "")}
-      </S.TimeRange>
+      <S.Wrapper>
+        <S.SessionName>{title}</S.SessionName>
+        <S.SensorName>{sensorName}</S.SensorName>
+      </S.Wrapper>
+      <S.Wrapper>
+        <S.AverageValueContainer>
+          <S.AverageDot
+            $color={getColorForValue(thresholds, lastMeasurementValue || null)}
+          />
+          {t("sessionDetailsModal.averageValue")}
+          <S.AverageValue>{lastMeasurementValue}</S.AverageValue>
+          {unitSymbol}
+        </S.AverageValueContainer>
+        <S.MinMaxValueContainer>
+          <div>
+            <S.SmallDot $color={getColorForValue(thresholds, min)} />
+            {t("sessionDetailsModal.minValue")}
+            <S.Value>{min}</S.Value>
+          </div>
+          <div>
+            <S.SmallDot $color={getColorForValue(thresholds, max)} />
+            {t("sessionDetailsModal.maxValue")}
+            <S.Value>{max}</S.Value>
+          </div>
+        </S.MinMaxValueContainer>
+        <S.TimeRange>
+          {formattedTime(startTime ?? "")} - {formattedTime(endTime ?? "")}
+        </S.TimeRange>
+      </S.Wrapper>
       <S.ButtonsContainer>
         <S.BlueButton to={`/fixed_stream?streamId=${streamId}`}>
           {t("sessionDetailsModal.calendar")}

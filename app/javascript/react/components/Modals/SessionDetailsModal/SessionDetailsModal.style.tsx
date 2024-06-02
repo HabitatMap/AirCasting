@@ -10,6 +10,7 @@ import {
 import { ActionButton } from "../../ActionButton/ActionButton.style";
 import { Link } from "react-router-dom";
 import Popup from "reactjs-popup";
+import { media } from "../../../utils/media";
 
 interface DotProps {
   $color?: string;
@@ -39,15 +40,22 @@ const SessionDetailsModal = styled(Popup)`
     max-height: 80vh;
     overflow-y: auto;
     margin: 0;
+    display: flex;
+    flex-direction: column;
   }
 `;
 
 const InfoContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1.6rem;
   padding: 0 4rem;
-  width: 20%;
+  width: 100%;
+  flex-wrap: wrap;
+  @media ${media.smallDesktop} {
+    width: 20%;
+    flex-direction: column;
+  }
 `;
 
 const SessionName = styled(H2)`
@@ -140,6 +148,7 @@ const BlueButton = styled(Link)`
 const CancelButtonX = styled.button`
   border: none;
   background-color: transparent;
+  width: fit-content;
 `;
 
 const SmallPopup = styled(Popup)`
@@ -161,6 +170,12 @@ const SmallPopup = styled(Popup)`
   }
 `;
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+`;
+
 export {
   SessionDetailsModal,
   InfoContainer,
@@ -178,4 +193,5 @@ export {
   BlueButton,
   CancelButtonX,
   SmallPopup,
+  Wrapper,
 };

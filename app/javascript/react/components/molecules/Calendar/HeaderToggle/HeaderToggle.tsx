@@ -97,7 +97,7 @@ const HeaderToggle = ({
       )}
 
       {isVisible && !isMapPage && componentToToggle}
-      {isMobile && isVisible && displayResetButton()}
+      {isMobile && isVisible && !isMapPage && displayResetButton()}
       {isMapPage && (
         <S.Wrapper>
           {componentToToggle}
