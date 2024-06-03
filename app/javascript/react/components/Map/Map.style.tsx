@@ -13,11 +13,16 @@ const MapElementsContainer = styled.div`
   display: flex;
 `;
 
-const SessionButton = styled(Button)`
-  top: 100px;
-  position: relative;
+const FixedButton = styled(Button)`
+  top: 150px;
+  position: absolute;
   z-index: 99;
-  background-color: transparent;
 `;
 
-export { MapElementsContainer, SessionButton, containerStyle };
+const MobileButton = styled(Button)`
+  top: 200px;
+  position: absolute;
+  z-index: 99;
+`;
+
+export { MapElementsContainer, FixedButton, MobileButton, containerStyle };

@@ -137,12 +137,12 @@ const Map = () => {
 
   return (
     <>
-      <S.SessionButton onClick={() => handleClick(FIXED)}>
-        {FIXED}
-      </S.SessionButton>
-      <S.SessionButton onClick={() => handleClick(MOBILE)}>
+      {/* temporary solution, ticket: Session Filter: General filters */}
+      <S.FixedButton onClick={() => handleClick(FIXED)}>{FIXED}</S.FixedButton>
+      <S.MobileButton onClick={() => handleClick(MOBILE)}>
         {MOBILE}
-      </S.SessionButton>
+      </S.MobileButton>
+      {/* temporary solution, ticket: Session Filter: General filters */}
       <GoogleMap
         mapId={mapId || null}
         mapTypeId={mapTypeId}
