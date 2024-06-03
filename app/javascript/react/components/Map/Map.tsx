@@ -38,6 +38,7 @@ const Map = () => {
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
+  const mapId = useSelector((state: RootState) => state.map.mapId);
 
   const filters = JSON.stringify({
     time_from: timeFrom,
@@ -112,7 +113,7 @@ const Map = () => {
   return (
     <>
       <GoogleMap
-        mapId={"3808fe50f232092d"}
+        mapId={mapId || null}
         mapTypeId={mapTypeId}
         defaultCenter={DEFAULT_MAP_CENTER}
         defaultZoom={DEFAULT_ZOOM}

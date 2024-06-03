@@ -27,3 +27,5 @@ export const MAP_CONFIGS: MapConfig[] = [
     mapTypeId: MapTypeId.HYBRID,
   },
 ];
+
+export const MAP_ID = "3d00eebfde3a81b9";

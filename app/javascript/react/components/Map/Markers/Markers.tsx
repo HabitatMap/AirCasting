@@ -9,7 +9,7 @@ import { Session } from "./SessionType";
 type Props = {
   sessions: Session[];
   onMarkerClick: (sessionId: number) => void;
-  selectedStreamId: number | null; // Pass selectedStreamId as a prop
+  selectedStreamId: number | null;
 };
 
 const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
@@ -21,6 +21,7 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   );
   const ZOOM_FOR_SELECTED_SESSION = 12;
 
+  // Update markers when marker references change
   useEffect(() => {
     const newMarkers: { [key: string]: Marker | null } = {};
     sessions.forEach((session) => {
@@ -34,6 +35,7 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
     }));
   }, [sessions]);
 
+  // Update MarkerClusterer when markers change
   useEffect(() => {
     if (!clusterer.current || !map) return;
 
