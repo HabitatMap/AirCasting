@@ -5,7 +5,7 @@ import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 import mapStyles from "./mapStyles";
 import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
 import { RootState } from "../../store";
-import { fetchSessions } from "../../store/fixedSessionsSlice";
+import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { containerStyle } from "./Map.style";
 import { Markers } from "./Markers/Markers";
 import { selectSessionsData } from "../../store/fixedSessionsSelectors";
@@ -49,8 +49,7 @@ const Map = () => {
   });
 
   useEffect(() => {
-    console.log("Dispatch fetchSessions", filters);
-    dispatch(fetchSessions({ filters }));
+    dispatch(fetchFixedSessions({ filters }));
   }, [dispatch, filters]);
 
   const sessionsData = useSelector(selectSessionsData);

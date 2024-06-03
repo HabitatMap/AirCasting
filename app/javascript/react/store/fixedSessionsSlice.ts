@@ -22,8 +22,8 @@ interface Session {
       sensorName: string;
       unitSymbol: string;
       id: number;
-    }
-  }
+    };
+  };
 }
 
 interface SessionsResponse {
@@ -49,15 +49,16 @@ const initialState: SessionsState = {
   error: undefined,
 };
 
-export const fetchSessions = createAsyncThunk<
+export const fetchFixedSessions = createAsyncThunk<
   SessionsResponse,
   SessionsData,
   { rejectValue: string }
->("sessions/fetchSessions", async (sessionsData, { rejectWithValue }) => {
+>("sessions/fetchFixedSessions", async (sessionsData, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<SessionsResponse, Error> = await oldApiClient.get(
-      API_ENDPOINTS.fetchSessions(sessionsData.filters)
-    )
+    const response: AxiosResponse<SessionsResponse, Error> =
+      await oldApiClient.get(
+        API_ENDPOINTS.fetchFixedSessions(sessionsData.filters)
+      );
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
@@ -71,15 +72,15 @@ export const fixedSessionsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchSessions.pending, (state) => {
+      .addCase(fetchFixedSessions.pending, (state) => {
         state.status = StatusEnum.Pending;
       })
-      .addCase(fetchSessions.fulfilled, (state, action) => {
+      .addCase(fetchFixedSessions.fulfilled, (state, action) => {
         state.status = StatusEnum.Fulfilled;
         state.sessions = action.payload.sessions;
         state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
       })
-      .addCase(fetchSessions.rejected, (state, action) => {
+      .addCase(fetchFixedSessions.rejected, (state, action) => {
         state.status = StatusEnum.Rejected;
         state.error = action.payload;
       });
@@ -87,6 +88,3 @@ export const fixedSessionsSlice = createSlice({
 });
 
 export default fixedSessionsSlice.reducer;
-
-
-
