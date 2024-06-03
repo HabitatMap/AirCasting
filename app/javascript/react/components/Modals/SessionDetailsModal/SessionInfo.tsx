@@ -39,7 +39,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
   const { t } = useTranslation();
 
   const formattedTime = (time: string) => {
-    return moment(time).format("DD/MM/YYYY HH:mm");
+    return moment(time).format("MM/DD/YYYY HH:mm");
   };
 
   return (

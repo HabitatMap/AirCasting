@@ -14,7 +14,7 @@ const getColorForValue = (
 ) => {
 
   const defaultColor = "transparent";
-  if (value === null || value === undefined) return defaultColor;
+  if (!value) return defaultColor;
 
 
   for (let range of COLORS_FOR_RANGES(thresholdValues)) {

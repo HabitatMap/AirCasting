@@ -89,22 +89,25 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   }, [fixedStreamData, dispatch]);
 
   return (
-    <S.CalendarPageLayout>
-      <S.StationDataContainer>
-        <FixedStreamStationHeader />
-        {!isMobile && <ThresholdsConfigurator isMapPage={false} />}
-        {calendarIsVisible ? (
-          <Calendar
-            streamId={streamId}
-            minCalendarDate={fixedStreamData.stream.startTime}
-            maxCalendarDate={streamEndTime}
-          />
-        ) : (
-          <EmptyCalendar />
-        )}
-        {isMobile && <ThresholdsConfigurator isMapPage={false} />}
-      </S.StationDataContainer>
-    </S.CalendarPageLayout>
+    <>
+      {children}
+      <S.CalendarPageLayout>
+        <S.StationDataContainer>
+          <FixedStreamStationHeader />
+          {!isMobile && <ThresholdsConfigurator isMapPage={false} />}
+          {calendarIsVisible ? (
+            <Calendar
+              streamId={streamId}
+              minCalendarDate={fixedStreamData.stream.startTime}
+              maxCalendarDate={streamEndTime}
+            />
+          ) : (
+            <EmptyCalendar />
+          )}
+          {isMobile && <ThresholdsConfigurator isMapPage={false} />}
+        </S.StationDataContainer>
+      </S.CalendarPageLayout>
+    </>
   );
 };
 

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { TextInput } from "../Modals.style";
 
-interface EmailInputProps {
+interface ModalInputProps {
   focusInputRef: React.RefObject<HTMLInputElement>;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -12,7 +12,7 @@ interface EmailInputProps {
   type: string;
 }
 
-const ModalInput: React.FC<EmailInputProps> = ({
+const ModalInput: React.FC<ModalInputProps> = ({
   focusInputRef,
   value,
   onChange,
