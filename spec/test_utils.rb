@@ -39,7 +39,7 @@ def create_session!(attributes = {})
 end
 
 def create_threshold_set!(attributes = {})
-  ThresholdSet.create!(
+  ThresholdSet.find_or_create_by(
     threshold_very_low: attributes.fetch(:threshold_very_low, 20),
     threshold_low: attributes.fetch(:threshold_low, 60),
     threshold_medium: attributes.fetch(:threshold_medium, 70),
