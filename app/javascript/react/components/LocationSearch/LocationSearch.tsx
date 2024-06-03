@@ -85,30 +85,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
 
   const [bounds, setBounds] = useState<google.maps.LatLngBounds | null>(null);
 
-  // const getMapBounds = useCallback(() => {
-  //   if (map) {
-  //     const currentBounds = map.getBounds();
-  //     if (currentBounds) {
-  //       const ne = currentBounds.getNorthEast();
-  //       const sw = currentBounds.getSouthWest();
-  //       console.log("NorthEast:", ne.toString());
-  //       console.log("SouthWest:", sw.toString());
-  //       setBounds(currentBounds);
-  //     }
-  //   }
-  // }, [map]);
-
-  // useEffect(() => {
-  //   if (map) {
-  //     const listener = map.addListener("bounds_changed", getMapBounds);
-  //     getMapBounds();
-
-  //     return () => {
-  //       google.maps.event.removeListener(listener);
-  //     };
-  //   }
-  // }, [map, getMapBounds]);
-
   return (
     <S.SearchContainer>
       <S.SearchInput
