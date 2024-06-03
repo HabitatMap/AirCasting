@@ -1,21 +1,20 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
+import React, { useEffect, useState, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
+import mapStyles from "./mapStyles";
 import {
-  DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
+  DEFAULT_MAP_BOUNDS,
   DEFAULT_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
-import { selectSessionsData } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
-import { useAppDispatch } from "../../store/hooks";
 import { containerStyle } from "./Map.style";
-import mapStyles from "./mapStyles";
 import { Markers } from "./Markers/Markers";
+import { selectSessionsData } from "../../store/fixedSessionsSelectors";
 import { Session } from "./Markers/SessionType";
+import { useAppDispatch } from "../../store/hooks";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -43,10 +42,10 @@ const Map = () => {
     time_to: timeTo,
     tags: tags,
     usernames: usernames,
-    west: mapBounds.west.toFixed(15),
-    east: mapBounds.east.toFixed(15),
-    south: mapBounds.south.toFixed(15),
-    north: mapBounds.north.toFixed(15),
+    west: mapBounds.west,
+    east: mapBounds.east,
+    south: mapBounds.south,
+    north: mapBounds.north,
     limit: limit,
     offset: offset,
     sensor_name: sensor_name,
