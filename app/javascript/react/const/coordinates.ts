@@ -3,6 +3,13 @@ const DEFAULT_MAP_CENTER = {
   lng: -95.72238290534534,
 };
 
+const DEFAULT_MAP_BOUNDS = {
+  north: 49.3457868,
+  south: 24.396308,
+  west: -125.0,
+  east: -66.93457,
+};
+
 const DEFAULT_ZOOM = 5;
 
-export { DEFAULT_MAP_CENTER, DEFAULT_ZOOM };
+export { DEFAULT_MAP_CENTER, DEFAULT_MAP_BOUNDS, DEFAULT_ZOOM };

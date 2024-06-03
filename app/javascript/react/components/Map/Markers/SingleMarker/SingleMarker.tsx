@@ -10,7 +10,7 @@ import {
 import {
   SelectedShadowCircle,
   SelectedDataContainer,
-} from "./SelectedMarker.style";
+} from "../SelectedMarker.style";
 
 interface MarkerProps {
   color: string;

@@ -3,7 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import mapStyles from "./mapStyles";
-import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
+import {
+  DEFAULT_MAP_CENTER,
+  DEFAULT_MAP_BOUNDS,
+  DEFAULT_ZOOM,
+} from "../../const/coordinates";
 import { RootState } from "../../store";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { containerStyle } from "./Map.style";
@@ -15,6 +19,7 @@ import { useAppDispatch } from "../../store/hooks";
 const Map = () => {
   const dispatch = useAppDispatch();
 
+  // Those filters are temporary and will be replaced with the actual filters
   const timeFrom = "1685318400";
   const timeTo = "1717027199";
   const tags = "";
@@ -26,10 +31,10 @@ const Map = () => {
   const unit_symbol = "µg/m³";
 
   const [mapBounds, setMapBounds] = useState({
-    north: 47.886881016621686,
-    south: 24.507143507735677,
-    east: -59.018555062500006,
-    west: -132.4072269375,
+    north: DEFAULT_MAP_BOUNDS.north,
+    south: DEFAULT_MAP_BOUNDS.south,
+    east: DEFAULT_MAP_BOUNDS.east,
+    west: DEFAULT_MAP_BOUNDS.west,
   });
 
   const filters = JSON.stringify({
@@ -54,10 +59,7 @@ const Map = () => {
 
   const sessionsData = useSelector(selectSessionsData);
 
-  console.log("sessionsData:", sessionsData);
-
   const mappedSessionsData: Session[] = sessionsData.map((session) => {
-    console.log("Session:", session);
     return {
       id: session.id,
       lastMeasurementValue: session.lastMeasurementValue,
@@ -83,7 +85,6 @@ const Map = () => {
     const south = bounds.getSouthWest().lat();
     const east = bounds.getNorthEast().lng();
     const west = bounds.getSouthWest().lng();
-    console.log("North:", north, "South:", south, "East:", east, "West:", west);
     setMapBounds({ north, south, east, west });
   }, []);
 

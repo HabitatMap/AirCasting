@@ -17,8 +17,8 @@ const SelectedDataContainer = styled.div`
   height: 3rem;
   display: flex;
   position: absolute;
-  top: 1rem; // ShadowCircle/2- DataContainerHeight/2
-  left: 1rem; // ShadowCircle/2-(MarkerCircle/2+MarkerCirclePaddingLeft)
+  top: 1rem;
+  left: 1rem;
   border-radius: 1.5rem;
   border: 1px solid ${(props) => props.color};
   padding: 0.5rem 0.5rem 0.5rem 0.5rem;

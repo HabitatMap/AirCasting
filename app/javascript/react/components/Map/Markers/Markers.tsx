@@ -5,7 +5,7 @@ import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
 import { LatLngLiteral } from "../../../types/googleMaps";
 
-import { SingleMarker } from "./SingleMarker";
+import { SingleMarker } from "./SingleMarker/SingleMarker";
 import { Session } from "./SessionType";
 
 type Props = { sessions: Session[] };
