@@ -32,6 +32,8 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({
   );
   const { t } = useTranslation();
 
+  //TODO: Uncomment this useEffect to close modal after 4s
+
   // useEffect(() => {
   //   if (confirmationMessage) {
   //     const timer = setTimeout(() => {
