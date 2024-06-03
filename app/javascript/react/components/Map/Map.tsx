@@ -12,6 +12,7 @@ import { RootState } from "../../store";
 import { selectSessionsData } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
+import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import * as S from "./Map.style";
 import mapStyles from "./mapStyles";
@@ -68,8 +69,10 @@ const Map = () => {
   });
 
   useEffect(() => {
-    dispatch(fetchFixedSessions({ filters }));
-  }, [dispatch, filters]);
+    selectedSessionType == FIXED
+      ? dispatch(fetchFixedSessions({ filters }))
+      : dispatch(fetchMobileSessions({ filters }));
+  }, [dispatch, filters, selectedSessionType]);
 
   const sessionsData = useSelector(selectSessionsData);
 
