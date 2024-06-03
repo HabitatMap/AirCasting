@@ -23,17 +23,16 @@ module Api
         GoogleAnalyticsWorker::RegisterEvent.async_call(
           'Realtime sessions#sync_measurements'
         )
-        session = FixedSession.find_by_uuid(params[:uuid]) or raise NotFound
-        last_measurement_sync =
-          URI.decode(params[:last_measurement_sync]).to_datetime
-        stream_measurements = true
+        result = Sessions::SyncMeasurementsInteractor.new.call(
+          uuid: params[:uuid],
+          last_measurement_sync: params[:last_measurement_sync]
+        )
 
-        response =
-          session
-            .as_synchronizable(stream_measurements, last_measurement_sync)
-            .merge('tag_list' => session.tag_list.join(' '))
-
-        respond_with response
+        if result.success?
+          render json: result.value, status: :ok
+        else
+          render json: result.errors, status: :bad_request
+        end
       end
 
       def create
