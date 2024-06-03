@@ -6,7 +6,7 @@ const DEFAULT_MAP_CENTER = {
 const DEFAULT_MAP_BOUNDS = {
   north: 49.3457868,
   south: 24.396308,
-  west: -125.0,
+  west: -125.00001,
   east: -66.93457,
 };
 
