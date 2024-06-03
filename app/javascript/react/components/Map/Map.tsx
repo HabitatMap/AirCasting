@@ -1,19 +1,22 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
+
 import {
-  DEFAULT_MAP_CENTER,
   DEFAULT_MAP_BOUNDS,
+  DEFAULT_MAP_CENTER,
   DEFAULT_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
-import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
-import { containerStyle } from "./Map.style";
-import { Markers } from "./Markers/Markers";
 import { selectSessionsData } from "../../store/fixedSessionsSelectors";
-import { Session } from "./Markers/SessionType";
+import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
+import * as S from "./Map.style";
+import mapStyles from "./mapStyles";
+import { Markers } from "./Markers/Markers";
+import { Session } from "./Markers/SessionType";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -21,6 +24,8 @@ const Map = () => {
   const [currentZoom, setCurrentZoom] = useState(DEFAULT_ZOOM);
   const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
   const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
+  const FIXED = "fixed";
+  const MOBILE = "mobile";
 
   const timeFrom = "1685318400";
   const timeTo = "1717027199";
@@ -32,6 +37,9 @@ const Map = () => {
   const measurement_type = "Particulate Matter";
   const unit_symbol = "µg/m³";
 
+  const dispatch = useAppDispatch();
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
   const [mapBounds, setMapBounds] = useState({
     north: DEFAULT_MAP_BOUNDS.north,
     south: DEFAULT_MAP_BOUNDS.south,
@@ -121,8 +129,20 @@ const Map = () => {
     }
   };
 
+  const handleClick = (type: string) => {
+    setSelectedSessionType(type);
+  };
+
+  console.log("selectedSessionType", selectedSessionType);
+
   return (
     <>
+      <S.SessionButton onClick={() => handleClick(FIXED)}>
+        {FIXED}
+      </S.SessionButton>
+      <S.SessionButton onClick={() => handleClick(MOBILE)}>
+        {MOBILE}
+      </S.SessionButton>
       <GoogleMap
         mapId={mapId || null}
         mapTypeId={mapTypeId}
@@ -131,7 +151,7 @@ const Map = () => {
         gestureHandling={"greedy"}
         disableDefaultUI={true}
         scaleControl={true}
-        style={containerStyle}
+        style={S.containerStyle}
         onIdle={onIdle}
       >
         <Markers
