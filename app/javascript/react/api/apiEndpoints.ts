@@ -7,6 +7,7 @@ interface ApiEndpoints {
     endDate: string
   ) => string;
   readonly fetchFixedSessions: (filters: string) => string;
+  readonly fetchMobileSessions: (filters: string) => string;
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
@@ -16,4 +17,5 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchSelectedDataRangeOfStream: (id, startDate, endDate) =>
     `/stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
   fetchFixedSessions: (filters) => `/fixed/active/sessions2.json?q=${filters}`,
+  fetchMobileSessions: (filters) => `/mobile/active/sessions.json?q=${filters}`,
 };
