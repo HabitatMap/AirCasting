@@ -66,6 +66,7 @@ const Markers = ({ sessions }: Props) => {
         >
           <SingleMarker
             color="#E95F5F"
+            // Unit symbol should be replaced with the actual unit symbol depending on the parameter
             value={`${session.lastMeasurementValue} µg/m³`}
             isSelected={session.point.key === selectedMarkerKey}
             onClick={() => {
