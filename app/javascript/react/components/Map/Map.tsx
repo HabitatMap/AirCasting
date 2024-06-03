@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
-
-import mapStyles from "./mapStyles";
 import {
   DEFAULT_MAP_CENTER,
   DEFAULT_MAP_BOUNDS,
@@ -19,8 +17,8 @@ import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 
 const Map = () => {
   const dispatch = useAppDispatch();
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
-  // Those filters are temporary and will be replaced with the actual filters
   const timeFrom = "1685318400";
   const timeTo = "1717027199";
   const tags = "";
@@ -75,19 +73,25 @@ const Map = () => {
     };
   });
 
-  const onIdle = useCallback((event: MapEvent) => {
-    const map = event.map;
-    const bounds = map?.getBounds();
-    if (!bounds) {
-      console.log("Bounds not found");
-      return;
-    }
-    const north = bounds.getNorthEast().lat();
-    const south = bounds.getSouthWest().lat();
-    const east = bounds.getNorthEast().lng();
-    const west = bounds.getSouthWest().lng();
-    setMapBounds({ north, south, east, west });
-  }, []);
+  const onIdle = useCallback(
+    (event: MapEvent) => {
+      const map = event.map;
+      if (!mapInstance) {
+        setMapInstance(map);
+      }
+      const bounds = map?.getBounds();
+      if (!bounds) {
+        console.log("Bounds not found");
+        return;
+      }
+      const north = bounds.getNorthEast().lat();
+      const south = bounds.getSouthWest().lat();
+      const east = bounds.getNorthEast().lng();
+      const west = bounds.getSouthWest().lng();
+      setMapBounds({ north, south, east, west });
+    },
+    [mapInstance]
+  );
 
   const handleMarkerClick = (id: number) => {
     setSelectedStreamId(id);
@@ -100,12 +104,15 @@ const Map = () => {
   const handleCloseModal = () => {
     setSelectedStreamId(null);
     setModalOpen(false);
+    if (mapInstance) {
+      mapInstance.setZoom(DEFAULT_ZOOM);
+    }
   };
 
   return (
     <>
       <GoogleMap
-        mapId={"3808fe50f232092d" || null}
+        mapId={"3808fe50f232092d"}
         mapTypeId={mapTypeId}
         defaultCenter={DEFAULT_MAP_CENTER}
         defaultZoom={DEFAULT_ZOOM}
@@ -113,12 +120,12 @@ const Map = () => {
         disableDefaultUI={true}
         scaleControl={true}
         style={containerStyle}
-        styles={mapStyles}
         onIdle={onIdle}
       >
         <Markers
           sessions={mappedSessionsData}
           onMarkerClick={handleMarkerClick}
+          selectedStreamId={selectedStreamId} // Pass the selectedStreamId
         />
       </GoogleMap>
       {modalOpen && (

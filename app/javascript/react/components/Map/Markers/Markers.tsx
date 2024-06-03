@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
@@ -9,9 +9,10 @@ import { Session } from "./SessionType";
 type Props = {
   sessions: Session[];
   onMarkerClick: (sessionId: number) => void;
+  selectedStreamId: number | null; // Pass selectedStreamId as a prop
 };
 
-const Markers = ({ sessions, onMarkerClick }: Props) => {
+const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [key: string]: Marker | null }>({});
   const clusterer = useRef<MarkerClusterer | null>(null);
@@ -20,7 +21,6 @@ const Markers = ({ sessions, onMarkerClick }: Props) => {
   );
   const ZOOM_FOR_SELECTED_SESSION = 12;
 
-  // Update markers when marker references change
   useEffect(() => {
     const newMarkers: { [key: string]: Marker | null } = {};
     sessions.forEach((session) => {
@@ -34,7 +34,6 @@ const Markers = ({ sessions, onMarkerClick }: Props) => {
     }));
   }, [sessions]);
 
-  // Update MarkerClusterer when markers change
   useEffect(() => {
     if (!clusterer.current || !map) return;
 
@@ -52,6 +51,12 @@ const Markers = ({ sessions, onMarkerClick }: Props) => {
     }
     setSelectedMarkerKey(key === selectedMarkerKey ? null : key);
   };
+
+  useEffect(() => {
+    if (selectedStreamId === null) {
+      setSelectedMarkerKey(null);
+    }
+  }, [selectedStreamId]);
 
   return (
     <>
