@@ -5,6 +5,7 @@ import fixedStreamReducer from "./fixedStreamSlice";
 import sessionReducer from "./exportSessionSlice";
 import movingStreamSlice  from "./movingCalendarStreamSlice";
 import mapReducer from "./mapSlice";
+import fixedSessionsSlice from "./fixedSessionsSlice";
 
 const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ const store = configureStore({
     session: sessionReducer,
     movingCalendarStream: movingStreamSlice,
     map: mapReducer,
+    fixedSessions: fixedSessionsSlice,
   },
 });
 
