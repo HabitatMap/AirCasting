@@ -54,7 +54,7 @@
     "legendTitle": "Measurements legend",
     "calendarTitle": "Measurements calendar",
     "measurementsUnits": "(µg/m³)",
-    "dataRange": "Data range"
+    "dateRange": "Date range"
   },
   "headerToggle": {
     "arrowIcon": "Arrow Icon"
@@ -108,6 +108,5 @@
    "copyLink": "Copy link",
    "altCopyLink": "Copy the link to the session you are viewing",
    "confirmationMessage": "Copied"
-
   }
 }
