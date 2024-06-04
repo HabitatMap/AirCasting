@@ -1,23 +1,31 @@
 require 'rails_helper'
-  describe Api::Realtime::SessionsController do
-    describe 'sync_measurements' do
-      context 'when last_measurement_sync is before measurements creation' do
-        title = 'session title'
-        user = create_user!
-        start_time_local = DateTime.new(2_000, 10, 1, 2, 3)
-        end_time_local = DateTime.new(2_001, 11, 4, 5, 6)
-        session = create_fixed_session!
-        stream = create_stream!(session: session, sensor_name: 'sensor-name')
-        other_stream =
-          create_stream!(session: session, sensor_name: 'yet another-sensor-name')
-        measurement = create_measurement!(stream: stream, time: start_time_local)
-        other_measurement = create_measurement!(stream: other_stream, time: start_time_local)
 
-        last_measurement_sync = '1999-05-11T17:09:02'
+describe Api::Realtime::SessionsController do
+  describe 'sync_measurements' do
+    let!(:title) { 'session title' }
+    let!(:user) { create_user! }
+    let!(:start_time_local) { DateTime.new(2000, 10, 1, 2, 3) }
+    let!(:end_time_local) { DateTime.new(2001, 11, 4, 5, 6) }
+    let!(:session) { create_fixed_session!(user: user, title: title, start_time_local: start_time_local, end_time_local: end_time_local) }
+    let!(:stream) { create_stream!(session: session, sensor_name: 'sensor-name') }
+    let!(:other_stream) { create_stream!(session: session, sensor_name: 'yet another-sensor-name') }
+    let!(:measurement) { create_measurement!(stream: stream, time: start_time_local) }
+    let!(:other_measurement) { create_measurement!(stream: other_stream, time: start_time_local) }
 
-        before do
-          allow(FixedSession).to receive(:find_by_uuid).and_return(session)
-        end
+    context 'when last_measurement_sync is before measurements creation' do
+      let(:last_measurement_sync) { '1999-05-11T17:09:02' }
+
+      before do
+        allow(FixedSession).to receive(:find_by_uuid).and_return(session)
+      end
+
+      it 'returns session as synchronizable' do
+        session.update!(last_measurement_at: other_measurement.time)
+
+        get :sync_measurements, params: { uuid: session.uuid, last_measurement_sync: last_measurement_sync }
+
+        actual_response = json_response.deep_symbolize_keys
+        actual_response[:streams] = actual_response[:streams].transform_keys(&:to_sym)
 
         expected_response = {
           id: session.id,
@@ -122,33 +130,23 @@ require 'rails_helper'
           },
         }
 
-        it 'returns session as synchronizable' do
-          get :sync_measurements, params: { uuid: session.uuid, last_measurement_sync: last_measurement_sync }
+        expect(actual_response).to eq(expected_response)
+      end
+    end
 
-          actual_response = json_response.deep_symbolize_keys
-          actual_response[:streams] = actual_response[:streams].transform_keys(&:to_sym)
+    context 'when last_measurement_sync is after measurements creation' do
+      let(:last_measurement_sync) { '2001-05-11T17:09:02' }
 
-          expect(actual_response).to eq(expected_response)
-        end
+      before do
+        allow(FixedSession).to receive(:find_by_uuid).and_return(session)
       end
 
-      context 'when last_measurement_sync is after measurements creation' do
-        title = 'session title'
-        user = create_user!
-        start_time_local = DateTime.new(2_000, 10, 1, 2, 3)
-        end_time_local = DateTime.new(2_001, 11, 4, 5, 6)
-        session = create_fixed_session!
-        stream = create_stream!(session: session, sensor_name: 'sensor-name')
-        other_stream =
-          create_stream!(session: session, sensor_name: 'yet another-sensor-name')
-        measurement = create_measurement!(stream: stream, time: start_time_local)
-        other_measurement = create_measurement!(stream: other_stream, time: start_time_local)
+      it 'returns session as synchronizable' do
+        session.update!(last_measurement_at: other_measurement.time)
+        get :sync_measurements, params: { uuid: session.uuid, last_measurement_sync: last_measurement_sync }
 
-        last_measurement_sync = '2001-05-11T17:09:02'
-
-        before do
-          allow(FixedSession).to receive(:find_by_uuid).and_return(session)
-        end
+        actual_response = json_response.deep_symbolize_keys
+        actual_response[:streams] = actual_response[:streams].transform_keys(&:to_sym)
 
         expected_response = {
           id: session.id,
@@ -227,29 +225,23 @@ require 'rails_helper'
           },
         }
 
-        it 'returns session as synchronizable' do
-          get :sync_measurements, params: { uuid: session.uuid, last_measurement_sync: last_measurement_sync }
-
-          actual_response = json_response.deep_symbolize_keys
-          actual_response[:streams] = actual_response[:streams].transform_keys(&:to_sym)
-
-          expect(actual_response).to eq(expected_response)
-        end
+        expect(actual_response).to eq(expected_response)
       end
     end
-
-    private
-
-    def create_fixed_session!(attr)
-      FixedSession.create!(
-        title: attr.fetch(:title, 'title'),
-        user: attr.fetch(:user),
-        uuid: SecureRandom.uuid,
-        start_time_local: attr.fetch(:start_time_local, DateTime.current),
-        end_time_local: attr.fetch(:end_time_local, DateTime.current),
-        is_indoor: false,
-        latitude: 123,
-        longitude: 123,
-      )
-    end
   end
+
+  private
+
+  def create_fixed_session!(attr)
+    FixedSession.create!(
+      title: attr.fetch(:title, 'title'),
+      user: attr.fetch(:user),
+      uuid: SecureRandom.uuid,
+      start_time_local: attr.fetch(:start_time_local, DateTime.current),
+      end_time_local: attr.fetch(:end_time_local, DateTime.current),
+      is_indoor: false,
+      latitude: 123,
+      longitude: 123,
+    )
+  end
+end
