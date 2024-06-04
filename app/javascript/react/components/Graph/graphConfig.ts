@@ -18,6 +18,8 @@ import {
   gray400,
 } from "../../assets/styles/colors";
 
+import { ThresholdState } from "../../store/thresholdSlice"
+
 const xAxisOption: XAxisOptions = {
   title: {
     text: undefined,
@@ -34,41 +36,54 @@ const xAxisOption: XAxisOptions = {
   },
 };
 
-const yAxisOption: YAxisOptions = {
-  title: {
-    text: undefined,
-  },
-  endOnTick: false,
-  startOnTick: false,
-  tickColor: gray400,
-  lineColor: white,
-  opposite: true,
-  tickWidth: 1,
-  minorGridLineWidth: 0,
-  gridLineWidth: 0,
-  plotBands: [
-    {
-      from: 0,
-      to: 100,
-      color: green,
+const getYAxisOption = (thresholdsState: ThresholdState): YAxisOptions => {
+console.log(thresholdsState.max)
+const min = Number(thresholdsState.min);
+const max = Number(thresholdsState.max);
+const low = Number(thresholdsState.low);
+const middle = Number(thresholdsState.middle);
+const high = Number(thresholdsState.high);
+
+
+  return {
+    title: {
+      text: undefined,
     },
-    {
-      from: 100,
-      to: 130,
-      color: yellow,
-    },
-    {
-      from: 130,
-      to: 150,
-      color: orange,
-    },
-    {
-      from: 150,
-      to: 210,
-      color: red,
-    },
-  ],
+    endOnTick: false,
+    startOnTick: false,
+    tickColor: gray400,
+    lineColor: white,
+    opposite: true,
+    tickWidth: 1,
+    minorGridLineWidth: 0,
+    gridLineWidth: 0,
+    min: min,
+    max: max,
+    plotBands: [
+      {
+        from: thresholdsState.min,
+        to: thresholdsState.low,
+        color: green,
+      },
+      {
+        from: thresholdsState.low,
+        to: thresholdsState.middle,
+        color: yellow,
+      },
+      {
+        from: thresholdsState.middle,
+        to: thresholdsState.high,
+        color: orange,
+      },
+      {
+        from: thresholdsState.high,
+        to: thresholdsState.max,
+        color: red,
+      },
+    ],
+  };
 };
+
 
 const plotOptions: PlotOptions = {
   spline: {
@@ -99,9 +114,9 @@ const legendOption: LegendOptions = {
 
 export {
   xAxisOption,
-  yAxisOption,
   plotOptions,
   titleOption,
   legendOption,
   seriesOption,
+  getYAxisOption
 };

@@ -6,6 +6,7 @@ import { SessionType } from "../../../types/filters";
 import { ThresholdsConfigurator } from "../../ThresholdConfigurator";
 import * as S from "./SessionDetailsModal.style";
 import SessionInfo from "./SessionInfo";
+import { Graph } from "../../Graph";
 
 import type { PopupProps } from "reactjs-popup/dist/types";
 
@@ -50,6 +51,7 @@ const SessionDetailsModal: React.FC<
           </S.CancelButtonX>
           <SessionInfo sessionType={sessionType} streamId={streamId} />
           <ThresholdsConfigurator isMapPage={true} sessionType={sessionType} />
+          <Graph streamId={streamId} />
         </>
       )}
     </SessionModal>
