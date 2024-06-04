@@ -9,9 +9,13 @@ import {
   DEFAULT_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
-import { selectSessionsData } from "../../store/fixedSessionsSelectors";
+import { selectSessionsData as selectFixedSessionsData } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
+import {
+  selectMobileSessionsState,
+  selectSessionsData as selectMobileSessionsData,
+} from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import * as S from "./Map.style";
@@ -75,7 +79,10 @@ const Map = () => {
       : dispatch(fetchMobileSessions({ filters }));
   }, [dispatch, filters, selectedSessionType]);
 
-  const sessionsData = useSelector(selectSessionsData);
+  const sessionsData =
+    selectedSessionType == FIXED
+      ? useSelector(selectFixedSessionsData)
+      : useSelector(selectMobileSessionsData);
 
   const mappedSessionsData: Session[] = sessionsData.map((session) => {
     return {

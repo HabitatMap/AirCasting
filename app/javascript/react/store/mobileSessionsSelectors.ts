@@ -1,17 +1,20 @@
-import { RootState } from ".";
-
 import { createSelector } from "reselect";
 
-const selectMobileSessionsState = (state: RootState) => state.mobileSessions;
+import { RootState } from "./";
+
+export const selectMobileSessionsState = (state: RootState) =>
+  state.mobileSessions;
 
 export const selectSessionsData = createSelector(
   [selectMobileSessionsState],
   (mobileSessionsState) =>
     mobileSessionsState.sessions.map((session) => ({
       id: session.id,
-      lastMeasurementValue: session.lastMeasurementValue,
-      latitude: session.latitude,
-      longitude: session.longitude,
+      lastMeasurementValue:
+        session.streams[Object.keys(session.streams)[0]].averageValue,
+      latitude: session.streams[Object.keys(session.streams)[0]].startLatitude,
+      longitude:
+        session.streams[Object.keys(session.streams)[0]].startLongitude,
       //temporarly using the first stream id as key
       key: session.streams[Object.keys(session.streams)[0]].id,
     }))

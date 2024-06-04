@@ -1,27 +1,43 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { getErrorMessage } from "../utils/getErrorMessage";
-import { StatusEnum } from "../types/api";
 import { AxiosResponse } from "axios";
+
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
 import { oldApiClient } from "../api/apiClient";
+import { API_ENDPOINTS } from "../api/apiEndpoints";
+import { StatusEnum } from "../types/api";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 interface Session {
   id: number;
-  uuid: string;
   endTimeLocal: string;
   startTimeLocal: string;
-  lastMeasurementValue: number;
-  isIndoor: boolean;
-  latitude: number;
-  longitude: number;
   title: string;
+  type: string;
   username: string;
   streams: {
     [key: string]: {
-      measurementShortType: string;
-      sensorName: string;
-      unitSymbol: string;
+      averageValue: number;
       id: number;
+      maxLatitude: number;
+      maxLongitude: number;
+      measurementShortType: string;
+      measurementType: string;
+      measurementsCount: number;
+      minLatitude: number;
+      minLongitude: number;
+      sensorName: string;
+      sensorPackageName: string;
+      sessionId: number;
+      size: number;
+      startLatitude: number;
+      startLongitude: number;
+      thresholdHigh: number;
+      thresholdLow: number;
+      thresholdMedium: number;
+      thresholdVeryHigh: number;
+      thresholdVeryLow: number;
+      unitName: string;
+      unitSymbol: string;
     };
   };
 }
