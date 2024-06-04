@@ -188,6 +188,11 @@ const Wrapper = styled.div`
   gap: 1.6rem;
 `;
 
+const InfoGraphContainer = styled.div`
+display: flex;
+gap 1rem;
+`;
+
 export {
   SessionDetailsModal,
   InfoContainer,
@@ -207,4 +212,5 @@ export {
   CancelButtonX,
   SmallPopup,
   Wrapper,
+  InfoGraphContainer,
 };

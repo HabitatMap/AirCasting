@@ -188,7 +188,7 @@ const Map = () => {
       </S.MobileButton>
       {/* temporary solution, ticket: Session Filter: General filters */}
       <GoogleMap
-        mapId={mapId || null}
+        mapId={mapId}
         mapTypeId={mapTypeId}
         defaultCenter={DEFAULT_MAP_CENTER}
         defaultZoom={DEFAULT_ZOOM}

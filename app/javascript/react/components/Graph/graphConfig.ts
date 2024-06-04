@@ -6,6 +6,7 @@ import {
   TitleOptions,
   LegendOptions,
   SeriesOptionsType,
+  ResponsiveOptions,
 } from "highcharts/highstock";
 
 import {
@@ -61,23 +62,23 @@ const high = Number(thresholdsState.high);
     max: max,
     plotBands: [
       {
-        from: thresholdsState.min,
-        to: thresholdsState.low,
+        from: min,
+        to: low,
         color: green,
       },
       {
-        from: thresholdsState.low,
-        to: thresholdsState.middle,
+        from: low,
+        to:middle,
         color: yellow,
       },
       {
-        from: thresholdsState.middle,
-        to: thresholdsState.high,
+        from: middle,
+        to: high,
         color: orange,
       },
       {
-        from: thresholdsState.high,
-        to: thresholdsState.max,
+        from: high,
+        to: max,
         color: red,
       },
     ],
@@ -112,11 +113,21 @@ const legendOption: LegendOptions = {
   enabled: false,
 };
 
+
+const responsive: ResponsiveOptions = {
+  rules: [{
+      condition: {
+          maxHeight: 200
+      },
+    }]
+  };
+
 export {
   xAxisOption,
   plotOptions,
   titleOption,
   legendOption,
   seriesOption,
-  getYAxisOption
+  getYAxisOption,
+  responsive,
 };

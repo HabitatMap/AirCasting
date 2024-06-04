@@ -10,6 +10,7 @@ import {
   legendOption,
   seriesOption,
   getYAxisOption,
+  responsive,
 } from "./graphConfig";
 import { useSelector } from "react-redux";
 import { selectFixedData } from "../../store/fixedStreamSlice";
@@ -28,14 +29,17 @@ const Graph = (props: HighchartsReact.Props) => {
   const yAxisOption = getYAxisOption(thresholdsState);
 
   const options: Highcharts.Options = {
-    title: titleOption,
+    title: undefined,
     xAxis: xAxisOption,
     yAxis: yAxisOption,
     plotOptions,
     series: [seriesOption(seriesData)],
     legend: legendOption,
+    chart: {
+      height: 250,
+      borderRadius: 10,
+    },
   };
-
   return (
     <S.Container>
       <HighchartsReact
