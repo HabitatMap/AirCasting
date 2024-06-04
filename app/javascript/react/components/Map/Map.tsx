@@ -34,7 +34,8 @@ const Map = () => {
   const usernames = "";
   const limit = 100;
   const offset = 0;
-  const sensor_name = "government-pm2.5";
+  const sensor_name =
+    `${selectedSessionType}` == FIXED ? "government-pm2.5" : "airbeam-pm2.5";
   const measurement_type = "Particulate Matter";
   const unit_symbol = "µg/m³";
 
@@ -141,9 +142,11 @@ const Map = () => {
   return (
     <>
       {/* temporary solution, ticket: Session Filter: General filters */}
-      <S.FixedButton onClick={() => handleClick(FIXED)}>{FIXED}</S.FixedButton>
+      <S.FixedButton onClick={() => handleClick(FIXED)}>
+        fixed - government-pm2.5
+      </S.FixedButton>
       <S.MobileButton onClick={() => handleClick(MOBILE)}>
-        {MOBILE}
+        mobile - airbeam-pm2.5
       </S.MobileButton>
       {/* temporary solution, ticket: Session Filter: General filters */}
       <GoogleMap
