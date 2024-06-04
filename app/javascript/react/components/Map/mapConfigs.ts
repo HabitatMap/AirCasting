@@ -28,4 +28,4 @@ export const MAP_CONFIGS: MapConfig[] = [
   },
 ];
 
-export const MAP_ID = "3d00eebfde3a81b9";
+export const MAP_ID = "3808fe50f232092d";

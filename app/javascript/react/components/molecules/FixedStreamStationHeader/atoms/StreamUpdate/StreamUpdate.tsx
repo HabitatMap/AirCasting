@@ -40,7 +40,7 @@ const StreamUpdate: React.FC<StreamUpdate> = ({
   return (
     <HorizontalContainer>
       <RowContainer>
-        <Subtitle>{t("calendarHeader.dataRange")}</Subtitle>
+        <Subtitle>{t("calendarHeader.dateRange")}</Subtitle>
         {isDateRangeValid && (
           <S.RangeLabel>
             {formatStartTime()}
