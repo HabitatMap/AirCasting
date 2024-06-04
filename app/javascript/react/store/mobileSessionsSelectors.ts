@@ -16,6 +16,6 @@ export const selectSessionsData = createSelector(
       longitude:
         session.streams[Object.keys(session.streams)[0]].startLongitude,
       //temporarly using the first stream id as key
-      key: session.streams[Object.keys(session.streams)[0]].id,
+      key: session.streams[Object.keys(session.streams)[0]].id, // stream id
     }))
 );
