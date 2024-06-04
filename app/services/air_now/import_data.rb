@@ -8,7 +8,7 @@ class AirNow::ImportData
 
     hourly_data = []
 
-    2.times do |hour_offset|
+    24.times do |hour_offset|
       hourly_data <<
         http_client.get(hourly_data_endpoint(current_utc - hour_offset.hours))
     end

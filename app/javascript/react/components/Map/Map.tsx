@@ -69,7 +69,7 @@ const Map = () => {
       point: {
         lat: session.latitude,
         lng: session.longitude,
-        key: session.key.toString(),
+        streamId: session.streamId.toString(),
       },
     };
   });
@@ -94,8 +94,8 @@ const Map = () => {
     [mapInstance]
   );
 
-  const handleMarkerClick = (id: number) => {
-    setSelectedStreamId(id);
+  const handleMarkerClick = (streamId: React.SetStateAction<number | null>) => {
+    setSelectedStreamId(streamId);
     setModalOpen(false);
     setTimeout(() => {
       setModalOpen(true);
@@ -126,7 +126,7 @@ const Map = () => {
         <Markers
           sessions={mappedSessionsData}
           onMarkerClick={handleMarkerClick}
-          selectedStreamId={selectedStreamId} // Pass the selectedStreamId
+          selectedStreamId={selectedStreamId}
         />
       </GoogleMap>
       {modalOpen && (

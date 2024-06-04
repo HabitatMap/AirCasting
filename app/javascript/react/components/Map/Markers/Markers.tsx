@@ -8,13 +8,15 @@ import { Session } from "./SessionType";
 
 type Props = {
   sessions: Session[];
-  onMarkerClick: (sessionId: number) => void;
+  onMarkerClick: (streamId: number | null) => void;
   selectedStreamId: number | null;
 };
 
 const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   const map = useMap();
-  const [markers, setMarkers] = useState<{ [key: string]: Marker | null }>({});
+  const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
+    {}
+  );
   const clusterer = useRef<MarkerClusterer | null>(null);
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
@@ -23,10 +25,10 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
 
   // Update markers when marker references change
   useEffect(() => {
-    const newMarkers: { [key: string]: Marker | null } = {};
+    const newMarkers: { [streamId: string]: Marker | null } = {};
     sessions.forEach((session) => {
-      if (!markers[session.point.key]) {
-        newMarkers[session.point.key] = null;
+      if (!markers[session.point.streamId]) {
+        newMarkers[session.point.streamId] = null;
       }
     });
     setMarkers((prev) => ({
@@ -46,12 +48,12 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
     clusterer.current.addMarkers(validMarkers);
   }, [markers, map]);
 
-  const centerMapOnMarker = (position: LatLngLiteral, key: string) => {
+  const centerMapOnMarker = (position: LatLngLiteral, streamId: string) => {
     if (map) {
       map.setCenter(position);
       map.setZoom(ZOOM_FOR_SELECTED_SESSION);
     }
-    setSelectedMarkerKey(key === selectedMarkerKey ? null : key);
+    setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
   };
 
   useEffect(() => {
@@ -65,12 +67,12 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
       {sessions.map((session) => (
         <AdvancedMarker
           position={session.point}
-          key={session.point.key}
+          key={session.point.streamId}
           ref={(marker) => {
-            if (marker && !markers[session.point.key]) {
+            if (marker && !markers[session.point.streamId]) {
               setMarkers((prev) => ({
                 ...prev,
-                [session.point.key]: marker,
+                [session.point.streamId]: marker,
               }));
             }
           }}
@@ -78,10 +80,10 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
           <SingleMarker
             color="#E95F5F"
             value={`${session.lastMeasurementValue} µg/m³`}
-            isSelected={session.point.key === selectedMarkerKey}
+            isSelected={session.point.streamId === selectedMarkerKey}
             onClick={() => {
-              centerMapOnMarker(session.point, session.point.key);
-              onMarkerClick(session.id);
+              centerMapOnMarker(session.point, session.point.streamId);
+              onMarkerClick(Number(session.point.streamId));
             }}
           />
         </AdvancedMarker>
