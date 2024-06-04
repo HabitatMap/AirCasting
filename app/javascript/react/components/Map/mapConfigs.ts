@@ -7,7 +7,7 @@ export const MAP_CONFIGS: MapConfig[] = [
     id: "map",
     label: "Map",
     mapTypeId: MapTypeId.ROADMAP,
-    mapId: "3d00eebfde3a81b9",
+    mapId: "3808fe50f232092d",
     styles: mapStyles,
   },
 
