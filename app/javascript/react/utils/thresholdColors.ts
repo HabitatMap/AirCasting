@@ -12,8 +12,10 @@ const getColorForValue = (
   thresholdValues: Thresholds,
   value: number | null
 ) => {
+
   const defaultColor = "transparent";
   if (!value) return defaultColor;
+
 
   for (let range of COLORS_FOR_RANGES(thresholdValues)) {
     if (value <= range.max) {

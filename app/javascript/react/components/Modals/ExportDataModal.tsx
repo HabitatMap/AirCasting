@@ -3,12 +3,10 @@ import { useTranslation } from "react-i18next";
 
 import { useAppDispatch } from "../../store/hooks";
 import { exportSession } from "../../store/exportSessionSlice";
-import { DesktopExportModal } from "./DesktopExportModal";
-import { EmailInput, RedErrorMessage } from "./EmailInput";
-import { ConfirmationMessage } from "./ConfirmationMessage";
+import { ModalInput, RedErrorMessage } from "./atoms/ModalInput";
+import { ConfirmationMessage } from "./atoms/ConfirmationMessage";
 import downloadWhite from "../../assets/icons/downloadWhite.svg";
-import { Modal } from "../Modal";
-import { screenSizes } from "../../utils/media";
+import { BlueButton, FormWrapper } from "./Modals.style";
 
 export interface ExportModalData {
   email: string;
@@ -20,21 +18,12 @@ const initialExportModalData: ExportModalData = {
 
 interface ExportDataModalProps {
   sessionId: string;
-  isOpen: boolean;
-  position: {
-    bottom: number;
-    left: number;
-  };
   onSubmit: (data: ExportModalData) => void;
-  onClose: () => void;
 }
 
 const ExportDataModal: React.FC<ExportDataModalProps> = ({
   sessionId,
   onSubmit,
-  isOpen,
-  position,
-  onClose,
 }) => {
   const focusInputRef = useRef<HTMLInputElement | null>(null);
   const [formState, setFormState] = useState<ExportModalData>(
@@ -44,32 +33,8 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
     null
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const isMobile = window.innerWidth <= screenSizes.mobile;
-  const EMAIL_FIELD = "email";
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-
-  useEffect(() => {
-    if (isOpen && focusInputRef.current) {
-      setTimeout(() => {
-        focusInputRef.current!.focus();
-      }, 0);
-    }
-    if (!isOpen) {
-      setFormState(initialExportModalData);
-      setConfirmationMessage(null);
-      setErrorMessage(null);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (confirmationMessage) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [confirmationMessage, onClose]);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -98,59 +63,42 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
     setConfirmationMessage(t("exportDataModal.confirmationMessage"));
   };
 
-  return isMobile ? (
-    <Modal
-      title={t("exportDataModal.title")}
-      hasCloseButton={!confirmationMessage}
-      hasActionButton={!confirmationMessage}
-      buttonName={t("exportDataModal.exportButton")}
-      buttonHasIcon
-      iconName={downloadWhite}
-      handleActionButton={handleSubmit}
-      isOpen={isOpen}
-      onClose={onClose}
-    >
+  useEffect(() => {
+    if (confirmationMessage) {
+      const timer = setTimeout(() => {
+        setConfirmationMessage(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [confirmationMessage]);
+
+  return (
+    <>
       {confirmationMessage ? (
         <ConfirmationMessage message={confirmationMessage} />
       ) : (
         <form onSubmit={handleSubmit}>
-          <div>
-            <EmailInput
+          <FormWrapper>
+            <ModalInput
               focusInputRef={focusInputRef}
               value={formState.email}
               onChange={handleInputChange}
+              name="email"
+              type="email"
             />
-          </div>
+            <BlueButton
+              type="submit"
+              aria-label={t("exportDataModal.exportButton")}
+            >
+              {t("exportDataModal.exportButton")}{" "}
+              <img src={downloadWhite} style={{ width: "1.5rem" }} />
+            </BlueButton>
+          </FormWrapper>
+
           {errorMessage && <RedErrorMessage>{errorMessage}</RedErrorMessage>}
         </form>
       )}
-    </Modal>
-  ) : (
-    <DesktopExportModal
-      hasActionButton={!confirmationMessage}
-      buttonName={t("exportDataModal.exportButton")}
-      buttonHasIcon
-      iconName={downloadWhite}
-      handleActionButton={handleSubmit}
-      isOpen={isOpen}
-      position={position}
-      onClose={onClose}
-    >
-      {confirmationMessage ? (
-        <ConfirmationMessage message={confirmationMessage} />
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <div>
-            <EmailInput
-              focusInputRef={focusInputRef}
-              value={formState.email}
-              onChange={handleInputChange}
-            />
-          </div>
-          {errorMessage && <RedErrorMessage>{errorMessage}</RedErrorMessage>}
-        </form>
-      )}
-    </DesktopExportModal>
+    </>
   );
 };
 

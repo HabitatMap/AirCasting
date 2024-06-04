@@ -82,7 +82,7 @@ const ControlPanel: React.FC = () => {
   return (
     <S.ControlPanelContainer>
       <S.ToggleContainer>
-        <S.Label isActive={viewMode === ViewMode.MAP}>
+        <S.Label $isActive={viewMode === ViewMode.MAP}>
           {t("map.mapLabel")}
         </S.Label>
         <S.SwitchLabel>
@@ -97,14 +97,14 @@ const ControlPanel: React.FC = () => {
           />
           <S.Slider />
         </S.SwitchLabel>
-        <S.Label isActive={viewMode === ViewMode.SATELLITE}>
+        <S.Label $isActive={viewMode === ViewMode.SATELLITE}>
           {t("map.satelliteLabel")}
         </S.Label>
       </S.ToggleContainer>
 
       {viewMode === ViewMode.MAP && (
         <S.TerrainContainer>
-          <S.Label isActive={isTerrainChecked}>
+          <S.Label $isActive={isTerrainChecked}>
             {t("map.terrainLabel")}
             <S.TerrainLabel>
               <S.TerrainCheckbox
@@ -120,7 +120,7 @@ const ControlPanel: React.FC = () => {
 
       {viewMode === ViewMode.SATELLITE && (
         <S.TerrainContainer>
-          <S.Label isActive={isLabelsChecked}>
+          <S.Label $isActive={isLabelsChecked}>
             {t("map.labelsLabel")}
             <S.TerrainLabel>
               <S.TerrainCheckbox

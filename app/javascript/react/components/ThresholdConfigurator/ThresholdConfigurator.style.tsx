@@ -3,7 +3,11 @@ import styled from "styled-components";
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
-const Container = styled.div`
+interface ContainerProps {
+  $isMapPage?: boolean;
+}
+
+const Container = styled.div<ContainerProps>`
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
@@ -12,7 +16,7 @@ const Container = styled.div`
   position: relative;
 
   @media (${media.desktop}) {
-    padding: 3.5rem 10rem;
+    padding: ${(props) => (props.$isMapPage ? "1.5rem 10rem" : "3rem 10rem")};
     margin-bottom: 0;
   }
 `;

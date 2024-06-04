@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
-
-import mapStyles from "./mapStyles";
 import {
   DEFAULT_MAP_CENTER,
   DEFAULT_MAP_BOUNDS,
@@ -15,11 +13,12 @@ import { Markers } from "./Markers/Markers";
 import { selectSessionsData } from "../../store/fixedSessionsSelectors";
 import { Session } from "./Markers/SessionType";
 import { useAppDispatch } from "../../store/hooks";
+import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 
 const Map = () => {
   const dispatch = useAppDispatch();
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
-  // Those filters are temporary and will be replaced with the actual filters
   const timeFrom = "1685318400";
   const timeTo = "1717027199";
   const tags = "";
@@ -36,6 +35,10 @@ const Map = () => {
     east: DEFAULT_MAP_BOUNDS.east,
     west: DEFAULT_MAP_BOUNDS.west,
   });
+  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
+  const mapId = useSelector((state: RootState) => state.map.mapId);
 
   const filters = JSON.stringify({
     time_from: timeFrom,
@@ -66,27 +69,46 @@ const Map = () => {
       point: {
         lat: session.latitude,
         lng: session.longitude,
-        key: session.key.toString(),
+        streamId: session.streamId.toString(),
       },
     };
   });
 
-  const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
-  const mapId = useSelector((state: RootState) => state.map.mapId);
+  const onIdle = useCallback(
+    (event: MapEvent) => {
+      const map = event.map;
+      if (!mapInstance) {
+        setMapInstance(map);
+      }
+      const bounds = map?.getBounds();
+      if (!bounds) {
+        console.log("Bounds not found");
+        return;
+      }
+      const north = bounds.getNorthEast().lat();
+      const south = bounds.getSouthWest().lat();
+      const east = bounds.getNorthEast().lng();
+      const west = bounds.getSouthWest().lng();
+      setMapBounds({ north, south, east, west });
+    },
+    [mapInstance]
+  );
 
-  const onIdle = useCallback((event: MapEvent) => {
-    const map = event.map;
-    const bounds = map?.getBounds();
-    if (!bounds) {
-      console.log("Bounds not found");
-      return;
+  const handleMarkerClick = (streamId: React.SetStateAction<number | null>) => {
+    setSelectedStreamId(streamId);
+    setModalOpen(false);
+    setTimeout(() => {
+      setModalOpen(true);
+    }, 0);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedStreamId(null);
+    setModalOpen(false);
+    if (mapInstance) {
+      mapInstance.setZoom(DEFAULT_ZOOM);
     }
-    const north = bounds.getNorthEast().lat();
-    const south = bounds.getSouthWest().lat();
-    const east = bounds.getNorthEast().lng();
-    const west = bounds.getSouthWest().lng();
-    setMapBounds({ north, south, east, west });
-  }, []);
+  };
 
   return (
     <>
@@ -99,11 +121,20 @@ const Map = () => {
         disableDefaultUI={true}
         scaleControl={true}
         style={containerStyle}
-        styles={mapStyles}
         onIdle={onIdle}
       >
-        <Markers sessions={mappedSessionsData} />
+        <Markers
+          sessions={mappedSessionsData}
+          onMarkerClick={handleMarkerClick}
+          selectedStreamId={selectedStreamId}
+        />
       </GoogleMap>
+      {modalOpen && (
+        <SessionDetailsModal
+          streamId={selectedStreamId}
+          onClose={handleCloseModal}
+        />
+      )}
     </>
   );
 };

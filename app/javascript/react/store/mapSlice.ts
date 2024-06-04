@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { MAP_CONFIGS } from "../components/Map/mapConfigs";
+import { MAP_CONFIGS, MAP_ID } from "../components/Map/mapConfigs";
 import { DEFAULT_MAP_CENTER } from "../const/coordinates";
 import { LatLngLiteral } from "../types/googleMaps";
 
@@ -14,7 +14,7 @@ interface MapState {
 const initialState: MapState = {
   mapConfigId: MAP_CONFIGS[0].id,
   mapTypeId: MAP_CONFIGS[0].mapTypeId,
-  mapId: "3808fe50f232092d",
+  mapId: MAP_ID,
   location: DEFAULT_MAP_CENTER,
 };
 

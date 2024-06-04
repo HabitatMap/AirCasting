@@ -18,10 +18,15 @@ import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 
 interface ThumbPositions extends Omit<Thresholds, "min" | "max"> {}
+interface ThresholdsConfiguratorProps {
+  isMapPage: boolean;
+}
 
 const maxThresholdDifference = 1;
 
-const ThresholdsConfigurator = () => {
+const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
+  isMapPage,
+}) => {
   const {
     min: initialMin,
     low: initialLow,
@@ -136,16 +141,21 @@ const ThresholdsConfigurator = () => {
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
 
   return (
-    <S.Container>
+    <S.Container $isMapPage={isMapPage}>
       {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
       <HeaderToggle
         titleText={
-          <S.StyledContainer>
-            {t("calendarHeader.legendTitle")}
-            <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
-          </S.StyledContainer>
+          isMapPage ? (
+            ""
+          ) : (
+            <S.StyledContainer>
+              {t("calendarHeader.legendTitle")}
+              <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+            </S.StyledContainer>
+          )
         }
         resetThresholds={resetThresholds}
+        isMapPage={isMapPage}
         componentToToggle={
           <>
             <S.InputContainer ref={sliderRef}>

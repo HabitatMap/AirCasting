@@ -7,6 +7,7 @@ export const MAP_CONFIGS: MapConfig[] = [
     id: "map",
     label: "Map",
     mapTypeId: MapTypeId.ROADMAP,
+    mapId: "3d00eebfde3a81b9",
     styles: mapStyles,
   },
 
@@ -26,3 +27,5 @@ export const MAP_CONFIGS: MapConfig[] = [
     mapTypeId: MapTypeId.HYBRID,
   },
 ];
+
+export const MAP_ID = "3d00eebfde3a81b9";

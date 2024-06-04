@@ -1,6 +1,7 @@
+import { FixedStream } from "../../../types/fixedStream";
 import { LatLngLiteral } from "../../../types/googleMaps";
 
-type Point = LatLngLiteral & { key: string };
+type Point = LatLngLiteral & { streamId: string };
 
 export type Session = {
   id: number;
