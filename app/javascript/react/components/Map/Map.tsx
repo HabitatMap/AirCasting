@@ -97,7 +97,6 @@ const Map = () => {
 
   // Effects
   useEffect(() => {
-<<<<<<< HEAD
     if (shouldFetchSessions) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
@@ -105,26 +104,6 @@ const Map = () => {
       setShouldFetchSessions(false);
     }
   }, [dispatch, filters, shouldFetchSessions]);
-=======
-    selectedSessionType == FIXED
-      ? dispatch(fetchFixedSessions({ filters }))
-      : dispatch(fetchMobileSessions({ filters }));
-  }, [dispatch, filters, selectedSessionType]);
-
-  const sessionsData = useSelector(selectSessionsData);
-
-  const mappedSessionsData: Session[] = sessionsData.map((session) => {
-    return {
-      id: session.id,
-      lastMeasurementValue: session.lastMeasurementValue,
-      point: {
-        lat: session.latitude,
-        lng: session.longitude,
-        streamId: session.streamId.toString(),
-      },
-    };
-  });
->>>>>>> 04ac57d8 (feat: fetch session data based on session type)
 
   // Callbacks
   const onIdle = useCallback(
