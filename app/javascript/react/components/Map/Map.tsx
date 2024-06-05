@@ -19,6 +19,7 @@ import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import * as S from "./Map.style";
 import { Markers } from "./Markers/Markers";
+import { StreamMarkers } from "./Markers/StreamMarkers";
 
 const Map = () => {
   // const
@@ -168,7 +169,7 @@ const Map = () => {
         onIdle={onIdle}
       >
         {selectedStreamId && !fixedSessionTypeSelected ? (
-          <Markers
+          <StreamMarkers
             sessions={mobileStreamData}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
