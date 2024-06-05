@@ -73,7 +73,7 @@ const StreamMarkers = ({
       {sessions.map((session) => (
         <AdvancedMarker
           position={session.point}
-          key={session.point.streamId}
+          key={session.id}
           ref={(marker) => {
             if (marker && !markers[session.point.streamId]) {
               setMarkers((prev) => ({
