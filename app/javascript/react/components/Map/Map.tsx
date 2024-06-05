@@ -49,8 +49,11 @@ const Map = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
   const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
-  const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
-  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+  const [selectedSessionType, setSelectedSessionType] =
+    useState<string>(MOBILE);
+  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(
+    2493827
+  );
   const fixedSessionTypeSelected = selectedSessionType === FIXED;
 
   // Selectors
@@ -85,6 +88,9 @@ const Map = () => {
 
   // Effects
   useEffect(() => {
+    if (selectedStreamId) {
+      dispatch(fetchMobileStreamById(selectedStreamId));
+    }
     fixedSessionTypeSelected
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
