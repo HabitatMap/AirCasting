@@ -9,12 +9,12 @@ import hexToRGBA from "../../../../../utils/hexToRGB";
 import { media } from "../../../../../utils/media";
 
 interface ContainerProps {
-  isActive?: boolean;
+  $isActive?: boolean;
 }
 
 const Container = styled.div<ContainerProps>`
   background: ${(props) =>
-    props.isActive
+    props.$isActive
       ? `linear-gradient(
       241deg,
       ${hexToRGBA(blue, 0.4)} -2.4%,

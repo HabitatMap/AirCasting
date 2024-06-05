@@ -82,8 +82,8 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
             value={`${session.lastMeasurementValue} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
             onClick={() => {
-              centerMapOnMarker(session.point, session.point.streamId);
               onMarkerClick(Number(session.point.streamId));
+              centerMapOnMarker(session.point, session.point.streamId);
             }}
           />
         </AdvancedMarker>

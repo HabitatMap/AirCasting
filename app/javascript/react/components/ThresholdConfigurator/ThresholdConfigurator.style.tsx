@@ -12,7 +12,7 @@ const Container = styled.div<ContainerProps>`
   flex-direction: column;
   padding: 1.5rem;
   margin-bottom: 3rem;
-  background: ${colors.white};
+  background: ${(props) => (props.$isMapPage ? "none" : colors.white)};
   position: relative;
 
   @media (${media.desktop}) {

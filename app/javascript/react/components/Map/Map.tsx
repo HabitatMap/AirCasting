@@ -18,6 +18,9 @@ import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 const Map = () => {
   const dispatch = useAppDispatch();
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const [currentZoom, setCurrentZoom] = useState(DEFAULT_ZOOM);
+  const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
+  const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
 
   const timeFrom = "1685318400";
   const timeTo = "1717027199";
@@ -90,11 +93,18 @@ const Map = () => {
       const east = bounds.getNorthEast().lng();
       const west = bounds.getSouthWest().lng();
       setMapBounds({ north, south, east, west });
+      setCurrentZoom(map.getZoom() || DEFAULT_ZOOM);
     },
     [mapInstance]
   );
 
   const handleMarkerClick = (streamId: React.SetStateAction<number | null>) => {
+    if (mapInstance) {
+      setPreviousZoom(mapInstance.getZoom() || DEFAULT_ZOOM);
+      setPreviousCenter(
+        mapInstance.getCenter()?.toJSON() || DEFAULT_MAP_CENTER
+      );
+    }
     setSelectedStreamId(streamId);
     setModalOpen(false);
     setTimeout(() => {
@@ -106,7 +116,8 @@ const Map = () => {
     setSelectedStreamId(null);
     setModalOpen(false);
     if (mapInstance) {
-      mapInstance.setZoom(DEFAULT_ZOOM);
+      mapInstance.setZoom(previousZoom);
+      mapInstance.setCenter(previousCenter);
     }
   };
 

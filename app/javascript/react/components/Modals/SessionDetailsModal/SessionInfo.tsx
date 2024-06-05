@@ -8,7 +8,7 @@ import moment from "moment";
 import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
 import { selectThreshold } from "../../../store/thresholdSlice";
 
-import chartIcon from "../../../assets/icons/chartIcon.svg";
+import calendar from "../../../assets/icons/calendar.svg";
 import downloadImage from "../../../assets/icons/download.svg";
 import shareLink from "../../../assets/icons/shareLink.svg";
 import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
@@ -27,6 +27,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
     title,
     sensorName,
     lastMeasurementValue,
+    profile,
     lastMeasurementDateLabel,
     active,
     sessionId,
@@ -46,6 +47,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
     <S.InfoContainer>
       <S.Wrapper>
         <S.SessionName>{title}</S.SessionName>
+        <S.ProfileName>{profile}</S.ProfileName>
         <S.SensorName>{sensorName}</S.SensorName>
       </S.Wrapper>
       <S.Wrapper>
@@ -76,7 +78,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
       <S.ButtonsContainer>
         <S.BlueButton to={`/fixed_stream?streamId=${streamId}`}>
           {t("sessionDetailsModal.calendar")}
-          <img src={chartIcon} alt={t("sessionDetailsModal.chartIcon")} />
+          <img src={calendar} alt={t("sessionDetailsModal.calendarIcon")} />
         </S.BlueButton>
         <S.SmallPopup
           trigger={
