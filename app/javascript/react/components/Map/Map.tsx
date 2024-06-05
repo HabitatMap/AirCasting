@@ -21,42 +21,50 @@ import * as S from "./Map.style";
 import { Markers } from "./Markers/Markers";
 
 const Map = () => {
-  const dispatch = useAppDispatch();
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
-  const [currentZoom, setCurrentZoom] = useState(DEFAULT_ZOOM);
-  const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
-  const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
+  // const
   const FIXED = "fixed";
   const MOBILE = "mobile";
-
   const timeFrom = "1685318400";
   const timeTo = "1717027199";
   const tags = "";
   const usernames = "";
   const limit = 100;
   const offset = 0;
-
   const measurement_type = "Particulate Matter";
   const unit_symbol = "µg/m³";
 
+  // Hooks
   const dispatch = useAppDispatch();
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
-  const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
-  const sensor_name =
-    `${selectedSessionType}` === FIXED ? "government-pm2.5" : "airbeam-pm2.5";
-
+  // State
+  const [currentZoom, setCurrentZoom] = useState(DEFAULT_ZOOM);
   const [mapBounds, setMapBounds] = useState({
     north: DEFAULT_MAP_BOUNDS.north,
     south: DEFAULT_MAP_BOUNDS.south,
     east: DEFAULT_MAP_BOUNDS.east,
     west: DEFAULT_MAP_BOUNDS.west,
   });
-  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
-  const mapId = useSelector((state: RootState) => state.map.mapId);
+  const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
+  const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
+  const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
+  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
 
+  // Selectors
+  const mapId = useSelector((state: RootState) => state.map.mapId);
+  const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
+  const sessionsData = useSelector(
+    selectedSessionType === FIXED
+      ? selectFixedSessionsData
+      : selectedStreamId
+      ? selectMobileStreamData
+      : selectMobileSessionsData
+  );
+
+  // Filters (temporary solution)
+  const sensor_name =
+    `${selectedSessionType}` === FIXED ? "government-pm2.5" : "airbeam-pm2.5";
   const filters = JSON.stringify({
     time_from: timeFrom,
     time_to: timeTo,
@@ -73,20 +81,14 @@ const Map = () => {
     unit_symbol: unit_symbol,
   });
 
+  // Effects
   useEffect(() => {
     selectedSessionType === FIXED
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
   }, [dispatch, filters, selectedSessionType]);
 
-  const sessionsData = useSelector(
-    selectedSessionType === FIXED
-      ? selectFixedSessionsData
-      : selectedStreamId
-      ? selectMobileStreamData
-      : selectMobileSessionsData
-  );
-
+  // Callbacks
   const onIdle = useCallback(
     (event: MapEvent) => {
       const map = event.map;
@@ -108,7 +110,8 @@ const Map = () => {
     [mapInstance]
   );
 
-  const handleMarkerClick = (streamId: React.SetStateAction<number | null>) => {
+  // Handlers
+  const handleMarkerClick = (streamId: number | null) => {
     if (mapInstance) {
       setPreviousZoom(mapInstance.getZoom() || DEFAULT_ZOOM);
       setPreviousCenter(
