@@ -5,16 +5,16 @@ interface MarkerProps {
 }
 
 const SelectedShadowCircle = styled.div<MarkerProps>`
-  height: 5rem;
-  width: 5rem;
+  height: 4rem;
+  width: 4rem;
   border-radius: 50%;
   background-color: ${(props) => props.color + "66"};
   pointer-events: none;
 `;
 
 const SelectedDataContainer = styled.div`
-  width: 10rem;
-  height: 3rem;
+  min-width: 8rem;
+  height: 2rem;
   display: flex;
   position: absolute;
   top: 1rem;
