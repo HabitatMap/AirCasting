@@ -155,6 +155,10 @@ const CancelButtonX = styled.button`
   border: none;
   background-color: transparent;
   width: fit-content;
+
+  &:focus-visible {
+    outline: none;
+  }
 `;
 
 const SmallPopup = styled(Popup)`
