@@ -15,6 +15,7 @@ import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
 import { MapPage } from "./pages/MapPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import store from "./store/index";
+import { RemoveActiveFocusWhenNotTab } from "./utils/activeFocusControler";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -51,6 +52,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <GlobalStyles />
+      <RemoveActiveFocusWhenNotTab/>
       <RouterProvider router={router}></RouterProvider>
     </Provider>
   );

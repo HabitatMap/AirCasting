@@ -3,4 +3,5 @@ export const enum KeyboardKeys {
   ArrowUp = 'ArrowUp',
   ArrowDown = 'ArrowDown',
   Escape = 'Escape',
+  Tab = 'Tab',
 }
