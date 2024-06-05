@@ -178,7 +178,7 @@ const Map = () => {
           />
         )}
       </GoogleMap>
-      {false && (
+      {modalOpen && (
         <SessionDetailsModal
           streamId={selectedStreamId}
           onClose={handleCloseModal}
