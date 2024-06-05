@@ -21,7 +21,7 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-  const ZOOM_FOR_SELECTED_SESSION = 12;
+  const ZOOM_FOR_SELECTED_SESSION = 15;
 
   // Update markers when marker references change
   useEffect(() => {
@@ -79,7 +79,7 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
         >
           <SingleMarker
             color="#E95F5F"
-            value={`${session.lastMeasurementValue} µg/m³`}
+            value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
             onClick={() => {
               centerMapOnMarker(session.point, session.point.streamId);
