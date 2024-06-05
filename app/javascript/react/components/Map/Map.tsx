@@ -217,6 +217,12 @@ const Map = () => {
             unitSymbol={unit_symbol}
           />
         )}
+        <Markers
+          sessions={sessionsData}
+          onMarkerClick={handleMarkerClick}
+          selectedStreamId={selectedStreamId}
+        />
+        )
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal
