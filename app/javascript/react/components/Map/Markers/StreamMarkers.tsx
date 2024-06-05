@@ -4,9 +4,10 @@ import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { Session } from "./SessionType";
-import { StreamSingleMarker } from "./StreamSingleMarker/StreamSingleMarker";
+import { StreamMarker } from "./StreamMarker/StreamMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
+
 type Props = {
   sessions: Session[];
 };
@@ -87,7 +88,7 @@ const StreamMarkers = ({ sessions }: Props) => {
             }
           }}
         >
-          <StreamSingleMarker color="#E95F5F" />
+          <StreamMarker color="#E95F5F" />
         </AdvancedMarker>
       ))}
     </>
