@@ -1,5 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 
+import { Session } from "../components/Map/Markers/SessionType";
 import { MobileStream } from "../types/mobileStream";
 import { RootState } from "./";
 
@@ -9,14 +10,16 @@ const selectMobileStreamState = (state: RootState): MobileStream => {
 
 const selectMobileStreamData = createSelector(
   [selectMobileStreamState],
-  (mobileStreamState) =>
+  (mobileStreamState): Session[] =>
     mobileStreamState.measurements.map(
       ({ time: id, value: lastMeasurementValue, latitude, longitude }) => ({
         id,
         lastMeasurementValue,
-        latitude,
-        longitude,
-        streamId: mobileStreamState.streamId,
+        point: {
+          lat: latitude,
+          lng: longitude,
+          streamId: mobileStreamState.streamId.toString(),
+        },
       })
     )
 );

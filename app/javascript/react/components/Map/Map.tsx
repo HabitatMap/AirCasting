@@ -19,7 +19,6 @@ import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import * as S from "./Map.style";
 import { Markers } from "./Markers/Markers";
-import { Session } from "./Markers/SessionType";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -85,31 +84,7 @@ const Map = () => {
       ? useSelector(selectFixedSessionsData)
       : useSelector(selectMobileSessionsData);
 
-  const mappedSessionsData: Session[] = sessionsData.map((session) => {
-    return {
-      id: session.id,
-      lastMeasurementValue: session.lastMeasurementValue,
-      point: {
-        lat: session.latitude,
-        lng: session.longitude,
-        streamId: session.streamId.toString(),
-      },
-    };
-  });
-
   const mobileStreamData = useSelector(selectMobileStreamData);
-
-  const mappedMobileStreamData: Session[] = mobileStreamData.map((session) => {
-    return {
-      id: session.id,
-      lastMeasurementValue: session.lastMeasurementValue,
-      point: {
-        lat: session.latitude,
-        lng: session.longitude,
-        streamId: session.streamId.toString(),
-      },
-    };
-  });
 
   const onIdle = useCallback(
     (event: MapEvent) => {
@@ -188,7 +163,7 @@ const Map = () => {
         onIdle={onIdle}
       >
         <Markers
-          sessions={mappedSessionsData}
+          sessions={sessionsData}
           onMarkerClick={handleMarkerClick}
           selectedStreamId={selectedStreamId}
         />

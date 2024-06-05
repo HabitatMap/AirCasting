@@ -1,5 +1,6 @@
 import { createSelector } from "reselect";
 
+import { Session } from "../components/Map/Markers/SessionType";
 import { RootState } from "./";
 
 export const selectMobileSessionsState = (state: RootState) =>
@@ -7,14 +8,14 @@ export const selectMobileSessionsState = (state: RootState) =>
 
 export const selectMobileSessionsData = createSelector(
   [selectMobileSessionsState],
-  (mobileSessionsState) =>
-    mobileSessionsState.sessions.map((session) => ({
-      id: session.id,
-      lastMeasurementValue:
-        session.streams[Object.keys(session.streams)[0]].averageValue,
-      latitude: session.streams[Object.keys(session.streams)[0]].startLatitude,
-      longitude:
-        session.streams[Object.keys(session.streams)[0]].startLongitude,
-      streamId: session.streams[Object.keys(session.streams)[0]].id,
+  (mobileSessionsState): Session[] =>
+    mobileSessionsState.sessions.map(({ id, streams }) => ({
+      id,
+      lastMeasurementValue: streams[Object.keys(streams)[0]].averageValue,
+      point: {
+        lat: streams[Object.keys(streams)[0]].startLatitude,
+        lng: streams[Object.keys(streams)[0]].startLongitude,
+        streamId: streams[Object.keys(streams)[0]].id.toString(),
+      },
     }))
 );

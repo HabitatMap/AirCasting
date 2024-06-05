@@ -1,4 +1,3 @@
-import { FixedStream } from "../../../types/fixedStream";
 import { LatLngLiteral } from "../../../types/googleMaps";
 
 type Point = LatLngLiteral & { streamId: string };
