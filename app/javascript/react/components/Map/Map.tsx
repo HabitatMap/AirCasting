@@ -97,6 +97,7 @@ const Map = () => {
 
   // Effects
   useEffect(() => {
+<<<<<<< HEAD
     if (shouldFetchSessions) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
@@ -106,6 +107,20 @@ const Map = () => {
   }, [dispatch, filters, shouldFetchSessions]);
 
   // Callbacks
+=======
+    selectedSessionType == FIXED
+      ? dispatch(fetchFixedSessions({ filters }))
+      : dispatch(fetchMobileSessions({ filters }));
+  }, [dispatch, filters, selectedSessionType]);
+
+  const sessionsData =
+    selectedSessionType == FIXED
+      ? useSelector(selectFixedSessionsData)
+      : useSelector(selectMobileSessionsData);
+
+  const mobileStreamData = useSelector(selectMobileStreamData);
+
+>>>>>>> c28719df (chore: map data in selectors)
   const onIdle = useCallback(
     (event: MapEvent) => {
       const map = event.map;
@@ -198,6 +213,7 @@ const Map = () => {
         style={S.containerStyle}
         onIdle={onIdle}
       >
+<<<<<<< HEAD
         {fixedSessionTypeSelected ? (
           <FixedMarkers
             sessions={sessionsPoints}
@@ -217,6 +233,13 @@ const Map = () => {
             unitSymbol={unit_symbol}
           />
         )}
+=======
+        <Markers
+          sessions={sessionsData}
+          onMarkerClick={handleMarkerClick}
+          selectedStreamId={selectedStreamId}
+        />
+>>>>>>> c28719df (chore: map data in selectors)
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal
