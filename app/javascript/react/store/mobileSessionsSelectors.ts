@@ -5,7 +5,7 @@ import { RootState } from "./";
 export const selectMobileSessionsState = (state: RootState) =>
   state.mobileSessions;
 
-export const selectSessionsData = createSelector(
+export const selectMobileSessionsData = createSelector(
   [selectMobileSessionsState],
   (mobileSessionsState) =>
     mobileSessionsState.sessions.map((session) => ({

@@ -9,10 +9,10 @@ import {
   DEFAULT_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
-import { selectSessionsData as selectFixedSessionsData } from "../../store/fixedSessionsSelectors";
+import { selectFixedSessionsData } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { selectSessionsData as selectMobileSessionsData } from "../../store/mobileSessionsSelectors";
+import { selectMobileSessionsData } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
