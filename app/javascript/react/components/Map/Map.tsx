@@ -218,7 +218,7 @@ const Map = () => {
           />
         )}
       </GoogleMap>
-      {modalOpen && (
+      {false && (
         <SessionDetailsModal
           onClose={handleCloseModal}
           sessionType={selectedSessionType}
