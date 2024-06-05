@@ -20,8 +20,8 @@ const MarkerContainer = styled.div`
 `;
 
 const ShadowCircle = styled.div<MarkerProps>`
-  height: 5rem;
-  width: 5rem;
+  height: 4rem;
+  width: 4rem;
   border-radius: 50%;
   background: radial-gradient(
     circle at center,
@@ -34,14 +34,14 @@ const ShadowCircle = styled.div<MarkerProps>`
 `;
 
 const DataContainer = styled.div`
-  width: 10rem;
-  height: 3rem;
+  min-width: 8rem;
+  height: 2rem;
   display: flex;
   position: absolute;
   //To calculate top position: ShadowCircleHeight/2- DataContainerHeight/2
   top: 1rem;
   //To calculate this position: ShadowCircleWidth/2-(MarkerCircleWidth/2+MarkerCirclePaddingLeft)
-  left: 1rem;
+  left: 0.9rem;
   border-radius: 1.5rem;
   padding: 0.5rem 0.5rem 0.5rem 0.5rem;
   background-color: white;
@@ -53,8 +53,8 @@ const DataContainer = styled.div`
 `;
 
 const MarkerCircle = styled.div<MarkerProps>`
-  width: 2rem;
-  height: 2rem;
+  width: 1.2rem;
+  height: 1.2rem;
   border-radius: 50%;
   background-color: ${(props) => props.color};
   pointer-events: none;
