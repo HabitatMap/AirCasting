@@ -34,12 +34,12 @@ const ShadowCircle = styled.div<MarkerProps>`
 `;
 
 const DataContainer = styled.div`
-  width: 7.5rem;
-  height: 2.5rem;
+  min-width: 8rem;
+  height: 2rem;
   display: flex;
   position: absolute;
   //To calculate top position: ShadowCircleHeight/2- DataContainerHeight/2
-  top: 0.75rem;
+  top: 1rem;
   //To calculate this position: ShadowCircleWidth/2-(MarkerCircleWidth/2+MarkerCirclePaddingLeft)
   left: 0.9rem;
   border-radius: 1.5rem;
