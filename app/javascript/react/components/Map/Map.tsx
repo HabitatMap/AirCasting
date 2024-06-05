@@ -168,15 +168,15 @@ const Map = () => {
         style={S.containerStyle}
         onIdle={onIdle}
       >
-        {selectedStreamId && !fixedSessionTypeSelected ? (
+        {selectedStreamId && !fixedSessionTypeSelected && (
           <StreamMarkers sessions={mobileStreamData} />
-        ) : (
-          <Markers
-            sessions={sessionsData}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
-          />
         )}
+        <Markers
+          sessions={sessionsData}
+          onMarkerClick={handleMarkerClick}
+          selectedStreamId={selectedStreamId}
+        />
+        )
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal
