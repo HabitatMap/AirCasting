@@ -44,7 +44,7 @@ const Map = () => {
 
   const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
   const sensor_name =
-    `${selectedSessionType}` == FIXED ? "government-pm2.5" : "airbeam-pm2.5";
+    `${selectedSessionType}` === FIXED ? "government-pm2.5" : "airbeam-pm2.5";
 
   const [mapBounds, setMapBounds] = useState({
     north: DEFAULT_MAP_BOUNDS.north,
@@ -74,17 +74,18 @@ const Map = () => {
   });
 
   useEffect(() => {
-    selectedSessionType == FIXED
+    selectedSessionType === FIXED
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
   }, [dispatch, filters, selectedSessionType]);
 
-  const sessionsData =
-    selectedSessionType == FIXED
-      ? useSelector(selectFixedSessionsData)
-      : useSelector(selectMobileSessionsData);
-
-  const mobileStreamData = useSelector(selectMobileStreamData);
+  const sessionsData = useSelector(
+    selectedSessionType === FIXED
+      ? selectFixedSessionsData
+      : selectedStreamId
+      ? selectMobileStreamData
+      : selectMobileSessionsData
+  );
 
   const onIdle = useCallback(
     (event: MapEvent) => {
@@ -116,7 +117,7 @@ const Map = () => {
     }
 
     if (streamId) {
-      selectedSessionType == FIXED
+      selectedSessionType === FIXED
         ? null
         : dispatch(fetchMobileStreamById(streamId));
     }

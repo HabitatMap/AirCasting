@@ -3,10 +3,9 @@ import { createSelector } from "reselect";
 import { Session } from "../components/Map/Markers/SessionType";
 import { RootState } from "./";
 
-export const selectMobileSessionsState = (state: RootState) =>
-  state.mobileSessions;
+const selectMobileSessionsState = (state: RootState) => state.mobileSessions;
 
-export const selectMobileSessionsData = createSelector(
+const selectMobileSessionsData = createSelector(
   [selectMobileSessionsState],
   (mobileSessionsState): Session[] =>
     mobileSessionsState.sessions.map(({ id, streams }) => ({
@@ -19,3 +18,5 @@ export const selectMobileSessionsData = createSelector(
       },
     }))
 );
+
+export { selectMobileSessionsData, selectMobileSessionsState };
