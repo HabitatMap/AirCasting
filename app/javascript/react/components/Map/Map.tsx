@@ -98,6 +98,7 @@ const Map = () => {
   // Effects
   useEffect(() => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (shouldFetchSessions) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
@@ -109,16 +110,20 @@ const Map = () => {
   // Callbacks
 =======
     selectedSessionType == FIXED
+=======
+    selectedSessionType === FIXED
+>>>>>>> d7f7417b (feat: display mobile stream markers on the map)
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
   }, [dispatch, filters, selectedSessionType]);
 
-  const sessionsData =
-    selectedSessionType == FIXED
-      ? useSelector(selectFixedSessionsData)
-      : useSelector(selectMobileSessionsData);
-
-  const mobileStreamData = useSelector(selectMobileStreamData);
+  const sessionsData = useSelector(
+    selectedSessionType === FIXED
+      ? selectFixedSessionsData
+      : selectedStreamId
+      ? selectMobileStreamData
+      : selectMobileSessionsData
+  );
 
 >>>>>>> c28719df (chore: map data in selectors)
   const onIdle = useCallback(
@@ -144,8 +149,13 @@ const Map = () => {
   // Handlers
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
     if (streamId) {
+<<<<<<< HEAD
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
+=======
+      selectedSessionType === FIXED
+        ? null
+>>>>>>> d7f7417b (feat: display mobile stream markers on the map)
         : dispatch(fetchMobileStreamById(streamId));
     }
 
