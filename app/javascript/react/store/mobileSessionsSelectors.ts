@@ -15,7 +15,6 @@ export const selectMobileSessionsData = createSelector(
       latitude: session.streams[Object.keys(session.streams)[0]].startLatitude,
       longitude:
         session.streams[Object.keys(session.streams)[0]].startLongitude,
-      //temporarly using the first stream id as key
-      streamId: session.streams[Object.keys(session.streams)[0]].id, // stream id
+      streamId: session.streams[Object.keys(session.streams)[0]].id,
     }))
 );

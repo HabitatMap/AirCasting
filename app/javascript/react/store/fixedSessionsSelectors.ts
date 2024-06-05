@@ -12,7 +12,6 @@ export const selectFixedSessionsData = createSelector(
       lastMeasurementValue: session.lastMeasurementValue,
       latitude: session.latitude,
       longitude: session.longitude,
-      //temporarly using the first stream id as key
       streamId: session.streams[Object.keys(session.streams)[0]].id,
     }))
 );
