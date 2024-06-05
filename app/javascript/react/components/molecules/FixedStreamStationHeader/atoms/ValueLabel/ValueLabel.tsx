@@ -15,7 +15,7 @@ const ValueLabel = ({ date, value, unitSymbol, isActive }: StationValues) => {
   const { t } = useTranslation();
 
   return (
-    <S.Container isActive={isActive}>
+    <S.Container $isActive={isActive}>
       <S.ImageContainer
         src={BroadCastLogo}
         alt={t("stationValue.altLogo")}

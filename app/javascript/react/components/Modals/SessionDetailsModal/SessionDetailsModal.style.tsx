@@ -62,6 +62,11 @@ const SessionName = styled(H2)`
   font-weight: 500;
 `;
 
+const ProfileName = styled.span`
+  font-size: 1.2rem;
+  font-weight: 400;
+`;
+
 const SensorName = styled.span`
   font-size: 1.2rem;
   font-weight: 400;
@@ -122,6 +127,7 @@ const TimeRange = styled.div`
 const Button = styled(ActionButton)`
   color: ${gray300};
   background-color: ${gray100};
+  box-shadow: none;
 `;
 
 const BlueButton = styled(Link)`
@@ -180,6 +186,7 @@ export {
   SessionDetailsModal,
   InfoContainer,
   SessionName,
+  ProfileName,
   SensorName,
   AverageValueContainer,
   AverageValue,
