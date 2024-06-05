@@ -5,8 +5,8 @@ interface StreamMarkerProps {
 }
 
 const StreamMarkerCircle = styled.div<StreamMarkerProps>`
-  width: 1rem;
-  height: 1rem;
+  width: 1.2rem;
+  height: 1.2rem;
   border-radius: 50%;
   background-color: ${(props) => props.color};
 `;

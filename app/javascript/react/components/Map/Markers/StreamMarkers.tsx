@@ -2,34 +2,22 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-<<<<<<< HEAD
 import { mobileStreamPath, red } from "../../../assets/styles/colors";
 import { Session } from "../../../types/sessionType";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
-=======
-import { Session } from "./SessionType";
-import { StreamSingleMarker } from "./StreamSingleMarker/StreamSingleMarker";
->>>>>>> a11f6667 (styles: use stream single marker)
 
 import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   sessions: Session[];
-<<<<<<< HEAD
   unitSymbol: string;
 };
 
 const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
-=======
-};
-
-const StreamMarkers = ({ sessions }: Props) => {
->>>>>>> a11f6667 (styles: use stream single marker)
   const map = useMap();
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
   );
-<<<<<<< HEAD
   const polylineRef = useRef<google.maps.Polyline | null>(null);
 
   // Sort sessions by time
@@ -38,9 +26,6 @@ const StreamMarkers = ({ sessions }: Props) => {
     const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
     return timeA - timeB;
   });
-=======
-  const clusterer = useRef<MarkerClusterer | null>(null);
->>>>>>> a11f6667 (styles: use stream single marker)
 
   // Update markers when marker references change
   useEffect(() => {
