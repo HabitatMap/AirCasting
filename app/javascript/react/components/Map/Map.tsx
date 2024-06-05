@@ -29,6 +29,11 @@ import { StreamMarkers } from "./Markers/StreamMarkers";
 
 const Map = () => {
   // const
+<<<<<<< HEAD
+=======
+  const FIXED = "fixed";
+  const MOBILE = "mobile";
+>>>>>>> f6bd6c44 (chore: reorganize map file)
   const timeFrom = "1685318400";
   const timeTo = "1717027199";
   const tags = "";
@@ -42,6 +47,10 @@ const Map = () => {
   const dispatch = useAppDispatch();
 
   // State
+<<<<<<< HEAD
+=======
+  const [currentZoom, setCurrentZoom] = useState(DEFAULT_ZOOM);
+>>>>>>> f6bd6c44 (chore: reorganize map file)
   const [mapBounds, setMapBounds] = useState({
     north: DEFAULT_MAP_BOUNDS.north,
     south: DEFAULT_MAP_BOUNDS.south,
@@ -52,6 +61,7 @@ const Map = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
   const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
+<<<<<<< HEAD
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(
     null
   );
@@ -62,10 +72,15 @@ const Map = () => {
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
+=======
+  const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
+  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+>>>>>>> f6bd6c44 (chore: reorganize map file)
 
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
+<<<<<<< HEAD
   const mobileStreamPoints = useSelector(selectMobileStreamPoints);
   const sessionsPoints = useSelector(
     fixedSessionTypeSelected
@@ -79,6 +94,19 @@ const Map = () => {
   const sensor_name = fixedSessionTypeSelected
     ? "government-pm2.5"
     : "airbeam-pm2.5";
+=======
+  const sessionsData = useSelector(
+    selectedSessionType === FIXED
+      ? selectFixedSessionsData
+      : selectedStreamId
+      ? selectMobileStreamData
+      : selectMobileSessionsData
+  );
+
+  // Filters (temporary solution)
+  const sensor_name =
+    `${selectedSessionType}` === FIXED ? "government-pm2.5" : "airbeam-pm2.5";
+>>>>>>> f6bd6c44 (chore: reorganize map file)
   const filters = JSON.stringify({
     time_from: timeFrom,
     time_to: timeTo,
@@ -117,6 +145,7 @@ const Map = () => {
       : dispatch(fetchMobileSessions({ filters }));
   }, [dispatch, filters, selectedSessionType]);
 
+<<<<<<< HEAD
   const sessionsData = useSelector(
     selectedSessionType === FIXED
       ? selectFixedSessionsData
@@ -126,6 +155,9 @@ const Map = () => {
   );
 
 >>>>>>> c28719df (chore: map data in selectors)
+=======
+  // Callbacks
+>>>>>>> f6bd6c44 (chore: reorganize map file)
   const onIdle = useCallback(
     (event: MapEvent) => {
       const map = event.map;
@@ -147,7 +179,18 @@ const Map = () => {
   );
 
   // Handlers
+<<<<<<< HEAD
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
+=======
+  const handleMarkerClick = (streamId: number | null) => {
+    if (mapInstance) {
+      setPreviousZoom(mapInstance.getZoom() || DEFAULT_ZOOM);
+      setPreviousCenter(
+        mapInstance.getCenter()?.toJSON() || DEFAULT_MAP_CENTER
+      );
+    }
+
+>>>>>>> f6bd6c44 (chore: reorganize map file)
     if (streamId) {
 <<<<<<< HEAD
       fixedSessionTypeSelected
