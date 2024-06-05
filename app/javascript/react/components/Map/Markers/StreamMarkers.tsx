@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { Session } from "./SessionType";
@@ -17,7 +16,6 @@ const StreamMarkers = ({ sessions }: Props) => {
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
   );
-  const clusterer = useRef<MarkerClusterer | null>(null);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
 
   // Sort sessions by time
@@ -39,17 +37,6 @@ const StreamMarkers = ({ sessions }: Props) => {
       ...newMarkers,
     }));
   }, [sessions]);
-
-  // Update MarkerClusterer when markers change
-  useEffect(() => {
-    if (!clusterer.current || !map) return;
-
-    const validMarkers = Object.values(markers).filter(
-      (marker) => marker !== null
-    ) as Marker[];
-    clusterer.current.clearMarkers();
-    clusterer.current.addMarkers(validMarkers);
-  }, [markers, map]);
 
   // Create and update polyline
   useEffect(() => {
