@@ -50,21 +50,22 @@ const Map = () => {
   const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
   const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+  const fixedSessionTypeSelected = selectedSessionType === FIXED;
 
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
+  const mobileStreamData = useSelector(selectMobileStreamData);
   const sessionsData = useSelector(
-    selectedSessionType === FIXED
+    fixedSessionTypeSelected
       ? selectFixedSessionsData
-      : selectedStreamId
-      ? selectMobileStreamData
       : selectMobileSessionsData
   );
 
   // Filters (temporary solution)
-  const sensor_name =
-    `${selectedSessionType}` === FIXED ? "government-pm2.5" : "airbeam-pm2.5";
+  const sensor_name = fixedSessionTypeSelected
+    ? "government-pm2.5"
+    : "airbeam-pm2.5";
   const filters = JSON.stringify({
     time_from: timeFrom,
     time_to: timeTo,
@@ -83,7 +84,7 @@ const Map = () => {
 
   // Effects
   useEffect(() => {
-    selectedSessionType === FIXED
+    fixedSessionTypeSelected
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
   }, [dispatch, filters, selectedSessionType]);
@@ -120,7 +121,7 @@ const Map = () => {
     }
 
     if (streamId) {
-      selectedSessionType === FIXED
+      fixedSessionTypeSelected
         ? null
         : dispatch(fetchMobileStreamById(streamId));
     }
@@ -166,11 +167,19 @@ const Map = () => {
         style={S.containerStyle}
         onIdle={onIdle}
       >
-        <Markers
-          sessions={sessionsData}
-          onMarkerClick={handleMarkerClick}
-          selectedStreamId={selectedStreamId}
-        />
+        {selectedStreamId && !fixedSessionTypeSelected ? (
+          <Markers
+            sessions={mobileStreamData}
+            onMarkerClick={handleMarkerClick}
+            selectedStreamId={selectedStreamId}
+          />
+        ) : (
+          <Markers
+            sessions={sessionsData}
+            onMarkerClick={handleMarkerClick}
+            selectedStreamId={selectedStreamId}
+          />
+        )}
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal
