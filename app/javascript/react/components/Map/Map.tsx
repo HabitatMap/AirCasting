@@ -75,11 +75,16 @@ const Map = () => {
 =======
   const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+<<<<<<< HEAD
 >>>>>>> f6bd6c44 (chore: reorganize map file)
+=======
+  const fixedSessionTypeSelected = selectedSessionType === FIXED;
+>>>>>>> cf35d220 (chore: extract condition to const)
 
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
+<<<<<<< HEAD
 <<<<<<< HEAD
   const mobileStreamPoints = useSelector(selectMobileStreamPoints);
   const sessionsPoints = useSelector(
@@ -95,18 +100,25 @@ const Map = () => {
     ? "government-pm2.5"
     : "airbeam-pm2.5";
 =======
+=======
+  const mobileStreamData = useSelector(selectMobileStreamData);
+>>>>>>> cf35d220 (chore: extract condition to const)
   const sessionsData = useSelector(
-    selectedSessionType === FIXED
+    fixedSessionTypeSelected
       ? selectFixedSessionsData
-      : selectedStreamId
-      ? selectMobileStreamData
       : selectMobileSessionsData
   );
 
   // Filters (temporary solution)
+<<<<<<< HEAD
   const sensor_name =
     `${selectedSessionType}` === FIXED ? "government-pm2.5" : "airbeam-pm2.5";
 >>>>>>> f6bd6c44 (chore: reorganize map file)
+=======
+  const sensor_name = fixedSessionTypeSelected
+    ? "government-pm2.5"
+    : "airbeam-pm2.5";
+>>>>>>> cf35d220 (chore: extract condition to const)
   const filters = JSON.stringify({
     time_from: timeFrom,
     time_to: timeTo,
@@ -127,6 +139,7 @@ const Map = () => {
   useEffect(() => {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (shouldFetchSessions) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
@@ -141,6 +154,9 @@ const Map = () => {
 =======
     selectedSessionType === FIXED
 >>>>>>> d7f7417b (feat: display mobile stream markers on the map)
+=======
+    fixedSessionTypeSelected
+>>>>>>> cf35d220 (chore: extract condition to const)
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
   }, [dispatch, filters, selectedSessionType]);
@@ -193,10 +209,14 @@ const Map = () => {
 >>>>>>> f6bd6c44 (chore: reorganize map file)
     if (streamId) {
 <<<<<<< HEAD
+<<<<<<< HEAD
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
 =======
       selectedSessionType === FIXED
+=======
+      fixedSessionTypeSelected
+>>>>>>> cf35d220 (chore: extract condition to const)
         ? null
 >>>>>>> d7f7417b (feat: display mobile stream markers on the map)
         : dispatch(fetchMobileStreamById(streamId));
@@ -267,19 +287,31 @@ const Map = () => {
         onIdle={onIdle}
       >
 <<<<<<< HEAD
+<<<<<<< HEAD
         {fixedSessionTypeSelected ? (
           <FixedMarkers
             sessions={sessionsPoints}
+=======
+        {selectedStreamId && !fixedSessionTypeSelected ? (
+          <Markers
+            sessions={mobileStreamData}
+>>>>>>> cf35d220 (chore: extract condition to const)
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
           />
         ) : (
+<<<<<<< HEAD
           <MobileMarkers
             sessions={sessionsPoints}
+=======
+          <Markers
+            sessions={sessionsData}
+>>>>>>> cf35d220 (chore: extract condition to const)
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
           />
         )}
+<<<<<<< HEAD
         {selectedStreamId && !fixedSessionTypeSelected && (
           <StreamMarkers
             sessions={mobileStreamPoints}
@@ -293,6 +325,8 @@ const Map = () => {
           selectedStreamId={selectedStreamId}
         />
 >>>>>>> c28719df (chore: map data in selectors)
+=======
+>>>>>>> cf35d220 (chore: extract condition to const)
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal
