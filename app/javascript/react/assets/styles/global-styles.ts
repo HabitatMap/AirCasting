@@ -1,5 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-import { blue, gray100, gray400 } from "./colors";
+import { gray100, gray400 } from "./colors";
 
 const GlobalStyles = createGlobalStyle`
   *,
@@ -34,22 +34,6 @@ const GlobalStyles = createGlobalStyle`
   H1, H2, H3, H4, H5, H6 {
     line-height: 1.2;
     color: ${gray400};
-  }
-
-  body.user-is-tabbing :focus-visible {
-    outline: 2px solid ${blue};
-  }
-
-  body..user-is-tabbing .gm-style iframe + div {
-    border: 2px solid ${blue};
-  }
-
-  body:not(.user-is-tabbing) :focus-visible {
-    outline: none; 
-  }
-
-  body:not(.user-is-tabbing) .gm-style iframe + div {
-    border: none !important; 
   }
 `;
 
