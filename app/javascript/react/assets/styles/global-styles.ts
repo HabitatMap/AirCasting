@@ -37,7 +37,11 @@ const GlobalStyles = createGlobalStyle`
   }
 
   body.user-is-tabbing :focus-visible {
-    outline: 2px ${blue};
+    outline: 2px solid ${blue};
+  }
+
+  body..user-is-tabbing .gm-style iframe + div {
+    border: 2px solid ${blue};
   }
 
   body:not(.user-is-tabbing) :focus-visible {
