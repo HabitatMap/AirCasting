@@ -12,14 +12,11 @@ import { RootState } from "../../store";
 import { selectSessionsData as selectFixedSessionsData } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
-import {
-  selectMobileSessionsState,
-  selectSessionsData as selectMobileSessionsData,
-} from "../../store/mobileSessionsSelectors";
+import { selectSessionsData as selectMobileSessionsData } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
+import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import * as S from "./Map.style";
-import mapStyles from "./mapStyles";
 import { Markers } from "./Markers/Markers";
 import { Session } from "./Markers/SessionType";
 
@@ -127,6 +124,13 @@ const Map = () => {
         mapInstance.getCenter()?.toJSON() || DEFAULT_MAP_CENTER
       );
     }
+
+    if (streamId) {
+      selectedSessionType == FIXED
+        ? null
+        : dispatch(fetchMobileStreamById(streamId));
+    }
+
     setSelectedStreamId(streamId);
     setModalOpen(false);
     setTimeout(() => {
