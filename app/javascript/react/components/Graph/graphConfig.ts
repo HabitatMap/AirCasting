@@ -19,7 +19,7 @@ import {
   gray400,
 } from "../../assets/styles/colors";
 
-import { ThresholdState } from "../../store/thresholdSlice"
+import { ThresholdState } from "../../store/thresholdSlice";
 
 const xAxisOption: XAxisOptions = {
   title: {
@@ -30,15 +30,19 @@ const xAxisOption: XAxisOptions = {
   type: "datetime",
   labels: {
     overflow: "justify",
+    style: {
+      fontSize: "1.2rem"
+    }
   },
   crosshair: {
     color: white,
     width: 2,
   },
+  minRange: 10000,
 };
 
 const getYAxisOption = (thresholdsState: ThresholdState): YAxisOptions => {
-console.log(thresholdsState.max)
+
 const min = Number(thresholdsState.min);
 const max = Number(thresholdsState.max);
 const low = Number(thresholdsState.low);
@@ -101,6 +105,7 @@ const seriesOption = (data: number[][]): SeriesOptionsType => ({
   data: data,
   tooltip: {
     valueDecimals: 2,
+    followPointer: true,
   },
 });
 

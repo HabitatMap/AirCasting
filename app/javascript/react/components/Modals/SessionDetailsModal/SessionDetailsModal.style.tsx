@@ -130,6 +130,7 @@ const Button = styled(ActionButton)`
   color: ${gray300};
   background-color: ${gray100};
   box-shadow: none;
+  padding: 1.6rem;
 `;
 
 const BlueButton = styled(Link)`
