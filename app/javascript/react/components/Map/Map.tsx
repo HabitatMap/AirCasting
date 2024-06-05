@@ -38,14 +38,17 @@ const Map = () => {
   const usernames = "";
   const limit = 100;
   const offset = 0;
-  const sensor_name =
-    `${selectedSessionType}` == FIXED ? "government-pm2.5" : "airbeam-pm2.5";
+
   const measurement_type = "Particulate Matter";
   const unit_symbol = "µg/m³";
 
   const dispatch = useAppDispatch();
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+
   const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
+  const sensor_name =
+    `${selectedSessionType}` == FIXED ? "government-pm2.5" : "airbeam-pm2.5";
+
   const [mapBounds, setMapBounds] = useState({
     north: DEFAULT_MAP_BOUNDS.north,
     south: DEFAULT_MAP_BOUNDS.south,
@@ -143,8 +146,6 @@ const Map = () => {
   const handleClick = (type: string) => {
     setSelectedSessionType(type);
   };
-
-  console.log("selectedSessionType", selectedSessionType);
 
   return (
     <>
