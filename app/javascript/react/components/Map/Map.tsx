@@ -52,7 +52,6 @@ const Map = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
   const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
-<<<<<<< HEAD
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(
     null
   );
@@ -63,14 +62,6 @@ const Map = () => {
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
-=======
-  const [selectedSessionType, setSelectedSessionType] =
-    useState<string>(MOBILE);
-  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(
-    2493827
-  );
-  const fixedSessionTypeSelected = selectedSessionType === FIXED;
->>>>>>> 63f11c07 (chore: temporary changes to enable styling)
 
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
@@ -106,7 +97,6 @@ const Map = () => {
 
   // Effects
   useEffect(() => {
-<<<<<<< HEAD
     if (shouldFetchSessions) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
@@ -114,15 +104,6 @@ const Map = () => {
       setShouldFetchSessions(false);
     }
   }, [dispatch, filters, shouldFetchSessions]);
-=======
-    if (selectedStreamId) {
-      dispatch(fetchMobileStreamById(selectedStreamId));
-    }
-    fixedSessionTypeSelected
-      ? dispatch(fetchFixedSessions({ filters }))
-      : dispatch(fetchMobileSessions({ filters }));
-  }, [dispatch, filters, selectedSessionType]);
->>>>>>> 63f11c07 (chore: temporary changes to enable styling)
 
   // Callbacks
   const onIdle = useCallback(
@@ -237,7 +218,7 @@ const Map = () => {
           />
         )}
       </GoogleMap>
-      {false && (
+      {modalOpen && (
         <SessionDetailsModal
           onClose={handleCloseModal}
           sessionType={selectedSessionType}
