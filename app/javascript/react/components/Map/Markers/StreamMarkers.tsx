@@ -3,31 +3,20 @@ import React, { useEffect, useRef, useState } from "react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "./SessionType";
-import { SingleMarker } from "./SingleMarker/SingleMarker";
+import { StreamSingleMarker } from "./StreamSingleMarker/StreamSingleMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
 type Props = {
   sessions: Session[];
-  onMarkerClick: (streamId: number | null) => void;
-  selectedStreamId: number | null;
 };
 
-const StreamMarkers = ({
-  sessions,
-  onMarkerClick,
-  selectedStreamId,
-}: Props) => {
+const StreamMarkers = ({ sessions }: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
   );
   const clusterer = useRef<MarkerClusterer | null>(null);
-  const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
-    null
-  );
-  const ZOOM_FOR_SELECTED_SESSION = 12;
 
   // Update markers when marker references change
   useEffect(() => {
@@ -54,20 +43,6 @@ const StreamMarkers = ({
     clusterer.current.addMarkers(validMarkers);
   }, [markers, map]);
 
-  const centerMapOnMarker = (position: LatLngLiteral, streamId: string) => {
-    if (map) {
-      map.setCenter(position);
-      map.setZoom(ZOOM_FOR_SELECTED_SESSION);
-    }
-    setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
-  };
-
-  useEffect(() => {
-    if (selectedStreamId === null) {
-      setSelectedMarkerKey(null);
-    }
-  }, [selectedStreamId]);
-
   return (
     <>
       {sessions.map((session) => (
@@ -83,15 +58,7 @@ const StreamMarkers = ({
             }
           }}
         >
-          <SingleMarker
-            color="#E95F5F"
-            value={`${session.lastMeasurementValue} µg/m³`}
-            isSelected={session.point.streamId === selectedMarkerKey}
-            onClick={() => {
-              centerMapOnMarker(session.point, session.point.streamId);
-              onMarkerClick(Number(session.point.streamId));
-            }}
-          />
+          <StreamSingleMarker color="#E95F5F" />
         </AdvancedMarker>
       ))}
     </>

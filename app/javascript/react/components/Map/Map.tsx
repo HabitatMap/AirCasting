@@ -175,11 +175,7 @@ const Map = () => {
         onIdle={onIdle}
       >
         {selectedStreamId && !fixedSessionTypeSelected ? (
-          <StreamMarkers
-            sessions={mobileStreamData}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
-          />
+          <StreamMarkers sessions={mobileStreamData} />
         ) : (
           <Markers
             sessions={sessionsData}
