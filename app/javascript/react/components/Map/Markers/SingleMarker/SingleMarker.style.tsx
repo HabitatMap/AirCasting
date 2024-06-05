@@ -62,7 +62,7 @@ const MarkerCircle = styled.div<MarkerProps>`
 
 const MarkerText = styled(H4)`
   color: ${gray400};
-  font-size: 12px;
+  font-size: 1.2rem;
   font-weight: 400;
   pointer-events: none;
 `;
