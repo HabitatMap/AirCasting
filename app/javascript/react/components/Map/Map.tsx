@@ -29,11 +29,6 @@ import { StreamMarkers } from "./Markers/StreamMarkers";
 
 const Map = () => {
   // const
-<<<<<<< HEAD
-=======
-  const FIXED = "fixed";
-  const MOBILE = "mobile";
->>>>>>> f6bd6c44 (chore: reorganize map file)
   const timeFrom = "1685318400";
   const timeTo = "1717027199";
   const tags = "";
@@ -47,10 +42,6 @@ const Map = () => {
   const dispatch = useAppDispatch();
 
   // State
-<<<<<<< HEAD
-=======
-  const [currentZoom, setCurrentZoom] = useState(DEFAULT_ZOOM);
->>>>>>> f6bd6c44 (chore: reorganize map file)
   const [mapBounds, setMapBounds] = useState({
     north: DEFAULT_MAP_BOUNDS.north,
     south: DEFAULT_MAP_BOUNDS.south,
@@ -61,7 +52,6 @@ const Map = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
   const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
-<<<<<<< HEAD
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(
     null
   );
@@ -72,20 +62,10 @@ const Map = () => {
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
-=======
-  const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
-  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
-<<<<<<< HEAD
->>>>>>> f6bd6c44 (chore: reorganize map file)
-=======
-  const fixedSessionTypeSelected = selectedSessionType === FIXED;
->>>>>>> cf35d220 (chore: extract condition to const)
 
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
-<<<<<<< HEAD
-<<<<<<< HEAD
   const mobileStreamPoints = useSelector(selectMobileStreamPoints);
   const sessionsPoints = useSelector(
     fixedSessionTypeSelected
@@ -99,26 +79,6 @@ const Map = () => {
   const sensor_name = fixedSessionTypeSelected
     ? "government-pm2.5"
     : "airbeam-pm2.5";
-=======
-=======
-  const mobileStreamData = useSelector(selectMobileStreamData);
->>>>>>> cf35d220 (chore: extract condition to const)
-  const sessionsData = useSelector(
-    fixedSessionTypeSelected
-      ? selectFixedSessionsData
-      : selectMobileSessionsData
-  );
-
-  // Filters (temporary solution)
-<<<<<<< HEAD
-  const sensor_name =
-    `${selectedSessionType}` === FIXED ? "government-pm2.5" : "airbeam-pm2.5";
->>>>>>> f6bd6c44 (chore: reorganize map file)
-=======
-  const sensor_name = fixedSessionTypeSelected
-    ? "government-pm2.5"
-    : "airbeam-pm2.5";
->>>>>>> cf35d220 (chore: extract condition to const)
   const filters = JSON.stringify({
     time_from: timeFrom,
     time_to: timeTo,
@@ -137,9 +97,6 @@ const Map = () => {
 
   // Effects
   useEffect(() => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     if (shouldFetchSessions) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
@@ -149,31 +106,6 @@ const Map = () => {
   }, [dispatch, filters, shouldFetchSessions]);
 
   // Callbacks
-=======
-    selectedSessionType == FIXED
-=======
-    selectedSessionType === FIXED
->>>>>>> d7f7417b (feat: display mobile stream markers on the map)
-=======
-    fixedSessionTypeSelected
->>>>>>> cf35d220 (chore: extract condition to const)
-      ? dispatch(fetchFixedSessions({ filters }))
-      : dispatch(fetchMobileSessions({ filters }));
-  }, [dispatch, filters, selectedSessionType]);
-
-<<<<<<< HEAD
-  const sessionsData = useSelector(
-    selectedSessionType === FIXED
-      ? selectFixedSessionsData
-      : selectedStreamId
-      ? selectMobileStreamData
-      : selectMobileSessionsData
-  );
-
->>>>>>> c28719df (chore: map data in selectors)
-=======
-  // Callbacks
->>>>>>> f6bd6c44 (chore: reorganize map file)
   const onIdle = useCallback(
     (event: MapEvent) => {
       const map = event.map;
@@ -195,30 +127,10 @@ const Map = () => {
   );
 
   // Handlers
-<<<<<<< HEAD
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
-=======
-  const handleMarkerClick = (streamId: number | null) => {
-    if (mapInstance) {
-      setPreviousZoom(mapInstance.getZoom() || DEFAULT_ZOOM);
-      setPreviousCenter(
-        mapInstance.getCenter()?.toJSON() || DEFAULT_MAP_CENTER
-      );
-    }
-
->>>>>>> f6bd6c44 (chore: reorganize map file)
     if (streamId) {
-<<<<<<< HEAD
-<<<<<<< HEAD
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
-=======
-      selectedSessionType === FIXED
-=======
-      fixedSessionTypeSelected
->>>>>>> cf35d220 (chore: extract condition to const)
-        ? null
->>>>>>> d7f7417b (feat: display mobile stream markers on the map)
         : dispatch(fetchMobileStreamById(streamId));
     }
 
@@ -286,47 +198,25 @@ const Map = () => {
         style={S.containerStyle}
         onIdle={onIdle}
       >
-<<<<<<< HEAD
-<<<<<<< HEAD
         {fixedSessionTypeSelected ? (
           <FixedMarkers
             sessions={sessionsPoints}
-=======
-        {selectedStreamId && !fixedSessionTypeSelected ? (
-          <Markers
-            sessions={mobileStreamData}
->>>>>>> cf35d220 (chore: extract condition to const)
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
           />
         ) : (
-<<<<<<< HEAD
           <MobileMarkers
             sessions={sessionsPoints}
-=======
-          <Markers
-            sessions={sessionsData}
->>>>>>> cf35d220 (chore: extract condition to const)
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
           />
         )}
-<<<<<<< HEAD
         {selectedStreamId && !fixedSessionTypeSelected && (
           <StreamMarkers
             sessions={mobileStreamPoints}
             unitSymbol={unit_symbol}
           />
         )}
-=======
-        <Markers
-          sessions={sessionsData}
-          onMarkerClick={handleMarkerClick}
-          selectedStreamId={selectedStreamId}
-        />
->>>>>>> c28719df (chore: map data in selectors)
-=======
->>>>>>> cf35d220 (chore: extract condition to const)
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal
