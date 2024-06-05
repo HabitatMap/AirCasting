@@ -14,6 +14,7 @@ import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { selectSessionsData as selectMobileSessionsData } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
+import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import * as S from "./Map.style";
@@ -85,6 +86,20 @@ const Map = () => {
       : useSelector(selectMobileSessionsData);
 
   const mappedSessionsData: Session[] = sessionsData.map((session) => {
+    return {
+      id: session.id,
+      lastMeasurementValue: session.lastMeasurementValue,
+      point: {
+        lat: session.latitude,
+        lng: session.longitude,
+        streamId: session.streamId.toString(),
+      },
+    };
+  });
+
+  const mobileStreamData = useSelector(selectMobileStreamData);
+
+  const mappedMobileStreamData: Session[] = mobileStreamData.map((session) => {
     return {
       id: session.id,
       lastMeasurementValue: session.lastMeasurementValue,
