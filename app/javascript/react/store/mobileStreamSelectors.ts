@@ -50,8 +50,8 @@ const selectMobileStreamShortInfo = createSelector(
     );
 
     return {
+      averageValue: average,
       endTime: new Date(mobileStreamData.endTime).toISOString(),
-      lastMeasurementValue: average,
       max: maxMeasurementValue,
       min: minMeasurementValue,
       profile: mobileStreamData.username,

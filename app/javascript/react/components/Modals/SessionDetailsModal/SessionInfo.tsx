@@ -11,6 +11,7 @@ import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors"
 import { selectMobileStreamShortInfo } from "../../../store/mobileStreamSelectors";
 import { selectThreshold } from "../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../types/filters";
+import { MobileStreamShortInfo as StreamShortInfo } from "../../../types/mobileStream";
 import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { CopyLinkModal } from "../CopyLinkModal";
@@ -24,7 +25,7 @@ interface SessionInfoProps {
 const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
-  const streamShortInfo = useSelector(
+  const streamShortInfo: StreamShortInfo = useSelector(
     fixedSessionTypeSelected
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
@@ -48,13 +49,11 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
           <S.AverageDot
             $color={getColorForValue(
               thresholds,
-              streamShortInfo.lastMeasurementValue || null
+              streamShortInfo.averageValue || null
             )}
           />
           {t("sessionDetailsModal.averageValue")}
-          <S.AverageValue>
-            {streamShortInfo.lastMeasurementValue}
-          </S.AverageValue>
+          <S.AverageValue>{streamShortInfo.averageValue}</S.AverageValue>
           {streamShortInfo.unitSymbol}
         </S.AverageValueContainer>
         <S.MinMaxValueContainer>

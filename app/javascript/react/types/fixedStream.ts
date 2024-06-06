@@ -15,7 +15,7 @@ interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   title: string;
   unitSymbol: string;
   active: boolean;
-  min: number,
+  min: number;
   low: number;
   middle: number;
   high: number;
@@ -39,6 +39,7 @@ interface FixedStream {
 }
 
 interface FixedStreamShortInfo extends FixedStreamStationInfo {
+  averageValue: number | undefined;
   lastMeasurementValue: number | undefined;
   lastMeasurementDateLabel: string | undefined;
 }

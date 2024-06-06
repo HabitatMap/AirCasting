@@ -26,8 +26,8 @@ interface MobileStream {
 }
 
 interface MobileStreamShortInfo {
+  averageValue: number | undefined;
   endTime: string | null;
-  lastMeasurementValue: number | undefined;
   min: number;
   max: number;
   profile: string;
