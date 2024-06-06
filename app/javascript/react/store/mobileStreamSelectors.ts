@@ -36,15 +36,9 @@ const selectMobileStreamShortInfo = createSelector(
     // const { min, low, middle, high, max } = fixedStreamData.stream;
 
     return {
-      active: true,
       endTime: mobileStreamData.endTime.toString(),
-      high: 0,
-      lastMeasurementDateLabel: "",
       lastMeasurementValue: 0,
-      lastUpdate: "",
-      low: 0,
       max: 0,
-      middle: 0,
       min: 0,
       profile: "",
       sensorName: "",
@@ -52,7 +46,6 @@ const selectMobileStreamShortInfo = createSelector(
       startTime: "",
       title: "",
       unitSymbol: "",
-      updateFrequency: "",
     };
   }
 );

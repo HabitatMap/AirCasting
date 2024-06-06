@@ -1,5 +1,3 @@
-import { FixedStreamShortInfo } from "./fixedStream";
-
 interface Measurement {
   latitude: number;
   longitude: number;
@@ -27,6 +25,17 @@ interface MobileStream {
   username: string;
 }
 
-interface MobileStreamShortInfo extends FixedStreamShortInfo {}
+interface MobileStreamShortInfo {
+  endTime: string | null;
+  lastMeasurementValue: number | undefined;
+  min: number;
+  max: number;
+  profile: string;
+  sensorName: string;
+  sessionId: string;
+  startTime: string;
+  title: string;
+  unitSymbol: string;
+}
 
 export type { MobileStream, MobileStreamShortInfo };
