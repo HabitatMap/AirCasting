@@ -27,25 +27,37 @@ const selectMobileStreamPoints = createSelector(
 const selectMobileStreamShortInfo = createSelector(
   [selectMobileStreamData],
   (mobileStreamData): MobileStreamShortInfo => {
-    // const { value: lastMeasurementValue, date } = lastDailyAverage || {};
-    // const lastMeasurementDateLabel = moment(date).format("MMM D");
-    // const lastUpdate = moment(fixedStreamData.stream.lastUpdate)
-    //   .local()
-    //   .format("HH:mm MMM D YYYY");
-    // const active = fixedStreamData.stream.active;
-    // const { min, low, middle, high, max } = fixedStreamData.stream;
+    const total = mobileStreamData.measurements.reduce(
+      (sum, measurement) => sum + measurement.value,
+      0
+    );
+    const average = total / mobileStreamData.measurements.length;
+
+    const maxMeasurementValue = mobileStreamData.measurements.reduce(
+      (max, measurement) => {
+        return measurement.value > max ? measurement.value : max;
+      },
+      mobileStreamData.measurements[0]?.value
+    );
+
+    const minMeasurementValue = mobileStreamData.measurements.reduce(
+      (min, measurement) => {
+        return measurement.value < min ? measurement.value : min;
+      },
+      mobileStreamData.measurements[0]?.value
+    );
 
     return {
-      endTime: mobileStreamData.endTime.toString(),
-      lastMeasurementValue: 0,
-      max: 0,
-      min: 0,
-      profile: "",
-      sensorName: "",
-      sessionId: "",
-      startTime: "",
-      title: "",
-      unitSymbol: "",
+      endTime: new Date(mobileStreamData.endTime).toISOString(),
+      lastMeasurementValue: average,
+      max: maxMeasurementValue,
+      min: minMeasurementValue,
+      profile: mobileStreamData.username,
+      sensorName: mobileStreamData.sensorName,
+      sessionId: mobileStreamData.id.toString(),
+      startTime: new Date(mobileStreamData.startTime).toISOString(),
+      title: mobileStreamData.title,
+      unitSymbol: mobileStreamData.sensorUnit,
     };
   }
 );
