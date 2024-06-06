@@ -9,7 +9,7 @@ import downloadImage from "../../../assets/icons/download.svg";
 import shareLink from "../../../assets/icons/shareLink.svg";
 import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
 import { selectThreshold } from "../../../store/thresholdSlice";
-import { SessionType } from "../../../types/filters";
+import { SessionType, SessionTypes } from "../../../types/filters";
 import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { CopyLinkModal } from "../CopyLinkModal";
@@ -21,20 +21,11 @@ interface SessionInfoProps {
 }
 
 const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
-  const {
-    unitSymbol,
-    title,
-    sensorName,
-    lastMeasurementValue,
-    profile,
-    lastMeasurementDateLabel,
-    active,
-    sessionId,
-    startTime,
-    endTime,
-    min,
-    max,
-  } = useSelector(selectFixedStreamShortInfo);
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+
+  const streamShortInfo = useSelector(
+    fixedSessionTypeSelected ? selectFixedStreamShortInfo : ""
+  );
 
   const thresholds = useSelector(selectThreshold);
   const { t } = useTranslation();
@@ -46,33 +37,43 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
   return (
     <S.InfoContainer>
       <S.Wrapper>
-        <S.SessionName>{title}</S.SessionName>
-        <S.ProfileName>{profile}</S.ProfileName>
-        <S.SensorName>{sensorName}</S.SensorName>
+        <S.SessionName>{streamShortInfo.title}</S.SessionName>
+        <S.ProfileName>{streamShortInfo.profile}</S.ProfileName>
+        <S.SensorName>{streamShortInfo.sensorName}</S.SensorName>
       </S.Wrapper>
       <S.Wrapper>
         <S.AverageValueContainer>
           <S.AverageDot
-            $color={getColorForValue(thresholds, lastMeasurementValue || null)}
+            $color={getColorForValue(
+              thresholds,
+              streamShortInfo.lastMeasurementValue || null
+            )}
           />
           {t("sessionDetailsModal.averageValue")}
-          <S.AverageValue>{lastMeasurementValue}</S.AverageValue>
-          {unitSymbol}
+          <S.AverageValue>
+            {streamShortInfo.lastMeasurementValue}
+          </S.AverageValue>
+          {streamShortInfo.unitSymbol}
         </S.AverageValueContainer>
         <S.MinMaxValueContainer>
           <div>
-            <S.SmallDot $color={getColorForValue(thresholds, min)} />
+            <S.SmallDot
+              $color={getColorForValue(thresholds, streamShortInfo.min)}
+            />
             {t("sessionDetailsModal.minValue")}
-            <S.Value>{min}</S.Value>
+            <S.Value>{streamShortInfo.min}</S.Value>
           </div>
           <div>
-            <S.SmallDot $color={getColorForValue(thresholds, max)} />
+            <S.SmallDot
+              $color={getColorForValue(thresholds, streamShortInfo.max)}
+            />
             {t("sessionDetailsModal.maxValue")}
-            <S.Value>{max}</S.Value>
+            <S.Value>{streamShortInfo.max}</S.Value>
           </div>
         </S.MinMaxValueContainer>
         <S.TimeRange>
-          {formattedTime(startTime ?? "")} - {formattedTime(endTime ?? "")}
+          {formattedTime(streamShortInfo.startTime ?? "")} -{" "}
+          {formattedTime(streamShortInfo.endTime ?? "")}
         </S.TimeRange>
       </S.Wrapper>
       <S.ButtonsContainer>
@@ -93,7 +94,10 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
           nested
           closeOnDocumentClick
         >
-          <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
+          <ExportDataModal
+            sessionId={streamShortInfo.sessionId}
+            onSubmit={(formData) => {}}
+          />
         </S.SmallPopup>
         <S.SmallPopup
           trigger={
@@ -108,7 +112,10 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
           nested
           closeOnDocumentClick
         >
-          <CopyLinkModal sessionId={sessionId} onSubmit={(formData) => {}} />
+          <CopyLinkModal
+            sessionId={streamShortInfo.sessionId}
+            onSubmit={(formData) => {}}
+          />
         </S.SmallPopup>
       </S.ButtonsContainer>
     </S.InfoContainer>
