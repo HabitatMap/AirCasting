@@ -9,13 +9,13 @@ import {
   DEFAULT_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
-import { selectFixedSessionsData } from "../../store/fixedSessionsSelectors";
+import { selectFixedSessionsPoints } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { selectMobileSessionsData } from "../../store/mobileSessionsSelectors";
+import { selectMobileSessionsPoints } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
-import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
+import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
@@ -58,11 +58,11 @@ const Map = () => {
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
-  const mobileStreamData = useSelector(selectMobileStreamData);
-  const sessionsData = useSelector(
+  const mobileStreamPoints = useSelector(selectMobileStreamPoints);
+  const sessionsPoints = useSelector(
     fixedSessionTypeSelected
-      ? selectFixedSessionsData
-      : selectMobileSessionsData
+      ? selectFixedSessionsPoints
+      : selectMobileSessionsPoints
   );
 
   // Filters (temporary solution)
@@ -170,14 +170,13 @@ const Map = () => {
         onIdle={onIdle}
       >
         {selectedStreamId && !fixedSessionTypeSelected && (
-          <StreamMarkers sessions={mobileStreamData} />
+          <StreamMarkers sessions={mobileStreamPoints} />
         )}
         <Markers
-          sessions={sessionsData}
+          sessions={sessionsPoints}
           onMarkerClick={handleMarkerClick}
           selectedStreamId={selectedStreamId}
         />
-        )
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal

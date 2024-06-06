@@ -5,7 +5,7 @@ import { RootState } from "./";
 
 const selectFixedSessionsState = (state: RootState) => state.fixedSessions;
 
-export const selectFixedSessionsData = createSelector(
+const selectFixedSessionsPoints = createSelector(
   [selectFixedSessionsState],
   (fixedSessionsState): Session[] =>
     fixedSessionsState.sessions.map(
@@ -20,3 +20,5 @@ export const selectFixedSessionsData = createSelector(
       })
     )
 );
+
+export { selectFixedSessionsPoints, selectFixedSessionsState };

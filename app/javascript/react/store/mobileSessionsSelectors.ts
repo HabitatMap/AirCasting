@@ -5,7 +5,7 @@ import { RootState } from "./";
 
 const selectMobileSessionsState = (state: RootState) => state.mobileSessions;
 
-const selectMobileSessionsData = createSelector(
+const selectMobileSessionsPoints = createSelector(
   [selectMobileSessionsState],
   (mobileSessionsState): Session[] =>
     mobileSessionsState.sessions.map(({ id, streams }) => ({
@@ -19,4 +19,4 @@ const selectMobileSessionsData = createSelector(
     }))
 );
 
-export { selectMobileSessionsData, selectMobileSessionsState };
+export { selectMobileSessionsPoints, selectMobileSessionsState };

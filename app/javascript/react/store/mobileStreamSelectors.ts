@@ -4,12 +4,12 @@ import { Session } from "../components/Map/Markers/SessionType";
 import { MobileStream } from "../types/mobileStream";
 import { RootState } from "./";
 
-const selectMobileStreamState = (state: RootState): MobileStream => {
+const selectMobileStreamData = (state: RootState): MobileStream => {
   return state.mobileStream.data;
 };
 
-const selectMobileStreamData = createSelector(
-  [selectMobileStreamState],
+const selectMobileStreamPoints = createSelector(
+  [selectMobileStreamData],
   (mobileStreamState): Session[] =>
     mobileStreamState.measurements.map(
       ({ time: id, value: lastMeasurementValue, latitude, longitude }) => ({
@@ -24,4 +24,4 @@ const selectMobileStreamData = createSelector(
     )
 );
 
-export { selectMobileStreamData, selectMobileStreamState };
+export { selectMobileStreamData, selectMobileStreamPoints };
