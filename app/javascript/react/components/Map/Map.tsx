@@ -52,14 +52,20 @@ const Map = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
   const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
+<<<<<<< HEAD
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(
     null
   );
+=======
+>>>>>>> 0ee39a56 (build: pass sessionType to SessionDetailsModal)
   const [selectedSessionType, setSelectedSessionType] = useState<SessionType>(
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+<<<<<<< HEAD
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
+=======
+>>>>>>> 0ee39a56 (build: pass sessionType to SessionDetailsModal)
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
 
