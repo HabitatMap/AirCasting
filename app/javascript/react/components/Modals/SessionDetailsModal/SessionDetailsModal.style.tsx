@@ -192,6 +192,7 @@ const Wrapper = styled.div`
 const InfoGraphContainer = styled.div`
 display: flex;
 gap 1rem;
+flex-wrap: wrap;
 `;
 
 export {

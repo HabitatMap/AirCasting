@@ -19,9 +19,28 @@ import {
   gray200,
   gray400,
   blue,
+  black,
 } from "../../assets/styles/colors";
 
 import { ThresholdState } from "../../store/thresholdSlice";
+import Highcharts from "highcharts";
+
+const scrollbarOptions = {
+  barBackgroundColor: "#D5D4D4",
+  barBorderRadius: 7,
+  barBorderWidth: 0,
+  buttonArrowColor: "#333333",
+  buttonBorderColor: "#cccccc",
+  buttonsEnabled: true,
+  buttonBackgroundColor: "#eee",
+  buttonBorderWidth: 0,
+  buttonBorderRadius: 7,
+  height: 12,
+  rifleColor: "#D5D4D4",
+  trackBackgroundColor: "none",
+  trackBorderWidth: 0,
+  showFull: true,
+};
 
 const xAxisOption: XAxisOptions = {
   title: {
@@ -33,7 +52,8 @@ const xAxisOption: XAxisOptions = {
   labels: {
     overflow: "justify",
     style: {
-      fontSize: "1.2rem"
+      fontSize: "1.2rem",
+      fontFamily: "Roboto",
     }
   },
   crosshair: {
@@ -41,15 +61,16 @@ const xAxisOption: XAxisOptions = {
     width: 2,
   },
   minRange: 10000,
+  scrollbar: scrollbarOptions
 };
 
-const getYAxisOption = (thresholdsState: ThresholdState): YAxisOptions => {
+const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
 
-const min = Number(thresholdsState.min);
-const max = Number(thresholdsState.max);
-const low = Number(thresholdsState.low);
-const middle = Number(thresholdsState.middle);
-const high = Number(thresholdsState.high);
+  const min = Number(thresholdsState.min);
+  const max = Number(thresholdsState.max);
+  const low = Number(thresholdsState.low);
+  const middle = Number(thresholdsState.middle);
+  const high = Number(thresholdsState.high);
 
 
   return {
@@ -63,7 +84,15 @@ const high = Number(thresholdsState.high);
     opposite: true,
     tickWidth: 1,
     minorGridLineWidth: 0,
+    labels: {
+      style: {
+        color: black,
+        fontFamily: "Roboto",
+        fontSize: "1.2rem",
+      },
+    },
     gridLineWidth: 0,
+    minPadding: 0,
     min: min,
     max: max,
     plotBands: [
@@ -74,7 +103,7 @@ const high = Number(thresholdsState.high);
       },
       {
         from: low,
-        to:middle,
+        to: middle,
         color: yellow,
       },
       {
@@ -95,34 +124,43 @@ const high = Number(thresholdsState.high);
 const plotOptions: PlotOptions = {
   spline: {
     lineWidth: 3,
-    marker: {
-      enabled: false,
-    },
-  },
-  line: {
-    color: white,
+    color: blue,
     marker: {
       fillColor: blue,
       lineWidth: 0,
       lineColor: blue,
+      enabledThreshold: 999,
+      radius: 3,
+      },
     },
-    dataGrouping: {
-      enabled: true,
-      units: [
-        ["millisecond", []],
-        ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
-        ["minute", [1, 2, 3, 4, 5]],
-      ],
-    },
-  },
-};
+    series: {
+      states: {
+        hover: {
+         halo: {
+          attributes: {
+            fill: blue,
+            'stroke-width': 2,
+        }
+         }
+        },
+      },
+    }
+  };
 
-const seriesOption = (data: number[][]): SeriesOptionsType => ({
+const seriesOptions = (data: number[][]): SeriesOptionsType => ({
   type: "spline",
   color: white,
   data: data,
   tooltip: {
     valueDecimals: 2,
+  },
+  dataGrouping: {
+    enabled: true,
+    units: [
+      ["millisecond", []],
+      ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
+      ["minute", [1, 2, 3, 4, 5]],
+    ],
   },
 });
 
@@ -137,20 +175,88 @@ const legendOption: LegendOptions = {
 };
 
 
-const responsive: ResponsiveOptions = {
-  rules: [{
+const responsive = {
+  rules: [
+    {
       condition: {
-          maxHeight: 200
+        maxWidth: 480,
       },
-    }]
-  };
+      chartOptions: {
+        rangeSelector: {
+          height: 30,
+          buttonSpacing: 8,
+
+          buttonTheme: {
+            fill: "none",
+            width: 33,
+            r: 10,
+            stroke: "rgba(149, 149, 149, 0.3)",
+            "stroke-width": 1,
+          },
+        },
+      },
+    },
+    {
+      condition: {
+        maxWidth: 550,
+      },
+      chartOptions: {
+        chart: {
+          height: 170,
+        },
+      },
+    },
+    {
+      condition: {
+        maxWidth: 700,
+      },
+    },
+  ],
+};
+
+
+const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
+  formatter: function (this: TooltipFormatterContextObject): string {
+    const date = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
+    const time = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
+    const pointData = this.points ? this.points[0] : this.point;
+    const oneMinuteInterval = 60 * 1000; // 1 minute interval in milliseconds
+    let s = `<span>${date} `;
+
+    if (this.points && this.points.length > 1) {
+      const xLess = Number(this.x);
+      const xMore = xLess + oneMinuteInterval * (this.points.length - 1);
+      s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
+      s += Highcharts.dateFormat("%H:%M:%S", xMore) + "</span>";
+    } else {
+      s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
+    }
+    s +=
+      "<br/>" +
+      measurementType +
+      " = " +
+      Math.round(Number(pointData.y)) +
+      " " +
+      unitSymbol;
+    return s;
+  },
+  borderWidth: 0,
+  style: {
+    fontSize: "1.2rem",
+    fontFamily: "Roboto",
+  },
+});
+
+
+
 
 export {
   xAxisOption,
   plotOptions,
   titleOption,
   legendOption,
-  seriesOption,
-  getYAxisOption,
   responsive,
+  seriesOptions,
+  getYAxisOptions,
+  getTooltipOptions,
 };
