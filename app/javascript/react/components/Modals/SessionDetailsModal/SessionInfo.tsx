@@ -7,18 +7,12 @@ import { ExportDataModal } from "../";
 import calendar from "../../../assets/icons/calendar.svg";
 import downloadImage from "../../../assets/icons/download.svg";
 import shareLink from "../../../assets/icons/shareLink.svg";
-<<<<<<< HEAD
 import { white } from "../../../assets/styles/colors";
 import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../../store/mobileStreamSelectors";
 import { selectThreshold } from "../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../types/mobileStream";
-=======
-import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
-import { selectThreshold } from "../../../store/thresholdSlice";
-import { SessionType } from "../../../types/filters";
->>>>>>> 2f570283 (build: pass sessionType to SessionInfo)
 import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { CopyLinkModal } from "../CopyLinkModal";
@@ -30,7 +24,6 @@ interface SessionInfoProps {
 }
 
 const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
-<<<<<<< HEAD
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
   const streamShortInfo: StreamShortInfo = useSelector(
@@ -38,23 +31,6 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
   );
-=======
-  const {
-    unitSymbol,
-    title,
-    sensorName,
-    lastMeasurementValue,
-    profile,
-    lastMeasurementDateLabel,
-    active,
-    sessionId,
-    startTime,
-    endTime,
-    min,
-    max,
-  } = useSelector(selectFixedStreamShortInfo);
-
->>>>>>> 2f570283 (build: pass sessionType to SessionInfo)
   const thresholds = useSelector(selectThreshold);
   const { t } = useTranslation();
 
