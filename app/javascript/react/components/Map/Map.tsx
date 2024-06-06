@@ -218,11 +218,10 @@ const Map = () => {
           />
         )}
         <Markers
-          sessions={sessionsData}
+          sessions={sessionsPoints}
           onMarkerClick={handleMarkerClick}
           selectedStreamId={selectedStreamId}
         />
-        )
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal
