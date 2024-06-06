@@ -1,16 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import type { PopupProps } from "reactjs-popup/dist/types";
 
-import { useAppDispatch } from "../../../store/hooks";
-
-import { fetchFixedStreamById } from "../../../store/fixedStreamSlice";
-
-import SessionInfo from "./SessionInfo";
-import * as S from "./SessionDetailsModal.style";
 import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
-
 import { ThresholdsConfigurator } from "../../ThresholdConfigurator";
+import * as S from "./SessionDetailsModal.style";
+import SessionInfo from "./SessionInfo";
+
+import type { PopupProps } from "reactjs-popup/dist/types";
 
 interface SessionDetailsModalProps {
   streamId: number | null;
@@ -26,14 +22,7 @@ type CustomPopupProps = {
 const SessionDetailsModal: React.FC<
   SessionDetailsModalProps & Omit<PopupProps, "children">
 > = ({ streamId, onClose }) => {
-  const dispatch = useAppDispatch();
   const { t } = useTranslation();
-
-  useEffect(() => {
-    if (streamId) {
-      dispatch(fetchFixedStreamById(streamId));
-    }
-  }, [streamId, dispatch]);
 
   // Workaround for the typescript error
   const SessionModal: React.FC<

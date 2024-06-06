@@ -11,6 +11,7 @@ import {
 import { RootState } from "../../store";
 import { selectFixedSessionsData } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
+import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { selectMobileSessionsData } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
@@ -121,7 +122,7 @@ const Map = () => {
 
     if (streamId) {
       fixedSessionTypeSelected
-        ? null
+        ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
     }
 
