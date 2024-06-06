@@ -1,10 +1,13 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
+import React, { useEffect, useRef, useState } from "react";
+
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import type { Marker } from "@googlemaps/markerclusterer";
+import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+
 import { LatLngLiteral } from "../../../types/googleMaps";
-import { SingleMarker } from "./SingleMarker/SingleMarker";
 import { Session } from "./SessionType";
+import { SingleMarker } from "./SingleMarker/SingleMarker";
+
+import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   sessions: Session[];
@@ -21,7 +24,7 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-  const ZOOM_FOR_SELECTED_SESSION = 15;
+  const ZOOM_FOR_SELECTED_SESSION = 21;
 
   // Update markers when marker references change
   useEffect(() => {
