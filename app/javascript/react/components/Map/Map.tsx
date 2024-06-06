@@ -38,7 +38,6 @@ const Map = () => {
   const dispatch = useAppDispatch();
 
   // State
-  const [currentZoom, setCurrentZoom] = useState(DEFAULT_ZOOM);
   const [mapBounds, setMapBounds] = useState({
     north: DEFAULT_MAP_BOUNDS.north,
     south: DEFAULT_MAP_BOUNDS.south,
@@ -107,7 +106,6 @@ const Map = () => {
       const east = bounds.getNorthEast().lng();
       const west = bounds.getSouthWest().lng();
       setMapBounds({ north, south, east, west });
-      setCurrentZoom(map.getZoom() || DEFAULT_ZOOM);
     },
     [mapInstance]
   );
