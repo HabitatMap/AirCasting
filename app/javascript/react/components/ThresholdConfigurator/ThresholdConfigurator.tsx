@@ -172,7 +172,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                 inputMode="numeric"
                 type="number"
                 step={1}
-                value={activeInput === "min" ? inputValue : min.toString()}
+                value={activeInput === "min" ? inputValue : min?.toString()}
                 onFocus={() => handleInputFocus("min")}
                 onBlur={() => handleInputBlur("min", inputValue)}
                 onChange={(e) => setInputValue(e.target.value)}
@@ -252,7 +252,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                 type="number"
                 step={1}
                 $isLast
-                value={activeInput === "max" ? inputValue : max.toString()}
+                value={activeInput === "max" ? inputValue : max?.toString()}
                 onFocus={() => handleInputFocus("max")}
                 onBlur={() => handleInputBlur("max", inputValue)}
                 onChange={(e) => setInputValue(e.target.value)}
