@@ -8,6 +8,7 @@ import calendar from "../../../assets/icons/calendar.svg";
 import downloadImage from "../../../assets/icons/download.svg";
 import shareLink from "../../../assets/icons/shareLink.svg";
 import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
+import { selectMobileStreamShortInfo } from "../../../store/mobileStreamSelectors";
 import { selectThreshold } from "../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../types/filters";
 import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
@@ -24,9 +25,10 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
   const streamShortInfo = useSelector(
-    fixedSessionTypeSelected ? selectFixedStreamShortInfo : ""
+    fixedSessionTypeSelected
+      ? selectFixedStreamShortInfo
+      : selectMobileStreamShortInfo
   );
-
   const thresholds = useSelector(selectThreshold);
   const { t } = useTranslation();
 

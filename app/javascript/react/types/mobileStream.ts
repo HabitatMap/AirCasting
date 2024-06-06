@@ -1,3 +1,5 @@
+import { FixedStreamShortInfo } from "./fixedStream";
+
 interface Measurement {
   latitude: number;
   longitude: number;
@@ -25,4 +27,6 @@ interface MobileStream {
   username: string;
 }
 
-export type { MobileStream };
+interface MobileStreamShortInfo extends FixedStreamShortInfo {}
+
+export type { MobileStream, MobileStreamShortInfo };
