@@ -45,6 +45,8 @@ const selectFixedStreamShortInfo = createSelector(
       high,
       max,
       averageValue: lastMeasurementValue,
+      maxMeasurementValue: max,
+      minMeasurementValue: min,
     };
   }
 );

@@ -3,6 +3,7 @@ import { createSelector } from "@reduxjs/toolkit";
 import { Session } from "../components/Map/Markers/SessionType";
 import { MobileStream, MobileStreamShortInfo } from "../types/mobileStream";
 import { RootState } from "./";
+import { selectMobileSessionsState } from "./mobileSessionsSelectors";
 
 const selectMobileStreamData = (state: RootState): MobileStream => {
   return state.mobileStream.data;
@@ -25,8 +26,8 @@ const selectMobileStreamPoints = createSelector(
 );
 
 const selectMobileStreamShortInfo = createSelector(
-  [selectMobileStreamData],
-  (mobileStreamData): MobileStreamShortInfo => {
+  [selectMobileStreamData, selectMobileSessionsState],
+  (mobileStreamData, mobileSessionState): MobileStreamShortInfo => {
     const total = mobileStreamData.measurements.reduce(
       (sum, measurement) => sum + measurement.value,
       0
@@ -49,11 +50,23 @@ const selectMobileStreamShortInfo = createSelector(
       mobileStreamData.measurements[0]?.value
     );
 
+    const mobileSession = mobileSessionState.sessions.find(
+      (session) => session.id === mobileStreamData.id
+    );
+
+    const streamData =
+      mobileSession?.streams[Object.keys(mobileSession.streams)[0]];
+
     return {
       averageValue: average,
       endTime: new Date(mobileStreamData.endTime).toISOString(),
-      max: maxMeasurementValue,
-      min: minMeasurementValue,
+      high: streamData?.thresholdHigh || 0,
+      low: streamData?.thresholdLow || 0,
+      max: streamData?.thresholdVeryHigh || 0,
+      maxMeasurementValue: maxMeasurementValue,
+      middle: streamData?.thresholdMedium || 0,
+      min: streamData?.thresholdVeryLow || 0,
+      minMeasurementValue: minMeasurementValue,
       profile: mobileStreamData.username,
       sensorName: mobileStreamData.sensorName,
       sessionId: mobileStreamData.id.toString(),

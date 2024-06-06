@@ -1,5 +1,5 @@
-import { Thresholds } from "../types/thresholds";
 import * as colors from "../assets/styles/colors";
+import { Thresholds } from "../types/thresholds";
 
 const COLORS_FOR_RANGES = (thresholdValues: Thresholds) => [
   { max: thresholdValues.low, color: colors.green },
@@ -18,10 +18,11 @@ const getColorForValue = (
 
 
   for (let range of COLORS_FOR_RANGES(thresholdValues)) {
-    if (value <= range.max) {
+    if (Number(value) <= Number(range.max)) {
       return range.color;
     }
   }
+
   return defaultColor;
 };
 
