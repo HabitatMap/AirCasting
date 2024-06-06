@@ -31,7 +31,9 @@ const selectMobileStreamShortInfo = createSelector(
       (sum, measurement) => sum + measurement.value,
       0
     );
-    const average = total / mobileStreamData.measurements.length;
+    const average = Number(
+      (total / mobileStreamData.measurements.length).toFixed(2)
+    );
 
     const maxMeasurementValue = mobileStreamData.measurements.reduce(
       (max, measurement) => {
