@@ -2,12 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-<<<<<<< HEAD
 import { mobileStreamPath, red } from "../../../assets/styles/colors";
 import { Session } from "../../../types/sessionType";
-=======
-import { Session } from "./SessionType";
->>>>>>> b0c006b0 (chore: rename StreamSingleMarker to StreamMarker)
 import { StreamMarker } from "./StreamMarker/StreamMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
