@@ -1,5 +1,3 @@
-import { FixedStreamShortInfo } from "./fixedStream";
-
 interface Measurement {
   latitude: number;
   longitude: number;
