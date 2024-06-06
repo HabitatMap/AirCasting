@@ -47,7 +47,7 @@ const SessionDetailsModal: React.FC<
           <S.CancelButtonX onClick={close}>
             <img src={circleCloseIcon} alt={t("closeWhite.altCloseButton")} />
           </S.CancelButtonX>
-          <SessionInfo streamId={streamId} />
+          <SessionInfo sessionType={sessionType} streamId={streamId} />
           <ThresholdsConfigurator isMapPage={true} />
         </>
       )}

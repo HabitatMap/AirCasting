@@ -1,27 +1,26 @@
-// SessionInfo.tsx
+import moment from "moment";
 import React from "react";
-import * as S from "./SessionDetailsModal.style";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import moment from "moment";
 
-import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
-import { selectThreshold } from "../../../store/thresholdSlice";
-
+import { ExportDataModal } from "../";
 import calendar from "../../../assets/icons/calendar.svg";
 import downloadImage from "../../../assets/icons/download.svg";
 import shareLink from "../../../assets/icons/shareLink.svg";
+import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
+import { selectThreshold } from "../../../store/thresholdSlice";
+import { SessionType } from "../../../types/filters";
 import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
 import { getColorForValue } from "../../../utils/thresholdColors";
-
-import { ExportDataModal } from "..";
 import { CopyLinkModal } from "../CopyLinkModal";
+import * as S from "./SessionDetailsModal.style";
 
 interface SessionInfoProps {
+  sessionType: SessionType;
   streamId: number | null;
 }
 
-const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
+const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
   const {
     unitSymbol,
     title,
@@ -36,6 +35,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ streamId }) => {
     min,
     max,
   } = useSelector(selectFixedStreamShortInfo);
+
   const thresholds = useSelector(selectThreshold);
   const { t } = useTranslation();
 
