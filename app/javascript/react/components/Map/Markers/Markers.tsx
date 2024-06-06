@@ -24,7 +24,7 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-  const ZOOM_FOR_SELECTED_SESSION = 21;
+  const ZOOM_FOR_SELECTED_SESSION = 10;
 
   // Update markers when marker references change
   useEffect(() => {
