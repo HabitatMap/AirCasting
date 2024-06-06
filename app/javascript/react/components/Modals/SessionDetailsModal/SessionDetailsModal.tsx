@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
+import { SessionType } from "../../../types/filters";
 import { ThresholdsConfigurator } from "../../ThresholdConfigurator";
 import * as S from "./SessionDetailsModal.style";
 import SessionInfo from "./SessionInfo";
@@ -9,8 +10,9 @@ import SessionInfo from "./SessionInfo";
 import type { PopupProps } from "reactjs-popup/dist/types";
 
 interface SessionDetailsModalProps {
-  streamId: number | null;
   onClose: () => void;
+  sessionType: SessionType;
+  streamId: number | null;
 }
 
 type CustomPopupProps = {
@@ -21,7 +23,7 @@ type CustomPopupProps = {
 
 const SessionDetailsModal: React.FC<
   SessionDetailsModalProps & Omit<PopupProps, "children">
-> = ({ streamId, onClose }) => {
+> = ({ onClose, sessionType, streamId }) => {
   const { t } = useTranslation();
 
   // Workaround for the typescript error

@@ -17,6 +17,7 @@ import { selectMobileSessionsData } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
+import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import * as S from "./Map.style";
 import { Markers } from "./Markers/Markers";
@@ -24,8 +25,6 @@ import { StreamMarkers } from "./Markers/StreamMarkers";
 
 const Map = () => {
   // const
-  const FIXED = "fixed";
-  const MOBILE = "mobile";
   const timeFrom = "1685318400";
   const timeTo = "1717027199";
   const tags = "";
@@ -49,9 +48,12 @@ const Map = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
   const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
-  const [selectedSessionType, setSelectedSessionType] = useState<string>(FIXED);
+  const [selectedSessionType, setSelectedSessionType] = useState<SessionType>(
+    SessionTypes.FIXED
+  );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
-  const fixedSessionTypeSelected = selectedSessionType === FIXED;
+  const fixedSessionTypeSelected: boolean =
+    selectedSessionType === SessionTypes.FIXED;
 
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
@@ -149,10 +151,10 @@ const Map = () => {
   return (
     <>
       {/* temporary solution, ticket: Session Filter: General filters */}
-      <S.FixedButton onClick={() => handleClick(FIXED)}>
+      <S.FixedButton onClick={() => handleClick(SessionTypes.FIXED)}>
         fixed - government-pm2.5
       </S.FixedButton>
-      <S.MobileButton onClick={() => handleClick(MOBILE)}>
+      <S.MobileButton onClick={() => handleClick(SessionTypes.MOBILE)}>
         mobile - airbeam-pm2.5
       </S.MobileButton>
       {/* temporary solution, ticket: Session Filter: General filters */}
@@ -179,8 +181,9 @@ const Map = () => {
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal
-          streamId={selectedStreamId}
           onClose={handleCloseModal}
+          sessionType={selectedSessionType}
+          streamId={selectedStreamId}
         />
       )}
     </>
