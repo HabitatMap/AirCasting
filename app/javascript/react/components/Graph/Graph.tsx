@@ -32,6 +32,38 @@ const Graph = (props: HighchartsReact.Props) => {
 
   const yAxisOption = getYAxisOption(thresholdsState);
 
+  const tooltipOptions = {
+    formatter: function (this: TooltipFormatterContextObject): string {
+      const date = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
+      const time = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
+      const pointData = this.points ? this.points[0] : this.point;
+      const oneMinuteInterval = 60 * 1000; // 1 minute interval in milliseconds
+      let s = `<span>${date} `;
+
+      if (this.points && this.points.length > 1) {
+        const xLess = Number(this.x);
+        const xMore = xLess + oneMinuteInterval * (this.points.length - 1);
+        s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
+        s += Highcharts.dateFormat("%H:%M:%S", xMore) + "</span>";
+      } else {
+        s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
+      }
+      s +=
+        "<br/>" +
+        measurementType +
+        " = " +
+        Math.round(Number(pointData.y)) +
+        " " +
+        unitSymbol;
+      return s;
+    },
+    borderWidth: 0,
+    style: {
+      fontSize: "1.2rem",
+      fontFamily: "Roboto",
+    },
+  };
+
   const onMouseOverSingle = (latLng: {
     latitude: number;
     longitude: number;
@@ -55,18 +87,7 @@ const Graph = (props: HighchartsReact.Props) => {
       borderRadius: 10,
     },
     responsive,
-    tooltip: {
-      formatter: function (this: TooltipFormatterContextObject): string {
-        const pointData = this.points ? this.points[0] : this.point;
-        const { series } = pointData;
-        let s = `<span>${Highcharts.dateFormat("%m/%d/%Y", Number(this.x))} `;
-
-        s += `<br/>${measurementType} = ${Math.round(
-          pointData.y ?? 0
-        )} ${unitSymbol}`;
-        return s;
-      },
-    },
+    tooltip: tooltipOptions,
   };
 
   return (

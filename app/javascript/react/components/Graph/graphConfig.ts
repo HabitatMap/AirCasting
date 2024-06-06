@@ -7,6 +7,7 @@ import {
   LegendOptions,
   SeriesOptionsType,
   ResponsiveOptions,
+  TooltipFormatterContextObject,
 } from "highcharts/highstock";
 
 import {
@@ -17,6 +18,7 @@ import {
   white,
   gray200,
   gray400,
+  blue,
 } from "../../assets/styles/colors";
 
 import { ThresholdState } from "../../store/thresholdSlice";
@@ -97,6 +99,22 @@ const plotOptions: PlotOptions = {
       enabled: false,
     },
   },
+  line: {
+    color: white,
+    marker: {
+      fillColor: blue,
+      lineWidth: 0,
+      lineColor: blue,
+    },
+    dataGrouping: {
+      enabled: true,
+      units: [
+        ["millisecond", []],
+        ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
+        ["minute", [1, 2, 3, 4, 5]],
+      ],
+    },
+  },
 };
 
 const seriesOption = (data: number[][]): SeriesOptionsType => ({
@@ -105,9 +123,9 @@ const seriesOption = (data: number[][]): SeriesOptionsType => ({
   data: data,
   tooltip: {
     valueDecimals: 2,
-    followPointer: true,
   },
 });
+
 
 const titleOption: TitleOptions = {
   text: "Measurement graph",
