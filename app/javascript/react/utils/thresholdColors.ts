@@ -6,7 +6,7 @@ const COLORS_FOR_RANGES = (thresholdValues: Thresholds) => [
   { max: thresholdValues.middle, color: colors.yellow },
   { max: thresholdValues.high, color: colors.orange },
   { max: thresholdValues.max, color: colors.red },
-  { max: 10000, color: colors.red }, // red color for values out of scale
+  { max: Infinity, color: colors.red }, // red color for values out of scale
 ];
 
 const getColorForValue = (
@@ -14,7 +14,8 @@ const getColorForValue = (
   value: number | null
 ) => {
   const defaultColor = "transparent";
-  if (!value) return defaultColor;
+
+  if (value !== 0 && !value) return defaultColor;
 
   for (let range of COLORS_FOR_RANGES(thresholdValues)) {
     if (Number(value) <= Number(range.max)) {

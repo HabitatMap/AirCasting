@@ -5,9 +5,8 @@ import { MobileStream, MobileStreamShortInfo } from "../types/mobileStream";
 import { RootState } from "./";
 import { selectMobileSessionsState } from "./mobileSessionsSelectors";
 
-const selectMobileStreamData = (state: RootState): MobileStream => {
-  return state.mobileStream.data;
-};
+const selectMobileStreamData = (state: RootState): MobileStream =>
+  state.mobileStream.data;
 
 const selectMobileStreamPoints = createSelector(
   [selectMobileStreamData],
@@ -28,45 +27,29 @@ const selectMobileStreamPoints = createSelector(
 const selectMobileStreamShortInfo = createSelector(
   [selectMobileStreamData, selectMobileSessionsState],
   (mobileStreamData, mobileSessionState): MobileStreamShortInfo => {
-    const total = mobileStreamData.measurements.reduce(
-      (sum, measurement) => sum + measurement.value,
-      0
+    const maxMeasurementValue = Math.max(
+      ...mobileStreamData.measurements.map((m) => m.value)
     );
-    const average = Number(
-      (total / mobileStreamData.measurements.length).toFixed(2)
-    );
-
-    const maxMeasurementValue = mobileStreamData.measurements.reduce(
-      (max, measurement) => {
-        return measurement.value > max ? measurement.value : max;
-      },
-      mobileStreamData.measurements[0]?.value
-    );
-
-    const minMeasurementValue = mobileStreamData.measurements.reduce(
-      (min, measurement) => {
-        return measurement.value < min ? measurement.value : min;
-      },
-      mobileStreamData.measurements[0]?.value
+    const minMeasurementValue = Math.min(
+      ...mobileStreamData.measurements.map((m) => m.value)
     );
 
     const mobileSession = mobileSessionState.sessions.find(
       (session) => session.id === mobileStreamData.id
     );
-
     const streamData =
       mobileSession?.streams[Object.keys(mobileSession.streams)[0]];
 
     return {
-      averageValue: average,
+      averageValue: streamData?.averageValue || 0,
       endTime: new Date(mobileStreamData.endTime).toISOString(),
       high: streamData?.thresholdHigh || 0,
       low: streamData?.thresholdLow || 0,
       max: streamData?.thresholdVeryHigh || 0,
-      maxMeasurementValue: maxMeasurementValue,
+      maxMeasurementValue,
       middle: streamData?.thresholdMedium || 0,
       min: streamData?.thresholdVeryLow || 0,
-      minMeasurementValue: minMeasurementValue,
+      minMeasurementValue,
       profile: mobileStreamData.username,
       sensorName: mobileStreamData.sensorName,
       sessionId: mobileStreamData.id.toString(),

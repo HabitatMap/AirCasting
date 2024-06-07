@@ -44,7 +44,7 @@ const selectFixedStreamShortInfo = createSelector(
       middle,
       high,
       max,
-      averageValue: lastMeasurementValue,
+      averageValue: lastMeasurementValue || 0,
       maxMeasurementValue: max,
       minMeasurementValue: min,
     };
