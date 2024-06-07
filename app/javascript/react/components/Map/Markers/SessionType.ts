@@ -1,6 +1,12 @@
 import { LatLngLiteral } from "../../../types/googleMaps";
 
-type Point = LatLngLiteral & { streamId: string };
+export type Point = LatLngLiteral & {
+  maxLatitude?: number;
+  maxLongitude?: number;
+  minLatitude?: number;
+  minLongitude?: number;
+  streamId: string;
+};
 
 export type Session = {
   id: number;

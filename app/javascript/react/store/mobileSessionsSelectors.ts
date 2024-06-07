@@ -43,6 +43,10 @@ const selectMobileSessionsPoints = createSelector(
       point: {
         lat: streams[Object.keys(streams)[0]].startLatitude,
         lng: streams[Object.keys(streams)[0]].startLongitude,
+        maxLatitude: streams[Object.keys(streams)[0]].maxLatitude,
+        maxLongitude: streams[Object.keys(streams)[0]].maxLongitude,
+        minLatitude: streams[Object.keys(streams)[0]].minLatitude,
+        minLongitude: streams[Object.keys(streams)[0]].minLongitude,
         streamId: streams[Object.keys(streams)[0]].id.toString(),
       },
     }))
