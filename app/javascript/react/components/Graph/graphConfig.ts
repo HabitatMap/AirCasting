@@ -25,9 +25,6 @@ import {
 import { ThresholdState } from "../../store/thresholdSlice";
 import Highcharts from "highcharts";
 
-import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
-import graphChevronRight from "../../assets/icons/graphChevronRight.svg";
-
 const scrollbarOptions = {
   barBackgroundColor: "#D5D4D4",
   barBorderRadius: 7,
@@ -249,6 +246,7 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
     fontFamily: "Roboto",
   },
 });
+
 
 export {
   xAxisOption,

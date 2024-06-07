@@ -1,13 +1,24 @@
 import styled from "styled-components";
-import { media } from "../../utils/media";
 
-const Container = styled.div`
-  width: 100%;
-  max-height: 20rem;
-  @media ${media.smallDesktop} {
-    width: 80%;
-    flex-direction: column;
-  }
+export const Container = styled.div`
+  position: relative;
 `;
 
-export { Container };
+export const ScrollbarContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px; // Adjust the height if needed
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; // To ensure the scrollbar does not block interactions with the chart
+`;
+
+export const ChartContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: all;
+`;
