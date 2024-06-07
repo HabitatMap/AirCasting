@@ -70,7 +70,7 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
       if (maxLatitude && maxLongitude && minLatitude && minLongitude) {
         const bounds: LatLngLiteral[] = [
           { lat: maxLatitude, lng: maxLongitude },
-          { lat: minLatitude, lng: minLongitude },
+          { lat: minLatitude - (maxLatitude - minLatitude), lng: minLongitude }, // #DirtyButWorks Adjust bounds to keep marker visible and not hidden by the modal
         ];
 
         const googleBounds = new google.maps.LatLngBounds();
