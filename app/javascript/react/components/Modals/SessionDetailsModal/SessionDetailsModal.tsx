@@ -41,6 +41,7 @@ const SessionDetailsModal: React.FC<
       overlayStyle={{ margin: 0 }}
       contentStyle={{ margin: 0 }}
       onClose={onClose}
+      closeOnDocumentClick={false}
     >
       {(close) => (
         <>
