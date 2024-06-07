@@ -47,10 +47,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
       <S.Wrapper>
         <S.AverageValueContainer>
           <S.AverageDot
-            $color={getColorForValue(
-              thresholds,
-              streamShortInfo.averageValue || null
-            )}
+            $color={getColorForValue(thresholds, streamShortInfo.averageValue)}
           />
           {t("sessionDetailsModal.averageValue")}
           <S.AverageValue>{streamShortInfo.averageValue}</S.AverageValue>
