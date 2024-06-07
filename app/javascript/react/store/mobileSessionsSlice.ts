@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
 
-interface Session {
+export interface Session {
   id: number;
   endTimeLocal: string;
   startTimeLocal: string;

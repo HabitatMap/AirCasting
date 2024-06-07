@@ -11,7 +11,7 @@ import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   sessions: Session[];
-  onMarkerClick: (streamId: number | null) => void;
+  onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
 };
 
@@ -85,7 +85,7 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
             onClick={() => {
-              onMarkerClick(Number(session.point.streamId));
+              onMarkerClick(Number(session.point.streamId), Number(session.id));
               centerMapOnMarker(session.point, session.point.streamId);
             }}
           />

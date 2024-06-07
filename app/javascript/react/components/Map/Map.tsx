@@ -13,7 +13,10 @@ import { selectFixedSessionsPoints } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { selectMobileSessionsPoints } from "../../store/mobileSessionsSelectors";
+import {
+  selectMobileSessionPointsBySessionId,
+  selectMobileSessionsPoints,
+} from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
@@ -48,6 +51,9 @@ const Map = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
   const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
+  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(
+    null
+  );
   const [selectedSessionType, setSelectedSessionType] = useState<SessionType>(
     SessionTypes.FIXED
   );
@@ -62,6 +68,8 @@ const Map = () => {
   const sessionsPoints = useSelector(
     fixedSessionTypeSelected
       ? selectFixedSessionsPoints
+      : selectedStreamId
+      ? selectMobileSessionPointsBySessionId(selectedSessionId || 0)
       : selectMobileSessionsPoints
   );
 
@@ -114,7 +122,7 @@ const Map = () => {
   );
 
   // Handlers
-  const handleMarkerClick = (streamId: number | null) => {
+  const handleMarkerClick = (streamId: number | null, id: number | null) => {
     if (mapInstance) {
       setPreviousZoom(mapInstance.getZoom() || DEFAULT_ZOOM);
       setPreviousCenter(
@@ -128,6 +136,7 @@ const Map = () => {
         : dispatch(fetchMobileStreamById(streamId));
     }
 
+    setSelectedSessionId(id);
     setSelectedStreamId(streamId);
     setModalOpen(false);
     setTimeout(() => {
