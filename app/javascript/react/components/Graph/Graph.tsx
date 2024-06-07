@@ -11,6 +11,7 @@ import {
   getYAxisOptions,
   responsive,
   getTooltipOptions,
+  scrollbarOptions,
 } from "./graphConfig";
 import { useSelector } from "react-redux";
 import { selectFixedData } from "../../store/fixedStreamSlice";
@@ -109,23 +110,7 @@ const Graph = (props: HighchartsReact.Props) => {
     },
     responsive,
     tooltip: tooltipOptions,
-    scrollbar: {
-      enabled: true,
-      buttonsEnabled: true,
-      barBackgroundColor: "#D5D4D4",
-      barBorderRadius: 7,
-      barBorderWidth: 0,
-      buttonArrowColor: "#333333",
-      buttonBorderColor: "#cccccc",
-      buttonBackgroundColor: "#eee",
-      buttonBorderWidth: 0,
-      buttonBorderRadius: 7,
-      height: 12,
-      rifleColor: "#D5D4D4",
-      trackBackgroundColor: "none",
-      trackBorderWidth: 0,
-      showFull: true,
-    },
+    scrollbar: scrollbarOptions,
     navigator: {
       enabled: false,
     },
