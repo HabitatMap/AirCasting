@@ -4,6 +4,8 @@ import { Session } from "../components/Map/Markers/SessionType";
 import { MobileStream, MobileStreamShortInfo } from "../types/mobileStream";
 import { RootState } from "./";
 import { selectMobileSessionsState } from "./mobileSessionsSelectors";
+import { initialState as mobileStreamInitialState } from "./mobileStreamSlice";
+import { initialState as thresholdsInitialState } from "./thresholdSlice";
 
 const selectMobileStreamData = (state: RootState): MobileStream =>
   state.mobileStream.data;
@@ -37,18 +39,21 @@ const selectMobileStreamShortInfo = createSelector(
     const mobileSession = mobileSessionState.sessions.find(
       (session) => session.id === mobileStreamData.id
     );
-    const streamData =
+    const sessionStreamData =
       mobileSession?.streams[Object.keys(mobileSession.streams)[0]];
 
     return {
-      averageValue: streamData?.averageValue || 0,
+      averageValue:
+        sessionStreamData?.averageValue ||
+        mobileStreamInitialState.data.averageValue,
       endTime: new Date(mobileStreamData.endTime).toISOString(),
-      high: streamData?.thresholdHigh || 0,
-      low: streamData?.thresholdLow || 0,
-      max: streamData?.thresholdVeryHigh || 0,
+      high: sessionStreamData?.thresholdHigh || thresholdsInitialState.high,
+      low: sessionStreamData?.thresholdLow || thresholdsInitialState.low,
+      max: sessionStreamData?.thresholdVeryHigh || thresholdsInitialState.max,
       maxMeasurementValue,
-      middle: streamData?.thresholdMedium || 0,
-      min: streamData?.thresholdVeryLow || 0,
+      middle:
+        sessionStreamData?.thresholdMedium || thresholdsInitialState.middle,
+      min: sessionStreamData?.thresholdVeryLow || thresholdsInitialState.min,
       minMeasurementValue,
       profile: mobileStreamData.username,
       sensorName: mobileStreamData.sensorName,

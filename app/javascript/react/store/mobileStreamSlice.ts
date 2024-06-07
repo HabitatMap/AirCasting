@@ -14,7 +14,7 @@ interface MobileStreamState {
   error?: Error;
 }
 
-const initialState: MobileStreamState = {
+export const initialState: MobileStreamState = {
   data: {
     averageValue: 0,
     endTime: 0,
