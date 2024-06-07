@@ -4,7 +4,11 @@ import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { LatLngLiteral } from "../../../types/googleMaps";
+<<<<<<< HEAD:app/javascript/react/components/Map/Markers/FixedMarkers.tsx
 import { Session } from "../../../types/sessionType";
+=======
+import { Point, Session } from "./SessionType";
+>>>>>>> 7c5360e3 (feat: use bounds if available):app/javascript/react/components/Map/Markers/Markers.tsx
 import { SingleMarker } from "./SingleMarker/SingleMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
@@ -51,11 +55,37 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
     clusterer.current.addMarkers(validMarkers);
   }, [markers, map]);
 
-  const centerMapOnMarker = (position: LatLngLiteral, streamId: string) => {
+  const centerMapOnMarker = (position: Point) => {
+    const {
+      lat,
+      lng,
+      maxLatitude,
+      maxLongitude,
+      minLatitude,
+      minLongitude,
+      streamId,
+    } = position;
+
     if (map) {
-      map.setCenter(position);
-      map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+      if (maxLatitude && maxLongitude && minLatitude && minLongitude) {
+        const bounds: LatLngLiteral[] = [
+          { lat: maxLatitude, lng: maxLongitude },
+          { lat: minLatitude, lng: minLongitude },
+        ];
+
+        const googleBounds = new google.maps.LatLngBounds();
+
+        bounds.forEach((coord) => {
+          googleBounds.extend(new google.maps.LatLng(coord.lat, coord.lng));
+        });
+
+        map.fitBounds(googleBounds);
+      } else {
+        map.setCenter({ lat, lng });
+        map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+      }
     }
+
     setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
   };
 
@@ -86,7 +116,7 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
             isSelected={session.point.streamId === selectedMarkerKey}
             onClick={() => {
               onMarkerClick(Number(session.point.streamId), Number(session.id));
-              centerMapOnMarker(session.point, session.point.streamId);
+              centerMapOnMarker(session.point);
             }}
           />
         </AdvancedMarker>
