@@ -7,12 +7,6 @@ const containerStyle = {
   height: "100vh",
 };
 
-const MapElementsContainer = styled.div`
-  position: absolute;
-  z-index: 2;
-  display: flex;
-`;
-
 const FixedButton = styled(Button)`
   top: 150px;
   position: absolute;
@@ -25,4 +19,4 @@ const MobileButton = styled(Button)`
   z-index: 99;
 `;
 
-export { MapElementsContainer, FixedButton, MobileButton, containerStyle };
+export { FixedButton, MobileButton, containerStyle };
