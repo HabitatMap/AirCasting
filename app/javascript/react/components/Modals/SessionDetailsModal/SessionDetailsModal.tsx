@@ -51,7 +51,7 @@ const SessionDetailsModal: React.FC<
           </S.CancelButtonX>
           <S.InfoGraphContainer>
             <SessionInfo sessionType={sessionType} streamId={streamId} />
-            <Graph streamId={streamId} />
+            <Graph streamId={streamId} sessionType={sessionType} />
           </S.InfoGraphContainer>
           <ThresholdsConfigurator isMapPage={true} sessionType={sessionType} />
         </>

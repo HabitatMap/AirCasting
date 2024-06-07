@@ -33,6 +33,14 @@ const selectFixedStreamShortInfo = createSelector(
     const active = fixedStreamData.stream.active;
     const { min, low, middle, high, max } = fixedStreamData.stream;
 
+    const maxMeasurementValue = Math.max(
+      ...fixedStreamData.measurements.map((m) => m.value)
+    );
+    const minMeasurementValue = Math.min(
+      ...fixedStreamData.measurements.map((m) => m.value)
+    );
+
+
     return {
       ...fixedStreamData.stream,
       lastMeasurementValue,
@@ -45,8 +53,8 @@ const selectFixedStreamShortInfo = createSelector(
       high,
       max,
       averageValue: lastMeasurementValue || 0,
-      maxMeasurementValue: max,
-      minMeasurementValue: min,
+      maxMeasurementValue,
+      minMeasurementValue,
     };
   }
 );

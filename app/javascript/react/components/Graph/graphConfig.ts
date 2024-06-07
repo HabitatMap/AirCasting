@@ -35,7 +35,9 @@ const scrollbarOptions = {
   buttonBackgroundColor: "#eee",
   buttonBorderWidth: 0,
   buttonBorderRadius: 7,
-  height: 12,
+  height: 8,
+  width: 250,
+
   rifleColor: "#D5D4D4",
   trackBackgroundColor: "none",
   trackBorderWidth: 0,
@@ -61,7 +63,7 @@ const xAxisOption: XAxisOptions = {
     width: 2,
   },
   minRange: 10000,
-  scrollbar: scrollbarOptions
+  visible: true,
 };
 
 const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {

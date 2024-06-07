@@ -2,16 +2,22 @@ import Highcharts from "highcharts/highstock";
 import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
 import graphChevronRight from "../../assets/icons/graphChevronRight.svg";
 
-const createCustomScrollbar = (chart: Highcharts.Chart, scrollbarContainer: HTMLElement) => {
+const createCustomScrollbar = (chart: Highcharts.Chart) => {
   const chartWidth = chart.chartWidth;
-  const scrollbarY = 1; // Positioning within the div
+  const scrollbarY = 0; // Positioning the scrollbar higher above the chart
 
-  // Clear existing content in the scrollbar container
-  scrollbarContainer.innerHTML = '';
+  // Remove existing custom scrollbar if any
+  const existingScrollbarGroup = chart.renderer.boxWrapper.element.querySelector('.custom-scrollbar');
+  if (existingScrollbarGroup) {
+    const parentNode = existingScrollbarGroup.parentNode;
+    if (parentNode) {
+      parentNode.removeChild(existingScrollbarGroup);
+    }
+  }
 
-  const scrollbarGroup = chart.renderer.g('custom-scrollbar').add();
+  const scrollbarGroup = chart.renderer.g('custom-scrollbar').attr({ zIndex: 10 }).add();
 
-  const scrollbarBackground = chart.renderer.rect(60, scrollbarY, chartWidth - 120, 10)
+  const scrollbarBackground = chart.renderer.rect(60, 0, chartWidth - 120, 10)
     .attr({
       fill: '#eee',
       stroke: '#ccc',
@@ -19,7 +25,7 @@ const createCustomScrollbar = (chart: Highcharts.Chart, scrollbarContainer: HTML
     })
     .add(scrollbarGroup);
 
-  const scrollbarThumb = chart.renderer.rect(60, scrollbarY, (chartWidth - 120) / 10, 10)
+  const scrollbarThumb = chart.renderer.rect(60, 0, (chartWidth - 120) / 10, 10)
     .attr({
       fill: '#ccc',
       stroke: '#888',
@@ -28,7 +34,7 @@ const createCustomScrollbar = (chart: Highcharts.Chart, scrollbarContainer: HTML
     })
     .add(scrollbarGroup);
 
-  const leftButton = chart.renderer.rect(40, scrollbarY, 20, 10)
+  const leftButton = chart.renderer.rect(40, 0, 20, 10)
     .attr({
       fill: '#ccc',
       stroke: '#888',
@@ -37,7 +43,7 @@ const createCustomScrollbar = (chart: Highcharts.Chart, scrollbarContainer: HTML
     })
     .add(scrollbarGroup);
 
-  const rightButton = chart.renderer.rect(chartWidth - 60, scrollbarY, 20, 10)
+  const rightButton = chart.renderer.rect(chartWidth - 60, 0, 20, 10)
     .attr({
       fill: '#ccc',
       stroke: '#888',
@@ -85,22 +91,66 @@ const createCustomScrollbar = (chart: Highcharts.Chart, scrollbarContainer: HTML
     document.addEventListener('mouseup', onMouseUp);
   });
 
-  // Append the SVG elements to the scrollbar container
-  scrollbarContainer.appendChild(scrollbarGroup.element);
+  // Position the scrollbar group above the chart container
+  scrollbarGroup.attr({
+    translateY: scrollbarY,
+  });
 };
 
 export const handleLoad = function (this: Highcharts.Chart) {
   const chart = this;
-  const scrollbarContainer = document.getElementById('scrollbar-container');
-  if (scrollbarContainer) {
-    createCustomScrollbar(chart, scrollbarContainer);
-  }
+  const chartContainer = chart.container;
+  const chartWidth = chartContainer.offsetWidth;
+  const chartHeight = chart.chartHeight;
+
+  const leftArrowUrl = graphChevronLeft;
+  const rightArrowUrl = graphChevronRight;
+
+  const leftArrow = chart.renderer
+    .image(leftArrowUrl, 20, chartHeight / 2 - 15, 30, 30)
+    .attr({ zIndex: 10 })
+    .add();
+  const rightArrow = chart.renderer
+    .image(rightArrowUrl, chartWidth - 80, chartHeight / 2 - 15, 30, 30)
+    .attr({ zIndex: 10 })
+    .add();
+
+  const moveLeft = () => {
+    const axis = chart.xAxis[0];
+    const { min, max } = axis.getExtremes();
+    const range = max - min;
+    axis.setExtremes(min - range * 0.1, max - range * 0.1);
+  };
+
+  const moveRight = () => {
+    const axis = chart.xAxis[0];
+    const { min, max } = axis.getExtremes();
+    const range = max - min;
+    axis.setExtremes(min + range * 0.1, max + range * 0.1);
+  };
+
+  leftArrow.on("click", moveLeft);
+  rightArrow.on("click", moveRight);
+
+  createCustomScrollbar(chart);
 };
 
 export const handleRedraw = function (this: Highcharts.Chart) {
   const chart = this;
-  const scrollbarContainer = document.getElementById('scrollbar-container');
-  if (scrollbarContainer) {
-    createCustomScrollbar(chart, scrollbarContainer);
-  }
+  const chartWidth = chart.chartWidth;
+  const chartHeight = chart.chartHeight;
+
+  const rightArrow = chart.renderer
+    .image(graphChevronRight, chartWidth - 50, chartHeight / 2 - 15, 30, 30)
+    .attr({ zIndex: 10 })
+    .add();
+
+  rightArrow.on('click', function () {
+    const axis = chart.xAxis[0];
+    const { min, max } = axis.getExtremes();
+    const range = max - min;
+    axis.setExtremes(min + range * 0.1, max + range * 0.1);
+  });
+
+  createCustomScrollbar(chart);
 };
