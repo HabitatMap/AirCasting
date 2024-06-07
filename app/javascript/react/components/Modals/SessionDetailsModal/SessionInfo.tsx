@@ -81,10 +81,12 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
         </S.TimeRange>
       </S.Wrapper>
       <S.ButtonsContainer>
-        <S.BlueButton to={`/fixed_stream?streamId=${streamId}`}>
-          {t("sessionDetailsModal.calendar")}
-          <img src={calendar} alt={t("sessionDetailsModal.calendarIcon")} />
-        </S.BlueButton>
+        {fixedSessionTypeSelected && (
+          <S.BlueButton to={`/fixed_stream?streamId=${streamId}`}>
+            {t("sessionDetailsModal.calendar")}
+            <img src={calendar} alt={t("sessionDetailsModal.calendarIcon")} />
+          </S.BlueButton>
+        )}
         <S.SmallPopup
           trigger={
             <S.Button aria-labelledby={t("calendarHeader.altExportSession")}>
