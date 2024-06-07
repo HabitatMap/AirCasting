@@ -39,11 +39,7 @@ interface FixedStream {
 }
 
 interface FixedStreamShortInfo extends FixedStreamStationInfo {
-<<<<<<< HEAD
   averageValue: number;
-=======
-  averageValue: number | undefined;
->>>>>>> e60de82a (chore: rename lastMeasurementValue to averageValue)
   lastMeasurementValue: number | undefined;
   lastMeasurementDateLabel: string | undefined;
   maxMeasurementValue: number;
