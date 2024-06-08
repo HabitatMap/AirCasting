@@ -36,7 +36,6 @@ const scrollbarOptions = {
   buttonBorderWidth: 0,
   buttonBorderRadius: 7,
   height: 8,
-  width: 250,
 
   rifleColor: "#D5D4D4",
   trackBackgroundColor: "none",
@@ -46,12 +45,13 @@ const scrollbarOptions = {
 
 const xAxisOption: XAxisOptions = {
   title: {
-    text: undefined,
+    text: "testtest",
   },
   tickColor: gray200,
   lineColor: white,
-  type: "datetime",
+  // type: "datetime",
   labels: {
+    enabled: true,
     overflow: "justify",
     style: {
       fontSize: "1.2rem",
@@ -62,8 +62,8 @@ const xAxisOption: XAxisOptions = {
     color: white,
     width: 2,
   },
-  minRange: 10000,
-  visible: true,
+  minRange: 1000,
+  visible: true
 };
 
 const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
@@ -87,6 +87,7 @@ const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
     tickWidth: 1,
     minorGridLineWidth: 0,
     labels: {
+      enabled: true,
       style: {
         color: black,
         fontFamily: "Roboto",

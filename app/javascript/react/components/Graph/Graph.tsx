@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 
@@ -37,6 +37,8 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     ? useSelector(selectFixedData)
     : useSelector(selectMobileStreamData);
 
+  console.log(graphData);
+
   const streamShortInfo: StreamShortInfo = useSelector(
     fixedSessionTypeSelected
       ? selectFixedStreamShortInfo
@@ -54,8 +56,27 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     ]
   );
 
+  console.log(seriesData);
+
   const yAxisOption = getYAxisOptions(thresholdsState);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
+
+  useEffect(() => {
+    const adjustScrollbar = () => {
+      const scrollbar = document.querySelector(".highcharts-scrollbar") as any;
+      if (scrollbar) {
+        scrollbar.transform = "translate(0, 10)";
+      }
+    };
+    // Wait until the chart is rendered and then adjust the scrollbar
+    setTimeout(adjustScrollbar, 0);
+    // Adjust scrollbar on window resize
+    window.addEventListener("resize", adjustScrollbar);
+
+    return () => {
+      window.removeEventListener("resize", adjustScrollbar);
+    };
+  }, []);
 
   const options: Highcharts.Options = {
     title: undefined,
@@ -65,12 +86,11 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     series: [seriesOptions(seriesData)],
     legend: legendOption,
     chart: {
-      height: 250,
-      borderRadius: 10,
+      height: 300,
+      margin: [10, 50, 0, 0],
       scrollablePlotArea: {
-        minWidth: 250,
+        minWidth: 100,
         scrollPositionX: 1,
-        minHeight: 200,
       },
 
       // events: {
@@ -78,7 +98,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       //   redraw: handleRedraw,
       // },
     },
-    responsive,
+    // responsive,
     tooltip: tooltipOptions,
     scrollbar: scrollbarOptions,
     navigator: {

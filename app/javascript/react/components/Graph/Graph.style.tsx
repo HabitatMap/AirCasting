@@ -1,16 +1,10 @@
 import styled from "styled-components";
-import { media } from "../../utils/media";
 
 const Container = styled.div`
-  width: 100%;
+  width: 80%;
   max-height: 20rem;
-  position: relative; /* Add position relative to the container */
+  position: relative;
   font-family: "Roboto", sans-serif;
-
-  @media ${media.smallDesktop} {
-    width: 80%;
-    flex-direction: column;
-  }
 
   .highcharts-scrollbar {
     position: absolute;
@@ -21,23 +15,16 @@ const Container = styled.div`
     border-radius: 5px;
     padding: 5px;
     transform: translate(0px, 15px);
-    width: 250px;
-  }
-
-  .highcharts-scrollbar-track {
-    fill: none;
-    stroke: #cccccc;
-    stroke-width: 0;
-    rx: 5px;
-    ry: 5px;
-    height: 8px;
-    width: 250px;
+    width: 150px; /* Set the width of the scrollbar */
+    .highcharts-scrollbar-track {
+      width: 150px;  importnat!/* Set the width of the scrollbar track */
+    }
   }
 
   .highcharts-scrollbar-thumb {
     fill: #d5d4d4;
     height: 8px;
-    width: 250px;
+    width: 150px; /* Set the width of the scrollbar thumb */
     rx: 7px;
     ry: 7px;
     stroke: #cccccc;
@@ -48,41 +35,24 @@ const Container = styled.div`
     fill: #eee;
     stroke: #cccccc;
     stroke-width: 0;
-    width: 9px;
+    width: 75px; /* Set the width of the scrollbar buttons */
     height: 9px;
     rx: 7px;
     ry: 7px;
+    g {
+      rect {
+        fill: #ccc;
+        width: 20px;
+        height: 9px;
+        rx: 7px;
+        ry: 7px;
+        transform: translateX(5px);
+      }
+    }
   }
 
-  .highcharts-scrollbar-arrow {
-    fill: #333333;
-  }
-  .highcharts-scrollbar-rifles {
-    display: none;
-  }
-
-  .highcharts-scrollbar-button {
-    fill: #eee;
-    stroke: #cccccc;
-    stroke-width: 0;
-    width: 13px;
-    height: 13px;
-    rx: 7px;
-    ry: 7px;
-  }
-  .highcharts-scrollbar-button:first-child {
-    transform: translateX(
-      -13px
-    ); /* Position the first button before the thumb */
-  }
-
-  .highcharts-scrollbar-button:last-child {
-    transform: translateX(226px);
-  }
-
-  .highcharts-scrollbar-button:nth-child(4) {
-    width: 256px; /* Set the width of the third child element to 20px */
+  .highcharts-scrollbar-button:first-child rect {
+    transform: translateX(-13px);
   }
 `;
-
 export { Container };
