@@ -163,6 +163,7 @@ ActiveRecord::Schema.define(version: 2024_05_20_174314) do
     t.index ["sensor_name", "measurement_type"], name: "index_streams_on_sensor_name_and_measurement_type"
     t.index ["sensor_name"], name: "index_streams_on_sensor_name"
     t.index ["session_id"], name: "index_streams_on_session_id"
+    t.index ["threshold_set_id"], name: "index_streams_on_threshold_set_id"
   end
 
   create_table "taggings", id: :serial, force: :cascade do |t|
@@ -245,4 +246,5 @@ ActiveRecord::Schema.define(version: 2024_05_20_174314) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "stream_daily_averages", "streams"
+  add_foreign_key "streams", "threshold_sets"
 end
