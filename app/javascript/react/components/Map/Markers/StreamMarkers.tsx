@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { mobileStreamPath } from "../../../assets/styles/colors";
+import { mobileStreamPath, red } from "../../../assets/styles/colors";
 import { Session } from "./SessionType";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
 
@@ -76,7 +76,7 @@ const StreamMarkers = ({ sessions }: Props) => {
             }
           }}
         >
-          <StreamMarker color="#E95F5F" />
+          <StreamMarker color={red} />
         </AdvancedMarker>
       ))}
     </>

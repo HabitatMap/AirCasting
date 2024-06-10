@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { red } from "../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "./SessionType";
 import { SingleMarker } from "./SingleMarker/SingleMarker";
@@ -107,7 +108,7 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
           }}
         >
           <SingleMarker
-            color="#E95F5F"
+            color={red}
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
             onClick={() => {
