@@ -106,7 +106,7 @@ const SmallDot = styled.div<DotProps>`
 
 const ButtonsContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 0.5rem;
 `;
 
