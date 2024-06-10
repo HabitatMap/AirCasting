@@ -23,7 +23,7 @@ import {
 } from "../../assets/styles/colors";
 
 import { ThresholdState } from "../../store/thresholdSlice";
-import Highcharts from "highcharts";
+import Highcharts, { RangeSelectorOptions } from "highcharts";
 
 const scrollbarOptions = {
   barBackgroundColor: "#D5D4D4",
@@ -45,14 +45,15 @@ const scrollbarOptions = {
 
 const xAxisOption: XAxisOptions = {
   title: {
-    text: "testtest",
+    text: undefined,
   },
   tickColor: gray200,
   lineColor: white,
-  // type: "datetime",
+  type: "datetime",
   labels: {
     enabled: true,
     overflow: "justify",
+    step: 1,
     style: {
       fontSize: "1.2rem",
       fontFamily: "Roboto",
@@ -62,8 +63,9 @@ const xAxisOption: XAxisOptions = {
     color: white,
     width: 2,
   },
-  minRange: 1000,
-  visible: true
+  visible: true,
+  minRange: 10,
+
 };
 
 const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
@@ -79,23 +81,26 @@ const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
     title: {
       text: undefined,
     },
-    endOnTick: false,
-    startOnTick: false,
+    endOnTick: true,
+    startOnTick: true,
     tickColor: gray400,
     lineColor: white,
     opposite: true,
     tickWidth: 1,
     minorGridLineWidth: 0,
+    showLastLabel: true,
     labels: {
       enabled: true,
       style: {
         color: black,
         fontFamily: "Roboto",
         fontSize: "1.2rem",
+        justifyContent: "center",
+        padding: "0",
       },
     },
     gridLineWidth: 0,
-    minPadding: 0,
+    minPadding: 20,
     min: min,
     max: max,
     plotBands: [
@@ -132,23 +137,26 @@ const plotOptions: PlotOptions = {
       fillColor: blue,
       lineWidth: 0,
       lineColor: blue,
-      enabledThreshold: 999,
       radius: 3,
-      },
     },
-    series: {
-      states: {
-        hover: {
-         halo: {
+  },
+
+  series: {
+    states: {
+      hover: {
+        halo: {
           attributes: {
             fill: blue,
             'stroke-width': 2,
+          }
         }
-         }
-        },
       },
+    },
+    dataLabels: {
+      allowOverlap: true
     }
-  };
+  }
+};
 
 const seriesOptions = (data: number[][]): SeriesOptionsType => ({
   type: "spline",
@@ -188,7 +196,7 @@ const responsive = {
         rangeSelector: {
           height: 30,
           buttonSpacing: 8,
-
+          inputEnabled: false,
           buttonTheme: {
             fill: "none",
             width: 33,
@@ -251,6 +259,32 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
 });
 
 
+const rangeSelectorOptions: RangeSelectorOptions = {
+  buttonSpacing: 15,
+
+  buttons: [
+    {
+      type: "hour",
+      count: 24,
+      text: "24h",
+    },
+    {
+      type: "day",
+      count: 7,
+      text: "1 week",
+    },
+    {
+      type: "month",
+      count: 1,
+      text: "1m",
+    },
+  ],
+  selected: 1,
+
+  inputEnabled: false,
+};
+
+
 export {
   xAxisOption,
   plotOptions,
@@ -261,4 +295,5 @@ export {
   getYAxisOptions,
   getTooltipOptions,
   scrollbarOptions,
+  rangeSelectorOptions
 };

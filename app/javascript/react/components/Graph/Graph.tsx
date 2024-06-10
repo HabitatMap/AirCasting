@@ -12,6 +12,7 @@ import {
   responsive,
   getTooltipOptions,
   scrollbarOptions,
+  rangeSelectorOptions,
 } from "./graphConfig";
 import { useSelector } from "react-redux";
 import { selectFixedData } from "../../store/fixedStreamSlice";
@@ -61,23 +62,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const yAxisOption = getYAxisOptions(thresholdsState);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
 
-  useEffect(() => {
-    const adjustScrollbar = () => {
-      const scrollbar = document.querySelector(".highcharts-scrollbar") as any;
-      if (scrollbar) {
-        scrollbar.transform = "translate(0, 10)";
-      }
-    };
-    // Wait until the chart is rendered and then adjust the scrollbar
-    setTimeout(adjustScrollbar, 0);
-    // Adjust scrollbar on window resize
-    window.addEventListener("resize", adjustScrollbar);
-
-    return () => {
-      window.removeEventListener("resize", adjustScrollbar);
-    };
-  }, []);
-
   const options: Highcharts.Options = {
     title: undefined,
     xAxis: xAxisOption,
@@ -86,24 +70,21 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     series: [seriesOptions(seriesData)],
     legend: legendOption,
     chart: {
-      height: 300,
-      margin: [10, 50, 0, 0],
+      height: 250,
+      margin: [50, 50, 0, 0],
       scrollablePlotArea: {
         minWidth: 100,
         scrollPositionX: 1,
       },
-
-      // events: {
-      //   load: handleLoad,
-      //   redraw: handleRedraw,
-      // },
+      renderTo: "chart",
     },
-    // responsive,
+    responsive,
     tooltip: tooltipOptions,
     scrollbar: scrollbarOptions,
     navigator: {
       enabled: false,
     },
+    rangeSelector: rangeSelectorOptions,
   };
 
   return (
