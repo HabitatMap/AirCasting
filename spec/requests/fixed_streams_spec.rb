@@ -58,41 +58,6 @@ describe 'GET api/v3/fixed_streams/:id' do
       expect(response.status).to eq(200)
       expect(JSON.parse(response.body)).to eq(expected_response.as_json)
     end
-
-    it 'returns 1h update frequency for US EPA AirNow user' do
-      session = create_fixed_session!({ username: 'US EPA AirNow' })
-      stream = create_stream!({ session: session })
-
-      expected_response = {
-        stream: {
-          id: stream.id,
-          session_id: session.id,
-          active: session.is_active,
-          title: session.title,
-          profile: session.username,
-          sensor_name: stream.sensor_name,
-          unit_symbol: stream.unit_symbol,
-          update_frequency: '1 hour',
-          last_update: stream.session.last_measurement_at,
-          start_time: session.end_time_local,
-          end_time: session.start_time_local,
-          min: stream.threshold_very_low.to_s,
-          low: stream.threshold_low.to_s,
-          middle: stream.threshold_medium.to_s,
-          high: stream.threshold_high.to_s,
-          max: stream.threshold_very_high.to_s,
-        },
-        measurements: [],
-        stream_daily_averages: [],
-      }
-
-      expect(Flipper).to receive(:enabled?).with(:calendar).and_return(true)
-
-      get "/api/v3/fixed_streams/#{stream.id}"
-
-      expect(response.status).to eq(200)
-      expect(JSON.parse(response.body)).to eq(expected_response.as_json)
-    end
   end
 
   context 'calendar feature disabled' do

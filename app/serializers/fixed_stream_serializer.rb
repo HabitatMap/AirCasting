@@ -12,7 +12,7 @@ class FixedStreamSerializer
 
   def serialized_stream(stream)
     thresolds = Stream.thresholds(stream.sensor_name, stream.unit_symbol)
-    update_frequency = stream.session.user.username == 'US EPA AirNow' ? '1 hour' : '1 minute'
+    update_frequency = stream.session.username == 'US EPA AirNow' ? '1 hour' : '1 minute'
 
     {
       id: stream.id,
