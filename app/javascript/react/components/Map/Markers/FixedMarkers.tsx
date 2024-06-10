@@ -4,11 +4,7 @@ import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { LatLngLiteral } from "../../../types/googleMaps";
-<<<<<<< HEAD:app/javascript/react/components/Map/Markers/FixedMarkers.tsx
 import { Session } from "../../../types/sessionType";
-=======
-import { Point, Session } from "./SessionType";
->>>>>>> 7c5360e3 (feat: use bounds if available):app/javascript/react/components/Map/Markers/Markers.tsx
 import { SingleMarker } from "./SingleMarker/SingleMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
@@ -28,7 +24,7 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-  const ZOOM_FOR_SELECTED_SESSION = 15;
+  const ZOOM_FOR_SELECTED_SESSION = 21;
 
   // Update markers when marker references change
   useEffect(() => {
@@ -66,11 +62,11 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
       streamId,
     } = position;
 
-    if (map && !selectedMarkerKey) {
+    if (map) {
       if (maxLatitude && maxLongitude && minLatitude && minLongitude) {
         const bounds: LatLngLiteral[] = [
           { lat: maxLatitude, lng: maxLongitude },
-          { lat: minLatitude - (maxLatitude - minLatitude), lng: minLongitude }, // #DirtyButWorks Adjust bounds to keep marker visible and not hidden by the modal
+          { lat: minLatitude, lng: minLongitude },
         ];
 
         const googleBounds = new google.maps.LatLngBounds();
