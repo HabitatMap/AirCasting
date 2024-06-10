@@ -68,8 +68,8 @@ const Map = () => {
   const sessionsPoints = useSelector(
     fixedSessionTypeSelected
       ? selectFixedSessionsPoints
-      : selectedStreamId
-      ? selectMobileSessionPointsBySessionId(selectedSessionId || 0)
+      : selectedSessionId
+      ? selectMobileSessionPointsBySessionId(selectedSessionId)
       : selectMobileSessionsPoints
   );
 
