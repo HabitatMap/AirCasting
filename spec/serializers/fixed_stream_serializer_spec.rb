@@ -2,18 +2,16 @@ require 'rails_helper'
 
 RSpec.describe FixedStreamSerializer do
   describe '#call' do
-    session = create_fixed_session!
-    stream = create_stream!({ session: session })
-    measurement_1 = create_measurement!({ stream: stream })
-    measurement_2 = create_measurement!({ stream: stream })
-    stream_daily_average_1 =
-      create_stream_daily_average!(
-        { stream: stream, date: Date.current, value: 10 },
-      )
-    stream_daily_average_2 =
-      create_stream_daily_average!(
-        { stream: stream, date: Date.current.prev_day, value: 9 },
-      )
+    let!(:session) { create_fixed_session! }
+    let!(:stream) { create_stream!({ session: session }) }
+    let!(:measurement_1) { create_measurement!({ stream: stream }) }
+    let!(:measurement_2) { create_measurement!({ stream: stream }) }
+    let!(:stream_daily_average_1) do
+      create_stream_daily_average!({ stream: stream, date: Date.current, value: 10 })
+    end
+    let!(:stream_daily_average_2) do
+      create_stream_daily_average!({ stream: stream, date: Date.current.prev_day, value: 9 })
+    end
 
     context 'username is not US EPA AirNow' do
       it 'returns fixed stream data' do
