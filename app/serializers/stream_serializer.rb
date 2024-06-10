@@ -1,6 +1,7 @@
 class StreamSerializer
   def call(stream)
     update_frequency = stream.session.username == 'US EPA AirNow' ? '1 hour' : '1 minute'
+    thresholds = Stream.thresholds(stream.sensor_name, stream.unit_symbol)
 
     {
       id: stream.id,
@@ -14,11 +15,11 @@ class StreamSerializer
       session_id: stream.session.id,
       end_time: stream.session.end_time_local,
       start_time: stream.session.start_time_local,
-      min: stream.threshold_very_low.to_s,
-      low: stream.threshold_low.to_s,
-      middle: stream.threshold_medium.to_s,
-      high: stream.threshold_high.to_s,
-      max: stream.threshold_very_high.to_s,
+      min: thresholds[0],
+      low: thresholds[1],
+      middle: thresholds[2],
+      high: thresholds[3],
+      max: thresholds[4],
     }
   end
 end
