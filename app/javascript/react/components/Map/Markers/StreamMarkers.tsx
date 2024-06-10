@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { mobileStreamPath } from "../../../assets/styles/colors";
 import { Session } from "./SessionType";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
 
@@ -53,7 +54,7 @@ const StreamMarkers = ({ sessions }: Props) => {
       polylineRef.current = new google.maps.Polyline({
         path,
         map,
-        strokeColor: "#cee6f1",
+        strokeColor: mobileStreamPath,
         strokeOpacity: 0.5,
         strokeWeight: 5,
       });
