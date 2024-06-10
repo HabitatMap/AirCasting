@@ -123,29 +123,43 @@ const Map = () => {
 
   // Handlers
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
-    if (mapInstance) {
-      setPreviousZoom(mapInstance.getZoom() || DEFAULT_ZOOM);
-      setPreviousCenter(
-        mapInstance.getCenter()?.toJSON() || DEFAULT_MAP_CENTER
-      );
-    }
-
     if (streamId) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
     }
 
-    setSelectedSessionId(id);
-    setSelectedStreamId(streamId);
-    setModalOpen(false);
-    setTimeout(() => {
-      setModalOpen(true);
-    }, 0);
+    if (!selectedStreamId) {
+      setSelectedSessionId(id);
+      setSelectedStreamId(streamId);
+      setModalOpen(false);
+      setTimeout(() => {
+        setModalOpen(true);
+      }, 0);
+
+      if (mapInstance) {
+        setPreviousZoom(mapInstance.getZoom() || DEFAULT_ZOOM);
+        setPreviousCenter(
+          mapInstance.getCenter()?.toJSON() || DEFAULT_MAP_CENTER
+        );
+      }
+    }
+
+    if (selectedStreamId) {
+      setModalOpen(false);
+      setSelectedSessionId(null);
+      setSelectedStreamId(null);
+
+      if (mapInstance) {
+        mapInstance.setZoom(previousZoom);
+        mapInstance.setCenter(previousCenter);
+      }
+    }
   };
 
   const handleCloseModal = () => {
     setSelectedStreamId(null);
+    setSelectedSessionId(null);
     setModalOpen(false);
     if (mapInstance) {
       mapInstance.setZoom(previousZoom);
@@ -153,7 +167,7 @@ const Map = () => {
     }
   };
 
-  const handleClick = (type: string) => {
+  const handleClick = (type: SessionType) => {
     setSelectedSessionType(type);
   };
 
