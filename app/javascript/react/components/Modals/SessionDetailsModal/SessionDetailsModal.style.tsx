@@ -156,7 +156,7 @@ const CancelButtonX = styled.button`
   background-color: transparent;
   width: fit-content;
 
-  &:focus-visible {
+  body:not(.user-is-tabbing) &:focus-visible {
     outline: none;
   }
 `;
