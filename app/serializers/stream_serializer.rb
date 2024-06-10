@@ -3,7 +3,6 @@ class StreamSerializer
     update_frequency = stream.session.username == 'US EPA AirNow' ? '1 hour' : '1 minute'
 
     {
-      id: stream.id,
       active: stream.session.is_active,
       title: stream.session.title,
       profile: stream.session.username,
@@ -14,11 +13,11 @@ class StreamSerializer
       session_id: stream.session.id,
       end_time: stream.session.end_time_local,
       start_time: stream.session.start_time_local,
-      min: stream.threshold_very_low.to_s,
-      low: stream.threshold_low.to_s,
-      middle: stream.threshold_medium.to_s,
-      high: stream.threshold_high.to_s,
-      max: stream.threshold_very_high.to_s,
+      min: stream.threshold_set.threshold_very_low,
+      low: stream.threshold_set.threshold_low,
+      middle: stream.threshold_set.threshold_medium,
+      high: stream.threshold_set.threshold_high,
+      max: stream.threshold_set.threshold_very_high,
     }
   end
 end
