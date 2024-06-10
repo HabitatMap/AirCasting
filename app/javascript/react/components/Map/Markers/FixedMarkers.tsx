@@ -66,7 +66,7 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
       streamId,
     } = position;
 
-    if (map) {
+    if (map && !selectedMarkerKey) {
       if (maxLatitude && maxLongitude && minLatitude && minLongitude) {
         const bounds: LatLngLiteral[] = [
           { lat: maxLatitude, lng: maxLongitude },
