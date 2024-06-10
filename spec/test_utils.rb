@@ -21,7 +21,7 @@ def create_session!(attributes = {})
   Session.create!(
     id: attributes.fetch(:id, rand(1_000_000)),
     title: attributes.fetch(:title, 'Example Session'),
-    user: attributes.fetch(:user) { create_user! },
+    user: attributes.fetch(:user) { create_user!(attributes) },
     uuid: attributes.fetch(:uuid, "uuid#{rand}"),
     start_time_local: attributes.fetch(:start_time_local, DateTime.current),
     end_time_local: attributes.fetch(:end_time_local, DateTime.current),
@@ -128,8 +128,9 @@ def create_mobile_session!
   create_session!(type: 'MobileSession')
 end
 
-def create_fixed_session!
-  create_session!(type: 'FixedSession')
+def create_fixed_session!(attributes = {})
+  fixed_attributes = attributes.merge(type: 'FixedSession')
+  create_session!(fixed_attributes)
 end
 
 def create_stream_daily_average!(attributes = {})
