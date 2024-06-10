@@ -4,7 +4,7 @@ import HighchartsReact from "highcharts-react-official";
 
 import * as S from "./Graph.style";
 import {
-  xAxisOption,
+  getXAxisOptions,
   plotOptions,
   legendOption,
   seriesOptions,
@@ -15,7 +15,10 @@ import {
   rangeSelectorOptions,
 } from "./graphConfig";
 import { useSelector } from "react-redux";
-import { selectFixedData } from "../../store/fixedStreamSlice";
+import {
+  fetchFixedStreamById,
+  selectFixedData,
+} from "../../store/fixedStreamSlice";
 import { selectThreshold } from "../../store/thresholdSlice";
 import { handleLoad, handleRedraw } from "./chartEvents";
 import { SessionType, SessionTypes } from "../../types/filters";
@@ -24,6 +27,8 @@ import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStre
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
+import { get } from "lodash";
+import { useAppDispatch } from "../../store/hooks";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -38,14 +43,16 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     ? useSelector(selectFixedData)
     : useSelector(selectMobileStreamData);
 
-  console.log(graphData);
-
   const streamShortInfo: StreamShortInfo = useSelector(
     fixedSessionTypeSelected
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
   );
 
+  useEffect(() => {
+    console.log("Updated graphData:", graphData);
+    console.log("Updated streamShortInfo:", streamShortInfo);
+  }, [graphData, streamShortInfo]);
   const measurements = graphData?.measurements || [];
   const unitSymbol = streamShortInfo?.unitSymbol || "";
   const measurementType = "Particulate Matter"; // take this parameter from filters in the future
@@ -57,14 +64,16 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     ]
   );
 
-  console.log(seriesData);
+  const xAxisOptions = getXAxisOptions(streamShortInfo);
 
   const yAxisOption = getYAxisOptions(thresholdsState);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
 
+  console.log(seriesOptions(seriesData), "seriesOptions");
+
   const options: Highcharts.Options = {
     title: undefined,
-    xAxis: xAxisOption,
+    xAxis: xAxisOptions,
     yAxis: yAxisOption,
     plotOptions,
     series: [seriesOptions(seriesData)],
@@ -76,7 +85,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         minWidth: 100,
         scrollPositionX: 1,
       },
-      renderTo: "chart",
     },
     responsive,
     tooltip: tooltipOptions,

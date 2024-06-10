@@ -1,4 +1,3 @@
-// Refer to the docs if nedeed: https://api.highcharts.com/highcharts/plotOptions
 import {
   XAxisOptions,
   YAxisOptions,
@@ -6,24 +5,16 @@ import {
   TitleOptions,
   LegendOptions,
   SeriesOptionsType,
-  ResponsiveOptions,
-  TooltipFormatterContextObject,
-} from "highcharts/highstock";
+  TooltipFormatterContextObject
+} from 'highcharts/highstock';
+import Highcharts, { RangeSelectorOptions } from 'highcharts';
+import { ThresholdState } from '../../store/thresholdSlice';
+import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 
-import {
-  green,
-  orange,
-  red,
-  yellow,
-  white,
-  gray200,
-  gray400,
-  blue,
-  black,
-} from "../../assets/styles/colors";
-
-import { ThresholdState } from "../../store/thresholdSlice";
-import Highcharts, { RangeSelectorOptions } from "highcharts";
+import { green, orange, red, yellow, white, gray200, gray400, blue, black } from '../../assets/styles/colors';
+import { updateMeasurementExtremes } from '../../store/fixedStreamSlice';
+import { useAppDispatch } from '../../store/hooks';
+import { debounce } from 'lodash';
 
 const scrollbarOptions = {
   barBackgroundColor: "#D5D4D4",
@@ -36,46 +27,66 @@ const scrollbarOptions = {
   buttonBorderWidth: 0,
   buttonBorderRadius: 7,
   height: 8,
-
   rifleColor: "#D5D4D4",
   trackBackgroundColor: "none",
   trackBorderWidth: 0,
   showFull: true,
 };
 
-const xAxisOption: XAxisOptions = {
-  title: {
-    text: undefined,
-  },
-  tickColor: gray200,
-  lineColor: white,
-  type: "datetime",
-  labels: {
-    enabled: true,
-    overflow: "justify",
-    step: 1,
-    style: {
-      fontSize: "1.2rem",
-      fontFamily: "Roboto",
-    }
-  },
-  crosshair: {
-    color: white,
-    width: 2,
-  },
-  visible: true,
-  minRange: 10,
 
+
+const getXAxisOptions = (streamShortInfo: StreamShortInfo): XAxisOptions => {
+
+  const { averageValue, minMeasurementValue, maxMeasurementValue } = streamShortInfo;
+
+  const dispatch = useAppDispatch();
+
+  const handleSetExtremes = debounce((e) => {
+    console.log('Data range changed. New extremes:', e.min, e.max);
+    const min = e.min;
+    const max = e.max;
+    dispatch(updateMeasurementExtremes({
+      min,
+      max,
+    }));
+  }, 300); // Adjust debounce time as needed
+
+  return ({
+    title: {
+      text: undefined,
+    },
+    tickColor: gray200,
+    lineColor: white,
+    type: 'datetime',
+    labels: {
+      enabled: true,
+      overflow: 'justify',
+      step: 1,
+      style: {
+        fontSize: '1.2rem',
+        fontFamily: 'Roboto',
+      },
+    },
+    crosshair: {
+      color: white,
+      width: 2,
+    },
+    visible: true,
+    minRange: 1000,
+    events: {
+      setExtremes: function (e) {
+        handleSetExtremes(e);
+      }
+    },
+  });
 };
 
 const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
-
   const min = Number(thresholdsState.min);
   const max = Number(thresholdsState.max);
   const low = Number(thresholdsState.low);
   const middle = Number(thresholdsState.middle);
   const high = Number(thresholdsState.high);
-
 
   return {
     title: {
@@ -89,18 +100,19 @@ const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
     tickWidth: 1,
     minorGridLineWidth: 0,
     showLastLabel: true,
+    tickInterval: 50,
     labels: {
       enabled: true,
       style: {
         color: black,
-        fontFamily: "Roboto",
-        fontSize: "1.2rem",
-        justifyContent: "center",
-        padding: "0",
+        fontFamily: 'Roboto',
+        fontSize: '1.2rem',
+        justifyContent: 'center',
+        padding: '0',
       },
     },
     gridLineWidth: 0,
-    minPadding: 20,
+    minPadding: 0,
     min: min,
     max: max,
     plotBands: [
@@ -128,10 +140,14 @@ const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
   };
 };
 
+const credits = {
+  enabled: true,
+  position: { align: 'right', verticalAlign: 'top', x: -4, y: 32 },
+};
 
 const plotOptions: PlotOptions = {
-  spline: {
-    lineWidth: 3,
+  series: {
+    lineWidth: 2,
     color: blue,
     marker: {
       fillColor: blue,
@@ -139,52 +155,48 @@ const plotOptions: PlotOptions = {
       lineColor: blue,
       radius: 3,
     },
-  },
-
-  series: {
     states: {
       hover: {
         halo: {
           attributes: {
             fill: blue,
             'stroke-width': 2,
-          }
-        }
+          },
+        },
       },
     },
+    dataGrouping: {
+      enabled: true,
+      units: [
+        ["millisecond", []],
+        ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
+        ["minute", [1, 2, 3, 4, 5]],
+      ],
+    },
     dataLabels: {
-      allowOverlap: true
-    }
-  }
+      allowOverlap: true,
+    },
+  },
 };
 
-const seriesOptions = (data: number[][]): SeriesOptionsType => ({
-  type: "spline",
-  color: white,
-  data: data,
-  tooltip: {
-    valueDecimals: 2,
-  },
-  dataGrouping: {
-    enabled: true,
-    units: [
-      ["millisecond", []],
-      ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
-      ["minute", [1, 2, 3, 4, 5]],
-    ],
-  },
-});
-
+const seriesOptions = (data: number[][]): SeriesOptionsType => (
+  {
+    type: 'spline',
+    color: white,
+    data: data.sort((a, b) => a[0] - b[0]),
+    tooltip: {
+      valueDecimals: 2,
+    },
+  });
 
 const titleOption: TitleOptions = {
-  text: "Measurement graph",
-  align: "left",
+  text: 'Measurement graph',
+  align: 'left',
 };
 
 const legendOption: LegendOptions = {
   enabled: false,
 };
-
 
 const responsive = {
   rules: [
@@ -198,11 +210,11 @@ const responsive = {
           buttonSpacing: 8,
           inputEnabled: false,
           buttonTheme: {
-            fill: "none",
+            fill: 'none',
             width: 33,
             r: 10,
-            stroke: "rgba(149, 149, 149, 0.3)",
-            "stroke-width": 1,
+            stroke: 'rgba(149, 149, 149, 0.3)',
+            'stroke-width': 1,
           },
         },
       },
@@ -225,11 +237,10 @@ const responsive = {
   ],
 };
 
-
 const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
   formatter: function (this: TooltipFormatterContextObject): string {
-    const date = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
-    const time = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
+    const date = Highcharts.dateFormat('%m/%d/%Y', Number(this.x));
+    const time = Highcharts.dateFormat('%H:%M:%S', Number(this.x));
     const pointData = this.points ? this.points[0] : this.point;
     const oneMinuteInterval = 60 * 1000; // 1 minute interval in milliseconds
     let s = `<span>${date} `;
@@ -237,56 +248,53 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
     if (this.points && this.points.length > 1) {
       const xLess = Number(this.x);
       const xMore = xLess + oneMinuteInterval * (this.points.length - 1);
-      s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
-      s += Highcharts.dateFormat("%H:%M:%S", xMore) + "</span>";
+      s += Highcharts.dateFormat('%H:%M:%S', xLess) + '-';
+      s += Highcharts.dateFormat('%H:%M:%S', xMore) + '</span>';
     } else {
-      s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
+      s += Highcharts.dateFormat('%H:%M:%S', this.x as number) + '</span>';
     }
     s +=
-      "<br/>" +
+      '<br/>' +
       measurementType +
-      " = " +
+      ' = ' +
       Math.round(Number(pointData.y)) +
-      " " +
+      ' ' +
       unitSymbol;
     return s;
   },
   borderWidth: 0,
   style: {
-    fontSize: "1.2rem",
-    fontFamily: "Roboto",
+    fontSize: '1.2rem',
+    fontFamily: 'Roboto',
   },
 });
 
-
 const rangeSelectorOptions: RangeSelectorOptions = {
   buttonSpacing: 15,
-
   buttons: [
     {
-      type: "hour",
+      type: 'hour',
       count: 24,
-      text: "24h",
+      text: '24h',
     },
     {
-      type: "day",
+      type: 'day',
       count: 7,
-      text: "1 week",
+      text: '1 week',
     },
     {
-      type: "month",
+      type: 'month',
       count: 1,
-      text: "1m",
+      text: '1m',
     },
+    { type: 'all', text: 'All' },
   ],
-  selected: 1,
-
+  selected: 0,
   inputEnabled: false,
 };
 
-
 export {
-  xAxisOption,
+  getXAxisOptions,
   plotOptions,
   titleOption,
   legendOption,
@@ -295,5 +303,6 @@ export {
   getYAxisOptions,
   getTooltipOptions,
   scrollbarOptions,
-  rangeSelectorOptions
+  rangeSelectorOptions,
+  credits,
 };
