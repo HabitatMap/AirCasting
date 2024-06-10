@@ -4,7 +4,6 @@ class StreamSerializer
     thresholds = Stream.thresholds(stream.sensor_name, stream.unit_symbol)
 
     {
-      id: stream.id,
       active: stream.session.is_active,
       title: stream.session.title,
       profile: stream.session.username,
