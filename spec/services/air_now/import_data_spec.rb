@@ -6,8 +6,9 @@ RSpec.describe AirNow::ImportData, :vcr do
       response = described_class.new.call
 
       locations_data, hourly_data = response
+      example_hourly_data = hourly_data.second
       first_location = locations_data.split("\n").first
-      first_measurement = hourly_data.split("\n").first
+      first_measurement = example_hourly_data.split("\n").first
 
       expect(response).to_not be_empty
       expect(first_location.count("|")).to eq(22)
