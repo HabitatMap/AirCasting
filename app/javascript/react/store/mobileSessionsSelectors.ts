@@ -37,19 +37,23 @@ const selectMobileSessionPointsBySessionId = (sessionId: number) =>
 const selectMobileSessionsPoints = createSelector(
   [selectMobileSessionsState],
   (mobileSessionsState): Session[] =>
-    mobileSessionsState.sessions.map(({ id, streams }) => ({
-      id,
-      lastMeasurementValue: streams[Object.keys(streams)[0]].averageValue,
-      point: {
-        lat: streams[Object.keys(streams)[0]].startLatitude,
-        lng: streams[Object.keys(streams)[0]].startLongitude,
-        maxLatitude: streams[Object.keys(streams)[0]].maxLatitude,
-        maxLongitude: streams[Object.keys(streams)[0]].maxLongitude,
-        minLatitude: streams[Object.keys(streams)[0]].minLatitude,
-        minLongitude: streams[Object.keys(streams)[0]].minLongitude,
-        streamId: streams[Object.keys(streams)[0]].id.toString(),
-      },
-    }))
+    mobileSessionsState.sessions.map(({ id, streams }) => {
+      const firstStream = streams[Object.keys(streams)[0]];
+
+      return {
+        id,
+        lastMeasurementValue: firstStream.averageValue,
+        point: {
+          lat: firstStream.startLatitude,
+          lng: firstStream.startLongitude,
+          maxLatitude: firstStream.maxLatitude,
+          maxLongitude: firstStream.maxLongitude,
+          minLatitude: firstStream.minLatitude,
+          minLongitude: firstStream.minLongitude,
+          streamId: firstStream.id.toString(),
+        },
+      };
+    })
 );
 
 export {
