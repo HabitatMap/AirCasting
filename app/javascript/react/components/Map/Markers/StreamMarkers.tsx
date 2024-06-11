@@ -55,8 +55,8 @@ const StreamMarkers = ({ sessions }: Props) => {
         path,
         map,
         strokeColor: mobileStreamPath,
-        strokeOpacity: 0.5,
-        strokeWeight: 5,
+        strokeOpacity: 0.7,
+        strokeWeight: 4,
       });
     }
   }, [sortedSessions, map]);
