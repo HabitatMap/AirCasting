@@ -167,14 +167,16 @@ class Stream < ApplicationRecord
   end
 
   def self.thresholds(sensor_name, unit_symbol)
-    default = ThresholdSet.where(
+    default = ThresholdSet.find_by(
       sensor_name: sensor_name,
       unit_symbol: unit_symbol,
       is_default: true,
-    ).first
+    )
 
     return default if default
 
+    # this line can be removed after all sensors from the sensor_name method are saved as with defaul thresholds
+    # revome it with the LOWER method, cause without it sensor_name will not be downcased
     sensor_name = Sensor.sensor_name(sensor_name.downcase)
 
     sets = ThresholdSet.where(
