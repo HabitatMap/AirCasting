@@ -10,7 +10,7 @@ module Api::FixedSessions
     Dry::Validation.Schema do
       configure do
         def number?(value)
-          true if Float(value)
+          value.is_a?(Float) || value.is_a?(Integer)
         end
       end
 
