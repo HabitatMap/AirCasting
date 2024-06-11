@@ -1,3 +1,4 @@
+# after this task is done save default values for airbeam basic sensor names
 namespace :threshold_sets do
   task populate: :environment do
     Stream.find_each(batch_size: 100) do |stream|
