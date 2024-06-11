@@ -8,6 +8,12 @@ module Api::FixedSessions
 
   Schema =
     Dry::Validation.Schema do
+      configure do
+        def number?(value)
+          value.is_a?(Float) || value.is_a?(Integer)
+        end
+      end
+
       required(:time_from).filled(:time?)
       required(:time_to).filled(:time?)
       required(:sensor_name).filled(:str?)
@@ -16,10 +22,10 @@ module Api::FixedSessions
       required(:tags)
       required(:usernames)
       optional(:is_indoor).filled(:bool?)
-      optional(:west).filled(:float?)
-      optional(:east).filled(:float?)
-      optional(:south).filled(:float?)
-      optional(:north).filled(:float?)
+      optional(:west).filled(:number?)
+      optional(:east).filled(:number?)
+      optional(:south).filled(:number?)
+      optional(:north).filled(:number?)
       optional(:limit).filled(:int?)
       optional(:offset).filled(:int?)
     end
