@@ -58,6 +58,7 @@ const Map = () => {
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+  const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
 
@@ -95,10 +96,13 @@ const Map = () => {
 
   // Effects
   useEffect(() => {
-    fixedSessionTypeSelected
-      ? dispatch(fetchFixedSessions({ filters }))
-      : dispatch(fetchMobileSessions({ filters }));
-  }, [dispatch, filters, selectedSessionType]);
+    if (shouldFetchSessions) {
+      fixedSessionTypeSelected
+        ? dispatch(fetchFixedSessions({ filters }))
+        : dispatch(fetchMobileSessions({ filters }));
+      setShouldFetchSessions(false);
+    }
+  }, [dispatch, filters, shouldFetchSessions]);
 
   // Callbacks
   const onIdle = useCallback(
@@ -208,6 +212,23 @@ const Map = () => {
           streamId={selectedStreamId}
         />
       )}
+      <button
+        onClick={() => setShouldFetchSessions(true)}
+        style={{
+          position: "absolute",
+          top: "10rem",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          padding: "10px 20px",
+          backgroundColor: "#fff",
+          border: "1px solid #ccc",
+          borderRadius: "5px",
+          cursor: "pointer",
+          zIndex: 1000,
+        }}
+      >
+        Redo Search in Map
+      </button>
     </>
   );
 };
