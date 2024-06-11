@@ -39,7 +39,7 @@ class Api::ToActiveSessionsJson
         'uuid' => session.uuid,
         'end_time_local' => session.end_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
         'start_time_local' => session.start_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
-        'last_measurement_value' => related_stream&.average_value,
+        'last_measurement_value' => related_stream&.average_value.round,
         'is_indoor' => session.is_indoor,
         'latitude' => session.latitude,
         'longitude' => session.longitude,

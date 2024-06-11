@@ -14,7 +14,7 @@ class Api::ToMobileSessionHash
       id: session.id,
       streamId: stream.id,
       sensorUnit: stream.unit_symbol,
-      averageValue: stream.average_value,
+      averageValue: stream.average_value.round,
       maxLatitude: stream.max_latitude,
       maxLongitude: stream.max_longitude,
       minLatitude: stream.min_latitude,
