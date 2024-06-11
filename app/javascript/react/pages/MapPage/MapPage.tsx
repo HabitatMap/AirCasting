@@ -19,10 +19,8 @@ const MapPage: React.FC<MapPageProps> = ({ children }) => {
       onLoad={() => console.log("Maps API has loaded.")}
     >
       {children}
-      <StyledMapContainer>
-        <FocusTabController />
-        <Map />
-      </StyledMapContainer>
+      <FocusTabController />
+      <Map />
     </APIProvider>
   );
 };
