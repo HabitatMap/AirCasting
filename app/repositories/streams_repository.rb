@@ -9,7 +9,7 @@ class StreamsRepository
 
   def find_fixed_stream!(id:)
     Stream
-      .includes(session: :user)
+      .includes( :threshold_set, session: :user)
       .joins(:session)
       .where('sessions.type = ?', 'FixedSession')
       .find(id)

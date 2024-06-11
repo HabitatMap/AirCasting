@@ -13,7 +13,6 @@ class Stream < ApplicationRecord
             :measurement_type,
             :measurement_short_type,
             :unit_symbol,
-            :threshold_set_id,
             presence: true
 
   attr_accessor :deleted
