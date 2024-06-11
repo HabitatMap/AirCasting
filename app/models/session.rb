@@ -140,7 +140,7 @@ class Session < ApplicationRecord
   end
 
   def self.with_user_and_streams
-    includes(:user).includes(:streams)
+    includes(:user, streams: [:threshold_set])
   end
 
   def to_param

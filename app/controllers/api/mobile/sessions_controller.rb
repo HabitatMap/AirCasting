@@ -49,6 +49,7 @@ module Api
 
     def stream
       @stream ||= Stream
+        .includes(:threshold_set)
         .joins(:session)
         .find_by!(sensor_name: show_form.to_h.sensor_name, sessions: { id: show_form.to_h.id })
     end
