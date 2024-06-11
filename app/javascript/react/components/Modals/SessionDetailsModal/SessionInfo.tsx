@@ -7,6 +7,7 @@ import { ExportDataModal } from "../";
 import calendar from "../../../assets/icons/calendar.svg";
 import downloadImage from "../../../assets/icons/download.svg";
 import shareLink from "../../../assets/icons/shareLink.svg";
+import { white } from "../../../assets/styles/colors";
 import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../../store/mobileStreamSelectors";
 import { selectThreshold } from "../../../store/thresholdSlice";
@@ -99,6 +100,17 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
           position="top center"
           nested
           closeOnDocumentClick
+          offsetX={fixedSessionTypeSelected ? 0 : 40}
+          arrowStyle={
+            fixedSessionTypeSelected
+              ? {}
+              : {
+                  left: "34%",
+                  borderColor: `transparent transparent ${white} transparent`,
+                  borderWidth: "0 10px 10px 10px",
+                  borderStyle: "solid",
+                }
+          }
         >
           <ExportDataModal
             sessionId={streamShortInfo.sessionId}
