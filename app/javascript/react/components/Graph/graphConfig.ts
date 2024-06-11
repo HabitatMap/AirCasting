@@ -14,7 +14,6 @@ import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStre
 import { green, orange, red, yellow, white, gray200, gray400, blue, black } from '../../assets/styles/colors';
 import { updateMeasurementExtremes } from '../../store/fixedStreamSlice';
 import { useAppDispatch } from '../../store/hooks';
-import { debounce } from 'lodash';
 
 const scrollbarOptions = {
   barBackgroundColor: "#D5D4D4",
@@ -35,13 +34,11 @@ const scrollbarOptions = {
 
 
 
-const getXAxisOptions = (streamShortInfo: StreamShortInfo): XAxisOptions => {
-
-  const { averageValue, minMeasurementValue, maxMeasurementValue } = streamShortInfo;
+const getXAxisOptions = (): XAxisOptions => {
 
   const dispatch = useAppDispatch();
 
-  const handleSetExtremes = debounce((e) => {
+  const handleSetExtremes = (e: Highcharts.AxisSetExtremesEventObject) => {
     console.log('Data range changed. New extremes:', e.min, e.max);
     const min = e.min;
     const max = e.max;
@@ -49,7 +46,7 @@ const getXAxisOptions = (streamShortInfo: StreamShortInfo): XAxisOptions => {
       min,
       max,
     }));
-  }, 300); // Adjust debounce time as needed
+  }
 
   return ({
     title: {

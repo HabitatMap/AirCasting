@@ -8,7 +8,10 @@ import calendar from "../../../assets/icons/calendar.svg";
 import downloadImage from "../../../assets/icons/download.svg";
 import shareLink from "../../../assets/icons/shareLink.svg";
 import { white } from "../../../assets/styles/colors";
-import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
+import {
+  selectExtremes,
+  selectFixedStreamShortInfo,
+} from "../../../store/fixedStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../../store/mobileStreamSelectors";
 import { selectThreshold } from "../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../types/filters";
@@ -31,13 +34,14 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
   );
+  const extremes = useSelector(selectExtremes);
   const thresholds = useSelector(selectThreshold);
   const { t } = useTranslation();
 
   const formattedTime = (time: string) => {
     return moment.utc(time).format("MM/DD/YYYY HH:mm");
   };
-
+  console.log(extremes);
   return (
     <S.InfoContainer>
       <S.Wrapper>
@@ -48,10 +52,10 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
       <S.Wrapper>
         <S.AverageValueContainer>
           <S.AverageDot
-            $color={getColorForValue(thresholds, streamShortInfo.averageValue)}
+            $color={getColorForValue(thresholds, extremes.averageValue)}
           />
           {t("sessionDetailsModal.averageValue")}
-          <S.AverageValue>{streamShortInfo.averageValue}</S.AverageValue>
+          <S.AverageValue>{extremes.averageValue}</S.AverageValue>
           {streamShortInfo.unitSymbol}
         </S.AverageValueContainer>
         <S.MinMaxValueContainer>
@@ -59,21 +63,21 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
             <S.SmallDot
               $color={getColorForValue(
                 thresholds,
-                streamShortInfo.minMeasurementValue
+                extremes.minMeasurementValue
               )}
             />
             {t("sessionDetailsModal.minValue")}
-            <S.Value>{streamShortInfo.minMeasurementValue}</S.Value>
+            <S.Value>{extremes.minMeasurementValue}</S.Value>
           </div>
           <div>
             <S.SmallDot
               $color={getColorForValue(
                 thresholds,
-                streamShortInfo.maxMeasurementValue
+                extremes.maxMeasurementValue
               )}
             />
             {t("sessionDetailsModal.maxValue")}
-            <S.Value>{streamShortInfo.maxMeasurementValue}</S.Value>
+            <S.Value>{extremes.maxMeasurementValue}</S.Value>
           </div>
         </S.MinMaxValueContainer>
         <S.TimeRange>

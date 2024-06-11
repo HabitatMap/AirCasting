@@ -20,9 +20,6 @@ interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   middle: number;
   high: number;
   max: number;
-  minMeasurementValue: number;
-  maxMeasurementValue: number;
-  averageMeasurementValue: number;
 }
 
 interface Measurement {

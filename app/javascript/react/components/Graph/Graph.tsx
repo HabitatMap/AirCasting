@@ -27,8 +27,6 @@ import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStre
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
-import { get } from "lodash";
-import { useAppDispatch } from "../../store/hooks";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -49,10 +47,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       : selectMobileStreamShortInfo
   );
 
-  useEffect(() => {
-    console.log("Updated graphData:", graphData);
-    console.log("Updated streamShortInfo:", streamShortInfo);
-  }, [graphData, streamShortInfo]);
   const measurements = graphData?.measurements || [];
   const unitSymbol = streamShortInfo?.unitSymbol || "";
   const measurementType = "Particulate Matter"; // take this parameter from filters in the future
@@ -64,12 +58,10 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     ]
   );
 
-  const xAxisOptions = getXAxisOptions(streamShortInfo);
+  const xAxisOptions = getXAxisOptions();
 
   const yAxisOption = getYAxisOptions(thresholdsState);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
-
-  console.log(seriesOptions(seriesData), "seriesOptions");
 
   const options: Highcharts.Options = {
     title: undefined,
