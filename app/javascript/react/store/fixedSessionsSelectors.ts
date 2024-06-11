@@ -9,8 +9,10 @@ const selectFixedSessionsPoints = createSelector(
   [selectFixedSessionsState],
   (fixedSessionsState): Session[] =>
     fixedSessionsState.sessions.map(
-      ({ id, lastMeasurementValue, latitude, longitude, streams }) => ({
+      ({ id, lastMeasurementValue, title, latitude, longitude, streams }) => ({
         id,
+        title: title,
+        sensorName: streams[Object.keys(streams)[0]].sensorName,
         lastMeasurementValue,
         point: {
           lat: latitude,

@@ -34,6 +34,8 @@ import { updateAll } from "../../store/thresholdSlice";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { Graph } from "../Graph";
+import { screenSizes } from "../../utils/media";
+import { SessionsListView } from "./SessionsListView/sessionsListView";
 
 const Map = () => {
   // const
@@ -312,6 +314,9 @@ const Map = () => {
       >
         Redo Search in Map
       </button>
+      <SessionsListView
+        sessions={[]}
+      />
     </>
   );
 };
