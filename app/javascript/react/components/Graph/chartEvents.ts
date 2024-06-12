@@ -2,7 +2,6 @@ import Highcharts from "highcharts/highstock";
 import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
 import graphChevronRight from "../../assets/icons/graphChevronRight.svg";
 
-// Function to add navigation arrows
 const addNavigationArrows = (chart: Highcharts.Chart) => {
   // Remove existing arrows if any
   chart.renderer.boxWrapper.element.querySelectorAll('.custom-arrow').forEach(el => el.remove());
@@ -63,17 +62,14 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
   leftArrow.element.onclick = moveLeft;
   rightArrow.element.onclick = moveRight;
 
-  // Initial state update
   updateArrowState();
 };
 
-// Handle chart load event
 export const handleLoad = function (this: Highcharts.Chart) {
   const chart = this;
   addNavigationArrows(chart);
 };
 
-// Handle chart redraw event
 export const handleRedraw = function (this: Highcharts.Chart) {
   const chart = this;
   addNavigationArrows(chart);
