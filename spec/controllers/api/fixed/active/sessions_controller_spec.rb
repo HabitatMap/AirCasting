@@ -138,6 +138,9 @@ describe Api::Fixed::Active::SessionsController do
           latitude: active_session.latitude,
           longitude: active_session.longitude,
         )
+      daily_stream_average =
+        create_stream_daily_average!(stream: active_stream)
+
       create_measurement!(stream: dormant_stream)
 
       get :index2,
@@ -182,6 +185,7 @@ describe Api::Fixed::Active::SessionsController do
                 'sensor_name' => active_stream.sensor_name,
                 'unit_symbol' => active_stream.unit_symbol,
                 'id' => active_stream.id,
+                'stream_daily_average' => daily_stream_average.value,
               },
             },
           },
@@ -216,6 +220,9 @@ describe Api::Fixed::Active::SessionsController do
         )
       create_measurement!(stream: stream_2)
       queried_stream = [stream_1, stream_2].sample
+
+      stream_daily_average =
+        create_stream_daily_average!(stream: queried_stream)
 
       get :index2,
           params: {
@@ -259,6 +266,7 @@ describe Api::Fixed::Active::SessionsController do
                 'sensor_name' => queried_stream.sensor_name,
                 'unit_symbol' => queried_stream.unit_symbol,
                 'id' => queried_stream.id,
+                'stream_daily_average' => stream_daily_average.value,
               },
             },
           },
