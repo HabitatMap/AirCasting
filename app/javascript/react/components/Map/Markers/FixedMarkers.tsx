@@ -3,9 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { red } from "../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../types/googleMaps";
-import { Point, Session } from "../../../types/sessionType";
+import { Session } from "../../../types/sessionType";
 import { SingleMarker } from "./SingleMarker/SingleMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
@@ -52,37 +51,11 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
     clusterer.current.addMarkers(validMarkers);
   }, [markers, map]);
 
-  const centerMapOnMarker = (position: Point) => {
-    const {
-      lat,
-      lng,
-      maxLatitude,
-      maxLongitude,
-      minLatitude,
-      minLongitude,
-      streamId,
-    } = position;
-
-    if (map && !selectedMarkerKey) {
-      if (maxLatitude && maxLongitude && minLatitude && minLongitude) {
-        const bounds: LatLngLiteral[] = [
-          { lat: maxLatitude, lng: maxLongitude },
-          { lat: minLatitude - (maxLatitude - minLatitude), lng: minLongitude }, // #DirtyButWorks Adjust bounds to keep marker visible and not hidden by the modal
-        ];
-
-        const googleBounds = new google.maps.LatLngBounds();
-
-        bounds.forEach((coord) => {
-          googleBounds.extend(new google.maps.LatLng(coord.lat, coord.lng));
-        });
-
-        map.fitBounds(googleBounds);
-      } else {
-        map.setCenter({ lat, lng });
-        map.setZoom(ZOOM_FOR_SELECTED_SESSION);
-      }
+  const centerMapOnMarker = (position: LatLngLiteral, streamId: string) => {
+    if (map) {
+      map.setCenter(position);
+      map.setZoom(ZOOM_FOR_SELECTED_SESSION);
     }
-
     setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
   };
 
@@ -108,12 +81,12 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
           }}
         >
           <SingleMarker
-            color={red}
+            color="#E95F5F"
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
             onClick={() => {
               onMarkerClick(Number(session.point.streamId), Number(session.id));
-              centerMapOnMarker(session.point);
+              centerMapOnMarker(session.point, session.point.streamId);
             }}
           />
         </AdvancedMarker>
