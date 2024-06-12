@@ -24,6 +24,7 @@ import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import * as S from "./Map.style";
 import { Markers } from "./Markers/Markers";
+import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 
 const Map = () => {
@@ -203,11 +204,19 @@ const Map = () => {
             unitSymbol={unit_symbol}
           />
         )}
-        <Markers
-          sessions={sessionsPoints}
-          onMarkerClick={handleMarkerClick}
-          selectedStreamId={selectedStreamId}
-        />
+        {!fixedSessionTypeSelected ? (
+          <MobileMarkers
+            sessions={sessionsPoints}
+            onMarkerClick={handleMarkerClick}
+            selectedStreamId={selectedStreamId}
+          />
+        ) : (
+          <Markers
+            sessions={sessionsPoints}
+            onMarkerClick={handleMarkerClick}
+            selectedStreamId={selectedStreamId}
+          />
+        )}
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal
