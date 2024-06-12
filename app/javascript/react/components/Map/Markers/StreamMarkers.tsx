@@ -61,6 +61,14 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         strokeWeight: 4,
       });
     }
+
+    // Cleanup function to remove the polyline
+    return () => {
+      if (polylineRef.current) {
+        polylineRef.current.setMap(null); // Remove the polyline from the map
+        polylineRef.current = null; // Cleanup the reference
+      }
+    };
   }, [sortedSessions, map]);
 
   return (
