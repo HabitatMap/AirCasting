@@ -7,13 +7,9 @@ const Container = styled.div`
   font-family: "Roboto", sans-serif;
 
   @media ${media.smallDesktop} {
-    width: 80%;
+    width: 77%;
   }
 
-  .highcharts-custom-scrollbar {
-    width: 50%;
-    transform: translate(600px, 55px);
-  }
   .highcharts-root {
     .highcharts-scrollbar {
       position: absolute;
@@ -24,17 +20,18 @@ const Container = styled.div`
       transform: translate(0px, 15px);
       width: 500px;
 
-      .highcharts-scrollbar-track {
-      }
-
       .highcharts-scrollbar-arrow {
         display: inline-block;
         float: left;
         margin-right: 5px;
       }
 
-      .highcharts-scrollbar-arrow.highcharts-scrollbar-arrow-up {
+      .highcharts-scrollbar-arrow.highcharts-scrollbar-arrow-right {
         margin-right: 0;
+      }
+
+      .highcharts-plot-bands-0 {
+        border-radius: 5px;
       }
     }
   }

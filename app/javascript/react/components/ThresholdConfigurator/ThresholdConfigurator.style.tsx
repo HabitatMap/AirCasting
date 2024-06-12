@@ -14,6 +14,7 @@ const Container = styled.div<ContainerProps>`
   margin-bottom: 3rem;
   background: ${(props) => (props.$isMapPage ? "none" : colors.white)};
   position: relative;
+  width: 100%;
 
   @media (${media.desktop}) {
     padding: ${(props) => (props.$isMapPage ? "1.5rem 10rem" : "3rem 10rem")};

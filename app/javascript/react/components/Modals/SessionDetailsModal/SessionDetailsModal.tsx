@@ -48,10 +48,8 @@ const SessionDetailsModal: React.FC<
           <S.CancelButtonX onClick={close}>
             <img src={circleCloseIcon} alt={t("closeWhite.altCloseButton")} />
           </S.CancelButtonX>
-          <S.InfoGraphContainer>
-            <SessionInfo sessionType={sessionType} streamId={streamId} />
-            <Graph streamId={streamId} sessionType={sessionType} />
-          </S.InfoGraphContainer>
+          <SessionInfo sessionType={sessionType} streamId={streamId} />
+          <Graph streamId={streamId} sessionType={sessionType} />
           <ThresholdsConfigurator isMapPage={true} sessionType={sessionType} />
         </>
       )}

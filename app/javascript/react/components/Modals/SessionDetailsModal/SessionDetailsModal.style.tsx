@@ -43,7 +43,8 @@ const SessionDetailsModal = styled(Popup)`
     overflow-y: auto;
     margin: 0;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 `;
 
@@ -51,9 +52,10 @@ const InfoContainer = styled.div`
   display: flex;
   flex-direction: row;
   gap: 1.6rem;
-  padding: 0 4rem;
+  padding: 4rem 4rem 0 4rem;
   width: 100%;
   flex-wrap: wrap;
+
   @media ${media.smallDesktop} {
     width: 20%;
     flex-direction: column;
@@ -158,6 +160,8 @@ const CancelButtonX = styled.button`
   border: none;
   background-color: transparent;
   width: fit-content;
+  height: fit-content;
+  align-self: flex-start;
 
   body:not(.user-is-tabbing) &:focus-visible {
     outline: none;
@@ -189,12 +193,6 @@ const Wrapper = styled.div`
   gap: 1.6rem;
 `;
 
-const InfoGraphContainer = styled.div`
-display: flex;
-gap 1rem;
-flex-wrap: wrap;
-`;
-
 const NoData = styled.span`
   font-size: 1.6rem;
 `;
@@ -217,6 +215,5 @@ export {
   CancelButtonX,
   SmallPopup,
   Wrapper,
-  InfoGraphContainer,
   NoData,
 };
