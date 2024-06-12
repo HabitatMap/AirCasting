@@ -198,23 +198,23 @@ const Map = () => {
         style={S.containerStyle}
         onIdle={onIdle}
       >
-        {selectedStreamId && !fixedSessionTypeSelected && (
-          <StreamMarkers
-            sessions={mobileStreamPoints}
-            unitSymbol={unit_symbol}
-          />
-        )}
-        {!fixedSessionTypeSelected ? (
-          <MobileMarkers
+        {fixedSessionTypeSelected ? (
+          <FixedMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
           />
         ) : (
-          <FixedMarkers
+          <MobileMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
+          />
+        )}
+        {selectedStreamId && !fixedSessionTypeSelected && (
+          <StreamMarkers
+            sessions={mobileStreamPoints}
+            unitSymbol={unit_symbol}
           />
         )}
       </GoogleMap>

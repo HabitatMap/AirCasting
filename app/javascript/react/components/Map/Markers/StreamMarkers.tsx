@@ -78,6 +78,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           title={`${session.lastMeasurementValue} ${unitSymbol}`}
           position={session.point}
           key={session.id}
+          zIndex={0}
           ref={(marker) => {
             if (marker && !markers[session.point.streamId]) {
               setMarkers((prev) => ({

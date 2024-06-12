@@ -169,6 +169,7 @@ const MobileMarkers = ({
         <AdvancedMarker
           position={session.point}
           key={session.point.streamId}
+          zIndex={1000}
           ref={(marker) => {
             if (marker && !markers[session.point.streamId]) {
               setMarkers((prev) => ({
