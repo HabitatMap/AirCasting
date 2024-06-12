@@ -1,20 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
+
 import * as S from "./Graph.style";
-import { useSelector } from "react-redux";
-import { selectFixedData, selectIsLoading } from "../../store/fixedStreamSlice";
-import { selectThreshold } from "../../store/thresholdSlice";
-import { SessionType, SessionTypes } from "../../types/filters";
 import {
   getXAxisOptions,
-  getYAxisOptions,
   plotOptions,
-  seriesOptions,
   legendOption,
+  seriesOptions,
+  getYAxisOptions,
+  responsive,
   getTooltipOptions,
+  scrollbarOptions,
   rangeSelectorOptions,
 } from "./graphConfig";
+import { useSelector } from "react-redux";
+import { selectFixedData } from "../../store/fixedStreamSlice";
+import { selectThreshold } from "../../store/thresholdSlice";
+import { SessionType, SessionTypes } from "../../types/filters";
+import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
+import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -23,11 +30,20 @@ interface GraphProps {
 
 const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const thresholdsState = useSelector(selectThreshold);
-  const isLoading = useSelector(selectIsLoading);
-  const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
-  const graphData = useSelector(selectFixedData);
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+
+  const graphData = fixedSessionTypeSelected
+    ? useSelector(selectFixedData)
+    : useSelector(selectMobileStreamData);
+
+  const streamShortInfo: StreamShortInfo = useSelector(
+    fixedSessionTypeSelected
+      ? selectFixedStreamShortInfo
+      : selectMobileStreamShortInfo
+  );
+
   const measurements = graphData?.measurements || [];
-  const unitSymbol = graphData?.stream?.unitSymbol || "";
+  const unitSymbol = streamShortInfo?.unitSymbol || "";
   const measurementType = "Particulate Matter"; // take this parameter from filters in the future
 
   const seriesData = measurements.map(
@@ -38,13 +54,14 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   );
 
   const xAxisOptions = getXAxisOptions();
-  const yAxisOptions = getYAxisOptions(thresholdsState);
+
+  const yAxisOption = getYAxisOptions(thresholdsState);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
 
   const options: Highcharts.Options = {
     title: undefined,
     xAxis: xAxisOptions,
-    yAxis: yAxisOptions,
+    yAxis: yAxisOption,
     plotOptions,
     series: [seriesOptions(seriesData)],
     legend: legendOption,
@@ -56,24 +73,12 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         scrollPositionX: 1,
       },
     },
+    responsive,
     tooltip: tooltipOptions,
-    scrollbar: {
-      barBackgroundColor: "#D5D4D4",
-      barBorderRadius: 7,
-      barBorderWidth: 0,
-      buttonArrowColor: "#333333",
-      buttonBorderColor: "#cccccc",
-      buttonsEnabled: true,
-      buttonBackgroundColor: "#eee",
-      buttonBorderWidth: 0,
-      buttonBorderRadius: 7,
-      height: 8,
-      rifleColor: "#D5D4D4",
-      trackBackgroundColor: "none",
-      trackBorderWidth: 0,
-      showFull: true,
+    scrollbar: scrollbarOptions,
+    navigator: {
+      enabled: false,
     },
-    navigator: { enabled: false },
     rangeSelector: rangeSelectorOptions,
   };
 
@@ -84,7 +89,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         constructorType={"stockChart"}
         options={options}
       />
-      {isLoading && <div>Loading...</div>}
     </S.Container>
   );
 };

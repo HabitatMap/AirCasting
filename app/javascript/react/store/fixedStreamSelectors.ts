@@ -45,13 +45,25 @@ const selectFixedStreamShortInfo = createSelector(
       .local()
       .format('HH:mm MMM D YYYY');
     const active = fixedStreamData.stream.active;
-    const { min, low, middle, high, max, } = fixedStreamData.stream;
-    const maxMeasurementValue = Math.max(
-      ...fixedStreamData.measurements.map((m) => m.value)
+    const { min, low, middle, high, max } = fixedStreamData.stream;
+
+    const sortedStreamDailyAverages = [...fixedStreamData.streamDailyAverages].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-    const minMeasurementValue = Math.min(
-      ...fixedStreamData.measurements.map((m) => m.value)
-    );
+
+    const newestAverageObject = sortedStreamDailyAverages[0];
+    const newestAverageValue = newestAverageObject ? Number(newestAverageObject.value) : 0;
+
+
+      const newestDate = new Date(Math.max(...fixedStreamData.measurements.map(m => m.time)));
+
+      const newestDayMeasurements = fixedStreamData.measurements.filter(m =>
+        new Date(m.time).toDateString() === newestDate.toDateString()
+      );
+
+      const maxMeasurementValue = Math.max(...newestDayMeasurements.map((m) => m.value));
+      const minMeasurementValue = Math.min(...newestDayMeasurements.map((m) => m.value));
+
 
     return {
       ...fixedStreamData.stream,
@@ -66,7 +78,7 @@ const selectFixedStreamShortInfo = createSelector(
       max,
       minMeasurementValue,
       maxMeasurementValue,
-      averageValue: lastMeasurementValue || 0,
+      averageValue: newestAverageValue,
     };
   }
 );

@@ -20,6 +20,7 @@ import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { CopyLinkModal } from "../CopyLinkModal";
 import * as S from "./SessionDetailsModal.style";
+import { selectIsLoading } from "../../../store/fixedStreamSlice";
 
 interface SessionInfoProps {
   sessionType: SessionType;
@@ -28,6 +29,7 @@ interface SessionInfoProps {
 
 const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const isLoading = useSelector(selectIsLoading);
 
   const streamShortInfo: StreamShortInfo = useSelector(
     fixedSessionTypeSelected
@@ -42,6 +44,10 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
     return moment.utc(time).format("MM/DD/YYYY HH:mm");
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   const minMeasurementValue =
     extremes.minMeasurementValue === 0 || extremes.minMeasurementValue === null
       ? streamShortInfo.minMeasurementValue
@@ -54,8 +60,6 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
     extremes.averageValue === 0 || extremes.averageValue === null
       ? streamShortInfo.averageValue
       : extremes.averageValue;
-
-  console.log("minMeasurementValue", extremes.minMeasurementValue);
 
   return (
     <S.InfoContainer>
