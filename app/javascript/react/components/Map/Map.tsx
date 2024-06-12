@@ -173,6 +173,7 @@ const Map = () => {
 
   const handleClick = (type: SessionType) => {
     setSelectedSessionType(type);
+    setShouldFetchSessions(true);
   };
 
   return (
@@ -197,7 +198,10 @@ const Map = () => {
         onIdle={onIdle}
       >
         {selectedStreamId && !fixedSessionTypeSelected && (
-          <StreamMarkers sessions={mobileStreamPoints} />
+          <StreamMarkers
+            sessions={mobileStreamPoints}
+            unitSymbol={unit_symbol}
+          />
         )}
         <Markers
           sessions={sessionsPoints}

@@ -10,9 +10,10 @@ import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   sessions: Session[];
+  unitSymbol: string;
 };
 
-const StreamMarkers = ({ sessions }: Props) => {
+const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -65,6 +66,7 @@ const StreamMarkers = ({ sessions }: Props) => {
     <>
       {sessions.map((session) => (
         <AdvancedMarker
+          title={`${session.lastMeasurementValue} ${unitSymbol}`}
           position={session.point}
           key={session.id}
           ref={(marker) => {

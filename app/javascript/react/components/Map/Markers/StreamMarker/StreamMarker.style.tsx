@@ -9,6 +9,10 @@ const StreamMarkerCircle = styled.div<StreamMarkerProps>`
   height: 1.2rem;
   border-radius: 50%;
   background-color: ${(props) => props.color};
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 export { StreamMarkerCircle };
