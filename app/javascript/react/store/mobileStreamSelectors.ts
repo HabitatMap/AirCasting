@@ -14,9 +14,10 @@ const selectMobileStreamPoints = createSelector(
   [selectMobileStreamData],
   (mobileStreamState): Session[] =>
     mobileStreamState.measurements.map(
-      ({ time: id, value: lastMeasurementValue, latitude, longitude }) => ({
-        id,
-        lastMeasurementValue,
+      ({ time, value, latitude, longitude }, index) => ({
+        id: index,
+        lastMeasurementValue: value,
+        time,
         point: {
           lat: latitude,
           lng: longitude,

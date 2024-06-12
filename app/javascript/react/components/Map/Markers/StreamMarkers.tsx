@@ -21,10 +21,11 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const polylineRef = useRef<google.maps.Polyline | null>(null);
 
   // Sort sessions by time
-  const sortedSessions = sessions.sort(
-    (a, b) =>
-      new Date(a.id.toString()).getTime() - new Date(b.id.toString()).getTime()
-  );
+  const sortedSessions = sessions.sort((a, b) => {
+    const timeA = a.time ? new Date(a.time.toString()).getTime() : 0;
+    const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
+    return timeA - timeB;
+  });
 
   // Update markers when marker references change
   useEffect(() => {
