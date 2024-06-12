@@ -224,7 +224,7 @@ const Map = () => {
             selectedStreamId={selectedStreamId}
           />
         ) : (
-          <Markers
+          <FixedMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}

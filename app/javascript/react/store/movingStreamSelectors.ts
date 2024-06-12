@@ -1,14 +1,15 @@
-import { createSelector } from "@reduxjs/toolkit";
 import moment, { Moment } from "moment";
 
-import { lastItemFromArray } from "../utils/lastArrayItem";
+import { createSelector } from "@reduxjs/toolkit";
+
 import {
   CalendarCellData,
   CalendarMonthlyData,
   StreamDailyAverage,
 } from "../types/movingStream";
-import { StreamDailyAverage as MovingStreamDailyAverage } from "../types/StreamDailyAverage";
-import { RootState } from ".";
+import { StreamDailyAverage as MovingStreamDailyAverage } from "../types/streamDailyAverage";
+import { lastItemFromArray } from "../utils/lastArrayItem";
+import { RootState } from "./";
 
 const WEEKDAYS_COUNT = 7;
 
@@ -17,7 +18,9 @@ const getMonthWeekBoundariesForDate = (
 ): { firstDayOfMonthWeek: Moment; lastDayOfMonthWeek: Moment } => {
   const year = date.year();
   const month = date.month();
-  const firstDayOfMonthWeek = moment([year, month]).startOf("month").startOf("week");
+  const firstDayOfMonthWeek = moment([year, month])
+    .startOf("month")
+    .startOf("week");
   const lastDayOfMonthWeek = moment([year, month]).endOf("month").endOf("week");
   return { firstDayOfMonthWeek, lastDayOfMonthWeek };
 };
