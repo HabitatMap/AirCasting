@@ -15,7 +15,7 @@ const selectFixedStreamData = (state: RootState): FixedStream => {
 
 const selectExtremesValues = (state: RootState) => state.fixedStream;
 
-const selectExtremes = createSelector(
+const selectFixedExtremes = createSelector(
   [selectExtremesValues],
   (fixedStream) => {
     const { averageMeasurementValue, minMeasurementValue, maxMeasurementValue } = fixedStream;
@@ -87,4 +87,4 @@ const selectFixedStreamShortInfo = createSelector(
   }
 );
 
-export { selectFixedStreamData, selectFixedStreamShortInfo, selectExtremes };
+export { selectFixedStreamData, selectFixedStreamShortInfo, selectFixedExtremes };

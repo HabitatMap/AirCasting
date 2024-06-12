@@ -12,14 +12,16 @@ import {
   responsive,
   getTooltipOptions,
   scrollbarOptions,
-  rangeSelectorOptions,
+  credits,
+  getRangeSelectorOptions,
 } from "./graphConfig";
 import { useSelector } from "react-redux";
 import {
   selectFixedData,
   selectIsLoading,
-  updateMeasurementExtremes,
+  updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
+import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { selectThreshold } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
@@ -27,6 +29,8 @@ import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
+import { handleLoad, handleRedraw } from "./chartEvents";
+import { update } from "lodash";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -60,11 +64,13 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     ]
   );
 
-  const xAxisOptions = getXAxisOptions();
+  const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected);
 
   const yAxisOption = getYAxisOptions(thresholdsState);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
-  // ...
+  const rangeSelectorOptions = getRangeSelectorOptions(
+    fixedSessionTypeSelected
+  );
 
   const dispatch = useAppDispatch();
 
@@ -77,7 +83,11 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       if (last24Hours.length > 0) {
         const minTime = Math.min(...last24Hours.map((m) => m.time));
         const maxTime = Math.max(...last24Hours.map((m) => m.time));
-        dispatch(updateMeasurementExtremes({ min: minTime, max: maxTime }));
+        dispatch(
+          fixedSessionTypeSelected
+            ? updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
+            : updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
+        );
       }
     }
   }, [measurements]);
@@ -96,6 +106,14 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         minWidth: 100,
         scrollPositionX: 1,
       },
+      // events: {
+      //   load: function () {
+      //     handleLoad.call(this);
+      //   },
+      //   redraw: function () {
+      //     handleRedraw.call(this);
+      //   },
+      // },
     },
     responsive,
     tooltip: tooltipOptions,
@@ -104,6 +122,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       enabled: false,
     },
     rangeSelector: rangeSelectorOptions,
+    credits: credits,
   };
 
   return (

@@ -7,31 +7,33 @@ import {
   SeriesOptionsType,
   TooltipFormatterContextObject
 } from 'highcharts/highstock';
-import Highcharts, { RangeSelectorOptions } from 'highcharts';
+import Highcharts, { CreditsOptions, RangeSelectorOptions } from 'highcharts';
 import { ThresholdState } from '../../store/thresholdSlice';
 
-import { green, orange, red, yellow, white, gray200, gray400, blue, black } from '../../assets/styles/colors';
-import { selectIsLoading, updateMeasurementExtremes } from '../../store/fixedStreamSlice';
+import { green, orange, red, yellow, white, gray200, gray400, blue, black, gray100 } from '../../assets/styles/colors';
+import { selectIsLoading, updateFixedMeasurementExtremes } from '../../store/fixedStreamSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { updateMobileMeasurementExtremes } from '../../store/mobileStreamSlice';
 
 const scrollbarOptions = {
-  barBackgroundColor: "#D5D4D4",
+  barBackgroundColor: gray200,
   barBorderRadius: 7,
   barBorderWidth: 0,
-  buttonArrowColor: "#333333",
-  buttonBorderColor: "#cccccc",
-  buttonsEnabled: true,
-  buttonBackgroundColor: "#eee",
+  buttonBackgroundColor: white,
+  buttonBorderColor: white,
+  buttonArrowColor: white,
+  buttonsEnabled: false,
   buttonBorderWidth: 0,
-  buttonBorderRadius: 7,
+  buttonBorderRadius: 0,
   height: 8,
   rifleColor: "#D5D4D4",
-  trackBackgroundColor: "none",
+  trackBackgroundColor: gray100,
   trackBorderWidth: 0,
-  showFull: true,
+  showFull: false,
+  enabled: true,
 };
 
-const getXAxisOptions = (): XAxisOptions => {
+const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
 
@@ -39,7 +41,7 @@ const getXAxisOptions = (): XAxisOptions => {
     if (!isLoading) {
       const min = e.min;
       const max = e.max;
-      dispatch(updateMeasurementExtremes({ min, max }));
+      dispatch(fixedSessionTypeSelected ? updateFixedMeasurementExtremes({ min, max }) : updateMobileMeasurementExtremes({ min, max }));
     }
   };
 
@@ -132,9 +134,9 @@ const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
   };
 };
 
-const credits = {
+const credits: CreditsOptions = {
   enabled: true,
-  position: { align: 'right', verticalAlign: 'top', x: -4, y: 32 },
+  position: { align: 'right', verticalAlign: 'top', x: -4, y: 55 },
 };
 
 const plotOptions: PlotOptions = {
@@ -261,7 +263,9 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
   },
 });
 
-const rangeSelectorOptions: RangeSelectorOptions = {
+const getRangeSelectorOptions = (fixedSessionTypeSelected: boolean): RangeSelectorOptions => (
+  fixedSessionTypeSelected ? {
+
   buttonSpacing: 15,
   buttons: [
     {
@@ -283,7 +287,40 @@ const rangeSelectorOptions: RangeSelectorOptions = {
   ],
   selected: 0,
   inputEnabled: false,
-};
+} : {
+
+  buttonSpacing: 15,
+  buttons: [
+    {
+      type: 'minute',
+      count: 1,
+      text: '1min',
+    },
+    {
+      type: 'minute',
+      count: 5,
+      text: '5min',
+    },
+    {
+      type: 'minute',
+      count: 30,
+      text: '30min',
+    },
+    {
+      type: 'hour',
+      count: 1,
+      text: '1h',
+    },
+    {
+      type: 'hour',
+      count: 12,
+      text: '12h',
+    },
+    { type: 'all', text: 'All' },
+  ],
+  selected: 0,
+  inputEnabled: false,
+});
 
 export {
   getXAxisOptions,
@@ -295,6 +332,6 @@ export {
   getYAxisOptions,
   getTooltipOptions,
   scrollbarOptions,
-  rangeSelectorOptions,
+  getRangeSelectorOptions,
   credits,
 };

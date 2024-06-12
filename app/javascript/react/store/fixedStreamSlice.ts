@@ -66,7 +66,7 @@ const fixedStreamSlice = createSlice({
   name: 'fixedStream',
   initialState,
   reducers: {
-    updateMeasurementExtremes(state, action: PayloadAction<{ min: number; max: number }>) {
+    updateFixedMeasurementExtremes(state, action: PayloadAction<{ min: number; max: number }>) {
       const { min, max } = action.payload;
       const measurementsInRange = state.data.measurements.filter(measurement => {
         const time = measurement.time;
@@ -102,7 +102,7 @@ const fixedStreamSlice = createSlice({
   },
 });
 
-export const { updateMeasurementExtremes } = fixedStreamSlice.actions;
+export const { updateFixedMeasurementExtremes } = fixedStreamSlice.actions;
 export default fixedStreamSlice.reducer;
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) => state.fixedStream.isLoading;
