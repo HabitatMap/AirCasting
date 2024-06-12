@@ -24,7 +24,7 @@ const scrollbarOptions = {
   buttonBorderColor: gray100,
   buttonArrowColor: gray300,
   buttonsEnabled: true,
-  buttonBorderWidth: 6,
+  buttonBorderWidth: 4,
   buttonBorderRadius: 4,
   height: 8,
   trackBackgroundColor: gray100,

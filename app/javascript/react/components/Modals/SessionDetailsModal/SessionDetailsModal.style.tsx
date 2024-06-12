@@ -52,13 +52,17 @@ const InfoContainer = styled.div`
   display: flex;
   flex-direction: row;
   gap: 1.6rem;
-  padding: 4rem 4rem 0 4rem;
+  padding: 0 4rem;
   width: 100%;
   flex-wrap: wrap;
+  margin-bottom: 1.6rem;
+  justify-content: space-evenly;
 
   @media ${media.smallDesktop} {
     width: 20%;
     flex-direction: column;
+    margin-bottom: 0;
+    padding: 4rem 4rem 0 4rem;
   }
 `;
 
