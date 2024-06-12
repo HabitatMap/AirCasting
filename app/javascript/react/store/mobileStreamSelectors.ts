@@ -47,7 +47,8 @@ const selectMobileStreamShortInfo = createSelector(
       averageValue:
         sessionStreamData?.averageValue ||
         mobileStreamInitialState.data.averageValue,
-      endTime: new Date(mobileStreamData.endTime).toString(),
+      endTime:
+        mobileSession?.endTimeLocal || mobileStreamInitialState.data.endTime,
       high: sessionStreamData?.thresholdHigh || thresholdsInitialState.high,
       low: sessionStreamData?.thresholdLow || thresholdsInitialState.low,
       max: sessionStreamData?.thresholdVeryHigh || thresholdsInitialState.max,
@@ -59,7 +60,9 @@ const selectMobileStreamShortInfo = createSelector(
       profile: mobileStreamData.username,
       sensorName: mobileStreamData.sensorName,
       sessionId: mobileStreamData.id.toString(),
-      startTime: new Date(mobileStreamData.startTime).toString(),
+      startTime:
+        mobileSession?.startTimeLocal ||
+        mobileStreamInitialState.data.startTime,
       title: mobileStreamData.title,
       unitSymbol: mobileStreamData.sensorUnit,
     };

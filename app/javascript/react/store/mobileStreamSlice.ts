@@ -17,7 +17,7 @@ interface MobileStreamState {
 export const initialState: MobileStreamState = {
   data: {
     averageValue: 0,
-    endTime: 0,
+    endTime: "",
     id: 0,
     maxLatitude: 0,
     maxLongitude: 0,
@@ -29,7 +29,7 @@ export const initialState: MobileStreamState = {
     sensorUnit: "",
     startLatitude: 0,
     startLongitude: 0,
-    startTime: 0,
+    startTime: "",
     streamId: 0,
     title: "",
     username: "",

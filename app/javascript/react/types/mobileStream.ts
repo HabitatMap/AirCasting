@@ -7,7 +7,7 @@ interface Measurement {
 
 interface MobileStream {
   averageValue: number;
-  endTime: number;
+  endTime: string;
   id: number;
   maxLatitude: number;
   maxLongitude: number;
@@ -19,7 +19,7 @@ interface MobileStream {
   sensorUnit: string;
   startLatitude: number;
   startLongitude: number;
-  startTime: number;
+  startTime: string;
   streamId: number;
   title: string;
   username: string;
