@@ -36,6 +36,10 @@ const GlobalStyles = createGlobalStyle`
     line-height: 1.2;
     color: ${gray400};
   }
+
+  body:not(.user-is-tabbing) .gm-style iframe + div {
+    border: none !important;
+  }
 `;
 
 export default GlobalStyles;
