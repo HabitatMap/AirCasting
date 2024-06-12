@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_03_095648) do
+ActiveRecord::Schema.define(version: 2024_05_20_174314) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -155,6 +155,7 @@ ActiveRecord::Schema.define(version: 2024_04_03_095648) do
     t.float "average_value"
     t.decimal "start_longitude", precision: 12, scale: 9
     t.decimal "start_latitude", precision: 12, scale: 9
+    t.integer "threshold_set_id"
     t.index ["max_latitude"], name: "index_streams_on_max_latitude"
     t.index ["max_longitude"], name: "index_streams_on_max_longitude"
     t.index ["min_latitude"], name: "index_streams_on_min_latitude"
@@ -162,6 +163,7 @@ ActiveRecord::Schema.define(version: 2024_04_03_095648) do
     t.index ["sensor_name", "measurement_type"], name: "index_streams_on_sensor_name_and_measurement_type"
     t.index ["sensor_name"], name: "index_streams_on_sensor_name"
     t.index ["session_id"], name: "index_streams_on_session_id"
+    t.index ["threshold_set_id"], name: "index_streams_on_threshold_set_id"
   end
 
   create_table "taggings", id: :serial, force: :cascade do |t|
@@ -202,6 +204,20 @@ ActiveRecord::Schema.define(version: 2024_04_03_095648) do
     t.index ["session_uuid", "sensor_name"], name: "index_threshold_alerts_on_session_uuid_and_sensor_name"
   end
 
+  create_table "threshold_sets", force: :cascade do |t|
+    t.string "sensor_name"
+    t.string "unit_symbol"
+    t.boolean "is_default"
+    t.float "threshold_very_low"
+    t.float "threshold_low"
+    t.float "threshold_medium"
+    t.float "threshold_high"
+    t.float "threshold_very_high"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["sensor_name", "unit_symbol"], name: "index_threshold_sets_on_sensor_name_and_unit_symbol"
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", limit: 128, default: "", null: false
@@ -230,4 +246,5 @@ ActiveRecord::Schema.define(version: 2024_04_03_095648) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "stream_daily_averages", "streams"
+  add_foreign_key "streams", "threshold_sets"
 end

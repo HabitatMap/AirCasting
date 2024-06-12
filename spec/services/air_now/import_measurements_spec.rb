@@ -89,10 +89,10 @@ describe AirNow::ImportMeasurements do
       described_class.new.call
     end
 
-    it 'creates one session for multiple correct measurements and streams in the same location' do
+    it 'creates sessions for multiple correct measurements and streams in the same location' do
       expect(Measurement.count).to eq(2)
       expect(Stream.count).to eq(2)
-      expect(Session.count).to eq(1)
+      expect(Session.count).to eq(2)
     end
   end
 end

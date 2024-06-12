@@ -33,13 +33,9 @@ module FixedStreams
                 :fixed_stream_serializer
 
     def fetch_data(stream_id)
-      stream = StreamsRepository.new.find_fixed_stream!(id: stream_id)
-      measurements =
-        MeasurementsRepository.new.from_last_24_hours(stream_id: stream_id)
-      stream_daily_averages =
-        StreamDailyAveragesRepository.new.from_full_last_3_calendar_months(
-          stream_id: stream_id,
-        )
+      stream = streams_repository.find_fixed_stream!(id: stream_id)
+      measurements = measurements_repository.from_last_24_hours(stream_id: stream_id)
+      stream_daily_averages = stream_daily_averages_repository.from_full_last_3_calendar_months(stream_id: stream_id)
 
       [stream, measurements, stream_daily_averages]
     end
