@@ -7,27 +7,31 @@ import {
 } from '../types/fixedStream';
 import { lastItemFromArray } from '../utils/lastArrayItem';
 import { RootState } from './index';
+import { isValidValue } from '../utils/measurementsCalc';
 
 const selectFixedStreamData = (state: RootState): FixedStream => {
   return state.fixedStream.data;
 };
 
+const selectExtremesValues = (state: RootState) => state.fixedStream;
 
-const selectExtremesValues = (state: RootState) => {
-  return state.fixedStream;
-}
-
- const selectExtremes = createSelector(
+const selectExtremes = createSelector(
   [selectExtremesValues],
   (fixedStream) => {
     const { averageMeasurementValue, minMeasurementValue, maxMeasurementValue } = fixedStream;
+
+    const min = isValidValue(minMeasurementValue) ? Math.round(minMeasurementValue!) : null;
+    const max = isValidValue(maxMeasurementValue) ? Math.round(maxMeasurementValue!) : null;
+    const avg = isValidValue(averageMeasurementValue) ? Math.round(averageMeasurementValue!) : null;
+
     return {
-      minMeasurementValue: Math.round(minMeasurementValue),
-      maxMeasurementValue: Math.round(maxMeasurementValue),
-      averageValue: Math.round(averageMeasurementValue),
+      minMeasurementValue: min,
+      maxMeasurementValue: max,
+      averageValue: avg,
     };
   }
 );
+
 
 const selectLastDailyAverage = (
   state: RootState

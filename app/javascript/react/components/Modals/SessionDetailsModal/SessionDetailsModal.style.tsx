@@ -195,6 +195,9 @@ gap 1rem;
 flex-wrap: wrap;
 `;
 
+const NoData = styled.span`
+  font-size: 1.6rem;
+`;
 export {
   SessionDetailsModal,
   InfoContainer,
@@ -215,4 +218,5 @@ export {
   SmallPopup,
   Wrapper,
   InfoGraphContainer,
+  NoData,
 };

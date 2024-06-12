@@ -10,3 +10,11 @@ export const calculateMeasurementStats = (measurements: { value: number }[]): { 
 
   return { min, max, avg };
 };
+
+export const isNoData = (...values: (number | null | undefined)[]): boolean => {
+  return values.some((value) => value === undefined || value === null);
+};
+
+export const isValidValue = (value: number | null | undefined): boolean => {
+  return value !== null && value !== undefined && isFinite(value);
+};

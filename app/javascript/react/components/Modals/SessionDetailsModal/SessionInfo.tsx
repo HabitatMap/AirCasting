@@ -21,6 +21,7 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { CopyLinkModal } from "../CopyLinkModal";
 import * as S from "./SessionDetailsModal.style";
 import { selectIsLoading } from "../../../store/fixedStreamSlice";
+import { isNoData } from "../../../utils/measurementsCalc";
 
 interface SessionInfoProps {
   sessionType: SessionType;
@@ -44,22 +45,13 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
     return moment.utc(time).format("MM/DD/YYYY HH:mm");
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
 
-  const minMeasurementValue =
-    extremes.minMeasurementValue === 0 || extremes.minMeasurementValue === null
-      ? streamShortInfo.minMeasurementValue
-      : extremes.minMeasurementValue;
-  const maxMeasurementValue =
-    extremes.maxMeasurementValue === 0 || extremes.maxMeasurementValue === null
-      ? streamShortInfo.maxMeasurementValue
-      : extremes.maxMeasurementValue;
-  const averageValue =
-    extremes.averageValue === 0 || extremes.averageValue === null
-      ? streamShortInfo.averageValue
-      : extremes.averageValue;
+  const noData = isNoData(
+    minMeasurementValue,
+    maxMeasurementValue,
+    averageValue
+  );
 
   return (
     <S.InfoContainer>
@@ -69,31 +61,36 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
         <S.SensorName>{streamShortInfo.sensorName}</S.SensorName>
       </S.Wrapper>
       <S.Wrapper>
-        <S.AverageValueContainer>
-          <S.AverageDot $color={getColorForValue(thresholds, averageValue)} />
-          {t("sessionDetailsModal.averageValue")}
-          <S.AverageValue>{averageValue}</S.AverageValue>
-          {streamShortInfo.unitSymbol}
-        </S.AverageValueContainer>
-        <S.MinMaxValueContainer>
-          <div>
-            <S.SmallDot
-              $color={getColorForValue(thresholds, minMeasurementValue)}
-            />
-            {t("sessionDetailsModal.minValue")}
-            <S.Value>{minMeasurementValue}</S.Value>
-          </div>
-          <div>
-            <S.SmallDot
-              $color={getColorForValue(
-                thresholds,
-                extremes.maxMeasurementValue
-              )}
-            />
-            {t("sessionDetailsModal.maxValue")}
-            <S.Value>{maxMeasurementValue}</S.Value>
-          </div>
-        </S.MinMaxValueContainer>
+        {noData ? (
+          <S.NoData>{t("sessionDetailsModal.noData")}</S.NoData>
+        ) : (
+          <>
+            <S.AverageValueContainer>
+              <S.AverageDot
+                $color={getColorForValue(thresholds, averageValue)}
+              />
+              {t("sessionDetailsModal.averageValue")}
+              <S.AverageValue>{averageValue}</S.AverageValue>
+              {streamShortInfo.unitSymbol}
+            </S.AverageValueContainer>
+            <S.MinMaxValueContainer>
+              <div>
+                <S.SmallDot
+                  $color={getColorForValue(thresholds, minMeasurementValue)}
+                />
+                {t("sessionDetailsModal.minValue")}
+                <S.Value>{minMeasurementValue}</S.Value>
+              </div>
+              <div>
+                <S.SmallDot
+                  $color={getColorForValue(thresholds, maxMeasurementValue)}
+                />
+                {t("sessionDetailsModal.maxValue")}
+                <S.Value>{maxMeasurementValue}</S.Value>
+              </div>
+            </S.MinMaxValueContainer>
+          </>
+        )}
         <S.TimeRange>
           {formattedTime(streamShortInfo.startTime ?? "")} -{" "}
           {formattedTime(streamShortInfo.endTime ?? "")}

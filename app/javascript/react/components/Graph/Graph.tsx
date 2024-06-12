@@ -15,13 +15,18 @@ import {
   rangeSelectorOptions,
 } from "./graphConfig";
 import { useSelector } from "react-redux";
-import { selectFixedData } from "../../store/fixedStreamSlice";
+import {
+  selectFixedData,
+  selectIsLoading,
+  updateMeasurementExtremes,
+} from "../../store/fixedStreamSlice";
 import { selectThreshold } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
+import { useAppDispatch } from "../../store/hooks";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -31,6 +36,8 @@ interface GraphProps {
 const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const thresholdsState = useSelector(selectThreshold);
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+
+  const isLoading = useSelector(selectIsLoading);
 
   const graphData = fixedSessionTypeSelected
     ? useSelector(selectFixedData)
@@ -57,6 +64,23 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
 
   const yAxisOption = getYAxisOptions(thresholdsState);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
+  // ...
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (measurements.length > 0 && !isLoading) {
+      const now = Date.now();
+      const last24Hours = measurements.filter(
+        (m) => now - m.time <= 24 * 60 * 60 * 1000
+      );
+      if (last24Hours.length > 0) {
+        const minTime = Math.min(...last24Hours.map((m) => m.time));
+        const maxTime = Math.max(...last24Hours.map((m) => m.time));
+        dispatch(updateMeasurementExtremes({ min: minTime, max: maxTime }));
+      }
+    }
+  }, [measurements]);
 
   const options: Highcharts.Options = {
     title: undefined,

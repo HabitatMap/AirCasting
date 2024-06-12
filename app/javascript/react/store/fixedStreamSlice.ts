@@ -11,9 +11,9 @@ interface FixedStreamState {
   data: FixedStream;
   status: StatusEnum;
   error?: Error;
-  minMeasurementValue: number;
-  maxMeasurementValue: number;
-  averageMeasurementValue: number;
+  minMeasurementValue: number | null;
+  maxMeasurementValue: number | null;
+  averageMeasurementValue: number | null;
   isLoading: boolean;
 }
 
