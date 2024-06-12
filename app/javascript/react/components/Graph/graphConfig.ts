@@ -9,11 +9,10 @@ import {
 } from 'highcharts/highstock';
 import Highcharts, { RangeSelectorOptions } from 'highcharts';
 import { ThresholdState } from '../../store/thresholdSlice';
-import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 
 import { green, orange, red, yellow, white, gray200, gray400, blue, black } from '../../assets/styles/colors';
-import { updateMeasurementExtremes } from '../../store/fixedStreamSlice';
-import { useAppDispatch } from '../../store/hooks';
+import { selectIsLoading, updateMeasurementExtremes } from '../../store/fixedStreamSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 const scrollbarOptions = {
   barBackgroundColor: "#D5D4D4",
@@ -32,21 +31,17 @@ const scrollbarOptions = {
   showFull: true,
 };
 
-
-
 const getXAxisOptions = (): XAxisOptions => {
-
   const dispatch = useAppDispatch();
+  const isLoading = useAppSelector(selectIsLoading);
 
   const handleSetExtremes = (e: Highcharts.AxisSetExtremesEventObject) => {
-    console.log('Data range changed. New extremes:', e.min, e.max);
-    const min = e.min;
-    const max = e.max;
-    dispatch(updateMeasurementExtremes({
-      min,
-      max,
-    }));
-  }
+    if (!isLoading) {
+      const min = e.min;
+      const max = e.max;
+      dispatch(updateMeasurementExtremes({ min, max }));
+    }
+  };
 
   return ({
     title: {

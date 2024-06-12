@@ -12,14 +12,22 @@ const selectFixedStreamData = (state: RootState): FixedStream => {
   return state.fixedStream.data;
 };
 
-const selectExtremes = (state: RootState): { minMeasurementValue: number; maxMeasurementValue: number; averageValue: number; } => {
-  const { averageMeasurementValue, minMeasurementValue, maxMeasurementValue } = state.fixedStream;
-  return {
-    minMeasurementValue: Math.round(minMeasurementValue),
-    maxMeasurementValue: Math.round(maxMeasurementValue),
-    averageValue: Math.round(averageMeasurementValue),
-  };
+
+const selectExtremesValues = (state: RootState) => {
+  return state.fixedStream;
 }
+
+ const selectExtremes = createSelector(
+  [selectExtremesValues],
+  (fixedStream) => {
+    const { averageMeasurementValue, minMeasurementValue, maxMeasurementValue } = fixedStream;
+    return {
+      minMeasurementValue: Math.round(minMeasurementValue),
+      maxMeasurementValue: Math.round(maxMeasurementValue),
+      averageValue: Math.round(averageMeasurementValue),
+    };
+  }
+);
 
 const selectLastDailyAverage = (
   state: RootState

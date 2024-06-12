@@ -41,7 +41,22 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
   const formattedTime = (time: string) => {
     return moment.utc(time).format("MM/DD/YYYY HH:mm");
   };
-  console.log(extremes);
+
+  const minMeasurementValue =
+    extremes.minMeasurementValue === 0 || extremes.minMeasurementValue === null
+      ? streamShortInfo.minMeasurementValue
+      : extremes.minMeasurementValue;
+  const maxMeasurementValue =
+    extremes.maxMeasurementValue === 0 || extremes.maxMeasurementValue === null
+      ? streamShortInfo.maxMeasurementValue
+      : extremes.maxMeasurementValue;
+  const averageValue =
+    extremes.averageValue === 0 || extremes.averageValue === null
+      ? streamShortInfo.averageValue
+      : extremes.averageValue;
+
+  console.log("minMeasurementValue", extremes.minMeasurementValue);
+
   return (
     <S.InfoContainer>
       <S.Wrapper>
@@ -51,23 +66,18 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
       </S.Wrapper>
       <S.Wrapper>
         <S.AverageValueContainer>
-          <S.AverageDot
-            $color={getColorForValue(thresholds, extremes.averageValue)}
-          />
+          <S.AverageDot $color={getColorForValue(thresholds, averageValue)} />
           {t("sessionDetailsModal.averageValue")}
-          <S.AverageValue>{extremes.averageValue}</S.AverageValue>
+          <S.AverageValue>{averageValue}</S.AverageValue>
           {streamShortInfo.unitSymbol}
         </S.AverageValueContainer>
         <S.MinMaxValueContainer>
           <div>
             <S.SmallDot
-              $color={getColorForValue(
-                thresholds,
-                extremes.minMeasurementValue
-              )}
+              $color={getColorForValue(thresholds, minMeasurementValue)}
             />
             {t("sessionDetailsModal.minValue")}
-            <S.Value>{extremes.minMeasurementValue}</S.Value>
+            <S.Value>{minMeasurementValue}</S.Value>
           </div>
           <div>
             <S.SmallDot
@@ -77,7 +87,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
               )}
             />
             {t("sessionDetailsModal.maxValue")}
-            <S.Value>{extremes.maxMeasurementValue}</S.Value>
+            <S.Value>{maxMeasurementValue}</S.Value>
           </div>
         </S.MinMaxValueContainer>
         <S.TimeRange>

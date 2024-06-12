@@ -1,22 +1,20 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosResponse } from 'axios';
-
-import { getErrorMessage } from '../utils/getErrorMessage';
 import { apiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/apiEndpoints';
 import { Error, StatusEnum } from '../types/api';
 import { FixedStream } from '../types/fixedStream';
-import type { RootState } from './index';
-import { calculateMeasurementStats } from '../utils/measurementsCalc';
+import { RootState } from './index';
+import { getErrorMessage } from '../utils/getErrorMessage';
 
 interface FixedStreamState {
   data: FixedStream;
   status: StatusEnum;
   error?: Error;
-  dupa: boolean;
   minMeasurementValue: number;
   maxMeasurementValue: number;
   averageMeasurementValue: number;
+  isLoading: boolean;
 }
 
 const initialState: FixedStreamState = {
@@ -42,10 +40,10 @@ const initialState: FixedStreamState = {
     streamDailyAverages: [],
   },
   status: StatusEnum.Idle,
-  dupa: false,
   minMeasurementValue: 0,
   maxMeasurementValue: 0,
   averageMeasurementValue: 0,
+  isLoading: false,
 };
 
 export const fetchFixedStreamById = createAsyncThunk<
@@ -64,12 +62,11 @@ export const fetchFixedStreamById = createAsyncThunk<
   }
 });
 
-
 const fixedStreamSlice = createSlice({
   name: 'fixedStream',
   initialState,
   reducers: {
-    updateMeasurementExtremes(state, action: PayloadAction<{ min: number, max: number }>) {
+    updateMeasurementExtremes(state, action: PayloadAction<{ min: number; max: number }>) {
       const { min, max } = action.payload;
       const measurementsInRange = state.data.measurements.filter(measurement => {
         const time = measurement.time;
@@ -87,27 +84,25 @@ const fixedStreamSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(
-      fetchFixedStreamById.fulfilled,
-      (state, { payload: { stream, measurements, streamDailyAverages } }) => {
-        state.status = StatusEnum.Fulfilled;
-
-        if (stream && measurements && streamDailyAverages) {
-          state.data = { stream, measurements, streamDailyAverages };
-        }
-      }
-    );
-builder.addCase(
-  fetchFixedStreamById.rejected,
-  (state, { payload }) => {
-    state.status = StatusEnum.Rejected;
-    state.error = payload;
-    state.data = initialState.data;
-  }
-);
+    builder.addCase(fetchFixedStreamById.pending, (state) => {
+      state.status = StatusEnum.Pending;
+      state.isLoading = true;
+    });
+    builder.addCase(fetchFixedStreamById.fulfilled, (state, { payload }) => {
+      state.status = StatusEnum.Fulfilled;
+      state.data = payload;
+      state.isLoading = false;
+    });
+    builder.addCase(fetchFixedStreamById.rejected, (state, { payload }) => {
+      state.status = StatusEnum.Rejected;
+      state.error = payload;
+      state.data = initialState.data;
+      state.isLoading = false;
+    });
   },
 });
 
 export const { updateMeasurementExtremes } = fixedStreamSlice.actions;
 export default fixedStreamSlice.reducer;
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
+export const selectIsLoading = (state: RootState) => state.fixedStream.isLoading;
