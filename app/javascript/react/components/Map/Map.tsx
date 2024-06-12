@@ -217,11 +217,19 @@ const Map = () => {
             unitSymbol={unit_symbol}
           />
         )}
-        <Markers
-          sessions={sessionsPoints}
-          onMarkerClick={handleMarkerClick}
-          selectedStreamId={selectedStreamId}
-        />
+        {!fixedSessionTypeSelected ? (
+          <MobileMarkers
+            sessions={sessionsPoints}
+            onMarkerClick={handleMarkerClick}
+            selectedStreamId={selectedStreamId}
+          />
+        ) : (
+          <Markers
+            sessions={sessionsPoints}
+            onMarkerClick={handleMarkerClick}
+            selectedStreamId={selectedStreamId}
+          />
+        )}
       </GoogleMap>
       {modalOpen && (
         <SessionDetailsModal
