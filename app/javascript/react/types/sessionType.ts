@@ -1,4 +1,4 @@
-import { LatLngLiteral } from "../../../types/googleMaps";
+import { LatLngLiteral } from "./googleMaps";
 
 export type Point = LatLngLiteral & {
   maxLatitude?: number;

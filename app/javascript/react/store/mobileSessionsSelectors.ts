@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 
-import { Session } from "../components/Map/Markers/SessionType";
+import { Session } from "../types/sessionType";
 import { RootState } from "./";
 import { Session as MobileSession } from "./mobileSessionsSlice";
 

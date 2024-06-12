@@ -5,7 +5,7 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { red } from "../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../types/googleMaps";
-import { Point, Session } from "./SessionType";
+import { Point, Session } from "../../../types/sessionType";
 import { SingleMarker } from "./SingleMarker/SingleMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
@@ -16,7 +16,7 @@ type Props = {
   selectedStreamId: number | null;
 };
 
-const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
+const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -122,4 +122,4 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   );
 };
 
-export { Markers };
+export { FixedMarkers };

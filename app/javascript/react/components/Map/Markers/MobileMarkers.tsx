@@ -4,7 +4,7 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { red } from "../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../types/googleMaps";
-import { Point, Session } from "./SessionType";
+import { Point, Session } from "../../../types/sessionType";
 import { SingleMarker } from "./SingleMarker/SingleMarker";
 import { MarkerContainer } from "./SingleMarker/SingleMarker.style";
 import { StreamMarker } from "./StreamMarker/StreamMarker";

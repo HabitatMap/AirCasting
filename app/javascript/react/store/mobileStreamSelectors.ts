@@ -1,7 +1,7 @@
 import { createSelector } from "@reduxjs/toolkit";
 
-import { Session } from "../components/Map/Markers/SessionType";
 import { MobileStream, MobileStreamShortInfo } from "../types/mobileStream";
+import { Session } from "../types/sessionType";
 import { RootState } from "./";
 import { selectMobileSessionsState } from "./mobileSessionsSelectors";
 import { initialState as mobileStreamInitialState } from "./mobileStreamSlice";

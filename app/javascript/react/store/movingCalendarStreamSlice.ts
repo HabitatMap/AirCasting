@@ -1,11 +1,12 @@
 import { AxiosResponse } from "axios";
+
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { StreamDailyAverage } from "../types/StreamDailyAverage";
-import { getErrorMessage } from "../utils/getErrorMessage";
-import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { apiClient } from "../api/apiClient";
+import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
+import { StreamDailyAverage } from "../types/streamDailyAverage";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 import type { RootState } from "./index";
 
@@ -55,7 +56,9 @@ export const movingStreamSlice = createSlice({
       .addCase(fetchNewMovingStream.fulfilled, (state, { payload }) => {
         state.status = StatusEnum.Fulfilled;
         state.data = payload;
-        state.data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        state.data.sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
       })
       .addCase(fetchNewMovingStream.rejected, (state, { error }) => {
         state.status = StatusEnum.Rejected;

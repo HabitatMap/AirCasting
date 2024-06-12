@@ -23,7 +23,7 @@ import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import * as S from "./Map.style";
-import { Markers } from "./Markers/Markers";
+import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 
@@ -211,7 +211,7 @@ const Map = () => {
             selectedStreamId={selectedStreamId}
           />
         ) : (
-          <Markers
+          <FixedMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
