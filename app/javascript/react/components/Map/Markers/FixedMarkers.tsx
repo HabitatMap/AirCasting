@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { red } from "../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
 import { SingleMarker } from "./SingleMarker/SingleMarker";
@@ -82,7 +81,6 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
         map.setZoom(ZOOM_FOR_SELECTED_SESSION);
       }
     }
-
     setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
   };
 
@@ -108,12 +106,12 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
           }}
         >
           <SingleMarker
-            color={red}
+            color="#E95F5F"
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
             onClick={() => {
               onMarkerClick(Number(session.point.streamId), Number(session.id));
-              centerMapOnMarker(session.point);
+              centerMapOnMarker(session.point, session.point.streamId);
             }}
           />
         </AdvancedMarker>
