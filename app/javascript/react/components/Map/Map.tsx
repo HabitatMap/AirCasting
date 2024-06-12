@@ -36,6 +36,10 @@ import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { Graph } from "../Graph";
 import { screenSizes } from "../../utils/media";
 import { SessionsListView } from "./SessionsListView/sessionsListView";
+import { SectionButton } from "./SessionsListView/sectionButton";
+import pinImage from "../../assets/icons/pinImage.svg";
+import * as S from "./Map.style";
+import { MobileSessionList } from "./SessionsListView/mobileSessionList";
 
 const Map = () => {
   // const
@@ -74,6 +78,9 @@ const Map = () => {
 
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
+  const [showOverlay, setShowOverlay] = useState(false);
+
+  const toggleOverlay = () => setShowOverlay(!showOverlay);
 
   const isMobile = useMobileDetection();
 
@@ -317,8 +324,33 @@ const Map = () => {
       <SessionsListView
         sessions={[]}
       />
+      <S.MobileContainer>
+        <SectionButton title="Sessions" image={pinImage} onClick={toggleOverlay} />
+        {showOverlay && <MobileSessionList sessions={mockSessions} onClose={toggleOverlay}/>}
+      </S.MobileContainer>
+
+      <S.DesktopContainer>
+        <SessionsListView
+          sessions={mockSessions}
+          //  sessions={listSessionsData.map((session) => ({
+          //   sessionName: session.title,
+          //   sensorName: session.sensorName,
+          //   startTime: session.startTime,
+          //   endTime: session.endTime,
+          // }))}
+        />
+      </S.DesktopContainer>
     </>
   );
 };
+
+const mockSessions = Array.from({ length: 20 }, (v, index) => ({
+  sessionName: `Session ${index + 1}`,
+  sensorName: `Sensor ${index + 1}`,
+  startTime: `2023-06-11T${String(index % 24).padStart(2, "0")}:00:00`,
+  endTime: `2023-06-11T${String((index % 24) + 1).padStart(2, "0")}:00:00`,
+}));
+
+export default mockSessions;
 
 export { Map };
