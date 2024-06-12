@@ -35,7 +35,7 @@ class Api::ToMobileSessionsArray
             .reduce({}) do |acc, stream|
               acc.merge(
                 stream.sensor_name => {
-                  average_value: stream.average_value,
+                  average_value: stream.average_value.round,
                   id: stream.id,
                   max_latitude: stream.max_latitude,
                   max_longitude: stream.max_longitude,

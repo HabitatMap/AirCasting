@@ -51,7 +51,7 @@ describe Api::Mobile::SessionsController do
           'username' => user.username,
           'streams' => {
             stream.sensor_name => {
-              'average_value' => stream.average_value,
+              'average_value' => stream.average_value.round,
               'id' => stream.id,
               'max_latitude' => stream.max_latitude,
               'max_longitude' => stream.max_longitude,
@@ -129,7 +129,7 @@ describe Api::Mobile::SessionsController do
         'minLatitude' => 123.0,
         'minLongitude' => 123.0,
         'notes' => [],
-        'averageValue' => 1.23,
+        'averageValue' => 1.23.round,
         'startLatitude' => 123.0,
         'startLongitude' => 123.0,
       }

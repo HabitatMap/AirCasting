@@ -49,7 +49,7 @@ describe Api::Mobile::StreamsController do
         'minLatitude' => 123.0,
         'minLongitude' => 123.0,
         'notes' => [],
-        'averageValue' => 1.23,
+        'averageValue' => 1.23.round,
         'startLatitude' => 123.0,
         'startLongitude' => 123.0,
       }
