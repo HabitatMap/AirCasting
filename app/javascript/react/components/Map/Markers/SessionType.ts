@@ -12,4 +12,5 @@ export type Session = {
   id: number;
   lastMeasurementValue: number;
   point: Point;
+  time?: number;
 };
