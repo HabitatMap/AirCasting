@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
@@ -6,6 +6,7 @@ import { red } from "../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "./SessionType";
 import { SingleMarker } from "./SingleMarker/SingleMarker";
+import { MarkerContainer } from "./SingleMarker/SingleMarker.style";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
@@ -21,21 +22,54 @@ const MobileMarkers = ({
   onMarkerClick,
   selectedStreamId,
 }: Props) => {
+  const DISTANCE_THRESHOLD = 0.1;
+  const ZOOM_FOR_SELECTED_SESSION = 15;
+
   const map = useMap();
+  const [distanceThreshold, setDistanceThreshold] =
+    useState(DISTANCE_THRESHOLD);
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
   );
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-  const ZOOM_FOR_SELECTED_SESSION = 15;
-  const DISTANCE_THRESHOLD = 0.1; // Threshold distance to consider markers as overlapping
 
   useEffect(() => {
     if (selectedStreamId === null) {
       setSelectedMarkerKey(null);
     }
   }, [selectedStreamId]);
+
+  // Update distance threshold based on zoom level
+  useEffect(() => {
+    if (map) {
+      const updateDistanceThreshold = () => {
+        const zoom = map.getZoom() as number;
+
+        if (zoom) {
+          let newThreshold = distanceThreshold;
+          if (zoom >= 10 && zoom < 15) {
+            newThreshold = Math.max(0.1 / zoom);
+          } else if (zoom >= 15 && zoom < 20) {
+            newThreshold = Math.max(0.01 / zoom);
+          } else if (zoom >= 20) {
+            newThreshold = Math.max(0.001 / zoom);
+          } else {
+            newThreshold = Math.max(1 / zoom);
+          }
+          setDistanceThreshold(newThreshold);
+        }
+      };
+
+      map.addListener("zoom_changed", updateDistanceThreshold);
+      updateDistanceThreshold();
+
+      return () => {
+        google.maps.event.clearListeners(map, "zoom_changed");
+      };
+    }
+  }, [map]);
 
   // Update markers when marker references change
   useEffect(() => {
@@ -57,9 +91,7 @@ const MobileMarkers = ({
   ) => {
     const latDiff = marker1.lat - marker2.lat;
     const lngDiff = marker1.lng - marker2.lng;
-    return (
-      Math.sqrt(latDiff * latDiff + lngDiff * lngDiff) < DISTANCE_THRESHOLD
-    );
+    return Math.sqrt(latDiff * latDiff + lngDiff * lngDiff) < distanceThreshold;
   };
 
   const centerMapOnMarker = (position: Point) => {
@@ -105,7 +137,16 @@ const MobileMarkers = ({
 
     if (isOverlapping) {
       // Display as a dot when markers are too close
-      return <StreamMarker color={red} />;
+      return (
+        <MarkerContainer
+          onClick={() => {
+            onMarkerClick(Number(session.point.streamId), Number(session.id));
+            centerMapOnMarker(session.point);
+          }}
+        >
+          <StreamMarker color={red} />
+        </MarkerContainer>
+      );
     }
 
     // Display the average value otherwise
