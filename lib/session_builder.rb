@@ -31,7 +31,7 @@ class SessionBuilder
         measurements = a_stream.delete(:measurements)
         next unless measurements.any?
         a_stream.merge!(session: session)
-        stream = Stream.create!(a_stream)
+        stream = Stream.build_with_threshold_set!(a_stream)
         jobs.push([stream, measurements])
       end
     end
