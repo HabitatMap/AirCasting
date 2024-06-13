@@ -11,7 +11,7 @@ const Overlay = styled.div`
   z-index: 500;
   display: flex;
   justify-content: center;
-  align-items: flex-start; // Align items to the top
+  align-items: flex-start;
 `;
 
 
@@ -39,7 +39,7 @@ const Title = styled(H4)`
 const HorizontalContainer = styled.div`
   width: 100%;
   display: flex;
-//   left: 0;
+  left: 0;
   align-items: center;
   margin-bottom: 10px;
   margin-left: 15px;
@@ -50,9 +50,9 @@ const VerticalContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  margin-top: 20px; // Give some space from the top
-  overflow-y: auto; // Add scrolling to VerticalContainer if needed
-  max-height: 100%; // Make sure it doesn't overflow the viewport
+  margin-top: 20px;
+  overflow-y: auto;
+  max-height: 100%;
 `;
 
 const SessionListStyled = styled.div`
