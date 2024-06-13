@@ -101,6 +101,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     series: [seriesOptions(seriesData)],
     legend: legendOption,
     chart: {
+      zooming: { type: "x" },
       height: 300,
       margin: [40, 30, 0, 0],
       scrollablePlotArea: {
