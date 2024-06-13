@@ -2,7 +2,7 @@ import Highcharts from "highcharts/highstock";
 import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
 import graphChevronRight from "../../assets/icons/graphChevronRight.svg";
 
-const addNavigationArrows = (chart: Highcharts.Chart) => {
+const addNavigationArrows = (chart: Highcharts.Chart, setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>) => {
   // Remove existing arrows if any
   chart.renderer.boxWrapper.element.querySelectorAll('.custom-arrow').forEach(el => el.remove());
 
@@ -59,18 +59,20 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
     }
   };
 
-  leftArrow.element.onclick = moveLeft;
-  rightArrow.element.onclick = moveRight;
-
   updateArrowState();
+
+  leftArrow.on('mouseover', () => setTooltipVisible(false));
+  leftArrow.on('mouseout', () => setTooltipVisible(true));
+  rightArrow.on('mouseover', () => setTooltipVisible(false));
+  rightArrow.on('mouseout', () => setTooltipVisible(true));
 };
 
-export const handleLoad = function (this: Highcharts.Chart) {
-  const chart = this;
-  addNavigationArrows(chart);
+const handleLoad = function (this: Highcharts.Chart, setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>) {
+  addNavigationArrows(this, setTooltipVisible);
 };
 
-export const handleRedraw = function (this: Highcharts.Chart) {
-  const chart = this;
-  addNavigationArrows(chart);
+const handleRedraw = function (this: Highcharts.Chart, setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>) {
+  addNavigationArrows(this, setTooltipVisible);
 };
+
+export { handleLoad, handleRedraw };

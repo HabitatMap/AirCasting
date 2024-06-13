@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 
@@ -30,7 +30,6 @@ import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
 import { handleLoad, handleRedraw } from "./chartEvents";
-import { update } from "lodash";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -40,6 +39,8 @@ interface GraphProps {
 const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 
 const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
+  const [tooltipVisible, setTooltipVisible] = useState(true);
+
   const thresholdsState = useSelector(selectThreshold);
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
@@ -68,7 +69,11 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
 
   const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected);
   const yAxisOption = getYAxisOptions(thresholdsState);
-  const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
+  const tooltipOptions = getTooltipOptions(
+    measurementType,
+    unitSymbol,
+    tooltipVisible
+  );
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected
   );
@@ -110,10 +115,10 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       },
       events: {
         load: function () {
-          handleLoad.call(this);
+          handleLoad.call(this, setTooltipVisible);
         },
         redraw: function () {
-          handleRedraw.call(this);
+          handleRedraw.call(this, setTooltipVisible);
         },
       },
     },

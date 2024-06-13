@@ -243,8 +243,9 @@ const responsive = {
 
 
 
-const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
-  formatter: function (this: TooltipFormatterContextObject): string {
+const getTooltipOptions = (measurementType: string, unitSymbol: string, tooltipVisible: boolean) => ({
+  enabled: tooltipVisible,
+  formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
     const date = Highcharts.dateFormat('%m/%d/%Y', Number(this.x));
     const time = Highcharts.dateFormat('%H:%M:%S', Number(this.x));
     const pointData = this.points ? this.points[0] : this.point;
@@ -274,6 +275,7 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
     fontFamily: 'Roboto',
   },
 });
+
 
 const getRangeSelectorOptions = (fixedSessionTypeSelected: boolean): RangeSelectorOptions => (
   fixedSessionTypeSelected ? {
