@@ -277,60 +277,49 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
 
 const getRangeSelectorOptions = (fixedSessionTypeSelected: boolean): RangeSelectorOptions => (
   fixedSessionTypeSelected ? {
-
+    labelStyle: {
+      display: 'none'
+   },
   buttonSpacing: 15,
   buttons: [
     {
       type: 'hour',
       count: 24,
-      text: '24h',
+      text: '24 HOURS',
     },
     {
       type: 'day',
       count: 7,
-      text: '1 week',
+      text: '1 WEEK',
     },
     {
       type: 'month',
       count: 1,
-      text: '1m',
+      text: '1 MONTH',
     },
-    { type: 'all', text: 'All' },
   ],
   selected: 0,
   inputEnabled: false,
 } : {
 
   buttonSpacing: 15,
+  labelStyle: {
+    display: 'none'
+ },
   buttons: [
     {
       type: 'minute',
-      count: 1,
-      text: '1min',
-    },
-    {
-      type: 'minute',
       count: 5,
-      text: '5min',
-    },
-    {
-      type: 'minute',
-      count: 30,
-      text: '30min',
+      text: '5 MINUTES',
     },
     {
       type: 'hour',
       count: 1,
-      text: '1h',
+      text: '1 HOUR',
     },
-    {
-      type: 'hour',
-      count: 12,
-      text: '12h',
-    },
-    { type: 'all', text: 'All' },
+    { type: 'all', text: 'ALL' },
   ],
-  selected: 0,
+  selected: 2,
   inputEnabled: false,
 });
 
