@@ -70,12 +70,12 @@ const selectMobileStreamShortInfo = createSelector(
   }
 );
 
-const selectExtremesValues = (state: RootState) => state.fixedStream;
+const selectExtremesValues = (state: RootState) => state.mobileStream;
 
 const selectMobileExtremes = createSelector(
   [selectExtremesValues],
-  (fixedStream) => {
-    const { averageMeasurementValue, minMeasurementValue, maxMeasurementValue } = fixedStream;
+  (mobileStreamData) => {
+    const { averageMeasurementValue, minMeasurementValue, maxMeasurementValue } = mobileStreamData;
 
     const min = isValidValue(minMeasurementValue) ? Math.round(minMeasurementValue!) : null;
     const max = isValidValue(maxMeasurementValue) ? Math.round(maxMeasurementValue!) : null;

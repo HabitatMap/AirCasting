@@ -82,21 +82,27 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
 
   useEffect(() => {
     if (measurements.length > 0 && !isLoading) {
-      const now = Date.now();
-      const last24Hours = measurements.filter(
-        (m) => now - m.time <= MILLISECONDS_IN_A_DAY
-      );
-      if (last24Hours.length > 0) {
-        const minTime = Math.min(...last24Hours.map((m) => m.time));
-        const maxTime = Math.max(...last24Hours.map((m) => m.time));
+      if (fixedSessionTypeSelected) {
+        const now = Date.now();
+        const last24Hours = measurements.filter(
+          (m) => now - m.time <= MILLISECONDS_IN_A_DAY
+        );
+        if (last24Hours.length > 0) {
+          const minTime = Math.min(...last24Hours.map((m) => m.time));
+          const maxTime = Math.max(...last24Hours.map((m) => m.time));
+          dispatch(
+            updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
+          );
+        }
+      } else {
+        const minTime = Math.min(...measurements.map((m) => m.time));
+        const maxTime = Math.max(...measurements.map((m) => m.time));
         dispatch(
-          fixedSessionTypeSelected
-            ? updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
-            : updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
+          updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
         );
       }
     }
-  }, [measurements]);
+  }, [measurements, isLoading, dispatch, fixedSessionTypeSelected]);
 
   const options: Highcharts.Options = {
     title: undefined,
