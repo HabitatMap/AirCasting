@@ -102,6 +102,7 @@ class Stream < ApplicationRecord
 
   def self.build_or_update!(data = {})
     measurements_attributes = data.delete(:measurements)
+    data = threshold_set_from_stream(data)
     stream = where(data).first_or_initialize
     latitude = measurements_attributes.first.fetch(:latitude)
     longitude = measurements_attributes.first.fetch(:longitude)
@@ -112,6 +113,29 @@ class Stream < ApplicationRecord
 
     MeasurementsCreator.new.call(stream, measurements_attributes)
     stream
+  end
+
+  def self.build_with_threshold_set!(data = {})
+    data = threshold_set_from_stream(data)
+    allowed = Stream.attribute_names + %w[session]
+    filtered = data.select { |k, _| allowed.include?(k.to_s) }
+    stream = where(filtered).first_or_initialize
+    stream.save!
+    stream
+  end
+
+  def self.threshold_set_from_stream(data)
+    # move from data.fetch to data.delete for thresholds when merging migration deleting thresholds from stream
+    threshold_set = ThresholdSet.find_or_create_by(
+      sensor_name: data.fetch(:sensor_name),
+      unit_symbol: data.fetch(:unit_symbol),
+      threshold_very_low: data.fetch(:threshold_very_low),
+      threshold_low: data.fetch(:threshold_low),
+      threshold_medium: data.fetch(:threshold_medium),
+      threshold_high: data.fetch(:threshold_high),
+      threshold_very_high: data.fetch(:threshold_very_high),
+    )
+    data.merge(threshold_set_id: threshold_set.id)
   end
 
   def build_measurements!(data = [])

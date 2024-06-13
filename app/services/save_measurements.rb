@@ -148,6 +148,7 @@ class SaveMeasurements
           measurement_type: stream.measurement_type,
           measurement_short_type: stream.measurement_short_type,
           unit_symbol: stream.unit_symbol,
+          threshold_set_id: stream.threshold_set_id,
           threshold_very_low: stream.threshold_very_low,
           threshold_low: stream.threshold_low,
           threshold_medium: stream.threshold_medium,
