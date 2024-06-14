@@ -188,7 +188,7 @@ const Map = () => {
       </S.MobileButton>
       {/* temporary solution, ticket: Session Filter: General filters */}
       <GoogleMap
-        mapId={mapId}
+        mapId={mapId || null}
         mapTypeId={mapTypeId}
         defaultCenter={DEFAULT_MAP_CENTER}
         defaultZoom={DEFAULT_ZOOM}
@@ -200,25 +200,6 @@ const Map = () => {
       >
         {fixedSessionTypeSelected ? (
           <FixedMarkers
-            sessions={sessionsPoints}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
-          />
-        ) : (
-          <MobileMarkers
-            sessions={sessionsPoints}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
-          />
-        )}
-        {selectedStreamId && !fixedSessionTypeSelected && (
-          <StreamMarkers
-            sessions={mobileStreamPoints}
-            unitSymbol={unit_symbol}
-          />
-        )}
-        {!fixedSessionTypeSelected ? (
-          <MobileMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}

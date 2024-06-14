@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
@@ -12,9 +12,6 @@ interface MobileStreamState {
   data: MobileStream;
   status: StatusEnum;
   error?: Error;
-  minMeasurementValue: number | null;
-  maxMeasurementValue: number | null;
-  averageMeasurementValue: number | null;
 }
 
 export const initialState: MobileStreamState = {
@@ -38,9 +35,6 @@ export const initialState: MobileStreamState = {
     username: "",
   },
   status: StatusEnum.Idle,
-  minMeasurementValue: 0,
-  maxMeasurementValue: 0,
-  averageMeasurementValue: 0,
 };
 
 export const fetchMobileStreamById = createAsyncThunk<
@@ -62,24 +56,7 @@ export const fetchMobileStreamById = createAsyncThunk<
 export const mobileStreamSlice = createSlice({
   name: "mobileStream",
   initialState,
-  reducers: {
-    updateMobileMeasurementExtremes(state, action: PayloadAction<{ min: number; max: number }>) {
-      const { min, max } = action.payload;
-      const measurementsInRange = state.data.measurements.filter(measurement => {
-        const time = measurement.time;
-        return time >= min && time <= max;
-      });
-
-      const values = measurementsInRange.map(m => m.value);
-      const newMin = Math.min(...values);
-      const newMax = Math.max(...values);
-      const newAvg = values.reduce((sum, value) => sum + value, 0) / values.length;
-
-      state.minMeasurementValue = newMin;
-      state.maxMeasurementValue = newMax;
-      state.averageMeasurementValue = newAvg;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchMobileStreamById.fulfilled, (state, action) => {
       state.status = StatusEnum.Fulfilled;
@@ -95,8 +72,5 @@ export const mobileStreamSlice = createSlice({
     );
   },
 });
-
-
-export const { updateMobileMeasurementExtremes } = mobileStreamSlice.actions;
 
 export default mobileStreamSlice.reducer;

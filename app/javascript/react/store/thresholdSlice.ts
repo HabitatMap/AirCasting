@@ -4,7 +4,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./index";
 import { Threshold, Thresholds } from "../types/thresholds";
 
-export interface ThresholdState extends Thresholds {}
+interface ThresholdState extends Thresholds {}
 
 export const initialState: ThresholdState = {
   min: 0,

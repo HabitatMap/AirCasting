@@ -43,10 +43,4 @@ interface MobileStreamShortInfo {
   unitSymbol: string;
 }
 
-interface MobileGraphData {
-  measurements: Measurement[];
-  unitSymbol: string;
-  measurementType: string;
-}
-
-export type { MobileStream, MobileStreamShortInfo, MobileGraphData };
+export type { MobileStream, MobileStreamShortInfo };

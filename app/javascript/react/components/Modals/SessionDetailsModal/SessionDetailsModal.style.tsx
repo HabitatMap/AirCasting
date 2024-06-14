@@ -43,8 +43,7 @@ const SessionDetailsModal = styled(Popup)`
     overflow-y: auto;
     margin: 0;
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
   }
 `;
 
@@ -55,14 +54,9 @@ const InfoContainer = styled.div`
   padding: 0 4rem;
   width: 100%;
   flex-wrap: wrap;
-  margin-bottom: 1.6rem;
-  justify-content: space-evenly;
-
   @media ${media.smallDesktop} {
     width: 20%;
     flex-direction: column;
-    margin-bottom: 0;
-    padding: 4rem 4rem 0 4rem;
   }
 `;
 
@@ -136,7 +130,6 @@ const Button = styled(ActionButton)`
   color: ${gray300};
   background-color: ${gray100};
   box-shadow: none;
-  padding: 1.6rem;
 `;
 
 const BlueButton = styled(Link)`
@@ -164,8 +157,6 @@ const CancelButtonX = styled.button`
   border: none;
   background-color: transparent;
   width: fit-content;
-  height: fit-content;
-  align-self: flex-start;
 
   body:not(.user-is-tabbing) &:focus-visible {
     outline: none;
@@ -197,9 +188,6 @@ const Wrapper = styled.div`
   gap: 1.6rem;
 `;
 
-const NoData = styled.span`
-  font-size: 1.6rem;
-`;
 export {
   SessionDetailsModal,
   InfoContainer,
@@ -219,5 +207,4 @@ export {
   CancelButtonX,
   SmallPopup,
   Wrapper,
-  NoData,
 };

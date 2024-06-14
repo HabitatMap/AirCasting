@@ -46,14 +46,6 @@ interface FixedStreamShortInfo extends FixedStreamStationInfo {
   minMeasurementValue: number;
 }
 
-
-
-interface FixedGraphData {
-  measurements: Measurement[];
-  unitSymbol: string;
-  measurementType: string;
- }
-
 export type {
   StreamUpdate,
   DataSource,
