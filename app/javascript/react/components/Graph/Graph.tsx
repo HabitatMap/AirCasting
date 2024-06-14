@@ -81,13 +81,13 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (measurements.length && !isLoading) {
+    if (measurements.length > 0 && !isLoading) {
       if (fixedSessionTypeSelected) {
         const now = Date.now();
         const last24Hours = measurements.filter(
           (m) => now - m.time <= MILLISECONDS_IN_A_DAY
         );
-        if (last24Hours.length) {
+        if (last24Hours.length > 0) {
           const minTime = Math.min(...last24Hours.map((m) => m.time));
           const maxTime = Math.max(...last24Hours.map((m) => m.time));
           dispatch(
