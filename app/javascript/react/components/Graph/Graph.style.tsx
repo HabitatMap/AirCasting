@@ -17,24 +17,30 @@ const Container = styled.div`
       z-index: 2;
       border-radius: 5px;
       padding: 5px;
-      transform: translate(0px, 15px);
+      transform: translate(2px, 15px);
       width: 500px;
-
-      .highcharts-scrollbar-arrow {
-        display: inline-block;
-        float: left;
-        margin-right: 5px;
-      }
-
-      .highcharts-scrollbar-arrow.highcharts-scrollbar-arrow-right {
-        margin-right: 0;
-      }
-
-      .highcharts-plot-bands-0 {
-        border-radius: 5px;
-      }
     }
-  }
+
+    .highcharts-scrollbar-track {
+      transform: translate(25px, 4px);
+      width: 95%;
+      align-self: center;
+    }
+
+    .highcharts-scrollbar-thumb {
+      transform: translate(15px, 4px);
+    }
+
+    .highcharts-scrollbar-button {
+      width: 2.4rem;
+      height: 2.4rem;
+      transform: translate(0, -3px);
+    }
+
+    .highcharts-scrollbar-arrow {
+      transform: translate(3px, 0px) scale(2);
+      stroke-width: 3px;
+    }
 `;
 
 export { Container };

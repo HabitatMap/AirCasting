@@ -30,6 +30,8 @@ import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
 import { handleLoad, handleRedraw } from "./chartEvents";
+import chevronLeft from "../../assets/icons/chevronLeft.svg";
+import chevronRight from "../../assets/icons/chevronight.svg";
 
 interface GraphProps {
   sessionType: SessionType;

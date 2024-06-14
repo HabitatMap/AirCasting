@@ -5,7 +5,6 @@ import {
   TitleOptions,
   LegendOptions,
   SeriesOptionsType,
-  TooltipFormatterContextObject
 } from 'highcharts/highstock';
 import Highcharts, { CreditsOptions, RangeSelectorOptions } from 'highcharts';
 import { ThresholdState } from '../../store/thresholdSlice';
@@ -14,18 +13,17 @@ import { green, orange, red, yellow, white, gray200, gray400, blue, black, gray1
 import { selectIsLoading, updateFixedMeasurementExtremes } from '../../store/fixedStreamSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { updateMobileMeasurementExtremes } from '../../store/mobileStreamSlice';
-import { size } from 'lodash';
 
 const scrollbarOptions = {
   barBackgroundColor: gray200,
   barBorderRadius: 7,
   barBorderWidth: 0,
-  buttonBackgroundColor: gray200,
-  buttonBorderColor: gray100,
+  buttonBackgroundColor: white,
+  buttonBorderColor: gray200,
   buttonArrowColor: gray300,
   buttonsEnabled: true,
-  buttonBorderWidth: 4,
-  buttonBorderRadius: 4,
+  buttonBorderWidth: 1,
+  buttonBorderRadius: 12,
   height: 8,
   trackBackgroundColor: gray100,
   trackBorderWidth: 0,
