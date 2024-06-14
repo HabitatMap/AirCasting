@@ -1,20 +1,18 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
+
+import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
+import { SessionType } from "../../../types/filters";
+import { ThresholdsConfigurator } from "../../ThresholdConfigurator";
+import * as S from "./SessionDetailsModal.style";
+import SessionInfo from "./SessionInfo";
+
 import type { PopupProps } from "reactjs-popup/dist/types";
 
-import { useAppDispatch } from "../../../store/hooks";
-
-import { fetchFixedStreamById } from "../../../store/fixedStreamSlice";
-
-import SessionInfo from "./SessionInfo";
-import * as S from "./SessionDetailsModal.style";
-import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
-
-import { ThresholdsConfigurator } from "../../ThresholdConfigurator";
-
 interface SessionDetailsModalProps {
-  streamId: number | null;
   onClose: () => void;
+  sessionType: SessionType;
+  streamId: number | null;
 }
 
 type CustomPopupProps = {
@@ -25,15 +23,8 @@ type CustomPopupProps = {
 
 const SessionDetailsModal: React.FC<
   SessionDetailsModalProps & Omit<PopupProps, "children">
-> = ({ streamId, onClose }) => {
-  const dispatch = useAppDispatch();
+> = ({ onClose, sessionType, streamId }) => {
   const { t } = useTranslation();
-
-  useEffect(() => {
-    if (streamId) {
-      dispatch(fetchFixedStreamById(streamId));
-    }
-  }, [streamId, dispatch]);
 
   // Workaround for the typescript error
   const SessionModal: React.FC<
@@ -50,14 +41,15 @@ const SessionDetailsModal: React.FC<
       overlayStyle={{ margin: 0 }}
       contentStyle={{ margin: 0 }}
       onClose={onClose}
+      closeOnDocumentClick={false}
     >
       {(close) => (
         <>
           <S.CancelButtonX onClick={close}>
             <img src={circleCloseIcon} alt={t("closeWhite.altCloseButton")} />
           </S.CancelButtonX>
-          <SessionInfo streamId={streamId} />
-          <ThresholdsConfigurator isMapPage={true} />
+          <SessionInfo sessionType={sessionType} streamId={streamId} />
+          <ThresholdsConfigurator isMapPage={true} sessionType={sessionType} />
         </>
       )}
     </SessionModal>

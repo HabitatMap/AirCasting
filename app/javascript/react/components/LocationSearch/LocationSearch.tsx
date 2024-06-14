@@ -5,6 +5,7 @@ import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
+
 import { useMap } from "@vis.gl/react-google-maps";
 
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
@@ -82,8 +83,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
       setItems(data);
     }
   }, [data, status]);
-
-  const [bounds, setBounds] = useState<google.maps.LatLngBounds | null>(null);
 
   return (
     <S.SearchContainer>

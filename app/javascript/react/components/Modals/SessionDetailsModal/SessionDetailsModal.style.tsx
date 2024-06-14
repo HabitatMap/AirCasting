@@ -1,5 +1,7 @@
+import { Link } from "react-router-dom";
+import Popup from "reactjs-popup";
 import styled from "styled-components";
-import { H2 } from "../../Typography";
+
 import {
   blue,
   gray100,
@@ -7,10 +9,9 @@ import {
   gray300,
   white,
 } from "../../../assets/styles/colors";
-import { ActionButton } from "../../ActionButton/ActionButton.style";
-import { Link } from "react-router-dom";
-import Popup from "reactjs-popup";
 import { media } from "../../../utils/media";
+import { ActionButton } from "../../ActionButton/ActionButton.style";
+import { H2 } from "../../Typography";
 
 interface DotProps {
   $color?: string;
@@ -29,6 +30,7 @@ const SessionDetailsModal = styled(Popup)`
     display: flex;
     justify-content: center;
     align-items: flex-end;
+    pointer-events: none !important;
   }
 
   &-content {
@@ -104,7 +106,7 @@ const SmallDot = styled.div<DotProps>`
 
 const ButtonsContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 0.5rem;
 `;
 

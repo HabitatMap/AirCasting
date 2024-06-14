@@ -1,18 +1,21 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
+import React, { useEffect, useRef, useState } from "react";
+
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import type { Marker } from "@googlemaps/markerclusterer";
+import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+
 import { LatLngLiteral } from "../../../types/googleMaps";
+import { Session } from "../../../types/sessionType";
 import { SingleMarker } from "./SingleMarker/SingleMarker";
-import { Session } from "./SessionType";
+
+import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   sessions: Session[];
-  onMarkerClick: (streamId: number | null) => void;
+  onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
 };
 
-const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
+const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -82,7 +85,7 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
             onClick={() => {
-              onMarkerClick(Number(session.point.streamId));
+              onMarkerClick(Number(session.point.streamId), Number(session.id));
               centerMapOnMarker(session.point, session.point.streamId);
             }}
           />
@@ -92,4 +95,4 @@ const Markers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   );
 };
 
-export { Markers };
+export { FixedMarkers };

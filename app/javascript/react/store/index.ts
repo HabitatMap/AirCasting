@@ -1,20 +1,24 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import thresholdReducer from "./thresholdSlice";
-import fixedStreamReducer from "./fixedStreamSlice";
 import sessionReducer from "./exportSessionSlice";
-import movingStreamSlice  from "./movingCalendarStreamSlice";
+import fixedSessionsReducer from "./fixedSessionsSlice";
+import fixedStreamReducer from "./fixedStreamSlice";
 import mapReducer from "./mapSlice";
-import fixedSessionsSlice from "./fixedSessionsSlice";
+import mobileSessionsReducer from "./mobileSessionsSlice";
+import mobileStreamReducer from "./mobileStreamSlice";
+import movingStreamReducer from "./movingCalendarStreamSlice";
+import thresholdReducer from "./thresholdSlice";
 
 const store = configureStore({
   reducer: {
-    threshold: thresholdReducer,
+    fixedSessions: fixedSessionsReducer,
     fixedStream: fixedStreamReducer,
-    session: sessionReducer,
-    movingCalendarStream: movingStreamSlice,
     map: mapReducer,
-    fixedSessions: fixedSessionsSlice,
+    mobileSessions: mobileSessionsReducer,
+    mobileStream: mobileStreamReducer,
+    movingCalendarStream: movingStreamReducer,
+    session: sessionReducer,
+    threshold: thresholdReducer,
   },
 });
 

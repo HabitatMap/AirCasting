@@ -1,17 +1,24 @@
-import { RootState } from ".";
+import { createSelector } from "reselect";
 
-import { createSelector } from 'reselect';
+import { Session } from "../types/sessionType";
+import { RootState } from "./";
 
 const selectFixedSessionsState = (state: RootState) => state.fixedSessions;
 
-export const selectSessionsData = createSelector(
+const selectFixedSessionsPoints = createSelector(
   [selectFixedSessionsState],
-  (fixedSessionsState) => fixedSessionsState.sessions.map(session => ({
-    id: session.id,
-    lastMeasurementValue: session.lastMeasurementValue,
-    latitude: session.latitude,
-    longitude: session.longitude,
-    //temporarly using the first stream id as key
-    streamId: session.streams[Object.keys(session.streams)[0]].id
-  }))
+  (fixedSessionsState): Session[] =>
+    fixedSessionsState.sessions.map(
+      ({ id, lastMeasurementValue, latitude, longitude, streams }) => ({
+        id,
+        lastMeasurementValue,
+        point: {
+          lat: latitude,
+          lng: longitude,
+          streamId: streams[Object.keys(streams)[0]].id.toString(),
+        },
+      })
+    )
 );
+
+export { selectFixedSessionsPoints, selectFixedSessionsState };

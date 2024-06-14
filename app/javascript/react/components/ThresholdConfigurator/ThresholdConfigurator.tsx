@@ -2,38 +2,47 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import { useAppDispatch } from "../../store/hooks";
+import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
+import { selectThreshold, updateAll } from "../../store/thresholdSlice";
+import { SessionType, SessionTypes } from "../../types/filters";
+import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { Thresholds } from "../../types/thresholds";
-import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
-
 import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
 import {
   handleMouseDown,
   handleTouchStart,
 } from "../../utils/thresholdGestureHandlers";
-import { selectThreshold, updateAll } from "../../store/thresholdSlice";
-import { useAppDispatch } from "../../store/hooks";
-import * as S from "./ThresholdConfigurator.style";
-
+import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import * as S from "./ThresholdConfigurator.style";
 
 interface ThumbPositions extends Omit<Thresholds, "min" | "max"> {}
 interface ThresholdsConfiguratorProps {
   isMapPage: boolean;
+  sessionType: SessionType;
 }
 
 const maxThresholdDifference = 1;
 
 const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   isMapPage,
+  sessionType,
 }) => {
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+
   const {
     min: initialMin,
     low: initialLow,
     middle: initialMiddle,
     high: initialHigh,
     max: initialMax,
-  } = useSelector(selectFixedStreamShortInfo);
+  }: StreamShortInfo = useSelector(
+    fixedSessionTypeSelected
+      ? selectFixedStreamShortInfo
+      : selectMobileStreamShortInfo
+  );
 
   const thresholdsState = useSelector(selectThreshold);
   const [thresholdValues, setThresholdValues] = useState(thresholdsState);

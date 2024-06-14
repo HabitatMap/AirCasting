@@ -16,6 +16,7 @@ import {
   fetchNewMovingStream,
   movingData,
 } from "../../store/movingCalendarStreamSlice";
+import { SessionTypes } from "../../types/filters";
 import { screenSizes } from "../../utils/media";
 import * as S from "./CalendarPage.style";
 
@@ -94,7 +95,12 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       <S.CalendarPageLayout>
         <S.StationDataContainer>
           <FixedStreamStationHeader />
-          {!isMobile && <ThresholdsConfigurator isMapPage={false} />}
+          {!isMobile && (
+            <ThresholdsConfigurator
+              isMapPage={false}
+              sessionType={SessionTypes.FIXED}
+            />
+          )}
           {calendarIsVisible ? (
             <Calendar
               streamId={streamId}
@@ -104,7 +110,12 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           ) : (
             <EmptyCalendar />
           )}
-          {isMobile && <ThresholdsConfigurator isMapPage={false} />}
+          {isMobile && (
+            <ThresholdsConfigurator
+              isMapPage={false}
+              sessionType={SessionTypes.FIXED}
+            />
+          )}
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>

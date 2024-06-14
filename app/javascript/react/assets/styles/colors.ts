@@ -6,7 +6,7 @@ const gray100 = "#F4F6F9";
 const gray200 = "#C0C9D1";
 const gray300 = "#7D858C";
 const gray400 = "#3E4449";
-const gray500 = '#C6CDD3';
+const gray500 = "#C6CDD3";
 const gray600 = "#4C5650";
 const gray700 = "#CCC";
 const gray800 = "#4C5660A1";
@@ -22,6 +22,7 @@ const mapLabels = "#acacac";
 const mapLandscape = "#f2f2f2";
 const mapStroke = "#c9c9c9";
 const mapWater = "#e0f1f9";
+const mobileStreamPath = "#cee6f1";
 
 export {
   cta,
@@ -47,4 +48,5 @@ export {
   mapLandscape,
   mapStroke,
   mapWater,
+  mobileStreamPath,
 };

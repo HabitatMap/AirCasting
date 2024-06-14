@@ -1,17 +1,18 @@
-import { createSelector } from "@reduxjs/toolkit";
 import moment from "moment";
 
-import { lastItemFromArray } from "../utils/lastArrayItem";
+import { createSelector } from "@reduxjs/toolkit";
+
 import {
   FixedStream,
   FixedStreamShortInfo,
   StreamDailyAverage,
 } from "../types/fixedStream";
-import { RootState } from ".";
+import { lastItemFromArray } from "../utils/lastArrayItem";
+import { RootState } from "./";
 
 const selectFixedStreamData = (state: RootState): FixedStream => {
   return state.fixedStream.data;
-}
+};
 
 const selectLastDailyAverage = (
   state: RootState
@@ -26,7 +27,9 @@ const selectFixedStreamShortInfo = createSelector(
   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
     const lastMeasurementDateLabel = moment(date).format("MMM D");
-    const lastUpdate = moment(fixedStreamData.stream.lastUpdate).local().format("HH:mm MMM D YYYY");
+    const lastUpdate = moment(fixedStreamData.stream.lastUpdate)
+      .local()
+      .format("HH:mm MMM D YYYY");
     const active = fixedStreamData.stream.active;
     const { min, low, middle, high, max } = fixedStreamData.stream;
 
@@ -41,11 +44,11 @@ const selectFixedStreamShortInfo = createSelector(
       middle,
       high,
       max,
+      averageValue: lastMeasurementValue || 0,
+      maxMeasurementValue: max,
+      minMeasurementValue: min,
     };
   }
 );
 
-export {
-  selectFixedStreamData,
-  selectFixedStreamShortInfo,
-};
+export { selectFixedStreamData, selectFixedStreamShortInfo };
