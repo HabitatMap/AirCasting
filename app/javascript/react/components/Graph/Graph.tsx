@@ -1,149 +1,62 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
-import { useSelector } from "react-redux";
 
 import * as S from "./Graph.style";
 import {
-  getXAxisOptions,
+  xAxisOption,
+  yAxisOption,
   plotOptions,
+  titleOption,
   legendOption,
-  seriesOptions,
-  getYAxisOptions,
-  responsive,
-  getTooltipOptions,
-  scrollbarOptions,
-  credits,
-  getRangeSelectorOptions,
+  seriesOption,
 } from "./graphConfig";
-import {
-  selectFixedData,
-  selectIsLoading,
-  updateFixedMeasurementExtremes,
-} from "../../store/fixedStreamSlice";
-import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
-import { selectThreshold } from "../../store/thresholdSlice";
-import { SessionType, SessionTypes } from "../../types/filters";
-import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
-import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
-import { useAppDispatch } from "../../store/hooks";
-import { handleLoad, handleRedraw } from "./chartEvents";
 
-interface GraphProps {
-  sessionType: SessionType;
-  streamId: number | null;
-}
+const mockedData = [
+  [1636329600000, 150.44],
+  [1636502400000, 150.81],
+  [1636554600000, 147.92],
+  [1636641000000, 147.87],
+  [1636727400000, 149.99],
+  [1636986600000, 150],
+  [1637073000000, 151],
+  [1637159400000, 153.49],
+  [1637245800000, 157.87],
+  [1637332200000, 160.55],
+  [1637591400000, 161.02],
+  [1637677800000, 161.41],
+  [1637764200000, 161.94],
+  [1637937000000, 156.81],
+  [1638196200000, 160.24],
+  [1638282600000, 165.3],
+  [1638369000000, 164.77],
+  [1638455400000, 163.76],
+  [1638541800000, 161.84],
+  [1638801000000, 165.32],
+  [1638887400000, 171.18],
+  [1638973800000, 175.08],
+  [1639060200000, 174.56],
+  [1639146600000, 179.45],
+  [1639405800000, 100.74],
+];
 
-const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
+const options: Highcharts.Options = {
+  title: titleOption,
+  xAxis: xAxisOption,
+  yAxis: yAxisOption,
+  plotOptions,
+  series: [seriesOption(mockedData)],
+  legend: legendOption,
+};
 
-const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
-  const [tooltipVisible, setTooltipVisible] = useState(true);
-
-  const thresholdsState = useSelector(selectThreshold);
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-
-  const isLoading = useSelector(selectIsLoading);
-
-  const graphData = fixedSessionTypeSelected
-    ? useSelector(selectFixedData)
-    : useSelector(selectMobileStreamData);
-
-  const streamShortInfo: StreamShortInfo = useSelector(
-    fixedSessionTypeSelected
-      ? selectFixedStreamShortInfo
-      : selectMobileStreamShortInfo
-  );
-
-  const measurements = graphData?.measurements || [];
-  const unitSymbol = streamShortInfo?.unitSymbol || "";
-  const measurementType = "Particulate Matter"; // take this parameter from filters in the future
-
-  const seriesData = measurements.map(
-    (measurement: { time: number; value: number }) => [
-      measurement.time,
-      measurement.value,
-    ]
-  );
-
-  const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected);
-  const yAxisOption = getYAxisOptions(thresholdsState);
-  const tooltipOptions = getTooltipOptions(
-    measurementType,
-    unitSymbol,
-    tooltipVisible
-  );
-  const rangeSelectorOptions = getRangeSelectorOptions(
-    fixedSessionTypeSelected
-  );
-
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (measurements.length && !isLoading) {
-      if (fixedSessionTypeSelected) {
-        const now = Date.now();
-        const last24Hours = measurements.filter(
-          (m) => now - m.time <= MILLISECONDS_IN_A_DAY
-        );
-        if (last24Hours.length) {
-          const minTime = Math.min(...last24Hours.map((m) => m.time));
-          const maxTime = Math.max(...last24Hours.map((m) => m.time));
-          dispatch(
-            updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
-          );
-        }
-      } else {
-        const minTime = Math.min(...measurements.map((m) => m.time));
-        const maxTime = Math.max(...measurements.map((m) => m.time));
-        dispatch(
-          updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
-        );
-      }
-    }
-  }, [measurements, isLoading, dispatch, fixedSessionTypeSelected]);
-
-  const options: Highcharts.Options = {
-    title: undefined,
-    xAxis: xAxisOptions,
-    yAxis: yAxisOption,
-    plotOptions,
-    series: [seriesOptions(seriesData)],
-    legend: legendOption,
-    chart: {
-      zooming: { type: "x" },
-      height: 300,
-      margin: [40, 30, 0, 10],
-      scrollablePlotArea: {
-        minWidth: 100,
-        scrollPositionX: 1,
-      },
-      events: {
-        load: function () {
-          handleLoad.call(this, setTooltipVisible);
-        },
-        redraw: function () {
-          handleRedraw.call(this, setTooltipVisible);
-        },
-      },
-    },
-    responsive,
-    tooltip: tooltipOptions,
-    scrollbar: scrollbarOptions,
-    navigator: {
-      enabled: false,
-    },
-    rangeSelector: rangeSelectorOptions,
-    credits: credits,
-  };
-
+const Graph = (props: HighchartsReact.Props) => {
   return (
     <S.Container>
       <HighchartsReact
         highcharts={Highcharts}
-        constructorType={"stockChart"}
+        constructorType={""}
         options={options}
+        {...props}
       />
     </S.Container>
   );

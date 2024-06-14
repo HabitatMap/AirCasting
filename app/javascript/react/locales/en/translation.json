@@ -102,8 +102,7 @@
     "copyLink": "Copy link icon",
     "calendarIcon": "Calendar icon",
     "minValue": "min.",
-    "maxValue": "max.",
-    "noData": "No data available"
+    "maxValue": "max."
   },
   "copyLinkModal": {
    "copyLink": "Copy link",

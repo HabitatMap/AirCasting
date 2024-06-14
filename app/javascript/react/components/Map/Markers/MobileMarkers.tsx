@@ -26,8 +26,6 @@ const MobileMarkers = ({
   const ZOOM_FOR_SELECTED_SESSION = 15;
 
   const map = useMap();
-  const [distanceThreshold, setDistanceThreshold] =
-    useState(DISTANCE_THRESHOLD);
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
   );
@@ -40,36 +38,6 @@ const MobileMarkers = ({
       setSelectedMarkerKey(null);
     }
   }, [selectedStreamId]);
-
-  // Update distance threshold based on zoom level
-  useEffect(() => {
-    if (map) {
-      const updateDistanceThreshold = () => {
-        const zoom = map.getZoom() as number;
-
-        if (zoom) {
-          let newThreshold = distanceThreshold;
-          if (zoom >= 10 && zoom < 15) {
-            newThreshold = Math.max(0.1 / zoom);
-          } else if (zoom >= 15 && zoom < 20) {
-            newThreshold = Math.max(0.01 / zoom);
-          } else if (zoom >= 20) {
-            newThreshold = Math.max(0.001 / zoom);
-          } else {
-            newThreshold = Math.max(1 / zoom);
-          }
-          setDistanceThreshold(newThreshold);
-        }
-      };
-
-      map.addListener("zoom_changed", updateDistanceThreshold);
-      updateDistanceThreshold();
-
-      return () => {
-        google.maps.event.clearListeners(map, "zoom_changed");
-      };
-    }
-  }, [map]);
 
   // Update markers when marker references change
   useEffect(() => {
