@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
+import { useSelector } from "react-redux";
 
 import * as S from "./Graph.style";
 import {
@@ -15,7 +16,6 @@ import {
   credits,
   getRangeSelectorOptions,
 } from "./graphConfig";
-import { useSelector } from "react-redux";
 import {
   selectFixedData,
   selectIsLoading,
@@ -30,8 +30,6 @@ import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
 import { handleLoad, handleRedraw } from "./chartEvents";
-import chevronLeft from "../../assets/icons/chevronLeft.svg";
-import chevronRight from "../../assets/icons/chevronight.svg";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -83,13 +81,13 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (measurements.length > 0 && !isLoading) {
+    if (measurements.length && !isLoading) {
       if (fixedSessionTypeSelected) {
         const now = Date.now();
         const last24Hours = measurements.filter(
           (m) => now - m.time <= MILLISECONDS_IN_A_DAY
         );
-        if (last24Hours.length > 0) {
+        if (last24Hours.length) {
           const minTime = Math.min(...last24Hours.map((m) => m.time));
           const maxTime = Math.max(...last24Hours.map((m) => m.time));
           dispatch(
@@ -121,6 +119,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         minWidth: 100,
         scrollPositionX: 1,
       },
+      width: 1000,
       events: {
         load: function () {
           handleLoad.call(this, setTooltipVisible);

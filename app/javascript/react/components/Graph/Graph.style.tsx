@@ -12,18 +12,15 @@ const Container = styled.div`
 
   .highcharts-root {
     .highcharts-scrollbar {
-      position: absolute;
-      top: 0;
-      z-index: 200;
       border-radius: 5px;
       padding: 5px;
       transform: translate(1px, 15px);
-      width: 500px;
+      width: 50%;
     }
 
     .highcharts-scrollbar-track {
       transform: translate(0, 4px);
-      width: 99%;
+      width: 98%;
       align-self: center;
     }
 
@@ -35,6 +32,7 @@ const Container = styled.div`
       width: 2.4rem;
       height: 2.4rem;
       transform: translate(0, -3px);
+      margin: 0 5rem;
     }
 
     .highcharts-scrollbar-arrow {

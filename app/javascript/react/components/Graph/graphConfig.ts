@@ -29,6 +29,7 @@ const scrollbarOptions = {
   trackBorderWidth: 0,
   showFull: false,
   enabled: true,
+
 };
 
 const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
