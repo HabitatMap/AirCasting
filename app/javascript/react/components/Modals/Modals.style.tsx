@@ -49,7 +49,7 @@ const CancelButtonX = styled(Button)`
   color: black;
   font-weight: 100;
   border: none;
-
+  outline: none;
   @media ${media.desktop} {
     display: flex;
     align-items: center;
@@ -60,6 +60,13 @@ const CancelButtonX = styled(Button)`
       width: 1rem;
       height: 1rem;
     }
+  }
+  &:focus,
+  &:active,
+  &:focus-visited {
+    outline: none;
+    box-shadow: none;
+    border: none;
   }
 `;
 
