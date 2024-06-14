@@ -14,21 +14,21 @@ const Container = styled.div`
     .highcharts-scrollbar {
       position: absolute;
       top: 0;
-      z-index: 2;
+      z-index: 200;
       border-radius: 5px;
       padding: 5px;
-      transform: translate(2px, 15px);
+      transform: translate(1px, 15px);
       width: 500px;
     }
 
     .highcharts-scrollbar-track {
-      transform: translate(25px, 4px);
-      width: 95%;
+      transform: translate(0, 4px);
+      width: 99%;
       align-self: center;
     }
 
     .highcharts-scrollbar-thumb {
-      transform: translate(15px, 4px);
+      transform: translate(5px, 4px);
     }
 
     .highcharts-scrollbar-button {
