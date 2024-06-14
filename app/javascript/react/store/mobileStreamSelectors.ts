@@ -6,6 +6,7 @@ import { RootState } from "./";
 import { selectMobileSessionsState } from "./mobileSessionsSelectors";
 import { initialState as mobileStreamInitialState } from "./mobileStreamSlice";
 import { initialState as thresholdsInitialState } from "./thresholdSlice";
+import { isValidValue } from "../utils/measurementsCalc";
 
 const selectMobileStreamData = (state: RootState): MobileStream =>
   state.mobileStream.data;
@@ -69,8 +70,28 @@ const selectMobileStreamShortInfo = createSelector(
   }
 );
 
+const selectExtremesValues = (state: RootState) => state.mobileStream;
+
+const selectMobileExtremes = createSelector(
+  [selectExtremesValues],
+  (mobileStreamData) => {
+    const { averageMeasurementValue, minMeasurementValue, maxMeasurementValue } = mobileStreamData;
+
+    const min = isValidValue(minMeasurementValue) ? Math.round(minMeasurementValue!) : null;
+    const max = isValidValue(maxMeasurementValue) ? Math.round(maxMeasurementValue!) : null;
+    const avg = isValidValue(averageMeasurementValue) ? Math.round(averageMeasurementValue!) : null;
+
+    return {
+      minMeasurementValue: min,
+      maxMeasurementValue: max,
+      averageValue: avg,
+    };
+  }
+);
+
 export {
   selectMobileStreamData,
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
+  selectMobileExtremes,
 };

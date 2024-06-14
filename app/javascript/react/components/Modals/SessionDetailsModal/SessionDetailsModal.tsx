@@ -1,12 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-
+import { useSelector, useDispatch } from "react-redux";
 import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
 import { SessionType } from "../../../types/filters";
 import { ThresholdsConfigurator } from "../../ThresholdConfigurator";
 import * as S from "./SessionDetailsModal.style";
 import SessionInfo from "./SessionInfo";
-
+import { Graph } from "../../Graph";
 import type { PopupProps } from "reactjs-popup/dist/types";
 
 interface SessionDetailsModalProps {
@@ -49,6 +49,7 @@ const SessionDetailsModal: React.FC<
             <img src={circleCloseIcon} alt={t("closeWhite.altCloseButton")} />
           </S.CancelButtonX>
           <SessionInfo sessionType={sessionType} streamId={streamId} />
+          <Graph streamId={streamId} sessionType={sessionType} />
           <ThresholdsConfigurator isMapPage={true} sessionType={sessionType} />
         </>
       )}
