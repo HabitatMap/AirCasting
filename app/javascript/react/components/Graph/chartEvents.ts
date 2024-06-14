@@ -10,7 +10,7 @@ const addNavigationArrows = (chart: Highcharts.Chart, setTooltipVisible: React.D
   const chartHeight = chart.chartHeight;
 
   const leftArrow = chart.renderer
-    .image(graphChevronLeft, 20, chartHeight / 2, 30, 30)
+    .image(graphChevronLeft, 30, chartHeight / 2, 30, 30)
     .attr({ zIndex: 10, class: 'custom-arrow' })
     .add();
   const rightArrow = chart.renderer
@@ -44,18 +44,18 @@ const addNavigationArrows = (chart: Highcharts.Chart, setTooltipVisible: React.D
 
     if (min <= dataMin) {
       leftArrow.attr({ opacity: 0.3 }).css({ cursor: 'not-allowed' });
-      leftArrow.element.onclick = null; // Remove click event
+      leftArrow.element.onclick = null;
     } else {
       leftArrow.attr({ opacity: 1 }).css({ cursor: 'pointer' });
-      leftArrow.element.onclick = moveLeft; // Add click event
+      leftArrow.element.onclick = moveLeft;
     }
 
     if (max >= dataMax) {
       rightArrow.attr({ opacity: 0.3 }).css({ cursor: 'not-allowed' });
-      rightArrow.element.onclick = null; // Remove click event
+      rightArrow.element.onclick = null;
     } else {
       rightArrow.attr({ opacity: 1 }).css({ cursor: 'pointer' });
-      rightArrow.element.onclick = moveRight; // Add click event
+      rightArrow.element.onclick = moveRight;
     }
   };
 

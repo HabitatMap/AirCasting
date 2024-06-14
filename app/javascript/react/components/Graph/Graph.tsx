@@ -114,12 +114,11 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     chart: {
       zooming: { type: "x" },
       height: 300,
-      margin: [40, 30, 0, 0],
+      margin: [40, 30, 0, 10],
       scrollablePlotArea: {
         minWidth: 100,
         scrollPositionX: 1,
       },
-      width: 1000,
       events: {
         load: function () {
           handleLoad.call(this, setTooltipVisible);

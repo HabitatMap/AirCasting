@@ -15,12 +15,11 @@ const Container = styled.div`
       border-radius: 5px;
       padding: 5px;
       transform: translate(1px, 15px);
-      width: 50%;
     }
 
     .highcharts-scrollbar-track {
       transform: translate(0, 4px);
-      width: 98%;
+      width: 97%;
       align-self: center;
     }
 
