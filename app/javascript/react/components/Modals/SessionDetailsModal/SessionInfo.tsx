@@ -21,9 +21,9 @@ import { SessionType, SessionTypes } from "../../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../types/mobileStream";
 import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
 import { getColorForValue } from "../../../utils/thresholdColors";
+import { isNoData } from "../../../utils/measurementsCalc";
 import { CopyLinkModal } from "../CopyLinkModal";
 import * as S from "./SessionDetailsModal.style";
-import { isNoData } from "../../../utils/measurementsCalc";
 
 interface SessionInfoProps {
   sessionType: SessionType;

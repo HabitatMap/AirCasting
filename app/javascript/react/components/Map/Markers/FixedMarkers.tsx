@@ -24,7 +24,7 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-  const ZOOM_FOR_SELECTED_SESSION = 21;
+  const ZOOM_FOR_SELECTED_SESSION = 15;
 
   // Update markers when marker references change
   useEffect(() => {
@@ -51,35 +51,10 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
     clusterer.current.addMarkers(validMarkers);
   }, [markers, map]);
 
-  const centerMapOnMarker = (position: Point) => {
-    const {
-      lat,
-      lng,
-      maxLatitude,
-      maxLongitude,
-      minLatitude,
-      minLongitude,
-      streamId,
-    } = position;
-
+  const centerMapOnMarker = (position: LatLngLiteral, streamId: string) => {
     if (map) {
-      if (maxLatitude && maxLongitude && minLatitude && minLongitude) {
-        const bounds: LatLngLiteral[] = [
-          { lat: maxLatitude, lng: maxLongitude },
-          { lat: minLatitude, lng: minLongitude },
-        ];
-
-        const googleBounds = new google.maps.LatLngBounds();
-
-        bounds.forEach((coord) => {
-          googleBounds.extend(new google.maps.LatLng(coord.lat, coord.lng));
-        });
-
-        map.fitBounds(googleBounds);
-      } else {
-        map.setCenter({ lat, lng });
-        map.setZoom(ZOOM_FOR_SELECTED_SESSION);
-      }
+      map.setCenter(position);
+      map.setZoom(ZOOM_FOR_SELECTED_SESSION);
     }
     setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
   };
