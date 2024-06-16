@@ -50,8 +50,4 @@ class StreamsRepository
     stream.start_latitude = first_measurement.latitude
     stream.save!
   end
-
-  def find_with_thresholds(id:)
-    Stream.includes(:threshold_set).find(id)
-  end
 end

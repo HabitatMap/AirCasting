@@ -12,61 +12,68 @@ describe AirNow::ImportMeasurements do
     )
   end
 
-  let(:mock_import_data) { instance_double(AirNow::ImportData) }
-  let(:locations_data) { "000020104|location-name|site-code|site-name|status|agency-id|agency-name|epa-region|44.941101|-105.837799|27.9|timezone|country|msa-code|msa-name|state-code|state-name|county-code|county-name" }
-  let(:measurements_data) { ["03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution"] }
+  let!(:mock_import_data) { instance_double(AirNow::ImportData) }
+  let!(:locations_data) { "000020104|location-name|site-code|site-name|status|agency-id|agency-name|epa-region|44.941101|-105.837799|27.9|timezone|country|msa-code|msa-name|state-code|state-name|county-code|county-name" }
+  let!(:threshold_set_pm25) { create_threshold_set!(sensor_name: 'Government-PM2.5', unit_symbol: 'µg/m³', threshold_very_low: 0, threshold_low: 12, threshold_medium: 35, threshold_high: 55, threshold_very_high: 150) }
+  let!(:threshold_set_no2) { create_threshold_set!(sensor_name: 'Government-NO2', unit_symbol: 'ppb', threshold_very_low: 0, threshold_low: 53, threshold_medium: 100, threshold_high: 360, threshold_very_high: 649) }
+  let!(:threshold_set_o3) { create_threshold_set!(sensor_name: 'Government-Ozone', unit_symbol: 'ppb', threshold_very_low: 0, threshold_low: 59, threshold_medium: 75, threshold_high: 95, threshold_very_high: 115) }
 
-  before do
-    allow(AirNow::ImportData).to receive(:new).and_return(mock_import_data)
-    allow(mock_import_data).to receive(:call).and_return([locations_data, measurements_data])
-  end
-
-  it 'creates measurement, stream, session correctly for correct data' do
-    described_class.new.call
-
-    locations_array = locations_data.split('|')
-    measurements_array = measurements_data.first.split('|')
-
-    [
-      [:value, measurements_array[7].to_f],
-      [:latitude, locations_array[8].to_f],
-      [:longitude, locations_array[9].to_f]
-    ].each do |attribute, expected|
-      expect(Measurement.first.public_send(attribute)).to eq(expected)
+  context 'with correct data' do
+    before do
+      allow(AirNow::ImportData).to receive(:new).and_return(mock_import_data)
+      allow(mock_import_data).to receive(:call).and_return([locations_data, measurements_data])
     end
 
-    [
-      [:sensor_name, "Government-PM2.5"],
-      [:unit_name, "microgram per cubic meter"],
-      [:measurement_type, "Particulate Matter"],
-      [:measurement_short_type, "PM"],
-      [:unit_symbol, "µg/m³"],
-      [:sensor_package_name, "Government-PM2.5"],
-    ].each do |attribute, expected|
-      expect(Stream.first.public_send(attribute)).to eq(expected)
-    end
+    let!(:measurements_data) { ["03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution"] }
 
-    [
-      [:latitude, locations_array[8].to_f],
-      [:longitude, locations_array[9].to_f],
-      [:title, locations_array[3]]
-    ].each do |attribute, expected|
-      expect(Session.first.public_send(attribute)).to eq(expected)
+    it 'creates measurement, stream, session correctly for correct data' do
+      described_class.new.call
+
+      locations_array = locations_data.split('|')
+      measurements_array = measurements_data.first.split('|')
+
+      [
+        [:value, measurements_array[7].to_f],
+        [:latitude, locations_array[8].to_f],
+        [:longitude, locations_array[9].to_f]
+      ].each do |attribute, expected|
+        expect(Measurement.first.public_send(attribute)).to eq(expected)
+      end
+
+      [
+        [:sensor_name, "Government-PM2.5"],
+        [:unit_name, "microgram per cubic meter"],
+        [:measurement_type, "Particulate Matter"],
+        [:measurement_short_type, "PM"],
+        [:unit_symbol, "µg/m³"],
+        [:sensor_package_name, "Government-PM2.5"],
+      ].each do |attribute, expected|
+        expect(Stream.first.public_send(attribute)).to eq(expected)
+      end
+
+      [
+        [:latitude, locations_array[8].to_f],
+        [:longitude, locations_array[9].to_f],
+        [:title, locations_array[3]]
+      ].each do |attribute, expected|
+        expect(Session.first.public_send(attribute)).to eq(expected)
+      end
     end
   end
 
   context 'with unwanted parameters' do
-    let(:measurements_data) do
+    let!(:measurements_data) do
       ["03/25/24|07:00|000020104|measurement-location|-4|SO2|PPB|0.3|attribution\n" +
       "03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution"]
     end
 
     before do
+      allow(AirNow::ImportData).to receive(:new).and_return(mock_import_data)
       allow(mock_import_data).to receive(:call).and_return([locations_data, measurements_data])
-      described_class.new.call
     end
 
     it 'does not create measurement, stream, session for unwanted parameter' do
+      described_class.new.call
       expect(Measurement.count).to eq(1)
       expect(Stream.count).to eq(1)
       expect(Session.count).to eq(1)
@@ -74,17 +81,18 @@ describe AirNow::ImportMeasurements do
   end
 
   context 'with multiple correct measurements in the same location' do
-    let(:measurements_data) do
+    let!(:measurements_data) do
       ["03/25/24|07:00|000020104|measurement-location|-4|PM2.5|PPB|0.3|attribution\n" +
       "03/25/24|07:00|000020104|measurement-location|-4|NO2|PPB|0.3|attribution"]
     end
 
     before do
+      allow(AirNow::ImportData).to receive(:new).and_return(mock_import_data)
       allow(mock_import_data).to receive(:call).and_return([locations_data, measurements_data])
-      described_class.new.call
     end
 
     it 'creates sessions for multiple correct measurements and streams in the same location' do
+      described_class.new.call
       expect(Measurement.count).to eq(2)
       expect(Stream.count).to eq(2)
       expect(Session.count).to eq(2)
