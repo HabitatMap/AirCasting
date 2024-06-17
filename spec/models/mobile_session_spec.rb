@@ -43,9 +43,33 @@ describe MobileSession do
 
     it 'should tell streams to include measurements' do
       a = subject.symbolize_keys[:streams].first
-      b = stream.as_json
+      expected_response = {
+        'average_value' => stream.average_value,
+        'id' => stream.id,
+        'max_latitude' => stream.max_latitude,
+        'max_longitude' => stream.max_longitude,
+        'measurement_short_type' => stream.measurement_short_type,
+        'measurement_type' => stream.measurement_type,
+        'measurements_count' => stream.measurements_count,
+        'min_latitude' => stream.min_latitude,
+        'min_longitude' => stream.min_longitude,
+        'sensor_name' => stream.sensor_name,
+        'sensor_package_name' => stream.sensor_package_name,
+        'session_id' => stream.session_id,
+        'size' => stream.size,
+        'start_latitude' => stream.start_latitude,
+        'start_longitude' => stream.start_longitude,
+        'threshold_high' => stream.threshold_set.threshold_high,
+        'threshold_low' => stream.threshold_set.threshold_low,
+        'threshold_medium' => stream.threshold_set.threshold_medium,
+        'threshold_very_high' => stream.threshold_set.threshold_very_high,
+        'threshold_very_low' => stream.threshold_set.threshold_very_low,
+        'unit_name' => stream.unit_name,
+        'unit_symbol' => stream.unit_symbol,
+        'threshold_set_id' => stream.threshold_set_id,
+      }
 
-      expect(a[1]).to eq(b)
+      expect(a[1]).to eq(expected_response)
     end
 
     it 'should not provide own list of measurements' do

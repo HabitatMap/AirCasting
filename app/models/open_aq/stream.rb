@@ -1,3 +1,4 @@
+# this model is no longer in use and can be deleted - OpenAQ data is no longer fetched
 module OpenAq
   DEFAULTS_BY_SENSOR_NAME = {
     'pm25' => {

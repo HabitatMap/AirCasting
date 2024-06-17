@@ -11,7 +11,7 @@ module Api
     private
 
     def stream
-      @stream ||= Stream.fixed.find(id)
+      @stream ||= Stream.includes(:threshold_set).fixed.find(id)
     end
 
     def id

@@ -4,7 +4,6 @@ class StreamSerializer
     thresholds = Stream.thresholds(stream.sensor_name, stream.unit_symbol)
 
     {
-      id: stream.id,
       active: stream.session.is_active,
       title: stream.session.title,
       profile: stream.session.username,
@@ -15,11 +14,11 @@ class StreamSerializer
       session_id: stream.session.id,
       end_time: stream.session.end_time_local,
       start_time: stream.session.start_time_local,
-      min: thresholds[0],
-      low: thresholds[1],
-      middle: thresholds[2],
-      high: thresholds[3],
-      max: thresholds[4],
+      min: thresholds.threshold_very_low,
+      low: thresholds.threshold_low,
+      middle: thresholds.threshold_medium,
+      high: thresholds.threshold_high,
+      max: thresholds.threshold_very_high,
     }
   end
 end

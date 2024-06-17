@@ -140,7 +140,7 @@ class Session < ApplicationRecord
   end
 
   def self.with_user_and_streams
-    includes(:user).includes(:streams)
+    includes(:user, streams: [:threshold_set])
   end
 
   def to_param
@@ -173,27 +173,30 @@ class Session < ApplicationRecord
     res = super(opts.merge(methods: methods))
 
     map_of_streams = {}
-    strs = sensor_id ? streams.where(sensor_name: sensor_id) : streams.all
+    strs = sensor_id ? streams.includes(:threshold_set).where(sensor_name: sensor_id) : streams.includes(:threshold_set).all
 
-    strs.to_a.each do |stream|
+    strs.each do |stream|
+      stream_json = stream.as_json
+      thresholds_json = stream.threshold_set.as_json(only: [:threshold_very_low, :threshold_low, :threshold_medium, :threshold_high, :threshold_very_high])
+
+      stream_json.merge!(thresholds_json)
+
       if opts[:stream_measurements]
         if type == 'FixedSession'
           measurements_to_send =
             get_measurement_scope(stream.id, opts[:last_measurement_sync])
           map_of_streams[stream.sensor_name] =
-            stream.as_json.merge('measurements' => measurements_to_send).as_json
+            stream_json.merge('measurements' => measurements_to_send)
         else
           map_of_streams[stream.sensor_name] =
-            stream.as_json(
-              include: {
-                measurements: {
-                  only: %i[time value latitude longitude],
-                },
-              },
+            stream_json.merge(
+              'measurements' => stream.measurements.as_json(
+                only: %i[time value latitude longitude]
+              )
             )
         end
       else
-        map_of_streams[stream.sensor_name] = stream.as_json
+        map_of_streams[stream.sensor_name] = stream_json
       end
     end
 

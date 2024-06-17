@@ -17,7 +17,6 @@ RSpec.describe FixedStreamSerializer do
       it 'returns fixed stream data' do
         expected_response = {
           stream: {
-            id: stream.id,
             session_id: session.id,
             active: session.is_active,
             title: session.title,
@@ -28,11 +27,11 @@ RSpec.describe FixedStreamSerializer do
             last_update: stream.session.last_measurement_at,
             start_time: session.end_time_local,
             end_time: session.start_time_local,
-            min: stream.threshold_very_low.to_s,
-            low: stream.threshold_low.to_s,
-            middle: stream.threshold_medium.to_s,
-            high: stream.threshold_high.to_s,
-            max: stream.threshold_very_high.to_s,
+            min: stream.threshold_set.threshold_very_low,
+            low: stream.threshold_set.threshold_low,
+            middle: stream.threshold_set.threshold_medium,
+            high: stream.threshold_set.threshold_high,
+            max: stream.threshold_set.threshold_very_high,
           },
           measurements: [
             { time: measurement_1.time.to_i * 1_000, value: measurement_1.value },
@@ -63,7 +62,6 @@ RSpec.describe FixedStreamSerializer do
         session.user.update!(username: 'US EPA AirNow')
         expected_response = {
           stream: {
-            id: stream.id,
             session_id: session.id,
             active: session.is_active,
             title: session.title,
@@ -74,11 +72,11 @@ RSpec.describe FixedStreamSerializer do
             last_update: stream.session.last_measurement_at,
             start_time: session.end_time_local,
             end_time: session.start_time_local,
-            min: stream.threshold_very_low.to_s,
-            low: stream.threshold_low.to_s,
-            middle: stream.threshold_medium.to_s,
-            high: stream.threshold_high.to_s,
-            max: stream.threshold_very_high.to_s,
+            min: stream.threshold_set.threshold_very_low,
+            low: stream.threshold_set.threshold_low,
+            middle: stream.threshold_set.threshold_medium,
+            high: stream.threshold_set.threshold_high,
+            max: stream.threshold_set.threshold_very_high,
           },
           measurements: [
             { time: measurement_1.time.to_i * 1_000, value: measurement_1.value },

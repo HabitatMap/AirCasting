@@ -16,11 +16,11 @@ class MobileSession < Session
       sensorId: stream.sensor_id,
       usernames: user.username,
       heat: {
-        highest: stream.threshold_very_high,
-        high: stream.threshold_high,
-        mid: stream.threshold_medium,
-        low: stream.threshold_low,
-        lowest: stream.threshold_very_low
+        highest: stream.threshold_set.threshold_very_high,
+        high: stream.threshold_set.threshold_high,
+        mid: stream.threshold_set.threshold_medium,
+        low: stream.threshold_set.threshold_low,
+        lowest: stream.threshold_set.threshold_very_low,
       }
     }
 

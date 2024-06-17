@@ -33,7 +33,7 @@ module Api
             .as_synchronizable(stream_measurements, last_measurement_sync)
             .merge('tag_list' => session.tag_list.join(' '))
 
-        respond_with response
+        render json: response, status: :ok
       end
 
       def create
