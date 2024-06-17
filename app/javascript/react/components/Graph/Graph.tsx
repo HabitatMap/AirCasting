@@ -29,7 +29,7 @@ import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
-import { handleLoad, handleRedraw } from "./chartEvents";
+import { handleLoad } from "./chartEvents";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -127,9 +127,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       events: {
         load: function () {
           handleLoad.call(this, setTooltipVisible);
-        },
-        redraw: function () {
-          handleRedraw.call(this, setTooltipVisible);
         },
       },
     },

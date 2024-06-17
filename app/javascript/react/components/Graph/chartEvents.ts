@@ -1,5 +1,4 @@
 import Highcharts from "highcharts/highstock";
-
 import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
 import graphChevronRight from "../../assets/icons/graphChevronRight.svg";
 
@@ -7,6 +6,9 @@ const addNavigationArrows = (
   chart: Highcharts.Chart,
   setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
+  let leftArrow: Highcharts.SVGElement;
+  let rightArrow: Highcharts.SVGElement;
+
   // Remove existing arrows if any
   chart.renderer.boxWrapper.element
     .querySelectorAll('.custom-arrow')
@@ -15,13 +17,13 @@ const addNavigationArrows = (
   const chartWidth = chart.chartWidth;
   const chartHeight = chart.chartHeight;
 
-  const leftArrow = chart.renderer
+  leftArrow = chart.renderer
     .image(graphChevronLeft, 30, chartHeight / 2, 30, 30)
     .attr({ zIndex: 10, class: 'custom-arrow' })
     .css({ cursor: 'pointer' })
     .add();
 
-  const rightArrow = chart.renderer
+  rightArrow = chart.renderer
     .image(graphChevronRight, chartWidth - 80, chartHeight / 2, 30, 30)
     .attr({ zIndex: 10, class: 'custom-arrow' })
     .css({ cursor: 'pointer' })
@@ -34,7 +36,6 @@ const addNavigationArrows = (
     const newMin = Math.max(dataMin, min - range * 0.1);
     const newMax = Math.max(dataMin + range, max - range * 0.1);
     axis.setExtremes(newMin, newMax);
-    updateArrowState();
   };
 
   const moveRight = () => {
@@ -44,56 +45,35 @@ const addNavigationArrows = (
     const newMin = Math.min(dataMax - range, min + range * 0.1);
     const newMax = Math.min(dataMax, max + range * 0.1);
     axis.setExtremes(newMin, newMax);
-    updateArrowState();
   };
 
-  const updateArrowState = () => {
-    const axis = chart.xAxis[0];
-    const { min, max, dataMin, dataMax } = axis.getExtremes();
+  leftArrow.on('click', moveLeft);
+  rightArrow.on('click', moveRight);
 
-    if (min <= dataMin) {
-      leftArrow.attr({ opacity: 0.3 }).css({ cursor: 'not-allowed' });
-      leftArrow.element.onclick = null;
+  // Handle tooltip visibility on arrow hover
+  const handleArrowHover = (arrow: Highcharts.SVGElement, visible: boolean) => {
+    if (!visible) {
+      setTooltipVisible(false);
     } else {
-      leftArrow.attr({ opacity: 1 }).css({ cursor: 'pointer' });
-      leftArrow.element.onclick = moveLeft;
-    }
-
-    if (max >= dataMax) {
-      rightArrow.attr({ opacity: 0.3 }).css({ cursor: 'not-allowed' });
-      rightArrow.element.onclick = null;
-    } else {
-      rightArrow.attr({ opacity: 1 }).css({ cursor: 'pointer' });
-      rightArrow.element.onclick = moveRight;
+      setTimeout(() => {
+        const chartOffset = chart.container.getBoundingClientRect();
+        const arrowBBox = arrow.getBBox();
+        const arrowX = arrowBBox.x + arrowBBox.width / 2;
+        const arrowY = arrowBBox.y + arrowBBox.height / 2;
+        const mouseX = chartOffset.left + arrowX;
+        const mouseY = chartOffset.top + arrowY;
+        if (!chart.isInsidePlot(mouseX, mouseY)) {
+          setTooltipVisible(true);
+        }
+      }, 200);
     }
   };
 
-  updateArrowState();
+  leftArrow.on('mouseover', () => handleArrowHover(leftArrow, false));
+  leftArrow.on('mouseout', () => handleArrowHover(leftArrow, true));
 
-  leftArrow.on('mouseover', () => {
-    setTooltipVisible(false);
-  });
-
-  leftArrow.on('mouseout', () => {
-    setTooltipVisible(true);
-  });
-
-  rightArrow.on('mouseover', () => {
-    setTooltipVisible(false);
-  });
-
-  rightArrow.on('mouseout', () => {
-    setTooltipVisible(true);
-  });
-
-  [leftArrow, rightArrow].forEach((arrow) => {
-    arrow.element.addEventListener('mouseenter', (event) => {
-      event.stopPropagation();
-    });
-    arrow.element.addEventListener('mouseleave', (event) => {
-      event.stopPropagation();
-    });
-  });
+  rightArrow.on('mouseover', () => handleArrowHover(rightArrow, false));
+  rightArrow.on('mouseout', () => handleArrowHover(rightArrow, true));
 };
 
 const handleLoad = function (
@@ -103,11 +83,4 @@ const handleLoad = function (
   addNavigationArrows(this, setTooltipVisible);
 };
 
-const handleRedraw = function (
-  this: Highcharts.Chart,
-  setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>
-) {
-  addNavigationArrows(this, setTooltipVisible);
-};
-
-export { handleLoad, handleRedraw };
+export { handleLoad };
