@@ -175,12 +175,8 @@ class Stream < ApplicationRecord
 
     return default if default
 
-    # this line can be removed after all sensors from the sensor_name method are saved as with defaul thresholds
-    # revome it with the LOWER method, cause without it sensor_name will not be downcased
-    sensor_name = Sensor.sensor_name(sensor_name.downcase)
-
     sets = ThresholdSet.where(
-      'LOWER(sensor_name) IN (?) AND unit_symbol = ?',
+      'sensor_name = ? AND unit_symbol = ?',
       sensor_name,
       unit_symbol
     )
