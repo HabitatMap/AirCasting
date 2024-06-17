@@ -1,13 +1,13 @@
 import React from "react";
 
-import { DataContainer, MarkerCircle, MarkerContainer } from "./DotMarker.style";
+import { DataContainer, MarkerCircle, MarkerContainer } from "./SessionDotMarker.style";
 
 interface MarkerProps {
   color: string;
   onClick: () => void;
 }
 
-const DotMarker = ({ color, onClick }: MarkerProps) => {
+const SessionDotMarker = ({ color, onClick }: MarkerProps) => {
   return (
     <MarkerContainer onClick={onClick}>
       <DataContainer>
@@ -17,4 +17,4 @@ const DotMarker = ({ color, onClick }: MarkerProps) => {
   );
 };
 
-export { DotMarker };
+export { SessionDotMarker };

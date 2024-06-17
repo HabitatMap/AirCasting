@@ -5,7 +5,7 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
-import { SingleMarker } from "./SingleMarker/SingleMarker";
+import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
 
@@ -80,7 +80,7 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
             }
           }}
         >
-          <SingleMarker
+          <SessionFullMarker
             color="#E95F5F"
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
