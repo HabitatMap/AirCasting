@@ -14,3 +14,13 @@ export type Session = {
   point: Point;
   time?: number;
 };
+
+export type SessionList = {
+  id: number;
+  title: string;
+  sensorName: string;
+  averageValue: number;
+  startTime: string;
+  endTime: string;
+  streamId: number;
+};

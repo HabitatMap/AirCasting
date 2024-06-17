@@ -8,12 +8,16 @@ import {
   DEFAULT_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
-import { selectFixedSessionsPoints } from "../../store/fixedSessionsSelectors";
+import {
+  selectFixedSessionsList,
+  selectFixedSessionsPoints,
+} from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
   selectMobileSessionPointsBySessionId,
+  selectMobileSessionsList,
   selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
@@ -24,7 +28,6 @@ import {
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
-import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
@@ -33,13 +36,12 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { updateAll } from "../../store/thresholdSlice";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { Graph } from "../Graph";
-import { screenSizes } from "../../utils/media";
 import { SessionsListView } from "./SessionsListView/sessionsListView";
 import { SectionButton } from "./SessionsListView/sectionButton";
 import pinImage from "../../assets/icons/pinImage.svg";
 import * as S from "./Map.style";
 import { MobileSessionList } from "./SessionsListView/mobileSessionList";
+import { SessionList } from "../../types/sessionType";
 
 const Map = () => {
   // const
@@ -106,6 +108,12 @@ const Map = () => {
     fixedSessionTypeSelected
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
+  );
+
+  const listSessions = useSelector(
+    fixedSessionTypeSelected
+      ? selectFixedSessionsList
+      : selectMobileSessionsList
   );
 
   // Filters (temporary solution)
@@ -321,23 +329,63 @@ const Map = () => {
       >
         Redo Search in Map
       </button>
-      <SessionsListView
-        sessions={[]}
-      />
       <S.MobileContainer>
-        <SectionButton title="Sessions" image={pinImage} onClick={toggleOverlay} />
-        {showOverlay && <MobileSessionList sessions={mockSessions} onClose={toggleOverlay}/>}
+        <SectionButton
+          title="Sessions"
+          image={pinImage}
+          onClick={toggleOverlay}
+        />
+        {showOverlay && (
+          <MobileSessionList 
+          // sessions={mockSessions} 
+          sessions={listSessions.map((session: SessionList) => ({
+            id: session.id,
+            sessionName: session.title,
+            sensorName: session.sensorName,
+            averageValue: session.averageValue,
+            startTime: session.startTime,
+            endTime: session.endTime,
+            streamId: session.streamId,
+          }))}
+          onClose={toggleOverlay} />
+        )}
       </S.MobileContainer>
+      
 
       <S.DesktopContainer>
         <SessionsListView
-          sessions={mockSessions}
-          //  sessions={listSessionsData.map((session) => ({
-          //   sessionName: session.title,
-          //   sensorName: session.sensorName,
-          //   startTime: session.startTime,
-          //   endTime: session.endTime,
-          // }))}
+          sessions={listSessions.map((session) => ({
+            id: session.id,
+            sessionName: session.title,
+            sensorName: session.sensorName,
+            averageValue: session.averageValue,
+            startTime: session.startTime,
+            endTime: session.endTime,
+            streamId: session.streamId,
+          }))}
+          onCellClick={(id, streamId) => {
+
+            if (streamId) {
+              fixedSessionTypeSelected
+                ? dispatch(fetchFixedStreamById(streamId))
+                : dispatch(fetchMobileStreamById(streamId));
+            }
+        
+            if (!selectedStreamId) {
+              setSelectedSessionId(id);
+              setSelectedStreamId(streamId);
+              setModalOpen(false);
+              setTimeout(() => {
+                setModalOpen(true);
+              }, 0);
+            }
+          }}
+          onCellMouseEnter={(id) => {
+            setSelectedSessionId(id)
+          }}
+          onCellMouseLeave={(id) => {
+            // setSelectedSessionId(null)
+          }}
         />
       </S.DesktopContainer>
     </>
@@ -347,6 +395,7 @@ const Map = () => {
 const mockSessions = Array.from({ length: 20 }, (v, index) => ({
   sessionName: `Session ${index + 1}`,
   sensorName: `Sensor ${index + 1}`,
+  averageValue: 100,
   startTime: `2023-06-11T${String(index % 24).padStart(2, "0")}:00:00`,
   endTime: `2023-06-11T${String((index % 24) + 1).padStart(2, "0")}:00:00`,
 }));

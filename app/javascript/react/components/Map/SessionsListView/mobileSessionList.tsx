@@ -26,10 +26,13 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
           {sessions.map((session, index) => (
             <div key={index}>
               <SessionsListTile
+                id={session.id}
                 sessionName={session.sessionName}
                 sensorName={session.sensorName}
+                averageValue={session.averageValue}
                 startTime={session.startTime}
                 endTime={session.endTime}
+                streamId={session.streamId}
               />
             </div>
           ))}

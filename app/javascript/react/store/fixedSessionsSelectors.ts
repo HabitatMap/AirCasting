@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 
-import { Session } from "../types/sessionType";
+import { Session, SessionList } from "../types/sessionType";
 import { RootState } from "./";
 
 const selectFixedSessionsState = (state: RootState) => state.fixedSessions;
@@ -25,4 +25,21 @@ const selectFixedSessionsPoints = createSelector(
     )
 );
 
-export { selectFixedSessionsPoints, selectFixedSessionsState };
+const selectFixedSessionsList = createSelector(
+  [selectFixedSessionsState],
+  (fixedSessionsState): SessionList[] =>
+    fixedSessionsState.sessions.map(
+      ({ id, title, startTimeLocal, endTimeLocal, streams }) => ({
+        id,
+        title,
+        sensorName: streams[Object.keys(streams)[0]].sensorName,
+        // Please change averageValue once backend will be ready
+        averageValue: 100,
+        startTime: startTimeLocal,
+        endTime: endTimeLocal,
+        streamId: streams[Object.keys(streams)[0]].id
+      })
+    )
+);
+
+export { selectFixedSessionsPoints, selectFixedSessionsList, selectFixedSessionsState };

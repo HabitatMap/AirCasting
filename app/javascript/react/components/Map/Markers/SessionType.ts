@@ -8,8 +8,3 @@ export type Session = {
   lastMeasurementValue: number;
   point: Point;
 };
-
-export type ListSession = {
-  title: string;
-  sensorName: string;
-};
