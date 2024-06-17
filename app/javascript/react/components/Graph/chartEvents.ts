@@ -16,15 +16,15 @@ const addNavigationArrows = (
   const chartHeight = chart.chartHeight;
 
   const leftArrow = chart.renderer
-    .image(graphChevronLeft, 30, chartHeight / 2 - 15, 30, 30)
+    .image(graphChevronLeft, 30, chartHeight / 2, 30, 30)
     .attr({ zIndex: 10, class: 'custom-arrow' })
-    .css({ cursor: 'pointer' }) // Set cursor to pointer
+    .css({ cursor: 'pointer' })
     .add();
 
   const rightArrow = chart.renderer
-    .image(graphChevronRight, chartWidth - 60, chartHeight / 2 - 15, 30, 30)
+    .image(graphChevronRight, chartWidth - 80, chartHeight / 2, 30, 30)
     .attr({ zIndex: 10, class: 'custom-arrow' })
-    .css({ cursor: 'pointer' }) // Set cursor to pointer
+    .css({ cursor: 'pointer' })
     .add();
 
   const moveLeft = () => {
@@ -70,7 +70,6 @@ const addNavigationArrows = (
 
   updateArrowState();
 
-  // Adjust hover events to ignore arrows
   leftArrow.on('mouseover', () => {
     setTooltipVisible(false);
   });
@@ -87,7 +86,6 @@ const addNavigationArrows = (
     setTooltipVisible(true);
   });
 
-  // Prevent propagation of mouse events to the chart to avoid unintended interactions
   [leftArrow, rightArrow].forEach((arrow) => {
     arrow.element.addEventListener('mouseenter', (event) => {
       event.stopPropagation();
