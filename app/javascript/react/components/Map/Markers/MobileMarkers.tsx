@@ -5,9 +5,8 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { red } from "../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
+import { DotMarker } from "./DotMarker/DotMarker";
 import { SingleMarker } from "./SingleMarker/SingleMarker";
-import { MarkerContainer } from "./SingleMarker/SingleMarker.style";
-import { StreamMarker } from "./StreamMarker/StreamMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
 
@@ -115,14 +114,13 @@ const MobileMarkers = ({
     if (isOverlapping) {
       // Display as a dot when markers are too close
       return (
-        <MarkerContainer
+        <DotMarker
+          color={red}
           onClick={() => {
             onMarkerClick(Number(session.point.streamId), Number(session.id));
             centerMapOnMarker(session.point);
           }}
-        >
-          <StreamMarker color={red} />
-        </MarkerContainer>
+        />
       );
     }
 
