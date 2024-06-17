@@ -16,7 +16,7 @@ interface FixedStreamState {
   averageMeasurementValue: number | null;
   isLoading: boolean;
 }
-
+const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 const initialState: FixedStreamState = {
   data: {
     stream: {
@@ -40,11 +40,13 @@ const initialState: FixedStreamState = {
     streamDailyAverages: [],
   },
   status: StatusEnum.Idle,
-  minMeasurementValue: 0,
-  maxMeasurementValue: 0,
+  minMeasurementValue: Date.now() - MILLISECONDS_IN_A_DAY,
+  maxMeasurementValue: Date.now(),
   averageMeasurementValue: 0,
   isLoading: false,
 };
+
+
 
 export const fetchFixedStreamById = createAsyncThunk<
   FixedStream,
