@@ -32,7 +32,7 @@ const scrollbarOptions = {
 
 };
 
-const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
+const getXAxisOptions = (fixedSessionTypeSelected: boolean, tooltipVisible: boolean): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
 
@@ -62,7 +62,7 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
     },
     crosshair: {
       color: white,
-      width: 2,
+      width: tooltipVisible ? 2 : 0,
     },
     visible: true,
     minRange: 1000,
@@ -75,7 +75,7 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
 };
 
 const buildTicks = (low: number, high: number) => {
-  const tick =  Math.round((high - low) / 4);
+  const tick = Math.round((high - low) / 4);
   return [low, low + tick, low + 2 * tick, high - tick, high];
 }
 
@@ -87,8 +87,8 @@ const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
   const high = Number(thresholdsState.high);
 
   ;
-const ticks = buildTicks(min, max);
-const tickInterval = ticks[1] - ticks[0];
+  const ticks = buildTicks(min, max);
+  const tickInterval = ticks[1] - ticks[0];
 
   return {
     title: {
@@ -148,38 +148,42 @@ const credits: CreditsOptions = {
   position: { align: 'right', verticalAlign: 'top', x: -50, y: 55 },
 };
 
-const plotOptions: PlotOptions = {
-  series: {
-    lineWidth: 2,
-    color: blue,
-    marker: {
-      fillColor: blue,
-      lineWidth: 0,
-      lineColor: blue,
-      radius: 3,
-    },
-    states: {
-      hover: {
-        halo: {
-          attributes: {
-            fill: blue,
-            'stroke-width': 2,
+const getPlotOptions = (tooltipVisible: boolean): PlotOptions => {
+
+  return {
+    series: {
+      lineWidth: 2,
+      color: blue,
+      marker: {
+        fillColor: blue,
+        lineWidth: 0,
+        lineColor: blue,
+        radius: 3,
+      },
+      states: {
+        hover: {
+          halo: {
+            size: tooltipVisible ? 10 : 0,
+            attributes: {
+              fill: blue,
+              'stroke-width': 2,
+            },
           },
         },
       },
+      dataGrouping: {
+        enabled: true,
+        units: [
+          ["millisecond", []],
+          ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
+          ["minute", [1, 2, 3, 4, 5]],
+        ],
+      },
+      dataLabels: {
+        allowOverlap: true,
+      },
     },
-    dataGrouping: {
-      enabled: true,
-      units: [
-        ["millisecond", []],
-        ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
-        ["minute", [1, 2, 3, 4, 5]],
-      ],
-    },
-    dataLabels: {
-      allowOverlap: true,
-    },
-  },
+  }
 };
 
 const seriesOptions = (data: number[][]): SeriesOptionsType => (
@@ -280,53 +284,53 @@ const getRangeSelectorOptions = (fixedSessionTypeSelected: boolean): RangeSelect
   fixedSessionTypeSelected ? {
     labelStyle: {
       display: 'none'
-   },
-  buttonSpacing: 15,
-  buttons: [
-    {
-      type: 'hour',
-      count: 24,
-      text: '24 HOURS',
     },
-    {
-      type: 'day',
-      count: 7,
-      text: '1 WEEK',
-    },
-    {
-      type: 'month',
-      count: 1,
-      text: '1 MONTH',
-    },
-  ],
-  selected: 0,
-  inputEnabled: false,
-} : {
+    buttonSpacing: 15,
+    buttons: [
+      {
+        type: 'hour',
+        count: 24,
+        text: '24 HOURS',
+      },
+      {
+        type: 'day',
+        count: 7,
+        text: '1 WEEK',
+      },
+      {
+        type: 'month',
+        count: 1,
+        text: '1 MONTH',
+      },
+    ],
+    selected: 0,
+    inputEnabled: false,
+  } : {
 
-  buttonSpacing: 15,
-  labelStyle: {
-    display: 'none'
- },
-  buttons: [
-    {
-      type: 'minute',
-      count: 5,
-      text: '5 MINUTES',
+    buttonSpacing: 15,
+    labelStyle: {
+      display: 'none'
     },
-    {
-      type: 'hour',
-      count: 1,
-      text: '1 HOUR',
-    },
-    { type: 'all', text: 'ALL' },
-  ],
-  selected: 2,
-  inputEnabled: false,
-});
+    buttons: [
+      {
+        type: 'minute',
+        count: 5,
+        text: '5 MINUTES',
+      },
+      {
+        type: 'hour',
+        count: 1,
+        text: '1 HOUR',
+      },
+      { type: 'all', text: 'ALL' },
+    ],
+    selected: 2,
+    inputEnabled: false,
+  });
 
 export {
   getXAxisOptions,
-  plotOptions,
+  getPlotOptions,
   titleOption,
   legendOption,
   responsive,

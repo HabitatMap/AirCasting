@@ -1,7 +1,11 @@
 import styled from "styled-components";
 import { media } from "../../utils/media";
 
-const Container = styled.div`
+interface ContainerProps {
+  $tooltipVisible: boolean;
+}
+
+const Container = styled.div<ContainerProps>`
   width: 100%;
   position: relative;
   font-family: "Roboto", sans-serif;
@@ -37,6 +41,10 @@ const Container = styled.div`
     .highcharts-scrollbar-arrow {
       transform: translate(3px, 0px) scale(2);
       stroke-width: 3px;
+    }
+
+    .highcharts-point {
+      display:${(props) => (props.$tooltipVisible ? "auto" : "none")};
     }
 `;
 

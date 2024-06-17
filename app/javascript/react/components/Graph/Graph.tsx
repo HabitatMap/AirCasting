@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import * as S from "./Graph.style";
 import {
   getXAxisOptions,
-  plotOptions,
+  getPlotOptions,
   legendOption,
   seriesOptions,
   getYAxisOptions,
@@ -67,7 +67,10 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     ]
   );
 
-  const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected);
+  const xAxisOptions = getXAxisOptions(
+    fixedSessionTypeSelected,
+    tooltipVisible
+  );
   const yAxisOption = getYAxisOptions(thresholdsState);
   const tooltipOptions = getTooltipOptions(
     measurementType,
@@ -77,6 +80,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected
   );
+  const plotOptions = getPlotOptions(tooltipVisible);
 
   const dispatch = useAppDispatch();
 
@@ -115,6 +119,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       zooming: { type: "x" },
       height: 300,
       margin: [40, 30, 0, 10],
+      animation: false,
       scrollablePlotArea: {
         minWidth: 100,
         scrollPositionX: 1,
@@ -139,7 +144,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   };
 
   return (
-    <S.Container>
+    <S.Container $tooltipVisible={tooltipVisible}>
       <HighchartsReact
         highcharts={Highcharts}
         constructorType={"stockChart"}

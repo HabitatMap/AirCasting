@@ -1,26 +1,35 @@
 import Highcharts from "highcharts/highstock";
+
 import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
 import graphChevronRight from "../../assets/icons/graphChevronRight.svg";
 
-const addNavigationArrows = (chart: Highcharts.Chart, setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>) => {
+const addNavigationArrows = (
+  chart: Highcharts.Chart,
+  setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   // Remove existing arrows if any
-  chart.renderer.boxWrapper.element.querySelectorAll('.custom-arrow').forEach(el => el.remove());
+  chart.renderer.boxWrapper.element
+    .querySelectorAll('.custom-arrow')
+    .forEach((el) => el.remove());
 
   const chartWidth = chart.chartWidth;
   const chartHeight = chart.chartHeight;
 
   const leftArrow = chart.renderer
-    .image(graphChevronLeft, 30, chartHeight / 2, 30, 30)
+    .image(graphChevronLeft, 30, chartHeight / 2 - 15, 30, 30)
     .attr({ zIndex: 10, class: 'custom-arrow' })
+    .css({ cursor: 'pointer' }) // Set cursor to pointer
     .add();
+
   const rightArrow = chart.renderer
-    .image(graphChevronRight, chartWidth - 80, chartHeight / 2, 30, 30)
+    .image(graphChevronRight, chartWidth - 60, chartHeight / 2 - 15, 30, 30)
     .attr({ zIndex: 10, class: 'custom-arrow' })
+    .css({ cursor: 'pointer' }) // Set cursor to pointer
     .add();
 
   const moveLeft = () => {
     const axis = chart.xAxis[0];
-    const { min, max, dataMin, dataMax } = axis.getExtremes();
+    const { min, max, dataMin } = axis.getExtremes();
     const range = max - min;
     const newMin = Math.max(dataMin, min - range * 0.1);
     const newMax = Math.max(dataMin + range, max - range * 0.1);
@@ -30,7 +39,7 @@ const addNavigationArrows = (chart: Highcharts.Chart, setTooltipVisible: React.D
 
   const moveRight = () => {
     const axis = chart.xAxis[0];
-    const { min, max, dataMin, dataMax } = axis.getExtremes();
+    const { min, max, dataMax } = axis.getExtremes();
     const range = max - min;
     const newMin = Math.min(dataMax - range, min + range * 0.1);
     const newMax = Math.min(dataMax, max + range * 0.1);
@@ -61,17 +70,45 @@ const addNavigationArrows = (chart: Highcharts.Chart, setTooltipVisible: React.D
 
   updateArrowState();
 
-  leftArrow.on('mouseover', () => setTooltipVisible(false));
-  leftArrow.on('mouseout', () => setTooltipVisible(true));
-  rightArrow.on('mouseover', () => setTooltipVisible(false));
-  rightArrow.on('mouseout', () => setTooltipVisible(true));
+  // Adjust hover events to ignore arrows
+  leftArrow.on('mouseover', () => {
+    setTooltipVisible(false);
+  });
+
+  leftArrow.on('mouseout', () => {
+    setTooltipVisible(true);
+  });
+
+  rightArrow.on('mouseover', () => {
+    setTooltipVisible(false);
+  });
+
+  rightArrow.on('mouseout', () => {
+    setTooltipVisible(true);
+  });
+
+  // Prevent propagation of mouse events to the chart to avoid unintended interactions
+  [leftArrow, rightArrow].forEach((arrow) => {
+    arrow.element.addEventListener('mouseenter', (event) => {
+      event.stopPropagation();
+    });
+    arrow.element.addEventListener('mouseleave', (event) => {
+      event.stopPropagation();
+    });
+  });
 };
 
-const handleLoad = function (this: Highcharts.Chart, setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>) {
+const handleLoad = function (
+  this: Highcharts.Chart,
+  setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>
+) {
   addNavigationArrows(this, setTooltipVisible);
 };
 
-const handleRedraw = function (this: Highcharts.Chart, setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>) {
+const handleRedraw = function (
+  this: Highcharts.Chart,
+  setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>
+) {
   addNavigationArrows(this, setTooltipVisible);
 };
 
