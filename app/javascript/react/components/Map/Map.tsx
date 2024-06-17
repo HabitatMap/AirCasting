@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
@@ -21,6 +22,9 @@ import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
+import { screenSizes } from "../../utils/media";
+
+const IS_MOBILE = window.innerWidth <= screenSizes.mobile;
 
 const Map = () => {
   // const
@@ -35,6 +39,7 @@ const Map = () => {
 
   // Hooks
   const dispatch = useAppDispatch();
+  const navigate = useNavigate(); // Initialize useNavigate
 
   // State
   const [mapBounds, setMapBounds] = useState({
@@ -123,6 +128,11 @@ const Map = () => {
 
   // Handlers
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
+    if (IS_MOBILE) {
+      navigate(`/fixed_stream?streamId=${streamId}`);
+      return;
+    }
+
     if (streamId) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))

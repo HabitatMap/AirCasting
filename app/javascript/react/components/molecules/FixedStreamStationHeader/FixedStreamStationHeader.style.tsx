@@ -36,7 +36,7 @@ const Subtitle = styled(H5)`
 
 const GridContainer = styled.div`
   background: ${gray100};
-  padding: 3.5rem 2rem;
+  padding: 4.5rem 2rem;
   display: grid;
   width: 100%;
   grid-gap: 10px;

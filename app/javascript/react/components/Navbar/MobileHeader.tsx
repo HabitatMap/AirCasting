@@ -50,7 +50,7 @@ export const MobileHeader = ({
 
 export const MobileCalendarHeader = ({ t }: { t: Function }) => (
   <S.MobileContainer>
-    <S.GoBack href={urls.map} aria-label={t("navbar.mapPage")}>
+    <S.GoBack href={urls.reactMap} aria-label={t("navbar.mapPage")}>
       <img
         src={goBackIcon}
         alt={t("navbar.altGoBackIcon")}

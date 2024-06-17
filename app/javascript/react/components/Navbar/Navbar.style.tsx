@@ -32,7 +32,7 @@ const Header = styled.header`
 
 const MobileContainer = styled.div`
   display: flex;
-
+  padding: 1rem;
   @media ${media.smallDesktop} {
     display: none;
   }
