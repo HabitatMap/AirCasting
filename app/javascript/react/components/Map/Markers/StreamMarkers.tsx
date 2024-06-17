@@ -4,7 +4,7 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { black, mobileStreamPath, red } from "../../../assets/styles/colors";
 import { Session } from "../../../types/sessionType";
-import { StreamMarker, StreamTooltip } from "./StreamMarker/StreamMarker";
+import { StreamMarker } from "./StreamMarker/StreamMarker";
 import { StreamMarkerTooltip } from "./StreamMarker/StreamMarker.style";
 
 import type { Marker } from "@googlemaps/markerclusterer";
