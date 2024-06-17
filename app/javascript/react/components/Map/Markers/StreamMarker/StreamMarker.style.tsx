@@ -17,4 +17,14 @@ const StreamMarkerCircle = styled.div<StreamMarkerProps>`
   }
 `;
 
-export { StreamMarkerCircle };
+const StreamMarkerTooltip = styled.div`
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+export { StreamMarkerCircle, StreamMarkerTooltip };
