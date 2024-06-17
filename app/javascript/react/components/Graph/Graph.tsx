@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 import { useSelector } from "react-redux";
@@ -29,7 +29,7 @@ import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
-import { handleLoad } from "./chartEvents";
+import { handleLoad } from "./chartEvents"; // Import handleLoad
 
 interface GraphProps {
   sessionType: SessionType;
@@ -39,8 +39,6 @@ interface GraphProps {
 const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 
 const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
-  const [tooltipVisible, setTooltipVisible] = useState(true);
-
   const thresholdsState = useSelector(selectThreshold);
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
@@ -58,7 +56,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
 
   const measurements = graphData?.measurements || [];
   const unitSymbol = streamShortInfo?.unitSymbol || "";
-  const measurementType = "Particulate Matter"; // take this parameter from filters in the future
+  const measurementType = "Particulate Matter";
 
   const seriesData = measurements.map(
     (measurement: { time: number; value: number }) => [
@@ -67,20 +65,13 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     ]
   );
 
-  const xAxisOptions = getXAxisOptions(
-    fixedSessionTypeSelected,
-    tooltipVisible
-  );
+  const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected);
   const yAxisOption = getYAxisOptions(thresholdsState);
-  const tooltipOptions = getTooltipOptions(
-    measurementType,
-    unitSymbol,
-    tooltipVisible
-  );
+  const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected
   );
-  const plotOptions = getPlotOptions(tooltipVisible);
+  const plotOptions = getPlotOptions();
 
   const dispatch = useAppDispatch();
 
@@ -126,7 +117,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       },
       events: {
         load: function () {
-          handleLoad.call(this, setTooltipVisible);
+          handleLoad.call(this);
         },
       },
     },
@@ -141,7 +132,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   };
 
   return (
-    <S.Container $tooltipVisible={tooltipVisible}>
+    <S.Container>
       <HighchartsReact
         highcharts={Highcharts}
         constructorType={"stockChart"}

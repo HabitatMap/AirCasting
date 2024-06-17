@@ -32,7 +32,7 @@ const scrollbarOptions = {
 
 };
 
-const getXAxisOptions = (fixedSessionTypeSelected: boolean, tooltipVisible: boolean): XAxisOptions => {
+const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
 
@@ -62,7 +62,7 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean, tooltipVisible: bool
     },
     crosshair: {
       color: white,
-      width: tooltipVisible ? 2 : 0,
+      width:  2,
     },
     visible: true,
     minRange: 1000,
@@ -148,7 +148,7 @@ const credits: CreditsOptions = {
   position: { align: 'right', verticalAlign: 'top', x: -50, y: 55 },
 };
 
-const getPlotOptions = (tooltipVisible: boolean): PlotOptions => {
+const getPlotOptions = (): PlotOptions => {
 
   return {
     series: {
@@ -163,7 +163,6 @@ const getPlotOptions = (tooltipVisible: boolean): PlotOptions => {
       states: {
         hover: {
           halo: {
-            size: tooltipVisible ? 10 : 0,
             attributes: {
               fill: blue,
               'stroke-width': 2,
@@ -246,8 +245,8 @@ const responsive = {
 
 
 
-const getTooltipOptions = (measurementType: string, unitSymbol: string, tooltipVisible: boolean) => ({
-  enabled: tooltipVisible,
+const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
+  enabled: true,
   formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
     const date = Highcharts.dateFormat('%m/%d/%Y', Number(this.x));
     const time = Highcharts.dateFormat('%H:%M:%S', Number(this.x));

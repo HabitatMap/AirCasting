@@ -1,11 +1,7 @@
 import styled from "styled-components";
 import { media } from "../../utils/media";
 
-interface ContainerProps {
-  $tooltipVisible: boolean;
-}
-
-const Container = styled.div<ContainerProps>`
+const Container = styled.div`
   width: 100%;
   position: relative;
   font-family: "Roboto", sans-serif;
@@ -43,8 +39,8 @@ const Container = styled.div<ContainerProps>`
       stroke-width: 3px;
     }
 
-    .highcharts-point {
-      display:${(props) => (props.$tooltipVisible ? "auto" : "none")};
+    .hide-tooltip .highcharts-tooltip {
+      display: none !important;
     }
 `;
 
