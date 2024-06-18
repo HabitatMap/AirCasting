@@ -79,7 +79,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           <AdvancedMarker
             title={`${session.lastMeasurementValue} ${unitSymbol}`}
             position={session.point}
-            key={session.id}
+            key={`tooltip-${session.id}`}
             zIndex={1}
             ref={(marker) => {
               if (marker && !markers[session.point.streamId]) {
