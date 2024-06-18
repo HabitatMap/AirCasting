@@ -5,9 +5,8 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { red } from "../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
-import { SingleMarker } from "./SingleMarker/SingleMarker";
-import { MarkerContainer } from "./SingleMarker/SingleMarker.style";
-import { StreamMarker } from "./StreamMarker/StreamMarker";
+import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
+import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
 
@@ -115,20 +114,19 @@ const MobileMarkers = ({
     if (isOverlapping) {
       // Display as a dot when markers are too close
       return (
-        <MarkerContainer
+        <SessionDotMarker
+          color={red}
           onClick={() => {
             onMarkerClick(Number(session.point.streamId), Number(session.id));
             centerMapOnMarker(session.point);
           }}
-        >
-          <StreamMarker color={red} />
-        </MarkerContainer>
+        />
       );
     }
 
     // Display the average value otherwise
     return (
-      <SingleMarker
+      <SessionFullMarker
         color={red}
         value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
         isSelected={isSelected}

@@ -3,19 +3,14 @@ import { useSelector } from "react-redux";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
-import {
-  DEFAULT_MAP_BOUNDS,
-  DEFAULT_MAP_CENTER,
-  DEFAULT_ZOOM,
-} from "../../const/coordinates";
+import { DEFAULT_MAP_BOUNDS, DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
 import { RootState } from "../../store";
 import { selectFixedSessionsPoints } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
-  selectMobileSessionPointsBySessionId,
-  selectMobileSessionsPoints,
+    selectMobileSessionPointsBySessionId, selectMobileSessionsPoints
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
@@ -200,25 +195,6 @@ const Map = () => {
       >
         {fixedSessionTypeSelected ? (
           <FixedMarkers
-            sessions={sessionsPoints}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
-          />
-        ) : (
-          <MobileMarkers
-            sessions={sessionsPoints}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
-          />
-        )}
-        {selectedStreamId && !fixedSessionTypeSelected && (
-          <StreamMarkers
-            sessions={mobileStreamPoints}
-            unitSymbol={unit_symbol}
-          />
-        )}
-        {!fixedSessionTypeSelected ? (
-          <MobileMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}

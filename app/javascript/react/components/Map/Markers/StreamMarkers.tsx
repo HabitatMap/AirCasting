@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { mobileStreamPath, red } from "../../../assets/styles/colors";
+import { black, mobileStreamPath, red } from "../../../assets/styles/colors";
 import { Session } from "../../../types/sessionType";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
+import { StreamMarkerTooltip } from "./StreamMarker/StreamMarker.style";
 
 import type { Marker } from "@googlemaps/markerclusterer";
-
 type Props = {
   sessions: Session[];
   unitSymbol: string;
@@ -74,22 +74,41 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   return (
     <>
       {sessions.map((session) => (
-        <AdvancedMarker
-          title={`${session.lastMeasurementValue} ${unitSymbol}`}
-          position={session.point}
-          key={session.id}
-          zIndex={0}
-          ref={(marker) => {
-            if (marker && !markers[session.point.streamId]) {
-              setMarkers((prev) => ({
-                ...prev,
-                [session.point.streamId]: marker,
-              }));
-            }
-          }}
-        >
-          <StreamMarker color={red} />
-        </AdvancedMarker>
+        <>
+          {/* #DirtyButWorks Display transparent marker without transform property on top of stream marker to enable tooltip */}
+          <AdvancedMarker
+            title={`${session.lastMeasurementValue} ${unitSymbol}`}
+            position={session.point}
+            key={session.id}
+            zIndex={1}
+            ref={(marker) => {
+              if (marker && !markers[session.point.streamId]) {
+                setMarkers((prev) => ({
+                  ...prev,
+                  [session.point.streamId]: marker,
+                }));
+              }
+            }}
+          >
+            <StreamMarkerTooltip />
+          </AdvancedMarker>
+          <AdvancedMarker
+            title={`${session.lastMeasurementValue} ${unitSymbol}`}
+            position={session.point}
+            key={session.id}
+            zIndex={0}
+            ref={(marker) => {
+              if (marker && !markers[session.point.streamId]) {
+                setMarkers((prev) => ({
+                  ...prev,
+                  [session.point.streamId]: marker,
+                }));
+              }
+            }}
+          >
+            <StreamMarker color={red} />
+          </AdvancedMarker>
+        </>
       ))}
     </>
   );
