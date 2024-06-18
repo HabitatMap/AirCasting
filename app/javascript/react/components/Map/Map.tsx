@@ -40,7 +40,7 @@ const Map = () => {
 
   // Hooks
   const dispatch = useAppDispatch();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   // State
   const [mapBounds, setMapBounds] = useState({

@@ -32,8 +32,8 @@ import {
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
-import { handleLoad } from "./chartEvents"; // Import handleLoad
-import { last } from "lodash";
+import { handleLoad } from "./chartEvents";
+import { min } from "lodash";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -56,19 +56,12 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       : selectMobileStreamShortInfo
   );
 
-  const { minMeasurementValue, maxMeasurementValue } =
-    useSelector(selectFixedExtremes);
-
-  const measurements = graphData?.measurements || [];
   const unitSymbol = streamShortInfo?.unitSymbol || "";
   const measurementType = "Particulate Matter";
 
-  const seriesData = measurements.map(
-    (measurement: { time: number; value: number }) => [
-      measurement.time,
-      measurement.value,
-    ]
-  );
+  const seriesData = (graphData?.measurements || [])
+    .map((measurement) => [measurement.time, measurement.value])
+    .sort((a, b) => a[0] - b[0]);
 
   const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected);
   const yAxisOption = getYAxisOptions(thresholdsState);
@@ -79,29 +72,28 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const plotOptions = getPlotOptions();
 
   const dispatch = useAppDispatch();
+  const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 
   useEffect(() => {
-    if (measurements.length > 0 && !isLoading) {
-      if (
-        fixedSessionTypeSelected &&
-        minMeasurementValue !== null &&
-        maxMeasurementValue !== null
-      ) {
-        dispatch(
-          updateFixedMeasurementExtremes({
-            min: minMeasurementValue,
-            max: maxMeasurementValue,
-          })
-        );
+    if (seriesData.length > 0 && !isLoading) {
+      if (fixedSessionTypeSelected) {
+        const newestMeasurement = seriesData[seriesData.length - 1];
+        const minTime = newestMeasurement[0] - MILLISECONDS_IN_A_DAY;
+        const maxTime = newestMeasurement[0];
+        if (minTime && maxTime) {
+          dispatch(
+            updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
+          );
+        }
       } else {
-        const minTime = Math.min(...measurements.map((m) => m.time));
-        const maxTime = Math.max(...measurements.map((m) => m.time));
+        const minTime = Math.min(...seriesData.map((m) => m[0]));
+        const maxTime = Math.max(...seriesData.map((m) => m[0]));
         dispatch(
           updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
         );
       }
     }
-  }, [measurements, isLoading, dispatch, fixedSessionTypeSelected]);
+  }, [seriesData, isLoading, dispatch, fixedSessionTypeSelected]);
 
   const options: Highcharts.Options = {
     title: undefined,

@@ -37,7 +37,7 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
   const isLoading = useAppSelector(selectIsLoading);
 
   const handleSetExtremes = (e: Highcharts.AxisSetExtremesEventObject) => {
-    if (!isLoading) {
+    if (!isLoading && e.min && e.max) {
       const min = e.min;
       const max = e.max;
       dispatch(fixedSessionTypeSelected ? updateFixedMeasurementExtremes({ min, max }) : updateMobileMeasurementExtremes({ min, max }));
@@ -189,7 +189,7 @@ const seriesOptions = (data: number[][]): SeriesOptionsType => (
   {
     type: 'spline',
     color: white,
-    data: data.sort((a, b) => a[0] - b[0]),
+    data: data,
     tooltip: {
       valueDecimals: 2,
     },
