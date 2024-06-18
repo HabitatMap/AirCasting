@@ -99,7 +99,6 @@
     "altClose": "Close the content",
     "altDirect": "Navigate to calendar view for given session"
   },
-
   "sessionDetailsModal": {
     "calendar": "Calendar",
     "averageValue": "avg.",
@@ -110,8 +109,15 @@
     "noData": "No data available"
   },
   "copyLinkModal": {
-   "copyLink": "Copy link",
-   "altCopyLink": "Copy the link to the session you are viewing",
-   "confirmationMessage": "Copied"
+    "copyLink": "Copy link",
+    "altCopyLink": "Copy the link to the session you are viewing",
+    "confirmationMessage": "Copied"
+  },
+  "clusters": {
+    "avg": "last hr avg.:",
+    "unit": "µg/m³",
+    "instruments": "instruments",
+    "measurements": "measurements",
+    "contributors": "contributors"
   }
 }

@@ -30,6 +30,12 @@ const selectFixedSessionsPoints = createSelector(
           lng: longitude,
           streamId: streams[Object.keys(streams)[0]].id.toString(),
         },
+        streams: {
+          // TEMPORARY: Hardcoded sensor_name
+          sensor_name: {
+            id: id,
+          },
+        },
       })
     )
 );

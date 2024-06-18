@@ -202,7 +202,6 @@ const Map = () => {
       }
       const bounds = map?.getBounds();
       if (!bounds) {
-        console.log("Bounds not found");
         return;
       }
       const north = bounds.getNorthEast().lat();
