@@ -40,8 +40,6 @@ interface GraphProps {
   streamId: number | null;
 }
 
-const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
-
 const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const thresholdsState = useSelector(selectThreshold);
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
