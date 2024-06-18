@@ -36,7 +36,7 @@ const Subtitle = styled(H5)`
 
 const GridContainer = styled.div`
   background: ${gray100};
-  padding: 3.5rem 2rem;
+  padding: 5.5rem 2rem;
   display: grid;
   width: 100%;
   grid-gap: 10px;
@@ -69,6 +69,7 @@ const GridContainer = styled.div`
   }
 
   @media ${media.desktop} {
+    padding: 4.5rem 10rem;
     grid-template-columns: 0.2fr 1fr 1fr;
     align-items: center;
     column-gap: 70px;

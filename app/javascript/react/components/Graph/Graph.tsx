@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 import { useSelector } from "react-redux";
@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import * as S from "./Graph.style";
 import {
   getXAxisOptions,
-  plotOptions,
+  getPlotOptions,
   legendOption,
   seriesOptions,
   getYAxisOptions,
@@ -29,18 +29,15 @@ import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
-import { handleLoad, handleRedraw } from "./chartEvents";
+import { handleLoad } from "./chartEvents";
 
+const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 interface GraphProps {
   sessionType: SessionType;
   streamId: number | null;
 }
 
-const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
-
 const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
-  const [tooltipVisible, setTooltipVisible] = useState(true);
-
   const thresholdsState = useSelector(selectThreshold);
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
@@ -56,53 +53,43 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       : selectMobileStreamShortInfo
   );
 
-  const measurements = graphData?.measurements || [];
   const unitSymbol = streamShortInfo?.unitSymbol || "";
-  const measurementType = "Particulate Matter"; // take this parameter from filters in the future
+  const measurementType = "Particulate Matter";
 
-  const seriesData = measurements.map(
-    (measurement: { time: number; value: number }) => [
-      measurement.time,
-      measurement.value,
-    ]
-  );
+  const seriesData = (graphData?.measurements || [])
+    .map((measurement) => [measurement.time, measurement.value])
+    .sort((a, b) => a[0] - b[0]);
 
   const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected);
   const yAxisOption = getYAxisOptions(thresholdsState);
-  const tooltipOptions = getTooltipOptions(
-    measurementType,
-    unitSymbol,
-    tooltipVisible
-  );
+  const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected
   );
+  const plotOptions = getPlotOptions();
 
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (measurements.length > 0 && !isLoading) {
+    if (seriesData.length > 0 && !isLoading) {
       if (fixedSessionTypeSelected) {
-        const now = Date.now();
-        const last24Hours = measurements.filter(
-          (m) => now - m.time <= MILLISECONDS_IN_A_DAY
-        );
-        if (last24Hours.length > 0) {
-          const minTime = Math.min(...last24Hours.map((m) => m.time));
-          const maxTime = Math.max(...last24Hours.map((m) => m.time));
+        const newestMeasurement = seriesData[seriesData.length - 1];
+        const minTime = newestMeasurement[0] - MILLISECONDS_IN_A_DAY;
+        const maxTime = newestMeasurement[0];
+        if (minTime && maxTime) {
           dispatch(
             updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
           );
         }
       } else {
-        const minTime = Math.min(...measurements.map((m) => m.time));
-        const maxTime = Math.max(...measurements.map((m) => m.time));
+        const minTime = Math.min(...seriesData.map((m) => m[0]));
+        const maxTime = Math.max(...seriesData.map((m) => m[0]));
         dispatch(
           updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
         );
       }
     }
-  }, [measurements, isLoading, dispatch, fixedSessionTypeSelected]);
+  }, [seriesData, isLoading, dispatch, fixedSessionTypeSelected]);
 
   const options: Highcharts.Options = {
     title: undefined,
@@ -115,16 +102,14 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       zooming: { type: "x" },
       height: 300,
       margin: [40, 30, 0, 10],
+      animation: false,
       scrollablePlotArea: {
         minWidth: 100,
         scrollPositionX: 1,
       },
       events: {
         load: function () {
-          handleLoad.call(this, setTooltipVisible);
-        },
-        redraw: function () {
-          handleRedraw.call(this, setTooltipVisible);
+          handleLoad.call(this);
         },
       },
     },

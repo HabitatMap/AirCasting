@@ -46,6 +46,8 @@ const initialState: FixedStreamState = {
   isLoading: false,
 };
 
+
+
 export const fetchFixedStreamById = createAsyncThunk<
   FixedStream,
   number,
