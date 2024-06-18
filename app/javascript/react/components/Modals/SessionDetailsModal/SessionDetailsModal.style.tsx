@@ -43,19 +43,21 @@ const SessionDetailsModal = styled(Popup)`
     overflow-y: auto;
     margin: 0;
     display: flex;
-    flex-direction: row;
+    flex-direction: row-reverse;
     flex-wrap: wrap;
     @media ${media.smallDesktop} {
       padding: 1.25rem;
+      flex-direction: row;
   }
 `;
 
 const InfoContainer = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 0;
+  padding: 1rem 0 0 1rem;
   width: 90%;
-  justify-content: space-evenly;
+  justify-content: space-between;
+  gap: 4rem;
 
   @media ${media.smallDesktop} {
     width: 20%;
@@ -204,7 +206,11 @@ const SmallPopup = styled(Popup)`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 1rem;
+
+  @media ${media.smallDesktop} {
+    gap: 1.6rem;
+  }
 `;
 
 const NoData = styled.span`

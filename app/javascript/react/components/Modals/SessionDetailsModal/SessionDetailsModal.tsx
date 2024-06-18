@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector, useDispatch } from "react-redux";
 import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
 import { SessionType } from "../../../types/filters";
 import { ThresholdsConfigurator } from "../../ThresholdConfigurator";

@@ -26,6 +26,7 @@ import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { screenSizes } from "../../utils/media";
+import useMobileDetection from "../../utils/useMobileDetection";
 
 const Map = () => {
   // const
@@ -61,12 +62,11 @@ const Map = () => {
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
-  const [isMobile, setIsMobile] = useState(
-    window.innerWidth <= screenSizes.mobile
-  );
 
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
+
+  const isMobile = useMobileDetection();
 
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
@@ -109,16 +109,6 @@ const Map = () => {
       setShouldFetchSessions(false);
     }
   }, [dispatch, filters, shouldFetchSessions]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= screenSizes.mobile);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
 
   // Callbacks
   const onIdle = useCallback(

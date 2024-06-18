@@ -10,7 +10,7 @@ import {
   legendOption,
   seriesOptions,
   getYAxisOptions,
-  responsive,
+  getResponsiveOptions,
   getTooltipOptions,
   scrollbarOptions,
   credits,
@@ -30,6 +30,8 @@ import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
 import { handleLoad } from "./chartEvents";
+import { screenSizes } from "../../utils/media";
+import useMobileDetection from "../../utils/useMobileDetection";
 
 const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 interface GraphProps {
@@ -67,7 +69,9 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     fixedSessionTypeSelected
   );
   const plotOptions = getPlotOptions();
+  const responsive = getResponsiveOptions(thresholdsState);
 
+  const isMobile = useMobileDetection();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -107,11 +111,13 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         minWidth: 100,
         scrollPositionX: 1,
       },
-      events: {
-        load: function () {
-          handleLoad.call(this);
-        },
-      },
+      events: !isMobile
+        ? {
+            load: function () {
+              handleLoad.call(this);
+            },
+          }
+        : undefined,
     },
     responsive,
     tooltip: tooltipOptions,

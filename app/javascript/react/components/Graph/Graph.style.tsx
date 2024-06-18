@@ -17,10 +17,17 @@ const Container = styled.div`
       transform: translate(1px, 15px);
     }
 
+    .data-highcharts-chart {
+      width: 100%;
+    }
+
     .highcharts-scrollbar-track {
       transform: translate(0, 4px);
-      width: 97%;
+      width: 92%;
       align-self: center;
+      @media ${media.smallDesktop} {
+        width: 97%;
+      }
     }
 
     .highcharts-scrollbar-thumb {
