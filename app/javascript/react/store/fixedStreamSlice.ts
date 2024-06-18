@@ -40,8 +40,8 @@ const initialState: FixedStreamState = {
     streamDailyAverages: [],
   },
   status: StatusEnum.Idle,
-  minMeasurementValue: Date.now() - MILLISECONDS_IN_A_DAY,
-  maxMeasurementValue: Date.now(),
+  minMeasurementValue: Date.now() - MILLISECONDS_IN_A_DAY || 0,
+  maxMeasurementValue: Date.now() || 0,
   averageMeasurementValue: 0,
   isLoading: false,
 };

@@ -1,17 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
-
-import { DEFAULT_MAP_BOUNDS, DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
+import {
+  DEFAULT_MAP_BOUNDS,
+  DEFAULT_MAP_CENTER,
+  DEFAULT_ZOOM,
+} from "../../const/coordinates";
 import { RootState } from "../../store";
 import { selectFixedSessionsPoints } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
-    selectMobileSessionPointsBySessionId, selectMobileSessionsPoints
+  selectMobileSessionPointsBySessionId,
+  selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
@@ -23,8 +26,6 @@ import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { screenSizes } from "../../utils/media";
-
-const IS_MOBILE = window.innerWidth <= screenSizes.mobile;
 
 const Map = () => {
   // const
@@ -60,6 +61,10 @@ const Map = () => {
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth <= screenSizes.mobile
+  );
+
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
 
@@ -105,6 +110,16 @@ const Map = () => {
     }
   }, [dispatch, filters, shouldFetchSessions]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= screenSizes.mobile);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   // Callbacks
   const onIdle = useCallback(
     (event: MapEvent) => {
@@ -128,7 +143,7 @@ const Map = () => {
 
   // Handlers
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
-    if (IS_MOBILE) {
+    if (isMobile) {
       navigate(`/fixed_stream?streamId=${streamId}`);
       return;
     }
