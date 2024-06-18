@@ -38,10 +38,6 @@ const Container = styled.div`
       transform: translate(3px, 0px) scale(2);
       stroke-width: 3px;
     }
-
-    .hide-tooltip .highcharts-tooltip {
-      display: none !important;
-    }
 `;
 
 export { Container };

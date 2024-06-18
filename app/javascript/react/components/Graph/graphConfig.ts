@@ -62,7 +62,7 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
     },
     crosshair: {
       color: white,
-      width:  2,
+      width: 2,
     },
     visible: true,
     minRange: 1000,
