@@ -260,13 +260,11 @@ const getResponsiveOptions = (
           rangeSelector: {
             enabled: false,
           },
+          chart: {
+            margin: [5, 0, 5, 0],
+          },
           credits: {
-            position: {
-              align: "right",
-              verticalAlign: "bottom",
-              x: -4,
-              y: -10,
-            },
+            enabled: false,
           },
         },
       },
@@ -312,51 +310,51 @@ const getRangeSelectorOptions = (
 ): RangeSelectorOptions =>
   fixedSessionTypeSelected
     ? {
-        labelStyle: {
-          display: "none",
+      labelStyle: {
+        display: "none",
+      },
+      buttonSpacing: 15,
+      buttons: [
+        {
+          type: "hour",
+          count: 24,
+          text: "24 HOURS",
         },
-        buttonSpacing: 15,
-        buttons: [
-          {
-            type: "hour",
-            count: 24,
-            text: "24 HOURS",
-          },
-          {
-            type: "day",
-            count: 7,
-            text: "1 WEEK",
-          },
-          {
-            type: "month",
-            count: 1,
-            text: "1 MONTH",
-          },
-        ],
-        selected: 0,
-        inputEnabled: false,
-      }
+        {
+          type: "day",
+          count: 7,
+          text: "1 WEEK",
+        },
+        {
+          type: "month",
+          count: 1,
+          text: "1 MONTH",
+        },
+      ],
+      selected: 0,
+      inputEnabled: false,
+    }
     : {
-        buttonSpacing: 15,
-        labelStyle: {
-          display: "none",
+      buttonSpacing: 15,
+      labelStyle: {
+        display: "none",
+      },
+      buttons: [
+        {
+          type: "minute",
+          count: 5,
+          text: "5 MINUTES",
         },
-        buttons: [
-          {
-            type: "minute",
-            count: 5,
-            text: "5 MINUTES",
-          },
-          {
-            type: "hour",
-            count: 1,
-            text: "1 HOUR",
-          },
-          { type: "all", text: "ALL" },
-        ],
-        selected: 2,
-        inputEnabled: false,
-      };
+        {
+          type: "hour",
+          count: 1,
+          text: "1 HOUR",
+        },
+        { type: "all", text: "ALL" },
+      ],
+      selected: 2,
+      inputEnabled: false,
+    };
 
 export {
   getXAxisOptions,

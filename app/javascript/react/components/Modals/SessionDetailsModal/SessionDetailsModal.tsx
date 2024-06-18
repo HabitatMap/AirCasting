@@ -7,6 +7,7 @@ import * as S from "./SessionDetailsModal.style";
 import SessionInfo from "./SessionInfo";
 import { Graph } from "../../Graph";
 import type { PopupProps } from "reactjs-popup/dist/types";
+import useMobileDetection from "../../../utils/useMobileDetection";
 
 interface SessionDetailsModalProps {
   onClose: () => void;
@@ -32,6 +33,8 @@ const SessionDetailsModal: React.FC<
     return <S.SessionDetailsModal {...(props as PopupProps)} />;
   };
 
+  const isMobile = useMobileDetection();
+
   return (
     <SessionModal
       open={true}
@@ -49,6 +52,12 @@ const SessionDetailsModal: React.FC<
           </S.CancelButtonX>
           <SessionInfo sessionType={sessionType} streamId={streamId} />
           <Graph streamId={streamId} sessionType={sessionType} />
+          {!isMobile && (
+            <ThresholdsConfigurator
+              isMapPage={true}
+              sessionType={sessionType}
+            />
+          )}
           <ThresholdsConfigurator isMapPage={true} sessionType={sessionType} />
         </>
       )}
