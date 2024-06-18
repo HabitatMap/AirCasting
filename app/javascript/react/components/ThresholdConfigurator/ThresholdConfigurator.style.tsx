@@ -10,8 +10,8 @@ interface ContainerProps {
 const Container = styled.div<ContainerProps>`
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  margin-bottom: 3rem;
+  padding: ${(props) => (props.$isMapPage ? 0 : "1.5rem")};
+  margin-bottom: ${(props) => (props.$isMapPage ? 0 : "3rem")};
   background: ${(props) => (props.$isMapPage ? "none" : colors.white)};
   position: relative;
   width: 100%;

@@ -36,7 +36,7 @@ const SessionDetailsModal = styled(Popup)`
   &-content {
     width: 100%;
     background-color: ${white};
-    padding: 1.25rem;
+    padding: 0.5rem;
     border-radius: 10px 10px 0 0;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     max-height: 80vh;
@@ -45,17 +45,16 @@ const SessionDetailsModal = styled(Popup)`
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    @media ${media.smallDesktop} {
+      padding: 1.25rem;
   }
 `;
 
 const InfoContainer = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 1.6rem;
-  padding: 0 4rem;
-  width: 100%;
-  flex-wrap: wrap;
-  margin-bottom: 1.6rem;
+  padding: 0;
+  width: 90%;
   justify-content: space-evenly;
 
   @media ${media.smallDesktop} {
@@ -63,11 +62,19 @@ const InfoContainer = styled.div`
     flex-direction: column;
     margin-bottom: 0;
     padding: 4rem 4rem 0 4rem;
+    gap: 1.6rem;
+    margin-bottom: 1.6rem;
+    flex-wrap: wrap;
   }
 `;
 
 const SessionName = styled(H2)`
   font-weight: 500;
+  font-size: 1.8rem;
+
+  @media ${media.smallDesktop} {
+    font-size: 2.4rem;
+  }
 `;
 
 const ProfileName = styled.span`
@@ -111,9 +118,12 @@ const SmallDot = styled.div<DotProps>`
 `;
 
 const ButtonsContainer = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  gap: 0.5rem;
+  display: none;
+  @media ${media.smallDesktop} {
+    display: flex;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
 `;
 
 const MinMaxValueContainer = styled.div`
@@ -163,7 +173,7 @@ const BlueButton = styled(Link)`
 const CancelButtonX = styled.button`
   border: none;
   background-color: transparent;
-  width: fit-content;
+  width: 10%;
   height: fit-content;
   align-self: flex-start;
 
