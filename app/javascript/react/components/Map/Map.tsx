@@ -143,7 +143,7 @@ const Map = () => {
 
   // Handlers
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
-    if (isMobile) {
+    if (isMobile && fixedSessionTypeSelected) {
       navigate(`/fixed_stream?streamId=${streamId}`);
       return;
     }
