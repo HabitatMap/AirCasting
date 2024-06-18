@@ -71,7 +71,7 @@ const selectMobileSessionsList = createSelector(
         averageValue: 100,
         startTime: startTimeLocal,
         endTime: endTimeLocal,
-        streamId: firstStream.id
+        streamId: firstStream.id.toString()
       };
     })
 );

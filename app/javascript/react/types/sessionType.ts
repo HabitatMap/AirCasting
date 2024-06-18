@@ -22,5 +22,5 @@ export type SessionList = {
   averageValue: number;
   startTime: string;
   endTime: string;
-  streamId: number;
+  streamId: string;
 };

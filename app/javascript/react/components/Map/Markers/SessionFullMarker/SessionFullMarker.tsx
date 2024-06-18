@@ -1,4 +1,5 @@
 import React from "react";
+import { black } from "../../../../assets/styles/colors";
 
 import { SelectedDataContainer, SelectedShadowCircle } from "../SelectedMarker.style";
 import {
@@ -9,6 +10,7 @@ interface MarkerProps {
   color: string;
   value: string;
   isSelected?: boolean;
+  isPulsating?: boolean;
   onClick: () => void;
 }
 
@@ -16,6 +18,7 @@ const SessionFullMarker = ({
   color,
   value,
   isSelected,
+  isPulsating = false,
   onClick,
 }: MarkerProps) => {
   if (isSelected) {
@@ -23,7 +26,7 @@ const SessionFullMarker = ({
       <MarkerContainer onClick={onClick}>
         <SelectedShadowCircle color={color} />
         <SelectedDataContainer color={color}>
-          <MarkerCircle color={color} />
+          <MarkerCircle color={color} shouldPulse={false}/>
           <MarkerText> {value}</MarkerText>
         </SelectedDataContainer>
       </MarkerContainer>
@@ -31,9 +34,9 @@ const SessionFullMarker = ({
   } else {
     return (
       <MarkerContainer onClick={onClick}>
-        <ShadowCircle color={color} />
+        <ShadowCircle color={color} shouldPulse={isPulsating}/>
         <DataContainer>
-          <MarkerCircle color={color} />
+          <MarkerCircle color={color} shouldPulse={false}/>
           <MarkerText> {value}</MarkerText>
         </DataContainer>
       </MarkerContainer>

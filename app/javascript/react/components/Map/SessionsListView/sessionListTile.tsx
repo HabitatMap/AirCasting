@@ -14,8 +14,8 @@ interface SessionListTile {
   averageValue: number;
   startTime: string;
   endTime: string;
-  streamId: number;
-  onClick?: (id: number, streamId: number) => void;
+  streamId: string;
+  onClick?: (id: number, streamId: string) => void;
   onMouseEnter?: (id: number) => void;
   onMouseLeave?: (id: number) => void;
 }

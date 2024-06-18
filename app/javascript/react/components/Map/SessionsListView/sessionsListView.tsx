@@ -9,12 +9,12 @@ interface SessionListEntity {
   averageValue: number;
   startTime: string;
   endTime: string;
-  streamId: number;
+  streamId: string;
 }
 
 interface SessionListViewProps {
   sessions: SessionListEntity[];
-  onCellClick?: (id: number, streamId: number) => void;
+  onCellClick?: (id: number, streamId: string) => void;
   onCellMouseEnter?: (id: number) => void;
   onCellMouseLeave?: (id: number) => void;
 }
@@ -26,7 +26,7 @@ const SessionsListView: React.FC<SessionListViewProps> = ({
   onCellMouseLeave
 }) => {
 
-  const handleClick = (id: number, streamId: number) => {
+  const handleClick = (id: number, streamId: string) => {
     if (onCellClick) {
       onCellClick(id, streamId);
     }
@@ -55,6 +55,7 @@ const SessionsListView: React.FC<SessionListViewProps> = ({
             averageValue={session.averageValue}
             startTime={session.startTime}
             endTime={session.endTime}
+            streamId={session.streamId}
             onClick={(id, streamId) => {
               handleClick(id, streamId);
             }}

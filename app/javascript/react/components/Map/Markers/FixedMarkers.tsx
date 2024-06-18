@@ -13,9 +13,10 @@ type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
+  pulsatingSessionId: number | null;
 };
 
-const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
+const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId, pulsatingSessionId }: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -84,6 +85,7 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
             color="#E95F5F"
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
+            isPulsating={session.id === pulsatingSessionId}
             onClick={() => {
               onMarkerClick(Number(session.point.streamId), Number(session.id));
               centerMapOnMarker(session.point, session.point.streamId);

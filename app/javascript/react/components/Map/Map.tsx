@@ -76,6 +76,7 @@ const Map = () => {
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+  const [selectedpulsatingSessionId, setSelectedpulsatingSessionId] = useState<number | null>(null);
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
 
   const fixedSessionTypeSelected: boolean =
@@ -290,12 +291,14 @@ const Map = () => {
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
+            pulsatingSessionId={selectedpulsatingSessionId}
           />
         ) : (
           <MobileMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
+            pulsatingSessionId={selectedpulsatingSessionId}
           />
         )}
         {selectedStreamId && !fixedSessionTypeSelected && (
@@ -363,28 +366,28 @@ const Map = () => {
             endTime: session.endTime,
             streamId: session.streamId,
           }))}
-          onCellClick={(id, streamId) => {
+          // onCellClick={(id, streamId) => {
 
-            if (streamId) {
-              fixedSessionTypeSelected
-                ? dispatch(fetchFixedStreamById(streamId))
-                : dispatch(fetchMobileStreamById(streamId));
-            }
+          //   if (streamId) {
+          //     fixedSessionTypeSelected
+          //       ? dispatch(fetchFixedStreamById(streamId))
+          //       : dispatch(fetchMobileStreamById(streamId));
+          //   }
         
-            if (!selectedStreamId) {
-              setSelectedSessionId(id);
-              setSelectedStreamId(streamId);
-              setModalOpen(false);
-              setTimeout(() => {
-                setModalOpen(true);
-              }, 0);
-            }
-          }}
+          //   if (!selectedStreamId) {
+          //     setSelectedSessionId(id);
+          //     setSelectedStreamId(streamId);
+          //     setModalOpen(false);
+          //     setTimeout(() => {
+          //       setModalOpen(true);
+          //     }, 0);
+          //   }
+          // }}
           onCellMouseEnter={(id) => {
-            setSelectedSessionId(id)
+            setSelectedpulsatingSessionId(id)
           }}
           onCellMouseLeave={(id) => {
-            // setSelectedSessionId(null)
+            setSelectedpulsatingSessionId(null)
           }}
         />
       </S.DesktopContainer>

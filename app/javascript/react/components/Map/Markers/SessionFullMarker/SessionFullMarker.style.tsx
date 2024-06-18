@@ -1,10 +1,26 @@
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 import { gray400 } from "../../../../assets/styles/colors";
 import { H4 } from "../../../Typography";
 
 interface MarkerProps {
   color: string;
+  shouldPulse: boolean;
 }
+
+const pulse = keyframes`
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+`;
 
 const MarkerContainer = styled.div`
   display: flex;
@@ -31,6 +47,8 @@ const ShadowCircle = styled.div<MarkerProps>`
   );
   filter: blur(5px);
   pointer-events: none;
+  ${(props) => props.shouldPulse && pulse};
+  animation: ${(props) => props.shouldPulse ? css`${pulse} 2s infinite` : 'none'};
 `;
 
 const DataContainer = styled.div`
