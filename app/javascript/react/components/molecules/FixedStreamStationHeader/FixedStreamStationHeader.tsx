@@ -26,7 +26,8 @@ const FixedStreamStationHeader = () => {
     endTime,
   } = useSelector(selectFixedStreamShortInfo);
 
-  const streamEndTime: string = endTime ?? lastUpdate ?? moment().format("YYYY-MM-DD");
+  const streamEndTime: string =
+    endTime ?? lastUpdate ?? moment().format("YYYY-MM-DD");
 
   return (
     <S.GridContainer>
