@@ -25,16 +25,13 @@ import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { selectThreshold } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
-import {
-  selectFixedExtremes,
-  selectFixedStreamShortInfo,
-} from "../../store/fixedStreamSelectors";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
 import { handleLoad } from "./chartEvents";
-import { min } from "lodash";
 
+const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 interface GraphProps {
   sessionType: SessionType;
   streamId: number | null;
@@ -72,7 +69,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const plotOptions = getPlotOptions();
 
   const dispatch = useAppDispatch();
-  const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 
   useEffect(() => {
     if (seriesData.length > 0 && !isLoading) {

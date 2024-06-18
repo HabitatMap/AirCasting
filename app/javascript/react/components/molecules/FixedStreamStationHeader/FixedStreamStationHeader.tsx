@@ -9,6 +9,7 @@ import { StreamUpdate } from "./atoms/StreamUpdate";
 import { StationActionButtons } from "./atoms/StationActionButtons";
 import { selectFixedStreamShortInfo } from "../../../store/fixedStreamSelectors";
 import * as S from "./FixedStreamStationHeader.style";
+import { DateFormat } from "../../../types/dateFormat";
 
 const FixedStreamStationHeader = () => {
   const {
@@ -27,7 +28,7 @@ const FixedStreamStationHeader = () => {
   } = useSelector(selectFixedStreamShortInfo);
 
   const streamEndTime: string =
-    endTime ?? lastUpdate ?? moment().format("YYYY-MM-DD");
+    endTime ?? lastUpdate ?? moment().format(DateFormat.default);
 
   return (
     <S.GridContainer>

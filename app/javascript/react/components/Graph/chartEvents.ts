@@ -2,6 +2,9 @@ import Highcharts from "highcharts/highstock";
 import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
 import graphChevronRight from "../../assets/icons/graphChevronRight.svg";
 
+const DIRECTION_LEFT = 'left';
+const DIRECTION_RIGHT = 'right';
+
 const addNavigationArrows = (chart: Highcharts.Chart) => {
   const chartWidth = chart.chartWidth;
   const chartHeight = chart.chartHeight;
@@ -23,12 +26,12 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
     .css({ cursor: 'pointer' })
     .add();
 
-  const move = (direction: 'left' | 'right') => {
+    const move = (direction: typeof DIRECTION_LEFT | typeof DIRECTION_RIGHT) => {
     const axis = chart.xAxis[0];
     const { min, max, dataMin, dataMax } = axis.getExtremes();
     const range = max - min;
-    const newMin = direction === 'left' ? Math.max(dataMin, min - range * 0.1) : Math.min(dataMax - range, min + range * 0.1);
-    const newMax = direction === 'left' ? Math.max(dataMin + range, max - range * 0.1) : Math.min(dataMax, max + range * 0.1);
+    const newMin = direction === DIRECTION_LEFT ? Math.max(dataMin, min - range * 0.1) : Math.min(dataMax - range, min + range * 0.1);
+    const newMax = direction === DIRECTION_LEFT ? Math.max(dataMin + range, max - range * 0.1) : Math.min(dataMax, max + range * 0.1);
     axis.setExtremes(newMin, newMax);
   };
 
@@ -40,8 +43,8 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
     });
   };
 
-  leftArrow.on('click', () => move('left'));
-  rightArrow.on('click', () => move('right'));
+  leftArrow.on('click', () => move(DIRECTION_LEFT));
+  rightArrow.on('click', () => move(DIRECTION_RIGHT));
 
   leftArrow.on('mouseover', () => toggleElements('none'));
   leftArrow.on('mouseout', () => toggleElements('block'));
