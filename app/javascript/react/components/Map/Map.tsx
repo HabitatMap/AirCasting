@@ -352,6 +352,9 @@ const Map = () => {
               endTime: session.endTime,
               streamId: session.streamId,
             }))}
+            onCellClick={(id, streamId) => {
+              handleMarkerClick(streamId, id)
+            }}
             onClose={toggleOverlay}
           />
         )}

@@ -16,6 +16,7 @@ const StyledSectionButton = styled.button`
   position: fixed;
   bottom: 0;
   right: 20px;
+  border: none;
 `;
 
 const Title = styled(H6)``;

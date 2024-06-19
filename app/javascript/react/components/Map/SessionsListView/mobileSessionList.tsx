@@ -6,13 +6,22 @@ import { SessionsListTile } from "./sessionListTile";
 
 interface MobileSessionListProps {
   sessions: SessionListEntity[];
+  onCellClick?: (id: number, streamId: number) => void;
   onClose: () => void;
 }
 
 const MobileSessionList: React.FC<MobileSessionListProps> = ({
   sessions,
+  onCellClick,
   onClose,
 }) => {
+
+  const handleClick = (id: number, streamId: number) => {
+    if (onCellClick) {
+      onCellClick(id, streamId);
+    }
+  };
+
   return (
     <S.Overlay>
       <S.VerticalContainer>
@@ -33,6 +42,9 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
                 startTime={session.startTime}
                 endTime={session.endTime}
                 streamId={session.streamId}
+                onClick={(id, streamId) => {
+                  handleClick(id, streamId);
+                }}
               />
             </div>
           ))}
