@@ -17,7 +17,10 @@ import {
   selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
-import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
+import {
+  selectMobileStreamPoints,
+  selectMobileStreamShortInfo,
+} from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
@@ -25,8 +28,11 @@ import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
-import { screenSizes } from "../../utils/media";
+
 import useMobileDetection from "../../utils/useMobileDetection";
+import { updateAll } from "../../store/thresholdSlice";
+import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 
 const Map = () => {
   // const
@@ -80,6 +86,18 @@ const Map = () => {
       : selectMobileSessionsPoints
   );
 
+  const {
+    min: initialMin,
+    low: initialLow,
+    middle: initialMiddle,
+    high: initialHigh,
+    max: initialMax,
+  }: StreamShortInfo = useSelector(
+    fixedSessionTypeSelected
+      ? selectFixedStreamShortInfo
+      : selectMobileStreamShortInfo
+  );
+
   // Filters (temporary solution)
   const sensor_name = fixedSessionTypeSelected
     ? "government-pm2.5"
@@ -109,6 +127,21 @@ const Map = () => {
       setShouldFetchSessions(false);
     }
   }, [dispatch, filters, shouldFetchSessions]);
+
+  useEffect(() => {
+    const updateThresholdValues = () => {
+      dispatch(
+        updateAll({
+          min: initialMin,
+          low: initialLow,
+          middle: initialMiddle,
+          high: initialHigh,
+          max: initialMax,
+        })
+      );
+    };
+    updateThresholdValues();
+  }, [initialMin, initialLow, initialMiddle, initialHigh, initialMax]);
 
   // Callbacks
   const onIdle = useCallback(

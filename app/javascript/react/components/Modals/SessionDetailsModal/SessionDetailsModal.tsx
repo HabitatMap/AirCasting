@@ -58,7 +58,6 @@ const SessionDetailsModal: React.FC<
               sessionType={sessionType}
             />
           )}
-          <ThresholdsConfigurator isMapPage={true} sessionType={sessionType} />
         </>
       )}
     </SessionModal>
