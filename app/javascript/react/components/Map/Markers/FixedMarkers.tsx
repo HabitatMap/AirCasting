@@ -7,8 +7,6 @@ import GreenCluster from "../../../assets/icons/markers/marker-cluster-green.svg
 import OrangeCluster from "../../../assets/icons/markers/marker-cluster-orange.svg";
 import RedCluster from "../../../assets/icons/markers/marker-cluster-red.svg";
 import YellowCluster from "../../../assets/icons/markers/marker-cluster-yellow.svg";
-import { fetchClusterData } from "../../../store/clusterDataSlice";
-import { useAppDispatch } from "../../../store/hooks";
 import { Session } from "../../../types/sessionType";
 import { pubSub } from "../../../utils/pubSubManager";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
@@ -37,8 +35,7 @@ const FixedMarkers = ({
   );
   const ZOOM_FOR_SELECTED_SESSION = 6;
   const clusterer = useRef<MarkerClusterer | null>(null);
-  const markerRefs = useRef<{ [key: string]: Marker | null }>({});
-  const dispatch = useAppDispatch();
+  const markerRefs = useRef<{ [streamId: string]: Marker | null }>({});
 
   const clusterStyles = [
     {
@@ -151,33 +148,24 @@ const FixedMarkers = ({
     };
   }, [sessions]);
 
-  // Update markers when marker references change
-  useEffect(() => {
-    const newMarkers: { [key: string]: Marker | null } = {};
-    sessions.forEach((session) => {
-      if (!markerRefs.current[session.point.streamId]) {
-        newMarkers[session.point.streamId] = null;
-      }
-    });
-
-    if (Object.keys(newMarkers).length > 0) {
-      setMarkers((prev) => ({
-        ...prev,
-        ...newMarkers,
-      }));
-    }
-  }, [sessions]);
-
-  // Update MarkerClusterer when markers change
+  // Update MarkerClusterer when markers and sessions change
   useEffect(() => {
     if (clusterer.current) {
+      const sessionStreamIds = sessions.map(
+        (session) => session.point.streamId
+      );
+      Object.keys(markers).forEach((key) => {
+        if (!sessionStreamIds.includes(key)) {
+          delete markers[key];
+        }
+      });
       const validMarkers = Object.values(markers).filter(
         (marker): marker is Marker => marker !== null
       );
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
     }
-  }, [markers]);
+  }, [markers, sessions]);
 
   // Cleanup clusters when component unmounts
   useEffect(() => {
