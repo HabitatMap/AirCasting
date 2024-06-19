@@ -149,6 +149,9 @@ const Map = () => {
       const map = event.map;
       if (!mapInstance) {
         setMapInstance(map);
+        map.setOptions({
+          clickableIcons: false,
+        });
       }
       const bounds = map?.getBounds();
       if (!bounds) {
