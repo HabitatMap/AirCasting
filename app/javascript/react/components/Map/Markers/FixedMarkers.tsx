@@ -8,6 +8,7 @@ import { Session } from "../../../types/sessionType";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
+import { pubSub } from "../../../utils/pubSubManager";
 
 type Props = {
   sessions: Session[];
@@ -16,7 +17,12 @@ type Props = {
   pulsatingSessionId: number | null;
 };
 
-const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId, pulsatingSessionId }: Props) => {
+const FixedMarkers = ({
+  sessions,
+  onMarkerClick,
+  selectedStreamId,
+  pulsatingSessionId,
+}: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -26,6 +32,24 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId, pulsatingSess
     null
   );
   const ZOOM_FOR_SELECTED_SESSION = 15;
+
+  useEffect(() => {
+    const handleData = (id: number) => {
+      const s = sessions.find((session) => {
+        return session.id === id;
+      });
+
+      if (s?.point) {
+        centerMapOnMarker(s.point, s.point.streamId);
+      }
+    };
+
+    pubSub.subscribe("CENTER_MAP", handleData);
+
+    return () => {
+      pubSub.unsubscribe("CENTER_MAP", handleData);
+    };
+  }, [sessions]);
 
   // Update markers when marker references change
   useEffect(() => {

@@ -14,10 +14,10 @@ interface SessionListTile {
   averageValue: number;
   startTime: string;
   endTime: string;
-  streamId: string;
-  onClick?: (id: number, streamId: string) => void;
+  streamId: number;
+  onClick?: (id: number, streamId: number) => void;
   onMouseEnter?: (id: number) => void;
-  onMouseLeave?: (id: number) => void;
+  onMouseLeave?: () => void;
 }
 
 const SessionsListTile: React.FC<SessionListTile> = ({
@@ -55,7 +55,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
 
   const handleMouseLeave = () => {
     if (onMouseLeave) {
-      onMouseLeave(id)
+      onMouseLeave()
     }
   };
 

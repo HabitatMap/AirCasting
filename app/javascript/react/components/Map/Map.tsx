@@ -42,6 +42,7 @@ import pinImage from "../../assets/icons/pinImage.svg";
 import * as S from "./Map.style";
 import { MobileSessionList } from "./SessionsListView/mobileSessionList";
 import { SessionList } from "../../types/sessionType";
+import { pubSub } from "../../utils/pubSubManager";
 
 const Map = () => {
   // const
@@ -76,7 +77,9 @@ const Map = () => {
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
-  const [selectedpulsatingSessionId, setSelectedpulsatingSessionId] = useState<number | null>(null);
+  const [selectedPulsatingSessionId, setSelectedpulsatingSessionId] = useState<
+    number | null
+  >(null);
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
 
   const fixedSessionTypeSelected: boolean =
@@ -291,14 +294,14 @@ const Map = () => {
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
-            pulsatingSessionId={selectedpulsatingSessionId}
+            pulsatingSessionId={selectedPulsatingSessionId}
           />
         ) : (
           <MobileMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
-            pulsatingSessionId={selectedpulsatingSessionId}
+            pulsatingSessionId={selectedPulsatingSessionId}
           />
         )}
         {selectedStreamId && !fixedSessionTypeSelected && (
@@ -339,70 +342,49 @@ const Map = () => {
           onClick={toggleOverlay}
         />
         {showOverlay && (
-          <MobileSessionList 
-          // sessions={mockSessions} 
-          sessions={listSessions.map((session: SessionList) => ({
-            id: session.id,
-            sessionName: session.title,
-            sensorName: session.sensorName,
-            averageValue: session.averageValue,
-            startTime: session.startTime,
-            endTime: session.endTime,
-            streamId: session.streamId,
-          }))}
-          onClose={toggleOverlay} />
+          <MobileSessionList
+            sessions={listSessions.map((session: SessionList) => ({
+              id: session.id,
+              sessionName: session.title,
+              sensorName: session.sensorName,
+              averageValue: session.averageValue,
+              startTime: session.startTime,
+              endTime: session.endTime,
+              streamId: session.streamId,
+            }))}
+            onClose={toggleOverlay}
+          />
         )}
       </S.MobileContainer>
-      
 
-      <S.DesktopContainer>
-        <SessionsListView
-          sessions={listSessions.map((session) => ({
-            id: session.id,
-            sessionName: session.title,
-            sensorName: session.sensorName,
-            averageValue: session.averageValue,
-            startTime: session.startTime,
-            endTime: session.endTime,
-            streamId: session.streamId,
-          }))}
-          // onCellClick={(id, streamId) => {
-
-          //   if (streamId) {
-          //     fixedSessionTypeSelected
-          //       ? dispatch(fetchFixedStreamById(streamId))
-          //       : dispatch(fetchMobileStreamById(streamId));
-          //   }
-        
-          //   if (!selectedStreamId) {
-          //     setSelectedSessionId(id);
-          //     setSelectedStreamId(streamId);
-          //     setModalOpen(false);
-          //     setTimeout(() => {
-          //       setModalOpen(true);
-          //     }, 0);
-          //   }
-          // }}
-          onCellMouseEnter={(id) => {
-            setSelectedpulsatingSessionId(id)
-          }}
-          onCellMouseLeave={(id) => {
-            setSelectedpulsatingSessionId(null)
-          }}
-        />
-      </S.DesktopContainer>
+      {!modalOpen && (
+        <S.DesktopContainer>
+          <SessionsListView
+            sessions={listSessions.map((session) => ({
+              id: session.id,
+              sessionName: session.title,
+              sensorName: session.sensorName,
+              averageValue: session.averageValue,
+              startTime: session.startTime,
+              endTime: session.endTime,
+              streamId: session.streamId,
+            }))}
+            onCellClick={(id, streamId) => {
+              setSelectedpulsatingSessionId(null);
+              handleMarkerClick(streamId, id)
+              pubSub.publish("CENTER_MAP", id)
+            }}
+            onCellMouseEnter={(id) => {
+              setSelectedpulsatingSessionId(id);
+            }}
+            onCellMouseLeave={() => {
+              setSelectedpulsatingSessionId(null);
+            }}
+          />
+        </S.DesktopContainer>
+      )}
     </>
   );
 };
-
-const mockSessions = Array.from({ length: 20 }, (v, index) => ({
-  sessionName: `Session ${index + 1}`,
-  sensorName: `Sensor ${index + 1}`,
-  averageValue: 100,
-  startTime: `2023-06-11T${String(index % 24).padStart(2, "0")}:00:00`,
-  endTime: `2023-06-11T${String((index % 24) + 1).padStart(2, "0")}:00:00`,
-}));
-
-export default mockSessions;
 
 export { Map };

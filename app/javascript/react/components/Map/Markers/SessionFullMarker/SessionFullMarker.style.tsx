@@ -1,10 +1,15 @@
+import { isPending } from "@reduxjs/toolkit";
 import styled, { keyframes, css } from "styled-components";
 import { gray400 } from "../../../../assets/styles/colors";
 import { H4 } from "../../../Typography";
 
 interface MarkerProps {
   color: string;
-  shouldPulse: boolean;
+}
+
+interface MarkerShadowProps {
+  color: string;
+  shouldPulse?: boolean;
 }
 
 const pulse = keyframes`
@@ -14,7 +19,7 @@ const pulse = keyframes`
   }
   50% {
     transform: scale(1.5);
-    opacity: 0.7;
+    opacity: 0.8;
   }
   100% {
     transform: scale(1);
@@ -35,7 +40,7 @@ const MarkerContainer = styled.div`
   pointer-events: auto;
 `;
 
-const ShadowCircle = styled.div<MarkerProps>`
+const ShadowCircle = styled.div<MarkerShadowProps>`
   height: 4rem;
   width: 4rem;
   border-radius: 50%;

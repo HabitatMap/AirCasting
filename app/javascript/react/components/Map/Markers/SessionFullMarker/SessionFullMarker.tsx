@@ -1,5 +1,4 @@
 import React from "react";
-import { black } from "../../../../assets/styles/colors";
 
 import { SelectedDataContainer, SelectedShadowCircle } from "../SelectedMarker.style";
 import {
@@ -26,7 +25,7 @@ const SessionFullMarker = ({
       <MarkerContainer onClick={onClick}>
         <SelectedShadowCircle color={color} />
         <SelectedDataContainer color={color}>
-          <MarkerCircle color={color} shouldPulse={false}/>
+          <MarkerCircle color={color}/>
           <MarkerText> {value}</MarkerText>
         </SelectedDataContainer>
       </MarkerContainer>
@@ -36,7 +35,7 @@ const SessionFullMarker = ({
       <MarkerContainer onClick={onClick}>
         <ShadowCircle color={color} shouldPulse={isPulsating}/>
         <DataContainer>
-          <MarkerCircle color={color} shouldPulse={false}/>
+          <MarkerCircle color={color}/>
           <MarkerText> {value}</MarkerText>
         </DataContainer>
       </MarkerContainer>

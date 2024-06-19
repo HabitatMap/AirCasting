@@ -9,6 +9,7 @@ import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
+import { pubSub } from "../../../utils/pubSubManager";
 
 type Props = {
   sessions: Session[];
@@ -21,7 +22,7 @@ const MobileMarkers = ({
   sessions,
   onMarkerClick,
   selectedStreamId,
-  pulsatingSessionId
+  pulsatingSessionId,
 }: Props) => {
   const DISTANCE_THRESHOLD = 21;
   const ZOOM_FOR_SELECTED_SESSION = 15;
@@ -34,8 +35,23 @@ const MobileMarkers = ({
     null
   );
 
-  const [currentPulsatingId, setCurrentPulsatingId] = useState<number | null>(null);
+  useEffect(() => {
+    const handleData = (id: number) => {
+      const s = sessions.find((session) => {
+          return session.id === id;
+      });
 
+      if (s?.point) {
+          centerMapOnMarker(s.point);
+      }
+  };  
+
+    pubSub.subscribe("CENTER_MAP", handleData);
+
+    return () => {
+      pubSub.unsubscribe("CENTER_MAP", handleData);
+    };
+  }, [sessions]);
 
   useEffect(() => {
     if (selectedStreamId === null) {
@@ -43,32 +59,9 @@ const MobileMarkers = ({
     }
   }, [selectedStreamId]);
 
-  useEffect(() => {
-    const findPulsatingSession = () => {
-      // Define logic to determine which session should pulsate
-      const eligibleSessions = sessions.filter(session =>
-        sessions.some(
-          otherSession =>
-            otherSession.point.streamId !== session.point.streamId &&
-            areMarkersTooClose(session.point, otherSession.point)
-        )
-      );
-  
-      if (eligibleSessions.length > 0 && pulsatingSessionId) {
-        setCurrentPulsatingId(pulsatingSessionId);
-      } else {
-        setCurrentPulsatingId(null);
-      }
-    };
-  
-    findPulsatingSession();
-  }, [sessions, pulsatingSessionId]);
-
-  const isPulsating = (sessionId: number) => sessionId === currentPulsatingId;
-
   // Update markers when marker references change
   useEffect(() => {
-    console.log("SESSIONS LOAD:", sessions)
+    console.log("SESSIONS LOAD:", sessions);
     const newMarkers: { [streamId: string]: Marker | null } = {};
     sessions.forEach((session) => {
       if (!markers[session.point.streamId]) {
@@ -134,7 +127,6 @@ const MobileMarkers = ({
   };
 
   const renderMarkerContent = (session: Session, isSelected: boolean) => {
-
     const isOverlapping = sessions.some(
       (otherSession) =>
         otherSession.point.streamId !== session.point.streamId &&
@@ -146,7 +138,7 @@ const MobileMarkers = ({
       return (
         <SessionDotMarker
           color={red}
-          isPulsating={isPulsating(session.id)}
+          isPulsating={session.id == pulsatingSessionId}
           onClick={() => {
             onMarkerClick(Number(session.point.streamId), Number(session.id));
             centerMapOnMarker(session.point);
