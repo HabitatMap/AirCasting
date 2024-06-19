@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SessionsListTile } from "./sessionListTile";
+import { SessionsListTile } from "./SessionsListTile/sessionListTile";
 import * as S from "./sessionListView.style";
 
 interface SessionListEntity {
@@ -23,9 +23,8 @@ const SessionsListView: React.FC<SessionListViewProps> = ({
   sessions,
   onCellClick,
   onCellMouseEnter,
-  onCellMouseLeave
+  onCellMouseLeave,
 }) => {
-
   const handleClick = (id: number, streamId: number) => {
     if (onCellClick) {
       onCellClick(id, streamId);
@@ -72,5 +71,4 @@ const SessionsListView: React.FC<SessionListViewProps> = ({
   );
 };
 
-export { SessionsListView };
-export { SessionListEntity };
+export { SessionsListView, SessionListEntity };

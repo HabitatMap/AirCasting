@@ -109,7 +109,7 @@ const FixedMarkers = ({
             color="#E95F5F"
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
-            isPulsating={session.id === pulsatingSessionId}
+            shouldPulse={session.id === pulsatingSessionId}
             onClick={() => {
               onMarkerClick(Number(session.point.streamId), Number(session.id));
               centerMapOnMarker(session.point, session.point.streamId);

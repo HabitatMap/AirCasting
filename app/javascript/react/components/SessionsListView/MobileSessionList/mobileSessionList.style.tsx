@@ -7,13 +7,12 @@ const Overlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 1.0);
+  background-color: rgba(255, 255, 255, 1);
   z-index: 500;
   display: flex;
   justify-content: center;
   align-items: flex-start;
 `;
-
 
 const ImageButton = styled.button`
   background: none;
@@ -23,7 +22,7 @@ const ImageButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
+  margin-right: 0.625em;
 `;
 
 const Image = styled.img`
@@ -41,8 +40,8 @@ const HorizontalContainer = styled.div`
   display: flex;
   left: 0;
   align-items: center;
-  margin-bottom: 10px;
-  margin-left: 15px;
+  margin-bottom: 0.625em;
+  margin-left: 2em;
 `;
 
 const VerticalContainer = styled.div`
@@ -50,7 +49,7 @@ const VerticalContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 1.25em;
   overflow-y: auto;
   max-height: 100%;
 `;
@@ -58,9 +57,16 @@ const VerticalContainer = styled.div`
 const SessionListStyled = styled.div`
   width: 100%;
   overflow-y: auto;
-  margin-left: 20px;
-  margin-right: 20px;
+  margin-left: 1.25em;
+  margin-right: 1.25em;
 `;
 
-
-export { Overlay, Image, ImageButton, Title, HorizontalContainer, SessionListStyled, VerticalContainer };
+export {
+  Overlay,
+  Image,
+  ImageButton,
+  Title,
+  HorizontalContainer,
+  SessionListStyled,
+  VerticalContainer,
+};

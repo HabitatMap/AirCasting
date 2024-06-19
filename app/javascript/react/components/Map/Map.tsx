@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
+
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
@@ -36,13 +38,13 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { updateAll } from "../../store/thresholdSlice";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { SessionsListView } from "./SessionsListView/sessionsListView";
-import { SectionButton } from "./SessionsListView/sectionButton";
+import { SessionsListView } from "../SessionsListView/sessionsListView";
+import { SectionButton } from "../SectionButton/sectionButton";
 import pinImage from "../../assets/icons/pinImage.svg";
-import * as S from "./Map.style";
-import { MobileSessionList } from "./SessionsListView/mobileSessionList";
+import { MobileSessionList } from "../SessionsListView/MobileSessionList/mobileSessionList";
 import { SessionList } from "../../types/sessionType";
 import { pubSub } from "../../utils/pubSubManager";
+import * as S from "./Map.style";
 
 const Map = () => {
   // const
@@ -77,18 +79,17 @@ const Map = () => {
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
-  const [selectedPulsatingSessionId, setSelectedpulsatingSessionId] = useState<
-    number | null
-  >(null);
+  const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(null);
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
 
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
-  const [showOverlay, setShowOverlay] = useState(false);
 
+  const [showOverlay, setShowOverlay] = useState(false)
   const toggleOverlay = () => setShowOverlay(!showOverlay);
 
   const isMobile = useMobileDetection();
+  const { t } = useTranslation();
 
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
@@ -294,14 +295,14 @@ const Map = () => {
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
-            pulsatingSessionId={selectedPulsatingSessionId}
+            pulsatingSessionId={pulsatingSessionId}
           />
         ) : (
           <MobileMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
-            pulsatingSessionId={selectedPulsatingSessionId}
+            pulsatingSessionId={pulsatingSessionId}
           />
         )}
         {selectedStreamId && !fixedSessionTypeSelected && (
@@ -337,8 +338,9 @@ const Map = () => {
       </button>
       <S.MobileContainer>
         <SectionButton
-          title="Sessions"
+          title={t("map.listSessions")}
           image={pinImage}
+          alt={t("map.altListSessions")}
           onClick={toggleOverlay}
         />
         {showOverlay && (
@@ -373,15 +375,15 @@ const Map = () => {
               streamId: session.streamId,
             }))}
             onCellClick={(id, streamId) => {
-              setSelectedpulsatingSessionId(null);
+              setPulsatingSessionId(null);
               handleMarkerClick(streamId, id)
               pubSub.publish("CENTER_MAP", id)
             }}
             onCellMouseEnter={(id) => {
-              setSelectedpulsatingSessionId(id);
+              setPulsatingSessionId(id);
             }}
             onCellMouseLeave={() => {
-              setSelectedpulsatingSessionId(null);
+              setPulsatingSessionId(null);
             }}
           />
         </S.DesktopContainer>

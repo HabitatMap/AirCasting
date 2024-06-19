@@ -61,7 +61,6 @@ const MobileMarkers = ({
 
   // Update markers when marker references change
   useEffect(() => {
-    console.log("SESSIONS LOAD:", sessions);
     const newMarkers: { [streamId: string]: Marker | null } = {};
     sessions.forEach((session) => {
       if (!markers[session.point.streamId]) {
@@ -138,7 +137,7 @@ const MobileMarkers = ({
       return (
         <SessionDotMarker
           color={red}
-          isPulsating={session.id == pulsatingSessionId}
+          shouldPulse={session.id === pulsatingSessionId}
           onClick={() => {
             onMarkerClick(Number(session.point.streamId), Number(session.id));
             centerMapOnMarker(session.point);
@@ -153,7 +152,7 @@ const MobileMarkers = ({
         color={red}
         value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
         isSelected={isSelected}
-        isPulsating={session.id == pulsatingSessionId}
+        shouldPulse={session.id === pulsatingSessionId}
         onClick={() => {
           onMarkerClick(Number(session.point.streamId), Number(session.id));
           centerMapOnMarker(session.point);

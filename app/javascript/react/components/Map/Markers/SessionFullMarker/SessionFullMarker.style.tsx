@@ -1,4 +1,3 @@
-import { isPending } from "@reduxjs/toolkit";
 import styled, { keyframes, css } from "styled-components";
 import { gray400 } from "../../../../assets/styles/colors";
 import { H4 } from "../../../Typography";

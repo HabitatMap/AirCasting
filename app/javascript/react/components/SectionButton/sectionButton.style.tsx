@@ -1,11 +1,11 @@
 import styled from "styled-components";
-import { H6 } from "../../Typography";
+import { H6 } from "../Typography";
 
 const StyledSectionButton = styled.button`
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 5px;
+  margin-bottom: 0.4em;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -15,7 +15,7 @@ const StyledSectionButton = styled.button`
   height: 42px;
   position: fixed;
   bottom: 0;
-  right: 20px;
+  right: 1.25em;
   border: none;
 `;
 
@@ -24,7 +24,7 @@ const Title = styled(H6)``;
 const Image = styled.img`
   width: 10px;
   height: 12px;
-  margin-bottom: 4px;
+  margin-bottom: 0.25em;
 `;
 
 export { StyledSectionButton, Title, Image };

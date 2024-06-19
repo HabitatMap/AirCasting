@@ -34,12 +34,12 @@ const SessionsListTile: React.FC<SessionListTile> = ({
 }) => {
   const thresholds = useSelector(selectThreshold);
 
-  const formattedStartTime: string = moment(startTime, "YYYY-MM-DD").format(
+  const [formattedStartDate, formattedStartTime] = moment(startTime, DateFormat.default).format(
     DateFormat.us_with_time
-  );
-  const formattedEndTime: string = moment(endTime, "YYYY-MM-DD").format(
+  ).split(' ');
+  const [formattedEndDate, formattedEndTime] = moment(endTime, DateFormat.default).format(
     DateFormat.us_with_time
-  );
+  ).split(' ');
 
   const handleClick = () => {
     if (onClick) {
@@ -49,13 +49,13 @@ const SessionsListTile: React.FC<SessionListTile> = ({
 
   const handleMouseHover = () => {
     if (onMouseEnter) {
-      onMouseEnter(id)
+      onMouseEnter(id);
     }
   };
 
   const handleMouseLeave = () => {
     if (onMouseLeave) {
-      onMouseLeave()
+      onMouseLeave();
     }
   };
 
@@ -72,9 +72,9 @@ const SessionsListTile: React.FC<SessionListTile> = ({
       </S.HorizontalContainer>
       <S.Title>{sessionName}</S.Title>
       <S.Subtitle>{sensorName}</S.Subtitle>
-      <text>
-        {formattedStartTime} - {formattedEndTime}
-      </text>
+      <S.Subtitle>
+      <strong>{formattedStartDate}</strong> {formattedStartTime} - <strong>{formattedEndDate}</strong> {formattedEndTime}
+      </S.Subtitle>
     </S.SessionListTile>
   );
 };

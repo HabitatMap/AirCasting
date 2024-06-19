@@ -93,7 +93,10 @@
     "mapHybridLabel": "Satellite view + Labels",
     "searchPlaceholder": "Search for a location",
     "searchIcon": "Search location icon",
-    "toggleMenu": "Toggle menu"
+    "toggleMenu": "Toggle menu",
+    "listSessions": "Sessions",
+    "altListSessions": "List all the sessions",
+    "altClose": "Close the content"
   },
 
   "sessionDetailsModal": {

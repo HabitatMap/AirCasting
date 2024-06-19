@@ -1,8 +1,10 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
+
 import * as S from "./mobileSessionList.style";
 import closeImage from "../../../assets/icons/closeButton.svg";
-import { SessionListEntity } from "./sessionsListView";
-import { SessionsListTile } from "./sessionListTile";
+import { SessionListEntity } from "../sessionsListView";
+import { SessionsListTile } from "../SessionsListTile/sessionListTile";
 
 interface MobileSessionListProps {
   sessions: SessionListEntity[];
@@ -15,7 +17,7 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
   onCellClick,
   onClose,
 }) => {
-
+  const { t } = useTranslation();
   const handleClick = (id: number, streamId: number) => {
     if (onCellClick) {
       onCellClick(id, streamId);
@@ -27,7 +29,7 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
       <S.VerticalContainer>
         <S.HorizontalContainer>
           <S.ImageButton onClick={onClose}>
-            <S.Image src={closeImage} alt="Close" />
+            <S.Image src={closeImage} alt={t("map.altClose")} />
           </S.ImageButton>
           <S.Title>Sessions list ({sessions.length})</S.Title>
         </S.HorizontalContainer>

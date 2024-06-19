@@ -4,13 +4,19 @@ import * as S from "./sectionButton.style";
 interface SectionButtonProps {
   image: string;
   title: string;
+  alt: string;
   onClick: () => void;
 }
 
-const SectionButton: React.FC<SectionButtonProps> = ({ image, title, onClick }) => {
+const SectionButton: React.FC<SectionButtonProps> = ({
+  image,
+  title,
+  alt,
+  onClick,
+}) => {
   return (
     <S.StyledSectionButton onClick={onClick}>
-        <S.Image src={image} alt="Pin Icon"/>
+      <S.Image src={image} alt={alt} />
       <S.Title>{title}</S.Title>
     </S.StyledSectionButton>
   );
