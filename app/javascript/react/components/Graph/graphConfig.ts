@@ -128,7 +128,7 @@ const getYAxisOptions = (
     minorGridLineWidth: 0,
     showLastLabel: true,
     tickInterval: tickInterval,
-    tickPosition: isMobile ? "inside" : "outside",
+    tickPosition: "inside",
     offset: isMobile ? 0 : 25,
     labels: {
       enabled: true,
@@ -233,14 +233,6 @@ const getResponsiveOptions = (
     rules: [
       {
         condition: {
-          maxWidth: 480,
-        },
-        chartOptions: {
-          yAxis: getYAxisOptions(thresholdsState, true),
-        },
-      },
-      {
-        condition: {
           maxWidth: 550,
         },
         chartOptions: {
@@ -251,13 +243,14 @@ const getResponsiveOptions = (
       },
       {
         condition: {
-          maxWidth: 700,
+          maxWidth: 1024,
         },
         chartOptions: {
-          scrollbar: {
+          yAxis: getYAxisOptions(thresholdsState, true),
+          rangeSelector: {
             enabled: false,
           },
-          rangeSelector: {
+          scrollbar: {
             enabled: false,
           },
           chart: {
@@ -265,7 +258,7 @@ const getResponsiveOptions = (
           },
           credits: {
             enabled: false,
-          },
+          }
         },
       },
     ],

@@ -60,6 +60,10 @@ const InfoContainer = styled.div`
   gap: 4rem;
 
   @media ${media.smallDesktop} {
+    justify-content: space-evenly;
+  }
+
+  @media ${media.largeDesktop} {
     width: 20%;
     flex-direction: column;
     margin-bottom: 0;
@@ -181,6 +185,9 @@ const CancelButtonX = styled.button`
 
   body:not(.user-is-tabbing) &:focus-visible {
     outline: none;
+  }
+  @media ${media.smallDesktop} {
+    width: fit-content;
   }
 `;
 
