@@ -45,6 +45,12 @@ const Container = styled.div`
       transform: translate(3px, 0px) scale(2);
       stroke-width: 3px;
     }
+
+    .highcharts-button .highcharts-reset-zoom {
+      display: none;
+      z-index: -1;
+    }
+  }
 `;
 
 export { Container };

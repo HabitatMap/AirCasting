@@ -100,7 +100,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     const graphElement = graphRef.current;
 
     if (graphElement) {
-      // Apply touch-action to prevent vertical scrolling
       graphElement.style.touchAction = "pan-x";
     }
   }, []);
