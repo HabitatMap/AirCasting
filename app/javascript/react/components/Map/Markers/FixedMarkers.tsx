@@ -113,22 +113,23 @@ const FixedMarkers = ({
         renderer: customRenderer,
       });
 
-      clusterer.current.addListener("click", (event: any) => {
-        const cluster = event.cluster;
-        const bounds = cluster.getBounds();
-        map.fitBounds(bounds);
+      // to be finished in: fixed: hovering & clicking cluster
+      // clusterer.current.addListener("click", (event: any) => {
+      //   const cluster = event.cluster;
+      //   const bounds = cluster.getBounds();
+      //   map.fitBounds(bounds);
 
-        const streamIds: string[] = [];
-        cluster.markers.forEach((marker: Marker) => {
-          const markerKey = Object.keys(markerRefs.current).find(
-            (key) => markerRefs.current[key] === marker
-          );
-          if (markerKey) {
-            streamIds.push(markerKey);
-          }
-        });
-        dispatch(fetchClusterData({ streamIds }));
-      });
+      //   const streamIds: string[] = [];
+      //   cluster.markers.forEach((marker: Marker) => {
+      //     const markerKey = Object.keys(markerRefs.current).find(
+      //       (key) => markerRefs.current[key] === marker
+      //     );
+      //     if (markerKey) {
+      //       streamIds.push(markerKey);
+      //     }
+      //   });
+      //   dispatch(fetchClusterData({ streamIds }));
+      // });
     }
   }, [map, sessions]);
 
@@ -177,6 +178,15 @@ const FixedMarkers = ({
       clusterer.current.addMarkers(validMarkers);
     }
   }, [markers]);
+
+  // Cleanup clusters when component unmounts
+  useEffect(() => {
+    return () => {
+      if (clusterer.current) {
+        clusterer.current.clearMarkers();
+      }
+    };
+  }, []);
 
   const centerMapOnMarker = (position: LatLngLiteral, streamId: string) => {
     if (map) {
