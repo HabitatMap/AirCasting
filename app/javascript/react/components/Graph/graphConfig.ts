@@ -20,9 +20,7 @@ import {
   yellow,
   white,
   gray200,
-  gray400,
   blue,
-  black,
   gray100,
   gray300,
 } from "../../assets/styles/colors";
@@ -50,7 +48,7 @@ const scrollbarOptions = {
   enabled: true,
 };
 
-const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
+const getXAxisOptions = (fixedSessionTypeSelected: boolean, isMobile: boolean = false): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
 
@@ -70,13 +68,14 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
     title: {
       text: undefined,
     },
+    showLastLabel: isMobile ? false : true,
     tickColor: gray200,
     lineColor: white,
     type: "datetime",
     labels: {
       enabled: true,
       overflow: "justify",
-      step: 1,
+      // step: 1,
       style: {
         fontSize: "1.2rem",
         fontFamily: "Roboto",

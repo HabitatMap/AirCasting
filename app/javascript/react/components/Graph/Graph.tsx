@@ -30,16 +30,17 @@ import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
 import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
 import { handleLoad } from "./chartEvents";
-import { screenSizes } from "../../utils/media";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
+
 interface GraphProps {
   sessionType: SessionType;
   streamId: number | null;
 }
 
 const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
+  const graphRef = useRef<HTMLDivElement>(null); // Reference to the graph container
   const thresholdsState = useSelector(selectThreshold);
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
@@ -58,21 +59,21 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const unitSymbol = streamShortInfo?.unitSymbol || "";
   const measurementType = "Particulate Matter";
 
+  const isMobile = useMobileDetection();
+  const dispatch = useAppDispatch();
+
   const seriesData = (graphData?.measurements || [])
     .map((measurement) => [measurement.time, measurement.value])
     .sort((a, b) => a[0] - b[0]);
 
-  const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected);
-  const yAxisOption = getYAxisOptions(thresholdsState);
+  const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected, isMobile);
+  const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected
   );
   const plotOptions = getPlotOptions();
   const responsive = getResponsiveOptions(thresholdsState);
-
-  const isMobile = useMobileDetection();
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (seriesData.length > 0 && !isLoading) {
@@ -95,15 +96,31 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     }
   }, [seriesData, isLoading, dispatch, fixedSessionTypeSelected]);
 
+  useEffect(() => {
+    const graphElement = graphRef.current;
+
+    if (graphElement) {
+      // Apply touch-action to prevent vertical scrolling
+      graphElement.style.touchAction = "pan-x";
+    }
+  }, []);
+
   const options: Highcharts.Options = {
     title: undefined,
     xAxis: xAxisOptions,
     yAxis: yAxisOption,
-    plotOptions,
+    plotOptions: plotOptions,
     series: [seriesOptions(seriesData)],
     legend: legendOption,
     chart: {
-      zooming: { type: "x" },
+      zooming: {
+        type: "x",
+        resetButton: {
+          theme: {
+            display: "none",
+          },
+        },
+      },
       height: 300,
       margin: [40, 30, 0, 10],
       animation: false,
@@ -130,7 +147,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   };
 
   return (
-    <S.Container>
+    <S.Container ref={graphRef}>
       <HighchartsReact
         highcharts={Highcharts}
         constructorType={"stockChart"}
