@@ -116,7 +116,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         type: "x",
         resetButton: {
           theme: {
-            display: "none",
+            style: { display: "none" },
           },
         },
       },
