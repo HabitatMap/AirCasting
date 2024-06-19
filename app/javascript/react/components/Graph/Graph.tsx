@@ -31,7 +31,7 @@ import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
 import { handleLoad } from "./chartEvents";
 import { screenSizes } from "../../utils/media";
-import useMobileDetection from "../../utils/useMobileDetection";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 interface GraphProps {

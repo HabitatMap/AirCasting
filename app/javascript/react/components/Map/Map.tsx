@@ -29,7 +29,7 @@ import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 
-import useMobileDetection from "../../utils/useMobileDetection";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { updateAll } from "../../store/thresholdSlice";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";

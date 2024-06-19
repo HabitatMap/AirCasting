@@ -5,7 +5,7 @@ import * as S from "./HeaderToggle.style";
 import { screenSizes } from "../../../../utils/media";
 import headerArrowIcon from "../../../../assets/icons/headerArrowIcon.svg";
 import returnArrow from "../../../../assets/icons/returnArrow.svg";
-import useMobileDetection from "../../../../utils/useMobileDetection";
+import useMobileDetection from "../../../../utils/useScreenSizeDetection";
 
 interface Props {
   titleText: string | JSX.Element;

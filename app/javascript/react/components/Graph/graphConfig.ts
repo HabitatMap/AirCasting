@@ -233,16 +233,6 @@ const getResponsiveOptions = (
     rules: [
       {
         condition: {
-          maxWidth: 550,
-        },
-        chartOptions: {
-          chart: {
-            height: 170,
-          },
-        },
-      },
-      {
-        condition: {
           maxWidth: 1024,
         },
         chartOptions: {
@@ -255,6 +245,7 @@ const getResponsiveOptions = (
           },
           chart: {
             margin: [5, 0, 5, 0],
+            height: 170,
           },
           credits: {
             enabled: false,

@@ -19,7 +19,7 @@ import {
 import { SessionTypes } from "../../types/filters";
 import { screenSizes } from "../../utils/media";
 import * as S from "./CalendarPage.style";
-import useMobileDetection from "../../utils/useMobileDetection";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 

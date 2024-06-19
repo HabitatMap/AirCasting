@@ -7,7 +7,7 @@ import * as S from "./SessionDetailsModal.style";
 import SessionInfo from "./SessionInfo";
 import { Graph } from "../../Graph";
 import type { PopupProps } from "reactjs-popup/dist/types";
-import useMobileDetection from "../../../utils/useMobileDetection";
+import useMobileDetection from "../../../utils/useScreenSizeDetection";
 
 interface SessionDetailsModalProps {
   onClose: () => void;
