@@ -245,7 +245,7 @@ const getResponsiveOptions = (
           },
           chart: {
             margin: [5, 0, 5, 0],
-            height: 170,
+            height: 150,
           },
           credits: {
             enabled: false,
