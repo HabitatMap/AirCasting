@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SessionsListTile } from "./SessionsListTile";
-import * as S from "./SessionsListView.style";
+import * as S from "./Test.style";
 
 export interface SessionListEntity {
   id: number;
