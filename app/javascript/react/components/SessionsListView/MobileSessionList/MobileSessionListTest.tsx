@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 
-import * as S from "./MobileSessionList.style";
+import * as S from "./MobileSessionListTest.style";
 import closeImage from "../../../assets/icons/closeButton.svg";
 import { SessionListEntity } from "../Test";
 import { SessionsListTile } from "../SessionsListTile";

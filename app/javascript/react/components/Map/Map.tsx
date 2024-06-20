@@ -41,7 +41,7 @@ import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { SessionsListView } from "../SessionsListView/Test";
 import { SectionButton } from "../SectionButton/SectionButtonTest";
 import pinImage from "../../assets/icons/pinImage.svg";
-import { MobileSessionList } from "../SessionsListView/MobileSessionList";
+import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionListTest";
 import { SessionList } from "../../types/sessionType";
 import { pubSub } from "../../utils/pubSubManager";
 import * as S from "./Map.style";
