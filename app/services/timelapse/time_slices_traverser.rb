@@ -39,20 +39,14 @@ module Timelapse
 
       return { cluster_id => { time: end_of_time_slice, value: nil } } if stream_ids.empty?
 
-      stream_averages_sum = calculate_stream_averages_sum(stream_ids, beginning_of_time_slice, end_of_time_slice)
-      average = stream_averages_sum / stream_ids.size
+      average =
+        measurements_repository.streams_averages_from_period(
+          stream_ids: stream_ids,
+          start_date: beginning_of_time_slice,
+          end_date: end_of_time_slice
+        )
 
       { cluster_id => { time: end_of_time_slice, value: average } }
-    end
-
-    def calculate_stream_averages_sum(stream_ids, start_date, end_date)
-      stream_ids.sum do |stream_id|
-        measurements_repository.stream_average_from_period(
-          stream_id: stream_id,
-          start_date: start_date,
-          end_date: end_date
-        ) || 0
-      end
     end
   end
 end
