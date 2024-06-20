@@ -205,48 +205,55 @@ describe 'GET api/v3/timelapse', type: :request do
 
     # performance test using map data and experimental server API - delete before merging
 
-    # it 'extracts stream IDs from response and uses them in another request' do
-    #   VCR.turned_off do
-    #     WebMock.allow_net_connect!
+    it 'extracts stream IDs from response and uses them in another request' do
+      VCR.turned_off do
+        WebMock.allow_net_connect!
 
-    #     get_url = 'http://172.104.20.165/api/fixed/active/sessions2.json?q=%7B%22time_from%22%3A%221687046400%22%2C%22time_to%22%3A%221718755199%22%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22%22%2C%22west%22%3A-108.62679382755933%2C%22east%22%3A-40.335778202559325%2C%22south%22%3A3.136565709932095%2C%22north%22%3A54.811068550858565%2C%22limit%22%3A1269%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22government-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D'
+        get_url = 'http://172.104.20.165/api/fixed/active/sessions2.json?q=%7B%22time_from%22%3A%221687219200%22%2C%22time_to%22%3A%221718927999%22%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22%22%2C%22west%22%3A-158.99172492811482%2C%22east%22%3A1.4086656968851674%2C%22south%22%3A-5.888107876913058%2C%22north%22%3A56.408464501696784%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22government-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D'
 
-    #     response = HTTParty.get(get_url)
-    #     expect(response.code).to eq(200)
-    #     parsed_response = JSON.parse(response.body)
+        response = HTTParty.get(get_url)
+        expect(response.code).to eq(200)
+        parsed_response = JSON.parse(response.body)
 
-    #     puts "Parsed Response: #{parsed_response}"
+        puts "Parsed Response: #{parsed_response}"
 
-    #     stream_ids = parsed_response['sessions'].map { |session| session['streams']['Government-PM2.5']['id'] }
+        stream_ids = parsed_response['sessions'].map { |session| session['streams']['Government-PM2.5']['id'] }
 
-    #     puts "Extracted Stream IDs: #{stream_ids}"
+        puts "Extracted Stream IDs: #{stream_ids}"
 
-    #     clusters = stream_ids.each_slice(15).each_with_index.map { |slice, index| { index => slice } }
 
-    #     puts "Created Clusters: #{clusters}"
+        clusters = stream_ids.each { |stream_id| { 0 => [stream_id] } }
+        clusters = stream_ids.each_slice(15).each_with_index.map { |slice, index| { index => slice } }
 
-    #     request_body = {
-    #       clusters: clusters,
-    #       time_period: '1.day'
-    #     }.to_json
+        puts "Created Clusters: #{clusters}"
 
-    #     post_url = 'http://172.104.20.165/api/v3/timelapse'
+        request_body = {
+          clusters: clusters,
+          time_period: '7.days'
+        }.to_json
 
-    #     puts "POST Request URL: #{post_url}"
-    #     puts "POST Request Body: #{request_body}"
+        post_url = 'http://172.104.20.165/api/v3/timelapse'
 
-    #     post_response = HTTParty.post(post_url, body: request_body, headers: { 'Content-Type' => 'application/json' })
+        puts "POST Request URL: #{post_url}"
+        puts "POST Request Body: #{request_body}"
 
-    #     puts "POST Response Code: #{post_response.code}"
-    #     puts "POST Response Body: #{post_response.body}"
+        post_request_sent_at = Time.current
+        post_response = HTTParty.post(post_url, body: request_body, headers: { 'Content-Type' => 'application/json' })
+        response_time = Time.current - post_request_sent_at
 
-    #     # binding.pry
+        puts "POST Response Code: #{post_response.code}"
+        puts "POST Response Body: #{post_response.body}"
 
-    #     expect(post_response.code).to eq(200)
+        puts "-------------------------------------"
+        puts "Response Time in seconds: #{response_time}"
 
-    #     WebMock.disable_net_connect!(allow_localhost: true)
-    #   end
-    # end
+        binding.pry
+
+        expect(post_response.code).to eq(200)
+
+        WebMock.disable_net_connect!(allow_localhost: true)
+      end
+    end
   end
 end
 
