@@ -7,7 +7,7 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { DateFormat } from "../../../types/dateFormat";
 import { selectThreshold } from "../../../store/thresholdSlice";
 import rightVector from "../../../assets/icons/rightVector.svg";
-import * as S from "./SessionListTile.style";
+import * as S from "./sessionListTile.style";
 
 interface SessionListTile {
   id: number;
