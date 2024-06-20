@@ -38,7 +38,7 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { updateAll } from "../../store/thresholdSlice";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { SessionsListView } from "../SessionsListView";
+import { SessionsListView } from "../SessionsListView/Test";
 import { SectionButton } from "../SectionButton";
 import pinImage from "../../assets/icons/pinImage.svg";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList";

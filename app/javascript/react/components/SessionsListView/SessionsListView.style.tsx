@@ -6,7 +6,7 @@ const SessionListViewStyle = styled.div`
   top: 8rem;
   bottom: 0;
   right: 1.25rem;
-  overflow-y: auto;  
+  overflow-y: auto;
   overflow-x: hidden;
   border-radius: 0.5rem;
   box-sizing: border-box;
@@ -26,6 +26,4 @@ const SessionListViewStyle = styled.div`
   }
 `;
 
-export {
-    SessionListViewStyle
-};
+export { SessionListViewStyle };

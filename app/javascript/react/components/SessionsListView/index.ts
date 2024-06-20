@@ -1,1 +1,1 @@
-export * from "./SessionsListView";
+export * from "./Test";
