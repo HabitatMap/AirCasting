@@ -39,7 +39,7 @@ import { updateAll } from "../../store/thresholdSlice";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { SessionsListView } from "../SessionsListView/Test";
-import { SectionButton } from "../SectionButton";
+import { SectionButton } from "../SectionButton/SectionButtonTest";
 import pinImage from "../../assets/icons/pinImage.svg";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList";
 import { SessionList } from "../../types/sessionType";

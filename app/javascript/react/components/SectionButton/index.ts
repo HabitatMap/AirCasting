@@ -1,1 +1,1 @@
-export * from "./SectionButton";
+export * from "./SectionButtonTest";
