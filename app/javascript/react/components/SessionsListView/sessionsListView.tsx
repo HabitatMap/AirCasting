@@ -1,8 +1,8 @@
 import * as React from "react";
-import { SessionsListTile } from "./SessionsListTile/SessionListTile";
+import { SessionsListTile } from "./SessionsListTile";
 import * as S from "./SessionListView.style";
 
-interface SessionListEntity {
+export interface SessionListEntity {
   id: number;
   sessionName: string;
   sensorName: string;
@@ -71,4 +71,4 @@ const SessionsListView: React.FC<SessionListViewProps> = ({
   );
 };
 
-export { SessionsListView, SessionListEntity };
+export { SessionsListView };

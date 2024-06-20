@@ -38,10 +38,10 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { updateAll } from "../../store/thresholdSlice";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { SessionsListView } from "../SessionsListView/SessionsListView";
-import { SectionButton } from "../SectionButton/SectionButton";
+import { SessionsListView } from "../SessionsListView";
+import { SectionButton } from "../SectionButton";
 import pinImage from "../../assets/icons/pinImage.svg";
-import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
+import { MobileSessionList } from "../SessionsListView/MobileSessionList";
 import { SessionList } from "../../types/sessionType";
 import { pubSub } from "../../utils/pubSubManager";
 import * as S from "./Map.style";
@@ -345,7 +345,7 @@ const Map = () => {
           image={pinImage}
           alt={t("map.altListSessions")}
           onClick={() => {
-            setShowOverlay(true)
+            setShowOverlay(true);
           }}
         />
         {showOverlay && (
@@ -363,7 +363,7 @@ const Map = () => {
               handleMarkerClick(streamId, id);
             }}
             onClose={() => {
-              setShowOverlay(false)
+              setShowOverlay(false);
             }}
           />
         )}
