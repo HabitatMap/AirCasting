@@ -247,8 +247,6 @@ describe 'GET api/v3/timelapse', type: :request do
         puts "-------------------------------------"
         puts "Response Time in seconds: #{response_time}"
 
-        binding.pry
-
         expect(post_response.code).to eq(200)
 
         WebMock.disable_net_connect!(allow_localhost: true)
