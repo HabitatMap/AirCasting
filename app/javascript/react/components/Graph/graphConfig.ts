@@ -75,7 +75,7 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean, isMobile: boolean = 
     labels: {
       enabled: true,
       overflow: "justify",
-      // step: 1,
+      step: 1,
       style: {
         fontSize: "1.2rem",
         fontFamily: "Roboto",
@@ -289,7 +289,8 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
 });
 
 const getRangeSelectorOptions = (
-  fixedSessionTypeSelected: boolean
+  fixedSessionTypeSelected: boolean,
+  selectedRange?: number
 ): RangeSelectorOptions =>
   fixedSessionTypeSelected
     ? {
@@ -314,7 +315,7 @@ const getRangeSelectorOptions = (
           text: "1 MONTH",
         },
       ],
-      selected: 0,
+      selected: selectedRange || 0,
       inputEnabled: false,
     }
     : {
@@ -335,7 +336,7 @@ const getRangeSelectorOptions = (
         },
         { type: "all", text: "ALL" },
       ],
-      selected: 2,
+      selected: selectedRange || 2,
       inputEnabled: false,
     };
 
