@@ -14,11 +14,11 @@ class MeasurementsRepository
       .average(:value)
   end
 
-  def stream_average_from_period(stream_id:, start_date:, end_date:)
+  def streams_averages_from_period(stream_ids:, start_date:, end_date:)
     Measurement
       .where(
-        'stream_id = ? AND time_with_time_zone >= ? AND time_with_time_zone < ?',
-        stream_id,
+        'stream_id IN (?) AND time_with_time_zone >= ? AND time_with_time_zone < ?',
+        stream_ids,
         start_date,
         end_date,
       )
