@@ -53,7 +53,7 @@ class Api::ToActiveSessionsJson
             'sensor_name' => related_stream.sensor_name,
             'unit_symbol' => related_stream.unit_symbol,
             'id' => related_stream.id,
-            'stream_daily_average' => last_average_value.round,
+            'stream_daily_average' => last_average_value&.round || 'no data',
           }
         }
       }
