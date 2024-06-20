@@ -49,7 +49,7 @@ const ColorDot = styled.span<DotProps>`
 
 const Title = styled(H4)`
   text-align: left;
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 0.8rem;
 `;
 
