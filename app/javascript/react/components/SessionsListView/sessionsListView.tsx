@@ -12,14 +12,14 @@ export interface SessionListEntity {
   streamId: number;
 }
 
-interface SessionListViewProps {
+interface SessionsListViewProps {
   sessions: SessionListEntity[];
   onCellClick?: (id: number, streamId: number) => void;
   onCellMouseEnter?: (id: number) => void;
   onCellMouseLeave?: () => void;
 }
 
-const SessionsListView: React.FC<SessionListViewProps> = ({
+const SessionsListView: React.FC<SessionsListViewProps> = ({
   sessions,
   onCellClick,
   onCellMouseEnter,
