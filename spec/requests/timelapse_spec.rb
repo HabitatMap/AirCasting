@@ -1,4 +1,6 @@
 require 'rails_helper'
+require 'httparty'
+require 'webmock/rspec'
 
 describe 'GET api/v3/timelapse', type: :request do
   context 'with correct params' do
@@ -199,6 +201,51 @@ describe 'GET api/v3/timelapse', type: :request do
       expected_response = daily_averages
 
       expect(JSON.parse(response.body)).to eq(expected_response)
+    end
+
+    # performance test using map data and experimental server API - delete before merging
+
+    it 'extracts stream IDs from response and uses them in another request' do
+      VCR.turned_off do
+        WebMock.allow_net_connect!
+
+        get_url = 'http://172.104.20.165/api/fixed/active/sessions2.json?q=%7B%22time_from%22%3A%221687046400%22%2C%22time_to%22%3A%221718755199%22%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22%22%2C%22west%22%3A-108.62679382755933%2C%22east%22%3A-40.335778202559325%2C%22south%22%3A3.136565709932095%2C%22north%22%3A54.811068550858565%2C%22limit%22%3A1269%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22government-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D'
+
+        response = HTTParty.get(get_url)
+        expect(response.code).to eq(200)
+        parsed_response = JSON.parse(response.body)
+
+        puts "Parsed Response: #{parsed_response}"
+
+        stream_ids = parsed_response['sessions'].map { |session| session['streams']['Government-PM2.5']['id'] }
+
+        puts "Extracted Stream IDs: #{stream_ids}"
+
+        clusters = stream_ids.each_slice(15).each_with_index.map { |slice, index| { index => slice } }
+
+        puts "Created Clusters: #{clusters}"
+
+        request_body = {
+          clusters: clusters,
+          time_period: '1.day'
+        }.to_json
+
+        post_url = 'http://172.104.20.165/api/v3/timelapse'
+
+        puts "POST Request URL: #{post_url}"
+        puts "POST Request Body: #{request_body}"
+
+        post_response = HTTParty.post(post_url, body: request_body, headers: { 'Content-Type' => 'application/json' })
+
+        puts "POST Response Code: #{post_response.code}"
+        puts "POST Response Body: #{post_response.body}"
+
+        # binding.pry
+
+        expect(post_response.code).to eq(200)
+
+        WebMock.disable_net_connect!(allow_localhost: true)
+      end
     end
   end
 end
