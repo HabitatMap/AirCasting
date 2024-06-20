@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SessionsListTile } from "./SessionsListTile";
+import { SessionsListTile } from "./SessionsListTile/SessionListTileTest";
 import * as S from "./Test.style";
 
 export interface SessionListEntity {
