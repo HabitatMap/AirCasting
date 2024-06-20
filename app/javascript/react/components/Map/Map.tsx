@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
@@ -17,7 +17,10 @@ import {
   selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
-import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
+import {
+  selectMobileStreamPoints,
+  selectMobileStreamShortInfo,
+} from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
@@ -25,7 +28,12 @@ import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
-import { screenSizes } from "../../utils/media";
+
+import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { updateAll } from "../../store/thresholdSlice";
+import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import { Graph } from "../Graph";
 
 const Map = () => {
   // const
@@ -61,12 +69,11 @@ const Map = () => {
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
-  const [isMobile, setIsMobile] = useState(
-    window.innerWidth <= screenSizes.mobile
-  );
 
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
+
+  const isMobile = useMobileDetection();
 
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
@@ -80,25 +87,52 @@ const Map = () => {
       : selectMobileSessionsPoints
   );
 
+  const {
+    min: initialMin,
+    low: initialLow,
+    middle: initialMiddle,
+    high: initialHigh,
+    max: initialMax,
+  }: StreamShortInfo = useSelector(
+    fixedSessionTypeSelected
+      ? selectFixedStreamShortInfo
+      : selectMobileStreamShortInfo
+  );
+
   // Filters (temporary solution)
   const sensor_name = fixedSessionTypeSelected
     ? "government-pm2.5"
     : "airbeam-pm2.5";
-  const filters = JSON.stringify({
-    time_from: timeFrom,
-    time_to: timeTo,
-    tags: tags,
-    usernames: usernames,
-    west: mapBounds.west,
-    east: mapBounds.east,
-    south: mapBounds.south,
-    north: mapBounds.north,
-    limit: limit,
-    offset: offset,
-    sensor_name: sensor_name,
-    measurement_type: measurement_type,
-    unit_symbol: unit_symbol,
-  });
+  const filters = useMemo(
+    () =>
+      JSON.stringify({
+        time_from: timeFrom,
+        time_to: timeTo,
+        tags: tags,
+        usernames: usernames,
+        west: mapBounds.west,
+        east: mapBounds.east,
+        south: mapBounds.south,
+        north: mapBounds.north,
+        limit: limit,
+        offset: offset,
+        sensor_name: sensor_name,
+        measurement_type: measurement_type,
+        unit_symbol: unit_symbol,
+      }),
+    [
+      timeFrom,
+      timeTo,
+      tags,
+      usernames,
+      mapBounds,
+      limit,
+      offset,
+      sensor_name,
+      measurement_type,
+      unit_symbol,
+    ]
+  );
 
   // Effects
   useEffect(() => {
@@ -108,24 +142,40 @@ const Map = () => {
         : dispatch(fetchMobileSessions({ filters }));
       setShouldFetchSessions(false);
     }
-  }, [dispatch, filters, shouldFetchSessions]);
+  }, [dispatch, filters, shouldFetchSessions, fixedSessionTypeSelected]);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= screenSizes.mobile);
+    const updateThresholdValues = () => {
+      dispatch(
+        updateAll({
+          min: initialMin,
+          low: initialLow,
+          middle: initialMiddle,
+          high: initialHigh,
+          max: initialMax,
+        })
+      );
     };
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+    updateThresholdValues();
+  }, [
+    initialMin,
+    initialLow,
+    initialMiddle,
+    initialHigh,
+    initialMax,
+    dispatch,
+  ]);
 
   // Callbacks
   const onIdle = useCallback(
     (event: MapEvent) => {
+      if (modalOpen) return;
       const map = event.map;
       if (!mapInstance) {
         setMapInstance(map);
+        map.setOptions({
+          clickableIcons: false,
+        });
       }
       const bounds = map?.getBounds();
       if (!bounds) {
@@ -138,12 +188,12 @@ const Map = () => {
       const west = bounds.getSouthWest().lng();
       setMapBounds({ north, south, east, west });
     },
-    [mapInstance]
+    [mapInstance, modalOpen]
   );
 
   // Handlers
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
-    if (isMobile) {
+    if (isMobile && fixedSessionTypeSelected) {
       navigate(`/fixed_stream?streamId=${streamId}`);
       return;
     }

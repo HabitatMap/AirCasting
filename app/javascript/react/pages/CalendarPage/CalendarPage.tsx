@@ -19,6 +19,7 @@ import {
 import { SessionTypes } from "../../types/filters";
 import { screenSizes } from "../../utils/media";
 import * as S from "./CalendarPage.style";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
@@ -35,9 +36,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const movingCalendarData = useSelector(movingData);
   const dispatch = useAppDispatch();
 
-  const [isMobile, setIsMobile] = useState(
-    window.innerWidth < screenSizes.mobile
-  );
+  const isMobile = useMobileDetection();
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -51,18 +50,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
   useEffect(() => {
     streamId && dispatch(fetchFixedStreamById(streamId));
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < screenSizes.mobile);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
   }, []);
 
   useEffect(() => {

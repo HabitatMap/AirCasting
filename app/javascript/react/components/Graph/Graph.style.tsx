@@ -6,7 +6,7 @@ const Container = styled.div`
   position: relative;
   font-family: "Roboto", sans-serif;
 
-  @media ${media.smallDesktop} {
+  @media ${media.largeDesktop} {
     width: 77%;
   }
 
@@ -17,10 +17,17 @@ const Container = styled.div`
       transform: translate(1px, 15px);
     }
 
+    .data-highcharts-chart {
+      width: 100%;
+    }
+
     .highcharts-scrollbar-track {
       transform: translate(0, 4px);
-      width: 97%;
+      width: 92%;
       align-self: center;
+      @media ${media.smallDesktop} {
+        width: 97%;
+      }
     }
 
     .highcharts-scrollbar-thumb {
@@ -38,6 +45,12 @@ const Container = styled.div`
       transform: translate(3px, 0px) scale(2);
       stroke-width: 3px;
     }
+
+    .highcharts-button .highcharts-reset-zoom {
+      display: none;
+      z-index: -1;
+    }
+  }
 `;
 
 export { Container };

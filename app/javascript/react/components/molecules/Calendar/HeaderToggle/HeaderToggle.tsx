@@ -5,6 +5,7 @@ import * as S from "./HeaderToggle.style";
 import { screenSizes } from "../../../../utils/media";
 import headerArrowIcon from "../../../../assets/icons/headerArrowIcon.svg";
 import returnArrow from "../../../../assets/icons/returnArrow.svg";
+import useMobileDetection from "../../../../utils/useScreenSizeDetection";
 
 interface Props {
   titleText: string | JSX.Element;
@@ -24,18 +25,8 @@ const HeaderToggle = ({
   isMapPage,
 }: Props) => {
   const [isVisible, setIsVisible] = useState(true);
-  const [isMobile, setIsMobile] = useState(
-    window.innerWidth < screenSizes.mobile
-  );
+  const isMobile = useMobileDetection();
   const { t } = useTranslation();
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < screenSizes.mobile);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const toggleVisibility = () => {
     setIsVisible(!isVisible);

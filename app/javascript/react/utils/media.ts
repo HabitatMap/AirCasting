@@ -5,12 +5,14 @@ const sizes = {
   mobile: "768px",
   smallDesktop: "769px",
   desktop: "1024px",
+  largeDesktop: "1440px",
 };
 
 export const media = {
   mobile: `(max-width: ${sizes.mobile})`,
   smallDesktop: `(min-width: ${sizes.smallDesktop})`,
   desktop: `(min-width: ${sizes.desktop})`,
+  largeDesktop: `(min-width: ${sizes.largeDesktop})`,
 };
 
 
@@ -18,4 +20,5 @@ export const screenSizes = {
   mobile: 768,
   smallDesktop: 769,
   desktop: 1024,
+  largeDesktop: 1440,
 }

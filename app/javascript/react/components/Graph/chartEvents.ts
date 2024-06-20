@@ -9,19 +9,21 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
   const chartWidth = chart.chartWidth;
   const chartHeight = chart.chartHeight;
 
+  const chevronHeight = window.innerWidth < 1025 ? chartHeight / 2 - 30 : chartHeight / 2;
+
   // Remove existing arrows if any
   chart.renderer.boxWrapper.element
     .querySelectorAll('.custom-arrow')
     .forEach((el) => el.remove());
 
   const leftArrow = chart.renderer
-    .image(graphChevronLeft, 30, chartHeight / 2, 30, 30)
+    .image(graphChevronLeft, 30,  chevronHeight, 30, 30)
     .attr({ zIndex: 10, class: 'custom-arrow' })
     .css({ cursor: 'pointer' })
     .add();
 
   const rightArrow = chart.renderer
-    .image(graphChevronRight, chartWidth - 80, chartHeight / 2, 30, 30)
+    .image(graphChevronRight, chartWidth - 80,  chevronHeight, 30, 30)
     .attr({ zIndex: 10, class: 'custom-arrow' })
     .css({ cursor: 'pointer' })
     .add();

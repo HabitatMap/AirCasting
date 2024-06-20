@@ -5,14 +5,31 @@ import {
   TitleOptions,
   LegendOptions,
   SeriesOptionsType,
-} from 'highcharts/highstock';
-import Highcharts, { CreditsOptions, RangeSelectorOptions } from 'highcharts';
-import { ThresholdState } from '../../store/thresholdSlice';
+} from "highcharts/highstock";
+import Highcharts, {
+  CreditsOptions,
+  RangeSelectorOptions,
+  ResponsiveOptions,
+} from "highcharts";
+import { ThresholdState } from "../../store/thresholdSlice";
 
-import { green, orange, red, yellow, white, gray200, gray400, blue, black, gray100, gray300 } from '../../assets/styles/colors';
-import { selectIsLoading, updateFixedMeasurementExtremes } from '../../store/fixedStreamSlice';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { updateMobileMeasurementExtremes } from '../../store/mobileStreamSlice';
+import {
+  green,
+  orange,
+  red,
+  yellow,
+  white,
+  gray200,
+  blue,
+  gray100,
+  gray300,
+} from "../../assets/styles/colors";
+import {
+  selectIsLoading,
+  updateFixedMeasurementExtremes,
+} from "../../store/fixedStreamSlice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 
 const scrollbarOptions = {
   barBackgroundColor: gray200,
@@ -29,10 +46,9 @@ const scrollbarOptions = {
   trackBorderWidth: 0,
   showFull: false,
   enabled: true,
-
 };
 
-const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
+const getXAxisOptions = (fixedSessionTypeSelected: boolean, isMobile: boolean = false): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
 
@@ -40,24 +56,29 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
     if (!isLoading && e.min && e.max) {
       const min = e.min;
       const max = e.max;
-      dispatch(fixedSessionTypeSelected ? updateFixedMeasurementExtremes({ min, max }) : updateMobileMeasurementExtremes({ min, max }));
+      dispatch(
+        fixedSessionTypeSelected
+          ? updateFixedMeasurementExtremes({ min, max })
+          : updateMobileMeasurementExtremes({ min, max })
+      );
     }
   };
 
-  return ({
+  return {
     title: {
       text: undefined,
     },
+    showLastLabel: isMobile ? false : true,
     tickColor: gray200,
     lineColor: white,
-    type: 'datetime',
+    type: "datetime",
     labels: {
       enabled: true,
-      overflow: 'justify',
-      step: 1,
+      overflow: "justify",
+      // step: 1,
       style: {
-        fontSize: '1.2rem',
-        fontFamily: 'Roboto',
+        fontSize: "1.2rem",
+        fontFamily: "Roboto",
       },
     },
     crosshair: {
@@ -69,24 +90,26 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean): XAxisOptions => {
     events: {
       setExtremes: function (e) {
         handleSetExtremes(e);
-      }
+      },
     },
-  });
+  };
 };
 
 const buildTicks = (low: number, high: number) => {
   const tick = Math.round((high - low) / 4);
   return [low, low + tick, low + 2 * tick, high - tick, high];
-}
+};
 
-const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
+const getYAxisOptions = (
+  thresholdsState: ThresholdState,
+  isMobile: boolean = false
+): YAxisOptions => {
   const min = Number(thresholdsState.min);
   const max = Number(thresholdsState.max);
   const low = Number(thresholdsState.low);
   const middle = Number(thresholdsState.middle);
   const high = Number(thresholdsState.high);
 
-  ;
   const ticks = buildTicks(min, max);
   const tickInterval = ticks[1] - ticks[0];
 
@@ -100,18 +123,18 @@ const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
     lineColor: white,
     opposite: true,
     tickWidth: 1,
-    tickLength: 25,
+    tickLength: isMobile ? 0 : 25,
     minorGridLineWidth: 0,
     showLastLabel: true,
     tickInterval: tickInterval,
     tickPosition: "inside",
-    offset: 25,
+    offset: isMobile ? 0 : 25,
     labels: {
       enabled: true,
       style: {
-        fontFamily: 'Roboto',
-        fontSize: '1.2rem',
-        align: 'right',
+        fontFamily: "Roboto",
+        fontSize: "1.2rem",
+        align: "right",
       },
     },
     gridLineWidth: 0,
@@ -145,11 +168,10 @@ const getYAxisOptions = (thresholdsState: ThresholdState): YAxisOptions => {
 
 const credits: CreditsOptions = {
   enabled: true,
-  position: { align: 'right', verticalAlign: 'top', x: -50, y: 55 },
+  position: { align: "right", verticalAlign: "top", x: -50, y: 55 },
 };
 
 const getPlotOptions = (): PlotOptions => {
-
   return {
     series: {
       lineWidth: 2,
@@ -165,7 +187,7 @@ const getPlotOptions = (): PlotOptions => {
           halo: {
             attributes: {
               fill: blue,
-              'stroke-width': 2,
+              "stroke-width": 2,
             },
           },
         },
@@ -182,74 +204,62 @@ const getPlotOptions = (): PlotOptions => {
         allowOverlap: true,
       },
     },
-  }
+  };
 };
 
-const seriesOptions = (data: number[][]): SeriesOptionsType => (
-  {
-    type: 'spline',
-    color: white,
-    data: data,
-    tooltip: {
-      valueDecimals: 2,
-    },
-  });
+const seriesOptions = (data: number[][]): SeriesOptionsType => ({
+  type: "spline",
+  color: white,
+  data: data,
+  tooltip: {
+    valueDecimals: 2,
+  },
+});
 
 const titleOption: TitleOptions = {
-  text: 'Measurement graph',
-  align: 'left',
+  text: "Measurement graph",
+  align: "left",
 };
 
 const legendOption: LegendOptions = {
   enabled: false,
 };
 
-const responsive = {
-  rules: [
-    {
-      condition: {
-        maxWidth: 480,
-      },
-      chartOptions: {
-        rangeSelector: {
-          height: 30,
-          buttonSpacing: 8,
-          inputEnabled: false,
-          buttonTheme: {
-            fill: 'none',
-            width: 33,
-            r: 10,
-            stroke: 'rgba(149, 149, 149, 0.3)',
-            'stroke-width': 1,
+const getResponsiveOptions = (
+  thresholdsState: ThresholdState
+): ResponsiveOptions => {
+  return {
+    rules: [
+      {
+        condition: {
+          maxWidth: 1024,
+        },
+        chartOptions: {
+          yAxis: getYAxisOptions(thresholdsState, true),
+          rangeSelector: {
+            enabled: false,
           },
+          scrollbar: {
+            enabled: false,
+          },
+          chart: {
+            margin: [5, 0, 5, 0],
+            height: 150,
+          },
+          credits: {
+            enabled: false,
+          }
         },
       },
-    },
-    {
-      condition: {
-        maxWidth: 550,
-      },
-      chartOptions: {
-        chart: {
-          height: 170,
-        },
-      },
-    },
-    {
-      condition: {
-        maxWidth: 700,
-      },
-    },
-  ],
+    ],
+  };
 };
-
-
 
 const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
   enabled: true,
   formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
-    const date = Highcharts.dateFormat('%m/%d/%Y', Number(this.x));
-    const time = Highcharts.dateFormat('%H:%M:%S', Number(this.x));
+    const date = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
+    const time = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
     const pointData = this.points ? this.points[0] : this.point;
     const oneMinuteInterval = 60 * 1000;
     let s = `<span>${date} `;
@@ -257,82 +267,84 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
     if (this.points && this.points.length > 1) {
       const xLess = Number(this.x);
       const xMore = xLess + oneMinuteInterval * (this.points.length - 1);
-      s += Highcharts.dateFormat('%H:%M:%S', xLess) + '-';
-      s += Highcharts.dateFormat('%H:%M:%S', xMore) + '</span>';
+      s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
+      s += Highcharts.dateFormat("%H:%M:%S", xMore) + "</span>";
     } else {
-      s += Highcharts.dateFormat('%H:%M:%S', this.x as number) + '</span>';
+      s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
     }
     s +=
-      '<br/>' +
+      "<br/>" +
       measurementType +
-      ' = ' +
+      " = " +
       Math.round(Number(pointData.y)) +
-      ' ' +
+      " " +
       unitSymbol;
     return s;
   },
   borderWidth: 0,
   style: {
-    fontSize: '1.2rem',
-    fontFamily: 'Roboto',
+    fontSize: "1.2rem",
+    fontFamily: "Roboto",
   },
 });
 
-
-const getRangeSelectorOptions = (fixedSessionTypeSelected: boolean): RangeSelectorOptions => (
-  fixedSessionTypeSelected ? {
-    labelStyle: {
-      display: 'none'
-    },
-    buttonSpacing: 15,
-    buttons: [
-      {
-        type: 'hour',
-        count: 24,
-        text: '24 HOURS',
+const getRangeSelectorOptions = (
+  fixedSessionTypeSelected: boolean
+): RangeSelectorOptions =>
+  fixedSessionTypeSelected
+    ? {
+      labelStyle: {
+        display: "none",
       },
-      {
-        type: 'day',
-        count: 7,
-        text: '1 WEEK',
+      buttonSpacing: 15,
+      buttons: [
+        {
+          type: "hour",
+          count: 24,
+          text: "24 HOURS",
+        },
+        {
+          type: "day",
+          count: 7,
+          text: "1 WEEK",
+        },
+        {
+          type: "month",
+          count: 1,
+          text: "1 MONTH",
+        },
+      ],
+      selected: 0,
+      inputEnabled: false,
+    }
+    : {
+      buttonSpacing: 15,
+      labelStyle: {
+        display: "none",
       },
-      {
-        type: 'month',
-        count: 1,
-        text: '1 MONTH',
-      },
-    ],
-    selected: 0,
-    inputEnabled: false,
-  } : {
-
-    buttonSpacing: 15,
-    labelStyle: {
-      display: 'none'
-    },
-    buttons: [
-      {
-        type: 'minute',
-        count: 5,
-        text: '5 MINUTES',
-      },
-      {
-        type: 'hour',
-        count: 1,
-        text: '1 HOUR',
-      },
-      { type: 'all', text: 'ALL' },
-    ],
-    selected: 2,
-    inputEnabled: false,
-  });
+      buttons: [
+        {
+          type: "minute",
+          count: 5,
+          text: "5 MINUTES",
+        },
+        {
+          type: "hour",
+          count: 1,
+          text: "1 HOUR",
+        },
+        { type: "all", text: "ALL" },
+      ],
+      selected: 2,
+      inputEnabled: false,
+    };
 
 export {
   getXAxisOptions,
   getPlotOptions,
   titleOption,
   legendOption,
-  responsive,
+  getResponsiveOptions,
   seriesOptions,
   getYAxisOptions,
   getTooltipOptions,
