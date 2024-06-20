@@ -34,6 +34,8 @@ class Api::ToActiveSessionsJson
 
     sessions_array = sessions.map do |session|
       related_stream = selected_sensor_streams.find { |stream| stream.session_id == session.id }
+      last_average_value = StreamDailyAveragesRepository.new.last_average_value(related_stream.id)
+
       {
         'id' => session.id,
         'uuid' => session.uuid,
@@ -51,6 +53,7 @@ class Api::ToActiveSessionsJson
             'sensor_name' => related_stream.sensor_name,
             'unit_symbol' => related_stream.unit_symbol,
             'id' => related_stream.id,
+            'stream_daily_average' => last_average_value.round,
           }
         }
       }
