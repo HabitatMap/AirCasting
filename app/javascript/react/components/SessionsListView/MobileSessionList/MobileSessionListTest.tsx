@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import * as S from "./MobileSessionListTest.style";
 import closeImage from "../../../assets/icons/closeButton.svg";
 import { SessionListEntity } from "../Test";
-import { SessionsListTile } from "../SessionsListTile/SessionListTileTest";
+import { SessionsListTile } from "../SessionsListTile/SessionListTileT";
 
 interface MobileSessionListProps {
   sessions: SessionListEntity[];
