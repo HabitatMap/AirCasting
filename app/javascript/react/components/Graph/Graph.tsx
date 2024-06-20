@@ -31,6 +31,7 @@ import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
 import { handleLoad } from "./chartEvents";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { screenSizes } from "../../utils/media";
 
 const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 
@@ -59,7 +60,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const unitSymbol = streamShortInfo?.unitSymbol || "";
   const measurementType = "Particulate Matter";
 
-  const isMobile = useMobileDetection();
+  const isMobile = useMobileDetection(screenSizes.desktop);
   const dispatch = useAppDispatch();
 
   const seriesData = (graphData?.measurements || [])
