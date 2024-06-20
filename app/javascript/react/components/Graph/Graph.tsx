@@ -67,11 +67,14 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     .map((measurement) => [measurement.time, measurement.value])
     .sort((a, b) => a[0] - b[0]);
 
+  const [selectedRange, setSelectedRange] = useState(0);
+
   const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected, isMobile);
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
   const rangeSelectorOptions = getRangeSelectorOptions(
-    fixedSessionTypeSelected
+    fixedSessionTypeSelected,
+    selectedRange
   );
   const plotOptions = getPlotOptions();
   const responsive = getResponsiveOptions(thresholdsState);
@@ -142,7 +145,16 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     navigator: {
       enabled: false,
     },
-    rangeSelector: rangeSelectorOptions,
+    rangeSelector: {
+      ...rangeSelectorOptions,
+      buttons:
+        rangeSelectorOptions.buttons?.map((button, i) => ({
+          ...button,
+          events: {
+            click: () => setSelectedRange(i),
+          },
+        })) ?? [],
+    },
     credits: credits,
   };
 
