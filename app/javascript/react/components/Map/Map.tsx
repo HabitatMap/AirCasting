@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
@@ -33,6 +33,7 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { updateAll } from "../../store/thresholdSlice";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import { Graph } from "../Graph";
 
 const Map = () => {
   // const
@@ -102,21 +103,36 @@ const Map = () => {
   const sensor_name = fixedSessionTypeSelected
     ? "government-pm2.5"
     : "airbeam-pm2.5";
-  const filters = JSON.stringify({
-    time_from: timeFrom,
-    time_to: timeTo,
-    tags: tags,
-    usernames: usernames,
-    west: mapBounds.west,
-    east: mapBounds.east,
-    south: mapBounds.south,
-    north: mapBounds.north,
-    limit: limit,
-    offset: offset,
-    sensor_name: sensor_name,
-    measurement_type: measurement_type,
-    unit_symbol: unit_symbol,
-  });
+  const filters = useMemo(
+    () =>
+      JSON.stringify({
+        time_from: timeFrom,
+        time_to: timeTo,
+        tags: tags,
+        usernames: usernames,
+        west: mapBounds.west,
+        east: mapBounds.east,
+        south: mapBounds.south,
+        north: mapBounds.north,
+        limit: limit,
+        offset: offset,
+        sensor_name: sensor_name,
+        measurement_type: measurement_type,
+        unit_symbol: unit_symbol,
+      }),
+    [
+      timeFrom,
+      timeTo,
+      tags,
+      usernames,
+      mapBounds,
+      limit,
+      offset,
+      sensor_name,
+      measurement_type,
+      unit_symbol,
+    ]
+  );
 
   // Effects
   useEffect(() => {
@@ -126,7 +142,7 @@ const Map = () => {
         : dispatch(fetchMobileSessions({ filters }));
       setShouldFetchSessions(false);
     }
-  }, [dispatch, filters, shouldFetchSessions]);
+  }, [dispatch, filters, shouldFetchSessions, fixedSessionTypeSelected]);
 
   useEffect(() => {
     const updateThresholdValues = () => {
@@ -141,11 +157,19 @@ const Map = () => {
       );
     };
     updateThresholdValues();
-  }, [initialMin, initialLow, initialMiddle, initialHigh, initialMax]);
+  }, [
+    initialMin,
+    initialLow,
+    initialMiddle,
+    initialHigh,
+    initialMax,
+    dispatch,
+  ]);
 
   // Callbacks
   const onIdle = useCallback(
     (event: MapEvent) => {
+      if (modalOpen) return;
       const map = event.map;
       if (!mapInstance) {
         setMapInstance(map);
@@ -164,7 +188,7 @@ const Map = () => {
       const west = bounds.getSouthWest().lng();
       setMapBounds({ north, south, east, west });
     },
-    [mapInstance]
+    [mapInstance, modalOpen]
   );
 
   // Handlers
