@@ -12,7 +12,7 @@ const SessionDotMarker = ({ color, shouldPulse = false, onClick }: MarkerProps) 
   return (
     <MarkerContainer onClick={onClick}>
       <DataContainer>
-        <MarkerCircle color={color} shouldPulse={shouldPulse}/>
+        <MarkerCircle color={color} $shouldPulse={shouldPulse}/>
       </DataContainer>
     </MarkerContainer>
   );

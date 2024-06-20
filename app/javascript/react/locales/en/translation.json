@@ -96,7 +96,8 @@
     "toggleMenu": "Toggle menu",
     "listSessions": "Sessions",
     "altListSessions": "List all the sessions",
-    "altClose": "Close the content"
+    "altClose": "Close the content",
+    "altDirect": "Navigate to calendar view for given session"
   },
 
   "sessionDetailsModal": {

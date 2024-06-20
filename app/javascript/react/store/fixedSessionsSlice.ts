@@ -18,6 +18,7 @@ interface Session {
   username: string;
   streams: {
     [key: string]: {
+      streamDailyAverage: number;
       measurementShortType: string;
       sensorName: string;
       unitSymbol: string;

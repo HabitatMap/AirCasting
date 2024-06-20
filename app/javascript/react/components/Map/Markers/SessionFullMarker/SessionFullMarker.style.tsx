@@ -8,7 +8,7 @@ interface MarkerProps {
 
 interface MarkerShadowProps {
   color: string;
-  shouldPulse?: boolean;
+  $shouldPulse?: boolean;
 }
 
 const pulse = keyframes`
@@ -51,8 +51,7 @@ const ShadowCircle = styled.div<MarkerShadowProps>`
   );
   filter: blur(5px);
   pointer-events: none;
-  ${(props) => props.shouldPulse && pulse};
-  animation: ${(props) => props.shouldPulse ? css`${pulse} 2s infinite` : 'none'};
+  animation: ${(props) => props.$shouldPulse ? css`${pulse} 2s infinite` : 'none'};
 `;
 
 const DataContainer = styled.div`

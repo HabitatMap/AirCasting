@@ -33,7 +33,7 @@ const SessionFullMarker = ({
   } else {
     return (
       <MarkerContainer onClick={onClick}>
-        <ShadowCircle color={color} shouldPulse={shouldPulse}/>
+        <ShadowCircle color={color} $shouldPulse={shouldPulse}/>
         <DataContainer>
           <MarkerCircle color={color}/>
           <MarkerText> {value}</MarkerText>

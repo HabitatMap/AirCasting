@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as S from "./sectionButton.style";
+import * as S from "./SectionButton.style";
 
 interface SectionButtonProps {
   image: string;

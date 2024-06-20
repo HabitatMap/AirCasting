@@ -10,27 +10,32 @@ interface DotProps {
 const SessionListTile = styled.div`
   cursor: pointer;
   background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 0.5em 1em 0.5em 1em;
-  margin-bottom: 0.9375em;
-  margin-right: 0.9375em;
-  margin-left: 0.9375em;
+  border-radius: 1rem;
+  box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  margin-bottom: 0.9375rem;
+  margin-right: 0.9375rem;
+  margin-left: 0.9375rem;
   box-sizing: border-box;
   min-width: 200px;
 
   @media (${media.desktop}) {
-    margin-right: 0em;
-    margin-left: 0em;
+    margin-right: 0rem;
+    margin-left: 0rem;
   }
 `;
 
-const HorizontalContainer = styled.div`
+const HorizontalSpacingContainer = styled.div`
   display: flex;
-  align-items: left;
-  justify-content: flex-start;
-  margin-bottom: 0.625em;
-  margin-top: 0.5em;
+  align-itrems: left;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  margin-bottom: 0.8rem;
+`;
+
+const HorizontalGroup = styled.div`
+  display: flex;
+  align-itrems: left;
 `;
 
 const ColorDot = styled.span<DotProps>`
@@ -39,18 +44,35 @@ const ColorDot = styled.span<DotProps>`
   height: 16px;
   background-color: ${red};
   border-radius: 50%;
-  margin-right: 0.3125em;
+  margin-right: 0.8rem;
 `;
 
 const Title = styled(H4)`
   text-align: left;
   font-weight: 600;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.8rem;
 `;
 
 const Subtitle = styled(H5)`
   text-align: left;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.8rem;
 `;
 
-export { SessionListTile, HorizontalContainer, Title, Subtitle, ColorDot };
+const ArrowImageContainer = styled.div`
+  width: 1.5rem;
+  height: 1.35rem;
+
+  @media (${media.desktop}) {
+    display: none;
+  }
+`;
+
+export {
+  SessionListTile,
+  HorizontalGroup,
+  HorizontalSpacingContainer,
+  Title,
+  Subtitle,
+  ColorDot,
+  ArrowImageContainer,
+};

@@ -2,7 +2,7 @@ import styled, { keyframes, css } from "styled-components";
 
 interface MarkerProps {
   color: string;
-  shouldPulse?: boolean;
+  $shouldPulse?: boolean;
 }
 
 const pulseAnimation = keyframes`
@@ -56,7 +56,7 @@ const MarkerCircle = styled.div<MarkerProps>`
   border-radius: 50%;
   background-color: ${(props) => props.color};
   pointer-events: none;
-  animation: ${props => props.shouldPulse ? css`${pulseAnimation} 2s infinite` : 'none'};
+  animation: ${props => props.$shouldPulse ? css`${pulseAnimation} 2s infinite` : 'none'};
 `;
 
 export { MarkerContainer, DataContainer, MarkerCircle };

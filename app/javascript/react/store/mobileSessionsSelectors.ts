@@ -67,8 +67,7 @@ const selectMobileSessionsList = createSelector(
         id,
         title,
         sensorName: firstStream.sensorName,
-        // Please change averageValue once backend will be ready
-        averageValue: 100,
+        averageValue: firstStream.averageValue,
         startTime: startTimeLocal,
         endTime: endTimeLocal,
         streamId: firstStream.id

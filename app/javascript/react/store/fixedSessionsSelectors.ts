@@ -17,7 +17,7 @@ const selectFixedSessionsPoints = createSelector(
         endTimeLocal,
         latitude,
         longitude,
-        streams,
+        streams
       }) => ({
         id,
         title: title,
@@ -45,8 +45,7 @@ const selectFixedSessionsList = createSelector(
           id,
           title,
           sensorName: firstStream.sensorName,
-          // Please change averageValue once backend will be ready
-          averageValue: 100,
+          averageValue: firstStream.streamDailyAverage,
           startTime: startTimeLocal,
           endTime: endTimeLocal,
           streamId: streams[Object.keys(streams)[0]].id,

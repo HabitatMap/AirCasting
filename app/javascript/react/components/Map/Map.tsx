@@ -38,10 +38,10 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { updateAll } from "../../store/thresholdSlice";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { SessionsListView } from "../SessionsListView/sessionsListView";
-import { SectionButton } from "../SectionButton/sectionButton";
+import { SessionsListView } from "../SessionsListView/SessionsListView";
+import { SectionButton } from "../SectionButton/SectionButton";
 import pinImage from "../../assets/icons/pinImage.svg";
-import { MobileSessionList } from "../SessionsListView/MobileSessionList/mobileSessionList";
+import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
 import { SessionList } from "../../types/sessionType";
 import { pubSub } from "../../utils/pubSubManager";
 import * as S from "./Map.style";
@@ -79,14 +79,15 @@ const Map = () => {
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
-  const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(null);
+  const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
+    null
+  );
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
 
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
 
-  const [showOverlay, setShowOverlay] = useState(false)
-  const toggleOverlay = () => setShowOverlay(!showOverlay);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   const isMobile = useMobileDetection();
   const { t } = useTranslation();
@@ -319,29 +320,33 @@ const Map = () => {
           streamId={selectedStreamId}
         />
       )}
-      <button
-        onClick={() => setShouldFetchSessions(true)}
-        style={{
-          position: "absolute",
-          top: "10rem",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          padding: "10px 20px",
-          backgroundColor: "#fff",
-          border: "1px solid #ccc",
-          borderRadius: "5px",
-          cursor: "pointer",
-          zIndex: 1000,
-        }}
-      >
-        Redo Search in Map
-      </button>
+      {!showOverlay && (
+        <button
+          onClick={() => setShouldFetchSessions(true)}
+          style={{
+            position: "absolute",
+            top: "10rem",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            padding: "10px 20px",
+            backgroundColor: "#fff",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            cursor: "pointer",
+            zIndex: 1000,
+          }}
+        >
+          Redo Search in Map
+        </button>
+      )}
       <S.MobileContainer>
         <SectionButton
           title={t("map.listSessions")}
           image={pinImage}
           alt={t("map.altListSessions")}
-          onClick={toggleOverlay}
+          onClick={() => {
+            setShowOverlay(true)
+          }}
         />
         {showOverlay && (
           <MobileSessionList
@@ -355,13 +360,14 @@ const Map = () => {
               streamId: session.streamId,
             }))}
             onCellClick={(id, streamId) => {
-              handleMarkerClick(streamId, id)
+              handleMarkerClick(streamId, id);
             }}
-            onClose={toggleOverlay}
+            onClose={() => {
+              setShowOverlay(false)
+            }}
           />
         )}
       </S.MobileContainer>
-
       {!modalOpen && (
         <S.DesktopContainer>
           <SessionsListView
@@ -376,8 +382,8 @@ const Map = () => {
             }))}
             onCellClick={(id, streamId) => {
               setPulsatingSessionId(null);
-              handleMarkerClick(streamId, id)
-              pubSub.publish("CENTER_MAP", id)
+              handleMarkerClick(streamId, id);
+              pubSub.publish("CENTER_MAP", id);
             }}
             onCellMouseEnter={(id) => {
               setPulsatingSessionId(id);

@@ -1,11 +1,13 @@
 import * as React from "react";
 import { useSelector } from "react-redux";
 import moment from "moment";
+import { useTranslation } from "react-i18next";
 
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { DateFormat } from "../../../types/dateFormat";
 import { selectThreshold } from "../../../store/thresholdSlice";
-import * as S from "./sessionListTile.style";
+import rightVector from "../../../assets/icons/rightVector.svg";
+import * as S from "./SessionListTile.style";
 
 interface SessionListTile {
   id: number;
@@ -34,12 +36,20 @@ const SessionsListTile: React.FC<SessionListTile> = ({
 }) => {
   const thresholds = useSelector(selectThreshold);
 
-  const [formattedStartDate, formattedStartTime] = moment(startTime, DateFormat.default).format(
-    DateFormat.us_with_time
-  ).split(' ');
-  const [formattedEndDate, formattedEndTime] = moment(endTime, DateFormat.default).format(
-    DateFormat.us_with_time
-  ).split(' ');
+  const { t } = useTranslation();
+
+  const [formattedStartDate, formattedStartTime] = moment(
+    startTime,
+    DateFormat.default_with_time
+  )
+    .format(DateFormat.us_with_time)
+    .split(" ");
+  const [formattedEndDate, formattedEndTime] = moment(
+    endTime,
+    DateFormat.default_with_time
+  )
+    .format(DateFormat.us_with_time)
+    .split(" ");
 
   const handleClick = () => {
     if (onClick) {
@@ -65,15 +75,21 @@ const SessionsListTile: React.FC<SessionListTile> = ({
       onMouseOver={handleMouseHover}
       onMouseLeave={handleMouseLeave}
     >
-      <S.HorizontalContainer>
+      <S.HorizontalSpacingContainer>
         {/* adjust thershold value so dot can have proper color */}
-        <S.ColorDot color={getColorForValue(thresholds, 30)} />
-        <S.Subtitle>avg. {averageValue}</S.Subtitle>
-      </S.HorizontalContainer>
+        <S.HorizontalGroup>
+          <S.ColorDot $color={getColorForValue(thresholds, averageValue)} />
+          <S.Subtitle>avg. {averageValue}</S.Subtitle>
+        </S.HorizontalGroup>
+        <S.ArrowImageContainer>
+          <img src={rightVector} alt={t("map.altDirect")} />
+        </S.ArrowImageContainer>
+      </S.HorizontalSpacingContainer>
       <S.Title>{sessionName}</S.Title>
       <S.Subtitle>{sensorName}</S.Subtitle>
       <S.Subtitle>
-      <strong>{formattedStartDate}</strong> {formattedStartTime} - <strong>{formattedEndDate}</strong> {formattedEndTime}
+        <strong>{formattedStartDate}</strong> {formattedStartTime} -{" "}
+        <strong>{formattedEndDate}</strong> {formattedEndTime}
       </S.Subtitle>
     </S.SessionListTile>
   );

@@ -22,12 +22,12 @@ const ImageButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 0.625em;
+  margin-right: 0.625rem;
 `;
 
 const Image = styled.img`
-  width: 24px;
-  height: 24px;
+  width: 2.4rem;
+  height: 2.4rem;
 `;
 
 const Title = styled(H4)`
@@ -40,8 +40,8 @@ const HorizontalContainer = styled.div`
   display: flex;
   left: 0;
   align-items: center;
-  margin-bottom: 0.625em;
-  margin-left: 2em;
+  margin-bottom: 0.625rem;
+  margin-left: 2rem;
 `;
 
 const VerticalContainer = styled.div`
@@ -49,7 +49,7 @@ const VerticalContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  margin-top: 1.25em;
+  margin-top: 1.25rem;
   overflow-y: auto;
   max-height: 100%;
 `;
@@ -57,8 +57,8 @@ const VerticalContainer = styled.div`
 const SessionListStyled = styled.div`
   width: 100%;
   overflow-y: auto;
-  margin-left: 1.25em;
-  margin-right: 1.25em;
+  margin-left: 1.25rem;
+  margin-right: 1.25rem;
 `;
 
 export {

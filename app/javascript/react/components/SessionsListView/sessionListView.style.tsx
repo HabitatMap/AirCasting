@@ -3,17 +3,17 @@ import { gray100 } from "../../assets/styles/colors";
 
 const SessionListViewStyle = styled.div`
   position: fixed;
-  top: 8em;
+  top: 8rem;
   bottom: 0;
-  right: 1.25em;
+  right: 1.25rem;
   overflow-y: auto;  
   overflow-x: hidden;
-  border-radius: 0.5em;
+  border-radius: 0.5rem;
   box-sizing: border-box;
-  padding-right: 0.625em;
+  padding-right: 0.625rem;
 
   &::-webkit-scrollbar {
-    width: 0.5em;
+    width: 0.5rem;
   }
 
   &::-webkit-scrollbar-thumb {
