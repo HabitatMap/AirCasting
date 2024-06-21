@@ -23,6 +23,7 @@ import {
   blue,
   gray100,
   gray300,
+  gray400,
 } from "../../assets/styles/colors";
 import {
   selectIsLoading,
@@ -53,6 +54,8 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean, isMobile: boolean = 
   const isLoading = useAppSelector(selectIsLoading);
 
   const handleSetExtremes = (e: Highcharts.AxisSetExtremesEventObject) => {
+
+    console.log(e.min, e.max, "e.min, e.max");
     if (!isLoading && e.min && e.max) {
       const min = e.min;
       const max = e.max;
@@ -86,7 +89,7 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean, isMobile: boolean = 
       width: 2,
     },
     visible: true,
-    minRange: 1000,
+    minRange: 10000,
     events: {
       setExtremes: function (e) {
         handleSetExtremes(e);
@@ -290,15 +293,56 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
 
 const getRangeSelectorOptions = (
   fixedSessionTypeSelected: boolean,
-  selectedRange?: number
-): RangeSelectorOptions =>
-  fixedSessionTypeSelected
-    ? {
-      labelStyle: {
-        display: "none",
+  selectedRange?: number,
+): RangeSelectorOptions => {
+  const baseOptions = {
+    buttonTheme: {
+      fill: "none",
+      width: 50,
+      r: 5,
+      padding: 5,
+      stroke: white,
+      "stroke-width": 1,
+      style: {
+        fontFamily: 'Roboto, sans-serif',
+        fontSize: "1rem",
+        color: gray300,
+        fontWeight: "regular",
       },
-      buttonSpacing: 15,
-      buttons: [
+      states: {
+        hover: {
+          fill: blue,
+          style: {
+            color: white,
+            fontWeight: "regular",
+          },
+        },
+        select: {
+          fill: blue,
+          style: {
+            color: white,
+            fontWeight: "regular",
+          },
+        },
+      },
+    },
+    labelStyle: {
+      display: "none",
+    },
+    buttonSpacing: 5,
+    inputEnabled: false,
+  };
+
+  if (fixedSessionTypeSelected) {
+    return {
+      ...baseOptions,
+      buttonTheme: {
+        ...baseOptions.buttonTheme,
+        states: {
+          ...baseOptions.buttonTheme.states,
+        },
+      },
+      buttons:[
         {
           type: "hour",
           count: 24,
@@ -315,15 +359,13 @@ const getRangeSelectorOptions = (
           text: "1 MONTH",
         },
       ],
-      selected: selectedRange || 0,
-      inputEnabled: false,
-    }
-    : {
-      buttonSpacing: 15,
-      labelStyle: {
-        display: "none",
-      },
-      buttons: [
+      allButtonsEnabled: true,
+      selected: selectedRange,
+    };
+  } else {
+    return {
+      ...baseOptions,
+      buttons:[
         {
           type: "minute",
           count: 5,
@@ -334,11 +376,23 @@ const getRangeSelectorOptions = (
           count: 1,
           text: "1 HOUR",
         },
-        { type: "all", text: "ALL" },
+        {
+          type: "all",
+          text: "ALL",
+        },
       ],
-      selected: selectedRange || 2,
-      inputEnabled: false,
+      allButtonsEnabled: true,
+      selected: selectedRange,
+      buttonTheme: {
+        ...baseOptions.buttonTheme,
+        states: {
+          ...baseOptions.buttonTheme.states,
+        },
+      },
     };
+  }
+};
+
 
 export {
   getXAxisOptions,

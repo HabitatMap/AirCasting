@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { media } from "../../utils/media";
+import { gray200 } from "../../assets/styles/colors";
 
 const Container = styled.div`
   width: 100%;
@@ -49,6 +50,10 @@ const Container = styled.div`
     .highcharts-button .highcharts-reset-zoom {
       display: none;
       z-index: -1;
+    }
+
+    .highcharts-range-selector-buttons {
+      border: 1px solid red !important;
     }
   }
 `;
