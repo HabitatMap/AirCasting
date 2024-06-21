@@ -1,50 +1,42 @@
-import React, { useCallback, useEffect, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
-import {
-  DEFAULT_MAP_BOUNDS,
-  DEFAULT_MAP_CENTER,
-  DEFAULT_ZOOM,
-} from "../../const/coordinates";
+import pinImage from "../../assets/icons/pinImage.svg";
+import { DEFAULT_MAP_BOUNDS, DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
 import { RootState } from "../../store";
 import {
-  selectFixedSessionsList,
-  selectFixedSessionsPoints,
+    selectFixedSessionPointsBySessionId, selectFixedSessionsList, selectFixedSessionsPoints
 } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
-  selectMobileSessionPointsBySessionId,
-  selectMobileSessionsList,
-  selectMobileSessionsPoints,
+    selectMobileSessionPointsBySessionId, selectMobileSessionsList, selectMobileSessionsPoints
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import {
-  selectMobileStreamPoints,
-  selectMobileStreamShortInfo,
+    selectMobileStreamPoints, selectMobileStreamShortInfo
 } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
+import { updateAll } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
+import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
+import { SessionList } from "../../types/sessionType";
+import { pubSub } from "../../utils/pubSubManager";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
+import { SectionButton } from "../SectionButton/SectionButton";
+import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
+import { SessionsListView } from "../SessionsListView/SessionsListView";
+import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
-
-import useMobileDetection from "../../utils/useScreenSizeDetection";
-import { updateAll } from "../../store/thresholdSlice";
-import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { SessionsListView } from "../SessionsListView/SessionsListView";
-import { SectionButton } from "../SectionButton/SectionButton";
-import pinImage from "../../assets/icons/pinImage.svg";
-import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
-import { SessionList } from "../../types/sessionType";
-import { pubSub } from "../../utils/pubSubManager";
-import * as S from "./Map.style";
 
 const Map = () => {
   // const
@@ -96,13 +88,15 @@ const Map = () => {
   const mapId = useSelector((state: RootState) => state.map.mapId);
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
   const mobileStreamPoints = useSelector(selectMobileStreamPoints);
-  const sessionsPoints = useSelector(
-    fixedSessionTypeSelected
-      ? selectFixedSessionsPoints
-      : selectedSessionId
-      ? selectMobileSessionPointsBySessionId(selectedSessionId)
-      : selectMobileSessionsPoints
-  );
+
+  const fixedPoints = selectedSessionId
+    ? useSelector(selectFixedSessionPointsBySessionId(selectedSessionId))
+    : useSelector(selectFixedSessionsPoints);
+  const mobilePoints = selectedSessionId
+    ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
+    : useSelector(selectMobileSessionsPoints);
+
+  const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   const {
     min: initialMin,

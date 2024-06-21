@@ -17,7 +17,7 @@ const selectFixedSessionsPoints = createSelector(
         endTimeLocal,
         latitude,
         longitude,
-        streams
+        streams,
       }) => ({
         id,
         title: title,
@@ -60,8 +60,29 @@ const selectFixedSessionsList = createSelector(
     )
 );
 
+const selectFixedSessionPointsBySessionId = (sessionId: number | null) =>
+  createSelector([selectFixedSessionsState], (fixedSessionState): Session[] => {
+    const fixedSessionByStreamId = fixedSessionState.sessions.find(
+      (session) => Number(session.id) === Number(sessionId)
+    );
+    const streams = fixedSessionByStreamId?.streams || {};
+
+    return [
+      {
+        id: fixedSessionByStreamId?.id || 0,
+        lastMeasurementValue: fixedSessionByStreamId?.lastMeasurementValue || 0,
+        point: {
+          lat: fixedSessionByStreamId?.latitude || 0,
+          lng: fixedSessionByStreamId?.longitude || 0,
+          streamId: streams[Object.keys(streams)[0]]?.id.toString() || "0",
+        },
+      },
+    ];
+  });
+
 export {
-  selectFixedSessionsPoints,
   selectFixedSessionsList,
+  selectFixedSessionsPoints,
+  selectFixedSessionPointsBySessionId,
   selectFixedSessionsState,
 };
