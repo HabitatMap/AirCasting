@@ -360,6 +360,10 @@ const Map = () => {
               streamId: session.streamId,
             }))}
             onCellClick={(id, streamId) => {
+              if (!fixedSessionTypeSelected) {
+                setShowOverlay(false);
+                pubSub.publish("CENTER_MAP", id);
+              }
               handleMarkerClick(streamId, id);
             }}
             onClose={() => {
