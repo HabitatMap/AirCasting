@@ -9,6 +9,7 @@ interface MapState {
   mapTypeId: string;
   mapId: string;
   location: LatLngLiteral;
+  loading: boolean;
 }
 
 const initialState: MapState = {
@@ -16,6 +17,7 @@ const initialState: MapState = {
   mapTypeId: MAP_CONFIGS[0].mapTypeId,
   mapId: MAP_ID,
   location: DEFAULT_MAP_CENTER,
+  loading: true,
 };
 
 const mapSlice = createSlice({
@@ -34,10 +36,18 @@ const mapSlice = createSlice({
     setLocation(state, action: PayloadAction<LatLngLiteral>) {
       state.location = action.payload;
     },
+    setLoading(state, action: PayloadAction<boolean>) {
+      state.loading = action.payload;
+    },
   },
 });
 
-export const { setMapConfigId, setMapTypeId, setMapId, setLocation } =
-  mapSlice.actions;
+export const {
+  setMapConfigId,
+  setMapTypeId,
+  setMapId,
+  setLocation,
+  setLoading,
+} = mapSlice.actions;
 
 export default mapSlice.reducer;

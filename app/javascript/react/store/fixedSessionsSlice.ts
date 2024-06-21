@@ -1,9 +1,11 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { getErrorMessage } from "../utils/getErrorMessage";
-import { StatusEnum } from "../types/api";
 import { AxiosResponse } from "axios";
+
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
 import { oldApiClient } from "../api/apiClient";
+import { API_ENDPOINTS } from "../api/apiEndpoints";
+import { StatusEnum } from "../types/api";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 interface Session {
   id: number;
@@ -70,7 +72,11 @@ export const fetchFixedSessions = createAsyncThunk<
 export const fixedSessionsSlice = createSlice({
   name: "fixedSessions",
   initialState,
-  reducers: {},
+  reducers: {
+    cleanSessions(state) {
+      state = initialState;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchFixedSessions.pending, (state) => {
@@ -87,5 +93,7 @@ export const fixedSessionsSlice = createSlice({
       });
   },
 });
+
+export const { cleanSessions } = fixedSessionsSlice.actions;
 
 export default fixedSessionsSlice.reducer;

@@ -1,9 +1,12 @@
 import { createSelector } from "reselect";
 
+import { StatusEnum } from "../types/api";
 import { Session, SessionList } from "../types/sessionType";
 import { RootState } from "./";
 
 const selectFixedSessionsState = (state: RootState) => state.fixedSessions;
+const selectFixedSessionsStatusFulfilled = (state: RootState) =>
+  state.fixedSessions.status === StatusEnum.Fulfilled;
 
 const selectFixedSessionsPoints = createSelector(
   [selectFixedSessionsState],
@@ -85,4 +88,5 @@ export {
   selectFixedSessionsPoints,
   selectFixedSessionPointsBySessionId,
   selectFixedSessionsState,
+  selectFixedSessionsStatusFulfilled,
 };
