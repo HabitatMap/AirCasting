@@ -17,11 +17,11 @@ const SessionListTile = styled.div`
   margin-right: 0.9375rem;
   margin-left: 0.9375rem;
   box-sizing: border-box;
-  min-width: 200px;
 
   @media (${media.desktop}) {
     margin-right: 0rem;
     margin-left: 0rem;
+    width: 230px;
   }
 `;
 
@@ -51,6 +51,9 @@ const Title = styled(H4)`
   text-align: left;
   font-weight: 500;
   margin-bottom: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Subtitle = styled(H5)`
