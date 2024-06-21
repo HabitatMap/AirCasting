@@ -15,14 +15,14 @@ class MeasurementsRepository
   end
 
   def streams_averages_from_period(stream_ids:, start_date:, end_date:)
-    sql = "
-      SELECT AVG(value) AS average_value
-      FROM measurements
-      WHERE stream_id IN (#{stream_ids.join(',')})
-      AND time_with_time_zone >= '#{start_date}'
-      AND time_with_time_zone < '#{end_date}'
-    "
-
-    average_value = ActiveRecord::Base.connection.execute(sql).first['average_value']
+    ActiveRecord::Base.connection.execute(
+      "
+        SELECT AVG(value) AS average_value
+        FROM measurements
+        WHERE stream_id IN (#{stream_ids.join(',')})
+        AND time_with_time_zone >= '#{start_date}'
+        AND time_with_time_zone < '#{end_date}'
+      "
+    ).first['average_value']
   end
 end
