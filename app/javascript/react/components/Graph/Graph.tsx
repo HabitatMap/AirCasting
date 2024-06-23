@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 import { useSelector } from "react-redux";
@@ -20,8 +20,6 @@ import {
   selectFixedData,
   selectIsLoading,
   updateFixedMeasurementExtremes,
-  setSelectedRange,
-  selectSelectedRange,
 } from "../../store/fixedStreamSlice";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { selectThreshold } from "../../store/thresholdSlice";
@@ -69,7 +67,9 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     .map((measurement) => [measurement.time, measurement.value])
     .sort((a, b) => a[0] - b[0]);
 
-  const selectedRange = useSelector(selectSelectedRange);
+  const [selectedRange, setSelectedRange] = useState(
+    fixedSessionTypeSelected ? 0 : 2
+  );
 
   const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected, isMobile);
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
@@ -85,10 +85,8 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     if (seriesData.length > 0 && !isLoading) {
       if (fixedSessionTypeSelected) {
         const newestMeasurement = seriesData[seriesData.length - 1];
-        const minTime = newestMeasurement
-          ? newestMeasurement[0] - MILLISECONDS_IN_A_DAY
-          : undefined;
-        const maxTime = newestMeasurement ? newestMeasurement[0] : undefined;
+        const minTime = newestMeasurement[0] - MILLISECONDS_IN_A_DAY;
+        const maxTime = newestMeasurement[0];
         if (minTime && maxTime) {
           dispatch(
             updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
@@ -97,14 +95,12 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       } else {
         const minTime = Math.min(...seriesData.map((m) => m[0]));
         const maxTime = Math.max(...seriesData.map((m) => m[0]));
-        if (minTime !== Infinity && maxTime !== -Infinity) {
-          dispatch(
-            updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
-          );
-        }
+        dispatch(
+          updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
+        );
       }
     }
-  }, [seriesData, isLoading, fixedSessionTypeSelected, selectedRange]);
+  }, [seriesData, isLoading, dispatch, fixedSessionTypeSelected]);
 
   useEffect(() => {
     const graphElement = graphRef.current;
@@ -157,9 +153,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         rangeSelectorOptions.buttons?.map((button, i) => ({
           ...button,
           events: {
-            click: () => {
-              console.log("cliscl"), dispatch(setSelectedRange(i));
-            },
+            click: () => setSelectedRange(i),
           },
         })) ?? [],
     },

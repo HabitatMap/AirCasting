@@ -15,7 +15,6 @@ interface FixedStreamState {
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
   isLoading: boolean;
-  selectedRange: number; // Add this line
 }
 
 const initialState: FixedStreamState = {
@@ -45,7 +44,6 @@ const initialState: FixedStreamState = {
   maxMeasurementValue: 0,
   averageMeasurementValue: 0,
   isLoading: false,
-  selectedRange: 0, // Initialize selectedRange
 };
 
 export const fetchFixedStreamById = createAsyncThunk<
@@ -84,9 +82,6 @@ const fixedStreamSlice = createSlice({
       state.maxMeasurementValue = newMax;
       state.averageMeasurementValue = newAvg;
     },
-    setSelectedRange(state, action: PayloadAction<number>) {
-      state.selectedRange = action.payload;
-    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchFixedStreamById.pending, (state) => {
@@ -107,8 +102,7 @@ const fixedStreamSlice = createSlice({
   },
 });
 
-export const { updateFixedMeasurementExtremes, setSelectedRange } = fixedStreamSlice.actions;
+export const { updateFixedMeasurementExtremes } = fixedStreamSlice.actions;
 export default fixedStreamSlice.reducer;
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) => state.fixedStream.isLoading;
-export const selectSelectedRange = (state: RootState) => state.fixedStream.selectedRange; // Add this selector

@@ -50,8 +50,6 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
 
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
 
-  console.log(minMeasurementValue, maxMeasurementValue, averageValue);
-
   const noData = isNoData(
     minMeasurementValue,
     maxMeasurementValue,

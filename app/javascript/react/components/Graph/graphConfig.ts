@@ -31,6 +31,7 @@ import {
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
+import { debounce } from "lodash";
 
 const scrollbarOptions = {
   barBackgroundColor: gray200,
@@ -49,13 +50,12 @@ const scrollbarOptions = {
   enabled: true,
 };
 
+
 const getXAxisOptions = (fixedSessionTypeSelected: boolean, isMobile: boolean = false): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
 
-  const handleSetExtremes = (e: Highcharts.AxisSetExtremesEventObject) => {
-
-    console.log(e.min, e.max, "e.min, e.max");
+  const handleSetExtremes = debounce((e: Highcharts.AxisSetExtremesEventObject) => {
     if (!isLoading && e.min && e.max) {
       const min = e.min;
       const max = e.max;
@@ -65,7 +65,7 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean, isMobile: boolean = 
           : updateMobileMeasurementExtremes({ min, max })
       );
     }
-  };
+  }, 100);
 
   return {
     title: {
