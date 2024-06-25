@@ -102,7 +102,7 @@ const FixedMarkers = ({
     },
   };
 
-  const testRenderer = {
+  const testRenderer = (customPosition?: google.maps.LatLng) => ({
     render: ({
       count,
       position,
@@ -134,13 +134,13 @@ const FixedMarkers = ({
       div.appendChild(span);
 
       return new google.maps.marker.AdvancedMarkerElement({
-        position,
+        position: customPosition || position,
         content: div,
         title: `${count}`,
         zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
       });
     },
-  };
+  });
 
   useEffect(() => {
     if (map && !clusterer.current) {
@@ -225,12 +225,14 @@ const FixedMarkers = ({
               )
           );
 
+          console.log("pulsatingCluster", pulsatingCluster.position);
+
           if (clusterer2.current) {
             clusterer2.current.clearMarkers();
           }
           clusterer2.current = new MarkerClusterer({
             map,
-            renderer: testRenderer,
+            renderer: testRenderer(pulsatingCluster.position),
             markers: pulsatingCluster?.markers,
             algorithm: new GridAlgorithm({ gridSize: 1000 }),
           });
