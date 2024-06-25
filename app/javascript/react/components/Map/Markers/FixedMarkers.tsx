@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { Marker, MarkerClusterer } from "@googlemaps/markerclusterer";
+import { GridAlgorithm, Marker, MarkerClusterer } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import GreenCluster from "../../../assets/icons/markers/marker-cluster-green.svg";
@@ -210,30 +210,34 @@ const FixedMarkers = ({
 
   // pulsation
   useEffect(() => {
-    const pulsatingSession = sessions.find(
-      (session) => session.id === pulsatingSessionId
-    );
-    const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
+    if (pulsatingSessionId) {
+      const pulsatingSession = sessions.find(
+        (session) => session.id === pulsatingSessionId
+      );
+      const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
 
-    Object.keys(markers).forEach((key) => {
-      if (clusterer.current && pulsatingSessionStreamId === key) {
-        const pulsatingCluster = clusterer.current.clusters.find(
-          (cluster: any) =>
-            cluster.markers.some(
-              (clusterMarker: any) => clusterMarker === markers[key]
-            )
-        );
-        const markerTest = markers[key];
-        console.log("pulsatingCluster", pulsatingCluster);
-        console.log("markerTest", markerTest);
+      Object.keys(markers).forEach((key) => {
+        if (clusterer.current && pulsatingSessionStreamId === key) {
+          const pulsatingCluster = clusterer.current.clusters.find(
+            (cluster: any) =>
+              cluster.markers.some(
+                (clusterMarker: any) => clusterMarker === markers[key]
+              )
+          );
 
-        clusterer2.current = new MarkerClusterer({
-          map,
-          renderer: testRenderer,
-          markers: pulsatingCluster?.markers,
-        });
+          clusterer2.current = new MarkerClusterer({
+            map,
+            renderer: testRenderer,
+            markers: pulsatingCluster?.markers,
+            algorithm: new GridAlgorithm({ gridSize: 1000 }),
+          });
+        }
+      });
+    } else {
+      if (clusterer2.current) {
+        clusterer2.current.clearMarkers();
       }
-    });
+    }
   }, [pulsatingSessionId]);
 
   // Cleanup clusters when component unmounts
