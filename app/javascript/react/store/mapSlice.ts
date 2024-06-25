@@ -10,6 +10,7 @@ interface MapState {
   mapId: string;
   location: LatLngLiteral;
   loading: boolean;
+  sessionsListOpen: boolean;
 }
 
 const initialState: MapState = {
@@ -18,6 +19,7 @@ const initialState: MapState = {
   mapId: MAP_ID,
   location: DEFAULT_MAP_CENTER,
   loading: true,
+  sessionsListOpen: false,
 };
 
 const mapSlice = createSlice({
@@ -39,6 +41,9 @@ const mapSlice = createSlice({
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
+    setSessionsListOpen(state, action: PayloadAction<boolean>) {
+      state.sessionsListOpen = action.payload;
+    },
   },
 });
 
@@ -48,6 +53,7 @@ export const {
   setMapId,
   setLocation,
   setLoading,
+  setSessionsListOpen,
 } = mapSlice.actions;
 
 export default mapSlice.reducer;

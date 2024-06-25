@@ -26,7 +26,7 @@ import {
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
+import { setLoading, setSessionsListOpen } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -128,6 +128,10 @@ const Map = () => {
     fixedSessionTypeSelected
       ? selectFixedSessionsList
       : selectMobileSessionsList
+  );
+
+  const sessionsListOpen = useSelector(
+    (state: RootState) => state.map.sessionsListOpen
   );
 
   // Filters (temporary solution)
@@ -334,7 +338,7 @@ const Map = () => {
           streamId={selectedStreamId}
         />
       )}
-      {!showOverlay && (
+      {!showOverlay && !sessionsListOpen && (
         <button
           onClick={() => handleSearch()}
           style={{
@@ -359,10 +363,11 @@ const Map = () => {
           image={pinImage}
           alt={t("map.altListSessions")}
           onClick={() => {
+            dispatch(setSessionsListOpen(true));
             setShowOverlay(true);
           }}
         />
-        {showOverlay && (
+        {showOverlay && sessionsListOpen && (
           <MobileSessionList
             sessions={listSessions.map((session: SessionList) => ({
               id: session.id,
@@ -375,6 +380,7 @@ const Map = () => {
             }))}
             onCellClick={(id, streamId) => {
               if (!fixedSessionTypeSelected) {
+                dispatch(setSessionsListOpen(false));
                 setShowOverlay(false);
                 pubSub.publish("CENTER_MAP", id);
               }
@@ -382,6 +388,7 @@ const Map = () => {
             }}
             onClose={() => {
               setShowOverlay(false);
+              dispatch(setSessionsListOpen(false));
             }}
           />
         )}
