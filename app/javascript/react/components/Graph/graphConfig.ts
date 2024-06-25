@@ -36,6 +36,7 @@ import {
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
+import { useTranslation } from "react-i18next";
 
 const scrollbarOptions = {
   barBackgroundColor: gray200,
@@ -300,6 +301,7 @@ const getRangeSelectorOptions = (
   totalDuration: number,
   selectedRange?: number
 ): RangeSelectorOptions => {
+  const { t } = useTranslation();
   const baseOptions = {
     buttonTheme: {
       fill: "none",
@@ -338,17 +340,22 @@ const getRangeSelectorOptions = (
     inputEnabled: false,
   };
 
+  {
+    t("graph.24HOURS");
+  }
+  t("graph.oneWeek");
+
   if (fixedSessionTypeSelected) {
     return {
       ...baseOptions,
       buttons: [
-        { type: "hour", count: 24, text: "24 HOURS" },
+        { type: "hour", count: 24, text: t("graph.24Hours") },
         totalDuration > MILLISECONDS_IN_A_WEEK
-          ? { type: "day", count: 7, text: "1 WEEK" }
-          : { type: "all", text: "1 WEEK" },
+          ? { type: "day", count: 7, text: t("graph.oneWeek") }
+          : { type: "all", text: t("graph.oneWeek") },
         totalDuration > MILLISECONDS_IN_A_MONTH
-          ? { type: "week", count: 4, text: "1 MONTH" }
-          : { type: "all", text: "1 MONTH" },
+          ? { type: "week", count: 4, text: t("graph.oneMonth") }
+          : { type: "all", text: t("graph.oneMonth") },
       ],
 
       allButtonsEnabled: true,
@@ -359,12 +366,12 @@ const getRangeSelectorOptions = (
       ...baseOptions,
       buttons: [
         totalDuration < MILLISECONDS_IN_A_5_MINUTES
-          ? { type: "all", text: "5 MINUTES" }
-          : { type: "minute", count: 5, text: "5 MINUTES" },
+          ? { type: "all", text: t("graph.fiveMinutes") }
+          : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
         totalDuration < MILLISECONDS_IN_AN_HOUR
-          ? { type: "all", text: "1 HOUR" }
-          : { type: "minute", count: 60, text: "1 HOUR" },
-        { type: "all", text: "ALL" },
+          ? { type: "all", text: t("graph.oneHour") }
+          : { type: "minute", count: 60, text: t("graph.oneHour") },
+        { type: "all", text: t("graph.all") },
       ],
       allButtonsEnabled: true,
       selected: selectedRange,

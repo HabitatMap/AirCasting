@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { media } from "../../utils/media";
-import { gray200, red } from "../../assets/styles/colors";
 
 const Container = styled.div`
   width: 100%;
@@ -51,6 +50,7 @@ const Container = styled.div`
       display: none;
       z-index: -1;
     }
+  }
 `;
 
 export { Container };
