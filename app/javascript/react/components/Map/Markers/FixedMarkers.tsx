@@ -166,6 +166,26 @@ const FixedMarkers = ({
     }
   }, [markers, sessions]);
 
+  // pulsation
+  useEffect(() => {
+    const pulsatingSession = sessions.find(
+      (session) => session.id === pulsatingSessionId
+    );
+    const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
+
+    Object.keys(markers).forEach((key) => {
+      if (clusterer.current && pulsatingSessionStreamId === key) {
+        const pulsatingCluster = clusterer.current.clusters.find(
+          (cluster: any) =>
+            cluster.markers.some(
+              (clusterMarker: any) => clusterMarker === markers[key]
+            )
+        );
+        console.log("pulsatingCluster", pulsatingCluster);
+      }
+    });
+  }, [pulsatingSessionId]);
+
   // Cleanup clusters when component unmounts
   useEffect(() => {
     return () => {
