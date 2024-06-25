@@ -97,7 +97,6 @@ const FixedMarkers = ({
       return new google.maps.marker.AdvancedMarkerElement({
         position,
         content: div,
-        zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
         title: `${count}`,
       });
     },
@@ -211,6 +210,7 @@ const FixedMarkers = ({
         <AdvancedMarker
           position={session.point}
           key={session.point.streamId}
+          zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
           ref={(marker) => {
             if (
               marker &&
