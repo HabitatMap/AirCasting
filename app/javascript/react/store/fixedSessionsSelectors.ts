@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 
-import { Session } from "../types/sessionType";
+import { Session, SessionList } from "../types/sessionType";
 import { RootState } from "./";
 
 const selectFixedSessionsState = (state: RootState) => state.fixedSessions;
@@ -9,8 +9,21 @@ const selectFixedSessionsPoints = createSelector(
   [selectFixedSessionsState],
   (fixedSessionsState): Session[] =>
     fixedSessionsState.sessions.map(
-      ({ id, lastMeasurementValue, latitude, longitude, streams }) => ({
+      ({
         id,
+        lastMeasurementValue,
+        title,
+        startTimeLocal,
+        endTimeLocal,
+        latitude,
+        longitude,
+        streams
+      }) => ({
+        id,
+        title: title,
+        sensorName: streams[Object.keys(streams)[0]].sensorName,
+        startTime: startTimeLocal,
+        endTime: endTimeLocal,
         lastMeasurementValue,
         point: {
           lat: latitude,
@@ -21,4 +34,28 @@ const selectFixedSessionsPoints = createSelector(
     )
 );
 
-export { selectFixedSessionsPoints, selectFixedSessionsState };
+const selectFixedSessionsList = createSelector(
+  [selectFixedSessionsState],
+  (fixedSessionsState): SessionList[] =>
+    fixedSessionsState.sessions.map(
+      ({ id, title, startTimeLocal, endTimeLocal, streams }) => {
+        const firstStream = streams[Object.keys(streams)[0]];
+
+        return {
+          id,
+          title,
+          sensorName: firstStream.sensorName,
+          averageValue: firstStream.streamDailyAverage,
+          startTime: startTimeLocal,
+          endTime: endTimeLocal,
+          streamId: streams[Object.keys(streams)[0]].id,
+        };
+      }
+    )
+);
+
+export {
+  selectFixedSessionsPoints,
+  selectFixedSessionsList,
+  selectFixedSessionsState,
+};

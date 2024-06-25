@@ -1,8 +1,24 @@
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 
 interface MarkerProps {
   color: string;
+  $shouldPulse?: boolean;
 }
+
+const pulseAnimation = keyframes`
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(2.0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+`;
 
 const MarkerContainer = styled.div`
   display: flex;
@@ -40,6 +56,7 @@ const MarkerCircle = styled.div<MarkerProps>`
   border-radius: 50%;
   background-color: ${(props) => props.color};
   pointer-events: none;
+  animation: ${props => props.$shouldPulse ? css`${pulseAnimation} 2s infinite` : 'none'};
 `;
 
 export { MarkerContainer, DataContainer, MarkerCircle };

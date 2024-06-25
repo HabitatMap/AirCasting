@@ -1,19 +1,25 @@
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
+
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
   DEFAULT_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
-import { selectFixedSessionsPoints } from "../../store/fixedSessionsSelectors";
+import {
+  selectFixedSessionsList,
+  selectFixedSessionsPoints,
+} from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
   selectMobileSessionPointsBySessionId,
+  selectMobileSessionsList,
   selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
@@ -24,7 +30,6 @@ import {
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
-import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
@@ -33,7 +38,13 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { updateAll } from "../../store/thresholdSlice";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { Graph } from "../Graph";
+import { SessionsListView } from "../SessionsListView/SessionsListView";
+import { SectionButton } from "../SectionButton/SectionButton";
+import pinImage from "../../assets/icons/pinImage.svg";
+import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
+import { SessionList } from "../../types/sessionType";
+import { pubSub } from "../../utils/pubSubManager";
+import * as S from "./Map.style";
 
 const Map = () => {
   // const
@@ -68,12 +79,18 @@ const Map = () => {
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+  const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
+    null
+  );
   const [shouldFetchSessions, setShouldFetchSessions] = useState(true);
 
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
 
+  const [showOverlay, setShowOverlay] = useState(false);
+
   const isMobile = useMobileDetection();
+  const { t } = useTranslation();
 
   // Selectors
   const mapId = useSelector((state: RootState) => state.map.mapId);
@@ -97,6 +114,12 @@ const Map = () => {
     fixedSessionTypeSelected
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
+  );
+
+  const listSessions = useSelector(
+    fixedSessionTypeSelected
+      ? selectFixedSessionsList
+      : selectMobileSessionsList
   );
 
   // Filters (temporary solution)
@@ -273,12 +296,14 @@ const Map = () => {
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
+            pulsatingSessionId={pulsatingSessionId}
           />
         ) : (
           <MobileMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={selectedStreamId}
+            pulsatingSessionId={pulsatingSessionId}
           />
         )}
         {selectedStreamId && !fixedSessionTypeSelected && (
@@ -295,23 +320,84 @@ const Map = () => {
           streamId={selectedStreamId}
         />
       )}
-      <button
-        onClick={() => setShouldFetchSessions(true)}
-        style={{
-          position: "absolute",
-          top: "10rem",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          padding: "10px 20px",
-          backgroundColor: "#fff",
-          border: "1px solid #ccc",
-          borderRadius: "5px",
-          cursor: "pointer",
-          zIndex: 1000,
-        }}
-      >
-        Redo Search in Map
-      </button>
+      {!showOverlay && (
+        <button
+          onClick={() => setShouldFetchSessions(true)}
+          style={{
+            position: "absolute",
+            top: "10rem",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            padding: "10px 20px",
+            backgroundColor: "#fff",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            cursor: "pointer",
+            zIndex: 1000,
+          }}
+        >
+          Redo Search in Map
+        </button>
+      )}
+      <S.MobileContainer>
+        <SectionButton
+          title={t("map.listSessions")}
+          image={pinImage}
+          alt={t("map.altListSessions")}
+          onClick={() => {
+            setShowOverlay(true);
+          }}
+        />
+        {showOverlay && (
+          <MobileSessionList
+            sessions={listSessions.map((session: SessionList) => ({
+              id: session.id,
+              sessionName: session.title,
+              sensorName: session.sensorName,
+              averageValue: session.averageValue,
+              startTime: session.startTime,
+              endTime: session.endTime,
+              streamId: session.streamId,
+            }))}
+            onCellClick={(id, streamId) => {
+              if (!fixedSessionTypeSelected) {
+                setShowOverlay(false);
+                pubSub.publish("CENTER_MAP", id);
+              }
+              handleMarkerClick(streamId, id);
+            }}
+            onClose={() => {
+              setShowOverlay(false);
+            }}
+          />
+        )}
+      </S.MobileContainer>
+      {!modalOpen && (
+        <S.DesktopContainer>
+          <SessionsListView
+            sessions={listSessions.map((session) => ({
+              id: session.id,
+              sessionName: session.title,
+              sensorName: session.sensorName,
+              averageValue: session.averageValue,
+              startTime: session.startTime,
+              endTime: session.endTime,
+              streamId: session.streamId,
+            }))}
+            onCellClick={(id, streamId) => {
+              setPulsatingSessionId(null);
+              handleMarkerClick(streamId, id);
+              pubSub.publish("CENTER_MAP", id);
+            }}
+            onCellMouseEnter={(id) => {
+              setPulsatingSessionId(id);
+            }}
+            onCellMouseLeave={() => {
+              setPulsatingSessionId(null);
+            }}
+          />
+        </S.DesktopContainer>
+      )}
     </>
   );
 };

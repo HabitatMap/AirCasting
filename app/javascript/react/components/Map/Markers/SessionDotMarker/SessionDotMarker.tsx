@@ -4,14 +4,15 @@ import { DataContainer, MarkerCircle, MarkerContainer } from "./SessionDotMarker
 
 interface MarkerProps {
   color: string;
+  shouldPulse?: boolean;
   onClick: () => void;
 }
 
-const SessionDotMarker = ({ color, onClick }: MarkerProps) => {
+const SessionDotMarker = ({ color, shouldPulse = false, onClick }: MarkerProps) => {
   return (
     <MarkerContainer onClick={onClick}>
       <DataContainer>
-        <MarkerCircle color={color} />
+        <MarkerCircle color={color} $shouldPulse={shouldPulse}/>
       </DataContainer>
     </MarkerContainer>
   );

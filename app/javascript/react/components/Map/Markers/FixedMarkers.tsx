@@ -8,14 +8,21 @@ import { Session } from "../../../types/sessionType";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
+import { pubSub } from "../../../utils/pubSubManager";
 
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
+  pulsatingSessionId: number | null;
 };
 
-const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
+const FixedMarkers = ({
+  sessions,
+  onMarkerClick,
+  selectedStreamId,
+  pulsatingSessionId,
+}: Props) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -25,6 +32,24 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
     null
   );
   const ZOOM_FOR_SELECTED_SESSION = 15;
+
+  useEffect(() => {
+    const handleData = (id: number) => {
+      const s = sessions.find((session) => {
+        return session.id === id;
+      });
+
+      if (s?.point) {
+        centerMapOnMarker(s.point, s.point.streamId);
+      }
+    };
+
+    pubSub.subscribe("CENTER_MAP", handleData);
+
+    return () => {
+      pubSub.unsubscribe("CENTER_MAP", handleData);
+    };
+  }, [sessions]);
 
   // Update markers when marker references change
   useEffect(() => {
@@ -84,6 +109,7 @@ const FixedMarkers = ({ sessions, onMarkerClick, selectedStreamId }: Props) => {
             color="#E95F5F"
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
+            shouldPulse={session.id === pulsatingSessionId}
             onClick={() => {
               onMarkerClick(Number(session.point.streamId), Number(session.id));
               centerMapOnMarker(session.point, session.point.streamId);

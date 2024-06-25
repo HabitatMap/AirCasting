@@ -5,21 +5,23 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { red } from "../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
+import { pubSub } from "../../../utils/pubSubManager";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
-
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
+  pulsatingSessionId: number | null;
 };
 
 const MobileMarkers = ({
   sessions,
   onMarkerClick,
   selectedStreamId,
+  pulsatingSessionId,
 }: Props) => {
   const DISTANCE_THRESHOLD = 21;
   const ZOOM_FOR_SELECTED_SESSION = 15;
@@ -31,6 +33,24 @@ const MobileMarkers = ({
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
+
+  useEffect(() => {
+    const handleData = (id: number) => {
+      const s = sessions.find((session) => {
+        return session.id === id;
+      });
+
+      if (s?.point) {
+        centerMapOnMarker(s.point);
+      }
+    };
+
+    pubSub.subscribe("CENTER_MAP", handleData);
+
+    return () => {
+      pubSub.unsubscribe("CENTER_MAP", handleData);
+    };
+  }, [sessions]);
 
   useEffect(() => {
     if (selectedStreamId === null) {
@@ -100,8 +120,7 @@ const MobileMarkers = ({
         map.setZoom(ZOOM_FOR_SELECTED_SESSION);
       }
     }
-
-    setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
+    setSelectedMarkerKey(null);
   };
 
   const renderMarkerContent = (session: Session, isSelected: boolean) => {
@@ -116,6 +135,7 @@ const MobileMarkers = ({
       return (
         <SessionDotMarker
           color={red}
+          shouldPulse={session.id === pulsatingSessionId}
           onClick={() => {
             onMarkerClick(Number(session.point.streamId), Number(session.id));
             centerMapOnMarker(session.point);
@@ -130,6 +150,7 @@ const MobileMarkers = ({
         color={red}
         value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
         isSelected={isSelected}
+        shouldPulse={session.id === pulsatingSessionId}
         onClick={() => {
           onMarkerClick(Number(session.point.streamId), Number(session.id));
           centerMapOnMarker(session.point);

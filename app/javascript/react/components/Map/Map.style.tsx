@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { media } from "../../utils/media";
 
 import { Button } from "../Button/Button.style";
 
@@ -19,4 +20,18 @@ const MobileButton = styled(Button)`
   z-index: 99;
 `;
 
-export { FixedButton, MobileButton, containerStyle };
+const DesktopContainer = styled.div`
+  display: none; 
+
+  @media (${media.desktop}) {
+    display: flex;
+  }
+`;
+
+const MobileContainer = styled.div`
+  @media (${media.desktop}) {
+    display: none;
+  }
+`;
+
+export { FixedButton, MobileButton, containerStyle, DesktopContainer, MobileContainer };

@@ -1,4 +1,5 @@
 import { createSelector } from "reselect";
+import { SessionList } from "../types/sessionType";
 
 import { Session } from "../types/sessionType";
 import { RootState } from "./";
@@ -56,8 +57,27 @@ const selectMobileSessionsPoints = createSelector(
     })
 );
 
+const selectMobileSessionsList = createSelector(
+  [selectMobileSessionsState],
+  (mobileSessionsState): SessionList[] =>
+    mobileSessionsState.sessions.map(({ id, title, startTimeLocal, endTimeLocal, streams }) => {
+      const firstStream = streams[Object.keys(streams)[0]];
+
+      return {
+        id,
+        title,
+        sensorName: firstStream.sensorName,
+        averageValue: firstStream.averageValue,
+        startTime: startTimeLocal,
+        endTime: endTimeLocal,
+        streamId: firstStream.id
+      };
+    })
+);
+
 export {
   selectMobileSessionsPoints,
+  selectMobileSessionsList,
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsState,
 };
