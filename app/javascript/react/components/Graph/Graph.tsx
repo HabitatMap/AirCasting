@@ -73,13 +73,11 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
 
-  // Calculate total duration of the data series
   const totalDuration =
     seriesData.length > 0
       ? seriesData[seriesData.length - 1][0] - seriesData[0][0]
       : 0;
 
-  // Update rangeSelector options based on the data series duration
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected,
     totalDuration,
