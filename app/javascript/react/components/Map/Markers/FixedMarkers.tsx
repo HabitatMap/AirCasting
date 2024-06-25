@@ -102,6 +102,46 @@ const FixedMarkers = ({
     },
   };
 
+  const testRenderer = {
+    render: ({
+      count,
+      position,
+    }: {
+      count: number;
+      position: google.maps.LatLng;
+    }) => {
+      let styleIndex = 0;
+      if (count > 10) {
+        styleIndex = 2;
+      } else if (count > 5) {
+        styleIndex = 1;
+      }
+
+      const { url, height, width, textSize } = clusterStyles[styleIndex];
+      const div = document.createElement("div");
+      div.style.backgroundImage = `url(${url})`;
+      div.style.backgroundSize = "contain";
+      div.style.width = `${width}px`;
+      div.style.height = `${height}px`;
+      div.style.display = "flex";
+      div.style.alignItems = "center";
+      div.style.justifyContent = "center";
+      div.style.fontSize = `${textSize}px`;
+      div.style.backgroundColor = "#3E4449";
+
+      const span = document.createElement("span");
+      span.textContent = `${count}`;
+      div.appendChild(span);
+
+      return new google.maps.marker.AdvancedMarkerElement({
+        position,
+        content: div,
+        title: `${count}`,
+        zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
+      });
+    },
+  };
+
   useEffect(() => {
     if (map && !clusterer.current) {
       clusterer.current = new MarkerClusterer({
@@ -166,6 +206,8 @@ const FixedMarkers = ({
     }
   }, [markers, sessions]);
 
+  const clusterer2 = useRef<MarkerClusterer | null>(null);
+
   // pulsation
   useEffect(() => {
     const pulsatingSession = sessions.find(
@@ -181,7 +223,15 @@ const FixedMarkers = ({
               (clusterMarker: any) => clusterMarker === markers[key]
             )
         );
+        const markerTest = markers[key];
         console.log("pulsatingCluster", pulsatingCluster);
+        console.log("markerTest", markerTest);
+
+        clusterer2.current = new MarkerClusterer({
+          map,
+          renderer: testRenderer,
+          markers: pulsatingCluster?.markers,
+        });
       }
     });
   }, [pulsatingSessionId]);
