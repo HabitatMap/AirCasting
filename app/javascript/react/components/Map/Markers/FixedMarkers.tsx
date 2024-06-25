@@ -225,6 +225,9 @@ const FixedMarkers = ({
               )
           );
 
+          if (clusterer2.current) {
+            clusterer2.current.clearMarkers();
+          }
           clusterer2.current = new MarkerClusterer({
             map,
             renderer: testRenderer,
