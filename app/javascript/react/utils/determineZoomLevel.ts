@@ -146,7 +146,7 @@ const determineZoomLevel = (results: google.maps.GeocoderResult[]) => {
     case "postal_code":
     case "postal_code_prefix":
     case "postal_code_suffix":
-      return 13;
+      return 11;
 
     // Regional level zoom
     case "administrative_area_level_3":
