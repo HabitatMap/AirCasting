@@ -8,6 +8,7 @@ import { StreamMarker } from "./StreamMarker/StreamMarker";
 import { StreamMarkerTooltip } from "./StreamMarker/StreamMarker.style";
 
 import type { Marker } from "@googlemaps/markerclusterer";
+
 type Props = {
   sessions: Session[];
   unitSymbol: string;
@@ -74,7 +75,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   return (
     <>
       {sessions.map((session) => (
-        <>
+        <React.Fragment key={session.id}>
           {/* #DirtyButWorks Display transparent marker without transform property on top of stream marker to enable tooltip */}
           <AdvancedMarker
             title={`${session.lastMeasurementValue} ${unitSymbol}`}
@@ -95,7 +96,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           <AdvancedMarker
             title={`${session.lastMeasurementValue} ${unitSymbol}`}
             position={session.point}
-            key={session.id}
+            key={`marker-${session.id}`}
             zIndex={0}
             ref={(marker) => {
               if (marker && !markers[session.point.streamId]) {
@@ -108,7 +109,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           >
             <StreamMarker color={red} />
           </AdvancedMarker>
-        </>
+        </React.Fragment>
       ))}
     </>
   );
