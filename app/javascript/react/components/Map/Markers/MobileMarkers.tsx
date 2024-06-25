@@ -5,12 +5,11 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { red } from "../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
+import { pubSub } from "../../../utils/pubSubManager";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
-import { pubSub } from "../../../utils/pubSubManager";
-
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
@@ -38,13 +37,13 @@ const MobileMarkers = ({
   useEffect(() => {
     const handleData = (id: number) => {
       const s = sessions.find((session) => {
-          return session.id === id;
+        return session.id === id;
       });
 
       if (s?.point) {
-          centerMapOnMarker(s.point);
+        centerMapOnMarker(s.point);
       }
-  };  
+    };
 
     pubSub.subscribe("CENTER_MAP", handleData);
 
@@ -121,8 +120,7 @@ const MobileMarkers = ({
         map.setZoom(ZOOM_FOR_SELECTED_SESSION);
       }
     }
-
-    setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
+    setSelectedMarkerKey(null);
   };
 
   const renderMarkerContent = (session: Session, isSelected: boolean) => {
