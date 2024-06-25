@@ -1,12 +1,12 @@
 import React from "react";
 
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
 import goBackIcon from "../../assets/icons/goBackIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
-import { useAppDispatch } from "../../store/hooks";
-import { setSessionsListOpen } from "../../store/mapSlice";
+import { RootState } from "../../store";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import NavList from "./NavList/NavList";
@@ -53,14 +53,15 @@ export const MobileHeader = ({
 
 export const MobileCalendarHeader = ({ t }: { t: Function }) => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const sessionsListOpen = useSelector(
+    (state: RootState) => state.map.sessionsListOpen
+  );
 
   return (
     <S.MobileContainer>
       <S.GoBack
         onClick={() => {
-          navigate(-1);
-          dispatch(setSessionsListOpen(true));
+          navigate(urls.reactMap);
         }}
         aria-label={t("navbar.mapPage")}
       >
@@ -69,7 +70,7 @@ export const MobileCalendarHeader = ({ t }: { t: Function }) => {
           alt={t("navbar.altGoBackIcon")}
           aria-label={t("navbar.goBackToSessions")}
         />
-        {t("navbar.goBackToSessions")}
+        {sessionsListOpen ? t("navbar.goBackToSessions") : t("navbar.goBack")}
       </S.GoBack>
     </S.MobileContainer>
   );
