@@ -7,7 +7,6 @@ import {
   SeriesOptionsType,
 } from "highcharts/highstock";
 import Highcharts, {
-  CreditsOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
 } from "highcharts";
@@ -23,7 +22,6 @@ import {
   blue,
   gray100,
   gray300,
-  gray400,
 } from "../../assets/styles/colors";
 import {
   selectIsLoading,
@@ -32,6 +30,12 @@ import {
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { debounce } from "lodash";
+import {
+  MILLISECONDS_IN_A_5_MINUTES,
+  MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_WEEK,
+  MILLISECONDS_IN_AN_HOUR,
+} from "../../utils/timeRanges";
 
 const scrollbarOptions = {
   barBackgroundColor: gray200,
@@ -50,22 +54,27 @@ const scrollbarOptions = {
   enabled: true,
 };
 
-
-const getXAxisOptions = (fixedSessionTypeSelected: boolean, isMobile: boolean = false): XAxisOptions => {
+const getXAxisOptions = (
+  fixedSessionTypeSelected: boolean,
+  isMobile: boolean = false
+): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
 
-  const handleSetExtremes = debounce((e: Highcharts.AxisSetExtremesEventObject) => {
-    if (!isLoading && e.min && e.max) {
-      const min = e.min;
-      const max = e.max;
-      dispatch(
-        fixedSessionTypeSelected
-          ? updateFixedMeasurementExtremes({ min, max })
-          : updateMobileMeasurementExtremes({ min, max })
-      );
-    }
-  }, 100);
+  const handleSetExtremes = debounce(
+    (e: Highcharts.AxisSetExtremesEventObject) => {
+      if (!isLoading && e.min && e.max) {
+        const min = e.min;
+        const max = e.max;
+        dispatch(
+          fixedSessionTypeSelected
+            ? updateFixedMeasurementExtremes({ min, max })
+            : updateMobileMeasurementExtremes({ min, max })
+        );
+      }
+    },
+    100
+  );
 
   return {
     title: {
@@ -169,11 +178,6 @@ const getYAxisOptions = (
   };
 };
 
-const credits: CreditsOptions = {
-  enabled: true,
-  position: { align: "right", verticalAlign: "top", x: -50, y: 55 },
-};
-
 const getPlotOptions = (): PlotOptions => {
   return {
     series: {
@@ -251,7 +255,7 @@ const getResponsiveOptions = (
           },
           credits: {
             enabled: false,
-          }
+          },
         },
       },
     ],
@@ -293,7 +297,8 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
 
 const getRangeSelectorOptions = (
   fixedSessionTypeSelected: boolean,
-  selectedRange?: number,
+  totalDuration: number,
+  selectedRange?: number
 ): RangeSelectorOptions => {
   const baseOptions = {
     buttonTheme: {
@@ -304,7 +309,7 @@ const getRangeSelectorOptions = (
       stroke: white,
       "stroke-width": 1,
       style: {
-        fontFamily: 'Roboto, sans-serif',
+        fontFamily: "Roboto, sans-serif",
         fontSize: "1rem",
         color: gray300,
         fontWeight: "regular",
@@ -336,63 +341,36 @@ const getRangeSelectorOptions = (
   if (fixedSessionTypeSelected) {
     return {
       ...baseOptions,
-      buttonTheme: {
-        ...baseOptions.buttonTheme,
-        states: {
-          ...baseOptions.buttonTheme.states,
-        },
-      },
-      buttons:[
-        {
-          type: "hour",
-          count: 24,
-          text: "24 HOURS",
-        },
-        {
-          type: "day",
-          count: 7,
-          text: "1 WEEK",
-        },
-        {
-          type: "month",
-          count: 1,
-          text: "1 MONTH",
-        },
+      buttons: [
+        { type: "hour", count: 24, text: "24 HOURS" },
+        totalDuration > MILLISECONDS_IN_A_WEEK
+          ? { type: "day", count: 7, text: "1 WEEK" }
+          : { type: "all", text: "1 WEEK" },
+        totalDuration > MILLISECONDS_IN_A_MONTH
+          ? { type: "week", count: 4, text: "1 MONTH" }
+          : { type: "all", text: "1 MONTH" },
       ],
+
       allButtonsEnabled: true,
       selected: selectedRange,
     };
   } else {
     return {
       ...baseOptions,
-      buttons:[
-        {
-          type: "minute",
-          count: 5,
-          text: "5 MINUTES",
-        },
-        {
-          type: "hour",
-          count: 1,
-          text: "1 HOUR",
-        },
-        {
-          type: "all",
-          text: "ALL",
-        },
+      buttons: [
+        totalDuration < MILLISECONDS_IN_A_5_MINUTES
+          ? { type: "all", text: "5 MINUTES" }
+          : { type: "minute", count: 5, text: "5 MINUTES" },
+        totalDuration < MILLISECONDS_IN_AN_HOUR
+          ? { type: "all", text: "1 HOUR" }
+          : { type: "minute", count: 60, text: "1 HOUR" },
+        { type: "all", text: "ALL" },
       ],
       allButtonsEnabled: true,
       selected: selectedRange,
-      buttonTheme: {
-        ...baseOptions.buttonTheme,
-        states: {
-          ...baseOptions.buttonTheme.states,
-        },
-      },
     };
   }
 };
-
 
 export {
   getXAxisOptions,
@@ -405,5 +383,4 @@ export {
   getTooltipOptions,
   scrollbarOptions,
   getRangeSelectorOptions,
-  credits,
 };
