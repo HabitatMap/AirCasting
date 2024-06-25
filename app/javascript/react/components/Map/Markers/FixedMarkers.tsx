@@ -225,8 +225,6 @@ const FixedMarkers = ({
               )
           );
 
-          console.log("pulsatingCluster", pulsatingCluster.position);
-
           if (clusterer2.current) {
             clusterer2.current.clearMarkers();
           }
