@@ -28,16 +28,20 @@ const FixedMarkers = ({
   selectedStreamId,
   pulsatingSessionId,
 }: Props) => {
+  const ZOOM_FOR_SELECTED_SESSION = 15;
+
   const map = useMap();
+
+  const clusterer = useRef<MarkerClusterer | null>(null);
+  const markerRefs = useRef<{ [streamId: string]: Marker | null }>({});
+  const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
+
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
   );
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-  const ZOOM_FOR_SELECTED_SESSION = 15;
-  const clusterer = useRef<MarkerClusterer | null>(null);
-  const markerRefs = useRef<{ [streamId: string]: Marker | null }>({});
 
   useEffect(() => {
     if (map && !clusterer.current) {
@@ -47,6 +51,12 @@ const FixedMarkers = ({
       });
     }
   }, [map, sessions]);
+
+  useEffect(() => {
+    if (selectedStreamId === null) {
+      setSelectedMarkerKey(null);
+    }
+  }, [selectedStreamId]);
 
   useEffect(() => {
     const handleData = (id: number) => {
@@ -85,9 +95,7 @@ const FixedMarkers = ({
     }
   }, [markers, sessions]);
 
-  const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
-
-  // pulsation
+  // Pulsation
   useEffect(() => {
     if (pulsatingSessionId) {
       const pulsatingSession = sessions.find(
@@ -143,12 +151,6 @@ const FixedMarkers = ({
     }
     setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
   };
-
-  useEffect(() => {
-    if (selectedStreamId === null) {
-      setSelectedMarkerKey(null);
-    }
-  }, [selectedStreamId]);
 
   const setMarkerRef = useCallback((marker: Marker | null, key: string) => {
     if (markerRefs.current[key] === marker) return;
