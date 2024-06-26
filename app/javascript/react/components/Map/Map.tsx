@@ -1,9 +1,8 @@
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import pinImage from "../../assets/icons/pinImage.svg";
 import {

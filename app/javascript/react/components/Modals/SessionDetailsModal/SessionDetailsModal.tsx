@@ -1,13 +1,13 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import type { PopupProps } from "reactjs-popup/dist/types";
 import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
 import { SessionType } from "../../../types/filters";
+import useMobileDetection from "../../../utils/useScreenSizeDetection";
+import { Graph } from "../../Graph";
 import { ThresholdsConfigurator } from "../../ThresholdConfigurator";
 import * as S from "./SessionDetailsModal.style";
 import SessionInfo from "./SessionInfo";
-import { Graph } from "../../Graph";
-import type { PopupProps } from "reactjs-popup/dist/types";
-import useMobileDetection from "../../../utils/useScreenSizeDetection";
 
 interface SessionDetailsModalProps {
   onClose: () => void;

@@ -14,7 +14,10 @@ import { pubSub } from "../../../utils/pubSubManager";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
+import { useSelector } from "react-redux";
+import { selectHoverStreamId } from "../../../store/mapSlice";
 import type { LatLngLiteral } from "../../../types/googleMaps";
+import HoverMarker from "./HoverMarker/HoverMarker";
 
 type Props = {
   sessions: Session[];
@@ -59,6 +62,10 @@ const FixedMarkers = ({
       setSelectedMarkerKey(null);
     }
   }, [selectedStreamId]);
+  const hoverStreamId = useSelector(selectHoverStreamId);
+  const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
+    null
+  );
 
   useEffect(() => {
     const handleData = (id: number) => {
@@ -173,6 +180,22 @@ const FixedMarkers = ({
     });
   }, []);
 
+  useEffect(() => {
+    if (hoverStreamId) {
+      // Find the session corresponding to the hovered stream ID
+      console.log(hoverStreamId, "hoverStreamId");
+      console.log(sessions.find((session) => Number(session.point.streamId)));
+      const hoveredSession = sessions.find(
+        (session) => Number(session.point.streamId) === hoverStreamId
+      );
+      if (hoveredSession) {
+        setHoverPosition(hoveredSession.point);
+      }
+    } else {
+      setHoverPosition(null);
+    }
+  }, [hoverStreamId, sessions]);
+
   return (
     <>
       {sessions.map((session) => (
@@ -199,6 +222,8 @@ const FixedMarkers = ({
           />
         </AdvancedMarker>
       ))}
+      {hoverPosition && <HoverMarker position={hoverPosition} />}{" "}
+      {/* Render the custom marker */}
     </>
   );
 };

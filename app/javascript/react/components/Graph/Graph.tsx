@@ -10,6 +10,7 @@ import {
   updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
+import { setHoverStreamId } from "../../store/mapSlice";
 import {
   selectMobileStreamData,
   selectMobileStreamShortInfo,
@@ -86,6 +87,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   );
 
   const plotOptions = getPlotOptions();
+
   const responsive = getResponsiveOptions(thresholdsState);
 
   useEffect(() => {
@@ -121,7 +123,22 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     title: undefined,
     xAxis: xAxisOptions,
     yAxis: yAxisOption,
-    plotOptions: plotOptions,
+    plotOptions: {
+      ...plotOptions,
+      series: {
+        ...plotOptions.series,
+        point: {
+          events: {
+            mouseOver: function () {
+              dispatch(setHoverStreamId(streamId)); // Dispatch setHoverStreamId with the hovered point's streamId
+            },
+            mouseOut: function () {
+              dispatch(setHoverStreamId(null)); // Clear the hover stream ID when mouse out
+            },
+          },
+        },
+      },
+    },
     series: [seriesOptions(seriesData)],
     legend: legendOption,
     chart: {
