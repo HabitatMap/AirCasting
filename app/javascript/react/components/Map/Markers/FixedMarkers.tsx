@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { GridAlgorithm, Marker, MarkerClusterer } from "@googlemaps/markerclusterer";
+import {
+  GridAlgorithm,
+  Marker,
+  MarkerClusterer,
+} from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import GreenCluster from "../../../assets/icons/markers/marker-cluster-green.svg";
@@ -127,11 +131,12 @@ const FixedMarkers = ({
       div.style.alignItems = "center";
       div.style.justifyContent = "center";
       div.style.fontSize = `${textSize}px`;
-      div.style.backgroundColor = "#3E4449";
 
       const span = document.createElement("span");
       span.textContent = `${count}`;
       div.appendChild(span);
+
+      div.classList.add("pulsating-marker");
 
       return new google.maps.marker.AdvancedMarkerElement({
         position: customPosition || position,
