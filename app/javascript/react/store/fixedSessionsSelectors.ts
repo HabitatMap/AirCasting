@@ -1,9 +1,12 @@
 import { createSelector } from "reselect";
 
+import { StatusEnum } from "../types/api";
 import { Session, SessionList } from "../types/sessionType";
 import { RootState } from "./";
 
 const selectFixedSessionsState = (state: RootState) => state.fixedSessions;
+const selectFixedSessionsStatusFulfilled = (state: RootState) =>
+  state.fixedSessions.status === StatusEnum.Fulfilled;
 
 const selectFixedSessionsPoints = createSelector(
   [selectFixedSessionsState],
@@ -17,7 +20,7 @@ const selectFixedSessionsPoints = createSelector(
         endTimeLocal,
         latitude,
         longitude,
-        streams
+        streams,
       }) => ({
         id,
         title: title,
@@ -29,6 +32,12 @@ const selectFixedSessionsPoints = createSelector(
           lat: latitude,
           lng: longitude,
           streamId: streams[Object.keys(streams)[0]].id.toString(),
+        },
+        streams: {
+          // TEMPORARY: Hardcoded sensor_name
+          sensor_name: {
+            id: id,
+          },
         },
       })
     )
@@ -54,8 +63,30 @@ const selectFixedSessionsList = createSelector(
     )
 );
 
+const selectFixedSessionPointsBySessionId = (sessionId: number | null) =>
+  createSelector([selectFixedSessionsState], (fixedSessionState): Session[] => {
+    const fixedSessionByStreamId = fixedSessionState.sessions.find(
+      (session) => Number(session.id) === Number(sessionId)
+    );
+    const streams = fixedSessionByStreamId?.streams || {};
+
+    return [
+      {
+        id: fixedSessionByStreamId?.id || 0,
+        lastMeasurementValue: fixedSessionByStreamId?.lastMeasurementValue || 0,
+        point: {
+          lat: fixedSessionByStreamId?.latitude || 0,
+          lng: fixedSessionByStreamId?.longitude || 0,
+          streamId: streams[Object.keys(streams)[0]]?.id.toString() || "0",
+        },
+      },
+    ];
+  });
+
 export {
-  selectFixedSessionsPoints,
   selectFixedSessionsList,
+  selectFixedSessionsPoints,
+  selectFixedSessionPointsBySessionId,
   selectFixedSessionsState,
+  selectFixedSessionsStatusFulfilled,
 };

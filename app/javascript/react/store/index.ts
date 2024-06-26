@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 
+import clusterDataReducer from "./clusterDataSlice";
 import sessionReducer from "./exportSessionSlice";
 import fixedSessionsReducer from "./fixedSessionsSlice";
 import fixedStreamReducer from "./fixedStreamSlice";
@@ -11,6 +12,7 @@ import thresholdReducer from "./thresholdSlice";
 
 const store = configureStore({
   reducer: {
+    clusterData: clusterDataReducer,
     fixedSessions: fixedSessionsReducer,
     fixedStream: fixedStreamReducer,
     map: mapReducer,

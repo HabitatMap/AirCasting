@@ -41,6 +41,29 @@ const GlobalStyles = createGlobalStyle`
   body:not(.user-is-tabbing) .gm-style iframe + div {
     border: none !important;
   }
+
+  // style for pulsating clusters
+  .pulsating-marker {
+    animation: pulsate 1s infinite;
+  }
+
+  @keyframes pulsate {
+    0% {
+      transform: scale(1);
+    }
+    25% {
+      transform: scale(1.25);
+    }
+    50% {
+      transform: scale(1.5);
+    }
+    75% {
+      transform: scale(1.75);
+    }
+    100% {
+      transform: scale(2);
+    }
+  }
 `;
 
 export default GlobalStyles;
