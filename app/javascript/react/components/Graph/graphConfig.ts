@@ -184,6 +184,7 @@ const getPlotOptions = (): PlotOptions => {
     series: {
       lineWidth: 2,
       color: blue,
+      turboThreshold: 9999999, //above that graph will not display,
       marker: {
         fillColor: blue,
         lineWidth: 0,
@@ -263,6 +264,22 @@ const getResponsiveOptions = (
   };
 };
 
+// let measurementsByTime: { [key: string]: any } = {};
+// const onMouseOverSingle = (point: any) => show([point]);
+
+// const onMouseOverMultiple = (start: number, end: number) => {
+//   var startSec = start;
+//   var endSec = end;
+//   var points = [];
+//   var point;
+//   for (var i = startSec; i <= endSec; i = i + 1000) {
+//     point = measurementsByTime[i + ""];
+//     if (point) points.push(point);
+//   }
+//   var pointNum = Math.floor(points.length / 2);
+//   console.log([points[pointNum]], "points");
+// };
+
 const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
   enabled: true,
   formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
@@ -279,7 +296,6 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
       const xMore = xLess + oneMinuteInterval * (this.points.length - 1);
       s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
       s += Highcharts.dateFormat("%H:%M:%S", xMore) + "</span>";
-      console.log(xLess, xMore, "xmore");
     } else {
       s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
     }

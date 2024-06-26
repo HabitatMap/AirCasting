@@ -10,14 +10,16 @@ import {
   updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { setHoverStreamId } from "../../store/mapSlice";
+import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import {
   selectMobileStreamData,
+  selectMobileStreamPoints,
   selectMobileStreamShortInfo,
 } from "../../store/mobileStreamSelectors";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { selectThreshold } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
+import { LatLngLiteral } from "../../types/googleMaps";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { MILLISECONDS_IN_A_DAY } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -51,25 +53,46 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     ? useSelector(selectFixedData)
     : useSelector(selectMobileStreamData);
 
+  const fixedGraphData = useSelector(selectFixedData);
+  const mobileGraphData = useSelector(selectMobileStreamPoints);
+
   const streamShortInfo: StreamShortInfo = useSelector(
     fixedSessionTypeSelected
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
   );
 
-  const unitSymbol = streamShortInfo?.unitSymbol || "";
+  const newdata = useSelector(selectMobileStreamPoints);
+  console.log(newdata, "newdata");
+
+  const unitSymbol = streamShortInfo?.unitSymbol ?? "";
   const measurementType = "Particulate Matter";
 
   const isMobile = useMobileDetection();
   const dispatch = useAppDispatch();
 
-  const seriesData = (graphData?.measurements || [])
+  const fixedSeriesData = (fixedGraphData?.measurements || [])
     .map((measurement) => [measurement.time, measurement.value])
     .sort((a, b) => a[0] - b[0]);
 
   const [selectedRange, setSelectedRange] = useState(
     fixedSessionTypeSelected ? 0 : 2
   );
+  const mobileSeriesData = mobileGraphData
+    .map((measurement) => ({
+      x: measurement.time,
+      y: measurement.lastMeasurementValue,
+      position: {
+        lat: measurement.point.lat,
+        lng: measurement.point.lng,
+      } as LatLngLiteral,
+    }))
+    .filter((point) => point.x !== undefined)
+    .sort((a, b) => (a.x as number) - (b.x as number));
+
+  const seriesData = fixedSessionTypeSelected
+    ? fixedSeriesData
+    : mobileSeriesData;
 
   const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected, isMobile);
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
@@ -93,7 +116,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   useEffect(() => {
     if (seriesData.length > 0 && !isLoading) {
       if (fixedSessionTypeSelected) {
-        const newestMeasurement = seriesData[seriesData.length - 1];
+        const newestMeasurement = fixedSeriesData[fixedSeriesData.length - 1];
         const minTime = newestMeasurement[0] - MILLISECONDS_IN_A_DAY;
         const maxTime = newestMeasurement[0];
         if (minTime && maxTime) {
@@ -102,8 +125,8 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
           );
         }
       } else {
-        const minTime = Math.min(...seriesData.map((m) => m[0]));
-        const maxTime = Math.max(...seriesData.map((m) => m[0]));
+        const minTime = Math.min(...mobileSeriesData.map((m) => m.x as number));
+        const maxTime = Math.max(...mobileSeriesData.map((m) => m.x as number));
         dispatch(
           updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
         );
@@ -130,11 +153,13 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         point: {
           events: {
             mouseOver: function () {
-              console.log(this, "this");
-              dispatch(setHoverStreamId(streamId)); // Dispatch setHoverStreamId with the hovered point's streamId
+              fixedSessionTypeSelected
+                ? dispatch(setHoverStreamId(streamId))
+                : dispatch(setHoverPosition(this.position as LatLngLiteral));
             },
             mouseOut: function () {
-              dispatch(setHoverStreamId(null)); // Clear the hover stream ID when mouse out
+              dispatch(setHoverStreamId(null));
+              dispatch(setHoverPosition({ lat: 0, lng: 0 }));
             },
           },
         },

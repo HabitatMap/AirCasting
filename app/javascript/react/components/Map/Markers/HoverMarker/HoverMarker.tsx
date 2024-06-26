@@ -1,7 +1,8 @@
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import React from "react";
+import { blue } from "../../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../../types/googleMaps";
-import * as S from "./HoverMarker.style";
+import { StreamMarker } from "../StreamMarker/StreamMarker";
 
 type HoverMarkerProps = {
   position: LatLngLiteral | null;
@@ -12,9 +13,10 @@ const HoverMarker: React.FC<HoverMarkerProps> = ({ position }) => {
 
   return (
     <AdvancedMarker position={position} zIndex={100}>
-      <S.MarkerContainer>
+      {/* <S.MarkerContainer>
         <S.MarkerCircle />
-      </S.MarkerContainer>
+      </S.MarkerContainer> */}
+      <StreamMarker color={blue} />
     </AdvancedMarker>
   );
 };
