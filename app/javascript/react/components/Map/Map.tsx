@@ -6,23 +6,35 @@ import { useNavigate } from "react-router-dom";
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import pinImage from "../../assets/icons/pinImage.svg";
-import { DEFAULT_MAP_BOUNDS, DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../../const/coordinates";
+import {
+  DEFAULT_MAP_BOUNDS,
+  DEFAULT_MAP_CENTER,
+  DEFAULT_ZOOM,
+} from "../../const/coordinates";
 import { RootState } from "../../store";
 import {
-    selectFixedSessionPointsBySessionId, selectFixedSessionsList, selectFixedSessionsPoints,
-    selectFixedSessionsStatusFulfilled
+  selectFixedSessionPointsBySessionId,
+  selectFixedSessionsList,
+  selectFixedSessionsPoints,
+  selectFixedSessionsStatusFulfilled,
 } from "../../store/fixedSessionsSelectors";
-import { cleanSessions, fetchFixedSessions } from "../../store/fixedSessionsSlice";
+import {
+  cleanSessions,
+  fetchFixedSessions,
+} from "../../store/fixedSessionsSlice";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import {
-    selectMobileSessionPointsBySessionId, selectMobileSessionsList, selectMobileSessionsPoints
+  selectMobileSessionPointsBySessionId,
+  selectMobileSessionsList,
+  selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import {
-    selectMobileStreamPoints, selectMobileStreamShortInfo
+  selectMobileStreamPoints,
+  selectMobileStreamShortInfo,
 } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { updateAll } from "../../store/thresholdSlice";
@@ -257,6 +269,7 @@ const Map = () => {
       mapInstance.setZoom(previousZoom);
       mapInstance.setCenter(previousCenter);
     }
+    dispatch(setLoading(true));
   };
 
   const handleClick = (type: SessionType) => {
