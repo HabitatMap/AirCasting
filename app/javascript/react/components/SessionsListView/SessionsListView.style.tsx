@@ -11,7 +11,7 @@ const SessionListViewStyle = styled.div`
   border-radius: 0.5rem;
   box-sizing: border-box;
   padding-right: 0.8rem;
-  z-index: 1000;
+  z-index: 1;
 
   &::-webkit-scrollbar {
     width: 0.6rem;

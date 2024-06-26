@@ -92,6 +92,9 @@ const Map = () => {
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [modalOpenedFromSessionsList, setModalOpenedFromSessionsList] =
+    useState(false);
+
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
 
@@ -226,7 +229,11 @@ const Map = () => {
   );
 
   // Handlers
-  const handleMarkerClick = (streamId: number | null, id: number | null) => {
+  const handleMarkerClick = (
+    streamId: number | null,
+    id: number | null,
+    selectedFromSessionsList?: boolean
+  ) => {
     if (isMobile && fixedSessionTypeSelected) {
       navigate(`/fixed_stream?streamId=${streamId}`);
       return;
@@ -236,6 +243,10 @@ const Map = () => {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
+    }
+
+    if (selectedFromSessionsList) {
+      setModalOpenedFromSessionsList(true);
     }
 
     if (!selectedStreamId) {
@@ -270,6 +281,11 @@ const Map = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
     setModalOpen(false);
+    modalOpenedFromSessionsList &&
+      setTimeout(() => {
+        dispatch(setSessionsListOpen(true));
+      }, 0);
+
     if (mapInstance) {
       mapInstance.setZoom(previousZoom);
       mapInstance.setCenter(previousCenter);
@@ -384,7 +400,7 @@ const Map = () => {
                 setShowOverlay(false);
                 pubSub.publish("CENTER_MAP", id);
               }
-              handleMarkerClick(streamId, id);
+              handleMarkerClick(streamId, id, true);
             }}
             onClose={() => {
               setShowOverlay(false);
