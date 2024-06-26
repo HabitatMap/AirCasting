@@ -269,7 +269,6 @@ const Map = () => {
       mapInstance.setZoom(previousZoom);
       mapInstance.setCenter(previousCenter);
     }
-    dispatch(setLoading(true));
   };
 
   const handleClick = (type: SessionType) => {

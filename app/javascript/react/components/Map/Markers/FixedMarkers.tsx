@@ -300,11 +300,7 @@ const FixedMarkers = ({
           key={session.point.streamId}
           zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
           ref={(marker) => {
-            if (
-              marker &&
-              clusterer.current &&
-              !markerRefs.current[session.point.streamId]
-            ) {
+            if (marker && clusterer.current) {
               setMarkerRef(marker, session.point.streamId);
               clusterer.current.addMarker(marker);
             }
