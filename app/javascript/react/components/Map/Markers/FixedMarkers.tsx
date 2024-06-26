@@ -107,7 +107,7 @@ const FixedMarkers = ({
     },
   };
 
-  const testRenderer = (customPosition?: google.maps.LatLng) => ({
+  const pulsatingRenderer = (customPosition?: google.maps.LatLng) => ({
     render: ({
       count,
       position,
@@ -237,7 +237,7 @@ const FixedMarkers = ({
           }
           pulsatingClusterer.current = new MarkerClusterer({
             map,
-            renderer: testRenderer(pulsatingCluster?.position),
+            renderer: pulsatingRenderer(pulsatingCluster?.position),
             markers: pulsatingCluster?.markers,
             algorithm: new GridAlgorithm({ gridSize: 1000 }),
           });
