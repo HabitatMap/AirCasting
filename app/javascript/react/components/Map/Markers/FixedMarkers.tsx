@@ -182,9 +182,6 @@ const FixedMarkers = ({
 
   useEffect(() => {
     if (hoverStreamId) {
-      // Find the session corresponding to the hovered stream ID
-      console.log(hoverStreamId, "hoverStreamId");
-      console.log(sessions.find((session) => Number(session.point.streamId)));
       const hoveredSession = sessions.find(
         (session) => Number(session.point.streamId) === hoverStreamId
       );
@@ -222,8 +219,7 @@ const FixedMarkers = ({
           />
         </AdvancedMarker>
       ))}
-      {hoverPosition && <HoverMarker position={hoverPosition} />}{" "}
-      {/* Render the custom marker */}
+      {hoverPosition && <HoverMarker position={hoverPosition} />}
     </>
   );
 };

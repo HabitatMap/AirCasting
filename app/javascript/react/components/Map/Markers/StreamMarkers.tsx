@@ -1,13 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-
+import { Marker } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-
-import { black, mobileStreamPath, red } from "../../../assets/styles/colors";
+import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { mobileStreamPath, red } from "../../../assets/styles/colors";
+import { selectHoverStreamId } from "../../../store/mapSlice";
+import { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
+import HoverMarker from "./HoverMarker/HoverMarker";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
 import { StreamMarkerTooltip } from "./StreamMarker/StreamMarker.style";
-
-import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   sessions: Session[];
@@ -20,6 +21,10 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     {}
   );
   const polylineRef = useRef<google.maps.Polyline | null>(null);
+  const hoverStreamId = useSelector(selectHoverStreamId);
+  const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
+    null
+  );
 
   // Sort sessions by time
   const sortedSessions = sessions.sort((a, b) => {
@@ -72,6 +77,20 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     };
   }, [sortedSessions, map]);
 
+  useEffect(() => {
+    if (hoverStreamId) {
+      const hoveredSession = sessions.find(
+        (session) => Number(session.point.streamId) === hoverStreamId
+      );
+
+      if (hoveredSession) {
+        setHoverPosition(hoveredSession.point);
+      }
+    } else {
+      setHoverPosition(null);
+    }
+  }, [hoverStreamId, sessions]);
+
   return (
     <>
       {sessions.map((session) => (
@@ -111,6 +130,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           </AdvancedMarker>
         </React.Fragment>
       ))}
+      <HoverMarker position={hoverPosition} />
     </>
   );
 };

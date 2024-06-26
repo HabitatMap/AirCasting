@@ -272,11 +272,14 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
     const oneMinuteInterval = 60 * 1000;
     let s = `<span>${date} `;
 
+    console.log(this.x, "points");
+
     if (this.points && this.points.length > 1) {
       const xLess = Number(this.x);
       const xMore = xLess + oneMinuteInterval * (this.points.length - 1);
       s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
       s += Highcharts.dateFormat("%H:%M:%S", xMore) + "</span>";
+      console.log(xLess, xMore, "xmore");
     } else {
       s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
     }

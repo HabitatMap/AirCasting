@@ -130,6 +130,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         point: {
           events: {
             mouseOver: function () {
+              console.log(this, "this");
               dispatch(setHoverStreamId(streamId)); // Dispatch setHoverStreamId with the hovered point's streamId
             },
             mouseOut: function () {

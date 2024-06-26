@@ -11,7 +11,7 @@ const HoverMarker: React.FC<HoverMarkerProps> = ({ position }) => {
   if (!position) return null;
 
   return (
-    <AdvancedMarker position={position} style={{ color: "blue" }}>
+    <AdvancedMarker position={position} zIndex={100}>
       <S.MarkerContainer>
         <S.MarkerCircle />
       </S.MarkerContainer>
