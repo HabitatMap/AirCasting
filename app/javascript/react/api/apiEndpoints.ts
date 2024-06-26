@@ -1,6 +1,5 @@
 interface ApiEndpoints {
   readonly exportSessionData: (session_id: string, email: string) => string;
-  readonly fetchClusterData: (streamIds: string[]) => string;
   readonly fetchFixedSessions: (filters: string) => string;
   readonly fetchFixedStreamById: (id: number) => string;
   readonly fetchMobileSessions: (filters: string) => string;
@@ -15,7 +14,6 @@ interface ApiEndpoints {
 export const API_ENDPOINTS: ApiEndpoints = {
   exportSessionData: (sessionId, email) =>
     `/sessions/export.json?session_ids[]=${sessionId}&email=${email}`,
-  fetchClusterData: (streamIds) => `/fixed_region.json?stream_ids=${streamIds}`,
   fetchFixedSessions: (filters) => `/fixed/active/sessions2.json?q=${filters}`,
   fetchFixedStreamById: (id) => `/fixed_streams/${id}`,
   fetchMobileSessions: (filters) => `/mobile/sessions.json?q=${filters}`,

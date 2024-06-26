@@ -112,12 +112,5 @@
     "copyLink": "Copy link",
     "altCopyLink": "Copy the link to the session you are viewing",
     "confirmationMessage": "Copied"
-  },
-  "clusters": {
-    "avg": "last hr avg.:",
-    "unit": "µg/m³",
-    "instruments": "instruments",
-    "measurements": "measurements",
-    "contributors": "contributors"
   }
 }
