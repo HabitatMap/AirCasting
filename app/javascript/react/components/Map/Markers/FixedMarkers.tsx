@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import {
+  Cluster,
   GridAlgorithm,
   Marker,
   MarkerClusterer,
@@ -211,7 +212,7 @@ const FixedMarkers = ({
     }
   }, [markers, sessions]);
 
-  const clusterer2 = useRef<MarkerClusterer | null>(null);
+  const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
 
   // pulsation
   useEffect(() => {
@@ -223,27 +224,32 @@ const FixedMarkers = ({
 
       Object.keys(markers).forEach((key) => {
         if (clusterer.current && pulsatingSessionStreamId === key) {
-          const pulsatingCluster = clusterer.current.clusters.find(
-            (cluster: any) =>
+          const pulsatingCluster: Cluster | undefined =
+            // @ts-ignore:next-line
+            clusterer.current.clusters.find((cluster: any) =>
               cluster.markers.some(
                 (clusterMarker: any) => clusterMarker === markers[key]
               )
-          );
+            );
 
-          if (clusterer2.current) {
-            clusterer2.current.clearMarkers();
+          if (pulsatingClusterer.current) {
+            pulsatingClusterer.current.clearMarkers();
           }
-          clusterer2.current = new MarkerClusterer({
+          pulsatingClusterer.current = new MarkerClusterer({
             map,
-            renderer: testRenderer(pulsatingCluster.position),
+            renderer: testRenderer(pulsatingCluster?.position),
             markers: pulsatingCluster?.markers,
             algorithm: new GridAlgorithm({ gridSize: 1000 }),
           });
         }
       });
     } else {
-      if (clusterer2.current) {
-        clusterer2.current.clearMarkers();
+      if (
+        pulsatingClusterer.current &&
+        // @ts-ignore:next-line
+        pulsatingClusterer.current.markers.length > 1
+      ) {
+        pulsatingClusterer.current.clearMarkers();
       }
     }
   }, [pulsatingSessionId]);
