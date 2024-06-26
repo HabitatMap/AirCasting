@@ -38,7 +38,7 @@ const FixedMarkers = ({
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-  const ZOOM_FOR_SELECTED_SESSION = 6;
+  const ZOOM_FOR_SELECTED_SESSION = 15;
   const clusterer = useRef<MarkerClusterer | null>(null);
   const markerRefs = useRef<{ [streamId: string]: Marker | null }>({});
 
