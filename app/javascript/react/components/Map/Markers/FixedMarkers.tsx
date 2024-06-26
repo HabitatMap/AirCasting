@@ -154,6 +154,24 @@ const FixedMarkers = ({
         map,
         renderer: customRenderer,
       });
+
+      // to be finished in: fixed: hovering & clicking cluster
+      // clusterer.current.addListener("click", (event: any) => {
+      //   const cluster = event.cluster;
+      //   const bounds = cluster.getBounds();
+      //   map.fitBounds(bounds);
+
+      //   const streamIds: string[] = [];
+      //   cluster.markers.forEach((marker: Marker) => {
+      //     const markerKey = Object.keys(markerRefs.current).find(
+      //       (key) => markerRefs.current[key] === marker
+      //     );
+      //     if (markerKey) {
+      //       streamIds.push(markerKey);
+      //     }
+      //   });
+      //   dispatch(fetchClusterData({ streamIds }));
+      // });
     }
   }, [map, sessions]);
 
