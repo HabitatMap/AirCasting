@@ -8,12 +8,9 @@ import {
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import GreenCluster from "../../../assets/icons/markers/marker-cluster-green.svg";
-import OrangeCluster from "../../../assets/icons/markers/marker-cluster-orange.svg";
-import RedCluster from "../../../assets/icons/markers/marker-cluster-red.svg";
-import YellowCluster from "../../../assets/icons/markers/marker-cluster-yellow.svg";
 import { Session } from "../../../types/sessionType";
 import { pubSub } from "../../../utils/pubSubManager";
+import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { LatLngLiteral } from "../../../types/googleMaps";
@@ -41,112 +38,6 @@ const FixedMarkers = ({
   const ZOOM_FOR_SELECTED_SESSION = 15;
   const clusterer = useRef<MarkerClusterer | null>(null);
   const markerRefs = useRef<{ [streamId: string]: Marker | null }>({});
-
-  const clusterStyles = [
-    {
-      url: GreenCluster,
-      height: 30,
-      width: 30,
-      textSize: 0,
-    },
-    {
-      url: YellowCluster,
-      height: 30,
-      width: 30,
-      textSize: 0,
-    },
-    {
-      url: OrangeCluster,
-      height: 30,
-      width: 30,
-      textSize: 0,
-    },
-    {
-      url: RedCluster,
-      height: 30,
-      width: 30,
-      textSize: 0,
-    },
-  ];
-
-  const customRenderer = {
-    render: ({
-      count,
-      position,
-    }: {
-      count: number;
-      position: google.maps.LatLng;
-    }) => {
-      let styleIndex = 0;
-      if (count > 10) {
-        styleIndex = 2;
-      } else if (count > 5) {
-        styleIndex = 1;
-      }
-
-      const { url, height, width, textSize } = clusterStyles[styleIndex];
-      const div = document.createElement("div");
-      div.style.backgroundImage = `url(${url})`;
-      div.style.backgroundSize = "contain";
-      div.style.width = `${width}px`;
-      div.style.height = `${height}px`;
-      div.style.display = "flex";
-      div.style.alignItems = "center";
-      div.style.justifyContent = "center";
-      div.style.fontSize = `${textSize}px`;
-
-      const span = document.createElement("span");
-      span.textContent = `${count}`;
-      div.appendChild(span);
-
-      return new google.maps.marker.AdvancedMarkerElement({
-        position,
-        content: div,
-        title: `${count}`,
-      });
-    },
-  };
-
-  const pulsatingRenderer = (customPosition?: google.maps.LatLng) => ({
-    render: ({
-      count,
-      position,
-    }: {
-      count: number;
-      position: google.maps.LatLng;
-    }) => {
-      let styleIndex = 0;
-      if (count > 10) {
-        styleIndex = 2;
-      } else if (count > 5) {
-        styleIndex = 1;
-      }
-
-      const { url, height, width, textSize } = clusterStyles[styleIndex];
-      const div = document.createElement("div");
-      div.style.backgroundImage = `url(${url})`;
-      div.style.backgroundSize = "contain";
-      div.style.width = `${width}px`;
-      div.style.height = `${height}px`;
-      div.style.display = "flex";
-      div.style.alignItems = "center";
-      div.style.justifyContent = "center";
-      div.style.fontSize = `${textSize}px`;
-
-      const span = document.createElement("span");
-      span.textContent = `${count}`;
-      div.appendChild(span);
-
-      div.classList.add("pulsating-marker");
-
-      return new google.maps.marker.AdvancedMarkerElement({
-        position: customPosition || position,
-        content: div,
-        title: `${count}`,
-        zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
-      });
-    },
-  });
 
   useEffect(() => {
     if (map && !clusterer.current) {
