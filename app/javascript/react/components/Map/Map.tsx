@@ -92,7 +92,7 @@ const Map = () => {
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
-  const [modalOpenedFromSessionsList, setModalOpenedFromSessionsList] =
+  const [modalOpenFromSessionsList, setModalOpenFromSessionsList] =
     useState(false);
 
   const fixedSessionTypeSelected: boolean =
@@ -245,8 +245,8 @@ const Map = () => {
         : dispatch(fetchMobileStreamById(streamId));
     }
 
-    if (selectedFromSessionsList) {
-      setModalOpenedFromSessionsList(true);
+    if (selectedFromSessionsList && isMobile) {
+      setModalOpenFromSessionsList(true);
     }
 
     if (!selectedStreamId) {
@@ -281,7 +281,7 @@ const Map = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
     setModalOpen(false);
-    modalOpenedFromSessionsList &&
+    modalOpenFromSessionsList &&
       setTimeout(() => {
         dispatch(setSessionsListOpen(true));
       }, 0);
@@ -405,6 +405,7 @@ const Map = () => {
             onClose={() => {
               setShowOverlay(false);
               dispatch(setSessionsListOpen(false));
+              setModalOpenFromSessionsList(false);
             }}
           />
         )}

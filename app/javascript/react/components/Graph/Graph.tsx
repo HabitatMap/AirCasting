@@ -1,37 +1,38 @@
-import React, { useState, useRef, useEffect } from "react";
-import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
+import Highcharts from "highcharts/highstock";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
-import * as S from "./Graph.style";
-import {
-  getXAxisOptions,
-  getPlotOptions,
-  legendOption,
-  seriesOptions,
-  getYAxisOptions,
-  getResponsiveOptions,
-  getTooltipOptions,
-  scrollbarOptions,
-  getRangeSelectorOptions,
-} from "./graphConfig";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   selectFixedData,
   selectIsLoading,
   updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
+import { useAppDispatch } from "../../store/hooks";
+import {
+  selectMobileStreamData,
+  selectMobileStreamShortInfo,
+} from "../../store/mobileStreamSelectors";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { selectThreshold } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { selectMobileStreamData } from "../../store/mobileStreamSelectors";
-import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
-import { useAppDispatch } from "../../store/hooks";
-import { handleLoad } from "./chartEvents";
-import useMobileDetection from "../../utils/useScreenSizeDetection";
-import { screenSizes } from "../../utils/media";
 import { MILLISECONDS_IN_A_DAY } from "../../utils/timeRanges";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { handleLoad } from "./chartEvents";
+import * as S from "./Graph.style";
+import {
+  getPlotOptions,
+  getRangeSelectorOptions,
+  getResponsiveOptions,
+  getTooltipOptions,
+  getXAxisOptions,
+  getYAxisOptions,
+  legendOption,
+  scrollbarOptions,
+  seriesOptions,
+} from "./graphConfig";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -58,7 +59,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const unitSymbol = streamShortInfo?.unitSymbol || "";
   const measurementType = "Particulate Matter";
 
-  const isMobile = useMobileDetection(screenSizes.desktop);
+  const isMobile = useMobileDetection();
   const dispatch = useAppDispatch();
 
   const seriesData = (graphData?.measurements || [])

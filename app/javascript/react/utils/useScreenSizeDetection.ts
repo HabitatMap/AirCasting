@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { screenSizes } from './media';
+import { useEffect, useState } from "react";
+import { screenSizes } from "./media";
 
-const useScreenSizeDetection = (maxWidth = screenSizes.smallDesktop) => {
+const useScreenSizeDetection = (maxWidth = screenSizes.desktop) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= maxWidth);
 
   useEffect(() => {
@@ -9,9 +9,9 @@ const useScreenSizeDetection = (maxWidth = screenSizes.smallDesktop) => {
       setIsMobile(window.innerWidth <= maxWidth);
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [maxWidth]);
 
