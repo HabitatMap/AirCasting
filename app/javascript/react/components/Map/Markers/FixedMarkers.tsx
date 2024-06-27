@@ -5,6 +5,7 @@ import {
   GridAlgorithm,
   Marker,
   MarkerClusterer,
+  SuperClusterAlgorithm,
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
@@ -48,6 +49,7 @@ const FixedMarkers = ({
       clusterer.current = new MarkerClusterer({
         map,
         renderer: customRenderer,
+        algorithm: new SuperClusterAlgorithm({ maxZoom: 21, radius: 40 }),
       });
     }
   }, [map, sessions]);
