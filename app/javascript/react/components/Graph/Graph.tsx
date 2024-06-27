@@ -10,9 +10,7 @@ import {
   updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import {
-  selectMobileStreamData,
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
 } from "../../store/mobileStreamSelectors";
@@ -49,10 +47,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
 
   const isLoading = useSelector(selectIsLoading);
 
-  const graphData = fixedSessionTypeSelected
-    ? useSelector(selectFixedData)
-    : useSelector(selectMobileStreamData);
-
   const fixedGraphData = useSelector(selectFixedData);
   const mobileGraphData = useSelector(selectMobileStreamPoints);
 
@@ -62,9 +56,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       : selectMobileStreamShortInfo
   );
 
-  const newdata = useSelector(selectMobileStreamPoints);
-  console.log(newdata, "newdata");
-
   const unitSymbol = streamShortInfo?.unitSymbol ?? "";
   const measurementType = "Particulate Matter";
 
@@ -72,7 +63,10 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const dispatch = useAppDispatch();
 
   const fixedSeriesData = (fixedGraphData?.measurements || [])
-    .map((measurement) => [measurement.time, measurement.value])
+    .map((measurement: { time: any; value: any }) => [
+      measurement.time,
+      measurement.value,
+    ])
     .sort((a, b) => a[0] - b[0]);
 
   const [selectedRange, setSelectedRange] = useState(
@@ -108,8 +102,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     totalDuration,
     selectedRange
   );
-
-  const plotOptions = getPlotOptions();
+  const plotOptions = getPlotOptions(fixedSessionTypeSelected, streamId);
 
   const responsive = getResponsiveOptions(thresholdsState);
 
@@ -146,25 +139,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     title: undefined,
     xAxis: xAxisOptions,
     yAxis: yAxisOption,
-    plotOptions: {
-      ...plotOptions,
-      series: {
-        ...plotOptions.series,
-        point: {
-          events: {
-            mouseOver: function () {
-              fixedSessionTypeSelected
-                ? dispatch(setHoverStreamId(streamId))
-                : dispatch(setHoverPosition(this.position as LatLngLiteral));
-            },
-            mouseOut: function () {
-              dispatch(setHoverStreamId(null));
-              dispatch(setHoverPosition({ lat: 0, lng: 0 }));
-            },
-          },
-        },
-      },
-    },
+    plotOptions: plotOptions,
     series: [seriesOptions(seriesData)],
     legend: legendOption,
     chart: {

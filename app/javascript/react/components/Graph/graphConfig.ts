@@ -30,7 +30,10 @@ import {
   updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
+import { LatLngLiteral } from "../../types/googleMaps";
+import { GraphData, GraphPoint } from "../../types/graph";
 import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_MONTH,
@@ -179,7 +182,11 @@ const getYAxisOptions = (
   };
 };
 
-const getPlotOptions = (): PlotOptions => {
+const getPlotOptions = (
+  fixedSessionTypeSelected: boolean,
+  streamId: number | null
+): PlotOptions => {
+  const dispatch = useAppDispatch();
   return {
     series: {
       lineWidth: 2,
@@ -212,11 +219,25 @@ const getPlotOptions = (): PlotOptions => {
       dataLabels: {
         allowOverlap: true,
       },
+      point: {
+        events: {
+          mouseOver: function (this: Highcharts.Point) {
+            const position: LatLngLiteral = (this as GraphPoint).position;
+            return fixedSessionTypeSelected
+              ? dispatch(setHoverStreamId(streamId))
+              : dispatch(setHoverPosition(position));
+          },
+          mouseOut: function () {
+            dispatch(setHoverStreamId(null));
+            dispatch(setHoverPosition({ lat: 0, lng: 0 }));
+          },
+        },
+      },
     },
   };
 };
 
-const seriesOptions = (data: number[][]): SeriesOptionsType => ({
+const seriesOptions = (data: GraphData): SeriesOptionsType => ({
   type: "spline",
   color: white,
   data: data,
@@ -264,22 +285,6 @@ const getResponsiveOptions = (
   };
 };
 
-// let measurementsByTime: { [key: string]: any } = {};
-// const onMouseOverSingle = (point: any) => show([point]);
-
-// const onMouseOverMultiple = (start: number, end: number) => {
-//   var startSec = start;
-//   var endSec = end;
-//   var points = [];
-//   var point;
-//   for (var i = startSec; i <= endSec; i = i + 1000) {
-//     point = measurementsByTime[i + ""];
-//     if (point) points.push(point);
-//   }
-//   var pointNum = Math.floor(points.length / 2);
-//   console.log([points[pointNum]], "points");
-// };
-
 const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
   enabled: true,
   formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
@@ -288,8 +293,6 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
     const pointData = this.points ? this.points[0] : this.point;
     const oneMinuteInterval = 60 * 1000;
     let s = `<span>${date} `;
-
-    console.log(this.x, "points");
 
     if (this.points && this.points.length > 1) {
       const xLess = Number(this.x);

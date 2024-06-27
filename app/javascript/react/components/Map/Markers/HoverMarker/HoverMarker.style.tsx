@@ -1,24 +1,19 @@
 import styled from "styled-components";
 import { blue } from "../../../../assets/styles/colors";
 
-const MarkerContainer = styled.div`
-  display: flex;
-  position: absolute;
-  top: -1.2rem;
-  left: -1.2rem;
-  /* width: 11.5rem;
-  height: 5rem; */
-  cursor: pointer;
-  z-index: 100;
-  pointer-events: auto;
-`;
+interface MarkerProps {
+  $fixedSessionTypeSelected: boolean;
+}
 
-const MarkerCircle = styled.div`
+const MarkerCircle = styled.div<MarkerProps>`
   width: 1.6rem;
   height: 1.6rem;
+  top: ${(props) => (props.$fixedSessionTypeSelected ? "-0.5rem" : "0")};
+  left: ${(props) => (props.$fixedSessionTypeSelected ? "-0.5rem" : "0")};
   border-radius: 50%;
   background-color: ${blue};
-  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
 `;
 
-export { MarkerCircle, MarkerContainer };
+export { MarkerCircle };

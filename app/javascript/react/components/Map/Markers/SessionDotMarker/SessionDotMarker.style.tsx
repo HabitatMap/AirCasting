@@ -64,4 +64,4 @@ const MarkerCircle = styled.div<MarkerProps>`
       : "none"};
 `;
 
-export { MarkerContainer, DataContainer, MarkerCircle };
+export { DataContainer, MarkerCircle, MarkerContainer };

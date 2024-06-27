@@ -1,22 +1,22 @@
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import React from "react";
-import { blue } from "../../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../../types/googleMaps";
-import { StreamMarker } from "../StreamMarker/StreamMarker";
+import * as S from "./HoverMarker.style";
 
 type HoverMarkerProps = {
   position: LatLngLiteral | null;
+  fixedSessionTypeSelected?: boolean;
 };
 
-const HoverMarker: React.FC<HoverMarkerProps> = ({ position }) => {
+const HoverMarker: React.FC<HoverMarkerProps> = ({
+  position,
+  fixedSessionTypeSelected = false,
+}) => {
   if (!position) return null;
 
   return (
     <AdvancedMarker position={position} zIndex={100}>
-      {/* <S.MarkerContainer>
-        <S.MarkerCircle />
-      </S.MarkerContainer> */}
-      <StreamMarker color={blue} />
+      <S.MarkerCircle $fixedSessionTypeSelected={fixedSessionTypeSelected} />
     </AdvancedMarker>
   );
 };
