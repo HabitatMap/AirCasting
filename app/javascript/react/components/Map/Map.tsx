@@ -10,6 +10,7 @@ import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
   DEFAULT_ZOOM,
+  MIN_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
 import {
@@ -301,6 +302,7 @@ const Map = () => {
         scaleControl={true}
         style={S.containerStyle}
         onIdle={onIdle}
+        minZoom={MIN_ZOOM}
       >
         {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
           <FixedMarkers
