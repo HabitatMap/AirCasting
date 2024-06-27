@@ -21,25 +21,29 @@ const selectFixedSessionsPoints = createSelector(
         latitude,
         longitude,
         streams,
-      }) => ({
-        id,
-        title: title,
-        sensorName: streams[Object.keys(streams)[0]].sensorName,
-        startTime: startTimeLocal,
-        endTime: endTimeLocal,
-        lastMeasurementValue,
-        point: {
-          lat: latitude,
-          lng: longitude,
-          streamId: streams[Object.keys(streams)[0]].id.toString(),
-        },
-        streams: {
-          // TEMPORARY: Hardcoded sensor_name
-          sensor_name: {
-            id: id,
+      }) => {
+        const firstStream = streams[Object.keys(streams)[0]];
+
+        return {
+          id,
+          title: title,
+          sensorName: firstStream.sensorName,
+          startTime: startTimeLocal,
+          endTime: endTimeLocal,
+          lastMeasurementValue,
+          point: {
+            lat: latitude,
+            lng: longitude,
+            streamId: firstStream.id.toString(),
           },
-        },
-      })
+          streams: {
+            // TEMPORARY: Hardcoded sensor_name
+            sensor_name: {
+              id: id,
+            },
+          },
+        };
+      }
     )
 );
 
@@ -57,7 +61,7 @@ const selectFixedSessionsList = createSelector(
           averageValue: firstStream.streamDailyAverage,
           startTime: startTimeLocal,
           endTime: endTimeLocal,
-          streamId: streams[Object.keys(streams)[0]].id,
+          streamId: firstStream.id,
         };
       }
     )
@@ -69,6 +73,7 @@ const selectFixedSessionPointsBySessionId = (sessionId: number | null) =>
       (session) => Number(session.id) === Number(sessionId)
     );
     const streams = fixedSessionByStreamId?.streams || {};
+    const firstStream = streams[Object.keys(streams)[0]];
 
     return [
       {
@@ -77,7 +82,7 @@ const selectFixedSessionPointsBySessionId = (sessionId: number | null) =>
         point: {
           lat: fixedSessionByStreamId?.latitude || 0,
           lng: fixedSessionByStreamId?.longitude || 0,
-          streamId: streams[Object.keys(streams)[0]]?.id.toString() || "0",
+          streamId: firstStream?.id.toString() || "0",
         },
       },
     ];
