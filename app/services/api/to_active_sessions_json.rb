@@ -34,7 +34,7 @@ class Api::ToActiveSessionsJson
 
     sessions_array = sessions.map do |session|
       related_stream = selected_sensor_streams.find { |stream| stream.session_id == session.id }
-      last_average_value = StreamDailyAveragesRepository.new.last_average_value(related_stream.id)
+      last_average_value = related_stream ? StreamDailyAveragesRepository.new.last_average_value(related_stream.id) : nil
 
       {
         'id' => session.id,
@@ -47,7 +47,7 @@ class Api::ToActiveSessionsJson
         'longitude' => session.longitude,
         'title' => session.title,
         'username' => anonymous ? 'anonymous' : session.user.username,
-        'streams' => {
+        'streams' => related_stream ? {
           related_stream.sensor_name => {
             'measurement_short_type' => related_stream.measurement_short_type,
             'sensor_name' => related_stream.sensor_name,
@@ -55,7 +55,7 @@ class Api::ToActiveSessionsJson
             'id' => related_stream.id,
             'stream_daily_average' => last_average_value&.round || 'no data',
           }
-        }
+        } : {}
       }
     end
 
