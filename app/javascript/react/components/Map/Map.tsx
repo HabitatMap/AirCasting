@@ -91,7 +91,6 @@ const Map = () => {
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
-  const [showOverlay, setShowOverlay] = useState(false);
   const [modalOpenFromSessionsList, setModalOpenFromSessionsList] =
     useState(false);
 
@@ -354,7 +353,7 @@ const Map = () => {
           streamId={selectedStreamId}
         />
       )}
-      {!showOverlay && !sessionsListOpen && (
+      {!sessionsListOpen && (
         <button
           onClick={() => handleSearch()}
           style={{
@@ -380,10 +379,9 @@ const Map = () => {
           alt={t("map.altListSessions")}
           onClick={() => {
             dispatch(setSessionsListOpen(true));
-            setShowOverlay(true);
           }}
         />
-        {showOverlay && sessionsListOpen && (
+        {sessionsListOpen && (
           <MobileSessionList
             sessions={listSessions.map((session: SessionList) => ({
               id: session.id,
@@ -397,13 +395,11 @@ const Map = () => {
             onCellClick={(id, streamId) => {
               if (!fixedSessionTypeSelected) {
                 dispatch(setSessionsListOpen(false));
-                setShowOverlay(false);
                 pubSub.publish("CENTER_MAP", id);
               }
               handleMarkerClick(streamId, id, true);
             }}
             onClose={() => {
-              setShowOverlay(false);
               dispatch(setSessionsListOpen(false));
               setModalOpenFromSessionsList(false);
             }}
