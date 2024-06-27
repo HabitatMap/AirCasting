@@ -1,10 +1,10 @@
 import styled from "styled-components";
-import { H4, H5 } from "../../Typography";
+
 import { media } from "../../../utils/media";
-import { red } from "../../../assets/styles/colors";
+import { H4, H5 } from "../../Typography";
 
 interface DotProps {
-  $color?: string;
+  $color: string;
 }
 
 const SessionListTile = styled.div`
@@ -42,7 +42,7 @@ const ColorDot = styled.span<DotProps>`
   display: inline-block;
   width: 16px;
   height: 16px;
-  background-color: ${red};
+  background-color: ${(props) => props.$color};
   border-radius: 50%;
   margin-right: 0.8rem;
 `;
