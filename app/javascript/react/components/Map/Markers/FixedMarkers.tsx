@@ -115,7 +115,11 @@ const FixedMarkers = ({
               )
             );
 
-          if (pulsatingClusterer.current) {
+          if (
+            pulsatingClusterer.current &&
+            // @ts-ignore:next-line
+            pulsatingClusterer.current.markers.length > 1
+          ) {
             pulsatingClusterer.current.clearMarkers();
           }
           pulsatingClusterer.current = new MarkerClusterer({
