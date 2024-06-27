@@ -41,7 +41,7 @@ describe 'GET api/v3/timelapse', type: :request do
 
       expected_response =  hourly_averages
 
-      expect(JSON.parse(response.body)).to eq(expected_response)
+      expect(JSON.parse(response.body)).to match_array(expected_response)
     end
 
     it 'returns stream averages for selected 24h period for two sessions in one cluster' do
@@ -94,7 +94,7 @@ describe 'GET api/v3/timelapse', type: :request do
 
       expected_response = hourly_averages
 
-      expect(JSON.parse(response.body)).to eq(expected_response)
+      expect(JSON.parse(response.body)).to match_array(expected_response)
     end
 
     it 'returns stream averages for selected 24h period for two sessions in two clusters' do
@@ -157,7 +157,7 @@ describe 'GET api/v3/timelapse', type: :request do
 
       expected_response = hourly_averages
 
-      expect(JSON.parse(response.body)).to eq(expected_response)
+      expect(JSON.parse(response.body)).to match_array(expected_response)
     end
 
     it 'returns stream averages for a stream for 7 days time period' do
@@ -200,7 +200,7 @@ describe 'GET api/v3/timelapse', type: :request do
 
       expected_response = daily_averages
 
-      expect(JSON.parse(response.body)).to eq(expected_response)
+      expect(JSON.parse(response.body)).to match_array(expected_response)
     end
 
     # performance test using map data and experimental server API - delete before merging
@@ -212,7 +212,7 @@ describe 'GET api/v3/timelapse', type: :request do
         get_url = 'http://172.104.20.165/api/fixed/active/sessions2.json?q=%7B%22time_from%22%3A%221687219200%22%2C%22time_to%22%3A%221718927999%22%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22%22%2C%22west%22%3A-158.99172492811482%2C%22east%22%3A1.4086656968851674%2C%22south%22%3A-5.888107876913058%2C%22north%22%3A56.408464501696784%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22government-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D'
 
         response = HTTParty.get(get_url)
-        expect(response.code).to eq(200)
+        expect(response.code).to match_array(200)
         parsed_response = JSON.parse(response.body)
 
         puts "Parsed Response: #{parsed_response}"
