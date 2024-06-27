@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 
 import {
   Cluster,
@@ -9,8 +10,10 @@ import {
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { selectThreshold } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { pubSub } from "../../../utils/pubSubManager";
+import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
@@ -39,6 +42,8 @@ const FixedMarkers = ({
   const clusterer = useRef<MarkerClusterer | null>(null);
   const markerRefs = useRef<{ [streamId: string]: Marker | null }>({});
   const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
+
+  const thresholds = useSelector(selectThreshold);
 
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -208,7 +213,7 @@ const FixedMarkers = ({
           }}
         >
           <SessionFullMarker
-            color="#E95F5F"
+            color={getColorForValue(thresholds, session.lastMeasurementValue)}
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
             shouldPulse={session.id === pulsatingSessionId}

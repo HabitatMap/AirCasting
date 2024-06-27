@@ -1,17 +1,19 @@
 import { createSlice } from "@reduxjs/toolkit";
+
+import { Threshold, Thresholds } from "../types/thresholds";
+
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 import type { RootState } from "./index";
-import { Threshold, Thresholds } from "../types/thresholds";
 
 export interface ThresholdState extends Thresholds {}
 
 export const initialState: ThresholdState = {
   min: 0,
-  low: 0,
-  middle: 0,
-  high: 0,
-  max: 0,
+  low: 9,
+  middle: 35,
+  high: 55,
+  max: 150,
 };
 
 export const thresholdSlice = createSlice({

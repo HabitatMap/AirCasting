@@ -17,6 +17,7 @@ const red = "#E95F5F";
 const orange = "#FCA443";
 const yellow = "#FFD960";
 const green = "#96D788";
+const grey = "#a0a2ad";
 const black = "#000";
 const mapLabels = "#acacac";
 const mapLandscape = "#f2f2f2";
@@ -40,6 +41,7 @@ export {
   orange,
   yellow,
   green,
+  grey,
   mint,
   blue,
   darkBlue,
