@@ -14,31 +14,15 @@ class MeasurementsRepository
       .average(:value)
   end
 
-  def cluster_averages(time_period:, stream_ids:, end_of_last_time_slice:)
-    interval =
-      case time_period
-      when 1 then '1 hour'
-      when 3 then '3 hours'
-      when 7 then '7 hours'
-      end
-
+  def streams_averages_from_period(stream_ids:, start_date:, end_date:)
     ActiveRecord::Base.connection.execute(
-    <<~SQL
-      WITH time_slices AS (
-        SELECT generate_series(
-          date_trunc('hour', '#{end_of_last_time_slice - time_period.days}'::timestamp),
-          '#{end_of_last_time_slice}'::timestamp - interval '#{interval}',
-          interval '#{interval}'
-        ) AS slice
-      )
-      SELECT slice, AVG(value) AS avg_value
-      FROM time_slices
-      LEFT JOIN measurements ON date_trunc('hour', measurements.time_with_time_zone) >= slice
-                              AND date_trunc('hour', measurements.time_with_time_zone) < slice + interval '#{interval}'
-      WHERE stream_id IN (#{stream_ids.join(',')})
-      GROUP BY slice
-      ORDER BY slice
-    SQL
-  )
+      "
+        SELECT AVG(value) AS average_value
+        FROM measurements
+        WHERE stream_id IN (#{stream_ids.join(',')})
+        AND time_with_time_zone >= '#{start_date}'
+        AND time_with_time_zone < '#{end_date}'
+      "
+    ).first['average_value']
   end
 end
