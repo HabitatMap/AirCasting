@@ -26,7 +26,7 @@ import {
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
+import { setLoading, setSessionsListOpen } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -91,7 +91,9 @@ const Map = () => {
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [modalOpenFromSessionsList, setModalOpenFromSessionsList] =
+    useState(false);
+
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
 
@@ -128,6 +130,10 @@ const Map = () => {
     fixedSessionTypeSelected
       ? selectFixedSessionsList
       : selectMobileSessionsList
+  );
+
+  const sessionsListOpen = useSelector(
+    (state: RootState) => state.map.sessionsListOpen
   );
 
   // Filters (temporary solution)
@@ -222,7 +228,11 @@ const Map = () => {
   );
 
   // Handlers
-  const handleMarkerClick = (streamId: number | null, id: number | null) => {
+  const handleMarkerClick = (
+    streamId: number | null,
+    id: number | null,
+    selectedFromSessionsList?: boolean
+  ) => {
     if (isMobile && fixedSessionTypeSelected) {
       navigate(`/fixed_stream?streamId=${streamId}`);
       return;
@@ -232,6 +242,10 @@ const Map = () => {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
+    }
+
+    if (selectedFromSessionsList && isMobile) {
+      setModalOpenFromSessionsList(true);
     }
 
     if (!selectedStreamId) {
@@ -266,6 +280,11 @@ const Map = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
     setModalOpen(false);
+    modalOpenFromSessionsList &&
+      setTimeout(() => {
+        dispatch(setSessionsListOpen(true));
+      }, 0);
+
     if (mapInstance) {
       mapInstance.setZoom(previousZoom);
       mapInstance.setCenter(previousCenter);
@@ -334,7 +353,7 @@ const Map = () => {
           streamId={selectedStreamId}
         />
       )}
-      {!showOverlay && (
+      {!sessionsListOpen && (
         <button
           onClick={() => handleSearch()}
           style={{
@@ -359,10 +378,10 @@ const Map = () => {
           image={pinImage}
           alt={t("map.altListSessions")}
           onClick={() => {
-            setShowOverlay(true);
+            dispatch(setSessionsListOpen(true));
           }}
         />
-        {showOverlay && (
+        {sessionsListOpen && (
           <MobileSessionList
             sessions={listSessions.map((session: SessionList) => ({
               id: session.id,
@@ -375,13 +394,14 @@ const Map = () => {
             }))}
             onCellClick={(id, streamId) => {
               if (!fixedSessionTypeSelected) {
-                setShowOverlay(false);
+                dispatch(setSessionsListOpen(false));
                 pubSub.publish("CENTER_MAP", id);
               }
-              handleMarkerClick(streamId, id);
+              handleMarkerClick(streamId, id, true);
             }}
             onClose={() => {
-              setShowOverlay(false);
+              dispatch(setSessionsListOpen(false));
+              setModalOpenFromSessionsList(false);
             }}
           />
         )}

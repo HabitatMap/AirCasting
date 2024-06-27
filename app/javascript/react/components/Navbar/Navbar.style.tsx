@@ -1,4 +1,4 @@
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import {
   blue,
@@ -20,7 +20,7 @@ const Header = styled.header`
   flex-wrap: wrap;
   position: absolute;
 
-  @media ${media.smallDesktop} {
+  @media ${media.desktop} {
     height: ${NAVBAR_HEIGHT};
     position: absolute;
     width: 100%;
@@ -33,7 +33,8 @@ const Header = styled.header`
 const MobileContainer = styled.div`
   display: flex;
   padding: 1.5rem;
-  @media ${media.smallDesktop} {
+
+  @media ${media.desktop} {
     display: none;
   }
 `;
@@ -41,7 +42,7 @@ const MobileContainer = styled.div`
 const DesktopContainer = styled.div`
   display: none;
 
-  @media ${media.smallDesktop} {
+  @media ${media.desktop} {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -79,7 +80,7 @@ const MenuButton = styled(Button)`
   display: flex;
   align-items: center;
 
-  @media ${media.smallDesktop} {
+  @media ${media.desktop} {
     background-color: ${white};
     border-radius: 10px;
     box-shadow: 0px 4px 4px 0px rgba(76, 86, 96, 0.1);
@@ -174,25 +175,25 @@ const MobileHeaderContainer = styled.div`
   gap: 1rem;
   padding: 1rem;
   flex-wrap: wrap;
-  @media ${media.smallDesktop} {
+  @media ${media.desktop} {
     display: none;
   }
 `;
 
 export {
-  NAVBAR_HEIGHT,
-  Header,
   AircastingLogo,
-  Button,
-  MenuButton,
-  BuyCTA,
-  Container,
   BottomNavContainer,
-  MobileContainer,
+  Button,
+  BuyCTA,
+  BuyCTAWhite,
+  Container,
   DesktopContainer,
   GoBack,
-  BuyCTAWhite,
-  SearchContainer,
-  MobileMenuContainer,
+  Header,
+  MenuButton,
+  MobileContainer,
   MobileHeaderContainer,
+  MobileMenuContainer,
+  NAVBAR_HEIGHT,
+  SearchContainer,
 };

@@ -1,13 +1,16 @@
 import React from "react";
 
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
 import goBackIcon from "../../assets/icons/goBackIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
+import { RootState } from "../../store";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
-import * as S from "./Navbar.style";
 import NavList from "./NavList/NavList";
+import * as S from "./Navbar.style";
 
 export const MobileHeader = ({
   toggleMenuVisibility,
@@ -48,15 +51,27 @@ export const MobileHeader = ({
   </S.MobileHeaderContainer>
 );
 
-export const MobileCalendarHeader = ({ t }: { t: Function }) => (
-  <S.MobileContainer>
-    <S.GoBack href={urls.reactMap} aria-label={t("navbar.mapPage")}>
-      <img
-        src={goBackIcon}
-        alt={t("navbar.altGoBackIcon")}
-        aria-label={t("navbar.goBack")}
-      />
-      {t("navbar.goBack")}
-    </S.GoBack>
-  </S.MobileContainer>
-);
+export const MobileCalendarHeader = ({ t }: { t: Function }) => {
+  const navigate = useNavigate();
+  const sessionsListOpen = useSelector(
+    (state: RootState) => state.map.sessionsListOpen
+  );
+
+  return (
+    <S.MobileContainer>
+      <S.GoBack
+        onClick={() => {
+          navigate(urls.reactMap);
+        }}
+        aria-label={t("navbar.mapPage")}
+      >
+        <img
+          src={goBackIcon}
+          alt={t("navbar.altGoBackIcon")}
+          aria-label={t("navbar.goBackToSessions")}
+        />
+        {sessionsListOpen ? t("navbar.goBackToSessions") : t("navbar.goBack")}
+      </S.GoBack>
+    </S.MobileContainer>
+  );
+};
