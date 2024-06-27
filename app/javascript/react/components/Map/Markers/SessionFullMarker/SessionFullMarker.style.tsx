@@ -1,4 +1,5 @@
-import styled, { keyframes, css } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
+
 import { gray400 } from "../../../../assets/styles/colors";
 import { H4 } from "../../../Typography";
 
@@ -11,7 +12,7 @@ interface MarkerShadowProps {
   $shouldPulse?: boolean;
 }
 
-const pulse = keyframes`
+const pulseAnimation = keyframes`
   0% {
     transform: scale(1);
     opacity: 1;
@@ -51,7 +52,12 @@ const ShadowCircle = styled.div<MarkerShadowProps>`
   );
   filter: blur(5px);
   pointer-events: none;
-  animation: ${(props) => props.$shouldPulse ? css`${pulse} 2s infinite` : 'none'};
+  animation: ${(props) =>
+    props.$shouldPulse
+      ? css`
+          ${pulseAnimation} 2s infinite
+        `
+      : "none"};
 `;
 
 const DataContainer = styled.div`
