@@ -1,4 +1,4 @@
-import styled, { keyframes, css } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 
 interface MarkerProps {
   color: string;
@@ -56,7 +56,12 @@ const MarkerCircle = styled.div<MarkerProps>`
   border-radius: 50%;
   background-color: ${(props) => props.color};
   pointer-events: none;
-  animation: ${props => props.$shouldPulse ? css`${pulseAnimation} 2s infinite` : 'none'};
+  animation: ${(props) =>
+    props.$shouldPulse
+      ? css`
+          ${pulseAnimation} 2s infinite
+        `
+      : "none"};
 `;
 
 export { MarkerContainer, DataContainer, MarkerCircle };

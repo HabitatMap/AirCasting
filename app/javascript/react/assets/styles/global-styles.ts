@@ -1,6 +1,21 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle, css, keyframes } from "styled-components";
 
 import { gray100, gray400 } from "./colors";
+
+const pulseAnimation = keyframes`
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(2.0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+`;
 
 const GlobalStyles = createGlobalStyle`
   *,
@@ -44,25 +59,9 @@ const GlobalStyles = createGlobalStyle`
 
   // style for pulsating clusters
   .pulsating-marker {
-    animation: pulsate 1s infinite;
-  }
-
-  @keyframes pulsate {
-    0% {
-      transform: scale(1);
-    }
-    25% {
-      transform: scale(1.25);
-    }
-    50% {
-      transform: scale(1.5);
-    }
-    75% {
-      transform: scale(1.75);
-    }
-    100% {
-      transform: scale(2);
-    }
+      animation: ${css`
+        ${pulseAnimation} 2s infinite
+      `};
   }
 `;
 
