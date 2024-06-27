@@ -47,6 +47,11 @@ const FixedMarkers = ({
     null
   );
 
+  const hoverStreamId = useSelector(selectHoverStreamId);
+  const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
+    null
+  );
+
   useEffect(() => {
     if (map && !clusterer.current) {
       clusterer.current = new MarkerClusterer({
@@ -62,10 +67,6 @@ const FixedMarkers = ({
       setSelectedMarkerKey(null);
     }
   }, [selectedStreamId]);
-  const hoverStreamId = useSelector(selectHoverStreamId);
-  const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
-    null
-  );
 
   useEffect(() => {
     const handleData = (id: number) => {
@@ -192,7 +193,6 @@ const FixedMarkers = ({
       setHoverPosition(null);
     }
   }, [hoverStreamId, sessions]);
-
   return (
     <>
       {sessions.map((session) => (

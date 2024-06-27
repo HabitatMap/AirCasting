@@ -42,14 +42,15 @@ interface GraphProps {
 
 const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const graphRef = useRef<HTMLDivElement>(null);
-  const thresholdsState = useSelector(selectThreshold);
+
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-
+  const [selectedRange, setSelectedRange] = useState(
+    fixedSessionTypeSelected ? 0 : 2
+  );
+  const thresholdsState = useSelector(selectThreshold);
   const isLoading = useSelector(selectIsLoading);
-
   const fixedGraphData = useSelector(selectFixedData);
   const mobileGraphData = useSelector(selectMobileStreamPoints);
-
   const streamShortInfo: StreamShortInfo = useSelector(
     fixedSessionTypeSelected
       ? selectFixedStreamShortInfo
@@ -69,9 +70,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     ])
     .sort((a, b) => a[0] - b[0]);
 
-  const [selectedRange, setSelectedRange] = useState(
-    fixedSessionTypeSelected ? 0 : 2
-  );
   const mobileSeriesData = mobileGraphData
     .map((measurement) => ({
       x: measurement.time,
@@ -94,7 +92,8 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
 
   const totalDuration =
     seriesData.length > 0
-      ? seriesData[seriesData.length - 1][0] - seriesData[0][0]
+      ? (seriesData[seriesData.length - 1] as any)[0] -
+        (seriesData[0] as any)[0]
       : 0;
 
   const rangeSelectorOptions = getRangeSelectorOptions(

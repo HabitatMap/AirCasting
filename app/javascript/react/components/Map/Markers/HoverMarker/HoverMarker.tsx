@@ -15,7 +15,10 @@ const HoverMarker: React.FC<HoverMarkerProps> = ({
   if (!position) return null;
 
   return (
-    <AdvancedMarker position={position} zIndex={100}>
+    <AdvancedMarker
+      position={position}
+      zIndex={Number(google.maps.Marker.MAX_ZINDEX + 2)}
+    >
       <S.MarkerCircle $fixedSessionTypeSelected={fixedSessionTypeSelected} />
     </AdvancedMarker>
   );
