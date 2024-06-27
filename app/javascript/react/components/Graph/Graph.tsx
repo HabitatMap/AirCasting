@@ -13,7 +13,6 @@ import {
   getResponsiveOptions,
   getTooltipOptions,
   scrollbarOptions,
-  credits,
   getRangeSelectorOptions,
 } from "./graphConfig";
 import {
@@ -32,8 +31,7 @@ import { useAppDispatch } from "../../store/hooks";
 import { handleLoad } from "./chartEvents";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { screenSizes } from "../../utils/media";
-
-const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
+import { MILLISECONDS_IN_A_DAY } from "../../utils/timeRanges";
 
 interface GraphProps {
   sessionType: SessionType;
@@ -41,7 +39,7 @@ interface GraphProps {
 }
 
 const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
-  const graphRef = useRef<HTMLDivElement>(null); // Reference to the graph container
+  const graphRef = useRef<HTMLDivElement>(null);
   const thresholdsState = useSelector(selectThreshold);
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
@@ -67,15 +65,25 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     .map((measurement) => [measurement.time, measurement.value])
     .sort((a, b) => a[0] - b[0]);
 
-  const [selectedRange, setSelectedRange] = useState(0);
+  const [selectedRange, setSelectedRange] = useState(
+    fixedSessionTypeSelected ? 0 : 2
+  );
 
   const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected, isMobile);
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
+
+  const totalDuration =
+    seriesData.length > 0
+      ? seriesData[seriesData.length - 1][0] - seriesData[0][0]
+      : 0;
+
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected,
+    totalDuration,
     selectedRange
   );
+
   const plotOptions = getPlotOptions();
   const responsive = getResponsiveOptions(thresholdsState);
 
@@ -155,7 +163,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
           },
         })) ?? [],
     },
-    credits: credits,
   };
 
   return (

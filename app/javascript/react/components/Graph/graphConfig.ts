@@ -7,7 +7,6 @@ import {
   SeriesOptionsType,
 } from "highcharts/highstock";
 import Highcharts, {
-  CreditsOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
 } from "highcharts";
@@ -30,6 +29,14 @@ import {
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
+import { debounce } from "lodash";
+import {
+  MILLISECONDS_IN_A_5_MINUTES,
+  MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_WEEK,
+  MILLISECONDS_IN_AN_HOUR,
+} from "../../utils/timeRanges";
+import { useTranslation } from "react-i18next";
 
 const scrollbarOptions = {
   barBackgroundColor: gray200,
@@ -48,21 +55,27 @@ const scrollbarOptions = {
   enabled: true,
 };
 
-const getXAxisOptions = (fixedSessionTypeSelected: boolean, isMobile: boolean = false): XAxisOptions => {
+const getXAxisOptions = (
+  fixedSessionTypeSelected: boolean,
+  isMobile: boolean = false
+): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
 
-  const handleSetExtremes = (e: Highcharts.AxisSetExtremesEventObject) => {
-    if (!isLoading && e.min && e.max) {
-      const min = e.min;
-      const max = e.max;
-      dispatch(
-        fixedSessionTypeSelected
-          ? updateFixedMeasurementExtremes({ min, max })
-          : updateMobileMeasurementExtremes({ min, max })
-      );
-    }
-  };
+  const handleSetExtremes = debounce(
+    (e: Highcharts.AxisSetExtremesEventObject) => {
+      if (!isLoading && e.min && e.max) {
+        const min = e.min;
+        const max = e.max;
+        dispatch(
+          fixedSessionTypeSelected
+            ? updateFixedMeasurementExtremes({ min, max })
+            : updateMobileMeasurementExtremes({ min, max })
+        );
+      }
+    },
+    100
+  );
 
   return {
     title: {
@@ -86,7 +99,7 @@ const getXAxisOptions = (fixedSessionTypeSelected: boolean, isMobile: boolean = 
       width: 2,
     },
     visible: true,
-    minRange: 1000,
+    minRange: 10000,
     events: {
       setExtremes: function (e) {
         handleSetExtremes(e);
@@ -166,11 +179,6 @@ const getYAxisOptions = (
   };
 };
 
-const credits: CreditsOptions = {
-  enabled: true,
-  position: { align: "right", verticalAlign: "top", x: -50, y: 55 },
-};
-
 const getPlotOptions = (): PlotOptions => {
   return {
     series: {
@@ -248,7 +256,7 @@ const getResponsiveOptions = (
           },
           credits: {
             enabled: false,
-          }
+          },
         },
       },
     ],
@@ -290,55 +298,86 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
 
 const getRangeSelectorOptions = (
   fixedSessionTypeSelected: boolean,
+  totalDuration: number,
   selectedRange?: number
-): RangeSelectorOptions =>
-  fixedSessionTypeSelected
-    ? {
-      labelStyle: {
-        display: "none",
+): RangeSelectorOptions => {
+  const { t } = useTranslation();
+  const baseOptions = {
+    buttonTheme: {
+      fill: "none",
+      width: 50,
+      r: 5,
+      padding: 5,
+      stroke: white,
+      "stroke-width": 1,
+      style: {
+        fontFamily: "Roboto, sans-serif",
+        fontSize: "1rem",
+        color: gray300,
+        fontWeight: "regular",
       },
-      buttonSpacing: 15,
-      buttons: [
-        {
-          type: "hour",
-          count: 24,
-          text: "24 HOURS",
+      states: {
+        hover: {
+          fill: blue,
+          style: {
+            color: white,
+            fontWeight: "regular",
+          },
         },
-        {
-          type: "day",
-          count: 7,
-          text: "1 WEEK",
+        select: {
+          fill: blue,
+          style: {
+            color: white,
+            fontWeight: "regular",
+          },
         },
-        {
-          type: "month",
-          count: 1,
-          text: "1 MONTH",
-        },
-      ],
-      selected: selectedRange || 0,
-      inputEnabled: false,
-    }
-    : {
-      buttonSpacing: 15,
-      labelStyle: {
-        display: "none",
       },
+    },
+    labelStyle: {
+      display: "none",
+    },
+    buttonSpacing: 5,
+    inputEnabled: false,
+  };
+
+  {
+    t("graph.24HOURS");
+  }
+  t("graph.oneWeek");
+
+  if (fixedSessionTypeSelected) {
+    return {
+      ...baseOptions,
       buttons: [
-        {
-          type: "minute",
-          count: 5,
-          text: "5 MINUTES",
-        },
-        {
-          type: "hour",
-          count: 1,
-          text: "1 HOUR",
-        },
-        { type: "all", text: "ALL" },
+        { type: "hour", count: 24, text: t("graph.24Hours") },
+        totalDuration > MILLISECONDS_IN_A_WEEK
+          ? { type: "day", count: 7, text: t("graph.oneWeek") }
+          : { type: "all", text: t("graph.oneWeek") },
+        totalDuration > MILLISECONDS_IN_A_MONTH
+          ? { type: "week", count: 4, text: t("graph.oneMonth") }
+          : { type: "all", text: t("graph.oneMonth") },
       ],
-      selected: selectedRange || 2,
-      inputEnabled: false,
+
+      allButtonsEnabled: true,
+      selected: selectedRange,
     };
+  } else {
+    return {
+      ...baseOptions,
+      buttons: [
+        totalDuration < MILLISECONDS_IN_A_5_MINUTES
+          ? { type: "all", text: t("graph.fiveMinutes") }
+          : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
+        totalDuration < MILLISECONDS_IN_AN_HOUR
+          ? { type: "all", text: t("graph.oneHour") }
+          : { type: "minute", count: 60, text: t("graph.oneHour") },
+        { type: "all", text: t("graph.all") },
+      ],
+      allButtonsEnabled: true,
+      selected: selectedRange,
+    };
+  }
+};
 
 export {
   getXAxisOptions,
@@ -351,5 +390,4 @@ export {
   getTooltipOptions,
   scrollbarOptions,
   getRangeSelectorOptions,
-  credits,
 };

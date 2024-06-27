@@ -112,5 +112,13 @@
     "copyLink": "Copy link",
     "altCopyLink": "Copy the link to the session you are viewing",
     "confirmationMessage": "Copied"
+  },
+  "graph": {
+    "fiveMinutes": "5 MINUTES",
+    "oneHour": "1 HOUR",
+    "24Hours": "24 HOURS",
+    "oneWeek": "1 WEEK",
+    "oneMonth": "1 MONTH",
+    "all": "ALL"
   }
 }
