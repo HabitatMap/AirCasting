@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import { useAppDispatch } from "../../store/hooks";
-import { selectThreshold, updateAll } from "../../store/thresholdSlice";
+import {
+  selectThreshold,
+  setUserAdjustedValues,
+  updateAll,
+} from "../../store/thresholdSlice";
 import { Thresholds } from "../../types/thresholds";
 import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
 import {
@@ -39,10 +43,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const updateThresholdValues = () => {
-      dispatch(updateAll(thresholdValues));
-    };
-    updateThresholdValues();
+    dispatch(updateAll(thresholdValues));
   }, [thresholdValues]);
 
   useEffect(() => {

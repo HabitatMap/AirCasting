@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 
 import { selectFixedData } from "../store/fixedStreamSlice";
 import { useAppDispatch } from "../store/hooks";
+import { setUserAdjustedValues } from "../store/thresholdSlice";
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 
@@ -27,10 +28,11 @@ export const useThresholdHandlers = (
   inputValue: string
 ) => {
   const inputDebounceTime = 300;
-  const { t } = useTranslation();
+
   const dispatch = useAppDispatch();
-  const fixedStreamData = useSelector(selectFixedData);
-  const initialThresholdsState = fixedStreamData.stream;
+  const { t } = useTranslation();
+  const { stream } = useSelector(selectFixedData);
+  const { min, low, middle, high, max } = stream;
 
   const isValueValid = (
     newValue: number,
@@ -144,6 +146,7 @@ export const useThresholdHandlers = (
   };
 
   const handleInputFocus = (thresholdKey: keyof Thresholds) => {
+    dispatch(setUserAdjustedValues(true));
     setInputValue(thresholdValues[thresholdKey].toString());
     setActiveInput(thresholdKey);
 
@@ -184,7 +187,7 @@ export const useThresholdHandlers = (
   const resetThresholds = () => {
     debouncedHandleInputChange.cancel();
 
-    setThresholdValues(initialThresholdsState);
+    setThresholdValues({ min, low, middle, high, max });
     setInputValue("");
     setActiveInput(null);
   };

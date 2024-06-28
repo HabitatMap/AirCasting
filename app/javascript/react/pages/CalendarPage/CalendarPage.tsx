@@ -16,7 +16,10 @@ import {
   fetchNewMovingStream,
   movingData,
 } from "../../store/movingCalendarStreamSlice";
-import { updateAll } from "../../store/thresholdSlice";
+import {
+  selectUserAdjustedValues,
+  updateAll,
+} from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 
@@ -27,15 +30,16 @@ interface CalendarPageProps {
 }
 
 const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
+  const dispatch = useAppDispatch();
+  const isMobile = useMobileDetection();
   const [searchParams] = useSearchParams();
+
   const streamIdQuery = searchParams.get(STREAM_ID_QUERY_PARAMETER_NAME);
   const streamId = streamIdQuery && Number(streamIdQuery);
 
   const fixedStreamData = useSelector(selectFixedData);
   const movingCalendarData = useSelector(movingData);
-  const dispatch = useAppDispatch();
-
-  const isMobile = useMobileDetection();
+  const userAdjustedThresholdValues = useSelector(selectUserAdjustedValues);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -73,7 +77,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
         })
       );
     }
-    dispatch(updateAll(fixedStreamData.stream));
+    !userAdjustedThresholdValues && dispatch(updateAll(fixedStreamData.stream));
   }, [fixedStreamData, dispatch]);
 
   return (
