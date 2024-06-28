@@ -94,8 +94,8 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
 
   useEffect(() => {
     if (showConfirmation) {
-      const timer = setTimeout(() => setShowConfirmation(false), 3000);
-      return () => clearTimeout(timer);
+      // const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      // return () => clearTimeout(timer);
     }
   }, [showConfirmation]);
 
