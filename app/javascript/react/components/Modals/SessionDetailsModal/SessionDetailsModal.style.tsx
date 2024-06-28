@@ -303,7 +303,6 @@ const WrapperButton = styled.div`
   display: flex;
   position: relative;
 `;
-
 export {
   AverageDot,
   AverageValue,
