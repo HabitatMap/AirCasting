@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 
 import { selectFixedData } from "../store/fixedStreamSlice";
 import { useAppDispatch } from "../store/hooks";
-import { resetToInitialValues } from "../store/thresholdSlice";
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 
@@ -185,7 +184,6 @@ export const useThresholdHandlers = (
   const resetThresholds = () => {
     debouncedHandleInputChange.cancel();
 
-    dispatch(resetToInitialValues());
     setThresholdValues(initialThresholdsState);
     setInputValue("");
     setActiveInput(null);

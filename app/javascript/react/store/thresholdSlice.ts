@@ -1,19 +1,25 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import { Threshold, Thresholds } from "../types/thresholds";
+import { Thresholds } from "../types/thresholds";
 
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 import type { RootState } from "./index";
 
-export interface ThresholdState extends Thresholds {}
+export interface ThresholdState {
+  userAdjustedValues: boolean;
+  values: Thresholds;
+}
 
 export const initialState: ThresholdState = {
-  min: 0,
-  low: 0,
-  middle: 0,
-  high: 0,
-  max: 0,
+  userAdjustedValues: false,
+  values: {
+    min: 0,
+    low: 0,
+    middle: 0,
+    high: 0,
+    max: 0,
+  },
 };
 
 export const thresholdSlice = createSlice({
@@ -22,29 +28,17 @@ export const thresholdSlice = createSlice({
   reducers: {
     updateAll: (
       state,
-      {
-        payload: { min, low, middle, high, max },
-      }: PayloadAction<ThresholdState>
+      { payload: { min, low, middle, high, max } }: PayloadAction<Thresholds>
     ) => {
-      state.min = min;
-      state.low = low;
-      state.middle = middle;
-      state.high = high;
-      state.max = max;
-    },
-    updateGivenIndex: (
-      state,
-      { payload: { name, value } }: PayloadAction<Threshold>
-    ) => {
-      state[name] = value;
-    },
-    resetToInitialValues: (state) => {
-      state = { ...initialState };
+      state.values.min = min;
+      state.values.low = low;
+      state.values.middle = middle;
+      state.values.high = high;
+      state.values.max = max;
     },
   },
 });
 
-export const { updateAll, updateGivenIndex, resetToInitialValues } =
-  thresholdSlice.actions;
-export const selectThreshold = (state: RootState) => state.threshold;
+export const { updateAll } = thresholdSlice.actions;
+export const selectThreshold = (state: RootState) => state.threshold.values;
 export default thresholdSlice.reducer;
