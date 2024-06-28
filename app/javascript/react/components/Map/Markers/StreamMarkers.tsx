@@ -3,10 +3,7 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { mobileStreamPath, red } from "../../../assets/styles/colors";
-import {
-  selectHoverPosition,
-  selectHoverStreamId,
-} from "../../../store/mapSlice";
+import { selectHoverPosition } from "../../../store/mapSlice";
 import { Session } from "../../../types/sessionType";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
@@ -23,7 +20,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     {}
   );
   const polylineRef = useRef<google.maps.Polyline | null>(null);
-  const hoverStreamId = useSelector(selectHoverStreamId);
   const hoverPosition = useSelector(selectHoverPosition);
 
   // Sort sessions by time
