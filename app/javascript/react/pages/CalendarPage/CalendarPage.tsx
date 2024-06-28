@@ -1,5 +1,5 @@
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
@@ -16,10 +16,9 @@ import {
   fetchNewMovingStream,
   movingData,
 } from "../../store/movingCalendarStreamSlice";
-import { SessionTypes } from "../../types/filters";
-import { screenSizes } from "../../utils/media";
-import * as S from "./CalendarPage.style";
+import { updateAll } from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
+import * as S from "./CalendarPage.style";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
@@ -74,6 +73,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
         })
       );
     }
+    dispatch(updateAll(fixedStreamData.stream));
   }, [fixedStreamData, dispatch]);
 
   return (
@@ -82,12 +82,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       <S.CalendarPageLayout>
         <S.StationDataContainer>
           <FixedStreamStationHeader />
-          {!isMobile && (
-            <ThresholdsConfigurator
-              isMapPage={false}
-              sessionType={SessionTypes.FIXED}
-            />
-          )}
+          {!isMobile && <ThresholdsConfigurator isMapPage={false} />}
           {calendarIsVisible ? (
             <Calendar
               streamId={streamId}
@@ -97,12 +92,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           ) : (
             <EmptyCalendar />
           )}
-          {isMobile && (
-            <ThresholdsConfigurator
-              isMapPage={false}
-              sessionType={SessionTypes.FIXED}
-            />
-          )}
+          {isMobile && <ThresholdsConfigurator isMapPage={false} />}
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>

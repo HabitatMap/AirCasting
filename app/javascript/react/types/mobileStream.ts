@@ -28,12 +28,7 @@ interface MobileStream {
 interface MobileStreamShortInfo {
   averageValue: number;
   endTime: string | null;
-  high: number;
-  low: number;
-  max: number;
   maxMeasurementValue: number;
-  middle: number;
-  min: number;
   minMeasurementValue: number;
   profile: string;
   sensorName: string;

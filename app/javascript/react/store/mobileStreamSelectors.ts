@@ -2,11 +2,10 @@ import { createSelector } from "@reduxjs/toolkit";
 
 import { MobileStream, MobileStreamShortInfo } from "../types/mobileStream";
 import { Session } from "../types/sessionType";
+import { isValidValue } from "../utils/measurementsCalc";
 import { RootState } from "./";
 import { selectMobileSessionsState } from "./mobileSessionsSelectors";
 import { initialState as mobileStreamInitialState } from "./mobileStreamSlice";
-import { initialState as thresholdsInitialState } from "./thresholdSlice";
-import { isValidValue } from "../utils/measurementsCalc";
 
 const selectMobileStreamData = (state: RootState): MobileStream =>
   state.mobileStream.data;
@@ -50,13 +49,7 @@ const selectMobileStreamShortInfo = createSelector(
         mobileStreamInitialState.data.averageValue,
       endTime:
         mobileSession?.endTimeLocal || mobileStreamInitialState.data.endTime,
-      high: sessionStreamData?.thresholdHigh || thresholdsInitialState.high,
-      low: sessionStreamData?.thresholdLow || thresholdsInitialState.low,
-      max: sessionStreamData?.thresholdVeryHigh || thresholdsInitialState.max,
       maxMeasurementValue,
-      middle:
-        sessionStreamData?.thresholdMedium || thresholdsInitialState.middle,
-      min: sessionStreamData?.thresholdVeryLow || thresholdsInitialState.min,
       minMeasurementValue,
       profile: mobileStreamData.username,
       sensorName: mobileStreamData.sensorName,
@@ -75,11 +68,21 @@ const selectExtremesValues = (state: RootState) => state.mobileStream;
 const selectMobileExtremes = createSelector(
   [selectExtremesValues],
   (mobileStreamData) => {
-    const { averageMeasurementValue, minMeasurementValue, maxMeasurementValue } = mobileStreamData;
+    const {
+      averageMeasurementValue,
+      minMeasurementValue,
+      maxMeasurementValue,
+    } = mobileStreamData;
 
-    const min = isValidValue(minMeasurementValue) ? Math.round(minMeasurementValue!) : null;
-    const max = isValidValue(maxMeasurementValue) ? Math.round(maxMeasurementValue!) : null;
-    const avg = isValidValue(averageMeasurementValue) ? Math.round(averageMeasurementValue!) : null;
+    const min = isValidValue(minMeasurementValue)
+      ? Math.round(minMeasurementValue!)
+      : null;
+    const max = isValidValue(maxMeasurementValue)
+      ? Math.round(maxMeasurementValue!)
+      : null;
+    const avg = isValidValue(averageMeasurementValue)
+      ? Math.round(averageMeasurementValue!)
+      : null;
 
     return {
       minMeasurementValue: min,
