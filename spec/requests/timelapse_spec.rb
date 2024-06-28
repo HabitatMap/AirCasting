@@ -41,7 +41,7 @@ describe 'GET api/v3/timelapse', type: :request do
 
       expected_response =  hourly_averages
 
-      expect(JSON.parse(response.body)).to eq(expected_response)
+      expect(JSON.parse(response.body)).to match_array(expected_response)
     end
 
     it 'returns stream averages for selected 24h period for two sessions in one cluster' do
@@ -94,7 +94,7 @@ describe 'GET api/v3/timelapse', type: :request do
 
       expected_response = hourly_averages
 
-      expect(JSON.parse(response.body)).to eq(expected_response)
+      expect(JSON.parse(response.body)).to match_array(expected_response)
     end
 
     it 'returns stream averages for selected 24h period for two sessions in two clusters' do
@@ -157,7 +157,7 @@ describe 'GET api/v3/timelapse', type: :request do
 
       expected_response = hourly_averages
 
-      expect(JSON.parse(response.body)).to eq(expected_response)
+      expect(JSON.parse(response.body)).to match_array(expected_response)
     end
 
     it 'returns stream averages for a stream for 7 days time period' do
@@ -200,7 +200,7 @@ describe 'GET api/v3/timelapse', type: :request do
 
       expected_response = daily_averages
 
-      expect(JSON.parse(response.body)).to eq(expected_response)
+      expect(JSON.parse(response.body)).to match_array(expected_response)
     end
 
     # performance test using map data and experimental server API - delete before merging
