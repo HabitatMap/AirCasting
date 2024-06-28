@@ -19,10 +19,7 @@ import {
   selectFixedSessionsPoints,
   selectFixedSessionsStatusFulfilled,
 } from "../../store/fixedSessionsSelectors";
-import {
-  cleanSessions,
-  fetchFixedSessions,
-} from "../../store/fixedSessionsSlice";
+import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
@@ -296,11 +293,6 @@ const Map = () => {
     dispatch(setLoading(true));
   };
 
-  const handleSearch = () => {
-    dispatch(cleanSessions());
-    dispatch(setLoading(true));
-  };
-
   return (
     <>
       {/* temporary solution, ticket: Session Filter: General filters */}
@@ -352,25 +344,6 @@ const Map = () => {
           sessionType={selectedSessionType}
           streamId={selectedStreamId}
         />
-      )}
-      {!sessionsListOpen && (
-        <button
-          onClick={() => handleSearch()}
-          style={{
-            position: "absolute",
-            top: "10rem",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            padding: "10px 20px",
-            backgroundColor: "#fff",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
-            cursor: "pointer",
-            zIndex: 1000,
-          }}
-        >
-          Redo Search in Map
-        </button>
       )}
       <S.MobileContainer>
         <SectionButton

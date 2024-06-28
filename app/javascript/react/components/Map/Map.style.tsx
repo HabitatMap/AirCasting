@@ -12,16 +12,18 @@ const FixedButton = styled(Button)`
   top: 150px;
   position: absolute;
   z-index: 99;
+  text-transform: uppercase;
 `;
 
 const MobileButton = styled(Button)`
   top: 200px;
   position: absolute;
   z-index: 99;
+  text-transform: uppercase;
 `;
 
 const DesktopContainer = styled.div`
-  display: none; 
+  display: none;
 
   @media (${media.desktop}) {
     display: flex;
@@ -34,4 +36,10 @@ const MobileContainer = styled.div`
   }
 `;
 
-export { FixedButton, MobileButton, containerStyle, DesktopContainer, MobileContainer };
+export {
+  DesktopContainer,
+  FixedButton,
+  MobileButton,
+  MobileContainer,
+  containerStyle,
+};

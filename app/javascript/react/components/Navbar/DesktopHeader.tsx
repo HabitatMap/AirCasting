@@ -6,8 +6,9 @@ import hamburger from "../../assets/icons/hamburger.svg";
 import { urls } from "../../const/urls";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
-import * as S from "./Navbar.style";
+import { RefreshMapButton } from "../RefreshMapButton";
 import NavList from "./NavList/NavList";
+import * as S from "./Navbar.style";
 
 interface DesktopHeaderProps {
   isMapPage: boolean;
@@ -25,17 +26,19 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   <S.DesktopContainer>
     {isMapPage ? (
       <>
-        <S.SearchContainer>
-          <a
-            href={urls.habitatMap}
-            aria-label={t("navbar.sections.aircastingPage")}
-          >
-            <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
-          </a>
-
-          <LocationSearch />
-        </S.SearchContainer>
-        <ControlPanel />
+        <S.Container>
+          <S.SearchContainer>
+            <a
+              href={urls.habitatMap}
+              aria-label={t("navbar.sections.aircastingPage")}
+            >
+              <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
+            </a>
+            <LocationSearch />
+          </S.SearchContainer>
+          <RefreshMapButton />
+          <ControlPanel />
+        </S.Container>
       </>
     ) : (
       <a

@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import chevronDown from "../../../assets/icons/chevronDown.svg";
 import {
   blue,
   gray100,
@@ -7,7 +8,6 @@ import {
   white,
 } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
-import chevronDown from "../../../assets/icons/chevronDown.svg";
 
 const ControlPanelContainer = styled.div`
   background: ${white};
@@ -25,6 +25,7 @@ const ControlPanelContainer = styled.div`
     box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
     padding: 0;
     border-radius: 1rem;
+  }
 `;
 
 const ToggleContainer = styled.div`
@@ -34,6 +35,7 @@ const ToggleContainer = styled.div`
     align-items: center;
     font-size: 1.6rem;
     padding: 1.5rem 1rem;
+    height: 42px;
   }
 `;
 
@@ -182,15 +184,15 @@ const Select = styled.select`
 
 export {
   ControlPanelContainer,
-  ToggleContainer,
-  SwitchLabel,
-  SwitchInput,
-  Slider,
   Label,
-  TerrainContainer,
-  TerrainCheckbox,
-  TerrainLabel,
   RoundCheckbox,
-  SelectContainer,
   Select,
+  SelectContainer,
+  Slider,
+  SwitchInput,
+  SwitchLabel,
+  TerrainCheckbox,
+  TerrainContainer,
+  TerrainLabel,
+  ToggleContainer,
 };
