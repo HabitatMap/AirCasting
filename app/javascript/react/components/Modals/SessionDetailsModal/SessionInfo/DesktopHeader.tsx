@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { PopupProps } from "reactjs-popup/dist/types";
 import calendar from "../../../../assets/icons/calendar.svg";
 import downloadImage from "../../../../assets/icons/download.svg";
 import shareLink from "../../../../assets/icons/shareLink.svg";
@@ -44,6 +45,14 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
     extremes.maxMeasurementValue,
     extremes.averageValue
   );
+
+  // Workaround for the typescript error
+  const CopyLinkPopup: React.FC<
+    CustomPopupProps & Omit<PopupProps, "children">
+  > = (props) => {
+    return <S.SmallPopup {...(props as PopupProps)} />;
+  };
+
   return (
     <S.DesktopHeader>
       <S.Wrapper>
@@ -123,7 +132,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
             onSubmit={(formData) => {}}
           />
         </S.SmallPopup>
-        <S.SmallPopup
+        <CopyLinkPopup
           trigger={
             <S.Button
               onClick={copyCurrentURL}
@@ -136,11 +145,15 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
           nested
           closeOnDocumentClick
         >
-          <CopyLinkModal
-            sessionId={streamShortInfo.sessionId}
-            onSubmit={(formData) => {}}
-          />
-        </S.SmallPopup>
+          {(close) => (
+            <CopyLinkModal
+              sessionId={streamShortInfo.sessionId}
+              onSubmit={(formData) => {
+                close();
+              }}
+            />
+          )}
+        </CopyLinkPopup>
       </S.ButtonsContainer>
     </S.DesktopHeader>
   );
