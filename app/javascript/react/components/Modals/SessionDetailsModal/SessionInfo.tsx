@@ -2,6 +2,7 @@ import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { PopupProps } from "reactjs-popup/dist/types";
 
 import { ExportDataModal } from "../";
@@ -42,6 +43,8 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
   const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const streamShortInfo: StreamShortInfo = useSelector(
     fixedSessionTypeSelected
@@ -99,10 +102,21 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
 
   useEffect(() => {
     if (showConfirmation) {
-      // const timer = setTimeout(() => setShowConfirmation(false), 3000);
-      // return () => clearTimeout(timer);
+      const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      return () => clearTimeout(timer);
     }
   }, [showConfirmation]);
+
+  const currentUrl = new URL(window.location.href);
+  currentUrl.searchParams.set("sessionType", sessionType);
+  currentUrl.searchParams.set("streamId", streamId?.toString() || "");
+  currentUrl.searchParams.set("modal", "open");
+
+  currentUrl.searchParams.set("thresholdMin", thresholds.min.toString());
+  currentUrl.searchParams.set("thresholdLow", thresholds.low.toString());
+  currentUrl.searchParams.set("thresholdMiddle", thresholds.middle.toString());
+  currentUrl.searchParams.set("thresholdHigh", thresholds.high.toString());
+  currentUrl.searchParams.set("thresholdMax", thresholds.max.toString());
 
   return (
     <S.InfoContainer>
@@ -197,7 +211,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
             {(close) => (
               <>
                 <CopyLinkModal
-                  sessionId={streamShortInfo.sessionId}
+                  link={currentUrl.toString()}
                   onSubmit={(formData) => handleCopySubmit(formData, close)}
                 />
               </>
@@ -209,7 +223,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
               closeOnDocumentClick={false}
               arrow={false}
               contentStyle={{
-                top: buttonPosition.top - 50,
+                top: buttonPosition.top - 60,
                 left: buttonPosition.left - 17,
                 position: "absolute",
               }}
