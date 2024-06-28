@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { PopupProps } from "reactjs-popup/dist/types";
 import calendar from "../../../../assets/icons/calendar.svg";
@@ -7,7 +7,6 @@ import shareLink from "../../../../assets/icons/shareLink.svg";
 import { white } from "../../../../assets/styles/colors";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
-import { copyCurrentURL } from "../../../../utils/copyCurrentUrl";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../../utils/thresholdColors";
 import { ExportDataModal } from "../../../Modals/ExportDataModal";
@@ -52,6 +51,28 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   > = (props) => {
     return <S.SmallPopup {...(props as PopupProps)} />;
   };
+
+  const handleCopySubmit = (formData, close) => {
+    close();
+    setShowConfirmation(true);
+  };
+
+  useEffect(() => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      console.log(rect);
+      setButtonPosition({ top: rect.top, left: rect.left });
+    }
+  }, [buttonRef.current]);
+
+  console.log(buttonPosition, "buttonPosition");
+
+  useEffect(() => {
+    if (showConfirmation) {
+      // const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      // return () => clearTimeout(timer);
+    }
+  }, [showConfirmation]);
 
   return (
     <S.DesktopHeader>
@@ -132,28 +153,40 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
             onSubmit={(formData) => {}}
           />
         </S.SmallPopup>
-        <CopyLinkPopup
-          trigger={
-            <S.Button
-              onClick={copyCurrentURL}
-              aria-label={t("copyLinkModal.altCopyLink")}
+        <S.WrapperButton ref={buttonRef}>
+          <CopyLinkPopup
+            trigger={
+              <S.Button aria-label={t("copyLinkModal.altCopyLink")}>
+                <img src={shareLink} alt={t("copyLinkModal.copyLink")} />
+              </S.Button>
+            }
+            position="top center"
+            nested
+            closeOnDocumentClick
+          >
+            {(close) => (
+              <>
+                <CopyLinkModal
+                  sessionId={streamShortInfo.sessionId}
+                  onSubmit={(formData) => handleCopySubmit(formData, close)}
+                />
+              </>
+            )}
+          </CopyLinkPopup>
+          {showConfirmation && (
+            <S.ConfirmationPopup
+              open={showConfirmation}
+              closeOnDocumentClick={false}
+              arrow={false}
+              top={buttonPosition.top}
+              left={buttonPosition.left}
             >
-              <img src={shareLink} alt={t("copyLinkModal.copyLink")} />
-            </S.Button>
-          }
-          position="top center"
-          nested
-          closeOnDocumentClick
-        >
-          {(close) => (
-            <CopyLinkModal
-              sessionId={streamShortInfo.sessionId}
-              onSubmit={(formData) => {
-                close();
-              }}
-            />
+              <ConfirmationMessage
+                message={t("copyLinkModal.confirmationMessage")}
+              />
+            </S.ConfirmationPopup>
           )}
-        </CopyLinkPopup>
+        </S.WrapperButton>
       </S.ButtonsContainer>
     </S.DesktopHeader>
   );
