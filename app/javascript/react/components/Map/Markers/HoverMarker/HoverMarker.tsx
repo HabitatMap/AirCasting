@@ -3,10 +3,10 @@ import React from "react";
 import { LatLngLiteral } from "../../../../types/googleMaps";
 import * as S from "./HoverMarker.style";
 
-type HoverMarkerProps = {
+interface HoverMarkerProps {
   position: LatLngLiteral | null;
-  fixedSessionTypeSelected?: boolean;
-};
+  fixedSessionTypeSelected: boolean;
+}
 
 const HoverMarker: React.FC<HoverMarkerProps> = ({
   position,
