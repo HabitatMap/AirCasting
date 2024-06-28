@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { white, blue, gray100 } from "../../assets/styles/colors";
-import { Button } from "../Button/Button.style";
+import { blue, gray100, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
+import { Button } from "../Button/Button.style";
 
 interface ModalProps {
   isOpen: boolean;
@@ -91,12 +91,12 @@ const FormWrapper = styled.div`
 `;
 
 export {
-  ModalContent,
-  ButtonsWrapper,
-  FlexWrapper,
   ActionButton,
-  CancelButtonX,
-  TextInput,
   BlueButton,
+  ButtonsWrapper,
+  CancelButtonX,
+  FlexWrapper,
   FormWrapper,
+  ModalContent,
+  TextInput,
 };

@@ -2,6 +2,7 @@ import moment from "moment";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import type { PopupProps } from "reactjs-popup/dist/types";
 
 import { ExportDataModal } from "../";
 import calendar from "../../../assets/icons/calendar.svg";
@@ -13,15 +14,15 @@ import {
   selectFixedStreamShortInfo,
 } from "../../../store/fixedStreamSelectors";
 import {
-  selectMobileStreamShortInfo,
   selectMobileExtremes,
+  selectMobileStreamShortInfo,
 } from "../../../store/mobileStreamSelectors";
 import { selectThreshold } from "../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../types/mobileStream";
 import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
-import { getColorForValue } from "../../../utils/thresholdColors";
 import { isNoData } from "../../../utils/measurementsCalc";
+import { getColorForValue } from "../../../utils/thresholdColors";
 import { CopyLinkModal } from "../CopyLinkModal";
 import * as S from "./SessionDetailsModal.style";
 
@@ -29,6 +30,12 @@ interface SessionInfoProps {
   sessionType: SessionType;
   streamId: number | null;
 }
+
+type CustomPopupProps = {
+  children:
+    | React.ReactNode
+    | ((close: () => void, isOpen: boolean) => React.ReactNode);
+};
 
 const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
@@ -55,6 +62,13 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
     maxMeasurementValue,
     averageValue
   );
+
+  // Workaround for the typescript error
+  const CopyLinkPopup: React.FC<
+    CustomPopupProps & Omit<PopupProps, "children">
+  > = (props) => {
+    return <S.SmallPopup {...(props as PopupProps)} />;
+  };
 
   return (
     <S.InfoContainer>
@@ -135,7 +149,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
             onSubmit={(formData) => {}}
           />
         </S.SmallPopup>
-        <S.SmallPopup
+        <CopyLinkPopup
           trigger={
             <S.Button
               onClick={copyCurrentURL}
@@ -148,11 +162,15 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
           nested
           closeOnDocumentClick
         >
-          <CopyLinkModal
-            sessionId={streamShortInfo.sessionId}
-            onSubmit={(formData) => {}}
-          />
-        </S.SmallPopup>
+          {(close) => (
+            <CopyLinkModal
+              sessionId={streamShortInfo.sessionId}
+              onSubmit={(formData) => {
+                close();
+              }}
+            />
+          )}
+        </CopyLinkPopup>
       </S.ButtonsContainer>
     </S.InfoContainer>
   );

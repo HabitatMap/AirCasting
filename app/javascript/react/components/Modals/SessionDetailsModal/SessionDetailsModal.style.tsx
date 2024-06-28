@@ -48,6 +48,7 @@ const SessionDetailsModal = styled(Popup)`
     @media ${media.smallDesktop} {
       padding: 1.25rem;
       flex-direction: row;
+    }
   }
 `;
 
@@ -224,23 +225,23 @@ const NoData = styled.span`
   font-size: 1.6rem;
 `;
 export {
-  SessionDetailsModal,
+  AverageDot,
+  AverageValue,
+  AverageValueContainer,
+  BlueButton,
+  Button,
+  ButtonsContainer,
+  CancelButtonX,
   InfoContainer,
-  SessionName,
+  MinMaxValueContainer,
+  NoData,
   ProfileName,
   SensorName,
-  AverageValueContainer,
-  AverageValue,
-  AverageDot,
+  SessionDetailsModal,
+  SessionName,
   SmallDot,
-  ButtonsContainer,
-  MinMaxValueContainer,
-  Value,
-  TimeRange,
-  Button,
-  BlueButton,
-  CancelButtonX,
   SmallPopup,
+  TimeRange,
+  Value,
   Wrapper,
-  NoData,
 };
