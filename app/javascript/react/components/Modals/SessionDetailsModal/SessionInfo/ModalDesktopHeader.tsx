@@ -1,8 +1,4 @@
-<<<<<<< HEAD:app/javascript/react/components/Modals/SessionDetailsModal/SessionInfo/ModalDesktopHeader.tsx
 import React, { useEffect, useRef, useState } from "react";
-=======
-import React, { useEffect } from "react";
->>>>>>> f6bd36ef (Confirmation modal wip):app/javascript/react/components/Modals/SessionDetailsModal/SessionInfo/DesktopHeader.tsx
 import { useTranslation } from "react-i18next";
 import { PopupProps } from "reactjs-popup/dist/types";
 import calendar from "../../../../assets/icons/calendar.svg";
