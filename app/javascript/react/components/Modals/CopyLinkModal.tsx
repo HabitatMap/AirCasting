@@ -17,8 +17,12 @@ const initialCopyLinkModalData: CopyLinkModalData = {
 };
 
 interface CopyLinkModalProps {
+  sessionId: string;
   onSubmit: (data: CopyLinkModalData) => void;
+<<<<<<< HEAD
   onError: (error: Error) => void;
+=======
+>>>>>>> 7e47527f (Use tiny url for shortening url)
 }
 
 const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
@@ -31,6 +35,7 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
   const [formState, setFormState] = useState<CopyLinkModalData>(
     initialCopyLinkModalData
   );
+<<<<<<< HEAD
 
   useEffect(() => {
     if (error) {
@@ -42,22 +47,20 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
       }));
     }
   }, [shortenedLink, error, onError]);
+=======
+  const { t } = useTranslation();
+>>>>>>> 7e47527f (Use tiny url for shortening url)
 
   useEffect(() => {
-    // Function to shorten the link using Bitly API
     const shortenLink = async (url: string) => {
       try {
-        const response = await axios.post(
-          "https://api-ssl.bitly.com/v4/shorten",
-          { long_url: url },
-          {
-            headers: {
-              Authorization: `Bearer 8842f7202f486a4724eb8cd36ace5e9a728ade02`,
-              "Content-Type": "application/json",
-            },
-          }
+        const response = await axios.get(
+          `https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`
         );
-        setShortLink(response.data.link);
+        setFormState((prevFormData) => ({
+          ...prevFormData,
+          link: response.data,
+        }));
       } catch (error) {
         console.error("Error shortening the link: ", error);
       }
@@ -87,7 +90,7 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
       <FormWrapper>
         <ModalInput
           focusInputRef={focusInputRef}
-          value={shortLink}
+          value={formState.link}
           onChange={handleInputChange}
           name="link"
           type="text"
