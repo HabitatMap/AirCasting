@@ -137,8 +137,6 @@ const Map = () => {
     (state: RootState) => state.map.sessionsListOpen
   );
 
-  const thresholds = useSelector((state: RootState) => state.threshold);
-
   // Filters (temporary solution)
   const sensor_name = fixedSessionTypeSelected
     ? "government-pm2.5"
@@ -215,12 +213,6 @@ const Map = () => {
     const sessionId = urlParams.get("sessionId");
     const modal = urlParams.get("modal");
 
-    const thresholdMin = urlParams.get("thresholdMin");
-    const thresholdLow = urlParams.get("thresholdLow");
-    const thresholdMiddle = urlParams.get("thresholdMiddle");
-    const thresholdHigh = urlParams.get("thresholdHigh");
-    const thresholdMax = urlParams.get("thresholdMax");
-
     if (center && zoom) {
       const [lat, lng] = center.split(",").map(Number);
       setPreviousCenter({ lat, lng });
@@ -251,24 +243,6 @@ const Map = () => {
     if (modal === "open") {
       setModalOpen(true);
     }
-
-    if (
-      thresholdMin !== null &&
-      thresholdLow !== null &&
-      thresholdMiddle !== null &&
-      thresholdHigh !== null &&
-      thresholdMax !== null
-    ) {
-      dispatch(
-        updateAll({
-          min: Number(thresholdMin),
-          low: Number(thresholdLow),
-          middle: Number(thresholdMiddle),
-          high: Number(thresholdHigh),
-          max: Number(thresholdMax),
-        })
-      );
-    }
   }, [location.search, mapInstance, dispatch]);
 
   useEffect(() => {
@@ -285,13 +259,6 @@ const Map = () => {
     if (modalOpen) {
       urlParams.set("modal", "open");
     }
-
-    urlParams.set("thresholdMin", thresholds.min.toString());
-    urlParams.set("thresholdLow", thresholds.low.toString());
-    urlParams.set("thresholdMiddle", thresholds.middle.toString());
-    urlParams.set("thresholdHigh", thresholds.high.toString());
-    urlParams.set("thresholdMax", thresholds.max.toString());
-
     navigate(`${location.pathname}?${urlParams.toString()}`, { replace: true });
   }, [
     previousCenter,
@@ -300,7 +267,6 @@ const Map = () => {
     selectedStreamId,
     selectedSessionId,
     modalOpen,
-    thresholds,
     navigate,
     location.pathname,
   ]);
