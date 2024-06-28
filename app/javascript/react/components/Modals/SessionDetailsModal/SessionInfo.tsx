@@ -23,7 +23,7 @@ import { MobileStreamShortInfo as StreamShortInfo } from "../../../types/mobileS
 import { isNoData } from "../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { ConfirmationMessage } from "../atoms/ConfirmationMessage";
-import { CopyLinkModal } from "../CopyLinkModal";
+import { CopyLinkModal, CopyLinkModalData } from "../CopyLinkModal";
 import * as S from "./SessionDetailsModal.style";
 
 interface SessionInfoProps {
@@ -73,25 +73,34 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
     return <S.SmallPopup {...(props as PopupProps)} />;
   };
 
-  const handleCopySubmit = (formData, close) => {
+  const handleCopySubmit = (
+    formData: CopyLinkModalData,
+    close: { (): void; (): void }
+  ) => {
     close();
     setShowConfirmation(true);
   };
 
-  useEffect(() => {
+  const updateButtonPosition = () => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      console.log(rect);
       setButtonPosition({ top: rect.top, left: rect.left });
     }
-  }, [buttonRef.current]);
+  };
 
-  console.log(buttonPosition, "buttonPosition");
+  useEffect(() => {
+    updateButtonPosition();
+    window.addEventListener("resize", updateButtonPosition);
+
+    return () => {
+      window.removeEventListener("resize", updateButtonPosition);
+    };
+  }, [buttonRef.current]);
 
   useEffect(() => {
     if (showConfirmation) {
-      const timer = setTimeout(() => setShowConfirmation(false), 3000);
-      return () => clearTimeout(timer);
+      // const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      // return () => clearTimeout(timer);
     }
   }, [showConfirmation]);
 
