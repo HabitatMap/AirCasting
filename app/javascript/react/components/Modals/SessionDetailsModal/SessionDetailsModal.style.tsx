@@ -244,24 +244,15 @@ const SmallPopup = styled(Popup)`
   }
 `;
 
-const ConfirmationPopup = styled(Popup)<{ top: number; left: number }>`
-  width: 100%;
-  height: auto;
-
-  &-overlay {
-  }
-
+const ConfirmationPopup = styled(Popup)`
   &-content {
     background-color: ${white};
     opacity: 1;
     border-radius: 8px;
-    position: absolute;
     padding: 1rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1200;
     display: flex;
-    top: ${(props) => props.top}px;
-    /* left: ${(props) => props.left}px; */
   }
 `;
 
@@ -312,6 +303,7 @@ const WrapperButton = styled.div`
   display: flex;
   position: relative;
 `;
+
 export {
   AverageDot,
   AverageValue,
