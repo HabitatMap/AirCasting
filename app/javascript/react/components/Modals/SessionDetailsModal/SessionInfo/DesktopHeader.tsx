@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
 import { PopupProps } from "reactjs-popup/dist/types";
 import calendar from "../../../../assets/icons/calendar.svg";
 import downloadImage from "../../../../assets/icons/download.svg";
@@ -10,7 +11,8 @@ import { Thresholds } from "../../../../types/thresholds";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../../utils/thresholdColors";
 import { ExportDataModal } from "../../../Modals/ExportDataModal";
-import { CopyLinkModal } from "../../CopyLinkModal";
+import { ConfirmationMessage } from "../../atoms/ConfirmationMessage";
+import { CopyLinkModal, CopyLinkModalData } from "../../CopyLinkModal";
 import * as S from "../SessionDetailsModal.style";
 
 interface Extremes {
@@ -36,6 +38,12 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   streamId,
   fixedSessionTypeSelected,
 }) => {
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const { t } = useTranslation();
 
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
@@ -78,10 +86,21 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
 
   useEffect(() => {
     if (showConfirmation) {
-      // const timer = setTimeout(() => setShowConfirmation(false), 3000);
-      // return () => clearTimeout(timer);
+      const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      return () => clearTimeout(timer);
     }
   }, [showConfirmation]);
+
+  const currentUrl = new URL(window.location.href);
+  currentUrl.searchParams.set("sessionType", sessionType);
+  currentUrl.searchParams.set("streamId", streamId?.toString() || "");
+  currentUrl.searchParams.set("modal", "open");
+
+  currentUrl.searchParams.set("thresholdMin", thresholds.min.toString());
+  currentUrl.searchParams.set("thresholdLow", thresholds.low.toString());
+  currentUrl.searchParams.set("thresholdMiddle", thresholds.middle.toString());
+  currentUrl.searchParams.set("thresholdHigh", thresholds.high.toString());
+  currentUrl.searchParams.set("thresholdMax", thresholds.max.toString());
 
   return (
     <S.DesktopHeader>
@@ -176,7 +195,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
             {(close) => (
               <>
                 <CopyLinkModal
-                  sessionId={streamShortInfo.sessionId}
+                  link={currentUrl.toString()}
                   onSubmit={(formData) => handleCopySubmit(formData, close)}
                 />
               </>
@@ -188,7 +207,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
               closeOnDocumentClick={false}
               arrow={false}
               contentStyle={{
-                top: buttonPosition.top - 50,
+                top: buttonPosition.top - 60,
                 left: buttonPosition.left - 17,
                 position: "absolute",
               }}

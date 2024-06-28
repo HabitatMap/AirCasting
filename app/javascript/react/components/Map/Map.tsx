@@ -1,18 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import pinImage from "../../assets/icons/pinImage.svg";
 import {
-    DEFAULT_MAP_BOUNDS, DEFAULT_MAP_CENTER, DEFAULT_ZOOM, MIN_ZOOM
+  DEFAULT_MAP_BOUNDS,
+  DEFAULT_MAP_CENTER,
+  DEFAULT_ZOOM,
+  MIN_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
 import {
-    selectFixedSessionPointsBySessionId, selectFixedSessionsList, selectFixedSessionsPoints,
-    selectFixedSessionsStatusFulfilled
+  selectFixedSessionPointsBySessionId,
+  selectFixedSessionsList,
+  selectFixedSessionsPoints,
+  selectFixedSessionsStatusFulfilled,
 } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
@@ -24,12 +29,14 @@ import {
   setSessionsListOpen,
 } from "../../store/mapSlice";
 import {
-    selectMobileSessionPointsBySessionId, selectMobileSessionsList, selectMobileSessionsPoints
+  selectMobileSessionPointsBySessionId,
+  selectMobileSessionsList,
+  selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
-import { fetchThresholds, resetUserThresholds } from "../../store/thresholdSlice";
+import { resetUserThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { pubSub } from "../../utils/pubSubManager";
@@ -60,6 +67,7 @@ const Map = () => {
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const location = useLocation();
 
   // State
   const [mapBounds, setMapBounds] = useState({
@@ -116,6 +124,8 @@ const Map = () => {
     (state: RootState) => state.map.sessionsListOpen
   );
 
+  const thresholds = useSelector((state: RootState) => state.threshold);
+
   // Filters (temporary solution)
   const sensor_name = fixedSessionTypeSelected
     ? "Government-PM2.5"
@@ -165,8 +175,103 @@ const Map = () => {
   }, [dispatch, filters, loading, fixedSessionTypeSelected]);
 
   useEffect(() => {
-    dispatch(fetchThresholds(thresholdFilters));
-  }, [thresholdFilters]);
+    const urlParams = new URLSearchParams(location.search);
+    const center = urlParams.get("center");
+    const zoom = urlParams.get("zoom");
+    const sessionType = urlParams.get("sessionType");
+    const streamId = urlParams.get("streamId");
+    const sessionId = urlParams.get("sessionId");
+    const modal = urlParams.get("modal");
+
+    const thresholdMin = urlParams.get("thresholdMin");
+    const thresholdLow = urlParams.get("thresholdLow");
+    const thresholdMiddle = urlParams.get("thresholdMiddle");
+    const thresholdHigh = urlParams.get("thresholdHigh");
+    const thresholdMax = urlParams.get("thresholdMax");
+
+    if (center && zoom) {
+      const [lat, lng] = center.split(",").map(Number);
+      setPreviousCenter({ lat, lng });
+      setPreviousZoom(Number(zoom));
+      if (mapInstance) {
+        mapInstance.setCenter({ lat, lng });
+        mapInstance.setZoom(Number(zoom));
+      }
+    }
+
+    if (sessionType) {
+      setSelectedSessionType(sessionType as SessionType);
+    }
+
+    if (streamId) {
+      setSelectedStreamId(Number(streamId));
+      if (sessionType === SessionTypes.FIXED) {
+        dispatch(fetchFixedStreamById(Number(streamId)));
+      } else {
+        dispatch(fetchMobileStreamById(Number(streamId)));
+      }
+    }
+
+    if (sessionId) {
+      setSelectedSessionId(Number(sessionId));
+    }
+
+    if (modal === "open") {
+      setModalOpen(true);
+    }
+
+    if (
+      thresholdMin !== null &&
+      thresholdLow !== null &&
+      thresholdMiddle !== null &&
+      thresholdHigh !== null &&
+      thresholdMax !== null
+    ) {
+      dispatch(
+        updateAll({
+          min: Number(thresholdMin),
+          low: Number(thresholdLow),
+          middle: Number(thresholdMiddle),
+          high: Number(thresholdHigh),
+          max: Number(thresholdMax),
+        })
+      );
+    }
+  }, [location.search, mapInstance, dispatch]);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams();
+    urlParams.set("center", `${previousCenter.lat},${previousCenter.lng}`);
+    urlParams.set("zoom", previousZoom.toString());
+    urlParams.set("sessionType", selectedSessionType);
+    if (selectedStreamId) {
+      urlParams.set("streamId", selectedStreamId.toString());
+    }
+    if (selectedSessionId) {
+      urlParams.set("sessionId", selectedSessionId.toString());
+    }
+    if (modalOpen) {
+      urlParams.set("modal", "open");
+    }
+
+    urlParams.set("thresholdMin", thresholds.min.toString());
+    urlParams.set("thresholdLow", thresholds.low.toString());
+    urlParams.set("thresholdMiddle", thresholds.middle.toString());
+    urlParams.set("thresholdHigh", thresholds.high.toString());
+    urlParams.set("thresholdMax", thresholds.max.toString());
+
+    navigate(`${location.pathname}?${urlParams.toString()}`, { replace: true });
+  }, [
+    previousCenter,
+    previousZoom,
+    selectedSessionType,
+    selectedStreamId,
+    selectedSessionId,
+    modalOpen,
+    thresholds,
+    navigate,
+    location.pathname,
+  ]);
 
   // Callbacks
   const onIdle = useCallback(
