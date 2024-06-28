@@ -1,5 +1,5 @@
 import moment from "moment";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import type { PopupProps } from "reactjs-popup/dist/types";
@@ -20,9 +20,9 @@ import {
 import { selectThreshold } from "../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../types/mobileStream";
-import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
 import { isNoData } from "../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../utils/thresholdColors";
+import { ConfirmationMessage } from "../atoms/ConfirmationMessage";
 import { CopyLinkModal } from "../CopyLinkModal";
 import * as S from "./SessionDetailsModal.style";
 
@@ -38,6 +38,9 @@ type CustomPopupProps = {
 };
 
 const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLDivElement>(null);
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
   const streamShortInfo: StreamShortInfo = useSelector(
@@ -69,6 +72,28 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
   > = (props) => {
     return <S.SmallPopup {...(props as PopupProps)} />;
   };
+
+  const handleCopySubmit = (formData, close) => {
+    close();
+    setShowConfirmation(true);
+  };
+
+  useEffect(() => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      console.log(rect);
+      setButtonPosition({ top: rect.top, left: rect.left });
+    }
+  }, [buttonRef.current]);
+
+  console.log(buttonPosition, "buttonPosition");
+
+  useEffect(() => {
+    if (showConfirmation) {
+      // const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      // return () => clearTimeout(timer);
+    }
+  }, [showConfirmation]);
 
   return (
     <S.InfoContainer>
@@ -149,28 +174,40 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
             onSubmit={(formData) => {}}
           />
         </S.SmallPopup>
-        <CopyLinkPopup
-          trigger={
-            <S.Button
-              onClick={copyCurrentURL}
-              aria-label={t("copyLinkModal.altCopyLink")}
+        <S.WrapperButton ref={buttonRef}>
+          <CopyLinkPopup
+            trigger={
+              <S.Button aria-label={t("copyLinkModal.altCopyLink")}>
+                <img src={shareLink} alt={t("copyLinkModal.copyLink")} />
+              </S.Button>
+            }
+            position="top center"
+            nested
+            closeOnDocumentClick
+          >
+            {(close) => (
+              <>
+                <CopyLinkModal
+                  sessionId={streamShortInfo.sessionId}
+                  onSubmit={(formData) => handleCopySubmit(formData, close)}
+                />
+              </>
+            )}
+          </CopyLinkPopup>
+          {showConfirmation && (
+            <S.ConfirmationPopup
+              open={showConfirmation}
+              closeOnDocumentClick={false}
+              arrow={false}
+              top={buttonPosition.top}
+              left={buttonPosition.left}
             >
-              <img src={shareLink} alt={t("copyLinkModal.copyLink")} />
-            </S.Button>
-          }
-          position="top center"
-          nested
-          closeOnDocumentClick
-        >
-          {(close) => (
-            <CopyLinkModal
-              sessionId={streamShortInfo.sessionId}
-              onSubmit={(formData) => {
-                close();
-              }}
-            />
+              <ConfirmationMessage
+                message={t("copyLinkModal.confirmationMessage")}
+              />
+            </S.ConfirmationPopup>
           )}
-        </CopyLinkPopup>
+        </S.WrapperButton>
       </S.ButtonsContainer>
     </S.InfoContainer>
   );

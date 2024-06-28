@@ -39,7 +39,6 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit }) => {
     event.preventDefault();
     onSubmit(formState);
     setFormState(initialCopyLinkModalData);
-    close();
   };
 
   return (

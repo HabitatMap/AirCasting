@@ -211,6 +211,27 @@ const SmallPopup = styled(Popup)`
   }
 `;
 
+const ConfirmationPopup = styled(Popup)<{ top: number; left: number }>`
+  width: 100%;
+  height: auto;
+
+  &-overlay {
+  }
+
+  &-content {
+    background-color: ${white};
+    opacity: 1;
+    border-radius: 8px;
+    position: absolute;
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1200;
+    display: flex;
+    top: ${(props) => props.top}px;
+    /* left: ${(props) => props.left}px; */
+  }
+`;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -224,6 +245,11 @@ const Wrapper = styled.div`
 const NoData = styled.span`
   font-size: 1.6rem;
 `;
+
+const WrapperButton = styled.div`
+  display: flex;
+  position: relative;
+`;
 export {
   AverageDot,
   AverageValue,
@@ -232,6 +258,7 @@ export {
   Button,
   ButtonsContainer,
   CancelButtonX,
+  ConfirmationPopup,
   InfoContainer,
   MinMaxValueContainer,
   NoData,
@@ -244,4 +271,5 @@ export {
   TimeRange,
   Value,
   Wrapper,
+  WrapperButton,
 };
