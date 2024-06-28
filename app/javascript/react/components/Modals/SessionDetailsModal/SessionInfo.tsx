@@ -90,8 +90,8 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
 
   useEffect(() => {
     if (showConfirmation) {
-      // const timer = setTimeout(() => setShowConfirmation(false), 3000);
-      // return () => clearTimeout(timer);
+      const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      return () => clearTimeout(timer);
     }
   }, [showConfirmation]);
 
@@ -199,8 +199,11 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
               open={showConfirmation}
               closeOnDocumentClick={false}
               arrow={false}
-              top={buttonPosition.top}
-              left={buttonPosition.left}
+              contentStyle={{
+                top: buttonPosition.top - 50,
+                left: buttonPosition.left - 17,
+                position: "absolute",
+              }}
             >
               <ConfirmationMessage
                 message={t("copyLinkModal.confirmationMessage")}
