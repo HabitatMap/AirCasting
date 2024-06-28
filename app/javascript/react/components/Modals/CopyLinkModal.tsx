@@ -43,6 +43,29 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
     }
   }, [shortenedLink, error, onError]);
 
+  useEffect(() => {
+    // Function to shorten the link using Bitly API
+    const shortenLink = async (url: string) => {
+      try {
+        const response = await axios.post(
+          "https://api-ssl.bitly.com/v4/shorten",
+          { long_url: url },
+          {
+            headers: {
+              Authorization: `Bearer 8842f7202f486a4724eb8cd36ace5e9a728ade02`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setShortLink(response.data.link);
+      } catch (error) {
+        console.error("Error shortening the link: ", error);
+      }
+    };
+
+    shortenLink(window.location.href);
+  }, []);
+
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ): void => {
@@ -64,7 +87,7 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
       <FormWrapper>
         <ModalInput
           focusInputRef={focusInputRef}
-          value={formState.link}
+          value={shortLink}
           onChange={handleInputChange}
           name="link"
           type="text"

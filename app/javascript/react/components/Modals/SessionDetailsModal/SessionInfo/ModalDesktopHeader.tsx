@@ -9,9 +9,15 @@ import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobi
 import { Thresholds } from "../../../../types/thresholds";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../../utils/thresholdColors";
+<<<<<<< HEAD:app/javascript/react/components/Modals/SessionDetailsModal/SessionInfo/ModalDesktopHeader.tsx
 import { ConfirmationMessage } from "../../atoms/ConfirmationMessage";
 import { CopyLinkModal, CopyLinkModalData } from "../../CopyLinkModal";
 import { ExportDataModal } from "../../ExportDataModal";
+=======
+import { ExportDataModal } from "../../../Modals/ExportDataModal";
+import { ConfirmationMessage } from "../../atoms/ConfirmationMessage";
+import { CopyLinkModal, CopyLinkModalData } from "../../CopyLinkModal";
+>>>>>>> 26c8c1eb (Add parameters to url):app/javascript/react/components/Modals/SessionDetailsModal/SessionInfo/DesktopHeader.tsx
 import * as S from "../SessionDetailsModal.style";
 
 interface Extremes {
@@ -46,6 +52,11 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
+<<<<<<< HEAD:app/javascript/react/components/Modals/SessionDetailsModal/SessionInfo/ModalDesktopHeader.tsx
+=======
+  const location = useLocation();
+  const navigate = useNavigate();
+>>>>>>> 26c8c1eb (Add parameters to url):app/javascript/react/components/Modals/SessionDetailsModal/SessionInfo/DesktopHeader.tsx
 
   const { t } = useTranslation();
 
@@ -94,10 +105,21 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
 
   useEffect(() => {
     if (showConfirmation) {
-      // const timer = setTimeout(() => setShowConfirmation(false), 3000);
-      // return () => clearTimeout(timer);
+      const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      return () => clearTimeout(timer);
     }
   }, [showConfirmation]);
+
+  const currentUrl = new URL(window.location.href);
+  currentUrl.searchParams.set("sessionType", sessionType);
+  currentUrl.searchParams.set("streamId", streamId?.toString() || "");
+  currentUrl.searchParams.set("modal", "open");
+
+  currentUrl.searchParams.set("thresholdMin", thresholds.min.toString());
+  currentUrl.searchParams.set("thresholdLow", thresholds.low.toString());
+  currentUrl.searchParams.set("thresholdMiddle", thresholds.middle.toString());
+  currentUrl.searchParams.set("thresholdHigh", thresholds.high.toString());
+  currentUrl.searchParams.set("thresholdMax", thresholds.max.toString());
 
   return (
     <S.ModalDesktopHeader>
