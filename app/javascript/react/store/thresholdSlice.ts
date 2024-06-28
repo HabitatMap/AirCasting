@@ -26,7 +26,7 @@ export const thresholdSlice = createSlice({
   name: "threshold",
   initialState: { ...initialState },
   reducers: {
-    updateAll: (
+    setUserThresholdValues: (
       state,
       { payload: { min, low, middle, high, max } }: PayloadAction<Thresholds>
     ) => {
@@ -42,7 +42,8 @@ export const thresholdSlice = createSlice({
   },
 });
 
-export const { setUserAdjustedValues, updateAll } = thresholdSlice.actions;
+export const { setUserAdjustedValues, setUserThresholdValues } =
+  thresholdSlice.actions;
 export default thresholdSlice.reducer;
 
 export const selectThreshold = (state: RootState): Thresholds =>

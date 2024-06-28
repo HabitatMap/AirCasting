@@ -3,17 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import { useAppDispatch } from "../../store/hooks";
-import {
-  selectThreshold,
-  setUserAdjustedValues,
-  updateAll,
-} from "../../store/thresholdSlice";
+import { selectThreshold, setUserThresholdValues } from "../../store/thresholdSlice";
 import { Thresholds } from "../../types/thresholds";
 import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
-import {
-  handleMouseDown,
-  handleTouchStart,
-} from "../../utils/thresholdGestureHandlers";
+import { handleMouseDown, handleTouchStart } from "../../utils/thresholdGestureHandlers";
 import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 import * as S from "./ThresholdConfigurator.style";
@@ -43,7 +36,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(updateAll(thresholdValues));
+    dispatch(setUserThresholdValues(thresholdValues));
   }, [thresholdValues]);
 
   useEffect(() => {
