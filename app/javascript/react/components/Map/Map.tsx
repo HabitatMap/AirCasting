@@ -181,6 +181,12 @@ const Map = () => {
     const sessionId = urlParams.get("sessionId");
     const modal = urlParams.get("modal");
 
+    const min = urlParams.get("min");
+    const low = urlParams.get("low");
+    const middle = urlParams.get("middle");
+    const high = urlParams.get("high");
+    const max = urlParams.get("max");
+
     if (center && zoom) {
       const [lat, lng] = center.split(",").map(Number);
       setPreviousCenter({ lat, lng });
@@ -211,6 +217,18 @@ const Map = () => {
     if (modal === "open") {
       setModalOpen(true);
     }
+
+    if (min && low && middle && high && max) {
+      dispatch(
+        updateAll({
+          min: Number(min),
+          low: Number(low),
+          middle: Number(middle),
+          high: Number(high),
+          max: Number(max),
+        })
+      );
+    }
   }, [location.search, mapInstance, dispatch]);
 
   useEffect(() => {
@@ -227,6 +245,11 @@ const Map = () => {
     if (modalOpen) {
       urlParams.set("modal", "open");
     }
+    urlParams.set("min", initialMin.toString());
+    urlParams.set("low", initialLow.toString());
+    urlParams.set("middle", initialMiddle.toString());
+    urlParams.set("high", initialHigh.toString());
+    urlParams.set("max", initialMax.toString());
     navigate(`${location.pathname}?${urlParams.toString()}`, { replace: true });
   }, [
     previousCenter,
@@ -237,6 +260,11 @@ const Map = () => {
     modalOpen,
     navigate,
     location.pathname,
+    initialMin,
+    initialLow,
+    initialMiddle,
+    initialHigh,
+    initialMax,
   ]);
 
   // Callbacks
