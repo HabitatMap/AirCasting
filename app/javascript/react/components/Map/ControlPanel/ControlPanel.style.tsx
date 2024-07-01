@@ -35,7 +35,7 @@ const ToggleContainer = styled.div`
     align-items: center;
     font-size: 1.6rem;
     padding: 1.5rem 1rem;
-    height: 42px;
+    height: 4.2rem;
   }
 `;
 
