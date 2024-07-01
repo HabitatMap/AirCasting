@@ -33,7 +33,7 @@ const ToggleContainer = styled.div`
   @media ${media.smallDesktop} {
     display: flex;
     align-items: center;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     padding: 1.5rem 1rem;
     height: 4.2rem;
   }
@@ -97,7 +97,7 @@ const TerrainContainer = styled.div`
   @media ${media.smallDesktop} {
     display: flex;
     align-items: center;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     margin-right: 10px;
     position: relative;
     border-left: 1px solid ${gray200};
@@ -170,6 +170,7 @@ const Select = styled.select`
   outline: none;
   color: ${gray400};
   padding: 0 1.2rem 0 0.5rem;
+  font-size: 1.4rem;
 
   background: transparent;
   background-image: url(${chevronDown});
