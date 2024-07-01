@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import rightVector from "../../../assets/icons/rightVector.svg";
-import { selectThreshold } from "../../../store/thresholdSlice";
+import { selectThresholds } from "../../../store/thresholdSlice";
 import { DateFormat } from "../../../types/dateFormat";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import * as S from "./SessionListTile.style";
@@ -34,7 +34,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
   onMouseEnter,
   onMouseLeave,
 }) => {
-  const thresholds = useSelector(selectThreshold);
+  const thresholds = useSelector(selectThresholds);
 
   const { t } = useTranslation();
 

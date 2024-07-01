@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import { useAppDispatch } from "../../store/hooks";
-import { selectThreshold, setUserThresholdValues } from "../../store/thresholdSlice";
+import { selectThresholds, setUserThresholdValues } from "../../store/thresholdSlice";
 import { Thresholds } from "../../types/thresholds";
 import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
 import { handleMouseDown, handleTouchStart } from "../../utils/thresholdGestureHandlers";
@@ -22,7 +22,7 @@ const maxThresholdDifference = 1;
 const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   isMapPage,
 }) => {
-  const thresholdsState = useSelector(selectThreshold);
+  const thresholdsState = useSelector(selectThresholds);
   const [thresholdValues, setThresholdValues] = useState(thresholdsState);
   const [thumbPositions, setThumbPositions] = useState<ThumbPositions>(
     {} as ThumbPositions

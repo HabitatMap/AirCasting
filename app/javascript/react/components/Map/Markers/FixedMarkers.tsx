@@ -2,15 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
 import {
-  Cluster,
-  GridAlgorithm,
-  Marker,
-  MarkerClusterer,
-  SuperClusterAlgorithm,
+    Cluster, GridAlgorithm, Marker, MarkerClusterer, SuperClusterAlgorithm
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { selectThreshold } from "../../../store/thresholdSlice";
+import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { pubSub } from "../../../utils/pubSubManager";
 import { getColorForValue } from "../../../utils/thresholdColors";
@@ -43,7 +39,7 @@ const FixedMarkers = ({
   const markerRefs = useRef<{ [streamId: string]: Marker | null }>({});
   const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
 
-  const thresholds = useSelector(selectThreshold);
+  const thresholds = useSelector(selectThresholds);
 
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
