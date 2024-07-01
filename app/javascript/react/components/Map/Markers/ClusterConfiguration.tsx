@@ -1,7 +1,10 @@
+import { Marker } from "@googlemaps/markerclusterer";
+
 import GreenCluster from "../../../assets/icons/markers/marker-cluster-green.svg";
 import OrangeCluster from "../../../assets/icons/markers/marker-cluster-orange.svg";
 import RedCluster from "../../../assets/icons/markers/marker-cluster-red.svg";
 import YellowCluster from "../../../assets/icons/markers/marker-cluster-yellow.svg";
+import { Thresholds } from "../../../types/thresholds";
 
 const clusterStyles = [
   {
@@ -30,20 +33,40 @@ const clusterStyles = [
   },
 ];
 
-export const customRenderer = {
+const calculateClusterStyleIndex = (
+  markers: Marker[],
+  thresholds: Thresholds
+): number => {
+  const sum = markers.reduce((accumulator: number, currentObject: Marker) => {
+    return accumulator + Number(currentObject.title);
+  }, 0);
+
+  // Calculate the average
+  const average = sum / markers.length;
+
+  let styleIndex = 0;
+  if (average < thresholds.low) {
+    styleIndex = 0;
+  } else if (average <= thresholds.middle) {
+    styleIndex = 1;
+  } else if (average <= thresholds?.high) {
+    styleIndex = 2;
+  } else {
+    styleIndex = 3;
+  }
+  return styleIndex;
+};
+
+export const customRenderer = (thresholds: Thresholds) => ({
   render: ({
     count,
     position,
+    markers,
   }: {
     count: number;
     position: google.maps.LatLng;
   }) => {
-    let styleIndex = 0;
-    if (count > 10) {
-      styleIndex = 2;
-    } else if (count > 5) {
-      styleIndex = 1;
-    }
+    const styleIndex = calculateClusterStyleIndex(markers, thresholds);
 
     const { url, height, width, textSize } = clusterStyles[styleIndex];
     const div = document.createElement("div");
@@ -66,22 +89,21 @@ export const customRenderer = {
       title: `${count}`,
     });
   },
-};
+});
 
-export const pulsatingRenderer = (customPosition?: google.maps.LatLng) => ({
+export const pulsatingRenderer = (
+  customPosition?: google.maps.LatLng,
+  thresholds: Thresholds
+) => ({
   render: ({
     count,
     position,
+    markers,
   }: {
     count: number;
     position: google.maps.LatLng;
   }) => {
-    let styleIndex = 0;
-    if (count > 10) {
-      styleIndex = 2;
-    } else if (count > 5) {
-      styleIndex = 1;
-    }
+    const styleIndex = calculateClusterStyleIndex(markers, thresholds);
 
     const { url, height, width, textSize } = clusterStyles[styleIndex];
     const div = document.createElement("div");

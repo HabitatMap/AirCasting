@@ -57,7 +57,7 @@ const FixedMarkers = ({
     if (map && !clusterer.current) {
       clusterer.current = new MarkerClusterer({
         map,
-        renderer: customRenderer,
+        renderer: customRenderer(thresholds),
         algorithm: new SuperClusterAlgorithm({ maxZoom: 21, radius: 40 }),
       });
     }
@@ -133,7 +133,7 @@ const FixedMarkers = ({
           }
           pulsatingClusterer.current = new MarkerClusterer({
             map,
-            renderer: pulsatingRenderer(pulsatingCluster?.position),
+            renderer: pulsatingRenderer(pulsatingCluster?.position, thresholds),
             markers: pulsatingCluster?.markers,
             algorithm: new GridAlgorithm({ gridSize: 1000 }),
           });
@@ -201,6 +201,7 @@ const FixedMarkers = ({
           position={session.point}
           key={session.point.streamId}
           zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
+          title={session.lastMeasurementValue.toString()}
           ref={(marker) => {
             if (marker && clusterer.current) {
               setMarkerRef(marker, session.point.streamId);
