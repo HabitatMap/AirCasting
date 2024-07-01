@@ -9,17 +9,18 @@ const RefreshButton = styled(Button)`
   color: ${white};
   background-color: ${blue};
   font-size: 1.4rem;
-  padding: 0 0.5rem;
-  height: 2.3rem;
+  padding: 0 1rem;
+  height: 4rem;
 
   @media ${media.smallDesktop} {
     border-radius: 10px;
-    margin: 0 1.6rem;
+    margin: 0 0.8rem;
     height: 4.2rem;
   }
 
   @media ${media.largeDesktop} {
     font-size: 1.6rem;
+    margin: 0 1.6rem;
     padding: 0 5rem;
   }
 `;
