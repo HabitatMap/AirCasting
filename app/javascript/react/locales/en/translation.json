@@ -17,6 +17,7 @@
     "goBack": "Back to map",
     "goBackToSessions": "Back to sessions",
     "mapPage": "Map page",
+    "refreshMap": "Refresh map",
     "sections": {
       "getAirbeam": "Get AirBeam",
       "airbeam": "AirBeam",

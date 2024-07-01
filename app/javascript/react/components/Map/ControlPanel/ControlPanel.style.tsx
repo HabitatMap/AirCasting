@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import chevronDown from "../../../assets/icons/chevronDown.svg";
 import {
   blue,
   gray100,
@@ -7,7 +8,6 @@ import {
   white,
 } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
-import chevronDown from "../../../assets/icons/chevronDown.svg";
 
 const ControlPanelContainer = styled.div`
   background: ${white};
@@ -25,6 +25,7 @@ const ControlPanelContainer = styled.div`
     box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
     padding: 0;
     border-radius: 1rem;
+  }
 `;
 
 const ToggleContainer = styled.div`
@@ -32,8 +33,9 @@ const ToggleContainer = styled.div`
   @media ${media.smallDesktop} {
     display: flex;
     align-items: center;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     padding: 1.5rem 1rem;
+    height: 4.2rem;
   }
 `;
 
@@ -95,7 +97,7 @@ const TerrainContainer = styled.div`
   @media ${media.smallDesktop} {
     display: flex;
     align-items: center;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     margin-right: 10px;
     position: relative;
     border-left: 1px solid ${gray200};
@@ -168,6 +170,7 @@ const Select = styled.select`
   outline: none;
   color: ${gray400};
   padding: 0 1.2rem 0 0.5rem;
+  font-size: 1.4rem;
 
   background: transparent;
   background-image: url(${chevronDown});
@@ -182,15 +185,15 @@ const Select = styled.select`
 
 export {
   ControlPanelContainer,
-  ToggleContainer,
-  SwitchLabel,
-  SwitchInput,
-  Slider,
   Label,
-  TerrainContainer,
-  TerrainCheckbox,
-  TerrainLabel,
   RoundCheckbox,
-  SelectContainer,
   Select,
+  SelectContainer,
+  Slider,
+  SwitchInput,
+  SwitchLabel,
+  TerrainCheckbox,
+  TerrainContainer,
+  TerrainLabel,
+  ToggleContainer,
 };
