@@ -4,19 +4,23 @@ import { media } from "../../utils/media";
 import { Button } from "../Button/Button";
 
 const RefreshButton = styled(Button)`
-  border-radius: 10px;
+  border-radius: 5px;
   border: none;
   color: ${white};
   background-color: ${blue};
   font-size: 14px;
   padding: 0 5px;
-  margin: 0 8px;
-  height: 42px;
+  height: 23px;
+
+  @media ${media.smallDesktop} {
+    border-radius: 10px;
+    margin: 0 16px;
+    height: 42px;
+  }
 
   @media ${media.largeDesktop} {
     font-size: 16px;
     padding: 0 50px;
-    margin: 0 16px;
   }
 `;
 

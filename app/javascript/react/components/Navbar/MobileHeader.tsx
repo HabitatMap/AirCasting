@@ -9,6 +9,7 @@ import { urls } from "../../const/urls";
 import { RootState } from "../../store";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
+import { RefreshMapButton } from "../RefreshMapButton";
 import NavList from "./NavList/NavList";
 import * as S from "./Navbar.style";
 
@@ -40,6 +41,7 @@ export const MobileHeader = ({
       </nav>
     </S.MobileMenuContainer>
     <LocationSearch isMapPage={true} />
+    <RefreshMapButton />
     <ControlPanel />
     {navMenuVisible && (
       <NavList
