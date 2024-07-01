@@ -17,7 +17,7 @@ export interface ThresholdState {
   error?: string;
   status: StatusEnum;
   userAdjustedValues: boolean;
-  values: Thresholds;
+  userValues: Thresholds;
 }
 
 export const initialState: ThresholdState = {
@@ -30,7 +30,7 @@ export const initialState: ThresholdState = {
   },
   status: StatusEnum.Idle,
   userAdjustedValues: false,
-  values: {
+  userValues: {
     min: 0,
     low: 0,
     middle: 0,
@@ -81,11 +81,7 @@ export const thresholdSlice = createSlice({
       state,
       { payload: { min, low, middle, high, max } }: PayloadAction<Thresholds>
     ) => {
-      state.values.min = min;
-      state.values.low = low;
-      state.values.middle = middle;
-      state.values.high = high;
-      state.values.max = max;
+      state.userValues = { min, low, middle, high, max };
     },
     setUserAdjustedThresholds(state, action: PayloadAction<boolean>) {
       state.userAdjustedValues = action.payload;
@@ -98,6 +94,7 @@ export const { setUserAdjustedThresholds, setUserThresholdValues } =
 export default thresholdSlice.reducer;
 
 export const selectThreshold = (state: RootState): Thresholds =>
-  state.threshold.values;
+  state.threshold.userValues;
+
 export const selectUserAdjustedThresholds = (state: RootState): boolean =>
   state.threshold.userAdjustedValues;
