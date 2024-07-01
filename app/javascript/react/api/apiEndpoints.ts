@@ -9,6 +9,7 @@ interface ApiEndpoints {
     startDate: string,
     endDate: string
   ) => string;
+  readonly fetchThresholds: (filters: string) => string;
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
@@ -20,4 +21,5 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchMobileStreamById: (id) => `/mobile/streams/${id}`,
   fetchSelectedDataRangeOfStream: (id, startDate, endDate) =>
     `/stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
+  fetchThresholds: (filters) => `/thresholds/${filters}`,
 };
