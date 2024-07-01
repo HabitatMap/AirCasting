@@ -92,8 +92,8 @@ export const customRenderer = (thresholds: Thresholds) => ({
 });
 
 export const pulsatingRenderer = (
-  customPosition?: google.maps.LatLng,
-  thresholds: Thresholds
+  thresholds: Thresholds,
+  customPosition?: google.maps.LatLng
 ) => ({
   render: ({
     count,

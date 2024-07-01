@@ -54,14 +54,14 @@ const FixedMarkers = ({
   );
 
   useEffect(() => {
-    if (map && !clusterer.current) {
+    if (map) {
       clusterer.current = new MarkerClusterer({
         map,
         renderer: customRenderer(thresholds),
         algorithm: new SuperClusterAlgorithm({ maxZoom: 21, radius: 40 }),
       });
     }
-  }, [map, sessions]);
+  }, [map, sessions, thresholds]);
 
   useEffect(() => {
     if (selectedStreamId === null) {
@@ -133,7 +133,7 @@ const FixedMarkers = ({
           }
           pulsatingClusterer.current = new MarkerClusterer({
             map,
-            renderer: pulsatingRenderer(pulsatingCluster?.position, thresholds),
+            renderer: pulsatingRenderer(thresholds, pulsatingCluster?.position),
             markers: pulsatingCluster?.markers,
             algorithm: new GridAlgorithm({ gridSize: 1000 }),
           });
