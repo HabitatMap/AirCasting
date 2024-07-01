@@ -1,4 +1,4 @@
-import { Marker } from "@googlemaps/markerclusterer";
+import { Cluster, Marker } from "@googlemaps/markerclusterer";
 
 import GreenCluster from "../../../assets/icons/markers/marker-cluster-green.svg";
 import OrangeCluster from "../../../assets/icons/markers/marker-cluster-orange.svg";
@@ -34,12 +34,15 @@ const clusterStyles = [
 ];
 
 const calculateClusterStyleIndex = (
-  markers: Marker[],
+  markers: google.maps.marker.AdvancedMarkerElement[],
   thresholds: Thresholds
 ): number => {
-  const sum = markers.reduce((accumulator: number, currentObject: Marker) => {
-    return accumulator + Number(currentObject.title);
-  }, 0);
+  const sum = markers.reduce(
+    (accumulator: number, marker: google.maps.marker.AdvancedMarkerElement) => {
+      return accumulator + Number(marker.title);
+    },
+    0
+  );
 
   // Calculate the average
   const average = sum / markers.length;
@@ -49,7 +52,7 @@ const calculateClusterStyleIndex = (
     styleIndex = 0;
   } else if (average <= thresholds.middle) {
     styleIndex = 1;
-  } else if (average <= thresholds?.high) {
+  } else if (average <= thresholds.high) {
     styleIndex = 2;
   } else {
     styleIndex = 3;
@@ -58,15 +61,13 @@ const calculateClusterStyleIndex = (
 };
 
 export const customRenderer = (thresholds: Thresholds) => ({
-  render: ({
-    count,
-    position,
-    markers,
-  }: {
-    count: number;
-    position: google.maps.LatLng;
-  }) => {
-    const styleIndex = calculateClusterStyleIndex(markers, thresholds);
+  render: (cluster: Cluster) => {
+    const { markers, count, position } = cluster;
+
+    const styleIndex = calculateClusterStyleIndex(
+      markers as google.maps.marker.AdvancedMarkerElement[],
+      thresholds
+    );
 
     const { url, height, width, textSize } = clusterStyles[styleIndex];
     const div = document.createElement("div");
@@ -87,7 +88,7 @@ export const customRenderer = (thresholds: Thresholds) => ({
       position,
       content: div,
       title: `${count}`,
-    });
+    }) as Marker;
   },
 });
 
@@ -95,15 +96,13 @@ export const pulsatingRenderer = (
   thresholds: Thresholds,
   customPosition?: google.maps.LatLng
 ) => ({
-  render: ({
-    count,
-    position,
-    markers,
-  }: {
-    count: number;
-    position: google.maps.LatLng;
-  }) => {
-    const styleIndex = calculateClusterStyleIndex(markers, thresholds);
+  render: (cluster: Cluster) => {
+    const { markers, count, position } = cluster;
+
+    const styleIndex = calculateClusterStyleIndex(
+      markers as google.maps.marker.AdvancedMarkerElement[],
+      thresholds
+    );
 
     const { url, height, width, textSize } = clusterStyles[styleIndex];
     const div = document.createElement("div");
@@ -127,6 +126,6 @@ export const pulsatingRenderer = (
       content: div,
       title: `${count}`,
       zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
-    });
+    }) as Marker;
   },
 });

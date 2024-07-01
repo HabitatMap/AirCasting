@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
 import {
-    Cluster, GridAlgorithm, Marker, MarkerClusterer, SuperClusterAlgorithm
+    Cluster, GridAlgorithm, MarkerClusterer, SuperClusterAlgorithm
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
@@ -36,14 +36,16 @@ const FixedMarkers = ({
   const map = useMap();
 
   const clusterer = useRef<MarkerClusterer | null>(null);
-  const markerRefs = useRef<{ [streamId: string]: Marker | null }>({});
+  const markerRefs = useRef<{
+    [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
+  }>({});
   const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
 
   const thresholds = useSelector(selectThresholds);
 
-  const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
-    {}
-  );
+  const [markers, setMarkers] = useState<{
+    [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
+  }>({});
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
@@ -99,7 +101,8 @@ const FixedMarkers = ({
         }
       });
       const validMarkers = Object.values(markers).filter(
-        (marker): marker is Marker => marker !== null
+        (marker): marker is google.maps.marker.AdvancedMarkerElement =>
+          marker !== null
       );
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
@@ -167,20 +170,23 @@ const FixedMarkers = ({
     setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
   };
 
-  const setMarkerRef = useCallback((marker: Marker | null, key: string) => {
-    if (markerRefs.current[key] === marker) return;
+  const setMarkerRef = useCallback(
+    (marker: google.maps.marker.AdvancedMarkerElement | null, key: string) => {
+      if (markerRefs.current[key] === marker) return;
 
-    markerRefs.current[key] = marker;
-    setMarkers((prev) => {
-      if (marker) {
-        return { ...prev, [key]: marker };
-      } else {
-        const newMarkers = { ...prev };
-        delete newMarkers[key];
-        return newMarkers;
-      }
-    });
-  }, []);
+      markerRefs.current[key] = marker;
+      setMarkers((prev) => {
+        if (marker) {
+          return { ...prev, [key]: marker };
+        } else {
+          const newMarkers = { ...prev };
+          delete newMarkers[key];
+          return newMarkers;
+        }
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     if (hoverStreamId) {
