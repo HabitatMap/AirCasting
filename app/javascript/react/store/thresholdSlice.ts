@@ -48,5 +48,5 @@ export default thresholdSlice.reducer;
 
 export const selectThreshold = (state: RootState): Thresholds =>
   state.threshold.values;
-export const selectUserAdjustedValues = (state: RootState): boolean =>
+export const selectUserAdjustedThresholds = (state: RootState): boolean =>
   state.threshold.userAdjustedValues;
