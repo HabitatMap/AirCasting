@@ -1,3 +1,4 @@
+import _ from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -36,11 +37,15 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(setUserThresholdValues(thresholdValues));
+    if (!_.isEqual(thresholdsState, thresholdValues)) {
+      dispatch(setUserThresholdValues(thresholdValues));
+    }
   }, [thresholdValues]);
 
   useEffect(() => {
-    setThresholdValues(thresholdsState);
+    if (!_.isEqual(thresholdsState, thresholdValues)) {
+      setThresholdValues(thresholdsState);
+    }
   }, [thresholdsState]);
 
   useEffect(() => {
