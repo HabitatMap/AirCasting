@@ -3,9 +3,11 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
-import { selectFixedData } from "../store/fixedStreamSlice";
 import { useAppDispatch } from "../store/hooks";
-import { setUserAdjustedThresholds } from "../store/thresholdSlice";
+import {
+  selectDefaultThresholds,
+  setUserAdjustedThresholds,
+} from "../store/thresholdSlice";
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 
@@ -31,8 +33,7 @@ export const useThresholdHandlers = (
 
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { stream } = useSelector(selectFixedData);
-  const { min, low, middle, high, max } = stream;
+  const defaultThresholds = useSelector(selectDefaultThresholds);
 
   const isValueValid = (
     newValue: number,
@@ -187,7 +188,7 @@ export const useThresholdHandlers = (
   const resetThresholds = () => {
     debouncedHandleInputChange.cancel();
 
-    setThresholdValues({ min, low, middle, high, max });
+    setThresholdValues(defaultThresholds);
     setInputValue("");
     setActiveInput(null);
   };

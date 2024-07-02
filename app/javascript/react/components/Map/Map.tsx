@@ -30,7 +30,10 @@ import {
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
-import { fetchThresholds } from "../../store/thresholdSlice";
+import {
+  fetchThresholds,
+  resetUserThresholds,
+} from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { pubSub } from "../../utils/pubSubManager";
@@ -254,6 +257,7 @@ const Map = () => {
 
   const handleClick = (type: SessionType) => {
     setSelectedSessionType(type);
+    dispatch(resetUserThresholds());
     dispatch(setLoading(true));
   };
 

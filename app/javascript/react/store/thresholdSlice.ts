@@ -70,6 +70,10 @@ export const thresholdSlice = createSlice({
       });
   },
   reducers: {
+    resetUserThresholds: (state) => {
+      state.userAdjustedValues = false;
+      state.userValues = undefined;
+    },
     setUserAdjustedThresholds(state, action: PayloadAction<boolean>) {
       state.userAdjustedValues = action.payload;
     },
@@ -82,9 +86,15 @@ export const thresholdSlice = createSlice({
   },
 });
 
-export const { setUserAdjustedThresholds, setUserThresholdValues } =
-  thresholdSlice.actions;
+export const {
+  resetUserThresholds,
+  setUserAdjustedThresholds,
+  setUserThresholdValues,
+} = thresholdSlice.actions;
 export default thresholdSlice.reducer;
+
+export const selectDefaultThresholds = (state: RootState): Thresholds =>
+  state.threshold.defaultValues;
 
 export const selectThresholds = (state: RootState): Thresholds =>
   state.threshold.userValues || state.threshold.defaultValues;
