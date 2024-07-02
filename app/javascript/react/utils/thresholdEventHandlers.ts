@@ -4,10 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import { useAppDispatch } from "../store/hooks";
-import {
-  selectDefaultThresholds,
-  setUserAdjustedThresholds,
-} from "../store/thresholdSlice";
+import { selectDefaultThresholds } from "../store/thresholdSlice";
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 
@@ -147,7 +144,6 @@ export const useThresholdHandlers = (
   };
 
   const handleInputFocus = (thresholdKey: keyof Thresholds) => {
-    dispatch(setUserAdjustedThresholds(true));
     setInputValue(thresholdValues[thresholdKey].toString());
     setActiveInput(thresholdKey);
 

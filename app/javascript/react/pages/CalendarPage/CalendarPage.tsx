@@ -17,7 +17,7 @@ import {
   movingData,
 } from "../../store/movingCalendarStreamSlice";
 import {
-  selectUserAdjustedThresholds,
+  selectUserThresholds,
   setDefaultThresholdsValues,
 } from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -39,7 +39,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
   const fixedStreamData = useSelector(selectFixedData);
   const movingCalendarData = useSelector(movingData);
-  const userAdjustedThresholds = useSelector(selectUserAdjustedThresholds);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -77,8 +76,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
         })
       );
     }
-    !userAdjustedThresholds &&
-      dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
+    dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
   }, [fixedStreamData, dispatch]);
 
   return (
