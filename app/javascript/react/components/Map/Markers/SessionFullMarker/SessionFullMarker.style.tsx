@@ -1,5 +1,4 @@
 import styled, { css, keyframes } from "styled-components";
-
 import { gray400 } from "../../../../assets/styles/colors";
 import { H4 } from "../../../Typography";
 
@@ -31,10 +30,10 @@ const MarkerContainer = styled.div`
   display: flex;
   position: absolute;
   // To match the position of the marker with the center of the shadow circle
-  top: -2.5rem;
-  left: -2.5rem;
-  width: 11.5rem;
-  height: 5rem;
+  top: -2rem;
+  left: -2rem;
+  width: 8rem;
+  height: 4rem;
   cursor: pointer;
   z-index: 100;
   pointer-events: auto;
@@ -70,7 +69,7 @@ const DataContainer = styled.div`
   //To calculate this position: ShadowCircleWidth/2-(MarkerCircleWidth/2+MarkerCirclePaddingLeft)
   left: 0.9rem;
   border-radius: 1.5rem;
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  padding: 0.5rem;
   background-color: white;
   box-shadow: 0.125rem 0.125rem 0.25rem 0 rgba(76, 86, 96, 0.1);
   display: flex;
@@ -95,9 +94,9 @@ const MarkerText = styled(H4)`
 `;
 
 export {
-  MarkerContainer,
-  ShadowCircle,
   DataContainer,
   MarkerCircle,
+  MarkerContainer,
   MarkerText,
+  ShadowCircle,
 };

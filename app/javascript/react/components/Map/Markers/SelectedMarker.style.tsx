@@ -13,7 +13,7 @@ const SelectedShadowCircle = styled.div<MarkerProps>`
 `;
 
 const SelectedDataContainer = styled.div`
-  min-width: 8rem;
+  min-width: fit-content;
   height: 2rem;
   display: flex;
   position: absolute;
@@ -21,7 +21,7 @@ const SelectedDataContainer = styled.div`
   left: 1rem;
   border-radius: 1.5rem;
   border: 1px solid ${(props) => props.color};
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  padding: 0.5rem;
   background-color: white;
   display: flex;
   align-items: center;
@@ -29,4 +29,4 @@ const SelectedDataContainer = styled.div`
   pointer-events: none;
 `;
 
-export { SelectedShadowCircle, SelectedDataContainer };
+export { SelectedDataContainer, SelectedShadowCircle };

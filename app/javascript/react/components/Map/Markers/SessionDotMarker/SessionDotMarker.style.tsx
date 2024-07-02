@@ -24,24 +24,24 @@ const MarkerContainer = styled.div`
   display: flex;
   position: absolute;
   // To match the position of the marker with the center of the shadow circle
-  top: -2.5rem;
-  left: -2.5rem;
-  width: 11.5rem;
-  height: 5rem;
+  top: -2rem;
+  left: -2rem;
+  width: 2rem;
+  height: 2rem;
   cursor: pointer;
   z-index: 100;
   pointer-events: auto;
 `;
 
 const DataContainer = styled.div`
-  min-width: 8rem;
+  min-width: 2rem;
   height: 2rem;
   display: flex;
   position: absolute;
-  //To calculate top position: ShadowCircleHeight/2- DataContainerHeight/2
+  /* //To calculate top position: ShadowCircleHeight/2- DataContainerHeight/2
   top: 1rem;
   //To calculate this position: ShadowCircleWidth/2-(MarkerCircleWidth/2+MarkerCirclePaddingLeft)
-  left: 0.9rem;
+  left: 0.9rem; */
   border-radius: 1.5rem;
   padding: 0.5rem 0.5rem 0.5rem 0.5rem;
   display: flex;
@@ -64,4 +64,4 @@ const MarkerCircle = styled.div<MarkerProps>`
       : "none"};
 `;
 
-export { MarkerContainer, DataContainer, MarkerCircle };
+export { DataContainer, MarkerCircle, MarkerContainer };

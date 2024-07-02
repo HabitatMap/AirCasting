@@ -1,42 +1,45 @@
-import {
-  XAxisOptions,
-  YAxisOptions,
-  PlotOptions,
-  TitleOptions,
-  LegendOptions,
-  SeriesOptionsType,
-} from "highcharts/highstock";
 import Highcharts, {
   RangeSelectorOptions,
   ResponsiveOptions,
 } from "highcharts";
+import {
+  LegendOptions,
+  PlotOptions,
+  SeriesOptionsType,
+  TitleOptions,
+  XAxisOptions,
+  YAxisOptions,
+} from "highcharts/highstock";
 import { ThresholdState } from "../../store/thresholdSlice";
 
+import { debounce } from "lodash";
+import { useTranslation } from "react-i18next";
 import {
+  blue,
+  gray100,
+  gray200,
+  gray300,
   green,
   orange,
   red,
-  yellow,
   white,
-  gray200,
-  blue,
-  gray100,
-  gray300,
+  yellow,
 } from "../../assets/styles/colors";
 import {
   selectIsLoading,
   updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
-import { debounce } from "lodash";
+import { LatLngLiteral } from "../../types/googleMaps";
+import { GraphData, GraphPoint } from "../../types/graph";
 import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_MONTH,
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
-import { useTranslation } from "react-i18next";
 
 const scrollbarOptions = {
   barBackgroundColor: gray200,
@@ -179,11 +182,16 @@ const getYAxisOptions = (
   };
 };
 
-const getPlotOptions = (): PlotOptions => {
+const getPlotOptions = (
+  fixedSessionTypeSelected: boolean,
+  streamId: number | null
+): PlotOptions => {
+  const dispatch = useAppDispatch();
   return {
     series: {
       lineWidth: 2,
       color: blue,
+      turboThreshold: 9999999, //above that graph will not display,
       marker: {
         fillColor: blue,
         lineWidth: 0,
@@ -211,11 +219,25 @@ const getPlotOptions = (): PlotOptions => {
       dataLabels: {
         allowOverlap: true,
       },
+      point: {
+        events: {
+          mouseOver: function (this: Highcharts.Point) {
+            const position: LatLngLiteral = (this as GraphPoint).position;
+            return fixedSessionTypeSelected
+              ? dispatch(setHoverStreamId(streamId))
+              : dispatch(setHoverPosition(position));
+          },
+          mouseOut: function () {
+            dispatch(setHoverStreamId(null));
+            dispatch(setHoverPosition({ lat: 0, lng: 0 }));
+          },
+        },
+      },
     },
   };
 };
 
-const seriesOptions = (data: number[][]): SeriesOptionsType => ({
+const seriesOptions = (data: GraphData): SeriesOptionsType => ({
   type: "spline",
   color: white,
   data: data,
@@ -380,14 +402,14 @@ const getRangeSelectorOptions = (
 };
 
 export {
-  getXAxisOptions,
   getPlotOptions,
-  titleOption,
-  legendOption,
-  getResponsiveOptions,
-  seriesOptions,
-  getYAxisOptions,
-  getTooltipOptions,
-  scrollbarOptions,
   getRangeSelectorOptions,
+  getResponsiveOptions,
+  getTooltipOptions,
+  getXAxisOptions,
+  getYAxisOptions,
+  legendOption,
+  scrollbarOptions,
+  seriesOptions,
+  titleOption,
 };

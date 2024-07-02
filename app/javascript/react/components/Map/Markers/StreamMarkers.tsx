@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
-
+import { Marker } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-
-import { black, mobileStreamPath, red } from "../../../assets/styles/colors";
+import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { mobileStreamPath, red } from "../../../assets/styles/colors";
+import { selectHoverPosition } from "../../../store/mapSlice";
 import { Session } from "../../../types/sessionType";
+import HoverMarker from "./HoverMarker/HoverMarker";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
 import { StreamMarkerTooltip } from "./StreamMarker/StreamMarker.style";
-
-import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   sessions: Session[];
@@ -20,6 +20,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     {}
   );
   const polylineRef = useRef<google.maps.Polyline | null>(null);
+  const hoverPosition = useSelector(selectHoverPosition);
 
   // Sort sessions by time
   const sortedSessions = sessions.sort((a, b) => {
@@ -111,6 +112,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           </AdvancedMarker>
         </React.Fragment>
       ))}
+      {hoverPosition && <HoverMarker position={hoverPosition} />}
     </>
   );
 };
