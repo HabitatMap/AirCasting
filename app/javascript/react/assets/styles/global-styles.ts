@@ -37,16 +37,16 @@ const GlobalStyles = createGlobalStyle`
   }
 
   html, body {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale !important;
-    text-rendering: optimizeLegibility;
-    background-color: ${gray100};
-    overscroll-behavior-y: contain; // Prevents the page from scrolling when the user scrolls past the top or bottom
-  }
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale !important;
+      text-rendering: optimizeLegibility;
+      background-color: ${gray100};
+      overscroll-behavior-y: contain; // Prevents the page from scrolling when the user scrolls past the top or bottom
+    }
 
   H1, H2, H3, H4, H5, H6 {
     line-height: 1.2;

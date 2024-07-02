@@ -110,14 +110,14 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           >
             <StreamMarker color={red} />
           </AdvancedMarker>
-          {hoverPosition && (
-            <HoverMarker
-              position={hoverPosition}
-              fixedSessionTypeSelected={false}
-            />
-          )}
         </React.Fragment>
       ))}
+      {hoverPosition && (
+        <HoverMarker
+          position={hoverPosition}
+          fixedSessionTypeSelected={false}
+        />
+      )}
     </>
   );
 };
