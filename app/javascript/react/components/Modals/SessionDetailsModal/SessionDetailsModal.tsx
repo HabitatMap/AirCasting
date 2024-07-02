@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import type { PopupProps } from "reactjs-popup/dist/types";
+
 import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
 import { SessionType } from "../../../types/filters";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
@@ -8,6 +8,8 @@ import { Graph } from "../../Graph";
 import { ThresholdsConfigurator } from "../../ThresholdConfigurator";
 import * as S from "./SessionDetailsModal.style";
 import SessionInfo from "./SessionInfo";
+
+import type { PopupProps } from "reactjs-popup/dist/types";
 
 interface SessionDetailsModalProps {
   onClose: () => void;
@@ -52,12 +54,7 @@ const SessionDetailsModal: React.FC<
           </S.CancelButtonX>
           <SessionInfo sessionType={sessionType} streamId={streamId} />
           <Graph streamId={streamId} sessionType={sessionType} />
-          {!isMobile && (
-            <ThresholdsConfigurator
-              isMapPage={true}
-              sessionType={sessionType}
-            />
-          )}
+          {!isMobile && <ThresholdsConfigurator isMapPage={true} />}
         </>
       )}
     </SessionModal>
