@@ -118,7 +118,7 @@ const Map = () => {
   // Filters (temporary solution)
   const sensor_name = fixedSessionTypeSelected
     ? "Government-PM2.5"
-    : "airbeam-pm2.5";
+    : "AirBeam-PM2.5";
   const filters = useMemo(
     () =>
       JSON.stringify({
