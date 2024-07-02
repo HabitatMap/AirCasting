@@ -7,10 +7,19 @@ import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
-import { fetchFixedStreamById, selectFixedData } from "../../store/fixedStreamSlice";
+import {
+  fetchFixedStreamById,
+  selectFixedData,
+} from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { fetchNewMovingStream, movingData } from "../../store/movingCalendarStreamSlice";
-import { selectUserAdjustedThresholds, setUserThresholdValues } from "../../store/thresholdSlice";
+import {
+  fetchNewMovingStream,
+  movingData,
+} from "../../store/movingCalendarStreamSlice";
+import {
+  selectUserAdjustedThresholds,
+  setDefaultThresholdsValues,
+} from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 
@@ -69,7 +78,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       );
     }
     !userAdjustedThresholds &&
-      dispatch(setUserThresholdValues(fixedStreamData.stream));
+      dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
   }, [fixedStreamData, dispatch]);
 
   return (

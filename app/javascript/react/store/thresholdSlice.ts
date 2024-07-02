@@ -74,6 +74,12 @@ export const thresholdSlice = createSlice({
       state.userAdjustedValues = false;
       state.userValues = undefined;
     },
+    setDefaultThresholdsValues: (
+      state,
+      { payload: { min, low, middle, high, max } }: PayloadAction<Thresholds>
+    ) => {
+      state.defaultValues = { min, low, middle, high, max };
+    },
     setUserAdjustedThresholds(state, action: PayloadAction<boolean>) {
       state.userAdjustedValues = action.payload;
     },
@@ -88,6 +94,7 @@ export const thresholdSlice = createSlice({
 
 export const {
   resetUserThresholds,
+  setDefaultThresholdsValues,
   setUserAdjustedThresholds,
   setUserThresholdValues,
 } = thresholdSlice.actions;
