@@ -2,21 +2,23 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
 import {
-    Cluster, GridAlgorithm, MarkerClusterer, SuperClusterAlgorithm
+  Cluster,
+  GridAlgorithm,
+  MarkerClusterer,
+  SuperClusterAlgorithm,
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { pubSub } from "../../../utils/pubSubManager";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
+import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
-import { useSelector } from "react-redux";
-import { selectHoverStreamId } from "../../../store/mapSlice";
 import type { LatLngLiteral } from "../../../types/googleMaps";
-import HoverMarker from "./HoverMarker/HoverMarker";
 
 type Props = {
   sessions: Session[];

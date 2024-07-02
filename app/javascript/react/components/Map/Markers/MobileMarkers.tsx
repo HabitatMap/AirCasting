@@ -96,15 +96,8 @@ const MobileMarkers = ({
   };
 
   const centerMapOnMarker = (position: Point) => {
-    const {
-      lat,
-      lng,
-      maxLatitude,
-      maxLongitude,
-      minLatitude,
-      minLongitude,
-      streamId,
-    } = position;
+    const { lat, lng, maxLatitude, maxLongitude, minLatitude, minLongitude } =
+      position;
 
     if (map && !selectedMarkerKey) {
       if (maxLatitude && maxLongitude && minLatitude && minLongitude) {
