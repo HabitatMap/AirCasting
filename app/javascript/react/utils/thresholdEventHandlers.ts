@@ -3,18 +3,10 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
-import { useAppDispatch } from "../store/hooks";
 import { selectDefaultThresholds } from "../store/thresholdSlice";
 import { KeyboardKeys } from "../types/keyboardKeys";
+import { Thresholds } from "../types/thresholds";
 import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
-
-interface Thresholds {
-  min: number;
-  low: number;
-  middle: number;
-  high: number;
-  max: number;
-}
 
 export const useThresholdHandlers = (
   setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
@@ -28,7 +20,6 @@ export const useThresholdHandlers = (
 ) => {
   const inputDebounceTime = 300;
 
-  const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const defaultThresholds = useSelector(selectDefaultThresholds);
 
