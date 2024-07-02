@@ -59,6 +59,7 @@ const FixedMarkers = ({
 
   useEffect(() => {
     if (map) {
+      // @ts-ignore:next-line
       if (clusterer.current && clusterer.current.markers.length > 1) {
         clusterer.current.clearMarkers();
       }
