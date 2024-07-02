@@ -5,13 +5,9 @@ import * as S from "./HoverMarker.style";
 
 interface HoverMarkerProps {
   position: LatLngLiteral | null;
-  fixedSessionTypeSelected: boolean;
 }
 
-const HoverMarker: React.FC<HoverMarkerProps> = ({
-  position,
-  fixedSessionTypeSelected = false,
-}) => {
+const HoverMarker: React.FC<HoverMarkerProps> = ({ position }) => {
   if (!position) return null;
 
   return (
@@ -19,7 +15,7 @@ const HoverMarker: React.FC<HoverMarkerProps> = ({
       position={position}
       zIndex={Number(google.maps.Marker.MAX_ZINDEX + 2)}
     >
-      <S.MarkerCircle $fixedSessionTypeSelected={fixedSessionTypeSelected} />
+      <S.MarkerCircle />
     </AdvancedMarker>
   );
 };

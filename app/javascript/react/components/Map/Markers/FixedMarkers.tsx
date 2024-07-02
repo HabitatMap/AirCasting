@@ -219,9 +219,7 @@ const FixedMarkers = ({
           />
         </AdvancedMarker>
       ))}
-      {hoverPosition && (
-        <HoverMarker position={hoverPosition} fixedSessionTypeSelected={true} />
-      )}
+      {hoverPosition && <HoverMarker position={hoverPosition} />}
     </>
   );
 };
