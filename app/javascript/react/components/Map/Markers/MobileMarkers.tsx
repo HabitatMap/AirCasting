@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { red } from "../../../assets/styles/colors";
+import { selectThresholds } from "../../../store/thresholdSlice";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
 import { pubSub } from "../../../utils/pubSubManager";
+import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
@@ -27,6 +29,9 @@ const MobileMarkers = ({
   const ZOOM_FOR_SELECTED_SESSION = 15;
 
   const map = useMap();
+
+  const thresholds = useSelector(selectThresholds);
+
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
   );
@@ -91,15 +96,8 @@ const MobileMarkers = ({
   };
 
   const centerMapOnMarker = (position: Point) => {
-    const {
-      lat,
-      lng,
-      maxLatitude,
-      maxLongitude,
-      minLatitude,
-      minLongitude,
-      streamId,
-    } = position;
+    const { lat, lng, maxLatitude, maxLongitude, minLatitude, minLongitude } =
+      position;
 
     if (map && !selectedMarkerKey) {
       if (maxLatitude && maxLongitude && minLatitude && minLongitude) {
@@ -134,7 +132,7 @@ const MobileMarkers = ({
       // Display as a dot when markers are too close
       return (
         <SessionDotMarker
-          color={red}
+          color={getColorForValue(thresholds, session.lastMeasurementValue)}
           shouldPulse={session.id === pulsatingSessionId}
           onClick={() => {
             onMarkerClick(Number(session.point.streamId), Number(session.id));
@@ -147,7 +145,7 @@ const MobileMarkers = ({
     // Display the average value otherwise
     return (
       <SessionFullMarker
-        color={red}
+        color={getColorForValue(thresholds, session.lastMeasurementValue)}
         value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
         isSelected={isSelected}
         shouldPulse={session.id === pulsatingSessionId}

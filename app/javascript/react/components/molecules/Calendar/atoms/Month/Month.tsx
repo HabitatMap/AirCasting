@@ -1,14 +1,14 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
+import { selectThresholds } from "../../../../../store/thresholdSlice";
 import { CalendarMonthlyData } from "../../../../../types/movingStream";
-import { selectThreshold } from "../../../../../store/thresholdSlice";
 import { Day } from "../Day";
 import { DayNamesHeader } from "../DayNamesHeader";
 import * as S from "./Month.style";
 
 const Month = ({ monthName, dayNamesHeader, weeks }: CalendarMonthlyData) => {
-  const thresholds = useSelector(selectThreshold);
+  const thresholds = useSelector(selectThresholds);
 
   return (
     <S.Month>

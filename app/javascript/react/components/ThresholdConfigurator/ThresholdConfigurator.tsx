@@ -1,19 +1,13 @@
+import _ from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { useAppDispatch } from "../../store/hooks";
-import { selectMobileStreamShortInfo } from "../../store/mobileStreamSelectors";
-import { selectThreshold, updateAll } from "../../store/thresholdSlice";
-import { SessionType, SessionTypes } from "../../types/filters";
-import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
+import { selectThresholds, setUserThresholdValues } from "../../store/thresholdSlice";
 import { Thresholds } from "../../types/thresholds";
 import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
-import {
-  handleMouseDown,
-  handleTouchStart,
-} from "../../utils/thresholdGestureHandlers";
+import { handleMouseDown, handleTouchStart } from "../../utils/thresholdGestureHandlers";
 import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 import * as S from "./ThresholdConfigurator.style";
@@ -21,30 +15,14 @@ import * as S from "./ThresholdConfigurator.style";
 interface ThumbPositions extends Omit<Thresholds, "min" | "max"> {}
 interface ThresholdsConfiguratorProps {
   isMapPage: boolean;
-  sessionType: SessionType;
 }
 
 const maxThresholdDifference = 1;
 
 const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   isMapPage,
-  sessionType,
 }) => {
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-
-  const {
-    min: initialMin,
-    low: initialLow,
-    middle: initialMiddle,
-    high: initialHigh,
-    max: initialMax,
-  }: StreamShortInfo = useSelector(
-    fixedSessionTypeSelected
-      ? selectFixedStreamShortInfo
-      : selectMobileStreamShortInfo
-  );
-
-  const thresholdsState = useSelector(selectThreshold);
+  const thresholdsState = useSelector(selectThresholds);
   const [thresholdValues, setThresholdValues] = useState(thresholdsState);
   const [thumbPositions, setThumbPositions] = useState<ThumbPositions>(
     {} as ThumbPositions
@@ -59,21 +37,16 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    setThresholdValues({
-      min: initialMin,
-      low: initialLow,
-      middle: initialMiddle,
-      high: initialHigh,
-      max: initialMax,
-    });
-  }, [initialMin, initialLow, initialMiddle, initialHigh, initialMax]);
+    if (!_.isEqual(thresholdsState, thresholdValues)) {
+      dispatch(setUserThresholdValues(thresholdValues));
+    }
+  }, [thresholdValues]);
 
   useEffect(() => {
-    const updateThresholdValues = () => {
-      dispatch(updateAll(thresholdValues));
-    };
-    updateThresholdValues();
-  }, [thresholdValues]);
+    if (!_.isEqual(thresholdsState, thresholdValues)) {
+      setThresholdValues(thresholdsState);
+    }
+  }, [thresholdsState]);
 
   useEffect(() => {
     const updateSliderWidth = () => {

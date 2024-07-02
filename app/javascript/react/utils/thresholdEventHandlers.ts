@@ -1,21 +1,12 @@
 import { debounce } from "lodash";
-import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
-
-import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
-import { KeyboardKeys } from "../types/keyboardKeys";
-import { resetToInitialValues } from "../store/thresholdSlice";
-import { useAppDispatch } from "../store/hooks";
+import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { selectFixedStreamShortInfo } from "../store/fixedStreamSelectors";
 
-interface Thresholds {
-  min: number;
-  low: number;
-  middle: number;
-  high: number;
-  max: number;
-}
+import { selectDefaultThresholds } from "../store/thresholdSlice";
+import { KeyboardKeys } from "../types/keyboardKeys";
+import { Thresholds } from "../types/thresholds";
+import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 
 export const useThresholdHandlers = (
   setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
@@ -28,15 +19,10 @@ export const useThresholdHandlers = (
   inputValue: string
 ) => {
   const inputDebounceTime = 300;
+
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
-  const {
-    min: initialMin,
-    low: initialLow,
-    middle: initialMiddle,
-    high: initialHigh,
-    max: initialMax,
-  } = useSelector(selectFixedStreamShortInfo);
+  const defaultThresholds = useSelector(selectDefaultThresholds);
+
   const isValueValid = (
     newValue: number,
     min: number,
@@ -189,15 +175,7 @@ export const useThresholdHandlers = (
   const resetThresholds = () => {
     debouncedHandleInputChange.cancel();
 
-    const initialThresholdsValues = {
-      min: initialMin,
-      low: initialLow,
-      middle: initialMiddle,
-      high: initialHigh,
-      max: initialMax,
-    };
-    dispatch(resetToInitialValues());
-    setThresholdValues(initialThresholdsValues);
+    setThresholdValues(defaultThresholds);
     setInputValue("");
     setActiveInput(null);
   };

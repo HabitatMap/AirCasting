@@ -19,7 +19,6 @@ import {
   selectFixedSessionsStatusFulfilled,
 } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { setLoading, setSessionsListOpen } from "../../store/mapSlice";
@@ -29,14 +28,13 @@ import {
   selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
-import {
-  selectMobileStreamPoints,
-  selectMobileStreamShortInfo,
-} from "../../store/mobileStreamSelectors";
+import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
-import { updateAll } from "../../store/thresholdSlice";
+import {
+  fetchThresholds,
+  resetUserThresholds,
+} from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
-import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import { SessionList } from "../../types/sessionType";
 import { pubSub } from "../../utils/pubSubManager";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -110,18 +108,6 @@ const Map = () => {
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
-  const {
-    min: initialMin,
-    low: initialLow,
-    middle: initialMiddle,
-    high: initialHigh,
-    max: initialMax,
-  }: StreamShortInfo = useSelector(
-    fixedSessionTypeSelected
-      ? selectFixedStreamShortInfo
-      : selectMobileStreamShortInfo
-  );
-
   const listSessions = useSelector(
     fixedSessionTypeSelected
       ? selectFixedSessionsList
@@ -134,8 +120,8 @@ const Map = () => {
 
   // Filters (temporary solution)
   const sensor_name = fixedSessionTypeSelected
-    ? "government-pm2.5"
-    : "airbeam-pm2.5";
+    ? "Government-PM2.5"
+    : "AirBeam-PM2.5";
   const filters = useMemo(
     () =>
       JSON.stringify({
@@ -166,9 +152,13 @@ const Map = () => {
       unit_symbol,
     ]
   );
+  const unitSymbol = unit_symbol.replace(/"/g, "");
+  const encodedUnitSymbol = encodeURIComponent(unitSymbol);
+  const thresholdFilters = `${sensor_name}?unit_symbol=${encodedUnitSymbol}`;
 
   // Effects
   useEffect(() => {
+    dispatch(fetchThresholds(thresholdFilters));
     if (loading) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
@@ -176,28 +166,6 @@ const Map = () => {
       dispatch(setLoading(false));
     }
   }, [dispatch, filters, loading, fixedSessionTypeSelected]);
-
-  useEffect(() => {
-    const updateThresholdValues = () => {
-      dispatch(
-        updateAll({
-          min: initialMin,
-          low: initialLow,
-          middle: initialMiddle,
-          high: initialHigh,
-          max: initialMax,
-        })
-      );
-    };
-    updateThresholdValues();
-  }, [
-    initialMin,
-    initialLow,
-    initialMiddle,
-    initialHigh,
-    initialMax,
-    dispatch,
-  ]);
 
   // Callbacks
   const onIdle = useCallback(
@@ -289,6 +257,7 @@ const Map = () => {
 
   const handleClick = (type: SessionType) => {
     setSelectedSessionType(type);
+    dispatch(resetUserThresholds());
     dispatch(setLoading(true));
   };
 

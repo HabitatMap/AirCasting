@@ -9,19 +9,17 @@ import downloadImage from "../../../assets/icons/download.svg";
 import shareLink from "../../../assets/icons/shareLink.svg";
 import { white } from "../../../assets/styles/colors";
 import {
-  selectFixedExtremes,
-  selectFixedStreamShortInfo,
+    selectFixedExtremes, selectFixedStreamShortInfo
 } from "../../../store/fixedStreamSelectors";
 import {
-  selectMobileStreamShortInfo,
-  selectMobileExtremes,
+    selectMobileExtremes, selectMobileStreamShortInfo
 } from "../../../store/mobileStreamSelectors";
-import { selectThreshold } from "../../../store/thresholdSlice";
+import { selectThresholds } from "../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../types/mobileStream";
 import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
-import { getColorForValue } from "../../../utils/thresholdColors";
 import { isNoData } from "../../../utils/measurementsCalc";
+import { getColorForValue } from "../../../utils/thresholdColors";
 import { CopyLinkModal } from "../CopyLinkModal";
 import * as S from "./SessionDetailsModal.style";
 
@@ -41,7 +39,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
   const extremes = useSelector(
     fixedSessionTypeSelected ? selectFixedExtremes : selectMobileExtremes
   );
-  const thresholds = useSelector(selectThreshold);
+  const thresholds = useSelector(selectThresholds);
   const { t } = useTranslation();
 
   const formattedTime = (time: string) => {

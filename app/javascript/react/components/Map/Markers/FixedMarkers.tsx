@@ -1,23 +1,24 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 
 import {
   Cluster,
   GridAlgorithm,
-  Marker,
   MarkerClusterer,
   SuperClusterAlgorithm,
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { selectHoverStreamId } from "../../../store/mapSlice";
+import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { pubSub } from "../../../utils/pubSubManager";
+import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
+import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
-import { useSelector } from "react-redux";
-import { selectHoverStreamId } from "../../../store/mapSlice";
 import type { LatLngLiteral } from "../../../types/googleMaps";
-import HoverMarker from "./HoverMarker/HoverMarker";
 
 type Props = {
   sessions: Session[];
@@ -37,12 +38,16 @@ const FixedMarkers = ({
   const map = useMap();
 
   const clusterer = useRef<MarkerClusterer | null>(null);
-  const markerRefs = useRef<{ [streamId: string]: Marker | null }>({});
+  const markerRefs = useRef<{
+    [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
+  }>({});
   const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
 
-  const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
-    {}
-  );
+  const thresholds = useSelector(selectThresholds);
+
+  const [markers, setMarkers] = useState<{
+    [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
+  }>({});
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
@@ -53,14 +58,18 @@ const FixedMarkers = ({
   );
 
   useEffect(() => {
-    if (map && !clusterer.current) {
+    if (map) {
+      // @ts-ignore:next-line
+      if (clusterer.current && clusterer.current.markers.length > 1) {
+        clusterer.current.clearMarkers();
+      }
       clusterer.current = new MarkerClusterer({
         map,
-        renderer: customRenderer,
+        renderer: customRenderer(thresholds),
         algorithm: new SuperClusterAlgorithm({ maxZoom: 21, radius: 40 }),
       });
     }
-  }, [map, sessions]);
+  }, [map, sessions, thresholds]);
 
   useEffect(() => {
     if (selectedStreamId === null) {
@@ -98,7 +107,8 @@ const FixedMarkers = ({
         }
       });
       const validMarkers = Object.values(markers).filter(
-        (marker): marker is Marker => marker !== null
+        (marker): marker is google.maps.marker.AdvancedMarkerElement =>
+          marker !== null
       );
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
@@ -132,7 +142,7 @@ const FixedMarkers = ({
           }
           pulsatingClusterer.current = new MarkerClusterer({
             map,
-            renderer: pulsatingRenderer(pulsatingCluster?.position),
+            renderer: pulsatingRenderer(thresholds, pulsatingCluster?.position),
             markers: pulsatingCluster?.markers,
             algorithm: new GridAlgorithm({ gridSize: 1000 }),
           });
@@ -166,20 +176,23 @@ const FixedMarkers = ({
     setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
   };
 
-  const setMarkerRef = useCallback((marker: Marker | null, key: string) => {
-    if (markerRefs.current[key] === marker) return;
+  const setMarkerRef = useCallback(
+    (marker: google.maps.marker.AdvancedMarkerElement | null, key: string) => {
+      if (markerRefs.current[key] === marker) return;
 
-    markerRefs.current[key] = marker;
-    setMarkers((prev) => {
-      if (marker) {
-        return { ...prev, [key]: marker };
-      } else {
-        const newMarkers = { ...prev };
-        delete newMarkers[key];
-        return newMarkers;
-      }
-    });
-  }, []);
+      markerRefs.current[key] = marker;
+      setMarkers((prev) => {
+        if (marker) {
+          return { ...prev, [key]: marker };
+        } else {
+          const newMarkers = { ...prev };
+          delete newMarkers[key];
+          return newMarkers;
+        }
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     if (hoverStreamId) {
@@ -200,6 +213,7 @@ const FixedMarkers = ({
           position={session.point}
           key={session.point.streamId}
           zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
+          title={session.lastMeasurementValue.toString()}
           ref={(marker) => {
             if (marker && clusterer.current) {
               setMarkerRef(marker, session.point.streamId);
@@ -208,7 +222,7 @@ const FixedMarkers = ({
           }}
         >
           <SessionFullMarker
-            color="#E95F5F"
+            color={getColorForValue(thresholds, session.lastMeasurementValue)}
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
             isSelected={session.point.streamId === selectedMarkerKey}
             shouldPulse={session.id === pulsatingSessionId}

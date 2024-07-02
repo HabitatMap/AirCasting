@@ -2,11 +2,12 @@ import * as colors from "../assets/styles/colors";
 import { Thresholds } from "../types/thresholds";
 
 const COLORS_FOR_RANGES = (thresholdValues: Thresholds) => [
+  { max: thresholdValues.min - 1, color: colors.grey }, // grey color for values below min
   { max: thresholdValues.low, color: colors.green },
   { max: thresholdValues.middle, color: colors.yellow },
   { max: thresholdValues.high, color: colors.orange },
   { max: thresholdValues.max, color: colors.red },
-  { max: Infinity, color: colors.red }, // red color for values out of scale
+  { max: Infinity, color: colors.grey }, // grey color for values out of scale
 ];
 
 const getColorForValue = (

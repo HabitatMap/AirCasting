@@ -1,12 +1,12 @@
-import * as React from "react";
-import { useSelector } from "react-redux";
 import moment from "moment";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 
-import { getColorForValue } from "../../../utils/thresholdColors";
-import { DateFormat } from "../../../types/dateFormat";
-import { selectThreshold } from "../../../store/thresholdSlice";
 import rightVector from "../../../assets/icons/rightVector.svg";
+import { selectThresholds } from "../../../store/thresholdSlice";
+import { DateFormat } from "../../../types/dateFormat";
+import { getColorForValue } from "../../../utils/thresholdColors";
 import * as S from "./SessionListTile.style";
 
 interface SessionListTile {
@@ -34,7 +34,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
   onMouseEnter,
   onMouseLeave,
 }) => {
-  const thresholds = useSelector(selectThreshold);
+  const thresholds = useSelector(selectThresholds);
 
   const { t } = useTranslation();
 
@@ -76,7 +76,6 @@ const SessionsListTile: React.FC<SessionListTile> = ({
       onMouseLeave={handleMouseLeave}
     >
       <S.HorizontalSpacingContainer>
-        {/* adjust thershold value so dot can have proper color */}
         <S.HorizontalGroup>
           <S.ColorDot $color={getColorForValue(thresholds, averageValue)} />
           <S.Subtitle>avg. {averageValue}</S.Subtitle>

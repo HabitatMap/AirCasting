@@ -10,10 +10,9 @@ import {
   XAxisOptions,
   YAxisOptions,
 } from "highcharts/highstock";
-import { ThresholdState } from "../../store/thresholdSlice";
-
 import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
+
 import {
   blue,
   gray100,
@@ -34,11 +33,12 @@ import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
+import { Thresholds } from "../../types/thresholds";
 import {
+  MILLISECONDS_IN_AN_HOUR,
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_MONTH,
   MILLISECONDS_IN_A_WEEK,
-  MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
 
 const scrollbarOptions = {
@@ -117,7 +117,7 @@ const buildTicks = (low: number, high: number) => {
 };
 
 const getYAxisOptions = (
-  thresholdsState: ThresholdState,
+  thresholdsState: Thresholds,
   isMobile: boolean = false
 ): YAxisOptions => {
   const min = Number(thresholdsState.min);
@@ -256,7 +256,7 @@ const legendOption: LegendOptions = {
 };
 
 const getResponsiveOptions = (
-  thresholdsState: ThresholdState
+  thresholdsState: Thresholds
 ): ResponsiveOptions => {
   return {
     rules: [

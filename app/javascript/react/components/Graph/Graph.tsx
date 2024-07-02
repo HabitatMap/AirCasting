@@ -15,7 +15,7 @@ import {
   selectMobileStreamShortInfo,
 } from "../../store/mobileStreamSelectors";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
-import { selectThreshold } from "../../store/thresholdSlice";
+import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
@@ -47,7 +47,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const [selectedRange, setSelectedRange] = useState(
     fixedSessionTypeSelected ? 0 : 2
   );
-  const thresholdsState = useSelector(selectThreshold);
+  const thresholdsState = useSelector(selectThresholds);
   const isLoading = useSelector(selectIsLoading);
   const fixedGraphData = useSelector(selectFixedData);
   const mobileGraphData = useSelector(selectMobileStreamPoints);
