@@ -11,7 +11,6 @@ import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
-import { StreamMarkerTooltip } from "./StreamMarker/StreamMarker.style";
 
 type Props = {
   sessions: Session[];
@@ -83,22 +82,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       {sessions.map((session) => (
         <React.Fragment key={session.id}>
           {/* #DirtyButWorks Display transparent marker without transform property on top of stream marker to enable tooltip */}
-          <AdvancedMarker
-            title={`${session.lastMeasurementValue} ${unitSymbol}`}
-            position={session.point}
-            key={`tooltip-${session.id}`}
-            zIndex={1}
-            ref={(marker) => {
-              if (marker && !markers[session.point.streamId]) {
-                setMarkers((prev) => ({
-                  ...prev,
-                  [session.point.streamId]: marker,
-                }));
-              }
-            }}
-          >
-            <StreamMarkerTooltip />
-          </AdvancedMarker>
           <AdvancedMarker
             title={`${session.lastMeasurementValue} ${unitSymbol}`}
             position={session.point}
