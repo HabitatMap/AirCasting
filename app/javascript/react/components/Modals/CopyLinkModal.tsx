@@ -14,8 +14,8 @@ const initialCopyLinkModalData: CopyLinkModalData = {
 };
 
 interface CopyLinkModalProps {
-  sessionId: string;
   onSubmit: (data: CopyLinkModalData) => void;
+  link: string;
 }
 
 const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit }) => {
