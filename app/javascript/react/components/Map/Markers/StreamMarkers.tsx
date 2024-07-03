@@ -81,7 +81,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     <>
       {sessions.map((session) => (
         <React.Fragment key={session.id}>
-          {/* #DirtyButWorks Display transparent marker without transform property on top of stream marker to enable tooltip */}
           <AdvancedMarker
             title={`${session.lastMeasurementValue} ${unitSymbol}`}
             position={session.point}
