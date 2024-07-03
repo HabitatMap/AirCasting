@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { selectDefaultThresholds } from "../store/thresholdSlice";
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { Thresholds } from "../types/thresholds";
-import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
+import { updateAdjacentThresholds } from "./thresholdsUpdateAdjacent";
 
 export const useThresholdHandlers = (
   setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,

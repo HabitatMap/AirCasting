@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
@@ -37,7 +37,11 @@ import {
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
-import { resetUserThresholds } from "../../store/thresholdSlice";
+import {
+  resetUserThresholds,
+  selectDefaultThresholds,
+  setUserThresholdValues,
+} from "../../store/thresholdSlice";
 import {
   selectUserSettingsState,
   updateUserSettings,
@@ -58,22 +62,55 @@ import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 
 const Map = () => {
-  // const
-  const timeFrom = "1685318400";
-  const timeTo = "1717027199";
-  const tags = "";
-  const usernames = "";
-  const limit = 100;
-  const offset = 0;
-  const measurement_type = "Particulate Matter";
-  const unit_symbol = "µg/m³";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const getSearchParam = (param, defaultValue) =>
+    searchParams.get(param) ?? defaultValue;
+  const defaultThresholds = useSelector(selectDefaultThresholds);
+
+  // Initial state from URL params
+  const initialCenter = useMemo(
+    () =>
+      JSON.parse(getSearchParam("center", JSON.stringify(DEFAULT_MAP_CENTER))),
+    []
+  );
+  const initialZoom = parseInt(getSearchParam("zoom", DEFAULT_ZOOM));
+  const initialSessionType = getSearchParam("sessionType", SessionTypes.FIXED);
+  const initialSessionId =
+    getSearchParam("sessionId", null) !== null
+      ? parseInt(getSearchParam("sessionId", "0"))
+      : null;
+  const initialStreamId =
+    getSearchParam("streamId", null) !== null
+      ? parseInt(getSearchParam("streamId", "0"))
+      : null;
+  const initialModalOpen = getSearchParam("modalOpen", "false") === "true";
+  const initialMapTypeId = getSearchParam("mapType", "roadmap");
+  const initialThresholds = useMemo(
+    () => ({
+      min: parseFloat(
+        getSearchParam("thresholdMin", defaultThresholds.min.toString())
+      ),
+      low: parseFloat(
+        getSearchParam("thresholdLow", defaultThresholds.low.toString())
+      ),
+      middle: parseFloat(
+        getSearchParam("thresholdMiddle", defaultThresholds.middle.toString())
+      ),
+      high: parseFloat(
+        getSearchParam("thresholdHigh", defaultThresholds.high.toString())
+      ),
+      max: parseFloat(
+        getSearchParam("thresholdMax", defaultThresholds.max.toString())
+      ),
+    }),
+    [defaultThresholds]
+  );
 
   // Hooks
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const location = useLocation();
 
   // State
   const [mapBounds, setMapBounds] = useState({
@@ -87,10 +124,12 @@ const Map = () => {
     null
   );
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(
-    null
+    initialSessionId
   );
-  const [selectedSessionType, setSelectedSessionType] = useState<SessionType>(
-    SessionTypes.FIXED
+  const [selectedSessionType, setSelectedSessionType] =
+    useState<SessionType>(initialSessionType);
+  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(
+    initialStreamId
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
 
@@ -117,6 +156,9 @@ const Map = () => {
   const mobilePoints = selectedSessionId
     ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectMobileSessionsPoints);
+
+  const userThresholds = useSelector(selectThresholds);
+
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   const listSessions = useSelector(
@@ -136,34 +178,23 @@ const Map = () => {
   const filters = useMemo(
     () =>
       JSON.stringify({
-        time_from: timeFrom,
-        time_to: timeTo,
-        tags: tags,
-        usernames: usernames,
+        time_from: "1685318400",
+        time_to: "1717027199",
+        tags: "",
+        usernames: "",
         west: mapBounds.west,
         east: mapBounds.east,
         south: mapBounds.south,
         north: mapBounds.north,
-        limit: limit,
-        offset: offset,
+        limit: 100,
+        offset: 0,
         sensor_name: sensor_name,
-        measurement_type: measurement_type,
-        unit_symbol: unit_symbol,
+        measurement_type: "Particulate Matter",
+        unit_symbol: "µg/m³",
       }),
-    [
-      timeFrom,
-      timeTo,
-      tags,
-      usernames,
-      mapBounds,
-      limit,
-      offset,
-      sensor_name,
-      measurement_type,
-      unit_symbol,
-    ]
+    [mapBounds, sensor_name]
   );
-  const unitSymbol = unit_symbol.replace(/"/g, "");
+  const unitSymbol = "µg/m³".replace(/"/g, "");
   const encodedUnitSymbol = encodeURIComponent(unitSymbol);
   const thresholdFilters = `${sensor_name}?unit_symbol=${encodedUnitSymbol}`;
 
@@ -242,34 +273,54 @@ const Map = () => {
     urlParams.set("zoom", previousZoom.toString());
     urlParams.set("sessionType", selectedSessionType);
     if (selectedStreamId) {
-      urlParams.set("streamId", selectedStreamId.toString());
+      fixedSessionTypeSelected
+        ? dispatch(fetchFixedStreamById(selectedStreamId))
+        : dispatch(fetchMobileStreamById(selectedStreamId));
     }
-    if (selectedSessionId) {
-      urlParams.set("sessionId", selectedSessionId.toString());
+  }, [dispatch, selectedStreamId, fixedSessionTypeSelected]);
+
+  // Set initial map type ID and thresholds from URL
+  useEffect(() => {
+    dispatch(setMapTypeId(initialMapTypeId));
+    dispatch(setUserThresholdValues(initialThresholds));
+  }, [dispatch, initialMapTypeId, initialThresholds]);
+
+  // Update URL parameters
+  useEffect(() => {
+    const currentCenter = JSON.stringify(
+      mapInstance?.getCenter()?.toJSON() || previousCenter
+    );
+    const currentZoom = (mapInstance?.getZoom() || previousZoom).toString();
+    const queryParams = new URLSearchParams({
+      center: currentCenter,
+      zoom: currentZoom,
+      sessionType: selectedSessionType,
+      sessionId: selectedSessionId?.toString() || "",
+      streamId: selectedStreamId?.toString() || "",
+      modalOpen: modalOpen.toString(),
+      mapType: mapTypeId,
+      thresholdMin: userThresholds?.min?.toString() || "",
+      thresholdLow: userThresholds?.low?.toString() || "",
+      thresholdMiddle: userThresholds?.middle?.toString() || "",
+      thresholdHigh: userThresholds?.high?.toString() || "",
+      thresholdMax: userThresholds?.max?.toString() || "",
+    });
+    const currentParams = searchParams.toString();
+    if (queryParams.toString() !== currentParams) {
+      setSearchParams(queryParams);
     }
-    if (modalOpen) {
-      urlParams.set("modal", "open");
-    }
-    urlParams.set("min", initialMin.toString());
-    urlParams.set("low", initialLow.toString());
-    urlParams.set("middle", initialMiddle.toString());
-    urlParams.set("high", initialHigh.toString());
-    urlParams.set("max", initialMax.toString());
-    navigate(`${location.pathname}?${urlParams.toString()}`, { replace: true });
   }, [
+    mapInstance,
     previousCenter,
     previousZoom,
     selectedSessionType,
-    selectedStreamId,
     selectedSessionId,
+    selectedStreamId,
     modalOpen,
-    navigate,
-    location.pathname,
-    initialMin,
-    initialLow,
-    initialMiddle,
-    initialHigh,
-    initialMax,
+    mapTypeId,
+    userThresholds,
+    setSearchParams,
+    searchParams,
   ]);
 
   useEffect(() => {
@@ -408,8 +459,8 @@ const Map = () => {
       <GoogleMap
         mapId={mapId}
         mapTypeId={mapTypeId}
-        defaultCenter={DEFAULT_MAP_CENTER}
-        defaultZoom={DEFAULT_ZOOM}
+        defaultCenter={initialCenter}
+        defaultZoom={initialZoom}
         gestureHandling={"greedy"}
         disableDefaultUI={true}
         scaleControl={true}
@@ -436,7 +487,7 @@ const Map = () => {
         {selectedStreamId && !fixedSessionTypeSelected && (
           <StreamMarkers
             sessions={mobileStreamPoints}
-            unitSymbol={unit_symbol}
+            unitSymbol={unitSymbol}
           />
         )}
       </GoogleMap>

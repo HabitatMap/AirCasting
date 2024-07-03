@@ -17,12 +17,9 @@ const initialCopyLinkModalData: CopyLinkModalData = {
 };
 
 interface CopyLinkModalProps {
-  sessionId: string;
   onSubmit: (data: CopyLinkModalData) => void;
-<<<<<<< HEAD
   onError: (error: Error) => void;
-=======
->>>>>>> 7e47527f (Use tiny url for shortening url)
+  link: string;
 }
 
 const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
@@ -35,7 +32,6 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
   const [formState, setFormState] = useState<CopyLinkModalData>(
     initialCopyLinkModalData
   );
-<<<<<<< HEAD
 
   useEffect(() => {
     if (error) {
@@ -47,9 +43,6 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
       }));
     }
   }, [shortenedLink, error, onError]);
-=======
-  const { t } = useTranslation();
->>>>>>> 7e47527f (Use tiny url for shortening url)
 
   useEffect(() => {
     const shortenLink = async (url: string) => {
