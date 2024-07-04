@@ -258,14 +258,14 @@ const HeaderWrapper = styled.div`
   align-items: center;
   width: 100%;
   gap: 1rem;
-  padding: 1rem;
+  padding: 1rem 1rem 0 0;
 `;
 
 const ContentWrapper = styled.div<ContentWrapperProps>`
   display: ${(props) => (props.$isVisible ? "flex" : "none")};
   gap: 1rem;
   width: 100%;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   justify-content: space-between;
   align-items: center;
 `;

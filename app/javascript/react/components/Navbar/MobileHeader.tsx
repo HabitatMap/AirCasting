@@ -3,7 +3,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
-import goBackIcon from "../../assets/icons/goBackIcon.svg";
+import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
 import { RootState } from "../../store";
@@ -68,7 +68,7 @@ export const MobileCalendarHeader = ({ t }: { t: Function }) => {
         aria-label={t("navbar.mapPage")}
       >
         <img
-          src={goBackIcon}
+          src={backArrowIcon}
           alt={t("navbar.altGoBackIcon")}
           aria-label={t("navbar.goBackToSessions")}
         />

@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
-import { H5 } from "../../Typography";
-import { media } from "../../../utils/media";
 import { gray100, gray300 } from "../../../assets/styles/colors";
+import { media } from "../../../utils/media";
+import { H5 } from "../../Typography";
 
 const HorizontalContainer = styled.div`
   display: flex;
@@ -36,7 +36,7 @@ const Subtitle = styled(H5)`
 
 const GridContainer = styled.div`
   background: ${gray100};
-  padding: 5.5rem 2rem;
+  padding: 6rem 2rem 5.5rem 2rem;
   display: grid;
   width: 100%;
   grid-gap: 10px;
@@ -97,4 +97,4 @@ const GridContainer = styled.div`
   }
 `;
 
-export { RowContainer, GridContainer, HorizontalContainer, Subtitle };
+export { GridContainer, HorizontalContainer, RowContainer, Subtitle };
