@@ -1,10 +1,9 @@
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
+import { debounce } from "lodash";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
-
 import pinImage from "../../assets/icons/pinImage.svg";
 import {
   DEFAULT_MAP_BOUNDS,
@@ -22,11 +21,7 @@ import {
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import {
-  selectModalOpen,
-  setLoading,
-  setSessionsListOpen,
-} from "../../store/mapSlice";
+import { setLoading, setSessionsListOpen } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -39,7 +34,6 @@ import {
   resetUserThresholds,
   selectDefaultThresholds,
   selectThresholds,
-  setUserThresholdValues,
 } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
@@ -68,6 +62,9 @@ const Map = () => {
     []
   );
   const initialZoom = parseInt(getSearchParam("zoom", DEFAULT_ZOOM));
+  const initialPreviousZoom = parseInt(
+    getSearchParam("previousZoom", DEFAULT_ZOOM)
+  ); // Added initial previous zoom
   const initialSessionType = getSearchParam("sessionType", SessionTypes.FIXED);
   const initialSessionId =
     getSearchParam("sessionId", null) !== null
@@ -116,7 +113,7 @@ const Map = () => {
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(initialModalOpen);
   const [previousCenter, setPreviousCenter] = useState(initialCenter);
-  const [previousZoom, setPreviousZoom] = useState(initialZoom);
+  const [previousZoom, setPreviousZoom] = useState(initialPreviousZoom); // Set initial previous zoom
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
     null
   );
@@ -148,8 +145,9 @@ const Map = () => {
   const mobilePoints = selectedSessionId
     ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectMobileSessionsPoints);
-  const modalOpen = useSelector(selectModalOpen);
   const userThresholds = useSelector(selectThresholds);
+  const thresholdsState = useSelector(selectThresholds);
+  const [thresholdValues, setThresholdValues] = useState(thresholdsState);
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
@@ -274,8 +272,15 @@ const Map = () => {
   // Set initial map type ID and thresholds from URL
   useEffect(() => {
     dispatch(setMapTypeId(initialMapTypeId));
-    dispatch(setUserThresholdValues(initialThresholds));
-  }, [dispatch, initialMapTypeId, initialThresholds]);
+    // dispatch(setUserThresholdValues(initialThresholds));
+  }, [dispatch, initialMapTypeId]);
+
+  const debouncedUpdateURL = useCallback(
+    debounce((params) => {
+      setSearchParams(params);
+    }, 300), // 300ms debounce delay
+    []
+  );
 
   // Update URL parameters
   useEffect(() => {
@@ -286,20 +291,21 @@ const Map = () => {
     const queryParams = new URLSearchParams({
       center: currentCenter,
       zoom: currentZoom,
+      previousZoom: previousZoom.toString(),
       sessionType: selectedSessionType,
       sessionId: selectedSessionId?.toString() || "",
       streamId: selectedStreamId?.toString() || "",
       modalOpen: modalOpen.toString(),
       mapType: mapTypeId,
-      thresholdMin: userThresholds?.min?.toString() || "",
-      thresholdLow: userThresholds?.low?.toString() || "",
-      thresholdMiddle: userThresholds?.middle?.toString() || "",
-      thresholdHigh: userThresholds?.high?.toString() || "",
-      thresholdMax: userThresholds?.max?.toString() || "",
+      // thresholdMin: thresholdValues.min?.toString() || "",
+      // thresholdLow: thresholdValues.low?.toString() || "",
+      // thresholdMiddle: thresholdValues.middle?.toString() || "",
+      // thresholdHigh: thresholdValues.high?.toString() || "",
+      // thresholdMax: thresholdValues.max?.toString() || "",
     });
     const currentParams = searchParams.toString();
     if (queryParams.toString() !== currentParams) {
-      setSearchParams(queryParams);
+      debouncedUpdateURL(queryParams);
     }
   }, [
     mapInstance,
@@ -310,9 +316,9 @@ const Map = () => {
     selectedStreamId,
     modalOpen,
     mapTypeId,
-    userThresholds,
-    setSearchParams,
+    // thresholdValues,
     searchParams,
+    debouncedUpdateURL,
   ]);
 
   // Callbacks
