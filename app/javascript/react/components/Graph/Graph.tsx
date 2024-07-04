@@ -141,7 +141,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         },
       },
       height: 300,
-      margin: [40, 30, 0, 10],
+      margin: [0, 60, 0, 0],
       animation: false,
       scrollablePlotArea: {
         minWidth: 100,

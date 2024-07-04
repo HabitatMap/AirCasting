@@ -46,7 +46,7 @@ const SessionDetailsModal = styled(Popup)`
     flex-direction: row-reverse;
     flex-wrap: wrap;
     @media ${media.smallDesktop} {
-      padding: 1.25rem;
+      padding-bottom: 1.25rem;
       flex-direction: row;
     }
   }
@@ -68,9 +68,8 @@ const InfoContainer = styled.div`
     width: 20%;
     flex-direction: column;
     margin-bottom: 0;
-    padding: 4rem 4rem 0 4rem;
+    padding: 3rem 3rem 0 3rem;
     gap: 1.6rem;
-    margin-bottom: 1.6rem;
     flex-wrap: wrap;
   }
 `;
@@ -184,9 +183,11 @@ const BlueButton = styled(Link)`
 const CancelButtonX = styled.button`
   border: none;
   background-color: transparent;
-  width: 10%;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.3rem;
   height: fit-content;
-  align-self: flex-start;
+  align-self: flex-end;
 
   body:not(.user-is-tabbing) &:focus-visible {
     outline: none;

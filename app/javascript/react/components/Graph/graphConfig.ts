@@ -1,4 +1,5 @@
 import Highcharts, {
+  AlignValue,
   RangeSelectorOptions,
   ResponsiveOptions,
 } from "highcharts";
@@ -14,6 +15,7 @@ import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
 
 import {
+  black,
   blue,
   gray100,
   gray200,
@@ -43,18 +45,14 @@ import {
 
 const scrollbarOptions = {
   barBackgroundColor: gray200,
-  barBorderRadius: 7,
   barBorderWidth: 0,
-  buttonBackgroundColor: white,
-  buttonBorderColor: gray200,
-  buttonArrowColor: gray300,
-  buttonsEnabled: true,
-  buttonBorderWidth: 1,
-  buttonBorderRadius: 12,
+  button: {
+    enabled: false,
+  },
   height: 8,
   trackBackgroundColor: gray100,
   trackBorderWidth: 0,
-  showFull: false,
+  showFull: true,
   enabled: true,
 };
 
@@ -324,32 +322,34 @@ const getRangeSelectorOptions = (
   selectedRange?: number
 ): RangeSelectorOptions => {
   const { t } = useTranslation();
-  const baseOptions = {
+  const baseOptions: RangeSelectorOptions = {
+    buttonPosition: {
+      align: "right" as AlignValue,
+      x: -32,
+      y: 50,
+    },
     buttonTheme: {
-      fill: "none",
-      width: 50,
+      fill: "rgba(255, 255, 255, 0.8)",
+      width: 90,
       r: 5,
-      padding: 5,
-      stroke: white,
-      "stroke-width": 1,
       style: {
         fontFamily: "Roboto, sans-serif",
-        fontSize: "1rem",
+        fontSize: "1.4rem",
         color: gray300,
         fontWeight: "regular",
       },
       states: {
         hover: {
-          fill: blue,
+          fill: white,
           style: {
-            color: white,
+            color: black,
             fontWeight: "regular",
           },
         },
         select: {
-          fill: blue,
+          fill: white,
           style: {
-            color: white,
+            color: black,
             fontWeight: "regular",
           },
         },
@@ -358,14 +358,9 @@ const getRangeSelectorOptions = (
     labelStyle: {
       display: "none",
     },
-    buttonSpacing: 5,
+    buttonSpacing: 10,
     inputEnabled: false,
   };
-
-  {
-    t("graph.24HOURS");
-  }
-  t("graph.oneWeek");
 
   if (fixedSessionTypeSelected) {
     return {
@@ -379,7 +374,6 @@ const getRangeSelectorOptions = (
           ? { type: "week", count: 4, text: t("graph.oneMonth") }
           : { type: "all", text: t("graph.oneMonth") },
       ],
-
       allButtonsEnabled: true,
       selected: selectedRange,
     };

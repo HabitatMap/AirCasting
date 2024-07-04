@@ -7,43 +7,16 @@ const Container = styled.div`
   font-family: "Roboto", sans-serif;
 
   @media ${media.largeDesktop} {
-    width: 77%;
+    width: 80%;
   }
 
   .highcharts-root {
     .highcharts-scrollbar {
-      border-radius: 5px;
-      padding: 5px;
-      transform: translate(1px, 15px);
+      transform: translate(0, 15px);
     }
 
     .data-highcharts-chart {
       width: 100%;
-    }
-
-    .highcharts-scrollbar-track {
-      transform: translate(0, 4px);
-      width: 92%;
-      align-self: center;
-      @media ${media.smallDesktop} {
-        width: 97%;
-      }
-    }
-
-    .highcharts-scrollbar-thumb {
-      transform: translate(5px, 4px);
-    }
-
-    .highcharts-scrollbar-button {
-      width: 2.4rem;
-      height: 2.4rem;
-      transform: translate(0, -3px);
-      margin: 0 5rem;
-    }
-
-    .highcharts-scrollbar-arrow {
-      transform: translate(3px, 0px) scale(2);
-      stroke-width: 3px;
     }
 
     .highcharts-button .highcharts-reset-zoom {

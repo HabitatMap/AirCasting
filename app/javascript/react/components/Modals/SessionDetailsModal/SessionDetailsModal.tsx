@@ -54,11 +54,11 @@ const SessionDetailsModal: React.FC<
     >
       {(close) => (
         <>
+          <SessionInfo sessionType={sessionType} streamId={streamId} />
+          <Graph streamId={streamId} sessionType={sessionType} />
           <S.CancelButtonX onClick={close}>
             <img src={circleCloseIcon} alt={t("closeWhite.altCloseButton")} />
           </S.CancelButtonX>
-          <SessionInfo sessionType={sessionType} streamId={streamId} />
-          <Graph streamId={streamId} sessionType={sessionType} />
         </>
       )}
     </SessionModal>
