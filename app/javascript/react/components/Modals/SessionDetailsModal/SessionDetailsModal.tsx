@@ -42,7 +42,7 @@ const SessionDetailsModal: React.FC<
       open={true}
       modal
       nested
-      overlayStyle={{ margin: 0 }}
+      overlayStyle={{ margin: 0, zIndex: 1 }}
       contentStyle={{ margin: 0 }}
       onClose={onClose}
       closeOnDocumentClick={false}

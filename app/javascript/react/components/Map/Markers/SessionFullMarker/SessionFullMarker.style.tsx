@@ -91,6 +91,7 @@ const MarkerText = styled(H4)`
   font-size: 1.2rem;
   font-weight: 400;
   pointer-events: none;
+  white-space: nowrap;
 `;
 
 export {

@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
+import { gray300 } from "../../../../../assets/styles/colors";
 import { media } from "../../../../../utils/media";
 import { H1, H5 } from "../../../../Typography";
-import { gray300 } from "../../../../../assets/styles/colors";
 
 const Label = styled(H5)`
   padding-bottom: 10px;
@@ -17,12 +17,15 @@ const Label = styled(H5)`
 `;
 
 const Heading = styled(H1)`
-  padding-bottom: 10px;
   font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 
   @media ${media.desktop} {
     font-size: 28px;
   }
 `;
 
-export { Label, Heading };
+export { Heading, Label };

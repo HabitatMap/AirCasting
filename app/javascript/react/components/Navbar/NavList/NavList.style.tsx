@@ -1,8 +1,8 @@
 import styled, { css } from "styled-components";
 
 import { blue, darkBlue, theme, white } from "../../../assets/styles/colors";
-import { BuyCTA } from "../Navbar.style";
 import { media } from "../../../utils/media";
+import { BuyCTA } from "../Navbar.style";
 
 const AircastingLogo = styled.img`
   width: 152px;
@@ -31,7 +31,7 @@ const NavList = styled.ul<{ $isVisible?: boolean }>`
   position: fixed;
   top: 0;
   right: ${(p) => (p.$isVisible ? "0" : "-35.2rem")};
-  z-index: 99;
+  z-index: 5;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
   letter-spacing: 0.5px;
@@ -80,7 +80,7 @@ const SubNavTitleLink = styled.a`
   display: inline-block;
   padding: 0.5rem 0;
   text-decoration: none;
-  letter-sapcing: 0.5rem;
+  letter-spacing: 0.5rem;
 
   &:hover {
     opacity: 0.5;
@@ -106,7 +106,7 @@ const Link = styled(NavItemLink)`
 `;
 
 const BottomNavContainer = styled(Container)`
-  boreder-top: 1px solid ${white};
+  border-top: 1px solid ${white};
   padding-top: 3.2rem;
 `;
 
@@ -145,16 +145,16 @@ const GoBack = styled.a`
 
 export {
   AircastingLogo,
+  BottomNavContainer,
   Button,
+  BuyCTAWhite,
   Container,
+  GoBack,
+  Link,
+  ListItem,
+  NavHeader,
+  NavItemLink,
   NavList,
   SubNav,
-  NavHeader,
-  ListItem,
   SubNavTitleLink,
-  NavItemLink,
-  Link,
-  BottomNavContainer,
-  GoBack,
-  BuyCTAWhite,
 };
