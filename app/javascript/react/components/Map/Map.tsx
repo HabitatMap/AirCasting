@@ -33,6 +33,7 @@ import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
 import { SessionsListView } from "../SessionsListView/SessionsListView";
+import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfigurator";
 import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
@@ -300,6 +301,8 @@ const Map = () => {
           />
         )}
       </GoogleMap>
+      {!isMobile && <ThresholdsConfigurator isMapPage={true} />}
+
       {modalOpen && (
         <SessionDetailsModal
           onClose={handleCloseModal}

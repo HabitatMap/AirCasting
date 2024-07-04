@@ -3,26 +3,32 @@ import styled from "styled-components";
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
-interface ContainerProps {
+interface Props {
   $isMapPage?: boolean;
 }
 
-const Container = styled.div<ContainerProps>`
+const Container = styled.div<Props>`
   display: flex;
   flex-direction: column;
   padding: ${(props) => (props.$isMapPage ? 0 : "1.5rem")};
   margin-bottom: ${(props) => (props.$isMapPage ? 0 : "3rem")};
   background: ${(props) => (props.$isMapPage ? "none" : colors.white)};
-  position: relative;
+  position: absolute;
   width: 100%;
+  height: 6.4rem;
+  z-index: 200;
+  bottom: 0;
+  background-color: ${colors.white};
+  box-shadow: ${(props) =>
+    props.$isMapPage ? "2px 2px 4px 0px #4c56601a" : "none"};
 
   @media (${media.desktop}) {
-    padding: ${(props) => (props.$isMapPage ? "1.5rem 10rem" : "3rem 10rem")};
+    padding: ${(props) => (props.$isMapPage ? "0 10rem" : "3rem 10rem")};
     margin-bottom: 0;
   }
 `;
 
-const InputContainer = styled.div`
+const InputContainer = styled.div<Props>`
   position: relative;
   width: 100%;
   height: 70px;
@@ -30,7 +36,7 @@ const InputContainer = styled.div`
   margin-bottom: 1.5rem;
 
   @media (${media.desktop}) {
-    margin-top: 3rem;
+    margin-bottom: ${(props) => (props.$isMapPage ? 0 : "3rem")};
     padding-left: 0;
     height: 30px;
     margin-bottom: 0;
@@ -50,6 +56,7 @@ const RangeInput = styled.input<{
   transform: translateY(-50%);
   height: 9px;
   -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
   background: linear-gradient(
     to right,
@@ -69,6 +76,8 @@ const RangeInput = styled.input<{
   &::-webkit-slider-thumb,
   &::-moz-range-thumb,
   &::-ms-thumb {
+    -webkit-appearance: none;
+    -moz-appearance: none;
     appearance: none;
     width: 16px;
     height: 16px;
@@ -187,11 +196,11 @@ const StyledContainer = styled.div`
 `;
 
 export {
-  StyledContainer,
   Container,
-  InputContainer,
-  RangeInput,
-  NumberInput,
   ErrorMessage,
+  InputContainer,
+  NumberInput,
+  RangeInput,
+  StyledContainer,
   Units,
 };
