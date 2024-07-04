@@ -301,7 +301,7 @@ const Map = () => {
           />
         )}
       </GoogleMap>
-      {!isMobile && <ThresholdsConfigurator isMapPage={true} />}
+      <ThresholdsConfigurator isMapPage={true} />
 
       {modalOpen && (
         <SessionDetailsModal

@@ -16,6 +16,13 @@ import { H2 } from "../../Typography";
 interface DotProps {
   $color?: string;
 }
+interface ContentWrapperProps {
+  $isVisible: boolean;
+}
+
+interface MinMaxProps {
+  $isMobile: boolean;
+}
 
 const SessionDetailsModal = styled(Popup)`
   width: 100%;
@@ -55,22 +62,36 @@ const SessionDetailsModal = styled(Popup)`
 const InfoContainer = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 1rem 0 0 1rem;
-  width: 90%;
+  width: 100%;
   justify-content: space-between;
   gap: 4rem;
 
   @media ${media.smallDesktop} {
-    justify-content: space-evenly;
-  }
-
-  @media ${media.largeDesktop} {
     width: 20%;
     flex-direction: column;
+    justify-content: space-evenly;
     margin-bottom: 0;
     padding: 3rem 3rem 0 3rem;
     gap: 1.6rem;
     flex-wrap: wrap;
+  }
+`;
+
+const MobileHeader = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+
+  @media ${media.smallDesktop} {
+    display: none;
+  }
+`;
+
+const DesktopHeader = styled.div`
+  display: none;
+
+  @media ${media.smallDesktop} {
+    display: flex;
   }
 `;
 
@@ -136,11 +157,12 @@ const ButtonsContainer = styled.div`
   }
 `;
 
-const MinMaxValueContainer = styled.div`
+const MinMaxValueContainer = styled.div<MinMaxProps>`
   display: flex;
   align-items: center;
   font-size: 1.2rem;
   gap: 2rem;
+  justify-content: ${(props) => (props.$isMobile ? "flex-end" : "flex-start")};
 `;
 const Value = styled.span`
   font-size: 1.6rem;
@@ -229,6 +251,36 @@ const Wrapper = styled.div`
 const NoData = styled.span`
   font-size: 1.6rem;
 `;
+
+const HeaderWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+  padding: 1rem;
+`;
+
+const ContentWrapper = styled.div<ContentWrapperProps>`
+  display: ${(props) => (props.$isVisible ? "flex" : "none")};
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ClickableWrapper = styled.div`
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+`;
+
+const RotatedIcon = styled.img<{ rotated: boolean }>`
+  transform: ${({ rotated }) => (rotated ? "rotate(180deg)" : "none")};
+  cursor: pointer;
+`;
+
 export {
   AverageDot,
   AverageValue,
@@ -237,10 +289,16 @@ export {
   Button,
   ButtonsContainer,
   CancelButtonX,
+  ClickableWrapper,
+  ContentWrapper,
+  DesktopHeader,
+  HeaderWrapper,
   InfoContainer,
   MinMaxValueContainer,
+  MobileHeader,
   NoData,
   ProfileName,
+  RotatedIcon,
   SensorName,
   SessionDetailsModal,
   SessionName,

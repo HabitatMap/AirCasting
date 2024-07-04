@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
@@ -26,6 +26,8 @@ type CustomPopupProps = {
 const SessionDetailsModal: React.FC<
   SessionDetailsModalProps & Omit<PopupProps, "children">
 > = ({ onClose, sessionType, streamId }) => {
+  const [isVisible, setIsVisible] = useState(true);
+
   const { t } = useTranslation();
 
   // Workaround for the typescript error
@@ -54,11 +56,18 @@ const SessionDetailsModal: React.FC<
     >
       {(close) => (
         <>
-          <SessionInfo sessionType={sessionType} streamId={streamId} />
-          <Graph streamId={streamId} sessionType={sessionType} />
-          <S.CancelButtonX onClick={close}>
-            <img src={circleCloseIcon} alt={t("closeWhite.altCloseButton")} />
-          </S.CancelButtonX>
+          <SessionInfo
+            sessionType={sessionType}
+            streamId={streamId}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+          />
+          {isVisible && <Graph streamId={streamId} sessionType={sessionType} />}
+          {!isMobile && (
+            <S.CancelButtonX onClick={close}>
+              <img src={circleCloseIcon} alt={t("closeWhite.altCloseButton")} />
+            </S.CancelButtonX>
+          )}
         </>
       )}
     </SessionModal>

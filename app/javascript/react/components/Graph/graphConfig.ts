@@ -260,7 +260,7 @@ const getResponsiveOptions = (
     rules: [
       {
         condition: {
-          maxWidth: 1024,
+          maxWidth: 768,
         },
         chartOptions: {
           yAxis: getYAxisOptions(thresholdsState, true),

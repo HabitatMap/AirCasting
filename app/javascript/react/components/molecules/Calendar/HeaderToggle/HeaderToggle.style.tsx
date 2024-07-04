@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import { H1, H3 } from "../../../Typography";
+import * as colors from "../../../../assets/styles/colors";
 import { media } from "../../../../utils/media";
 import { Button } from "../../../Button/Button.style";
-import * as colors from "../../../../assets/styles/colors";
+import { H1, H3 } from "../../../Typography";
 
 const Container = styled.div`
   display: flex;
@@ -80,11 +80,11 @@ const Wrapper = styled.div`
 `;
 
 export {
-  DateField,
   Container,
-  RotatedIcon,
+  DateField,
   Heading,
   ResetButton,
+  RotatedIcon,
   ThresholdResetButton,
   Wrapper,
 };
