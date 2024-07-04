@@ -38,7 +38,7 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
     p.$displaySearchResults ? `2px 2px 4px 0px rgba(76, 86, 96, 0.1)` : `none`};
   padding: 30px 0 8px 8px;
   width: 26.9rem;
-  z-index: 998;
+  z-index: 2;
 
   @media ${media.smallDesktop} {
     width: 103.6%;
@@ -64,7 +64,7 @@ const SearchInput = styled.input<SearchInputProps>`
   font-size: 1.6rem;
   padding-left: 3.8rem;
   outline: none;
-  z-index: 999;
+  z-index: 3;
 
   @media ${media.smallDesktop} {
     width: 36.8rem;
@@ -85,7 +85,7 @@ const LocationSearchButton = styled.button`
   background-color: transparent;
   cursor: pointer;
   border: none;
-  z-index: 1000;
+  z-index: 2;
 `;
 
 const SearchContainer = styled.div`
@@ -107,10 +107,10 @@ const Hr = styled.hr<HrProps>`
 `;
 
 export {
-  Suggestion,
-  SuggestionsList,
-  SearchInput,
+  Hr,
   LocationSearchButton,
   SearchContainer,
-  Hr,
+  SearchInput,
+  Suggestion,
+  SuggestionsList,
 };

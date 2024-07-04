@@ -11,14 +11,14 @@ const containerStyle = {
 const FixedButton = styled(Button)`
   top: 150px;
   position: absolute;
-  z-index: 99;
+  z-index: 1;
   text-transform: uppercase;
 `;
 
 const MobileButton = styled(Button)`
   top: 200px;
   position: absolute;
-  z-index: 99;
+  z-index: 1;
   text-transform: uppercase;
 `;
 

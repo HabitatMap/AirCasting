@@ -78,6 +78,10 @@ const InfoContainer = styled.div`
 const SessionName = styled(H2)`
   font-weight: 500;
   font-size: 1.8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 
   @media ${media.smallDesktop} {
     font-size: 2.4rem;
@@ -206,7 +210,7 @@ const SmallPopup = styled(Popup)`
     position: relative;
     padding: 1rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1200;
+    z-index: 4;
     display: flex;
   }
 `;

@@ -27,7 +27,7 @@ const SessionListTile = styled.div`
 
 const HorizontalSpacingContainer = styled.div`
   display: flex;
-  align-itrems: left;
+  align-items: left;
   justify-content: space-between;
   margin-top: 0.5rem;
   margin-bottom: 0.8rem;
@@ -35,7 +35,7 @@ const HorizontalSpacingContainer = styled.div`
 
 const HorizontalGroup = styled.div`
   display: flex;
-  align-itrems: left;
+  align-items: left;
 `;
 
 const ColorDot = styled.span<DotProps>`
@@ -71,11 +71,11 @@ const ArrowImageContainer = styled.div`
 `;
 
 export {
-  SessionListTile,
+  ArrowImageContainer,
+  ColorDot,
   HorizontalGroup,
   HorizontalSpacingContainer,
-  Title,
+  SessionListTile,
   Subtitle,
-  ColorDot,
-  ArrowImageContainer,
+  Title,
 };
