@@ -104,7 +104,7 @@ const getXAxisOptions = (
     visible: true,
     minRange: 10000,
     events: {
-      setExtremes: function (e) {
+      afterSetExtremes: function (e) {
         handleSetExtremes(e);
       },
     },

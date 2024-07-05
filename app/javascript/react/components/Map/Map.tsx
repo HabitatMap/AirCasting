@@ -1,39 +1,30 @@
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
+
 import pinImage from "../../assets/icons/pinImage.svg";
 import {
-  DEFAULT_MAP_BOUNDS,
-  DEFAULT_MAP_CENTER,
-  DEFAULT_ZOOM,
-  MIN_ZOOM,
+    DEFAULT_MAP_BOUNDS, DEFAULT_MAP_CENTER, DEFAULT_ZOOM, MIN_ZOOM
 } from "../../const/coordinates";
 import { RootState } from "../../store";
 import {
-  selectFixedSessionPointsBySessionId,
-  selectFixedSessionsList,
-  selectFixedSessionsPoints,
-  selectFixedSessionsStatusFulfilled,
+    selectFixedSessionPointsBySessionId, selectFixedSessionsList, selectFixedSessionsPoints,
+    selectFixedSessionsStatusFulfilled
 } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { setLoading, setSessionsListOpen } from "../../store/mapSlice";
 import {
-  selectMobileSessionPointsBySessionId,
-  selectMobileSessionsList,
-  selectMobileSessionsPoints,
+    selectMobileSessionPointsBySessionId, selectMobileSessionsList, selectMobileSessionsPoints
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
-import {
-  fetchThresholds,
-  resetUserThresholds,
-} from "../../store/thresholdSlice";
+import { fetchThresholds, resetUserThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { pubSub } from "../../utils/pubSubManager";
@@ -158,7 +149,6 @@ const Map = () => {
 
   // Effects
   useEffect(() => {
-    dispatch(fetchThresholds(thresholdFilters));
     if (loading) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
@@ -166,6 +156,10 @@ const Map = () => {
       dispatch(setLoading(false));
     }
   }, [dispatch, filters, loading, fixedSessionTypeSelected]);
+
+  useEffect(() => {
+    dispatch(fetchThresholds(thresholdFilters));
+  }, [thresholdFilters]);
 
   // Callbacks
   const onIdle = useCallback(
