@@ -128,7 +128,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         setChartDataLoaded(true);
       }
     }
-  }, []);
+  }, [seriesData, isLoading]);
 
   useEffect(() => {
     const graphElement = graphRef.current;
