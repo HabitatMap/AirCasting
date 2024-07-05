@@ -1,8 +1,13 @@
 import _ from "lodash";
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-
 import { useAppDispatch } from "../../store/hooks";
 import {
   selectThresholds,
@@ -39,16 +44,22 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState("");
-
   const dispatch = useAppDispatch();
 
-  console.log(isMapPage);
+  const debouncedSetUserThresholdValues = useMemo(
+    () =>
+      _.debounce(
+        (values: Thresholds) => dispatch(setUserThresholdValues(values)),
+        300
+      ),
+    [dispatch]
+  );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!_.isEqual(thresholdsState, thresholdValues)) {
-      dispatch(setUserThresholdValues(thresholdValues));
+      debouncedSetUserThresholdValues(thresholdValues);
     }
-  }, [thresholdValues]);
+  }, [thresholdValues, debouncedSetUserThresholdValues]);
 
   useEffect(() => {
     if (!_.isEqual(thresholdsState, thresholdValues)) {
@@ -85,7 +96,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
       setErrorMessage("");
     }, 4000);
     return () => clearTimeout(timer);
-  });
+  }, []);
 
   const updateThumbPositions = () => {
     if (sliderRef.current) {
@@ -125,7 +136,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, []);
+  }, [handleOutsideClick]);
 
   const { min, max, ...thumbs } = thresholdValues;
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];

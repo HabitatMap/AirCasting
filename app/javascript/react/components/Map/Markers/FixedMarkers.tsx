@@ -1,9 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
 
 import {
-  Cluster,
-  GridAlgorithm,
   MarkerClusterer,
   SuperClusterAlgorithm,
 } from "@googlemaps/markerclusterer";
@@ -57,16 +62,18 @@ const FixedMarkers = ({
     null
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (map) {
-      // @ts-ignore:next-line
-      if (clusterer.current && clusterer.current.markers.length > 1) {
+      if (clusterer.current) {
         clusterer.current.clearMarkers();
       }
       clusterer.current = new MarkerClusterer({
         map,
         renderer: customRenderer(thresholds),
-        algorithm: new SuperClusterAlgorithm({ maxZoom: 21, radius: 40 }),
+        algorithm: new SuperClusterAlgorithm({
+          maxZoom: 21,
+          radius: 40,
+        }),
       });
     }
   }, [map, sessions, thresholds]);
@@ -79,9 +86,7 @@ const FixedMarkers = ({
 
   useEffect(() => {
     const handleData = (id: number) => {
-      const s = sessions.find((session) => {
-        return session.id === id;
-      });
+      const s = sessions.find((session) => session.id === id);
 
       if (s?.point) {
         centerMapOnMarker(s.point, s.point.streamId);
@@ -113,51 +118,36 @@ const FixedMarkers = ({
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
     }
-  }, [markers, sessions]);
+  }, [markers, sessions, thresholds]);
 
   // Pulsation
   useEffect(() => {
-    if (pulsatingSessionId) {
+    if (pulsatingSessionId && clusterer.current) {
       const pulsatingSession = sessions.find(
         (session) => session.id === pulsatingSessionId
       );
       const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
 
-      Object.keys(markers).forEach((key) => {
-        if (clusterer.current && pulsatingSessionStreamId === key) {
-          const pulsatingCluster: Cluster | undefined =
-            // @ts-ignore:next-line
-            clusterer.current.clusters.find((cluster: any) =>
-              cluster.markers.some(
-                (clusterMarker: any) => clusterMarker === markers[key]
-              )
-            );
+      const pulsatingMarkers = Object.keys(markers)
+        .filter((key) => pulsatingSessionStreamId === key)
+        .map((key) => markers[key])
+        .filter(
+          (marker): marker is google.maps.marker.AdvancedMarkerElement =>
+            marker !== null
+        );
 
-          if (
-            pulsatingClusterer.current &&
-            // @ts-ignore:next-line
-            pulsatingClusterer.current.markers.length > 1
-          ) {
-            pulsatingClusterer.current.clearMarkers();
-          }
-          pulsatingClusterer.current = new MarkerClusterer({
-            map,
-            renderer: pulsatingRenderer(thresholds, pulsatingCluster?.position),
-            markers: pulsatingCluster?.markers,
-            algorithm: new GridAlgorithm({ gridSize: 1000 }),
-          });
-        }
-      });
-    } else {
-      if (
-        pulsatingClusterer.current &&
-        // @ts-ignore:next-line
-        pulsatingClusterer.current.markers.length > 1
-      ) {
+      if (pulsatingClusterer.current) {
         pulsatingClusterer.current.clearMarkers();
       }
+
+      pulsatingClusterer.current = new MarkerClusterer({
+        map,
+        renderer: pulsatingRenderer(thresholds),
+        markers: pulsatingMarkers,
+        algorithm: new SuperClusterAlgorithm({ maxZoom: 21, radius: 40 }),
+      });
     }
-  }, [pulsatingSessionId]);
+  }, [pulsatingSessionId, markers, sessions]);
 
   // Cleanup clusters when component unmounts
   useEffect(() => {
@@ -206,6 +196,7 @@ const FixedMarkers = ({
       setHoverPosition(null);
     }
   }, [hoverStreamId, sessions]);
+
   return (
     <>
       {sessions.map((session) => (
