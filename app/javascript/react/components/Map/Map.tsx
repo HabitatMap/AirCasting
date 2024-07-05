@@ -47,6 +47,7 @@ import {
 } from "../../store/userSettingsSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
+import { Thresholds } from "../../types/thresholds";
 import { UserSettings } from "../../types/userStates";
 import { pubSub } from "../../utils/pubSubManager";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -62,52 +63,102 @@ import { StreamMarkers } from "./Markers/StreamMarkers";
 
 const Map = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const getSearchParam = (param, defaultValue) =>
-    searchParams.get(param) ?? defaultValue;
+  const getSearchParam = (
+    searchParams: URLSearchParams,
+    param: string,
+    defaultValue: string | null
+  ): string | null => searchParams.get(param) ?? defaultValue;
+
+  // Default values
   const defaultThresholds = useSelector(selectDefaultThresholds);
 
-  // Initial state from URL params
+  // Adjusted calls to getSearchParam with proper typing
   const initialCenter = useMemo(
     () =>
-      JSON.parse(getSearchParam("center", JSON.stringify(DEFAULT_MAP_CENTER))),
+      JSON.parse(
+        getSearchParam(
+          searchParams,
+          "center",
+          JSON.stringify(DEFAULT_MAP_CENTER)
+        ) as string
+      ),
     []
   );
-  const initialZoom = parseInt(getSearchParam("zoom", DEFAULT_ZOOM));
+
+  const initialZoom = parseInt(
+    getSearchParam(searchParams, "zoom", DEFAULT_ZOOM.toString()) as string
+  );
+
   const initialPreviousZoom = parseInt(
-    getSearchParam("previousZoom", DEFAULT_ZOOM)
-  ); // Added initial previous zoom
-  const initialSessionType = getSearchParam("sessionType", SessionTypes.FIXED);
+    getSearchParam(
+      searchParams,
+      "previousZoom",
+      DEFAULT_ZOOM.toString()
+    ) as string
+  );
+
+  const initialSessionType = getSearchParam(
+    searchParams,
+    "sessionType",
+    SessionTypes.FIXED
+  ) as string | (() => string);
+
   const initialSessionId =
-    getSearchParam("sessionId", null) !== null
-      ? parseInt(getSearchParam("sessionId", "0"))
+    getSearchParam(searchParams, "sessionId", null) !== null
+      ? parseInt(getSearchParam(searchParams, "sessionId", "0") as string)
       : null;
+
   const initialStreamId =
-    getSearchParam("streamId", null) !== null
-      ? parseInt(getSearchParam("streamId", "0"))
+    getSearchParam(searchParams, "streamId", null) !== null
+      ? parseInt(getSearchParam(searchParams, "streamId", "0") as string)
       : null;
-  const initialModalOpen = getSearchParam("modalOpen", "false") === "true";
-  const initialMapTypeId = getSearchParam("mapType", "roadmap");
-  const initialThresholds = useMemo(
+
+  const initialModalOpen =
+    getSearchParam(searchParams, "modalOpen", "false") === "true";
+
+  const initialMapTypeId =
+    getSearchParam(searchParams, "mapType", "roadmap") || "roadmap";
+
+  const initialThresholds: Thresholds = useMemo(
     () => ({
       min: parseFloat(
-        getSearchParam("thresholdMin", defaultThresholds.min.toString())
+        getSearchParam(
+          searchParams,
+          "thresholdMin",
+          defaultThresholds.min.toString()
+        ) as string
       ),
       low: parseFloat(
-        getSearchParam("thresholdLow", defaultThresholds.low.toString())
+        getSearchParam(
+          searchParams,
+          "thresholdLow",
+          defaultThresholds.low.toString()
+        ) as string
       ),
       middle: parseFloat(
-        getSearchParam("thresholdMiddle", defaultThresholds.middle.toString())
+        getSearchParam(
+          searchParams,
+          "thresholdMiddle",
+          defaultThresholds.middle.toString()
+        ) as string
       ),
       high: parseFloat(
-        getSearchParam("thresholdHigh", defaultThresholds.high.toString())
+        getSearchParam(
+          searchParams,
+          "thresholdHigh",
+          defaultThresholds.high.toString()
+        ) as string
       ),
       max: parseFloat(
-        getSearchParam("thresholdMax", defaultThresholds.max.toString())
+        getSearchParam(
+          searchParams,
+          "thresholdMax",
+          defaultThresholds.max.toString()
+        ) as string
       ),
     }),
     [defaultThresholds]
   );
-
   // Hooks
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
