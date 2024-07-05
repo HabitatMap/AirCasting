@@ -3,10 +3,12 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
-import goBackIcon from "../../assets/icons/goBackIcon.svg";
+import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
 import { RootState } from "../../store";
+import { useAppDispatch } from "../../store/hooks";
+import { selectModalOpen, setModalOpen } from "../../store/mapSlice";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import { RefreshMapButton } from "../RefreshMapButton";
@@ -21,37 +23,60 @@ export const MobileHeader = ({
   toggleMenuVisibility: () => void;
   navMenuVisible: boolean;
   t: Function;
-}) => (
-  <S.MobileHeaderContainer>
-    <S.MobileMenuContainer>
-      <a
-        href={urls.habitatMap}
-        aria-label={t("navbar.sections.aircastingPage")}
-      >
-        <img alt={t("navbar.altLogo")} src={airCastingLogoMobile} />
-      </a>
-      <nav>
-        <S.MenuButton onClick={toggleMenuVisibility}>
+}) => {
+  const modalOpen = useSelector(selectModalOpen);
+  const dispatch = useAppDispatch();
+
+  return (
+    <S.MobileHeaderContainer>
+      {modalOpen ? (
+        <S.GoBack
+          onClick={() => {
+            dispatch(setModalOpen(false));
+          }}
+          aria-label={t("navbar.mapPage")}
+        >
           <img
-            src={hamburgerMobile}
-            alt={t("navbar.altMenu")}
-            aria-label={t("navbar.sections.openMenu")}
+            src={backArrowIcon}
+            alt={t("navbar.altGoBackIcon")}
+            aria-label={t("navbar.goBackToSessions")}
           />
-        </S.MenuButton>
-      </nav>
-    </S.MobileMenuContainer>
-    <LocationSearch isMapPage={true} />
-    <RefreshMapButton />
-    <ControlPanel />
-    {navMenuVisible && (
-      <NavList
-        t={t as (key: string) => string}
-        navMenuVisible={navMenuVisible}
-        toggleMenuVisibility={toggleMenuVisibility}
-      />
-    )}
-  </S.MobileHeaderContainer>
-);
+          {t("navbar.goBack")}
+        </S.GoBack>
+      ) : (
+        <>
+          <S.MobileMenuContainer>
+            <a
+              href={urls.habitatMap}
+              aria-label={t("navbar.sections.aircastingPage")}
+            >
+              <img alt={t("navbar.altLogo")} src={airCastingLogoMobile} />
+            </a>
+            <nav>
+              <S.MenuButton onClick={toggleMenuVisibility}>
+                <img
+                  src={hamburgerMobile}
+                  alt={t("navbar.altMenu")}
+                  aria-label={t("navbar.sections.openMenu")}
+                />
+              </S.MenuButton>
+            </nav>
+          </S.MobileMenuContainer>
+          <LocationSearch isMapPage={true} />
+          <RefreshMapButton />
+          <ControlPanel />
+          {navMenuVisible && (
+            <NavList
+              t={t as (key: string) => string}
+              navMenuVisible={navMenuVisible}
+              toggleMenuVisibility={toggleMenuVisibility}
+            />
+          )}
+        </>
+      )}
+    </S.MobileHeaderContainer>
+  );
+};
 
 export const MobileCalendarHeader = ({ t }: { t: Function }) => {
   const navigate = useNavigate();
@@ -68,7 +93,7 @@ export const MobileCalendarHeader = ({ t }: { t: Function }) => {
         aria-label={t("navbar.mapPage")}
       >
         <img
-          src={goBackIcon}
+          src={backArrowIcon}
           alt={t("navbar.altGoBackIcon")}
           aria-label={t("navbar.goBackToSessions")}
         />

@@ -13,6 +13,7 @@ interface MapState {
   sessionsListOpen: boolean;
   hoverStreamId: number | null;
   position: LatLngLiteral;
+  modalOpen: boolean;
 }
 
 const initialState: MapState = {
@@ -24,6 +25,7 @@ const initialState: MapState = {
   sessionsListOpen: false,
   hoverStreamId: null,
   position: DEFAULT_MAP_CENTER,
+  modalOpen: false,
 };
 
 const mapSlice = createSlice({
@@ -54,6 +56,9 @@ const mapSlice = createSlice({
     setHoverPosition(state, action: PayloadAction<LatLngLiteral>) {
       state.position = action.payload;
     },
+    setModalOpen(state, action: PayloadAction<boolean>) {
+      state.modalOpen = action.payload;
+    },
   },
 });
 
@@ -66,9 +71,11 @@ export const {
   setSessionsListOpen,
   setHoverStreamId,
   setHoverPosition,
+  setModalOpen,
 } = mapSlice.actions;
 
 export default mapSlice.reducer;
 export const selectHoverStreamId = (state: RootState) =>
   state.map.hoverStreamId;
 export const selectHoverPosition = (state: RootState) => state.map.position;
+export const selectModalOpen = (state: RootState) => state.map.modalOpen;

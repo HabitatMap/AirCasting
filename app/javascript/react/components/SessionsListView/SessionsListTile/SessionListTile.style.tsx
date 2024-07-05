@@ -1,5 +1,6 @@
 import styled from "styled-components";
 
+import { gray100, white } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
 import { H4, H5 } from "../../Typography";
 
@@ -9,8 +10,9 @@ interface DotProps {
 
 const SessionListTile = styled.div`
   cursor: pointer;
-  background-color: white;
+  background-color: ${white};
   border-radius: 1rem;
+  border: 1px solid ${gray100};
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
   padding: 0.5rem 1rem 0.5rem 1rem;
   margin-bottom: 0.9375rem;

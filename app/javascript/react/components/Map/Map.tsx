@@ -17,7 +17,12 @@ import {
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { setLoading, setSessionsListOpen } from "../../store/mapSlice";
+import {
+  selectModalOpen,
+  setLoading,
+  setModalOpen,
+  setSessionsListOpen,
+} from "../../store/mapSlice";
 import {
     selectMobileSessionPointsBySessionId, selectMobileSessionsList, selectMobileSessionsPoints
 } from "../../store/mobileSessionsSelectors";
@@ -33,6 +38,7 @@ import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
 import { SessionsListView } from "../SessionsListView/SessionsListView";
+import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfigurator";
 import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
@@ -63,7 +69,7 @@ const Map = () => {
     west: DEFAULT_MAP_BOUNDS.west,
   });
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
+
   const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
   const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
@@ -96,6 +102,7 @@ const Map = () => {
   const mobilePoints = selectedSessionId
     ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectMobileSessionsPoints);
+  const modalOpen = useSelector(selectModalOpen);
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
@@ -209,9 +216,9 @@ const Map = () => {
     if (!selectedStreamId) {
       setSelectedSessionId(id);
       setSelectedStreamId(streamId);
-      setModalOpen(false);
+      dispatch(setModalOpen(false));
       setTimeout(() => {
-        setModalOpen(true);
+        dispatch(setModalOpen(true));
       }, 0);
 
       if (mapInstance) {
@@ -223,7 +230,7 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
-      setModalOpen(false);
+      dispatch(setModalOpen(false));
       setSelectedSessionId(null);
       setSelectedStreamId(null);
 
@@ -237,11 +244,12 @@ const Map = () => {
   const handleCloseModal = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
-    setModalOpen(false);
-    modalOpenFromSessionsList &&
+    dispatch(setModalOpen(false));
+    if (modalOpenFromSessionsList) {
       setTimeout(() => {
         dispatch(setSessionsListOpen(true));
       }, 0);
+    }
 
     if (mapInstance) {
       mapInstance.setZoom(previousZoom);
@@ -300,6 +308,12 @@ const Map = () => {
           />
         )}
       </GoogleMap>
+
+      {
+        //This is temprorary solution
+        !isMobile && <ThresholdsConfigurator isMapPage={true} />
+      }
+
       {modalOpen && (
         <SessionDetailsModal
           onClose={handleCloseModal}

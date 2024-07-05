@@ -5,11 +5,14 @@ import { useSelector } from "react-redux";
 
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
-    selectFixedData, selectIsLoading, updateFixedMeasurementExtremes
+  selectFixedData,
+  selectIsLoading,
+  updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
-    selectMobileStreamPoints, selectMobileStreamShortInfo
+  selectMobileStreamPoints,
+  selectMobileStreamShortInfo,
 } from "../../store/mobileStreamSelectors";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
@@ -21,8 +24,15 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
 import {
-    getPlotOptions, getRangeSelectorOptions, getResponsiveOptions, getTooltipOptions,
-    getXAxisOptions, getYAxisOptions, legendOption, scrollbarOptions, seriesOptions
+  getPlotOptions,
+  getRangeSelectorOptions,
+  getResponsiveOptions,
+  getTooltipOptions,
+  getXAxisOptions,
+  getYAxisOptions,
+  legendOption,
+  scrollbarOptions,
+  seriesOptions,
 } from "./graphConfig";
 
 interface GraphProps {
@@ -37,6 +47,8 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const [selectedRange, setSelectedRange] = useState(
     fixedSessionTypeSelected ? 0 : 2
   );
+  const [chartDataLoaded, setChartDataLoaded] = useState(false);
+
   const thresholdsState = useSelector(selectThresholds);
   const isLoading = useSelector(selectIsLoading);
   const fixedGraphData = useSelector(selectFixedData);
@@ -105,6 +117,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
           dispatch(
             updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
           );
+          setChartDataLoaded(true);
         }
       } else {
         const minTime = Math.min(...mobileSeriesData.map((m) => m.x as number));
@@ -112,9 +125,10 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         dispatch(
           updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
         );
+        setChartDataLoaded(true);
       }
     }
-  }, []);
+  }, [seriesData, isLoading]);
 
   useEffect(() => {
     const graphElement = graphRef.current;
@@ -128,6 +142,10 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     title: undefined,
     xAxis: xAxisOptions,
     yAxis: yAxisOption,
+    loading: {
+      hideDuration: 1000,
+      showDuration: 1000,
+    },
     plotOptions: plotOptions,
     series: [seriesOptions(seriesData)],
     legend: legendOption,
@@ -141,7 +159,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         },
       },
       height: 300,
-      margin: [40, 30, 0, 10],
+      margin: [0, 60, 0, 0],
       animation: false,
       scrollablePlotArea: {
         minWidth: 100,
@@ -175,11 +193,13 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
 
   return (
     <S.Container ref={graphRef}>
-      <HighchartsReact
-        highcharts={Highcharts}
-        constructorType={"stockChart"}
-        options={options}
-      />
+      {chartDataLoaded && (
+        <HighchartsReact
+          highcharts={Highcharts}
+          constructorType={"stockChart"}
+          options={options}
+        />
+      )}
     </S.Container>
   );
 };

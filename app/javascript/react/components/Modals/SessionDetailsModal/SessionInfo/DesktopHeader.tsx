@@ -1,61 +1,51 @@
-import moment from "moment";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
+import calendar from "../../../../assets/icons/calendar.svg";
+import downloadImage from "../../../../assets/icons/download.svg";
+import shareLink from "../../../../assets/icons/shareLink.svg";
+import { white } from "../../../../assets/styles/colors";
+import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
+import { Thresholds } from "../../../../types/thresholds";
+import { copyCurrentURL } from "../../../../utils/copyCurrentUrl";
+import { isNoData } from "../../../../utils/measurementsCalc";
+import { getColorForValue } from "../../../../utils/thresholdColors";
+import { ExportDataModal } from "../../../Modals/ExportDataModal";
+import { CopyLinkModal } from "../../CopyLinkModal";
+import * as S from "../SessionDetailsModal.style";
 
-import { ExportDataModal } from "../";
-import calendar from "../../../assets/icons/calendar.svg";
-import downloadImage from "../../../assets/icons/download.svg";
-import shareLink from "../../../assets/icons/shareLink.svg";
-import { white } from "../../../assets/styles/colors";
-import {
-    selectFixedExtremes, selectFixedStreamShortInfo
-} from "../../../store/fixedStreamSelectors";
-import {
-    selectMobileExtremes, selectMobileStreamShortInfo
-} from "../../../store/mobileStreamSelectors";
-import { selectThresholds } from "../../../store/thresholdSlice";
-import { SessionType, SessionTypes } from "../../../types/filters";
-import { MobileStreamShortInfo as StreamShortInfo } from "../../../types/mobileStream";
-import { copyCurrentURL } from "../../../utils/copyCurrentUrl";
-import { isNoData } from "../../../utils/measurementsCalc";
-import { getColorForValue } from "../../../utils/thresholdColors";
-import { CopyLinkModal } from "../CopyLinkModal";
-import * as S from "./SessionDetailsModal.style";
-
-interface SessionInfoProps {
-  sessionType: SessionType;
-  streamId: number | null;
+interface Extremes {
+  minMeasurementValue: number | null;
+  maxMeasurementValue: number | null;
+  averageValue: number | null;
 }
 
-const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+interface DesktopHeaderProps {
+  streamShortInfo: StreamShortInfo;
+  thresholds: Thresholds;
+  extremes: Extremes;
+  formattedTime: (time: string) => string;
+  streamId: number | null;
+  fixedSessionTypeSelected: boolean;
+}
 
-  const streamShortInfo: StreamShortInfo = useSelector(
-    fixedSessionTypeSelected
-      ? selectFixedStreamShortInfo
-      : selectMobileStreamShortInfo
-  );
-  const extremes = useSelector(
-    fixedSessionTypeSelected ? selectFixedExtremes : selectMobileExtremes
-  );
-  const thresholds = useSelector(selectThresholds);
+const DesktopHeader: React.FC<DesktopHeaderProps> = ({
+  streamShortInfo,
+  thresholds,
+  extremes,
+  formattedTime,
+  streamId,
+  fixedSessionTypeSelected,
+}) => {
   const { t } = useTranslation();
 
-  const formattedTime = (time: string) => {
-    return moment.utc(time).format("MM/DD/YYYY HH:mm");
-  };
-
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
-
   const noData = isNoData(
-    minMeasurementValue,
-    maxMeasurementValue,
-    averageValue
+    extremes.minMeasurementValue,
+    extremes.maxMeasurementValue,
+    extremes.averageValue
   );
-
   return (
-    <S.InfoContainer>
+    <S.DesktopHeader>
       <S.Wrapper>
         <S.SessionName>{streamShortInfo.title}</S.SessionName>
         <S.ProfileName>{streamShortInfo.profile}</S.ProfileName>
@@ -74,7 +64,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
               <S.AverageValue>{averageValue}</S.AverageValue>
               {streamShortInfo.unitSymbol}
             </S.AverageValueContainer>
-            <S.MinMaxValueContainer>
+            <S.MinMaxValueContainer $isMobile={false}>
               <div>
                 <S.SmallDot
                   $color={getColorForValue(thresholds, minMeasurementValue)}
@@ -152,8 +142,8 @@ const SessionInfo: React.FC<SessionInfoProps> = ({ sessionType, streamId }) => {
           />
         </S.SmallPopup>
       </S.ButtonsContainer>
-    </S.InfoContainer>
+    </S.DesktopHeader>
   );
 };
 
-export default SessionInfo;
+export default DesktopHeader;

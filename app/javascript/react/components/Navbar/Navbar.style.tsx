@@ -1,12 +1,6 @@
 import styled from "styled-components";
 
-import {
-  blue,
-  cta,
-  darkBlue,
-  gray400,
-  white,
-} from "../../assets/styles/colors";
+import { black, blue, cta, gray400, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 const NAVBAR_HEIGHT = "7.8rem";
@@ -32,7 +26,7 @@ const Header = styled.header`
 
 const MobileContainer = styled.div`
   display: flex;
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
 
   @media ${media.desktop} {
     display: none;
@@ -146,15 +140,18 @@ const BuyCTAWhite = styled(BuyCTA)`
 `;
 
 const GoBack = styled.a`
-  text-transform: uppercase;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 1.3rem;
-  color: ${darkBlue};
+  font-weight: 400;
+  font-size: 1.2rem;
+  color: ${black};
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 7px;
   line-height: 22px;
+  box-shadow: 0px 2px 2px 0px rgba(76, 86, 96, 0.15);
+  background-color: ${white};
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
 `;
 
 const MobileMenuContainer = styled.div`
