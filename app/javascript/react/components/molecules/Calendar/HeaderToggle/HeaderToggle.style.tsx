@@ -67,7 +67,7 @@ const ThresholdResetButton = styled(ResetButton)`
   border: none;
   color: ${colors.gray300};
   width: fit-content;
-  margin-top: 3rem;
+  margin-top: 1rem;
   @media ${media.desktop} {
     margin-left: 0;
   }

@@ -26,13 +26,14 @@ const ImageButton = styled.button`
 `;
 
 const Image = styled.img`
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 2rem;
+  height: 2rem;
 `;
 
 const Title = styled(H4)`
   text-align: left;
-  font-weight: 600;
+  font-weight: 400;
+  font-size: 1.8rem;
 `;
 
 const HorizontalContainer = styled.div`
@@ -40,8 +41,8 @@ const HorizontalContainer = styled.div`
   display: flex;
   left: 0;
   align-items: center;
-  margin-bottom: 0.625rem;
-  margin-left: 2rem;
+  padding: 0.5rem 1rem 2rem 1.5rem;
+  gap: 1rem;
 `;
 
 const VerticalContainer = styled.div`
@@ -62,11 +63,11 @@ const SessionListStyled = styled.div`
 `;
 
 export {
-  Overlay,
+  HorizontalContainer,
   Image,
   ImageButton,
-  Title,
-  HorizontalContainer,
+  Overlay,
   SessionListStyled,
+  Title,
   VerticalContainer,
 };

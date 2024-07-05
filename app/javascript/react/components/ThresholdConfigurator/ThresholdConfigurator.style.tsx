@@ -16,7 +16,7 @@ const Container = styled.div<Props>`
   position: absolute;
   width: 100%;
   height: 6.4rem;
-  z-index: 200;
+  z-index: 2;
   bottom: 0;
   background-color: ${colors.white};
   box-shadow: ${(props) =>

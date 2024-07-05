@@ -67,13 +67,17 @@ const InfoContainer = styled.div`
   gap: 4rem;
 
   @media ${media.smallDesktop} {
-    width: 20%;
+    width: 30%;
     flex-direction: column;
     justify-content: space-evenly;
     margin-bottom: 0;
     padding: 3rem 3rem 0 3rem;
     gap: 1.6rem;
     flex-wrap: wrap;
+  }
+
+  @media ${media.largeDesktop} {
+    width: 20%;
   }
 `;
 
@@ -92,6 +96,8 @@ const DesktopHeader = styled.div`
 
   @media ${media.smallDesktop} {
     display: flex;
+    flex-direction: column;
+    gap: 2rem;
   }
 `;
 

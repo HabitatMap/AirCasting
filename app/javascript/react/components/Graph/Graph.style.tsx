@@ -7,6 +7,10 @@ const Container = styled.div`
   font-family: "Roboto", sans-serif;
 
   @media ${media.smallDesktop} {
+    width: 70%;
+  }
+
+  @media ${media.largeDesktop} {
     width: 80%;
   }
 

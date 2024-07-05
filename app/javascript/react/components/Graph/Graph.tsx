@@ -37,6 +37,8 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const [selectedRange, setSelectedRange] = useState(
     fixedSessionTypeSelected ? 0 : 2
   );
+  const [chartDataLoaded, setChartDataLoaded] = useState(false);
+
   const thresholdsState = useSelector(selectThresholds);
   const isLoading = useSelector(selectIsLoading);
   const fixedGraphData = useSelector(selectFixedData);
@@ -105,6 +107,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
           dispatch(
             updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
           );
+          setChartDataLoaded(true);
         }
       } else {
         const minTime = Math.min(...mobileSeriesData.map((m) => m.x as number));
@@ -112,6 +115,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         dispatch(
           updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
         );
+        setChartDataLoaded(true);
       }
     }
   }, []);
@@ -128,6 +132,10 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     title: undefined,
     xAxis: xAxisOptions,
     yAxis: yAxisOption,
+    loading: {
+      hideDuration: 1000,
+      showDuration: 1000,
+    },
     plotOptions: plotOptions,
     series: [seriesOptions(seriesData)],
     legend: legendOption,
@@ -175,11 +183,13 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
 
   return (
     <S.Container ref={graphRef}>
-      <HighchartsReact
-        highcharts={Highcharts}
-        constructorType={"stockChart"}
-        options={options}
-      />
+      {chartDataLoaded && (
+        <HighchartsReact
+          highcharts={Highcharts}
+          constructorType={"stockChart"}
+          options={options}
+        />
+      )}
     </S.Container>
   );
 };
