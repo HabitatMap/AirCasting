@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { MapButtons } from "../MapButtons/MapButtons";
 import DesktopHeader from "./DesktopHeader";
 import { MobileCalendarHeader, MobileHeader } from "./MobileHeader";
 import * as S from "./Navbar.style";
@@ -32,6 +33,7 @@ const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
         toggleMenuVisibility={toggleMenuVisibility}
         t={t}
       />
+      <MapButtons />
     </S.Header>
   );
 };
