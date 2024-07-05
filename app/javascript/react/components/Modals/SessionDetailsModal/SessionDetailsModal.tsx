@@ -6,7 +6,7 @@ import { SessionType } from "../../../types/filters";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import { Graph } from "../../Graph";
 import * as S from "./SessionDetailsModal.style";
-import SessionInfo from "./SessionInfo";
+import SessionInfo from "./SessionInfo/SessionInfo";
 
 import type { PopupProps } from "reactjs-popup/dist/types";
 import { gray200 } from "../../../assets/styles/colors";

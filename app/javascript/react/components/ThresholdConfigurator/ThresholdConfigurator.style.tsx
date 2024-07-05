@@ -13,14 +13,17 @@ const Container = styled.div<Props>`
   padding: ${(props) => (props.$isMapPage ? 0 : "1.5rem")};
   margin-bottom: ${(props) => (props.$isMapPage ? 0 : "3rem")};
   background: ${(props) => (props.$isMapPage ? "none" : colors.white)};
-  position: absolute;
+  position: ${(props) => (props.$isMapPage ? "absolute" : "relative")};
   width: 100%;
-  height: 6.4rem;
-  z-index: 2;
-  bottom: 0;
-  background-color: ${colors.white};
-  box-shadow: ${(props) =>
-    props.$isMapPage ? "2px 2px 4px 0px #4c56601a" : "none"};
+  ${(props) =>
+    props.$isMapPage &&
+    `
+    height: 6.4rem;
+    z-index: 2;
+    bottom: 0;
+    background-color: ${colors.white};
+    box-shadow: 2px 2px 4px 0px #4c56601a;
+  `}
 
   @media (${media.desktop}) {
     padding: ${(props) => (props.$isMapPage ? "0 10rem" : "3rem 10rem")};

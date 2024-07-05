@@ -5,11 +5,14 @@ import { useSelector } from "react-redux";
 
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
-    selectFixedData, selectIsLoading, updateFixedMeasurementExtremes
+  selectFixedData,
+  selectIsLoading,
+  updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
-    selectMobileStreamPoints, selectMobileStreamShortInfo
+  selectMobileStreamPoints,
+  selectMobileStreamShortInfo,
 } from "../../store/mobileStreamSelectors";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
@@ -21,8 +24,15 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
 import {
-    getPlotOptions, getRangeSelectorOptions, getResponsiveOptions, getTooltipOptions,
-    getXAxisOptions, getYAxisOptions, legendOption, scrollbarOptions, seriesOptions
+  getPlotOptions,
+  getRangeSelectorOptions,
+  getResponsiveOptions,
+  getTooltipOptions,
+  getXAxisOptions,
+  getYAxisOptions,
+  legendOption,
+  scrollbarOptions,
+  seriesOptions,
 } from "./graphConfig";
 
 interface GraphProps {
