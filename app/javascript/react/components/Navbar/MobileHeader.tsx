@@ -14,7 +14,6 @@ import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import { RefreshMapButton } from "../RefreshMapButton";
 import NavList from "./NavList/NavList";
 import * as S from "./Navbar.style";
-import { setM } from ;
 
 export const MobileHeader = ({
   toggleMenuVisibility,
