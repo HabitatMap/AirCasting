@@ -23,7 +23,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const thresholds = useSelector(selectThresholds);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const hoverPosition = useSelector(selectHoverPosition);
-  console.log(sessions, "streas");
 
   // Sort sessions by time
   const sortedSessions = sessions.sort((a, b) => {
@@ -35,7 +34,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   // Update markers when marker references change
   useEffect(() => {
     const newMarkers: { [streamId: string]: Marker | null } = {};
-    console.log(markers, "markers");
     sessions.forEach((session) => {
       if (!markers[session.point.streamId]) {
         newMarkers[session.point.streamId] = null;
@@ -50,8 +48,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   // Create and update polyline
   useEffect(() => {
     if (!map) return;
-
-    console.log("useEffect", sortedSessions);
 
     const path = sortedSessions.map((session) => ({
       lat: session.point.lat,

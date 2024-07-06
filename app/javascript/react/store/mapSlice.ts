@@ -59,6 +59,9 @@ const mapSlice = createSlice({
     setModalOpen(state, action: PayloadAction<boolean>) {
       state.modalOpen = action.payload;
     },
+    initializeStateFromUrl(state, action: PayloadAction<MapState>) {
+      Object.assign(state, action.payload);
+    },
   },
 });
 
@@ -72,6 +75,7 @@ export const {
   setHoverStreamId,
   setHoverPosition,
   setModalOpen,
+  initializeStateFromUrl,
 } = mapSlice.actions;
 
 export default mapSlice.reducer;

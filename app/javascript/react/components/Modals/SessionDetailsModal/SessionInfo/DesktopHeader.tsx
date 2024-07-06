@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
 import { PopupProps } from "reactjs-popup/dist/types";
 import calendar from "../../../../assets/icons/calendar.svg";
 import downloadImage from "../../../../assets/icons/download.svg";
@@ -28,7 +27,14 @@ interface DesktopHeaderProps {
   formattedTime: (time: string) => string;
   streamId: number | null;
   fixedSessionTypeSelected: boolean;
+  sessionType: string;
 }
+
+type CustomPopupProps = {
+  children:
+    | React.ReactNode
+    | ((close: () => void, isOpen: boolean) => React.ReactNode);
+};
 
 const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   streamShortInfo,
@@ -37,12 +43,11 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   formattedTime,
   streamId,
   fixedSessionTypeSelected,
+  sessionType,
 }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const { t } = useTranslation();
 

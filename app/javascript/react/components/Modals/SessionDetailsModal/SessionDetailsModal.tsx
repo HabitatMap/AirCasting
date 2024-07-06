@@ -25,7 +25,7 @@ type CustomPopupProps = {
 
 const SessionDetailsModal: React.FC<
   SessionDetailsModalProps & Omit<PopupProps, "children">
-> = ({ onClose, sessionType, streamId }) => {
+> = React.memo(({ onClose, sessionType, streamId }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   const { t } = useTranslation();
@@ -72,6 +72,6 @@ const SessionDetailsModal: React.FC<
       )}
     </SessionModal>
   );
-};
+});
 
 export { SessionDetailsModal };
