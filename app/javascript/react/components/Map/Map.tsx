@@ -57,6 +57,7 @@ import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
+import { MAP_CONFIGS, MAP_ID } from "./mapConfigs";
 
 const Map = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -92,13 +93,14 @@ const Map = () => {
   const initialMapTypeId = getSearchParam("mapType", "roadmap") || "roadmap";
   const initialLimit = parseInt(getSearchParam("limit", "100")!);
   const initialOffset = parseInt(getSearchParam("offset", "0")!);
-  const initialSensorName = getSearchParam("sensor_name", "Government-PM2.5");
+
   const initialMeasurementType = getSearchParam(
     "measurement_type",
     "Particulate Matter"
-  );
-  const initialUnitSymbol = getSearchParam("unit_symbol", "µg/m³");
+  )!;
 
+  const initialSensorName = getSearchParam("sensor_name", "Government-PM2.5")!;
+  const initialUnitSymbol = getSearchParam("unit_symbol", "µg/m³")!;
   const initialThresholds = useMemo(
     () => ({
       min: parseFloat(
@@ -202,6 +204,7 @@ const Map = () => {
   const sensor_name = fixedSessionTypeSelected
     ? "Government-PM2.5"
     : "AirBeam-PM2.5";
+
   const filters = useMemo(
     () =>
       JSON.stringify({
@@ -215,7 +218,7 @@ const Map = () => {
         north: mapBounds.north,
         limit: initialLimit,
         offset: initialOffset,
-        sensor_name: initialSensorName,
+        sensor_name: sensor_name,
         measurement_type: initialMeasurementType,
         unit_symbol: initialUnitSymbol,
       }),
@@ -223,7 +226,7 @@ const Map = () => {
       mapBounds,
       initialLimit,
       initialOffset,
-      initialSensorName,
+      sensor_name,
       initialMeasurementType,
       initialUnitSymbol,
     ]
