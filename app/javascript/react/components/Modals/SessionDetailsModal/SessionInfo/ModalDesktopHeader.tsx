@@ -9,15 +9,9 @@ import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobi
 import { Thresholds } from "../../../../types/thresholds";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../../utils/thresholdColors";
-<<<<<<< HEAD:app/javascript/react/components/Modals/SessionDetailsModal/SessionInfo/ModalDesktopHeader.tsx
 import { ConfirmationMessage } from "../../atoms/ConfirmationMessage";
 import { CopyLinkModal, CopyLinkModalData } from "../../CopyLinkModal";
 import { ExportDataModal } from "../../ExportDataModal";
-=======
-import { ExportDataModal } from "../../../Modals/ExportDataModal";
-import { ConfirmationMessage } from "../../atoms/ConfirmationMessage";
-import { CopyLinkModal, CopyLinkModalData } from "../../CopyLinkModal";
->>>>>>> 26c8c1eb (Add parameters to url):app/javascript/react/components/Modals/SessionDetailsModal/SessionInfo/DesktopHeader.tsx
 import * as S from "../SessionDetailsModal.style";
 
 interface Extremes {
@@ -33,6 +27,7 @@ interface ModalDesktopHeaderProps {
   formattedTime: (time: string) => string;
   streamId: number | null;
   fixedSessionTypeSelected: boolean;
+  sessionType: string;
 }
 
 type CustomPopupProps = {
@@ -48,15 +43,13 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   formattedTime,
   streamId,
   fixedSessionTypeSelected,
+  sessionType,
 }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
-<<<<<<< HEAD:app/javascript/react/components/Modals/SessionDetailsModal/SessionInfo/ModalDesktopHeader.tsx
-=======
   const location = useLocation();
   const navigate = useNavigate();
->>>>>>> 26c8c1eb (Add parameters to url):app/javascript/react/components/Modals/SessionDetailsModal/SessionInfo/DesktopHeader.tsx
 
   const { t } = useTranslation();
 

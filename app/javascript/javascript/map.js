@@ -1,18 +1,18 @@
-import _ from "underscore";
-import { buildCustomMarker } from "./customMarker";
 import { MarkerClusterer, SuperClusterAlgorithm } from "@googlemaps/markerclusterer";
-import { fixedClusterStyles, pulsingMarkerStyles } from "./theme";
+import _ from "underscore";
+import * as Cookies from "./cookies";
+import { buildCustomMarker } from "./customMarker";
+import googleMaps from "./googleMaps";
+import heat from "./heat";
 import {
-  setHasChangedProgrammatically,
   getHasChangedProgrammatically,
   onMapInit,
+  setHasChangedProgrammatically,
 } from "./mapsUtils";
-import heat from "./heat";
-import rectangles from "./rectangles";
-import googleMaps from "./googleMaps";
-import pubsub from "./pubsub";
-import * as Cookies from "./cookies";
 import params from "./params2";
+import pubsub from "./pubsub";
+import rectangles from "./rectangles";
+import { fixedClusterStyles, pulsingMarkerStyles } from "./theme";
 
 export default (() => {
   const TIMEOUT_DELAY = 1000;

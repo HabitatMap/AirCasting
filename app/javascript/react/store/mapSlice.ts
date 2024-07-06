@@ -60,6 +60,9 @@ const mapSlice = createSlice({
     setPreviousZoom(state, action: PayloadAction<number>) {
       state.previousZoom = action.payload;
     },
+    initializeStateFromUrl(state, action: PayloadAction<MapState>) {
+      Object.assign(state, action.payload);
+    },
   },
 });
 
@@ -73,6 +76,7 @@ export const {
   setHoverPosition,
   setPreviousCenter,
   setPreviousZoom,
+  initializeStateFromUrl,
 } = mapSlice.actions;
 
 export default mapSlice.reducer;

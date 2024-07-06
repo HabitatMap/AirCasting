@@ -72,6 +72,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
         fixedSessionTypeSelected={fixedSessionTypeSelected}
         streamId={streamId}
         formattedTime={formattedTime}
+        sessionType={sessionType}
       />
     </S.InfoContainer>
   );
