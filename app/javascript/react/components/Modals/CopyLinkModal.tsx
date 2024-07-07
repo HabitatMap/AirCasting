@@ -45,22 +45,11 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
   }, [shortenedLink, error, onError]);
 
   useEffect(() => {
-    const shortenLink = async (url: string) => {
-      try {
-        const response = await axios.get(
-          `https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`
-        );
-        setFormState((prevFormData) => ({
-          ...prevFormData,
-          link: response.data,
-        }));
-      } catch (error) {
-        console.error("Error shortening the link: ", error);
-      }
-    };
-
-    shortenLink(window.location.href);
-  }, []);
+    setFormState((prevFormData) => ({
+      ...prevFormData,
+      link: shortenedLink,
+    }));
+  }, [shortenedLink]);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -77,6 +66,10 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
     copyCurrentURL(formState.link);
     setFormState(initialCopyLinkModalData);
   };
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <form onSubmit={handleSubmit}>
