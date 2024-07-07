@@ -1,9 +1,8 @@
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
-import { debounce } from "lodash";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import pinImage from "../../assets/icons/pinImage.svg";
 import {
   DEFAULT_MAP_BOUNDS,
@@ -22,10 +21,8 @@ import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
-  initializeStateFromUrl,
   selectModalOpen,
   setLoading,
-  setMapTypeId,
   setModalOpen,
   setSessionsListOpen,
 } from "../../store/mapSlice";
@@ -40,12 +37,11 @@ import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import {
   fetchThresholds,
   resetUserThresholds,
-  selectDefaultThresholds,
   selectThresholds,
-  setUserThresholdValues,
 } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { pubSub } from "../../utils/pubSubManager";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
@@ -57,94 +53,32 @@ import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
-import { MAP_CONFIGS, MAP_ID } from "./mapConfigs";
 
 const Map = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const getSearchParam = (param: string, defaultValue: string | null) =>
-    searchParams.get(param) ?? defaultValue;
+  const {
+    initialCenter,
+    initialZoom,
+    initialPreviousZoom,
+    initialSessionType,
+    initialSessionId,
+    initialStreamId,
+    initialModalOpen,
+    initialMapTypeId,
+    initialLimit,
+    initialOffset,
+    initialMeasurementType,
+    initialSensorName,
+    initialUnitSymbol,
+    initialThresholds,
+    debouncedUpdateURL,
+    searchParams,
+  } = useMapParams();
 
-  const defaultThresholds = useSelector(selectDefaultThresholds);
-
-  const initialCenter = useMemo(
-    () =>
-      JSON.parse(getSearchParam("center", JSON.stringify(DEFAULT_MAP_CENTER))!),
-    []
-  );
-  const initialZoom = parseInt(
-    getSearchParam("zoom", DEFAULT_ZOOM.toString())!
-  );
-  const initialPreviousZoom = parseInt(
-    getSearchParam("previousZoom", DEFAULT_ZOOM.toString())!
-  );
-  const initialSessionType = getSearchParam(
-    "sessionType",
-    SessionTypes.FIXED
-  ) as SessionType;
-  const initialSessionId =
-    getSearchParam("sessionId", null) !== null
-      ? parseInt(getSearchParam("sessionId", "0")!)
-      : null;
-  const initialStreamId =
-    getSearchParam("streamId", null) !== null
-      ? parseInt(getSearchParam("streamId", "0")!)
-      : null;
-  const initialModalOpen = getSearchParam("modalOpen", "false") === "true";
-  const initialMapTypeId = getSearchParam("mapType", "roadmap") || "roadmap";
-  const initialLimit = parseInt(getSearchParam("limit", "100")!);
-  const initialOffset = parseInt(getSearchParam("offset", "0")!);
-
-  const initialMeasurementType = getSearchParam(
-    "measurement_type",
-    "Particulate Matter"
-  )!;
-
-  const initialSensorName = getSearchParam("sensor_name", "Government-PM2.5")!;
-  const initialUnitSymbol = getSearchParam("unit_symbol", "µg/m³")!;
-  const initialThresholds = useMemo(
-    () => ({
-      min: parseFloat(
-        getSearchParam("thresholdMin", defaultThresholds.min.toString())!
-      ),
-      low: parseFloat(
-        getSearchParam("thresholdLow", defaultThresholds.low.toString())!
-      ),
-      middle: parseFloat(
-        getSearchParam("thresholdMiddle", defaultThresholds.middle.toString())!
-      ),
-      high: parseFloat(
-        getSearchParam("thresholdHigh", defaultThresholds.high.toString())!
-      ),
-      max: parseFloat(
-        getSearchParam("thresholdMax", defaultThresholds.max.toString())!
-      ),
-    }),
-    [defaultThresholds]
-  );
-
-  // Hooks
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    dispatch(
-      initializeStateFromUrl({
-        mapConfigId: MAP_CONFIGS[0].id,
-        mapTypeId: initialMapTypeId,
-        mapId: MAP_ID,
-        location: initialCenter,
-        loading: true,
-        sessionsListOpen: false,
-        hoverStreamId: null,
-        position: initialCenter,
-        modalOpen: initialModalOpen,
-      })
-    );
-  }, [dispatch, initialCenter, initialMapTypeId, initialModalOpen]);
-
-  // State
   const [mapBounds, setMapBounds] = useState({
     north: DEFAULT_MAP_BOUNDS.north,
     south: DEFAULT_MAP_BOUNDS.south,
@@ -171,7 +105,6 @@ const Map = () => {
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
 
-  // Selectors
   const fixedSessionsStatusFulfilled = useSelector(
     selectFixedSessionsStatusFulfilled
   );
@@ -200,7 +133,6 @@ const Map = () => {
     (state: RootState) => state.map.sessionsListOpen
   );
 
-  // Filters (temporary solution)
   const sensor_name = fixedSessionTypeSelected
     ? "Government-PM2.5"
     : "AirBeam-PM2.5";
@@ -235,7 +167,6 @@ const Map = () => {
   const encodedUnitSymbol = encodeURIComponent(unitSymbol);
   const thresholdFilters = `${sensor_name}?unit_symbol=${encodedUnitSymbol}`;
 
-  // Effects
   useEffect(() => {
     if (loading) {
       fixedSessionTypeSelected
@@ -257,20 +188,6 @@ const Map = () => {
     }
   }, [dispatch, selectedStreamId, fixedSessionTypeSelected]);
 
-  // Set initial map type ID and thresholds from URL
-  useEffect(() => {
-    dispatch(setMapTypeId(initialMapTypeId));
-    dispatch(setUserThresholdValues(initialThresholds));
-  }, [dispatch, initialMapTypeId, initialThresholds]);
-
-  const debouncedUpdateURL = useCallback(
-    debounce((params) => {
-      setSearchParams(params);
-    }, 300),
-    []
-  );
-
-  // Update URL parameters
   useEffect(() => {
     const currentCenter = JSON.stringify(
       mapInstance?.getCenter()?.toJSON() || previousCenter
@@ -319,7 +236,6 @@ const Map = () => {
     debouncedUpdateURL,
   ]);
 
-  // Callbacks
   const onIdle = useCallback(
     (event: MapEvent) => {
       if (modalOpen) return;
@@ -343,7 +259,6 @@ const Map = () => {
     [mapInstance, modalOpen]
   );
 
-  // Handlers
   const handleMarkerClick = (
     streamId: number | null,
     id: number | null,

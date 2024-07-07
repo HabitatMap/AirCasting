@@ -27,7 +27,7 @@ const StationActionButtons = ({ sessionId }: Props) => {
 
   const handleCopyLink = () => {
     copyCurrentURL(shortenedLink);
-    console.log("Link copied to clipboard");
+    alert("Link copied to clipboard");
   };
 
   if (error) {
