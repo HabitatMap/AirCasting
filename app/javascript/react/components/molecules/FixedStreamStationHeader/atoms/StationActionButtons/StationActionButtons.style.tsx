@@ -21,4 +21,4 @@ const DesktopButtons = styled.div`
   }
 `;
 
-export { MobileButtons, DesktopButtons };
+export { DesktopButtons, MobileButtons };
