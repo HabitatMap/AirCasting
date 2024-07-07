@@ -96,17 +96,6 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
     }
   }, [showConfirmation]);
 
-  const currentUrl = new URL(window.location.href);
-  currentUrl.searchParams.set("sessionType", sessionType);
-  currentUrl.searchParams.set("streamId", streamId?.toString() || "");
-  currentUrl.searchParams.set("modal", "open");
-
-  currentUrl.searchParams.set("thresholdMin", thresholds.min.toString());
-  currentUrl.searchParams.set("thresholdLow", thresholds.low.toString());
-  currentUrl.searchParams.set("thresholdMiddle", thresholds.middle.toString());
-  currentUrl.searchParams.set("thresholdHigh", thresholds.high.toString());
-  currentUrl.searchParams.set("thresholdMax", thresholds.max.toString());
-
   return (
     <S.DesktopHeader>
       <S.Wrapper>
@@ -200,7 +189,6 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
             {(close) => (
               <>
                 <CopyLinkModal
-                  link={currentUrl.toString()}
                   onSubmit={(formData) => handleCopySubmit(formData, close)}
                 />
               </>

@@ -1,9 +1,11 @@
-import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
+import { copyCurrentURL } from "../../utils/copyCurrentUrl";
+import useShortenedLink from "../../utils/useShortenedLink";
 import { ModalInput } from "./atoms/ModalInput";
 import { BlueButton, FormWrapper } from "./Modals.style";
+
+const BITLY_ACCESS_TOKEN = process.env.BITLY_ACCESS_TOKEN || "";
 
 export interface CopyLinkModalData {
   link: string;
@@ -15,33 +17,25 @@ const initialCopyLinkModalData: CopyLinkModalData = {
 
 interface CopyLinkModalProps {
   onSubmit: (data: CopyLinkModalData) => void;
-  link: string;
 }
 
 const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit }) => {
   const focusInputRef = useRef<HTMLInputElement | null>(null);
+  const { t } = useTranslation();
+  const { shortenedLink, error } = useShortenedLink(
+    window.location.href,
+    BITLY_ACCESS_TOKEN
+  );
   const [formState, setFormState] = useState<CopyLinkModalData>(
     initialCopyLinkModalData
   );
-  const { t } = useTranslation();
 
   useEffect(() => {
-    const shortenLink = async (url: string) => {
-      try {
-        const response = await axios.get(
-          `https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`
-        );
-        setFormState((prevFormData) => ({
-          ...prevFormData,
-          link: response.data,
-        }));
-      } catch (error) {
-        console.error("Error shortening the link: ", error);
-      }
-    };
-
-    shortenLink(window.location.href);
-  }, []);
+    setFormState((prevFormData) => ({
+      ...prevFormData,
+      link: shortenedLink,
+    }));
+  }, [shortenedLink]);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -56,16 +50,13 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit }) => {
   const handleSubmit = (event: React.FormEvent): void => {
     event.preventDefault();
     onSubmit(formState);
-    navigator.clipboard
-      .writeText(formState.link)
-      .then(() => {
-        console.log("Link copied to clipboard");
-      })
-      .catch((err) => {
-        console.error("Failed to copy the link: ", err);
-      });
+    copyCurrentURL(formState.link);
     setFormState(initialCopyLinkModalData);
   };
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <form onSubmit={handleSubmit}>

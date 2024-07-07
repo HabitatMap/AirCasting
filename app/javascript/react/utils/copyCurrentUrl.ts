@@ -1,11 +1,11 @@
-export const copyCurrentURL = () => {
-  const currentURL = window.location.href;
+export const copyCurrentURL = (link: string) => {
+  const currentURL = link;
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard
       .writeText(currentURL)
       .then(() => {
-        alert("URL copied!");
+        console.log("URL copied!");
       })
       .catch((error) => {
         console.error("Failed to copy URL: ", error);
