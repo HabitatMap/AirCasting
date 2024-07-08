@@ -1,5 +1,11 @@
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +43,9 @@ import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import {
   fetchThresholds,
   resetUserThresholds,
+  selectDefaultThresholds,
   selectThresholds,
+  setUserThresholdValues,
 } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
@@ -120,6 +128,7 @@ const Map = () => {
     : useSelector(selectMobileSessionsPoints);
   const modalOpen = useSelector(selectModalOpen);
   const thresholdValues = useSelector(selectThresholds);
+  const defaultThresholds = useSelector(selectDefaultThresholds);
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
@@ -167,8 +176,10 @@ const Map = () => {
   const encodedUnitSymbol = encodeURIComponent(unitSymbol);
   const thresholdFilters = `${sensor_name}?unit_symbol=${encodedUnitSymbol}`;
 
+  const isFirstRender = useRef(true);
+
   useEffect(() => {
-    if (loading) {
+    if (loading || isFirstRender.current) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
@@ -178,7 +189,8 @@ const Map = () => {
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
-  }, [dispatch, thresholdFilters]);
+    dispatch(setUserThresholdValues(initialThresholds));
+  }, [dispatch, thresholdFilters, initialThresholds]);
 
   useEffect(() => {
     if (selectedStreamId) {
@@ -189,33 +201,47 @@ const Map = () => {
   }, [dispatch, selectedStreamId, fixedSessionTypeSelected]);
 
   useEffect(() => {
-    const currentCenter = JSON.stringify(
-      mapInstance?.getCenter()?.toJSON() || previousCenter
-    );
-    const currentZoom = (mapInstance?.getZoom() || previousZoom).toString();
-    const queryParams = new URLSearchParams({
-      center: currentCenter,
-      zoom: currentZoom,
-      previousZoom: previousZoom.toString(),
-      sessionType: selectedSessionType,
-      sessionId: selectedSessionId?.toString() || "",
-      streamId: selectedStreamId?.toString() || "",
-      modalOpen: modalOpen.toString(),
-      mapType: mapTypeId,
-      thresholdMin: thresholdValues.min?.toString() || "",
-      thresholdLow: thresholdValues.low?.toString() || "",
-      thresholdMiddle: thresholdValues.middle?.toString() || "",
-      thresholdHigh: thresholdValues.high?.toString() || "",
-      thresholdMax: thresholdValues.max?.toString() || "",
-      limit: initialLimit.toString(),
-      offset: initialOffset.toString(),
-      sensor_name: initialSensorName,
-      measurement_type: initialMeasurementType,
-      unit_symbol: initialUnitSymbol,
-    });
-    const currentParams = searchParams.toString();
-    if (queryParams.toString() !== currentParams) {
-      debouncedUpdateURL(queryParams);
+    if (isFirstRender.current) {
+      if (mapInstance) {
+        mapInstance.setZoom(initialZoom);
+        mapInstance.setCenter(initialCenter);
+      }
+      isFirstRender.current = false;
+    } else {
+      const currentCenter = JSON.stringify(
+        mapInstance?.getCenter()?.toJSON() || previousCenter
+      );
+      const currentZoom = (mapInstance?.getZoom() || previousZoom).toString();
+      const queryParams = new URLSearchParams({
+        center: currentCenter,
+        zoom: currentZoom,
+        previousZoom: previousZoom.toString(),
+        sessionType: selectedSessionType,
+        sessionId: selectedSessionId?.toString() || "",
+        streamId: selectedStreamId?.toString() || "",
+        modalOpen: modalOpen.toString(),
+        mapType: mapTypeId,
+        thresholdMin:
+          thresholdValues.min?.toString() || defaultThresholds.min.toString(),
+        thresholdLow:
+          thresholdValues.low?.toString() || defaultThresholds.low.toString(),
+        thresholdMiddle:
+          thresholdValues.middle?.toString() ||
+          defaultThresholds.middle.toString(),
+        thresholdHigh:
+          thresholdValues.high?.toString() || defaultThresholds.high.toString(),
+        thresholdMax:
+          thresholdValues.max?.toString() || defaultThresholds.max.toString(),
+        limit: initialLimit.toString(),
+        offset: initialOffset.toString(),
+        sensor_name: initialSensorName,
+        measurement_type: initialMeasurementType,
+        unit_symbol: initialUnitSymbol,
+      });
+      const currentParams = searchParams.toString();
+      if (queryParams.toString() !== currentParams) {
+        debouncedUpdateURL(queryParams);
+      }
     }
   }, [
     mapInstance,
@@ -227,6 +253,7 @@ const Map = () => {
     modalOpen,
     mapTypeId,
     thresholdValues,
+    defaultThresholds,
     initialLimit,
     initialOffset,
     initialSensorName,
