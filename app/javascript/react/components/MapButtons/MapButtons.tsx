@@ -6,30 +6,21 @@ import filterIcon from "../../assets/icons/filter.svg";
 import { MapButton } from "./MapButton";
 import * as S from "./MapButtons.style";
 
-const ButtonTypes = {
-  FILTER: "filter",
-  TIMELAPSE: "timelapse",
-  COPY_LINK: "copyLink",
-  SHARE: "share",
-};
-
-type ButtonType =
-  | typeof ButtonTypes.FILTER
-  | typeof ButtonTypes.TIMELAPSE
-  | typeof ButtonTypes.COPY_LINK
-  | typeof ButtonTypes.SHARE;
+enum ButtonTypes {
+  FILTER = "filter",
+  TIMELAPSE = "timelapse",
+  COPY_LINK = "copyLink",
+  SHARE = "share",
+}
 
 const MapButtons = () => {
-  const [buttonActive, setButtonActive] = useState<string | null>(null);
+  const [activeButton, setActiveButton] = useState<ButtonTypes | null>(null);
   const { t } = useTranslation();
 
-  const handleClick = (buttonType: ButtonType) => {
-    if (buttonType !== buttonActive) {
-      setButtonActive(buttonType);
-    }
-    if (buttonType === buttonActive) {
-      setButtonActive(null);
-    }
+  const handleClick = (buttonType: ButtonTypes) => {
+    setActiveButton((prevState) =>
+      prevState === buttonType ? null : buttonType
+    );
   };
 
   return (
@@ -39,28 +30,28 @@ const MapButtons = () => {
         image={filterIcon}
         onClick={() => handleClick(ButtonTypes.FILTER)}
         alt={t("navbar.altFilter")}
-        isActive={ButtonTypes.FILTER === buttonActive}
+        isActive={activeButton === ButtonTypes.FILTER}
       />
       <MapButton
         title={t("navbar.timelapse")}
         image={filterIcon}
         onClick={() => handleClick(ButtonTypes.TIMELAPSE)}
         alt={t("navbar.altTimelapse")}
-        isActive={ButtonTypes.TIMELAPSE === buttonActive}
+        isActive={activeButton === ButtonTypes.TIMELAPSE}
       />
       <MapButton
         title={t("navbar.copyLink")}
         image={copyLinkButton}
         onClick={() => handleClick(ButtonTypes.COPY_LINK)}
         alt={t("navbar.altCopyLink")}
-        isActive={ButtonTypes.COPY_LINK === buttonActive}
+        isActive={activeButton === ButtonTypes.COPY_LINK}
       />
       <MapButton
         title={t("navbar.share")}
         image={filterIcon}
         onClick={() => handleClick(ButtonTypes.SHARE)}
         alt={t("navbar.altShare")}
-        isActive={ButtonTypes.SHARE === buttonActive}
+        isActive={activeButton === ButtonTypes.SHARE}
       />
     </S.MapButtonsWrapper>
   );
