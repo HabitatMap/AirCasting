@@ -202,13 +202,35 @@ const Map = () => {
   }, [dispatch, initialStreamId, initialModalOpen, fixedSessionTypeSelected]);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      if (mapInstance) {
-        mapInstance.setZoom(initialZoom);
-        mapInstance.setCenter(initialCenter);
-      }
+    if (isFirstRender.current && mapInstance) {
+      mapInstance.setZoom(initialZoom);
+      mapInstance.setCenter(initialCenter);
+      setPreviousZoom(initialPreviousZoom); // Set previous zoom from URL params
+      setPreviousCenter(initialCenter); // Set previous center from URL params
       isFirstRender.current = false;
-    } else {
+    }
+  }, [mapInstance, initialZoom, initialCenter, initialPreviousZoom]);
+  useEffect(() => {
+    if (!modalOpen) {
+      // This checks if modalOpen has changed to false
+      setSelectedStreamId(null);
+      setSelectedSessionId(null);
+
+      if (modalOpenFromSessionsList) {
+        setTimeout(() => {
+          dispatch(setSessionsListOpen(true));
+        }, 0);
+      }
+
+      if (mapInstance) {
+        mapInstance.setZoom(previousZoom);
+        mapInstance.setCenter(previousCenter);
+      }
+    }
+  }, [modalOpen]);
+
+  useEffect(() => {
+    if (!isFirstRender.current) {
       const currentCenter = JSON.stringify(
         mapInstance?.getCenter()?.toJSON() || previousCenter
       );
