@@ -13,7 +13,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
   const isMobile = useMobileDetection();
-  const [navMenuVisible, setNavMenuVisible] = useState(false);
+  const [navMenuVisible, setNavMenuVisible] = useState<boolean>(false);
   const { t } = useTranslation();
 
   const toggleMenuVisibility = () => setNavMenuVisible(!navMenuVisible);
