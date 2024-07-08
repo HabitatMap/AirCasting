@@ -56,10 +56,10 @@ const MapButtons = () => {
         isActive={ButtonTypes.COPY_LINK === buttonActive}
       />
       <MapButton
-        title="share"
+        title={t("navbar.share")}
         image={filterIcon}
         onClick={() => handleClick(ButtonTypes.SHARE)}
-        alt="share icon"
+        alt={t("navbar.altShare")}
         isActive={ButtonTypes.SHARE === buttonActive}
       />
     </S.MapButtonsWrapper>

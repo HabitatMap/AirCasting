@@ -45,7 +45,9 @@
     "timelapse": "timelapse",
     "altTimelapse": "Clock icon",
     "copyLink": "copy link",
-    "altCopyLink": "Chain icon"
+    "altCopyLink": "Chain icon",
+    "share": "Share",
+    "altShare": "Share icon"
   },
   "calendarHeader": {
     "stationLabel": "Station name",
