@@ -242,7 +242,7 @@ const FixedMarkers = ({
           />
         </AdvancedMarker>
       ))}
-      {/* Keep hoverPosition state but don't use it to render markers */}
+      {hoverPosition && <HoverMarker position={hoverPosition} />}
     </>
   );
 };
