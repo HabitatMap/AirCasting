@@ -1,9 +1,16 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
 
 import {
   Cluster,
   GridAlgorithm,
+  Marker,
   MarkerClusterer,
   SuperClusterAlgorithm,
 } from "@googlemaps/markerclusterer";
@@ -57,16 +64,18 @@ const FixedMarkers = ({
     null
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (map) {
-      // @ts-ignore:next-line
-      if (clusterer.current && clusterer.current.markers.length > 1) {
+      if (clusterer.current) {
         clusterer.current.clearMarkers();
       }
       clusterer.current = new MarkerClusterer({
         map,
         renderer: customRenderer(thresholds),
-        algorithm: new SuperClusterAlgorithm({ maxZoom: 21, radius: 40 }),
+        algorithm: new SuperClusterAlgorithm({
+          maxZoom: 21,
+          radius: 40,
+        }),
       });
     }
   }, [map, sessions, thresholds]);
@@ -79,9 +88,7 @@ const FixedMarkers = ({
 
   useEffect(() => {
     const handleData = (id: number) => {
-      const s = sessions.find((session) => {
-        return session.id === id;
-      });
+      const s = sessions.find((session) => session.id === id);
 
       if (s?.point) {
         centerMapOnMarker(s.point, s.point.streamId);
@@ -97,7 +104,7 @@ const FixedMarkers = ({
 
   // Update MarkerClusterer when markers and sessions change
   useEffect(() => {
-    if (clusterer.current) {
+    if (clusterer.current && sessions.length > 0) {
       const sessionStreamIds = sessions.map(
         (session) => session.point.streamId
       );
@@ -113,10 +120,10 @@ const FixedMarkers = ({
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
     }
-  }, [markers, sessions]);
+  }, [markers, sessions, thresholds]);
 
   // Pulsation
-  useEffect(() => {
+ useEffect(() => {
     if (pulsatingSessionId) {
       const pulsatingSession = sessions.find(
         (session) => session.id === pulsatingSessionId
@@ -127,9 +134,9 @@ const FixedMarkers = ({
         if (clusterer.current && pulsatingSessionStreamId === key) {
           const pulsatingCluster: Cluster | undefined =
             // @ts-ignore:next-line
-            clusterer.current.clusters.find((cluster: any) =>
-              cluster.markers.some(
-                (clusterMarker: any) => clusterMarker === markers[key]
+            clusterer.current.clusters.find((cluster: Cluster) =>
+              cluster.markers && cluster.markers.some(
+                (clusterMarker: Marker) => clusterMarker === markers[key]
               )
             );
 
@@ -195,6 +202,7 @@ const FixedMarkers = ({
   );
 
   useEffect(() => {
+    // If hoverStreamId is set, update hoverPosition only if it's not null
     if (hoverStreamId) {
       const hoveredSession = sessions.find(
         (session) => Number(session.point.streamId) === hoverStreamId
@@ -206,6 +214,7 @@ const FixedMarkers = ({
       setHoverPosition(null);
     }
   }, [hoverStreamId, sessions]);
+
   return (
     <>
       {sessions.map((session) => (
