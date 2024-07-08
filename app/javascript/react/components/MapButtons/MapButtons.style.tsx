@@ -1,9 +1,11 @@
 import styled from "styled-components";
+
 import { blue, gray300, white } from "../../assets/styles/colors";
 import { H4 } from "../Typography";
 
 const MapButtonsWrapper = styled.div`
   display: flex;
+  padding: 0rem 0rem 0rem 2rem;
 `;
 
 const MapButton = styled.button<{ isActive?: boolean }>`
