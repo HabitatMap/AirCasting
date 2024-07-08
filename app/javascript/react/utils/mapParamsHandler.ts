@@ -1,6 +1,6 @@
 // mapParamsUtils.ts
 import { debounce } from "lodash";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { MAP_CONFIGS, MAP_ID } from "../components/Map/mapConfigs";
@@ -20,6 +20,7 @@ export const useMapParams = () => {
 
   const defaultThresholds = useSelector(selectDefaultThresholds);
   const dispatch = useAppDispatch();
+  const isFirstRender = useRef(true);
 
   const initialCenter = useMemo(
     () =>
@@ -78,24 +79,30 @@ export const useMapParams = () => {
   );
 
   useEffect(() => {
-    dispatch(
-      initializeStateFromUrl({
-        mapConfigId: MAP_CONFIGS[0].id,
-        mapTypeId: initialMapTypeId,
-        mapId: MAP_ID,
-        location: initialCenter,
-        loading: true,
-        sessionsListOpen: false,
-        hoverStreamId: null,
-        position: initialCenter,
-        modalOpen: initialModalOpen,
-      })
-    );
-  }, [dispatch, initialCenter, initialMapTypeId, initialModalOpen]);
-
-  useEffect(() => {
-    dispatch(setUserThresholdValues(initialThresholds));
-  }, [dispatch, initialThresholds]);
+    if (isFirstRender.current) {
+      dispatch(
+        initializeStateFromUrl({
+          mapConfigId: MAP_CONFIGS[0].id,
+          mapTypeId: initialMapTypeId,
+          mapId: MAP_ID,
+          location: initialCenter,
+          loading: true,
+          sessionsListOpen: false,
+          hoverStreamId: null,
+          position: initialCenter,
+          modalOpen: initialModalOpen,
+        })
+      );
+      dispatch(setUserThresholdValues(initialThresholds));
+      isFirstRender.current = false;
+    }
+  }, [
+    dispatch,
+    initialCenter,
+    initialMapTypeId,
+    initialModalOpen,
+    initialThresholds,
+  ]);
 
   const debouncedUpdateURL = useCallback(
     debounce((params) => {

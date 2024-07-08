@@ -321,13 +321,7 @@ const Map = () => {
       mapInstance.setZoom(previousZoom);
       mapInstance.setCenter(previousCenter);
     }
-  }, [
-    dispatch,
-    modalOpenFromSessionsList,
-    mapInstance,
-    previousZoom,
-    previousCenter,
-  ]);
+  }, [modalOpenFromSessionsList, mapInstance, previousZoom, previousCenter]);
 
   const handleClick = useCallback(
     (type: SessionType) => {
