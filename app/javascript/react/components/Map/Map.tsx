@@ -202,12 +202,13 @@ const Map = () => {
   }, [dispatch, thresholdFilters, initialThresholds]);
 
   useEffect(() => {
-    if (selectedStreamId) {
+    if (initialStreamId && initialModalOpen) {
       fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(selectedStreamId))
-        : dispatch(fetchMobileStreamById(selectedStreamId));
+        ? dispatch(fetchFixedStreamById(initialStreamId))
+        : dispatch(fetchMobileStreamById(initialStreamId));
+      dispatch(setModalOpen(true));
     }
-  }, [dispatch, selectedStreamId, fixedSessionTypeSelected]);
+  }, [dispatch, initialStreamId, initialModalOpen, fixedSessionTypeSelected]);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -436,7 +437,7 @@ const Map = () => {
             pulsatingSessionId={pulsatingSessionId}
           />
         )}
-        {selectedStreamId && !fixedSessionTypeSelected && (
+        {selectedStreamId && (
           <StreamMarkers
             sessions={mobileStreamPoints}
             unitSymbol={unitSymbol}
