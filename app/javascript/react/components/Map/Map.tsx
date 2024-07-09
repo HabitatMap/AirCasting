@@ -188,23 +188,22 @@ const Map = () => {
   }, [modalOpen, selectedStreamId]);
 
   useEffect(() => {
-    console.log("previousZoom changed", previousZoom);
-    console.log("currentZoom changed", currentZoom);
-  }, [currentZoom, previousZoom]);
+    console.log("previousZoom changed", previousCenter);
+    console.log("currentZoom changed", currentCenter);
+  }, [currentCenter, previousCenter]);
 
   const zoomSetup = () => {
     if (mapInstance) {
       const newZoom = mapInstance?.getZoom();
+      const newCenter = mapInstance.getCenter()?.toJSON();
       if (newZoom !== currentZoom) {
         setPreviousZoom(currentZoom);
         setCurrentZoom(newZoom || DEFAULT_ZOOM);
       }
-      // if (mapInstance.getCenter()?.toJSON() !== currentCenter) {
-      //   setPreviousCenter(currentCenter);
-      //   setCurrentCenter(
-      //     mapInstance.getCenter()?.toJSON() || DEFAULT_MAP_CENTER
-      //   );
-      // }
+      if (newCenter !== currentCenter) {
+        setPreviousCenter(currentCenter);
+        setCurrentCenter(newCenter || DEFAULT_MAP_CENTER);
+      }
     }
   };
 
