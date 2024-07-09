@@ -129,6 +129,7 @@ const NumberInput = styled.input<{
   cursor: move; /* fallback if grab cursor is unsupported */
   cursor: grab;
 
+  appearance: textfield;
   -moz-appearance: textfield;
 
   &::-webkit-outer-spin-button,

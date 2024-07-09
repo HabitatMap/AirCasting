@@ -2,11 +2,9 @@ import { debounce } from "lodash";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-
 import { selectDefaultThresholds } from "../store/thresholdSlice";
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { Thresholds } from "../types/thresholds";
-import { updateAdjacentThresholds } from "./tresholdsUpdateAdjacent";
 
 export const useThresholdHandlers = (
   setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
@@ -16,10 +14,10 @@ export const useThresholdHandlers = (
   thresholdValues: Thresholds,
   sliderRef: React.RefObject<HTMLDivElement>,
   activeInput: keyof Thresholds | null,
-  inputValue: string
+  inputValue: string,
+  sliderWidth: number
 ) => {
   const inputDebounceTime = 300;
-
   const { t } = useTranslation();
   const defaultThresholds = useSelector(selectDefaultThresholds);
 
@@ -28,19 +26,14 @@ export const useThresholdHandlers = (
     min: number,
     max: number
   ): boolean => {
-    return (
-      newValue >= -Infinity &&
-      newValue <= Infinity &&
-      newValue >= min &&
-      newValue <= max
-    );
+    return newValue >= min && newValue <= max;
   };
 
   useEffect(() => {
     if (activeInput !== null) {
       setInputValue(thresholdValues[activeInput].toString());
     }
-  }, [activeInput, thresholdValues]);
+  }, [activeInput, thresholdValues, setInputValue]);
 
   const clearErrorAndUpdateThreshold = (
     thresholdKey: string,
@@ -90,12 +83,6 @@ export const useThresholdHandlers = (
           );
         } else {
           clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
-          updateAdjacentThresholds(
-            thresholdKey,
-            parsedValue,
-            setThresholdValues,
-            thresholdValues
-          );
         }
       }
     } else {
@@ -110,12 +97,6 @@ export const useThresholdHandlers = (
         );
       } else {
         clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
-        updateAdjacentThresholds(
-          thresholdKey,
-          parsedValue,
-          setThresholdValues,
-          thresholdValues
-        );
       }
     }
   };
@@ -137,7 +118,6 @@ export const useThresholdHandlers = (
   const handleInputFocus = (thresholdKey: keyof Thresholds) => {
     setInputValue(thresholdValues[thresholdKey].toString());
     setActiveInput(thresholdKey);
-
     debouncedHandleInputChange.cancel();
   };
 
@@ -164,17 +144,14 @@ export const useThresholdHandlers = (
         event.preventDefault();
         let newValue;
         const step = event.shiftKey ? 10 : 1;
-
         const direction = event.key === KeyboardKeys.ArrowUp ? 1 : -1;
         newValue = parseFloat(inputValue) + step * direction;
-
         handleInputChange(thresholdKey, newValue.toString());
       }
     };
 
   const resetThresholds = () => {
     debouncedHandleInputChange.cancel();
-
     setThresholdValues(defaultThresholds);
     setInputValue("");
     setActiveInput(null);
@@ -185,6 +162,44 @@ export const useThresholdHandlers = (
     handleInputChange(thresholdKey, value);
   };
 
+  const handleSliderClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (sliderRef.current && activeInput === null) {
+      const rect = sliderRef.current.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const clickValue = Math.round(
+        (clickX / sliderWidth) * (thresholdValues.max - thresholdValues.min) +
+          thresholdValues.min
+      );
+
+      // Calculate the distance from each thumb
+      const distances = {
+        low: Math.abs(clickValue - thresholdValues.low),
+        middle: Math.abs(clickValue - thresholdValues.middle),
+        high: Math.abs(clickValue - thresholdValues.high),
+      };
+
+      // Find the closest thumb
+      const closestThumb = (
+        Object.keys(distances) as (keyof typeof distances)[]
+      ).reduce((a, b) => (distances[a] < distances[b] ? a : b));
+
+      // Ensure high is less than max and low is greater than min
+      if (
+        (closestThumb === "high" && clickValue >= thresholdValues.max) ||
+        (closestThumb === "low" && clickValue <= thresholdValues.min)
+      ) {
+        return;
+      }
+
+      // Update the value of the closest thumb
+      const newThresholdValues = {
+        ...thresholdValues,
+        [closestThumb]: clickValue,
+      };
+      setThresholdValues(newThresholdValues);
+    }
+  };
+
   return {
     handleInputChange: onInputChange,
     handleInputBlur,
@@ -192,5 +207,6 @@ export const useThresholdHandlers = (
     handleInputKeyDown,
     handleOutsideClick,
     resetThresholds,
+    handleSliderClick,
   };
 };
