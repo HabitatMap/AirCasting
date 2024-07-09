@@ -162,10 +162,14 @@ export const useThresholdHandlers = (
     handleInputChange(thresholdKey, value);
   };
 
-  const handleSliderClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleSliderClick = (
+    event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => {
     if (sliderRef.current && activeInput === null) {
       const rect = sliderRef.current.getBoundingClientRect();
-      const clickX = event.clientX - rect.left;
+      const clientX =
+        "touches" in event ? event.touches[0].clientX : event.clientX;
+      const clickX = clientX - rect.left;
       const clickValue = Math.round(
         (clickX / sliderWidth) * (thresholdValues.max - thresholdValues.min) +
           thresholdValues.min
@@ -207,6 +211,6 @@ export const useThresholdHandlers = (
     handleInputKeyDown,
     handleOutsideClick,
     resetThresholds,
-    handleSliderClick,
+    handleSliderClick, // Added handleSliderClick to the returned object
   };
 };
