@@ -9,6 +9,10 @@ import { urls } from "../../const/urls";
 import { RootState } from "../../store";
 import { useAppDispatch } from "../../store/hooks";
 import { selectModalOpen, setModalOpen } from "../../store/mapSlice";
+import {
+  selectUserSettingsState,
+  updateUserSettings,
+} from "../../store/userSettingsSlice";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import { RefreshMapButton } from "../RefreshMapButton";
@@ -25,6 +29,8 @@ export const MobileHeader = ({
   t: Function;
 }) => {
   const modalOpen = useSelector(selectModalOpen);
+  const { previousUserSettings } = useSelector(selectUserSettingsState);
+
   const dispatch = useAppDispatch();
 
   return (
@@ -33,6 +39,7 @@ export const MobileHeader = ({
         <S.GoBack
           onClick={() => {
             dispatch(setModalOpen(false));
+            dispatch(updateUserSettings(previousUserSettings));
           }}
           aria-label={t("navbar.mapPage")}
         >
@@ -79,16 +86,20 @@ export const MobileHeader = ({
 };
 
 export const MobileCalendarHeader = ({ t }: { t: Function }) => {
-  const navigate = useNavigate();
   const sessionsListOpen = useSelector(
     (state: RootState) => state.map.sessionsListOpen
   );
+  const { previousUserSettings } = useSelector(selectUserSettingsState);
+
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   return (
     <S.MobileContainer>
       <S.GoBack
         onClick={() => {
           navigate(urls.reactMap);
+          dispatch(updateUserSettings(previousUserSettings));
         }}
         aria-label={t("navbar.mapPage")}
       >

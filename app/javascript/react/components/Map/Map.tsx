@@ -40,9 +40,14 @@ import {
   fetchThresholds,
   resetUserThresholds,
 } from "../../store/thresholdSlice";
+import {
+  selectUserSettingsState,
+  updateUserSettings,
+} from "../../store/userSettingsSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { SessionList } from "../../types/sessionType";
+import { UserSettings } from "../../types/userStates";
 import { pubSub } from "../../utils/pubSubManager";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
@@ -120,6 +125,13 @@ const Map = () => {
   const modalOpen = useSelector(selectModalOpen);
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
+
+  const { previousUserSettings, currentUserSettings } = useSelector(
+    selectUserSettingsState
+  );
+
+  console.log("currentUserSettings", currentUserSettings);
+  console.log("previousUserSettings", previousUserSettings);
 
   const listSessions = useSelector(
     fixedSessionTypeSelected
@@ -234,6 +246,7 @@ const Map = () => {
   ) => {
     if (isMobile && fixedSessionTypeSelected) {
       navigate(`/fixed_stream?streamId=${streamId}`);
+      dispatch(updateUserSettings(UserSettings.CalendarView));
       return;
     }
 
@@ -241,6 +254,7 @@ const Map = () => {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
+      dispatch(updateUserSettings(UserSettings.ModalView));
     }
 
     if (selectedFromSessionsList && isMobile) {
@@ -267,9 +281,11 @@ const Map = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
     dispatch(setModalOpen(false));
+    dispatch(updateUserSettings(previousUserSettings));
     if (modalOpenFromSessionsList) {
       setTimeout(() => {
         dispatch(setSessionsListOpen(true));
+        dispatch(updateUserSettings(UserSettings.SessionView));
       }, 0);
     }
   };
@@ -287,6 +303,7 @@ const Map = () => {
       if (modalOpenFromSessionsList) {
         setTimeout(() => {
           dispatch(setSessionsListOpen(true));
+          dispatch(updateUserSettings(UserSettings.SessionView));
         }, 0);
       }
     }
@@ -357,6 +374,7 @@ const Map = () => {
           alt={t("map.altListSessions")}
           onClick={() => {
             dispatch(setSessionsListOpen(true));
+            dispatch(updateUserSettings(UserSettings.SessionView));
           }}
         />
         {sessionsListOpen && (
@@ -376,10 +394,12 @@ const Map = () => {
                 pubSub.publish("CENTER_MAP", id);
               }
               handleMarkerClick(streamId, id, true);
+              dispatch(updateUserSettings(UserSettings.ModalView));
             }}
             onClose={() => {
               dispatch(setSessionsListOpen(false));
               setModalOpenFromSessionsList(false);
+              dispatch(updateUserSettings(previousUserSettings));
             }}
           />
         )}
@@ -400,6 +420,7 @@ const Map = () => {
               setPulsatingSessionId(null);
               handleMarkerClick(streamId, id);
               pubSub.publish("CENTER_MAP", id);
+              dispatch(updateUserSettings(UserSettings.CalendarView));
             }}
             onCellMouseEnter={(id) => {
               setPulsatingSessionId(id);
