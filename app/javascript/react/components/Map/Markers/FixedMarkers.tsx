@@ -123,7 +123,7 @@ const FixedMarkers = ({
   }, [markers, sessions, thresholds]);
 
   // Pulsation
- useEffect(() => {
+  useEffect(() => {
     if (pulsatingSessionId) {
       const pulsatingSession = sessions.find(
         (session) => session.id === pulsatingSessionId
@@ -134,10 +134,12 @@ const FixedMarkers = ({
         if (clusterer.current && pulsatingSessionStreamId === key) {
           const pulsatingCluster: Cluster | undefined =
             // @ts-ignore:next-line
-            clusterer.current.clusters.find((cluster: Cluster) =>
-              cluster.markers && cluster.markers.some(
-                (clusterMarker: Marker) => clusterMarker === markers[key]
-              )
+            clusterer.current.clusters.find(
+              (cluster: Cluster) =>
+                cluster.markers &&
+                cluster.markers.some(
+                  (clusterMarker: Marker) => clusterMarker === markers[key]
+                )
             );
 
           if (

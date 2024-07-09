@@ -1,219 +1,223 @@
 import { Thresholds } from "../types/thresholds";
 import { calculateThumbPercentage } from "./thresholdThumbCalculations";
 
-export const handleMouseMove = (
-  thresholdKey: keyof Thresholds,
-  startX: number,
-  startValue: number,
-  thresholdValues: Thresholds,
-  sliderWidth: number,
-  setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
-  setInputValue: React.Dispatch<React.SetStateAction<string>>
-) => (moveEvent: globalThis.MouseEvent) => {
-  // How much the thumb has moved horizontally since drag started.
-  const displacement = moveEvent.clientX - startX;
+export const handleMouseMove =
+  (
+    thresholdKey: keyof Thresholds,
+    startX: number,
+    startValue: number,
+    thresholdValues: Thresholds,
+    sliderWidth: number,
+    setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
+    setInputValue: React.Dispatch<React.SetStateAction<string>>
+  ) =>
+  (moveEvent: globalThis.MouseEvent) => {
+    // How much the thumb has moved horizontally since drag started.
+    const displacement = moveEvent.clientX - startX;
 
-  // Threshold new percentage, based on thumb value when dragging started,
-  // the displacement, and slider width.
-  const newPercentage =
-    calculateThumbPercentage(
-      startValue,
-      thresholdValues.min,
+    // Threshold new percentage, based on thumb value when dragging started,
+    // the displacement, and slider width.
+    const newPercentage =
+      calculateThumbPercentage(
+        startValue,
+        thresholdValues.min,
+        thresholdValues.max
+      ) +
+      displacement / sliderWidth;
+
+    // Threshold new value based on the threshold new percentage.
+    let newThresholdValue = Math.round(
+      thresholdValues.min +
+        newPercentage * (thresholdValues.max - thresholdValues.min)
+    );
+
+    // Ensure the value is within min and max bounds.
+    const newThresholdValueWithinBounds = Math.min(
+      Math.max(newThresholdValue, thresholdValues.min),
       thresholdValues.max
-    ) +
-    displacement / sliderWidth;
+    );
+    let updatedValues: Thresholds = { ...thresholdValues };
+    let currentValue = newThresholdValueWithinBounds;
 
-  // Threshold new value based on the threshold new percentage.
-  let newThresholdValue = Math.round(
-    thresholdValues.min +
-      newPercentage * (thresholdValues.max - thresholdValues.min)
-  );
+    currentValue = Math.max(currentValue, thresholdValues.min);
+    currentValue = Math.min(currentValue, thresholdValues.max);
 
-  // Ensure the value is within min and max bounds.
-  const newThresholdValueWithinBounds = Math.min(
-    Math.max(newThresholdValue, thresholdValues.min),
-    thresholdValues.max
-  );
-  let updatedValues: Thresholds = { ...thresholdValues };
-  let currentValue = newThresholdValueWithinBounds;
+    setInputValue(currentValue.toString());
 
-  currentValue = Math.max(currentValue, thresholdValues.min);
-  currentValue = Math.min(currentValue, thresholdValues.max);
+    switch (thresholdKey) {
+      case "low":
+        if (
+          currentValue >= thresholdValues.middle &&
+          thresholdValues.middle !== thresholdValues.max
+        ) {
+          updatedValues.middle = Math.min(
+            currentValue + 1,
+            thresholdValues.max
+          );
+        }
+        if (
+          currentValue >= thresholdValues.high &&
+          thresholdValues.high !== thresholdValues.max
+        ) {
+          updatedValues.high = Math.min(currentValue + 2, thresholdValues.max);
+        }
+        break;
+      case "middle":
+        if (
+          currentValue <= thresholdValues.low &&
+          thresholdValues.low !== thresholdValues.min
+        ) {
+          updatedValues.low = Math.max(currentValue - 1, thresholdValues.min);
+        }
+        if (
+          currentValue > thresholdValues.high &&
+          thresholdValues.high !== thresholdValues.max
+        ) {
+          updatedValues.high = Math.min(currentValue + 1, thresholdValues.max);
+        }
+        break;
+      case "high":
+        if (
+          currentValue <= thresholdValues.middle &&
+          thresholdValues.middle !== thresholdValues.min
+        ) {
+          updatedValues.middle = Math.max(
+            currentValue - 1,
+            thresholdValues.min
+          );
+        }
+        if (
+          currentValue <= thresholdValues.low &&
+          thresholdValues.low !== thresholdValues.min
+        ) {
+          updatedValues.low = Math.max(currentValue - 2, thresholdValues.min);
+        }
+        break;
+    }
 
-  setInputValue(currentValue.toString());
+    updatedValues[thresholdKey] = currentValue;
 
-  switch (thresholdKey) {
-    case "low":
-      if (
-        currentValue >= thresholdValues.middle &&
-        thresholdValues.middle !== thresholdValues.max
-      ) {
-        updatedValues.middle = Math.min(
-          currentValue + 1,
-          thresholdValues.max
-        );
-      }
-      if (
-        currentValue >= thresholdValues.high &&
-        thresholdValues.high !== thresholdValues.max
-      ) {
-        updatedValues.high = Math.min(
-          currentValue + 2,
-          thresholdValues.max
-        );
-      }
-      break;
-    case "middle":
-      if (
-        currentValue <= thresholdValues.low &&
-        thresholdValues.low !== thresholdValues.min
-      ) {
-        updatedValues.low = Math.max(currentValue - 1, thresholdValues.min);
-      }
-      if (
-        currentValue > thresholdValues.high &&
-        thresholdValues.high !== thresholdValues.max
-      ) {
-        updatedValues.high = Math.min(
-          currentValue + 1,
-          thresholdValues.max
-        );
-      }
-      break;
-    case "high":
-      if (
-        currentValue <= thresholdValues.middle &&
-        thresholdValues.middle !== thresholdValues.min
-      ) {
-        updatedValues.middle = Math.max(
-          currentValue - 1,
-          thresholdValues.min
-        );
-      }
-      if (
-        currentValue <= thresholdValues.low &&
-        thresholdValues.low !== thresholdValues.min
-      ) {
-        updatedValues.low = Math.max(currentValue - 2, thresholdValues.min);
-      }
-      break;
-  }
+    setThresholdValues(updatedValues);
+  };
 
-  updatedValues[thresholdKey] = currentValue;
+export const handleMouseUp =
+  (moveHandler: (moveEvent: globalThis.MouseEvent | TouchEvent) => void) =>
+  () => {
+    document.removeEventListener("mousemove", moveHandler);
+    document.removeEventListener("touchmove", moveHandler);
+    document.removeEventListener(
+      "mouseup",
+      handleMouseUp(moveHandler) as EventListener
+    );
+    document.removeEventListener(
+      "touchend",
+      handleMouseUp(moveHandler) as EventListener
+    );
+  };
 
-  setThresholdValues(updatedValues);
-};
+export const handleTouchMove =
+  (
+    thresholdKey: keyof Thresholds,
+    startX: number,
+    startValue: number,
+    thresholdValues: Thresholds,
+    sliderWidth: number,
+    setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
+    setInputValue: React.Dispatch<React.SetStateAction<string>>,
+    setErrorMessage: React.Dispatch<React.SetStateAction<string>>
+  ) =>
+  (moveEvent: TouchEvent) => {
+    const touch = moveEvent.touches[0];
+    const clientX = touch.clientX;
 
-export const handleMouseUp = (
-  moveHandler: (moveEvent: globalThis.MouseEvent | TouchEvent) => void
-) => () => {
-  document.removeEventListener("mousemove", moveHandler);
-  document.removeEventListener("touchmove", moveHandler);
-  document.removeEventListener(
-    "mouseup",
-    handleMouseUp(moveHandler) as EventListener
-  );
-  document.removeEventListener(
-    "touchend",
-    handleMouseUp(moveHandler) as EventListener
-  );
-};
+    setInputValue(clientX.toString());
 
-export const handleTouchMove = (
-  thresholdKey: keyof Thresholds,
-  startX: number,
-  startValue: number,
-  thresholdValues: Thresholds,
-  sliderWidth: number,
-  setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
-  setInputValue: React.Dispatch<React.SetStateAction<string>>,
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
-) => (moveEvent: TouchEvent) => {
+    handleMouseMove(
+      thresholdKey,
+      startX,
+      startValue,
+      thresholdValues,
+      sliderWidth,
+      setThresholdValues,
+      setInputValue
+    )({
+      clientX: touch.clientX,
+    } as globalThis.MouseEvent);
+  };
 
-  const touch = moveEvent.touches[0];
-  const clientX = touch.clientX;
+export const handleMouseDown =
+  (
+    thresholdKey: keyof Thresholds,
+    thresholdValues: Thresholds,
+    sliderWidth: number,
+    setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
+    setInputValue: React.Dispatch<React.SetStateAction<string>>,
+    setErrorMessage: React.Dispatch<React.SetStateAction<string>>
+  ) =>
+  (event: { clientX: any }) => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
 
-  setInputValue(clientX.toString());
+    setErrorMessage("");
 
-  handleMouseMove(
-    thresholdKey,
-    startX,
-    startValue,
-    thresholdValues,
-    sliderWidth,
-    setThresholdValues,
-    setInputValue
-  )({
-    clientX: touch.clientX,
-  } as globalThis.MouseEvent);
-};
+    const startX = event.clientX;
+    const startValue = thresholdValues[thresholdKey];
+    const moveHandler = handleMouseMove(
+      thresholdKey,
+      startX,
+      startValue,
+      thresholdValues,
+      sliderWidth,
+      setThresholdValues,
+      setInputValue
+    );
 
-export const handleMouseDown = (
-  thresholdKey: keyof Thresholds,
-  thresholdValues: Thresholds,
-  sliderWidth: number,
-  setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
-  setInputValue: React.Dispatch<React.SetStateAction<string>>,
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
-) => (event: { clientX: any; }) => {
+    document.addEventListener("mousemove", moveHandler as EventListener);
+    document.addEventListener(
+      "mouseup",
+      handleMouseUp(
+        moveHandler as (moveEvent: TouchEvent | MouseEvent) => void
+      ) as EventListener
+    );
+  };
 
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
-  }
+export const handleTouchStart =
+  (
+    thresholdKey: keyof Thresholds,
+    thresholdValues: Thresholds,
+    sliderWidth: number,
+    setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
+    setInputValue: React.Dispatch<React.SetStateAction<string>>,
+    setErrorMessage: React.Dispatch<React.SetStateAction<string>>
+  ) =>
+  (event: { touches: { clientX: any }[] }) => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    setErrorMessage("");
 
-  setErrorMessage("");
+    const startX = event.touches[0].clientX;
+    const startValue = thresholdValues[thresholdKey];
 
-  const startX = event.clientX;
-  const startValue = thresholdValues[thresholdKey];
-  const moveHandler = handleMouseMove(
-    thresholdKey,
-    startX,
-    startValue,
-    thresholdValues,
-   sliderWidth,
-    setThresholdValues,
-    setInputValue
-  );
+    setInputValue(startX.toString());
+    const moveHandler = handleTouchMove(
+      thresholdKey,
+      startX,
+      startValue,
+      thresholdValues,
+      sliderWidth,
+      setThresholdValues,
+      setInputValue,
+      setErrorMessage
+    );
 
-  document.addEventListener("mousemove", moveHandler as EventListener);
-  document.addEventListener(
-    "mouseup",
-    handleMouseUp(moveHandler as (moveEvent: TouchEvent | MouseEvent) => void) as EventListener
-  );
-};
-
-export const handleTouchStart = (
-  thresholdKey: keyof Thresholds,
-  thresholdValues: Thresholds,
-  sliderWidth: number,
-  setThresholdValues: React.Dispatch<React.SetStateAction<Thresholds>>,
-  setInputValue: React.Dispatch<React.SetStateAction<string>>,
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
-) => (event: { touches: { clientX: any; }[]; }) => {
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
-  }
-  setErrorMessage("");
-
-  const startX = event.touches[0].clientX;
-  const startValue = thresholdValues[thresholdKey];
-
-  setInputValue(startX.toString());
-  const moveHandler = handleTouchMove(
-    thresholdKey,
-    startX,
-    startValue,
-    thresholdValues,
-    sliderWidth,
-    setThresholdValues,
-    setInputValue,
-    setErrorMessage
-  );
-
-  setInputValue(startValue.toString());
-  document.addEventListener("touchmove", moveHandler);
-  document.addEventListener(
-    "touchend",
-    handleMouseUp(moveHandler as (moveEvent: TouchEvent | MouseEvent) => void) as EventListener
-  );
-};
+    setInputValue(startValue.toString());
+    document.addEventListener("touchmove", moveHandler);
+    document.addEventListener(
+      "touchend",
+      handleMouseUp(
+        moveHandler as (moveEvent: TouchEvent | MouseEvent) => void
+      ) as EventListener
+    );
+  };

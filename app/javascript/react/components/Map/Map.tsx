@@ -348,10 +348,11 @@ const Map = () => {
         )}
       </GoogleMap>
 
-      {
-        //This is temporary solution
-        !isMobile && <ThresholdsConfigurator isMapPage={true} />
-      }
+      {!isMobile && (
+        <S.ThresholdContainer>
+          <ThresholdsConfigurator hasDisclaimer={true} />
+        </S.ThresholdContainer>
+      )}
 
       {currentUserSettings === UserSettings.ModalView && (
         <SessionDetailsModal

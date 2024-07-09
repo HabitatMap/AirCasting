@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { gray100 } from "../../assets/styles/colors";
+import { gray100, white } from "../../assets/styles/colors";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
 import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
@@ -40,4 +40,51 @@ const Heading = styled(H3)`
   }
 `;
 
-export { StationDataContainer, CalendarPageLayout, Heading };
+const Units = styled.sup`
+  font-size: 1.4rem;
+  vertical-align: super;
+  position: relative;
+  top: -0.3rem;
+  right: -0.2rem;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-left: 0.2rem;
+`;
+
+const StyledContainer = styled.div`
+  display: inline;
+`;
+
+const ThresholdContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background-color: ${white};
+
+  @media ${media.desktop} {
+    padding: 3rem 10rem;
+    margin-bottom: 0;
+  }
+  @media ${media.smallDesktop} {
+    padding: 3rem 10rem;
+    margin-bottom: 0;
+  }
+  @media ${media.largeDesktop} {
+    padding: 3rem 10rem;
+    margin-bottom: 0;
+  }
+`;
+
+export {
+  StationDataContainer,
+  CalendarPageLayout,
+  Heading,
+  StyledContainer,
+  Units,
+  ThresholdContainer,
+};

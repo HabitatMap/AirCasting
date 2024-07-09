@@ -1,34 +1,17 @@
 import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
+import { Button } from "../Button/Button.style";
 import { media } from "../../utils/media";
 
 interface Props {
   $isMapPage?: boolean;
 }
 
-const Container = styled.div<Props>`
+const SliderContainer = styled.div<Props>`
   display: flex;
   flex-direction: column;
-  padding: ${(props) => (props.$isMapPage ? 0 : "1.5rem")};
-  margin-bottom: ${(props) => (props.$isMapPage ? 0 : "3rem")};
-  background: ${(props) => (props.$isMapPage ? "none" : colors.white)};
-  position: ${(props) => (props.$isMapPage ? "absolute" : "relative")};
   width: 100%;
-  ${(props) =>
-    props.$isMapPage &&
-    `
-    height: 6.4rem;
-    z-index: 2;
-    bottom: 0;
-    background-color: ${colors.white};
-    box-shadow: 2px 2px 4px 0px #4c56601a;
-  `}
-
-  @media (${media.desktop}) {
-    padding: ${(props) => (props.$isMapPage ? "0 10rem" : "3rem 10rem")};
-    margin-bottom: 0;
-  }
 `;
 
 const InputContainer = styled.div<Props>`
@@ -36,14 +19,56 @@ const InputContainer = styled.div<Props>`
   width: 100%;
   height: 70px;
   padding-left: 1.5rem;
-  margin-bottom: 1.5rem;
+  justify-content: space-between;
 
   @media (${media.desktop}) {
-    margin-bottom: ${(props) => (props.$isMapPage ? 0 : "3rem")};
     padding-left: 0;
     height: 30px;
     margin-bottom: 0;
   }
+`;
+
+const ResetButton = styled(Button)`
+  white-space: nowrap;
+  background: ${colors.gray100};
+  border: none;
+  color: ${colors.gray300};
+  width: fit-content;
+  margin-left: auto;
+  @media ${media.desktop} {
+    margin-left: 0;
+  }
+`;
+
+const ThresholdResetButton = styled(ResetButton)`
+  white-space: nowrap;
+  background: ${colors.gray100};
+  border: none;
+  color: ${colors.gray300};
+  width: fit-content;
+  height: 3.2rem;
+  @media ${media.desktop} {
+    margin-left: 0;
+  }
+`;
+
+const ThresholdsDisclaimer = styled.h3`
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: ${colors.gray300};
+  wrap: wrap;
+  width: 9.3rem;
+  padding: 0rem 0.5rem;
+  text-align: right;
+  /* compensate for the margin on first threshold thumb */
+  margin-right: 1.5rem;
+`;
+
+const DesktopContainer = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
 `;
 
 const RangeInput = styled.input<{
@@ -185,26 +210,34 @@ const ErrorMessage = styled.p`
 `;
 
 const Units = styled.sup`
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   vertical-align: super;
   position: relative;
-  top: -0.3rem;
-  right: -0.2rem;
   font-weight: 400;
   line-height: 1.6;
-  margin-left: 0.2rem;
+  color: ${colors.gray400};
 `;
 
 const StyledContainer = styled.div`
   display: inline;
 `;
 
+const Wrapper = styled.div`
+  display: flex;
+  gap: 1rem;
+`;
+
 export {
-  Container,
+  DesktopContainer,
   ErrorMessage,
   InputContainer,
   NumberInput,
   RangeInput,
+  ResetButton,
+  SliderContainer,
   StyledContainer,
+  ThresholdsDisclaimer,
+  ThresholdResetButton,
   Units,
+  Wrapper,
 };
