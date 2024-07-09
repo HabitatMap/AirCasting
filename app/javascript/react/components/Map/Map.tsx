@@ -41,6 +41,7 @@ import {
   resetUserThresholds,
 } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
+import { LatLngLiteral } from "../../types/googleMaps";
 import { SessionList } from "../../types/sessionType";
 import { pubSub } from "../../utils/pubSubManager";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -80,8 +81,12 @@ const Map = () => {
   });
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
-  const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
-  const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
+  const [currentCenter, setCurrentCenter] =
+    useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
+  const [currentZoom, setCurrentZoom] = useState<number>(DEFAULT_ZOOM);
+  const [previousCenter, setPreviousCenter] =
+    useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
+  const [previousZoom, setPreviousZoom] = useState<number>(DEFAULT_ZOOM);
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
     null
   );
@@ -178,6 +183,31 @@ const Map = () => {
     dispatch(fetchThresholds(thresholdFilters));
   }, [thresholdFilters]);
 
+  useEffect(() => {
+    zoomSetup();
+  }, [modalOpen, selectedStreamId]);
+
+  useEffect(() => {
+    console.log("previousZoom changed", previousZoom);
+    console.log("currentZoom changed", currentZoom);
+  }, [currentZoom, previousZoom]);
+
+  const zoomSetup = () => {
+    if (mapInstance) {
+      const newZoom = mapInstance?.getZoom();
+      if (newZoom !== currentZoom) {
+        setPreviousZoom(currentZoom);
+        setCurrentZoom(newZoom || DEFAULT_ZOOM);
+      }
+      // if (mapInstance.getCenter()?.toJSON() !== currentCenter) {
+      //   setPreviousCenter(currentCenter);
+      //   setCurrentCenter(
+      //     mapInstance.getCenter()?.toJSON() || DEFAULT_MAP_CENTER
+      //   );
+      // }
+    }
+  };
+
   // Callbacks
   const onIdle = useCallback(
     (event: MapEvent) => {
@@ -230,24 +260,12 @@ const Map = () => {
       setTimeout(() => {
         dispatch(setModalOpen(true));
       }, 0);
-
-      if (mapInstance) {
-        setPreviousZoom(mapInstance.getZoom() || DEFAULT_ZOOM);
-        setPreviousCenter(
-          mapInstance.getCenter()?.toJSON() || DEFAULT_MAP_CENTER
-        );
-      }
     }
 
     if (selectedStreamId) {
       dispatch(setModalOpen(false));
       setSelectedSessionId(null);
       setSelectedStreamId(null);
-
-      if (mapInstance) {
-        mapInstance.setZoom(previousZoom);
-        mapInstance.setCenter(previousCenter);
-      }
     }
   };
 
@@ -259,11 +277,6 @@ const Map = () => {
       setTimeout(() => {
         dispatch(setSessionsListOpen(true));
       }, 0);
-    }
-
-    if (mapInstance) {
-      mapInstance.setZoom(previousZoom);
-      mapInstance.setCenter(previousCenter);
     }
   };
 
@@ -281,10 +294,6 @@ const Map = () => {
         setTimeout(() => {
           dispatch(setSessionsListOpen(true));
         }, 0);
-      }
-      if (mapInstance) {
-        mapInstance.setZoom(previousZoom);
-        mapInstance.setCenter(previousCenter);
       }
     }
   }, [modalOpen]);
