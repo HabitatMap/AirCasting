@@ -187,11 +187,6 @@ const Map = () => {
     zoomSetup();
   }, [modalOpen, selectedStreamId]);
 
-  useEffect(() => {
-    console.log("previousZoom changed", previousCenter);
-    console.log("currentZoom changed", currentCenter);
-  }, [currentCenter, previousCenter]);
-
   const zoomSetup = () => {
     if (mapInstance) {
       const newZoom = mapInstance?.getZoom();
