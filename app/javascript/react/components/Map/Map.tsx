@@ -7,12 +7,17 @@ import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import pinImage from "../../assets/icons/pinImage.svg";
 import {
-    DEFAULT_MAP_BOUNDS, DEFAULT_MAP_CENTER, DEFAULT_ZOOM, MIN_ZOOM
+  DEFAULT_MAP_BOUNDS,
+  DEFAULT_MAP_CENTER,
+  DEFAULT_ZOOM,
+  MIN_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
 import {
-    selectFixedSessionPointsBySessionId, selectFixedSessionsList, selectFixedSessionsPoints,
-    selectFixedSessionsStatusFulfilled
+  selectFixedSessionPointsBySessionId,
+  selectFixedSessionsList,
+  selectFixedSessionsPoints,
+  selectFixedSessionsStatusFulfilled,
 } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
@@ -24,12 +29,17 @@ import {
   setSessionsListOpen,
 } from "../../store/mapSlice";
 import {
-    selectMobileSessionPointsBySessionId, selectMobileSessionsList, selectMobileSessionsPoints
+  selectMobileSessionPointsBySessionId,
+  selectMobileSessionsList,
+  selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
-import { fetchThresholds, resetUserThresholds } from "../../store/thresholdSlice";
+import {
+  fetchThresholds,
+  resetUserThresholds,
+} from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { pubSub } from "../../utils/pubSubManager";
@@ -309,10 +319,9 @@ const Map = () => {
         )}
       </GoogleMap>
 
-      {
-        //This is temprorary solution
-        !isMobile && <ThresholdsConfigurator isMapPage={true} />
-      }
+      <S.ThresholdContainer>
+        <ThresholdsConfigurator />
+      </S.ThresholdContainer>
 
       {modalOpen && (
         <SessionDetailsModal

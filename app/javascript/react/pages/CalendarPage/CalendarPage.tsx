@@ -22,6 +22,8 @@ import {
 } from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
+import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
+import { useTranslation } from "react-i18next";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
@@ -33,6 +35,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   const streamIdQuery = searchParams.get(STREAM_ID_QUERY_PARAMETER_NAME);
   const streamId = streamIdQuery && Number(streamIdQuery);
@@ -85,7 +88,21 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       <S.CalendarPageLayout>
         <S.StationDataContainer>
           <FixedStreamStationHeader />
-          {!isMobile && <ThresholdsConfigurator isMapPage={false} />}
+          {/* {!isMobile && (
+            <HeaderToggle
+              titleText={
+                <S.StyledContainer>
+                  {t("calendarHeader.legendTitle")}
+                  <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+                </S.StyledContainer>
+              }
+              componentToToggle={
+                <S.ThresholdContainer>
+                  <ThresholdsConfigurator />
+                </S.ThresholdContainer>
+              }
+            />
+          )} */}
           {calendarIsVisible ? (
             <Calendar
               streamId={streamId}
@@ -95,7 +112,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           ) : (
             <EmptyCalendar />
           )}
-          {isMobile && <ThresholdsConfigurator isMapPage={false} />}
+          {/* {isMobile && <ThresholdsConfigurator />} */}
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>
