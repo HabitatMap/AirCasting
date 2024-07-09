@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+
 import { useAppDispatch } from "../../store/hooks";
 import {
   selectSliderWidth,
@@ -25,6 +26,7 @@ import {
   handleTouchStart,
 } from "../../utils/thresholdGestureHandlers";
 import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 import * as S from "./ThresholdConfigurator.style";
 
@@ -47,6 +49,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const { t } = useTranslation();
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState<string>("");
+  const isMobile = useMobileDetection();
   const dispatch = useAppDispatch();
 
   const debouncedSetUserThresholdValues = useMemo(
@@ -99,9 +102,27 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const updateThumbPositionsHandler = useCallback(() => {
     if (sliderRef.current) {
       const { min, low, middle, high, max } = thresholdValues;
-      const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
-      const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
-      const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
+      const lowThumb = calculateThumbPosition(
+        low,
+        min,
+        max,
+        sliderWidth,
+        isMobile
+      );
+      const middleThumb = calculateThumbPosition(
+        middle,
+        min,
+        max,
+        sliderWidth,
+        isMobile
+      );
+      const highThumb = calculateThumbPosition(
+        high,
+        min,
+        max,
+        sliderWidth,
+        isMobile
+      );
 
       const thumbPositions = {
         low: lowThumb,
@@ -170,7 +191,15 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
         isMapPage={isMapPage}
         componentToToggle={
           <>
-            <S.InputContainer ref={sliderRef} onClick={handleSliderClick}>
+            <S.InputContainer
+              ref={sliderRef}
+              onClick={(event) =>
+                handleSliderClick(event as React.MouseEvent<HTMLDivElement>)
+              }
+              onTouchStart={(event) =>
+                handleSliderClick(event as React.TouchEvent<HTMLDivElement>)
+              }
+            >
               <S.NumberInput
                 inputMode="numeric"
                 type="number"
@@ -218,7 +247,8 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                               value,
                               min,
                               max,
-                              sliderWidth
+                              sliderWidth,
+                              isMobile
                             )}px`,
                       right:
                         value === max || value === max - maxThresholdDifference
