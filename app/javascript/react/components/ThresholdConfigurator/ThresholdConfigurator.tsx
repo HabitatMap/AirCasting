@@ -1,5 +1,6 @@
 import _ from "lodash";
 import React, {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -10,8 +11,12 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../store/hooks";
 import {
+  selectSliderWidth,
   selectThresholds,
+  selectThumbPositions,
   setUserThresholdValues,
+  updateSliderWidth,
+  updateThumbPositions,
 } from "../../store/thresholdSlice";
 import { Thresholds } from "../../types/thresholds";
 import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
@@ -23,7 +28,6 @@ import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
 import HeaderToggle from "../molecules/Calendar/HeaderToggle/HeaderToggle";
 import * as S from "./ThresholdConfigurator.style";
 
-interface ThumbPositions extends Omit<Thresholds, "min" | "max"> {}
 interface ThresholdsConfiguratorProps {
   isMapPage: boolean;
 }
@@ -34,16 +38,15 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   isMapPage,
 }) => {
   const thresholdsState = useSelector(selectThresholds);
+  const sliderWidth = useSelector(selectSliderWidth);
+  const thumbPositions = useSelector(selectThumbPositions);
+  const [errorMessage, setErrorMessage] = useState("");
   const [thresholdValues, setThresholdValues] = useState(thresholdsState);
-  const [thumbPositions, setThumbPositions] = useState<ThumbPositions>(
-    {} as ThumbPositions
-  );
-  const [sliderWidth, setSliderWidth] = useState(0);
+
   const sliderRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
-  const [errorMessage, setErrorMessage] = useState("");
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState<string>("");
   const dispatch = useAppDispatch();
 
   const debouncedSetUserThresholdValues = useMemo(
@@ -55,12 +58,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     [dispatch]
   );
 
-  useLayoutEffect(() => {
-    if (!_.isEqual(thresholdsState, thresholdValues)) {
-      debouncedSetUserThresholdValues(thresholdValues);
-    }
-  }, [thresholdValues, debouncedSetUserThresholdValues]);
-
   useEffect(() => {
     if (!_.isEqual(thresholdsState, thresholdValues)) {
       setThresholdValues(thresholdsState);
@@ -68,16 +65,28 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   }, [thresholdsState]);
 
   useEffect(() => {
-    const updateSliderWidth = () => {
-      if (sliderRef.current) {
-        setSliderWidth(sliderRef.current.offsetWidth);
-      }
-    };
+    if (!_.isEqual(thresholdsState, thresholdValues)) {
+      debouncedSetUserThresholdValues(thresholdValues);
+    }
+  }, [thresholdValues, debouncedSetUserThresholdValues]);
 
-    updateSliderWidth();
+  const updateSliderWidthHandler = useCallback(() => {
+    if (sliderRef.current) {
+      const computedStyle = getComputedStyle(sliderRef.current);
+      const width =
+        sliderRef.current.clientWidth -
+        parseFloat(computedStyle.paddingLeft) -
+        parseFloat(computedStyle.paddingRight);
+      dispatch(updateSliderWidth(width));
+      console.log("Slider width updated", width);
+    }
+  }, [dispatch]);
+
+  useLayoutEffect(() => {
+    updateSliderWidthHandler();
 
     const handleResize = () => {
-      setTimeout(updateSliderWidth, 100);
+      setTimeout(updateSliderWidthHandler, 100);
     };
 
     window.addEventListener("resize", handleResize);
@@ -85,11 +94,27 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [updateSliderWidthHandler]);
 
-  useEffect(() => {
-    updateThumbPositions();
-  }, [thresholdValues, sliderWidth]);
+  const updateThumbPositionsHandler = useCallback(() => {
+    if (sliderRef.current) {
+      const { min, low, middle, high, max } = thresholdValues;
+      const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
+      const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
+      const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
+
+      const thumbPositions = {
+        low: lowThumb,
+        middle: middleThumb,
+        high: highThumb,
+      };
+      dispatch(updateThumbPositions(thumbPositions));
+    }
+  }, [thresholdValues, sliderWidth, dispatch]);
+
+  useLayoutEffect(() => {
+    updateThumbPositionsHandler();
+  }, [thresholdValues, sliderWidth, updateThumbPositionsHandler]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -98,28 +123,13 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     return () => clearTimeout(timer);
   }, []);
 
-  const updateThumbPositions = () => {
-    if (sliderRef.current) {
-      const { min, low, middle, high, max } = thresholdValues;
-      const lowThumb = calculateThumbPosition(low, min, max, sliderWidth);
-      const middleThumb = calculateThumbPosition(middle, min, max, sliderWidth);
-      const highThumb = calculateThumbPosition(high, min, max, sliderWidth);
-
-      setThumbPositions({
-        low: lowThumb,
-        middle: middleThumb,
-        high: highThumb,
-      });
-    }
-  };
-
   const {
-    handleInputChange,
     handleInputBlur,
     handleInputFocus,
     handleInputKeyDown,
     handleOutsideClick,
     resetThresholds,
+    handleSliderClick,
   } = useThresholdHandlers(
     setThresholdValues,
     setInputValue,
@@ -128,7 +138,8 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     thresholdValues,
     sliderRef,
     activeInput,
-    inputValue
+    inputValue,
+    sliderWidth
   );
 
   useEffect(() => {
@@ -159,7 +170,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
         isMapPage={isMapPage}
         componentToToggle={
           <>
-            <S.InputContainer ref={sliderRef}>
+            <S.InputContainer ref={sliderRef} onClick={handleSliderClick}>
               <S.NumberInput
                 inputMode="numeric"
                 type="number"
@@ -181,9 +192,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                     $sliderWidth={sliderWidth}
                     type="range"
                     value={value}
-                    onChange={(e) =>
-                      handleInputChange(thresholdKey, e.target.value)
-                    }
+                    readOnly
                   />
                   <S.NumberInput
                     inputMode="numeric"
@@ -194,7 +203,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
                         : value.toString()
                     }
                     onFocus={() => handleInputFocus(thresholdKey)}
-                    onBlur={(e) => handleInputBlur(thresholdKey, inputValue)}
+                    onBlur={() => handleInputBlur(thresholdKey, inputValue)}
                     $isActive={activeInput === thresholdKey}
                     style={{
                       zIndex: 10,
