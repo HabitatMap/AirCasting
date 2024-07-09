@@ -259,7 +259,7 @@ const Map = () => {
       dispatch(updateUserSettings(UserSettings.ModalView));
     }
 
-    if (selectedFromSessionsList && isMobile) {
+    if (currentUserSettings === UserSettings.SessionListView && isMobile) {
       setModalOpenFromSessionsList(true);
       dispatch(updateUserSettings(UserSettings.ModalView));
     }
@@ -285,10 +285,10 @@ const Map = () => {
     setSelectedSessionId(null);
     dispatch(setModalOpen(false));
     dispatch(updateUserSettings(previousUserSettings));
-    if (modalOpenFromSessionsList) {
+    if (previousUserSettings === UserSettings.SessionListView && isMobile) {
       setTimeout(() => {
         dispatch(setSessionsListOpen(true));
-        dispatch(updateUserSettings(UserSettings.SessionView));
+        dispatch(updateUserSettings(UserSettings.SessionListView));
       }, 0);
     }
   };
@@ -303,10 +303,10 @@ const Map = () => {
     if (!modalOpen) {
       setSelectedStreamId(null);
       setSelectedSessionId(null);
-      if (modalOpenFromSessionsList) {
+      if (previousUserSettings === UserSettings.SessionListView) {
         setTimeout(() => {
           dispatch(setSessionsListOpen(true));
-          dispatch(updateUserSettings(UserSettings.SessionView));
+          dispatch(updateUserSettings(UserSettings.SessionListView));
         }, 0);
       }
     }
@@ -377,7 +377,7 @@ const Map = () => {
           alt={t("map.altListSessions")}
           onClick={() => {
             dispatch(setSessionsListOpen(true));
-            dispatch(updateUserSettings(UserSettings.SessionView));
+            dispatch(updateUserSettings(UserSettings.SessionListView));
           }}
         />
         {sessionsListOpen && (
