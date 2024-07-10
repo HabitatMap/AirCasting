@@ -22,7 +22,7 @@ import {
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { setLoading, setSessionsListOpen } from "../../store/mapSlice";
+import { setLoading } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -81,9 +81,9 @@ const Map = () => {
   });
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
-  const [currentCenter, setCurrentCenter] =
-    useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
-  const [currentZoom, setCurrentZoom] = useState<number>(DEFAULT_ZOOM);
+  // const [currentCenter, setCurrentCenter] =
+  //   useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
+  // const [currentZoom, setCurrentZoom] = useState<number>(DEFAULT_ZOOM);
   const [previousCenter, setPreviousCenter] =
     useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
   const [previousZoom, setPreviousZoom] = useState<number>(DEFAULT_ZOOM);
@@ -126,10 +126,6 @@ const Map = () => {
     fixedSessionTypeSelected
       ? selectFixedSessionsList
       : selectMobileSessionsList
-  );
-
-  const sessionsListOpen = useSelector(
-    (state: RootState) => state.map.sessionsListOpen
   );
 
   // Filters (temporary solution)
@@ -185,14 +181,19 @@ const Map = () => {
   }, [thresholdFilters]);
 
   useEffect(() => {
-    zoomSetup();
-  }, [selectedStreamId]);
+    setPreviousZoomOnTheMap();
+    setPreviousZoomInTheState();
+  }, [currentUserSettings]);
+
+  useEffect(() => {
+    console.log("previousCenter", previousCenter);
+    console.log("previousZoom", previousZoom);
+  }, [previousCenter, previousZoom]);
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
       setSelectedStreamId(null);
       setSelectedSessionId(null);
-      dispatch(updateUserSettings(previousUserSettings));
     }
   }, [currentUserSettings]);
 
@@ -237,15 +238,16 @@ const Map = () => {
     }
 
     if (!selectedStreamId) {
+      !isMobile && setPreviousZoomInTheState();
+
       setSelectedSessionId(id);
       setSelectedStreamId(streamId);
       dispatch(updateUserSettings(UserSettings.ModalView));
     }
 
     if (selectedStreamId) {
-      setSelectedSessionId(null);
-      setSelectedStreamId(null);
-      dispatch(updateUserSettings(UserSettings.MapView));
+      setPreviousZoomInTheState();
+      dispatch(updateUserSettings(previousUserSettings));
     }
   };
 
@@ -261,28 +263,40 @@ const Map = () => {
     dispatch(setLoading(true));
   };
 
-  const zoomSetup = () => {
+  const setPreviousZoomOnTheMap = () => {
     if (mapInstance) {
-      const newZoom = mapInstance?.getZoom();
-      const newCenter = mapInstance.getCenter()?.toJSON();
-      if (newZoom !== currentZoom) {
-        setPreviousZoom(currentZoom);
-        setCurrentZoom(newZoom || DEFAULT_ZOOM);
-      }
-      if (newCenter !== currentCenter) {
-        setPreviousCenter(currentCenter);
-        setCurrentCenter(newCenter || DEFAULT_MAP_CENTER);
+      if (currentUserSettings === UserSettings.MapView) {
+        mapInstance.setCenter(previousCenter);
+        mapInstance.setZoom(previousZoom);
       }
     }
   };
 
-  useEffect(() => {
-    console.log(currentUserSettings, "currentUserSettings");
-  }, [currentUserSettings]);
+  const setPreviousZoomInTheState = () => {
+    if (mapInstance) {
+      console.log("currentUserSettings", currentUserSettings);
+      console.log("previousUserSettings", previousUserSettings);
+      if (
+        currentUserSettings === UserSettings.MapView ||
+        (previousUserSettings === UserSettings.MapView &&
+          [UserSettings.SessionListView, UserSettings.CalendarView].includes(
+            currentUserSettings
+          ))
+      ) {
+        const newZoom = mapInstance?.getZoom();
+        console.log("newZoom", newZoom);
+        console.log("previousZoom", previousZoom);
 
-  useEffect(() => {
-    console.log(previousUserSettings, "previousUserSettings");
-  }, [previousUserSettings]);
+        const newCenter = mapInstance.getCenter()?.toJSON();
+        if (newZoom !== previousZoom) {
+          setPreviousZoom(newZoom || DEFAULT_ZOOM);
+        }
+        if (newCenter !== previousCenter) {
+          setPreviousCenter(newCenter || DEFAULT_MAP_CENTER);
+        }
+      }
+    }
+  };
 
   return (
     <>
@@ -348,11 +362,10 @@ const Map = () => {
           image={pinImage}
           alt={t("map.altListSessions")}
           onClick={() => {
-            dispatch(setSessionsListOpen(true));
             dispatch(updateUserSettings(UserSettings.SessionListView));
           }}
         />
-        {sessionsListOpen && (
+        {currentUserSettings === UserSettings.SessionListView && (
           <MobileSessionList
             sessions={listSessions.map((session: SessionList) => ({
               id: session.id,
@@ -365,13 +378,11 @@ const Map = () => {
             }))}
             onCellClick={(id, streamId) => {
               if (!fixedSessionTypeSelected) {
-                dispatch(setSessionsListOpen(false));
                 pubSub.publish("CENTER_MAP", id);
               }
               handleMarkerClick(streamId, id);
             }}
             onClose={() => {
-              dispatch(setSessionsListOpen(false));
               dispatch(updateUserSettings(UserSettings.MapView));
             }}
           />

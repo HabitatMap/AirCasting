@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from ".";
+
 import { MAP_CONFIGS, MAP_ID } from "../components/Map/mapConfigs";
 import { DEFAULT_MAP_CENTER } from "../const/coordinates";
 import { LatLngLiteral } from "../types/googleMaps";
+import { RootState } from "./";
 
 interface MapState {
   mapConfigId: string;
@@ -10,7 +11,6 @@ interface MapState {
   mapId: string;
   location: LatLngLiteral;
   loading: boolean;
-  sessionsListOpen: boolean;
   hoverStreamId: number | null;
   position: LatLngLiteral;
 }
@@ -21,7 +21,6 @@ const initialState: MapState = {
   mapId: MAP_ID,
   location: DEFAULT_MAP_CENTER,
   loading: true,
-  sessionsListOpen: false,
   hoverStreamId: null,
   position: DEFAULT_MAP_CENTER,
 };
@@ -45,9 +44,6 @@ const mapSlice = createSlice({
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
-    setSessionsListOpen(state, action: PayloadAction<boolean>) {
-      state.sessionsListOpen = action.payload;
-    },
     setHoverStreamId(state, action: PayloadAction<number | null>) {
       state.hoverStreamId = action.payload;
     },
@@ -63,7 +59,6 @@ export const {
   setMapId,
   setLocation,
   setLoading,
-  setSessionsListOpen,
   setHoverStreamId,
   setHoverPosition,
 } = mapSlice.actions;

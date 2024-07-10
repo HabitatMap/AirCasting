@@ -1,12 +1,11 @@
 import React from "react";
-
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
 import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
 import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
-import { RootState } from "../../store";
 import { useAppDispatch } from "../../store/hooks";
 import {
   selectUserSettingsState,
@@ -16,8 +15,8 @@ import { UserSettings } from "../../types/userStates";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import { RefreshMapButton } from "../RefreshMapButton";
-import NavList from "./NavList/NavList";
 import * as S from "./Navbar.style";
+import NavList from "./NavList/NavList";
 
 export const MobileHeader = ({
   toggleMenuVisibility,
@@ -88,9 +87,6 @@ export const MobileHeader = ({
 };
 
 export const MobileCalendarHeader = ({ t }: { t: Function }) => {
-  const sessionsListOpen = useSelector(
-    (state: RootState) => state.map.sessionsListOpen
-  );
   const { previousUserSettings } = useSelector(selectUserSettingsState);
 
   const navigate = useNavigate();
@@ -110,7 +106,9 @@ export const MobileCalendarHeader = ({ t }: { t: Function }) => {
           alt={t("navbar.altGoBackIcon")}
           aria-label={t("navbar.goBackToSessions")}
         />
-        {sessionsListOpen ? t("navbar.goBackToSessions") : t("navbar.goBack")}
+        {previousUserSettings === UserSettings.SessionListView
+          ? t("navbar.goBackToSessions")
+          : t("navbar.goBackToMap")}
       </S.GoBack>
     </S.MobileContainer>
   );
