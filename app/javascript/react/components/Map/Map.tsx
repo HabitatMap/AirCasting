@@ -238,8 +238,6 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
-      setSelectedSessionId(null);
-      setSelectedStreamId(null);
       dispatch(updateUserSettings(previousUserSettings));
     }
   };
