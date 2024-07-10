@@ -42,31 +42,40 @@ const ThresholdContainer = styled.div`
   justify-content: center;
   flex-direction: column;
   position: absolute;
-  grid-template-columns: 1fr auto;
+
   grid-gap: 5rem;
   width: 100%;
   bottom: 0;
-  padding: 1.6rem 4.1rem;
+
   z-index: 2;
   background-color: ${colors.white};
   box-shadow: 2px 2px 4px 0px #4c56601a;
 
   @media (${media.desktop}) {
+    padding: 1.6rem 4.1rem;
     height: 6.4rem;
+    grid-template-columns: 1fr auto;
     margin-bottom: 0;
   }
+
   @media (${media.smallDesktop}) {
+    padding: 1.6rem 4.1rem;
     height: 6.4rem;
+    grid-template-columns: 1fr auto;
     margin-bottom: 0;
   }
+
   @media (${media.largeDesktop}) {
+    padding: 1.6rem 4.1rem;
     height: 6.4rem;
+    grid-template-columns: 1fr auto;
     margin-bottom: 0;
   }
 
   @media (${media.mobile}) {
     height: 4.7rem;
     margin-bottom: 0;
+    grid-template-columns: 1fr;
   }
 `;
 

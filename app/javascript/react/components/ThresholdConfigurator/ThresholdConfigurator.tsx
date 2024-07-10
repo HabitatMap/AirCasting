@@ -31,14 +31,19 @@ import * as S from "./ThresholdConfigurator.style";
 import returnArrow from "../../assets/icons/returnArrow.svg";
 
 interface ThresholdsConfiguratorProps {
-  resetThresholds?: () => void;
-  hasDisclaimer?: boolean;
+  showResetButton?: boolean;
+  showResetButtonWithText?: boolean;
+  isMobileOldStyle?: boolean;
+  styles?: any;
 }
 
 const maxThresholdDifference = 1;
 
 const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
-  hasDisclaimer,
+  showResetButton = false,
+  showResetButtonWithText = false,
+  isMobileOldStyle = false,
+  styles = S,
 }) => {
   const thresholdsState = useSelector(selectThresholds);
   const sliderWidth = useSelector(selectSliderWidth);
@@ -175,7 +180,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const thumbData = Object.entries(thumbs) as [keyof Thresholds, number][];
 
   const displayResetButton = () => {
-    if (!resetThresholds) return null;
+    if (!showResetButton) return null;
     return (
       <S.ThresholdResetButton onClick={resetThresholds}>
         <img
@@ -186,120 +191,190 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     );
   };
 
-  return (
-    <>
-      <S.DesktopContainer>
-        {!isMobile && (
-          <S.ThresholdsDisclaimer>
-            {t("thresholdConfigurator.disclaimer")}
-          </S.ThresholdsDisclaimer>
-        )}
-        <S.SliderContainer>
-          {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
+  const displayResetButtonWithText = () => {
+    if (!showResetButtonWithText) return null;
+    return (
+      <S.ResetButton onClick={resetThresholds}>
+        {t("thresholdConfigurator.resetButton")}
+        <img
+          src={returnArrow}
+          alt={t("thresholdConfigurator.altResetButton")}
+        />
+      </S.ResetButton>
+    );
+  };
 
-          <S.InputContainer
-            ref={sliderRef}
-            onClick={(event) =>
-              handleSliderClick(event as React.MouseEvent<HTMLDivElement>)
-            }
-            onTouchStart={(event) =>
-              handleSliderClick(event as React.TouchEvent<HTMLDivElement>)
-            }
-          >
-            <S.NumberInput
-              inputMode="numeric"
-              type="number"
-              step={1}
-              value={activeInput === "min" ? inputValue : min.toString()}
-              onFocus={() => handleInputFocus("min")}
-              onBlur={() => handleInputBlur("min", inputValue)}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleInputKeyDown("min")}
+  const oldStyleSliderHandles = () => {
+    return (
+      <>
+        {thumbData.map(([thresholdKey, value]) => (
+          <React.Fragment key={thresholdKey}>
+            <S.OldStyleSliderHandles
+              style={{
+                left: `${calculateThumbPosition(
+                  value,
+                  min,
+                  max,
+                  sliderWidth,
+                  isMobile
+                )}px`,
+              }}
+              onTouchStart={(event: React.TouchEvent<HTMLInputElement>) =>
+                handleTouchStart(
+                  thresholdKey,
+                  thresholdValues,
+                  sliderWidth,
+                  setThresholdValues,
+                  setInputValue,
+                  setErrorMessage
+                )({ touches: [{ clientX: event.touches[0].clientX }] })
+              }
+              onMouseDown={handleMouseDown(
+                thresholdKey,
+                thresholdValues,
+                sliderWidth,
+                setThresholdValues,
+                setInputValue,
+                setErrorMessage
+              )}
+              onKeyDown={handleInputKeyDown(thresholdKey)}
+            >
+              <S.OldStyleSliderHandle />
+              <S.OldStyleSliderText>{value}</S.OldStyleSliderText>
+            </S.OldStyleSliderHandles>
+          </React.Fragment>
+        ))}
+      </>
+    );
+  };
+
+  const renderSlider = () => (
+    <S.SliderContainer>
+      {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
+      <S.InputContainer
+        ref={sliderRef}
+        onClick={(event) =>
+          handleSliderClick(event as React.MouseEvent<HTMLDivElement>)
+        }
+        onTouchStart={(event) =>
+          handleSliderClick(event as React.TouchEvent<HTMLDivElement>)
+        }
+      >
+        {!isMobileOldStyle && (
+          <S.NumberInput
+            inputMode="numeric"
+            type="number"
+            step={1}
+            value={activeInput === "min" ? inputValue : min.toString()}
+            onFocus={() => handleInputFocus("min")}
+            onBlur={() => handleInputBlur("min", inputValue)}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleInputKeyDown("min")}
+          />
+        )}
+        {thumbData.map(([thresholdKey, value]) => (
+          <React.Fragment key={thresholdKey}>
+            <S.RangeInput
+              min={min}
+              max={max}
+              $firstThumbPos={thumbPositions.low}
+              $secondThumbPos={thumbPositions.middle}
+              $thirdThumbPos={thumbPositions.high}
+              $sliderWidth={sliderWidth}
+              type="range"
+              value={value}
+              readOnly
             />
-            {thumbData.map(([thresholdKey, value]) => (
-              <React.Fragment key={thresholdKey}>
-                <S.RangeInput
-                  min={min}
-                  max={max}
-                  $firstThumbPos={thumbPositions.low}
-                  $secondThumbPos={thumbPositions.middle}
-                  $thirdThumbPos={thumbPositions.high}
-                  $sliderWidth={sliderWidth}
-                  type="range"
-                  value={value}
-                  readOnly
-                />
-                <S.NumberInput
-                  inputMode="numeric"
-                  type="number"
-                  value={
-                    activeInput === thresholdKey ? inputValue : value.toString()
-                  }
-                  onFocus={() => handleInputFocus(thresholdKey)}
-                  onBlur={() => handleInputBlur(thresholdKey, inputValue)}
-                  $isActive={activeInput === thresholdKey}
-                  style={{
-                    zIndex: 10,
-                    marginLeft:
-                      value === min || value === max - maxThresholdDifference
-                        ? "0px"
-                        : "-15px",
-                    left:
-                      value === max || value === max - maxThresholdDifference
-                        ? "auto"
-                        : `${calculateThumbPosition(
-                            value,
-                            min,
-                            max,
-                            sliderWidth,
-                            isMobile
-                          )}px`,
-                    right:
-                      value === max || value === max - maxThresholdDifference
-                        ? "0px"
-                        : "auto",
-                  }}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onTouchStart={(event: React.TouchEvent<HTMLInputElement>) =>
-                    handleTouchStart(
-                      thresholdKey,
-                      thresholdValues,
-                      sliderWidth,
-                      setThresholdValues,
-                      setInputValue,
-                      setErrorMessage
-                    )({ touches: [{ clientX: event.touches[0].clientX }] })
-                  }
-                  onMouseDown={handleMouseDown(
+            {!isMobileOldStyle && (
+              <S.NumberInput
+                inputMode="numeric"
+                type="number"
+                value={
+                  activeInput === thresholdKey ? inputValue : value.toString()
+                }
+                onFocus={() => handleInputFocus(thresholdKey)}
+                onBlur={() => handleInputBlur(thresholdKey, inputValue)}
+                $isActive={activeInput === thresholdKey}
+                style={{
+                  zIndex: 10,
+                  marginLeft:
+                    value === min || value === max - maxThresholdDifference
+                      ? "0px"
+                      : "-15px",
+                  left:
+                    value === max || value === max - maxThresholdDifference
+                      ? "auto"
+                      : `${calculateThumbPosition(
+                          value,
+                          min,
+                          max,
+                          sliderWidth,
+                          isMobile
+                        )}px`,
+                  right:
+                    value === max || value === max - maxThresholdDifference
+                      ? "0px"
+                      : "auto",
+                }}
+                onChange={(e) => setInputValue(e.target.value)}
+                onTouchStart={(event: React.TouchEvent<HTMLInputElement>) =>
+                  handleTouchStart(
                     thresholdKey,
                     thresholdValues,
                     sliderWidth,
                     setThresholdValues,
                     setInputValue,
                     setErrorMessage
-                  )}
-                  onKeyDown={handleInputKeyDown(thresholdKey)}
-                />
-              </React.Fragment>
-            ))}
-            <S.NumberInput
-              inputMode="numeric"
-              type="number"
-              step={1}
-              $isLast
-              value={activeInput === "max" ? inputValue : max.toString()}
-              onFocus={() => handleInputFocus("max")}
-              onBlur={() => handleInputBlur("max", inputValue)}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleInputKeyDown("max")}
-            />
-          </S.InputContainer>
-        </S.SliderContainer>
-        {!isMobile && (
-          <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+                  )({ touches: [{ clientX: event.touches[0].clientX }] })
+                }
+                onMouseDown={handleMouseDown(
+                  thresholdKey,
+                  thresholdValues,
+                  sliderWidth,
+                  setThresholdValues,
+                  setInputValue,
+                  setErrorMessage
+                )}
+                onKeyDown={handleInputKeyDown(thresholdKey)}
+              />
+            )}
+          </React.Fragment>
+        ))}
+        {!isMobileOldStyle && (
+          <S.NumberInput
+            inputMode="numeric"
+            type="number"
+            step={1}
+            $isLast
+            value={activeInput === "max" ? inputValue : max.toString()}
+            onFocus={() => handleInputFocus("max")}
+            onBlur={() => handleInputBlur("max", inputValue)}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleInputKeyDown("max")}
+          />
         )}
+        {isMobileOldStyle && oldStyleSliderHandles()}
+      </S.InputContainer>
+    </S.SliderContainer>
+  );
+
+  return isMobile ? (
+    <>
+      {renderSlider()}
+      {displayResetButton()}
+      {displayResetButtonWithText()}
+    </>
+  ) : (
+    <>
+      <S.DesktopContainer>
+        <S.ThresholdsDisclaimer>
+          {t("thresholdConfigurator.disclaimer")}
+        </S.ThresholdsDisclaimer>
+        {renderSlider()}
+        <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
       </S.DesktopContainer>
       {displayResetButton()}
+      {displayResetButtonWithText()}
     </>
   );
 };

@@ -26,10 +26,6 @@ const InputContainer = styled.div<Props>`
     height: 30px;
     margin-bottom: 0;
   }
-
-  @media ${media.mobile} {
-    height: 4.7rem;
-  }
 `;
 
 const ResetButton = styled(Button)`
@@ -39,7 +35,7 @@ const ResetButton = styled(Button)`
   color: ${colors.gray300};
   width: fit-content;
   margin-left: auto;
-  @media ${media.desktop}) {
+  @media ${media.desktop} {
     margin-left: 0;
   }
 `;
@@ -75,7 +71,6 @@ const DesktopContainer = styled.div`
 
   @media ${media.desktop} {
     grid-template-columns: auto 1fr auto;
-    grid-template-rows: auto;
     gap: 1rem;
   }
 
@@ -93,9 +88,8 @@ const RangeInput = styled.input<{
   width: 100%;
   position: absolute;
   top: 50%;
-  margin-left: -15px;
   transform: translateY(-50%);
-  height: 9px;
+  height: 3px;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -139,15 +133,6 @@ const RangeInput = styled.input<{
   &::-moz-focus-outer {
     border: 0;
   }
-  @media (${media.desktop}) {
-    margin-left: 0;
-  }
-
-  @media ${media.mobile} {
-    height: 3px;
-    top: 60%; /* Move the range input down */
-    transform: translateY(-50%);
-  }
 `;
 
 const NumberInput = styled.input<{
@@ -164,9 +149,9 @@ const NumberInput = styled.input<{
   top: 10px;
   right: ${(props) => (props.$isLast ? "0px" : "auto")};
   max-width: 30px;
-  height: 50px;
+  height: 12px;
   margin-left: -15px;
-  border-radius: 5px;
+  border-radius: 15px;
   border: 1px solid ${colors.gray100};
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   z-index: 5;
@@ -246,42 +231,11 @@ const Wrapper = styled.div`
   gap: 1rem;
 `;
 
-const OldStyleSliderHandles = styled.div`
-  position: absolute;
-  top: 60%; /* Center it vertically within the input container */
-  transform: translate(-50%, -50%);
-  cursor: pointer;
-  z-index: 10;
-  margin-left: 7px;
-`;
-
-const OldStyleSliderHandle = styled.div`
-  width: 16px;
-  height: 16px;
-  background-color: ${colors.white};
-  box-shadow: rgba(166, 166, 166, 0.5) 0px 2px 4px;
-
-  border-radius: 50%;
-`;
-
-const OldStyleSliderText = styled.p`
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: ${colors.gray300};
-  position: absolute;
-  top: -16px; /* Adjust this value to position the text above the handle */
-  left: 50%;
-  transform: translateX(-50%);
-`;
-
 export {
   DesktopContainer,
   ErrorMessage,
   InputContainer,
   NumberInput,
-  OldStyleSliderHandle,
-  OldStyleSliderHandles,
-  OldStyleSliderText,
   RangeInput,
   ResetButton,
   SliderContainer,

@@ -348,9 +348,13 @@ const Map = () => {
         )}
       </GoogleMap>
 
-      {!isMobile && (
+      {/* Show ThresholdsConfigurator only on desktop, if it's mobile, it should only be shown when modal is open */}
+      {(!isMobile || (isMobile && modalOpen)) && (
         <S.ThresholdContainer>
-          <ThresholdsConfigurator hasDisclaimer={true} />
+          <ThresholdsConfigurator
+            showResetButton={!isMobile}
+            isMobileOldStyle={isMobile && modalOpen}
+          />
         </S.ThresholdContainer>
       )}
 
