@@ -106,7 +106,7 @@
     "legendTile": "Legend",
     "altLegendTile": "Show the measurements legend for the map",
     "legend": {
-      "title": "Measurements legend",
+      "title": "Legend customization",
       "resetRangesButton": "Reset ranges",
       "applyButton": "Apply"
     }
