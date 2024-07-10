@@ -183,7 +183,6 @@ const Map = () => {
 
   useEffect(() => {
     setPreviousZoomOnTheMap();
-    setPreviousZoomInTheState();
   }, [currentUserSettings]);
 
   useEffect(() => {
@@ -220,6 +219,8 @@ const Map = () => {
 
   //Handlers;
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
+    setPreviousZoomInTheState();
+
     if (streamId) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
@@ -228,24 +229,18 @@ const Map = () => {
 
     if (isMobile) {
       if (fixedSessionTypeSelected) {
-        setPreviousZoomInTheState();
         navigate(`/fixed_stream?streamId=${streamId}`);
         return;
       }
     }
 
     if (!selectedStreamId) {
-      !isMobile &&
-        currentUserSettings !== UserSettings.SessionListView &&
-        setPreviousZoomInTheState();
-
       setSelectedSessionId(id);
       setSelectedStreamId(streamId);
       dispatch(updateUserSettings(UserSettings.ModalView));
     }
 
     if (selectedStreamId) {
-      setPreviousZoomInTheState();
       dispatch(updateUserSettings(previousUserSettings));
     }
   };
@@ -273,13 +268,7 @@ const Map = () => {
 
   const setPreviousZoomInTheState = () => {
     if (mapInstance) {
-      if (
-        currentUserSettings === UserSettings.MapView ||
-        (previousUserSettings === UserSettings.MapView &&
-          [UserSettings.SessionListView, UserSettings.CalendarView].includes(
-            currentUserSettings
-          ))
-      ) {
+      if (currentUserSettings !== UserSettings.ModalView) {
         const newZoom = mapInstance?.getZoom();
         const newCenter = mapInstance.getCenter()?.toJSON();
         if (newZoom !== previousZoom) {
