@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-import { Month } from "./atoms/Month";
 import { useTranslation } from "react-i18next";
-import HeaderToggle from "./HeaderToggle/HeaderToggle";
-import { ScrollCalendarButton } from "./atoms/ScrollCalendarButton/ScrollCalendarButton";
+import { useAppDispatch } from "../../../store/hooks";
+import { updateUserSettings } from "../../../store/userSettingsSlice";
 import { MovesKeys } from "../../../types/movesKeys";
+import { UserSettings } from "../../../types/userStates";
 import * as S from "./Calendar.style";
 import useCalendarHook from "./CalendarHook";
+import HeaderToggle from "./HeaderToggle/HeaderToggle";
+import { Month } from "./atoms/Month";
+import { ScrollCalendarButton } from "./atoms/ScrollCalendarButton/ScrollCalendarButton";
 
 interface CalendarProps {
   streamId: number;
@@ -29,7 +32,12 @@ const Calendar: React.FC<CalendarProps> = ({
   } = useCalendarHook({ streamId, minCalendarDate, maxCalendarDate });
 
   const { t } = useTranslation();
-  
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(updateUserSettings(UserSettings.CalendarView));
+  }, []);
+
   return (
     threeMonthsData && (
       <S.CalendarContainer>

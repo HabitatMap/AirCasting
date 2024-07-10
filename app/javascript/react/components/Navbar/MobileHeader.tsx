@@ -8,11 +8,11 @@ import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
 import { RootState } from "../../store";
 import { useAppDispatch } from "../../store/hooks";
-import { selectModalOpen, setModalOpen } from "../../store/mapSlice";
 import {
   selectUserSettingsState,
   updateUserSettings,
 } from "../../store/userSettingsSlice";
+import { UserSettings } from "../../types/userStates";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import { RefreshMapButton } from "../RefreshMapButton";
@@ -28,17 +28,17 @@ export const MobileHeader = ({
   navMenuVisible: boolean;
   t: Function;
 }) => {
-  const modalOpen = useSelector(selectModalOpen);
-  const { previousUserSettings } = useSelector(selectUserSettingsState);
+  const { currentUserSettings, previousUserSettings } = useSelector(
+    selectUserSettingsState
+  );
 
   const dispatch = useAppDispatch();
 
   return (
     <S.MobileHeaderContainer>
-      {modalOpen ? (
+      {currentUserSettings === UserSettings.ModalView ? (
         <S.GoBack
           onClick={() => {
-            dispatch(setModalOpen(false));
             dispatch(updateUserSettings(previousUserSettings));
           }}
           aria-label={t("navbar.mapPage")}
@@ -48,7 +48,9 @@ export const MobileHeader = ({
             alt={t("navbar.altGoBackIcon")}
             aria-label={t("navbar.goBackToSessions")}
           />
-          {t("navbar.goBack")}
+          {previousUserSettings === UserSettings.SessionListView
+            ? t("navbar.goBackToSessions")
+            : t("navbar.goBackToMap")}
         </S.GoBack>
       ) : (
         <>

@@ -1,6 +1,6 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts/highstock";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
@@ -48,6 +48,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     fixedSessionTypeSelected ? 0 : 2
   );
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
+  const [initialExtremesUpdated, setInitialExtremesUpdated] = useState(false);
 
   const thresholdsState = useSelector(selectThresholds);
   const isLoading = useSelector(selectIsLoading);
@@ -65,38 +66,62 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const isMobile = useMobileDetection();
   const dispatch = useAppDispatch();
 
-  const fixedSeriesData = (fixedGraphData?.measurements || [])
-    .map((measurement: { time: any; value: any }) => [
-      measurement.time,
-      measurement.value,
-    ])
-    .sort((a, b) => a[0] - b[0]);
+  const fixedSeriesData = useMemo(
+    () =>
+      (fixedGraphData?.measurements || [])
+        .map((measurement: { time: any; value: any }) => [
+          measurement.time,
+          measurement.value,
+        ])
+        .sort((a, b) => a[0] - b[0]),
+    [fixedGraphData]
+  );
 
-  const mobileSeriesData = mobileGraphData
-    .map((measurement) => ({
-      x: measurement.time,
-      y: measurement.lastMeasurementValue,
-      position: {
-        lat: measurement.point.lat,
-        lng: measurement.point.lng,
-      } as LatLngLiteral,
-    }))
-    .filter((point) => point.x !== undefined)
-    .sort((a, b) => (a.x as number) - (b.x as number));
+  const mobileSeriesData = useMemo(
+    () =>
+      mobileGraphData
+        .map((measurement) => ({
+          x: measurement.time,
+          y: measurement.lastMeasurementValue,
+          position: {
+            lat: measurement.point.lat,
+            lng: measurement.point.lng,
+          } as LatLngLiteral,
+        }))
+        .filter((point) => point.x !== undefined)
+        .sort((a, b) => (a.x as number) - (b.x as number)),
+    [mobileGraphData]
+  );
 
   const seriesData = fixedSessionTypeSelected
     ? fixedSeriesData
     : mobileSeriesData;
 
-  const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected, isMobile);
+  const xAxisOptions = getXAxisOptions(
+    fixedSessionTypeSelected,
+    isMobile,
+    (min, max) => {
+      if (!initialExtremesUpdated) {
+        dispatch(
+          fixedSessionTypeSelected
+            ? updateFixedMeasurementExtremes({ min, max })
+            : updateMobileMeasurementExtremes({ min, max })
+        );
+        setInitialExtremesUpdated(true);
+      }
+    }
+  );
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
 
-  const totalDuration =
-    seriesData.length > 0
-      ? (seriesData[seriesData.length - 1] as any)[0] -
-        (seriesData[0] as any)[0]
-      : 0;
+  const totalDuration = useMemo(
+    () =>
+      seriesData.length > 0
+        ? (seriesData[seriesData.length - 1] as any)[0] -
+          (seriesData[0] as any)[0]
+        : 0,
+    [seriesData]
+  );
 
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected,
@@ -108,7 +133,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const responsive = getResponsiveOptions(thresholdsState);
 
   useEffect(() => {
-    if (seriesData.length > 0 && !isLoading) {
+    if (seriesData.length > 0 && !isLoading && !initialExtremesUpdated) {
       if (fixedSessionTypeSelected) {
         const newestMeasurement = fixedSeriesData[fixedSeriesData.length - 1];
         const minTime = newestMeasurement[0] - MILLISECONDS_IN_A_DAY;
@@ -118,17 +143,21 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
             updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
           );
           setChartDataLoaded(true);
+          setInitialExtremesUpdated(true);
         }
       } else {
         const minTime = Math.min(...mobileSeriesData.map((m) => m.x as number));
         const maxTime = Math.max(...mobileSeriesData.map((m) => m.x as number));
-        dispatch(
-          updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
-        );
-        setChartDataLoaded(true);
+        if (minTime && maxTime) {
+          dispatch(
+            updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
+          );
+          setChartDataLoaded(true);
+          setInitialExtremesUpdated(true);
+        }
       }
     }
-  }, [seriesData, isLoading]);
+  }, [initialExtremesUpdated]);
 
   useEffect(() => {
     const graphElement = graphRef.current;

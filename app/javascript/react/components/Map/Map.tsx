@@ -22,12 +22,7 @@ import {
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import {
-  selectModalOpen,
-  setLoading,
-  setModalOpen,
-  setSessionsListOpen,
-} from "../../store/mapSlice";
+import { setLoading, setSessionsListOpen } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -102,8 +97,6 @@ const Map = () => {
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
-  const [modalOpenFromSessionsList, setModalOpenFromSessionsList] =
-    useState(false);
 
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
@@ -122,16 +115,12 @@ const Map = () => {
   const mobilePoints = selectedSessionId
     ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectMobileSessionsPoints);
-  const modalOpen = useSelector(selectModalOpen);
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   const { previousUserSettings, currentUserSettings } = useSelector(
     selectUserSettingsState
   );
-
-  console.log("currentUserSettings", currentUserSettings);
-  console.log("previousUserSettings", previousUserSettings);
 
   const listSessions = useSelector(
     fixedSessionTypeSelected
@@ -189,7 +178,7 @@ const Map = () => {
         : dispatch(fetchMobileSessions({ filters }));
       dispatch(setLoading(false));
     }
-  }, [dispatch, filters, loading, fixedSessionTypeSelected]);
+  }, [filters, loading, fixedSessionTypeSelected]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
@@ -197,7 +186,80 @@ const Map = () => {
 
   useEffect(() => {
     zoomSetup();
-  }, [modalOpen, selectedStreamId]);
+  }, [selectedStreamId]);
+
+  useEffect(() => {
+    if (currentUserSettings !== UserSettings.ModalView) {
+      setSelectedStreamId(null);
+      setSelectedSessionId(null);
+      dispatch(updateUserSettings(previousUserSettings));
+    }
+  }, [currentUserSettings]);
+
+  // Callbacks
+  const onIdle = useCallback(
+    (event: MapEvent) => {
+      if (currentUserSettings === UserSettings.MapView) {
+        const map = event.map;
+        if (!mapInstance) {
+          setMapInstance(map);
+          map.setOptions({
+            clickableIcons: false,
+          });
+        }
+        const bounds = map?.getBounds();
+        if (!bounds) {
+          return;
+        }
+        const north = bounds.getNorthEast().lat();
+        const south = bounds.getSouthWest().lat();
+        const east = bounds.getNorthEast().lng();
+        const west = bounds.getSouthWest().lng();
+        setMapBounds({ north, south, east, west });
+      }
+    },
+    [mapInstance]
+  );
+
+  //Handlers;
+  const handleMarkerClick = (streamId: number | null, id: number | null) => {
+    if (streamId) {
+      fixedSessionTypeSelected
+        ? dispatch(fetchFixedStreamById(streamId))
+        : dispatch(fetchMobileStreamById(streamId));
+    }
+
+    if (isMobile) {
+      if (fixedSessionTypeSelected) {
+        navigate(`/fixed_stream?streamId=${streamId}`);
+        return;
+      }
+    }
+
+    if (!selectedStreamId) {
+      setSelectedSessionId(id);
+      setSelectedStreamId(streamId);
+      dispatch(updateUserSettings(UserSettings.ModalView));
+    }
+
+    if (selectedStreamId) {
+      setSelectedSessionId(null);
+      setSelectedStreamId(null);
+      dispatch(updateUserSettings(UserSettings.MapView));
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSelectedStreamId(null);
+    setSelectedSessionId(null);
+    dispatch(updateUserSettings(previousUserSettings));
+  };
+
+  const handleClick = (type: SessionType) => {
+    setSelectedSessionType(type);
+    dispatch(resetUserThresholds());
+    dispatch(setLoading(true));
+  };
 
   const zoomSetup = () => {
     if (mapInstance) {
@@ -214,103 +276,13 @@ const Map = () => {
     }
   };
 
-  // Callbacks
-  const onIdle = useCallback(
-    (event: MapEvent) => {
-      if (modalOpen) return;
-      const map = event.map;
-      if (!mapInstance) {
-        setMapInstance(map);
-        map.setOptions({
-          clickableIcons: false,
-        });
-      }
-      const bounds = map?.getBounds();
-      if (!bounds) {
-        return;
-      }
-      const north = bounds.getNorthEast().lat();
-      const south = bounds.getSouthWest().lat();
-      const east = bounds.getNorthEast().lng();
-      const west = bounds.getSouthWest().lng();
-      setMapBounds({ north, south, east, west });
-    },
-    [mapInstance, modalOpen]
-  );
-
-  // Handlers
-  const handleMarkerClick = (
-    streamId: number | null,
-    id: number | null,
-    selectedFromSessionsList?: boolean
-  ) => {
-    if (isMobile && fixedSessionTypeSelected) {
-      dispatch(updateUserSettings(UserSettings.CalendarView));
-      console.log(UserSettings.CalendarView);
-      navigate(`/fixed_stream?streamId=${streamId}`);
-
-      return;
-    }
-
-    if (streamId) {
-      fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(streamId))
-        : dispatch(fetchMobileStreamById(streamId));
-      dispatch(updateUserSettings(UserSettings.ModalView));
-    }
-
-    if (currentUserSettings === UserSettings.SessionListView && isMobile) {
-      setModalOpenFromSessionsList(true);
-      dispatch(updateUserSettings(UserSettings.ModalView));
-    }
-
-    if (!selectedStreamId) {
-      setSelectedSessionId(id);
-      setSelectedStreamId(streamId);
-      dispatch(setModalOpen(false));
-      setTimeout(() => {
-        dispatch(setModalOpen(true));
-      }, 0);
-    }
-
-    if (selectedStreamId) {
-      dispatch(setModalOpen(false));
-      setSelectedSessionId(null);
-      setSelectedStreamId(null);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setSelectedStreamId(null);
-    setSelectedSessionId(null);
-    dispatch(setModalOpen(false));
-    dispatch(updateUserSettings(previousUserSettings));
-    if (previousUserSettings === UserSettings.SessionListView && isMobile) {
-      setTimeout(() => {
-        dispatch(setSessionsListOpen(true));
-        dispatch(updateUserSettings(UserSettings.SessionListView));
-      }, 0);
-    }
-  };
-
-  const handleClick = (type: SessionType) => {
-    setSelectedSessionType(type);
-    dispatch(resetUserThresholds());
-    dispatch(setLoading(true));
-  };
+  useEffect(() => {
+    console.log(currentUserSettings, "currentUserSettings");
+  }, [currentUserSettings]);
 
   useEffect(() => {
-    if (!modalOpen) {
-      setSelectedStreamId(null);
-      setSelectedSessionId(null);
-      if (previousUserSettings === UserSettings.SessionListView) {
-        setTimeout(() => {
-          dispatch(setSessionsListOpen(true));
-          dispatch(updateUserSettings(UserSettings.SessionListView));
-        }, 0);
-      }
-    }
-  }, [modalOpen]);
+    console.log(previousUserSettings, "previousUserSettings");
+  }, [previousUserSettings]);
 
   return (
     <>
@@ -363,7 +335,7 @@ const Map = () => {
         !isMobile && <ThresholdsConfigurator isMapPage={true} />
       }
 
-      {modalOpen && (
+      {currentUserSettings === UserSettings.ModalView && (
         <SessionDetailsModal
           onClose={handleCloseModal}
           sessionType={selectedSessionType}
@@ -396,17 +368,16 @@ const Map = () => {
                 dispatch(setSessionsListOpen(false));
                 pubSub.publish("CENTER_MAP", id);
               }
-              handleMarkerClick(streamId, id, true);
+              handleMarkerClick(streamId, id);
             }}
             onClose={() => {
               dispatch(setSessionsListOpen(false));
-              setModalOpenFromSessionsList(false);
               dispatch(updateUserSettings(UserSettings.MapView));
             }}
           />
         )}
       </S.MobileContainer>
-      {!modalOpen && (
+      {currentUserSettings === UserSettings.MapView && (
         <S.DesktopContainer>
           <SessionsListView
             sessions={listSessions.map((session) => ({
