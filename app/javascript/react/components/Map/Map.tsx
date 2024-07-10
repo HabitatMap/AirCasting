@@ -182,7 +182,14 @@ const Map = () => {
 
   useEffect(() => {
     zoomSetup();
-  }, [selectedStreamId]);
+  }, [currentUserSettings]);
+
+  useEffect(() => {
+    console.log("previousCenter", previousCenter);
+    console.log("previousZoom", previousZoom);
+    console.log("currentCenter", currentCenter);
+    console.log("currentZoom", currentZoom);
+  }, [previousCenter, previousZoom, currentCenter, currentZoom]);
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
@@ -218,6 +225,8 @@ const Map = () => {
 
   //Handlers;
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
+    zoomSetup();
+
     if (streamId) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
@@ -256,6 +265,7 @@ const Map = () => {
 
   const zoomSetup = () => {
     if (mapInstance) {
+      // if (currentUserSettings === UserSettings.ModalView) {
       const newZoom = mapInstance?.getZoom();
       const newCenter = mapInstance.getCenter()?.toJSON();
       if (newZoom !== currentZoom) {
@@ -266,16 +276,13 @@ const Map = () => {
         setPreviousCenter(currentCenter);
         setCurrentCenter(newCenter || DEFAULT_MAP_CENTER);
       }
+      // }
+      if (currentUserSettings !== UserSettings.ModalView) {
+        mapInstance.setCenter(previousCenter);
+        mapInstance.setZoom(previousZoom);
+      }
     }
   };
-
-  useEffect(() => {
-    console.log(currentUserSettings, "currentUserSettings");
-  }, [currentUserSettings]);
-
-  useEffect(() => {
-    console.log(previousUserSettings, "previousUserSettings");
-  }, [previousUserSettings]);
 
   return (
     <>
@@ -362,6 +369,7 @@ const Map = () => {
               handleMarkerClick(streamId, id);
             }}
             onClose={() => {
+              zoomSetup();
               dispatch(updateUserSettings(UserSettings.MapView));
             }}
           />
