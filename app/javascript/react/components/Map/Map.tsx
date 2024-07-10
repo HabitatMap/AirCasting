@@ -240,7 +240,9 @@ const Map = () => {
     }
 
     if (!selectedStreamId) {
-      !isMobile && setPreviousZoomInTheState();
+      !isMobile &&
+        currentUserSettings !== UserSettings.SessionListView &&
+        setPreviousZoomInTheState();
 
       setSelectedSessionId(id);
       setSelectedStreamId(streamId);
@@ -276,8 +278,6 @@ const Map = () => {
 
   const setPreviousZoomInTheState = () => {
     if (mapInstance) {
-      console.log("currentUserSettings", currentUserSettings);
-      console.log("previousUserSettings", previousUserSettings);
       if (
         currentUserSettings === UserSettings.MapView ||
         (previousUserSettings === UserSettings.MapView &&
@@ -286,9 +286,6 @@ const Map = () => {
           ))
       ) {
         const newZoom = mapInstance?.getZoom();
-        console.log("newZoom", newZoom);
-        console.log("previousZoom", previousZoom);
-
         const newCenter = mapInstance.getCenter()?.toJSON();
         if (newZoom !== previousZoom) {
           dispatch(setPreviousZoom(newZoom || DEFAULT_ZOOM));
