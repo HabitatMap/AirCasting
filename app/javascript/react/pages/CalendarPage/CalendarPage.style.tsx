@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
 import { gray100, white } from "../../assets/styles/colors";
+import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
-import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 
 const CalendarPageLayout = styled.div`
   display: flex;
@@ -57,8 +57,6 @@ const StyledContainer = styled.div`
 
 const ThresholdContainer = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
   position: relative;
   width: 100%;
@@ -80,11 +78,19 @@ const ThresholdContainer = styled.div`
   }
 `;
 
+const SliderWrapper = styled.div`
+  display: flex;
+  @media ${media.desktop} {
+    margin-top: 4rem;
+  }
+`;
+
 export {
-  StationDataContainer,
   CalendarPageLayout,
   Heading,
+  SliderWrapper,
+  StationDataContainer,
   StyledContainer,
-  Units,
   ThresholdContainer,
+  Units,
 };

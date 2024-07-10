@@ -1,17 +1,22 @@
 import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
-import { Button } from "../Button/Button.style";
 import { media } from "../../utils/media";
+import { Button } from "../Button/Button.style";
 
 interface Props {
-  $isMapPage?: boolean;
+  $isMobileOldStyle?: boolean;
 }
 
 const SliderContainer = styled.div<Props>`
   display: flex;
   flex-direction: column;
   width: 100%;
+  ${(props) =>
+    props.$isMobileOldStyle &&
+    `
+    height: 4.7rem;
+  `}
 `;
 
 const InputContainer = styled.div<Props>`
@@ -21,14 +26,17 @@ const InputContainer = styled.div<Props>`
   padding-left: 1.5rem;
   justify-content: space-between;
 
+  @media (${media.mobile}) {
+    ${(props) =>
+      props.$isMobileOldStyle &&
+      `
+    height: 4.7rem;
+  `}
+  }
   @media (${media.desktop}) {
     padding-left: 0;
     height: 30px;
     margin-bottom: 0;
-  }
-
-  @media ${media.mobile} {
-    height: 4.7rem;
   }
 `;
 
@@ -39,7 +47,7 @@ const ResetButton = styled(Button)`
   color: ${colors.gray300};
   width: fit-content;
   margin-left: auto;
-  @media ${media.desktop}) {
+  @media ${media.desktop} {
     margin-left: 0;
   }
 `;
@@ -60,7 +68,6 @@ const ThresholdsDisclaimer = styled.h3`
   font-size: 1.2rem;
   font-weight: 600;
   color: ${colors.gray300};
-  wrap: wrap;
   width: 9.3rem;
   padding: 0rem 0.5rem;
   text-align: right;
@@ -89,6 +96,7 @@ const RangeInput = styled.input<{
   $secondThumbPos: number;
   $thirdThumbPos: number;
   $sliderWidth: number;
+  $isMobileOldStyle: boolean;
 }>`
   width: 100%;
   position: absolute;
@@ -143,11 +151,13 @@ const RangeInput = styled.input<{
     margin-left: 0;
   }
 
-  @media ${media.mobile} {
+  ${(props) =>
+    props.$isMobileOldStyle &&
+    `
     height: 3px;
     top: 60%; /* Move the range input down */
     transform: translateY(-50%);
-  }
+  `}
 `;
 
 const NumberInput = styled.input<{
@@ -286,8 +296,8 @@ export {
   ResetButton,
   SliderContainer,
   StyledContainer,
-  ThresholdsDisclaimer,
   ThresholdResetButton,
+  ThresholdsDisclaimer,
   Units,
   Wrapper,
 };

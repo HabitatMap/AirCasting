@@ -10,6 +10,7 @@ import React, {
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
+import returnArrow from "../../assets/icons/returnArrow.svg";
 import { useAppDispatch } from "../../store/hooks";
 import {
   selectSliderWidth,
@@ -28,13 +29,13 @@ import {
 import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./ThresholdConfigurator.style";
-import returnArrow from "../../assets/icons/returnArrow.svg";
 
 interface ThresholdsConfiguratorProps {
   showResetButton?: boolean;
   showResetButtonWithText?: boolean;
   isMobileOldStyle?: boolean;
   styles?: any;
+  noDisclaimers?: boolean;
 }
 
 const maxThresholdDifference = 1;
@@ -44,6 +45,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   showResetButtonWithText = false,
   isMobileOldStyle = false,
   styles = S,
+  noDisclaimers = false,
 }) => {
   const thresholdsState = useSelector(selectThresholds);
   const sliderWidth = useSelector(selectSliderWidth);
@@ -259,6 +261,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
         onTouchStart={(event) =>
           handleSliderClick(event as React.TouchEvent<HTMLDivElement>)
         }
+        $isMobileOldStyle={isMobileOldStyle}
       >
         {!isMobileOldStyle && (
           <S.NumberInput
@@ -284,6 +287,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
               type="range"
               value={value}
               readOnly
+              $isMobileOldStyle={isMobileOldStyle}
             />
             {!isMobileOldStyle && (
               <S.NumberInput
@@ -358,7 +362,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     </S.SliderContainer>
   );
 
-  return isMobile ? (
+  return isMobile || noDisclaimers ? (
     <>
       {renderSlider()}
       {displayResetButton()}

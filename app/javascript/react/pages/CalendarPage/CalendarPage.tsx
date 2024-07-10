@@ -3,8 +3,10 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
+import { useTranslation } from "react-i18next";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
+import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
 import {
@@ -16,14 +18,9 @@ import {
   fetchNewMovingStream,
   movingData,
 } from "../../store/movingCalendarStreamSlice";
-import {
-  selectUserThresholds,
-  setDefaultThresholdsValues,
-} from "../../store/thresholdSlice";
+import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
-import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
-import { useTranslation } from "react-i18next";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
@@ -89,19 +86,21 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
         <S.StationDataContainer>
           <FixedStreamStationHeader />
           {!isMobile && (
-            <HeaderToggle
-              titleText={
-                <S.StyledContainer>
-                  {t("calendarHeader.legendTitle")}
-                  <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
-                </S.StyledContainer>
-              }
-              componentToToggle={
-                <S.ThresholdContainer>
-                  <ThresholdsConfigurator />
-                </S.ThresholdContainer>
-              }
-            />
+            <S.ThresholdContainer>
+              <HeaderToggle
+                titleText={
+                  <S.StyledContainer>
+                    {t("calendarHeader.legendTitle")}
+                    <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+                  </S.StyledContainer>
+                }
+                componentToToggle={
+                  <S.SliderWrapper>
+                    <ThresholdsConfigurator noDisclaimers={true} />
+                  </S.SliderWrapper>
+                }
+              />
+            </S.ThresholdContainer>
           )}
           {calendarIsVisible ? (
             <Calendar
@@ -112,7 +111,19 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           ) : (
             <EmptyCalendar />
           )}
-          {/* {isMobile && <ThresholdsConfigurator />} */}
+          {isMobile && (
+            <S.ThresholdContainer>
+              <HeaderToggle
+                titleText={
+                  <S.StyledContainer>
+                    {t("calendarHeader.legendTitle")}
+                    <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+                  </S.StyledContainer>
+                }
+                componentToToggle={<ThresholdsConfigurator />}
+              />
+            </S.ThresholdContainer>
+          )}
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>
