@@ -11,7 +11,6 @@ interface MapState {
   mapId: string;
   location: LatLngLiteral;
   loading: boolean;
-  sessionsListOpen: boolean;
   hoverStreamId: number | null;
   position: LatLngLiteral;
 }
@@ -22,7 +21,6 @@ const initialState: MapState = {
   mapId: MAP_ID,
   location: DEFAULT_MAP_CENTER,
   loading: true,
-  sessionsListOpen: false,
   hoverStreamId: null,
   position: DEFAULT_MAP_CENTER,
 };

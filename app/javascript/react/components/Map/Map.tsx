@@ -128,10 +128,6 @@ const Map = () => {
       : selectMobileSessionsList
   );
 
-  const sessionsListOpen = useSelector(
-    (state: RootState) => state.map.sessionsListOpen
-  );
-
   // Filters (temporary solution)
   const sensor_name = fixedSessionTypeSelected
     ? "Government-PM2.5"

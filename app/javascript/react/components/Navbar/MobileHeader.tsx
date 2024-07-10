@@ -6,7 +6,6 @@ import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
 import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
-import { RootState } from "../../store";
 import { useAppDispatch } from "../../store/hooks";
 import {
   selectUserSettingsState,
@@ -88,9 +87,6 @@ export const MobileHeader = ({
 };
 
 export const MobileCalendarHeader = ({ t }: { t: Function }) => {
-  const sessionsListOpen = useSelector(
-    (state: RootState) => state.map.sessionsListOpen
-  );
   const { previousUserSettings } = useSelector(selectUserSettingsState);
 
   const navigate = useNavigate();
