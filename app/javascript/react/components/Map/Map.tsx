@@ -187,11 +187,6 @@ const Map = () => {
   }, [currentUserSettings]);
 
   useEffect(() => {
-    console.log("previousCenter", previousCenter);
-    console.log("previousZoom", previousZoom);
-  }, [previousCenter, previousZoom]);
-
-  useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
       setSelectedStreamId(null);
       setSelectedSessionId(null);
