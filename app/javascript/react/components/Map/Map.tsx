@@ -181,7 +181,8 @@ const Map = () => {
   }, [thresholdFilters]);
 
   useEffect(() => {
-    zoomSetup();
+    setPreviousZoomOnTheMap();
+    setPreviousZoomInTheState();
   }, [currentUserSettings]);
 
   useEffect(() => {
@@ -225,7 +226,8 @@ const Map = () => {
 
   //Handlers;
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
-    zoomSetup();
+    setPreviousZoomOnTheMap();
+    setPreviousZoomInTheState();
 
     if (streamId) {
       fixedSessionTypeSelected
@@ -263,7 +265,16 @@ const Map = () => {
     dispatch(setLoading(true));
   };
 
-  const zoomSetup = () => {
+  const setPreviousZoomOnTheMap = () => {
+    if (mapInstance) {
+      if (currentUserSettings === UserSettings.MapView) {
+        mapInstance.setCenter(previousCenter);
+        mapInstance.setZoom(previousZoom);
+      }
+    }
+  };
+
+  const setPreviousZoomInTheState = () => {
     if (mapInstance) {
       // if (currentUserSettings === UserSettings.ModalView) {
       const newZoom = mapInstance?.getZoom();
@@ -277,10 +288,6 @@ const Map = () => {
         setCurrentCenter(newCenter || DEFAULT_MAP_CENTER);
       }
       // }
-      if (currentUserSettings !== UserSettings.ModalView) {
-        mapInstance.setCenter(previousCenter);
-        mapInstance.setZoom(previousZoom);
-      }
     }
   };
 
@@ -369,7 +376,8 @@ const Map = () => {
               handleMarkerClick(streamId, id);
             }}
             onClose={() => {
-              zoomSetup();
+              setPreviousZoomOnTheMap();
+              setPreviousZoomInTheState();
               dispatch(updateUserSettings(UserSettings.MapView));
             }}
           />
