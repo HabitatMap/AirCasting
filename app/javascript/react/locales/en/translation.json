@@ -69,7 +69,8 @@
     "minGreaterThanMaxMessage": "The minimum value should be lower than {{maxValue}}",
     "resetButton": "Reset legend",
     "altResetButton": "Reset the threshold values to default",
-    "measurementsUnits": "µg/m³"
+    "measurementsUnits": "µg/m³",
+    "invalidOrderMessage": "The values should be in ascending order"
   },
   "notFoundPage": {
     "header": "Page not found",
@@ -101,7 +102,14 @@
     "listSessions": "Sessions",
     "altListSessions": "List all the sessions",
     "altClose": "Close the content",
-    "altDirect": "Navigate to calendar view for given session"
+    "altDirect": "Navigate to calendar view for given session",
+    "legendTile": "Legend",
+    "altLegendTile": "Show the measurements legend for the map",
+    "legend": {
+      "title": "Measurements legend",
+      "resetRangesButton": "Reset ranges",
+      "applyButton": "Apply"
+    }
   },
   "sessionDetailsModal": {
     "calendar": "Calendar",

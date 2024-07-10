@@ -46,6 +46,24 @@ export const useThresholdHandlers = (
     }));
   };
 
+  const validateThresholdOrder = (
+    key: keyof Thresholds,
+    value: number
+  ): boolean => {
+    const { min, low, middle, high, max } = thresholdValues;
+
+    switch (key) {
+      case "low":
+        return value < middle;
+      case "middle":
+        return value > low && value < high;
+      case "high":
+        return value > middle;
+      default:
+        return true;
+    }
+  };
+
   const handleInputChange = (thresholdKey: keyof Thresholds, value: string) => {
     const trimmedValue = value.trim();
     if (trimmedValue === "") {
@@ -95,6 +113,8 @@ export const useThresholdHandlers = (
             maxValue: thresholdValues.max,
           })
         );
+      } else if (!validateThresholdOrder(thresholdKey, parsedValue)) {
+        setErrorMessage(t("thresholdConfigurator.invalidOrderMessage"));
       } else {
         clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
       }
@@ -175,19 +195,16 @@ export const useThresholdHandlers = (
           thresholdValues.min
       );
 
-      // Calculate the distance from each thumb
       const distances = {
         low: Math.abs(clickValue - thresholdValues.low),
         middle: Math.abs(clickValue - thresholdValues.middle),
         high: Math.abs(clickValue - thresholdValues.high),
       };
 
-      // Find the closest thumb
       const closestThumb = (
         Object.keys(distances) as (keyof typeof distances)[]
       ).reduce((a, b) => (distances[a] < distances[b] ? a : b));
 
-      // Ensure high is less than max and low is greater than min
       if (
         (closestThumb === "high" && clickValue >= thresholdValues.max) ||
         (closestThumb === "low" && clickValue <= thresholdValues.min)
@@ -195,7 +212,6 @@ export const useThresholdHandlers = (
         return;
       }
 
-      // Update the value of the closest thumb
       const newThresholdValues = {
         ...thresholdValues,
         [closestThumb]: clickValue,
@@ -211,6 +227,6 @@ export const useThresholdHandlers = (
     handleInputKeyDown,
     handleOutsideClick,
     resetThresholds,
-    handleSliderClick, // Added handleSliderClick to the returned object
+    handleSliderClick,
   };
 };

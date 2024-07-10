@@ -6,11 +6,27 @@ import { Button } from "../Button/Button.style";
 
 interface Props {
   $isMobileOldStyle?: boolean;
+  $useColorBoxStyle?: boolean;
 }
 
 const SliderContainer = styled.div<Props>`
   display: flex;
   flex-direction: column;
+  width: 100%;
+`;
+const ColorBox = styled.div`
+  width: 100%;
+  height: 2.4rem;
+  display: inline-block;
+  border-radius: 0.5rem;
+`;
+
+const StaticMobileSliderContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 7.5% 1fr 9.5% 1fr 11.5% 1fr 18% 1fr;
+  grid-template-rows: auto;
+  gap: 9px;
+  align-items: center;
   width: 100%;
 `;
 
@@ -21,6 +37,13 @@ const InputContainer = styled.div<Props>`
   padding-left: 1.5rem;
   justify-content: space-between;
 
+  ${(props) =>
+    props.$useColorBoxStyle &&
+    `
+    height: 4.7rem;
+    padding-left: 0;
+  `}
+
   @media (${media.mobile}) {
     ${(props) =>
       props.$isMobileOldStyle &&
@@ -28,6 +51,7 @@ const InputContainer = styled.div<Props>`
     height: 4.7rem;
   `}
   }
+
   @media (${media.desktop}) {
     padding-left: 0;
     height: 30px;
@@ -42,8 +66,19 @@ const ResetButton = styled(Button)`
   color: ${colors.gray300};
   width: fit-content;
   margin-left: auto;
+  text-transform: uppercase;
+
   @media ${media.desktop} {
     margin-left: 0;
+  }
+
+  @media ${media.mobile} {
+    white-space: wrap;
+    text-align: right;
+    line-height: 1.6rem;
+    width: 33%;
+    padding: 0.6rem 1.85rem;
+    font-size: 1.2rem;
   }
 `;
 
@@ -153,6 +188,50 @@ const RangeInput = styled.input<{
     top: 60%; /* Move the range input down */
     transform: translateY(-50%);
   `}
+`;
+
+const ColorBoxNumberInput = styled.input`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  min-width: 24px;
+  height: 50px;
+  justify-content: space-between;
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid ${colors.darkBlueTransparent};
+  z-index: 5;
+  font-size: 1.2rem;
+  color: ${colors.darkBlue};
+
+  @media (${media.mobile}) {
+    height: 4.7rem;
+  }
+
+  @media (${media.desktop}) {
+    padding-left: 0;
+    height: 30px;
+    margin-bottom: 0;
+  }
+
+  appearance: textfield;
+  -moz-appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &:focus {
+    border: 1px solid ${colors.acBlue};
+    outline: 0px solid ${colors.acBlue};
+    background-color: ${colors.acBlueTransparent};
+    color: ${colors.gray400};
+    font-weight: 600;
+  }
 `;
 
 const NumberInput = styled.input<{
@@ -280,6 +359,8 @@ const OldStyleSliderText = styled.p`
 `;
 
 export {
+  ColorBox,
+  ColorBoxNumberInput,
   DesktopContainer,
   ErrorMessage,
   InputContainer,
@@ -290,6 +371,7 @@ export {
   RangeInput,
   ResetButton,
   SliderContainer,
+  StaticMobileSliderContainer,
   StyledContainer,
   ThresholdResetButton,
   ThresholdsDisclaimer,

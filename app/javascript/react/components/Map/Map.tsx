@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import pinImage from "../../assets/icons/pinImage.svg";
+import mapLegend from "../../assets/icons/mapLegend.svg";
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
@@ -28,6 +29,8 @@ import {
   setLoading,
   setPreviousCenter,
   setPreviousZoom,
+  selectLegendOpen,
+  setLegendOpen,
 } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
@@ -59,6 +62,7 @@ import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
+import { Legend } from "./Legend/Legend"; // Import the Legend component
 
 const Map = () => {
   // const
@@ -119,6 +123,8 @@ const Map = () => {
   const mobilePoints = selectedSessionId
     ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectMobileSessionsPoints);
+  const legendOpen = useSelector(selectLegendOpen);
+
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   const listSessions = useSelector(
@@ -300,131 +306,146 @@ const Map = () => {
         }
       }
     }
-  };
+    const openLegend = () => {
+      dispatch(setLegendOpen(true));
+    };
 
-  return (
-    <>
-      {/* temporary solution, ticket: Session Filter: General filters */}
-      <S.FixedButton onClick={() => handleClick(SessionTypes.FIXED)}>
-        fixed - government-pm2.5
-      </S.FixedButton>
-      <S.MobileButton onClick={() => handleClick(SessionTypes.MOBILE)}>
-        mobile - airbeam-pm2.5
-      </S.MobileButton>
-      {/* temporary solution, ticket: Session Filter: General filters */}
-      <GoogleMap
-        mapId={mapId}
-        mapTypeId={mapTypeId}
-        defaultCenter={DEFAULT_MAP_CENTER}
-        defaultZoom={DEFAULT_ZOOM}
-        gestureHandling={"greedy"}
-        disableDefaultUI={true}
-        scaleControl={true}
-        style={S.containerStyle}
-        onIdle={onIdle}
-        minZoom={MIN_ZOOM}
-      >
-        {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
-          <FixedMarkers
-            sessions={sessionsPoints}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
-            pulsatingSessionId={pulsatingSessionId}
+    const closeLegend = () => {
+      dispatch(setLegendOpen(false));
+    };
+
+    return (
+      <>
+        {/* temporary solution, ticket: Session Filter: General filters */}
+        <S.FixedButton onClick={() => handleClick(SessionTypes.FIXED)}>
+          fixed - government-pm2.5
+        </S.FixedButton>
+        <S.MobileButton onClick={() => handleClick(SessionTypes.MOBILE)}>
+          mobile - airbeam-pm2.5
+        </S.MobileButton>
+        {/* temporary solution, ticket: Session Filter: General filters */}
+        <GoogleMap
+          mapId={mapId}
+          mapTypeId={mapTypeId}
+          defaultCenter={DEFAULT_MAP_CENTER}
+          defaultZoom={DEFAULT_ZOOM}
+          gestureHandling={"greedy"}
+          disableDefaultUI={true}
+          scaleControl={true}
+          style={S.containerStyle}
+          onIdle={onIdle}
+          minZoom={MIN_ZOOM}
+        >
+          {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
+            <FixedMarkers
+              sessions={sessionsPoints}
+              onMarkerClick={handleMarkerClick}
+              selectedStreamId={selectedStreamId}
+              pulsatingSessionId={pulsatingSessionId}
+            />
+          )}
+          {!fixedSessionTypeSelected && (
+            <MobileMarkers
+              sessions={sessionsPoints}
+              onMarkerClick={handleMarkerClick}
+              selectedStreamId={selectedStreamId}
+              pulsatingSessionId={pulsatingSessionId}
+            />
+          )}
+          {selectedStreamId && !fixedSessionTypeSelected && (
+            <StreamMarkers
+              sessions={mobileStreamPoints}
+              unitSymbol={unit_symbol}
+            />
+          )}
+        </GoogleMap>
+        {/* Show ThresholdsConfigurator only on desktop, if it's mobile, it should only be shown when modal is open */}
+        {(!isMobile || (isMobile && currentUserSettings === UserSettings.ModalView)) && (
+          <S.ThresholdContainer>
+            <ThresholdsConfigurator
+              showResetButton={!isMobile}
+              isMobileOldStyle={isMobile && currentUserSettings === UserSettings.ModalView}
+            />
+          </S.ThresholdContainer>
+        )}
+
+        {currentUserSettings === UserSettings.ModalView && (
+          <SessionDetailsModal
+            onClose={handleCloseModal}
+            sessionType={selectedSessionType}
+            streamId={selectedStreamId}
           />
         )}
-        {!fixedSessionTypeSelected && (
-          <MobileMarkers
-            sessions={sessionsPoints}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
-            pulsatingSessionId={pulsatingSessionId}
-          />
-        )}
-        {selectedStreamId && !fixedSessionTypeSelected && (
-          <StreamMarkers
-            sessions={mobileStreamPoints}
-            unitSymbol={unit_symbol}
-          />
-        )}
-      </GoogleMap>
-
-      {/* Show ThresholdsConfigurator only on desktop, if it's mobile, it should only be shown when modal is open */}
-      {(!isMobile || (isMobile && modalOpen)) && (
-        <S.ThresholdContainer>
-          <ThresholdsConfigurator
-            showResetButton={!isMobile}
-            isMobileOldStyle={isMobile && modalOpen}
-          />
-        </S.ThresholdContainer>
-      )}
-
-      {currentUserSettings === UserSettings.ModalView && (
-        <SessionDetailsModal
-          onClose={handleCloseModal}
-          sessionType={selectedSessionType}
-          streamId={selectedStreamId}
-        />
-      )}
-      <S.MobileContainer>
-        <SectionButton
-          title={t("map.listSessions")}
-          image={pinImage}
-          alt={t("map.altListSessions")}
-          onClick={() => {
-            dispatch(updateUserSettings(UserSettings.SessionListView));
-          }}
-        />
-        {currentUserSettings === UserSettings.SessionListView && (
-          <MobileSessionList
-            sessions={listSessions.map((session: SessionList) => ({
-              id: session.id,
-              sessionName: session.title,
-              sensorName: session.sensorName,
-              averageValue: session.averageValue,
-              startTime: session.startTime,
-              endTime: session.endTime,
-              streamId: session.streamId,
-            }))}
-            onCellClick={(id, streamId) => {
-              if (!fixedSessionTypeSelected) {
+        <S.MobileContainer>
+          <S.MobileButtons>
+            <SectionButton
+              title={t("map.listSessions")}
+              image={pinImage}
+              alt={t("map.altListSessions")}
+              onClick={() => {
+                dispatch(updateUserSettings(UserSettings.SessionListView));
+              }}
+            />
+            <SectionButton
+              title={t("map.legendTile")}
+              image={mapLegend}
+              alt={t("map.altlegendTile")}
+              onClick={openLegend}
+            />
+          </S.MobileButtons>
+          {legendOpen && <Legend onClose={closeLegend} />} 
+          {currentUserSettings === UserSettings.SessionListView && (
+            <MobileSessionList
+              sessions={listSessions.map((session: SessionList) => ({
+                id: session.id,
+                sessionName: session.title,
+                sensorName: session.sensorName,
+                averageValue: session.averageValue,
+                startTime: session.startTime,
+                endTime: session.endTime,
+                streamId: session.streamId,
+              }))}
+              onCellClick={(id, streamId) => {
+                if (!fixedSessionTypeSelected) {
+                  pubSub.publish("CENTER_MAP", id);
+                }
+                handleMarkerClick(streamId, id);
+              }}
+              onClose={() => {
+                dispatch(updateUserSettings(UserSettings.MapView));
+              }}
+            />
+          )}
+        </S.MobileContainer>
+        {currentUserSettings === UserSettings.MapView && (
+          <S.DesktopContainer>
+            <SessionsListView
+              sessions={listSessions.map((session) => ({
+                id: session.id,
+                sessionName: session.title,
+                sensorName: session.sensorName,
+                averageValue: session.averageValue,
+                startTime: session.startTime,
+                endTime: session.endTime,
+                streamId: session.streamId,
+              }))}
+              onCellClick={(id, streamId) => {
+                setPulsatingSessionId(null);
+                handleMarkerClick(streamId, id);
                 pubSub.publish("CENTER_MAP", id);
-              }
-              handleMarkerClick(streamId, id);
-            }}
-            onClose={() => {
-              dispatch(updateUserSettings(UserSettings.MapView));
-            }}
-          />
+              }}
+              onCellMouseEnter={(id) => {
+                setPulsatingSessionId(id);
+              }}
+              onCellMouseLeave={() => {
+                setPulsatingSessionId(null);
+              }}
+            />
+          </S.DesktopContainer>
         )}
-      </S.MobileContainer>
-      {currentUserSettings === UserSettings.MapView && (
-        <S.DesktopContainer>
-          <SessionsListView
-            sessions={listSessions.map((session) => ({
-              id: session.id,
-              sessionName: session.title,
-              sensorName: session.sensorName,
-              averageValue: session.averageValue,
-              startTime: session.startTime,
-              endTime: session.endTime,
-              streamId: session.streamId,
-            }))}
-            onCellClick={(id, streamId) => {
-              setPulsatingSessionId(null);
-              handleMarkerClick(streamId, id);
-              pubSub.publish("CENTER_MAP", id);
-            }}
-            onCellMouseEnter={(id) => {
-              setPulsatingSessionId(id);
-            }}
-            onCellMouseLeave={() => {
-              setPulsatingSessionId(null);
-            }}
-          />
-        </S.DesktopContainer>
-      )}
-    </>
-  );
-};
+      </>
+    );
+  };
+}
 
 export { Map };

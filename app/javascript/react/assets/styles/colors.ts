@@ -12,7 +12,10 @@ const gray700 = "#CCC";
 const gray800 = "#4C5660A1";
 const mint = "#81DBCB";
 const blue = "#00B3EF";
+const acBlue = "#00B2EF";
+const acBlueTransparent = "#CCF0FC";
 const darkBlue = "#5C81A5";
+const darkBlueTransparent = "#5c81a580";
 const red = "#E95F5F";
 const orange = "#FCA443";
 const yellow = "#FFD960";
@@ -44,7 +47,10 @@ export {
   grey,
   mint,
   blue,
+  acBlue,
+  acBlueTransparent,
   darkBlue,
+  darkBlueTransparent,
   black,
   mapLabels,
   mapLandscape,

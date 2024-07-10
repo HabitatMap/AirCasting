@@ -15,6 +15,7 @@ interface MapState {
   position: LatLngLiteral;
   previousCenter: LatLngLiteral;
   previousZoom: number;
+  legendOpen: boolean;
 }
 
 const initialState: MapState = {
@@ -27,6 +28,7 @@ const initialState: MapState = {
   position: DEFAULT_MAP_CENTER,
   previousCenter: DEFAULT_MAP_CENTER,
   previousZoom: DEFAULT_ZOOM,
+  legendOpen: false,
 };
 
 const mapSlice = createSlice({
@@ -60,6 +62,9 @@ const mapSlice = createSlice({
     setPreviousZoom(state, action: PayloadAction<number>) {
       state.previousZoom = action.payload;
     },
+    setLegendOpen(state, action: PayloadAction<boolean>) {
+      state.legendOpen = action.payload;
+    },
   },
 });
 
@@ -73,12 +78,15 @@ export const {
   setHoverPosition,
   setPreviousCenter,
   setPreviousZoom,
+  setLegendOpen,
 } = mapSlice.actions;
 
 export default mapSlice.reducer;
+
 export const selectHoverStreamId = (state: RootState) =>
   state.map.hoverStreamId;
 export const selectHoverPosition = (state: RootState) => state.map.position;
 export const selectPreviousCenter = (state: RootState) =>
   state.map.previousCenter;
 export const selectPreviousZoom = (state: RootState) => state.map.previousZoom;
+export const selectLegendOpen = (state: RootState) => state.map.legendOpen;

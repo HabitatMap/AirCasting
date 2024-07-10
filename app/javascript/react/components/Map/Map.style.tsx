@@ -37,6 +37,18 @@ const MobileContainer = styled.div`
   }
 `;
 
+const MobileButtons = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-content: end; // Align items to the end (right side)
+  gap: 1rem;
+  flex-direction: column;
+  position: absolute;
+  bottom: 0.1rem;
+  right: 0.4rem;
+  direction: rtl;
+`;
+
 const ThresholdContainer = styled.div`
   display: grid;
   justify-content: center;
@@ -83,6 +95,7 @@ export {
   DesktopContainer,
   FixedButton,
   MobileButton,
+  MobileButtons,
   MobileContainer,
   containerStyle,
   ThresholdContainer,
