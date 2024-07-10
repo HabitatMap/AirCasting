@@ -1,9 +1,10 @@
 import styled from "styled-components";
 
-import { gray100, white } from "../../assets/styles/colors";
+import { gray100, gray300, white } from "../../assets/styles/colors";
 import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
+import { Button } from "../../components/Button/Button.style";
 
 const CalendarPageLayout = styled.div`
   display: flex;
@@ -85,9 +86,22 @@ const SliderWrapper = styled.div`
   }
 `;
 
+const ResetButton = styled(Button)`
+  white-space: nowrap;
+  background: ${gray100};
+  border: none;
+  color: ${gray300};
+  width: fit-content;
+  margin-left: auto;
+  @media ${media.desktop} {
+    margin-left: 0;
+  }
+`;
+
 export {
   CalendarPageLayout,
   Heading,
+  ResetButton,
   SliderWrapper,
   StationDataContainer,
   StyledContainer,

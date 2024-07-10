@@ -21,6 +21,7 @@ import {
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
+import returnArrow from "../../assets/icons/returnArrow.svg";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
@@ -79,6 +80,9 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
   }, [fixedStreamData, dispatch]);
 
+  const resetThresholds = () =>
+    dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
+
   return (
     <>
       {children}
@@ -92,6 +96,13 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   <S.StyledContainer>
                     {t("calendarHeader.legendTitle")}
                     <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+                    <S.ResetButton onClick={resetThresholds}>
+                      {t("thresholdConfigurator.resetButton")}
+                      <img
+                        src={returnArrow}
+                        alt={t("thresholdConfigurator.altResetButton")}
+                      />
+                    </S.ResetButton>
                   </S.StyledContainer>
                 }
                 componentToToggle={
