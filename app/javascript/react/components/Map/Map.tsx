@@ -81,9 +81,9 @@ const Map = () => {
   });
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
-  const [currentCenter, setCurrentCenter] =
-    useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
-  const [currentZoom, setCurrentZoom] = useState<number>(DEFAULT_ZOOM);
+  // const [currentCenter, setCurrentCenter] =
+  //   useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
+  // const [currentZoom, setCurrentZoom] = useState<number>(DEFAULT_ZOOM);
   const [previousCenter, setPreviousCenter] =
     useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
   const [previousZoom, setPreviousZoom] = useState<number>(DEFAULT_ZOOM);
@@ -188,9 +188,7 @@ const Map = () => {
   useEffect(() => {
     console.log("previousCenter", previousCenter);
     console.log("previousZoom", previousZoom);
-    console.log("currentCenter", currentCenter);
-    console.log("currentZoom", currentZoom);
-  }, [previousCenter, previousZoom, currentCenter, currentZoom]);
+  }, [previousCenter, previousZoom]);
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
@@ -226,9 +224,6 @@ const Map = () => {
 
   //Handlers;
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
-    setPreviousZoomOnTheMap();
-    setPreviousZoomInTheState();
-
     if (streamId) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
@@ -243,12 +238,15 @@ const Map = () => {
     }
 
     if (!selectedStreamId) {
+      !isMobile && setPreviousZoomInTheState();
+
       setSelectedSessionId(id);
       setSelectedStreamId(streamId);
       dispatch(updateUserSettings(UserSettings.ModalView));
     }
 
     if (selectedStreamId) {
+      setPreviousZoomInTheState();
       dispatch(updateUserSettings(previousUserSettings));
     }
   };
@@ -276,18 +274,25 @@ const Map = () => {
 
   const setPreviousZoomInTheState = () => {
     if (mapInstance) {
-      // if (currentUserSettings === UserSettings.ModalView) {
-      const newZoom = mapInstance?.getZoom();
-      const newCenter = mapInstance.getCenter()?.toJSON();
-      if (newZoom !== currentZoom) {
-        setPreviousZoom(currentZoom);
-        setCurrentZoom(newZoom || DEFAULT_ZOOM);
+      console.log("currentUserSettings", currentUserSettings);
+      console.log("previousUserSettings", previousUserSettings);
+      if (
+        currentUserSettings === UserSettings.MapView ||
+        (previousUserSettings === UserSettings.MapView &&
+          currentUserSettings === UserSettings.SessionListView)
+      ) {
+        const newZoom = mapInstance?.getZoom();
+        console.log("newZoom", newZoom);
+        console.log("previousZoom", previousZoom);
+
+        const newCenter = mapInstance.getCenter()?.toJSON();
+        if (newZoom !== previousZoom) {
+          setPreviousZoom(newZoom || DEFAULT_ZOOM);
+        }
+        if (newCenter !== previousCenter) {
+          setPreviousCenter(newCenter || DEFAULT_MAP_CENTER);
+        }
       }
-      if (newCenter !== currentCenter) {
-        setPreviousCenter(currentCenter);
-        setCurrentCenter(newCenter || DEFAULT_MAP_CENTER);
-      }
-      // }
     }
   };
 
@@ -376,8 +381,6 @@ const Map = () => {
               handleMarkerClick(streamId, id);
             }}
             onClose={() => {
-              setPreviousZoomOnTheMap();
-              setPreviousZoomInTheState();
               dispatch(updateUserSettings(UserSettings.MapView));
             }}
           />
