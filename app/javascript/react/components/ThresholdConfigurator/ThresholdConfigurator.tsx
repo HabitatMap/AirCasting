@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import returnArrow from "../../assets/icons/returnArrow.svg";
+import returnArrowDarkBlue from "../../assets/icons/returnArrowDarkBlue.svg";
 import { useAppDispatch } from "../../store/hooks";
 import {
   selectSliderWidth,
@@ -37,9 +38,9 @@ interface ThresholdsConfiguratorProps {
   resetButtonText?: string;
   swapIconTextPosition?: boolean;
   isMobileOldStyle?: boolean;
-  styles?: any;
   noDisclaimers?: boolean;
   useColorBoxStyle?: boolean;
+  useDarkBlueIcon?: boolean;
 }
 
 const maxThresholdDifference = 1;
@@ -50,9 +51,9 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   resetButtonText,
   swapIconTextPosition = false,
   isMobileOldStyle = false,
-  styles = S,
   noDisclaimers = false,
   useColorBoxStyle = false,
+  useDarkBlueIcon = false,
 }) => {
   const thresholdsState = useSelector(selectThresholds);
   const sliderWidth = useSelector(selectSliderWidth);
@@ -191,35 +192,33 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
   const resetButtonDefaultText = t("thresholdConfigurator.resetButton");
   const finalResetButtonText = resetButtonText || resetButtonDefaultText;
+  const icon = useDarkBlueIcon ? returnArrowDarkBlue : returnArrow; // Choose the icon based on prop
+  const resetButtonTextColor = useDarkBlueIcon
+    ? colors.darkBlue
+    : colors.gray300; // Choose the color based on prop
 
   const displayResetButton = () => {
     if (!showResetButton && !showResetButtonWithText) return null;
     return showResetButtonWithText ? (
-      <S.ResetButton onClick={resetThresholds}>
+      <S.ResetButton
+        onClick={resetThresholds}
+        style={{ color: resetButtonTextColor }}
+      >
         {swapIconTextPosition ? (
           <>
             {finalResetButtonText}
-            <img
-              src={returnArrow}
-              alt={t("thresholdConfigurator.altResetButton")}
-            />
+            <img src={icon} alt={t("thresholdConfigurator.altResetButton")} />
           </>
         ) : (
           <>
-            <img
-              src={returnArrow}
-              alt={t("thresholdConfigurator.altResetButton")}
-            />
+            <img src={icon} alt={t("thresholdConfigurator.altResetButton")} />
             {finalResetButtonText}
           </>
         )}
       </S.ResetButton>
     ) : (
       <S.ThresholdResetButton onClick={resetThresholds}>
-        <img
-          src={returnArrow}
-          alt={t("thresholdConfigurator.altResetButton")}
-        />
+        <img src={icon} alt={t("thresholdConfigurator.altResetButton")} />
       </S.ThresholdResetButton>
     );
   };

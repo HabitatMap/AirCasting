@@ -21,6 +21,7 @@ const Legend = ({ onClose }: LegendProps) => {
           showResetButtonWithText
           resetButtonText={t("map.legend.resetRangesButton")}
           useColorBoxStyle
+          useDarkBlueIcon
         />
       </S.SliderContainer>
       <S.ApplyButton onClick={onClose}>

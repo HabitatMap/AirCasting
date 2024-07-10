@@ -74,7 +74,7 @@ const ResetButton = styled(Button)`
 
   @media ${media.mobile} {
     white-space: wrap;
-    text-align: right;
+    text-align: left;
     line-height: 1.6rem;
     width: 33%;
     padding: 0.6rem 1.85rem;
