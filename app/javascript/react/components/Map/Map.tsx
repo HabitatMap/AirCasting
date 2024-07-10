@@ -279,7 +279,9 @@ const Map = () => {
       if (
         currentUserSettings === UserSettings.MapView ||
         (previousUserSettings === UserSettings.MapView &&
-          currentUserSettings === UserSettings.SessionListView)
+          [UserSettings.SessionListView, UserSettings.CalendarView].includes(
+            currentUserSettings
+          ))
       ) {
         const newZoom = mapInstance?.getZoom();
         console.log("newZoom", newZoom);
