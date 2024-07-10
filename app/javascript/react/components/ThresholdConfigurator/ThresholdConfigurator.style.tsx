@@ -12,11 +12,6 @@ const SliderContainer = styled.div<Props>`
   display: flex;
   flex-direction: column;
   width: 100%;
-  ${(props) =>
-    props.$isMobileOldStyle &&
-    `
-    height: 4.7rem;
-  `}
 `;
 
 const InputContainer = styled.div<Props>`
@@ -277,7 +272,7 @@ const OldStyleSliderHandle = styled.div`
 const OldStyleSliderText = styled.p`
   font-size: 1.2rem;
   font-weight: 600;
-  color: ${colors.gray300};
+  color: ${colors.gray400};
   position: absolute;
   top: -16px; /* Adjust this value to position the text above the handle */
   left: 50%;

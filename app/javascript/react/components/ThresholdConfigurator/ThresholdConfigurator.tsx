@@ -251,7 +251,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   };
 
   const renderSlider = () => (
-    <S.SliderContainer>
+    <S.SliderContainer $isMobileOldStyle={isMobileOldStyle}>
       {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
       <S.InputContainer
         ref={sliderRef}

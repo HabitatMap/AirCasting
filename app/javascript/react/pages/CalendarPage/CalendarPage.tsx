@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
 import { useTranslation } from "react-i18next";
+import returnArrow from "../../assets/icons/returnArrow.svg";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
@@ -18,10 +19,12 @@ import {
   fetchNewMovingStream,
   movingData,
 } from "../../store/movingCalendarStreamSlice";
-import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
+import {
+  resetUserThresholds,
+  setDefaultThresholdsValues,
+} from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
-import returnArrow from "../../assets/icons/returnArrow.svg";
 
 const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
@@ -80,8 +83,9 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
   }, [fixedStreamData, dispatch]);
 
-  const resetThresholds = () =>
-    dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
+  const resetThresholds = () => {
+    dispatch(resetUserThresholds());
+  };
 
   return (
     <>
@@ -131,7 +135,9 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                     <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
                   </S.StyledContainer>
                 }
-                componentToToggle={<ThresholdsConfigurator />}
+                componentToToggle={
+                  <ThresholdsConfigurator showResetButtonWithText={true} />
+                }
               />
             </S.ThresholdContainer>
           )}

@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
 import { gray100, gray300, white } from "../../assets/styles/colors";
+import { Button } from "../../components/Button/Button.style";
 import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
-import { Button } from "../../components/Button/Button.style";
 
 const CalendarPageLayout = styled.div`
   display: flex;
@@ -53,7 +53,15 @@ const Units = styled.sup`
 `;
 
 const StyledContainer = styled.div`
-  display: inline;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: right;
+  grid-gap: 1rem;
+  width: 100%;
+
+  @media ${media.mobile} {
+    display: inline;
+  }
 `;
 
 const ThresholdContainer = styled.div`
@@ -95,6 +103,8 @@ const ResetButton = styled(Button)`
   margin-left: auto;
   @media ${media.desktop} {
     margin-left: 0;
+    grid-column: -1;
+    justify-self: end;
   }
 `;
 
