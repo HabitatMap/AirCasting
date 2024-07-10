@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { MAP_CONFIGS, MAP_ID } from "../components/Map/mapConfigs";
-import { DEFAULT_MAP_CENTER } from "../const/coordinates";
+import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../const/coordinates";
 import { LatLngLiteral } from "../types/googleMaps";
 import { RootState } from "./";
 
@@ -13,6 +13,8 @@ interface MapState {
   loading: boolean;
   hoverStreamId: number | null;
   position: LatLngLiteral;
+  previousCenter: LatLngLiteral;
+  previousZoom: number;
 }
 
 const initialState: MapState = {
@@ -23,6 +25,8 @@ const initialState: MapState = {
   loading: true,
   hoverStreamId: null,
   position: DEFAULT_MAP_CENTER,
+  previousCenter: DEFAULT_MAP_CENTER,
+  previousZoom: DEFAULT_ZOOM,
 };
 
 const mapSlice = createSlice({
@@ -50,6 +54,12 @@ const mapSlice = createSlice({
     setHoverPosition(state, action: PayloadAction<LatLngLiteral>) {
       state.position = action.payload;
     },
+    setPreviousCenter(state, action: PayloadAction<LatLngLiteral>) {
+      state.previousCenter = action.payload;
+    },
+    setPreviousZoom(state, action: PayloadAction<number>) {
+      state.previousZoom = action.payload;
+    },
   },
 });
 
@@ -61,9 +71,14 @@ export const {
   setLoading,
   setHoverStreamId,
   setHoverPosition,
+  setPreviousCenter,
+  setPreviousZoom,
 } = mapSlice.actions;
 
 export default mapSlice.reducer;
 export const selectHoverStreamId = (state: RootState) =>
   state.map.hoverStreamId;
 export const selectHoverPosition = (state: RootState) => state.map.position;
+export const selectPreviousCenter = (state: RootState) =>
+  state.map.previousCenter;
+export const selectPreviousZoom = (state: RootState) => state.map.previousZoom;

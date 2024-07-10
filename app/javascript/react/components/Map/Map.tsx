@@ -22,7 +22,13 @@ import {
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
+import {
+  selectPreviousCenter,
+  selectPreviousZoom,
+  setLoading,
+  setPreviousCenter,
+  setPreviousZoom,
+} from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -40,7 +46,6 @@ import {
   updateUserSettings,
 } from "../../store/userSettingsSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
-import { LatLngLiteral } from "../../types/googleMaps";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import { pubSub } from "../../utils/pubSubManager";
@@ -80,13 +85,6 @@ const Map = () => {
     west: DEFAULT_MAP_BOUNDS.west,
   });
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
-
-  // const [currentCenter, setCurrentCenter] =
-  //   useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
-  // const [currentZoom, setCurrentZoom] = useState<number>(DEFAULT_ZOOM);
-  const [previousCenter, setPreviousCenter] =
-    useState<LatLngLiteral>(DEFAULT_MAP_CENTER);
-  const [previousZoom, setPreviousZoom] = useState<number>(DEFAULT_ZOOM);
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
     null
   );
@@ -117,6 +115,9 @@ const Map = () => {
     : useSelector(selectMobileSessionsPoints);
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
+
+  const previousCenter = useSelector(selectPreviousCenter);
+  const previousZoom = useSelector(selectPreviousZoom);
 
   const { previousUserSettings, currentUserSettings } = useSelector(
     selectUserSettingsState
@@ -232,13 +233,16 @@ const Map = () => {
 
     if (isMobile) {
       if (fixedSessionTypeSelected) {
+        setPreviousZoomInTheState();
         navigate(`/fixed_stream?streamId=${streamId}`);
         return;
       }
     }
 
     if (!selectedStreamId) {
-      !isMobile && setPreviousZoomInTheState();
+      !isMobile &&
+        currentUserSettings !== UserSettings.SessionListView &&
+        setPreviousZoomInTheState();
 
       setSelectedSessionId(id);
       setSelectedStreamId(streamId);
@@ -264,8 +268,8 @@ const Map = () => {
   };
 
   const setPreviousZoomOnTheMap = () => {
-    if (mapInstance) {
-      if (currentUserSettings === UserSettings.MapView) {
+    if (currentUserSettings === UserSettings.MapView) {
+      if (mapInstance) {
         mapInstance.setCenter(previousCenter);
         mapInstance.setZoom(previousZoom);
       }
@@ -274,8 +278,6 @@ const Map = () => {
 
   const setPreviousZoomInTheState = () => {
     if (mapInstance) {
-      console.log("currentUserSettings", currentUserSettings);
-      console.log("previousUserSettings", previousUserSettings);
       if (
         currentUserSettings === UserSettings.MapView ||
         (previousUserSettings === UserSettings.MapView &&
@@ -284,15 +286,12 @@ const Map = () => {
           ))
       ) {
         const newZoom = mapInstance?.getZoom();
-        console.log("newZoom", newZoom);
-        console.log("previousZoom", previousZoom);
-
         const newCenter = mapInstance.getCenter()?.toJSON();
         if (newZoom !== previousZoom) {
-          setPreviousZoom(newZoom || DEFAULT_ZOOM);
+          dispatch(setPreviousZoom(newZoom || DEFAULT_ZOOM));
         }
         if (newCenter !== previousCenter) {
-          setPreviousCenter(newCenter || DEFAULT_MAP_CENTER);
+          dispatch(setPreviousCenter(newCenter || DEFAULT_MAP_CENTER));
         }
       }
     }
