@@ -183,6 +183,7 @@ const Map = () => {
 
   useEffect(() => {
     setPreviousZoomOnTheMap();
+    isMobile && setPreviousZoomInTheState();
   }, [currentUserSettings]);
 
   useEffect(() => {
@@ -219,7 +220,9 @@ const Map = () => {
 
   //Handlers;
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
-    setPreviousZoomInTheState();
+    if (currentUserSettings !== UserSettings.SessionListView) {
+      setPreviousZoomInTheState();
+    }
 
     if (streamId) {
       fixedSessionTypeSelected
@@ -272,8 +275,12 @@ const Map = () => {
       !isMobile && currentUserSettings !== UserSettings.ModalView;
     const mobileCondition: boolean =
       isMobile && currentUserSettings !== UserSettings.ModalView;
+    const mobileConditionForSessionList =
+      isMobile && previousUserSettings === UserSettings.MapView;
+    const condition4 = mobileCondition && mobileConditionForSessionList;
+
     if (mapInstance) {
-      if (desktopCondition || mobileCondition) {
+      if (desktopCondition || condition4) {
         const newZoom = mapInstance?.getZoom();
         const newCenter = mapInstance.getCenter()?.toJSON();
         if (newZoom !== previousZoom) {
