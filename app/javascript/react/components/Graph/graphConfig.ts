@@ -58,8 +58,7 @@ const scrollbarOptions = {
 
 const getXAxisOptions = (
   fixedSessionTypeSelected: boolean,
-  isMobile: boolean = false,
-  onSetExtremes?: (min: number, max: number) => void
+  isMobile: boolean = false
 ): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
@@ -74,9 +73,6 @@ const getXAxisOptions = (
             ? updateFixedMeasurementExtremes({ min, max })
             : updateMobileMeasurementExtremes({ min, max })
         );
-        if (onSetExtremes) {
-          onSetExtremes(min, max);
-        }
       }
     },
     100

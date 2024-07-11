@@ -274,13 +274,18 @@ const Map = () => {
     const desktopCondition: boolean =
       !isMobile && currentUserSettings !== UserSettings.ModalView;
     const mobileCondition: boolean =
-      isMobile && currentUserSettings !== UserSettings.ModalView;
-    const mobileConditionForSessionList =
-      isMobile && previousUserSettings === UserSettings.MapView;
-    const condition4 = mobileCondition && mobileConditionForSessionList;
+      isMobile && currentUserSettings === UserSettings.MapView;
+    const mobileConditionForSessionList: boolean =
+      isMobile &&
+      currentUserSettings === UserSettings.SessionListView &&
+      previousUserSettings === UserSettings.MapView;
 
     if (mapInstance) {
-      if (desktopCondition || condition4) {
+      if (
+        desktopCondition ||
+        mobileCondition ||
+        mobileConditionForSessionList
+      ) {
         const newZoom = mapInstance?.getZoom();
         const newCenter = mapInstance.getCenter()?.toJSON();
         if (newZoom !== previousZoom) {
