@@ -302,6 +302,17 @@ const Map = () => {
     debouncedUpdateURL,
   ]);
 
+  // Monitor changes to threshold values and update the URL
+  useEffect(() => {
+    const queryParams = new URLSearchParams(searchParams.toString());
+    queryParams.set("thresholdMin", thresholdValues.min.toString());
+    queryParams.set("thresholdLow", thresholdValues.low.toString());
+    queryParams.set("thresholdMiddle", thresholdValues.middle.toString());
+    queryParams.set("thresholdHigh", thresholdValues.high.toString());
+    queryParams.set("thresholdMax", thresholdValues.max.toString());
+    debouncedUpdateURL(queryParams);
+  }, [thresholdValues, searchParams, debouncedUpdateURL]);
+
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
       setSelectedStreamId(null);
