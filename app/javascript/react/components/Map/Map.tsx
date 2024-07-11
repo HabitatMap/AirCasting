@@ -193,7 +193,7 @@ const Map = () => {
       const intervalId = setInterval(() => {
         setPreviousZoomOnTheMap();
         clearInterval(intervalId);
-      }, 25);
+      }, 10);
       return () => clearInterval(intervalId);
     }
   }, [currentUserSettings, mapInstance]);
