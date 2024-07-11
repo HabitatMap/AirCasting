@@ -23,7 +23,7 @@ interface CopyLinkModalProps {
 const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit }) => {
   const focusInputRef = useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
-  const { shortenedLink, error } = useShortenedLink(
+  const { shortenedLink } = useShortenedLink(
     window.location.href,
     BITLY_ACCESS_TOKEN
   );
@@ -49,15 +49,10 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit }) => {
   };
 
   const handleSubmit = (event: React.FormEvent): void => {
-    event.preventDefault();
     onSubmit(formState);
     copyCurrentURL(formState.link);
     setFormState(initialCopyLinkModalData);
   };
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
 
   return (
     <form onSubmit={handleSubmit}>

@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PopupProps } from "reactjs-popup/dist/types";
 import calendar from "../../../../assets/icons/calendar.svg";
 import downloadImage from "../../../../assets/icons/download.svg";
 import shareLink from "../../../../assets/icons/shareLink.svg";
 import { white } from "../../../../assets/styles/colors";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
-import { copyCurrentURL } from "../../../../utils/copyCurrentUrl";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../../utils/thresholdColors";
 import { ExportDataModal } from "../../../Modals/ExportDataModal";
-import { CopyLinkModal } from "../../CopyLinkModal";
+import { ConfirmationMessage } from "../../atoms/ConfirmationMessage";
+import { CopyLinkModal, CopyLinkModalData } from "../../CopyLinkModal";
 import * as S from "../SessionDetailsModal.style";
 
 interface Extremes {
@@ -28,6 +29,12 @@ interface DesktopHeaderProps {
   fixedSessionTypeSelected: boolean;
 }
 
+type CustomPopupProps = {
+  children:
+    | React.ReactNode
+    | ((close: () => void, isOpen: boolean) => React.ReactNode);
+};
+
 const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   streamShortInfo,
   thresholds,
@@ -36,6 +43,10 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   streamId,
   fixedSessionTypeSelected,
 }) => {
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLDivElement>(null);
+
   const { t } = useTranslation();
 
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
@@ -44,6 +55,45 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
     extremes.maxMeasurementValue,
     extremes.averageValue
   );
+
+  // Workaround for the typescript error
+  const CopyLinkPopup: React.FC<
+    CustomPopupProps & Omit<PopupProps, "children">
+  > = (props) => {
+    return <S.SmallPopup {...(props as PopupProps)} />;
+  };
+
+  const handleCopySubmit = (
+    formData: CopyLinkModalData,
+    close: { (): void; (): void }
+  ) => {
+    close();
+    setShowConfirmation(true);
+  };
+
+  const updateButtonPosition = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setButtonPosition({ top: rect.top, left: rect.left });
+    }
+  };
+
+  useEffect(() => {
+    updateButtonPosition();
+    window.addEventListener("resize", updateButtonPosition);
+
+    return () => {
+      window.removeEventListener("resize", updateButtonPosition);
+    };
+  }, [buttonRef.current]);
+
+  useEffect(() => {
+    if (showConfirmation) {
+      const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showConfirmation]);
+
   return (
     <S.DesktopHeader>
       <S.Wrapper>
@@ -123,24 +173,42 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
             onSubmit={(formData) => {}}
           />
         </S.SmallPopup>
-        <S.SmallPopup
-          trigger={
-            <S.Button
-              onClick={copyCurrentURL}
-              aria-label={t("copyLinkModal.altCopyLink")}
+        <S.WrapperButton ref={buttonRef}>
+          <CopyLinkPopup
+            trigger={
+              <S.Button aria-label={t("copyLinkModal.altCopyLink")}>
+                <img src={shareLink} alt={t("copyLinkModal.copyLink")} />
+              </S.Button>
+            }
+            position="top center"
+            nested
+            closeOnDocumentClick
+          >
+            {(close) => (
+              <>
+                <CopyLinkModal
+                  onSubmit={(formData) => handleCopySubmit(formData, close)}
+                />
+              </>
+            )}
+          </CopyLinkPopup>
+          {showConfirmation && (
+            <S.ConfirmationPopup
+              open={showConfirmation}
+              closeOnDocumentClick={false}
+              arrow={false}
+              contentStyle={{
+                top: buttonPosition.top - 60,
+                left: buttonPosition.left - 17,
+                position: "absolute",
+              }}
             >
-              <img src={shareLink} alt={t("copyLinkModal.copyLink")} />
-            </S.Button>
-          }
-          position="top center"
-          nested
-          closeOnDocumentClick
-        >
-          <CopyLinkModal
-            sessionId={streamShortInfo.sessionId}
-            onSubmit={(formData) => {}}
-          />
-        </S.SmallPopup>
+              <ConfirmationMessage
+                message={t("copyLinkModal.confirmationMessage")}
+              />
+            </S.ConfirmationPopup>
+          )}
+        </S.WrapperButton>
       </S.ButtonsContainer>
     </S.DesktopHeader>
   );
