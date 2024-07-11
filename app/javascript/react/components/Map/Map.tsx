@@ -182,6 +182,7 @@ const Map = () => {
   }, [thresholdFilters]);
 
   useEffect(() => {
+    setPreviousZoomOnTheMap();
     isMobile && setPreviousZoomInTheState();
   }, [currentUserSettings]);
 
