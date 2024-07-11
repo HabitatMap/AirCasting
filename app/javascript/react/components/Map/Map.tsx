@@ -7,31 +7,47 @@ import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import pinImage from "../../assets/icons/pinImage.svg";
 import {
-    DEFAULT_MAP_BOUNDS, DEFAULT_MAP_CENTER, DEFAULT_ZOOM, MIN_ZOOM
+  DEFAULT_MAP_BOUNDS,
+  DEFAULT_MAP_CENTER,
+  DEFAULT_ZOOM,
+  MIN_ZOOM,
 } from "../../const/coordinates";
 import { RootState } from "../../store";
 import {
-    selectFixedSessionPointsBySessionId, selectFixedSessionsList, selectFixedSessionsPoints,
-    selectFixedSessionsStatusFulfilled
+  selectFixedSessionPointsBySessionId,
+  selectFixedSessionsList,
+  selectFixedSessionsPoints,
+  selectFixedSessionsStatusFulfilled,
 } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
-  selectModalOpen,
+  selectPreviousCenter,
+  selectPreviousZoom,
   setLoading,
-  setModalOpen,
-  setSessionsListOpen,
+  setPreviousCenter,
+  setPreviousZoom,
 } from "../../store/mapSlice";
 import {
-    selectMobileSessionPointsBySessionId, selectMobileSessionsList, selectMobileSessionsPoints
+  selectMobileSessionPointsBySessionId,
+  selectMobileSessionsList,
+  selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
-import { fetchThresholds, resetUserThresholds } from "../../store/thresholdSlice";
+import {
+  fetchThresholds,
+  resetUserThresholds,
+} from "../../store/thresholdSlice";
+import {
+  selectUserSettingsState,
+  updateUserSettings,
+} from "../../store/userSettingsSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
+import { UserSettings } from "../../types/userStates";
 import { pubSub } from "../../utils/pubSubManager";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
@@ -69,9 +85,6 @@ const Map = () => {
     west: DEFAULT_MAP_BOUNDS.west,
   });
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
-
-  const [previousCenter, setPreviousCenter] = useState(DEFAULT_MAP_CENTER);
-  const [previousZoom, setPreviousZoom] = useState(DEFAULT_ZOOM);
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
     null
   );
@@ -82,8 +95,6 @@ const Map = () => {
     SessionTypes.FIXED
   );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
-  const [modalOpenFromSessionsList, setModalOpenFromSessionsList] =
-    useState(false);
 
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
@@ -96,24 +107,24 @@ const Map = () => {
   const mapId = useSelector((state: RootState) => state.map.mapId);
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
   const mobileStreamPoints = useSelector(selectMobileStreamPoints);
+  const previousCenter = useSelector(selectPreviousCenter);
+  const previousZoom = useSelector(selectPreviousZoom);
+  const { previousUserSettings, currentUserSettings } = useSelector(
+    selectUserSettingsState
+  );
+
   const fixedPoints = selectedSessionId
     ? useSelector(selectFixedSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectFixedSessionsPoints);
   const mobilePoints = selectedSessionId
     ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectMobileSessionsPoints);
-  const modalOpen = useSelector(selectModalOpen);
-
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   const listSessions = useSelector(
     fixedSessionTypeSelected
       ? selectFixedSessionsList
       : selectMobileSessionsList
-  );
-
-  const sessionsListOpen = useSelector(
-    (state: RootState) => state.map.sessionsListOpen
   );
 
   // Filters (temporary solution)
@@ -162,45 +173,60 @@ const Map = () => {
         : dispatch(fetchMobileSessions({ filters }));
       dispatch(setLoading(false));
     }
-  }, [dispatch, filters, loading, fixedSessionTypeSelected]);
+  }, [filters, loading, fixedSessionTypeSelected]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
   }, [thresholdFilters]);
 
+  useEffect(() => {
+    if (currentUserSettings !== UserSettings.ModalView) {
+      setSelectedStreamId(null);
+      setSelectedSessionId(null);
+    }
+    setPreviousZoomOnTheMap();
+    isMobile && setPreviousZoomInTheState();
+  }, [currentUserSettings]);
+
+  useEffect(() => {
+    if (previousUserSettings === UserSettings.CalendarView) {
+      const intervalId = setInterval(() => {
+        setPreviousZoomOnTheMap();
+        clearInterval(intervalId);
+      }, 10);
+      return () => clearInterval(intervalId);
+    }
+  }, [currentUserSettings, mapInstance]);
+
   // Callbacks
   const onIdle = useCallback(
     (event: MapEvent) => {
-      if (modalOpen) return;
-      const map = event.map;
-      if (!mapInstance) {
-        setMapInstance(map);
-        map.setOptions({
-          clickableIcons: false,
-        });
+      if (currentUserSettings === UserSettings.MapView) {
+        const map = event.map;
+        if (!mapInstance) {
+          setMapInstance(map);
+          map.setOptions({
+            clickableIcons: false,
+          });
+        }
+        const bounds = map?.getBounds();
+        if (!bounds) {
+          return;
+        }
+        const north = bounds.getNorthEast().lat();
+        const south = bounds.getSouthWest().lat();
+        const east = bounds.getNorthEast().lng();
+        const west = bounds.getSouthWest().lng();
+        setMapBounds({ north, south, east, west });
       }
-      const bounds = map?.getBounds();
-      if (!bounds) {
-        return;
-      }
-      const north = bounds.getNorthEast().lat();
-      const south = bounds.getSouthWest().lat();
-      const east = bounds.getNorthEast().lng();
-      const west = bounds.getSouthWest().lng();
-      setMapBounds({ north, south, east, west });
     },
-    [mapInstance, modalOpen]
+    [mapInstance, currentUserSettings]
   );
 
-  // Handlers
-  const handleMarkerClick = (
-    streamId: number | null,
-    id: number | null,
-    selectedFromSessionsList?: boolean
-  ) => {
-    if (isMobile && fixedSessionTypeSelected) {
-      navigate(`/fixed_stream?streamId=${streamId}`);
-      return;
+  //Handlers;
+  const handleMarkerClick = (streamId: number | null, id: number | null) => {
+    if (currentUserSettings !== UserSettings.SessionListView) {
+      setPreviousZoomInTheState();
     }
 
     if (streamId) {
@@ -209,58 +235,71 @@ const Map = () => {
         : dispatch(fetchMobileStreamById(streamId));
     }
 
-    if (selectedFromSessionsList && isMobile) {
-      setModalOpenFromSessionsList(true);
+    if (isMobile) {
+      if (fixedSessionTypeSelected) {
+        navigate(`/fixed_stream?streamId=${streamId}`);
+        return;
+      }
     }
 
     if (!selectedStreamId) {
       setSelectedSessionId(id);
       setSelectedStreamId(streamId);
-      dispatch(setModalOpen(false));
-      setTimeout(() => {
-        dispatch(setModalOpen(true));
-      }, 0);
-
-      if (mapInstance) {
-        setPreviousZoom(mapInstance.getZoom() || DEFAULT_ZOOM);
-        setPreviousCenter(
-          mapInstance.getCenter()?.toJSON() || DEFAULT_MAP_CENTER
-        );
-      }
+      dispatch(updateUserSettings(UserSettings.ModalView));
     }
 
     if (selectedStreamId) {
-      dispatch(setModalOpen(false));
-      setSelectedSessionId(null);
-      setSelectedStreamId(null);
-
-      if (mapInstance) {
-        mapInstance.setZoom(previousZoom);
-        mapInstance.setCenter(previousCenter);
-      }
+      dispatch(updateUserSettings(previousUserSettings));
     }
   };
 
   const handleCloseModal = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
-    dispatch(setModalOpen(false));
-    if (modalOpenFromSessionsList) {
-      setTimeout(() => {
-        dispatch(setSessionsListOpen(true));
-      }, 0);
-    }
-
-    if (mapInstance) {
-      mapInstance.setZoom(previousZoom);
-      mapInstance.setCenter(previousCenter);
-    }
+    dispatch(updateUserSettings(previousUserSettings));
   };
 
   const handleClick = (type: SessionType) => {
     setSelectedSessionType(type);
     dispatch(resetUserThresholds());
     dispatch(setLoading(true));
+  };
+
+  const setPreviousZoomOnTheMap = () => {
+    if (currentUserSettings === UserSettings.MapView) {
+      if (mapInstance) {
+        mapInstance.setCenter(previousCenter);
+        mapInstance.setZoom(previousZoom);
+      }
+    }
+  };
+
+  const setPreviousZoomInTheState = () => {
+    const desktopCondition: boolean =
+      !isMobile && currentUserSettings !== UserSettings.ModalView;
+    const mobileCondition: boolean =
+      isMobile && currentUserSettings === UserSettings.MapView;
+    const mobileConditionForSessionList: boolean =
+      isMobile &&
+      currentUserSettings === UserSettings.SessionListView &&
+      previousUserSettings === UserSettings.MapView;
+
+    if (mapInstance) {
+      if (
+        desktopCondition ||
+        mobileCondition ||
+        mobileConditionForSessionList
+      ) {
+        const newZoom = mapInstance?.getZoom();
+        const newCenter = mapInstance.getCenter()?.toJSON();
+        if (newZoom !== previousZoom) {
+          dispatch(setPreviousZoom(newZoom || DEFAULT_ZOOM));
+        }
+        if (newCenter !== previousCenter) {
+          dispatch(setPreviousCenter(newCenter || DEFAULT_MAP_CENTER));
+        }
+      }
+    }
   };
 
   return (
@@ -310,11 +349,11 @@ const Map = () => {
       </GoogleMap>
 
       {
-        //This is temprorary solution
+        //This is temporary solution
         !isMobile && <ThresholdsConfigurator isMapPage={true} />
       }
 
-      {modalOpen && (
+      {currentUserSettings === UserSettings.ModalView && (
         <SessionDetailsModal
           onClose={handleCloseModal}
           sessionType={selectedSessionType}
@@ -327,10 +366,10 @@ const Map = () => {
           image={pinImage}
           alt={t("map.altListSessions")}
           onClick={() => {
-            dispatch(setSessionsListOpen(true));
+            dispatch(updateUserSettings(UserSettings.SessionListView));
           }}
         />
-        {sessionsListOpen && (
+        {currentUserSettings === UserSettings.SessionListView && (
           <MobileSessionList
             sessions={listSessions.map((session: SessionList) => ({
               id: session.id,
@@ -343,19 +382,17 @@ const Map = () => {
             }))}
             onCellClick={(id, streamId) => {
               if (!fixedSessionTypeSelected) {
-                dispatch(setSessionsListOpen(false));
                 pubSub.publish("CENTER_MAP", id);
               }
-              handleMarkerClick(streamId, id, true);
+              handleMarkerClick(streamId, id);
             }}
             onClose={() => {
-              dispatch(setSessionsListOpen(false));
-              setModalOpenFromSessionsList(false);
+              dispatch(updateUserSettings(UserSettings.MapView));
             }}
           />
         )}
       </S.MobileContainer>
-      {!modalOpen && (
+      {currentUserSettings === UserSettings.MapView && (
         <S.DesktopContainer>
           <SessionsListView
             sessions={listSessions.map((session) => ({

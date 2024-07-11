@@ -18,6 +18,7 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
+
   const handleClick = (id: number, streamId: number) => {
     if (onCellClick) {
       onCellClick(id, streamId);

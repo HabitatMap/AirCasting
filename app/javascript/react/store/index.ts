@@ -8,6 +8,7 @@ import mobileSessionsReducer from "./mobileSessionsSlice";
 import mobileStreamReducer from "./mobileStreamSlice";
 import movingStreamReducer from "./movingCalendarStreamSlice";
 import thresholdReducer from "./thresholdSlice";
+import userSettingsReducer from "./userSettingsSlice";
 
 const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ const store = configureStore({
     movingCalendarStream: movingStreamReducer,
     session: sessionReducer,
     threshold: thresholdReducer,
+    userSettings: userSettingsReducer,
   },
 });
 

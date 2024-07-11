@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from ".";
+
 import { MAP_CONFIGS, MAP_ID } from "../components/Map/mapConfigs";
-import { DEFAULT_MAP_CENTER } from "../const/coordinates";
+import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../const/coordinates";
 import { LatLngLiteral } from "../types/googleMaps";
+import { RootState } from "./";
 
 interface MapState {
   mapConfigId: string;
@@ -10,10 +11,10 @@ interface MapState {
   mapId: string;
   location: LatLngLiteral;
   loading: boolean;
-  sessionsListOpen: boolean;
   hoverStreamId: number | null;
   position: LatLngLiteral;
-  modalOpen: boolean;
+  previousCenter: LatLngLiteral;
+  previousZoom: number;
 }
 
 const initialState: MapState = {
@@ -22,10 +23,10 @@ const initialState: MapState = {
   mapId: MAP_ID,
   location: DEFAULT_MAP_CENTER,
   loading: true,
-  sessionsListOpen: false,
   hoverStreamId: null,
   position: DEFAULT_MAP_CENTER,
-  modalOpen: false,
+  previousCenter: DEFAULT_MAP_CENTER,
+  previousZoom: DEFAULT_ZOOM,
 };
 
 const mapSlice = createSlice({
@@ -47,17 +48,17 @@ const mapSlice = createSlice({
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
-    setSessionsListOpen(state, action: PayloadAction<boolean>) {
-      state.sessionsListOpen = action.payload;
-    },
     setHoverStreamId(state, action: PayloadAction<number | null>) {
       state.hoverStreamId = action.payload;
     },
     setHoverPosition(state, action: PayloadAction<LatLngLiteral>) {
       state.position = action.payload;
     },
-    setModalOpen(state, action: PayloadAction<boolean>) {
-      state.modalOpen = action.payload;
+    setPreviousCenter(state, action: PayloadAction<LatLngLiteral>) {
+      state.previousCenter = action.payload;
+    },
+    setPreviousZoom(state, action: PayloadAction<number>) {
+      state.previousZoom = action.payload;
     },
   },
 });
@@ -68,14 +69,16 @@ export const {
   setMapId,
   setLocation,
   setLoading,
-  setSessionsListOpen,
   setHoverStreamId,
   setHoverPosition,
-  setModalOpen,
+  setPreviousCenter,
+  setPreviousZoom,
 } = mapSlice.actions;
 
 export default mapSlice.reducer;
 export const selectHoverStreamId = (state: RootState) =>
   state.map.hoverStreamId;
 export const selectHoverPosition = (state: RootState) => state.map.position;
-export const selectModalOpen = (state: RootState) => state.map.modalOpen;
+export const selectPreviousCenter = (state: RootState) =>
+  state.map.previousCenter;
+export const selectPreviousZoom = (state: RootState) => state.map.previousZoom;
