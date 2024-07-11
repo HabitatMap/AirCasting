@@ -99,13 +99,13 @@ export const useMapParams = () => {
           hoverStreamId: null,
           position: initialCenter,
           previousCenter: initialCenter,
-          previousZoom: initialZoom,
+          previousZoom: initialPreviousZoom,
         })
       );
       dispatch(setUserThresholdValues(initialThresholds));
       isFirstRender.current = false;
     }
-  }, [dispatch, initialCenter, initialMapTypeId, initialThresholds]);
+  }, [initialCenter, initialMapTypeId, initialThresholds, initialPreviousZoom]);
 
   const debouncedUpdateURL = useCallback(
     debounce((params) => {

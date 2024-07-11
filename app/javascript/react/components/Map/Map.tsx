@@ -195,7 +195,11 @@ const Map = () => {
   }, [dispatch, thresholdFilters, initialThresholds]);
 
   useEffect(() => {
-    if (initialStreamId && currentUserSettings !== UserSettings.ModalView) {
+    if (
+      initialStreamId &&
+      currentUserSettings !== UserSettings.ModalView &&
+      previousUserSettings !== UserSettings.ModalView
+    ) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(initialStreamId))
         : dispatch(fetchMobileStreamById(initialStreamId));
@@ -207,8 +211,8 @@ const Map = () => {
     if (isFirstRender.current && mapInstance) {
       mapInstance.setZoom(initialZoom);
       mapInstance.setCenter(initialCenter);
-      setPreviousZoom(initialPreviousZoom); // Set previous zoom from URL params
-      setPreviousCenter(initialCenter); // Set previous center from URL params
+      setPreviousZoom(initialPreviousZoom);
+      setPreviousCenter(initialCenter);
       isFirstRender.current = false;
     }
   }, [mapInstance, initialZoom, initialCenter, initialPreviousZoom]);
@@ -346,11 +350,11 @@ const Map = () => {
     }
   };
 
-  const handleCloseModal = useCallback(() => {
+  const handleCloseModal = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
     dispatch(updateUserSettings(previousUserSettings));
-  }, []);
+  };
 
   const handleClick = useCallback((type: SessionType) => {
     setSelectedSessionType(type);
