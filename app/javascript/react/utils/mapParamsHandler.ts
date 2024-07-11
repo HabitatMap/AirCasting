@@ -11,6 +11,7 @@ import {
   selectDefaultThresholds,
   setUserThresholdValues,
 } from "../store/thresholdSlice";
+import { initializeUserSettings } from "../store/userSettingsSlice";
 import { SessionType, SessionTypes } from "../types/filters";
 import { UserSettings } from "../types/userStates";
 
@@ -38,11 +39,11 @@ export const useMapParams = () => {
   const initialCurrentUserSettings = getSearchParam(
     "currentUserSettings",
     UserSettings.MapView
-  );
+  ) as UserSettings;
   const initialPreviousSettings = getSearchParam(
     "previousSettings",
     UserSettings.MapView
-  );
+  ) as UserSettings;
   const initialSessionType = getSearchParam(
     "sessionType",
     SessionTypes.FIXED
@@ -107,6 +108,12 @@ export const useMapParams = () => {
         })
       );
       dispatch(setUserThresholdValues(initialThresholds));
+      dispatch(
+        initializeUserSettings({
+          currentUserSettings: initialCurrentUserSettings,
+          previousUserSettings: initialPreviousSettings,
+        })
+      );
       isFirstRender.current = false;
     }
   }, [
@@ -116,6 +123,8 @@ export const useMapParams = () => {
     initialMapTypeId,
     initialPreviousZoom,
     initialThresholds,
+    initialCurrentUserSettings,
+    initialPreviousSettings,
   ]);
 
   const debouncedUpdateURL = useCallback(

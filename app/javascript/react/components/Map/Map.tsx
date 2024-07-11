@@ -49,6 +49,7 @@ import {
   setUserThresholdValues,
 } from "../../store/thresholdSlice";
 import {
+  initializeUserSettings,
   selectUserSettingsState,
   updateUserSettings,
 } from "../../store/userSettingsSlice";
@@ -86,6 +87,8 @@ const Map = () => {
     initialThresholds,
     debouncedUpdateURL,
     searchParams,
+    initialCurrentUserSettings,
+    initialPreviousSettings,
   } = useMapParams();
 
   const dispatch = useAppDispatch();
@@ -220,9 +223,23 @@ const Map = () => {
       mapInstance.setCenter(initialCenter);
       dispatch(setPreviousZoom(initialPreviousZoom));
       dispatch(setPreviousCenter(initialCenter));
+      dispatch(
+        initializeUserSettings({
+          currentUserSettings: initialCurrentUserSettings,
+          previousUserSettings: initialPreviousSettings,
+        })
+      );
       isFirstRender.current = false;
     }
-  }, [mapInstance, initialZoom, initialCenter, initialPreviousZoom, dispatch]);
+  }, [
+    mapInstance,
+    initialZoom,
+    initialCenter,
+    initialPreviousZoom,
+    dispatch,
+    initialCurrentUserSettings,
+    initialPreviousSettings,
+  ]);
 
   useEffect(() => {
     if (!isFirstRender.current) {

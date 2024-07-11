@@ -20,10 +20,21 @@ const userSettingsSlice = createSlice({
       state.previousUserSettings = state.currentUserSettings;
       state.currentUserSettings = action.payload;
     },
+    initializeUserSettings: (
+      state,
+      action: PayloadAction<{
+        previousUserSettings: UserSettings;
+        currentUserSettings: UserSettings;
+      }>
+    ) => {
+      state.previousUserSettings = action.payload.previousUserSettings;
+      state.currentUserSettings = action.payload.currentUserSettings;
+    },
   },
 });
 
-export const { updateUserSettings } = userSettingsSlice.actions;
+export const { updateUserSettings, initializeUserSettings } =
+  userSettingsSlice.actions;
 
 export default userSettingsSlice.reducer;
 

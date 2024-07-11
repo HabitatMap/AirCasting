@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
@@ -29,15 +29,28 @@ const SessionDetailsModal: React.FC<
   const [isVisible, setIsVisible] = useState(true);
 
   const { t } = useTranslation();
+  const isMobile = useMobileDetection();
 
-  // Workaround for the typescript error
+  const closeHandler = useCallback(() => {
+    setIsVisible(false);
+    onClose();
+  }, [onClose]);
+
   const SessionModal: React.FC<
     CustomPopupProps & Omit<PopupProps, "children">
-  > = (props) => {
+  > = useCallback((props) => {
     return <S.SessionDetailsModal {...(props as PopupProps)} />;
-  };
+  }, []);
 
-  const isMobile = useMobileDetection();
+  const sessionInfoProps = useMemo(
+    () => ({
+      sessionType,
+      streamId,
+      isVisible,
+      setIsVisible,
+    }),
+    [sessionType, streamId, isVisible]
+  );
 
   return (
     <SessionModal
@@ -51,17 +64,12 @@ const SessionDetailsModal: React.FC<
         borderBottom: `1px solid ${gray200}`,
       }}
       contentStyle={{ margin: 0 }}
-      onClose={onClose}
+      onClose={closeHandler}
       closeOnDocumentClick={false}
     >
       {(close) => (
         <>
-          <SessionInfo
-            sessionType={sessionType}
-            streamId={streamId}
-            isVisible={isVisible}
-            setIsVisible={setIsVisible}
-          />
+          <SessionInfo {...sessionInfoProps} />
           {isVisible && <Graph streamId={streamId} sessionType={sessionType} />}
           {!isMobile && (
             <S.CancelButtonX onClick={close}>
