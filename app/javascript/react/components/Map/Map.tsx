@@ -107,21 +107,19 @@ const Map = () => {
   const mapId = useSelector((state: RootState) => state.map.mapId);
   const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
   const mobileStreamPoints = useSelector(selectMobileStreamPoints);
+  const previousCenter = useSelector(selectPreviousCenter);
+  const previousZoom = useSelector(selectPreviousZoom);
+  const { previousUserSettings, currentUserSettings } = useSelector(
+    selectUserSettingsState
+  );
+
   const fixedPoints = selectedSessionId
     ? useSelector(selectFixedSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectFixedSessionsPoints);
   const mobilePoints = selectedSessionId
     ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectMobileSessionsPoints);
-
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
-
-  const previousCenter = useSelector(selectPreviousCenter);
-  const previousZoom = useSelector(selectPreviousZoom);
-
-  const { previousUserSettings, currentUserSettings } = useSelector(
-    selectUserSettingsState
-  );
 
   const listSessions = useSelector(
     fixedSessionTypeSelected
@@ -182,6 +180,10 @@ const Map = () => {
   }, [thresholdFilters]);
 
   useEffect(() => {
+    if (currentUserSettings !== UserSettings.ModalView) {
+      setSelectedStreamId(null);
+      setSelectedSessionId(null);
+    }
     setPreviousZoomOnTheMap();
     isMobile && setPreviousZoomInTheState();
   }, [currentUserSettings]);
@@ -195,13 +197,6 @@ const Map = () => {
       return () => clearInterval(intervalId);
     }
   }, [currentUserSettings, mapInstance]);
-
-  useEffect(() => {
-    if (currentUserSettings !== UserSettings.ModalView) {
-      setSelectedStreamId(null);
-      setSelectedSessionId(null);
-    }
-  }, [currentUserSettings]);
 
   // Callbacks
   const onIdle = useCallback(
@@ -280,7 +275,6 @@ const Map = () => {
   };
 
   const setPreviousZoomInTheState = () => {
-    console.log("test");
     const desktopCondition: boolean =
       !isMobile && currentUserSettings !== UserSettings.ModalView;
     const mobileCondition: boolean =
@@ -355,7 +349,7 @@ const Map = () => {
       </GoogleMap>
 
       {
-        //This is temprorary solution
+        //This is temporary solution
         !isMobile && <ThresholdsConfigurator isMapPage={true} />
       }
 
