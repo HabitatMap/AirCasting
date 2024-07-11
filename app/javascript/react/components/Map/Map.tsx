@@ -76,7 +76,6 @@ const Map = () => {
     initialSessionType,
     initialSessionId,
     initialStreamId,
-    initialModalOpen,
     initialMapTypeId,
     initialLimit,
     initialOffset,
@@ -111,7 +110,6 @@ const Map = () => {
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(
     initialStreamId
   );
-  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
 
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
@@ -135,7 +133,6 @@ const Map = () => {
   const mobilePoints = selectedSessionId
     ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectMobileSessionsPoints);
-  const modalOpen = useSelector(selectModalOpen);
   const thresholdValues = useSelector(selectThresholds);
   const defaultThresholds = useSelector(selectDefaultThresholds);
 
@@ -145,10 +142,6 @@ const Map = () => {
     fixedSessionTypeSelected
       ? selectFixedSessionsList
       : selectMobileSessionsList
-  );
-
-  const sessionsListOpen = useSelector(
-    (state: RootState) => state.map.sessionsListOpen
   );
 
   const sensor_name = fixedSessionTypeSelected
@@ -202,13 +195,13 @@ const Map = () => {
   }, [dispatch, thresholdFilters, initialThresholds]);
 
   useEffect(() => {
-    if (initialStreamId && initialModalOpen) {
+    if (initialStreamId && currentUserSettings !== UserSettings.ModalView) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(initialStreamId))
         : dispatch(fetchMobileStreamById(initialStreamId));
-      dispatch(setModalOpen(true));
+      dispatch(updateUserSettings(UserSettings.ModalView));
     }
-  }, [dispatch, initialStreamId, initialModalOpen, fixedSessionTypeSelected]);
+  }, [initialStreamId, currentUserSettings, fixedSessionTypeSelected]);
 
   useEffect(() => {
     if (isFirstRender.current && mapInstance) {
@@ -219,24 +212,6 @@ const Map = () => {
       isFirstRender.current = false;
     }
   }, [mapInstance, initialZoom, initialCenter, initialPreviousZoom]);
-  useEffect(() => {
-    if (!modalOpen) {
-      // This checks if modalOpen has changed to false
-      setSelectedStreamId(null);
-      setSelectedSessionId(null);
-
-      if (modalOpenFromSessionsList) {
-        setTimeout(() => {
-          dispatch(setSessionsListOpen(true));
-        }, 0);
-      }
-
-      if (mapInstance) {
-        mapInstance.setZoom(previousZoom);
-        mapInstance.setCenter(previousCenter);
-      }
-    }
-  }, [modalOpen]);
 
   useEffect(() => {
     if (!isFirstRender.current) {
@@ -251,7 +226,8 @@ const Map = () => {
         sessionType: selectedSessionType,
         sessionId: selectedSessionId?.toString() || "",
         streamId: selectedStreamId?.toString() || "",
-        modalOpen: modalOpen.toString(),
+        previousUserSettings: previousUserSettings,
+        currentUserSettings: currentUserSettings,
         mapType: mapTypeId,
         thresholdMin:
           thresholdValues.min?.toString() || defaultThresholds.min.toString(),
@@ -282,7 +258,8 @@ const Map = () => {
     selectedSessionType,
     selectedSessionId,
     selectedStreamId,
-    modalOpen,
+    currentUserSettings,
+    previousUserSettings,
     mapTypeId,
     thresholdValues,
     defaultThresholds,
@@ -373,16 +350,13 @@ const Map = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
     dispatch(updateUserSettings(previousUserSettings));
-  };
+  }, []);
 
-  const handleClick = useCallback(
-    (type: SessionType) => {
-      setSelectedSessionType(type);
-      dispatch(resetUserThresholds());
-      dispatch(setLoading(true));
-    },
-    [dispatch]
-  );
+  const handleClick = useCallback((type: SessionType) => {
+    setSelectedSessionType(type);
+    dispatch(resetUserThresholds());
+    dispatch(setLoading(true));
+  }, []);
 
   const setPreviousZoomOnTheMap = () => {
     if (currentUserSettings === UserSettings.MapView) {

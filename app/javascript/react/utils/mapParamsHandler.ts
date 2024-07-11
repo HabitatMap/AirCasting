@@ -12,6 +12,7 @@ import {
   setUserThresholdValues,
 } from "../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../types/filters";
+import { UserSettings } from "../types/userStates";
 
 export const useMapParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,6 +34,15 @@ export const useMapParams = () => {
   const initialPreviousZoom = parseInt(
     getSearchParam("previousZoom", DEFAULT_ZOOM.toString())!
   );
+
+  const initialCurrentUserSettings = getSearchParam(
+    "currentUserSettings",
+    UserSettings.MapView
+  );
+  const initialPreviousSettings = getSearchParam(
+    "previousSettings",
+    UserSettings.MapView
+  );
   const initialSessionType = getSearchParam(
     "sessionType",
     SessionTypes.FIXED
@@ -45,7 +55,6 @@ export const useMapParams = () => {
     getSearchParam("streamId", null) !== null
       ? parseInt(getSearchParam("streamId", "0")!)
       : null;
-  const initialModalOpen = getSearchParam("modalOpen", "false") === "true";
   const initialMapTypeId = getSearchParam("mapType", "roadmap") || "roadmap";
   const initialLimit = parseInt(getSearchParam("limit", "100")!);
   const initialOffset = parseInt(getSearchParam("offset", "0")!);
@@ -87,22 +96,16 @@ export const useMapParams = () => {
           mapId: MAP_ID,
           location: initialCenter,
           loading: true,
-          sessionsListOpen: false,
           hoverStreamId: null,
           position: initialCenter,
-          modalOpen: initialModalOpen,
+          previousCenter: initialCenter,
+          previousZoom: initialZoom,
         })
       );
       dispatch(setUserThresholdValues(initialThresholds));
       isFirstRender.current = false;
     }
-  }, [
-    dispatch,
-    initialCenter,
-    initialMapTypeId,
-    initialModalOpen,
-    initialThresholds,
-  ]);
+  }, [dispatch, initialCenter, initialMapTypeId, initialThresholds]);
 
   const debouncedUpdateURL = useCallback(
     debounce((params) => {
@@ -118,8 +121,9 @@ export const useMapParams = () => {
     initialSessionType,
     initialSessionId,
     initialStreamId,
-    initialModalOpen,
     initialMapTypeId,
+    initialPreviousSettings,
+    initialCurrentUserSettings,
     initialLimit,
     initialOffset,
     initialMeasurementType,
