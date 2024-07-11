@@ -40,10 +40,10 @@ const MobileContainer = styled.div`
 const MobileButtons = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  justify-content: end; // Align items to the end (right side)
+  justify-content: end;
   gap: 1rem;
   flex-direction: column;
-  position: absolute;
+  position: fixed;
   bottom: 0.1rem;
   right: 0.4rem;
   direction: rtl;
@@ -53,7 +53,7 @@ const ThresholdContainer = styled.div`
   display: grid;
   justify-content: center;
   flex-direction: column;
-  position: absolute;
+  position: fixed;
 
   grid-gap: 5rem;
   width: 100%;
