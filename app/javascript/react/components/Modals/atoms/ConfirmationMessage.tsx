@@ -1,12 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+import { H4 } from "../../Typography";
 
 interface ConfirmationMessageProps {
   message: string;
 }
 
 const MessageContainer = styled.div`
-  margin-top: 1rem;
   text-align: center;
   display: flex;
   flex-wrap: wrap;
@@ -19,7 +19,7 @@ const ConfirmationMessage: React.FC<ConfirmationMessageProps> = ({
 }) => {
   return (
     <MessageContainer>
-      <h2>{message}</h2>
+      <H4>{message}</H4>
     </MessageContainer>
   );
 };

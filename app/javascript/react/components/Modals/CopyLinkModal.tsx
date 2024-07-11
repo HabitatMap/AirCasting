@@ -1,47 +1,42 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { copyCurrentURL } from "../../utils/copyCurrentUrl";
 
+import useShortenedLink from "../../utils/urlShortenedLink";
 import { ModalInput } from "./atoms/ModalInput";
-import { ConfirmationMessage } from "./atoms/ConfirmationMessage";
-
 import { BlueButton, FormWrapper } from "./Modals.style";
+
+const BITLY_ACCESS_TOKEN = process.env.BITLY_ACCESS_TOKEN || "";
 
 export interface CopyLinkModalData {
   link: string;
 }
 
 const initialCopyLinkModalData: CopyLinkModalData = {
-  link: window.location.href, // Initialize with current URL
+  link: window.location.href,
 };
 
 interface CopyLinkModalProps {
-  sessionId: string;
   onSubmit: (data: CopyLinkModalData) => void;
 }
 
-const CopyLinkModal: React.FC<CopyLinkModalProps> = ({
-  sessionId,
-  onSubmit,
-}) => {
+const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit }) => {
   const focusInputRef = useRef<HTMLInputElement | null>(null);
+  const { t } = useTranslation();
+  const { shortenedLink, error } = useShortenedLink(
+    window.location.href,
+    BITLY_ACCESS_TOKEN
+  );
   const [formState, setFormState] = useState<CopyLinkModalData>(
     initialCopyLinkModalData
   );
-  const [confirmationMessage, setConfirmationMessage] = useState<string | null>(
-    null
-  );
-  const { t } = useTranslation();
 
-  //TODO: Uncomment this useEffect to close modal after 4s
-
-  // useEffect(() => {
-  //   if (confirmationMessage) {
-  //     const timer = setTimeout(() => {
-  //       setConfirmationMessage(null);
-  //     }, 4000);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [confirmationMessage]);
+  useEffect(() => {
+    setFormState((prevFormData) => ({
+      ...prevFormData,
+      link: shortenedLink,
+    }));
+  }, [shortenedLink]);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -56,31 +51,29 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({
   const handleSubmit = (event: React.FormEvent): void => {
     event.preventDefault();
     onSubmit(formState);
+    copyCurrentURL(formState.link);
     setFormState(initialCopyLinkModalData);
-    setConfirmationMessage(t("copyLinkModal.confirmationMessage"));
   };
 
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
-    <>
-      {confirmationMessage ? (
-        <ConfirmationMessage message={confirmationMessage} />
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <FormWrapper>
-            <ModalInput
-              focusInputRef={focusInputRef}
-              value={formState.link}
-              onChange={handleInputChange}
-              name="link"
-              type="text"
-            />
-            <BlueButton type="submit" aria-label={t("copyLinkModal.copyLink")}>
-              {t("copyLinkModal.copyLink")}
-            </BlueButton>
-          </FormWrapper>
-        </form>
-      )}
-    </>
+    <form onSubmit={handleSubmit}>
+      <FormWrapper>
+        <ModalInput
+          focusInputRef={focusInputRef}
+          value={formState.link}
+          onChange={handleInputChange}
+          name="link"
+          type="text"
+        />
+        <BlueButton type="submit" aria-label={t("copyLinkModal.copyLink")}>
+          {t("copyLinkModal.copyLink")}
+        </BlueButton>
+      </FormWrapper>
+    </form>
   );
 };
 
