@@ -220,7 +220,7 @@ const Map = () => {
         setMapBounds({ north, south, east, west });
       }
     },
-    [mapInstance]
+    [mapInstance, currentUserSettings]
   );
 
   //Handlers;
