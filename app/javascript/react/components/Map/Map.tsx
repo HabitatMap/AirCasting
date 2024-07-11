@@ -267,8 +267,13 @@ const Map = () => {
   };
 
   const setPreviousZoomInTheState = () => {
+    console.log("test");
+    const desktopCondition: boolean =
+      !isMobile && currentUserSettings !== UserSettings.ModalView;
+    const mobileCondition: boolean =
+      isMobile && currentUserSettings !== UserSettings.ModalView;
     if (mapInstance) {
-      if (currentUserSettings !== UserSettings.ModalView) {
+      if (desktopCondition || mobileCondition) {
         const newZoom = mapInstance?.getZoom();
         const newCenter = mapInstance.getCenter()?.toJSON();
         if (newZoom !== previousZoom) {
