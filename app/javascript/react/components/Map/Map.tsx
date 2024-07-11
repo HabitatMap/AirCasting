@@ -182,9 +182,18 @@ const Map = () => {
   }, [thresholdFilters]);
 
   useEffect(() => {
-    setPreviousZoomOnTheMap();
     isMobile && setPreviousZoomInTheState();
   }, [currentUserSettings]);
+
+  useEffect(() => {
+    if (previousUserSettings === UserSettings.CalendarView) {
+      const intervalId = setInterval(() => {
+        setPreviousZoomOnTheMap();
+        clearInterval(intervalId);
+      }, 25);
+      return () => clearInterval(intervalId);
+    }
+  }, [currentUserSettings, mapInstance]);
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
