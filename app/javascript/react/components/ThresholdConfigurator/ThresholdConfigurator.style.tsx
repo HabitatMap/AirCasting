@@ -13,6 +13,12 @@ const SliderContainer = styled.div<Props>`
   display: flex;
   flex-direction: column;
   width: 100%;
+
+  ${(props) =>
+    props.$isMobileOldStyle &&
+    `
+    padding: 0 0.5rem;
+  `}
 `;
 const ColorBox = styled.div`
   width: 100%;
@@ -134,6 +140,7 @@ const RangeInput = styled.input<{
   margin-left: -15px;
   transform: translateY(-50%);
   height: 9px;
+  overflow: hidden;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -174,9 +181,31 @@ const RangeInput = styled.input<{
     border-color: ${colors.gray300};
   }
 
+  &::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 9px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+  }
+
+  &:focus {
+    outline: none;
+    background: transparent;
+    height: 0;
+  }
+
+  &::-webkit-slider-thumb:active,
+  &::-moz-range-thumb:active,
+  &::-ms-thumb:active {
+    background: ${colors.white};
+    border-color: ${colors.gray300};
+  }
+
   &::-moz-focus-outer {
     border: 0;
   }
+
   @media (${media.desktop}) {
     margin-left: 0;
   }
@@ -298,12 +327,14 @@ const NumberInput = styled.input<{
 const ErrorMessage = styled.p`
   color: ${colors.red};
   position: absolute;
-  top: 27%;
+  background-color: ${colors.white};
+  top: 12%;
   left: 50%;
   transform: translate(-50%, -40%);
   font-size: 1.2rem;
   font-weight: bold;
   text-align: center;
+  z-index: 20;
 
   @media ${media.smallDesktop} {
     font-size: 1.5rem;
@@ -340,8 +371,8 @@ const OldStyleSliderHandles = styled.div`
 `;
 
 const OldStyleSliderHandle = styled.div`
-  width: 16px;
-  height: 16px;
+  width: 13px;
+  height: 13px;
   background-color: ${colors.white};
   box-shadow: rgba(166, 166, 166, 0.5) 0px 2px 4px;
 
