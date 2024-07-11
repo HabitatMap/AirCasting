@@ -86,3 +86,4 @@ export const selectHoverPosition = (state: RootState) => state.map.position;
 export const selectPreviousCenter = (state: RootState) =>
   state.map.previousCenter;
 export const selectPreviousZoom = (state: RootState) => state.map.previousZoom;
+export const selectMapTypeId = (state: RootState) => state.map.mapTypeId;

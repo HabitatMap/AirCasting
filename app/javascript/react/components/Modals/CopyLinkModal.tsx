@@ -67,10 +67,6 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
     setFormState(initialCopyLinkModalData);
   };
 
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
-
   return (
     <form onSubmit={handleSubmit}>
       <FormWrapper>

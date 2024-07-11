@@ -77,6 +77,7 @@ const Map = () => {
     initialSessionId,
     initialStreamId,
     initialMapTypeId,
+    initialMapConfigId,
     initialLimit,
     initialOffset,
     initialMeasurementType,
@@ -187,7 +188,7 @@ const Map = () => {
         : dispatch(fetchMobileSessions({ filters }));
       dispatch(setLoading(false));
     }
-  }, [filters, loading, fixedSessionTypeSelected]);
+  }, [filters, loading, fixedSessionTypeSelected, dispatch]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
@@ -205,17 +206,23 @@ const Map = () => {
         : dispatch(fetchMobileStreamById(initialStreamId));
       dispatch(updateUserSettings(UserSettings.ModalView));
     }
-  }, [initialStreamId, currentUserSettings, fixedSessionTypeSelected]);
+  }, [
+    initialStreamId,
+    currentUserSettings,
+    fixedSessionTypeSelected,
+    dispatch,
+    previousUserSettings,
+  ]);
 
   useEffect(() => {
     if (isFirstRender.current && mapInstance) {
       mapInstance.setZoom(initialZoom);
       mapInstance.setCenter(initialCenter);
-      setPreviousZoom(initialPreviousZoom);
-      setPreviousCenter(initialCenter);
+      dispatch(setPreviousZoom(initialPreviousZoom));
+      dispatch(setPreviousCenter(initialCenter));
       isFirstRender.current = false;
     }
-  }, [mapInstance, initialZoom, initialCenter, initialPreviousZoom]);
+  }, [mapInstance, initialZoom, initialCenter, initialPreviousZoom, dispatch]);
 
   useEffect(() => {
     if (!isFirstRender.current) {
@@ -233,6 +240,7 @@ const Map = () => {
         previousUserSettings: previousUserSettings,
         currentUserSettings: currentUserSettings,
         mapType: mapTypeId,
+        mapConfigId: initialMapConfigId,
         thresholdMin:
           thresholdValues.min?.toString() || defaultThresholds.min.toString(),
         thresholdLow:
@@ -265,6 +273,7 @@ const Map = () => {
     currentUserSettings,
     previousUserSettings,
     mapTypeId,
+    initialMapConfigId,
     thresholdValues,
     defaultThresholds,
     initialLimit,
@@ -283,7 +292,7 @@ const Map = () => {
     }
     setPreviousZoomOnTheMap();
     isMobile && setPreviousZoomInTheState();
-  }, [currentUserSettings]);
+  }, [currentUserSettings, isMobile]);
 
   useEffect(() => {
     if (previousUserSettings === UserSettings.CalendarView) {
@@ -293,7 +302,7 @@ const Map = () => {
       }, 10);
       return () => clearInterval(intervalId);
     }
-  }, [currentUserSettings, mapInstance]);
+  }, [currentUserSettings, mapInstance, previousUserSettings]);
 
   // Callbacks
   const onIdle = useCallback(
@@ -356,11 +365,14 @@ const Map = () => {
     dispatch(updateUserSettings(previousUserSettings));
   };
 
-  const handleClick = useCallback((type: SessionType) => {
-    setSelectedSessionType(type);
-    dispatch(resetUserThresholds());
-    dispatch(setLoading(true));
-  }, []);
+  const handleClick = useCallback(
+    (type: SessionType) => {
+      setSelectedSessionType(type);
+      dispatch(resetUserThresholds());
+      dispatch(setLoading(true));
+    },
+    [dispatch]
+  );
 
   const setPreviousZoomOnTheMap = () => {
     if (currentUserSettings === UserSettings.MapView) {

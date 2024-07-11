@@ -1,46 +1,75 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import * as S from "./ControlPanel.style";
-import { setMapConfigId, setMapTypeId } from "../../../store/mapSlice";
-import { useAppDispatch } from "../../../store/hooks";
 import { RootState } from "../../../store";
+import { useAppDispatch } from "../../../store/hooks";
+import { setMapConfigId, setMapTypeId } from "../../../store/mapSlice";
 import { MapTypeId, ViewMode } from "../../../types/map";
+import { MAP_CONFIGS } from "../mapConfigs";
+import * as S from "./ControlPanel.style";
 
 const ControlPanel: React.FC = () => {
   const dispatch = useAppDispatch();
   const mapConfigId = useSelector((state: RootState) => state.map.mapConfigId);
+  const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
   const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.MAP);
   const [isTerrainChecked, setIsTerrainChecked] = useState<boolean>(false);
   const [isLabelsChecked, setIsLabelsChecked] = useState<boolean>(false);
+  const isFirstRender = useRef(true);
+
+  const updateURLParams = (param: string, value: string) => {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set(param, value);
+    navigate({ search: searchParams.toString() }, { replace: true });
+  };
 
   useEffect(() => {
-    switch (mapConfigId) {
-      case MapTypeId.SATELLITE:
-        setViewMode(ViewMode.SATELLITE);
-        setIsTerrainChecked(false);
-        setIsLabelsChecked(true);
-        break;
-      case MapTypeId.HYBRID:
-        setViewMode(ViewMode.SATELLITE);
-        setIsTerrainChecked(false);
-        setIsLabelsChecked(true);
-        break;
-      case MapTypeId.TERRAIN:
-        setViewMode(ViewMode.MAP);
-        setIsTerrainChecked(true);
-        setIsLabelsChecked(false);
-        break;
-      default:
-        setViewMode(ViewMode.MAP);
-        setIsTerrainChecked(false);
-        setIsLabelsChecked(false);
+    const searchParams = new URLSearchParams(location.search);
+    const mapTypeIdFromURL = searchParams.get("mapType") as string;
+    const mapConfigIdFromURL =
+      searchParams.get("mapConfigId") || MAP_CONFIGS[0].id;
+
+    if (mapTypeIdFromURL) {
+      dispatch(setMapConfigId(mapConfigIdFromURL));
+      dispatch(setMapTypeId(mapTypeIdFromURL));
+
+      switch (mapTypeIdFromURL) {
+        case MapTypeId.SATELLITE:
+          setViewMode(ViewMode.SATELLITE);
+          setIsTerrainChecked(false);
+          setIsLabelsChecked(false);
+          break;
+        case MapTypeId.HYBRID:
+          setViewMode(ViewMode.SATELLITE);
+          setIsTerrainChecked(false);
+          setIsLabelsChecked(true);
+          break;
+        case MapTypeId.TERRAIN:
+          setViewMode(ViewMode.MAP);
+          setIsTerrainChecked(true);
+          setIsLabelsChecked(false);
+          break;
+        default:
+          setViewMode(ViewMode.MAP);
+          setIsTerrainChecked(false);
+          setIsLabelsChecked(false);
+      }
     }
-  }, [mapConfigId]);
+  }, []);
+
+  useEffect(() => {
+    if (!isFirstRender.current) {
+      updateURLParams("mapType", mapTypeId);
+      updateURLParams("mapConfigId", mapConfigId);
+    }
+  }, [mapTypeId, mapConfigId]);
 
   const handleViewModeChange = (newViewMode: ViewMode) => {
     let selectedMapTypeId = MapTypeId.ROADMAP;
@@ -78,6 +107,15 @@ const ControlPanel: React.FC = () => {
       dispatch(setMapTypeId(newMapTypeId));
     }
   };
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+    } else {
+      updateURLParams("mapType", mapTypeId);
+      updateURLParams("mapConfigId", mapConfigId);
+    }
+  }, [mapTypeId, mapConfigId]);
 
   return (
     <S.ControlPanelContainer>

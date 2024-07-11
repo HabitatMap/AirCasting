@@ -55,7 +55,11 @@ export const useMapParams = () => {
     getSearchParam("streamId", null) !== null
       ? parseInt(getSearchParam("streamId", "0")!)
       : null;
-  const initialMapTypeId = getSearchParam("mapType", "roadmap") || "roadmap";
+  const initialMapTypeId =
+    getSearchParam("mapType", MAP_CONFIGS[0].mapTypeId) ||
+    MAP_CONFIGS[0].mapTypeId;
+  const initialMapConfigId =
+    getSearchParam("mapConfigId", MAP_CONFIGS[0].id) || MAP_CONFIGS[0].id;
   const initialLimit = parseInt(getSearchParam("limit", "100")!);
   const initialOffset = parseInt(getSearchParam("offset", "0")!);
 
@@ -91,7 +95,7 @@ export const useMapParams = () => {
     if (isFirstRender.current) {
       dispatch(
         initializeStateFromUrl({
-          mapConfigId: MAP_CONFIGS[0].id,
+          mapConfigId: initialMapConfigId,
           mapTypeId: initialMapTypeId,
           mapId: MAP_ID,
           location: initialCenter,
@@ -105,13 +109,20 @@ export const useMapParams = () => {
       dispatch(setUserThresholdValues(initialThresholds));
       isFirstRender.current = false;
     }
-  }, [initialCenter, initialMapTypeId, initialThresholds, initialPreviousZoom]);
+  }, [
+    dispatch,
+    initialCenter,
+    initialMapConfigId,
+    initialMapTypeId,
+    initialPreviousZoom,
+    initialThresholds,
+  ]);
 
   const debouncedUpdateURL = useCallback(
     debounce((params) => {
       setSearchParams(params);
     }, 300),
-    []
+    [setSearchParams]
   );
 
   return {
@@ -122,6 +133,7 @@ export const useMapParams = () => {
     initialSessionId,
     initialStreamId,
     initialMapTypeId,
+    initialMapConfigId,
     initialPreviousSettings,
     initialCurrentUserSettings,
     initialLimit,
