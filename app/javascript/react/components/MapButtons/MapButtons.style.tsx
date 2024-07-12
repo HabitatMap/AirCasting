@@ -22,10 +22,6 @@ const MapButton = styled.button<{ $isActive?: boolean }>`
 const Title = styled(H4)<{ $isActive?: boolean }>`
   color: ${(props) => (props.$isActive ? white : gray300)};
   margin-right: 0.8rem;
-
-  &::first-letter {
-    text-transform: uppercase;
-  }
 `;
 
 const IconWrapper = styled.div<{ $src: string; $isActive: boolean }>`

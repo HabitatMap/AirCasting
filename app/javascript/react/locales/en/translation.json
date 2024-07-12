@@ -40,11 +40,11 @@
       "openMenu": "Open menu",
       "habitatMapPage": "HabitatMap page"
     },
-    "filter": "filter",
+    "filter": "Filter",
     "altFilter": "Filter icon",
-    "timelapse": "timelapse",
+    "timelapse": "Timelapse",
     "altTimelapse": "Clock icon",
-    "copyLink": "copy link",
+    "copyLink": "Copy link",
     "altCopyLink": "Chain icon",
     "share": "Share",
     "altShare": "Share icon"
