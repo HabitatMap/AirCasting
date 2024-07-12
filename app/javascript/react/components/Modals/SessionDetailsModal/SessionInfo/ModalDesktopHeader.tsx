@@ -79,7 +79,10 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   const updateButtonPosition = () => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      setButtonPosition({ top: rect.top, left: rect.left });
+      setButtonPosition({
+        top: rect.top + window.scrollY,
+        left: rect.left + window.scrollX,
+      });
     }
   };
 
@@ -97,6 +100,10 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
       const timer = setTimeout(() => setShowConfirmation(false), 3000);
       return () => clearTimeout(timer);
     }
+  }, [showConfirmation]);
+
+  useEffect(() => {
+    updateButtonPosition();
   }, [showConfirmation]);
 
   return (
@@ -204,8 +211,8 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
               closeOnDocumentClick={false}
               arrow={false}
               contentStyle={{
-                top: buttonPosition.top - 60,
-                left: buttonPosition.left - 17,
+                top: `${buttonPosition.top - 42}px`,
+                left: `${buttonPosition.left - 12}px`,
                 position: "absolute",
               }}
             >
