@@ -30,6 +30,8 @@ import {
   selectPreviousCenter,
   selectPreviousZoom,
   setLoading,
+  setMapConfigId,
+  setMapTypeId,
   setPreviousCenter,
   setPreviousZoom,
 } from "../../store/mapSlice";
@@ -75,10 +77,11 @@ const Map = () => {
     initialZoom,
     initialPreviousZoom,
     initialPreviousCenter,
+    initialMapTypeId,
+    initialMapConfigId,
     initialSessionType,
     initialSessionId,
     initialStreamId,
-    initialMapConfigId,
     initialLimit,
     initialOffset,
     initialMeasurementType,
@@ -227,6 +230,8 @@ const Map = () => {
           previousUserSettings: initialPreviousSettings,
         })
       );
+      dispatch(setMapTypeId(initialMapTypeId));
+      dispatch(setMapConfigId(initialMapConfigId));
       isFirstRender.current = false;
     }
   }, [
@@ -234,6 +239,8 @@ const Map = () => {
     initialCenter,
     initialPreviousZoom,
     initialPreviousCenter,
+    initialMapTypeId,
+    initialMapConfigId,
     initialCurrentUserSettings,
     initialPreviousSettings,
     mapInstance,
@@ -301,15 +308,15 @@ const Map = () => {
       const queryParams = new URLSearchParams({
         center: currentCenter,
         zoom: currentZoom,
-        previousCenter: JSON.stringify(previousCenter), // Ensure previousCenter is updated
+        previousCenter: JSON.stringify(previousCenter),
         previousZoom: previousZoom.toString(),
+        mapType: mapTypeId,
+        mapConfigId: initialMapConfigId,
         sessionType: selectedSessionType,
         sessionId: selectedSessionId?.toString() || "",
         streamId: selectedStreamId?.toString() || "",
         previousUserSettings: previousUserSettings,
         currentUserSettings: currentUserSettings,
-        mapType: mapTypeId,
-        mapConfigId: initialMapConfigId,
         thresholdMin:
           thresholdValues.min?.toString() || defaultThresholds.min.toString(),
         thresholdLow:
@@ -338,13 +345,13 @@ const Map = () => {
       initialCenter,
       previousCenter,
       previousZoom,
+      mapTypeId,
+      initialMapConfigId,
       selectedSessionType,
       selectedSessionId,
       selectedStreamId,
       previousUserSettings,
       currentUserSettings,
-      mapTypeId,
-      initialMapConfigId,
       thresholdValues,
       defaultThresholds,
       initialLimit,
@@ -461,7 +468,6 @@ const Map = () => {
         disableDefaultUI={true}
         scaleControl={true}
         style={S.containerStyle}
-        // onIdle={onIdle}
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
       >

@@ -43,6 +43,12 @@ export const useMapParams = () => {
     []
   );
 
+  const initialMapTypeId =
+    getSearchParam("mapType", MAP_CONFIGS[0].mapTypeId) ||
+    MAP_CONFIGS[0].mapTypeId;
+  const initialMapConfigId =
+    getSearchParam("mapConfigId", MAP_CONFIGS[0].id) || MAP_CONFIGS[0].id;
+
   const initialCurrentUserSettings = getSearchParam(
     "currentUserSettings",
     UserSettings.MapView
@@ -73,11 +79,6 @@ export const useMapParams = () => {
           getSearchParam("hoverPosition", JSON.stringify(DEFAULT_MAP_CENTER))!
         )
       : null;
-  const initialMapTypeId =
-    getSearchParam("mapType", MAP_CONFIGS[0].mapTypeId) ||
-    MAP_CONFIGS[0].mapTypeId;
-  const initialMapConfigId =
-    getSearchParam("mapConfigId", MAP_CONFIGS[0].id) || MAP_CONFIGS[0].id;
   const initialLimit = parseInt(getSearchParam("limit", "100")!);
   const initialOffset = parseInt(getSearchParam("offset", "0")!);
 
@@ -160,13 +161,13 @@ export const useMapParams = () => {
     initialZoom,
     initialPreviousZoom,
     initialPreviousCenter,
+    initialMapTypeId,
+    initialMapConfigId,
     initialSessionType,
     initialSessionId,
     initialStreamId,
     initialHoverStreamId,
     initialHoverPosition,
-    initialMapTypeId,
-    initialMapConfigId,
     initialPreviousSettings,
     initialCurrentUserSettings,
     initialLimit,

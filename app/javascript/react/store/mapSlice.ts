@@ -89,3 +89,4 @@ export const selectPreviousCenter = (state: RootState) =>
   state.map.previousCenter;
 export const selectPreviousZoom = (state: RootState) => state.map.previousZoom;
 export const selectMapTypeId = (state: RootState) => state.map.mapTypeId;
+export const selectMapConfigId = (state: RootState) => state.map.mapConfigId;

@@ -1,8 +1,7 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts/highstock";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   selectFixedData,
@@ -10,6 +9,7 @@ import {
   updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
+import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import {
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
@@ -42,6 +42,7 @@ interface GraphProps {
 
 const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const graphRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const [selectedRange, setSelectedRange] = useState(
@@ -63,7 +64,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const measurementType = "Particulate Matter";
 
   const isMobile = useMobileDetection();
-  const dispatch = useAppDispatch();
 
   const fixedSeriesData = (fixedGraphData?.measurements || [])
     .map((measurement: { time: any; value: any }) => [
@@ -138,6 +138,19 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
     }
   }, []);
 
+  const handlePointHover = useCallback(
+    (e: any) => {
+      const point = e.target;
+      if (point) {
+        const hoverPosition = point.options?.position || null;
+        const hoverStreamId = streamId;
+        dispatch(setHoverPosition(hoverPosition));
+        dispatch(setHoverStreamId(hoverStreamId));
+      }
+    },
+    [dispatch, streamId]
+  );
+
   const options: Highcharts.Options = {
     title: undefined,
     xAxis: xAxisOptions,
@@ -146,7 +159,16 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
       hideDuration: 1000,
       showDuration: 1000,
     },
-    plotOptions: plotOptions,
+    plotOptions: {
+      ...plotOptions,
+      series: {
+        point: {
+          events: {
+            mouseOver: handlePointHover,
+          },
+        },
+      },
+    },
     series: [seriesOptions(seriesData)],
     legend: legendOption,
     chart: {
