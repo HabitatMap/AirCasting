@@ -1,4 +1,4 @@
-import { Map as GoogleMap, MapEvent, useMap } from "@vis.gl/react-google-maps";
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
   useEffect,
@@ -74,6 +74,7 @@ const Map = () => {
     initialCenter,
     initialZoom,
     initialPreviousZoom,
+    initialPreviousCenter,
     initialSessionType,
     initialSessionId,
     initialStreamId,
@@ -140,7 +141,6 @@ const Map = () => {
   const defaultThresholds = useSelector(selectDefaultThresholds);
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
-  const MAP = useMap();
 
   const listSessions = useSelector(
     fixedSessionTypeSelected
@@ -184,6 +184,8 @@ const Map = () => {
 
   const isFirstRender = useRef(true);
 
+  // Effects
+
   useEffect(() => {
     if (loading || isFirstRender.current) {
       fixedSessionTypeSelected
@@ -218,7 +220,7 @@ const Map = () => {
   useEffect(() => {
     if (isFirstRender.current) {
       dispatch(setPreviousZoom(initialPreviousZoom));
-      dispatch(setPreviousCenter(initialCenter));
+      dispatch(setPreviousCenter(initialPreviousCenter));
       dispatch(
         initializeUserSettings({
           currentUserSettings: initialCurrentUserSettings,
@@ -231,73 +233,12 @@ const Map = () => {
     initialZoom,
     initialCenter,
     initialPreviousZoom,
+    initialPreviousCenter,
     initialCurrentUserSettings,
     initialPreviousSettings,
     mapInstance,
   ]);
 
-  // useEffect(() => {
-  //   if (!isFirstRender.current) {
-  //     const currentCenter = JSON.stringify(
-  //       mapInstance?.getCenter()?.toJSON() || previousCenter
-  //     );
-  //     const currentZoom = (mapInstance?.getZoom() || previousZoom).toString();
-  //     const queryParams = new URLSearchParams({
-  //       center: currentCenter,
-  //       zoom: currentZoom,
-  //       previousZoom: previousZoom.toString(),
-  //       sessionType: selectedSessionType,
-  //       sessionId: selectedSessionId?.toString() || "",
-  //       streamId: selectedStreamId?.toString() || "",
-  //       previousUserSettings: previousUserSettings,
-  //       currentUserSettings: currentUserSettings,
-  //       mapType: mapTypeId,
-  //       mapConfigId: initialMapConfigId,
-  //       thresholdMin:
-  //         thresholdValues.min?.toString() || defaultThresholds.min.toString(),
-  //       thresholdLow:
-  //         thresholdValues.low?.toString() || defaultThresholds.low.toString(),
-  //       thresholdMiddle:
-  //         thresholdValues.middle?.toString() ||
-  //         defaultThresholds.middle.toString(),
-  //       thresholdHigh:
-  //         thresholdValues.high?.toString() || defaultThresholds.high.toString(),
-  //       thresholdMax:
-  //         thresholdValues.max?.toString() || defaultThresholds.max.toString(),
-  //       limit: initialLimit.toString(),
-  //       offset: initialOffset.toString(),
-  //       sensor_name: initialSensorName,
-  //       measurement_type: initialMeasurementType,
-  //       unit_symbol: initialUnitSymbol,
-  //     });
-  //     const currentParams = searchParams.toString();
-  //     if (queryParams.toString() !== currentParams) {
-  //       debouncedUpdateURL(queryParams);
-  //     }
-  //   }
-  // }, [
-  //   mapInstance,
-  //   previousCenter,
-  //   previousZoom,
-  //   selectedSessionType,
-  //   selectedSessionId,
-  //   selectedStreamId,
-  //   currentUserSettings,
-  //   previousUserSettings,
-  //   mapTypeId,
-  //   initialMapConfigId,
-  //   thresholdValues,
-  //   defaultThresholds,
-  //   initialLimit,
-  //   initialOffset,
-  //   initialSensorName,
-  //   initialMeasurementType,
-  //   initialUnitSymbol,
-  //   searchParams,
-  //   debouncedUpdateURL,
-  // ]);
-
-  // Monitor changes to threshold values and update the URL
   useEffect(() => {
     const queryParams = new URLSearchParams(searchParams.toString());
     queryParams.set("thresholdMin", thresholdValues.min.toString());
@@ -328,29 +269,6 @@ const Map = () => {
   }, [currentUserSettings, mapInstance, previousUserSettings]);
 
   // Callbacks
-  // const onIdle = useCallback(
-  //   (event: MapEvent) => {
-  //     if (currentUserSettings === UserSettings.MapView) {
-  //       const map = event.map;
-  //       if (!mapInstance) {
-  //         setMapInstance(map);
-  //         map.setOptions({
-  //           clickableIcons: false,
-  //         });
-  //       }
-  //       const bounds = map?.getBounds();
-  //       if (!bounds) {
-  //         return;
-  //       }
-  //       const north = bounds.getNorthEast().lat();
-  //       const south = bounds.getSouthWest().lat();
-  //       const east = bounds.getNorthEast().lng();
-  //       const west = bounds.getSouthWest().lng();
-  //       setMapBounds({ north, south, east, west });
-  //     }
-  //   },
-  //   [mapInstance, currentUserSettings]
-  // );
 
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
@@ -383,6 +301,7 @@ const Map = () => {
       const queryParams = new URLSearchParams({
         center: currentCenter,
         zoom: currentZoom,
+        previousCenter: JSON.stringify(previousCenter), // Ensure previousCenter is updated
         previousZoom: previousZoom.toString(),
         sessionType: selectedSessionType,
         sessionId: selectedSessionId?.toString() || "",
@@ -483,7 +402,7 @@ const Map = () => {
       newSearchParams.set("sessionType", type);
       navigate(`?${newSearchParams.toString()}`);
     },
-    [dispatch, navigate, searchParams]
+    [searchParams]
   );
 
   const setPreviousZoomOnTheMap = () => {

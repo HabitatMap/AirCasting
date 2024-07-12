@@ -35,6 +35,14 @@ export const useMapParams = () => {
     getSearchParam("previousZoom", DEFAULT_ZOOM.toString())!
   );
 
+  const initialPreviousCenter = useMemo(
+    () =>
+      JSON.parse(
+        getSearchParam("previousCenter", JSON.stringify(DEFAULT_MAP_CENTER))!
+      ),
+    []
+  );
+
   const initialCurrentUserSettings = getSearchParam(
     "currentUserSettings",
     UserSettings.MapView
@@ -113,7 +121,7 @@ export const useMapParams = () => {
           hoverStreamId: initialHoverStreamId,
           hoverPosition: initialHoverPosition,
           position: initialCenter,
-          previousCenter: initialCenter,
+          previousCenter: initialPreviousCenter,
           previousZoom: initialPreviousZoom,
         })
       );
@@ -137,6 +145,7 @@ export const useMapParams = () => {
     initialPreviousSettings,
     initialHoverStreamId,
     initialHoverPosition,
+    initialPreviousCenter,
   ]);
 
   const debouncedUpdateURL = useCallback(
@@ -150,6 +159,7 @@ export const useMapParams = () => {
     initialCenter,
     initialZoom,
     initialPreviousZoom,
+    initialPreviousCenter,
     initialSessionType,
     initialSessionId,
     initialStreamId,
