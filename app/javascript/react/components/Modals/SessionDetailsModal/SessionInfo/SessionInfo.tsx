@@ -16,8 +16,8 @@ import { SessionType, SessionTypes } from "../../../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import useMobileDetection from "../../../../utils/useScreenSizeDetection";
 import * as S from "../SessionDetailsModal.style";
-import DesktopHeader from "./DesktopHeader";
 import MobileHeader from "./MobileHeader";
+import DesktopHeader from "./ModalDesktopHeader";
 
 interface SessionInfoProps {
   sessionType: SessionType;

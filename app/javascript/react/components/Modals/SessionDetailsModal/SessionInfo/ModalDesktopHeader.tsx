@@ -9,9 +9,9 @@ import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobi
 import { Thresholds } from "../../../../types/thresholds";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../../utils/thresholdColors";
-import { ExportDataModal } from "../../../Modals/ExportDataModal";
 import { ConfirmationMessage } from "../../atoms/ConfirmationMessage";
 import { CopyLinkModal, CopyLinkModalData } from "../../CopyLinkModal";
+import { ExportDataModal } from "../../ExportDataModal";
 import * as S from "../SessionDetailsModal.style";
 
 interface Extremes {
@@ -20,7 +20,7 @@ interface Extremes {
   averageValue: number | null;
 }
 
-interface DesktopHeaderProps {
+interface ModalDesktopHeaderProps {
   streamShortInfo: StreamShortInfo;
   thresholds: Thresholds;
   extremes: Extremes;
@@ -35,7 +35,7 @@ type CustomPopupProps = {
     | ((close: () => void, isOpen: boolean) => React.ReactNode);
 };
 
-const DesktopHeader: React.FC<DesktopHeaderProps> = ({
+const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   streamShortInfo,
   thresholds,
   extremes,
@@ -95,7 +95,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   }, [showConfirmation]);
 
   return (
-    <S.DesktopHeader>
+    <S.ModalDesktopHeader>
       <S.Wrapper>
         <S.SessionName>{streamShortInfo.title}</S.SessionName>
         <S.ProfileName>{streamShortInfo.profile}</S.ProfileName>
@@ -210,8 +210,8 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
           )}
         </S.WrapperButton>
       </S.ButtonsContainer>
-    </S.DesktopHeader>
+    </S.ModalDesktopHeader>
   );
 };
 
-export default DesktopHeader;
+export default ModalDesktopHeader;

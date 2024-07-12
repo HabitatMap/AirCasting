@@ -13,7 +13,7 @@ interface Extremes {
   averageValue: number | null;
 }
 
-interface MobileHeaderProps {
+interface ModalMobileHeaderProps {
   toggleVisibility: () => void;
   isVisible: boolean;
   streamShortInfo: StreamShortInfo;
@@ -23,7 +23,7 @@ interface MobileHeaderProps {
   formattedTime: (time: string) => string;
 }
 
-const MobileHeader: React.FC<MobileHeaderProps> = ({
+const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
   toggleVisibility,
   isVisible,
   streamShortInfo,
@@ -41,7 +41,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
     averageValue
   );
   return (
-    <S.MobileHeader>
+    <S.ModalMobileHeader>
       <S.HeaderWrapper onClick={toggleVisibility}>
         <S.ClickableWrapper>
           <S.RotatedIcon
@@ -101,8 +101,8 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
           </S.TimeRange>
         </S.Wrapper>
       </S.ContentWrapper>
-    </S.MobileHeader>
+    </S.ModalMobileHeader>
   );
 };
 
-export default MobileHeader;
+export default ModalMobileHeader;

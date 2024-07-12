@@ -81,7 +81,7 @@ const InfoContainer = styled.div`
   }
 `;
 
-const MobileHeader = styled.div`
+const ModalMobileHeader = styled.div`
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -91,7 +91,7 @@ const MobileHeader = styled.div`
   }
 `;
 
-const DesktopHeader = styled.div`
+const ModalDesktopHeader = styled.div`
   display: none;
 
   @media ${media.smallDesktop} {
@@ -315,11 +315,11 @@ export {
   ClickableWrapper,
   ConfirmationPopup,
   ContentWrapper,
-  DesktopHeader,
   HeaderWrapper,
   InfoContainer,
   MinMaxValueContainer,
-  MobileHeader,
+  ModalDesktopHeader,
+  ModalMobileHeader,
   NoData,
   ProfileName,
   RotatedIcon,
