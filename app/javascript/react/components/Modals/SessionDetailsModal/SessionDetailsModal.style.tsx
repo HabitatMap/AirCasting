@@ -81,7 +81,7 @@ const InfoContainer = styled.div`
   }
 `;
 
-const MobileHeader = styled.div`
+const ModalMobileHeader = styled.div`
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -91,7 +91,7 @@ const MobileHeader = styled.div`
   }
 `;
 
-const DesktopHeader = styled.div`
+const ModalDesktopHeader = styled.div`
   display: none;
 
   @media ${media.smallDesktop} {
@@ -244,6 +244,18 @@ const SmallPopup = styled(Popup)`
   }
 `;
 
+const ConfirmationPopup = styled(Popup)`
+  &-content {
+    background-color: ${white};
+    opacity: 1;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1200;
+    display: flex;
+  }
+`;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -287,6 +299,11 @@ const RotatedIcon = styled.img<{ rotated: boolean }>`
   cursor: pointer;
 `;
 
+const WrapperButton = styled.div`
+  display: flex;
+  position: relative;
+`;
+
 export {
   AverageDot,
   AverageValue,
@@ -296,12 +313,13 @@ export {
   ButtonsContainer,
   CancelButtonX,
   ClickableWrapper,
+  ConfirmationPopup,
   ContentWrapper,
-  DesktopHeader,
   HeaderWrapper,
   InfoContainer,
   MinMaxValueContainer,
-  MobileHeader,
+  ModalDesktopHeader,
+  ModalMobileHeader,
   NoData,
   ProfileName,
   RotatedIcon,
@@ -313,4 +331,5 @@ export {
   TimeRange,
   Value,
   Wrapper,
+  WrapperButton,
 };

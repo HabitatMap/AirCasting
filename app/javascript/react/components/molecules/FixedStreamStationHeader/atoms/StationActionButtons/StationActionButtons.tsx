@@ -2,22 +2,42 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import copyLink from "../../../../../assets/icons/copyLink.svg";
-import shareLink from "../../../../../assets/icons/shareLink.svg";
 import downloadImage from "../../../../../assets/icons/download.svg";
-import { Button } from "../../../../Button/Button.style";
-import { ActionButton } from "../../../../ActionButton/ActionButton.style";
-import * as S from "./StationActionButtons.style";
-import { ExportDataModal } from "../../../../Modals";
+import shareLink from "../../../../../assets/icons/shareLink.svg";
 import { copyCurrentURL } from "../../../../../utils/copyCurrentUrl";
+
+import useShortenedLink from "../../../../../utils/urlShortenedLink";
+import { ActionButton } from "../../../../ActionButton/ActionButton.style";
+import { Button } from "../../../../Button/Button.style";
+import { ExportDataModal } from "../../../../Modals";
 import { SmallPopup } from "../../../../Modals/SessionDetailsModal/SessionDetailsModal.style";
+import * as S from "./StationActionButtons.style";
 
 interface Props {
   sessionId: string;
 }
+const BITLY_ACCESS_TOKEN = process.env.BITLY_ACCESS_TOKEN || "";
 
 const StationActionButtons = ({ sessionId }: Props) => {
+  const currentUrl = window.location.href;
   const { t } = useTranslation();
+  const { shortenedLink, error } = useShortenedLink(
+    currentUrl,
+    BITLY_ACCESS_TOKEN
+  );
 
+  const handleCopyLink = () => {
+    if (shortenedLink) {
+      copyCurrentURL(shortenedLink);
+      alert(t("alert.linkCopied"));
+    } else {
+      alert(t("alert.linkShortenedFailed"));
+    }
+  };
+
+  if (error) {
+    console.error("Error shortening link: ", error.message);
+  }
   return (
     <>
       <S.MobileButtons>
@@ -37,7 +57,7 @@ const StationActionButtons = ({ sessionId }: Props) => {
           <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
         </SmallPopup>
         <ActionButton
-          onClick={copyCurrentURL}
+          onClick={handleCopyLink}
           aria-label={t("calendarHeader.altShareLink")}
         >
           <img src={shareLink} />
@@ -45,7 +65,7 @@ const StationActionButtons = ({ sessionId }: Props) => {
       </S.MobileButtons>
       <S.DesktopButtons>
         <Button
-          onClick={copyCurrentURL}
+          onClick={handleCopyLink}
           aria-label={t("calendarHeader.altShareLink")}
         >
           {t("calendarHeader.copyLink")}{" "}

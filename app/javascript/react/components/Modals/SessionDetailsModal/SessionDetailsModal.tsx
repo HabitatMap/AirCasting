@@ -25,11 +25,10 @@ type CustomPopupProps = {
 
 const SessionDetailsModal: React.FC<
   SessionDetailsModalProps & Omit<PopupProps, "children">
-> = ({ onClose, sessionType, streamId }) => {
+> = React.memo(({ onClose, sessionType, streamId }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   const { t } = useTranslation();
-  const isMobile = useMobileDetection();
 
   // Workaround for the typescript error
   const SessionModal: React.FC<
@@ -37,6 +36,8 @@ const SessionDetailsModal: React.FC<
   > = (props) => {
     return <S.SessionDetailsModal {...(props as PopupProps)} />;
   };
+
+  const isMobile = useMobileDetection();
 
   return (
     <SessionModal
@@ -71,6 +72,6 @@ const SessionDetailsModal: React.FC<
       )}
     </SessionModal>
   );
-};
+});
 
 export { SessionDetailsModal };
