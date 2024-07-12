@@ -35,7 +35,7 @@ const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
         toggleMenuVisibility={toggleMenuVisibility}
         t={t}
       />
-      {!isMobile && <MapButtons />}
+      {!isMobile && isMapPage && <MapButtons />}
     </S.Header>
   );
 };
