@@ -7,7 +7,7 @@ interface MapButtonProps {
   title: string;
   alt: string;
   onClick: () => void;
-  isActive?: boolean;
+  isActive: boolean;
 }
 
 const MapButton: React.FC<MapButtonProps> = ({
@@ -18,11 +18,9 @@ const MapButton: React.FC<MapButtonProps> = ({
   isActive,
 }) => {
   return (
-    <S.MapButton onClick={onClick} isActive={isActive}>
-      <S.Title isActive={isActive}>{title}</S.Title>
-      <S.IconWrapper src={image}>
-        <S.Icon src={image} alt={alt} />
-      </S.IconWrapper>
+    <S.MapButton onClick={onClick} $isActive={isActive}>
+      <S.Title $isActive={isActive}>{title}</S.Title>
+      <S.IconWrapper $src={image} $isActive={isActive} title={alt} />
     </S.MapButton>
   );
 };
