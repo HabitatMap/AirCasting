@@ -217,13 +217,6 @@ const Map = () => {
 
   useEffect(() => {
     if (isFirstRender.current) {
-      console.log(MAP, "MAP");
-      const intervalId = setInterval(() => {
-        mapInstance?.setZoom(initialZoom);
-        mapInstance?.setCenter(initialCenter);
-        clearInterval(intervalId);
-      }, 10);
-
       dispatch(setPreviousZoom(initialPreviousZoom));
       dispatch(setPreviousCenter(initialCenter));
       dispatch(
@@ -243,12 +236,150 @@ const Map = () => {
     mapInstance,
   ]);
 
+  // useEffect(() => {
+  //   if (!isFirstRender.current) {
+  //     const currentCenter = JSON.stringify(
+  //       mapInstance?.getCenter()?.toJSON() || previousCenter
+  //     );
+  //     const currentZoom = (mapInstance?.getZoom() || previousZoom).toString();
+  //     const queryParams = new URLSearchParams({
+  //       center: currentCenter,
+  //       zoom: currentZoom,
+  //       previousZoom: previousZoom.toString(),
+  //       sessionType: selectedSessionType,
+  //       sessionId: selectedSessionId?.toString() || "",
+  //       streamId: selectedStreamId?.toString() || "",
+  //       previousUserSettings: previousUserSettings,
+  //       currentUserSettings: currentUserSettings,
+  //       mapType: mapTypeId,
+  //       mapConfigId: initialMapConfigId,
+  //       thresholdMin:
+  //         thresholdValues.min?.toString() || defaultThresholds.min.toString(),
+  //       thresholdLow:
+  //         thresholdValues.low?.toString() || defaultThresholds.low.toString(),
+  //       thresholdMiddle:
+  //         thresholdValues.middle?.toString() ||
+  //         defaultThresholds.middle.toString(),
+  //       thresholdHigh:
+  //         thresholdValues.high?.toString() || defaultThresholds.high.toString(),
+  //       thresholdMax:
+  //         thresholdValues.max?.toString() || defaultThresholds.max.toString(),
+  //       limit: initialLimit.toString(),
+  //       offset: initialOffset.toString(),
+  //       sensor_name: initialSensorName,
+  //       measurement_type: initialMeasurementType,
+  //       unit_symbol: initialUnitSymbol,
+  //     });
+  //     const currentParams = searchParams.toString();
+  //     if (queryParams.toString() !== currentParams) {
+  //       debouncedUpdateURL(queryParams);
+  //     }
+  //   }
+  // }, [
+  //   mapInstance,
+  //   previousCenter,
+  //   previousZoom,
+  //   selectedSessionType,
+  //   selectedSessionId,
+  //   selectedStreamId,
+  //   currentUserSettings,
+  //   previousUserSettings,
+  //   mapTypeId,
+  //   initialMapConfigId,
+  //   thresholdValues,
+  //   defaultThresholds,
+  //   initialLimit,
+  //   initialOffset,
+  //   initialSensorName,
+  //   initialMeasurementType,
+  //   initialUnitSymbol,
+  //   searchParams,
+  //   debouncedUpdateURL,
+  // ]);
+
+  // Monitor changes to threshold values and update the URL
   useEffect(() => {
-    if (!isFirstRender.current) {
+    const queryParams = new URLSearchParams(searchParams.toString());
+    queryParams.set("thresholdMin", thresholdValues.min.toString());
+    queryParams.set("thresholdLow", thresholdValues.low.toString());
+    queryParams.set("thresholdMiddle", thresholdValues.middle.toString());
+    queryParams.set("thresholdHigh", thresholdValues.high.toString());
+    queryParams.set("thresholdMax", thresholdValues.max.toString());
+    debouncedUpdateURL(queryParams);
+  }, [thresholdValues]);
+
+  useEffect(() => {
+    if (currentUserSettings !== UserSettings.ModalView) {
+      setSelectedStreamId(null);
+      setSelectedSessionId(null);
+    }
+    setPreviousZoomOnTheMap();
+    isMobile && setPreviousZoomInTheState();
+  }, [currentUserSettings]);
+
+  useEffect(() => {
+    if (previousUserSettings === UserSettings.CalendarView) {
+      const intervalId = setInterval(() => {
+        setPreviousZoomOnTheMap();
+        clearInterval(intervalId);
+      }, 10);
+      return () => clearInterval(intervalId);
+    }
+  }, [currentUserSettings, mapInstance, previousUserSettings]);
+
+  // Callbacks
+  // const onIdle = useCallback(
+  //   (event: MapEvent) => {
+  //     if (currentUserSettings === UserSettings.MapView) {
+  //       const map = event.map;
+  //       if (!mapInstance) {
+  //         setMapInstance(map);
+  //         map.setOptions({
+  //           clickableIcons: false,
+  //         });
+  //       }
+  //       const bounds = map?.getBounds();
+  //       if (!bounds) {
+  //         return;
+  //       }
+  //       const north = bounds.getNorthEast().lat();
+  //       const south = bounds.getSouthWest().lat();
+  //       const east = bounds.getNorthEast().lng();
+  //       const west = bounds.getSouthWest().lng();
+  //       setMapBounds({ north, south, east, west });
+  //     }
+  //   },
+  //   [mapInstance, currentUserSettings]
+  // );
+
+  const handleMapIdle = useCallback(
+    (event: MapEvent) => {
+      const map = event.map;
+      if (!mapInstance) {
+        setMapInstance(map);
+        map.setOptions({
+          clickableIcons: false,
+        });
+      }
+      if (isFirstRender.current) {
+        map.setZoom(initialZoom);
+        map.setCenter(initialCenter);
+        isFirstRender.current = false;
+      }
+      const bounds = map?.getBounds();
+      if (!bounds) {
+        return;
+      }
+      const north = bounds.getNorthEast().lat();
+      const south = bounds.getSouthWest().lat();
+      const east = bounds.getNorthEast().lng();
+      const west = bounds.getSouthWest().lng();
+      setMapBounds({ north, south, east, west });
+
       const currentCenter = JSON.stringify(
-        mapInstance?.getCenter()?.toJSON() || previousCenter
+        map.getCenter()?.toJSON() || previousCenter
       );
-      const currentZoom = (mapInstance?.getZoom() || previousZoom).toString();
+      const currentZoom = (map.getZoom() || previousZoom).toString();
       const queryParams = new URLSearchParams({
         center: currentCenter,
         zoom: currentZoom,
@@ -281,90 +412,30 @@ const Map = () => {
       if (queryParams.toString() !== currentParams) {
         debouncedUpdateURL(queryParams);
       }
-    }
-  }, [
-    mapInstance,
-    previousCenter,
-    previousZoom,
-    selectedSessionType,
-    selectedSessionId,
-    selectedStreamId,
-    currentUserSettings,
-    previousUserSettings,
-    mapTypeId,
-    initialMapConfigId,
-    thresholdValues,
-    defaultThresholds,
-    initialLimit,
-    initialOffset,
-    initialSensorName,
-    initialMeasurementType,
-    initialUnitSymbol,
-    searchParams,
-    debouncedUpdateURL,
-  ]);
-
-  // Monitor changes to threshold values and update the URL
-  useEffect(() => {
-    const queryParams = new URLSearchParams(searchParams.toString());
-    queryParams.set("thresholdMin", thresholdValues.min.toString());
-    queryParams.set("thresholdLow", thresholdValues.low.toString());
-    queryParams.set("thresholdMiddle", thresholdValues.middle.toString());
-    queryParams.set("thresholdHigh", thresholdValues.high.toString());
-    queryParams.set("thresholdMax", thresholdValues.max.toString());
-    debouncedUpdateURL(queryParams);
-  }, [thresholdValues]);
-
-  useEffect(() => {
-    if (currentUserSettings !== UserSettings.ModalView && mapInstance) {
-      const setMapView = () => {
-        if (mapInstance) {
-          mapInstance.setCenter(previousCenter);
-          mapInstance.setZoom(previousZoom);
-        }
-      };
-      setMapView();
-    }
-  }, [currentUserSettings, mapInstance, isMobile]);
-
-  useEffect(() => {
-    if (previousUserSettings === UserSettings.CalendarView) {
-      const intervalId = setInterval(() => {
-        setPreviousZoomOnTheMap();
-        clearInterval(intervalId);
-      }, 10);
-      return () => clearInterval(intervalId);
-    }
-  }, [currentUserSettings, mapInstance, previousUserSettings]);
-
-  useEffect(() => {
-    console.log(mapInstance, "mapInstance");
-    console.log(MAP, "MAP");
-  }, [mapInstance]);
-
-  // Callbacks
-  const onIdle = useCallback(
-    (event: MapEvent) => {
-      if (currentUserSettings === UserSettings.MapView) {
-        const map = event.map;
-        if (!mapInstance) {
-          setMapInstance(map);
-          map.setOptions({
-            clickableIcons: false,
-          });
-        }
-        const bounds = map?.getBounds();
-        if (!bounds) {
-          return;
-        }
-        const north = bounds.getNorthEast().lat();
-        const south = bounds.getSouthWest().lat();
-        const east = bounds.getNorthEast().lng();
-        const west = bounds.getSouthWest().lng();
-        setMapBounds({ north, south, east, west });
-      }
     },
-    [mapInstance, currentUserSettings]
+    [
+      mapInstance,
+      initialZoom,
+      initialCenter,
+      previousCenter,
+      previousZoom,
+      selectedSessionType,
+      selectedSessionId,
+      selectedStreamId,
+      previousUserSettings,
+      currentUserSettings,
+      mapTypeId,
+      initialMapConfigId,
+      thresholdValues,
+      defaultThresholds,
+      initialLimit,
+      initialOffset,
+      initialSensorName,
+      initialMeasurementType,
+      initialUnitSymbol,
+      searchParams,
+      debouncedUpdateURL,
+    ]
   );
 
   //Handlers;
@@ -400,7 +471,6 @@ const Map = () => {
   const handleCloseModal = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
-    console.log(previousUserSettings, "previousUserSettings");
     dispatch(updateUserSettings(previousUserSettings));
   };
 
@@ -418,9 +488,7 @@ const Map = () => {
 
   const setPreviousZoomOnTheMap = () => {
     if (currentUserSettings === UserSettings.MapView) {
-      console.log("inside setPreviousZoomOnTheMap");
       if (mapInstance) {
-        console.log("inside setPreviousZoomOnTheMap if");
         mapInstance.setCenter(previousCenter);
         mapInstance.setZoom(previousZoom);
       }
@@ -474,7 +542,8 @@ const Map = () => {
         disableDefaultUI={true}
         scaleControl={true}
         style={S.containerStyle}
-        onIdle={onIdle}
+        // onIdle={onIdle}
+        onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
       >
         {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
