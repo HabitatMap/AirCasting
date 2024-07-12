@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PopupProps } from "reactjs-popup/dist/types";
+
 import calendar from "../../../../assets/icons/calendar.svg";
+import copyLinkIcon from "../../../../assets/icons/copyLinkIcon.svg";
 import downloadImage from "../../../../assets/icons/download.svg";
-import shareLink from "../../../../assets/icons/shareLink.svg";
 import { white } from "../../../../assets/styles/colors";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
@@ -189,7 +190,7 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
           <CopyLinkPopup
             trigger={
               <S.Button aria-label={t("copyLinkModal.altCopyLink")}>
-                <img src={shareLink} alt={t("copyLinkModal.copyLink")} />
+                <img src={copyLinkIcon} alt={t("copyLinkModal.copyLink")} />
               </S.Button>
             }
             position="top center"
