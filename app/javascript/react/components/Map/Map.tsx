@@ -77,7 +77,6 @@ const Map = () => {
     initialSessionType,
     initialSessionId,
     initialStreamId,
-    initialMapTypeId,
     initialMapConfigId,
     initialLimit,
     initialOffset,
@@ -191,12 +190,12 @@ const Map = () => {
         : dispatch(fetchMobileSessions({ filters }));
       dispatch(setLoading(false));
     }
-  }, [filters, loading, fixedSessionTypeSelected, dispatch]);
+  }, [filters, loading, fixedSessionTypeSelected]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
     dispatch(setUserThresholdValues(initialThresholds));
-  }, [dispatch, thresholdFilters, initialThresholds]);
+  }, [thresholdFilters, initialThresholds]);
 
   useEffect(() => {
     if (
@@ -213,7 +212,6 @@ const Map = () => {
     initialStreamId,
     currentUserSettings,
     fixedSessionTypeSelected,
-    dispatch,
     previousUserSettings,
   ]);
 
@@ -236,7 +234,6 @@ const Map = () => {
     initialZoom,
     initialCenter,
     initialPreviousZoom,
-    dispatch,
     initialCurrentUserSettings,
     initialPreviousSettings,
   ]);
@@ -311,7 +308,11 @@ const Map = () => {
     queryParams.set("thresholdHigh", thresholdValues.high.toString());
     queryParams.set("thresholdMax", thresholdValues.max.toString());
     debouncedUpdateURL(queryParams);
-  }, [thresholdValues, searchParams, debouncedUpdateURL]);
+  }, [thresholdValues]);
+
+  console.log(previousUserSettings, "previousUserSettings");
+  console.log(currentUserSettings, "currentUserSettings");
+  console.log(isFirstRender.current, "isFirstRender.current");
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
