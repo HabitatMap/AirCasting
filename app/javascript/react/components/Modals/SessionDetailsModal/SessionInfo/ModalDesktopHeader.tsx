@@ -27,7 +27,6 @@ interface ModalDesktopHeaderProps {
   formattedTime: (time: string) => string;
   streamId: number | null;
   fixedSessionTypeSelected: boolean;
-  sessionType: string;
 }
 
 type CustomPopupProps = {
@@ -43,13 +42,10 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   formattedTime,
   streamId,
   fixedSessionTypeSelected,
-  sessionType,
 }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const { t } = useTranslation();
 
@@ -83,7 +79,10 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   const updateButtonPosition = () => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      setButtonPosition({ top: rect.top, left: rect.left });
+      setButtonPosition({
+        top: rect.top + window.scrollY,
+        left: rect.left + window.scrollX,
+      });
     }
   };
 
@@ -98,9 +97,13 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
 
   useEffect(() => {
     if (showConfirmation) {
-      const timer = setTimeout(() => setShowConfirmation(false), 3000);
-      return () => clearTimeout(timer);
+      // const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      // return () => clearTimeout(timer);
     }
+  }, [showConfirmation]);
+
+  useEffect(() => {
+    updateButtonPosition();
   }, [showConfirmation]);
 
   return (
@@ -208,8 +211,8 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
               closeOnDocumentClick={false}
               arrow={false}
               contentStyle={{
-                top: buttonPosition.top - 60,
-                left: buttonPosition.left - 17,
+                top: `${buttonPosition.top - 42}px`,
+                left: `${buttonPosition.left - 12}px`,
                 position: "absolute",
               }}
             >

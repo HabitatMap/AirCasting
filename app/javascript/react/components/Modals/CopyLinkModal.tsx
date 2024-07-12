@@ -19,7 +19,6 @@ const initialCopyLinkModalData: CopyLinkModalData = {
 interface CopyLinkModalProps {
   onSubmit: (data: CopyLinkModalData) => void;
   onError: (error: Error) => void;
-  link: string;
 }
 
 const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
@@ -43,13 +42,6 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
       }));
     }
   }, [shortenedLink, error, onError]);
-
-  useEffect(() => {
-    setFormState((prevFormData) => ({
-      ...prevFormData,
-      link: shortenedLink,
-    }));
-  }, [shortenedLink]);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
