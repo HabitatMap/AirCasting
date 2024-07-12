@@ -136,7 +136,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   </S.StyledContainer>
                 }
                 componentToToggle={
-                  <ThresholdsConfigurator showResetButtonWithText={true} />
+                  <ThresholdsConfigurator resetButtonVariant="textWithIcon" />
                 }
               />
             </S.ThresholdContainer>

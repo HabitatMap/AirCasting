@@ -144,6 +144,7 @@ const RangeInput = styled.input<{
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  caret-color: transparent;
   background: linear-gradient(
     to right,
     ${colors.green} ${(props) => props.$firstThumbPos}px,
@@ -165,13 +166,15 @@ const RangeInput = styled.input<{
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
+    display: none;
+    width: 1px;
+    height: 1px;
     background: ${colors.white};
     border: 2px solid ${colors.gray300};
     border-radius: 50%;
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s, transform 0.15s;
+    color: transparent;
   }
 
   &::-webkit-slider-thumb:hover,
@@ -193,6 +196,8 @@ const RangeInput = styled.input<{
     outline: none;
     background: transparent;
     height: 0;
+    color: transparent;
+    caret-color: transparent;
   }
 
   &::-webkit-slider-thumb:active,
@@ -216,6 +221,7 @@ const RangeInput = styled.input<{
     height: 3px;
     top: 60%; /* Move the range input down */
     transform: translateY(-50%);
+    color: transparent;
   `}
 `;
 

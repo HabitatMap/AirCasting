@@ -28,8 +28,6 @@ import {
   setLoading,
   setPreviousCenter,
   setPreviousZoom,
-  selectLegendOpen,
-  setLegendOpen,
 } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
@@ -122,7 +120,6 @@ const Map = () => {
   const mobilePoints = selectedSessionId
     ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
     : useSelector(selectMobileSessionsPoints);
-  const legendOpen = useSelector(selectLegendOpen);
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
@@ -308,11 +305,11 @@ const Map = () => {
   };
 
   const openLegend = () => {
-    dispatch(setLegendOpen(true));
+    dispatch(updateUserSettings(UserSettings.MapLegendView));
   };
 
   const closeLegend = () => {
-    dispatch(setLegendOpen(false));
+    dispatch(updateUserSettings(UserSettings.MapView));
   };
 
   return (
@@ -365,7 +362,7 @@ const Map = () => {
         (isMobile && currentUserSettings === UserSettings.ModalView)) && (
         <S.ThresholdContainer>
           <ThresholdsConfigurator
-            showResetButton={!isMobile}
+            resetButtonVariant={!isMobile ? "iconOnly" : "textWithIcon"}
             isMobileOldStyle={
               isMobile && currentUserSettings === UserSettings.ModalView
             }
@@ -397,7 +394,9 @@ const Map = () => {
             onClick={openLegend}
           />
         </S.MobileButtons>
-        {legendOpen && <Legend onClose={closeLegend} />}
+        {currentUserSettings === UserSettings.MapLegendView && (
+          <Legend onClose={closeLegend} />
+        )}
         {currentUserSettings === UserSettings.SessionListView && (
           <MobileSessionList
             sessions={listSessions.map((session: SessionList) => ({

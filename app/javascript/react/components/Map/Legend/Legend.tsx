@@ -18,7 +18,7 @@ const Legend = ({ onClose }: LegendProps) => {
       </S.Header>
       <S.SliderContainer>
         <ThresholdsConfigurator
-          showResetButtonWithText
+          resetButtonVariant="textWithIcon"
           resetButtonText={t("map.legend.resetRangesButton")}
           useColorBoxStyle
           useDarkBlueIcon
