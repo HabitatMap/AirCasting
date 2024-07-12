@@ -71,6 +71,11 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
     setShowConfirmation(true);
   };
 
+  const handleCopyError = (error: Error) => {
+    console.error("Error copying link: ", error.message);
+    alert(t("alert.linkShortenedFailed"));
+  };
+
   const updateButtonPosition = () => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
@@ -188,6 +193,7 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
               <>
                 <CopyLinkModal
                   onSubmit={(formData) => handleCopySubmit(formData, close)}
+                  onError={handleCopyError}
                 />
               </>
             )}

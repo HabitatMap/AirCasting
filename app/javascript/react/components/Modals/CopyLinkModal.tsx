@@ -18,12 +18,13 @@ const initialCopyLinkModalData: CopyLinkModalData = {
 
 interface CopyLinkModalProps {
   onSubmit: (data: CopyLinkModalData) => void;
+  onError: (error: Error) => void;
 }
 
-const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit }) => {
+const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
   const focusInputRef = useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
-  const { shortenedLink } = useShortenedLink(
+  const { shortenedLink, error } = useShortenedLink(
     window.location.href,
     BITLY_ACCESS_TOKEN
   );
@@ -32,11 +33,15 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit }) => {
   );
 
   useEffect(() => {
-    setFormState((prevFormData) => ({
-      ...prevFormData,
-      link: shortenedLink,
-    }));
-  }, [shortenedLink]);
+    if (error) {
+      onError(error);
+    } else {
+      setFormState((prevFormData) => ({
+        ...prevFormData,
+        link: shortenedLink,
+      }));
+    }
+  }, [shortenedLink, error, onError]);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>

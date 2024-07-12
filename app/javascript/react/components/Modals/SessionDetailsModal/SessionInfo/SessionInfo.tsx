@@ -16,8 +16,8 @@ import { SessionType, SessionTypes } from "../../../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import useMobileDetection from "../../../../utils/useScreenSizeDetection";
 import * as S from "../SessionDetailsModal.style";
-import MobileHeader from "./MobileHeader";
-import DesktopHeader from "./ModalDesktopHeader";
+import ModalDesktopHeader from "./ModalDesktopHeader";
+import ModalMobileHeader from "./ModalMobileHeader";
 
 interface SessionInfoProps {
   sessionType: SessionType;
@@ -56,7 +56,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
 
   return (
     <S.InfoContainer>
-      <MobileHeader
+      <ModalMobileHeader
         toggleVisibility={toggleVisibility}
         isVisible={isVisible}
         streamShortInfo={streamShortInfo}
@@ -65,7 +65,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
         isMobile={isMobile}
         formattedTime={formattedTime}
       />
-      <DesktopHeader
+      <ModalDesktopHeader
         streamShortInfo={streamShortInfo}
         thresholds={thresholds}
         extremes={extremes}

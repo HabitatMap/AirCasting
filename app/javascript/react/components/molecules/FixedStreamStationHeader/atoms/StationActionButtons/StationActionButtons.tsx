@@ -27,14 +27,17 @@ const StationActionButtons = ({ sessionId }: Props) => {
   );
 
   const handleCopyLink = () => {
-    copyCurrentURL(shortenedLink);
-    alert("Link copied to clipboard");
+    if (shortenedLink) {
+      copyCurrentURL(shortenedLink);
+      alert(t("alert.linkCopied"));
+    } else {
+      alert(t("alert.linkShortenedFailed"));
+    }
   };
 
   if (error) {
     console.error("Error shortening link: ", error.message);
   }
-
   return (
     <>
       <S.MobileButtons>
