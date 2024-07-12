@@ -29,6 +29,7 @@ const StationActionButtons = ({ sessionId }: Props) => {
   const handleCopyLink = () => {
     if (shortenedLink) {
       copyCurrentURL(shortenedLink);
+      alert(t("alert.linkCopied"));
     } else {
       alert(t("alert.linkShortenedFailed"));
     }

@@ -20,7 +20,6 @@ export const copyCurrentURL = (link: string) => {
     tempInput.select();
     document.execCommand("copy");
     document.body.removeChild(tempInput);
-    alert("URL copied!");
     tempInput.onerror = (e) => {
       console.log(e.toString);
     };
