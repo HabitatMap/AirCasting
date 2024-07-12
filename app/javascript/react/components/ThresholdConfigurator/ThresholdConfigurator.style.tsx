@@ -159,6 +159,8 @@ const RangeInput = styled.input<{
   outline: none;
   opacity: 0.7;
   transition: opacity 0.2s;
+  color: transparent;
+  border: none;
 
   &::-webkit-slider-thumb,
   &::-moz-range-thumb,
@@ -166,14 +168,18 @@ const RangeInput = styled.input<{
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    display: none;
-    width: 1px;
-    height: 1px;
-    background: ${colors.white};
-    border: 2px solid ${colors.gray300};
-    border-radius: 50%;
+    width: 0;
+    height: 0;
+    background: transparent; /* Set the background to transparent */
+    border: none; /
+  }
+
+  &::-ms-track {
+    width: 0;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+
+    background: transparent;
+    border-color: transparent;
     color: transparent;
   }
 
@@ -185,11 +191,47 @@ const RangeInput = styled.input<{
   }
 
   &::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 9px;
+  display: none;
+    width: 0;
+    height: 0;
     cursor: pointer;
     background: transparent;
     border: none;
+    color: transparent;
+    border-radius: 0px;
+  }
+
+  &::-moz-range-track {
+  display: none;
+    width: 0px;
+    height: 0px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: transparent;
+    border-radius: 0px;
+  }
+
+  ::-ms-track {
+    display: none;
+    width: 0%;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+    border-width: 0px;
+  }
+
+  &:focus::-webkit-slider-runnable-track {
+    background: transparent;
+    border: none;
+    color: transparent;
+  }
+
+  &:focus::-moz-range-track {
+    background: transparent;
+    border: none;
+    color: transparent;
   }
 
   &:focus {
@@ -205,6 +247,7 @@ const RangeInput = styled.input<{
   &::-ms-thumb:active {
     background: ${colors.white};
     border-color: ${colors.gray300};
+    color: transparent;
   }
 
   &::-moz-focus-outer {
@@ -373,7 +416,7 @@ const OldStyleSliderHandles = styled.div`
   transform: translate(-50%, -50%);
   cursor: pointer;
   z-index: 10;
-  margin-left: 7px;
+  user-select: none;
 `;
 
 const OldStyleSliderHandle = styled.div`
@@ -383,6 +426,14 @@ const OldStyleSliderHandle = styled.div`
   box-shadow: rgba(166, 166, 166, 0.5) 0px 2px 4px;
 
   border-radius: 50%;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+  &:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+  }
 `;
 
 const OldStyleSliderText = styled.p`
@@ -393,6 +444,9 @@ const OldStyleSliderText = styled.p`
   top: -16px; /* Adjust this value to position the text above the handle */
   left: 50%;
   transform: translateX(-50%);
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 `;
 
 export {
