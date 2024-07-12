@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
 import { MAP_CONFIGS, MAP_ID } from "../components/Map/mapConfigs";
 import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from "../const/coordinates";
 import { LatLngLiteral } from "../types/googleMaps";
@@ -12,6 +11,7 @@ interface MapState {
   location: LatLngLiteral;
   loading: boolean;
   hoverStreamId: number | null;
+  hoverPosition: LatLngLiteral | null;
   position: LatLngLiteral;
   previousCenter: LatLngLiteral;
   previousZoom: number;
@@ -24,6 +24,7 @@ const initialState: MapState = {
   location: DEFAULT_MAP_CENTER,
   loading: true,
   hoverStreamId: null,
+  hoverPosition: null,
   position: DEFAULT_MAP_CENTER,
   previousCenter: DEFAULT_MAP_CENTER,
   previousZoom: DEFAULT_ZOOM,
@@ -51,8 +52,8 @@ const mapSlice = createSlice({
     setHoverStreamId(state, action: PayloadAction<number | null>) {
       state.hoverStreamId = action.payload;
     },
-    setHoverPosition(state, action: PayloadAction<LatLngLiteral>) {
-      state.position = action.payload;
+    setHoverPosition(state, action: PayloadAction<LatLngLiteral | null>) {
+      state.hoverPosition = action.payload;
     },
     setPreviousCenter(state, action: PayloadAction<LatLngLiteral>) {
       state.previousCenter = action.payload;
@@ -60,7 +61,7 @@ const mapSlice = createSlice({
     setPreviousZoom(state, action: PayloadAction<number>) {
       state.previousZoom = action.payload;
     },
-    initializeStateFromUrl(state, action: PayloadAction<MapState>) {
+    initializeStateFromUrl(state, action: PayloadAction<Partial<MapState>>) {
       Object.assign(state, action.payload);
     },
   },
@@ -82,7 +83,8 @@ export const {
 export default mapSlice.reducer;
 export const selectHoverStreamId = (state: RootState) =>
   state.map.hoverStreamId;
-export const selectHoverPosition = (state: RootState) => state.map.position;
+export const selectHoverPosition = (state: RootState) =>
+  state.map.hoverPosition;
 export const selectPreviousCenter = (state: RootState) =>
   state.map.previousCenter;
 export const selectPreviousZoom = (state: RootState) => state.map.previousZoom;

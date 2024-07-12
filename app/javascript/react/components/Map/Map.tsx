@@ -1,4 +1,4 @@
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
+import { Map as GoogleMap, MapEvent, useMap } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
   useEffect,
@@ -140,6 +140,7 @@ const Map = () => {
   const defaultThresholds = useSelector(selectDefaultThresholds);
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
+  const MAP = useMap();
 
   const listSessions = useSelector(
     fixedSessionTypeSelected
@@ -206,7 +207,6 @@ const Map = () => {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(initialStreamId))
         : dispatch(fetchMobileStreamById(initialStreamId));
-      dispatch(updateUserSettings(UserSettings.ModalView));
     }
   }, [
     initialStreamId,
@@ -216,9 +216,14 @@ const Map = () => {
   ]);
 
   useEffect(() => {
-    if (isFirstRender.current && mapInstance) {
-      mapInstance.setZoom(initialZoom);
-      mapInstance.setCenter(initialCenter);
+    if (isFirstRender.current) {
+      console.log(MAP, "MAP");
+      const intervalId = setInterval(() => {
+        mapInstance?.setZoom(initialZoom);
+        mapInstance?.setCenter(initialCenter);
+        clearInterval(intervalId);
+      }, 10);
+
       dispatch(setPreviousZoom(initialPreviousZoom));
       dispatch(setPreviousCenter(initialCenter));
       dispatch(
@@ -230,12 +235,12 @@ const Map = () => {
       isFirstRender.current = false;
     }
   }, [
-    mapInstance,
     initialZoom,
     initialCenter,
     initialPreviousZoom,
     initialCurrentUserSettings,
     initialPreviousSettings,
+    mapInstance,
   ]);
 
   useEffect(() => {
@@ -310,18 +315,17 @@ const Map = () => {
     debouncedUpdateURL(queryParams);
   }, [thresholdValues]);
 
-  console.log(previousUserSettings, "previousUserSettings");
-  console.log(currentUserSettings, "currentUserSettings");
-  console.log(isFirstRender.current, "isFirstRender.current");
-
   useEffect(() => {
-    if (currentUserSettings !== UserSettings.ModalView) {
-      setSelectedStreamId(null);
-      setSelectedSessionId(null);
+    if (currentUserSettings !== UserSettings.ModalView && mapInstance) {
+      const setMapView = () => {
+        if (mapInstance) {
+          mapInstance.setCenter(previousCenter);
+          mapInstance.setZoom(previousZoom);
+        }
+      };
+      setMapView();
     }
-    setPreviousZoomOnTheMap();
-    isMobile && setPreviousZoomInTheState();
-  }, [currentUserSettings, isMobile]);
+  }, [currentUserSettings, mapInstance, isMobile]);
 
   useEffect(() => {
     if (previousUserSettings === UserSettings.CalendarView) {
@@ -332,6 +336,11 @@ const Map = () => {
       return () => clearInterval(intervalId);
     }
   }, [currentUserSettings, mapInstance, previousUserSettings]);
+
+  useEffect(() => {
+    console.log(mapInstance, "mapInstance");
+    console.log(MAP, "MAP");
+  }, [mapInstance]);
 
   // Callbacks
   const onIdle = useCallback(
@@ -391,6 +400,7 @@ const Map = () => {
   const handleCloseModal = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
+    console.log(previousUserSettings, "previousUserSettings");
     dispatch(updateUserSettings(previousUserSettings));
   };
 
@@ -399,13 +409,18 @@ const Map = () => {
       setSelectedSessionType(type);
       dispatch(resetUserThresholds());
       dispatch(setLoading(true));
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.set("sessionType", type);
+      navigate(`?${newSearchParams.toString()}`);
     },
-    [dispatch]
+    [dispatch, navigate, searchParams]
   );
 
   const setPreviousZoomOnTheMap = () => {
     if (currentUserSettings === UserSettings.MapView) {
+      console.log("inside setPreviousZoomOnTheMap");
       if (mapInstance) {
+        console.log("inside setPreviousZoomOnTheMap if");
         mapInstance.setCenter(previousCenter);
         mapInstance.setZoom(previousZoom);
       }

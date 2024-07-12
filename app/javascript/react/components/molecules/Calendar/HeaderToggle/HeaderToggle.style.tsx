@@ -14,9 +14,9 @@ const Container = styled.div`
   }
 `;
 
-const RotatedIcon = styled.img<{ rotated: boolean }>`
+const RotatedIcon = styled.img<{ $rotated: boolean }>`
   margin-right: 10px;
-  transform: ${({ rotated }) => (rotated ? "rotate(180deg)" : "none")};
+  transform: ${({ $rotated }) => ($rotated ? "rotate(180deg)" : "none")};
   cursor: pointer;
 `;
 

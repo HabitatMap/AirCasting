@@ -1,4 +1,3 @@
-// mapParamsUtils.ts
 import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
@@ -56,6 +55,16 @@ export const useMapParams = () => {
     getSearchParam("streamId", null) !== null
       ? parseInt(getSearchParam("streamId", "0")!)
       : null;
+  const initialHoverStreamId =
+    getSearchParam("hoverStreamId", null) !== null
+      ? parseInt(getSearchParam("hoverStreamId", "0")!)
+      : null;
+  const initialHoverPosition =
+    getSearchParam("hoverPosition", null) !== null
+      ? JSON.parse(
+          getSearchParam("hoverPosition", JSON.stringify(DEFAULT_MAP_CENTER))!
+        )
+      : null;
   const initialMapTypeId =
     getSearchParam("mapType", MAP_CONFIGS[0].mapTypeId) ||
     MAP_CONFIGS[0].mapTypeId;
@@ -101,7 +110,8 @@ export const useMapParams = () => {
           mapId: MAP_ID,
           location: initialCenter,
           loading: true,
-          hoverStreamId: null,
+          hoverStreamId: initialHoverStreamId,
+          hoverPosition: initialHoverPosition,
           position: initialCenter,
           previousCenter: initialCenter,
           previousZoom: initialPreviousZoom,
@@ -125,6 +135,8 @@ export const useMapParams = () => {
     initialThresholds,
     initialCurrentUserSettings,
     initialPreviousSettings,
+    initialHoverStreamId,
+    initialHoverPosition,
   ]);
 
   const debouncedUpdateURL = useCallback(
@@ -141,6 +153,8 @@ export const useMapParams = () => {
     initialSessionType,
     initialSessionId,
     initialStreamId,
+    initialHoverStreamId,
+    initialHoverPosition,
     initialMapTypeId,
     initialMapConfigId,
     initialPreviousSettings,

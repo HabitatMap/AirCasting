@@ -47,7 +47,7 @@ const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
           <S.RotatedIcon
             src={toggleIcon}
             alt={t("headerToggle.arrowIcon")}
-            rotated={!isVisible}
+            $rotated={!isVisible}
             onClick={toggleVisibility}
           />
           <S.SessionName>{streamShortInfo.title}</S.SessionName>

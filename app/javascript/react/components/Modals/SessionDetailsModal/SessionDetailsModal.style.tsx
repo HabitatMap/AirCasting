@@ -294,8 +294,8 @@ const ClickableWrapper = styled.div`
   align-items: center;
 `;
 
-const RotatedIcon = styled.img<{ rotated: boolean }>`
-  transform: ${({ rotated }) => (rotated ? "rotate(180deg)" : "none")};
+const RotatedIcon = styled.img<{ $rotated: boolean }>`
+  transform: ${({ $rotated }) => ($rotated ? "rotate(180deg)" : "none")};
   cursor: pointer;
 `;
 
