@@ -39,7 +39,6 @@ const MapButtons = () => {
     setActiveButton((prevState) =>
       prevState === buttonType ? null : buttonType
     );
-    setShowConfirmation(false);
   };
 
   const handleCopyError = (error: Error) => {
@@ -90,7 +89,10 @@ const MapButtons = () => {
               isActive={activeButton === ButtonTypes.COPY_LINK}
             />
           }
-          onOpen={() => handleClick(ButtonTypes.COPY_LINK)}
+          onOpen={() => {
+            handleClick(ButtonTypes.COPY_LINK);
+            setShowConfirmation(false);
+          }}
           position="bottom center"
           closeOnDocumentClick
           arrow={false}
