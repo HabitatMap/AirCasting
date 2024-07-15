@@ -36,6 +36,13 @@ type CustomPopupProps = {
     | ((close: () => void, isOpen: boolean) => React.ReactNode);
 };
 
+// Workaround for the typescript error
+export const CopyLinkPopup: React.FC<
+  CustomPopupProps & Omit<PopupProps, "children">
+> = (props) => {
+  return <S.SmallPopup {...(props as PopupProps)} />;
+};
+
 const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   streamShortInfo,
   thresholds,
@@ -56,13 +63,6 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
     extremes.maxMeasurementValue,
     extremes.averageValue
   );
-
-  // Workaround for the typescript error
-  const CopyLinkPopup: React.FC<
-    CustomPopupProps & Omit<PopupProps, "children">
-  > = (props) => {
-    return <S.SmallPopup {...(props as PopupProps)} />;
-  };
 
   const handleCopySubmit = (
     formData: CopyLinkModalData,

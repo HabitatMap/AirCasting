@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PopupProps } from "reactjs-popup/dist/types";
 
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filter.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
+import { black } from "../../assets/styles/colors";
 import { ConfirmationMessage } from "../Modals/atoms/ConfirmationMessage";
 import { CopyLinkModal, CopyLinkModalData } from "../Modals/CopyLinkModal";
-import * as S2 from "../Modals/SessionDetailsModal/SessionDetailsModal.style";
+import * as PopupStyles from "../Modals/SessionDetailsModal/SessionDetailsModal.style";
+import { CopyLinkPopup } from "../Modals/SessionDetailsModal/SessionInfo/ModalDesktopHeader";
 import { MapButton } from "./MapButton";
 import * as S from "./MapButtons.style";
 
@@ -41,10 +42,15 @@ const MapButtons = () => {
     };
   }, [buttonRef.current]);
 
+  useEffect(() => {
+    console.log("inside copy submit - showConfirmation", showConfirmation);
+  }, [showConfirmation]);
+
   const handleClick = (buttonType: ButtonTypes) => {
     setActiveButton((prevState) =>
       prevState === buttonType ? null : buttonType
     );
+    setShowConfirmation(false);
   };
 
   const handleCopyError = (error: Error) => {
@@ -57,6 +63,7 @@ const MapButtons = () => {
     close: { (): void; (): void }
   ) => {
     close();
+    setActiveButton(null);
     setShowConfirmation(true);
   };
 
@@ -65,13 +72,6 @@ const MapButtons = () => {
       const rect = buttonRef.current.getBoundingClientRect();
       setButtonPosition({ top: rect.top, left: rect.left });
     }
-  };
-
-  // Workaround for the typescript error
-  const CopyLinkPopup: React.FC<
-    CustomPopupProps & Omit<PopupProps, "children">
-  > = (props) => {
-    return <S2.SmallPopup {...(props as PopupProps)} />;
   };
 
   return (
@@ -96,14 +96,23 @@ const MapButtons = () => {
             <MapButton
               title={t("navbar.copyLink")}
               image={copyLinkIcon}
-              onClick={() => handleClick(ButtonTypes.COPY_LINK)}
+              onClick={() => {}}
               alt={t("navbar.altCopyLink")}
               isActive={activeButton === ButtonTypes.COPY_LINK}
             />
           }
-          position="top center"
+          onOpen={() => handleClick(ButtonTypes.COPY_LINK)}
+          position="bottom center"
           nested
           closeOnDocumentClick
+          arrow={true}
+          arrowStyle={{
+            borderColor: `${black}`,
+          }}
+          contentStyle={{
+            top: buttonPosition.top + 40,
+            left: buttonPosition.left - 40,
+          }}
         >
           {(close) => (
             <>
@@ -114,22 +123,20 @@ const MapButtons = () => {
             </>
           )}
         </CopyLinkPopup>
-        {showConfirmation && (
-          <S2.ConfirmationPopup
-            open={showConfirmation}
-            closeOnDocumentClick={false}
-            arrow={false}
-            contentStyle={{
-              top: buttonPosition.top - 60,
-              left: buttonPosition.left - 17,
-              position: "absolute",
-            }}
-          >
-            <ConfirmationMessage
-              message={t("copyLinkModal.confirmationMessage")}
-            />
-          </S2.ConfirmationPopup>
-        )}
+        <PopupStyles.ConfirmationPopup
+          open={showConfirmation}
+          closeOnDocumentClick
+          arrow={false}
+          contentStyle={{
+            top: buttonPosition.top + 40,
+            left: buttonPosition.left + 20,
+            position: "absolute",
+          }}
+        >
+          <ConfirmationMessage
+            message={t("copyLinkModal.confirmationMessage")}
+          />
+        </PopupStyles.ConfirmationPopup>
       </div>
       <MapButton
         title={t("navbar.share")}
