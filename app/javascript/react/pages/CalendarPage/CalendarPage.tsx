@@ -3,10 +3,14 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
+import { useTranslation } from "react-i18next";
+import returnArrow from "../../assets/icons/returnArrow.svg";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
+import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
+import { ResetButtonVariant } from "../../components/ThresholdConfigurator/ResetButton";
 import {
   fetchFixedStreamById,
   selectFixedData,
@@ -17,7 +21,7 @@ import {
   movingData,
 } from "../../store/movingCalendarStreamSlice";
 import {
-  selectUserThresholds,
+  resetUserThresholds,
   setDefaultThresholdsValues,
 } from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -33,6 +37,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   const streamIdQuery = searchParams.get(STREAM_ID_QUERY_PARAMETER_NAME);
   const streamId = streamIdQuery && Number(streamIdQuery);
@@ -79,13 +84,40 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
   }, [fixedStreamData, dispatch]);
 
+  const resetThresholds = () => {
+    dispatch(resetUserThresholds());
+  };
+
   return (
     <>
       {children}
       <S.CalendarPageLayout>
         <S.StationDataContainer>
           <FixedStreamStationHeader />
-          {!isMobile && <ThresholdsConfigurator isMapPage={false} />}
+          {!isMobile && (
+            <S.ThresholdContainer>
+              <HeaderToggle
+                titleText={
+                  <S.StyledContainer>
+                    {t("calendarHeader.legendTitle")}
+                    <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+                    <S.ResetButton onClick={resetThresholds}>
+                      {t("thresholdConfigurator.resetButton")}
+                      <img
+                        src={returnArrow}
+                        alt={t("thresholdConfigurator.altResetButton")}
+                      />
+                    </S.ResetButton>
+                  </S.StyledContainer>
+                }
+                componentToToggle={
+                  <S.SliderWrapper>
+                    <ThresholdsConfigurator noDisclaimers={true} />
+                  </S.SliderWrapper>
+                }
+              />
+            </S.ThresholdContainer>
+          )}
           {calendarIsVisible ? (
             <Calendar
               streamId={streamId}
@@ -95,7 +127,23 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           ) : (
             <EmptyCalendar />
           )}
-          {isMobile && <ThresholdsConfigurator isMapPage={false} />}
+          {isMobile && (
+            <S.ThresholdContainer>
+              <HeaderToggle
+                titleText={
+                  <S.StyledContainer>
+                    {t("calendarHeader.legendTitle")}
+                    <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+                  </S.StyledContainer>
+                }
+                componentToToggle={
+                  <ThresholdsConfigurator
+                    resetButtonVariant={ResetButtonVariant.TextWithIcon}
+                  />
+                }
+              />
+            </S.ThresholdContainer>
+          )}
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>

@@ -62,12 +62,15 @@
     "arrowIcon": "Arrow Icon"
   },
   "thresholdConfigurator": {
+    "disclaimer": "Set values for color breakpoints",
     "emptyInputMessage": "Please enter a valid number",
     "validValueMessage": "Value must be between {{minValue}} and {{maxValue}}",
     "maxLessThanMinMessage": "The maximum value should be higher than {{minValue}}",
     "minGreaterThanMaxMessage": "The minimum value should be lower than {{maxValue}}",
     "resetButton": "Reset legend",
-    "altResetButton": "Reset the threshold values to default"
+    "altResetButton": "Reset the threshold values to default",
+    "measurementsUnits": "µg/m³",
+    "invalidOrderMessage": "The values should be in ascending order"
   },
   "notFoundPage": {
     "header": "Page not found",
@@ -99,7 +102,14 @@
     "listSessions": "Sessions",
     "altListSessions": "List all the sessions",
     "altClose": "Close the content",
-    "altDirect": "Navigate to calendar view for given session"
+    "altDirect": "Navigate to calendar view for given session",
+    "legendTile": "Legend",
+    "altLegendTile": "Show the measurements legend for the map",
+    "legend": {
+      "title": "Legend customization",
+      "resetRangesButton": "Reset ranges",
+      "applyButton": "Apply"
+    }
   },
   "sessionDetailsModal": {
     "calendar": "Calendar",

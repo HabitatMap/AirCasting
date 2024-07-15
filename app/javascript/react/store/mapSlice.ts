@@ -76,6 +76,7 @@ export const {
 } = mapSlice.actions;
 
 export default mapSlice.reducer;
+
 export const selectHoverStreamId = (state: RootState) =>
   state.map.hoverStreamId;
 export const selectHoverPosition = (state: RootState) => state.map.position;

@@ -1,9 +1,10 @@
 import styled from "styled-components";
 
-import { gray100 } from "../../assets/styles/colors";
+import { gray100, gray300, white } from "../../assets/styles/colors";
+import { Button } from "../../components/Button/Button.style";
+import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
-import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 
 const CalendarPageLayout = styled.div`
   display: flex;
@@ -40,4 +41,80 @@ const Heading = styled(H3)`
   }
 `;
 
-export { StationDataContainer, CalendarPageLayout, Heading };
+const Units = styled.sup`
+  font-size: 1.4rem;
+  vertical-align: super;
+  position: relative;
+  top: -0.3rem;
+  right: -0.2rem;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-left: 0.2rem;
+`;
+
+const StyledContainer = styled.div`
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: right;
+  grid-gap: 1rem;
+  width: 100%;
+
+  @media ${media.mobile} {
+    display: inline;
+  }
+`;
+
+const ThresholdContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background-color: ${white};
+
+  @media ${media.desktop} {
+    padding: 3rem 10rem;
+    margin-bottom: 0;
+  }
+  @media ${media.smallDesktop} {
+    padding: 3rem 10rem;
+    margin-bottom: 0;
+  }
+  @media ${media.largeDesktop} {
+    padding: 3rem 10rem;
+    margin-bottom: 0;
+  }
+`;
+
+const SliderWrapper = styled.div`
+  display: flex;
+  @media ${media.desktop} {
+    margin-top: 4rem;
+  }
+`;
+
+const ResetButton = styled(Button)`
+  white-space: nowrap;
+  background: ${gray100};
+  border: none;
+  color: ${gray300};
+  width: fit-content;
+  margin-left: auto;
+  @media ${media.desktop} {
+    margin-left: 0;
+    grid-column: -1;
+    justify-self: end;
+  }
+`;
+
+export {
+  CalendarPageLayout,
+  Heading,
+  ResetButton,
+  SliderWrapper,
+  StationDataContainer,
+  StyledContainer,
+  ThresholdContainer,
+  Units,
+};

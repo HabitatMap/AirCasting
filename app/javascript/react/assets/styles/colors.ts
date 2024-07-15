@@ -10,9 +10,13 @@ const gray500 = "#C6CDD3";
 const gray600 = "#4C5650";
 const gray700 = "#CCC";
 const gray800 = "#4C5660A1";
+const gray900 = "#4C56601A";
 const mint = "#81DBCB";
 const blue = "#00B3EF";
+const acBlue = "#00B2EF";
+const acBlueTransparent = "#CCF0FC";
 const darkBlue = "#5C81A5";
+const darkBlueTransparent = "#5c81a580";
 const red = "#E95F5F";
 const orange = "#FCA443";
 const yellow = "#FFD960";
@@ -26,9 +30,13 @@ const mapWater = "#e0f1f9";
 const mobileStreamPath = "#cee6f1";
 
 export {
+  acBlue,
+  acBlueTransparent,
+  black,
+  blue,
   cta,
-  theme,
-  white,
+  darkBlue,
+  darkBlueTransparent,
   gray100,
   gray200,
   gray300,
@@ -37,18 +45,18 @@ export {
   gray600,
   gray700,
   gray800,
-  red,
-  orange,
-  yellow,
+  gray900,
   green,
   grey,
-  mint,
-  blue,
-  darkBlue,
-  black,
   mapLabels,
   mapLandscape,
   mapStroke,
   mapWater,
+  mint,
   mobileStreamPath,
+  orange,
+  red,
+  theme,
+  white,
+  yellow,
 };

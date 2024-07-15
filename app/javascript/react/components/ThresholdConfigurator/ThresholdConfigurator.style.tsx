@@ -2,33 +2,38 @@ import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
+import { Button } from "../Button/Button.style";
 
 interface Props {
-  $isMapPage?: boolean;
+  $isMobileOldStyle?: boolean;
+  $useColorBoxStyle?: boolean;
 }
 
-const Container = styled.div<Props>`
+const SliderContainer = styled.div<Props>`
   display: flex;
   flex-direction: column;
-  padding: ${(props) => (props.$isMapPage ? 0 : "1.5rem")};
-  margin-bottom: ${(props) => (props.$isMapPage ? 0 : "3rem")};
-  background: ${(props) => (props.$isMapPage ? "none" : colors.white)};
-  position: ${(props) => (props.$isMapPage ? "absolute" : "relative")};
   width: 100%;
-  ${(props) =>
-    props.$isMapPage &&
-    `
-    height: 6.4rem;
-    z-index: 2;
-    bottom: 0;
-    background-color: ${colors.white};
-    box-shadow: 2px 2px 4px 0px #4c56601a;
-  `}
 
-  @media (${media.desktop}) {
-    padding: ${(props) => (props.$isMapPage ? "0 10rem" : "3rem 10rem")};
-    margin-bottom: 0;
-  }
+  ${(props) =>
+    props.$isMobileOldStyle &&
+    `
+    padding: 0 0.5rem;
+  `}
+`;
+const ColorBox = styled.div`
+  width: 100%;
+  height: 2.4rem;
+  display: inline-block;
+  border-radius: 0.5rem;
+`;
+
+const StaticMobileSliderContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 7.5% 1fr 9.5% 1fr 11.5% 1fr 18% 1fr;
+  grid-template-rows: auto;
+  gap: 9px;
+  align-items: center;
+  width: 100%;
 `;
 
 const InputContainer = styled.div<Props>`
@@ -36,13 +41,89 @@ const InputContainer = styled.div<Props>`
   width: 100%;
   height: 70px;
   padding-left: 1.5rem;
-  margin-bottom: 1.5rem;
+  justify-content: space-between;
+
+  ${(props) =>
+    props.$useColorBoxStyle &&
+    `
+    height: 4.7rem;
+    padding-left: 0;
+  `}
+
+  @media (${media.mobile}) {
+    ${(props) =>
+      props.$isMobileOldStyle &&
+      `
+    height: 4.7rem;
+  `}
+  }
 
   @media (${media.desktop}) {
-    margin-bottom: ${(props) => (props.$isMapPage ? 0 : "3rem")};
     padding-left: 0;
     height: 30px;
     margin-bottom: 0;
+  }
+`;
+
+const ResetButton = styled(Button)`
+  white-space: nowrap;
+  background: ${colors.gray100};
+  border: none;
+  color: ${colors.gray300};
+  width: fit-content;
+  margin-left: auto;
+  text-transform: uppercase;
+
+  @media ${media.desktop} {
+    margin-left: 0;
+  }
+
+  @media ${media.mobile} {
+    white-space: wrap;
+    text-align: left;
+    line-height: 1.6rem;
+    width: 33%;
+    padding: 0.6rem 1.85rem;
+    font-size: 1.2rem;
+  }
+`;
+
+const ThresholdResetButton = styled(ResetButton)`
+  white-space: nowrap;
+  background: ${colors.gray100};
+  border: none;
+  color: ${colors.gray300};
+  width: fit-content;
+  height: 3.2rem;
+  @media ${media.desktop} {
+    margin-left: 0;
+  }
+`;
+
+const ThresholdsDisclaimer = styled.h3`
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: ${colors.gray300};
+  width: 9.3rem;
+  padding: 0rem 0.5rem;
+  text-align: right;
+  /* compensate for the margin on first threshold thumb */
+  margin-right: 1.5rem;
+`;
+
+const DesktopContainer = styled.div`
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+
+  @media ${media.desktop} {
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto;
+    gap: 1rem;
+  }
+
+  @media ${media.mobile} {
+    grid-template-columns: auto;
   }
 `;
 
@@ -51,6 +132,7 @@ const RangeInput = styled.input<{
   $secondThumbPos: number;
   $thirdThumbPos: number;
   $sliderWidth: number;
+  $isMobileOldStyle: boolean;
 }>`
   width: 100%;
   position: absolute;
@@ -58,9 +140,11 @@ const RangeInput = styled.input<{
   margin-left: -15px;
   transform: translateY(-50%);
   height: 9px;
+  overflow: hidden;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  caret-color: transparent;
   background: linear-gradient(
     to right,
     ${colors.green} ${(props) => props.$firstThumbPos}px,
@@ -75,6 +159,8 @@ const RangeInput = styled.input<{
   outline: none;
   opacity: 0.7;
   transition: opacity 0.2s;
+  color: transparent;
+  border: none;
 
   &::-webkit-slider-thumb,
   &::-moz-range-thumb,
@@ -82,13 +168,19 @@ const RangeInput = styled.input<{
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
-    background: ${colors.white};
-    border: 2px solid ${colors.gray300};
-    border-radius: 50%;
+    width: 0;
+    height: 0;
+    background: transparent; /* Set the background to transparent */
+    border: none;
+  }
+
+  &::-ms-track {
+    width: 0;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
   }
 
   &::-webkit-slider-thumb:hover,
@@ -98,11 +190,125 @@ const RangeInput = styled.input<{
     border-color: ${colors.gray300};
   }
 
+  &::-webkit-slider-runnable-track {
+    display: none;
+    width: 0;
+    height: 0;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: transparent;
+    border-radius: 0px;
+  }
+
+  &::-moz-range-track {
+    display: none;
+    width: 0px;
+    height: 0px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: transparent;
+    border-radius: 0px;
+  }
+
+  ::-ms-track {
+    display: none;
+    width: 0%;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+    border-width: 0px;
+  }
+
+  &:focus::-webkit-slider-runnable-track {
+    background: transparent;
+    border: none;
+    color: transparent;
+  }
+
+  &:focus::-moz-range-track {
+    background: transparent;
+    border: none;
+    color: transparent;
+  }
+
+  &:focus {
+    outline: none;
+    background: transparent;
+    height: 0;
+    color: transparent;
+    caret-color: transparent;
+  }
+
+  &::-webkit-slider-thumb:active,
+  &::-moz-range-thumb:active,
+  &::-ms-thumb:active {
+    background: ${colors.white};
+    border-color: ${colors.gray300};
+    color: transparent;
+  }
+
   &::-moz-focus-outer {
     border: 0;
   }
+
   @media (${media.desktop}) {
     margin-left: 0;
+  }
+
+  ${(props) =>
+    props.$isMobileOldStyle &&
+    `
+    height: 3px;
+    top: 60%; /* Move the range input down */
+    transform: translateY(-50%);
+    color: transparent;
+  `}
+`;
+
+const ColorBoxNumberInput = styled.input`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  min-width: 24px;
+  height: 50px;
+  justify-content: space-between;
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid ${colors.darkBlueTransparent};
+  z-index: 5;
+  font-size: 1.2rem;
+  color: ${colors.darkBlue};
+
+  @media (${media.mobile}) {
+    height: 4.7rem;
+  }
+
+  @media (${media.desktop}) {
+    padding-left: 0;
+    height: 30px;
+    margin-bottom: 0;
+  }
+
+  appearance: textfield;
+  -moz-appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &:focus {
+    border: 1px solid ${colors.acBlue};
+    outline: 0px solid ${colors.acBlue};
+    background-color: ${colors.acBlueTransparent};
+    color: ${colors.gray400};
+    font-weight: 600;
   }
 `;
 
@@ -129,6 +335,7 @@ const NumberInput = styled.input<{
   cursor: move; /* fallback if grab cursor is unsupported */
   cursor: grab;
 
+  appearance: textfield;
   -moz-appearance: textfield;
 
   &::-webkit-outer-spin-button,
@@ -169,12 +376,14 @@ const NumberInput = styled.input<{
 const ErrorMessage = styled.p`
   color: ${colors.red};
   position: absolute;
-  top: 27%;
+  background-color: ${colors.white};
+  top: 12%;
   left: 50%;
   transform: translate(-50%, -40%);
   font-size: 1.2rem;
   font-weight: bold;
   text-align: center;
+  z-index: 20;
 
   @media ${media.smallDesktop} {
     font-size: 1.5rem;
@@ -184,26 +393,79 @@ const ErrorMessage = styled.p`
 `;
 
 const Units = styled.sup`
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   vertical-align: super;
   position: relative;
-  top: -0.3rem;
-  right: -0.2rem;
   font-weight: 400;
   line-height: 1.6;
-  margin-left: 0.2rem;
+  color: ${colors.gray400};
 `;
 
 const StyledContainer = styled.div`
   display: inline;
 `;
 
+const Wrapper = styled.div`
+  display: flex;
+  gap: 1rem;
+`;
+
+const OldStyleSliderHandles = styled.div`
+  position: absolute;
+  top: 60%; /* Center it vertically within the input container */
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+`;
+
+const OldStyleSliderHandle = styled.div`
+  width: 13px;
+  height: 13px;
+  background-color: ${colors.white};
+  box-shadow: rgba(166, 166, 166, 0.5) 0px 2px 4px;
+
+  border-radius: 50%;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+  &:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+  }
+`;
+
+const OldStyleSliderText = styled.p`
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: ${colors.gray400};
+  position: absolute;
+  top: -16px; /* Adjust this value to position the text above the handle */
+  left: 50%;
+  transform: translateX(-50%);
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+`;
+
 export {
-  Container,
+  ColorBox,
+  ColorBoxNumberInput,
+  DesktopContainer,
   ErrorMessage,
   InputContainer,
   NumberInput,
+  OldStyleSliderHandle,
+  OldStyleSliderHandles,
+  OldStyleSliderText,
   RangeInput,
+  ResetButton,
+  SliderContainer,
+  StaticMobileSliderContainer,
   StyledContainer,
+  ThresholdResetButton,
+  ThresholdsDisclaimer,
   Units,
+  Wrapper,
 };

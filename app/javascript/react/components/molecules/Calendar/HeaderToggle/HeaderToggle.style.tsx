@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import * as colors from "../../../../assets/styles/colors";
 import { media } from "../../../../utils/media";
-import { Button } from "../../../Button/Button.style";
+
 import { H1, H3 } from "../../../Typography";
 
 const Container = styled.div`
@@ -49,42 +49,4 @@ const DateField = styled(H3)`
   }
 `;
 
-const ResetButton = styled(Button)`
-  white-space: nowrap;
-  background: ${colors.gray100};
-  border: none;
-  color: ${colors.gray300};
-  width: fit-content;
-  margin-left: auto;
-  @media ${media.desktop} {
-    margin-left: 0;
-  }
-`;
-
-const ThresholdResetButton = styled(ResetButton)`
-  white-space: nowrap;
-  background: ${colors.gray100};
-  border: none;
-  color: ${colors.gray300};
-  width: fit-content;
-  margin-top: 1rem;
-  @media ${media.desktop} {
-    margin-left: 0;
-  }
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-`;
-
-export {
-  Container,
-  DateField,
-  Heading,
-  ResetButton,
-  RotatedIcon,
-  ThresholdResetButton,
-  Wrapper,
-};
+export { Container, DateField, Heading, RotatedIcon };

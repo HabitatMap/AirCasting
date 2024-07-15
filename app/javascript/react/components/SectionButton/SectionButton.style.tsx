@@ -13,9 +13,6 @@ const StyledSectionButton = styled.button`
   justify-content: center;
   width: 8.5rem;
   height: 4.2rem;
-  position: fixed;
-  bottom: 0;
-  right: 1.25rem;
   border: none;
 `;
 
