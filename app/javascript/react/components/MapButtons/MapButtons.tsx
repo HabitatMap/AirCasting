@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
-import filterIcon from "../../assets/icons/filter.svg";
+import filterIcon from "../../assets/icons/filterIcon.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
 import { ConfirmationMessage } from "../Modals/atoms/ConfirmationMessage";
 import { CopyLinkModal, CopyLinkModalData } from "../Modals/CopyLinkModal";
