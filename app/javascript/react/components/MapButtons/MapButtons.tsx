@@ -100,6 +100,9 @@ const MapButtons = () => {
             handleClick(ButtonTypes.COPY_LINK);
             setShowConfirmation(false);
           }}
+          onClose={() => {
+            setActiveButton(null);
+          }}
           position="bottom center"
           closeOnDocumentClick
           arrow={false}
