@@ -32,7 +32,7 @@ const ResetButton: React.FC<ResetButtonProps> = ({
     ? colors.darkBlue
     : colors.gray300;
   const resetButtonDefaultText = t("thresholdConfigurator.resetButton", {
-    defaultValue: "Reset",
+    defaultValue: "Reset to Default",
   });
   const finalResetButtonText = resetButtonText || resetButtonDefaultText;
 
@@ -40,21 +40,23 @@ const ResetButton: React.FC<ResetButtonProps> = ({
     dispatch(resetUserThresholds());
   };
 
+  const altResetButtonText = t("thresholdConfigurator.altResetButton");
+
   const buttonContent = useMemo(() => {
     if (variant === ResetButtonVariant.TextWithIcon) {
       return swapIconTextPosition ? (
-        <>
+        <S.ResetButtonWrapper>
           {finalResetButtonText}
-          <img src={icon} alt={t("thresholdConfigurator.altResetButton")} />
-        </>
+          <img src={icon} alt={altResetButtonText} />
+        </S.ResetButtonWrapper>
       ) : (
-        <>
-          <img src={icon} alt={t("thresholdConfigurator.altResetButton")} />
+        <S.ResetButtonWrapper>
+          <img src={icon} alt={altResetButtonText} />
           {finalResetButtonText}
-        </>
+        </S.ResetButtonWrapper>
       );
     }
-    return <img src={icon} alt={t("thresholdConfigurator.altResetButton")} />;
+    return <img src={icon} alt={altResetButtonText} />;
   }, [variant, swapIconTextPosition, finalResetButtonText, icon, t]);
 
   if (variant === ResetButtonVariant.TextWithIcon) {

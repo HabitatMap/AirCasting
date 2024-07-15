@@ -73,18 +73,32 @@ const ResetButton = styled(Button)`
   width: fit-content;
   margin-left: auto;
   text-transform: uppercase;
+  align-items: center;
+  justify-content: center;
 
   @media ${media.desktop} {
     margin-left: 0;
   }
 
   @media ${media.mobile} {
-    white-space: wrap;
+    white-space: pre-line;
     text-align: left;
     line-height: 1.6rem;
     width: 33%;
+    min-width: 100px;
     padding: 0.6rem 1.85rem;
     font-size: 1.2rem;
+  }
+`;
+
+const ResetButtonWrapper = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+
+  @media ${media.mobile} {
+    max-width: 100px;
+    gap: 10px;
   }
 `;
 
@@ -95,8 +109,14 @@ const ThresholdResetButton = styled(ResetButton)`
   color: ${colors.gray300};
   width: fit-content;
   height: 3.2rem;
+  text-transform: uppercase;
+
   @media ${media.desktop} {
     margin-left: 0;
+  }
+
+  @media ${media.mobile} {
+    display: none;
   }
 `;
 
@@ -461,6 +481,7 @@ export {
   OldStyleSliderText,
   RangeInput,
   ResetButton,
+  ResetButtonWrapper,
   SliderContainer,
   StaticMobileSliderContainer,
   StyledContainer,

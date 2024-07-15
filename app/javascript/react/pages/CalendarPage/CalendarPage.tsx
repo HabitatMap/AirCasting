@@ -102,7 +102,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                     {t("calendarHeader.legendTitle")}
                     <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
                     <S.ResetButton onClick={resetThresholds}>
-                      {t("thresholdConfigurator.resetButton")}
+                      {t("thresholdConfigurator.resetButtonDesktop")}
                       <img
                         src={returnArrow}
                         alt={t("thresholdConfigurator.altResetButton")}
@@ -139,6 +139,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 componentToToggle={
                   <ThresholdsConfigurator
                     resetButtonVariant={ResetButtonVariant.TextWithIcon}
+                    resetButtonText={t("thresholdConfigurator.resetButton")}
                   />
                 }
               />

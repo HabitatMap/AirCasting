@@ -77,10 +77,7 @@ const ThresholdContainer = styled.div`
     padding: 3rem 10rem;
     margin-bottom: 0;
   }
-  @media ${media.smallDesktop} {
-    padding: 3rem 10rem;
-    margin-bottom: 0;
-  }
+
   @media ${media.largeDesktop} {
     padding: 3rem 10rem;
     margin-bottom: 0;
