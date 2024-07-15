@@ -10,19 +10,15 @@ interface MapButtonProps {
   isActive: boolean;
 }
 
-const MapButton: React.FC<MapButtonProps> = ({
-  image,
-  title,
-  alt,
-  onClick,
-  isActive,
-}) => {
-  return (
-    <S.MapButton onClick={onClick} $isActive={isActive}>
-      <S.Title $isActive={isActive}>{title}</S.Title>
-      <S.IconWrapper $src={image} $isActive={isActive} title={alt} />
-    </S.MapButton>
-  );
-};
+const MapButton = React.forwardRef<HTMLButtonElement, MapButtonProps>(
+  ({ image, title, alt, onClick, isActive }, ref) => {
+    return (
+      <S.MapButton onClick={onClick} $isActive={isActive}>
+        <S.Title $isActive={isActive}>{title}</S.Title>
+        <S.IconWrapper $src={image} $isActive={isActive} title={alt} />
+      </S.MapButton>
+    );
+  }
+);
 
 export { MapButton };
