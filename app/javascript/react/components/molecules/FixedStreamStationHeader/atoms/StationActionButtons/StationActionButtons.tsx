@@ -1,11 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import copyLink from "../../../../../assets/icons/copyLink.svg";
+import copyLinkIcon from "../../../../../assets/icons/copyLinkIcon.svg";
 import downloadImage from "../../../../../assets/icons/download.svg";
-import shareLink from "../../../../../assets/icons/shareLink.svg";
 import { copyCurrentURL } from "../../../../../utils/copyCurrentUrl";
-
 import useShortenedLink from "../../../../../utils/urlShortenedLink";
 import { ActionButton } from "../../../../ActionButton/ActionButton.style";
 import { Button } from "../../../../Button/Button.style";
@@ -60,7 +58,7 @@ const StationActionButtons = ({ sessionId }: Props) => {
           onClick={handleCopyLink}
           aria-label={t("calendarHeader.altShareLink")}
         >
-          <img src={shareLink} />
+          <img src={copyLinkIcon} />
         </ActionButton>
       </S.MobileButtons>
       <S.DesktopButtons>
@@ -69,7 +67,7 @@ const StationActionButtons = ({ sessionId }: Props) => {
           aria-label={t("calendarHeader.altShareLink")}
         >
           {t("calendarHeader.copyLink")}{" "}
-          <img src={copyLink} alt={t("Copy link")} />
+          <img src={copyLinkIcon} alt={t("Copy link")} />
         </Button>
         <SmallPopup
           trigger={

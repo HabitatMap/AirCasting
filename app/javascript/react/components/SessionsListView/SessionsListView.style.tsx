@@ -1,9 +1,10 @@
 import styled from "styled-components";
+
 import { gray100 } from "../../assets/styles/colors";
 
 const SessionListViewStyle = styled.div`
   position: fixed;
-  top: 10rem;
+  top: 10.5rem;
   bottom: 0;
   right: 1.25rem;
   overflow-y: auto;

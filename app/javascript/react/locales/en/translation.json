@@ -39,7 +39,15 @@
       "aircastingPage": "AirCasting page",
       "openMenu": "Open menu",
       "habitatMapPage": "HabitatMap page"
-    }
+    },
+    "filter": "Filter",
+    "altFilter": "Filter icon",
+    "timelapse": "Timelapse",
+    "altTimelapse": "Clock icon",
+    "copyLink": "Copy link",
+    "altCopyLink": "Chain icon",
+    "share": "Share",
+    "altShare": "Share icon"
   },
   "calendarHeader": {
     "stationLabel": "Station name",
