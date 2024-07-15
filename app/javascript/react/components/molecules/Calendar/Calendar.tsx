@@ -5,6 +5,7 @@ import { useAppDispatch } from "../../../store/hooks";
 import { updateUserSettings } from "../../../store/userSettingsSlice";
 import { MovesKeys } from "../../../types/movesKeys";
 import { UserSettings } from "../../../types/userStates";
+import isMobile from "../../../utils/useScreenSizeDetection";
 import * as S from "./Calendar.style";
 import useCalendarHook from "./CalendarHook";
 import HeaderToggle from "./HeaderToggle/HeaderToggle";
@@ -34,12 +35,16 @@ const Calendar: React.FC<CalendarProps> = ({
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
+  const sortedThreeMonthsData = isMobile()
+    ? [...threeMonthsData].reverse()
+    : threeMonthsData;
+
   useEffect(() => {
     dispatch(updateUserSettings(UserSettings.CalendarView));
   }, []);
 
   return (
-    threeMonthsData && (
+    sortedThreeMonthsData && (
       <S.CalendarContainer>
         <HeaderToggle
           titleText={t("calendarHeader.calendarTitle")}
@@ -73,7 +78,7 @@ const Calendar: React.FC<CalendarProps> = ({
                     handleClick={handleLeftClick}
                   />
                 </S.DesktopSwipeLeftContainer>
-                {threeMonthsData.map((month) => (
+                {sortedThreeMonthsData.map((month) => (
                   <Month key={month.monthName} {...month} />
                 ))}
                 <S.DesktopSwipeRightContainer>
