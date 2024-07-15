@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { media } from "../../utils/media";
 import * as colors from "../../assets/styles/colors";
+import { media } from "../../utils/media";
 
 import { Button } from "../Button/Button.style";
 
@@ -61,7 +61,7 @@ const ThresholdContainer = styled.div`
 
   z-index: 2;
   background-color: ${colors.white};
-  box-shadow: 2px 2px 4px 0px #4c56601a;
+  box-shadow: 2px 2px 4px 0px ${colors.gray900};
 
   @media (${media.desktop}) {
     padding: 1.6rem 4.1rem;
@@ -92,11 +92,11 @@ const ThresholdContainer = styled.div`
 `;
 
 export {
+  containerStyle,
   DesktopContainer,
   FixedButton,
   MobileButton,
   MobileButtons,
   MobileContainer,
-  containerStyle,
   ThresholdContainer,
 };

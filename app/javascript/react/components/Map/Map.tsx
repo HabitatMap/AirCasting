@@ -1,11 +1,11 @@
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
-import pinImage from "../../assets/icons/pinImage.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
+import pinImage from "../../assets/icons/pinImage.svg";
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
@@ -54,12 +54,13 @@ import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
 import { SessionsListView } from "../SessionsListView/SessionsListView";
+import { ResetButtonVariant } from "../ThresholdConfigurator/ResetButton";
 import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfigurator";
+import { Legend } from "./Legend/Legend";
 import * as S from "./Map.style";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
-import { Legend } from "./Legend/Legend";
 
 const Map = () => {
   // const
@@ -362,7 +363,11 @@ const Map = () => {
         (isMobile && currentUserSettings === UserSettings.ModalView)) && (
         <S.ThresholdContainer>
           <ThresholdsConfigurator
-            resetButtonVariant={!isMobile ? "iconOnly" : "textWithIcon"}
+            resetButtonVariant={
+              !isMobile
+                ? ResetButtonVariant.IconOnly
+                : ResetButtonVariant.TextWithIcon
+            }
             isMobileOldStyle={
               isMobile && currentUserSettings === UserSettings.ModalView
             }

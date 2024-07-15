@@ -4,10 +4,10 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 import * as S from "./ThresholdConfigurator.style";
 import ThresholdSlider from "./ThresholdSlider";
-import { ResetButton } from "./ResetButton";
+import { ResetButton, ResetButtonVariant } from "./ResetButton";
 
 interface ThresholdsConfiguratorProps {
-  resetButtonVariant?: "iconOnly" | "textWithIcon";
+  resetButtonVariant?: ResetButtonVariant;
   resetButtonText?: string;
   swapIconTextPosition?: boolean;
   isMobileOldStyle?: boolean;

@@ -171,7 +171,7 @@ const RangeInput = styled.input<{
     width: 0;
     height: 0;
     background: transparent; /* Set the background to transparent */
-    border: none; /
+    border: none;
   }
 
   &::-ms-track {
@@ -191,7 +191,7 @@ const RangeInput = styled.input<{
   }
 
   &::-webkit-slider-runnable-track {
-  display: none;
+    display: none;
     width: 0;
     height: 0;
     cursor: pointer;
@@ -202,7 +202,7 @@ const RangeInput = styled.input<{
   }
 
   &::-moz-range-track {
-  display: none;
+    display: none;
     width: 0px;
     height: 0px;
     cursor: pointer;

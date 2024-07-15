@@ -3,12 +3,17 @@ import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import returnArrow from "../../assets/icons/returnArrow.svg";
 import returnArrowDarkBlue from "../../assets/icons/returnArrowDarkBlue.svg";
+import * as colors from "../../assets/styles/colors";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import * as S from "./ThresholdConfigurator.style";
-import * as colors from "../../assets/styles/colors";
+
+enum ResetButtonVariant {
+  IconOnly = "iconOnly",
+  TextWithIcon = "textWithIcon",
+}
 
 interface ResetButtonProps {
-  variant: "iconOnly" | "textWithIcon";
+  variant: ResetButtonVariant;
   resetButtonText?: string;
   swapIconTextPosition?: boolean;
   useDarkBlueIcon?: boolean;
@@ -36,7 +41,7 @@ const ResetButton: React.FC<ResetButtonProps> = ({
   };
 
   const buttonContent = useMemo(() => {
-    if (variant === "textWithIcon") {
+    if (variant === ResetButtonVariant.TextWithIcon) {
       return swapIconTextPosition ? (
         <>
           {finalResetButtonText}
@@ -52,7 +57,7 @@ const ResetButton: React.FC<ResetButtonProps> = ({
     return <img src={icon} alt={t("thresholdConfigurator.altResetButton")} />;
   }, [variant, swapIconTextPosition, finalResetButtonText, icon, t]);
 
-  if (variant === "textWithIcon") {
+  if (variant === ResetButtonVariant.TextWithIcon) {
     return (
       <S.ResetButton
         onClick={resetThresholds}
@@ -70,4 +75,4 @@ const ResetButton: React.FC<ResetButtonProps> = ({
   );
 };
 
-export { ResetButton };
+export { ResetButton, ResetButtonVariant };

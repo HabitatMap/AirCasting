@@ -10,6 +10,7 @@ import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
+import { ResetButtonVariant } from "../../components/ThresholdConfigurator/ResetButton";
 import {
   fetchFixedStreamById,
   selectFixedData,
@@ -136,7 +137,9 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   </S.StyledContainer>
                 }
                 componentToToggle={
-                  <ThresholdsConfigurator resetButtonVariant="textWithIcon" />
+                  <ThresholdsConfigurator
+                    resetButtonVariant={ResetButtonVariant.TextWithIcon}
+                  />
                 }
               />
             </S.ThresholdContainer>
