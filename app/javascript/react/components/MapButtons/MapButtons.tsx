@@ -27,6 +27,13 @@ const MapButtons = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
+    if (showConfirmation) {
+      const timer = setTimeout(() => setShowConfirmation(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showConfirmation]);
+
+  useEffect(() => {
     updateButtonPosition();
     window.addEventListener("resize", updateButtonPosition);
 
