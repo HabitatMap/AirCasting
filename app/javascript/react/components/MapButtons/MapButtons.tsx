@@ -5,7 +5,6 @@ import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filter.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
-import { black } from "../../assets/styles/colors";
 import { ConfirmationMessage } from "../Modals/atoms/ConfirmationMessage";
 import { CopyLinkModal, CopyLinkModalData } from "../Modals/CopyLinkModal";
 import * as PopupStyles from "../Modals/SessionDetailsModal/SessionDetailsModal.style";
@@ -19,12 +18,6 @@ enum ButtonTypes {
   COPY_LINK = "copyLink",
   SHARE = "share",
 }
-
-type CustomPopupProps = {
-  children:
-    | React.ReactNode
-    | ((close: () => void, isOpen: boolean) => React.ReactNode);
-};
 
 const MapButtons = () => {
   const buttonRef = useRef<HTMLDivElement>(null);
@@ -41,10 +34,6 @@ const MapButtons = () => {
       window.removeEventListener("resize", updateButtonPosition);
     };
   }, [buttonRef.current]);
-
-  useEffect(() => {
-    console.log("inside copy submit - showConfirmation", showConfirmation);
-  }, [showConfirmation]);
 
   const handleClick = (buttonType: ButtonTypes) => {
     setActiveButton((prevState) =>
@@ -103,12 +92,8 @@ const MapButtons = () => {
           }
           onOpen={() => handleClick(ButtonTypes.COPY_LINK)}
           position="bottom center"
-          nested
           closeOnDocumentClick
-          arrow={true}
-          arrowStyle={{
-            borderColor: `${black}`,
-          }}
+          arrow={false}
           contentStyle={{
             top: buttonPosition.top + 40,
             left: buttonPosition.left - 40,
