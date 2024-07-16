@@ -98,9 +98,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                     <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
                     <ResetButton
                       variant={ResetButtonVariant.TextWithIcon}
-                      resetButtonText={t(
-                        "thresholdConfigurator.resetButtonDesktop"
-                      )}
                       swapIconTextPosition={true}
                     ></ResetButton>
                   </S.StyledContainer>

@@ -31,9 +31,7 @@ const ResetButton: React.FC<ResetButtonProps> = ({
   const resetButtonTextColor = useDarkBlueIcon
     ? colors.darkBlue
     : colors.gray300;
-  const resetButtonDefaultText = t("thresholdConfigurator.resetButton", {
-    defaultValue: "Reset to Default",
-  });
+  const resetButtonDefaultText = t("thresholdConfigurator.resetButtonDesktop");
   const finalResetButtonText = resetButtonText || resetButtonDefaultText;
 
   const resetThresholds = () => {
