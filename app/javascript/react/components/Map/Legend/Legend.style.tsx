@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { H2, H3 } from "../../Typography";
-import { acBlue, white, black, gray400 } from "../../../assets/styles/colors";
+import { acBlue, gray400, white } from "../../../assets/styles/colors";
 import { Button } from "../../Button/Button.style";
+import { H3 } from "../../Typography";
 
 const LegendContainer = styled.div`
   display: grid;
@@ -11,7 +11,6 @@ const LegendContainer = styled.div`
   bottom: 0;
   flex-direction: column;
   align-items: center;
-  height: fit-content;
   width: 100%;
   background-color: white;
   padding: 1.6rem;
@@ -91,10 +90,10 @@ const ApplyButton = styled(Button)`
 `;
 
 export {
+  ApplyButton,
+  CloseButton,
   Header,
   LegendContainer,
-  CloseButton,
-  Title,
   SliderContainer,
-  ApplyButton,
+  Title,
 };
