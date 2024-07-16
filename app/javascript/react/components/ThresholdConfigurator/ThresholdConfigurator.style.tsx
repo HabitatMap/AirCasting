@@ -105,23 +105,6 @@ const ResetButtonWrapper = styled.div`
   }
 `;
 
-const ThresholdResetButton = styled(ResetButton)`
-  white-space: nowrap;
-  background: ${colors.gray100};
-  border: none;
-  color: ${colors.gray300};
-  width: fit-content;
-  height: 3.2rem;
-
-  @media ${media.desktop} {
-    margin-left: 0;
-  }
-
-  @media ${media.mobile} {
-    display: none;
-  }
-`;
-
 const ThresholdsDisclaimer = styled.h3`
   font-size: 1.2rem;
   font-weight: 600;
@@ -487,7 +470,6 @@ export {
   SliderContainer,
   StaticMobileSliderContainer,
   StyledContainer,
-  ThresholdResetButton,
   ThresholdsDisclaimer,
   Units,
   Wrapper,
