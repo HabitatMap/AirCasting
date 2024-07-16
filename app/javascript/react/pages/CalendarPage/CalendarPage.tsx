@@ -22,10 +22,7 @@ import {
   fetchNewMovingStream,
   movingData,
 } from "../../store/movingCalendarStreamSlice";
-import {
-  resetUserThresholds,
-  setDefaultThresholdsValues,
-} from "../../store/thresholdSlice";
+import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 
@@ -85,10 +82,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     }
     dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
   }, [fixedStreamData, dispatch]);
-
-  const resetThresholds = () => {
-    dispatch(resetUserThresholds());
-  };
 
   return (
     <>
