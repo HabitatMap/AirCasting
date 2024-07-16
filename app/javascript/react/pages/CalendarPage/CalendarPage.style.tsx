@@ -58,6 +58,7 @@ const StyledContainer = styled.div`
   align-items: right;
   grid-gap: 1rem;
   width: 100%;
+  justify-items: flex-end;
 
   @media ${media.mobile} {
     display: inline;
@@ -91,24 +92,9 @@ const SliderWrapper = styled.div`
   }
 `;
 
-const ResetButton = styled(Button)`
-  white-space: nowrap;
-  background: ${gray100};
-  border: none;
-  color: ${gray300};
-  width: fit-content;
-  margin-left: auto;
-  @media ${media.desktop} {
-    margin-left: 0;
-    grid-column: -1;
-    justify-self: end;
-  }
-`;
-
 export {
   CalendarPageLayout,
   Heading,
-  ResetButton,
   SliderWrapper,
   StationDataContainer,
   StyledContainer,

@@ -71,16 +71,17 @@ const ResetButton = styled(Button)`
   border: none;
   color: ${colors.gray300};
   width: fit-content;
-  margin-left: auto;
   text-transform: uppercase;
   align-items: center;
   justify-content: center;
+  align-content: center;
 
   @media ${media.desktop} {
     margin-left: 0;
   }
 
   @media ${media.mobile} {
+    margin-left: auto;
     white-space: pre-line;
     text-align: left;
     line-height: 1.6rem;
@@ -92,11 +93,13 @@ const ResetButton = styled(Button)`
 `;
 
 const ResetButtonWrapper = styled.div`
-  display: flex;
+  display: grid;
   gap: 10px;
   align-items: center;
+  grid-template-columns: auto 1fr;
 
   @media ${media.mobile} {
+    grid-template-columns: 1fr auto;
     max-width: 100px;
     gap: 10px;
   }
@@ -109,7 +112,6 @@ const ThresholdResetButton = styled(ResetButton)`
   color: ${colors.gray300};
   width: fit-content;
   height: 3.2rem;
-  text-transform: uppercase;
 
   @media ${media.desktop} {
     margin-left: 0;
