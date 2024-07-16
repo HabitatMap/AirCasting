@@ -70,6 +70,7 @@ const ResetButton: React.FC<ResetButtonProps> = ({
     <S.ResetButton
       onClick={resetThresholds}
       style={{ color: resetButtonTextColor }}
+      variant={variant}
     >
       {buttonContent}
     </S.ResetButton>

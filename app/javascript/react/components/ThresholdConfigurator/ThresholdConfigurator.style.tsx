@@ -3,6 +3,7 @@ import styled from "styled-components";
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 import { Button } from "../Button/Button.style";
+import { ResetButtonVariant } from "./ResetButton";
 
 interface Props {
   $isMobileOldStyle?: boolean;
@@ -65,7 +66,7 @@ const InputContainer = styled.div<Props>`
   }
 `;
 
-const ResetButton = styled(Button)`
+const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
   white-space: nowrap;
   background: ${colors.gray100};
   border: none;
@@ -78,6 +79,11 @@ const ResetButton = styled(Button)`
 
   @media ${media.desktop} {
     margin-left: 0;
+    ${(props) =>
+      props.variant === ResetButtonVariant.IconOnly &&
+      `
+        height: 32px;
+      `}
   }
 
   @media ${media.mobile} {
