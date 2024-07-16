@@ -64,21 +64,21 @@ const ThresholdContainer = styled.div`
   box-shadow: 2px 2px 4px 0px ${colors.gray900};
 
   @media (${media.desktop}) {
-    padding: 1.6rem 4.1rem;
+    padding: 1.1rem 4.1rem;
     height: 6.4rem;
     grid-template-columns: 1fr auto;
     margin-bottom: 0;
   }
 
   @media (${media.smallDesktop}) {
-    padding: 1.6rem 4.1rem;
+    padding: 1.1rem 4.1rem;
     height: 6.4rem;
     grid-template-columns: 1fr auto;
     margin-bottom: 0;
   }
 
   @media (${media.largeDesktop}) {
-    padding: 1.6rem 4.1rem;
+    padding: 1.1rem 4.1rem;
     height: 6.4rem;
     grid-template-columns: 1fr auto;
     margin-bottom: 0;
