@@ -3,6 +3,7 @@ import styled from "styled-components";
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 import { Button } from "../Button/Button.style";
+import { ResetButtonVariant } from "./ResetButton";
 
 interface Props {
   $isMobileOldStyle?: boolean;
@@ -65,38 +66,48 @@ const InputContainer = styled.div<Props>`
   }
 `;
 
-const ResetButton = styled(Button)`
+const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
   white-space: nowrap;
   background: ${colors.gray100};
   border: none;
   color: ${colors.gray300};
   width: fit-content;
-  margin-left: auto;
   text-transform: uppercase;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
 
   @media ${media.desktop} {
     margin-left: 0;
+    ${(props) =>
+      props.variant === ResetButtonVariant.IconOnly &&
+      `
+        height: 32px;
+      `}
   }
 
   @media ${media.mobile} {
-    white-space: wrap;
+    margin-left: auto;
+    white-space: pre-line;
     text-align: left;
     line-height: 1.6rem;
     width: 33%;
+    min-width: 100px;
     padding: 0.6rem 1.85rem;
     font-size: 1.2rem;
   }
 `;
 
-const ThresholdResetButton = styled(ResetButton)`
-  white-space: nowrap;
-  background: ${colors.gray100};
-  border: none;
-  color: ${colors.gray300};
-  width: fit-content;
-  height: 3.2rem;
-  @media ${media.desktop} {
-    margin-left: 0;
+const ResetButtonWrapper = styled.div`
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  grid-template-columns: auto 1fr;
+
+  @media ${media.mobile} {
+    grid-template-columns: 1fr auto;
+    max-width: 100px;
+    gap: 10px;
   }
 `;
 
@@ -461,10 +472,10 @@ export {
   OldStyleSliderText,
   RangeInput,
   ResetButton,
+  ResetButtonWrapper,
   SliderContainer,
   StaticMobileSliderContainer,
   StyledContainer,
-  ThresholdResetButton,
   ThresholdsDisclaimer,
   Units,
   Wrapper,

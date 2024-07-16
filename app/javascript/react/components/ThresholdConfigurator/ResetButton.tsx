@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
 import returnArrow from "../../assets/icons/returnArrow.svg";
 import returnArrowDarkBlue from "../../assets/icons/returnArrowDarkBlue.svg";
 import * as colors from "../../assets/styles/colors";
+import { useAppDispatch } from "../../store/hooks";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import * as S from "./ThresholdConfigurator.style";
 
@@ -20,21 +20,20 @@ interface ResetButtonProps {
 }
 
 const ResetButton: React.FC<ResetButtonProps> = ({
-  variant = "iconOnly",
+  variant = ResetButtonVariant.IconOnly,
   resetButtonText,
   swapIconTextPosition = false,
   useDarkBlueIcon = false,
 }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const icon = useDarkBlueIcon ? returnArrowDarkBlue : returnArrow;
   const resetButtonTextColor = useDarkBlueIcon
     ? colors.darkBlue
     : colors.gray300;
-  const resetButtonDefaultText = t("thresholdConfigurator.resetButton", {
-    defaultValue: "Reset",
-  });
+  const resetButtonDefaultText = t("thresholdConfigurator.resetButtonDesktop");
   const finalResetButtonText = resetButtonText || resetButtonDefaultText;
+  const altResetButtonText = t("thresholdConfigurator.altResetButton");
 
   const resetThresholds = () => {
     dispatch(resetUserThresholds());
@@ -42,36 +41,39 @@ const ResetButton: React.FC<ResetButtonProps> = ({
 
   const buttonContent = useMemo(() => {
     if (variant === ResetButtonVariant.TextWithIcon) {
-      return swapIconTextPosition ? (
-        <>
-          {finalResetButtonText}
-          <img src={icon} alt={t("thresholdConfigurator.altResetButton")} />
-        </>
-      ) : (
-        <>
-          <img src={icon} alt={t("thresholdConfigurator.altResetButton")} />
-          {finalResetButtonText}
-        </>
+      return (
+        <S.ResetButtonWrapper>
+          {swapIconTextPosition ? (
+            <>
+              {finalResetButtonText}
+              <img src={icon} alt={altResetButtonText} />
+            </>
+          ) : (
+            <>
+              <img src={icon} alt={altResetButtonText} />
+              {finalResetButtonText}
+            </>
+          )}
+        </S.ResetButtonWrapper>
       );
     }
-    return <img src={icon} alt={t("thresholdConfigurator.altResetButton")} />;
-  }, [variant, swapIconTextPosition, finalResetButtonText, icon, t]);
-
-  if (variant === ResetButtonVariant.TextWithIcon) {
-    return (
-      <S.ResetButton
-        onClick={resetThresholds}
-        style={{ color: resetButtonTextColor }}
-      >
-        {buttonContent}
-      </S.ResetButton>
-    );
-  }
+    return <img src={icon} alt={altResetButtonText} />;
+  }, [
+    variant,
+    swapIconTextPosition,
+    finalResetButtonText,
+    icon,
+    altResetButtonText,
+  ]);
 
   return (
-    <S.ThresholdResetButton onClick={resetThresholds}>
+    <S.ResetButton
+      onClick={resetThresholds}
+      style={{ color: resetButtonTextColor }}
+      variant={variant}
+    >
       {buttonContent}
-    </S.ThresholdResetButton>
+    </S.ResetButton>
   );
 };
 

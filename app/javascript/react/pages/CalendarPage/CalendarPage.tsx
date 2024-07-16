@@ -4,13 +4,15 @@ import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
 import { useTranslation } from "react-i18next";
-import returnArrow from "../../assets/icons/returnArrow.svg";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
-import { ResetButtonVariant } from "../../components/ThresholdConfigurator/ResetButton";
+import {
+  ResetButton,
+  ResetButtonVariant,
+} from "../../components/ThresholdConfigurator/ResetButton";
 import {
   fetchFixedStreamById,
   selectFixedData,
@@ -20,10 +22,7 @@ import {
   fetchNewMovingStream,
   movingData,
 } from "../../store/movingCalendarStreamSlice";
-import {
-  resetUserThresholds,
-  setDefaultThresholdsValues,
-} from "../../store/thresholdSlice";
+import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 
@@ -84,10 +83,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
   }, [fixedStreamData, dispatch]);
 
-  const resetThresholds = () => {
-    dispatch(resetUserThresholds());
-  };
-
   return (
     <>
       {children}
@@ -101,13 +96,10 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   <S.StyledContainer>
                     {t("calendarHeader.legendTitle")}
                     <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
-                    <S.ResetButton onClick={resetThresholds}>
-                      {t("thresholdConfigurator.resetButton")}
-                      <img
-                        src={returnArrow}
-                        alt={t("thresholdConfigurator.altResetButton")}
-                      />
-                    </S.ResetButton>
+                    <ResetButton
+                      variant={ResetButtonVariant.TextWithIcon}
+                      swapIconTextPosition={true}
+                    ></ResetButton>
                   </S.StyledContainer>
                 }
                 componentToToggle={
@@ -139,6 +131,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 componentToToggle={
                   <ThresholdsConfigurator
                     resetButtonVariant={ResetButtonVariant.TextWithIcon}
+                    resetButtonText={t("thresholdConfigurator.resetButton")}
                   />
                 }
               />
