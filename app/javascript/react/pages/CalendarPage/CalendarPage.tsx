@@ -90,7 +90,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
         <S.StationDataContainer>
           <FixedStreamStationHeader />
           {!isMobile && (
-            <S.ThresholdContainer>
+            <S.ThresholdContainer $isMobile={isMobile}>
               <HeaderToggle
                 titleText={
                   <S.StyledContainer>
@@ -120,7 +120,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             <EmptyCalendar />
           )}
           {isMobile && (
-            <S.ThresholdContainer>
+            <S.ThresholdContainer $isMobile={isMobile}>
               <HeaderToggle
                 titleText={
                   <S.StyledContainer>
@@ -132,6 +132,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   <ThresholdsConfigurator
                     resetButtonVariant={ResetButtonVariant.TextWithIcon}
                     resetButtonText={t("thresholdConfigurator.resetButton")}
+                    useColorBoxStyle
                   />
                 }
               />
