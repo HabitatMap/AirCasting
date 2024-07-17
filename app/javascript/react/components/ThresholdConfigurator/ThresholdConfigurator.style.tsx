@@ -30,9 +30,9 @@ const ColorBox = styled.div`
 
 const StaticMobileSliderContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 7.5% 1fr 9.5% 1fr 11.5% 1fr 18% 1fr;
+  grid-template-columns: repeat(4, auto 1fr) auto;
   grid-template-rows: auto;
-  gap: 9px;
+  gap: 0.9rem;
   align-items: center;
   width: 100%;
 `;
@@ -285,8 +285,9 @@ const ColorBoxNumberInput = styled.input`
   justify-content: center;
   position: relative;
   width: 100%;
-  min-width: 24px;
-  height: 50px;
+  min-width: 2.4rem;
+  max-width: 2.6rem;
+  height: 5rem;
   justify-content: space-between;
   text-align: center;
   border-radius: 5px;

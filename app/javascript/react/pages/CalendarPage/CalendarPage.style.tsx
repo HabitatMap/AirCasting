@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
-import { gray100, gray300, white } from "../../assets/styles/colors";
-import { Button } from "../../components/Button/Button.style";
+import { gray100, white } from "../../assets/styles/colors";
 import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
@@ -65,13 +64,12 @@ const StyledContainer = styled.div`
   }
 `;
 
-const ThresholdContainer = styled.div`
+const ThresholdContainer = styled.div<{ $isMobile: boolean }>`
   display: flex;
   flex-direction: column;
   position: relative;
   width: 100%;
   margin-bottom: 3rem;
-  padding: 1.5rem;
   background-color: ${white};
 
   @media ${media.desktop} {
@@ -83,6 +81,7 @@ const ThresholdContainer = styled.div`
     padding: 3rem 10rem;
     margin-bottom: 0;
   }
+  ${(props) => props.$isMobile && `padding: 1.5rem; gap: 2rem;`}
 `;
 
 const SliderWrapper = styled.div`
