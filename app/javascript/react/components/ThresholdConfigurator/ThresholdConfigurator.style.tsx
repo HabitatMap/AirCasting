@@ -286,14 +286,14 @@ const ColorBoxNumberInput = styled.input`
   position: relative;
   width: 100%;
   min-width: 2.4rem;
-  max-width: 2.6rem;
+  max-width: 2.9rem;
   height: 5rem;
   justify-content: space-between;
   text-align: center;
   border-radius: 5px;
   border: 1px solid ${colors.darkBlueTransparent};
   z-index: 5;
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   color: ${colors.darkBlue};
 
   @media (${media.mobile}) {
