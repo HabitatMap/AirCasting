@@ -56,6 +56,7 @@ const CopyLinkComponent = ({
   ) => {
     close();
     setShowConfirmation(true);
+    onClose && onClose();
   };
 
   const handleCopyError = (error: Error) => {
@@ -103,11 +104,11 @@ const CopyLinkComponent = ({
         arrow
         closeOnDocumentClick
         onOpen={onOpen}
-        onClose={onClose}
+        onClose={() => onClose}
         contentStyle={
           showBelowButton
             ? {
-                top: buttonPosition.top + 40,
+                top: buttonPosition.top + 35,
                 left: buttonPosition.left - 40,
                 position: "absolute",
               }
