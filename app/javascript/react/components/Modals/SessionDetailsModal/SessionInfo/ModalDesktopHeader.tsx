@@ -2,8 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import calendar from "../../../../assets/icons/calendar.svg";
+import copyLink from "../../../../assets/icons/copyLinkIcon.svg";
 import downloadImage from "../../../../assets/icons/download.svg";
-import shareLink from "../../../../assets/icons/shareIcon.svg";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
 import { isNoData } from "../../../../utils/measurementsCalc";
@@ -111,7 +111,7 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
         <CopyLinkComponent
           button={
             <S.Button aria-label={t("copyLinkModal.altCopyLink")}>
-              <img src={shareLink} alt={t("copyLinkModal.copyLink")} />
+              <img src={copyLink} alt={t("copyLinkModal.copyLink")} />
             </S.Button>
           }
           isIconOnly
