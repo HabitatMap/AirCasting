@@ -101,8 +101,8 @@ const CopyLinkComponent = ({
         nested
         arrow
         closeOnDocumentClick
-        onOpen={() => onOpen}
-        onClose={() => onClose}
+        onOpen={onOpen}
+        onClose={onClose}
         contentStyle={
           showBelowButton
             ? {

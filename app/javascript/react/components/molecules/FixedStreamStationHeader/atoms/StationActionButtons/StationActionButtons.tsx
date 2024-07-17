@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 
 import copyLinkIcon from "../../../../../assets/icons/copyLinkIcon.svg";
 import downloadImage from "../../../../../assets/icons/download.svg";
-import shareLink from "../../../../../assets/icons/shareIcon.svg";
 
 import { ActionButton } from "../../../../ActionButton/ActionButton.style";
 import { Button } from "../../../../Button/Button.style";
@@ -31,14 +30,14 @@ const StationActionButtons = ({ sessionId }: Props) => {
             </ActionButton>
           }
           sessionId={sessionId}
-          isIconOnly={true}
+          isIconOnly
           onSubmit={(formData) => {}}
           fixedSessionTypeSelected={true}
         />
         <CopyLinkComponent
           button={
             <ActionButton aria-label={t("calendarHeader.altShareLink")}>
-              <img src={shareLink} />
+              <img src={copyLinkIcon} alt={t("calendarHeader.altCopyIcon")} />
             </ActionButton>
           }
           isIconOnly
