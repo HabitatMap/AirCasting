@@ -67,11 +67,9 @@ const CopyLinkComponent = ({
   const rect = buttonRef.current && buttonRef.current.getBoundingClientRect();
 
   const updateButtonPosition = () => {
-    if (rect) {
-      setButtonPosition({
-        top: rect.top + window.scrollY,
-        left: rect.left + window.scrollX,
-      });
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setButtonPosition({ top: rect.top, left: rect.left });
     }
   };
 
@@ -103,7 +101,7 @@ const CopyLinkComponent = ({
         nested
         arrow
         closeOnDocumentClick
-        onOpen={onOpen}
+        onOpen={() => onOpen}
         onClose={() => onClose}
         contentStyle={
           showBelowButton
