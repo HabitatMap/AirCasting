@@ -281,7 +281,7 @@ const ColorBoxNumberInput = styled.input`
   border-radius: 5px;
   border: 1px solid ${colors.darkBlueTransparent};
   z-index: 5;
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   color: ${colors.darkBlue};
 
   @media (${media.mobile}) {
