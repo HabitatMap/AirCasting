@@ -3,44 +3,26 @@ import { useTranslation } from "react-i18next";
 
 import copyLinkIcon from "../../../../../assets/icons/copyLinkIcon.svg";
 import downloadImage from "../../../../../assets/icons/download.svg";
-import { copyCurrentURL } from "../../../../../utils/copyCurrentUrl";
-import useShortenedLink from "../../../../../utils/urlShortenedLink";
+import shareLink from "../../../../../assets/icons/shareIcon.svg";
+
 import { ActionButton } from "../../../../ActionButton/ActionButton.style";
 import { Button } from "../../../../Button/Button.style";
-import { ExportDataModal } from "../../../../Modals";
-import { SmallPopup } from "../../../../Modals/SessionDetailsModal/SessionDetailsModal.style";
+import { CopyLinkComponent } from "../../../../Popups/CopyLinkComponent";
+import { ExportDataComponent } from "../../../../Popups/ExportDataComponent";
 import * as S from "./StationActionButtons.style";
 
 interface Props {
   sessionId: string;
 }
-const BITLY_ACCESS_TOKEN = process.env.BITLY_ACCESS_TOKEN || "";
 
 const StationActionButtons = ({ sessionId }: Props) => {
-  const currentUrl = window.location.href;
   const { t } = useTranslation();
-  const { shortenedLink, error } = useShortenedLink(
-    currentUrl,
-    BITLY_ACCESS_TOKEN
-  );
 
-  const handleCopyLink = () => {
-    if (shortenedLink) {
-      copyCurrentURL(shortenedLink);
-      alert(t("alert.linkCopied"));
-    } else {
-      alert(t("alert.linkShortenedFailed"));
-    }
-  };
-
-  if (error) {
-    console.error("Error shortening link: ", error.message);
-  }
   return (
     <>
       <S.MobileButtons>
-        <SmallPopup
-          trigger={
+        <ExportDataComponent
+          button={
             <ActionButton
               onClick={() => {}}
               aria-labelledby={t("calendarHeader.altExportSession")}
@@ -48,39 +30,41 @@ const StationActionButtons = ({ sessionId }: Props) => {
               <img src={downloadImage} />
             </ActionButton>
           }
-          closeOnDocumentClick
-          nested
-          position="top center"
-        >
-          <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
-        </SmallPopup>
-        <ActionButton
-          onClick={handleCopyLink}
-          aria-label={t("calendarHeader.altShareLink")}
-        >
-          <img src={copyLinkIcon} />
-        </ActionButton>
+          sessionId={sessionId}
+          isIconOnly={true}
+          onSubmit={(formData) => {}}
+          fixedSessionTypeSelected={true}
+        />
+        <CopyLinkComponent
+          button={
+            <ActionButton aria-label={t("calendarHeader.altShareLink")}>
+              <img src={shareLink} />
+            </ActionButton>
+          }
+          isIconOnly
+        />
       </S.MobileButtons>
       <S.DesktopButtons>
-        <Button
-          onClick={handleCopyLink}
-          aria-label={t("calendarHeader.altShareLink")}
-        >
-          {t("calendarHeader.copyLink")}{" "}
-          <img src={copyLinkIcon} alt={t("Copy link")} />
-        </Button>
-        <SmallPopup
-          trigger={
+        <CopyLinkComponent
+          button={
+            <Button aria-label={t("calendarHeader.altShareLink")}>
+              {t("calendarHeader.copyLink")}
+              <img src={copyLinkIcon} alt={t("calendarHeader.altCopyIcon")} />
+            </Button>
+          }
+          isIconOnly={false}
+        />
+        <ExportDataComponent
+          button={
             <Button aria-labelledby={t("calendarHeader.altExportSession")}>
               {t("calendarHeader.exportSession")} <img src={downloadImage} />
             </Button>
           }
-          closeOnDocumentClick
-          nested
-          position="top center"
-        >
-          <ExportDataModal sessionId={sessionId} onSubmit={(formData) => {}} />
-        </SmallPopup>
+          sessionId={sessionId}
+          isIconOnly={false}
+          onSubmit={(formData) => {}}
+          fixedSessionTypeSelected={true}
+        />
       </S.DesktopButtons>
     </>
   );

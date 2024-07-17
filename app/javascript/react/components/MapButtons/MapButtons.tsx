@@ -1,14 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
-import { ConfirmationMessage } from "../Modals/atoms/ConfirmationMessage";
-import { CopyLinkModal, CopyLinkModalData } from "../Modals/CopyLinkModal";
-import * as PopupStyles from "../Modals/SessionDetailsModal/SessionDetailsModal.style";
-import { CopyLinkPopup } from "../Modals/SessionDetailsModal/SessionInfo/ModalDesktopHeader";
+import { CopyLinkComponent } from "../Popups/CopyLinkComponent";
 import { MapButton } from "./MapButton";
 import * as S from "./MapButtons.style";
 
@@ -20,27 +17,27 @@ enum ButtonTypes {
 }
 
 const MapButtons = () => {
-  const buttonRef = useRef<HTMLDivElement>(null);
+  // const buttonRef = useRef<HTMLDivElement>(null);
   const [activeButton, setActiveButton] = useState<ButtonTypes | null>(null);
-  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  // const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
+  // const [showConfirmation, setShowConfirmation] = useState(false);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    if (showConfirmation) {
-      const timer = setTimeout(() => setShowConfirmation(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showConfirmation]);
+  // useEffect(() => {
+  //   if (showConfirmation) {
+  //     const timer = setTimeout(() => setShowConfirmation(false), 3000);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [showConfirmation]);
 
-  useEffect(() => {
-    updateButtonPosition();
-    window.addEventListener("resize", updateButtonPosition);
+  // useEffect(() => {
+  //   updateButtonPosition();
+  //   window.addEventListener("resize", updateButtonPosition);
 
-    return () => {
-      window.removeEventListener("resize", updateButtonPosition);
-    };
-  }, [buttonRef.current]);
+  //   return () => {
+  //     window.removeEventListener("resize", updateButtonPosition);
+  //   };
+  // }, [buttonRef.current]);
 
   const handleClick = (buttonType: ButtonTypes) => {
     setActiveButton((prevState) =>
@@ -48,26 +45,26 @@ const MapButtons = () => {
     );
   };
 
-  const handleCopyError = (error: Error) => {
-    console.error("Error copying link: ", error.message);
-    alert(t("alert.linkShortenedFailed"));
-  };
+  // const handleCopyError = (error: Error) => {
+  //   console.error("Error copying link: ", error.message);
+  //   alert(t("alert.linkShortenedFailed"));
+  // };
 
-  const handleCopySubmit = (
-    formData: CopyLinkModalData,
-    close: { (): void; (): void }
-  ) => {
-    close();
-    setActiveButton(null);
-    setShowConfirmation(true);
-  };
+  // const handleCopySubmit = (
+  //   formData: CopyLinkModalData,
+  //   close: { (): void; (): void }
+  // ) => {
+  //   close();
+  //   setActiveButton(null);
+  //   setShowConfirmation(true);
+  // };
 
-  const updateButtonPosition = () => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setButtonPosition({ top: rect.top, left: rect.left });
-    }
-  };
+  // const updateButtonPosition = () => {
+  //   if (buttonRef.current) {
+  //     const rect = buttonRef.current.getBoundingClientRect();
+  //     setButtonPosition({ top: rect.top, left: rect.left });
+  //   }
+  // };
 
   return (
     <S.MapButtonsWrapper>
@@ -85,7 +82,7 @@ const MapButtons = () => {
         alt={t("navbar.altTimelapse")}
         isActive={activeButton === ButtonTypes.TIMELAPSE}
       />
-      <div ref={buttonRef}>
+      {/* <div ref={buttonRef}>
         <CopyLinkPopup
           trigger={
             <MapButton
@@ -134,7 +131,26 @@ const MapButtons = () => {
             message={t("copyLinkModal.confirmationMessage")}
           />
         </PopupStyles.ConfirmationPopup>
-      </div>
+      </div> */}
+      <CopyLinkComponent
+        button={
+          <MapButton
+            title={t("navbar.copyLink")}
+            image={copyLinkIcon}
+            onClick={() => {}}
+            alt={t("navbar.altCopyLink")}
+            isActive={activeButton === ButtonTypes.COPY_LINK}
+          />
+        }
+        isIconOnly={false}
+        showBelowButton
+        onOpen={() => {
+          handleClick(ButtonTypes.COPY_LINK);
+        }}
+        onClose={() => {
+          setActiveButton(null);
+        }}
+      />
       <MapButton
         title={t("navbar.share")}
         image={shareIcon}
