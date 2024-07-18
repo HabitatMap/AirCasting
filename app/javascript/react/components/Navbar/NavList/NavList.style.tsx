@@ -12,6 +12,7 @@ const AircastingLogo = styled.img`
 const Button = styled.button`
   border: none;
   background: none;
+  cursor: pointer;
 `;
 
 const Container = styled.div`

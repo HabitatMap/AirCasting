@@ -146,5 +146,9 @@
   "alert": {
     "linkCopied": "Link copied to clipboard",
     "linkShortenedFailed": "Failed to shorten link"
+  },
+  "filters": {
+    "mobileSessions": "mobile",
+    "fixedSessions": "fixed"
   }
 }
