@@ -1,18 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { PopupProps } from "reactjs-popup/dist/types";
 
 import calendar from "../../../../assets/icons/calendar.svg";
-import copyLinkIcon from "../../../../assets/icons/copyLinkIcon.svg";
+import copyLink from "../../../../assets/icons/copyLinkIcon.svg";
 import downloadImage from "../../../../assets/icons/download.svg";
-import { white } from "../../../../assets/styles/colors";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../../utils/thresholdColors";
-import { ConfirmationMessage } from "../../atoms/ConfirmationMessage";
-import { CopyLinkModal, CopyLinkModalData } from "../../CopyLinkModal";
-import { ExportDataModal } from "../../ExportDataModal";
+import { CopyLinkComponent } from "../../../Popups/CopyLinkComponent";
+import { ExportDataComponent } from "../../../Popups/ExportDataComponent";
 import * as S from "../SessionDetailsModal.style";
 
 interface Extremes {
@@ -30,19 +27,6 @@ interface ModalDesktopHeaderProps {
   fixedSessionTypeSelected: boolean;
 }
 
-type CustomPopupProps = {
-  children:
-    | React.ReactNode
-    | ((close: () => void, isOpen: boolean) => React.ReactNode);
-};
-
-// Workaround for the typescript error
-export const CopyLinkPopup: React.FC<
-  CustomPopupProps & Omit<PopupProps, "children">
-> = (props) => {
-  return <S.SmallPopup {...(props as PopupProps)} />;
-};
-
 const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   streamShortInfo,
   thresholds,
@@ -51,10 +35,6 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   streamId,
   fixedSessionTypeSelected,
 }) => {
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
-  const buttonRef = useRef<HTMLDivElement>(null);
-
   const { t } = useTranslation();
 
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
@@ -63,49 +43,6 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
     extremes.maxMeasurementValue,
     extremes.averageValue
   );
-
-  const handleCopySubmit = (
-    formData: CopyLinkModalData,
-    close: { (): void; (): void }
-  ) => {
-    close();
-    setShowConfirmation(true);
-  };
-
-  const handleCopyError = (error: Error) => {
-    console.error("Error copying link: ", error.message);
-    alert(t("alert.linkShortenedFailed"));
-  };
-
-  const updateButtonPosition = () => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setButtonPosition({
-        top: rect.top + window.scrollY,
-        left: rect.left + window.scrollX,
-      });
-    }
-  };
-
-  useEffect(() => {
-    updateButtonPosition();
-    window.addEventListener("resize", updateButtonPosition);
-
-    return () => {
-      window.removeEventListener("resize", updateButtonPosition);
-    };
-  }, [buttonRef.current]);
-
-  useEffect(() => {
-    if (showConfirmation) {
-      const timer = setTimeout(() => setShowConfirmation(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showConfirmation]);
-
-  useEffect(() => {
-    updateButtonPosition();
-  }, [showConfirmation]);
 
   return (
     <S.ModalDesktopHeader>
@@ -157,8 +94,8 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
             <img src={calendar} alt={t("sessionDetailsModal.calendarIcon")} />
           </S.BlueButton>
         )}
-        <S.SmallPopup
-          trigger={
+        <ExportDataComponent
+          button={
             <S.Button aria-labelledby={t("calendarHeader.altExportSession")}>
               <img
                 src={downloadImage}
@@ -166,63 +103,19 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
               />
             </S.Button>
           }
-          position="top center"
-          nested
-          closeOnDocumentClick
-          offsetX={fixedSessionTypeSelected ? 0 : 40}
-          arrowStyle={
-            fixedSessionTypeSelected
-              ? {}
-              : {
-                  left: "34%",
-                  borderColor: `transparent transparent ${white} transparent`,
-                  borderWidth: "0 10px 10px 10px",
-                  borderStyle: "solid",
-                }
+          fixedSessionTypeSelected={fixedSessionTypeSelected}
+          sessionId={streamShortInfo.sessionId}
+          isIconOnly={true}
+          onSubmit={(formData) => {}}
+        />
+        <CopyLinkComponent
+          button={
+            <S.Button aria-label={t("copyLinkModal.altCopyLink")}>
+              <img src={copyLink} alt={t("copyLinkModal.copyLink")} />
+            </S.Button>
           }
-        >
-          <ExportDataModal
-            sessionId={streamShortInfo.sessionId}
-            onSubmit={(formData) => {}}
-          />
-        </S.SmallPopup>
-        <S.WrapperButton ref={buttonRef}>
-          <CopyLinkPopup
-            trigger={
-              <S.Button aria-label={t("copyLinkModal.altCopyLink")}>
-                <img src={copyLinkIcon} alt={t("copyLinkModal.copyLink")} />
-              </S.Button>
-            }
-            position="top center"
-            nested
-            closeOnDocumentClick
-          >
-            {(close) => (
-              <>
-                <CopyLinkModal
-                  onSubmit={(formData) => handleCopySubmit(formData, close)}
-                  onError={handleCopyError}
-                />
-              </>
-            )}
-          </CopyLinkPopup>
-          {showConfirmation && (
-            <S.ConfirmationPopup
-              open={showConfirmation}
-              closeOnDocumentClick={false}
-              arrow={false}
-              contentStyle={{
-                top: `${buttonPosition.top - 42}px`,
-                left: `${buttonPosition.left - 12}px`,
-                position: "absolute",
-              }}
-            >
-              <ConfirmationMessage
-                message={t("copyLinkModal.confirmationMessage")}
-              />
-            </S.ConfirmationPopup>
-          )}
-        </S.WrapperButton>
+          isIconOnly
+        />
       </S.ButtonsContainer>
     </S.ModalDesktopHeader>
   );

@@ -81,6 +81,7 @@ const BlueButton = styled(Button)`
   width: fit-content;
   font-size: 1.1rem;
   height: 0.8rem;
+  text-transform: uppercase;
 `;
 
 const FormWrapper = styled.div`

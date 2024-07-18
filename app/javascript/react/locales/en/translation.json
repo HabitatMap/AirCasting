@@ -64,7 +64,8 @@
     "legendTitle": "Measurements legend",
     "calendarTitle": "Measurements calendar",
     "measurementsUnits": "(µg/m³)",
-    "dateRange": "Date range"
+    "dateRange": "Date range",
+    "altCopyIcon": "Charm icon"
   },
   "headerToggle": {
     "arrowIcon": "Arrow Icon"
@@ -87,7 +88,7 @@
   },
   "exportDataModal": {
     "title": "Export data to e-mail",
-    "exportButton": "EMAIL DATA",
+    "exportButton": "email data",
     "emailPlaceholder": "Enter email address",
     "confirmationMessage": "Exported sessions will be emailed within minutes. The email may end up in your spam folder.",
     "invalidEmailMessage": "Please enter a valid email address."
