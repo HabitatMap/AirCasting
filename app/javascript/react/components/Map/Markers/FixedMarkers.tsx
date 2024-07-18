@@ -64,6 +64,7 @@ const FixedMarkers = ({
     null
   );
 
+  // Initialize clusterer
   useLayoutEffect(() => {
     if (map) {
       if (clusterer.current) {
@@ -78,7 +79,7 @@ const FixedMarkers = ({
         }),
       });
     }
-  }, [map, sessions, thresholds]);
+  }, [map, thresholds]);
 
   useEffect(() => {
     if (selectedStreamId === null) {
@@ -104,25 +105,29 @@ const FixedMarkers = ({
 
   // Update MarkerClusterer when markers and sessions change
   useEffect(() => {
-    if (clusterer.current && sessions.length > 0) {
-      const sessionStreamIds = sessions.map(
-        (session) => session.point.streamId
-      );
-      Object.keys(markers).forEach((key) => {
-        if (!sessionStreamIds.includes(key)) {
-          delete markers[key];
-        }
-      });
-      const validMarkers = Object.values(markers).filter(
-        (marker): marker is google.maps.marker.AdvancedMarkerElement =>
-          marker !== null
-      );
-      clusterer.current.clearMarkers();
-      clusterer.current.addMarkers(validMarkers);
-    }
+    const updateClusterer = () => {
+      if (clusterer.current && sessions.length > 0) {
+        const sessionStreamIds = sessions.map(
+          (session) => session.point.streamId
+        );
+        Object.keys(markers).forEach((key) => {
+          if (!sessionStreamIds.includes(key)) {
+            delete markers[key];
+          }
+        });
+        const validMarkers = Object.values(markers).filter(
+          (marker): marker is google.maps.marker.AdvancedMarkerElement =>
+            marker !== null
+        );
+        clusterer.current.clearMarkers();
+        clusterer.current.addMarkers(validMarkers);
+      }
+    };
+
+    updateClusterer();
   }, [markers, sessions, thresholds]);
 
-  // Pulsation
+  // Handle pulsating marker separately to avoid frequent updates to the clusterer
   useEffect(() => {
     if (pulsatingSessionId) {
       const pulsatingSession = sessions.find(
@@ -130,43 +135,34 @@ const FixedMarkers = ({
       );
       const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
 
-      Object.keys(markers).forEach((key) => {
-        if (clusterer.current && pulsatingSessionStreamId === key) {
-          const pulsatingCluster: Cluster | undefined =
-            // @ts-ignore:next-line
-            clusterer.current.clusters.find(
-              (cluster: Cluster) =>
-                cluster.markers &&
-                cluster.markers.some(
-                  (clusterMarker: Marker) => clusterMarker === markers[key]
-                )
-            );
+      if (pulsatingSessionStreamId && clusterer.current) {
+        const pulsatingCluster: Cluster | undefined =
+          // @ts-ignore:next-line
+          clusterer.current.clusters.find(
+            (cluster: Cluster) =>
+              cluster.markers &&
+              cluster.markers.some(
+                (clusterMarker: Marker) =>
+                  clusterMarker === markers[pulsatingSessionStreamId]
+              )
+          );
 
-          if (
-            pulsatingClusterer.current &&
-            // @ts-ignore:next-line
-            pulsatingClusterer.current.markers.length > 1
-          ) {
-            pulsatingClusterer.current.clearMarkers();
-          }
+        if (pulsatingCluster && pulsatingClusterer.current) {
+          pulsatingClusterer.current.clearMarkers();
           pulsatingClusterer.current = new MarkerClusterer({
             map,
-            renderer: pulsatingRenderer(thresholds, pulsatingCluster?.position),
-            markers: pulsatingCluster?.markers,
+            renderer: pulsatingRenderer(thresholds, pulsatingCluster.position),
+            markers: pulsatingCluster.markers,
             algorithm: new GridAlgorithm({ gridSize: 1000 }),
           });
         }
-      });
+      }
     } else {
-      if (
-        pulsatingClusterer.current &&
-        // @ts-ignore:next-line
-        pulsatingClusterer.current.markers.length > 1
-      ) {
+      if (pulsatingClusterer.current) {
         pulsatingClusterer.current.clearMarkers();
       }
     }
-  }, [pulsatingSessionId]);
+  }, [pulsatingSessionId, sessions, thresholds]);
 
   // Cleanup clusters when component unmounts
   useEffect(() => {
