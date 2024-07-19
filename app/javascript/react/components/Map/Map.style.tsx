@@ -39,8 +39,8 @@ const MobileContainer = styled.div`
 
 const MobileButtons = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  justify-content: end;
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-content: center;
   gap: 1rem;
   flex-direction: column;
   position: fixed;
@@ -92,11 +92,11 @@ const ThresholdContainer = styled.div`
 `;
 
 export {
-  containerStyle,
   DesktopContainer,
   FixedButton,
   MobileButton,
   MobileButtons,
   MobileContainer,
   ThresholdContainer,
+  containerStyle,
 };

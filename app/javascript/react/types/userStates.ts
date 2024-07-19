@@ -4,4 +4,5 @@ export enum UserSettings {
   CalendarView = "CALENDAR_VIEW",
   SessionListView = "SESSION_LIST_VIEW",
   MapLegendView = "MAP_LEGEND_VIEW",
+  FiltersView = "FILTERS_VIEW",
 }
