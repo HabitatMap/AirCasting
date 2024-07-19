@@ -108,7 +108,7 @@ const FixedMarkers = ({
     };
   }, [memoizedSessions]);
 
-  const updateClusterer = () => {
+  const updateClusterer = useCallback(() => {
     if (clusterer.current && memoizedSessions.length > 0) {
       const sessionStreamIds = memoizedSessions.map(
         (session) => session.point.streamId
@@ -125,12 +125,12 @@ const FixedMarkers = ({
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
     }
-  };
+  }, [memoizedSessions, memoizedMarkers]);
 
   // Update MarkerClusterer when markers and sessions change
   useEffect(() => {
     updateClusterer();
-  }, [memoizedMarkers, memoizedSessions, thresholds]);
+  }, [updateClusterer]);
 
   // Pulsation
   useEffect(() => {
@@ -187,13 +187,16 @@ const FixedMarkers = ({
     };
   }, []);
 
-  const centerMapOnMarker = (position: LatLngLiteral, streamId: string) => {
-    if (map) {
-      map.setCenter(position);
-      map.setZoom(ZOOM_FOR_SELECTED_SESSION);
-    }
-    setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
-  };
+  const centerMapOnMarker = useCallback(
+    (position: LatLngLiteral, streamId: string) => {
+      if (map) {
+        map.setCenter(position);
+        map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+      }
+      setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
+    },
+    [map, selectedMarkerKey]
+  );
 
   const setMarkerRef = useCallback(
     (marker: google.maps.marker.AdvancedMarkerElement | null, key: string) => {
