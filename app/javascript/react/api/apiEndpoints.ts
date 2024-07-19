@@ -10,6 +10,7 @@ interface ApiEndpoints {
     endDate: string
   ) => string;
   readonly fetchThresholds: (filters: string) => string;
+  readonly fetchUsernames: (username: string) => string;
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
@@ -26,4 +27,5 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchSelectedDataRangeOfStream: (id, startDate, endDate) =>
     `/stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
   fetchThresholds: (filters) => `/thresholds/${filters}`,
+  fetchUsernames: (username) => `/autocomplete/usernames?q[input]=${username}`,
 };
