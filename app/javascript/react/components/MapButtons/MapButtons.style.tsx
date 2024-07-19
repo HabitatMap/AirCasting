@@ -4,6 +4,10 @@ import { blue, gray300, white } from "../../assets/styles/colors";
 import { H4 } from "../Typography";
 
 const MapButtonsWrapper = styled.div`
+  position: relative;
+`;
+
+const MapButtons = styled.div`
   display: flex;
   padding: 0rem 0rem 0rem 2rem;
 `;
@@ -17,6 +21,7 @@ const MapButton = styled.button<{ $isActive?: boolean }>`
   padding: 0.6rem 1.6rem;
   border: none;
   margin-right: 1rem;
+  cursor: pointer;
 `;
 
 const Title = styled(H4)<{ $isActive?: boolean }>`
@@ -32,4 +37,4 @@ const IconWrapper = styled.div<{ $src: string; $isActive: boolean }>`
   height: 1.4rem;
 `;
 
-export { IconWrapper, MapButton, MapButtonsWrapper, Title };
+export { IconWrapper, MapButton, MapButtons, MapButtonsWrapper, Title };

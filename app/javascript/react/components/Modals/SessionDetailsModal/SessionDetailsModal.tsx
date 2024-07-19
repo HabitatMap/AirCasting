@@ -65,7 +65,7 @@ const SessionDetailsModal: React.FC<
           {isVisible && <Graph streamId={streamId} sessionType={sessionType} />}
           {!isMobile && (
             <S.CancelButtonX onClick={close}>
-              <img src={circleCloseIcon} alt={t("closeWhite.altCloseButton")} />
+              <img src={circleCloseIcon} alt={t("navbar.altClose")} />
             </S.CancelButtonX>
           )}
         </>

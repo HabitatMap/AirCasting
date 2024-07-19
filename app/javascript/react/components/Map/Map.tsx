@@ -21,7 +21,7 @@ import {
 } from "../../store/fixedSessionsSelectors";
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   selectPreviousCenter,
   selectPreviousZoom,
@@ -37,15 +37,13 @@ import {
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
-import {
-  fetchThresholds,
-  resetUserThresholds,
-} from "../../store/thresholdSlice";
+import { selectSelectedSessionType } from "../../store/sessionFiltersSlice";
+import { fetchThresholds } from "../../store/thresholdSlice";
 import {
   selectUserSettingsState,
   updateUserSettings,
 } from "../../store/userSettingsSlice";
-import { SessionType, SessionTypes } from "../../types/filters";
+import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import { pubSub } from "../../utils/pubSubManager";
@@ -93,15 +91,14 @@ const Map = () => {
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(
     null
   );
-  const [selectedSessionType, setSelectedSessionType] = useState<SessionType>(
-    SessionTypes.FIXED
-  );
   const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
+
+  // Selectors
+  const selectedSessionType = useAppSelector(selectSelectedSessionType);
 
   const fixedSessionTypeSelected: boolean =
     selectedSessionType === SessionTypes.FIXED;
 
-  // Selectors
   const fixedSessionsStatusFulfilled = useSelector(
     selectFixedSessionsStatusFulfilled
   );
@@ -226,7 +223,7 @@ const Map = () => {
     [mapInstance, currentUserSettings]
   );
 
-  //Handlers;
+  // Handlers;
   const handleMarkerClick = (streamId: number | null, id: number | null) => {
     if (currentUserSettings !== UserSettings.SessionListView) {
       setPreviousZoomInTheState();
@@ -260,12 +257,6 @@ const Map = () => {
     setSelectedStreamId(null);
     setSelectedSessionId(null);
     dispatch(updateUserSettings(previousUserSettings));
-  };
-
-  const handleClick = (type: SessionType) => {
-    setSelectedSessionType(type);
-    dispatch(resetUserThresholds());
-    dispatch(setLoading(true));
   };
 
   const setPreviousZoomOnTheMap = () => {
@@ -315,14 +306,6 @@ const Map = () => {
 
   return (
     <>
-      {/* temporary solution, ticket: Session Filter: General filters */}
-      <S.FixedButton onClick={() => handleClick(SessionTypes.FIXED)}>
-        fixed - government-pm2.5
-      </S.FixedButton>
-      <S.MobileButton onClick={() => handleClick(SessionTypes.MOBILE)}>
-        mobile - airbeam-pm2.5
-      </S.MobileButton>
-      {/* temporary solution, ticket: Session Filter: General filters */}
       <GoogleMap
         mapId={mapId}
         mapTypeId={mapTypeId}

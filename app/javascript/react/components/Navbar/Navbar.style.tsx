@@ -73,6 +73,7 @@ const MenuButton = styled(Button)`
   background-color: transparent;
   display: flex;
   align-items: center;
+  cursor: pointer;
 
   @media ${media.desktop} {
     background-color: ${white};

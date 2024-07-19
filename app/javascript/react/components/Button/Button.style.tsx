@@ -14,6 +14,7 @@ const Button = styled.button`
   display: flex;
   border: 1px solid ${gray200};
   background-color: transparent;
+  cursor: pointer;
 `;
 
 export { Button };

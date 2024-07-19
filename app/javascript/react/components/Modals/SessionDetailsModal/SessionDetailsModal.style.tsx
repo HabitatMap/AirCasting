@@ -217,6 +217,7 @@ const CancelButtonX = styled.button`
   right: 0.3rem;
   height: fit-content;
   align-self: flex-end;
+  cursor: pointer;
 
   body:not(.user-is-tabbing) &:focus-visible {
     outline: none;

@@ -7,6 +7,7 @@ import mapReducer from "./mapSlice";
 import mobileSessionsReducer from "./mobileSessionsSlice";
 import mobileStreamReducer from "./mobileStreamSlice";
 import movingStreamReducer from "./movingCalendarStreamSlice";
+import sessionFilterReducer from "./sessionFiltersSlice";
 import thresholdReducer from "./thresholdSlice";
 import userSettingsReducer from "./userSettingsSlice";
 
@@ -21,6 +22,7 @@ const store = configureStore({
     session: sessionReducer,
     threshold: thresholdReducer,
     userSettings: userSettingsReducer,
+    sessionFilter: sessionFilterReducer,
   },
 });
 
