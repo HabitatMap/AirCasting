@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
 import { useTranslation } from "react-i18next";
+import { Graph } from "../../components/Graph";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
@@ -23,6 +24,7 @@ import {
   movingData,
 } from "../../store/movingCalendarStreamSlice";
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
+import { SessionTypes } from "../../types/filters";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 
@@ -39,7 +41,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { t } = useTranslation();
 
   const streamIdQuery = searchParams.get(STREAM_ID_QUERY_PARAMETER_NAME);
-  const streamId = streamIdQuery && Number(streamIdQuery);
+  const streamId = (streamIdQuery && Number(streamIdQuery)) || null;
 
   const fixedStreamData = useSelector(selectFixedData);
   const movingCalendarData = useSelector(movingData);
@@ -89,6 +91,20 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       <S.CalendarPageLayout>
         <S.StationDataContainer>
           <FixedStreamStationHeader />
+          {isMobile && (
+            <S.GraphContainer $isMobile={isMobile}>
+              <HeaderToggle
+                titleText={
+                  <S.StyledContainer>
+                    {t("calendarHeader.graphTitle")}
+                  </S.StyledContainer>
+                }
+                componentToToggle={
+                  <Graph streamId={streamId} sessionType={SessionTypes.FIXED} />
+                }
+              />
+            </S.GraphContainer>
+          )}
           {!isMobile && (
             <S.ThresholdContainer $isMobile={isMobile}>
               <HeaderToggle
@@ -137,6 +153,20 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 }
               />
             </S.ThresholdContainer>
+          )}
+          {!isMobile && (
+            <S.GraphContainer $isMobile={isMobile}>
+              <HeaderToggle
+                titleText={
+                  <S.StyledContainer>
+                    {t("calendarHeader.graphTitle")}
+                  </S.StyledContainer>
+                }
+                componentToToggle={
+                  <Graph streamId={streamId} sessionType={SessionTypes.FIXED} />
+                }
+              />
+            </S.GraphContainer>
           )}
         </S.StationDataContainer>
       </S.CalendarPageLayout>
