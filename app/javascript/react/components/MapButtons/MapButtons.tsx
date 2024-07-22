@@ -6,7 +6,7 @@ import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
 import { CopyLinkComponent } from "../Popups/CopyLinkComponent";
-import { SessionFilters } from "../SessionFilters/SessionFilters";
+import { DesktopSessionFilters } from "../SessionFilters/DesktopSessionFilters";
 import { MapButton } from "./MapButton";
 import * as S from "./MapButtons.style";
 
@@ -76,7 +76,7 @@ const MapButtons = () => {
           isActive={activeButton === ButtonTypes.SHARE}
         />
       </S.MapButtons>
-      {showFilters && <SessionFilters />}
+      {showFilters && <DesktopSessionFilters />}
     </S.MapButtonsWrapper>
   );
 };

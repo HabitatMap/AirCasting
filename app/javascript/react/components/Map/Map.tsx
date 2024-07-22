@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
 import {
@@ -50,6 +51,7 @@ import { pubSub } from "../../utils/pubSubManager";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { SectionButton } from "../SectionButton/SectionButton";
+import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
 import { SessionsListView } from "../SessionsListView/SessionsListView";
 import { ResetButtonVariant } from "../ThresholdConfigurator/ResetButton";
@@ -304,6 +306,18 @@ const Map = () => {
     dispatch(updateUserSettings(UserSettings.MapView));
   };
 
+  const openFilters = () => {
+    setPreviousZoomInTheState();
+    fixedSessionTypeSelected
+      ? dispatch(fetchFixedSessions({ filters }))
+      : dispatch(fetchMobileSessions({ filters }));
+    dispatch(updateUserSettings(UserSettings.FiltersView));
+  };
+
+  const closeFilters = () => {
+    dispatch(updateUserSettings(UserSettings.MapView));
+  };
+
   return (
     <>
       <GoogleMap
@@ -381,6 +395,12 @@ const Map = () => {
             alt={t("map.altlegendTile")}
             onClick={openLegend}
           />
+          <SectionButton
+            title={t("filters.filters")}
+            image={filterIcon}
+            alt={t("filters.altFiltersIcon")}
+            onClick={openFilters}
+          />
         </S.MobileButtons>
         {currentUserSettings === UserSettings.MapLegendView && (
           <Legend onClose={closeLegend} />
@@ -406,6 +426,9 @@ const Map = () => {
               dispatch(updateUserSettings(UserSettings.MapView));
             }}
           />
+        )}
+        {currentUserSettings === UserSettings.FiltersView && (
+          <MobileSessionFilters onClose={closeFilters} />
         )}
       </S.MobileContainer>
       {currentUserSettings === UserSettings.MapView && (

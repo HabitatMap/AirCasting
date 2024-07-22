@@ -16,12 +16,14 @@ const StyledSectionButton = styled.button`
   border: none;
 `;
 
-const Title = styled(H6)``;
+const Title = styled(H6)`
+  text-transform: capitalize;
+`;
 
 const Image = styled.img`
-  width: 1rem;
+  width: 1.2rem;
   height: 1.2rem;
   margin-bottom: 0.25rem;
 `;
 
-export { StyledSectionButton, Title, Image };
+export { Image, StyledSectionButton, Title };

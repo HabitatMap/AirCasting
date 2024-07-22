@@ -148,7 +148,11 @@
     "linkShortenedFailed": "Failed to shorten link"
   },
   "filters": {
+    "filters": "filters",
+    "altFiltersIcon": "Filters icon",
     "mobileSessions": "mobile",
-    "fixedSessions": "fixed"
+    "fixedSessions": "fixed",
+    "editFilters": "edit filters",
+    "showSessions": "show sessions"
   }
 }
