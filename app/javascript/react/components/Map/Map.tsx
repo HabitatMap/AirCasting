@@ -366,7 +366,7 @@ const Map = () => {
             resetButtonVariant={
               !isMobile
                 ? ResetButtonVariant.IconOnly
-                : ResetButtonVariant.TextWithIcon
+                : ResetButtonVariant.IconOnly
             }
             isMobileOldStyle={
               isMobile && currentUserSettings === UserSettings.ModalView

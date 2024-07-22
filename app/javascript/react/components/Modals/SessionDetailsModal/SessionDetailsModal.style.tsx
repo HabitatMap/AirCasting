@@ -73,7 +73,6 @@ const InfoContainer = styled.div`
     margin-bottom: 0;
     padding: 3rem 3rem 0 3rem;
     gap: 1.6rem;
-    flex-wrap: wrap;
   }
 `;
 

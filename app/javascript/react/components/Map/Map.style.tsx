@@ -63,14 +63,22 @@ const ThresholdContainer = styled.div`
   background-color: ${colors.white};
   box-shadow: 2px 2px 4px 0px ${colors.gray900};
 
-  @media (${media.desktop}) {
-    padding: 1.6rem 4.1rem;
-    height: 6.4rem;
-    grid-template-columns: 1fr auto;
+  @media (${media.mobile}) {
+    height: 4.7rem;
     margin-bottom: 0;
+    grid-template-columns: 1fr;
   }
 
-  @media (${media.smallDesktop}) {
+  @media (min-width: 769px) and (max-width: 1023px) {
+    padding: 0.6rem 0.5rem 0.6rem 0;
+    height: 4.7rem;
+    grid-template-columns: 1fr auto;
+    margin-bottom: 0;
+    align-items: center;
+    grid-gap: 0.5rem;
+  }
+
+  @media (${media.desktop}) {
     padding: 1.6rem 4.1rem;
     height: 6.4rem;
     grid-template-columns: 1fr auto;
@@ -83,20 +91,14 @@ const ThresholdContainer = styled.div`
     grid-template-columns: 1fr auto;
     margin-bottom: 0;
   }
-
-  @media (${media.mobile}) {
-    height: 4.7rem;
-    margin-bottom: 0;
-    grid-template-columns: 1fr;
-  }
 `;
 
 export {
+  containerStyle,
   DesktopContainer,
   FixedButton,
   MobileButton,
   MobileButtons,
   MobileContainer,
   ThresholdContainer,
-  containerStyle,
 };
