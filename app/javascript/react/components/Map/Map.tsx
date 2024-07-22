@@ -47,6 +47,7 @@ import {
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
+import { screenSizes } from "../../utils/media";
 import { pubSub } from "../../utils/pubSubManager";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
@@ -78,6 +79,8 @@ const Map = () => {
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const isMobile1 = useMobileDetection(screenSizes.smallDesktop);
 
   // State
   const [mapBounds, setMapBounds] = useState({

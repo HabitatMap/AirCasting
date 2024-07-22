@@ -279,6 +279,16 @@ const getResponsiveOptions = (
           },
         },
       },
+      // {
+      //   condition: {
+      //     maxWidth: 1024,
+      //   },
+      //   chartOptions: {
+      //     chart: {
+      //       margin: [5, 0, 5, 0],
+      //     },
+      //   },
+      // },
     ],
   };
 };

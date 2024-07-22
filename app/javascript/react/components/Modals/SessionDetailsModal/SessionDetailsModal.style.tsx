@@ -66,18 +66,14 @@ const InfoContainer = styled.div`
   justify-content: space-between;
   gap: 4rem;
 
-  @media ${media.smallDesktop} {
-    width: 30%;
+  @media ${media.desktop} {
+    width: 20%;
     flex-direction: column;
     justify-content: space-evenly;
     margin-bottom: 0;
     padding: 3rem 3rem 0 3rem;
     gap: 1.6rem;
     flex-wrap: wrap;
-  }
-
-  @media ${media.largeDesktop} {
-    width: 20%;
   }
 `;
 
@@ -86,7 +82,7 @@ const ModalMobileHeader = styled.div`
   width: 100%;
   flex-direction: column;
 
-  @media ${media.smallDesktop} {
+  @media ${media.desktop} {
     display: none;
   }
 `;
@@ -94,7 +90,7 @@ const ModalMobileHeader = styled.div`
 const ModalDesktopHeader = styled.div`
   display: none;
 
-  @media ${media.smallDesktop} {
+  @media ${media.desktop} {
     display: flex;
     flex-direction: column;
     gap: 2rem;
