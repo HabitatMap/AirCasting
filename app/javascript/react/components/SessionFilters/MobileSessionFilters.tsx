@@ -21,13 +21,12 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   const fixedSessionsState = useAppSelector(selectFixedSessionsState);
   const mobileSessionsState = useAppSelector(selectMobileSessionsState);
 
-  let sessionsCount;
-
-  useMemo(() => {
-    if (selectedSessionType === SessionTypes.FIXED) {
-      sessionsCount = fixedSessionsState.sessions.length;
-    } else if (selectedSessionType === SessionTypes.MOBILE) {
-      sessionsCount = mobileSessionsState.sessions.length;
+  const sessionsCount = useMemo(() => {
+    switch (selectedSessionType) {
+      case SessionTypes.FIXED:
+        return fixedSessionsState.sessions.length;
+      case SessionTypes.MOBILE:
+        return mobileSessionsState.sessions.length;
     }
   }, [fixedSessionsState, mobileSessionsState, selectedSessionType]);
 
