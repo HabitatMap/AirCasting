@@ -4,6 +4,7 @@ import React, {
   useLayoutEffect,
   useRef,
   useState,
+  useMemo,
 } from "react";
 import { useSelector } from "react-redux";
 
@@ -64,6 +65,11 @@ const FixedMarkers = ({
     null
   );
 
+  // Memoize the sessions and markers to avoid unnecessary re-renders
+  const memoizedSessions = useMemo(() => sessions, [sessions]);
+  const memoizedMarkers = useMemo(() => markers, [markers]);
+
+  // Initialize clusterer
   useLayoutEffect(() => {
     if (map) {
       if (clusterer.current) {
@@ -78,7 +84,7 @@ const FixedMarkers = ({
         }),
       });
     }
-  }, [map, sessions, thresholds]);
+  }, [map, thresholds]);
 
   useEffect(() => {
     if (selectedStreamId === null) {
@@ -88,7 +94,7 @@ const FixedMarkers = ({
 
   useEffect(() => {
     const handleData = (id: number) => {
-      const s = sessions.find((session) => session.id === id);
+      const s = memoizedSessions.find((session) => session.id === id);
 
       if (s?.point) {
         centerMapOnMarker(s.point, s.point.streamId);
@@ -100,73 +106,74 @@ const FixedMarkers = ({
     return () => {
       pubSub.unsubscribe("CENTER_MAP", handleData);
     };
-  }, [sessions]);
+  }, [memoizedSessions]);
 
-  // Update MarkerClusterer when markers and sessions change
-  useEffect(() => {
-    if (clusterer.current && sessions.length > 0) {
-      const sessionStreamIds = sessions.map(
+  const updateClusterer = useCallback(() => {
+    if (clusterer.current && memoizedSessions.length > 0) {
+      const sessionStreamIds = memoizedSessions.map(
         (session) => session.point.streamId
       );
-      Object.keys(markers).forEach((key) => {
+      Object.keys(memoizedMarkers).forEach((key) => {
         if (!sessionStreamIds.includes(key)) {
-          delete markers[key];
+          delete memoizedMarkers[key];
         }
       });
-      const validMarkers = Object.values(markers).filter(
+      const validMarkers = Object.values(memoizedMarkers).filter(
         (marker): marker is google.maps.marker.AdvancedMarkerElement =>
           marker !== null
       );
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
     }
-  }, [markers, sessions, thresholds]);
+  }, [memoizedSessions, memoizedMarkers]);
+
+  // Update MarkerClusterer when markers and sessions change
+  useEffect(() => {
+    updateClusterer();
+  }, [updateClusterer]);
 
   // Pulsation
   useEffect(() => {
     if (pulsatingSessionId) {
-      const pulsatingSession = sessions.find(
+      const pulsatingSession = memoizedSessions.find(
         (session) => session.id === pulsatingSessionId
       );
       const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
+      if (pulsatingSessionStreamId && clusterer.current) {
+        const pulsatingCluster: Cluster | undefined =
+          // @ts-ignore:next-line
+          clusterer.current.clusters.find(
+            (cluster: Cluster) =>
+              cluster.markers &&
+              cluster.markers.some(
+                (clusterMarker: Marker) =>
+                  clusterMarker === memoizedMarkers[pulsatingSessionStreamId]
+              )
+          );
 
-      Object.keys(markers).forEach((key) => {
-        if (clusterer.current && pulsatingSessionStreamId === key) {
-          const pulsatingCluster: Cluster | undefined =
-            // @ts-ignore:next-line
-            clusterer.current.clusters.find(
-              (cluster: Cluster) =>
-                cluster.markers &&
-                cluster.markers.some(
-                  (clusterMarker: Marker) => clusterMarker === markers[key]
-                )
-            );
-
-          if (
-            pulsatingClusterer.current &&
-            // @ts-ignore:next-line
-            pulsatingClusterer.current.markers.length > 1
-          ) {
+        if (
+          pulsatingCluster &&
+          pulsatingCluster.markers &&
+          pulsatingCluster.markers.length > 1
+        ) {
+          if (pulsatingClusterer.current) {
             pulsatingClusterer.current.clearMarkers();
           }
           pulsatingClusterer.current = new MarkerClusterer({
             map,
-            renderer: pulsatingRenderer(thresholds, pulsatingCluster?.position),
-            markers: pulsatingCluster?.markers,
+            renderer: pulsatingRenderer(thresholds, pulsatingCluster.position),
+            markers: pulsatingCluster.markers,
             algorithm: new GridAlgorithm({ gridSize: 1000 }),
           });
         }
-      });
+      }
     } else {
-      if (
-        pulsatingClusterer.current &&
-        // @ts-ignore:next-line
-        pulsatingClusterer.current.markers.length > 1
-      ) {
+      if (pulsatingClusterer.current) {
         pulsatingClusterer.current.clearMarkers();
+        pulsatingClusterer.current = null;
       }
     }
-  }, [pulsatingSessionId]);
+  }, [pulsatingSessionId, memoizedMarkers, memoizedSessions, thresholds]);
 
   // Cleanup clusters when component unmounts
   useEffect(() => {
@@ -174,16 +181,22 @@ const FixedMarkers = ({
       if (clusterer.current) {
         clusterer.current.clearMarkers();
       }
+      if (pulsatingClusterer.current) {
+        pulsatingClusterer.current.clearMarkers();
+      }
     };
   }, []);
 
-  const centerMapOnMarker = (position: LatLngLiteral, streamId: string) => {
-    if (map) {
-      map.setCenter(position);
-      map.setZoom(ZOOM_FOR_SELECTED_SESSION);
-    }
-    setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
-  };
+  const centerMapOnMarker = useCallback(
+    (position: LatLngLiteral, streamId: string) => {
+      if (map) {
+        map.setCenter(position);
+        map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+      }
+      setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
+    },
+    [map, selectedMarkerKey]
+  );
 
   const setMarkerRef = useCallback(
     (marker: google.maps.marker.AdvancedMarkerElement | null, key: string) => {
@@ -206,7 +219,7 @@ const FixedMarkers = ({
   useEffect(() => {
     // If hoverStreamId is set, update hoverPosition only if it's not null
     if (hoverStreamId) {
-      const hoveredSession = sessions.find(
+      const hoveredSession = memoizedSessions.find(
         (session) => Number(session.point.streamId) === hoverStreamId
       );
       if (hoveredSession) {
@@ -215,11 +228,11 @@ const FixedMarkers = ({
     } else {
       setHoverPosition(null);
     }
-  }, [hoverStreamId, sessions]);
+  }, [hoverStreamId, memoizedSessions]);
 
   return (
     <>
-      {sessions.map((session) => (
+      {memoizedSessions.map((session) => (
         <AdvancedMarker
           position={session.point}
           key={session.point.streamId}
