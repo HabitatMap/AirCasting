@@ -193,8 +193,8 @@ const BlueButton = styled(Link)`
   font-size: 1.4rem;
   letter-spacing: 0.14px;
   height: 4.2rem;
-  border-radius: 5px;
-  padding: 1.6rem;
+  border-radius: 10px;
+  padding: 1.2rem;
   align-items: center;
   gap: 1rem;
   justify-content: flex-end;
@@ -202,6 +202,11 @@ const BlueButton = styled(Link)`
   border: 1px solid ${gray200};
   text-decoration: none;
   border: none;
+  margin-right: 0.5rem;
+
+  @media ${media.largeDesktop} {
+    padding: 1.6rem;
+  }
 `;
 
 const CancelButtonX = styled.button`

@@ -29,19 +29,42 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
     .css({ cursor: "pointer" })
     .add();
 
+  const updateArrowStates = () => {
+    const axis = chart.xAxis[0];
+    const { min, max, dataMin, dataMax } = axis.getExtremes();
+
+    if (min <= dataMin) {
+      leftArrow.css({ cursor: "not-allowed", opacity: 0.5 });
+    } else {
+      leftArrow.css({ cursor: "pointer", opacity: 1 });
+    }
+
+    if (max >= dataMax) {
+      rightArrow.css({ cursor: "not-allowed", opacity: 0.5 });
+    } else {
+      rightArrow.css({ cursor: "pointer", opacity: 1 });
+    }
+  };
+
   const move = (direction: typeof DIRECTION_LEFT | typeof DIRECTION_RIGHT) => {
     const axis = chart.xAxis[0];
     const { min, max, dataMin, dataMax } = axis.getExtremes();
     const range = max - min;
-    const newMin =
-      direction === DIRECTION_LEFT
-        ? Math.max(dataMin, min - range * 0.1)
-        : Math.min(dataMax - range, min + range * 0.1);
-    const newMax =
-      direction === DIRECTION_LEFT
-        ? Math.max(dataMin + range, max - range * 0.1)
-        : Math.min(dataMax, max + range * 0.1);
-    axis.setExtremes(newMin, newMax);
+    let newMin, newMax;
+
+    if (direction === DIRECTION_LEFT) {
+      newMin = Math.max(dataMin, min - range * 0.1);
+      newMax = Math.max(dataMin + range, max - range * 0.1);
+    } else {
+      newMin = Math.min(dataMax - range, min + range * 0.1);
+      newMax = Math.min(dataMax, max + range * 0.1);
+    }
+
+    axis.setExtremes(newMin, newMax, true, false, {
+      trigger: "syncExtremes",
+    });
+
+    updateArrowStates();
   };
 
   const toggleElements = (display: "none" | "block") => {
@@ -57,13 +80,26 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
     });
   };
 
-  leftArrow.on("click", () => move(DIRECTION_LEFT));
-  rightArrow.on("click", () => move(DIRECTION_RIGHT));
+  leftArrow.on("click", () => {
+    const cursorStyle = leftArrow.element.style.cursor;
+    if (cursorStyle !== "not-allowed") {
+      move(DIRECTION_LEFT);
+    }
+  });
+
+  rightArrow.on("click", () => {
+    const cursorStyle = rightArrow.element.style.cursor;
+    if (cursorStyle !== "not-allowed") {
+      move(DIRECTION_RIGHT);
+    }
+  });
 
   leftArrow.on("mouseover", () => toggleElements("none"));
   leftArrow.on("mouseout", () => toggleElements("block"));
   rightArrow.on("mouseover", () => toggleElements("none"));
   rightArrow.on("mouseout", () => toggleElements("block"));
+
+  updateArrowStates();
 };
 
 const handleLoad = function (this: Highcharts.Chart) {
