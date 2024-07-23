@@ -86,6 +86,15 @@ const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
       `}
   }
 
+  @media ${media.smallDesktop} {
+    margin-left: 0;
+    ${(props) =>
+      props.variant === ResetButtonVariant.IconOnly &&
+      `
+        height: 32px;
+      `}
+  }
+
   @media ${media.mobile} {
     margin-left: auto;
     white-space: pre-line;

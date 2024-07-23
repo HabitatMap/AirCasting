@@ -27,11 +27,11 @@ import {
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,
+  getScrollbarOptions,
   getTooltipOptions,
   getXAxisOptions,
   getYAxisOptions,
   legendOption,
-  scrollbarOptions,
   seriesOptions,
 } from "./graphConfig";
 
@@ -106,6 +106,8 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const plotOptions = getPlotOptions(fixedSessionTypeSelected, streamId);
 
   const responsive = getResponsiveOptions(thresholdsState);
+
+  const scrollbarOptions = getScrollbarOptions();
 
   useEffect(() => {
     if (seriesData.length > 0 && !isLoading) {

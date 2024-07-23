@@ -363,11 +363,7 @@ const Map = () => {
         (isMobile && currentUserSettings === UserSettings.ModalView)) && (
         <S.ThresholdContainer>
           <ThresholdsConfigurator
-            resetButtonVariant={
-              !isMobile
-                ? ResetButtonVariant.IconOnly
-                : ResetButtonVariant.IconOnly
-            }
+            resetButtonVariant={ResetButtonVariant.IconOnly}
             isMobileOldStyle={
               isMobile && currentUserSettings === UserSettings.ModalView
             }

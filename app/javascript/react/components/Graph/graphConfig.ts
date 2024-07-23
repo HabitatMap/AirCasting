@@ -45,7 +45,7 @@ import {
 
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
-const scrollbarOptions = () => {
+const getScrollbarOptions = () => {
   const isMobile = useMobileDetection();
   return {
     barBackgroundColor: gray200,
@@ -269,12 +269,6 @@ const getResponsiveOptions = (
         },
         chartOptions: {
           yAxis: getYAxisOptions(thresholdsState, true),
-          rangeSelector: {
-            enabled: false,
-          },
-          // scrollbar: {
-          //   enabled: false,
-          // },
           credits: {
             enabled: false,
           },
@@ -323,7 +317,9 @@ const getRangeSelectorOptions = (
   selectedRange?: number
 ): RangeSelectorOptions => {
   const { t } = useTranslation();
+  const isMobile = useMobileDetection();
   const baseOptions: RangeSelectorOptions = {
+    enabled: isMobile ? false : true,
     buttonPosition: {
       align: "right" as AlignValue,
       x: -32,
@@ -400,11 +396,11 @@ export {
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,
+  getScrollbarOptions,
   getTooltipOptions,
   getXAxisOptions,
   getYAxisOptions,
   legendOption,
-  scrollbarOptions,
   seriesOptions,
   titleOption,
 };
