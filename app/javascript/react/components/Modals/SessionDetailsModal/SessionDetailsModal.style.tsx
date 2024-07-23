@@ -206,6 +206,7 @@ const BlueButton = styled(Link)`
 
   @media ${media.largeDesktop} {
     padding: 1.6rem;
+    border-radius: 5px;
   }
 `;
 
