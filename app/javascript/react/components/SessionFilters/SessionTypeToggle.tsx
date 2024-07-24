@@ -8,7 +8,7 @@ import { useAppDispatch } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
-import { useMapParams } from "../../utils/mapParamsHandler";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
@@ -22,7 +22,7 @@ const SessionTypeToggle = () => {
       dispatch(resetUserThresholds());
       dispatch(setLoading(true));
       const newSearchParams = new URLSearchParams(searchParams.toString());
-      newSearchParams.set("sessionType", type);
+      newSearchParams.set(UrlParamsTypes.sessionType, type);
       navigate(`?${newSearchParams.toString()}`);
     },
     [searchParams]

@@ -7,7 +7,10 @@ import downloadImage from "../../../../assets/icons/download.svg";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
 import { UserSettings } from "../../../../types/userStates";
-import { useMapParams } from "../../../../utils/mapParamsHandler";
+import {
+  UrlParamsTypes,
+  useMapParams,
+} from "../../../../utils/mapParamsHandler";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { screenSizes } from "../../../../utils/media";
 import { getColorForValue } from "../../../../utils/thresholdColors";
@@ -51,8 +54,11 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
     extremes.averageValue
   );
 
-  newSearchParams.set("previousUserSettings", currentUserSettings);
-  newSearchParams.set("currentUserSettings", UserSettings.CalendarView);
+  newSearchParams.set(UrlParamsTypes.previousUserSettings, currentUserSettings);
+  newSearchParams.set(
+    UrlParamsTypes.currentUserSettings,
+    UserSettings.CalendarView
+  );
 
   return (
     <S.ModalDesktopHeader>

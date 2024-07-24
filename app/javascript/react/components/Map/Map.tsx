@@ -40,7 +40,7 @@ import {
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
-import { useMapParams } from "../../utils/mapParamsHandler";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { SectionButton } from "../SectionButton/SectionButton";
@@ -76,7 +76,7 @@ const Map = () => {
     initialSensorName,
     sessionId,
     sessionType,
-    selectedStreamId,
+    streamId,
     initialThresholds,
     initialUnitSymbol,
     searchParams,
@@ -171,8 +171,8 @@ const Map = () => {
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
-      newSearchParams.set("sessionId", "");
-      newSearchParams.set("selectedStreamId", "");
+      newSearchParams.set(UrlParamsTypes.sessionId, "");
+      newSearchParams.set(UrlParamsTypes.streamId, "");
       navigate(`?${newSearchParams.toString()}`);
     }
     !isFirstRender.current && setPreviousZoomOnTheMap();
@@ -191,12 +191,12 @@ const Map = () => {
   }, [mapInstance, previousUserSettings]);
 
   useEffect(() => {
-    if (selectedStreamId && currentUserSettings === UserSettings.ModalView) {
+    if (streamId && currentUserSettings === UserSettings.ModalView) {
       fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(selectedStreamId))
-        : dispatch(fetchMobileStreamById(selectedStreamId));
+        ? dispatch(fetchFixedStreamById(streamId))
+        : dispatch(fetchMobileStreamById(streamId));
     }
-  }, [selectedStreamId, currentUserSettings, fixedSessionTypeSelected]);
+  }, [streamId, currentUserSettings, fixedSessionTypeSelected]);
 
   // Callbacks
   const handleMapIdle = useCallback(
@@ -228,12 +228,12 @@ const Map = () => {
           const south = bounds.getSouthWest().lat();
           const east = bounds.getNorthEast().lng();
           const west = bounds.getSouthWest().lng();
-          newSearchParams.set("boundEast", east.toString());
-          newSearchParams.set("boundNorth", north.toString());
-          newSearchParams.set("boundSouth", south.toString());
-          newSearchParams.set("boundWest", west.toString());
-          newSearchParams.set("currentCenter", currentCenter);
-          newSearchParams.set("currentZoom", currentZoom);
+          newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
+          newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
+          newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
+          newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
+          newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
+          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
           navigate(`?${newSearchParams.toString()}`);
         }
       }
@@ -255,8 +255,14 @@ const Map = () => {
 
     if (isMobile) {
       if (fixedSessionTypeSelected) {
-        newSearchParams.set("previousUserSettings", currentUserSettings);
-        newSearchParams.set("currentUserSettings", UserSettings.CalendarView);
+        newSearchParams.set(
+          UrlParamsTypes.previousUserSettings,
+          currentUserSettings
+        );
+        newSearchParams.set(
+          UrlParamsTypes.currentUserSettings,
+          UserSettings.CalendarView
+        );
         navigate(
           `/fixed_stream?streamId=${streamId}&${newSearchParams.toString()}`
         );
@@ -264,28 +270,46 @@ const Map = () => {
       }
     }
 
-    if (!selectedStreamId) {
-      newSearchParams.set("sessionId", id?.toString() || "");
-      newSearchParams.set("selectedStreamId", streamId?.toString() || "");
-      newSearchParams.set("previousUserSettings", currentUserSettings);
-      newSearchParams.set("currentUserSettings", UserSettings.ModalView);
+    if (!streamId) {
+      newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
+      newSearchParams.set(UrlParamsTypes.streamId, streamId?.toString() || "");
+      newSearchParams.set(
+        UrlParamsTypes.previousUserSettings,
+        currentUserSettings
+      );
+      newSearchParams.set(
+        UrlParamsTypes.currentUserSettings,
+        UserSettings.ModalView
+      );
       navigate(`?${newSearchParams.toString()}`);
     }
 
-    if (selectedStreamId) {
-      newSearchParams.set("sessionId", "");
-      newSearchParams.set("selectedStreamId", "");
-      newSearchParams.set("previousUserSettings", currentUserSettings);
-      newSearchParams.set("currentUserSettings", previousUserSettings);
+    if (streamId) {
+      newSearchParams.set(UrlParamsTypes.sessionId, "");
+      newSearchParams.set(UrlParamsTypes.streamId, "");
+      newSearchParams.set(
+        UrlParamsTypes.previousUserSettings,
+        currentUserSettings
+      );
+      newSearchParams.set(
+        UrlParamsTypes.currentUserSettings,
+        previousUserSettings
+      );
       navigate(`?${newSearchParams.toString()}`);
     }
   };
 
   const handleCloseModal = useCallback(() => {
-    newSearchParams.set("sessionId", "");
-    newSearchParams.set("selectedStreamId", "");
-    newSearchParams.set("previousUserSettings", currentUserSettings);
-    newSearchParams.set("currentUserSettings", previousUserSettings);
+    newSearchParams.set(UrlParamsTypes.sessionId, "");
+    newSearchParams.set(UrlParamsTypes.streamId, "");
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      previousUserSettings
+    );
     navigate(`?${newSearchParams.toString()}`);
   }, [currentUserSettings]);
 
@@ -320,14 +344,14 @@ const Map = () => {
         const newCenter = mapInstance.getCenter()?.toJSON();
         if (newCenter !== previousCenter) {
           newSearchParams.set(
-            "previousCenter",
+            UrlParamsTypes.previousCenter,
             JSON.stringify(newCenter || currentCenter)
           );
         }
         const newZoom = mapInstance?.getZoom();
         if (newZoom !== previousZoom) {
           newSearchParams.set(
-            "previousZoom",
+            UrlParamsTypes.previousZoom,
             newZoom?.toString() || currentZoom.toString()
           );
         }
@@ -337,14 +361,26 @@ const Map = () => {
   };
 
   const openLegend = () => {
-    newSearchParams.set("previousUserSettings", currentUserSettings);
-    newSearchParams.set("currentUserSettings", UserSettings.MapLegendView);
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      UserSettings.MapLegendView
+    );
     navigate(`?${newSearchParams.toString()}`);
   };
 
   const closeLegend = () => {
-    newSearchParams.set("previousUserSettings", currentUserSettings);
-    newSearchParams.set("currentUserSettings", UserSettings.MapView);
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      UserSettings.MapView
+    );
     navigate(`?${newSearchParams.toString()}`);
   };
 
@@ -352,14 +388,26 @@ const Map = () => {
     fixedSessionTypeSelected
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
-    newSearchParams.set("previousUserSettings", currentUserSettings);
-    newSearchParams.set("currentUserSettings", UserSettings.FiltersView);
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      UserSettings.FiltersView
+    );
     navigate(`?${newSearchParams.toString()}`);
   };
 
   const closeFilters = () => {
-    newSearchParams.set("previousUserSettings", currentUserSettings);
-    newSearchParams.set("currentUserSettings", UserSettings.MapView);
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      UserSettings.MapView
+    );
     navigate(`?${newSearchParams.toString()}`);
   };
 
@@ -381,7 +429,7 @@ const Map = () => {
           <FixedMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
+            selectedStreamId={streamId}
             pulsatingSessionId={pulsatingSessionId}
           />
         )}
@@ -389,11 +437,11 @@ const Map = () => {
           <MobileMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
+            selectedStreamId={streamId}
             pulsatingSessionId={pulsatingSessionId}
           />
         )}
-        {selectedStreamId && !fixedSessionTypeSelected && (
+        {streamId && !fixedSessionTypeSelected && (
           <StreamMarkers
             sessions={mobileStreamPoints}
             unitSymbol={initialUnitSymbol}
@@ -417,7 +465,7 @@ const Map = () => {
         <SessionDetailsModal
           onClose={handleCloseModal}
           sessionType={sessionType}
-          streamId={selectedStreamId}
+          streamId={streamId}
         />
       )}
       <S.MobileContainer>
@@ -427,9 +475,12 @@ const Map = () => {
             image={pinImage}
             alt={t("map.altListSessions")}
             onClick={() => {
-              newSearchParams.set("previousUserSettings", currentUserSettings);
               newSearchParams.set(
-                "currentUserSettings",
+                UrlParamsTypes.previousUserSettings,
+                currentUserSettings
+              );
+              newSearchParams.set(
+                UrlParamsTypes.currentUserSettings,
                 UserSettings.SessionListView
               );
               navigate(`?${newSearchParams.toString()}`);
@@ -466,8 +517,14 @@ const Map = () => {
               handleMarkerClick(streamId, id);
             }}
             onClose={() => {
-              newSearchParams.set("previousUserSettings", currentUserSettings);
-              newSearchParams.set("currentUserSettings", UserSettings.MapView);
+              newSearchParams.set(
+                UrlParamsTypes.previousUserSettings,
+                currentUserSettings
+              );
+              newSearchParams.set(
+                UrlParamsTypes.currentUserSettings,
+                UserSettings.MapView
+              );
               navigate(`?${newSearchParams.toString()}`);
             }}
           />

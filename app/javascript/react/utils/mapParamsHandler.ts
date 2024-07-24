@@ -38,7 +38,7 @@ export enum UrlParamsTypes {
   sensorName = "sensorName",
   sessionId = "sessionId",
   sessionType = "sessionType",
-  selectedStreamId = "selectedStreamId",
+  streamId = "selectedStreamId",
   thresholdMin = "thresholdMin",
   thresholdLow = "thresholdLow",
   thresholdMiddle = "thresholdMiddle",
@@ -148,9 +148,9 @@ export const useMapParams = () => {
     UrlParamsTypes.sessionType,
     SessionTypes.FIXED
   ) as SessionType;
-  const selectedStreamId =
-    getSearchParam(UrlParamsTypes.selectedStreamId, null) !== null
-      ? parseInt(getSearchParam(UrlParamsTypes.selectedStreamId, "0")!)
+  const streamId =
+    getSearchParam(UrlParamsTypes.streamId, null) !== null
+      ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
       : null;
   const initialThresholds = useMemo(
     () => ({
@@ -261,7 +261,7 @@ export const useMapParams = () => {
     sessionId,
     sessionType,
     setUrlParams,
-    selectedStreamId,
+    streamId,
     initialThresholds,
     initialUnitSymbol,
     searchParams,

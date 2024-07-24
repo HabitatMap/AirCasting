@@ -6,7 +6,7 @@ import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
 import { UserSettings } from "../../types/userStates";
-import { useMapParams } from "../../utils/mapParamsHandler";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import { RefreshMapButton } from "../RefreshMapButton";
@@ -28,10 +28,16 @@ export const MobileHeader = ({
 
   const handleGoBackClick = useCallback(() => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
-    newSearchParams.set("sessionId", "");
-    newSearchParams.set("selectedStreamId", "");
-    newSearchParams.set("previousUserSettings", currentUserSettings);
-    newSearchParams.set("currentUserSettings", previousUserSettings);
+    newSearchParams.set(UrlParamsTypes.sessionId, "");
+    newSearchParams.set(UrlParamsTypes.streamId, "");
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      previousUserSettings
+    );
     navigate(`?${newSearchParams.toString()}`);
   }, [currentUserSettings, navigate, previousUserSettings, searchParams]);
 
@@ -90,8 +96,14 @@ export const MobileCalendarHeader = ({ t }: { t: Function }) => {
 
   const handleGoBackClick = useCallback(() => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
-    newSearchParams.set("previousUserSettings", currentUserSettings);
-    newSearchParams.set("currentUserSettings", previousUserSettings);
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      previousUserSettings
+    );
     navigate(`${urls.reactMap}?${newSearchParams.toString()}`);
   }, [currentUserSettings, navigate, previousUserSettings, searchParams]);
 
