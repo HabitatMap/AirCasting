@@ -1,15 +1,15 @@
 const MapTypeId = {
-  ROADMAP: 'roadmap',
-  SATELLITE: 'satellite',
-  TERRAIN: 'terrain',
-  HYBRID: 'hybrid'
+  ROADMAP: "roadmap",
+  SATELLITE: "satellite",
+  TERRAIN: "terrain",
+  HYBRID: "hybrid",
 };
 
 enum ViewMode {
   MAP = "map",
   SATELLITE = "satellite",
   TERRAIN = "terrain",
-  LABELS  = "labels"
+  LABELS = "labels",
 }
 
 type MapConfig = {
@@ -20,4 +20,11 @@ type MapConfig = {
   styles?: google.maps.MapTypeStyle[];
 };
 
-export { MapTypeId, ViewMode, MapConfig}
+type MapBounds = {
+  minLat: number;
+  maxLat: number;
+  minLng: number;
+  maxLng: number;
+};
+
+export { MapTypeId, ViewMode, MapConfig, MapBounds };

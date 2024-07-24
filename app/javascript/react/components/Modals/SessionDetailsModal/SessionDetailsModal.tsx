@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-
+import { useDispatch } from "react-redux";
 import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
 import { SessionType } from "../../../types/filters";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import { Graph } from "../../Graph";
 import * as S from "./SessionDetailsModal.style";
 import SessionInfo from "./SessionInfo/SessionInfo";
+import { setModalHeight } from "../../../store/mapSlice";
 
 import type { PopupProps } from "reactjs-popup/dist/types";
 import { gray200 } from "../../../assets/styles/colors";
+import { useAppDispatch } from "../../../store/hooks";
 
 interface SessionDetailsModalProps {
   onClose: () => void;
@@ -27,17 +29,35 @@ const SessionDetailsModal: React.FC<
   SessionDetailsModalProps & Omit<PopupProps, "children">
 > = React.memo(({ onClose, sessionType, streamId }) => {
   const [isVisible, setIsVisible] = useState(true);
+  const modalContentRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
 
   const { t } = useTranslation();
+  const isMobile = useMobileDetection();
 
-  // Workaround for the typescript error
+  useEffect(() => {
+    const updateHeight = () => {
+      if (modalContentRef.current) {
+        dispatch(setModalHeight(modalContentRef.current.clientHeight));
+      }
+    };
+
+    // Update height on mount and whenever visibility changes
+    updateHeight();
+
+    // Update height on window resize
+    window.addEventListener("resize", updateHeight);
+    return () => {
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, [isVisible, dispatch]);
+
+  // Workaround for the TypeScript error
   const SessionModal: React.FC<
     CustomPopupProps & Omit<PopupProps, "children">
   > = (props) => {
     return <S.SessionDetailsModal {...(props as PopupProps)} />;
   };
-
-  const isMobile = useMobileDetection();
 
   return (
     <SessionModal
@@ -55,7 +75,7 @@ const SessionDetailsModal: React.FC<
       closeOnDocumentClick={false}
     >
       {(close) => (
-        <>
+        <div ref={modalContentRef}>
           <SessionInfo
             sessionType={sessionType}
             streamId={streamId}
@@ -68,7 +88,7 @@ const SessionDetailsModal: React.FC<
               <img src={circleCloseIcon} alt={t("navbar.altClose")} />
             </S.CancelButtonX>
           )}
-        </>
+        </div>
       )}
     </SessionModal>
   );

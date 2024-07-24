@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
@@ -10,8 +8,13 @@ import { pubSub } from "../../../utils/pubSubManager";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
-
-import type { Marker } from "@googlemaps/markerclusterer";
+import { selectModalHeight } from "../../../store/mapSlice";
+import {
+  adjustMapCenter,
+  calculateSessionBounds,
+  calculateVisibleMapBounds,
+} from "../../../utils/mapCenterBoundsCalculations";
+import { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   sessions: Session[];
@@ -29,14 +32,9 @@ const MobileMarkers = ({
   const DISTANCE_THRESHOLD = 21;
   const ZOOM_FOR_SELECTED_SESSION = 15;
 
-  // We need to adjust the latitude when the difference between max and min latitude is small and session modal is opened otherwise the session points will be hidden behind the session modal
-  const LAT_DIFF_SMALL = 0.00001;
-  const LAT_DIFF_MEDIUM = 0.0001;
-  const LAT_ADJUST_SMALL = 0.005;
-
   const map = useMap();
-
   const thresholds = useSelector(selectThresholds);
+  const modalHeight = useSelector(selectModalHeight);
 
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -50,7 +48,7 @@ const MobileMarkers = ({
       const s = sessions.find((session) => session.id === id);
 
       if (s?.point) {
-        centerMapOnMarker(s.point);
+        centerMapOnMarker(s.point, modalHeight);
       }
     };
 
@@ -59,7 +57,7 @@ const MobileMarkers = ({
     return () => {
       pubSub.unsubscribe("CENTER_MAP", handleData);
     };
-  }, [sessions]);
+  }, [sessions, modalHeight]);
 
   useEffect(() => {
     if (selectedStreamId === null) {
@@ -67,7 +65,6 @@ const MobileMarkers = ({
     }
   }, [selectedStreamId]);
 
-  // Update markers when marker references change
   useEffect(() => {
     const newMarkers: { [streamId: string]: Marker | null } = {};
     sessions.forEach((session) => {
@@ -99,63 +96,17 @@ const MobileMarkers = ({
     return distanceInPixels < DISTANCE_THRESHOLD;
   };
 
-  const calculateLatitudeDiff = (position: Point): number => {
-    const { maxLatitude, minLatitude } = position;
-    return maxLatitude && minLatitude ? maxLatitude - minLatitude : 0;
-  };
-
-  const adjustLatitude = (position: Point): number => {
-    const { maxLatitude, minLatitude } = position;
-    if (maxLatitude && minLatitude) {
-      const latDiff = calculateLatitudeDiff(position);
-
-      if (latDiff >= 0 && latDiff < LAT_DIFF_SMALL) {
-        return minLatitude - LAT_ADJUST_SMALL;
-      } else if (latDiff >= LAT_DIFF_SMALL && latDiff < LAT_DIFF_MEDIUM) {
-        return minLatitude - latDiff * 2;
-      } else {
-        return minLatitude - latDiff;
-      }
-    }
-    return position.lat;
-  };
-
-  const calculateBounds = (
-    position: Point,
-    adjustedLat: number
-  ): LatLngLiteral[] => {
-    const { maxLatitude, maxLongitude, minLongitude } = position;
-    if (maxLatitude && maxLongitude && minLongitude) {
-      return [
-        { lat: maxLatitude, lng: maxLongitude },
-        { lat: adjustedLat, lng: minLongitude },
-      ];
-    } else {
-      return [{ lat: adjustedLat, lng: position.lng }];
-    }
-  };
-
-  const centerMapOnMarker = (position: Point) => {
+  const centerMapOnMarker = (position: Point, modalHeight: number) => {
     const { lat, lng } = position;
-
     if (map && !selectedMarkerKey) {
-      const latDiff = calculateLatitudeDiff(position);
-
-      if (position.maxLongitude && position.minLongitude) {
-        const adjustedLat = adjustLatitude(position);
-        const bounds = calculateBounds(position, adjustedLat);
-        const googleBounds = new google.maps.LatLngBounds();
-
-        bounds.forEach((coord) =>
-          googleBounds.extend(new google.maps.LatLng(coord.lat, coord.lng))
-        );
-
-        map.fitBounds(googleBounds);
-
-        if (latDiff === 0) {
-          map.setZoom(ZOOM_FOR_SELECTED_SESSION);
-        }
+      const bounds = calculateSessionBounds(sessions);
+      if (bounds.minLng && bounds.maxLng) {
+        const visibleBounds = calculateVisibleMapBounds(bounds, modalHeight);
+        adjustMapCenter(visibleBounds, map);
+        console.log("visibleBounds", visibleBounds);
+        console.log("modalHeight", modalHeight);
       } else {
+        console.log("set center else condition triggered");
         map.setCenter({ lat, lng });
         map.setZoom(ZOOM_FOR_SELECTED_SESSION);
       }
@@ -178,7 +129,7 @@ const MobileMarkers = ({
           shouldPulse={session.id === pulsatingSessionId}
           onClick={() => {
             onMarkerClick(Number(session.point.streamId), Number(session.id));
-            centerMapOnMarker(session.point);
+            centerMapOnMarker(session.point, modalHeight);
           }}
         />
       );
@@ -193,7 +144,7 @@ const MobileMarkers = ({
         shouldPulse={session.id === pulsatingSessionId}
         onClick={() => {
           onMarkerClick(Number(session.point.streamId), Number(session.id));
-          centerMapOnMarker(session.point);
+          centerMapOnMarker(session.point, modalHeight);
         }}
       />
     );
