@@ -1,4 +1,6 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { ExportDataComponent } from "../Popups/ExportDataComponent";
 import { SessionsListTile } from "./SessionsListTile/SessionListTile";
 import * as S from "./SessionsListView.style";
 
@@ -25,6 +27,9 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   onCellMouseEnter,
   onCellMouseLeave,
 }) => {
+  const { t } = useTranslation();
+  const results = sessions.length;
+
   const handleClick = (id: number, streamId: number) => {
     if (onCellClick) {
       onCellClick(id, streamId);
@@ -45,28 +50,50 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
 
   return (
     <S.SessionListViewStyle>
-      {sessions.map((session) => (
-        <div key={session.id}>
-          <SessionsListTile
-            id={session.id}
-            sessionName={session.sessionName}
-            sensorName={session.sensorName}
-            averageValue={session.averageValue}
-            startTime={session.startTime}
-            endTime={session.endTime}
-            streamId={session.streamId}
-            onClick={(id, streamId) => {
-              handleClick(id, streamId);
-            }}
-            onMouseEnter={(id) => {
-              handleMouseEnter(id);
-            }}
-            onMouseLeave={() => {
-              handleMouseLeave();
-            }}
-          />
-        </div>
-      ))}
+      <S.SessionInfoTile>
+        <S.SessionListInfoContainer>
+          <S.SessionListTitle>{t("map.listSessions")}</S.SessionListTitle>
+          <S.SessionListTitle>
+            {t("map.results", { results: results })}
+          </S.SessionListTitle>
+        </S.SessionListInfoContainer>
+
+        <ExportDataComponent
+          button={
+            <S.ExportSessionsButton>
+              {t("map.exportButton")}
+            </S.ExportSessionsButton>
+          }
+          sessionId={sessionId}
+          isIconOnly
+          onSubmit={(formData) => {}}
+          fixedSessionTypeSelected={true}
+        />
+      </S.SessionInfoTile>
+      <S.SessionListContainer>
+        {sessions.map((session) => (
+          <div key={session.id}>
+            <SessionsListTile
+              id={session.id}
+              sessionName={session.sessionName}
+              sensorName={session.sensorName}
+              averageValue={session.averageValue}
+              startTime={session.startTime}
+              endTime={session.endTime}
+              streamId={session.streamId}
+              onClick={(id, streamId) => {
+                handleClick(id, streamId);
+              }}
+              onMouseEnter={(id) => {
+                handleMouseEnter(id);
+              }}
+              onMouseLeave={() => {
+                handleMouseLeave();
+              }}
+            />
+          </div>
+        ))}
+      </S.SessionListContainer>
     </S.SessionListViewStyle>
   );
 };

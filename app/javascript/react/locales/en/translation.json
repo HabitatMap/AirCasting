@@ -119,7 +119,9 @@
       "title": "Legend customization",
       "resetRangesButton": "Reset ranges",
       "applyButton": "Apply"
-    }
+    },
+    "results": "({{results}} Results)",
+    "exportButton": "Export"
   },
   "sessionDetailsModal": {
     "calendar": "Calendar",
