@@ -6,12 +6,12 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
-import { pubSub } from "../../../utils/pubSubManager";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
+
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
@@ -28,6 +28,11 @@ const MobileMarkers = ({
   const DISTANCE_THRESHOLD = 21;
   const ZOOM_FOR_SELECTED_SESSION = 15;
 
+  // We need to adjust the latitude when the difference between max and min latitude is small and session modal is opened otherwise the session points will be hidden behind the session modal
+  const LAT_DIFF_SMALL = 0.00001;
+  const LAT_DIFF_MEDIUM = 0.0001;
+  const LAT_ADJUST_SMALL = 0.005;
+
   const map = useMap();
 
   const thresholds = useSelector(selectThresholds);
@@ -38,24 +43,6 @@ const MobileMarkers = ({
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-
-  useEffect(() => {
-    const handleData = (id: number) => {
-      const s = sessions.find((session) => {
-        return session.id === id;
-      });
-
-      if (s?.point) {
-        centerMapOnMarker(s.point);
-      }
-    };
-
-    pubSub.subscribe("CENTER_MAP", handleData);
-
-    return () => {
-      pubSub.unsubscribe("CENTER_MAP", handleData);
-    };
-  }, [sessions]);
 
   useEffect(() => {
     if (selectedStreamId === null) {
@@ -95,24 +82,62 @@ const MobileMarkers = ({
     return distanceInPixels < DISTANCE_THRESHOLD;
   };
 
+  const calculateLatitudeDiff = (position: Point): number => {
+    const { maxLatitude, minLatitude } = position;
+    return maxLatitude && minLatitude ? maxLatitude - minLatitude : 0;
+  };
+
+  const adjustLatitude = (position: Point): number => {
+    const { maxLatitude, minLatitude } = position;
+    if (maxLatitude && minLatitude) {
+      const latDiff = calculateLatitudeDiff(position);
+
+      if (latDiff >= 0 && latDiff < LAT_DIFF_SMALL) {
+        return minLatitude - LAT_ADJUST_SMALL;
+      } else if (latDiff >= LAT_DIFF_SMALL && latDiff < LAT_DIFF_MEDIUM) {
+        return minLatitude - latDiff * 2;
+      } else {
+        return minLatitude - latDiff;
+      }
+    }
+    return position.lat;
+  };
+
+  const calculateBounds = (
+    position: Point,
+    adjustedLat: number
+  ): LatLngLiteral[] => {
+    const { maxLatitude, maxLongitude, minLongitude } = position;
+    if (maxLatitude && maxLongitude && minLongitude) {
+      return [
+        { lat: maxLatitude, lng: maxLongitude },
+        { lat: adjustedLat, lng: minLongitude },
+      ];
+    } else {
+      return [{ lat: adjustedLat, lng: position.lng }];
+    }
+  };
+
   const centerMapOnMarker = (position: Point) => {
-    const { lat, lng, maxLatitude, maxLongitude, minLatitude, minLongitude } =
-      position;
+    const { lat, lng } = position;
 
     if (map && !selectedMarkerKey) {
-      if (maxLatitude && maxLongitude && minLatitude && minLongitude) {
-        const bounds: LatLngLiteral[] = [
-          { lat: maxLatitude, lng: maxLongitude },
-          { lat: minLatitude - (maxLatitude - minLatitude), lng: minLongitude }, // #DirtyButWorks Adjust bounds to keep marker visible and not hidden by the modal
-        ];
+      const latDiff = calculateLatitudeDiff(position);
 
+      if (position.maxLongitude && position.minLongitude) {
+        const adjustedLat = adjustLatitude(position);
+        const bounds = calculateBounds(position, adjustedLat);
         const googleBounds = new google.maps.LatLngBounds();
 
-        bounds.forEach((coord) => {
-          googleBounds.extend(new google.maps.LatLng(coord.lat, coord.lng));
-        });
+        bounds.forEach((coord) =>
+          googleBounds.extend(new google.maps.LatLng(coord.lat, coord.lng))
+        );
 
         map.fitBounds(googleBounds);
+
+        if (latDiff === 0) {
+          map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+        }
       } else {
         map.setCenter({ lat, lng });
         map.setZoom(ZOOM_FOR_SELECTED_SESSION);
