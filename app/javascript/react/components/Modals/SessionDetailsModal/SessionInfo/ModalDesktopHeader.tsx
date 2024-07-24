@@ -40,8 +40,6 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   const { t } = useTranslation();
   const isMobile = useScreenSizeDetection(screenSizes.largeDesktop);
 
-  console.log(isMobile, "isMobile");
-
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
   const noData = isNoData(
     extremes.minMeasurementValue,
