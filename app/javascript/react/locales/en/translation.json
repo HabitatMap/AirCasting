@@ -91,7 +91,8 @@
     "exportButton": "email data",
     "emailPlaceholder": "Enter email address",
     "confirmationMessage": "Exported sessions will be emailed within minutes. The email may end up in your spam folder.",
-    "invalidEmailMessage": "Please enter a valid email address."
+    "invalidEmailMessage": "Please enter a valid email address.",
+    "sessionLimitMessage":   "You can't export more than {{limit}} sessions at a time. Use the time frame filter to chunk your exports or use our API."
   },
   "calendarPage": {
     "forwardScrollButton": "Move calendar page one step forward",

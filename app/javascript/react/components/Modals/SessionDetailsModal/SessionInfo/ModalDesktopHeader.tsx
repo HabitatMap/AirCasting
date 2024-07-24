@@ -107,9 +107,10 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
             </S.Button>
           }
           fixedSessionTypeSelected={fixedSessionTypeSelected}
-          sessionId={streamShortInfo.sessionId}
+          sessionsIds={[streamShortInfo.sessionId]}
           isIconOnly={true}
           onSubmit={(formData) => {}}
+          isSessionList={false}
         />
         <CopyLinkComponent
           button={

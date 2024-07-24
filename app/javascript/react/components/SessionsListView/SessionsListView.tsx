@@ -29,6 +29,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
 }) => {
   const { t } = useTranslation();
   const results = sessions.length;
+  const sessionsIds = sessions.map((session) => session.id.toString());
 
   const handleClick = (id: number, streamId: number) => {
     if (onCellClick) {
@@ -64,10 +65,11 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
               {t("map.exportButton")}
             </S.ExportSessionsButton>
           }
-          sessionId={sessionId}
+          sessionsIds={sessionsIds}
           isIconOnly
           onSubmit={(formData) => {}}
           fixedSessionTypeSelected={true}
+          isSessionList={true}
         />
       </S.SessionInfoTile>
       <S.SessionListContainer>
