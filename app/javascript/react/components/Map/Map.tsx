@@ -292,9 +292,7 @@ const Map = () => {
   const setPreviousZoomOnTheMap = () => {
     if (
       currentUserSettings === UserSettings.MapView &&
-      ![UserSettings.MapLegendView, UserSettings.SessionListView].includes(
-        previousUserSettings
-      )
+      ![UserSettings.MapLegendView].includes(previousUserSettings)
     ) {
       if (mapInstance) {
         mapInstance.setCenter(previousCenter);
