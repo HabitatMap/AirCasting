@@ -12,7 +12,6 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   selectDefaultThresholds,
   selectThresholds,
-  setUserThresholdValues,
 } from "../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../types/filters";
 import { UserSettings } from "../types/userStates";
@@ -189,13 +188,6 @@ export const useMapParams = () => {
     [defaultThresholds]
   );
   const initialUnitSymbol = getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!;
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      dispatch(setUserThresholdValues(initialThresholds));
-      isFirstRender.current = false;
-    }
-  }, [dispatch, initialThresholds]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(searchParams.toString());
