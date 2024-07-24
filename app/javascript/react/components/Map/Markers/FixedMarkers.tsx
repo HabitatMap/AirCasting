@@ -20,7 +20,6 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
-import { pubSub } from "../../../utils/pubSubManager";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import HoverMarker from "./HoverMarker/HoverMarker";
@@ -91,22 +90,6 @@ const FixedMarkers = ({
       setSelectedMarkerKey(null);
     }
   }, [selectedStreamId]);
-
-  useEffect(() => {
-    const handleData = (id: number) => {
-      const s = memoizedSessions.find((session) => session.id === id);
-
-      if (s?.point) {
-        centerMapOnMarker(s.point, s.point.streamId);
-      }
-    };
-
-    pubSub.subscribe("CENTER_MAP", handleData);
-
-    return () => {
-      pubSub.unsubscribe("CENTER_MAP", handleData);
-    };
-  }, [memoizedSessions]);
 
   const updateClusterer = useCallback(() => {
     if (clusterer.current && memoizedSessions.length > 0) {

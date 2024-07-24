@@ -6,7 +6,6 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
-import { pubSub } from "../../../utils/pubSubManager";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
@@ -44,22 +43,6 @@ const MobileMarkers = ({
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-
-  useEffect(() => {
-    const handleData = (id: number) => {
-      const s = sessions.find((session) => session.id === id);
-
-      if (s?.point) {
-        centerMapOnMarker(s.point);
-      }
-    };
-
-    pubSub.subscribe("CENTER_MAP", handleData);
-
-    return () => {
-      pubSub.unsubscribe("CENTER_MAP", handleData);
-    };
-  }, [sessions]);
 
   useEffect(() => {
     if (selectedStreamId === null) {

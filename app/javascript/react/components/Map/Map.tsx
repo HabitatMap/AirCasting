@@ -47,7 +47,6 @@ import {
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
-import { pubSub } from "../../utils/pubSubManager";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { SectionButton } from "../SectionButton/SectionButton";
@@ -417,9 +416,6 @@ const Map = () => {
               streamId: session.streamId,
             }))}
             onCellClick={(id, streamId) => {
-              if (!fixedSessionTypeSelected) {
-                pubSub.publish("CENTER_MAP", id);
-              }
               handleMarkerClick(streamId, id);
             }}
             onClose={() => {
@@ -446,7 +442,6 @@ const Map = () => {
             onCellClick={(id, streamId) => {
               setPulsatingSessionId(null);
               handleMarkerClick(streamId, id);
-              pubSub.publish("CENTER_MAP", id);
             }}
             onCellMouseEnter={(id) => {
               setPulsatingSessionId(id);
