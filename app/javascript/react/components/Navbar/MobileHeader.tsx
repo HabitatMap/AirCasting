@@ -28,6 +28,8 @@ export const MobileHeader = ({
 
   const handleGoBackClick = useCallback(() => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set("sessionId", "");
+    newSearchParams.set("selectedStreamId", "");
     newSearchParams.set("previousUserSettings", currentUserSettings);
     newSearchParams.set("currentUserSettings", previousUserSettings);
     navigate(`?${newSearchParams.toString()}`);
