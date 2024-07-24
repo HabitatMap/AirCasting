@@ -34,7 +34,7 @@ export enum UrlParamsTypes {
   sensorName = "sensorName",
   sessionId = "sessionId",
   sessionType = "sessionType",
-  streamId = "selectedStreamId",
+  streamId = "streamId",
   thresholdMin = "thresholdMin",
   thresholdLow = "thresholdLow",
   thresholdMiddle = "thresholdMiddle",

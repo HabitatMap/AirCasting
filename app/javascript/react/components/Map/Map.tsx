@@ -243,15 +243,18 @@ const Map = () => {
   );
 
   // Handlers;
-  const handleMarkerClick = (streamId: number | null, id: number | null) => {
+  const handleMarkerClick = (
+    selectedStreamId: number | null,
+    id: number | null
+  ) => {
     if (currentUserSettings !== UserSettings.SessionListView) {
       setPreviousZoomInTheURL();
     }
 
-    if (streamId) {
+    if (selectedStreamId) {
       fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(streamId))
-        : dispatch(fetchMobileStreamById(streamId));
+        ? dispatch(fetchFixedStreamById(selectedStreamId))
+        : dispatch(fetchMobileStreamById(selectedStreamId));
     }
 
     if (isMobile) {
@@ -273,7 +276,10 @@ const Map = () => {
 
     if (!streamId) {
       newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
-      newSearchParams.set(UrlParamsTypes.streamId, streamId?.toString() || "");
+      newSearchParams.set(
+        UrlParamsTypes.streamId,
+        selectedStreamId?.toString() || ""
+      );
       newSearchParams.set(
         UrlParamsTypes.previousUserSettings,
         currentUserSettings
