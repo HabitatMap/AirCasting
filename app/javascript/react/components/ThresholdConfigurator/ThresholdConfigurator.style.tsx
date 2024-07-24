@@ -40,7 +40,6 @@ const StaticMobileSliderContainer = styled.div`
 const InputContainer = styled.div<Props>`
   position: relative;
   width: 100%;
-  /* height: 70px; */
   padding-left: 1.5rem;
   justify-content: space-between;
 
