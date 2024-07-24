@@ -433,7 +433,7 @@ const Map = () => {
             selectedStreamId={streamId}
             pulsatingSessionId={pulsatingSessionId}
           />
-        }
+        )}
         {!fixedSessionTypeSelected && (
           <MobileMarkers
             sessions={sessionsPoints}
