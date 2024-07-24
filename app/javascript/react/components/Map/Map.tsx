@@ -175,8 +175,9 @@ const Map = () => {
       newSearchParams.set("selectedStreamId", "");
       navigate(`?${newSearchParams.toString()}`);
     }
-    setPreviousZoomOnTheMap();
+    !isFirstRender.current && setPreviousZoomOnTheMap();
     isMobile && setPreviousZoomInTheURL();
+    isFirstRender.current = false;
   }, [currentUserSettings]);
 
   useEffect(() => {
@@ -213,7 +214,6 @@ const Map = () => {
           map.setCenter(currentCenter);
           map.setZoom(currentZoom);
         }
-        isFirstRender.current = false;
       } else {
         if (currentUserSettings === UserSettings.MapView) {
           const currentCenter = JSON.stringify(
@@ -351,7 +351,6 @@ const Map = () => {
   };
 
   const openFilters = () => {
-    setPreviousZoomInTheURL();
     fixedSessionTypeSelected
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));

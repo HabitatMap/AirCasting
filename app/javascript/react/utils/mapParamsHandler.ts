@@ -101,7 +101,7 @@ export const useMapParams = () => {
           JSON.stringify(DEFAULT_MAP_CENTER)
         )!
       ),
-    []
+    [searchParams]
   );
   const currentUserSettings = getSearchParam(
     UrlParamsTypes.currentUserSettings,
@@ -127,7 +127,7 @@ export const useMapParams = () => {
           JSON.stringify(DEFAULT_MAP_CENTER)
         )!
       ),
-    []
+    [searchParams]
   );
   const previousUserSettings = getSearchParam(
     UrlParamsTypes.previousUserSettings,
