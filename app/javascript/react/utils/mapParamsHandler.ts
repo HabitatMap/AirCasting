@@ -222,7 +222,6 @@ export const useMapParams = () => {
 
   const debouncedUpdateURL = useCallback(
     debounce((params) => {
-      console.log("params", params.toString());
       setSearchParams(params);
     }, 300),
     [setSearchParams]

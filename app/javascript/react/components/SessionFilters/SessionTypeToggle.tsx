@@ -19,7 +19,6 @@ const SessionTypeToggle = () => {
 
   const handleClick = useCallback(
     (type: SessionType) => {
-      console.log("handleClick");
       dispatch(resetUserThresholds());
       dispatch(setLoading(true));
       const newSearchParams = new URLSearchParams(searchParams.toString());
