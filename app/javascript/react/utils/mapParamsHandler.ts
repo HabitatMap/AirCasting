@@ -2,16 +2,13 @@ import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
+import { MAP_CONFIGS } from "../components/Map/mapConfigs";
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
   DEFAULT_ZOOM,
 } from "../const/coordinates";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import {
-  initializeStateFromUrl,
-  initialState as mapInitialState,
-} from "../store/mapSlice";
 import {
   selectDefaultThresholds,
   selectThresholds,
@@ -111,9 +108,9 @@ export const useMapParams = () => {
     getSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
   );
   const initialLimit = parseInt(getSearchParam(UrlParamsTypes.limit, "100")!);
-  const initialMapTypeId =
-    getSearchParam(UrlParamsTypes.mapType, mapInitialState.mapTypeId) ||
-    mapInitialState.mapTypeId;
+  const mapTypeId =
+    getSearchParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||
+    MAP_CONFIGS[0].mapTypeId;
   const initialMeasurementType = getSearchParam(
     UrlParamsTypes.measurementType,
     "Particulate Matter"
@@ -144,10 +141,14 @@ export const useMapParams = () => {
     getSearchParam(UrlParamsTypes.sessionId, null) !== null
       ? parseInt(getSearchParam(UrlParamsTypes.sessionId, "0")!)
       : null;
-  const sessionType = getSearchParam(
-    UrlParamsTypes.sessionType,
-    SessionTypes.FIXED
-  ) as SessionType;
+  const sessionType = useMemo(
+    () =>
+      getSearchParam(
+        UrlParamsTypes.sessionType,
+        SessionTypes.FIXED
+      ) as SessionType,
+    [searchParams]
+  );
   const streamId =
     getSearchParam(UrlParamsTypes.streamId, null) !== null
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
@@ -191,15 +192,10 @@ export const useMapParams = () => {
 
   useEffect(() => {
     if (isFirstRender.current) {
-      dispatch(
-        initializeStateFromUrl({
-          mapTypeId: initialMapTypeId,
-        })
-      );
       dispatch(setUserThresholdValues(initialThresholds));
       isFirstRender.current = false;
     }
-  }, [dispatch, initialMapTypeId, initialThresholds]);
+  }, [dispatch, initialThresholds]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(searchParams.toString());
@@ -251,7 +247,7 @@ export const useMapParams = () => {
     debouncedUpdateURL,
     getSearchParam,
     initialLimit,
-    initialMapTypeId,
+    mapTypeId,
     initialMeasurementType,
     initialOffset,
     previousCenter,

@@ -1,23 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { RootState } from "../../../store";
 import { useAppDispatch } from "../../../store/hooks";
-import { setMapTypeId } from "../../../store/mapSlice";
 import { MapTypeId, ViewMode } from "../../../types/map";
-import { useMapParams } from "../../../utils/mapParamsHandler";
+import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
 import * as S from "./ControlPanel.style";
 
 const ControlPanel: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { initialMapTypeId, searchParams } = useMapParams();
+  const { mapTypeId, searchParams } = useMapParams();
   const navigate = useNavigate();
   const isFirstRender = useRef(true);
   const { t } = useTranslation();
-
-  const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.MAP);
   const [isTerrainChecked, setIsTerrainChecked] = useState<boolean>(false);
@@ -30,10 +25,8 @@ const ControlPanel: React.FC = () => {
   };
 
   useEffect(() => {
-    if (initialMapTypeId) {
-      dispatch(setMapTypeId(initialMapTypeId));
-
-      switch (initialMapTypeId) {
+    if (mapTypeId) {
+      switch (mapTypeId) {
         case MapTypeId.SATELLITE:
           setViewMode(ViewMode.SATELLITE);
           setIsTerrainChecked(false);
@@ -61,7 +54,7 @@ const ControlPanel: React.FC = () => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
     } else {
-      updateURLParams("mapType", mapTypeId);
+      updateURLParams(UrlParamsTypes.mapType, mapTypeId);
     }
   }, [mapTypeId]);
 
@@ -80,14 +73,14 @@ const ControlPanel: React.FC = () => {
         break;
     }
     setViewMode(newViewMode);
-    dispatch(setMapTypeId(selectedMapTypeId));
+    updateURLParams(UrlParamsTypes.mapType, selectedMapTypeId);
   };
 
   const handleTerrainChange = (isChecked: boolean) => {
     const newMapTypeId = isChecked ? MapTypeId.TERRAIN : MapTypeId.ROADMAP;
     setIsTerrainChecked(isChecked);
     if (viewMode === ViewMode.MAP) {
-      dispatch(setMapTypeId(newMapTypeId));
+      updateURLParams(UrlParamsTypes.mapType, newMapTypeId);
     }
   };
 
@@ -95,7 +88,7 @@ const ControlPanel: React.FC = () => {
     const newMapTypeId = isChecked ? MapTypeId.HYBRID : MapTypeId.SATELLITE;
     setIsLabelsChecked(isChecked);
     if (viewMode === ViewMode.SATELLITE) {
-      dispatch(setMapTypeId(newMapTypeId));
+      updateURLParams(UrlParamsTypes.mapType, newMapTypeId);
     }
   };
 
@@ -159,7 +152,7 @@ const ControlPanel: React.FC = () => {
           value={mapTypeId}
           onChange={(e) => {
             const selectedMapTypeId = e.target.value;
-            dispatch(setMapTypeId(selectedMapTypeId));
+            updateURLParams(UrlParamsTypes.mapType, selectedMapTypeId);
           }}
         >
           <option value={MapTypeId.ROADMAP}>{t("map.mapViewLabel")}</option>

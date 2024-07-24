@@ -68,6 +68,7 @@ const Map = () => {
     currentZoom,
     debouncedUpdateURL,
     initialLimit,
+    mapTypeId,
     initialMeasurementType,
     initialOffset,
     previousCenter,
@@ -103,7 +104,6 @@ const Map = () => {
   );
   const loading = useAppSelector((state: RootState) => state.map.loading);
   const mapId = useAppSelector((state: RootState) => state.map.mapId);
-  const mapTypeId = useAppSelector((state: RootState) => state.map.mapTypeId);
   const mobilePoints = sessionId
     ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
     : useAppSelector(selectMobileSessionsPoints);
@@ -211,6 +211,7 @@ const Map = () => {
 
       if (isFirstRender.current) {
         if (currentUserSettings === UserSettings.MapView) {
+          newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
           map.setCenter(currentCenter);
           map.setZoom(currentZoom);
         }
@@ -432,7 +433,7 @@ const Map = () => {
             selectedStreamId={streamId}
             pulsatingSessionId={pulsatingSessionId}
           />
-        )}
+        }
         {!fixedSessionTypeSelected && (
           <MobileMarkers
             sessions={sessionsPoints}
