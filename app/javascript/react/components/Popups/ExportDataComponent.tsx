@@ -133,9 +133,9 @@ const ExportDataComponent = ({
       return `${buttonPosition.left - 185}px`;
     } else if (isIconOnly) {
       if (fixedSessionTypeSelected) {
-        return `${buttonPosition.left - 150}px`;
+        return `${buttonPosition.left - 60}px`;
       } else {
-        return `${buttonPosition.left - 120}px`;
+        return `${buttonPosition.left - 30}px`;
       }
     } else {
       return `${buttonPosition.left - 2}px`;
