@@ -43,17 +43,22 @@ import {
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
 
-const scrollbarOptions = {
-  barBackgroundColor: gray200,
-  barBorderWidth: 0,
-  button: {
-    enabled: false,
-  },
-  height: 8,
-  trackBackgroundColor: gray100,
-  trackBorderWidth: 0,
-  showFull: true,
-  enabled: true,
+import useMobileDetection from "../../utils/useScreenSizeDetection";
+
+const getScrollbarOptions = () => {
+  const isMobile = useMobileDetection();
+  return {
+    barBackgroundColor: gray200,
+    barBorderWidth: 0,
+    button: {
+      enabled: false,
+    },
+    height: 8,
+    trackBackgroundColor: gray100,
+    trackBorderWidth: 0,
+    showFull: true,
+    enabled: isMobile ? false : true,
+  };
 };
 
 const getXAxisOptions = (
@@ -260,20 +265,10 @@ const getResponsiveOptions = (
     rules: [
       {
         condition: {
-          maxWidth: 768,
+          maxWidth: 1024,
         },
         chartOptions: {
           yAxis: getYAxisOptions(thresholdsState, true),
-          rangeSelector: {
-            enabled: false,
-          },
-          scrollbar: {
-            enabled: false,
-          },
-          chart: {
-            margin: [5, 0, 5, 0],
-            height: 150,
-          },
           credits: {
             enabled: false,
           },
@@ -322,7 +317,9 @@ const getRangeSelectorOptions = (
   selectedRange?: number
 ): RangeSelectorOptions => {
   const { t } = useTranslation();
+  const isMobile = useMobileDetection();
   const baseOptions: RangeSelectorOptions = {
+    enabled: isMobile ? false : true,
     buttonPosition: {
       align: "right" as AlignValue,
       x: -32,
@@ -399,11 +396,11 @@ export {
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,
+  getScrollbarOptions,
   getTooltipOptions,
   getXAxisOptions,
   getYAxisOptions,
   legendOption,
-  scrollbarOptions,
   seriesOptions,
   titleOption,
 };

@@ -47,7 +47,7 @@ const SessionDetailsModal: React.FC<
       overlayStyle={{
         margin: 0,
         zIndex: 1,
-        bottom: "4.7rem",
+        bottom: isMobile ? "4.7rem" : "6.4rem",
         borderBottom: `1px solid ${gray200}`,
       }}
       contentStyle={{ margin: 0 }}

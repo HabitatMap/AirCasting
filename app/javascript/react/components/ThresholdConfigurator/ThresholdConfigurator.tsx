@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
+import { ResetButton, ResetButtonVariant } from "./ResetButton";
 import * as S from "./ThresholdConfigurator.style";
 import ThresholdSlider from "./ThresholdSlider";
-import { ResetButton, ResetButtonVariant } from "./ResetButton";
 
 interface ThresholdsConfiguratorProps {
   resetButtonVariant?: ResetButtonVariant;

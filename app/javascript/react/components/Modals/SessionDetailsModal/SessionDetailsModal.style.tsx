@@ -66,18 +66,13 @@ const InfoContainer = styled.div`
   justify-content: space-between;
   gap: 4rem;
 
-  @media ${media.smallDesktop} {
-    width: 30%;
+  @media ${media.desktop} {
+    width: 20%;
     flex-direction: column;
     justify-content: space-evenly;
     margin-bottom: 0;
     padding: 3rem 3rem 0 3rem;
     gap: 1.6rem;
-    flex-wrap: wrap;
-  }
-
-  @media ${media.largeDesktop} {
-    width: 20%;
   }
 `;
 
@@ -86,7 +81,7 @@ const ModalMobileHeader = styled.div`
   width: 100%;
   flex-direction: column;
 
-  @media ${media.smallDesktop} {
+  @media ${media.desktop} {
     display: none;
   }
 `;
@@ -94,7 +89,7 @@ const ModalMobileHeader = styled.div`
 const ModalDesktopHeader = styled.div`
   display: none;
 
-  @media ${media.smallDesktop} {
+  @media ${media.desktop} {
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -198,8 +193,8 @@ const BlueButton = styled(Link)`
   font-size: 1.4rem;
   letter-spacing: 0.14px;
   height: 4.2rem;
-  border-radius: 5px;
-  padding: 1.6rem;
+  border-radius: 10px;
+  padding: 1.2rem;
   align-items: center;
   gap: 1rem;
   justify-content: flex-end;
@@ -207,6 +202,12 @@ const BlueButton = styled(Link)`
   border: 1px solid ${gray200};
   text-decoration: none;
   border: none;
+  margin-right: 0.5rem;
+
+  @media ${media.largeDesktop} {
+    padding: 1.6rem;
+    border-radius: 5px;
+  }
 `;
 
 const CancelButtonX = styled.button`

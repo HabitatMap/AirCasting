@@ -40,7 +40,6 @@ const StaticMobileSliderContainer = styled.div`
 const InputContainer = styled.div<Props>`
   position: relative;
   width: 100%;
-  height: 70px;
   padding-left: 1.5rem;
   justify-content: space-between;
 
@@ -78,6 +77,15 @@ const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
   align-content: center;
 
   @media ${media.desktop} {
+    margin-left: 0;
+    ${(props) =>
+      props.variant === ResetButtonVariant.IconOnly &&
+      `
+        height: 32px;
+      `}
+  }
+
+  @media ${media.smallDesktop} {
     margin-left: 0;
     ${(props) =>
       props.variant === ResetButtonVariant.IconOnly &&

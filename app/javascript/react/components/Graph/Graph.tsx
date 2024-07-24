@@ -27,11 +27,11 @@ import {
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,
+  getScrollbarOptions,
   getTooltipOptions,
   getXAxisOptions,
   getYAxisOptions,
   legendOption,
-  scrollbarOptions,
   seriesOptions,
 } from "./graphConfig";
 
@@ -107,6 +107,8 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
 
   const responsive = getResponsiveOptions(thresholdsState);
 
+  const scrollbarOptions = getScrollbarOptions();
+
   useEffect(() => {
     if (seriesData.length > 0 && !isLoading) {
       if (fixedSessionTypeSelected) {
@@ -158,8 +160,8 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
           },
         },
       },
-      height: 300,
-      margin: [0, 60, 0, 0],
+      height: isMobile ? 150 : 300,
+      margin: isMobile ? [5, 0, 5, 0] : [0, 60, 5, 0],
       animation: false,
       scrollablePlotArea: {
         minWidth: 100,

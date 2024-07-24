@@ -15,10 +15,9 @@ export const media = {
   largeDesktop: `(min-width: ${sizes.largeDesktop})`,
 };
 
-
 export const screenSizes = {
   mobile: 768,
   smallDesktop: 769,
   desktop: 1024,
   largeDesktop: 1440,
-}
+};
