@@ -1,16 +1,13 @@
-import React, { useEffect } from "react";
-
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch } from "../../../store/hooks";
-import { updateUserSettings } from "../../../store/userSettingsSlice";
+
 import { MovesKeys } from "../../../types/movesKeys";
-import { UserSettings } from "../../../types/userStates";
 import isMobile from "../../../utils/useScreenSizeDetection";
+import { Month } from "./atoms/Month";
+import { ScrollCalendarButton } from "./atoms/ScrollCalendarButton/ScrollCalendarButton";
 import * as S from "./Calendar.style";
 import useCalendarHook from "./CalendarHook";
 import HeaderToggle from "./HeaderToggle/HeaderToggle";
-import { Month } from "./atoms/Month";
-import { ScrollCalendarButton } from "./atoms/ScrollCalendarButton/ScrollCalendarButton";
 
 interface CalendarProps {
   streamId: number;
@@ -31,17 +28,11 @@ const Calendar: React.FC<CalendarProps> = ({
     handleLeftClick,
     handleRightClick,
   } = useCalendarHook({ streamId, minCalendarDate, maxCalendarDate });
-
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
 
   const sortedThreeMonthsData = isMobile()
     ? [...threeMonthsData].reverse()
     : threeMonthsData;
-
-  useEffect(() => {
-    dispatch(updateUserSettings(UserSettings.CalendarView));
-  }, []);
 
   return (
     sortedThreeMonthsData && (

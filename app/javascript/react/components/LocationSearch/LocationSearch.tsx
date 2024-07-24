@@ -1,5 +1,5 @@
 import { useCombobox } from "downshift";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import usePlacesAutocomplete, {
   getGeocode,
@@ -9,9 +9,8 @@ import usePlacesAutocomplete, {
 import { useMap } from "@vis.gl/react-google-maps";
 
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
-import { useAppDispatch } from "../../store/hooks";
-import { setLocation } from "../../store/mapSlice";
 import { determineZoomLevel } from "../../utils/determineZoomLevel";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./LocationSearch.style";
 
 const OK_STATUS = "OK";
@@ -23,14 +22,13 @@ interface LocationSearchProps {
 type AutocompletePrediction = google.maps.places.AutocompletePrediction;
 
 const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
-  const dispatch = useAppDispatch();
   const [items, setItems] = useState<AutocompletePrediction[]>([]);
   const [selectedItem, setSelectedItem] =
     useState<AutocompletePrediction | null>(null);
   const [inputValue, setInputValue] = useState("");
   const { t } = useTranslation();
   const map = useMap();
-
+  const { setUrlParams } = useMapParams();
   const {
     setValue,
     suggestions: { status, data },
@@ -70,9 +68,17 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
     clearSuggestions();
     const results = await getGeocode({ address: item.description });
     const { lat, lng } = await getLatLng(results[0]);
-    dispatch(setLocation({ lat, lng }));
-
     const zoomLevel = determineZoomLevel(results);
+    setUrlParams([
+      {
+        key: UrlParamsTypes.currentCenter,
+        value: JSON.stringify({ lat, lng }),
+      },
+      {
+        key: UrlParamsTypes.currentZoom,
+        value: zoomLevel.toString(),
+      },
+    ]);
 
     map?.setZoom(zoomLevel);
     map?.panTo({ lat, lng });

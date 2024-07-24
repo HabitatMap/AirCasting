@@ -6,6 +6,8 @@ import copyLink from "../../../../assets/icons/copyLinkIcon.svg";
 import downloadImage from "../../../../assets/icons/download.svg";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
+import { UserSettings } from "../../../../types/userStates";
+import { useMapParams } from "../../../../utils/mapParamsHandler";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { screenSizes } from "../../../../utils/media";
 import { getColorForValue } from "../../../../utils/thresholdColors";
@@ -37,8 +39,10 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   streamId,
   fixedSessionTypeSelected,
 }) => {
+  const { currentUserSettings, searchParams } = useMapParams();
   const { t } = useTranslation();
   const isMobile = useScreenSizeDetection(screenSizes.largeDesktop);
+  const newSearchParams = new URLSearchParams(searchParams.toString());
 
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
   const noData = isNoData(
@@ -46,6 +50,9 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
     extremes.maxMeasurementValue,
     extremes.averageValue
   );
+
+  newSearchParams.set("previousUserSettings", currentUserSettings);
+  newSearchParams.set("currentUserSettings", UserSettings.CalendarView);
 
   return (
     <S.ModalDesktopHeader>
@@ -92,7 +99,9 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
       </S.Wrapper>
       <S.ButtonsContainer>
         {fixedSessionTypeSelected && (
-          <S.BlueButton to={`/fixed_stream?streamId=${streamId}`}>
+          <S.BlueButton
+            to={`/fixed_stream?streamId=${streamId}&${newSearchParams.toString()}`}
+          >
             {isMobile ? "" : t("sessionDetailsModal.calendar")}
             <img src={calendar} alt={t("sessionDetailsModal.calendarIcon")} />
           </S.BlueButton>

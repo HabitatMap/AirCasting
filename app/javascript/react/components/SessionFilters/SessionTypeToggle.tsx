@@ -1,50 +1,53 @@
-import React from "react";
-
+import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
 import mobileIcon from "../../assets/icons/mobileIcon.svg";
 import pinIcon from "../../assets/icons/pin.svg";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
-import {
-  selectSelectedSessionType,
-  setSelectedSessionType,
-} from "../../store/sessionFiltersSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
+  const { searchParams, sessionType } = useMapParams();
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const selectedSessionType = useAppSelector(selectSelectedSessionType);
-
-  const handleClick = (type: SessionType) => {
-    dispatch(setSelectedSessionType(type));
-    dispatch(resetUserThresholds());
-    dispatch(setLoading(true));
-  };
+  const handleClick = useCallback(
+    (type: SessionType) => {
+      dispatch(resetUserThresholds());
+      dispatch(setLoading(true));
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.set("sessionType", type);
+      navigate(`?${newSearchParams.toString()}`);
+    },
+    [searchParams]
+  );
 
   return (
     <S.SessionToggleWrapper>
       <S.Tab
-        $isActive={selectedSessionType === SessionTypes.MOBILE}
+        $isActive={sessionType === SessionTypes.MOBILE}
         onClick={() => handleClick(SessionTypes.MOBILE)}
       >
         {t("filters.mobileSessions")}
         <S.IconWrapper
           $src={mobileIcon}
-          $isActive={selectedSessionType === SessionTypes.MOBILE}
+          $isActive={sessionType === SessionTypes.MOBILE}
         />
       </S.Tab>
       <S.Tab
-        $isActive={selectedSessionType === SessionTypes.FIXED}
+        $isActive={sessionType === SessionTypes.FIXED}
         onClick={() => handleClick(SessionTypes.FIXED)}
       >
         {t("filters.fixedSessions")}
         <S.IconWrapper
           $src={pinIcon}
-          $isActive={selectedSessionType === SessionTypes.FIXED}
+          $isActive={sessionType === SessionTypes.FIXED}
         />
       </S.Tab>
     </S.SessionToggleWrapper>

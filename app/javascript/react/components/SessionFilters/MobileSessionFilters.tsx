@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
-
 import { useTranslation } from "react-i18next";
+
 import { selectFixedSessionsState } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
 import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
-import { selectSelectedSessionType } from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { CloseButton } from "../Map/Legend/Legend.style";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
@@ -16,19 +16,18 @@ interface MobileSessionFiltersProps {
 
 const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   const { t } = useTranslation();
-
-  const selectedSessionType = useAppSelector(selectSelectedSessionType);
   const fixedSessionsState = useAppSelector(selectFixedSessionsState);
   const mobileSessionsState = useAppSelector(selectMobileSessionsState);
+  const { sessionType } = useMapParams();
 
   const sessionsCount = useMemo(() => {
-    switch (selectedSessionType) {
+    switch (sessionType) {
       case SessionTypes.FIXED:
         return fixedSessionsState.sessions.length;
       case SessionTypes.MOBILE:
         return mobileSessionsState.sessions.length;
     }
-  }, [fixedSessionsState, mobileSessionsState, selectedSessionType]);
+  }, [fixedSessionsState, mobileSessionsState, sessionType]);
 
   return (
     <S.MobileSessionFilters>

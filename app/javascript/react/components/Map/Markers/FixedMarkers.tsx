@@ -2,9 +2,9 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
-  useMemo,
 } from "react";
 import { useSelector } from "react-redux";
 
@@ -55,9 +55,6 @@ const FixedMarkers = ({
   const [markers, setMarkers] = useState<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
-  const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
-    null
-  );
 
   const hoverStreamId = useSelector(selectHoverStreamId);
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
@@ -86,10 +83,15 @@ const FixedMarkers = ({
   }, [map, thresholds]);
 
   useEffect(() => {
-    if (selectedStreamId === null) {
-      setSelectedMarkerKey(null);
+    if (selectedStreamId) {
+      const s = sessions.find(
+        (session) => session?.point?.streamId === selectedStreamId?.toString()
+      );
+      if (s?.point) {
+        centerMapOnMarker(s.point, s.point.streamId);
+      }
     }
-  }, [selectedStreamId]);
+  }, [sessions]);
 
   const updateClusterer = useCallback(() => {
     if (clusterer.current && memoizedSessions.length > 0) {
@@ -172,13 +174,12 @@ const FixedMarkers = ({
 
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral, streamId: string) => {
-      if (map) {
+      if (map && selectedStreamId) {
         map.setCenter(position);
         map.setZoom(ZOOM_FOR_SELECTED_SESSION);
       }
-      setSelectedMarkerKey(streamId === selectedMarkerKey ? null : streamId);
     },
-    [map, selectedMarkerKey]
+    [map, selectedStreamId]
   );
 
   const setMarkerRef = useCallback(
@@ -231,7 +232,7 @@ const FixedMarkers = ({
           <SessionFullMarker
             color={getColorForValue(thresholds, session.lastMeasurementValue)}
             value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
-            isSelected={session.point.streamId === selectedMarkerKey}
+            isSelected={session.point.streamId === selectedStreamId?.toString()}
             shouldPulse={session.id === pulsatingSessionId}
             onClick={() => {
               onMarkerClick(Number(session.point.streamId), Number(session.id));

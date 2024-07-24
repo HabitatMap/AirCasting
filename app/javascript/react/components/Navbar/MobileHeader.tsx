@@ -1,17 +1,12 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
 import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 import { urls } from "../../const/urls";
-import { useAppDispatch } from "../../store/hooks";
-import {
-  selectUserSettingsState,
-  updateUserSettings,
-} from "../../store/userSettingsSlice";
 import { UserSettings } from "../../types/userStates";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import { RefreshMapButton } from "../RefreshMapButton";
@@ -27,21 +22,21 @@ export const MobileHeader = ({
   navMenuVisible: boolean;
   t: Function;
 }) => {
-  const { currentUserSettings, previousUserSettings } = useSelector(
-    selectUserSettingsState
-  );
+  const { currentUserSettings, previousUserSettings, searchParams } =
+    useMapParams();
+  const navigate = useNavigate();
 
-  const dispatch = useAppDispatch();
+  const handleGoBackClick = useCallback(() => {
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set("previousUserSettings", currentUserSettings);
+    newSearchParams.set("currentUserSettings", previousUserSettings);
+    navigate(`?${newSearchParams.toString()}`);
+  }, [currentUserSettings, navigate, previousUserSettings, searchParams]);
 
   return (
     <S.MobileHeaderContainer>
       {currentUserSettings === UserSettings.ModalView ? (
-        <S.GoBack
-          onClick={() => {
-            dispatch(updateUserSettings(previousUserSettings));
-          }}
-          aria-label={t("navbar.mapPage")}
-        >
+        <S.GoBack onClick={handleGoBackClick} aria-label={t("navbar.mapPage")}>
           <img
             src={backArrowIcon}
             alt={t("navbar.altGoBackIcon")}
@@ -87,20 +82,20 @@ export const MobileHeader = ({
 };
 
 export const MobileCalendarHeader = ({ t }: { t: Function }) => {
-  const { previousUserSettings } = useSelector(selectUserSettingsState);
-
+  const { currentUserSettings, previousUserSettings, searchParams } =
+    useMapParams();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+
+  const handleGoBackClick = useCallback(() => {
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set("previousUserSettings", currentUserSettings);
+    newSearchParams.set("currentUserSettings", previousUserSettings);
+    navigate(`${urls.reactMap}?${newSearchParams.toString()}`);
+  }, [currentUserSettings, navigate, previousUserSettings, searchParams]);
 
   return (
     <S.MobileContainer>
-      <S.GoBack
-        onClick={() => {
-          navigate(urls.reactMap);
-          dispatch(updateUserSettings(previousUserSettings));
-        }}
-        aria-label={t("navbar.mapPage")}
-      >
+      <S.GoBack onClick={handleGoBackClick} aria-label={t("navbar.mapPage")}>
         <img
           src={backArrowIcon}
           alt={t("navbar.altGoBackIcon")}
