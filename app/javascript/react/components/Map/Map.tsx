@@ -268,7 +268,7 @@ const Map = () => {
           UserSettings.CalendarView
         );
         navigate(
-          `/fixed_stream?streamId=${streamId}&${newSearchParams.toString()}`
+          `/fixed_stream?streamId=${selectedStreamId}&${newSearchParams.toString()}`
         );
         return;
       }
