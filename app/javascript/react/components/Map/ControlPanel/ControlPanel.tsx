@@ -2,13 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import { useAppDispatch } from "../../../store/hooks";
 import { MapTypeId, ViewMode } from "../../../types/map";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
 import * as S from "./ControlPanel.style";
 
 const ControlPanel: React.FC = () => {
-  const dispatch = useAppDispatch();
   const { mapTypeId, searchParams } = useMapParams();
   const navigate = useNavigate();
   const isFirstRender = useRef(true);

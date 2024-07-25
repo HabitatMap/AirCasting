@@ -1,5 +1,5 @@
 import { debounce } from "lodash";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
@@ -8,7 +8,7 @@ import {
   DEFAULT_MAP_CENTER,
   DEFAULT_ZOOM,
 } from "../const/coordinates";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppSelector } from "../store/hooks";
 import {
   selectDefaultThresholds,
   selectThresholds,
@@ -44,11 +44,9 @@ export enum UrlParamsTypes {
 }
 
 export const useMapParams = () => {
-  const dispatch = useAppDispatch();
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
   const thresholdValues = useAppSelector(selectThresholds);
   const navigate = useNavigate();
-  const isFirstRender = useRef(true);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const getSearchParam = (param: UrlParamsTypes, defaultValue: string | null) =>
