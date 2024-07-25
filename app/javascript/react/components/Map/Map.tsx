@@ -24,7 +24,6 @@ import {
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -116,19 +115,22 @@ const Map = () => {
       ? selectFixedSessionsList
       : selectMobileSessionsList
   );
+
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   // Filters (temporary solution)
   const sensorName = fixedSessionTypeSelected
     ? initialSensorName
     : "AirBeam-PM2.5";
+
+  const usernamesDecoded = usernames && decodeURIComponent(usernames);
   const filters = useMemo(
     () =>
       JSON.stringify({
         time_from: "1685318400",
         time_to: "1717027199",
         tags: "",
-        usernames: usernames,
+        usernames: usernamesDecoded,
         west: boundWest,
         east: boundEast,
         south: boundSouth,
@@ -149,6 +151,7 @@ const Map = () => {
       initialOffset,
       initialUnitSymbol,
       sensorName,
+      usernames,
     ]
   );
   const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
@@ -156,16 +159,15 @@ const Map = () => {
 
   const thresholdFilters = `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
 
-  // const usernamesFilters =
   // Effects
   useEffect(() => {
     if (loading || isFirstRender.current) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
-      dispatch(setLoading(false));
+      // dispatch(setLoading(false));
     }
-  }, [filters, loading, fixedSessionTypeSelected, usernames]);
+  }, [filters, loading, fixedSessionTypeSelected, filters, usernames]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
