@@ -17,7 +17,7 @@ const SessionListViewStyle = styled.div`
   flex-direction: column;
 
   @media (${media.desktop}) {
-    bottom: 10rem;
+    bottom: 6.4rem;
   }
 `;
 
