@@ -199,11 +199,11 @@ const InfoPopup = styled(SmallPopup)`
   }
 `;
 
-const CrowdmapButton = styled(Button)``;
+const CrowdMapButton = styled(Button)``;
 
 export {
   CloseSelectedItemButton,
-  CrowdmapButton,
+  CrowdMapButton,
   Header,
   HeaderTitle,
   IconWrapper,

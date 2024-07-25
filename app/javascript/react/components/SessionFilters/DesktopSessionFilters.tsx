@@ -1,5 +1,6 @@
 import React from "react";
 
+import { CrowdMapToggle } from "./CrowdmapToggle";
 import { ProfileNamesInput } from "./ProfileNamesInput";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
@@ -11,8 +12,7 @@ const DesktopSessionFilters = () => {
       <SessionTypeToggle />
       <ProfileNamesInput />
       <TagsInput />
-      {/* temporary solution, ticket: Session Filter [Mobile]: Crowdmap Toggle */}
-      <S.CrowdmapButton>crowdmap</S.CrowdmapButton>
+      <CrowdMapToggle />
     </S.SessionFilters>
   );
 };

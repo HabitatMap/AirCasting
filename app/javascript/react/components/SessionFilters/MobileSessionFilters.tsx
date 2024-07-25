@@ -7,6 +7,7 @@ import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CloseButton } from "../Map/Legend/Legend.style";
+import { CrowdMapToggle } from "./CrowdmapToggle";
 import { ProfileNamesInput } from "./ProfileNamesInput";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
@@ -41,8 +42,7 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
         <SessionTypeToggle />
         <ProfileNamesInput />
         <TagsInput />
-        {/* temporary solution, ticket: Session Filter [Mobile]: Crowdmap Toggle */}
-        <S.CrowdmapButton>crowdmap</S.CrowdmapButton>
+        <CrowdMapToggle />
       </S.ModalContent>
       <S.ShowSessionsButton
         // temporarily onClose
