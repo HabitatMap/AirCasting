@@ -41,6 +41,8 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
         <SessionTypeToggle />
         <ProfileNamesInput />
         <TagsInput />
+        {/* temporary solution, ticket: Session Filter [Mobile]: Crowdmap Toggle */}
+        <S.CrowdmapButton>crowdmap</S.CrowdmapButton>
       </S.ModalContent>
       <S.ShowSessionsButton
         // temporarily onClose

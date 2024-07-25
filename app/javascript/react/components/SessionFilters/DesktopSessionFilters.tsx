@@ -11,6 +11,8 @@ const DesktopSessionFilters = () => {
       <SessionTypeToggle />
       <ProfileNamesInput />
       <TagsInput />
+      {/* temporary solution, ticket: Session Filter [Mobile]: Crowdmap Toggle */}
+      <S.CrowdmapButton>crowdmap</S.CrowdmapButton>
     </S.SessionFilters>
   );
 };
