@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 import { blue, gray100, gray400 } from "../../assets/styles/colors";
+import { media } from "../../utils/media";
 import { SessionListTile } from "./SessionsListTile/SessionListTile.style";
 
 const SessionListViewStyle = styled.div`
@@ -14,6 +15,10 @@ const SessionListViewStyle = styled.div`
   z-index: 3;
   display: flex;
   flex-direction: column;
+
+  @media (${media.desktop}) {
+    bottom: 10rem;
+  }
 `;
 
 const SessionListTitle = styled.span`
