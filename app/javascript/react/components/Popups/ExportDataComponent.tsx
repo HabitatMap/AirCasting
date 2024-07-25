@@ -51,18 +51,22 @@ const ExportDataComponent = ({
   isSessionList,
 }: ExportDataComponentProps) => {
   const exportButtonRef = useRef<HTMLDivElement>(null);
-  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const focusInputRef = useRef<HTMLInputElement | null>(null);
-  const { t } = useTranslation();
 
+  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const [formState, setFormState] = useState<ExportModalData>(
     initialExportModalData
   );
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [showSessionLimitError, setShowSessionLimitError] = useState(false);
-
+  const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [limitationErrorMessage, setLimitationErrorMessage] = useState<
+    string | null
+  >(null);
+
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
+  const NO_SESSIONS = sessionsIds.length === 0;
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,11 +93,18 @@ const ExportDataComponent = ({
       return;
     }
 
-    if (sessionsIds.length > SESSIONS_LIMIT) {
+    let errorToShow: string | null = null;
+
+    if (NO_SESSIONS) {
+      errorToShow = t("exportDataModal.noResultsMessage");
+    } else if (sessionsIds.length > SESSIONS_LIMIT) {
+      errorToShow = t("exportDataModal.sessionLimitMessage", { limit: 100 });
+    }
+
+    if (errorToShow) {
       close();
-      setTimeout(() => {
-        setShowSessionLimitError(true);
-      }, 0);
+      setLimitationErrorMessage(errorToShow);
+      setShowError(true);
       return;
     }
 
@@ -117,7 +128,7 @@ const ExportDataComponent = ({
   };
 
   useAutoDismissAlert(showConfirmation, setShowConfirmation);
-  useAutoDismissAlert(showSessionLimitError, setShowSessionLimitError);
+  useAutoDismissAlert(showError, setShowError);
 
   useEffect(() => {
     updateButtonPosition();
@@ -141,6 +152,9 @@ const ExportDataComponent = ({
       return `${buttonPosition.left - 2}px`;
     }
   };
+
+  const popupTopOffset = isSessionList ? (NO_SESSIONS ? -13 : -50) : -95;
+
   const dynamicArrowStyle = fixedSessionTypeSelected
     ? {}
     : {
@@ -202,23 +216,19 @@ const ExportDataComponent = ({
           />
         </S.ConfirmationPopup>
       )}
-      {showSessionLimitError && (
+      {showError && (
         <S.ConfirmationPopup
-          open={showSessionLimitError}
+          open={showError}
           closeOnDocumentClick={false}
           arrow={false}
           contentStyle={{
             width: "180px",
-            top: isSessionList
-              ? `${buttonPosition.top - 50}px`
-              : `${buttonPosition.top - 95}px`,
+            top: `${buttonPosition.top + popupTopOffset}px`,
             left: calculatePopupLeftPosition(),
             position: "absolute",
           }}
         >
-          <ConfirmationMessage
-            message={t("exportDataModal.sessionLimitMessage", { limit: 100 })}
-          />
+          <ConfirmationMessage message={limitationErrorMessage} />
         </S.ConfirmationPopup>
       )}
     </S.WrapperButton>

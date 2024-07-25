@@ -82,6 +82,9 @@ const BlueButton = styled(Button)`
   font-size: 1.1rem;
   height: 0.8rem;
   text-transform: uppercase;
+  :disabled {
+    color: ${gray100};
+  }
 `;
 
 const FormWrapper = styled.div`
