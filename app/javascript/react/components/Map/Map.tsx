@@ -81,6 +81,7 @@ const Map = () => {
     initialThresholds,
     initialUnitSymbol,
     searchParams,
+    usernames,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -127,7 +128,7 @@ const Map = () => {
         time_from: "1685318400",
         time_to: "1717027199",
         tags: "",
-        usernames: "",
+        usernames: usernames,
         west: boundWest,
         east: boundEast,
         south: boundSouth,
@@ -152,8 +153,10 @@ const Map = () => {
   );
   const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
   const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
+
   const thresholdFilters = `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
 
+  // const usernamesFilters =
   // Effects
   useEffect(() => {
     if (loading || isFirstRender.current) {
@@ -162,7 +165,7 @@ const Map = () => {
         : dispatch(fetchMobileSessions({ filters }));
       dispatch(setLoading(false));
     }
-  }, [filters, loading, fixedSessionTypeSelected]);
+  }, [filters, loading, fixedSessionTypeSelected, usernames]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));

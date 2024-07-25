@@ -10,6 +10,7 @@ import {
   // selectSelectedUsernames,
   selectUsernames,
 } from "../../store/sessionFiltersSlice";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
@@ -17,12 +18,19 @@ const ProfileNamesInput = () => {
   const [items, setItems] = useState([""]);
   const [inputValue, setInputValue] = useState("");
   const [selectedItem, setSelectedItem] = useState("");
+  const [selectedUsernames, setSelectedUsernames] = useState([""]);
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
+  const { setUrlParams, usernames } = useMapParams();
 
   // const selectedUsernames = useAppSelector(selectSelectedUsernames);
 
   const profileNames = useAppSelector(selectUsernames);
+  const joinedUsernames = selectedUsernames.join(",");
+  const jsonString = `${joinedUsernames}`;
+  console.log("jsonString", jsonString);
+  const urlEncodedString = encodeURIComponent(jsonString);
+
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({
       items: profileNames,
@@ -34,9 +42,17 @@ const ProfileNamesInput = () => {
       },
       onSelectedItemChange: ({ selectedItem }) => {
         selectedItem !== null &&
-          // dispatch(setSelectedUsername(selectedItem)) &&
-          dispatch(setLoading(true)) &&
-          reset();
+          setSelectedUsernames((prevState) => [...prevState, selectedItem]);
+
+        setUrlParams([
+          {
+            key: UrlParamsTypes.usernames,
+            value: urlEncodedString,
+          },
+        ]);
+        // dispatch(setSelectedUsername(selectedItem)) &&
+
+        dispatch(setLoading(true)) && reset();
       },
     });
 
@@ -50,6 +66,8 @@ const ProfileNamesInput = () => {
   useEffect(() => {
     setItems(profileNames);
   }, [profileNames]);
+
+  console.log("usernames", usernames);
 
   return (
     <>
