@@ -100,7 +100,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   </S.StyledContainer>
                 }
                 componentToToggle={
-                  <Graph streamId={streamId} sessionType={SessionTypes.FIXED} />
+                  <Graph
+                    streamId={streamId}
+                    sessionType={SessionTypes.FIXED}
+                    isCalendarPage={true}
+                  />
                 }
               />
             </S.GraphContainer>
@@ -163,7 +167,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   </S.StyledContainer>
                 }
                 componentToToggle={
-                  <Graph streamId={streamId} sessionType={SessionTypes.FIXED} />
+                  <Graph
+                    streamId={streamId}
+                    sessionType={SessionTypes.FIXED}
+                    isCalendarPage={true}
+                  />
                 }
               />
             </S.GraphContainer>

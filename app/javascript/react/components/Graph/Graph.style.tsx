@@ -1,13 +1,17 @@
 import styled from "styled-components";
 import { media } from "../../utils/media";
 
-const Container = styled.div`
+interface ContainerProps {
+  $isCalendarPage?: boolean;
+}
+
+const Container = styled.div<ContainerProps>`
   width: 100%;
   position: relative;
   font-family: "Roboto", sans-serif;
 
   @media ${media.desktop} {
-    width: 80%;
+    width: ${(props) => (props.$isCalendarPage ? "100%" : "80%")};
   }
 
   .highcharts-root {

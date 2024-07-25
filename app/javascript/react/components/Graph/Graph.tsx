@@ -38,9 +38,14 @@ import {
 interface GraphProps {
   sessionType: SessionType;
   streamId: number | null;
+  isCalendarPage: boolean;
 }
 
-const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
+const Graph: React.FC<GraphProps> = ({
+  streamId,
+  sessionType,
+  isCalendarPage,
+}) => {
   const graphRef = useRef<HTMLDivElement>(null);
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
@@ -194,7 +199,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   };
 
   return (
-    <S.Container ref={graphRef}>
+    <S.Container ref={graphRef} $isCalendarPage={isCalendarPage}>
       {chartDataLoaded && (
         <HighchartsReact
           highcharts={Highcharts}
