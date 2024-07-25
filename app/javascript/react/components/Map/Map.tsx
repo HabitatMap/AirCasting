@@ -1,18 +1,19 @@
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
-import {
-  DEFAULT_MAP_BOUNDS,
-  DEFAULT_MAP_CENTER,
-  DEFAULT_ZOOM,
-  MIN_ZOOM,
-} from "../../const/coordinates";
+import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState } from "../../store";
 import {
   selectFixedSessionPointsBySessionId,
@@ -23,13 +24,7 @@ import {
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import {
-  selectPreviousCenter,
-  selectPreviousZoom,
-  setLoading,
-  setPreviousCenter,
-  setPreviousZoom,
-} from "../../store/mapSlice";
+import { setLoading } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -38,15 +33,14 @@ import {
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
-import { selectSelectedSessionType } from "../../store/sessionFiltersSlice";
-import { fetchThresholds } from "../../store/thresholdSlice";
 import {
-  selectUserSettingsState,
-  updateUserSettings,
-} from "../../store/userSettingsSlice";
+  fetchThresholds,
+  setUserThresholdValues,
+} from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { SectionButton } from "../SectionButton/SectionButton";
@@ -62,113 +56,107 @@ import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 
 const Map = () => {
-  // const
-  const timeFrom = "1685318400";
-  const timeTo = "1717027199";
-  const tags = "";
-  const usernames = "";
-  const limit = 100;
-  const offset = 0;
-  const measurement_type = "Particulate Matter";
-  const unit_symbol = "µg/m³";
-
   // Hooks
   const dispatch = useAppDispatch();
+  const {
+    boundEast,
+    boundNorth,
+    boundSouth,
+    boundWest,
+    currentCenter,
+    currentUserSettings,
+    currentZoom,
+    debouncedUpdateURL,
+    initialLimit,
+    mapTypeId,
+    initialMeasurementType,
+    initialOffset,
+    previousCenter,
+    previousUserSettings,
+    previousZoom,
+    initialSensorName,
+    sessionId,
+    sessionType,
+    streamId,
+    initialThresholds,
+    initialUnitSymbol,
+    searchParams,
+  } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
+  const isFirstRender = useRef(true);
   const { t } = useTranslation();
 
+  const newSearchParams = new URLSearchParams(searchParams.toString());
+
   // State
-  const [mapBounds, setMapBounds] = useState({
-    north: DEFAULT_MAP_BOUNDS.north,
-    south: DEFAULT_MAP_BOUNDS.south,
-    east: DEFAULT_MAP_BOUNDS.east,
-    west: DEFAULT_MAP_BOUNDS.west,
-  });
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
     null
   );
-  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(
-    null
-  );
-  const [selectedStreamId, setSelectedStreamId] = useState<number | null>(null);
 
   // Selectors
-  const selectedSessionType = useAppSelector(selectSelectedSessionType);
-
-  const fixedSessionTypeSelected: boolean =
-    selectedSessionType === SessionTypes.FIXED;
-
-  const fixedSessionsStatusFulfilled = useSelector(
+  const fixedPoints = sessionId
+    ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
+    : useAppSelector(selectFixedSessionsPoints);
+  const fixedSessionsStatusFulfilled = useAppSelector(
     selectFixedSessionsStatusFulfilled
   );
-  const loading = useSelector((state: RootState) => state.map.loading);
-  const mapId = useSelector((state: RootState) => state.map.mapId);
-  const mapTypeId = useSelector((state: RootState) => state.map.mapTypeId);
-  const mobileStreamPoints = useSelector(selectMobileStreamPoints);
-  const previousCenter = useSelector(selectPreviousCenter);
-  const previousZoom = useSelector(selectPreviousZoom);
-  const { previousUserSettings, currentUserSettings } = useSelector(
-    selectUserSettingsState
-  );
+  const loading = useAppSelector((state: RootState) => state.map.loading);
+  const mapId = useAppSelector((state: RootState) => state.map.mapId);
+  const mobilePoints = sessionId
+    ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
+    : useAppSelector(selectMobileSessionsPoints);
+  const mobileStreamPoints = useAppSelector(selectMobileStreamPoints);
 
-  const fixedPoints = selectedSessionId
-    ? useSelector(selectFixedSessionPointsBySessionId(selectedSessionId))
-    : useSelector(selectFixedSessionsPoints);
-  const mobilePoints = selectedSessionId
-    ? useSelector(selectMobileSessionPointsBySessionId(selectedSessionId))
-    : useSelector(selectMobileSessionsPoints);
-
-  const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
-
-  const listSessions = useSelector(
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const listSessions = useAppSelector(
     fixedSessionTypeSelected
       ? selectFixedSessionsList
       : selectMobileSessionsList
   );
+  const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   // Filters (temporary solution)
-  const sensor_name = fixedSessionTypeSelected
-    ? "Government-PM2.5"
+  const sensorName = fixedSessionTypeSelected
+    ? initialSensorName
     : "AirBeam-PM2.5";
   const filters = useMemo(
     () =>
       JSON.stringify({
-        time_from: timeFrom,
-        time_to: timeTo,
-        tags: tags,
-        usernames: usernames,
-        west: mapBounds.west,
-        east: mapBounds.east,
-        south: mapBounds.south,
-        north: mapBounds.north,
-        limit: limit,
-        offset: offset,
-        sensor_name: sensor_name,
-        measurement_type: measurement_type,
-        unit_symbol: unit_symbol,
+        time_from: "1685318400",
+        time_to: "1717027199",
+        tags: "",
+        usernames: "",
+        west: boundWest,
+        east: boundEast,
+        south: boundSouth,
+        north: boundNorth,
+        limit: initialLimit,
+        offset: initialOffset,
+        sensor_name: sensorName,
+        measurement_type: initialMeasurementType,
+        unit_symbol: initialUnitSymbol,
       }),
     [
-      timeFrom,
-      timeTo,
-      tags,
-      usernames,
-      mapBounds,
-      limit,
-      offset,
-      sensor_name,
-      measurement_type,
-      unit_symbol,
+      boundEast,
+      boundNorth,
+      boundSouth,
+      boundWest,
+      initialLimit,
+      initialMeasurementType,
+      initialOffset,
+      initialUnitSymbol,
+      sensorName,
     ]
   );
-  const unitSymbol = unit_symbol.replace(/"/g, "");
-  const encodedUnitSymbol = encodeURIComponent(unitSymbol);
-  const thresholdFilters = `${sensor_name}?unit_symbol=${encodedUnitSymbol}`;
+  const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
+  const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
+  const thresholdFilters = `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
 
   // Effects
   useEffect(() => {
-    if (loading) {
+    if (loading || isFirstRender.current) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
@@ -178,15 +166,18 @@ const Map = () => {
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
-  }, [thresholdFilters]);
+    dispatch(setUserThresholdValues(initialThresholds));
+  }, [initialThresholds, thresholdFilters]);
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
-      setSelectedStreamId(null);
-      setSelectedSessionId(null);
+      newSearchParams.set(UrlParamsTypes.sessionId, "");
+      newSearchParams.set(UrlParamsTypes.streamId, "");
+      navigate(`?${newSearchParams.toString()}`);
     }
-    setPreviousZoomOnTheMap();
-    isMobile && setPreviousZoomInTheState();
+    !isFirstRender.current && setPreviousZoomOnTheMap();
+    isMobile && setPreviousZoomInTheURL();
+    isFirstRender.current = false;
   }, [currentUserSettings]);
 
   useEffect(() => {
@@ -197,71 +188,145 @@ const Map = () => {
       }, 10);
       return () => clearInterval(intervalId);
     }
-  }, [currentUserSettings, mapInstance]);
+  }, [mapInstance, previousUserSettings]);
 
-  // Callbacks
-  const onIdle = useCallback(
-    (event: MapEvent) => {
-      if (currentUserSettings === UserSettings.MapView) {
-        const map = event.map;
-        if (!mapInstance) {
-          setMapInstance(map);
-          map.setOptions({
-            clickableIcons: false,
-          });
-        }
-        const bounds = map?.getBounds();
-        if (!bounds) {
-          return;
-        }
-        const north = bounds.getNorthEast().lat();
-        const south = bounds.getSouthWest().lat();
-        const east = bounds.getNorthEast().lng();
-        const west = bounds.getSouthWest().lng();
-        setMapBounds({ north, south, east, west });
-      }
-    },
-    [mapInstance, currentUserSettings]
-  );
-
-  // Handlers;
-  const handleMarkerClick = (streamId: number | null, id: number | null) => {
-    if (currentUserSettings !== UserSettings.SessionListView) {
-      setPreviousZoomInTheState();
-    }
-
-    if (streamId) {
+  useEffect(() => {
+    if (streamId && currentUserSettings === UserSettings.ModalView) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
     }
+  }, [streamId, currentUserSettings, fixedSessionTypeSelected]);
+
+  // Callbacks
+  const handleMapIdle = useCallback(
+    (event: MapEvent) => {
+      const map = event.map;
+      if (!mapInstance) {
+        setMapInstance(map);
+        map.setOptions({
+          clickableIcons: false,
+        });
+      }
+
+      if (isFirstRender.current) {
+        if (currentUserSettings === UserSettings.MapView) {
+          newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
+          map.setCenter(currentCenter);
+          map.setZoom(currentZoom);
+        }
+      } else {
+        if (currentUserSettings === UserSettings.MapView) {
+          const currentCenter = JSON.stringify(
+            map.getCenter()?.toJSON() || previousCenter
+          );
+          const currentZoom = (map.getZoom() || previousZoom).toString();
+          const bounds = map?.getBounds();
+          if (!bounds) {
+            return;
+          }
+          const north = bounds.getNorthEast().lat();
+          const south = bounds.getSouthWest().lat();
+          const east = bounds.getNorthEast().lng();
+          const west = bounds.getSouthWest().lng();
+          newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
+          newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
+          newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
+          newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
+          newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
+          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
+          navigate(`?${newSearchParams.toString()}`);
+        }
+      }
+    },
+    [currentUserSettings, debouncedUpdateURL, mapInstance, searchParams]
+  );
+
+  // Handlers;
+  const handleMarkerClick = (
+    selectedStreamId: number | null,
+    id: number | null
+  ) => {
+    if (currentUserSettings !== UserSettings.SessionListView) {
+      setPreviousZoomInTheURL();
+    }
+
+    if (selectedStreamId) {
+      fixedSessionTypeSelected
+        ? dispatch(fetchFixedStreamById(selectedStreamId))
+        : dispatch(fetchMobileStreamById(selectedStreamId));
+    }
 
     if (isMobile) {
       if (fixedSessionTypeSelected) {
-        navigate(`/fixed_stream?streamId=${streamId}`);
+        newSearchParams.set(
+          UrlParamsTypes.previousUserSettings,
+          currentUserSettings
+        );
+        newSearchParams.set(
+          UrlParamsTypes.currentUserSettings,
+          UserSettings.CalendarView
+        );
+        navigate(
+          `/fixed_stream?streamId=${selectedStreamId}&${newSearchParams.toString()}`
+        );
         return;
       }
     }
 
-    if (!selectedStreamId) {
-      setSelectedSessionId(id);
-      setSelectedStreamId(streamId);
-      dispatch(updateUserSettings(UserSettings.ModalView));
+    if (!streamId) {
+      newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
+      newSearchParams.set(
+        UrlParamsTypes.streamId,
+        selectedStreamId?.toString() || ""
+      );
+      newSearchParams.set(
+        UrlParamsTypes.previousUserSettings,
+        currentUserSettings
+      );
+      newSearchParams.set(
+        UrlParamsTypes.currentUserSettings,
+        UserSettings.ModalView
+      );
+      navigate(`?${newSearchParams.toString()}`);
     }
 
-    if (selectedStreamId) {
-      dispatch(updateUserSettings(previousUserSettings));
+    if (streamId) {
+      newSearchParams.set(UrlParamsTypes.sessionId, "");
+      newSearchParams.set(UrlParamsTypes.streamId, "");
+      newSearchParams.set(
+        UrlParamsTypes.previousUserSettings,
+        currentUserSettings
+      );
+      newSearchParams.set(
+        UrlParamsTypes.currentUserSettings,
+        previousUserSettings
+      );
+      navigate(`?${newSearchParams.toString()}`);
     }
   };
 
-  const handleCloseModal = () => {
-    setSelectedStreamId(null);
-    setSelectedSessionId(null);
-    dispatch(updateUserSettings(previousUserSettings));
-  };
+  const handleCloseModal = useCallback(() => {
+    newSearchParams.set(UrlParamsTypes.sessionId, "");
+    newSearchParams.set(UrlParamsTypes.streamId, "");
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      previousUserSettings
+    );
+    navigate(`?${newSearchParams.toString()}`);
+  }, [currentUserSettings]);
 
   const setPreviousZoomOnTheMap = () => {
-    if (currentUserSettings === UserSettings.MapView) {
+    if (
+      currentUserSettings === UserSettings.MapView &&
+      ![UserSettings.MapLegendView, UserSettings.FiltersView].includes(
+        previousUserSettings
+      )
+    ) {
       if (mapInstance) {
         mapInstance.setCenter(previousCenter);
         mapInstance.setZoom(previousZoom);
@@ -269,7 +334,7 @@ const Map = () => {
     }
   };
 
-  const setPreviousZoomInTheState = () => {
+  const setPreviousZoomInTheURL = () => {
     const desktopCondition: boolean =
       !isMobile && currentUserSettings !== UserSettings.ModalView;
     const mobileCondition: boolean =
@@ -285,36 +350,74 @@ const Map = () => {
         mobileCondition ||
         mobileConditionForSessionList
       ) {
-        const newZoom = mapInstance?.getZoom();
         const newCenter = mapInstance.getCenter()?.toJSON();
-        if (newZoom !== previousZoom) {
-          dispatch(setPreviousZoom(newZoom || DEFAULT_ZOOM));
-        }
         if (newCenter !== previousCenter) {
-          dispatch(setPreviousCenter(newCenter || DEFAULT_MAP_CENTER));
+          newSearchParams.set(
+            UrlParamsTypes.previousCenter,
+            JSON.stringify(newCenter || currentCenter)
+          );
         }
+        const newZoom = mapInstance?.getZoom();
+        if (newZoom !== previousZoom) {
+          newSearchParams.set(
+            UrlParamsTypes.previousZoom,
+            newZoom?.toString() || currentZoom.toString()
+          );
+        }
+        navigate(`?${newSearchParams.toString()}`);
       }
     }
   };
 
   const openLegend = () => {
-    dispatch(updateUserSettings(UserSettings.MapLegendView));
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      UserSettings.MapLegendView
+    );
+    navigate(`?${newSearchParams.toString()}`);
   };
 
   const closeLegend = () => {
-    dispatch(updateUserSettings(UserSettings.MapView));
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      UserSettings.MapView
+    );
+    navigate(`?${newSearchParams.toString()}`);
   };
 
   const openFilters = () => {
-    setPreviousZoomInTheState();
     fixedSessionTypeSelected
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
-    dispatch(updateUserSettings(UserSettings.FiltersView));
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      UserSettings.FiltersView
+    );
+    navigate(`?${newSearchParams.toString()}`);
   };
 
   const closeFilters = () => {
-    dispatch(updateUserSettings(UserSettings.MapView));
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      UserSettings.MapView
+    );
+    navigate(`?${newSearchParams.toString()}`);
   };
 
   return (
@@ -322,20 +425,20 @@ const Map = () => {
       <GoogleMap
         mapId={mapId}
         mapTypeId={mapTypeId}
-        defaultCenter={DEFAULT_MAP_CENTER}
-        defaultZoom={DEFAULT_ZOOM}
+        defaultCenter={currentCenter}
+        defaultZoom={currentZoom}
         gestureHandling={"greedy"}
         disableDefaultUI={true}
         scaleControl={true}
         style={S.containerStyle}
-        onIdle={onIdle}
+        onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
       >
         {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
           <FixedMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
+            selectedStreamId={streamId}
             pulsatingSessionId={pulsatingSessionId}
           />
         )}
@@ -343,14 +446,14 @@ const Map = () => {
           <MobileMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
-            selectedStreamId={selectedStreamId}
+            selectedStreamId={streamId}
             pulsatingSessionId={pulsatingSessionId}
           />
         )}
-        {selectedStreamId && !fixedSessionTypeSelected && (
+        {streamId && !fixedSessionTypeSelected && (
           <StreamMarkers
             sessions={mobileStreamPoints}
-            unitSymbol={unit_symbol}
+            unitSymbol={initialUnitSymbol}
           />
         )}
       </GoogleMap>
@@ -370,8 +473,8 @@ const Map = () => {
       {currentUserSettings === UserSettings.ModalView && (
         <SessionDetailsModal
           onClose={handleCloseModal}
-          sessionType={selectedSessionType}
-          streamId={selectedStreamId}
+          sessionType={sessionType}
+          streamId={streamId}
         />
       )}
       <S.MobileContainer>
@@ -381,7 +484,15 @@ const Map = () => {
             image={pinImage}
             alt={t("map.altListSessions")}
             onClick={() => {
-              dispatch(updateUserSettings(UserSettings.SessionListView));
+              newSearchParams.set(
+                UrlParamsTypes.previousUserSettings,
+                currentUserSettings
+              );
+              newSearchParams.set(
+                UrlParamsTypes.currentUserSettings,
+                UserSettings.SessionListView
+              );
+              navigate(`?${newSearchParams.toString()}`);
             }}
           />
           <SectionButton
@@ -415,7 +526,15 @@ const Map = () => {
               handleMarkerClick(streamId, id);
             }}
             onClose={() => {
-              dispatch(updateUserSettings(UserSettings.MapView));
+              newSearchParams.set(
+                UrlParamsTypes.previousUserSettings,
+                currentUserSettings
+              );
+              newSearchParams.set(
+                UrlParamsTypes.currentUserSettings,
+                UserSettings.MapView
+              );
+              navigate(`?${newSearchParams.toString()}`);
             }}
           />
         )}

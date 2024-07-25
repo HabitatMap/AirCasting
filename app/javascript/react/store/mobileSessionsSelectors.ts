@@ -1,7 +1,6 @@
 import { createSelector } from "reselect";
-import { SessionList } from "../types/sessionType";
 
-import { Session } from "../types/sessionType";
+import { Session, SessionList } from "../types/sessionType";
 import { RootState } from "./";
 import { Session as MobileSession } from "./mobileSessionsSlice";
 
@@ -28,6 +27,10 @@ const selectMobileSessionPointsBySessionId = (sessionId: number) =>
           point: {
             lat: stream?.startLatitude || 0,
             lng: stream?.startLongitude || 0,
+            maxLatitude: stream?.maxLatitude,
+            maxLongitude: stream?.maxLongitude,
+            minLatitude: stream?.minLatitude,
+            minLongitude: stream?.minLongitude,
             streamId: stream?.id.toString() || "0",
           },
         },
@@ -60,24 +63,26 @@ const selectMobileSessionsPoints = createSelector(
 const selectMobileSessionsList = createSelector(
   [selectMobileSessionsState],
   (mobileSessionsState): SessionList[] =>
-    mobileSessionsState.sessions.map(({ id, title, startTimeLocal, endTimeLocal, streams }) => {
-      const firstStream = streams[Object.keys(streams)[0]];
+    mobileSessionsState.sessions.map(
+      ({ id, title, startTimeLocal, endTimeLocal, streams }) => {
+        const firstStream = streams[Object.keys(streams)[0]];
 
-      return {
-        id,
-        title,
-        sensorName: firstStream.sensorName,
-        averageValue: firstStream.averageValue,
-        startTime: startTimeLocal,
-        endTime: endTimeLocal,
-        streamId: firstStream.id
-      };
-    })
+        return {
+          id,
+          title,
+          sensorName: firstStream.sensorName,
+          averageValue: firstStream.averageValue,
+          startTime: startTimeLocal,
+          endTime: endTimeLocal,
+          streamId: firstStream.id,
+        };
+      }
+    )
 );
 
 export {
-  selectMobileSessionsPoints,
-  selectMobileSessionsList,
   selectMobileSessionPointsBySessionId,
+  selectMobileSessionsList,
+  selectMobileSessionsPoints,
   selectMobileSessionsState,
 };

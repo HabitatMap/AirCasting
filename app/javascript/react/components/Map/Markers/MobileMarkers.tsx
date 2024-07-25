@@ -45,10 +45,19 @@ const MobileMarkers = ({
   );
 
   useEffect(() => {
+    if (selectedStreamId) {
+      const s = sessions.find((session) => {
+        return session.point.streamId === selectedStreamId.toString();
+      });
+
+      if (s?.point) {
+        centerMapOnMarker(s.point);
+      }
+    }
     if (selectedStreamId === null) {
       setSelectedMarkerKey(null);
     }
-  }, [selectedStreamId]);
+  }, [sessions]);
 
   // Update markers when marker references change
   useEffect(() => {
@@ -200,7 +209,7 @@ const MobileMarkers = ({
         >
           {renderMarkerContent(
             session,
-            session.point.streamId === selectedMarkerKey
+            session.point.streamId === selectedStreamId?.toString()
           )}
         </AdvancedMarker>
       ))}

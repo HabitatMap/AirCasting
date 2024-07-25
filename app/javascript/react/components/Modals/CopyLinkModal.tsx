@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { copyCurrentURL } from "../../utils/copyCurrentUrl";
 
-import useShortenedLink from "../../utils/urlShortenedLink";
+import { copyCurrentURL } from "../../utils/copyCurrentUrl";
+import useShortenedLink from "../../utils/useShortenedLink";
 import { ModalInput } from "./atoms/ModalInput";
 import { BlueButton, FormWrapper } from "./Modals.style";
 
