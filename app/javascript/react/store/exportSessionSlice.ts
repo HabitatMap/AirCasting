@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { exportSessionApiClient } from "../api/apiClient";
 import { AxiosResponse } from "axios";
+import { exportSessionApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
 
 interface ExportSessionState {
   data: {
-    sessionId: string;
+    sessionsIds: string[];
     email: string;
   };
   status: StatusEnum;
@@ -14,26 +14,31 @@ interface ExportSessionState {
 }
 
 export interface SessionData {
-  sessionId: "",
-  email: "",
-};
+  sessionsIds: string[];
+  email: string;
+}
 
 const initialState: ExportSessionState = {
   data: {
-    sessionId: "",
+    sessionsIds: [],
     email: "",
   },
   status: StatusEnum.Idle,
 };
+
 export const exportSession = createAsyncThunk<
   SessionData,
-  { sessionId: string; email: string },
+  { sessionsIds: string[]; email: string },
   { rejectValue: { message: string } }
->('session/exportSession', async (sessionData, { rejectWithValue }) => {
+>("session/exportSession", async (sessionData, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<SessionData, Error> = await exportSessionApiClient.get(
-      API_ENDPOINTS.exportSessionData(sessionData.sessionId, sessionData.email)
-    );
+    const response: AxiosResponse<SessionData, Error> =
+      await exportSessionApiClient.get(
+        API_ENDPOINTS.exportSessionData(
+          sessionData.sessionsIds,
+          sessionData.email
+        )
+      );
 
     return response.data;
   } catch (error: Error | any) {
@@ -54,7 +59,7 @@ export const exportSessionSlice = createSlice({
     builder.addCase(exportSession.rejected, (state, action) => {
       state.status = StatusEnum.Rejected;
       const errorMessage = action.payload?.message;
-      state.error = { message: errorMessage || 'Unknown error' };
+      state.error = { message: errorMessage || "Unknown error" };
       state.data = initialState.data;
     });
   },

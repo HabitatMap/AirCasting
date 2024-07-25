@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { H4 } from "../../Typography";
 
 interface ConfirmationMessageProps {
-  message: string;
+  message: string | null;
 }
 
 const MessageContainer = styled.div`

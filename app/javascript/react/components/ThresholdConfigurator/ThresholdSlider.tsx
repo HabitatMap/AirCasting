@@ -1,20 +1,13 @@
+import _ from "lodash";
 import React, {
-  useRef,
-  useLayoutEffect,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
-import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
-import useMobileDetection from "../../utils/useScreenSizeDetection";
-import {
-  handleMouseDown,
-  handleTouchStart,
-} from "../../utils/thresholdGestureHandlers";
-import * as S from "./ThresholdConfigurator.style";
 import * as colors from "../../assets/styles/colors";
-import { Thresholds } from "../../types/thresholds";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   selectSliderWidth,
@@ -23,8 +16,15 @@ import {
   updateSliderWidth,
   updateThumbPositions,
 } from "../../store/thresholdSlice";
+import { Thresholds } from "../../types/thresholds";
 import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
-import _ from "lodash";
+import {
+  handleMouseDown,
+  handleTouchStart,
+} from "../../utils/thresholdGestureHandlers";
+import { calculateThumbPosition } from "../../utils/thresholdThumbCalculations";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
+import * as S from "./ThresholdConfigurator.style";
 
 interface ThresholdSliderProps {
   isMobileOldStyle: boolean;

@@ -5,6 +5,7 @@ import downloadWhite from "../../assets/icons/downloadWhite.svg";
 import { white } from "../../assets/styles/colors";
 import { exportSession } from "../../store/exportSessionSlice";
 import { useAppDispatch } from "../../store/hooks";
+import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { BlueButton, FormWrapper } from "../Modals/Modals.style";
 import { ConfirmationMessage } from "../Modals/atoms/ConfirmationMessage";
 import { ModalInput, RedErrorMessage } from "../Modals/atoms/ModalInput";
@@ -12,10 +13,11 @@ import * as S from "./Popups.style";
 
 interface ExportDataComponentProps {
   button: JSX.Element | ((isOpen: boolean) => JSX.Element) | undefined;
-  sessionId: string;
+  sessionsIds: string[];
   isIconOnly: boolean;
   onSubmit: (data: ExportModalData) => void;
   fixedSessionTypeSelected?: boolean;
+  isSessionList: boolean;
 }
 
 export interface ExportModalData {
@@ -38,25 +40,33 @@ const ExportDataPopup: React.FC<
   return <S.ExportDataSmallPopup {...(props as PopupProps)} />;
 };
 
+const SESSIONS_LIMIT = 100;
+
 const ExportDataComponent = ({
   button,
   fixedSessionTypeSelected,
-  sessionId,
+  sessionsIds,
   onSubmit,
   isIconOnly,
+  isSessionList,
 }: ExportDataComponentProps) => {
   const exportButtonRef = useRef<HTMLDivElement>(null);
-  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const focusInputRef = useRef<HTMLInputElement | null>(null);
-  const { t } = useTranslation();
 
+  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
   const [formState, setFormState] = useState<ExportModalData>(
     initialExportModalData
   );
   const [showConfirmation, setShowConfirmation] = useState(false);
-
+  const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [limitationErrorMessage, setLimitationErrorMessage] = useState<
+    string | null
+  >(null);
+
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
+  const NO_SESSIONS = sessionsIds.length === 0;
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -82,7 +92,23 @@ const ExportDataComponent = ({
       setErrorMessage(t("exportDataModal.invalidEmailMessage"));
       return;
     }
-    dispatch(exportSession({ sessionId, email: formState.email }));
+
+    let errorToShow: string | null = null;
+
+    if (NO_SESSIONS) {
+      errorToShow = t("exportDataModal.noResultsMessage");
+    } else if (sessionsIds.length > SESSIONS_LIMIT) {
+      errorToShow = t("exportDataModal.sessionLimitMessage", { limit: 100 });
+    }
+
+    if (errorToShow) {
+      close();
+      setLimitationErrorMessage(errorToShow);
+      setShowError(true);
+      return;
+    }
+
+    dispatch(exportSession({ sessionsIds, email: formState.email }));
     onSubmit(formState);
     setFormState(initialExportModalData);
     setShowConfirmation(true);
@@ -101,14 +127,8 @@ const ExportDataComponent = ({
     }
   };
 
-  useEffect(() => {
-    if (showConfirmation) {
-      const timer = setTimeout(() => {
-        setShowConfirmation(false);
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [showConfirmation]);
+  useAutoDismissAlert(showConfirmation, setShowConfirmation);
+  useAutoDismissAlert(showError, setShowError);
 
   useEffect(() => {
     updateButtonPosition();
@@ -119,24 +139,40 @@ const ExportDataComponent = ({
     };
   }, [rect?.top]);
 
+  const calculatePopupLeftPosition = () => {
+    if (isSessionList) {
+      return `${buttonPosition.left - 185}px`;
+    } else if (isIconOnly) {
+      if (fixedSessionTypeSelected) {
+        return `${buttonPosition.left - 60}px`;
+      } else {
+        return `${buttonPosition.left - 30}px`;
+      }
+    } else {
+      return `${buttonPosition.left - 2}px`;
+    }
+  };
+
+  const popupTopOffset = isSessionList ? (NO_SESSIONS ? -13 : -50) : -95;
+
+  const dynamicArrowStyle = fixedSessionTypeSelected
+    ? {}
+    : {
+        left: `${isIconOnly ? "32%" : "50%"}`,
+        borderColor: `transparent transparent ${white} transparent`,
+        borderWidth: "0 10px 10px 10px",
+        borderStyle: "solid",
+      };
+
   return (
     <S.WrapperButton ref={exportButtonRef}>
       <ExportDataPopup
         trigger={button}
-        position="top center"
+        position={isSessionList ? "left center" : "top center"}
         nested
         closeOnDocumentClick
         offsetX={fixedSessionTypeSelected ? 0 : 40}
-        arrowStyle={
-          fixedSessionTypeSelected
-            ? {}
-            : {
-                left: `${isIconOnly ? "32%" : "50%"}`,
-                borderColor: `transparent transparent ${white} transparent`,
-                borderWidth: "0 10px 10px 10px",
-                borderStyle: "solid",
-              }
-        }
+        arrowStyle={dynamicArrowStyle}
       >
         {(close) => (
           <form onSubmit={(formData) => handleSubmit(formData, close)}>
@@ -152,7 +188,7 @@ const ExportDataComponent = ({
                 type="submit"
                 aria-label={t("exportDataModal.exportButton")}
               >
-                {t("exportDataModal.exportButton")}{" "}
+                {t("exportDataModal.exportButton")}
                 <img src={downloadWhite} style={{ width: "1.5rem" }} />
               </BlueButton>
             </FormWrapper>
@@ -168,21 +204,31 @@ const ExportDataComponent = ({
           arrow={false}
           contentStyle={{
             width: "180px",
-            top: `${buttonPosition.top - 95}px`,
-
-            left: `${
-              isIconOnly
-                ? fixedSessionTypeSelected
-                  ? buttonPosition.left - 60
-                  : buttonPosition.left - 30
-                : buttonPosition.left - 2
-            }px`,
+            top: isSessionList
+              ? `${buttonPosition.top - 35}px`
+              : `${buttonPosition.top - 95}px`,
+            left: calculatePopupLeftPosition(),
             position: "absolute",
           }}
         >
           <ConfirmationMessage
             message={t("exportDataModal.confirmationMessage")}
           />
+        </S.ConfirmationPopup>
+      )}
+      {showError && (
+        <S.ConfirmationPopup
+          open={showError}
+          closeOnDocumentClick={false}
+          arrow={false}
+          contentStyle={{
+            width: "180px",
+            top: `${buttonPosition.top + popupTopOffset}px`,
+            left: calculatePopupLeftPosition(),
+            position: "absolute",
+          }}
+        >
+          <ConfirmationMessage message={limitationErrorMessage} />
         </S.ConfirmationPopup>
       )}
     </S.WrapperButton>

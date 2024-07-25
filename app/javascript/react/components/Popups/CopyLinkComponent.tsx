@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { PopupProps } from "reactjs-popup/dist/types";
 
 import { useTranslation } from "react-i18next";
+import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { CopyLinkModal, CopyLinkModalData } from "../Modals/CopyLinkModal";
 import { ConfirmationMessage } from "../Modals/atoms/ConfirmationMessage";
 import * as S from "./Popups.style";
@@ -82,12 +83,7 @@ const CopyLinkComponent = ({
     };
   }, [buttonRef.current]);
 
-  useEffect(() => {
-    if (showConfirmation) {
-      const timer = setTimeout(() => setShowConfirmation(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showConfirmation]);
+  useAutoDismissAlert(showConfirmation, setShowConfirmation);
 
   useEffect(() => {
     updateButtonPosition();

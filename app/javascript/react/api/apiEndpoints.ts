@@ -1,5 +1,5 @@
 interface ApiEndpoints {
-  readonly exportSessionData: (session_id: string, email: string) => string;
+  readonly exportSessionData: (sessionsIds: string[], email: string) => string;
   readonly fetchFixedSessions: (filters: string) => string;
   readonly fetchFixedStreamById: (id: number) => string;
   readonly fetchMobileSessions: (filters: string) => string;
@@ -13,8 +13,12 @@ interface ApiEndpoints {
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
-  exportSessionData: (sessionId, email) =>
-    `/sessions/export.json?session_ids[]=${sessionId}&email=${email}`,
+  exportSessionData: (sessionsIds: string[], email: string) => {
+    const sessionParams = sessionsIds
+      .map((id) => `session_ids[]=${id}`)
+      .join("&");
+    return `http://aircasting.habitatmap.org/api/sessions/export.json?${sessionParams}&email=${email}`;
+  },
   fetchFixedSessions: (filters) => `/fixed/active/sessions2.json?q=${filters}`,
   fetchFixedStreamById: (id) => `/fixed_streams/${id}`,
   fetchMobileSessions: (filters) => `/mobile/sessions.json?q=${filters}`,

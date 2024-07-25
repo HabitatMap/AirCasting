@@ -29,10 +29,11 @@ const StationActionButtons = ({ sessionId }: Props) => {
               <img src={downloadImage} />
             </ActionButton>
           }
-          sessionId={sessionId}
+          sessionsIds={[sessionId]}
           isIconOnly
           onSubmit={(formData) => {}}
           fixedSessionTypeSelected={true}
+          isSessionList={false}
         />
         <CopyLinkComponent
           button={
@@ -59,10 +60,11 @@ const StationActionButtons = ({ sessionId }: Props) => {
               {t("calendarHeader.exportSession")} <img src={downloadImage} />
             </Button>
           }
-          sessionId={sessionId}
+          sessionsIds={[sessionId]}
           isIconOnly={false}
           onSubmit={(formData) => {}}
           fixedSessionTypeSelected={true}
+          isSessionList={false}
         />
       </S.DesktopButtons>
     </>
