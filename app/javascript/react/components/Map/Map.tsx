@@ -170,7 +170,6 @@ const Map = () => {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
-      // dispatch(setLoading(false));
     }
   }, [filters, loading, fixedSessionTypeSelected, filters]);
 
