@@ -1,11 +1,16 @@
 import Highcharts from "highcharts/highstock";
+import chevronLeft from "../../assets/icons/chevronLeft.svg";
+import chevronRight from "../../assets/icons/chevronRight.svg";
 import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
 import graphChevronRight from "../../assets/icons/graphChevronRight.svg";
 
 const DIRECTION_LEFT = "left";
 const DIRECTION_RIGHT = "right";
 
-const addNavigationArrows = (chart: Highcharts.Chart) => {
+const addNavigationArrows = (
+  chart: Highcharts.Chart,
+  isCalendarPage: boolean
+) => {
   let leftArrow: Highcharts.SVGElement;
   let rightArrow: Highcharts.SVGElement;
 
@@ -66,14 +71,23 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
       .querySelectorAll(".custom-arrow")
       .forEach((el) => el.remove());
 
+    const leftIcon = isCalendarPage ? chevronLeft : graphChevronLeft;
+    const rightIcon = isCalendarPage ? chevronRight : graphChevronRight;
+
     leftArrow = chart.renderer
-      .image(graphChevronLeft, 15, chevronHeight, 48, 48)
+      .image(leftIcon, isCalendarPage ? -60 : 15, chevronHeight, 48, 48)
       .attr({ zIndex: 10, class: "custom-arrow" })
       .css({ cursor: "pointer" })
       .add();
 
     rightArrow = chart.renderer
-      .image(graphChevronRight, chartWidth - 118, chevronHeight, 48, 48)
+      .image(
+        rightIcon,
+        isCalendarPage ? chartWidth + 12 : chartWidth - 118,
+        chevronHeight,
+        48,
+        48
+      )
       .attr({ zIndex: 10, class: "custom-arrow" })
       .css({ cursor: "pointer" })
       .add();
@@ -100,7 +114,10 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
     Highcharts.addEvent(chart, "redraw", () => {
       updateArrowStates();
       leftArrow.attr({ y: chevronHeight });
-      rightArrow.attr({ x: chart.chartWidth - 118, y: chevronHeight });
+      rightArrow.attr({
+        x: isCalendarPage ? chart.chartWidth : chart.chartWidth - 118,
+        y: chevronHeight,
+      });
     });
   };
 
@@ -109,8 +126,8 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
   Highcharts.addEvent(chart, "resize", createArrows);
 };
 
-const handleLoad = function (this: Highcharts.Chart) {
-  addNavigationArrows(this);
+const handleLoad = function (this: Highcharts.Chart, isCalendarPage: boolean) {
+  addNavigationArrows(this, isCalendarPage);
 };
 
 export { handleLoad };

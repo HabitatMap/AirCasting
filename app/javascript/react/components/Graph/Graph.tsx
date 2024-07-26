@@ -2,7 +2,6 @@ import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts/highstock";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   selectFixedData,
@@ -142,8 +141,20 @@ const Graph: React.FC<GraphProps> = ({
 
     if (graphElement) {
       graphElement.style.touchAction = "pan-x";
+      const highchartsContainer = graphElement.querySelector(
+        ".highcharts-container"
+      );
+      if (highchartsContainer) {
+        highchartsContainer.style.overflow = "visible";
+      }
+      const highchartsChartContainer = graphElement.querySelector(
+        "[data-highcharts-chart]"
+      );
+      if (highchartsChartContainer) {
+        highchartsChartContainer.style.overflow = "visible";
+      }
     }
-  }, []);
+  }, [chartDataLoaded]); // Ensure it runs after chart data is loaded
 
   const options: Highcharts.Options = {
     title: undefined,
@@ -175,7 +186,7 @@ const Graph: React.FC<GraphProps> = ({
       events: !isMobile
         ? {
             load: function () {
-              handleLoad.call(this);
+              handleLoad.call(this, isCalendarPage);
             },
           }
         : undefined,
