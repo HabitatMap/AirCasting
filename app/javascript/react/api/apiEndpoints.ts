@@ -17,7 +17,7 @@ export const API_ENDPOINTS: ApiEndpoints = {
     const sessionParams = sessionsIds
       .map((id) => `session_ids[]=${id}`)
       .join("&");
-    return `http://aircasting.habitatmap.org/api/sessions/export.json?${sessionParams}&email=${email}`;
+    return `/sessions/export.json?${sessionParams}&email=${email}`;
   },
   fetchFixedSessions: (filters) => `/fixed/active/sessions2.json?q=${filters}`,
   fetchFixedStreamById: (id) => `/fixed_streams/${id}`,

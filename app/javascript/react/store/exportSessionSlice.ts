@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { exportSessionApiClient } from "../api/apiClient";
+import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
 
@@ -32,13 +32,12 @@ export const exportSession = createAsyncThunk<
   { rejectValue: { message: string } }
 >("session/exportSession", async (sessionData, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<SessionData, Error> =
-      await exportSessionApiClient.get(
-        API_ENDPOINTS.exportSessionData(
-          sessionData.sessionsIds,
-          sessionData.email
-        )
-      );
+    const response: AxiosResponse<SessionData, Error> = await oldApiClient.get(
+      API_ENDPOINTS.exportSessionData(
+        sessionData.sessionsIds,
+        sessionData.email
+      )
+    );
 
     return response.data;
   } catch (error: Error | any) {

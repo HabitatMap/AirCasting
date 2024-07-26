@@ -89,9 +89,9 @@ const selectFixedSessionPointsBySessionId = (sessionId: number | null) =>
   });
 
 export {
+  selectFixedSessionPointsBySessionId,
   selectFixedSessionsList,
   selectFixedSessionsPoints,
-  selectFixedSessionPointsBySessionId,
   selectFixedSessionsState,
   selectFixedSessionsStatusFulfilled,
 };
