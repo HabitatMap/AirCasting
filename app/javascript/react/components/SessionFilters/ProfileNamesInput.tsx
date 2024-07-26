@@ -13,9 +13,9 @@ import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
 const ProfileNamesInput = () => {
-  const [items, setItems] = useState([""]);
-  const [inputValue, setInputValue] = useState("");
-  const [selectedItem, setSelectedItem] = useState("");
+  const [items, setItems] = useState<string[]>([""]);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [selectedItem, setSelectedItem] = useState<string>("");
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const { setUrlParams, usernames } = useMapParams();
@@ -31,10 +31,10 @@ const ProfileNamesInput = () => {
         dispatch(fetchUsernames(inputValue));
         setInputValue(inputValue);
       },
-      onSelectedItemChange: ({ selectedItem }) => {
-        if (selectedItem !== null) {
+      onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
+        if (newSelectedItem !== null) {
           const decodedUsernames = usernames && decodeURIComponent(usernames);
-          const selectedUsernames = decodedUsernames + ", " + selectedItem;
+          const selectedUsernames = decodedUsernames + ", " + newSelectedItem;
 
           const urlEncodedString = encodeURIComponent(selectedUsernames);
           setUrlParams([
@@ -46,6 +46,7 @@ const ProfileNamesInput = () => {
 
           dispatch(setLoading(true));
           reset();
+          setSelectedItem("");
         }
       },
     });

@@ -1,4 +1,5 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { AxiosResponse } from "axios";
 import { RootState } from ".";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
@@ -24,7 +25,7 @@ export const fetchUsernames = createAsyncThunk(
   "autocomplete/usernames",
   async (username: string, { rejectWithValue }) => {
     try {
-      const response = await oldApiClient.get(
+      const response: AxiosResponse<string[]> = await oldApiClient.get(
         API_ENDPOINTS.fetchUsernames(username)
       );
       return response.data;
@@ -39,7 +40,9 @@ export const fetchTags = createAsyncThunk(
   "autocomplete/tags",
   async (params: fetchTagsParamsType, { rejectWithValue }) => {
     try {
-      const response = await oldApiClient.get(API_ENDPOINTS.fetchTags(params));
+      const response: AxiosResponse<string[]> = await oldApiClient.get(
+        API_ENDPOINTS.fetchTags(params)
+      );
       return response.data;
     } catch (error) {
       const message = getErrorMessage(error);
@@ -57,20 +60,26 @@ const sessionFilterSlice = createSlice({
       .addCase(fetchUsernames.pending, (state) => {
         state.fetchUsernamesStatus = StatusEnum.Pending;
       })
-      .addCase(fetchUsernames.fulfilled, (state, action) => {
-        state.fetchUsernamesStatus = StatusEnum.Fulfilled;
-        state.usernames = action.payload;
-      })
+      .addCase(
+        fetchUsernames.fulfilled,
+        (state, action: PayloadAction<string[]>) => {
+          state.fetchUsernamesStatus = StatusEnum.Fulfilled;
+          state.usernames = action.payload;
+        }
+      )
       .addCase(fetchUsernames.rejected, (state) => {
         state.fetchUsernamesStatus = StatusEnum.Rejected;
       })
       .addCase(fetchTags.pending, (state) => {
         state.fetchTagsStatus = StatusEnum.Pending;
       })
-      .addCase(fetchTags.fulfilled, (state, action) => {
-        state.fetchTagsStatus = StatusEnum.Fulfilled;
-        state.tags = action.payload;
-      })
+      .addCase(
+        fetchTags.fulfilled,
+        (state, action: PayloadAction<string[]>) => {
+          state.fetchTagsStatus = StatusEnum.Fulfilled;
+          state.tags = action.payload;
+        }
+      )
       .addCase(fetchTags.rejected, (state) => {
         state.fetchTagsStatus = StatusEnum.Rejected;
       });

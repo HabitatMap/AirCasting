@@ -37,7 +37,7 @@ const FilterInfoPopup = ({ filterTranslationLabel }: FilterInfoPopupProps) => {
       arrow={false}
       on={["hover", "focus"]}
     >
-      <S.Info>{t(`${filterTranslationLabel}`)}</S.Info>
+      <S.Info>{t(filterTranslationLabel)}</S.Info>
     </InfoPopup>
   );
 };

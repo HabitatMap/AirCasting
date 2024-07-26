@@ -11,9 +11,9 @@ import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
 const TagsInput = () => {
-  const [items, setItems] = useState([""]);
-  const [inputValue, setInputValue] = useState("");
-  const [selectedItem, setSelectedItem] = useState("");
+  const [items, setItems] = useState<string[]>([""]);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [selectedItem, setSelectedItem] = useState<string>("");
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const {
@@ -64,10 +64,10 @@ const TagsInput = () => {
         dispatch(fetchTags(queryParams));
         setInputValue(inputValue);
       },
-      onSelectedItemChange: ({ selectedItem }) => {
-        if (selectedItem !== null) {
+      onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
+        if (newSelectedItem !== null) {
           const decodedTags = tags && decodeURIComponent(tags);
-          const selectedTags = decodedTags + ", " + selectedItem;
+          const selectedTags = decodedTags + ", " + newSelectedItem;
 
           const urlEncodedString = encodeURIComponent(selectedTags);
           setUrlParams([
@@ -79,6 +79,7 @@ const TagsInput = () => {
 
           dispatch(setLoading(true));
           reset();
+          setSelectedItem("");
         }
       },
     });
