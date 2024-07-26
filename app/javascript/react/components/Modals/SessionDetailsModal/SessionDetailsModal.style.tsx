@@ -181,8 +181,14 @@ const Button = styled(ActionButton)`
   background-color: ${gray100};
   box-shadow: none;
   padding: 1.6rem;
-  outline: 0 !important;
-  border: 0;
+  border: none;
+
+   {
+    /* fix for outlines appearing on component load */
+  }
+  body:not(.user-is-tabbing) &:focus-visible {
+    outline: none;
+  }
 `;
 
 const BlueButton = styled(Link)`
@@ -205,8 +211,13 @@ const BlueButton = styled(Link)`
   text-decoration: none;
   border: none;
   margin-right: 0.5rem;
-  outline: 0 !important;
-  border: none;
+
+   {
+    /* fix for outlines appearing on component load */
+  }
+  body:not(.user-is-tabbing) &:focus-visible {
+    outline: none;
+  }
 
   @media ${media.largeDesktop} {
     padding: 1.6rem;
