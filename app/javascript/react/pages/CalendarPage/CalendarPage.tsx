@@ -5,6 +5,8 @@ import { useSearchParams } from "react-router-dom";
 
 import { useTranslation } from "react-i18next";
 import { Graph } from "../../components/Graph";
+
+import MeasurementComponent from "../../components/Graph/MeasurementComponent";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
@@ -164,6 +166,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 titleText={
                   <S.StyledContainer>
                     {t("calendarHeader.graphTitle")}
+                    <MeasurementComponent />
                   </S.StyledContainer>
                 }
                 componentToToggle={

@@ -48,4 +48,13 @@ const Container = styled.div<ContainerProps>`
   }
 `;
 
-export { Container };
+const MeasurementContainer = styled.div`
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: right;
+  grid-gap: 1rem;
+  width: 100%;
+  justify-items: flex-end;
+`;
+
+export { Container, MeasurementContainer };

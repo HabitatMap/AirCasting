@@ -75,7 +75,7 @@ const addNavigationArrows = (
     const rightIcon = isCalendarPage ? chevronRight : graphChevronRight;
 
     leftArrow = chart.renderer
-      .image(leftIcon, isCalendarPage ? -60 : 15, chevronHeight, 48, 48)
+      .image(leftIcon, isCalendarPage ? -70 : 15, chevronHeight, 48, 48)
       .attr({ zIndex: 10, class: "custom-arrow" })
       .css({ cursor: "pointer" })
       .add();
@@ -83,7 +83,7 @@ const addNavigationArrows = (
     rightArrow = chart.renderer
       .image(
         rightIcon,
-        isCalendarPage ? chartWidth + 12 : chartWidth - 118,
+        isCalendarPage ? chartWidth + 25 : chartWidth - 118,
         chevronHeight,
         48,
         48

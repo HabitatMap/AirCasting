@@ -143,18 +143,21 @@ const Graph: React.FC<GraphProps> = ({
       graphElement.style.touchAction = "pan-x";
       const highchartsContainer = graphElement.querySelector(
         ".highcharts-container"
-      );
+      ) as HTMLDivElement | null;
+      if (highchartsContainer) {
+        highchartsContainer.style.overflow = "visible";
+      }
       if (highchartsContainer) {
         highchartsContainer.style.overflow = "visible";
       }
       const highchartsChartContainer = graphElement.querySelector(
         "[data-highcharts-chart]"
-      );
+      ) as HTMLDivElement | null;
       if (highchartsChartContainer) {
         highchartsChartContainer.style.overflow = "visible";
       }
     }
-  }, [chartDataLoaded]); // Ensure it runs after chart data is loaded
+  }, [chartDataLoaded]);
 
   const options: Highcharts.Options = {
     title: undefined,
