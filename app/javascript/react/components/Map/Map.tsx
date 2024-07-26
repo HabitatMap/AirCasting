@@ -81,6 +81,7 @@ const Map = () => {
     initialUnitSymbol,
     searchParams,
     usernames,
+    tags,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -124,12 +125,15 @@ const Map = () => {
     : "AirBeam-PM2.5";
 
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
+  const tagsDecoded = tags && decodeURIComponent(tags);
+
   const filters = useMemo(
     () =>
+      // Change timeFrom and timeTo also in TagsInput
       JSON.stringify({
         time_from: "1685318400",
         time_to: "1717027199",
-        tags: "",
+        tags: tagsDecoded,
         usernames: usernamesDecoded,
         west: boundWest,
         east: boundEast,
@@ -152,6 +156,7 @@ const Map = () => {
       initialUnitSymbol,
       sensorName,
       usernames,
+      tags,
     ]
   );
   const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
@@ -167,7 +172,7 @@ const Map = () => {
         : dispatch(fetchMobileSessions({ filters }));
       // dispatch(setLoading(false));
     }
-  }, [filters, loading, fixedSessionTypeSelected, filters, usernames]);
+  }, [filters, loading, fixedSessionTypeSelected, filters]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));

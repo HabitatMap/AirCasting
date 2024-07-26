@@ -42,6 +42,7 @@ export enum UrlParamsTypes {
   thresholdMax = "thresholdMax",
   unitSymbol = "unitSymbol",
   usernames = "usernames",
+  tags = "tags",
 }
 
 export const useMapParams = () => {
@@ -189,6 +190,7 @@ export const useMapParams = () => {
   const initialUnitSymbol = getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!;
 
   const usernames = getSearchParam(UrlParamsTypes.usernames, "");
+  const tags = getSearchParam(UrlParamsTypes.tags, "");
 
   useEffect(() => {
     const queryParams = new URLSearchParams(searchParams.toString());
@@ -254,5 +256,6 @@ export const useMapParams = () => {
     initialUnitSymbol,
     searchParams,
     usernames,
+    tags,
   };
 };

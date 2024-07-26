@@ -10,6 +10,7 @@ import { CloseButton } from "../Map/Legend/Legend.style";
 import { ProfileNamesInput } from "./ProfileNamesInput";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
+import { TagsInput } from "./TagsInput";
 
 interface MobileSessionFiltersProps {
   onClose: () => void;
@@ -39,6 +40,7 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
         </S.Header>
         <SessionTypeToggle />
         <ProfileNamesInput />
+        <TagsInput />
       </S.ModalContent>
       <S.ShowSessionsButton
         // temporarily onClose
