@@ -3,6 +3,7 @@ import { RootState } from ".";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
+import { fetchTagsParamsType } from "../types/filters";
 import { getErrorMessage } from "../utils/getErrorMessage";
 
 interface SessionFilterState {
@@ -36,52 +37,9 @@ export const fetchUsernames = createAsyncThunk(
 
 export const fetchTags = createAsyncThunk(
   "autocomplete/tags",
-  async (
-    queryParams: {
-      tag: string;
-      west: string;
-      east: string;
-      south: string;
-      north: string;
-      timeFrom: string;
-      timeTo: string;
-      usernames: string | null;
-      sensorName: string;
-      unitSymbol: string;
-      sessionType: string;
-    },
-    { rejectWithValue }
-  ) => {
+  async (params: fetchTagsParamsType, { rejectWithValue }) => {
     try {
-      const {
-        tag,
-        west,
-        east,
-        south,
-        north,
-        timeFrom,
-        timeTo,
-        usernames,
-        sensorName,
-        unitSymbol,
-        sessionType,
-      } = queryParams;
-
-      const response = await oldApiClient.get(
-        API_ENDPOINTS.fetchTags(
-          tag,
-          west,
-          east,
-          south,
-          north,
-          timeFrom,
-          timeTo,
-          usernames,
-          sensorName,
-          unitSymbol,
-          sessionType
-        )
-      );
+      const response = await oldApiClient.get(API_ENDPOINTS.fetchTags(params));
       return response.data;
     } catch (error) {
       const message = getErrorMessage(error);

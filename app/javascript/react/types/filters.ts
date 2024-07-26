@@ -5,4 +5,18 @@ const SessionTypes = {
 
 type SessionType = typeof SessionTypes.FIXED | typeof SessionTypes.MOBILE;
 
-export { SessionType, SessionTypes };
+type fetchTagsParamsType = {
+  tag: string;
+  west: string;
+  east: string;
+  south: string;
+  north: string;
+  timeFrom: string;
+  timeTo: string;
+  usernames: string | null;
+  sensorName: string;
+  unitSymbol: string;
+  sessionType: string;
+};
+
+export { SessionType, SessionTypes, fetchTagsParamsType };

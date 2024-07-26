@@ -35,6 +35,7 @@ const FilterInfoPopup = ({ filterTranslationLabel }: FilterInfoPopupProps) => {
       repositionOnResize={true}
       keepTooltipInside={true}
       arrow={false}
+      on={["hover", "focus"]}
     >
       <S.Info>{t(`${filterTranslationLabel}`)}</S.Info>
     </InfoPopup>

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import { fetchTags, selectTags } from "../../store/sessionFiltersSlice";
-import { SessionTypes } from "../../types/filters";
+import { SessionTypes, fetchTagsParamsType } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
@@ -47,7 +47,7 @@ const TagsInput = () => {
       onInputValueChange: ({ inputValue }) => {
         const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
 
-        const queryParams = {
+        const queryParams: fetchTagsParamsType = {
           tag: inputValue,
           west: boundWest.toString(),
           east: boundEast.toString(),
@@ -116,7 +116,7 @@ const TagsInput = () => {
           placeholder={t("filters.tagsNames")}
           {...getInputProps({ value: inputValue })}
         />
-        <FilterInfoPopup filterTranslationLabel="filters.profileInfo" />
+        <FilterInfoPopup filterTranslationLabel="filters.tagNamesInfo" />
       </S.SingleFilterWrapper>
 
       {decodedTagsArray && decodedTagsArray.length > 0 && (
