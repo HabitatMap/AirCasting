@@ -30,7 +30,6 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const { t } = useTranslation();
   const results = sessions.length;
   const sessionsIds = sessions.map((session) => session.id.toString());
-  console.log("sessionsIds", sessionsIds);
 
   const handleClick = (id: number, streamId: number) => {
     if (onCellClick) {
