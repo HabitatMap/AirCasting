@@ -50,6 +50,7 @@ export const API_ENDPOINTS: ApiEndpoints = {
       params.sensorName
     )}&q[unit_symbol]=${encodeURIComponent(params.unitSymbol)}`;
 
+    // these fixed parameters are temporary and need to be passed from the component
     if (params.sessionType === "fixed") {
       url += "&q[is_indoor]=false&q[is_active]=true";
     }

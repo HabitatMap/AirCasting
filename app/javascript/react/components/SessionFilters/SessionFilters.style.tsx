@@ -5,7 +5,6 @@ import {
   gray200,
   gray300,
   gray400,
-  gray500,
   gray600,
   white,
 } from "../../assets/styles/colors";
@@ -194,7 +193,7 @@ const Info = styled.span`
 
 const InfoPopup = styled(SmallPopup)`
   &-content {
-    background-color: ${gray500};
+    border: 1px solid ${gray200};
     width: 250px;
   }
 `;
