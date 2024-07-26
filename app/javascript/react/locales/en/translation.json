@@ -157,6 +157,11 @@
     "mobileSessions": "mobile",
     "fixedSessions": "fixed",
     "editFilters": "edit filters",
-    "showSessions": "show sessions"
+    "showSessions": "show sessions",
+    "mobileFixedInfo": "The mobile tab displays measurements from mobile sessions. When recording mobile sessions, measurements are created, timestamped, and geolocated once per second. Average values for the duration of the session are displayed inside the session map markers. The fixed tab displays measurements from fixed sessions. When recording fixed sessions, geocoordinates are fixed to a set location. The most recent measurement is displayed inside the session map markers.",
+    "profileNamesInfo": "Enter a profile name or names to filter the sessions by profile name.",
+    "tagNamesInfo": "Enter a tag or tags to filter the sessions by tags. Tags are keywords assigned to sessions.",
+    "profileNames": "profile names",
+    "tagsNames": "tags names"
   }
 }

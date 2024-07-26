@@ -9,6 +9,7 @@ import { setLoading } from "../../store/mapSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
@@ -29,28 +30,32 @@ const SessionTypeToggle = () => {
   );
 
   return (
-    <S.SessionToggleWrapper>
-      <S.Tab
-        $isActive={sessionType === SessionTypes.MOBILE}
-        onClick={() => handleClick(SessionTypes.MOBILE)}
-      >
-        {t("filters.mobileSessions")}
-        <S.IconWrapper
-          $src={mobileIcon}
+    <S.SingleFilterWrapper>
+      <S.SessionToggleWrapper>
+        <S.Tab
           $isActive={sessionType === SessionTypes.MOBILE}
-        />
-      </S.Tab>
-      <S.Tab
-        $isActive={sessionType === SessionTypes.FIXED}
-        onClick={() => handleClick(SessionTypes.FIXED)}
-      >
-        {t("filters.fixedSessions")}
-        <S.IconWrapper
-          $src={pinIcon}
+          onClick={() => handleClick(SessionTypes.MOBILE)}
+        >
+          {t("filters.mobileSessions")}
+          <S.IconWrapper
+            $src={mobileIcon}
+            $isActive={sessionType === SessionTypes.MOBILE}
+          />
+        </S.Tab>
+        <S.Tab
           $isActive={sessionType === SessionTypes.FIXED}
-        />
-      </S.Tab>
-    </S.SessionToggleWrapper>
+          onClick={() => handleClick(SessionTypes.FIXED)}
+        >
+          {t("filters.fixedSessions")}
+          <S.IconWrapper
+            $src={pinIcon}
+            $isActive={sessionType === SessionTypes.FIXED}
+            onClick={() => handleClick(SessionTypes.FIXED)}
+          />
+        </S.Tab>
+      </S.SessionToggleWrapper>
+      <FilterInfoPopup filterTranslationLabel="filters.mobileFixedInfo" />
+    </S.SingleFilterWrapper>
   );
 };
 

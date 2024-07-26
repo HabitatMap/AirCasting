@@ -1,3 +1,5 @@
+import { fetchTagsParamsType } from "../types/filters";
+
 interface ApiEndpoints {
   readonly exportSessionData: (sessionsIds: string[], email: string) => string;
   readonly fetchFixedSessions: (filters: string) => string;
@@ -10,6 +12,8 @@ interface ApiEndpoints {
     endDate: string
   ) => string;
   readonly fetchThresholds: (filters: string) => string;
+  readonly fetchUsernames: (username: string) => string;
+  readonly fetchTags: (params: fetchTagsParamsType) => string;
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
@@ -26,4 +30,31 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchSelectedDataRangeOfStream: (id, startDate, endDate) =>
     `/stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
   fetchThresholds: (filters) => `/thresholds/${filters}`,
+  fetchUsernames: (username) => `/autocomplete/usernames?q[input]=${username}`,
+  fetchTags: (params) => {
+    let url = `/${
+      params.sessionType
+    }/autocomplete/tags?q[input]=${encodeURIComponent(
+      params.tag
+    )}&q[west]=${encodeURIComponent(params.west)}&q[east]=${encodeURIComponent(
+      params.east
+    )}&q[south]=${encodeURIComponent(
+      params.south
+    )}&q[north]=${encodeURIComponent(
+      params.north
+    )}&q[time_from]=${encodeURIComponent(
+      params.timeFrom
+    )}&q[time_to]=${encodeURIComponent(params.timeTo)}&q[usernames]=${
+      params.usernames
+    }&q[sensor_name]=${encodeURIComponent(
+      params.sensorName
+    )}&q[unit_symbol]=${encodeURIComponent(params.unitSymbol)}`;
+
+    // TODO these fixed parameters are temporary and need to be passed from the component
+    if (params.sessionType === "fixed") {
+      url += "&q[is_indoor]=false&q[is_active]=true";
+    }
+
+    return url;
+  },
 };

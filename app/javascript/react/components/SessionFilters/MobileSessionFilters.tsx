@@ -7,8 +7,10 @@ import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CloseButton } from "../Map/Legend/Legend.style";
+import { ProfileNamesInput } from "./ProfileNamesInput";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
+import { TagsInput } from "./TagsInput";
 
 interface MobileSessionFiltersProps {
   onClose: () => void;
@@ -37,6 +39,8 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
           <S.HeaderTitle>{t("filters.editFilters")}</S.HeaderTitle>
         </S.Header>
         <SessionTypeToggle />
+        <ProfileNamesInput />
+        <TagsInput />
       </S.ModalContent>
       <S.ShowSessionsButton
         // temporarily onClose

@@ -24,7 +24,6 @@ import {
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -81,6 +80,8 @@ const Map = () => {
     initialThresholds,
     initialUnitSymbol,
     searchParams,
+    usernames,
+    tags,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -115,19 +116,25 @@ const Map = () => {
       ? selectFixedSessionsList
       : selectMobileSessionsList
   );
+
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   // Filters (temporary solution)
   const sensorName = fixedSessionTypeSelected
     ? initialSensorName
     : "AirBeam-PM2.5";
+
+  const usernamesDecoded = usernames && decodeURIComponent(usernames);
+  const tagsDecoded = tags && decodeURIComponent(tags);
+
   const filters = useMemo(
     () =>
+      // Change timeFrom and timeTo also in TagsInput
       JSON.stringify({
         time_from: "1685318400",
         time_to: "1717027199",
-        tags: "",
-        usernames: "",
+        tags: tagsDecoded,
+        usernames: usernamesDecoded,
         west: boundWest,
         east: boundEast,
         south: boundSouth,
@@ -148,10 +155,13 @@ const Map = () => {
       initialOffset,
       initialUnitSymbol,
       sensorName,
+      usernames,
+      tags,
     ]
   );
   const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
   const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
+
   const thresholdFilters = `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
 
   // Effects
@@ -160,9 +170,8 @@ const Map = () => {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
-      dispatch(setLoading(false));
     }
-  }, [filters, loading, fixedSessionTypeSelected]);
+  }, [filters, loading, fixedSessionTypeSelected, filters]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
