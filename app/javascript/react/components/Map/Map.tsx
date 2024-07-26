@@ -419,6 +419,7 @@ const Map = () => {
     );
     navigate(`?${newSearchParams.toString()}`);
   };
+  console.log(listSessions, "listSessions");
 
   return (
     <>
