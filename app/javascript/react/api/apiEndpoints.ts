@@ -19,9 +19,10 @@ interface ApiEndpoints {
     north: string,
     timeFrom: string,
     timeTo: string,
-    usernames: string,
+    usernames: string | null,
     sensorName: string,
-    unitSymbol: string
+    unitSymbol: string,
+    sessionType: string
   ) => string;
 }
 
@@ -50,7 +51,27 @@ export const API_ENDPOINTS: ApiEndpoints = {
     timeTo,
     usernames,
     sensorName,
-    unitSymbol
-  ) =>
-    `autocomplete/tags?q%5Binput%5D=w&q%5Bwest%5D=-107.39758549495609&q%5Beast%5D=-75.8009058074561&q%5Bsouth%5D=20.796447977133052&q%5Bnorth%5D=50.51291400943705&q%5Btime_from%5D=1687564800&q%5Btime_to%5D=1719273599&q%5Busernames%5D=&q%5Bsensor_name%5D=airbeam-pm2.5&q%5Bunit_symbol%5D=%C2%B5g%2Fm%C2%B3`,
+    unitSymbol,
+    sessionType
+  ) => {
+    let url = `/${sessionType}/autocomplete/tags?q[input]=${encodeURIComponent(
+      tag
+    )}&q[west]=${encodeURIComponent(west)}&q[east]=${encodeURIComponent(
+      east
+    )}&q[south]=${encodeURIComponent(south)}&q[north]=${encodeURIComponent(
+      north
+    )}&q[time_from]=${encodeURIComponent(
+      timeFrom
+    )}&q[time_to]=${encodeURIComponent(
+      timeTo
+    )}&q[usernames]=${usernames}&q[sensor_name]=${encodeURIComponent(
+      sensorName
+    )}&q[unit_symbol]=${encodeURIComponent(unitSymbol)}`;
+
+    if (sessionType === "fixed") {
+      url += "&q[is_indoor]=false&q[is_active]=true";
+    }
+
+    return url;
+  },
 };

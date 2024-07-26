@@ -48,6 +48,7 @@ export const fetchTags = createAsyncThunk(
       usernames: string | null;
       sensorName: string;
       unitSymbol: string;
+      sessionType: string;
     },
     { rejectWithValue }
   ) => {
@@ -63,6 +64,7 @@ export const fetchTags = createAsyncThunk(
         usernames,
         sensorName,
         unitSymbol,
+        sessionType,
       } = queryParams;
 
       const response = await oldApiClient.get(
@@ -76,7 +78,8 @@ export const fetchTags = createAsyncThunk(
           timeTo,
           usernames,
           sensorName,
-          unitSymbol
+          unitSymbol,
+          sessionType
         )
       );
       return response.data;

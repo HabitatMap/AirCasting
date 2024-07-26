@@ -18,17 +18,21 @@ const SessionFilters = styled.div`
   flex-direction: column;
   justify-content: space-between;
   position: absolute;
-  padding: 1.6rem 0.9rem 0.5rem 0.9rem;
+  padding: 0 0.9rem 1.6rem 0.9rem;
   margin: 0.8rem 0 0 2rem;
   width: 30rem;
   border-radius: 10px;
   background-color: ${white};
 `;
 
+const Wrapper = styled.div`
+  position: relative;
+`;
+
 const SingleFilterWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 1.6rem;
+  margin-top: 1.6rem;
   width: 100%;
 `;
 
@@ -87,7 +91,7 @@ const ModalContent = styled.div`
 const Header = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin: 1.5rem 0;
 `;
 
 const HeaderTitle = styled.span`
@@ -129,6 +133,11 @@ const SuggestionList = styled.ul<{ $displaySearchResults: boolean }>`
   overflow: scroll;
   padding-top: 0.5rem;
   display: ${(p) => (p.$displaySearchResults ? "block" : "none")};
+  position: absolute;
+  background-color: ${white};
+  width: 100%;
+  border-radius: 5px;
+  z-index: 1;
 `;
 
 const Suggestion = styled.li`
@@ -138,12 +147,13 @@ const Suggestion = styled.li`
   list-style: none;
 `;
 
-const SelectedUsernamesWrapper = styled.div`
+const SelectedItemsWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
+  margin-top: 1rem;
 `;
 
-const SelectedUsernameTile = styled.div`
+const SelectedItemTile = styled.div`
   display: flex;
   align-items: center;
   width: fit-content;
@@ -153,13 +163,13 @@ const SelectedUsernameTile = styled.div`
   margin: 0 0.5rem 0.5rem 0;
 `;
 
-const SelectedUsername = styled.span`
+const SelectedItem = styled.span`
   font-size: 1.4rem;
   margin-right: 0.5rem;
   color: ${gray400};
 `;
 
-const CloseSelectedUsernameButton = styled(CloseButton)`
+const CloseSelectedItemButton = styled(CloseButton)`
   width: 1rem;
   height: 1rem;
 `;
@@ -185,12 +195,12 @@ const Info = styled.span`
 const InfoPopup = styled(SmallPopup)`
   &-content {
     background-color: ${gray500};
-    width: 300px;
+    width: 250px;
   }
 `;
 
 export {
-  CloseSelectedUsernameButton,
+  CloseSelectedItemButton,
   Header,
   HeaderTitle,
   IconWrapper,
@@ -201,9 +211,9 @@ export {
   Input,
   MobileSessionFilters,
   ModalContent,
-  SelectedUsername,
-  SelectedUsernameTile,
-  SelectedUsernamesWrapper,
+  SelectedItem,
+  SelectedItemTile,
+  SelectedItemsWrapper,
   SessionFilters,
   SessionToggleWrapper,
   ShowSessionsButton,
@@ -211,4 +221,5 @@ export {
   Suggestion,
   SuggestionList,
   Tab,
+  Wrapper,
 };

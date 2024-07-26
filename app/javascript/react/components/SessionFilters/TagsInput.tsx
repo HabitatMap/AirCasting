@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import { fetchTags, selectTags } from "../../store/sessionFiltersSlice";
+import { SessionTypes } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
@@ -25,9 +26,18 @@ const TagsInput = () => {
     usernames,
     initialSensorName,
     initialUnitSymbol,
+    sessionType,
   } = useMapParams();
 
   const tagsToSelect = useAppSelector(selectTags);
+
+  const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
+  const selectedSessionType = sessionType || SessionTypes.FIXED;
+
+  // Filters (temporary solution)
+  const sensorName = fixedSessionTypeSelected
+    ? initialSensorName
+    : "AirBeam-PM2.5";
 
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({
@@ -46,43 +56,45 @@ const TagsInput = () => {
           timeFrom: "1685318400",
           timeTo: "1717027199",
           usernames: usernames,
-          sensorName: initialSensorName,
+          sensorName: sensorName,
           unitSymbol: preparedUnitSymbol,
+          sessionType: selectedSessionType,
         };
 
-        console.log("queryParams", queryParams);
         dispatch(fetchTags(queryParams));
         setInputValue(inputValue);
       },
-      // onSelectedItemChange: ({ selectedItem }) => {
-      //   const decodedUsernames = decodeURIComponent(tags);
-      //   const selectedUsernames = decodedUsernames + ", " + selectedItem;
+      onSelectedItemChange: ({ selectedItem }) => {
+        if (selectedItem !== null) {
+          const decodedTags = tags && decodeURIComponent(tags);
+          const selectedTags = decodedTags + ", " + selectedItem;
 
-      //   const urlEncodedString = encodeURIComponent(selectedUsernames);
-      //   setUrlParams([
-      //     {
-      //       key: UrlParamsTypes.tags,
-      //       value: urlEncodedString.toString(),
-      //     },
-      //   ]);
+          const urlEncodedString = encodeURIComponent(selectedTags);
+          setUrlParams([
+            {
+              key: UrlParamsTypes.tags,
+              value: urlEncodedString.toString(),
+            },
+          ]);
 
-      //   dispatch(setLoading(true));
-      //   reset();
-      // },
+          dispatch(setLoading(true));
+          reset();
+        }
+      },
     });
 
-  console.log("items", items);
-
-  const decodedTagsArray = decodeURIComponent(tags)
-    .split(", ")
-    .filter((el) => el !== "");
+  const decodedTagsArray =
+    tags &&
+    decodeURIComponent(tags)
+      .split(", ")
+      .filter((el) => el !== "");
 
   const displaySearchResults = isOpen && items.length > 0;
 
   const handleOnClose = (itemToRemove: string) => {
-    const tagsUpdated = decodedTagsArray.filter((el) => el !== itemToRemove);
-    const decodedTagsString = tagsUpdated.join(", ");
-
+    const tagsUpdated =
+      decodedTagsArray && decodedTagsArray.filter((el) => el !== itemToRemove);
+    const decodedTagsString = tagsUpdated ? tagsUpdated.join(", ") : "";
     setUrlParams([
       {
         key: UrlParamsTypes.tags,
@@ -98,41 +110,36 @@ const TagsInput = () => {
   }, [tagsToSelect]);
 
   return (
-    <>
+    <S.Wrapper>
       <S.SingleFilterWrapper>
         <S.Input
-          // do translacji
-          placeholder="tags names"
+          placeholder={t("filters.tagsNames")}
           {...getInputProps({ value: inputValue })}
         />
         <FilterInfoPopup filterTranslationLabel="filters.profileInfo" />
       </S.SingleFilterWrapper>
 
       {decodedTagsArray && decodedTagsArray.length > 0 && (
-        <S.SelectedUsernamesWrapper>
+        <S.SelectedItemsWrapper>
           {decodedTagsArray.map((item, index) => (
-            <S.SelectedUsernameTile
-            // key={index}
-            >
-              <S.SelectedUsername>{item}</S.SelectedUsername>
-              <S.CloseSelectedUsernameButton
-                onClick={() => handleOnClose(item)}
-              />
-            </S.SelectedUsernameTile>
+            <S.SelectedItemTile key={index}>
+              <S.SelectedItem>{item}</S.SelectedItem>
+              <S.CloseSelectedItemButton onClick={() => handleOnClose(item)} />
+            </S.SelectedItemTile>
           ))}
-        </S.SelectedUsernamesWrapper>
+        </S.SelectedItemsWrapper>
       )}
       <S.SuggestionList
         $displaySearchResults={displaySearchResults}
         {...getMenuProps()}
       >
-        {/* {items.map((item, index) => (
+        {items.map((item, index) => (
           <S.Suggestion key={index} {...getItemProps({ item, index })}>
             {item}
           </S.Suggestion>
-        ))} */}
+        ))}
       </S.SuggestionList>
-    </>
+    </S.Wrapper>
   );
 };
 

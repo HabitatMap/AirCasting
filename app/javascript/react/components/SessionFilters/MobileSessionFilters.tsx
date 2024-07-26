@@ -32,7 +32,7 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   }, [fixedSessionsState, mobileSessionsState, sessionType]);
 
   return (
-    <S.MobileSessionFilters className="mobileSessionFilters">
+    <S.MobileSessionFilters>
       <S.ModalContent>
         <S.Header>
           <CloseButton onClick={onClose}></CloseButton>

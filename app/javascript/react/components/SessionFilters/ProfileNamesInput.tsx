@@ -6,8 +6,6 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import {
   fetchUsernames,
-  // removeSelectedUsername,
-  // selectSelectedUsernames,
   selectUsernames,
 } from "../../store/sessionFiltersSlice";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
@@ -34,33 +32,39 @@ const ProfileNamesInput = () => {
         setInputValue(inputValue);
       },
       onSelectedItemChange: ({ selectedItem }) => {
-        const decodedUsernames = decodeURIComponent(usernames);
-        const selectedUsernames = decodedUsernames + ", " + selectedItem;
+        if (selectedItem !== null) {
+          const decodedUsernames = usernames && decodeURIComponent(usernames);
+          const selectedUsernames = decodedUsernames + ", " + selectedItem;
 
-        const urlEncodedString = encodeURIComponent(selectedUsernames);
-        setUrlParams([
-          {
-            key: UrlParamsTypes.usernames,
-            value: urlEncodedString.toString(),
-          },
-        ]);
+          const urlEncodedString = encodeURIComponent(selectedUsernames);
+          setUrlParams([
+            {
+              key: UrlParamsTypes.usernames,
+              value: urlEncodedString.toString(),
+            },
+          ]);
 
-        dispatch(setLoading(true));
-        reset();
+          dispatch(setLoading(true));
+          reset();
+        }
       },
     });
 
-  const decodedUsernamesArray = decodeURIComponent(usernames)
-    .split(", ")
-    .filter((el) => el !== "");
+  const decodedUsernamesArray =
+    usernames &&
+    decodeURIComponent(usernames)
+      .split(", ")
+      .filter((el) => el !== "");
 
   const displaySearchResults = isOpen && items.length > 0;
 
   const handleOnClose = (itemToRemove: string) => {
-    const usernamesUpdated = decodedUsernamesArray.filter(
-      (el) => el !== itemToRemove
-    );
-    const decodedUsernamesString = usernamesUpdated.join(", ");
+    const usernamesUpdated =
+      decodedUsernamesArray &&
+      decodedUsernamesArray.filter((el) => el !== itemToRemove);
+    const decodedUsernamesString = usernamesUpdated
+      ? usernamesUpdated.join(", ")
+      : "";
 
     setUrlParams([
       {
@@ -77,28 +81,24 @@ const ProfileNamesInput = () => {
   }, [profileNames]);
 
   return (
-    <>
+    <S.Wrapper>
       <S.SingleFilterWrapper>
         <S.Input
-          placeholder="profile names"
+          placeholder={t("filters.profileNames")}
           {...getInputProps({ value: inputValue })}
         />
         <FilterInfoPopup filterTranslationLabel="filters.profileInfo" />
       </S.SingleFilterWrapper>
 
       {decodedUsernamesArray && decodedUsernamesArray.length > 0 && (
-        <S.SelectedUsernamesWrapper>
+        <S.SelectedItemsWrapper>
           {decodedUsernamesArray.map((item, index) => (
-            <S.SelectedUsernameTile
-            // key={index}
-            >
-              <S.SelectedUsername>{item}</S.SelectedUsername>
-              <S.CloseSelectedUsernameButton
-                onClick={() => handleOnClose(item)}
-              />
-            </S.SelectedUsernameTile>
+            <S.SelectedItemTile key={index}>
+              <S.SelectedItem>{item}</S.SelectedItem>
+              <S.CloseSelectedItemButton onClick={() => handleOnClose(item)} />
+            </S.SelectedItemTile>
           ))}
-        </S.SelectedUsernamesWrapper>
+        </S.SelectedItemsWrapper>
       )}
       <S.SuggestionList
         $displaySearchResults={displaySearchResults}
@@ -110,7 +110,7 @@ const ProfileNamesInput = () => {
           </S.Suggestion>
         ))}
       </S.SuggestionList>
-    </>
+    </S.Wrapper>
   );
 };
 

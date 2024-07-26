@@ -33,7 +33,7 @@ const FilterInfoPopup = ({ filterTranslationLabel }: FilterInfoPopupProps) => {
       }
       position="left center"
       repositionOnResize={true}
-      keepTooltipInside=".mobileSessionFilters"
+      keepTooltipInside={true}
       arrow={false}
     >
       <S.Info>{t(`${filterTranslationLabel}`)}</S.Info>
