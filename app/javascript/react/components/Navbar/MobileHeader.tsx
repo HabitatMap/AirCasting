@@ -20,7 +20,7 @@ export const MobileHeader = ({
 }: {
   toggleMenuVisibility: () => void;
   navMenuVisible: boolean;
-  t: Function;
+  t: (key: string) => string;
 }) => {
   const { currentUserSettings, previousUserSettings, searchParams } =
     useMapParams();

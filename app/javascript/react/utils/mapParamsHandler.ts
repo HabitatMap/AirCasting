@@ -51,8 +51,10 @@ export const useMapParams = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getSearchParam = (param: UrlParamsTypes, defaultValue: string | null) =>
-    searchParams.get(param) ?? defaultValue;
+  const getSearchParam = (
+    param: UrlParamsTypes,
+    defaultValue: string | null
+  ): string | null => searchParams.get(param) ?? defaultValue;
 
   const setUrlParams = useCallback(
     (params: Array<{ key: UrlParamsTypes; value: string }>) => {
