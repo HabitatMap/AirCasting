@@ -8,7 +8,6 @@ import { useAppDispatch } from "../../store/hooks";
 import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { BlueButton, FormWrapper } from "../Modals/Modals.style";
 import { ModalInput, RedErrorMessage } from "../Modals/atoms/ModalInput";
-
 import { AlertPopup } from "./AlertComponent";
 import * as S from "./Popups.style";
 
@@ -19,6 +18,8 @@ interface ExportDataComponentProps {
   onSubmit: (data: ExportModalData) => void;
   fixedSessionTypeSelected?: boolean;
   isSessionList: boolean;
+  open?: boolean;
+  ref: React.RefObject<HTMLDivElement>;
 }
 
 export interface ExportModalData {
@@ -48,6 +49,8 @@ const ExportDataComponent = ({
   onSubmit,
   isIconOnly,
   isSessionList,
+  open,
+  ref,
 }: ExportDataComponentProps) => {
   const exportButtonRef = useRef<HTMLDivElement>(null);
   const focusInputRef = useRef<HTMLInputElement | null>(null);
@@ -88,12 +91,6 @@ const ExportDataComponent = ({
       return;
     }
 
-    if (NO_SESSIONS) {
-      close();
-      setErrorMessage(t("exportDataModal.noResultsMessage"));
-      return;
-    }
-
     dispatch(exportSession({ sessionsIds, email: formState.email }));
     onSubmit(formState);
     setFormState(initialExportModalData);
@@ -126,12 +123,12 @@ const ExportDataComponent = ({
 
   const calculatePopupLeftPosition = () => {
     if (isSessionList) {
-      return `${buttonPosition.left - 185}px}`;
+      return `${buttonPosition.left - 185}px`;
     } else if (isIconOnly) {
       if (fixedSessionTypeSelected) {
-        return `${buttonPosition.left - 60}px`;
+        return `${buttonPosition.left - 60}px}`;
       } else {
-        return `${buttonPosition.left - 30}px`;
+        return `${buttonPosition.left - 30}px}`;
       }
     } else {
       return `${buttonPosition.left - 2}px}`;
@@ -150,6 +147,7 @@ const ExportDataComponent = ({
   return (
     <S.WrapperButton ref={exportButtonRef}>
       <ExportDataPopup
+        open={open}
         trigger={button}
         position={isSessionList ? "left center" : "top center"}
         nested

@@ -1,12 +1,9 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { AlertPopup } from "../Popups/AlertComponent";
-import {
-  ExportDataComponent,
-  ExportModalData,
-} from "../Popups/ExportDataComponent";
+import { ExportDataComponent } from "../Popups/ExportDataComponent";
 import { SessionsListTile } from "./SessionsListTile/SessionListTile";
 import * as S from "./SessionsListView.style";
 
@@ -48,6 +45,9 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const [alertMessage, setAlertMessage] = React.useState<string | null>(null);
 
   const rect = exportButtonRef.current?.getBoundingClientRect();
+  const NO_SESSIONS = sessionsIds.length === 0;
+  const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
+  const popupTopOffset = NO_SESSIONS ? -13 : -50;
 
   const updateButtonPosition = () => {
     if (rect) {
@@ -58,7 +58,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     updateButtonPosition();
     window.addEventListener("resize", updateButtonPosition);
 
@@ -70,12 +70,6 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const calculatePopupLeftPosition = () => {
     return `${buttonPosition.left - 185}px`;
   };
-
-  const NO_SESSIONS = sessionsIds.length === 0;
-  const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
-  const popupTopOffset = NO_SESSIONS ? -13 : -50;
-
-  useAutoDismissAlert(showAlert, setShowAlert);
 
   const handleClick = (id: number, streamId: number) => {
     if (onCellClick) {
@@ -100,10 +94,43 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
       setAlertMessage(t("exportDataModal.noResultsMessage"));
       setShowAlert(true);
     } else if (EXCEEDS_LIMIT) {
-      setAlertMessage(t("exportDataModal.sessionLimitMessage", { limit: 100 }));
+      setAlertMessage(
+        t("exportDataModal.sessionLimitMessage", { limit: SESSIONS_LIMIT })
+      );
       setShowAlert(true);
     } else {
       setShowExportPopup(true);
+    }
+  };
+
+  useAutoDismissAlert(showAlert, setShowAlert);
+
+  const ExportButtonOrComponent = () => {
+    if (NO_SESSIONS || EXCEEDS_LIMIT) {
+      return (
+        <div ref={exportButtonRef}>
+          <S.ExportSessionsButton onClick={handleExportClick}>
+            {t("map.exportButton")}
+          </S.ExportSessionsButton>
+        </div>
+      );
+    } else {
+      return (
+        <ExportDataComponent
+          button={
+            <S.ExportSessionsButton>
+              {t("map.exportButton")}
+            </S.ExportSessionsButton>
+          }
+          sessionsIds={sessionsIds}
+          isIconOnly
+          onSubmit={(formData) => {}}
+          fixedSessionTypeSelected={true}
+          isSessionList={true}
+          open={showExportPopup}
+          ref={exportButtonRef}
+        />
+      );
     }
   };
 
@@ -116,12 +143,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
             {t("map.results", { results: results })}
           </S.SessionListTitle>
         </S.SessionListInfoContainer>
-
-        <div ref={exportButtonRef}>
-          <S.ExportSessionsButton onClick={handleExportClick}>
-            {t("map.exportButton")}
-          </S.ExportSessionsButton>
-        </div>
+        <ExportButtonOrComponent />
       </S.SessionInfoTile>
       <S.SessionListContainer>
         {sessions.map((session) => (
@@ -147,16 +169,6 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
           message={alertMessage}
           top={buttonPosition.top + popupTopOffset}
           left={calculatePopupLeftPosition()}
-        />
-      )}
-      {showExportPopup && (
-        <ExportDataComponent
-          button={<></>}
-          sessionsIds={sessionsIds}
-          isIconOnly
-          onSubmit={(formData: ExportModalData) => {}}
-          fixedSessionTypeSelected={true}
-          isSessionList={true}
         />
       )}
     </S.SessionListViewStyle>
