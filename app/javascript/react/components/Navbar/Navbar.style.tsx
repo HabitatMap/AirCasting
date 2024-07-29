@@ -10,7 +10,7 @@ const Header = styled.header`
   justify-content: space-between;
   align-items: center;
   background-color: transparent;
-  z-index: 2;
+  z-index: 3;
   flex-wrap: wrap;
   position: absolute;
 
@@ -59,9 +59,9 @@ const SearchContainer = styled.div`
   gap: 2rem;
 `;
 
-const AircastingLogo = styled.img`
-  width: 152px;
-  height: 43px;
+const AircastingLogo = styled.img<{ $isSmallScreen?: boolean }>`
+  width: ${({ $isSmallScreen }) => ($isSmallScreen ? "3.5rem" : "15rem")};
+  height: 4.3rem;
 `;
 
 const Button = styled.button`
