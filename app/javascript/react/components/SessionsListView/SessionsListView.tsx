@@ -71,10 +71,9 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     return `${buttonPosition.left - 185}px`;
   };
 
-  const popupTopOffset = -50;
-
   const NO_SESSIONS = sessionsIds.length === 0;
   const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
+  const popupTopOffset = NO_SESSIONS ? -13 : -50;
 
   useAutoDismissAlert(showAlert, setShowAlert);
 
