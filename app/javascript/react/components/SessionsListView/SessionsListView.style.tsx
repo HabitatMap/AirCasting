@@ -58,12 +58,13 @@ const SessionListContainer = styled.div`
   scrollbar-color: rgba(62, 68, 73, 0.6) ${gray100};
 `;
 
-const ExportSessionsButton = styled.button`
+const ExportSessionsButton = styled.button<{ $hasSessions: boolean }>`
   background-color: transparent;
   color: ${blue};
   border: none;
   font-size: 1.2rem;
   text-transform: uppercase;
+  cursor: ${({ $hasSessions }) => ($hasSessions ? "pointer" : "default")};
 `;
 
 const SessionInfoTile = styled(SessionListTile)`

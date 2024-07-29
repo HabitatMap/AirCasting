@@ -4,7 +4,7 @@ import * as S from "./Popups.style";
 
 interface AlertPopupProps {
   open: boolean;
-  message: string | null;
+  message: string;
   top: number;
   left: string;
 }

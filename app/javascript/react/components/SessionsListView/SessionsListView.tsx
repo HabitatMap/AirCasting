@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { AlertPopup } from "../Popups/AlertComponent";
-import { ExportDataComponent } from "../Popups/ExportDataComponent";
+import ExportButtonComponent from "./ExportButtonComponent";
 import { SessionsListTile } from "./SessionsListTile/SessionListTile";
 import * as S from "./SessionsListView.style";
 
@@ -42,21 +42,21 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   });
   const [showExportPopup, setShowExportPopup] = React.useState(false);
   const [showAlert, setShowAlert] = React.useState(false);
-  const [alertMessage, setAlertMessage] = React.useState<string | null>(null);
+  const [alertMessage, setAlertMessage] = React.useState<string>("");
 
   const rect = exportButtonRef.current?.getBoundingClientRect();
   const NO_SESSIONS = sessionsIds.length === 0;
   const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
   const popupTopOffset = NO_SESSIONS ? -13 : -50;
 
-  const updateButtonPosition = () => {
+  const updateButtonPosition = useCallback(() => {
     if (rect) {
       setButtonPosition({
         top: rect.top + window.scrollY,
         left: rect.left + window.scrollX,
       });
     }
-  };
+  }, [rect]);
 
   useEffect(() => {
     updateButtonPosition();
@@ -65,7 +65,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     return () => {
       window.removeEventListener("resize", updateButtonPosition);
     };
-  }, [rect?.top]);
+  }, [updateButtonPosition]);
 
   const calculatePopupLeftPosition = () => {
     return `${buttonPosition.left - 185}px`;
@@ -105,35 +105,6 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
 
   useAutoDismissAlert(showAlert, setShowAlert);
 
-  const ExportButtonOrComponent = () => {
-    if (NO_SESSIONS || EXCEEDS_LIMIT) {
-      return (
-        <div ref={exportButtonRef}>
-          <S.ExportSessionsButton onClick={handleExportClick}>
-            {t("map.exportButton")}
-          </S.ExportSessionsButton>
-        </div>
-      );
-    } else {
-      return (
-        <ExportDataComponent
-          button={
-            <S.ExportSessionsButton>
-              {t("map.exportButton")}
-            </S.ExportSessionsButton>
-          }
-          sessionsIds={sessionsIds}
-          isIconOnly
-          onSubmit={(formData) => {}}
-          fixedSessionTypeSelected={true}
-          isSessionList={true}
-          open={showExportPopup}
-          ref={exportButtonRef}
-        />
-      );
-    }
-  };
-
   return (
     <S.SessionListViewStyle>
       <S.SessionInfoTile>
@@ -143,7 +114,14 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
             {t("map.results", { results: results })}
           </S.SessionListTitle>
         </S.SessionListInfoContainer>
-        <ExportButtonOrComponent />
+        <ExportButtonComponent
+          NO_SESSIONS={NO_SESSIONS}
+          EXCEEDS_LIMIT={EXCEEDS_LIMIT}
+          sessionsIds={sessionsIds}
+          showExportPopup={showExportPopup}
+          handleExportClick={handleExportClick}
+          exportButtonRef={exportButtonRef}
+        />
       </S.SessionInfoTile>
       <S.SessionListContainer>
         {sessions.map((session) => (
