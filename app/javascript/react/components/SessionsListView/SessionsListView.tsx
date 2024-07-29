@@ -1,6 +1,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { ExportDataComponent } from "../Popups/ExportDataComponent";
+
+import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
+import { AlertPopup } from "../Popups/AlertComponent";
+import {
+  ExportDataComponent,
+  ExportModalData,
+} from "../Popups/ExportDataComponent";
 import { SessionsListTile } from "./SessionsListTile/SessionListTile";
 import * as S from "./SessionsListView.style";
 
@@ -21,6 +27,8 @@ interface SessionsListViewProps {
   onCellMouseLeave?: () => void;
 }
 
+const SESSIONS_LIMIT = 100;
+
 const SessionsListView: React.FC<SessionsListViewProps> = ({
   sessions,
   onCellClick,
@@ -30,6 +38,45 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const { t } = useTranslation();
   const results = sessions.length;
   const sessionsIds = sessions.map((session) => session.id.toString());
+  const exportButtonRef = React.useRef<HTMLDivElement>(null);
+  const [buttonPosition, setButtonPosition] = React.useState({
+    top: 0,
+    left: 0,
+  });
+  const [showExportPopup, setShowExportPopup] = React.useState(false);
+  const [showAlert, setShowAlert] = React.useState(false);
+  const [alertMessage, setAlertMessage] = React.useState<string | null>(null);
+
+  const rect = exportButtonRef.current?.getBoundingClientRect();
+
+  const updateButtonPosition = () => {
+    if (rect) {
+      setButtonPosition({
+        top: rect.top + window.scrollY,
+        left: rect.left + window.scrollX,
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    updateButtonPosition();
+    window.addEventListener("resize", updateButtonPosition);
+
+    return () => {
+      window.removeEventListener("resize", updateButtonPosition);
+    };
+  }, [rect?.top]);
+
+  const calculatePopupLeftPosition = () => {
+    return `${buttonPosition.left - 185}px`;
+  };
+
+  const popupTopOffset = -50;
+
+  const NO_SESSIONS = sessionsIds.length === 0;
+  const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
+
+  useAutoDismissAlert(showAlert, setShowAlert);
 
   const handleClick = (id: number, streamId: number) => {
     if (onCellClick) {
@@ -49,6 +96,18 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     }
   };
 
+  const handleExportClick = () => {
+    if (NO_SESSIONS) {
+      setAlertMessage(t("exportDataModal.noResultsMessage"));
+      setShowAlert(true);
+    } else if (EXCEEDS_LIMIT) {
+      setAlertMessage(t("exportDataModal.sessionLimitMessage", { limit: 100 }));
+      setShowAlert(true);
+    } else {
+      setShowExportPopup(true);
+    }
+  };
+
   return (
     <S.SessionListViewStyle>
       <S.SessionInfoTile>
@@ -59,18 +118,11 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
           </S.SessionListTitle>
         </S.SessionListInfoContainer>
 
-        <ExportDataComponent
-          button={
-            <S.ExportSessionsButton>
-              {t("map.exportButton")}
-            </S.ExportSessionsButton>
-          }
-          sessionsIds={sessionsIds}
-          isIconOnly
-          onSubmit={(formData) => {}}
-          fixedSessionTypeSelected={true}
-          isSessionList={true}
-        />
+        <div ref={exportButtonRef}>
+          <S.ExportSessionsButton onClick={handleExportClick}>
+            {t("map.exportButton")}
+          </S.ExportSessionsButton>
+        </div>
       </S.SessionInfoTile>
       <S.SessionListContainer>
         {sessions.map((session) => (
@@ -83,19 +135,31 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
               startTime={session.startTime}
               endTime={session.endTime}
               streamId={session.streamId}
-              onClick={(id, streamId) => {
-                handleClick(id, streamId);
-              }}
-              onMouseEnter={(id) => {
-                handleMouseEnter(id);
-              }}
-              onMouseLeave={() => {
-                handleMouseLeave();
-              }}
+              onClick={(id, streamId) => handleClick(id, streamId)}
+              onMouseEnter={(id) => handleMouseEnter(id)}
+              onMouseLeave={handleMouseLeave}
             />
           </div>
         ))}
       </S.SessionListContainer>
+      {showAlert && (
+        <AlertPopup
+          open={showAlert}
+          message={alertMessage}
+          top={buttonPosition.top + popupTopOffset}
+          left={calculatePopupLeftPosition()}
+        />
+      )}
+      {showExportPopup && (
+        <ExportDataComponent
+          button={<></>}
+          sessionsIds={sessionsIds}
+          isIconOnly
+          onSubmit={(formData: ExportModalData) => {}}
+          fixedSessionTypeSelected={true}
+          isSessionList={true}
+        />
+      )}
     </S.SessionListViewStyle>
   );
 };

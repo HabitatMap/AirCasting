@@ -7,8 +7,9 @@ import { exportSession } from "../../store/exportSessionSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { BlueButton, FormWrapper } from "../Modals/Modals.style";
-import { ConfirmationMessage } from "../Modals/atoms/ConfirmationMessage";
 import { ModalInput, RedErrorMessage } from "../Modals/atoms/ModalInput";
+
+import { AlertPopup } from "./AlertComponent";
 import * as S from "./Popups.style";
 
 interface ExportDataComponentProps {
@@ -40,8 +41,6 @@ const ExportDataPopup: React.FC<
   return <S.ExportDataSmallPopup {...(props as PopupProps)} />;
 };
 
-const SESSIONS_LIMIT = 100;
-
 const ExportDataComponent = ({
   button,
   fixedSessionTypeSelected,
@@ -58,11 +57,7 @@ const ExportDataComponent = ({
     initialExportModalData
   );
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [limitationErrorMessage, setLimitationErrorMessage] = useState<
-    string | null
-  >(null);
 
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
@@ -93,18 +88,9 @@ const ExportDataComponent = ({
       return;
     }
 
-    let errorToShow: string | null = null;
-
     if (NO_SESSIONS) {
-      errorToShow = t("exportDataModal.noResultsMessage");
-    } else if (sessionsIds.length > SESSIONS_LIMIT) {
-      errorToShow = t("exportDataModal.sessionLimitMessage", { limit: 100 });
-    }
-
-    if (errorToShow) {
       close();
-      setLimitationErrorMessage(errorToShow);
-      setShowError(true);
+      setErrorMessage(t("exportDataModal.noResultsMessage"));
       return;
     }
 
@@ -128,7 +114,6 @@ const ExportDataComponent = ({
   };
 
   useAutoDismissAlert(showConfirmation, setShowConfirmation);
-  useAutoDismissAlert(showError, setShowError);
 
   useEffect(() => {
     updateButtonPosition();
@@ -141,7 +126,7 @@ const ExportDataComponent = ({
 
   const calculatePopupLeftPosition = () => {
     if (isSessionList) {
-      return `${buttonPosition.left - 185}px`;
+      return `${buttonPosition.left - 185}px}`;
     } else if (isIconOnly) {
       if (fixedSessionTypeSelected) {
         return `${buttonPosition.left - 60}px`;
@@ -149,11 +134,9 @@ const ExportDataComponent = ({
         return `${buttonPosition.left - 30}px`;
       }
     } else {
-      return `${buttonPosition.left - 2}px`;
+      return `${buttonPosition.left - 2}px}`;
     }
   };
-
-  const popupTopOffset = isSessionList ? (NO_SESSIONS ? -13 : -50) : -95;
 
   const dynamicArrowStyle = fixedSessionTypeSelected
     ? {}
@@ -198,38 +181,14 @@ const ExportDataComponent = ({
         )}
       </ExportDataPopup>
       {showConfirmation && (
-        <S.ConfirmationPopup
+        <AlertPopup
           open={showConfirmation}
-          closeOnDocumentClick={false}
-          arrow={false}
-          contentStyle={{
-            width: "180px",
-            top: isSessionList
-              ? `${buttonPosition.top - 35}px`
-              : `${buttonPosition.top - 95}px`,
-            left: calculatePopupLeftPosition(),
-            position: "absolute",
-          }}
-        >
-          <ConfirmationMessage
-            message={t("exportDataModal.confirmationMessage")}
-          />
-        </S.ConfirmationPopup>
-      )}
-      {showError && (
-        <S.ConfirmationPopup
-          open={showError}
-          closeOnDocumentClick={false}
-          arrow={false}
-          contentStyle={{
-            width: "180px",
-            top: `${buttonPosition.top + popupTopOffset}px`,
-            left: calculatePopupLeftPosition(),
-            position: "absolute",
-          }}
-        >
-          <ConfirmationMessage message={limitationErrorMessage} />
-        </S.ConfirmationPopup>
+          message={t("exportDataModal.confirmationMessage")}
+          top={
+            isSessionList ? buttonPosition.top - 35 : buttonPosition.top - 95
+          }
+          left={calculatePopupLeftPosition()}
+        />
       )}
     </S.WrapperButton>
   );
