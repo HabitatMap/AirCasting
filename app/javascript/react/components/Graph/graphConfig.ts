@@ -73,6 +73,7 @@ const getXAxisOptions = (
       if (!isLoading && e.min && e.max) {
         const min = e.min;
         const max = e.max;
+
         dispatch(
           fixedSessionTypeSelected
             ? updateFixedMeasurementExtremes({ min, max })

@@ -8,7 +8,6 @@ import { Error, StatusEnum } from "../types/api";
 import { FixedStream } from "../types/fixedStream";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { RootState } from "./index";
-import { initialState as thresholdInitialState } from "./thresholdSlice";
 
 interface FixedStreamState {
   data: FixedStream;
