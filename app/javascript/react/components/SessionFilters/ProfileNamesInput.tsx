@@ -43,8 +43,8 @@ const ProfileNamesInput = () => {
               value: urlEncodedString.toString(),
             },
           ]);
-
           dispatch(setLoading(true));
+
           reset();
           setSelectedItem("");
         }

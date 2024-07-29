@@ -5,6 +5,7 @@ import { H4 } from "../Typography";
 
 const MapButtonsWrapper = styled.div`
   position: relative;
+  z-index: 1;
 `;
 
 const MapButtons = styled.div`

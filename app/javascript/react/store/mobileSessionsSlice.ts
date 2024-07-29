@@ -6,6 +6,7 @@ import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { setLoading } from "./mapSlice";
 
 export interface Session {
   id: number;
@@ -69,18 +70,23 @@ export const fetchMobileSessions = createAsyncThunk<
   SessionsResponse,
   SessionsData,
   { rejectValue: string }
->("sessions/fetchMobileSessions", async (sessionsData, { rejectWithValue }) => {
-  try {
-    const response: AxiosResponse<SessionsResponse, Error> =
-      await oldApiClient.get(
-        API_ENDPOINTS.fetchMobileSessions(sessionsData.filters)
-      );
-    return response.data;
-  } catch (error) {
-    const message = getErrorMessage(error);
-    return rejectWithValue(message);
+>(
+  "sessions/fetchMobileSessions",
+  async (sessionsData, { dispatch, rejectWithValue }) => {
+    try {
+      const response: AxiosResponse<SessionsResponse, Error> =
+        await oldApiClient.get(
+          API_ENDPOINTS.fetchMobileSessions(sessionsData.filters)
+        );
+
+      dispatch(setLoading(false));
+      return response.data;
+    } catch (error) {
+      const message = getErrorMessage(error);
+      return rejectWithValue(message);
+    }
   }
-});
+);
 
 export const mobileSessionsSlice = createSlice({
   name: "mobileSessions",

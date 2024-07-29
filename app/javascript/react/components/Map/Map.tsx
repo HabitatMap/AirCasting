@@ -174,7 +174,7 @@ const Map = () => {
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
     }
-  }, [filters, loading, fixedSessionTypeSelected, filters]);
+  }, [filters, loading, fixedSessionTypeSelected]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
