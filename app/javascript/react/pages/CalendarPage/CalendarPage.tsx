@@ -16,6 +16,7 @@ import {
   ResetButton,
   ResetButtonVariant,
 } from "../../components/ThresholdConfigurator/ResetButton";
+import { selectMinAndMaxTime } from "../../store/fixedStreamSelectors";
 import {
   fetchFixedStreamById,
   selectFixedData,
@@ -47,6 +48,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
   const fixedStreamData = useSelector(selectFixedData);
   const movingCalendarData = useSelector(movingData);
+  const { minTime, maxTime } = useSelector(selectMinAndMaxTime);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -167,6 +169,10 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   <S.StyledContainer>
                     {t("calendarHeader.graphTitle")}
                     <MeasurementComponent />
+                    <>
+                      {minTime}
+                      {maxTime}
+                    </>
                   </S.StyledContainer>
                 }
                 componentToToggle={

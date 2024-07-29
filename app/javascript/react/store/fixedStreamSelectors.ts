@@ -13,6 +13,8 @@ const selectFixedStreamData = (state: RootState): FixedStream => {
   return state.fixedStream.data;
 };
 
+const selectFixedStream = (state: RootState) => state.fixedStream;
+
 const selectExtremesValues = (state: RootState) => state.fixedStream;
 
 const selectFixedExtremes = createSelector(
@@ -102,8 +104,17 @@ const selectFixedStreamShortInfo = createSelector(
   }
 );
 
+const selectMinAndMaxTime = createSelector(
+  [selectFixedStream],
+  (fixedStream) => ({
+    minTime: fixedStream.minTime,
+    maxTime: fixedStream.maxTime,
+  })
+);
+
 export {
   selectFixedExtremes,
   selectFixedStreamData,
   selectFixedStreamShortInfo,
+  selectMinAndMaxTime,
 };

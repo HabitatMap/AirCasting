@@ -17,6 +17,8 @@ interface FixedStreamState {
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
   isLoading: boolean;
+  minTime: number | null;
+  maxTime: number | null;
 }
 
 const initialState: FixedStreamState = {
@@ -45,6 +47,8 @@ const initialState: FixedStreamState = {
   minMeasurementValue: 0,
   maxMeasurementValue: 0,
   averageMeasurementValue: 0,
+  minTime: 0,
+  maxTime: 0,
   isLoading: false,
 };
 
@@ -89,6 +93,8 @@ const fixedStreamSlice = createSlice({
       state.minMeasurementValue = newMin;
       state.maxMeasurementValue = newMax;
       state.averageMeasurementValue = newAvg;
+      state.minTime = min;
+      state.maxTime = max;
     },
   },
   extraReducers: (builder) => {
