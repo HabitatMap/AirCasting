@@ -22,29 +22,21 @@ export const MobileHeader = ({
   navMenuVisible: boolean;
   t: (key: string) => string;
 }) => {
-  const { currentUserSettings, previousUserSettings, searchParams } =
-    useMapParams();
-  const navigate = useNavigate();
-
-  const handleGoBackClick = useCallback(() => {
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    newSearchParams.set(UrlParamsTypes.sessionId, "");
-    newSearchParams.set(UrlParamsTypes.streamId, "");
-    newSearchParams.set(
-      UrlParamsTypes.previousUserSettings,
-      currentUserSettings
-    );
-    newSearchParams.set(
-      UrlParamsTypes.currentUserSettings,
-      previousUserSettings
-    );
-    navigate(`?${newSearchParams.toString()}`);
-  }, [currentUserSettings, navigate, previousUserSettings, searchParams]);
+  const {
+    backToPreviousUserSettingsWithSessionAndStreamIdsReset,
+    currentUserSettings,
+    previousUserSettings,
+  } = useMapParams();
 
   return (
     <S.MobileHeaderContainer>
       {currentUserSettings === UserSettings.ModalView ? (
-        <S.GoBack onClick={handleGoBackClick} aria-label={t("navbar.mapPage")}>
+        <S.GoBack
+          onClick={() =>
+            backToPreviousUserSettingsWithSessionAndStreamIdsReset()
+          }
+          aria-label={t("navbar.mapPage")}
+        >
           <img
             src={backArrowIcon}
             alt={t("navbar.altGoBackIcon")}

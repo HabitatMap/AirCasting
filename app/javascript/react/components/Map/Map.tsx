@@ -58,6 +58,7 @@ const Map = () => {
   // Hooks
   const dispatch = useAppDispatch();
   const {
+    backToPreviousUserSettingsWithSessionAndStreamIdsReset,
     boundEast,
     boundNorth,
     boundSouth,
@@ -302,33 +303,9 @@ const Map = () => {
     }
 
     if (streamId) {
-      newSearchParams.set(UrlParamsTypes.sessionId, "");
-      newSearchParams.set(UrlParamsTypes.streamId, "");
-      newSearchParams.set(
-        UrlParamsTypes.previousUserSettings,
-        currentUserSettings
-      );
-      newSearchParams.set(
-        UrlParamsTypes.currentUserSettings,
-        previousUserSettings
-      );
-      navigate(`?${newSearchParams.toString()}`);
+      backToPreviousUserSettingsWithSessionAndStreamIdsReset();
     }
   };
-
-  const handleCloseModal = useCallback(() => {
-    newSearchParams.set(UrlParamsTypes.sessionId, "");
-    newSearchParams.set(UrlParamsTypes.streamId, "");
-    newSearchParams.set(
-      UrlParamsTypes.previousUserSettings,
-      currentUserSettings
-    );
-    newSearchParams.set(
-      UrlParamsTypes.currentUserSettings,
-      previousUserSettings
-    );
-    navigate(`?${newSearchParams.toString()}`);
-  }, [currentUserSettings]);
 
   const setPreviousZoomOnTheMap = () => {
     if (
@@ -438,7 +415,9 @@ const Map = () => {
 
       {currentUserSettings === UserSettings.ModalView && (
         <SessionDetailsModal
-          onClose={handleCloseModal}
+          onClose={() =>
+            backToPreviousUserSettingsWithSessionAndStreamIdsReset()
+          }
           sessionType={sessionType}
           streamId={streamId}
         />

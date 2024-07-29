@@ -224,6 +224,22 @@ export const useMapParams = () => {
     debouncedUpdateURL(queryParams);
   }, [thresholdValues]);
 
+  const backToPreviousUserSettingsWithSessionAndStreamIdsReset =
+    useCallback(() => {
+      setUrlParams([
+        { key: UrlParamsTypes.sessionId, value: "" },
+        { key: UrlParamsTypes.streamId, value: "" },
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: previousUserSettings,
+        },
+      ]);
+    }, [searchParams]);
+
   const goToUserSettings = useCallback(
     (newUserSettings: UserSettings) => {
       setUrlParams([
@@ -248,6 +264,7 @@ export const useMapParams = () => {
   );
 
   return {
+    backToPreviousUserSettingsWithSessionAndStreamIdsReset,
     boundEast,
     boundNorth,
     boundSouth,
