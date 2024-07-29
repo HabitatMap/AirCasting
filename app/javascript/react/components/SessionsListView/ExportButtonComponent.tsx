@@ -48,7 +48,6 @@ const ExportButtonComponent: React.FC<ExportButtonComponentProps> = ({
         fixedSessionTypeSelected={true}
         isSessionList={true}
         open={showExportPopup}
-        ref={exportButtonRef}
       />
     );
   }

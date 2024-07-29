@@ -19,7 +19,6 @@ interface ExportDataComponentProps {
   fixedSessionTypeSelected?: boolean;
   isSessionList: boolean;
   open?: boolean;
-  ref: React.RefObject<HTMLDivElement>;
 }
 
 export interface ExportModalData {
@@ -50,7 +49,6 @@ const ExportDataComponent = ({
   isIconOnly,
   isSessionList,
   open,
-  ref,
 }: ExportDataComponentProps) => {
   const exportButtonRef = useRef<HTMLDivElement>(null);
   const focusInputRef = useRef<HTMLInputElement | null>(null);
