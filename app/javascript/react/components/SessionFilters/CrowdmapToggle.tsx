@@ -1,9 +1,12 @@
 import React, { useMemo } from "react";
 
+import { fetchCrowdMapData } from "../../store/crowdMapSlice";
+import { useAppDispatch } from "../../store/hooks";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./SessionFilters.style";
 
 const CrowdMapToggle = () => {
+  const dispatch = useAppDispatch();
   const {
     boundEast,
     boundNorth,
@@ -43,6 +46,7 @@ const CrowdMapToggle = () => {
 
   const handleCrowdmap = () => {
     console.log(filters);
+    dispatch(fetchCrowdMapData(filters));
   };
 
   return (
