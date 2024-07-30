@@ -15,16 +15,11 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 
 type Props = {
-  onMarkerClick: (streamId: number | null, id: number | null) => void;
   pulsatingSessionId: number | null;
   sessions: Session[];
 };
 
-const CrowdMapMarkers = ({
-  onMarkerClick,
-  pulsatingSessionId,
-  sessions,
-}: Props) => {
+const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const dispatch = useAppDispatch();
 
   const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
@@ -117,12 +112,7 @@ const CrowdMapMarkers = ({
               thresholds,
               displayedSession.lastMeasurementValue
             )}
-            onClick={() => {
-              onMarkerClick(
-                Number(displayedSession.point.streamId),
-                Number(displayedSession.id)
-              );
-            }}
+            onClick={() => {}}
           />
         }
       </AdvancedMarker>

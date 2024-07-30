@@ -393,7 +393,6 @@ const Map = () => {
         {!fixedSessionTypeSelected &&
           (currentUserSettings === UserSettings.CrowdMapView ? (
             <CrowdMapMarkers
-              onMarkerClick={handleMarkerClick}
               pulsatingSessionId={pulsatingSessionId}
               sessions={sessionsPoints}
             />
