@@ -474,7 +474,9 @@ const Map = () => {
           />
         )}
       </S.MobileContainer>
-      {currentUserSettings === UserSettings.MapView && (
+      {[UserSettings.MapView, UserSettings.CrowdMapView].includes(
+        currentUserSettings
+      ) && (
         <S.DesktopContainer>
           <SessionsListView
             sessions={listSessions.map((session) => ({
