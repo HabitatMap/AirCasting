@@ -1,6 +1,6 @@
 import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
 import {
@@ -48,11 +48,12 @@ export enum UrlParamsTypes {
 export const useMapParams = () => {
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
   const thresholdValues = useAppSelector(selectThresholds);
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getSearchParam = (param: UrlParamsTypes, defaultValue: string | null) =>
-    searchParams.get(param) ?? defaultValue;
+  const getSearchParam = (
+    param: UrlParamsTypes,
+    defaultValue: string | null
+  ): string | null => searchParams.get(param) ?? defaultValue;
 
   const setUrlParams = useCallback(
     (params: Array<{ key: UrlParamsTypes; value: string }>) => {
@@ -62,7 +63,7 @@ export const useMapParams = () => {
       });
       setSearchParams(`?${newSearchParams.toString()}`);
     },
-    [searchParams, navigate]
+    [searchParams]
   );
 
   const boundEast = parseFloat(
@@ -223,6 +224,37 @@ export const useMapParams = () => {
     debouncedUpdateURL(queryParams);
   }, [thresholdValues]);
 
+  const goToUserSettings = useCallback(
+    (newUserSettings: UserSettings) => {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: newUserSettings,
+        },
+      ]);
+    },
+    [searchParams]
+  );
+
+  const revertUserSettingsAndResetIds = useCallback(() => {
+    setUrlParams([
+      { key: UrlParamsTypes.sessionId, value: "" },
+      { key: UrlParamsTypes.streamId, value: "" },
+      {
+        key: UrlParamsTypes.previousUserSettings,
+        value: currentUserSettings,
+      },
+      {
+        key: UrlParamsTypes.currentUserSettings,
+        value: previousUserSettings,
+      },
+    ]);
+  }, [searchParams]);
+
   const debouncedUpdateURL = useCallback(
     debounce((params) => {
       setSearchParams(params);
@@ -239,7 +271,7 @@ export const useMapParams = () => {
     currentUserSettings,
     currentZoom,
     debouncedUpdateURL,
-    getSearchParam,
+    goToUserSettings,
     initialLimit,
     mapTypeId,
     initialMeasurementType,
@@ -247,6 +279,7 @@ export const useMapParams = () => {
     previousCenter,
     previousUserSettings,
     previousZoom,
+    revertUserSettingsAndResetIds,
     initialSensorName,
     sessionId,
     sessionType,

@@ -66,6 +66,7 @@ const Map = () => {
     currentUserSettings,
     currentZoom,
     debouncedUpdateURL,
+    goToUserSettings,
     initialLimit,
     mapTypeId,
     initialMeasurementType,
@@ -73,6 +74,7 @@ const Map = () => {
     previousCenter,
     previousUserSettings,
     previousZoom,
+    revertUserSettingsAndResetIds,
     initialSensorName,
     sessionId,
     sessionType,
@@ -301,33 +303,9 @@ const Map = () => {
     }
 
     if (streamId) {
-      newSearchParams.set(UrlParamsTypes.sessionId, "");
-      newSearchParams.set(UrlParamsTypes.streamId, "");
-      newSearchParams.set(
-        UrlParamsTypes.previousUserSettings,
-        currentUserSettings
-      );
-      newSearchParams.set(
-        UrlParamsTypes.currentUserSettings,
-        previousUserSettings
-      );
-      navigate(`?${newSearchParams.toString()}`);
+      revertUserSettingsAndResetIds();
     }
   };
-
-  const handleCloseModal = useCallback(() => {
-    newSearchParams.set(UrlParamsTypes.sessionId, "");
-    newSearchParams.set(UrlParamsTypes.streamId, "");
-    newSearchParams.set(
-      UrlParamsTypes.previousUserSettings,
-      currentUserSettings
-    );
-    newSearchParams.set(
-      UrlParamsTypes.currentUserSettings,
-      previousUserSettings
-    );
-    navigate(`?${newSearchParams.toString()}`);
-  }, [currentUserSettings]);
 
   const setPreviousZoomOnTheMap = () => {
     if (
@@ -378,55 +356,11 @@ const Map = () => {
     }
   };
 
-  const openLegend = () => {
-    newSearchParams.set(
-      UrlParamsTypes.previousUserSettings,
-      currentUserSettings
-    );
-    newSearchParams.set(
-      UrlParamsTypes.currentUserSettings,
-      UserSettings.MapLegendView
-    );
-    navigate(`?${newSearchParams.toString()}`);
-  };
-
-  const closeLegend = () => {
-    newSearchParams.set(
-      UrlParamsTypes.previousUserSettings,
-      currentUserSettings
-    );
-    newSearchParams.set(
-      UrlParamsTypes.currentUserSettings,
-      UserSettings.MapView
-    );
-    navigate(`?${newSearchParams.toString()}`);
-  };
-
   const openFilters = () => {
     fixedSessionTypeSelected
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
-    newSearchParams.set(
-      UrlParamsTypes.previousUserSettings,
-      currentUserSettings
-    );
-    newSearchParams.set(
-      UrlParamsTypes.currentUserSettings,
-      UserSettings.FiltersView
-    );
-    navigate(`?${newSearchParams.toString()}`);
-  };
-
-  const closeFilters = () => {
-    newSearchParams.set(
-      UrlParamsTypes.previousUserSettings,
-      currentUserSettings
-    );
-    newSearchParams.set(
-      UrlParamsTypes.currentUserSettings,
-      UserSettings.MapView
-    );
-    navigate(`?${newSearchParams.toString()}`);
+    goToUserSettings(UserSettings.FiltersView);
   };
 
   return (
@@ -481,7 +415,7 @@ const Map = () => {
 
       {currentUserSettings === UserSettings.ModalView && (
         <SessionDetailsModal
-          onClose={handleCloseModal}
+          onClose={() => revertUserSettingsAndResetIds()}
           sessionType={sessionType}
           streamId={streamId}
         />
@@ -492,23 +426,13 @@ const Map = () => {
             title={t("map.listSessions")}
             image={pinImage}
             alt={t("map.altListSessions")}
-            onClick={() => {
-              newSearchParams.set(
-                UrlParamsTypes.previousUserSettings,
-                currentUserSettings
-              );
-              newSearchParams.set(
-                UrlParamsTypes.currentUserSettings,
-                UserSettings.SessionListView
-              );
-              navigate(`?${newSearchParams.toString()}`);
-            }}
+            onClick={() => goToUserSettings(UserSettings.SessionListView)}
           />
           <SectionButton
             title={t("map.legendTile")}
             image={mapLegend}
             alt={t("map.altlegendTile")}
-            onClick={openLegend}
+            onClick={() => goToUserSettings(UserSettings.MapLegendView)}
           />
           <SectionButton
             title={t("filters.filters")}
@@ -518,7 +442,7 @@ const Map = () => {
           />
         </S.MobileButtons>
         {currentUserSettings === UserSettings.MapLegendView && (
-          <Legend onClose={closeLegend} />
+          <Legend onClose={() => goToUserSettings(UserSettings.MapView)} />
         )}
         {currentUserSettings === UserSettings.SessionListView && (
           <MobileSessionList
@@ -534,21 +458,13 @@ const Map = () => {
             onCellClick={(id, streamId) => {
               handleMarkerClick(streamId, id);
             }}
-            onClose={() => {
-              newSearchParams.set(
-                UrlParamsTypes.previousUserSettings,
-                currentUserSettings
-              );
-              newSearchParams.set(
-                UrlParamsTypes.currentUserSettings,
-                UserSettings.MapView
-              );
-              navigate(`?${newSearchParams.toString()}`);
-            }}
+            onClose={() => goToUserSettings(UserSettings.MapView)}
           />
         )}
         {currentUserSettings === UserSettings.FiltersView && (
-          <MobileSessionFilters onClose={closeFilters} />
+          <MobileSessionFilters
+            onClose={() => goToUserSettings(UserSettings.MapView)}
+          />
         )}
       </S.MobileContainer>
       {currentUserSettings === UserSettings.MapView && (
