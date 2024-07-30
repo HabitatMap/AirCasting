@@ -24,18 +24,20 @@ const CrowdMapMarkers = ({ sessions }: Props) => {
     boundSouth,
     boundWest,
     initialMeasurementType,
+    tags,
     initialUnitSymbol,
+    usernames,
   } = useMapParams();
 
   const filters = useMemo(
     () =>
       JSON.stringify({
         east: boundEast,
-        grid_size_x: 50,
-        grid_size_y: 50,
-        measurement_type: initialMeasurementType,
+        grid_size_x: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
+        grid_size_y: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
+        measurement_type: initialMeasurementType, // TODO: temporary solution, ticket: Session Filter [Both] Parameter Picker (Custom)
         north: boundNorth,
-        sensor_name: "AirBeam-PM2.5",
+        sensor_name: "AirBeam-PM2.5", // TODO: temporary solution, ticket: Session Filter [Both]: Sensor Picker
         south: boundSouth,
         stream_ids: [
           2495371, 2495208, 2495174, 2495170, 2495072, 2495087, 2495081,
@@ -54,11 +56,11 @@ const CrowdMapMarkers = ({ sessions }: Props) => {
           2493474, 2493457, 2493410, 2493422, 2493452, 2493404, 2493399,
           2493469, 2493394,
         ],
-        tags: "",
-        time_from: "1685318400",
-        time_to: "1717027199",
-        unit_symbol: initialUnitSymbol,
-        usernames: "",
+        tags: tags,
+        time_from: "1685318400", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
+        time_to: "1717027199", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
+        unit_symbol: initialUnitSymbol, // TODO: temporary solution, ticket: Session Filter [Both]: Parameter Picker (Basic)
+        usernames: usernames,
         west: boundWest,
       }),
     [
@@ -67,7 +69,9 @@ const CrowdMapMarkers = ({ sessions }: Props) => {
       boundSouth,
       boundWest,
       initialMeasurementType,
+      tags,
       initialUnitSymbol,
+      usernames,
     ]
   );
 
@@ -75,7 +79,7 @@ const CrowdMapMarkers = ({ sessions }: Props) => {
 
   useEffect(() => {
     dispatch(fetchCrowdMapData(filters));
-  }, []);
+  }, [filters]);
 
   useEffect(() => {
     if (crowdMapRectangles.length > 0) {
