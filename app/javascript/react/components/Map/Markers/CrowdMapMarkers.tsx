@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
@@ -13,8 +13,6 @@ import { Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
-
-import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   pulsatingSessionId: number | null;
@@ -40,9 +38,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     usernames,
   } = useMapParams();
   const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
-  const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
-    {}
-  );
 
   const displayedSession: Session | undefined = sessions.find(
     (session) => session.id === pulsatingSessionId
@@ -110,15 +105,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       <AdvancedMarker
         position={displayedSession.point}
         key={displayedSession.point.streamId}
-        zIndex={1000}
-        ref={(marker) => {
-          if (marker && !markers[displayedSession.point.streamId]) {
-            setMarkers((prev) => ({
-              ...prev,
-              [displayedSession.point.streamId]: marker,
-            }));
-          }
-        }}
       >
         {
           <SessionDotMarker
@@ -126,7 +112,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
               thresholds,
               displayedSession.lastMeasurementValue
             )}
-            shouldPulse={false}
             onClick={() => {}}
           />
         }
