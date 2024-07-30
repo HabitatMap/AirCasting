@@ -67,7 +67,7 @@ const SearchInput = styled.input<SearchInputProps>`
   z-index: 3;
 
   @media ${media.smallDesktop} {
-    width: 36.8rem;
+    /* width: 36.8rem;x */
     height: 4.2rem;
     font-size: 1.6rem;
     padding: 0 1.6rem;
@@ -78,6 +78,14 @@ const SearchInput = styled.input<SearchInputProps>`
     background-size: 20px;
     padding-left: 4.8rem;
     box-shadow: none;
+  }
+
+  @media ${media.desktop} {
+    width: 30rem;
+  }
+
+  @media ${media.largeDesktop} {
+    width: 36.8rem;
   }
 `;
 

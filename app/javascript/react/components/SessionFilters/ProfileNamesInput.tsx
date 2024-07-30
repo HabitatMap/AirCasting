@@ -18,7 +18,7 @@ const ProfileNamesInput = () => {
   const [selectedItem, setSelectedItem] = useState<string>("");
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { setUrlParams, usernames } = useMapParams();
+  const { setUrlParams, usernames, searchParams } = useMapParams();
 
   const profileNames = useAppSelector(selectUsernames);
 
@@ -43,8 +43,9 @@ const ProfileNamesInput = () => {
               value: urlEncodedString.toString(),
             },
           ]);
-          dispatch(setLoading(true));
-
+          setTimeout(() => {
+            dispatch(setLoading(true));
+          }, 200);
           reset();
           setSelectedItem("");
         }
@@ -73,8 +74,9 @@ const ProfileNamesInput = () => {
         value: decodedUsernamesString.toString(),
       },
     ]);
-
-    dispatch(setLoading(true));
+    setTimeout(() => {
+      dispatch(setLoading(true));
+    }, 200);
   };
 
   useEffect(() => {

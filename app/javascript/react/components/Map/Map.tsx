@@ -24,6 +24,7 @@ import {
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setLoading } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -85,6 +86,7 @@ const Map = () => {
     searchParams,
     usernames,
     tags,
+    setUrlParams,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -158,7 +160,7 @@ const Map = () => {
       initialOffset,
       initialUnitSymbol,
       sensorName,
-      usernames,
+      usernamesDecoded,
       tags,
     ]
   );
@@ -174,6 +176,7 @@ const Map = () => {
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
     }
+    dispatch(setLoading(false));
   }, [filters, loading, fixedSessionTypeSelected]);
 
   useEffect(() => {
@@ -209,6 +212,19 @@ const Map = () => {
         : dispatch(fetchMobileStreamById(streamId));
     }
   }, [streamId, currentUserSettings, fixedSessionTypeSelected]);
+
+  useEffect(() => {
+    console.log("currentUserSettings", currentUserSettings);
+
+    if (currentUserSettings === UserSettings.ModalView) {
+      // setUrlParams([
+      //   {
+      //     key: UrlParamsTypes.currentUserSettings,
+      //     value: UserSettings.MapView,
+      //   },
+      // ]);
+    }
+  }, [filters]);
 
   // Callbacks
   const handleMapIdle = useCallback(

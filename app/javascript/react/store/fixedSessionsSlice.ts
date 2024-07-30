@@ -6,7 +6,6 @@ import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
-import { setLoading } from "./mapSlice";
 
 interface Session {
   id: number;
@@ -66,7 +65,6 @@ export const fetchFixedSessions = createAsyncThunk<
           API_ENDPOINTS.fetchFixedSessions(sessionsData.filters)
         );
 
-      dispatch(setLoading(false));
       return response.data;
     } catch (error) {
       const message = getErrorMessage(error);

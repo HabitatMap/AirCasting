@@ -14,7 +14,7 @@ import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
-  const { searchParams, sessionType } = useMapParams();
+  const { searchParams, sessionType, setUrlParams } = useMapParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -23,6 +23,7 @@ const SessionTypeToggle = () => {
       dispatch(resetUserThresholds());
       dispatch(setLoading(true));
       const newSearchParams = new URLSearchParams(searchParams.toString());
+      console.log("newSearchParams", newSearchParams);
       newSearchParams.set(UrlParamsTypes.sessionType, type);
       navigate(`?${newSearchParams.toString()}`);
     },

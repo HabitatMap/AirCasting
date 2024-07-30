@@ -4,7 +4,8 @@ import { blue, gray300, white } from "../../assets/styles/colors";
 import { H4 } from "../Typography";
 
 const MapButtonsWrapper = styled.div`
-  position: relative;
+  position: absolute;
+  top: 10rem;
   z-index: 1;
 `;
 
