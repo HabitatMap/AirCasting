@@ -1,13 +1,13 @@
 import styled from "styled-components";
 import * as colors from "../../../../assets/styles/colors";
 import { media } from "../../../../utils/media";
-
 import { H1, H3 } from "../../../Typography";
 
-const Container = styled.div`
+const Container = styled.div<{ $isCalendarPage?: boolean }>`
   display: flex;
   align-items: center;
-  padding-bottom: 1.25rem;
+  padding-bottom: ${({ $isCalendarPage }) =>
+    $isCalendarPage ? "4rem" : "1.25rem"};
 
   @media ${media.smallDesktop} {
     justify-content: none;

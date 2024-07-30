@@ -37,10 +37,15 @@ const TimeRange: FC<TimeRangeProps> = ({ minTime, maxTime }) => {
 
   return (
     <S.TimeRangeContainer>
-      <S.Date>{formattedMinTime.date}</S.Date>
-      <S.Time>{formattedMinTime.time}</S.Time>-
-      <S.Date>{formattedMaxTime.date}</S.Date>
-      <S.Time>{formattedMaxTime.time}</S.Time>
+      <S.TimeContainer>
+        <S.Date>{formattedMinTime.date}</S.Date>
+        <S.Time>{formattedMinTime.time}</S.Time>
+      </S.TimeContainer>
+      -
+      <S.TimeContainer>
+        <S.Date>{formattedMaxTime.date}</S.Date>
+        <S.Time>{formattedMaxTime.time}</S.Time>
+      </S.TimeContainer>
     </S.TimeRangeContainer>
   );
 };

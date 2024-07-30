@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { gray300 } from "../../assets/styles/colors";
+import { gray100, gray300 } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 interface ContainerProps {
@@ -43,8 +43,6 @@ const Container = styled.div<ContainerProps>`
     .custom-arrow {
       position: absolute;
       visibility: visible;
-      width: 48px;
-      height: 48px;
     }
   }
 `;
@@ -67,27 +65,60 @@ const MeasurementContainer = styled.div`
 
 const TimeRangeContainer = styled.div`
   display: flex;
-  width: 100%;
+  min-width: 29rem;
+  height: 4rem;
   gap: 1rem;
   color: ${gray300};
   justify-content: center;
   align-items: center;
   font-weight: 300;
-  padding-right: 0.5rem;
+  position: absolute;
+  top: 10.8rem;
+  left: 6.5rem;
+  z-index: 1;
+  background-color: ${gray100};
   @media ${media.desktop} {
     justify-content: flex-end;
     padding-right: 0;
+    position: inherit;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    background-color: transparent;
+    width: 100%;
+    height: auto;
   }
 `;
 
 const Date = styled.div`
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 500;
+  @media ${media.desktop} {
+    font-size: 1.6rem;
+  }
 `;
 
 const Time = styled.div`
-  font-size: 1.6rem;
+  font-size: 1rem;
   font-weight: 300;
+  @media ${media.desktop} {
+    font-size: 1.6rem;
+  }
 `;
 
-export { Container, Date, MeasurementContainer, Time, TimeRangeContainer };
+const TimeContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
+export {
+  Container,
+  Date,
+  MeasurementContainer,
+  Time,
+  TimeContainer,
+  TimeRangeContainer,
+};

@@ -315,10 +315,62 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
 const getRangeSelectorOptions = (
   fixedSessionTypeSelected: boolean,
   totalDuration: number,
-  selectedRange?: number
+  selectedRange?: number,
+  isCalendarPage: boolean = false
 ): RangeSelectorOptions => {
   const { t } = useTranslation();
   const isMobile = useMobileDetection();
+
+  const baseCalendarOptions: RangeSelectorOptions = {
+    enabled: true,
+    buttonPosition: {
+      align: "center" as AlignValue,
+      y: -50,
+    },
+    buttonTheme: {
+      fill: "none",
+      width: 100,
+      height: 34,
+      r: 20,
+      stroke: "none",
+      "stroke-width": 1,
+      style: {
+        fontFamily: "Roboto, sans-serif",
+        fontSize: "1.4rem",
+        color: gray300,
+        fontWeight: "regular",
+      },
+
+      states: {
+        hover: {
+          fill: blue,
+          style: {
+            color: white,
+          },
+        },
+
+        select: {
+          fill: blue,
+          style: {
+            color: white,
+            fontWeight: "bold",
+          },
+        },
+
+        disabled: {
+          style: {
+            color: "#a3a0a4",
+            cursor: "default",
+          },
+        },
+      },
+    },
+    labelStyle: {
+      display: "none",
+    },
+    buttonSpacing: 10,
+    inputEnabled: false,
+  };
   const baseOptions: RangeSelectorOptions = {
     enabled: isMobile ? false : true,
     buttonPosition: {
@@ -360,9 +412,9 @@ const getRangeSelectorOptions = (
     inputEnabled: false,
   };
 
-  if (fixedSessionTypeSelected) {
+  if (isCalendarPage) {
     return {
-      ...baseOptions,
+      ...baseCalendarOptions,
       buttons: [
         { type: "hour", count: 24, text: t("graph.24Hours") },
         totalDuration > MILLISECONDS_IN_A_WEEK
@@ -376,20 +428,37 @@ const getRangeSelectorOptions = (
       selected: selectedRange,
     };
   } else {
-    return {
-      ...baseOptions,
-      buttons: [
-        totalDuration < MILLISECONDS_IN_A_5_MINUTES
-          ? { type: "all", text: t("graph.fiveMinutes") }
-          : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
-        totalDuration < MILLISECONDS_IN_AN_HOUR
-          ? { type: "all", text: t("graph.oneHour") }
-          : { type: "minute", count: 60, text: t("graph.oneHour") },
-        { type: "all", text: t("graph.all") },
-      ],
-      allButtonsEnabled: true,
-      selected: selectedRange,
-    };
+    if (fixedSessionTypeSelected) {
+      return {
+        ...baseOptions,
+        buttons: [
+          { type: "hour", count: 24, text: t("graph.24Hours") },
+          totalDuration > MILLISECONDS_IN_A_WEEK
+            ? { type: "day", count: 7, text: t("graph.oneWeek") }
+            : { type: "all", text: t("graph.oneWeek") },
+          totalDuration > MILLISECONDS_IN_A_MONTH
+            ? { type: "week", count: 4, text: t("graph.oneMonth") }
+            : { type: "all", text: t("graph.oneMonth") },
+        ],
+        allButtonsEnabled: true,
+        selected: selectedRange,
+      };
+    } else {
+      return {
+        ...baseOptions,
+        buttons: [
+          totalDuration < MILLISECONDS_IN_A_5_MINUTES
+            ? { type: "all", text: t("graph.fiveMinutes") }
+            : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
+          totalDuration < MILLISECONDS_IN_AN_HOUR
+            ? { type: "all", text: t("graph.oneHour") }
+            : { type: "minute", count: 60, text: t("graph.oneHour") },
+          { type: "all", text: t("graph.all") },
+        ],
+        allButtonsEnabled: true,
+        selected: selectedRange,
+      };
+    }
   }
 };
 

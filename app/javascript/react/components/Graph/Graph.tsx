@@ -105,7 +105,8 @@ const Graph: React.FC<GraphProps> = ({
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected,
     totalDuration,
-    selectedRange
+    selectedRange,
+    isCalendarPage
   );
   const plotOptions = getPlotOptions(fixedSessionTypeSelected, streamId);
 
@@ -192,13 +193,11 @@ const Graph: React.FC<GraphProps> = ({
         minWidth: 100,
         scrollPositionX: 1,
       },
-      events: !isMobile
-        ? {
-            load: function () {
-              handleLoad.call(this, isCalendarPage);
-            },
-          }
-        : undefined,
+      events: {
+        load: function () {
+          handleLoad.call(this, isCalendarPage, isMobile);
+        },
+      },
     },
     responsive,
     tooltip: tooltipOptions,

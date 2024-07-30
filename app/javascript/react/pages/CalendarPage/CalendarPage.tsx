@@ -99,6 +99,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           {isMobile && (
             <S.GraphContainer $isMobile={isMobile}>
               <HeaderToggle
+                isCalendarPage={true}
                 titleText={
                   <S.StyledContainer>
                     {t("calendarHeader.graphTitle")}
