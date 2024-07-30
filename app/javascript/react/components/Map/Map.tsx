@@ -86,7 +86,6 @@ const Map = () => {
     searchParams,
     usernames,
     tags,
-    setUrlParams,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -214,15 +213,8 @@ const Map = () => {
   }, [streamId, currentUserSettings, fixedSessionTypeSelected]);
 
   useEffect(() => {
-    console.log("currentUserSettings", currentUserSettings);
-
     if (currentUserSettings === UserSettings.ModalView) {
-      // setUrlParams([
-      //   {
-      //     key: UrlParamsTypes.currentUserSettings,
-      //     value: UserSettings.MapView,
-      //   },
-      // ]);
+      revertUserSettingsAndResetIds();
     }
   }, [filters]);
 
