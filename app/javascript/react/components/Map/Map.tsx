@@ -311,9 +311,11 @@ const Map = () => {
   const setPreviousZoomOnTheMap = () => {
     if (
       currentUserSettings === UserSettings.MapView &&
-      ![UserSettings.MapLegendView, UserSettings.FiltersView].includes(
-        previousUserSettings
-      )
+      ![
+        UserSettings.MapLegendView,
+        UserSettings.FiltersView,
+        UserSettings.CrowdMapView,
+      ].includes(previousUserSettings)
     ) {
       if (mapInstance) {
         mapInstance.setCenter(previousCenter);
