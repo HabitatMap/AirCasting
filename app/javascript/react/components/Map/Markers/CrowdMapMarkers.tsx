@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
 
 import { useMap } from "@vis.gl/react-google-maps";
 
@@ -7,7 +6,7 @@ import {
   fetchCrowdMapData,
   selectCrowdMapRectangles,
 } from "../../../store/crowdMapSlice";
-import { useAppDispatch } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 
@@ -25,8 +24,8 @@ const CrowdMapMarkers = () => {
     usernames,
   } = useMapParams();
 
-  const crowdMapRectangles = useSelector(selectCrowdMapRectangles);
-  const mobileSessionsStreamIds = useSelector(selectMobileSessionsStreamIds);
+  const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
+  const mobileSessionsStreamIds = useAppSelector(selectMobileSessionsStreamIds);
 
   const filters = useMemo(
     () =>
@@ -52,6 +51,7 @@ const CrowdMapMarkers = () => {
       boundSouth,
       boundWest,
       initialMeasurementType,
+      mobileSessionsStreamIds,
       tags,
       initialUnitSymbol,
       usernames,
