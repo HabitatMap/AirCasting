@@ -159,7 +159,7 @@ const Map = () => {
       initialOffset,
       initialUnitSymbol,
       sensorName,
-      usernamesDecoded,
+      usernames,
       tags,
     ]
   );
