@@ -22,6 +22,7 @@ import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
+import { ClusterInfo } from "./ClusterInfo/ClusterInfo"; // Import ClusterInfo component
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
@@ -60,6 +61,9 @@ const FixedMarkers = ({
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
     null
   );
+
+  // State to track selected cluster
+  const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
 
   // Memoize the sessions and markers to avoid unnecessary re-renders
   const memoizedSessions = useMemo(() => sessions, [sessions]);
@@ -214,6 +218,17 @@ const FixedMarkers = ({
     }
   }, [hoverStreamId, memoizedSessions]);
 
+  const handleClusterClick = useCallback((cluster: Cluster) => {
+    setSelectedCluster(cluster);
+  }, []);
+
+  const handleZoomIn = useCallback(() => {
+    if (map && selectedCluster) {
+      map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+      map.setCenter(selectedCluster.position);
+    }
+  }, [map, selectedCluster]);
+
   return (
     <>
       {memoizedSessions.map((session) => (
@@ -228,6 +243,7 @@ const FixedMarkers = ({
               clusterer.current.addMarker(marker);
             }
           }}
+          onClick={(e) => console.log("clicked", e)}
         >
           <SessionFullMarker
             color={getColorForValue(thresholds, session.lastMeasurementValue)}
@@ -242,6 +258,15 @@ const FixedMarkers = ({
         </AdvancedMarker>
       ))}
       {hoverPosition && <HoverMarker position={hoverPosition} />}
+      {selectedCluster && (
+        <ClusterInfo
+          color={getColorForValue(thresholds, 33)} // Replace with actual color logic
+          value={`${selectedCluster.markers?.length} markers`}
+          shouldPulse={false}
+          onClick={() => setSelectedCluster(null)}
+          handleZoomIn={handleZoomIn}
+        />
+      )}
     </>
   );
 };

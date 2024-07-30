@@ -2,6 +2,7 @@ import { fetchTagsParamsType } from "../types/filters";
 
 interface ApiEndpoints {
   readonly exportSessionData: (sessionsIds: string[], email: string) => string;
+  readonly fetchClusterData: (streamIds: string[]) => string;
   readonly fetchFixedSessions: (filters: string) => string;
   readonly fetchFixedStreamById: (id: number) => string;
   readonly fetchMobileSessions: (filters: string) => string;
@@ -23,6 +24,9 @@ export const API_ENDPOINTS: ApiEndpoints = {
       .join("&");
     return `/sessions/export.json?${sessionParams}&email=${email}`;
   },
+  // might need to use & instead of , in the query string
+  fetchClusterData: (streamIds) =>
+    `/fixed_region.json?stream_ids=${streamIds.join(",")}`,
   fetchFixedSessions: (filters) => `/fixed/active/sessions2.json?q=${filters}`,
   fetchFixedStreamById: (id) => `/fixed_streams/${id}`,
   fetchMobileSessions: (filters) => `/mobile/sessions.json?q=${filters}`,
