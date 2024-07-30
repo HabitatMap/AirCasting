@@ -18,7 +18,7 @@ const ProfileNamesInput = () => {
   const [selectedItem, setSelectedItem] = useState<string>("");
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { setUrlParams, usernames, searchParams } = useMapParams();
+  const { setUrlParams, usernames } = useMapParams();
 
   const profileNames = useAppSelector(selectUsernames);
 
@@ -32,7 +32,10 @@ const ProfileNamesInput = () => {
         setInputValue(inputValue);
       },
       onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
-        if (newSelectedItem !== null) {
+        if (
+          newSelectedItem !== null &&
+          !decodedUsernamesArray?.includes(newSelectedItem)
+        ) {
           const decodedUsernames = usernames && decodeURIComponent(usernames);
           const selectedUsernames = decodedUsernames + ", " + newSelectedItem;
 
@@ -77,6 +80,7 @@ const ProfileNamesInput = () => {
     setTimeout(() => {
       dispatch(setLoading(true));
     }, 200);
+    setLoading(true);
   };
 
   useEffect(() => {

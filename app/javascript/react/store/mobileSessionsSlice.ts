@@ -69,22 +69,19 @@ export const fetchMobileSessions = createAsyncThunk<
   SessionsResponse,
   SessionsData,
   { rejectValue: string }
->(
-  "sessions/fetchMobileSessions",
-  async (sessionsData, { dispatch, rejectWithValue }) => {
-    try {
-      const response: AxiosResponse<SessionsResponse, Error> =
-        await oldApiClient.get(
-          API_ENDPOINTS.fetchMobileSessions(sessionsData.filters)
-        );
+>("sessions/fetchMobileSessions", async (sessionsData, { rejectWithValue }) => {
+  try {
+    const response: AxiosResponse<SessionsResponse, Error> =
+      await oldApiClient.get(
+        API_ENDPOINTS.fetchMobileSessions(sessionsData.filters)
+      );
 
-      return response.data;
-    } catch (error) {
-      const message = getErrorMessage(error);
-      return rejectWithValue(message);
-    }
+    return response.data;
+  } catch (error) {
+    const message = getErrorMessage(error);
+    return rejectWithValue(message);
   }
-);
+});
 
 export const mobileSessionsSlice = createSlice({
   name: "mobileSessions",

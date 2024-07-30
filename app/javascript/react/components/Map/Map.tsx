@@ -138,7 +138,7 @@ const Map = () => {
         time_from: "1685318400",
         time_to: "1717027199",
         tags: tagsDecoded,
-        usernames: usernamesDecoded,
+        usernames: usernames,
         west: boundWest,
         east: boundEast,
         south: boundSouth,

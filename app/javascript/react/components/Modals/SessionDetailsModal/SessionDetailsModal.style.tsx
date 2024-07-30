@@ -38,7 +38,7 @@ const SessionDetailsModal = styled(Popup)`
     justify-content: center;
     align-items: flex-end;
     pointer-events: none !important;
-    z-index: 2 !important;
+    z-index: 2;
   }
 
   &-content {

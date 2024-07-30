@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import useMobileDetection from "../../utils/useScreenSizeDetection";
 import DesktopHeader from "./DesktopHeader";
 import { MobileCalendarHeader, MobileHeader } from "./MobileHeader";
 import * as S from "./Navbar.style";
@@ -11,7 +10,6 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
-  const isMobile = useMobileDetection();
   const [navMenuVisible, setNavMenuVisible] = useState<boolean>(false);
   const { t } = useTranslation();
 
@@ -34,7 +32,6 @@ const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
         toggleMenuVisibility={toggleMenuVisibility}
         t={t}
       />
-      {/* {!isMobile && isMapPage && <MapButtons />} */}
     </S.Header>
   );
 };
