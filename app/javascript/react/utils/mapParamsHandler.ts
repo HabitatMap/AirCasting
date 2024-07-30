@@ -224,22 +224,6 @@ export const useMapParams = () => {
     debouncedUpdateURL(queryParams);
   }, [thresholdValues]);
 
-  const backToPreviousUserSettingsWithSessionAndStreamIdsReset =
-    useCallback(() => {
-      setUrlParams([
-        { key: UrlParamsTypes.sessionId, value: "" },
-        { key: UrlParamsTypes.streamId, value: "" },
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: previousUserSettings,
-        },
-      ]);
-    }, [searchParams]);
-
   const goToUserSettings = useCallback(
     (newUserSettings: UserSettings) => {
       setUrlParams([
@@ -256,6 +240,21 @@ export const useMapParams = () => {
     [searchParams]
   );
 
+  const revertUserSettingsAndResetIds = useCallback(() => {
+    setUrlParams([
+      { key: UrlParamsTypes.sessionId, value: "" },
+      { key: UrlParamsTypes.streamId, value: "" },
+      {
+        key: UrlParamsTypes.previousUserSettings,
+        value: currentUserSettings,
+      },
+      {
+        key: UrlParamsTypes.currentUserSettings,
+        value: previousUserSettings,
+      },
+    ]);
+  }, [searchParams]);
+
   const debouncedUpdateURL = useCallback(
     debounce((params) => {
       setSearchParams(params);
@@ -264,7 +263,6 @@ export const useMapParams = () => {
   );
 
   return {
-    backToPreviousUserSettingsWithSessionAndStreamIdsReset,
     boundEast,
     boundNorth,
     boundSouth,
@@ -281,6 +279,7 @@ export const useMapParams = () => {
     previousCenter,
     previousUserSettings,
     previousZoom,
+    revertUserSettingsAndResetIds,
     initialSensorName,
     sessionId,
     sessionType,

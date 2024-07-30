@@ -23,18 +23,16 @@ export const MobileHeader = ({
   t: (key: string) => string;
 }) => {
   const {
-    backToPreviousUserSettingsWithSessionAndStreamIdsReset,
     currentUserSettings,
     previousUserSettings,
+    revertUserSettingsAndResetIds,
   } = useMapParams();
 
   return (
     <S.MobileHeaderContainer>
       {currentUserSettings === UserSettings.ModalView ? (
         <S.GoBack
-          onClick={() =>
-            backToPreviousUserSettingsWithSessionAndStreamIdsReset()
-          }
+          onClick={() => revertUserSettingsAndResetIds()}
           aria-label={t("navbar.mapPage")}
         >
           <img

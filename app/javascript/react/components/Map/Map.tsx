@@ -58,7 +58,6 @@ const Map = () => {
   // Hooks
   const dispatch = useAppDispatch();
   const {
-    backToPreviousUserSettingsWithSessionAndStreamIdsReset,
     boundEast,
     boundNorth,
     boundSouth,
@@ -75,6 +74,7 @@ const Map = () => {
     previousCenter,
     previousUserSettings,
     previousZoom,
+    revertUserSettingsAndResetIds,
     initialSensorName,
     sessionId,
     sessionType,
@@ -303,7 +303,7 @@ const Map = () => {
     }
 
     if (streamId) {
-      backToPreviousUserSettingsWithSessionAndStreamIdsReset();
+      revertUserSettingsAndResetIds();
     }
   };
 
@@ -415,9 +415,7 @@ const Map = () => {
 
       {currentUserSettings === UserSettings.ModalView && (
         <SessionDetailsModal
-          onClose={() =>
-            backToPreviousUserSettingsWithSessionAndStreamIdsReset()
-          }
+          onClose={() => revertUserSettingsAndResetIds()}
           sessionType={sessionType}
           streamId={streamId}
         />
