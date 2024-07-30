@@ -9,14 +9,9 @@ import {
 } from "../../../store/crowdMapSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
-import { Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 
-type Props = {
-  sessions: Session[];
-};
-
-const CrowdMapMarkers = ({ sessions }: Props) => {
+const CrowdMapMarkers = () => {
   const dispatch = useAppDispatch();
   const map = useMap();
   const {

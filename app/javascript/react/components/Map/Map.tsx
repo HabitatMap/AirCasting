@@ -388,7 +388,7 @@ const Map = () => {
         )}
         {!fixedSessionTypeSelected &&
           (currentUserSettings === UserSettings.CrowdMapView ? (
-            <CrowdMapMarkers sessions={sessionsPoints} />
+            <CrowdMapMarkers />
           ) : (
             <MobileMarkers
               sessions={sessionsPoints}
