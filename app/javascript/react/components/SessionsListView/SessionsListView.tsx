@@ -65,7 +65,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     return () => {
       window.removeEventListener("resize", updateButtonPosition);
     };
-  }, [updateButtonPosition]);
+  }, [rect?.top]);
 
   const calculatePopupLeftPosition = () => {
     return `${buttonPosition.left - 185}px`;
