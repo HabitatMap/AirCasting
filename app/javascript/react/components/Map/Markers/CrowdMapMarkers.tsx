@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 import { useMap } from "@vis.gl/react-google-maps";
 
@@ -23,7 +23,7 @@ const CrowdMapMarkers = () => {
     initialUnitSymbol,
     usernames,
   } = useMapParams();
-
+  const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
   const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
   const mobileSessionsStreamIds = useAppSelector(selectMobileSessionsStreamIds);
 
@@ -64,7 +64,7 @@ const CrowdMapMarkers = () => {
 
   useEffect(() => {
     if (crowdMapRectangles.length > 0) {
-      crowdMapRectangles.map(
+      const newRectangles = crowdMapRectangles.map(
         (rectangle) =>
           new google.maps.Rectangle({
             bounds: new google.maps.LatLngBounds(
@@ -74,12 +74,19 @@ const CrowdMapMarkers = () => {
             map: map,
           })
       );
+      rectanglesRef.current.push(...newRectangles);
     }
-  }, [crowdMapRectangles]);
 
-  // const thresholds = useSelector(selectThresholds);
+    // Cleanup function to remove rectangles on unmount
+    return () => {
+      rectanglesRef.current.forEach((rectangle) => rectangle.setMap(null));
+      rectanglesRef.current = [];
+    };
+  }, [crowdMapRectangles, map]);
 
   return null;
 };
+
+// const thresholds = useSelector(selectThresholds);
 
 export { CrowdMapMarkers };
