@@ -3,7 +3,10 @@ import { useSelector } from "react-redux";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { fetchCrowdMapData } from "../../../store/crowdMapSlice";
+import {
+  fetchCrowdMapData,
+  selectCrowdMapRectangles,
+} from "../../../store/crowdMapSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
@@ -62,10 +65,13 @@ const CrowdMapMarkers = ({ sessions }: Props) => {
   const map = useMap();
 
   const thresholds = useSelector(selectThresholds);
+  const crowdMapRectangles = useSelector(selectCrowdMapRectangles);
 
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
   );
+
+  console.log("crowdMapRectangles", crowdMapRectangles);
 
   return (
     <>

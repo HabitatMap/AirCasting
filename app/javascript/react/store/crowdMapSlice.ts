@@ -6,6 +6,7 @@ import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { RootState } from "./";
 
 interface RectangleData {
   value: number;
@@ -62,3 +63,5 @@ export const crowdMapSlice = createSlice({
 });
 
 export default crowdMapSlice.reducer;
+export const selectCrowdMapRectangles = (state: RootState) =>
+  state.crowdMap.rectangles;
