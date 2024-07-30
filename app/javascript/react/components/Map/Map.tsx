@@ -310,7 +310,9 @@ const Map = () => {
 
   const setPreviousZoomOnTheMap = () => {
     if (
-      currentUserSettings === UserSettings.MapView &&
+      [UserSettings.MapView, UserSettings.CrowdMapView].includes(
+        currentUserSettings
+      ) &&
       ![
         UserSettings.MapLegendView,
         UserSettings.FiltersView,
@@ -391,6 +393,7 @@ const Map = () => {
         {!fixedSessionTypeSelected &&
           (currentUserSettings === UserSettings.CrowdMapView ? (
             <CrowdMapMarkers
+              onMarkerClick={handleMarkerClick}
               pulsatingSessionId={pulsatingSessionId}
               sessions={sessionsPoints}
             />
