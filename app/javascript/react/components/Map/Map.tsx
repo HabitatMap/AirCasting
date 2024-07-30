@@ -50,6 +50,7 @@ import { ResetButtonVariant } from "../ThresholdConfigurator/ResetButton";
 import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfigurator";
 import { Legend } from "./Legend/Legend";
 import * as S from "./Map.style";
+import { CrowdMapMarkers } from "./Markers/CrowdMapMarkers";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
@@ -385,14 +386,18 @@ const Map = () => {
             pulsatingSessionId={pulsatingSessionId}
           />
         )}
-        {!fixedSessionTypeSelected && (
-          <MobileMarkers
-            sessions={sessionsPoints}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={streamId}
-            pulsatingSessionId={pulsatingSessionId}
-          />
-        )}
+        {!fixedSessionTypeSelected &&
+          (currentUserSettings === UserSettings.CrowdMapView ? (
+            <CrowdMapMarkers sessions={sessionsPoints} />
+          ) : (
+            <MobileMarkers
+              sessions={sessionsPoints}
+              onMarkerClick={handleMarkerClick}
+              selectedStreamId={streamId}
+              pulsatingSessionId={pulsatingSessionId}
+            />
+          ))}
+
         {streamId && !fixedSessionTypeSelected && (
           <StreamMarkers
             sessions={mobileStreamPoints}
