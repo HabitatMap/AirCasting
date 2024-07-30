@@ -228,7 +228,11 @@ const Map = () => {
           map.setZoom(currentZoom);
         }
       } else {
-        if (currentUserSettings === UserSettings.MapView) {
+        if (
+          [UserSettings.MapView, UserSettings.CrowdMapView].includes(
+            currentUserSettings
+          )
+        ) {
           const currentCenter = JSON.stringify(
             map.getCenter()?.toJSON() || previousCenter
           );
@@ -314,6 +318,7 @@ const Map = () => {
         currentUserSettings
       ) &&
       ![
+        UserSettings.MapView,
         UserSettings.MapLegendView,
         UserSettings.FiltersView,
         UserSettings.CrowdMapView,
