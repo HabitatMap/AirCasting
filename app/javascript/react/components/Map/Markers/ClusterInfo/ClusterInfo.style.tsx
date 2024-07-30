@@ -3,11 +3,11 @@ import { gray400 } from "../../../../assets/styles/colors";
 import { H4 } from "../../../Typography";
 
 interface ClusterInfoProps {
-  color: string;
+  $color: string;
 }
 
 interface ClusterInfoShadowProps {
-  color: string;
+  $color: string;
   $shouldPulse?: boolean;
 }
 
@@ -26,10 +26,9 @@ const pulseAnimation = keyframes`
   }
 `;
 
-const ClusterInfoContainer = styled.div`
+const ClusterInfoContainer = styled.div<ClusterInfoProps>`
   display: flex;
   position: absolute;
-  // To match the position of the marker with the center of the shadow circle
   top: -2rem;
   left: -2rem;
   width: 8rem;
@@ -37,6 +36,7 @@ const ClusterInfoContainer = styled.div`
   cursor: pointer;
   z-index: 100;
   pointer-events: auto;
+  border: 1px solid ${(props) => props.$color};
 `;
 
 const ShadowCircle = styled.div<ClusterInfoShadowProps>`
@@ -45,8 +45,8 @@ const ShadowCircle = styled.div<ClusterInfoShadowProps>`
   border-radius: 50%;
   background: radial-gradient(
     circle at center,
-    ${(props) => props.color} 0%,
-    ${(props) => props.color} 30%,
+    ${(props) => props.$color} 0%,
+    ${(props) => props.$color} 30%,
     transparent 100%
   );
   filter: blur(5px);
@@ -81,7 +81,7 @@ const ClusterCircle = styled.div<ClusterInfoProps>`
   width: 1.2rem;
   height: 1.2rem;
   border-radius: 50%;
-  background-color: ${(props) => props.color};
+  background-color: ${(props) => props.$color};
   pointer-events: none;
 `;
 

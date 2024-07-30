@@ -7,17 +7,16 @@ import React, {
   useState,
 } from "react";
 import { useSelector } from "react-redux";
-
 import {
   Cluster,
   GridAlgorithm,
   Marker,
   MarkerClusterer,
   SuperClusterAlgorithm,
+  defaultOnClusterClickHandler,
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
@@ -25,8 +24,10 @@ import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo"; // Import ClusterInfo component
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
-
 import type { LatLngLiteral } from "../../../types/googleMaps";
+import { API_ENDPOINTS } from "../../../api/apiEndpoints";
+import { oldApiClient } from "../../../api/apiClient";
+import { selectHoverStreamId } from "../../../store/mapSlice";
 
 type Props = {
   sessions: Session[];
@@ -34,6 +35,10 @@ type Props = {
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
 };
+
+interface CustomMarkerClusterer extends MarkerClusterer {
+  markerStreamIdMap?: Map<Marker, string>;
+}
 
 const FixedMarkers = ({
   sessions,
@@ -45,7 +50,7 @@ const FixedMarkers = ({
 
   const map = useMap();
 
-  const clusterer = useRef<MarkerClusterer | null>(null);
+  const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
@@ -82,7 +87,8 @@ const FixedMarkers = ({
           maxZoom: 21,
           radius: 40,
         }),
-      });
+        onClusterClick: handleClusterClick,
+      }) as CustomMarkerClusterer;
     }
   }, [map, thresholds]);
 
@@ -102,17 +108,32 @@ const FixedMarkers = ({
       const sessionStreamIds = memoizedSessions.map(
         (session) => session.point.streamId
       );
+      // Track clustered markers and their stream IDs
+      const markerStreamIdMap = new Map<Marker, string>();
+
       Object.keys(memoizedMarkers).forEach((key) => {
         if (!sessionStreamIds.includes(key)) {
           delete memoizedMarkers[key];
         }
       });
+
       const validMarkers = Object.values(memoizedMarkers).filter(
         (marker): marker is google.maps.marker.AdvancedMarkerElement =>
           marker !== null
       );
+
+      validMarkers.forEach((marker) => {
+        const streamId = sessionStreamIds.find(
+          (id) => memoizedMarkers[id] === marker
+        );
+        if (streamId) {
+          markerStreamIdMap.set(marker, streamId);
+        }
+      });
+
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
+      clusterer.current.markerStreamIdMap = markerStreamIdMap; // Store the map in clusterer
     }
   }, [memoizedSessions, memoizedMarkers]);
 
@@ -130,7 +151,7 @@ const FixedMarkers = ({
       const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
       if (pulsatingSessionStreamId && clusterer.current) {
         const pulsatingCluster: Cluster | undefined =
-          // @ts-ignore:next-line
+          //@ts-expect-error
           clusterer.current.clusters.find(
             (cluster: Cluster) =>
               cluster.markers &&
@@ -205,7 +226,6 @@ const FixedMarkers = ({
   );
 
   useEffect(() => {
-    // If hoverStreamId is set, update hoverPosition only if it's not null
     if (hoverStreamId) {
       const hoveredSession = memoizedSessions.find(
         (session) => Number(session.point.streamId) === hoverStreamId
@@ -218,14 +238,43 @@ const FixedMarkers = ({
     }
   }, [hoverStreamId, memoizedSessions]);
 
-  const handleClusterClick = useCallback((cluster: Cluster) => {
-    setSelectedCluster(cluster);
-  }, []);
+  const handleClusterClick = useCallback(
+    async (
+      event: google.maps.MapMouseEvent,
+      cluster: Cluster,
+      map: google.maps.Map
+    ) => {
+      setSelectedCluster(cluster);
+      const markerStreamIdMap = clusterer.current?.markerStreamIdMap;
+
+      //@ts-expect-error
+      const streamIds = cluster.markers
+        .map((marker: Marker) => markerStreamIdMap?.get(marker))
+        .filter((streamId) => streamId !== undefined);
+
+      console.log("Stream IDs:", streamIds);
+      // move cluster data to slice
+      if (streamIds && streamIds.length > 0) {
+        try {
+          const response = await oldApiClient.get(
+            API_ENDPOINTS.fetchClusterData(streamIds as string[])
+          );
+          console.log("Cluster data:", response.data);
+        } catch (error) {
+          console.error("Error fetching cluster data:", error);
+        }
+      }
+    },
+    []
+  );
 
   const handleZoomIn = useCallback(() => {
     if (map && selectedCluster) {
-      map.setZoom(ZOOM_FOR_SELECTED_SESSION);
-      map.setCenter(selectedCluster.position);
+      defaultOnClusterClickHandler(
+        { stop: () => {} } as google.maps.MapMouseEvent,
+        selectedCluster,
+        map
+      );
     }
   }, [map, selectedCluster]);
 
@@ -262,8 +311,6 @@ const FixedMarkers = ({
         <ClusterInfo
           color={getColorForValue(thresholds, 33)} // Replace with actual color logic
           value={`${selectedCluster.markers?.length} markers`}
-          shouldPulse={false}
-          onClick={() => setSelectedCluster(null)}
           handleZoomIn={handleZoomIn}
         />
       )}
