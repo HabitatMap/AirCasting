@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Graph } from "../../components/Graph";
 
 import MeasurementComponent from "../../components/Graph/MeasurementComponent";
+import TimeRange from "../../components/Graph/TimeRage";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
@@ -104,11 +105,16 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   </S.StyledContainer>
                 }
                 componentToToggle={
-                  <Graph
-                    streamId={streamId}
-                    sessionType={SessionTypes.FIXED}
-                    isCalendarPage={true}
-                  />
+                  <>
+                    <TimeRange minTime={minTime} maxTime={maxTime} />
+                    <Graph
+                      streamId={streamId}
+                      sessionType={SessionTypes.FIXED}
+                      isCalendarPage={true}
+                    />
+
+                    <MeasurementComponent />
+                  </>
                 }
               />
             </S.GraphContainer>
@@ -166,14 +172,14 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             <S.GraphContainer $isMobile={isMobile}>
               <HeaderToggle
                 titleText={
-                  <S.StyledContainer>
+                  <S.StyledContainerWithGraph>
                     {t("calendarHeader.graphTitle")}
-                    <MeasurementComponent />
+
                     <>
-                      {minTime}
-                      {maxTime}
+                      <MeasurementComponent />
+                      <TimeRange minTime={minTime} maxTime={maxTime} />
                     </>
-                  </S.StyledContainer>
+                  </S.StyledContainerWithGraph>
                 }
                 componentToToggle={
                   <Graph

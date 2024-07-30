@@ -2,10 +2,12 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import toggleIcon from "../../../../assets/icons/toggleIcon.svg";
+import { DateFormat } from "../../../../types/dateFormat";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../../utils/thresholdColors";
+import { formattedTime } from "../../../../utils/timeFormatter";
 import * as S from "../SessionDetailsModal.style";
 
 interface Extremes {
@@ -21,7 +23,6 @@ interface ModalMobileHeaderProps {
   thresholds: Thresholds;
   extremes: Extremes;
   isMobile: boolean;
-  formattedTime: (time: string) => string;
 }
 
 const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
@@ -31,7 +32,6 @@ const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
   thresholds,
   extremes,
   isMobile,
-  formattedTime,
 }) => {
   const { t } = useTranslation();
 
@@ -97,8 +97,15 @@ const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
             </>
           )}
           <S.TimeRange>
-            {formattedTime(streamShortInfo.startTime ?? "")} -{" "}
-            {formattedTime(streamShortInfo.endTime ?? "")}
+            {formattedTime(
+              streamShortInfo.startTime ?? "",
+              DateFormat.us_with_time
+            )}{" "}
+            -{" "}
+            {formattedTime(
+              streamShortInfo.endTime ?? "",
+              DateFormat.us_with_time
+            )}
           </S.TimeRange>
         </S.Wrapper>
       </S.ContentWrapper>

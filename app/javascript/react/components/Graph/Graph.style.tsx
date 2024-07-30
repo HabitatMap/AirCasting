@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { gray300 } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 interface ContainerProps {
@@ -49,12 +50,44 @@ const Container = styled.div<ContainerProps>`
 `;
 
 const MeasurementContainer = styled.div`
-  display: grid;
-  grid-template-columns: auto auto 1fr;
-  align-items: right;
-  grid-gap: 1rem;
+  display: flex;
   width: 100%;
-  justify-items: flex-end;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-right: 0.5rem;
+
+  @media ${media.desktop} {
+    justify-content: flex-end;
+    padding-right: 0;
+    margin-top: 0;
+  }
 `;
 
-export { Container, MeasurementContainer };
+const TimeRangeContainer = styled.div`
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+  color: ${gray300};
+  justify-content: center;
+  align-items: center;
+  font-weight: 300;
+  padding-right: 0.5rem;
+  @media ${media.desktop} {
+    justify-content: flex-end;
+    padding-right: 0;
+  }
+`;
+
+const Date = styled.div`
+  font-size: 1.6rem;
+  font-weight: 500;
+`;
+
+const Time = styled.div`
+  font-size: 1.6rem;
+  font-weight: 300;
+`;
+
+export { Container, Date, MeasurementContainer, Time, TimeRangeContainer };

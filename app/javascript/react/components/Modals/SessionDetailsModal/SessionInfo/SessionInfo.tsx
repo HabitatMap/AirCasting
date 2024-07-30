@@ -1,4 +1,3 @@
-import moment from "moment";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -46,10 +45,6 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
   const thresholds = useSelector(selectThresholds);
   const { t } = useTranslation();
 
-  const formattedTime = (time: string) => {
-    return moment.utc(time).format("MM/DD/YYYY HH:mm");
-  };
-
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
   };
@@ -63,7 +58,6 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
         thresholds={thresholds}
         extremes={extremes}
         isMobile={isMobile}
-        formattedTime={formattedTime}
       />
       <ModalDesktopHeader
         streamShortInfo={streamShortInfo}
@@ -71,7 +65,6 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
         extremes={extremes}
         fixedSessionTypeSelected={fixedSessionTypeSelected}
         streamId={streamId}
-        formattedTime={formattedTime}
       />
     </S.InfoContainer>
   );

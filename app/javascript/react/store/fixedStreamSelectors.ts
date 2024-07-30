@@ -55,7 +55,7 @@ const selectFixedStreamShortInfo = createSelector(
   [selectFixedStreamData, selectLastDailyAverage],
   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
-    const lastMeasurementDateLabel = moment(date).format("MMM D");
+    const lastMeasurementDateLabel = moment(date)?.format("MMM D") || "";
     const lastUpdate = moment(fixedStreamData.stream.lastUpdate)
       .local()
       .format("HH:mm MMM D YYYY");
@@ -71,9 +71,10 @@ const selectFixedStreamShortInfo = createSelector(
       ? Number(newestAverageObject.value)
       : 0;
 
-    const newestDate = new Date(
-      Math.max(...fixedStreamData.measurements.map((m) => m.time))
-    );
+    const newestDate =
+      fixedStreamData.measurements.length > 0
+        ? new Date(Math.max(...fixedStreamData.measurements.map((m) => m.time)))
+        : new Date();
 
     const newestDayMeasurements = fixedStreamData.measurements.filter(
       (m) => new Date(m.time).toDateString() === newestDate.toDateString()
@@ -106,10 +107,39 @@ const selectFixedStreamShortInfo = createSelector(
 
 const selectMinAndMaxTime = createSelector(
   [selectFixedStream],
-  (fixedStream) => ({
-    minTime: fixedStream.minTime,
-    maxTime: fixedStream.maxTime,
-  })
+  (fixedStream) => {
+    const dateOptions = {
+      year: "numeric" as const,
+      month: "numeric" as const,
+      day: "numeric" as const,
+    };
+
+    const timeOptions = {
+      hour: "2-digit" as const,
+      minute: "2-digit" as const,
+      second: "2-digit" as const,
+      hour12: false,
+    };
+
+    const formatDate = (date: number | null) => {
+      if (!date) return { date: null, time: null };
+      const dateString = new Date(date).toLocaleDateString(
+        "en-US",
+        dateOptions
+      );
+      const timeString = new Date(date).toLocaleTimeString(
+        "en-US",
+        timeOptions
+      );
+      return { date: dateString, time: timeString };
+    };
+
+    console.log("fixedStream.minTime slice", formatDate(fixedStream.minTime));
+    return {
+      minTime: formatDate(fixedStream.minTime),
+      maxTime: formatDate(fixedStream.maxTime),
+    };
+  }
 );
 
 export {

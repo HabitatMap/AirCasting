@@ -64,6 +64,10 @@ const StyledContainer = styled.div`
   }
 `;
 
+const StyledContainerWithGraph = styled(StyledContainer)`
+  grid-template-columns: auto 2fr 1fr;
+`;
+
 const ThresholdContainer = styled.div<{ $isMobile: boolean }>`
   display: flex;
   flex-direction: column;
@@ -119,6 +123,7 @@ export {
   SliderWrapper,
   StationDataContainer,
   StyledContainer,
+  StyledContainerWithGraph,
   ThresholdContainer,
   Units,
 };
