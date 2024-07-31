@@ -80,9 +80,20 @@ const selectMobileSessionsList = createSelector(
     )
 );
 
+const selectMobileSessionsStreamIds = createSelector(
+  [selectMobileSessionsState],
+  (mobileSessionsState): number[] =>
+    mobileSessionsState.sessions.map(({ id, streams }) => {
+      const firstStream = streams[Object.keys(streams)[0]];
+
+      return firstStream.id;
+    })
+);
+
 export {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
   selectMobileSessionsPoints,
   selectMobileSessionsState,
+  selectMobileSessionsStreamIds,
 };

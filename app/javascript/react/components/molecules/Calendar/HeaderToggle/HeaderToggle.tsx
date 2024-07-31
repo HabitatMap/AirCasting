@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import headerArrowIcon from "../../../../assets/icons/headerArrowIcon.svg";
-
 import useMobileDetection from "../../../../utils/useScreenSizeDetection";
 import * as S from "./HeaderToggle.style";
 

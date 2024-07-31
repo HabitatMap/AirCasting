@@ -7,6 +7,7 @@ import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CloseButton } from "../Map/Legend/Legend.style";
+import { CrowdMapToggle } from "./CrowdmapToggle";
 import { ProfileNamesInput } from "./ProfileNamesInput";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
@@ -17,10 +18,12 @@ interface MobileSessionFiltersProps {
 }
 
 const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
-  const { t } = useTranslation();
   const fixedSessionsState = useAppSelector(selectFixedSessionsState);
   const mobileSessionsState = useAppSelector(selectMobileSessionsState);
   const { sessionType } = useMapParams();
+  const { t } = useTranslation();
+
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
   const sessionsCount = useMemo(() => {
     switch (sessionType) {
@@ -41,6 +44,7 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
         <SessionTypeToggle />
         <ProfileNamesInput />
         <TagsInput />
+        {!fixedSessionTypeSelected && <CrowdMapToggle />}
       </S.ModalContent>
       <S.ShowSessionsButton
         // temporarily onClose

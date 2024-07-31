@@ -65,7 +65,10 @@ const TagsInput = () => {
         setInputValue(inputValue);
       },
       onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
-        if (newSelectedItem !== null) {
+        if (
+          newSelectedItem !== null &&
+          !decodedTagsArray?.includes(newSelectedItem)
+        ) {
           const decodedTags = tags && decodeURIComponent(tags);
           const selectedTags = decodedTags + ", " + newSelectedItem;
 
@@ -76,8 +79,9 @@ const TagsInput = () => {
               value: urlEncodedString.toString(),
             },
           ]);
-
-          dispatch(setLoading(true));
+          setTimeout(() => {
+            dispatch(setLoading(true));
+          }, 200);
           reset();
           setSelectedItem("");
         }
@@ -102,8 +106,9 @@ const TagsInput = () => {
         value: decodedTagsString.toString(),
       },
     ]);
-
-    dispatch(setLoading(true));
+    setTimeout(() => {
+      dispatch(setLoading(true));
+    }, 200);
   };
 
   useEffect(() => {

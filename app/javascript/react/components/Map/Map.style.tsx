@@ -2,26 +2,11 @@ import styled from "styled-components";
 
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
-import { Button } from "../Button/Button.style";
 
 const containerStyle = {
   width: "100%",
   height: "100vh",
 };
-
-const FixedButton = styled(Button)`
-  top: 200px;
-  position: absolute;
-  z-index: 1;
-  text-transform: uppercase;
-`;
-
-const MobileButton = styled(Button)`
-  top: 250px;
-  position: absolute;
-  z-index: 1;
-  text-transform: uppercase;
-`;
 
 const DesktopContainer = styled.div`
   display: none;
@@ -59,7 +44,7 @@ const ThresholdContainer = styled.div`
   width: 100%;
   bottom: 0;
 
-  z-index: 4;
+  z-index: 1;
   background-color: ${colors.white};
   box-shadow: 2px 2px 4px 0px ${colors.gray900};
 
@@ -94,11 +79,9 @@ const ThresholdContainer = styled.div`
 `;
 
 export {
-  containerStyle,
   DesktopContainer,
-  FixedButton,
-  MobileButton,
   MobileButtons,
   MobileContainer,
   ThresholdContainer,
+  containerStyle,
 };
