@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC } from "react";
 import * as S from "./Graph.style";
 
 interface TimeRangeProps {
@@ -13,38 +13,16 @@ interface TimeRangeProps {
 }
 
 const TimeRange: FC<TimeRangeProps> = ({ minTime, maxTime }) => {
-  const [formattedMinTime, setFormattedMinTime] = useState({
-    date: minTime.date ?? "",
-    time: minTime.time ?? "",
-  });
-  const [formattedMaxTime, setFormattedMaxTime] = useState({
-    date: maxTime.date ?? "",
-    time: maxTime.time ?? "",
-  });
-
-  useEffect(() => {
-    console.log("minTime or maxTime updated", minTime, maxTime);
-
-    setFormattedMinTime({
-      date: minTime.date ?? "",
-      time: minTime.time ?? "",
-    });
-    setFormattedMaxTime({
-      date: maxTime.date ?? "",
-      time: maxTime.time ?? "",
-    });
-  }, [minTime, maxTime]);
-
   return (
     <S.TimeRangeContainer>
       <S.TimeContainer>
-        <S.Date>{formattedMinTime.date}</S.Date>
-        <S.Time>{formattedMinTime.time}</S.Time>
+        <S.Date>{minTime.date ?? ""}</S.Date>
+        <S.Time>{minTime.time ?? ""}</S.Time>
       </S.TimeContainer>
       -
       <S.TimeContainer>
-        <S.Date>{formattedMaxTime.date}</S.Date>
-        <S.Time>{formattedMaxTime.time}</S.Time>
+        <S.Date>{maxTime.date ?? ""}</S.Date>
+        <S.Time>{maxTime.time ?? ""}</S.Time>
       </S.TimeContainer>
     </S.TimeRangeContainer>
   );
