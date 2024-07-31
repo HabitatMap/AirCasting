@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 import {
   acBlue,
   gray100,
@@ -198,8 +199,11 @@ const InfoPopup = styled(SmallPopup)`
   }
 `;
 
+const CrowdMapButton = styled(Button)``;
+
 export {
   CloseSelectedItemButton,
+  CrowdMapButton,
   Header,
   HeaderTitle,
   IconWrapper,
@@ -211,8 +215,8 @@ export {
   MobileSessionFilters,
   ModalContent,
   SelectedItem,
-  SelectedItemTile,
   SelectedItemsWrapper,
+  SelectedItemTile,
   SessionFilters,
   SessionToggleWrapper,
   ShowSessionsButton,
