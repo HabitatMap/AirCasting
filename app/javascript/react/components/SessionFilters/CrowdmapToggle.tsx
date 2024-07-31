@@ -17,7 +17,12 @@ const CrowdMapToggle = () => {
   return (
     <S.SessionToggleWrapper>
       {/* temporary solution, ticket: Session Filter [Mobile]: Crowdmap Toggle */}
-      <S.CrowdMapButton onClick={handleCrowdMap}>crowdmap</S.CrowdMapButton>
+      <S.CrowdMapButton
+        onClick={handleCrowdMap}
+        disabled={[UserSettings.ModalView].includes(currentUserSettings)}
+      >
+        crowdmap
+      </S.CrowdMapButton>
     </S.SessionToggleWrapper>
   );
 };
