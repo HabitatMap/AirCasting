@@ -45,7 +45,7 @@ import {
 
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
-const getScrollbarOptions = () => {
+const getScrollbarOptions = (isCalendarPage: boolean) => {
   const isMobile = useMobileDetection();
   return {
     barBackgroundColor: gray200,
@@ -58,7 +58,7 @@ const getScrollbarOptions = () => {
     trackBorderWidth: 0,
     autoHide: false,
     showFull: true,
-    enabled: isMobile ? false : true,
+    enabled: isMobile && isCalendarPage ? true : !isMobile,
     liveRedraw: false,
   };
 };

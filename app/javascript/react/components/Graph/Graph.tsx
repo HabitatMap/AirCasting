@@ -111,7 +111,7 @@ const Graph: React.FC<GraphProps> = ({
   );
   const plotOptions = getPlotOptions(fixedSessionTypeSelected, streamId);
   const responsive = getResponsiveOptions(thresholdsState);
-  const scrollbarOptions = getScrollbarOptions();
+  const scrollbarOptions = getScrollbarOptions(isCalendarPage);
 
   useEffect(() => {
     if (!chartDataLoaded && seriesData.length > 0 && !isLoading) {
@@ -201,7 +201,11 @@ const Graph: React.FC<GraphProps> = ({
   };
 
   return (
-    <S.Container ref={graphRef} $isCalendarPage={isCalendarPage}>
+    <S.Container
+      ref={graphRef}
+      $isCalendarPage={isCalendarPage}
+      $isMobile={isMobile}
+    >
       {chartDataLoaded && (
         <HighchartsReact
           highcharts={Highcharts}
