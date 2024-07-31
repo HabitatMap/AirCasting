@@ -87,7 +87,10 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
               new google.maps.LatLng(rectangle.south, rectangle.west),
               new google.maps.LatLng(rectangle.north, rectangle.east)
             ),
+            fillColor: getColorForValue(thresholds, rectangle.value),
+            fillOpacity: 0.6,
             map: map,
+            strokeWeight: 0,
           })
       );
       rectanglesRef.current.push(...newRectangles);
