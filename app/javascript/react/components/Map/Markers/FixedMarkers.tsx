@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { useSelector } from "react-redux";
-import { useAppDispatch } from "../../../store/hooks"; // Import useAppDispatch
+import { useAppDispatch } from "../../../store/hooks";
 import {
   Cluster,
   GridAlgorithm,
@@ -51,7 +51,7 @@ const FixedMarkers = ({
   const ZOOM_FOR_SELECTED_SESSION = 15;
 
   const map = useMap();
-  const dispatch = useAppDispatch(); // Use useAppDispatch
+  const dispatch = useAppDispatch();
 
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
@@ -75,7 +75,11 @@ const FixedMarkers = ({
     top: number;
     left: number;
   } | null>(null);
+
   const clusterData = useSelector((state: RootState) => state.cluster.data);
+  const clusterLoading = useSelector(
+    (state: RootState) => state.cluster.loading
+  );
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
@@ -95,6 +99,23 @@ const FixedMarkers = ({
         onClusterClick: handleClusterClick,
       }) as CustomMarkerClusterer;
     }
+
+    const handleMapInteraction = () => {
+      setSelectedCluster(null);
+      setClusterPosition(null);
+    };
+
+    map && map.addListener("click", handleMapInteraction);
+    map && map.addListener("touchend", handleMapInteraction);
+    map && map.addListener("dragstart", handleMapInteraction);
+
+    return () => {
+      if (map) {
+        google.maps.event.clearListeners(map, "click");
+        google.maps.event.clearListeners(map, "touchend");
+        google.maps.event.clearListeners(map, "dragstart");
+      }
+    };
   }, [map, thresholds]);
 
   useEffect(() => {
@@ -245,21 +266,24 @@ const FixedMarkers = ({
       cluster: Cluster,
       map: google.maps.Map
     ) => {
-      setSelectedCluster(cluster);
+      setSelectedCluster(null);
+      setClusterPosition(null);
+
       const markerStreamIdMap = clusterer.current?.markerStreamIdMap;
 
-      //@ts-expect-error
-      const streamIds = cluster.markers
-        .map((marker: Marker) => markerStreamIdMap?.get(marker))
-        .filter((streamId) => streamId !== undefined);
+      const streamIds =
+        cluster.markers &&
+        cluster.markers
+          .map((marker: Marker) => markerStreamIdMap?.get(marker))
+          .filter((streamId) => streamId !== undefined);
 
-      console.log("Stream IDs:", streamIds);
       if (streamIds && streamIds.length > 0) {
         dispatch(fetchClusterData(streamIds as string[]));
       }
 
       const pixelPosition = getClusterPixelPosition(map, cluster.position);
       setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+      setSelectedCluster(cluster);
     },
     [dispatch]
   );
@@ -288,7 +312,6 @@ const FixedMarkers = ({
               clusterer.current.addMarker(marker);
             }
           }}
-          onClick={(e) => console.log("clicked", e)}
         >
           <SessionFullMarker
             color={getColorForValue(thresholds, session.lastMeasurementValue)}
@@ -303,7 +326,7 @@ const FixedMarkers = ({
         </AdvancedMarker>
       ))}
       {hoverPosition && <HoverMarker position={hoverPosition} />}
-      {selectedCluster && clusterPosition && clusterData && (
+      {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
         <ClusterInfo
           color={getColorForValue(thresholds, clusterData.average)}
           average={clusterData.average}

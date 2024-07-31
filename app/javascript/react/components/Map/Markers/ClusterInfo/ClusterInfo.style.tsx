@@ -5,10 +5,12 @@ interface ClusterInfoContainerProps {
   $color: string;
   $top: number;
   $left: number;
+  $isMobile?: boolean;
 }
 
 interface ClusterInfoProps {
   $color: string;
+  $isMobile?: boolean;
 }
 
 const ClusterInfoContainer = styled.div<ClusterInfoContainerProps>`
@@ -16,18 +18,20 @@ const ClusterInfoContainer = styled.div<ClusterInfoContainerProps>`
   position: absolute;
   gap: 0.5rem;
   width: fit-content;
-  cursor: pointer;
   z-index: 100;
-  pointer-events: auto;
   top: ${(props) => `${props.$top}px`};
   left: ${(props) => `${props.$left}px`};
-  transform: translate(-6%, -100%);
-  height: 2.8rem;
+
+  height: ${(props) => (props.$isMobile ? "auto" : "2.8rem")};
+  ${(props) =>
+    props.$isMobile
+      ? "transform: translate(-15%, -90%);"
+      : "transform: translate(-6%, -100%);"}
 `;
 
 const ShadowCircle = styled.div<ClusterInfoProps>`
-  height: 5rem;
-  width: 5rem;
+  width: ${(props) => (props.$isMobile ? "5rem" : "5rem")};
+  height: ${(props) => (props.$isMobile ? "5rem" : "5rem")};
   position: absolute;
   border-radius: 50%;
   z-index: 10;
@@ -39,7 +43,11 @@ const ShadowCircle = styled.div<ClusterInfoProps>`
   );
   filter: blur(5px);
   pointer-events: none;
-  transform: translate(-20%, -25%);
+
+  ${(props) =>
+    props.$isMobile
+      ? "transform: translate(-15%, -10%);"
+      : "transform: translate(-20%, -25%);"}
 `;
 
 const DataContainer = styled.div<ClusterInfoProps>`
@@ -50,7 +58,7 @@ const DataContainer = styled.div<ClusterInfoProps>`
   box-shadow: 0.125rem 0.125rem 0.25rem 0 rgba(76, 86, 96, 0.1);
   align-items: center;
   gap: 0.25rem;
-  pointer-events: none;
+  pointer-events: auto;
   border: 1px solid ${(props) => props.$color};
   background-color: ${white};
 `;
@@ -95,6 +103,29 @@ const ClusterInfoColorText = styled.span<ClusterInfoProps>`
   white-space: nowrap;
 `;
 
+const MobileDataContainer = styled(DataContainer)`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: flex-start;
+  border-radius: 2rem;
+  gap: 0.8rem;
+  height: auto;
+  padding: 0.4rem 1.6rem;
+  z-index: 20;
+  pointer-events: auto;
+`;
+
+const MobileClusterInfoText = styled(ClusterInfoText)`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+`;
+
+const MobileClusterInfoColorText = styled(ClusterInfoColorText)`
+  font-weight: bold;
+`;
+
 export {
   ClusterCircle,
   ClusterInfoBoldText,
@@ -103,5 +134,8 @@ export {
   ClusterInfoDataAndZoomIn,
   ClusterInfoText,
   DataContainer,
+  MobileClusterInfoColorText,
+  MobileClusterInfoText,
+  MobileDataContainer,
   ShadowCircle,
 };

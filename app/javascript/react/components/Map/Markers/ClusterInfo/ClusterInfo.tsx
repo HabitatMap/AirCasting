@@ -7,10 +7,14 @@ import {
   ClusterInfoDataAndZoomIn,
   ClusterInfoText,
   DataContainer,
+  MobileClusterInfoColorText,
+  MobileClusterInfoText,
+  MobileDataContainer,
   ShadowCircle,
 } from "./ClusterInfo.style";
-import { ClusterZoomIn } from "../ClusterZoomIn/ClusterZoomIn";
+import { ClusterZoomIn } from "./ClusterZoomIn/ClusterZoomIn";
 import { useTranslation } from "react-i18next";
+import useScreenSizeDetection from "../../../../utils/useScreenSizeDetection";
 
 interface ClusterProps {
   color: string;
@@ -28,28 +32,45 @@ const ClusterInfo = ({
   position,
 }: ClusterProps) => {
   const { t } = useTranslation();
+  const isMobile = useScreenSizeDetection();
+
   return (
     <>
       <ClusterInfoContainer
         $color={color}
         $top={position.top}
         $left={position.left}
+        $isMobile={isMobile}
       >
-        <ShadowCircle $color={color} />
-        <ClusterInfoDataAndZoomIn>
-          <DataContainer $color={color}>
-            <ClusterCircle $color={color} />
-            <ClusterInfoText>
-              <ClusterInfoColorText $color={color}>
+        <ShadowCircle $color={color} $isMobile={isMobile} />
+        {isMobile ? (
+          <MobileDataContainer $color={color}>
+            <MobileClusterInfoText>
+              <MobileClusterInfoColorText $color={color}>
                 {numberOfSessions} {t("map.clusterInfo.stations")}
-              </ClusterInfoColorText>
-              {" - "}
-              <ClusterInfoBoldText>{average.toFixed(0)}</ClusterInfoBoldText>
-              {` ${t("map.clusterInfo.units")} ${t("map.clusterInfo.average")}`}
-            </ClusterInfoText>
-          </DataContainer>
-          <ClusterZoomIn handleZoomIn={handleZoomIn} />
-        </ClusterInfoDataAndZoomIn>
+              </MobileClusterInfoColorText>
+              {average.toFixed(0)} {` ${t("map.clusterInfo.units")}`}
+            </MobileClusterInfoText>
+            <ClusterZoomIn handleZoomIn={handleZoomIn} color={color} />
+          </MobileDataContainer>
+        ) : (
+          <ClusterInfoDataAndZoomIn>
+            <DataContainer $color={color}>
+              <ClusterCircle $color={color} />
+              <ClusterInfoText>
+                <ClusterInfoColorText $color={color}>
+                  {numberOfSessions} {t("map.clusterInfo.stations")}
+                </ClusterInfoColorText>
+                {" - "}
+                <ClusterInfoBoldText>{average.toFixed(0)}</ClusterInfoBoldText>
+                {` ${t("map.clusterInfo.units")} ${t(
+                  "map.clusterInfo.average"
+                )}`}
+              </ClusterInfoText>
+            </DataContainer>
+            <ClusterZoomIn handleZoomIn={handleZoomIn} />
+          </ClusterInfoDataAndZoomIn>
+        )}
       </ClusterInfoContainer>
     </>
   );
