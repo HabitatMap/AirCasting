@@ -144,15 +144,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               />
             </S.ThresholdContainer>
           )}
-          {calendarIsVisible ? (
-            <Calendar
-              streamId={streamId}
-              minCalendarDate={fixedStreamData.stream.startTime}
-              maxCalendarDate={streamEndTime}
-            />
-          ) : (
-            <EmptyCalendar />
-          )}
           {isMobile && (
             <S.ThresholdContainer $isMobile={isMobile}>
               <HeaderToggle
@@ -171,6 +162,15 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 }
               />
             </S.ThresholdContainer>
+          )}
+          {calendarIsVisible ? (
+            <Calendar
+              streamId={streamId}
+              minCalendarDate={fixedStreamData.stream.startTime}
+              maxCalendarDate={streamEndTime}
+            />
+          ) : (
+            <EmptyCalendar />
           )}
           {!isMobile && (
             <S.GraphContainer $isMobile={isMobile}>

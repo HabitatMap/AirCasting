@@ -2,7 +2,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { selectFixedExtremes } from "../../store/fixedStreamSelectors";
+import {
+  selectFixedExtremes,
+  selectFixedStreamShortInfo,
+} from "../../store/fixedStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { getColorForValue } from "../../utils/thresholdColors";
 import * as S from "../Modals/SessionDetailsModal/SessionDetailsModal.style";
@@ -13,9 +16,7 @@ const MeasurementComponent: React.FC = () => {
 
   const extremes = useSelector(selectFixedExtremes);
   const thresholds = useSelector(selectThresholds);
-  // const { unitSymbol } = useMapParams();
-
-  const unitSymbol = "°C";
+  const { unitSymbol } = useSelector(selectFixedStreamShortInfo);
 
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
 
