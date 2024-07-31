@@ -112,12 +112,14 @@ const FixedMarkers = ({
     map && map.addListener("click", handleMapInteraction);
     map && map.addListener("touchend", handleMapInteraction);
     map && map.addListener("dragstart", handleMapInteraction);
+    map && map.addListener("zoom_changed", handleMapInteraction);
 
     return () => {
       if (map) {
         google.maps.event.clearListeners(map, "click");
         google.maps.event.clearListeners(map, "touchend");
         google.maps.event.clearListeners(map, "dragstart");
+        // we don't clear zoom_changed listener because it's necessary for handling zoom in on zoom in click
       }
     };
   }, [map, thresholds, dispatch]);
