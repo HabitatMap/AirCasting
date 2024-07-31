@@ -46,8 +46,9 @@ const Graph: React.FC<GraphProps> = ({
   isCalendarPage,
 }) => {
   const graphRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
 
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
   const [selectedRange, setSelectedRange] = useState(
     fixedSessionTypeSelected ? 0 : 2
   );
@@ -67,7 +68,6 @@ const Graph: React.FC<GraphProps> = ({
   const measurementType = "Particulate Matter";
 
   const isMobile = useMobileDetection();
-  const dispatch = useAppDispatch();
 
   const fixedSeriesData = (fixedGraphData?.measurements || [])
     .map((measurement: { time: any; value: any }) => [
@@ -92,16 +92,15 @@ const Graph: React.FC<GraphProps> = ({
     ? fixedSeriesData
     : mobileSeriesData;
 
-  const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected, isMobile);
-  const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
-  const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
-
   const totalDuration =
     seriesData.length > 0
       ? (seriesData[seriesData.length - 1] as any)[0] -
         (seriesData[0] as any)[0]
       : 0;
 
+  const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected, isMobile);
+  const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
+  const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected,
     totalDuration,
@@ -109,13 +108,11 @@ const Graph: React.FC<GraphProps> = ({
     isCalendarPage
   );
   const plotOptions = getPlotOptions(fixedSessionTypeSelected, streamId);
-
   const responsive = getResponsiveOptions(thresholdsState);
-
   const scrollbarOptions = getScrollbarOptions();
 
   useEffect(() => {
-    if (seriesData.length > 0 && !isLoading) {
+    if (!chartDataLoaded && seriesData.length > 0 && !isLoading) {
       if (fixedSessionTypeSelected) {
         const newestMeasurement = fixedSeriesData[fixedSeriesData.length - 1];
         const minTime = newestMeasurement[0] - MILLISECONDS_IN_A_DAY;
@@ -124,7 +121,6 @@ const Graph: React.FC<GraphProps> = ({
           dispatch(
             updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
           );
-          setChartDataLoaded(true);
         }
       } else {
         const minTime = Math.min(...mobileSeriesData.map((m) => m.x as number));
@@ -132,10 +128,10 @@ const Graph: React.FC<GraphProps> = ({
         dispatch(
           updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
         );
-        setChartDataLoaded(true);
       }
+      setChartDataLoaded(true);
     }
-  }, [seriesData, isLoading]);
+  }, [chartDataLoaded, seriesData, isLoading]);
 
   useEffect(() => {
     const graphElement = graphRef.current;
@@ -145,9 +141,6 @@ const Graph: React.FC<GraphProps> = ({
       const highchartsContainer = graphElement.querySelector(
         ".highcharts-container"
       ) as HTMLDivElement | null;
-      if (highchartsContainer) {
-        highchartsContainer.style.overflow = "visible";
-      }
       if (highchartsContainer) {
         highchartsContainer.style.overflow = "visible";
       }
@@ -164,21 +157,14 @@ const Graph: React.FC<GraphProps> = ({
     title: undefined,
     xAxis: xAxisOptions,
     yAxis: yAxisOption,
-    loading: {
-      hideDuration: 1000,
-      showDuration: 1000,
-    },
+    loading: { hideDuration: 1000, showDuration: 1000 },
     plotOptions: plotOptions,
     series: [seriesOptions(seriesData)],
     legend: legendOption,
     chart: {
       zooming: {
         type: "x",
-        resetButton: {
-          theme: {
-            style: { display: "none" },
-          },
-        },
+        resetButton: { theme: { style: { display: "none" } } },
       },
       height: isCalendarPage || !isMobile ? 300 : 150,
       margin: isMobile
@@ -188,13 +174,8 @@ const Graph: React.FC<GraphProps> = ({
         : isCalendarPage
         ? [0, 30, 5, 0]
         : [0, 60, 5, 0],
-
       animation: false,
-
-      scrollablePlotArea: {
-        minWidth: 100,
-        scrollPositionX: 1,
-      },
+      scrollablePlotArea: { minWidth: 100, scrollPositionX: 1 },
       events: {
         load: function () {
           handleLoad.call(this, isCalendarPage, isMobile);
@@ -204,9 +185,7 @@ const Graph: React.FC<GraphProps> = ({
     responsive,
     tooltip: tooltipOptions,
     scrollbar: scrollbarOptions,
-    navigator: {
-      enabled: false,
-    },
+    navigator: { enabled: false },
     rangeSelector: {
       ...rangeSelectorOptions,
       buttons:

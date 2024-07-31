@@ -58,6 +58,7 @@ const getScrollbarOptions = () => {
     trackBorderWidth: 0,
     showFull: true,
     enabled: isMobile ? false : true,
+    liveRedraw: true,
   };
 };
 
