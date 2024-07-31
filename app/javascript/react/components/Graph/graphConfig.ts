@@ -59,7 +59,7 @@ const getScrollbarOptions = () => {
     autoHide: false,
     showFull: true,
     enabled: isMobile ? false : true,
-    liveRedraw: true,
+    liveRedraw: false,
   };
 };
 
