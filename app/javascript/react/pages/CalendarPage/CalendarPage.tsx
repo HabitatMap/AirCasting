@@ -152,7 +152,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
                   <>
                     <MeasurementComponent />
-                    <TimeRange minTime={"1685318400"} maxTime={"1717027199"} />
+                    <TimeRange minTime={minTime} maxTime={maxTime} />
                   </>
                 </S.StyledContainerWithGraph>
               }

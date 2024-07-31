@@ -110,7 +110,7 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
   const scrollbarOptions = getScrollbarOptions();
 
   useEffect(() => {
-    if (seriesData.length > 0 && !isLoading) {
+    if (!chartDataLoaded && seriesData.length > 0 && !isLoading) {
       if (fixedSessionTypeSelected) {
         const newestMeasurement = fixedSeriesData[fixedSeriesData.length - 1];
         const minTime = newestMeasurement[0] - MILLISECONDS_IN_A_DAY;
@@ -119,7 +119,6 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
           dispatch(
             updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
           );
-          setChartDataLoaded(true);
         }
       } else {
         const minTime = Math.min(...mobileSeriesData.map((m) => m.x as number));
@@ -127,10 +126,17 @@ const Graph: React.FC<GraphProps> = ({ streamId, sessionType }) => {
         dispatch(
           updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
         );
-        setChartDataLoaded(true);
       }
+      setChartDataLoaded(true);
     }
-  }, [seriesData, isLoading]);
+  }, [chartDataLoaded, seriesData, isLoading]);
+  const chartRef = useRef<HighchartsReact.RefObject>(null);
+
+  const chart = chartRef.current?.chart;
+
+  const xAxisExtremes = chart?.xAxis[0].getExtremes();
+
+  console.log("xAxisExtremes", xAxisExtremes);
 
   useEffect(() => {
     const graphElement = graphRef.current;

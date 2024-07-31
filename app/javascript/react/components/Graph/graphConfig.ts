@@ -321,7 +321,7 @@ const getRangeSelectorOptions = (
   const baseOptions: RangeSelectorOptions = {
     enabled: isMobile ? false : true,
     buttonPosition: {
-      align: "right" as AlignValue,
+      align: "top" as AlignValue,
       x: -32,
       y: 50,
     },
@@ -356,7 +356,7 @@ const getRangeSelectorOptions = (
       display: "none",
     },
     buttonSpacing: 10,
-    inputEnabled: false,
+    // inputEnabled: true,
   };
 
   if (fixedSessionTypeSelected) {

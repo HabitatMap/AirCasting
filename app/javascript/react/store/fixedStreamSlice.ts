@@ -77,24 +77,25 @@ const fixedStreamSlice = createSlice({
       action: PayloadAction<{ min: number; max: number }>
     ) {
       const { min, max } = action.payload;
-      const measurementsInRange = state.data.measurements.filter(
-        (measurement) => {
-          const time = measurement.time;
-          return time >= min && time <= max;
-        }
-      );
 
-      const values = measurementsInRange.map((m) => m.value);
-      const newMin = Math.min(...values);
-      const newMax = Math.max(...values);
-      const newAvg =
-        values.reduce((sum, value) => sum + value, 0) / values.length;
-
-      state.minMeasurementValue = newMin;
-      state.maxMeasurementValue = newMax;
-      state.averageMeasurementValue = newAvg;
       state.minTime = min;
       state.maxTime = max;
+
+      const measurementsInRange = state.data.measurements.filter(
+        (measurement) => measurement.time >= min && measurement.time <= max
+      );
+
+      if (measurementsInRange.length > 0) {
+        const values = measurementsInRange.map((m) => m.value);
+        state.minMeasurementValue = Math.min(...values);
+        state.maxMeasurementValue = Math.max(...values);
+        state.averageMeasurementValue =
+          values.reduce((sum, value) => sum + value, 0) / values.length;
+      } else {
+        state.minMeasurementValue = null;
+        state.maxMeasurementValue = null;
+        state.averageMeasurementValue = null;
+      }
     },
   },
   extraReducers: (builder) => {

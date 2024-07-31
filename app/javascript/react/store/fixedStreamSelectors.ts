@@ -13,12 +13,10 @@ const selectFixedStreamData = (state: RootState): FixedStream => {
   return state.fixedStream.data;
 };
 
-const selectExtremesValues = (state: RootState) => state.fixedStream;
-
 const selectFixedStream = (state: RootState) => state.fixedStream;
 
 const selectFixedExtremes = createSelector(
-  [selectExtremesValues],
+  [selectFixedStream],
   (fixedStream) => {
     const {
       averageMeasurementValue,
@@ -106,7 +104,7 @@ const selectFixedStreamShortInfo = createSelector(
 
 const selectMinAndMaxTime = createSelector(
   [selectFixedStreamData],
-  (fixedStream) => {
+  (extremes) => {
     const dateOptions = {
       year: "numeric" as const,
       month: "numeric" as const,
@@ -134,8 +132,8 @@ const selectMinAndMaxTime = createSelector(
     };
 
     return {
-      minTime: formatDate(fixedStream.minTime),
-      maxTime: formatDate(fixedStream.maxTime),
+      minTime: formatDate(extremes.minTime),
+      maxTime: formatDate(extremes.maxTime),
     };
   }
 );
