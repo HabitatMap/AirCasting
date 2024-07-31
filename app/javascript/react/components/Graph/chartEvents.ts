@@ -102,7 +102,7 @@ const addNavigationArrows = (
       iconSize = 48;
       leftArrowX = 15;
       rightArrowX = chartWidth - 118;
-      arrowY = chartHeight / 2;
+      arrowY = chartHeight / 2 - 24;
     }
 
     leftArrow = chart.renderer

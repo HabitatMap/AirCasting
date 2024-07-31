@@ -1,5 +1,6 @@
 import Highcharts, {
   AlignValue,
+  ChartZoomingOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
 } from "highcharts";
@@ -464,7 +465,36 @@ const getRangeSelectorOptions = (
   }
 };
 
+const getChartOptions = (isCalendarPage: boolean): Highcharts.ChartOptions => {
+  const isMobile = useMobileDetection();
+  const zoomingConfig: ChartZoomingOptions = {
+    type: "x",
+    resetButton: { theme: { style: { display: "none" } } },
+  };
+
+  const chartHeight = isCalendarPage || !isMobile ? 300 : 150;
+
+  const chartMargin = isMobile
+    ? isCalendarPage
+      ? [5, 10, 5, 0]
+      : [5, 0, 5, 0]
+    : isCalendarPage
+    ? [0, 30, 5, 0]
+    : [0, 60, 5, 0];
+
+  const scrollablePlotAreaConfig = { minWidth: 100, scrollPositionX: 1 };
+
+  return {
+    zooming: zoomingConfig,
+    height: chartHeight,
+    margin: chartMargin,
+    animation: false,
+    scrollablePlotArea: scrollablePlotAreaConfig,
+  };
+};
+
 export {
+  getChartOptions,
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,

@@ -23,6 +23,7 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
 import {
+  getChartOptions,
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,
@@ -92,8 +93,6 @@ const Graph: React.FC<GraphProps> = ({
     ? fixedSeriesData
     : mobileSeriesData;
 
-  console.log(seriesData);
-
   const totalDuration =
     seriesData.length > 0
       ? (seriesData[seriesData.length - 1] as any)[0] -
@@ -112,6 +111,7 @@ const Graph: React.FC<GraphProps> = ({
   const plotOptions = getPlotOptions(fixedSessionTypeSelected, streamId);
   const responsive = getResponsiveOptions(thresholdsState);
   const scrollbarOptions = getScrollbarOptions(isCalendarPage);
+  const chartOptions = getChartOptions(isCalendarPage);
 
   useEffect(() => {
     if (!chartDataLoaded && seriesData.length > 0 && !isLoading) {
@@ -164,20 +164,7 @@ const Graph: React.FC<GraphProps> = ({
     series: [seriesOptions(seriesData)],
     legend: legendOption,
     chart: {
-      zooming: {
-        type: "x",
-        resetButton: { theme: { style: { display: "none" } } },
-      },
-      height: isCalendarPage || !isMobile ? 300 : 150,
-      margin: isMobile
-        ? isCalendarPage
-          ? [5, 10, 5, 0]
-          : [5, 0, 5, 0]
-        : isCalendarPage
-        ? [0, 30, 5, 0]
-        : [0, 60, 5, 0],
-      animation: false,
-      scrollablePlotArea: { minWidth: 100, scrollPositionX: 1 },
+      ...chartOptions,
       events: {
         load: function () {
           handleLoad.call(this, isCalendarPage, isMobile);
