@@ -34,7 +34,7 @@ const HeaderToggle = ({
           <S.RotatedIcon
             src={headerArrowIcon}
             alt={t("headerToggle.arrowIcon")}
-            $rotated={isVisible}
+            $rotated={!isVisible}
             onClick={toggleVisibility}
           />
           <S.Heading onClick={toggleVisibility}>{titleText}</S.Heading>
