@@ -67,7 +67,7 @@ const MeasurementContainer = styled.div`
 
 const TimeRangeContainer = styled.div`
   display: flex;
-  width: 29rem;
+  width: calc(100% - 14rem);
   height: 4rem;
   gap: 1rem;
   color: ${gray300};

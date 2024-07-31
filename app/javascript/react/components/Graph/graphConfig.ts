@@ -332,7 +332,7 @@ const getRangeSelectorOptions = (
     },
     buttonTheme: {
       fill: "none",
-      width: 100,
+      width: 95,
       height: 34,
       r: 20,
       stroke: "none",
