@@ -51,7 +51,8 @@ const ClusterInfo = ({
               <MobileClusterInfoColorText $color={color}>
                 {numberOfSessions} {t("map.clusterInfo.stations")}
               </MobileClusterInfoColorText>
-              {average.toFixed(0)} {` ${t("map.clusterInfo.units")}`}
+              {average.toFixed(0)}{" "}
+              {` ${t("map.clusterInfo.units")} ${t("map.clusterInfo.average")}`}
             </MobileClusterInfoText>
             <ClusterZoomIn handleZoomIn={handleZoomIn} color={color} />
           </MobileDataContainer>
