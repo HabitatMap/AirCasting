@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 
 import mobileIcon from "../../assets/icons/mobileIcon.svg";
 import pinIcon from "../../assets/icons/pin.svg";
@@ -8,23 +7,43 @@ import { useAppDispatch } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
+import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
-  const { searchParams, sessionType } = useMapParams();
-  const navigate = useNavigate();
+  const { searchParams, sessionType, setUrlParams, currentUserSettings } =
+    useMapParams();
   const { t } = useTranslation();
 
   const handleClick = useCallback(
     (type: SessionType) => {
       dispatch(resetUserThresholds());
       dispatch(setLoading(true));
-      const newSearchParams = new URLSearchParams(searchParams.toString());
-      newSearchParams.set(UrlParamsTypes.sessionType, type);
-      navigate(`?${newSearchParams.toString()}`);
+      setUrlParams([
+        {
+          key: UrlParamsTypes.sessionType,
+          value: type,
+        },
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
+        },
+      ]);
     },
     [searchParams]
   );
