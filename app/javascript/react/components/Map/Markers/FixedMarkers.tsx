@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../../store/hooks"; // Import useAppDispatch
 import {
   Cluster,
   GridAlgorithm,
@@ -21,13 +22,14 @@ import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
-import { ClusterInfo } from "./ClusterInfo/ClusterInfo"; // Import ClusterInfo component
+import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 import type { LatLngLiteral } from "../../../types/googleMaps";
-import { API_ENDPOINTS } from "../../../api/apiEndpoints";
-import { oldApiClient } from "../../../api/apiClient";
 import { selectHoverStreamId } from "../../../store/mapSlice";
+import { fetchClusterData } from "../../../store/clusterSlice";
+import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
+import { RootState } from "../../../store";
 
 type Props = {
   sessions: Session[];
@@ -49,6 +51,7 @@ const FixedMarkers = ({
   const ZOOM_FOR_SELECTED_SESSION = 15;
 
   const map = useMap();
+  const dispatch = useAppDispatch(); // Use useAppDispatch
 
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
@@ -67,14 +70,16 @@ const FixedMarkers = ({
     null
   );
 
-  // State to track selected cluster
   const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
+  const [clusterPosition, setClusterPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
+  const clusterData = useSelector((state: RootState) => state.cluster.data);
 
-  // Memoize the sessions and markers to avoid unnecessary re-renders
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
 
-  // Initialize clusterer
   useLayoutEffect(() => {
     if (map) {
       if (clusterer.current) {
@@ -108,7 +113,6 @@ const FixedMarkers = ({
       const sessionStreamIds = memoizedSessions.map(
         (session) => session.point.streamId
       );
-      // Track clustered markers and their stream IDs
       const markerStreamIdMap = new Map<Marker, string>();
 
       Object.keys(memoizedMarkers).forEach((key) => {
@@ -133,16 +137,14 @@ const FixedMarkers = ({
 
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
-      clusterer.current.markerStreamIdMap = markerStreamIdMap; // Store the map in clusterer
+      clusterer.current.markerStreamIdMap = markerStreamIdMap;
     }
   }, [memoizedSessions, memoizedMarkers]);
 
-  // Update MarkerClusterer when markers and sessions change
   useEffect(() => {
     updateClusterer();
   }, [updateClusterer]);
 
-  // Pulsation
   useEffect(() => {
     if (pulsatingSessionId) {
       const pulsatingSession = memoizedSessions.find(
@@ -185,7 +187,6 @@ const FixedMarkers = ({
     }
   }, [pulsatingSessionId, memoizedMarkers, memoizedSessions, thresholds]);
 
-  // Cleanup clusters when component unmounts
   useEffect(() => {
     return () => {
       if (clusterer.current) {
@@ -253,19 +254,14 @@ const FixedMarkers = ({
         .filter((streamId) => streamId !== undefined);
 
       console.log("Stream IDs:", streamIds);
-      // move cluster data to slice
       if (streamIds && streamIds.length > 0) {
-        try {
-          const response = await oldApiClient.get(
-            API_ENDPOINTS.fetchClusterData(streamIds as string[])
-          );
-          console.log("Cluster data:", response.data);
-        } catch (error) {
-          console.error("Error fetching cluster data:", error);
-        }
+        dispatch(fetchClusterData(streamIds as string[]));
       }
+
+      const pixelPosition = getClusterPixelPosition(map, cluster.position);
+      setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
     },
-    []
+    [dispatch]
   );
 
   const handleZoomIn = useCallback(() => {
@@ -307,11 +303,13 @@ const FixedMarkers = ({
         </AdvancedMarker>
       ))}
       {hoverPosition && <HoverMarker position={hoverPosition} />}
-      {selectedCluster && (
+      {selectedCluster && clusterPosition && clusterData && (
         <ClusterInfo
-          color={getColorForValue(thresholds, 33)} // Replace with actual color logic
-          value={`${selectedCluster.markers?.length} markers`}
+          color={getColorForValue(thresholds, clusterData.average)}
+          average={clusterData.average}
+          numberOfSessions={clusterData.numberOfInstruments}
           handleZoomIn={handleZoomIn}
+          position={clusterPosition}
         />
       )}
     </>

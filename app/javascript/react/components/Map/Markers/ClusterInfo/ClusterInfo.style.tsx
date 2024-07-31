@@ -1,48 +1,36 @@
-import styled, { css, keyframes } from "styled-components";
-import { gray400 } from "../../../../assets/styles/colors";
-import { H4 } from "../../../Typography";
+import styled from "styled-components";
+import { gray400, white } from "../../../../assets/styles/colors";
+
+interface ClusterInfoContainerProps {
+  $color: string;
+  $top: number;
+  $left: number;
+}
 
 interface ClusterInfoProps {
   $color: string;
 }
 
-interface ClusterInfoShadowProps {
-  $color: string;
-  $shouldPulse?: boolean;
-}
-
-const pulseAnimation = keyframes`
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.5);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-`;
-
-const ClusterInfoContainer = styled.div<ClusterInfoProps>`
-  display: flex;
+const ClusterInfoContainer = styled.div<ClusterInfoContainerProps>`
+  display: grid;
   position: absolute;
-  top: -2rem;
-  left: -2rem;
-  width: 8rem;
-  height: 4rem;
+  gap: 0.5rem;
+  width: fit-content;
   cursor: pointer;
   z-index: 100;
   pointer-events: auto;
-  border: 1px solid ${(props) => props.$color};
+  top: ${(props) => `${props.$top}px`};
+  left: ${(props) => `${props.$left}px`};
+  transform: translate(-6%, -100%);
+  height: 2.8rem;
 `;
 
-const ShadowCircle = styled.div<ClusterInfoShadowProps>`
-  height: 4rem;
-  width: 4rem;
+const ShadowCircle = styled.div<ClusterInfoProps>`
+  height: 5rem;
+  width: 5rem;
+  position: absolute;
   border-radius: 50%;
+  z-index: 10;
   background: radial-gradient(
     circle at center,
     ${(props) => props.$color} 0%,
@@ -51,43 +39,57 @@ const ShadowCircle = styled.div<ClusterInfoShadowProps>`
   );
   filter: blur(5px);
   pointer-events: none;
-  animation: ${(props) =>
-    props.$shouldPulse
-      ? css`
-          ${pulseAnimation} 2s infinite
-        `
-      : "none"};
+  transform: translate(-20%, -25%);
 `;
 
-const DataContainer = styled.div`
-  min-width: 8rem;
-  height: 2rem;
+const DataContainer = styled.div<ClusterInfoProps>`
   display: flex;
-  position: absolute;
-  //To calculate top position: ShadowCircleHeight/2- DataContainerHeight/2
-  top: 1rem;
-  //To calculate this position: ShadowCircleWidth/2-(MarkerCircleWidth/2+MarkerCirclePaddingLeft)
-  left: 0.9rem;
+  height: 2.8rem;
   border-radius: 1.5rem;
   padding: 0.5rem;
-  background-color: white;
   box-shadow: 0.125rem 0.125rem 0.25rem 0 rgba(76, 86, 96, 0.1);
   align-items: center;
   gap: 0.25rem;
   pointer-events: none;
+  border: 1px solid ${(props) => props.$color};
+  background-color: ${white};
+`;
+
+const ClusterInfoDataAndZoomIn = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+  pointer-events: auto;
+  z-index: 20;
 `;
 
 const ClusterCircle = styled.div<ClusterInfoProps>`
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   background-color: ${(props) => props.$color};
   pointer-events: none;
 `;
 
-const ClusterInfoText = styled(H4)`
+const ClusterInfoText = styled.div`
   color: ${gray400};
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  font-weight: 400;
+  pointer-events: none;
+  white-space: nowrap;
+`;
+
+const ClusterInfoBoldText = styled.span`
+  color: ${gray400};
+  font-weight: 700;
+  font-size: 1.4rem;
+  pointer-events: none;
+  white-space: nowrap;
+`;
+
+const ClusterInfoColorText = styled.span<ClusterInfoProps>`
+  color: ${(props) => props.$color};
+  font-size: 1.4rem;
   font-weight: 400;
   pointer-events: none;
   white-space: nowrap;
@@ -95,7 +97,10 @@ const ClusterInfoText = styled(H4)`
 
 export {
   ClusterCircle,
+  ClusterInfoBoldText,
+  ClusterInfoColorText,
   ClusterInfoContainer,
+  ClusterInfoDataAndZoomIn,
   ClusterInfoText,
   DataContainer,
   ShadowCircle,
