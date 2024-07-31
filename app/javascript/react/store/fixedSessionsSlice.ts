@@ -62,6 +62,7 @@ export const fetchFixedSessions = createAsyncThunk<
       await oldApiClient.get(
         API_ENDPOINTS.fetchFixedSessions(sessionsData.filters)
       );
+
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);

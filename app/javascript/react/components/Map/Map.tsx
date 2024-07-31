@@ -24,6 +24,7 @@ import {
 import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setLoading } from "../../store/mapSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -158,8 +159,8 @@ const Map = () => {
       initialOffset,
       initialUnitSymbol,
       sensorName,
-      usernames,
-      tags,
+      usernamesDecoded,
+      tagsDecoded,
     ]
   );
   const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
@@ -174,7 +175,8 @@ const Map = () => {
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
     }
-  }, [filters, loading, fixedSessionTypeSelected, filters]);
+    dispatch(setLoading(false));
+  }, [filters, loading, fixedSessionTypeSelected]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
@@ -209,6 +211,12 @@ const Map = () => {
         : dispatch(fetchMobileStreamById(streamId));
     }
   }, [streamId, currentUserSettings, fixedSessionTypeSelected]);
+
+  useEffect(() => {
+    if (currentUserSettings === UserSettings.ModalView) {
+      revertUserSettingsAndResetIds();
+    }
+  }, [filters]);
 
   // Callbacks
   const handleMapIdle = useCallback(

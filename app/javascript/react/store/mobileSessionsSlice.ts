@@ -75,6 +75,7 @@ export const fetchMobileSessions = createAsyncThunk<
       await oldApiClient.get(
         API_ENDPOINTS.fetchMobileSessions(sessionsData.filters)
       );
+
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);

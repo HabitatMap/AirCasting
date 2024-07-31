@@ -44,7 +44,7 @@ const ThresholdContainer = styled.div`
   width: 100%;
   bottom: 0;
 
-  z-index: 4;
+  z-index: 1;
   background-color: ${colors.white};
   box-shadow: 2px 2px 4px 0px ${colors.gray900};
 
@@ -79,9 +79,9 @@ const ThresholdContainer = styled.div`
 `;
 
 export {
-  containerStyle,
   DesktopContainer,
   MobileButtons,
   MobileContainer,
   ThresholdContainer,
+  containerStyle,
 };

@@ -38,6 +38,7 @@ const SessionDetailsModal = styled(Popup)`
     justify-content: center;
     align-items: flex-end;
     pointer-events: none !important;
+    z-index: 2;
   }
 
   &-content {
@@ -52,6 +53,7 @@ const SessionDetailsModal = styled(Popup)`
     display: flex;
     flex-direction: row-reverse;
     flex-wrap: wrap;
+
     @media ${media.smallDesktop} {
       padding-bottom: 1.25rem;
       flex-direction: row;
@@ -183,9 +185,8 @@ const Button = styled(ActionButton)`
   padding: 1.6rem;
   border: none;
 
-   {
-    /* fix for outlines appearing on component load */
-  }
+  /* fix for outlines appearing on component load */
+
   body:not(.user-is-tabbing) &:focus-visible {
     outline: none;
   }
@@ -212,9 +213,8 @@ const BlueButton = styled(Link)`
   border: none;
   margin-right: 0.5rem;
 
-   {
-    /* fix for outlines appearing on component load */
-  }
+  /* fix for outlines appearing on component load */
+
   body:not(.user-is-tabbing) &:focus-visible {
     outline: none;
   }

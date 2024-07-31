@@ -32,7 +32,10 @@ const ProfileNamesInput = () => {
         setInputValue(inputValue);
       },
       onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
-        if (newSelectedItem !== null) {
+        if (
+          newSelectedItem !== null &&
+          !decodedUsernamesArray?.includes(newSelectedItem)
+        ) {
           const decodedUsernames = usernames && decodeURIComponent(usernames);
           const selectedUsernames = decodedUsernames + ", " + newSelectedItem;
 
@@ -43,8 +46,9 @@ const ProfileNamesInput = () => {
               value: urlEncodedString.toString(),
             },
           ]);
-
-          dispatch(setLoading(true));
+          setTimeout(() => {
+            dispatch(setLoading(true));
+          }, 200);
           reset();
           setSelectedItem("");
         }
@@ -73,8 +77,10 @@ const ProfileNamesInput = () => {
         value: decodedUsernamesString.toString(),
       },
     ]);
-
-    dispatch(setLoading(true));
+    setTimeout(() => {
+      dispatch(setLoading(true));
+    }, 200);
+    setLoading(true);
   };
 
   useEffect(() => {
