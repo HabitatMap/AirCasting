@@ -22,6 +22,7 @@ interface ClusterProps {
   numberOfSessions: number;
   handleZoomIn: () => void;
   position: { top: number; left: number };
+  visible: boolean;
 }
 
 const ClusterInfo = ({
@@ -30,10 +31,10 @@ const ClusterInfo = ({
   numberOfSessions,
   handleZoomIn,
   position,
+  visible,
 }: ClusterProps) => {
   const { t } = useTranslation();
   const isMobile = useScreenSizeDetection();
-
   return (
     <>
       <ClusterInfoContainer
@@ -41,6 +42,7 @@ const ClusterInfo = ({
         $top={position.top}
         $left={position.left}
         $isMobile={isMobile}
+        $visible={visible}
       >
         <ShadowCircle $color={color} $isMobile={isMobile} />
         {isMobile ? (

@@ -27,7 +27,7 @@ import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 import type { LatLngLiteral } from "../../../types/googleMaps";
 import { selectHoverStreamId } from "../../../store/mapSlice";
-import { fetchClusterData } from "../../../store/clusterSlice";
+import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import { RootState } from "../../../store";
 
@@ -80,6 +80,9 @@ const FixedMarkers = ({
   const clusterLoading = useSelector(
     (state: RootState) => state.cluster.loading
   );
+  const clusterVisible = useSelector(
+    (state: RootState) => state.cluster.visible
+  );
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
@@ -101,6 +104,7 @@ const FixedMarkers = ({
     }
 
     const handleMapInteraction = () => {
+      dispatch(setVisibility(false));
       setSelectedCluster(null);
       setClusterPosition(null);
     };
@@ -116,7 +120,7 @@ const FixedMarkers = ({
         google.maps.event.clearListeners(map, "dragstart");
       }
     };
-  }, [map, thresholds]);
+  }, [map, thresholds, dispatch]);
 
   useEffect(() => {
     if (selectedStreamId) {
@@ -266,8 +270,7 @@ const FixedMarkers = ({
       cluster: Cluster,
       map: google.maps.Map
     ) => {
-      setSelectedCluster(null);
-      setClusterPosition(null);
+      dispatch(setVisibility(false));
 
       const markerStreamIdMap = clusterer.current?.markerStreamIdMap;
 
@@ -284,6 +287,7 @@ const FixedMarkers = ({
       const pixelPosition = getClusterPixelPosition(map, cluster.position);
       setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
       setSelectedCluster(cluster);
+      dispatch(setVisibility(true));
     },
     [dispatch]
   );
@@ -333,6 +337,7 @@ const FixedMarkers = ({
           numberOfSessions={clusterData.numberOfInstruments}
           handleZoomIn={handleZoomIn}
           position={clusterPosition}
+          visible={clusterVisible}
         />
       )}
     </>

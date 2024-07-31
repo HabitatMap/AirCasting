@@ -14,12 +14,14 @@ interface ClusterState {
   data: ClusterData | null;
   loading: boolean;
   error: string | null;
+  visible: boolean;
 }
 
 const initialState: ClusterState = {
   data: null,
   loading: false,
   error: null,
+  visible: false,
 };
 
 export const fetchClusterData = createAsyncThunk<
@@ -44,18 +46,24 @@ export const fetchClusterData = createAsyncThunk<
 const clusterSlice = createSlice({
   name: "cluster",
   initialState,
-  reducers: {},
+  reducers: {
+    setVisibility: (state, action: PayloadAction<boolean>) => {
+      state.visible = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchClusterData.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.visible = true;
       })
       .addCase(
         fetchClusterData.fulfilled,
         (state, action: PayloadAction<ClusterData>) => {
           state.data = action.payload;
           state.loading = false;
+          state.visible = true;
         }
       )
       .addCase(
@@ -63,9 +71,12 @@ const clusterSlice = createSlice({
         (state, action: PayloadAction<string | undefined>) => {
           state.error = action.payload ?? "An unknown error occurred";
           state.loading = false;
+          state.visible = false;
         }
       );
   },
 });
+
+export const { setVisibility } = clusterSlice.actions;
 
 export default clusterSlice.reducer;

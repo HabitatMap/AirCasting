@@ -6,6 +6,7 @@ interface ClusterInfoContainerProps {
   $top: number;
   $left: number;
   $isMobile?: boolean;
+  $visible?: boolean;
 }
 
 interface ClusterInfoProps {
@@ -27,6 +28,9 @@ const ClusterInfoContainer = styled.div<ClusterInfoContainerProps>`
     props.$isMobile
       ? "transform: translate(-15%, -90%);"
       : "transform: translate(-6%, -100%);"}
+
+  opacity: ${(props) => (props.$visible ? 1 : 0)};
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 `;
 
 const ShadowCircle = styled.div<ClusterInfoProps>`
