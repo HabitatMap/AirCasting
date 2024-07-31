@@ -107,6 +107,9 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 }
                 componentToToggle={
                   <>
+                    <S.SelectLabelContainer>
+                      {t("calendarHeader.selectRange")}
+                    </S.SelectLabelContainer>
                     <TimeRange minTime={minTime} maxTime={maxTime} />
                     <Graph
                       streamId={Number(streamId)}

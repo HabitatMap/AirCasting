@@ -55,13 +55,11 @@ const MeasurementContainer = styled.div`
   gap: 1rem;
   justify-content: space-between;
   align-items: center;
-  margin-top: 2rem;
   padding-right: 0.5rem;
 
   @media ${media.desktop} {
     justify-content: flex-end;
     padding-right: 0;
-    margin-top: 0;
   }
 `;
 

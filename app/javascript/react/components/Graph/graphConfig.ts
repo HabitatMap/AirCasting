@@ -328,7 +328,7 @@ const getRangeSelectorOptions = (
     enabled: true,
     buttonPosition: {
       align: "center" as AlignValue,
-      y: -100,
+      y: -85,
     },
     buttonTheme: {
       fill: "none",

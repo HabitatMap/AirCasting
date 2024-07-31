@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { gray100, white } from "../../assets/styles/colors";
+import { gray100, gray400, white } from "../../assets/styles/colors";
 import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
@@ -116,10 +116,19 @@ const GraphContainer = styled.div<{ $isMobile: boolean }>`
   ${(props) => props.$isMobile && `padding: 1.5rem; gap: 2rem;`}
 `;
 
+const SelectLabelContainer = styled.span`
+  display: flex;
+  position: absolute;
+  top: 6rem;
+  font-size: 1.6rem;
+  color: ${gray400};
+`;
+
 export {
   CalendarPageLayout,
   GraphContainer,
   Heading,
+  SelectLabelContainer,
   SliderWrapper,
   StationDataContainer,
   StyledContainer,

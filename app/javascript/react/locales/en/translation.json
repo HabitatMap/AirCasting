@@ -66,7 +66,8 @@
     "measurementsUnits": "(µg/m³)",
     "dateRange": "Date range",
     "altCopyIcon": "Charm icon",
-    "graphTitle": "Measurements graph"
+    "graphTitle": "Measurements graph",
+    "selectRange": "Select date range:"
   },
   "headerToggle": {
     "arrowIcon": "Arrow Icon"
