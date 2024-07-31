@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-
 import { useCombobox } from "downshift";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import {
@@ -18,7 +18,7 @@ const ProfileNamesInput = () => {
   const [selectedItem, setSelectedItem] = useState<string>("");
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { setUrlParams, usernames } = useMapParams();
+  const { setFilters, usernames } = useMapParams();
 
   const profileNames = useAppSelector(selectUsernames);
 
@@ -40,12 +40,7 @@ const ProfileNamesInput = () => {
           const selectedUsernames = decodedUsernames + ", " + newSelectedItem;
 
           const urlEncodedString = encodeURIComponent(selectedUsernames);
-          setUrlParams([
-            {
-              key: UrlParamsTypes.usernames,
-              value: urlEncodedString.toString(),
-            },
-          ]);
+          setFilters(UrlParamsTypes.usernames, urlEncodedString.toString());
           setTimeout(() => {
             dispatch(setLoading(true));
           }, 200);
@@ -70,13 +65,7 @@ const ProfileNamesInput = () => {
     const decodedUsernamesString = usernamesUpdated
       ? usernamesUpdated.join(", ")
       : "";
-
-    setUrlParams([
-      {
-        key: UrlParamsTypes.usernames,
-        value: decodedUsernamesString.toString(),
-      },
-    ]);
+    setFilters(UrlParamsTypes.usernames, decodedUsernamesString.toString());
     setTimeout(() => {
       dispatch(setLoading(true));
     }, 200);
