@@ -138,7 +138,7 @@ const Map = () => {
         time_from: "1685318400",
         time_to: "1717027199",
         tags: tagsDecoded,
-        usernames: usernames,
+        usernames: usernamesDecoded,
         west: boundWest,
         east: boundEast,
         south: boundSouth,
@@ -159,8 +159,8 @@ const Map = () => {
       initialOffset,
       initialUnitSymbol,
       sensorName,
-      usernames,
-      tags,
+      usernamesDecoded,
+      tagsDecoded,
     ]
   );
   const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
