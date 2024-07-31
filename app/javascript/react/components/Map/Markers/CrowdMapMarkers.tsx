@@ -116,6 +116,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
               displayedSession.lastMeasurementValue
             )}
             onClick={() => {}}
+            opacity={true}
           />
         }
       </AdvancedMarker>
