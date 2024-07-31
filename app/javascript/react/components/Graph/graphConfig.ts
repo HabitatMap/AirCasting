@@ -56,6 +56,7 @@ const getScrollbarOptions = () => {
     height: 8,
     trackBackgroundColor: gray100,
     trackBorderWidth: 0,
+    autoHide: false,
     showFull: true,
     enabled: isMobile ? false : true,
     liveRedraw: true,

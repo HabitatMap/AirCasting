@@ -92,6 +92,8 @@ const Graph: React.FC<GraphProps> = ({
     ? fixedSeriesData
     : mobileSeriesData;
 
+  console.log(seriesData);
+
   const totalDuration =
     seriesData.length > 0
       ? (seriesData[seriesData.length - 1] as any)[0] -
@@ -167,13 +169,13 @@ const Graph: React.FC<GraphProps> = ({
         resetButton: { theme: { style: { display: "none" } } },
       },
       height: isCalendarPage || !isMobile ? 300 : 150,
-      margin: isMobile
-        ? isCalendarPage
-          ? [5, 10, 5, 0]
-          : [5, 0, 5, 0]
-        : isCalendarPage
-        ? [0, 30, 5, 0]
-        : [0, 60, 5, 0],
+      // margin: isMobile
+      //   ? isCalendarPage
+      //     ? [5, 10, 5, 0]
+      //     : [5, 0, 5, 0]
+      //   : isCalendarPage
+      //   ? [0, 30, 5, 0]
+      //   : [0, 60, 5, 0],
       animation: false,
       scrollablePlotArea: { minWidth: 100, scrollPositionX: 1 },
       events: {
