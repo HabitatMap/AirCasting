@@ -1,13 +1,13 @@
-import moment from 'moment';
-import { createSelector } from '@reduxjs/toolkit';
+import { createSelector } from "@reduxjs/toolkit";
+import moment from "moment";
 import {
   FixedStream,
   FixedStreamShortInfo,
   StreamDailyAverage,
-} from '../types/fixedStream';
-import { lastItemFromArray } from '../utils/lastArrayItem';
-import { RootState } from './index';
-import { isValidValue } from '../utils/measurementsCalc';
+} from "../types/fixedStream";
+import { lastItemFromArray } from "../utils/lastArrayItem";
+import { isValidValue } from "../utils/measurementsCalc";
+import { RootState } from "./index";
 
 const selectFixedStreamData = (state: RootState): FixedStream => {
   return state.fixedStream.data;
@@ -15,14 +15,26 @@ const selectFixedStreamData = (state: RootState): FixedStream => {
 
 const selectExtremesValues = (state: RootState) => state.fixedStream;
 
+const selectFixedStream = (state: RootState) => state.fixedStream;
+
 const selectFixedExtremes = createSelector(
   [selectExtremesValues],
   (fixedStream) => {
-    const { averageMeasurementValue, minMeasurementValue, maxMeasurementValue } = fixedStream;
+    const {
+      averageMeasurementValue,
+      minMeasurementValue,
+      maxMeasurementValue,
+    } = fixedStream;
 
-    const min = isValidValue(minMeasurementValue) ? Math.round(minMeasurementValue!) : null;
-    const max = isValidValue(maxMeasurementValue) ? Math.round(maxMeasurementValue!) : null;
-    const avg = isValidValue(averageMeasurementValue) ? Math.round(averageMeasurementValue!) : null;
+    const min = isValidValue(minMeasurementValue)
+      ? Math.round(minMeasurementValue!)
+      : null;
+    const max = isValidValue(maxMeasurementValue)
+      ? Math.round(maxMeasurementValue!)
+      : null;
+    const avg = isValidValue(averageMeasurementValue)
+      ? Math.round(averageMeasurementValue!)
+      : null;
 
     return {
       minMeasurementValue: min,
@@ -31,7 +43,6 @@ const selectFixedExtremes = createSelector(
     };
   }
 );
-
 
 const selectLastDailyAverage = (
   state: RootState
@@ -44,30 +55,36 @@ const selectFixedStreamShortInfo = createSelector(
   [selectFixedStreamData, selectLastDailyAverage],
   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
-    const lastMeasurementDateLabel = moment(date).format('MMM D');
+    const lastMeasurementDateLabel = moment(date).format("MMM D");
     const lastUpdate = moment(fixedStreamData.stream.lastUpdate)
       .local()
-      .format('HH:mm MMM D YYYY');
+      .format("HH:mm MMM D YYYY");
     const active = fixedStreamData.stream.active;
     const { min, low, middle, high, max } = fixedStreamData.stream;
 
-    const sortedStreamDailyAverages = [...fixedStreamData.streamDailyAverages].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
+    const sortedStreamDailyAverages = [
+      ...fixedStreamData.streamDailyAverages,
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     const newestAverageObject = sortedStreamDailyAverages[0];
-    const newestAverageValue = newestAverageObject ? Number(newestAverageObject.value) : 0;
+    const newestAverageValue = newestAverageObject
+      ? Number(newestAverageObject.value)
+      : 0;
 
+    const newestDate = new Date(
+      Math.max(...fixedStreamData.measurements.map((m) => m.time))
+    );
 
-      const newestDate = new Date(Math.max(...fixedStreamData.measurements.map(m => m.time)));
+    const newestDayMeasurements = fixedStreamData.measurements.filter(
+      (m) => new Date(m.time).toDateString() === newestDate.toDateString()
+    );
 
-      const newestDayMeasurements = fixedStreamData.measurements.filter(m =>
-        new Date(m.time).toDateString() === newestDate.toDateString()
-      );
-
-      const maxMeasurementValue = Math.max(...newestDayMeasurements.map((m) => m.value));
-      const minMeasurementValue = Math.min(...newestDayMeasurements.map((m) => m.value));
-
+    const maxMeasurementValue = Math.max(
+      ...newestDayMeasurements.map((m) => m.value)
+    );
+    const minMeasurementValue = Math.min(
+      ...newestDayMeasurements.map((m) => m.value)
+    );
 
     return {
       ...fixedStreamData.stream,
@@ -87,4 +104,45 @@ const selectFixedStreamShortInfo = createSelector(
   }
 );
 
-export { selectFixedStreamData, selectFixedStreamShortInfo, selectFixedExtremes };
+const selectMinAndMaxTime = createSelector(
+  [selectFixedStreamData],
+  (fixedStream) => {
+    const dateOptions = {
+      year: "numeric" as const,
+      month: "numeric" as const,
+      day: "numeric" as const,
+    };
+
+    const timeOptions = {
+      hour: "2-digit" as const,
+      minute: "2-digit" as const,
+      second: "2-digit" as const,
+      hour12: false,
+    };
+
+    const formatDate = (date: number | null) => {
+      if (!date) return { date: null, time: null };
+      const dateString = new Date(date).toLocaleDateString(
+        "en-US",
+        dateOptions
+      );
+      const timeString = new Date(date).toLocaleTimeString(
+        "en-US",
+        timeOptions
+      );
+      return { date: dateString, time: timeString };
+    };
+
+    return {
+      minTime: formatDate(fixedStream.minTime),
+      maxTime: formatDate(fixedStream.maxTime),
+    };
+  }
+);
+
+export {
+  selectFixedExtremes,
+  selectFixedStreamData,
+  selectFixedStreamShortInfo,
+  selectMinAndMaxTime,
+};

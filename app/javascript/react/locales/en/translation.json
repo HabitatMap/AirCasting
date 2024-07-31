@@ -65,7 +65,8 @@
     "calendarTitle": "Measurements calendar",
     "measurementsUnits": "(µg/m³)",
     "dateRange": "Date range",
-    "altCopyIcon": "Charm icon"
+    "altCopyIcon": "Charm icon",
+    "graphTitle": "Measurements graph"
   },
   "headerToggle": {
     "arrowIcon": "Arrow Icon"

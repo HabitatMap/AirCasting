@@ -5,6 +5,8 @@ import { useSearchParams } from "react-router-dom";
 
 import { useTranslation } from "react-i18next";
 import { Graph } from "../../components/Graph";
+import MeasurementComponent from "../../components/Graph/MeasurementComponent";
+import TimeRange from "../../components/Graph/TimeRange";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
@@ -14,6 +16,7 @@ import {
   ResetButton,
   ResetButtonVariant,
 } from "../../components/ThresholdConfigurator/ResetButton";
+import { selectMinAndMaxTime } from "../../store/fixedStreamSelectors";
 import {
   fetchFixedStreamById,
   selectFixedData,
@@ -45,6 +48,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
   const fixedStreamData = useSelector(selectFixedData);
   const movingCalendarData = useSelector(movingData);
+  const { minTime, maxTime } = useSelector(selectMinAndMaxTime);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -146,10 +150,10 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 <S.StyledContainerWithGraph>
                   {t("calendarHeader.graphTitle")}
 
-                  {/* <>
-                      <MeasurementComponent />
-                      <TimeRange minTime={minTime} maxTime={maxTime} />
-                    </> */}
+                  <>
+                    <MeasurementComponent />
+                    <TimeRange minTime={"1685318400"} maxTime={"1717027199"} />
+                  </>
                 </S.StyledContainerWithGraph>
               }
               componentToToggle={
