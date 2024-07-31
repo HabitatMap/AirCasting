@@ -45,7 +45,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { t } = useTranslation();
 
   const streamIdQuery = searchParams.get(STREAM_ID_QUERY_PARAMETER_NAME);
-  const streamId = (streamIdQuery && Number(streamIdQuery)) || null;
+  const streamId = streamIdQuery && Number(streamIdQuery);
 
   const fixedStreamData = useSelector(selectFixedData);
   const movingCalendarData = useSelector(movingData);
@@ -109,7 +109,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   <>
                     <TimeRange minTime={minTime} maxTime={maxTime} />
                     <Graph
-                      streamId={streamId}
+                      streamId={Number(streamId)}
                       sessionType={SessionTypes.FIXED}
                       isCalendarPage={true}
                     />
@@ -184,7 +184,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 }
                 componentToToggle={
                   <Graph
-                    streamId={streamId}
+                    streamId={Number(streamId)}
                     sessionType={SessionTypes.FIXED}
                     isCalendarPage={true}
                   />
