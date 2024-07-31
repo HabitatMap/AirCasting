@@ -325,7 +325,7 @@ const getRangeSelectorOptions = (
     enabled: true,
     buttonPosition: {
       align: "center" as AlignValue,
-      y: -50,
+      y: -100,
     },
     buttonTheme: {
       fill: "none",
@@ -412,7 +412,7 @@ const getRangeSelectorOptions = (
     inputEnabled: false,
   };
 
-  if (isCalendarPage) {
+  if (isCalendarPage && isMobile) {
     return {
       ...baseCalendarOptions,
       buttons: [

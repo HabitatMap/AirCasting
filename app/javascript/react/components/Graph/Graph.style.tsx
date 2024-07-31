@@ -65,7 +65,7 @@ const MeasurementContainer = styled.div`
 
 const TimeRangeContainer = styled.div`
   display: flex;
-  min-width: 29rem;
+  width: 29rem;
   height: 4rem;
   gap: 1rem;
   color: ${gray300};
@@ -73,7 +73,7 @@ const TimeRangeContainer = styled.div`
   align-items: center;
   font-weight: 300;
   position: absolute;
-  top: 10.8rem;
+  top: 13.8rem;
   left: 6.5rem;
   z-index: 1;
   background-color: ${gray100};
@@ -112,6 +112,9 @@ const TimeContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  @media ${media.desktop} {
+    flex-direction: row;
+  }
 `;
 
 export {

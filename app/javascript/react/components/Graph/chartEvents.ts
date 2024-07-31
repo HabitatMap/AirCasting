@@ -85,26 +85,23 @@ const addNavigationArrows = (
       ? chevronRight
       : graphChevronRight;
 
-    const iconSize = isCalendarPage && isMobile ? 40 : 48;
+    const iconSize = isCalendarPage && isMobile ? 32 : 48;
 
-    // Position arrows above the graph if isCalendarPage and isMobile
+    // Position arrows based on isMobile and isCalendarPage
     const leftArrowY = isCalendarPage && isMobile ? 0 : chevronHeight;
     const rightArrowY = isCalendarPage && isMobile ? 0 : chevronHeight;
+    const leftArrowX = isCalendarPage && isMobile ? -80 : 15;
+    const rightArrowX =
+      isCalendarPage && isMobile ? chartWidth - 80 : chartWidth - 118;
 
     leftArrow = chart.renderer
-      .image(leftIcon, isCalendarPage ? 0 : 15, leftArrowY, iconSize, iconSize)
+      .image(leftIcon, leftArrowX, leftArrowY, iconSize, iconSize)
       .attr({ zIndex: 10, class: "custom-arrow" })
       .css({ cursor: "pointer" })
       .add();
 
     rightArrow = chart.renderer
-      .image(
-        rightIcon,
-        isCalendarPage ? chartWidth - 50 : chartWidth - 118,
-        rightArrowY,
-        iconSize,
-        iconSize
-      )
+      .image(rightIcon, rightArrowX, rightArrowY, iconSize, iconSize)
       .attr({ zIndex: 10, class: "custom-arrow" })
       .css({ cursor: "pointer" })
       .add();
@@ -130,9 +127,12 @@ const addNavigationArrows = (
 
     Highcharts.addEvent(chart, "redraw", () => {
       updateArrowStates();
-      leftArrow.attr({ y: leftArrowY });
+      leftArrow.attr({ x: leftArrowX, y: leftArrowY });
       rightArrow.attr({
-        x: isCalendarPage ? chart.chartWidth : chart.chartWidth - 118,
+        x:
+          isCalendarPage && isMobile
+            ? chart.chartWidth - 80
+            : chart.chartWidth - 118,
         y: rightArrowY,
       });
     });

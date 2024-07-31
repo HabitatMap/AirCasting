@@ -7,7 +7,7 @@ const Container = styled.div<{ $isCalendarPage?: boolean }>`
   display: flex;
   align-items: center;
   padding-bottom: ${({ $isCalendarPage }) =>
-    $isCalendarPage ? "4rem" : "1.25rem"};
+    $isCalendarPage ? "10rem" : "1.25rem"};
 
   @media ${media.smallDesktop} {
     justify-content: none;

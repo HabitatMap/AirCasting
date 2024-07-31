@@ -180,15 +180,17 @@ const Graph: React.FC<GraphProps> = ({
           },
         },
       },
-      height: isMobile ? 150 : 300,
+      height: isCalendarPage || !isMobile ? 300 : 150,
       margin: isMobile
         ? isCalendarPage
-          ? [5, 0, 5, 0]
+          ? [5, 10, 5, 0]
           : [5, 0, 5, 0]
         : isCalendarPage
         ? [0, 30, 5, 0]
         : [0, 60, 5, 0],
+
       animation: false,
+
       scrollablePlotArea: {
         minWidth: 100,
         scrollPositionX: 1,
