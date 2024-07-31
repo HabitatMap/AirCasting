@@ -10,14 +10,14 @@ interface MarkerProps {
   color: string;
   shouldPulse?: boolean;
   onClick: () => void;
-  opacity?: boolean;
+  opacity?: number;
 }
 
 const SessionDotMarker = ({
   color,
   shouldPulse = false,
   onClick,
-  opacity = false,
+  opacity = 1,
 }: MarkerProps) => {
   return (
     <MarkerContainer onClick={onClick}>

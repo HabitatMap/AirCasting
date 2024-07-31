@@ -2,7 +2,7 @@ import styled, { css, keyframes } from "styled-components";
 
 interface MarkerProps {
   color: string;
-  $opacity: boolean;
+  $opacity: number;
   $shouldPulse?: boolean;
 }
 
@@ -57,7 +57,7 @@ const MarkerCircle = styled.div<MarkerProps>`
   border-radius: 50%;
   background-color: ${(props) => props.color};
   pointer-events: none;
-  opacity: ${(props) => (props.$opacity ? 0.6 : 1)};
+  opacity: ${(props) => props.$opacity};
   animation: ${(props) =>
     props.$shouldPulse
       ? css`
