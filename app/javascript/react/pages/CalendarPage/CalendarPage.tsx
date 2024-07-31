@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
 import { useTranslation } from "react-i18next";
+import { Graph } from "../../components/Graph";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
@@ -23,6 +24,7 @@ import {
   movingData,
 } from "../../store/movingCalendarStreamSlice";
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
+import { SessionTypes } from "../../types/filters";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 
@@ -138,6 +140,27 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               />
             </S.ThresholdContainer>
           )}
+          <S.GraphContainer $isMobile={isMobile}>
+            <HeaderToggle
+              titleText={
+                <S.StyledContainerWithGraph>
+                  {t("calendarHeader.graphTitle")}
+
+                  {/* <>
+                      <MeasurementComponent />
+                      <TimeRange minTime={minTime} maxTime={maxTime} />
+                    </> */}
+                </S.StyledContainerWithGraph>
+              }
+              componentToToggle={
+                <Graph
+                  streamId={Number(streamId)}
+                  sessionType={SessionTypes.FIXED}
+                  // isCalendarPage={true}
+                />
+              }
+            />
+          </S.GraphContainer>
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>

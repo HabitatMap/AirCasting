@@ -91,12 +91,36 @@ const SliderWrapper = styled.div`
   }
 `;
 
+const GraphContainer = styled.div<{ $isMobile: boolean }>`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  margin-bottom: 3rem;
+  background-color: ${white};
+  @media ${media.desktop} {
+    padding: 3rem 10rem;
+    margin-bottom: 0;
+  }
+  @media ${media.largeDesktop} {
+    padding: 3rem 10rem;
+    margin-bottom: 0;
+  }
+  ${(props) => props.$isMobile && `padding: 1.5rem; gap: 2rem;`}
+`;
+
+const StyledContainerWithGraph = styled(StyledContainer)`
+  grid-template-columns: auto 2fr 1fr;
+`;
+
 export {
   CalendarPageLayout,
+  GraphContainer,
   Heading,
   SliderWrapper,
   StationDataContainer,
   StyledContainer,
+  StyledContainerWithGraph,
   ThresholdContainer,
   Units,
 };
