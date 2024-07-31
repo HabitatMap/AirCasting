@@ -39,6 +39,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   } = useMapParams();
   const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
 
+  const crowdMapRectanglesLength: number = crowdMapRectangles.length;
   const displayedSession: Session | undefined = sessions.find(
     (session) => session.id === pulsatingSessionId
   );
@@ -79,7 +80,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   }, [filters]);
 
   useEffect(() => {
-    if (crowdMapRectangles.length > 0) {
+    if (crowdMapRectanglesLength > 0) {
       const newRectangles = crowdMapRectangles.map(
         (rectangle) =>
           new google.maps.Rectangle({
@@ -101,7 +102,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       rectanglesRef.current.forEach((rectangle) => rectangle.setMap(null));
       rectanglesRef.current = [];
     };
-  }, [crowdMapRectangles, map]);
+  }, [crowdMapRectangles, map, thresholds]);
 
   const renderMarker = (displayedSession: Session) => {
     return (
