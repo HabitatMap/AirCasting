@@ -9,41 +9,52 @@ import { resetUserThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
-  const { searchParams, sessionType, setUrlParams, currentUserSettings } =
+  const { currentUserSettings, searchParams, sessionType, setUrlParams } =
     useMapParams();
+  const isMobile: boolean = useMobileDetection();
   const { t } = useTranslation();
 
   const handleClick = useCallback(
     (type: SessionType) => {
       dispatch(resetUserThresholds());
       dispatch(setLoading(true));
-      setUrlParams([
-        {
-          key: UrlParamsTypes.sessionType,
-          value: type,
-        },
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: UserSettings.MapView,
-        },
-        {
-          key: UrlParamsTypes.sessionId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.streamId,
-          value: "",
-        },
-      ]);
+      if (isMobile) {
+        setUrlParams([
+          {
+            key: UrlParamsTypes.sessionType,
+            value: type,
+          },
+        ]);
+      } else {
+        setUrlParams([
+          {
+            key: UrlParamsTypes.sessionType,
+            value: type,
+          },
+          {
+            key: UrlParamsTypes.previousUserSettings,
+            value: currentUserSettings,
+          },
+          {
+            key: UrlParamsTypes.currentUserSettings,
+            value: UserSettings.MapView,
+          },
+          {
+            key: UrlParamsTypes.sessionId,
+            value: "",
+          },
+          {
+            key: UrlParamsTypes.streamId,
+            value: "",
+          },
+        ]);
+      }
     },
     [searchParams]
   );
