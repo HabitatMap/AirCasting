@@ -15,10 +15,8 @@ const selectFixedStreamData = (state: RootState): FixedStream => {
 
 const selectFixedStream = (state: RootState) => state.fixedStream;
 
-const selectExtremesValues = (state: RootState) => state.fixedStream;
-
 const selectFixedExtremes = createSelector(
-  [selectExtremesValues],
+  [selectFixedStream],
   (fixedStream) => {
     const {
       averageMeasurementValue,

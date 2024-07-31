@@ -66,14 +66,13 @@ const addNavigationArrows = (
   const createArrows = () => {
     const chartWidth = chart.chartWidth;
     const chartHeight = chart.chartHeight;
-    const chevronHeight =
-      window.innerWidth < 1025 ? chartHeight / 2 : chartHeight / 2 - 24;
 
     // Remove existing arrows if any
     chart.renderer.boxWrapper.element
       .querySelectorAll(".custom-arrow")
       .forEach((el) => el.remove());
 
+    // Determine the icon to use based on the isMobile and isCalendarPage flags
     const leftIcon = isMobile
       ? mobileChevronLeft
       : isCalendarPage
@@ -85,27 +84,48 @@ const addNavigationArrows = (
       ? chevronRight
       : graphChevronRight;
 
-    const iconSize = isCalendarPage && isMobile ? 32 : 48;
+    // Initialize variables with default values
+    let iconSize = 48; // Default icon size
+    let leftArrowX = 15; // Default left arrow X position
+    let rightArrowX = chartWidth - 118; // Default right arrow X position
+    let arrowY = chartHeight / 2; // Default Y position (centered)
 
-    // Position arrows based on isMobile and isCalendarPage
-    const leftArrowY = isCalendarPage && isMobile ? 0 : chevronHeight;
-    const rightArrowY = isCalendarPage && isMobile ? 0 : chevronHeight;
-    const leftArrowX = isCalendarPage && isMobile ? -80 : 15;
-    const rightArrowX =
-      isCalendarPage && isMobile ? chartWidth - 80 : chartWidth - 118;
+    // Assign values based on the scenarios
+    if (isMobile && isCalendarPage) {
+      // Mobile and Calendar Page
+      iconSize = 40;
+      leftArrowX = 0;
+      rightArrowX = chartWidth - 50;
+      arrowY = -29; // Align with the top
+    } else if (!isMobile && isCalendarPage) {
+      // Desktop and Calendar Page
+      iconSize = 48;
+      leftArrowX = 15;
+      rightArrowX = chartWidth - 118;
+      arrowY = chartHeight / 2 - 24; // Centered with slight offset
+    } else if (!isMobile && !isCalendarPage) {
+      // Desktop and Not Calendar Page
+      iconSize = 48;
+      leftArrowX = 15;
+      rightArrowX = chartWidth - 118;
+      arrowY = chartHeight / 2; // Centered
+    }
 
+    // Create and position the left arrow
     leftArrow = chart.renderer
-      .image(leftIcon, leftArrowX, leftArrowY, iconSize, iconSize)
+      .image(leftIcon, leftArrowX, arrowY, iconSize, iconSize)
       .attr({ zIndex: 10, class: "custom-arrow" })
       .css({ cursor: "pointer" })
       .add();
 
+    // Create and position the right arrow
     rightArrow = chart.renderer
-      .image(rightIcon, rightArrowX, rightArrowY, iconSize, iconSize)
+      .image(rightIcon, rightArrowX, arrowY, iconSize, iconSize)
       .attr({ zIndex: 10, class: "custom-arrow" })
       .css({ cursor: "pointer" })
       .add();
 
+    // Add click handlers to move the chart when arrows are clicked
     leftArrow.on("click", () => {
       if (leftArrow.element.style.cursor !== "not-allowed") {
         move(DIRECTION_LEFT);
@@ -118,22 +138,21 @@ const addNavigationArrows = (
       }
     });
 
+    // Add hover effects to hide/show elements
     leftArrow.on("mouseover", () => toggleElements("none"));
     leftArrow.on("mouseout", () => toggleElements("block"));
     rightArrow.on("mouseover", () => toggleElements("none"));
     rightArrow.on("mouseout", () => toggleElements("block"));
 
+    // Update arrow states and reposition them on chart redraw
     updateArrowStates();
 
     Highcharts.addEvent(chart, "redraw", () => {
       updateArrowStates();
-      leftArrow.attr({ x: leftArrowX, y: leftArrowY });
+      leftArrow.attr({ x: leftArrowX, y: arrowY });
       rightArrow.attr({
-        x:
-          isCalendarPage && isMobile
-            ? chart.chartWidth - 80
-            : chart.chartWidth - 118,
-        y: rightArrowY,
+        x: rightArrowX,
+        y: arrowY,
       });
     });
   };
