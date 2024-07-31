@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+
 import toggleIcon from "../../../../assets/icons/toggleIcon.svg";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
@@ -47,7 +48,7 @@ const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
           <S.RotatedIcon
             src={toggleIcon}
             alt={t("headerToggle.arrowIcon")}
-            $rotated={!isVisible}
+            $rotated={isVisible}
             onClick={toggleVisibility}
           />
           <S.SessionName>{streamShortInfo.title}</S.SessionName>
