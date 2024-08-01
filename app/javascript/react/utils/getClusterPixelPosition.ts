@@ -13,9 +13,14 @@ const getClusterPixelPosition = (
   }
 
   const scale = Math.pow(2, zoom);
+  const bounds = map.getBounds();
+  if (!bounds) {
+    throw new Error("Map bounds are undefined");
+  }
+
   const nw = new google.maps.LatLng(
-    map.getBounds()!.getNorthEast().lat(),
-    map.getBounds()!.getSouthWest().lng()
+    bounds.getNorthEast().lat(),
+    bounds.getSouthWest().lng()
   );
   const worldCoordinateNW = projection.fromLatLngToPoint(nw);
   const worldCoordinate = projection.fromLatLngToPoint(latLng);
@@ -23,9 +28,22 @@ const getClusterPixelPosition = (
     throw new Error("World coordinate is null");
   }
 
+  let xOffset = (worldCoordinate.x - worldCoordinateNW.x) * scale;
+  const yOffset = (worldCoordinate.y - worldCoordinateNW.y) * scale;
+
+  const totalWorldPixels = 256 * scale;
+
+  if (xOffset < -totalWorldPixels / 2) {
+    xOffset += totalWorldPixels;
+  } else if (xOffset > totalWorldPixels / 2) {
+    xOffset -= totalWorldPixels;
+  }
+
+  xOffset = (xOffset + totalWorldPixels) % totalWorldPixels;
+
   const pixelOffset = new google.maps.Point(
-    Math.floor((worldCoordinate.x - worldCoordinateNW.x) * scale),
-    Math.floor((worldCoordinate.y - worldCoordinateNW.y) * scale)
+    Math.floor(xOffset),
+    Math.floor(yOffset)
   );
 
   return pixelOffset;

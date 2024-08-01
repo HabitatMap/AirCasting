@@ -53,7 +53,7 @@ const FixedMarkers = ({
 
   const map = useMap();
   const dispatch = useAppDispatch();
-  const { currentCenter } = useMapParams();
+  const { currentCenter, currentZoom } = useMapParams();
 
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
@@ -289,6 +289,10 @@ const FixedMarkers = ({
         selectedCluster,
         map
       );
+      const currentZoom = map.getZoom();
+      if (currentZoom !== null && currentZoom !== undefined) {
+        map.setZoom(currentZoom - 0.5);
+      }
       dispatch(setVisibility(false));
       setSelectedCluster(null);
       setClusterPosition(null);
