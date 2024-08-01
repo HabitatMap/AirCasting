@@ -30,6 +30,7 @@ import { selectHoverStreamId } from "../../../store/mapSlice";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import { RootState } from "../../../store";
+import { useMapParams } from "../../../utils/mapParamsHandler";
 
 type Props = {
   sessions: Session[];
@@ -52,6 +53,7 @@ const FixedMarkers = ({
 
   const map = useMap();
   const dispatch = useAppDispatch();
+  const { currentCenter } = useMapParams();
 
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
@@ -87,7 +89,7 @@ const FixedMarkers = ({
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (map) {
       if (clusterer.current) {
         clusterer.current.clearMarkers();
@@ -102,27 +104,7 @@ const FixedMarkers = ({
         onClusterClick: handleClusterClick,
       }) as CustomMarkerClusterer;
     }
-
-    const handleMapInteraction = () => {
-      dispatch(setVisibility(false));
-      setSelectedCluster(null);
-      setClusterPosition(null);
-    };
-
-    map && map.addListener("click", handleMapInteraction);
-    map && map.addListener("touchend", handleMapInteraction);
-    map && map.addListener("dragstart", handleMapInteraction);
-    map && map.addListener("zoom_changed", handleMapInteraction);
-
-    return () => {
-      if (map) {
-        google.maps.event.clearListeners(map, "click");
-        google.maps.event.clearListeners(map, "touchend");
-        google.maps.event.clearListeners(map, "dragstart");
-        // we don't clear zoom_changed listener because it's necessary for handling zoom in on zoom in click
-      }
-    };
-  }, [map, thresholds, dispatch]);
+  }, [map, thresholds]);
 
   useEffect(() => {
     if (selectedStreamId) {
@@ -286,6 +268,12 @@ const FixedMarkers = ({
         dispatch(fetchClusterData(streamIds as string[]));
       }
 
+      //!IMPORTANT! This is a current fix for the url params updating the center of the map incorrectly on first render after pasting a copied link, once the main issue is fixed, we can get rid of this ugly hack
+      const mapCenter = map.getCenter();
+      if (mapCenter !== currentCenter) {
+        mapCenter && map && map.setCenter(mapCenter);
+      }
+
       const pixelPosition = getClusterPixelPosition(map, cluster.position);
       setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
       setSelectedCluster(cluster);
@@ -301,8 +289,44 @@ const FixedMarkers = ({
         selectedCluster,
         map
       );
+      dispatch(setVisibility(false));
+      setSelectedCluster(null);
+      setClusterPosition(null);
     }
   }, [map, selectedCluster]);
+
+  useEffect(() => {
+    const handleMapInteraction = () => {
+      dispatch(setVisibility(false));
+      setSelectedCluster(null);
+      setClusterPosition(null);
+    };
+
+    const handleBoundsChanged = () => {
+      if (selectedCluster && map) {
+        const pixelPosition = getClusterPixelPosition(
+          map,
+          selectedCluster.position
+        );
+        setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+      }
+    };
+
+    map && map.addListener("click", handleMapInteraction);
+    map && map.addListener("touchend", handleMapInteraction);
+    map && map.addListener("dragstart", handleMapInteraction);
+    map && map.addListener("zoom_changed", handleMapInteraction);
+    map && map.addListener("bounds_changed", handleBoundsChanged);
+
+    return () => {
+      if (map) {
+        google.maps.event.clearListeners(map, "click");
+        google.maps.event.clearListeners(map, "touchend");
+        google.maps.event.clearListeners(map, "dragstart");
+        google.maps.event.clearListeners(map, "bounds_changed");
+      }
+    };
+  }, [map, selectedCluster, dispatch, clusterer.current]);
 
   return (
     <>
