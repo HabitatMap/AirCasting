@@ -1,5 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import moment from "moment";
+import { DateFormat } from "../types/dateFormat";
 import {
   FixedStream,
   FixedStreamShortInfo,
@@ -49,20 +50,85 @@ const selectLastDailyAverage = (
   return lastItemFromArray(streamDailyAverages);
 };
 
+// const selectFixedStreamShortInfo = createSelector(
+//   [selectFixedStreamData, selectLastDailyAverage],
+//   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
+//     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
+//     const lastMeasurementDateLabel = moment(date)?.utc().format("MMM D");
+//     const lastUpdate = moment(fixedStreamData.stream.lastUpdate)
+//       .utc()
+//       .format("HH:mm MMM D YYYY");
+//     const active = fixedStreamData.stream.active;
+//     const { min, low, middle, high, max } = fixedStreamData.stream;
+
+//     const sortedStreamDailyAverages = [
+//       ...fixedStreamData.streamDailyAverages,
+//     ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+//     const newestAverageObject = sortedStreamDailyAverages[0];
+//     const newestAverageValue = newestAverageObject
+//       ? Number(newestAverageObject.value)
+//       : 0;
+
+//     const newestDate =
+//       fixedStreamData.measurements.length > 0
+//         ? new Date(Math.max(...fixedStreamData.measurements.map((m) => m.time)))
+//         : new Date();
+
+//     const newestDayMeasurements = fixedStreamData.measurements.filter(
+//       (m) => new Date(m.time).toDateString() === newestDate.toDateString()
+//     );
+
+//     const maxMeasurementValue = Math.max(
+//       ...newestDayMeasurements.map((m) => m.value)
+//     );
+//     const minMeasurementValue = Math.min(
+//       ...newestDayMeasurements.map((m) => m.value)
+//     );
+
+//     return {
+//       ...fixedStreamData.stream,
+//       lastMeasurementValue,
+//       lastMeasurementDateLabel,
+//       lastUpdate,
+//       active,
+//       min,
+//       low,
+//       middle,
+//       high,
+//       max,
+//       minMeasurementValue,
+//       maxMeasurementValue,
+//       averageValue: newestAverageValue,
+//     };
+//   }
+// );
+
 const selectFixedStreamShortInfo = createSelector(
   [selectFixedStreamData, selectLastDailyAverage],
   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
-    const lastMeasurementDateLabel = moment(date)?.format("MMM D");
-    const lastUpdate = moment(fixedStreamData.stream.lastUpdate)
-      .local()
+
+    const lastMeasurementDateLabel = moment.utc(date).format("MMM D");
+    const lastUpdate = moment
+      .utc(fixedStreamData.stream.lastUpdate)
       .format("HH:mm MMM D YYYY");
+
+    const startTime = moment
+      .utc(fixedStreamData.stream.startTime)
+      .format(DateFormat.us_with_time);
+    const endTime = moment
+      .utc(fixedStreamData.stream.endTime)
+      .format(DateFormat.us_with_time);
+
     const active = fixedStreamData.stream.active;
     const { min, low, middle, high, max } = fixedStreamData.stream;
 
     const sortedStreamDailyAverages = [
       ...fixedStreamData.streamDailyAverages,
-    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    ].sort(
+      (a, b) => moment.utc(b.date).valueOf() - moment.utc(a.date).valueOf()
+    );
 
     const newestAverageObject = sortedStreamDailyAverages[0];
     const newestAverageValue = newestAverageObject
@@ -71,11 +137,13 @@ const selectFixedStreamShortInfo = createSelector(
 
     const newestDate =
       fixedStreamData.measurements.length > 0
-        ? new Date(Math.max(...fixedStreamData.measurements.map((m) => m.time)))
-        : new Date();
+        ? moment.utc(
+            Math.max(...fixedStreamData.measurements.map((m) => m.time))
+          )
+        : moment.utc();
 
-    const newestDayMeasurements = fixedStreamData.measurements.filter(
-      (m) => new Date(m.time).toDateString() === newestDate.toDateString()
+    const newestDayMeasurements = fixedStreamData.measurements.filter((m) =>
+      moment.utc(m.time).isSame(newestDate, "day")
     );
 
     const maxMeasurementValue = Math.max(
@@ -99,6 +167,8 @@ const selectFixedStreamShortInfo = createSelector(
       minMeasurementValue,
       maxMeasurementValue,
       averageValue: newestAverageValue,
+      startTime,
+      endTime,
     };
   }
 );
@@ -106,33 +176,17 @@ const selectFixedStreamShortInfo = createSelector(
 const selectMinAndMaxTime = createSelector(
   [selectFixedStream],
   (fixedStream) => {
-    const dateOptions = {
-      year: "numeric" as const,
-      month: "numeric" as const,
-      day: "numeric" as const,
-    };
-
-    const timeOptions = {
-      hour: "2-digit" as const,
-      minute: "2-digit" as const,
-      second: "2-digit" as const,
-      hour12: false,
-    };
-
     const formatDate = (date: number | null) => {
       if (!date) return { date: null, time: null };
-      const dateString = new Date(date).toLocaleDateString(
-        "en-US",
-        dateOptions
-      );
-      const timeString = new Date(date).toLocaleTimeString(
-        "en-US",
-        timeOptions
-      );
+
+      const utcDate = moment.utc(date);
+
+      const dateString = utcDate.format(DateFormat.us);
+      const timeString = utcDate.format(DateFormat.time_with_seconds);
+
       return { date: dateString, time: timeString };
     };
 
-    console.log("fixedStream.minTime slice", formatDate(fixedStream.minTime));
     return {
       minTime: formatDate(fixedStream.minTime),
       maxTime: formatDate(fixedStream.maxTime),

@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import calendar from "../../../../assets/icons/calendar.svg";
 import copyLink from "../../../../assets/icons/copyLinkIcon.svg";
 import downloadImage from "../../../../assets/icons/download.svg";
-import { DateFormat } from "../../../../types/dateFormat";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
 import { UserSettings } from "../../../../types/userStates";
@@ -15,7 +14,6 @@ import {
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { screenSizes } from "../../../../utils/media";
 import { getColorForValue } from "../../../../utils/thresholdColors";
-import { formattedTime } from "../../../../utils/timeFormatter";
 import useScreenSizeDetection from "../../../../utils/useScreenSizeDetection";
 import { CopyLinkComponent } from "../../../Popups/CopyLinkComponent";
 import { ExportDataComponent } from "../../../Popups/ExportDataComponent";
@@ -99,15 +97,7 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
           </>
         )}
         <S.TimeRange>
-          {formattedTime(
-            streamShortInfo.startTime ?? "",
-            DateFormat.us_with_time
-          )}{" "}
-          -{" "}
-          {formattedTime(
-            streamShortInfo.endTime ?? "",
-            DateFormat.us_with_time
-          )}
+          {streamShortInfo.startTime} - {streamShortInfo.endTime}
         </S.TimeRange>
       </S.Wrapper>
       <S.ButtonsContainer>

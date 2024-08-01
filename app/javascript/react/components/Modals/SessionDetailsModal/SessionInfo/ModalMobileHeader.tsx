@@ -2,12 +2,10 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import toggleIcon from "../../../../assets/icons/toggleIcon.svg";
-import { DateFormat } from "../../../../types/dateFormat";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
 import { isNoData } from "../../../../utils/measurementsCalc";
 import { getColorForValue } from "../../../../utils/thresholdColors";
-import { formattedTime } from "../../../../utils/timeFormatter";
 import * as S from "../SessionDetailsModal.style";
 
 interface Extremes {
@@ -97,15 +95,7 @@ const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
             </>
           )}
           <S.TimeRange>
-            {formattedTime(
-              streamShortInfo.startTime ?? "",
-              DateFormat.us_with_time
-            )}{" "}
-            -{" "}
-            {formattedTime(
-              streamShortInfo.endTime ?? "",
-              DateFormat.us_with_time
-            )}
+            {streamShortInfo.startTime} - {streamShortInfo.endTime}
           </S.TimeRange>
         </S.Wrapper>
       </S.ContentWrapper>
