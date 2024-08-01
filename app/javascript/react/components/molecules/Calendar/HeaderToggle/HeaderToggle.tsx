@@ -32,7 +32,7 @@ const HeaderToggle = ({
   return (
     <>
       {isMobile && (
-        <S.Container $isCalendarPage={isCalendarPage}>
+        <S.Container $isCalendarPage={isCalendarPage} $rotated={!isVisible}>
           <S.RotatedIcon
             src={headerArrowIcon}
             alt={t("headerToggle.arrowIcon")}
