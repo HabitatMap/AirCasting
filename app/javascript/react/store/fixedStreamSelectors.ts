@@ -50,60 +50,6 @@ const selectLastDailyAverage = (
   return lastItemFromArray(streamDailyAverages);
 };
 
-// const selectFixedStreamShortInfo = createSelector(
-//   [selectFixedStreamData, selectLastDailyAverage],
-//   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {
-//     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
-//     const lastMeasurementDateLabel = moment(date)?.utc().format("MMM D");
-//     const lastUpdate = moment(fixedStreamData.stream.lastUpdate)
-//       .utc()
-//       .format("HH:mm MMM D YYYY");
-//     const active = fixedStreamData.stream.active;
-//     const { min, low, middle, high, max } = fixedStreamData.stream;
-
-//     const sortedStreamDailyAverages = [
-//       ...fixedStreamData.streamDailyAverages,
-//     ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-//     const newestAverageObject = sortedStreamDailyAverages[0];
-//     const newestAverageValue = newestAverageObject
-//       ? Number(newestAverageObject.value)
-//       : 0;
-
-//     const newestDate =
-//       fixedStreamData.measurements.length > 0
-//         ? new Date(Math.max(...fixedStreamData.measurements.map((m) => m.time)))
-//         : new Date();
-
-//     const newestDayMeasurements = fixedStreamData.measurements.filter(
-//       (m) => new Date(m.time).toDateString() === newestDate.toDateString()
-//     );
-
-//     const maxMeasurementValue = Math.max(
-//       ...newestDayMeasurements.map((m) => m.value)
-//     );
-//     const minMeasurementValue = Math.min(
-//       ...newestDayMeasurements.map((m) => m.value)
-//     );
-
-//     return {
-//       ...fixedStreamData.stream,
-//       lastMeasurementValue,
-//       lastMeasurementDateLabel,
-//       lastUpdate,
-//       active,
-//       min,
-//       low,
-//       middle,
-//       high,
-//       max,
-//       minMeasurementValue,
-//       maxMeasurementValue,
-//       averageValue: newestAverageValue,
-//     };
-//   }
-// );
-
 const selectFixedStreamShortInfo = createSelector(
   [selectFixedStreamData, selectLastDailyAverage],
   (fixedStreamData, lastDailyAverage): FixedStreamShortInfo => {

@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import {
   black,
   blue,
+  disabledGraphButton,
   gray100,
   gray200,
   gray300,
@@ -77,11 +78,19 @@ const getXAxisOptions = (
         const min = e.min;
         const max = e.max;
 
-        dispatch(
-          fixedSessionTypeSelected
-            ? updateFixedMeasurementExtremes({ min, max })
-            : updateMobileMeasurementExtremes({ min, max })
-        );
+        // Check if the new extremes are different from the current state
+        const currentExtremes = useAppSelector((state) => state.fixedStream);
+
+        if (
+          min !== currentExtremes.minTime ||
+          max !== currentExtremes.maxTime
+        ) {
+          dispatch(
+            fixedSessionTypeSelected
+              ? updateFixedMeasurementExtremes({ min, max })
+              : updateMobileMeasurementExtremes({ min, max })
+          );
+        }
       }
     },
     100
@@ -362,7 +371,7 @@ const getRangeSelectorOptions = (
 
         disabled: {
           style: {
-            color: "#a3a0a4",
+            color: disabledGraphButton,
             cursor: "default",
           },
         },

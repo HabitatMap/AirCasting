@@ -28,6 +28,7 @@ const mapLandscape = "#f2f2f2";
 const mapStroke = "#c9c9c9";
 const mapWater = "#e0f1f9";
 const mobileStreamPath = "#cee6f1";
+const disabledGraphButton = "#a3a0a4";
 
 export {
   acBlue,
@@ -37,6 +38,7 @@ export {
   cta,
   darkBlue,
   darkBlueTransparent,
+  disabledGraphButton,
   gray100,
   gray200,
   gray300,
