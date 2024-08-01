@@ -7,25 +7,30 @@ import React, {
   useState,
 } from "react";
 import { useSelector } from "react-redux";
-
+import { useAppDispatch } from "../../../store/hooks";
 import {
   Cluster,
   GridAlgorithm,
   Marker,
   MarkerClusterer,
   SuperClusterAlgorithm,
+  defaultOnClusterClickHandler,
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
+import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
-
 import type { LatLngLiteral } from "../../../types/googleMaps";
+import { selectHoverStreamId } from "../../../store/mapSlice";
+import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
+import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
+import { RootState } from "../../../store";
+import { useMapParams } from "../../../utils/mapParamsHandler";
 
 type Props = {
   sessions: Session[];
@@ -33,6 +38,10 @@ type Props = {
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
 };
+
+interface CustomMarkerClusterer extends MarkerClusterer {
+  markerStreamIdMap?: Map<Marker, string>;
+}
 
 const FixedMarkers = ({
   sessions,
@@ -43,8 +52,10 @@ const FixedMarkers = ({
   const ZOOM_FOR_SELECTED_SESSION = 15;
 
   const map = useMap();
+  const dispatch = useAppDispatch();
+  const { currentCenter } = useMapParams();
 
-  const clusterer = useRef<MarkerClusterer | null>(null);
+  const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
@@ -61,12 +72,24 @@ const FixedMarkers = ({
     null
   );
 
-  // Memoize the sessions and markers to avoid unnecessary re-renders
+  const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
+  const [clusterPosition, setClusterPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
+
+  const clusterData = useSelector((state: RootState) => state.cluster.data);
+  const clusterLoading = useSelector(
+    (state: RootState) => state.cluster.loading
+  );
+  const clusterVisible = useSelector(
+    (state: RootState) => state.cluster.visible
+  );
+
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
 
-  // Initialize clusterer
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (map) {
       if (clusterer.current) {
         clusterer.current.clearMarkers();
@@ -78,7 +101,8 @@ const FixedMarkers = ({
           maxZoom: 21,
           radius: 40,
         }),
-      });
+        onClusterClick: handleClusterClick,
+      }) as CustomMarkerClusterer;
     }
   }, [map, thresholds]);
 
@@ -98,26 +122,38 @@ const FixedMarkers = ({
       const sessionStreamIds = memoizedSessions.map(
         (session) => session.point.streamId
       );
+      const markerStreamIdMap = new Map<Marker, string>();
+
       Object.keys(memoizedMarkers).forEach((key) => {
         if (!sessionStreamIds.includes(key)) {
           delete memoizedMarkers[key];
         }
       });
+
       const validMarkers = Object.values(memoizedMarkers).filter(
         (marker): marker is google.maps.marker.AdvancedMarkerElement =>
           marker !== null
       );
+
+      validMarkers.forEach((marker) => {
+        const streamId = sessionStreamIds.find(
+          (id) => memoizedMarkers[id] === marker
+        );
+        if (streamId) {
+          markerStreamIdMap.set(marker, streamId);
+        }
+      });
+
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
+      clusterer.current.markerStreamIdMap = markerStreamIdMap;
     }
   }, [memoizedSessions, memoizedMarkers]);
 
-  // Update MarkerClusterer when markers and sessions change
   useEffect(() => {
     updateClusterer();
   }, [updateClusterer]);
 
-  // Pulsation
   useEffect(() => {
     if (pulsatingSessionId) {
       const pulsatingSession = memoizedSessions.find(
@@ -126,7 +162,7 @@ const FixedMarkers = ({
       const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
       if (pulsatingSessionStreamId && clusterer.current) {
         const pulsatingCluster: Cluster | undefined =
-          // @ts-ignore:next-line
+          //@ts-expect-error
           clusterer.current.clusters.find(
             (cluster: Cluster) =>
               cluster.markers &&
@@ -160,7 +196,6 @@ const FixedMarkers = ({
     }
   }, [pulsatingSessionId, memoizedMarkers, memoizedSessions, thresholds]);
 
-  // Cleanup clusters when component unmounts
   useEffect(() => {
     return () => {
       if (clusterer.current) {
@@ -201,7 +236,6 @@ const FixedMarkers = ({
   );
 
   useEffect(() => {
-    // If hoverStreamId is set, update hoverPosition only if it's not null
     if (hoverStreamId) {
       const hoveredSession = memoizedSessions.find(
         (session) => Number(session.point.streamId) === hoverStreamId
@@ -213,6 +247,86 @@ const FixedMarkers = ({
       setHoverPosition(null);
     }
   }, [hoverStreamId, memoizedSessions]);
+
+  const handleClusterClick = useCallback(
+    async (
+      event: google.maps.MapMouseEvent,
+      cluster: Cluster,
+      map: google.maps.Map
+    ) => {
+      dispatch(setVisibility(false));
+
+      const markerStreamIdMap = clusterer.current?.markerStreamIdMap;
+
+      const streamIds =
+        cluster.markers &&
+        cluster.markers
+          .map((marker: Marker) => markerStreamIdMap?.get(marker))
+          .filter((streamId) => streamId !== undefined);
+
+      if (streamIds && streamIds.length > 0) {
+        dispatch(fetchClusterData(streamIds as string[]));
+      }
+
+      //!IMPORTANT! This is a current fix for the url params updating the center of the map incorrectly on first render after pasting a copied link, once the main issue is fixed, we can get rid of this ugly hack
+      const mapCenter = map.getCenter();
+      if (mapCenter !== currentCenter) {
+        mapCenter && map && map.setCenter(mapCenter);
+      }
+
+      const pixelPosition = getClusterPixelPosition(map, cluster.position);
+      setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+      setSelectedCluster(cluster);
+      dispatch(setVisibility(true));
+    },
+    [dispatch]
+  );
+
+  const handleZoomIn = useCallback(() => {
+    if (map && selectedCluster) {
+      defaultOnClusterClickHandler(
+        { stop: () => {} } as google.maps.MapMouseEvent,
+        selectedCluster,
+        map
+      );
+      dispatch(setVisibility(false));
+      setSelectedCluster(null);
+      setClusterPosition(null);
+    }
+  }, [map, selectedCluster]);
+
+  useEffect(() => {
+    const handleMapInteraction = () => {
+      dispatch(setVisibility(false));
+      setSelectedCluster(null);
+      setClusterPosition(null);
+    };
+
+    const handleBoundsChanged = () => {
+      if (selectedCluster && map) {
+        const pixelPosition = getClusterPixelPosition(
+          map,
+          selectedCluster.position
+        );
+        setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+      }
+    };
+
+    map && map.addListener("click", handleMapInteraction);
+    map && map.addListener("touchend", handleMapInteraction);
+    map && map.addListener("dragstart", handleMapInteraction);
+    map && map.addListener("zoom_changed", handleMapInteraction);
+    map && map.addListener("bounds_changed", handleBoundsChanged);
+
+    return () => {
+      if (map) {
+        google.maps.event.clearListeners(map, "click");
+        google.maps.event.clearListeners(map, "touchend");
+        google.maps.event.clearListeners(map, "dragstart");
+        google.maps.event.clearListeners(map, "bounds_changed");
+      }
+    };
+  }, [map, selectedCluster, dispatch, clusterer.current]);
 
   return (
     <>
@@ -242,6 +356,16 @@ const FixedMarkers = ({
         </AdvancedMarker>
       ))}
       {hoverPosition && <HoverMarker position={hoverPosition} />}
+      {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
+        <ClusterInfo
+          color={getColorForValue(thresholds, clusterData.average)}
+          average={clusterData.average}
+          numberOfSessions={clusterData.numberOfInstruments}
+          handleZoomIn={handleZoomIn}
+          position={clusterPosition}
+          visible={clusterVisible}
+        />
+      )}
     </>
   );
 };

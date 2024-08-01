@@ -92,7 +92,7 @@
     "emailPlaceholder": "email address",
     "confirmationMessage": "Exported sessions will be emailed within minutes. The email may end up in your spam folder.",
     "invalidEmailMessage": "Please enter a valid email address.",
-    "sessionLimitMessage":   "You can't export more than {{limit}} sessions at a time. Use the time frame filter to chunk your exports or use our API.",
+    "sessionLimitMessage": "You can't export more than {{limit}} sessions at a time. Use the time frame filter to chunk your exports or use our API.",
     "noResultsMessage": "No results to export"
   },
   "calendarPage": {
@@ -123,7 +123,13 @@
       "applyButton": "Apply"
     },
     "results": "({{results}} Results)",
-    "exportButton": "Export"
+    "exportButton": "Export",
+    "clusterInfo": {
+      "average": "avg",
+      "units": "µg/m³",
+      "stations": "stations",
+      "measurements": "measurements"
+    }
   },
   "sessionDetailsModal": {
     "calendar": "Calendar",
