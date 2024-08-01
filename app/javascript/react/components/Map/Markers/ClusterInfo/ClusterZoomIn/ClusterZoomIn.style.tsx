@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { white } from "../../../../../assets/styles/colors";
+import { white, gray900 } from "../../../../../assets/styles/colors";
 
 interface ZoomInContainerProps {
   $isMobile?: boolean;
@@ -14,7 +14,7 @@ const ZoomInContainer = styled.div<ZoomInContainerProps>`
   border-radius: 25px;
   background-color: ${white};
   cursor: pointer;
-  ${(props) => !props.$isMobile && "box - shadow: 2px 2px 4px 0px #4c56601a;"}
+  ${(props) => !props.$isMobile && `box - shadow: 2px 2px 4px 0px ${gray900};`}
   z-index: 100;
 `;
 
