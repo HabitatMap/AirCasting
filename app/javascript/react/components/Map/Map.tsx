@@ -212,12 +212,6 @@ const Map = () => {
     }
   }, [streamId, currentUserSettings, fixedSessionTypeSelected]);
 
-  useEffect(() => {
-    if (currentUserSettings === UserSettings.ModalView) {
-      revertUserSettingsAndResetIds();
-    }
-  }, [filters]);
-
   // Callbacks
   const handleMapIdle = useCallback(
     (event: MapEvent) => {

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-
 import { useCombobox } from "downshift";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import { fetchTags, selectTags } from "../../store/sessionFiltersSlice";
-import { SessionTypes, fetchTagsParamsType } from "../../types/filters";
+import { fetchTagsParamsType, SessionTypes } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
@@ -17,16 +17,16 @@ const TagsInput = () => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const {
-    setUrlParams,
-    tags,
     boundWest,
     boundEast,
     boundNorth,
     boundSouth,
-    usernames,
     initialSensorName,
-    initialUnitSymbol,
     sessionType,
+    setFilters,
+    tags,
+    initialUnitSymbol,
+    usernames,
   } = useMapParams();
 
   const tagsToSelect = useAppSelector(selectTags);
@@ -73,12 +73,7 @@ const TagsInput = () => {
           const selectedTags = decodedTags + ", " + newSelectedItem;
 
           const urlEncodedString = encodeURIComponent(selectedTags);
-          setUrlParams([
-            {
-              key: UrlParamsTypes.tags,
-              value: urlEncodedString.toString(),
-            },
-          ]);
+          setFilters(UrlParamsTypes.tags, urlEncodedString.toString());
           setTimeout(() => {
             dispatch(setLoading(true));
           }, 200);
@@ -100,12 +95,7 @@ const TagsInput = () => {
     const tagsUpdated =
       decodedTagsArray && decodedTagsArray.filter((el) => el !== itemToRemove);
     const decodedTagsString = tagsUpdated ? tagsUpdated.join(", ") : "";
-    setUrlParams([
-      {
-        key: UrlParamsTypes.tags,
-        value: decodedTagsString.toString(),
-      },
-    ]);
+    setFilters(UrlParamsTypes.tags, decodedTagsString.toString());
     setTimeout(() => {
       dispatch(setLoading(true));
     }, 200);

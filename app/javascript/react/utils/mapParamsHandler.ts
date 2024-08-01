@@ -15,6 +15,7 @@ import {
 } from "../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../types/filters";
 import { UserSettings } from "../types/userStates";
+import useMobileDetection from "../utils/useScreenSizeDetection";
 
 export enum UrlParamsTypes {
   boundEast = "boundEast",
@@ -48,6 +49,7 @@ export enum UrlParamsTypes {
 export const useMapParams = () => {
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
   const thresholdValues = useAppSelector(selectThresholds);
+  const isMobile: boolean = useMobileDetection();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const getSearchParam = (
@@ -255,6 +257,43 @@ export const useMapParams = () => {
     ]);
   }, [searchParams]);
 
+  const setFilters = useCallback(
+    (key: UrlParamsTypes, value: string) => {
+      if (isMobile) {
+        setUrlParams([
+          {
+            key: key,
+            value: value,
+          },
+        ]);
+      } else {
+        setUrlParams([
+          {
+            key: key,
+            value: value,
+          },
+          {
+            key: UrlParamsTypes.previousUserSettings,
+            value: currentUserSettings,
+          },
+          {
+            key: UrlParamsTypes.currentUserSettings,
+            value: UserSettings.MapView,
+          },
+          {
+            key: UrlParamsTypes.sessionId,
+            value: "",
+          },
+          {
+            key: UrlParamsTypes.streamId,
+            value: "",
+          },
+        ]);
+      }
+    },
+    [searchParams]
+  );
+
   const debouncedUpdateURL = useCallback(
     debounce((params) => {
       setSearchParams(params);
@@ -283,6 +322,7 @@ export const useMapParams = () => {
     initialSensorName,
     sessionId,
     sessionType,
+    setFilters,
     setUrlParams,
     streamId,
     initialThresholds,

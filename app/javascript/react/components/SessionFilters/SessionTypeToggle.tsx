@@ -7,43 +7,20 @@ import { useAppDispatch } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
-import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
-  const { searchParams, sessionType, setUrlParams, currentUserSettings } =
-    useMapParams();
+  const { searchParams, sessionType, setFilters } = useMapParams();
   const { t } = useTranslation();
 
   const handleClick = useCallback(
     (type: SessionType) => {
       dispatch(resetUserThresholds());
       dispatch(setLoading(true));
-      setUrlParams([
-        {
-          key: UrlParamsTypes.sessionType,
-          value: type,
-        },
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: UserSettings.MapView,
-        },
-        {
-          key: UrlParamsTypes.sessionId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.streamId,
-          value: "",
-        },
-      ]);
+      setFilters(UrlParamsTypes.sessionType, type);
     },
     [searchParams]
   );
