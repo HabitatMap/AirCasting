@@ -289,6 +289,10 @@ const FixedMarkers = ({
         selectedCluster,
         map
       );
+      const currentZoom = map.getZoom();
+      if (currentZoom !== null && currentZoom !== undefined) {
+        map.setZoom(currentZoom - 0.5);
+      }
       dispatch(setVisibility(false));
       setSelectedCluster(null);
       setClusterPosition(null);
