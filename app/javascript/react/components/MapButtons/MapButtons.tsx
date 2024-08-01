@@ -5,6 +5,7 @@ import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
+import { TimelapsComponent } from "../Modals/TimelapsModal/TimelapsComponent";
 import { CopyLinkComponent } from "../Popups/CopyLinkComponent";
 import { DesktopSessionFilters } from "../SessionFilters/DesktopSessionFilters";
 import { MapButton } from "./MapButton";
@@ -42,12 +43,22 @@ const MapButtons = () => {
           alt={t("navbar.altFilter")}
           isActive={activeButton === ButtonTypes.FILTER}
         />
-        <MapButton
-          title={t("navbar.timelapse")}
-          image={clockIcon}
-          onClick={() => handleClick(ButtonTypes.TIMELAPSE)}
-          alt={t("navbar.altTimelapse")}
-          isActive={activeButton === ButtonTypes.TIMELAPSE}
+        <TimelapsComponent
+          button={
+            <MapButton
+              title={t("navbar.timelapse")}
+              image={clockIcon}
+              onClick={() => handleClick(ButtonTypes.TIMELAPSE)}
+              alt={t("navbar.altTimelapse")}
+              isActive={activeButton === ButtonTypes.TIMELAPSE}
+            />
+          }
+          onOpen={() => {
+            handleClick(ButtonTypes.TIMELAPSE);
+          }}
+          onClose={() => {
+            setActiveButton(null);
+          }}
         />
         <CopyLinkComponent
           button={
