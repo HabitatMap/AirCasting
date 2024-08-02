@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import {
@@ -19,26 +19,35 @@ const MeasurementComponent: React.FC = () => {
 
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
 
+  const averageValueColor = useMemo(
+    () => getColorForValue(thresholds, averageValue),
+    [thresholds, averageValue]
+  );
+  const minMeasurementValueColor = useMemo(
+    () => getColorForValue(thresholds, minMeasurementValue),
+    [thresholds, minMeasurementValue]
+  );
+  const maxMeasurementValueColor = useMemo(
+    () => getColorForValue(thresholds, maxMeasurementValue),
+    [thresholds, maxMeasurementValue]
+  );
+
   return (
     <MeasurementContainer>
       <S.AverageValueContainer>
-        <S.AverageDot $color={getColorForValue(thresholds, averageValue)} />
+        <S.AverageDot $color={averageValueColor} />
         {t("sessionDetailsModal.averageValue")}
         <S.AverageValue>{averageValue}</S.AverageValue>
         {unitSymbol}
       </S.AverageValueContainer>
       <S.MinMaxValueContainer $isMobile={false}>
         <div>
-          <S.SmallDot
-            $color={getColorForValue(thresholds, minMeasurementValue)}
-          />
+          <S.SmallDot $color={minMeasurementValueColor} />
           {t("sessionDetailsModal.minValue")}
           <S.Value>{minMeasurementValue}</S.Value>
         </div>
         <div>
-          <S.SmallDot
-            $color={getColorForValue(thresholds, maxMeasurementValue)}
-          />
+          <S.SmallDot $color={maxMeasurementValueColor} />
           {t("sessionDetailsModal.maxValue")}
           <S.Value>{maxMeasurementValue}</S.Value>
         </div>
