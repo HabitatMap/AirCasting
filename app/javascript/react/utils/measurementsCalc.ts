@@ -35,14 +35,11 @@ export const formatTimeExtremes = (
 
     const utcDate = moment.utc(date);
 
-    console.log(utcDate);
-
     const dateString = utcDate.format(DateFormat.us);
     const timeString = utcDate.format(DateFormat.time_with_seconds);
 
     return { date: dateString, time: timeString };
   };
-  console.log(formatDate(Number(minTime)));
 
   return {
     formattedMinTime: formatDate(Number(minTime)),

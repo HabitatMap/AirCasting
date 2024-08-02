@@ -53,8 +53,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     maxTime
   );
 
-  console.log(formatTimeExtremes(minTime, maxTime));
-
   const calendarIsVisible =
     movingCalendarData.data.length &&
     streamId &&
