@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectFixedData, selectIsLoading } from "../../store/fixedStreamSlice";
-import { useAppDispatch } from "../../store/hooks";
 import {
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
@@ -41,7 +40,6 @@ const Graph: React.FC<GraphProps> = ({
   isCalendarPage,
 }) => {
   const graphRef = useRef<HTMLDivElement>(null);
-  const dispatch = useAppDispatch();
 
   const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
   const [selectedRange, setSelectedRange] = useState(
