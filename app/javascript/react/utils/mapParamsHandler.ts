@@ -44,6 +44,8 @@ export enum UrlParamsTypes {
   unitSymbol = "unitSymbol",
   usernames = "usernames",
   tags = "tags",
+  minTime = "minTime",
+  maxTime = "maxTime",
 }
 
 export const useMapParams = () => {
@@ -195,6 +197,9 @@ export const useMapParams = () => {
   const usernames = getSearchParam(UrlParamsTypes.usernames, "");
   const tags = getSearchParam(UrlParamsTypes.tags, "");
 
+  const minTime = getSearchParam(UrlParamsTypes.minTime, "0")!;
+  const maxTime = getSearchParam(UrlParamsTypes.maxTime, "0")!;
+
   useEffect(() => {
     const queryParams = new URLSearchParams(searchParams.toString());
     // temporary solution -> later we'll move thresholds to URL
@@ -313,6 +318,8 @@ export const useMapParams = () => {
     goToUserSettings,
     initialLimit,
     mapTypeId,
+    minTime,
+    maxTime,
     initialMeasurementType,
     initialOffset,
     previousCenter,

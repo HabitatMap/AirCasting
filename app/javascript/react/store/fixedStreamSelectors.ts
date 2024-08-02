@@ -119,30 +119,29 @@ const selectFixedStreamShortInfo = createSelector(
   }
 );
 
-const selectMinAndMaxTime = createSelector(
-  [selectFixedStream],
-  (fixedStream) => {
-    const formatDate = (date: number | null) => {
-      if (!date) return { date: null, time: null };
+// const selectMinAndMaxTime = createSelector(
+//   [selectFixedStream],
+//   (fixedStream) => {
+//     const formatDate = (date: number | null) => {
+//       if (!date) return { date: null, time: null };
 
-      const utcDate = moment.utc(date);
+//       const utcDate = moment.utc(date);
 
-      const dateString = utcDate.format(DateFormat.us);
-      const timeString = utcDate.format(DateFormat.time_with_seconds);
+//       const dateString = utcDate.format(DateFormat.us);
+//       const timeString = utcDate.format(DateFormat.time_with_seconds);
 
-      return { date: dateString, time: timeString };
-    };
+//       return { date: dateString, time: timeString };
+//     };
 
-    return {
-      minTime: formatDate(fixedStream.minTime),
-      maxTime: formatDate(fixedStream.maxTime),
-    };
-  }
-);
+//     return {
+//       minTime: formatDate(fixedStream.minTime),
+//       maxTime: formatDate(fixedStream.maxTime),
+//     };
+//   }
+// );
 
 export {
   selectFixedExtremes,
   selectFixedStreamData,
   selectFixedStreamShortInfo,
-  selectMinAndMaxTime,
 };

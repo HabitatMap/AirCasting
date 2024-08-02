@@ -45,6 +45,7 @@ import {
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
 
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 const getScrollbarOptions = (isCalendarPage: boolean) => {
@@ -71,6 +72,7 @@ const getXAxisOptions = (
 ): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
+  const { setUrlParams } = useMapParams();
 
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
@@ -80,6 +82,10 @@ const getXAxisOptions = (
             ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
             : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
         );
+        setUrlParams([
+          { key: UrlParamsTypes.minTime, value: e.min.toString() },
+          { key: UrlParamsTypes.maxTime, value: e.max.toString() },
+        ]);
       }
     },
     100

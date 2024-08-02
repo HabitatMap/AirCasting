@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { Graph } from "../../components/Graph";
 
 import MeasurementComponent from "../../components/Graph/MeasurementComponent";
-import TimeRange from "../../components/Graph/TimeRage";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
@@ -16,7 +15,8 @@ import {
   ResetButton,
   ResetButtonVariant,
 } from "../../components/ThresholdConfigurator/ResetButton";
-import { selectMinAndMaxTime } from "../../store/fixedStreamSelectors";
+// import { selectMinAndMaxTime } from "../../store/fixedStreamSelectors";
+import TimeRange from "../../components/Graph/TimeRage";
 import {
   fetchFixedStreamById,
   selectFixedData,
@@ -29,6 +29,7 @@ import {
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
+import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 
@@ -45,7 +46,14 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
   const fixedStreamData = useSelector(selectFixedData);
   const movingCalendarData = useSelector(movingData);
-  const { minTime, maxTime } = useSelector(selectMinAndMaxTime);
+  const { minTime, maxTime } = useMapParams();
+
+  const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
+    minTime,
+    maxTime
+  );
+
+  console.log(formatTimeExtremes(minTime, maxTime));
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -106,7 +114,10 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                     <S.SelectLabelContainer>
                       {t("calendarHeader.selectRange")}
                     </S.SelectLabelContainer>
-                    <TimeRange minTime={minTime} maxTime={maxTime} />
+                    <TimeRange
+                      minTime={formattedMinTime}
+                      maxTime={formattedMaxTime}
+                    />
                     <Graph
                       streamId={Number(streamId)}
                       sessionType={SessionTypes.FIXED}
@@ -177,7 +188,10 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
                     <>
                       <MeasurementComponent />
-                      <TimeRange minTime={minTime} maxTime={maxTime} />
+                      <TimeRange
+                        minTime={formattedMinTime}
+                        maxTime={formattedMaxTime}
+                      />
                     </>
                   </S.StyledContainerWithGraph>
                 }
