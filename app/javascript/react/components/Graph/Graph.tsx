@@ -131,7 +131,6 @@ const Graph: React.FC<GraphProps> = ({
     }
   }, [chartDataLoaded]);
 
-  let chartRef: Highcharts.Chart | undefined;
   const options: Highcharts.Options = {
     title: undefined,
     xAxis: xAxisOptions,
