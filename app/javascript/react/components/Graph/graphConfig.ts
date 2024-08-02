@@ -75,22 +75,11 @@ const getXAxisOptions = (
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min && e.max) {
-        const min = e.min;
-        const max = e.max;
-
-        // Check if the new extremes are different from the current state
-        const currentExtremes = useAppSelector((state) => state.fixedStream);
-
-        if (
-          min !== currentExtremes.minTime ||
-          max !== currentExtremes.maxTime
-        ) {
-          dispatch(
-            fixedSessionTypeSelected
-              ? updateFixedMeasurementExtremes({ min, max })
-              : updateMobileMeasurementExtremes({ min, max })
-          );
-        }
+        dispatch(
+          fixedSessionTypeSelected
+            ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
+            : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
+        );
       }
     },
     100
@@ -119,6 +108,7 @@ const getXAxisOptions = (
     },
     visible: true,
     minRange: 10000,
+    ordinal: false,
     events: {
       afterSetExtremes: function (e) {
         handleSetExtremes(e);

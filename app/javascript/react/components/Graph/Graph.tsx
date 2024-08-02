@@ -3,22 +3,16 @@ import Highcharts from "highcharts/highstock";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import {
-  selectFixedData,
-  selectIsLoading,
-  updateFixedMeasurementExtremes,
-} from "../../store/fixedStreamSlice";
+import { selectFixedData, selectIsLoading } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
 } from "../../store/mobileStreamSelectors";
-import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
-import { MILLISECONDS_IN_A_DAY } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
@@ -115,22 +109,6 @@ const Graph: React.FC<GraphProps> = ({
 
   useEffect(() => {
     if (!chartDataLoaded && seriesData.length > 0 && !isLoading) {
-      if (fixedSessionTypeSelected) {
-        const newestMeasurement = fixedSeriesData[fixedSeriesData.length - 1];
-        const minTime = newestMeasurement[0] - MILLISECONDS_IN_A_DAY;
-        const maxTime = newestMeasurement[0];
-        if (minTime && maxTime) {
-          dispatch(
-            updateFixedMeasurementExtremes({ min: minTime, max: maxTime })
-          );
-        }
-      } else {
-        const minTime = Math.min(...mobileSeriesData.map((m) => m.x as number));
-        const maxTime = Math.max(...mobileSeriesData.map((m) => m.x as number));
-        dispatch(
-          updateMobileMeasurementExtremes({ min: minTime, max: maxTime })
-        );
-      }
       setChartDataLoaded(true);
     }
   }, [chartDataLoaded, seriesData, isLoading]);
@@ -155,6 +133,7 @@ const Graph: React.FC<GraphProps> = ({
     }
   }, [chartDataLoaded]);
 
+  let chartRef: Highcharts.Chart | undefined;
   const options: Highcharts.Options = {
     title: undefined,
     xAxis: xAxisOptions,

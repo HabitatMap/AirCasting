@@ -13,7 +13,6 @@ interface TimeRangeProps {
 }
 
 const TimeRange: FC<TimeRangeProps> = ({ minTime, maxTime }) => {
-  console.log(maxTime.time, "maxTime");
   return (
     <S.TimeRangeContainer>
       <S.TimeContainer>

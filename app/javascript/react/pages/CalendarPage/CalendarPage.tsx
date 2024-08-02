@@ -1,7 +1,6 @@
 import moment from "moment";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useSearchParams } from "react-router-dom";
 
 import { useTranslation } from "react-i18next";
 import { Graph } from "../../components/Graph";
@@ -29,10 +28,9 @@ import {
 } from "../../store/movingCalendarStreamSlice";
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
-
-const STREAM_ID_QUERY_PARAMETER_NAME = "streamId";
 
 interface CalendarPageProps {
   children: React.ReactNode;
@@ -41,11 +39,9 @@ interface CalendarPageProps {
 const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
-  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
 
-  const streamIdQuery = searchParams.get(STREAM_ID_QUERY_PARAMETER_NAME);
-  const streamId = streamIdQuery && Number(streamIdQuery);
+  const { streamId } = useMapParams();
 
   const fixedStreamData = useSelector(selectFixedData);
   const movingCalendarData = useSelector(movingData);
@@ -187,7 +183,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 }
                 componentToToggle={
                   <Graph
-                    streamId={Number(streamId)}
+                    streamId={streamId}
                     sessionType={SessionTypes.FIXED}
                     isCalendarPage={true}
                   />
