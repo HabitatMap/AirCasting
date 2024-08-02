@@ -18,6 +18,7 @@
     "goBackToSessions": "Back to sessions",
     "mapPage": "Map page",
     "refreshMap": "Refresh map",
+    "realtimeMapUpdates": "update when map moves",
     "sections": {
       "getAirbeam": "Get AirBeam",
       "airbeam": "AirBeam",

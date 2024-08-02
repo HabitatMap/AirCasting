@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
@@ -12,6 +13,7 @@ import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import { RefreshMapButton } from "../RefreshMapButton";
 import * as S from "./Navbar.style";
 import NavList from "./NavList/NavList";
+import { RealtimeMapUpdatesButton } from "../RealtimeMapUpdatesButton/RealtimeMapUpdatesButton";
 
 export const MobileHeader = ({
   toggleMenuVisibility,
@@ -27,6 +29,10 @@ export const MobileHeader = ({
     previousUserSettings,
     revertUserSettingsAndResetIds,
   } = useMapParams();
+
+  const realtimeMapUpdates = useSelector(
+    (state: any) => state.realtimeMapUpdates.realtimeMapUpdates
+  );
 
   return (
     <S.MobileHeaderContainer>
@@ -64,7 +70,8 @@ export const MobileHeader = ({
             </nav>
           </S.MobileMenuContainer>
           <LocationSearch isMapPage={true} />
-          <RefreshMapButton />
+          {!realtimeMapUpdates && <RefreshMapButton />}
+          <RealtimeMapUpdatesButton />
           <ControlPanel />
           {navMenuVisible && (
             <NavList

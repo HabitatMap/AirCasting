@@ -5,19 +5,25 @@ const sizes = {
   mobile: "768px",
   smallDesktop: "769px",
   desktop: "1024px",
+  mediumDesktop: "1240px",
   largeDesktop: "1440px",
+  hugeDesktop: "1612px",
 };
 
 export const media = {
   mobile: `(max-width: ${sizes.mobile})`,
   smallDesktop: `(min-width: ${sizes.smallDesktop})`,
   desktop: `(min-width: ${sizes.desktop})`,
+  mediumDesktop: `(min-width: ${sizes.mediumDesktop})`,
   largeDesktop: `(min-width: ${sizes.largeDesktop})`,
+  hugeDesktop: `(min-width: ${sizes.hugeDesktop})`,
 };
 
 export const screenSizes = {
   mobile: 768,
   smallDesktop: 769,
   desktop: 1024,
+  mediumDesktop: 1240,
   largeDesktop: 1440,
+  hugeDesktop: 1612,
 };

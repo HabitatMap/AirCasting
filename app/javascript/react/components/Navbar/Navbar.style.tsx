@@ -64,6 +64,25 @@ const AircastingLogo = styled.img<{ $isSmallScreen?: boolean }>`
   height: 4.3rem;
 `;
 
+const MapControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+
+  @media ${media.smallDesktop} {
+    gap: 1rem;
+    padding-left: 0.8rem;
+  }
+
+  @media ${media.desktop} {
+    padding-left: 0.8rem;
+  }
+
+  @media ${media.largeDesktop} {
+    padding-left: 3.6rem;
+  }
+`;
+
 const Button = styled.button`
   border: none;
   background: none;
@@ -188,6 +207,7 @@ export {
   DesktopContainer,
   GoBack,
   Header,
+  MapControls,
   MenuButton,
   MobileContainer,
   MobileHeaderContainer,

@@ -2,11 +2,24 @@ import styled from "styled-components";
 
 import { blue, gray300, white } from "../../assets/styles/colors";
 import { H4 } from "../Typography";
+import { media } from "../../utils/media";
 
 const MapButtonsWrapper = styled.div`
   position: absolute;
   top: 10rem;
   z-index: 1;
+  @media ${media.desktop} {
+    left: 16rem;
+  }
+  @media ${media.mediumDesktop} {
+    left: 0;
+  }
+  @media ${media.largeDesktop} {
+    left: 25rem;
+  }
+    @media ${media.hugeDesktop} {
+    left: 0;
+}
 `;
 
 const MapButtons = styled.div`

@@ -9,6 +9,7 @@ import mapReducer from "./mapSlice";
 import mobileSessionsReducer from "./mobileSessionsSlice";
 import mobileStreamReducer from "./mobileStreamSlice";
 import movingStreamReducer from "./movingCalendarStreamSlice";
+import realtimeMapUpdatesReducer from "./realtimeMapUpdatesSlice";
 import sessionFilterReducer from "./sessionFiltersSlice";
 import thresholdReducer from "./thresholdSlice";
 
@@ -22,9 +23,10 @@ const store = configureStore({
     mobileSessions: mobileSessionsReducer,
     mobileStream: mobileStreamReducer,
     movingCalendarStream: movingStreamReducer,
+    realtimeMapUpdates: realtimeMapUpdatesReducer,
     session: sessionReducer,
-    threshold: thresholdReducer,
     sessionFilter: sessionFilterReducer,
+    threshold: thresholdReducer,
   },
 });
 
