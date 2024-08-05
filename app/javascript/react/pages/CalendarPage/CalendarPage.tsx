@@ -1,6 +1,5 @@
 import moment from "moment";
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
 
 import { useTranslation } from "react-i18next";
 import { Graph } from "../../components/Graph";
@@ -17,11 +16,12 @@ import {
 } from "../../components/ThresholdConfigurator/ResetButton";
 // import { selectMinAndMaxTime } from "../../store/fixedStreamSelectors";
 import TimeRange from "../../components/Graph/TimeRage";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   fetchFixedStreamById,
   selectFixedData,
 } from "../../store/fixedStreamSlice";
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   fetchNewMovingStream,
   movingData,
@@ -29,7 +29,7 @@ import {
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import { formatTimeExtremes } from "../../utils/measurementsCalc";
+import { formatTime } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 
@@ -44,14 +44,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
   const { streamId } = useMapParams();
 
-  const fixedStreamData = useSelector(selectFixedData);
-  const movingCalendarData = useSelector(movingData);
-  const { minTime, maxTime } = useMapParams();
+  const fixedStreamData = useAppSelector(selectFixedData);
+  const movingCalendarData = useAppSelector(movingData);
+  const { startTime, endTime } = useAppSelector(selectFixedStreamShortInfo);
 
-  const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-    minTime,
-    maxTime
-  );
+  const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
