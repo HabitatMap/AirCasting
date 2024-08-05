@@ -55,7 +55,7 @@ const getScrollbarOptions = (isCalendarPage: boolean) => {
     button: {
       enabled: false,
     },
-    height: 8,
+    height: isMobile ? 12 : 8,
     trackBackgroundColor: gray100,
     trackBorderWidth: 0,
     autoHide: false,

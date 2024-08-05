@@ -14,6 +14,9 @@ const addNavigationArrows = (
   isCalendarPage: boolean,
   isMobile: boolean
 ) => {
+  if (isMobile && !isCalendarPage) {
+    return;
+  }
   let leftArrow: Highcharts.SVGElement;
   let rightArrow: Highcharts.SVGElement;
 
