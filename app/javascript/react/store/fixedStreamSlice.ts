@@ -17,6 +17,8 @@ interface FixedStreamState {
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
   isLoading: boolean;
+  minTime: number;
+  maxTime: number;
 }
 
 const initialState: FixedStreamState = {
@@ -46,6 +48,8 @@ const initialState: FixedStreamState = {
   maxMeasurementValue: 0,
   averageMeasurementValue: 0,
   isLoading: false,
+  minTime: 0,
+  maxTime: 0,
 };
 
 export const fetchFixedStreamById = createAsyncThunk<
@@ -89,6 +93,8 @@ const fixedStreamSlice = createSlice({
       state.minMeasurementValue = newMin;
       state.maxMeasurementValue = newMax;
       state.averageMeasurementValue = newAvg;
+      state.minTime = min;
+      state.maxTime = max;
     },
   },
   extraReducers: (builder) => {

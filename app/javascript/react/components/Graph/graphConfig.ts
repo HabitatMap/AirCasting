@@ -34,7 +34,6 @@ import {
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
-import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
@@ -45,7 +44,8 @@ import {
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
 
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 const getScrollbarOptions = (isCalendarPage: boolean) => {
@@ -62,7 +62,7 @@ const getScrollbarOptions = (isCalendarPage: boolean) => {
     autoHide: false,
     showFull: true,
     enabled: isMobile && isCalendarPage ? true : !isMobile,
-    liveRedraw: false,
+    liveRedraw: true,
   };
 };
 
@@ -82,10 +82,10 @@ const getXAxisOptions = (
             ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
             : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
         );
-        setUrlParams([
-          { key: UrlParamsTypes.minTime, value: e.min.toString() },
-          { key: UrlParamsTypes.maxTime, value: e.max.toString() },
-        ]);
+        // setUrlParams([
+        //   { key: UrlParamsTypes.minTime, value: e.min.toString() },
+        //   { key: UrlParamsTypes.maxTime, value: e.max.toString() },
+        // ]);
       }
     },
     100
@@ -328,7 +328,7 @@ const getRangeSelectorOptions = (
 ): RangeSelectorOptions => {
   const { t } = useTranslation();
   const isMobile = useMobileDetection();
-
+  // TODO change name, add mobile
   const baseCalendarOptions: RangeSelectorOptions = {
     enabled: true,
     buttonPosition: {
