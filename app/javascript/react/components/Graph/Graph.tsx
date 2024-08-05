@@ -32,7 +32,7 @@ interface GraphProps {
   sessionType: SessionType;
   streamId: number | null;
   isCalendarPage: boolean;
-  rangeDisplayRef: React.RefObject<HTMLDivElement>;
+  rangeDisplayRef?: React.RefObject<HTMLDivElement> | undefined;
 }
 
 const Graph: React.FC<GraphProps> = ({

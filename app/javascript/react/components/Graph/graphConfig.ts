@@ -70,7 +70,7 @@ const getScrollbarOptions = (isCalendarPage: boolean) => {
 const getXAxisOptions = (
   fixedSessionTypeSelected: boolean,
   isMobile: boolean = false,
-  rangeDisplayRef: RefObject<HTMLDivElement>
+  rangeDisplayRef: RefObject<HTMLDivElement> | undefined
 ): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
@@ -90,7 +90,7 @@ const getXAxisOptions = (
         );
 
         // Dirty workaround to update timerange display in the graph
-        if (rangeDisplayRef.current) {
+        if (rangeDisplayRef?.current) {
           rangeDisplayRef.current.innerHTML = `
               <div class="time-container">
                 <span class="date">${formattedMinTime.date ?? ""}</span>
