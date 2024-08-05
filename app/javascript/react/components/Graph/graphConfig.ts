@@ -322,8 +322,8 @@ const getRangeSelectorOptions = (
 ): RangeSelectorOptions => {
   const { t } = useTranslation();
   const isMobile = useMobileDetection();
-  // TODO change name, add mobile
-  const baseCalendarOptions: RangeSelectorOptions = {
+
+  const baseMobileCalendarOptions: RangeSelectorOptions = {
     enabled: true,
     buttonPosition: {
       align: "center" as AlignValue,
@@ -416,7 +416,7 @@ const getRangeSelectorOptions = (
 
   if (isCalendarPage && isMobile) {
     return {
-      ...baseCalendarOptions,
+      ...baseMobileCalendarOptions,
       buttons: [
         { type: "hour", count: 24, text: t("graph.24Hours") },
         totalDuration > MILLISECONDS_IN_A_WEEK
