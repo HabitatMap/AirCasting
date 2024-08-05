@@ -12,6 +12,8 @@ import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
 import { determineZoomLevel } from "../../utils/determineZoomLevel";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./LocationSearch.style";
+import useScreenSizeDetection from "../../utils/useScreenSizeDetection";
+import { screenSizes } from "../../utils/media";
 
 const OK_STATUS = "OK";
 
@@ -59,6 +61,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
     inputValue,
   });
 
+  const isSmallDesktop = useScreenSizeDetection(screenSizes.mediumDesktop);
+
   const displaySearchResults = isOpen && items.length > 0;
 
   const handleSelect = async (item: AutocompletePrediction) => {
@@ -97,7 +101,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
         $displaySearchResults={displaySearchResults}
         {...getInputProps()}
       />
-      {!isMapPage && (
+      {!isMapPage && !isSmallDesktop && (
         <S.LocationSearchButton
           aria-label={t("map.toggleMenu")}
           type="button"

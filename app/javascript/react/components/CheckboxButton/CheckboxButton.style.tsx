@@ -7,8 +7,12 @@ import {
   white,
 } from "../../assets/styles/colors";
 
-const ButtonContainer = styled.div<{ $isActive?: boolean }>`
-  color: ${(props) => (props.$isActive ? blue : gray400)};
+const ButtonContainer = styled.div<{
+  $isActive?: boolean;
+  $isColorStatic?: boolean;
+}>`
+  color: ${(props) =>
+    props.$isActive && !props.$isColorStatic ? blue : gray400};
   display: flex;
   align-items: center;
   gap: 1rem;

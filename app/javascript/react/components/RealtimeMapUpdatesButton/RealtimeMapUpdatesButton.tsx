@@ -37,6 +37,7 @@ const RealtimeMapUpdatesButton = () => {
           label={t("navbar.realtimeMapUpdates")}
           isChecked={realtimeMapUpdates}
           onChange={handleRealtimeMapUpdatesChange}
+          staticColor
         />
       )}
     </S.RealtimeMapUpdatesButtonContainer>

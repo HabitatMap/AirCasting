@@ -94,13 +94,12 @@ const MenuButton = styled(Button)`
   align-items: center;
   cursor: pointer;
 
-  @media ${media.desktop} {
+  @media ${media.mediumDesktop} {
     background-color: ${white};
     border-radius: 10px;
     box-shadow: 0px 4px 4px 0px rgba(76, 86, 96, 0.1);
     font-color: ${gray400};
     padding: 1.2rem;
-    margin-left: 2rem;
     width: 48px;
     height: 42px;
   }
@@ -132,6 +131,7 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 `;
 
 const BottomNavContainer = styled(Container)`
@@ -174,6 +174,35 @@ const GoBack = styled.a`
   border-radius: 5px;
 `;
 
+const SmallDesktopContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: min-content;
+
+  @media ${media.mediumDesktop} {
+    display: none;
+  }
+`;
+
+const SmallDesktopMenuContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: 32px;
+  box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
+  background-color: ${white};
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  width: min-content;
+  border-radius: 10px;
+
+  @media ${media.mediumDesktop} {
+    display: none;
+  }
+`;
+
 const MobileMenuContainer = styled.div`
   width: 61px;
   height: 32px;
@@ -213,5 +242,7 @@ export {
   MobileHeaderContainer,
   MobileMenuContainer,
   NAVBAR_HEIGHT,
+  SmallDesktopContainer,
+  SmallDesktopMenuContainer,
   SearchContainer,
 };

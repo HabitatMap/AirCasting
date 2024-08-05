@@ -40,8 +40,8 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
   width: 26.9rem;
   z-index: 2;
 
-  @media ${media.smallDesktop} {
-    width: 103.6%;
+  @media ${media.mediumDesktop} {
+    width: 100%;
     padding: 10px 0 8px 8px;
     border-radius: 0px 0px 10px 10px;
     top: 100%;
@@ -66,8 +66,7 @@ const SearchInput = styled.input<SearchInputProps>`
   outline: none;
   z-index: 3;
 
-  @media ${media.smallDesktop} {
-    width: 30rem;
+  @media ${media.mediumDesktop} {
     height: 4.2rem;
     font-size: 1.6rem;
     padding: 0 1.6rem;
@@ -103,7 +102,7 @@ const SearchContainer = styled.div`
 const Hr = styled.hr<HrProps>`
   visibility: hidden;
 
-  @media ${media.smallDesktop} {
+  @media ${media.mediumDesktop} {
     visibility: ${(p) => (p.$displaySearchResults ? `visible` : `hidden`)};
     border-top: 1px solid ${gray500};
     width: 97%;

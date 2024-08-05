@@ -67,8 +67,8 @@ export const MobileHeader = ({
           </S.MobileMenuContainer>
           <LocationSearch isMapPage={true} />
           <RefreshMapButton />
-          <RealtimeMapUpdatesButton />
           <ControlPanel />
+          <RealtimeMapUpdatesButton />
           {navMenuVisible && (
             <NavList
               t={t as (key: string) => string}

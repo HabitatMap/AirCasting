@@ -9,17 +9,13 @@ const MapButtonsWrapper = styled.div`
   top: 10rem;
   z-index: 1;
   @media ${media.desktop} {
-    left: 16rem;
+    left: 0;
+    top: 8rem;
   }
+
   @media ${media.mediumDesktop} {
-    left: 0;
+    top: 10rem;
   }
-  @media ${media.largeDesktop} {
-    left: 25rem;
-  }
-    @media ${media.hugeDesktop} {
-    left: 0;
-}
 `;
 
 const MapButtons = styled.div`
