@@ -8,7 +8,7 @@ const sizes = {
   mediocreDesktop: "1091px",
   mediumDesktop: "1240px",
   largeDesktop: "1440px",
-  hugeDesktop: "1612px",
+  hugeDesktop: "1620px",
 };
 
 export const media = {
@@ -28,5 +28,5 @@ export const screenSizes = {
   mediocreDesktop: 1091,
   mediumDesktop: 1240,
   largeDesktop: 1440,
-  hugeDesktop: 1612,
+  hugeDesktop: 1620,
 };
