@@ -26,6 +26,23 @@ export const isValidValue = (value: number | null | undefined): boolean => {
   return value !== null && value !== undefined && isFinite(value);
 };
 
+export const formatTime = (minTime: string | null, maxTime: string | null) => {
+  const formatDate = (time: string | null) => {
+    if (!time) return { date: null, time: null };
+
+    const dateMoment = moment(time);
+    const dateString = dateMoment.format(DateFormat.us);
+    const timeString = dateMoment.format(DateFormat.time_with_seconds);
+
+    return { date: dateString, time: timeString };
+  };
+
+  return {
+    formattedMinTime: formatDate(minTime),
+    formattedMaxTime: formatDate(maxTime),
+  };
+};
+
 export const formatTimeExtremes = (
   minTime: number | null,
   maxTime: number | null

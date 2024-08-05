@@ -28,6 +28,7 @@ import {
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
+import { formatTime } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 
@@ -47,6 +48,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { startTime, endTime } = useAppSelector(selectFixedStreamShortInfo);
 
   const rangeDisplayRef = useRef(null);
+
+  const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -107,7 +110,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                     <S.SelectLabelContainer>
                       {t("calendarHeader.selectRange")}
                     </S.SelectLabelContainer>
-                    <TimeRange ref={rangeDisplayRef} />
+                    <TimeRange
+                      ref={rangeDisplayRef}
+                      minTime={formattedMinTime}
+                      maxTime={formattedMaxTime}
+                    />
                     <Graph
                       streamId={Number(streamId)}
                       sessionType={SessionTypes.FIXED}
@@ -179,7 +186,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
                     <>
                       <MeasurementComponent />
-                      <TimeRange ref={rangeDisplayRef} />
+                      <TimeRange
+                        ref={rangeDisplayRef}
+                        minTime={formattedMinTime}
+                        maxTime={formattedMaxTime}
+                      />
                     </>
                   </S.StyledContainerWithGraph>
                 }
