@@ -32,12 +32,14 @@ interface GraphProps {
   sessionType: SessionType;
   streamId: number | null;
   isCalendarPage: boolean;
+  rangeDisplayRef: React.RefObject<HTMLDivElement>;
 }
 
 const Graph: React.FC<GraphProps> = ({
   streamId,
   sessionType,
   isCalendarPage,
+  rangeDisplayRef,
 }) => {
   const graphRef = useRef<HTMLDivElement>(null);
 
@@ -91,7 +93,11 @@ const Graph: React.FC<GraphProps> = ({
         (seriesData[0] as any)[0]
       : 0;
 
-  const xAxisOptions = getXAxisOptions(fixedSessionTypeSelected, isMobile);
+  const xAxisOptions = getXAxisOptions(
+    fixedSessionTypeSelected,
+    isMobile,
+    rangeDisplayRef
+  );
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
   const rangeSelectorOptions = getRangeSelectorOptions(

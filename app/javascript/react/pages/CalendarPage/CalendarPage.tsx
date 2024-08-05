@@ -1,5 +1,5 @@
 import moment from "moment";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { useTranslation } from "react-i18next";
 import { Graph } from "../../components/Graph";
@@ -28,7 +28,6 @@ import {
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import { formatTime } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 
@@ -47,7 +46,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const movingCalendarData = useAppSelector(movingData);
   const { startTime, endTime } = useAppSelector(selectFixedStreamShortInfo);
 
-  const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
+  const rangeDisplayRef = useRef(null);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -108,14 +107,12 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                     <S.SelectLabelContainer>
                       {t("calendarHeader.selectRange")}
                     </S.SelectLabelContainer>
-                    <TimeRange
-                      minTime={formattedMinTime}
-                      maxTime={formattedMaxTime}
-                    />
+                    <TimeRange ref={rangeDisplayRef} />
                     <Graph
                       streamId={Number(streamId)}
                       sessionType={SessionTypes.FIXED}
                       isCalendarPage={true}
+                      rangeDisplayRef={rangeDisplayRef}
                     />
 
                     <MeasurementComponent />
@@ -182,10 +179,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
                     <>
                       <MeasurementComponent />
-                      <TimeRange
-                        minTime={formattedMinTime}
-                        maxTime={formattedMaxTime}
-                      />
+                      <TimeRange ref={rangeDisplayRef} />
                     </>
                   </S.StyledContainerWithGraph>
                 }
@@ -194,6 +188,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                     streamId={streamId}
                     sessionType={SessionTypes.FIXED}
                     isCalendarPage={true}
+                    rangeDisplayRef={rangeDisplayRef}
                   />
                 }
               />

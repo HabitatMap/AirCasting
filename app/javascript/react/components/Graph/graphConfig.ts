@@ -44,7 +44,9 @@ import {
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
 
+import { RefObject } from "react";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
+import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 const getScrollbarOptions = (isCalendarPage: boolean) => {
@@ -67,7 +69,8 @@ const getScrollbarOptions = (isCalendarPage: boolean) => {
 
 const getXAxisOptions = (
   fixedSessionTypeSelected: boolean,
-  isMobile: boolean = false
+  isMobile: boolean = false,
+  rangeDisplayRef: RefObject<HTMLDivElement>
 ): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
@@ -80,6 +83,27 @@ const getXAxisOptions = (
             ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
             : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
         );
+
+        const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
+          e.min,
+          e.max
+        );
+
+        // Dirty workaround to update timerange display in the graph
+        if (rangeDisplayRef.current) {
+          rangeDisplayRef.current.innerHTML = `
+              <div class="time-container">
+                <span class="date">${formattedMinTime.date ?? ""}</span>
+                <span class="time">${formattedMinTime.time ?? ""}</span>
+              </div>
+                <span>-</span>
+              <div class="time-container">
+                <span class="date">${formattedMaxTime.date ?? ""}</span>
+                <span class="time">${formattedMaxTime.time ?? ""}</span>
+              </div>
+            </div>
+          `;
+        }
       }
     },
     100

@@ -88,40 +88,32 @@ const TimeRangeContainer = styled.div`
     width: 100%;
     height: auto;
   }
-`;
 
-const Date = styled.div`
-  font-size: 1.4rem;
-  font-weight: 500;
-  @media ${media.desktop} {
-    font-size: 1.6rem;
+  .time-container {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    @media ${media.desktop} {
+      flex-direction: row;
+    }
+  }
+
+  .date {
+    font-size: 1.4rem;
+    font-weight: 500;
+    @media ${media.desktop} {
+      font-size: 1.6rem;
+    }
+  }
+  .time {
+    font-size: 1rem;
+    font-weight: 300;
+    @media ${media.desktop} {
+      font-size: 1.6rem;
+    }
   }
 `;
 
-const Time = styled.div`
-  font-size: 1rem;
-  font-weight: 300;
-  @media ${media.desktop} {
-    font-size: 1.6rem;
-  }
-`;
-
-const TimeContainer = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  @media ${media.desktop} {
-    flex-direction: row;
-  }
-`;
-
-export {
-  Container,
-  Date,
-  MeasurementContainer,
-  Time,
-  TimeContainer,
-  TimeRangeContainer,
-};
+export { Container, MeasurementContainer, TimeRangeContainer };
