@@ -5,16 +5,17 @@ module Timelapse
       @cluster_processor = ClusterProcessor.new
     end
 
-    def call(time_shift:, clusters:)
+    def call(time_period:, clusters:)
       cluster_averages = []
+      data_points = 24 * time_period.to_i
 
-      24.times do |time_slice_number|
+      data_points.times do |time_slice_number|
         clusters.each do |cluster|
           cluster_averages <<
             cluster_processor.call(
-              cluster,
-              beginning_of_time_slice(time_shift, time_slice_number),
-              end_of_time_slice(time_shift, time_slice_number)
+              cluster: cluster,
+              beginning_of_time_slice: end_of_last_time_slice - (time_slice_number + 1).hours,
+              end_of_time_slice: end_of_last_time_slice - time_slice_number.hours
             )
         end
       end
@@ -25,13 +26,5 @@ module Timelapse
     private
 
     attr_reader :end_of_last_time_slice, :cluster_processor
-
-    def end_of_time_slice(time_shift, time_slice_number)
-      end_of_last_time_slice - time_shift * time_slice_number
-    end
-
-    def beginning_of_time_slice(time_shift, time_slice_number)
-      end_of_last_time_slice - time_shift * (time_slice_number + 1)
-    end
   end
 end

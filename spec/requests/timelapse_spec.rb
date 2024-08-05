@@ -25,12 +25,12 @@ describe 'GET api/v3/timelapse', type: :request do
         clusters: [
           { 0 => [stream.id] }
         ],
-        time_period: '1.day'
+        time_period: '1'
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
       first_slice_time = Time.current.beginning_of_hour + 1.hour
 
-      hourly_averages = 24.times.map do |hour|
+      hourly_averages = (0..23).map do |hour|
         {
           "0" => {
             "time" => (first_slice_time - 1.hour * hour).iso8601(3),
@@ -39,7 +39,7 @@ describe 'GET api/v3/timelapse', type: :request do
         }
       end
 
-      expected_response =  hourly_averages
+      expected_response = hourly_averages
 
       expect(JSON.parse(response.body)).to match_array(expected_response)
     end
@@ -78,7 +78,7 @@ describe 'GET api/v3/timelapse', type: :request do
         clusters: [
           { 0 => [stream1.id, stream2.id] }
         ],
-        time_period: '1.day'
+        time_period: '1'
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
       first_slice_time = Time.current.beginning_of_hour + 1.hour
@@ -132,7 +132,7 @@ describe 'GET api/v3/timelapse', type: :request do
           { 0 => [stream1.id] },
           { 1 => [stream2.id] }
         ],
-        time_period: '1.day'
+        time_period: '1'
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
       first_slice_time = Time.current.beginning_of_hour + 1.hour
@@ -165,15 +165,13 @@ describe 'GET api/v3/timelapse', type: :request do
       stream = create_stream!({ session: session })
       measurement_values_hash = {}
       last_measurement_at = Time.current.end_of_hour - 1.minute
-      time_shift = 7.days / 48
 
-
-      48.times do |measurement_number|
+      336.times do |measurement_number|
         measurement = create_measurement!({
           stream: stream,
           latitude: session.latitude,
           longitude: session.longitude,
-          time_with_time_zone: last_measurement_at - time_shift * measurement_number,
+          time_with_time_zone: last_measurement_at - 30.minutes * measurement_number,
           value: rand(100)
         })
         measurement_values_hash[measurement_number] = measurement.value
@@ -183,16 +181,15 @@ describe 'GET api/v3/timelapse', type: :request do
         clusters: [
           { 0 => [stream.id] }
         ],
-        time_period: '7.days'
+        time_period: '7'
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
       first_slice_time = Time.current.beginning_of_hour + 1.hour
-      time_shift = 7.days / 24
 
-      daily_averages = 24.times.map do |time_slice_number|
+      daily_averages = 168.times.map do |time_slice_number|
         {
           "0" => {
-            "time" => (first_slice_time - time_shift * time_slice_number).iso8601(3),
+            "time" => (first_slice_time - 1.hour * time_slice_number).iso8601(3),
             "value" => (measurement_values_hash[time_slice_number * 2] + measurement_values_hash[time_slice_number * 2 + 1]) / 2.0
           }
         }
@@ -202,6 +199,105 @@ describe 'GET api/v3/timelapse', type: :request do
 
       expect(JSON.parse(response.body)).to match_array(expected_response)
     end
+
+    it 'returns stream averages for multiple clusters with multiple streams for 3 days period' do
+      session1 = create_fixed_session!
+      session2 = create_fixed_session!
+      session3 = create_fixed_session!
+      session4 = create_fixed_session!
+      session5 = create_fixed_session!
+      stream1 = create_stream!({ session: session1 })
+      stream2 = create_stream!({ session: session2 })
+      stream3 = create_stream!({ session: session3 })
+      stream4 = create_stream!({ session: session4 })
+      stream5 = create_stream!({ session: session5 })
+      measurement_values_hash1 = {}
+      measurement_values_hash2 = {}
+      measurement_values_hash3 = {}
+      measurement_values_hash4 = {}
+      measurement_values_hash5 = {}
+      last_measurement_at = Time.current.end_of_hour - 1.minute
+
+      144.times do |measurement_number|
+        measurement1 = create_measurement!({
+          stream: stream1,
+          latitude: session1.latitude,
+          longitude: session1.longitude,
+          time_with_time_zone: last_measurement_at - 30.minutes * measurement_number,
+          value: rand(100)
+        })
+
+        measurement2 = create_measurement!({
+          stream: stream2,
+          latitude: session2.latitude,
+          longitude: session2.longitude,
+          time_with_time_zone: last_measurement_at - 30.minutes * measurement_number,
+          value: rand(100)
+        })
+
+        measurement3 = create_measurement!({
+          stream: stream3,
+          latitude: session3.latitude,
+          longitude: session3.longitude,
+          time_with_time_zone: last_measurement_at - 30.minutes * measurement_number,
+          value: rand(100)
+        })
+
+        measurement4 = create_measurement!({
+          stream: stream4,
+          latitude: session4.latitude,
+          longitude: session4.longitude,
+          time_with_time_zone: last_measurement_at - 30.minutes * measurement_number,
+          value: rand(100)
+        })
+
+        measurement5 = create_measurement!({
+          stream: stream5,
+          latitude: session5.latitude,
+          longitude: session5.longitude,
+          time_with_time_zone: last_measurement_at - 30.minutes * measurement_number,
+          value: rand(100)
+        })
+
+        measurement_values_hash1[measurement_number] = measurement1.value
+        measurement_values_hash2[measurement_number] = measurement2.value
+        measurement_values_hash3[measurement_number] = measurement3.value
+        measurement_values_hash4[measurement_number] = measurement4.value
+        measurement_values_hash5[measurement_number] = measurement5.value
+      end
+
+      post '/api/v3/timelapse', params: {
+        clusters: [
+          { 0 => [stream1.id, stream2.id] },
+          { 1 => [stream3.id, stream4.id, stream5.id] }
+        ],
+        time_period: '3'
+      }.to_json, headers: { 'Content-Type' => 'application/json' }
+
+      first_slice_time = Time.current.beginning_of_hour + 1.hour
+
+      hourly_averages = 72.times.map do |hour|
+        [
+          {
+            "0" => {
+              "time" => (first_slice_time - 1.hour * hour).iso8601(3),
+              "value" => (measurement_values_hash1[hour * 2] + measurement_values_hash1[hour * 2 + 1] + measurement_values_hash2[hour * 2] + measurement_values_hash2[hour * 2 + 1]) / 4.0
+            }
+          },
+          {
+            "1" => {
+              "time" => (first_slice_time - 1.hour * hour).iso8601(3),
+              "value" => (measurement_values_hash3[hour * 2] + measurement_values_hash3[hour * 2 + 1] + measurement_values_hash4[hour * 2] + measurement_values_hash4[hour * 2 + 1] + measurement_values_hash5[hour * 2] + measurement_values_hash5[hour * 2 + 1]) / 6.0
+            }
+          }
+        ]
+      end.flatten
+
+      expected_response = hourly_averages
+
+      expect(JSON.parse(response.body)).to match_array(expected_response)
+    end
+
 
     # performance test using map data and experimental server API - delete before merging
 
@@ -229,7 +325,7 @@ describe 'GET api/v3/timelapse', type: :request do
 
         request_body = {
           clusters: clusters,
-          time_period: '7.days'
+          time_period: '7'
         }.to_json
 
         post_url = 'http://172.104.20.165/api/v3/timelapse'
@@ -254,6 +350,3 @@ describe 'GET api/v3/timelapse', type: :request do
     end
   end
 end
-
-# Example GET request with two clusters with two sessions inside each
-# GET "/api/v3/timelapse?clusters[0][session_ids][]=#{session1.id}&clusters[0][session_ids][]=#{session2.id}&clusters[1][session_ids][]=#{session3.id}&clusters[1][session_ids][]=#{session4.id}&time_period=1.day"

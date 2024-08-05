@@ -4,7 +4,7 @@ module Timelapse
       @measurements_repository = MeasurementsRepository.new
     end
 
-    def call (cluster, beginning_of_time_slice, end_of_time_slice)
+    def call (cluster:, beginning_of_time_slice:, end_of_time_slice:)
       cluster_id = cluster.keys.first
       stream_ids = cluster[cluster_id]
 
