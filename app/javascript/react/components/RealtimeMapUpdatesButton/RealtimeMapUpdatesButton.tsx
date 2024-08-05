@@ -1,4 +1,3 @@
-// src/components/RealtimeMapUpdatesButton/RealtimeMapUpdatesButton.tsx
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -9,6 +8,7 @@ import { screenSizes } from "../../utils/media";
 import { Toggle } from "../Toggle/Toggle";
 import { setRealtimeMapUpdates } from "../../store/realtimeMapUpdatesSlice";
 import { useAppDispatch } from "../../store/hooks";
+import { RootState } from "../../store";
 
 const RealtimeMapUpdatesButton = () => {
   const { t } = useTranslation();
@@ -16,7 +16,7 @@ const RealtimeMapUpdatesButton = () => {
 
   const dispatch = useAppDispatch();
   const realtimeMapUpdates = useSelector(
-    (state: any) => state.realtimeMapUpdates.realtimeMapUpdates
+    (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
   );
 
   const handleRealtimeMapUpdatesChange = (isChecked: boolean) => {
