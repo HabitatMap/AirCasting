@@ -40,7 +40,6 @@ export const formatTimeExtremes = (
 
     return { date: dateString, time: timeString };
   };
-  console.log(formatDate(Number(minTime)), "minTime");
 
   return {
     formattedMinTime: formatDate(minTime),
