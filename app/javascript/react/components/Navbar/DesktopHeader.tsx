@@ -1,18 +1,19 @@
 import React from "react";
-import { useSelector } from "react-redux";
+
 import logo from "../../../../assets/images/aircasting-logo-nav.svg";
 import mobileLogo from "../../assets/icons/airCastingLogoMobile.svg";
 import airbeamIcon from "../../assets/icons/airbeamIcon.svg";
 import hamburger from "../../assets/icons/hamburger.svg";
+
 import { urls } from "../../const/urls";
 import { screenSizes } from "../../utils/media";
 import useScreenSizeDetection from "../../utils/useScreenSizeDetection";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
+import { RealtimeMapUpdatesButton } from "../RealtimeMapUpdatesButton/RealtimeMapUpdatesButton";
 import { RefreshMapButton } from "../RefreshMapButton";
 import NavList from "./NavList/NavList";
 import * as S from "./Navbar.style";
-import { RealtimeMapUpdatesButton } from "../RealtimeMapUpdatesButton/RealtimeMapUpdatesButton";
 
 interface DesktopHeaderProps {
   isMapPage: boolean;
@@ -28,9 +29,6 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   t,
 }) => {
   const isSmallScreen = useScreenSizeDetection(screenSizes.largeDesktop);
-  const realtimeMapUpdates = useSelector(
-    (state: any) => state.realtimeMapUpdates.realtimeMapUpdates
-  );
 
   return (
     <S.DesktopContainer>
@@ -51,7 +49,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
               <LocationSearch />
             </S.SearchContainer>
             <S.MapControls>
-              {!realtimeMapUpdates && <RefreshMapButton />}
+              <RefreshMapButton />
               <RealtimeMapUpdatesButton />
               <ControlPanel />
             </S.MapControls>
