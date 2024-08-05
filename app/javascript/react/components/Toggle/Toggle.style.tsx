@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { blue, gray400, white } from "../../assets/styles/colors";
+import { blue, gray600, gray400, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 const ToggleLabel = styled.label`
@@ -42,7 +42,7 @@ const Slider = styled.span<{ $isActive: boolean; $variant: string }>`
   right: 0;
   bottom: 0;
   background-color: ${(props) =>
-    props.$variant === "toggle" && !props.$isActive ? gray400 : blue};
+    props.$variant === "toggle" && !props.$isActive ? gray600 : blue};
   transition: 0.4s;
   border-radius: 30px;
   z-index: 1;
@@ -69,7 +69,6 @@ const Slider = styled.span<{ $isActive: boolean; $variant: string }>`
 
 const Label = styled.span<{ $isActive?: boolean }>`
   color: ${(props) => (props.$isActive ? blue : gray400)};
-  margin: 0 1rem;
   display: inline-block;
   align-items: center;
   gap: 1rem;
@@ -82,6 +81,7 @@ const Label = styled.span<{ $isActive?: boolean }>`
 const ToggleContainer = styled.div`
   display: flex;
   align-items: center;
+  gap: 1rem;
 `;
 
 export { ToggleLabel, ToggleInput, Slider, Label, ToggleContainer };
