@@ -5,6 +5,8 @@ import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
+import { UserSettings } from "../../types/userStates";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { TimelapsComponent } from "../Modals/TimelapsModal/TimelapsComponent";
 import { CopyLinkComponent } from "../Popups/CopyLinkComponent";
 import { DesktopSessionFilters } from "../SessionFilters/DesktopSessionFilters";
@@ -23,10 +25,21 @@ const MapButtons = () => {
   const [showFilters, setShowFilters] = useState(false);
   const { t } = useTranslation();
 
+  const { revertUserSettingsAndResetIds, setUrlParams } = useMapParams();
+
   const handleClick = (buttonType: ButtonTypes) => {
     setActiveButton((prevState) =>
       prevState === buttonType ? null : buttonType
     );
+
+    if (buttonType === ButtonTypes.TIMELAPSE) {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: UserSettings.TimelapsView,
+        },
+      ]);
+    }
   };
 
   useEffect(() => {
@@ -57,7 +70,7 @@ const MapButtons = () => {
             handleClick(ButtonTypes.TIMELAPSE);
           }}
           onClose={() => {
-            setActiveButton(null);
+            revertUserSettingsAndResetIds(), setActiveButton(null);
           }}
         />
         <CopyLinkComponent

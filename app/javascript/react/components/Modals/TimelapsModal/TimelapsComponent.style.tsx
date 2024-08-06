@@ -5,8 +5,7 @@ import { white } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
 
 const TimelapsModal = styled(Popup)`
-  width: 115rem;
-  height: 10rem;
+  width: 100%;
 
   &-overlay {
     position: fixed;

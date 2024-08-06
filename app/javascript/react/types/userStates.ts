@@ -6,4 +6,5 @@ export enum UserSettings {
   MapView = "MAP_VIEW",
   ModalView = "MODAL_VIEW",
   SessionListView = "SESSION_LIST_VIEW",
+  TimelapsView = "TIMELAPS_VIEW",
 }

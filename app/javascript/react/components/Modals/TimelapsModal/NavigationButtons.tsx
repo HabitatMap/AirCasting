@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import styled from "styled-components";
 import fastForwardButton from "../../../assets/icons/fastForwardButton.svg";
 import playButton from "../../../assets/icons/playButton.svg";
 import rewindButton from "../../../assets/icons/rewindButton.svg";
@@ -14,20 +13,6 @@ interface NavigationButtonsProps {
   onNext: () => void;
 }
 
-const Button = styled.button`
-  padding: 10px 20px;
-  margin: 5px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
 const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   onPrevious,
   onNext,
@@ -37,19 +22,19 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   return (
     <S.NavigationButtonsContainer>
       <S.NavigationButton onClick={onPrevious}>
-        <img src={rewindButton} alt={t("navbar.altClose")} />
+        <img src={rewindButton} alt={t("navbar.altRewind")} />
+      </S.NavigationButton>
+      <S.NavigationButton>
+        <img src={skipLeftButton} alt={t("navbar.altSkipLeft")} />
+      </S.NavigationButton>
+      <S.NavigationButton>
+        <img src={playButton} alt={t("navbar.altPlay")} />
+      </S.NavigationButton>
+      <S.NavigationButton>
+        <img src={skipRightButton} alt={t("navbar.altSkipRight")} />
       </S.NavigationButton>
       <S.NavigationButton onClick={onNext}>
-        <img src={skipLeftButton} alt={t("navbar.altClose")} />
-      </S.NavigationButton>
-      <S.NavigationButton onClick={onNext}>
-        <img src={playButton} alt={t("navbar.altClose")} />
-      </S.NavigationButton>
-      <S.NavigationButton onClick={onNext}>
-        <img src={skipRightButton} alt={t("navbar.altClose")} />
-      </S.NavigationButton>
-      <S.NavigationButton onClick={onNext}>
-        <img src={fastForwardButton} alt={t("navbar.altClose")} />
+        <img src={fastForwardButton} alt={t("navbar.altFastForward")} />
       </S.NavigationButton>
     </S.NavigationButtonsContainer>
   );
