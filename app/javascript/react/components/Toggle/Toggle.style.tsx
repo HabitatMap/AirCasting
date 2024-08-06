@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { blue, gray600, gray400, white } from "../../assets/styles/colors";
+import { blue, gray400, gray600, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 const ToggleLabel = styled.label`
@@ -17,12 +17,11 @@ const ToggleInput = styled.input`
   opacity: 0;
   width: 3.6rem;
   height: 1.8rem;
-
   z-index: 2;
   position: relative;
 
   &:checked + span:before {
-    transform: translateX(1.8rem); // Adjust this value for mobile
+    transform: translateX(1.8rem);
     @media ${media.mobile} {
       transform: translateX(1.2rem);
     }
@@ -61,8 +60,8 @@ const Slider = styled.span<{ $isActive: boolean; $variant: string }>`
     @media ${media.mobile} {
       height: 0.9rem;
       width: 0.9rem;
-      left: 0.17rem;
-      bottom: 0.16rem;
+      left: 0.18rem;
+      bottom: 0.18rem;
     }
   }
 `;
@@ -84,4 +83,4 @@ const ToggleContainer = styled.div`
   gap: 1rem;
 `;
 
-export { ToggleLabel, ToggleInput, Slider, Label, ToggleContainer };
+export { Label, Slider, ToggleContainer, ToggleInput, ToggleLabel };
