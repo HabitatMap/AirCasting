@@ -11,6 +11,7 @@ import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
+import { useMapParams } from "../../../utils/mapParamsHandler";
 
 type Props = {
   sessions: Session[];
@@ -36,6 +37,7 @@ const MobileMarkers = ({
   const map = useMap();
 
   const thresholds = useSelector(selectThresholds);
+  const { initialUnitSymbol } = useMapParams();
 
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -180,7 +182,9 @@ const MobileMarkers = ({
     return (
       <SessionFullMarker
         color={getColorForValue(thresholds, session.lastMeasurementValue)}
-        value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
+        value={`${Math.round(
+          session.lastMeasurementValue
+        )} ${initialUnitSymbol}`}
         isSelected={isSelected}
         shouldPulse={session.id === pulsatingSessionId}
         onClick={() => {

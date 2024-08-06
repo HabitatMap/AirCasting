@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { ResetButton, ResetButtonVariant } from "./ResetButton";
 import * as S from "./ThresholdConfigurator.style";
 import ThresholdSlider from "./ThresholdSlider";
@@ -29,6 +30,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
   const { t } = useTranslation();
   const isMobile = useMobileDetection();
+  const { initialUnitSymbol } = useMapParams();
 
   const renderSlider = () => (
     <S.SliderContainer $isMobileOldStyle={isMobileOldStyle}>
@@ -62,7 +64,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
               {t("thresholdConfigurator.disclaimer")}
             </S.ThresholdsDisclaimer>
             {renderSlider()}
-            <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+            <S.Units>({initialUnitSymbol})</S.Units>
           </S.DesktopContainer>
           {resetButtonVariant && (
             <ResetButton

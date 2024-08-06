@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import { fetchTags, selectTags } from "../../store/sessionFiltersSlice";
-import { fetchTagsParamsType, SessionTypes } from "../../types/filters";
+import { SessionTypes, fetchTagsParamsType } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
@@ -21,7 +21,7 @@ const TagsInput = () => {
     boundEast,
     boundNorth,
     boundSouth,
-    initialSensorName,
+    sensorName,
     sessionType,
     setFilters,
     tags,
@@ -31,13 +31,7 @@ const TagsInput = () => {
 
   const tagsToSelect = useAppSelector(selectTags);
 
-  const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
   const selectedSessionType = sessionType || SessionTypes.FIXED;
-
-  // Filters (temporary solution)
-  const sensorName = fixedSessionTypeSelected
-    ? initialSensorName
-    : "AirBeam-PM2.5";
 
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({

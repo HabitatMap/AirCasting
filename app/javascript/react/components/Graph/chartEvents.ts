@@ -1,6 +1,6 @@
 import Highcharts from "highcharts/highstock";
 import chevronLeft from "../../assets/icons/chevronLeft.svg";
-import chevronRight from "../../assets/icons/chevronRight.svg";
+import chevronRight from "../../assets/icons/chevronRightCircle.svg";
 import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
 import graphChevronRight from "../../assets/icons/graphChevronRight.svg";
 import mobileChevronLeft from "../../assets/icons/mobileChevronLeft.svg";
