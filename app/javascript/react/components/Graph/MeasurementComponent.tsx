@@ -6,6 +6,7 @@ import {
   selectFixedStreamShortInfo,
 } from "../../store/fixedStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
+import { isNoData } from "../../utils/measurementsCalc";
 import { getColorForValue } from "../../utils/thresholdColors";
 import * as S from "../Modals/SessionDetailsModal/SessionDetailsModal.style";
 import { MeasurementContainer } from "./Graph.style";
@@ -32,26 +33,38 @@ const MeasurementComponent: React.FC = () => {
     [thresholds, maxMeasurementValue]
   );
 
+  const noData = isNoData(
+    extremes.minMeasurementValue,
+    extremes.maxMeasurementValue,
+    extremes.averageValue
+  );
+
   return (
     <MeasurementContainer>
-      <S.AverageValueContainer>
-        <S.AverageDot $color={averageValueColor} />
-        {t("sessionDetailsModal.averageValue")}
-        <S.AverageValue>{averageValue}</S.AverageValue>
-        {unitSymbol}
-      </S.AverageValueContainer>
-      <S.MinMaxValueContainer $isMobile={false}>
-        <div>
-          <S.SmallDot $color={minMeasurementValueColor} />
-          {t("sessionDetailsModal.minValue")}
-          <S.Value>{minMeasurementValue}</S.Value>
-        </div>
-        <div>
-          <S.SmallDot $color={maxMeasurementValueColor} />
-          {t("sessionDetailsModal.maxValue")}
-          <S.Value>{maxMeasurementValue}</S.Value>
-        </div>
-      </S.MinMaxValueContainer>
+      {noData ? (
+        <S.NoData>{t("sessionDetailsModal.noData")}</S.NoData>
+      ) : (
+        <>
+          <S.AverageValueContainer>
+            <S.AverageDot $color={averageValueColor} />
+            {t("sessionDetailsModal.averageValue")}
+            <S.AverageValue>{averageValue}</S.AverageValue>
+            {unitSymbol}
+          </S.AverageValueContainer>
+          <S.MinMaxValueContainer $isMobile={false}>
+            <div>
+              <S.SmallDot $color={minMeasurementValueColor} />
+              {t("sessionDetailsModal.minValue")}
+              <S.Value>{minMeasurementValue}</S.Value>
+            </div>
+            <div>
+              <S.SmallDot $color={maxMeasurementValueColor} />
+              {t("sessionDetailsModal.maxValue")}
+              <S.Value>{maxMeasurementValue}</S.Value>
+            </div>
+          </S.MinMaxValueContainer>
+        </>
+      )}
     </MeasurementContainer>
   );
 };
