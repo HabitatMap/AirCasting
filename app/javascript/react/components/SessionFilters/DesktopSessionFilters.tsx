@@ -3,6 +3,7 @@ import React from "react";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CrowdMapToggle } from "./CrowdmapToggle";
+import { ParameterFilter } from "./ParameterFilter";
 import { ProfileNamesInput } from "./ProfileNamesInput";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
@@ -15,6 +16,7 @@ const DesktopSessionFilters = () => {
   return (
     <S.SessionFilters>
       <SessionTypeToggle />
+      <ParameterFilter />
       <ProfileNamesInput />
       <TagsInput />
       {!fixedSessionTypeSelected && <CrowdMapToggle />}

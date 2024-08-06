@@ -32,7 +32,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     boundNorth,
     boundSouth,
     boundWest,
-    initialMeasurementType,
+    measurementType,
     tags,
     initialUnitSymbol,
     usernames,
@@ -50,7 +50,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         east: boundEast,
         grid_size_x: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
         grid_size_y: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
-        measurement_type: initialMeasurementType, // TODO: temporary solution, ticket: Session Filter [Both] Parameter Picker (Custom)
+        measurement_type: measurementType,
         north: boundNorth,
         sensor_name: "AirBeam-PM2.5", // TODO: temporary solution, ticket: Session Filter [Both]: Sensor Picker
         south: boundSouth,
@@ -67,7 +67,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       boundNorth,
       boundSouth,
       boundWest,
-      initialMeasurementType,
+      measurementType,
       mobileSessionsStreamIds,
       tags,
       initialUnitSymbol,

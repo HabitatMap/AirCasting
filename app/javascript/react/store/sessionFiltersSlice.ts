@@ -12,6 +12,7 @@ interface SessionFilterState {
   tags: string[];
   fetchUsernamesStatus: StatusEnum;
   fetchTagsStatus: StatusEnum;
+  basicPrametersModalOpen: boolean;
 }
 
 const initialState: SessionFilterState = {
@@ -19,6 +20,7 @@ const initialState: SessionFilterState = {
   tags: [],
   fetchUsernamesStatus: StatusEnum.Idle,
   fetchTagsStatus: StatusEnum.Idle,
+  basicPrametersModalOpen: false,
 };
 
 export const fetchUsernames = createAsyncThunk(
@@ -54,7 +56,11 @@ export const fetchTags = createAsyncThunk(
 const sessionFilterSlice = createSlice({
   name: "sessionFilter",
   initialState,
-  reducers: {},
+  reducers: {
+    setBasicPrametersModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.basicPrametersModalOpen = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsernames.pending, (state) => {
@@ -92,4 +98,8 @@ export const selectUsernames = (state: RootState): string[] =>
 export const selectTags = (state: RootState): string[] =>
   state.sessionFilter.tags;
 
+export const selectBasicParametersModalOpen = (state: RootState): boolean =>
+  state.sessionFilter.basicPrametersModalOpen;
+
+export const { setBasicPrametersModalOpen } = sessionFilterSlice.actions;
 export default sessionFilterSlice.reducer;

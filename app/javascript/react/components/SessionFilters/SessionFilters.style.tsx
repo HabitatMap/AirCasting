@@ -2,16 +2,21 @@ import styled from "styled-components";
 
 import {
   acBlue,
+  acBlueTransparent,
+  black,
   gray100,
   gray200,
   gray300,
   gray400,
+  gray500,
   gray600,
+  lightBlue,
   white,
 } from "../../assets/styles/colors";
 import { Button } from "../Button/Button.style";
 import { CloseButton } from "../Map/Legend/Legend.style";
 import { SmallPopup } from "../Popups/Popups.style";
+import { H4, H6 } from "../Typography";
 
 const SessionFilters = styled.div`
   display: flex;
@@ -204,9 +209,169 @@ const InfoPopup = styled(SmallPopup)`
 
 const CrowdMapButton = styled(Button)``;
 
+const SelectedOptionButton = styled(Button)<{ $isActive: boolean }>`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 1.6rem;
+  background-color: ${(props) => props.$isActive && acBlueTransparent};
+  border-color: ${(props) => props.$isActive && acBlue};
+`;
+
+const SelectedOptionHeadingWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+`;
+
+const SelectedOptionHeading = styled(H6)<{ $isSelected: boolean }>`
+  text-transform: uppercase;
+  color: ${(props) => (props.$isSelected ? gray400 : gray600)};
+  opacity: ${(props) => props.$isSelected && 0.5};
+`;
+
+const SelectedOption = styled(H4)<{ $isSelected: boolean }>`
+  color: ${(props) => (props.$isSelected ? gray400 : gray300)};
+`;
+
+const ChevronIcon = styled.img<{ $isActive?: boolean; $src: string }>`
+  width: 1rem;
+  height: 2rem;
+  background-color: ${(props) => (props.$isActive ? acBlue : gray300)};
+  mask: url(${(props) => props.$src});
+  mask-size: 100% 100%;
+`;
+
+const FiltersOptionsWrapper = styled(SessionFilters)`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 1.6rem;
+  margin: 0;
+  z-index: 3;
+  left: 105%;
+  top: 1.6rem;
+  border-top-left-radius: 0;
+  width: fit-content;
+`;
+
+const FiltersOptionHeading = styled.span`
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+  color: ${gray300};
+`;
+
+const FiltersOptonButton = styled(Button)<{ $isSelected: boolean }>`
+  gap: 0;
+  padding: 0.5rem 0.8rem;
+  margin-bottom: 0.8rem;
+  width: 12rem;
+  height: 2.4rem;
+  justify-content: flex-start;
+  color: ${(props) => (props.$isSelected ? acBlue : gray300)};
+  border: 1px solid ${gray500};
+  border-color: ${(props) => props.$isSelected && lightBlue};
+  font-size: 1.2rem;
+  text-transform: capitalize;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+`;
+
+const SeeMoreButton = styled.button`
+  display: flex;
+  align-items: center;
+  align-self: end;
+  border: none;
+  background-color: transparent;
+`;
+
+const SeeMoreSpan = styled.span`
+  font-size: 1.2rem;
+  color: ${gray300};
+  margin-right: 0.2rem;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+`;
+
+const BasicParameterWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ChevronBackButton = styled.button`
+  border: none;
+  background-color: transparent;
+`;
+
+const Description = styled.p`
+  font-size: 1.2rem;
+  line-height: 1.45rem;
+  opacity: 50%;
+`;
+
+const ButtonsWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const BackButton = styled(Button)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  border: none;
+  background-color: ${gray100};
+  color: ${gray400};
+  margin-right: 1rem;
+  flex-grow: 2;
+`;
+
+const MinorShowSessionsButton = styled(ShowSessionsButton)`
+  width: fit-content;
+  flex-grow: 3;
+`;
+
+const BasicParameterButtonsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+`;
+
+const BasicParameterButton = styled.button`
+  border: none;
+  background-color: transparent;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2.4rem;
+  padding-right: 1rem;
+`;
+
+const ButtonSpan = styled(HeaderTitle)<{ $isActive: boolean }>`
+  color: ${(props) => (props.$isActive ? acBlue : black)};
+  margin: 0;
+`;
+
 export {
+  BackButton,
+  BasicParameterButton,
+  BasicParameterButtonsWrapper,
+  BasicParameterWrapper,
+  ButtonSpan,
+  ButtonsWrapper,
+  ChevronBackButton,
+  ChevronIcon,
   CloseSelectedItemButton,
   CrowdMapButton,
+  Description,
+  FiltersOptionHeading,
+  FiltersOptionsWrapper,
+  FiltersOptonButton,
   Header,
   HeaderTitle,
   IconWrapper,
@@ -215,11 +380,18 @@ export {
   InfoIcon,
   InfoPopup,
   Input,
+  MinorShowSessionsButton,
   MobileSessionFilters,
   ModalContent,
+  SeeMoreButton,
+  SeeMoreSpan,
   SelectedItem,
-  SelectedItemTile,
   SelectedItemsWrapper,
+  SelectedItemTile,
+  SelectedOption,
+  SelectedOptionButton,
+  SelectedOptionHeading,
+  SelectedOptionHeadingWrapper,
   SessionFilters,
   SessionToggleWrapper,
   ShowSessionsButton,

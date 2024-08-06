@@ -64,7 +64,6 @@
     "localTime": "{{lastUpdate}} (local time)",
     "legendTitle": "Measurements legend",
     "calendarTitle": "Measurements calendar",
-    "measurementsUnits": "(µg/m³)",
     "dateRange": "Date range",
     "altCopyIcon": "Charm icon",
     "graphTitle": "Measurements graph",
@@ -82,7 +81,6 @@
     "resetButton": "Reset ranges",
     "altResetButton": "Reset the threshold values to default",
     "resetButtonDesktop": "Reset to default",
-    "measurementsUnits": "µg/m³",
     "invalidOrderMessage": "The values should be in ascending order"
   },
   "notFoundPage": {
@@ -171,6 +169,12 @@
     "profileNamesInfo": "Enter a profile name or names to filter the sessions by profile name.",
     "tagNamesInfo": "Enter a tag or tags to filter the sessions by tags. Tags are keywords assigned to sessions.",
     "profileNames": "profile names",
-    "tagsNames": "tags names"
+    "tagsNames": "tags names",
+    "parameterInfo": "The parameter field describes the broad category of environmental or physiological measurements being recorded. The AirCasting platform is device agnostic i.e. it will ingest and display data from any instrument that formats and communicates data according to our formatting and communications protocol.",
+    "parameter": "parameter",
+    "customParameters": "custom parameters",
+    "selectParameter": "select parameter",
+    "selectParameterDescription": "The parameter field describes the broad category of environmental or physiological measurements being recorded. The AirCasting platform is device agnostic i.e. it will ingest and display data from any instrument that formats and communicates data according to our formatting and communications protocol.",
+    "back": "back"
   }
 }

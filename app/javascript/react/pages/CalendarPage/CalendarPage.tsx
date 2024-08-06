@@ -40,6 +40,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const { t } = useTranslation();
+  const { initialUnitSymbol } = useMapParams();
 
   const { streamId } = useMapParams();
 
@@ -134,7 +135,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 titleText={
                   <S.StyledContainer>
                     {t("calendarHeader.legendTitle")}
-                    <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+                    <S.Units>({initialUnitSymbol})</S.Units>
                     <ResetButton
                       variant={ResetButtonVariant.TextWithIcon}
                       swapIconTextPosition={true}
@@ -155,7 +156,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 titleText={
                   <S.StyledContainer>
                     {t("calendarHeader.legendTitle")}
-                    <S.Units>{t("calendarHeader.measurementsUnits")}</S.Units>
+                    <S.Units>({initialUnitSymbol})</S.Units>
                   </S.StyledContainer>
                 }
                 componentToToggle={

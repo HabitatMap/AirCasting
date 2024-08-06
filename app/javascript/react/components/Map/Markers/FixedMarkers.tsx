@@ -1,13 +1,3 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { useSelector } from "react-redux";
-import { useAppDispatch } from "../../../store/hooks";
 import {
   Cluster,
   GridAlgorithm,
@@ -17,20 +7,29 @@ import {
   defaultOnClusterClickHandler,
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../../store/hooks";
 
+import { RootState } from "../../../store";
+import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
+import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
+import type { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
+import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
+import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
-import type { LatLngLiteral } from "../../../types/googleMaps";
-import { selectHoverStreamId } from "../../../store/mapSlice";
-import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
-import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
-import { RootState } from "../../../store";
-import { useMapParams } from "../../../utils/mapParamsHandler";
 
 type Props = {
   sessions: Session[];
@@ -62,6 +61,7 @@ const FixedMarkers = ({
   const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
 
   const thresholds = useSelector(selectThresholds);
+  const { initialUnitSymbol } = useMapParams();
 
   const [markers, setMarkers] = useState<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
@@ -349,7 +349,9 @@ const FixedMarkers = ({
         >
           <SessionFullMarker
             color={getColorForValue(thresholds, session.lastMeasurementValue)}
-            value={`${Math.round(session.lastMeasurementValue)} µg/m³`}
+            value={`${Math.round(
+              session.lastMeasurementValue
+            )} ${initialUnitSymbol}`}
             isSelected={session.point.streamId === selectedStreamId?.toString()}
             shouldPulse={session.id === pulsatingSessionId}
             onClick={() => {

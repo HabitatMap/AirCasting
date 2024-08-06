@@ -73,13 +73,13 @@ const Map = () => {
     goToUserSettings,
     initialLimit,
     mapTypeId,
-    initialMeasurementType,
+    measurementType,
     initialOffset,
     previousCenter,
     previousUserSettings,
     previousZoom,
     revertUserSettingsAndResetIds,
-    initialSensorName,
+    sensorName,
     sessionId,
     sessionType,
     streamId,
@@ -128,13 +128,13 @@ const Map = () => {
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
-  // Filters (temporary solution)
-  const sensorName = fixedSessionTypeSelected
-    ? initialSensorName
-    : "AirBeam-PM2.5";
-
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
   const tagsDecoded = tags && decodeURIComponent(tags);
+  const sensorNamedDecoded = decodeURIComponent(sensorName);
+
+  const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
+
+  const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
 
   const filters = useMemo(
     () =>
@@ -150,9 +150,9 @@ const Map = () => {
         north: boundNorth,
         limit: initialLimit,
         offset: initialOffset,
-        sensor_name: sensorName,
-        measurement_type: initialMeasurementType,
-        unit_symbol: initialUnitSymbol,
+        sensor_name: sensorNamedDecoded.toLowerCase(),
+        measurement_type: measurementType,
+        unit_symbol: encodedUnitSymbol,
       }),
     [
       boundEast,
@@ -160,16 +160,14 @@ const Map = () => {
       boundSouth,
       boundWest,
       initialLimit,
-      initialMeasurementType,
+      measurementType,
       initialOffset,
       initialUnitSymbol,
-      sensorName,
+      sensorNamedDecoded,
       usernamesDecoded,
       tagsDecoded,
     ]
   );
-  const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
-  const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
 
   const thresholdFilters = `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
 
@@ -181,7 +179,7 @@ const Map = () => {
         : dispatch(fetchMobileSessions({ filters }));
     }
     dispatch(setLoading(false));
-  }, [filters, loading, fixedSessionTypeSelected]);
+  }, [filters, loading]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));

@@ -13,7 +13,11 @@ import {
   selectDefaultThresholds,
   selectThresholds,
 } from "../store/thresholdSlice";
-import { SessionType, SessionTypes } from "../types/filters";
+import {
+  FixedBasicParameterTypes,
+  SessionType,
+  SessionTypes,
+} from "../types/filters";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
 
@@ -113,9 +117,9 @@ export const useMapParams = () => {
   const mapTypeId =
     getSearchParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||
     MAP_CONFIGS[0].mapTypeId;
-  const initialMeasurementType = getSearchParam(
+  const measurementType = getSearchParam(
     UrlParamsTypes.measurementType,
-    "Particulate Matter"
+    FixedBasicParameterTypes.PARTICULATE_MATTER
   )!;
   const initialOffset = parseInt(getSearchParam(UrlParamsTypes.offset, "0")!);
   const previousCenter = useMemo(
@@ -135,7 +139,7 @@ export const useMapParams = () => {
   const previousZoom = parseFloat(
     getSearchParam(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString())!
   );
-  const initialSensorName = getSearchParam(
+  const sensorName = getSearchParam(
     UrlParamsTypes.sensorName,
     "Government-PM2.5"
   )!;
@@ -313,13 +317,13 @@ export const useMapParams = () => {
     goToUserSettings,
     initialLimit,
     mapTypeId,
-    initialMeasurementType,
+    measurementType,
     initialOffset,
     previousCenter,
     previousUserSettings,
     previousZoom,
     revertUserSettingsAndResetIds,
-    initialSensorName,
+    sensorName,
     sessionId,
     sessionType,
     setFilters,
@@ -330,5 +334,6 @@ export const useMapParams = () => {
     searchParams,
     usernames,
     tags,
+    thresholdValues,
   };
 };
