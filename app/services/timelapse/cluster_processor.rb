@@ -16,9 +16,7 @@ module Timelapse
           end_date: end_of_time_slice
         )
 
-      averages.map do |average|
-        { cluster_id => { time: average[:hour], value: average[:average_value] } }
-      end
+      { cluster_id => averages }
     end
 
     private

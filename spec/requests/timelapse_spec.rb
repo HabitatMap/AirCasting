@@ -32,16 +32,14 @@ describe 'GET api/v3/timelapse', type: :request do
 
       hourly_averages = (0..23).map do |hour|
         {
-          "0" => {
-            "time" => (first_slice_time - 1.hour * hour).iso8601(3),
-            "value" => (measurement_values_hash[hour * 2] + measurement_values_hash[hour * 2 + 1]) / 2.0
-          }
+          "time" => (first_slice_time - 1.hour * hour).iso8601(3),
+          "value" => (measurement_values_hash[hour * 2] + measurement_values_hash[hour * 2 + 1]) / 2.0
         }
       end
 
-      expected_response = hourly_averages
+      expected_response = [{"0" => hourly_averages.reverse}]
 
-      expect(JSON.parse(response.body)).to match_array(expected_response)
+      expect(JSON.parse(response.body)).to eq(expected_response)
     end
 
     it 'returns stream averages for selected 24h period for two sessions in one cluster' do
@@ -85,16 +83,14 @@ describe 'GET api/v3/timelapse', type: :request do
 
       hourly_averages = 24.times.map do |hour|
         {
-          "0" => {
-            "time" => (first_slice_time - 1.hour * hour).iso8601(3),
-            "value" => (measurement_values_hash1[hour * 2] + measurement_values_hash1[hour * 2 + 1] + measurement_values_hash2[hour * 2] + measurement_values_hash2[hour * 2 + 1]) / 4.0
-          }
+          "time" => (first_slice_time - 1.hour * hour).iso8601(3),
+          "value" => (measurement_values_hash1[hour * 2] + measurement_values_hash1[hour * 2 + 1] + measurement_values_hash2[hour * 2] + measurement_values_hash2[hour * 2 + 1]) / 4.0
         }
       end
 
-      expected_response = hourly_averages
+      expected_response = [{"0" => hourly_averages.reverse}]
 
-      expect(JSON.parse(response.body)).to match_array(expected_response)
+      expect(JSON.parse(response.body)).to eq(expected_response)
     end
 
     it 'returns stream averages for selected 24h period for two sessions in two clusters' do
@@ -136,26 +132,23 @@ describe 'GET api/v3/timelapse', type: :request do
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
       first_slice_time = Time.current.beginning_of_hour + 1.hour
+      hourly_averages = []
 
+      hourly_averages[0] = 24.times.map do |hour|
+        {
+          "time" => (first_slice_time - 1.hour * hour).iso8601(3),
+          "value" => (measurement_values_hash1[hour * 2] + measurement_values_hash1[hour * 2 + 1]) / 2.0
+        }
+      end
 
-      hourly_averages = 24.times.map do |hour|
-        [
-          {
-            "0" => {
-              "time" => (first_slice_time - 1.hour * hour).iso8601(3),
-              "value" => (measurement_values_hash1[hour * 2] + measurement_values_hash1[hour * 2 + 1]) / 2.0
-            }
-          },
-          {
-            "1" => {
-              "time" => (first_slice_time - 1.hour * hour).iso8601(3),
-              "value" => (measurement_values_hash2[hour * 2] + measurement_values_hash2[hour * 2 + 1]) / 2.0
-            }
-          }
-        ]
-      end.flatten
+      hourly_averages[1] = 24.times.map do |hour|
+        {
+          "time" => (first_slice_time - 1.hour * hour).iso8601(3),
+          "value" => (measurement_values_hash2[hour * 2] + measurement_values_hash2[hour * 2 + 1]) / 2.0
+        }
+      end
 
-      expected_response = hourly_averages
+      expected_response = [{"0" => hourly_averages[0].reverse}, {"1" => hourly_averages[1].reverse}]
 
       expect(JSON.parse(response.body)).to match_array(expected_response)
     end
@@ -186,16 +179,14 @@ describe 'GET api/v3/timelapse', type: :request do
 
       first_slice_time = Time.current.beginning_of_hour + 1.hour
 
-      daily_averages = 168.times.map do |time_slice_number|
+      hourly_averages = 168.times.map do |time_slice_number|
         {
-          "0" => {
-            "time" => (first_slice_time - 1.hour * time_slice_number).iso8601(3),
-            "value" => (measurement_values_hash[time_slice_number * 2] + measurement_values_hash[time_slice_number * 2 + 1]) / 2.0
-          }
+          "time" => (first_slice_time - 1.hour * time_slice_number).iso8601(3),
+          "value" => (measurement_values_hash[time_slice_number * 2] + measurement_values_hash[time_slice_number * 2 + 1]) / 2.0
         }
       end
 
-      expected_response = daily_averages
+      expected_response = [{"0" => hourly_averages.reverse}]
 
       expect(JSON.parse(response.body)).to match_array(expected_response)
     end
@@ -275,25 +266,23 @@ describe 'GET api/v3/timelapse', type: :request do
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
       first_slice_time = Time.current.beginning_of_hour + 1.hour
+      hourly_averages = []
 
-      hourly_averages = 72.times.map do |hour|
-        [
-          {
-            "0" => {
-              "time" => (first_slice_time - 1.hour * hour).iso8601(3),
-              "value" => (measurement_values_hash1[hour * 2] + measurement_values_hash1[hour * 2 + 1] + measurement_values_hash2[hour * 2] + measurement_values_hash2[hour * 2 + 1]) / 4.0
-            }
-          },
-          {
-            "1" => {
-              "time" => (first_slice_time - 1.hour * hour).iso8601(3),
-              "value" => (measurement_values_hash3[hour * 2] + measurement_values_hash3[hour * 2 + 1] + measurement_values_hash4[hour * 2] + measurement_values_hash4[hour * 2 + 1] + measurement_values_hash5[hour * 2] + measurement_values_hash5[hour * 2 + 1]) / 6.0
-            }
-          }
-        ]
-      end.flatten
+      hourly_averages[0] = 72.times.map do |hour|
+        {
+          "time" => (first_slice_time - 1.hour * hour).iso8601(3),
+          "value" => (measurement_values_hash1[hour * 2] + measurement_values_hash1[hour * 2 + 1] + measurement_values_hash2[hour * 2] + measurement_values_hash2[hour * 2 + 1]) / 4.0
+        }
+      end
 
-      expected_response = hourly_averages
+      hourly_averages[1] = 72.times.map do |hour|
+        {
+          "time" => (first_slice_time - 1.hour * hour).iso8601(3),
+          "value" => (measurement_values_hash3[hour * 2] + measurement_values_hash3[hour * 2 + 1] + measurement_values_hash4[hour * 2] + measurement_values_hash4[hour * 2 + 1] + measurement_values_hash5[hour * 2] + measurement_values_hash5[hour * 2 + 1]) / 6.0
+        }
+      end
+
+      expected_response = [{"0" => hourly_averages[0].reverse}, {"1" => hourly_averages[1].reverse}]
 
       expect(JSON.parse(response.body)).to match_array(expected_response)
     end

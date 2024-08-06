@@ -25,6 +25,6 @@ class MeasurementsRepository
         GROUP BY hour
         ORDER BY hour
       "
-    ).map { |record| { hour: record['hour'], average_value: record['average_value'] } }
+    ).map { |record| { time: record['hour'], value: record['average_value'] } }
   end
 end
