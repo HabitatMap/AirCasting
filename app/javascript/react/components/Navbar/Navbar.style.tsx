@@ -10,9 +10,10 @@ const Header = styled.header`
   justify-content: space-between;
   align-items: center;
   background-color: transparent;
-  z-index: 2;
+  z-index: 3;
   flex-wrap: wrap;
-  position: absolute;
+  /* position: absolute; */
+  position: fixed;
 
   @media ${media.desktop} {
     height: ${NAVBAR_HEIGHT};
@@ -242,7 +243,7 @@ export {
   MobileHeaderContainer,
   MobileMenuContainer,
   NAVBAR_HEIGHT,
+  SearchContainer,
   SmallDesktopContainer,
   SmallDesktopMenuContainer,
-  SearchContainer,
 };

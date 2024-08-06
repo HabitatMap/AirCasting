@@ -1,13 +1,13 @@
 import styled from "styled-components";
 
 import { blue, gray300, white } from "../../assets/styles/colors";
-import { H4 } from "../Typography";
 import { media } from "../../utils/media";
+import { H4 } from "../Typography";
 
 const MapButtonsWrapper = styled.div`
-  position: absolute;
+  position: fixed;
   top: 10rem;
-  z-index: 1;
+  z-index: 3;
   @media ${media.desktop} {
     left: 0;
     top: 8rem;

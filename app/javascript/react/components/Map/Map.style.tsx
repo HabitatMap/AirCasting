@@ -80,9 +80,9 @@ const ThresholdContainer = styled.div`
 `;
 
 export {
+  containerStyle,
   DesktopContainer,
   MobileButtons,
   MobileContainer,
   ThresholdContainer,
-  containerStyle,
 };

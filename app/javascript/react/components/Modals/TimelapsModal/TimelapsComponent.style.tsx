@@ -16,13 +16,14 @@ const TimelapsModal = styled(Popup)`
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    pointer-events: none !important;
+    /* pointer-events: none !important; */
     z-index: 2;
   }
 
   &-content {
     width: 115rem;
     height: 10rem;
+    bottom: 26.4rem;
     padding: 0.5rem;
     overflow-y: auto;
     margin: 0;
@@ -111,6 +112,7 @@ const NavigationButtonsContainer = styled.div`
   align-items: center;
   gap: 1rem;
 `;
+
 export {
   CancelButtonX,
   NavigationButton,
