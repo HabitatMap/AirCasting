@@ -1,36 +1,37 @@
 import React, {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { useSelector } from "react-redux";
-import { useAppDispatch } from "../../../store/hooks";
+
 import {
   Cluster,
+  defaultOnClusterClickHandler,
   GridAlgorithm,
   Marker,
   MarkerClusterer,
   SuperClusterAlgorithm,
-  defaultOnClusterClickHandler,
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { RootState } from "../../../store";
+import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
+import { useAppDispatch } from "../../../store/hooks";
+import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
+import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
+import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
+
 import type { LatLngLiteral } from "../../../types/googleMaps";
-import { selectHoverStreamId } from "../../../store/mapSlice";
-import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
-import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
-import { RootState } from "../../../store";
-import { useMapParams } from "../../../utils/mapParamsHandler";
 
 type Props = {
   sessions: Session[];
@@ -269,10 +270,10 @@ const FixedMarkers = ({
       }
 
       //!IMPORTANT! This is a current fix for the url params updating the center of the map incorrectly on first render after pasting a copied link, once the main issue is fixed, we can get rid of this ugly hack
-      const mapCenter = map.getCenter();
-      if (mapCenter !== currentCenter) {
-        mapCenter && map && map.setCenter(mapCenter);
-      }
+      // const mapCenter = map.getCenter();
+      // if (mapCenter !== currentCenter) {
+      //   mapCenter && map && map.setCenter(mapCenter);
+      // }
 
       const pixelPosition = getClusterPixelPosition(map, cluster.position);
       setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
