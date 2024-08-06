@@ -65,7 +65,7 @@ const Graph: React.FC<GraphProps> = ({
   const isMobile = useMobileDetection();
 
   const fixedSeriesData = (fixedGraphData?.measurements || [])
-    .map((measurement: { time: any; value: any }) => [
+    .map((measurement: { time: number; value: number }) => [
       measurement.time,
       measurement.value,
     ])
@@ -89,8 +89,8 @@ const Graph: React.FC<GraphProps> = ({
 
   const totalDuration =
     seriesData.length > 0
-      ? (seriesData[seriesData.length - 1] as any)[0] -
-        (seriesData[0] as any)[0]
+      ? (seriesData[seriesData.length - 1] as number[])[0] -
+        (seriesData[0] as number[])[0]
       : 0;
 
   const xAxisOptions = getXAxisOptions(
@@ -112,10 +112,10 @@ const Graph: React.FC<GraphProps> = ({
   const chartOptions = getChartOptions(isCalendarPage);
 
   useEffect(() => {
-    if (!chartDataLoaded && seriesData.length > 0 && !isLoading) {
+    if (seriesData.length > 0 && !isLoading) {
       setChartDataLoaded(true);
     }
-  }, [chartDataLoaded, seriesData, isLoading]);
+  }, [seriesData, isLoading]);
 
   useEffect(() => {
     const graphElement = graphRef.current;
