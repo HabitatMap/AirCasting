@@ -10,14 +10,16 @@ module Timelapse
 
       return { cluster_id => { time: end_of_time_slice, value: nil } } if stream_ids.empty?
 
-      average =
+      averages =
         measurements_repository.streams_averages_from_period(
           stream_ids: stream_ids,
           start_date: beginning_of_time_slice,
           end_date: end_of_time_slice
         )
 
-      { cluster_id => { time: end_of_time_slice, value: average } }
+      averages.map do |average|
+        { cluster_id => { time: average[:hour], value: average[:average_value] } }
+      end
     end
 
     private
