@@ -1,3 +1,4 @@
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
   useEffect,
@@ -7,8 +8,6 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
@@ -21,7 +20,10 @@ import {
   selectFixedSessionsPoints,
   selectFixedSessionsStatusFulfilled,
 } from "../../store/fixedSessionsSelectors";
-import { fetchFixedSessions } from "../../store/fixedSessionsSlice";
+import {
+  cleanSessions,
+  fetchFixedSessions,
+} from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
@@ -113,6 +115,9 @@ const Map = () => {
     ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
     : useAppSelector(selectMobileSessionsPoints);
   const mobileStreamPoints = useAppSelector(selectMobileStreamPoints);
+  const realtimeMapUpdates = useAppSelector(
+    (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
+  );
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const listSessions = useAppSelector(
@@ -212,6 +217,20 @@ const Map = () => {
     }
   }, [streamId, currentUserSettings, fixedSessionTypeSelected]);
 
+  useEffect(() => {
+    if (realtimeMapUpdates) {
+      dispatch(cleanSessions());
+      dispatch(setLoading(true));
+    }
+  }, [
+    boundEast,
+    boundNorth,
+    boundSouth,
+    boundWest,
+    realtimeMapUpdates,
+    dispatch,
+  ]);
+
   // Callbacks
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
@@ -229,6 +248,7 @@ const Map = () => {
           map.setCenter(currentCenter);
           map.setZoom(currentZoom);
         }
+        isFirstRender.current = false;
       } else {
         if (
           [UserSettings.MapView, UserSettings.CrowdMapView].includes(
@@ -247,6 +267,7 @@ const Map = () => {
           const south = bounds.getSouthWest().lat();
           const east = bounds.getNorthEast().lng();
           const west = bounds.getSouthWest().lng();
+
           newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
           newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
           newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
@@ -257,7 +278,13 @@ const Map = () => {
         }
       }
     },
-    [currentUserSettings, debouncedUpdateURL, mapInstance, searchParams]
+    [
+      currentUserSettings,
+      debouncedUpdateURL,
+      mapInstance,
+      searchParams,
+      dispatch,
+    ]
   );
 
   // Handlers;

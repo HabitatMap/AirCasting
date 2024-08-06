@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { MapTypeId, ViewMode } from "../../../types/map";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
 import * as S from "./ControlPanel.style";
+import { CheckboxButton } from "../../CheckboxButton/CheckboxButton";
+import { Toggle } from "../../Toggle/Toggle";
 
 const ControlPanel: React.FC = () => {
   const { mapTypeId, searchParams } = useMapParams();
@@ -93,55 +95,34 @@ const ControlPanel: React.FC = () => {
   return (
     <S.ControlPanelContainer>
       <S.ToggleContainer>
-        <S.Label $isActive={viewMode === ViewMode.MAP}>
-          {t("map.mapLabel")}
-        </S.Label>
-        <S.SwitchLabel>
-          <S.SwitchInput
-            type="checkbox"
-            checked={viewMode === ViewMode.SATELLITE}
-            onChange={() =>
-              handleViewModeChange(
-                viewMode === ViewMode.MAP ? ViewMode.SATELLITE : ViewMode.MAP
-              )
-            }
-          />
-          <S.Slider />
-        </S.SwitchLabel>
-        <S.Label $isActive={viewMode === ViewMode.SATELLITE}>
-          {t("map.satelliteLabel")}
-        </S.Label>
+        <Toggle
+          isChecked={viewMode === ViewMode.SATELLITE}
+          onChange={(isChecked) =>
+            handleViewModeChange(isChecked ? ViewMode.SATELLITE : ViewMode.MAP)
+          }
+          labelLeft={t("map.mapLabel")}
+          labelRight={t("map.satelliteLabel")}
+          variant="switch"
+        />
       </S.ToggleContainer>
 
       {viewMode === ViewMode.MAP && (
         <S.TerrainContainer>
-          <S.Label $isActive={isTerrainChecked}>
-            {t("map.terrainLabel")}
-            <S.TerrainLabel>
-              <S.TerrainCheckbox
-                type="checkbox"
-                checked={isTerrainChecked}
-                onChange={() => handleTerrainChange(!isTerrainChecked)}
-              />
-              <S.RoundCheckbox />
-            </S.TerrainLabel>
-          </S.Label>
+          <CheckboxButton
+            label={t("map.terrainLabel")}
+            isChecked={isTerrainChecked}
+            onChange={handleTerrainChange}
+          />
         </S.TerrainContainer>
       )}
 
       {viewMode === ViewMode.SATELLITE && (
         <S.TerrainContainer>
-          <S.Label $isActive={isLabelsChecked}>
-            {t("map.labelsLabel")}
-            <S.TerrainLabel>
-              <S.TerrainCheckbox
-                type="checkbox"
-                checked={isLabelsChecked}
-                onChange={() => handleLabelsChange(!isLabelsChecked)}
-              />
-              <S.RoundCheckbox />
-            </S.TerrainLabel>
-          </S.Label>
+          <CheckboxButton
+            label={t("map.labelsLabel")}
+            isChecked={isLabelsChecked}
+            onChange={handleLabelsChange}
+          />
         </S.TerrainContainer>
       )}
 

@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
 import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
+
 import { urls } from "../../const/urls";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
+import { RealtimeMapUpdatesButton } from "../RealtimeMapUpdatesButton/RealtimeMapUpdatesButton";
 import { RefreshMapButton } from "../RefreshMapButton";
 import * as S from "./Navbar.style";
 import NavList from "./NavList/NavList";
@@ -66,6 +68,7 @@ export const MobileHeader = ({
           <LocationSearch isMapPage={true} />
           <RefreshMapButton />
           <ControlPanel />
+          <RealtimeMapUpdatesButton />
           {navMenuVisible && (
             <NavList
               t={t as (key: string) => string}

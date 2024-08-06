@@ -1,12 +1,6 @@
 import styled from "styled-components";
 import chevronDown from "../../../assets/icons/chevronDown.svg";
-import {
-  blue,
-  gray100,
-  gray200,
-  gray400,
-  white,
-} from "../../../assets/styles/colors";
+import { blue, gray200, gray400, white } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
 
 const ControlPanelContainer = styled.div`
@@ -98,61 +92,9 @@ const TerrainContainer = styled.div`
     display: flex;
     align-items: center;
     font-size: 1.4rem;
-    margin-right: 10px;
     position: relative;
     border-left: 1px solid ${gray200};
-  }
-`;
-
-const TerrainLabel = styled.label`
-  position: relative;
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-`;
-
-const TerrainCheckbox = styled.input`
-  opacity: 0;
-  width: 18px;
-  height: 18px;
-  position: absolute;
-  z-index: 2;
-  cursor: pointer;
-
-  &:checked + span {
-    background-color: ${white};
-    border-color: ${blue};
-  }
-
-  &:checked + span:after {
-    opacity: 1;
-  }
-`;
-
-const RoundCheckbox = styled.span`
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: ${gray100};
-  transition: 0.4s;
-  border-radius: 50%;
-  border: 1px solid ${gray200};
-
-  &:after {
-    border: 2px solid ${blue};
-    border-top: none;
-    border-right: none;
-    content: "";
-    height: 6px;
-    left: 3px;
-    opacity: 0;
-    position: absolute;
-    top: 4px;
-    transform: rotate(-45deg);
-    width: 12px;
+    padding: 0 1.6rem;
   }
 `;
 
@@ -186,14 +128,11 @@ const Select = styled.select`
 export {
   ControlPanelContainer,
   Label,
-  RoundCheckbox,
   Select,
   SelectContainer,
   Slider,
   SwitchInput,
   SwitchLabel,
-  TerrainCheckbox,
   TerrainContainer,
-  TerrainLabel,
   ToggleContainer,
 };
