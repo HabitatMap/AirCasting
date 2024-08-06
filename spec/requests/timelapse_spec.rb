@@ -350,3 +350,6 @@ describe 'GET api/v3/timelapse', type: :request do
     end
   end
 end
+
+# Example GET request with two clusters with two sessions inside each
+# GET "/api/v3/timelapse?clusters[0][session_ids][]=#{session1.id}&clusters[0][session_ids][]=#{session2.id}&clusters[1][session_ids][]=#{session3.id}&clusters[1][session_ids][]=#{session4.id}&time_period=1"
