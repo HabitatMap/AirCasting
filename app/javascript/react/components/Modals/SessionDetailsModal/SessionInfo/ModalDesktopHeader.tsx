@@ -29,7 +29,6 @@ interface ModalDesktopHeaderProps {
   streamShortInfo: StreamShortInfo;
   thresholds: Thresholds;
   extremes: Extremes;
-  formattedTime: (time: string) => string;
   streamId: number | null;
   fixedSessionTypeSelected: boolean;
 }
@@ -38,7 +37,6 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   streamShortInfo,
   thresholds,
   extremes,
-  formattedTime,
   streamId,
   fixedSessionTypeSelected,
 }) => {
@@ -99,8 +97,7 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
           </>
         )}
         <S.TimeRange>
-          {formattedTime(streamShortInfo.startTime ?? "")} -{" "}
-          {formattedTime(streamShortInfo.endTime ?? "")}
+          {streamShortInfo.startTime} - {streamShortInfo.endTime}
         </S.TimeRange>
       </S.Wrapper>
       <S.ButtonsContainer>

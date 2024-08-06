@@ -70,7 +70,13 @@ const SessionDetailsModal: React.FC<
       {(close) => (
         <>
           <SessionInfo {...sessionInfoProps} />
-          {isVisible && <Graph streamId={streamId} sessionType={sessionType} />}
+          {isVisible && (
+            <Graph
+              streamId={streamId}
+              sessionType={sessionType}
+              isCalendarPage={false}
+            />
+          )}
           {!isMobile && (
             <S.CancelButtonX onClick={close}>
               <img src={circleCloseIcon} alt={t("navbar.altClose")} />

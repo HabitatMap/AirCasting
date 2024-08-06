@@ -1,11 +1,22 @@
 import Highcharts from "highcharts/highstock";
+import chevronLeft from "../../assets/icons/chevronLeft.svg";
+import chevronRight from "../../assets/icons/chevronRight.svg";
 import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
 import graphChevronRight from "../../assets/icons/graphChevronRight.svg";
+import mobileChevronLeft from "../../assets/icons/mobileChevronLeft.svg";
+import mobileChevronRight from "../../assets/icons/mobileChevronRight.svg";
 
 const DIRECTION_LEFT = "left";
 const DIRECTION_RIGHT = "right";
 
-const addNavigationArrows = (chart: Highcharts.Chart) => {
+const addNavigationArrows = (
+  chart: Highcharts.Chart,
+  isCalendarPage: boolean,
+  isMobile: boolean
+) => {
+  if (isMobile && !isCalendarPage) {
+    return;
+  }
   let leftArrow: Highcharts.SVGElement;
   let rightArrow: Highcharts.SVGElement;
 
@@ -58,22 +69,53 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
   const createArrows = () => {
     const chartWidth = chart.chartWidth;
     const chartHeight = chart.chartHeight;
-    const chevronHeight =
-      window.innerWidth < 1025 ? chartHeight / 2 : chartHeight / 2 - 24;
 
     // Remove existing arrows if any
     chart.renderer.boxWrapper.element
       .querySelectorAll(".custom-arrow")
       .forEach((el) => el.remove());
 
+    const leftIcon = isMobile
+      ? mobileChevronLeft
+      : isCalendarPage
+      ? chevronLeft
+      : graphChevronLeft;
+    const rightIcon = isMobile
+      ? mobileChevronRight
+      : isCalendarPage
+      ? chevronRight
+      : graphChevronRight;
+
+    let iconSize = 48;
+    let leftArrowX = 15;
+    let rightArrowX = chartWidth - 118;
+    let arrowY = chartHeight / 2;
+
+    if (isMobile && isCalendarPage) {
+      iconSize = 40;
+      leftArrowX = 0;
+      rightArrowX = chartWidth - 50;
+      arrowY = -29;
+    } else if (!isMobile && isCalendarPage) {
+      iconSize = 46;
+      leftArrowX = -70;
+      rightArrowX = chartWidth + 25;
+      arrowY = chartHeight / 2 - 24;
+    } else if (!isMobile && !isCalendarPage) {
+      iconSize = 48;
+      leftArrowX = 15;
+      rightArrowX = chartWidth - 118;
+      arrowY = chartHeight / 2 - 24;
+    }
+
     leftArrow = chart.renderer
-      .image(graphChevronLeft, 15, chevronHeight, 48, 48)
+      .image(leftIcon, leftArrowX, arrowY, iconSize, iconSize)
       .attr({ zIndex: 10, class: "custom-arrow" })
       .css({ cursor: "pointer" })
       .add();
 
     rightArrow = chart.renderer
-      .image(graphChevronRight, chartWidth - 118, chevronHeight, 48, 48)
+      .image(rightIcon, rightArrowX, arrowY, iconSize, iconSize)
       .attr({ zIndex: 10, class: "custom-arrow" })
       .css({ cursor: "pointer" })
       .add();
@@ -99,8 +141,11 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
 
     Highcharts.addEvent(chart, "redraw", () => {
       updateArrowStates();
-      leftArrow.attr({ y: chevronHeight });
-      rightArrow.attr({ x: chart.chartWidth - 118, y: chevronHeight });
+      leftArrow.attr({ x: leftArrowX, y: arrowY });
+      rightArrow.attr({
+        x: rightArrowX,
+        y: arrowY,
+      });
     });
   };
 
@@ -109,8 +154,12 @@ const addNavigationArrows = (chart: Highcharts.Chart) => {
   Highcharts.addEvent(chart, "resize", createArrows);
 };
 
-const handleLoad = function (this: Highcharts.Chart) {
-  addNavigationArrows(this);
+const handleLoad = function (
+  this: Highcharts.Chart,
+  isCalendarPage: boolean,
+  isMobile: boolean
+) {
+  addNavigationArrows(this, isCalendarPage, isMobile);
 };
 
 export { handleLoad };

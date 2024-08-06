@@ -21,7 +21,6 @@ interface ModalMobileHeaderProps {
   thresholds: Thresholds;
   extremes: Extremes;
   isMobile: boolean;
-  formattedTime: (time: string) => string;
 }
 
 const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
@@ -31,7 +30,6 @@ const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
   thresholds,
   extremes,
   isMobile,
-  formattedTime,
 }) => {
   const { t } = useTranslation();
 
@@ -97,8 +95,7 @@ const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
             </>
           )}
           <S.TimeRange>
-            {formattedTime(streamShortInfo.startTime ?? "")} -{" "}
-            {formattedTime(streamShortInfo.endTime ?? "")}
+            {streamShortInfo.startTime} - {streamShortInfo.endTime}
           </S.TimeRange>
         </S.Wrapper>
       </S.ContentWrapper>

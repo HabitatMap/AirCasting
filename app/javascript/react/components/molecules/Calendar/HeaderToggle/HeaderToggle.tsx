@@ -11,6 +11,7 @@ interface Props {
   endDate?: string;
   componentToToggle: JSX.Element;
   isMapPage?: boolean;
+  isCalendarPage?: boolean;
 }
 
 const HeaderToggle = ({
@@ -18,6 +19,7 @@ const HeaderToggle = ({
   startDate,
   endDate,
   componentToToggle,
+  isCalendarPage,
 }: Props) => {
   const [isVisible, setIsVisible] = useState(true);
   const isMobile = useMobileDetection();
@@ -30,7 +32,7 @@ const HeaderToggle = ({
   return (
     <>
       {isMobile && (
-        <S.Container>
+        <S.Container $isCalendarPage={isCalendarPage} $rotated={!isVisible}>
           <S.RotatedIcon
             src={headerArrowIcon}
             alt={t("headerToggle.arrowIcon")}

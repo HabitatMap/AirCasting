@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { gray100, white } from "../../assets/styles/colors";
+import { gray100, gray400, white } from "../../assets/styles/colors";
 import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
@@ -30,7 +30,7 @@ const StationDataContainer = styled.div`
 `;
 
 const Heading = styled(H3)`
-  padding-bottom: 20px;
+  padding-bottom: 2rem;
   font-weight: 600;
   font-size: 22px;
 
@@ -64,6 +64,10 @@ const StyledContainer = styled.div`
   }
 `;
 
+const StyledContainerWithGraph = styled(StyledContainer)`
+  grid-template-columns: auto 2fr 1fr;
+`;
+
 const ThresholdContainer = styled.div<{ $isMobile: boolean }>`
   display: flex;
   flex-direction: column;
@@ -91,12 +95,44 @@ const SliderWrapper = styled.div`
   }
 `;
 
+const GraphContainer = styled.div<{ $isMobile: boolean }>`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  margin-bottom: 3rem;
+  background-color: ${white};
+
+  @media ${media.desktop} {
+    padding: 3rem 10rem;
+    margin-bottom: 0;
+  }
+
+  @media ${media.largeDesktop} {
+    padding: 3rem 10rem;
+    margin-bottom: 0;
+  }
+
+  ${(props) => props.$isMobile && `padding: 1.5rem; gap: 2rem;`}
+`;
+
+const SelectLabelContainer = styled.span`
+  display: flex;
+  position: absolute;
+  top: 6rem;
+  font-size: 1.6rem;
+  color: ${gray400};
+`;
+
 export {
   CalendarPageLayout,
+  GraphContainer,
   Heading,
+  SelectLabelContainer,
   SliderWrapper,
   StationDataContainer,
   StyledContainer,
+  StyledContainerWithGraph,
   ThresholdContainer,
   Units,
 };

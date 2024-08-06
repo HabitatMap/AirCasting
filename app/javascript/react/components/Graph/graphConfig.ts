@@ -1,5 +1,6 @@
 import Highcharts, {
   AlignValue,
+  ChartZoomingOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
 } from "highcharts";
@@ -17,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import {
   black,
   blue,
+  disabledGraphButton,
   gray100,
   gray200,
   gray300,
@@ -32,7 +34,6 @@ import {
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
-import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
@@ -43,9 +44,12 @@ import {
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
 
+import { RefObject } from "react";
+import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
+import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
-const getScrollbarOptions = () => {
+const getScrollbarOptions = (isCalendarPage: boolean) => {
   const isMobile = useMobileDetection();
   return {
     barBackgroundColor: gray200,
@@ -53,17 +57,21 @@ const getScrollbarOptions = () => {
     button: {
       enabled: false,
     },
-    height: 8,
+    height: isMobile ? 16 : 8,
     trackBackgroundColor: gray100,
     trackBorderWidth: 0,
+    autoHide: false,
     showFull: true,
-    enabled: isMobile ? false : true,
+    enabled: isMobile && isCalendarPage ? true : !isMobile,
+    liveRedraw: true,
+    minWidth: isMobile ? 30 : 8,
   };
 };
 
 const getXAxisOptions = (
   fixedSessionTypeSelected: boolean,
-  isMobile: boolean = false
+  isMobile: boolean = false,
+  rangeDisplayRef: RefObject<HTMLDivElement> | undefined
 ): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
@@ -71,13 +79,31 @@ const getXAxisOptions = (
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min && e.max) {
-        const min = e.min;
-        const max = e.max;
         dispatch(
           fixedSessionTypeSelected
-            ? updateFixedMeasurementExtremes({ min, max })
-            : updateMobileMeasurementExtremes({ min, max })
+            ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
+            : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
         );
+
+        const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
+          e.min,
+          e.max
+        );
+
+        // Dirty workaround to update timerange display in the graph
+        if (rangeDisplayRef?.current) {
+          rangeDisplayRef.current.innerHTML = `
+              <div class="time-container">
+                <span class="date">${formattedMinTime.date ?? ""}</span>
+                <span class="time">${formattedMinTime.time ?? ""}</span>
+              </div>
+              <span>-</span>
+              <div class="time-container">
+                <span class="date">${formattedMaxTime.date ?? ""}</span>
+                <span class="time">${formattedMaxTime.time ?? ""}</span>
+              </div>
+          `;
+        }
       }
     },
     100
@@ -106,6 +132,7 @@ const getXAxisOptions = (
     },
     visible: true,
     minRange: 10000,
+    ordinal: false,
     events: {
       afterSetExtremes: function (e) {
         handleSetExtremes(e);
@@ -314,10 +341,62 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
 const getRangeSelectorOptions = (
   fixedSessionTypeSelected: boolean,
   totalDuration: number,
-  selectedRange?: number
+  selectedRange?: number,
+  isCalendarPage: boolean = false
 ): RangeSelectorOptions => {
   const { t } = useTranslation();
   const isMobile = useMobileDetection();
+
+  const baseMobileCalendarOptions: RangeSelectorOptions = {
+    enabled: true,
+    buttonPosition: {
+      align: "center" as AlignValue,
+      y: -85,
+    },
+    buttonTheme: {
+      fill: "none",
+      width: 95,
+      height: 34,
+      r: 20,
+      stroke: "none",
+      "stroke-width": 1,
+      style: {
+        fontFamily: "Roboto, sans-serif",
+        fontSize: "1.4rem",
+        color: gray300,
+        fontWeight: "regular",
+      },
+
+      states: {
+        hover: {
+          fill: blue,
+          style: {
+            color: white,
+          },
+        },
+
+        select: {
+          fill: blue,
+          style: {
+            color: white,
+            fontWeight: "bold",
+          },
+        },
+
+        disabled: {
+          style: {
+            color: disabledGraphButton,
+            cursor: "default",
+          },
+        },
+      },
+    },
+    labelStyle: {
+      display: "none",
+    },
+    buttonSpacing: 10,
+    inputEnabled: false,
+  };
   const baseOptions: RangeSelectorOptions = {
     enabled: isMobile ? false : true,
     buttonPosition: {
@@ -359,9 +438,9 @@ const getRangeSelectorOptions = (
     inputEnabled: false,
   };
 
-  if (fixedSessionTypeSelected) {
+  if (isCalendarPage && isMobile) {
     return {
-      ...baseOptions,
+      ...baseMobileCalendarOptions,
       buttons: [
         { type: "hour", count: 24, text: t("graph.24Hours") },
         totalDuration > MILLISECONDS_IN_A_WEEK
@@ -375,24 +454,70 @@ const getRangeSelectorOptions = (
       selected: selectedRange,
     };
   } else {
-    return {
-      ...baseOptions,
-      buttons: [
-        totalDuration < MILLISECONDS_IN_A_5_MINUTES
-          ? { type: "all", text: t("graph.fiveMinutes") }
-          : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
-        totalDuration < MILLISECONDS_IN_AN_HOUR
-          ? { type: "all", text: t("graph.oneHour") }
-          : { type: "minute", count: 60, text: t("graph.oneHour") },
-        { type: "all", text: t("graph.all") },
-      ],
-      allButtonsEnabled: true,
-      selected: selectedRange,
-    };
+    if (fixedSessionTypeSelected) {
+      return {
+        ...baseOptions,
+        buttons: [
+          { type: "hour", count: 24, text: t("graph.24Hours") },
+          totalDuration > MILLISECONDS_IN_A_WEEK
+            ? { type: "day", count: 7, text: t("graph.oneWeek") }
+            : { type: "all", text: t("graph.oneWeek") },
+          totalDuration > MILLISECONDS_IN_A_MONTH
+            ? { type: "week", count: 4, text: t("graph.oneMonth") }
+            : { type: "all", text: t("graph.oneMonth") },
+        ],
+        allButtonsEnabled: true,
+        selected: selectedRange,
+      };
+    } else {
+      return {
+        ...baseOptions,
+        buttons: [
+          totalDuration < MILLISECONDS_IN_A_5_MINUTES
+            ? { type: "all", text: t("graph.fiveMinutes") }
+            : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
+          totalDuration < MILLISECONDS_IN_AN_HOUR
+            ? { type: "all", text: t("graph.oneHour") }
+            : { type: "minute", count: 60, text: t("graph.oneHour") },
+          { type: "all", text: t("graph.all") },
+        ],
+        allButtonsEnabled: true,
+        selected: selectedRange,
+      };
+    }
   }
 };
 
+const getChartOptions = (isCalendarPage: boolean): Highcharts.ChartOptions => {
+  const isMobile = useMobileDetection();
+  const zoomingConfig: ChartZoomingOptions = {
+    type: "x",
+    resetButton: { theme: { style: { display: "none" } } },
+  };
+
+  const chartHeight = isCalendarPage || !isMobile ? 300 : 150;
+
+  const chartMargin = isMobile
+    ? isCalendarPage
+      ? [5, 10, 5, 0]
+      : [5, 0, 5, 0]
+    : isCalendarPage
+    ? [0, 30, 5, 0]
+    : [0, 60, 5, 0];
+
+  const scrollablePlotAreaConfig = { minWidth: 100, scrollPositionX: 1 };
+
+  return {
+    zooming: zoomingConfig,
+    height: chartHeight,
+    margin: chartMargin,
+    animation: false,
+    scrollablePlotArea: scrollablePlotAreaConfig,
+  };
+};
+
 export {
+  getChartOptions,
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,

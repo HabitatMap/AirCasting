@@ -8,7 +8,6 @@ import { Error, StatusEnum } from "../types/api";
 import { FixedStream } from "../types/fixedStream";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { RootState } from "./index";
-import { initialState as thresholdInitialState } from "./thresholdSlice";
 
 interface FixedStreamState {
   data: FixedStream;
@@ -74,6 +73,7 @@ const fixedStreamSlice = createSlice({
       action: PayloadAction<{ min: number; max: number }>
     ) {
       const { min, max } = action.payload;
+
       const measurementsInRange = state.data.measurements.filter(
         (measurement) => {
           const time = measurement.time;
@@ -89,6 +89,7 @@ const fixedStreamSlice = createSlice({
 
       state.minMeasurementValue = newMin;
       state.maxMeasurementValue = newMax;
+
       state.averageMeasurementValue = newAvg;
     },
   },
