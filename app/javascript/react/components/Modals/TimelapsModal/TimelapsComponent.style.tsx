@@ -89,12 +89,34 @@ const Wrapper = styled.div`
 
 const TimeAxisContainer = styled.div`
   display: flex;
+  justify-content: flex-start;
   width: 110rem;
   height: 5rem;
   background-color: ${white};
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
   padding: 1rem;
   border-radius: 1rem;
 `;
-export { CancelButtonX, SmallPopup, TimeAxisContainer, TimelapsModal, Wrapper };
+
+const NavigationButton = styled.button`
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+`;
+
+const NavigationButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+`;
+export {
+  CancelButtonX,
+  NavigationButton,
+  NavigationButtonsContainer,
+  SmallPopup,
+  TimeAxisContainer,
+  TimelapsModal,
+  Wrapper,
+};
