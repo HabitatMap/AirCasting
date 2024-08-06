@@ -2,9 +2,10 @@ import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { PopupProps } from "reactjs-popup/dist/types";
-import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
-import { gray200 } from "../../../assets/styles/colors";
+import closeTimelapsButton from "../../../assets/icons/closeTimelapsButton.svg";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
+import NavigatioButtons from "./NavigationButtons";
+import TimeAxis from "./TimeAxis";
 import * as S from "./TimelapsComponent.style";
 
 interface TimelapsComponentProps {
@@ -48,7 +49,6 @@ const TimelapsComponent: React.FC<
         margin: 0,
         zIndex: 1,
         bottom: isMobile ? "4.7rem" : "26.4rem",
-        borderBottom: `1px solid ${gray200}`,
       }}
       contentStyle={{ margin: 0 }}
       onClose={closeHandler}
@@ -57,9 +57,27 @@ const TimelapsComponent: React.FC<
     >
       {(close) => (
         <>
+          <S.TimeAxisContainer>
+            <NavigatioButtons
+              onPrevious={function (): void {
+                throw new Error("Function not implemented.");
+              }}
+              onNext={function (): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
+            <TimeAxis
+              startTime={""}
+              endTime={""}
+              onTimeChange={function (newTime: string): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
+          </S.TimeAxisContainer>
+
           {!isMobile && (
             <S.CancelButtonX onClick={close}>
-              <img src={circleCloseIcon} alt={t("navbar.altClose")} />
+              <img src={closeTimelapsButton} alt={t("navbar.altClose")} />
             </S.CancelButtonX>
           )}
         </>

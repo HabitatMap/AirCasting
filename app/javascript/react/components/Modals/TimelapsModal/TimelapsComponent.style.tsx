@@ -24,9 +24,7 @@ const TimelapsModal = styled(Popup)`
   &-content {
     width: 115rem;
     height: 10rem;
-    background-color: ${white};
     padding: 0.5rem;
-    border-radius: 10px 10px 0 0;
     overflow-y: auto;
     margin: 0;
     display: flex;
@@ -44,7 +42,7 @@ const CancelButtonX = styled.button`
   border: none;
   background-color: transparent;
   position: absolute;
-  top: 0.5rem;
+  top: 0;
   right: 0.3rem;
   height: fit-content;
   align-self: flex-end;
@@ -89,4 +87,14 @@ const Wrapper = styled.div`
   }
 `;
 
-export { CancelButtonX, SmallPopup, TimelapsModal, Wrapper };
+const TimeAxisContainer = styled.div`
+  display: flex;
+  width: 110rem;
+  height: 5rem;
+  background-color: ${white};
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+`;
+export { CancelButtonX, SmallPopup, TimeAxisContainer, TimelapsModal, Wrapper };
