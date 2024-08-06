@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import * as S from "./Graph.style";
 
 interface TimeRangeProps {
@@ -14,22 +14,28 @@ interface TimeRangeProps {
 
 const TimeRange = forwardRef<HTMLDivElement, TimeRangeProps>(
   ({ minTime, maxTime }, ref) => {
-    return (
-      <S.TimeRangeContainer ref={ref}>
-        {!ref && (
-          <>
-            <S.TimeContainer>
-              <S.Date>{minTime.date ?? ""}</S.Date>
-              <S.Time>{minTime.time ?? ""}</S.Time>
-            </S.TimeContainer>
-            -
-            <S.TimeContainer>
-              <S.Date>{maxTime.date ?? ""}</S.Date>
-              <S.Time>{maxTime.time ?? ""}</S.Time>
-            </S.TimeContainer>
-          </>
-        )}
+    const [isEmpty, setIsEmpty] = useState(true);
+
+    useEffect(() => {
+      if (ref && "current" in ref && ref.current) {
+        setIsEmpty(ref.current.childElementCount === 0);
+      }
+    }, [ref]);
+
+    return isEmpty ? (
+      <S.TimeRangeContainer>
+        <S.TimeContainer>
+          <S.Date>{minTime.date}</S.Date>
+          <S.Time>{minTime.time}</S.Time>
+        </S.TimeContainer>
+        -
+        <S.TimeContainer>
+          <S.Date>{maxTime.date}</S.Date>
+          <S.Time>{maxTime.time}</S.Time>
+        </S.TimeContainer>
       </S.TimeRangeContainer>
+    ) : (
+      <S.TimeRangeContainer ref={ref} />
     );
   }
 );

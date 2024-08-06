@@ -96,12 +96,11 @@ const getXAxisOptions = (
                 <span class="date">${formattedMinTime.date ?? ""}</span>
                 <span class="time">${formattedMinTime.time ?? ""}</span>
               </div>
-                <span>-</span>
+              <span>-</span>
               <div class="time-container">
                 <span class="date">${formattedMaxTime.date ?? ""}</span>
                 <span class="time">${formattedMaxTime.time ?? ""}</span>
               </div>
-            </div>
           `;
         }
       }
