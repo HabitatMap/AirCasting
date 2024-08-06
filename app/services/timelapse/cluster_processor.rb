@@ -5,8 +5,7 @@ module Timelapse
     end
 
     def call (cluster:, beginning_of_time_slice:, end_of_time_slice:)
-      cluster_id = cluster.keys.first
-      stream_ids = cluster[cluster_id]
+      cluster_id, stream_ids = cluster
 
       return { cluster_id => { time: end_of_time_slice, value: nil } } if stream_ids.empty?
 

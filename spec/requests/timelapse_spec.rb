@@ -22,9 +22,9 @@ describe 'GET api/v3/timelapse', type: :request do
       end
 
       post '/api/v3/timelapse', params: {
-        clusters: [
-          { 0 => [stream.id] }
-        ],
+        clusters: {
+          0 => [stream.id]
+        },
         time_period: '1'
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
@@ -75,9 +75,9 @@ describe 'GET api/v3/timelapse', type: :request do
       end
 
       post '/api/v3/timelapse', params: {
-        clusters: [
-          { 0 => [stream1.id, stream2.id] }
-        ],
+        clusters: {
+          0 => [stream1.id, stream2.id]
+        },
         time_period: '1'
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
@@ -128,10 +128,10 @@ describe 'GET api/v3/timelapse', type: :request do
       end
 
       post '/api/v3/timelapse', params: {
-        clusters: [
-          { 0 => [stream1.id] },
-          { 1 => [stream2.id] }
-        ],
+        clusters: {
+          0 => [stream1.id],
+          1 => [stream2.id]
+        },
         time_period: '1'
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
@@ -178,9 +178,9 @@ describe 'GET api/v3/timelapse', type: :request do
       end
 
       post '/api/v3/timelapse', params: {
-        clusters: [
-          { 0 => [stream.id] }
-        ],
+        clusters: {
+          0 => [stream.id]
+        },
         time_period: '7'
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
@@ -267,10 +267,10 @@ describe 'GET api/v3/timelapse', type: :request do
       end
 
       post '/api/v3/timelapse', params: {
-        clusters: [
-          { 0 => [stream1.id, stream2.id] },
-          { 1 => [stream3.id, stream4.id, stream5.id] }
-        ],
+        clusters: {
+          0 => [stream1.id, stream2.id],
+          1 => [stream3.id, stream4.id, stream5.id]
+      },
         time_period: '3'
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
