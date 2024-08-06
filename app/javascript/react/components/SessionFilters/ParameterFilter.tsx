@@ -14,6 +14,7 @@ import {
   SessionType,
   SessionTypes,
 } from "../../types/filters";
+import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { FilterInfoPopup } from "./FilterInfoPopup";
@@ -96,7 +97,8 @@ const basicMeasurementTypes = (sessionType: SessionType) =>
 const ParameterFilter = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
-  const { measurementType, setUrlParams, sessionType } = useMapParams();
+  const { measurementType, setUrlParams, sessionType, currentUserSettings } =
+    useMapParams();
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
 
@@ -107,6 +109,14 @@ const ParameterFilter = () => {
   const handleSelectParameter = (selectedParameter: ParameterType) => {
     dispatch(setLoading(true));
     setUrlParams([
+      {
+        key: UrlParamsTypes.previousUserSettings,
+        value: currentUserSettings,
+      },
+      {
+        key: UrlParamsTypes.currentUserSettings,
+        value: isMobile ? UserSettings.FiltersView : UserSettings.MapView,
+      },
       {
         key: UrlParamsTypes.measurementType,
         value: selectedParameter,
