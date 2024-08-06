@@ -48,7 +48,6 @@ const TimelapsComponent: React.FC<
       overlayStyle={{
         margin: 0,
         zIndex: 1,
-        bottom: isMobile ? "4.7rem" : "26.4rem",
       }}
       contentStyle={{ margin: 0 }}
       onClose={closeHandler}
