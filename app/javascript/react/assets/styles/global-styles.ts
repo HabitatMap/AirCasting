@@ -46,7 +46,6 @@ const GlobalStyles = createGlobalStyle`
       text-rendering: optimizeLegibility;
       background-color: ${gray100};
       overscroll-behavior-y: contain; // Prevents the page from scrolling when the user scrolls past the top or bottom
-      scrollbar-width: none ;
     }
 
   H1, H2, H3, H4, H5, H6 {

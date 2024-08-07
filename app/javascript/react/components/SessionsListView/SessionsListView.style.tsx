@@ -39,6 +39,7 @@ const SessionListContainer = styled.div`
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  width: calc(100% + 1rem);
 `;
 
 const ExportSessionsButton = styled.button<{ $hasSessions: boolean }>`
