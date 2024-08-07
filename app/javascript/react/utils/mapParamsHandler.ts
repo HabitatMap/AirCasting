@@ -49,7 +49,7 @@ export enum UrlParamsTypes {
 
 export const useMapParams = () => {
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
-  const isMobile = useMobileDetection();
+  const isMobile: boolean = useMobileDetection();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const getSearchParam = useCallback(
@@ -59,14 +59,18 @@ export const useMapParams = () => {
   );
 
   const setUrlParams = useCallback(
-    (params: Array<{ key: UrlParamsTypes; value: string }>) => {
-      const newSearchParams = new URLSearchParams(searchParams.toString());
+    (
+      params: Array<{ key: UrlParamsTypes; value: string }>,
+      newSearchParams?: URLSearchParams
+    ) => {
+      const updatedSearchParams =
+        newSearchParams || new URLSearchParams(searchParams.toString());
       params.forEach(({ key, value }) => {
-        newSearchParams.set(key, value);
+        updatedSearchParams.set(key, value);
       });
-      setSearchParams(newSearchParams); // Directly pass the new search params object
+      setSearchParams(updatedSearchParams);
     },
-    [searchParams, setSearchParams]
+    [setSearchParams] // Only depend on setSearchParams
   );
 
   const boundEast = useMemo(
@@ -243,6 +247,7 @@ export const useMapParams = () => {
     }),
     [getSearchParam, defaultThresholds]
   );
+
   const initialUnitSymbol = useMemo(
     () => getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!,
     [getSearchParam]
@@ -259,98 +264,117 @@ export const useMapParams = () => {
 
   const goToUserSettings = useCallback(
     (newUserSettings: UserSettings) => {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: newUserSettings,
-        },
-      ]);
-    },
-    [currentUserSettings, setUrlParams]
-  );
-
-  const revertUserSettingsAndResetIds = useCallback(() => {
-    setUrlParams([
-      { key: UrlParamsTypes.sessionId, value: "" },
-      { key: UrlParamsTypes.streamId, value: "" },
-      {
-        key: UrlParamsTypes.previousUserSettings,
-        value: currentUserSettings,
-      },
-      {
-        key: UrlParamsTypes.currentUserSettings,
-        value: previousUserSettings,
-      },
-    ]);
-  }, [currentUserSettings, previousUserSettings, setUrlParams]);
-
-  const setFilters = useCallback(
-    (key: UrlParamsTypes, value: string) => {
-      if (isMobile) {
-        setUrlParams([
-          {
-            key: key,
-            value: value,
-          },
-        ]);
-      } else {
-        setUrlParams([
-          {
-            key: key,
-            value: value,
-          },
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      setUrlParams(
+        [
           {
             key: UrlParamsTypes.previousUserSettings,
             value: currentUserSettings,
           },
           {
             key: UrlParamsTypes.currentUserSettings,
-            value: UserSettings.MapView,
+            value: newUserSettings,
           },
-          {
-            key: UrlParamsTypes.sessionId,
-            value: "",
-          },
-          {
-            key: UrlParamsTypes.streamId,
-            value: "",
-          },
-        ]);
+        ],
+        newSearchParams
+      );
+    },
+    [currentUserSettings, setUrlParams, searchParams]
+  );
+
+  const revertUserSettingsAndResetIds = useCallback(() => {
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    setUrlParams(
+      [
+        { key: UrlParamsTypes.sessionId, value: "" },
+        { key: UrlParamsTypes.streamId, value: "" },
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: previousUserSettings,
+        },
+      ],
+      newSearchParams
+    );
+  }, [currentUserSettings, previousUserSettings, setUrlParams, searchParams]);
+
+  const setFilters = useCallback(
+    (key: UrlParamsTypes, value: string) => {
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      if (isMobile) {
+        setUrlParams(
+          [
+            {
+              key: key,
+              value: value,
+            },
+          ],
+          newSearchParams
+        );
+      } else {
+        setUrlParams(
+          [
+            {
+              key: key,
+              value: value,
+            },
+            {
+              key: UrlParamsTypes.previousUserSettings,
+              value: currentUserSettings,
+            },
+            {
+              key: UrlParamsTypes.currentUserSettings,
+              value: UserSettings.MapView,
+            },
+            {
+              key: UrlParamsTypes.sessionId,
+              value: "",
+            },
+            {
+              key: UrlParamsTypes.streamId,
+              value: "",
+            },
+          ],
+          newSearchParams
+        );
       }
     },
-    [currentUserSettings, isMobile, setUrlParams]
+    [isMobile, currentUserSettings, setUrlParams, searchParams]
   );
 
   const setThresholds = useCallback(
     (thresholds: Thresholds) => {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.thresholdMin,
-          value: thresholds.min.toString(),
-        },
-        {
-          key: UrlParamsTypes.thresholdLow,
-          value: thresholds.low.toString(),
-        },
-        {
-          key: UrlParamsTypes.thresholdMiddle,
-          value: thresholds.middle.toString(),
-        },
-        {
-          key: UrlParamsTypes.thresholdHigh,
-          value: thresholds.high.toString(),
-        },
-        {
-          key: UrlParamsTypes.thresholdMax,
-          value: thresholds.max.toString(),
-        },
-      ]);
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      setUrlParams(
+        [
+          {
+            key: UrlParamsTypes.thresholdMin,
+            value: thresholds.min.toString(),
+          },
+          {
+            key: UrlParamsTypes.thresholdLow,
+            value: thresholds.low.toString(),
+          },
+          {
+            key: UrlParamsTypes.thresholdMiddle,
+            value: thresholds.middle.toString(),
+          },
+          {
+            key: UrlParamsTypes.thresholdHigh,
+            value: thresholds.high.toString(),
+          },
+          {
+            key: UrlParamsTypes.thresholdMax,
+            value: thresholds.max.toString(),
+          },
+        ],
+        newSearchParams
+      );
     },
-    [setUrlParams]
+    [setUrlParams, searchParams]
   );
 
   return {
