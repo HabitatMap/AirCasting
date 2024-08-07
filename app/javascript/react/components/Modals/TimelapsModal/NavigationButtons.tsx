@@ -22,19 +22,19 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   return (
     <S.NavigationButtonsContainer>
       <S.NavigationButton onClick={onPrevious}>
-        <img src={rewindButton} alt={t("navbar.altRewind")} />
+        <img src={rewindButton} alt={t("timelapse.altRewind")} />
       </S.NavigationButton>
       <S.NavigationButton>
-        <img src={skipLeftButton} alt={t("navbar.altSkipLeft")} />
+        <img src={skipLeftButton} alt={t("timelapse.altSkipLeft")} />
       </S.NavigationButton>
       <S.NavigationButton>
-        <img src={playButton} alt={t("navbar.altPlay")} />
+        <img src={playButton} alt={t("timelapse.altPlay")} />
       </S.NavigationButton>
       <S.NavigationButton>
-        <img src={skipRightButton} alt={t("navbar.altSkipRight")} />
+        <img src={skipRightButton} alt={t("timelapse.altSkipRight")} />
       </S.NavigationButton>
       <S.NavigationButton onClick={onNext}>
-        <img src={fastForwardButton} alt={t("navbar.altFastForward")} />
+        <img src={fastForwardButton} alt={t("timelapse.altFastForward")} />
       </S.NavigationButton>
     </S.NavigationButtonsContainer>
   );

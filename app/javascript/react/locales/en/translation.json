@@ -180,8 +180,12 @@
   },
   "timelapse": {
   "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",
-    "play": "Play",
-    "pause": "Pause",
-    "stop": "Stop"
+  "altRewind": "Rewind icon",
+  "altFastForward": "Fast forward icon",
+  "altPlay": "Play icon",
+  "altPause": "Pause icon",
+  "altSkipLeft": "Skip left icon",
+  "altSkipRight": "Skip right icon"
+
   }
 }

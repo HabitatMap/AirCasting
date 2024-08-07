@@ -95,13 +95,7 @@ const TimelapseComponent: React.FC<
                   throw new Error("Function not implemented.");
                 }}
               />
-              <TimeAxis
-                startTime={""}
-                endTime={""}
-                onTimeChange={function (newTime: string): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
+              <TimeAxis />
             </S.TimeAxisContainer>
 
             <S.CancelButtonX onClick={close}>
