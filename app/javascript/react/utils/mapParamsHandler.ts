@@ -189,7 +189,7 @@ export const useMapParams = () => {
         )!
       ),
     }),
-    [searchParams]
+    [searchParams, defaultThresholds]
   );
   const initialUnitSymbol = getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!;
 

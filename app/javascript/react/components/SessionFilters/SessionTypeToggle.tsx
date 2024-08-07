@@ -19,6 +19,7 @@ import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
+  const defaultThresholds = useAppSelector(selectDefaultThresholds);
   const isMobile = useMobileDetection();
   const { searchParams, sessionType, setUrlParams, currentUserSettings } =
     useMapParams();
@@ -27,7 +28,6 @@ const SessionTypeToggle = () => {
   const handleClick = useCallback(
     (type: SessionType) => {
       dispatch(setLoading(true));
-      const defaultThresholds = useAppSelector(selectDefaultThresholds);
 
       setUrlParams([
         {
