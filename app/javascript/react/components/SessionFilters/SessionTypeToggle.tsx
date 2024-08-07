@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 
 import mobileIcon from "../../assets/icons/mobileIcon.svg";
 import pinIcon from "../../assets/icons/pin.svg";
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
-import { resetUserThresholds } from "../../store/thresholdSlice";
+import { selectDefaultThresholds } from "../../store/thresholdSlice";
 import {
   FixedBasicParameterTypes,
   SessionType,
@@ -19,6 +19,7 @@ import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
+  const defaultThresholds = useAppSelector(selectDefaultThresholds);
   const isMobile = useMobileDetection();
   const { searchParams, sessionType, setUrlParams, currentUserSettings } =
     useMapParams();
@@ -26,8 +27,8 @@ const SessionTypeToggle = () => {
 
   const handleClick = useCallback(
     (type: SessionType) => {
-      dispatch(resetUserThresholds());
       dispatch(setLoading(true));
+
       setUrlParams([
         {
           key: UrlParamsTypes.sessionType,
@@ -61,6 +62,26 @@ const SessionTypeToggle = () => {
         {
           key: UrlParamsTypes.unitSymbol,
           value: "µg/m³",
+        },
+        {
+          key: UrlParamsTypes.thresholdMin,
+          value: defaultThresholds.min.toString(),
+        },
+        {
+          key: UrlParamsTypes.thresholdLow,
+          value: defaultThresholds.low.toString(),
+        },
+        {
+          key: UrlParamsTypes.thresholdMiddle,
+          value: defaultThresholds.middle.toString(),
+        },
+        {
+          key: UrlParamsTypes.thresholdHigh,
+          value: defaultThresholds.high.toString(),
+        },
+        {
+          key: UrlParamsTypes.thresholdMax,
+          value: defaultThresholds.max.toString(),
         },
       ]);
     },

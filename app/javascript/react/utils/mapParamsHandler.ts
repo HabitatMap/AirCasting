@@ -1,5 +1,4 @@
-import { debounce } from "lodash";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
@@ -9,15 +8,13 @@ import {
   DEFAULT_ZOOM,
 } from "../const/coordinates";
 import { useAppSelector } from "../store/hooks";
-import {
-  selectDefaultThresholds,
-  selectThresholds,
-} from "../store/thresholdSlice";
+import { selectDefaultThresholds } from "../store/thresholdSlice";
 import {
   FixedBasicParameterTypes,
   SessionType,
   SessionTypes,
 } from "../types/filters";
+import { Thresholds } from "../types/thresholds";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
 
@@ -52,49 +49,69 @@ export enum UrlParamsTypes {
 
 export const useMapParams = () => {
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
-  const thresholdValues = useAppSelector(selectThresholds);
   const isMobile: boolean = useMobileDetection();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getSearchParam = (
-    param: UrlParamsTypes,
-    defaultValue: string | null
-  ): string | null => searchParams.get(param) ?? defaultValue;
-
-  const setUrlParams = useCallback(
-    (params: Array<{ key: UrlParamsTypes; value: string }>) => {
-      const newSearchParams = new URLSearchParams(searchParams.toString());
-      params.forEach(({ key, value }) => {
-        newSearchParams.set(key, value);
-      });
-      setSearchParams(`?${newSearchParams.toString()}`);
-    },
+  const getSearchParam = useCallback(
+    (param: UrlParamsTypes, defaultValue: string | null): string | null =>
+      searchParams.get(param) ?? defaultValue,
     [searchParams]
   );
 
-  const boundEast = parseFloat(
-    getSearchParam(
-      UrlParamsTypes.boundEast,
-      DEFAULT_MAP_BOUNDS.east.toString()
-    )!
+  const setUrlParams = useCallback(
+    (
+      params: Array<{ key: UrlParamsTypes; value: string }>,
+      newSearchParams?: URLSearchParams
+    ) => {
+      const updatedSearchParams =
+        newSearchParams || new URLSearchParams(searchParams.toString());
+      params.forEach(({ key, value }) => {
+        updatedSearchParams.set(key, value);
+      });
+      setSearchParams(updatedSearchParams);
+    },
+    [setSearchParams] // Only depend on setSearchParams
   );
-  const boundNorth = parseFloat(
-    getSearchParam(
-      UrlParamsTypes.boundNorth,
-      DEFAULT_MAP_BOUNDS.north.toString()
-    )!
+
+  const boundEast = useMemo(
+    () =>
+      parseFloat(
+        getSearchParam(
+          UrlParamsTypes.boundEast,
+          DEFAULT_MAP_BOUNDS.east.toString()
+        )!
+      ),
+    [getSearchParam]
   );
-  const boundSouth = parseFloat(
-    getSearchParam(
-      UrlParamsTypes.boundSouth,
-      DEFAULT_MAP_BOUNDS.south.toString()
-    )!
+  const boundNorth = useMemo(
+    () =>
+      parseFloat(
+        getSearchParam(
+          UrlParamsTypes.boundNorth,
+          DEFAULT_MAP_BOUNDS.north.toString()
+        )!
+      ),
+    [getSearchParam]
   );
-  const boundWest = parseFloat(
-    getSearchParam(
-      UrlParamsTypes.boundWest,
-      DEFAULT_MAP_BOUNDS.west.toString()
-    )!
+  const boundSouth = useMemo(
+    () =>
+      parseFloat(
+        getSearchParam(
+          UrlParamsTypes.boundSouth,
+          DEFAULT_MAP_BOUNDS.south.toString()
+        )!
+      ),
+    [getSearchParam]
+  );
+  const boundWest = useMemo(
+    () =>
+      parseFloat(
+        getSearchParam(
+          UrlParamsTypes.boundWest,
+          DEFAULT_MAP_BOUNDS.west.toString()
+        )!
+      ),
+    [getSearchParam]
   );
   const currentCenter = useMemo(
     () =>
@@ -104,24 +121,45 @@ export const useMapParams = () => {
           JSON.stringify(DEFAULT_MAP_CENTER)
         )!
       ),
-    [searchParams]
+    [getSearchParam]
   );
-  const currentUserSettings = getSearchParam(
-    UrlParamsTypes.currentUserSettings,
-    UserSettings.MapView
-  ) as UserSettings;
-  const currentZoom = parseFloat(
-    getSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
+  const currentUserSettings = useMemo(
+    () =>
+      getSearchParam(
+        UrlParamsTypes.currentUserSettings,
+        UserSettings.MapView
+      ) as UserSettings,
+    [getSearchParam]
   );
-  const initialLimit = parseInt(getSearchParam(UrlParamsTypes.limit, "100")!);
-  const mapTypeId =
-    getSearchParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||
-    MAP_CONFIGS[0].mapTypeId;
-  const measurementType = getSearchParam(
-    UrlParamsTypes.measurementType,
-    FixedBasicParameterTypes.PARTICULATE_MATTER
-  )!;
-  const initialOffset = parseInt(getSearchParam(UrlParamsTypes.offset, "0")!);
+  const currentZoom = useMemo(
+    () =>
+      parseFloat(
+        getSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
+      ),
+    [getSearchParam]
+  );
+  const initialLimit = useMemo(
+    () => parseInt(getSearchParam(UrlParamsTypes.limit, "100")!),
+    [getSearchParam]
+  );
+  const mapTypeId = useMemo(
+    () =>
+      getSearchParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||
+      MAP_CONFIGS[0].mapTypeId,
+    [getSearchParam]
+  );
+  const measurementType = useMemo(
+    () =>
+      getSearchParam(
+        UrlParamsTypes.measurementType,
+        FixedBasicParameterTypes.PARTICULATE_MATTER
+      )!,
+    [getSearchParam]
+  );
+  const initialOffset = useMemo(
+    () => parseInt(getSearchParam(UrlParamsTypes.offset, "0")!),
+    [getSearchParam]
+  );
   const previousCenter = useMemo(
     () =>
       JSON.parse(
@@ -130,36 +168,51 @@ export const useMapParams = () => {
           JSON.stringify(DEFAULT_MAP_CENTER)
         )!
       ),
-    [searchParams]
+    [getSearchParam]
   );
-  const previousUserSettings = getSearchParam(
-    UrlParamsTypes.previousUserSettings,
-    UserSettings.MapView
-  ) as UserSettings;
-  const previousZoom = parseFloat(
-    getSearchParam(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString())!
+  const previousUserSettings = useMemo(
+    () =>
+      getSearchParam(
+        UrlParamsTypes.previousUserSettings,
+        UserSettings.MapView
+      ) as UserSettings,
+    [getSearchParam]
   );
-  const sensorName = getSearchParam(
-    UrlParamsTypes.sensorName,
-    "Government-PM2.5"
-  )!;
-  const sessionId =
-    getSearchParam(UrlParamsTypes.sessionId, null) !== null
-      ? parseInt(getSearchParam(UrlParamsTypes.sessionId, "0")!)
-      : null;
+  const previousZoom = useMemo(
+    () =>
+      parseFloat(
+        getSearchParam(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString())!
+      ),
+    [getSearchParam]
+  );
+  const sensorName = useMemo(
+    () => getSearchParam(UrlParamsTypes.sensorName, "Government-PM2.5")!,
+    [getSearchParam]
+  );
+  const sessionId = useMemo(
+    () =>
+      getSearchParam(UrlParamsTypes.sessionId, null) !== null
+        ? parseInt(getSearchParam(UrlParamsTypes.sessionId, "0")!)
+        : null,
+    [getSearchParam]
+  );
   const sessionType = useMemo(
     () =>
       getSearchParam(
         UrlParamsTypes.sessionType,
         SessionTypes.FIXED
       ) as SessionType,
-    [searchParams]
+    [getSearchParam]
   );
-  const streamId =
-    getSearchParam(UrlParamsTypes.streamId, null) !== null
-      ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
-      : null;
-  const initialThresholds = useMemo(
+  const streamId = useMemo(
+    () =>
+      getSearchParam(UrlParamsTypes.streamId, null) !== null
+        ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
+        : null,
+    [getSearchParam]
+  );
+
+  const thresholds = useMemo(
     () => ({
       min: parseFloat(
         getSearchParam(
@@ -192,117 +245,136 @@ export const useMapParams = () => {
         )!
       ),
     }),
-    [defaultThresholds]
+    [getSearchParam, defaultThresholds]
   );
-  const initialUnitSymbol = getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!;
 
-  const usernames = getSearchParam(UrlParamsTypes.usernames, "");
-  const tags = getSearchParam(UrlParamsTypes.tags, "");
+  const initialUnitSymbol = useMemo(
+    () => getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!,
+    [getSearchParam]
+  );
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(searchParams.toString());
-    // temporary solution -> later we'll move thresholds to URL
-    thresholdValues.min !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdMin,
-        thresholdValues.min.toString()
-      );
-    thresholdValues.low !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdLow,
-        thresholdValues.low.toString()
-      );
-    thresholdValues.middle !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdMiddle,
-        thresholdValues.middle.toString()
-      );
-    thresholdValues.high !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdHigh,
-        thresholdValues.high.toString()
-      );
-    thresholdValues.max !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdMax,
-        thresholdValues.max.toString()
-      );
-    debouncedUpdateURL(queryParams);
-  }, [thresholdValues]);
+  const usernames = useMemo(
+    () => getSearchParam(UrlParamsTypes.usernames, ""),
+    [getSearchParam]
+  );
+  const tags = useMemo(
+    () => getSearchParam(UrlParamsTypes.tags, ""),
+    [getSearchParam]
+  );
 
   const goToUserSettings = useCallback(
     (newUserSettings: UserSettings) => {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: newUserSettings,
-        },
-      ]);
-    },
-    [searchParams]
-  );
-
-  const revertUserSettingsAndResetIds = useCallback(() => {
-    setUrlParams([
-      { key: UrlParamsTypes.sessionId, value: "" },
-      { key: UrlParamsTypes.streamId, value: "" },
-      {
-        key: UrlParamsTypes.previousUserSettings,
-        value: currentUserSettings,
-      },
-      {
-        key: UrlParamsTypes.currentUserSettings,
-        value: previousUserSettings,
-      },
-    ]);
-  }, [searchParams]);
-
-  const setFilters = useCallback(
-    (key: UrlParamsTypes, value: string) => {
-      if (isMobile) {
-        setUrlParams([
-          {
-            key: key,
-            value: value,
-          },
-        ]);
-      } else {
-        setUrlParams([
-          {
-            key: key,
-            value: value,
-          },
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      setUrlParams(
+        [
           {
             key: UrlParamsTypes.previousUserSettings,
             value: currentUserSettings,
           },
           {
             key: UrlParamsTypes.currentUserSettings,
-            value: UserSettings.MapView,
+            value: newUserSettings,
           },
-          {
-            key: UrlParamsTypes.sessionId,
-            value: "",
-          },
-          {
-            key: UrlParamsTypes.streamId,
-            value: "",
-          },
-        ]);
-      }
+        ],
+        newSearchParams
+      );
     },
-    [searchParams]
+    [currentUserSettings, setUrlParams, searchParams]
   );
 
-  const debouncedUpdateURL = useCallback(
-    debounce((params) => {
-      setSearchParams(params);
-    }, 300),
-    [setSearchParams]
+  const revertUserSettingsAndResetIds = useCallback(() => {
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    setUrlParams(
+      [
+        { key: UrlParamsTypes.sessionId, value: "" },
+        { key: UrlParamsTypes.streamId, value: "" },
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: previousUserSettings,
+        },
+      ],
+      newSearchParams
+    );
+  }, [currentUserSettings, previousUserSettings, setUrlParams, searchParams]);
+
+  const setFilters = useCallback(
+    (key: UrlParamsTypes, value: string) => {
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      if (isMobile) {
+        setUrlParams(
+          [
+            {
+              key: key,
+              value: value,
+            },
+          ],
+          newSearchParams
+        );
+      } else {
+        setUrlParams(
+          [
+            {
+              key: key,
+              value: value,
+            },
+            {
+              key: UrlParamsTypes.previousUserSettings,
+              value: currentUserSettings,
+            },
+            {
+              key: UrlParamsTypes.currentUserSettings,
+              value: UserSettings.MapView,
+            },
+            {
+              key: UrlParamsTypes.sessionId,
+              value: "",
+            },
+            {
+              key: UrlParamsTypes.streamId,
+              value: "",
+            },
+          ],
+          newSearchParams
+        );
+      }
+    },
+    [isMobile, currentUserSettings, setUrlParams, searchParams]
+  );
+
+  const setThresholds = useCallback(
+    (thresholds: Thresholds) => {
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      setUrlParams(
+        [
+          {
+            key: UrlParamsTypes.thresholdMin,
+            value: thresholds.min.toString(),
+          },
+          {
+            key: UrlParamsTypes.thresholdLow,
+            value: thresholds.low.toString(),
+          },
+          {
+            key: UrlParamsTypes.thresholdMiddle,
+            value: thresholds.middle.toString(),
+          },
+          {
+            key: UrlParamsTypes.thresholdHigh,
+            value: thresholds.high.toString(),
+          },
+          {
+            key: UrlParamsTypes.thresholdMax,
+            value: thresholds.max.toString(),
+          },
+        ],
+        newSearchParams
+      );
+    },
+    [setUrlParams, searchParams]
   );
 
   return {
@@ -313,7 +385,6 @@ export const useMapParams = () => {
     currentCenter,
     currentUserSettings,
     currentZoom,
-    debouncedUpdateURL,
     goToUserSettings,
     initialLimit,
     mapTypeId,
@@ -327,13 +398,13 @@ export const useMapParams = () => {
     sessionId,
     sessionType,
     setFilters,
+    setThresholds,
     setUrlParams,
     streamId,
-    initialThresholds,
     initialUnitSymbol,
     searchParams,
     usernames,
     tags,
-    thresholdValues,
+    thresholds,
   };
 };

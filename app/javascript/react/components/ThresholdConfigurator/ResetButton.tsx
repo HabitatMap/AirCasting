@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+
 import returnArrow from "../../assets/icons/returnArrow.svg";
 import returnArrowDarkBlue from "../../assets/icons/returnArrowDarkBlue.svg";
 import * as colors from "../../assets/styles/colors";
-import { useAppDispatch } from "../../store/hooks";
-import { resetUserThresholds } from "../../store/thresholdSlice";
+import { useAppSelector } from "../../store/hooks";
+import { selectDefaultThresholds } from "../../store/thresholdSlice";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./ThresholdConfigurator.style";
 
 enum ResetButtonVariant {
@@ -26,7 +28,6 @@ const ResetButton: React.FC<ResetButtonProps> = ({
   useDarkBlueIcon = false,
 }) => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const icon = useDarkBlueIcon ? returnArrowDarkBlue : returnArrow;
   const resetButtonTextColor = useDarkBlueIcon
     ? colors.darkBlue
@@ -34,9 +35,11 @@ const ResetButton: React.FC<ResetButtonProps> = ({
   const resetButtonDefaultText = t("thresholdConfigurator.resetButtonDesktop");
   const finalResetButtonText = resetButtonText || resetButtonDefaultText;
   const altResetButtonText = t("thresholdConfigurator.altResetButton");
+  const { setThresholds } = useMapParams();
+  const defaultThresholds = useAppSelector(selectDefaultThresholds);
 
   const resetThresholds = () => {
-    dispatch(resetUserThresholds());
+    setThresholds(defaultThresholds);
   };
 
   const buttonContent = useMemo(() => {

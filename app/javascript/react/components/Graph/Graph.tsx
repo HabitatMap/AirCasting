@@ -2,16 +2,17 @@ import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts/highstock";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectFixedData, selectIsLoading } from "../../store/fixedStreamSlice";
 import {
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
 } from "../../store/mobileStreamSelectors";
-import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
@@ -41,6 +42,8 @@ const Graph: React.FC<GraphProps> = ({
   isCalendarPage,
   rangeDisplayRef,
 }) => {
+  const { thresholds } = useMapParams();
+
   const graphRef = useRef<HTMLDivElement>(null);
 
   const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
@@ -49,7 +52,6 @@ const Graph: React.FC<GraphProps> = ({
   );
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
 
-  const thresholdsState = useSelector(selectThresholds);
   const isLoading = useSelector(selectIsLoading);
   const fixedGraphData = useSelector(selectFixedData);
   const mobileGraphData = useSelector(selectMobileStreamPoints);
@@ -98,7 +100,7 @@ const Graph: React.FC<GraphProps> = ({
     isMobile,
     rangeDisplayRef
   );
-  const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
+  const yAxisOption = getYAxisOptions(thresholds, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
   const rangeSelectorOptions = getRangeSelectorOptions(
     fixedSessionTypeSelected,
@@ -107,7 +109,7 @@ const Graph: React.FC<GraphProps> = ({
     isCalendarPage
   );
   const plotOptions = getPlotOptions(fixedSessionTypeSelected, streamId);
-  const responsive = getResponsiveOptions(thresholdsState);
+  const responsive = getResponsiveOptions(thresholds);
   const scrollbarOptions = getScrollbarOptions(isCalendarPage);
   const chartOptions = getChartOptions(isCalendarPage);
 

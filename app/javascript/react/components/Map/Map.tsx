@@ -33,10 +33,7 @@ import {
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
-import {
-  fetchThresholds,
-  setUserThresholdValues,
-} from "../../store/thresholdSlice";
+import { fetchThresholds } from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
@@ -67,7 +64,6 @@ const Map = () => {
     currentCenter,
     currentUserSettings,
     currentZoom,
-    debouncedUpdateURL,
     goToUserSettings,
     initialLimit,
     mapTypeId,
@@ -81,11 +77,11 @@ const Map = () => {
     sessionId,
     sessionType,
     streamId,
-    initialThresholds,
     initialUnitSymbol,
     searchParams,
     usernames,
     tags,
+    thresholds,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -178,8 +174,7 @@ const Map = () => {
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
-    dispatch(setUserThresholdValues(initialThresholds));
-  }, [initialThresholds, thresholdFilters]);
+  }, [thresholdFilters]);
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
@@ -255,7 +250,7 @@ const Map = () => {
         }
       }
     },
-    [currentUserSettings, debouncedUpdateURL, mapInstance, searchParams]
+    [currentUserSettings, mapInstance, searchParams]
   );
 
   // Handlers;
