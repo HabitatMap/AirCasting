@@ -87,7 +87,7 @@ const SmallPopup = styled(Popup)`
   }
 `;
 
-const AlerInfo = styled.span`
+const AlertInfo = styled.span`
   font-size: 1.2rem;
   color: ${gray400};
   margin: 0;
@@ -148,7 +148,7 @@ const AxisContainer = styled.div`
 `;
 
 export {
-  AlerInfo,
+  AlertInfo,
   AxisContainer,
   CancelButtonX,
   NavigationButton,

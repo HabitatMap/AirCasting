@@ -8,20 +8,14 @@ import skipRightButton from "../../../assets/icons/skipRightButton.svg";
 
 import * as S from "./TimelapseComponent.style";
 
-interface NavigationButtonsProps {
-  onPrevious: () => void;
-  onNext: () => void;
-}
+interface NavigationButtonsProps {}
 
-const NavigationButtons: React.FC<NavigationButtonsProps> = ({
-  onPrevious,
-  onNext,
-}) => {
+const NavigationButtons: React.FC<NavigationButtonsProps> = ({}) => {
   const { t } = useTranslation();
 
   return (
     <S.NavigationButtonsContainer>
-      <S.NavigationButton onClick={onPrevious}>
+      <S.NavigationButton>
         <img src={rewindButton} alt={t("timelapse.altRewind")} />
       </S.NavigationButton>
       <S.NavigationButton>
@@ -33,7 +27,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
       <S.NavigationButton>
         <img src={skipRightButton} alt={t("timelapse.altSkipRight")} />
       </S.NavigationButton>
-      <S.NavigationButton onClick={onNext}>
+      <S.NavigationButton>
         <img src={fastForwardButton} alt={t("timelapse.altFastForward")} />
       </S.NavigationButton>
     </S.NavigationButtonsContainer>

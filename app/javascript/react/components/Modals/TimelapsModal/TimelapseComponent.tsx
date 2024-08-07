@@ -30,14 +30,11 @@ const TimelapseComponent: React.FC<
 
   const isMobile = useMobileDetection();
   const { t } = useTranslation();
-
-  const [isVisible, setIsVisible] = useState(true);
   const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
 
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const closeHandler = useCallback(() => {
-    setIsVisible(false);
     onClose();
   }, [onClose]);
 
@@ -87,14 +84,7 @@ const TimelapseComponent: React.FC<
         {(close) => (
           <div ref={overlayRef}>
             <S.TimeAxisContainer>
-              <NavigatioButtons
-                onPrevious={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-                onNext={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
+              <NavigatioButtons />
               <TimeAxis />
             </S.TimeAxisContainer>
 
@@ -107,7 +97,7 @@ const TimelapseComponent: React.FC<
 
       {showReadOnlyPopup && (
         <S.SmallPopup open>
-          <S.AlerInfo>{t("timelapse.readOnly")}</S.AlerInfo>
+          <S.AlertInfo>{t("timelapse.readOnly")}</S.AlertInfo>
         </S.SmallPopup>
       )}
     </>
