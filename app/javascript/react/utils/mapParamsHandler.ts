@@ -266,6 +266,7 @@ export const useMapParams = () => {
 
   const setThresholds = useCallback(
     (thresholds: Thresholds) => {
+      console.log("searchParams", searchParams.toString());
       setUrlParams([
         {
           key: UrlParamsTypes.thresholdMin,

@@ -67,6 +67,8 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
   );
 
   useEffect(() => {
+    console.log("thresholds", thresholds);
+    console.log("thresholdValues", thresholdValues);
     if (!_.isEqual(thresholds, thresholdValues)) {
       setThresholdValues(thresholds);
     }
