@@ -510,6 +510,12 @@ const Map = () => {
             onClick={() => goToUserSettings(UserSettings.MapLegendView)}
           />
           <SectionButton
+            title={t("map.timelapsTile")}
+            image={mapLegend}
+            alt={t("map.altTimelapstile")}
+            onClick={() => goToUserSettings(UserSettings.TimelapseView)}
+          />
+          <SectionButton
             title={t("filters.filters")}
             image={filterIcon}
             alt={t("filters.altFiltersIcon")}

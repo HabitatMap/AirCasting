@@ -129,7 +129,9 @@
       "average": "avg",
       "stations": "stations",
       "measurements": "measurements"
-    }
+    },
+    "timelapsTile": "Timelapse",
+    "altTimelapseTile": "Show the timelapse for the map"
   },
   "sessionDetailsModal": {
     "calendar": "Calendar",

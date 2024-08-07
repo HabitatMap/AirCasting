@@ -25,7 +25,7 @@ const MobileContainer = styled.div`
 
 const MobileButtons = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   justify-content: center;
   gap: 1rem;
   flex-direction: column;
