@@ -261,7 +261,7 @@ describe 'GET api/v3/timelapse', type: :request do
         clusters: {
           0 => [stream1.id, stream2.id],
           1 => [stream3.id, stream4.id, stream5.id]
-      },
+        },
         time_period: '3'
       }.to_json, headers: { 'Content-Type' => 'application/json' }
 
@@ -294,7 +294,7 @@ describe 'GET api/v3/timelapse', type: :request do
       VCR.turned_off do
         WebMock.allow_net_connect!
 
-        get_url = 'http://172.104.20.165/api/fixed/active/sessions2.json?q=%7B%22time_from%22%3A%221687219200%22%2C%22time_to%22%3A%221718927999%22%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22%22%2C%22west%22%3A-158.99172492811482%2C%22east%22%3A1.4086656968851674%2C%22south%22%3A-5.888107876913058%2C%22north%22%3A56.408464501696784%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22government-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D'
+        get_url = 'http://172.104.20.165/api/fixed/active/sessions2.json?q=%7B%22time_from%22%3A%221691366400%22%2C%22time_to%22%3A%221723075199%22%2C%22tags%22%3A%22%22%2C%22usernames%22%3A%22%22%2C%22west%22%3A-107.35689196096888%2C%22east%22%3A36.08060803903112%2C%22south%22%3A-28.57512537074147%2C%22north%22%3A68.60841646435796%2C%22limit%22%3A1322%2C%22offset%22%3A0%2C%22sensor_name%22%3A%22government-pm2.5%22%2C%22measurement_type%22%3A%22Particulate%20Matter%22%2C%22unit_symbol%22%3A%22%C2%B5g%2Fm%C2%B3%22%7D'
 
         response = HTTParty.get(get_url)
         expect(response.code).to eq(200)
@@ -306,9 +306,8 @@ describe 'GET api/v3/timelapse', type: :request do
 
         puts "Extracted Stream IDs: #{stream_ids}"
 
-
-        clusters = stream_ids.each { |stream_id| { 0 => [stream_id] } }
-        clusters = stream_ids.each_slice(15).each_with_index.map { |slice, index| { index => slice } }
+        clusters = {}
+        stream_ids.each_slice(15).each_with_index.map { |slice, index| clusters[index] = slice }
 
         puts "Created Clusters: #{clusters}"
 
