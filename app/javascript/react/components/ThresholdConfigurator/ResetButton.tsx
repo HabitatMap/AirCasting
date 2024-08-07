@@ -35,10 +35,10 @@ const ResetButton: React.FC<ResetButtonProps> = ({
   const resetButtonDefaultText = t("thresholdConfigurator.resetButtonDesktop");
   const finalResetButtonText = resetButtonText || resetButtonDefaultText;
   const altResetButtonText = t("thresholdConfigurator.altResetButton");
+  const { setThresholds } = useMapParams();
+  const defaultThresholds = useAppSelector(selectDefaultThresholds);
 
   const resetThresholds = () => {
-    const { setThresholds } = useMapParams();
-    const defaultThresholds = useAppSelector(selectDefaultThresholds);
     setThresholds(defaultThresholds);
   };
 
