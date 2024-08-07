@@ -106,7 +106,7 @@ const TimelapseComponent: React.FC<
 
       {showReadOnlyPopup && (
         <S.SmallPopup open>
-          <div>{t("This is read-only mode")}</div>
+          <S.AlerInfo>{t("timelapse.readOnly")}</S.AlerInfo>
         </S.SmallPopup>
       )}
     </>

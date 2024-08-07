@@ -1,7 +1,7 @@
 import Popup from "reactjs-popup";
 import styled from "styled-components";
 
-import { gray900, white } from "../../../assets/styles/colors";
+import { gray400, gray900, white } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
 
 const TimelapseModal = styled(Popup)`
@@ -82,8 +82,20 @@ const SmallPopup = styled(Popup)`
     box-shadow: 2px 2px 4px 0px ${gray900};
     z-index: 4;
     display: flex;
-    width: 180px;
-    height: 91px;
+    width: 20rem;
+    height: 7rem;
+  }
+`;
+
+const AlerInfo = styled.span`
+  font-size: 1.2rem;
+  color: ${gray400};
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  line-height: 1.8rem;
+  @media ${media.smallDesktop} {
+    font-size: 1.4rem;
   }
 `;
 
@@ -136,6 +148,7 @@ const AxisContainer = styled.div`
 `;
 
 export {
+  AlerInfo,
   AxisContainer,
   CancelButtonX,
   NavigationButton,
