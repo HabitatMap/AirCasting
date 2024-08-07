@@ -137,6 +137,8 @@ const Map = () => {
   const tagsDecoded = tags && decodeURIComponent(tags);
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
 
+  const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
+
   const filters = useMemo(
     () =>
       // Change timeFrom and timeTo also in TagsInput
@@ -502,24 +504,28 @@ const Map = () => {
             image={pinImage}
             alt={t("map.altListSessions")}
             onClick={() => goToUserSettings(UserSettings.SessionListView)}
+            isNotTimelapsButton={isTimelapseView}
           />
           <SectionButton
             title={t("map.legendTile")}
             image={mapLegend}
             alt={t("map.altlegendTile")}
             onClick={() => goToUserSettings(UserSettings.MapLegendView)}
+            isNotTimelapsButton={isTimelapseView}
           />
           <SectionButton
             title={t("map.timelapsTile")}
             image={mapLegend}
             alt={t("map.altTimelapstile")}
             onClick={() => goToUserSettings(UserSettings.TimelapseView)}
+            isNotTimelapsButton={false}
           />
           <SectionButton
             title={t("filters.filters")}
             image={filterIcon}
             alt={t("filters.altFiltersIcon")}
             onClick={openFilters}
+            isNotTimelapsButton={isTimelapseView}
           />
         </S.MobileButtons>
         {currentUserSettings === UserSettings.MapLegendView && (

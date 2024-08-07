@@ -70,6 +70,8 @@ const TimelapseComponent: React.FC<
         overlayStyle={{
           margin: 0,
           zIndex: 2,
+          bottom: 30,
+          top: 30,
         }}
         contentStyle={{ margin: 0 }}
         onClose={closeHandler}

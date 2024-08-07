@@ -6,6 +6,7 @@ interface SectionButtonProps {
   title: string;
   alt: string;
   onClick: () => void;
+  isNotTimelapsButton: boolean;
 }
 
 const SectionButton: React.FC<SectionButtonProps> = ({
@@ -13,9 +14,13 @@ const SectionButton: React.FC<SectionButtonProps> = ({
   title,
   alt,
   onClick,
+  isNotTimelapsButton,
 }) => {
   return (
-    <S.StyledSectionButton onClick={onClick}>
+    <S.StyledSectionButton
+      onClick={onClick}
+      $isNotTimelapsButton={isNotTimelapsButton}
+    >
       <S.Image src={image} alt={alt} />
       <S.Title>{title}</S.Title>
     </S.StyledSectionButton>

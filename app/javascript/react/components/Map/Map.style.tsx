@@ -33,6 +33,7 @@ const MobileButtons = styled.div`
   bottom: 0.1rem;
   right: 0.4rem;
   direction: rtl;
+  z-index: 3;
 `;
 
 const ThresholdContainer = styled.div`

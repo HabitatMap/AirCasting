@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { H6 } from "../Typography";
 
-const StyledSectionButton = styled.button`
+const StyledSectionButton = styled.button<{ $isNotTimelapsButton: boolean }>`
   background-color: white;
   border-radius: 1rem;
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
@@ -14,6 +14,10 @@ const StyledSectionButton = styled.button`
   width: 8.5rem;
   height: 4.2rem;
   border: none;
+  ${(props) =>
+    props.$isNotTimelapsButton &&
+    `opacity: 0.7;
+    pointer-events: none;`}
 `;
 
 const Title = styled(H6)`
