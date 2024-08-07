@@ -130,12 +130,14 @@ const Input = styled.input`
 
 const SuggestionList = styled.ul<{ $displaySearchResults: boolean }>`
   max-height: 30rem;
+  top: 6rem;
   overflow: scroll;
   padding-top: 0.5rem;
   display: ${(p) => (p.$displaySearchResults ? "block" : "none")};
   position: absolute;
   background-color: ${white};
   width: 100%;
+  border: 1px solid ${gray200};
   border-radius: 5px;
   z-index: 1;
 `;
@@ -215,8 +217,8 @@ export {
   MobileSessionFilters,
   ModalContent,
   SelectedItem,
-  SelectedItemsWrapper,
   SelectedItemTile,
+  SelectedItemsWrapper,
   SessionFilters,
   SessionToggleWrapper,
   ShowSessionsButton,
