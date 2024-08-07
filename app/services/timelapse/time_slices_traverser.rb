@@ -6,6 +6,14 @@ module Timelapse
     end
 
     def call(time_period:, clusters:)
+      # logging for debugging
+      puts "__________________TimeSlicesTraverser_______________________"
+      puts "____________________ time_period ____________________"
+      puts "time_period: #{time_period}"
+      puts "____________________ clusters ____________________"
+      puts "clusters: #{clusters}"
+      puts "_____________________________________________________"
+
       cluster_averages = []
       hours_to_calculate = 24 * time_period.to_i
       begining_of_first_time_slice = end_of_last_time_slice - hours_to_calculate.hours
