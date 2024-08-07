@@ -17,12 +17,14 @@ class MeasurementsRepository
   def streams_averages_from_period(stream_ids:, start_date:, end_date:)
     ActiveRecord::Base.connection.execute(
       "
-        SELECT AVG(value) AS average_value
+        SELECT (DATE_TRUNC('hour', time_with_time_zone) + INTERVAL '1 hour') AS hour, AVG(value) AS average_value
         FROM measurements
         WHERE stream_id IN (#{stream_ids.join(',')})
         AND time_with_time_zone >= '#{start_date}'
         AND time_with_time_zone < '#{end_date}'
+        GROUP BY hour
+        ORDER BY hour
       "
-    ).first['average_value']
+    ).map { |record| { time: record['hour'], value: record['average_value'] } }
   end
 end
