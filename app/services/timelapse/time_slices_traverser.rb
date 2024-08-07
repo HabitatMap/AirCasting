@@ -7,12 +7,12 @@ module Timelapse
 
     def call(time_period:, clusters:)
       # logging for debugging
-      puts "__________________TimeSlicesTraverser_______________________"
-      puts "____________________ time_period ____________________"
-      puts "time_period: #{time_period}"
-      puts "____________________ clusters ____________________"
-      puts "clusters: #{clusters}"
-      puts "_____________________________________________________"
+      Rails.logger.info "__________________TimeSlicesTraverser_______________________"
+      Rails.logger.info "____________________ time_period ____________________"
+      Rails.logger.info "time_period: #{time_period}"
+      Rails.logger.info "____________________ clusters ____________________"
+      Rails.logger.info "clusters: #{clusters}"
+      Rails.logger.info "_____________________________________________________"
 
       cluster_averages = []
       hours_to_calculate = 24 * time_period.to_i

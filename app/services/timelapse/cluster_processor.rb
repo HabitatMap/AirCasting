@@ -8,14 +8,14 @@ module Timelapse
       cluster_id, stream_ids = cluster
 
       # logging for debugging
-      puts "__________________cluster_processor_______________________"
-      puts "____________________ cluster_id ____________________"
-      puts "cluster_id: #{cluster_id}"
-      puts "____________________ stream_ids ____________________"
-      puts "stream_ids: #{stream_ids}"
-      puts "____________________ cluster ____________________"
-      puts "cluster: #{cluster}"
-      puts "_____________________________________________________"
+      Rails.logger.info "__________________cluster_processor_______________________"
+      Rails.logger.info "____________________ cluster_id ____________________"
+      Rails.logger.info "cluster_id: #{cluster_id}"
+      Rails.logger.info "____________________ stream_ids ____________________"
+      Rails.logger.info "stream_ids: #{stream_ids}"
+      Rails.logger.info "____________________ cluster ____________________"
+      Rails.logger.info "cluster: #{cluster}"
+      Rails.logger.info "_____________________________________________________"
 
       return { cluster_id => { time: end_of_time_slice, value: nil } } if stream_ids.nil? || stream_ids.empty?
 
