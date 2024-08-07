@@ -1,1 +1,1 @@
-export * from "./TimelapsComponent";
+export * from "./TimelapseComponent";

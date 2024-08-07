@@ -3,7 +3,7 @@ import chevronDown from "../../../assets/icons/chevronDown.svg";
 import { blue, gray200, gray400, white } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
 
-const ControlPanelContainer = styled.div`
+const ControlPanelContainer = styled.div<{ $isTimelapseView: boolean }>`
   background: ${white};
   cursor: auto;
   display: flex;
@@ -13,6 +13,11 @@ const ControlPanelContainer = styled.div`
   border-radius: 5px;
   gap: 0.4rem;
   padding: 0.4rem 0.5rem;
+  ${(props) =>
+    props.$isTimelapseView &&
+    `opacity: 0.7;
+    pointer-events: none;`}
+
   @media ${media.smallDesktop} {
     font-size: 1.5rem;
     gap: 1rem;

@@ -6,7 +6,7 @@ import rewindButton from "../../../assets/icons/rewindButton.svg";
 import skipLeftButton from "../../../assets/icons/skipLeftButton.svg";
 import skipRightButton from "../../../assets/icons/skipRightButton.svg";
 
-import * as S from "./TimelapsComponent.style";
+import * as S from "./TimelapseComponent.style";
 
 interface NavigationButtonsProps {
   onPrevious: () => void;

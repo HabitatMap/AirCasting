@@ -91,12 +91,16 @@ const LocationSearchButton = styled.button`
   z-index: 2;
 `;
 
-const SearchContainer = styled.div`
+const SearchContainer = styled.div<{ $isTimelapseView: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  ${(props) =>
+    props.$isTimelapseView &&
+    `opacity: 0.7;
+    pointer-events: none;`}
 `;
 
 const Hr = styled.hr<HrProps>`

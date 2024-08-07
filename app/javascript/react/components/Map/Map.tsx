@@ -47,6 +47,7 @@ import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
+import { TimelapseComponent } from "../Modals/TimelapsModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
@@ -485,6 +486,13 @@ const Map = () => {
           onClose={() => revertUserSettingsAndResetIds()}
           sessionType={sessionType}
           streamId={streamId}
+        />
+      )}
+      {currentUserSettings === UserSettings.TimelapseView && (
+        <TimelapseComponent
+          onClose={() => {
+            goToUserSettings(previousUserSettings);
+          }}
         />
       )}
       <S.MobileContainer>

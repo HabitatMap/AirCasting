@@ -5,7 +5,7 @@ import { media } from "../../utils/media";
 import { H4 } from "../Typography";
 
 const MapButtonsWrapper = styled.div`
-  position: fixed;
+  position: absolute;
   top: 10rem;
   z-index: 3;
   @media ${media.desktop} {

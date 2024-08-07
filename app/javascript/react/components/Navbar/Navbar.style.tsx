@@ -12,8 +12,7 @@ const Header = styled.header`
   background-color: transparent;
   z-index: 3;
   flex-wrap: wrap;
-  /* position: absolute; */
-  position: fixed;
+  position: absolute;
 
   @media ${media.desktop} {
     height: ${NAVBAR_HEIGHT};

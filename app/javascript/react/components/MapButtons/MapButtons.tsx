@@ -7,7 +7,6 @@ import filterIcon from "../../assets/icons/filterIcon.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import { TimelapsComponent } from "../Modals/TimelapsModal/TimelapsComponent";
 import { CopyLinkComponent } from "../Popups/CopyLinkComponent";
 import { DesktopSessionFilters } from "../SessionFilters/DesktopSessionFilters";
 import { MapButton } from "./MapButton";
@@ -24,13 +23,10 @@ const MapButtons = () => {
   const [activeButton, setActiveButton] = useState<ButtonTypes | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const { t } = useTranslation();
+  const { goToUserSettings, currentUserSettings, previousUserSettings } =
+    useMapParams();
 
-  const {
-    goToUserSettings,
-    setUrlParams,
-    currentUserSettings,
-    previousUserSettings,
-  } = useMapParams();
+  const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
   const handleClick = (buttonType: ButtonTypes) => {
     setActiveButton((prevState) =>
@@ -38,15 +34,8 @@ const MapButtons = () => {
     );
 
     if (buttonType === ButtonTypes.TIMELAPSE) {
-      // setUrlParams([
-      //   {
-      //     key: UrlParamsTypes.currentUserSettings,
-      //     value: UserSettings.TimelapsView,
-      //   },
-      // ]);
-
-      goToUserSettings(UserSettings.TimelapsView);
-      if (currentUserSettings === UserSettings.TimelapsView) {
+      goToUserSettings(UserSettings.TimelapseView);
+      if (currentUserSettings === UserSettings.TimelapseView) {
         goToUserSettings(previousUserSettings);
       }
     }
@@ -55,6 +44,8 @@ const MapButtons = () => {
   useEffect(() => {
     setShowFilters(activeButton === ButtonTypes.FILTER);
   }, [activeButton]);
+
+  console.log(isTimelapseView, "isTimelapseView");
 
   return (
     <S.MapButtonsWrapper>
@@ -66,23 +57,15 @@ const MapButtons = () => {
           alt={t("navbar.altFilter")}
           isActive={activeButton === ButtonTypes.FILTER}
         />
-        <TimelapsComponent
-          button={
-            <MapButton
-              title={t("navbar.timelapse")}
-              image={clockIcon}
-              onClick={() => handleClick(ButtonTypes.TIMELAPSE)}
-              alt={t("navbar.altTimelapse")}
-              isActive={activeButton === ButtonTypes.TIMELAPSE}
-            />
-          }
-          onOpen={() => {
-            handleClick(ButtonTypes.TIMELAPSE);
-          }}
-          onClose={() => {
-            goToUserSettings(previousUserSettings), setActiveButton(null);
-          }}
+
+        <MapButton
+          title={t("navbar.timelapse")}
+          image={clockIcon}
+          onClick={() => handleClick(ButtonTypes.TIMELAPSE)}
+          alt={t("navbar.altTimelapse")}
+          isActive={activeButton === ButtonTypes.TIMELAPSE}
         />
+
         <CopyLinkComponent
           button={
             <MapButton

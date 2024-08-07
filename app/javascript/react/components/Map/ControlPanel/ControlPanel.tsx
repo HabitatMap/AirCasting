@@ -4,11 +4,15 @@ import { useNavigate } from "react-router-dom";
 
 import { MapTypeId, ViewMode } from "../../../types/map";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
-import * as S from "./ControlPanel.style";
 import { CheckboxButton } from "../../CheckboxButton/CheckboxButton";
 import { Toggle } from "../../Toggle/Toggle";
+import * as S from "./ControlPanel.style";
 
-const ControlPanel: React.FC = () => {
+interface ControlPanelProps {
+  isTimelapseView: boolean;
+}
+
+const ControlPanel: React.FC<ControlPanelProps> = ({ isTimelapseView }) => {
   const { mapTypeId, searchParams } = useMapParams();
   const navigate = useNavigate();
   const isFirstRender = useRef(true);
@@ -93,7 +97,7 @@ const ControlPanel: React.FC = () => {
   };
 
   return (
-    <S.ControlPanelContainer>
+    <S.ControlPanelContainer $isTimelapseView={isTimelapseView}>
       <S.ToggleContainer>
         <Toggle
           isChecked={viewMode === ViewMode.SATELLITE}
