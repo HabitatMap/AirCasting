@@ -9,6 +9,7 @@ import React, {
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
@@ -498,13 +499,14 @@ const Map = () => {
         />
       )}
       <S.MobileContainer>
-        <S.MobileButtons>
+        <S.MobileButtons $isTimelapseView={isTimelapseView}>
           <SectionButton
             title={t("map.listSessions")}
             image={pinImage}
             alt={t("map.altListSessions")}
             onClick={() => goToUserSettings(UserSettings.SessionListView)}
             isNotTimelapsButton={isTimelapseView}
+            isActive={currentUserSettings === UserSettings.SessionListView}
           />
           <SectionButton
             title={t("map.legendTile")}
@@ -512,13 +514,21 @@ const Map = () => {
             alt={t("map.altlegendTile")}
             onClick={() => goToUserSettings(UserSettings.MapLegendView)}
             isNotTimelapsButton={isTimelapseView}
+            isActive={currentUserSettings === UserSettings.MapLegendView}
           />
           <SectionButton
             title={t("map.timelapsTile")}
-            image={mapLegend}
+            image={clockIcon}
             alt={t("map.altTimelapstile")}
-            onClick={() => goToUserSettings(UserSettings.TimelapseView)}
+            onClick={() =>
+              goToUserSettings(
+                currentUserSettings === UserSettings.TimelapseView
+                  ? previousUserSettings
+                  : UserSettings.TimelapseView
+              )
+            }
             isNotTimelapsButton={false}
+            isActive={currentUserSettings === UserSettings.TimelapseView}
           />
           <SectionButton
             title={t("filters.filters")}
@@ -526,6 +536,7 @@ const Map = () => {
             alt={t("filters.altFiltersIcon")}
             onClick={openFilters}
             isNotTimelapsButton={isTimelapseView}
+            isActive={currentUserSettings === UserSettings.FiltersView}
           />
         </S.MobileButtons>
         {currentUserSettings === UserSettings.MapLegendView && (

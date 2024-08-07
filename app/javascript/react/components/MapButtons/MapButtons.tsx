@@ -26,7 +26,7 @@ const MapButtons = () => {
   const { goToUserSettings, currentUserSettings, previousUserSettings } =
     useMapParams();
 
-  const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
+  const isModalView = currentUserSettings === UserSettings.ModalView;
 
   const handleClick = (buttonType: ButtonTypes) => {
     setActiveButton((prevState) =>
@@ -45,8 +45,6 @@ const MapButtons = () => {
     setShowFilters(activeButton === ButtonTypes.FILTER);
   }, [activeButton]);
 
-  console.log(isTimelapseView, "isTimelapseView");
-
   return (
     <S.MapButtonsWrapper>
       <S.MapButtons>
@@ -57,14 +55,15 @@ const MapButtons = () => {
           alt={t("navbar.altFilter")}
           isActive={activeButton === ButtonTypes.FILTER}
         />
-
-        <MapButton
-          title={t("navbar.timelapse")}
-          image={clockIcon}
-          onClick={() => handleClick(ButtonTypes.TIMELAPSE)}
-          alt={t("navbar.altTimelapse")}
-          isActive={activeButton === ButtonTypes.TIMELAPSE}
-        />
+        {!isModalView && (
+          <MapButton
+            title={t("navbar.timelapse")}
+            image={clockIcon}
+            onClick={() => handleClick(ButtonTypes.TIMELAPSE)}
+            alt={t("navbar.altTimelapse")}
+            isActive={activeButton === ButtonTypes.TIMELAPSE}
+          />
+        )}
 
         <CopyLinkComponent
           button={

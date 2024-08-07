@@ -47,11 +47,18 @@ const TimelapseComponent: React.FC<
         overlayRef.current &&
         !overlayRef.current.contains(event.target as Node)
       ) {
-        setShowReadOnlyPopup(true);
+        const clickedElement = event.target as HTMLElement;
+        const clickedElementZIndex =
+          window.getComputedStyle(clickedElement).zIndex;
+
+        if (parseInt(clickedElementZIndex, 10) <= 2) {
+          setShowReadOnlyPopup(true);
+        }
       }
     },
     [overlayRef]
   );
+
   useAutoDismissAlert(showReadOnlyPopup, setShowReadOnlyPopup);
 
   useEffect(() => {
@@ -70,8 +77,8 @@ const TimelapseComponent: React.FC<
         overlayStyle={{
           margin: 0,
           zIndex: 2,
-          bottom: 30,
-          top: 30,
+          bottom: isMobile ? 30 : 0,
+          top: isMobile ? 30 : 0,
         }}
         contentStyle={{ margin: 0 }}
         onClose={closeHandler}
