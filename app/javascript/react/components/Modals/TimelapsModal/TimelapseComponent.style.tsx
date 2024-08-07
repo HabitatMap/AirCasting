@@ -1,7 +1,7 @@
 import Popup from "reactjs-popup";
 import styled from "styled-components";
 
-import { white } from "../../../assets/styles/colors";
+import { gray900, white } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
 
 const TimelapseModal = styled(Popup)`
@@ -12,18 +12,20 @@ const TimelapseModal = styled(Popup)`
     top: 0;
     left: 0;
     right: 0;
-    bottom: 26.4rem;
+    bottom: 32rem;
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    /* pointer-events: none !important; */
     z-index: 2;
+    @media ${media.smallDesktop} {
+      bottom: 26.4rem;
+    }
   }
 
   &-content {
-    width: 115rem;
-    height: 10rem;
-    bottom: 26.4rem;
+    width: 100%;
+    height: auto;
+    bottom: 32rem;
     padding: 0.5rem;
     overflow-y: auto;
     margin: 0;
@@ -32,6 +34,9 @@ const TimelapseModal = styled(Popup)`
     flex-wrap: wrap;
 
     @media ${media.smallDesktop} {
+      bottom: 26.4rem;
+      width: 115rem;
+      height: 10rem;
       padding-bottom: 1.25rem;
       flex-direction: row;
     }
@@ -42,8 +47,8 @@ const CancelButtonX = styled.button`
   border: none;
   background-color: transparent;
   position: absolute;
-  top: 0;
-  right: 0.3rem;
+  bottom: -2rem;
+  left: 0.3rem;
   height: fit-content;
   align-self: flex-end;
   cursor: pointer;
@@ -53,6 +58,8 @@ const CancelButtonX = styled.button`
   }
   @media ${media.smallDesktop} {
     width: fit-content;
+    top: 0;
+    right: 0.3rem;
   }
 `;
 
@@ -69,8 +76,7 @@ const SmallPopup = styled(Popup)`
     border-radius: 8px;
     position: relative;
     padding: 1rem;
-    box-shadow: 2px 2px 4px 0px #4c56601a;
-
+    box-shadow: 2px 2px 4px 0px ${gray900};
     z-index: 4;
     display: flex;
     width: 180px;
@@ -89,15 +95,22 @@ const Wrapper = styled.div`
 `;
 
 const TimeAxisContainer = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  width: 110rem;
-  height: 5rem;
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  grid-template-rows: 1fr 1fr;
+  width: 100%;
+  height: 100%;
   background-color: ${white};
-  flex-direction: column;
   gap: 1.2rem;
   padding: 1rem;
   border-radius: 1rem;
+  @media ${media.smallDesktop} {
+    width: 110rem;
+    height: 5rem;
+    box-shadow: 2px 2px 4px 0px ${gray900};
+    grid-template-rows: auto;
+    grid-template-columns: 1fr 5fr;
+  }
 `;
 
 const NavigationButton = styled.button`
@@ -113,7 +126,14 @@ const NavigationButtonsContainer = styled.div`
   gap: 1rem;
 `;
 
+const AxisContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
 export {
+  AxisContainer,
   CancelButtonX,
   NavigationButton,
   NavigationButtonsContainer,

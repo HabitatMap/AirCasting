@@ -95,11 +95,9 @@ const TimelapseComponent: React.FC<
               />
             </S.TimeAxisContainer>
 
-            {!isMobile && (
-              <S.CancelButtonX onClick={close}>
-                <img src={closeTimelapsButton} alt={t("navbar.altClose")} />
-              </S.CancelButtonX>
-            )}
+            <S.CancelButtonX onClick={close}>
+              <img src={closeTimelapsButton} alt={t("navbar.altClose")} />
+            </S.CancelButtonX>
           </div>
         )}
       </TimelapseModal>

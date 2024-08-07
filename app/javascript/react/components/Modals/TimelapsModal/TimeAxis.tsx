@@ -1,17 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+import * as S from "./TimelapseComponent.style";
 
 interface TimeAxisProps {
   startTime: string;
   endTime: string;
   onTimeChange: (newTime: string) => void;
 }
-
-const AxisContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
 
 const TimeLabel = styled.span`
   font-size: 14px;
@@ -27,9 +22,9 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
   };
 
   return (
-    <AxisContainer>
+    <S.AxisContainer>
       <TimeLabel />
-    </AxisContainer>
+    </S.AxisContainer>
   );
 };
 
