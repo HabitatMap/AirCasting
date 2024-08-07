@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import {
@@ -10,9 +9,9 @@ import {
   selectMobileExtremes,
   selectMobileStreamShortInfo,
 } from "../../../../store/mobileStreamSelectors";
-import { selectThresholds } from "../../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
+import { useMapParams } from "../../../../utils/mapParamsHandler";
 import useMobileDetection from "../../../../utils/useScreenSizeDetection";
 import * as S from "../SessionDetailsModal.style";
 import ModalDesktopHeader from "./ModalDesktopHeader";
@@ -42,8 +41,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
   const extremes = useSelector(
     fixedSessionTypeSelected ? selectFixedExtremes : selectMobileExtremes
   );
-  const thresholds = useSelector(selectThresholds);
-  const { t } = useTranslation();
+  const { thresholds } = useMapParams();
 
   const toggleVisibility = () => {
     setIsVisible(!isVisible);

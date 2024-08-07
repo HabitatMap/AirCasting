@@ -6,8 +6,8 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { mobileStreamPath } from "../../../assets/styles/colors";
 import { selectHoverPosition } from "../../../store/mapSlice";
-import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
+import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
@@ -22,7 +22,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
   );
-  const thresholds = useSelector(selectThresholds);
+  const { thresholds } = useMapParams();
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const hoverPosition = useSelector(selectHoverPosition);
 

@@ -1,11 +1,10 @@
 import moment from "moment";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 
 import rightVector from "../../../assets/icons/rightVector.svg";
-import { selectThresholds } from "../../../store/thresholdSlice";
 import { DateFormat } from "../../../types/dateFormat";
+import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import * as S from "./SessionListTile.style";
 
@@ -34,7 +33,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
   onMouseEnter,
   onMouseLeave,
 }) => {
-  const thresholds = useSelector(selectThresholds);
+  const { thresholds } = useMapParams();
 
   const { t } = useTranslation();
 

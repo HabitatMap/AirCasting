@@ -8,7 +8,6 @@ import {
 } from "../../../store/crowdMapSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
-import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
@@ -24,7 +23,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
   const mobileSessionsStreamIds = useAppSelector(selectMobileSessionsStreamIds);
-  const thresholds = useAppSelector(selectThresholds);
 
   const map = useMap();
   const {
@@ -34,6 +32,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     boundWest,
     measurementType,
     tags,
+    thresholds,
     initialUnitSymbol,
     usernames,
   } = useMapParams();

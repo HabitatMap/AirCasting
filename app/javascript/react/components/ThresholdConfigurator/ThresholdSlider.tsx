@@ -7,16 +7,16 @@ import React, {
   useRef,
   useState,
 } from "react";
+
 import * as colors from "../../assets/styles/colors";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   selectSliderWidth,
-  selectThresholds,
-  setUserThresholdValues,
   updateSliderWidth,
   updateThumbPositions,
 } from "../../store/thresholdSlice";
 import { Thresholds } from "../../types/thresholds";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { useThresholdHandlers } from "../../utils/thresholdEventHandlers";
 import {
   handleMouseDown,
@@ -40,9 +40,10 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
   setErrorMessage,
 }) => {
   const sliderRef = useRef<HTMLDivElement>(null);
-  const thresholdsState = useAppSelector(selectThresholds);
   const sliderWidth = useAppSelector(selectSliderWidth);
-  const [thresholdValues, setThresholdValues] = useState(thresholdsState);
+  const { setThresholds, thresholds } = useMapParams();
+  const [thresholdValues, setThresholdValues] =
+    useState<Thresholds>(thresholds);
   const [activeInput, setActiveInput] = useState<keyof Thresholds | null>(null);
   const [inputValue, setInputValue] = useState<string>("");
 
@@ -61,22 +62,18 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
   };
 
   const debouncedSetUserThresholdValues = useMemo(
-    () =>
-      _.debounce(
-        (values: Thresholds) => dispatch(setUserThresholdValues(values)),
-        300
-      ),
+    () => _.debounce((values: Thresholds) => setThresholds(values), 300),
     [dispatch]
   );
 
   useEffect(() => {
-    if (!_.isEqual(thresholdsState, thresholdValues)) {
-      setThresholdValues(thresholdsState);
+    if (!_.isEqual(thresholds, thresholdValues)) {
+      setThresholdValues(thresholds);
     }
-  }, [thresholdsState]);
+  }, [thresholds]);
 
   useEffect(() => {
-    if (!_.isEqual(thresholdsState, thresholdValues)) {
+    if (!_.isEqual(thresholds, thresholdValues)) {
       debouncedSetUserThresholdValues(thresholdValues);
     }
   }, [thresholdValues, debouncedSetUserThresholdValues]);

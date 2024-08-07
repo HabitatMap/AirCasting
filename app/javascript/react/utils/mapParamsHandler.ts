@@ -1,5 +1,4 @@
-import { debounce } from "lodash";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
@@ -9,15 +8,13 @@ import {
   DEFAULT_ZOOM,
 } from "../const/coordinates";
 import { useAppSelector } from "../store/hooks";
-import {
-  selectDefaultThresholds,
-  selectThresholds,
-} from "../store/thresholdSlice";
+import { selectDefaultThresholds } from "../store/thresholdSlice";
 import {
   FixedBasicParameterTypes,
   SessionType,
   SessionTypes,
 } from "../types/filters";
+import { Thresholds } from "../types/thresholds";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
 
@@ -52,7 +49,6 @@ export enum UrlParamsTypes {
 
 export const useMapParams = () => {
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
-  const thresholdValues = useAppSelector(selectThresholds);
   const isMobile: boolean = useMobileDetection();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -159,7 +155,8 @@ export const useMapParams = () => {
     getSearchParam(UrlParamsTypes.streamId, null) !== null
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
       : null;
-  const initialThresholds = useMemo(
+
+  const thresholds = useMemo(
     () => ({
       min: parseFloat(
         getSearchParam(
@@ -192,43 +189,12 @@ export const useMapParams = () => {
         )!
       ),
     }),
-    [defaultThresholds]
+    [searchParams]
   );
   const initialUnitSymbol = getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!;
 
   const usernames = getSearchParam(UrlParamsTypes.usernames, "");
   const tags = getSearchParam(UrlParamsTypes.tags, "");
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams(searchParams.toString());
-    // temporary solution -> later we'll move thresholds to URL
-    thresholdValues.min !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdMin,
-        thresholdValues.min.toString()
-      );
-    thresholdValues.low !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdLow,
-        thresholdValues.low.toString()
-      );
-    thresholdValues.middle !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdMiddle,
-        thresholdValues.middle.toString()
-      );
-    thresholdValues.high !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdHigh,
-        thresholdValues.high.toString()
-      );
-    thresholdValues.max !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdMax,
-        thresholdValues.max.toString()
-      );
-    debouncedUpdateURL(queryParams);
-  }, [thresholdValues]);
 
   const goToUserSettings = useCallback(
     (newUserSettings: UserSettings) => {
@@ -298,11 +264,32 @@ export const useMapParams = () => {
     [searchParams]
   );
 
-  const debouncedUpdateURL = useCallback(
-    debounce((params) => {
-      setSearchParams(params);
-    }, 300),
-    [setSearchParams]
+  const setThresholds = useCallback(
+    (thresholds: Thresholds) => {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.thresholdMin,
+          value: thresholds.min.toString(),
+        },
+        {
+          key: UrlParamsTypes.thresholdLow,
+          value: thresholds.low.toString(),
+        },
+        {
+          key: UrlParamsTypes.thresholdMiddle,
+          value: thresholds.middle.toString(),
+        },
+        {
+          key: UrlParamsTypes.thresholdHigh,
+          value: thresholds.high.toString(),
+        },
+        {
+          key: UrlParamsTypes.thresholdMax,
+          value: thresholds.max.toString(),
+        },
+      ]);
+    },
+    [searchParams]
   );
 
   return {
@@ -313,7 +300,6 @@ export const useMapParams = () => {
     currentCenter,
     currentUserSettings,
     currentZoom,
-    debouncedUpdateURL,
     goToUserSettings,
     initialLimit,
     mapTypeId,
@@ -327,13 +313,13 @@ export const useMapParams = () => {
     sessionId,
     sessionType,
     setFilters,
+    setThresholds,
     setUrlParams,
     streamId,
-    initialThresholds,
     initialUnitSymbol,
     searchParams,
     usernames,
     tags,
-    thresholdValues,
+    thresholds,
   };
 };

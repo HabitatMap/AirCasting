@@ -1,12 +1,14 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
+
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
 import { Thresholds } from "../types/thresholds";
 import { getErrorMessage } from "../utils/getErrorMessage";
-import type { RootState } from "./index";
 
+import type { RootState } from "./index";
 interface ThumbPositions {
   low: number;
   middle: number;
@@ -16,11 +18,10 @@ interface ThumbPositions {
 export interface ThresholdState {
   defaultValues: Thresholds;
   error?: string;
-  status: StatusEnum;
-  userValues?: Thresholds;
-  sliderWidth: number;
-  thumbPositions: ThumbPositions;
   errorMessage: string;
+  sliderWidth: number;
+  status: StatusEnum;
+  thumbPositions: ThumbPositions;
 }
 
 export const initialState: ThresholdState = {
@@ -31,14 +32,14 @@ export const initialState: ThresholdState = {
     high: 0,
     max: 0,
   },
-  status: StatusEnum.Idle,
+  errorMessage: "",
   sliderWidth: 0,
+  status: StatusEnum.Idle,
   thumbPositions: {
     low: 0,
     middle: 0,
     high: 0,
   },
-  errorMessage: '',
 };
 
 export const fetchThresholds = createAsyncThunk<
@@ -72,9 +73,6 @@ export const thresholdSlice = createSlice({
         state.defaultValues.middle = Number(action.payload[2]);
         state.defaultValues.high = Number(action.payload[3]);
         state.defaultValues.max = Number(action.payload[4]);
-        if (!state.userValues) {
-          state.userValues = { ...state.defaultValues };
-        }
       })
       .addCase(fetchThresholds.rejected, (state, action) => {
         state.status = StatusEnum.Rejected;
@@ -82,20 +80,11 @@ export const thresholdSlice = createSlice({
       });
   },
   reducers: {
-    resetUserThresholds: (state) => {
-      state.userValues = { ...state.defaultValues };
-    },
     setDefaultThresholdsValues: (
       state,
       { payload: { min, low, middle, high, max } }: PayloadAction<Thresholds>
     ) => {
       state.defaultValues = { min, low, middle, high, max };
-    },
-    setUserThresholdValues: (
-      state,
-      { payload: { min, low, middle, high, max } }: PayloadAction<Thresholds>
-    ) => {
-      state.userValues = { min, low, middle, high, max };
     },
     updateSliderWidth: (state, action: PayloadAction<number>) => {
       state.sliderWidth = action.payload;
@@ -104,31 +93,22 @@ export const thresholdSlice = createSlice({
       state.thumbPositions = action.payload;
     },
     clearErrorMessage: (state) => {
-      state.errorMessage = '';
+      state.errorMessage = "";
     },
   },
 });
 
 export const {
-  resetUserThresholds,
   setDefaultThresholdsValues,
-  setUserThresholdValues,
   updateSliderWidth,
   updateThumbPositions,
-  clearErrorMessage
+  clearErrorMessage,
 } = thresholdSlice.actions;
 
 export default thresholdSlice.reducer;
 
 export const selectDefaultThresholds = (state: RootState): Thresholds =>
   state.threshold.defaultValues;
-
-export const selectThresholds = (state: RootState): Thresholds =>
-  state.threshold.userValues || state.threshold.defaultValues;
-
-export const selectUserThresholds = (
-  state: RootState
-): Thresholds | undefined => state.threshold.userValues;
 
 export const selectSliderWidth = (state: RootState): number =>
   state.threshold.sliderWidth;
