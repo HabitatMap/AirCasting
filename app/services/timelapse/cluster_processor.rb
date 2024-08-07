@@ -7,7 +7,7 @@ module Timelapse
     def call (cluster:, beginning_of_time_slice:, end_of_time_slice:)
       cluster_id, stream_ids = cluster
 
-      return { cluster_id => { time: end_of_time_slice, value: nil } } if stream_ids.empty?
+      return { cluster_id => { time: end_of_time_slice, value: nil } } if stream_ids.nil? || stream_ids.empty?
 
       averages =
         measurements_repository.streams_averages_from_period(
