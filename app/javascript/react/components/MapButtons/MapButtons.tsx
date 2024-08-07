@@ -6,7 +6,7 @@ import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
 import { UserSettings } from "../../types/userStates";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { TimelapsComponent } from "../Modals/TimelapsModal/TimelapsComponent";
 import { CopyLinkComponent } from "../Popups/CopyLinkComponent";
 import { DesktopSessionFilters } from "../SessionFilters/DesktopSessionFilters";
@@ -25,7 +25,12 @@ const MapButtons = () => {
   const [showFilters, setShowFilters] = useState(false);
   const { t } = useTranslation();
 
-  const { revertUserSettingsAndResetIds, setUrlParams } = useMapParams();
+  const {
+    goToUserSettings,
+    setUrlParams,
+    currentUserSettings,
+    previousUserSettings,
+  } = useMapParams();
 
   const handleClick = (buttonType: ButtonTypes) => {
     setActiveButton((prevState) =>
@@ -33,12 +38,17 @@ const MapButtons = () => {
     );
 
     if (buttonType === ButtonTypes.TIMELAPSE) {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: UserSettings.TimelapsView,
-        },
-      ]);
+      // setUrlParams([
+      //   {
+      //     key: UrlParamsTypes.currentUserSettings,
+      //     value: UserSettings.TimelapsView,
+      //   },
+      // ]);
+
+      goToUserSettings(UserSettings.TimelapsView);
+      if (currentUserSettings === UserSettings.TimelapsView) {
+        goToUserSettings(previousUserSettings);
+      }
     }
   };
 
@@ -70,7 +80,7 @@ const MapButtons = () => {
             handleClick(ButtonTypes.TIMELAPSE);
           }}
           onClose={() => {
-            revertUserSettingsAndResetIds(), setActiveButton(null);
+            goToUserSettings(previousUserSettings), setActiveButton(null);
           }}
         />
         <CopyLinkComponent

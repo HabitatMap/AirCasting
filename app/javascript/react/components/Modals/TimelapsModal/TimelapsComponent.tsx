@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import type { PopupProps } from "reactjs-popup/dist/types";
 import closeTimelapsButton from "../../../assets/icons/closeTimelapsButton.svg";
+import { useAutoDismissAlert } from "../../../utils/useAutoDismissAlert";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import NavigatioButtons from "./NavigationButtons";
 import TimeAxis from "./TimeAxis";
@@ -49,13 +50,11 @@ const TimelapsComponent: React.FC<
         !overlayRef.current.contains(event.target as Node)
       ) {
         setShowReadOnlyPopup(true);
-        setTimeout(() => {
-          setShowReadOnlyPopup(false);
-        }, 3000); // hide the popup after 3 seconds
       }
     },
     [overlayRef]
   );
+  useAutoDismissAlert(showReadOnlyPopup, setShowReadOnlyPopup);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleOverlayClick);
