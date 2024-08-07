@@ -21,6 +21,7 @@ import { RootState } from "../../../store";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
+import { setMarkersLoading } from "../../../store/markersLoadingSlice"; // Import the action
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
@@ -32,7 +33,6 @@ import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { LatLngLiteral } from "../../../types/googleMaps";
-
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
@@ -148,12 +148,15 @@ const FixedMarkers = ({
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
       clusterer.current.markerStreamIdMap = markerStreamIdMap;
+
+      dispatch(setMarkersLoading(false));
     }
-  }, [memoizedSessions, memoizedMarkers]);
+  }, [memoizedSessions, memoizedMarkers, dispatch]);
 
   useEffect(() => {
+    dispatch(setMarkersLoading(true));
     updateClusterer();
-  }, [updateClusterer]);
+  }, [updateClusterer, dispatch]);
 
   useEffect(() => {
     if (pulsatingSessionId) {
