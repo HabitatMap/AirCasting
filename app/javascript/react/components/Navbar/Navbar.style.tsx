@@ -64,10 +64,14 @@ const AircastingLogo = styled.img<{ $isSmallScreen?: boolean }>`
   height: 4.3rem;
 `;
 
-const MapControls = styled.div`
+const MapControls = styled.div<{ $isTimelapseView: boolean }>`
   display: flex;
   align-items: center;
   gap: 1.6rem;
+  ${(props) =>
+    props.$isTimelapseView &&
+    `opacity: 0.7;
+    pointer-events: none;`}
 
   @media ${media.smallDesktop} {
     gap: 1rem;

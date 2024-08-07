@@ -18,16 +18,16 @@ const TimelapseModal = styled(Popup)`
     align-items: flex-end;
     z-index: 2;
     @media ${media.smallDesktop} {
-      bottom: 26.4rem;
+      bottom: 20rem;
     }
   }
 
   &-content {
     width: 100%;
     height: auto;
-    bottom: 32rem;
-    padding: 0.5rem;
-    overflow-y: auto;
+    bottom: 68rem;
+    padding: 1rem;
+    overflow: visible;
     margin: 0;
     display: flex;
     flex-direction: row-reverse;
@@ -39,6 +39,7 @@ const TimelapseModal = styled(Popup)`
       height: 10rem;
       padding-bottom: 1.25rem;
       flex-direction: row;
+      align-items: center;
     }
   }
 `;
@@ -47,19 +48,21 @@ const CancelButtonX = styled.button`
   border: none;
   background-color: transparent;
   position: absolute;
-  bottom: -2rem;
-  left: 0.3rem;
+  top: auto;
+  bottom: -4rem;
+  left: 1rem;
+  right: auto;
   height: fit-content;
   align-self: flex-end;
   cursor: pointer;
-
+  @media ${media.smallDesktop} {
+    top: 0;
+    right: 1rem;
+    bottom: auto;
+    left: auto;
+  }
   body:not(.user-is-tabbing) &:focus-visible {
     outline: none;
-  }
-  @media ${media.smallDesktop} {
-    width: fit-content;
-    top: 0;
-    right: 0.3rem;
   }
 `;
 
@@ -104,10 +107,10 @@ const TimeAxisContainer = styled.div`
   gap: 1.2rem;
   padding: 1rem;
   border-radius: 1rem;
+  box-shadow: 2px 2px 4px 0px ${gray900};
   @media ${media.smallDesktop} {
     width: 110rem;
     height: 5rem;
-    box-shadow: 2px 2px 4px 0px ${gray900};
     grid-template-rows: auto;
     grid-template-columns: 1fr 5fr;
   }

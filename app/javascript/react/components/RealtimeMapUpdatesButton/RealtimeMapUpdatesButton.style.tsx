@@ -2,9 +2,7 @@ import styled from "styled-components";
 import { gray900, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
-const RealtimeMapUpdatesButtonContainer = styled.div<{
-  $isTimelapseView: boolean;
-}>`
+const RealtimeMapUpdatesButtonContainer = styled.div`
   display: flex;
   align-items: center;
   font-size: 1.4rem;
@@ -14,10 +12,6 @@ const RealtimeMapUpdatesButtonContainer = styled.div<{
   box-shadow: 2px 2px 4px 0px ${gray900};
   border-radius: 0.5rem;
   padding: 0 0.9rem;
-  ${(props) =>
-    props.$isTimelapseView &&
-    `opacity: 0.7;
-    pointer-events: none;`}
 
   @media ${media.smallDesktop} {
     font-size: 1.4rem;

@@ -79,10 +79,10 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
                 <LocationSearch isTimelapseView={isTimelapseView} />
               </S.SearchContainer>
             )}
-            <S.MapControls>
-              <RefreshMapButton isTimelapseView={isTimelapseView} />
-              <RealtimeMapUpdatesButton isTimelapseView={isTimelapseView} />
-              <ControlPanel isTimelapseView={isTimelapseView} />
+            <S.MapControls $isTimelapseView={isTimelapseView}>
+              <RefreshMapButton />
+              <RealtimeMapUpdatesButton />
+              <ControlPanel />
             </S.MapControls>
           </S.Container>
         </>

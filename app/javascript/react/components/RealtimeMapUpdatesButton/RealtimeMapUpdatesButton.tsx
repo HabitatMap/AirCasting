@@ -10,13 +10,7 @@ import { CheckboxButton } from "../CheckboxButton/CheckboxButton";
 import { Toggle } from "../Toggle/Toggle";
 import * as S from "./RealtimeMapUpdatesButton.style";
 
-interface RealtimeMapUpdatesButtonProps {
-  isTimelapseView: boolean;
-}
-
-const RealtimeMapUpdatesButton: React.FC<RealtimeMapUpdatesButtonProps> = ({
-  isTimelapseView,
-}) => {
+const RealtimeMapUpdatesButton = () => {
   const { t } = useTranslation();
   const isMobile = useScreenSizeDetection(screenSizes.mobile);
 
@@ -30,7 +24,7 @@ const RealtimeMapUpdatesButton: React.FC<RealtimeMapUpdatesButtonProps> = ({
   };
 
   return (
-    <S.RealtimeMapUpdatesButtonContainer $isTimelapseView={isTimelapseView}>
+    <S.RealtimeMapUpdatesButtonContainer>
       {isMobile ? (
         <Toggle
           labelLeft={t("navbar.realtimeMapUpdates")}

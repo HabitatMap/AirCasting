@@ -8,11 +8,7 @@ import { CheckboxButton } from "../../CheckboxButton/CheckboxButton";
 import { Toggle } from "../../Toggle/Toggle";
 import * as S from "./ControlPanel.style";
 
-interface ControlPanelProps {
-  isTimelapseView: boolean;
-}
-
-const ControlPanel: React.FC<ControlPanelProps> = ({ isTimelapseView }) => {
+const ControlPanel: React.FC = () => {
   const { mapTypeId, searchParams } = useMapParams();
   const navigate = useNavigate();
   const isFirstRender = useRef(true);
@@ -97,7 +93,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ isTimelapseView }) => {
   };
 
   return (
-    <S.ControlPanelContainer $isTimelapseView={isTimelapseView}>
+    <S.ControlPanelContainer>
       <S.ToggleContainer>
         <Toggle
           isChecked={viewMode === ViewMode.SATELLITE}

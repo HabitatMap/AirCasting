@@ -6,13 +6,7 @@ import { useAppDispatch } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import * as S from "./RefreshMapButton.style";
 
-interface RefreshMapButtonProps {
-  isTimelapseView: boolean;
-}
-
-const RefreshMapButton: React.FC<RefreshMapButtonProps> = ({
-  isTimelapseView,
-}) => {
+const RefreshMapButton = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
@@ -22,7 +16,7 @@ const RefreshMapButton: React.FC<RefreshMapButtonProps> = ({
   };
 
   return (
-    <S.RefreshButton onClick={handleClick} $isTimelapseView={isTimelapseView}>
+    <S.RefreshButton onClick={handleClick}>
       {t("navbar.refreshMap")}
     </S.RefreshButton>
   );

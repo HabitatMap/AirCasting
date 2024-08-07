@@ -68,9 +68,13 @@ export const MobileHeader = ({
             </nav>
           </S.MobileMenuContainer>
           <LocationSearch isMapPage={true} isTimelapseView={isTimelapseView} />
-          <RefreshMapButton isTimelapseView={isTimelapseView} />
-          <ControlPanel isTimelapseView={isTimelapseView} />
-          <RealtimeMapUpdatesButton isTimelapseView={isTimelapseView} />
+          {!isTimelapseView && (
+            <>
+              <RefreshMapButton />
+              <ControlPanel />
+              <RealtimeMapUpdatesButton />
+            </>
+          )}
           {navMenuVisible && (
             <NavList
               t={t as (key: string) => string}
