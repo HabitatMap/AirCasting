@@ -63,6 +63,50 @@ const GlobalStyles = createGlobalStyle`
         ${pulseAnimation} 2s infinite
       `};
   }
+
+  /* Scroll bar stylings */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+@-moz-document url-prefix() {
+    html {
+        scrollbar-width: thin;
+        scrollbar-color: #888 #F0F0F0;
+    }
+
+    ::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #888;;
+        border-radius: 6px;
+        border: 1px solid #F0F0F0;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #555;;
+    }
+}
 `;
 
 export default GlobalStyles;

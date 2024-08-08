@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { blue, gray100, gray400 } from "../../assets/styles/colors";
+import { blue, gray400 } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 import { SessionListTile } from "./SessionsListTile/SessionListTile.style";
 
@@ -39,23 +39,7 @@ const SessionListContainer = styled.div`
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-
-  &::-webkit-scrollbar {
-    width: 0.6rem;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(62, 68, 73, 0.6);
-    border-radius: 0;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: ${gray100};
-  }
-
-  /* Firefox specific scrollbar styles */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(62, 68, 73, 0.6) ${gray100};
+  width: calc(100% + 1rem);
 `;
 
 const ExportSessionsButton = styled.button<{ $hasSessions: boolean }>`
