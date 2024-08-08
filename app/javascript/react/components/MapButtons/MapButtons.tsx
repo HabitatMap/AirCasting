@@ -37,7 +37,6 @@ const MapButtons = () => {
       goToUserSettings(UserSettings.TimelapseView);
       if (currentUserSettings === UserSettings.TimelapseView) {
         goToUserSettings(previousUserSettings);
-        setActiveButton(null);
       }
     }
   };
@@ -62,7 +61,10 @@ const MapButtons = () => {
             image={clockIcon}
             onClick={() => handleClick(ButtonTypes.TIMELAPSE)}
             alt={t("navbar.altTimelapse")}
-            isActive={activeButton === ButtonTypes.TIMELAPSE}
+            isActive={
+              activeButton === ButtonTypes.TIMELAPSE &&
+              currentUserSettings === UserSettings.TimelapseView
+            }
           />
         )}
 
