@@ -29,7 +29,10 @@ import {
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
-import { selectMarkersLoading } from "../../store/markersLoadingSlice";
+import {
+  selectMarkersLoading,
+  setMarkersLoading,
+} from "../../store/markersLoadingSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -265,6 +268,14 @@ const Map = () => {
     dispatch,
   ]);
 
+  useEffect(() => {
+    if (sessionsPoints.length === 0) {
+      dispatch(setMarkersLoading(false));
+    } else {
+      dispatch(setMarkersLoading(true));
+    }
+  }, [sessionsPoints, dispatch]);
+
   // Callbacks
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
@@ -349,6 +360,7 @@ const Map = () => {
         navigate(
           `/fixed_stream?streamId=${selectedStreamId}&${newSearchParams.toString()}`
         );
+        dispatch(setMarkersLoading(false));
         return;
       }
     }
@@ -368,10 +380,12 @@ const Map = () => {
         UserSettings.ModalView
       );
       navigate(`?${newSearchParams.toString()}`);
+      dispatch(setMarkersLoading(false));
     }
 
     if (streamId) {
       revertUserSettingsAndResetIds();
+      dispatch(setMarkersLoading(false));
     }
   };
 
