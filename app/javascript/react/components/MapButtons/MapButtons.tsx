@@ -5,6 +5,7 @@ import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
+import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CopyLinkComponent } from "../Popups/CopyLinkComponent";
@@ -23,8 +24,12 @@ const MapButtons = () => {
   const [activeButton, setActiveButton] = useState<ButtonTypes | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const { t } = useTranslation();
-  const { goToUserSettings, currentUserSettings, previousUserSettings } =
-    useMapParams();
+  const {
+    goToUserSettings,
+    currentUserSettings,
+    previousUserSettings,
+    sessionType,
+  } = useMapParams();
 
   const isModalView = currentUserSettings === UserSettings.ModalView;
 
@@ -45,6 +50,9 @@ const MapButtons = () => {
     setShowFilters(activeButton === ButtonTypes.FILTER);
   }, [activeButton]);
 
+  const isTimelapseButtonVisible =
+    !isModalView && sessionType === SessionTypes.FIXED;
+
   return (
     <S.MapButtonsWrapper>
       <S.MapButtons>
@@ -55,7 +63,7 @@ const MapButtons = () => {
           alt={t("navbar.altFilter")}
           isActive={activeButton === ButtonTypes.FILTER}
         />
-        {!isModalView && (
+        {isTimelapseButtonVisible && (
           <MapButton
             title={t("navbar.timelapse")}
             image={clockIcon}

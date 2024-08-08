@@ -139,6 +139,7 @@ const Map = () => {
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
+  const isTimelapseButtonVisible = sessionType === SessionTypes.FIXED;
 
   const filters = useMemo(
     () =>
@@ -516,20 +517,22 @@ const Map = () => {
             isNotTimelapseButton={isTimelapseView}
             isActive={currentUserSettings === UserSettings.MapLegendView}
           />
-          <SectionButton
-            title={t("map.timelapsTile")}
-            image={clockIcon}
-            alt={t("map.altTimelapstile")}
-            onClick={() =>
-              goToUserSettings(
-                currentUserSettings === UserSettings.TimelapseView
-                  ? previousUserSettings
-                  : UserSettings.TimelapseView
-              )
-            }
-            isNotTimelapseButton={false}
-            isActive={currentUserSettings === UserSettings.TimelapseView}
-          />
+          {isTimelapseButtonVisible && (
+            <SectionButton
+              title={t("map.timelapsTile")}
+              image={clockIcon}
+              alt={t("map.altTimelapstile")}
+              onClick={() =>
+                goToUserSettings(
+                  currentUserSettings === UserSettings.TimelapseView
+                    ? previousUserSettings
+                    : UserSettings.TimelapseView
+                )
+              }
+              isNotTimelapseButton={false}
+              isActive={currentUserSettings === UserSettings.TimelapseView}
+            />
+          )}
           <SectionButton
             title={t("filters.filters")}
             image={filterIcon}
