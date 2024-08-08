@@ -9,8 +9,13 @@ import { Point, Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
+import {
+  setMarkersLoading,
+  setTotalMarkers,
+} from "../../../store/markersLoadingSlice";
 
 import type { Marker } from "@googlemaps/markerclusterer";
+import { useAppDispatch } from "../../../store/hooks";
 
 type Props = {
   sessions: Session[];
@@ -34,6 +39,7 @@ const MobileMarkers = ({
   const LAT_ADJUST_SMALL = 0.005;
 
   const map = useMap();
+  const dispatch = useAppDispatch();
 
   const thresholds = useSelector(selectThresholds);
 
@@ -59,19 +65,10 @@ const MobileMarkers = ({
     }
   }, [sessions]);
 
-  // Update markers when marker references change
   useEffect(() => {
-    const newMarkers: { [streamId: string]: Marker | null } = {};
-    sessions.forEach((session) => {
-      if (!markers[session.point.streamId]) {
-        newMarkers[session.point.streamId] = null;
-      }
-    });
-    setMarkers((prev) => ({
-      ...prev,
-      ...newMarkers,
-    }));
-  }, [sessions]);
+    dispatch(setMarkersLoading(true));
+    dispatch(setTotalMarkers(sessions.length));
+  }, [dispatch, sessions.length]);
 
   const areMarkersTooClose = (
     marker1: google.maps.LatLngLiteral,

@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import {
   DataContainer,
   MarkerCircle,
   MarkerContainer,
 } from "./SessionDotMarker.style";
+import { useAppDispatch } from "../../../../store/hooks";
+import { incrementLoadedMarkers } from "../../../../store/markersLoadingSlice";
 
 interface MarkerProps {
   color: string;
@@ -19,6 +21,12 @@ const SessionDotMarker = ({
   onClick,
   opacity = 1,
 }: MarkerProps) => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(incrementLoadedMarkers());
+  }, [dispatch]);
+
   return (
     <MarkerContainer onClick={onClick}>
       <DataContainer>

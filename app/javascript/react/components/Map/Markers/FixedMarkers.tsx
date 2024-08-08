@@ -1,7 +1,6 @@
 import React, {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -30,7 +29,10 @@ import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import { RootState } from "../../../store";
 import { useMapParams } from "../../../utils/mapParamsHandler";
-import { setMarkersLoading } from "../../../store/markersLoadingSlice"; // Import the action
+import {
+  setMarkersLoading,
+  setTotalMarkers,
+} from "../../../store/markersLoadingSlice";
 import { useAppDispatch } from "../../../store/hooks";
 
 type Props = {
@@ -149,14 +151,17 @@ const FixedMarkers = ({
       clusterer.current.addMarkers(validMarkers);
       clusterer.current.markerStreamIdMap = markerStreamIdMap;
 
-      dispatch(setMarkersLoading(false));
+      if (validMarkers.length === memoizedSessions.length) {
+        dispatch(setMarkersLoading(false));
+      }
     }
   }, [memoizedSessions, memoizedMarkers, dispatch]);
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
+    dispatch(setTotalMarkers(sessions.length));
     updateClusterer();
-  }, [updateClusterer, dispatch]);
+  }, [updateClusterer, dispatch, sessions.length]);
 
   useEffect(() => {
     if (pulsatingSessionId) {
