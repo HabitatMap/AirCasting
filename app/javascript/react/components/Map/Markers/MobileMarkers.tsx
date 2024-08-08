@@ -3,6 +3,11 @@ import { useSelector } from "react-redux";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { useAppDispatch } from "../../../store/hooks";
+import {
+  setMarkersLoading,
+  setTotalMarkers,
+} from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
@@ -34,6 +39,7 @@ const MobileMarkers = ({
   const LAT_ADJUST_SMALL = 0.005;
 
   const map = useMap();
+  const dispatch = useAppDispatch();
 
   const thresholds = useSelector(selectThresholds);
   const { unitSymbol } = useMapParams();
@@ -60,19 +66,10 @@ const MobileMarkers = ({
     }
   }, [sessions]);
 
-  // Update markers when marker references change
   useEffect(() => {
-    const newMarkers: { [streamId: string]: Marker | null } = {};
-    sessions.forEach((session) => {
-      if (!markers[session.point.streamId]) {
-        newMarkers[session.point.streamId] = null;
-      }
-    });
-    setMarkers((prev) => ({
-      ...prev,
-      ...newMarkers,
-    }));
-  }, [sessions]);
+    dispatch(setMarkersLoading(true));
+    dispatch(setTotalMarkers(sessions.length));
+  }, [dispatch, sessions.length]);
 
   const areMarkersTooClose = (
     marker1: google.maps.LatLngLiteral,

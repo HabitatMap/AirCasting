@@ -21,7 +21,10 @@ import { RootState } from "../../../store";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
-import { setMarkersLoading } from "../../../store/markersLoadingSlice"; // Import the action
+import {
+  setMarkersLoading,
+  setTotalMarkers,
+} from "../../../store/markersLoadingSlice"; // Import the action
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
@@ -149,14 +152,17 @@ const FixedMarkers = ({
       clusterer.current.addMarkers(validMarkers);
       clusterer.current.markerStreamIdMap = markerStreamIdMap;
 
-      dispatch(setMarkersLoading(false));
+      if (validMarkers.length === memoizedSessions.length) {
+        dispatch(setMarkersLoading(false));
+      }
     }
   }, [memoizedSessions, memoizedMarkers, dispatch]);
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
+    dispatch(setTotalMarkers(sessions.length));
     updateClusterer();
-  }, [updateClusterer, dispatch]);
+  }, [updateClusterer, dispatch, sessions.length]);
 
   useEffect(() => {
     if (pulsatingSessionId) {
