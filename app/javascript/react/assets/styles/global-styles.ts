@@ -66,7 +66,7 @@ const GlobalStyles = createGlobalStyle`
 
   /* Scroll bar stylings */
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 10px;
   height: 10px;
 }
 
