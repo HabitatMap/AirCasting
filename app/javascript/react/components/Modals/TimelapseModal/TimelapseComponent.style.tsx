@@ -26,6 +26,7 @@ const TimelapseModal = styled(Popup)`
       padding-bottom: 1.25rem;
       align-items: flex-end;
       bottom: 20rem;
+      top: auto;
     }
   }
 `;
@@ -42,9 +43,13 @@ const CancelButtonX = styled.button`
   align-self: flex-end;
   cursor: pointer;
   @media ${media.smallDesktop} {
-    top: -6rem;
+    top: -9rem;
+    left: 97%;
     right: 0;
     bottom: 0;
+  }
+  @media ${media.desktop} {
+    top: -6rem;
     left: 101%;
   }
   body:not(.user-is-tabbing) &:focus-visible {
@@ -126,6 +131,7 @@ const NavigationButtonsContainer = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 1rem;
+  align-self: flex-end;
 `;
 
 const AxisContainer = styled.div`
