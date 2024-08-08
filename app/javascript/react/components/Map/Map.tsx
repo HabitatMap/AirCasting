@@ -1,4 +1,3 @@
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
   useEffect,
@@ -8,6 +7,8 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
@@ -196,7 +197,7 @@ const Map = () => {
     }
     !isFirstRender.current && setPreviousZoomOnTheMap();
     isMobile && setPreviousZoomInTheURL();
-    isFirstRender.current = false;
+    // isFirstRender.current = false;
   }, [currentUserSettings]);
 
   useEffect(() => {
@@ -267,13 +268,23 @@ const Map = () => {
           const south = bounds.getSouthWest().lat();
           const east = bounds.getNorthEast().lng();
           const west = bounds.getSouthWest().lng();
+          console.log("map.getCenter()?.toJSON()", map.getCenter()?.toJSON());
+          console.log("currentCenter", currentCenter);
+          console.log("currentZoom", currentZoom);
+
+          if (Number(currentZoom) !== Math.round(Number(currentZoom))) {
+            map.setZoom(Math.round(Number(currentZoom)));
+          }
 
           newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
           newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
           newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
           newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
           newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
-          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
+          newSearchParams.set(
+            UrlParamsTypes.currentZoom,
+            Math.round(Number(currentZoom)).toString()
+          );
           navigate(`?${newSearchParams.toString()}`);
         }
       }
