@@ -220,7 +220,7 @@ const Map = () => {
     }
     !isFirstRender.current && setPreviousZoomOnTheMap();
     isMobile && setPreviousZoomInTheURL();
-    // isFirstRender.current = false;
+    isFirstRender.current = false;
   }, [currentUserSettings]);
 
   useEffect(() => {
