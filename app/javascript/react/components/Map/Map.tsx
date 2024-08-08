@@ -97,8 +97,6 @@ const Map = () => {
   const isFirstRenderForThresholds = useRef(true);
   const { t } = useTranslation();
 
-  const newSearchParams = new URLSearchParams(searchParams.toString());
-
   // State
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
@@ -106,6 +104,7 @@ const Map = () => {
   );
 
   // Selectors
+  const defaultThresholds = useAppSelector(selectDefaultThresholds);
   const fixedPoints = sessionId
     ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
     : useAppSelector(selectFixedSessionsPoints);
@@ -128,16 +127,14 @@ const Map = () => {
       ? selectFixedSessionsList
       : selectMobileSessionsList
   );
-
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
-  const usernamesDecoded = usernames && decodeURIComponent(usernames);
-  const tagsDecoded = tags && decodeURIComponent(tags);
-  const sensorNamedDecoded = decodeURIComponent(sensorName);
-
+  const newSearchParams = new URLSearchParams(searchParams.toString());
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
-
   const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
+  const sensorNamedDecoded = decodeURIComponent(sensorName);
+  const tagsDecoded = tags && decodeURIComponent(tags);
+  const usernamesDecoded = usernames && decodeURIComponent(usernames);
 
   const filters = useMemo(
     () =>
@@ -162,12 +159,12 @@ const Map = () => {
       boundNorth,
       boundSouth,
       boundWest,
+      encodedUnitSymbol,
       initialLimit,
       measurementType,
       initialOffset,
       sensorNamedDecoded,
       tagsDecoded,
-      unitSymbol,
       usernamesDecoded,
     ]
   );
@@ -186,8 +183,6 @@ const Map = () => {
     dispatch(setLoading(false));
   }, [filters, loading]);
 
-  const defaultThresholds = useAppSelector(selectDefaultThresholds);
-
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
   }, [thresholdFilters]);
@@ -196,6 +191,7 @@ const Map = () => {
     if (!isFirstRenderForThresholds.current) {
       dispatch(resetUserThresholds());
     }
+    // #DirtyButWorks :nervous-laugh: -> refactor when moving thresholds to url
     if (defaultThresholds.max !== 0) {
       isFirstRenderForThresholds.current = false;
     }
