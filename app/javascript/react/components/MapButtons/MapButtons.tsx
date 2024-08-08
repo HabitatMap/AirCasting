@@ -37,6 +37,7 @@ const MapButtons = () => {
       goToUserSettings(UserSettings.TimelapseView);
       if (currentUserSettings === UserSettings.TimelapseView) {
         goToUserSettings(previousUserSettings);
+        setActiveButton(null);
       }
     }
   };

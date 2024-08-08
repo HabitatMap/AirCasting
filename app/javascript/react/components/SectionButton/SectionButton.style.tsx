@@ -3,7 +3,7 @@ import { blue, white } from "../../assets/styles/colors";
 import { H6 } from "../Typography";
 
 const StyledSectionButton = styled.button<{
-  $isNotTimelapsButton: boolean;
+  $isNotTimelapseButton: boolean;
   $isActive: boolean;
 }>`
   background-color: ${(props) => (props.$isActive ? blue : white)};
@@ -19,7 +19,7 @@ const StyledSectionButton = styled.button<{
   height: 4.2rem;
   border: none;
   ${(props) =>
-    props.$isNotTimelapsButton &&
+    props.$isNotTimelapseButton &&
     `opacity: 0.7;
     pointer-events: none;`}
 `;

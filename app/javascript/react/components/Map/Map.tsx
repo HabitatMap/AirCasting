@@ -505,7 +505,7 @@ const Map = () => {
             image={pinImage}
             alt={t("map.altListSessions")}
             onClick={() => goToUserSettings(UserSettings.SessionListView)}
-            isNotTimelapsButton={isTimelapseView}
+            isNotTimelapseButton={isTimelapseView}
             isActive={currentUserSettings === UserSettings.SessionListView}
           />
           <SectionButton
@@ -513,7 +513,7 @@ const Map = () => {
             image={mapLegend}
             alt={t("map.altlegendTile")}
             onClick={() => goToUserSettings(UserSettings.MapLegendView)}
-            isNotTimelapsButton={isTimelapseView}
+            isNotTimelapseButton={isTimelapseView}
             isActive={currentUserSettings === UserSettings.MapLegendView}
           />
           <SectionButton
@@ -527,7 +527,7 @@ const Map = () => {
                   : UserSettings.TimelapseView
               )
             }
-            isNotTimelapsButton={false}
+            isNotTimelapseButton={false}
             isActive={currentUserSettings === UserSettings.TimelapseView}
           />
           <SectionButton
@@ -535,7 +535,7 @@ const Map = () => {
             image={filterIcon}
             alt={t("filters.altFiltersIcon")}
             onClick={openFilters}
-            isNotTimelapsButton={isTimelapseView}
+            isNotTimelapseButton={isTimelapseView}
             isActive={currentUserSettings === UserSettings.FiltersView}
           />
         </S.MobileButtons>

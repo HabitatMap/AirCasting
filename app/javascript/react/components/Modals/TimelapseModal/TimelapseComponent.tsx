@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { PopupProps } from "reactjs-popup/dist/types";
-import closeTimelapsButton from "../../../assets/icons/closeTimelapsButton.svg";
+import closeTimelapseButton from "../../../assets/icons/closeTimelapseButton.svg";
 import { useAutoDismissAlert } from "../../../utils/useAutoDismissAlert";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import NavigatioButtons from "./NavigationButtons";
@@ -89,7 +89,7 @@ const TimelapseComponent: React.FC<
             </S.TimeAxisContainer>
 
             <S.CancelButtonX onClick={close}>
-              <img src={closeTimelapsButton} alt={t("navbar.altClose")} />
+              <img src={closeTimelapseButton} alt={t("navbar.altClose")} />
             </S.CancelButtonX>
           </div>
         )}
