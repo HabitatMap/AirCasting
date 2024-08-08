@@ -37,6 +37,8 @@ import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import {
   fetchThresholds,
+  resetUserThresholds,
+  selectDefaultThresholds,
   setUserThresholdValues,
 } from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
@@ -92,6 +94,7 @@ const Map = () => {
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
   const isFirstRender = useRef(true);
+  const isFirstRenderForThresholds = useRef(true);
   const { t } = useTranslation();
 
   const newSearchParams = new URLSearchParams(searchParams.toString());
@@ -169,7 +172,9 @@ const Map = () => {
     ]
   );
 
-  const thresholdFilters = `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
+  const thresholdFilters = useMemo(() => {
+    return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
+  }, [sensorName, encodedUnitSymbol]);
 
   // Effects
   useEffect(() => {
@@ -181,10 +186,26 @@ const Map = () => {
     dispatch(setLoading(false));
   }, [filters, loading]);
 
+  const defaultThresholds = useAppSelector(selectDefaultThresholds);
+
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
-    dispatch(setUserThresholdValues(initialThresholds));
-  }, [initialThresholds, thresholdFilters]);
+  }, [thresholdFilters]);
+
+  useEffect(() => {
+    if (!isFirstRenderForThresholds.current) {
+      dispatch(resetUserThresholds());
+    }
+    if (defaultThresholds.max !== 0) {
+      isFirstRenderForThresholds.current = false;
+    }
+  }, [defaultThresholds]);
+
+  useEffect(() => {
+    if (isFirstRenderForThresholds.current) {
+      dispatch(setUserThresholdValues(initialThresholds));
+    }
+  }, [initialThresholds]);
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
