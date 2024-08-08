@@ -74,8 +74,8 @@ const TimelapseComponent: React.FC<
         overlayStyle={{
           margin: 0,
           zIndex: 2,
-          bottom: isMobile ? 30 : 0,
-          top: isMobile ? 30 : 0,
+          bottom: isMobile ? -30 : 0,
+          top: isMobile ? -30 : 0,
         }}
         contentStyle={{ margin: 0 }}
         onClose={closeHandler}

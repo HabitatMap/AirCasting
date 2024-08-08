@@ -39,9 +39,10 @@ const MapButtons = () => {
     );
 
     if (buttonType === ButtonTypes.TIMELAPSE) {
-      goToUserSettings(UserSettings.TimelapseView);
       if (currentUserSettings === UserSettings.TimelapseView) {
         goToUserSettings(previousUserSettings);
+      } else {
+        goToUserSettings(UserSettings.TimelapseView);
       }
     }
   };

@@ -139,7 +139,6 @@ const Map = () => {
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
-  const isTimelapseButtonVisible = sessionType === SessionTypes.FIXED;
 
   const filters = useMemo(
     () =>
@@ -427,6 +426,14 @@ const Map = () => {
     goToUserSettings(UserSettings.FiltersView);
   };
 
+  const openTimelapse = () => {
+    goToUserSettings(
+      currentUserSettings === UserSettings.TimelapseView
+        ? previousUserSettings
+        : UserSettings.TimelapseView
+    );
+  };
+
   return (
     <>
       <GoogleMap
@@ -518,18 +525,12 @@ const Map = () => {
             isNotTimelapseButton={isTimelapseView}
             isActive={currentUserSettings === UserSettings.MapLegendView}
           />
-          {isTimelapseButtonVisible && (
+          {fixedSessionTypeSelected && (
             <SectionButton
               title={t("map.timelapsTile")}
               image={clockIcon}
               alt={t("map.altTimelapstile")}
-              onClick={() =>
-                goToUserSettings(
-                  currentUserSettings === UserSettings.TimelapseView
-                    ? previousUserSettings
-                    : UserSettings.TimelapseView
-                )
-              }
+              onClick={openTimelapse}
               isNotTimelapseButton={false}
               isActive={currentUserSettings === UserSettings.TimelapseView}
             />
