@@ -32,6 +32,7 @@ import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { LatLngLiteral } from "../../../types/googleMaps";
+
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
@@ -268,8 +269,6 @@ const FixedMarkers = ({
       if (streamIds && streamIds.length > 0) {
         dispatch(fetchClusterData(streamIds as string[]));
       }
-
-      //!IMPORTANT! This is a current fix for the url params updating the center of the map incorrectly on first render after pasting a copied link, once the main issue is fixed, we can get rid of this ugly hack
 
       const pixelPosition = getClusterPixelPosition(map, cluster.position);
       setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
