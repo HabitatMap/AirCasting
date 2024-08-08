@@ -6,13 +6,12 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
+import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 import type { Marker } from "@googlemaps/markerclusterer";
-import { useMapParams } from "../../../utils/mapParamsHandler";
-
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
@@ -37,7 +36,7 @@ const MobileMarkers = ({
   const map = useMap();
 
   const thresholds = useSelector(selectThresholds);
-  const { initialUnitSymbol } = useMapParams();
+  const { unitSymbol } = useMapParams();
 
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -182,9 +181,7 @@ const MobileMarkers = ({
     return (
       <SessionFullMarker
         color={getColorForValue(thresholds, session.lastMeasurementValue)}
-        value={`${Math.round(
-          session.lastMeasurementValue
-        )} ${initialUnitSymbol}`}
+        value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
         isSelected={isSelected}
         shouldPulse={session.id === pulsatingSessionId}
         onClick={() => {

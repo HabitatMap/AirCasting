@@ -159,6 +159,7 @@ export const useMapParams = () => {
     getSearchParam(UrlParamsTypes.streamId, null) !== null
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
       : null;
+  const tags = getSearchParam(UrlParamsTypes.tags, "");
   const initialThresholds = useMemo(
     () => ({
       min: parseFloat(
@@ -194,10 +195,8 @@ export const useMapParams = () => {
     }),
     [defaultThresholds]
   );
-  const initialUnitSymbol = getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!;
-
+  const unitSymbol = getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!;
   const usernames = getSearchParam(UrlParamsTypes.usernames, "");
-  const tags = getSearchParam(UrlParamsTypes.tags, "");
 
   useEffect(() => {
     const queryParams = new URLSearchParams(searchParams.toString());
@@ -330,10 +329,9 @@ export const useMapParams = () => {
     setUrlParams,
     streamId,
     initialThresholds,
-    initialUnitSymbol,
     searchParams,
+    unitSymbol,
     usernames,
     tags,
-    thresholdValues,
   };
 };

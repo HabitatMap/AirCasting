@@ -1,12 +1,3 @@
-import {
-  Cluster,
-  GridAlgorithm,
-  Marker,
-  MarkerClusterer,
-  SuperClusterAlgorithm,
-  defaultOnClusterClickHandler,
-} from "@googlemaps/markerclusterer";
-import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
   useEffect,
@@ -15,13 +6,22 @@ import React, {
   useState,
 } from "react";
 import { useSelector } from "react-redux";
-import { useAppDispatch } from "../../../store/hooks";
+
+import {
+  Cluster,
+  defaultOnClusterClickHandler,
+  GridAlgorithm,
+  Marker,
+  MarkerClusterer,
+  SuperClusterAlgorithm,
+} from "@googlemaps/markerclusterer";
+import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { RootState } from "../../../store";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
+import { useAppDispatch } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
-import type { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -31,6 +31,7 @@ import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
+import type { LatLngLiteral } from "../../../types/googleMaps";
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
@@ -61,7 +62,7 @@ const FixedMarkers = ({
   const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
 
   const thresholds = useSelector(selectThresholds);
-  const { initialUnitSymbol } = useMapParams();
+  const { unitSymbol } = useMapParams();
 
   const [markers, setMarkers] = useState<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
@@ -349,9 +350,7 @@ const FixedMarkers = ({
         >
           <SessionFullMarker
             color={getColorForValue(thresholds, session.lastMeasurementValue)}
-            value={`${Math.round(
-              session.lastMeasurementValue
-            )} ${initialUnitSymbol}`}
+            value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
             isSelected={session.point.streamId === selectedStreamId?.toString()}
             shouldPulse={session.id === pulsatingSessionId}
             onClick={() => {

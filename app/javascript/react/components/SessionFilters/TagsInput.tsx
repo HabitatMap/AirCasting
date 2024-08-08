@@ -25,7 +25,7 @@ const TagsInput = () => {
     sessionType,
     setFilters,
     tags,
-    initialUnitSymbol,
+    unitSymbol,
     usernames,
   } = useMapParams();
 
@@ -33,7 +33,7 @@ const TagsInput = () => {
 
   const selectedSessionType = sessionType || SessionTypes.FIXED;
 
-  const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
+  const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
 
   const getQueryParams = (tag: string): fetchTagsParamsType => {
     return {

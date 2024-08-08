@@ -1,9 +1,8 @@
 import moment from "moment";
 import React, { useEffect, useRef } from "react";
-
 import { useTranslation } from "react-i18next";
-import { Graph } from "../../components/Graph";
 
+import { Graph } from "../../components/Graph";
 import MeasurementComponent from "../../components/Graph/MeasurementComponent";
 import TimeRange from "../../components/Graph/TimeRage";
 import { Calendar } from "../../components/molecules/Calendar";
@@ -40,7 +39,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const { t } = useTranslation();
-  const { initialUnitSymbol } = useMapParams();
+  const { unitSymbol } = useMapParams();
 
   const { streamId } = useMapParams();
 
@@ -135,7 +134,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 titleText={
                   <S.StyledContainer>
                     {t("calendarHeader.legendTitle")}
-                    <S.Units>({initialUnitSymbol})</S.Units>
+                    <S.Units>({unitSymbol})</S.Units>
                     <ResetButton
                       variant={ResetButtonVariant.TextWithIcon}
                       swapIconTextPosition={true}
@@ -156,7 +155,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 titleText={
                   <S.StyledContainer>
                     {t("calendarHeader.legendTitle")}
-                    <S.Units>({initialUnitSymbol})</S.Units>
+                    <S.Units>({unitSymbol})</S.Units>
                   </S.StyledContainer>
                 }
                 componentToToggle={

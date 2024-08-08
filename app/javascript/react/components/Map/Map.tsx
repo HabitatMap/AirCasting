@@ -85,11 +85,11 @@ const Map = () => {
     sessionId,
     sessionType,
     streamId,
-    initialThresholds,
-    initialUnitSymbol,
     searchParams,
-    usernames,
     tags,
+    initialThresholds,
+    unitSymbol,
+    usernames,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -135,7 +135,7 @@ const Map = () => {
   const tagsDecoded = tags && decodeURIComponent(tags);
   const sensorNamedDecoded = decodeURIComponent(sensorName);
 
-  const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
+  const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
 
   const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
 
@@ -165,10 +165,10 @@ const Map = () => {
       initialLimit,
       measurementType,
       initialOffset,
-      initialUnitSymbol,
       sensorNamedDecoded,
-      usernamesDecoded,
       tagsDecoded,
+      unitSymbol,
+      usernamesDecoded,
     ]
   );
 
@@ -461,7 +461,7 @@ const Map = () => {
         {streamId && !fixedSessionTypeSelected && (
           <StreamMarkers
             sessions={mobileStreamPoints}
-            unitSymbol={initialUnitSymbol}
+            unitSymbol={unitSymbol}
           />
         )}
       </GoogleMap>

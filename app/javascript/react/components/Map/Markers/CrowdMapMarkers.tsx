@@ -34,7 +34,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     boundWest,
     measurementType,
     tags,
-    initialUnitSymbol,
+    unitSymbol,
     usernames,
   } = useMapParams();
   const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
@@ -58,7 +58,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         tags: tags,
         time_from: "1685318400", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
         time_to: "1717027199", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
-        unit_symbol: initialUnitSymbol, // TODO: temporary solution, ticket: Session Filter [Both]: Parameter Picker (Basic)
+        unit_symbol: unitSymbol,
         usernames: usernames,
         west: boundWest,
       }),
@@ -70,7 +70,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       measurementType,
       mobileSessionsStreamIds,
       tags,
-      initialUnitSymbol,
+      unitSymbol,
       usernames,
     ]
   );
