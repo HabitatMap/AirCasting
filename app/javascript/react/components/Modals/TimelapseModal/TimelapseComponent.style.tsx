@@ -25,7 +25,7 @@ const TimelapseModal = styled(Popup)`
   &-content {
     width: 100%;
     height: auto;
-    bottom: 0;
+    bottom: 53rem;
     padding: 1rem;
     overflow: visible;
     margin: 0;
