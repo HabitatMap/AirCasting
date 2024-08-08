@@ -270,10 +270,6 @@ const FixedMarkers = ({
       }
 
       //!IMPORTANT! This is a current fix for the url params updating the center of the map incorrectly on first render after pasting a copied link, once the main issue is fixed, we can get rid of this ugly hack
-      // const mapCenter = map.getCenter();
-      // if (mapCenter !== currentCenter) {
-      //   mapCenter && map && map.setCenter(mapCenter);
-      // }
 
       const pixelPosition = getClusterPixelPosition(map, cluster.position);
       setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
