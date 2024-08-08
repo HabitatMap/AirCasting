@@ -13,7 +13,7 @@ import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
 import { MIN_ZOOM } from "../../const/coordinates";
-import { RootState } from "../../store";
+import { RootState, selectIsLoading } from "../../store";
 import {
   selectFixedSessionPointsBySessionId,
   selectFixedSessionsList,
@@ -27,6 +27,10 @@ import {
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
+import {
+  selectMarkersLoading,
+  setMarkersLoading,
+} from "../../store/markersLoadingSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -57,6 +61,7 @@ import { CrowdMapMarkers } from "./Markers/CrowdMapMarkers";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
+import { Loader } from "../Loader/Loader";
 
 const Map = () => {
   // Hooks
@@ -110,6 +115,8 @@ const Map = () => {
     selectFixedSessionsStatusFulfilled
   );
   const loading = useAppSelector((state: RootState) => state.map.loading);
+  const selectorsLoading = useAppSelector(selectIsLoading);
+  const markersLoading = useAppSelector(selectMarkersLoading);
   const mapId = useAppSelector((state: RootState) => state.map.mapId);
   const mobilePoints = sessionId
     ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
@@ -231,6 +238,14 @@ const Map = () => {
     dispatch,
   ]);
 
+  useEffect(() => {
+    if (sessionsPoints.length === 0) {
+      dispatch(setMarkersLoading(false));
+    } else {
+      dispatch(setMarkersLoading(true));
+    }
+  }, [sessionsPoints, dispatch]);
+
   // Callbacks
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
@@ -315,6 +330,7 @@ const Map = () => {
         navigate(
           `/fixed_stream?streamId=${selectedStreamId}&${newSearchParams.toString()}`
         );
+        dispatch(setMarkersLoading(false));
         return;
       }
     }
@@ -334,10 +350,12 @@ const Map = () => {
         UserSettings.ModalView
       );
       navigate(`?${newSearchParams.toString()}`);
+      dispatch(setMarkersLoading(false));
     }
 
     if (streamId) {
       revertUserSettingsAndResetIds();
+      dispatch(setMarkersLoading(false));
     }
   };
 
@@ -404,6 +422,11 @@ const Map = () => {
 
   return (
     <>
+      {(loading || selectorsLoading || markersLoading) && (
+        <S.LoaderOverlay>
+          <Loader />
+        </S.LoaderOverlay>
+      )}
       <GoogleMap
         mapId={mapId}
         mapTypeId={mapTypeId}
@@ -412,7 +435,7 @@ const Map = () => {
         gestureHandling={"greedy"}
         disableDefaultUI={true}
         scaleControl={true}
-        style={S.containerStyle}
+        style={S.ContainerStyle}
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
       >

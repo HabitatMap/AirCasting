@@ -1,13 +1,11 @@
 import React, {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { useSelector } from "react-redux";
-import { useAppDispatch } from "../../../store/hooks";
 import {
   Cluster,
   GridAlgorithm,
@@ -31,6 +29,11 @@ import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import { RootState } from "../../../store";
 import { useMapParams } from "../../../utils/mapParamsHandler";
+import {
+  setMarkersLoading,
+  setTotalMarkers,
+} from "../../../store/markersLoadingSlice";
+import { useAppDispatch } from "../../../store/hooks";
 
 type Props = {
   sessions: Session[];
@@ -147,12 +150,18 @@ const FixedMarkers = ({
       clusterer.current.clearMarkers();
       clusterer.current.addMarkers(validMarkers);
       clusterer.current.markerStreamIdMap = markerStreamIdMap;
+
+      if (validMarkers.length === memoizedSessions.length) {
+        dispatch(setMarkersLoading(false));
+      }
     }
-  }, [memoizedSessions, memoizedMarkers]);
+  }, [memoizedSessions, memoizedMarkers, dispatch]);
 
   useEffect(() => {
+    dispatch(setMarkersLoading(true));
+    dispatch(setTotalMarkers(sessions.length));
     updateClusterer();
-  }, [updateClusterer]);
+  }, [updateClusterer, dispatch, sessions.length]);
 
   useEffect(() => {
     if (pulsatingSessionId) {

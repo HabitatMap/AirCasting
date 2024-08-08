@@ -3,7 +3,7 @@ import styled from "styled-components";
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
-const containerStyle = {
+const ContainerStyle = {
   width: "100%",
   height: "100vh",
 };
@@ -78,10 +78,24 @@ const ThresholdContainer = styled.div`
   }
 `;
 
+const LoaderOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.5);
+  z-index: 40;
+`;
+
 export {
+  ContainerStyle,
   DesktopContainer,
+  LoaderOverlay,
   MobileButtons,
   MobileContainer,
   ThresholdContainer,
-  containerStyle,
 };
