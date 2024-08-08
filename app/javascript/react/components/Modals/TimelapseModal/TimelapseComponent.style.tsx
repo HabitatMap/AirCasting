@@ -12,7 +12,7 @@ const TimelapseModal = styled(Popup)`
     top: 0;
     left: 0;
     right: 0;
-    bottom: 32rem;
+    bottom: 0;
     display: flex;
     justify-content: center;
     align-items: flex-end;
