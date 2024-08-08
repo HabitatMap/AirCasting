@@ -375,6 +375,7 @@ const Map = () => {
         UserSettings.MapLegendView,
         UserSettings.FiltersView,
         UserSettings.CrowdMapView,
+        UserSettings.TimelapseView,
       ].includes(previousUserSettings)
     ) {
       if (mapInstance) {
