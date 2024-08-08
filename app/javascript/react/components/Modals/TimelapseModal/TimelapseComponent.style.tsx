@@ -8,38 +8,24 @@ const TimelapseModal = styled(Popup)`
   width: 100%;
 
   &-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
     z-index: 2;
-    @media ${media.smallDesktop} {
-      bottom: 20rem;
-    }
   }
 
   &-content {
     width: 100%;
     height: auto;
-    bottom: 54rem;
     padding: 1rem;
     overflow: visible;
-    margin: 0;
+    flex-direction: row;
     display: flex;
-    flex-direction: row-reverse;
-    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    top: 5rem;
 
     @media ${media.smallDesktop} {
-      bottom: 26.4rem;
-      max-width: 115rem;
-      height: 10rem;
       padding-bottom: 1.25rem;
-      flex-direction: row;
-      align-items: center;
+      align-items: flex-end;
+      bottom: 20rem;
     }
   }
 `;
@@ -47,19 +33,19 @@ const TimelapseModal = styled(Popup)`
 const CancelButtonX = styled.button`
   border: none;
   background-color: transparent;
-  position: absolute;
+  position: relative;
   top: auto;
-  bottom: -4rem;
-  left: 1rem;
-  right: auto;
+  right: 0;
+  bottom: -2rem;
+  left: 0;
   height: fit-content;
   align-self: flex-end;
   cursor: pointer;
   @media ${media.smallDesktop} {
-    top: 0;
-    right: 1rem;
-    bottom: auto;
-    left: auto;
+    top: -6rem;
+    right: 0;
+    bottom: 0;
+    left: 101%;
   }
   body:not(.user-is-tabbing) &:focus-visible {
     outline: none;
@@ -121,8 +107,9 @@ const TimeAxisContainer = styled.div`
   border-radius: 1rem;
   box-shadow: 2px 2px 4px 0px ${gray900};
   @media ${media.smallDesktop} {
-    width: 110rem;
-    height: 5rem;
+    width: 100%;
+    max-width: 115rem;
+    min-width: 50rem;
     grid-template-rows: auto;
     grid-template-columns: 1fr 5fr;
   }
