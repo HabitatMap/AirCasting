@@ -48,7 +48,7 @@ import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
-import { TimelapseComponent } from "../Modals/TimelapsModal";
+import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
