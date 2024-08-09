@@ -40,6 +40,10 @@ const SessionListContainer = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   width: calc(100% + 1rem);
+
+  @-moz-document url-prefix() {
+    width: calc(100% + 2rem);
+  }
 `;
 
 const ExportSessionsButton = styled.button<{ $hasSessions: boolean }>`

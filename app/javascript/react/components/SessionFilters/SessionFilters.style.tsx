@@ -131,7 +131,8 @@ const Input = styled.input`
 const SuggestionList = styled.ul<{ $displaySearchResults: boolean }>`
   max-height: 30rem;
   top: 6rem;
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
   padding-top: 0.5rem;
   display: ${(p) => (p.$displaySearchResults ? "block" : "none")};
   position: absolute;
