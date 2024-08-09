@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import { fetchTags, selectTags } from "../../store/sessionFiltersSlice";
-import { fetchTagsParamsType, SessionTypes } from "../../types/filters";
+import { SessionTypes, fetchTagsParamsType } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
@@ -34,10 +34,26 @@ const TagsInput = () => {
   const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
   const selectedSessionType = sessionType || SessionTypes.FIXED;
 
+  const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
+
   // Filters (temporary solution)
   const sensorName = fixedSessionTypeSelected
     ? initialSensorName
     : "AirBeam-PM2.5";
+
+  const queryParams: fetchTagsParamsType = {
+    tag: inputValue,
+    west: boundWest.toString(),
+    east: boundEast.toString(),
+    south: boundSouth.toString(),
+    north: boundNorth.toString(),
+    timeFrom: "1685318400",
+    timeTo: "1717027199",
+    usernames: usernames,
+    sensorName: sensorName,
+    unitSymbol: preparedUnitSymbol,
+    sessionType: selectedSessionType,
+  };
 
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({
@@ -45,22 +61,6 @@ const TagsInput = () => {
       inputValue,
       selectedItem,
       onInputValueChange: ({ inputValue }) => {
-        const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
-
-        const queryParams: fetchTagsParamsType = {
-          tag: inputValue,
-          west: boundWest.toString(),
-          east: boundEast.toString(),
-          south: boundSouth.toString(),
-          north: boundNorth.toString(),
-          timeFrom: "1685318400",
-          timeTo: "1717027199",
-          usernames: usernames,
-          sensorName: sensorName,
-          unitSymbol: preparedUnitSymbol,
-          sessionType: selectedSessionType,
-        };
-
         dispatch(fetchTags(queryParams));
         setInputValue(inputValue);
       },
@@ -82,6 +82,10 @@ const TagsInput = () => {
         }
       },
     });
+
+  const handleOnInputClick = () => {
+    dispatch(fetchTags(queryParams));
+  };
 
   const decodedTagsArray =
     tags &&
@@ -110,7 +114,7 @@ const TagsInput = () => {
       <S.SingleFilterWrapper>
         <S.Input
           placeholder={t("filters.tagsNames")}
-          {...getInputProps({ value: inputValue })}
+          {...getInputProps({ value: inputValue, onClick: handleOnInputClick })}
         />
         <FilterInfoPopup filterTranslationLabel="filters.tagNamesInfo" />
       </S.SingleFilterWrapper>

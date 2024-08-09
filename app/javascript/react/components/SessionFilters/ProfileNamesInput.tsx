@@ -81,7 +81,10 @@ const ProfileNamesInput = () => {
       <S.SingleFilterWrapper>
         <S.Input
           placeholder={t("filters.profileNames")}
-          {...getInputProps({ value: inputValue })}
+          {...getInputProps({
+            value: inputValue,
+            onClick: () => dispatch(fetchUsernames(inputValue)),
+          })}
         />
         <FilterInfoPopup filterTranslationLabel="filters.profileNamesInfo" />
       </S.SingleFilterWrapper>
