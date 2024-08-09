@@ -115,7 +115,11 @@ const ParameterFilter = () => {
       },
       {
         key: UrlParamsTypes.currentUserSettings,
-        value: isMobile ? UserSettings.FiltersView : UserSettings.MapView,
+        value: isMobile
+          ? UserSettings.FiltersView
+          : currentUserSettings === UserSettings.CrowdMapView
+          ? UserSettings.CrowdMapView
+          : UserSettings.MapView,
       },
       {
         key: UrlParamsTypes.measurementType,
