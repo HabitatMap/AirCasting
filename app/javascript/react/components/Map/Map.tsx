@@ -444,7 +444,9 @@ const Map = () => {
           />
         )}
         {!fixedSessionTypeSelected &&
-          (currentUserSettings === UserSettings.CrowdMapView ? (
+          ([UserSettings.CrowdMapView].includes(currentUserSettings) ||
+          ([UserSettings.CrowdMapView].includes(previousUserSettings) &&
+            [UserSettings.MapLegendView].includes(currentUserSettings)) ? (
             <CrowdMapMarkers
               pulsatingSessionId={pulsatingSessionId}
               sessions={sessionsPoints}
@@ -507,7 +509,7 @@ const Map = () => {
           />
         </S.MobileButtons>
         {currentUserSettings === UserSettings.MapLegendView && (
-          <Legend onClose={() => goToUserSettings(UserSettings.MapView)} />
+          <Legend onClose={() => goToUserSettings(previousUserSettings)} />
         )}
         {currentUserSettings === UserSettings.SessionListView && (
           <MobileSessionList
@@ -523,12 +525,20 @@ const Map = () => {
             onCellClick={(id, streamId) => {
               handleMarkerClick(streamId, id);
             }}
-            onClose={() => goToUserSettings(UserSettings.MapView)}
+            onClose={() =>
+              [UserSettings.CrowdMapView].includes(previousUserSettings)
+                ? goToUserSettings(UserSettings.CrowdMapView)
+                : goToUserSettings(UserSettings.MapView)
+            }
           />
         )}
         {currentUserSettings === UserSettings.FiltersView && (
           <MobileSessionFilters
-            onClose={() => goToUserSettings(UserSettings.MapView)}
+            onClose={() =>
+              [UserSettings.CrowdMapView].includes(previousUserSettings)
+                ? goToUserSettings(UserSettings.CrowdMapView)
+                : goToUserSettings(UserSettings.MapView)
+            }
           />
         )}
       </S.MobileContainer>
