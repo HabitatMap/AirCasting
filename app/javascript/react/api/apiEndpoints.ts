@@ -1,4 +1,4 @@
-import { fetchTagsParamsType } from "../types/filters";
+import { SessionType, fetchTagsParamsType } from "../types/filters";
 
 interface ApiEndpoints {
   readonly exportSessionData: (sessionsIds: string[], email: string) => string;
@@ -16,6 +16,7 @@ interface ApiEndpoints {
   readonly fetchThresholds: (filters: string) => string;
   readonly fetchUsernames: (username: string) => string;
   readonly fetchTags: (params: fetchTagsParamsType) => string;
+  readonly fetchSensors: (sessionType: SessionType) => string;
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
@@ -62,4 +63,5 @@ export const API_ENDPOINTS: ApiEndpoints = {
 
     return url;
   },
+  fetchSensors: (sessionType) => `/sensors?session_type=MobileSession`,
 };

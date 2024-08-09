@@ -14,6 +14,7 @@ import {
   white,
 } from "../../assets/styles/colors";
 import { Button } from "../Button/Button.style";
+import { SearchInput } from "../LocationSearch/LocationSearch.style";
 import { CloseButton } from "../Map/Legend/Legend.style";
 import { SmallPopup } from "../Popups/Popups.style";
 import { H4, H6 } from "../Typography";
@@ -357,6 +358,51 @@ const ButtonSpan = styled(HeaderTitle)<{ $isActive: boolean }>`
   margin: 0;
 `;
 
+const CustomParameterWrapper = styled.div`
+  /* margin-left: 3rem; */
+`;
+
+const CustomParametersListWrapper = styled.div``;
+
+const CustomParameterSearch = styled.div`
+  display: flex;
+`;
+
+const CustomParametersInput = styled(SearchInput)`
+  height: 2.4rem;
+  width: 21rem;
+  background-size: 0.9rem;
+  font-size: 1.2rem;
+  color: ${gray300};
+  padding: 0.5rem 2.4rem;
+  margin-top: 0.8rem;
+  background-position-x: 0.7rem;
+`;
+
+const Hr = styled.hr`
+  display: block;
+  margin: 2rem 3rem;
+  border: 1px solid ${gray200};
+`;
+
+const CustomParameterList = styled.ul`
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 0.8rem;
+  max-height: 40rem;
+  overflow: scroll;
+`;
+
+const CustomParameter = styled.button`
+  border: none;
+  background-color: transparent;
+  color: ${gray300};
+  font-size: 1rem;
+  text-align: left;
+  margin-bottom: 0.8rem;
+`;
+
 export {
   BackButton,
   BasicParameterButton,
@@ -368,12 +414,19 @@ export {
   ChevronIcon,
   CloseSelectedItemButton,
   CrowdMapButton,
+  CustomParameter,
+  CustomParameterList,
+  CustomParameterSearch,
+  CustomParameterWrapper,
+  CustomParametersInput,
+  CustomParametersListWrapper,
   Description,
   FiltersOptionHeading,
   FiltersOptionsWrapper,
   FiltersOptonButton,
   Header,
   HeaderTitle,
+  Hr,
   IconWrapper,
   Info,
   InfoButton,
