@@ -201,6 +201,10 @@ const Map = () => {
     if (isFirstRenderForThresholds.current) {
       dispatch(setUserThresholdValues(initialThresholds));
     }
+    // #DirtyButWorks :nervous-laugh: -> refactor when moving thresholds to url
+    if (initialThresholds.max === 0) {
+      isFirstRenderForThresholds.current = false;
+    }
   }, [initialThresholds]);
 
   useEffect(() => {
