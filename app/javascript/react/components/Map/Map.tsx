@@ -286,10 +286,11 @@ const Map = () => {
           if (!bounds) {
             return;
           }
-          const north = bounds.getNorthEast().lat();
-          const south = bounds.getSouthWest().lat();
-          const east = bounds.getNorthEast().lng();
-          const west = bounds.getSouthWest().lng();
+
+          const north = parseFloat(bounds.getNorthEast().lat().toFixed(6));
+          const south = parseFloat(bounds.getSouthWest().lat().toFixed(6));
+          const east = parseFloat(bounds.getNorthEast().lng().toFixed(6));
+          const west = parseFloat(bounds.getSouthWest().lng().toFixed(6));
           const currentZoom = handleZoomChange(map);
 
           newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
@@ -367,16 +368,7 @@ const Map = () => {
 
   const handleZoomChange = (map: google.maps.Map): string => {
     const currentZoom: number = map.getZoom() || previousZoom;
-    const roundedZoom = Math.round(currentZoom);
-
-    if (Number(currentZoom) !== roundedZoom) {
-      if (currentZoom > roundedZoom) {
-        map.setZoom(Math.ceil(currentZoom)); // Round up if zooming in
-      } else {
-        map.setZoom(Math.floor(currentZoom)); // Round down if zooming out
-      }
-    }
-    return (map?.getZoom() || previousZoom).toString();
+    return currentZoom.toString();
   };
 
   const setPreviousZoomOnTheMap = () => {
