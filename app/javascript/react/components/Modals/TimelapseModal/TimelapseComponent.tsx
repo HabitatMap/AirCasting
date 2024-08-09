@@ -44,13 +44,7 @@ const TimelapseComponent: React.FC<
         overlayRef.current &&
         !overlayRef.current.contains(event.target as Node)
       ) {
-        const clickedElement = event.target as HTMLElement;
-        const clickedElementZIndex =
-          window.getComputedStyle(clickedElement).zIndex;
-
-        if (parseInt(clickedElementZIndex, 10) <= 2) {
-          setShowReadOnlyPopup(true);
-        }
+        setShowReadOnlyPopup(true);
       }
     },
     [overlayRef]
