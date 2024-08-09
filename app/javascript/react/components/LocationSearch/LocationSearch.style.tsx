@@ -10,6 +10,7 @@ interface SuggestionProps {
 
 interface SearchInputProps {
   $displaySearchResults?: boolean;
+  $isTimelapsView: boolean;
 }
 
 interface SuggestionsListProps {
@@ -50,7 +51,7 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
 `;
 
 const SearchInput = styled.input<SearchInputProps>`
-  width: 26.9rem;
+  width: ${(props) => (props.$isTimelapsView ? "100%" : "26.9rem")};
   height: 3.2rem;
   border-radius: ${(p) =>
     p.$displaySearchResults ? `15px 15px 0px 0px` : `20px`};
@@ -65,6 +66,10 @@ const SearchInput = styled.input<SearchInputProps>`
   padding-left: 3.8rem;
   outline: none;
   z-index: 3;
+
+  @media ${media.smallDesktop} {
+    width: 26.9rem;
+  }
 
   @media ${media.mediumDesktop} {
     height: 4.2rem;
@@ -91,12 +96,21 @@ const LocationSearchButton = styled.button`
   z-index: 2;
 `;
 
-const SearchContainer = styled.div`
+const SearchContainer = styled.div<{ $isTimelapseView: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  width: 70vw;
+  @media ${media.smallDesktop} {
+    width: auto;
+  }
+
+  ${(props) =>
+    props.$isTimelapseView &&
+    `opacity: 0.7;
+    pointer-events: none;`}
 `;
 
 const Hr = styled.hr<HrProps>`

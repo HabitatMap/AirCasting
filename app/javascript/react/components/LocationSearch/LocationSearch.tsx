@@ -11,19 +11,23 @@ import { useMap } from "@vis.gl/react-google-maps";
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
 import { determineZoomLevel } from "../../utils/determineZoomLevel";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import * as S from "./LocationSearch.style";
-import useScreenSizeDetection from "../../utils/useScreenSizeDetection";
 import { screenSizes } from "../../utils/media";
+import useScreenSizeDetection from "../../utils/useScreenSizeDetection";
+import * as S from "./LocationSearch.style";
 
 const OK_STATUS = "OK";
 
 interface LocationSearchProps {
   isMapPage?: boolean;
+  isTimelapseView: boolean;
 }
 
 type AutocompletePrediction = google.maps.places.AutocompletePrediction;
 
-const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
+const LocationSearch: React.FC<LocationSearchProps> = ({
+  isMapPage,
+  isTimelapseView,
+}) => {
   const [items, setItems] = useState<AutocompletePrediction[]>([]);
   const [selectedItem, setSelectedItem] =
     useState<AutocompletePrediction | null>(null);
@@ -95,11 +99,12 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isMapPage }) => {
   }, [data, status]);
 
   return (
-    <S.SearchContainer>
+    <S.SearchContainer $isTimelapseView={isTimelapseView}>
       <S.SearchInput
         placeholder={t("map.searchPlaceholder")}
         $displaySearchResults={displaySearchResults}
         {...getInputProps()}
+        $isTimelapsView={isTimelapseView}
       />
       {!isMapPage && !isSmallDesktop && (
         <S.LocationSearchButton

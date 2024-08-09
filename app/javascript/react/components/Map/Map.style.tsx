@@ -6,7 +6,6 @@ import { media } from "../../utils/media";
 const containerStyle = {
   width: "100%",
   height: "100vh",
-  overflow: "hidden",
 };
 
 const DesktopContainer = styled.div`
@@ -23,16 +22,25 @@ const MobileContainer = styled.div`
   }
 `;
 
-const MobileButtons = styled.div`
+const MobileButtons = styled.div<{ $isTimelapseView: boolean }>`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  justify-content: center;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-items: center;
+  align-items: center;
   gap: 1rem;
-  flex-direction: column;
   position: fixed;
   bottom: 0.1rem;
-  right: 0.4rem;
+  right: 1.4rem;
   direction: rtl;
+  ${(props) => props.$isTimelapseView && "z-index: 3;"}
+
+  @media (min-width: 390px) {
+    right: 3.5rem;
+  }
+
+  @media (${media.smallDesktop}) {
+    right: 0.4rem;
+  }
 `;
 
 const ThresholdContainer = styled.div`
@@ -80,9 +88,9 @@ const ThresholdContainer = styled.div`
 `;
 
 export {
+  containerStyle,
   DesktopContainer,
   MobileButtons,
   MobileContainer,
   ThresholdContainer,
-  containerStyle,
 };
