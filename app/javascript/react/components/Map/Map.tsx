@@ -1,4 +1,3 @@
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
   useEffect,
@@ -8,6 +7,8 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
@@ -258,7 +259,6 @@ const Map = () => {
           const currentCenter = JSON.stringify(
             map.getCenter()?.toJSON() || previousCenter
           );
-          const currentZoom = (map.getZoom() || previousZoom).toString();
           const bounds = map?.getBounds();
           if (!bounds) {
             return;
@@ -267,6 +267,7 @@ const Map = () => {
           const south = bounds.getSouthWest().lat();
           const east = bounds.getNorthEast().lng();
           const west = bounds.getSouthWest().lng();
+          const currentZoom = handleZoomChange(map);
 
           newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
           newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
@@ -339,6 +340,20 @@ const Map = () => {
     if (streamId) {
       revertUserSettingsAndResetIds();
     }
+  };
+
+  const handleZoomChange = (map: google.maps.Map): string => {
+    const currentZoom: number = map.getZoom() || previousZoom;
+    const roundedZoom = Math.round(currentZoom);
+
+    if (Number(currentZoom) !== roundedZoom) {
+      if (currentZoom > roundedZoom) {
+        map.setZoom(Math.ceil(currentZoom)); // Round up if zooming in
+      } else {
+        map.setZoom(Math.floor(currentZoom)); // Round down if zooming out
+      }
+    }
+    return (map?.getZoom() || previousZoom).toString();
   };
 
   const setPreviousZoomOnTheMap = () => {
