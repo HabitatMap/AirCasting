@@ -282,7 +282,6 @@ const Map = () => {
           const currentCenter = JSON.stringify(
             map.getCenter()?.toJSON() || previousCenter
           );
-          const currentZoom = (map.getZoom() || previousZoom).toString();
           const bounds = map?.getBounds();
           if (!bounds) {
             return;
@@ -291,23 +290,14 @@ const Map = () => {
           const south = bounds.getSouthWest().lat();
           const east = bounds.getNorthEast().lng();
           const west = bounds.getSouthWest().lng();
-          console.log("map.getCenter()?.toJSON()", map.getCenter()?.toJSON());
-          console.log("currentCenter", currentCenter);
-          console.log("currentZoom", currentZoom);
-
-          if (Number(currentZoom) !== Math.round(Number(currentZoom))) {
-            map.setZoom(Math.round(Number(currentZoom)));
-          }
+          const currentZoom = handleZoomChange(map);
 
           newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
           newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
           newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
           newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
           newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
-          newSearchParams.set(
-            UrlParamsTypes.currentZoom,
-            Math.round(Number(currentZoom)).toString()
-          );
+          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
           navigate(`?${newSearchParams.toString()}`);
         }
       }
@@ -373,6 +363,20 @@ const Map = () => {
     if (streamId) {
       revertUserSettingsAndResetIds();
     }
+  };
+
+  const handleZoomChange = (map: google.maps.Map): string => {
+    const currentZoom: number = map.getZoom() || previousZoom;
+    const roundedZoom = Math.round(currentZoom);
+
+    if (Number(currentZoom) !== roundedZoom) {
+      if (currentZoom > roundedZoom) {
+        map.setZoom(Math.ceil(currentZoom)); // Round up if zooming in
+      } else {
+        map.setZoom(Math.floor(currentZoom)); // Round down if zooming out
+      }
+    }
+    return (map?.getZoom() || previousZoom).toString();
   };
 
   const setPreviousZoomOnTheMap = () => {
