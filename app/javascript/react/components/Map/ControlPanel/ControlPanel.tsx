@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 
 import { MapTypeId, ViewMode } from "../../../types/map";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
-import * as S from "./ControlPanel.style";
 import { CheckboxButton } from "../../CheckboxButton/CheckboxButton";
 import { Toggle } from "../../Toggle/Toggle";
+import * as S from "./ControlPanel.style";
 
 const ControlPanel: React.FC = () => {
   const { mapTypeId, searchParams } = useMapParams();

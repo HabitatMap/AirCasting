@@ -16,10 +16,12 @@ import * as S from "./Navbar.style";
 import NavList from "./NavList/NavList";
 
 export const MobileHeader = ({
+  isTimelapseView,
   toggleMenuVisibility,
   navMenuVisible,
   t,
 }: {
+  isTimelapseView: boolean;
   toggleMenuVisibility: () => void;
   navMenuVisible: boolean;
   t: (key: string) => string;
@@ -65,10 +67,14 @@ export const MobileHeader = ({
               </S.MenuButton>
             </nav>
           </S.MobileMenuContainer>
-          <LocationSearch isMapPage={true} />
-          <RefreshMapButton />
-          <ControlPanel />
-          <RealtimeMapUpdatesButton />
+          <LocationSearch isMapPage={true} isTimelapseView={isTimelapseView} />
+          {!isTimelapseView && (
+            <>
+              <RefreshMapButton />
+              <ControlPanel />
+              <RealtimeMapUpdatesButton />
+            </>
+          )}
           {navMenuVisible && (
             <NavList
               t={t as (key: string) => string}

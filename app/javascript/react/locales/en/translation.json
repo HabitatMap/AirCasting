@@ -129,7 +129,9 @@
       "average": "avg",
       "stations": "stations",
       "measurements": "measurements"
-    }
+    },
+    "timelapsTile": "Timelapse",
+    "altTimelapseTile": "Show the timelapse for the map"
   },
   "sessionDetailsModal": {
     "calendar": "Calendar",
@@ -175,5 +177,15 @@
     "selectParameter": "select parameter",
     "selectParameterDescription": "The parameter field describes the broad category of environmental or physiological measurements being recorded. The AirCasting platform is device agnostic i.e. it will ingest and display data from any instrument that formats and communicates data according to our formatting and communications protocol.",
     "back": "back"
+  },
+  "timelapse": {
+  "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",
+  "altRewind": "Rewind icon",
+  "altFastForward": "Fast forward icon",
+  "altPlay": "Play icon",
+  "altPause": "Pause icon",
+  "altSkipLeft": "Skip left icon",
+  "altSkipRight": "Skip right icon"
+
   }
 }

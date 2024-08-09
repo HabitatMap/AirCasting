@@ -1,10 +1,12 @@
 import React from "react";
 
 import logo from "../../../../assets/images/aircasting-logo-nav.svg";
-import mobileLogo from "../../assets/icons/airCastingLogoMobile.svg";
+import {
+  default as airCastingLogoMobile,
+  default as mobileLogo,
+} from "../../assets/icons/airCastingLogoMobile.svg";
 import airbeamIcon from "../../assets/icons/airbeamIcon.svg";
 import hamburger from "../../assets/icons/hamburger.svg";
-import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 
 import { urls } from "../../const/urls";
@@ -19,6 +21,7 @@ import * as S from "./Navbar.style";
 
 interface DesktopHeaderProps {
   isMapPage: boolean;
+  isTimelapseView: boolean;
   navMenuVisible: boolean;
   toggleMenuVisibility: () => void;
   t: (key: string) => string;
@@ -26,6 +29,7 @@ interface DesktopHeaderProps {
 
 const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   isMapPage,
+  isTimelapseView,
   navMenuVisible,
   toggleMenuVisibility,
   t,
@@ -58,7 +62,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
                     </S.MenuButton>
                   </nav>
                 </S.SmallDesktopMenuContainer>
-                <LocationSearch />
+                <LocationSearch isTimelapseView={isTimelapseView} />
               </S.SmallDesktopContainer>
             ) : (
               <S.SearchContainer>
@@ -72,10 +76,10 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
                     $isSmallScreen={isSmallScreen}
                   />
                 </a>
-                <LocationSearch />
+                <LocationSearch isTimelapseView={isTimelapseView} />
               </S.SearchContainer>
             )}
-            <S.MapControls>
+            <S.MapControls $isTimelapseView={isTimelapseView}>
               <RefreshMapButton />
               <RealtimeMapUpdatesButton />
               <ControlPanel />

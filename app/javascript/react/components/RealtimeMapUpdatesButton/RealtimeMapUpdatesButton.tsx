@@ -1,14 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import * as S from "./RealtimeMapUpdatesButton.style";
-import { CheckboxButton } from "../CheckboxButton/CheckboxButton";
-import useScreenSizeDetection from "../../utils/useScreenSizeDetection";
-import { screenSizes } from "../../utils/media";
-import { Toggle } from "../Toggle/Toggle";
-import { setRealtimeMapUpdates } from "../../store/realtimeMapUpdatesSlice";
-import { useAppDispatch } from "../../store/hooks";
 import { RootState } from "../../store";
+import { useAppDispatch } from "../../store/hooks";
+import { setRealtimeMapUpdates } from "../../store/realtimeMapUpdatesSlice";
+import { screenSizes } from "../../utils/media";
+import useScreenSizeDetection from "../../utils/useScreenSizeDetection";
+import { CheckboxButton } from "../CheckboxButton/CheckboxButton";
+import { Toggle } from "../Toggle/Toggle";
+import * as S from "./RealtimeMapUpdatesButton.style";
 
 const RealtimeMapUpdatesButton = () => {
   const { t } = useTranslation();

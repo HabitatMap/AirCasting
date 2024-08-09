@@ -9,6 +9,7 @@ import React, {
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
@@ -47,6 +48,7 @@ import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
+import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
@@ -135,6 +137,8 @@ const Map = () => {
   const sensorNamedDecoded = decodeURIComponent(sensorName);
   const tagsDecoded = tags && decodeURIComponent(tags);
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
+
+  const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
   const filters = useMemo(
     () =>
@@ -370,6 +374,7 @@ const Map = () => {
         UserSettings.MapLegendView,
         UserSettings.FiltersView,
         UserSettings.CrowdMapView,
+        UserSettings.TimelapseView,
       ].includes(previousUserSettings)
     ) {
       if (mapInstance) {
@@ -419,6 +424,14 @@ const Map = () => {
       ? dispatch(fetchFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
     goToUserSettings(UserSettings.FiltersView);
+  };
+
+  const openTimelapse = () => {
+    goToUserSettings(
+      currentUserSettings === UserSettings.TimelapseView
+        ? previousUserSettings
+        : UserSettings.TimelapseView
+    );
   };
 
   return (
@@ -487,25 +500,48 @@ const Map = () => {
           streamId={streamId}
         />
       )}
+      {currentUserSettings === UserSettings.TimelapseView && (
+        <TimelapseComponent
+          onClose={() => {
+            goToUserSettings(previousUserSettings);
+          }}
+        />
+      )}
       <S.MobileContainer>
-        <S.MobileButtons>
+        <S.MobileButtons $isTimelapseView={isTimelapseView}>
           <SectionButton
             title={t("map.listSessions")}
             image={pinImage}
             alt={t("map.altListSessions")}
             onClick={() => goToUserSettings(UserSettings.SessionListView)}
+            isNotTimelapseButton={isTimelapseView}
+            isActive={currentUserSettings === UserSettings.SessionListView}
           />
           <SectionButton
             title={t("map.legendTile")}
             image={mapLegend}
             alt={t("map.altlegendTile")}
             onClick={() => goToUserSettings(UserSettings.MapLegendView)}
+            isNotTimelapseButton={isTimelapseView}
+            isActive={currentUserSettings === UserSettings.MapLegendView}
           />
+          {fixedSessionTypeSelected && (
+            <SectionButton
+              title={t("map.timelapsTile")}
+              image={clockIcon}
+              alt={t("map.altTimelapstile")}
+              onClick={openTimelapse}
+              isNotTimelapseButton={false}
+              isActive={currentUserSettings === UserSettings.TimelapseView}
+            />
+          )}
           <SectionButton
             title={t("filters.filters")}
             image={filterIcon}
             alt={t("filters.altFiltersIcon")}
             onClick={openFilters}
+            isNotTimelapseButton={isTimelapseView}
+            isActive={currentUserSettings === UserSettings.FiltersView}
           />
         </S.MobileButtons>
         {currentUserSettings === UserSettings.MapLegendView && (

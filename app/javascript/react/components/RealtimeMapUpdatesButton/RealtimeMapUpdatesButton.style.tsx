@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { white, gray900 } from "../../assets/styles/colors";
+import { gray900, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 const RealtimeMapUpdatesButtonContainer = styled.div`
