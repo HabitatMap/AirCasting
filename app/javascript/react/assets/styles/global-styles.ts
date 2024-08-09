@@ -1,6 +1,6 @@
 import { createGlobalStyle, css, keyframes } from "styled-components";
 
-import { acBlue, gray100, gray400 } from "./colors";
+import { gray100, gray400 } from "./colors";
 
 const pulseAnimation = keyframes`
   0% {
@@ -66,42 +66,45 @@ const GlobalStyles = createGlobalStyle`
 
   /* Scroll bar stylings */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 9px;
   height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: ${gray100};
+  background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: ${acBlue};
+  background-color: #888;
+  border-radius: 8px
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: ${acBlue};
+  background: #555
 }
 
 @-moz-document url-prefix() {
     html {
-        scrollbar-width: 8px;
-        scrollbar-color: ${acBlue} transparent;
+      scrollbar-width: thin;
+      scrollbar-color: #888 #F0F0F0;
     }
 
     ::-webkit-scrollbar {
-        width: 8px;
+      width: 12px;
     }
 
     ::-webkit-scrollbar-track {
-        background: ${gray100};
+      background: transparent;
     }
 
     ::-webkit-scrollbar-thumb {
-        background-color: ${acBlue};
+      background-color: #888;;
+      border-radius: 6px;
+      border: 1px solid #F0F0F0;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background-color: ${acBlue};
+      background-color: #555;;
     }
 }
 `;
