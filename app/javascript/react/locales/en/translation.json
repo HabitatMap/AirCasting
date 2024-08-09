@@ -127,7 +127,6 @@
     "exportButton": "Export",
     "clusterInfo": {
       "average": "avg",
-      "units": "µg/m³",
       "stations": "stations",
       "measurements": "measurements"
     }

@@ -20,6 +20,15 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
+export enum unitSymbolTypes {
+  PARTICULATE_MATTER = "µg/m³",
+  HUMIDITY = "%",
+  NITROGEN_DIOXIDE = "ppb",
+  OZONE = "ppb",
+  TEMPERATURE = "F",
+  SOUND_LEVEL = "dB",
+}
+
 // TEMPORARY SOLUTION, WILL BE IMPLEMENTED IN NEXT PR
 const setDefaultSensor = (
   selectedParameter: ParameterType,
@@ -30,32 +39,32 @@ const setDefaultSensor = (
       case FixedBasicParameterTypes.PARTICULATE_MATTER:
         return {
           sensorName: "Government-PM2.5",
-          unitSymbol: "µg/m³",
+          unitSymbol: unitSymbolTypes.PARTICULATE_MATTER,
         };
       case FixedBasicParameterTypes.HUMIDITY:
         return {
           sensorName: "AirBeam-RH",
-          unitSymbol: "%",
+          unitSymbol: unitSymbolTypes.HUMIDITY,
         };
       case FixedBasicParameterTypes.NITROGEN_DIOXIDE:
         return {
           sensorName: "Government-NO2",
-          unitSymbol: "ppb",
+          unitSymbol: unitSymbolTypes.NITROGEN_DIOXIDE,
         };
       case FixedBasicParameterTypes.OZONE:
         return {
           sensorName: "Government-Ozone",
-          unitSymbol: "ppb",
+          unitSymbol: unitSymbolTypes.OZONE,
         };
       case FixedBasicParameterTypes.TEMPERATURE:
         return {
           sensorName: "AirBeam-F",
-          unitSymbol: "F",
+          unitSymbol: unitSymbolTypes.TEMPERATURE,
         };
       default:
         return {
           sensorName: "Government-PM2.5",
-          unitSymbol: "µg/m³",
+          unitSymbol: unitSymbolTypes.PARTICULATE_MATTER,
         };
     }
   } else {
@@ -63,27 +72,27 @@ const setDefaultSensor = (
       case MobileBasicParameterTypes.PARTICULATE_MATTER:
         return {
           sensorName: "AirBeam-PM2.5",
-          unitSymbol: "µg/m³",
+          unitSymbol: unitSymbolTypes.PARTICULATE_MATTER,
         };
       case MobileBasicParameterTypes.HUMIDITY:
         return {
           sensorName: "AirBeam-RH",
-          unitSymbol: "%",
+          unitSymbol: unitSymbolTypes.HUMIDITY,
         };
       case MobileBasicParameterTypes.SOUND_LEVEL:
         return {
           sensorName: "Phone microphone",
-          unitSymbol: "dB",
+          unitSymbol: unitSymbolTypes.SOUND_LEVEL,
         };
       case MobileBasicParameterTypes.TEMPERATURE:
         return {
           sensorName: "AirBeam-F",
-          unitSymbol: "F",
+          unitSymbol: unitSymbolTypes.TEMPERATURE,
         };
       default:
         return {
           sensorName: "AirBeam-PM2.5",
-          unitSymbol: "µg/m³",
+          unitSymbol: unitSymbolTypes.PARTICULATE_MATTER,
         };
     }
   }

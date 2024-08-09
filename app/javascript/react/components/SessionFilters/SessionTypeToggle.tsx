@@ -15,13 +15,19 @@ import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { FilterInfoPopup } from "./FilterInfoPopup";
+import { unitSymbolTypes } from "./ParameterFilter";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
-  const { searchParams, sessionType, setUrlParams, currentUserSettings } =
-    useMapParams();
+  const {
+    currentUserSettings,
+    searchParams,
+    sessionType,
+    setUrlParams,
+    unitSymbol,
+  } = useMapParams();
   const { t } = useTranslation();
 
   const handleClick = useCallback(
@@ -60,7 +66,7 @@ const SessionTypeToggle = () => {
         },
         {
           key: UrlParamsTypes.unitSymbol,
-          value: "µg/m³",
+          value: unitSymbolTypes.PARTICULATE_MATTER,
         },
       ]);
     },
