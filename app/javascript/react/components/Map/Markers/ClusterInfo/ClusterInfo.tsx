@@ -1,4 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
+
+import { useMapParams } from "../../../../utils/mapParamsHandler";
+import useScreenSizeDetection from "../../../../utils/useScreenSizeDetection";
 import {
   ClusterCircle,
   ClusterInfoBoldText,
@@ -13,8 +17,6 @@ import {
   ShadowCircle,
 } from "./ClusterInfo.style";
 import { ClusterZoomIn } from "./ClusterZoomIn/ClusterZoomIn";
-import { useTranslation } from "react-i18next";
-import useScreenSizeDetection from "../../../../utils/useScreenSizeDetection";
 
 interface ClusterProps {
   color: string;
@@ -33,8 +35,10 @@ const ClusterInfo = ({
   position,
   visible,
 }: ClusterProps) => {
-  const { t } = useTranslation();
+  const { unitSymbol } = useMapParams();
   const isMobile = useScreenSizeDetection();
+  const { t } = useTranslation();
+
   return (
     <>
       <ClusterInfoContainer
@@ -52,7 +56,7 @@ const ClusterInfo = ({
                 {numberOfSessions} {t("map.clusterInfo.stations")}
               </MobileClusterInfoColorText>
               {average.toFixed(0)}{" "}
-              {` ${t("map.clusterInfo.units")} ${t("map.clusterInfo.average")}`}
+              {` ${unitSymbol} ${t("map.clusterInfo.average")}`}
             </MobileClusterInfoText>
             <ClusterZoomIn handleZoomIn={handleZoomIn} color={color} />
           </MobileDataContainer>
@@ -66,9 +70,7 @@ const ClusterInfo = ({
                 </ClusterInfoColorText>
                 {" - "}
                 <ClusterInfoBoldText>{average.toFixed(0)}</ClusterInfoBoldText>
-                {` ${t("map.clusterInfo.units")} ${t(
-                  "map.clusterInfo.average"
-                )}`}
+                {` ${unitSymbol} ${t("map.clusterInfo.average")}`}
               </ClusterInfoText>
             </DataContainer>
             <ClusterZoomIn handleZoomIn={handleZoomIn} />

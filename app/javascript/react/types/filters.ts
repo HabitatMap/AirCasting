@@ -19,4 +19,30 @@ type fetchTagsParamsType = {
   sessionType: string;
 };
 
-export { SessionType, SessionTypes, fetchTagsParamsType };
+const MobileBasicParameterTypes = {
+  HUMIDITY: "Humidity",
+  PARTICULATE_MATTER: "Particulate Matter",
+  SOUND_LEVEL: "Sound Level",
+  TEMPERATURE: "Temperature",
+};
+
+const FixedBasicParameterTypes = {
+  HUMIDITY: "Humidity",
+  NITROGEN_DIOXIDE: "Nitrogen Dioxide",
+  OZONE: "Ozone",
+  PARTICULATE_MATTER: "Particulate Matter",
+  TEMPERATURE: "Temperature",
+};
+
+type ParameterType =
+  | typeof FixedBasicParameterTypes[keyof typeof FixedBasicParameterTypes]
+  | typeof MobileBasicParameterTypes[keyof typeof MobileBasicParameterTypes];
+
+export {
+  FixedBasicParameterTypes,
+  MobileBasicParameterTypes,
+  ParameterType,
+  SessionType,
+  SessionTypes,
+  fetchTagsParamsType,
+};

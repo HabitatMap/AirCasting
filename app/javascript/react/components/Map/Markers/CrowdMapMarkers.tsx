@@ -32,9 +32,9 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     boundNorth,
     boundSouth,
     boundWest,
-    initialMeasurementType,
+    measurementType,
     tags,
-    initialUnitSymbol,
+    unitSymbol,
     usernames,
   } = useMapParams();
   const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
@@ -50,7 +50,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         east: boundEast,
         grid_size_x: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
         grid_size_y: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
-        measurement_type: initialMeasurementType, // TODO: temporary solution, ticket: Session Filter [Both] Parameter Picker (Custom)
+        measurement_type: measurementType,
         north: boundNorth,
         sensor_name: "AirBeam-PM2.5", // TODO: temporary solution, ticket: Session Filter [Both]: Sensor Picker
         south: boundSouth,
@@ -58,7 +58,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         tags: tags,
         time_from: "1685318400", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
         time_to: "1717027199", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
-        unit_symbol: initialUnitSymbol, // TODO: temporary solution, ticket: Session Filter [Both]: Parameter Picker (Basic)
+        unit_symbol: unitSymbol,
         usernames: usernames,
         west: boundWest,
       }),
@@ -67,10 +67,10 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       boundNorth,
       boundSouth,
       boundWest,
-      initialMeasurementType,
+      measurementType,
       mobileSessionsStreamIds,
       tags,
-      initialUnitSymbol,
+      unitSymbol,
       usernames,
     ]
   );

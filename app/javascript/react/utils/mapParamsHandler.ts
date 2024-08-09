@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
+import { unitSymbolTypes } from "../components/SessionFilters/ParameterFilter";
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
@@ -13,7 +14,11 @@ import {
   selectDefaultThresholds,
   selectThresholds,
 } from "../store/thresholdSlice";
-import { SessionType, SessionTypes } from "../types/filters";
+import {
+  FixedBasicParameterTypes,
+  SessionType,
+  SessionTypes,
+} from "../types/filters";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
 
@@ -113,9 +118,9 @@ export const useMapParams = () => {
   const mapTypeId =
     getSearchParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||
     MAP_CONFIGS[0].mapTypeId;
-  const initialMeasurementType = getSearchParam(
+  const measurementType = getSearchParam(
     UrlParamsTypes.measurementType,
-    "Particulate Matter"
+    FixedBasicParameterTypes.PARTICULATE_MATTER
   )!;
   const initialOffset = parseInt(getSearchParam(UrlParamsTypes.offset, "0")!);
   const previousCenter = useMemo(
@@ -135,7 +140,7 @@ export const useMapParams = () => {
   const previousZoom = parseFloat(
     getSearchParam(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString())!
   );
-  const initialSensorName = getSearchParam(
+  const sensorName = getSearchParam(
     UrlParamsTypes.sensorName,
     "Government-PM2.5"
   )!;
@@ -155,6 +160,7 @@ export const useMapParams = () => {
     getSearchParam(UrlParamsTypes.streamId, null) !== null
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
       : null;
+  const tags = getSearchParam(UrlParamsTypes.tags, "");
   const initialThresholds = useMemo(
     () => ({
       min: parseFloat(
@@ -190,10 +196,11 @@ export const useMapParams = () => {
     }),
     [defaultThresholds]
   );
-  const initialUnitSymbol = getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!;
-
+  const unitSymbol = getSearchParam(
+    UrlParamsTypes.unitSymbol,
+    unitSymbolTypes.PARTICULATE_MATTER
+  )!;
   const usernames = getSearchParam(UrlParamsTypes.usernames, "");
-  const tags = getSearchParam(UrlParamsTypes.tags, "");
 
   useEffect(() => {
     const queryParams = new URLSearchParams(searchParams.toString());
@@ -313,21 +320,21 @@ export const useMapParams = () => {
     goToUserSettings,
     initialLimit,
     mapTypeId,
-    initialMeasurementType,
+    measurementType,
     initialOffset,
     previousCenter,
     previousUserSettings,
     previousZoom,
     revertUserSettingsAndResetIds,
-    initialSensorName,
+    sensorName,
     sessionId,
     sessionType,
     setFilters,
     setUrlParams,
     streamId,
     initialThresholds,
-    initialUnitSymbol,
     searchParams,
+    unitSymbol,
     usernames,
     tags,
   };

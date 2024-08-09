@@ -37,6 +37,8 @@ import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import {
   fetchThresholds,
+  resetUserThresholds,
+  selectDefaultThresholds,
   setUserThresholdValues,
 } from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
@@ -73,28 +75,27 @@ const Map = () => {
     goToUserSettings,
     initialLimit,
     mapTypeId,
-    initialMeasurementType,
+    measurementType,
     initialOffset,
     previousCenter,
     previousUserSettings,
     previousZoom,
     revertUserSettingsAndResetIds,
-    initialSensorName,
+    sensorName,
     sessionId,
     sessionType,
     streamId,
-    initialThresholds,
-    initialUnitSymbol,
     searchParams,
-    usernames,
     tags,
+    initialThresholds,
+    unitSymbol,
+    usernames,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
   const isFirstRender = useRef(true);
+  const isFirstRenderForThresholds = useRef(true);
   const { t } = useTranslation();
-
-  const newSearchParams = new URLSearchParams(searchParams.toString());
 
   // State
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
@@ -103,6 +104,7 @@ const Map = () => {
   );
 
   // Selectors
+  const defaultThresholds = useAppSelector(selectDefaultThresholds);
   const fixedPoints = sessionId
     ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
     : useAppSelector(selectFixedSessionsPoints);
@@ -125,16 +127,14 @@ const Map = () => {
       ? selectFixedSessionsList
       : selectMobileSessionsList
   );
-
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
-  // Filters (temporary solution)
-  const sensorName = fixedSessionTypeSelected
-    ? initialSensorName
-    : "AirBeam-PM2.5";
-
-  const usernamesDecoded = usernames && decodeURIComponent(usernames);
+  const newSearchParams = new URLSearchParams(searchParams.toString());
+  const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
+  const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
+  const sensorNamedDecoded = decodeURIComponent(sensorName);
   const tagsDecoded = tags && decodeURIComponent(tags);
+  const usernamesDecoded = usernames && decodeURIComponent(usernames);
 
   const filters = useMemo(
     () =>
@@ -150,28 +150,28 @@ const Map = () => {
         north: boundNorth,
         limit: initialLimit,
         offset: initialOffset,
-        sensor_name: sensorName,
-        measurement_type: initialMeasurementType,
-        unit_symbol: initialUnitSymbol,
+        sensor_name: sensorNamedDecoded.toLowerCase(),
+        measurement_type: measurementType,
+        unit_symbol: encodedUnitSymbol,
       }),
     [
       boundEast,
       boundNorth,
       boundSouth,
       boundWest,
+      encodedUnitSymbol,
       initialLimit,
-      initialMeasurementType,
+      measurementType,
       initialOffset,
-      initialUnitSymbol,
-      sensorName,
-      usernamesDecoded,
+      sensorNamedDecoded,
       tagsDecoded,
+      usernamesDecoded,
     ]
   );
-  const preparedUnitSymbol = initialUnitSymbol.replace(/"/g, "");
-  const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
 
-  const thresholdFilters = `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
+  const thresholdFilters = useMemo(() => {
+    return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
+  }, [sensorName, encodedUnitSymbol]);
 
   // Effects
   useEffect(() => {
@@ -181,12 +181,31 @@ const Map = () => {
         : dispatch(fetchMobileSessions({ filters }));
     }
     dispatch(setLoading(false));
-  }, [filters, loading, fixedSessionTypeSelected]);
+  }, [filters, loading]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
-    dispatch(setUserThresholdValues(initialThresholds));
-  }, [initialThresholds, thresholdFilters]);
+  }, [thresholdFilters]);
+
+  useEffect(() => {
+    if (!isFirstRenderForThresholds.current) {
+      dispatch(resetUserThresholds());
+    }
+    // #DirtyButWorks :nervous-laugh: -> refactor when moving thresholds to url
+    if (defaultThresholds.max !== 0) {
+      isFirstRenderForThresholds.current = false;
+    }
+  }, [defaultThresholds]);
+
+  useEffect(() => {
+    if (isFirstRenderForThresholds.current) {
+      dispatch(setUserThresholdValues(initialThresholds));
+    }
+    // #DirtyButWorks :nervous-laugh: -> refactor when moving thresholds to url
+    if (initialThresholds.max === 0) {
+      isFirstRenderForThresholds.current = false;
+    }
+  }, [initialThresholds]);
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
@@ -425,7 +444,9 @@ const Map = () => {
           />
         )}
         {!fixedSessionTypeSelected &&
-          (currentUserSettings === UserSettings.CrowdMapView ? (
+          ([UserSettings.CrowdMapView].includes(currentUserSettings) ||
+          ([UserSettings.CrowdMapView].includes(previousUserSettings) &&
+            [UserSettings.MapLegendView].includes(currentUserSettings)) ? (
             <CrowdMapMarkers
               pulsatingSessionId={pulsatingSessionId}
               sessions={sessionsPoints}
@@ -442,7 +463,7 @@ const Map = () => {
         {streamId && !fixedSessionTypeSelected && (
           <StreamMarkers
             sessions={mobileStreamPoints}
-            unitSymbol={initialUnitSymbol}
+            unitSymbol={unitSymbol}
           />
         )}
       </GoogleMap>
@@ -488,7 +509,7 @@ const Map = () => {
           />
         </S.MobileButtons>
         {currentUserSettings === UserSettings.MapLegendView && (
-          <Legend onClose={() => goToUserSettings(UserSettings.MapView)} />
+          <Legend onClose={() => goToUserSettings(previousUserSettings)} />
         )}
         {currentUserSettings === UserSettings.SessionListView && (
           <MobileSessionList
@@ -504,12 +525,20 @@ const Map = () => {
             onCellClick={(id, streamId) => {
               handleMarkerClick(streamId, id);
             }}
-            onClose={() => goToUserSettings(UserSettings.MapView)}
+            onClose={() =>
+              [UserSettings.CrowdMapView].includes(previousUserSettings)
+                ? goToUserSettings(UserSettings.CrowdMapView)
+                : goToUserSettings(UserSettings.MapView)
+            }
           />
         )}
         {currentUserSettings === UserSettings.FiltersView && (
           <MobileSessionFilters
-            onClose={() => goToUserSettings(UserSettings.MapView)}
+            onClose={() =>
+              [UserSettings.CrowdMapView].includes(previousUserSettings)
+                ? goToUserSettings(UserSettings.CrowdMapView)
+                : goToUserSettings(UserSettings.MapView)
+            }
           />
         )}
       </S.MobileContainer>
