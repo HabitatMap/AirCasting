@@ -41,18 +41,20 @@ const TagsInput = () => {
     ? initialSensorName
     : "AirBeam-PM2.5";
 
-  const queryParams: fetchTagsParamsType = {
-    tag: inputValue,
-    west: boundWest.toString(),
-    east: boundEast.toString(),
-    south: boundSouth.toString(),
-    north: boundNorth.toString(),
-    timeFrom: "1685318400",
-    timeTo: "1717027199",
-    usernames: usernames,
-    sensorName: sensorName,
-    unitSymbol: preparedUnitSymbol,
-    sessionType: selectedSessionType,
+  const getQueryParams = (tag: string): fetchTagsParamsType => {
+    return {
+      tag: tag,
+      west: boundWest.toString(),
+      east: boundEast.toString(),
+      south: boundSouth.toString(),
+      north: boundNorth.toString(),
+      timeFrom: "1685318400",
+      timeTo: "1717027199",
+      usernames: usernames,
+      sensorName: sensorName,
+      unitSymbol: preparedUnitSymbol,
+      sessionType: selectedSessionType,
+    };
   };
 
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
@@ -61,6 +63,8 @@ const TagsInput = () => {
       inputValue,
       selectedItem,
       onInputValueChange: ({ inputValue }) => {
+        const queryParams = getQueryParams(inputValue);
+
         dispatch(fetchTags(queryParams));
         setInputValue(inputValue);
       },
@@ -84,6 +88,8 @@ const TagsInput = () => {
     });
 
   const handleOnInputClick = () => {
+    const queryParams = getQueryParams(inputValue);
+
     dispatch(fetchTags(queryParams));
   };
 
