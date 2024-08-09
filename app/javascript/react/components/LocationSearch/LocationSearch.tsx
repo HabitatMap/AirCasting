@@ -104,6 +104,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         placeholder={t("map.searchPlaceholder")}
         $displaySearchResults={displaySearchResults}
         {...getInputProps()}
+        $isTimelapsView={isTimelapseView}
       />
       {!isMapPage && !isSmallDesktop && (
         <S.LocationSearchButton

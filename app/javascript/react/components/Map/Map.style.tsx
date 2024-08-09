@@ -6,7 +6,6 @@ import { media } from "../../utils/media";
 const containerStyle = {
   width: "100%",
   height: "100vh",
-  overflow: "hidden",
 };
 
 const DesktopContainer = styled.div`
@@ -31,10 +30,17 @@ const MobileButtons = styled.div<{ $isTimelapseView: boolean }>`
   gap: 1rem;
   position: fixed;
   bottom: 0.1rem;
-  margin-right: 1rem;
-  margin-left: 0.5rem;
+  right: 1.4rem;
   direction: rtl;
   ${(props) => props.$isTimelapseView && "z-index: 3;"}
+
+  @media (min-width: 390px) {
+    right: 3.5rem;
+  }
+
+  @media (${media.smallDesktop}) {
+    right: 0.4rem;
+  }
 `;
 
 const ThresholdContainer = styled.div`
