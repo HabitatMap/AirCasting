@@ -8,7 +8,7 @@ class Api::ToMobileTags
 
     sessions = MobileSession.filter_(data)
 
-    tags = sessions.tag_counts.where(['tags.name LIKE ?', "#{data[:input]}%"])
+    tags = sessions.tag_counts.where(['tags.name ILIKE ?', "#{data[:input]}%"])
 
     Success.new(tags.map(&:name).sort_by { |word| words_first(word) })
   end
