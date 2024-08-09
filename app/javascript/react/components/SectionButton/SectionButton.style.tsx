@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { blue, white } from "../../assets/styles/colors";
+import { media } from "../../utils/media";
 import { H6 } from "../Typography";
 
 const StyledSectionButton = styled.button<{
@@ -15,13 +16,17 @@ const StyledSectionButton = styled.button<{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 8.5rem;
+  width: 100%;
+  padding: 1.8rem;
   height: 4.2rem;
   border: none;
   ${(props) =>
     props.$isNotTimelapseButton &&
     `opacity: 0.7;
     pointer-events: none;`}
+  @media (${media.smallDesktop}) {
+    width: 8.5rem;
+  }
 `;
 
 const Title = styled(H6)<{ $isActive: boolean }>`

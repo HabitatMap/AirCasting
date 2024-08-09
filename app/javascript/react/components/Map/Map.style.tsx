@@ -25,14 +25,14 @@ const MobileContainer = styled.div`
 
 const MobileButtons = styled.div<{ $isTimelapseView: boolean }>`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  justify-content: center;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-items: center;
   align-items: center;
   gap: 1rem;
-  flex-direction: column;
   position: fixed;
   bottom: 0.1rem;
-  right: 1.2rem;
+  margin-right: 1rem;
+  margin-left: 0.5rem;
   direction: rtl;
   ${(props) => props.$isTimelapseView && "z-index: 3;"}
 `;
