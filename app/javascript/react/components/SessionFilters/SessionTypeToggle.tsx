@@ -15,7 +15,6 @@ import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { FilterInfoPopup } from "./FilterInfoPopup";
-import { unitSymbolTypes } from "./ParameterFilter";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
@@ -66,7 +65,7 @@ const SessionTypeToggle = () => {
         },
         {
           key: UrlParamsTypes.unitSymbol,
-          value: unitSymbolTypes.PARTICULATE_MATTER,
+          value: "µg/m³",
         },
       ]);
     },

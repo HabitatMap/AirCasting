@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { useCombobox } from "downshift";
 import checkmark from "../../assets/icons/checkmarkBlue.svg";
 import chevronLeft from "../../assets/icons/chevronLeft.svg";
 import chevron from "../../assets/icons/chevronRight.svg";
-import { useAppDispatch } from "../../store/hooks";
+import minus from "../../assets/icons/minus.svg";
+import plus from "../../assets/icons/plus.svg";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
+import { selectParameters, selectSensors } from "../../store/sensorsSlice";
 import { setBasicPrametersModalOpen } from "../../store/sessionFiltersSlice";
 import {
   FixedBasicParameterTypes,
@@ -14,57 +18,59 @@ import {
   SessionType,
   SessionTypes,
 } from "../../types/filters";
+import { Sensor } from "../../types/sensors";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
-export enum unitSymbolTypes {
-  PARTICULATE_MATTER = "µg/m³",
-  HUMIDITY = "%",
-  NITROGEN_DIOXIDE = "ppb",
-  OZONE = "ppb",
-  TEMPERATURE = "F",
-  SOUND_LEVEL = "dB",
-}
-
-// TEMPORARY SOLUTION, WILL BE IMPLEMENTED IN NEXT PR
-const setDefaultSensor = (
+const setSensor = (
   selectedParameter: ParameterType,
-  sessionType: SessionType
+  sessionType: SessionType,
+  sensors: Sensor[]
 ) => {
+  const getSensor = (parameter: string) => {
+    const allSensors = sensors.filter(
+      (item) => item.measurementType === parameter
+    );
+
+    const firstSensor = allSensors[0];
+
+    return firstSensor;
+  };
+
   if (sessionType === SessionTypes.FIXED) {
     switch (selectedParameter) {
       case FixedBasicParameterTypes.PARTICULATE_MATTER:
         return {
           sensorName: "Government-PM2.5",
-          unitSymbol: unitSymbolTypes.PARTICULATE_MATTER,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
       case FixedBasicParameterTypes.HUMIDITY:
         return {
           sensorName: "AirBeam-RH",
-          unitSymbol: unitSymbolTypes.HUMIDITY,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
       case FixedBasicParameterTypes.NITROGEN_DIOXIDE:
         return {
           sensorName: "Government-NO2",
-          unitSymbol: unitSymbolTypes.NITROGEN_DIOXIDE,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
       case FixedBasicParameterTypes.OZONE:
         return {
           sensorName: "Government-Ozone",
-          unitSymbol: unitSymbolTypes.OZONE,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
       case FixedBasicParameterTypes.TEMPERATURE:
         return {
           sensorName: "AirBeam-F",
-          unitSymbol: unitSymbolTypes.TEMPERATURE,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
       default:
         return {
-          sensorName: "Government-PM2.5",
-          unitSymbol: unitSymbolTypes.PARTICULATE_MATTER,
+          sensorName: getSensor(selectedParameter).sensorName,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
     }
   } else {
@@ -72,27 +78,27 @@ const setDefaultSensor = (
       case MobileBasicParameterTypes.PARTICULATE_MATTER:
         return {
           sensorName: "AirBeam-PM2.5",
-          unitSymbol: unitSymbolTypes.PARTICULATE_MATTER,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
       case MobileBasicParameterTypes.HUMIDITY:
         return {
           sensorName: "AirBeam-RH",
-          unitSymbol: unitSymbolTypes.HUMIDITY,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
       case MobileBasicParameterTypes.SOUND_LEVEL:
         return {
           sensorName: "Phone microphone",
-          unitSymbol: unitSymbolTypes.SOUND_LEVEL,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
       case MobileBasicParameterTypes.TEMPERATURE:
         return {
           sensorName: "AirBeam-F",
-          unitSymbol: unitSymbolTypes.TEMPERATURE,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
       default:
         return {
-          sensorName: "AirBeam-PM2.5",
-          unitSymbol: unitSymbolTypes.PARTICULATE_MATTER,
+          sensorName: getSensor(selectedParameter).sensorName,
+          unitSymbol: getSensor(selectedParameter).unitSymbol,
         };
     }
   }
@@ -104,15 +110,27 @@ const basicMeasurementTypes = (sessionType: SessionType) =>
     : Object.values(MobileBasicParameterTypes);
 
 const ParameterFilter = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isBasicOpen, setIsBasicOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [items, setItems] = useState<string[]>([""]);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [selectedItem, setSelectedItem] = useState<string>("");
   const { t } = useTranslation();
   const { measurementType, setUrlParams, sessionType, currentUserSettings } =
     useMapParams();
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
+  const parameters = useAppSelector(selectParameters);
+  const sensors = useAppSelector(selectSensors);
 
   const handleShowParametersClick = () => {
-    isMobile ? dispatch(setBasicPrametersModalOpen(true)) : setIsOpen(!isOpen);
+    isMobile
+      ? dispatch(setBasicPrametersModalOpen(true))
+      : setIsBasicOpen(!isBasicOpen);
+  };
+
+  const handleOnMoreClick = () => {
+    setMoreOpen(!moreOpen);
   };
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
@@ -136,15 +154,72 @@ const ParameterFilter = () => {
       },
       {
         key: UrlParamsTypes.sensorName,
-        value: setDefaultSensor(selectedParameter, sessionType).sensorName,
+        value: setSensor(selectedParameter, sessionType, sensors).sensorName,
       },
       {
         key: UrlParamsTypes.unitSymbol,
-        value: setDefaultSensor(selectedParameter, sessionType).unitSymbol,
+        value: setSensor(selectedParameter, sessionType, sensors).unitSymbol,
       },
     ]);
-    setIsOpen(false);
+    setIsBasicOpen(false);
   };
+
+  const getParametersFilter = (inputValue: string) => {
+    const lowerCasedInputValue = inputValue.toLowerCase();
+
+    const parametersFilter = (parameter: string) => {
+      return (
+        !inputValue || parameter.toLowerCase().startsWith(lowerCasedInputValue)
+      );
+    };
+
+    return parametersFilter;
+  };
+
+  const { getMenuProps, getInputProps, getItemProps } = useCombobox({
+    items: parameters,
+    inputValue,
+    selectedItem,
+    onInputValueChange: ({ inputValue }) => {
+      setInputValue(inputValue);
+      setItems(parameters.filter(getParametersFilter(inputValue)));
+    },
+    onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: isMobile ? UserSettings.FiltersView : UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.measurementType,
+          value: newSelectedItem,
+        },
+        {
+          key: UrlParamsTypes.sensorName,
+          value: setSensor(newSelectedItem, sessionType, sensors).sensorName,
+        },
+        {
+          key: UrlParamsTypes.unitSymbol,
+          value: setSensor(newSelectedItem, sessionType, sensors).unitSymbol,
+        },
+      ]);
+      setIsBasicOpen(false);
+      setMoreOpen(false);
+
+      setTimeout(() => {
+        setLoading(true);
+        setSelectedItem("");
+      }, 200);
+    },
+  });
+
+  useEffect(() => {
+    setItems(parameters);
+  }, [parameters]);
 
   return (
     <>
@@ -152,21 +227,21 @@ const ParameterFilter = () => {
         <S.SingleFilterWrapper>
           <S.SelectedOptionButton
             onClick={handleShowParametersClick}
-            $isActive={isOpen}
+            $isActive={isBasicOpen}
           >
             <S.SelectedOptionHeadingWrapper>
-              <S.SelectedOptionHeading $isSelected={isOpen}>
+              <S.SelectedOptionHeading $isSelected={isBasicOpen}>
                 {t("filters.parameter")}
               </S.SelectedOptionHeading>
-              <S.SelectedOption $isSelected={isOpen}>
+              <S.SelectedOption $isSelected={isBasicOpen}>
                 {measurementType}
               </S.SelectedOption>
             </S.SelectedOptionHeadingWrapper>
-            <S.ChevronIcon $src={chevron} $isActive={isOpen} />
+            <S.ChevronIcon $src={chevron} $isActive={isBasicOpen} />
           </S.SelectedOptionButton>
           <FilterInfoPopup filterTranslationLabel="filters.parameterInfo" />
         </S.SingleFilterWrapper>
-        {!isMobile && isOpen && (
+        {!isMobile && isBasicOpen && (
           <S.FiltersOptionsWrapper>
             <S.BasicParameterWrapper>
               <S.FiltersOptionHeading>
@@ -181,7 +256,42 @@ const ParameterFilter = () => {
                   {item}
                 </S.FiltersOptonButton>
               ))}
+              {moreOpen ? (
+                <S.SeeMoreButton onClick={handleOnMoreClick}>
+                  <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
+                  <img src={minus} />
+                </S.SeeMoreButton>
+              ) : (
+                <S.SeeMoreButton>
+                  <S.SeeMoreSpan onClick={handleOnMoreClick}>
+                    {t("filters.seeMore")}
+                  </S.SeeMoreSpan>
+                  <img src={plus} />
+                </S.SeeMoreButton>
+              )}
             </S.BasicParameterWrapper>
+            {moreOpen && (
+              <>
+                <S.Hr />
+                <S.CustomParameterWrapper>
+                  <S.FiltersOptionHeading>
+                    {t("filters.customParameters")}
+                  </S.FiltersOptionHeading>
+                  <S.CustomParametersListWrapper>
+                    <S.CustomParametersInput
+                      {...getInputProps({ value: inputValue })}
+                    />
+                    <S.CustomParameterList {...getMenuProps()}>
+                      {items.map((item, index) => (
+                        <li key={index} {...getItemProps({ item, index })}>
+                          <S.CustomParameter>{item}</S.CustomParameter>
+                        </li>
+                      ))}
+                    </S.CustomParameterList>
+                  </S.CustomParametersListWrapper>
+                </S.CustomParameterWrapper>
+              </>
+            )}
           </S.FiltersOptionsWrapper>
         )}
       </S.Wrapper>
@@ -203,6 +313,7 @@ const MobileDeviceParameterFilter = ({
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const { measurementType, setUrlParams, sessionType } = useMapParams();
+  const sensors = useAppSelector(selectSensors);
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
     dispatch(setLoading(true));
@@ -213,11 +324,11 @@ const MobileDeviceParameterFilter = ({
       },
       {
         key: UrlParamsTypes.sensorName,
-        value: setDefaultSensor(selectedParameter, sessionType).sensorName,
+        value: setSensor(selectedParameter, sessionType, sensors).sensorName,
       },
       {
         key: UrlParamsTypes.unitSymbol,
-        value: setDefaultSensor(selectedParameter, sessionType).unitSymbol,
+        value: setSensor(selectedParameter, sessionType, sensors).unitSymbol,
       },
     ]);
   };

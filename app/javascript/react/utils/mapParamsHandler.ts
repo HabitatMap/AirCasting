@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
-import { unitSymbolTypes } from "../components/SessionFilters/ParameterFilter";
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
@@ -196,10 +195,7 @@ export const useMapParams = () => {
     }),
     [defaultThresholds]
   );
-  const unitSymbol = getSearchParam(
-    UrlParamsTypes.unitSymbol,
-    unitSymbolTypes.PARTICULATE_MATTER
-  )!;
+  const unitSymbol = getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!;
   const usernames = getSearchParam(UrlParamsTypes.usernames, "");
 
   useEffect(() => {
