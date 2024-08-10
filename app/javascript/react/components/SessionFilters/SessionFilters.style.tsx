@@ -358,9 +358,7 @@ const ButtonSpan = styled(HeaderTitle)<{ $isActive: boolean }>`
   margin: 0;
 `;
 
-const CustomParameterWrapper = styled.div`
-  /* margin-left: 3rem; */
-`;
+const CustomParameterWrapper = styled.div``;
 
 const CustomParametersListWrapper = styled.div``;
 
@@ -377,6 +375,8 @@ const CustomParametersInput = styled(SearchInput)`
   padding: 0.5rem 2.4rem;
   margin-top: 0.8rem;
   background-position-x: 0.7rem;
+  box-shadow: none;
+  border: 1px solid ${gray500};
 `;
 
 const Hr = styled.hr`
@@ -417,9 +417,9 @@ export {
   CustomParameter,
   CustomParameterList,
   CustomParameterSearch,
-  CustomParameterWrapper,
   CustomParametersInput,
   CustomParametersListWrapper,
+  CustomParameterWrapper,
   Description,
   FiltersOptionHeading,
   FiltersOptionsWrapper,

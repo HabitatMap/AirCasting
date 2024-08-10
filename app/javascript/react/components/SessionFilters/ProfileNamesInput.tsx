@@ -69,7 +69,6 @@ const ProfileNamesInput = () => {
     setTimeout(() => {
       dispatch(setLoading(true));
     }, 200);
-    setLoading(true);
   };
 
   useEffect(() => {

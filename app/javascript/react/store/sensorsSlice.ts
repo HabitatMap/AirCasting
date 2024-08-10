@@ -1,4 +1,9 @@
-import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+  PayloadAction,
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { RootState } from ".";
 import { oldApiClient } from "../api/apiClient";
@@ -59,14 +64,15 @@ const sensorsSlice = createSlice({
 
 export const selectSensors = (state: RootState) => state.sensors.sensors;
 
-export const selectParameters = (state: RootState) => {
-  const parameters = state.sensors.sensors.map(
-    (sensor) => sensor.measurementType
-  );
-  const parametersUnique = parameters.filter(
-    (parameter, index) => parameters.indexOf(parameter) === index
-  );
-  return parametersUnique;
-};
+export const selectParameters = createSelector(
+  [selectSensors],
+  (sensors): string[] => {
+    const parameters = sensors.map((sensor) => sensor.measurementType);
+    const parametersUnique = parameters.filter(
+      (parameter, index) => parameters.indexOf(parameter) === index
+    );
+    return parametersUnique;
+  }
+);
 
 export default sensorsSlice.reducer;

@@ -5,6 +5,7 @@ import mobileIcon from "../../assets/icons/mobileIcon.svg";
 import pinIcon from "../../assets/icons/pin.svg";
 import { useAppDispatch } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
+import { setBasicPrametersModalOpen } from "../../store/sessionFiltersSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import {
   FixedBasicParameterTypes,
@@ -20,18 +21,14 @@ import * as S from "./SessionFilters.style";
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
-  const {
-    currentUserSettings,
-    searchParams,
-    sessionType,
-    setUrlParams,
-    unitSymbol,
-  } = useMapParams();
+  const { currentUserSettings, searchParams, sessionType, setUrlParams } =
+    useMapParams();
   const { t } = useTranslation();
 
   const handleClick = useCallback(
     (type: SessionType) => {
       dispatch(resetUserThresholds());
+      dispatch(setBasicPrametersModalOpen(false));
       dispatch(setLoading(true));
       setUrlParams([
         {
