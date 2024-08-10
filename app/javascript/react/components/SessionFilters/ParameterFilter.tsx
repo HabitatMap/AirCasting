@@ -176,7 +176,7 @@ const ParameterFilter = () => {
     return parametersFilter;
   };
 
-  const { getMenuProps, getInputProps, getItemProps } = useCombobox({
+  const { getInputProps, getMenuProps, getItemProps } = useCombobox({
     items: parameters,
     inputValue,
     selectedItem,

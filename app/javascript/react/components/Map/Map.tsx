@@ -176,12 +176,6 @@ const Map = () => {
   );
 
   const thresholdFilters = useMemo(() => {
-    console.log(
-      "sensorName",
-      sensorName,
-      "encodedUnitSymbol",
-      encodedUnitSymbol
-    );
     return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
   }, [sensorName, encodedUnitSymbol]);
 
