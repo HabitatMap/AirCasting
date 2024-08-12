@@ -282,6 +282,7 @@ const Map = () => {
           const currentCenter = JSON.stringify(
             map.getCenter()?.toJSON() || previousCenter
           );
+          const currentZoom = (map.getZoom() || previousZoom).toString();
           const bounds = map?.getBounds();
           if (!bounds) {
             return;
@@ -297,10 +298,7 @@ const Map = () => {
           newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
           newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
           newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
-          newSearchParams.set(
-            UrlParamsTypes.currentZoom,
-            (map?.getZoom() || previousZoom).toString()
-          );
+          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
           navigate(`?${newSearchParams.toString()}`);
         }
       }
