@@ -64,7 +64,7 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
               <S.HeaderTitle>{t("filters.editFilters")}</S.HeaderTitle>
             </S.Header>
             <SessionTypeToggle />
-            <ParameterFilter />
+            <ParameterFilter isBasicOpen={basicModalOpen} />
             <ProfileNamesInput />
             <TagsInput />
             {!fixedSessionTypeSelected && <CrowdMapToggle />}

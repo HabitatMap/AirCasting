@@ -1,17 +1,27 @@
 import { useCombobox } from "downshift";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import chevronLeft from "../../assets/icons/chevronLeft.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import { selectParameters, selectSensors } from "../../store/sensorsSlice";
-import { setBasicPrametersModalOpen } from "../../store/sessionFiltersSlice";
+import {
+  setBasicPrametersModalOpen,
+  setCustomPrametersModalOpen,
+} from "../../store/sessionFiltersSlice";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { setSensor } from "../../utils/setSensor";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./SessionFilters.style";
 
-const CustomParameterFilter = () => {
+interface CustomParameterFilterProps {
+  sessionsCount?: number;
+}
+
+const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
+  sessionsCount,
+}) => {
   const [items, setItems] = useState<string[]>([""]);
   const [inputValue, setInputValue] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<string>("");
@@ -79,24 +89,65 @@ const CustomParameterFilter = () => {
     setItems(parameters);
   }, [parameters]);
 
+  const onClose = () => {
+    dispatch(setBasicPrametersModalOpen(true));
+    dispatch(setCustomPrametersModalOpen(false));
+  };
+
   return (
     <>
-      <S.Hr />
-      <S.CustomParameterWrapper>
-        <S.FiltersOptionHeading>
-          {t("filters.customParameters")}
-        </S.FiltersOptionHeading>
-        <S.CustomParametersListWrapper>
-          <S.CustomParametersInput {...getInputProps({ value: inputValue })} />
-          <S.CustomParameterList {...getMenuProps()}>
-            {items.map((item, index) => (
-              <li key={index} {...getItemProps({ item, index })}>
-                <S.CustomParameter>{item}</S.CustomParameter>
-              </li>
-            ))}
-          </S.CustomParameterList>
-        </S.CustomParametersListWrapper>
-      </S.CustomParameterWrapper>
+      <S.DesktopCustomParameters>
+        <S.Hr />
+        <S.CustomParameterWrapper>
+          <S.FiltersOptionHeading>
+            {t("filters.customParameters")}
+          </S.FiltersOptionHeading>
+          <S.CustomParametersListWrapper>
+            <S.CustomParametersInput
+              {...getInputProps({ value: inputValue })}
+            />
+            <S.CustomParameterList {...getMenuProps()}>
+              {items.map((item, index) => (
+                <li key={index} {...getItemProps({ item, index })}>
+                  <S.CustomParameter>{item}</S.CustomParameter>
+                </li>
+              ))}
+            </S.CustomParameterList>
+          </S.CustomParametersListWrapper>
+        </S.CustomParameterWrapper>
+      </S.DesktopCustomParameters>
+
+      <S.MobileCustomParameters>
+        <S.ModalContent>
+          <S.Header>
+            <S.ChevronBackButton
+              onClick={() => dispatch(setBasicPrametersModalOpen(true))}
+            >
+              <S.ChevronIcon $src={chevronLeft} />
+            </S.ChevronBackButton>
+            <S.HeaderTitle>{t("filters.selectCustomParameter")}</S.HeaderTitle>
+          </S.Header>
+
+          <S.CustomParametersListWrapper>
+            <S.CustomParametersInput
+              {...getInputProps({ value: inputValue })}
+            />
+            <S.CustomParameterList {...getMenuProps()}>
+              {items.map((item, index) => (
+                <li key={index} {...getItemProps({ item, index })}>
+                  <S.CustomParameter>{item}</S.CustomParameter>
+                </li>
+              ))}
+            </S.CustomParameterList>
+          </S.CustomParametersListWrapper>
+        </S.ModalContent>
+        <S.ButtonsWrapper>
+          <S.BackButton onClick={onClose}>{t("filters.back")}</S.BackButton>
+          <S.MinorShowSessionsButton onClick={onClose}>
+            {t("filters.showSessions")} ({sessionsCount})
+          </S.MinorShowSessionsButton>
+        </S.ButtonsWrapper>
+      </S.MobileCustomParameters>
     </>
   );
 };

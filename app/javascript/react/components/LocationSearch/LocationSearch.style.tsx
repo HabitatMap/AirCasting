@@ -10,7 +10,7 @@ interface SuggestionProps {
 
 interface SearchInputProps {
   $displaySearchResults?: boolean;
-  $isTimelapsView: boolean;
+  $isTimelapsView?: boolean;
 }
 
 interface SuggestionsListProps {

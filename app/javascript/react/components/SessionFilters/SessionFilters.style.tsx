@@ -13,6 +13,7 @@ import {
   lightBlue,
   white,
 } from "../../assets/styles/colors";
+import { media } from "../../utils/media";
 import { Button } from "../Button/Button.style";
 import { SearchInput } from "../LocationSearch/LocationSearch.style";
 import { CloseButton } from "../Map/Legend/Legend.style";
@@ -358,6 +359,18 @@ const ButtonSpan = styled(HeaderTitle)<{ $isActive: boolean }>`
   margin: 0;
 `;
 
+const GrayButton = styled(Button)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  border: none;
+  background-color: ${gray100};
+  color: ${gray400};
+  width: 97%;
+  align-self: center;
+`;
+
 const CustomParameterWrapper = styled.div``;
 
 const CustomParametersListWrapper = styled.div``;
@@ -403,6 +416,20 @@ const CustomParameter = styled.button`
   margin-bottom: 0.8rem;
 `;
 
+const DesktopCustomParameters = styled.div`
+  display: none;
+  @media (${media.desktop}) {
+    display: flex;
+  }
+`;
+
+const MobileCustomParameters = styled.div`
+  display: flex;
+  @media (${media.desktop}) {
+    display: none;
+  }
+`;
+
 export {
   BackButton,
   BasicParameterButton,
@@ -421,9 +448,11 @@ export {
   CustomParametersListWrapper,
   CustomParameterWrapper,
   Description,
+  DesktopCustomParameters,
   FiltersOptionHeading,
   FiltersOptionsWrapper,
   FiltersOptonButton,
+  GrayButton,
   Header,
   HeaderTitle,
   Hr,
@@ -434,6 +463,7 @@ export {
   InfoPopup,
   Input,
   MinorShowSessionsButton,
+  MobileCustomParameters,
   MobileSessionFilters,
   ModalContent,
   SeeMoreButton,

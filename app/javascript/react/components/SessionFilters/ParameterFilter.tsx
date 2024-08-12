@@ -11,7 +11,9 @@ import { setLoading } from "../../store/mapSlice";
 import { selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicParametersModalOpen,
+  selectCustomParametersModalOpen,
   setBasicPrametersModalOpen,
+  setCustomPrametersModalOpen,
 } from "../../store/sessionFiltersSlice";
 import {
   FixedBasicParameterTypes,
@@ -33,7 +35,45 @@ const basicMeasurementTypes = (sessionType: SessionType) =>
     ? Object.values(FixedBasicParameterTypes)
     : Object.values(MobileBasicParameterTypes);
 
-const DesktopParameterFilter = () => {
+interface ParameterFilterProps {
+  isBasicOpen: boolean;
+}
+
+export const ParameterFilter: React.FC<ParameterFilterProps> = ({
+  isBasicOpen,
+}) => {
+  const { t } = useTranslation();
+  const { measurementType } = useMapParams();
+  const dispatch = useAppDispatch();
+
+  const handleShowParametersClick = () => {
+    dispatch(setBasicPrametersModalOpen(true));
+  };
+
+  const parameterFilterContent = (
+    <S.SingleFilterWrapper>
+      <S.SelectedOptionButton
+        onClick={handleShowParametersClick}
+        $isActive={isBasicOpen}
+      >
+        <S.SelectedOptionHeadingWrapper>
+          <S.SelectedOptionHeading $isSelected={isBasicOpen}>
+            {t("filters.parameter")}
+          </S.SelectedOptionHeading>
+          <S.SelectedOption $isSelected={isBasicOpen}>
+            {measurementType}
+          </S.SelectedOption>
+        </S.SelectedOptionHeadingWrapper>
+        <S.ChevronIcon $src={chevron} $isActive={isBasicOpen} />
+      </S.SelectedOptionButton>
+      <FilterInfoPopup filterTranslationLabel="filters.parameterInfo" />
+    </S.SingleFilterWrapper>
+  );
+
+  return parameterFilterContent;
+};
+
+export const DesktopParameterFilter = () => {
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const { t } = useTranslation();
@@ -45,10 +85,6 @@ const DesktopParameterFilter = () => {
   const basicPrametersModalOpen = useAppSelector(
     selectBasicParametersModalOpen
   );
-
-  const handleShowParametersClick = () => {
-    dispatch(setBasicPrametersModalOpen(true));
-  };
 
   const handleOnMoreClick = () => {
     setMoreOpen(!moreOpen);
@@ -92,23 +128,7 @@ const DesktopParameterFilter = () => {
   return (
     <>
       <S.Wrapper>
-        <S.SingleFilterWrapper>
-          <S.SelectedOptionButton
-            onClick={handleShowParametersClick}
-            $isActive={isBasicOpen}
-          >
-            <S.SelectedOptionHeadingWrapper>
-              <S.SelectedOptionHeading $isSelected={isBasicOpen}>
-                {t("filters.parameter")}
-              </S.SelectedOptionHeading>
-              <S.SelectedOption $isSelected={isBasicOpen}>
-                {measurementType}
-              </S.SelectedOption>
-            </S.SelectedOptionHeadingWrapper>
-            <S.ChevronIcon $src={chevron} $isActive={isBasicOpen} />
-          </S.SelectedOptionButton>
-          <FilterInfoPopup filterTranslationLabel="filters.parameterInfo" />
-        </S.SingleFilterWrapper>
+        <ParameterFilter isBasicOpen={isBasicOpen} />
         {!isMobile && isBasicOpen && (
           <S.FiltersOptionsWrapper>
             <S.BasicParameterWrapper>
@@ -146,17 +166,22 @@ const DesktopParameterFilter = () => {
   );
 };
 
-export { DesktopParameterFilter };
-
 interface MobileDeviceParameterFilterProps {
   sessionsCount: number | undefined;
   onClose: () => void;
 }
 
-const MobileDeviceParameterFilter = ({
+export const MobileDeviceParameterFilter = ({
   sessionsCount,
   onClose,
 }: MobileDeviceParameterFilterProps) => {
+  const customParametersModalOpen = useAppSelector(
+    selectCustomParametersModalOpen
+  );
+
+  const [customModalOpen, setCustomModalOpen] = useState(
+    customParametersModalOpen
+  );
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const { measurementType, setUrlParams, sessionType } = useMapParams();
@@ -178,6 +203,11 @@ const MobileDeviceParameterFilter = ({
         value: setSensor(selectedParameter, sessionType, sensors).unitSymbol,
       },
     ]);
+  };
+
+  const handleShowMoreClick = () => {
+    dispatch(setCustomPrametersModalOpen(true));
+    dispatch(setBasicPrametersModalOpen(false));
   };
 
   return (
@@ -205,6 +235,9 @@ const MobileDeviceParameterFilter = ({
             </S.BasicParameterButton>
           ))}
         </S.BasicParameterButtonsWrapper>
+        <S.GrayButton onClick={handleShowMoreClick}>
+          {t("filters.showCustomParameters")}
+        </S.GrayButton>
       </S.ModalContent>
       <S.ButtonsWrapper>
         <S.BackButton
@@ -216,8 +249,9 @@ const MobileDeviceParameterFilter = ({
           {t("filters.showSessions")} ({sessionsCount})
         </S.MinorShowSessionsButton>
       </S.ButtonsWrapper>
+      {customModalOpen && (
+        <CustomParameterFilter sessionsCount={sessionsCount} />
+      )}
     </>
   );
 };
-
-export { MobileDeviceParameterFilter };

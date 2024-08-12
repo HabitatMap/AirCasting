@@ -13,6 +13,7 @@ interface SessionFilterState {
   fetchUsernamesStatus: StatusEnum;
   fetchTagsStatus: StatusEnum;
   basicPrametersModalOpen: boolean;
+  customPrametersModalOpen: boolean;
 }
 
 const initialState: SessionFilterState = {
@@ -21,6 +22,7 @@ const initialState: SessionFilterState = {
   fetchUsernamesStatus: StatusEnum.Idle,
   fetchTagsStatus: StatusEnum.Idle,
   basicPrametersModalOpen: false,
+  customPrametersModalOpen: false,
 };
 
 export const fetchUsernames = createAsyncThunk(
@@ -59,6 +61,9 @@ const sessionFilterSlice = createSlice({
   reducers: {
     setBasicPrametersModalOpen: (state, action: PayloadAction<boolean>) => {
       state.basicPrametersModalOpen = action.payload;
+    },
+    setCustomPrametersModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.customPrametersModalOpen = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -101,5 +106,9 @@ export const selectTags = (state: RootState): string[] =>
 export const selectBasicParametersModalOpen = (state: RootState): boolean =>
   state.sessionFilter.basicPrametersModalOpen;
 
-export const { setBasicPrametersModalOpen } = sessionFilterSlice.actions;
+export const selectCustomParametersModalOpen = (state: RootState): boolean =>
+  state.sessionFilter.customPrametersModalOpen;
+
+export const { setBasicPrametersModalOpen, setCustomPrametersModalOpen } =
+  sessionFilterSlice.actions;
 export default sessionFilterSlice.reducer;
