@@ -1,4 +1,3 @@
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
   useEffect,
@@ -8,6 +7,8 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+
+import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
@@ -447,6 +448,7 @@ const Map = () => {
         style={S.containerStyle}
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
+        isFractionalZoomEnabled={true}
       >
         {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
           <FixedMarkers
