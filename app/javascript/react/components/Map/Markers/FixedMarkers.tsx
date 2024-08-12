@@ -54,7 +54,6 @@ const FixedMarkers = ({
 
   const map = useMap();
   const dispatch = useAppDispatch();
-  const { currentCenter } = useMapParams();
 
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{

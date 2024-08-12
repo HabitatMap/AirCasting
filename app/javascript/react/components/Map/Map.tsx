@@ -9,8 +9,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
-import clockIcon from "../../assets/icons/clockIcon.svg";
 
+import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
@@ -287,18 +287,20 @@ const Map = () => {
             return;
           }
 
-          const north = parseFloat(bounds.getNorthEast().lat().toFixed(6));
-          const south = parseFloat(bounds.getSouthWest().lat().toFixed(6));
-          const east = parseFloat(bounds.getNorthEast().lng().toFixed(6));
-          const west = parseFloat(bounds.getSouthWest().lng().toFixed(6));
-          const currentZoom = handleZoomChange(map);
+          const north = bounds.getNorthEast().lat();
+          const south = bounds.getSouthWest().lat();
+          const east = bounds.getNorthEast().lng();
+          const west = bounds.getSouthWest().lng();
 
           newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
           newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
           newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
           newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
           newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
-          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
+          newSearchParams.set(
+            UrlParamsTypes.currentZoom,
+            (map?.getZoom() || previousZoom).toString()
+          );
           navigate(`?${newSearchParams.toString()}`);
         }
       }
@@ -364,11 +366,6 @@ const Map = () => {
     if (streamId) {
       revertUserSettingsAndResetIds();
     }
-  };
-
-  const handleZoomChange = (map: google.maps.Map): string => {
-    const currentZoom: number = map.getZoom() || previousZoom;
-    return currentZoom.toString();
   };
 
   const setPreviousZoomOnTheMap = () => {
@@ -454,6 +451,7 @@ const Map = () => {
         style={S.containerStyle}
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
+        isFractionalZoomEnabled={true}
       >
         {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
           <FixedMarkers
