@@ -287,7 +287,6 @@ const Map = () => {
           if (!bounds) {
             return;
           }
-
           const north = bounds.getNorthEast().lat();
           const south = bounds.getSouthWest().lat();
           const east = bounds.getNorthEast().lng();
