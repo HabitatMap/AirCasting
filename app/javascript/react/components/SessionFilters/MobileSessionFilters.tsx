@@ -4,11 +4,15 @@ import { useTranslation } from "react-i18next";
 import { selectFixedSessionsState } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
 import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
-import { selectBasicParametersModalOpen } from "../../store/sessionFiltersSlice";
+import {
+  selectBasicParametersModalOpen,
+  selectCustomParametersModalOpen,
+} from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CloseButton } from "../Map/Legend/Legend.style";
 import { CrowdMapToggle } from "./CrowdmapToggle";
+import { CustomParameterFilter } from "./CustomParameterFilter";
 import {
   MobileDeviceParameterFilter,
   ParameterFilter,
@@ -28,8 +32,14 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   const basicParametersModalOpen = useAppSelector(
     selectBasicParametersModalOpen
   );
+  const customParametersModalOpen = useAppSelector(
+    selectCustomParametersModalOpen
+  );
   const [basicModalOpen, setBasicModalOpen] = useState(
     basicParametersModalOpen
+  );
+  const [customModalOpen, setCustomModalOpen] = useState(
+    customParametersModalOpen
   );
   const { sessionType } = useMapParams();
   const { t } = useTranslation();
@@ -47,7 +57,10 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
 
   useEffect(() => {
     setBasicModalOpen(basicParametersModalOpen);
-  }, [basicParametersModalOpen]);
+    setCustomModalOpen(customParametersModalOpen);
+  }, [basicParametersModalOpen, customParametersModalOpen]);
+
+  console.log(basicModalOpen, customModalOpen, "Modal States");
 
   return (
     <S.MobileSessionFilters>
@@ -56,6 +69,8 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
           sessionsCount={sessionsCount}
           onClose={onClose}
         />
+      ) : customModalOpen ? (
+        <CustomParameterFilter sessionsCount={sessionsCount} />
       ) : (
         <>
           <S.ModalContent>

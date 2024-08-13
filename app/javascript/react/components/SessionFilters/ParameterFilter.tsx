@@ -206,9 +206,13 @@ export const MobileDeviceParameterFilter = ({
   };
 
   const handleShowMoreClick = () => {
-    dispatch(setCustomPrametersModalOpen(true));
-    dispatch(setBasicPrametersModalOpen(false));
+    dispatch(setBasicPrametersModalOpen(false)); // Close basic parameters modal
+    dispatch(setCustomPrametersModalOpen(true)); // Open custom parameters modal
   };
+
+  useEffect(() => {
+    setCustomModalOpen(customParametersModalOpen);
+  }, [customParametersModalOpen]);
 
   return (
     <>
