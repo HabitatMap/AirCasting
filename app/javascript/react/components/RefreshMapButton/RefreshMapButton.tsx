@@ -1,9 +1,9 @@
 import React from "react";
-
 import { useTranslation } from "react-i18next";
+
 import { cleanSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
+import { setFetchSessions } from "../../store/mapSlice";
 import * as S from "./RefreshMapButton.style";
 
 const RefreshMapButton = () => {
@@ -12,7 +12,7 @@ const RefreshMapButton = () => {
 
   const handleClick = () => {
     dispatch(cleanSessions());
-    dispatch(setLoading(true));
+    dispatch(setFetchSessions(true));
   };
 
   return (

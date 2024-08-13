@@ -7,7 +7,7 @@ import chevron from "../../assets/icons/chevronRight.svg";
 import minus from "../../assets/icons/minus.svg";
 import plus from "../../assets/icons/plus.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
+import { setFetchSessions } from "../../store/mapSlice";
 import { selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicParametersModalOpen,
@@ -88,7 +88,7 @@ export const DesktopParameterFilter = () => {
   };
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
-    dispatch(setLoading(true));
+    dispatch(setFetchSessions(true));
     setUrlParams([
       {
         key: UrlParamsTypes.previousUserSettings,
@@ -178,7 +178,7 @@ export const MobileDeviceParameterFilter = ({
   const sensors = useAppSelector(selectSensors);
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
-    dispatch(setLoading(true));
+    dispatch(setFetchSessions(true));
     setUrlParams([
       {
         key: UrlParamsTypes.measurementType,

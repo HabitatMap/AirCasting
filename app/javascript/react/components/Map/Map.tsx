@@ -28,7 +28,7 @@ import {
 } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
+import { selectFetchSessions, setFetchSessions } from "../../store/mapSlice";
 import {
   selectMarkersLoading,
   setMarkersLoading,
@@ -114,13 +114,13 @@ const Map = () => {
 
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
+  const fetchSessions = useAppSelector(selectFetchSessions);
   const fixedPoints = sessionId
     ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
     : useAppSelector(selectFixedSessionsPoints);
   const fixedSessionsStatusFulfilled = useAppSelector(
     selectFixedSessionsStatusFulfilled
   );
-  const loading = useAppSelector((state: RootState) => state.map.loading);
   const selectorsLoading = useAppSelector(selectIsLoading);
   const markersLoading = useAppSelector(selectMarkersLoading);
   const mapId = useAppSelector((state: RootState) => state.map.mapId);
@@ -193,13 +193,13 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
-    if (loading || isFirstRender.current) {
+    if (fetchSessions || isFirstRender.current) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
     }
-    dispatch(setLoading(false));
-  }, [filters, loading]);
+    dispatch(setFetchSessions(false));
+  }, [fetchSessions, filters]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
@@ -257,7 +257,7 @@ const Map = () => {
   useEffect(() => {
     if (realtimeMapUpdates) {
       dispatch(cleanSessions());
-      dispatch(setLoading(true));
+      dispatch(setFetchSessions(true));
     }
   }, [
     boundEast,
@@ -342,7 +342,7 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
-      dispatch(setLoading(true));
+      dispatch(setFetchSessions(true));
       dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(selectedStreamId))
@@ -463,7 +463,7 @@ const Map = () => {
 
   return (
     <>
-      {(loading || selectorsLoading || markersLoading) && (
+      {(selectorsLoading || markersLoading) && (
         <S.LoaderOverlay>
           <Loader />
         </S.LoaderOverlay>

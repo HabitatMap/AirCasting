@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
+import { setFetchSessions } from "../../store/mapSlice";
 import { fetchTags, selectTags } from "../../store/sessionFiltersSlice";
 import { fetchTagsParamsType, SessionTypes } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
@@ -73,7 +73,7 @@ const TagsInput = () => {
           const urlEncodedString = encodeURIComponent(selectedTags);
           setFilters(UrlParamsTypes.tags, urlEncodedString.toString());
           setTimeout(() => {
-            dispatch(setLoading(true));
+            dispatch(setFetchSessions(true));
           }, 200);
           reset();
           setSelectedItem("");
@@ -101,7 +101,7 @@ const TagsInput = () => {
     const decodedTagsString = tagsUpdated ? tagsUpdated.join(", ") : "";
     setFilters(UrlParamsTypes.tags, decodedTagsString.toString());
     setTimeout(() => {
-      dispatch(setLoading(true));
+      dispatch(setFetchSessions(true));
     }, 200);
   };
 

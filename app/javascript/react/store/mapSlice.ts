@@ -6,16 +6,16 @@ import { LatLngLiteral } from "../types/googleMaps";
 import { RootState } from "./";
 
 interface MapState {
-  mapId: string;
-  loading: boolean;
+  fetchSessions: boolean;
   hoverStreamId: number | null;
+  mapId: string;
   position: LatLngLiteral;
 }
 
 export const initialState: MapState = {
-  mapId: MAP_ID,
-  loading: true,
+  fetchSessions: true,
   hoverStreamId: null,
+  mapId: MAP_ID,
   position: DEFAULT_MAP_CENTER,
 };
 
@@ -23,11 +23,8 @@ const mapSlice = createSlice({
   name: "map",
   initialState,
   reducers: {
-    setMapId(state, action: PayloadAction<string>) {
-      state.mapId = action.payload;
-    },
-    setLoading(state, action: PayloadAction<boolean>) {
-      state.loading = action.payload;
+    setFetchSessions(state, action: PayloadAction<boolean>) {
+      state.fetchSessions = action.payload;
     },
     setHoverStreamId(state, action: PayloadAction<number | null>) {
       state.hoverStreamId = action.payload;
@@ -35,14 +32,23 @@ const mapSlice = createSlice({
     setHoverPosition(state, action: PayloadAction<LatLngLiteral>) {
       state.position = action.payload;
     },
+    setMapId(state, action: PayloadAction<string>) {
+      state.mapId = action.payload;
+    },
   },
 });
 
-export const { setHoverPosition, setHoverStreamId, setLoading, setMapId } =
-  mapSlice.actions;
+export const {
+  setFetchSessions,
+  setHoverPosition,
+  setHoverStreamId,
+  setMapId,
+} = mapSlice.actions;
 
 export default mapSlice.reducer;
 
+export const selectFetchSessions = (state: RootState) =>
+  state.map.fetchSessions;
 export const selectHoverStreamId = (state: RootState) =>
   state.map.hoverStreamId;
 export const selectHoverPosition = (state: RootState) => state.map.position;

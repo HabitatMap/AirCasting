@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
+import { setFetchSessions } from "../../store/mapSlice";
 import {
   fetchUsernames,
   selectUsernames,
@@ -42,7 +42,7 @@ const ProfileNamesInput = () => {
           const urlEncodedString = encodeURIComponent(selectedUsernames);
           setFilters(UrlParamsTypes.usernames, urlEncodedString.toString());
           setTimeout(() => {
-            dispatch(setLoading(true));
+            dispatch(setFetchSessions(true));
           }, 200);
           reset();
           setSelectedItem("");
@@ -67,7 +67,7 @@ const ProfileNamesInput = () => {
       : "";
     setFilters(UrlParamsTypes.usernames, decodedUsernamesString.toString());
     setTimeout(() => {
-      dispatch(setLoading(true));
+      dispatch(setFetchSessions(true));
     }, 200);
   };
 
