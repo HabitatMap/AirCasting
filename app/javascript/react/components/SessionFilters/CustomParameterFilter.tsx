@@ -1,6 +1,7 @@
 import { useCombobox } from "downshift";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import checkmark from "../../assets/icons/checkmarkBlue.svg";
 import chevronLeft from "../../assets/icons/chevronLeft.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
@@ -26,7 +27,8 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
   const [inputValue, setInputValue] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<string>("");
   const parameters = useAppSelector(selectParameters);
-  const { setUrlParams, sessionType, currentUserSettings } = useMapParams();
+  const { setUrlParams, sessionType, currentUserSettings, measurementType } =
+    useMapParams();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
   const dispatch = useAppDispatch();
@@ -120,9 +122,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
       <S.MobileCustomParameters>
         <S.ModalContent>
           <S.Header>
-            <S.ChevronBackButton
-              onClick={() => dispatch(setBasicPrametersModalOpen(true))}
-            >
+            <S.ChevronBackButton onClick={onClose}>
               <S.ChevronIcon $src={chevronLeft} />
             </S.ChevronBackButton>
             <S.HeaderTitle>{t("filters.selectCustomParameter")}</S.HeaderTitle>
@@ -134,9 +134,15 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
             />
             <S.CustomParameterList {...getMenuProps()}>
               {items.map((item, index) => (
-                <li key={index} {...getItemProps({ item, index })}>
-                  <S.CustomParameter>{item}</S.CustomParameter>
-                </li>
+                <S.CustomParameterItem
+                  key={index}
+                  {...getItemProps({ item, index })}
+                >
+                  <S.CustomParameter $isActive={item === measurementType}>
+                    {item}
+                  </S.CustomParameter>
+                  {item === measurementType && <img src={checkmark} />}
+                </S.CustomParameterItem>
               ))}
             </S.CustomParameterList>
           </S.CustomParametersListWrapper>

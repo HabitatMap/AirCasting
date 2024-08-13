@@ -380,16 +380,27 @@ const CustomParameterSearch = styled.div`
 `;
 
 const CustomParametersInput = styled(SearchInput)`
-  height: 2.4rem;
-  width: 21rem;
-  background-size: 0.9rem;
-  font-size: 1.2rem;
+  height: 3.2rem;
+  width: 100%;
+  background-size: 2.2rem;
+  font-size: 1.6rem;
   color: ${gray300};
-  padding: 0.5rem 2.4rem;
+  padding: 1.8rem 4rem;
   margin-top: 0.8rem;
   background-position-x: 0.7rem;
   box-shadow: none;
-  border: 1px solid ${gray500};
+  border-radius: 5px;
+  border: 1px solid ${gray300};
+
+  @media (${media.desktop}) {
+    height: 2.4rem;
+    width: 21rem;
+    background-size: 0.9rem;
+    font-size: 1.6rem;
+    padding: 0.5rem 2.4rem;
+    background-position-x: 0.7rem;
+    border: 1px solid ${gray500};
+  }
 `;
 
 const Hr = styled.hr`
@@ -401,19 +412,37 @@ const Hr = styled.hr`
 const CustomParameterList = styled.ul`
   list-style: none;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-top: 0.8rem;
-  max-height: 40rem;
+  grid-template-columns: 1fr;
+  margin-top: 1.8rem;
   overflow: scroll;
+  height: 100%;
+
+  @media (${media.desktop}) {
+    grid-template-columns: 1fr 1fr;
+    max-height: 40rem;
+    margin-top: 0.8rem;
+  }
 `;
 
-const CustomParameter = styled.button`
+const CustomParameterItem = styled.li`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.2rem;
+  padding-right: 1rem;
+`;
+
+const CustomParameter = styled.button<{ $isActive?: boolean }>`
   border: none;
   background-color: transparent;
-  color: ${gray300};
-  font-size: 1rem;
+  color: ${(props) => (props.$isActive ? acBlue : black)};
+  font-size: 1.6rem;
   text-align: left;
   margin-bottom: 0.8rem;
+  @media (${media.desktop}) {
+    font-size: 1.2rem;
+    color: ${gray300};
+  }
 `;
 
 const DesktopCustomParameters = styled.div`
@@ -425,6 +454,10 @@ const DesktopCustomParameters = styled.div`
 
 const MobileCustomParameters = styled.div`
   display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  padding: 0 1rem;
   @media (${media.desktop}) {
     display: none;
   }
@@ -442,6 +475,7 @@ export {
   CloseSelectedItemButton,
   CrowdMapButton,
   CustomParameter,
+  CustomParameterItem,
   CustomParameterList,
   CustomParameterSearch,
   CustomParametersInput,
