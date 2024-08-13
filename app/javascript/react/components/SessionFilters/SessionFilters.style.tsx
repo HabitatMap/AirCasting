@@ -103,7 +103,7 @@ const Header = styled.div`
 
 const HeaderTitle = styled.span`
   font-size: 1.6rem;
-  margin-left: 1.6rem;
+  margin-left: 1.2rem;
 
   &::first-letter {
     text-transform: uppercase;
@@ -457,7 +457,6 @@ const MobileCustomParameters = styled.div`
   flex-direction: column;
   height: 100%;
   justify-content: space-between;
-  padding: 0 1rem;
   @media (${media.desktop}) {
     display: none;
   }

@@ -221,7 +221,7 @@ export const MobileDeviceParameterFilter = ({
           <S.ChevronBackButton
             onClick={() => dispatch(setBasicPrametersModalOpen(false))}
           >
-            <S.ChevronIcon $src={chevronLeft} />
+            <img src={chevronLeft} />
           </S.ChevronBackButton>
           <S.HeaderTitle>{t("filters.selectParameter")}</S.HeaderTitle>
         </S.Header>

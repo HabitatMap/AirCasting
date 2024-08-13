@@ -123,7 +123,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
         <S.ModalContent>
           <S.Header>
             <S.ChevronBackButton onClick={onClose}>
-              <S.ChevronIcon $src={chevronLeft} />
+              <img src={chevronLeft} />
             </S.ChevronBackButton>
             <S.HeaderTitle>{t("filters.selectCustomParameter")}</S.HeaderTitle>
           </S.Header>

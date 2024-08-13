@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import chevronLeft from "../../../../../assets/icons/chevronLeft.svg";
+import chevronLeft from "../../../../../assets/icons/chevronLeftCircle.svg";
 import chevronRight from "../../../../../assets/icons/chevronRightCircle.svg";
 import mobileChevronLeft from "../../../../../assets/icons/mobileChevronLeft.svg";
 import mobileChevronRight from "../../../../../assets/icons/mobileChevronRight.svg";
