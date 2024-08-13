@@ -265,7 +265,7 @@ const FiltersOptionHeading = styled.span`
   color: ${gray300};
 `;
 
-const FiltersOptonButton = styled(Button)<{ $isSelected: boolean }>`
+const FiltersOptionButton = styled(Button)<{ $isSelected: boolean }>`
   gap: 0;
   padding: 0.5rem 0.8rem;
   margin-bottom: 0.8rem;
@@ -500,9 +500,9 @@ export {
   CustomParameterWrapper,
   Description,
   DesktopCustomParameters,
+  FiltersOptionButton,
   FiltersOptionHeading,
   FiltersOptionsWrapper,
-  FiltersOptonButton,
   GrayButton,
   Header,
   HeaderTitle,

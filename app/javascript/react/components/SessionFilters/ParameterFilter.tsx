@@ -136,13 +136,13 @@ export const DesktopParameterFilter = () => {
               {t("filters.parameter")}
             </S.FiltersOptionHeading>
             {basicMeasurementTypes(sessionType).map((item, id) => (
-              <S.FiltersOptonButton
+              <S.FiltersOptionButton
                 $isSelected={item === measurementType}
                 key={id}
                 onClick={() => handleSelectParameter(item)}
               >
                 {item}
-              </S.FiltersOptonButton>
+              </S.FiltersOptionButton>
             ))}
             {moreOpen ? (
               <S.SeeMoreButton onClick={handleOnMoreClick}>
