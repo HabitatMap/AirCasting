@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 
+import { useAppDispatch } from "../../../../store/hooks";
+import { incrementLoadedMarkers } from "../../../../store/markersLoadingSlice";
 import { StreamMarkerCircle } from "./StreamMarker.style";
 
 interface StreamMarkerProps {
@@ -7,6 +9,12 @@ interface StreamMarkerProps {
 }
 
 const StreamMarker = ({ color }: StreamMarkerProps) => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(incrementLoadedMarkers());
+  }, [dispatch]);
+
   return <StreamMarkerCircle color={color} />;
 };
 

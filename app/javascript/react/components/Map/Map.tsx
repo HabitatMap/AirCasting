@@ -269,7 +269,7 @@ const Map = () => {
   ]);
 
   useEffect(() => {
-    if (sessionsPoints.length === 1) {
+    if (sessionsPoints.length <= 1) {
       dispatch(setMarkersLoading(false));
     } else {
       dispatch(setMarkersLoading(true));
@@ -342,6 +342,8 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
+      dispatch(setLoading(true));
+      dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(selectedStreamId))
         : dispatch(fetchMobileStreamById(selectedStreamId));

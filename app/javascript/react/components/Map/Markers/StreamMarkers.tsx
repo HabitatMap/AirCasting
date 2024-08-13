@@ -33,20 +33,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     return timeA - timeB;
   });
 
-  // Update markers when marker references change
-  useEffect(() => {
-    const newMarkers: { [streamId: string]: Marker | null } = {};
-    sessions.forEach((session) => {
-      if (!markers[session.point.streamId]) {
-        newMarkers[session.point.streamId] = null;
-      }
-    });
-    setMarkers((prev) => ({
-      ...prev,
-      ...newMarkers,
-    }));
-  }, [sessions]);
-
   // Create and update polyline
   useEffect(() => {
     if (!map) return;
