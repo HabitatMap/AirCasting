@@ -179,9 +179,6 @@ export const MobileDeviceParameterFilter = ({
     selectCustomParametersModalOpen
   );
 
-  const [customModalOpen, setCustomModalOpen] = useState(
-    customParametersModalOpen
-  );
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const { measurementType, setUrlParams, sessionType } = useMapParams();
@@ -209,10 +206,6 @@ export const MobileDeviceParameterFilter = ({
     dispatch(setBasicPrametersModalOpen(false));
     dispatch(setCustomPrametersModalOpen(true));
   };
-
-  useEffect(() => {
-    setCustomModalOpen(customParametersModalOpen);
-  }, [customParametersModalOpen]);
 
   return (
     <>
@@ -253,9 +246,6 @@ export const MobileDeviceParameterFilter = ({
           {t("filters.showSessions")} ({sessionsCount})
         </S.MinorShowSessionsButton>
       </S.ButtonsWrapper>
-      {customModalOpen && (
-        <CustomParameterFilter sessionsCount={sessionsCount} />
-      )}
     </>
   );
 };

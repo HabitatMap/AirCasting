@@ -18,10 +18,12 @@ import * as S from "./SessionFilters.style";
 
 interface CustomParameterFilterProps {
   sessionsCount?: number;
+  onClose?: () => void;
 }
 
 const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
   sessionsCount,
+  onClose,
 }) => {
   const [items, setItems] = useState<string[]>([""]);
   const [inputValue, setInputValue] = useState<string>("");
@@ -91,7 +93,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
     setItems(parameters);
   }, [parameters]);
 
-  const onClose = () => {
+  const goBack = () => {
     dispatch(setBasicPrametersModalOpen(true));
     dispatch(setCustomPrametersModalOpen(false));
   };
@@ -123,7 +125,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
       <S.MobileCustomParameters>
         <S.ModalContent>
           <S.Header>
-            <S.ChevronBackButton onClick={onClose}>
+            <S.ChevronBackButton onClick={goBack}>
               <img src={chevronLeft} />
             </S.ChevronBackButton>
             <S.HeaderTitle>{t("filters.selectCustomParameter")}</S.HeaderTitle>
@@ -150,7 +152,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
           </S.CustomParametersListWrapper>
         </S.ModalContent>
         <S.ButtonsWrapper>
-          <S.BackButton onClick={onClose}>{t("filters.back")}</S.BackButton>
+          <S.BackButton onClick={goBack}>{t("filters.back")}</S.BackButton>
           <S.MinorShowSessionsButton onClick={onClose}>
             {t("filters.showSessions")} ({sessionsCount})
           </S.MinorShowSessionsButton>

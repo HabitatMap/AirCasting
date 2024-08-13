@@ -60,8 +60,6 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
     setCustomModalOpen(customParametersModalOpen);
   }, [basicParametersModalOpen, customParametersModalOpen]);
 
-  console.log(basicModalOpen, customModalOpen, "Modal States");
-
   return (
     <S.MobileSessionFilters>
       {basicModalOpen ? (
@@ -70,7 +68,10 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
           onClose={onClose}
         />
       ) : customModalOpen ? (
-        <CustomParameterFilter sessionsCount={sessionsCount} />
+        <CustomParameterFilter
+          sessionsCount={sessionsCount}
+          onClose={onClose}
+        />
       ) : (
         <>
           <S.ModalContent>
