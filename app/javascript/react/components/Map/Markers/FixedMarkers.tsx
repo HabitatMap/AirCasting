@@ -159,10 +159,13 @@ const FixedMarkers = ({
   }, [memoizedSessions, memoizedMarkers, dispatch]);
 
   useEffect(() => {
+    updateClusterer();
+  }, [updateClusterer]);
+
+  useEffect(() => {
     dispatch(setMarkersLoading(true));
     dispatch(setTotalMarkers(sessions.length));
-    updateClusterer();
-  }, [updateClusterer, dispatch, sessions.length]);
+  }, [dispatch, sessions.length]);
 
   useEffect(() => {
     if (pulsatingSessionId) {

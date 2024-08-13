@@ -53,6 +53,7 @@ import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
@@ -67,7 +68,6 @@ import { CrowdMapMarkers } from "./Markers/CrowdMapMarkers";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
-import { Loader } from "../Loader/Loader";
 
 const Map = () => {
   // Hooks
@@ -269,7 +269,7 @@ const Map = () => {
   ]);
 
   useEffect(() => {
-    if (sessionsPoints.length === 0) {
+    if (sessionsPoints.length === 1) {
       dispatch(setMarkersLoading(false));
     } else {
       dispatch(setMarkersLoading(true));
