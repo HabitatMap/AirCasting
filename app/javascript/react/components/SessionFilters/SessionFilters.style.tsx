@@ -397,7 +397,7 @@ const CustomParametersInput = styled(SearchInput)`
     height: 2.4rem;
     width: 21rem;
     background-size: 0.9rem;
-    font-size: 1.6rem;
+    font-size: 1rem;
     padding: 0.5rem 2.4rem;
     background-position-x: 0.7rem;
     border: 1px solid ${gray500};

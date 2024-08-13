@@ -63,5 +63,5 @@ export const API_ENDPOINTS: ApiEndpoints = {
 
     return url;
   },
-  fetchSensors: (sessionType) => `/sensors?session_type=MobileSession`,
+  fetchSensors: (sessionType) => `/sensors?session_type=${sessionType}Session`,
 };
