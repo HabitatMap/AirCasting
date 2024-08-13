@@ -309,6 +309,7 @@ const BasicParameterWrapper = styled.div`
 const ChevronBackButton = styled.button`
   border: none;
   background-color: transparent;
+  margin-top: 0.3rem;
 `;
 
 const Description = styled.p`

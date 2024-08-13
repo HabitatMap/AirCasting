@@ -180,7 +180,8 @@
     "seeMore": "see more",
     "seeLess": "see less",
     "showCustomParameters": "show custom parameters",
-    "selectCustomParameter": "select custom parameter"
+    "selectCustomParameter": "select custom parameter",
+    "searchCustomParameters": "Search for a custom parameters"
   },
   "timelapse": {
   "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",

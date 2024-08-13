@@ -107,6 +107,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
           <S.CustomParametersListWrapper>
             <S.CustomParametersInput
               {...getInputProps({ value: inputValue })}
+              placeholder={t("filters.searchCustomParameters")}
             />
             <S.CustomParameterList {...getMenuProps()}>
               {items.map((item, index) => (
@@ -131,6 +132,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
           <S.CustomParametersListWrapper>
             <S.CustomParametersInput
               {...getInputProps({ value: inputValue })}
+              placeholder={t("filters.searchCustomParameters")}
             />
             <S.CustomParameterList {...getMenuProps()}>
               {items.map((item, index) => (
