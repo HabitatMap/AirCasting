@@ -7,6 +7,7 @@ import {
   selectCrowdMapRectangles,
 } from "../../../store/crowdMapSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { incrementLoadedMarkers } from "../../../store/markersLoadingSlice";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
@@ -81,18 +82,22 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   useEffect(() => {
     if (crowdMapRectanglesLength > 0) {
-      const newRectangles = crowdMapRectangles.map(
+      const newRectangles: google.maps.Rectangle[] = [];
+      crowdMapRectangles.map(
         (rectangle) =>
-          new google.maps.Rectangle({
-            bounds: new google.maps.LatLngBounds(
-              new google.maps.LatLng(rectangle.south, rectangle.west),
-              new google.maps.LatLng(rectangle.north, rectangle.east)
-            ),
-            fillColor: getColorForValue(thresholds, rectangle.value),
-            fillOpacity: 0.6,
-            map: map,
-            strokeWeight: 0,
-          })
+          newRectangles.push(
+            new google.maps.Rectangle({
+              bounds: new google.maps.LatLngBounds(
+                new google.maps.LatLng(rectangle.south, rectangle.west),
+                new google.maps.LatLng(rectangle.north, rectangle.east)
+              ),
+              fillColor: getColorForValue(thresholds, rectangle.value),
+              fillOpacity: 0.6,
+              map: map,
+              strokeWeight: 0,
+            })
+          ),
+        dispatch(incrementLoadedMarkers())
       );
       rectanglesRef.current.push(...newRectangles);
     }
@@ -102,7 +107,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       rectanglesRef.current.forEach((rectangle) => rectangle.setMap(null));
       rectanglesRef.current = [];
     };
-  }, [crowdMapRectangles, map, thresholds]);
+  }, [crowdMapRectangles, dispatch, map, thresholds]);
 
   const renderMarker = (displayedSession: Session) => {
     return (
