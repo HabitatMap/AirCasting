@@ -300,7 +300,7 @@ const ColorBoxNumberInput = styled.input`
   text-align: center;
   border-radius: 5px;
   border: 1px solid ${colors.darkBlueTransparent};
-  z-index: 5;
+  z-index: 7;
   font-size: 1.6rem;
   color: ${colors.darkBlue};
 
@@ -351,7 +351,7 @@ const NumberInput = styled.input<{
   border-radius: 5px;
   border: 1px solid ${colors.gray100};
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
-  z-index: 5;
+  z-index: 7;
   cursor: move; /* fallback if grab cursor is unsupported */
   cursor: grab;
 

@@ -98,7 +98,7 @@ const LoaderOverlay = styled.div`
   justify-content: center;
   align-items: center;
   background-color: rgba(255, 255, 255, 0.5);
-  z-index: 40;
+  z-index: 5;
 `;
 
 export {

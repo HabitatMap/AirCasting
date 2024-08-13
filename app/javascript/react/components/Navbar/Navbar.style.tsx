@@ -10,7 +10,7 @@ const Header = styled.header`
   justify-content: space-between;
   align-items: center;
   background-color: transparent;
-  z-index: 4;
+  z-index: 6;
   flex-wrap: wrap;
   position: absolute;
 
