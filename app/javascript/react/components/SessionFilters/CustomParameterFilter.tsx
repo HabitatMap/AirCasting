@@ -1,4 +1,5 @@
 import { useCombobox } from "downshift";
+import { debounce } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import checkmark from "../../assets/icons/checkmarkBlue.svg";
@@ -7,8 +8,8 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
 import { selectParameters, selectSensors } from "../../store/sensorsSlice";
 import {
-  setBasicPrametersModalOpen,
-  setCustomPrametersModalOpen,
+  setBasicParametersModalOpen,
+  setCustomParametersModalOpen,
 } from "../../store/sessionFiltersSlice";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
@@ -16,86 +17,87 @@ import { setSensor } from "../../utils/setSensor";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./SessionFilters.style";
 
+const getParametersFilter = (inputValue: string) => {
+  const lowerCasedInputValue = inputValue.toLowerCase();
+  return (parameter: string) =>
+    !inputValue || parameter.toLowerCase().startsWith(lowerCasedInputValue);
+};
+
 interface CustomParameterFilterProps {
   sessionsCount?: number;
   onClose?: () => void;
 }
 
 const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
-  sessionsCount,
-  onClose,
+  sessionsCount = 0,
+  onClose = () => {},
 }) => {
-  const [items, setItems] = useState<string[]>([""]);
+  const [filteredParameters, setFilteredParameters] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<string>("");
+
   const parameters = useAppSelector(selectParameters);
   const { setUrlParams, sessionType, currentUserSettings, measurementType } =
     useMapParams();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
   const dispatch = useAppDispatch();
-
   const { t } = useTranslation();
 
-  const getParametersFilter = (inputValue: string) => {
-    const lowerCasedInputValue = inputValue.toLowerCase();
-
-    const parametersFilter = (parameter: string) => {
-      return (
-        !inputValue || parameter.toLowerCase().startsWith(lowerCasedInputValue)
-      );
-    };
-
-    return parametersFilter;
-  };
+  const debouncedSetInputValue = debounce((inputValue: string) => {
+    setInputValue(inputValue);
+    setFilteredParameters(parameters.filter(getParametersFilter(inputValue)));
+  }, 300);
 
   const { getInputProps, getMenuProps, getItemProps } = useCombobox({
-    items: parameters,
+    items: filteredParameters,
     inputValue,
     selectedItem,
     onInputValueChange: ({ inputValue }) => {
-      setInputValue(inputValue);
-      setItems(parameters.filter(getParametersFilter(inputValue)));
+      debouncedSetInputValue(inputValue);
     },
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: isMobile ? UserSettings.FiltersView : UserSettings.MapView,
-        },
-        {
-          key: UrlParamsTypes.measurementType,
-          value: newSelectedItem,
-        },
-        {
-          key: UrlParamsTypes.sensorName,
-          value: setSensor(newSelectedItem, sessionType, sensors).sensorName,
-        },
-        {
-          key: UrlParamsTypes.unitSymbol,
-          value: setSensor(newSelectedItem, sessionType, sensors).unitSymbol,
-        },
-      ]);
-      dispatch(setBasicPrametersModalOpen(false));
+      if (newSelectedItem) {
+        const sensorData = setSensor(newSelectedItem, sessionType, sensors);
+        setUrlParams([
+          {
+            key: UrlParamsTypes.previousUserSettings,
+            value: currentUserSettings,
+          },
+          {
+            key: UrlParamsTypes.currentUserSettings,
+            value: isMobile ? UserSettings.FiltersView : UserSettings.MapView,
+          },
+          {
+            key: UrlParamsTypes.measurementType,
+            value: newSelectedItem,
+          },
+          {
+            key: UrlParamsTypes.sensorName,
+            value: sensorData.sensorName,
+          },
+          {
+            key: UrlParamsTypes.unitSymbol,
+            value: sensorData.unitSymbol,
+          },
+        ]);
+        dispatch(setBasicParametersModalOpen(false));
 
-      setTimeout(() => {
-        dispatch(setLoading(true));
-        setSelectedItem("");
-      }, 200);
+        setTimeout(() => {
+          dispatch(setLoading(true));
+          setSelectedItem("");
+        }, 200);
+      }
     },
   });
 
   useEffect(() => {
-    setItems(parameters);
+    setFilteredParameters(parameters);
   }, [parameters]);
 
   const goBack = () => {
-    dispatch(setBasicPrametersModalOpen(true));
-    dispatch(setCustomPrametersModalOpen(false));
+    dispatch(setBasicParametersModalOpen(true));
+    dispatch(setCustomParametersModalOpen(false));
   };
 
   return (
@@ -112,7 +114,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
               placeholder={t("filters.searchCustomParameters")}
             />
             <S.CustomParameterList {...getMenuProps()}>
-              {items.map((item, index) => (
+              {filteredParameters.map((item, index) => (
                 <li key={index} {...getItemProps({ item, index })}>
                   <S.CustomParameter>{item}</S.CustomParameter>
                 </li>
@@ -137,7 +139,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
               placeholder={t("filters.searchCustomParameters")}
             />
             <S.CustomParameterList {...getMenuProps()}>
-              {items.map((item, index) => (
+              {filteredParameters.map((item, index) => (
                 <S.CustomParameterItem
                   key={index}
                   {...getItemProps({ item, index })}

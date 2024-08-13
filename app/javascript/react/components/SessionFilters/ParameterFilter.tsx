@@ -12,8 +12,8 @@ import { selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicParametersModalOpen,
   selectCustomParametersModalOpen,
-  setBasicPrametersModalOpen,
-  setCustomPrametersModalOpen,
+  setBasicParametersModalOpen,
+  setCustomParametersModalOpen,
 } from "../../store/sessionFiltersSlice";
 import {
   FixedBasicParameterTypes,
@@ -47,10 +47,10 @@ export const ParameterFilter: React.FC<ParameterFilterProps> = ({
   const dispatch = useAppDispatch();
 
   const handleShowParametersClick = () => {
-    dispatch(setBasicPrametersModalOpen(true));
+    dispatch(setBasicParametersModalOpen(true));
   };
 
-  const parameterFilterContent = (
+  return (
     <S.SingleFilterWrapper>
       <S.SelectedOptionButton
         onClick={handleShowParametersClick}
@@ -69,8 +69,6 @@ export const ParameterFilter: React.FC<ParameterFilterProps> = ({
       <FilterInfoPopup filterTranslationLabel="filters.parameterInfo" />
     </S.SingleFilterWrapper>
   );
-
-  return parameterFilterContent;
 };
 
 export const DesktopParameterFilter = () => {
@@ -82,7 +80,7 @@ export const DesktopParameterFilter = () => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
-  const basicPrametersModalOpen = useAppSelector(
+  const basicParametersModalOpen = useAppSelector(
     selectBasicParametersModalOpen
   );
 
@@ -118,51 +116,47 @@ export const DesktopParameterFilter = () => {
         value: setSensor(selectedParameter, sessionType, sensors).unitSymbol,
       },
     ]);
-    dispatch(setBasicPrametersModalOpen(false));
+    dispatch(setBasicParametersModalOpen(false));
   };
 
   useEffect(() => {
-    setIsBasicOpen(basicPrametersModalOpen);
-  }, [basicPrametersModalOpen]);
+    setIsBasicOpen(basicParametersModalOpen);
+  }, [basicParametersModalOpen]);
 
   return (
-    <>
-      <S.Wrapper>
-        <ParameterFilter isBasicOpen={isBasicOpen} />
-        {!isMobile && isBasicOpen && (
-          <S.FiltersOptionsWrapper>
-            <S.BasicParameterWrapper>
-              <S.FiltersOptionHeading>
-                {t("filters.parameter")}
-              </S.FiltersOptionHeading>
-              {basicMeasurementTypes(sessionType).map((item, id) => (
-                <S.FiltersOptonButton
-                  $isSelected={item === measurementType}
-                  key={id}
-                  onClick={() => handleSelectParameter(item)}
-                >
-                  {item}
-                </S.FiltersOptonButton>
-              ))}
-              {moreOpen ? (
-                <S.SeeMoreButton onClick={handleOnMoreClick}>
-                  <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
-                  <img src={minus} />
-                </S.SeeMoreButton>
-              ) : (
-                <S.SeeMoreButton>
-                  <S.SeeMoreSpan onClick={handleOnMoreClick}>
-                    {t("filters.seeMore")}
-                  </S.SeeMoreSpan>
-                  <img src={plus} />
-                </S.SeeMoreButton>
-              )}
-            </S.BasicParameterWrapper>
-            {moreOpen && <CustomParameterFilter />}
-          </S.FiltersOptionsWrapper>
-        )}
-      </S.Wrapper>
-    </>
+    <S.Wrapper>
+      <ParameterFilter isBasicOpen={isBasicOpen} />
+      {!isMobile && isBasicOpen && (
+        <S.FiltersOptionsWrapper>
+          <S.BasicParameterWrapper>
+            <S.FiltersOptionHeading>
+              {t("filters.parameter")}
+            </S.FiltersOptionHeading>
+            {basicMeasurementTypes(sessionType).map((item, id) => (
+              <S.FiltersOptonButton
+                $isSelected={item === measurementType}
+                key={id}
+                onClick={() => handleSelectParameter(item)}
+              >
+                {item}
+              </S.FiltersOptonButton>
+            ))}
+            {moreOpen ? (
+              <S.SeeMoreButton onClick={handleOnMoreClick}>
+                <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
+                <img src={minus} />
+              </S.SeeMoreButton>
+            ) : (
+              <S.SeeMoreButton onClick={handleOnMoreClick}>
+                <S.SeeMoreSpan>{t("filters.seeMore")}</S.SeeMoreSpan>
+                <img src={plus} />
+              </S.SeeMoreButton>
+            )}
+          </S.BasicParameterWrapper>
+          {moreOpen && <CustomParameterFilter />}
+        </S.FiltersOptionsWrapper>
+      )}
+    </S.Wrapper>
   );
 };
 
@@ -203,8 +197,8 @@ export const MobileDeviceParameterFilter = ({
   };
 
   const handleShowMoreClick = () => {
-    dispatch(setBasicPrametersModalOpen(false));
-    dispatch(setCustomPrametersModalOpen(true));
+    dispatch(setBasicParametersModalOpen(false));
+    dispatch(setCustomParametersModalOpen(true));
   };
 
   return (
@@ -212,7 +206,7 @@ export const MobileDeviceParameterFilter = ({
       <S.ModalContent>
         <S.Header>
           <S.ChevronBackButton
-            onClick={() => dispatch(setBasicPrametersModalOpen(false))}
+            onClick={() => dispatch(setBasicParametersModalOpen(false))}
           >
             <img src={chevronLeft} />
           </S.ChevronBackButton>
@@ -238,7 +232,7 @@ export const MobileDeviceParameterFilter = ({
       </S.ModalContent>
       <S.ButtonsWrapper>
         <S.BackButton
-          onClick={() => dispatch(setBasicPrametersModalOpen(false))}
+          onClick={() => dispatch(setBasicParametersModalOpen(false))}
         >
           {t("filters.back")}
         </S.BackButton>

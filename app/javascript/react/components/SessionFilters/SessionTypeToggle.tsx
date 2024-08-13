@@ -5,7 +5,7 @@ import mobileIcon from "../../assets/icons/mobileIcon.svg";
 import pinIcon from "../../assets/icons/pin.svg";
 import { useAppDispatch } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
-import { setBasicPrametersModalOpen } from "../../store/sessionFiltersSlice";
+import { setBasicParametersModalOpen } from "../../store/sessionFiltersSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import {
   FixedBasicParameterTypes,
@@ -28,7 +28,7 @@ const SessionTypeToggle = () => {
   const handleClick = useCallback(
     (type: SessionType) => {
       dispatch(resetUserThresholds());
-      dispatch(setBasicPrametersModalOpen(false));
+      dispatch(setBasicParametersModalOpen(false));
       dispatch(setLoading(true));
       setUrlParams([
         {

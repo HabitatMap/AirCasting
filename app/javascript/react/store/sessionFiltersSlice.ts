@@ -12,8 +12,8 @@ interface SessionFilterState {
   tags: string[];
   fetchUsernamesStatus: StatusEnum;
   fetchTagsStatus: StatusEnum;
-  basicPrametersModalOpen: boolean;
-  customPrametersModalOpen: boolean;
+  basicParametersModalOpen: boolean;
+  customParametersModalOpen: boolean;
 }
 
 const initialState: SessionFilterState = {
@@ -21,8 +21,8 @@ const initialState: SessionFilterState = {
   tags: [],
   fetchUsernamesStatus: StatusEnum.Idle,
   fetchTagsStatus: StatusEnum.Idle,
-  basicPrametersModalOpen: false,
-  customPrametersModalOpen: false,
+  basicParametersModalOpen: false,
+  customParametersModalOpen: false,
 };
 
 export const fetchUsernames = createAsyncThunk(
@@ -59,11 +59,11 @@ const sessionFilterSlice = createSlice({
   name: "sessionFilter",
   initialState,
   reducers: {
-    setBasicPrametersModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.basicPrametersModalOpen = action.payload;
+    setBasicParametersModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.basicParametersModalOpen = action.payload;
     },
-    setCustomPrametersModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.customPrametersModalOpen = action.payload;
+    setCustomParametersModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.customParametersModalOpen = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -104,11 +104,11 @@ export const selectTags = (state: RootState): string[] =>
   state.sessionFilter.tags;
 
 export const selectBasicParametersModalOpen = (state: RootState): boolean =>
-  state.sessionFilter.basicPrametersModalOpen;
+  state.sessionFilter.basicParametersModalOpen;
 
 export const selectCustomParametersModalOpen = (state: RootState): boolean =>
-  state.sessionFilter.customPrametersModalOpen;
+  state.sessionFilter.customParametersModalOpen;
 
-export const { setBasicPrametersModalOpen, setCustomPrametersModalOpen } =
+export const { setBasicParametersModalOpen, setCustomParametersModalOpen } =
   sessionFilterSlice.actions;
 export default sessionFilterSlice.reducer;
