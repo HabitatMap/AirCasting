@@ -28,7 +28,7 @@ import {
 } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectFetchSessions, setFetchSessions } from "../../store/mapSlice";
+import { selectFetchSessions, setFetchingData } from "../../store/mapSlice";
 import {
   selectMarkersLoading,
   setMarkersLoading,
@@ -198,7 +198,7 @@ const Map = () => {
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
     }
-    dispatch(setFetchSessions(false));
+    dispatch(setFetchingData(false));
   }, [fetchSessions, filters]);
 
   useEffect(() => {
@@ -248,6 +248,8 @@ const Map = () => {
 
   useEffect(() => {
     if (streamId && currentUserSettings === UserSettings.ModalView) {
+      dispatch(setFetchingData(true));
+      dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
@@ -257,7 +259,7 @@ const Map = () => {
   useEffect(() => {
     if (realtimeMapUpdates) {
       dispatch(cleanSessions());
-      dispatch(setFetchSessions(true));
+      dispatch(setFetchingData(true));
     }
   }, [
     boundEast,
@@ -342,7 +344,7 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
-      dispatch(setFetchSessions(true));
+      dispatch(setFetchingData(true));
       dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(selectedStreamId))

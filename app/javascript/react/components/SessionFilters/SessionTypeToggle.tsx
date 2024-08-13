@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import mobileIcon from "../../assets/icons/mobileIcon.svg";
 import pinIcon from "../../assets/icons/pin.svg";
 import { useAppDispatch } from "../../store/hooks";
-import { setFetchSessions } from "../../store/mapSlice";
+import { setFetchingData } from "../../store/mapSlice";
 import { setBasicParametersModalOpen } from "../../store/sessionFiltersSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import {
@@ -31,7 +31,7 @@ const SessionTypeToggle = () => {
     (type: SessionType) => {
       dispatch(resetUserThresholds());
       dispatch(setBasicParametersModalOpen(false));
-      dispatch(setFetchSessions(true));
+      dispatch(setFetchingData(true));
       setUrlParams([
         {
           key: UrlParamsTypes.sessionType,

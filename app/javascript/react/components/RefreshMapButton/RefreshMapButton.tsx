@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { cleanSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
-import { setFetchSessions } from "../../store/mapSlice";
+import { setFetchingData } from "../../store/mapSlice";
 import * as S from "./RefreshMapButton.style";
 
 const RefreshMapButton = () => {
@@ -12,7 +12,7 @@ const RefreshMapButton = () => {
 
   const handleClick = () => {
     dispatch(cleanSessions());
-    dispatch(setFetchSessions(true));
+    dispatch(setFetchingData(true));
   };
 
   return (
