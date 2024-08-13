@@ -1,10 +1,12 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
+
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
-import { AppDispatch, RootState } from "./";
+import { RootState } from "./";
 
 interface Session {
   id: number;
@@ -54,7 +56,7 @@ const initialState: SessionsState = {
 export const fetchFixedSessions = createAsyncThunk<
   SessionsResponse,
   SessionsData,
-  { dispatch: AppDispatch; rejectValue: string }
+  { rejectValue: string }
 >(
   "sessions/fetchFixedSessions",
   async (sessionsData, { rejectWithValue }) => {
