@@ -28,7 +28,7 @@ import {
 } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectFetchSessions, setFetchingData } from "../../store/mapSlice";
+import { selectFetchingData, setFetchingData } from "../../store/mapSlice";
 import {
   selectMarkersLoading,
   setMarkersLoading,
@@ -114,7 +114,7 @@ const Map = () => {
 
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
-  const fetchSessions = useAppSelector(selectFetchSessions);
+  const fetchingData = useAppSelector(selectFetchingData);
   const fixedPoints = sessionId
     ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
     : useAppSelector(selectFixedSessionsPoints);
@@ -193,13 +193,13 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
-    if (fetchSessions || isFirstRender.current) {
+    if (fetchingData || isFirstRender.current) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
     }
     dispatch(setFetchingData(false));
-  }, [fetchSessions, filters]);
+  }, [fetchingData, filters]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));

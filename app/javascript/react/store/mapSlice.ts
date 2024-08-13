@@ -43,7 +43,7 @@ export const { setFetchingData, setHoverPosition, setHoverStreamId, setMapId } =
 
 export default mapSlice.reducer;
 
-export const selectFetchSessions = (state: RootState) => state.map.fetchingData;
+export const selectFetchingData = (state: RootState) => state.map.fetchingData;
 export const selectHoverStreamId = (state: RootState) =>
   state.map.hoverStreamId;
 export const selectHoverPosition = (state: RootState) => state.map.position;
