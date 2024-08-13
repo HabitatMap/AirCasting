@@ -206,11 +206,11 @@ export const useMapParams = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(searchParams.toString());
     // temporary solution -> later we'll move thresholds to URL
-    thresholdValues.min !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdMin,
-        thresholdValues.min.toString()
-      );
+
+    queryParams.set(
+      UrlParamsTypes.thresholdMin,
+      thresholdValues.min.toString()
+    );
     thresholdValues.low !== 0 &&
       queryParams.set(
         UrlParamsTypes.thresholdLow,
