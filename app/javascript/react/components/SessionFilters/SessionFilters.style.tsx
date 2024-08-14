@@ -429,7 +429,6 @@ const CustomParameterList = styled.ul`
 
   ::-webkit-scrollbar-track {
     background-color: ${gray100};
-    border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb {

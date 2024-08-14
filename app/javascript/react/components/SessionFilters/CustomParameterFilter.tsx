@@ -1,5 +1,4 @@
 import { useCombobox } from "downshift";
-import { debounce } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import checkmark from "../../assets/icons/checkmarkBlue.svg";
@@ -44,17 +43,13 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
-  const debouncedSetInputValue = debounce((inputValue: string) => {
-    setInputValue(inputValue);
-    setFilteredParameters(parameters.filter(getParametersFilter(inputValue)));
-  }, 300);
-
   const { getInputProps, getMenuProps, getItemProps } = useCombobox({
     items: filteredParameters,
     inputValue,
     selectedItem,
     onInputValueChange: ({ inputValue }) => {
-      debouncedSetInputValue(inputValue);
+      setInputValue(inputValue);
+      setFilteredParameters(parameters.filter(getParametersFilter(inputValue)));
     },
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
       if (newSelectedItem) {
@@ -66,7 +61,11 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
           },
           {
             key: UrlParamsTypes.currentUserSettings,
-            value: isMobile ? UserSettings.FiltersView : UserSettings.MapView,
+            value: isMobile
+              ? UserSettings.FiltersView
+              : currentUserSettings === UserSettings.CrowdMapView
+              ? UserSettings.CrowdMapView
+              : UserSettings.MapView,
           },
           {
             key: UrlParamsTypes.measurementType,
