@@ -12,7 +12,9 @@ const StreamMarker = ({ color }: StreamMarkerProps) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(incrementLoadedMarkers());
+    setTimeout(() => {
+      dispatch(incrementLoadedMarkers());
+    }, 300);
   }, [dispatch]);
 
   return <StreamMarkerCircle color={color} />;
