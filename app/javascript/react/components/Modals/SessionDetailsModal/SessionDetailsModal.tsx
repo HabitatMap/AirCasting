@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
@@ -8,11 +8,8 @@ import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import { Graph } from "../../Graph";
 import * as S from "./SessionDetailsModal.style";
 import SessionInfo from "./SessionInfo/SessionInfo";
-import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 
 import type { PopupProps } from "reactjs-popup/dist/types";
-import { useAppDispatch } from "../../../store/hooks";
-
 interface SessionDetailsModalProps {
   onClose: () => void;
   sessionType: SessionType;
@@ -37,15 +34,13 @@ const SessionDetailsModal: React.FC<
 
   const isMobile = useMobileDetection();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
 
   const [isVisible, setIsVisible] = useState(true);
 
   const closeHandler = useCallback(() => {
     setIsVisible(false);
     onClose();
-    dispatch(setMarkersLoading(false));
-  }, [onClose, dispatch]);
+  }, [onClose]);
 
   const sessionInfoProps = useMemo(
     () => ({
@@ -56,10 +51,6 @@ const SessionDetailsModal: React.FC<
     }),
     [sessionType, streamId, isVisible]
   );
-
-  useEffect(() => {
-    dispatch(setMarkersLoading(false));
-  }, [dispatch]);
 
   return (
     <SessionModal
