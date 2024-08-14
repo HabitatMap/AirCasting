@@ -10,11 +10,25 @@ import {
   setBasicParametersModalOpen,
   setCustomParametersModalOpen,
 } from "../../store/sessionFiltersSlice";
+import {
+  FixedBasicParameterTypes,
+  MobileBasicParameterTypes,
+  SessionTypes,
+} from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { setSensor } from "../../utils/setSensor";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./SessionFilters.style";
+
+const filterCustomParameters = (parameters: string[], sessionType: string) => {
+  const basicParameters =
+    sessionType === SessionTypes.FIXED
+      ? Object.values(FixedBasicParameterTypes)
+      : Object.values(MobileBasicParameterTypes);
+
+  return parameters.filter((param: string) => !basicParameters.includes(param));
+};
 
 const getParametersFilter = (inputValue: string) => {
   const lowerCasedInputValue = inputValue.toLowerCase();
@@ -43,13 +57,22 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
+  useEffect(() => {
+    const customParameters = filterCustomParameters(parameters, sessionType);
+    setFilteredParameters(customParameters);
+  }, [parameters, sessionType]);
+
   const { getInputProps, getMenuProps, getItemProps } = useCombobox({
     items: filteredParameters,
     inputValue,
     selectedItem,
     onInputValueChange: ({ inputValue }) => {
       setInputValue(inputValue);
-      setFilteredParameters(parameters.filter(getParametersFilter(inputValue)));
+      setFilteredParameters(
+        filterCustomParameters(parameters, sessionType).filter(
+          getParametersFilter(inputValue)
+        )
+      );
     },
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
       if (newSelectedItem) {
@@ -89,10 +112,6 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
       }
     },
   });
-
-  useEffect(() => {
-    setFilteredParameters(parameters);
-  }, [parameters]);
 
   const goBack = () => {
     dispatch(setBasicParametersModalOpen(true));
