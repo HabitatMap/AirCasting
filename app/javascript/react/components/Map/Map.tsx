@@ -248,7 +248,6 @@ const Map = () => {
 
   useEffect(() => {
     if (streamId && currentUserSettings === UserSettings.ModalView) {
-      dispatch(setFetchingData(true));
       dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
@@ -269,14 +268,6 @@ const Map = () => {
     realtimeMapUpdates,
     dispatch,
   ]);
-
-  useEffect(() => {
-    if (sessionsPoints.length <= 1) {
-      dispatch(setMarkersLoading(false));
-    } else {
-      dispatch(setMarkersLoading(true));
-    }
-  }, [sessionsPoints, dispatch]);
 
   // Callbacks
   const handleMapIdle = useCallback(
@@ -462,6 +453,9 @@ const Map = () => {
         : UserSettings.TimelapseView
     );
   };
+
+  console.log("selectorsLoading", selectorsLoading);
+  console.log("markersLoading", markersLoading);
 
   return (
     <>

@@ -67,8 +67,10 @@ const MobileMarkers = ({
   }, [sessions]);
 
   useEffect(() => {
-    dispatch(setMarkersLoading(true));
-    dispatch(setTotalMarkers(sessions.length));
+    if (!selectedStreamId) {
+      dispatch(setMarkersLoading(true));
+      dispatch(setTotalMarkers(sessions.length));
+    }
   }, [dispatch, sessions.length]);
 
   const areMarkersTooClose = (
