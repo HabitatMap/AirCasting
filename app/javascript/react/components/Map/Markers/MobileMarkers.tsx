@@ -47,7 +47,7 @@ const MobileMarkers = ({
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
-  const markerCount = Object.values(markers).filter(
+  const markersCount = Object.values(markers).filter(
     (marker) => marker !== null
   ).length;
 
@@ -73,10 +73,10 @@ const MobileMarkers = ({
   }, [dispatch, sessions.length]);
 
   useEffect(() => {
-    if (markerCount >= sessions.length) {
+    if (markersCount >= sessions.length) {
       dispatch(setMarkersLoading(false));
     }
-  }, [dispatch, markerCount, sessions.length]);
+  }, [dispatch, markersCount, sessions.length]);
 
   const areMarkersTooClose = (
     marker1: google.maps.LatLngLiteral,

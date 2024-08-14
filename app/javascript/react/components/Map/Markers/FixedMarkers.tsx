@@ -67,7 +67,7 @@ const FixedMarkers = ({
   const [markers, setMarkers] = useState<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
-  const markerCount = Object.values(markers).filter(
+  const markersCount = Object.values(markers).filter(
     (marker) => marker !== null
   ).length;
 
@@ -163,10 +163,10 @@ const FixedMarkers = ({
   }, [dispatch, sessions.length]);
 
   useEffect(() => {
-    if (markerCount >= sessions.length) {
+    if (markersCount >= sessions.length) {
       dispatch(setMarkersLoading(false));
     }
-  }, [dispatch, markerCount, sessions.length]);
+  }, [dispatch, markersCount, sessions.length]);
 
   useEffect(() => {
     if (pulsatingSessionId) {
