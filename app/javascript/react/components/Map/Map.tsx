@@ -335,7 +335,6 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
-      dispatch(setFetchingData(true));
       dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(selectedStreamId))

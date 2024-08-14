@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import {
   SelectedDataContainer,
@@ -11,8 +11,6 @@ import {
   MarkerText,
   ShadowCircle,
 } from "./SessionFullMarker.style";
-import { useAppDispatch } from "../../../../store/hooks";
-import { incrementLoadedMarkers } from "../../../../store/markersLoadingSlice";
 
 interface MarkerProps {
   color: string;
@@ -29,12 +27,6 @@ const SessionFullMarker = ({
   shouldPulse = false,
   onClick,
 }: MarkerProps) => {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch(incrementLoadedMarkers());
-  }, [dispatch]);
-
   if (isSelected) {
     return (
       <MarkerContainer onClick={onClick}>
