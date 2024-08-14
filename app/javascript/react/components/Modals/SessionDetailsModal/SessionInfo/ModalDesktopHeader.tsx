@@ -58,6 +58,15 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
     UserSettings.CalendarView
   );
 
+  const calendarButton = fixedSessionTypeSelected ? (
+    <S.BlueButton
+      to={`/fixed_stream?streamId=${streamId}&${newSearchParams.toString()}`}
+    >
+      {isMobile ? "" : t("sessionDetailsModal.calendar")}
+      <img src={calendar} alt={t("sessionDetailsModal.calendarIcon")} />
+    </S.BlueButton>
+  ) : null;
+
   return (
     <S.ModalDesktopHeader>
       <S.Wrapper>
@@ -101,14 +110,7 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
         </S.TimeRange>
       </S.Wrapper>
       <S.ButtonsContainer>
-        {fixedSessionTypeSelected && (
-          <S.BlueButton
-            to={`/fixed_stream?streamId=${streamId}&${newSearchParams.toString()}`}
-          >
-            {isMobile ? "" : t("sessionDetailsModal.calendar")}
-            <img src={calendar} alt={t("sessionDetailsModal.calendarIcon")} />
-          </S.BlueButton>
-        )}
+        {calendarButton}
         <ExportDataComponent
           button={
             <S.Button aria-labelledby={t("calendarHeader.altExportSession")}>
