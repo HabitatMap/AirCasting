@@ -354,7 +354,6 @@ const Map = () => {
         navigate(
           `/fixed_stream?streamId=${selectedStreamId}&${newSearchParams.toString()}`
         );
-        dispatch(setMarkersLoading(false));
         return;
       }
     }
@@ -374,12 +373,10 @@ const Map = () => {
         UserSettings.ModalView
       );
       navigate(`?${newSearchParams.toString()}`);
-      dispatch(setMarkersLoading(false));
     }
 
     if (streamId) {
       revertUserSettingsAndResetIds();
-      dispatch(setMarkersLoading(false));
     }
   };
 
