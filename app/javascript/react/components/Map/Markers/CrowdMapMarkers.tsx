@@ -113,7 +113,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       rectanglesRef.current.forEach((rectangle) => rectangle.setMap(null));
       rectanglesRef.current = [];
     };
-  }, [crowdMapRectangles, dispatch, map, thresholds]);
+  }, [crowdMapRectangles, map, thresholds]);
 
   const renderMarker = (displayedSession: Session) => {
     return (
