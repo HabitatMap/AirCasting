@@ -3,87 +3,70 @@ import {
   MobileBasicParameterTypes,
   ParameterType,
   SessionType,
-  SessionTypes,
 } from "../types/filters";
-import { Sensor } from "../types/sensors";
+import { Sensor, SENSOR_NAMES } from "../types/sensors";
 
 const setSensor = (
   selectedParameter: ParameterType,
   sessionType: SessionType,
   sensors: Sensor[]
 ) => {
-  const getSensor = (parameter: string) => {
-    const allSensors = sensors.filter(
-      (item) => item.measurementType === parameter
+  const getSensor = (parameter: string, sensorName?: string) => {
+    const matchingSensors = sensors.filter(
+      (item) =>
+        item.measurementType === parameter &&
+        (!sensorName || item.sensorName === sensorName)
     );
 
-    const firstSensor = allSensors[0];
-
-    return firstSensor;
+    return matchingSensors[0]; // Return the first matching sensor or undefined
   };
 
-  if (sessionType === SessionTypes.FIXED) {
-    switch (selectedParameter) {
-      case FixedBasicParameterTypes.PARTICULATE_MATTER:
-        return {
-          sensorName: "Government-PM2.5",
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-      case FixedBasicParameterTypes.HUMIDITY:
-        return {
-          sensorName: "AirBeam-RH",
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-      case FixedBasicParameterTypes.NITROGEN_DIOXIDE:
-        return {
-          sensorName: "Government-NO2",
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-      case FixedBasicParameterTypes.OZONE:
-        return {
-          sensorName: "Government-Ozone",
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-      case FixedBasicParameterTypes.TEMPERATURE:
-        return {
-          sensorName: "AirBeam-F",
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-      default:
-        return {
-          sensorName: getSensor(selectedParameter).sensorName,
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-    }
-  } else {
-    switch (selectedParameter) {
-      case MobileBasicParameterTypes.PARTICULATE_MATTER:
-        return {
-          sensorName: "AirBeam-PM2.5",
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-      case MobileBasicParameterTypes.HUMIDITY:
-        return {
-          sensorName: "AirBeam-RH",
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-      case MobileBasicParameterTypes.SOUND_LEVEL:
-        return {
-          sensorName: "Phone microphone",
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-      case MobileBasicParameterTypes.TEMPERATURE:
-        return {
-          sensorName: "AirBeam-F",
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-      default:
-        return {
-          sensorName: getSensor(selectedParameter).sensorName,
-          unitSymbol: getSensor(selectedParameter).unitSymbol,
-        };
-    }
+  // Determine the sensor name(s) based on the selected parameter
+  let sensorName = "";
+  switch (selectedParameter) {
+    case FixedBasicParameterTypes.PARTICULATE_MATTER:
+    case MobileBasicParameterTypes.PARTICULATE_MATTER:
+      // Always use "Government-PM2.5" for particulate matter
+      sensorName = SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25;
+      break;
+    case FixedBasicParameterTypes.HUMIDITY:
+    case MobileBasicParameterTypes.HUMIDITY:
+      sensorName = SENSOR_NAMES.HUMIDITY;
+      break;
+    case FixedBasicParameterTypes.NITROGEN_DIOXIDE:
+      sensorName = SENSOR_NAMES.NITROGEN_DIOXIDE;
+      break;
+    case FixedBasicParameterTypes.OZONE:
+      sensorName = SENSOR_NAMES.OZONE;
+      break;
+    case FixedBasicParameterTypes.TEMPERATURE:
+    case MobileBasicParameterTypes.TEMPERATURE:
+      sensorName = SENSOR_NAMES.TEMPERATURE;
+      break;
+    case MobileBasicParameterTypes.SOUND_LEVEL:
+      sensorName = SENSOR_NAMES.SOUND_LEVEL;
+      break;
+    default:
+      sensorName = "Unknown Sensor";
   }
+
+  const sensor = getSensor(selectedParameter, sensorName);
+
+  // Handle case where no sensor is found
+  if (!sensor) {
+    console.warn(
+      `No sensor found for parameter: ${selectedParameter} with name: ${sensorName}`
+    );
+    return {
+      sensorName: "Unknown Sensor",
+      unitSymbol: "N/A", // Default fallback values
+    };
+  }
+
+  return {
+    sensorName: sensor.sensorName,
+    unitSymbol: sensor.unitSymbol,
+  };
 };
 
 export { setSensor };

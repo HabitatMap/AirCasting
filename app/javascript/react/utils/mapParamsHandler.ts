@@ -17,7 +17,9 @@ import {
   FixedBasicParameterTypes,
   SessionType,
   SessionTypes,
+  UnitSymbols,
 } from "../types/filters";
+
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
 
@@ -195,7 +197,10 @@ export const useMapParams = () => {
     }),
     [defaultThresholds]
   );
-  const unitSymbol = getSearchParam(UrlParamsTypes.unitSymbol, "µg/m³")!;
+  const unitSymbol = getSearchParam(
+    UrlParamsTypes.unitSymbol,
+    UnitSymbols.ParticulateMatter
+  )!;
   const usernames = getSearchParam(UrlParamsTypes.usernames, "");
 
   useEffect(() => {

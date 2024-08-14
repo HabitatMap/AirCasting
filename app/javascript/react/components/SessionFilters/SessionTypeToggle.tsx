@@ -11,7 +11,10 @@ import {
   FixedBasicParameterTypes,
   SessionType,
   SessionTypes,
+  UnitSymbols,
 } from "../../types/filters";
+import { SENSOR_NAMES } from "../../types/sensors";
+
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -58,11 +61,13 @@ const SessionTypeToggle = () => {
         {
           key: UrlParamsTypes.sensorName,
           value:
-            type === SessionTypes.FIXED ? "Government-PM2.5" : "AirBeam-PM2.5",
+            type === SessionTypes.FIXED
+              ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
+              : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25,
         },
         {
           key: UrlParamsTypes.unitSymbol,
-          value: "µg/m³",
+          value: UnitSymbols.ParticulateMatter,
         },
       ]);
     },

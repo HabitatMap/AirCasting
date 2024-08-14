@@ -104,8 +104,7 @@ const MapButtons = () => {
           isActive={activeButton === ButtonTypes.SHARE}
         />
       </S.MapButtons>
-      {/* {showFilters && <DesktopSessionFilters />} */}
-      {<DesktopSessionFilters />}
+      <DesktopSessionFilters />
     </S.MapButtonsWrapper>
   );
 };
