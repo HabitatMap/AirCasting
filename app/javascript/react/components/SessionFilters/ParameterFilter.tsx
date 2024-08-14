@@ -114,6 +114,10 @@ export const DesktopParameterFilter = () => {
         key: UrlParamsTypes.unitSymbol,
         value: setSensor(selectedParameter, sessionType, sensors).unitSymbol,
       },
+      {
+        key: UrlParamsTypes.currentZoom,
+        value: UrlParamsTypes.previousZoom,
+      },
     ]);
     dispatch(setBasicParametersModalOpen(false));
   };
