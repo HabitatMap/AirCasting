@@ -1,5 +1,5 @@
 import Highcharts from "highcharts/highstock";
-import chevronLeft from "../../assets/icons/chevronLeft.svg";
+import chevronLeft from "../../assets/icons/chevronLeftCircle.svg";
 import chevronRight from "../../assets/icons/chevronRightCircle.svg";
 import graphChevronLeft from "../../assets/icons/graphChevronLeft.svg";
 import graphChevronRight from "../../assets/icons/graphChevronRight.svg";

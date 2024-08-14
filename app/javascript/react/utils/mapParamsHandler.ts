@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
-import { unitSymbolTypes } from "../components/SessionFilters/ParameterFilter";
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
@@ -18,7 +17,9 @@ import {
   FixedBasicParameterTypes,
   SessionType,
   SessionTypes,
+  UnitSymbols,
 } from "../types/filters";
+
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
 
@@ -198,7 +199,7 @@ export const useMapParams = () => {
   );
   const unitSymbol = getSearchParam(
     UrlParamsTypes.unitSymbol,
-    unitSymbolTypes.PARTICULATE_MATTER
+    UnitSymbols.ParticulateMatter
   )!;
   const usernames = getSearchParam(UrlParamsTypes.usernames, "");
 

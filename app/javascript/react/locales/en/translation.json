@@ -176,7 +176,12 @@
     "customParameters": "custom parameters",
     "selectParameter": "select parameter",
     "selectParameterDescription": "The parameter field describes the broad category of environmental or physiological measurements being recorded. The AirCasting platform is device agnostic i.e. it will ingest and display data from any instrument that formats and communicates data according to our formatting and communications protocol.",
-    "back": "back"
+    "back": "back",
+    "seeMore": "see more",
+    "seeLess": "see less",
+    "showCustomParameters": "show custom parameters",
+    "selectCustomParameter": "select custom parameter",
+    "searchCustomParameters": "Search for a custom parameters"
   },
   "timelapse": {
   "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",
@@ -186,6 +191,5 @@
   "altPause": "Pause icon",
   "altSkipLeft": "Skip left icon",
   "altSkipRight": "Skip right icon"
-
   }
 }

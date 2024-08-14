@@ -5,34 +5,33 @@ import mobileIcon from "../../assets/icons/mobileIcon.svg";
 import pinIcon from "../../assets/icons/pin.svg";
 import { useAppDispatch } from "../../store/hooks";
 import { setLoading } from "../../store/mapSlice";
+import { setBasicParametersModalOpen } from "../../store/sessionFiltersSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import {
   FixedBasicParameterTypes,
   SessionType,
   SessionTypes,
+  UnitSymbols,
 } from "../../types/filters";
+import { SENSOR_NAMES } from "../../types/sensors";
+
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { FilterInfoPopup } from "./FilterInfoPopup";
-import { unitSymbolTypes } from "./ParameterFilter";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
-  const {
-    currentUserSettings,
-    searchParams,
-    sessionType,
-    setUrlParams,
-    unitSymbol,
-  } = useMapParams();
+  const { currentUserSettings, searchParams, sessionType, setUrlParams } =
+    useMapParams();
   const { t } = useTranslation();
 
   const handleClick = useCallback(
     (type: SessionType) => {
       dispatch(resetUserThresholds());
+      dispatch(setBasicParametersModalOpen(false));
       dispatch(setLoading(true));
       setUrlParams([
         {
@@ -62,11 +61,13 @@ const SessionTypeToggle = () => {
         {
           key: UrlParamsTypes.sensorName,
           value:
-            type === SessionTypes.FIXED ? "Government-PM2.5" : "AirBeam-PM2.5",
+            type === SessionTypes.FIXED
+              ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
+              : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25,
         },
         {
           key: UrlParamsTypes.unitSymbol,
-          value: unitSymbolTypes.PARTICULATE_MATTER,
+          value: UnitSymbols.ParticulateMatter,
         },
       ]);
     },

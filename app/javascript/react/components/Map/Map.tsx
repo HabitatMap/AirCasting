@@ -37,6 +37,7 @@ import {
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
+import { fetchSensors } from "../../store/sensorsSlice";
 import {
   fetchThresholds,
   resetUserThresholds,
@@ -179,6 +180,11 @@ const Map = () => {
   }, [sensorName, encodedUnitSymbol]);
 
   // Effects
+
+  useEffect(() => {
+    dispatch(fetchSensors(sessionType));
+  }, [sessionType]);
+
   useEffect(() => {
     if (loading || isFirstRender.current) {
       fixedSessionTypeSelected

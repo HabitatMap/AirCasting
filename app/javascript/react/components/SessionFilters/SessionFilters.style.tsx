@@ -13,7 +13,9 @@ import {
   lightBlue,
   white,
 } from "../../assets/styles/colors";
+import { media } from "../../utils/media";
 import { Button } from "../Button/Button.style";
+import { SearchInput } from "../LocationSearch/LocationSearch.style";
 import { CloseButton } from "../Map/Legend/Legend.style";
 import { SmallPopup } from "../Popups/Popups.style";
 import { H4, H6 } from "../Typography";
@@ -101,7 +103,7 @@ const Header = styled.div`
 
 const HeaderTitle = styled.span`
   font-size: 1.6rem;
-  margin-left: 1.6rem;
+  margin-left: 1.2rem;
 
   &::first-letter {
     text-transform: uppercase;
@@ -307,6 +309,7 @@ const BasicParameterWrapper = styled.div`
 const ChevronBackButton = styled.button`
   border: none;
   background-color: transparent;
+  margin-top: 0.3rem;
 `;
 
 const Description = styled.p`
@@ -357,6 +360,126 @@ const ButtonSpan = styled(HeaderTitle)<{ $isActive: boolean }>`
   margin: 0;
 `;
 
+const GrayButton = styled(Button)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  border: none;
+  background-color: ${gray100};
+  color: ${gray400};
+  width: 97%;
+  align-self: center;
+`;
+
+const CustomParameterWrapper = styled.div``;
+
+const CustomParametersListWrapper = styled.div``;
+
+const CustomParameterSearch = styled.div`
+  display: flex;
+`;
+
+const CustomParametersInput = styled(SearchInput)`
+  height: 3.2rem;
+  width: 100%;
+  background-size: 2.2rem;
+  font-size: 1.6rem;
+  color: ${gray300};
+  padding: 1.8rem 4rem;
+  margin-top: 0.8rem;
+  background-position-x: 0.7rem;
+  box-shadow: none;
+  border-radius: 5px;
+  border: 1px solid ${gray300};
+
+  @media (${media.desktop}) {
+    height: 2.4rem;
+    width: 21rem;
+    background-size: 0.9rem;
+    font-size: 1rem;
+    padding: 0.5rem 2.4rem;
+    background-position-x: 0.7rem;
+    border: 1px solid ${gray500};
+  }
+`;
+
+const Hr = styled.hr`
+  display: block;
+  margin: 2rem 3rem;
+  border: 1px solid ${gray200};
+`;
+
+const CustomParameterList = styled.ul`
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  overflow-y: auto;
+  margin-top: 1.8rem;
+
+  @media (${media.desktop}) {
+    grid-template-columns: 1fr 1fr;
+    max-height: 40rem;
+    margin-top: 0.8rem;
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: ${gray100};
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: ${acBlue};
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${acBlue};
+  }
+  scrollbar-width: thin;
+  scrollbar-color: ${acBlue} ${gray100};
+`;
+
+const CustomParameterItem = styled.li`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.2rem;
+  padding-right: 1rem;
+`;
+
+const CustomParameter = styled.button<{ $isActive?: boolean }>`
+  border: none;
+  background-color: transparent;
+  color: ${(props) => (props.$isActive ? acBlue : black)};
+  font-size: 1.6rem;
+  text-align: left;
+  margin-bottom: 0.8rem;
+  @media (${media.desktop}) {
+    font-size: 1.2rem;
+    color: ${gray300};
+  }
+`;
+
+const DesktopCustomParameters = styled.div`
+  display: none;
+  @media (${media.desktop}) {
+    display: flex;
+  }
+`;
+
+const MobileCustomParameters = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  @media (${media.desktop}) {
+    display: none;
+  }
+`;
+
 export {
   BackButton,
   BasicParameterButton,
@@ -368,12 +491,22 @@ export {
   ChevronIcon,
   CloseSelectedItemButton,
   CrowdMapButton,
+  CustomParameter,
+  CustomParameterItem,
+  CustomParameterList,
+  CustomParameterSearch,
+  CustomParametersInput,
+  CustomParametersListWrapper,
+  CustomParameterWrapper,
   Description,
+  DesktopCustomParameters,
   FiltersOptionHeading,
   FiltersOptionsWrapper,
   FiltersOptonButton,
+  GrayButton,
   Header,
   HeaderTitle,
+  Hr,
   IconWrapper,
   Info,
   InfoButton,
@@ -381,6 +514,7 @@ export {
   InfoPopup,
   Input,
   MinorShowSessionsButton,
+  MobileCustomParameters,
   MobileSessionFilters,
   ModalContent,
   SeeMoreButton,

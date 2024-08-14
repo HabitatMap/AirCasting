@@ -38,11 +38,16 @@ type ParameterType =
   | typeof FixedBasicParameterTypes[keyof typeof FixedBasicParameterTypes]
   | typeof MobileBasicParameterTypes[keyof typeof MobileBasicParameterTypes];
 
+const UnitSymbols = {
+  ParticulateMatter: "µg/m³",
+};
+
 export {
   FixedBasicParameterTypes,
   MobileBasicParameterTypes,
   ParameterType,
   SessionType,
   SessionTypes,
+  UnitSymbols,
   fetchTagsParamsType,
 };
