@@ -69,7 +69,7 @@ const MobileMarkers = ({
   useEffect(() => {
     if (!selectedStreamId) {
       dispatch(setMarkersLoading(true));
-      dispatch(setTotalMarkers(sessions.length));
+      dispatch(setTotalMarkers(sessions.length - 1));
     }
   }, [dispatch, sessions.length]);
 
