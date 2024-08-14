@@ -7,7 +7,7 @@ import {
   selectCrowdMapRectangles,
 } from "../../../store/crowdMapSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { incrementLoadedMarkers } from "../../../store/markersLoadingSlice";
+import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
@@ -81,23 +81,29 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   }, [filters]);
 
   useEffect(() => {
+    dispatch(setMarkersLoading(true));
+  }, [dispatch, crowdMapRectanglesLength]);
+
+  useEffect(() => {
+    if (rectanglesRef.current.length >= crowdMapRectanglesLength) {
+      dispatch(setMarkersLoading(false));
+    }
+  }, [dispatch, rectanglesRef.current.length, crowdMapRectanglesLength]);
+
+  useEffect(() => {
     if (crowdMapRectanglesLength > 0) {
-      const newRectangles: google.maps.Rectangle[] = [];
-      crowdMapRectangles.map(
+      const newRectangles = crowdMapRectangles.map(
         (rectangle) =>
-          newRectangles.push(
-            new google.maps.Rectangle({
-              bounds: new google.maps.LatLngBounds(
-                new google.maps.LatLng(rectangle.south, rectangle.west),
-                new google.maps.LatLng(rectangle.north, rectangle.east)
-              ),
-              fillColor: getColorForValue(thresholds, rectangle.value),
-              fillOpacity: 0.6,
-              map: map,
-              strokeWeight: 0,
-            })
-          ),
-        dispatch(incrementLoadedMarkers())
+          new google.maps.Rectangle({
+            bounds: new google.maps.LatLngBounds(
+              new google.maps.LatLng(rectangle.south, rectangle.west),
+              new google.maps.LatLng(rectangle.north, rectangle.east)
+            ),
+            fillColor: getColorForValue(thresholds, rectangle.value),
+            fillOpacity: 0.6,
+            map: map,
+            strokeWeight: 0,
+          })
       );
       rectanglesRef.current.push(...newRectangles);
     }
