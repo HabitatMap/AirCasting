@@ -15,7 +15,7 @@ import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
 import { MIN_ZOOM } from "../../const/coordinates";
-import { RootState } from "../../store";
+import { RootState, selectIsLoading } from "../../store";
 import {
   selectFixedSessionPointsBySessionId,
   selectFixedSessionsList,
@@ -28,7 +28,11 @@ import {
 } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
+import { selectFetchingData, setFetchingData } from "../../store/mapSlice";
+import {
+  selectMarkersLoading,
+  setMarkersLoading,
+} from "../../store/markersLoadingSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -49,6 +53,7 @@ import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
@@ -109,13 +114,15 @@ const Map = () => {
 
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
+  const fetchingData = useAppSelector(selectFetchingData);
   const fixedPoints = sessionId
     ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
     : useAppSelector(selectFixedSessionsPoints);
   const fixedSessionsStatusFulfilled = useAppSelector(
     selectFixedSessionsStatusFulfilled
   );
-  const loading = useAppSelector((state: RootState) => state.map.loading);
+  const selectorsLoading = useAppSelector(selectIsLoading);
+  const markersLoading = useAppSelector(selectMarkersLoading);
   const mapId = useAppSelector((state: RootState) => state.map.mapId);
   const mobilePoints = sessionId
     ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
@@ -186,13 +193,13 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
-    if (loading || isFirstRender.current) {
+    if (fetchingData || isFirstRender.current) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedSessions({ filters }))
         : dispatch(fetchMobileSessions({ filters }));
     }
-    dispatch(setLoading(false));
-  }, [filters, loading]);
+    dispatch(setFetchingData(false));
+  }, [fetchingData, filters]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
@@ -241,6 +248,7 @@ const Map = () => {
 
   useEffect(() => {
     if (streamId && currentUserSettings === UserSettings.ModalView) {
+      dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
@@ -250,7 +258,7 @@ const Map = () => {
   useEffect(() => {
     if (realtimeMapUpdates) {
       dispatch(cleanSessions());
-      dispatch(setLoading(true));
+      dispatch(setFetchingData(true));
     }
   }, [
     boundEast,
@@ -327,6 +335,7 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
+      dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(selectedStreamId))
         : dispatch(fetchMobileStreamById(selectedStreamId));
@@ -443,6 +452,11 @@ const Map = () => {
 
   return (
     <>
+      {(selectorsLoading || markersLoading) && (
+        <S.LoaderOverlay>
+          <Loader />
+        </S.LoaderOverlay>
+      )}
       <GoogleMap
         mapId={mapId}
         mapTypeId={mapTypeId}
@@ -451,7 +465,7 @@ const Map = () => {
         gestureHandling={"greedy"}
         disableDefaultUI={true}
         scaleControl={true}
-        style={S.containerStyle}
+        style={S.ContainerStyle}
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}

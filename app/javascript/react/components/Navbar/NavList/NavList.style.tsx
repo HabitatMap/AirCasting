@@ -32,7 +32,7 @@ const NavList = styled.ul<{ $isVisible?: boolean }>`
   position: fixed;
   top: 0;
   right: ${(p) => (p.$isVisible ? "0" : "-35.2rem")};
-  z-index: 5;
+  z-index: 7;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
   letter-spacing: 0.5px;

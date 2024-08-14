@@ -257,7 +257,7 @@ const SmallPopup = styled(Popup)`
     position: relative;
     padding: 1rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 4;
+    z-index: 6;
     display: flex;
     width: 180px;
     height: 91px;

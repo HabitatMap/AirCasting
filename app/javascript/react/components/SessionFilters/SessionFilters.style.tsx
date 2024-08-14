@@ -84,7 +84,7 @@ const IconWrapper = styled.div<{ $isActive: boolean; $src: string }>`
 
 const MobileSessionFilters = styled(SessionFilters)`
   top: 0;
-  z-index: 4;
+  z-index: 6;
   margin: 0;
   width: 100%;
   height: 100%;
@@ -265,7 +265,7 @@ const FiltersOptionHeading = styled.span`
   color: ${gray300};
 `;
 
-const FiltersOptonButton = styled(Button)<{ $isSelected: boolean }>`
+const FiltersOptionButton = styled(Button)<{ $isSelected: boolean }>`
   gap: 0;
   padding: 0.5rem 0.8rem;
   margin-bottom: 0.8rem;
@@ -500,9 +500,9 @@ export {
   CustomParameterWrapper,
   Description,
   DesktopCustomParameters,
+  FiltersOptionButton,
   FiltersOptionHeading,
   FiltersOptionsWrapper,
-  FiltersOptonButton,
   GrayButton,
   Header,
   HeaderTitle,

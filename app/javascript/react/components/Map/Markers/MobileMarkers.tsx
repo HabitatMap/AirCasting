@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { useAppDispatch } from "../../../store/hooks";
+import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
@@ -34,6 +36,7 @@ const MobileMarkers = ({
   const LAT_ADJUST_SMALL = 0.005;
 
   const map = useMap();
+  const dispatch = useAppDispatch();
 
   const thresholds = useSelector(selectThresholds);
   const { unitSymbol } = useMapParams();
@@ -44,6 +47,9 @@ const MobileMarkers = ({
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
+  const markersCount = Object.values(markers).filter(
+    (marker) => marker !== null
+  ).length;
 
   useEffect(() => {
     if (selectedStreamId) {
@@ -60,19 +66,17 @@ const MobileMarkers = ({
     }
   }, [sessions]);
 
-  // Update markers when marker references change
   useEffect(() => {
-    const newMarkers: { [streamId: string]: Marker | null } = {};
-    sessions.forEach((session) => {
-      if (!markers[session.point.streamId]) {
-        newMarkers[session.point.streamId] = null;
-      }
-    });
-    setMarkers((prev) => ({
-      ...prev,
-      ...newMarkers,
-    }));
-  }, [sessions]);
+    if (!selectedStreamId) {
+      dispatch(setMarkersLoading(true));
+    }
+  }, [dispatch, sessions.length]);
+
+  useEffect(() => {
+    if (!selectedStreamId && markersCount >= sessions.length) {
+      dispatch(setMarkersLoading(false));
+    }
+  }, [dispatch, markersCount, sessions.length]);
 
   const areMarkersTooClose = (
     marker1: google.maps.LatLngLiteral,

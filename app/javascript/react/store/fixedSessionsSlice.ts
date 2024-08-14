@@ -6,6 +6,7 @@ import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { RootState } from "./";
 
 interface Session {
   id: number;
@@ -56,26 +57,40 @@ export const fetchFixedSessions = createAsyncThunk<
   SessionsResponse,
   SessionsData,
   { rejectValue: string }
->("sessions/fetchFixedSessions", async (sessionsData, { rejectWithValue }) => {
-  try {
-    const response: AxiosResponse<SessionsResponse, Error> =
-      await oldApiClient.get(
-        API_ENDPOINTS.fetchFixedSessions(sessionsData.filters)
-      );
+>(
+  "sessions/fetchFixedSessions",
+  async (sessionsData, { rejectWithValue }) => {
+    try {
+      const response: AxiosResponse<SessionsResponse, Error> =
+        await oldApiClient.get(
+          API_ENDPOINTS.fetchFixedSessions(sessionsData.filters)
+        );
 
-    return response.data;
-  } catch (error) {
-    const message = getErrorMessage(error);
-    return rejectWithValue(message);
+      return response.data;
+    } catch (error) {
+      const message = getErrorMessage(error);
+      return rejectWithValue(message);
+    }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { fixedSessions } = getState() as RootState;
+      if (fixedSessions.status === StatusEnum.Pending) {
+        return false;
+      }
+    },
   }
-});
+);
 
-export const fixedSessionsSlice = createSlice({
+const fixedSessionsSlice = createSlice({
   name: "fixedSessions",
   initialState,
   reducers: {
     cleanSessions(state) {
-      state = initialState;
+      state.fetchableSessionsCount = 0;
+      state.sessions = [];
+      state.status = StatusEnum.Idle;
+      state.error = undefined;
     },
   },
   extraReducers: (builder) => {

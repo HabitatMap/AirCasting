@@ -5,7 +5,12 @@ import { Marker } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { mobileStreamPath } from "../../../assets/styles/colors";
+import { useAppDispatch } from "../../../store/hooks";
 import { selectHoverPosition } from "../../../store/mapSlice";
+import {
+  setMarkersLoading,
+  setTotalMarkers,
+} from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
@@ -18,6 +23,7 @@ type Props = {
 };
 
 const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
+  const dispatch = useAppDispatch();
   const map = useMap();
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
@@ -33,19 +39,10 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     return timeA - timeB;
   });
 
-  // Update markers when marker references change
   useEffect(() => {
-    const newMarkers: { [streamId: string]: Marker | null } = {};
-    sessions.forEach((session) => {
-      if (!markers[session.point.streamId]) {
-        newMarkers[session.point.streamId] = null;
-      }
-    });
-    setMarkers((prev) => ({
-      ...prev,
-      ...newMarkers,
-    }));
-  }, [sessions]);
+    dispatch(setMarkersLoading(true));
+    dispatch(setTotalMarkers(sessions.length));
+  }, [dispatch, sessions.length]);
 
   // Create and update polyline
   useEffect(() => {

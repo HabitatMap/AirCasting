@@ -1,10 +1,11 @@
 import { useCombobox } from "downshift";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+
 import checkmark from "../../assets/icons/checkmarkBlue.svg";
 import chevronLeft from "../../assets/icons/chevronLeft.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setLoading } from "../../store/mapSlice";
+import { setFetchingData } from "../../store/mapSlice";
 import { selectParameters, selectSensors } from "../../store/sensorsSlice";
 import {
   setBasicParametersModalOpen,
@@ -106,7 +107,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
         dispatch(setBasicParametersModalOpen(false));
 
         setTimeout(() => {
-          dispatch(setLoading(true));
+          dispatch(setFetchingData(true));
           setSelectedItem("");
         }, 200);
       }

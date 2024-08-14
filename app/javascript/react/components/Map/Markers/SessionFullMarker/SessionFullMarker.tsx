@@ -1,8 +1,15 @@
 import React from "react";
 
-import { SelectedDataContainer, SelectedShadowCircle } from "../SelectedMarker.style";
 import {
-    DataContainer, MarkerCircle, MarkerContainer, MarkerText, ShadowCircle
+  SelectedDataContainer,
+  SelectedShadowCircle,
+} from "../SelectedMarker.style";
+import {
+  DataContainer,
+  MarkerCircle,
+  MarkerContainer,
+  MarkerText,
+  ShadowCircle,
 } from "./SessionFullMarker.style";
 
 interface MarkerProps {
@@ -25,7 +32,7 @@ const SessionFullMarker = ({
       <MarkerContainer onClick={onClick}>
         <SelectedShadowCircle color={color} />
         <SelectedDataContainer color={color}>
-          <MarkerCircle color={color}/>
+          <MarkerCircle color={color} />
           <MarkerText> {value}</MarkerText>
         </SelectedDataContainer>
       </MarkerContainer>
@@ -33,9 +40,9 @@ const SessionFullMarker = ({
   } else {
     return (
       <MarkerContainer onClick={onClick}>
-        <ShadowCircle color={color} $shouldPulse={shouldPulse}/>
+        <ShadowCircle color={color} $shouldPulse={shouldPulse} />
         <DataContainer>
-          <MarkerCircle color={color}/>
+          <MarkerCircle color={color} />
           <MarkerText> {value}</MarkerText>
         </DataContainer>
       </MarkerContainer>

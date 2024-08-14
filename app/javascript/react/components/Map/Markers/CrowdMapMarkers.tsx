@@ -7,6 +7,7 @@ import {
   selectCrowdMapRectangles,
 } from "../../../store/crowdMapSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
@@ -78,6 +79,16 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   useEffect(() => {
     dispatch(fetchCrowdMapData(filters));
   }, [filters]);
+
+  useEffect(() => {
+    dispatch(setMarkersLoading(true));
+  }, [dispatch, crowdMapRectanglesLength]);
+
+  useEffect(() => {
+    if (rectanglesRef.current.length >= crowdMapRectanglesLength) {
+      dispatch(setMarkersLoading(false));
+    }
+  }, [dispatch, rectanglesRef.current.length, crowdMapRectanglesLength]);
 
   useEffect(() => {
     if (crowdMapRectanglesLength > 0) {
