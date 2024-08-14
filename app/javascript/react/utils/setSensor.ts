@@ -46,7 +46,10 @@ const setSensor = (
       sensorName = SENSOR_NAMES.SOUND_LEVEL;
       break;
     default:
-      sensorName = "Unknown Sensor";
+      return {
+        sensorName: getSensor(selectedParameter).sensorName,
+        unitSymbol: getSensor(selectedParameter).unitSymbol,
+      };
   }
 
   const sensor = getSensor(selectedParameter, sensorName);
