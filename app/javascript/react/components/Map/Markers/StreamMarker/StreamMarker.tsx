@@ -14,7 +14,7 @@ const StreamMarker = ({ color }: StreamMarkerProps) => {
   useEffect(() => {
     setTimeout(() => {
       dispatch(incrementLoadedMarkers());
-    }, 300);
+    }, 400);
   }, [dispatch]);
 
   return <StreamMarkerCircle color={color} />;
