@@ -11,7 +11,6 @@ import { setLoading } from "../../store/mapSlice";
 import { selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicParametersModalOpen,
-  selectCustomParametersModalOpen,
   setBasicParametersModalOpen,
   setCustomParametersModalOpen,
 } from "../../store/sessionFiltersSlice";
@@ -169,10 +168,6 @@ export const MobileDeviceParameterFilter = ({
   sessionsCount,
   onClose,
 }: MobileDeviceParameterFilterProps) => {
-  const customParametersModalOpen = useAppSelector(
-    selectCustomParametersModalOpen
-  );
-
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const { measurementType, setUrlParams, sessionType } = useMapParams();

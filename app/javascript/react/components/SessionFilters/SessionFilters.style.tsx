@@ -414,15 +414,33 @@ const CustomParameterList = styled.ul`
   list-style: none;
   display: grid;
   grid-template-columns: 1fr;
+  overflow-y: auto;
   margin-top: 1.8rem;
-  overflow: scroll;
-  height: 100%;
 
   @media (${media.desktop}) {
     grid-template-columns: 1fr 1fr;
     max-height: 40rem;
     margin-top: 0.8rem;
   }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: ${gray100};
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: ${acBlue};
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${acBlue};
+  }
+  scrollbar-width: thin;
+  scrollbar-color: ${acBlue} ${gray100};
 `;
 
 const CustomParameterItem = styled.li`

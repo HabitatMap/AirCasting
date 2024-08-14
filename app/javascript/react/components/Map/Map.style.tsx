@@ -6,6 +6,7 @@ import { media } from "../../utils/media";
 const containerStyle = {
   width: "100%",
   height: "100vh",
+  overflow: "hidden",
 };
 
 const DesktopContainer = styled.div`
