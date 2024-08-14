@@ -9,6 +9,8 @@ import usePlacesAutocomplete, {
 import { useMap } from "@vis.gl/react-google-maps";
 
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
+import { useAppDispatch } from "../../store/hooks";
+import { setFetchingData } from "../../store/mapSlice";
 import { determineZoomLevel } from "../../utils/determineZoomLevel";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { screenSizes } from "../../utils/media";
@@ -28,6 +30,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   isMapPage,
   isTimelapseView,
 }) => {
+  const dispatch = useAppDispatch();
   const [items, setItems] = useState<AutocompletePrediction[]>([]);
   const [selectedItem, setSelectedItem] =
     useState<AutocompletePrediction | null>(null);
@@ -90,6 +93,10 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
     map?.setZoom(zoomLevel);
     map?.panTo({ lat, lng });
+
+    setTimeout(() => {
+      dispatch(setFetchingData(true));
+    }, 200);
   };
 
   useEffect(() => {
