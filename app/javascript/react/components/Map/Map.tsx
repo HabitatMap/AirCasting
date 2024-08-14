@@ -450,9 +450,6 @@ const Map = () => {
     );
   };
 
-  console.log("selectorsLoading", selectorsLoading);
-  console.log("markersLoading", markersLoading);
-
   return (
     <>
       {(selectorsLoading || markersLoading) && (
