@@ -7,7 +7,6 @@ interface TimeAxisProps {
 }
 
 const TimeAxis: React.FC<TimeAxisProps> = ({ currentStep, totalSteps }) => {
-  // Calculate the percentage of the current step relative to the total steps
   const progressPercentage = (currentStep / (totalSteps - 1)) * 100;
 
   return (
@@ -22,7 +21,7 @@ const TimeAxis: React.FC<TimeAxisProps> = ({ currentStep, totalSteps }) => {
                 key={index}
                 $isActive={index <= currentStep}
                 $isCurrent={index === currentStep}
-                $position={position} // Calculate position based on index
+                $position={position}
               />
             );
           })}
