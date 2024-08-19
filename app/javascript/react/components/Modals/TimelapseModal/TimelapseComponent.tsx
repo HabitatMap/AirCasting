@@ -5,7 +5,7 @@ import type { PopupProps } from "reactjs-popup/dist/types";
 import closeTimelapseButton from "../../../assets/icons/closeTimelapseButton.svg";
 import { useAutoDismissAlert } from "../../../utils/useAutoDismissAlert";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
-import NavigatioButtons from "./NavigationButtons";
+import NavigationButtons from "./NavigationButtons";
 import TimeAxis from "./TimeAxis";
 import * as S from "./TimelapseComponent.style";
 
@@ -81,7 +81,7 @@ const TimelapseComponent: React.FC<
           {(close) => (
             <div ref={overlayRef}>
               <S.TimeAxisContainer>
-                <NavigatioButtons
+                <NavigationButtons
                   currentStep={currentStep}
                   totalSteps={totalSteps}
                   onNextStep={onNextStep}
