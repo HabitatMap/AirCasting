@@ -43,9 +43,9 @@ const UniformDistributionButton = ({
       return;
     }
 
-    if (min === 0 && max === 0) {
+    if (min === max) {
       hasErrorMessage(
-        "Can't distribute thresholds when Min and Max values are both 0."
+        "Can't distribute thresholds when Min and Max values are both the same."
       );
       console.error(
         "While using discrete uniform distribution the Min and Max values cannot both be 0"
