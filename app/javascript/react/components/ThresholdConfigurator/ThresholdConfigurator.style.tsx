@@ -119,6 +119,47 @@ const ResetButtonWrapper = styled.div`
   }
 `;
 
+const ThresholdButtonsWrapper = styled.div`
+  display: flex;
+  gap: 1.6rem;
+  justify-content: center;
+  width: fit-content;
+
+  @media ${media.tabletMax} {
+    display: none;
+  }
+  @media ${media.desktop} {
+    display: flex;
+  }
+`;
+
+const UniformDistributionButton = styled(Button)`
+  white-space: nowrap;
+  background: ${colors.gray100};
+  border: none;
+  color: ${colors.gray300};
+  width: 5.2rem;
+  text-transform: uppercase;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+
+  @media ${media.desktop} {
+    margin-left: 0;
+    height: 32px;
+  }
+
+  @media ${media.smallDesktop} {
+    margin-left: 0;
+
+    height: 32px;
+  }
+
+  @media ${media.mobile} {
+    display: none;
+  }
+`;
+
 const ThresholdsDisclaimer = styled.h3`
   font-size: 1.2rem;
   font-weight: 600;
@@ -136,7 +177,7 @@ const DesktopContainer = styled.div`
   align-items: center;
 
   @media ${media.desktop} {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr auto auto;
     grid-template-rows: auto;
     gap: 1rem;
   }
@@ -397,7 +438,7 @@ const ErrorMessage = styled.p`
   color: ${colors.red};
   position: absolute;
   background-color: ${colors.white};
-  top: 12%;
+  top: 8%;
   left: 50%;
   transform: translate(-50%, -40%);
   font-size: 1.2rem;
@@ -485,7 +526,9 @@ export {
   SliderContainer,
   StaticMobileSliderContainer,
   StyledContainer,
+  ThresholdButtonsWrapper,
   ThresholdsDisclaimer,
+  UniformDistributionButton,
   Units,
   Wrapper,
 };

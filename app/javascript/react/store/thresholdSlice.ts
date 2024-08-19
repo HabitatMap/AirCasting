@@ -26,10 +26,10 @@ export interface ThresholdState {
 export const initialState: ThresholdState = {
   defaultValues: {
     min: 0,
-    low: 0,
-    middle: 0,
-    high: 0,
-    max: 0,
+    low: 9,
+    middle: 35,
+    high: 55,
+    max: 150,
   },
   status: StatusEnum.Idle,
   sliderWidth: 0,
@@ -38,7 +38,7 @@ export const initialState: ThresholdState = {
     middle: 0,
     high: 0,
   },
-  errorMessage: '',
+  errorMessage: "",
 };
 
 export const fetchThresholds = createAsyncThunk<
@@ -104,7 +104,7 @@ export const thresholdSlice = createSlice({
       state.thumbPositions = action.payload;
     },
     clearErrorMessage: (state) => {
-      state.errorMessage = '';
+      state.errorMessage = "";
     },
   },
 });
@@ -115,7 +115,7 @@ export const {
   setUserThresholdValues,
   updateSliderWidth,
   updateThumbPositions,
-  clearErrorMessage
+  clearErrorMessage,
 } = thresholdSlice.actions;
 
 export default thresholdSlice.reducer;
