@@ -138,6 +138,37 @@ const AxisContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+`;
+
+const ProgressBar = styled.div`
+  width: 100%;
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  position: relative;
+  margin-bottom: 8px;
+`;
+
+const ProgressFiller = styled.div`
+  height: 100%;
+  background-color: #76c7c0;
+  border-radius: 4px;
+`;
+
+const StepMarkers = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+const StepMarker = styled.div<{ isActive: boolean; isCurrent: boolean }>`
+  width: 10px;
+  height: 10px;
+  background-color: ${({ isActive, isCurrent }) =>
+    isCurrent ? "#FF6347" : isActive ? "#76c7c0" : "#e0e0e0"};
+  border-radius: 50%;
+  position: relative;
+  transform: translateX(-50%);
 `;
 
 export {
@@ -146,7 +177,11 @@ export {
   CancelButtonX,
   NavigationButton,
   NavigationButtonsContainer,
+  ProgressBar,
+  ProgressFiller,
   SmallPopup,
+  StepMarker,
+  StepMarkers,
   TimeAxisContainer,
   TimelapseModal,
   Wrapper,

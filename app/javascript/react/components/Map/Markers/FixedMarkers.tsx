@@ -38,10 +38,12 @@ type Props = {
   onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
+  onClustersChange: (clusters: Cluster[]) => void; // Add this prop to handle cluster changes
 };
 
 interface CustomMarkerClusterer extends MarkerClusterer {
   markerStreamIdMap?: Map<Marker, string>;
+  getClusters?: () => Cluster[];
 }
 
 const FixedMarkers = ({
@@ -49,6 +51,7 @@ const FixedMarkers = ({
   onMarkerClick,
   selectedStreamId,
   pulsatingSessionId,
+  onClustersChange, // Add this prop to handle cluster changes
 }: Props) => {
   const ZOOM_FOR_SELECTED_SESSION = 15;
 
@@ -70,6 +73,7 @@ const FixedMarkers = ({
   const markerRefs = useRef<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
+
   const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
 
   const [clusterPosition, setClusterPosition] = useState<{
