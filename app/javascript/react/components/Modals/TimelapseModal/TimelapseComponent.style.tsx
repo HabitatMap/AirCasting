@@ -1,7 +1,13 @@
 import Popup from "reactjs-popup";
 import styled from "styled-components";
 
-import { gray400, gray900, white } from "../../../assets/styles/colors";
+import {
+  acBlue,
+  gray400,
+  gray500,
+  gray900,
+  white,
+} from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
 
 const TimelapseModal = styled(Popup)`
@@ -143,32 +149,36 @@ const AxisContainer = styled.div`
 
 const ProgressBar = styled.div`
   width: 100%;
-  height: 8px;
-  background-color: #e0e0e0;
-  border-radius: 4px;
+  height: 2px;
+  background-color: ${gray500};
   position: relative;
-  margin-bottom: 8px;
 `;
 
 const ProgressFiller = styled.div`
   height: 100%;
-  background-color: #76c7c0;
-  border-radius: 4px;
+  background-color: ${acBlue};
 `;
 
 const StepMarkers = styled.div`
-  display: flex;
-  justify-content: space-between;
+  position: absolute;
+  top: -6px;
+  left: 0;
+  right: 0;
+  height: 10px;
   width: 100%;
 `;
-const StepMarker = styled.div<{ isActive: boolean; isCurrent: boolean }>`
-  width: 10px;
-  height: 10px;
-  background-color: ${({ isActive, isCurrent }) =>
-    isCurrent ? "#FF6347" : isActive ? "#76c7c0" : "#e0e0e0"};
-  border-radius: 50%;
-  position: relative;
-  transform: translateX(-50%);
+const StepMarker = styled.div<{
+  $isActive: boolean;
+  $isCurrent: boolean;
+  $position: number;
+}>`
+  left: ${({ $position }) => `${$position}%`};
+  position: absolute;
+  width: 0.1rem;
+  height: 1.6rem;
+  background-color: ${({ $isActive }) => ($isActive ? acBlue : gray500)};
+  transform: scale(1);
+  transition: transform 0.2s ease-in-out;
 `;
 
 export {

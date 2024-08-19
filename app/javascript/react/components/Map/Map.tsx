@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
-import { Cluster } from "@googlemaps/markerclusterer";
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
@@ -49,14 +48,20 @@ import {
   selectDefaultThresholds,
   setUserThresholdValues,
 } from "../../store/thresholdSlice";
+import {
+  fetchTimelapseData,
+  selectCurrentTimestamp,
+  selectTimelapseData,
+  setCurrentTimestamp,
+} from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
-import { TimelapseCluster } from "../../types/timelapse";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
+import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
@@ -112,10 +117,6 @@ const Map = () => {
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
     null
   );
-  const [timelapseData, setTimelapseData] = useState<TimelapseCluster | null>(
-    null
-  );
-  const [currentTimelapseStep, setCurrentTimelapseStep] = useState(0);
 
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
@@ -330,27 +331,6 @@ const Map = () => {
     ]
   );
 
-  // const loadTimelapseData = useCallback(async () => {
-  //   const clusters = {
-  //     "0": [101, 102], // Example stream IDs
-  //     "1": [201, 202, 203],
-  //   };
-  //   const data = await dispatch(
-  //     fetchTimelapseData({ clusters, timePeriod: 1 })
-  //   ).unwrap();
-  //   // console.log(clusters, "clusters");
-  //   // console.log(data, "data");
-  //   // console.log;
-  //   setTimelapseData(data);
-  //   setCurrentTimelapseStep(Object.keys(data).length - 1); // Start at the most recent data
-  // }, [dispatch]);
-
-  // useEffect(() => {
-  //   if (isTimelapseView) {
-  //     loadTimelapseData();
-  //   }
-  // }, [isTimelapseView, loadTimelapseData]);
-
   // Handlers;
   const handleMarkerClick = (
     selectedStreamId: number | null,
@@ -476,12 +456,49 @@ const Map = () => {
     );
   };
 
-  const [visibleClusters, setVisibleClusters] = useState<Cluster[]>([]);
+  const [currentTimelapseStep, setCurrentTimelapseStep] = useState(0);
+  useEffect(() => {
+    if (currentUserSettings === UserSettings.TimelapseView) {
+      const streamIds = sessionsPoints.map((session) => session.point.streamId);
+      dispatch(fetchTimelapseData({ streamIds, timePeriod: 1 }));
+    }
+  }, [currentUserSettings, sessionsPoints, dispatch]);
 
-  const handleClustersChange = useCallback((clusters: Cluster[]) => {
-    // Update the state with visible clusters
-    setVisibleClusters(clusters);
-  }, []);
+  const timelapseData = useAppSelector(selectTimelapseData);
+  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
+  const handleNextTimelapseStep = () => {
+    const timestamps = Object.keys(timelapseData);
+    if (currentTimelapseStep < timestamps.length - 1) {
+      setCurrentTimelapseStep((prevStep) => prevStep + 1);
+      dispatch(setCurrentTimestamp(timestamps[currentTimelapseStep + 1]));
+    }
+  };
+
+  const handlePreviousTimelapseStep = () => {
+    const timestamps = Object.keys(timelapseData);
+    if (currentTimelapseStep > 0) {
+      setCurrentTimelapseStep((prevStep) => prevStep - 1);
+      dispatch(setCurrentTimestamp(timestamps[currentTimelapseStep - 1]));
+    }
+  };
+
+  const renderTimelapseMarkers = () => {
+    if (
+      currentUserSettings === UserSettings.TimelapseView &&
+      currentTimestamp &&
+      timelapseData[currentTimestamp]
+    ) {
+      return (
+        <FixedMarkers
+          sessions={timelapseData[currentTimestamp]}
+          onMarkerClick={handleMarkerClick}
+          selectedStreamId={streamId}
+          pulsatingSessionId={pulsatingSessionId}
+        />
+      );
+    }
+    return null;
+  };
 
   return (
     <>
@@ -503,15 +520,25 @@ const Map = () => {
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
       >
-        {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
+        {isTimelapseView
+          ? renderTimelapseMarkers()
+          : fixedSessionsStatusFulfilled &&
+            fixedSessionTypeSelected && (
+              <FixedMarkers
+                sessions={sessionsPoints}
+                onMarkerClick={handleMarkerClick}
+                selectedStreamId={streamId}
+                pulsatingSessionId={pulsatingSessionId}
+              />
+            )}
+        {/* {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
           <FixedMarkers
             sessions={sessionsPoints}
             onMarkerClick={handleMarkerClick}
             selectedStreamId={streamId}
             pulsatingSessionId={pulsatingSessionId}
-            onClustersChange={handleClustersChange} // Pass the callback to FixedMarkers
           />
-        )}
+        )} */}
         {!fixedSessionTypeSelected &&
           ([UserSettings.CrowdMapView].includes(currentUserSettings) ||
           ([UserSettings.CrowdMapView].includes(previousUserSettings) &&
@@ -535,26 +562,6 @@ const Map = () => {
             unitSymbol={unitSymbol}
           />
         )}
-
-        {/* Timelapse Markers */}
-        {isTimelapseView && timelapseData && (
-          <>
-            {Object.entries(timelapseData).map(([clusterId, data]) =>
-              data.map((entry, index) =>
-                index === currentTimelapseStep ? (
-                  <FixedMarkers
-                    key={`${clusterId}-${index}`}
-                    sessions={entry.sessions}
-                    onMarkerClick={handleMarkerClick}
-                    selectedStreamId={streamId}
-                    pulsatingSessionId={pulsatingSessionId}
-                    onClustersChange={handleClustersChange} // Pass the callback to FixedMarkers
-                  />
-                ) : null
-              )
-            )}
-          </>
-        )}
       </GoogleMap>
       {/* Show ThresholdsConfigurator only on desktop, if it's mobile, it should only be shown when modal is open */}
       {(!isMobile ||
@@ -576,23 +583,17 @@ const Map = () => {
           streamId={streamId}
         />
       )}
-      {/* {currentUserSettings === UserSettings.TimelapseView && (
+      {currentUserSettings === UserSettings.TimelapseView && (
         <TimelapseComponent
           onClose={() => {
             goToUserSettings(previousUserSettings);
           }}
           currentStep={currentTimelapseStep}
-          totalSteps={timelapseData ? Object.keys(timelapseData).length : 0}
-          onNextStep={() =>
-            setCurrentTimelapseStep((prev) =>
-              prev < Object.keys(timelapseData).length - 1 ? prev + 1 : prev
-            )
-          }
-          onPreviousStep={() =>
-            setCurrentTimelapseStep((prev) => (prev > 0 ? prev - 1 : prev))
-          }
+          totalSteps={Object.keys(timelapseData).length}
+          onNextStep={handleNextTimelapseStep}
+          onPreviousStep={handlePreviousTimelapseStep}
         />
-      )} */}
+      )}
       <S.MobileContainer>
         <S.MobileButtons $isTimelapseView={isTimelapseView}>
           <SectionButton
