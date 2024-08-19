@@ -155,16 +155,17 @@ const ProgressBar = styled.div`
 `;
 
 const ProgressFiller = styled.div`
-  height: 100%;
+  height: 4px;
   background-color: ${acBlue};
+  margin-top: -0.1rem;
 `;
 
 const StepMarkers = styled.div`
   position: absolute;
-  top: -6px;
+  top: -7px;
   left: 0;
   right: 0;
-  height: 10px;
+  height: 1rem;
   width: 100%;
 `;
 const StepMarker = styled.div<{
